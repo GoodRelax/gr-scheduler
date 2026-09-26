@@ -98,6 +98,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -233,7 +234,7 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
 const SETTINGS = settingsOf()
 
 /** 表 T-040 の EZ-2 -- the wait, read from the generated defaults, never typed. */
-const WAIT_MS = SETTINGS_DEFAULTS['iconHintDelayMs'] as number
+const WAIT_MS = SETTINGS_CONSTANTS.iconHintDelayMs
 
 /** A row of 表 T-109 used as an `IconId`: IC-7 コマンドパレットを出す・しまう. */
 const ICON: IconId = 'IC-7'
@@ -269,7 +270,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
 
 const ROOT: ScreenSession = {
   ...emptyScreenSession,
-  screen: { ...emptyScreenSession.screen, language: 'ja' },
+  screen: { ...emptyScreenSession.screen, screenLanguage: 'ja', helpLanguage: 'ja' },
 }
 
 const rootWithTooltipDismissed = (dismissed: boolean): ScreenSession => ({

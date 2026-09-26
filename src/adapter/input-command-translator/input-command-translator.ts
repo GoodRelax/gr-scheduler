@@ -66,10 +66,6 @@ import {
 } from './armed-placement'
 import { displayScaleStep } from './display-scale-steps'
 import {
-  commandFromDualCursorEntry,
-  commandFromDualCursorPress,
-} from './dual-cursor-input'
-import {
   commandFromPanelDivider,
   commandFromScrollbar,
   paletteFollow,
@@ -189,10 +185,6 @@ export type InPlaceTarget =
   | { readonly kind: 'commentBoxText'; readonly id: string }
   | { readonly kind: 'highlightBoxStroke'; readonly id: string }
 
-export type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
-
-type ClearDualCursor = Extract<DocumentCommand, { readonly kind: 'clearDualCursor' }>
-
 export type SpentEntranceSituation =
   | 'noFoldedRowBelow'
   | 'noUnfoldedRowBelow'
@@ -270,13 +262,6 @@ export type InputAction =
   | { readonly kind: 'togglePaletteMinimised' }
   | { readonly kind: 'toggleInteractionRecord' }
   | { readonly kind: 'toggleFullScreen' }
-  | {
-      readonly kind: 'setDualCursorFollowing'
-      readonly following: DualCursorSide | null
-      readonly placed: SetDualCursor | ClearDualCursor | null
-      // see DC-9
-      readonly guideCursor?: PressedGuideCursor
-    }
 
 export interface TranslatedInput {
   readonly action: InputAction | null
@@ -753,9 +738,7 @@ function visibleElementOfEntry(entry: string): VisibleElement | null {
     : null
 }
 
-type GuideCursorMode = Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode']
-
-type PressedGuideCursor = Exclude<GuideCursorMode, 'none'>
+type PressedGuideCursor = Exclude<ScreenValues['guideCursorMode'], 'none'>
 
 const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, PressedGuideCursor>> = {
   'IC-47': 'crosshair',
@@ -763,7 +746,7 @@ const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, PressedGuideCursor>> =
 }
 
 /** @purity pure */
-function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null {
+export function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null {
   return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
     ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as PressedGuideCursor)
     : null
@@ -931,7 +914,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
       return panTo(context, -by.dx, -by.dy)
     }
     case 'PTD-2':
-      return commandFromDualCursorPress(press, context)
+      return CONSUMED_ELSEWHERE
     case 'PTD-3':
       return context.screen.armModeState.kind === 'dependencyArmed'
         ? commandFromDependencyDrag(input, press, context)
@@ -1037,10 +1020,6 @@ function commandFromEntry(
     case ENTRY.planDisplay:
     case ENTRY.actualDisplay:
       return commandFromVisibleElementEntry(entry, context)
-    case ENTRY.themePreference: {
-      const isDarkNow = context.document.documentSettings.themePreference === 'dark'
-      return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
-    }
     // see FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
@@ -1065,11 +1044,6 @@ function commandFromEntry(
     }
     case ENTRY.statusLine:
       return changed(statusLineWrites(context))
-    case ENTRY.dualCursor:
-      return commandFromDualCursorEntry(press, context)
-    case ENTRY.guideCursorCrosshair:
-    case ENTRY.guideCursorSingleVertical:
-      return commandFromGuideCursorEntry(entry, context)
     case ENTRY.paletteMinimise:
       return acted({ kind: 'togglePaletteMinimised' })
     case ENTRY.interactionRecord:
@@ -1137,18 +1111,6 @@ function commandFromVisibleElementEntry(entry: string, context: InputContext): T
   // TRAP: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
   const isVisibleNow = context.document.documentSettings[element]
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
-}
-
-// see FR-048, CM-59, DC-9
-/** @purity pure */
-function commandFromGuideCursorEntry(entry: string, context: InputContext): TranslatedInput {
-  const mode = guideCursorModeOfEntry(entry)
-  if (mode === null) return CONSUMED_ELSEWHERE
-  if (context.dualCursorFollowing !== null) {
-    return acted({ kind: 'setDualCursorFollowing', following: null, placed: null, guideCursor: mode })
-  }
-  const standing = context.document.documentSettings.guideCursorMode
-  return changed([{ kind: 'setGuideCursorMode', mode: standing === mode ? 'none' : mode }])
 }
 
 // see IC-63, IC-64, IC-65

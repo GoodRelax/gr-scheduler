@@ -531,6 +531,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `followingTravel` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#followingTravel` | -- | function followingTravel( at: PointerInput, press: PointerPress, ): { readonly dx: number; readonly dy: number } |
 | `GrabRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#GrabRow` | -- | type GrabRow = GrabArea |
 | `grabRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#grabRowOf` | -- | function grabRowOf(hit: Hit): GrabRow |
+| `guideCursorModeOfEntry` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#guideCursorModeOfEntry` | -- | function guideCursorModeOfEntry(entry: string): PressedGuideCursor \| null |
 | `hasDraggedPastThreshold` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#hasDraggedPastThreshold` | -- | function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean |
 | `HumanInput` | entry | type | `src/adapter/input-command-translator/input-source.ts#HumanInput` | -- | type HumanInput = PointerInput \| WheelInput \| KeyInput |
 | `InPlaceTarget` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#InPlaceTarget` | -- | type InPlaceTarget = \| { readonly kind: 'documentTitle' } \| { readonly kind: 'taskName'; readonly uid: number } \| { readonly kind: 'assignee'; readonly uid: ... |
@@ -580,7 +581,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollingRowsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollingRowsOf` | -- | function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] |
 | `selectionFromInput` | entry | function | `src/adapter/input-command-translator/selection-input.ts#selectionFromInput` | PI-18 | 規則は 表 T-023c。 |
 | `serialOfDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#serialOfDay` | -- | function serialOfDay(day: CalendarDay): number |
-| `SetDualCursor` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SetDualCursor` | -- | type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }> |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
 | `taskGroupRankById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `taskShapeKindOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskShapeKindOf` | -- | function taskShapeKindOf(name: string): TaskShapeKind \| null |
@@ -592,11 +592,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
 | `commandFromDependencyDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromDependencyDrag` | -- | function commandFromDependencyDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `displayScaleStep` | file only | function | `src/adapter/input-command-translator/display-scale-steps.ts#displayScaleStep` | -- | function displayScaleStep(context: InputContext, towards: 1 \| -1): TranslatedInput |
-| `commandFromDualCursorEntry` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#commandFromDualCursorEntry` | -- | function commandFromDualCursorEntry( press: PointerPress, context: InputContext, ): TranslatedInput |
-| `commandFromDualCursorPress` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#commandFromDualCursorPress` | -- | function commandFromDualCursorPress( press: PointerPress, context: InputContext, ): TranslatedInput |
+| `screenEventFromDualCursorEntry` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorEntry` | -- | function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent |
+| `screenEventFromDualCursorPress` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorPress` | -- | function screenEventFromDualCursorPress( press: PointerPress, context: InputContext, ): ScreenValuesEvent \| null |
 | `commandFromPanelDivider` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#commandFromPanelDivider` | -- | function commandFromPanelDivider( panel: NonNullable<ScreenPart['dividerPanel']>, release: PointerInput, press: PointerPress, context: InputContext, ): Trans... |
 | `commandFromScrollbar` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#commandFromScrollbar` | -- | function commandFromScrollbar( axis: ScrollbarAxis, release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `paletteFollow` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#paletteFollow` | -- | function paletteFollow(input: PointerInput, context: InputContext): TranslatedInput |
+| `screenEventFromPanelDivider` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#screenEventFromPanelDivider` | -- | function screenEventFromPanelDivider( release: PointerInput, press: PointerPress, context: InputContext, ): ScreenValuesEvent \| null |
 | `scrollbarFollow` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#scrollbarFollow` | -- | function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput |
 | `commandFromGrab` | file only | function | `src/adapter/input-command-translator/item-grab.ts#commandFromGrab` | -- | function commandFromGrab( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/row-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldGroupId: string, ): TranslatedInput |
@@ -651,13 +652,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
 | `typefaceAttribute` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#typefaceAttribute` | -- | function typefaceAttribute(): string |
+| `ViewerValues` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ViewerValues` | -- | type ViewerValues = Pick<ScreenValues, 'themePreference' \| 'guideCursorMode'> |
 | `Watermark` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#Watermark` | -- | interface Watermark |
 | `WATERMARK_MARKS` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#WATERMARK_MARKS` | -- | const WATERMARK_MARKS: |
 | `bandWidthOf` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#bandWidthOf` | -- | function bandWidthOf(input: GridInput): number |
 | `GridInput` | file only | interface | `src/adapter/svg-renderer/schedule-grid.ts#GridInput` | -- | interface GridInput |
 | `GridParts` | file only | interface | `src/adapter/svg-renderer/schedule-grid.ts#GridParts` | -- | interface GridParts |
 | `gridParts` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#gridParts` | -- | function gridParts(input: GridInput): GridParts |
-| `rulerSvg` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerSvg` | -- | function rulerSvg( layout: ScheduleLayout, settings: DocumentSettings, band: ScreenRect, weekStart: number, ground: string, ink: string, rule: string, weekda... |
+| `rulerSvg` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerSvg` | -- | function rulerSvg( layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, weekStart: number, ground: string, ink: string, rule: string, weekdayWo... |
 | `OverlayParts` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlayParts` | -- | interface OverlayParts |
 | `overlayParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#overlayParts` | -- | function overlayParts(input: OverlaysInput): OverlayParts |
 | `OverlaysInput` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlaysInput` | -- | interface OverlaysInput |
@@ -741,7 +743,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `exportPng` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportPng` | PI-21 | `semi-pure-b`。 |
 | `ExportScene` | entry | interface | `src/adapter/image-exporter/image-exporter.ts#ExportScene` | -- | interface ExportScene |
 | `exportSvg` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportSvg` | PI-21 | 表 T-076 が「描く」とした UI パーツを組み立てて返す。 |
-| `ImageExport` | entry | type | `src/adapter/image-exporter/image-exporter.ts#ImageExport` | -- | type ImageExport = \| ({ readonly ok: true } & SvgPicture & { readonly png: Rastering }) \| { readonly ok: false; readonly fault: ImageExportFault } // see EP-... |
+| `ImageExport` | entry | type | `src/adapter/image-exporter/image-exporter.ts#ImageExport` | -- | type ImageExport = \| ({ readonly ok: true } & SvgPicture & { readonly png: Rastering }) \| { readonly ok: false; readonly fault: ImageExportFault } /** @purit... |
 | `ImageExportFault` | entry | interface | `src/adapter/image-exporter/image-exporter.ts#ImageExportFault` | -- | interface ImageExportFault |
 | `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/adapter/image-exporter/image-exporter.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
 | `RasterFault` | entry | interface | `src/adapter/image-exporter/rasterizer.ts#RasterFault` | -- | interface RasterFault |
@@ -1104,9 +1106,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ROW_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/row-title-panel.ts#NOT_STORED_ROW_CONTROL_SIZES` | -- | const NOT_STORED_ROW_CONTROL_SIZES: |
 | `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
 | `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
-| `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
+| `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
-| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): re... |
+| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): r... |
 
 ## DomScreenSurface (PI-38, `src/framework/dom-screen-surface/dom-screen-surface.ts`)
 
@@ -1341,4 +1343,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 658 name(s) leave through a public entry (199 of them published by table T-064), 483 more are exported by a file and not by its entry.
+Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 484 more are exported by a file and not by its entry.

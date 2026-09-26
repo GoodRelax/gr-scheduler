@@ -31,10 +31,13 @@ import {
   dependencyLinkParts,
   taskFigureParts,
 } from './schedule-task-figures'
+import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
 
 export type { SvgSurface } from './svg-surface'
 
 export type SchedulePicture = 'screen' | 'export'
+
+export type ViewerValues = Pick<ScreenValues, 'themePreference' | 'guideCursorMode'>
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
@@ -385,11 +388,6 @@ export function swatchOf(
 
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
-/** @purity pure */
-function isDarkTheme(settings: DocumentSettings): boolean {
-  return settings.themePreference === 'dark'
-}
-
 // see FR-039, S-246
 /** @purity pure */
 export function typefaceAttribute(): string {
@@ -446,6 +444,7 @@ export function svgFromSchedule(
   selection: Selection,
   // TRAP: no default: a forgotten export would draw FR-043's dummies into a reader's file (EP-14).
   picture: SchedulePicture,
+  viewer: ViewerValues,
   follow: DualCursorFollow | null = null,
   weekdayWords: readonly string[] = [],
   pointer: Point | null = null,
@@ -457,7 +456,7 @@ export function svgFromSchedule(
   const settings = drawnSettingsOf(storedSettings)
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
-  const dark = isDarkTheme(settings)
+  const dark = viewer.themePreference === 'dark'
   const themed = themedColours(hue, dark, monochrome)
   const chosen: ChosenColour = (stored, form) => chosenColourOf(stored, form, dark, monochrome, themed)
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
@@ -510,6 +509,7 @@ export function svgFromSchedule(
     areaBottom,
     scrollTop,
     settings,
+    guideCursorMode: viewer.guideCursorMode,
     picture,
     drawsOperationState,
     monochrome,

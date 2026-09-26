@@ -509,7 +509,7 @@ const DEFAULT_DISPLAY_LANGUAGE: DisplayLanguage = 'en'
 // see PI-37, T-280
 /** @purity pure */
 export function displayLanguageOf(session: ScreenSession): DisplayLanguage {
-  return session.screen.language ?? DEFAULT_DISPLAY_LANGUAGE
+  return session.screen.screenLanguage ?? DEFAULT_DISPLAY_LANGUAGE
 }
 
 // see PI-37, SF-5

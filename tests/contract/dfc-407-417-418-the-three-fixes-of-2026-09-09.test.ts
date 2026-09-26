@@ -38,6 +38,7 @@ import { describe, expect, it } from 'vitest'
 import { specTable } from './spec-table'
 import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -172,7 +173,7 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
   }) as unknown as Schedule
 
 /** BO-1 of table T-077: what the environment settles, not the document. */
-const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8 }
+const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
@@ -193,10 +194,10 @@ const draw = (schedule: Schedule, over: Readonly<Record<string, unknown>> = {}):
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   return {
     geometry,
-    svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen'),
+    svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen', { themePreference: 'light', guideCursorMode: 'none' }),
   }
 }
 
@@ -245,24 +246,15 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
     )
 
   it('every stroke of the marker follows the value, and none is left behind', () => {
-    // Rule 04 section 2: 「原稿から値が届く仕組みの受け入れ試験は『原稿の値を 1 つ
-    // 変えると試験が落ちるか』とする」. So the case turns S-24 and watches.
-    const turned = 3.7
+    // S-24 is a constant (SETTINGS_CONSTANTS); a document cannot turn it, so the case reads it.
+    const turned = SETTINGS_CONSTANTS.markerStroke
     // see S-63
-    const drawn = markerStrokeWidths(draw(started(), { markerStroke: turned, progressMarkerVisible: true }).svg)
+    const drawn = markerStrokeWidths(draw(started(), { progressMarkerVisible: true }).svg)
     expect(drawn.length).toBeGreaterThan(0)
     for (const width of drawn) {
       expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(
         drawnOnTheGrid(turned),
       )
-    }
-  })
-
-  it('the same figure follows a second value, so no number of its own is left', () => {
-    const drawn = markerStrokeWidths(draw(started(), { markerStroke: 0.8, progressMarkerVisible: true }).svg)
-    expect(drawn.length).toBeGreaterThan(0)
-    for (const width of drawn) {
-      expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(drawnOnTheGrid(0.8))
     }
   })
 })

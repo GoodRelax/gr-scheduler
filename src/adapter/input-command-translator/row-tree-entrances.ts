@@ -3,6 +3,7 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   groupDepthLimit,
@@ -99,7 +100,7 @@ export function commandFromRowEntry(
 
   if (entry === ENTRY.rowAddChild) {
     const parentDepth = rowDepthOfGroup(context, rowGroupId)
-    if (parentDepth >= context.document.documentSettings.maxGroupDepth) {
+    if (parentDepth >= SETTINGS_CONSTANTS.maxGroupDepth) {
       return nothingToDo('rowIsAtTheDeepestLevel')
     }
     return rowStoodUp(context, rowGroupId, parentDepth + 1)
@@ -220,7 +221,8 @@ export function rowStoodUp(
   depth: number,
 ): TranslatedInput {
   const settings = context.document.documentSettings
-  const opensTier = depth > groupDepthLimit(settings)
+  const drawn = drawnSettingsOf(settings)
+  const opensTier = depth > groupDepthLimit(drawn)
   const newGroupId = context.newGroupId
   // TRAP: keep the tree state writes in the row's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
@@ -231,7 +233,7 @@ export function rowStoodUp(
               kind: 'setZoom',
               zoomX: settings.zoomX,
               // TRAP: only `groupDepthThresholdOf`; any other route can differ by one ulp from `groupDepthLimit`.
-              zoomY: groupDepthThresholdOf(depth, settings),
+              zoomY: groupDepthThresholdOf(depth, drawn),
             } as const,
           ]
         : [],

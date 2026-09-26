@@ -227,6 +227,7 @@ const ENV: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const ZOOM_STEP = 3
@@ -333,7 +334,7 @@ const ROOT: ScreenSession = {
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: 'ja',
+    screenLanguage: 'ja', helpLanguage: 'ja',
     propertiesPanelContentState: {
       kind: 'selectionDisplayed',
       subject: { selection: emptySelection(), groupIds: [] },
@@ -383,6 +384,7 @@ const contextFor = (schedule: Schedule): InputContext => {
     layout,
     regions,
     emptySelection(),
+    null,
   )
   return {
     document: documentOf(schedule),

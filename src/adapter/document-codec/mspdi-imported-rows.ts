@@ -38,7 +38,7 @@ export function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): Im
       treeState: 'auto',
       editGroup: null,
       color: null,
-      height: null,
+      minHeight: null,
     })
   }
 

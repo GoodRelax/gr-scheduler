@@ -3,6 +3,7 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { PointerInput } from './input-source'
@@ -72,7 +73,7 @@ function rowGrabLandingOf(
   const held = byId.get(heldGroupId)
   if (held === undefined) return null
 
-  const cap = context.document.documentSettings.maxGroupDepth
+  const cap = SETTINGS_CONSTANTS.maxGroupDepth
   const height = rowGrabSubtreeHeight(rows, heldGroupId)
   const startSiblings = rows
     .filter((one) => one.parentId === held.parentId)
@@ -239,8 +240,7 @@ function rowGrabPositionOf(
 // ratio, so a stored step would leave the row behind the hand by that ratio every step.
 /** @purity pure */
 function drawnRowIndentOf(context: InputContext): number {
-  const settings = context.document.documentSettings
-  return settings.rowTitleIndent * displayRatioOf(settings)
+  return SETTINGS_CONSTANTS.rowTitleIndent * displayRatioOf(context.document.documentSettings)
 }
 
 // see HF-15, S-37

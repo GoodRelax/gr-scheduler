@@ -4,6 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type {
   Assignment,
   Calendar,
@@ -344,7 +345,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
   const tasksRead = tasksFromRoot(root, run)
   const resourcesRead = resourcesFromRoot(root, run)
   const assignmentsRead = assignmentsFromRoot(root, run)
-  const rows = rowsFromTasks(tasksRead.tasks, current.documentSettings.maxGroupDepth)
+  const rows = rowsFromTasks(tasksRead.tasks, SETTINGS_CONSTANTS.maxGroupDepth)
 
   const project = projectFromRoot(root, current, [
     ...calendarsRead.carriedRows,

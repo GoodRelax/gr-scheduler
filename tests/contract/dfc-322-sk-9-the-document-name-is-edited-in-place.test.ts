@@ -220,6 +220,7 @@ const ENV: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
@@ -235,6 +236,7 @@ const contextFor = (document: Document, part: Partial<InputContext> = {}): Input
       layout,
       REGIONS,
       emptySelection(),
+      null,
     ),
     regions: REGIONS,
     screen: emptyScreenSession.screen,

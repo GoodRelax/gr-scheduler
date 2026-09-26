@@ -3,7 +3,7 @@
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
   type CalendarDay,
@@ -28,7 +28,7 @@ import {
 
 export interface GridInput {
   readonly schedule: Schedule
-  readonly settings: DocumentSettings
+  readonly settings: DrawnSettings
   readonly layout: ScheduleLayout
   readonly area: ScreenRect
   readonly areaBottom: number
@@ -125,7 +125,7 @@ function ticksOfRow(
 /** @purity pure */
 export function rulerSvg(
   layout: ScheduleLayout,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   band: ScreenRect,
   weekStart: number,
   ground: string,

@@ -6,7 +6,10 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import type {
+  ScreenSession,
+  ScreenValues,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
   CommandPalette,
@@ -113,7 +116,7 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
 }
 
 // see FR-048, T-237
-const GUIDE_CURSOR_MODE_BY_ROW: Readonly<Record<string, DocumentSettings['guideCursorMode']>> = {
+const GUIDE_CURSOR_MODE_BY_ROW: Readonly<Record<string, ScreenValues['guideCursorMode']>> = {
   'IC-47': 'crosshair',
   'IC-48': 'single-vertical',
 }
@@ -125,6 +128,7 @@ const STATUS_DATE_ROW: IconId = 'IC-44'
 // see FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
+  readonly guideCursorMode: ScreenValues['guideCursorMode']
   readonly isDualCursorOn: boolean
   readonly isStatusDateDrawn: boolean
 }
@@ -134,7 +138,7 @@ interface EntranceFacts {
 function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
   const mode = GUIDE_CURSOR_MODE_BY_ROW[row.rowId]
-  return mode !== undefined && facts.settings.guideCursorMode === mode
+  return mode !== undefined && facts.guideCursorMode === mode
 }
 
 // see FR-046, FR-049, T-237
@@ -154,6 +158,7 @@ function entranceFactsOf(
 ): EntranceFacts {
   return {
     settings,
+    guideCursorMode: session.screen.guideCursorMode,
     isDualCursorOn: session.screen.dualCursorModeState.kind !== 'off',
     isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
   }

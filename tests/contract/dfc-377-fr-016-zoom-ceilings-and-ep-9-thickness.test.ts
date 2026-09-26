@@ -85,7 +85,10 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  SETTINGS_DEFAULTS,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
 import { rowPlacesAtZoomY } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -208,33 +211,20 @@ describe('DFC-377 -- the manuscript these cases are driven by', () => {
 // entries a screen and an export actually go through, and check the number
 // that comes back is the same published constant, never a second one.
 
-/** The dotted keys SETTINGS_DEFAULTS carries as flattened names, as objects --
- * the same idiom tests/unit/fr-055-fit-reaches-deep-tiers.test.ts uses. */
-const NESTED = {
-  exportCanvas: { width: 1200, height: 900 },
-  fontScaleSizes: { L: 16, M: 14, S: 12 },
-  planActualGuidePattern: { off: 2, on: 2 },
-  shapeHeightOf: {
-    arrow: SETTINGS_DEFAULTS['shapeHeightOf.arrow'],
-    chevron: SETTINGS_DEFAULTS['shapeHeightOf.chevron'],
-    endpointSpan: SETTINGS_DEFAULTS['shapeHeightOf.endpointSpan'],
-    milestone: SETTINGS_DEFAULTS['shapeHeightOf.milestone'],
-    rectangle: SETTINGS_DEFAULTS['shapeHeightOf.rectangle'],
-  },
-}
-
+// The nested keys (exportCanvas, fontScaleSizes, planActualGuidePattern, shapeHeightOf)
+// are constants now (SETTINGS_CONSTANTS); a document carries none of them.
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
     ...SETTINGS_DEFAULTS,
-    ...NESTED,
     ...part,
   }) as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = {
-  width: 1200, // matches settingsOf()'s exportCanvas.width, so the export ratio is 1
+  width: SETTINGS_CONSTANTS.exportCanvas.width, // S-81's width, so the export ratio is 1
   height: 800,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const SETTINGS = settingsOf()
@@ -242,7 +232,7 @@ const REGIONS: ScreenRegions = regionsFromScreen(ENV, SETTINGS)
 
 const ROOT: ScreenSession = {
   ...emptyScreenSession,
-  screen: { ...emptyScreenSession.screen, language: 'ja' },
+  screen: { ...emptyScreenSession.screen, screenLanguage: 'ja', helpLanguage: 'ja' },
 }
 
 const READINGS: ScreenViewReadings = {
@@ -349,7 +339,7 @@ function rectWidthsOf(svg: string): number[] {
 describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読むこと」', () => {
   it('the export draws the divider line at the width the screen frame carries, not a re-derived one', () => {
     // The scene's ratio is exportCanvas.width / screenWidth; `ENV.width` above
-    // was chosen to match `SETTINGS.exportCanvas.width` exactly so the ratio
+    // was chosen to match `SETTINGS_CONSTANTS.exportCanvas.width` exactly so the ratio
     // is 1 and the drawn width is the frame's own number, unscaled.
     const frame = frameOf()
     const scene: ExportScene = {
@@ -495,13 +485,13 @@ const LAYOUT_SETTINGS: DocumentSettings = settingsOf({
 })
 
 const LAYOUT_REGIONS: ScreenRegions = regionsFromScreen(
-  { width: 1200, height: 4000, appHeaderHeight: 56, scrollbarThickness: 8 },
+  { width: 1200, height: 4000, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 },
   LAYOUT_SETTINGS,
 )
 
 const settingNumber = (key: string): number => {
-  const value = SETTINGS_DEFAULTS[key]
-  if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
+  const value = (SETTINGS_CONSTANTS as unknown as Readonly<Record<string, unknown>>)[key]
+  if (typeof value !== 'number') throw new Error(`SETTINGS_CONSTANTS.${key} is not a number`)
   return value
 }
 

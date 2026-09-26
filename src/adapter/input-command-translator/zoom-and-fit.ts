@@ -12,7 +12,10 @@ import {
   type RowPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type {
+  DocumentSettings,
+  DrawnSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   levelZeroWritesFor,
   treeStateWritesFor,
@@ -153,7 +156,7 @@ export function rowZoomAnswer(
 
 // see ST-7
 /** @purity pure */
-function mayStopAtStackCap(schedule: Schedule, drawn: DocumentSettings): boolean {
+function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
   const members = new Map<string, number>()
   for (const one of schedule.taskGroupMembers) {
     const count = (members.get(one.groupId) ?? 0) + 1

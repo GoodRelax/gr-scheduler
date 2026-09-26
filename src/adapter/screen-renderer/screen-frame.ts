@@ -4,7 +4,10 @@
 // @purity    pure
 // Generated region at the end: docs/spec/_source/settings.json. Do not edit by hand; npm run gen.
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   ScreenRect,
@@ -97,14 +100,14 @@ function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRec
 /** @purity pure */
 export function screenFrameFromRegions(
   regions: ScreenRegions,
-  settings: DocumentSettings,
+  _settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): ScreenFrame {
   const rowArea = regions.rowArea
 
   const gapRightOfRowArea = regions.propertiesPanel.x - (rowArea.x + rowArea.width)
-  const scrollbarThickness = Math.max(0, gapRightOfRowArea - settings.canvasPadding)
+  const scrollbarThickness = Math.max(0, gapRightOfRowArea - SETTINGS_CONSTANTS.canvasPadding)
 
   const horizontalTrack = horizontalTrackOf(regions, scrollbarThickness)
   // see FR-051

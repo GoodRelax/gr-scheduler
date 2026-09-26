@@ -18,6 +18,7 @@ import {
 } from '../../src/adapter/image-exporter/image-exporter'
 import type { ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -409,7 +410,7 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
   const rowAreaWidth =
-    EXPORT_SCREEN.width - EXPORT_SETTINGS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -440,7 +441,7 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       x: EXPORT_SETTINGS.rowTitlePanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
       width: rowAreaWidth,
-      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - EXPORT_SETTINGS.canvasPadding,
+      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
@@ -463,7 +464,7 @@ const EXPORT_VIEW: ScreenView = {
         groupId: 'g1',
         depth: 1,
         ...rowNameFont(1),
-        indentPx: EXPORT_SETTINGS.rowTitleIndent,
+        indentPx: SETTINGS_CONSTANTS.rowTitleIndent,
         box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
         label: 'a row that reaches the picture',
         wholeLabel: 'a row that reaches the picture',
@@ -488,6 +489,7 @@ const EXPORT_SCENE: ExportScene = {
   regions: EXPORT_REGIONS,
   screenView: EXPORT_VIEW,
   settings: EXPORT_SETTINGS,
+  themePreference: 'light',
   themeHue: THEME_HUE,
 }
 
@@ -506,7 +508,7 @@ const sceneOfScreenHeight = (screenHeight: number): ExportScene => {
       propertiesPanel: withHeight(EXPORT_REGIONS.propertiesPanel),
       rowArea: {
         ...EXPORT_REGIONS.rowArea,
-        height: canvasHeight - EXPORT_SETTINGS.rulerHeight - EXPORT_SETTINGS.canvasPadding,
+        height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
       },
     },
   }
@@ -551,9 +553,9 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
 
     const sent = received[0]
     const size = rootSizeOf(sent === undefined ? '' : stringOf(sent))
-    expect(size.width).toBe(EXPORT_SETTINGS.exportCanvas.width)
-    expect(size.height).toBeGreaterThanOrEqual(EXPORT_SETTINGS.exportCanvas.height)
-    expect(size.height).toBeLessThanOrEqual(EXPORT_SETTINGS.exportCanvasHeightCap)
+    expect(size.width).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
+    expect(size.height).toBeGreaterThanOrEqual(SETTINGS_CONSTANTS.exportCanvas.height)
+    expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
   it('GIVEN one state WHEN IO-3, IO-4 and IO-6 each take their picture THEN all three carry one drawing (WY-2 of table T-041)', async () => {
@@ -569,10 +571,10 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
   })
 
   it('GIVEN a scene too tall for S-217 WHEN IO-6 is taken THEN nothing reaches the clipboard (FR-025 MUST, CR-337)', async () => {
-    const ratio = EXPORT_SETTINGS.exportCanvas.width / EXPORT_SCREEN.width
-    const overCeiling = EXPORT_SETTINGS.exportCanvasHeightCap / ratio + 1
+    const ratio = SETTINGS_CONSTANTS.exportCanvas.width / EXPORT_SCREEN.width
+    const overCeiling = SETTINGS_CONSTANTS.exportCanvasHeightCap / ratio + 1
     expect(overCeiling * ratio, 'the fixture is past S-217').toBeGreaterThan(
-      EXPORT_SETTINGS.exportCanvasHeightCap,
+      SETTINGS_CONSTANTS.exportCanvasHeightCap,
     )
 
     const sentFor = async (screenHeight: number): Promise<readonly ClipboardContent[]> => {

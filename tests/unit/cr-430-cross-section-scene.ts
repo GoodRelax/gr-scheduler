@@ -306,6 +306,7 @@ export interface SceneWish {
   readonly highlightBoxes?: readonly unknown[]
   readonly statusDate?: string | null
   readonly selectTaskUid?: number | null
+  readonly dualCursor?: { readonly date1: string; readonly date2: string } | null
 }
 
 export const scheduleOf = (wish: SceneWish): Schedule => {
@@ -386,7 +387,7 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
   } as unknown as Schedule
 }
 
-export const SCREEN = { width: 2400, height: 900, appHeaderHeight: 48, scrollbarThickness: 8 }
+export const SCREEN = { width: 2400, height: 900, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 export interface DrawWish {
   readonly pointer?: Pt | null
@@ -421,7 +422,7 @@ export const sceneOf = (wish: SceneWish): Scene => {
     wish.selectTaskUid == null
       ? emptySelection()
       : selectionWith(emptySelection(), { kind: 'task', uid: wish.selectTaskUid })
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, selection, wish.dualCursor ?? null)
   const drawn = (geometry as unknown as { tasks: readonly DrawnTask[] }).tasks
   return {
     settings,
@@ -448,6 +449,7 @@ export const sceneOf = (wish: SceneWish): Scene => {
         regions,
         selection,
         'screen',
+        { themePreference: 'light', guideCursorMode: 'none' },
         (draw.follow ?? null) as never,
         [],
         (draw.pointer ?? null) as never,

@@ -91,12 +91,14 @@ const sceneOn = (screen: Screen): ExportScene => {
     height: screen.height,
     appHeaderHeight: screen.appHeaderHeight ?? 37,
     scrollbarThickness: 8,
+    propertyPanelWidth: 0,
   }
   return {
     svg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
     regions: regionsFromScreen(env, SETTINGS),
     screenView: VIEW,
     settings: SETTINGS,
+    themePreference: 'light',
     themeHue: 214,
   }
 }
