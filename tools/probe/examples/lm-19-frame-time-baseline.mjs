@@ -2,6 +2,7 @@
 // Run from the repository root after `npm run build`:
 //   node tools/probe/examples/lm-19-frame-time-baseline.mjs                      (production defaults)
 //   node tools/probe/examples/lm-19-frame-time-baseline.mjs --tasks 50 --samples 30   (smoke test only)
+//   node tools/probe/examples/lm-19-frame-time-baseline.mjs --display-scale 175       (JDG-726: equal volume)
 // Prints one JSON object on stdout. Exit 0 = measured, 1 = could not be measured, 2 = bad arguments or environment.
 
 // ---------------------------------------------------------------------------
@@ -46,6 +47,7 @@ const BUILD = path.join(ROOT, 'dist', 'index.html')
 const NFR_TEST = path.join(ROOT, 'tests', 'nfr', 'nfr-002-003-frame-time-is-the-interval.test.ts')
 const DRAWN_SVG = '[data-role="Schedule Canvas"] svg'
 const AGENT_API_ENTRANCE = 'IC-20'
+const DISPLAY_SCALE_UP = 'IC-105'
 
 // ------------------------------------------------------------------ arguments
 
@@ -57,6 +59,7 @@ const DEFAULTS = {
   height: 1080,
   channel: 'msedge', // MC-5, as tests/system/live-app.ts launches it
   stretchTimeoutMs: 120000,
+  'display-scale': 100, // JDG-726: the build is compared at 175, stage 0 at its default
 }
 
 function fail(code, reason, extra = {}) {
@@ -174,6 +177,18 @@ async function pressEntrance(page, icon) {
   return true
 }
 
+// JDG-726: raise the display scale with IC-105 until its message reads the step asked for.
+async function raiseDisplayScale(page, wanted) {
+  for (let press = 0; press < 12; press += 1) {
+    if (!(await pressEntrance(page, DISPLAY_SCALE_UP))) throw new Error(`${DISPLAY_SCALE_UP} is not there`)
+    const shown = await page.evaluate(() => document.querySelector('[data-scale-message]')?.textContent ?? '')
+    const step = Number(/\d+/.exec(shown)?.[0])
+    if (step === wanted) return step
+    if (step > wanted) break
+  }
+  throw new Error(`the display scale never read ${wanted}%`)
+}
+
 async function openAgentApi(page) {
   if (!(await pressEntrance(page, AGENT_API_ENTRANCE))) return false
   return (await page.evaluate(() => typeof window.grSchedulerAgentApi)) === 'object'
@@ -249,6 +264,7 @@ const conditions = {
   buildSha256: sha256(BUILD),
   screen: { width: args.width, height: args.height },
   tasksRequested: args.tasks,
+  displayScale: args['display-scale'],
   samplesPerStretch: args.samples,
   channel: args.channel,
   cpu: os.cpus()[0]?.model?.trim() ?? null,
@@ -287,6 +303,12 @@ try {
       throw new Error(`could not bring the document to ${args.tasks} Task (holds ${trimmed.tasks}) ${trimmed.note}`)
     }
     await page.waitForTimeout(900)
+    await settle(page)
+  }
+
+  if (args['display-scale'] !== DEFAULTS['display-scale']) {
+    await raiseDisplayScale(page, args['display-scale'])
+    await page.mouse.move(0, 0)
     await settle(page)
   }
 
