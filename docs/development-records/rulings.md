@@ -1038,6 +1038,23 @@
 | JDG-726 | **「Aで進めろ」**（2026-09-26。案 A〜E の頁を見た後の答え） | ⭐ 絵は今のまま（表示の倍率の既定 100、依存線のハローも今のまま）とする。⭐ `JDG-50`（段 0 より悪くしない）は**同じ量の絵で**比べる —— 段 0 `5c1b915` はその既定のまま、比べるビルドは表示の倍率 175（描く比 0.625 × 1.75 ≒ 1.09。段 0 の 1.0 以上で最も近い段）で、`lm-19` を同じ日に交互に測る。⭐ `main` の早送りの前の合否（`JDG-605`）は、この同じ量での比べとする。⭐ `tests/nfr` の門（`NFR-002`／`NFR-003` の絶対値、60 fps）は今のまま赤であり、段 0 でも赤であった。この問いは `PND-443`（`IF-1` の変更）が持つ。⚠️ 退けた案: ハローをバーの上にも敷く（`FR-009` の MUST NOT を外す）・ハローをやめる（`FR-009` の MUST を外す）—— どちらも 24.2 ms で段 0 に届かない。既定の倍率を戻す（`JDG-169` を戻す）。段 0 の基準を置き直す | `docs/development-rules/04-verification.md` の 5 節の表 `PW` の `PW-3` ・ `tools/probe/examples/lm-19-frame-time-baseline.mjs` の `--display-scale` ・ `docs/development-records/perf-pending.md` ・ `docs/development-records/measurements/performance-runs.md` ・ `PND-443` | 適用済 —— **`docs/development-rules/04-verification.md` の `PW-3`、`tools/probe/examples/lm-19-frame-time-baseline.mjs` の `--display-scale`、`docs/development-records/perf-pending.md` の頭、`docs/development-records/pending-decisions.md` の `PND-443` へ当てた（2026-09-26）**。同じ量での比べの走行の行は `docs/development-records/measurements/performance-runs.md` が持つ |
 | JDG-728 | **「仕様に合わせろ」**（2026-09-26。段 8 の性能のセッションが `DFC-1130` —— ツールチップを描き直しのたびに測り直すのは `IN-7` と食い違う —— の 2 案「仕様に合わせる／仕様を今の動きに合わせる」を問うた後の答え） | ⭐ コードを `IN-7` に合わせる: ツールチップの揃え方は、出したときに 1 度だけ測る。立っているツールチップは、ほかの部品が変わっても、窓の大きさが変わっても、指す相手が動いても、置いた所に残る。⭐ 作り直して測り直すのは、ツールチップの組そのものが変わったときだけである。⚠️ ポインタの点に出す説明（`IN-7` の末尾の例外）は、その点を持つ組が変わるので、これまでどおり点に付いていく | `src/framework/dom-screen-surface/dom-screen-surface.ts` の `showScreenView`（ツールチップの層を作り直す条件）—— `DFC-1130` | 適用済 —— **`src/framework/dom-screen-surface/dom-screen-surface.ts` の `showScreenView` へ当てた（2026-09-26）**。作り直す条件を、どれかの鍵が変わったら、から、鍵 `tooltips` が変わったら、へ狭めた。試験は `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` |
 
+## 2026-09-26 —— `main` への取り込み（JDG-727）
+
+⭐ 調整役が、`main` にだけ在った 3 コミット（`f476b680`・`7f2d51c1`・`03fb4d74`、使い勝手の参考資料 —— 中身は `refactor` にも `e1a80c33`・`43667931` で入っており、違いは 1 行）の扱いを 3 案で問うた: A `main` を `refactor` へ合流し、その 1 行は `refactor` の版を採り、`main` を早送りする（推奨）／ B `main` を `refactor` へ強制で置き換える ／ C `main` を動かさない。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-727 | **「提案通りでやれ」**（2026-09-26。上の 3 案への答え）<br>**「mainへの取り込みはOK」**（2026-09-27。自動モードの判定器が合流を止めた後、調整役が許しを求めたことへの答え） | ⭐ 案 A: `main` を `refactor` へ合流し、衝突した 1 行は `refactor` の新しい版を採る。合流の木は試験を通した `refactor` の先端とバイトで同じであることを確かめてから、`main` をその合流へ早送りする。公開の履歴は書き換えない | `docs/development-rules/usability-principles-ja.md`（衝突した 1 行）—— `refactor` の合流コミット `4f3adc90` と `origin/main` | 適用済 —— **`4f3adc90`（木は `c5de426d` と同一、差 0 行）で合流し、`main` を早送りした（2026-09-27）** |
+
+## 2026-09-27 —— CR-591 と CR-592 の問い（JDG-776・777）
+
+⭐ 調整役が、`CR-591` と `CR-592` がそれぞれの 11 節に持つ問い 1 を、案と推奨つきでまとめて問うた答え。逐語は 2 つの問いに対する同じ 1 通である。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-776 | **「両方とも推奨通り」**（2026-09-27。調整役が 2 つの問いを案と推奨つきで問うた後の答え） | ⭐ 案 (a) 足さない: `CR-591`（`IC-107` のグリフを炎にする）の問い 1「グリフの生成器 `tools/generate_icon_glyphs.py` に 3 次曲線 `C` を足すか」に対し、足さない —— `S-395` の 3 次曲線を 2 次曲線 `Q` で近似して描く（ずれは最大 24 単位の 0.372、20px で 0.31px） | `change-request/CR-591-the-delay-diagnostics-entry-draws-the-bottleneck-flame.md`（枝 `rulings-0927` `38b1ecf4` のみ、`refactor` にはまだ無い）・`docs/spec/_assets/fig-icons.svg` | 指示 —— `CR-591` が当てる |
+| JDG-777 | **「両方とも推奨通り」**（2026-09-27。同じ通の答え） | ⭐ 案 (a) 分けて直す: `CR-592`（モノクロで表 T-236 のすべての行を灰にする）で見つかった副作用 —— 暗いテーマのモノクロで注記の色 `S-312` と地のコントラストが 2.76（`NFR-007` の 3:1 を割る。カラーでは 3.58）—— は `CR-592` を `JDG-771` のとおり進めたうえで `DFC-1220` に起こし、別の変更要求で暗いテーマのモノクロの注記の色を選び直す（値は触れる見本で選ぶ） | `docs/development-records/defects.md` の `DFC-1220` | 指示 —— 別の CR が当てる（`DFC-1220`） |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
