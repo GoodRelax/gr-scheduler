@@ -26,6 +26,7 @@ export type PointerShape =
   | 'ns-resize'
   | 'nwse-resize'
   | 'nesw-resize'
+  | 'crosshair'
   | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
@@ -49,6 +50,7 @@ export type PointerRow =
   | 'PK-13'
   | 'PK-14'
   | 'PK-15'
+  | 'PK-16'
 
 // see T-266, T-269
 export type PointerFacing = 'start' | 'end'
@@ -281,6 +283,8 @@ export function pointerImageOf(
       return 'nwse-resize'
     case 'PK-15':
       return 'nesw-resize'
+    case 'PK-16':
+      return 'copy'
   }
 }
 
@@ -374,6 +378,8 @@ function pointerShapeUnder(
   const pressed = hands.readPressed()
   const session = hands.readSession()
   if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
+  // see IN-2, T-308 CY-11: kept from the press while it is held, as the pan's hand is
+  if (pressed !== null && pressed.pressRow === 'PTD-7') return pointerImageOf('PK-16')
   if (on !== null) return null
   if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
   if (dualCursorFollowingIn(session) !== null) return null
@@ -390,7 +396,8 @@ function pointerShapeUnder(
   }
   if (hit !== null) return null
   if (armed.kind === 'notArmed') return 'default'
-  return 'copy'
+  // see IN-2: the armed sign is the environment's crosshair (JDG-522)
+  return 'crosshair'
 }
 
 // <generated -- do not edit by hand>
