@@ -268,8 +268,9 @@ export function fileSystemAccessFileStore(
   environment.dropSurface.addEventListener('dragover', allowFileDrag, { capture: true })
   environment.dropSurface.addEventListener('drop', takeDroppedFile, { capture: true })
 
+  // WHY: the OP-15 overlay route reads a second file; the opened file stays the FR-060 save target.
   /** @purity non-pure */
-  async function readChosenFile(): Promise<FileReading> {
+  async function readChosenFile(adoptsHandle: boolean): Promise<FileReading> {
     const picker = environment.openFilePicker
     if (picker === undefined) {
       return {
@@ -295,7 +296,7 @@ export function fileSystemAccessFileStore(
       const file = await handle.getFile()
       const bytes = new Uint8Array(await file.arrayBuffer())
       // TRAP: adopt the handle only after the bytes are read, so an unreadable choice keeps the old file.
-      openedHandle = handle
+      if (adoptsHandle) openedHandle = handle
       return { ok: true, file: { bytes, fileName: file.name } }
     } catch (thrown) {
       return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
@@ -375,7 +376,9 @@ export function fileSystemAccessFileStore(
       if (isBusy) return { ok: false, fault: busyFault() }
       isBusy = true
       try {
-        if (route === 'chooser') return await readChosenFile()
+        if (route === 'chooser') return await readChosenFile(true)
+        // see OP-9, OP-15
+        if (route === 'baseline') return await readChosenFile(false)
         if (route === 'reopen') return await readOpenedFileAgain()
         return await readDroppedFile()
       } finally {
