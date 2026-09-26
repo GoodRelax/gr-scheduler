@@ -17,7 +17,7 @@ import iconGlyphs from './icon-glyphs.json'
 import { fillScreenFrame, horizontalScrollbar, panelEdge } from './screen-frame-drawing'
 import { appHeaderStyle, fillAppHeader } from './app-header-drawing'
 import { confirmationElement, noticeElement } from './notices-drawing'
-import { paletteElement } from './command-palette-drawing'
+import { PALETTE_GRAB_BAND_ENTRY, paletteElement } from './command-palette-drawing'
 import { fieldEditingOf } from './field-editing'
 import { keepTooltipsInside, showDualCursorReadout, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
 import {
@@ -49,6 +49,9 @@ import {
 import { ROSTER_SCROLLER, keepRosterScroll, modalElement } from './open-modals-drawing'
 
 const UNIT_ROW = 'UF-71'
+
+// see T-337
+const HELP_MODAL_SURFACE = 'Help Modal'
 
 export const ROLE = {
   appHeader: 'App Header',
@@ -320,8 +323,9 @@ export const STYLE = {
   heading: 'font-weight:normal;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
-  // STOP: spec does not decide what a palette larger than the window does. Looked in FR-053, SC-6, S-135a
-  // @provisional PND-470
+  // see FR-053, GR-19, JDG-660
+  // WHY: the band stays clamped in frame-loop.ts (paletteCornerInWindow); a palette wider or
+  // taller than the window is otherwise left alone, since content decides its size (S-135a note).
   commandPalette:
     `box-sizing:border-box;background:${PAINT.panel};color:${PAINT.ink};` +
     `border:1px solid ${PAINT.rule};border-radius:0.25em;` +
@@ -388,7 +392,7 @@ export const STYLE = {
     'position:absolute;width:max-content;white-space:normal;' +
     `padding:0.25em 0.5em;background:${PAINT.ground};` +
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
-  hidden: 'display:none;',
+  hidden: 'display:none;position:absolute;',
 } as const
 
 // see FR-029
@@ -449,6 +453,47 @@ export const ROW_GRAB_STRIP_MARK = 'data-row-grab'
 
 export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
+// see T-337
+export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
+
+// see T-337
+// WHY: front to back, exactly the table's row ids; 'UZ-6' waits for the Search Panel (CR-571),
+// so this owner never writes it. z-index comes only from a row's place here (R2.7).
+export const SCREEN_Z_ORDER: readonly string[] = [
+  'UZ-1',
+  'UZ-2',
+  'UZ-3',
+  'UZ-4',
+  'UZ-5',
+  'UZ-13',
+  'UZ-7',
+  'UZ-8',
+  'UZ-9',
+  'UZ-10',
+  'UZ-11',
+  'UZ-12',
+]
+
+// see T-337
+/** @purity pure */
+function zIndexOf(rowId: string): number {
+  const at = SCREEN_Z_ORDER.indexOf(rowId)
+  if (at < 0) throw new Error(`table T-337 has no row ${rowId}`)
+  return SCREEN_Z_ORDER.length - at
+}
+
+// see T-337
+/** @purity pure */
+function zIndexStyle(rowId: string): string {
+  return `z-index:${zIndexOf(rowId)};`
+}
+
+/** @purity non-pure */
+function markZOrder(element: HTMLElement, rowId: string): void {
+  element.setAttribute(SCREEN_Z_ORDER_ATTRIBUTE, rowId)
+  element.style.zIndex = String(zIndexOf(rowId))
+}
+
 const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"],` +
@@ -498,7 +543,7 @@ function markFrame(root: HTMLElement, rowTitleTree: HTMLElement, frame: ScreenFr
   root.setAttribute('data-full-screen', String(frame.isFullScreen))
   const band = horizontalScrollbar(frame)
   const clip = band === undefined ? '' : `clip-path:inset(0 0 calc(100% - ${band.track.y}px) 0);`
-  rowTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip)
+  rowTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip + zIndexStyle('UZ-11'))
 }
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
@@ -618,6 +663,8 @@ export interface ScreenSurfaceWiring {
   readonly readClockMs: () => number
   readonly onAppHeaderHeightPx: (heightPx: number) => void
   readonly onRowControlsHeightPx?: (heightPx: number) => void
+  // see FR-053, JDG-660
+  readonly onCommandPaletteBandPx?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
   readonly readTheme: () => ScreenTheme
@@ -644,10 +691,28 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
   const dialogueEntry = host.createElement('input')
   const appHeader = part(host, 'div', ROLE.appHeader, appHeaderStyle())
+  // see T-337
+  // WHY: every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
   const modalLayer = made(host, 'div', STYLE.layer)
+  const helpLayer = made(host, 'div', STYLE.layer)
   const noticeLayer = part(host, 'div', ROLE.notices, STYLE.layer)
   const confirmationLayer = made(host, 'div', STYLE.layer)
   const tooltipLayer = part(host, 'div', ROLE.tooltips, STYLE.layer)
+
+  // see T-337
+  markZOrder(tooltipLayer, 'UZ-2')
+  markZOrder(confirmationLayer, 'UZ-3')
+  markZOrder(noticeLayer, 'UZ-4')
+  markZOrder(paletteLayer, 'UZ-5')
+  markZOrder(modalLayer, 'UZ-13')
+  markZOrder(helpLayer, 'UZ-7')
+  markZOrder(appHeader, 'UZ-8')
+  markZOrder(dialogueField, 'UZ-9')
+  markZOrder(dividerBandLayer, 'UZ-10')
+  markZOrder(rowTitlePanel, 'UZ-11')
+  markZOrder(rowTitleTree, 'UZ-11')
+  markZOrder(propertiesPanel, 'UZ-11')
+  markZOrder(frameLayer, 'UZ-12')
 
   const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
     headEntryElements(host)
@@ -659,31 +724,31 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
   dialogueField.append(dialogueMessages, dialogueEntry)
 
-  // TRAP: append order is stacking order; a notice above the confirmation hides NT-7's answers.
+  // see T-337
+  // WHY: stacking comes from each element's z-index (markZOrder), not this order.
   root.append(
     hoverSheet,
     frameLayer,
     rowTitlePanel,
     rowTitleTree,
     propertiesPanel,
-    // TRAP: after both panels and the frame's scrollbar lanes, which cover the band's two halves
-    // (GR-22); before the palette, whose band GR-19 puts above it.
     dividerBandLayer,
     paletteLayer,
     dialogueField,
     appHeader,
     modalLayer,
+    helpLayer,
     noticeLayer,
     confirmationLayer,
     tooltipLayer,
   )
   wiring.mount.append(root)
 
-  // see SE-5
-  // TRAP: appended last, above the confirmation and the tooltips; it takes no press, so it
-  // hides nothing a person has to reach.
+  // see T-337, SE-5
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
   const readoutLayer = made(host, 'div', STYLE.layer)
+  markZOrder(scaleMessageLayer, 'UZ-1')
+  markZOrder(readoutLayer, 'UZ-1')
   root.append(scaleMessageLayer, readoutLayer)
 
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
@@ -691,6 +756,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   let langShown = ''
   let headerHeightPx = 0
   let isHeaderHeightSettled = false
+  let paletteBandPx = { width: 0, height: 0 }
+  let paletteElementDrawn: HTMLElement | null = null
+  let paletteBandDrawn: HTMLElement | null = null
   const { anchorsOf, anchorFor } = tooltipAnchorTable(root)
 
   // see FR-051
@@ -704,6 +772,21 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     return true
   }
 
+  // see FR-053, JDG-660
+  // WHY: measured on a palette or frame change only, not per frame; the drawn rectangles are the
+  // truth, since content decides the palette's width (S-135a note).
+  /** @purity non-pure */
+  function reportPaletteBand(): void {
+    // TRAP: from the palette's corner, not the band's own box; the palette's border sits above it.
+    const corner = paletteElementDrawn?.getBoundingClientRect()
+    const band = paletteBandDrawn?.getBoundingClientRect()
+    const width = corner === undefined || band === undefined ? 0 : band.right - corner.left
+    const height = corner === undefined || band === undefined ? 0 : band.bottom - corner.top
+    if (width === paletteBandPx.width && height === paletteBandPx.height) return
+    paletteBandPx = { width, height }
+    wiring.onCommandPaletteBandPx?.(paletteBandPx)
+  }
+
   const reportRowControlsHeight = rowControlsHeightReporter(rowTitleTree, readClockMs, wiring)
 
   const dialogue = dialogueSettlement(dialogueEntry, readAuthor, readClockMs)
@@ -713,13 +796,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
     rowTitlePanel.setAttribute(
       'style',
-      titleEdge === null
+      (titleEdge === null
         ? STYLE.hidden
         : STYLE.rowTitlePanel +
-            `left:0;top:${headerHeightPx}px;width:${titleEdge.x}px;bottom:0;`,
+            `left:0;top:${headerHeightPx}px;width:${titleEdge.x}px;bottom:0;`) + zIndexStyle('UZ-11'),
     )
     if (view.propertiesPanel === null) {
-      propertiesPanel.setAttribute('style', STYLE.hidden)
+      propertiesPanel.setAttribute('style', STYLE.hidden + zIndexStyle('UZ-11'))
       return
     }
     const propertiesEdge = panelEdge(view.frame, 'propertiesPanel')
@@ -728,7 +811,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         ? `right:0;top:${headerHeightPx}px;bottom:0;width:max-content;`
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
           `top:${headerHeightPx}px;right:0;bottom:0;`
-    propertiesPanel.setAttribute('style', propertiesPanelStyle() + place)
+    propertiesPanel.setAttribute('style', propertiesPanelStyle() + place + zIndexStyle('UZ-11'))
     // WHY: a new panel width re-wraps every text field, so each is grown again (FR-006).
     growWrappingFields(propertiesPanel)
   }
@@ -811,16 +894,22 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (changed('commandPalette')) {
       const palette = view.commandPalette
       const anchors = anchorsOf('commandPalette')
-      paletteLayer.replaceChildren(
-        ...(palette === null ? [] : [paletteElement(host, palette, anchors)]),
-      )
+      paletteElementDrawn = palette === null ? null : paletteElement(host, palette, anchors)
+      paletteBandDrawn =
+        palette === null ? null : (anchors.get(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY })) ?? null)
+      paletteLayer.replaceChildren(...(paletteElementDrawn === null ? [] : [paletteElementDrawn]))
     }
     if (changed('openModal')) {
       const modal = view.openModal
       const anchors = anchorsOf('openModal')
       const drawnModal = modal === null ? null : modalElement(host, modal, anchors)
+      // see T-337
+      // WHY: JDG-666 routes Help to its own layer by surface name; open-modals-drawing.ts still
+      // draws the one element either way.
+      const isHelp = modal !== null && modal.surface === HELP_MODAL_SURFACE
       const scrolledBefore = modalLayer.querySelector(ROSTER_SCROLLER)
-      modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
+      modalLayer.replaceChildren(...(drawnModal !== null && !isHelp ? [drawnModal.element] : []))
+      helpLayer.replaceChildren(...(drawnModal !== null && isHelp ? [drawnModal.element] : []))
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
@@ -839,10 +928,15 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (field !== null) fillDialogueMessages(host, dialogueMessages, field)
     }
 
+    if (changed('frame') || changed('commandPalette')) reportPaletteBand()
     if (isHeaderMoved || changed('frame') || changed('propertiesPanel')) placePanels(view)
-    if (isHeaderMoved || changed('frame') || changed('dialogueField')) placeDialogueField(dialogueField, view)
+    if (isHeaderMoved || changed('frame') || changed('dialogueField')) {
+      placeDialogueField(dialogueField, view)
+      // WHY: placeDialogueField rewrites the style attribute and so drops the layer's z-index (T-337 UZ-9).
+      markZOrder(dialogueField, 'UZ-9')
+    }
     if (isHeaderMoved || changed('notices')) {
-      noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;`)
+      noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;` + zIndexStyle('UZ-4'))
     }
 
     if (changed('tooltips')) {

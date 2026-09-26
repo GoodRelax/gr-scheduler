@@ -27,7 +27,7 @@
 | 11 | `CR-556`（期限を緑の下向きの矢印で。仕様の波 W3 —— 生成器が色と期限の印の大きさの群を刷った。描く手順はコードの持ち場 L1） | `e4011375` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/task-figures.ts`・`src/entity/layout-engine/schedule-layout/schedule-layout.ts` |
 | 12 | `CR-559`（コメントボックスの引き出し線の端と箱の書式。仕様の波 W3。描く手順はコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json` |
 | 13 | `CR-560`（`Ctrl` で引けば写す。仕様の波 W3。押しの振り分けはコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json` |
-| 14 | `CR-575`（画面の層の順の表、パレットは掴めるまま。仕様の波 W4a。層の順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json` |
+| 14 | `CR-575`（画面の層の順の表、パレットは掴めるまま。仕様の波 W4a。コードは持ち場 L4 の枝 `lane-l4` —— 層の `z-index` は要素を作るときと style を書き直す所だけ、パレットの帯の実測はパレットか枠が変わったときだけで、毎フレームは書かない。押した入口の説明の引き金はポインタの入力ごとに 1 回の比べ） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/framework/single-html-shell/frame-loop.ts` |
 | 15 | `CR-588`（変更前の予定の輪郭。仕様の波 W4a —— 生成器が色と輪郭の大きさの群を刷った。描く手順はコードの持ち場 L1） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts` |
 | 16 | `CR-571`（検索パネル。仕様の波 W4a —— 生成器がパネルの大きさの群とユニットの雛形を作った。描く手順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts`・`src/framework/dom-screen-surface/search-panel-drawing.ts` |
 | 17 | `CR-574`（ヘルプを普通の窓に。仕様の波 W4a。描く手順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |

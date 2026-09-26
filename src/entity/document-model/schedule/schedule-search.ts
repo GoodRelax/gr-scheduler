@@ -7,7 +7,7 @@ import { compareDays, dayOf } from './calendar-day'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
 import { rowNameOf, rowPathOf } from './row-names'
-import type { CommentBox, Schedule, Task, TaskGroup } from './schedule-entities'
+import type { CommentBox, Schedule, Task } from './schedule-entities'
 import { taskGroupRankById } from './schedule-invariants'
 
 // see T-331

@@ -332,6 +332,7 @@ function environmentOf(
   appHeaderHeight: number,
   scrollbarThickness: number,
   rowControlsHeightPx: number,
+  commandPaletteBandPx: { readonly width: number; readonly height: number },
 ): FrameEnvironment {
   return {
     width: window.innerWidth,
@@ -339,6 +340,7 @@ function environmentOf(
     appHeaderHeight,
     scrollbarThickness,
     rowControlsHeightPx,
+    commandPaletteBandPx,
   }
 }
 
@@ -357,9 +359,10 @@ function boot(): void {
   const scrollbarThickness = measuredScrollbarThickness()
   let appHeaderHeightPx = 0
   let rowControlsHeightPx = 0
+  let commandPaletteBandPx = { width: 0, height: 0 }
   let loop: FrameLoop | null = null
   const nowEnvironment = (): FrameEnvironment =>
-    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx)
+    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx, commandPaletteBandPx)
 
   // TRAP: read before BO-2: readTheme is asked while the surface factory runs, before chosen exists,
   // and reading chosen there throws a ReferenceError that stops the whole boot.
@@ -439,6 +442,11 @@ function boot(): void {
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx
+      loop?.resize(nowEnvironment())
+    },
+    /** @purity non-pure */
+    onCommandPaletteBandPx: (bandPx) => {
+      commandPaletteBandPx = bandPx
       loop?.resize(nowEnvironment())
     },
   })

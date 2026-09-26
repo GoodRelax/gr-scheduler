@@ -217,6 +217,8 @@ export interface FrameEnvironment {
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
   readonly rowControlsHeightPx?: number
+  // see FR-053, JDG-660
+  readonly commandPaletteBandPx?: { readonly width: number; readonly height: number }
 }
 
 export interface FrameValues {
@@ -711,6 +713,37 @@ function paletteCornerOf(
   return draggedTo ?? { x: regions.rowArea.x, y: regions.rowArea.y }
 }
 
+// see FR-053, GR-19, JDG-660
+/** @purity pure */
+function windowSizeOf(env: FrameEnvironment): { readonly width: number; readonly height: number } {
+  return { width: env.width, height: env.height }
+}
+
+// see FR-053, GR-19, JDG-660
+// WHY: only the band's own box must stay inside the window; the rest of the palette may sit
+// off-screen, since its size is content's to decide (S-135a note).
+/** @purity pure */
+export function paletteCornerInWindow(
+  corner: { readonly x: number; readonly y: number },
+  bandSize: { readonly width: number; readonly height: number },
+  windowSize: { readonly width: number; readonly height: number },
+): { readonly x: number; readonly y: number } {
+  const maxX = Math.max(0, windowSize.width - bandSize.width)
+  const maxY = Math.max(0, windowSize.height - bandSize.height)
+  return {
+    x: Math.min(Math.max(corner.x, 0), maxX),
+    y: Math.min(Math.max(corner.y, 0), maxY),
+  }
+}
+
+// see FR-053, JDG-660
+// WHY: the size comes from dom-screen-surface.ts's own measurement (commandPaletteBandPx, wired
+// the way appHeaderHeight is); 0 until the first report, never a guessed number.
+/** @purity pure */
+function bandSizeOf(env: FrameEnvironment): { readonly width: number; readonly height: number } {
+  return env.commandPaletteBandPx ?? { width: 0, height: 0 }
+}
+
 type PanelShowing = 'selection' | 'documentSettings' | null
 
 export type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number]
@@ -1065,7 +1098,9 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
     one.height === other.height &&
     one.appHeaderHeight === other.appHeaderHeight &&
     one.scrollbarThickness === other.scrollbarThickness &&
-    one.rowControlsHeightPx === other.rowControlsHeightPx
+    one.rowControlsHeightPx === other.rowControlsHeightPx &&
+    one.commandPaletteBandPx?.width === other.commandPaletteBandPx?.width &&
+    one.commandPaletteBandPx?.height === other.commandPaletteBandPx?.height
   )
 }
 
@@ -1248,6 +1283,27 @@ export function discardQuestionOf(discarded: Document): FileFlowQuestion {
   }
 }
 
+// see IN-3, EZ-2, JDG-662
+// WHY: the pressed entrance's trigger stays released until the pointer is over another part;
+// while held, a drag (IC-53 included) may outrun the entrance, so a held move keeps it released.
+/** @purity pure */
+function hintReleasedEntryAfter(
+  released: IconId | null,
+  input: PointerInput,
+  isHeld: boolean,
+  under: IconId | null,
+): IconId | null {
+  if (input.phase === 'down') return under
+  if (isHeld && input.phase === 'move') return released
+  return under === released ? released : null
+}
+
+// see IN-3, EZ-2
+/** @purity pure */
+function hintEntryOf(under: IconId | null, released: IconId | null): IconId | null {
+  return under === released ? null : under
+}
+
 /** @purity pure */
 function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
@@ -1361,6 +1417,7 @@ export function frameLoop(
   let stackSafetyCapToldFor: string | null = null
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
+  let hintReleasedEntry: IconId | null = null
   let grabUnderPointer: Grabbed | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
@@ -1615,7 +1672,7 @@ export function frameLoop(
           themePreference: session.screen.themePreference,
           pointer: pointerAt,
           pointerRestedMs,
-          iconUnderPointer: partUnderPointer?.entry ?? null,
+          iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
           taskUnderPointer:
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
@@ -1721,6 +1778,16 @@ export function frameLoop(
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
     rowGrabbedAt = null
+    // see FR-053, JDG-660
+    // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
+    // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
+    if (commandPaletteDraggedTo !== null) {
+      commandPaletteDraggedTo = paletteCornerInWindow(
+        commandPaletteDraggedTo,
+        bandSizeOf(environment),
+        windowSizeOf(environment),
+      )
+    }
   }
 
   // see FR-076, NT-3, T-233, T-286
@@ -2311,7 +2378,11 @@ export function frameLoop(
       case 'moveCommandPalette': {
         // TRAP: each travel is an increment on the last corner; measuring from the press overshoots.
         const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
-        commandPaletteDraggedTo = { x: from.x + action.by.dx, y: from.y + action.by.dy }
+        commandPaletteDraggedTo = paletteCornerInWindow(
+          { x: from.x + action.by.dx, y: from.y + action.by.dy },
+          bandSizeOf(environment),
+          windowSizeOf(environment),
+        )
         if (pressed !== null && pressed.followedTo !== undefined) {
           const followed = pressed.followedTo
           pressed = {
@@ -2514,6 +2585,8 @@ export function frameLoop(
       if (hasMoved) sendToSession(POINTER_RESTED, frame)
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
+      const entryUnder = partUnderPointer?.entry ?? null
+      hintReleasedEntry = hintReleasedEntryAfter(hintReleasedEntry, input, pressed !== null, entryUnder)
       if (input.phase === 'down') {
         pressed = collectPress(input, frame, partUnderPointer)
         commandPaletteCornerAtPress =
@@ -2680,6 +2753,16 @@ export function frameLoop(
       if (isSameEnvironment(next, environment)) return
       const wasSettled = isSizeSettled(environment)
       environment = next
+      // see FR-053, JDG-660
+      // WHY: a shrunk window, or a wider measured band, can leave a held corner outside it;
+      // this same path carries both (onAppHeaderHeightPx's wiring does too).
+      if (commandPaletteDraggedTo !== null) {
+        commandPaletteDraggedTo = paletteCornerInWindow(
+          commandPaletteDraggedTo,
+          bandSizeOf(next),
+          windowSizeOf(next),
+        )
+      }
       if (!isSizeSettled(next)) return
       if (!wasSettled) runFrame()
       else ask()

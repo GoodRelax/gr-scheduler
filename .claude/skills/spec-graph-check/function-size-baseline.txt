@@ -1,4 +1,5 @@
-excess-lines=6157 excess-branches=638
+excess-lines=6254 excess-branches=648
+# RAISED 6157/638 -> 6254/648 on 2026-09-27 under JDG-778 (the user: baselines may rise for a lane; the coordinator writes the final values at merge), DFC-1284: lane L4 CR-575 put the T-337 layer order and the palette band clamp into domScreenSurface 315->362, showScreenView 123/33->134/42, frameLoop 1428->1456, carryOutAction 172->176, receiveInput 150/63->154/64, boot 205->211; CR-578 splits frame-loop.ts.
 # RAISED/LOWERED 6261/674 -> 6157/638 on 2026-09-27 under JDG-760 (raise, the user) and JDG-520 (lowers): CR-572 waves 2b-2d grew runFrame 123->132, editAnnotation 146->154, boot 202->205, svgFromSchedule 221->223, overlayParts, geometryFromLayout, exportScene, receiveInput, tentativeDependencyOf by one, frameLoop to 5 branches; NEW HELD screenEventFromEntry 39/17 (the viewer-value entries leave as screen events); the same waves shrank commandFromEntry, panelIndexOf, editDocumentSettings, carryOutAction and others.
 # PRUNED schedule-invariants.ts::find~16 (held 52/10) and task-plan-actual.ts::beginTaskActual (held 51/5) on 2026-09-27 under JDG-520: CR-572 wave 2b dropped the IV-13 case and the constant reads, and both fell below the band.
 # PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
@@ -76,9 +77,9 @@ HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=267 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=315 branches=0
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=362 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=123 branches=33
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=134 branches=42
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
 HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
@@ -89,14 +90,14 @@ HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf l
 HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=155 branches=32
 HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=69 branches=0
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=84 branches=21
-HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=172 branches=44
+HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=176 branches=44
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1428 branches=5
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=150 branches=63
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1456 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=154 branches=64
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=132 branches=10
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
-HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=205 branches=6
+HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=211 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
 HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
