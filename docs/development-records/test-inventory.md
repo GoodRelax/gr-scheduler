@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 111 | 1354 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 111 | 1356 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 69 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 141 | 3254 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 301 | 4883 | 12 | 18 | 9 | 1 |
+| **all** | | | 301 | 4885 | 12 | 18 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -256,7 +256,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
 | `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
 | `tests/contract/cr-588-no-pre-change-plan-asks-for-the-file.contract.test.ts` | 23 | FR-015 | - | T-024a, T-027, T-109, T-202 | IC-4, OP-2, OP-3, OP-4, OP-13, OP-15, QN-5, RD-3, S-5, S-6, S-69, U-56, UN-7, UN-18 | - | - | - | - |
-| `tests/contract/cr-588-the-baseline-route-keeps-the-save-target.contract.test.ts` | 12 | FR-060 | - | T-024a, T-109 | IC-4, OP-2, OP-9, OP-15 | - | - | - | - |
+| `tests/contract/cr-588-the-baseline-route-keeps-the-save-target.contract.test.ts` | 14 | FR-060 | - | T-024a, T-109 | IC-4, OP-2, OP-9, OP-15 | - | - | - | - |
 | `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 28 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339 | BL-1, BL-2, BL-3, BL-4, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
 | `tests/contract/cr-592-monochrome-greys-every-t-236-row.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-147, S-159, S-162, S-163, S-169, S-183, S-311 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |

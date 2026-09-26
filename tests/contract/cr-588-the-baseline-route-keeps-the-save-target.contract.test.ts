@@ -29,6 +29,9 @@ const OP_2_ROUTES = '| OP-2 | 経路 | ファイル選択、およびドラッ�
 const OP_9_NEITHER_REPLACES_NOR_MERGES = '**現在の文書を置き換えも合流もしないこと（MUST NOT）。'
 const FR_060_OVERWRITES_THE_OPENED_FILE =
   '**STATEMENT**: 作成者が開いたファイルを保存するとき、`GRS` は、**同じファイルへ上書きできるようにすること。**'
+const FR_060_OVERLAY_KEEPS_THE_SAVE_TARGET =
+  '合流と重ね（表 T-024a の `OP-3`）で開いた後も、上書きする先はそれまでのままとすること（MUST）'
+const FR_060_ONLY_A_REPLACE_ADOPTS = '読んだファイルを上書きする先にするのは置き換えだけである'
 const IC_4_ASKS = '⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`）'
 const FILE_FLOW_BASELINE_ROUTE = '`baseline`（重ねる予定が無いときの変更前の予定の入口。`OP-3` を問わずに重ねる）'
 
@@ -131,7 +134,8 @@ function settled(): Promise<void> {
   })
 }
 
-// WHY: plan.json is opened through the ordinary chooser first, so FR-060 has a target the overlay could steal.
+// WHY: FR-060 lets only a replace adopt the file read, so plan.json is chosen and then adopted (the replace lands),
+// giving FR-060 a target the overlay could steal.
 async function withOpenedFile(): Promise<{ built: Stand; opened: Fake; overlay: Fake }> {
   const built = stand()
   const opened = fakeFile('plan.json', OPENED_BYTES)
@@ -139,6 +143,7 @@ async function withOpenedFile(): Promise<{ built: Stand; opened: Fake; overlay: 
   built.answerNext(opened)
   const first = await built.store.readFileToOpen('chooser')
   expect(first.ok, 'premise: the chooser read the file to open').toBe(true)
+  built.store.adoptFileReadToOpen()
   await expect(built.store.readOpenedFileState()).resolves.toEqual({ kind: 'writable', fileName: 'plan.json' })
   pickerCalls = []
   return { built, opened, overlay }
@@ -153,6 +158,11 @@ describe('CR-588 premises -- the clauses these cases quote still stand', () => {
 
   it('FR-060 still overwrites the file the author opened', () => {
     expect(REQUIREMENTS).toContain(FR_060_OVERWRITES_THE_OPENED_FILE)
+  })
+
+  it('FR-060 (CR-594) still keeps the save target through an overlay, and only a replace adopts the file read', () => {
+    expect(REQUIREMENTS).toContain(FR_060_OVERLAY_KEEPS_THE_SAVE_TARGET)
+    expect(REQUIREMENTS).toContain(FR_060_ONLY_A_REPLACE_ADOPTS)
   })
 
   it('T-109 IC-4 still asks for the file, and the fileFlow openRoute still carries baseline', () => {
@@ -225,11 +235,24 @@ describe('OP-9 / FR-060 (b) -- the file chosen for the overlay never becomes the
     expect(overlay.writes).toEqual([])
   })
 
-  it('control -- OP-2 via FR-060: a chooser read DOES adopt the chosen file as the save target', async () => {
+  it('control -- FR-060 「読んだファイルを上書きする先にするのは置き換えだけである」: a chooser read alone does not adopt the chosen file', async () => {
+    const { built, opened } = await withOpenedFile()
+    const other = fakeFile('other.json', OVERLAY_BYTES)
+    built.answerNext(other)
+    const reading = await built.store.readFileToOpen('chooser')
+    expect(reading.ok, 'premise: the chooser read the other file').toBe(true)
+    await expect(built.store.readOpenedFileState()).resolves.toEqual({ kind: 'writable', fileName: 'plan.json' })
+    await built.store.overwriteOpenedFile(SAVED_BYTES)
+    expect(opened.writes).toEqual([SAVED_BYTES])
+    expect(other.writes).toEqual([])
+  })
+
+  it('control -- FR-060 「読んだファイルを上書きする先にするのは置き換えだけである」: a chooser read followed by adoptFileReadToOpen() makes that file the save target', async () => {
     const { built, opened } = await withOpenedFile()
     const other = fakeFile('other.json', OVERLAY_BYTES)
     built.answerNext(other)
     await built.store.readFileToOpen('chooser')
+    built.store.adoptFileReadToOpen()
     await expect(built.store.readOpenedFileState()).resolves.toEqual({ kind: 'writable', fileName: 'other.json' })
     await built.store.overwriteOpenedFile(SAVED_BYTES)
     expect(other.writes).toEqual([SAVED_BYTES])
