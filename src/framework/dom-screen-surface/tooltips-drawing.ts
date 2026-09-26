@@ -20,6 +20,8 @@ const anchorRightOf = new WeakMap<Element, number>()
 
 const WINDOW_SIDES = 2
 
+const LINE_BREAK = '\n'
+
 // see EZ-2, IN-7
 /** @purity pure */
 function tooltipStyle(): string {
@@ -40,9 +42,7 @@ export function tooltipElement(
   const drawn = made(host, 'div', tooltipStyle())
   drawn.setAttribute('role', 'tooltip')
   drawn.setAttribute('data-anchor', key)
-  const words = made(host, 'span', '')
-  words.textContent = tip.assignment ? `${tip.text} ` : tip.text
-  drawn.append(words)
+  appendTextLines(host, drawn, tip.assignment ? `${tip.text} ` : tip.text)
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
   if (tip.at !== undefined) {
@@ -62,6 +62,23 @@ export function tooltipElement(
   drawn.setAttribute('style', tooltipStyle() + `left:${foundAt.left}px;top:${foundAt.bottom}px;`)
   anchorRightOf.set(drawn, foundAt.right)
   return drawn
+}
+
+// see EZ-6, IN-7
+/** @purity non-pure */
+function appendTextLines(host: Document, drawn: HTMLElement, text: string): void {
+  const lines = text.split(LINE_BREAK)
+  if (lines.length === 1) {
+    const words = made(host, 'span', '')
+    words.textContent = text
+    drawn.append(words)
+    return
+  }
+  for (const line of lines) {
+    const row = made(host, 'div', '')
+    row.textContent = line
+    drawn.append(row)
+  }
 }
 
 // see EZ-2, IN-7
