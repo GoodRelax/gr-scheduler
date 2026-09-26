@@ -110,6 +110,7 @@ const BASIC_ROWS = new Set([
   'MK-2',
   'MK-5',
   'MK-7',
+  'MK-15',
 ])
 
 const AFTER_OPENING: Readonly<Record<string, string>> = {

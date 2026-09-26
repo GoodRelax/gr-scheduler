@@ -99,6 +99,7 @@ import {
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
+  leaderOf,
   type Path,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -2084,6 +2085,77 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
         const columnCentre = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
         expect(anchor.x, `pinned ${pinned.length}: not the centre of the day 5 column`).toBeCloseTo(columnCentre, 6)
         expect(anchor.y, `pinned ${pinned.length}: not the centre of the row band`).toBeCloseTo(row.y + row.height / 2, 6)
+      }
+    },
+  )
+})
+
+describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)', () => {
+  it(
+    swsCase({
+      sws: 'SWS-4',
+      level: 'Integration',
+      covers: ['LF-17'],
+      given: 'a comment box anchored to day 5 of the second row, its body placed up-right, up-left, down-right and down-left of the anchor, and inside it',
+      when: 'geometryFromLayout places the box and leaderOf draws its leader',
+      then: 'the leader joins the anchor and the corner on the anchor side of each middle, and there is none while the anchor is inside the body',
+    }),
+    () => {
+      mentions(T221, 'LF-17', '`LF-15`', '横の中点より右', '縦の中点より上', '左と下', '縁を含む')
+      const bare = draw(
+        [task({ uid: 1, name: 'a', start: day(2), finish: day(8) })],
+        ['g1'],
+        [taskVisual(1)],
+        {},
+        null,
+        ['g1', 'g2'],
+      )
+      const placed = (dx: number, dy: number) => {
+        const schedule = {
+          ...bare.schedule,
+          commentBoxes: [
+            {
+              id: 'c1',
+              leaderShapeKind: 'polyline',
+              text: 'note',
+              anchorDate: day(5),
+              anchorGroupId: 'g2',
+              bodyOffsetPx: { dx, dy },
+              strokeColor: null,
+              strokeWidthPx: null,
+              fillColor: null,
+              fillTransparencyPercent: null,
+              textColor: null,
+            },
+          ],
+        } as unknown as Schedule
+        const layout = layoutFromSchedule(schedule, bare.settings, bare.regions)
+        const geometry = geometryFromLayout(schedule, bare.settings, layout, bare.regions, emptySelection(), null)
+        const comment = geometry.commentBoxes.find((one) => one.id === 'c1')
+        if (comment === undefined) throw new Error(`(${dx}, ${dy}): the geometry placed no comment box`)
+        return comment
+      }
+      // WHY: LF-15 fixes the anchor and FR-097 the body's size, so each placement is set from the size drawn.
+      const { width, height } = placed(40, -40).body
+      const cases = [
+        { name: 'bottom-left', dx: 40, dy: -40, corner: (b: ScreenRect) => ({ x: b.x, y: b.y + b.height }) },
+        { name: 'bottom-right', dx: -(width + 40), dy: -40, corner: (b: ScreenRect) => ({ x: b.x + b.width, y: b.y + b.height }) },
+        { name: 'top-left', dx: 40, dy: height + 40, corner: (b: ScreenRect) => ({ x: b.x, y: b.y }) },
+        { name: 'top-right', dx: -(width + 40), dy: height + 40, corner: (b: ScreenRect) => ({ x: b.x + b.width, y: b.y }) },
+        // WHY: the tie of LF-17 -- the anchor level with the body's vertical middle takes the bottom corner.
+        { name: 'bottom-left (tie)', dx: 40, dy: height / 2, corner: (b: ScreenRect) => ({ x: b.x, y: b.y + b.height }) },
+      ]
+      for (const one of cases) {
+        const comment = placed(one.dx, one.dy)
+        const leader = leaderOf(comment)
+        if (leader === null) throw new Error(`${one.name}: no leader`)
+        const ends = [...leader].map((p) => `${twoPlaces(p.x)},${twoPlaces(p.y)}`).sort()
+        const corner = one.corner(comment.body)
+        const wanted = [comment.anchor, corner].map((p) => `${twoPlaces(p.x)},${twoPlaces(p.y)}`).sort()
+        expect(ends, `${one.name}: the leader does not join the anchor and that corner`).toEqual(wanted)
+      }
+      for (const [dx, dy] of [[-10, 5], [0, 0]] as const) {
+        expect(leaderOf(placed(dx, dy)), `(${dx}, ${dy}): the anchor is inside the body, edges included`).toBeNull()
       }
     },
   )
