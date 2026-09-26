@@ -124,6 +124,13 @@ function actualCleared(task: Task): Task {
   })
 }
 
+// see T-223 DU-1, PV-4, FR-090
+// WHY: every road that copies a Task makes an unstarted copy; the copy's percent is 0 even without plan dates.
+/** @purity pure */
+export function unstartedCopyOf(task: Task): Task {
+  return { ...actualCleared(task), percentComplete: 0 }
+}
+
 // see PV-1
 /** @purity pure */
 function startedAgain(task: Task, remembered: RememberedActual | null,

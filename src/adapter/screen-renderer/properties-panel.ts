@@ -401,10 +401,18 @@ function controlOf(
     text,
     choices: candidates === null ? null : candidates.words,
     ...(values === null ? {} : { choiceValues: values }),
-    min: kind === 'number' ? (shape?.min ?? null) : null,
-    max: kind === 'number' ? (shape?.max ?? null) : null,
+    min: kind === 'number' ? (shape?.min ?? annotationBoundsOf(entity, column)?.min ?? null) : null,
+    max: kind === 'number' ? (shape?.max ?? annotationBoundsOf(entity, column)?.max ?? null) : null,
     widthInFontSizes: widthOf(text, candidates === null ? null : candidates.words, labelCoef),
   }
+}
+
+// see FR-006, T-217
+// WHY: the schema leaves these columns unbounded on purpose; table T-217 holds their range (FR-006).
+/** @purity pure */
+function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly min: number; readonly max: number } | null {
+  const key = `${entity}.${column}`
+  return Object.values(NOT_STORED_ANNOTATION_BOUNDS).find((row) => row.key === key) ?? null
 }
 
 // see FR-006, FR-093, S-199
@@ -927,12 +935,27 @@ export function propertiesPanelFromSelection(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/_source/settings.json (tables T-206 and T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   readonly 'S-199': number
 } = {
   'S-199': 2.19,
+}
+
+// see T-217, FR-006, FR-019
+const NOT_STORED_ANNOTATION_BOUNDS: {
+  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
+} = {
+  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 8 },
+  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 8 },
+  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
 }
 // </generated>

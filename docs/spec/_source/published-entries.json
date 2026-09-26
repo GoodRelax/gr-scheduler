@@ -969,6 +969,15 @@
      }
     },
     {
+     "name": "pastedUidsOf",
+     "note": {
+      "ja": [
+       "写し元の `UID` から、`CM-8` がその写しに払い出す `UID` への対応 —— `FR-033`。",
+       "⭐ `InputCommandTranslator` が `Ctrl` ドラッグの写しを離した後の選択にする（表 T-308 の `CY-8`）ために公開した。払い出しの持ち主は `CM-8` 1 つのまま"
+      ]
+     }
+    },
+    {
      "name": "searchJumpWrites",
      "note": {
       "ja": [

@@ -252,11 +252,38 @@ function commandFromGroupColumn(
   }
 }
 
-const HIGHLIGHT_BOX_STROKE_COLUMN = 'strokeColor'
+type HighlightBox = Schedule['highlightBoxes'][number]
+
+// see PR-22, PR-23, PR-24, PR-25, CM-55, CM-77, CM-78, CM-79
+// WHY: a number the field cannot read writes nothing; an empty field writes null, which draws T-217's default.
+/** @purity pure */
+function commandFromHighlightBoxColumn(
+  box: HighlightBox,
+  column: string,
+  text: string,
+  dark: boolean,
+): readonly DocumentCommand[] {
+  const id = box.id
+  const number = settledNumber(text)
+  switch (column) {
+    case 'strokeColor':
+      return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+    case 'fillColor':
+      return [{ kind: 'setHighlightBoxFillColor', id, fillColor: settledColour(text, box.fillColor, dark) }]
+    case 'strokeWidthPx':
+      return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidth', id, strokeWidthPx: number }]
+    case 'fillTransparencyPercent':
+      return number === undefined
+        ? []
+        : [{ kind: 'setHighlightBoxFillTransparency', id, fillTransparencyPercent: number }]
+    default:
+      return []
+  }
+}
 
 type BoxKey = Extract<FieldCommit['key'], { holder: 'commentBox' | 'highlightBox' }>
 
-// see PR-21, PR-22, CM-55, FR-019
+// see PR-21, PR-22, PR-23, PR-24, PR-25, FR-019
 /** @purity pure */
 function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dark: boolean): readonly DocumentCommand[] {
   const id = key.id
@@ -265,8 +292,7 @@ function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dar
     return isHeld ? [{ kind: 'setCommentBoxText', id, text: settledText(text) }] : []
   }
   const box = schedule.highlightBoxes.find((held) => held.id === id)
-  if (box === undefined || key.column !== HIGHLIGHT_BOX_STROKE_COLUMN) return []
-  return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+  return box === undefined ? [] : commandFromHighlightBoxColumn(box, key.column, text, dark)
 }
 
 // see FR-009, CM-38

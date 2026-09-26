@@ -45,11 +45,17 @@ const ADD_TOP_ROW_ENTRY = 'IC-93'
 
 const DELETE_EVERY_ROW_ENTRY = 'IC-106'
 
-// see HF-20, HF-4
-const HEAD_PAIR_RANKS = {
-  remove: 0,
-  add: 1,
-} as const
+// see HF-10, HF-12
+// WHY: one line, left to right; each entry's step from the right edge is read from here only.
+const HEAD_RUN = [
+  COLLAPSE_EVERY_ROW_ENTRY,
+  OPEN_LEVEL_ZERO_ENTRY,
+  OPEN_EVERY_ROW_ENTRY,
+  ADD_TOP_ROW_ENTRY,
+  DELETE_EVERY_ROW_ENTRY,
+] as const
+
+type HeadIcon = (typeof HEAD_RUN)[number]
 
 export const DELETE_ROW_ENTRY = 'IC-82'
 
@@ -411,9 +417,8 @@ function panelCornerEntryElement(
   host: Document,
   icon: string,
   stepsFromEdge: number,
-  rank = 0,
 ): HTMLElement {
-  const entry = made(host, 'button', panelCornerEntryStyle(stepsFromEdge, true, rank))
+  const entry = made(host, 'button', panelCornerEntryStyle(stepsFromEdge, true))
   entry.setAttribute('type', 'button')
   entry.setAttribute('data-icon', icon)
   entry.setAttribute('aria-label', icon)
@@ -421,14 +426,13 @@ function panelCornerEntryElement(
   return entry
 }
 
-// see HF-10, HF-20
+// see HF-10
 /** @purity pure */
-function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean, rank = 0): string {
+function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   return (
     (canAct ? entryStyle('S-243') : entryFaintStyle('S-243')) +
     STYLE.panelCornerEntry +
-    `right:${panelCornerStepPx() * stepsFromEdge}px;` +
-    (rank === 0 ? '' : `top:${panelCornerStepPx() * rank}px;`)
+    `right:${panelCornerStepPx() * stepsFromEdge}px;`
   )
 }
 
@@ -441,53 +445,71 @@ function panelCornerStepPx(): number {
 }
 
 /** @purity pure */
+function headStepFromEdge(icon: HeadIcon): number {
+  return HEAD_RUN.length - 1 - HEAD_RUN.indexOf(icon)
+}
+
+// see HF-12
+/** @purity pure */
 export function headFoldedRowCountRight(): string {
-  return `right:${panelCornerStepPx() * 4}px;`
+  return `right:${panelCornerStepPx() * HEAD_RUN.length}px;`
 }
 
 /** @purity non-pure */
-export function markPanelCornerEntry(
+function markPanelCornerEntry(
   entry: HTMLElement,
   stepsFromEdge: number,
   canAct: boolean | undefined,
-  rank = 0,
 ): void {
   const usable = canAct !== false
-  entry.setAttribute('style', panelCornerEntryStyle(stepsFromEdge, usable, rank))
+  entry.setAttribute('style', panelCornerEntryStyle(stepsFromEdge, usable))
   entry.setAttribute('data-enabled', String(usable))
   if (usable) entry.removeAttribute('aria-disabled')
   else entry.setAttribute('aria-disabled', 'true')
 }
 
-// see HF-17
-/** @purity non-pure */
-function addTopRowElement(host: Document): HTMLElement {
-  return panelCornerEntryElement(host, ADD_TOP_ROW_ENTRY, 0, HEAD_PAIR_RANKS.add)
+export interface HeadEntries {
+  readonly openEveryRow: HTMLElement
+  readonly collapseEveryRow: HTMLElement
+  readonly openLevelZero: HTMLElement
+  readonly addTopRow: HTMLElement
+  readonly deleteEveryRow: HTMLElement
 }
 
-// see HF-20, IC-106
 /** @purity non-pure */
-function deleteEveryRowElement(host: Document): HTMLElement {
-  return panelCornerEntryElement(host, DELETE_EVERY_ROW_ENTRY, 0, HEAD_PAIR_RANKS.remove)
+function headEntryElement(host: Document, icon: HeadIcon): HTMLElement {
+  return panelCornerEntryElement(host, icon, headStepFromEdge(icon))
+}
+
+/** @purity non-pure */
+function markHeadEntry(
+  entry: HTMLElement,
+  icon: HeadIcon,
+  canAct: boolean | undefined,
+): void {
+  markPanelCornerEntry(entry, headStepFromEdge(icon), canAct)
 }
 
 // see HF-10, HF-12, HF-16, HF-17, HF-20
 /** @purity non-pure */
-export function headEntryElements(host: Document) {
+export function headEntryElements(host: Document): HeadEntries {
   return {
-    openEveryRow: panelCornerEntryElement(host, OPEN_EVERY_ROW_ENTRY, 1),
-    collapseEveryRow: panelCornerEntryElement(host, COLLAPSE_EVERY_ROW_ENTRY, 2),
-    openLevelZero: panelCornerEntryElement(host, OPEN_LEVEL_ZERO_ENTRY, 3),
-    addTopRow: addTopRowElement(host),
-    deleteEveryRow: deleteEveryRowElement(host),
+    openEveryRow: headEntryElement(host, OPEN_EVERY_ROW_ENTRY),
+    collapseEveryRow: headEntryElement(host, COLLAPSE_EVERY_ROW_ENTRY),
+    openLevelZero: headEntryElement(host, OPEN_LEVEL_ZERO_ENTRY),
+    addTopRow: headEntryElement(host, ADD_TOP_ROW_ENTRY),
+    deleteEveryRow: headEntryElement(host, DELETE_EVERY_ROW_ENTRY),
   }
 }
 
-// see HF-17, HF-20
+// see HF-10, HF-17, HF-20
 /** @purity non-pure */
-export function markHeadPair(addTopRow: HTMLElement, deleteEveryRow: HTMLElement): void {
-  markPanelCornerEntry(addTopRow, 0, true, HEAD_PAIR_RANKS.add)
-  markPanelCornerEntry(deleteEveryRow, 0, true, HEAD_PAIR_RANKS.remove)
+export function markHeadEntries(entries: HeadEntries, panel: RowTitlePanel): void {
+  markHeadEntry(entries.collapseEveryRow, COLLAPSE_EVERY_ROW_ENTRY, panel.canCloseEveryRow)
+  markHeadEntry(entries.openLevelZero, OPEN_LEVEL_ZERO_ENTRY, panel.canOpenLevelZero)
+  markHeadEntry(entries.openEveryRow, OPEN_EVERY_ROW_ENTRY, panel.canOpenEveryRow)
+  markHeadEntry(entries.addTopRow, ADD_TOP_ROW_ENTRY, true)
+  markHeadEntry(entries.deleteEveryRow, DELETE_EVERY_ROW_ENTRY, true)
 }
 
 // WHY: inferred from row tops: ScreenFrame carries no corner rectangle and no ruler height.

@@ -63,6 +63,11 @@ function chromeGround(scene: ExportScene): string {
   return colourOf('S-150', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
 }
 
+/** @purity pure */
+function pictureGround(scene: ExportScene): string {
+  return colourOf('S-146', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+}
+
 // see EP-1, EP-3
 /** @purity pure */
 function chromeInk(scene: ExportScene): string {
@@ -163,7 +168,7 @@ function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): s
     .join('')
 }
 
-// see FR-025, FR-080
+// see FR-025, FR-080, IX-10
 /** @purity pure */
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
@@ -199,6 +204,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     `<rect x="0" y="0" width="${rounded(width)}" height="${rounded(height)}"/>` +
     '</clipPath></defs>' +
     `<g clip-path="url(#${FIT_CLIP_ID})">` +
+    rectSvg({ x: 0, y: 0, width, height }, pictureGround(scene)) +
     `<g transform="scale(${ratioText(ratio)})">${scene.svg}</g>` +
     drawnHere +
     '</g></svg>'
