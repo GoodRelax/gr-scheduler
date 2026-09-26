@@ -45,7 +45,6 @@ copy | rounded :: rounds as svg renderer ts does change both together
 twin: src/adapter/svg-renderer/svg-renderer.ts#rounded
 why: published by SvgRenderer's entry and ImageExporter->SvgRenderer is declared; nothing stops the fold -- import it.
 
-copy | commandFromDualCursorEntry :: the esc path in frame loop ts writes the same
 twin: src/framework/single-html-shell/frame-loop.ts#CLEAR_DUAL_CURSOR (the Esc effect writeClearDualCursor)
 why: the shell now clears through the screen-values state machine (ESCAPE_DUAL_CURSOR); same clearing in another form, no one symbol to import (SingleHtmlShell->InputCommandTranslator declared).
 

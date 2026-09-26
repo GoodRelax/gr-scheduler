@@ -15,8 +15,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { rowTitleFontPxOf, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
-import { colourOf } from '../svg-renderer/svg-renderer'
-import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
+import { colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
 export type {
@@ -32,7 +31,7 @@ export interface ExportScene {
   readonly regions: ScreenRegions
   readonly screenView: ScreenView
   readonly settings: DocumentSettings
-  readonly themePreference: ScreenValues['themePreference']
+  readonly themePreference: ViewerValues['themePreference']
   readonly themeHue: number
 }
 

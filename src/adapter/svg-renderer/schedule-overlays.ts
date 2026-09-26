@@ -4,7 +4,6 @@
 // @purity    pure
 
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type {
   Point,
@@ -34,10 +33,18 @@ import {
   type Watermark,
 } from './svg-renderer'
 
+// see S-72, S-66
+// WHY: the two screen values the picture reads, spelled here so the renderer
+// depends on no use case; ScreenValues satisfies it as it stands.
+export interface ViewerValues {
+  readonly themePreference: 'light' | 'dark'
+  readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical'
+}
+
 export interface OverlaysInput {
   readonly geometry: ScheduleGeometry
   readonly settings: DrawnSettings
-  readonly guideCursorMode: ScreenValues['guideCursorMode']
+  readonly guideCursorMode: ViewerValues['guideCursorMode']
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
   readonly themed: (rowId: string) => string

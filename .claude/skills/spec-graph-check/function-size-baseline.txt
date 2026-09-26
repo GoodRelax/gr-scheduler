@@ -1,4 +1,5 @@
 excess-lines=6261 excess-branches=674
+# PRUNED schedule-invariants.ts::find~16 (held 52/10) and task-plan-actual.ts::beginTaskActual (held 51/5) on 2026-09-27 under JDG-520: CR-572 wave 2b dropped the IV-13 case and the constant reads, and both fell below the band.
 # PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
 # PRUNED row-tree-entrances.ts::wouldMoveARow (held 52/23) on 2026-09-26 under JDG-520: CR-570 moved its writes to treeStateWritesFor and it fell below the band.
 # LOWERED 6269/674 -> 6261/674 on 2026-09-25 under JDG-520: CR-565 shrank documentFromJson, modalElement and boot; measured on f1b93b9b.
@@ -64,7 +65,6 @@ HELD src/adapter/svg-renderer/schedule-task-figures.ts::dependencyLinkParts line
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45
 HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=221 branches=19
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
-HELD src/entity/document-model/schedule/schedule-invariants.ts::find~16 lines=52 branches=10
 HELD src/entity/document-model/schedule/schedule-invariants.ts::nestingOf lines=61 branches=14
 HELD src/entity/layout-engine/schedule-geometry/dependency-route.ts::routeOf lines=68 branches=11
 HELD src/entity/layout-engine/schedule-geometry/progress-line.ts::progressLineOf lines=40 branches=16
@@ -110,7 +110,6 @@ HELD src/use-case/edit-document/edit-task.ts::editTask lines=133 branches=36
 HELD src/use-case/edit-document/task-create.ts::createTask lines=84 branches=6
 HELD src/use-case/edit-document/task-group-naming.ts::createTaskGroup lines=59 branches=10
 HELD src/use-case/edit-document/task-group-order.ts::moveTaskGroup lines=61 branches=12
-HELD src/use-case/edit-document/task-plan-actual.ts::beginTaskActual lines=51 branches=5
 HELD src/use-case/edit-document/task-plan-actual.ts::setTaskPlanActualState lines=88 branches=14
 HELD src/use-case/import-document/import-document.ts::builtMerge lines=279 branches=56
 HELD src/use-case/import-document/import-document.ts::mergedDocument lines=94 branches=17

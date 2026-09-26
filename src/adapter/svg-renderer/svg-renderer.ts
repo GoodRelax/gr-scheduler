@@ -25,19 +25,18 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
-import { overlayParts, watermarkSvg } from './schedule-overlays'
+import { overlayParts, watermarkSvg, type ViewerValues } from './schedule-overlays'
 import {
   dependencyArrowSvg,
   dependencyLinkParts,
   taskFigureParts,
 } from './schedule-task-figures'
-import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
 
 export type { SvgSurface } from './svg-surface'
 
 export type SchedulePicture = 'screen' | 'export'
 
-export type ViewerValues = Pick<ScreenValues, 'themePreference' | 'guideCursorMode'>
+export type { ViewerValues }
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
