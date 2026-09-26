@@ -149,17 +149,44 @@ const watchedRasterizer = (): Watched => {
   }
 }
 
+// see IX-4, FR-080
+const rawOf = (screen: Screen): number => (screen.height * S_81_WIDTH) / screen.width
+
+// see IX-4, S-217
+const underTheCapOnlyOnceWhole = ((): Screen => {
+  for (let width = 1377; width < 2 * S_81_WIDTH; width += 1) {
+    const height = Math.floor((S_217_CAP * width) / S_81_WIDTH)
+    const raw = rawOf({ width, height })
+    if (raw < S_217_CAP - 0.01 && raw > S_217_CAP - 1 + 0.01) return { width, height }
+  }
+  throw new Error('no screen puts the raw height strictly between S-217 - 1 and S-217')
+})()
+
+// see IX-4, S-217
+const exactlyTheCap = ((): Screen => {
+  for (let width = 400; width < 2 * S_81_WIDTH; width += 1) {
+    if ((S_217_CAP * width) % S_81_WIDTH === 0) return { width, height: (S_217_CAP * width) / S_81_WIDTH }
+  }
+  throw new Error('no screen puts the raw height exactly on S-217')
+})()
+
+const oneRowTaller = (screen: Screen): Screen => ({ width: screen.width, height: screen.height + 1 })
+
 const FITTING: readonly (Screen & { readonly why: string })[] = [
-  { width: 1373, height: 773, why: 'the full-screen surface of DFC-1143, raw 900.80' },
-  { width: 1536, height: 864, why: 'exactly 16:9, raw 900 exactly' },
-  { width: 1366, height: 768, why: 'wider than 16:9, raw 899.56 -- S-81 height is the floor' },
-  { width: 1363, height: 668, why: 'the windowed surface of DFC-1143, raw 784.15' },
-  { width: 1000, height: 800, why: 'ratio 1.6, raw 1280 exactly' },
-  { width: 1100, height: 700, why: 'ratio 1.4545..., raw 1018.18' },
-  { width: 999, height: 777, why: 'ratio 1.6016..., raw 1244.44' },
-  { width: 1920, height: 1201, why: 'ratio 0.8333..., raw 1000.83' },
-  { width: 1377, height: 3525, why: 'raw 4095.86, under S-217 only once whole' },
-  { width: 400, height: 1024, why: 'ratio 4, raw 4096 -- S-217 itself is allowed' },
+  { width: 1373, height: 773, why: 'the full-screen surface of DFC-1143, the IX-4 example' },
+  { width: 1536, height: 864, why: 'exactly 16:9' },
+  { width: 1366, height: 768, why: 'wider than 16:9 -- S-81 height is the floor' },
+  { width: 1363, height: 668, why: 'the windowed surface of DFC-1143 -- S-81 height is the floor' },
+  { width: 1000, height: 800, why: 'ratio above 1, taller than S-81' },
+  { width: 1100, height: 700, why: 'ratio above 1, a fractional raw height' },
+  { width: 999, height: 777, why: 'ratio above 1, a fractional raw height' },
+  {
+    width: (S_81_WIDTH * 6) / 5,
+    height: (S_81_HEIGHT * 6) / 5 + 1,
+    why: 'ratio 5/6, raw just over S-81 height',
+  },
+  { ...underTheCapOnlyOnceWhole, why: 'raw under S-217, under S-217 only once whole' },
+  { ...exactlyTheCap, why: 'raw exactly S-217 -- S-217 itself is allowed' },
 ]
 
 describe('FR-025 IX-4 -- the exported height is the least whole pixel count that holds the picture (DFC-1143)', () => {
@@ -218,10 +245,81 @@ describe('FR-025 IX-4 -- the exported height is the least whole pixel count that
   })
 })
 
+interface Fractional extends Screen {
+  readonly whole: number
+  readonly why: string
+}
+
+// see IX-4, NS-3
+const nearestToTheGridHalf = (): readonly Fractional[] => {
+  let below: Fractional | null = null
+  let above: Fractional | null = null
+  let belowRest = 0
+  let aboveRest = 1
+  for (let width = 1300; width <= 1400; width += 1) {
+    const lowest = Math.floor((S_81_HEIGHT * width) / S_81_WIDTH) + 1
+    const highest = Math.floor(((S_217_CAP - 1) * width) / S_81_WIDTH)
+    for (let height = lowest; height <= highest; height += 1) {
+      const rest = (height * S_81_WIDTH) % width
+      const whole = (height * S_81_WIDTH - rest) / width
+      const part = rest / width
+      if (rest > 0 && 200 * rest < width && part > belowRest) {
+        belowRest = part
+        below = { width, height, whole, why: 'a part below 0.005 px is not rounded up' }
+      }
+      if (200 * rest >= width && part < aboveRest) {
+        aboveRest = part
+        above = { width, height, whole: whole + 1, why: 'a part of 0.005 px or more goes to the next integer' }
+      }
+    }
+  }
+  if (below === null || above === null) throw new Error('no screen puts the raw height beside the 0.005 px edge')
+  return [below, above]
+}
+
+// see IX-4
+const theExampleOfIx4 = ((): Fractional => {
+  const row = specTable('T-241').rows.find((one) => one.id === 'IX-4')
+  if (row === undefined) throw new Error('table T-241 has no row IX-4')
+  const cell = (row.cells[row.cells.length - 1] ?? '').replace(/`/g, '')
+  const marker = cell.indexOf(String.fromCharCode(0x4f8b))
+  if (marker < 0) throw new Error('IX-4 no longer gives its worked example')
+  const numbers = numbersIn(cell.slice(marker))
+  const [width, height, , exampleWidth] = numbers as [number, number, number, number]
+  expect(exampleWidth, 'IX-4: the worked example multiplies by S-81 width, so it must be the width table T-204 holds').toBe(
+    S_81_WIDTH,
+  )
+  return { width, height, whole: numbers[6] as number, why: 'the worked example IX-4 itself gives' }
+})()
+
+describe('FR-025 IX-4 -- the 0.01 px grid comes before the whole pixel (CR-584 E-01)', () => {
+  it.each([theExampleOfIx4, ...nearestToTheGridHalf()])(
+    'exportSvg and exportPng on $width x $height write $whole px ($why)',
+    async (screen) => {
+      const scene = sceneOn(screen)
+      const picture = pictureOrThrow(exportSvg(scene))
+      const root = rootSizeOf(picture.svg)
+      const watched = watchedRasterizer()
+      await exportPng(watched.rasterizer, scene)
+      const wanted = Math.max(S_81_HEIGHT, screen.whole)
+
+      expect(
+        picture.heightPx,
+        `IX-4 (MUST) "round to the 0.01 px grid of NS-3, then up to the next integer": raw ${rawOf(screen)}`,
+      ).toBe(wanted)
+      expect(root.height, 'IX-4 (MUST) "the SVG height ... is this one integer"').toBe(wanted)
+      expect(root.viewBoxHeight, 'IX-4 (MUST) "the SVG height ... is this one integer" (viewBox)').toBe(wanted)
+      expect(
+        watched.sizes.map((size) => size.heightPx),
+        'IX-4 (MUST) "the PNG pixel height is this one integer"',
+      ).toEqual([wanted])
+    },
+  )
+})
+
 const REFUSED: readonly (Screen & { readonly why: string })[] = [
-  { width: 400, height: 1025, why: 'ratio 4, raw 4100' },
-  { width: 1377, height: 3526, why: 'raw 4097.02' },
-  { width: 1373, height: 3515, why: 'raw 4096.13 -- 4097 once whole' },
+  { ...oneRowTaller(exactlyTheCap), why: 'one screen row past the raw S-217' },
+  { ...oneRowTaller(underTheCapOnlyOnceWhole), why: 'raw just over S-217 -- S-217 + 1 once whole' },
 ]
 
 describe('FR-025 IX-5 -- past S-217 nothing is written (DFC-1143)', () => {
