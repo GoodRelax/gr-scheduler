@@ -70,6 +70,7 @@ MSPDI = 'tools/generate_mspdi_custom_fields.py'
 MSPDI_ORDER = 'tools/generate_mspdi_child_order.py'
 MACHINES_MD = 'docs/spec/_source/state_machines_json_to_md.py'
 MACHINES_TYPES = 'tools/generate_state_machine_types.py'
+VERIFICATION_MD = 'docs/spec/_source/verification_json_to_md.py'
 
 GENERATORS = {
     'settings.json': [SETTINGS_MD, ERD_SCHEMA, TYPES, STARTUP],
@@ -86,12 +87,15 @@ GENERATORS = {
     'mspdi-custom-fields.schema.json': [MSPDI],
     'state-machines.json': [MACHINES_MD, MACHINES_TYPES],
     'state-machines.schema.json': [MACHINES_MD, MACHINES_TYPES],
+    'verification.json': [VERIFICATION_MD],
+    'verification.schema.json': [VERIFICATION_MD],
     'settings_json_to_md.py': [SETTINGS_MD],
     'erd_json_to_md.py': [ERD_MD],
     'erd_json_to_schema.py': [ERD_SCHEMA],
     'property_items_json_to_md.py': [ITEMS_MD],
     'row_id_prefixes_json_to_md.py': [PREFIXES_MD],
     'state_machines_json_to_md.py': [MACHINES_MD, MACHINES_TYPES],
+    'verification_json_to_md.py': [VERIFICATION_MD],
     'build.py': [COMPONENTS],
 }
 

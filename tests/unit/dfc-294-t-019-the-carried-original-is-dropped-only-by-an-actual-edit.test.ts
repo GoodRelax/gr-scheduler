@@ -4,8 +4,8 @@
 // ---------------------------------------------------------------------------
 // WHERE 表 T-218 PUTS THIS FILE
 // ---------------------------------------------------------------------------
-// `TS-6`, tests/unit/ -- 「単体テスト | 持たない | —— | Unit | `tests/unit/` |
-// Vitest」. ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for a parent and
+// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
+// docs/spec/_assets/tbl-verification.md). ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for a parent and
 // Chapter 9 holds no `SW_SPEC_TEST` for the carry note, and this body owns
 // tests/ only -- it may not write a node into docs/spec to give itself one.
 // ⭐ The precedent is beside it: tests/unit/fr-021-the-outline-base-of-the-file-
