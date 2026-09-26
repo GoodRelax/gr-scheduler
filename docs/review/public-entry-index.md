@@ -652,7 +652,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
 | `typefaceAttribute` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#typefaceAttribute` | -- | function typefaceAttribute(): string |
-| `ViewerValues` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ViewerValues` | -- | type ViewerValues = Pick<ScreenValues, 'themePreference' \| 'guideCursorMode'> |
+| `ViewerValues` | entry | interface | `src/adapter/svg-renderer/schedule-overlays.ts#ViewerValues` | -- | interface ViewerValues |
 | `Watermark` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#Watermark` | -- | interface Watermark |
 | `WATERMARK_MARKS` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#WATERMARK_MARKS` | -- | const WATERMARK_MARKS: |
 | `bandWidthOf` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#bandWidthOf` | -- | function bandWidthOf(input: GridInput): number |
