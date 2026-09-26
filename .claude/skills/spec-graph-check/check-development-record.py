@@ -110,6 +110,9 @@ def main():
         # of that plan, one row per unsaved state, keyed by variable name.
         # refactor-stage3-gates-proposal-2026-09-15.md is the twelfth: stage 3
         # of that plan, one table per gate, keyed by gate rather than a folder.
+        # perf-pending.md is the thirteenth: the performance runs still owed,
+        # one row per landed change request (rule 04 section 5, JDG-605),
+        # keyed by change request rather than by a folder of units.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'handoff-state-machine.md',
@@ -117,7 +120,8 @@ def main():
             'src-comment-cleanup-report-2026-09-13.md',
             'refactor-plan-report-2026-09-13.md',
             'refactor-stage1-state-inventory-2026-09-13.md',
-            'refactor-stage3-gates-proposal-2026-09-15.md'
+            'refactor-stage3-gates-proposal-2026-09-15.md',
+            'perf-pending.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

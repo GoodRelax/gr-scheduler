@@ -17,9 +17,8 @@
 // Playwright) is not open to it: every case under `TS-3` is a `SW_SPEC_TEST` of
 // Chapter 9 and `TW-2` of table T-219 requires each to take an `SWS-xxx` of
 // Chapter 6.1 as its parent, and none of the eight `SW_SPEC` nodes reaches a
-// zoom press. Chapter 7 says in as many words that having no receptacle does
-// not excuse the case: 「⚠️ 受け皿が無いことは、書かなくてよいという意味では
-// ない」.
+// zoom press. Whether the case is written is decided by the omission
+// rows of rule 04 (table UO), not by a receptacle in table T-218.
 //
 // ---------------------------------------------------------------------------
 // ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE

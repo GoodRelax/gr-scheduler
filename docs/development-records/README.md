@@ -33,6 +33,8 @@ docs/development-records/
   fixed-defects.md   同・決着した行（`実測済` と `取下げ`）
   handoff.md         次の巡への引継ぎ。⛔ 番号を増やさず、毎巡この 1 ファイルを書き換える
   magic-numbers.md   src/ のマジックナンバーの作業表（ファイル単位。不具合台帳とは別）
+  perf-pending.md    性能の測り待ち（1 行 1 変更要求。規則 04 の 5 節の表 PW、JDG-605）
+  measurements/performance-runs.md  GRS_PERF=1 で回した性能の走行の記録（1 走行 1 行。同上）
   src-comment-cleanup-report-2026-09-13.md  src/ のコメント整理（裁定 17・18）の状況報告（2026-09-13 時点の写し）
   refactor-plan-report-2026-09-13.md  リファクタ計画（神ファイルの解体と、自前の状態機械への移行。段ごと）
   refactor-stage1-state-inventory-2026-09-13.md  リファクタ段 1 の棚卸し（保存しない状態 1 つにつき 1 行と、その依存）

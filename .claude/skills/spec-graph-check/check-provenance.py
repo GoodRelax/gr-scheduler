@@ -44,6 +44,10 @@ ARTIFACTS = [
     # that unit is hand written -- the transition functions -- so its banner
     # has to say which part is generated.
     ('docs/spec/_assets/tbl-state-machines.md', 'state-machines.json'),
+    # Tables T-334 and T-218 of Chapter 7 (CR-573, JDG-607). The T-218 column
+    # saying what a place verifies is derived from the T-334 rows, so a hand
+    # edit there would disagree with the manuscript twice over.
+    ('docs/spec/_assets/tbl-verification.md', 'verification.json'),
     ('src/use-case/advance-screen-session/screen-values.ts',
      'state-machines.json'),
     ('src/use-case/advance-screen-session/notice-values.ts',

@@ -35,8 +35,8 @@
 // ---------------------------------------------------------------------------
 // WHERE 表 T-218 PUTS THIS FILE
 // ---------------------------------------------------------------------------
-// `TS-6`, tests/unit/ -- 「単体テスト | 持たない | —— | Unit | `tests/unit/` |
-// Vitest」. The unit is `UF-48` of 表 T-075 (`frame-loop.ts`, `CP-25` of 表
+// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
+// docs/spec/_assets/tbl-verification.md). The unit is `UF-48` of 表 T-075 (`frame-loop.ts`, `CP-25` of 表
 // T-062): 表 T-060's `LY-5` makes it the only layer that may hold a current
 // value, so it is the side that knows a file operation is already in flight.
 // ⛔ NOT tests/system/: `TS-3` takes 「`SWS-xxx`」 for a parent and what is
