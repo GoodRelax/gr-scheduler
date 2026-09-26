@@ -26,7 +26,7 @@ export function drawnAnnotationNumber(held: number | null, row: AnnotationNumber
   return Math.min(max, Math.max(min, held ?? NOT_STORED_ANNOTATION_SIZES[row]))
 }
 
-// see T-246 HB-10, HB-11
+// see HB-10, HB-11
 /** @purity pure */
 function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSideHandles'] {
   const shortest = NOT_STORED_HIGHLIGHT_HANDLE_SIZES['S-373']

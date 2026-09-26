@@ -32,7 +32,7 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
   return remap
 }
 
-// see T-308 CY-5
+// see CY-5
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
 function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
@@ -48,7 +48,7 @@ function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serial(day) + days)
 }
 
-// see CM-8, T-223 DU-1
+// see CM-8, DU-1
 // WHY: unstarted on every road that copies: the copy keeps the plan and the links closed inside the subtree.
 /** @purity pure */
 function copiedTask(one: Task, subtree: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
@@ -88,7 +88,6 @@ export function pasteTaskSubtree(
   const visualCopies = schedule.taskVisuals
     .filter((one) => subtree.has(one.taskUid))
     .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
-  // see T-308 CY-6
   const memberCopies = schedule.taskGroupMembers
     .filter((one) => subtree.has(one.taskUid))
     .map((one) => ({

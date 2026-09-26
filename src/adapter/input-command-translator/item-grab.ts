@@ -342,7 +342,7 @@ function clampedRowShift(
   return shiftWithinRows(rows, held, asked)
 }
 
-// see PE-1, T-308 CY-6
+// see PE-1, CY-6
 /** @purity pure */
 function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
@@ -350,7 +350,7 @@ function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[],
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
-// see T-023a PTD-7, T-308 CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
+// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
 // WHY: one CM-8 carrying where the copies land, so one drag is one undo step (FR-031); the rows are counted on
 // the copies alone -- the boxes CY-4 leaves behind do not hold the drag at an edge.
 /** @purity pure */
@@ -413,7 +413,7 @@ interface DraggedSides {
   readonly vertical: 'top' | 'bottom' | null
 }
 
-// see T-246 HB-7, HB-8..HB-11
+// see HB-7, HB-8, HB-9, HB-10, HB-11
 // WHY: a corner moves one side each way; a midpoint moves its one side and keeps the other direction (HB-7).
 /** @purity pure */
 function draggedSidesOf(part: Extract<NonNullable<Hit['boxPart']>, { kind: 'corner' | 'edge' }>): DraggedSides {
@@ -430,7 +430,7 @@ interface HeldRange {
   readonly late: CalendarDay
 }
 
-// see T-246 HB-4, HB-5, HB-6, HB-7
+// see HB-4, HB-5, HB-6, HB-7
 /** @purity pure */
 function grabPointRange(
   held: HeldRange,
@@ -538,10 +538,9 @@ function highlightBoxRangeWrite(
   ])
 }
 
-// see GR-14 (T-023d closing), CM-50, CM-51, FR-019, RS-44
-// WHY: one bundle of both writes, so one undo takes back both (FR-031): the body drag moves the box by the pull and
-// reads the anchor at its old point moved as far; the anchor drag reads the anchor where it is let go and keeps
-// the box where it stood on the screen. The box stands off its anchor, so CM-50 alone would carry it along.
+// see GR-14, CM-50, CM-51, FR-019, RS-44
+// WHY: CM-50 and CM-51 in one bundle, one undo (FR-031): the box stands off its anchor, so CM-50 alone would
+// carry the box along with a moved anchor.
 /** @purity pure */
 function commentBoxMoveWrite(
   context: InputContext,
@@ -569,7 +568,7 @@ function commentBoxMoveWrite(
   ])
 }
 
-// see FR-016 (T-023d closing), FD-5, JDG-659
+// see FR-016, FD-5
 // WHY: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
 // stood on stays unset instead of turning into an explicit 0, which draws flat.
 /** @purity pure */

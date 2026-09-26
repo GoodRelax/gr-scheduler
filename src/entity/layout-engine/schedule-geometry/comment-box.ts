@@ -9,7 +9,7 @@ import { xFromDay, type ScheduleLayout } from '../schedule-layout/schedule-layou
 import { drawnAnnotationNumber } from './highlight-box'
 import { point, type CommentGeometry, type Path, type Point } from './schedule-geometry'
 
-// see GR-14, T-221 LF-17
+// see GR-14, LF-17
 // WHY: the nearest of the four corners, chosen per axis against the body's middle (a tie takes left and bottom, the
 // offset's own corner); an anchor inside the body, edges included, has no leader -- any corner would cross the text.
 /** @purity pure */

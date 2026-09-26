@@ -114,7 +114,7 @@ export function watermarkSvg(
 
 const TRANSPARENT = 'transparent'
 
-// see FR-019, T-246 HB-8..HB-11
+// see FR-019, HB-8, HB-9, HB-10, HB-11
 // WHY: the drawn points must be the ones that answer, so the midpoints follow the geometry's hasSideHandles.
 /** @purity pure */
 function grabPointsOfBox(box: HighlightGeometry): readonly Point[] {
@@ -130,7 +130,7 @@ function grabPointsOfBox(box: HighlightGeometry): readonly Point[] {
   return points
 }
 
-// see FR-016 (T-023d closing), S-372, S-146, S-151, S-174
+// see FR-016, S-372, S-146, S-151, S-174
 // WHY: a fixed screen size, never scaled: the reach the square shows (S-230) is in screen px too.
 /** @purity pure */
 function grabPointSquares(box: HighlightGeometry, ground: string, edge: string): readonly string[] {
@@ -183,7 +183,7 @@ function highlightBoxSvg(
   return { fill: highlightFillSvg(box, chosen, rounding), frame, selection }
 }
 
-// see FR-019 (T-017b CV-6), LF-17, AT-148..AT-152
+// see FR-019, CV-6, LF-17
 // WHY: one colour and one width for the frame and the leader, which read as one line from the note to its point;
 // transparency is laid on the fill alone.
 /** @purity pure */
@@ -219,7 +219,7 @@ function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationCol
   return parts
 }
 
-// see FR-016 (T-023d closing), S-376, S-146, S-151, S-174
+// see FR-016, S-376, S-146, S-151, S-174
 // WHY: a fixed screen size, never scaled: the reach it shows (S-292) is in screen px too.
 /** @purity pure */
 function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): string {

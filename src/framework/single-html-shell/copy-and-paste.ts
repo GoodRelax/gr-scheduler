@@ -76,7 +76,7 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
   hands.writeDocument([command], frame)
 }
 
-// see FR-033, ST-7, T-308 CY-10
+// see FR-033, ST-7, CY-10
 // WHY: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
 /** @purity semi-pure-b */
 function isStackSafetyCapReachedBy(
@@ -100,8 +100,7 @@ function isStackSafetyCapReachedBy(
   return wouldDraw.stackSafetyCapReached !== null
 }
 
-// see T-023a PTD-7, T-308 CY-8, CY-10
-// WHY: the copies are picked only once they exist: a refused bundle writes nothing and leaves the choice as it was.
+// see PTD-7, CY-8, CY-10
 /** @purity non-pure */
 export function landCopyDrag(
   hands: CopyAndPasteHands,
