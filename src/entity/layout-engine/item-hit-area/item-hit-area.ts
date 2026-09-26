@@ -52,6 +52,7 @@ export type BoxPart =
       readonly horizontal: 'left' | 'right'
       readonly vertical: 'top' | 'bottom'
     }
+  | { readonly kind: 'edge'; readonly side: 'left' | 'right' | 'top' | 'bottom' }
 
 export interface Hit {
   readonly item: Item
@@ -846,24 +847,46 @@ function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | nul
   return null
 }
 
-// see GR-14
-// WHY: the nearest corner, not the first: on a one-day, one-row box at low zoom the four reaches overlap.
+// see T-246 HB-8..HB-11
+// TRAP: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
 /** @purity pure */
-function nearestCornerOf(box: ScreenRect, x: number, y: number, reach: number): BoxPart | null {
+function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; readonly part: BoxPart }[] {
+  const { x, y } = box.box
+  const right = rightOf(box.box)
+  const bottom = bottomOf(box.box)
+  const middleX = x + box.box.width / 2
+  const middleY = y + box.box.height / 2
+  const corner = (horizontal: 'left' | 'right', vertical: 'top' | 'bottom'): BoxPart =>
+    ({ kind: 'corner', horizontal, vertical })
+  const points = [
+    { at: { x, y }, part: corner('left', 'top') },
+    { at: { x: right, y: bottom }, part: corner('right', 'bottom') },
+    { at: { x: right, y }, part: corner('right', 'top') },
+    { at: { x, y: bottom }, part: corner('left', 'bottom') },
+  ]
+  if (box.hasSideHandles.leftRight) {
+    points.push({ at: { x, y: middleY }, part: { kind: 'edge', side: 'left' } })
+    points.push({ at: { x: right, y: middleY }, part: { kind: 'edge', side: 'right' } })
+  }
+  if (box.hasSideHandles.topBottom) {
+    points.push({ at: { x: middleX, y }, part: { kind: 'edge', side: 'top' } })
+    points.push({ at: { x: middleX, y: bottom }, part: { kind: 'edge', side: 'bottom' } })
+  }
+  return points
+}
+
+// see GR-14, T-246 HB-8..HB-11
+// WHY: the nearest point, not the first: on a one-day, one-row box at low zoom the eight reaches overlap.
+/** @purity pure */
+function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
   let found: BoxPart | null = null
   let nearest = Number.POSITIVE_INFINITY
-  for (const vertical of ['top', 'bottom'] as const) {
-    for (const horizontal of ['left', 'right'] as const) {
-      const corner = {
-        x: horizontal === 'left' ? box.x : rightOf(box),
-        y: vertical === 'top' ? box.y : bottomOf(box),
-      }
-      if (!isNearPoint(x, y, corner, reach, reach)) continue
-      const distance = Math.hypot(x - corner.x, y - corner.y)
-      if (distance < nearest) {
-        nearest = distance
-        found = { kind: 'corner', horizontal, vertical }
-      }
+  for (const { at, part } of grabPointsOf(box)) {
+    if (!isNearPoint(x, y, at, reach, reach)) continue
+    const distance = Math.hypot(x - at.x, y - at.y)
+    if (distance < nearest) {
+      nearest = distance
+      found = part
     }
   }
   return found
@@ -917,11 +940,13 @@ function noteHitOf(
     if (isOnPolyline(x, y, leaderOf(box), sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
   for (const box of geometry.highlightBoxes) {
-    const corner = nearestCornerOf(box.box, x, y, sizes['S-230'])
-    if (corner !== null) return highlightHit(box, corner)
+    const grabPoint = nearestGrabPointOf(box, x, y, sizes['S-230'])
+    if (grabPoint !== null) return highlightHit(box, grabPoint)
   }
   for (const box of geometry.highlightBoxes) {
-    if (isOnTheFrame(x, y, box.box, onShape ? 0 : sizes['S-293'])) {
+    // see T-246 HB-12: the reach is measured from the drawn line's edge, so it starts at half the drawn width
+    const half = box.strokeWidthPx / 2
+    if (isOnTheFrame(x, y, box.box, onShape ? half : half + sizes['S-293'])) {
       return highlightHit(box, { kind: 'body' })
     }
   }
@@ -1014,7 +1039,6 @@ export const NOT_STORED_SIZES: {
   readonly 'S-291': number
   readonly 'S-292': number
   readonly 'S-363': number
-  readonly 'S-373': number
 } = {
   'S-250': 12,
   'S-251': 0,
@@ -1063,6 +1087,5 @@ export const NOT_STORED_SIZES: {
   'S-291': 3,
   'S-292': 6,
   'S-363': 4,
-  'S-373': 36,
 }
 // </generated>
