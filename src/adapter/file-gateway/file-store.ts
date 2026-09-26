@@ -4,7 +4,8 @@
 // @purity    n/a
 // @seam      FileStore, implemented in another layer (LR-5)
 
-export type OpenRoute = 'chooser' | 'drop' | 'reopen'
+// see OP-2, OP-13, OP-15
+export type OpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline'
 
 export type FileStoreFaultReason =
   | 'cancelled'

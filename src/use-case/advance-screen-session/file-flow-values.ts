@@ -8,7 +8,7 @@ import type { DocumentCommand } from '../edit-document/edit-document'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
-export type FileFlowOpenRoute = 'chooser' | 'drop' | 'reopen' | 'handed'
+export type FileFlowOpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline' | 'handed'
 
 // WHY: ImportDocument's OpenChoice and MergeMapping again; no edge to that component is declared (check 59).
 export type FileFlowOpenChoice = 'replace' | 'merge' | 'baseline'
@@ -219,6 +219,12 @@ function isReopenRoute(operation: FileOperationState): boolean {
   return operation.kind === 'readingDocumentFile' && operation.openRoute === 'reopen'
 }
 
+// see OP-15
+/** @purity pure */
+function isBaselineRoute(operation: FileOperationState): boolean {
+  return operation.kind === 'readingDocumentFile' && operation.openRoute === 'baseline'
+}
+
 /** @purity pure */
 function isOverwriteQuestion(values: FileFlowValues): boolean {
   const confirmation = values.confirmationState
@@ -290,12 +296,17 @@ function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'docume
   return combined(values, { fileOperationState: writing }, [{ type: 'writeDocumentFile', writeForm: event.writeForm }])
 }
 
-// see T-290, OP-3, OP-13
+// see T-290, OP-3, OP-13, OP-15
 /** @purity pure */
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
   if (isReopenRoute(operation)) return discardAsked(values, event.question)
+  if (isBaselineRoute(operation)) {
+    const importing: FileOperationState = { kind: 'importingDocument' }
+    const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
+    return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
+  }
   const choosing: FileOperationState = { kind: 'awaitingOpenChoice' }
   return combined(values, { fileOperationState: choosing }, [{ type: 'raiseFlowSurface', surfaceName: 'U-56' }])
 }
