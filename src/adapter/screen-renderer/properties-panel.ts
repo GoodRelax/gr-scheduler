@@ -834,19 +834,31 @@ function settingsFields(
   return [themeHueField(schedule.project.themeHue, dark, language), ...readOnly]
 }
 
-// see CV-6, CV-9
-const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>[1]>> = {
+type ColourHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox
+
+// see CV-6, CV-9, FR-019
+const COLOUR_FORM_OF_COLUMN: Readonly<Partial<Record<ColourHolderColumn, ColourForm>>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
-  // see FR-019: a comment box's text takes the name's outline value, as its line does
   textColor: 'outline',
   color: 'band',
 }
 
-// see CV-9, S-315, FR-019
-const LEFT_OUT_NAME_OF_HOLDER: Readonly<Partial<Record<PropertyFieldKey['holder'], string>>> = {
-  taskGroup: 'black',
-  highlightBox: 'transparent',
+// see CV-9, AT-58, FR-019
+/** @purity pure */
+function colourChoicesOf(key: PropertyFieldKey): readonly string[] | null {
+  switch (key.holder) {
+    case 'taskVisual':
+      return COLUMN_SHAPES.TaskVisual[key.column]?.choices ?? null
+    case 'taskGroup':
+      return COLUMN_SHAPES.TaskGroup[key.column]?.choices ?? null
+    case 'commentBox':
+      return COLUMN_SHAPES.CommentBox[key.column]?.choices ?? null
+    case 'highlightBox':
+      return COLUMN_SHAPES.HighlightBox[key.column]?.choices ?? null
+    default:
+      return null
+  }
 }
 
 const HEX_PAINT = /^#[0-9a-f]{6}$/
@@ -881,13 +893,14 @@ function colourSide(stored: string | null, form: ColourForm, look: ColourLook, d
 // see CV-9, CV-4, CV-5, CV-7
 /** @purity pure */
 function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
-  const form = COLOUR_FORM_OF_COLUMN[control.key.column]
-  if (control.kind !== 'color' || form === undefined) return control
+  const forms: Readonly<Partial<Record<string, ColourForm>>> = COLOUR_FORM_OF_COLUMN
+  const form = forms[control.key.column]
+  const offered = colourChoicesOf(control.key)
+  if (control.kind !== 'color' || form === undefined || offered === null) return control
   const stored = control.text === '' ? null : control.text
   const custom = stored === null ? null : customColourOf(stored)
   const order = displayWords.colourNames.map((entry) => entry.spelling)
-  const leftOut = LEFT_OUT_NAME_OF_HOLDER[control.key.holder]
-  const names = order.filter((name) => name !== leftOut)
+  const names = order.filter((name) => offered.includes(name))
   const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps

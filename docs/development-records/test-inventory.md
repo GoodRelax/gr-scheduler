@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 106 | 1253 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 109 | 1286 | 3 | 5 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 136 | 3056 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 291 | 4583 | 12 | 19 | 9 | 1 |
+| **all** | | | 294 | 4616 | 12 | 20 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -249,6 +249,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-584-the-picture-is-painted-on-the-ground-colour.test.ts` | 8 | FR-017, FR-093 | - | T-076, T-201, T-204, T-205, T-206, T-236, T-238 | DS-1, EP-1, IX-10, S-8, S-30, S-33, S-73, S-81, S-83, S-84, S-135, S-146, S-225, S-235, TM-1, TM-2, TM-3 | - | - | - | - |
 | `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
 | `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
+| `tests/contract/cr-586-a-merge-and-the-readers-follow-task-milestone.test.ts` | 11 | FR-002, FR-009 | - | T-018, T-032, T-251, T-294 | DP-1, DP-3, MG-8, ND-1, ND-2, S-3, S-232 | - | - | - | - |
+| `tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts` | 10 | FR-002, FR-076 | - | T-017b, T-024a, T-036, T-103, T-220, T-233, T-251, T-294 | CV-9, IC-71, IO-2, IV-22, NT-1, OP-3, OP-4, OP-5, S-1, S-5, SK-10 | - | DFC-922 | - | - |
+| `tests/contract/cr-586-the-row-colour-list-is-one-and-black-is-refused.test.ts` | 12 | - | - | T-017b, T-233, T-294 | CM-30, CV-2, CV-9, RS-25, S-4, S-5, S-315 | - | - | - | - |
 | `tests/contract/cr-592-monochrome-greys-every-t-236-row.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-147, S-159, S-162, S-163, S-169, S-183, S-311 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts` | 8 | FR-006 | - | T-016, T-034, T-036, T-062, T-065, T-067, T-078, T-103, T-218 | BT-4, CP-25, CP-38, FT-1, IF-1, IF-9, PR-1, PR-2, PR-9, PR-12, SK-19, TS-6, U-25, UF-48, UF-71, WS-1, WS-3, WS-6, WS-7 | - | - | - | - |

@@ -359,7 +359,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withSchedule` | -- | function withSchedule(document: Document, part: Partial<Schedule>): Document |
 | `blankVisual` | file only | function | `src/use-case/edit-document/edit-task.ts#blankVisual` | -- | function blankVisual(taskUid: number): TaskVisual |
 | `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
-| `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task, visual: TaskVisual): boolean |
+| `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task): boolean |
 | `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
@@ -1015,7 +1015,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `displayRatioOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayRatioOf` | PI-35 | 表示の倍率から描く比を出す。 |
-| `displayScaleFractionOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayScaleFractionOf` | -- | function displayScaleFractionOf(settings: DocumentSettings): number |
+| `displayScaleFractionOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayScaleFractionOf` | PI-35 | 表示の倍率だけの比（`S-234` を 100 で割った値）であり、`S-236` を掛けない。 |
 | `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値と `SETTINGS_CONSTANTS` を合わせた 1 つの見方（`PI-2` の `DrawnSettings`）を作り、描く比を 1 度だけ掛けて返す。 |
 | `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインタがどの領域にあるか |
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
@@ -1358,4 +1358,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 665 name(s) leave through a public entry (205 of them published by table T-064), 493 more are exported by a file and not by its entry.
+Totals: 665 name(s) leave through a public entry (206 of them published by table T-064), 493 more are exported by a file and not by its entry.

@@ -4,11 +4,14 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import { isStoredColour, type TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { COLUMN_SHAPES, customColourOf, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { withRow } from './edit-task-group'
+
+// see CV-9, AT-58
+const ROW_COLOUR_NAMES: readonly string[] = COLUMN_SHAPES.TaskGroup['color']?.choices ?? []
 
 // see CM-30, FR-042
 /** @purity pure */
@@ -21,8 +24,8 @@ export function setTaskGroupColor(
   if (row === undefined) {
     return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
   }
-  if (!isStoredColour(command.color, true)) {
-    return refused([reject('CM-30', 'CV-1', `not a palette name or a custom colour: ${command.color}`)])
+  if (!ROW_COLOUR_NAMES.includes(command.color) && customColourOf(command.color) === null) {
+    return refused([reject('CM-30', 'CV-9', `not a row colour name or a custom colour: ${command.color}`)])
   }
   if (row.color === command.color) return edited(document)
   return edited(withRow(document, { ...row, color: command.color }))

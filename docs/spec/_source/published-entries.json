@@ -1740,6 +1740,15 @@
      }
     },
     {
+     "name": "displayScaleFractionOf",
+     "note": {
+      "ja": [
+       "表示の倍率だけの比（`S-234` を 100 で割った値）であり、`S-236` を掛けない。",
+       "表 T-252 の `DS-13` が行の最小の高さを表示の倍率 100 の画面の px として描くと定めるので、`ScheduleLayout` が同じ 1 本を問う"
+      ]
+     }
+    },
+    {
      "name": "drawnSettingsOf",
      "note": {
       "ja": [
