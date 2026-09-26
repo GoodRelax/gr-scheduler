@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { Assignment, CalendarDay, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
-import { dayOf, taskByUid, textOfDay } from '../../entity/document-model/schedule/schedule'
+import { dayFromSerial, dayOf, serial, taskByUid, textOfDay } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { wbsSubtreeOf, withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
@@ -43,12 +43,9 @@ function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
   return { ...task, start: textOfDay(dayShiftedBy(start, days)), finish: textOfDay(dayShiftedBy(finish, days)) }
 }
 
-// TRAP: repeats dayShifted in input-command-translator.ts; the serial helpers of calendar-day.ts are not
-// published to this layer (table T-064), so change the two together.
 /** @purity pure */
 function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
-  const at = new Date(Date.UTC(day.year, day.month - 1, day.day + days))
-  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+  return dayFromSerial(serial(day) + days)
 }
 
 // see CM-8, T-223 DU-1
