@@ -132,6 +132,10 @@ export interface PointerPress {
   // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
   readonly propertyPanelWidthAtPress?: number
+  // see CY-6
+  // TRAP: the rows DRAWN when the press began: a held copy drag draws its copies stacked into the source rows,
+  // so rows read at release are taller and a release one row down lands in the source row.
+  readonly layoutRowsAtPress?: ScheduleLayout['rows']
   // see GR-21, FR-051
   // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
