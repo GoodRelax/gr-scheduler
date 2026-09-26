@@ -23,9 +23,9 @@
 //   T-220 IV-12 「`fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を
 //            超えないこと。⛔ **ここでいう「期間」は、表 T-012a の `FD-6` と
 //            同じく暦日で数えること（MUST）**」
-//   T-064 PI-1 「`calendarDaysBetween`（2 つの日付のあいだの**暦日**数。表
-//            T-012a の `FD-6` がフェードの単位として定め、`IV-12` が同じ数え方に
-//            従う）」
+//   T-064 PI-1 `calendarDaysBetween` 「2 つの日付のあいだの**暦日**数。」
+//            「表 T-012a の `FD-6` がフェードの単位として定め、`IV-12` が同じ数え方に
+//            従う」
 //
 // ⭐ THE FIXTURE SPANS THREE WEEKENDS ON PURPOSE. Ledger row DFC-15 is the
 // disagreement itself: 「非稼働日をまたぐ予定で、`FD-6` が許すフェードを `IV-12`
