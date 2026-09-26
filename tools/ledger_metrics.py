@@ -339,7 +339,32 @@ def block_of(when, start_cells, rows, seen, today, debt):
     return '\n'.join(lines)
 
 
+KNOWN_ARGUMENTS = ('--start', '--check')
+
+
+def refused_arguments(argv):
+    """None when the arguments may run; else the exit code, after printing why.
+
+    `--help` used to fall through to the default branch and REWRITE the ledger
+    (09-tools.md recorded it). Help and any unknown argument now return before
+    a single file is opened.
+    """
+    if '-h' in argv or '--help' in argv:
+        encoding = sys.stdout.encoding or 'utf-8'
+        sys.stdout.write(__doc__.encode(encoding, 'replace').decode(encoding))
+        return 0
+    unknown = [one for one in argv if one not in KNOWN_ARGUMENTS]
+    if unknown:
+        print('unknown argument(s): %s -- nothing was written. Known: %s, --help'
+              % (' '.join(unknown), ', '.join(KNOWN_ARGUMENTS)))
+        return 2
+    return None
+
+
 def main():
+    refused = refused_arguments(sys.argv[1:])
+    if refused is not None:
+        return refused
     text = io.open(LEDGER, encoding='utf-8').read()
     harvested = (io.open(HARVEST, encoding='utf-8').read()
                  if os.path.exists(HARVEST) else '')
