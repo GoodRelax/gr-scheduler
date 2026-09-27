@@ -700,6 +700,51 @@ function searchElements(
   return [roster as HTMLElement, box]
 }
 
+const READOUT_ATTRIBUTE = 'data-field-readout'
+
+const READOUT_MEMBER: keyof PropertyField = 'readout'
+
+// see MH-5
+/** @purity pure */
+function readoutRuleStyle(): string {
+  const width = NOT_STORED_PROPERTY_FIELD_SIZES['S-440']
+  const gap = NOT_STORED_PROPERTY_FIELD_SIZES['S-441']
+  return `flex:none;align-self:stretch;width:${width}px;margin:0 ${gap}px;background:${PAINT.rule};`
+}
+
+// see MH-1, MH-3, MH-5
+/** @purity non-pure */
+function readoutElement(host: Document, field: PropertyField, readout: string): HTMLElement {
+  const beside = made(host, 'span', 'display:flex;align-items:center;flex:none;white-space:nowrap;')
+  const unit = made(host, 'span', '')
+  unit.textContent = field.unit ?? ''
+  const current = made(host, 'span', '')
+  current.setAttribute(READOUT_ATTRIBUTE, field.row)
+  current.textContent = readout
+  beside.append(unit, made(host, 'span', readoutRuleStyle()), current)
+  return beside
+}
+
+// see MH-4
+// TRAP: keep the readout out of this key, or each zoom step rebuilds the panel and a held field reads stale.
+/** @purity pure */
+export function propertiesPanelKeyOf(description: PropertiesPanel | null): string {
+  const withoutReadout = (member: string, value: unknown): unknown => (member === READOUT_MEMBER ? undefined : value)
+  return JSON.stringify(description, withoutReadout) ?? ''
+}
+
+// see MH-4
+/** @purity non-pure */
+export function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void {
+  if (typeof panel.querySelector !== 'function') return
+  for (const field of description.fields) {
+    const readout = field.readout
+    if (readout === undefined) continue
+    const shown = panel.querySelector(`[${READOUT_ATTRIBUTE}="${field.row}"]`)
+    if (shown !== null && shown.textContent !== readout) shown.textContent = readout
+  }
+}
+
 // see T-016, T-058, T-104
 /** @purity non-pure */
 export function fieldElement(
@@ -737,13 +782,16 @@ export function fieldElement(
       controls.append(...swatchFieldElements(host, field, control, typedByRow))
       continue
     }
-    controls.append(controlElement(host, field.row, control, typedByRow))
+    const drawn = controlElement(host, field.row, control, typedByRow)
+    if (control.placeholder !== undefined) drawn.setAttribute('placeholder', control.placeholder)
+    controls.append(drawn)
     const words = control.searchWords
     if (words !== undefined) {
       controls.append(...searchElements(host, field.row, control, words, typedByRow, !isRosterDrawn))
       isRosterDrawn = true
     }
   }
+  if (field.readout !== undefined) controls.append(readoutElement(host, field, field.readout))
   line.append(name, controls)
   return line
 }

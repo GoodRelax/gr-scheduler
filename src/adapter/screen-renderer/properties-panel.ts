@@ -32,6 +32,7 @@ import {
 import {
   labelUnits,
   labelledAssigneeUidOf,
+  type RowPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   PropertiesSubject,
@@ -685,6 +686,42 @@ function declaredRowOf(item: ItemRows): string {
   return first === ROW_NAME_COLUMN ? ROW_NAME_FIELD_ROW : item.row
 }
 
+const ROW_MIN_HEIGHT_WORDS = new Map(displayWords.rowMinHeightField.map((entry) => [entry.part, entry.text]))
+
+const MIN_HEIGHT_COLUMN: keyof TaskGroup & string = 'minHeight'
+
+const READOUT_PX_SLOT = '{px}'
+
+/** @purity pure */
+function rowMinHeightWord(part: string, language: DisplayLanguage): string {
+  return ROW_MIN_HEIGHT_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
+}
+
+// see MH-3, MH-6
+/** @purity pure */
+function minHeightReadoutOf(groupId: string, placedRows: readonly RowPlacement[], language: DisplayLanguage): string {
+  const placed = placedRows.find((row) => row.groupId === groupId)
+  if (placed === undefined) return rowMinHeightWord('currentlyHidden', language)
+  return rowMinHeightWord('current', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
+}
+
+// see T-338
+/** @purity pure */
+function withMinHeightReadout(
+  field: PropertyField,
+  groupId: string,
+  placedRows: readonly RowPlacement[],
+  language: DisplayLanguage,
+): PropertyField {
+  if (!field.controls.some((control) => control.key.column === MIN_HEIGHT_COLUMN)) return field
+  return {
+    ...field,
+    unit: rowMinHeightWord('unit', language),
+    readout: minHeightReadoutOf(groupId, placedRows, language),
+    controls: field.controls.map((control) => ({ ...control, placeholder: rowMinHeightWord('none', language) })),
+  }
+}
+
 // see FR-042
 /** @purity pure */
 function groupFields(
@@ -692,6 +729,7 @@ function groupFields(
   group: TaskGroup,
   labelCoef: number,
   language: DisplayLanguage,
+  placedRows: readonly RowPlacement[],
 ): readonly PropertyField[] {
   const keyOf = (column: keyof TaskGroup & string): PropertyFieldKey => ({
     holder: 'taskGroup',
@@ -699,7 +737,9 @@ function groupFields(
     column,
   })
   const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
-  return objectFields(schedule, rows, labelCoef, language)
+  return objectFields(schedule, rows, labelCoef, language).map((field) =>
+    withMinHeightReadout(field, group.id, placedRows, language),
+  )
 }
 
 /** @purity pure */
@@ -717,6 +757,7 @@ function fieldsOfSubject(
   subject: PropertiesSubject,
   labelCoef: number,
   language: DisplayLanguage,
+  placedRows: readonly RowPlacement[],
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
   const itemFields = item === null ? [] : fieldsOfItem(schedule, item, labelCoef, language)
@@ -727,7 +768,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(schedule, group, labelCoef, language)]
+  return [...itemFields, ...groupFields(schedule, group, labelCoef, language, placedRows)]
 }
 
 // TRAP: repeats the private reach() walk of clampedSettings; change both together.
@@ -793,19 +834,31 @@ function settingsFields(
   return [themeHueField(schedule.project.themeHue, dark, language), ...readOnly]
 }
 
-// see CV-6, CV-9
-const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>[1]>> = {
+type ColourHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox
+
+// see CV-6, CV-9, FR-019
+const COLOUR_FORM_OF_COLUMN: Readonly<Partial<Record<ColourHolderColumn, ColourForm>>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
-  // WHY: a comment box's text takes the name's outline value, as its line does (FR-019).
   textColor: 'outline',
   color: 'band',
 }
 
-// see CV-9, S-315, FR-019
-const LEFT_OUT_NAME_OF_HOLDER: Readonly<Partial<Record<PropertyFieldKey['holder'], string>>> = {
-  taskGroup: 'black',
-  highlightBox: 'transparent',
+// see CV-9, AT-58, FR-019
+/** @purity pure */
+function colourChoicesOf(key: PropertyFieldKey): readonly string[] | null {
+  switch (key.holder) {
+    case 'taskVisual':
+      return COLUMN_SHAPES.TaskVisual[key.column]?.choices ?? null
+    case 'taskGroup':
+      return COLUMN_SHAPES.TaskGroup[key.column]?.choices ?? null
+    case 'commentBox':
+      return COLUMN_SHAPES.CommentBox[key.column]?.choices ?? null
+    case 'highlightBox':
+      return COLUMN_SHAPES.HighlightBox[key.column]?.choices ?? null
+    default:
+      return null
+  }
 }
 
 const HEX_PAINT = /^#[0-9a-f]{6}$/
@@ -840,13 +893,14 @@ function colourSide(stored: string | null, form: ColourForm, look: ColourLook, d
 // see CV-9, CV-4, CV-5, CV-7
 /** @purity pure */
 function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
-  const form = COLOUR_FORM_OF_COLUMN[control.key.column]
-  if (control.kind !== 'color' || form === undefined) return control
+  const forms: Readonly<Partial<Record<string, ColourForm>>> = COLOUR_FORM_OF_COLUMN
+  const form = forms[control.key.column]
+  const offered = colourChoicesOf(control.key)
+  if (control.kind !== 'color' || form === undefined || offered === null) return control
   const stored = control.text === '' ? null : control.text
   const custom = stored === null ? null : customColourOf(stored)
   const order = displayWords.colourNames.map((entry) => entry.spelling)
-  const leftOut = LEFT_OUT_NAME_OF_HOLDER[control.key.holder]
-  const names = order.filter((name) => name !== leftOut)
+  const names = order.filter((name) => offered.includes(name))
   const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps
@@ -916,7 +970,9 @@ export function propertiesPanelFromSelection(
   const subject = isNothingPicked
     ? content.subject
     : { selection, groupIds: readings.selectedGroupIds }
-  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language)
+  // WHY: readings with no layout place no row, so the row reads as not drawn (MH-6), never as 0 px.
+  const placedRows = readings.placedRows ?? []
+  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedRows)
   const look = {
     hue: schedule.project.themeHue,
     dark,
