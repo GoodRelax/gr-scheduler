@@ -39,6 +39,11 @@ interface DualCursorDates {
   readonly date2: string
 }
 
+interface LandedLink {
+  readonly predecessorUid: number
+  readonly successorUid: number
+}
+
 export interface ScreenValuesStateCarried {
   readonly screenLanguage: DisplayLanguage | null
   readonly helpLanguage: DisplayLanguage | null
@@ -55,6 +60,8 @@ export interface ScreenValuesStateCarried {
   readonly returnSubject: PropertiesSubject | null
   readonly percent: number
   readonly end: ScaleEnd
+  readonly landedLink: LandedLink
+  readonly landedTaskUid: number
 }
 
 export interface ScreenValuesEventCarried {
@@ -82,6 +89,8 @@ export interface ScreenValuesEventCarried {
   readonly taskUid: number
   readonly rememberedActual: RememberedActual | null
   readonly writes: readonly DocumentCommand[]
+  readonly landedLink: LandedLink
+  readonly landedTaskUid: number
 }
 
 type NoPayload = Readonly<Record<never, never>>
@@ -779,6 +788,23 @@ function onHintTargetChanged(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
+// see T-280, EL-16
+/** @purity pure */
+function onContinuationMarkClicked(
+  values: ScreenValues,
+  event: EventOf<'continuationMarkClicked'>,
+): ScreenStep {
+  const { landedLink, landedTaskUid } = event
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedLink, landedTaskUid } })
+}
+
+// see T-280, EL-17
+/** @purity pure */
+function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
+  if (values.landingMarkDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
+}
+
 // WHY: a table from event type to function, not one switch: thirty cases would cross the
 // function-size band, and the mapped type still refuses a missing event as `never` would.
 const HANDLERS: {
@@ -825,6 +851,8 @@ const HANDLERS: {
   helpEntryPressed: unchanged,
   helpMinimiseToggled: unchanged,
   helpMaximiseToggled: unchanged,
+  continuationMarkClicked: onContinuationMarkClicked,
+  landingMarkClearAsked: onLandingMarkClearAsked,
 }
 
 // see SF-2, SF-8, T-280
