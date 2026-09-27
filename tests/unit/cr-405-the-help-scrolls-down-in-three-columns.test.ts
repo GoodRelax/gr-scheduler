@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import type { HumanInput, KeyInput } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
@@ -44,9 +44,9 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-256 (MUST) -- columns stand left to right in row order', '⭐ 段は本表の行の順に左から並べること（MUST）'],
   ['FR-036 (MUST) -- as many columns as S-202 and T-256 rows', 'その数と 表 T-256 の行の数を一致させること（MUST）'],
   ['FR-036 (MUST) -- no flowing into columns', '段へは流し込まずに、表 T-256 が名指す段へ塊を置くこと（MUST）'],
-  ['FR-036 (MUST) -- the box scrolls down', '⭐ 段が箱に入り切らないときは、ヘルプの箱を縦にスクロールさせること（MUST）'],
+  ['FR-036 (MUST) -- the body region scrolls down', '⭐ 段が本文の領域に入り切らないときは、本文の領域を縦にスクロールさせること（MUST）'],
   ['FR-036 (MUST NOT) -- the box never scrolls sideways', '⛔ 横にスクロールさせてはならない（MUST NOT）'],
-  ['FR-036 (MUST NOT) -- a column is not bound to the box height', '⛔ 段の高さを箱の高さで縛ってはならない（MUST NOT）'],
+  ['FR-036 (MUST NOT) -- a column is not bound to the body region height', '⛔ 段の高さを本文の領域の高さで縛ってはならない（MUST NOT）'],
 ]
 
 describe('CR-405 -- the manuscript these cases are driven by', () => {
@@ -150,9 +150,9 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     expect(S_202).toBe(T_256.rows.length)
   })
 
-  it('T-256 names basics, browser, Row Title Panel, Resource Roster, then App Header, then Command Palette', () => {
+  it('T-256 names basics, browser, Row Title Panel, Resource Roster, Search Panel, then App Header, then Command Palette', () => {
     expect(COLUMNS).toEqual([
-      [BASICS, BROWSER, 'Row Title Panel', 'Resource Roster'],
+      [BASICS, BROWSER, 'Row Title Panel', 'Resource Roster', 'Search Panel'],
       ['App Header'],
       ['Command Palette'],
     ])
@@ -239,10 +239,10 @@ const HELP_SURFACE = 'Help Modal'
 
 function helpModal(language: DisplayLanguage): OpenModal {
   const root = rootOf(language)
-  const opened: ScreenSession = {
+  const opened = {
     ...root,
-    screen: { ...root.screen, openSurfaceState: { kind: 'open', surfaceName: HELP_SURFACE } },
-  }
+    screen: { ...root.screen, helpDisplayState: { kind: 'shown', child: { kind: 'normal' } } },
+  } as unknown as ScreenSession
   const modal = openModalFromSession(opened, EMPTY_DOCUMENT, READINGS)
   if (modal === null) throw new Error('the help is open but nothing describes it')
   return modal
@@ -324,7 +324,10 @@ function columnsOf(help: FakeElement): Columns {
 }
 
 describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () => {
-  const entries = entriesOf(helpModal('en'))
+  let entries: readonly Entry[] = []
+  beforeAll(() => {
+    entries = entriesOf(helpModal('en'))
+  })
 
   it('lists the blocks in the order T-256 names them, column by column', () => {
     const sequence: string[] = []

@@ -9,6 +9,7 @@ import type {
   CommandItem,
   DisplayLanguage,
   HelpEntry,
+  HelpModal,
   ExportFormatChoice,
   IconId,
   LinkedWords,
@@ -29,7 +30,9 @@ const HELP_MODAL = 'Help Modal'
 const AI_EXPORT_MODAL = 'AI Export Modal'
 const ICON_TABLE = 'T-109'
 
-const DISPLAY_LANGUAGE_ICON: IconId = 'IC-21'
+// see WB-4
+const MAXIMISE_ICON: IconId = 'IC-130'
+const RESTORE_ICON: IconId = 'IC-131'
 
 const RESOURCE_ROSTER = 'Resource Roster'
 
@@ -205,11 +208,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
 /** @purity pure */
 function commandsOnSurface(surface: string, language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
-    .filter(
-      (row) =>
-        row.surfaces.includes(surface) ||
-        (row.rowId === DISPLAY_LANGUAGE_ICON && surface === HELP_MODAL),
-    )
+    .filter((row) => row.surfaces.includes(surface))
     .map((row) => commandItemFor(row.rowId, language))
 }
 
@@ -272,6 +271,28 @@ function openSurfaceNameOf(session: ScreenSession): string | null {
   return open.surfaceName === WATERMARK_UNLOCK_ROW ? WATERMARK_UNLOCK : open.surfaceName
 }
 
+// see FR-036, FR-038, T-335, HN-4
+/** @purity pure */
+export function helpModalFromSession(session: ScreenSession): HelpModal | null {
+  const help = session.screen.helpDisplayState
+  if (help.kind === 'hidden') return null
+  const helpLanguage = session.screen.helpLanguage ?? displayLanguageOf(session)
+  const windowState = help.child.kind
+  const absent = windowState === 'maximised' ? MAXIMISE_ICON : RESTORE_ICON
+  return {
+    surface: HELP_MODAL,
+    heading: surfaceHeading(HELP_MODAL, helpLanguage),
+    commands: commandsOnSurface(HELP_MODAL, helpLanguage).filter((item) => item.icon !== absent),
+    helpLanguage,
+    windowState,
+    entries: helpEntries(helpLanguage),
+    legend: helpRoster.legend,
+    licenceText: licence.licenceText,
+    copyrightNotice: licence.copyrightNotice,
+    attributions: licence.attributions,
+  }
+}
+
 // see FR-029, FR-038
 /** @purity pure */
 export function openModalFromSession(
@@ -284,20 +305,6 @@ export function openModalFromSession(
   const language = displayLanguageOf(session)
   const commands = commandsOnSurface(surface, language)
   const heading = surfaceHeading(surface, language)
-
-  if (surface === HELP_MODAL) {
-    return {
-      surface: HELP_MODAL,
-      heading,
-      commands,
-      language,
-      entries: helpEntries(language),
-      legend: helpRoster.legend,
-      licenceText: licence.licenceText,
-      copyrightNotice: licence.copyrightNotice,
-      attributions: licence.attributions,
-    }
-  }
 
   if (surface === RESOURCE_ROSTER) {
     return {

@@ -70,6 +70,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
+  isHelpStandingIn,
   type FileFlowImportAnswer,
   type FileFlowOpenRoute,
   type FileFlowOwedAction,
@@ -351,7 +352,10 @@ const GUIDE_CURSOR_NONE = 'none'
 // TRAP: not generated; a change to ED-1 of table T-229 must be copied here by hand.
 export const EDITED_BY_SCREEN = 'user'
 
-const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
+const SCREEN_LANGUAGE_ENTRY: IconId = 'IC-21'
+const HELP_LANGUAGE_ENTRY: IconId = 'IC-128'
+const HELP_MINIMISE_ENTRY: IconId = 'IC-129'
+const HELP_MAXIMISE_ENTRIES: ReadonlySet<IconId> = new Set(['IC-130', 'IC-131'])
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
 const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
@@ -380,6 +384,9 @@ const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 // see U-64, FR-151
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
+// see U-30, FR-036
+const HELP_MODAL_SURFACE = 'Help Modal'
+
 // see SV-2
 const SEARCH_WORD_ROW = 'SV-2'
 
@@ -398,6 +405,8 @@ export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
+const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'help' }
+const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
@@ -434,9 +443,11 @@ const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 // by the surface (IF-9), gesture below the translators, selection by selectionFromInput.
 const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
   notice: null,
+  searchPanel: ESCAPE_SEARCH_PANEL,
   textEntry: null,
   confirmation: null,
   surface: ESCAPE_SURFACE,
+  help: ESCAPE_HELP,
   gesture: null,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
@@ -773,6 +784,7 @@ interface ScreenViewReadingsTaken {
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly iconUnderPointer: IconId | null
+  readonly isPointerOnHelp?: boolean
   readonly taskUnderPointer: Task | null
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   readonly rowGrabbedAt: {
@@ -910,7 +922,7 @@ export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | 
 
 // WHY: never null here; startingSession seats the language before the first frame.
 /** @purity pure */
-function displayLanguageIn(session: ScreenSession): DisplayLanguage {
+function screenLanguageIn(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? 'en'
 }
 
@@ -1014,7 +1026,7 @@ type GrabbedRowPlace = Omit<NonNullable<ScreenViewReadingsTaken['rowGrabbedAt']>
 
 interface ScreenEffectHands {
   readonly raiseNotice: (reason: NoticeReason) => void
-  readonly storeLanguage: (language: DisplayLanguage) => void
+  readonly storeScreenLanguage: (language: DisplayLanguage) => void
   readonly askBrowserForFullScreen: () => void
   readonly matchWatermarkUnlock: () => void
   readonly clearSelection: () => void
@@ -1043,7 +1055,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
   return {
     raiseNotice: (effect) => hands.raiseNotice(effect.reason),
 
-    storeScreenLanguage: (effect) => hands.storeLanguage(effect.screenLanguage),
+    storeScreenLanguage: (effect) => hands.storeScreenLanguage(effect.screenLanguage),
     // WHY: the step already holds these in the screen values; FR-039, FR-048, FR-052 and DC-1 keep them nowhere else.
     writeHelpLanguage: () => undefined,
     storeThemePreference: () => undefined,
@@ -1173,6 +1185,7 @@ function escapeLevelOf(
     isNoticeStanding: context.isNoticeStanding === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
+    isHelpStanding: isHelpStandingIn(context.screen),
     gestureInFlight: context.pressed !== null,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     dualCursorMode: context.dualCursorFollowing !== null,
@@ -1561,7 +1574,7 @@ export function frameLoop(
   // see SF-6, UF-123
   const effectRunners = effectRunnersOf({
     raiseNotice: (reason) => raiseNotice(reason, null),
-    storeLanguage: (language) => writeBrowserStored('S-99', language),
+    storeScreenLanguage: (language) => writeBrowserStored('S-99', language),
     askBrowserForFullScreen,
     matchWatermarkUnlock: () => void matchWatermarkUnlock(hands, screen?.readWatermarkUnlockAnswer?.() ?? ''),
     clearSelection: () => {
@@ -1692,7 +1705,7 @@ export function frameLoop(
         'screen',
         session.screen,
         dualCursorDrawnOf(session, pointerAt),
-        rulerWeekdayWords(displayLanguageIn(session)),
+        rulerWeekdayWords(screenLanguageIn(session)),
         pointerAt,
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
@@ -1721,6 +1734,7 @@ export function frameLoop(
           pointer: pointerAt,
           pointerRestedMs,
           iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
+          isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
           taskUnderPointer:
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
@@ -1937,7 +1951,7 @@ export function frameLoop(
         'export',
         session.screen,
         null,
-        rulerWeekdayWords(displayLanguageIn(session)),
+        rulerWeekdayWords(screenLanguageIn(session)),
         null,
         null,
         null,
@@ -2136,7 +2150,7 @@ export function frameLoop(
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
       drawnRowBoxes,
-      isSurfaceStanding: openSurfaceNameIn(session) !== null || isQuestionAskedIn(session),
+      isSurfaceStanding: openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
       newGroupId: crypto.randomUUID(),
@@ -2267,9 +2281,22 @@ export function frameLoop(
       searchPanelHeld = panelAfter
       return true
     }
-    if (entry === DISPLAY_LANGUAGE_ENTRY) {
-      const language = displayLanguageIn(session) === 'ja' ? 'en' : 'ja'
+    if (entry === SCREEN_LANGUAGE_ENTRY) {
+      const language = screenLanguageIn(session) === 'ja' ? 'en' : 'ja'
       sendToSession({ type: 'screenLanguageChosen', screenLanguage: language }, frame)
+      return true
+    }
+    if (entry === HELP_LANGUAGE_ENTRY) {
+      const helpLanguage = (session.screen.helpLanguage ?? screenLanguageIn(session)) === 'ja' ? 'en' : 'ja'
+      sendToSession({ type: 'helpLanguageChosen', helpLanguage }, frame)
+      return true
+    }
+    if (entry === HELP_MINIMISE_ENTRY) {
+      sendScreenEvent({ type: 'helpMinimiseToggled' }, frame)
+      return true
+    }
+    if (HELP_MAXIMISE_ENTRIES.has(entry)) {
+      sendScreenEvent({ type: 'helpMaximiseToggled' }, frame)
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
@@ -2515,7 +2542,7 @@ export function frameLoop(
   // see SK-19, FR-091, T-280
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
-    if (openSurfaceNameIn(session) !== null || isQuestionAskedIn(session)) return
+    if (openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session)) return
     const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
     const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))

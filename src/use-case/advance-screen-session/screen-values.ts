@@ -109,7 +109,8 @@ export interface ScreenValuesStateCarried {
 export interface ScreenValuesEventCarried {
   readonly isFullScreen: boolean
   readonly surfaceName: string
-  readonly target: 'surface' | 'panel'
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  readonly target: 'surface' | 'panel' | 'help'
   readonly rung: EscapeTarget
   readonly armKind: ArmKind
   readonly shapeKind: string | null
@@ -514,6 +515,7 @@ function propertiesPutAway(values: ScreenValues): ScreenStep {
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
+  if (event.target === 'help') return helpHidden(values)
   if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
 }
@@ -543,10 +545,24 @@ function tooltipDismissed(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'dismissed' } })
 }
 
+// see S-99g, HN-1, HN-2, HN-3
+/** @purity pure */
+export function isHelpStandingIn(values: ScreenValues): boolean {
+  const help = values.helpDisplayState
+  return help.kind === 'shown' && help.child.kind !== 'minimised'
+}
+
+/** @purity pure */
+function helpRungConsumed(values: ScreenValues): ScreenStep {
+  return isHelpStandingIn(values) ? helpHidden(values) : unchanged(values)
+}
+
 // see T-280, IN-4
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
+  if (event.rung === 'searchPanel') return onSearchPanelClosePressed(values)
   if (event.rung === 'surface') return surfaceRungConsumed(values)
+  if (event.rung === 'help') return helpRungConsumed(values)
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)
@@ -769,10 +785,15 @@ function onScreenLanguageChosen(
   values: ScreenValues,
   event: EventOf<'screenLanguageChosen'>,
 ): ScreenStep {
-  const language = event.screenLanguage
-  return moved(values, { screenLanguage: language, helpLanguage: language }, [
-    { type: 'storeScreenLanguage', screenLanguage: language },
-  ])
+  const screenLanguage = event.screenLanguage
+  return moved(values, { screenLanguage }, [{ type: 'storeScreenLanguage', screenLanguage }])
+}
+
+// see S-434, FR-038, T-280
+/** @purity pure */
+function onHelpLanguageChosen(values: ScreenValues, event: EventOf<'helpLanguageChosen'>): ScreenStep {
+  const helpLanguage = event.helpLanguage
+  return moved(values, { helpLanguage }, [{ type: 'writeHelpLanguage', helpLanguage }])
 }
 
 // see S-72, FR-039, T-280
@@ -818,17 +839,17 @@ function onHintTargetChanged(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
-type SearchPanelShownKind = SearchPanelDisplayShownState['kind']
+type WindowShownKind = SearchPanelDisplayShownState['kind'] & HelpDisplayShownState['kind']
 
 const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
 
-const MINIMISE_TOGGLED_TO: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind } = {
+const MINIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
   normal: 'minimised',
   minimised: 'normal',
   maximised: 'minimised',
 }
 
-const MAXIMISE_TOGGLED_TO: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind } = {
+const MAXIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
   normal: 'maximised',
   minimised: 'maximised',
   maximised: 'normal',
@@ -847,7 +868,7 @@ function onSearchEntryPressed(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function searchPanelToggled(
   values: ScreenValues,
-  toggledTo: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind },
+  toggledTo: { readonly [K in WindowShownKind]: WindowShownKind },
 ): ScreenStep {
   const panel = values.searchPanelDisplayState
   if (panel.kind === 'hidden') return unchanged(values)
@@ -869,6 +890,35 @@ function onSearchHitJumped(values: ScreenValues): ScreenStep {
   if (panel.kind === 'hidden' || panel.child.kind !== 'maximised') return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
+}
+
+// see T-280, FR-036, FR-038, WB-1
+/** @purity pure */
+function onHelpEntryPressed(values: ScreenValues): ScreenStep {
+  const help = values.helpDisplayState
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['helpDisplayStateMachine.shown']
+  if (help.kind === 'hidden') {
+    const seeded = { helpDisplayState: { kind: 'shown', child }, helpLanguage: values.screenLanguage } as const
+    return moved(values, seeded, [{ type: 'seedHelpLanguage' }])
+  }
+  if (help.child.kind !== 'minimised') return unchanged(values)
+  return moved(values, { helpDisplayState: { kind: 'shown', child } })
+}
+
+/** @purity pure */
+function helpToggled(
+  values: ScreenValues,
+  toggledTo: { readonly [K in WindowShownKind]: WindowShownKind },
+): ScreenStep {
+  const help = values.helpDisplayState
+  if (help.kind === 'hidden') return unchanged(values)
+  return moved(values, { helpDisplayState: { kind: 'shown', child: { kind: toggledTo[help.child.kind] } } })
+}
+
+/** @purity pure */
+function helpHidden(values: ScreenValues): ScreenStep {
+  if (values.helpDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { helpDisplayState: { kind: 'hidden' } })
 }
 
 // WHY: a table from event type to function, not one switch: thirty cases would cross the
@@ -904,7 +954,7 @@ const HANDLERS: {
   rowZoomEndReached: onScaleMessageRaised,
   scaleMessageTimeElapsed: onScaleMessageTimeElapsed,
   screenLanguageChosen: onScreenLanguageChosen,
-  helpLanguageChosen: unchanged,
+  helpLanguageChosen: onHelpLanguageChosen,
   themePreferenceChosen: onThemePreferenceChosen,
   propertyPanelWidthSettled: onPropertyPanelWidthSettled,
   progressMarkerPressed: onProgressMarkerPressed,
@@ -914,9 +964,9 @@ const HANDLERS: {
   searchPanelMaximiseToggled: (values) => searchPanelToggled(values, MAXIMISE_TOGGLED_TO),
   searchPanelClosePressed: onSearchPanelClosePressed,
   searchHitJumped: onSearchHitJumped,
-  helpEntryPressed: unchanged,
-  helpMinimiseToggled: unchanged,
-  helpMaximiseToggled: unchanged,
+  helpEntryPressed: onHelpEntryPressed,
+  helpMinimiseToggled: (values) => helpToggled(values, MINIMISE_TOGGLED_TO),
+  helpMaximiseToggled: (values) => helpToggled(values, MAXIMISE_TOGGLED_TO),
 }
 
 // see SF-2, SF-8, T-280

@@ -298,7 +298,7 @@ function measuredScrollbarThickness(): number {
 
 // see FR-038
 /** @purity semi-pure-b */
-function displayLanguage(): DisplayLanguage {
+function screenLanguage(): DisplayLanguage {
   return startupDisplayLanguage()
 }
 
@@ -490,7 +490,7 @@ function boot(): void {
     nowEnvironment(),
     {
       surface: painting,
-      language: displayLanguage(),
+      language: screenLanguage(),
       themePreference: startupTheme,
       // TRAP: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
       /** @purity non-pure */

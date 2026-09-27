@@ -1,4 +1,5 @@
 excess-lines=6254 excess-branches=648
+# RAISED domScreenSurface 369->374, showScreenView 134/42->139/44, answerSettledEntry 89/22->102/27, frameLoop 1478->1492, runFrame 137->138 on 2026-09-27 under JDG-778 (lane L4, CR-574: help drawn in its own layer beside another surface, IC-128..IC-131 dispatched, the help rung of Esc; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 362->369, frameLoop 1456->1478, receiveInput 154/64->157/66, runFrame 132/10->137/11, answerSettledEntry 84/21->89/22 on 2026-09-27 under JDG-778 (lane L4, CR-571 wave 2b part 2: the search panel layer UZ-6, its held values, the IN-5a gate and the Ctrl+F / IC-117 entries; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED commandFromKey 80/65->81/67 (SK-24) and commandFromWheel 49/16->54/18 (a wheel over the search panel is the panel's) on 2026-09-27 under JDG-778 (lane L4, CR-571, DFC-1284); carryOutAction 177/45 and boot 212 are the L2/L3/L4 hunks added together at the merge of refactor 9d6d59d9 -- the coordinator re-measures.
 # RAISED 6157/638 -> 6254/648 on 2026-09-27 under JDG-778 (the user: baselines may rise for a lane; the coordinator writes the final values at merge), DFC-1284: lane L4 CR-575 put the T-337 layer order and the palette band clamp into domScreenSurface 315->362, showScreenView 123/33->134/42, frameLoop 1428->1456, carryOutAction 172->176, receiveInput 150/63->154/64, boot 205->211; CR-578 splits frame-loop.ts.
@@ -82,9 +83,9 @@ HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=267 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=369 branches=0
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=374 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=134 branches=42
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=139 branches=44
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
 HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
@@ -94,12 +95,12 @@ HELD src/framework/file-system-access-file-store/file-system-access-file-store.t
 HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf lines=107 branches=0
 HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=155 branches=32
 HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=69 branches=0
-HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=89 branches=22
+HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=45
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1478 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1492 branches=5
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=157 branches=66
-HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=137 branches=11
+HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=138 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=212 branches=6

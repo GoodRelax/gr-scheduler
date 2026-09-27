@@ -32,7 +32,7 @@ export { dismissKeyOf }
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
-import { openModalFromSession } from './open-modals'
+import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
@@ -280,7 +280,8 @@ export interface HelpModal extends OpenSurface {
   readonly surface: 'Help Modal'
   readonly entries: readonly HelpEntry[]
   readonly legend: IconId
-  readonly language: DisplayLanguage
+  readonly helpLanguage: DisplayLanguage
+  readonly windowState: 'normal' | 'minimised' | 'maximised'
   readonly licenceText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
@@ -451,6 +452,7 @@ export interface ScreenView {
   readonly propertiesPanel: PropertiesPanel | null
   readonly commandPalette: CommandPalette | null
   readonly openModal: OpenModal | null
+  readonly helpModal?: HelpModal | null
   readonly notices: readonly Notice[]
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
@@ -483,6 +485,7 @@ export interface ScreenViewReadings {
   // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
+  readonly isPointerOnHelp?: boolean
   readonly taskUnderPointer?: Task | null
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   readonly themePreference: 'light' | 'dark'
@@ -553,6 +556,7 @@ export function screenViewFromRegions(
       schedule,
     ),
     openModal: openModalFromSession(session, schedule, readings),
+    helpModal: helpModalFromSession(session),
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings),

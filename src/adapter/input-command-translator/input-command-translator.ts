@@ -53,7 +53,10 @@ import type {
   TaskMilestoneGlyph,
   TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
-import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  isHelpStandingIn,
+  type ScreenValues,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   HumanInput,
   InputModifiers,
@@ -171,6 +174,8 @@ export interface InputContext {
   // see IN-5a, SV-2, SV-5
   // WHY: judged by where the keys go, never counted as AG-9's state (IN-5a).
   readonly isSearchWordFocused?: boolean
+  // see RG-15, SV-14
+  readonly isSearchPanelFocused?: boolean
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
@@ -1331,8 +1336,10 @@ export function rowsAtZoomY(
 export function escapeContextOf(context: InputContext): EscapeContext {
   return {
     isNoticeStanding: context.isNoticeStanding === true,
+    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
+    isHelpStanding: isHelpStandingIn(context.screen),
     gestureInFlight: context.pressed !== null,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,

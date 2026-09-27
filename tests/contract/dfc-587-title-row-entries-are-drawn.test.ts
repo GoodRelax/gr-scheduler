@@ -55,6 +55,10 @@ const onlyRowOf = (id: string): Readonly<Record<string, string>> => {
 
 const LEGEND_ROW = 'IC-102'
 const CLOSE_ROW = 'IC-52'
+const HELP_LANGUAGE_ROW = 'IC-128'
+const MINIMISE_ROW = 'IC-129'
+const MAXIMISE_ROW = 'IC-130'
+const RESTORE_ROW = 'IC-131'
 const HELP_SURFACE = bare(onlyRowOf(LEGEND_ROW)[H_SURFACE] ?? '')
 const PANEL_SURFACE = 'Properties Panel'
 const PANEL_ROWS = rowsPlacedOn(PANEL_SURFACE)
@@ -89,15 +93,18 @@ const READINGS: ScreenViewReadings = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): ScreenSession => ({
-  ...emptyScreenSession,
-  screen: {
-    ...emptyScreenSession.screen,
-    screenLanguage: language,
-    helpLanguage: language,
-    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
-  },
-})
+type HelpWindow = 'normal' | 'minimised' | 'maximised'
+
+const helpShown = (language: DisplayLanguage, window: HelpWindow): ScreenSession =>
+  ({
+    ...emptyScreenSession,
+    screen: {
+      ...emptyScreenSession.screen,
+      screenLanguage: language,
+      helpLanguage: language,
+      helpDisplayState: { kind: 'shown', child: { kind: window } },
+    },
+  }) as unknown as ScreenSession
 
 const rootShowing = (showing: 'selection' | 'documentSettings'): ScreenSession => ({
   ...emptyScreenSession,
@@ -203,8 +210,8 @@ function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
   throw new Error('the two nodes share no ancestor')
 }
 
-function drawnHelp(language: DisplayLanguage): FakeElement {
-  const modal = openModalFromSession(rootOn(HELP_SURFACE, language), ONE_TASK, READINGS)
+function drawnHelp(language: DisplayLanguage, window: HelpWindow = 'normal'): FakeElement {
+  const modal = openModalFromSession(helpShown(language, window), ONE_TASK, READINGS)
   if (modal === null) throw new Error('the help is open but nothing describes it')
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, openModal: { ...modal, heading: HEADING_MARK } as OpenModal })
@@ -228,19 +235,42 @@ function drawnPanel(showing: 'selection' | 'documentSettings'): FakeElement {
 describe('DFC-587 premises read from the manuscript', () => {
   it('T-109 places the legend on the help and at least the close entrance on the panel', () => {
     expect(HELP_SURFACE).toBe('Help Modal')
-    expect(rowsPlacedOn(HELP_SURFACE)).toContain(CLOSE_ROW)
+    for (const row of [CLOSE_ROW, HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, RESTORE_ROW]) {
+      expect(rowsPlacedOn(HELP_SURFACE), row).toContain(row)
+    }
     expect(PANEL_ROWS).toContain(CLOSE_ROW)
     for (const language of LANGUAGES) expect(legendWord(language), language).not.toBe('')
   })
 })
 
 describe('DFC-587 help title row: the entrances drawn on it', () => {
-  it('FR-036 (MUST): ヘルプの題の行は、左から、題 … 凡例（`IC-102`）・表示言語の切替（`FR-038` の `IC-21`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）', () => {
+  const buttonsOn = (row: FakeElement): readonly string[] => entrancesIn(row).filter((one) => one !== LEGEND_ROW)
+
+  it('FR-036 (MUST): ヘルプの題の行は、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）', () => {
     for (const language of LANGUAGES) {
       const row = helpTitleRow(drawnHelp(language), language)
       const entrances = entrancesIn(row)
-      expect(entrances.filter((one) => one === CLOSE_ROW).length, `${language}: ${whatWasDrawn(row)}`).toBe(1)
+      const buttons = buttonsOn(row)
+      const order = [HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, CLOSE_ROW].map((one) => buttons.indexOf(one))
+      expect(order.every((at) => at >= 0), `${language}: ${whatWasDrawn(row)}`).toBe(true)
+      expect([...order].sort((a, b) => a - b), `${language}: ${whatWasDrawn(row)}`).toEqual(order)
       expect(entrances[entrances.length - 1], `${language}: ${whatWasDrawn(row)}`).toBe(CLOSE_ROW)
+      const legendAt = entrances.indexOf(LEGEND_ROW)
+      if (legendAt >= 0) expect(legendAt, `${language}: ${whatWasDrawn(row)}`).toBeLessThan(entrances.indexOf(HELP_LANGUAGE_ROW))
+    }
+  })
+
+  it('FR-036 (MUST NOT): ⛔ 題の行に、ほかのものを置いてはならない（MUST NOT）', () => {
+    for (const language of LANGUAGES) {
+      const row = helpTitleRow(drawnHelp(language), language)
+      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, CLOSE_ROW])
+    }
+  })
+
+  it('T-335 WB-4: 最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く', () => {
+    for (const language of LANGUAGES) {
+      const row = helpTitleRow(drawnHelp(language, 'maximised'), language)
+      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMISE_ROW, RESTORE_ROW, CLOSE_ROW])
     }
   })
 })

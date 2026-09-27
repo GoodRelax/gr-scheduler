@@ -343,8 +343,8 @@ export const STYLE = {
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
   surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
-  helpEntry: 'display:flex;align-items:baseline;gap:0.5em;break-inside:avoid;line-height:1.35;',
-  helpText: 'flex:1;min-width:0;',
+  helpEntry: 'display:flex;flex-wrap:wrap;align-items:baseline;break-inside:avoid;line-height:1.35;',
+  helpText: 'min-width:0;',
   helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
   helpColumn: 'min-width:0;',
@@ -830,13 +830,18 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity non-pure */
   function showScreenView(view: ScreenView): void {
     fieldEditing.holdNoticeShowing(view.notices.length > 0)
+    // WHY: (T-337, JDG-666) Help has its own layer, also when it arrives as the open surface.
+    const isHelpOpenModal = view.openModal !== null && view.openModal.surface === HELP_MODAL_SURFACE
+    const surfaceModal = isHelpOpenModal ? null : view.openModal
+    const helpModal = view.helpModal ?? (isHelpOpenModal ? view.openModal : null)
     const keys: Record<string, string> = {
       frame: described(view.frame),
       appHeaderItems: described(view.appHeaderItems),
       rowTitlePanel: described(view.rowTitlePanel),
       propertiesPanel: fieldEditing.panelKeyAfterCommits(described(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
-      openModal: described(view.openModal),
+      openModal: described(surfaceModal),
+      helpModal: described(helpModal),
       notices: described(view.notices),
       confirmation: described(view.confirmation),
       dialogueField: described(view.dialogueField),
@@ -911,16 +916,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       paletteLayer.replaceChildren(...(paletteElementDrawn === null ? [] : [paletteElementDrawn]))
     }
     if (changed('openModal')) {
-      const modal = view.openModal
       const anchors = anchorsOf('openModal')
-      const drawnModal = modal === null ? null : modalElement(host, modal, anchors)
-      // WHY: (T-337, JDG-666) Help goes to its own layer by surface name; the drawing is one element.
-      const isHelp = modal !== null && modal.surface === HELP_MODAL_SURFACE
+      const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchors)
       const scrolledBefore = modalLayer.querySelector(ROSTER_SCROLLER)
-      modalLayer.replaceChildren(...(drawnModal !== null && !isHelp ? [drawnModal.element] : []))
-      helpLayer.replaceChildren(...(drawnModal !== null && isHelp ? [drawnModal.element] : []))
+      modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
+    }
+    if (changed('helpModal')) {
+      const anchors = anchorsOf('helpModal')
+      helpLayer.replaceChildren(...(helpModal === null ? [] : [modalElement(host, helpModal, anchors).element]))
     }
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
     if (changed('notices')) {

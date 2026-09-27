@@ -1147,6 +1147,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, ): readonly Notice[] |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
+| `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, ): OpenModal \| null |
 | `NOT_STORED_PROPERTY_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/properties-panel.ts#NOT_STORED_PROPERTY_CONTROL_SIZES` | -- | const NOT_STORED_PROPERTY_CONTROL_SIZES: |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
@@ -1210,6 +1211,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
 | `appHeaderStyle` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#appHeaderStyle` | -- | function appHeaderStyle(): string |
+| `drawLanguageReading` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#drawLanguageReading` | -- | function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void |
 | `fillAppHeader` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#fillAppHeader` | -- | function fillAppHeader( host: Document, header: HTMLElement, items: AppHeaderItems, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `PALETTE_GRAB_BAND_ENTRY` | file only | const | `src/framework/dom-screen-surface/command-palette-drawing.ts#PALETTE_GRAB_BAND_ENTRY` | -- | const PALETTE_GRAB_BAND_ENTRY = 'IC-53' |
 | `paletteElement` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteElement` | -- | function paletteElement( host: Document, palette: CommandPalette, anchors: Map<string, HTMLElement>, ): HTMLElement |
@@ -1282,6 +1284,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
+| `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | -- | function isHelpStandingIn(values: ScreenValues): boolean |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
@@ -1417,4 +1420,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 700 name(s) leave through a public entry (222 of them published by table T-064), 517 more are exported by a file and not by its entry.
+Totals: 701 name(s) leave through a public entry (222 of them published by table T-064), 519 more are exported by a file and not by its entry.

@@ -1529,7 +1529,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
       ).toBeGreaterThan(0)
       expect(
         one.printed.filter((label) => weekdaySlotIn(label, one.other) >= 0),
-        `FR-038 (MUST): 言語の状態は 1 つである -- ${one.language} の画面に他方の語は出ない`,
+        `FR-038: ヘルプの中を除く画面の文字をその言語で示すこと -- ${one.language} の画面に他方の語は出ない`,
       ).toEqual([])
     }
 
