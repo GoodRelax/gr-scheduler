@@ -110,9 +110,7 @@ export function screenFrameFromRegions(
   const scrollbarThickness = Math.max(0, gapRightOfRowArea - SETTINGS_CONSTANTS.canvasPadding)
 
   const horizontalTrack = horizontalTrackOf(regions, scrollbarThickness)
-  // see FR-051
-  // TRAP: read the panel's left edge, not rowArea's right: canvasPadding lies between
-  // the two, and putting the bar at rowArea's edge leaves that gap against the panel.
+  // TRAP: (FR-051) the panel's left edge, not rowArea's right: canvasPadding lies between, a gap.
   const verticalTrack: ScreenRect = {
     x: regions.propertiesPanel.x - scrollbarThickness,
     y: rowArea.y,
@@ -174,9 +172,7 @@ export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions):
   return { fromContentY0: contentY0 - top, height: bottom - top }
 }
 
-// see FR-098
-// TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
-// would grow the grip as rows are pinned (FR-098).
+// TRAP: (FR-098) the scrolling remainder's height; the Row Area's would grow the grip as rows are pinned.
 /** @purity pure */
 function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
   return Math.max(0, regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y))

@@ -2065,7 +2065,8 @@
      "note": {
       "ja": [
        "型。",
-       "ヘルプの絵の記述（`FR-036` の 表 T-335・表 T-336）。`helpLanguage` と `windowState` を運ぶ。",
+       "ヘルプの絵の記述（`FR-036` の 表 T-335・表 T-336）。",
+       "`helpLanguage` と `windowState` を運ぶ。",
        "`DomScreenSurface` がヘルプの段（表 T-337 の `UZ-7`）に描く"
       ]
      }
