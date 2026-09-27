@@ -673,6 +673,9 @@ export interface ScreenSurfaceWiring {
   readonly onCommandPaletteBandPx?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
+  // see SV-5, SV-14, RG-15
+  readonly onSearchWordTyped?: () => void
+  readonly holdIsSearchPanelFocused?: (read: () => boolean) => void
   readonly readTheme: () => ScreenTheme
 }
 
@@ -799,7 +802,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const dialogue = dialogueSettlement(dialogueEntry, readAuthor, readClockMs)
 
-  const searchPanel = searchPanelPainter(host, searchPanelLayer)
+  const searchPanel = searchPanelPainter(host, searchPanelLayer, () => wiring.onSearchWordTyped?.())
 
   /** @purity non-pure */
   function placePanels(view: ScreenView): void {
@@ -976,7 +979,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const ask = (host as Partial<Document>).elementFromPoint
     if (typeof ask !== 'function') return null
 
-    let node: Element | null = ask.call(host, x, y)
+    const first: Element | null = ask.call(host, x, y)
+    let node = first
     let entry: string | null = null
     let format: string | null = null
     let group: string | null = null
@@ -1015,8 +1019,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (role !== null) part = role
       node = node.parentElement
     }
-    if (node !== root || part === null) return null
-    return {
+    if (node !== root || part === null) return searchPanel.answerAt({ x, y, first, walked: null })
+    return searchPanel.answerAt({ x, y, first, walked: {
       part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
       entry,
       format,
@@ -1028,7 +1032,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeDismissKey: dismissKey,
       ...(answer === null ? {} : { confirmationAnswer: answer }),
       ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
-    }
+    } })
   }
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
@@ -1041,6 +1045,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
+  wiring.holdIsSearchPanelFocused?.(searchPanel.isFocused)
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {
@@ -1050,6 +1055,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     readScreenPartAt,
     hasUnsettledTextEntry: fieldEditing.hasUnsettledTextEntry,
     readFieldEditNotices: fieldEditing.readFieldEditNotices,
+    readSearchWord: searchPanel.readWord,
   }
 }
 

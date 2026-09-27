@@ -2017,6 +2017,15 @@
      }
     },
     {
+     "name": "searchPanelBoxAfterGrab",
+     "note": {
+      "ja": [
+       "`Search Panel` の見出しの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、`Schedule Canvas` の中に収めて答える（`FR-151` の 表 T-330 の `SV-10`・`SV-11`）。",
+       "`SingleHtmlShell` が握っているあいだの位置と大きさを決めるために使う"
+      ]
+     }
+    },
+    {
      "name": "achromatic",
      "note": {
       "ja": [

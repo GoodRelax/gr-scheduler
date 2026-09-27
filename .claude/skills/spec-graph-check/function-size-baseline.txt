@@ -1,4 +1,5 @@
 excess-lines=6254 excess-branches=648
+# RAISED domScreenSurface 374->377, readScreenPartAt 58->59, frameLoop 1492->1501, receiveInput 157->159, boot 212->219 on 2026-09-27 under JDG-778 (lane L4, CR-597 / CR-571: the search word, hit row and grab answers of IF-9 wired; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 369->374, showScreenView 134/42->139/44, answerSettledEntry 89/22->102/27, frameLoop 1478->1492, runFrame 137->138 on 2026-09-27 under JDG-778 (lane L4, CR-574: help drawn in its own layer beside another surface, IC-128..IC-131 dispatched, the help rung of Esc; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 362->369, frameLoop 1456->1478, receiveInput 154/64->157/66, runFrame 132/10->137/11, answerSettledEntry 84/21->89/22 on 2026-09-27 under JDG-778 (lane L4, CR-571 wave 2b part 2: the search panel layer UZ-6, its held values, the IN-5a gate and the Ctrl+F / IC-117 entries; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED commandFromKey 80/65->81/67 (SK-24) and commandFromWheel 49/16->54/18 (a wheel over the search panel is the panel's) on 2026-09-27 under JDG-778 (lane L4, CR-571, DFC-1284); carryOutAction 177/45 and boot 212 are the L2/L3/L4 hunks added together at the merge of refactor 9d6d59d9 -- the coordinator re-measures.
@@ -83,8 +84,8 @@ HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=267 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=374 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=377 branches=0
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=59 branches=31
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=139 branches=44
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
@@ -98,12 +99,12 @@ HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lin
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=45
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1492 branches=5
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=157 branches=66
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1501 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=159 branches=66
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=138 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
-HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=212 branches=6
+HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=219 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
 HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9

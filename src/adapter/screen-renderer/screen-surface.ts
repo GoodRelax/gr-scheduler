@@ -4,6 +4,7 @@
 // @purity    n/a
 // @seam      ScreenSurface, implemented in another layer (LR-5)
 
+import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type {
   ExportFormatId,
   IconId,
@@ -12,6 +13,14 @@ import type {
   Scrollbar,
   ScreenView,
 } from './screen-renderer'
+import type { SearchPanelGrabRegion, SearchRowView } from './search-panel'
+
+// see IF-9, GR-24, GR-25
+// WHY: the box rides on the answer: the shell moves the box the person grabbed, whose default size only the surface reads.
+export interface SearchPanelGrab {
+  readonly region: SearchPanelGrabRegion
+  readonly panelBox: ScreenRect
+}
 
 export interface ScreenPart {
   readonly part: string
@@ -25,6 +34,9 @@ export interface ScreenPart {
   readonly confirmationAnswer?: string
   readonly isImportReportDismiss?: boolean
   readonly scrollbarAxis?: Scrollbar['axis']
+  // see IF-9, SJ-1
+  readonly searchJumpTarget?: SearchRowView['target'] | null
+  readonly searchPanelGrab?: SearchPanelGrab
 }
 
 export interface DialogueInput {
@@ -69,4 +81,9 @@ export interface ScreenSurface {
   // seam reports no edit, so the shell reads no field as being edited.
   /** @purity semi-pure-b */
   readFieldEditNotices?(): readonly FieldEditNotice[]
+
+  // see IF-9, SV-2, SV-5
+  // TRAP: reading takes the change; null when the word has not changed since the last read.
+  /** @purity semi-pure-b */
+  readSearchWord?(): string | null
 }

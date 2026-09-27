@@ -845,10 +845,17 @@ export function isTypedIntoSearchWord(input: HumanInput, context: InputContext):
   return isSingleCharacterKey(key) || key === KEY.del || key === KEY.backspace || key === KEY.enter
 }
 
+// see SV-5
+/** @purity pure */
+function isEnterInSearchPanel(input: HumanInput, context: InputContext): boolean {
+  if (input.kind !== 'key' || context.isSearchPanelFocused !== true) return false
+  return input.key === KEY.enter && isCombo(input.modifiers, false, false, false)
+}
+
 // see PI-18, T-023, T-036
 /** @purity pure */
 export function commandFromInput(input: HumanInput, context: InputContext): TranslatedInput {
-  if (isTypedIntoSearchWord(input, context)) return UNASSIGNED
+  if (isTypedIntoSearchWord(input, context) || isEnterInSearchPanel(input, context)) return UNASSIGNED
   switch (input.kind) {
     case 'key':
       return commandFromKey(input, context)

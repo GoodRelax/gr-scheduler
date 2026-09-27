@@ -3,12 +3,14 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
+import type { ScreenPart, SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   NOT_STORED_SEARCH_PANEL_SIZES,
   PAINT,
+  SCREEN_Z_ORDER,
+  SCREEN_Z_ORDER_ATTRIBUTE,
   anchoredEntry,
   boxStyle,
   entranceOuterHeightPx,
@@ -79,19 +81,75 @@ const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
 
 const JUMP_CELL_STYLE = 'cursor:pointer;'
 
-// see SV-9, SV-12, SV-13
+type SearchPanelGrab = NonNullable<ScreenPart['searchPanelGrab']>
+
+type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
+
+// WHY: S-426 has no value in table T-206 yet, so the edge strip has no width and GR-25 answers nowhere.
+const SEARCH_PANEL_EDGE_PX = 0
+
+type EdgeSide = 'start' | 'end' | 'middle'
+
+type SizeRatio = { readonly width: number; readonly height: number }
+
+const EDGE_REGIONS: {
+  readonly [Down in EdgeSide]: { readonly [Across in EdgeSide]: SearchPanelGrab['region'] | null }
+} = {
+  start: { start: 'topLeft', middle: 'top', end: 'topRight' },
+  middle: { start: 'left', middle: null, end: 'right' },
+  end: { start: 'bottomLeft', middle: 'bottom', end: 'bottomRight' },
+}
+
+// see SV-9, SV-11
 /** @purity pure */
-export function searchPanelBoxOf(
-  view: SearchPanelView,
-  defaultRatio: { readonly width: number; readonly height: number },
-): ScreenRect {
+function searchPanelPlaceOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
   const canvas = view.canvas
-  if (view.shown === 'maximised') return canvas
   const size = view.size ?? { width: canvas.width * defaultRatio.width, height: canvas.height * defaultRatio.height }
   const at = view.at ?? { x: canvas.x, y: canvas.y + canvas.height - size.height }
-  if (view.shown === 'normal') return { ...at, ...size }
+  return { ...at, ...size }
+}
+
+// see SV-9, SV-12, SV-13
+/** @purity pure */
+export function searchPanelBoxOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
+  if (view.shown === 'maximised') return view.canvas
+  const place = searchPanelPlaceOf(view, defaultRatio)
+  if (view.shown === 'normal') return place
   const titleHeight = entranceOuterHeightPx()
-  return { x: at.x, y: at.y + size.height - titleHeight, width: size.width, height: titleHeight }
+  return { x: place.x, y: place.y + place.height - titleHeight, width: place.width, height: titleHeight }
+}
+
+// see GR-25
+/** @purity pure */
+function edgeSideOf(at: number, start: number, end: number, reach: number): EdgeSide | null {
+  const fromStart = at - start
+  const fromEnd = end - at
+  if (fromStart <= -reach || fromEnd <= -reach) return null
+  if (Math.min(fromStart, fromEnd) >= reach) return 'middle'
+  return fromStart <= fromEnd ? 'start' : 'end'
+}
+
+// see GR-25
+/** @purity pure */
+function edgeRegionAt(x: number, y: number, box: ScreenRect, reach: number): SearchPanelGrab['region'] | null {
+  const across = edgeSideOf(x, box.x, box.x + box.width, reach)
+  const down = edgeSideOf(y, box.y, box.y + box.height, reach)
+  return across === null || down === null ? null : EDGE_REGIONS[down][across]
+}
+
+// see SJ-1, GR-24
+/** @purity semi-pure-b */
+function searchMarksFrom(start: Element, layer: Element): { readonly jump: SearchJumpCell | null; readonly isOnBand: boolean } {
+  let jump: SearchJumpCell | null = null
+  let isOnBand = false
+  for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
+    const task = node.getAttribute(SEARCH_JUMP_TASK_ATTRIBUTE)
+    if (task !== null && jump === null) jump = { kind: 'task', taskUid: Number(task) }
+    const box = node.getAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE)
+    if (box !== null && jump === null) jump = { kind: 'commentBox', commentBoxId: box }
+    if (node.getAttribute(SEARCH_PANEL_GRAB_ATTRIBUTE) !== null) isOnBand = true
+  }
+  return { jump, isOnBand }
 }
 
 // see SV-16, T-333
@@ -209,45 +267,138 @@ export function focusSearchWordIn(panel: HTMLElement): boolean {
   return true
 }
 
-// see FR-151, SV-5, SV-9, SV-16
+interface PanelPlaced {
+  readonly place: ScreenRect
+  readonly box: ScreenRect
+}
+
+interface PointAsked {
+  readonly x: number
+  readonly y: number
+  readonly first: Element | null
+  readonly walked: ScreenPart | null
+}
+
+// see SV-9, SV-12, SV-13
+/** @purity pure */
+function panelPlacedOf(panel: SearchPanelView): PanelPlaced {
+  const ratio = { width: NOT_STORED_SEARCH_PANEL_SIZES['S-421'], height: NOT_STORED_SEARCH_PANEL_SIZES['S-422'] }
+  return { place: searchPanelPlaceOf(panel, ratio), box: searchPanelBoxOf(panel, ratio) }
+}
+
+// see T-337
+/** @purity semi-pure-b */
+function isInFrontOf(node: Element, layer: Element): boolean {
+  let carrier: Element | null = node
+  while (carrier !== null && carrier.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) === null) carrier = carrier.parentElement
+  const front = SCREEN_Z_ORDER.indexOf(carrier?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
+  return front >= 0 && front < SCREEN_Z_ORDER.indexOf(layer.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
+}
+
+// see IF-9, GR-24, GR-25, SJ-1, T-023d
+// WHY: an entrance, and anything drawn in front of the panel, answers alone; GR-24 is where no entrance sits.
+/** @purity semi-pure-b */
+function searchPanelPartAt(layer: Element, placed: PanelPlaced | null, asked: PointAsked): ScreenPart | null {
+  const { x, y, first, walked } = asked
+  if (placed === null || (walked !== null && walked.entry !== null)) return walked
+  const isInPanel = first !== null && layer.contains(first)
+  if (!isInPanel && first !== null && isInFrontOf(first, layer)) return walked
+  const marks = isInPanel && first !== null ? searchMarksFrom(first, layer) : { jump: null, isOnBand: false }
+  const region = marks.isOnBand ? 'headingBand' : edgeRegionAt(x, y, placed.box, SEARCH_PANEL_EDGE_PX)
+  if (!isInPanel && region === null) return walked
+  const base = isInPanel && walked !== null ? walked : panelPartOf()
+  const grab = region === null ? {} : { searchPanelGrab: { region, panelBox: placed.place } }
+  return { ...base, searchJumpTarget: marks.jump, ...grab }
+}
+
+// see SV-5, SV-10, SV-11
+/** @purity non-pure */
+function redrawInPlace(host: Document, drawnPanel: HTMLElement, panel: SearchPanelView, box: ScreenRect, tableFontPx: number | null): void {
+  drawnPanel.setAttribute('style', boxStyle(box) + panelStyle())
+  const drawnTable = drawnPanel.lastElementChild
+  if (tableFontPx === null || drawnTable === null) return
+  const redrawn = searchTableElement(host, panel, tableFontPx)
+  drawnTable.replaceWith(redrawn)
+  pinFixedColumns(redrawn)
+}
+
+// see SV-2, SV-5, IF-9
+/** @purity non-pure */
+function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
+  let typed: string | null = null
+  layer.addEventListener('input', (event: Event) => {
+    const field = event.target as HTMLInputElement | null
+    if (field === null || field.getAttribute(SEARCH_WORD_FIELD_ATTRIBUTE) === null) return
+    typed = field.value
+    onWordTyped()
+  })
+  /** @purity semi-pure-b */
+  const read = (): string | null => {
+    const word = typed
+    typed = null
+    return word
+  }
+  return { read }
+}
+
+// see FR-151, SV-5, SV-9, SV-16, IF-9
 // TRAP: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
 /** @purity non-pure */
-export function searchPanelPainter(host: Document, layer: HTMLElement) {
+export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) {
   let frameDrawn = ''
-
-  /** @purity semi-pure-b */
-  function isWordFocused(): boolean {
-    const focused = (host as Partial<Document>).activeElement ?? null
-    return focused !== null && layer.contains(focused) && focused.hasAttribute(SEARCH_WORD_FIELD_ATTRIBUTE)
-  }
+  let tableDrawn = ''
+  let placed: PanelPlaced | null = null
+  const typedWord = typedWordWatch(layer, onWordTyped)
 
   /** @purity non-pure */
-  function draw(
-    panel: SearchPanelView | null | undefined,
-    isChanged: boolean,
-    anchorsOf: () => Map<string, HTMLElement>,
-  ): void {
+  function draw(panel: SearchPanelView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
     if (!isChanged) return
-    if (panel === null || panel === undefined) {
+    placed = panel === null || panel === undefined ? null : panelPlacedOf(panel)
+    if (panel === null || panel === undefined || placed === null) {
       frameDrawn = ''
       layer.replaceChildren()
       return
     }
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
-    const frameKey = JSON.stringify({ ...panel, rows: [], word: isWordFocused() ? null : panel.word })
-    const drawnTable = layer.firstElementChild?.lastElementChild ?? null
-    if (frameKey === frameDrawn && panel.shown !== 'minimised' && drawnTable !== null) {
-      const table = searchTableElement(host, panel, fontPx)
-      drawnTable.replaceWith(table)
-      pinFixedColumns(table)
+    // WHY: not the word: only typing changes it, and the typed field already holds it.
+    const frameKey = JSON.stringify({ ...panel, rows: [], at: null, size: null, canvas: null, word: null })
+    const tableKey = JSON.stringify([panel.rows, fontPx])
+    const drawnPanel = layer.firstElementChild as HTMLElement | null
+    const isTableKept = tableKey === tableDrawn
+    tableDrawn = tableKey
+    if (frameKey === frameDrawn && panel.shown !== 'minimised' && drawnPanel !== null) {
+      redrawInPlace(host, drawnPanel, panel, placed.box, isTableKept ? null : fontPx)
       return
     }
     frameDrawn = frameKey
-    const ratio = { width: NOT_STORED_SEARCH_PANEL_SIZES['S-421'], height: NOT_STORED_SEARCH_PANEL_SIZES['S-422'] }
-    const drawn = searchPanelElement(host, panel, { box: searchPanelBoxOf(panel, ratio), fontPx }, anchorsOf())
+    const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx }, anchorsOf())
     layer.replaceChildren(drawn)
     if (panel.shown !== 'minimised' && drawn.lastElementChild !== null) pinFixedColumns(drawn.lastElementChild)
   }
 
-  return { draw, focusWord: (): boolean => focusSearchWordIn(layer) }
+  return {
+    draw,
+    readWord: typedWord.read,
+    answerAt: (asked: PointAsked): ScreenPart | null => searchPanelPartAt(layer, placed, asked),
+    isFocused: (): boolean => isInside(layer, (host as Partial<Document>).activeElement ?? null),
+    focusWord: (): boolean => focusSearchWordIn(layer),
+  }
+}
+
+/** @purity semi-pure-b */
+function isInside(layer: Element, node: Element | null): boolean {
+  return node !== null && layer.contains(node)
+}
+
+/** @purity pure */
+function panelPartOf(): ScreenPart {
+  return {
+    part: SEARCH_PANEL_ROLE,
+    entry: null,
+    format: null,
+    rowGroupId: null,
+    resourceUid: null,
+    dividerPanel: null,
+    noticeDismissKey: null,
+  }
 }

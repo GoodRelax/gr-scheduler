@@ -1130,6 +1130,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Scrollbar` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Scrollbar` | -- | interface Scrollbar |
 | `ScrollExtent` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScrollExtent` | -- | interface ScrollExtent |
 | `scrollExtentOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#scrollExtentOf` | PI-37 | 配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。 |
+| `searchPanelBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelBoxAfterGrab` | PI-37 | `Search Panel` の見出しの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、`Schedule Canvas` の中に収めて答える（`FR-151` の 表 T-330 の `SV-10`・`SV-11`）。 |
 | `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, schedule: Schedule, canvas: ScreenRect, ): SearchPanelView \| null |
 | `SearchPanelShown` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelShown` | -- | type SearchPanelShown = 'normal' \| 'minimised' \| 'maximised' |
 | `SearchPanelView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchPanelView` | PI-37 | 型。 |
@@ -1155,7 +1156,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
 | `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
+| `SearchPanelGrab` | file only | interface | `src/adapter/screen-renderer/screen-surface.ts#SearchPanelGrab` | -- | interface SearchPanelGrab |
 | `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchColumnView` | -- | interface SearchColumnView |
+| `SearchPanelGrabRegion` | file only | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelGrabRegion` | -- | type SearchPanelGrabRegion = \| 'headingBand' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' export interface S... |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
 | `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): r... |
@@ -1258,10 +1261,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SEARCH_PANEL_GRAB_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_PANEL_GRAB_ATTRIBUTE` | -- | const SEARCH_PANEL_GRAB_ATTRIBUTE = 'data-search-panel-grab' |
 | `SEARCH_WORD_FIELD_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_FIELD_ATTRIBUTE` | -- | const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word' |
 | `SEARCH_WORD_ROW` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_ROW` | -- | const SEARCH_WORD_ROW = 'SV-2' |
-| `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf( view: SearchPanelView, defaultRatio: { readonly width: number; readonly height: number }, ): ScreenRect |
+| `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect |
 | `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: SearchPanelView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
 | `searchPanelFontPxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelFontPxOf` | -- | function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number |
-| `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement) |
+| `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) |
 | `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: SearchPanelView, fontPx: number): HTMLElement |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
 | `showDualCursorReadout` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showDualCursorReadout` | -- | function showDualCursorReadout( host: Document, layer: HTMLElement, readout: ScreenView['dualCursorReadout'], ): void |
@@ -1420,4 +1423,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 701 name(s) leave through a public entry (222 of them published by table T-064), 519 more are exported by a file and not by its entry.
+Totals: 702 name(s) leave through a public entry (223 of them published by table T-064), 521 more are exported by a file and not by its entry.

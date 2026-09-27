@@ -12,8 +12,8 @@ import {
   type DualCursorSide,
   type EscapeTarget,
 } from '../../entity/document-model/screen-state/screen-state'
-import { emptySelection, selectionWithinSchedule } from '../../entity/document-model/selection/selection'
-import type { Selection } from '../../entity/document-model/selection/selection'
+import { emptySelection, selectionWith, selectionWithinSchedule } from '../../entity/document-model/selection/selection'
+import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import {
   emptyHistory,
   NOT_STORED_LIMITS,
@@ -37,6 +37,7 @@ import {
   type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
+  hasRoomBelowPinsIn,
   layoutFromSchedule,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -63,6 +64,7 @@ import {
 import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
+  searchJumpWrites,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
@@ -132,6 +134,7 @@ import {
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
+  searchPanelBoxAfterGrab,
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
@@ -307,6 +310,8 @@ export interface ScreenWiring {
   // see FR-102, IR-1
   // TRAP: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
   readonly readFocusPosition?: () => string
+  // see RG-15, SV-5, SV-14
+  readonly isSearchPanelFocused?: () => boolean
 }
 
 export interface FrameLoopHands {
@@ -393,6 +398,12 @@ const SEARCH_WORD_ROW = 'SV-2'
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
 const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
+
+const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
+
+const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
+
+type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
 const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
@@ -526,6 +537,7 @@ export type NoticeReason =
   | 'RS-60'
   | 'RS-63'
   | 'RS-64'
+  | 'RS-66'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -583,6 +595,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-60': 'NT-5',
   'RS-63': 'NT-5',
   'RS-64': 'NT-1',
+  'RS-66': 'NT-3a',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -1151,6 +1164,82 @@ function searchPanelAfterEntry(held: SearchPanelSession, entry: IconId): SearchP
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
+// see GR-24, GR-25, SV-15
+/** @purity semi-pure-b */
+function isSearchPanelGrabPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+  if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
+  return surface.readScreenPartAt(input.x, input.y)?.searchPanelGrab !== undefined
+}
+
+// see SJ-1, IN-1
+/** @purity pure */
+function searchJumpOnRelease(input: HumanInput, press: PointerPress | null, on: ScreenPart | null): SearchJumpCell | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up' || press?.on == null) return null
+  const pressedCell = press.on.searchJumpTarget ?? null
+  const releasedCell = on?.searchJumpTarget ?? null
+  if (pressedCell === null || releasedCell === null || press.on.searchPanelGrab !== undefined) return null
+  const isSameCell =
+    pressedCell.kind === 'task'
+      ? releasedCell.kind === 'task' && releasedCell.taskUid === pressedCell.taskUid
+      : releasedCell.kind === 'commentBox' && releasedCell.commentBoxId === pressedCell.commentBoxId
+  return isSameCell ? releasedCell : null
+}
+
+// see SJ-2, SJ-4
+/** @purity pure */
+function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { readonly item: ItemRef; readonly groupId: string | null } {
+  if (cell.kind === 'task') {
+    const member = schedule.taskGroupMembers.find((one) => one.taskUid === cell.taskUid)
+    return { item: { kind: 'task', uid: cell.taskUid }, groupId: member?.groupId ?? null }
+  }
+  const box = schedule.commentBoxes.find((one) => one.id === cell.commentBoxId)
+  return { item: { kind: 'commentBox', id: cell.commentBoxId }, groupId: box?.anchorGroupId ?? null }
+}
+
+// see SV-10, SV-11, SV-12, SV-13, IN-1
+// WHY: a maximised panel fills the canvas and a minimised one keeps its size for the restore, so
+// only a normal panel changes size and a maximised one never moves.
+/** @purity pure */
+function searchPanelHeldWhileGrabbed(
+  held: SearchPanelSession,
+  session: ScreenSession,
+  input: HumanInput,
+  press: PointerPress | null,
+  canvas: ScreenRect,
+): SearchPanelSession {
+  const grab = press?.on?.searchPanelGrab
+  const shown = session.screen.searchPanelDisplayState
+  if (input.kind !== 'pointer' || input.phase === 'down' || press == null || grab === undefined) return held
+  if (shown.kind !== 'shown' || shown.child.kind === 'maximised') return held
+  if (grab.region !== 'headingBand' && shown.child.kind !== 'normal') return held
+  const travel = { dx: input.x - press.at.x, dy: input.y - press.at.y }
+  const box = searchPanelBoxAfterGrab(grab.region, grab.panelBox, travel, canvas)
+  return { ...held, at: { x: box.x, y: box.y }, size: { width: box.width, height: box.height } }
+}
+
+// see T-332, SJ-2, SJ-3, SJ-4, SJ-8
+/** @purity non-pure */
+function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, showProperties: () => void): void {
+  if (cell === null) return
+  hands.sendToSession(SEARCH_HIT_JUMPED, frame)
+  const document = hands.readHeld().document
+  const hit = searchHitOf(document.schedule, cell)
+  const plan = searchJumpWrites(document, cell, hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, hit.groupId))
+  const writes = plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+  if (writes.length > 0) hands.writeDocument(writes, frame)
+  hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
+  noteChoiceMoved(hands, frame)
+  showProperties()
+  if (plan.isBlockedByPinnedRows) hands.raiseNotice(PINNED_ROWS_LEAVE_NO_ROOM_REASON, null)
+}
+
+// see SV-2, SV-5
+/** @purity semi-pure-b */
+function searchPanelWithTypedWord(held: SearchPanelSession, surface: ScreenSurface | undefined): SearchPanelSession {
+  const typed = surface?.readSearchWord?.() ?? null
+  return typed === null ? held : { ...held, word: typed }
+}
+
 // see SV-15, MK-10
 /** @purity semi-pure-b */
 function isOnSearchPanelBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
@@ -1183,6 +1272,7 @@ function escapeLevelOf(
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
   return escapeTarget({
     isNoticeStanding: context.isNoticeStanding === true,
+    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
     isHelpStanding: isHelpStandingIn(context.screen),
@@ -1463,6 +1553,7 @@ export function frameLoop(
   // see S-419, S-420, S-429
   // WHY: a frame value like the palette's corner; the panel's values are never saved (FR-151).
   let searchPanelHeld: SearchPanelSession = emptySearchPanelSession
+  let searchPanelPlaceAtPress: Pick<SearchPanelSession, 'at' | 'size'> | null = null
   let isSearchWordFocusOwed = false
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
@@ -1792,6 +1883,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
+    searchPanelHeld = searchPanelWithTypedWord(searchPanelHeld, screen?.surface)
     runFrame()
   }
 
@@ -1835,6 +1927,7 @@ export function frameLoop(
   function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
     if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
     sendToSession({ type: 'pointerPressed', pressRow: press.pressRow, pressedOn: pressedOnOf(on, press.hit) }, frame)
+    searchPanelPlaceAtPress = on?.searchPanelGrab === undefined ? null : { at: searchPanelHeld.at, size: searchPanelHeld.size }
   }
 
   // see IN-1, IN-1a, FR-053, T-289
@@ -1845,6 +1938,8 @@ export function frameLoop(
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
     rowGrabbedAt = null
+    if (isInterrupted && searchPanelPlaceAtPress !== null) searchPanelHeld = { ...searchPanelHeld, ...searchPanelPlaceAtPress }
+    searchPanelPlaceAtPress = null
     // see FR-053, JDG-660
     // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
@@ -2146,6 +2241,7 @@ export function frameLoop(
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: screen?.readFocusPosition?.() === SEARCH_WORD_ROW,
+      isSearchPanelFocused: screen?.isSearchPanelFocused?.() === true,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -2731,8 +2827,10 @@ export function frameLoop(
     // because WS-2 refuses a write during a gesture (AG-9).
     const isDragInterrupted =
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
+    searchPanelHeld = searchPanelHeldWhileGrabbed(searchPanelHeld, session, input, context.pressed, frame.regions.scheduleCanvas)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, showPropertiesOfChoice)
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
@@ -2836,6 +2934,7 @@ export function frameLoop(
       ) {
         return false
       }
+      if (isSearchPanelGrabPress(input, screen?.surface)) return true
       if (isOnSearchPanelBody(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped

@@ -82,6 +82,18 @@ export interface SearchRowView {
     | { readonly kind: 'commentBox'; readonly commentBoxId: CommentBoxSearchRow['commentBoxId'] }
 }
 
+// see GR-24, GR-25
+export type SearchPanelGrabRegion =
+  | 'headingBand'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'topLeft'
+  | 'topRight'
+  | 'bottomLeft'
+  | 'bottomRight'
+
 export interface SearchPanelView {
   readonly heading: string
   readonly shown: SearchPanelShown
@@ -176,6 +188,83 @@ function rowsOf(schedule: Schedule, panel: SearchPanelSession, language: Display
   }))
 }
 
+interface Span {
+  readonly start: number
+  readonly end: number
+}
+
+type SpanSide = 'start' | 'end' | null
+
+const EDGE_SIDES: { readonly [R in Exclude<SearchPanelGrabRegion, 'headingBand'>]: readonly [SpanSide, SpanSide] } = {
+  top: [null, 'start'],
+  bottom: [null, 'end'],
+  left: ['start', null],
+  right: ['end', null],
+  topLeft: ['start', 'start'],
+  topRight: ['end', 'start'],
+  bottomLeft: ['start', 'end'],
+  bottomRight: ['end', 'end'],
+}
+
+/** @purity pure */
+function withinSpan(value: number, low: number, high: number): number {
+  return Math.min(Math.max(value, low), high)
+}
+
+// see SV-10, SV-11
+/** @purity pure */
+function spanMoved(span: Span, travel: number, within: Span): Span {
+  const length = span.end - span.start
+  const start = withinSpan(span.start + travel, within.start, within.end - length)
+  return { start, end: start + length }
+}
+
+// see SV-11
+// WHY: an edge stops at the opposite edge: S-423 and S-424 have no value, and a box has no negative size.
+/** @purity pure */
+function spanAfterEdge(span: Span, side: SpanSide, travel: number, within: Span): Span {
+  if (side === 'start') return { start: withinSpan(span.start + travel, within.start, span.end), end: span.end }
+  if (side === 'end') return { start: span.start, end: withinSpan(span.end + travel, span.start, within.end) }
+  return span
+}
+
+/** @purity pure */
+function spansOf(box: ScreenRect): readonly [Span, Span] {
+  return [
+    { start: box.x, end: box.x + box.width },
+    { start: box.y, end: box.y + box.height },
+  ]
+}
+
+// see SV-10, SV-11, GR-24, GR-25
+/** @purity pure */
+export function searchPanelBoxAfterGrab(
+  region: SearchPanelGrabRegion,
+  box: ScreenRect,
+  travel: { readonly dx: number; readonly dy: number },
+  canvas: ScreenRect,
+): ScreenRect {
+  const [xs, ys] = spansOf(box)
+  const [canvasXs, canvasYs] = spansOf(canvas)
+  const [xSide, ySide] = region === 'headingBand' ? [null, null] : EDGE_SIDES[region]
+  const x = region === 'headingBand' ? spanMoved(xs, travel.dx, canvasXs) : spanAfterEdge(xs, xSide, travel.dx, canvasXs)
+  const y = region === 'headingBand' ? spanMoved(ys, travel.dy, canvasYs) : spanAfterEdge(ys, ySide, travel.dy, canvasYs)
+  return { x: x.start, y: y.start, width: x.end - x.start, height: y.end - y.start }
+}
+
+// see SV-11
+// WHY: a held place is fitted again on every frame, so a smaller window never leaves the panel outside.
+/** @purity pure */
+function heldPlaceInCanvas(panel: SearchPanelSession, canvas: ScreenRect): Pick<SearchPanelView, 'at' | 'size'> {
+  const held = panel.size
+  const size = held === null ? null : { width: Math.min(held.width, canvas.width), height: Math.min(held.height, canvas.height) }
+  if (panel.at === null) return { at: null, size }
+  const [canvasXs, canvasYs] = spansOf(canvas)
+  const x = spanMoved({ start: panel.at.x, end: panel.at.x + (size?.width ?? 0) }, 0, canvasXs)
+  const y = spanMoved({ start: panel.at.y, end: panel.at.y + (size?.height ?? 0) }, 0, canvasYs)
+  return { at: { x: x.start, y: y.start }, size }
+}
+
 // see FR-151, T-330, S-442
 /** @purity pure */
 export function searchPanelFromSession(
@@ -192,8 +281,7 @@ export function searchPanelFromSession(
     heading: wordOf(PANEL_HEADING, language),
     shown,
     canvas,
-    at: panel.at,
-    size: panel.size,
+    ...heldPlaceInCanvas(panel, canvas),
     textSizeStep: panel.textSizeStep,
     tableEntries: [
       entryOf(TASKS_TABLE_ENTRY, language, panel.table === 'tasks'),

@@ -420,6 +420,7 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
+  let isSearchPanelFocusedHeld: (() => boolean) | null = null
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -435,6 +436,10 @@ function boot(): void {
     holdReadWatermarkUnlockAnswer: (read) => {
       readWatermarkUnlockAnswerHeld = read
     },
+    /** @purity non-pure */
+    holdIsSearchPanelFocused: (read) => void (isSearchPanelFocusedHeld = read),
+    /** @purity non-pure */
+    onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
     onRowControlsHeightPx: (heightPx) => {
       rowControlsHeightPx = heightPx
@@ -499,6 +504,8 @@ function boot(): void {
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
       /** @purity semi-pure-b */
       readFocusPosition: focusPositionOfPage,
+      /** @purity semi-pure-b */
+      isSearchPanelFocused: () => isSearchPanelFocusedHeld?.() === true,
     },
     fileStore,
     showPointerShape,
