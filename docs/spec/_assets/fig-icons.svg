@@ -671,10 +671,7 @@
   </g>
   <text class="lbl" x="280" y="442">IC-131</text>
   <g transform="translate(304 408)">
-    <circle class="s" cx="10" cy="10" r="6.5"/>
-    <path class="s" d="M14.8 14.8 L20 20"/>
-    <path class="s" d="M10 6.6 V10.4"/>
-    <circle class="f" cx="10" cy="13.2" r="0.95"/>
+    <path class="s" d="M12 3.45 Q17.13 9.1 18.84 15.04 Q18.27 21.12 12 21.5 Q5.73 21.12 5.16 15.04 Q5.92 10.48 8.96 8.2 Q9.62 12.19 12 12.76 Q10.86 7.68 12 3.45 Z"/>
   </g>
   <text class="lbl" x="316" y="442">IC-107</text>
 </svg>

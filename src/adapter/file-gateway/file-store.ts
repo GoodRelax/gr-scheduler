@@ -4,7 +4,8 @@
 // @purity    n/a
 // @seam      FileStore, implemented in another layer (LR-5)
 
-export type OpenRoute = 'chooser' | 'drop' | 'reopen'
+// see OP-2, OP-13, OP-15
+export type OpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline'
 
 export type FileStoreFaultReason =
   | 'cancelled'
@@ -58,6 +59,9 @@ export interface ChosenFileWrite {
 // see IF-3
 export interface FileStore {
   readFileToOpen(route: OpenRoute): Promise<FileReading>
+
+  // see FR-060, T-290
+  adoptFileReadToOpen(): void
 
   readOpenedFileState(): Promise<OpenedFileState>
 

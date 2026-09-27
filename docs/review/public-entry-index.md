@@ -208,7 +208,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
-| `BaselineOutline` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BaselineOutline` | -- | interface BaselineOutline |
 | `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、行の帯の中央）。 |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
 | `ContinuationGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ContinuationGeometry` | -- | interface ContinuationGeometry |
@@ -223,11 +222,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HighlightGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#HighlightGeometry` | PI-6 | 型。 |
 | `leaderOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#leaderOf` | PI-6 | そのコメントボックスの引出し線。 |
 | `MarkerGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MarkerGeometry` | -- | interface MarkerGeometry |
+| `MilestoneLayer` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayer` | -- | interface MilestoneLayer |
+| `MilestoneLayerRole` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayerRole` | -- | type MilestoneLayerRole = 'body' \| 'inner' \| 'dot' \| 'shade' |
 | `NOT_STORED_DUMMY_SIZES` | entry | const | `src/entity/layout-engine/schedule-geometry/task-figures.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `Path` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Path` | -- | type Path = readonly Point[] |
+| `PathSegment` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#PathSegment` | -- | type PathSegment = \| { readonly command: 'M' \| 'L'; readonly to: Point } \| { readonly command: 'Q'; readonly control: Point; readonly to: Point } \| |
 | `Point` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Point` | -- | interface Point |
 | `point` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#point` | -- | function point(x: number, y: number): Point |
-| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' |
+| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
 | `ResumeGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ResumeGeometry` | -- | interface ResumeGeometry |
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
@@ -383,7 +385,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withSchedule` | -- | function withSchedule(document: Document, part: Partial<Schedule>): Document |
 | `blankVisual` | file only | function | `src/use-case/edit-document/edit-task.ts#blankVisual` | -- | function blankVisual(taskUid: number): TaskVisual |
 | `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
-| `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task, visual: TaskVisual): boolean |
+| `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task): boolean |
 | `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
@@ -686,7 +688,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
 | `typefaceAttribute` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#typefaceAttribute` | -- | function typefaceAttribute(): string |
-| `ViewerValues` | entry | interface | `src/adapter/svg-renderer/schedule-overlays.ts#ViewerValues` | -- | interface ViewerValues |
+| `ViewerValues` | entry | interface | `src/adapter/svg-renderer/schedule-overlays.ts#ViewerValues` | PI-19 | CR-572 |
 | `Watermark` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#Watermark` | -- | interface Watermark |
 | `WATERMARK_MARKS` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#WATERMARK_MARKS` | -- | const WATERMARK_MARKS: |
 | `bandWidthOf` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#bandWidthOf` | -- | function bandWidthOf(input: GridInput): number |
@@ -811,7 +813,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenedDocumentFile` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#OpenedDocumentFile` | -- | interface OpenedDocumentFile |
 | `OpenedFileContent` | entry | interface | `src/adapter/file-gateway/file-store.ts#OpenedFileContent` | -- | interface OpenedFileContent |
 | `OpenedFileState` | entry | type | `src/adapter/file-gateway/file-store.ts#OpenedFileState` | -- | type OpenedFileState = \| { readonly kind: 'none' } \| { readonly kind: 'writable'; readonly fileName: string } \| { readonly kind: 'permissionLost'; readonly f... |
-| `OpenRoute` | entry | type | `src/adapter/file-gateway/file-store.ts#OpenRoute` | -- | type OpenRoute = 'chooser' \| 'drop' \| 'reopen' |
+| `OpenRoute` | entry | type | `src/adapter/file-gateway/file-store.ts#OpenRoute` | -- | type OpenRoute = 'chooser' \| 'drop' \| 'reopen' \| 'baseline' |
 | `ProjectIdentity` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#ProjectIdentity` | -- | interface ProjectIdentity |
 | `saveDocumentFile` | entry | function | `src/adapter/file-gateway/file-gateway.ts#saveDocumentFile` | PI-22 | `non-pure` |
 | `SaveFileContent` | entry | type | `src/adapter/file-gateway/file-gateway.ts#SaveFileContent` | -- | type SaveFileContent = \| { readonly text: string } \| { readonly bytes: Uint8Array } export interface ProjectIdentity |
@@ -1045,6 +1047,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `displayRatioOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayRatioOf` | PI-35 | 表示の倍率から描く比を出す。 |
+| `displayScaleFractionOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayScaleFractionOf` | PI-35 | 表示の倍率だけの比（`S-234` を 100 で割った値）であり、`S-236` を掛けない。 |
 | `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値と `SETTINGS_CONSTANTS` を合わせた 1 つの見方（`PI-2` の `DrawnSettings`）を作り、描く比を 1 度だけ掛けて返す。 |
 | `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインタがどの領域にあるか |
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
@@ -1237,7 +1240,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillPropertiesPanel` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#fillPropertiesPanel` | -- | function fillPropertiesPanel( host: Document, panel: HTMLElement, description: PropertiesPanel, anchors: Map<string, HTMLElement>, typedByRow: Map<string, Te... |
 | `growWrappingFields` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#growWrappingFields` | -- | function growWrappingFields(panel: HTMLElement): void |
 | `markPropertiesPanel` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#markPropertiesPanel` | -- | function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): void |
+| `propertiesPanelKeyOf` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelKeyOf` | -- | function propertiesPanelKeyOf(description: PropertiesPanel \| null): string |
 | `propertiesPanelStyle` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelStyle` | -- | function propertiesPanelStyle(): string |
+| `rewritePanelReadouts` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#rewritePanelReadouts` | -- | function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void |
 | `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
 | `DELETE_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#DELETE_ROW_ENTRY` | -- | const DELETE_ROW_ENTRY = 'IC-82' |
 | `fillRowTitleTree` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#fillRowTitleTree` | -- | function fillRowTitleTree( host: Document, tree: HTMLElement, panel: RowTitlePanel, anchors: Map<string, HTMLElement>, ): void |
@@ -1423,4 +1428,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 702 name(s) leave through a public entry (223 of them published by table T-064), 521 more are exported by a file and not by its entry.
+Totals: 705 name(s) leave through a public entry (225 of them published by table T-064), 523 more are exported by a file and not by its entry.

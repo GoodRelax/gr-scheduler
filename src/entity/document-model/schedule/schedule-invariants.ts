@@ -717,6 +717,25 @@ const INVARIANTS: readonly Invariant[] = [
       return found
     },
   },
+  {
+    row: 'IV-22',
+    kind: 'combination',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      const milestoneOf = new Map(schedule.tasks.map((task) => [task.uid, task.milestone === true]))
+      for (const [index, visual] of schedule.taskVisuals.entries()) {
+        const milestone = milestoneOf.get(visual.taskUid)
+        if (visual.shapeKind === null || milestone === undefined) continue
+        if ((visual.shapeKind === 'milestone') === milestone) continue
+        found.push({
+          at: `/schedule/taskVisuals/${index}`,
+          what: `Task uid ${visual.taskUid} is drawn as ${visual.shapeKind} while its milestone is ${milestone}`,
+        })
+      }
+      return found
+    },
+  },
 ]
 
 // see T-220

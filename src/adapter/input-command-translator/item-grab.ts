@@ -21,7 +21,7 @@ import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area
 import {
   commentAnchorPointOf,
   type BarGeometry,
-  type FarEndGeometry,
+  type DependencyGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   groupDepthThresholdOf,
@@ -66,6 +66,8 @@ import {
   type PointerPress,
   type TranslatedInput,
 } from './input-command-translator'
+
+type FarEndGeometry = NonNullable<DependencyGeometry['continuation']>['far']
 
 const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
   'GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-9', 'GA-12', 'GA-13', 'GA-14',
@@ -248,9 +250,7 @@ function farEndSendWrites(
 ): readonly DocumentCommand[] {
   const settings = context.document.documentSettings
   const area = context.regions.rowArea
-  const isSeated =
-    context.isPictureAtStoredZoom ??
-    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
   const kept = isSeated ? settings : scrolledAnchor(context, 0, 0)
   const across = far.isAcrossInRowArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
   const to = {
@@ -260,7 +260,7 @@ function farEndSendWrites(
     scrollGroupId: isDownOut ? far.groupId : kept.scrollGroupId,
     scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
   } as const
-  const zoom = farEndZoomWrites(context, far.undrawnRowDepth, isSeated)
+  const zoom = farEndZoomWrites(context, far.undrawnRowDepth, context.isPictureAtStoredZoom ?? isSeated)
   return isScrollPositionInForce(context, to) ? zoom : [...zoom, to]
 }
 
@@ -269,10 +269,10 @@ function farEndSendWrites(
 function farEndZoomWrites(
   context: InputContext,
   undrawnRowDepth: number | null,
-  isSeated: boolean,
+  isAtStoredZoom: boolean,
 ): readonly DocumentCommand[] {
   // WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom goes with the place so it stays.
-  if (undrawnRowDepth === null && isSeated) return []
+  if (undrawnRowDepth === null && isAtStoredZoom) return []
   const drawnZoom = zoomOnScreen(context)
   return [
     {

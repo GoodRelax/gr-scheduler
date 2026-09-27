@@ -80,6 +80,9 @@ why: restates the out-direction IO rows of table T-024 (display-words.json / exp
 THEME_ROW_OF_FORM | keys | generated COLOUR_NAME_VALUES.*.* keys
 why: restates the colour forms of table T-236 through the hand union ColourForm; becomes compile-guarded once ColourForm is derived.
 
+MilestoneLayerRole | union | milestone-shapes.json $.shapes[].layers[].role
+why: restates the layer roles of docs/spec/_assets/fig-milestone-shapes.svg (CR-583); the JSON import widens role to string and no generated TS set of the roles exists yet -- held under JDG-778 (the user lets a lane raise for now), DFC-1227 closes it by generating the set
+
 # --- coincidental (5) ------------------------------------------------------
 
 CALENDAR_CONSUMED | array | mspdi-child-order.json $.parents.Project/Calendars/Calendar.children
@@ -87,9 +90,6 @@ why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subse
 
 COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys
 why: coincidental: maps the colour columns to the form each is drawn in; the forms are its values, typed against ColourForm, not a list of the forms.
-
-COLOUR_FORM_OF_COLUMN | keys | property-items.json $.items[].columns
-why: coincidental (JDG-778, lane L2, CR-559): its keys are the colour columns whose drawn form differs (FR-019, CV-6) -- fillColor, strokeColor, textColor and color -- not the list of property items; a colour column with no form falls back to no form rather than being missing.
 
 KEY | values | help-roster.json $.entries[].keys~words
 why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.

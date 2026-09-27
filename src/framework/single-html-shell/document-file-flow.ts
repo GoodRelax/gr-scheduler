@@ -457,6 +457,19 @@ function landOpenedDocument(
   tellNewerFormat(hands, newer)
 }
 
+// see FR-060, T-290
+// WHY: only a replace makes the file read the save target; a merge or an overlay makes a document no file holds.
+/** @purity non-pure */
+function landReplacedDocument(
+  hands: DocumentFileFlowHands,
+  store: FileStore | null,
+  droppedTaskNames: readonly (string | null)[],
+  newer: NewerFormatReading,
+): void {
+  store?.adoptFileReadToOpen()
+  landOpenedDocument(hands, droppedTaskNames, 'replace', newer)
+}
+
 // see OP-2, OP-5, OP-12, T-230
 /** @purity non-pure */
 export async function openDocumentIntoHold(
@@ -565,7 +578,7 @@ export async function openDocumentIntoHold(
 
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-    if (replaced) landOpenedDocument(hands, droppedNames, choice, newer)
+    if (replaced) landReplacedDocument(hands, store, droppedNames, newer)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)

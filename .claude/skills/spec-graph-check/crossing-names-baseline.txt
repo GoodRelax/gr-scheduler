@@ -141,6 +141,8 @@ ScheduleGeometry | Path
 ScheduleGeometry | Point
 ScheduleGeometry | TaskGeometry
 
+ScheduleLayout | deadlineHeadHalfWidthOf
+ScheduleLayout | thinEndHalfHeightOf
 ScheduleLayout | MilestoneGlyph
 ScheduleLayout | RowPlacement
 ScheduleLayout | ShapeKind
@@ -182,4 +184,5 @@ Selection | selectionOfAll
 UndoEdit | ChangeStep
 UndoEdit | HeldDocument
 
-ValidateImportedDocument | ImportBounds
+
+# 2026-09-27 lane L1 (JDG-778, DFC-1226): ScheduleLayout.deadlineHeadHalfWidthOf (CR-556, S-365 read once for layout and figure) and ScheduleLayout.thinEndHalfHeightOf (CR-588, the baseline outline's vertical extent) are read by ScheduleGeometry; table T-064 needs a row for each.

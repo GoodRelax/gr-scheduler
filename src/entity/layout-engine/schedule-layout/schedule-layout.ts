@@ -20,6 +20,7 @@ import {
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import {
+  displayScaleFractionOf,
   drawnSettingsOf,
   rowControlLatticeHeightPx,
   type ScreenRegions,
@@ -371,6 +372,12 @@ function bandFloorOf(depth: number, drawn: DrawnSettings): number {
   return depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
 }
 
+// see DS-13, FR-042
+/** @purity pure */
+function drawnMinHeightPxOf(minHeight: number | null, drawn: DrawnSettings): number {
+  return (minHeight ?? 0) * displayScaleFractionOf(drawn) * drawn.zoomY
+}
+
 // see LF-2, VG-2
 // WHY: a row with no Task still stacks one rectangle lane, or placing its first Task shifts every row below.
 /** @purity pure */
@@ -572,7 +579,7 @@ export function layoutFromSchedule(
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
     const packed = packedLanesOf(laneHeights, emptyLane, laneGap)
-    const height = Math.max(packed, emptyLane, row.minHeight ?? 0, bandFloorOf(row.depth, settings))
+    const height = Math.max(packed, emptyLane, drawnMinHeightPxOf(row.minHeight, settings), bandFloorOf(row.depth, settings))
 
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)

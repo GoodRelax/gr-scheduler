@@ -19,6 +19,7 @@ import type {
   Task,
   TaskGroup,
   TaskOrigin,
+  TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
 
 export type ImportFormat = 'grsJson' | 'mspdi'
@@ -340,6 +341,7 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
   const document: Document = {
     ...request.current,
     schedule: { ...request.current.schedule, baselineTasks },
+    documentSettings: { ...request.current.documentSettings, baselineVisible: true },
   }
 
   return {
@@ -609,6 +611,13 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
   })
 }
 
+// see MG-8, IV-22, AT-100
+/** @purity pure */
+function shapeFollowingMilestone(kept: TaskVisual, task: Task): TaskVisual {
+  if (kept.shapeKind === null || (kept.shapeKind === 'milestone') === (task.milestone === true)) return kept
+  return { ...kept, shapeKind: null }
+}
+
 interface MergeInput {
   readonly request: ImportRequest
   readonly index: CurrentIndex
@@ -776,6 +785,9 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
       const member = incomingMemberByTaskUid.get(task.uid)
       if (member !== undefined) members.set(uid, { ...member, taskUid: uid })
+    } else {
+      const kept = visuals.get(uid)
+      if (kept !== undefined) visuals.set(uid, shapeFollowingMilestone(kept, task))
     }
 
     origins.set(uid, {

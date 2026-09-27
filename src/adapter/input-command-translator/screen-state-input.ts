@@ -160,7 +160,7 @@ function screenEventAfterMarkerPress(
   const remembered = rememberedActualIn(context, uid)
   const turned = cycleTaskPlanActualState(task, remembered, {
     floorDay: task.start,
-    milestone: isDrawnAsMilestone(context, uid),
+    milestone: task.milestone === true,
   })
   return {
     type: 'progressMarkerPressed',
@@ -168,15 +168,6 @@ function screenEventAfterMarkerPress(
     rememberedActual: turned.remembered,
     writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered }],
   }
-}
-
-// see AT-100, FR-083
-/** @purity pure */
-function isDrawnAsMilestone(context: InputContext, uid: number): boolean {
-  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
-  if (drawn !== undefined) return drawn.shapeKind === 'milestone'
-  const task = taskByUid(context.document.schedule, uid)
-  return task !== null && task.milestone === true
 }
 
 // see SK-12, SK-24, IN-5a, T-280

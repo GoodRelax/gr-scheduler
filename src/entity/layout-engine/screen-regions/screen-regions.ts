@@ -61,12 +61,18 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
 // would travel silently -- as a refused panel drag, or as a shape drawn nowhere.
 /** @purity pure */
 export function displayRatioOf(settings: DocumentSettings): number {
+  return displayScaleFractionOf(settings) * NOT_STORED_DISPLAY_SCALE_BASE['S-236']
+}
+
+// WHY: S-234 alone, never S-236: a DS-13 value is screen px already, as the author typed it.
+/** @purity pure */
+export function displayScaleFractionOf(settings: DocumentSettings): number {
   const step = settings.displayScale
   const held =
     typeof step === 'number' && Number.isFinite(step)
       ? step
       : (SETTINGS_DEFAULTS['displayScale'] as number)
-  return (held / 100) * NOT_STORED_DISPLAY_SCALE_BASE['S-236']
+  return held / 100
 }
 
 // TRAP: DS-1, DS-3, DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.

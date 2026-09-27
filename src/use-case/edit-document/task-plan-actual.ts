@@ -26,7 +26,6 @@ import { refused, edited, reject } from './edit-document'
 import {
   checkDay,
   isMilestone,
-  visualOf,
   withTask,
   type ActualGrabHold,
   type TaskCommand,
@@ -252,8 +251,7 @@ function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
 export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
   const span = datedPlanOf(task, schedule, within)
   if (span === null) {
-    // WHY: EX-12's MUST NOT on carried slack has no exception for a dateless task; Manual*/constraint
-    // rebuilding stays undecided (DV-8) since both dates are needed to compute them.
+    // WHY: EX-12 keeps no carried slack even undated; Manual*/constraint rebuilding needs both dates (DV-8).
     // TRAP: nothing shipped makes a dateless task; only a test guards this -- press live once one can enter (JDG-366).
     const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_SLACKS.includes(name))
     return { ...task, carry: Object.fromEntries(kept) }
@@ -322,7 +320,6 @@ export function setTaskPlanActualState(
   task: Task,
   within: WorkingCalendar,
 ): EditResult {
-  const schedule = document.schedule
   const place = command.place
   const faults: Refusal[] = []
   const dates: readonly (readonly [string, string])[] =
@@ -348,7 +345,7 @@ export function setTaskPlanActualState(
   const askedText = place.row === 'PA-5' ? place.actualFinish : place.stop
   const from = dayOf(place.actualStart) as CalendarDay
   const asked = dayOf(askedText) as CalendarDay
-  const milestone = isMilestone(task, visualOf(schedule, task.uid))
+  const milestone = isMilestone(task)
   const settled = settledLastDay(within, from, asked, floorDayOf(within, from, milestone))
   if (!settled.ok) {
     return refused([
@@ -411,18 +408,16 @@ export function beginTaskActual(
   task: Task,
   within: WorkingCalendar,
 ): EditResult {
-  const schedule = document.schedule
   if (planActualState(task) !== 'notStarted') {
     return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
   }
-  const isDrawnAsMilestone = isMilestone(task, visualOf(schedule, task.uid))
+  const milestone = isMilestone(task)
   const dropped = checkDay(command.droppedDay)
   if (!dropped.ok) {
     return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
   }
   if (DUMMY_FINISH_HOLDS.includes(command.grabbed)) {
-    // TRAP: the plan start day itself, where schedule-layout.ts and task-figures.ts stand the dummy (DM-1);
-    // change all three together.
+    // TRAP: the plan start day itself, where schedule-layout.ts and task-figures.ts stand the dummy (DM-1); change all three together.
     const planStart = dayOf(task.start)
     if (planStart === null) {
       return refused([
@@ -432,7 +427,7 @@ export function beginTaskActual(
     const pinned = planStart
     // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
     const settled = settledLastDay(
-      within, pinned, dropped.day, floorDayOf(within, pinned, isDrawnAsMilestone),
+      within, pinned, dropped.day, floorDayOf(within, pinned, milestone),
     )
     if (!settled.ok) {
       return refused([
@@ -450,7 +445,7 @@ export function beginTaskActual(
   const begun: Task = {
     ...task,
     actualStart: textOfDay(dropped.day),
-    stop: textOfDay(floorDayOf(within, dropped.day, isDrawnAsMilestone)),
+    stop: textOfDay(floorDayOf(within, dropped.day, milestone)),
     resumeValid: true,
   }
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -464,9 +459,8 @@ export function cycleTaskPlanActualStateInDocument(
   task: Task,
   within: WorkingCalendar,
 ): EditResult {
-  const schedule = document.schedule
   const state = planActualState(task)
-  const milestone = isMilestone(task, visualOf(schedule, task.uid))
+  const milestone = isMilestone(task)
   const from = dayOf(task.start)
   if (state === 'notStarted' && command.remembered === null && from === null) {
     return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])

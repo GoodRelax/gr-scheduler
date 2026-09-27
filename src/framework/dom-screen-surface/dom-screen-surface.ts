@@ -25,7 +25,9 @@ import {
   fillPropertiesPanel,
   growWrappingFields,
   markPropertiesPanel,
+  propertiesPanelKeyOf,
   propertiesPanelStyle,
+  rewritePanelReadouts,
 } from './properties-panel-drawing'
 import {
   ADD_CHILD_ROW_ENTRY,
@@ -841,7 +843,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       frame: described(view.frame),
       appHeaderItems: described(view.appHeaderItems),
       rowTitlePanel: described(view.rowTitlePanel),
-      propertiesPanel: fieldEditing.panelKeyAfterCommits(described(view.propertiesPanel)),
+      propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(surfaceModal),
       helpModal: described(helpModal),
@@ -910,6 +912,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         )
       }
     }
+    if (view.propertiesPanel !== null) rewritePanelReadouts(propertiesPanel, view.propertiesPanel)
     if (changed('commandPalette')) {
       const palette = view.commandPalette
       const anchors = anchorsOf('commandPalette')

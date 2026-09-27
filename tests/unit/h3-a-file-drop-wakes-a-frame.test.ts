@@ -143,6 +143,7 @@ async function stage(): Promise<Stage> {
       routes.push(route)
       return new Promise<FileReading>((resolve) => void answers.push(resolve))
     },
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({

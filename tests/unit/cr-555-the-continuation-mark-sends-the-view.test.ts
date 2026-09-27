@@ -307,6 +307,25 @@ const sceneAfter = (scene: Scene, writes: readonly Loose[]): Scene => {
   return sceneOf(scene.spec, { ...scene.settings, ...next })
 }
 
+interface Row {
+  readonly groupId: string
+  readonly y: number
+  readonly height: number
+  readonly isPinned?: boolean
+}
+
+const rowsOf = (scene: Scene): readonly Row[] =>
+  (scene.context.layout as unknown as { readonly rows: readonly Row[] }).rows
+
+// WHY: the row the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
+// with the fraction of it scrolled past (S-176, 0 or more and under 1 per OP-10a).
+const topRowOf = (scene: Scene): { readonly groupId: string; readonly offset: number } | undefined => {
+  const band = (scene.context.layout as unknown as { readonly pinnedBandHeight?: number }).pinnedBandHeight ?? 0
+  const edge = scene.rowArea.y + band
+  const row = rowsOf(scene).find((one) => one.isPinned !== true && one.y <= edge && edge < one.y + one.height)
+  return row === undefined ? undefined : { groupId: row.groupId, offset: (edge - row.y) / row.height }
+}
+
 const offRight = (): Scene =>
   sceneOf({
     groups: [['a', null], ['b', null]],
@@ -430,12 +449,25 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       expect(mid, EL_11_SEND).toBeCloseTo(after.rowArea.x + after.rowArea.width / 2, 2)
     })
 
+    // WHY: the scene stores no row (S-78 null), so "not sent down" is read off the picture, not off the stored
+    // value: the write names the row and offset already at the top of the scroll area, and every row stays put.
     it(`${name}: the far end's row is inside the vertical range, so the view is not sent down (${EL_12_STAY})`, () => {
       const scene = make()
-      const scroll = onlyOf(writesOf(doubleClickOn(scene, markOf(scene, pair[0], pair[1])).out), SET_SCROLL)
+      const top = topRowOf(scene)
+      expect(top, 'premise: a row stands at the top of the scroll area').toBeDefined()
+      const writes = writesOf(doubleClickOn(scene, markOf(scene, pair[0], pair[1])).out)
+      const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, 'premise: EL-11 sent the view across').toBeDefined()
-      expect(scroll!['scrollGroupId'], EL_12_STAY).toBe(scene.settings['scrollGroupId'])
-      expect(scroll!['scrollGroupOffset'], EL_12_STAY).toBe(scene.settings['scrollGroupOffset'])
+      expect(scroll!['scrollGroupId'], `${EL_12_STAY} (S-78 names the row already at the top)`).toBe(top!.groupId)
+      expect(scroll!['scrollGroupOffset'], `${EL_12_STAY} (S-176 keeps the offset already at the top)`).toBeCloseTo(
+        top!.offset,
+        6,
+      )
+      const after = sceneAfter(scene, writes)
+      const rowsAfter = new Map(rowsOf(after).map((one) => [one.groupId, one.y]))
+      for (const row of rowsOf(scene)) {
+        expect(rowsAfter.get(row.groupId), `${EL_12_STAY} (row ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
+      }
     })
   }
 

@@ -840,6 +840,7 @@ function screenViewReadingsOf(
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
     placedRowGroupIds: layout.rows.map((row) => row.groupId),
+    placedRows: layout.rows,
     scrollExtent: scrollExtentOf(layout, regions, {
       horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
       vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
@@ -2496,7 +2497,7 @@ export function frameLoop(
         return
       case 'openDocumentFile':
         if (files === undefined) return
-        sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_CHOOSER }, frame)
+        sendToSession({ type: 'documentOpenAsked', openRoute: action.openRoute ?? OPEN_ROUTE_FROM_CHOOSER }, frame)
         return
       case 'copyPictureToClipboard': {
         const seam = clipboard

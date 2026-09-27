@@ -8,8 +8,6 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
-  BaselineOutline,
-  DeadlineGeometry,
   MarkerGeometry,
   Path,
   Point,
@@ -38,6 +36,10 @@ import {
 
 type Placed = ScheduleLayout['placements'][number]
 type PinnedGroupId = ScheduleLayout['rows'][number]['groupId']
+type BaselineOutline = ScheduleGeometry['baselineOutlines'][number]
+type DeadlineGeometry = NonNullable<ScheduleGeometry['tasks'][number]['deadline']>
+type MilestoneLayer = NonNullable<Extract<BarGeometry, { readonly form: 'outline' }>['layers']>[number]
+type PathSegment = MilestoneLayer['segments'][number]
 
 export interface TaskFiguresInput {
   readonly geometry: ScheduleGeometry
@@ -185,6 +187,113 @@ function isCulled(box: ScreenRect | null, input: TaskFiguresInput): boolean {
   )
 }
 
+// see T-021, T-236, T-315, FR-013, FR-133
+/** @purity pure */
+function markColoursOf(
+  symbol: MarkerGeometry['symbol'],
+  themed: (rowId: string) => string,
+): { readonly ground: string; readonly ink: string } {
+  switch (symbol) {
+    case 'PM-4':
+      return { ground: themed('S-326'), ink: themed('S-327') }
+    case 'DG-1':
+      return { ground: themed('S-389'), ink: themed('S-390') }
+    case 'DG-2':
+      return { ground: themed('S-387'), ink: themed('S-388') }
+    case 'DG-3':
+      return { ground: themed('S-385'), ink: themed('S-386') }
+    default:
+      return { ground: themed('S-162'), ink: themed('S-161') }
+  }
+}
+
+// see FR-013, S-330, S-331, S-341
+/** @purity pure */
+function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: string): string {
+  const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
+  return (
+    `<circle cx="${rounded(x)}" cy="${rounded(marker.centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-330'])}"` +
+    ` r="${rounded(marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-331'])}" fill="${ink}"${named}/>`
+  )
+}
+
+// see FR-013, S-328, S-329, S-341
+/** @purity pure */
+function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+  const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
+  return (
+    `<line x1="${rounded(x)}" y1="${rounded(marker.centre.y - r)}` +
+    `" x2="${rounded(x)}" y2="${rounded(marker.centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-329'])}"` +
+    ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
+    markDotSvg(x, marker, ink, named)
+  )
+}
+
+// see T-315, S-328, S-392, S-393, S-394
+/** @purity pure */
+function questionSvg(marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+  const { centre, radius } = marker
+  const top = centre.y - radius
+  const hookY = top + radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-392']
+  const hook = radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-393']
+  const stemBottom = top + radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-394']
+  return (
+    `<path d="M${rounded(centre.x - hook)} ${rounded(hookY)}` +
+    ` A${rounded(hook)} ${rounded(hook)} 0 1 1 ${rounded(centre.x)} ${rounded(hookY + hook)}` +
+    ` L${rounded(centre.x)} ${rounded(stemBottom)}"` +
+    ` fill="none" stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
+    markDotSvg(centre.x, marker, ink, named)
+  )
+}
+
+// see T-315, S-395, S-396
+/** @purity pure */
+function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
+  const side = marker.radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-396']
+  return (
+    `<path d="${NOT_STORED_DELAY_MARK_SIZES['S-395']}"` +
+    ` transform="translate(${rounded(marker.centre.x - side / 2)} ${rounded(marker.centre.y - side / 2)})` +
+    ` scale(${rounded(side)})" fill="${ink}"${named}/>`
+  )
+}
+
+// see ZO-3, T-021, T-315
+/** @purity pure */
+function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+  const { centre, radius } = marker
+  const stroke = rounded(settings.markerStroke)
+  const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
+  switch (marker.symbol) {
+    case 'PM-1':
+      return ''
+    case 'PM-1a':
+      return `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
+    case 'PM-2':
+      return (
+        `<polyline points="${rounded(centre.x - r)},${rounded(centre.y)}` +
+        ` ${rounded(centre.x - r * 0.2)},${rounded(centre.y + r * 0.7)}` +
+        ` ${rounded(centre.x + r)},${rounded(centre.y - r * 0.7)}"` +
+        ` fill="none" stroke="${ink}" stroke-width="${stroke}"${named}/>`
+      )
+    case 'PM-3':
+      return (
+        `<line x1="${rounded(centre.x - r * 0.6)}" y1="${rounded(centre.y + r)}` +
+        `" x2="${rounded(centre.x + r * 0.6)}" y2="${rounded(centre.y - r)}"` +
+        ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
+      )
+    case 'PM-4':
+      return bangSvg(centre.x, marker, ink, settings, named)
+    case 'DG-1':
+      return questionSvg(marker, ink, settings, named)
+    case 'DG-2':
+      return flameSvg(marker, ink, named)
+    case 'DG-3': {
+      const half = radius * NOT_STORED_DELAY_MARK_SIZES['S-391']
+      return bangSvg(centre.x - half, marker, ink, settings, named) + bangSvg(centre.x + half, marker, ink, settings, named)
+    }
+  }
+}
+
 // see ZO-3, T-021, FR-013
 /** @purity pure */
 function markerSvg(
@@ -196,34 +305,11 @@ function markerSvg(
 ): string {
   const { centre, radius } = marker
   const named = figureKey(key)
-  const ink = marker.symbol === 'PM-4' ? themed('S-327') : themed('S-161')
-  const backing = marker.symbol === 'PM-4' ? themed('S-326') : themed('S-162')
-  const stroke = rounded(settings.markerStroke)
+  const { ground, ink } = markColoursOf(marker.symbol, themed)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
-    ` fill="${backing}" stroke="${ink}" stroke-width="${stroke}"${named}/>`
-  // see S-341, T-206
-  const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
-  const mark =
-    marker.symbol === 'PM-1a'
-      ? `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
-      : marker.symbol === 'PM-2'
-        ? `<polyline points="${rounded(centre.x - r)},${rounded(centre.y)}` +
-          ` ${rounded(centre.x - r * 0.2)},${rounded(centre.y + r * 0.7)}` +
-          ` ${rounded(centre.x + r)},${rounded(centre.y - r * 0.7)}"` +
-          ` fill="none" stroke="${ink}" stroke-width="${stroke}"${named}/>`
-        : marker.symbol === 'PM-3'
-          ? `<line x1="${rounded(centre.x - r * 0.6)}" y1="${rounded(centre.y + r)}` +
-            `" x2="${rounded(centre.x + r * 0.6)}" y2="${rounded(centre.y - r)}"` +
-            ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
-          : marker.symbol === 'PM-4'
-            ? `<line x1="${rounded(centre.x)}" y1="${rounded(centre.y - r)}` +
-              `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-329'])}"` +
-              ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
-              `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-330'])}"` +
-              ` r="${rounded(radius * NOT_STORED_DELAY_MARK_SIZES['S-331'])}" fill="${ink}"${named}/>`
-            : ''
-  const drawn = disc + mark
+    ` fill="${ground}" stroke="${ink}" stroke-width="${rounded(settings.markerStroke)}"${named}/>`
+  const drawn = disc + markSymbolSvg(marker, ink, settings, named)
   // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
   if (marker.symbol !== 'PM-1a') return drawn
   return `<g opacity="${rounded(faintness)}"${named}>${drawn}</g>`
@@ -283,23 +369,84 @@ function labelSvg(
   )
 }
 
+// see F-044
+const SHADE_FILL_OPACITY = 0.35
+
 /** @purity pure */
-function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
+function pathDataOf(segments: readonly PathSegment[]): string {
+  return segments
+    .map((one) => {
+      switch (one.command) {
+        case 'Z':
+          return 'Z'
+        case 'Q':
+          return `Q${rounded(one.control.x)} ${rounded(one.control.y)} ${rounded(one.to.x)} ${rounded(one.to.y)}`
+        case 'A':
+          return (
+            `A${rounded(one.radiusX)} ${rounded(one.radiusY)} ${rounded(one.rotation)}` +
+            ` ${one.largeArc ? 1 : 0} ${one.sweep ? 1 : 0} ${rounded(one.to.x)} ${rounded(one.to.y)}`
+          )
+        default:
+          return `${one.command}${rounded(one.to.x)} ${rounded(one.to.y)}`
+      }
+    })
+    .join(' ')
+}
+
+/** @purity pure */
+function cornersOfRing(segments: readonly PathSegment[]): Path | null {
+  const out: Point[] = []
+  for (const [index, one] of segments.entries()) {
+    if (one.command === 'Z' && index === segments.length - 1) break
+    if (one.command !== (index === 0 ? 'M' : 'L')) return null
+    out.push(one.to)
+  }
+  return out
+}
+
+// see LF-18
+// WHY: a straight-edged body stays a polygon, as before; the lines and dots take innerInk, never a hole in the fill.
+/** @purity pure */
+function layerSvg(layer: MilestoneLayer, paint: Paint, innerInk: string, named: string): string {
+  const width = rounded(paint.strokeWidth)
+  const corners = layer.role === 'body' && !layer.evenOdd ? cornersOfRing(layer.segments) : null
+  if (corners !== null) {
+    return (
+      `<polygon points="${pointsOf(corners)}" data-layer="body" fill="${paint.fill}"` +
+      ` stroke="${paint.stroke}" stroke-width="${width}"${named}/>`
+    )
+  }
+  const head = `<path d="${pathDataOf(layer.segments)}" data-layer="${layer.role}"`
+  switch (layer.role) {
+    case 'body':
+      return (
+        `${head}${layer.evenOdd ? ' fill-rule="evenodd"' : ''} fill="${paint.fill}"` +
+        ` stroke="${paint.stroke}" stroke-width="${width}"${named}/>`
+      )
+    case 'inner':
+      return (
+        `${head} fill="none" stroke="${innerInk}" stroke-width="${width}"` +
+        ` stroke-linecap="round" stroke-linejoin="round"${named}/>`
+      )
+    case 'dot':
+      return `${head} fill="${innerInk}"${named}/>`
+    case 'shade':
+      return (
+        `${head} fill="${innerInk}" fill-opacity="${SHADE_FILL_OPACITY}"` +
+        ` stroke="${innerInk}" stroke-width="${width}" stroke-linejoin="round"${named}/>`
+      )
+  }
+}
+
+/** @purity pure */
+function barSvg(bar: BarGeometry, paint: Paint, innerInk: string, key: string): string {
   const named = figureKey(key)
   if (bar.form === 'outline') {
-    const marks = bar.marks ?? []
-    if (marks.length === 0) {
-      return (
-        `<polygon points="${pointsOf(bar.points)}" fill="${paint.fill}"` +
-        ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"${named}/>`
-      )
+    if (bar.layers !== undefined) {
+      return bar.layers.map((layer) => layerSvg(layer, paint, innerInk, named)).join('')
     }
-    // WHY: one evenodd path, not shapes on top: the marks cut through, so no guessed paint or extra colour row.
-    const subpaths = [bar.points, ...marks]
-      .map((one) => `M${pointsOf(one).replace(/ /g, 'L')}Z`)
-      .join('')
     return (
-      `<path d="${subpaths}" fill-rule="evenodd" fill="${paint.fill}"` +
+      `<polygon points="${pointsOf(bar.points)}" fill="${paint.fill}"` +
       ` stroke="${paint.stroke}" stroke-width="${rounded(paint.strokeWidth)}"${named}/>`
     )
   }
@@ -407,7 +554,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     )
     if (task.plan !== null) {
       ;(isPinnedTask ? planPartsPinned : planParts).push(
-        barSvg(task.plan, plan, `${taskKey}-plan`),
+        barSvg(task.plan, plan, plan.stroke, `${taskKey}-plan`),
       )
       const planBarBox = boxOfPoints(cornersOfBar(task.plan))
       if (planBarBox !== null) {
@@ -424,7 +571,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     }
     if (task.actual !== null) {
       ;(isPinnedTask ? actualPartsPinned : actualParts).push(
-        barSvg(task.actual, actual, `${taskKey}-actual`),
+        barSvg(task.actual, actual, plan.fill, `${taskKey}-actual`),
       )
       const actualBarBox = boxOfPoints(cornersOfBar(task.actual))
       if (actualBarBox !== null) {
@@ -436,7 +583,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     if (picture === 'screen' && dummy !== undefined && dummy.figure !== undefined) {
       // TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
       const ink = dummy.ink
-      const marks = barSvg(dummy.figure, actual, `${taskKey}-dummies`)
+      const marks = barSvg(dummy.figure, actual, plan.fill, `${taskKey}-dummies`)
       const faintness = handInside(
         { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
         ink.width,

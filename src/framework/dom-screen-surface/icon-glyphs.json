@@ -586,70 +586,15 @@
    "rowId": "IC-107",
    "elements": [
     {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "10"
-      },
-      {
-       "name": "cy",
-       "value": "10"
-      },
-      {
-       "name": "r",
-       "value": "6.5"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
      "tag": "path",
      "attributes": [
       {
        "name": "d",
-       "value": "M14.8 14.8 L20 20"
+       "value": "M12 3.45 Q17.13 9.1 18.84 15.04 Q18.27 21.12 12 21.5 Q5.73 21.12 5.16 15.04 Q5.92 10.48 8.96 8.2 Q9.62 12.19 12 12.76 Q10.86 7.68 12 3.45 Z"
       },
       {
        "name": "style",
        "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
-     "tag": "path",
-     "attributes": [
-      {
-       "name": "d",
-       "value": "M10 6.6 V10.4"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "10"
-      },
-      {
-       "name": "cy",
-       "value": "13.2"
-      },
-      {
-       "name": "r",
-       "value": "0.95"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
       }
      ]
     }

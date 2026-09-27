@@ -13,6 +13,7 @@ import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import {
   emptySearchPanelSession,
@@ -148,6 +149,8 @@ export interface PropertyField {
   readonly text: string
   readonly isEditable: boolean
   readonly controls: readonly PropertyControl[]
+  readonly unit?: string
+  readonly readout?: string
 }
 
 export type PropertyControlKind =
@@ -211,6 +214,7 @@ export interface PropertyControl {
   readonly max: number | null
   readonly widthInFontSizes: number
   readonly isFocusTarget?: true
+  readonly placeholder?: string
 }
 
 export type PropertyFieldKey =
@@ -511,6 +515,7 @@ export interface ScreenViewReadings {
   readonly confirmation: RaisedConfirmation | null
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
   readonly placedRowGroupIds?: readonly string[]
+  readonly placedRows?: readonly RowPlacement[]
   // TRAP: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean

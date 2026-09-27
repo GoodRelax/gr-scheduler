@@ -389,6 +389,7 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
     const firstRun = fileSystemAccessFileStore(environment)
     const opened = await firstRun.readFileToOpen('chooser')
     expect(opened.ok, 'the fixture hands over one readable file').toBe(true)
+    firstRun.adoptFileReadToOpen()
     expect(
       (await firstRun.readOpenedFileState()).kind,
       'within the same run the opened file IS the overwrite target',
@@ -410,6 +411,7 @@ describe('FR-060 -- the overwrite target is this run’s, and nobody else’s', 
     try {
       const store = fileSystemAccessFileStore(standInBrowser(standInHandle('plan.json')))
       await store.readFileToOpen('chooser')
+      store.adoptFileReadToOpen()
       await store.readOpenedFileState()
       await store.overwriteOpenedFile(new Uint8Array([0x7b, 0x7d]))
 

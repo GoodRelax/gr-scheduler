@@ -413,6 +413,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       const store = fileSystemAccessFileStore(browser.environment)
 
       await openDocumentFile(store, 'chooser')
+      store.adoptFileReadToOpen()
       const saving = await saveDocumentFile(store, {
         destination: 'openedFile',
         content: { text: MINE },
@@ -717,6 +718,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
       const store = fileSystemAccessFileStore(browser.environment)
 
       await openDocumentFile(store, 'chooser')
+      store.adoptFileReadToOpen()
       const saving = await saveDocumentFile(store, {
         destination: 'openedFile',
         content: { text: MINE },
@@ -749,6 +751,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
     const store = fileSystemAccessFileStore(browser.environment)
 
     await openDocumentFile(store, 'chooser')
+    store.adoptFileReadToOpen()
     const state = await store.readOpenedFileState()
 
     expect(state.kind).toBe('writable')

@@ -57,6 +57,9 @@ const T_024A_OP2_ROUTES = ['chooser', 'drop'] as const satisfies readonly OpenRo
 
 const T_024A_OP13_ROUTE = 'reopen' as const satisfies OpenRoute
 
+// WHY: OP-15 -- opens the OP-2 file chooser and reads the chosen file to overlay it (MUST).
+const T_024A_OP15_ROUTE = 'baseline' as const satisfies OpenRoute
+
 const IF_3_OPENED_STATES = [
   { kind: 'none' },
   { kind: 'writable', fileName: 'plan-a.json' },
@@ -67,6 +70,7 @@ const EVERY_OPEN_ROUTE: Readonly<Record<OpenRoute, true>> = {
   chooser: true,
   drop: true,
   reopen: true,
+  baseline: true,
 }
 
 const EVERY_STORE_REASON: Readonly<Record<FileStoreFaultReason, true>> = {
@@ -148,6 +152,7 @@ function storeThat(answers: StoreAnswers = {}): StandIn {
       record('readFileToOpen', route)
       return answers.reading ?? { ok: false, fault: UNCONFIGURED }
     },
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       record('readOpenedFileState', undefined)
       return answers.openedState ?? { kind: 'none' }
@@ -252,10 +257,10 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_024_ROWS_THAT_ARE_NOT_FILES).toHaveLength(2)
   })
 
-  it('carries the two routes of OP-2, the third of OP-13, and the four reasons IF-3 tells apart', () => {
+  it('carries the two routes of OP-2, the third of OP-13, the fourth of OP-15, and the four reasons IF-3 tells apart', () => {
     expect(T_024A_OP2_ROUTES).toHaveLength(2)
     expect(Object.keys(EVERY_OPEN_ROUTE).sort()).toEqual(
-      [...T_024A_OP2_ROUTES, T_024A_OP13_ROUTE].sort(),
+      [...T_024A_OP2_ROUTES, T_024A_OP13_ROUTE, T_024A_OP15_ROUTE].sort(),
     )
     expect(storeReasons).toHaveLength(4)
     expect(Object.keys(EVERY_GATEWAY_REASON)).toHaveLength(6)
@@ -973,6 +978,7 @@ function storeAt(
       calls.push({ member: 'readFileToOpen', argument: route })
       return { ok: false, fault: UNCONFIGURED }
     },
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       calls.push({ member: 'readOpenedFileState', argument: undefined })
       return { kind: 'none' }
