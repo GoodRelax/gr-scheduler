@@ -691,6 +691,15 @@ export const NOT_STORED_DEPENDENCY_SIZES: {
 }
 
 // see T-206
+const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
+  readonly 'S-446': number
+  readonly 'S-447': number
+} = {
+  'S-446': 3,
+  'S-447': 3,
+}
+
+// see T-206
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
   readonly 'S-247': number
@@ -821,6 +830,7 @@ const SCHEDULE_COLOURS: {
   'S-398': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+  'S-448': { light: '#ff2bbc', dark: '#db4db5', followsHue: false },
 }
 
 // see T-294, T-017b

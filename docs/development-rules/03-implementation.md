@@ -93,6 +93,7 @@ NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻�
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさ（`S-421` / `S-422`、`CR-571`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
+NOT_STORED_DEPENDENCY_EMPHASIS_SIZES 着地の印と選んだ依存線の強調の太さ（`S-446` / `S-447`、`CR-596`）
 NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白（`S-225` / `S-226`）
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（表 T-266 の `S-250` 〜 `S-290` ／ `S-137` ／ `S-230` ／ `S-291` 〜 `S-293`）

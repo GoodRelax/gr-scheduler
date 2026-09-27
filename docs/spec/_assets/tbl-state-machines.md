@@ -96,6 +96,8 @@
 | `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
 | `screen/helpMinimiseToggled` | 入力: `IC-129` | — | `helpDisplayStateMachine` |
 | `screen/helpMaximiseToggled` | 入力: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
+| `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTaskUid` | `landingMarkDisplayStateMachine` |
+| `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キー・ホイール。印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
 
 ### 根 `screen` の値
 
@@ -501,6 +503,29 @@ stateDiagram-v2
 - `helpDisplayStateMachine.shown.maximised` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-3` ・ `IC-130`
 
 表に無い出来事は `helpDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `landingMarkDisplayStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> landingMarkDisplayStateMachine_hidden
+    landingMarkDisplayStateMachine_hidden : hidden
+    landingMarkDisplayStateMachine_shown : shown
+    landingMarkDisplayStateMachine_hidden --> landingMarkDisplayStateMachine_shown : continuationMarkClicked
+    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_shown : continuationMarkClicked
+    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_hidden : landingMarkClearAsked
+```
+
+| 出来事 | `hidden` | `shown` |
+| --- | --- | --- |
+| `screen/continuationMarkClicked` | → `shown` | → 自己（中身を書き換える） |
+| `screen/landingMarkClearAsked` | — | → `hidden` |
+
+- `landingMarkDisplayStateMachine.hidden` —— 初期。根拠 `EL-17`
+- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedLink`（印を付けた依存線の先行と後続の `UID`） ／ `landedTaskUid`（印の先の端の `Task` の `UID`）。根拠 `EL-16` ・ `EL-19`
+
+表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
 
 ## 通知（`notices`）
 
@@ -1147,7 +1172,7 @@ stateDiagram-v2
 | `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
 | `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
 | `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
-| `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶ）: `SJ-1` ・ `AM-16` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
+| `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`））: `SJ-1` ・ `AM-16` ・ `EL-21` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
 
 ### 根 `rowTree` の値
 

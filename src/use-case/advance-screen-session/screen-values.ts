@@ -161,6 +161,8 @@ export type ScreenValuesKey =
   | 'helpDisplayStateMachine.shown.normal'
   | 'helpDisplayStateMachine.shown.minimised'
   | 'helpDisplayStateMachine.shown.maximised'
+  | 'landingMarkDisplayStateMachine.hidden'
+  | 'landingMarkDisplayStateMachine.shown'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -237,6 +239,10 @@ export type HelpDisplayState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'shown'; readonly child: HelpDisplayShownState }
 
+export type LandingMarkDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTaskUid: ScreenValuesStateCarried['landedTaskUid'] }
+
 export interface ScreenValues {
   readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
   readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
@@ -258,6 +264,7 @@ export interface ScreenValues {
   readonly tooltipDisplayState: TooltipDisplayState
   readonly searchPanelDisplayState: SearchPanelDisplayState
   readonly helpDisplayState: HelpDisplayState
+  readonly landingMarkDisplayState: LandingMarkDisplayState
 }
 
 export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
@@ -304,6 +311,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'helpEntryPressed' }
   | { readonly type: 'helpMinimiseToggled' }
   | { readonly type: 'helpMaximiseToggled' }
+  | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTaskUid: ScreenValuesEventCarried['landedTaskUid'] }
+  | { readonly type: 'landingMarkClearAsked' }
 
 export type ScreenValuesEffectName =
   | 'storeScreenLanguage'
@@ -352,6 +361,7 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   tooltipDisplayState: { kind: 'allowed' },
   searchPanelDisplayState: { kind: 'hidden' },
   helpDisplayState: { kind: 'hidden' },
+  landingMarkDisplayState: { kind: 'hidden' },
 }
 // </generated>
 
