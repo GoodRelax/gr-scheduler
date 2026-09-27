@@ -363,6 +363,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `refusedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `reject` | entry | function | `src/use-case/edit-document/edit-document.ts#reject` | -- | function reject( command: string, rule: string, what: string, reasonCategory?: Refusal['reasonCategory'], ): Refusal |
 | `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: string \| null } \| { readonly kind: 'setResourceName'; readonly uid: number; readon... |
+| `searchJumpCommands` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpCommands` | PI-9 | 飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。 |
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— 行と祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
@@ -1099,7 +1100,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
-| `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | -- | interface HelpModal extends OpenSurface |
+| `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
@@ -1292,7 +1293,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
-| `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | -- | function isHelpStandingIn(values: ScreenValues): boolean |
+| `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
@@ -1428,4 +1429,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 705 name(s) leave through a public entry (225 of them published by table T-064), 523 more are exported by a file and not by its entry.
+Totals: 706 name(s) leave through a public entry (228 of them published by table T-064), 523 more are exported by a file and not by its entry.

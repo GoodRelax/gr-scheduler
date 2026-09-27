@@ -864,16 +864,19 @@ function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
 }
 
+type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
+
 // see T-280, SV-12, SV-13
 /** @purity pure */
-function searchPanelToggled(
+function windowDisplayToggled(
   values: ScreenValues,
+  key: ToggleableWindowKey,
   toggledTo: { readonly [K in WindowShownKind]: WindowShownKind },
 ): ScreenStep {
-  const panel = values.searchPanelDisplayState
-  if (panel.kind === 'hidden') return unchanged(values)
-  const child = { kind: toggledTo[panel.child.kind] }
-  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
+  const display = values[key]
+  if (display.kind === 'hidden') return unchanged(values)
+  const child = { kind: toggledTo[display.child.kind] }
+  return moved(values, { [key]: { kind: 'shown', child } } as Partial<ScreenValues>)
 }
 
 // see T-280, SV-14
@@ -903,16 +906,6 @@ function onHelpEntryPressed(values: ScreenValues): ScreenStep {
   }
   if (help.child.kind !== 'minimised') return unchanged(values)
   return moved(values, { helpDisplayState: { kind: 'shown', child } })
-}
-
-/** @purity pure */
-function helpToggled(
-  values: ScreenValues,
-  toggledTo: { readonly [K in WindowShownKind]: WindowShownKind },
-): ScreenStep {
-  const help = values.helpDisplayState
-  if (help.kind === 'hidden') return unchanged(values)
-  return moved(values, { helpDisplayState: { kind: 'shown', child: { kind: toggledTo[help.child.kind] } } })
 }
 
 /** @purity pure */
@@ -960,13 +953,13 @@ const HANDLERS: {
   progressMarkerPressed: onProgressMarkerPressed,
   hintTargetChanged: onHintTargetChanged,
   searchEntryPressed: onSearchEntryPressed,
-  searchPanelMinimiseToggled: (values) => searchPanelToggled(values, MINIMISE_TOGGLED_TO),
-  searchPanelMaximiseToggled: (values) => searchPanelToggled(values, MAXIMISE_TOGGLED_TO),
+  searchPanelMinimiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MINIMISE_TOGGLED_TO),
+  searchPanelMaximiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MAXIMISE_TOGGLED_TO),
   searchPanelClosePressed: onSearchPanelClosePressed,
   searchHitJumped: onSearchHitJumped,
   helpEntryPressed: onHelpEntryPressed,
-  helpMinimiseToggled: (values) => helpToggled(values, MINIMISE_TOGGLED_TO),
-  helpMaximiseToggled: (values) => helpToggled(values, MAXIMISE_TOGGLED_TO),
+  helpMinimiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MINIMISE_TOGGLED_TO),
+  helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
 }
 
 // see SF-2, SF-8, T-280

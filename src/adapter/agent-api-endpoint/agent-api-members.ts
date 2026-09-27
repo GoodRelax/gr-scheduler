@@ -20,6 +20,7 @@ import {
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
   searchJumpWrites,
+  searchJumpCommands,
   type InvariantRefusal,
   type InvariantRow,
 } from '../../use-case/edit-document/edit-document'
@@ -732,7 +733,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const groupId = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)?.groupId ?? null
       const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, groupId)
       const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom)
-      const commands = plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+      const commands = searchJumpCommands(plan)
       // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
       // so a concurrent edit does not refuse it.
       const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)

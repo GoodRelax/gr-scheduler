@@ -65,6 +65,7 @@ import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
   searchJumpWrites,
+  searchJumpCommands,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
@@ -1226,7 +1227,7 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
   const plan = searchJumpWrites(document, cell, hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, hit.groupId))
-  const writes = plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+  const writes = searchJumpCommands(plan)
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
@@ -1395,6 +1396,12 @@ function grabbedRowReadingOf(
 /** @purity pure */
 export function isQuestionAskedIn(session: ScreenSession): boolean {
   return session.fileFlow.confirmationState.kind === 'questionAsked'
+}
+
+// see FR-091, T-280
+/** @purity pure */
+function isAnySurfaceStanding(session: ScreenSession): boolean {
+  return openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session)
 }
 
 /** @purity pure */
@@ -2247,7 +2254,7 @@ export function frameLoop(
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
       drawnRowBoxes,
-      isSurfaceStanding: openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session),
+      isSurfaceStanding: isAnySurfaceStanding(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
       newGroupId: crypto.randomUUID(),
@@ -2639,7 +2646,7 @@ export function frameLoop(
   // see SK-19, FR-091, T-280
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
-    if (openSurfaceNameIn(session) !== null || isHelpStandingIn(session.screen) || isQuestionAskedIn(session)) return
+    if (isAnySurfaceStanding(session)) return
     const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
     const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))

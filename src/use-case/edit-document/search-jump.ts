@@ -91,3 +91,9 @@ export function searchJumpWrites(
   if (!hasRoomBelowPins) return { treeStateWrites, scrollWrite: null, isBlockedByPinnedRows: true }
   return { treeStateWrites, scrollWrite: scrollWriteTo(document, place), isBlockedByPinnedRows: false }
 }
+
+// see T-332
+/** @purity pure */
+export function searchJumpCommands(plan: SearchJumpPlan): readonly DocumentCommand[] {
+  return plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+}

@@ -1050,6 +1050,15 @@
        "開く書き込み・寄せる書き込みと、ピン止めの行のために寄せなかったか（`SJ-8`）"
       ]
      }
+    },
+    {
+     "name": "searchJumpCommands",
+     "note": {
+      "ja": [
+       "飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。",
+       "表 T-332 の `SJ-2` —— `Agent API` の `focusTask`（`AM-16`）と検索パネルの飛び先が同じ並びを当てる"
+      ]
+     }
     }
    ]
   },
@@ -2050,6 +2059,16 @@
        "`DomScreenSurface` から `SvgRenderer` への辺は無いので、画面の主題を灰にする 1 本はこの入口を通る"
       ]
      }
+    },
+    {
+     "name": "HelpModal",
+     "note": {
+      "ja": [
+       "型。",
+       "ヘルプの絵の記述（`FR-036` の 表 T-335・表 T-336）。`helpLanguage` と `windowState` を運ぶ。",
+       "`DomScreenSurface` がヘルプの段（表 T-337 の `UZ-7`）に描く"
+      ]
+     }
     }
    ]
   },
@@ -2292,6 +2311,15 @@
       "ja": [
        "表 T-333 の行 ID を表の上からの順に並べたもの。",
        "`SearchPanelSession` の字の大きさの段は、この並びの中の位置である"
+      ]
+     }
+    },
+    {
+     "name": "isHelpStandingIn",
+     "note": {
+      "ja": [
+       "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
       ]
      }
     }
