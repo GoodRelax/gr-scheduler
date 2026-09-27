@@ -122,7 +122,7 @@ import type {
   CommandPalette,
   DialogueField,
   Notice,
-  OpenModal,
+  HelpModal,
   RowExpander,
   RowTitle,
   ScreenFrame,
@@ -1561,7 +1561,7 @@ const PALETTE: CommandPalette = {
   armedText: 'ArmedNothing',
 }
 
-const HELP_MODAL: OpenModal = {
+const HELP_MODAL: HelpModal = {
   surface: 'Help Modal',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
@@ -1570,7 +1570,8 @@ const HELP_MODAL: OpenModal = {
     kind: 'item', block: '', column: 'HC-1', segment: null, glyphs: [], indent: false,
   }],
   legend: 'IC-102',
-  language: 'en',
+  helpLanguage: 'en',
+  windowState: 'normal',
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
@@ -1631,7 +1632,7 @@ const viewWith = (patch: Partial<ScreenView>): ScreenView => ({ ...BASE_VIEW, ..
 /** Everything 表 T-023a's 面 table names, drawn at once. */
 const OVER_THE_SCHEDULE: ScreenView = viewWith({
   commandPalette: PALETTE,
-  openModal: HELP_MODAL,
+  helpModal: HELP_MODAL,
   notices: [NOTICE],
   dialogueField: DIALOGUE,
 })

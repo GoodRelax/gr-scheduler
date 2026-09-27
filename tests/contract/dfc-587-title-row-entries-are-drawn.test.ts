@@ -17,12 +17,11 @@ import {
 } from '../../src/entity/document-model/selection/selection'
 import type {
   DisplayLanguage,
-  OpenModal,
   PropertiesPanel,
   ScreenView,
   ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
+import { helpModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import {
   emptyScreenSession,
@@ -211,10 +210,10 @@ function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
 }
 
 function drawnHelp(language: DisplayLanguage, window: HelpWindow = 'normal'): FakeElement {
-  const modal = openModalFromSession(helpShown(language, window), ONE_TASK, READINGS)
+  const modal = helpModalFromSession(helpShown(language, window))
   if (modal === null) throw new Error('the help is open but nothing describes it')
   const built = wire(THEME, { 'App Header': 37 })
-  surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, openModal: { ...modal, heading: HEADING_MARK } as OpenModal })
+  surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, helpModal: { ...modal, heading: HEADING_MARK } })
   return oneByRole(built.root(), HELP_SURFACE)
 }
 

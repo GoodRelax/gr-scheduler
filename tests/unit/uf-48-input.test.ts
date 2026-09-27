@@ -735,8 +735,8 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
 })
 
 describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
-  it('the loop KEEPS what screenStateFromInput returned: F1 leaves a surface open', () => {
-    // SK-13 opens the help surface, and S-99g holds which one is open. UF-30 is
+  it('the loop KEEPS what screenStateFromInput returned: F1 leaves the help shown', () => {
+    // SK-13 opens the help, and S-435 holds its display state. UF-30 is
     // `pure` (table T-075), so it can remember nothing between two happenings;
     // LY-5 of table T-060 leaves this loop as the only layer that may hold the
     // value it answered with.
@@ -747,12 +747,11 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     loop.receiveInput(key('F1'))
     pane.runAnimationFrames()
 
-    expect(screen.last().openModal).not.toBeNull()
+    expect(screen.last().helpModal ?? null).not.toBeNull()
   })
 
-  it('IN-4 (MUST): the first Esc takes the open surface and leaves the drag in flight', () => {
-    // 「消費する階層は 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え
-    // → `Dual Cursor` モード の順とすること（MUST）」 -- one level per press.
+  it('IN-4 (MUST): the first Esc takes the normal help and leaves the drag in flight', () => {
+    // WHY: IN-4 spends one rung per press, and S-99g counts the normal help in the open-surface rung.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
@@ -766,7 +765,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     pane.runAnimationFrames()
 
     // Level 1 is gone ...
-    expect(screen.last().openModal).toBeNull()
+    expect(screen.last().helpModal ?? null).toBeNull()
     // ... and level 2 has NOT been taken with it, so the key is still assigned.
     expect(
       loop.isBrowserDefaultStopped(key('Esc')),

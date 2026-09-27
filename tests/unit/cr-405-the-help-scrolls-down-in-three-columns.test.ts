@@ -6,16 +6,15 @@ import { join } from 'node:path'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import type { HumanInput, KeyInput } from '../../src/adapter/input-command-translator/input-command-translator'
-import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type {
   DisplayLanguage,
+  HelpModal,
   OpenModal,
   ScreenSurface,
   ScreenView,
-  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
+import { helpModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import {
   emptyScreenSession,
   type ScreenSession,
@@ -204,46 +203,15 @@ const rootOf = (language: DisplayLanguage): ScreenSession => ({
   screen: { ...emptyScreenSession.screen, screenLanguage: language, helpLanguage: language },
 })
 
-const READINGS: ScreenViewReadings = {
-  openedFileName: null,
-  fileSavedAt: null,
-  isAgentApiEnabled: false,
-  pointer: null,
-  pointerRestedMs: 0,
-  commandPaletteAt: { x: 0, y: 0 },
-  iconUnderPointer: null,
-  themePreference: 'light',
-  themeHue: THEME_HUE,
-  selectedGroupIds: [],
-  selectedResourceUids: [],
-  notices: [],
-  confirmation: null,
-  rowBoxes: [],
-  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-}
-
-const EMPTY_DOCUMENT = {
-  project: {
-    id: null, name: null, title: null, subject: null, category: null, company: null,
-    manager: null, author: null, created: null, revision: null, lastSaved: null,
-    startDate: null, statusDate: null, minutesPerDay: null, minutesPerWeek: null,
-    daysPerMonth: null, weekStartDay: null, calendarUid: null, themeHue: THEME_HUE,
-    uidHighWaterMark: 0, importSeq: 0, carry: {}, carryElements: [],
-  },
-  calendars: [], tasks: [], resources: [], assignments: [], taskGroups: [],
-  taskGroupMembers: [], taskVisuals: [], commentBoxes: [], highlightBoxes: [],
-  taskOrigins: [], baselineTasks: [],
-} as unknown as Schedule
-
 const HELP_SURFACE = 'Help Modal'
 
-function helpModal(language: DisplayLanguage): OpenModal {
+function helpModal(language: DisplayLanguage): HelpModal {
   const root = rootOf(language)
   const opened = {
     ...root,
     screen: { ...root.screen, helpDisplayState: { kind: 'shown', child: { kind: 'normal' } } },
   } as unknown as ScreenSession
-  const modal = openModalFromSession(opened, EMPTY_DOCUMENT, READINGS)
+  const modal = helpModalFromSession(opened)
   if (modal === null) throw new Error('the help is open but nothing describes it')
   return modal
 }
@@ -281,7 +249,7 @@ const EMPTY_VIEW: ScreenView = {
 
 function drawnHelp(language: DisplayLanguage = 'en'): FakeElement {
   const built = wire(THEME, { 'App Header': 37 })
-  surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, openModal: helpModal(language) })
+  surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, helpModal: helpModal(language) })
   return oneByRole(built.root(), HELP_SURFACE)
 }
 

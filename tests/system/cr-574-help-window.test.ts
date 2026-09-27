@@ -180,7 +180,9 @@ interface HelpReading {
   readonly scroll: { readonly top: number; readonly height: number; readonly client: number } | null
   readonly textOverTitle: readonly string[]
   readonly hitsOverTitle: number
-  readonly firstHeading: { readonly rect: Rect; readonly isFront: boolean } | null
+  // WHY: T-337 puts the Command Palette (UZ-5) in front of the help (UZ-7), so a point of the heading
+  // may rightly be under it; what FR-036 forbids is the help's own title row covering the heading.
+  readonly firstHeading: { readonly rect: Rect; readonly onHeading: number; readonly underHelp: number; readonly underFront: number } | null
   readonly gaps: readonly Gap[]
 }
 
@@ -351,7 +353,7 @@ async function readHelp(page: Page): Promise<HelpReading> {
       const view = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
       const textOverTitle: string[] = []
       let hitsOverTitle = 0
-      let firstHeading: { rect: Box; isFront: boolean } | null = null
+      let firstHeading: { rect: Box; onHeading: number; underHelp: number; underFront: number } | null = null
       const gaps: { row: string; gap: number; font: number }[] = []
       if (body !== null) {
         const bodyRect = rectOf(body)
@@ -383,8 +385,16 @@ async function readHelp(page: Page): Promise<HelpReading> {
         const heading = headings[0]
         if (heading !== undefined) {
           const rect = rectOf(heading)
-          const hit = document.elementFromPoint((rect.left + rect.right) / 2, (rect.top + rect.bottom) / 2)
-          firstHeading = { rect, isFront: hit !== null && heading.contains(hit) }
+          const points = 9
+          const counts = { onHeading: 0, underHelp: 0, underFront: 0 }
+          for (let at = 0; at < points; at += 1) {
+            const x = rect.left + ((at + 0.5) * (rect.right - rect.left)) / points
+            const hit = document.elementFromPoint(x, (rect.top + rect.bottom) / 2)
+            if (hit !== null && heading.contains(hit)) counts.onHeading += 1
+            else if (hit !== null && root.contains(hit)) counts.underHelp += 1
+            else counts.underFront += 1
+          }
+          firstHeading = { rect, ...counts }
         }
         for (const item of items) {
           const nodes: { node: Text; start: number }[] = []
@@ -568,7 +578,9 @@ test.describe('CR-574 items 1-2 -- the title row and the body are two regions (F
       const opened = await openHelp(stage.page)
       if (opened.firstHeading === null) throw new Error(`the help shows no heading ${FIRST_HEADING_WORDS.ja} / ${FIRST_HEADING_WORDS.en}`)
       expect(opened.firstHeading.rect.top, `${FR_036_TITLE_OUTSIDE_THE_SCROLL} heading ${said(opened.firstHeading.rect)}, title ${said(opened.title)}`).toBeGreaterThanOrEqual(opened.title.bottom - SUBPIXEL)
-      expect(opened.firstHeading.isFront, FR_036_TITLE_OUTSIDE_THE_SCROLL).toBe(true)
+      const { onHeading, underHelp, underFront } = opened.firstHeading
+      expect(underHelp, `${FR_036_TITLE_OUTSIDE_THE_SCROLL} (heading points: ${onHeading} seen, ${underFront} under a part T-337 puts in front)`).toBe(0)
+      expect(onHeading, `premise: some of the heading is not under a part in front of the help (${underFront} of 9 are)`).toBeGreaterThan(0)
     } finally {
       await stage.close()
     }

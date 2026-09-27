@@ -257,8 +257,10 @@ type Flag = keyof EscapeContext
 
 const NOTHING_ON: EscapeContext = {
   isNoticeStanding: false,
+  isSearchPanelFocused: false,
   isTextEntryUnsettled: false,
   isSurfaceOpen: false,
+  isHelpStanding: false,
   gestureInFlight: false,
   isArmed: false,
   isSelectionStanding: false,
@@ -269,11 +271,15 @@ const NOTHING_ON: EscapeContext = {
 }
 
 // see T-283, IN-4
+// WHY: no clause names the word or flag of RG-15, nor of the help inside RG-3 (DFC-1280); those two rows
+// carry the seam's provisional names, and what they hold from the spec is their place in the order.
 const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-1', 'notice', 'isNoticeStanding'],
+  ['RG-15', 'searchPanel', 'isSearchPanelFocused'],
   ['RG-2', 'textEntry', 'isTextEntryUnsettled'],
   ['RG-3', 'confirmation', 'isConfirmationStanding'],
   ['RG-3', 'surface', 'isSurfaceOpen'],
+  ['RG-3', 'help', 'isHelpStanding'],
   ['RG-4', 'gesture', 'gestureInFlight'],
   ['RG-14', 'propertiesPanel', 'isPropertiesPanelOpen'],
   ['RG-5', 'armed', 'isArmed'],
@@ -285,9 +291,11 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
 // WHY: a word of EscapeTarget with no row here fails to compile, so the ladder cannot skip one.
 const EVERY_WORD: Record<EscapeTarget, true> = {
   notice: true,
+  searchPanel: true,
   textEntry: true,
   confirmation: true,
   surface: true,
+  help: true,
   gesture: true,
   propertiesPanel: true,
   armed: true,
@@ -308,12 +316,10 @@ describe(`PI-36 escapeTarget against table T-283 -- IN-4 (MUST): ${IN_4_ORDER}`,
     expect(LADDER.map(([, , flag]) => flag).sort()).toEqual(Object.keys(NOTHING_ON).sort())
   })
 
-  // WHY: RG-15 is an Esc row of T-283, but no clause names its EscapeTarget word or EscapeContext flag;
-  // this case stays red, naming RG-15, until the seam names both (DFC-1280).
   it('the ladder holds every Esc row of T-283 in table order', () => {
     expect(
       [...new Set(LADDER.map(([id]) => id))],
-      'an Esc row of T-283 with no escapeTarget word (RG-15: the seam names none yet)',
+      'an Esc row of T-283 with no escapeTarget word',
     ).toEqual(rungsOf('Esc').map((r) => r.id))
   })
 

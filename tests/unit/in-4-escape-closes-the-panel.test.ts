@@ -180,6 +180,11 @@ const PANEL_ENTRANCES = specTable('T-109').rows.filter((row) =>
 /** Everything IN-4 and IN-4a write, as one string each. */
 const IN_4 = rowOf('T-028', 'IN-4').cells.join(' ')
 const IN_4A = rowOf('T-028', 'IN-4a').cells.join(' ')
+const IN_4_LADDER = '開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル'
+
+const HN_2 = '「開いている面」の段を飛ばし、次の段へ渡す。'
+
+const HELP_MODAL = surfacesOf(rowOf('T-109', 'IC-129').by[SURFACE_COLUMN] ?? '')[0] ?? ''
 
 /** S-99g's own cell -- the definition of a 面 these cases lean on. */
 const S_99G = rowOf('T-206', 'S-99g').cells.join(' ')
@@ -438,8 +443,9 @@ interface Stage {
   send(input: HumanInput): void
   /** Whether this frame put the `Properties Panel` on the screen at all. */
   panelIsUp(): boolean
-  /** Whether a 面 other than the panel is standing. */
   modalIsUp(): boolean
+  helpWindow(): string | null
+  aimAt(part: string, entry: string): void
   /** The width FR-052's arithmetic gave the panel in the last frame. */
   panelWidth(): number
   /** The width FR-052's arithmetic left the `Row Area` in the last frame. */
@@ -467,7 +473,19 @@ function stage(): Stage {
     screen,
     send,
     panelIsUp: () => screen.last().propertiesPanel !== null,
-    modalIsUp: () => screen.last().openModal !== null,
+    modalIsUp: () => ['normal', 'maximised'].includes(screen.last().helpModal?.windowState ?? ''),
+    helpWindow: () => screen.last().helpModal?.windowState ?? null,
+    aimAt: (part, entry) => {
+      screen.drawAt({
+        part,
+        entry: entry as never,
+        format: null,
+        rowGroupId: null,
+        resourceUid: null,
+        dividerPanel: null,
+        noticeDismissKey: null,
+      } as ScreenPart)
+    },
     panelWidth: () => regions().propertiesPanel.width,
     rowAreaWidth: () => regions().rowArea.width,
   }
@@ -645,7 +663,7 @@ describe('the manuscript still says what these cases read', () => {
     ).toBe(false)
   })
 
-  it('SK-13: `F1` puts a second 面 up, and it is not the panel', () => {
+  it('SK-13: `F1` puts the help up, and it is not the panel', () => {
     const built = withThePanelUp()
     built.send(OPEN_HELP())
     expect(built.modalIsUp()).toBe(true)
@@ -735,19 +753,35 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
 // ===========================================================================
 
 describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
-  it('⛔ MUST: with a modal AND the panel up, the first `Esc` takes exactly one of them', () => {
-    // 「`Esc` は … 1 階層ぶん消費し」. ⚠️ WHICH OF THE TWO GOES FIRST IS NOT
-    // ASSERTED: S-99g holds exactly ONE open surface, so the manuscript never
-    // contemplates two standing at once and orders no two 面 against each other.
-    // ⛔ What it does settle is that one press does not take both.
+  it('⛔ MUST: with the help AND the panel up, the first `Esc` takes exactly one of them -- the help', () => {
+    // WHY: IN-4 puts the open-surface rung above the properties panel, and S-99g counts the normal help in it.
+    expect(IN_4).toContain(IN_4_LADDER)
     const built = withThePanelUp()
     built.send(OPEN_HELP())
-    expect(built.modalIsUp() && built.panelIsUp(), 'both 面 are up before the press').toBe(true)
+    expect(built.modalIsUp() && built.panelIsUp(), 'both are up before the press').toBe(true)
 
     built.send(ESCAPE())
 
     const stillUp = [built.modalIsUp(), built.panelIsUp()].filter((one) => one)
     expect(stillUp, 'IN-4 (MUST): 1 階層ぶん消費し -- one press, one level').toHaveLength(1)
+    expect(built.panelIsUp(), `IN-4 (MUST): ${IN_4_LADDER}`).toBe(true)
+  })
+
+  it(`HN-2 of table T-336: ${HN_2}`, () => {
+    // WHY: IC-129 takes the help to WB-2, which S-99g does not count as standing.
+    expect(rowOf('T-336', 'HN-2').cells.join(' ')).toContain(HN_2)
+    const built = withThePanelUp()
+    built.send(OPEN_HELP())
+    built.aimAt(HELP_MODAL, 'IC-129')
+    built.send(pointer('down', 700, 20))
+    built.send(pointer('up', 700, 20))
+    built.screen.drawAt(null)
+    expect(built.helpWindow(), 'premise: IC-129 minimised the help').toBe('minimised')
+
+    built.send(ESCAPE())
+
+    expect(built.panelIsUp(), 'HN-2: the rung is skipped and the next one is spent').toBe(false)
+    expect(built.helpWindow(), 'HN-2: ヘルプは閉じない').toBe('minimised')
   })
 
   it('⛔ MUST: the second press takes the other one', () => {
