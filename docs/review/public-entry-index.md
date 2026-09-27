@@ -564,6 +564,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
+| `isSwallowedSecondPress` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSwallowedSecondPress` | -- | function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean |
 | `KEY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#KEY` | -- | const KEY = |
 | `KeyInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#KeyInput` | -- | interface KeyInput |
 | `milestoneGlyphOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#milestoneGlyphOf` | -- | function milestoneGlyphOf(name: string): TaskMilestoneGlyph \| null |
@@ -621,6 +622,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollbarFollow` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#scrollbarFollow` | -- | function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput |
 | `commandFromGrab` | file only | function | `src/adapter/input-command-translator/item-grab.ts#commandFromGrab` | -- | function commandFromGrab( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `copyDragWrite` | file only | function | `src/adapter/input-command-translator/item-grab.ts#copyDragWrite` | -- | function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput |
+| `isContinuationMarkClick` | file only | function | `src/adapter/input-command-translator/item-grab.ts#isContinuationMarkClick` | -- | function isContinuationMarkClick(press: PointerPress, release: PointerInput): boolean |
 | `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/row-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldGroupId: string, ): TranslatedInput |
 | `grabbedRowGroupId` | file only | function | `src/adapter/input-command-translator/row-grab.ts#grabbedRowGroupId` | -- | function grabbedRowGroupId(press: PointerPress): string \| null |
 | `rowGrabFollow` | file only | function | `src/adapter/input-command-translator/row-grab.ts#rowGrabFollow` | -- | function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedInput |
@@ -630,6 +632,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromRowExpanderOpenLevelZero` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderOpenLevelZero` | -- | function commandFromRowExpanderOpenLevelZero(context: InputContext): TranslatedInput |
 | `everyRowDeleted` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#everyRowDeleted` | -- | function everyRowDeleted(context: InputContext): TranslatedInput |
 | `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp( context: InputContext, parentGroupId: string \| null, depth: number, ): TranslatedInput |
+| `treeWritesOf` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#commandFromKey` | -- | function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
@@ -669,7 +672,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rounded` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#rounded` | -- | function rounded(value: number): string |
 | `SchedulePicture` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#SchedulePicture` | -- | type SchedulePicture = 'screen' \| 'export' |
 | `selectedLineWidth` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectedLineWidth` | -- | function selectedLineWidth(own: number, selected: boolean): number |
-| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string |
+| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, colour: string, key: string, form: 'frame' \| 'endOutline' = 'frame'): string |
 | `svgFromSchedule` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#svgFromSchedule` | PI-19 | `FR-080` |
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
@@ -692,6 +695,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyLinkParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinkParts` | -- | interface DependencyLinkParts |
 | `dependencyLinkParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyLinkParts` | -- | function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts |
 | `DependencyLinksInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinksInput` | -- | interface DependencyLinksInput |
+| `landingLinkOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#landingLinkOf` | -- | function landingLinkOf(viewer: ViewerValues): string \| null |
+| `linkKeyOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#linkKeyOf` | -- | function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string |
+| `selectedLinksOfMarks` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#selectedLinksOfMarks` | -- | function selectedLinksOfMarks(schedule: Schedule, marks: readonly ItemRef[]): ReadonlySet<string> |
 | `TaskFigureParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFigureParts` | -- | interface TaskFigureParts |
 | `taskFigureParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#taskFigureParts` | -- | function taskFigureParts(input: TaskFiguresInput): TaskFigureParts |
 | `TaskFiguresInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFiguresInput` | -- | interface TaskFiguresInput |
@@ -1376,4 +1382,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 675 name(s) leave through a public entry (207 of them published by table T-064), 501 more are exported by a file and not by its entry.
+Totals: 676 name(s) leave through a public entry (207 of them published by table T-064), 506 more are exported by a file and not by its entry.

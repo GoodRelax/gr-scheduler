@@ -1,4 +1,5 @@
 excess-lines=5998 excess-branches=599
+# RAISED frameLoop 1429->1431, receiveInput 150/63->152/65 and PRUNED dependencyLinkParts (86/19, now below the band) on 2026-09-27 under JDG-778 / JDG-520 (lane L1, CR-596): the shell sends landingMarkClearAsked and continuationMarkClicked on their own lines (lane L4's paths kept apart); the drawer split dependencyLinkParts into dependencyDefsOf / emphasisOf / inkOf. The coordinator re-measures the totals at merge.
 # LOWERED 6163/640 -> 5998/599 on 2026-09-27 under JDG-520 (coordinator): measured on the merge of lanes L1 and L3 into refactor.
 # RAISED 6160/639 -> 6163/640 on 2026-09-27 under JDG-778 (lane-l3, CR-586 S-3): builtMerge 279/56 -> 282/57 -- the MSPDI merge writes a kept visual whose shape disagrees with Task.milestone back with shapeKind null (MG-8); the coordinator re-measures at merge.
 # RAISED 6158/638 -> 6160/639 on 2026-09-27 under JDG-778 (lane-l3, CR-582 MH-4): showScreenView 123/33 -> 124/34 and domScreenSurface 315 -> 316 -- the readout text is rewritten in place each frame instead of rebuilding the panel; the coordinator re-measures at merge.
@@ -71,7 +72,6 @@ HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule l
 HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=62 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=77 branches=13
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=117 branches=21
-HELD src/adapter/svg-renderer/schedule-task-figures.ts::dependencyLinkParts lines=86 branches=19
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45
 HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=224 branches=19
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
@@ -98,8 +98,8 @@ HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lin
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=84 branches=21
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=173 branches=46
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1429 branches=5
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=150 branches=63
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1431 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=152 branches=65
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=132 branches=10
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0

@@ -30,6 +30,8 @@ import {
   baselineOutlineParts,
   dependencyArrowSvg,
   dependencyLinkParts,
+  landingLinkOf,
+  selectedLinksOfMarks,
   taskFigureParts,
 } from './schedule-task-figures'
 
@@ -101,10 +103,13 @@ export function boxOfPoints(path: Path): ScreenRect | null {
   return { x: left, y: top, width: right - left, height: bottom - top }
 }
 
-// see SL-8
+// see SL-8, EL-16
+// WHY: the end outline (S-447) is solid and the frame (S-174) dashed; both are screen px, never scaled.
 /** @purity pure */
-export function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string {
-  const stroke = NOT_STORED_SELECTION_SIZES['S-174']
+export function selectionFrameSvg(box: ScreenRect, colour: string, key: string,
+                                  form: 'frame' | 'endOutline' = 'frame'): string {
+  const isFrame = form === 'frame'
+  const stroke = isFrame ? NOT_STORED_SELECTION_SIZES['S-174'] : NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
   const [on, off] = NOT_STORED_SELECTION_SIZES['S-175']
   const width = Math.max(box.width, stroke)
   const height = Math.max(box.height, stroke)
@@ -113,7 +118,8 @@ export function selectionFrameSvg(box: ScreenRect, colour: string, key: string):
     ` y="${rounded(box.y - (height - box.height) / 2)}"` +
     ` width="${rounded(width)}" height="${rounded(height)}"` +
     ` fill="none" stroke="${colour}" stroke-width="${rounded(stroke)}"` +
-    ` stroke-dasharray="${rounded(on)} ${rounded(off)}"${figureKey(key)}/>`
+    (isFrame ? ` stroke-dasharray="${rounded(on)} ${rounded(off)}"` : '') +
+    `${figureKey(key)}/>`
   )
 }
 
@@ -476,14 +482,8 @@ export function svgFromSchedule(
     marks.filter((one) => one.kind === 'commentBox').map((one) => one.id),
   )
   const selectedStatusLine = marks.some((one) => one.kind === 'statusLine')
-  const selectedLinks = new Set<string>()
-  const linksOfTask = new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
-  // TRAP: the ordinal is not the index in geometry.dependencies: RT-4a drops undrawn links.
-  for (const item of marks) {
-    if (item.kind !== 'dependency') continue
-    const link = linksOfTask.get(item.successorUid)?.[item.ordinal]
-    if (link !== undefined) selectedLinks.add(`${link.predecessorUid}>${item.successorUid}`)
-  }
+  const selectedLinks = selectedLinksOfMarks(schedule, marks)
+  const landingLink = drawsOperationState ? landingLinkOf(viewer) : null
 
   const area = regions.rowArea
   const areaBottom = area.y + area.height
@@ -524,6 +524,7 @@ export function svgFromSchedule(
     selectedComments,
     selectedStatusLine,
     selectedLinks,
+    landingLink,
     following,
     hover,
     hand,
@@ -565,6 +566,7 @@ export function svgFromSchedule(
     dependencyHaloMaskId,
     width,
     height,
+    landingWidth: settings.dependencyWidth * NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-446'],
   })
   defsParts.push(...links.defsParts)
   const overlays = overlayParts(drawing)
@@ -622,7 +624,9 @@ export function svgFromSchedule(
       ...zoLayer('ZO-3', [...figures.markerPartsPinned, scrolling(figures.markerParts)]),
       ...zoLayer('ZO-5', [...figures.labelPartsPinned, scrolling(figures.labelParts)]),
       ...zoLayer('ZO-9', overlays.annotationParts),
-      ...zoLayer('ZO-10', [...figures.selectionParts, ...overlays.selectionParts, ...figures.handleParts]),
+      ...zoLayer('ZO-10', [
+        ...figures.endOutlineParts, ...figures.selectionParts, ...overlays.selectionParts, ...figures.handleParts,
+      ]),
       ...zoLayer('ZO-11', tentativeParts),
       ...zoLayer(
         'ZO-12',
