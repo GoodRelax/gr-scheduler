@@ -14,9 +14,13 @@ export interface RememberedActual {
 
 export type EscapeTarget =
   | 'notice'
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  | 'searchPanel'
   | 'textEntry'
   | 'confirmation'
   | 'surface'
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  | 'help'
   | 'gesture'
   | 'propertiesPanel'
   | 'armed'
@@ -30,8 +34,12 @@ export type DualCursorSide = 'date1' | 'date2'
 // a second caller that cannot see it answers the next level down and spends two levels.
 export interface EscapeContext {
   readonly isNoticeStanding?: boolean
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  readonly isSearchPanelFocused?: boolean
   readonly isTextEntryUnsettled: boolean
   readonly isSurfaceOpen: boolean
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  readonly isHelpStanding?: boolean
   readonly gestureInFlight: boolean
   readonly isArmed: boolean
   readonly isSelectionStanding?: boolean
@@ -45,9 +53,11 @@ export interface EscapeContext {
 /** @purity pure */
 export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isNoticeStanding === true) return 'notice'
+  if (context.isSearchPanelFocused === true) return 'searchPanel'
   if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (context.isSurfaceOpen) return 'surface'
+  if (context.isHelpStanding === true) return 'help'
   if (context.gestureInFlight) return 'gesture'
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (context.isArmed) return 'armed'
@@ -56,3 +66,21 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isTooltipStanding === true) return 'tooltip'
   return null
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-333)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-333, FR-151
+export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
+  readonly 'S-430': number
+  readonly 'S-431': number
+  readonly 'S-432': number
+  readonly 'S-433': number
+} = {
+  'S-430': 12,
+  'S-431': 14,
+  'S-432': 16,
+  'S-433': 20,
+}
+// </generated>

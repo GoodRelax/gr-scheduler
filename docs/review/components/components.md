@@ -94,6 +94,7 @@
 | dependency | AgentApiEndpoint | SvgRenderer | picture arguments | names what the frame hands over, through PI-19's own signature (AG-4) |  |
 | dependency | AgentApiEndpoint | ImageExporter | image out | gets the raster image, handing over the document's theme hue with the request |  |
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
+| dependency | AgentApiEndpoint | Schedule | search rows | asks the schedule for the rows a search word finds, for readSearchRows (AM-25) |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
 | dependency | SvgRenderer | Schedule | colours + theme hue | reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries |  |
 | dependency | SvgRenderer | ScreenRegions | the screen it fills | FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content |  |

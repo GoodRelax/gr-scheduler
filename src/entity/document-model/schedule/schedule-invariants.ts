@@ -128,9 +128,9 @@ function nestingOf<TKey, TRow>(
 }
 
 // WHY: not the picture's row walk, which skips hidden and folded rows; an invariant must not depend on the screen.
-// see IV-19
+// see IV-19, SV-8
 /** @purity pure */
-function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
   const holds = new Set(groups.map((group) => group.id))
   for (const group of groups) {

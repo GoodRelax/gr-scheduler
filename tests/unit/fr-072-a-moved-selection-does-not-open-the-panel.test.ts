@@ -488,7 +488,7 @@ function stage(): Stage {
     send,
     panel: () => screen.last().propertiesPanel,
     panelIsUp: () => screen.last().propertiesPanel !== null,
-    modalIsUp: () => screen.last().openModal !== null,
+    modalIsUp: () => (screen.last().helpModal ?? null) !== null,
     taskUids: () => (loop.document() as any).schedule.tasks.map((one: Task) => one.uid),
     aimAt: (part, entry) => {
       screen.drawAt({
@@ -853,10 +853,7 @@ describe('table T-036 SK-19 -- `Enter` closes a panel with nothing left to settl
 
 describe('table T-036’s closing rule -- the second stage is off while a 面 stands', () => {
   it('⛔ MUST NOT: with the help up, `Enter` does not take the panel away', () => {
-    // 「`Confirmation`（`U-55`）または `ScreenState` が持つ面（`S-99g`）が立っている
-    //   あいだ、`SK-19` の 2 段目を当ててはならない（MUST NOT）—— 表 T-028 の
-    //   `IN-4` が `Esc` の第 1 階層を「開いている面」へ既に与えており、面が立って
-    //   いるあいだ、閉じる手が向かう先は面であって、面の後ろのパネルではない。」
+    // WHY: T-036 bars the second stage of SK-19 while a surface stands, and S-99g counts the normal help as one.
     const built = stage()
     doubleClickTask(built, THE_TASK)
     built.send(OPEN_HELP())

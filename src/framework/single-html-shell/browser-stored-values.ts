@@ -8,7 +8,7 @@ import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-rende
 const WEB_STORAGE_KEY_PREFIX = 'grsched.'
 
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
-  'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
+  'S-99': `${WEB_STORAGE_KEY_PREFIX}screenLanguage`,
   'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
   'S-99b': `${WEB_STORAGE_KEY_PREFIX}agentApiEnabled`,
   'S-99c': `${WEB_STORAGE_KEY_PREFIX}unlockPasswordSha256`,

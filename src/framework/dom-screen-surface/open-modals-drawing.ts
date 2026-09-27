@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { CommandItem, OpenModal } from '../../adapter/screen-renderer/screen-renderer'
+import type { CommandItem, HelpModal, OpenModal } from '../../adapter/screen-renderer/screen-renderer'
 import {
   IMPORT_REPORT_DISMISS_ATTRIBUTE,
   NOT_STORED_HELP_SIZES,
@@ -13,11 +13,13 @@ import {
   STYLE,
   anchoredEntry,
   appendAssignment,
+  chromeScaledPx,
   entryStyle,
   fillEntry,
   made,
   part,
 } from './dom-screen-surface'
+import { drawLanguageReading } from './app-header-drawing'
 import { confirmationAnswerElement, nextStepElement } from './notices-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
@@ -26,6 +28,7 @@ import { fieldElement } from './properties-panel-drawing'
 const ROSTER_CHOSEN_ENTRY = 'IC-67'
 const CLOSE_SURFACE_ENTRY = 'IC-52'
 const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
+const HELP_LANGUAGE_ENTRY = 'IC-128'
 
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
@@ -42,26 +45,37 @@ function helpColumnsStyle(): string {
   )
 }
 
-// see FR-036
+// see FR-036, T-335, JDG-665
 /** @purity pure */
-function helpStyle(): string {
+function helpStyle(windowState: HelpModal['windowState']): string {
   const share = NOT_STORED_HELP_SIZES['S-201'] * 100
-  return (
-    `width:${share}vw;max-width:${share}vw;` +
-    `height:${share}vh;max-height:${share}vh;overflow-x:hidden;overflow-y:auto;` +
-    'display:flex;flex-direction:column;' +
+  const box =
+    'display:flex;flex-direction:column;overflow:hidden;padding:0;' +
     `font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
-  )
+  if (windowState === 'maximised') {
+    return box + 'left:0;top:0;right:0;bottom:0;transform:none;max-width:none;max-height:none;'
+  }
+  if (windowState === 'normal') {
+    return box + `width:${share}vw;max-width:${share}vw;height:${share}vh;max-height:${share}vh;`
+  }
+  // WHY: the right and bottom edges of the centred normal box, so WB-2's corner is where the box was.
+  const beside = (100 - share) / 2
+  return box + `left:auto;top:auto;right:${beside}vw;bottom:${beside}vh;transform:none;`
 }
 
 // see FR-036
-// WHY: the negative margin and equal padding cover the box's 1em padding, so the scrolled body
-// never shows above or beside the pinned row; net layout is unchanged.
 /** @purity pure */
 function helpTitleRowStyle(): string {
+  return 'flex:0 0 auto;margin:0;padding:0.5em 1em;'
+}
+
+// see FR-036, S-437
+/** @purity pure */
+function helpBodyStyle(): string {
   return (
-    'position:sticky;top:0;z-index:1;margin:-1em -1em 0 -1em;padding:1em 1em 0.5em 1em;' +
-    `background:${PAINT.ground};`
+    'flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;' +
+    'display:flex;flex-direction:column;padding:0.5em 1em 1em 1em;' +
+    `border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};`
   )
 }
 
@@ -71,10 +85,23 @@ const ASSIGNMENT_SEPARATOR = ' \uFF0F '
 
 // see FR-036
 /** @purity pure */
-function helpIndentStyle(): string {
-  const side = NOT_STORED_ICON_SIZES['S-138']
-  const gap = NOT_STORED_ICON_SIZES['S-141']
-  return `padding-left:calc(${side}px + ${gap}px * 2);`
+function helpIndentPx(isIndented: boolean): number {
+  return isIndented ? NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2 : 0
+}
+
+const HELP_GLYPH_GAP_EM = 0.5
+
+// see FR-036, S-436
+// WHY: the glyph hangs in the row's left padding, out of the flex line, so an assignment sent to the
+// next line starts under the explanation; the explanation's right margin is the gap on one line.
+/** @purity pure */
+function helpItemStyles(glyphCount: number, isIndented: boolean): { readonly row: string; readonly glyph: string } {
+  const indent = helpIndentPx(isIndented)
+  const slot = `${chromeScaledPx(NOT_STORED_ICON_SIZES['S-138']) * glyphCount}px + ${HELP_GLYPH_GAP_EM}em`
+  return {
+    row: `${STYLE.helpEntry}position:relative;padding-left:calc(${indent}px + ${slot});`,
+    glyph: `${STYLE.helpGlyph}position:absolute;left:${indent}px;top:0;height:1lh;`,
+  }
 }
 
 // see FR-099
@@ -111,12 +138,13 @@ function helpItemElement(
   glyphs: readonly string[],
   isIndented: boolean,
 ): { readonly row: HTMLElement; readonly text: HTMLElement } {
-  const row = made(host, 'div', STYLE.helpEntry + (isIndented ? helpIndentStyle() : ''))
+  const styles = helpItemStyles(glyphs.length, isIndented)
+  const row = made(host, 'div', styles.row)
   row.setAttribute('data-table', line.table)
   row.setAttribute('data-row', line.row)
   if (isIndented) row.setAttribute('data-indent', 'true')
 
-  const glyph = made(host, 'span', STYLE.helpGlyph)
+  const glyph = made(host, 'span', styles.glyph)
   if (glyphs.length === 1) {
     fillEntry(host, glyph, glyphs[0] as string)
   } else {
@@ -128,14 +156,15 @@ function helpItemElement(
   }
   row.append(glyph)
 
-  const text = made(host, 'span', STYLE.helpText)
+  const written = [line.keys, line.press]
+    .filter((one): one is string => one !== null)
+    .join(ASSIGNMENT_SEPARATOR)
+  const gap = written === '' ? '' : `margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`
+  const text = made(host, 'span', STYLE.helpText + gap)
   text.textContent = line.text
   row.append(text)
 
   const assignment = made(host, 'span', STYLE.helpKeys)
-  const written = [line.keys, line.press]
-    .filter((one): one is string => one !== null)
-    .join(ASSIGNMENT_SEPARATOR)
   if (written !== '') appendAssignment(host, assignment, written, false)
   row.append(assignment)
   return { row, text }
@@ -318,6 +347,7 @@ function modalTitleRow(
     if ('entries' in modal && item.icon === modal.legend) continue
     const entry = anchoredEntry(host, item, anchors)
     if ('resources' in modal && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
+    if ('entries' in modal && item.icon === HELP_LANGUAGE_ENTRY) drawLanguageReading(host, entry, modal.helpLanguage)
     header.append(entry)
   }
   return header
@@ -348,7 +378,7 @@ export function modalElement(
     'div',
     modal.surface,
     STYLE.modal +
-      ('entries' in modal ? helpStyle() : '') +
+      ('entries' in modal ? helpStyle(modal.windowState) : '') +
       ('resources' in modal ? rosterBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
@@ -360,18 +390,9 @@ export function modalElement(
   let watermarkUnlockEntry: TextEntryControl | null = null
 
   if ('entries' in modal) {
-    drawn.setAttribute('data-language', modal.language)
-    body.push(helpColumnsElement(host, modal.entries))
-    const legal = made(host, 'details', STYLE.helpLegal)
-    const summary = made(host, 'summary', STYLE.helpLegalSummary)
-    summary.textContent = modal.copyrightNotice
-    legal.append(summary)
-    for (const text of [modal.licenceText, ...modal.attributions]) {
-      const line = made(host, 'p', STYLE.helpLegalText)
-      line.textContent = text
-      legal.append(line)
-    }
-    body.push(legal)
+    drawn.setAttribute('data-language', modal.helpLanguage)
+    drawn.setAttribute('lang', modal.helpLanguage)
+    if (modal.windowState !== 'minimised') body.push(helpBodyElement(host, modal))
   }
 
   if ('documentText' in modal) {
@@ -497,6 +518,23 @@ export function modalElement(
 
   drawn.replaceChildren(header, ...body)
   return { element: drawn, watermarkUnlockEntry }
+}
+
+// see FR-036, T-335
+/** @purity non-pure */
+function helpBodyElement(host: Document, modal: HelpModal): HTMLElement {
+  const legal = made(host, 'details', STYLE.helpLegal)
+  const summary = made(host, 'summary', STYLE.helpLegalSummary)
+  summary.textContent = modal.copyrightNotice
+  legal.append(summary)
+  for (const text of [modal.licenceText, ...modal.attributions]) {
+    const line = made(host, 'p', STYLE.helpLegalText)
+    line.textContent = text
+    legal.append(line)
+  }
+  const helpBody = made(host, 'div', helpBodyStyle())
+  helpBody.append(helpColumnsElement(host, modal.entries), legal)
+  return helpBody
 }
 
 type ImportReport = Extract<OpenModal, { readonly droppedTaskNames: readonly (string | null)[] }>

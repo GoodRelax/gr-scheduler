@@ -42,6 +42,7 @@ interface RowTreeFacts {
   readonly byId: ReadonlyMap<string, TaskGroup>
   readonly parentIds: ReadonlySet<string>
   readonly pressedRowId: string | null
+  readonly revealedRowId: string | null
 }
 
 const ROW_GUARDS: Readonly<Record<string, (row: TaskGroup, facts: RowTreeFacts) => boolean>> = {
@@ -51,6 +52,7 @@ const ROW_GUARDS: Readonly<Record<string, (row: TaskGroup, facts: RowTreeFacts) 
   isBelowPressedRow: (row, facts) => isBelowRow(row, facts.pressedRowId, facts.byId),
   isLeafRow: (row, facts) => !facts.parentIds.has(row.id),
   isTopLevelRow: (row) => row.parentId === null,
+  isRevealedRowOrAncestor,
 }
 
 const ROOT_GUARDS: Readonly<Record<string, (levelZeroTreeState: LevelZeroTreeState) => boolean>> = {
@@ -90,17 +92,25 @@ function isBelowRow(
   return false
 }
 
+// see T-328, SJ-2
 /** @purity pure */
-function rowTreeFactsOf(schedule: Schedule, pressedRowId: string | null): RowTreeFacts {
-  const rows = schedule.taskGroups
-  const parentIds = new Set<string>()
-  for (const row of rows) if (row.parentId !== null) parentIds.add(row.parentId)
-  return { byId: new Map(rows.map((row) => [row.id, row])), parentIds, pressedRowId }
+function isRevealedRowOrAncestor(row: TaskGroup, facts: RowTreeFacts): boolean {
+  const revealed = facts.revealedRowId === null ? undefined : facts.byId.get(facts.revealedRowId)
+  if (revealed === undefined) return false
+  return revealed.id === row.id || isBelowRow(revealed, row.id, facts.byId)
 }
 
 /** @purity pure */
-function pressedRowIdOf(event: TreeStateEvent): string | null {
-  return 'pressedRowId' in event ? event.pressedRowId : null
+function rowTreeFactsOf(schedule: Schedule, event: TreeStateEvent): RowTreeFacts {
+  const rows = schedule.taskGroups
+  const parentIds = new Set<string>()
+  for (const row of rows) if (row.parentId !== null) parentIds.add(row.parentId)
+  return {
+    byId: new Map(rows.map((row) => [row.id, row])),
+    parentIds,
+    pressedRowId: 'pressedRowId' in event ? event.pressedRowId : null,
+    revealedRowId: 'revealedRowId' in event ? event.revealedRowId : null,
+  }
 }
 
 /** @purity pure */
@@ -129,7 +139,7 @@ export function treeStateWritesFor(
   schedule: Schedule,
   event: TreeStateEvent,
 ): readonly DocumentCommand[] {
-  const facts = rowTreeFactsOf(schedule, pressedRowIdOf(event))
+  const facts = rowTreeFactsOf(schedule, event)
   const writes: DocumentCommand[] = []
   for (const row of schedule.taskGroups) {
     const treeState = nextTreeStateOf(row, event, facts)
@@ -181,10 +191,11 @@ export function setTaskGroupTreeState(
 /** @purity pure */
 export function resetTaskGroupTreeStates(document: Document): EditResult {
   const schedule = document.schedule
-  const facts = rowTreeFactsOf(schedule, null)
+  const fit: TreeStateEvent = { type: 'fitPressed' }
+  const facts = rowTreeFactsOf(schedule, fit)
   const rows = schedule.taskGroups
   const reset = rows.map((row) => {
-    const treeState = nextTreeStateOf(row, { type: 'fitPressed' }, facts)
+    const treeState = nextTreeStateOf(row, fit, facts)
     return treeState === row.treeState ? row : { ...row, treeState }
   })
   if (reset.every((row, at) => row === rows[at])) return edited(document)

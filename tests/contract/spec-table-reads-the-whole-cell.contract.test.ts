@@ -93,7 +93,8 @@ describe('bareAll -- every value a cell states', () => {
     const surfaces = bareAll(rowOf('T-109', 'IC-52')['面'] ?? '')
     expect(surfaces).toHaveLength(6)
     expect(surfaces[0]).toBe('Help Modal')
-    expect(surfaces.at(-1)).toBe('Properties Panel')
+    expect(surfaces.at(-2)).toBe('Properties Panel')
+    expect(surfaces.at(-1)).toBe('Search Panel')
   })
 
   it('gives both purities 表 T-075 UF-41 states', () => {

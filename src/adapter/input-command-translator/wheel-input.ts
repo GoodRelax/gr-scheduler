@@ -3,7 +3,8 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { regionAtPointer } from '../../entity/layout-engine/screen-regions/screen-regions'
+import { isInsideRect } from '../../entity/layout-engine/item-hit-area/item-hit-area'
+import { regionAtPointer, type ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { WheelInput } from './input-source'
 import {
   CONSUMED_ELSEWHERE,
@@ -60,9 +61,14 @@ function isWheelHere(context: InputContext, x: number, y: number): boolean {
 }
 
 
-// see MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016
+// see MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016, SV-15
 /** @purity pure */
-export function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput {
+export function commandFromWheel(
+  input: WheelInput,
+  context: InputContext,
+  searchPanelBox: ScreenRect | null = null,
+): TranslatedInput {
+  if (searchPanelBox !== null && isInsideRect(input.x, input.y, searchPanelBox)) return UNASSIGNED
   const modifiers = input.modifiers
   const plain = isCombo(modifiers, false, false, false)
   const ctrl = isCombo(modifiers, true, false, false)

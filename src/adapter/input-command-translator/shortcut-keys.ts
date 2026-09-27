@@ -30,7 +30,7 @@ import {
   zoomWrites,
 } from './zoom-and-fit'
 
-// see T-036, IN-5a, IN-4, MK-10
+// see T-036, IN-5a, IN-4, MK-10, SK-24
 /** @purity pure */
 export function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput {
   const key = input.key
@@ -68,6 +68,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   }
 
   if (ctrl && key === KEY.a) return CONSUMED_ELSEWHERE
+  if (ctrl && key === KEY.f) return CONSUMED_ELSEWHERE
 
   if (plain && (key === KEY.del || key === KEY.backspace)) {
     return changed(deleteCommandsFor(context))

@@ -48,9 +48,9 @@ function readableStamp(utc: string): string {
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
 
-// see FR-038, IC-21
+// see FR-038, IC-21, IC-128
 /** @purity non-pure */
-function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void {
+export function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void {
   entry.setAttribute('data-language', language)
   const code = made(host, 'span', STYLE.languageCode)
   code.textContent = language

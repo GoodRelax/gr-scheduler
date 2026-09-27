@@ -75,6 +75,7 @@ export {
 } from './label-placement'
 export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
+export { hasRoomBelowPinsIn } from './pinned-band'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
 // see L-1

@@ -780,7 +780,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-61 | `screen-frame.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-70 | `screen-surface.ts` | 内部 | n/a |  | ✅ 受入済 |
 | UF-69 | `tooltips.ts` | 内部 | pure |  | ✅ 受入済 |
-| UF-180 | `search-panel.ts` | 内部 | pure |  | ⬜ 未着手 |
+| UF-180 | `search-panel.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-181 | `search-table-filters.ts` | 内部 | pure |  | ⬜ 未着手 |
 
 ### `svg-renderer` —— SvgRenderer（PI-19）

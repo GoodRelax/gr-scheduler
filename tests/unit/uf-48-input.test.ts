@@ -58,7 +58,7 @@
 //   表 T-023 MK-10  「本ツールが割り当てた修飾キーの付いた入力 ... ブラウザの
 //                   既定動作を画面全体で止めること（MUST）。割り当てていない
 //                   組合せを止めてはならない（MUST NOT）」, which names
-//                   `Ctrl+P` and `Ctrl+F` as two it must not take
+//                   `Ctrl+P` as one it must not take and `Ctrl+F` (SK-24) as taken
 //   表 T-036        the whole roster of shortcut assignments; the row says so
 //                   itself: 「本表がショートカットキーの割当の全数である」
 //   表 T-023d GR-19 「`Command Palette` の掴み帯 ... 掴めばパレットを動かす
@@ -501,6 +501,7 @@ const T_036_DRIVEN = [
   { row: 'SK-22', spelt: 'Ctrl+Shift++', input: () => key('+', { ctrl: true, shift: true }) },
   { row: 'SK-23', spelt: 'Ctrl+Shift+-', input: () => key('-', { ctrl: true, shift: true }) },
   { row: 'SK-18', spelt: 'F', input: () => key('F') },
+  { row: 'SK-24', spelt: 'Ctrl+F', input: () => key('F', { ctrl: true }) },
   { row: 'SK-20', spelt: 'Ctrl+Shift+D', input: () => key('D', { ctrl: true, shift: true }) },
 ] as const
 
@@ -508,9 +509,11 @@ const T_036_DRIVEN = [
  * Combinations MK-10's own sentence names as ones this tool must NOT take, plus
  * the button table T-023 gives no row at all.
  */
+const MK_10_CTRL_P = '`Ctrl+P`（印刷）まで奪うと、ブラウザの機能が使えなくなる'
+const MK_10_CTRL_F = '⚠️ `Ctrl+F` は 表 T-036 の `SK-24` に割り当てたので、止める側である'
+
 const NOT_ASSIGNED = [
   { why: 'MK-10 names it: `Ctrl+P`（印刷）', input: () => key('P', { ctrl: true }) },
-  { why: 'MK-10 names it: `Ctrl+F`（検索）', input: () => key('F', { ctrl: true }) },
   { why: 'JDG-301 took Ctrl+Shift+0 out of table T-036', input: () => key('0', { ctrl: true, shift: true }) },
   {
     why: 'table T-023 gives the right button no row, so the context menu stays the browser’s',
@@ -695,7 +698,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
 
   it("MK-10 (MUST NOT): a combination this tool assigns nothing keeps the browser's own", () => {
     // 「割り当てていない組合せを止めてはならない（MUST NOT）」 —— 「`Ctrl+P`
-    // （印刷）や `Ctrl+F`（検索）まで奪うと、ブラウザの機能が使えなくなる」.
+    // （印刷）まで奪うと、ブラウザの機能が使えなくなる」.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
 
@@ -732,8 +735,8 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
 })
 
 describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
-  it('the loop KEEPS what screenStateFromInput returned: F1 leaves a surface open', () => {
-    // SK-13 opens the help surface, and S-99g holds which one is open. UF-30 is
+  it('the loop KEEPS what screenStateFromInput returned: F1 leaves the help shown', () => {
+    // SK-13 opens the help, and S-435 holds its display state. UF-30 is
     // `pure` (table T-075), so it can remember nothing between two happenings;
     // LY-5 of table T-060 leaves this loop as the only layer that may hold the
     // value it answered with.
@@ -744,12 +747,11 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     loop.receiveInput(key('F1'))
     pane.runAnimationFrames()
 
-    expect(screen.last().openModal).not.toBeNull()
+    expect(screen.last().helpModal ?? null).not.toBeNull()
   })
 
-  it('IN-4 (MUST): the first Esc takes the open surface and leaves the drag in flight', () => {
-    // 「消費する階層は 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え
-    // → `Dual Cursor` モード の順とすること（MUST）」 -- one level per press.
+  it('IN-4 (MUST): the first Esc takes the normal help and leaves the drag in flight', () => {
+    // WHY: IN-4 spends one rung per press, and S-99g counts the normal help in the open-surface rung.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
@@ -763,7 +765,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     pane.runAnimationFrames()
 
     // Level 1 is gone ...
-    expect(screen.last().openModal).toBeNull()
+    expect(screen.last().helpModal ?? null).toBeNull()
     // ... and level 2 has NOT been taken with it, so the key is still assigned.
     expect(
       loop.isBrowserDefaultStopped(key('Esc')),
@@ -1248,11 +1250,11 @@ describe('the specification still says what these cases copy', () => {
     expect(REQUIREMENTS).toContain('本表がショートカットキーの割当の全数である')
   })
 
-  it('MK-10 still names Ctrl+P and Ctrl+F as ones this tool must not take', () => {
+  it('MK-10 still names Ctrl+P as one this tool must not take, and Ctrl+F as SK-24, so taken', () => {
     const mk10 = rowOf('T-023', 'MK-10').cells.join(' ')
     expect(mk10).toContain('割り当てていない組合せを止めてはならない（MUST NOT）')
-    expect(mk10).toContain('`Ctrl+P`')
-    expect(mk10).toContain('`Ctrl+F`')
+    expect(mk10).toContain(MK_10_CTRL_P)
+    expect(mk10).toContain(MK_10_CTRL_F)
   })
 
   it('table T-229 ED-1 still gives the screen the word these cases sign with', () => {

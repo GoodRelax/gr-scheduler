@@ -204,6 +204,7 @@ import {
   screenViewFromRegions,
   type CommandItem,
   type HelpEntry,
+  type OpenModal,
   type DisplayLanguage,
   type ScreenViewReadings,
   type ScreenView,
@@ -776,6 +777,24 @@ const PALETTE_SHOWN = frameWith({
 /** S-99g says which surface is open (IN-4 of table T-028). */
 const surfaceOpen = (surface: string): Frame => frameWith({ root: rootWithSurface(surface) })
 
+const HELP_SURFACE = surfacesOf('IC-129')[0] ?? ''
+
+const helpShown = (window: 'normal' | 'maximised'): Frame =>
+  frameWith({ root: rootWith({ helpDisplayState: { kind: 'shown', child: { kind: window } } }) })
+
+const HELP_SHOWN = helpShown('normal')
+
+// WHY: T-335 WB-4 draws IC-131 only while the help is maximised (WB-3), in the place of IC-130.
+const HELP_MAXIMISED = helpShown('maximised')
+
+const surfaceFrame = (surface: string, rowId: string | null = null): Frame => {
+  if (surface !== HELP_SURFACE) return surfaceOpen(surface)
+  return rowId === 'IC-131' ? HELP_MAXIMISED : HELP_SHOWN
+}
+
+const surfaceIn = (view: ScreenView, surface: string): OpenModal | null =>
+  surface === HELP_SURFACE ? (view.helpModal ?? null) : view.openModal
+
 // ---------------------------------------------------------------------------
 // Reading the answer through the published entry (table T-064, PI-37).
 // ---------------------------------------------------------------------------
@@ -932,8 +951,8 @@ for (const entry of GENERATED['icons'] ?? []) {
     )
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
-    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceOpen(surface), centreOf(REGIONS.scheduleCanvas), (view) =>
-      labelIn(view.openModal?.commands, rowId),
+    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centreOf(REGIONS.scheduleCanvas), (view) =>
+      labelIn(surfaceIn(view, surface)?.commands, rowId),
     )
   }
 
@@ -996,8 +1015,8 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     field: 'heading',
     unit: 'UF-66',
     what: `the heading of ${name}`,
-    frame: surfaceOpen(name),
-    read: (view) => view.openModal?.heading,
+    frame: surfaceFrame(name),
+    read: (view) => surfaceIn(view, name)?.heading,
   })
 }
 
@@ -1321,12 +1340,7 @@ for (const entry of GENERATED['settings'] ?? []) {
  * it is held, so a reordering must not make this file fall too.
  */
 const helpEntryText = (view: ScreenView, rowId: string): string | undefined => {
-  const open = view.openModal
-  // ⛔ The member is reached without the union being narrowed by `surface`,
-  // which the catch-all arm of `OpenModal` makes impossible to do by name: a
-  // description that still declares no `entries` has to make THIS case fall
-  // rather than take the file down before any case runs (rule 04 section 1).
-  const entries = (open as unknown as { readonly entries?: readonly HelpEntry[] } | null)?.entries
+  const entries: readonly HelpEntry[] | undefined = view.helpModal?.entries
   return entries?.find((entry) => entry.row === rowId)?.text
 }
 
@@ -1338,7 +1352,7 @@ for (const entry of GENERATED['shortcuts'] ?? []) {
     field: 'text',
     unit: 'UF-66',
     what: `what the help says about ${rowId}`,
-    frame: surfaceOpen('Help Modal'),
+    frame: HELP_SHOWN,
     read: (view) => helpEntryText(view, rowId),
   })
 }
@@ -1385,7 +1399,7 @@ for (const entry of GENERATED['browserFunctions'] ?? []) {
     field: 'text',
     unit: 'UF-66',
     what: `what the help says about the browser function ${rowId}`,
-    frame: surfaceOpen('Help Modal'),
+    frame: HELP_SHOWN,
     read: (view) => helpEntryText(view, rowId),
   })
 }
