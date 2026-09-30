@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 70 mechanical checks for the gr-scheduler specification.
+# All 71 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 53. (Recounted 2026-09-26 at the
+# The ranges today are 1 + 4 + 8 + 4 + 54. (Recounted 2026-10-01 at the
+# merge of check 74 (conflict markers, DFC-1461): 53 + 1. Recounted
+# 2026-09-26 at the
 # merge of checks 67-68 (parallel tools), 69-70 (CR-581),
 # 71 (test inventory) and 72-73 (rules): 46 + 2 + 2 + 1 + 2. Before that,
 # recounted 2026-09-26 when
@@ -930,6 +932,19 @@ section "73  a rule names only files, npm scripts and checks that exist"
 # script and a dead check number and is red unless it reports all three.
 PYTHONIOENCODING=utf-8 python "$HERE/check-rules-name-real-things.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-rules-name-real-things.py" || failed
+
+echo ""
+section "74  no tracked text file holds a git conflict marker"
+# JDG-778 (2026-10-01), DFC-1461: the b3 merge committed rulings.md with a
+# diff3 conflict hunk still inside it (fixed by hand in dfa36886) and no
+# check had caught it. Scans every `git ls-files` text file except
+# docs/reference/ and binaries for `<<<<<<< `, `>>>>>>> `, `||||||| ` and a
+# bare `=======` held ONLY inside an open `<<<<<<<` .. `>>>>>>>` span, so an
+# ordinary Markdown setext heading underline is never a false hit.
+# --self-test checks a merge hunk (3 hits), a diff3 hunk (4 hits) and a
+# clean setext heading (0 hits) against the in-memory scanner.
+PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
