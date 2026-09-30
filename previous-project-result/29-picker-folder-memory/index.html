@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Picker folder memory probe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --ground: #ffffff; --ink: #16181d; --quiet: #5b6068; --rule: #d9dee6; --panel: #f6f7fa; --ok: #1f7a3a; --bad: #b3261e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ground: #16181d; --ink: #e8eaee; --quiet: #a3a9b3; --rule: #3a3f48; --panel: #1f2229; --ok: #6fcf8a; --bad: #ff8a80; }
+  }
+  html, body { background: var(--ground); color: var(--ink); }
+  body { margin: 0; padding: 16px 24px 48px; font: 16px/1.7 system-ui, sans-serif; max-width: 980px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 28px 0 6px; border-bottom: 1px solid var(--rule); }
+  p.note { color: var(--quiet); margin: 4px 0 8px; font-size: 0.9rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--rule); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  button { font: inherit; padding: 4px 10px; margin: 2px 4px 2px 0; cursor: pointer; }
+  #env { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; font-size: 0.9rem; }
+  #log { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px;
+         font: 13px/1.6 ui-monospace, monospace; white-space: pre-wrap; min-height: 6em; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<h1>ファイル選択の面が開くフォルダの見本</h1>
+<p class="note">CR-619 の材料。GRS と同じ File System Access API を、4 通りの渡し方で呼ぶ。
+どのボタンも何も書かない（保存の面は「キャンセル」で閉じてよい）。このページは何も覚えない（localStorage・IndexedDB を使わない）。</p>
+
+<div id="env"></div>
+
+<h2>試し方（file:// で開いて行う）</h2>
+<ol>
+  <li>このファイルをダブルクリックで開く（GRS と同じ <code>file://</code>）。</li>
+  <li>ある行の「開く」を押し、既定とは<strong>違うフォルダ</strong>のファイルを 1 つ選ぶ。</li>
+  <li>同じ行の「開く」をもう一度押す —— 前に選んだフォルダで開くか？（同じ起動の中）</li>
+  <li>同じ行の「保存」を押す —— 同じフォルダで開くか？（開くと保存でフォルダを共にするか）</li>
+  <li>ページを再読み込み（F5）してから、同じ行の「開く」を押す —— まだそのフォルダか？（起動をまたぐ）</li>
+  <li>ブラウザを閉じて開き直し、もう一度このファイルを開いて同じ行を押す。</li>
+</ol>
+
+<h2>4 通りの渡し方</h2>
+<table>
+  <thead><tr><th>行</th><th>渡すもの</th><th>いまの GRS との関係</th><th>押す</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>何も渡さない（開く: <code>{ multiple: false }</code>、保存: <code>{ suggestedName }</code>）</td>
+        <td><strong>いまの GRS と同じ</strong>（file-system-access-file-store.ts）</td>
+        <td><button data-row="A" data-op="open">開く</button><button data-row="A" data-op="save">保存</button></td></tr>
+    <tr><td>B</td><td><code>id: "grs-document"</code>（開くと保存で同じ id）</td>
+        <td>ブラウザが id ごとにフォルダを覚える。GRS は何も覚えない</td>
+        <td><button data-row="B" data-op="open">開く</button><button data-row="B" data-op="save">保存</button></td></tr>
+    <tr><td>C</td><td><code>id: "grs-open"</code> と <code>id: "grs-save"</code>（開くと保存で別の id）</td>
+        <td>目的ごとに別のフォルダ</td>
+        <td><button data-row="C" data-op="open">開く</button><button data-row="C" data-op="save">保存</button></td></tr>
+    <tr><td>D</td><td><code>startIn: 同じ起動で最後に選んだファイルの取っ手</code>（メモリだけ）</td>
+        <td>GRS が上書きのためにすでにメモリに持つ取っ手を使う。再読み込みで消える</td>
+        <td><button data-row="D" data-op="open">開く</button><button data-row="D" data-op="save">保存</button></td></tr>
+  </tbody>
+</table>
+
+<h2>記録</h2>
+<p class="note">選んだファイルの名だけを出す（ブラウザはフォルダの場所を頁に渡さないので、フォルダは目で確かめる）。</p>
+<div id="log"></div>
+
+<script>
+(function () {
+  'use strict';
+  var logEl = document.getElementById('log');
+  var envEl = document.getElementById('env');
+  var lastHandle = null; // row D only; memory, never stored
+
+  function log(text, cls) {
+    var line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = new Date().toLocaleTimeString() + '  ' + text;
+    logEl.appendChild(line);
+  }
+
+  var hasOpen = typeof window.showOpenFilePicker === 'function';
+  var hasSave = typeof window.showSaveFilePicker === 'function';
+  envEl.innerHTML = '';
+  [
+    'location.protocol = ' + location.protocol,
+    'window.origin = ' + String(window.origin),
+    'isSecureContext = ' + String(window.isSecureContext),
+    'showOpenFilePicker = ' + (hasOpen ? 'present' : 'absent'),
+    'showSaveFilePicker = ' + (hasSave ? 'present' : 'absent'),
+    'userAgent = ' + navigator.userAgent
+  ].forEach(function (t) {
+    var d = document.createElement('div');
+    d.textContent = t;
+    envEl.appendChild(d);
+  });
+
+  function optionsFor(row, op) {
+    var o = op === 'open' ? { multiple: false } : { suggestedName: 'probe.json' };
+    if (row === 'B') o.id = 'grs-document';
+    if (row === 'C') o.id = op === 'open' ? 'grs-open' : 'grs-save';
+    if (row === 'D' && lastHandle) o.startIn = lastHandle;
+    return o;
+  }
+
+  function describe(o) {
+    var parts = [];
+    Object.keys(o).forEach(function (k) {
+      var v = o[k];
+      parts.push(k + '=' + (k === 'startIn' ? 'handle(' + v.name + ')' : JSON.stringify(v)));
+    });
+    return '{ ' + parts.join(', ') + ' }';
+  }
+
+  async function run(row, op) {
+    var o = optionsFor(row, op);
+    log(row + ' ' + op + ' with ' + describe(o));
+    try {
+      if (op === 'open') {
+        if (!hasOpen) { log('showOpenFilePicker is absent in this browser', 'bad'); return; }
+        var handles = await window.showOpenFilePicker(o);
+        if (row === 'D') lastHandle = handles[0];
+        log(row + ' open picked: ' + handles[0].name, 'ok');
+      } else {
+        if (!hasSave) { log('showSaveFilePicker is absent in this browser', 'bad'); return; }
+        var handle = await window.showSaveFilePicker(o);
+        if (row === 'D') lastHandle = handle;
+        // Nothing is written: the handle is dropped. The browser may leave an empty file; see README.
+        log(row + ' save chose: ' + handle.name + ' (nothing written)', 'ok');
+      }
+    } catch (e) {
+      log(row + ' ' + op + ' ended: ' + (e && e.name ? e.name : String(e)) + (e && e.message ? ' - ' + e.message : ''), e && e.name === 'AbortError' ? '' : 'bad');
+    }
+  }
+
+  document.querySelectorAll('button[data-row]').forEach(function (b) {
+    b.addEventListener('click', function () { run(b.getAttribute('data-row'), b.getAttribute('data-op')); });
+  });
+})();
+</script>
+</body>
+</html>
