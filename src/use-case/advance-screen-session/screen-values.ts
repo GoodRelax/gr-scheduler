@@ -57,6 +57,11 @@ export interface SearchColumnFilter {
   readonly to: string | null
 }
 
+export interface SearchFilters {
+  readonly columns: readonly SearchColumnFilter[]
+  readonly open: SearchColumn | null
+}
+
 export interface SearchSort {
   readonly column: SearchColumn
   readonly direction: 'ascending' | 'descending'
@@ -66,7 +71,7 @@ export interface SearchSort {
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
-  readonly filters: readonly SearchColumnFilter[]
+  readonly filters: SearchFilters
   readonly sort: SearchSort | null
   readonly at: { readonly x: number; readonly y: number } | null
   readonly size: { readonly width: number; readonly height: number } | null
@@ -86,7 +91,7 @@ const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
 export const emptySearchPanelSession: SearchPanelSession = {
   word: '',
   table: 'tasks',
-  filters: [],
+  filters: { columns: [], open: null },
   sort: null,
   at: null,
   size: null,

@@ -137,7 +137,9 @@ import {
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
+  searchPanelAfterFilterEntry,
   searchPanelBoxAfterGrab,
+  searchPanelWithFilterClosed,
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
@@ -401,6 +403,9 @@ const TOOLTIP_SURFACE = 'Tooltip'
 
 // see SV-2
 const SEARCH_WORD_ROW = 'SV-2'
+
+// see IN-5a, SV-7
+const SEARCH_FIELD_ROWS: ReadonlySet<string> = new Set([SEARCH_WORD_ROW, 'SV-7'])
 
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
@@ -1203,12 +1208,17 @@ export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-3, SV-16, IC-127
+// see SV-3, SV-7, SV-16, IC-127
 /** @purity pure */
-function searchPanelAfterEntry(held: SearchPanelSession, entry: IconId): SearchPanelSession | null {
+function searchPanelAfterEntry(
+  held: SearchPanelSession,
+  entry: IconId,
+  session: ScreenSession,
+  schedule: Document['schedule'],
+): SearchPanelSession | null {
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
-  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return null
+  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule)
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
@@ -1279,6 +1289,21 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   noteChoiceMoved(hands, frame)
   showProperties()
   if (plan.isBlockedByPinnedRows) hands.raiseNotice(PINNED_ROWS_LEAVE_NO_ROOM_REASON, null)
+}
+
+// see IN-4, SV-14
+/** @purity non-pure */
+function searchPanelAfterEscapeRung(
+  hands: FrameLoopHands,
+  level: EscapeTarget | null,
+  held: SearchPanelSession,
+  frame: FrameValues,
+): SearchPanelSession {
+  const filterClosed = level === 'searchPanel' ? searchPanelWithFilterClosed(hands.readSession(), held) : null
+  if (filterClosed !== null) return filterClosed
+  const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
+  if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
+  return held
 }
 
 // see SV-2, SV-5
@@ -2346,7 +2371,7 @@ export function frameLoop(
       pressed,
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
-      isSearchWordFocused: screen?.readFocusPosition?.() === SEARCH_WORD_ROW,
+      isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
       isSearchPanelFocused: screen?.isSearchPanelFocused?.() === true,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
@@ -2468,7 +2493,7 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry)
+    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry, session, held.document.schedule)
     if (panelAfter !== null) {
       searchPanelHeld = panelAfter
       return true
@@ -2956,8 +2981,7 @@ export function frameLoop(
     const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
-    const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
-    if (rungEvent !== null) sendToSession(rungEvent, frame)
+    searchPanelHeld = searchPanelAfterEscapeRung(hands, escapeLevel, searchPanelHeld, frame)
 
     // TRAP: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).

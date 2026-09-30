@@ -2069,6 +2069,24 @@
      }
     },
     {
+     "name": "searchPanelAfterFilterEntry",
+     "note": {
+      "ja": [
+       "開いている列の絞り込みの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えている絞り込みと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。",
+       "絞り込みが開いていないか、その入口でないときは `null`。`SingleHtmlShell` が入口の押下を当てるために使う"
+      ]
+     }
+    },
+    {
+     "name": "searchPanelWithFilterClosed",
+     "note": {
+      "ja": [
+       "開いている列の絞り込みを閉じた検索パネルの値を答える。開いていなければ `null`（`FR-151` の 表 T-330 の `SV-14`）。",
+       "`SingleHtmlShell` が `Esc` をパネルより先に絞り込みへ当てるために使う"
+      ]
+     }
+    },
+    {
      "name": "searchPanelBoxAfterGrab",
      "note": {
       "ja": [
