@@ -321,7 +321,7 @@ export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd
     pattern: route.pattern,
     points,
     elision,
-    strokeWidth: isSelected ? ownWidth * NOT_STORED_SELECTION_SIZES['S-178'] : ownWidth,
+    strokeWidth: isSelected ? ownWidth + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447'] : ownWidth,
     ...elidedPartsOf(inputs, points, route.pattern === 'RP-1', {
       elision,
       exitOutward: sign,
@@ -352,18 +352,10 @@ export function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacem
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-const NOT_STORED_SELECTION_SIZES: {
-  readonly 'S-174': number
-  readonly 'S-175': readonly [number, number]
-  readonly 'S-178': number
-  readonly 'S-372': number
-  readonly 'S-376': number
+const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
+  readonly 'S-447': number
 } = {
-  'S-174': 1,
-  'S-175': [2, 1],
-  'S-178': 2,
-  'S-372': 6,
-  'S-376': 8,
+  'S-447': 2,
 }
 
 // see T-206

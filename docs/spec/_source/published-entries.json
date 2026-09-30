@@ -518,6 +518,15 @@
      }
     },
     {
+     "name": "inTreeOrder",
+     "note": {
+      "ja": [
+       "行を木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。",
+       "`FR-009` の 表 T-303 の `EL-20` —— 描かれている祖先が無い端の立つ所を、描く行と同じ順で引くために `ScheduleGeometry` が読む"
+      ]
+     }
+    },
+    {
      "name": "groupDepthThresholdOf",
      "note": {
       "ja": [

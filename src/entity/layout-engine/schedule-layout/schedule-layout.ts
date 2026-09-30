@@ -64,6 +64,7 @@ export {
   zoomYAtRectangleLabelFont,
 } from './shape-cross-sections'
 export { groupDepthLimit, groupDepthThresholdOf, keptInViewByTreeState } from './group-level-of-detail'
+export { inTreeOrder } from './drawn-rows'
 export {
   NOT_STORED_SIZES,
   assigneeAnchorOf,

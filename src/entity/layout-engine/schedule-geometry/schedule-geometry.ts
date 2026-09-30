@@ -17,6 +17,7 @@ import {
 } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
 import {
+  inTreeOrder,
   thinEndHalfHeightOf,
   xFromDay,
   type RowPlacement,
@@ -182,7 +183,7 @@ export interface DependencyGeometry {
   readonly elision: Elision
   readonly drawnPoints: Path
   readonly continuation: ContinuationGeometry | null
-  // see S-18, S-178, S-19, GA-19
+  // see S-18, S-447, S-19, GA-19
   // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
   readonly head?: Path
@@ -273,6 +274,7 @@ interface EndReading {
   readonly groupById: ReadonlyMap<string, TaskGroup>
   readonly groupOfTask: ReadonlyMap<number, string>
   readonly pinnedIds: ReadonlySet<string>
+  readonly treePositionOf: () => ReadonlyMap<string, number>
 }
 
 /** @purity pure */
@@ -281,14 +283,20 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
   for (const member of schedule.taskGroupMembers) {
     if (!groupOfTask.has(member.taskUid)) groupOfTask.set(member.taskUid, member.groupId)
   }
+  const groupById = new Map(schedule.taskGroups.map((group) => [group.id, group]))
+  let treePosition: ReadonlyMap<string, number> | null = null
   return {
     inputs,
     regions,
     placedByUid: new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one])),
     rowById: new Map(inputs.layout.rows.map((row) => [row.groupId, row])),
-    groupById: new Map(schedule.taskGroups.map((group) => [group.id, group])),
+    groupById,
     groupOfTask,
     pinnedIds: new Set(inputs.settings.pinnedGroupIds),
+    treePositionOf: () => {
+      treePosition ??= new Map(inTreeOrder(schedule.taskGroups, groupById).map((group, at) => [group.id, at]))
+      return treePosition
+    },
   }
 }
 
@@ -328,21 +336,59 @@ function isSeen(far: FarEndGeometry): boolean {
   return far.isAcrossInRowArea && far.isDownInRowPlace
 }
 
+// see EL-2, EL-20
+/** @purity pure */
+function scrollingFloorOf(reading: EndReading, counts: (row: RowPlacement, at: number) => boolean): number {
+  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.rowArea.y
+  reading.inputs.layout.rows.forEach((one, at) => {
+    if (one.isPinned !== true && counts(one, at)) floor = one.y + one.height
+  })
+  return floor
+}
+
 // see EL-2
 /** @purity pure */
 function standingYOf(row: RowPlacement, reading: EndReading): number {
   if (row.isPinned !== true) return row.y + row.height
-  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.rowArea.y
-  for (const one of reading.inputs.layout.rows) {
-    if (one.groupId === row.groupId) break
-    if (one.isPinned !== true) floor = one.y + one.height
+  const stop = reading.inputs.layout.rows.findIndex((one) => one.groupId === row.groupId)
+  return scrollingFloorOf(reading, (_one, at) => stop < 0 || at < stop)
+}
+
+// see EL-20, LC-9
+/** @purity pure */
+function unhiddenYOf(own: TaskGroup, reading: EndReading): number {
+  const position = reading.treePositionOf()
+  const ownAt = position.get(own.id) ?? Number.POSITIVE_INFINITY
+  return scrollingFloorOf(reading, (one) => (position.get(one.groupId) ?? ownAt) < ownAt)
+}
+
+interface Climb {
+  readonly row: RowPlacement | null
+  readonly step: number
+  readonly isFolded: boolean
+}
+
+// see EL-2, EL-20, HF-7
+/** @purity pure */
+function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
+  const { settings } = reading.inputs
+  let isFolded = own.treeState === 'hidden' || settings.levelZeroTreeState === 'collapsed'
+  let group: TaskGroup = own
+  for (let step = 0; step < settings.maxGroupDepth; step += 1) {
+    const parent: TaskGroup | undefined =
+      group.parentId === null ? undefined : reading.groupById.get(group.parentId)
+    if (parent === undefined) return { row: null, step, isFolded }
+    isFolded = isFolded || parent.treeState === 'hidden' || parent.treeState === 'collapsed'
+    const row = reading.rowById.get(parent.id)
+    if (row !== undefined) return { row, step, isFolded }
+    group = parent
   }
-  return floor
+  return null
 }
 
 // see EL-2, EL-10, EL-20, RT-4a, LC-1
 // WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
-// WHY: a fold or a hide on the way up makes the end an EL-20 end; it stands like an EL-2 end all the same.
+// WHY: a fold or a hide on the way up makes the end an EL-20 end, a pinned row too; it stands like an EL-2 end.
 /** @purity pure */
 function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
@@ -351,24 +397,21 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const groupId = reading.groupOfTask.get(task.uid)
   const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
   if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
-  if (reading.rowById.has(own.id) || reading.pinnedIds.has(own.id)) return null
-  let isFolded = own.treeState === 'hidden' || settings.levelZeroTreeState === 'collapsed'
-  let group: TaskGroup = own
-  for (let step = 0; step < settings.maxGroupDepth; step += 1) {
-    const parent: TaskGroup | undefined =
-      group.parentId === null ? undefined : reading.groupById.get(group.parentId)
-    if (parent === undefined) return null
-    isFolded = isFolded || parent.treeState === 'hidden' || parent.treeState === 'collapsed'
-    const row = reading.rowById.get(parent.id)
-    if (row !== undefined) {
-      const x = xFromDay(layout, start)
-      const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
-      // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
-      return { end, far: farEndOf(end, own.id, row.depth + step + 1, isFolded ? own.id : null, reading) }
-    }
-    group = parent
+  if (reading.rowById.has(own.id)) return null
+  const climb = climbOf(own, reading)
+  if (climb === null) return null
+  const x = xFromDay(layout, start)
+  const width = planSpanWidthOf(layout, x, finish, settings)
+  if (climb.row === null) {
+    if (!climb.isFolded || settings.levelZeroTreeState === 'collapsed') return null
+    const end = standingEndOf(task.uid, x, width, unhiddenYOf(own, reading))
+    return { end, far: farEndOf(end, own.id, climb.step + 1, own.id, reading) }
   }
-  return null
+  if (!climb.isFolded && reading.pinnedIds.has(own.id)) return null
+  const end = standingEndOf(task.uid, x, width, standingYOf(climb.row, reading))
+  // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
+  const depth = climb.row.depth + climb.step + 1
+  return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
 }
 
 /** @purity pure */

@@ -292,4 +292,13 @@ RETIRED = {'FR-050', 'T-030',
            # no scene. CR-562, CR-563 and the ledgers name both, so the seats
            # stay burnt.
            'IC-19', 'RS-35',
+           # CR-602 (2026-10-01, rulings JDG-910 .. JDG-919): S-446 (the landing
+           # line's width, S-18 times 3, table T-206) and S-448 (the colour of a
+           # selected dependency line, of the landing line and of their end
+           # outlines, table T-236) left. A selected or landing line keeps the
+           # dependency colour S-159 and is drawn at its own width plus S-447,
+           # and S-447 also widens the plan outline its end Tasks are traced
+           # with. CR-596, CR-602 and the ledgers name both, so the seats stay
+           # burnt.
+           'S-446', 'S-448',
            'T-006'}

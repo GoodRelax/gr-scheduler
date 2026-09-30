@@ -103,13 +103,10 @@ export function boxOfPoints(path: Path): ScreenRect | null {
   return { x: left, y: top, width: right - left, height: bottom - top }
 }
 
-// see SL-8, EL-16
-// WHY: the end outline (S-447) is solid and the frame (S-174) dashed; both are screen px, never scaled.
+// see SL-8
 /** @purity pure */
-export function selectionFrameSvg(box: ScreenRect, colour: string, key: string,
-                                  form: 'frame' | 'endOutline' = 'frame'): string {
-  const isFrame = form === 'frame'
-  const stroke = isFrame ? NOT_STORED_SELECTION_SIZES['S-174'] : NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
+export function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string {
+  const stroke = NOT_STORED_SELECTION_SIZES['S-174']
   const [on, off] = NOT_STORED_SELECTION_SIZES['S-175']
   const width = Math.max(box.width, stroke)
   const height = Math.max(box.height, stroke)
@@ -118,9 +115,14 @@ export function selectionFrameSvg(box: ScreenRect, colour: string, key: string,
     ` y="${rounded(box.y - (height - box.height) / 2)}"` +
     ` width="${rounded(width)}" height="${rounded(height)}"` +
     ` fill="none" stroke="${colour}" stroke-width="${rounded(stroke)}"` +
-    (isFrame ? ` stroke-dasharray="${rounded(on)} ${rounded(off)}"` : '') +
-    `${figureKey(key)}/>`
+    ` stroke-dasharray="${rounded(on)} ${rounded(off)}"${figureKey(key)}/>`
   )
+}
+
+// see SL-8, EL-16
+/** @purity pure */
+export function emphasisedWidthOf(own: number): number {
+  return own + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
 }
 
 // see SL-8, DC-8
@@ -566,7 +568,6 @@ export function svgFromSchedule(
     dependencyHaloMaskId,
     width,
     height,
-    landingWidth: settings.dependencyWidth * NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-446'],
   })
   defsParts.push(...links.defsParts)
   const overlays = overlayParts(drawing)
@@ -696,11 +697,9 @@ export const NOT_STORED_DEPENDENCY_SIZES: {
 
 // see T-206
 const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
-  readonly 'S-446': number
   readonly 'S-447': number
 } = {
-  'S-446': 3,
-  'S-447': 3,
+  'S-447': 2,
 }
 
 // see T-206
@@ -809,19 +808,19 @@ const SCHEDULE_COLOURS: {
   'S-156': { light: 'hsl(H 44% 46%)', dark: 'hsl(H 46% 66%)', followsHue: true },
   'S-157': { light: 'hsl(H 62% 34%)', dark: 'hsl(H 62% 64%)', followsHue: true },
   'S-158': { light: 'hsl(H 66% 22%)', dark: 'hsl(H 70% 80%)', followsHue: true },
-  'S-159': { light: 'hsl(26 88% 44%)', dark: 'hsl(30 92% 60%)', followsHue: false },
-  'S-160': { light: 'hsl(354 62% 42%)', dark: 'hsl(354 70% 64%)', followsHue: false },
+  'S-159': { light: '#6f472a', dark: '#b38461', followsHue: false },
+  'S-160': { light: '#d66400', dark: '#ff9933', followsHue: false },
   'S-312': { light: '#b45309', dark: '#b45309', followsHue: false },
   'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-163': { light: '#d9381e', dark: '#ff5a3a', followsHue: false },
+  'S-163': { light: '#008a7c', dark: '#47d1bf', followsHue: false },
   'S-164': { light: 'hsl(H 42% 96%)', dark: 'hsl(H 18% 20%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
   'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },
   'S-167': { light: 'hsl(H 20% 99%)', dark: 'hsl(H 14% 11%)', followsHue: true },
   'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-195': { light: '#c2188f', dark: '#f07ad0', followsHue: false },
+  'S-195': { light: '#f500f5', dark: '#ff40ff', followsHue: false },
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
   'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
@@ -834,7 +833,6 @@ const SCHEDULE_COLOURS: {
   'S-398': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
-  'S-448': { light: '#ff2bbc', dark: '#db4db5', followsHue: false },
 }
 
 // see T-294, T-017b

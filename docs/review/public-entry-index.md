@@ -144,6 +144,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `groupDepthLimit` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthLimit` | PI-5 | いまの詳しさの段が描く最も深い段。 |
 | `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | その段を描くのに要る倍率。 |
 | `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | 行の領域の中で、固定した行の帯の下に、その行を描く余地が残るか。 |
+| `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#inTreeOrder` | PI-5 | 行を木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせる行。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
@@ -673,6 +674,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ColourForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColourForm` | -- | type ColourForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
 | `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-19 | 表 T-236 の行 ID と、いまの色の好みから 1 色を返す。 |
 | `DualCursorFollow` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#DualCursorFollow` | -- | interface DualCursorFollow |
+| `emphasisedWidthOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#emphasisedWidthOf` | -- | function emphasisedWidthOf(own: number): number |
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
@@ -687,7 +689,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rounded` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#rounded` | -- | function rounded(value: number): string |
 | `SchedulePicture` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#SchedulePicture` | -- | type SchedulePicture = 'screen' \| 'export' |
 | `selectedLineWidth` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectedLineWidth` | -- | function selectedLineWidth(own: number, selected: boolean): number |
-| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, colour: string, key: string, form: 'frame' \| 'endOutline' = 'frame'): string |
+| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string |
 | `svgFromSchedule` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#svgFromSchedule` | PI-19 | `FR-080` |
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
@@ -1436,4 +1438,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 707 name(s) leave through a public entry (229 of them published by table T-064), 529 more are exported by a file and not by its entry.
+Totals: 709 name(s) leave through a public entry (230 of them published by table T-064), 529 more are exported by a file and not by its entry.
