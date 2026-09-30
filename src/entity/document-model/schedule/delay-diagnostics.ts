@@ -12,7 +12,6 @@ import {
   actualLengthOf,
   dateFromWorkingDays,
   lastDayForLength,
-  nextWorkingDay,
   workingDaysBetween,
   type WorkingCalendar,
 } from './working-calendar'
@@ -386,14 +385,14 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   return { ...structure, calendar, statusDate, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf }
 }
 
-// WHY: a start opens its day and a finish closes it (ND-3), so FS needs the next day and SF allows the day before.
+// WHY: days compare as days and the same day never breaks a link, as VC-15 states; ND-3 is display only.
 // see VC-15, VS-4
 /** @purity pure */
 function linkHolds(linkType: number, predecessor: Ends, successor: Ends): boolean | null {
-  const [later, earlier, least] = linkType === FINISH_TO_START ? [successor.start, predecessor.finish, 1]
+  const [later, earlier, least] = linkType === FINISH_TO_START ? [successor.start, predecessor.finish, 0]
     : linkType === START_TO_START ? [successor.start, predecessor.start, 0]
       : linkType === FINISH_TO_FINISH ? [successor.finish, predecessor.finish, 0]
-        : linkType === START_TO_FINISH ? [successor.finish, predecessor.start, -1] : [null, null, 0]
+        : linkType === START_TO_FINISH ? [successor.finish, predecessor.start, 0] : [null, null, 0]
   if (later === null || earlier === null) return null
   return calendarDaysBetween(earlier, later) >= least
 }
@@ -741,10 +740,10 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   const startFor = (last: CalendarDay): CalendarDay =>
     length > 1 ? dateFromWorkingDays(facts.calendar, last, 1 - length) : last
   switch (link.linkType) {
-    case FINISH_TO_START: return nextWorkingDay(facts.calendar, flow.projectedFinish)
+    case FINISH_TO_START: return flow.projectedFinish
     case START_TO_START: return began
     case FINISH_TO_FINISH: return startFor(flow.projectedFinish)
-    case START_TO_FINISH: return startFor(dateFromWorkingDays(facts.calendar, began, -1))
+    case START_TO_FINISH: return startFor(began)
     default: return null
   }
 }
