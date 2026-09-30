@@ -57,7 +57,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'planDatesVisible': false,
   'planVisible': true,
   'progressLineVisible': false,
-  'progressMarkerVisible': false,
+  'progressMarkerVisible': true,
   'rowTitlePanelWidth': 300,
   'rulerFont': 21,
   'rulerHeight': 69,
