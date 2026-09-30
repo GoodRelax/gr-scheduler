@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ジャンプの続きの見本（CR-598 ・ CR-601）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* page colours: S-146 ground, S-147 text, S-148 muted, S-149 rule, S-150 panel (theme hue 214) */
+  :root {
+    --bg: #ffffff; --ink: #16181d; --muted: #5b6068; --rule: hsl(214 14% 87%); --panel: hsl(214 20% 97%);
+    --accent: hsl(214 59% 32%); --bar: hsl(214 45% 62%); --line: hsl(26 88% 44%); --red: #ff2bbc;
+    --keep: hsl(140 55% 32%); --clear: hsl(0 65% 45%); --hidden: hsl(214 10% 60%);
+  }
+  :root[data-theme="dark"] {
+    --bg: hsl(214 12% 9%); --ink: #e8eaee; --muted: #9aa1ab; --rule: hsl(214 12% 23%); --panel: hsl(214 14% 13%);
+    --accent: hsl(214 62% 68%); --bar: hsl(214 40% 45%); --line: hsl(30 92% 60%); --red: #db4db5;
+    --keep: hsl(140 50% 60%); --clear: hsl(0 75% 68%); --hidden: hsl(214 8% 45%);
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { margin: 0; font: 16px/1.7 system-ui, "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  main { max-width: 1280px; margin: 0 auto; padding: 12px 16px 40px; box-sizing: border-box; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  h2 { font-size: 1.0625rem; margin: 22px 0 4px; padding-bottom: 2px; border-bottom: 1px solid var(--rule); }
+  p.note { color: var(--muted); margin: 0 0 8px; font-size: 0.875rem; line-height: 1.6; }
+  code { font-size: 0.875em; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 6px 0; font-size: 0.9375rem; }
+  .bar label { display: inline-flex; gap: 6px; align-items: center; }
+  .bar fieldset { border: 1px solid var(--rule); border-radius: 4px; padding: 2px 10px; margin: 0; }
+  .bar legend { font-size: 0.8125rem; color: var(--muted); padding: 0 4px; }
+  button { font: inherit; font-size: 0.875rem; padding: 2px 10px; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 12px; }
+  @media (max-width: 820px) { .stage { grid-template-columns: 1fr; } }
+  #vp { position: relative; height: 420px; overflow: scroll; border: 1px solid var(--rule); background: var(--bg);
+    overscroll-behavior: contain; }
+  /* SC-4: scrollbars always shown and grabbable, also where the platform overlays them */
+  #vp::-webkit-scrollbar { width: 14px; height: 14px; }
+  #vp::-webkit-scrollbar-track { background: var(--panel); }
+  #vp::-webkit-scrollbar-thumb { background: var(--hidden); border-radius: 7px; border: 3px solid var(--panel); }
+  #spacer { position: absolute; left: 0; top: 0; pointer-events: none; }
+  #chart { position: sticky; left: 0; top: 0; display: block; user-select: none; -webkit-user-select: none; }
+  #plist { height: 420px; overflow-y: auto; border: 1px solid var(--rule); background: var(--panel); font-size: 0.875rem; }
+  #plist div { padding: 2px 8px; border-bottom: 1px solid var(--rule); }
+  #plist .head { position: sticky; top: 0; background: var(--panel); font-weight: 600; }
+  #status { font-size: 0.9375rem; margin: 6px 0 2px; min-height: 1.7em; }
+  .keep { color: var(--keep); font-weight: 600; }
+  .clear { color: var(--clear); font-weight: 600; }
+  #log { font-size: 0.8125rem; margin: 0; padding-left: 1.2em; color: var(--muted); min-height: 7em; }
+  #log li b { color: var(--ink); font-weight: 600; }
+  table.io { border-collapse: collapse; font-size: 0.8125rem; margin: 6px 0; width: 100%; }
+  table.io th, table.io td { border: 1px solid var(--rule); padding: 2px 6px; text-align: left; vertical-align: top; }
+  table.io th { background: var(--panel); font-weight: 600; }
+  #tree { display: block; border: 1px solid var(--rule); background: var(--bg); max-width: 100%; }
+  .mark-hit { cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>「…」のジャンプの続き —— CR-601（スクロール中は赤を残す）と CR-598（先の行が隠れているとき）</h1>
+  <p class="note">触れる見本です（ダブルクリックで開く）。上が <code>CR-601</code>、下が <code>CR-598</code> です。
+  色と太さは仕様の値のまま（線 <code>S-159</code>、赤 <code>S-448</code>、線の太さ <code>S-18</code> 2.4 × <code>S-446</code> 3、
+  縁取り <code>S-447</code> 3px、短い線 <code>S-360</code> ／ <code>S-361</code>、点 <code>S-362</code>、描く比 <code>S-236</code> 0.625 × 表示の倍率）です。
+  行の高さ・タスクの並び・パネルは見本の仮置きです。</p>
+  <div class="bar">
+    <label><input id="dark" type="checkbox"> 暗いテーマ</label>
+    <label>表示の倍率 <code>S-234</code>
+      <select id="scale"><option>100</option><option selected>150</option><option>200</option></select></label>
+  </div>
+
+  <h2>CR-601 —— 赤い着地の印を、縦／横スクロールのあいだは残す</h2>
+  <p class="note">タスク 5 の出口から下へ出ている依存線の <b>3 つの点</b>を 1 回クリックすると、タスク 47 へ送り、線とタスクを太い赤で描きます（<code>CR-596</code>）。
+  そのあと、図の上で <b>ホイール</b>（縦）・<b>Ctrl ＋ Shift ＋ ホイール</b>（横）・<b>スクロールバーを掴む</b>・<b>中ボタンか Ctrl ＋ 左でドラッグ</b>（パン）を試してください。
+  「今」は <code>CR-596</code> のまま（押下・キー・ホイールのどれでも消える）、「案」は <code>CR-601</code> の案です。
+  ⚠️ <code>Shift</code> ＋ ホイールはこのアプリでは横の<b>拡大縮小</b>（<code>MK-3</code>）で、横スクロールは <code>Ctrl</code> ＋ <code>Shift</code> ＋ ホイール（<code>MK-5</code>）です。</p>
+  <div class="bar">
+    <fieldset><legend>振舞い</legend>
+      <label><input type="radio" name="mode" value="now"> 今（CR-596）</label>
+      <label><input type="radio" name="mode" value="plan" checked> 案（CR-601）</label>
+    </fieldset>
+    <fieldset id="qs"><legend>案の中の問い</legend>
+      <label><input id="qPan" type="checkbox" checked> 問い 2: パンでも残す（<code>JDG-902</code>）</label>
+      <label><input id="qPanel" type="checkbox" checked> 問い 3: パネルの上のホイールでも残す（<code>JDG-903</code>）</label>
+    </fieldset>
+    <button id="again" type="button">最初の位置からもう一度ジャンプ</button>
+    <button id="home" type="button">最初の位置へ戻す</button>
+  </div>
+  <div class="bar" id="tools">
+    <span style="font-size:0.8125rem;color:var(--muted)">図の操作（押すと消える操作の例）:</span>
+    <button id="zoomIn" type="button">横に拡大（IC-13）</button>
+    <button id="fit" type="button">全体を収める（IC-10）</button>
+    <button id="fold" type="button">行を畳む（HF の入口の代わり）</button>
+  </div>
+  <div id="status"></div>
+  <div class="stage">
+    <div id="vp"><div id="spacer"></div><svg id="chart" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div id="plist" title="検索パネルや担当者の一覧の代わり。ホイールはこの中を送る"></div>
+  </div>
+  <ol id="log" reversed></ol>
+  <table class="io">
+    <thead><tr><th>入力（仕様の行）</th><th>今（CR-596）</th><th>案（CR-601）</th><th>決めたもの</th></tr></thead>
+    <tbody>
+      <tr><td>ホイール（<code>MK-1</code> 縦スクロール）</td><td class="clear">消す</td><td class="keep">残す</td><td>利用者の言葉「縦/横スクロール中だけは…キープ」</td></tr>
+      <tr><td><code>Ctrl</code> ＋ <code>Shift</code> ＋ ホイール（<code>MK-5</code> 横スクロール）</td><td class="clear">消す</td><td class="keep">残す</td><td>同上</td></tr>
+      <tr><td>スクロールバーを掴んで動かす（<code>SC-4</code>）</td><td class="clear">消す（押下）</td><td class="keep">残す</td><td>同上（スクロールそのもの）</td></tr>
+      <tr><td>修飾キーだけの押下（<code>Ctrl</code> ・ <code>Shift</code> ・ <code>Alt</code> ・ <code>Meta</code>）</td><td class="clear">消す</td><td class="keep">残す</td><td><code>JDG-904</code> —— <code>MK-5</code> も <code>Ctrl</code> のパンも、まず修飾キーを押す。修飾キーだけでは何も起きず、次の入力が決める</td></tr>
+      <tr><td>パン（<code>PTD-1</code>: 中ボタン ／ <code>Ctrl</code> ＋ 左ドラッグ）</td><td class="clear">消す（押下）</td><td class="keep">残す</td><td><code>JDG-902</code></td></tr>
+      <tr><td>パネルの上のホイール（面や検索パネルの中を送る。<code>MK-1</code> 〜 <code>MK-5</code> の後の段）</td><td class="clear">消す</td><td class="keep">残す</td><td><code>JDG-903</code></td></tr>
+      <tr><td>拡大縮小（<code>MK-2</code> 〜 <code>MK-4</code>、<code>SK-16</code> 〜 <code>SK-16c</code>、入口 <code>IC-12</code> 〜 <code>IC-15</code>）と表示の倍率（<code>SK-22</code> ・ <code>SK-23</code>、<code>IC-104</code> ・ <code>IC-105</code>）</td><td class="clear">消す</td><td class="keep">残す</td><td><code>JDG-902</code>「さらに拡大縮小でも残す」・ <code>JDG-906</code></td></tr>
+      <tr><td>全体を収める（<code>SK-18</code> の <code>F</code>、<code>IC-10</code>）</td><td class="clear">消す</td><td class="clear">消す</td><td><code>JDG-905</code> —— 行の木の状態も戻す（<code>UN-17</code>）</td></tr>
+      <tr><td>折り畳み・そのほかの押下・修飾キー以外のキー</td><td class="clear">消す</td><td class="clear">消す</td><td>同上（「折り畳みなどのほかの操作」）。⭐ キーで日程を送る割当は仕様に無い（表 T-036 が全数）</td></tr>
+      <tr><td>ポインタを動かすだけ ・ 送り自身（<code>EL-10</code> 〜 <code>EL-12</code>）・ <code>Agent API</code></td><td class="keep">残す</td><td class="keep">残す</td><td>変えない（<code>EL-17</code>）</td></tr>
+      <tr><td>続きの印の 1 回クリック ／ 2 回目の押下（<code>EL-18</code>）</td><td>付け替える ／ 何もしない</td><td>付け替える ／ 何もしない</td><td>変えない</td></tr>
+    </tbody>
+  </table>
+
+  <h2>CR-598 —— 「…」の先の行が一番上の段から隠されているとき、点をどこに描くか（問い 1）</h2>
+  <p class="note">行 <b>B</b>（段 0）を隠してあります。タスク <b>b1</b> は B の子です。見えているタスクから b1 への依存線を、今は描きません（<code>EL-20</code> の ⚠️）。
+  <code>JDG-846</code>「画面の端に印を立てる」を受けて、線と印を出します。<b>点を押すと B を開いて b1 へ送り、赤で示します</b>（<code>EL-21</code>）。
+  見えている端が B より上に在るとき（a2）と下に在るとき（c2）を切り替えられます。</p>
+  <div class="bar">
+    <fieldset><legend>案（<code>JDG-901</code> で A）</legend>
+      <label><input type="radio" name="q1" value="A" checked> A（推し）: 見えている端の短い線の先に点</label>
+      <label><input type="radio" name="q1" value="B"> B: <code>Row Area</code> の縁に点</label>
+    </fieldset>
+    <fieldset><legend>見えている端</legend>
+      <label><input type="radio" name="seen" value="a2" checked> a2（B より上）</label>
+      <label><input type="radio" name="seen" value="c2"> c2（B より下）</label>
+    </fieldset>
+    <button id="rehide" type="button">B をもう一度隠す</button>
+  </div>
+  <svg id="tree" xmlns="http://www.w3.org/2000/svg"></svg>
+  <table class="io">
+    <thead><tr><th></th><th>A（推し）</th><th>B</th></tr></thead>
+    <tbody>
+      <tr><td>点の所</td><td>ほかの省いた線と同じく、見えている端の短い線の先（<code>EL-7</code> 〜 <code>EL-9</code>）。短い線は、B を開けば b1 が現れる側（木の順の境）へ折れる。境が画面の外なら画面の端の側を指す</td><td><code>Row Area</code> の上か下の縁。見えている端から縁まで線を引く</td></tr>
+      <tr><td>どの線の印か</td><td>端のタスクに付いているので読める</td><td>縁に並ぶと、どの線の印かが読みにくい（線が多いと縁に点が並ぶ）</td></tr>
+      <tr><td>仕様に足すもの</td><td>0 行（<code>EL-20</code> の 1 文と設計の注 1 文を書き換えるだけ）</td><td>縁の点の描き方・縁までの線の形・掴み代（<code>GA-24</code> の隣）・範囲選択と書き出しの扱いの行。新しい設定値の行</td></tr>
+      <tr><td><code>JDG-846</code> の記録の読み</td><td>「見えている端から短い線と続きの印を出し」と一致</td><td>「画面の端に」を字のとおりに読む</td></tr>
+    </tbody>
+  </table>
+</main>
+
+<script>
+'use strict';
+// ---- shared values (docs/spec/_assets/tbl-settings.md) ----
+const DRAW_RATIO = 0.625;            // S-236 at display scale 100
+const LINE_W = 2.4;                  // S-18
+const LANDING_TIMES = 3;             // S-446
+const OUTLINE_PX = 3;                // S-447, screen px, never scaled
+const SHORT_V = 9.6, SHORT_H = 19.2; // S-360, S-361
+const DOT = 3.2;                     // S-362 (diameter; also the gaps)
+const ARROW_L = 9.6, ARROW_W = 4.8;  // S-19 and its width
+
+const $ = (id) => document.getElementById(id);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let k = DRAW_RATIO * 1.5;
+const readScale = () => { k = DRAW_RATIO * Number($('scale').value) / 100; };
+
+// ---------------------------------------------------------------- CR-601 chart
+const ROWS = 60, DAYS = 120;
+let rowH = 30, dayW = 22;
+const tasks = [];
+for (let i = 0; i < ROWS; i++) {
+  const s = (i * 7 + (i % 5) * 3) % 70 + 2;
+  tasks.push({ id: i + 1, row: i, start: s, dur: 3 + (i * 5) % 6 });
+}
+tasks[4].start = 6; tasks[4].dur = 5;       // Task 5, the jump source
+tasks[46].start = 58; tasks[46].dur = 6;    // Task 47, the landing
+const links = [[5, 47], [44, 47], [45, 47], [46, 47], [47, 49], [47, 50], [10, 12], [20, 23], [30, 31], [8, 9], [15, 18], [36, 40]]
+  .map(([p, s]) => ({ p, s, key: p + '>' + s }));
+const JUMP_KEY = '5>47';
+
+let landing = null;          // link key while the landing mark is shown
+let selected = null;         // link key of a selected ordinary line
+let lastReason = '';
+const vp = $('vp'), svg = $('chart'), spacer = $('spacer');
+
+const barX = (t) => t.start * dayW;
+const barR = (t) => (t.start + t.dur) * dayW;
+const rowTop = (t) => t.row * rowH;
+const rowMid = (t) => rowTop(t) + rowH / 2;
+const task = (id) => tasks[id - 1];
+
+// orthogonal route from the predecessor's finish to the successor's start
+function routeOf(l) {
+  const a = task(l.p), b = task(l.s);
+  const x1 = barR(a), y1 = rowMid(a), x2 = barX(b), y2 = rowMid(b);
+  const out = x1 + 8 * k;
+  if (x2 - 8 * k >= out) return [[x1, y1], [out, y1], [out, y2], [x2, y2]];
+  const yMid = y2 > y1 ? rowTop(b) : rowTop(b) + rowH;
+  return [[x1, y1], [out, y1], [out, yMid], [x2 - 8 * k, yMid], [x2 - 8 * k, y2], [x2, y2]];
+}
+
+function isRowSeen(t) {
+  const top = vp.scrollTop, bottom = top + vp.clientHeight;
+  return rowMid(t) >= top && rowMid(t) <= bottom;
+}
+
+function poly(points, colour, width, extra) {
+  return `<polyline points="${points.map((p) => p.join(',')).join(' ')}" fill="none" stroke="${colour}" stroke-width="${width}" ${extra || ''}/>`;
+}
+
+// the short line (EL-7) and its dots (EL-9) at the seen end, bent toward the other end
+function shortForm(l, seenIsPred) {
+  const a = task(l.p), b = task(l.s);
+  const route = routeOf(l);
+  const sv = SHORT_V * k, d = DOT * k;
+  if (seenIsPred) {
+    const [p0, p1] = route;
+    const dir = rowMid(b) > rowMid(a) ? 1 : -1;
+    const end = [p1[0], p1[1] + dir * sv];
+    const dots = [1, 2, 3].map((n) => [end[0], end[1] + dir * (n * 2 * d - d / 2)]);
+    return { points: [p0, p1, end], dots, head: false };
+  }
+  const n = route.length;
+  const last = route[n - 1], prev = route[n - 2];
+  const dir = rowMid(a) > rowMid(b) ? 1 : -1;
+  const start = [prev[0], last[1] + dir * sv];
+  const dots = [1, 2, 3].map((m) => [start[0], start[1] + dir * (m * 2 * d - d / 2)]);
+  return { points: [start, [prev[0], last[1]], last], dots, head: true };
+}
+
+function drawChart() {
+  const W = DAYS * dayW, H = ROWS * rowH;
+  spacer.style.width = W + 'px'; spacer.style.height = H + 'px';
+  const vw = vp.clientWidth, vh = vp.clientHeight;
+  svg.setAttribute('width', vw); svg.setAttribute('height', vh);
+  const ox = vp.scrollLeft, oy = vp.scrollTop;
+  const lineC = css('--line'), red = css('--red'), barC = css('--bar'), rule = css('--rule'), ink = css('--ink');
+  const parts = [`<defs>
+    <marker id="hd" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="${ARROW_L * k}" markerHeight="${ARROW_W * 2 * k}" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${lineC}"/></marker>
+    <marker id="hdR" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="${ARROW_L * k}" markerHeight="${ARROW_W * 2 * k}" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${red}"/></marker>
+  </defs><g transform="translate(${-ox},${-oy})">`];
+  const r0 = Math.max(0, Math.floor(oy / rowH) - 1), r1 = Math.min(ROWS, Math.ceil((oy + vh) / rowH) + 1);
+  for (let r = r0; r < r1; r++) {
+    parts.push(`<line x1="${ox}" x2="${ox + vw}" y1="${(r + 1) * rowH}" y2="${(r + 1) * rowH}" stroke="${rule}" stroke-width="1"/>`);
+    const t = tasks[r];
+    parts.push(`<rect x="${barX(t)}" y="${rowTop(t) + rowH * 0.3}" width="${t.dur * dayW}" height="${rowH * 0.4}" fill="${barC}"/>`);
+    parts.push(`<text x="${barX(t) + 3}" y="${rowMid(t) + rowH * 0.13}" font-size="${rowH * 0.36}" fill="#ffffff">${t.id}</text>`);
+  }
+  const ends = new Set();
+  const ranked = links.slice().sort((x, y) => (x.key === landing) - (y.key === landing) || (x.key === selected) - (y.key === selected));
+  for (const l of ranked) {
+    const a = task(l.p), b = task(l.s);
+    const seenA = isRowSeen(a), seenB = isRowSeen(b);
+    const isLanding = l.key === landing;
+    const isSel = l.key === selected;
+    const colour = isLanding || isSel ? red : lineC;
+    const width = LINE_W * k * (isLanding ? LANDING_TIMES : isSel ? 2 : 1);
+    const head = isLanding || isSel ? 'url(#hdR)' : 'url(#hd)';
+    if (isLanding || (seenA && seenB)) {           // EL-3, or EL-19 whole route
+      const pts = routeOf(l);
+      parts.push(poly(pts, colour, width, `marker-end="${head}"`));
+      parts.push(poly(pts, 'transparent', 12, `data-link="${l.key}" style="pointer-events:stroke"`));
+      if (isLanding || isSel) { if (seenA) ends.add(l.p); if (seenB) ends.add(l.s); }
+      continue;
+    }
+    if (!seenA && !seenB) continue;                 // EL-6
+    const f = shortForm(l, seenA);
+    parts.push(poly(f.points, colour, width, f.head ? `marker-end="${head}"` : ''));
+    for (const [x, y] of f.dots) parts.push(`<circle cx="${x}" cy="${y}" r="${DOT * k / 2}" fill="${colour}"/>`);
+    const [hx, hy] = f.dots[1];
+    parts.push(`<rect class="mark-hit" data-mark="${l.key}" data-far="${seenA ? l.s : l.p}" x="${hx - 8}" y="${hy - 10}" width="16" height="20" fill="transparent"/>`);
+    if (isSel) ends.add(seenA ? l.p : l.s);
+  }
+  for (const id of ends) {
+    const t = task(id);
+    parts.push(`<rect x="${barX(t) - 2}" y="${rowTop(t) + rowH * 0.3 - 2}" width="${t.dur * dayW + 4}" height="${rowH * 0.4 + 4}" fill="none" stroke="${red}" stroke-width="${OUTLINE_PX}"/>`);
+  }
+  parts.push('</g>');
+  svg.innerHTML = parts.join('');
+  const s = landing ? `<span class="keep">赤い印: 出ている</span>` : `<span class="clear">赤い印: 出ていない</span>`;
+  $('status').innerHTML = s + (lastReason ? ` —— 直前: ${lastReason}` : '');
+}
+
+// ---- the keep / clear rule under test ----
+const mode = () => document.querySelector('input[name=mode]:checked').value;
+const log = (text, verdict) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<b>${text}</b> → ` + (verdict === null ? '（印なし）' : verdict ? '<span class="clear">消す</span>' : '<span class="keep">残す</span>');
+  $('log').prepend(li);
+  while ($('log').children.length > 8) $('log').lastChild.remove();
+};
+// kinds: 'scrollV' | 'scrollH' | 'scrollbar' | 'modifier' | 'pan' | 'panelWheel' | 'zoom' | 'fit' | 'press' | 'key'
+function clears(kind) {
+  if (mode() === 'now') return true;
+  // JDG-902 / JDG-906: zoom and the display scale keep it too; JDG-905: fit clears (it also rewrites tree states)
+  if (kind === 'scrollV' || kind === 'scrollH' || kind === 'scrollbar' || kind === 'modifier' || kind === 'zoom') return false;
+  if (kind === 'pan') return !$('qPan').checked;
+  if (kind === 'panelWheel') return !$('qPanel').checked;
+  return true;
+}
+function judge(kind, text) {
+  const verdict = landing === null ? null : clears(kind);
+  if (verdict) landing = null;
+  lastReason = text;
+  log(text, verdict);
+}
+
+function jumpTo(farId, key) {
+  const t = task(farId);
+  vp.scrollTop = rowTop(t);                                   // EL-12: to the top of the rows
+  vp.scrollLeft = Math.max(0, barX(t) - vp.clientWidth / 2);  // EL-11: to the middle
+  landing = key; selected = null;
+  lastReason = '続きの印を 1 回クリック（送って赤で示す）';
+  log('続きの印の 1 回クリック', null);
+}
+function home() {
+  landing = null; selected = null; vp.scrollTop = 0; vp.scrollLeft = 0; lastReason = '';
+}
+
+let pan = null;
+vp.addEventListener('pointerdown', (e) => {
+  const rect = vp.getBoundingClientRect();
+  const onBar = e.clientX > rect.left + vp.clientLeft + vp.clientWidth || e.clientY > rect.top + vp.clientTop + vp.clientHeight;
+  if (onBar) { judge('scrollbar', 'スクロールバーを掴む（SC-4）'); drawChart(); return; }
+  const isPan = e.button === 1 || (e.button === 0 && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey);
+  if (isPan) {
+    e.preventDefault();
+    judge('pan', e.button === 1 ? '中ボタンでドラッグ（PTD-1 パン）' : 'Ctrl ＋ 左でドラッグ（PTD-1 パン）');
+    pan = { x: e.clientX, y: e.clientY, l: vp.scrollLeft, t: vp.scrollTop };
+    vp.setPointerCapture(e.pointerId);
+    drawChart();
+    return;
+  }
+  const mark = e.target.closest && e.target.closest('[data-mark]');
+  if (mark && e.button === 0) {
+    if (e.detail >= 2 && landing !== null) { log('2 回目の押下（EL-18）', false); return; }
+    landing = null;
+    jumpTo(Number(mark.dataset.far), mark.dataset.mark);
+    drawChart();
+    return;
+  }
+  const line = e.target.closest && e.target.closest('[data-link]');
+  judge('press', line ? '線の本体を押す（選ぶ）' : '図の上を押す');
+  selected = line && e.button === 0 ? line.dataset.link : null;
+  drawChart();
+});
+vp.addEventListener('pointermove', (e) => {
+  if (!pan) return;
+  vp.scrollLeft = pan.l - (e.clientX - pan.x);
+  vp.scrollTop = pan.t - (e.clientY - pan.y);
+});
+vp.addEventListener('pointerup', () => { pan = null; });
+vp.addEventListener('auxclick', (e) => e.preventDefault());
+vp.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
+
+vp.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const amount = e.deltaY || e.deltaX;
+  const c = e.ctrlKey, s = e.shiftKey, a = e.altKey;
+  if (!c && !s && !a) { judge('scrollV', 'ホイール（MK-1 縦スクロール）'); vp.scrollTop += amount; }
+  else if (c && s && !a) { judge('scrollH', 'Ctrl ＋ Shift ＋ ホイール（MK-5 横スクロール）'); vp.scrollLeft += amount; }
+  else if (c && !s && !a) { judge('zoom', 'Ctrl ＋ ホイール（MK-2 拡大縮小）'); zoomBy(amount < 0 ? 1.25 : 0.8, true); }
+  else if (s && !c && !a) { judge('zoom', 'Shift ＋ ホイール（MK-3 横の拡大縮小）'); zoomBy(amount < 0 ? 1.25 : 0.8, false); }
+  else if (a && !c && !s) { judge('zoom', 'Alt ＋ ホイール（MK-4 縦の拡大縮小）'); rowH = Math.min(60, Math.max(16, rowH * (amount < 0 ? 1.2 : 0.83))); }
+  else { judge('press', '割当の無いホイール'); }
+  drawChart();
+}, { passive: false });
+function zoomBy(f, rowsToo) {
+  dayW = Math.min(80, Math.max(6, dayW * f));
+  if (rowsToo) rowH = Math.min(60, Math.max(16, rowH * f));
+}
+vp.addEventListener('scroll', () => drawChart());
+
+$('plist').addEventListener('wheel', () => { judge('panelWheel', 'パネルの上のホイール（パネルの中を送る）'); drawChart(); }, { passive: true });
+$('plist').innerHTML = '<div class="head">パネル（仮）</div>' + Array.from({ length: 40 }, (_, i) => `<div>検索の結果 ${i + 1}</div>`).join('');
+$('plist').addEventListener('pointerdown', () => { judge('press', 'パネルの上を押す'); drawChart(); });
+
+const MODIFIERS = new Set(['Control', 'Shift', 'Alt', 'Meta']);
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, select, button, textarea')) return;
+  if (e.repeat) return;
+  if (MODIFIERS.has(e.key)) { judge('modifier', `修飾キーだけ（${e.key}）`); drawChart(); return; }
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) e.preventDefault();
+  judge('key', `キー（${e.key === ' ' ? 'Space' : e.key}）—— 日程を送る割当は無い`);
+  drawChart();
+});
+$('zoomIn').addEventListener('click', () => { judge('zoom', '横に拡大のボタン'); zoomBy(1.25, false); drawChart(); });
+$('fit').addEventListener('click', () => { judge('fit', '全体を収める'); vp.scrollTop = 0; vp.scrollLeft = 0; drawChart(); });
+$('fold').addEventListener('click', () => { judge('press', '行を畳む'); drawChart(); });
+$('again').addEventListener('click', () => { home(); drawChart(); requestAnimationFrame(() => { jumpTo(47, JUMP_KEY); drawChart(); }); });
+$('home').addEventListener('click', () => { home(); drawChart(); });
+for (const r of document.querySelectorAll('input[name=mode]')) r.addEventListener('change', () => {
+  $('qs').disabled = mode() === 'now'; drawChart();
+});
+
+// ---------------------------------------------------------------- CR-598 tree
+// tree order (LC-9): A, a1, a2, B (hidden, level 0), b1, C, c1, c2
+const TREE = [
+  { id: 'A', level: 0 }, { id: 'a1', level: 1, task: [3, 5] }, { id: 'a2', level: 1, task: [10, 6] },
+  { id: 'B', level: 0, hidden: true }, { id: 'b1', level: 1, task: [22, 5], under: 'B' },
+  { id: 'C', level: 0 }, { id: 'c1', level: 1, task: [5, 4] }, { id: 'c2', level: 1, task: [14, 5] },
+];
+let bHidden = true, treeLanding = false;
+const RH = 34, DW = 22, LABEL_W = 110, TOP_PAD = 0, AREA_H = 7 * RH;
+
+function drawnRows() {
+  return TREE.filter((r) => !(bHidden && (r.hidden || r.under === 'B')));
+}
+function drawTree() {
+  const tk = k;
+  const q1 = document.querySelector('input[name=q1]:checked').value;
+  const seenId = document.querySelector('input[name=seen]:checked').value;
+  const rows = drawnRows();
+  const W = LABEL_W + 36 * DW, H = AREA_H;
+  const t = $('tree');
+  t.setAttribute('viewBox', `0 0 ${W} ${H}`); t.setAttribute('width', W); t.setAttribute('height', H);
+  const ink = css('--ink'), rule = css('--rule'), barC = css('--bar'), lineC = css('--line'), red = css('--red'), muted = css('--muted'), panel = css('--panel');
+  const at = new Map(rows.map((r, i) => [r.id, i]));
+  const p = [`<defs><marker id="thd" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="${ARROW_L * tk}" markerHeight="${ARROW_W * 2 * tk}" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${lineC}"/></marker>
+    <marker id="thdR" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="${ARROW_L * tk}" markerHeight="${ARROW_W * 2 * tk}" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${red}"/></marker></defs>`];
+  p.push(`<rect x="0" y="0" width="${LABEL_W}" height="${H}" fill="${panel}"/>`);
+  rows.forEach((r, i) => {
+    const y = TOP_PAD + i * RH;
+    p.push(`<line x1="0" x2="${W}" y1="${y + RH}" y2="${y + RH}" stroke="${rule}"/>`);
+    p.push(`<text x="${8 + r.level * 14}" y="${y + RH / 2 + 5}" font-size="13" fill="${ink}" font-weight="${r.level === 0 ? 600 : 400}">${r.id}${r.hidden ? '（開いた）' : ''}</text>`);
+    if (r.task) {
+      const outlined = treeLanding && (r.id === 'b1' || r.id === seenId);
+      p.push(`<rect x="${LABEL_W + r.task[0] * DW}" y="${y + RH * 0.3}" width="${r.task[1] * DW}" height="${RH * 0.4}" fill="${barC}"/>`);
+      if (outlined) p.push(`<rect x="${LABEL_W + r.task[0] * DW - 2}" y="${y + RH * 0.3 - 2}" width="${r.task[1] * DW + 4}" height="${RH * 0.4 + 4}" fill="none" stroke="${red}" stroke-width="${OUTLINE_PX}"/>`);
+    }
+  });
+  const seen = TREE.find((r) => r.id === seenId);
+  const sy = TOP_PAD + at.get(seenId) * RH + RH / 2;
+  const sx = LABEL_W + (seen.task[0] + seen.task[1]) * DW;   // the seen end is the predecessor's finish
+  const out = sx + 8 * tk;
+  if (!bHidden) {
+    // B shown: the ordinary whole line, red while the landing mark is shown
+    const b1 = TREE.find((r) => r.id === 'b1');
+    const by = TOP_PAD + at.get('b1') * RH + RH / 2, bx = LABEL_W + b1.task[0] * DW;
+    const pts = [[sx, sy], [out, sy], [out, by], [bx, by]];
+    const w = LINE_W * tk * (treeLanding ? LANDING_TIMES : 1);
+    p.push(poly(pts, treeLanding ? red : lineC, w, `marker-end="url(#${treeLanding ? 'thdR' : 'thd'})"`));
+  } else {
+    // where B comes back in tree order: the foot of the last drawn scrolling row before b1 (a2)
+    const standY = TOP_PAD + (at.get('a2') + 1) * RH;
+    const dir = standY > sy ? 1 : -1;
+    const d = DOT * tk;
+    if (q1 === 'A') {
+      const end = [out, sy + dir * SHORT_V * tk];
+      p.push(poly([[sx, sy], [out, sy], end], lineC, LINE_W * tk));
+      const dots = [1, 2, 3].map((n) => [end[0], end[1] + dir * (n * 2 * d - d / 2)]);
+      for (const [x, y] of dots) p.push(`<circle cx="${x}" cy="${y}" r="${d / 2}" fill="${lineC}"/>`);
+      p.push(`<rect class="mark-hit" data-tree-mark="1" x="${dots[1][0] - 8}" y="${dots[1][1] - 10}" width="16" height="20" fill="transparent"/>`);
+      p.push(`<line x1="${LABEL_W}" x2="${W}" y1="${standY}" y2="${standY}" stroke="${muted}" stroke-dasharray="3 4"/>`);
+      p.push(`<text x="${W - 6}" y="${standY - 4}" font-size="11" text-anchor="end" fill="${muted}">B が戻る所（木の順の境。描かない）</text>`);
+    } else {
+      const edgeY = dir > 0 ? H - 2 : 2;
+      const endY = edgeY - dir * (3 * 2 * d + d);
+      p.push(poly([[sx, sy], [out, sy], [out, endY]], lineC, LINE_W * tk));
+      const dots = [0, 1, 2].map((n) => [out, endY + dir * (n * 2 * d + d)]);
+      for (const [x, y] of dots) p.push(`<circle cx="${x}" cy="${y}" r="${d / 2}" fill="${lineC}"/>`);
+      p.push(`<rect class="mark-hit" data-tree-mark="1" x="${out - 8}" y="${dir > 0 ? H - 22 : 0}" width="16" height="22" fill="transparent"/>`);
+      p.push(`<text x="${out + 8}" y="${dir > 0 ? H - 8 : 16}" font-size="11" fill="${muted}">Row Area の${dir > 0 ? '下' : '上'}の縁</text>`);
+    }
+  }
+  p.push(`<text x="${LABEL_W + 6}" y="${H - 6}" font-size="11" fill="${muted}">${bHidden ? '行 B（段 0）と b1 は隠してある' : ''}</text>`);
+  t.innerHTML = p.join('');
+}
+$('tree').addEventListener('pointerdown', (e) => {
+  const m = e.target.closest && e.target.closest('[data-tree-mark]');
+  if (m) { bHidden = false; treeLanding = true; }
+  else treeLanding = false;
+  drawTree();
+});
+$('rehide').addEventListener('click', () => { bHidden = true; treeLanding = false; drawTree(); });
+for (const r of document.querySelectorAll('input[name=q1], input[name=seen]')) r.addEventListener('change', () => { treeLanding = false; drawTree(); });
+
+// ---------------------------------------------------------------- shared
+function redrawAll() { readScale(); drawChart(); drawTree(); }
+$('dark').addEventListener('change', () => {
+  document.documentElement.dataset.theme = $('dark').checked ? 'dark' : 'light'; redrawAll();
+});
+$('scale').addEventListener('change', redrawAll);
+window.addEventListener('resize', drawChart);
+window.CR601_CLEARS = clears;
+redrawAll();
+</script>
+</body>
+</html>
