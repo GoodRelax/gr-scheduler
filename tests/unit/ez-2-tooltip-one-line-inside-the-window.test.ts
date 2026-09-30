@@ -106,3 +106,68 @@ describe('FR-092 EZ-2 -- one line, inside the window', () => {
     expect(tip.style.replace(/\s/g, ''), IN_7_WIDTH).toContain('width:max-content')
   })
 })
+
+// see DFC-1476, IN-7, S-339
+const IN_7_LEFT_EDGE = 'それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）'
+const NARROW_WIDTH = 800
+// WHY: the padding and border on the two sides together, as the box model adds them outside a content-box cap.
+const FRAME_PX = 16
+const LONG_WORDS_PX = 2000
+const SHORT_WORDS_PX = 120
+
+const cappedWidth = (style: string, natural: number, windowWidth: number): number => {
+  const cap = windowWidth - 2 * S_339_PX
+  const compact = style.replace(/\s/g, '')
+  if (compact.includes('box-sizing:border-box')) return Math.min(natural + FRAME_PX, cap)
+  return Math.min(natural, cap) + FRAME_PX
+}
+
+const drawnInNarrow = (anchorLeft: number, natural: number): { left: number; right: number } => {
+  const host = {
+    createElement: () => {
+      const node = nodeOf(0)
+      const measure = node.getBoundingClientRect as () => { left: number; top: number }
+      node.getBoundingClientRect = () => {
+        const at = measure()
+        const width = cappedWidth(node.style, natural, NARROW_WIDTH)
+        return { ...at, x: at.left, right: at.left + width, width, bottom: at.top + 20, height: 20 }
+      }
+      return node
+    },
+  }
+  const anchor = nodeOf(24)
+  anchor.rect = { left: anchorLeft, top: 10, right: anchorLeft + 24, bottom: 34 }
+  const tip: Tooltip = { anchor: { kind: 'icon', icon: 'IC-115' as never }, text: 'a description', assignment: null }
+  const element = tooltipElement(host as unknown as Document, tip, () => anchor as unknown as HTMLElement) as unknown as FakeNode & {
+    getBoundingClientRect: () => { left: number; right: number }
+  }
+  const layer = nodeOf(NARROW_WIDTH)
+  layer.rect = { left: 0, top: 0, right: NARROW_WIDTH, bottom: 600 }
+  layer.children = [element]
+  keepTooltipsInside(layer as unknown as HTMLElement)
+  const box = element.getBoundingClientRect()
+  return { left: box.left, right: box.right }
+}
+
+describe('IN-7 / DFC-1476 -- both edges keep S-339 in an 800 px window', () => {
+  it('still says the left-edge clause, word for word', () => {
+    expect(REQUIREMENTS).toContain(IN_7_LEFT_EDGE)
+  })
+
+  it('the cap holds the padding and border too, so a capped tip is no wider than the window less S-339 on each side', () => {
+    const { tip } = drawn(100, NARROW_WIDTH)
+    expect(tip.style.replace(/\s/g, ''), IN_7_WIDTH).toContain('box-sizing:border-box')
+  })
+
+  it('a long description from an anchor on the right is turned back and still ends S-339 inside the right edge', () => {
+    const { left, right } = drawnInNarrow(600, LONG_WORDS_PX)
+    expect(left, IN_7_LEFT_EDGE).toBeGreaterThanOrEqual(S_339_PX)
+    expect(right, IN_7_INSIDE).toBeLessThanOrEqual(NARROW_WIDTH - S_339_PX)
+  })
+
+  it('a short description from an anchor inside the left margin starts S-339 from the left edge', () => {
+    const { left, right } = drawnInNarrow(2, SHORT_WORDS_PX)
+    expect(left, IN_7_LEFT_EDGE).toBe(S_339_PX)
+    expect(right, IN_7_INSIDE).toBeLessThanOrEqual(NARROW_WIDTH - S_339_PX)
+  })
+})

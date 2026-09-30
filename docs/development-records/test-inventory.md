@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 69 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 35 | 231 | 0 | 3 | 0 | 0 |
-| `unit` | TS-6 | - | 141 | 3262 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 141 | 3266 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 328 | 5350 | 12 | 19 | 9 | 1 |
+| **all** | | | 328 | 5354 | 12 | 19 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -454,7 +454,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/document-model.test.ts` | 62 | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101 | - | T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 | AG-2, AG-6, AG-11, AT-73, AT-140, DR-1, DR-4, DR-5, EX-7, IN-4, IN-4a, PI-1, PI-2, PI-3, PI-4, PI-13, PI-18, PI-32, PI-33, PI-34, PI-36, S-2, S-54, S-55, S-75, S-99e, S-99g, S-106, S-129, SL-7b, U-55 | - | - | - | - |
 | `tests/unit/edit-calendar.test.ts` | 22 | FR-012, FR-054, FR-063, FR-088 | - | T-027, T-033, T-037, T-058, T-067, T-108, T-209, T-218, T-220 | AG-9a, AT-17, AT-18, AT-73, AT-82, AT-83, CM-39, EX-5, IV-17, NT-3, S-106, S-107, S-108, TS-6, UF-16, UN-13, WS-1, WS-3, WS-5, WS-7 | - | - | - | - |
-| `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` | 4 | FR-092 | - | T-206 | EZ-2, IN-7, S-339 | - | - | - | - |
+| `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` | 8 | FR-092 | - | T-206 | EZ-2, IN-7, S-339 | - | - | - | - |
 | `tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts` | 46 | FR-001, FR-029, FR-031, FR-038, FR-072, FR-083, FR-091 | - | T-012, T-016, T-023a, T-023b, T-023c, T-036, T-037, T-051, T-060, T-062, T-064, T-067, T-109, T-206, T-218, T-233 | AG-3, AR-1, AR-2, AR-3, AR-6, CM-6, CM-20, CP-18, CP-25, CS-2, HF-14, IF-9, IN-1, LY-5, MK-13, NT-1, NT-3a, PI-18, PR-1, PTD-4, PTD-5, RS-10, RS-27, RS-53, RS-54, S-53, S-58, S-77, S-78, S-208, SH-1, SH-2, SH-4, SH-5, SK-3, SP-1, SP-2, SP-4, TS-6, UF-30, UF-48, UF-64, WS-2, WS-3 | - | - | - | - |
 | `tests/unit/fr-006-panel-fields-drawn.test.ts` | 14 | FR-006, FR-008, FR-023, FR-038, FR-039, FR-052, FR-072, FR-093, NFR-007 | - | T-006a, T-016, T-032, T-033, T-062, T-064, T-075, T-103, T-109, T-201, T-206, T-216, T-218, T-225 | AS-5, AS-6, AS-8, AS-9, BO-1, CP-37, CP-38, EX-7, IC-17, IC-52, IF-9, IN-4, MG-5, PI-38, PR-3, PR-16, S-30, S-72, S-73, S-171, S-186, S-189, S-193, S-197, S-198, S-199, TS-6, U-25, UF-62, UF-64, UF-71, W-4 | - | - | - | - |
 | `tests/unit/fr-006-panel-typography.test.ts` | 13 | FR-006, FR-023, FR-029, FR-039, FR-052, FR-072, FR-083, NFR-007 | - | T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-215, T-216, T-218 | BO-1, CP-38, IF-9, PI-38, PR-5, PR-9, PR-17, S-72, S-73, S-121, S-122, S-123, S-186, S-187, S-188, S-189, S-190, S-191, S-192, S-193, S-197, S-198, TS-6, U-25, UF-64, UF-71, W-4 | - | - | - | - |
