@@ -99,7 +99,6 @@ import {
 import { emptyChangeWatchers, notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
 import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
-  jsonFromDocument,
   type AppShellSource,
   type ExchangeFormat,
 } from '../../adapter/document-codec/document-codec'
@@ -149,6 +148,7 @@ import {
   type ScreenSurface,
   type ScreenViewReadings,
   type VerticalWhole,
+  imageToJsonPromptText,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
@@ -375,7 +375,6 @@ const CONFIRMATION_CANCEL_KEY = 'N'
 function isConfirmationAnswerKey(key: string): boolean {
   return key === CONFIRMATION_PROCEED_KEY || key === CONFIRMATION_CANCEL_KEY
 }
-const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 
 const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 
@@ -406,8 +405,6 @@ const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
-
 // TRAP: also spelled in screen-state-input.ts and open-modals.ts; a misspelling raises a surface
 // nothing describes.
 export const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
@@ -436,6 +433,7 @@ export const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn'
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
+const ENABLING_ASKED_BY_DIALOGUE_FIELD: SessionEvent = { type: 'enablingAskedByDialogueField' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -515,7 +513,6 @@ export type NoticeReason =
   | 'RS-32'
   | 'RS-33'
   | 'RS-34'
-  | 'RS-35'
   | 'RS-36'
   | 'RS-37'
   | 'RS-38'
@@ -539,6 +536,7 @@ export type NoticeReason =
   | 'RS-60'
   | 'RS-63'
   | 'RS-64'
+  | 'RS-65'
   | 'RS-66'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
@@ -573,7 +571,6 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-32': 'NT-1',
   'RS-33': 'NT-1',
   'RS-34': 'NT-1',
-  'RS-35': 'NT-1',
   'RS-36': 'NT-1',
   'RS-37': 'NT-1',
   'RS-38': 'NT-1',
@@ -597,6 +594,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-60': 'NT-5',
   'RS-63': 'NT-5',
   'RS-64': 'NT-1',
+  'RS-65': 'NT-5',
   'RS-66': 'NT-3a',
 }
 
@@ -667,6 +665,9 @@ const RECOUNTED_PERCENT_COMPLETE_REASON: NoticeReason = 'RS-52'
 
 export const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 
+const PROMPT_COPIED_REASON: NoticeReason = 'RS-65'
+
+const PROMPT_NOT_COPIED_REASON: NoticeReason = 'RS-15'
 
 export const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
@@ -794,7 +795,6 @@ interface ScreenViewReadingsTaken {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   readonly isAgentApiEnabled: boolean
-  readonly isAiExportSurfaceOpen: boolean
   readonly themePreference: ScreenValues['themePreference']
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
@@ -834,10 +834,9 @@ function screenViewReadingsOf(
   heldWhole: HeldWholes | null,
   taken: ScreenViewReadingsTaken,
 ): ScreenViewReadings {
-  const { isAiExportSurfaceOpen, commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
+  const { commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
   return {
     ...carried,
-    ...(isAiExportSurfaceOpen ? { aiExportDocument: jsonFromDocument(held) } : {}),
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
@@ -1845,7 +1844,6 @@ export function frameLoop(
           openedFileName: session.fileFlow.openedFileName,
           fileSavedAt: readFileSavedAt(),
           isAgentApiEnabled: isAgentApiEnabledIn(session),
-          isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
           themePreference: session.screen.themePreference,
           pointer: pointerAt,
           pointerRestedMs,
@@ -2090,7 +2088,6 @@ export function frameLoop(
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
-          isAiExportSurfaceOpen: false,
           themePreference: session.screen.themePreference,
           pointer: null,
           pointerRestedMs: 0,
@@ -2386,17 +2383,6 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    if (entry === CLOSE_SURFACE_ENTRY && surface === AI_EXPORT_MODAL_SURFACE) {
-      const seam = clipboard
-      if (seam !== undefined) {
-        const text = jsonFromDocument(held.document)
-        void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
-          if (!writing.ok) raiseNotice('RS-15', null)
-        })
-      }
-      // TRAP: must stay false so the press still closes the surface (IN-4).
-      return false
-    }
     const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry)
     if (panelAfter !== null) {
       searchPanelHeld = panelAfter
@@ -2426,12 +2412,6 @@ export function frameLoop(
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
       sendToSession(INTERACTION_RECORD_TOGGLED, frame)
-      return true
-    }
-    if (entry === DIALOGUE_FIELD_ENTRY) {
-      const isAgentApiEnabled = isAgentApiEnabledIn(session)
-      if (isAgentApiEnabled) return false
-      sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
       return true
     }
     if (entry === MILESTONE_LIST_ENTRY) {
@@ -2649,10 +2629,10 @@ export function frameLoop(
       case 'toggleDialogueFieldVisible':
         // STOP: spec does not decide whether turning the API off resets S-99i. Looked in FR-066, S-99i
         // @provisional PND-419
-        sendToSession(
-          { type: 'dialogueFieldEntryPressed', isAgentApiEnabled: isAgentApiEnabledIn(session) },
-          frame,
-        )
+        dialogueFieldEntryPressed(frame)
+        return
+      case 'copyImageToJsonPrompt':
+        copyImageToJsonPrompt()
         return
       case 'toggleFullScreen':
         sendToSession({ type: 'fullScreenEntryPressed' }, frame)
@@ -2685,6 +2665,30 @@ export function frameLoop(
     if (followed === null) return
     propertiesPanelKept = { subject }
     sendToSession(followed, frame)
+  }
+
+  // see FR-066, IC-18, T-280, T-296
+  // TRAP: both events read Agent API before the press; the field would hide on the first press.
+  /** @purity non-pure */
+  function dialogueFieldEntryPressed(frame: FrameValues): void {
+    const isAgentApiEnabled = isAgentApiEnabledIn(session)
+    sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
+    sendToSession(ENABLING_ASKED_BY_DIALOGUE_FIELD, frame)
+  }
+
+  // see FR-068, IC-115, RS-65, UF-48
+  /** @purity non-pure */
+  function copyImageToJsonPrompt(): void {
+    const seam = clipboard
+    if (seam === undefined) {
+      raiseNotice(PROMPT_NOT_COPIED_REASON, null)
+      return
+    }
+    // TRAP: started inside the input's own call; deferred, the browser can refuse the write.
+    const text = imageToJsonPromptText(screenLanguageIn(session), GREATEST_KNOWN_SCHEMA_VERSION)
+    void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
+      raiseNotice(writing.ok ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
+    })
   }
 
   // see FR-071, UF-48, RS-59

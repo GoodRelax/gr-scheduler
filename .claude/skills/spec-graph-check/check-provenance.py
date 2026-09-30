@@ -91,6 +91,14 @@ ARTIFACTS = [
     ('src/adapter/input-command-translator/input-command-translator.ts',
      'settings.json'),
     ('src/use-case/edit-document/edit-document.ts', 'settings.json'),
+    # ⭐ A unit built from TWO manuscripts takes one row per manuscript: the
+    # banner has to name each. CR-589 prints the two entry maps of table T-109
+    # (the settings-row column) into the translator, beside its table T-206
+    # region, and into the palette and the header, which read the same join.
+    ('src/adapter/input-command-translator/input-command-translator.ts',
+     'tbl-glossary.md'),
+    ('src/adapter/screen-renderer/command-palette.ts', 'tbl-glossary.md'),
+    ('src/adapter/screen-renderer/app-header-items.ts', 'tbl-glossary.md'),
     # The roster of icons (table T-109), which UF-62 and UF-65 read instead of
     # naming its rows themselves. ⚠️ Its banner is a "$comment" key, which the
     # startup template beside it may NOT have: that one is validated by the GRS

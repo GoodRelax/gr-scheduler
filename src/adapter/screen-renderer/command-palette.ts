@@ -2,6 +2,8 @@
 // @unit      UF-65   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
+// Generated region at the end: docs/spec/_source/settings.json and docs/spec/_assets/tbl-glossary.md
+// (table T-109). Do not edit by hand; npm run gen.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
@@ -94,31 +96,12 @@ function drawnTaskUids(
   return uids
 }
 
-// see FR-049, T-202
-// TRAP: input-command-translator.ts holds this join reversed (VISIBLE_ELEMENT_BY_ENTRY);
-// change both together, nothing checks that they agree.
-const SETTINGS_KEY_BY_ROW: Readonly<Record<string, keyof DocumentSettings>> = {
-  'IC-39': 'progressLineVisible',
-  'IC-40': 'progressMarkerVisible',
-  'IC-42': 'dateGridLinesVisible',
-  'IC-43': 'groupGridLinesVisible',
-  'IC-79': 'assigneeVisible',
-  'IC-80': 'percentCompleteVisible',
-  'IC-81': 'dependencyVisible',
-  'IC-103': 'planDatesVisible',
-}
-
+// see FR-049, T-109
 /** @purity pure */
 function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boolean {
-  const key = SETTINGS_KEY_BY_ROW[row.rowId]
-  if (key === undefined) return false
-  return settings[key] === true
-}
-
-// see FR-048, T-237
-const GUIDE_CURSOR_MODE_BY_ROW: Readonly<Record<string, ScreenValues['guideCursorMode']>> = {
-  'IC-47': 'crosshair',
-  'IC-48': 'single-vertical',
+  if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, row.rowId)) return false
+  const key: keyof DocumentSettings | undefined = VISIBLE_ELEMENT_BY_ENTRY[row.rowId]
+  return key !== undefined && settings[key] === true
 }
 
 const DUAL_CURSOR_ROW: IconId = 'IC-45'
@@ -137,7 +120,8 @@ interface EntranceFacts {
 /** @purity pure */
 function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
-  const mode = GUIDE_CURSOR_MODE_BY_ROW[row.rowId]
+  if (!Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, row.rowId)) return false
+  const mode: ScreenValues['guideCursorMode'] | undefined = GUIDE_CURSOR_MODE_BY_ENTRY[row.rowId]
   return mode !== undefined && facts.guideCursorMode === mode
 }
 
@@ -345,7 +329,7 @@ export function commandPaletteFromSession(
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
-//   docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)
+//   docs/spec/_assets/tbl-glossary.md (table T-109)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_COMMAND_PALETTE_SIZES: {
@@ -354,5 +338,26 @@ export const NOT_STORED_COMMAND_PALETTE_SIZES: {
 } = {
   'S-135a': 24,
   'S-216': 6,
+}
+
+// see T-109, FR-049
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
+  'IC-4': 'baselineVisible',
+  'IC-8': 'planVisible',
+  'IC-9': 'actualVisible',
+  'IC-39': 'progressLineVisible',
+  'IC-40': 'progressMarkerVisible',
+  'IC-42': 'dateGridLinesVisible',
+  'IC-43': 'groupGridLinesVisible',
+  'IC-79': 'assigneeVisible',
+  'IC-80': 'percentCompleteVisible',
+  'IC-81': 'dependencyVisible',
+  'IC-103': 'planDatesVisible',
+}
+
+// see T-109, FR-048
+const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, 'crosshair' | 'single-vertical'>> = {
+  'IC-47': 'crosshair',
+  'IC-48': 'single-vertical',
 }
 // </generated>

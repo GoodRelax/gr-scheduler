@@ -762,6 +762,30 @@ async function scaleStroke(page: Page, keys: string, towards: 1 | -1): Promise<n
   return null
 }
 
+// see GR-24, GR-25, SV-10, SV-11
+async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | null } | null> {
+  return page.evaluate(() => {
+    const panel = document.querySelector('[data-role="Search Panel"]')
+    const field = panel?.querySelector('[data-field-row="SV-2"]')
+    if (panel === null || panel === undefined || field === null || field === undefined) return null
+    const outer = panel.getBoundingClientRect()
+    const box = { x: outer.x, y: outer.y, width: outer.width, height: outer.height }
+    const y = (outer.top + field.getBoundingClientRect().top) / 2
+    for (let x = outer.left + outer.width / 2; x > outer.left + 2; x -= 4) {
+      const top = document.elementFromPoint(x, y)
+      if (top !== null && panel.contains(top) && top.closest('[data-icon]') === null) return { box, band: { x, y } }
+    }
+    return { box, band: null }
+  })
+}
+
+interface Box4 {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
 interface Probe {
   readonly rows: readonly string[]
   // WHY: answersWhileHeld is SL-3/PTD-1/GR-19's while-held answer; placesNothing
@@ -1401,6 +1425,41 @@ const PROBES: readonly Probe[] = [
     act: async (p) => stroke(p, 'Enter'),
   },
   { rows: ['SK-21'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+r') },
+  { rows: ['SK-24'], expect: 'answers', act: async (p) => stroke(p, 'Control+f') },
+  {
+    // WHY: the act judges for itself, as GR-22's does -- a redraw alone would read as moved.
+    rows: ['GR-24'],
+    expect: 'answers',
+    setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
+    act: async (p) => {
+      const before = await searchPanelPlaces(p)
+      if (before === null || before.band === null) throw new Error('GR-24 needs the Search Panel heading row (SK-24 opens it)')
+      const held = await dragFrom(p, before.band, 60, -120)
+      await settled(p)
+      const after = await searchPanelPlaces(p)
+      if (after === null || (after.box.x === before.box.x && after.box.y === before.box.y)) {
+        throw new Error('GR-24: the Search Panel heading row was dragged and the panel stayed (SV-10)')
+      }
+      return held
+    },
+  },
+  {
+    rows: ['GR-25'],
+    expect: 'answers',
+    setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
+    act: async (p) => {
+      const before = await searchPanelPlaces(p)
+      if (before === null) throw new Error('GR-25 needs the Search Panel (SK-24 opens it)')
+      const edge = { x: before.box.x + before.box.width - 1, y: before.box.y + before.box.height / 2 }
+      const held = await dragFrom(p, edge, 80, 0)
+      await settled(p)
+      const after = await searchPanelPlaces(p)
+      if (after === null || after.box.width === before.box.width) {
+        throw new Error('GR-25: the right edge of the Search Panel was dragged and its width stayed (SV-11; DFC-1286: S-426 has no value)')
+      }
+      return held
+    },
+  },
   {
     // SK-1 / SK-1a are the record that 「キーボードだけで図形を置く経路は持たない」.
     // ⭐ PRESSED RATHER THAN PASSED OVER: what the rows assert is that no key

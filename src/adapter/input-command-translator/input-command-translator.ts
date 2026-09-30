@@ -3,8 +3,8 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-18
-// The marked region at the bottom is generated from docs/spec/_source/settings.json:
-// do not edit by hand, rebuild with `npm run gen`.
+// The marked region at the bottom is generated from docs/spec/_source/settings.json and
+// docs/spec/_assets/tbl-glossary.md (table T-109): do not edit by hand, rebuild with `npm run gen`.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type {
@@ -273,6 +273,7 @@ export type InputAction =
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'toggleDialogueFieldVisible' }
+  | { readonly kind: 'copyImageToJsonPrompt' }
   | { readonly kind: 'toggleMilestoneList' }
   | { readonly kind: 'togglePaletteMinimised' }
   | { readonly kind: 'toggleInteractionRecord' }
@@ -692,8 +693,6 @@ export const ENTRY = {
   undo: 'IC-5',
   redo: 'IC-6',
   palette: 'IC-7',
-  planDisplay: 'IC-8',
-  actualDisplay: 'IC-9',
   fitToScreen: 'IC-10',
   fullScreen: 'IC-11',
   zoomTimeOut: 'IC-12',
@@ -704,18 +703,10 @@ export const ENTRY = {
   displayScaleUp: 'IC-105',
   themePreference: 'IC-16',
   documentSettingsProperties: 'IC-17',
+  imageToJsonPrompt: 'IC-115',
   agentApi: 'IC-20',
   dialogueFieldVisible: 'IC-18',
-  aiExportModal: 'IC-19',
   help: 'IC-22',
-  progressLineVisible: 'IC-39',
-  progressMarkerVisible: 'IC-40',
-  dateGridLinesVisible: 'IC-42',
-  groupGridLinesVisible: 'IC-43',
-  assigneeVisible: 'IC-79',
-  percentCompleteVisible: 'IC-80',
-  dependencyVisible: 'IC-81',
-  planDatesVisible: 'IC-103',
   fontScale: 'IC-99',
   themeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
@@ -725,8 +716,6 @@ export const ENTRY = {
   alignStart: 'IC-37',
   alignFinish: 'IC-38',
   dualCursor: 'IC-45',
-  guideCursorCrosshair: 'IC-47',
-  guideCursorSingleVertical: 'IC-48',
   milestoneList: 'IC-50',
   paletteMinimise: 'IC-75',
   interactionRecord: 'IC-76',
@@ -757,39 +746,18 @@ export const ENTRY = {
 
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
 
-const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
-  'IC-4': 'baselineVisible',
-  'IC-8': 'planVisible',
-  'IC-9': 'actualVisible',
-  'IC-39': 'progressLineVisible',
-  'IC-40': 'progressMarkerVisible',
-  'IC-42': 'dateGridLinesVisible',
-  'IC-43': 'groupGridLinesVisible',
-  'IC-79': 'assigneeVisible',
-  'IC-80': 'percentCompleteVisible',
-  'IC-81': 'dependencyVisible',
-  'IC-103': 'planDatesVisible',
-}
-
 /** @purity pure */
 function visibleElementOfEntry(entry: string): VisibleElement | null {
-  return Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, entry)
-    ? (VISIBLE_ELEMENT_BY_ENTRY[entry] as VisibleElement)
-    : null
+  if (!Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, entry)) return null
+  return VISIBLE_ELEMENT_BY_ENTRY[entry] ?? null
 }
 
 type PressedGuideCursor = Exclude<ScreenValues['guideCursorMode'], 'none'>
 
-const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, PressedGuideCursor>> = {
-  'IC-47': 'crosshair',
-  'IC-48': 'single-vertical',
-}
-
 /** @purity pure */
 export function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null {
-  return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
-    ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as PressedGuideCursor)
-    : null
+  if (!Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)) return null
+  return GUIDE_CURSOR_MODE_BY_ENTRY[entry] ?? null
 }
 
 type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['scale']
@@ -1055,6 +1023,14 @@ function commandFromEntry(
     return UNASSIGNED
   }
   const entry = on.entry
+  // see OP-15
+  if (entry === ENTRY.baselineVisible && context.document.schedule.baselineTasks.length === 0) {
+    return acted({ kind: 'openDocumentFile', openRoute: 'baseline' })
+  }
+  const element = visibleElementOfEntry(entry)
+  if (element !== null) return commandFromVisibleElement(element, context)
+  // WHY: screenStateFromInput answers a guide cursor entry; no document command follows it.
+  if (guideCursorModeOfEntry(entry) !== null) return CONSUMED_ELSEWHERE
 
   switch (entry) {
     case ENTRY.openDocument:
@@ -1078,24 +1054,6 @@ function commandFromEntry(
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut:
       return rowZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomRowIn), null, null)
-    // see OP-15
-    case ENTRY.baselineVisible:
-      if (context.document.schedule.baselineTasks.length === 0) {
-        return acted({ kind: 'openDocumentFile', openRoute: 'baseline' })
-      }
-      return commandFromVisibleElementEntry(entry, context)
-    case ENTRY.progressLineVisible:
-    case ENTRY.progressMarkerVisible:
-    case ENTRY.dateGridLinesVisible:
-    case ENTRY.groupGridLinesVisible:
-    case ENTRY.assigneeVisible:
-    case ENTRY.percentCompleteVisible:
-    case ENTRY.dependencyVisible:
-    case ENTRY.planDatesVisible:
-      return commandFromVisibleElementEntry(entry, context)
-    case ENTRY.planDisplay:
-    case ENTRY.actualDisplay:
-      return commandFromVisibleElementEntry(entry, context)
     // see FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
@@ -1162,6 +1120,8 @@ function commandFromEntry(
       return acted({ kind: 'toggleAgentApi' })
     case ENTRY.dialogueFieldVisible:
       return acted({ kind: 'toggleDialogueFieldVisible' })
+    case ENTRY.imageToJsonPrompt:
+      return acted({ kind: 'copyImageToJsonPrompt' })
     case ENTRY.rosterChooseAll:
     case ENTRY.rosterClearChosen:
     case ENTRY.rosterChooseUnreferenced:
@@ -1181,9 +1141,7 @@ function commandFromEntry(
 
 // see FR-049, CM-58
 /** @purity pure */
-function commandFromVisibleElementEntry(entry: string, context: InputContext): TranslatedInput {
-  const element = visibleElementOfEntry(entry)
-  if (element === null) return CONSUMED_ELSEWHERE
+function commandFromVisibleElement(element: VisibleElement, context: InputContext): TranslatedInput {
   // TRAP: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
   const isVisibleNow = context.document.documentSettings[element]
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
@@ -1379,7 +1337,7 @@ export function escapeContextOf(context: InputContext): EscapeContext {
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206, which names table T-201)
-//   docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)
+//   docs/spec/_assets/tbl-glossary.md (table T-109)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_ZOOM_STEP: {
@@ -1418,5 +1376,26 @@ export const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
   readonly 'S-248': number
 } = {
   'S-248': 160,
+}
+
+// see T-109, FR-049
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
+  'IC-4': 'baselineVisible',
+  'IC-8': 'planVisible',
+  'IC-9': 'actualVisible',
+  'IC-39': 'progressLineVisible',
+  'IC-40': 'progressMarkerVisible',
+  'IC-42': 'dateGridLinesVisible',
+  'IC-43': 'groupGridLinesVisible',
+  'IC-79': 'assigneeVisible',
+  'IC-80': 'percentCompleteVisible',
+  'IC-81': 'dependencyVisible',
+  'IC-103': 'planDatesVisible',
+}
+
+// see T-109, FR-048
+const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, 'crosshair' | 'single-vertical'>> = {
+  'IC-47': 'crosshair',
+  'IC-48': 'single-vertical',
 }
 // </generated>

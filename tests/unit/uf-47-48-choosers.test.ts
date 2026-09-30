@@ -2586,10 +2586,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // ⚠️ IC-52 LEADS BOTH ROSTERS because `entriesOn` keeps the table's print
     // order and that row comes before IC-71. ⭐ It reaches U-56 by CR-226,
     // which is the cell that gave the surface OP-3 asks on a way off it.
-    // ⚠️ SIX, NOT FIVE, SINCE 構え WAS APPENDED AFTER 正. Table T-109's preamble
-    // states it: 「⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表
-    // T-023b の行である。**」 -- appended, so neither position read below moved.
-    expect(T_109.headings.length).toBe(6)
+    // WHY: the setting column stands after the rule column, so neither position read below moved.
+    expect(T_109.headings.length).toBe(7)
     // ⛔ THE COUNT ALONE IS NOT THE GUARD `cellOf` ASKS FOR. A column inserted
     // in the middle while another is dropped leaves the count where it was and
     // shifts every reading by one, so the two positions this file reads are

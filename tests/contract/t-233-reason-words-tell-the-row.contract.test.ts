@@ -212,7 +212,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-32': '0cbf2fbeaf9801bb',
   'RS-33': '140b0a58e73b1f52',
   'RS-34': '89ad57e7d522bc58',
-  'RS-35': 'ba5c8d711fc7a0f3',
   'RS-36': '3f8c01792dd112b0',
   'RS-37': '7a6ca3f9bfef68b7',
   'RS-38': '9c36f2d1fad8587d',
@@ -496,6 +495,12 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: the words are option B of Q2 (JDG-300), read against the scene: the row is read-only
   // because a group is set on it, and a copy into a row with no group is a write FR-111 allows.
   'RS-61': '2c03ff35e993eb7c',
+  // WHY: read 2026-09-30; the words name editGroup by its PR-33 label and point to the person who may set it.
+  'RS-62': 'db4d5372ac8ceaf9',
+  // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
+  'RS-65': 'ba9b222d3251dc96',
+  // WHY: read 2026-09-30; too many pinned rows to show the jump target, and unpinning is the road.
+  'RS-66': '03f75c78c0234c09',
 }
 
 const fingerprintOf = (rowId: string): string => {

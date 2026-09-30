@@ -2070,6 +2070,15 @@
        "`DomScreenSurface` がヘルプの段（表 T-337 の `UZ-7`）に描く"
       ]
      }
+    },
+    {
+     "name": "imageToJsonPromptText",
+     "note": {
+      "ja": [
+       "`IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、表示言語と版で組む。",
+       "`FR-068` —— `SingleHtmlShell` が押しの呼び出しの中で写すために公開した"
+      ]
+     }
     }
    ]
   },

@@ -34,8 +34,7 @@ import {
 
 const HELP_MODAL = 'Help Modal'
 
-// DEVIATION: spec says a surface is named by its U row (T-280); here by its glossary name, U-30 naming two (DFC-703)
-const AI_EXPORT_MODAL = 'AI Export Modal'
+// DEVIATION: spec says a surface is named by its U row (T-280); here by its glossary name (DFC-703)
 const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
@@ -73,8 +72,6 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       return PALETTE_TOGGLED
     case ENTRY.help:
       return HELP_ENTRY_PRESSED
-    case ENTRY.aiExportModal:
-      return surfaceEntered(AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return surfaceEntered(RESOURCE_ROSTER)
     case ENTRY.dualCursor: {

@@ -151,7 +151,7 @@ interface ScreenValuesEffectPayloads {
   readonly askBrowserForFullScreen: NoPayload
   readonly tellFlowSurfaceClosed: { readonly surfaceName: string }
   readonly matchWatermarkUnlock: NoPayload
-  readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-35' }
+  readonly raiseNotice: { readonly reason: 'RS-41' }
   readonly clearSelection: NoPayload
   readonly storePlacedDualCursorClearingGuide: { readonly date: string }
   readonly storeFixedDate1: { readonly date: string }
@@ -723,9 +723,10 @@ function onDialogueFieldEntryPressed(
   values: ScreenValues,
   event: EventOf<'dialogueFieldEntryPressed'>,
 ): ScreenStep {
-  if (!event.isAgentApiEnabled) return stayed(values, [{ type: 'raiseNotice', reason: 'RS-35' }])
-  const kind = values.dialogueFieldDisplayState.kind === 'shown' ? 'hidden' : 'shown'
-  return moved(values, { dialogueFieldDisplayState: { kind } })
+  const isShown = values.dialogueFieldDisplayState.kind === 'shown'
+  // WHY: while Agent API is off the same press enables it (FR-066), so a shown field stays.
+  if (isShown && !event.isAgentApiEnabled) return unchanged(values)
+  return moved(values, { dialogueFieldDisplayState: { kind: isShown ? 'hidden' : 'shown' } })
 }
 
 // see T-280, FR-016
@@ -950,8 +951,7 @@ function helpHidden(values: ScreenValues): ScreenStep {
   return moved(values, { helpDisplayState: { kind: 'hidden' } })
 }
 
-// WHY: a table from event type to function, not one switch: thirty cases would cross the
-// function-size band, and the mapped type still refuses a missing event as `never` would.
+// WHY: a table, not a switch that would cross the size band; the mapped type still refuses a missing event.
 const HANDLERS: {
   readonly [T in ScreenValuesEvent['type']]: (values: ScreenValues, event: EventOf<T>) => ScreenStep
 } = {

@@ -96,3 +96,6 @@ why: coincidental: the spellings of the keys the translator compares; the help r
 
 PAINT_ROW | values | generated SCREEN_COLOURS keys
 why: coincidental: names the T-236 row each paint reads (11 of 14, several names to one row); a reference by row id, not a copy of the table.
+
+VisibleElement | union | generated VISIBLE_ELEMENT_BY_ENTRY union
+why: restates, held under JDG-778 (lane L4, CR-589, DFC-1289): the use case's own union of FR-049's boolean rows now also appears as the value union the generator prints from table T-109; print the generated map as Record<string, VisibleElement> (import the use-case type) or derive VisibleElement from T-202's boolean rows, then delete these two lines.
