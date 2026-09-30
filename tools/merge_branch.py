@@ -12,9 +12,10 @@ WHAT IT DOES, in order, stopping at the first thing it cannot settle:
 
   1. refuses a dirty working tree or a merge already in progress, and
      (re)installs the merge drivers of tools/merge_driver.py;
-  2. finds the ids both sides defined anew since the merge base and, when
-     there are any, merges a copy of the branch with ITS new ids renumbered
-     after ours (tools/renumber_ids.py clashes) instead of the branch itself;
+  2. finds the ids both sides defined anew since EVERY merge base, each with a
+     different row, and, when there are any, merges a copy of the branch with
+     ITS new ids renumbered after ours (tools/renumber_ids.py clashes) instead
+     of the branch itself -- a row both sides already hold is left alone;
   3. `git merge --no-ff --no-commit`. A conflicted file is settled only when
      it is GENERATED, and that is measured, not listed: every conflict hunk is
      resolved once to ours and once to theirs, the tree is regenerated after
@@ -32,6 +33,12 @@ WHAT IT DOES, in order, stopping at the first thing it cannot settle:
      --no-commit), then queues the gate (default GT-2, the push gate of
      JDG-640) with tools/gate/gate-queue.mjs. Run the queue with
      `npm run gate:drain` in the root; it holds the machine-wide lock.
+
+WHEN IT STOPS after the merge began, it puts back every file it rewrote but
+did not stage (the regenerated ones) and removes every untracked file it
+made, so the tree holds only what git's merge and its own staging left:
+`git merge --abort` then returns to where it started (DFC-1431). A person
+who resolves by hand instead regenerates after resolving.
 
 WHAT IT CANNOT SEE: whether the two sides AGREE. A clean textual merge of two
 hand-written documents can still say two different things; the checks catch
@@ -199,12 +206,31 @@ def preflight(run, target):
     return sha
 
 
-def renumber_clashes(run, base, sha):
-    mapping = renumber_ids.clash_plan(base, sha)
+def untracked(run):
+    return set(one for one in run.git('ls-files', '--others', '--exclude-standard').split('\n') if one)
+
+
+def leave_abortable(run, untracked_before):
+    """Undo what the run wrote but did not stage, so `git merge --abort` is
+    refused by nothing: a regenerated file that differs from the index blocks
+    it when the merge changed that file too (DFC-1431). Unmerged files keep
+    their markers; git's abort handles them."""
+    unmerged = set(one for one in run.git('diff', '--name-only', '--diff-filter=U').split('\n') if one)
+    dirty = [one for one in run.git('diff', '--name-only').split('\n') if one and one not in unmerged]
+    if dirty:
+        run.note('put back as the merge staged them: %s' % ' '.join(sorted(dirty)))
+        run.git('checkout', '--', *sorted(dirty))
+    for name in sorted(untracked(run) - untracked_before):
+        run.note('removed, the run made it: %s' % name)
+        os.remove(os.path.join(ROOT, name))
+
+
+def renumber_clashes(run, bases, sha):
+    mapping = renumber_ids.clash_plan(bases, sha)
     if not mapping:
         return sha, []
     moved = ['%s-%d->%s' % (prefix, old, new) for (prefix, old), new in sorted(mapping.items())]
-    renumbered = renumber_ids.renumbered_commit(base, sha, mapping)
+    renumbered = renumber_ids.renumbered_commit(bases, sha, mapping)
     run.note('clashing ids renumbered in %s: %s' % (renumbered, ', '.join(moved)))
     return renumbered, moved
 
@@ -234,23 +260,29 @@ def main(argv):
     run = Run()
     lines = ['', '', '', '', '']
     branch = '?'
+    untracked_before = None     # set when the merge begins; a stop after it cleans up
     try:
         sha = preflight(run, target)
         branch = run.git('rev-parse', '--abbrev-ref', 'HEAD')
         head = run.git('rev-parse', 'HEAD')
         lines[0] = 'merge: %s (%s) into %s at %s' % (target, sha[:8], branch, head[:8])
-        base = run.git('merge-base', 'HEAD', sha)
-        incoming, moved = renumber_clashes(run, base, sha)
+        # WHY: after criss-cross merges there are several bases, and one of
+        # them alone misses rows the other already holds (DFC-1430).
+        bases = run.git('merge-base', '--all', 'HEAD', sha).split()
+        incoming, moved = renumber_clashes(run, bases, sha)
 
+        untracked_before = untracked(run)
         status, _ = run.call(['git', 'merge', '--no-ff', '--no-commit', incoming])
         conflicted = [one for one in run.git('diff', '--name-only', '--diff-filter=U').split('\n') if one]
         if status != 0 and not conflicted:
             raise Stop('git merge exited %d without a conflict -- see %s' % (status, rel(LOG)))
         unsettled = settle_by_regeneration(run, conflicted) if conflicted else []
         if unsettled:
-            lines[1] = 'conflicts: %d, settled by regeneration %d; STOPPED on %d: %s' % (
-                len(conflicted), len(conflicted) - len(unsettled), len(unsettled), ' '.join(unsettled))
-            raise Stop('resolve the files above by hand; the merge is left in progress')
+            lines[1] = 'conflicts: %d, settled by regeneration %d; renumbered: %s; STOPPED on %d: %s' % (
+                len(conflicted), len(conflicted) - len(unsettled), ', '.join(moved) if moved else 'none',
+                len(unsettled), ' '.join(unsettled))
+            raise Stop('resolve the files above by hand and regenerate, or git merge --abort; '
+                       'the merge is left in progress')
 
         if not regenerate(run):
             raise Stop('regeneration failed -- see %s' % rel(LOG))
@@ -271,6 +303,7 @@ def main(argv):
             raise Stop('not committed: a check or the privacy count is not clean; '
                        'the merge is left in progress -- see %s' % rel(LOG))
         if not commit:
+            leave_abortable(run, untracked_before)
             lines[4] = 'not committed (--no-commit); the merge is staged and in progress'
             return 0
         message = ['Merge %s (%s) into %s' % (target, sha[:8], branch)]
@@ -289,6 +322,11 @@ def main(argv):
                 'gate: queueing %s failed (exit %d); nothing was pushed' % (gate, status)
         return 0
     except Stop as stopped:
+        if untracked_before is not None:
+            try:
+                leave_abortable(run, untracked_before)
+            except (Stop, OSError) as failed:
+                stopped = '%s; the tree was NOT put back (%s)' % (stopped, failed)
         filled = [i for i, one in enumerate(lines) if one]
         at = max(filled) + 1 if filled else 0
         lines[min(at, 4)] = 'STOPPED: %s' % stopped

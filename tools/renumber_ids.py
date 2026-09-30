@@ -5,9 +5,10 @@
         every PROVISIONAL id of the working tree -> the next free number
     python tools/renumber_ids.py band DFC=1100-1109 [JDG=700-709 ...] [--dry-run]
         every id inside each band -> the next free number outside it
-    python tools/renumber_ids.py clashes <base> <theirs> [--commit]
-        the ids THEIRS defines anew that HEAD also defines anew; with --commit,
-        a commit on top of THEIRS with its new ids renumbered (tools/merge_branch.py)
+    python tools/renumber_ids.py clashes <base>[,<base>...] <theirs> [--commit]
+        the ids THEIRS defines anew that HEAD also defines anew, each with a
+        different row; with --commit, a commit on top of THEIRS with its new
+        ids renumbered (tools/merge_branch.py)
     python tools/renumber_ids.py --check
         exit 1 when a tracked file still holds a provisional id (check 68)
 
@@ -25,6 +26,12 @@ THE CONVENTION (docs/development-rules/09-tools.md, section 14.1):
   * Two sessions that compacted at the same time took the same numbers. At
     the merge, `clashes` finds them and tools/merge_branch.py merges a
     renumbered copy of the incoming branch instead.
+  * "Anew" is measured against EVERY merge base (`git merge-base --all`): after
+    criss-cross merges one base can lack rows the other already holds, and
+    those rows are on both sides because of an earlier merge, not a clash
+    (DFC-1430). An id both sides define with the SAME text -- the same row
+    lines, the same table heading, the same change-request file -- is one row
+    held twice and is never renumbered either.
 
 TWO PHASES. Every old id is first replaced by a unique token and only then
 each token by its new id, so a chain (1087 -> 1088 while 1088 -> 1089) can
@@ -292,15 +299,48 @@ def mode_band(args, dry_run):
     return 0
 
 
-def clash_plan(base, theirs, ours='HEAD'):
+def definitions(ref, keys):
+    """{(prefix, number): what defines it in the commit `ref`}, for `keys` only:
+    the row lines and table headings that start with the id, and the blob of a
+    change-request file. Line endings are ignored."""
+    found = {}
+    lines = grep_lines(ref, r'^\| *`?[A-Z]{1,4}-[0-9]+', ['--', '*.md'])
+    for line in lines + grep_lines(ref, u'^\\*\\*\u8868 T-[0-9]+', ['--', '*.md']):
+        match = ROW_START.match(line) or TABLE_HEADING.match(line)
+        key = match and (match.group(1), int(match.group(2)))
+        if key in keys:
+            found.setdefault(key, []).append(line.rstrip())
+    for entry in lines_of(git(['ls-tree', '-r', ref])):
+        blob, name = entry.split()[2], entry.split('\t', 1)[1]
+        match = CR_FILE.match(name)
+        key = match and (match.group(1), int(match.group(2)))
+        if key in keys:
+            found.setdefault(key, []).append(name + ' ' + blob)
+    return dict((key, sorted(texts)) for key, texts in found.items())
+
+
+def clash_plan(bases, theirs, ours='HEAD'):
     """The mapping that renumbers every id THEIRS defines anew, for each
-    prefix in which THEIRS and OURS took at least one same new id."""
-    _, in_base, _ = measure(base)
+    prefix in which THEIRS and OURS took at least one same new id with a
+    different definition. `bases` is every merge base (one sha or a list)."""
+    in_base = {}
+    for base in ([bases] if isinstance(bases, str) else bases):
+        for prefix, numbers in measure(base)[1].items():
+            in_base[prefix] = in_base.get(prefix, set()) | numbers
     measured = dict((side, measure(side)) for side in (ours, theirs))
     new = {}
     for side, (defined, _, _) in measured.items():
         new[side] = dict((prefix, numbers - in_base.get(prefix, set()))
                          for prefix, numbers in defined.items())
+    shared = set((prefix, number) for prefix, numbers in new[theirs].items()
+                 for number in numbers & new[ours].get(prefix, set()))
+    if shared:
+        held = [definitions(side, shared) for side in (ours, theirs)]
+        # WHY: the same text on both sides is one row, held twice (DFC-1430).
+        for prefix, number in shared:
+            if held[0].get((prefix, number)) == held[1].get((prefix, number)):
+                for side in (ours, theirs):
+                    new[side][prefix].discard(number)
     olds = dict((prefix, numbers) for prefix, numbers in new[theirs].items()
                 if numbers & new[ours].get(prefix, set()))
     if not olds:
@@ -319,19 +359,21 @@ def clash_plan(base, theirs, ours='HEAD'):
     return plan(olds, taken, widths)
 
 
-def renumbered_commit(base, theirs, mapping):
+def renumbered_commit(bases, theirs, mapping):
     """A commit on top of THEIRS with `mapping` applied to every file THEIRS
-    changed since BASE. Built with a private index; the working tree and the
-    real index are never touched."""
+    changed since any of BASES. Built with a private index; the working tree
+    and the real index are never touched."""
     theirs_sha = git(['rev-parse', theirs]).decode().strip()
-    changed = lines_of(git(['diff', '--name-only', '--no-renames', base, theirs_sha]))
+    changed = set()
+    for base in ([bases] if isinstance(bases, str) else bases):
+        changed.update(lines_of(git(['diff', '--name-only', '--no-renames', base, theirs_sha])))
     handle, index = tempfile.mkstemp(prefix='grs-renumber-index-')
     os.close(handle)
     os.remove(index)
     env = dict(os.environ, GIT_INDEX_FILE=index)
     try:
         git(['read-tree', theirs_sha], env=env)
-        for name in changed:
+        for name in sorted(changed):
             listed = git(['ls-tree', theirs_sha, '--', name]).decode().split()
             if not listed or name.startswith(SKIPPED):
                 continue
@@ -359,16 +401,17 @@ def renumbered_commit(base, theirs, mapping):
 
 def mode_clashes(args):
     if len(args) < 2:
-        raise SystemExit('usage: renumber_ids.py clashes <base> <theirs> [--commit]')
-    base, theirs = args[0], args[1]
-    mapping = clash_plan(base, theirs)
+        raise SystemExit('usage: renumber_ids.py clashes <base>[,<base>...] <theirs> [--commit]')
+    bases, theirs = args[0].split(','), args[1]
+    mapping = clash_plan(bases, theirs)
     if not mapping:
-        say('no clashing ids between HEAD and %s since %s' % (theirs, base[:8]))
+        say('no clashing ids between HEAD and %s since %s'
+            % (theirs, ', '.join(one[:8] for one in bases)))
         return 0
     for (prefix, old), new in sorted(mapping.items()):
         say('  %s-%d -> %s-%s' % (prefix, old, prefix, new))
     if '--commit' in args:
-        say('renumbered commit %s' % renumbered_commit(base, theirs, mapping))
+        say('renumbered commit %s' % renumbered_commit(bases, theirs, mapping))
     return 0
 
 
