@@ -51,14 +51,13 @@ const englishNames = (id: string): string[] =>
   (rowOf('T-103', id).by['確定名（英）'] ?? '').split('/').map((one) => one.replace(/[`*]/g, '').trim())
 
 const FR_036 = '利用者がヘルプを開いたとき、`GRS` は、ショートカットキーとアイコンの一覧を画面上で示すこと。'
-const FR_068 = '⭐ 面にはその文書を読める形で出すこと（MUST）。'
 const FR_099 = '作成者が名簿を求めたとき、`GRS` は、文書が持つ担当者の一覧を出し、そこから担当者を消せるようにすること。'
 const FR_023 = '`innerHTML` への直挿しを行ってはならない（MUST NOT）。'
 const U_62 = '取り込みが落とした `Task` の名前を並べて告げる面'
 const IF_9_FORMAT = '書き出しの選択面では 表 T-024 のどの形式の上かを答える'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
 
-const [HELP_MODAL, AI_EXPORT_MODAL] = englishNames('U-30') as [string, string]
+const [HELP_MODAL] = englishNames('U-30') as [string]
 const [RESOURCE_ROSTER] = englishNames('U-49') as [string]
 const [IMPORT_REPORT] = englishNames('U-62') as [string]
 const [EXPORT_CHOOSER] = englishNames('U-54') as [string]
@@ -110,12 +109,14 @@ function partOn(built: Stage, surface: ScreenSurface, node: FakeElement): Screen
   return surface.readScreenPartAt(1, 1)
 }
 
-const HELP: OpenModal = {
+const HELP = {
   surface: 'Help Modal',
   heading: 'Help heading',
   commands: [],
   legend: 'IC-22',
   language: 'ja',
+  helpLanguage: 'ja',
+  windowState: 'normal',
   licenceText: 'Licence text',
   copyrightNotice: 'Copyright notice',
   attributions: ['An attribution'],
@@ -135,7 +136,7 @@ const HELP: OpenModal = {
       indent: false,
     },
   ],
-}
+} as unknown as OpenModal
 
 const ROSTER: OpenModal = {
   surface: 'Resource Roster',
@@ -169,22 +170,14 @@ const CHOOSER: OpenModal = {
   ],
 }
 
-const AI_EXPORT: OpenModal = {
-  surface: 'AI Export Modal',
-  heading: 'AI export heading',
-  commands: [command('IC-52')],
-  documentText: '{"schema":"grs","tasks":[]}',
-}
-
 describe('CR-439 open surfaces -- the clauses still stand', () => {
-  it('FR-036, FR-068, FR-099, FR-023, U-62 and IF-9 still say what these cases test', () => {
-    for (const clause of [FR_036, FR_068, FR_099, FR_023]) expect(REQUIREMENTS).toContain(clause)
+  it('FR-036, FR-099, FR-023, U-62 and IF-9 still say what these cases test', () => {
+    for (const clause of [FR_036, FR_099, FR_023]) expect(REQUIREMENTS).toContain(clause)
     expect(rowText('T-103', 'U-62')).toContain(U_62)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_FORMAT)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_ENTRY_OR_FORMAT)
-    expect([HELP_MODAL, AI_EXPORT_MODAL, RESOURCE_ROSTER, IMPORT_REPORT, EXPORT_CHOOSER]).toEqual([
+    expect([HELP_MODAL, RESOURCE_ROSTER, IMPORT_REPORT, EXPORT_CHOOSER]).toEqual([
       'Help Modal',
-      'AI Export Modal',
       'Resource Roster',
       'Import Report',
       'Export Chooser',
@@ -208,15 +201,6 @@ describe('Help Modal (U-30) -- FR-036', () => {
     expect(text).toContain('Licence text')
     expect(text).toContain('Copyright notice')
     expect(text).toContain('An attribution')
-  })
-})
-
-describe('AI Export Modal (U-30) -- FR-068', () => {
-  it('FR-068 面にはその文書を読める形で出すこと（MUST） -- the document text itself is on the surface', () => {
-    const { built } = drawn(AI_EXPORT)
-    const modal = oneByRole(built.root(), AI_EXPORT_MODAL)
-    expect(modal.textContent).toContain('{"schema":"grs","tasks":[]}')
-    expect(built.world.markupWrites).toHaveLength(0)
   })
 })
 

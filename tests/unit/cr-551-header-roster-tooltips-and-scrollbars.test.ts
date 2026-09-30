@@ -197,7 +197,7 @@ describe('RR-6 -- the roster closes from the right end of its heading row', () =
 
     const help = bench(oneRowDocument())
     help.press('App Header', 'IC-22')
-    const helpModal = help.view().openModal
+    const helpModal = help.view().helpModal
     const helpRoot = byRole(help.built.root(), helpModal?.surface ?? '')[0] as FakeElement
     const helpRow = headingRowOf(helpRoot, helpModal?.heading ?? '')
     expect(pushedRight(helpRow.row, helpRow.close), 'premise: the Help heading row sets IC-52 at its right end').toBe(true)

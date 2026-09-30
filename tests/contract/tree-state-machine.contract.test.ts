@@ -62,6 +62,11 @@ const TREE: readonly { readonly id: string; readonly parentId: string | null }[]
   { id: 'A', parentId: null },
 ]
 const PRESSED = 'P'
+// WHY: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and rows beside it (L, S, A) -- every
+// relation isRevealedRowOrAncestor has to tell apart.
+const REVEALED = 'G'
+const SJ_2_OPENS =
+  '飛ぶ先の行（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -96,10 +101,10 @@ function isBelow(id: string, ancestor: string): boolean {
 }
 
 // see T-328
-// WHY: the guard words of the manuscript read as CR-570 section 14.3 defines them; a guard the
-// table names and this file cannot read fails loudly instead of passing as true.
+// WHY: guard words read as CR-570 section 14.3 and T-332 SJ-2 define them; a guard the table names
+// and this file cannot read fails loudly instead of passing as true.
 /** @purity pure */
-function guardHolds(guard: Guard, id: string, pressed: string | null): boolean {
+function guardHolds(guard: Guard, id: string, pressed: string | null, revealed: string | null): boolean {
   const row = TREE.find((one) => one.id === id)
   if (row === undefined) throw new Error(`no row ${id}`)
   const said = ((): boolean => {
@@ -114,6 +119,8 @@ function guardHolds(guard: Guard, id: string, pressed: string | null): boolean {
         return !TREE.some((one) => one.parentId === id)
       case 'isTopLevelRow':
         return row.parentId === null
+      case 'isRevealedRowOrAncestor':
+        return revealed !== null && (id === revealed || isBelow(revealed, id))
       default:
         throw new Error(`table T-328 names a guard this file cannot read: ${guard.name}`)
     }
@@ -129,9 +136,15 @@ function branchesOf(cell: Cell | undefined): readonly Branch[] {
 
 // WHY: null when the cell leaves the row alone, the same reference SD-3 asks for.
 /** @purity pure */
-function manuscriptAnswer(event: string, from: TreeState, id: string, pressed: string | null): TreeState | null {
+function manuscriptAnswer(
+  event: string,
+  from: TreeState,
+  id: string,
+  pressed: string | null,
+  revealed: string | null,
+): TreeState | null {
   const taken = branchesOf(MACHINE?.transitions[event]?.[from]).filter((b) =>
-    (b.guard ?? []).every((g) => guardHolds(g, id, pressed)),
+    (b.guard ?? []).every((g) => guardHolds(g, id, pressed, revealed)),
   )
   if (taken.length > 1) throw new Error(`table T-328 gives ${id} in ${from} on ${event} ${taken.length} branches`)
   const to = taken[0]?.to ?? null
@@ -142,7 +155,12 @@ function manuscriptAnswer(event: string, from: TreeState, id: string, pressed: s
 function eventOf(key: string): TreeStateEvent {
   const carries = EVENTS.find((e) => e.key === key)?.carries ?? []
   const withRow = carries.some((c) => c.name === 'pressedRowId')
-  return (withRow ? { type: key, pressedRowId: PRESSED } : { type: key }) as TreeStateEvent
+  const withRevealed = carries.some((c) => c.name === 'revealedRowId')
+  return {
+    type: key,
+    ...(withRow ? { pressedRowId: PRESSED } : {}),
+    ...(withRevealed ? { revealedRowId: REVEALED } : {}),
+  } as unknown as TreeStateEvent
 }
 
 type Written = { readonly id: string; readonly to: string }
@@ -159,7 +177,7 @@ function writesOf(schedule: Schedule, event: TreeStateEvent): Written[] {
 }
 
 describe('table T-328 -- the manuscript this contract walks', () => {
-  it('the rowTree region holds the five values of AT-153 and the ten events of CR-570 section 14', () => {
+  it('the rowTree region holds the five values of AT-153, the ten events of CR-570 section 14 and rowRevealAsked', () => {
     expect(STATES).toEqual(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'])
     expect(MACHINE.states.filter((s) => s.initial).map((s) => s.key)).toEqual(['auto'])
     expect(EVENTS.map((e) => e.key)).toEqual([
@@ -173,7 +191,9 @@ describe('table T-328 -- the manuscript this contract walks', () => {
       'childRowAddPressed',
       'fitPressed',
       'rowZoomShrinkPressed',
+      'rowRevealAsked',
     ])
+    expect(EVENTS.find((e) => e.key === 'rowRevealAsked')?.carries.map((c) => c.name)).toEqual(['revealedRowId'])
     expect(specTable('T-329').rows.map((row) => row.id)).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7'])
   })
 
@@ -205,13 +225,14 @@ describe('SD-3: every event x every value x every row relation equals table T-32
       it(`${event.key} from ${from}`, () => {
         const pressed = eventOf(event.key)
         const pressedId = 'pressedRowId' in pressed ? PRESSED : null
+        const revealedId = 'revealedRowId' in pressed ? REVEALED : null
         for (const row of TREE) {
           // STEP: only this row holds the value under test; every other row is auto
           const schedule = scheduleWith({ [row.id]: from })
           const expected: Written[] = []
           for (const other of TREE) {
             const value = other.id === row.id ? from : 'auto'
-            const to = manuscriptAnswer(event.key, value, other.id, pressedId)
+            const to = manuscriptAnswer(event.key, value, other.id, pressedId, revealedId)
             if (to !== null) expected.push({ id: other.id, to })
           }
           expected.sort((a, b) => a.id.localeCompare(b.id))
@@ -236,5 +257,27 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
       { id: 'G', to: 'auto' },
       { id: 'S', to: 'auto' },
     ])
+  })
+})
+
+describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
+  it('the requirement still says it, word for word, and names rowRevealAsked of table T-328', () => {
+    expect(REQUIREMENTS).toContain(SJ_2_OPENS)
+    expect(REQUIREMENTS).toContain('規則は行の木の状態機械（表 T-328）の出来事 `rowRevealAsked` が持つ。')
+  })
+
+  it('opens the row jumped to and every ancestor, a hidden one included, and nothing else', () => {
+    const schedule = scheduleWith({ R: 'collapsed', P: 'hidden', C: 'temporarilyExpanded', G: 'auto', GG: 'collapsed', S: 'collapsed' })
+    expect(writesOf(schedule, eventOf('rowRevealAsked'))).toEqual([
+      { id: 'C', to: 'expanded' },
+      { id: 'G', to: 'expanded' },
+      { id: 'P', to: 'expanded' },
+      { id: 'R', to: 'expanded' },
+    ])
+  })
+
+  it('writes nothing when the row and every ancestor are already expanded (SJ-2: 1 つも変わらなければ段を積まない)', () => {
+    const schedule = scheduleWith({ R: 'expanded', P: 'expanded', C: 'expanded', G: 'expanded' })
+    expect(writesOf(schedule, eventOf('rowRevealAsked'))).toEqual([])
   })
 })

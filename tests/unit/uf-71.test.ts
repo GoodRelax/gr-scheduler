@@ -128,8 +128,8 @@ import {
   type CommandItem,
   type CommandPalette,
   type DialogueField,
+  type HelpModal,
   type Notice,
-  type OpenModal,
   type PropertiesPanel,
   type PropertyField,
   type RowTitle,
@@ -1195,7 +1195,7 @@ const DIALOGUE: DialogueField = {
   messages: [{ sequence: 1, author: 'Someone', text: 'MessageOne', settledAt: '2026-08-19T00:00:00Z' }],
 }
 
-const HELP_MODAL: OpenModal = {
+const HELP_MODAL: HelpModal = {
   surface: 'Help Modal',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
@@ -1204,7 +1204,8 @@ const HELP_MODAL: OpenModal = {
     kind: 'item', block: '', column: 'HC-1', segment: null, glyphs: [], indent: false,
   }],
   legend: 'IC-102',
-  language: 'en',
+  helpLanguage: 'en',
+  windowState: 'normal',
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
@@ -1262,7 +1263,7 @@ const RICH_VIEW: ScreenView = viewWith({
   },
   propertiesPanel: PROPERTIES,
   commandPalette: PALETTE,
-  openModal: HELP_MODAL,
+  helpModal: HELP_MODAL,
   notices: [notice({ manner: 'NT-6', text: 'NoticeTextOne' })],
   dialogueField: DIALOGUE,
   tooltips: [iconTooltip('IC-20', 'TooltipTextOne')],
@@ -2837,7 +2838,13 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     expect(commandFor('IC-61').getAttribute('aria-label')).toBe('PaletteCommandOne')
   })
 
-  it('makes the language the help surface is in readable without pressing anything', () => {
+  // WHY: the view is in `ja` and HELP_MODAL carries helpLanguage `en`, so the two differ.
+  it('⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）', () => {
+    const requirements = unbroken(readFileSync(
+      join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
+      'utf8',
+    ))
+    expect(requirements).toContain('⭐ ヘルプの言語が画面の言語と違うあいだは、ヘルプの領域にヘルプの言語を名乗らせること（MUST）')
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
@@ -3007,7 +3014,7 @@ describe('showScreenView twice -- the whole description each time', () => {
     appHeaderItems: { ...EMPTY_HEADER, documentTitle: 'TitleOne' },
     propertiesPanel: PROPERTIES,
     commandPalette: PALETTE,
-    openModal: HELP_MODAL,
+    helpModal: HELP_MODAL,
     notices: [
       notice({ manner: 'NT-1', text: 'NoticeOne' }),
       notice({ manner: 'NT-6', text: 'NoticeTwo' }),
@@ -3284,7 +3291,7 @@ const EVERY_SURFACE_VIEW: ScreenView = viewWith({
     commands: [command({ icon: 'IC-20', label: 'AgentApiOnOff' })],
   },
   commandPalette: PALETTE,
-  openModal: HELP_MODAL,
+  helpModal: HELP_MODAL,
   rowTitlePanel: {
     pinnedTitles: [],
     titles: [
@@ -3723,7 +3730,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     const built = wire({ 'App Header': 37 })
     const surface = surfaceOf(built)
 
-    surface.showScreenView(viewWith({ openModal: HELP_MODAL }))
+    surface.showScreenView(viewWith({ helpModal: HELP_MODAL }))
     const onHelp = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
 
     surface.showScreenView(

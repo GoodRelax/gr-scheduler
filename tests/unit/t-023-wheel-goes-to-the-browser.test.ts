@@ -118,6 +118,7 @@ import type {
   HumanInput,
   InputModifiers,
   KeyInput,
+  PointerInput,
   WheelInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import type {
@@ -422,6 +423,9 @@ function screenPane(language: DisplayLanguage = 'ja') {
   }
   return {
     wiring: { surface, language } satisfies ScreenWiring,
+    drawAt: (next: ScreenPart | null): void => {
+      part = next
+    },
     last: (): ScreenView => {
       const view = views[views.length - 1]
       if (view === undefined) throw new Error('the surface was given no description')
@@ -450,6 +454,10 @@ const SELECT_ALL = (): HumanInput => key('A', { ctrl: true })
 const DELETE = (): HumanInput => key('Delete')
 const SAVE = (): HumanInput => key('S', { ctrl: true })
 
+const HELP_MODAL = (specTable('T-109').rows.find((one) => one.id === 'IC-129')?.by['面'] ?? '').replace(/[`*]/g, '').trim()
+
+const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— 日程表に当てる'
+
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
@@ -459,8 +467,9 @@ interface Stage {
   stops(input: HumanInput): boolean
   /** Everything the document holds, as one string, so a case can ask 「did it move」. */
   snapshot(): string
-  /** Whether a 面 `ScreenState` holds is on the screen. */
   modalIsUp(): boolean
+  helpWindow(): string | null
+  pressMinimise(): void
   /** Whether a `Confirmation` (U-55) is standing. */
   confirmationIsUp(): boolean
 }
@@ -496,15 +505,40 @@ function stage(): Stage {
     }),
     stops: (input) => loop.isBrowserDefaultStopped(input),
     snapshot: () => JSON.stringify(loop.document()),
-    modalIsUp: () => (screen.last() as any).openModal !== null,
+    modalIsUp: () => ['normal', 'maximised'].includes(screen.last().helpModal?.windowState ?? ''),
+    helpWindow: () => screen.last().helpModal?.windowState ?? null,
+    pressMinimise: () => {
+      screen.drawAt({
+        part: HELP_MODAL,
+        entry: 'IC-129',
+        format: null,
+        rowGroupId: null,
+        resourceUid: null,
+        dividerPanel: null,
+        noticeDismissKey: null,
+      } as ScreenPart)
+      for (const phase of ['down', 'up'] as const) {
+        const press: PointerInput = {
+          kind: 'pointer', phase, button: 'left', x: 700, y: 20, modifiers: { ...NO_MODIFIERS }, clickCount: 1,
+        }
+        loop.receiveInput(press)
+        pen.runAnimationFrames()
+      }
+      screen.drawAt(null)
+    },
     confirmationIsUp: () => (screen.last() as any).confirmation !== null,
   }
 }
 
-/** A loop with the one surface `ScreenState` holds that SK-13 can raise. */
 function withTheHelpUp(): Stage {
   const built = stage()
   built.send(OPEN_HELP())
+  return built
+}
+
+function withTheHelpMinimised(): Stage {
+  const built = withTheHelpUp()
+  built.pressMinimise()
   return built
 }
 
@@ -589,7 +623,7 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 describe('the two ways a surface can stand, and the state with none', () => {
-  it('SK-13: `F1` puts up a 面 that `ScreenState` holds', () => {
+  it('SK-13: `F1` puts up the help, in the normal state S-99g counts as standing', () => {
     const built = withTheHelpUp()
     expect(built.modalIsUp()).toBe(true)
   })
@@ -628,7 +662,7 @@ describe('the two ways a surface can stand, and the state with none', () => {
 // ===========================================================================
 
 const STANDING = [
-  { what: '`ScreenState` が持つ面 (SK-13の Help Modal)', raise: withTheHelpUp },
+  { what: 'the normal help (SK-13, counted as standing by S-99g)', raise: withTheHelpUp },
   { what: '`Confirmation`（`U-55`） (FR-032の確認)', raise: withAConfirmationUp },
 ] as const
 
@@ -673,6 +707,27 @@ describe('表 T-023 の結び -- while a surface stands, every wheel row belongs
     for (const one of modified) {
       const built = stage()
       expect(built.stops(built.wheel(one.modifiers)), one.row).toBe(true)
+    }
+  })
+})
+
+describe(`HN-1 of table T-336: ${HN_1}`, () => {
+  it('the manuscript still says it', () => {
+    const row = specTable('T-336').rows.find((one) => one.id === 'HN-1')
+    expect(row?.cells.join(' ') ?? '').toContain(HN_1)
+  })
+
+  it('with the help minimised, every handed-over turn moves the document as with nothing standing', () => {
+    // WHY: the same control as above, run with WB-2 up; one of the two directions may rightly move nothing (ZE-2 / ZE-3).
+    for (const one of HANDED_OVER) {
+      const moved = ([1, -1] as const).some((sign) => {
+        const built = withTheHelpMinimised()
+        expect(built.helpWindow(), 'premise: IC-129 minimised the help').toBe('minimised')
+        const before = built.snapshot()
+        built.send(built.wheel(one.modifiers, sign))
+        return built.snapshot() !== before
+      })
+      expect(moved, `${one.row} moved the document in one of its two directions`).toBe(true)
     }
   })
 })

@@ -4,9 +4,10 @@
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
-import type {
-  EscapeTarget,
-  RememberedActual,
+import {
+  NOT_STORED_SEARCH_PANEL_FONT_SIZES,
+  type EscapeTarget,
+  type RememberedActual,
 } from '../../entity/document-model/screen-state/screen-state'
 import { emptySelection, type Selection } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../edit-document/edit-document'
@@ -44,6 +45,54 @@ interface LandedLink {
   readonly successorUid: number
 }
 
+export type SearchTable = 'tasks' | 'commentBoxes'
+
+// see T-331
+export type SearchColumn = string
+
+export interface SearchColumnFilter {
+  readonly column: SearchColumn
+  readonly hiddenValues: readonly string[]
+  readonly from: string | null
+  readonly to: string | null
+}
+
+export interface SearchSort {
+  readonly column: SearchColumn
+  readonly direction: 'ascending' | 'descending'
+}
+
+// see S-419, S-420, S-429, SV-7, SV-8
+export interface SearchPanelSession {
+  readonly word: string
+  readonly table: SearchTable
+  readonly filters: readonly SearchColumnFilter[]
+  readonly sort: SearchSort | null
+  readonly at: { readonly x: number; readonly y: number } | null
+  readonly size: { readonly width: number; readonly height: number } | null
+  readonly textSizeStep: number
+}
+
+export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
+
+// see T-333, S-429
+// WHY: a step is a row's place in table T-333, so the rows are read in the table's order.
+export const SEARCH_PANEL_TEXT_SIZE_ROWS = Object.keys(
+  NOT_STORED_SEARCH_PANEL_FONT_SIZES,
+) as readonly SearchPanelTextSizeRow[]
+
+const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
+
+export const emptySearchPanelSession: SearchPanelSession = {
+  word: '',
+  table: 'tasks',
+  filters: [],
+  sort: null,
+  at: null,
+  size: null,
+  textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
+}
+
 export interface ScreenValuesStateCarried {
   readonly screenLanguage: DisplayLanguage | null
   readonly helpLanguage: DisplayLanguage | null
@@ -67,7 +116,8 @@ export interface ScreenValuesStateCarried {
 export interface ScreenValuesEventCarried {
   readonly isFullScreen: boolean
   readonly surfaceName: string
-  readonly target: 'surface' | 'panel'
+  // WHY: DFC-1280 -- no clause names this word; named after the surface
+  readonly target: 'surface' | 'panel' | 'help'
   readonly rung: EscapeTarget
   readonly armKind: ArmKind
   readonly shapeKind: string | null
@@ -484,6 +534,7 @@ function propertiesPutAway(values: ScreenValues): ScreenStep {
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
+  if (event.target === 'help') return helpHidden(values)
   if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
 }
@@ -513,10 +564,24 @@ function tooltipDismissed(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'dismissed' } })
 }
 
+// see S-99g, HN-1, HN-2, HN-3
+/** @purity pure */
+export function isHelpStandingIn(values: ScreenValues): boolean {
+  const help = values.helpDisplayState
+  return help.kind === 'shown' && help.child.kind !== 'minimised'
+}
+
+/** @purity pure */
+function helpRungConsumed(values: ScreenValues): ScreenStep {
+  return isHelpStandingIn(values) ? helpHidden(values) : unchanged(values)
+}
+
 // see T-280, IN-4
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
+  if (event.rung === 'searchPanel') return onSearchPanelClosePressed(values)
   if (event.rung === 'surface') return surfaceRungConsumed(values)
+  if (event.rung === 'help') return helpRungConsumed(values)
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)
@@ -739,10 +804,15 @@ function onScreenLanguageChosen(
   values: ScreenValues,
   event: EventOf<'screenLanguageChosen'>,
 ): ScreenStep {
-  const language = event.screenLanguage
-  return moved(values, { screenLanguage: language, helpLanguage: language }, [
-    { type: 'storeScreenLanguage', screenLanguage: language },
-  ])
+  const screenLanguage = event.screenLanguage
+  return moved(values, { screenLanguage }, [{ type: 'storeScreenLanguage', screenLanguage }])
+}
+
+// see S-434, FR-038, T-280
+/** @purity pure */
+function onHelpLanguageChosen(values: ScreenValues, event: EventOf<'helpLanguageChosen'>): ScreenStep {
+  const helpLanguage = event.helpLanguage
+  return moved(values, { helpLanguage }, [{ type: 'writeHelpLanguage', helpLanguage }])
 }
 
 // see S-72, FR-039, T-280
@@ -805,6 +875,81 @@ function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
   return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
 }
 
+type WindowShownKind = SearchPanelDisplayShownState['kind'] & HelpDisplayShownState['kind']
+
+const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
+
+const MINIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
+  normal: 'minimised',
+  minimised: 'normal',
+  maximised: 'minimised',
+}
+
+const MAXIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
+  normal: 'maximised',
+  minimised: 'maximised',
+  maximised: 'normal',
+}
+
+// see T-280, SV-2
+/** @purity pure */
+function onSearchEntryPressed(values: ScreenValues): ScreenStep {
+  const panel = values.searchPanelDisplayState
+  if (panel.kind === 'shown' && panel.child.kind !== 'minimised') return stayed(values, FOCUS_SEARCH_WORD)
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
+  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
+}
+
+type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
+
+// see T-280, SV-12, SV-13
+/** @purity pure */
+function windowDisplayToggled(
+  values: ScreenValues,
+  key: ToggleableWindowKey,
+  toggledTo: { readonly [K in WindowShownKind]: WindowShownKind },
+): ScreenStep {
+  const display = values[key]
+  if (display.kind === 'hidden') return unchanged(values)
+  const child = { kind: toggledTo[display.child.kind] }
+  return moved(values, { [key]: { kind: 'shown', child } } as Partial<ScreenValues>)
+}
+
+// see T-280, SV-14
+/** @purity pure */
+function onSearchPanelClosePressed(values: ScreenValues): ScreenStep {
+  if (values.searchPanelDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { searchPanelDisplayState: { kind: 'hidden' } })
+}
+
+// see T-280, SJ-3
+/** @purity pure */
+function onSearchHitJumped(values: ScreenValues): ScreenStep {
+  const panel = values.searchPanelDisplayState
+  if (panel.kind === 'hidden' || panel.child.kind !== 'maximised') return unchanged(values)
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
+  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
+}
+
+// see T-280, FR-036, FR-038, WB-1
+/** @purity pure */
+function onHelpEntryPressed(values: ScreenValues): ScreenStep {
+  const help = values.helpDisplayState
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['helpDisplayStateMachine.shown']
+  if (help.kind === 'hidden') {
+    const seeded = { helpDisplayState: { kind: 'shown', child }, helpLanguage: values.screenLanguage } as const
+    return moved(values, seeded, [{ type: 'seedHelpLanguage' }])
+  }
+  if (help.child.kind !== 'minimised') return unchanged(values)
+  return moved(values, { helpDisplayState: { kind: 'shown', child } })
+}
+
+/** @purity pure */
+function helpHidden(values: ScreenValues): ScreenStep {
+  if (values.helpDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { helpDisplayState: { kind: 'hidden' } })
+}
+
 // WHY: a table from event type to function, not one switch: thirty cases would cross the
 // function-size band, and the mapped type still refuses a missing event as `never` would.
 const HANDLERS: {
@@ -838,19 +983,19 @@ const HANDLERS: {
   rowZoomEndReached: onScaleMessageRaised,
   scaleMessageTimeElapsed: onScaleMessageTimeElapsed,
   screenLanguageChosen: onScreenLanguageChosen,
-  helpLanguageChosen: unchanged,
+  helpLanguageChosen: onHelpLanguageChosen,
   themePreferenceChosen: onThemePreferenceChosen,
   propertyPanelWidthSettled: onPropertyPanelWidthSettled,
   progressMarkerPressed: onProgressMarkerPressed,
   hintTargetChanged: onHintTargetChanged,
-  searchEntryPressed: unchanged,
-  searchPanelMinimiseToggled: unchanged,
-  searchPanelMaximiseToggled: unchanged,
-  searchPanelClosePressed: unchanged,
-  searchHitJumped: unchanged,
-  helpEntryPressed: unchanged,
-  helpMinimiseToggled: unchanged,
-  helpMaximiseToggled: unchanged,
+  searchEntryPressed: onSearchEntryPressed,
+  searchPanelMinimiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MINIMISE_TOGGLED_TO),
+  searchPanelMaximiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MAXIMISE_TOGGLED_TO),
+  searchPanelClosePressed: onSearchPanelClosePressed,
+  searchHitJumped: onSearchHitJumped,
+  helpEntryPressed: onHelpEntryPressed,
+  helpMinimiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MINIMISE_TOGGLED_TO),
+  helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
   continuationMarkClicked: onContinuationMarkClicked,
   landingMarkClearAsked: onLandingMarkClearAsked,
 }

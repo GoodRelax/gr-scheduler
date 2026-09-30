@@ -26,12 +26,10 @@
 // THE RULES THESE CASES ANSWER TO
 // ---------------------------------------------------------------------------
 //
-//   FR-038      「利用者が表示言語を選んだとき、`GRS` は、メニューとパネルの文字
-//               をその言語で示すこと。対象は `ja` と `en` の 2 言語とする。」
-//               ⛔ 「**言語の状態は 1 つとし、画面全体に効くこと（MUST）。ヘルプ
-//               だけを別の言語にできてはならない（MUST NOT）**」 —— 分けると、
-//               ヘルプが説明しているボタン名と画面のボタン名が食い違う。
-//   `S-99`      表 T-206: 「`language`（`ja` / `en`）| — | **別枠。**
+//   FR-038      「利用者が画面の言語を選んだとき、`GRS` は、ヘルプの中を除く画面の
+//               文字をその言語で示すこと。」 and 「対象は `ja` と `en` の 2 言語と
+//               する。」 The help has its own language (S-434); none is drawn here.
+//   `S-99`      表 T-206: 「`screenLanguage`（`ja` / `en`）| — | 別枠。
 //               `localStorage` に置く。保存しない規則と理由は `FR-038`」.
 //   FR-006      CR-304 「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**を
 //               プロパティパネルに出し…」, and under that table: 「**入力の形は
@@ -52,12 +50,11 @@
 // date control's calendar are not among them: the host prints those. ⛔ NO CASE
 // HERE ASSERTS A WORD, and none may.
 //
-// What the cases DO read is the other MUST of the same requirement: 「言語の状態
-// は 1 つとし、画面全体に効くこと」. A screen whose date fields open a calendar in
-// one language while the rest of the screen stands in the other is a screen
-// carrying two language states, which is the reading that MUST exists to refuse
-// -- and 「ヘルプだけを別の言語にできてはならない（MUST NOT）」 is the same
-// prohibition written for one particular surface.
+// What the cases DO read is the STATEMENT of the same requirement quoted above.
+// A panel whose date fields open a calendar in one language while the rest of
+// the screen stands in the other is text outside the help standing in a
+// language other than the screen language, which that sentence refuses; only
+// the help region may name a second language, and no help is drawn here.
 //
 // ⚠️ SO THE CASES ASK WHAT THE SURFACE DECLARED, NEVER WHAT THE HOST DREW. The
 // declaration is the one thing this unit can do about it, and the host's own
@@ -876,12 +873,12 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-describe('FR-038 (MUST) -- the screen stands in ONE language, and it reaches the panel', () => {
+describe('FR-038 (MUST) -- the screen language reaches the panel', () => {
   it('⛔ the surface declares a language for the tree it builds', () => {
-    // 「言語の状態は 1 つとし、画面全体に効くこと（MUST）」. ⭐ A tree that
+    // 「ヘルプの中を除く画面の文字をその言語で示すこと」. ⭐ A tree that
     // declares no language at all leaves every part the HOST draws inside it --
     // a date control's calendar above all -- standing in whatever the host
-    // guessed, which is a second language state by definition.
+    // guessed, which is text outside the help in some other language.
     for (const language of BOTH_LANGUAGES) {
       const { built } = drawPanel(language)
       expect(
@@ -892,8 +889,8 @@ describe('FR-038 (MUST) -- the screen stands in ONE language, and it reaches the
   })
 
   it('⛔ MUST: every control of the date field stands in `ScreenView.language`', () => {
-    // 「利用者が表示言語を選んだとき、`GRS` は、メニューとパネルの文字をその言語で
-    // 示すこと」, with 「画面全体に効くこと（MUST）」 beside it. ⚠️ The nearest
+    // 「利用者が画面の言語を選んだとき、`GRS` は、ヘルプの中を除く画面の文字をその言語で
+    // 示すこと」. ⚠️ The nearest
     // declaration is read, so a language written once on the tree's root and one
     // written on the control itself are both accepted -- no table settles where.
     for (const language of BOTH_LANGUAGES) {
@@ -910,7 +907,7 @@ describe('FR-038 (MUST) -- the screen stands in ONE language, and it reaches the
     }
   })
 
-  it('⛔ MUST: the declaration MOVES when the display language moves', () => {
+  it('⛔ MUST: the declaration MOVES when the screen language moves', () => {
     // ⭐ THE CASE THAT SEPARATES "declared" FROM "declared correctly". A tree
     // that always said `ja` would satisfy the case above at `ja` and would be
     // exactly the defect: DFC-60 「英語モードでもカレンダーが日本語のまま」.
@@ -931,10 +928,9 @@ describe('FR-038 (MUST) -- the screen stands in ONE language, and it reaches the
     expect(japanese, 'FR-038 admits two languages, and they are not the same one').not.toBe(english)
   })
 
-  it('⛔ MUST NOT: no part of the tree stands in a language other than the view\'s', () => {
-    // 「言語の状態は 1 つとし、画面全体に効くこと（MUST）。ヘルプだけを別の言語に
-    // できてはならない（MUST NOT）」 -- the prohibition is about a SECOND state
-    // anywhere on the screen, and the help is named as one instance of it.
+  it('⛔ MUST: with no help drawn, no part of the tree stands in a language other than the view\'s', () => {
+    // 「ヘルプの中を除く画面の文字をその言語で示すこと」 -- only the help region may
+    // name another language (FR-038), and no help is drawn here.
     for (const language of BOTH_LANGUAGES) {
       const { built } = drawPanel(language)
       const declared = new Set(languagesDeclaredIn(built.root()))

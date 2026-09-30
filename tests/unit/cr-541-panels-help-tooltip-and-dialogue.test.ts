@@ -41,7 +41,7 @@ const THEME_HUE_FIELD = 'K-60'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
-const Q34 = '⭐ 本文を下へ送っても、題の行をヘルプの上端に留めて描くこと（MUST）'
+const Q34 = '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT）'
 const Q38 = '説明をポインタの点に出し、ポインタを受け取らせないこと（MUST）'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
@@ -252,7 +252,7 @@ describe('SK-19 -- Enter in the dialogue field', () => {
   })
 })
 
-describe('FR-036 -- the help title row stays on top', () => {
+describe('FR-036 -- the help title row stands outside what scrolls', () => {
   it(Q34, () => {
     const HELP_MODAL = bareAll(rowOf('T-103', 'U-30').by['確定名（英）'] ?? '').find((one) => one.startsWith('Help')) ?? ''
     expect(HELP_MODAL).toBe('Help Modal')
@@ -262,6 +262,8 @@ describe('FR-036 -- the help title row stays on top', () => {
       commands: [],
       legend: 'IC-22',
       language: 'ja',
+      helpLanguage: 'ja',
+      windowState: 'normal',
       licenceText: 'Licence text',
       copyrightNotice: 'Copyright notice',
       attributions: ['An attribution'],
@@ -280,9 +282,8 @@ describe('FR-036 -- the help title row stays on top', () => {
     expect(titleRow, 'premise: the title is drawn').toBeDefined()
     const chain: FakeElement[] = []
     for (let at: FakeElement | null = titleRow!; at !== null && at !== modal.parentNode; at = at.parentNode) chain.push(at)
-    const insideScroller = scrollers.some((one) => chain.includes(one) && one !== titleRow)
-    const pinned = chain.some((one) => styleMap(one).get('position') === 'sticky' && /^0(px)?$/.test(styleMap(one).get('top') ?? ''))
-    expect(!insideScroller || pinned, 'the title row is outside what scrolls, or held at its top').toBe(true)
+    const insideScroller = scrollers.filter((one) => chain.includes(one) && one !== titleRow)
+    expect(insideScroller.length, 'the title row is outside what scrolls').toBe(0)
   })
 })
 

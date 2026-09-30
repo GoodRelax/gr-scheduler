@@ -53,7 +53,10 @@ import type {
   TaskMilestoneGlyph,
   TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
-import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  isHelpStandingIn,
+  type ScreenValues,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   HumanInput,
   InputModifiers,
@@ -168,6 +171,11 @@ export interface InputContext {
   // see IN-5a, MK-13, HF-14
   // TRAP: kept apart from isTextEntryUnsettled, which AG-9 and WS-2 read; this state is not AG-9's.
   readonly isTextFieldFocusWanted?: boolean
+  // see IN-5a, SV-2, SV-5
+  // WHY: judged by where the keys go, never counted as AG-9's state (IN-5a).
+  readonly isSearchWordFocused?: boolean
+  // see RG-15, SV-14
+  readonly isSearchPanelFocused?: boolean
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
@@ -742,6 +750,9 @@ export const ENTRY = {
   rosterChooseUnreferenced: 'IC-65',
   rosterChosen: 'IC-67',
   rosterUnchosen: 'IC-68',
+  search: 'IC-117',
+  searchPanelMinimise: 'IC-120',
+  searchPanelMaximise: 'IC-121',
 } as const
 
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
@@ -828,9 +839,31 @@ export function armedByEntry(entry: string): Armed | null {
 
 
 
+// see IN-5a, SK-2, SK-4, SK-5
+const FIELD_CTRL_KEYS: ReadonlySet<string> = new Set([KEY.c, KEY.v, KEY.a])
+
+// see IN-5a, SV-5
+// WHY: Enter too, while the word field holds the focus: SV-5 hands it to the browser, not SK-19.
+/** @purity pure */
+export function isTypedIntoSearchWord(input: HumanInput, context: InputContext): boolean {
+  if (input.kind !== 'key' || context.isSearchWordFocused !== true) return false
+  const key = input.key
+  if (isCombo(input.modifiers, true, false, false)) return FIELD_CTRL_KEYS.has(key)
+  if (!isCombo(input.modifiers, false, false, false) && !isCombo(input.modifiers, false, true, false)) return false
+  return isSingleCharacterKey(key) || key === KEY.del || key === KEY.backspace || key === KEY.enter
+}
+
+// see SV-5
+/** @purity pure */
+function isEnterInSearchPanel(input: HumanInput, context: InputContext): boolean {
+  if (input.kind !== 'key' || context.isSearchPanelFocused !== true) return false
+  return input.key === KEY.enter && isCombo(input.modifiers, false, false, false)
+}
+
 // see PI-18, T-023, T-036
 /** @purity pure */
 export function commandFromInput(input: HumanInput, context: InputContext): TranslatedInput {
+  if (isTypedIntoSearchWord(input, context) || isEnterInSearchPanel(input, context)) return UNASSIGNED
   switch (input.kind) {
     case 'key':
       return commandFromKey(input, context)
@@ -1331,8 +1364,10 @@ export function rowsAtZoomY(
 export function escapeContextOf(context: InputContext): EscapeContext {
   return {
     isNoticeStanding: context.isNoticeStanding === true,
+    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
+    isHelpStanding: isHelpStandingIn(context.screen),
     gestureInFlight: context.pressed !== null,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,

@@ -298,7 +298,7 @@ function measuredScrollbarThickness(): number {
 
 // see FR-038
 /** @purity semi-pure-b */
-function displayLanguage(): DisplayLanguage {
+function screenLanguage(): DisplayLanguage {
   return startupDisplayLanguage()
 }
 
@@ -332,6 +332,7 @@ function environmentOf(
   appHeaderHeight: number,
   scrollbarThickness: number,
   rowControlsHeightPx: number,
+  commandPaletteBandPx: { readonly width: number; readonly height: number },
 ): FrameEnvironment {
   return {
     width: window.innerWidth,
@@ -339,6 +340,7 @@ function environmentOf(
     appHeaderHeight,
     scrollbarThickness,
     rowControlsHeightPx,
+    commandPaletteBandPx,
   }
 }
 
@@ -357,9 +359,10 @@ function boot(): void {
   const scrollbarThickness = measuredScrollbarThickness()
   let appHeaderHeightPx = 0
   let rowControlsHeightPx = 0
+  let commandPaletteBandPx = { width: 0, height: 0 }
   let loop: FrameLoop | null = null
   const nowEnvironment = (): FrameEnvironment =>
-    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx)
+    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx, commandPaletteBandPx)
 
   // TRAP: read before BO-2: readTheme is asked while the surface factory runs, before chosen exists,
   // and reading chosen there throws a ReferenceError that stops the whole boot.
@@ -417,6 +420,7 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
+  let isSearchPanelFocusedHeld: (() => boolean) | null = null
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -433,6 +437,10 @@ function boot(): void {
       readWatermarkUnlockAnswerHeld = read
     },
     /** @purity non-pure */
+    holdIsSearchPanelFocused: (read) => void (isSearchPanelFocusedHeld = read),
+    /** @purity non-pure */
+    onSearchWordTyped: () => loop?.pressContinued(),
+    /** @purity non-pure */
     onRowControlsHeightPx: (heightPx) => {
       rowControlsHeightPx = heightPx
       loop?.resize(nowEnvironment())
@@ -440,6 +448,11 @@ function boot(): void {
     /** @purity non-pure */
     onAppHeaderHeightPx: (heightPx) => {
       appHeaderHeightPx = heightPx
+      loop?.resize(nowEnvironment())
+    },
+    /** @purity non-pure */
+    onCommandPaletteBandPx: (bandPx) => {
+      commandPaletteBandPx = bandPx
       loop?.resize(nowEnvironment())
     },
   })
@@ -482,7 +495,7 @@ function boot(): void {
     nowEnvironment(),
     {
       surface: painting,
-      language: displayLanguage(),
+      language: screenLanguage(),
       themePreference: startupTheme,
       // TRAP: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
       /** @purity non-pure */
@@ -491,6 +504,8 @@ function boot(): void {
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
       /** @purity semi-pure-b */
       readFocusPosition: focusPositionOfPage,
+      /** @purity semi-pure-b */
+      isSearchPanelFocused: () => isSearchPanelFocusedHeld?.() === true,
     },
     fileStore,
     showPointerShape,

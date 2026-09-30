@@ -563,6 +563,13 @@
    "description": "asks where a task sits, to focus it"
   },
   {
+   "source": "AgentApiEndpoint",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "search rows",
+   "description": "asks the schedule for the rows a search word finds, for readSearchRows (AM-25)"
+  },
+  {
    "source": "SvgRenderer",
    "target": "Selection",
    "arrow": "dependency",

@@ -665,6 +665,15 @@
        "—— ⭐ **`ScreenRenderer` が、プロパティパネルの担当者の欄のどれに焦点を置くか（表 T-225 の `AS-1`）を決めるために公開した** —— 絞りを写して持たせると、`FR-059` の規則が 2 か所になる（1.9）"
       ]
      }
+    },
+    {
+     "name": "hasRoomBelowPinsIn",
+     "note": {
+      "ja": [
+       "行の領域の中で、固定した行の帯の下に、その行を描く余地が残るか。",
+       "表 T-332 の `SJ-8` —— `Agent API` の `focusTask`（`AM-16`）と検索パネルの飛び先が同じ問いを使う"
+      ]
+     }
     }
    ]
   },
@@ -821,6 +830,15 @@
        "`selectionWithinDrawn` の答えに、表 T-023c が名指さない行 —— ピン止めの帯に入りきらない行（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかった行 —— のタスクを戻した選択を答える。",
        "掴んで動かす間の下書きの絵では絞らない。",
        "⭐ `SingleHtmlShell` が、フレームごとに組んだ配置と幾何から 1 度だけ刈るために公開した"
+      ]
+     }
+    },
+    {
+     "name": "isInsideRect",
+     "note": {
+      "ja": [
+       "点が矩形の中（縁を含む）にあるかを答える。",
+       "⭐ `InputCommandTranslator` が、ポインタが `Search Panel` の上にあるホイールをパネルへ残す（`FR-151` の 表 T-330 の `SV-15`）ために公開した"
       ]
      }
     }
@@ -1030,6 +1048,15 @@
       "ja": [
        "型。",
        "開く書き込み・寄せる書き込みと、ピン止めの行のために寄せなかったか（`SJ-8`）"
+      ]
+     }
+    },
+    {
+     "name": "searchJumpCommands",
+     "note": {
+      "ja": [
+       "飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。",
+       "表 T-332 の `SJ-2` —— `Agent API` の `focusTask`（`AM-16`）と検索パネルの飛び先が同じ並びを当てる"
       ]
      }
     }
@@ -1252,6 +1279,15 @@
        "作るものが無ければ `null`。",
        "出来事の全数は 表 T-280。",
        "`Esc` には作らない —— 段はシェルが決める（表 T-283）"
+      ]
+     }
+    },
+    {
+     "name": "isTypedIntoSearchWord",
+     "note": {
+      "ja": [
+       "焦点が `Search Panel` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。",
+       "真のキーは、操作にも画面の値の出来事にも選択にもしない"
       ]
      }
     },
@@ -1840,6 +1876,15 @@
        "覚えるのは画面の値の根（表 T-280）である"
       ]
      }
+    },
+    {
+     "name": "NOT_STORED_SEARCH_PANEL_FONT_SIZES",
+     "note": {
+      "ja": [
+       "`Search Panel` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。",
+       "段（`S-429`）は行の並びの中の位置である —— 並びは表の上からの順"
+      ]
+     }
     }
    ]
   },
@@ -1980,11 +2025,48 @@
      }
     },
     {
+     "name": "SearchPanelView",
+     "note": {
+      "ja": [
+       "型。",
+       "`Search Panel` の絵の記述（`FR-151` の 表 T-330）。",
+       "`DomScreenSurface` が描く"
+      ]
+     }
+    },
+    {
+     "name": "nextSearchPanelTextSizeStep",
+     "note": {
+      "ja": [
+       "`IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`）"
+      ]
+     }
+    },
+    {
+     "name": "searchPanelBoxAfterGrab",
+     "note": {
+      "ja": [
+       "`Search Panel` の見出しの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、`Schedule Canvas` の中に収めて答える（`FR-151` の 表 T-330 の `SV-10`・`SV-11`）。",
+       "`SingleHtmlShell` が握っているあいだの位置と大きさを決めるために使う"
+      ]
+     }
+    },
+    {
      "name": "achromatic",
      "note": {
       "ja": [
        "`SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。",
        "`DomScreenSurface` から `SvgRenderer` への辺は無いので、画面の主題を灰にする 1 本はこの入口を通る"
+      ]
+     }
+    },
+    {
+     "name": "HelpModal",
+     "note": {
+      "ja": [
+       "型。",
+       "ヘルプの絵の記述（`FR-036` の 表 T-335・表 T-336）。`helpLanguage` と `windowState` を運ぶ。",
+       "`DomScreenSurface` がヘルプの段（表 T-337 の `UZ-7`）に描く"
       ]
      }
     }
@@ -2203,6 +2285,41 @@
       "ja": [
        "型。",
        "立っている告げ —— 表 T-286"
+      ]
+     }
+    },
+    {
+     "name": "SearchPanelSession",
+     "note": {
+      "ja": [
+       "型。",
+       "`Search Panel` の値 —— 語・表・絞り込み・並べ替え・位置・大きさ・字の大きさの段（`FR-151` の 表 T-330、`S-429`）"
+      ]
+     }
+    },
+    {
+     "name": "emptySearchPanelSession",
+     "note": {
+      "ja": [
+       "`SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定"
+      ]
+     }
+    },
+    {
+     "name": "SEARCH_PANEL_TEXT_SIZE_ROWS",
+     "note": {
+      "ja": [
+       "表 T-333 の行 ID を表の上からの順に並べたもの。",
+       "`SearchPanelSession` の字の大きさの段は、この並びの中の位置である"
+      ]
+     }
+    },
+    {
+     "name": "isHelpStandingIn",
+     "note": {
+      "ja": [
+       "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
       ]
      }
     }

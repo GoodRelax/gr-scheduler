@@ -17,7 +17,7 @@ import {
   part,
 } from './dom-screen-surface'
 
-const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
+export const PALETTE_GRAB_BAND_ENTRY = 'IC-53'
 
 // see FR-053
 /** @purity pure */

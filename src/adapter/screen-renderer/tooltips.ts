@@ -126,10 +126,12 @@ export function tooltipsFromScreenView(
 
   const iconWithHintDue = isHintDue ? readings.iconUnderPointer : null
   if (iconWithHintDue !== null) {
+    const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
+    const hintLanguage = help === null ? language : help.helpLanguage
     tooltips.push({
       anchor: { kind: 'icon', icon: iconWithHintDue },
-      text: iconHint(iconWithHintDue, language),
-      assignment: entryAssignment(iconWithHintDue, language),
+      text: iconHint(iconWithHintDue, hintLanguage),
+      assignment: entryAssignment(iconWithHintDue, hintLanguage),
     })
   }
 

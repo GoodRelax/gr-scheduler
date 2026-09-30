@@ -15,7 +15,11 @@ import type {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  emptySearchPanelSession,
+  type ScreenSession,
+  type SearchPanelSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
 import { commandPaletteFromSession } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
@@ -29,9 +33,12 @@ export { dismissKeyOf }
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
-import { openModalFromSession } from './open-modals'
+import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
+import { searchPanelFromSession, type SearchPanelView } from './search-panel'
+export { nextSearchPanelTextSizeStep, searchPanelBoxAfterGrab, searchPanelFromSession } from './search-panel'
+export type { SearchPanelShown, SearchPanelView } from './search-panel'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
@@ -277,7 +284,8 @@ export interface HelpModal extends OpenSurface {
   readonly surface: 'Help Modal'
   readonly entries: readonly HelpEntry[]
   readonly legend: IconId
-  readonly language: DisplayLanguage
+  readonly helpLanguage: DisplayLanguage
+  readonly windowState: 'normal' | 'minimised' | 'maximised'
   readonly licenceText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
@@ -448,10 +456,13 @@ export interface ScreenView {
   readonly propertiesPanel: PropertiesPanel | null
   readonly commandPalette: CommandPalette | null
   readonly openModal: OpenModal | null
+  readonly helpModal?: HelpModal | null
   readonly notices: readonly Notice[]
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
+  // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
+  readonly searchPanel?: SearchPanelView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
@@ -478,6 +489,7 @@ export interface ScreenViewReadings {
   // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
+  readonly isPointerOnHelp?: boolean
   readonly taskUnderPointer?: Task | null
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   readonly themePreference: 'light' | 'dark'
@@ -508,6 +520,8 @@ export interface ScreenViewReadings {
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
+  readonly searchPanel?: SearchPanelSession
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built
@@ -547,9 +561,16 @@ export function screenViewFromRegions(
       schedule,
     ),
     openModal: openModalFromSession(session, schedule, readings),
+    helpModal: helpModalFromSession(session),
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings),
+    searchPanel: searchPanelFromSession(
+      session,
+      readings.searchPanel ?? emptySearchPanelSession,
+      schedule,
+      regions.scheduleCanvas,
+    ),
   }
 
   const echo = session.screen.scaleMessageDisplayState

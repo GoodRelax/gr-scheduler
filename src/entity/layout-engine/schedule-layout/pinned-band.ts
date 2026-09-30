@@ -4,8 +4,8 @@
 // @purity    pure
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
-import type { ScreenRegions } from '../screen-regions/screen-regions'
-import type { RowPlacement, TaskPlacement } from './schedule-layout'
+import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
+import type { RowPlacement, ScheduleLayout, TaskPlacement } from './schedule-layout'
 
 // see FR-098, LF-14
 /** @purity pure */
@@ -104,4 +104,13 @@ export function shiftedPlacements(
     const shift = shiftByGroupId.get(one.groupId) ?? 0
     return shift === 0 ? one : { ...one, y: one.y + shift }
   })
+}
+
+// see SJ-8
+// WHY: a row the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
+/** @purity pure */
+export function hasRoomBelowPinsIn(layout: ScheduleLayout, rowArea: ScreenRect, groupId: string | null): boolean {
+  const room = rowArea.height - (layout.pinnedBandHeight ?? 0)
+  const drawn = groupId === null ? undefined : layout.rows.find((row) => row.groupId === groupId)
+  return drawn === undefined ? room > 0 : room >= drawn.height
 }
