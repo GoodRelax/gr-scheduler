@@ -31,8 +31,9 @@ so a missing install costs a conflict, never a wrong file.
   ledger      a hand-written ledger. (1) Every generated block (see BLOCKS) is
               replaced in BASE and THEIRS by OURS's copy before merging, so the
               block can never conflict. (2) A conflict hunk in which both sides
-              only APPENDED table rows, with no row id in common, is resolved
-              as base + ours' rows + theirs' rows. (3) Anything else stays a
+              only APPENDED table rows, and every row id they share has the
+              same text on both, is resolved as base + ours' rows + theirs'
+              rows not already in ours. (3) Anything else stays a
               conflict, written with diff3 markers, and the driver exits 1.
 
 WHAT IS LEFT TO DO AFTER THE MERGE. Both drivers leave the generated text
@@ -44,7 +45,8 @@ git has not finished writing. Checks 24 (ledger_metrics --check) and 27
 
 tools/merge_branch.py does that for you.
 
-WHAT IT CANNOT SEE: two branches that took the SAME new row id. That is a real
+WHAT IT CANNOT SEE: two branches that took the SAME new row id for two
+different rows. That is a real
 conflict and stays one; tools/renumber_ids.py is how ids stop colliding.
 """
 import io
@@ -155,17 +157,20 @@ def resolve_appends(base, ours, theirs):
     """The lines of one conflict hunk, or None when it is a real conflict.
 
     Resolvable only when BOTH sides kept the base lines as a prefix and added
-    nothing but table rows after them, and no row id is on both sides.
+    nothing but table rows after them, and a row id on both sides has the
+    same text on both (one row held twice -- it is kept once, DFC-1430).
     """
     if ours[:len(base)] != base or theirs[:len(base)] != base:
         return None
     ours_added, theirs_added = ours[len(base):], theirs[len(base):]
-    ours_ids = [row_id(line) for line in ours_added]
+    ours_rows = dict((row_id(line), line.rstrip('\r\n')) for line in ours_added)
     theirs_ids = [row_id(line) for line in theirs_added]
-    if None in ours_ids or None in theirs_ids:
+    if None in ours_rows or None in theirs_ids:
         return None
-    if set(ours_ids) & set(theirs_ids):
+    if any(ours_rows.get(row_id(line), line.rstrip('\r\n')) != line.rstrip('\r\n')
+           for line in theirs_added):
         return None
+    theirs_added = [line for line in theirs_added if row_id(line) not in ours_rows]
     ending = '\r\n' if ours_added and ours_added[-1].endswith('\r\n') else '\n'
     out = list(base) + list(ours_added) + list(theirs_added)
     # A side's last line may lack its newline at end of file.
