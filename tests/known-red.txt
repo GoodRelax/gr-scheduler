@@ -12,7 +12,6 @@
 # A tests/usecase case marked with specMismatch() (test.fail) is red by design until the app
 # matches the specification; when the app is fixed it turns green and its line must go.
 
-DFC-627 | tests/system/nfr-004-file-scheme-sweep.sws.test.ts | SWS-8 [ | GR-22 | - | GR-22: the Panel Divider band does not answer the sweep under file://
 DFC-374 | tests/system/user-reported-fixes.test.ts | DFC-374: magnifying the row axis stops before one row fills the Row Area | - | - | the row-axis magnification has no ceiling
 DFC-1023 | tests/contract/display-words.contract.test.ts | every section is one this file can key and every entry is a place here or a stated omission | - | - | the generated dictionary holds dependencyKinds, a section this file cannot key
 DFC-1011 | tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts | UC-002 | - | - | UC-002 step 3 / T-015a HM-1: moving a derived row leaves Task.wbsParentUid unchanged
@@ -29,5 +28,5 @@ DFC-1021 | tests/usecase/uc-014-merge-schedules-into-one.test.ts | UC-014 | - | 
 DFC-1024 | tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts | FR-016 | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/unit/uf-47-48-history-bytes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
-DFC-1300 | tests/system/user-reported-fixes.test.ts | DFC-160: the entrances at the head of the row title panel stand apart, in order | - | - | PANEL_HEAD_ORDER still holds the head order from before CR-587 (HF-10); deferred under JDG-778
 DFC-922 | tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts | the GRS JSON open path refuses IV-22 and a bandless row colour | - | - | the GRS JSON open path does not refuse a document breaking IV-22 yet; CR-586 question 2 chose B (wait for DFC-922 / DFC-586, JDG-78)
+DFC-1286 | tests/system/nfr-004-file-scheme-sweep.sws.test.ts | SWS-8 [ | GR-25 | - | GR-25: the search panel edge band is 0px because S-426 has no value yet (user OK 2026-10-01, JDG-1000; remove when S-426 is set)

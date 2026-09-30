@@ -1,10 +1,10 @@
 # CR-612 — 見本は自分の容れ物に乗り、書き出した .html は別の GRS で開ける
 
-> 起草の状態: 起草（2026-10-01、枝 `b3-export-shell-crs`）。まだ当てていない。4 節の旧 16 件は、読んだ木で各 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た —— 問い 1（出荷する見本の大きさ）は **保留**（`JDG-970`、`PND-611`）、問い 2（`BT-1` の検証）は推奨の「掛ける」（`JDG-973`）。⏸ 保留に合わせて、出荷する見本を小さくする編集（`TP-5` ・ `TP-6`、元の E-09）・生成器の 2 つ目の森・見本の大きさのための試験の向け直しを外した —— 本書は容れ物の仕組みと測る文書 `MC-10` だけを当て、出荷する見本は 1000 件のまま、バイト単位で変えない（10 節）。
+> 起草の状態: 起草（2026-10-01、枝 `b3-export-shell-crs`）。まだ当てていない。4 節の旧 16 件は、読んだ木で各 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た —— 問い 1（出荷する見本の大きさ）は **保留**（`JDG-970`、`PND-611`）、問い 2（`BT-1` の検証）は推奨の「掛ける」（`JDG-973`）。11 節に残っていた `RS-67` の語も同じ日に答えを得た（`JDG-993`）—— 開けない `.html` への告げは 1 つの短い語にし、`GRS` 本体の `index.html` を開く道で開けば見本が開く。⏸ 保留に合わせて、出荷する見本を小さくする編集（`TP-5` ・ `TP-6`、元の E-09）・生成器の 2 つ目の森・見本の大きさのための試験の向け直しを外した —— 本書は容れ物の仕組みと測る文書 `MC-10` だけを当て、出荷する見本は 1000 件のまま、バイト単位で変えない（10 節）。
 > 読んだ木: `b3-export-shell-crs`（`refactor` `0590ad03` から切った。`docs/spec` ・ `src` ・ `tests` ・ `tools` は `0590ad03` のまま）。行番号・数・大きさは、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-612` を受けた。仕様の新しい行 ID は `MC-10`（`0590ad03` で最大 `MC-9`、当てる日に測り直す）と `RS-67`（`0590ad03` で最大 `RS-66`、当てる日に測り直す）の 2 つ。公開の名 `documentFromEmbeddedHtml` を 1 つ足す（2 節）。
 > ⛔ 当てる順: **`CR-611` の後**（E-07 の `BT-4` の注は、`CR-611` が `FR-095` を「空の文書で始める」に替えた後でなければ循環する —— いまの `FR-095` は「`BT-4` と同じ状態に戻す」）。**`CR-610` の後**（`CR-610` の E-01 と本書の E-11 は同じ旧の 1 行（`FR-096` の MSPDI の文）を使う。`CR-610` はその行を残して後ろに段と表を足すので、`CR-610` の後なら E-11 の旧はそのまま 1 回現れる。逆の順だと文字の上では当たるが、E-11 の文が `CR-610` の表の後ろへずれる）。4 本を `CR-610` → `CR-611` → 本書 → `CR-613` の順に写しへ当て、すべての旧が 1 回ずつ当たることを確かめた（13 節）。`CR-613` とは重ならない。仕様の文は、持ち場 L4 の合流の後に 1 回で当てる（8 節）。
-> **閉じるもの**: `DFC-1349`（`JDG-879`、書き出す .html から既定のデータを消す）・ `DFC-1358`（`JDG-888`、書き出した .html を別の GRS で読む）・ `DFC-1425`（起動の入れ口の数を `RS-15` で告げる）・ `DFC-1426`（`CHN-2` に単一 `.html` が無い）・ `DFC-1427`（生成器の一意の検めが `OP-12` より強い）。`PND-452` は開く道について本書で閉じ、起動の道（`BT-1`）は問い 2 の答え「掛ける」（`JDG-973`）が決めた —— 当てるのは `JDG-78` のとおり `DFC-586` の時（10 節）。⏸ **`DFC-1348`（`JDG-878`、見本の大きさ）は閉じない** —— 問い 1 は保留（`JDG-970`）であり、`PND-611` の答えを待つ。問いは 2026-10-01 に答えを得た（`JDG-970` ・ `JDG-973`）。
+> **閉じるもの**: `DFC-1349`（`JDG-879`、書き出す .html から既定のデータを消す）・ `DFC-1358`（`JDG-888`、書き出した .html を別の GRS で読む）・ `DFC-1425`（起動の入れ口の数を `RS-15` で告げる）・ `DFC-1426`（`CHN-2` に単一 `.html` が無い）・ `DFC-1427`（生成器の一意の検めが `OP-12` より強い）。`PND-452` は開く道について本書で閉じ、起動の道（`BT-1`）は問い 2 の答え「掛ける」（`JDG-973`）が決めた —— 当てるのは `JDG-78` のとおり `DFC-586` の時（10 節）。⏸ **`DFC-1348`（`JDG-878`、見本の大きさ）は閉じない** —— 問い 1 は保留（`JDG-970`）であり、`PND-611` の答えを待つ。問いは 2026-10-01 に答えを得た（`JDG-970` ・ `JDG-973` ・ `JDG-993`）。`RS-67` の語と、本体の `index.html` を開く扱いは `JDG-993` が決めた（決定 9 ・ 決定 16）。
 
 ---
 
@@ -19,6 +19,7 @@
 | `JDG-888` | 「#39 GRSが出力した Single HTMLを別のGRSで読み込み可能とせよ。<br>ユースケース:<br>サプライヤに大きい日程を Single HTMLで渡して、<br>サプライヤの日程を埋めてもらった。<br>発注者でその日程をメインの計画に取り込む」 | 書き出した単一 .html を、別の GRS の「開く」で読み、置き換え・合流・重ねの 3 択（`OP-3`）で取り込める | E-01 ・ E-03 ・ E-04 ・ E-05 ・ E-06 ・ E-11 ・ E-12 ・ E-13。決定 6 〜 10。仕様の文には業種の語を持ち込まず「渡した相手が埋めた文書」と書く |
 | `JDG-970` | 「問 7. 出荷する見本の大きさ →一旦保留。 落ち着いたらシンプル化する。 後でやる旨記録しておけ。<br><br>それ以外は、全部推奨で」（2026-10-01。枝 `b3-export-shell-crs` の起草のセッションがまとめて問うた問 1 〜 11 への 1 つの答えのうち、本書の問い 1 に当たる「問 7」の部分） | 出荷する見本の大きさ（`TP-2` ・ `TP-5` ・ `TP-6`）は保留。落ち着いてから利用者が簡素にする。後でやることを記録する（`PND-611`） | 本書は容れ物の仕組みと測る文書 `MC-10` だけを当て、出荷する見本は 1000 件のまま、バイト単位で変えない。元の E-09（`TP-5` ・ `TP-6`）・生成器の 2 つ目の森・試験の向け直し（元の波 4a）を外した。10 節 ・ 11 節 |
 | `JDG-973` | 同じ逐語（同じ答えのうち、本書の問い 2 に当たる「問 8」への「それ以外は、全部推奨で」の部分） | 起動の道（表 T-034 の `BT-1`）に埋め込まれた文書にも `FR-023` の検証を掛ける（`PND-452` の推奨）。断ったときの手当ては `JDG-78` のとおり `DFC-586` の時 | 決定 14。決定 7 で読み手が 1 つになるので、掛けるのは 1 か所の呼び出しで済む。その呼び出しと仕様の文は `DFC-586` の時に当てる（10 節） |
+| `JDG-993` | ① 「もっとシンプルに、<br>このファイルはGRSに有効な.htmlではありません。GRSのヘッダーメニューを操作してされたか、ファイルの出自を確認してください。<br>とかで、いいだろ？<br> <br>GRS 本体の index.html そのものを開こうとしたケースはそのままデフォルト日程を開けばよいだろ？<br><br>意見くれたし。」<br>② 「OK!」（2026-10-01。① は前に立つ者が `RS-67` の起草の語を見せたときの答え、② は ① への前に立つ者の返し —— 右の 2 つ —— を受けた答え） | ① `RS-67` は、`GRS` が開けない `.html` のすべてに 1 つの断り（文書の容れ物も見本の容れ物も無い、または文書の容れ物が 2 つ以上。起動の道の 2 つ以上も同じ）。語は text ja「このファイルは GRS で開ける .html ではありません」／ en「This file is not an .html that GRS can open」、nextStep ja「GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください」／ en「Check that it was written out from the GRS header, or where the file came from」。<br>② `GRS` 本体の `index.html`（見本の容れ物を持ち、文書の容れ物を持たない）を開く道（表 T-024a）で開くと、ほかのファイルと同じく見本の日程が開く。読む順は、文書の容れ物 → 無ければ見本の容れ物 → どちらも無ければ `RS-67` | 決定 9 ・ 決定 16。E-03 ・ E-12 ・ E-13 ・ E-17。SEAM-2 ・ SEAM-4 ・ SEAM-4a。11 節の残りの問いを閉じる |
 
 ⭐ 3 つを 1 つの「容れ物」の話にする（`DFC-1349` の対応方針）。見本を自分の容れ物に乗せるから、書き出しがそれを外せ（`JDG-879`）、書き出したものは埋め込んだ文書の容れ物だけを持つので、別の GRS がそれを読める（`JDG-888`）。見本を小さくする（`JDG-878`）のは、同じ容れ物の中身を替えることである —— ⏸ それは `PND-611` の答えを待ち、本書では替えない（`JDG-970`）。本書が測る文書 `MC-10` を見本から分けておくので、後で見本だけを替えても性能の基準は動かない。
 
@@ -50,6 +51,7 @@
 14. **起動の見本は `BT-1` で開いた文書の前にも読まれている。** `single-html-shell.ts:367-371` は、画面の色を決めるために `chosen` より前に `template` を読む（`TRAP` の注）。⇒ 見本を持たない書き出した `.html` でも起動できるよう、その色の元を替える（9 節）。
 15. **起動のときの入れ口の数の告げは、行の無い理由で出ている。** `single-html-shell.ts:200-201` の `embeddedEntryCountNotOne: 'RS-15'`。`RS-15` は「この理由にまだ行が無い」である（`01-04-requirements.md:7399`）。⇒ 開く道の `.html` にも同じ場面（入れ口が無い・2 つ以上）が出るので、理由の行を 1 つ起こし、両方で使う（E-13、決定 9）。
 16. **`PND-452` は開く道では問いにならない。** `OP-5` は「経路によらず `FR-023` の検証を通すこと」であり、`IO-7` が取込の方向を持てば、開く道で読んだ `.html` の文書はそのまま `OP-5` を通る（`document-file-flow.ts` の `:540` の検証は、形式を判じて復号した後に掛かる）。残るのは起動の道（`BT-1`、`single-html-shell.ts:245-285` の `embeddedStartupDocument` は検証の辺を呼ばない。`STOP` の注 `:244`）だけである（問い 2）。
+17. **`GRS` 本体の `index.html` は、本書の後は見本の容れ物だけを持つ。** 書き出した `.html` は文書の容れ物だけを持つ（決定 3）。⇒ 開く道で本体そのものを開くと、文書の容れ物は無く、見本の容れ物は 1 つある。本書より前に出荷した本体は、見本をスクリプトの中に持つ（0.2 節の 2）ので、どちらの容れ物も無い。⭐ ダブルクリックで開いた本体は見本を見せる（表 T-034 の `BT-4`）—— 開く道で同じファイルが別の答え（断り）を返すと、同じファイルが開き方で違う中身になる（`JDG-993`、決定 16）。
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
 
@@ -60,7 +62,7 @@
 ### ② レビュー観点のどの条項を当て、何が出たか
 
 - **`R1.3`（矛盾・唯一の正）** —— ① 表 T-024 の注「開く道ではない」と `JDG-888` が食い違う → E-03 ・ E-04。② `OP-1` が形式を書き写している（表 T-024 が正）→ E-06 で表を指す形に。③ 起動の見本についての性能の注（`MC-7` より行が多い・多めに採る）は、見本が小さくなると偽になる（`PND-611`）→ その日を待たずに、測る文書の行 `MC-10`（E-14）へ移し、表 T-226 の注は指すだけにする（E-10）。④ `FR-067` の「空で起動するのではない」は、見本を持たない書き出した `.html` では次の順位が空の文書になるので偽になる → E-12。⑤ 同じ MUST を 2 か所に置かない —— `GL-002` の MUST NOT は `MC-10` の 1 か所だけにした。
-- **`R1.4`（異常系・境界値）** —— ① 容れ物の無い `.html`（GRS が書いたものでない、または出荷した本体そのもの）→ `RS-67`。② 容れ物が 2 つ以上 → `RS-67`（起動の道も同じ）。③ `.html` の拡張子で先頭が `{` → `OP-12` の `RS-13`（変わらない）。④ 埋め込まれた文書が壊れている・版が新しい → `IO-2` と同じ（`RS-25` ・ `FR-073`）。⑤ 置き換えで開いた `.html` への `SK-11` → 上書きする先を持たない（E-11）。⑥ 書き出した `.html` の `BT-1` が読めない → 告げて空の文書（E-07 ・ E-12）。⑦ 大きさの上限 `S-113`（32 MB）は `.html` の全体に掛かる（本体が約 0.8 MB を占める）。
+- **`R1.4`（異常系・境界値）** —— ① 文書の容れ物の無い `.html` は 2 つに分かれる（`JDG-993`）: ①a `GRS` 本体の `index.html`（見本の容れ物だけを持つ）→ 開く道でも見本が開く。`OP-3` の 3 択が先に立ち、見本は `OP-5` の検証を通る（決定 16）。①b どちらの容れ物も無い `.html`（`GRS` が書いたものでない、または本書より前に出荷した本体 —— 見本はスクリプトの中）→ `RS-67`。② 文書の容れ物が 2 つ以上 → `RS-67`（起動の道も同じ）。③ `.html` の拡張子で先頭が `{` → `OP-12` の `RS-13`、先頭が `<` でも `{` でもない → `RS-12`（変わらない。`OP-12` の断りは `RS-67` より先に立つ）。④ 埋め込まれた文書が壊れている・版が新しい → `IO-2` と同じ（`RS-25` ・ `FR-073`）。⑤ 置き換えで開いた `.html` への `SK-11` → 上書きする先を持たない（E-11）。⑥ 書き出した `.html` の `BT-1` が読めない → 告げて空の文書（E-07 ・ E-12）。⑦ 大きさの上限 `S-113`（32 MB）は `.html` の全体に掛かる（本体が約 0.8 MB を占める）。
 - **`R1.2`（検証できる表現）** —— 「容れ物を含めてはならない」は、書き出した字面に見本の容れ物の id が無いことで確かめられる。「開く道でも読める」は、書き出した字面を開く道に渡して `U-56` が立つことで確かめられる（5 節）。
 - **`R2.21`（1 つの仕事は 1 か所）** —— 容れ物を字面から見つけ直す手は `embedded-html-codec.ts` の `containerSpans` 1 つに寄せ、書き出し・開く道の読み・起動の読みが同じ手を使う（決定 7）。版の 1 語を見本から取る所（`frame-loop.ts:220` と `single-html-shell.ts:544`）を 1 つの生成物に寄せる（決定 2）。
 - **`R2.14`（POLA）** —— `formatFromFile` の「先頭の文字だけで行を引く」は、名（形式を判じる）が約束する「組で判じる」より弱い → 9 節。
@@ -81,18 +83,19 @@
 | 決定 6 | `IO-7` の先頭の非空白 1 文字は `<` とし、`OP-12` の文は変えない。判別と生成器は「2 つの欄の組が 1 行に合う」で判じる | 0.2 節の 11。HTML は `<` で始まるほか無い。組は拡張子が行ごとに違うので 1 行に決まる | `IO-1` と `IO-7` が同じ `<` を持つことを表 T-024 の注に書く（E-04） |
 | 決定 7 | 開く道の `.html` は、`DocumentCodec` が字面を走査して容れ物を見つけ（`containerSpans` を使う）、中身を `documentFromJson` で読む。HTML を DOM に解かない。起動の道（`BT-1`）も、起動の最初に取った頁の字面（`deliveredAppShellHtml`）を同じ手で読む | ① `FR-023` は `innerHTML` への直挿しを禁じる。他人から届いた `.html` を DOM に解く理由が無い。② 書き出しと 2 つの読みが同じ手を使う（`R2.21`）。③ 問い 2 がどちらに決まっても、起動の道に検証を掛けるのは 1 か所の呼び出しになる | 起動の道の「入れ口の数」は、id を持つ**要素**の数から、id を持つ **`script` 要素**の数に変わる（GRS が書く容れ物は `script` だけなので、GRS が書いたファイルでは同じ数になる） |
 | 決定 8 | `.html` から置き換えで開いた文書の最初の `SK-11` は、上書きする先を持たない（MSPDI と同じ）。合流・重ねは上書きする先を変えない（`CR-594` のまま） | 0.2 節の 13。上書きする先は `GRS JSON` の拡張子を持つファイルだけ（`PND-20` の仕分けと同じ向き） | 最初の `SK-11` で保存先を問う。提案する名は文書名と `.json`（`FR-096`） |
-| 決定 9 | 理由の行 `RS-67`（単一 `.html` に埋め込まれた文書が 1 つでない）を起こし、開く道で容れ物が無い・2 つ以上のときと、起動の道で 2 つ以上のときの両方で運ぶ。作法は `NT-1` | 0.2 節の 15。同じ場面に 2 つの理由を持たない。起動の道でいま `RS-15`（行が無い）が出ているのを閉じる | 辞書に語を 1 組足す（E-17）。語は起草であり、前に立つ者が見せてよい |
+| 決定 9 | 理由の行 `RS-67`（`GRS` で開ける `.html` ではない）を起こし、開く道で文書の容れ物も見本の容れ物も無い・文書の容れ物が 2 つ以上のときと、起動の道で文書の容れ物が 2 つ以上のときの両方で運ぶ。作法は `NT-1` | 0.2 節の 15。同じ場面に 2 つの理由を持たない。起動の道でいま `RS-15`（行が無い）が出ているのを閉じる。場合ごとに語を分けず、開けない `.html` には 1 つの断りを返す（`JDG-993` の「もっとシンプルに」） | 辞書に語を 1 組足す（E-17）。語は `JDG-993` が決めた —— 起草の語（「文書がちょうど 1 つ埋め込まれていない」）は、容れ物の数という中の事情を人に見せていた。断りの語は、無いのか 2 つ以上なのかを言い分けない |
 | 決定 10 | 表 T-008 の `CHN-1` に単一 `.html` を足す。`CHN-2`（書き出し）にも足す | `CHN-1` は開く道の経路で、`FR-023` の検証の対象を数える所（E-05）である。`CHN-2` は `IO-7` の書き出しがいまも通る経路なのに書かれていなかった | `CHN-2` は本書の起こりではない穴である（12 節） |
 | 決定 11 | gzip はいま入れない | ① `JDG-878` の gzip は、見本を簡素にして「それでだめなら」の次の手である。見本を簡素にするのは `PND-611` の答えの後（`JDG-970`）なので、gzip はその後に測って決める（0.2 節の 9 の見積もりでは、問い 1 の推奨 A なら `dist` は約 877 KB で 1 MB を割る）。② スクリプトを gzip すると、解いた字面を走らせるのに `script-src` へハッシュでない出どころ（`blob:` か `'unsafe-eval'`）が要り、表 T-232 と `NFR-009` が許さない。③ 見本だけを gzip しても、1 ファイルに入れるには base64（+33%、48,288 B → 64,384 B）が要り、読むのに `DecompressionStream` の非同期が起動の前に挟まる。小さくした見本（約 78 KB → gzip 約 6 KB）で得るものは約 70 KB | ⏸ `dist` は `PND-611` の答えまで約 1,444 KB のまま（1 MB を越えたまま）。答えが B（300 タスク）なら 1 MB を越え、gzip の問いが戻る |
 | 決定 12 | 選び手・ドロップの受け付けは変えない | 0.2 節の 12。一覧が無い | — |
 | 決定 13 | `Agent API` の `AM-8`（`importDocument`）には `.html` を受けさせない | `JDG-888` は人の「開く」の話である。`AM-8` の入力の形（`AgentImportSource`）を広げるのは別の変更である | 10 節 |
 
-⭐ 次の 2 つは問うて決めた（11 節の問い 1 ・ 2）。問わずに決めた上の 13 と区別するために、ここに分けて置く。
+⭐ 次の 3 つは問うて決めた（11 節の問い 1 ・ 2 と、`RS-67` の語を見せたときの答え `JDG-993`）。問わずに決めた上の 13 と区別するために、ここに分けて置く。
 
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
 | 決定 14 | 起動の道（`BT-1`）に埋め込まれた文書にも `FR-023` の検証を掛ける。掛ける呼び出しと、断ったときの手当てと、その仕様の文は `DFC-586` の時に当てる | 問い 2 の答え（`JDG-973`）。`JDG-78` により異常系の手当てはリファクタの後。決定 7 で読み手が 1 つなので、1 か所の呼び出しで済む | 本書の後も、`DFC-586` までは起動の道は検証を掛けない（`STOP` の注 `single-html-shell.ts:244` を残す） |
 | 決定 15 | 出荷する見本の大きさと形は変えない（表 T-226 の `TP-2` ・ `TP-5` ・ `TP-6`、`startup-template.json` のバイト）。容れ物の仕組みと `MC-10` だけを当てる —— 問い 1 の案 D の形である | 問い 1 の答えは保留（`JDG-970`）。落ち着いてから利用者が簡素にする（`PND-611`）。仕組みを先に当てておけば、後で見本だけを替えられる | `dist` は約 1,444 KB のまま。`DFC-1348` は開いたまま |
+| 決定 16 | 開く道（`Ctrl` ＋ `O` ・ドロップ、表 T-024a）で読む `.html` の順は、① 文書の容れ物（1 つならそれ、2 つ以上なら `RS-67`）→ ② 無ければ見本の容れ物 → ③ どちらも無ければ `RS-67`。⇒ `GRS` 本体の `index.html` を開くと、ほかのファイルと同じく見本の日程が開く | `JDG-993`。同じファイルは、どう開いても同じ中身を見せる —— 本体をダブルクリックすれば見本が開く（表 T-034 の `BT-4`）。安全は本書の中で既に立っている: ① `OP-3` の置き換え・合流・重ねの問いが先に立つ（合流は履歴に載り、取り消せる）② 開いた `.html` は `SK-11` の上書きする先にならない（決定 8）③ 見本はほかのファイルと同じく `OP-5` の検証を通る（`JDG-973`） | 開く道の読み手が、文書の容れ物の id に加えて見本の容れ物の id も受け付ける（読む順は `DocumentCodec` の 1 か所、SEAM-2）。⚠️ 開く道で開いた見本は `BT-4` から開いたのではないので、`OP-10` の `BT-4` の除外は掛からない —— 中身は同じで、最初の表示位置は `FR-055` の全体表示になる（`OP-10` の「別の文書を開いた時点でこの除外は解ける」のとおり）。本書より前に出荷した本体（見本はスクリプトの中、容れ物なし）は読めず、`RS-67` になる |
 
 ---
 
@@ -125,7 +128,7 @@
 | 種類 | 識別子 | 測った最大 |
 |---|---|---|
 | 表 T-025 の行 | `MC-10`（測る文書） | `0590ad03` で最大 `MC-9`、当てる日に測り直す |
-| 表 T-233 の行 | `RS-67`（単一 `.html` に埋め込まれた文書が 1 つでない） | `0590ad03` で最大 `RS-66`、当てる日に測り直す |
+| 表 T-233 の行 | `RS-67`（`GRS` で開ける `.html` ではない） | `0590ad03` で最大 `RS-66`、当てる日に測り直す |
 | 公開の名（表 T-064 の `PI-20`） | `documentFromEmbeddedHtml` | —（`git grep` で 0 件） |
 
 ⚠️ 兄弟の `CR-610` ・ `CR-611` が同じ回に `RS-` の行を足すなら、当てる順で番号を詰め直す（`MC-` を足す兄弟は無い見込み）。
@@ -192,7 +195,7 @@
 ```
 新
 ```text
-| IO-7 | 単一 `.html` | 取込 / 書出 | `.html` | `<` | 本体と文書をまとめて 1 つのファイルで渡す（`FR-067`）。<br>渡した相手が埋めた文書を取り込む | 読む道は 2 つ —— 起動時は表 T-034 の `BT-1`、開くときは表 T-024a である。<br>どちらも埋め込まれた `GRS JSON` を読み、読んだ後の扱いは `IO-2` と同じとする（`OP-6`・表 T-032 の `MG-12`） |
+| IO-7 | 単一 `.html` | 取込 / 書出 | `.html` | `<` | 本体と文書をまとめて 1 つのファイルで渡す（`FR-067`）。<br>渡した相手が埋めた文書を取り込む | 読む道は 2 つ —— 起動時は表 T-034 の `BT-1`、開くときは表 T-024a である（開くときに読む容れ物の順と、開かずに断る場合は `FR-067`）。<br>どちらも埋め込まれた `GRS JSON` を読み、読んだ後の扱いは `IO-2` と同じとする（`OP-6`・表 T-032 の `MG-12`） |
 ```
 
 <!-- EDIT id=E-04 file=docs/spec/01-04-requirements.md -->
@@ -285,13 +288,16 @@
 新
 ```text
 埋め込まれた文書が読み取れないとき、または入れ口が 1 つでないときは、黙って捨てずに通知すること（MUST）。  
-入れ口が 2 つ以上あるとき、および開く道で読んだ `.html` に入れ口が無いときに運ぶ理由は、表 T-233 の `RS-67` とする。  
+入れ口が 2 つ以上あるときに運ぶ理由は、表 T-233 の `RS-67` とする（起動の道でも開く道でも同じ）。  
 そのうえで**表 T-034 の次の順位へ降りる** —— 何も開かずに起動するのではない。  
 ⚠️ 書き出した `.html` はテンプレートを持たないので（下の ⛔）、そこでの次の順位は表 T-034 の `BT-4` の注のとおり空の文書である —— 告げてから開くので、受け取った側は空である理由を知る。  
 黙って捨てると、渡した側は届いたと思い、受け取った側は空だと思う。
 
 ⛔ 書き出す `.html` に、初期テンプレート（`FR-027`）の容れ物を含めてはならない（MUST NOT） —— 書き出した `.html` は埋め込んだ文書を表 T-034 の `BT-1` で開くので、テンプレートは使われず、ファイルを大きくするだけである。  
 ⭐ 書き出した `.html` は、開く道（`FR-087`）でも読めること（MUST） —— 渡した相手が埋めた日程を、元の計画へ合流させて取り込むためである（`FR-022`）。  
+⭐ 開く道では、埋め込まれた文書の入れ口を読み、それが無ければ初期テンプレートの容れ物を読むこと（MUST） —— 同じファイルは、どう開いても同じ中身を見せる。  
+`GRS` 本体の `.html` を開けば、ダブルクリックで開いたときと同じテンプレートが開く。  
+⛔ どちらも無い `.html` は開かず、表 T-233 の `RS-67` を告げる —— `GRS` で開ける `.html` ではない。  
 読み方は表 T-024 の `IO-7` と表 T-024a に従う。
 ```
 
@@ -303,7 +309,7 @@
 新
 ```text
 | RS-65 | 日程の画像をデータ化するプロンプトをクリップボードへ写した | `NT-5` | `FR-068` |
-| RS-67 | 単一 `.html` に埋め込まれた文書が 1 つでない（無い、または 2 つ以上ある） | `NT-1` | `FR-067` |
+| RS-67 | `GRS` で開ける `.html` ではない（利用者の文書の容れ物も見本の容れ物も無い、または文書の容れ物が 2 つ以上） | `NT-1` | `FR-067` |
 ```
 
 <!-- EDIT id=E-14 file=docs/spec/01-04-requirements.md -->
@@ -362,7 +368,7 @@
 ```
 
 <!-- EDIT id=E-17 file=docs/spec/_source/display-words.json -->
-`RS-67` の語を足す（`RS-65` の次、`RS-15` の前）。語は起草である。旧
+`RS-67` の語を足す（`RS-65` の次、`RS-15` の前）。語は `JDG-993` が決めた（0.1 節）。旧
 ```text
    "rowId": "RS-65",
    "text": {
@@ -390,12 +396,12 @@
   {
    "rowId": "RS-67",
    "text": {
-    "ja": "この .html には文書がちょうど 1 つ埋め込まれていないので、開いていません",
-    "en": "This .html does not carry exactly one embedded document, so it was not opened"
+    "ja": "このファイルは GRS で開ける .html ではありません",
+    "en": "This file is not an .html that GRS can open"
    },
    "nextStep": {
-    "ja": "GRS が書き出した .html を選び直してください",
-    "en": "Choose an .html that GRS wrote out"
+    "ja": "GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください",
+    "en": "Check that it was written out from the GRS header, or where the file came from"
    }
   },
 ```
@@ -415,12 +421,17 @@ SEAM-1 (format detection, OP-12 with T-024 IO-7)
   The row is chosen by the PAIR (extension, first character), never by one column.
 
 SEAM-2 (reading an embedded document, new public name, PI-20)
-- documentFromEmbeddedHtml(html: string, elementId: string, greatestKnownVersion: string)
+- documentFromEmbeddedHtml(html: string, elementIds: readonly string[], greatestKnownVersion: string)
   in src/adapter/document-codec/embedded-html-codec.ts, re-exported by document-codec.ts.
-  Scans the text (no DOM); exactly one <script ... id="<elementId>"> element ->
-  the answer documentFromJson gives for its text; none or more than one ->
-  { ok: false, reason: 'entryCountNotOne', entryCount }.
-  Round trip: documentFromEmbeddedHtml(exportEmbeddedHtml(...).html, id, v) gives the
+  Scans the text (no DOM). The ids are tried in the order given; the first id that
+  names at least one <script ... id="<id>"> element decides: exactly one -> the
+  answer documentFromJson gives for its text; two or more ->
+  { ok: false, reason: 'entryCountNotOne', entryCount }. No id names any element ->
+  { ok: false, reason: 'entryCountNotOne', entryCount: 0 }.
+  The open route passes [the embedded document's id, the startup template's id]
+  (the read order of FR-067, ruling JDG-993); the start-up route (BT-1) passes
+  [the embedded document's id] only.
+  Round trip: documentFromEmbeddedHtml(exportEmbeddedHtml(...).html, [id], v) gives the
   exported document back (equal after the codec's normalisation).
 
 SEAM-3 (export leaves the template out, FR-067 MUST NOT)
@@ -436,7 +447,19 @@ SEAM-4 (open route, FR-087 / OP-3 / FR-022 / FR-096)
   IC-72 (merge) -> U-61 (Difference Review) lists the Tasks whose UID matches.
   IC-71 (replace) -> then SK-11 asks for a destination (saveFile with a chosen
   destination, never 'openedFile'), like a document opened from MSPDI.
-  A file 'y.html' with no container -> documentOpenFailed, RS-67 told (NT-1).
+  A file 'y.html' holding neither container (an .html GRS did not write, or an
+  index.html shipped before CR-612, whose template sits inside the module script)
+  -> documentOpenFailed, RS-67 told (NT-1). Two document containers -> RS-67.
+
+SEAM-4a (opening the app's own index.html, FR-067 read order, ruling JDG-993)
+- readFileToOpen answers { fileName: 'index.html', text: <dist/index.html as shipped
+  by this CR> } (the startup template's container, no document container):
+  SK-10 -> U-56 stands first (OP-3), never a refusal.
+  IC-71 (replace) -> the current document is the startup template (table T-226:
+  100 rows, 1000 Task), having passed OP-5 like any file; the first view is
+  FR-055's fit (OP-10: opened, not BT-4). SK-11 afterwards asks for a destination.
+  IC-72 (merge) -> lands on the history like any merge; undo gives back the
+  document before it.
 
 SEAM-5 (the shipped build, FR-027 / MC-10)
 - dist/index.html holds exactly one non-module <script type="application/json">
@@ -489,7 +512,7 @@ seeds: IO-7 OP-12 FR-067 FR-022 BT-1 BT-4 TP-2 TP-5 TP-6 MC-7
 | tables / figures / rows / uids（`md-checks.py`） | 212 / 29 / 2685 / 176 | 212 / 29 / 2687 / 176 | rows ＋2（`MC-10` ・ `RS-67`） | 13 節 |
 | 表 T-025 の行 | 9 | 10 | ＋1 | `^| MC-` |
 | 表 T-233 の行 | 61 | 62 | ＋1 | `^| RS-` |
-| `（MUST）` ・ `（MUST NOT）` の印（`01-04`、出現の数） | 2,234 | 2,240 | ＋6（E-08 ＋1、E-10 −1、E-12 ＋2、E-14 ＋4） | 13 節の `verify.py` が写しに当てて数えた |
+| `（MUST）` ・ `（MUST NOT）` の印（`01-04`、出現の数） | 2,234 | 2,241 | ＋7（E-08 ＋1、E-10 −1、E-12 ＋3、E-14 ＋4。E-12 の ＋1 は `JDG-993` の読む順の MUST） | 13 節の `verify.py` が写しに当てて数えた |
 | `exchange-formats.json` の `IO-7` | `".html"` ／ `null` | `".html"` ／ `"<"` | — | `npm run formats` |
 | `dist/index.html` | 1,444,325 B | 約 1,444 KB のまま | ほぼ 0 —— 見本は JS の字面（645,394 B）から JSON の容れ物（詰めた JSON で 645,474 B）へ移るだけ | 0.2 節の 1（見積もり）。⏸ 下がるのは `PND-611` の後 |
 | 書き出した `.html` | 本体＋見本＋文書 | 本体（約 799 KB）＋文書 | 見本の分（約 645 KB） | 同上 |
@@ -503,16 +526,16 @@ seeds: IO-7 OP-12 FR-067 FR-022 BT-1 BT-4 TP-2 TP-5 TP-6 MC-7
 
 | 波 | 持ち場 | 中身 | 体 |
 |---|---|---|---|
-| 0 | ― | 当てる木で 4 節の旧をもう 1 度数える（16 件とも 1 回）。`CR-611` ・ `CR-610` が当たったかを見る。問いの答えは受けてある（`JDG-970` 保留 ・ `JDG-973`）。`RS-67` ・ `MC-10` の番号を測り直す | 調整役 |
+| 0 | ― | 当てる木で 4 節の旧をもう 1 度数える（16 件とも 1 回）。`CR-611` ・ `CR-610` が当たったかを見る。問いの答えは受けてある（`JDG-970` 保留 ・ `JDG-973` ・ `JDG-993`）。`JDG-993` が本当の番号に置き換わっていることを見る。`RS-67` ・ `MC-10` の番号を測り直す | 調整役 |
 | 1 | 仕様の文（`01-04` ・ `05-07` ・ `_source/published-entries.json` ・ `_source/display-words.json`） | E-01 〜 E-17（E-09 を除く 16 件）。変更履歴に 1 行 | 仕様の持ち場 |
 | 2a | 生成器: `tools/generate_startup_template.py` ・ `tools/generate_exchange_formats.py` ・ 生成物 | 同じ森から見本と測る文書の 2 つの出力を書く（今はバイト単位で同じ）。版の 1 語の生成物。判別の組の一意（9 節）。⏸ 森は足さない | 実装の体 |
 | 2b | ビルド: `vite.config.ts` | 容れ物の差し込み（9 節） | 2a と同じ体 |
 | 2c | `DocumentCodec`: `embedded-html-codec.ts` ・ `document-codec.ts` ・ `app-shell-source.ts` | SEAM-1 〜 SEAM-3 | 実装の体 |
 | 2d | 殻（L4 の外）: `single-html-shell.ts` ・ `document-file-flow.ts` | 見本を容れ物から読む・ `BT-1` を同じ読み手で読む・ `RS-67` ・ `.html` の復号・上書きする先 | 2c と同じ体 |
 | 3 | **L4 の持ち場**: `frame-loop.ts` | `:207` の `import` を消す・ `:220` の版を生成物から・ `RS-67` の理由と作法（`:490` 付近の型、`:548` 付近の `NT` の表）。⛔ **L4 の合流を待つ** | 2d と同じ体。`cross-lane: frame-loop.ts for CR-612` の 1 コミットに分ける |
-| 4b | 仕様だけを読む試験の体 | SEAM-1 〜 SEAM-6 の新しい試験。変わった文を引く試験の書き直し: `tests/unit/fr-027-startup-shows-its-depth.test.ts`（`:110` 「バンドル済み」・ `:576-577` 「より行が多い」）・ `tests/unit/uf-47-48-choosers.test.ts:2451`・ `tests/nfr/nfr-002…:1675-1676`・ `tests/unit/uf-37-38.test.ts:30` ・ `:379`（`IO-7` は書出だけ）・ `tests/unit/uf-41-42.test.ts:36`（`comesIn: false`）・ `tests/contract/if-3-file-store.test.ts:637`（形式の名）・ `tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts`（見本の読み方） | 別の体（実装した体に書かせない） |
+| 4b | 仕様だけを読む試験の体 | SEAM-1 〜 SEAM-6（SEAM-4a を含む）の新しい試験。変わった文を引く試験の書き直し: `tests/unit/fr-027-startup-shows-its-depth.test.ts`（`:110` 「バンドル済み」・ `:576-577` 「より行が多い」）・ `tests/unit/uf-47-48-choosers.test.ts:2451`・ `tests/nfr/nfr-002…:1675-1676`・ `tests/unit/uf-37-38.test.ts:30` ・ `:379`（`IO-7` は書出だけ）・ `tests/unit/uf-41-42.test.ts:36`（`comesIn: false`）・ `tests/contract/if-3-file-store.test.ts:637`（形式の名）・ `tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts`（見本の読み方） | 別の体（実装した体に書かせない） |
 | 4c | 測る道具: `tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts` ・ `tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts` ・ `tools/probe/examples/lm-19-frame-time-baseline.mjs` | 出荷ビルドの写しを作り、見本の容れ物の中身を測る文書に差し替えて開く（`MC-10`）。`:1556` の比べを `MC-10` の件数に | 4b と別の体 |
-| 5 | ― | 実物で確かめる: `dist` の大きさ（`PG-7`）、容れ物が 1 つでハッシュが合う（`SWS-8`）、書き出した `.html` に見本が無い、その `.html` を別の `dist` の「開く」で開き、置き換え・合流（`U-61` に `UID` の一致が並ぶ）・重ねを押す、置き換えの後の `Ctrl` ＋ `S` が保存先を問う。性能を `PW-3` で測る | 調整役 |
+| 5 | ― | 実物で確かめる: `dist` の大きさ（`PG-7`）、容れ物が 1 つでハッシュが合う（`SWS-8`）、書き出した `.html` に見本が無い、その `.html` を別の `dist` の「開く」で開き、置き換え・合流（`U-61` に `UID` の一致が並ぶ）・重ねを押す、置き換えの後の `Ctrl` ＋ `S` が保存先を問う。`dist/index.html` そのものを開く道で開き、`OP-3` の問いの後に見本が開く。容れ物の無い `.html` が `RS-67` の語で断られる。性能を `PW-3` で測る | 調整役 |
 
 - ⚠️ `frame-loop.ts` に触れるので、規則 04 の 5 節 `PW-2` により `perf-pending.md` に 1 行が要る（調整役が書く）。測る文書が変わらないので、段 0 との比べはそのまま成り立つ（決定 5）。
 - ⚠️ 1 と 4b は同じ合流で当てる —— 1 だけでは check 42 が引用の書き直し待ちで赤になる。
@@ -529,11 +552,11 @@ seeds: IO-7 OP-12 FR-067 FR-022 BT-1 BT-4 TP-2 TP-5 TP-6 MC-7
 | `tools/generate_startup_template.py` | 出力先を 2 つにする: いまの 1 つの森（100 行 ・ 1000 件 ・ 3 年）から ① 出荷する見本 → `src/framework/single-html-shell/startup-template.json`（バイト単位で今のまま）、② 測る文書（`MC-10`）→ `tests/fixtures/measuring-document.json`（名は仮。① と同じバイト）。⏸ 森を足さない —— 見本を簡素にするのは `PND-611` の答えの後である。版の 1 語（`SCHEMA_VERSION`）を小さな生成物に書く（置き場は体が決め、`frame-loop.ts` ・ `single-html-shell.ts` ・ `document-file-flow.ts` がそこから読む）。`--check` は 3 つとも見る。`generate_image_to_grs_json_prompt.py` の `import generate_startup_template as startup`（`:44`）が使う `Builder` ・ `settings_defaults` ・ `SCHEMA_VERSION` の形は保つ | いいえ |
 | `tools/generate_exchange_formats.py` | `:228-233` の「先頭の文字の一意」を「（拡張子、先頭の文字）の組の一意」に替える（`:234-240` の拡張子の一意は残す）。`$comment` の文を合わせる（`DFC-1427`） | いいえ |
 | `vite.config.ts` | `transformIndexHtml`（開発サーバとビルドの両方）で `<script type="application/json" id="<見本の id>">…</script>` を `</body>` の前に差し込む。字面は見本の JSON を詰め、`<` を `<` に。見本のファイルが無い・JSON として読めないならビルドを止める。`inlineBuiltAssetsIntoHtml` のハッシュの対象（`type="module"` だけ）は変えない | いいえ |
-| `src/adapter/document-codec/embedded-html-codec.ts` | `documentFromEmbeddedHtml` を足す（`containerSpans` で見つけ、開始タグの `>` から閉じタグの前までを `documentFromJson` へ）。`exportEmbeddedHtml` は `AppShell` が名指す id の容れ物を外してから文書の容れ物を置く | いいえ |
+| `src/adapter/document-codec/embedded-html-codec.ts` | `documentFromEmbeddedHtml` を足す（渡された id を順に試し、`containerSpans` で最初に見つかった id の容れ物が 1 つなら、開始タグの `>` から閉じタグの前までを `documentFromJson` へ。2 つ以上・どの id も無いなら `entryCountNotOne`。SEAM-2）。読む順はこの 1 か所が持ち、呼ぶ側は id の並びを渡すだけ（決定 16）。`exportEmbeddedHtml` は `AppShell` が名指す id の容れ物を外してから文書の容れ物を置く | いいえ |
 | `src/adapter/document-codec/document-codec.ts` | `ExchangeFormat` に `'singleHtml'`、`ROW_OF_FORMAT` に `IO-7`。`formatFromFile` は組で行を引く（`:99-106`）。`documentFromEmbeddedHtml` を再公開（`PI-20`） | いいえ |
 | `src/adapter/document-codec/app-shell-source.ts` | `AppShell` に外す容れ物の id の欄を 1 つ | いいえ |
-| `src/framework/single-html-shell/single-html-shell.ts` | `:49` の `import` を消す。見本は頁の容れ物から読む（無ければ見本なし —— `BT-4` は `FR-095` の空の文書）。`:367-371` の色の元を、見本が無ければ空の文書に。`embeddedStartupDocument`（`:245-285`）は `deliveredAppShellHtml` を `documentFromEmbeddedHtml` で読む。`:201` を `RS-67` に。`appShellSource`（`:152-168`）が見本の id を渡す。`:544` の版を生成物から | いいえ |
-| `src/framework/single-html-shell/document-file-flow.ts` | `decodedDocument`（`:208-237`）に `'singleHtml'`（`documentFromEmbeddedHtml` → `IO-2` と同じ答え、容れ物の数が違えば `RS-67` の断り）。`isOverwritableOpenedFile`（`:677-679`）を「`IO-2` の拡張子で終わる名だけ」に。`:124-130` の `TRAP` の注の対（`document-codec.ts` の地図）を合わせる | いいえ |
+| `src/framework/single-html-shell/single-html-shell.ts` | `:49` の `import` を消す。見本は頁の容れ物から読む（無ければ見本なし —— `BT-4` は `FR-095` の空の文書）。`:367-371` の色の元を、見本が無ければ空の文書に。`embeddedStartupDocument`（`:245-285`）は `deliveredAppShellHtml` を `documentFromEmbeddedHtml` で読む（渡す id は文書の容れ物の 1 つだけ。0 件なら `BT-4` へ降りる）。`:201` を `RS-67` に。`appShellSource`（`:152-168`）が見本の id を渡す。`:544` の版を生成物から | いいえ |
+| `src/framework/single-html-shell/document-file-flow.ts` | `decodedDocument`（`:208-237`）に `'singleHtml'`（`documentFromEmbeddedHtml` に [文書の容れ物の id, 見本の容れ物の id] の順で渡す → 読めれば `IO-2` と同じ答え。文書の容れ物が無ければ見本の容れ物へ落ちる —— 本体の `index.html` は見本を返し、その後は `OP-5` → `OP-3` をほかのファイルと同じく通る。`entryCountNotOne` なら `RS-67` の断り）。見本の容れ物の id は、`single-html-shell.ts` が `appShellSource` に渡すのと同じ 1 つの定数から取る（決定 16）。`isOverwritableOpenedFile`（`:677-679`）を「`IO-2` の拡張子で終わる名だけ」に。`:124-130` の `TRAP` の注の対（`document-codec.ts` の地図）を合わせる | いいえ |
 | `src/framework/single-html-shell/frame-loop.ts`（⛔ L4 を待つ） | `:207` の `import` を消し、`:220` の `GREATEST_KNOWN_SCHEMA_VERSION` を生成物から。`RS-67` を理由の型と作法の表に | ⚠️ ファイルは表の上で毎フレームの経路（`PW-2`）。動くのは `import` と定数だけ |
 | `tests/nfr/*` ・ `tools/probe/examples/lm-19-frame-time-baseline.mjs` ・ 変わった文を引く試験 | 8 節の波 4b ・ 4c（⏸ 見本を読む 127 本は向け直さない） | いいえ |
 
@@ -563,7 +586,7 @@ seeds: IO-7 OP-12 FR-067 FR-022 BT-1 BT-4 TP-2 TP-5 TP-6 MC-7
 | **問い 2 —— 起動の道（`BT-1`、ダブルクリックで開いた `.html`）にも `FR-023` の検証を掛けるか**（`PND-452`） | **掛ける**: 同じ `.html` が「開く」でも起動でも同じ検証を通る（本書で開く道は掛かるようになる）。代償: `JDG-78` により異常系の手当てはリファクタの後（`DFC-586`）に回る約束であり、拒む語は `PND-447` 待ち。表 T-008 に起動の経路の行を 1 つ足すことになる ／ **掛けない（いまのまま）**: 起動の道は、書き出した本人の手元の `.html` を開くことが多い。代償: 同じファイルが開き方で違う扱いになる | ⭐ **掛ける**（`PND-452` の推奨と同じ）。本書の決定 7 で読み手が 1 つになったので、掛けるのは 1 か所の呼び出しで済む。当てるのは `DFC-586` の後でよい。⭐ **答え: 掛ける（`JDG-973`）** —— 決定 14 |
 
 ⭐ 問い 1 の保留に合わせて E-09 を外した。問い 2 の答えは本書のどの編集も変えない（当てるのは `DFC-586` の時）。
-⚠️ 語（E-17）は起草であり、問 1 〜 11 には入っていなかった —— 前に立つ者が当てる前に利用者に見せるなら、`RS-67` の 1 組だけ。
+⭐ 起草のときに残していた `RS-67` の語（E-17。問 1 〜 11 には入っていなかった）は、2026-10-01 に前に立つ者が利用者に見せ、答えを得た（`JDG-993`、逐語は 0.1 節）—— 語は 1 つの短い断りに替わり（E-13 ・ E-17）、`GRS` 本体の `index.html` を開く道で開けば見本が開く（決定 16、E-03 ・ E-12、SEAM-2 ・ SEAM-4a）。
 見本の大きさは本書の外の `PND-611` が持つので、本書に残る問いは無い。
 
 ---
@@ -578,6 +601,7 @@ seeds: IO-7 OP-12 FR-067 FR-022 BT-1 BT-4 TP-2 TP-5 TP-6 MC-7
 | `JDG-879` ・ `JDG-888` | 0.1 節 | 「指示 —— 調整役が投入時期を決める」→ 前に立つ者が「指示 —— `CR-612` が当てる」に（本書は記録を書かない） |
 | `JDG-970` ・ `PND-611` | 問い 1 の答え（保留）と、その記録 | 前に立つ者が起こした。`PND-611` は見本を簡素にするまで開いたまま |
 | `JDG-973` | 問い 2 の答え（掛ける） | 前に立つ者が起こした。当てるのは `DFC-586` の時 |
+| `JDG-993` | `RS-67` の語（1 つの短い断り）と、`GRS` 本体の `index.html` を開く道で開けば見本が開くこと（決定 9 ・ 決定 16） | 前に立つ者が起こす（番号は前に立つ者が振り、本書の `JDG-993` を置き換える）。状態は「指示 —— `CR-612` が当てる」 |
 | `PND-452` | 問い 2 | 開く道の分は本書で閉じる（`OP-5` が掛かる）。起動の道は `JDG-973` が「掛ける」と決めた —— 当てるのは `DFC-586` の時 |
 | `DFC-1425` | 起動の道の「入れ口が 2 つ以上」の告げが、行の無い理由 `RS-15` で出ている（`single-html-shell.ts:200-201`、0.2 節の 15） | 前に立つ者が起こした。本書の `RS-67` で閉じる |
 | `DFC-1426` | 表 T-008 の `CHN-2` に、いまも通っている単一 `.html` の書き出しが無い（決定 10） | 同。本書の E-02 で閉じる |
@@ -658,6 +682,10 @@ PYTHONIOENCODING=utf-8 python <scratchpad>/g612/verify.py change-request/CR-612-
 #   CR-612 old blocks=16, each once in its file; the four drafts applied in the order
 #   610 -> 611 -> 612 -> 613 to in-memory copies: every old block once (bad=0);
 #   MUST / MUST NOT markers in 01-04: 2234 -> +6 (E-08 +1, E-10 -1, E-12 +2, E-14 +4)
+# re-measured 2026-10-01 after the answer JDG-993 (E-03, E-12, E-13, E-17 rewritten), LF normalised:
+#   old blocks=16, each once in its file (bad=0); the old blocks themselves did not change;
+#   MUST / MUST NOT markers in 01-04: 2234 -> 2241, +7 (E-08 +1, E-10 -1, E-12 +3, E-14 +4);
+#   after the edits: MC rows 10, RS rows 62
 grep -o "（MUST\( NOT\)\?）" docs/spec/01-04-requirements.md | wc -l   # -> 2234
 grep -c "^| MC-" docs/spec/01-04-requirements.md                        # -> 9
 grep -c "^| RS-" docs/spec/01-04-requirements.md                        # -> 61
@@ -670,4 +698,6 @@ grep -n "for key, what\|share an" tools/generate_exchange_formats.py   # -> :228
 - 小さい見本の大きさは、1000 件の平均からの比例の見積もりである。小さい森で生成して測ってはいない（生成器が行の数を変えられないため）。
 - 走らない JSON の容れ物が方針に拒まれないことは、`BT-1` の容れ物が同じ方針の下で開いていること（既存の試験）から言った。見本の容れ物を差し込んだビルドを作って `SWS-8` を走らせてはいない。
 - 開く道で `.html` を読み、`U-61` に `UID` の一致が並ぶことは、コードを読んで言った（`OP-5` → `OP-3` → `FR-022` の道は `IO-2` と同じ）。走らせてはいない。
+- 本体の `index.html` を開く道で開いて見本が開くこと（決定 16）と、開く道で開いた見本の最初の表示が `FR-055` の全体表示になることは、`OP-10` の文から言った。走らせてはいない（見本の容れ物を持つビルドがまだ無い）。
+- `JDG-993` の後に 4 本を写しへ当て直してはいない —— 4 節の旧は 1 つも変えていないので、`610` → `611` → `612` → `613` の順の結果（bad=0）はそのまま立つ。
 - `CR-610` ・ `CR-611` は、4 節の旧が重なるかと、`CR-611` の空の文書の置き場（`src/framework/single-html-shell/empty-document.json`、見本の容れ物ではない —— 決定 4 の前提を満たす）だけを読んだ。表の番号は前に立つ者が振り分けた（`CR-610` が T-340 ・ T-341、`CR-611` が T-342）。
