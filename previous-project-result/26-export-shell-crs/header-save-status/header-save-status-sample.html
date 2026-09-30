@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Header save status sample</title>
+<style>
+  /* Page text for the reader (16px / 1.7). The headers below keep the app's own sizes. */
+  body { margin: 0; padding: 16px; font: 16px/1.7 system-ui, sans-serif; color: #1f2328; background: #ffffff; }
+  h1 { font-size: 20px; margin: 0 0 8px; font-weight: normal; }
+  p { margin: 4px 0 12px; max-width: 60em; }
+  .case { margin: 18px 0 6px; }
+  .case b { font-weight: bold; }
+  .readout { font-size: 13px; color: #57606a; margin: 2px 0 0; }
+  .readout.bad { color: #b42318; }
+  .controls { margin: 8px 0 16px; }
+  /* Ground: the host's ground text; the app header inherits it (font:inherit). */
+  .ground { font-size: var(--g, 16px); line-height: normal; }
+
+  /* App Header, copied from STYLE.appHeader (dom-screen-surface.ts). */
+  .hdr { box-sizing: border-box; display: flex; align-items: center; gap: 0.75em;
+         padding: 0.375em 0.75em; line-height: 1.5; overflow: hidden; white-space: nowrap;
+         background: #ffffff; color: #1f2328; border: 1px solid #d0d7de; border-top: 0;
+         border-left: 0; border-right: 0; max-width: 960px; outline: 1px dashed #d0d7de; }
+  /* Document Title: S-225 (20px) x S-235 (0.6667), line-height 1.2. */
+  .title { font-size: calc(20px * 0.6667); line-height: 1.2; overflow: hidden; text-overflow: ellipsis;
+           padding-left: calc(8px * 0.6667); }
+  /* Header entries: S-138 16px, S-141 4px, S-237 1px, all x S-235. */
+  .cmds { display: flex; align-items: center; gap: 0.25em; }
+  .cmd { font: inherit; box-sizing: border-box; display: inline-flex; align-items: center;
+         justify-content: center; min-width: calc((16px + (4px + 1px) * 2) * 0.6667);
+         min-height: calc((16px + 4px * 2) * 0.6667); padding: 0 calc(4px * 0.6667);
+         border: calc(1px * 0.6667) solid #d0d7de; border-radius: 0.25em; background: #f6f8fa; }
+  .cmd svg { display: inline-block; vertical-align: middle; width: calc(16px * 0.6667);
+             height: calc(16px * 0.6667); }
+
+  /* File Status block. */
+  .fs { margin-left: auto; color: #57606a; display: flex; flex-direction: column;
+        align-items: flex-end; line-height: 1.2; }
+  .fs span { flex-shrink: 0; }
+  .fs .name { overflow: hidden; text-overflow: ellipsis; max-width: 24ch; }
+  .fs .lower { white-space: pre; }
+  /* Today: S-210 0.75em on the block, both lines inherit, in the flow (the header grows). */
+  .fs.today { font-size: 0.75em; }
+  /* Candidates: the block takes no height in the flow (height 0, its two lines hang
+     evenly above and below the header's middle), so it can never change the header
+     height; base = ground x S-235, then the row's coefficient. */
+  .fs.cand { height: 0; justify-content: center; }
+  .fs.cand .name  { font-size: calc(var(--g, 16px) * 0.6667 * var(--upper)); }
+  .fs.cand .lower { font-size: calc(var(--g, 16px) * 0.6667 * var(--lower)); }
+</style>
+</head>
+<body>
+<h1>ヘッダーのファイルの状態 —— 下段の字の大きさの見本（CR-610）</h1>
+<p>上段にファイル名、下段に保存した日時と大きさ。下の見出しは、アプリの <code>App Header</code> と同じ寸法で組んである（入口の箱 16px、<code>Document Title</code> 13.3px、上下の余白 0.375em）。各見出しの下に、測ったヘッダーの高さを出す。</p>
+<p>⭐ 推奨は <b>候補 A</b>（上段 12px ＝ いまの名前の大きさのまま、下段 10px）。</p>
+
+<div class="controls">
+  宿主の地の文字:
+  <label><input type="radio" name="g" value="16" checked> 16px（既定）</label>
+  <label><input type="radio" name="g" value="20"> 20px</label>
+  <label style="margin-left:1em"><input type="checkbox" id="long"> 長いファイル名</label>
+</div>
+
+<div id="cases" class="ground"></div>
+
+<script>
+// Build the same header five times; only the File Status block differs.
+(function () {
+  'use strict';
+  var GLYPH = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+  var CASES = [
+    { key: 'base', label: '基準 —— ファイルの状態を描かない（この高さを変えないこと）', fs: null },
+    { key: 'today', label: 'いま —— 2 段とも 12px、流れの中に置く（ヘッダーが高くなる）', fs: 'today' },
+    { key: 'A', label: '候補 A（推奨）—— 上段 12px（係数 1.125）、下段 10px（係数 0.9375）', fs: 'cand', upper: 1.125, lower: 0.9375 },
+    { key: 'B', label: '候補 B —— 上段 10.7px（係数 1.0）、下段 9.3px（係数 0.875）', fs: 'cand', upper: 1.0, lower: 0.875 },
+    { key: 'C', label: '候補 C —— 上段 12px（係数 1.125）、下段 10.7px（係数 1.0）', fs: 'cand', upper: 1.125, lower: 1.0 }
+  ];
+  var root = document.getElementById('cases');
+  var baseHeight = null;
+
+  function fileName() {
+    return document.getElementById('long').checked
+      ? 'three-year-plan-with-a-rather-long-file-name-for-review.json'
+      : 'three-year-plan.json';
+  }
+
+  function header(c) {
+    var h = document.createElement('div');
+    h.className = 'hdr';
+    var t = document.createElement('span');
+    t.className = 'title';
+    t.textContent = 'Sample Project';
+    h.appendChild(t);
+    if (c.fs !== null) {
+      var fs = document.createElement('span');
+      fs.className = 'fs ' + c.fs;
+      if (c.fs === 'cand') {
+        fs.style.setProperty('--upper', String(c.upper));
+        fs.style.setProperty('--lower', String(c.lower));
+      }
+      var n = document.createElement('span');
+      n.className = 'name';
+      n.textContent = fileName();
+      var l = document.createElement('span');
+      l.className = 'lower';
+      l.textContent = c.fs === 'today' ? '2026-10-01 14:03:27' : '2026/10/01 14:03:27  48.2[kB]';
+      fs.appendChild(n);
+      fs.appendChild(l);
+      h.appendChild(fs);
+    }
+    var cmds = document.createElement('span');
+    cmds.className = 'cmds';
+    if (c.fs === null) cmds.style.marginLeft = 'auto';
+    for (var i = 0; i < 8; i += 1) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cmd';
+      b.innerHTML = GLYPH;
+      cmds.appendChild(b);
+    }
+    h.appendChild(cmds);
+    return h;
+  }
+
+  function render() {
+    root.innerHTML = '';
+    baseHeight = null;
+    CASES.forEach(function (c) {
+      var wrap = document.createElement('div');
+      wrap.className = 'case';
+      var cap = document.createElement('div');
+      cap.textContent = c.label;
+      var h = header(c);
+      var out = document.createElement('div');
+      out.className = 'readout';
+      out.setAttribute('data-case', c.key);
+      wrap.appendChild(cap);
+      wrap.appendChild(h);
+      wrap.appendChild(out);
+      root.appendChild(wrap);
+    });
+    measure();
+  }
+
+  // Header height, and how far the File Status block runs outside the header's border box.
+  function measure() {
+    var outs = root.querySelectorAll('.readout');
+    var heads = root.querySelectorAll('.hdr');
+    heads.forEach(function (h, i) {
+      var hr = h.getBoundingClientRect();
+      if (i === 0) baseHeight = hr.height;
+      var fs = h.querySelector('.fs');
+      var over = 0;
+      if (fs !== null) {
+        // The two lines, not the block: a candidate block is 0 high.
+        var top = Infinity;
+        var bottom = -Infinity;
+        fs.querySelectorAll('span').forEach(function (s) {
+          var sr = s.getBoundingClientRect();
+          top = Math.min(top, sr.top);
+          bottom = Math.max(bottom, sr.bottom);
+        });
+        over = Math.max(0, hr.top - top, bottom - (hr.bottom - 1));
+      }
+      var same = Math.abs(hr.height - baseHeight) < 0.5;
+      outs[i].textContent =
+        'ヘッダーの高さ ' + hr.height.toFixed(1) + 'px' +
+        (i === 0 ? '' : same ? '（基準と同じ）' : '（基準より ' + (hr.height - baseHeight).toFixed(1) + 'px 高い）') +
+        (fs === null ? '' : ' ／ 箱のはみ出し ' + over.toFixed(1) + 'px');
+      outs[i].className = 'readout' + (same && over < 0.05 ? '' : ' bad');
+      outs[i].setAttribute('data-height', hr.height.toFixed(2));
+      outs[i].setAttribute('data-over', over.toFixed(2));
+    });
+  }
+
+  document.querySelectorAll('input[name="g"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      root.style.setProperty('--g', r.value + 'px');
+      render();
+    });
+  });
+  document.getElementById('long').addEventListener('change', render);
+  render();
+})();
+</script>
+</body>
+</html>
