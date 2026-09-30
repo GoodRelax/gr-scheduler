@@ -359,8 +359,9 @@ const NT_7_ONLY_WHERE_ASKED = '問うてよいのは、要求が確認を求め�
 /** The sentence CR-327 added: the answers are words, not shapes. */
 const NT_7_WORD_BUTTONS = '答えの入口は、図形ではなく語のボタンとすること（MUST）'
 /** ⛔ And where those words come from, spelt the same in every display language. */
+// WHY: CR-574 dropped the word "display" from this clause of T-037 NT-7.
 const NT_7_SAME_IN_EVERY_LANGUAGE =
-  '`FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No` と綴ること（MUST）'
+  '`FR-038` の辞書の `confirmation` の語を、どの言語でも `Yes` / `No` と綴ること（MUST）'
 /** ⛔ The MUST NOT that takes the two off table T-109. */
 const NT_7_NO_ROW_OF_T_109 = '答えの入口に 表 T-109 の行を与えてはならない（MUST NOT）'
 /** ⭐ The head letter, and why it is drawn bold. */

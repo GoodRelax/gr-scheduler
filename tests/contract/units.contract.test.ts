@@ -7,6 +7,18 @@ import { bare, bareAll, specTable } from './spec-table'
 
 const T075 = specTable('T-075')
 const T062 = specTable('T-062')
+const T074 = specTable('T-074')
+
+// WHY: table T-074 SU-3 states the unit count in prose; a literal here went
+// stale (this file said 160 while T-075 already held 167). Read SU-3 instead.
+const STATED_UNIT_COUNT = ((): number => {
+  const row = T074.rows.find((one) => one.id === 'SU-3')
+  if (row === undefined) throw new Error('table T-074 no longer has a row SU-3')
+  const cell = row.by['本設計での全数'] ?? ''
+  const found = /\d+/.exec(cell)
+  if (found === null) throw new Error(`table T-074 row SU-3 no longer states a number of units: ${JSON.stringify(cell)}`)
+  return Number(found[0])
+})()
 
 const LAYER_FOLDER: Record<string, string> = {
   documentModel: join('entity', 'document-model'),
@@ -47,8 +59,8 @@ const purityTagsIn = (text: string): readonly string[] =>
   [...text.matchAll(/@purity\s+([a-z/-]+)/g)].map((hit) => hit[1] ?? '')
 
 describe('table T-075 -- the unit inventory', () => {
-  it('counts the 160 units table T-075 states', () => {
-    expect(units).toHaveLength(160)
+  it('counts the units table T-074 SU-3 states', () => {
+    expect(units).toHaveLength(STATED_UNIT_COUNT)
   })
 
   it('names one public entry per component, and 37 of them', () => {

@@ -1174,6 +1174,17 @@ const ROW_PICKED: Frame = frameWith({
   readings: sessionWith({ selectedGroupIds: [THE_ROW] }),
 })
 
+// see CR-582, MH-3
+// WHY: placedRows makes the panel show `current`, not `currentlyHidden`; kept
+// off ROW_PICKED so every other `properties` place() reads that one unchanged.
+const ROW_PLACED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_ROW,
+  readings: sessionWith({
+    selectedGroupIds: [THE_ROW],
+    placedRows: [{ groupId: THE_ROW, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
+  }),
+})
+
 /**
  * A comment box picked on the schedule -- AR-5 of table T-023b, and the 対象
  * PR-21 carries (CR-368).
@@ -1697,6 +1708,43 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
   })
 }
 
+// see CR-582, MH-3, MH-4, MH-5, MH-6, FR-042
+// WHY: keyed by which control the field is, not by a row -- no row of table
+// T-016 names it, the same reason `defaultNames` is keyed by `use`.
+const ROW_MIN_HEIGHT_PX_SLOT = '{px}'
+const minHeightFieldOf = (view: ScreenView) =>
+  view.propertiesPanel?.fields.find((field) =>
+    field.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'minHeight'),
+  )
+const minHeightControlOf = (view: ScreenView) =>
+  minHeightFieldOf(view)?.controls.find(
+    (control) => control.key.holder === 'taskGroup' && control.key.column === 'minHeight',
+  )
+// WHY: MH-3's `current` fills the `{px}` slot with the real height, so this
+// puts the digits back to see the literal word (as `readoutWordOf` does for DC-3).
+const minHeightWordOf = (text: string): string => text.replace(/\d+/, ROW_MIN_HEIGHT_PX_SLOT)
+for (const entry of GENERATED['rowMinHeightField'] ?? []) {
+  const part = keyOf('rowMinHeightField', entry)
+  place({
+    section: 'rowMinHeightField',
+    key: part,
+    field: 'text',
+    unit: 'UF-67',
+    what: `the ${part} word MH-3..MH-6 of table T-338 have the Row Title Panel's min-height field show`,
+    // WHY: MH-6 withholds the number while the row is not drawn (ROW_PICKED's
+    // state, no placedRows entry) -- `current` needs ROW_PLACED instead.
+    frame: part === 'current' ? ROW_PLACED : ROW_PICKED,
+    read: (view) => {
+      if (part === 'unit') return minHeightFieldOf(view)?.unit
+      if (part === 'none') return minHeightControlOf(view)?.placeholder
+      // WHY: `current` and `currentlyHidden` are the same field's `readout`,
+      // told apart by which frame reads it (see `frame` above).
+      const readout = minHeightFieldOf(view)?.readout
+      return readout === undefined ? undefined : minHeightWordOf(readout)
+    },
+  })
+}
+
 /** One case per place per language, so a failure names one cell of the dictionary. */
 interface Case extends Place {
   readonly language: string
@@ -1826,6 +1874,8 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
       what: `the import refusal ${row} of table T-220 raises, in the manner of ${IMPORT_REFUSAL_MANNER}`,
       frame: TELLING(IMPORT_REFUSAL_MANNER, row),
     })),
+    // see CR-582, MH-3
+    { what: 'a picked row that is placed (MH-3 of table T-338)', frame: ROW_PLACED },
   ]) {
     if (seen.has(one.frame)) continue
     seen.add(one.frame)
@@ -1894,6 +1944,20 @@ const helpNoteFramesShowing = (
     const text = helpEntryText(viewOf(screenViewFromRegions, one.frame, language), rowId)
     return text !== undefined && text.includes(word)
   })
+
+// see CR-582, FR-038
+// WHY: `current` carries a `{px}` slot filled with the real height, so a
+// literal match would never see it -- the other three entries hold no slot.
+const escapeForRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const rowMinHeightFieldFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(`^${word.split(ROW_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
+  return FRAMES.filter((one) =>
+    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+  )
+}
 
 // ---------------------------------------------------------------------------
 // 1. THE CARRIAGE -- what a written word has to satisfy.
@@ -2388,7 +2452,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
-              : framesShowing(printed, cell.language)
+              : cell.section === 'rowMinHeightField'
+                ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
+                : framesShowing(printed, cell.language)
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +
