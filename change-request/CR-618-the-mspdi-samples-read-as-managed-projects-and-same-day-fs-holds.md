@@ -1,6 +1,7 @@
 # CR-618 — `sample-schedule/` の MSPDI の見本を「ふつうに管理されたプロジェクト」にし、同じ日の FS を矛盾にしない
 
-> 起草の状態: 起草（2026-10-01、枝 `sample-and-folders`）。まだ当てていない。
+> 起草の状態: 当てた —— W0 〜 W4（2026-10-01、枝 `samples-cr618`、`refactor` `84eb19e5` から切った。調整役の割り当て）。4 節の旧 4 つは当てる木で各 1 回だけ現れた。⚠️ **W5（生成器が出荷する見本の写しを `sample-schedule/` に書く）は当てていない** —— `CR-611`・`CR-612` の後に当てる（8 節）。それまで `Three-Year Product Plan.json` は古い写しのまま残る。表 S は当てるときに測った数へ書き直した（`JDG-1040`、9.2 節）。起草は 2026-10-01 の `842f3082`（枝 `sample-and-folders`）。
+> 当てた体の ID の帯: `JDG-1040`〜`JDG-1044`・`DFC-1620`〜`DFC-1624`・`PND-625`〜`PND-626`（使ったのは `JDG-1040`・`JDG-1041`・`DFC-1620`）。
 > 読んだ木: `refactor` `842f3082`（枝 `sample-and-folders` の作業木）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-618`・`JDG-998`・`JDG-1001`〜`JDG-1005`・`JDG-1015`〜`JDG-1017`・`JDG-1021`〜`JDG-1025`・`DFC-1490` を受けた（`JDG-1021`・`JDG-1022` は `CR-619` が、`JDG-1023` は本書が使う）。本書は表・接頭辞・設定の行を足さない（2 節）。
 > 当てる順: `CR-611`（見本の題）・`CR-612`（見本の容れ物と `MC-10`）とは、仕様の旧も触るファイルも重ならない（8 節）。⭐ 本書は出荷する見本（`FR-027`・表 T-226・`startup-template.json`）を触らない（`JDG-1001`）。
@@ -119,7 +120,7 @@
 ```
 新
 ```text
-| BD-2 | 前向きに流す | 依存の `linkType` ・ `lag` と暦をそのままに、日付だけを実績と見込みへ差し替えて前向きに流し、各 `Task` の最早開始（`DQ-1` の基）を求める。<br>⭐ 依存が課す最早の日は 表 T-310 の `VC-15` の式と同じ読みとする —— FS の後続の最早開始は、先行の見込み終了と **同じ日** ＋ `lag` であり、翌稼働日ではない。`VC-15` が同じ日を許すのに流しが翌日を求めると、FS で組んだ計画が、鎖を辿るごとに 1 日ずつ持ち込まれた遅れを持つ。<br>⭐ 最早開始は `start` を下回らない —— 依存だけから決めた最早開始が `start` より早いと、予定どおりに始めて予定どおりに終えたタスクに、自分で生んだ遅れが立ってしまう。<br>未着手の `Task` の最早開始は、さらに基準日を下回らない。<br>WBS の親（子を持つ `Task`）は自分で遅れを生まず（`DQ-3` は 0）、子の最も遅い見込み終了を自分の見込み終了とする —— 親を発生源に数えると、子の遅れを二重に数える |
+| BD-2 | 前向きに流す | 依存の `linkType` ・ `lag` と暦をそのままに、日付だけを実績と見込みへ差し替えて前向きに流し、各 `Task` の最早開始（`DQ-1` の基）を求める。<br>⭐ 依存が課す最早の日は 表 T-310 の `VC-15` の式と同じ読みとする —— FS の後続の最早開始は、先行の見込み終了と **同じ日** ＋ `lag` であり、翌稼働日ではない。<br>`VC-15` が同じ日を許すのに流しが翌日を求めると、FS で組んだ計画が、鎖を辿るごとに 1 日ずつ持ち込まれた遅れを持つ。<br>⭐ 最早開始は `start` を下回らない —— 依存だけから決めた最早開始が `start` より早いと、予定どおりに始めて予定どおりに終えたタスクに、自分で生んだ遅れが立ってしまう。<br>未着手の `Task` の最早開始は、さらに基準日を下回らない。<br>WBS の親（子を持つ `Task`）は自分で遅れを生まず（`DQ-3` は 0）、子の最も遅い見込み終了を自分の見込み終了とする —— 親を発生源に数えると、子の遅れを二重に数える |
 ```
 
 <!-- EDIT id=E-03 file=docs/spec/01-04-requirements.md -->
@@ -129,7 +130,7 @@
 ```
 新
 ```text
-⭐ 実測（2026-09 に見本ファイル 7 つを読んだ。そのうち ProjectLibre の書いた 1 つは、2026-10-01 に `sample-schedule/` から外した —— 実物はコミット `2e2b0957` に残る）: MS Project は `OutlineLevel` 0 の行をちょうど 1 つ書き（`UID` 0・`ID` 0・`OutlineNumber` 0 —— プロジェクトの要約タスクである）、ProjectLibre は 1 つも書かない（`UID` は 1 から）。  
+⭐ 実測（2026-09 に見本ファイル 7 つを読んだ —— そのうち ProjectLibre の書いた 1 つは 2026-10-01 に `sample-schedule/` から外し、実物はコミット `2e2b0957` に残る）: MS Project は `OutlineLevel` 0 の行をちょうど 1 つ書き（`UID` 0・`ID` 0・`OutlineNumber` 0 —— プロジェクトの要約タスクである）、ProjectLibre は 1 つも書かない（`UID` は 1 から）。  
 ```
 
 <!-- EDIT id=E-04 file=docs/spec/01-04-requirements.md -->
@@ -190,6 +191,8 @@
 | 表 T-310 の行 | 15 | 15 |
 | `sample-schedule/` のファイル | 9 | 7（`ProjectLibre.xml` と `No Name.json` を消す。JSON の写しは 1 つのまま） |
 
+⭐ **当てた後の実測**（`samples-cr618`、`grep -c` と `ls`）: `01-04-requirements.md` の `（MUST NOT）` は 731 → 732（＋1）。`sample-schedule/` のファイルは 9 → 7。
+
 ## 8. 波 —— 持ち場で割る
 
 | 波 | 持ち場（ファイル） | 毎フレーム | 中身 |
@@ -211,22 +214,37 @@
 - `src/entity/document-model/schedule/delay-diagnostics.ts:390-398` —— `linkHolds` の `least` を 4 つとも `0` にし、コメント「`ND-3` により FS は翌日、SF は前日を許す」を「`VC-15` の式のとおり、同じ日は反しない（E-01）」に替える。`VS-4`（`:589`）は同じ関数なので同時に直る。
 - 同じファイル `:744` —— `case FINISH_TO_START: return nextWorkingDay(facts.calendar, flow.projectedFinish)` を、同じ日（`flow.projectedFinish`）に替える（E-02）。⚠️ `lag` の足し方と、ほかの 3 つの型の境（`:740-750`）は、E-02 の「`VC-15` の式と同じ読み」に合わせて読み直す。
 - 当てる体は `grep -n "nextWorkingDay\|least" delay-diagnostics.ts` で、同じ読みの箇所がほかに無いかを数える。
+- ⭐ **当てた変更**（`84eb19e5` の行番号。`CR-616`・`CR-617` が後で同じファイルを触るので、ここに全部を書く）: ① `:389` のコメント（`ND-3` の読み）を「日は日として比べ、同じ日は反しない（`VC-15`）。`ND-3` は見せ方だけ」に替えた ② `:393` FS の `least` 1 → 0 ③ `:396` SF の `least` -1 → 0 ④ `:744` FS の `nextWorkingDay(facts.calendar, flow.projectedFinish)` → `flow.projectedFinish` ⑤ `:746` SF の `startFor(dateFromWorkingDays(facts.calendar, began, -1))` → `startFor(began)`（決定 6 と E-02 の「`VC-15` と同じ読み」に揃えた）⑥ `:15` 使わなくなった `nextWorkingDay` の import を外した。`grep` で数えた同じ読みの箇所は、この 5 つのほかに 0。`lag` は今も読まない（`:334` の STOP のまま —— 本書の外）。
 
 ### 9.2 見本（表 S）
 
 ⭐ **表 S — 見本が診断で出すもの**（基準日は各ファイルの `StatusDate`。数は `diagnoseDelay` の `DG-` ごとの `Task` の数。9.1 を当てた後に数える）
 
-| 見本（en と ja は同じ数） | タスク | `DG-2` ボトルネック（5%） | `DG-3` 経路（木の上限、`JDG-1016`） | `DG-1` 紫（広がりを含め 5%） | `DG-4` 遅れ | 表 T-311・T-312 の指摘 |
-|---|---:|---:|---:|---:|---|---|
-| 小 `sample-small-website-renewal` | 45 | 2 | 2（4%） | 2 | 1 件以上 | `VS-5` 0 |
-| 中 `sample-medium-sfa-webapp` | 134 | 7 | 14（10%） | 7 | 1 件以上 | `VS-5` 0 |
-| 大 `sample-large-erp-program` | 256 | 13 | 26（10%） | 13 | 1 件以上 | `VS-5` 0 |
+⚠️ **当てたときに書き直した（`JDG-1040`、2026-10-01）。** 起草の表は `DG-2` を 5%（小 2・中 7・大 13）、`DG-3` の上限を「ボトルネックの数 × 祖先の段の数」（小 2・中 14・大 26）としていた。当てる体が測ると、どちらもこの計画の形では届かない:
 
-- **許す幅**: `DG-2` と `DG-1` は ±1、`DG-3` は上限から −2 まで。T8 はこの幅で見る。
+- **`DG-3` の木の上限**は、ボトルネックが互いに違う祖先を持つときの、違う祖先の数である。中は段 2 の要約が 5 つ（どれも「5 Iterative Development」の下）しかないので、ボトルネック 7 つでも 5 ＋ 段 1 の 3（5 と、ほかの 2 つ）＝ **8**。大は段 2 の要約 25 のうち 13 を、段 1 の親 6 つにまたがって選んで 13 ＋ 6 ＝ **19**。小は段 1 の要約 2 つで **2**。
+- **`DG-2` が立つ所**は、着手済みで予定の終了が基準日より前の葉から、押し出しが終端（後続の無い `Task` とマイルストーン）まで届く所だけである（表 T-313 の `BD-1`・`BD-4`）。見本の計画はフロートが多く（大）、作業がほぼ直列で（中・小）、数日の遅れが終端へ届く独立した鎖は、どの基準日でも 小 2・中 2 〜 3・大 11 しか無かった（測り方は 13 節）。
+- 利用者は「データが許す量で止める」と裁定した（`JDG-1040`）—— 遅れは数日のまま、「ふつうに管理された」見た目を優先し、計画の日付は変えない。下の表は、その量を当てた木で測った数である。
+
+| 見本（en と ja は同じ数） | タスク | 基準日 | `DG-2` ボトルネック | `DG-3` 経路（木の上限） | `DG-1` 紫（広がりを含む） | `DG-4` 遅れ | 指摘（表 T-310〜T-312） |
+|---|---:|---|---:|---:|---:|---:|---|
+| 小 `sample-small-website-renewal` | 45 | 2026-10-09 | 2（4.4%） | 1（上限 2） | 2（4.4%） | 1 | `VC-5` 1（紫の種）だけ |
+| 中 `sample-medium-sfa-webapp` | 134 | 2026-09-09 | 2（1.5%） | 3（上限 8） | 7（5.2%） | 2 | `VC-5` 1（紫の種）だけ |
+| 大 `sample-large-erp-program` | 256 | 2026-12-09 | 11（4.3%） | 14（上限 19） | 13（5.1%） | 9 | `VC-5` 1（紫の種）だけ |
+
+- **許す幅**: `DG-2` と `DG-1` は表の数 ±1。`DG-3` は表の数 −2 から木の上限まで。`DG-4` は 1 以上。指摘は `VC-5` がちょうど 1 で、ほかの行（`VS-5` を含む）は 0。T8 はこの幅で見る。
+- **小の `DG-3` が上限 2 に届かない理由**: 小の計画は 1 本の鎖（中身 → 構築 → 試験 → 公開）であり、同じ基準日に別々の段 1 の下で 2 つを遅らせると、上流の遅れが下流の着手を止める（下流は遅れて待つ `DG-4` になり、ボトルネックにならない）。
+- **置いたもの**（`tools/tune_mspdi_samples.py` の `TREATMENTS`。en と ja に同じ表）:
+  - 小: 基準日 2026-10-09。遅れて走る「Performance Tuning」（uid 34）と「Defect Fixing」（uid 35）—— どちらも押し出し 1 稼働日。紫の種は「Operations Handover」（uid 44、未着手なのに進捗 10%）→ 下流 1 と合わせて 2。
+  - 中: 基準日 2026-09-09。遅れて走る「Monitoring and Log Collection Setup」（uid 35、押し出し 5）と「Code Review and Refactoring - Account and Contact」（uid 43、押し出し 1）。紫の種は「Cutover Rehearsal」（uid 128）→ 下流 6 と合わせて 7。
+  - 大: 基準日 2026-12-09。遅れて走る「Steering Committee #5」（uid 11、押し出し 17）、4 つの「Playback Session」（uid 87・98・109・120、押し出し 5・10・10・10）、6 つの「Interface Connection Test」（uid 128・132・136・140・144・148、押し出し各 2）。紫の種は「Production Data Migration - Wave 2」（uid 243）→ 下流 12 と合わせて 13。
 - **紫の作り方**: 元の矛盾（表 T-310）は 1 〜 3 件にとどめ、依存の鎖の末の方に置いて、`DW-1` の広がりを含めて表 S の数にする。⭐ ボトルネックの鎖とは別の鎖に置く —— `DW-1` は下流の前向きの計算を止めるので、ボトルネックの下流に置くと押し出しが消える。矛盾の種は、ふつうの管理で起こる入力の誤りから選ぶ（例: `VC-13` 先行が未完了なのに後続が完了、`VC-6` 終了の実績だけがある）。
 - **ボトルネックの作り方**: 着手済みで未完了の `Task` の予定の終了を基準日より前にする（`BD-1` の `max(finish, 基準日)`、表 T-313）か、終わった実績を予定より後ろにし、後続の鎖で終端を押させる（`S-397` = 1 稼働日以上）。⭐ `DG-3` を上限まで出すため、ボトルネックを **別々の要約タスクの下** に散らす。
 - **ふつうの管理**: 残りの `Task` は、基準日より前は予定どおりに終わった実績、基準日をまたぐものは着手済みで予定の範囲、後ろは未着手とする。`VS-5`（中 3・大 5、要約タスクの `Stop` が基準日より後）は直して 0 にする。
 - **道具**: `tools/tune_mspdi_samples.py`（名は仮）が、今の 6 本を読み、手当てを **`UID` ごとの表として原稿に持ち**、決まった順で書き戻す（同じ入力から同じバイト）。`--check` で書き戻しが今のファイルと同じかを見る。行の木・タスクの数・名・`UID`・ファイル名は変えない（決定 3）。en と ja に同じ表を当てる（決定 5）。⛔ 数（表 S）を道具の中で決め打ちに数えさせない —— 数えるのは T8（実際の `diagnoseDelay`）である。
+  - ⭐ 当てた道具の読み（2026-10-01）: 表は 基準日・遅れて走る葉・紫の種 の 3 つだけを持つ。表が名指さない葉は、基準日まで **予定どおり** に進める（終了が基準日までなら完了、開始が基準日までなら着手、ほかは未着手）。着手していない・終わっていない葉が後続を止める形は、道具がリンクを不動点まで辿って導く（FS の先行が未完了なら着手しない、SS・FF の先行が未着手なら着手しない、どの型でも先行が未完了なら完了しない —— `VS-3`・`VC-13` を生まない）。変えるのは実績の欄と、`StatusDate`・`CurrentDate`・`LastSaved` の日付だけで、計画の日付・リンク・行は変えない。
+  - ⭐ 当てた前の 6 本は、基準日 2026-08-26 に対して、この「予定どおり」とバイトまで一致していた（処置を空にして走らせると、変わるのは下の `VS-5` の要約の実績期間だけだった）。
+  - `VS-5`（中 3・大 5）は、要約タスクの `ActualDuration` から取り込み側が導く `stop` が基準日を越えていたもの。道具は要約の実績期間を基準日までに切る（取り込み側と同じ日の丸めで比べる）。
 - **消すファイル**: `sample-schedule/ProjectLibre.xml`（決定 7）。
 
 ### 9.4 出荷する見本の写し（決定 8、`JDG-1023`）
@@ -240,6 +258,11 @@
 - 新: `tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts`（T8・T9）。
 - 直す: `tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts:453`・`:1710` の「`sample-schedule/` is untracked」（`2e2b0957` から追跡している）。
 - 見る: `tests/usecase/uc-006` は大の見本の遅れの 2 件（遅れて走る 1・遅れて待つ 1）を見る。表 S の手当てで数が変わるなら、uc-006 の期待を表 S に合わせる（`DG-4` は「1 件以上」なので、2 件を保つ手当てを先に探す）。
+- ⭐ **当てた試験**（2026-10-01、仕様と本書だけを読む体 3 つ。当てた体は書いていない）:
+  - 新 `tests/unit/cr-618-same-day-links-hold.test.ts`（T1 〜 T7、49 件緑）。壊し試験（合流した木で）: `linkHolds` の FS の `least` を 1 に戻すと 19 件が赤、`BD-2` の FS を `nextWorkingDay` に戻すと 2 件が赤、戻すと 49 件緑。
+  - 新 `tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts`（T8・T9、42 件緑。T8 は書き直した表 S を見る）。T10・T11 は W5 と共に書く。
+  - 直した `tests/contract/cr-561-the-delay-diagnostics-report.contract.test.ts` の 4 件 —— 翌稼働日に始まる FS の後続を持つ組で、旧い `BD-2`（翌稼働日）の読みの数（押し出し 5・確定した押し出し 2）を持っていた。新しい `BD-2` では 4・1 になる（`DFC-1620` の副作用）。体は期待値を変えず、後続の開始を先行の終了日へ移して、同じ日の FS の組にした（64 件緑）。
+  - `tests/usecase/uc-006` は走らせていない（e2e）。uc-006 が数えるのは遅れの「件」ではなく印の形の種類なので、`DG-4` が 9 件になっても期待は変わらない（読んだだけ）。
 
 ## 10. ⛔ この変更でやらないこと
 
@@ -253,7 +276,8 @@
 | 問い | 案 | 推し |
 |---|---|---|
 | ~~問い 1 —— `sample-schedule/` の JSON の写し 2 つ~~ | 答えを得た（`JDG-1023`）: 写しを最新に保ち、`No Name.json` を消す | 決定 8・9.4 節 |
-| **問い 2 —— `DG-4`（黄の遅れ）の量** | 利用者は `DG-2`・`DG-3`・`DG-1` の量だけを言った。表 S は「1 件以上」とした | 当てる体が表 S を満たしたときの数を報告し、利用者に見せる |
+| **問い 2 —— `DG-4`（黄の遅れ）の量** | 利用者は `DG-2`・`DG-3`・`DG-1` の量だけを言った。表 S は「1 件以上」とした | 当てる体が表 S を満たしたときの数を報告し、利用者に見せる。⭐ 当てた数: 小 1・中 2・大 9（en/ja 同数。遅れて走る葉に止められて、予定の開始を過ぎても待っている後続） |
+| 問い 3 —— `BD-2` の同じ日の副作用 | 答えを得た（`JDG-1041`）: 裁定どおり当て、副作用は `DFC-1620` に残す | MS Project のふつうの FS（17:00 に終わり翌朝に始める）では、押し出しが 1 リンクごとに 1 稼働日ずつ減る。時刻で比べる形への変更は別の変更要求で決める |
 
 ## 12. 台帳（前に立つ者が起こす。本書は番号を取らない —— 下は起草のセッションが既に起こした行）
 
@@ -261,6 +285,8 @@
 |---|---|---|
 | `DFC-1490` | `VC-15`・`VS-4`・`BD-2` の FS の同じ日 | `仕様待ち`（本書で閉じる） |
 | `JDG-998`・`JDG-1001`〜`JDG-1005`・`JDG-1015`〜`JDG-1017`・`JDG-1023` | 0.1 節 | 指示 —— 調整役が投入時期を決める（`JDG-1002` は覆された、`JDG-1004` は適用済） |
+| `JDG-1040`・`JDG-1041` | 当てる体が問うた 2 問（表 S の量、`BD-2` の副作用） | 適用済（本書が当てた） |
+| `DFC-1620` | `BD-2` の同じ日の FS が、翌朝に始まる FS の鎖で押し出しを 1 リンクごとに 1 日減らす | `仕様待ち`（別の変更要求） |
 
 ## 13. 測り方の再現
 
@@ -279,4 +305,25 @@ python .claude/skills/spec-graph-check/impact.py VC-15 BD-2 VS-4
 # references
 git grep -n "sample-schedule" -- tests
 git grep -n "ProjectLibre" -- tests src tools docs/spec
+```
+
+⭐ 当てたときの測り方（`samples-cr618`）:
+
+```text
+# the samples
+python tools/tune_mspdi_samples.py            # writes the six files from TREATMENTS
+python tools/tune_mspdi_samples.py --check    # 0: the files are what the table writes
+# table S counts
+#   a scratch entry, bundled with ../../../node_modules/rolldown/bin/cli.mjs outside the repository,
+#   calls documentFromMspdi(xml, startupTemplate) then diagnoseDelay(doc, workingCalendarOf(schedule))
+#   and counts markerStates per row and findings per row, for each of the six files
+#   the same numbers came from the built app: vite build into a scratch folder, a Playwright probe
+#   drops each file on the page and reads the markers (section 9.2)
+# where DG-2 can stand (section 9.2)
+#   for each candidate status date, each leaf due within about three weeks before it is made late
+#   on its own copy (the rest progressed on plan), and the copy is diagnosed; a leaf counts when it
+#   becomes DG-2. small: 2026-09-08 .. 2026-10-28, medium: 2026-09-09 .. 2027-03-10,
+#   large: 2026-08-26 .. 2027-01-13
+# DG-3 tree ceiling: distinct WBS ancestors when every bottleneck takes a different level-2 summary
+#   count <Summary>1</Summary> per <OutlineLevel> and their parents
 ```

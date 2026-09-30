@@ -240,8 +240,8 @@ function documentOf(statusDate: string | null, rows: readonly Row[]): Document {
 
 const STATUS = F(15)
 
-// WHY: A is 5 working days late (15th - 8th) and B, its terminal, 5 (17th - 10th); A2 done 2 late,
-// B2 started the 13th keeps min(1, 3) and hands A2 min(2, 2) = 2 (T-313 BD-1 .. BD-4).
+// WHY: B and B2 start on the 8th, their predecessor's finish day (BD-2, CR-618), so A's 5 late days
+// reach B's end (17th - 10th) whole; B2 keeps min(1, 3) and hands A2 min(2, 2) = 2 (T-313 BD-1 .. BD-4).
 const P = 100
 const A = 101
 const B = 102
@@ -259,7 +259,7 @@ const CHAIN_ROWS = (statusDate: string | null): Document =>
       parentId: 'r0',
       tasks: [
         taskOf(A, { name: 'Design', wbsParentUid: P, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
-        taskOf(B, { name: 'Build', wbsParentUid: P, start: S(9), finish: F(10), dependencies: [after(A)] }),
+        taskOf(B, { name: 'Build', wbsParentUid: P, start: S(8), finish: F(10), dependencies: [after(A)] }),
       ],
     },
     {
@@ -278,7 +278,7 @@ const CHAIN_ROWS = (statusDate: string | null): Document =>
         taskOf(B2, {
           name: 'Report',
           wbsParentUid: P,
-          start: S(9),
+          start: S(8),
           finish: F(10),
           actualStart: S(13),
           percentComplete: 30,
@@ -345,7 +345,8 @@ const DERIVED = documentOf(STATUS, [
   {
     id: 'r1b',
     parentId: 'r0',
-    tasks: [taskOf(Z, { name: 'Zoning', wbsParentUid: W, start: S(9), finish: F(10), dependencies: [after(Y)] })],
+    // WHY: Z starts on the 8th, Y's finish day (BD-2, CR-618), so Y's 5 days reach Z's end whole.
+    tasks: [taskOf(Z, { name: 'Zoning', wbsParentUid: W, start: S(8), finish: F(10), dependencies: [after(Y)] })],
   },
   {
     id: 'r2',

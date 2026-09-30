@@ -10,7 +10,7 @@
   <Author>新井 美香</Author>
   <CreationDate>2026-04-24T10:30:00</CreationDate>
   <Revision>12</Revision>
-  <LastSaved>2026-08-26T18:12:00</LastSaved>
+  <LastSaved>2026-10-09T18:12:00</LastSaved>
   <ScheduleFromStart>1</ScheduleFromStart>
   <StartDate>2026-06-08T08:00:00</StartDate>
   <FinishDate>2026-11-02T17:00:00</FinishDate>
@@ -50,8 +50,8 @@
   <MoveCompletedEndsForward>0</MoveCompletedEndsForward>
   <BaselineForEarnedValue>0</BaselineForEarnedValue>
   <AutoAddNewResourcesAndTasks>1</AutoAddNewResourcesAndTasks>
-  <StatusDate>2026-08-26T17:00:00</StatusDate>
-  <CurrentDate>2026-08-26T18:12:00</CurrentDate>
+  <StatusDate>2026-10-09T17:00:00</StatusDate>
+  <CurrentDate>2026-10-09T18:12:00</CurrentDate>
   <Autolink>0</Autolink>
   <NewTaskStartDate>0</NewTaskStartDate>
   <DefaultTaskEVMethod>0</DefaultTaskEVMethod>
@@ -2417,19 +2417,20 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>71</PercentComplete>
-      <PercentWorkComplete>70</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>1452000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
       <ActualStart>2026-06-25T08:00:00</ActualStart>
-      <ActualDuration>PT278H19M0S</ActualDuration>
+      <ActualFinish>2026-09-07T17:00:00</ActualFinish>
+      <ActualDuration>PT392H0M0S</ActualDuration>
       <ActualCost>1146360</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualWork>PT98H38M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT141H36M0S</RegularWork>
-      <RemainingDuration>PT113H41M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>305640</RemainingCost>
       <RemainingWork>PT42H58M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
@@ -2446,7 +2447,7 @@
       <Rollup>0</Rollup>
       <BCWS>1207200</BCWS>
       <BCWP>1083648</BCWP>
-      <PhysicalPercentComplete>71</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <Baseline>
         <Number>0</Number>
@@ -2690,21 +2691,22 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>67</PercentComplete>
-      <PercentWorkComplete>67</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>468000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualDuration>PT80H24M0S</ActualDuration>
+      <ActualFinish>2026-09-02T17:00:00</ActualFinish>
+      <ActualDuration>PT120H0M0S</ActualDuration>
       <ActualCost>313560</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT48H14M0S</ActualWork>
+      <ActualWork>PT72H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT72H0M0S</RegularWork>
-      <RemainingDuration>PT39H36M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>154440</RemainingCost>
-      <RemainingWork>PT23H46M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>313560</ACWP>
@@ -2719,7 +2721,7 @@
       <Rollup>0</Rollup>
       <BCWS>374400</BCWS>
       <BCWP>250848</BCWP>
-      <PhysicalPercentComplete>67</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>17</PredecessorUID>
@@ -2886,20 +2888,22 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>151200</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-03T08:00:00</ActualStart>
+      <ActualFinish>2026-09-07T17:00:00</ActualFinish>
+      <ActualDuration>PT24H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT19H12M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT19H12M0S</RegularWork>
-      <RemainingDuration>PT24H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>151200</RemainingCost>
-      <RemainingWork>PT19H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -2914,7 +2918,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>19</PredecessorUID>
@@ -2979,19 +2983,20 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>61</PercentComplete>
-      <PercentWorkComplete>68</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>3237600</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
       <ActualStart>2026-06-25T08:00:00</ActualStart>
-      <ActualDuration>PT278H10M0S</ActualDuration>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
+      <ActualDuration>PT456H0M0S</ActualDuration>
       <ActualCost>2485552</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualWork>PT207H43M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT305H36M0S</RegularWork>
-      <RemainingDuration>PT177H50M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>752048</RemainingCost>
       <RemainingWork>PT97H53M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
@@ -3008,7 +3013,7 @@
       <Rollup>0</Rollup>
       <BCWS>2814400</BCWS>
       <BCWP>2485552</BCWP>
-      <PhysicalPercentComplete>61</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <Baseline>
         <Number>0</Number>
@@ -3157,21 +3162,22 @@
       <TotalSlack>-4800</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>83</PercentComplete>
-      <PercentWorkComplete>83</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>1142400</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualDuration>PT79H41M0S</ActualDuration>
+      <ActualFinish>2026-08-28T17:00:00</ActualFinish>
+      <ActualDuration>PT96H0M0S</ActualDuration>
       <ActualCost>948192</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT111H33M0S</ActualWork>
+      <ActualWork>PT134H24M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT134H24M0S</RegularWork>
-      <RemainingDuration>PT16H19M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>194208</RemainingCost>
-      <RemainingWork>PT22H51M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>948192</ACWP>
@@ -3186,7 +3192,7 @@
       <Rollup>0</Rollup>
       <BCWS>1142400</BCWS>
       <BCWP>948192</BCWP>
-      <PhysicalPercentComplete>83</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>15</PredecessorUID>
@@ -3258,21 +3264,22 @@
       <TotalSlack>33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>67</PercentComplete>
-      <PercentWorkComplete>67</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>408000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
       <ActualStart>2026-08-21T08:00:00</ActualStart>
-      <ActualDuration>PT32H10M0S</ActualDuration>
+      <ActualFinish>2026-08-28T17:00:00</ActualFinish>
+      <ActualDuration>PT48H0M0S</ActualDuration>
       <ActualCost>273360</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT32H10M0S</ActualWork>
+      <ActualWork>PT48H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT48H0M0S</RegularWork>
-      <RemainingDuration>PT15H50M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>134640</RemainingCost>
-      <RemainingWork>PT15H50M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>273360</ACWP>
@@ -3287,7 +3294,7 @@
       <Rollup>0</Rollup>
       <BCWS>408000</BCWS>
       <BCWP>273360</BCWP>
-      <PhysicalPercentComplete>67</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>24</PredecessorUID>
@@ -3447,20 +3454,22 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>355200</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-08T08:00:00</ActualStart>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
+      <ActualDuration>PT64H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT51H12M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT51H12M0S</RegularWork>
-      <RemainingDuration>PT64H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>355200</RemainingCost>
-      <RemainingWork>PT51H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -3475,7 +3484,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>24</PredecessorUID>
@@ -3554,20 +3563,22 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>68000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-16T08:00:00</ActualStart>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
+      <ActualDuration>PT16H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT8H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT8H0M0S</RegularWork>
-      <RemainingDuration>PT16H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>68000</RemainingCost>
-      <RemainingWork>PT8H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -3582,7 +3593,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>24</PredecessorUID>
@@ -3661,11 +3672,13 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>0</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
+      <ActualStart>2026-09-17T17:00:00</ActualStart>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
       <ActualDuration>PT0H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
@@ -3689,7 +3702,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>25</PredecessorUID>
@@ -3775,18 +3788,19 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>77</PercentComplete>
+      <PercentWorkComplete>77</PercentWorkComplete>
       <Cost>1816400</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualDuration>PT104H43M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualWork>PT0H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT232H48M0S</RegularWork>
-      <RemainingDuration>PT136H0M0S</RemainingDuration>
+      <RemainingDuration>PT31H17M0S</RemainingDuration>
       <RemainingCost>1816400</RemainingCost>
       <RemainingWork>PT232H48M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
@@ -3803,7 +3817,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>77</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <Baseline>
         <Number>0</Number>
@@ -3857,20 +3871,22 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>260000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualFinish>2026-09-28T17:00:00</ActualFinish>
+      <ActualDuration>PT40H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT40H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT40H0M0S</RegularWork>
-      <RemainingDuration>PT40H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>260000</RemainingCost>
-      <RemainingWork>PT40H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -3885,7 +3901,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>29</PredecessorUID>
@@ -3950,20 +3966,22 @@
       <TotalSlack>-28800</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>185600</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualFinish>2026-09-25T17:00:00</ActualFinish>
+      <ActualDuration>PT32H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT25H36M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT25H36M0S</RegularWork>
-      <RemainingDuration>PT32H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>185600</RemainingCost>
-      <RemainingWork>PT25H36M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -3978,7 +3996,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>29</PredecessorUID>
@@ -4043,20 +4061,22 @@
       <TotalSlack>-24000</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>142800</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualFinish>2026-09-24T17:00:00</ActualFinish>
+      <ActualDuration>PT24H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT19H12M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT19H12M0S</RegularWork>
-      <RemainingDuration>PT24H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>142800</RemainingCost>
-      <RemainingWork>PT19H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -4071,7 +4091,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>29</PredecessorUID>
@@ -4136,20 +4156,21 @@
       <TotalSlack>-14400</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>90</PercentComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <Cost>204000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualDuration>PT21H36M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT21H36M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT24H0M0S</RegularWork>
-      <RemainingDuration>PT24H0M0S</RemainingDuration>
+      <RemainingDuration>PT2H24M0S</RemainingDuration>
       <RemainingCost>204000</RemainingCost>
-      <RemainingWork>PT24H0M0S</RemainingWork>
+      <RemainingWork>PT2H24M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -4164,7 +4185,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>90</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>31</PredecessorUID>
@@ -4229,20 +4250,21 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>90</PercentComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <Cost>714000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualDuration>PT50H24M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT75H36M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT84H0M0S</RegularWork>
-      <RemainingDuration>PT56H0M0S</RemainingDuration>
+      <RemainingDuration>PT5H36M0S</RemainingDuration>
       <RemainingCost>714000</RemainingCost>
-      <RemainingWork>PT84H0M0S</RemainingWork>
+      <RemainingWork>PT8H24M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -4257,7 +4279,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>90</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>31</PredecessorUID>
@@ -4530,18 +4552,19 @@
       <TotalSlack>-33600</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>14</PercentComplete>
+      <PercentWorkComplete>14</PercentWorkComplete>
       <Cost>795200</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualDuration>PT32H28M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualWork>PT0H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT95H12M0S</RegularWork>
-      <RemainingDuration>PT232H0M0S</RemainingDuration>
+      <RemainingDuration>PT199H32M0S</RemainingDuration>
       <RemainingCost>795200</RemainingCost>
       <RemainingWork>PT95H12M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
@@ -4558,7 +4581,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>14</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <Baseline>
         <Number>0</Number>
@@ -4612,20 +4635,22 @@
       <TotalSlack>38400</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>100</PercentComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <Cost>68000</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
-      <ActualDuration>PT0H0M0S</ActualDuration>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualFinish>2026-09-22T17:00:00</ActualFinish>
+      <ActualDuration>PT16H0M0S</ActualDuration>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualWork>PT8H0M0S</ActualWork>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <RegularWork>PT8H0M0S</RegularWork>
-      <RemainingDuration>PT16H0M0S</RemainingDuration>
+      <RemainingDuration>PT0H0M0S</RemainingDuration>
       <RemainingCost>68000</RemainingCost>
-      <RemainingWork>PT8H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
       <ACWP>0</ACWP>
@@ -4640,7 +4665,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>100</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>29</PredecessorUID>
@@ -5085,8 +5110,8 @@
       <TotalSlack>0</TotalSlack>
       <FixedCost>0</FixedCost>
       <FixedCostAccrual>3</FixedCostAccrual>
-      <PercentComplete>0</PercentComplete>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentComplete>10</PercentComplete>
+      <PercentWorkComplete>10</PercentWorkComplete>
       <Cost>169200</Cost>
       <OvertimeCost>0</OvertimeCost>
       <OvertimeWork>PT0H0M0S</OvertimeWork>
@@ -5113,7 +5138,7 @@
       <Rollup>0</Rollup>
       <BCWS>0</BCWS>
       <BCWP>0</BCWP>
-      <PhysicalPercentComplete>0</PhysicalPercentComplete>
+      <PhysicalPercentComplete>10</PhysicalPercentComplete>
       <EarnedValueMethod>0</EarnedValueMethod>
       <PredecessorLink>
         <PredecessorUID>43</PredecessorUID>
@@ -7403,12 +7428,13 @@
       <UID>30</UID>
       <TaskUID>19</TaskUID>
       <ResourceUID>6</ResourceUID>
-      <PercentWorkComplete>67</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>241200</ActualCost>
+      <ActualFinish>2026-09-02T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualWork>PT40H12M0S</ActualWork>
+      <ActualWork>PT60H0M0S</ActualWork>
       <ACWP>241200</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>360000</Cost>
@@ -7431,7 +7457,7 @@
       <RemainingCost>118800</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT19H48M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-08-10T08:00:00</Start>
       <StartVariance>9600</StartVariance>
@@ -7460,12 +7486,13 @@
       <UID>31</UID>
       <TaskUID>19</TaskUID>
       <ResourceUID>1</ResourceUID>
-      <PercentWorkComplete>67</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>72360</ActualCost>
+      <ActualFinish>2026-09-02T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualWork>PT8H2M0S</ActualWork>
+      <ActualWork>PT12H0M0S</ActualWork>
       <ACWP>72360</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>108000</Cost>
@@ -7488,7 +7515,7 @@
       <RemainingCost>35640</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT3H58M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-08-10T08:00:00</Start>
       <StartVariance>9600</StartVariance>
@@ -7633,11 +7660,13 @@
       <UID>34</UID>
       <TaskUID>21</TaskUID>
       <ResourceUID>1</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-07T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-03T08:00:00</ActualStart>
+      <ActualWork>PT12H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>108000</Cost>
@@ -7660,7 +7689,7 @@
       <RemainingCost>108000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT12H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-03T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -7689,11 +7718,13 @@
       <UID>35</UID>
       <TaskUID>21</TaskUID>
       <ResourceUID>6</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-07T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-03T08:00:00</ActualStart>
+      <ActualWork>PT7H12M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>43200</Cost>
@@ -7716,7 +7747,7 @@
       <RemainingCost>43200</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT7H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-03T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -7861,12 +7892,13 @@
       <UID>38</UID>
       <TaskUID>24</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>83</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>677280</ActualCost>
+      <ActualFinish>2026-08-28T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualWork>PT79H41M0S</ActualWork>
+      <ActualWork>PT96H0M0S</ActualWork>
       <ACWP>677280</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>816000</Cost>
@@ -7889,7 +7921,7 @@
       <RemainingCost>138720</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT16H19M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-08-10T08:00:00</Start>
       <StartVariance>9600</StartVariance>
@@ -7918,12 +7950,13 @@
       <UID>39</UID>
       <TaskUID>24</TaskUID>
       <ResourceUID>5</ResourceUID>
-      <PercentWorkComplete>83</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>270912</ActualCost>
+      <ActualFinish>2026-08-28T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <ActualStart>2026-08-10T08:00:00</ActualStart>
-      <ActualWork>PT31H52M0S</ActualWork>
+      <ActualWork>PT38H24M0S</ActualWork>
       <ACWP>270912</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>326400</Cost>
@@ -7946,7 +7979,7 @@
       <RemainingCost>55488</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT6H32M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-08-10T08:00:00</Start>
       <StartVariance>9600</StartVariance>
@@ -7975,12 +8008,13 @@
       <UID>40</UID>
       <TaskUID>25</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>67</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>273360</ActualCost>
+      <ActualFinish>2026-08-28T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
       <ActualStart>2026-08-21T08:00:00</ActualStart>
-      <ActualWork>PT32H10M0S</ActualWork>
+      <ActualWork>PT48H0M0S</ActualWork>
       <ACWP>273360</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>408000</Cost>
@@ -8003,7 +8037,7 @@
       <RemainingCost>134640</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT15H50M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-08-21T08:00:00</Start>
       <StartVariance>9600</StartVariance>
@@ -8090,11 +8124,13 @@
       <UID>42</UID>
       <TaskUID>27</TaskUID>
       <ResourceUID>6</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-08T08:00:00</ActualStart>
+      <ActualWork>PT32H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>192000</Cost>
@@ -8117,7 +8153,7 @@
       <RemainingCost>192000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT32H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-08T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8146,11 +8182,13 @@
       <UID>43</UID>
       <TaskUID>27</TaskUID>
       <ResourceUID>5</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-08T08:00:00</ActualStart>
+      <ActualWork>PT19H12M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>163200</Cost>
@@ -8173,7 +8211,7 @@
       <RemainingCost>163200</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT19H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-08T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8202,11 +8240,13 @@
       <UID>44</UID>
       <TaskUID>28</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-17T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-16T08:00:00</ActualStart>
+      <ActualWork>PT8H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>68000</Cost>
@@ -8229,7 +8269,7 @@
       <RemainingCost>68000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT8H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-16T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8258,11 +8298,13 @@
       <UID>45</UID>
       <TaskUID>31</TaskUID>
       <ResourceUID>7</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-28T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT40H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>260000</Cost>
@@ -8285,7 +8327,7 @@
       <RemainingCost>260000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT40H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8314,11 +8356,13 @@
       <UID>46</UID>
       <TaskUID>32</TaskUID>
       <ResourceUID>7</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-25T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT16H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>104000</Cost>
@@ -8341,7 +8385,7 @@
       <RemainingCost>104000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT16H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8370,11 +8414,13 @@
       <UID>47</UID>
       <TaskUID>32</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-25T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT9H36M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>81600</Cost>
@@ -8397,7 +8443,7 @@
       <RemainingCost>81600</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT9H36M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8426,11 +8472,13 @@
       <UID>48</UID>
       <TaskUID>33</TaskUID>
       <ResourceUID>2</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-24T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT12H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>96000</Cost>
@@ -8453,7 +8501,7 @@
       <RemainingCost>96000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT12H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8482,11 +8530,13 @@
       <UID>49</UID>
       <TaskUID>33</TaskUID>
       <ResourceUID>7</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-24T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT7H12M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>46800</Cost>
@@ -8509,7 +8559,7 @@
       <RemainingCost>46800</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT7H12M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8538,11 +8588,12 @@
       <UID>50</UID>
       <TaskUID>34</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualWork>PT12H57M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>122400</Cost>
@@ -8565,7 +8616,7 @@
       <RemainingCost>122400</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT14H24M0S</RemainingWork>
+      <RemainingWork>PT1H27M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-29T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8594,11 +8645,12 @@
       <UID>51</UID>
       <TaskUID>34</TaskUID>
       <ResourceUID>5</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualWork>PT8H38M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>81600</Cost>
@@ -8621,7 +8673,7 @@
       <RemainingCost>81600</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT9H36M0S</RemainingWork>
+      <RemainingWork>PT0H58M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-29T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8650,11 +8702,12 @@
       <UID>52</UID>
       <TaskUID>35</TaskUID>
       <ResourceUID>4</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualWork>PT50H24M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>476000</Cost>
@@ -8677,7 +8730,7 @@
       <RemainingCost>476000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT56H0M0S</RemainingWork>
+      <RemainingWork>PT5H36M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-29T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8706,11 +8759,12 @@
       <UID>53</UID>
       <TaskUID>35</TaskUID>
       <ResourceUID>5</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>90</PercentWorkComplete>
       <ActualCost>0</ActualCost>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-29T08:00:00</ActualStart>
+      <ActualWork>PT25H12M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>238000</Cost>
@@ -8733,7 +8787,7 @@
       <RemainingCost>238000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT28H0M0S</RemainingWork>
+      <RemainingWork>PT2H48M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-29T08:00:00</Start>
       <StartVariance>24000</StartVariance>
@@ -8874,11 +8928,13 @@
       <UID>56</UID>
       <TaskUID>39</TaskUID>
       <ResourceUID>5</ResourceUID>
-      <PercentWorkComplete>0</PercentWorkComplete>
+      <PercentWorkComplete>100</PercentWorkComplete>
       <ActualCost>0</ActualCost>
+      <ActualFinish>2026-09-22T17:00:00</ActualFinish>
       <ActualOvertimeCost>0</ActualOvertimeCost>
       <ActualOvertimeWork>PT0H0M0S</ActualOvertimeWork>
-      <ActualWork>PT0H0M0S</ActualWork>
+      <ActualStart>2026-09-18T08:00:00</ActualStart>
+      <ActualWork>PT8H0M0S</ActualWork>
       <ACWP>0</ACWP>
       <Confirmed>0</Confirmed>
       <Cost>68000</Cost>
@@ -8901,7 +8957,7 @@
       <RemainingCost>68000</RemainingCost>
       <RemainingOvertimeCost>0</RemainingOvertimeCost>
       <RemainingOvertimeWork>PT0H0M0S</RemainingOvertimeWork>
-      <RemainingWork>PT8H0M0S</RemainingWork>
+      <RemainingWork>PT0H0M0S</RemainingWork>
       <ResponsePending>0</ResponsePending>
       <Start>2026-09-18T08:00:00</Start>
       <StartVariance>24000</StartVariance>

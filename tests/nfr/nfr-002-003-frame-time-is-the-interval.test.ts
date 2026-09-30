@@ -450,8 +450,8 @@ const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
  * A document of the format of table T-024 row `IO-1`, for `FR-021`'s round
  * trip.
  *
- * ⚠️ `sample-schedule/` is untracked, so it is absent from a fresh worktree.
- * The round trip is then reported as un-pressed rather than quietly skipped.
+ * `sample-schedule/` is tracked (since 2e2b0957). If a checkout still lacks
+ * the file, the round trip is reported as un-pressed rather than quietly skipped.
  */
 const MSPDI_SAMPLE = join(process.cwd(), 'sample-schedule', 'sample-small-website-renewal.en.xml')
 
@@ -1707,7 +1707,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   if (!existsSync(MSPDI_SAMPLE)) {
     unmet.push(
       `FR-021 could not be pressed: no document of the format of row IO-1 is at ${MSPDI_SAMPLE} ` +
-        '(sample-schedule/ is untracked, so a fresh worktree has none)',
+        '(the checkout has no sample-schedule/ file)',
     )
   } else if (!m.mspdiImported) {
     // ⭐⭐ RECORDED, NOT COUNTED, AND THE REASON IS TWO SETTLED THINGS -- neither
