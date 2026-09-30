@@ -567,7 +567,10 @@ test('DFC-87: the header stands its entrances in the order of table T-109, palet
 })
 
 
-const PANEL_HEAD_ORDER: readonly string[] = ['HF-16', 'HF-12', 'HF-10', 'HF-17']
+// WHY: HF-10 (after CR-587) orders the head from the left: collapse all, open one level,
+// WHY: open all, add, delete all. Delete all (HF-20) is left out: its entrance names
+// WHY: FR-032, not an HF row, as its source in table T-109.
+const PANEL_HEAD_ORDER: readonly string[] = ['HF-12', 'HF-16', 'HF-10', 'HF-17']
 
 function doBoxesOverlap(one: Box, two: Box): boolean {
   return (

@@ -15,6 +15,15 @@ const weekdaysBetween = (fromIso: string, toIso: string, inclusive: boolean): nu
   return count
 }
 
+// see FR-011
+// WHY: both ends count as one day even on a non-working day; only the days between are weekdays.
+const actualLength = (fromIso: string, lastIso: string): number => {
+  const from = Date.parse(fromIso.slice(0, 10) + 'T00:00:00Z')
+  const last = Date.parse(lastIso.slice(0, 10) + 'T00:00:00Z')
+  if (last === from) return 1
+  return 2 + weekdaysBetween(new Date(from + DAY_MS).toISOString(), lastIso, false)
+}
+
 const markerShape = (page: Page, uid: number): Promise<string> =>
   page.evaluate((uid) => [...document.querySelectorAll('[data-figure="task-' + uid + '-marker"]')].map((e) => e.tagName).join('|'), uid)
 
@@ -54,7 +63,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     const now = await task()
     expect(now.actualStart).toBe(now.start)
     expect(now.actualFinish).toBeNull()
-    const expected = Math.round((weekdaysBetween(now.actualStart, now.stop, true) / weekdaysBetween(now.start, now.finish, false)) * 100)
+    const expected = Math.round((actualLength(now.actualStart, now.stop) / weekdaysBetween(now.start, now.finish, false)) * 100)
     expect(Math.abs(now.percentComplete - expected)).toBeLessThanOrEqual(1)
     const actual = (await figureBox(page, 'task-' + uid + '-actual'))!
     const plan = (await figureBox(page, 'task-' + uid + '-plan'))!
