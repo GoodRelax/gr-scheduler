@@ -2524,17 +2524,15 @@ def flat_keys(node, prefix):
 # ⭐ CR-589 (JDG-691). Table T-109 names, for the entries of FR-049 and FR-048,
 # the settings row each one rewrites; tools/generate_icon_roster.py reads that
 # column (`entry_switches`, one reader for the one column) and this prints it,
-# under the names the hand-written maps carry today, into every unit that
-# reads the join: the translator, the palette and the header.
-# ⛔ NEVER PRINTED BESIDE A HAND-WRITTEN COPY. Until the code lane (CR-589's
-# L4) removes a unit's hand-written map, printing the same name again would
-# declare it twice and the unit would not compile. So a name is printed into a
-# unit only when the unit's own code reads it and does not declare it; while a
-# unit still declares it by hand, the hand-written map is instead compared with
-# the table, and a difference stops the run -- the join the TRAP comment of
-# command-palette.ts says nothing checks is checked from here on. A unit that
-# neither reads nor declares the name gets nothing: a constant nobody reads is
-# refused by noUnusedLocals (JDG-139).
+# under the names the hand-written maps carried until CR-589's L4 removed them,
+# into every unit that reads the join: the translator, the palette and the
+# header. Neither name is exported (JDG-139); each unit reads its own copy.
+# ⛔ NEVER PRINTED BESIDE A HAND-WRITTEN COPY. A second declaration of the same
+# name would not compile, so a name is printed into a unit only when the
+# unit's own code reads it and does not declare it; a unit that declares it by
+# hand again has its map compared with the table instead, and a difference
+# stops the run. A unit that neither reads nor declares the name gets nothing:
+# a constant nobody reads is refused by noUnusedLocals (JDG-139).
 import generate_icon_roster  # noqa: E402  (tools/ is the script's own folder)
 
 ENTRY_SWITCH_NAMES = ('VISIBLE_ELEMENT_BY_ENTRY', 'GUIDE_CURSOR_MODE_BY_ENTRY')
@@ -2776,9 +2774,9 @@ TARGETS = [
          lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
          ENTRY_SWITCH_NAMES),
      ['docs/spec/_source/settings.json (table T-206)',
-      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
+      'docs/spec/_assets/tbl-glossary.md (table T-109)']),
     # CR-589: the header paints EN-2 for the entries whose settings row it
-    # reads; the map lands here once the unit reads it instead of its own arms.
+    # reads, from the map printed here rather than from arms of its own.
     (os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
      with_entry_switches(
          os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
@@ -2820,7 +2818,7 @@ TARGETS = [
          + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
          ENTRY_SWITCH_NAMES),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
-      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
+      'docs/spec/_assets/tbl-glossary.md (table T-109)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),

@@ -2,6 +2,7 @@
 // @unit      UF-62   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
+// Generated region at the end: docs/spec/_assets/tbl-glossary.md (table T-109). Do not edit by hand; npm run gen.
 
 import {
   DISPLAY_SCALE_STEPS,
@@ -19,6 +20,7 @@ import type {
 import { displayLanguageOf } from './screen-renderer'
 import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
+import imageToJsonPrompt from './image-to-grs-json-prompt.json'
 
 const FILE_STATUS_BY_STATE = new Map(
   displayWords.fileStatus.map((entry) => [entry.state, entry]),
@@ -27,11 +29,8 @@ const FILE_STATUS_BY_STATE = new Map(
 const APP_HEADER = 'App Header'
 
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
-const BASELINE_OVERLAY_ENTRY: IconId = 'IC-4'
 const UNDO_ENTRY: IconId = 'IC-5'
 const REDO_ENTRY: IconId = 'IC-6'
-const PLAN_DISPLAY_ENTRY: IconId = 'IC-8'
-const ACTUAL_DISPLAY_ENTRY: IconId = 'IC-9'
 const FULL_SCREEN_ENTRY: IconId = 'IC-11'
 const DISPLAY_SCALE_DOWN_ENTRY: IconId = 'IC-104'
 const DISPLAY_SCALE_UP_ENTRY: IconId = 'IC-105'
@@ -78,12 +77,13 @@ function commandStateOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): CommandState {
+  if (Object.prototype.hasOwnProperty.call(VISIBLE_ELEMENT_BY_ENTRY, icon)) {
+    const key = VISIBLE_ELEMENT_BY_ENTRY[icon]
+    if (key !== undefined) return { isEnabled: true, isPressed: settings[key] }
+  }
   switch (icon) {
     case COMMAND_PALETTE_ENTRY:
       return { isEnabled: true, isPressed: session.screen.paletteDisplayState.kind === 'shown' }
-
-    case BASELINE_OVERLAY_ENTRY:
-      return { isEnabled: true, isPressed: settings.baselineVisible }
 
     case UNDO_ENTRY:
       // WHY: !== false, not === true, so an absent answer leaves the entry usable.
@@ -91,12 +91,6 @@ function commandStateOf(
 
     case REDO_ENTRY:
       return { isEnabled: readings.canRedo !== false, isPressed: false }
-
-    case PLAN_DISPLAY_ENTRY:
-      return { isEnabled: true, isPressed: settings.planVisible }
-
-    case ACTUAL_DISPLAY_ENTRY:
-      return { isEnabled: true, isPressed: settings.actualVisible }
 
     case FULL_SCREEN_ENTRY:
       return { isEnabled: true, isPressed: session.screen.fullScreenModeState.kind === 'full' }
@@ -197,3 +191,37 @@ export function displayScaleMessageText(
   const word = end === null ? '' : (SCALE_ECHO_BY_END.get(end)?.text[language] ?? '')
   return `${displayScale}${PERCENT_SIGN}${word}`
 }
+
+const JSON_FENCE_OPEN = '```json\n'
+
+const JSON_FENCE_CLOSE = '\n```'
+
+// see FR-068, FR-027, FR-038
+/** @purity pure */
+export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: string): string {
+  const versionLine = `schemaVersion: ${schemaVersion}`
+  const schema = JSON_FENCE_OPEN + imageToJsonPrompt.schema + JSON_FENCE_CLOSE
+  const emptyDocument = JSON_FENCE_OPEN + imageToJsonPrompt.emptyDocument + JSON_FENCE_CLOSE
+  return [imageToJsonPrompt[language], versionLine, schema, emptyDocument].join('\n\n') + '\n'
+}
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_assets/tbl-glossary.md (table T-109)
+//   docs/spec/_source/settings.json (table T-202)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-109, FR-049
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
+  'IC-4': 'baselineVisible',
+  'IC-8': 'planVisible',
+  'IC-9': 'actualVisible',
+  'IC-39': 'progressLineVisible',
+  'IC-40': 'progressMarkerVisible',
+  'IC-42': 'dateGridLinesVisible',
+  'IC-43': 'groupGridLinesVisible',
+  'IC-79': 'assigneeVisible',
+  'IC-80': 'percentCompleteVisible',
+  'IC-81': 'dependencyVisible',
+  'IC-103': 'planDatesVisible',
+}
+// </generated>

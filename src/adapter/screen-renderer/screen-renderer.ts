@@ -38,6 +38,7 @@ import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 export { nextSearchPanelTextSizeStep, searchPanelBoxAfterGrab, searchPanelFromSession } from './search-panel'
+export { imageToJsonPromptText } from './app-header-items'
 export type { SearchPanelShown, SearchPanelView } from './search-panel'
 
 export { rowTitleFontPxOf }

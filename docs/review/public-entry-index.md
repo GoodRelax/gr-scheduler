@@ -1103,6 +1103,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
+| `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、表示言語と版で組む。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
 | `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | PI-37 | `IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`） |
@@ -1428,4 +1429,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 705 name(s) leave through a public entry (228 of them published by table T-064), 523 more are exported by a file and not by its entry.
+Totals: 706 name(s) leave through a public entry (229 of them published by table T-064), 523 more are exported by a file and not by its entry.

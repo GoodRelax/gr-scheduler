@@ -81,10 +81,6 @@ copy | treeStatesReset :: cm 72 resettaskgrouptreestates writes the same predica
 twin: src/use-case/edit-document/task-group-folding.ts#resetTaskGroupTreeStates
 why: not published by EditDocument's entry (edge declared); already diverged -- CM-72 asks the tree-state machine (T-328), this copy hard-codes the reset.
 
-copy | SETTINGS_KEY_BY_ROW :: input command translator ts holds this join reversed visible element
-twin: src/adapter/input-command-translator/input-command-translator.ts#VISIBLE_ELEMENT_BY_ENTRY
-why: the join reversed, private in the translator; the edge runs InputCommandTranslator->ScreenRenderer, so ScreenRenderer can publish the map; the palette map lacks IC-4, IC-8, IC-9.
-
 copy | valueAt :: repeats the private reach walk of clampedsettings change both together
 twin: src/entity/document-model/document-settings/document-settings.ts#reach (inside clampedSettings)
 why: reach is private inside clampedSettings; ScreenRenderer->DocumentSettings is declared, so publishing the walk (T-064 row) folds it.

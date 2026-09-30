@@ -148,6 +148,7 @@ import {
   type ScreenSurface,
   type ScreenViewReadings,
   type VerticalWhole,
+  imageToJsonPromptText,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
@@ -204,7 +205,6 @@ import {
 } from './interaction-record'
 import { rowBandCeilingCacheOf } from './row-band-ceiling-cache'
 import startupTemplate from './startup-template.json'
-import imageToJsonPrompt from '../../adapter/screen-renderer/image-to-grs-json-prompt.json'
 import { runSessionEffects, type EffectRunners } from './session-effects'
 import { heldViewPlaceOf } from './view-place'
 import { answerWatermarkUnlock, matchWatermarkUnlock } from './watermark-unlock'
@@ -667,20 +667,6 @@ export const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 const PROMPT_COPIED_REASON: NoticeReason = 'RS-65'
 
 const PROMPT_NOT_COPIED_REASON: NoticeReason = 'RS-15'
-
-const JSON_FENCE_OPEN = '```json\n'
-
-const JSON_FENCE_CLOSE = '\n```'
-
-// see FR-068, FR-027, FR-038
-/** @purity pure */
-function imageToJsonPromptText(language: DisplayLanguage): string {
-  const versionLine = `schemaVersion: ${GREATEST_KNOWN_SCHEMA_VERSION}`
-  const schema = JSON_FENCE_OPEN + imageToJsonPrompt.schema + JSON_FENCE_CLOSE
-  const emptyDocument = JSON_FENCE_OPEN + imageToJsonPrompt.emptyDocument + JSON_FENCE_CLOSE
-  return [imageToJsonPrompt[language], versionLine, schema, emptyDocument].join('\n\n') + '\n'
-}
-
 
 export const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
@@ -2682,7 +2668,7 @@ export function frameLoop(
       return
     }
     // TRAP: started inside the input's own call; deferred, the browser can refuse the write.
-    const text = imageToJsonPromptText(screenLanguageIn(session))
+    const text = imageToJsonPromptText(screenLanguageIn(session), GREATEST_KNOWN_SCHEMA_VERSION)
     void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
       raiseNotice(writing.ok ? PROMPT_COPIED_REASON : PROMPT_NOT_COPIED_REASON, null)
     })
