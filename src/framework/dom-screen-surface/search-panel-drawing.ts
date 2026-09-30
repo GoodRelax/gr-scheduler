@@ -85,15 +85,26 @@ function cellStyle(): string {
   return `border:1px solid ${PAINT.rule};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 0.25em;`
 }
 
+// see SV-6
+// WHY: front to back; unstacked sticky cells paint in tree order, so a fixed body cell would cover the header.
+const TABLE_CELL_STACK = ['fixedHeaderCell', 'headerCell', 'fixedBodyCell'] as const
+
 /** @purity pure */
-function headerCellStyle(): string {
-  return `${cellStyle()}position:sticky;top:0;background:${PAINT.panel};`
+function stackStyle(cell: (typeof TABLE_CELL_STACK)[number]): string {
+  return `z-index:${TABLE_CELL_STACK.length - TABLE_CELL_STACK.indexOf(cell)};`
 }
 
 // TRAP: left:0 until pinFixedColumns measures the drawn columns; a guessed width is no row's value (S-425).
 /** @purity pure */
 function fixedColumnStyle(): string {
   return `position:sticky;left:0;background:${PAINT.ground};`
+}
+
+/** @purity pure */
+function headerCellStyle(isFixed: boolean): string {
+  const fixed = isFixed ? fixedColumnStyle() : ''
+  const stack = stackStyle(isFixed ? 'fixedHeaderCell' : 'headerCell')
+  return `${cellStyle()}${fixed}position:sticky;top:0;background:${PAINT.panel};${stack}`
 }
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
@@ -207,7 +218,7 @@ function wordFieldElement(host: Document, word: string, fontPx: number): HTMLEle
 // see SV-7
 /** @purity non-pure */
 function headerCellElement(host: Document, column: SearchColumnView): HTMLElement {
-  const cell = made(host, 'th', headerCellStyle() + (column.isFixed ? fixedColumnStyle() : ''))
+  const cell = made(host, 'th', headerCellStyle(column.isFixed))
   cell.setAttribute('data-column', column.column)
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
   const heading = made(host, 'span', '')
@@ -285,9 +296,11 @@ function bodyRowElement(host: Document, row: SearchRowView, columns: readonly Se
   const line = made(host, 'tr', '')
   row.cells.forEach((text, at) => {
     const isJump = at === 0
-    const fixed = columns[at]?.isFixed === true ? fixedColumnStyle() : ''
+    const isFixed = columns[at]?.isFixed === true
+    const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? JUMP_CELL_STYLE : ''))
     cell.textContent = text
+    if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
     if (isJump && row.target.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
     if (isJump && row.target.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
     line.append(cell)

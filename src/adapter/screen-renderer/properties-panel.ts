@@ -52,6 +52,7 @@ import type {
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
+import dependencyKinds from './dependency-kinds.json'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
@@ -69,7 +70,8 @@ const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowI
 
 const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
 
-const DEPENDENCY_KINDS = displayWords.dependencyKinds
+// see FR-009, T-018
+const DEPENDENCY_KINDS = dependencyKinds.dependencyKinds
 
 const SETTINGS_WORDS_BY_KEY = new Map(
   displayWords.settings.flatMap((entry) =>
