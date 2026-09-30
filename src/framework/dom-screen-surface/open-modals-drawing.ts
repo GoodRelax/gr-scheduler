@@ -30,6 +30,10 @@ const CLOSE_SURFACE_ENTRY = 'IC-52'
 const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
 
+// WHY: anywhere, because the address has no space to break at and would widen the column.
+// WHY: one empty line (1lh) parts the note from the column's last item (JDG-1048, JDG-1049).
+const HELP_FOOTNOTE_STYLE = 'overflow-wrap:anywhere;margin-top:1lh;'
+
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
@@ -278,7 +282,11 @@ function wheelUnitPx(event: WheelEvent, scroller: HTMLElement): number {
 // see FR-036, FR-053, T-256
 // WHY: each entry names its column (table T-256), so a block is placed, never flowed.
 /** @purity non-pure */
-function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): HTMLElement {
+function helpColumnsElement(
+  host: Document,
+  entries: readonly OpenHelpEntry[],
+  footnotes: HelpModal['footnotes'],
+): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle())
   const columnByRow = new Map<string, HTMLElement>()
   let block: HTMLElement | null = null
@@ -317,7 +325,23 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
     const drawnItem = helpItemElement(host, line, line.glyphs, line.indent)
     block.append(drawnItem.row)
   }
+  appendHelpFootnotes(host, footnotes, columnByRow, columns)
   return columns
+}
+
+/** @purity non-pure */
+function appendHelpFootnotes(
+  host: Document,
+  footnotes: HelpModal['footnotes'],
+  columnByRow: ReadonlyMap<string, HTMLElement>,
+  columns: HTMLElement,
+): void {
+  for (const footnote of footnotes) {
+    const column = columnByRow.get(footnote.column) ?? [...columnByRow.values()].at(-1) ?? columns
+    const note = made(host, 'div', HELP_FOOTNOTE_STYLE)
+    note.append(nextStepElement(host, footnote.before, footnote.address === '' ? null : footnote))
+    column.append(note)
+  }
 }
 
 interface DrawnModal {
@@ -527,7 +551,7 @@ function helpBodyElement(host: Document, modal: HelpModal): HTMLElement {
     legal.append(line)
   }
   const helpBody = made(host, 'div', helpBodyStyle())
-  helpBody.append(helpColumnsElement(host, modal.entries), legal)
+  helpBody.append(helpColumnsElement(host, modal.entries, modal.footnotes), legal)
   return helpBody
 }
 

@@ -147,6 +147,8 @@ function inlineBuiltAssetsIntoHtml(): Plugin {
             `script-src ${scriptSources}`,
             `base-uri 'none'`,
             `form-action 'none'`,
+            // The page a relay serves opens a WebSocket back to that same origin (PO-7).
+            `connect-src 'self'`,
           ].join('; ')
 
           // ⚠️ Emitted as the FIRST thing in the head, and only now that the

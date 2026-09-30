@@ -51,7 +51,11 @@ export function nextStepElement(host: Document, text: string, link?: LinkedWords
     line.textContent = text
     return line
   }
-  line.append(host.createTextNode(link.before), linkElement(host, link.address), host.createTextNode(link.after))
+  const before = made(host, 'span', '')
+  before.textContent = link.before
+  const after = made(host, 'span', '')
+  after.textContent = link.after
+  line.append(before, linkElement(host, link.address), after)
   return line
 }
 

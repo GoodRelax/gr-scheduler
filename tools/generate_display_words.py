@@ -119,7 +119,12 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # holds the note on IC-54's row, so that section is keyed by the row id.
 # ⚠️ These are KEYS, not words.
 HELP_HEADINGS = ('basics', 'browser')
-HELP_NOTES = ('IC-54',)
+HELP_NOTES = ('IC-54', 'IC-20')
+# ⭐ The notes below the columns of the help body (FR-036, CR-620): note *1
+# names the bundle for using the Agent API from an AI app and the page that
+# setting S-350 names. A note is not a row of any table, so it is keyed by its
+# number, never by a minted row id. ⚠️ These are KEYS, not words.
+HELP_FOOTNOTES = (1,)
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -421,6 +426,7 @@ def roster():
         'shortcuts': listed_shortcuts(),
         'helpHeadings': list(HELP_HEADINGS),
         'helpNotes': list(HELP_NOTES),
+        'helpFootnotes': list(HELP_FOOTNOTES),
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
                                         BROWSER_FUNCTION_TABLE)],
@@ -493,6 +499,7 @@ SHAPE = {
     'shortcuts': ('rowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
     'helpNotes': ('rowId', ('text',)),
+    'helpFootnotes': ('footnote', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
     'exportFormats': ('rowId', ('name',)),
@@ -599,7 +606,7 @@ def build(doc, keys_by_row):
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
-                    'shortcuts', 'helpHeadings', 'helpNotes',
+                    'shortcuts', 'helpHeadings', 'helpNotes', 'helpFootnotes',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',

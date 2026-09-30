@@ -5,6 +5,8 @@
 #   /spec/           -> StrictDoc .sdoc sources (from docs/spec)
 #   /spec-html/      -> StrictDoc HTML render of docs/spec
 #   /api /dev /mock /security  -> the rest of docs/
+#   /download/       -> the MCP relay: grs-relay.mcpb, its .sha256, grs-relay.mjs
+#                       (FR-150; the bundle carries a build provenance attestation)
 #
 # No generated file is committed to the repo; this workflow assembles the site
 # from source on every push to main and deploys it as a Pages artifact.
@@ -25,6 +27,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # actions/attest-build-provenance records the relay bundle's build provenance.
+  attestations: write
 
 # One deployment at a time; do not cancel an in-flight production deploy.
 concurrency:
@@ -49,6 +53,17 @@ jobs:
 
       - name: Build single-file app
         run: npm run build # -> dist/index.html
+
+      - name: Build the MCP relay bundle
+        # Needs dist/index.html from the step above: the relay carries those bytes.
+        run: npm run build:relay # -> dist-relay/grs-relay.mjs, dist-relay/grs-relay.mcpb, dist-relay/grs-relay.mcpb.sha256
+
+      - name: Attest the MCP relay bundle
+        # Not a signature (the bundle is unsigned on purpose): a record of which
+        # workflow built it from which commit, checked with `gh attestation verify`.
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist-relay/grs-relay.mcpb
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -78,7 +93,10 @@ jobs:
           rm -rf _site/spec-html
           mkdir -p _site/spec-html
           cp -r build/strictdoc/html/. _site/spec-html/
-          # 5) Disable Jekyll so underscore dirs (_static, _assets) are served.
+          # 5) The MCP relay at /download/ (the latest-version page links here).
+          mkdir -p _site/download
+          cp dist-relay/grs-relay.mcpb dist-relay/grs-relay.mcpb.sha256 dist-relay/grs-relay.mjs _site/download/
+          # 6) Disable Jekyll so underscore dirs (_static, _assets) are served.
           touch _site/.nojekyll
 
       - name: Upload Pages artifact

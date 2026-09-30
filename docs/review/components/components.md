@@ -42,12 +42,14 @@
 | entity / documentModel | ScreenState | The screen values the document never saves: what is armed, which surface is open, the palette and the full screen. | FR-053 / FR-071 / T-023b |
 | adapter | ScreenRenderer | Builds the description of the UI parts outside the schedule, and passes on the utterance confirmed in the dialogue field. Declares ScreenSurface. | FR-051 / FR-006 / FR-036 / FR-053 / FR-076 / FR-066 |
 | framework | DomScreenSurface | Puts that description on the page. | implements ScreenSurface |
+| adapter | McpToolTranslator | Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page. | FR-150 / AG-12 |
+| framework | McpRelayServer | Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices. | FR-150 / AG-12 |
 
 ## Edges
 
 | arrow | source | target | label | description | remark |
 | --- | --- | --- | --- | --- | --- |
-| dependency | SingleHtmlShell | AgentApiEndpoint | installs / implements SnapshotSource | installs the exposure point and implements the frozen-snapshot source it declares |  |
+| dependency | SingleHtmlShell | AgentApiEndpoint | installs / implements SnapshotSource / relays calls | installs the exposure point and implements the frozen-snapshot source it declares |  |
 | dependency | SingleHtmlShell | ChooseStartupDocument | four candidates | hands over the four candidates |  |
 | realization | DomSvgSurface | SvgRenderer | implements SvgSurface |  |  |
 | realization | DomInputSource | InputCommandTranslator | implements InputSource |  |  |
@@ -196,6 +198,8 @@
 | dependency | ValidateImportedDocument | Document | document type | reads the document root type it checks |  |
 | dependency | ValidateImportedDocument | DocumentSettings | settings type | reads the settings type it checks |  |
 | dependency | ValidateImportedDocument | Schedule | date columns + day maths | reads the date columns and the day arithmetic each taken-in task is checked with |  |
+| dependency | McpRelayServer | McpToolTranslator | translate tool calls | maps each MCP tool call to a relayed call and each answer back |  |
+| dependency | McpToolTranslator | AgentApiEndpoint | call and answer types | reads only the types of the relayed call and answer (RelayedCall, RelayedAnswer, AgentApi) |  |
 
 ## Clusters
 

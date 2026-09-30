@@ -234,6 +234,18 @@
    "shape": "component",
    "description": "Puts that description on the page.",
    "remark": "implements ScreenSurface"
+  },
+  {
+   "name": "McpToolTranslator",
+   "shape": "component",
+   "description": "Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page.",
+   "remark": "FR-150 / AG-12"
+  },
+  {
+   "name": "McpRelayServer",
+   "shape": "component",
+   "description": "Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices.",
+   "remark": "FR-150 / AG-12"
   }
  ],
  "edges": [
@@ -263,7 +275,7 @@
    "target": "adapter",
    "arrow": "dependency",
    "label": "drives / implements",
-   "description": "backed by 14 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway; SingleHtmlShell -> ScreenRenderer; DomScreenSurface -> ScreenRenderer"
+   "description": "backed by 15 component edge(s): SingleHtmlShell -> AgentApiEndpoint; DomSvgSurface -> SvgRenderer; DomInputSource -> InputCommandTranslator; FileSystemAccessFileStore -> FileGateway; BrowserClipboard -> ClipboardGateway; CanvasRasterizer -> ImageExporter; SingleHtmlShell -> DocumentCodec; SingleHtmlShell -> SvgRenderer; SingleHtmlShell -> InputCommandTranslator; SingleHtmlShell -> FileGateway; SingleHtmlShell -> ImageExporter; SingleHtmlShell -> ClipboardGateway; SingleHtmlShell -> ScreenRenderer; DomScreenSurface -> ScreenRenderer; McpRelayServer -> McpToolTranslator"
   },
   {
    "source": "framework",
@@ -388,7 +400,8 @@
      "ImageExporter",
      "FileGateway",
      "ClipboardGateway",
-     "ScreenRenderer"
+     "ScreenRenderer",
+     "McpToolTranslator"
     ]
    },
    {
@@ -405,7 +418,8 @@
      "FileSystemAccessFileStore",
      "BrowserClipboard",
      "CanvasRasterizer",
-     "DomScreenSurface"
+     "DomScreenSurface",
+     "McpRelayServer"
     ]
    }
   ]

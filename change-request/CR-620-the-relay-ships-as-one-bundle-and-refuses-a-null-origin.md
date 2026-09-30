@@ -1,6 +1,8 @@
 # CR-620 — MCP の取次は 1 つの束で配ってヘルプから案内し、`Origin: null` と違う `Host` を断る
 
-> 起草の状態: 起草（2026-10-01、枝 `mcp-no-install-study`）。まだ当てていない。2026-10-01 の同じ日に、利用者の続きの答え（`JDG-1026` 〜 `JDG-1028` ・ `JDG-1050` ・ `JDG-1051`）で、ヘルプの案内（E-04 ・ J-01 〜 J-04）を足した。
+> 起草の状態: 当てた（2026-10-01、枝 `mcp-relay`、`CR-613` の直後。4 節の 8 件は 1 回ずつ現れ、そのまま当てた。9 節の語の生成は `tools/generate_display_words.py` に `helpFootnotes` と `IC-20` の備考を教えた。11 節の問いは `JDG-1052` で答えを得た）。
+> ⚠️ 当てる日に利用者が備考 ※1 の置き場を改めた（`JDG-1048`）: E-04 と SEAM-4 の「本文の末（段の下）」を「`IC-20` の項目が載る段の末」に書き換え、`JDG-1049` で「1 行あけて」を足してから当てた。
+> （起草の記: 起草（2026-10-01、枝 `mcp-no-install-study`）。）2026-10-01 の同じ日に、利用者の続きの答え（`JDG-1026` 〜 `JDG-1028` ・ `JDG-1050` ・ `JDG-1051`）で、ヘルプの案内（E-04 ・ J-01 〜 J-04）を足した。
 > 読んだ木: `refactor` `e724925d`。E-01 〜 E-03 の旧は、`CR-613` の E-01（新しいファイル `docs/spec/_assets/design-mcp-relay.md` の全文）の中にある —— いまの木に `design-mcp-relay.md` は無い。E-04 と J-01 〜 J-04 の旧は、いまの木にある（13 節）。
 > ID の帯: 調整役から `CR-620` を受けた。仕様の新しい行 ID は取らない。台帳は `JDG-1010` 〜 `JDG-1014` ・ `JDG-1026` 〜 `JDG-1028` ・ `JDG-1050` ・ `JDG-1051` を使った（12 節）。
 > ⛔ 当てる順: **`CR-613` の後**（E-01 〜 E-03 の旧は `CR-613` の E-01 の新である）。`CR-614` とは触る所が別（2 章）なので、`CR-614` との順は問わない。E-04 と J-01 〜 J-04 は `CR-613` に依らない。
@@ -146,8 +148,9 @@ J-01 だけは語を書き換える —— `IC-20` の `hint` の ja ・ en の 
 新
 ```text
 ⭐ `IC-54` の項目には、構えているあいだだけ画面に在ることを添えること（MUST） —— 添える語は `FR-038` の辞書が `IC-54` の行で持つ。  
-⭐ ヘルプの本文の末（段の下）に備考 ※1 を置き、AI のアプリから `Agent API` を使うための束（`FR-150`）と最新版を入手する所を示すこと（MUST） —— 語は `FR-038` の辞書が持ち、所は語の `{downloadUrl}` の場所へ `_assets/tbl-settings.md` の 表 T-206 の `S-350` を差し込み、`FR-073` と同じ押せるリンクとして示す。  
-備考は段の外に置き、段の数と項目の数（`S-202`）に入れない。  
+⭐ `IC-20` の項目が載る段の末（その段の最後の項目の下に 1 行あけて）に備考 ※1 を置き、AI のアプリから `Agent API` を使うための束（`FR-150`）と最新版を入手する所を示すこと（MUST） —— 語は `FR-038` の辞書が持ち、所は語の `{downloadUrl}` の場所へ `_assets/tbl-settings.md` の 表 T-206 の `S-350` を差し込み、`FR-073` と同じ押せるリンクとして示す。  
+備考は項目ではなく、項目の数（`S-202`）に入れない —— 段の幅に収まるよう折り返し、段の数も変えない。  
+⭐ `IC-20` と同じ段に置くのは、項目に添えた「※1」から備考を探さずに読めるようにするためである。  
 ⚠️ 備考を題の行に置かないのは、題の行に置けるものが下の並びだけだからである。  
 `IC-20` の項目には、備考 ※1 を参照することを添えること（MUST） —— 添える語は `FR-038` の辞書が `IC-20` の行で持つ。  
 ```
@@ -232,9 +235,11 @@ SEAM-3 additions (CR-620)
   the same single .html bytes) and grs-relay.mjs (the same relay JS) for the page S-350 names.
 
 SEAM-4 (help, FR-036 / FR-038 -- CR-620)
-- the help body ends, below the columns, with note *1: the dictionary's helpFootnotes text with S-350
-  put in place of {downloadUrl}, shown as a link that opens a new tab without opener or referrer (FR-073).
-- the note is not an item: the item count S-202 is unchanged; nothing is added to the title row.
+- the column that holds the IC-20 item ends, one empty line below its last item, with note *1 (JDG-1048, JDG-1049): the
+  dictionary's helpFootnotes text with S-350 put in place of {downloadUrl}, shown as a link that opens
+  a new tab without opener or referrer (FR-073), wrapped to the column's width.
+- the note is not an item: the item count S-202 and the column count are unchanged; nothing is added
+  to the title row.
 - the IC-20 item carries the helpNotes text of IC-20; the IC-20 tooltip is the hint of IC-20.
 - the page fetches nothing (CN-6): opening the help makes no network request.
 ```

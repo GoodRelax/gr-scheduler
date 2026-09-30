@@ -542,11 +542,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
 | `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| |
 | `AgentWriteRequest` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteRequest` | -- | interface AgentWriteRequest |
+| `answerRelayedCall` | entry | function | `src/adapter/agent-api-endpoint/relayed-call.ts#answerRelayedCall` | PI-17 | `non-pure`。 |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
 | `installAgentApi` | entry | function | `src/adapter/agent-api-endpoint/agent-api-endpoint.ts#installAgentApi` | PI-17 | `non-pure`。 |
+| `RelayedAnswer` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedAnswer` | -- | type RelayedAnswer = \| { readonly result: unknown } \| { readonly error: { readonly code: number; readonly message: string } } type ParameterisedMember = |
+| `RelayedCall` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedCall` | -- | type RelayedCall = |
+| `RelayedParams` | entry | interface | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedParams` | -- | interface RelayedParams |
 | `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065 |
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
+| `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
 
 ## InputCommandTranslator (PI-18, `src/adapter/input-command-translator/input-command-translator.ts`)
 
@@ -857,6 +862,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `AgentApiRelayLink` | file only | interface | `src/framework/single-html-shell/agent-api-relay-link.ts#AgentApiRelayLink` | -- | interface AgentApiRelayLink |
+| `openAgentApiRelayLink` | file only | function | `src/framework/single-html-shell/agent-api-relay-link.ts#openAgentApiRelayLink` | -- | function openAgentApiRelayLink( api: AgentApi, place: RelayPlace, openSocket: (address: string) => WebSocket, ): AgentApiRelayLink \| null |
+| `RelayPlace` | file only | type | `src/framework/single-html-shell/agent-api-relay-link.ts#RelayPlace` | -- | type RelayPlace = Pick<Location, 'hash' \| 'host'> |
 | `readBrowserStored` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#readBrowserStored` | -- | function readBrowserStored(row: BrowserStoredRow): string \| null |
 | `startupAgentApiEnabled` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupAgentApiEnabled` | -- | function startupAgentApiEnabled(): boolean |
 | `startupDisplayLanguage` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupDisplayLanguage` | -- | function startupDisplayLanguage(): DisplayLanguage |
@@ -1122,6 +1130,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
+| `HelpFootnote` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | interface HelpFootnote extends LinkedWords |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
@@ -1174,6 +1183,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, ): DialogueField \| null |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
+| `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
 | `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, ): readonly Notice[] |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
@@ -1472,4 +1482,23 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 715 name(s) leave through a public entry (236 of them published by table T-064), 557 more are exported by a file and not by its entry.
+## McpToolTranslator (PI-40, `src/adapter/mcp-tool-translator/mcp-tool-translator.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `McpTool` | entry | interface | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#McpTool` | -- | interface McpTool |
+| `mcpToolList` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpToolList` | PI-40 | MCP の道具の一覧。 |
+| `McpToolResult` | entry | interface | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#McpToolResult` | -- | interface McpToolResult |
+| `mcpToolResultOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpToolResultOf` | PI-40 | ページの答えを MCP の道具の答えに写す。 |
+| `pageNotConnectedResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#pageNotConnectedResult` | PI-40 | ページが繋がっていないときの答え。 |
+| `relayedCallOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayedCallOf` | PI-40 | MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す |
+
+## McpRelayServer (PI-41, `src/framework/mcp-relay-server/mcp-relay-server.ts`)
+
+| name | reach | kind | declared in | T-064 | what it is for / its declaration |
+| --- | --- | --- | --- | --- | --- |
+| `McpRelay` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelay` | -- | interface McpRelay |
+| `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
+| `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
+
+Totals: 729 name(s) leave through a public entry (242 of them published by table T-064), 562 more are exported by a file and not by its entry.

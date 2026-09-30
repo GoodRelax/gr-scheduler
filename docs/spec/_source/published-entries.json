@@ -1233,6 +1233,16 @@
      }
     },
     {
+     "name": "answerRelayedCall",
+     "note": {
+      "ja": [
+       "`non-pure`。",
+       "取次が運んだ呼び出しを、表 T-107 の同じ確定名のメンバへ渡して答える。",
+       "型 `RelayedCall` ・ `RelayedAnswer` とともに公開する（`_assets/design-mcp-relay.md` の 3.2）"
+      ]
+     }
+    },
+    {
      "name": "SnapshotSource",
      "note": {
       "ja": [
@@ -2394,6 +2404,65 @@
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-40",
+   "layer": "Adapter",
+   "component": "McpToolTranslator",
+   "members": [
+    {
+     "name": "mcpToolList",
+     "note": {
+      "ja": [
+       "MCP の道具の一覧。",
+       "名は 表 T-107 の確定名、説明は同表の「何を担うか」の欄（`_assets/design-mcp-relay.md` の 3.1）"
+      ]
+     }
+    },
+    {
+     "name": "relayedCallOf",
+     "note": {
+      "ja": [
+       "MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す"
+      ]
+     }
+    },
+    {
+     "name": "mcpToolResultOf",
+     "note": {
+      "ja": [
+       "ページの答えを MCP の道具の答えに写す。",
+       "拒否は値のまま写す（表 T-035 の `AG-9a`）"
+      ]
+     }
+    },
+    {
+     "name": "pageNotConnectedResult",
+     "note": {
+      "ja": [
+       "ページが繋がっていないときの答え。",
+       "理由の区分 `pageNotConnected` と開く URL を持つ拒否の値である（表 T-035 の `AG-12` の ②）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-41",
+   "layer": "Framework",
+   "component": "McpRelayServer",
+   "members": [
+    {
+     "name": "startMcpRelay",
+     "note": {
+      "ja": [
+       "`non-pure`。",
+       "取次のプロセスの入口である。",
+       "他のコンポーネントからは呼ばれない"
       ]
      }
     }

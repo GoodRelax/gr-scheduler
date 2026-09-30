@@ -9,6 +9,7 @@ import type {
   CommandItem,
   DisplayLanguage,
   HelpEntry,
+  HelpFootnote,
   HelpModal,
   ExportFormatChoice,
   IconId,
@@ -18,7 +19,7 @@ import type {
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import { confirmationAnswers, reasonNextStepLink, reasonSurfaceWords } from './notices'
+import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -124,6 +125,20 @@ const ASSIGNMENT_TABLE = 'T-023'
 const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
+
+const FOOTNOTE_ANCHOR_ROW = 'IC-20'
+
+const FOOTNOTE_COLUMN = helpRoster.entries.find((entry) => entry.row === FOOTNOTE_ANCHOR_ROW)?.column ?? NO_WORDS
+
+// see FR-036, FR-073
+/** @purity pure */
+function helpFootnotes(language: DisplayLanguage): readonly HelpFootnote[] {
+  return displayWords.helpFootnotes.map((footnote) => {
+    const word = footnote.text[language]
+    const linked = linkedWordsOf(word) ?? { before: word, address: NO_WORDS, after: NO_WORDS }
+    return { ...linked, column: FOOTNOTE_COLUMN }
+  })
+}
 
 // see FR-036
 /** @purity pure */
@@ -289,6 +304,7 @@ export function helpModalFromSession(session: ScreenSession): HelpModal | null {
     licenceText: licence.licenceText,
     copyrightNotice: licence.copyrightNotice,
     attributions: licence.attributions,
+    footnotes: helpFootnotes(helpLanguage),
   }
 }
 

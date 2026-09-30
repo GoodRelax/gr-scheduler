@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 133 | 1786 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 137 | 1871 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 35 | 231 | 0 | 3 | 0 | 0 |
-| `unit` | TS-6 | - | 141 | 3266 | 1 | 1 | 2 | 0 |
+| `system` | TS-3 | - | 36 | 239 | 0 | 3 | 0 | 0 |
+| `unit` | TS-6 | - | 142 | 3281 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 329 | 5387 | 12 | 19 | 9 | 1 |
+| **all** | | | 335 | 5495 | 12 | 19 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -70,12 +70,12 @@ named either way: 1 of 12.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (141) -- listing only
+## 6. The unit files kept for now (142) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 11 of 141.
+`semi-pure-a` (rule 04 table UO, row UO-1): 11 of 142.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -197,6 +197,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts` | frameLoop (non-pure), taskPlacement (pure) | - | FR-001, FR-027, FR-029, FR-053, FR-055, FR-078, FR-083, T-012, T-023, T-023a, T-023b, T-024a, T-028, T-034, T-058, T-060, T-062, T-065, T-066, T-077, T-078, T-103, T-108, T-109, T-206, T-218, T-239 |
 | `tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts` | documentFromJson (pure), frameLoop (non-pure) | - | FR-009, FR-027, FR-038, FR-076, T-018b, T-023a, T-023b, T-023d, T-034, T-035, T-037, T-062, T-109, T-218, T-233 |
 | `tests/unit/uf-123-session-effects.test.ts` | runSessionEffects (non-pure), unwiredEffect (pure) | - | T-280, T-286, T-289, T-290, T-292, T-293 |
+| `tests/unit/uf-185-uf-188-relay-page-side.test.ts` | answerRelayedCall (non-pure), openAgentApiRelayLink (non-pure) | - | T-107 |
 | `tests/unit/uf-24-25.test.ts` | changeNoticeFor (pure), emptyChangeWatchers (pure), emptyDialogueLog (pure), latestSequence (pure), logWithMessage (pure), notifyChangeWatchers (non-pure), unwatchChanges (non-pure), watchChanges (non-pure) | - | FR-063, FR-066, T-035, T-063 |
 | `tests/unit/uf-26.test.ts` | emptyDialogueLog (pure), logWithMessage (pure), messagesSince (pure), postDialogueMessage (non-pure) | - | T-035, T-042, T-075, T-078 |
 | `tests/unit/uf-27-28-29.test.ts` | applyDocumentChange (non-pure), displayRatioOf (pure), documentFromJson (pure), emptyChangeWatchers (pure), emptyDialogueLog (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), installAgentApi (non-pure), layoutFromSchedule (pure), mspdiFromDocument (pure), notifyChangeWatchers (non-pure), postDialogueMessage (non-pure), regionsFromScreen (pure), selectionWith (pure), unwatchChanges (non-pure) | - | FR-021, FR-022, FR-025, FR-027, FR-028, FR-031, FR-035, FR-039, FR-052, FR-055, FR-063, FR-065, FR-080, NFR-011, UC-012, T-024, T-027, T-034, T-035, T-037, T-041, T-060, T-062, T-064, T-066, T-067, T-068, T-070, T-075, T-076, T-077, T-107, T-108, T-203, T-204, T-218, T-332 |
@@ -278,6 +279,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts` | 78 | FR-009, FR-018, FR-039 | VT-2 | T-020, T-036, T-201, T-205, T-206, T-236, T-252, T-270, T-280, T-328 | CM-65, CM-66, EL-2, EL-3, EL-4, EL-6, EL-7, EL-8, EL-9, EL-10, EL-11, EL-16, EL-17, EL-18, EL-19, EL-20, EL-21, EP-12, GA-24, MK-13, PE-1, PE-12, S-18, S-39, S-126, S-159, S-208, S-447, SL-8, UN-8, UN-14, ZO-1, ZO-4, ZO-10 | - | - | - | - |
 | `tests/contract/cr-601-the-landing-mark-stays-while-the-view-moves.contract.test.ts` | 32 | FR-039 | VT-2 | T-020, T-023, T-036, T-252, T-280 | EL-4, EL-16, EL-17, IC-10, IC-13, IC-77, PTD-1, PTD-7, S-447, SK-18, SL-8, ZO-10 | - | - | - | - |
 | `tests/contract/cr-602-an-emphasised-dependency-line-keeps-its-colour.contract.test.ts` | 14 | FR-009, FR-039, FR-082 | - | T-020, T-201, T-206, T-236, T-252 | DC-8, EL-16, EP-12, S-18, S-39, S-159, S-178, S-194, S-195, S-447, SL-8, ZO-1, ZO-10 | - | - | - | - |
+| `tests/contract/cr-613-seam-1-answer-relayed-call.contract.test.ts` | 15 | - | - | T-107 | AG-6, AG-8, AG-9a, PI-17, UF-185 | - | - | - | - |
+| `tests/contract/cr-613-seam-2-mcp-tool-translator.contract.test.ts` | 20 | - | - | T-107 | AG-5, AG-8, AG-9a, AG-12, PI-40, UF-186 | - | - | - | - |
+| `tests/contract/cr-613-seam-3-mcp-relay-server.contract.test.ts` | 39 | - | - | - | AG-5, AG-6, AG-9a, AG-12, PI-41, UF-187 | - | - | - | - |
+| `tests/contract/cr-620-seam-4-help-footnote.contract.test.ts` | 11 | FR-036, FR-038, FR-073 | - | - | IC-20, IC-54, PI-37, S-202, S-350 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
 | `tests/contract/dfc-1224-merge-and-overlay-keep-the-save-target.test.ts` | 8 | FR-060, FR-096 | VT-2 | T-036, T-103, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
@@ -357,7 +362,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/t-284-the-shared-step.contract.test.ts` | 16 | - | - | T-063, T-075, T-284, T-285 | RA-1, RA-2, RA-3, RA-4, RA-5, RA-6, RA-8, SD-5, SS-1, SS-2, SS-3, SS-4, SS-5, SS-6, UT-11 | - | - | - | - |
 | `tests/contract/t-337-screen-z-order.contract.test.ts` | 12 | FR-152 | - | T-103, T-337 | S-99g, UZ-5, UZ-6, UZ-7, UZ-8, UZ-13 | - | - | - | - |
 | `tests/contract/tree-state-machine.contract.test.ts` | 9 | FR-018, FR-031 | VT-2 | T-250, T-328, T-329, T-332 | AT-153, HF-8, SD-3, SJ-2, ZE-2 | - | - | - | - |
-| `tests/contract/units.contract.test.ts` | 5 | - | - | T-062, T-074, T-075 | SU-3 | - | - | - | - |
+| `tests/contract/units.contract.test.ts` | 5 | - | - | T-062, T-074, T-075 | SU-1, SU-3 | - | - | - | - |
 | `tests/integration/cr-572-an-old-file-opens-and-the-constants-win.test.ts` | 10 | - | - | T-024a, T-040 | EZ-2, OP-6, S-124 | - | - | - | - |
 | `tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts` | 28 | FR-039, FR-041, FR-048, FR-052, FR-063, FR-080, FR-100 | - | T-027, T-108, T-206, T-215 | CM-64, DC-6, DC-7, IC-16, IC-47, IC-99, IC-100, S-2, S-3, S-66, S-171, UN-13, WY-1 | - | - | - | - |
 | `tests/integration/schedule-drawing.sws.test.ts` | 32 | FR-001, FR-003, FR-009, FR-013, FR-014, FR-017, FR-021, FR-029, FR-039, FR-043, FR-048, FR-054, FR-080, FR-089, FR-093, FR-094, FR-097, FR-098, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6 | - | T-018, T-023d, T-051, T-061, T-064, T-077, T-205, T-206, T-209, T-218, T-219, T-221, T-222, T-240, T-252, T-273 | AT-17, BO-1, DS-1, DS-7, EP-14, GA-20, HF-1, HF-19, IV-17, LF-1, LF-2, LF-3, LF-5, LF-6, LF-7, LF-8, LF-9, LF-10, LF-11, LF-12, LF-13, LF-14, LF-15, LF-16, LF-17, LF-18, LP-1, LR-2, LR-5, OC-10, PI-5, PI-6, PI-19, PI-20, PI-35, PM-1a, RP-1, RP-2, RP-4, RP-8, S-1, S-8, S-10, S-17, S-19, S-31, S-39, S-54, S-55, S-58, S-63, S-67, S-77, S-85, S-108, S-135, S-260, SH-3, ST-5, TS-2, TW-2, U-50, VG-2, VG-5, XS-6, XS-10 | - | - | - | - |
@@ -381,6 +386,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-575-the-palette-stays-grabbable-over-the-header.test.ts` | 7 | FR-053, FR-152 | - | T-103, T-109, T-212, T-337 | GR-19, IC-22, IC-75, IN-3, OP-3, S-124, UZ-5, UZ-7, UZ-8 | - | - | - | - |
 | `tests/system/cr-576-icon-and-task-hints-wait-on-their-own-clocks.test.ts` | 6 | FR-038 | - | T-023d, T-109, T-212 | EZ-2, EZ-6, IC-20, IN-3, IN-4, OP-3, S-124, S-439, U-31, U-53 | - | - | - | - |
 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-15, S-426, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, WS-2 | - | - | - | - |
+| `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | DFC-1600 | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |
@@ -517,6 +523,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts` | 12 | FR-001, FR-027, FR-029, FR-053, FR-055, FR-078, FR-083 | - | T-012, T-023, T-023a, T-023b, T-024a, T-028, T-034, T-058, T-060, T-062, T-065, T-066, T-077, T-078, T-103, T-108, T-109, T-206, T-218, T-239 | AR-1, AT-101, BO-1, BO-5, BT-4, CM-21, CP-25, CS-2, FT-1, IC-32, IC-34, IC-50, IC-83, IC-88, IC-89, IF-9, IN-1, LY-5, MK-11, OP-10, PTD-4, S-138, S-142, SH-5, SP-1, SP-2, SP-3, SP-4, TC-1, TS-6, U-26, UF-48 | - | - | - | - |
 | `tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts` | 6 | FR-009, FR-027, FR-038, FR-076 | - | T-018b, T-023a, T-023b, T-023d, T-034, T-035, T-037, T-062, T-109, T-218, T-233 | AG-9a, AR-4, BT-4, CM-36, CP-25, DN-1, DN-2, DN-3, IC-61, NT-1, PTD-3, RS-10, RS-55, RS-56, RS-57, RS-58, TS-6, UF-48 | - | - | - | - |
 | `tests/unit/uf-123-session-effects.test.ts` | 10 | - | - | T-280, T-286, T-289, T-290, T-292, T-293 | DC-9, SD-5, UF-123 | - | - | - | - |
+| `tests/unit/uf-185-uf-188-relay-page-side.test.ts` | 15 | - | - | T-107 | AG-9a, AG-12, UF-185, UF-188 | - | - | - | - |
 | `tests/unit/uf-24-25.test.ts` | 14 | FR-063, FR-066 | - | T-035, T-063 | AG-2, AG-6, AG-11, AM-17, DR-1, DR-4, FT-5, PI-15, SF-10, UF-24, UF-25, UT-3, WS-1, WS-5, WS-6, WS-7 | - | - | - | - |
 | `tests/unit/uf-26.test.ts` | 9 | - | - | T-035, T-042, T-075, T-078 | AG-6, AG-11, CP-16, FT-5, LY-1, LY-5, MS-1, PI-16, UF-25, UF-26 | - | - | - | - |
 | `tests/unit/uf-27-28-29.test.ts` | 95 | FR-021, FR-022, FR-025, FR-027, FR-028, FR-031, FR-035, FR-039, FR-052, FR-055, FR-063, FR-065, FR-080, NFR-011, UC-012 | - | T-024, T-027, T-034, T-035, T-037, T-041, T-060, T-062, T-064, T-066, T-067, T-068, T-070, T-075, T-076, T-077, T-107, T-108, T-203, T-204, T-218, T-332 | AG-1, AG-2, AG-3, AG-4, AG-6, AG-7, AG-8, AG-9, AG-9a, AG-10, AG-11, AM-1, AM-2, AM-3, AM-4, AM-5, AM-6, AM-7, AM-8, AM-9, AM-10, AM-11, AM-12, AM-13, AM-14, AM-15, AM-16, AM-17, AM-18, AT-127, AT-129, AT-140, BO-1, BT-4, CM-1, CM-67, CP-17, CS-1, CS-2, CS-3, DR-4, IF-6, IF-7, IF-8, IN-1a, IO-3, IO-4, LY-5, MN-6, NT-1, PI-15, PI-17, PI-20, PI-21, S-77, S-78, S-81, S-94, S-95, S-97, S-98, S-217, SF-10, SJ-2, SL-7b, TS-6, U-61, UF-27, UF-28, UF-29, UN-8, UN-9, UN-13, UN-16, WS-1, WS-2, WS-3, WS-4, WS-5, WS-7, WY-2 | - | - | - | - |
