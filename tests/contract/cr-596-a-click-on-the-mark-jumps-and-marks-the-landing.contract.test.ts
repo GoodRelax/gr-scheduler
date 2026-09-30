@@ -113,8 +113,10 @@ const EL_16_ENDS = '線の両端の `Task` を、表 T-023c の `SL-8` が選ん
 const EL_16_EL_2 = '⭐ 先の端が `EL-2` の端のときは、`EL-10` で描かれるようになった `Task` を囲む。'
 const EL_16_UNDRAWN = '⚠️ 印を付けた `Task` か依存線が描かれていないとき（文書に無い、`RT-4a` が落とした）は、その分を描かない。'
 const EL_16_NOT_UNDONE = '⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT）'
-const EL_17_CLEAR =
-  '印が出ているあいだに、人が次のどれかを行ったら、印を消すこと（MUST）: 押下（どのボタンでも、画面のどこでも。`EL-18` の押下を除く）、キーの押下（修飾キーだけのものを含む）、ホイール。'
+const EL_17_CLEAR = '印が出ているあいだに、人が次のどれかを行ったら、印を消すこと（MUST）: 押下（どのボタンでも、画面のどこでも）、キーの押下。'
+const EL_17_WHEEL_KEEPS =
+  'ホイール（表 T-023 の `MK-1` 〜 `MK-5`、面やパネルの上でその中を送るものを含め、ホイールはどれも消さない）'
+const EL_17_MODIFIER_KEEPS = '修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも消さないこと（MUST）'
 const EL_17_MOVE = '⚠️ ポインタを動かすだけでは消さない'
 const EL_18_NOTHING =
   '印が出ているあいだの 2 回目の押下（宿主が数える押下の回数が 2 以上の押下）では、何もしないこと（MUST） —— 選ばず、表 T-023 の `MK-13` の宛先を読まず、印も消さない。'
@@ -1677,17 +1679,17 @@ describe(`(e) the shell -- EL-17: ${EL_17_CLEAR}`, () => {
     expect(isLandingShown(shell), EL_17_MOVE).toBe(true)
   })
 
-  it(`${EL_17_CLEAR} -- a modifier-only key down clears it`, () => {
+  it(`${EL_17_MODIFIER_KEEPS} -- a modifier-only key down keeps it`, () => {
     const shell = landedShell()
     shell.send({ kind: 'key', key: 'Shift', modifiers: { ...MODS, shift: true } })
-    expect(isLandingShown(shell), EL_17_CLEAR).toBe(false)
+    expect(isLandingShown(shell), EL_17_MODIFIER_KEEPS).toBe(true)
   })
 
-  it(`${EL_17_CLEAR} -- a wheel clears it`, () => {
+  it(`${EL_17_WHEEL_KEEPS} -- a wheel keeps it`, () => {
     const shell = landedShell()
     const place = emptyPlace(shell)
     shell.send({ kind: 'wheel', x: place.x, y: place.y, modifiers: MODS, notches: 1, scrollPx: { x: 0, y: 100 } })
-    expect(isLandingShown(shell), EL_17_CLEAR).toBe(false)
+    expect(isLandingShown(shell), EL_17_WHEEL_KEEPS).toBe(true)
   })
 
   it(`${EL_17_CLEAR} -- a left press on an empty place clears it`, () => {
@@ -1718,7 +1720,7 @@ describe(`(e) the shell -- EL-17: ${EL_17_CLEAR}`, () => {
 
   it(`control (${EL_19_BACK}): once cleared, the line is drawn short again with its dots`, () => {
     const shell = landedShell()
-    shell.send({ kind: 'key', key: 'Shift', modifiers: { ...MODS, shift: true } })
+    shell.send({ kind: 'key', key: 'Enter', modifiers: MODS })
     expect(emphasisedLines(shell.svg()), 'no emphasised line once cleared').toEqual([])
     expect(outlinesOf(shell.svg()), 'no trace once cleared').toEqual([])
   })

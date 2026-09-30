@@ -589,6 +589,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `InputSource` | entry | interface | `src/adapter/input-command-translator/input-source.ts#InputSource` | PI-18 | 表 T-065 |
 | `InputWatcher` | entry | type | `src/adapter/input-command-translator/input-source.ts#InputWatcher` | -- | type InputWatcher = (input: HumanInput) => void |
 | `isCombo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isCombo` | PI-18 | 修飾キーの組が求める組と一致するかを答える。 |
+| `isLandingMarkKeptBy` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isLandingMarkKeptBy` | PI-18 | 着地の印が出ているとき、その入力が印を残すものか（表 T-303 の `EL-17` ・ `EL-18`）。 |
 | `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
@@ -663,6 +664,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp( context: InputContext, parentGroupId: string \| null, depth: number, ): TranslatedInput |
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#commandFromKey` | -- | function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput |
+| `isViewScaleKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#isViewScaleKey` | -- | function isViewScaleKey(input: KeyInput): boolean |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
@@ -1470,4 +1472,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 714 name(s) leave through a public entry (235 of them published by table T-064), 556 more are exported by a file and not by its entry.
+Totals: 715 name(s) leave through a public entry (236 of them published by table T-064), 557 more are exported by a file and not by its entry.
