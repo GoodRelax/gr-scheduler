@@ -43,6 +43,8 @@ const BL_1_S69 = '③ `_assets/tbl-settings.md` の 表 T-202 の `S-69` が真�
 const BL_1_NOT_S227 = '⚠️ 予定の表示（同表の `S-227`）では止めない'
 const BL_2_X = '横は、`start` から `finish` までを、予定バーと同じ日付から位置への換算で置くこと（MUST）。'
 const BL_2_Y = '縦は、一致する `Task` の予定の形が占める縦の範囲とすること（MUST）'
+const BL_2_NOT_S227 =
+  '予定を表示しない（`_assets/tbl-settings.md` の 表 T-202 の `S-227` が偽）ときも、縦は、描いたなら予定の形が占める縦の範囲とすること（MUST）'
 const BL_2_SHAPE =
   '形は、`milestone`（`AT-138`）が偽なら矩形、真なら `start` の位置を中心とし、縦と横の対角線をどちらもその縦の範囲の高さとする菱形とすること（MUST）'
 const BL_2_PLACE = '置く区画（ピン止めの帯か、その下の残り、`FR-098`）は、一致する `Task` の予定の形と同じとする'
@@ -332,6 +334,7 @@ describe('CR-588 -- the clauses these cases quote still stand', () => {
     expect(blText('BL-1')).toContain(BL_1_NOT_S227)
     expect(blText('BL-2')).toContain(BL_2_X)
     expect(blText('BL-2')).toContain(BL_2_Y)
+    expect(blText('BL-2')).toContain(BL_2_NOT_S227)
     expect(blText('BL-2')).toContain(BL_2_SHAPE)
     expect(blText('BL-2')).toContain(BL_2_PLACE)
     expect(blText('BL-3')).toContain(BL_3_NO_FILL)
@@ -442,6 +445,16 @@ describe('BL-2 -- where the outline stands and its shape', () => {
     const outline = onlyOutline(stage)
     expect(outline.box.y, BL_2_Y).toBeCloseTo(mine.top, 6)
     expect(outline.box.height, BL_2_Y).toBeCloseTo(mine.height, 6)
+  })
+
+  it(`BL-2 「${BL_2_NOT_S227}」: S-227 false gives the same box as S-227 true, for a bar and for a milestone`, () => {
+    for (const baseline of [SHIFTED, { uid: 1, start: day(8), finish: day(8), milestone: true }] as const) {
+      const withPlan = onlyOutline(stageOf({ tasks: [PLAIN], baselines: [baseline] }))
+      const withoutPlan = onlyOutline(
+        stageOf({ tasks: [PLAIN], baselines: [baseline], settings: { [PLAN_VISIBLE]: false } }),
+      )
+      expect(withoutPlan.box, BL_2_NOT_S227).toEqual(withPlan.box)
+    }
   })
 
   it(`BL-2 「${BL_2_SHAPE}」: a milestone -- a diamond centred on x(start), both diagonals the band's height`, () => {

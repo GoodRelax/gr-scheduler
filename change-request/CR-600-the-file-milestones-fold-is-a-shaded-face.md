@@ -1,6 +1,6 @@
 # CR-600 — マイルストーンの「書類」の折り返しは、薄く塗った面で描く
 
-> 起草の状態: 起草した（2026-09-30、枝 `lane-l1`、段 B の持ち場 L1）。⛔ 仕様にもコードにもまだ当てていない —— 当てる時期は調整役が決める。
+> 起草の状態: 当てた（2026-09-30、枝 `lane-l1`、段 B の持ち場 L1、調整役の割り当て）。E-01 の旧は当てる木で 1 回だけ現れた。試験の引用は 2 つ動いた（起草のときは `:45` の 1 つと数えていた —— `:48` の色の文を見落としていた）。コードの変更は 0。起草は 2026-09-30 の `edc31c42`。
 > 読んだ木: `lane-l1` `964efc45`。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-600` を受けた。⭐ 本書は新しい識別子を 1 つも取らない（2 節）。
 > 当てる順: `CR-583` の後（表 T-221 の `LF-18` と図 F-044 は `CR-583` が書き直した。`964efc45` で当たっている）。旧を持つほかの変更要求は、その文を書いた当てずみの `CR-583` だけである（13 節）。
@@ -23,7 +23,7 @@
 1. **食い違いは 1 か所である。** `LF-18`（`05-07-design.md:1330`）は「絵の中の線（…・書類の折り返し・…）は、…塗りの上に線で描く」と列挙する。一方、図 F-044（`_assets/fig-milestone-shapes.svg:61`）は折り返しを `class="shade"` の閉じた道で描く。
 2. **`shade` の役はすでに仕様に在る。** `05-07-design.md:1344` は「`shade` は薄く塗った面である（`LF-18`）」と書く。ところが `LF-18` の本文には `shade` を使う形が 1 つも無い。E-01 はその持ち主を `LF-18` に書く。
 3. **コードと図はすでに面で描く。** 生成器 `tools/generate_milestone_shapes.py:72` は `shade` を `h` の class へ写し、描画 `schedule-task-figures.ts:441` は `shade` を薄い塗りと縁で描く。⇒ 手で書く src は 0 である。
-4. **試験の 1 か所が旧の文を引く。** `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts:45` は旧の文をそのまま引く。当てたら、この引用を新の文に合わせる（検査 42 は、試験が引く文が仕様に在ることを見る）。隣の文を引く `:46` `LF_18_DOT`（「顔の目は点で塗る。」）と `:57` は変わらない。
+4. **試験の 2 か所が旧の文を引く。** `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts:45` `LF_18_INNER` は 2 文目を、`:48` `LF_18_COLOUR` は ⭐ の色の文の前半をそのまま引く。当てたら、2 つの引用を新の文に合わせる（検査 42 は、試験が引く文が仕様に在ることを見る）。隣の文を引く `:46` `LF_18_DOT`（「顔の目は点で塗る。」）と `:57` は変わらない。
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
 
@@ -69,7 +69,7 @@
 |---|---|---|---|
 | 列挙の「書類の折り返し・」 | `05-07-design.md:1330` の `LF-18` の 2 文目 | 3 文目の後ろに足す「書類の折り返しは、…薄く塗った面…で描く。」 | E-01 |
 | 「中の線と点の色は」 | 同じ行の ⭐ の文 | 「中の線・点・面の色は」 | E-01 |
-| その引用 | `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts:45` | 新の 2 文目 | ⛔ 本書は直さない。2 波 |
+| その引用 2 つ | `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts:45`・`:48` | 新の 2 文目と、新の ⭐ の色の文 | 1 波（仕様と同じコミット） |
 
 ---
 
@@ -84,7 +84,7 @@
 ```
 新
 ```text
-| LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く —— 面は紙の裏を見せ、角が折れていると読ませる。線だけでは、角の欠けた四角と読まれうる。<br>⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） |
+| LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く —— 面は紙の裏を見せ、角が折れていると読ませる。<br>線だけでは、角の欠けた四角と読まれうる。<br>⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） |
 ```
 
 当てた後に打つもの: `npm run gen:check` → `rm -rf output` → `bash .claude/skills/spec-graph-check/check.sh`。`docs/development-records/changelog.md` に 1 行足す。
@@ -106,6 +106,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
   to class h; schedule-task-figures.ts draws shade with innerInk).
 - Test change: the quote at
   tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts:45
+  (LF_18_INNER) and :48 (LF_18_COLOUR)
   follows the new second sentence; the tester adds one case that the "file"
   milestone draws exactly one shade element filled with the inner ink.
 - No new settings row, no new constant, no new identifier.
@@ -136,7 +137,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 | 波 | 持ち場 | 中身 | 体 |
 |---|---|---|---|
 | 0 | ― | 当てる木で 4 節の旧をもう 1 度数える（1 回） | 調整役 |
-| 1 | `docs/spec/05-07-design.md`（`LF-18` の 1 行）＋ `changelog.md` の 1 行 ＋ `cr-583` の試験の引用 1 行 | E-01、試験の `:45` の引用を新に合わせる、`gen:check`、check.sh | 段 B の **L1 描画**（`CR-583` の持ち場）。⛔ 仕様と引用は同じコミットに入れる —— 別にすると、間のコミットで検査 42 が赤になる |
+| 1 | `docs/spec/05-07-design.md`（`LF-18` の 1 行）＋ `changelog.md` の 1 行 ＋ `cr-583` の試験の引用 2 つ | E-01、試験の `:45`・`:48` の引用を新に合わせる、`gen:check`、check.sh | 段 B の **L1 描画**（`CR-583` の持ち場）。⛔ 仕様と引用は同じコミットに入れる —— 別にすると、間のコミットで検査 42 が赤になる |
 | 2 | `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | 5 節の試験を 1 つ足す（仕様だけを読む試験の体） | L1。試験の体は `docs/spec` だけを読む |
 
 - ⭐ **毎フレームの経路: いいえ。** コードは変わらない見込みである（0.2 節の 3）。`perf-pending.md` の行は要らない。
@@ -148,7 +149,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 
 | ファイル | 何を | 毎フレーム |
 |---|---|---|
-| `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | `:45` の引用を新の文へ（1 波）、面の試験を 1 つ足す（2 波） | いいえ（試験） |
+| `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | `:45`・`:48` の引用を新の文へ（1 波）、面の試験を 1 つ足す（2 波） | いいえ（試験） |
 | `docs/development-records/defects.md` | `DFC-1225` を閉じる | いいえ |
 | `docs/development-records/rulings.md` | `JDG-845` を「適用済」にする | いいえ |
 | ⚠️ 申し送り: `src/adapter/svg-renderer/schedule-task-figures.ts:381` | `SHADE_FILL_OPACITY = 0.35` は図 F-044 の `.shade` の値の手写しである。本書は直さない —— 図から生成器で運ぶかを調整役が別に決める | いいえ（定数） |
