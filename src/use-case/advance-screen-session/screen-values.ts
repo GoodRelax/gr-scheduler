@@ -122,7 +122,7 @@ export interface ScreenValuesEventCarried {
   readonly isFullScreen: boolean
   readonly surfaceName: string
   // WHY: DFC-1280 -- no clause names this word; named after the surface
-  readonly target: 'surface' | 'panel' | 'help'
+  readonly target: 'surface' | 'panel' | 'helpModal'
   readonly rung: EscapeTarget
   readonly armKind: ArmKind
   readonly shapeKind: string | null
@@ -539,7 +539,7 @@ function propertiesPutAway(values: ScreenValues): ScreenStep {
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
-  if (event.target === 'help') return helpHidden(values)
+  if (event.target === 'helpModal') return helpHidden(values)
   if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
 }
@@ -586,7 +586,7 @@ function helpRungConsumed(values: ScreenValues): ScreenStep {
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
   if (event.rung === 'searchPanel') return onSearchPanelClosePressed(values)
   if (event.rung === 'surface') return surfaceRungConsumed(values)
-  if (event.rung === 'help') return helpRungConsumed(values)
+  if (event.rung === 'helpModal') return helpRungConsumed(values)
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)

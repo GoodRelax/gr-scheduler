@@ -447,7 +447,7 @@ export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
-const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'help' }
+const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
@@ -491,7 +491,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   textEntry: null,
   confirmation: null,
   surface: ESCAPE_SURFACE,
-  help: ESCAPE_HELP,
+  helpModal: ESCAPE_HELP,
   gesture: null,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,

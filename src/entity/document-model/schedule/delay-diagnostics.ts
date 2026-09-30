@@ -269,9 +269,7 @@ function derivedParentsOf(tasks: readonly Task[], rowDepthOf: ReadonlyMap<number
   for (const task of tasks) {
     const depth = rowDepthOf.get(task.uid)
     if (task.wbsParentUid !== null || depth === undefined) continue
-    // STOP: spec does not decide whether a task on a top row, with no row above it, needs a parent.
-    // Looked in IP-1, IP-3, VO-4, DW-2
-    // @provisional PND-605
+    // WHY: a task on a top row has no row above it, so no parent is derived (PND-605, JDG-823).
     if (depth === 0) continue
     const candidates = (tasksAtDepth.get(depth - 1) ?? [])
       .filter((bar) => encloses(bar, task))
