@@ -1,0 +1,49 @@
+  ok  2 tests\nfr\nfr-002-003-frame-time-is-the-interval.test.ts:1414:1 › T-025 -- the numbers are recorded together with the browser they were taken in (10ms)
+  ok  3 tests\nfr\nfr-002-003-frame-time-is-the-interval.test.ts:1433:1 › MC-8 -- every driven stretch delivered frames to measure (2ms)
+  ok  4 tests\nfr\nfr-002-003-frame-time-is-the-interval.test.ts:1446:1 › T-043 -- the interval between frames and the time inside the call are two numbers (3ms)
+  ok  5 tests\nfr\nfr-002-003-frame-time-is-the-interval.test.ts:1501:1 › FR-021 -- the comparison is of canonical XML, never of the bytes (1ms)
+  x   6 tests\nfr\nfr-002-003-frame-time-is-the-interval.test.ts:1531:1 › NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the three roads (5ms)
+  ok  1 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1106:1 › T-025 -- the numbers are recorded together with the browser and the machine (5ms)
+PG-1 first contentful paint: 420 ms (ceiling 1500 ms, NFR-001)
+PG-1 drawing written into the page at: 241 ms (recorded for contrast -- NFR-001 counts the moment it is ON SCREEN)
+PG-4 canvas states seen on the way up: 1
+PG-4 states with a 0-sized canvas: 0
+PG-4 empty states after the first with content: 0
+PG-4 states: [[241,1920,1080,178]]
+  ok  7 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1131:1 › PG-1 / PG-4 -- the way up, and every state the canvas was seen in (0ms)
+PG-5 frames over 4 untouched seconds: 0 (NFR-010: 利用者が操作していない間、画面を描き直さないこと)
+  ok  8 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1148:1 › PG-5 -- how many frames arrived while nothing was done (0ms)
+PG-6 figures drawn: 998 of 1074 elements, 189916 characters of SVG
+PG-7 shipped .html: 1466839 bytes
+  ok  9 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1157:1 › PG-6 / PG-7 -- the two rows table T-043 marks 記録のみ (0ms)
+PG-10 dependency routes drawn while it was driven: 146
+PG-12 labels drawn while it was driven: 428, 11759 characters in total
+PG-8 drag: 92 frames, 19.23 fps, interval mean 52.01 ms / p95 72.7 ms / worst 84.84 ms, inside the call median 21.65 ms / p95 33 ms, 235 input events every 20.37 ms, 92 redraws
+PG-9 hover: 50 frames, 12.83 fps, interval mean 77.93 ms / p95 254.54 ms / worst 483.4 ms, inside the call median 9.2 ms / p95 13.3 ms, 300 input events every 12.85 ms, 0 redraws ⛔ nothing was redrawn: outside MC-8, not a gate value
+PG-10 dense dependencies: 150 frames, 20.45 fps, interval mean 48.9 ms / p95 60.5 ms / worst 139.5 ms, inside the call median 21.3 ms / p95 33.1 ms, 189 input events every 38.81 ms, 150 redraws
+PG-12 crowded labels: 166 frames, 30.48 fps, interval mean 32.81 ms / p95 54.6 ms / worst 60.7 ms, inside the call median 17.9 ms / p95 29.8 ms, 200 input events every 27.21 ms, 166 redraws
+PG-11 (rebuilding the overlaid layer): NOT PRESSED. Table T-043 starts it at M4, and this build draws no separate overlaid layer -- the whole picture is one string (IF-1 of table T-065) -- so there is nothing for the row to time.
+  ok 10 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1173:1 › PG-8 / PG-9 / PG-10 / PG-12 -- the interval, and the time inside the call (0ms)
+PG-14 x1: 125 Task -> inside the call median 11.1 ms over 3 runs [11.1,11.2,10.9], 302 figures, 66199 characters
+PG-14 x2: 250 Task -> inside the call median 12.1 ms over 3 runs [12.1,12.6,11.8], 270 figures, 60023 characters
+PG-14 x4: 500 Task -> inside the call median 10.6 ms over 3 runs [10.9,10.4,10.6], 388 figures, 84005 characters
+PG-14 x8: 1000 Task -> inside the call median 13 ms over 3 runs [13.2,13,12.8], 410 figures, 87709 characters
+PG-14 growth from 125 to 1000 Task: 1.17x, and O(n log n) allows at most 11.45x (= 8 * log(8n)/log(n) at n=125)
+  ok 11 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1212:1 › PG-14 -- the four steps of MC-9, and what O(n log n) allows between them (0ms)
+  x  12 tests\nfr\nfr-001-010-011-013-the-rest-of-chapter-7.test.ts:1248:1 › PG-1 / PG-4 / PG-5 / PG-8 / PG-9 / PG-10 / PG-12 / PG-14 -- the gates of table T-043 (3ms)
+    +   "NFR-002 PG-8 drag: 19.23 frames per second, below the 60 of NFR-002",
+    +   "NFR-003 PG-8 drag: the 95th percentile of the interval between delivered frames is 72.7 ms, past the 16.7 ms of NFR-003 (inside the call it was 33 ms, which is NOT a frame time)",
+    +   "NFR-002 PG-10 dense dependencies: 20.45 frames per second, below the 60 of NFR-002",
+    +   "NFR-003 PG-10 dense dependencies: the 95th percentile of the interval between delivered frames is 60.5 ms, past the 16.7 ms of NFR-003 (inside the call it was 33.1 ms, which is NOT a frame time)",
+    +   "NFR-002 PG-12 crowded labels: 30.48 frames per second, below the 60 of NFR-002",
+    +   "NFR-003 PG-12 crowded labels: the 95th percentile of the interval between delivered frames is 54.6 ms, past the 16.7 ms of NFR-003 (inside the call it was 29.8 ms, which is NOT a frame time)",
+    +   "NFR-002 MK-1 scroll: 36.75 frames per second, below 60 -- interval p95 40.9ms, mean 27.21ms, worst 53.07ms over 166 frames; time inside the redraw call p95 29.7ms, mean 20.3ms; 205 input events, one every 22.28ms -- ⛔ input-bound: the frames are no denser than the harness's own input, so this number is NOT a gate value and the stretch has to be driven from a real device before it can be [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-003 MK-1 scroll: the 95th percentile of the frame time is 40.9ms, over 16.7ms -- interval p95 40.9ms, mean 27.21ms, worst 53.07ms over 166 frames; time inside the redraw call p95 29.7ms, mean 20.3ms; 205 input events, one every 22.28ms -- ⛔ input-bound: the frames are no denser than the harness's own input, so this number is NOT a gate value and the stretch has to be driven from a real device before it can be [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-002 MK-2 zoom: 26.34 frames per second, below 60 -- interval p95 60.6ms, mean 37.96ms, worst 83.33ms over 186 frames; time inside the redraw call p95 33.2ms, mean 22.09ms; 200 input events, one every 35.52ms -- ⛔ input-bound: the frames are no denser than the harness's own input, so this number is NOT a gate value and the stretch has to be driven from a real device before it can be [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-003 MK-2 zoom: the 95th percentile of the frame time is 60.6ms, over 16.7ms -- interval p95 60.6ms, mean 37.96ms, worst 83.33ms over 186 frames; time inside the redraw call p95 33.2ms, mean 22.09ms; 200 input events, one every 35.52ms -- ⛔ input-bound: the frames are no denser than the harness's own input, so this number is NOT a gate value and the stretch has to be driven from a real device before it can be [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-002 MK-7 pan: 31.41 frames per second, below 60 -- interval p95 50ms, mean 31.84ms, worst 54.5ms over 154 frames; time inside the redraw call p95 33.9ms, mean 22.23ms; 340 input events, one every 14.45ms [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-003 MK-7 pan: the 95th percentile of the frame time is 50ms, over 16.7ms -- interval p95 50ms, mean 31.84ms, worst 54.5ms over 154 frames; time inside the redraw call p95 33.9ms, mean 22.23ms; 340 input events, one every 14.45ms [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-002 MK-6 range select: 52.4 frames per second, below 60 -- interval p95 30.3ms, mean 19.08ms, worst 36.4ms over 161 frames; time inside the redraw call p95 10.1ms, mean 6.82ms; 300 input events, one every 10.31ms [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+    +   "NFR-003 MK-6 range select: the 95th percentile of the frame time is 30.3ms, over 16.7ms -- interval p95 30.3ms, mean 19.08ms, worst 36.4ms over 161 frames; time inside the redraw call p95 10.1ms, mean 6.82ms; 300 input events, one every 10.31ms [measured in 154.0.4258.48, renderer \"ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)\", 1000 Task]",
+  2 failed
+  10 passed (1.5m)

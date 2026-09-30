@@ -1,0 +1,9 @@
+05:45:00 run 1 569 ok True nm [] sha e14ebbbc scale 175 all 18.1 / 33.33 MK-1 18.3 / 30.3 MK-2 24.2 / 40.9 MK-7 18 / 30.3 MK-6 16.67 / 18.2 dispatch 28.05
+05:45:49 run 1 8e6 ok True nm [] sha 4ff257a2 scale 175 all 18.1 / 33.33 MK-1 18.2 / 30.2 MK-2 24.15 / 34.87 MK-7 18.1 / 24.3 MK-6 16.67 / 18.2 dispatch 23.5
+05:46:38 run 1 head ok True nm [] sha 0b9a2b8d scale 175 all 18.2 / 33.33 MK-1 18.3 / 30.5 MK-2 24.2 / 33.37 MK-7 18.1 / 24.4 MK-6 16.67 / 18.2 dispatch 18.6
+05:47:27 run 2 head ok True nm [] sha 0b9a2b8d scale 175 all 18.1 / 33.33 MK-1 18.2 / 30.3 MK-2 24.1 / 36.3 MK-7 18.1 / 24.6 MK-6 12.2 / 18.2 dispatch 19.65
+05:48:13 run 2 569 ok True nm [] sha e14ebbbc scale 175 all 16.67 / 30.1 MK-1 17.35 / 24.4 MK-2 18.97 / 33.33 MK-7 18.1 / 24.3 MK-6 7.68 / 16.67 dispatch 17.25
+05:49:00 run 2 8e6 ok True nm [] sha 4ff257a2 scale 175 all 16.67 / 30.2 MK-1 18.05 / 25.73 MK-2 18.92 / 33.33 MK-7 18.05 / 24.3 MK-6 11.9 / 16.67 dispatch 16.85
+05:49:47 run 3 8e6 ok True nm [] sha 4ff257a2 scale 175 all 16.67 / 30.4 MK-1 18.1 / 24.4 MK-2 19.73 / 34.77 MK-7 18.1 / 24.4 MK-6 12 / 16.67 dispatch 19.25
+05:50:33 run 3 head ok True nm [] sha 0b9a2b8d scale 175 all 16.67 / 28.8 MK-1 16.68 / 24.3 MK-2 19.73 / 33.33 MK-7 18.1 / 18.4 MK-6 11.95 / 16.67 dispatch 23
+05:51:20 run 3 569 ok True nm [] sha e14ebbbc scale 175 all 16.67 / 30.4 MK-1 16.67 / 24.3 MK-2 19.83 / 33.33 MK-7 18 / 24.4 MK-6 12 / 16.67 dispatch 18.8
