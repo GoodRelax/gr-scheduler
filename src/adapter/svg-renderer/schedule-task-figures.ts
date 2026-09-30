@@ -24,11 +24,11 @@ import {
   NOT_STORED_DEPENDENCY_SIZES,
   NOT_STORED_NAME_LABEL_WEIGHT,
   boxOfPoints,
+  emphasisedWidthOf,
   escaped,
   figureKey,
   pointsOf,
   rounded,
-  selectedLineWidth,
   selectionFrameSvg,
   typefaceAttribute,
   type ChosenColour,
@@ -94,7 +94,6 @@ export interface DependencyLinksInput {
   readonly themed: (rowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
-  readonly landingWidth: number
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
   readonly barMaskParts: readonly string[]
@@ -606,10 +605,12 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       )
     }
     if (ended.has(task.taskUid)) {
-      endOutlineParts.push(...aroundTaskSvg(task, themed('S-448'), `${taskKey}-end-outline`, 'endOutline'))
+      if (task.plan !== null) {
+        endOutlineParts.push(endOutlineSvg(task.plan, themed('S-159'), settings.planStroke, `${taskKey}-end-outline`))
+      }
     }
     if (selected.has(task.taskUid)) {
-      selectionParts.push(...aroundTaskSvg(task, themed('S-151'), `${taskKey}-frame`, 'frame'))
+      selectionParts.push(...aroundTaskSvg(task, themed('S-151'), `${taskKey}-frame`))
 
       const half = settings.fadeHandleHalfPx
       for (const foundAt of task.fadeHandles) {
@@ -726,7 +727,7 @@ export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [nu
   return { baselineParts, baselinePartsPinned }
 }
 
-// see GD-6, SL-8, EL-16
+// see GD-6
 // TRAP: the heads are minted before any cull: a <marker> must exist even when the first line is culled.
 /** @purity pure */
 function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
@@ -741,15 +742,7 @@ function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
         '</mask>',
     )
   }
-  if (input.selectedLinks.size > 0 || input.landingLink !== null) {
-    defs.push(dependencyArrowSvg(emphasisArrowIdOf(arrowId), settings.dependencyArrowLength, themed('S-448')))
-  }
   return defs
-}
-
-/** @purity pure */
-function emphasisArrowIdOf(arrowId: string): string {
-  return `${arrowId}-emphasis`
 }
 
 // see FR-009, SL-8, EL-16
@@ -766,14 +759,13 @@ function emphasisOf(link: DependencyLink, input: Pick<DependencyLinksInput, 'sel
   return input.selectedLinks.has(key) ? 'selected' : 'none'
 }
 
-// see SL-8, EL-9, EL-16, EL-19, S-159, S-448
+// see SL-8, EL-9, EL-16, EL-19, S-159, S-447
 /** @purity pure */
 function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): LinkInk {
   const own = input.settings.dependencyWidth
-  if (emphasis === 'none') return { halo, colour: input.themed('S-159'), width: own, arrowId: input.arrowId, isWholeRoute: false }
-  const isWholeRoute = emphasis === 'landing'
-  const width = isWholeRoute ? input.landingWidth : selectedLineWidth(own, true)
-  return { halo, colour: input.themed('S-448'), width, arrowId: emphasisArrowIdOf(input.arrowId), isWholeRoute }
+  const width = emphasis === 'none' ? own : emphasisedWidthOf(own)
+  // WHY: one head for every line: the colour is the same, and markerUnits="userSpaceOnUse" keeps it off the width.
+  return { halo, colour: input.themed('S-159'), width, arrowId: input.arrowId, isWholeRoute: emphasis === 'landing' }
 }
 
 // see GD-6, FR-009, EL-19
@@ -899,16 +891,42 @@ function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
   return out
 }
 
-// see SL-8, EL-16
-// WHY: around the drawn plan and actual together, the box SL-8 names for the frame and the outline alike.
+// see SL-8
+// WHY: around the drawn plan and actual together, the box SL-8 names for the frame.
 /** @purity pure */
-function aroundTaskSvg(task: ScheduleGeometry['tasks'][number], colour: string, key: string,
-                       form: 'frame' | 'endOutline'): readonly string[] {
+function aroundTaskSvg(task: ScheduleGeometry['tasks'][number], colour: string, key: string): readonly string[] {
   const box = boxOfPoints([
     ...(task.plan === null ? [] : cornersOfBar(task.plan)),
     ...(task.actual === null ? [] : cornersOfBar(task.actual)),
   ])
-  return box === null ? [] : [selectionFrameSvg(box, colour, key, form)]
+  return box === null ? [] : [selectionFrameSvg(box, colour, key)]
+}
+
+// see SL-8, EL-16, ZO-10
+/** @purity pure */
+function endOutlineSvg(plan: BarGeometry, colour: string, planStroke: number, key: string): string {
+  const ink = ` fill="none" stroke="${colour}"`
+  const named = figureKey(key)
+  if (plan.form === 'outline') {
+    const outline = `${ink} stroke-width="${rounded(emphasisedWidthOf(planStroke))}"${named}/>`
+    if (plan.layers === undefined) return `<polygon points="${pointsOf(plan.points)}"${outline}`
+    return plan.layers
+      .filter((layer) => layer.role === 'body')
+      .map((layer) => {
+        const corners = cornersOfRing(layer.segments)
+        return corners === null ? `<path d="${pathDataOf(layer.segments)}"${outline}` : `<polygon points="${pointsOf(corners)}"${outline}`
+      })
+      .join('')
+  }
+  // WHY: a head or a dot has no stroke of its own (width 0), so its edge is the addend alone.
+  const edged = `${ink} stroke-width="${rounded(emphasisedWidthOf(0))}"${named}/>`
+  const line =
+    `<line x1="${rounded(plan.from.x)}" y1="${rounded(plan.from.y)}"` +
+    ` x2="${rounded(plan.to.x)}" y2="${rounded(plan.to.y)}"` +
+    `${ink} stroke-width="${rounded(emphasisedWidthOf(plan.strokeWidth))}"${named}/>`
+  const head = plan.head === null ? '' : `<polygon points="${pointsOf(plan.head)}"${edged}`
+  const dots = plan.dots.map((dot) => `<circle cx="${rounded(dot.at.x)}" cy="${rounded(dot.at.y)}" r="${rounded(dot.radius)}"${edged}`)
+  return line + head + dots.join('')
 }
 
 // see T-266

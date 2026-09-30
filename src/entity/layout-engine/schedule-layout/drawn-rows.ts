@@ -34,9 +34,10 @@ export function drawnGroups(
   return inTreeOrder(drawnRows, byId)
 }
 
-// see LC-9
+// see LC-9, AT-55, EL-20
+// WHY: exported so the geometry places an EL-20 end with no drawn ancestor by this same order, not a second walk.
 /** @purity pure */
-function inTreeOrder<T extends TaskGroup & { depth: number }>(
+export function inTreeOrder<T extends TaskGroup>(
   rows: readonly T[], byId: ReadonlyMap<string, TaskGroup>,
 ): readonly T[] {
   const childrenOf = new Map<string | null, T[]>()

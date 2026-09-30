@@ -1369,9 +1369,9 @@ NOT_STORED_TARGETS = {
     # this table state. S-174 .. S-178 are the SELECTION's sign and S-194 is
     # the Dual Cursor's own line width -- DC-8 of table T-029a borrows SL-8's
     # rule for the mark and table T-023c's own note keeps the Dual Cursor out
-    # of SL-1, so the two are not one subject. ⚠️ S-178 is read by both and
-    # stands in one place: it is the multiplier SL-8 states, and DC-8 reaches
-    # it by naming that row rather than restating the number.
+    # of SL-1, so the two are not one subject. ⚠️ S-178 is the Dual Cursor's
+    # multiplier (DC-8); a dependency line adds S-447 instead (SL-8, CR-602).
+    # It stays with the selection's rows so the export marks do not move.
     # ⛔ NOT FOLDED INTO THE SELECTION LINE EITHER. S-224 is the halo FR-009
     # lays on the dependency line in front, and its subject is the DEPENDENCY,
     # not the selection sign -- the halo is drawn on every line, selected or
@@ -1387,15 +1387,15 @@ NOT_STORED_TARGETS = {
     # short line and the dots (seam S-1) and the renderer only draws them.
     'NOT_STORED_DEPENDENCY_SIZES': (['S-224', 'S-360', 'S-361', 'S-362'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
-    # CR-596: S-446 (the landing line's width, a multiplier on S-18 like
-    # S-178) and S-447 (the screen-px outline round a dependency line's end
-    # Tasks, SL-8 and EL-16). ⛔ NOT FOLDED INTO NOT_STORED_SELECTION_SIZES:
+    # CR-602: S-447, the screen-px width a selected or landing dependency
+    # line adds to its own width, and its end outlines add to the plan's
+    # outline (SL-8, EL-16). ⛔ NOT FOLDED INTO NOT_STORED_SELECTION_SIZES:
     # one constant per consuming subject -- the subject is the EMPHASIS of a
     # dependency line and its ends (a selected line or the landing line), not
     # the selection sign. ⛔ NOT FOLDED INTO NOT_STORED_DEPENDENCY_SIZES
     # either: that one is drawn into an exported picture (EL-15), and these
     # never are (EP-12 of table T-076).
-    'NOT_STORED_DEPENDENCY_EMPHASIS_SIZES': (['S-446', 'S-447'],
+    'NOT_STORED_DEPENDENCY_EMPHASIS_SIZES': (['S-447'],
                                              DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
@@ -1770,10 +1770,8 @@ COLOUR_TARGETS = {
                          'S-364',
                          # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
                          # FR-015); it inherits S-148 through sameAs.
-                         'S-443',
-                         # CR-596: the selected dependency line's and the landing
-                         # line's colour, and their end outlines (SL-8, EL-16).
-                         'S-448'],
+                         # CR-602: S-448 left; a selected or landing dependency line keeps S-159.
+                         'S-443'],
 }
 
 COLOUR_NOTE = [
@@ -2672,15 +2670,15 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
-    # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
+    # S-447 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
     # drawn line on a drawn plan or actual shape, and DS-7 of table T-252 puts
-    # that width at S-18 times the drawing ratio, times S-178 when the line is
-    # selected. Only this unit holds both the drawn settings and the selection
-    # the hit test cannot be handed (PI-7 keeps its arguments), so it solves
-    # the width and the head onto `DependencyGeometry` for the hit test. The
-    # constant rides whole, as the one NOT_STORED_SELECTION_SIZES the row
-    # already stands in. WARNING: `svg-renderer.ts` still widens and heads the
+    # that width at S-18 times the drawing ratio, plus S-447 when the line is
+    # selected (CR-602). Only this unit holds both the drawn settings and the
+    # selection the hit test cannot be handed (PI-7 keeps its arguments), so
+    # it solves the width and the head onto `DependencyGeometry` for the hit
+    # test. The constant rides whole, as the one
+    # NOT_STORED_DEPENDENCY_EMPHASIS_SIZES the row already stands in. WARNING: `svg-renderer.ts` still widens and heads the
     # line it draws from the same rows by itself; ledger row DFC-640 names
     # that pairing until the renderer reads these.
     # It stands in dependency-route.ts, the one unit of ScheduleGeometry that
@@ -2688,7 +2686,7 @@ TARGETS = [
     # CR-555: NOT_STORED_DEPENDENCY_SIZES beside it -- this unit draws the
     # short line (S-360, S-361) and the dots (S-362) of table T-303.
     (os.path.join(LAYOUT, 'schedule-geometry', 'dependency-route.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
+     lambda _erd: not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
@@ -2903,13 +2901,13 @@ TARGETS = [
     # ⭐ The Dual Cursor's own line width joins them, in a constant of its own
     # for the reason the entry in NOT_STORED_TARGETS gives: CU-2's two lines
     # are drawn by this unit and by no other, and S-194 is the only row that
-    # gives them a width -- S-178 is the multiplier DC-8 borrows from SL-8 and
-    # stands with the selection's rows, where SL-8 put it.
+    # gives them a width -- S-178 is the Dual Cursor's multiplier (DC-8) and
+    # stands with the selection's rows; a dependency line adds S-447 instead.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES') + NEWLINE * 2
-     # CR-596: the emphasis of a selected or landing dependency line (S-446)
-     # and of its end Tasks (S-447), drawn only on the screen (EP-12).
+     # CR-602: the width a selected or landing dependency line and its end
+     # outlines add (S-447), drawn only on the screen (EP-12).
      + not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
