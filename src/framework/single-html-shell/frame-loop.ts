@@ -119,6 +119,7 @@ import {
 import {
   commandFromInput,
   isCombo,
+  isLandingMarkKeptBy,
   isTypedIntoSearchWord,
   pressRowOf,
   screenEventFromInput,
@@ -1015,13 +1016,16 @@ function isNoticeDismissKey(input: HumanInput): boolean {
   return input.key === ESCAPE_KEY || (input.key === ENTER_KEY && isCombo(input.modifiers, false, false, false))
 }
 
-// see EL-17, EL-18
-// WHY: a pointer move never clears the mark; the eye hunts for the landing while the hand moves.
+// see EL-17, EL-18, UN-8
 /** @purity pure */
-function isLandingMarkClearedBy(input: HumanInput, session: ScreenSession): boolean {
+function isLandingMarkClearedBy(
+  input: HumanInput,
+  session: ScreenSession,
+  press: PointerPress | null,
+  regions: ScreenRegions,
+): boolean {
   if (session.screen.landingMarkDisplayState.kind !== 'shown') return false
-  if (input.kind !== 'pointer') return true
-  return input.phase === 'down' && input.clickCount < 2
+  return !isLandingMarkKeptBy(input, press, regions)
 }
 
 // see EL-16, T-280
@@ -2959,7 +2963,7 @@ export function frameLoop(
     }
 
     const sessionBefore = session
-    if (isLandingMarkClearedBy(input, session)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
+    if (isLandingMarkClearedBy(input, session, pressed, frame.regions)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
     const context = collectInputContext(frame, isNoticeStandingOnArrival)
     // TRAP: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
