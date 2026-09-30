@@ -17,6 +17,7 @@ import {
 import type {
   DisplayLanguage,
   ScreenSurface,
+  SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource } from '../dom-input-source/dom-input-source'
 import {
@@ -75,6 +76,19 @@ function readDeliveredHtml(): string {
 // TRAP: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
 // its T-109 row, and nothing of the value is read, so no document contents reach the record.
 const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
+
+type SearchPanelReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[0]['holdSearchPanelReaders']>>[0]
+
+// see SV-7, SV-14, IF-9
+/** @purity pure */
+function searchPanelReadersOf(read: () => SearchPanelReaders | null) {
+  return {
+    /** @purity semi-pure-b */
+    isSearchPanelFocused: (): boolean => read()?.isFocused() === true,
+    /** @purity semi-pure-b */
+    readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
+  }
+}
 
 /** @purity semi-pure-b */
 function focusPositionOfPage(): string {
@@ -420,7 +434,7 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
-  let isSearchPanelFocusedHeld: (() => boolean) | null = null
+  let searchPanelReadersHeld: SearchPanelReaders | null = null
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -437,7 +451,7 @@ function boot(): void {
       readWatermarkUnlockAnswerHeld = read
     },
     /** @purity non-pure */
-    holdIsSearchPanelFocused: (read) => void (isSearchPanelFocusedHeld = read),
+    holdSearchPanelReaders: (readers) => void (searchPanelReadersHeld = readers),
     /** @purity non-pure */
     onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
@@ -504,8 +518,7 @@ function boot(): void {
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
       /** @purity semi-pure-b */
       readFocusPosition: focusPositionOfPage,
-      /** @purity semi-pure-b */
-      isSearchPanelFocused: () => isSearchPanelFocusedHeld?.() === true,
+      ...searchPanelReadersOf(() => searchPanelReadersHeld),
     },
     fileStore,
     showPointerShape,
