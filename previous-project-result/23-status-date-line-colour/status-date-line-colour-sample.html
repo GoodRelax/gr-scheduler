@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>基準日線の色の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* page frame colours are rewritten by paint() from table T-236 (S-146..S-151) */
+  :root { --bg: #ffffff; --ink: #16181d; --muted: #5b6068; --rule: #dde1e6; --panel: #f6f7f9; --accent: #214e82; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { margin: 0; font: 16px/1.7 system-ui, "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 460px; min-height: 100vh; }
+  .draw { min-width: 0; padding: 12px 16px; box-sizing: border-box; }
+  @media (max-width: 1000px) { .app { grid-template-columns: 1fr; } }
+  h1 { font-size: 1.25rem; margin: 0 0 2px; }
+  p.note { color: var(--muted); margin: 0 0 8px; font-size: 0.875rem; line-height: 1.6; }
+  #pane { overflow: auto; border: 1px solid var(--rule); background: var(--bg); }
+  #chart { display: block; transform-origin: 0 0; }
+  .settings { background: var(--panel); border-left: 1px solid var(--rule); padding: 12px 16px; box-sizing: border-box; }
+  .settings h2 { font-size: 1rem; margin: 14px 0 4px; padding-bottom: 2px; border-bottom: 1px solid var(--rule); }
+  .settings h2:first-child { margin-top: 0; }
+  .settings label { display: flex; align-items: center; gap: 8px; margin: 3px 0; font-size: 0.9375rem; }
+  .settings select { font: inherit; font-size: 0.875rem; }
+  .hint { color: var(--muted); font-size: 0.8125rem; margin: 2px 0 6px; line-height: 1.55; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 2px; vertical-align: -2px;
+    border: 1px solid var(--rule); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0; }
+  table.metrics { border-collapse: collapse; font-size: 0.8125rem; line-height: 1.45; margin-top: 10px; width: 100%;
+    font-variant-numeric: tabular-nums; }
+  table.metrics th, table.metrics td { border: 1px solid var(--rule); padding: 2px 5px; text-align: right; }
+  table.metrics th { font-weight: 600; background: var(--panel); }
+  table.metrics td:first-child, table.metrics th:first-child { text-align: left; }
+  table.metrics tr.on td { outline: 2px solid var(--accent); outline-offset: -2px; }
+  table.metrics tr { cursor: pointer; }
+  .bad { color: #c62828; font-weight: 700; }
+  .warn { color: #a8600f; font-weight: 700; }
+  code { font-size: 0.875em; }
+  input[type=color] { width: 36px; height: 24px; padding: 0; border: 1px solid var(--rule); background: none; }
+  .legend { font-size: 0.8125rem; color: var(--muted); margin: 6px 0 0; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="draw">
+  <h1>基準日線（<code>S-163</code>）の色の見本</h1>
+  <p class="note">日程の図の一部に、<b>基準日線</b>（縦の太い線）、遅延診断の<b>2 本カーソル</b>（<code>S-195</code>、縦の細い線 2 本）、
+  <b>送った先の依存線と両端の囲み</b>（<code>EL-16</code>、今の色は <code>S-448</code>）、ふだんの依存線（<code>S-159</code>）、イナズマ線（<code>S-160</code>）、
+  マイルストーン、予定と実績のバーを、表 T-236 の色で描いています。右で候補・明暗・テーマの色相・モノクロを切り替えられます。
+  下の表の行をクリックしても候補を選べます。</p>
+  <div id="pane"><svg id="chart" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <p class="legend" id="legend"></p>
+  <table class="metrics" id="pairs"></table>
+  <p class="hint">上の表: いま選んでいる線の色どうしの色相の距離（明と暗の小さいほう）と、ロスター 10 色相の地・行の帯に対する最小の比。
+  強調 <code>S-151</code> はテーマの色相に追随する（いまの色相で解いた値）。</p>
+  <table class="metrics" id="metrics"></table>
+  <p class="hint">比は WCAG 2.1 の相対輝度 L から (L1 + 0.05) ÷ (L2 + 0.05)。線は 3 : 1 以上（WCAG 1.4.11 / <code>NFR-007</code>）。
+  「行の帯」は表 T-236 の <code>S-164</code>。「地・帯（全色相）」はロスター 10 色相のうち最も低い比。
+  色相は 16 進を sRGB として HLS の色相を求め、差の小さいほう（0〜180°）を取った。
+  「テーマ」は、いま選んでいる色相（バー・強調の色相）との差。<span class="bad">赤</span> は 3 : 1 未満か 20° 未満。</p>
+</div>
+<div class="settings">
+  <h2>候補</h2>
+  <div id="cands"></div>
+  <div class="row">自分で試す: 明 <input type="color" id="customLight" value="#8e27e7"> 暗 <input type="color" id="customDark" value="#cb8fff"></div>
+  <h2>ほかの線の色（JDG-913 ・ JDG-915）</h2>
+  <div id="lineCands"></div>
+  <h2>見え方</h2>
+  <label><input type="radio" name="mode" value="light" checked> 明るいテーマ</label>
+  <label><input type="radio" name="mode" value="dark"> 暗いテーマ</label>
+  <label><input type="checkbox" id="mono"> モノクロ（<code>FR-041</code> / <code>CV-7</code>：HSL の明度だけ残す）</label>
+  <label>テーマの色相（表 T-305） <select id="hue"></select></label>
+  <label>表示の拡大 <select id="zoom"><option value="1" selected>× 1</option><option value="2">× 2</option><option value="3">× 3</option></select></label>
+  <h2>出すもの</h2>
+  <label><input type="checkbox" id="selLine"> 基準日線を選んでいる（4px、<code>S-438</code>）</label>
+  <label><input type="checkbox" id="showCursor" checked> 遅延診断の 2 本カーソル（<code>S-195</code>）</label>
+  <label><input type="checkbox" id="showLanding" checked> 送った先の依存線と両端の囲み（<code>EL-16</code>）</label>
+  <h2>依存線の強調（JDG-910 ・ JDG-911 の指示）</h2>
+  <label><input type="radio" name="emph" value="S-448"> 今: 強調の色 <code>S-448</code>（マゼンタ）、線は 1.5 × 3 ＝ 4.5px（<code>S-446</code>）</label>
+  <label><input type="radio" name="emph" value="S-159" checked> 指示: 依存線の色 <code>S-159</code> のまま、線を 1.5 ＋ 2 ＝ 3.5px に</label>
+  <label><input type="radio" name="outline" value="box"> 今: 予定と実績を包む外接矩形</label>
+  <label><input type="radio" name="outline" value="own"> (a) 予定のバー・マイルストーン自身の輪郭線を太くして強調の色に</label>
+  <label><input type="radio" name="outline" value="front" checked> (b) 予定の輪郭と同じ場所・同じ形の囲み線を前面に（指示）</label>
+  <p class="hint">(a) と (b) は、ほかの線が重ならない所では同じ絵になる。違いは重なる所だけ:
+  (a) の輪郭はバーの層にあるので、依存線・イナズマ線・マーカーがその上を通る。(b) の囲み線は前面にあるので、それらの上に出る。
+  (a) ・ (b) とも囲うのは予定（とマイルストーン）だけで、実績は囲まない。囲み線の太さは輪郭 ＋ 2px（JDG-915。予定は 0.625 ＋ 2、マイルストーンは 1 ＋ 2）。今の外接矩形は 3px（<code>S-447</code>）。</p>
+  <label><input type="checkbox" id="showProgress" checked> イナズマ線（<code>S-160</code>）</label>
+  <p class="hint">線の太さは今の仕様のまま: 基準日線 2px（<code>S-333</code>）、選ぶと 4px、カーソル 1px（<code>S-194</code>）、
+  依存線 2.4 × 0.625 ＝ 1.5px（<code>S-18</code> × <code>S-236</code>）、選んだ依存線はその 2 倍（<code>S-178</code>）。
+  行の高さ・タスクの並び・日付は見本の仮置き。</p>
+  <h2>いまの値</h2>
+  <p class="hint" id="current"></p>
+</div>
+</div>
+<script>
+'use strict';
+// Table T-236 (docs/spec/_source/settings.json), as of refactor 0c3093fc. "H" is the theme hue.
+const T236 = {
+  'S-146': ['#ffffff', 'hsl(H 12% 9%)'],
+  'S-147': ['#16181d', '#e8eaee'],
+  'S-148': ['#5b6068', '#9aa1ab'],
+  'S-149': ['hsl(H 14% 87%)', 'hsl(H 12% 23%)'],
+  'S-150': ['hsl(H 20% 97%)', 'hsl(H 14% 13%)'],
+  'S-151': ['hsl(H 59% 32%)', 'hsl(H 62% 68%)'],
+  'S-155': ['hsl(H 46% 80%)', 'hsl(H 32% 26%)'],
+  'S-156': ['hsl(H 44% 46%)', 'hsl(H 46% 66%)'],
+  'S-157': ['hsl(H 62% 34%)', 'hsl(H 62% 64%)'],
+  'S-158': ['hsl(H 66% 22%)', 'hsl(H 70% 80%)'],
+  'S-159': ['hsl(26 88% 44%)', 'hsl(30 92% 60%)'],
+  'S-160': ['hsl(354 62% 42%)', 'hsl(354 70% 64%)'],
+  'S-164': ['hsl(H 42% 96%)', 'hsl(H 18% 20%)'],
+  'S-165': ['hsl(H 34% 88%)', 'hsl(H 16% 28%)'],
+  'S-166': ['hsl(H 40% 97%)', 'hsl(H 20% 17%)'],
+  'S-167': ['hsl(H 20% 99%)', 'hsl(H 14% 11%)'],
+  'S-195': ['#c2188f', '#f07ad0'],
+  'S-387': ['#d32f2f', '#ff5c5c'],
+  'S-388': ['#ffffff', '#16181d'],
+  'S-389': ['#7e57c2', '#b39ddb'],
+  'S-390': ['#ffffff', '#16181d'],
+  'S-448': ['#ff2bbc', '#db4db5'],
+};
+// Table T-305 roster (src/adapter/screen-renderer/theme-hue-roster.json).
+const ROSTER = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250];
+
+// [key, label, light, dark, note]
+const CANDIDATES = [
+  ['teal', '青緑（JDG-916、カーソルと入れ替え）', '#008a7c', '#47d1bf', 'hsl(174 100% 27%) / hsl(172 60% 55%)'],
+  ['adopted', 'マゼンタ（JDG-912）', '#f500f5', '#ff40ff', 'hsl(300 100% 48%) / 利用者の値。明だけ 3 : 1 に届くまで暗く'],
+  ['now', '今の値（候補 D、JDG-671）', '#d9381e', '#ff5a3a', '赤寄りの朱'],
+  ['user', '利用者の値（JDG-857）', '#ff40ff', '#ff40ff', 'rgb(255,64,255)、明暗とも同じ'],
+  ['K1', 'K1 青紫 266°', '#7a27e7', '#bf8fff', 'hsl(266 80% 53%) / hsl(266 100% 78%)'],
+  ['K2', 'K2 菫 272°（推奨）', '#8e27e7', '#cb8fff', 'hsl(272 80% 53%) / hsl(272 100% 78%)'],
+  ['K3', 'K3 紫 278°', '#a127e7', '#d68fff', 'hsl(278 80% 53%) / hsl(278 100% 78%)'],
+  ['K4', 'K4 赤紫寄り 286°', '#ba27e7', '#e58fff', 'hsl(286 80% 53%) / hsl(286 100% 78%)'],
+  ['K5', 'K5 利用者の色相 300° を明で暗く', '#b200b2', '#ff40ff', 'hsl(300 100% 35%) / 暗は利用者の値のまま'],
+  ['custom', '自分で試す', null, null, '右の 2 つの色の欄'],
+];
+
+// JDG-913 / JDG-915: candidates for the cursor, the dependency line and the progress line. [key, label, light, dark, note]
+const LINE_CANDIDATES = {
+  'S-195': [
+    ['magenta', 'JDG-912 のマゼンタ（JDG-916、基準日線と入れ替え）', '#f500f5', '#ff40ff', 'hsl(300 100% 48%) / 利用者の値'],
+    ['shu', '今のアプリの基準日線の朱', '#d9381e', '#ff5a3a', 'S-163 の今の値（CR-576）'],
+    ['now', '今（マゼンタ）', '#c2188f', '#f07ad0', 'S-195 の今の値'],
+    ['teal', '青緑', '#008a7c', '#47d1bf', 'hsl(174 100% 27%) / hsl(172 60% 55%)'],
+    ['cyan', '水色', '#008599', '#3ccddd', 'hsl(188 100% 30%) / hsl(186 70% 55%)。TH-2（190°）から 2°'],
+    ['green', '緑', '#17824d', '#53c68c', 'hsl(150 70% 30%) / hsl(150 50% 55%)'],
+    ['blue', '青', '#1251e2', '#77a2f8', 'hsl(222 85% 48%) / hsl(220 90% 72%)。TH-1（214°）の強調色に近い'],
+    ['ink', '墨（無彩色）', '#16181d', '#e8eaee', '文字の色 S-147 と同じ'],
+  ],
+  'S-159': [
+    ['now', '今（橙）', '#d3630d', '#f7993b', 'hsl(26 88% 44%) / hsl(30 92% 60%)'],
+    ['B1', '茶（推奨）', '#6f472a', '#b38461', 'hsl(25 45% 30%) / hsl(26 35% 54%)。暗は橙より暗く、彩度も低く'],
+    ['B2', '赤茶', '#6e4835', '#c39b83', 'hsl(20 35% 32%) / hsl(22 35% 64%)'],
+    ['B3', '焦げ茶（黄み）', '#6f4720', '#c9975e', 'hsl(30 55% 28%) / hsl(32 50% 58%)'],
+    ['B4', 'ココア', '#634136', '#bb9281', 'hsl(15 30% 30%) / hsl(18 30% 62%)'],
+  ],
+  'S-160': [
+    ['now', '今（えんじ）', '#ae2936', '#e36370', 'hsl(354 62% 42%) / hsl(354 70% 64%)'],
+    ['O1', '橙（推奨）', '#d66400', '#ff9933', 'hsl(28 100% 42%) / hsl(30 100% 60%)'],
+    ['O2', '山吹寄り', '#c26700', '#ff9e1f', 'hsl(32 100% 38%) / hsl(34 100% 56%)'],
+    ['O3', '朱寄り', '#e05a00', '#ff913d', 'hsl(24 100% 44%) / hsl(26 100% 62%)'],
+    ['O4', '黄土寄り', '#b86e00', '#ffa50a', 'hsl(36 100% 36%) / hsl(38 100% 52%)'],
+  ],
+};
+const LINE_NAMES = { 'S-195': 'カーソル', 'S-159': '依存線', 'S-160': 'イナズマ線' };
+
+const state = { lines: { 'S-195': 'magenta', 'S-159': 'B1', 'S-160': 'O1' }, emph: 'S-159', outline: 'front', cand: 'teal', dark: false, mono: false, hue: 214, zoom: 1, sel: false, cursor: true, landing: true, progress: true };
+
+// ---- colour arithmetic (same method as the README) ----
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255));
+}
+function parse(c) {
+  const hsl = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/.exec(c);
+  if (hsl) return hslToRgb(+hsl[1], +hsl[2], +hsl[3]);
+  const hex = /^#([0-9a-f]{6})$/i.exec(c);
+  if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16));
+  throw new Error('colour not understood: ' + c);
+}
+function toHex(rgb) { return '#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join(''); }
+function luminance(rgb) {
+  const ch = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * ch(rgb[0]) + 0.7152 * ch(rgb[1]) + 0.0722 * ch(rgb[2]);
+}
+function ratio(a, b) {
+  const x = luminance(parse(a)), y = luminance(parse(b));
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+function hueOf(c) {
+  const [r, g, b] = parse(c).map((v) => v / 255);
+  const hi = Math.max(r, g, b), lo = Math.min(r, g, b), d = hi - lo;
+  if (d === 0) return 0;
+  let h = hi === r ? ((g - b) / d) % 6 : hi === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+}
+function hueGap(a, b) { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); }
+// FR-041 / CV-7: keep only the HSL lightness (same as achromatic() in svg-renderer.ts).
+function achromatic(c) {
+  const rgb = parse(c);
+  const l = (Math.max(...rgb) + Math.min(...rgb)) / 2 / 255 * 100;
+  return 'hsl(0 0% ' + (Math.round(l * 100) / 100) + '%)';
+}
+function resolved(id, hue, dark) {
+  const pick = LINE_CANDIDATES[id] && LINE_CANDIDATES[id].find((c) => c[0] === state.lines[id]);
+  if (pick) return dark ? pick[3] : pick[2];
+  return T236[id][dark ? 1 : 0].replace(/\bH\b/g, String(hue));
+}
+function col(id) {
+  const c = resolved(id, state.hue, state.dark);
+  return state.mono ? achromatic(c) : c;
+}
+function candidate(key) {
+  const c = CANDIDATES.find((x) => x[0] === key);
+  if (key === 'custom') return [c[0], c[1], document.getElementById('customLight').value, document.getElementById('customDark').value, c[4]];
+  return c;
+}
+function statusColour() {
+  const c = candidate(state.cand);
+  const v = state.dark ? c[3] : c[2];
+  return state.mono ? achromatic(v) : v;
+}
+
+// ---- the chart ----
+const DAY = 30, ROW = 30, LEFT = 150, TOP = 40, DAYS = 22;
+// [name, planStart, planEnd, actualStart, actualEnd, level, milestone]
+const TASKS = [
+  ['設計のまとめ', 0, 14, 0, 12, 0, false],
+  ['要件を読む', 0, 4, 0, 5, 1, false],
+  ['画面の案', 4, 9, 5, 10, 1, false],
+  ['案の合意', 10, 10, 11, 11, 1, true],
+  ['試作', 10, 16, 11, 13, 1, false],
+  ['評価', 16, 20, null, null, 1, false],
+  ['出荷の判断', 20, 20, null, null, 1, true],
+  ['資料の更新', 6, 13, 7, 11, 1, false],
+];
+const STATUS_DAY = 12.5;
+const CURSORS = [5.5, 16.5];
+const SELECTED_ROW = 4;
+const SVG = 'http://www.w3.org/2000/svg';
+
+function el(name, attrs, parent) {
+  const e = document.createElementNS(SVG, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, s, attrs) {
+  const t = el('text', Object.assign({ x, y }, attrs || {}), parent);
+  t.textContent = s;
+  return t;
+}
+const xOf = (d) => LEFT + d * DAY;
+const yOf = (r) => TOP + r * ROW;
+
+function draw() {
+  const svg = document.getElementById('chart');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const W = LEFT + DAYS * DAY + 10, H = TOP + TASKS.length * ROW + 12;
+  svg.setAttribute('width', W * state.zoom);
+  svg.setAttribute('height', H * state.zoom);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: col('S-146') }, svg);
+  // row grounds: top level S-166, alternate S-167, selected row band S-164 with edge S-165
+  TASKS.forEach((t, r) => {
+    let fill = null;
+    if (t[5] === 0) fill = col('S-166'); else if (r % 2 === 0) fill = col('S-167');
+    if (r === SELECTED_ROW) fill = col('S-164');
+    if (fill) el('rect', { x: 0, y: yOf(r), width: W, height: ROW, fill }, svg);
+    if (r === SELECTED_ROW) {
+      el('line', { x1: 0, x2: W, y1: yOf(r) + 0.5, y2: yOf(r) + 0.5, stroke: col('S-165') }, svg);
+      el('line', { x1: 0, x2: W, y1: yOf(r + 1) - 0.5, y2: yOf(r + 1) - 0.5, stroke: col('S-165') }, svg);
+    }
+    text(svg, 8 + t[5] * 14, yOf(r) + 20, t[0], { fill: col('S-147'), 'font-size': 13, 'font-weight': t[5] === 0 ? 700 : 400 });
+  });
+  // day grid and header (S-149 rule, S-148 muted text)
+  for (let d = 0; d <= DAYS; d++) {
+    el('line', { x1: xOf(d) + 0.5, x2: xOf(d) + 0.5, y1: TOP - 14, y2: H, stroke: col('S-149'), 'stroke-width': 1 }, svg);
+    if (d < DAYS) text(svg, xOf(d) + DAY / 2, TOP - 18, String(d + 1), { fill: col('S-148'), 'font-size': 11, 'text-anchor': 'middle' });
+  }
+  el('line', { x1: LEFT, x2: W, y1: TOP - 0.5, y2: TOP - 0.5, stroke: col('S-149') }, svg);
+  el('line', { x1: LEFT - 0.5, x2: LEFT - 0.5, y1: 0, y2: H, stroke: col('S-149') }, svg);
+  // bars and milestones
+  const barH = 10;
+  const LANDING_ROWS = [3, 4];
+  const emphColour = col(state.emph);
+  const landingShapes = [];
+  TASKS.forEach((t, r) => {
+    const y = yOf(r);
+    const landing = state.landing && LANDING_ROWS.includes(r);
+    const own = landing && state.outline === 'own';
+    // (a) draws the landing task's own outline thick; (b) keeps the shape to draw it again in front
+    // JDG-911: only the plan (and the milestone's shape) is enclosed, never the actual bar
+    const shape = (d, fill, stroke, w, isPlan) => {
+      const mine = own && isPlan;
+      // JDG-915: the enclosure is the shape's own outline + 2px
+      el('path', { d, fill, stroke: mine ? emphColour : stroke, 'stroke-width': mine ? w + 2 : w }, svg);
+      if (landing && isPlan) landingShapes.push([d, w + 2]);
+    };
+    const rectPath = (x, yy, w, h) => `M${x} ${yy}h${w}v${h}h${-w}Z`;
+    if (t[6]) {
+      const cx = xOf(t[1]) + DAY / 2, cy = y + ROW / 2, s = 7;
+      shape(`M${cx} ${cy - s}L${cx + s} ${cy}L${cx} ${cy + s}L${cx - s} ${cy}Z`, col(t[3] === null ? 'S-155' : 'S-157'),
+        col(t[3] === null ? 'S-156' : 'S-158'), 1, true);
+      return;
+    }
+    shape(rectPath(xOf(t[1]) + 0.5, y + 4.5, (t[2] - t[1]) * DAY - 1, barH), col('S-155'), col('S-156'), 0.625, true);
+    if (t[3] !== null) shape(rectPath(xOf(t[3]) + 0.5, y + 4.5 + barH + 2, (t[4] - t[3]) * DAY - 1, barH - 2), col('S-157'), col('S-158'), 0.625, false);
+  });
+  // dependency lines (S-159, 1.5px) ; one of them is the selected one (S-448, 3px)
+  const deps = [[1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [7, 4]];
+  deps.forEach(([a, b]) => {
+    const selected = state.landing && a === 3 && b === 4;
+    const colour = selected ? emphColour : col('S-159');
+    // today: 1.5 x 3 (S-446); JDG-911: the dependency line's own width + 2px
+    const w = selected ? (state.emph === 'S-448' ? 4.5 : 1.5 + 2) : 1.5;
+    const ta = TASKS[a], tb = TASKS[b];
+    const x1 = ta[6] ? xOf(ta[1]) + DAY / 2 + 7 : xOf(ta[2]);
+    const y1 = yOf(a) + (ta[6] ? ROW / 2 : 9.5);
+    const x2 = tb[6] ? xOf(tb[1]) + DAY / 2 - 7 : xOf(tb[1]);
+    const y2 = yOf(b) + (tb[6] ? ROW / 2 : 9.5);
+    const mid = Math.max(x1 + 6, x2 - 6);
+    el('path', { d: `M${x1} ${y1}H${mid}V${y2}H${x2 - 6}`, fill: 'none', stroke: colour, 'stroke-width': w }, svg);
+    el('path', { d: `M${x2} ${y2}l-6 -3.5v7z`, fill: colour }, svg);
+  });
+  // today's landing outline: one bounding box around plan and actual
+  if (state.landing && state.outline === 'box') {
+    [3, 4].forEach((r) => {
+      const t = TASKS[r];
+      const x = t[6] ? xOf(t[1]) + DAY / 2 - 10 : xOf(Math.min(t[1], t[3])) - 2;
+      const x2 = t[6] ? xOf(t[1]) + DAY / 2 + 10 : xOf(Math.max(t[2], t[4])) + 2;
+      el('rect', { x, y: yOf(r) + 2, width: x2 - x, height: ROW - 4, fill: 'none', stroke: emphColour, 'stroke-width': 3 }, svg);
+    });
+  }
+  // markers that share a hue neighbourhood: S-389 (untrusted, purple) and S-387 (bottleneck, red)
+  const marker = (r, day, fillId, inkId, glyph) => {
+    const cx = xOf(day), cy = yOf(r) + ROW / 2;
+    el('circle', { cx, cy, r: 7, fill: col(fillId) }, svg);
+    text(svg, cx, cy + 4, glyph, { fill: col(inkId), 'font-size': 11, 'font-weight': 700, 'text-anchor': 'middle' });
+  };
+  marker(5, 15.4, 'S-389', 'S-390', '?');
+  marker(7, 5.4, 'S-387', 'S-388', '!');
+  // progress line (S-160): per row, leave the status date, touch the progress point, come back
+  if (state.progress) {
+    const xs = xOf(STATUS_DAY);
+    const pts = [];
+    TASKS.forEach((t, r) => {
+      pts.push(`${xs},${yOf(r)}`);
+      if (!t[6] && t[3] !== null) pts.push(`${xOf(Math.min(t[4], STATUS_DAY + 2))},${yOf(r) + ROW / 2}`);
+      else if (!t[6] && t[1] < STATUS_DAY) pts.push(`${xOf(t[1])},${yOf(r) + ROW / 2}`);
+    });
+    pts.push(`${xs},${yOf(TASKS.length)}`);
+    el('polyline', { points: pts.join(' '), fill: 'none', stroke: col('S-160'), 'stroke-width': 1.5 }, svg);
+  }
+  // (b) the same shapes again, in front of everything drawn so far
+  if (state.landing && state.outline === 'front') {
+    landingShapes.forEach(([d, w]) => el('path', { d, fill: 'none', stroke: emphColour, 'stroke-width': w }, svg));
+  }
+  // Delay Diagnostics dual cursor (S-195, 1px)
+  if (state.cursor) CURSORS.forEach((d) => el('line', { x1: xOf(d), x2: xOf(d), y1: TOP - 14, y2: H, stroke: col('S-195'), 'stroke-width': 1 }, svg));
+  // the status date line (S-163): 2px, 4px while selected
+  el('line', { x1: xOf(STATUS_DAY), x2: xOf(STATUS_DAY), y1: TOP - 14, y2: H, stroke: statusColour(), 'stroke-width': state.sel ? 4 : 2 }, svg);
+}
+
+// ---- metrics table ----
+function fmt(v, bad) { const s = v.toFixed(2); return v < bad ? `<span class="bad">${s}</span>` : s; }
+function fmtHue(v) { const s = v.toFixed(0) + '°'; return v < 20 ? `<span class="bad">${s}</span>` : s; }
+function metrics() {
+  const rows = CANDIDATES.map((c0) => {
+    const c = candidate(c0[0]);
+    const [key, label, lt, dk] = c;
+    const hue = state.hue;
+    const gl = ratio(lt, resolved('S-146', hue, false)), bl = ratio(lt, resolved('S-164', hue, false));
+    const gd = ratio(dk, resolved('S-146', hue, true)), bd = ratio(dk, resolved('S-164', hue, true));
+    const allMin = Math.min(...ROSTER.flatMap((h) => [ratio(lt, resolved('S-146', h, false)), ratio(lt, resolved('S-164', h, false)),
+      ratio(dk, resolved('S-146', h, true)), ratio(dk, resolved('S-164', h, true))]));
+    const hl = hueOf(lt), hd = hueOf(dk);
+    const toLine = (id) => Math.min(hueGap(hl, hueOf(resolved(id, hue, false))), hueGap(hd, hueOf(resolved(id, hue, true))));
+    const g195 = toLine('S-195'), g448 = toLine('S-448'), g160 = toLine('S-160'), g159 = toLine('S-159');
+    const gTheme = Math.min(hueGap(hl, hue), hueGap(hd, hue));
+    return `<tr data-key="${key}" class="${key === state.cand ? 'on' : ''}"><td><span class="swatch" style="background:${lt}"></span>` +
+      `<span class="swatch" style="background:${dk}"></span> ${label}<br><code>${lt}</code> / <code>${dk}</code></td>` +
+      `<td>${fmt(gl, 3)}</td><td>${fmt(bl, 3)}</td><td>${fmt(gd, 3)}</td><td>${fmt(bd, 3)}</td><td>${fmt(allMin, 3)}</td>` +
+      `<td>${fmtHue(g195)}</td><td>${fmtHue(g448)}</td><td>${fmtHue(g159)}</td><td>${fmtHue(g160)}</td><td>${fmtHue(gTheme)}</td></tr>`;
+  });
+  document.getElementById('metrics').innerHTML =
+    `<tr><th>基準日線の候補（明 / 暗）</th><th>明: 地</th><th>明: 帯</th><th>暗: 地</th><th>暗: 帯</th><th>地・帯（全色相）</th>` +
+    `<th>S-195 カーソル</th><th>S-448（今の強調）</th><th>S-159 依存</th><th>S-160 イナズマ</th><th>テーマ ${state.hue}°</th></tr>` + rows.join('');
+  document.querySelectorAll('#metrics tr[data-key]').forEach((tr) => tr.addEventListener('click', () => { state.cand = tr.dataset.key; sync(); }));
+  pairs();
+}
+// the chosen set: each line against the grounds, and the hue distance between every two lines
+function pairs() {
+  const c = candidate(state.cand);
+  const set = [['基準日線 S-163', c[2], c[3]]];
+  ['S-195', 'S-159', 'S-160'].forEach((id) => set.push([`${LINE_NAMES[id]} ${id}`, resolved(id, state.hue, false), resolved(id, state.hue, true)]));
+  set.push(['強調 S-151（テーマ）', resolved('S-151', state.hue, false), resolved('S-151', state.hue, true)]);
+  set.push(['ボトルネック S-387', T236['S-387'][0], T236['S-387'][1]]);
+  set.push(['信用できない S-389', T236['S-389'][0], T236['S-389'][1]]);
+  const worst = (v, dark) => Math.min(...ROSTER.flatMap((h) => [ratio(v, resolved('S-146', h, dark)), ratio(v, resolved('S-164', h, dark))]));
+  const head = `<tr><th>いまの組（明 / 暗）</th><th>明: 最小</th><th>暗: 最小</th>` + set.map((s) => `<th>${s[0].split(' ')[0]}</th>`).join('') + `</tr>`;
+  const body = set.map((s, i) => {
+    const cells = set.map((t, j) => {
+      if (i === j) return '<td>—</td>';
+      const g = Math.min(hueGap(hueOf(s[1]), hueOf(t[1])), hueGap(hueOf(s[2]), hueOf(t[2])));
+      return `<td>${fmtHue(g)}</td>`;
+    }).join('');
+    const lineRow = i < 4;
+    return `<tr><td><span class="swatch" style="background:${s[1]}"></span><span class="swatch" style="background:${s[2]}"></span> ${s[0]}<br>` +
+      `<code>${s[1]}</code> / <code>${s[2]}</code></td>` +
+      `<td>${lineRow ? fmt(worst(s[1], false), 3) : '—'}</td><td>${lineRow ? fmt(worst(s[2], true), 3) : '—'}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('pairs').innerHTML = head + body;
+}
+
+// ---- controls ----
+function buildControls() {
+  const cands = document.getElementById('cands');
+  CANDIDATES.forEach(([key, label, lt, dk, note]) => {
+    const l = document.createElement('label');
+    l.innerHTML = `<input type="radio" name="cand" value="${key}"> ` +
+      (lt ? `<span class="swatch" style="background:${lt}"></span><span class="swatch" style="background:${dk}"></span> ` : '') +
+      `<span>${label}<br><span class="hint">${note}</span></span>`;
+    cands.appendChild(l);
+  });
+  const lineBox = document.getElementById('lineCands');
+  Object.keys(LINE_CANDIDATES).forEach((id) => {
+    const h = document.createElement('p');
+    h.className = 'hint';
+    h.innerHTML = `<b>${LINE_NAMES[id]}</b>（<code>${id}</code>）`;
+    lineBox.appendChild(h);
+    LINE_CANDIDATES[id].forEach(([key, label, lt, dk, note]) => {
+      const l = document.createElement('label');
+      l.innerHTML = `<input type="radio" name="line-${id}" value="${key}"> <span class="swatch" style="background:${lt}"></span>` +
+        `<span class="swatch" style="background:${dk}"></span> <span>${label} <span class="hint">${lt} / ${dk}　${note}</span></span>`;
+      l.querySelector('input').addEventListener('change', () => { state.lines[id] = key; sync(); });
+      lineBox.appendChild(l);
+    });
+  });
+  const hueSel = document.getElementById('hue');
+  ROSTER.forEach((h, i) => { const o = document.createElement('option'); o.value = h; o.textContent = `TH-${i + 1}　${h}°`; hueSel.appendChild(o); });
+  document.querySelectorAll('input[name=cand]').forEach((r) => r.addEventListener('change', () => { state.cand = r.value; sync(); }));
+  document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', () => { state.dark = r.value === 'dark'; sync(); }));
+  document.querySelectorAll('input[name=emph]').forEach((r) => r.addEventListener('change', () => { state.emph = r.value; sync(); }));
+  document.querySelectorAll('input[name=outline]').forEach((r) => r.addEventListener('change', () => { state.outline = r.value; sync(); }));
+  const bind = (id, key, conv) => document.getElementById(id).addEventListener('input', (e) => { state[key] = conv(e.target); sync(); });
+  bind('mono', 'mono', (t) => t.checked);
+  bind('hue', 'hue', (t) => Number(t.value));
+  bind('zoom', 'zoom', (t) => Number(t.value));
+  bind('selLine', 'sel', (t) => t.checked);
+  bind('showCursor', 'cursor', (t) => t.checked);
+  bind('showLanding', 'landing', (t) => t.checked);
+  bind('showProgress', 'progress', (t) => t.checked);
+  ['customLight', 'customDark'].forEach((id) => document.getElementById(id).addEventListener('input', () => { state.cand = 'custom'; sync(); }));
+}
+function readHash() {
+  // #cand=K2&mode=dark&hue=285&mono=1&sel=1&zoom=2 -- used by the screenshot script
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (q.get('cand')) state.cand = q.get('cand');
+  if (q.get('mode')) state.dark = q.get('mode') === 'dark';
+  if (q.get('hue')) state.hue = Number(q.get('hue'));
+  if (q.get('mono')) state.mono = q.get('mono') === '1';
+  if (q.get('sel')) state.sel = q.get('sel') === '1';
+  if (q.get('zoom')) state.zoom = Number(q.get('zoom'));
+  if (q.get('emph')) state.emph = q.get('emph');
+  if (q.get('cursor')) state.lines['S-195'] = q.get('cursor');
+  if (q.get('dep')) state.lines['S-159'] = q.get('dep');
+  if (q.get('prog')) state.lines['S-160'] = q.get('prog');
+  if (q.get('outline')) state.outline = q.get('outline');
+}
+const OUTLINE_WORDS = { box: '今の外接矩形', own: '(a) 自身の輪郭を太く', front: '(b) 同じ形の囲み線を前面に' };
+function sync() {
+  document.querySelectorAll('input[name=cand]').forEach((r) => { r.checked = r.value === state.cand; });
+  document.querySelectorAll('input[name=mode]').forEach((r) => { r.checked = (r.value === 'dark') === state.dark; });
+  document.getElementById('mono').checked = state.mono;
+  document.getElementById('hue').value = String(state.hue);
+  document.getElementById('zoom').value = String(state.zoom);
+  document.getElementById('selLine').checked = state.sel;
+  document.querySelectorAll('input[name=emph]').forEach((r) => { r.checked = r.value === state.emph; });
+  Object.keys(LINE_CANDIDATES).forEach((id) => document.querySelectorAll(`input[name="line-${id}"]`).forEach((r) => { r.checked = r.value === state.lines[id]; }));
+  document.querySelectorAll('input[name=outline]').forEach((r) => { r.checked = r.value === state.outline; });
+  const root = document.documentElement.style;
+  root.setProperty('--bg', col('S-146')); root.setProperty('--ink', col('S-147')); root.setProperty('--muted', col('S-148'));
+  root.setProperty('--rule', col('S-149')); root.setProperty('--panel', col('S-150')); root.setProperty('--accent', col('S-151'));
+  document.documentElement.style.colorScheme = state.dark ? 'dark' : 'light';
+  draw();
+  metrics();
+  const c = candidate(state.cand);
+  document.getElementById('current').innerHTML =
+    `候補 <b>${c[1]}</b>　明 <code>${c[2]}</code>　暗 <code>${c[3]}</code><br>` +
+    `依存線の強調 ${state.emph}、囲み ${OUTLINE_WORDS[state.outline]}<br>` +
+    `${state.dark ? '暗い' : '明るい'}テーマ、色相 ${state.hue}°、モノクロ ${state.mono ? '入' : '切'}、基準日線 ${state.sel ? '4px（選択中）' : '2px'}` +
+    (state.mono ? `<br>モノクロでの灰: 基準日線 <code>${statusColour()}</code>、カーソル <code>${col('S-195')}</code>` : '');
+  document.getElementById('legend').textContent =
+    '縦の太い線 = 基準日線（候補の色）／縦の細い 2 本 = 遅延診断のカーソル（S-195）／太い折れ線と囲み = 送った先の依存線と両端のタスク（EL-16）／' +
+    '細い折れ線 = 依存線（S-159）／ジグザグ = イナズマ線（S-160）／丸の ? = 信用できないマーカー（S-389）／丸の ! = ボトルネック（S-387）';
+}
+buildControls();
+readHash();
+sync();
+window.addEventListener('hashchange', () => { readHash(); sync(); });
+</script>
+</body>
+</html>
