@@ -1879,6 +1879,58 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(svg).toContain(`points="${drawnPoints}"`)
     },
   )
+
+  it(
+    swsCase({
+      sws: 'SWS-4',
+      level: 'Integration',
+      covers: ['LF-18'],
+      given: "a milestone drawn with the `smile` glyph, whose figure F-044 gives one body, two dots (the eyes) and one inner line (the mouth)",
+      when: 'geometryFromLayout builds its figure',
+      then: "the plan bar's layers carry LF-18's roles: one `body`, two dot sub-paths merged into one `dot` layer, one `inner`",
+    }),
+    () => {
+      // LF-18 (CR-583 / CR-600): 「外形は塗り、縁の線で囲む」 (the outline is the
+      // body, filled and edged) 「絵の中の線（...顔の口）は、塗りに穴を開けずに、
+      // 塗りの上に線で描く」 (an inner line, such as the mouth, rides on the fill
+      // rather than cutting a hole in it) and 「顔の目は点で塗る」 (the eyes are
+      // filled dots). `milestone-shapes.json`'s `smile` entry is exactly those
+      // four layers, so this is the minimal case that ties the geometry to the
+      // rule rather than to one glyph's numbers -- the deep colour / order /
+      // curve claims of LF-18 are tests/contract/cr-583-milestone-figures-
+      // sit-on-the-row-centre.contract.test.ts's, read at svgFromSchedule's end
+      // of the same chain.
+      mentions(T221, 'LF-18', '外形は塗り', '塗りに穴を開けずに', '顔の目は点で塗る')
+      const drawn = draw(
+        [task({ uid: 1, name: 'm', start: day(5), finish: day(5), milestone: true })],
+        ['g1'],
+        [taskVisual(1, { shapeKind: 'milestone', milestoneGlyph: 'smile' })],
+      )
+      const plan = geometryOf(drawn, 1).plan
+      if (plan === null || plan.form !== 'outline') {
+        throw new Error('a milestone is not drawn as an outline')
+      }
+      const layers = plan.layers ?? []
+      // TRAP: task-figures.ts's `mergedLayers` joins a run of same-role,
+      // non-`body` layers into one element (「bodies stay apart... a run of
+      // lines or dots is one element»), so the two eyes are ONE `dot` layer
+      // with two `M`-started sub-paths rather than two layers.
+      const movesIn = (role: 'body' | 'inner' | 'dot' | 'shade') =>
+        layers.filter((layer) => layer.role === role).flatMap((layer) => layer.segments.filter((segment) => segment.command === 'M')).length
+      expect(
+        layers.filter((layer) => layer.role === 'body'),
+        'LF-18: 外形は塗り、縁の線で囲む -- the outline is one filled, edged body layer',
+      ).toHaveLength(1)
+      expect(
+        movesIn('dot'),
+        'LF-18: 顔の目は点で塗る -- each eye is a filled dot sub-path',
+      ).toBe(2)
+      expect(
+        layers.filter((layer) => layer.role === 'inner'),
+        'LF-18: 塗りに穴を開けずに、塗りの上に線で描く -- the mouth is one inner-line layer',
+      ).toHaveLength(1)
+    },
+  )
 })
 
 // ===========================================================================

@@ -330,7 +330,7 @@ const REASON_WORDS: readonly ReasonWords[] = MANUSCRIPT_WORDS.reasons
  * in its own print order.
  *
  * ⭐ THE SECTION IS WHERE NT-7 (MUST) SENDS THEM: 「`FR-038` の辞書の
- * `confirmation` の語を、どの表示言語でも `Yes` / `No` と紴ること（MUST）」.
+ * `confirmation` の語を、どの言語でも `Yes` / `No` と綴ること（MUST）」 (CR-574).
  * ⛔ So the answers are NOT read out of table T-109 any more, and may not be:
  * that row (MUST NOT) refuses them a row there.
  */
@@ -1211,9 +1211,9 @@ describe('OP-4 -- replacing asks before it discards', () => {
   })
 
   it('NT-7 (MUST): the question carries the two word buttons the confirmation section of FR-038 s dictionary holds', async () => {
-    // 「`FR-038` の辞書の `confirmation` の語を、どの表示言語でも `Yes` / `No`
-    // と紴ること（MUST）」 -- which two answers stand on `Confirmation` is that
-    // section's answer, read out of the manuscript in its own print order.
+    // 「`FR-038` の辞書の `confirmation` の語を、どの言語でも `Yes` / `No`
+    // と綴ること（MUST）」 (CR-574) -- which two answers stand on `Confirmation`
+    // is that section's answer, read out of the manuscript in its own print order.
     expect(CONFIRMATION_ANSWERS, 'the manuscript holds no confirmation section').not.toEqual([])
 
     const pane = host()
