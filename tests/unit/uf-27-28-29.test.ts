@@ -120,6 +120,7 @@ const T_107 = [
   { row: 'AM-5', name: 'readSelection', isProperty: false },
   { row: 'AM-6', name: 'readDialogueMessages', isProperty: false },
   { row: 'AM-25', name: 'readSearchRows', isProperty: false },
+  { row: 'AM-19', name: 'readDelayDiagnostics', isProperty: false },
   { row: 'AM-7', name: 'applyCommands', isProperty: false },
   { row: 'AM-8', name: 'importDocument', isProperty: false },
   { row: 'AM-9', name: 'undoEdit', isProperty: false },
@@ -158,8 +159,7 @@ const T_107 = [
  * absent seam is answered with a value -- and the two rows are exercised
  * against a REAL seam by the shipped-build probe instead.
  */
-// WHY: AM-19 has no member on the surface yet; leaving it out keeps the other rows checked.
-const SURFACE_LACKS: readonly string[] = ['AM-19']
+const SURFACE_LACKS: readonly string[] = []
 const PROPERTY = 'プロパティ'
 const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 
@@ -716,7 +716,7 @@ describe('table T-107 -- the roster', () => {
     }
   })
 
-  it('the copy is table T-107 in its own order, names and parts of speech, less AM-19', () => {
+  it('the copy is table T-107 in its own order, names and parts of speech', () => {
     const table = specTable('T-107').rows.filter((row) => !SURFACE_LACKS.includes(row.id))
     expect(T_107.map((row) => row.row)).toEqual(table.map((row) => row.id))
     expect(T_107.map((row) => row.name)).toEqual(table.map((row) => bare(row.by['確定名'] ?? '')))
