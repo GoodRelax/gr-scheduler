@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Pause glyph sample (PM-3)</title>
+<style>
+  :root { --ui: 14px; }
+  html, body { margin: 0; height: 100%; font: var(--ui)/1.6 "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  body { display: grid; grid-template-columns: 1fr 6px 360px; height: 100vh; }
+  #picture { overflow: auto; padding: 16px; }
+  #divider { background: #c9ced6; cursor: col-resize; }
+  #controls { overflow: auto; padding: 12px 14px; background: #f4f6f9; color: #16181d; }
+  body.dark #picture { background: hsl(214 12% 9%); color: #e8eaee; }
+  h1 { font-size: 16px; margin: 0 0 8px; }
+  h2 { font-size: 14px; margin: 16px 0 4px; }
+  label { display: block; margin: 6px 0 2px; }
+  input[type=range] { width: 100%; }
+  .value { font-family: Consolas, monospace; }
+  table { border-collapse: collapse; margin: 6px 0; }
+  td, th { border: 1px solid #c9ced6; padding: 2px 6px; font-size: 13px; }
+  body.dark td, body.dark th { border-color: #3a4048; }
+  textarea { width: 100%; height: 150px; font: 12px Consolas, monospace; }
+  .note { font-size: 13px; color: #5b6068; }
+  body.dark .note { color: #9aa1ab; }
+  .caption { font-size: 13px; margin: 10px 0 2px; }
+</style>
+</head>
+<body>
+<div id="picture">
+  <h1>中断の印（表 T-021 の PM-3）の見本</h1>
+  <div class="note">左から: 進行中 PM-1 ／ 未着手 PM-1a ／ 完了 PM-2 ／ 中断（今の「/」）／ 中断（新しい「−」）／ 遅れ PM-4「!」。各段は表示の倍率ごとの実寸。最後の段はその 3 倍の拡大（線の比を見るため）。</div>
+  <div id="rows"></div>
+</div>
+<div id="divider"></div>
+<div id="controls">
+  <h2>明暗</h2>
+  <label><input type="radio" name="theme" value="light" checked> 明</label>
+  <label><input type="radio" name="theme" value="dark"> 暗</label>
+
+  <h2>線の太さ</h2>
+  <label>S-24 markerStroke（保存する px。描く比 0.625 と表示の倍率を掛けて描く） <span class="value" id="v-stroke"></span></label>
+  <input type="range" id="stroke" min="0.5" max="4" step="0.1" value="1.3">
+  <label><input type="checkbox" id="share" checked> 「−」の太さを「!」と同じ係数（S-328）にする</label>
+  <label>S-328 「!」の縦棒の係数（S-24 に掛ける） <span class="value" id="v-bang"></span></label>
+  <input type="range" id="bang" min="1" max="4" step="0.1" value="1.7">
+  <label>「−」の横棒の係数（S-24 に掛ける。上を外したときだけ効く） <span class="value" id="v-pause"></span></label>
+  <input type="range" id="pause" min="1" max="4" step="0.1" value="2.2">
+
+  <h2>「−」の長さと端</h2>
+  <label>半分の長さ（記号の半分の高さ S-341 に対する比） <span class="value" id="v-half"></span></label>
+  <input type="range" id="half" min="0.5" max="1.4" step="0.05" value="1.0">
+  <label><input type="radio" name="cap" value="butt" checked> 端を切る（butt、今の「/」と同じ）</label>
+  <label><input type="radio" name="cap" value="round"> 端を丸める（round）</label>
+
+  <h2>いまの値</h2>
+  <textarea id="values" readonly></textarea>
+  <div class="note">この欄を貼り返せば、そのまま裁定の記録になります。</div>
+</div>
+<script>
+'use strict'
+// Values from docs/spec/_assets/tbl-settings.md (tree 0590ad03).
+const DRAW_RATIO = 0.625            // DS-1: stored px rows are drawn at this ratio at display scale 100
+const MARKER_SIZE = 22.4            // S-22 markerSize (diameter, stored px)
+const HALF_OF_RADIUS = 0.5          // S-341
+const BANG_BOTTOM = 0.15            // S-329
+const BANG_DOT_CENTRE = 0.8         // S-330
+const BANG_DOT_RADIUS = 0.14        // S-331
+const SCALES = [100, 175]           // S-234 display scale: default 100, and the JDG-726 comparison 175
+const THEME = {
+  light: { ground: '#ffffff', ink: '#16181d', lateGround: '#ffd400', lateInk: '#16181d', plan: 'hsl(214 46% 80%)', planEdge: 'hsl(214 44% 46%)', actual: 'hsl(214 62% 34%)', band: 'hsl(214 42% 96%)' },
+  dark:  { ground: 'hsl(214 12% 9%)', ink: '#e8eaee', lateGround: '#e6c229', lateInk: '#16181d', plan: 'hsl(214 32% 26%)', planEdge: 'hsl(214 46% 66%)', actual: 'hsl(214 62% 64%)', band: 'hsl(214 18% 20%)' },
+}
+const KINDS = [
+  { id: 'PM-1', word: '進行中' },
+  { id: 'PM-1a', word: '未着手' },
+  { id: 'PM-2', word: '完了' },
+  { id: 'PM-3-old', word: '中断（今の /）' },
+  { id: 'PM-3-new', word: '中断（新しい −）' },
+  { id: 'PM-4', word: '遅れ' },
+]
+const $ = (id) => document.getElementById(id)
+const r2 = (v) => Math.round(v * 100) / 100
+
+function state() {
+  const theme = document.querySelector('input[name=theme]:checked').value
+  const cap = document.querySelector('input[name=cap]:checked').value
+  const stroke = Number($('stroke').value)
+  const bang = Number($('bang').value)
+  const share = $('share').checked
+  const pause = share ? bang : Number($('pause').value)
+  const half = Number($('half').value)
+  return { theme, cap, stroke, bang, share, pause, half }
+}
+
+function markerSvg(kind, cx, cy, radius, strokePx, s, c) {
+  const r = radius * HALF_OF_RADIUS
+  const isLate = kind === 'PM-4'
+  const ground = isLate ? c.lateGround : c.ground
+  const ink = isLate ? c.lateInk : c.ink
+  let out = `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${ground}" stroke="${ink}" stroke-width="${strokePx}"/>`
+  if (kind === 'PM-1a') out += `<circle cx="${cx}" cy="${cy}" r="${radius * 0.18}" fill="${ink}"/>`
+  if (kind === 'PM-2') out += `<polyline points="${cx - r},${cy} ${cx - r * 0.2},${cy + r * 0.7} ${cx + r},${cy - r * 0.7}" fill="none" stroke="${ink}" stroke-width="${strokePx}"/>`
+  if (kind === 'PM-3-old') out += `<line x1="${cx - r * 0.6}" y1="${cy + r}" x2="${cx + r * 0.6}" y2="${cy - r}" stroke="${ink}" stroke-width="${strokePx}"/>`
+  if (kind === 'PM-3-new') {
+    const w = strokePx * s.pause
+    const h = r * s.half
+    out += `<line x1="${cx - h}" y1="${cy}" x2="${cx + h}" y2="${cy}" stroke="${ink}" stroke-width="${w}" stroke-linecap="${s.cap}"/>`
+  }
+  if (isLate) {
+    out += `<line x1="${cx}" y1="${cy - r}" x2="${cx}" y2="${cy + r * BANG_BOTTOM}" stroke="${ink}" stroke-width="${strokePx * s.bang}"/>`
+    out += `<circle cx="${cx}" cy="${cy + r * BANG_DOT_CENTRE}" r="${radius * BANG_DOT_RADIUS}" fill="${ink}"/>`
+  }
+  return out
+}
+
+function rowSvg(scale, magnify, s) {
+  const c = THEME[s.theme]
+  const k = DRAW_RATIO * scale / 100 * magnify
+  const radius = MARKER_SIZE * k / 2
+  const strokePx = s.stroke * k
+  const gap = radius * 2 + 34 * magnify + 34
+  const width = KINDS.length * gap + 40
+  const height = radius * 2 + 44 * magnify
+  const cy = 12 * magnify + radius
+  let body = `<rect x="0" y="0" width="${width}" height="${height}" fill="${c.band}"/>`
+  KINDS.forEach((one, index) => {
+    const cx = 20 + radius + index * gap
+    // a plan bar behind each marker, as on the chart (the marker floats on the row)
+    body += `<rect x="${cx + radius + 4 * magnify}" y="${cy - 6 * k}" width="${24 * magnify}" height="${12 * k}" fill="${c.plan}" stroke="${c.planEdge}" stroke-width="${0.625 * k}"/>`
+    body += markerSvg(one.id, cx, cy, radius, strokePx, s, c)
+    body += `<text x="${cx - radius}" y="${height - 6 * magnify}" font-size="${11 * Math.min(magnify, 1.5)}" fill="${c.ink}">${one.word}</text>`
+  })
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" data-scale="${scale}" data-magnify="${magnify}">${body}</svg>`
+}
+
+function draw() {
+  const s = state()
+  document.body.classList.toggle('dark', s.theme === 'dark')
+  $('v-stroke').textContent = s.stroke.toFixed(1)
+  $('v-bang').textContent = s.bang.toFixed(1)
+  $('v-pause').textContent = s.share ? `${s.bang.toFixed(1)}（S-328 と同じ）` : s.pause.toFixed(1)
+  $('v-half').textContent = s.half.toFixed(2)
+  $('pause').disabled = s.share
+  let html = ''
+  for (const scale of SCALES) {
+    html += `<div class="caption">表示の倍率 ${scale}（実寸）</div>` + rowSvg(scale, 1, s)
+  }
+  html += `<div class="caption">表示の倍率 100 を 3 倍に拡大（比を見るため。実物の大きさではない）</div>` + rowSvg(100, 3, s)
+  $('rows').innerHTML = html
+  const drawn = (scale) => s.stroke * DRAW_RATIO * scale / 100
+  $('values').value = [
+    `theme: ${s.theme}`,
+    `S-24 markerStroke: ${s.stroke.toFixed(1)} (drawn ${r2(drawn(100))}px at 100, ${r2(drawn(175))}px at 175)`,
+    `S-328 bang bar coefficient: ${s.bang.toFixed(1)} (drawn ${r2(drawn(100) * s.bang)}px at 100)`,
+    `pause bar coefficient: ${s.pause.toFixed(1)}${s.share ? ' (shared with S-328)' : ' (own row)'} (drawn ${r2(drawn(100) * s.pause)}px at 100, ${r2(drawn(175) * s.pause)}px at 175)`,
+    `pause bar half length / S-341 half height: ${s.half.toFixed(2)} (drawn ${r2(MARKER_SIZE * DRAW_RATIO / 2 * HALF_OF_RADIUS * s.half * 2)}px long at 100)`,
+    `pause bar ends: ${s.cap}`,
+  ].join('\n')
+}
+
+document.querySelectorAll('input').forEach((one) => one.addEventListener('input', draw))
+// the divider moves the controls pane
+let dragging = false
+$('divider').addEventListener('pointerdown', () => { dragging = true })
+window.addEventListener('pointerup', () => { dragging = false })
+window.addEventListener('pointermove', (event) => {
+  if (!dragging) return
+  const width = Math.max(240, window.innerWidth - event.clientX)
+  document.body.style.gridTemplateColumns = `1fr 6px ${width}px`
+})
+draw()
+</script>
+</body>
+</html>
