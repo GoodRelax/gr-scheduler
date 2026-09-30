@@ -1278,6 +1278,8 @@
 | JDG-1007 | **「e2e の赤1件を「既知の赤」に載せてよい」**（2026-10-01。調整役の問い「e2e の赤1件（パネルの区切り線の色 PR-21/PR-28）を「既知の赤」に載せてよいですか？」への答え） | ⭐ `tests/known-red.txt` に `DFC-1600` の行を足す。`CR-606`／`CR-609` を当てたら外す | `tests/system/divider-colour-corner-and-sticky-field.test.ts` の既知の赤（`tests/known-red.txt` の `DFC-1600` の行） | 適用済 |
 | JDG-1019 | **「記録して切り分け (推奨)」**（2026-10-01。調整役の問い「ズーム（MK-2）の p95 が段 0 より 1.6〜3.0 ms 遅い件をどう扱いますか？今回の CR-598/601/602 を入れる前の版にも同じ遅れがあり…」への答え） | ⭐ `CR-598`・`CR-601`・`CR-602` は通す。MK-2 の p95 の遅れは `DFC-1606` に記録し、`bf503c5b`〜`569135d7` を二分探索で絞る。`main` の早送りはその結果を待つ | `docs/development-records/defects.md` の `DFC-1606` | 指示 —— 調整役が投入時期を決める |
 | JDG-1020 | **「加える (推奨)」**（2026-10-01。調整役の問い「CR-601 と CR-602 で増えた 2 つの場面…を、毎回の性能測定（lm-19）に加えますか？」への答え） | ⭐ 着地の印を出したままの縦スクロールと、依存線を選んだままの横スクロールを lm-19 に加える（測り方の変更、`PW-4`）。状態を確実に作れるよう probe を直してから | `docs/development-records/perf-pending.md` の行 31・32 | 指示 —— 調整役が投入時期を決める |
+| JDG-1052 | **「付ける (推奨)」**（2026-10-01。調整役の問い「MCP の検討（CR-620 の 11 節）に残った問いです。GitHub Pages のビルドで配る grs-relay.mcpb に、GitHub の成果物の証明（artifact attestation）と SHA-256 を付けますか？…」への答え） | ⭐ Pages のビルドで grs-relay.mcpb の artifact attestation を作り、ダウンロードの頁に SHA-256 を載せる | `change-request/CR-620-the-relay-ships-as-one-bundle-and-refuses-a-null-origin.md` の 11 節 | 指示 —— 調整役が投入時期を決める |
+| JDG-1053 | **「足したまま (推奨)」**（2026-10-01。調整役の問い「AI連携の入口（IC-20）のツールチップの文です。あなたの指示（JDG-1051）の文の頭に、検討のセッションが「AI のアプリから使うときは」を足しています。このままでよいですか？」への答え） | ⭐ `IC-20` の説明は「AI のアプリから使うときは」で始める形のまま（`CR-620` の決定 4） | `change-request/CR-620-the-relay-ships-as-one-bundle-and-refuses-a-null-origin.md` の決定 4 | 指示 —— 調整役が投入時期を決める |
 
 ## 2026-10-01 —— 遅延診断のマーカーの色と、診断結果のレポート（JDG-994〜JDG-997、CR-616・CR-617）
 
