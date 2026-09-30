@@ -250,8 +250,8 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する。テーマ色もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen"
+    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
    }
   },
   {

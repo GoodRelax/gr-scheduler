@@ -1948,14 +1948,7 @@
        "key": "documentSettingsDisplayed",
        "parent": null,
        "initial": false,
-       "carries": [
-        {
-         "name": "returnSubject",
-         "note": {
-          "ja": "同じ入口をもう一度押したときに戻す選択物。無いこともある"
-         }
-        }
-       ],
+       "carries": [],
        "evidence": [
         "S-99h",
         "FR-072",
@@ -2034,18 +2027,16 @@
         "evidence": [
          "FR-072",
          "IC-17"
-        ],
-        "note": {
-         "ja": "`subject` を `returnSubject` に移す"
-        }
+        ]
        },
        "documentSettingsDisplayed": {
-        "to": "selectionDisplayed",
+        "to": "hidden",
         "evidence": [
-         "FR-072"
+         "FR-072",
+         "IC-17"
         ],
         "note": {
-         "ja": "`returnSubject` を `subject` に戻す"
+         "ja": "直前の選択物の有無を問わない"
         }
        }
       },

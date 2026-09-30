@@ -293,12 +293,12 @@ stateDiagram-v2
     propertiesPanelContentStateMachine_selectionDisplayed : selectionDisplayed
     propertiesPanelContentStateMachine_documentSettingsDisplayed : documentSettingsDisplayed
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, settingsEntryPressed, createdNameSettled, settleKeyPressed
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : settingsEntryPressed, propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked, selectionMoved
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_hidden : createdNameSettled
 ```
 
@@ -306,7 +306,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`]<br>それ以外 → — | → `hidden` [`isPanelTarget`]<br>それ以外 → — |
 | `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — |
-| `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed`（`subject` を `returnSubject` に移す） | → `selectionDisplayed`（`returnSubject` を `subject` に戻す） |
+| `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed` | → `hidden`（直前の選択物の有無を問わない） |
 | `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
 | `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | — |
 | `screen/createdNameSettled` | → 自己 / `clearSelection` | → `hidden` / `clearSelection` | → `hidden` / `clearSelection` |
@@ -314,7 +314,7 @@ stateDiagram-v2
 
 - `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
 - `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択と行の集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
-- `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 運ぶ値 `returnSubject`（同じ入口をもう一度押したときに戻す選択物。無いこともある）。根拠 `S-99h` ・ `FR-072` ・ `IC-17`
+- `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 根拠 `S-99h` ・ `FR-072` ・ `IC-17`
 
 表に無い出来事は `propertiesPanelContentStateMachine` を変えない（同じ参照）。
 
