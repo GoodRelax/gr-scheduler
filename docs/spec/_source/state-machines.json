@@ -4024,6 +4024,30 @@
      ]
     },
     {
+     "key": "grsResetEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-139",
+       "FR-153"
+      ],
+      "note": {
+       "ja": "GRS リセットの入口"
+      }
+     },
+     "carries": [
+      {
+       "name": "question",
+       "rows": [
+        "QN-11"
+       ],
+       "note": {
+        "ja": "GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める"
+       }
+      }
+     ]
+    },
+    {
      "key": "flowSurfaceClosed",
      "source": {
       "kind": "otherRegion",
@@ -4814,13 +4838,14 @@
           "QN-2",
           "QN-3",
           "QN-4",
-          "QN-5"
+          "QN-5",
+          "QN-11"
          ]
         },
         {
          "name": "owedAction",
          "note": {
-          "ja": "「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い"
+          "ja": "「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）。ファイル操作の問いでは無い"
          }
         }
        ],
@@ -4831,7 +4856,8 @@
         "QN-2",
         "QN-3",
         "QN-4",
-        "QN-5"
+        "QN-5",
+        "QN-11"
        ]
       }
      ],
@@ -4878,6 +4904,23 @@
          ]
         }
        ],
+       "questionAsked": {
+        "to": "questionAsked",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "RS-27"
+        ]
+       }
+      },
+      "grsResetEntryPressed": {
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "FR-153",
+         "QN-11"
+        ]
+       },
        "questionAsked": {
         "to": "questionAsked",
         "effect": "raiseNotice",

@@ -1504,6 +1504,14 @@
    }
   },
   {
+   "prefix": "WP",
+   "words": "Wipe",
+   "owner": "spec",
+   "means": {
+    "ja": "GRS リセットが消すか残すかを決める 1 つのもの（表 T-345）"
+   }
+  },
+  {
    "prefix": "WR",
    "words": "",
    "owner": "rules",

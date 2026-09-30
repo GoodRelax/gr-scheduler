@@ -1336,6 +1336,17 @@
    "authority": "`FR-022`",
    "arms": null,
    "armsShape": null
+  },
+  {
+   "rowId": "IC-139",
+   "surfaces": [
+    "Properties Panel"
+   ],
+   "group": null,
+   "entryTo": "`GRS` がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書の設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`）",
+   "authority": "`FR-153`",
+   "arms": null,
+   "armsShape": null
   }
  ]
 }

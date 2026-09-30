@@ -1329,6 +1329,17 @@
     "ja": "取込をやめ、取込前と同じ状態へ戻す",
     "en": "Stop the import and put the document back exactly as it was"
    }
+  },
+  {
+   "rowId": "IC-139",
+   "label": {
+    "ja": "GRS リセット",
+    "en": "GRS Reset"
+   },
+   "hint": {
+    "ja": "GRS がこのブラウザに覚えた値を消して、ページを読み直す。先に確かめる",
+    "en": "Clear what GRS keeps in this browser and reload the page; asks first"
+   }
   }
  ],
  "properties": [
@@ -3273,6 +3284,13 @@
    "text": {
     "ja": "すべての行と、行に載っているタスクを削除しますか？",
     "en": "Delete all rows and the tasks on them?"
+   }
+  },
+  {
+   "rowId": "QN-11",
+   "text": {
+    "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl + F5 : 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
+    "en": "Reset GRS? What GRS keeps in this browser (such as the screen language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too\n* If resetting does not fix the problem, try the following.\nCtrl + F5 : reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
    }
   },
   {

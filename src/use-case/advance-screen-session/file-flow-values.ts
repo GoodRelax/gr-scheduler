@@ -157,6 +157,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'confirmationAnswered'; readonly isProceeding: FileFlowValuesEventCarried['isProceeding'] }
   | { readonly type: 'changeQuestionRaised'; readonly question: FileFlowValuesEventCarried['question']; readonly owedAction: FileFlowValuesEventCarried['owedAction'] }
   | { readonly type: 'newDocumentEntryPressed'; readonly hasStartupTemplate: FileFlowValuesEventCarried['hasStartupTemplate']; readonly question: FileFlowValuesEventCarried['question'] }
+  | { readonly type: 'grsResetEntryPressed'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'flowSurfaceClosed'; readonly surfaceName: FileFlowValuesEventCarried['surfaceName'] }
   | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentOpenFailed' }
