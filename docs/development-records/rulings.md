@@ -1274,6 +1274,8 @@
 |---|---|---|---|---|
 | JDG-999 | **「20 に上げる (推奨)」**（2026-10-01。調整役の問い「試験 cr-435 は…基準値は 17 で、今は 20 です…それまで一時的に基準値を 20 に上げてよいですか？」への答え） | ⭐ `requirement-owner-baseline.txt` の unfilled を 17 → 20 に一時的に上げる。`FR-130`・`FR-133`（`CR-590`）と `FR-150`（`CR-563`／`CR-613`）を埋めるコミットで 17 へ戻す | `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` が読む基準値（`.claude/skills/spec-graph-check/requirement-owner-baseline.txt`） | 適用済 |
 | JDG-1000 | **「載せる (推奨)」**（2026-10-01。調整役の問い「検索パネルの縁を掴んで大きさを変える e2e（GR-25）は…「既知の赤」の一覧（tests/known-red.txt）に DFC-1286 として載せてよいですか？」への答え） | ⭐ `tests/known-red.txt` に `DFC-1286` の行（SWS-8 の `GR-25`）を足す。`S-426` の値が決まったら外す | `tests/system/nfr-004-file-scheme-sweep.sws.test.ts` の既知の赤（`tests/known-red.txt` の `DFC-1286` の行） | 適用済 |
+| JDG-1006 | **「稼働中の他のセッションに確認して問題なければ、性能試験をやって良し。」**（2026-10-01。調整役の問い「性能の測定を今やってよいですか？」への答え） | ⭐ 動いているセッションに重い処理を止めてもらってから、`perf-pending.md` の行（`CR-598`・`CR-601`・`CR-602`）を同じ量の絵で測る（`JDG-605`・`JDG-726`） | `docs/development-records/perf-pending.md` | 指示 —— 調整役が投入時期を決める |
+| JDG-1007 | **「e2e の赤1件を「既知の赤」に載せてよい」**（2026-10-01。調整役の問い「e2e の赤1件（パネルの区切り線の色 PR-21/PR-28）を「既知の赤」に載せてよいですか？」への答え） | ⭐ `tests/known-red.txt` に `DFC-1600` の行を足す。`CR-606`／`CR-609` を当てたら外す | `tests/system/divider-colour-corner-and-sticky-field.test.ts` の既知の赤（`tests/known-red.txt` の `DFC-1600` の行） | 適用済 |
 
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 

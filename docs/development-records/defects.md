@@ -20,8 +20,8 @@
 | | 残件 | 総件数 | 未検討 | 裁定待ち | 仕様待ち | 実装待ち | 試験待ち | 実測待ち | 実測済 | 取下げ |
 | --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 223 | 793 | 56 | 3 | 58 | 70 | 25 | 11 | 515 | 55 |
-| 最新 2026-10-01 04:14 | 388 | 973 | 76 | 8 | 122 | 103 | 26 | 53 | 527 | 58 |
-| ⭐ 差分 | +165 | +180 | +20 | +5 | +64 | +33 | +1 | +42 | +12 | +3 |
+| 最新 2026-10-01 05:25 | 389 | 974 | 76 | 8 | 122 | 104 | 26 | 53 | 527 | 58 |
+| ⭐ 差分 | +166 | +181 | +20 | +5 | +64 | +34 | +1 | +42 | +12 | +3 |
 
 ⚠️ **巡の頭で `python tools/ledger_metrics.py --start` を 1 度走らせる。**⛔ **手で書かない** —— 測れる数を手で書けば必ず腐る。⚠️ **時刻まで持つ** —— 1 日に複数の巡が走るので、日付だけでは見分けられない。
 
@@ -34,12 +34,12 @@
 | | 未仕分け | 仕様の穴 | 製品の仕事 | 検証の借り | 決着 |
 | --- | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 56 | 61 | 95 | 11 | 570 |
-| 最新 2026-10-01 04:14 | 76 | 130 | 129 | 53 | 585 |
-| ⭐ 差分 | +20 | +69 | +34 | +42 | +15 |
+| 最新 2026-10-01 05:25 | 76 | 130 | 130 | 53 | 585 |
+| ⭐ 差分 | +20 | +69 | +35 | +42 | +15 |
 
 ⛔ **「不具合」と呼んでよいのは `製品の仕事` だけである。** `仕様の穴` は仕様を書く仕事、`検証の借り` は押しに行く仕事であって、どちらもコードの欠陥ではない。
 
-⚠️ **`道具・試験の借り`（重なりを許す目安。上の 5 束とは重なる。分割ではない）: 51 件** —— 開いている行（`決着` でない行）のうち、行の全文（全セル）が正規表現 `\b(tools|tests|src)/[\w./-]+` で拾える語のうち `tools/` か `tests/` で始まる語を 1 つ以上持ち、`src/` で始まる語を 1 つも持たない行の数。
+⚠️ **`道具・試験の借り`（重なりを許す目安。上の 5 束とは重なる。分割ではない）: 52 件** —— 開いている行（`決着` でない行）のうち、行の全文（全セル）が正規表現 `\b(tools|tests|src)/[\w./-]+` で拾える語のうち `tools/` か `tests/` で始まる語を 1 つ以上持ち、`src/` で始まる語を 1 つも持たない行の数。
 
 <!-- ledger-metrics: end -->
 
@@ -491,3 +491,4 @@
 | DFC-1468 | ⚠️ **`tests/integration/schedule-drawing.sws.test.ts` の「every row of table T-221 is verified by at least one case」が赤 —— 表 T-221 `LF-18`（マイルストーンの図形の線と塗り、`CR-583` / `CR-600`）に SWS-4 のケースが 1 つも無い** | 表 T-221 の全行が、少なくとも 1 つのケースで覆われること | `LF-18` の最小のケースを足す —— `geometryFromLayout` の `smile` グリフが `body` 1 ／ `dot`（目、2 サブパス）／ `inner`（口）を持つことを検める（深い色・重ね順・曲線の検めは既存の `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` が持つ） | 対応済み: 本行で直した（`tests/integration/schedule-drawing.sws.test.ts` に `covers: ['LF-18']` のケースを追加）。決定仕様は表 T-221 の `LF-18` —— 試験のみの変更で、仕様自体は変えていない | `実測待ち` | stage-B close（`JDG-778`）で見つけて記録。batch (a)（枝 `fix-reds-a`）。直す前: 完全性検査が「table T-221 row LF-18 has no case」で赤。直した後: 32 件（元 31 ＋新設 1）すべて緑。⚠️ `task-figures.ts` の `mergedLayers` が `body` 以外の同役の連続層を 1 つに合流させるため、`dot` は層の個数ではなく `M` コマンド（サブパスの起点）の個数で数えた | `CR-583`・`CR-600`・`LF-18`・`tests/integration/schedule-drawing.sws.test.ts` | —— 実測: `node ../../../node_modules/vitest/vitest.mjs run tests/integration/schedule-drawing.sws.test.ts`（32 件緑） |
 | DFC-1469 | ⚠️ **`tests/contract/units.contract.test.ts:51` が赤 —— 「counts the 160 units」が生の `160` を検めるが、表 T-075 は既に 167 行を持つ（増え続ける）** | ユニットの全数が、仕様が述べる数と一致すること（生の数値でなく仕様から導くこと） | 表 T-074 `SU-3`（本設計での全数「167。全数は 表 T-075」）から数を読んで比べる | 対応済み: 本行で直した（`STATED_UNIT_COUNT` を `T-074` `SU-3` の欄から正規表現で読む） | `実測待ち` | stage-B close（`JDG-778`）で見つけて記録。batch (a)（枝 `fix-reds-a`）。直す前: `toHaveLength(160)` に対し実測 167 で赤。直した後: 503 件緑。表 T-075 に行が増えたときは `SU-3` の欄も書き直す運用で、両者が食い違えば `SU-3` 対 表 T-075 として赤くなる（本ファイルの数値には依らない） | `tests/contract/units.contract.test.ts` | —— 実測: `node ../../../node_modules/vitest/vitest.mjs run tests/contract/units.contract.test.ts`（503 件緑） |
 | DFC-1470 | ⚠️ **`tests/contract/display-words.contract.test.ts` の「every word that IS written is printed」が `DFC-1466` を直した後も赤のまま —— `searchColumns`（17 セル）／ `planActualStates`（10 セル）／ `searchPanel`（4 セル）の 3 節、計 31 セルが、1 つの frame にも届かない** —— `DFC-1466` の修正前は `rowMinHeightField.current` の赤がループの先頭側で止めていたため、この 3 節は一度も読まれていなかった（覆面red）。`CR-571`（検索パネル、`search-panel.ts`）の語がこのファイルに一切 `place()` されていない | `searchColumns` / `planActualStates` / `searchPanel` の書かれたセルが、`rowMinHeightField` と同じく、実際に検索パネルを開いた frame から届くこと | 検索パネルを開いた frame（`readings.searchPanel` に `SearchPanelSession`、`root.screen.searchPanelDisplayState` を `open` 系にしたもの）を 1 つ以上足し、`view.searchPanel.columns[].heading`（`searchColumns`）／ `view.searchPanel.rows[].cells`（`planActualStates`、状態の列）／ `titleEntries` の `restore` ラベルとフィルタ値一覧の `blank`・タスク名の `noName`（`searchPanel`）を読む `place()` を足す | 未定（`CR-571` 域の新しい frame 構築が要り、batch (a) の試験限定の枠を超える規模と判断。要 別波） | `未検討` | stage-B close（`JDG-778`）で見つけて記録。batch (a)（枝 `fix-reds-a`）で `DFC-1466` を直した副作用として発見。3 節とも `place()` が 1 つも無く、`FRAMES`（237 件）のどれにも文字列が出ない。一時デバッグで実測: `searchColumns` 17 / `planActualStates` 10 / `searchPanel` 4 セルが届かず。範囲外のため本バンドでは直さない —— `check.sh` / `gen:check` はこの 1 件のために赤のまま | `CR-571`・`DFC-1466`・`tests/contract/display-words.contract.test.ts`・`src/adapter/screen-renderer/search-panel.ts` | —— 未再現（試験の一時デバッグで数えた。実装は読んだのみ） |
+| DFC-1600 | ⚠️ **e2e `tests/system/divider-colour-corner-and-sticky-field.test.ts` の「PR-21 / FR-006」が赤** —— コメントボックスの色の欄（`PR-21`・`PR-28`）が表 T-016 の操作子と合わない。段 B の `CR-559`（`PR-26`〜`28`・見本）と `FR-072` の 2 度押しの道（`CR-609` が外す）で形が変わった（段 B の閉じの振り分け、推測） | 表 T-016 どおりの操作子で、試験が緑 | `CR-606`（波 2 がこのファイルの `T016_COLUMNS` を書き直す）と `CR-609` と一緒に直す | 対応方針: `docs/spec/01-04-requirements.md` の 表 T-016 の `PR-21`・`PR-28` に従う。`CR-606`・`CR-609` を当てる回で直す | `実装待ち` | 持ち場: 設定とパネル（実装の回）。大きさ M。毎フレーム: いいえ。GT-2（2026-10-01、`051eab19`）で赤。`tests/known-red.txt` に載せた（`JDG-1007`） | `CR-606`・`CR-609`・`JDG-778` | —— e2e の結果だけ（未再現） |
