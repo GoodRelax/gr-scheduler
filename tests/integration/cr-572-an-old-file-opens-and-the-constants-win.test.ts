@@ -117,6 +117,8 @@ function restingOnTheIcon(restedMs: number): ScreenViewReadings {
     isAgentApiEnabled: false,
     pointer: { x: 5, y: 5 },
     pointerRestedMs: restedMs,
+    // WHY: EZ-2 -- the icon wait counts from entering the icon (CR-576)
+    hintTargetDwellMs: restedMs,
     commandPaletteAt: { x: 0, y: 0 },
     iconUnderPointer: ICON,
     themePreference: 'light',

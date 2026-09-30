@@ -20,7 +20,7 @@ export type EscapeTarget =
   | 'confirmation'
   | 'surface'
   // WHY: DFC-1280 -- no clause names this word; named after the surface
-  | 'help'
+  | 'helpModal'
   | 'gesture'
   | 'propertiesPanel'
   | 'armed'
@@ -57,7 +57,7 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (context.isSurfaceOpen) return 'surface'
-  if (context.isHelpStanding === true) return 'help'
+  if (context.isHelpStanding === true) return 'helpModal'
   if (context.gestureInFlight) return 'gesture'
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (context.isArmed) return 'armed'

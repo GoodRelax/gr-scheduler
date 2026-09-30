@@ -20,10 +20,13 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
+  diagnoseDelay,
   scheduleViolations,
   taskByUid,
   textOfDay,
+  workingCalendarOf,
   type CalendarDay,
+  type DelayDiagnosticsReport,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
@@ -134,7 +137,9 @@ import {
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
+  searchPanelAfterFilterEntry,
   searchPanelBoxAfterGrab,
+  searchPanelWithFilterClosed,
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
@@ -392,12 +397,40 @@ const SEARCH_PANEL_SURFACE = 'Search Panel'
 // see U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
+// TRAP: this is table T-103's name for the Tooltip part (U-53); a wrong
+// literal hides an icon's hint as soon as the pointer reaches its box.
+const TOOLTIP_SURFACE = 'Tooltip'
+
 // see SV-2
 const SEARCH_WORD_ROW = 'SV-2'
+
+// see IN-5a, SV-7
+const SEARCH_FIELD_ROWS: ReadonlySet<string> = new Set([SEARCH_WORD_ROW, 'SV-7'])
 
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
 const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
+
+const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
+const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
+
+type DelayDiagnosticsDrawing = NonNullable<Parameters<typeof geometryFromLayout>[6]>
+
+interface HeldDelayDiagnostics {
+  readonly of: Document
+  readonly report: DelayDiagnosticsReport
+  readonly drawing: DelayDiagnosticsDrawing
+}
+
+// see FR-133, T-315, S-3
+// WHY: DG-4 is left out; the geometry already draws it as PM-4.
+/** @purity pure */
+function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
+  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
+  for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
+  return { of: document, report, drawing: { shown: true, symbolByUid } }
+}
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
 
@@ -414,13 +447,13 @@ export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
-const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'help' }
+const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
-const POINTER_RESTED: ScreenValuesEvent = { type: 'hintTargetChanged' }
+const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
@@ -458,7 +491,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   textEntry: null,
   confirmation: null,
   surface: ESCAPE_SURFACE,
-  help: ESCAPE_HELP,
+  helpModal: ESCAPE_HELP,
   gesture: null,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
@@ -798,6 +831,7 @@ interface ScreenViewReadingsTaken {
   readonly themePreference: ScreenValues['themePreference']
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
+  readonly hintTargetDwellMs: number
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly taskUnderPointer: Task | null
@@ -820,6 +854,7 @@ interface ScreenViewReadingsTaken {
   readonly canUndo?: boolean
   readonly canRedo?: boolean
   readonly searchPanel?: SearchPanelSession
+  readonly isDelayDiagnosticsShown?: boolean
 }
 
 // see PI-37, SF-5, SF-10
@@ -1173,12 +1208,17 @@ export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-3, SV-16, IC-127
+// see SV-3, SV-7, SV-16, IC-127
 /** @purity pure */
-function searchPanelAfterEntry(held: SearchPanelSession, entry: IconId): SearchPanelSession | null {
+function searchPanelAfterEntry(
+  held: SearchPanelSession,
+  entry: IconId,
+  session: ScreenSession,
+  schedule: Document['schedule'],
+): SearchPanelSession | null {
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
-  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return null
+  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule)
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
@@ -1249,6 +1289,21 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   noteChoiceMoved(hands, frame)
   showProperties()
   if (plan.isBlockedByPinnedRows) hands.raiseNotice(PINNED_ROWS_LEAVE_NO_ROOM_REASON, null)
+}
+
+// see IN-4, SV-14
+/** @purity non-pure */
+function searchPanelAfterEscapeRung(
+  hands: FrameLoopHands,
+  level: EscapeTarget | null,
+  held: SearchPanelSession,
+  frame: FrameValues,
+): SearchPanelSession {
+  const filterClosed = level === 'searchPanel' ? searchPanelWithFilterClosed(hands.readSession(), held) : null
+  if (filterClosed !== null) return filterClosed
+  const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
+  if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
+  return held
 }
 
 // see SV-2, SV-5
@@ -1474,6 +1529,29 @@ function hintEntryOf(under: IconId | null, released: IconId | null): IconId | nu
   return under === released ? null : under
 }
 
+interface HintTarget {
+  readonly icon: IconId | null
+  readonly taskUid: number | null
+  readonly scrollbarAxis: ScreenPart['scrollbarAxis'] | null
+}
+
+const NO_HINT_TARGET: HintTarget = { icon: null, taskUid: null, scrollbarAxis: null }
+
+// see EZ-2, EZ-6, FR-037, IN-3
+/** @purity pure */
+function hintTargetOf(partUnderHint: ScreenPart | null, grab: Grabbed | null): HintTarget {
+  return {
+    icon: partUnderHint?.entry ?? null,
+    taskUid: grab !== null && grab.item.kind === 'task' ? grab.item.taskUid : null,
+    scrollbarAxis: partUnderHint?.scrollbarAxis ?? null,
+  }
+}
+
+/** @purity pure */
+function isSameHintTarget(a: HintTarget, b: HintTarget): boolean {
+  return a.icon === b.icon && a.taskUid === b.taskUid && a.scrollbarAxis === b.scrollbarAxis
+}
+
 /** @purity pure */
 function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
@@ -1579,6 +1657,10 @@ export function frameLoop(
   let searchPanelHeld: SearchPanelSession = emptySearchPanelSession
   let searchPanelPlaceAtPress: Pick<SearchPanelSession, 'at' | 'size'> | null = null
   let isSearchWordFocusOwed = false
+  // see S-445, FR-130
+  // WHY: diagnosed once per held document, never per frame (decision 17).
+  let delayDiagnosticsShown = false
+  let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -1593,6 +1675,9 @@ export function frameLoop(
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
   let hintReleasedEntry: IconId | null = null
+  // WHY: the part the pointer was on before it reached a shown box; the box belongs to that target (EZ-2).
+  let partUnderHint: ScreenPart | null = null
+  let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
@@ -1671,8 +1756,10 @@ export function frameLoop(
   const { bandCeilingFor } = rowBandCeilingCacheOf()
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate } =
     heldViewPlaceOf(hands, startedFromTemplate)
-  const { beginPointerRest, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat, readPointerRestedMs } =
-    frameClockWakesOf(hands)
+  const {
+    beginPointerRest, beginHintTargetDwell, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat,
+    readPointerRestedMs, readHintTargetDwellMs,
+  } = frameClockWakesOf(hands)
   const interactionRecorder = interactionRecorderOf(hands)
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
@@ -1746,6 +1833,7 @@ export function frameLoop(
     owed = false
     const document = previewDocument ?? held.document
     const pointerRestedMs = readPointerRestedMs()
+    const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
@@ -1758,9 +1846,13 @@ export function frameLoop(
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
     const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
+    const diagnostics = delayDiagnosticsNow()
+    // see FR-133, FR-049
+    // TRAP: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
+    const drawnSettings = diagnostics === null ? settings : { ...settings, progressMarkerVisible: true }
     const layout = layoutFromSchedule(
       document.schedule,
-      settings,
+      drawnSettings,
       regions,
       undefined,
       environment.rowControlsHeightPx,
@@ -1774,13 +1866,14 @@ export function frameLoop(
     }
     const geometry = geometryFromLayout(
       document.schedule,
-      settings,
+      drawnSettings,
       layout,
       regions,
       selectedObjectsIn(session),
       session.screen.dualCursor,
+      diagnostics?.drawing,
     )
-    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, settings, previewDocument !== null))
+    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
     values = {
       regions,
       layout,
@@ -1812,7 +1905,7 @@ export function frameLoop(
     const drawnSvg =
       svgFromSchedule(
         document.schedule,
-        settings,
+        drawnSettings,
         layout,
         geometry,
         regions,
@@ -1825,7 +1918,7 @@ export function frameLoop(
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
         watermarkNow(),
-        tentativeDependencyOf(hands, pressed, pointerAt, document, settings, layout, geometry, regions),
+        tentativeDependencyOf(hands, pressed, pointerAt, document, drawnSettings, layout, geometry, regions),
       )
     surface.showSvg(drawnSvg)
     if (screen === undefined) {
@@ -1847,8 +1940,9 @@ export function frameLoop(
           themePreference: session.screen.themePreference,
           pointer: pointerAt,
           pointerRestedMs,
-          iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
-          isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
+          hintTargetDwellMs,
+          iconUnderPointer: hintEntryOf(partUnderHint?.entry ?? null, hintReleasedEntry),
+          isPointerOnHelp: partUnderHint?.part === HELP_MODAL_SURFACE,
           taskUnderPointer:
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
@@ -1865,6 +1959,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           searchPanel: searchPanelHeld,
+          isDelayDiagnosticsShown: delayDiagnosticsShown,
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -1878,6 +1973,19 @@ export function frameLoop(
     drainFieldEditNotices(hands, values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
+  }
+
+  /** @purity non-pure */
+  function delayDiagnosticsNow(): HeldDelayDiagnostics | null {
+    if (!delayDiagnosticsShown) return null
+    if (delayDiagnosticsHeld?.of !== held.document) delayDiagnosticsHeld = delayDiagnosticsOf(held.document)
+    return delayDiagnosticsHeld
+  }
+
+  /** @purity non-pure */
+  function showDelayDiagnostics(isShown: boolean): void {
+    delayDiagnosticsShown = isShown
+    if (!isShown) delayDiagnosticsHeld = null
   }
 
   /** @purity non-pure */
@@ -2091,6 +2199,7 @@ export function frameLoop(
           themePreference: session.screen.themePreference,
           pointer: null,
           pointerRestedMs: 0,
+          hintTargetDwellMs: 0,
           iconUnderPointer: null,
           taskUnderPointer: null,
           commandPaletteDraggedTo: null,
@@ -2262,7 +2371,7 @@ export function frameLoop(
       pressed,
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
-      isSearchWordFocused: screen?.readFocusPosition?.() === SEARCH_WORD_ROW,
+      isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
       isSearchPanelFocused: screen?.isSearchPanelFocused?.() === true,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
@@ -2352,6 +2461,7 @@ export function frameLoop(
       // fit the one before it was given.
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
         forgetFitForNoPlace()
+        showDelayDiagnostics(false)
       }
       if (isSizeSettled(environment)) ask()
       return true
@@ -2383,10 +2493,20 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry)
+    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry, session, held.document.schedule)
     if (panelAfter !== null) {
       searchPanelHeld = panelAfter
       return true
+    }
+    if (entry === DELAY_DIAGNOSTICS_ENTRY) {
+      showDelayDiagnostics(!delayDiagnosticsShown)
+      return true
+    }
+    // see FR-049, S-445
+    // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
+    if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
+      showDelayDiagnostics(false)
+      return !held.document.documentSettings.progressMarkerVisible
     }
     if (entry === SCREEN_LANGUAGE_ENTRY) {
       const language = screenLanguageIn(session) === 'ja' ? 'en' : 'ja'
@@ -2764,6 +2884,18 @@ export function frameLoop(
     return !isSameGrab(grabUnderPointer, grabBefore)
   }
 
+  // see EZ-2, IN-3, JDG-668
+  // WHY: after the grab is read, since a task is a target; the icon's wait and the Esc-dismissed
+  // tooltip both follow the target, never a move inside it.
+  /** @purity non-pure */
+  function noteHintTarget(frame: FrameValues): void {
+    const next = hintTargetOf(partUnderHint, grabUnderPointer)
+    if (isSameHintTarget(next, hintTarget)) return
+    hintTarget = next
+    beginHintTargetDwell()
+    sendToSession(HINT_TARGET_CHANGED, frame)
+  }
+
   // see FT-1
   /** @purity non-pure */
   function receiveInput(input: HumanInput): void {
@@ -2798,10 +2930,9 @@ export function frameLoop(
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
-      // DEVIATION: spec says an elapsed rest allows the tooltip again (T-280); here a move does (DFC-692)
-      if (hasMoved) sendToSession(POINTER_RESTED, frame)
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
+      if (partUnderPointer?.part !== TOOLTIP_SURFACE) partUnderHint = partUnderPointer
       const entryUnder = partUnderPointer?.entry ?? null
       hintReleasedEntry = hintReleasedEntryAfter(hintReleasedEntry, input, pressed !== null, entryUnder)
       if (input.phase === 'down') {
@@ -2827,7 +2958,6 @@ export function frameLoop(
       return
     }
 
-    // DEVIATION: spec says owesFrame compares the whole root (UF-48); a restored tooltip owed no frame (DFC-692)
     const sessionBefore = session
     if (isLandingMarkClearedBy(input, session)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
@@ -2851,8 +2981,7 @@ export function frameLoop(
     const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
-    const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
-    if (rungEvent !== null) sendToSession(rungEvent, frame)
+    searchPanelHeld = searchPanelAfterEscapeRung(hands, escapeLevel, searchPanelHeld, frame)
 
     // TRAP: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).
@@ -2905,6 +3034,7 @@ export function frameLoop(
         pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )
     }
+    if (input.kind === 'pointer') noteHintTarget(frame)
 
     previewDocument = previewOfHeldPress(hands, pressed, pointerAt, context, frame)
     heldPropertyPanelWidth = heldPropertyPanelWidthOf(pressed, pointerAt, context)

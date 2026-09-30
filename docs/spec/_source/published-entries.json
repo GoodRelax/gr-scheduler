@@ -90,6 +90,32 @@
      }
     },
     {
+     "name": "diagnoseDelay",
+     "note": {
+      "ja": [
+       "遅延診断のレポート（表 T-317）を作る。",
+       "文書を書かない（`FR-130`）"
+      ]
+     }
+    },
+    {
+     "name": "DelayDiagnosticsReport",
+     "note": {
+      "ja": [
+       "型。",
+       "表 T-317 の欄と、`FR-135` で導いた親"
+      ]
+     }
+    },
+    {
+     "name": "parentCandidatesOf",
+     "note": {
+      "ja": [
+       "親入力の面の候補の並び（表 T-318 の `IP-4`）"
+      ]
+     }
+    },
+    {
      "name": "workingDaysBetween",
      "note": {
       "ja": [
@@ -2039,6 +2065,26 @@
      "note": {
       "ja": [
        "`IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`）"
+      ]
+     }
+    },
+    {
+     "name": "searchPanelAfterFilterEntry",
+     "note": {
+      "ja": [
+       "開いている列の絞り込みの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えている絞り込みと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。",
+       "絞り込みが開いていないか、その入口でないときは `null`。",
+       "`SingleHtmlShell` が入口の押下を当てるために使う"
+      ]
+     }
+    },
+    {
+     "name": "searchPanelWithFilterClosed",
+     "note": {
+      "ja": [
+       "開いている列の絞り込みを閉じた検索パネルの値を答える。",
+       "開いていなければ `null`（`FR-151` の 表 T-330 の `SV-14`）。",
+       "`SingleHtmlShell` が `Esc` をパネルより先に絞り込みへ当てるために使う"
       ]
      }
     },

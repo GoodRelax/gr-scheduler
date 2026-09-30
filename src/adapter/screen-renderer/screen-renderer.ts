@@ -37,7 +37,13 @@ import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
-export { nextSearchPanelTextSizeStep, searchPanelBoxAfterGrab, searchPanelFromSession } from './search-panel'
+export {
+  nextSearchPanelTextSizeStep,
+  searchPanelAfterFilterEntry,
+  searchPanelBoxAfterGrab,
+  searchPanelFromSession,
+  searchPanelWithFilterClosed,
+} from './search-panel'
 export { imageToJsonPromptText } from './app-header-items'
 export type { SearchPanelShown, SearchPanelView } from './search-panel'
 
@@ -480,6 +486,7 @@ export interface ScreenViewReadings {
   readonly isAgentApiEnabled: boolean
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
+  readonly hintTargetDwellMs: number
   // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
@@ -516,6 +523,7 @@ export interface ScreenViewReadings {
   readonly canRedo?: boolean
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
+  readonly isDelayDiagnosticsShown?: boolean
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built

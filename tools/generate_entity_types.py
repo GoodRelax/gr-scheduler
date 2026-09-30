@@ -1417,15 +1417,21 @@ NOT_STORED_TARGETS = {
     # group exists yet, and this group is already schedule-task-figures.ts's
     # one constant for the progress marker's glyph, so S-341 lands here rather
     # than founding a new group of its own.
-    # CR-561: the Delay Diagnostics marker glyphs (S-391 .. S-396, table T-315),
-    # the bottleneck threshold S-397 and the parent label's weight S-399 join
-    # their sibling rows of table T-206 here; the threshold's reader is the
-    # Schedule unit delay-diagnostics.ts, which cannot import this adapter
-    # constant and takes the value as an argument.
+    # CR-561: the Delay Diagnostics marker glyphs (S-391 .. S-396, table T-315)
+    # and the parent label's weight S-399 join their sibling rows of table
+    # T-206 here. ⛔ S-397 is NOT here: the bottleneck threshold is no glyph
+    # and nothing in this adapter reads it -- see NOT_STORED_BOTTLENECK_THRESHOLD.
     'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341',
                                      'S-391', 'S-392', 'S-393', 'S-394', 'S-395',
-                                     'S-396', 'S-397', 'S-399'],
+                                     'S-396', 'S-399'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⭐ CR-561: S-397, the push-out a bottleneck must reach (FR-132), in the
+    # one unit that decides what a bottleneck is -- the Schedule unit
+    # delay-diagnostics.ts. It stood there as a hand copy while the generator
+    # printed the row only into svg-renderer.ts, which never read it. The
+    # decision is the reading unit's own and no picture shows a threshold, so
+    # it rides SETTLED_WHERE_IT_STANDS, like S-208.
+    'NOT_STORED_BOTTLENECK_THRESHOLD': (['S-397'], SETTLED_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
     # two 「縦 2 本」 are different things -- CU-2 measures and the document
@@ -2747,6 +2753,11 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # The bottleneck threshold stands in the one unit that decides a
+    # bottleneck, delay-diagnostics.ts (CR-561, FR-132).
+    (os.path.join(MODEL, 'schedule', 'delay-diagnostics.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_BOTTLENECK_THRESHOLD'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The fit's margin stands in the one unit that reads it, fit-zoom.ts
     # (CR-554 15.6.7).
