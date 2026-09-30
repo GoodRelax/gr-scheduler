@@ -136,7 +136,7 @@ const owns = (record: Loose, uid: number): boolean => Object.values(flat(record)
 
 const DG = /^DG-[1-4]$/
 
-// see T-317 DX-8
+// see T-317, DX-8
 function marksOf(report: Report, uids: readonly number[]): ReadonlyMap<number, string> {
   const marks = new Map<number, string>()
   const known = new Set(uids)
@@ -177,7 +177,7 @@ function heldBy(report: Report, rowId: string): readonly unknown[] {
   return out
 }
 
-// see T-317 DX-3, DX-6
+// see T-317, DX-3, DX-6
 const namesTask = (report: Report, rowId: string, uid: number): unknown[] =>
   heldBy(report, rowId).flatMap((part) => {
     if (Array.isArray(part)) return part.filter((one) => holdsNumber(one, uid))
@@ -190,7 +190,7 @@ interface Pushed {
   readonly container: unknown
 }
 
-// see T-317 DX-4, DX-9
+// see T-317, DX-4, DX-9
 function pushedOf(report: Report, uid: number): readonly Pushed[] {
   return everything(report)
     .filter((one) => one.container !== null && isPlain(one.node))

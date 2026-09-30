@@ -397,8 +397,8 @@ const SEARCH_PANEL_SURFACE = 'Search Panel'
 // see U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
-// TRAP: dom-screen-surface.ts's ROLE.tooltips must spell it the same; a mismatch
-// hides an icon's hint as soon as the pointer reaches its box.
+// TRAP: this is table T-103's name for the Tooltip part (U-53); a wrong
+// literal hides an icon's hint as soon as the pointer reaches its box.
 const TOOLTIP_SURFACE = 'Tooltip'
 
 // see SV-2

@@ -348,7 +348,7 @@ const taskTooltips = (mode: Mode): number => {
   const settings = stage.settings
   const readings = readingsAt(
     { x: stage.pointOn(2026, 4, 3).x, y: stage.middleY },
-    // see EZ-6, S-439 -- the task wait is its own value, not S-124 (CR-576)
+    // WHY: EZ-6, S-439 -- the task wait is its own value, not S-124 (CR-576)
     {
       pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
       hintTargetDwellMs: SETTINGS_CONSTANTS.taskHintDelayMs,

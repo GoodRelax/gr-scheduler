@@ -315,7 +315,7 @@ const readingsOf = (part: Partial<ScreenViewReadings> = {}): ScreenViewReadings 
 const RESTING_ON_THE_ICON = readingsOf({
   pointer: { x: 5, y: 5 },
   pointerRestedMs: WAIT_MS + 1,
-  // see EZ-2 -- the icon wait counts from entering the icon (CR-576)
+  // WHY: EZ-2 -- the icon wait counts from entering the icon (CR-576)
   hintTargetDwellMs: WAIT_MS + 1,
   iconUnderPointer: ICON,
 })
