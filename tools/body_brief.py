@@ -91,6 +91,7 @@ def brief(base, branch, owns, others, cap, task, modules):
         '3  Never: create a git worktree, a junction or link to node_modules, git stash, git commit, '
         'git push, edit dist/, run npx. Node tools by path: node %s/vitest/vitest.mjs run <files>.'
         % modules,
+        '3b Do not spawn suggestion chips (spawn_task) yourself; ask the coordinator first (JDG-950).',
         '4  Before writing, count how many other places have the same shape as the one you change.',
         '5  Break test: break what you built on purpose, count the cases that go red, restore it. '
         'If the count is 0, report 0.',
