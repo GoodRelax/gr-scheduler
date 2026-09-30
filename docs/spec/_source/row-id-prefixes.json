@@ -871,6 +871,14 @@
    }
   },
   {
+   "prefix": "OD",
+   "words": "Off Day",
+   "owner": "spec",
+   "means": {
+    "ja": "非稼働日の塗り（表 T-343）"
+   }
+  },
+  {
    "prefix": "OP",
    "words": "Open",
    "owner": "spec",
@@ -1477,6 +1485,14 @@
    "owner": "spec",
    "means": {
     "ja": "ウインドウの状態（通常・最小化・最大化）"
+   }
+  },
+  {
+   "prefix": "WC",
+   "words": "Working Calendar",
+   "owner": "spec",
+   "means": {
+    "ja": "暦の編集面の欄と入口（表 T-344）"
    }
   },
   {

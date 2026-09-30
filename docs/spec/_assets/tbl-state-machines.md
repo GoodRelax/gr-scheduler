@@ -257,7 +257,7 @@ stateDiagram-v2
 | `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
 
 - `openSurfaceStateMachine.closed` —— 初期。根拠 `S-99g`
-- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`）。根拠 `S-99g` ・ `IC-52`
+- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62` ・ `U-65`）。根拠 `S-99g` ・ `IC-52`
 
 表に無い出来事は `openSurfaceStateMachine` を変えない（同じ参照）。
 

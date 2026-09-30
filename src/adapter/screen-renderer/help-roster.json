@@ -647,6 +647,96 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-133",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-133"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-134",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-134"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-135",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-135"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-136",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-136"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-137",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-137"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Calendar Editor",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-138",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-138"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
    "column": "HC-2",
    "block": "App Header",
    "segment": null,
@@ -1499,6 +1589,21 @@
    "press": null,
    "glyphs": [
     "IC-62"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-3",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-132",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-132"
    ],
    "note": null
   },

@@ -23,7 +23,8 @@ THE LAYOUT IS FR-036'S OWN:
   - blocks in the columns and the order table T-256 names them: the
     assignments with no entrance (`basics`) and the browser functions
     (`browser`) -- the only two blocks with a heading -- then `Row Title Panel`
-    and `Resource Roster` and `Search Panel` (CR-571) in HC-1, `App Header` in HC-2, `Command Palette` in
+    and `Resource Roster` and `Search Panel` (CR-571) and `Calendar Editor` (CR-605)
+    in HC-1, `App Header` in HC-2, `Command Palette` in
     HC-3. Every entry carries the row id of its column, and the count of those
     rows must equal S-202 (MUST);
   - inside a block the order the screen shows, not the print order of table
@@ -105,10 +106,12 @@ ROW_TITLE_PANEL = 'Row Title Panel'
 RESOURCE_ROSTER = 'Resource Roster'
 # CR-571: the search panel's own entrances, the last block of HC-1 (table T-256).
 SEARCH_PANEL = 'Search Panel'
+# CR-605: the calendar surface's own entrances, the last block of HC-1 (table T-256).
+CALENDAR_EDITOR = 'Calendar Editor'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
 BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, SEARCH_PANEL,
-          APP_HEADER, COMMAND_PALETTE)
+          CALENDAR_EDITOR, APP_HEADER, COMMAND_PALETTE)
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
 # rows with an entrance and the rows it keeps off the help. A row of that table
@@ -383,6 +386,7 @@ def build():
 
     roster = [icon_item(RESOURCE_ROSTER, None, rid) for rid in on(RESOURCE_ROSTER)]
     search = [icon_item(SEARCH_PANEL, None, rid) for rid in on(SEARCH_PANEL)]
+    calendar = [icon_item(CALENDAR_EDITOR, None, rid) for rid in on(CALENDAR_EDITOR)]
 
     header = []
     for rid in on(APP_HEADER):
@@ -428,7 +432,8 @@ def build():
             palette.append(icon_item(COMMAND_PALETTE, first, rid))
 
     by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
-                RESOURCE_ROSTER: roster, SEARCH_PANEL: search, APP_HEADER: header,
+                RESOURCE_ROSTER: roster, SEARCH_PANEL: search,
+                CALENDAR_EDITOR: calendar, APP_HEADER: header,
                 COMMAND_PALETTE: palette}
     entries = []
     for column, blocks in column_layout():

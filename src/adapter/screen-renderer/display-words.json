@@ -1058,6 +1058,17 @@
    }
   },
   {
+   "rowId": "IC-132",
+   "label": {
+    "ja": "暦",
+    "en": "Working calendar"
+   },
+   "hint": {
+    "ja": "稼働する曜日・休業日・週の始まりを直す面を開く",
+    "en": "Open the surface that edits the working weekdays, the exception days and the week start"
+   }
+  },
+  {
    "rowId": "IC-63",
    "label": {
     "ja": "すべて選ぶ",
@@ -1121,6 +1132,72 @@
    "hint": {
     "ja": "この担当者は選ばれていない。押すと選ぶ",
     "en": "This resource is not selected; press to select it"
+   }
+  },
+  {
+   "rowId": "IC-133",
+   "label": {
+    "ja": "曜日",
+    "en": "Weekday"
+   },
+   "hint": {
+    "ja": "この曜日を稼働にするか休みにするかを切り替える（当てるまで文書は変わらない）",
+    "en": "Switch this weekday between working and not working (the document changes only when applied)"
+   }
+  },
+  {
+   "rowId": "IC-134",
+   "label": {
+    "ja": "週の始まり",
+    "en": "Week starts on"
+   },
+   "hint": {
+    "ja": "週の目盛が書く曜日を選ぶ",
+    "en": "Choose the weekday the week ticks start on"
+   }
+  },
+  {
+   "rowId": "IC-135",
+   "label": {
+    "ja": "足す",
+    "en": "Add"
+   },
+   "hint": {
+    "ja": "例外日の行を足す",
+    "en": "Add an exception day row"
+   }
+  },
+  {
+   "rowId": "IC-136",
+   "label": {
+    "ja": "消す",
+    "en": "Delete"
+   },
+   "hint": {
+    "ja": "この例外日の行を消す（当てるまで文書は変わらない）",
+    "en": "Delete this exception day row (the document changes only when applied)"
+   }
+  },
+  {
+   "rowId": "IC-137",
+   "label": {
+    "ja": "休み",
+    "en": "Day off"
+   },
+   "hint": {
+    "ja": "この例外日を休みにするか稼働にするかを切り替える",
+    "en": "Switch this exception day between day off and working"
+   }
+  },
+  {
+   "rowId": "IC-138",
+   "label": {
+    "ja": "当てる",
+    "en": "Apply"
+   },
+   "hint": {
+    "ja": "下書きを文書へ当てる。取り消せる",
+    "en": "Apply the draft to the document; it can be undone"
    }
   },
   {
@@ -2759,6 +2836,13 @@
    "heading": {
     "ja": "検索パネル",
     "en": "Search panel"
+   }
+  },
+  {
+   "name": "Calendar Editor",
+   "heading": {
+    "ja": "暦",
+    "en": "Working calendar"
    }
   }
  ],

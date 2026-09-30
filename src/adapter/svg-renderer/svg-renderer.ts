@@ -831,6 +831,7 @@ const SCHEDULE_COLOURS: {
   'S-398': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+  'S-450': { light: 'rgba(0,0,0,0.06)', dark: 'rgba(0,0,0,0.25)', followsHue: false },
 }
 
 // see T-294, T-017b
