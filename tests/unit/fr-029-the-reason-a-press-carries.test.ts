@@ -55,7 +55,6 @@
 //              RS-32 「開いている行が 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
 //              RS-34 「揃える相手の `Task` が選ばれていない」（`FR-034`）
-//              RS-35 「`Agent API` が入っていないので、対話欄を出せない」（`FR-066`）
 //              RS-27 「押した入口が、いま行えることを持たない」（`FR-029`）
 //              -- every one read at run time below, never typed.
 //   表 T-233 の結び 「⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に
@@ -78,7 +77,7 @@
 //              own, and `HR-7` clears the PRESSED row's fold, so `IC-90` is
 //              spent only where that row is open and hides no direct child.
 //   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-37 /
-//              IC-38 / IC-18 -- the entrances pressed, and the 面 each is on.
+//              IC-38 -- the entrances pressed, and the 面 each is on.
 //
 // ---------------------------------------------------------------------------
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
@@ -611,13 +610,7 @@ const SPENT: readonly Spent[] = [
     onRow: null,
     because: 'no Task is chosen, so FR-034 has nothing to align',
   },
-  {
-    icon: 'IC-18',
-    reason: 'RS-35',
-    fixture: {},
-    onRow: null,
-    because: 'the Agent API is not in, so FR-066 cannot show the dialogue field',
-  },
+  // WHY: IC-18 left with RS-35 (CR-562); FR-066 keeps IC-18 un-faint, so its press has work.
 ]
 
 /** Aim one entrance of one row -- or of a surface, where the row is null. */
@@ -693,7 +686,7 @@ describe('the manuscript still says what these cases read', () => {
     }
   })
 
-  it('⭐ the eight rows CR-307 raised say eight different things', () => {
+  it('⭐ the rows CR-307 raised that these cases press say different things', () => {
     // ⛔ WITHOUT THIS, A DICTIONARY THAT ANSWERED ALIKE FOR EVERY ROW WOULD MAKE
     // "carries RS-29 and not RS-27" pass on a loop that carries neither.
     const said = SPENT.map((one) => wordsFor(one.reason).text.ja)
@@ -1005,9 +998,7 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
     }
 
     const looked = faint.filter((icon) => wanted.has(icon))
-    // ⛔ A frame in which none of the eight was faint would ask nothing. IC-18
-    // (`Agent API` not in) and IC-37 / IC-38 (nothing chosen) are both true of a
-    // document that has only just opened.
+    // WHY: IC-37 / IC-38 (nothing chosen) are faint in a document that has only just opened.
     expect(
       looked.length,
       'not one entrance 表 T-233 covers was drawn faint, so this case asked nothing',

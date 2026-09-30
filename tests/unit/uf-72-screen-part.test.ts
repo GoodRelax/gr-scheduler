@@ -1829,9 +1829,19 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
       // stays above while `screen-surface.ts` still declares it.
       'readFieldEditNotices',
       'readScreenPartAt',
+      'readSearchWord',
       'showScreenView',
     ])
     expect(typeof surface.readScreenPartAt).toBe('function')
+    expect(typeof surface.readSearchWord).toBe('function')
+  })
+
+  it('IF-9 (CR-597): 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST） -- the word has a member of its own, not readFieldCommit', () => {
+    const surface = surfaceOf(wire())
+
+    expect(Object.keys(surface)).toContain('readSearchWord')
+    expect(Object.keys(surface)).toContain('readFieldCommit')
+    expect(surface.readSearchWord).not.toBe(surface.readFieldCommit)
   })
 
   it('answers with every member ScreenPart declares and nothing else', () => {

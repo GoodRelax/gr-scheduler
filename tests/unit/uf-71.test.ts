@@ -181,7 +181,6 @@ const T_103_PARTS = [
   { row: 'U-58', name: 'Opened File Name' },
   { row: 'U-59', name: 'File Saved At' },
   { row: 'U-30', name: 'Help Modal' },
-  { row: 'U-30', name: 'AI Export Modal' },
   { row: 'U-31', name: 'App Header' },
   { row: 'U-34', name: 'Palette Groups' },
   { row: 'U-34', name: 'Palette Commands' },
@@ -1329,8 +1328,17 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
     'readFieldCommit',
     'readFieldEditNotices',
     'readScreenPartAt',
+    'readSearchWord',
     'showScreenView',
   ] as const
+
+  it('IF-9 names a sixth supply, the typed search word, which readSearchWord serves (CR-597)', () => {
+    const design = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+    expect(design).toContain(
+      '面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）',
+    )
+    expect(IF_9_MEMBERS).toContain('readSearchWord')
+  })
 
   it('gives back exactly the members the IF-9 cell has supplies', () => {
     const built = wire({ 'App Header': 37 })
@@ -1513,6 +1521,11 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // own MUST NOT is held down from here.
     const root = built.root()
     const noticing = [oneByRole(root, 'Dialogue Field'), oneByRole(root, 'Properties Panel')]
+    // WHY: the typed word may be heard on the layer holding the search field, but
+    // only as an input event -- the jump and the grab are answers to a point.
+    const searchLayers = selfAndDescendants(root).filter(
+      (one) => one.getAttribute('data-uz') === 'UZ-6',
+    )
 
     expect(built.world.registrations.length).toBeGreaterThan(0)
 
@@ -1541,8 +1554,10 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       // says the supply is not widened, so a listener OUTSIDE these two parts
       // would be this unit becoming a second source of input.
       expect(
-        noticing.some((part) => part.contains(one.node)),
-        `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]`,
+        noticing.some((part) => part.contains(one.node)) ||
+          (one.type === 'input' && searchLayers.some((layer) => layer.contains(one.node))),
+        `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]` +
+          `[data-field-row="${one.node.getAttribute('data-field-row') ?? ''}"]`,
       ).toBe(true)
     }
   })
@@ -2349,7 +2364,7 @@ describe('IN-3 of 表 T-028 -- a tooltip is pointable and does not go by itself'
 })
 
 describe('表 T-103 -- the settled names reach the DOM so the parts can be found', () => {
-  const NOT_IN_A_HELP_VIEW = new Set(['AI Export Modal', 'Resource Roster'])
+  const NOT_IN_A_HELP_VIEW = new Set(['Resource Roster'])
 
   it('draws every part under the name 表 T-103 settled for it', () => {
     const built = wire({ 'App Header': 37 })
@@ -2365,18 +2380,6 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
   it('names the open surface by 表 T-103 where that table has a row for it', () => {
     const built = wire({ 'App Header': 37 })
     const surface = surfaceOf(built)
-
-    surface.showScreenView(
-      viewWith({
-        openModal: {
-          surface: 'AI Export Modal',
-          heading: 'AiHeading',
-          commands: [],
-          documentText: 'DocumentTextHere',
-        },
-      }),
-    )
-    expect(byRole(built.root(), 'AI Export Modal').length).toBeGreaterThan(0)
 
     surface.showScreenView(
       viewWith({
@@ -3723,8 +3726,8 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
   })
 
   it('GIVEN the same entry drawn on two different 面 WHEN both are read THEN neither scales it (FR-029 MUST NOT) -- IC-52', () => {
-    // ⚠️ 表 T-109 puts IC-52 on FIVE surfaces at once（`Help Modal` / `AI Export
-    // Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser`）, so it is
+    // ⚠️ 表 T-109 puts IC-52 on several surfaces at once（`Help Modal` /
+    // `Resource Roster` / `Export Chooser` / `Open Chooser` and more）, so it is
     // the one row that can be drawn on two different 面 and compared without a
     // second row entering the comparison.
     const built = wire({ 'App Header': 37 })
