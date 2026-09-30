@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>色の入力の並べ方の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* Page tokens; set from the spec rows by applyTheme() (S-146..S-150). */
+  :root {
+    --ground: #ffffff; --ink: #16181d; --quiet: #5b6068; --rule: #d9dee6; --panel: #f6f7fa;
+    --k: 1.5;
+  }
+  html, body { background: var(--ground); color: var(--ink); }
+  body { margin: 0; padding: 16px 24px 48px; font: 16px/1.7 system-ui, sans-serif; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 28px 0 6px; border-bottom: 1px solid var(--rule); }
+  h3 { font-size: 1rem; margin: 0 0 6px; }
+  p.note { color: var(--quiet); margin: 4px 0 8px; font-size: 0.9rem; }
+  code { font-size: 0.85em; }
+  .controls { position: sticky; top: 0; z-index: 2; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px;
+    display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; font-size: 0.9rem; }
+  .controls fieldset { border: 0; padding: 0; margin: 0; display: inline-flex; gap: 8px; align-items: center; }
+  .controls legend { float: left; margin-right: 6px; color: var(--quiet); }
+  .controls label { white-space: nowrap; }
+  .controls input[type=number] { width: 4.5em; font: inherit; }
+  .cards { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 12px; }
+  .card { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+
+  /* The panel mock. Sizes are the app's (S-171, S-186, S-187, S-189..S-192, S-197, S-198)
+     multiplied by --k so that no text falls below 12px on this page. */
+  .panel { box-sizing: border-box; width: calc(280px * var(--k)); max-width: 100%;
+    background: var(--panel); color: var(--ink); border: 1px solid var(--rule);
+    padding: calc(6px * var(--k)) calc(8px * var(--k));
+    font-size: calc(11.9px * var(--k)); line-height: 1.6; }
+  .field { display: flex; align-items: flex-start; gap: calc(6px * var(--k));
+    margin-bottom: calc(2px * var(--k)); padding: calc(3px * var(--k)) 0;
+    border-top: 1px dotted var(--rule); }
+  .field:first-child { border-top: 0; }
+  .fname { flex: 0 0 42%; text-align: right; color: var(--quiet); font-size: 0.9em; }
+  .fbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: calc(2px * var(--k)); }
+  .line { display: flex; flex-wrap: wrap; align-items: center; gap: calc(6px * var(--k)); }
+  .sides { display: flex; flex-wrap: wrap; align-items: center; column-gap: 0.3em; }
+  .side { white-space: nowrap; display: inline-flex; align-items: center; gap: 0.25em; }
+  .side .muted { color: var(--quiet); }
+  .sw { display: inline-block; box-sizing: border-box; flex: none; width: 0.75em; height: 0.75em;
+    border: 1px solid transparent; vertical-align: middle; }
+  .sw.unset { border: 1px dashed currentColor; background: transparent !important; }
+  .grid { display: grid; grid-template-columns: repeat(5, calc(17px * var(--k)));
+    gap: calc(4px * var(--k)); }
+  button { font: inherit; color: var(--ink); background: var(--ground); cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 3px; }
+  button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .chip { box-sizing: border-box; width: calc(17px * var(--k)); height: calc(17px * var(--k)); padding: 0; }
+  .wide { display: inline-flex; align-items: center; gap: 0.35em; padding: 0 0.4em;
+    min-height: calc(17px * var(--k)); }
+  .slot-empty { box-sizing: border-box; border: 1px dashed var(--quiet); border-radius: 3px;
+    color: transparent; }
+  .picker { display: flex; align-items: center; gap: 0.4em; }
+  .picker input[type=color] { width: calc(40px * var(--k)); height: calc(16px * var(--k)); padding: 0;
+    border: 1px solid var(--rule); background: var(--ground); }
+  .stepper { display: inline-flex; align-items: center; gap: 0.3em; }
+  .stepper button { min-width: calc(17px * var(--k)); min-height: calc(17px * var(--k)); }
+  .stepper input { font: inherit; width: 3.2em; min-height: calc(17px * var(--k)); box-sizing: border-box;
+    background: var(--ground); color: var(--ink); border: 1px solid var(--rule); text-align: right; }
+  .hint { color: var(--quiet); font-size: 0.85em; }
+
+  .stored { font: 0.85rem/1.6 ui-monospace, monospace; margin-top: 8px; padding: 6px 8px;
+    border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); white-space: pre-wrap;
+    word-break: break-all; max-width: calc(280px * var(--k)); box-sizing: border-box; }
+  .previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .previews figure { margin: 0; }
+  .previews figcaption { font-size: 0.8rem; color: var(--quiet); }
+  .previews svg { display: block; border: 1px solid var(--rule); border-radius: 4px; }
+
+  table.t { border-collapse: collapse; font-size: 0.85rem; margin-top: 6px; }
+  table.t th, table.t td { border: 1px solid var(--rule); padding: 1px 6px; text-align: left; }
+  table.t td.c { white-space: nowrap; }
+  .scroll { overflow-x: auto; max-width: 100%; }
+  ul.q { margin: 4px 0; padding-left: 1.4em; }
+</style>
+</head>
+<body>
+<h1>色の入力の並べ方の見本（CR-606 の参照）</h1>
+<p class="note">利用者の指示 <code>JDG-863</code> の並び（ライト／ダーク → プロジェクトテーマ色 → 見本 5×2 → なし／その他の色、枠線幅 1〜10px）と、
+<code>JDG-922</code>（枠線幅はタスクもボックスも 1〜10px、細・中・太は 1・2・3px）を、プロパティパネルの模型で触れるようにしたものです。
+左がタスク、右がハイライトボックスの欄です。値はすべて仕様の行から写しています（下の表と README-ja.md）。
+パネルの字はアプリでは 11.9px（項目名 10.71px）ですが、このページでは読めるように「見本の倍率」を掛けています。</p>
+
+<div class="controls">
+  <fieldset><legend>言語</legend>
+    <label><input type="radio" name="lang" value="ja" checked> 日本語</label>
+    <label><input type="radio" name="lang" value="en"> English</label></fieldset>
+  <fieldset><legend>明暗</legend>
+    <label><input type="radio" name="theme" value="light" checked> Light</label>
+    <label><input type="radio" name="theme" value="dark"> Dark</label></fieldset>
+  <label><input id="mono" type="checkbox"> モノクロ（<code>S-74</code>）</label>
+  <label>テーマの色相（<code>S-73</code>）
+    <input id="hue" type="range" min="0" max="359" step="1" value="214">
+    <input id="hueNum" type="number" min="0" max="359" step="1" value="214"></label>
+  <label>見本の倍率
+    <select id="scale">
+      <option value="1.25">1.25</option>
+      <option value="1.5" selected>1.5</option>
+      <option value="2">2</option>
+    </select></label>
+  <button id="reset" type="button">初めに戻す</button>
+</div>
+
+<h2>1. パネルの欄と、描かれる絵</h2>
+<p class="note">見本を押すと、保存するのは色の<b>名</b>（例 <code>red</code>）です（<code>CV-1</code>）。
+ライト／ダークの行には、その名が表 <code>T-294</code> で持つ明暗それぞれの値が出ます。
+「その他の色」は押したときだけ閲覧環境の色の入力を出し、いま描いている明暗の側だけを決めます（<code>CV-4</code>）。
+絵は選んだ明暗に関係なく、明るいテーマと暗いテーマの両方で描きます。
+ハイライトボックスの枠線色の破線の空き枠は「線なし」の場所です（仕様は枠の透明を禁じる。<code>FR-019</code>・<code>PR-22</code>）。</p>
+<div class="cards">
+  <div class="card" id="cardTask"></div>
+  <div class="card" id="cardBox"></div>
+</div>
+
+<h2>2. 使っている値</h2>
+<p class="note">パレット色は表 <code>T-294</code>（<code>S-314</code>〜<code>S-324</code>）。テーマの色は表 <code>T-236</code> の式に上の色相を入れた値です（<code>FR-041</code>）。</p>
+<div class="scroll" id="valueTable"></div>
+
+<h2>3. 決まっていないこと</h2>
+<ul class="q">
+  <li>ハイライトボックスの枠線色には「線なし」を置いていません。仕様は枠の透明を禁じています（<code>FR-019</code>・<code>PR-22</code>）。<code>JDG-863</code> の並びと食い違うので、場所を空けるか、ボタンごと消すかは未定です。</li>
+  <li>ハイライトボックスの「塗潰しなし」（<code>transparent</code>）と「プロジェクトテーマ色」（<code>null</code> → <code>S-370</code> の既定の透明）は、既定では同じ絵になります。2 つを並べる意味を仕様は述べていません。</li>
+  <li>ハイライトボックスの「プロジェクトテーマ色」は、枠では注記の色 <code>S-312</code>（色相に追随しない）を描きます。語「プロジェクトテーマ色」が合うかは未定です。</li>
+  <li>枠線幅に「テーマ（既定）へ戻す」入口を置くか。いまの列は <code>null</code> を取れます（<code>AT-104</code>・<code>AT-145</code>）。この見本は数だけを置いています。</li>
+</ul>
+
+<script>
+'use strict';
+
+// ---- Values copied from the specification -------------------------------------------------
+
+// Table T-294 (S-314..S-323): [lightFill, lightEdge, lightActual, darkFill, darkEdge, darkActual].
+// A null actual means "same as S-157" (the theme actual fill).
+const PALETTE = [
+  { name: 'white',     row: 'S-314', v: ['#ffffff', '#ffffff', null,      '#14161a', '#14161a', null] },
+  { name: 'black',     row: 'S-315', v: ['#000000', '#000000', null,      '#ffffff', '#ffffff', null] },
+  { name: 'dimgray',   row: 'S-316', v: ['#575757', '#383838', null,      '#a3a3a3', '#cccccc', null] },
+  { name: 'lightgray', row: 'S-317', v: ['#cccccc', '#757575', '#575757', '#424242', '#a8a8a8', '#a3a3a3'] },
+  { name: 'red',       row: 'S-318', v: ['#e3b9b5', '#a94c42', '#8c2c21', '#58312d', '#d08880', '#dc766a'] },
+  { name: 'blue',      row: 'S-319', v: ['#b5c9e3', '#426ea9', '#21508c', '#2d3f58', '#80a3d0', '#6a9cdc'] },
+  { name: 'yellow',    row: 'S-320', v: ['#dfd6a9', '#8c7d36', '#79691c', '#58502d', '#d0c380', '#dcc96a'] },
+  { name: 'green',     row: 'S-321', v: ['#afe1bf', '#3c9a5b', '#1f8340', '#2d583b', '#80d09b', '#6adc90'] },
+  { name: 'orange',    row: 'S-322', v: ['#e3cab5', '#a97242', '#8c5321', '#58412d', '#d0a680', '#dc9f6a'] },
+  { name: 'purple',    row: 'S-323', v: ['#d8b5e3', '#8f42a9', '#72218c', '#4d2d58', '#bc80d0', '#c06adc'] },
+];
+const TRANSPARENT = 'transparent'; // S-324: draw nothing
+const SWATCHES_PER_ROW = 5;        // S-338
+const CHECKER_LIGHT = '#ffffff';   // S-336
+const CHECKER_DARK = '#c0c0c0';    // S-337
+const CHECKER_CELLS = 2;           // S-335
+const ANNOTATION = '#b45309';      // S-312, both themes, not hue-following
+const PLAN_HEIGHT = 28;            // S-4 basePlanHeight at zoomY 1
+const ACTUAL_OF_PLAN = 0.5715;     // S-5
+const PLAN_STROKE = 1;             // S-39, the task outline drawn today when lineWeight is null
+const BOX_STROKE_DEFAULT = 1;      // S-369
+const BOX_FILL_TRANSPARENCY = 50;  // S-371
+const BOX_CORNER = 4;              // S-132
+const LABEL_HALO_OF_FONT = 0.10;   // S-34
+const WIDTH_MIN = 1;               // JDG-922
+const WIDTH_MAX = 10;              // JDG-922
+const ACTUAL_L_MIN = 15;           // S-415
+const ACTUAL_L_MAX = 85;           // S-416
+const CT3 = 3;                     // T-017a CT-3
+
+// Table T-236 formulas: [lightH-S-L, darkH-S-L] as [s, l] with H = themeHue, or a fixed hex.
+const THEME = {
+  ground:     { light: '#ffffff', dark: [12, 9] },   // S-146
+  ink:        { light: '#16181d', dark: '#e8eaee' }, // S-147
+  quiet:      { light: '#5b6068', dark: '#9aa1ab' }, // S-148
+  rule:       { light: [14, 87], dark: [12, 23] },   // S-149
+  panel:      { light: [20, 97], dark: [14, 13] },   // S-150
+  planFill:   { light: [46, 80], dark: [32, 26] },   // S-155
+  planEdge:   { light: [44, 46], dark: [46, 66] },   // S-156
+  actualFill: { light: [62, 34], dark: [62, 64] },   // S-157
+  actualEdge: { light: [66, 22], dark: [70, 80] },   // S-158
+  labelInk:   { light: '#000000', dark: '#ffffff' }, // S-168
+};
+
+// Words. Colour names and Light/Dark come from display-words.json (colourNames, colourField);
+// the field and button words are the ones JDG-863 asked for.
+const WORDS = {
+  ja: {
+    white: '白', black: '黒', dimgray: '濃い灰色', lightgray: '薄い灰色', red: '赤', blue: '青',
+    yellow: '黄', green: '緑', orange: 'オレンジ', purple: '紫', transparent: '透明',
+    light: 'ライト', dark: 'ダーク', sameAsLight: '（ライトと同じ）', sameAsDark: '（ダークと同じ）',
+    themeValue: 'テーマ', fillColor: '塗潰し色', strokeColor: '枠線色', strokeWidth: '枠線幅',
+    projectTheme: 'プロジェクトテーマ色', noFill: '塗潰しなし', noLine: '線なし', custom: 'その他の色',
+    noLineAbsent: '（線なしは置かない）', task: 'タスク', box: 'ハイライトボックス', label: 'タスク A',
+    oldWeights: '旧: 細 1 ／ 中 2 ／ 太 3', bothNone: '塗りと線を同時に透明にはできない（FR-007）',
+    customSide: 'いま決める側', px: 'px',
+  },
+  en: {
+    white: 'White', black: 'Black', dimgray: 'Dark gray', lightgray: 'Light gray', red: 'Red', blue: 'Blue',
+    yellow: 'Yellow', green: 'Green', orange: 'Orange', purple: 'Purple', transparent: 'Transparent',
+    light: 'Light', dark: 'Dark', sameAsLight: ' (same as light)', sameAsDark: ' (same as dark)',
+    themeValue: 'Theme', fillColor: 'Fill color', strokeColor: 'Outline color', strokeWidth: 'Outline width',
+    projectTheme: 'Project theme color', noFill: 'No fill', noLine: 'No line', custom: 'Custom',
+    noLineAbsent: '(no "No line" here)', task: 'Task', box: 'Highlight box', label: 'Task A',
+    oldWeights: 'was: thin 1 / medium 2 / thick 3', bothNone: 'Fill and outline cannot both be transparent (FR-007)',
+    customSide: 'side being set', px: 'px',
+  },
+};
+
+// ---- Colour arithmetic ---------------------------------------------------------------------
+
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const to = (x) => Math.round(x * 255).toString(16).padStart(2, '0');
+  return '#' + to(f(0)) + to(f(8)) + to(f(4));
+}
+function hexToRgb(hex) {
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+}
+function hexToHsl(hex) {
+  const [r, g, b] = hexToRgb(hex).map((x) => x / 255);
+  const max = Math.max(r, g, b); const min = Math.min(r, g, b);
+  const l = (max + min) / 2; const d = max - min;
+  let h = 0; let s = 0;
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
+  }
+  return [(h + 360) % 360, s * 100, l * 100];
+}
+function luminance(hex) {
+  const c = hexToRgb(hex).map((x) => {
+    const v = x / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function contrast(a, b) {
+  const la = luminance(a); const lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+// CV-7: keep the HSL lightness, drop the saturation.
+function grey(hex) {
+  if (hex === TRANSPARENT) return hex;
+  const [, , l] = hexToHsl(hex);
+  return hslToHex(0, 0, l);
+}
+const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// ---- State ----------------------------------------------------------------------------------
+
+// A stored colour is null (follow the theme), a T-294 name, or { light, dark } with hex or null (CV-2).
+const INITIAL = () => ({
+  task: { fill: null, stroke: null, width: PLAN_STROKE },
+  box: { fill: null, stroke: null, width: BOX_STROKE_DEFAULT },
+});
+const state = {
+  lang: 'ja', dark: false, mono: false, hue: 214, scale: 1.5,
+  doc: INITIAL(),
+  openCustom: null, // "task.fill" etc.
+};
+
+function themeValue(key, dark) {
+  const spec = THEME[key][dark ? 'dark' : 'light'];
+  return typeof spec === 'string' ? spec : hslToHex(state.hue, spec[0], spec[1]);
+}
+function paletteRow(name) { return PALETTE.find((p) => p.name === name); }
+function isCustom(stored) { return stored !== null && typeof stored === 'object'; }
+
+// CV-3: an undefined side draws with the other side.
+function customSide(stored, dark) {
+  const own = dark ? stored.dark : stored.light;
+  return own !== null ? own : (dark ? stored.light : stored.dark);
+}
+
+// CV-10: the actual fill derived from a custom colour.
+function customActual(chosen, dark) {
+  const plan = hexToHsl(themeValue('planFill', dark));
+  const act = hexToHsl(themeValue('actualFill', dark));
+  const [h, s, l] = hexToHsl(chosen);
+  const sat = s === 0 ? 0 : clamp(s + (act[1] - plan[1]), 0, 100);
+  const dl = act[2] - plan[2];
+  const up = hslToHex(h, sat, clamp(l + dl, ACTUAL_L_MIN, ACTUAL_L_MAX));
+  if (contrast(up, chosen) >= CT3) return up;
+  const down = hslToHex(h, sat, clamp(l - dl, ACTUAL_L_MIN, ACTUAL_L_MAX));
+  if (contrast(down, chosen) >= CT3) return down;
+  const lo = hslToHex(h, sat, ACTUAL_L_MIN); const hi = hslToHex(h, sat, ACTUAL_L_MAX);
+  return contrast(lo, chosen) >= contrast(hi, chosen) ? lo : hi;
+}
+
+// What a stored value draws, per CV-6. form: 'fill' | 'edge' | 'actual' | 'actualEdge'.
+// owner: 'task' | 'box'. Returns a hex or TRANSPARENT (before monochrome).
+function drawnRaw(stored, form, owner, dark) {
+  if (stored === null) {
+    if (owner === 'box') return form === 'fill' ? TRANSPARENT : ANNOTATION; // S-370, S-312
+    return themeValue({ fill: 'planFill', edge: 'planEdge', actual: 'actualFill', actualEdge: 'actualEdge' }[form], dark);
+  }
+  if (stored === TRANSPARENT) return TRANSPARENT;
+  if (isCustom(stored)) {
+    const side = customSide(stored, dark);
+    if (form === 'actual') return state.mono ? customActual(grey(side), dark) : customActual(side, dark);
+    return side;
+  }
+  const v = paletteRow(stored).v; const o = dark ? 3 : 0;
+  if (form === 'fill') return v[o];
+  if (form === 'actual') return v[o + 2] === null ? themeValue('actualFill', dark) : v[o + 2];
+  return v[o + 1]; // edge and actualEdge both use the edge value (CV-6)
+}
+function drawn(stored, form, owner, dark) {
+  const raw = drawnRaw(stored, form, owner, dark);
+  return state.mono ? grey(raw) : raw;
+}
+
+// ---- Rendering helpers ------------------------------------------------------------------------
+
+function el(tag, attrs, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'style') node.setAttribute('style', v);
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else if (v === true) node.setAttribute(k, '');
+    else if (v !== false && v !== null && v !== undefined) node.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid !== null && kid !== undefined) node.append(kid);
+  return node;
+}
+function checker() {
+  const tile = `calc(100% * 2 / ${CHECKER_CELLS})`;
+  return `repeating-conic-gradient(${CHECKER_DARK} 0 25%, ${CHECKER_LIGHT} 0 50%) 0 0/${tile} ${tile}`;
+}
+function paintStyle(paint) {
+  return paint === TRANSPARENT ? `background:${checker()};` : `background:${paint};`;
+}
+function w(key) { return WORDS[state.lang][key]; }
+
+// One side of the "Light: [] value / Dark: [] value" line (CV-9).
+function sideNode(stored, form, owner, dark) {
+  const word = w(dark ? 'dark' : 'light') + ': ';
+  const sw = el('span', { class: 'sw' });
+  let value = ''; let note = '';
+  if (isCustom(stored) && (dark ? stored.dark : stored.light) === null) {
+    sw.classList.add('unset');
+    note = w(dark ? 'sameAsLight' : 'sameAsDark');
+  } else {
+    sw.setAttribute('style', paintStyle(drawn(stored, form, owner, dark)));
+    if (stored === null) value = w('themeValue');
+    else if (isCustom(stored)) value = (dark ? stored.dark : stored.light).toUpperCase();
+    else value = w(stored);
+  }
+  return el('span', { class: 'side' }, word, sw, ' ', value, note ? el('span', { class: 'muted' }, note) : null);
+}
+
+function sameStored(a, b) {
+  if (isCustom(a) || isCustom(b)) return false;
+  return a === b;
+}
+
+// ---- A colour field -----------------------------------------------------------------------------
+
+// spec: { owner, key, form, allowNone, noneWord }
+function colourField(spec) {
+  const doc = state.doc[spec.owner];
+  const stored = doc[spec.key];
+  const id = spec.owner + '.' + spec.key;
+  const set = (value) => { doc[spec.key] = value; state.openCustom = null; render(); };
+
+  // FR-007 (task only): fill and outline may not both be transparent.
+  const other = spec.owner === 'task' ? doc[spec.key === 'fill' ? 'stroke' : 'fill'] : null;
+  const noneBlocked = spec.owner === 'task' && other === TRANSPARENT;
+
+  const body = el('div', { class: 'fbody' });
+  body.append(el('div', { class: 'sides' },
+    sideNode(stored, spec.form, spec.owner, false), el('span', { class: 'muted' }, ' / '),
+    sideNode(stored, spec.form, spec.owner, true)));
+
+  // [project theme color]: back to null (CV-5, CV-9).
+  const themePaint = drawn(null, spec.form, spec.owner, state.dark);
+  body.append(el('div', { class: 'line' },
+    el('button', { type: 'button', class: 'wide', 'aria-pressed': String(stored === null),
+      title: spec.owner === 'box' ? (spec.key === 'fill' ? 'null → S-370' : 'null → S-312') : 'null → FR-041',
+      onclick: () => set(null) },
+    el('span', { class: 'sw', style: paintStyle(themePaint) }), w('projectTheme'))));
+
+  // 5 x 2 swatches in T-294 order, painted with the value this field draws (CV-9).
+  const grid = el('div', { class: 'grid' });
+  for (const row of PALETTE) {
+    grid.append(el('button', { type: 'button', class: 'chip', title: `${w(row.name)} (${row.name}, ${row.row})`,
+      'aria-label': w(row.name), 'aria-pressed': String(sameStored(stored, row.name)),
+      style: paintStyle(drawn(row.name, spec.form, spec.owner, state.dark)),
+      onclick: () => set(row.name) }));
+  }
+  body.append(grid);
+
+  // [none] [custom]
+  const line = el('div', { class: 'line' });
+  if (spec.allowNone) {
+    line.append(el('button', { type: 'button', class: 'wide', 'aria-pressed': String(stored === TRANSPARENT),
+      disabled: noneBlocked, title: noneBlocked ? w('bothNone') : 'transparent (S-324)',
+      onclick: () => set(TRANSPARENT) },
+    el('span', { class: 'sw', style: paintStyle(TRANSPARENT) }), w(spec.noneWord)));
+  } else {
+    // FR-019 / PR-22: no transparent outline on a box; CV-9 keeps its place empty.
+    line.append(el('span', { class: 'wide slot-empty', title: w('noLineAbsent') + ' FR-019, PR-22' },
+      el('span', { class: 'sw' }), w('noLine')));
+  }
+  line.append(el('button', { type: 'button', class: 'wide', 'aria-pressed': String(isCustom(stored)),
+    'aria-expanded': String(state.openCustom === id),
+    onclick: () => { state.openCustom = state.openCustom === id ? null : id; render(); } },
+  w('custom')));
+  body.append(line);
+
+  // The native colour input appears only while "custom" is open (CV-9); it sets the side
+  // being drawn now and keeps or clears the other side (CV-4).
+  if (state.openCustom === id) {
+    const seed = drawnRaw(stored, spec.form, spec.owner, state.dark);
+    const input = el('input', { type: 'color', value: seed === TRANSPARENT ? '#808080' : seed });
+    input.addEventListener('input', () => {
+      const prev = doc[spec.key];
+      const next = isCustom(prev) ? { light: prev.light, dark: prev.dark } : { light: null, dark: null };
+      next[state.dark ? 'dark' : 'light'] = input.value.toLowerCase();
+      doc[spec.key] = next;
+      renderPartsAfterCustom();
+    });
+    body.append(el('div', { class: 'picker' }, input,
+      el('span', { class: 'hint' }, `${w('customSide')}: ${w(state.dark ? 'dark' : 'light')}`)));
+  }
+  return el('div', { class: 'field' }, el('div', { class: 'fname' }, w(spec.key === 'fill' ? 'fillColor' : 'strokeColor')), body);
+}
+
+function widthField(owner) {
+  const doc = state.doc[owner];
+  const set = (n) => { doc.width = clamp(Math.round(n) || WIDTH_MIN, WIDTH_MIN, WIDTH_MAX); render(); };
+  const input = el('input', { type: 'number', min: WIDTH_MIN, max: WIDTH_MAX, step: 1, value: doc.width,
+    onchange: (e) => set(Number(e.target.value)) });
+  const body = el('div', { class: 'fbody' },
+    el('div', { class: 'line' },
+      el('span', { class: 'stepper' },
+        el('button', { type: 'button', 'aria-label': '-1', disabled: doc.width <= WIDTH_MIN, onclick: () => set(doc.width - 1) }, '−'),
+        input,
+        el('button', { type: 'button', 'aria-label': '+1', disabled: doc.width >= WIDTH_MAX, onclick: () => set(doc.width + 1) }, '+')),
+      w('px')),
+    owner === 'task' ? el('div', { class: 'hint' }, w('oldWeights')) : null);
+  return el('div', { class: 'field' }, el('div', { class: 'fname' }, w('strokeWidth')), body);
+}
+
+// ---- Previews ------------------------------------------------------------------------------------
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs) {
+  const node = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  return node;
+}
+function paintAttr(p) { return p === TRANSPARENT ? 'none' : p; }
+
+function taskBar(g, x, y, width, doc, dark, owner) {
+  const fill = drawn(doc.fill, 'fill', owner, dark);
+  const edge = drawn(doc.stroke, 'edge', owner, dark);
+  const actualFill = drawn(doc.fill, 'actual', owner, dark);
+  const actualEdge = drawn(doc.stroke, 'actualEdge', owner, dark);
+  const sw = doc.width;
+  const aH = PLAN_HEIGHT * ACTUAL_OF_PLAN;
+  g.append(svg('rect', { x, y, width, height: PLAN_HEIGHT, fill: paintAttr(fill),
+    stroke: paintAttr(edge), 'stroke-width': edge === TRANSPARENT ? 0 : sw }));
+  g.append(svg('rect', { x, y: y + (PLAN_HEIGHT - aH) / 2, width: width * 0.55, height: aH,
+    fill: paintAttr(actualFill), stroke: paintAttr(actualEdge), 'stroke-width': actualEdge === TRANSPARENT ? 0 : sw }));
+  const font = 12;
+  const text = svg('text', { x: x + 8, y: y + PLAN_HEIGHT / 2 + font * 0.35, 'font-size': font,
+    'font-family': 'system-ui, sans-serif', fill: themeValue('labelInk', dark),
+    stroke: themeValue('ground', dark), 'stroke-width': 2 * font * LABEL_HALO_OF_FONT, 'paint-order': 'stroke' });
+  text.textContent = w('label');
+  g.append(text);
+}
+
+function preview(owner, dark) {
+  const W = 260; const H = 76;
+  const root = svg('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` });
+  const ground = state.mono ? grey(themeValue('ground', dark)) : themeValue('ground', dark);
+  root.append(svg('rect', { x: 0, y: 0, width: W, height: H, fill: ground }));
+  if (owner === 'task') {
+    taskBar(root, 30, (H - PLAN_HEIGHT) / 2, 200, state.doc.task, dark, 'task');
+  } else {
+    // A theme-coloured task under the box, so the box fill and outline read against something.
+    taskBar(root, 50, (H - PLAN_HEIGHT) / 2, 160, { fill: null, stroke: null, width: PLAN_STROKE }, dark, 'task');
+    const b = state.doc.box;
+    const fill = drawn(b.fill, 'fill', 'box', dark);
+    const edge = drawn(b.stroke, 'edge', 'box', dark);
+    root.append(svg('rect', { x: 20, y: 10, width: 220, height: H - 20, rx: BOX_CORNER, ry: BOX_CORNER,
+      fill: paintAttr(fill), 'fill-opacity': 1 - BOX_FILL_TRANSPARENCY / 100,
+      stroke: paintAttr(edge), 'stroke-width': b.width }));
+  }
+  return root;
+}
+
+function storedText(owner) {
+  const d = state.doc[owner];
+  const show = (v) => (v === null ? 'null' : isCustom(v) ? JSON.stringify(v) : JSON.stringify(v));
+  const widthKey = 'strokeWidthPx';
+  return `fillColor: ${show(d.fill)}\nstrokeColor: ${show(d.stroke)}\n${widthKey}: ${d.width}`;
+}
+
+function card(owner) {
+  const fields = [
+    colourField({ owner, key: 'fill', form: 'fill', allowNone: true, noneWord: 'noFill' }),
+    colourField({ owner, key: 'stroke', form: 'edge', allowNone: owner === 'task', noneWord: 'noLine' }),
+    widthField(owner),
+  ];
+  const figs = el('div', { class: 'previews' },
+    el('figure', {}, preview(owner, false), el('figcaption', {}, 'Light')),
+    el('figure', {}, preview(owner, true), el('figcaption', {}, 'Dark')));
+  return [
+    el('h3', {}, w(owner)),
+    el('div', { class: 'panel' }, fields),
+    el('div', { class: 'stored', title: 'CV-1' }, storedText(owner)),
+    figs,
+  ];
+}
+
+// Re-render everything except the open colour input, so dragging in the native picker keeps focus.
+function renderPartsAfterCustom() {
+  for (const owner of ['task', 'box']) {
+    const host = document.getElementById(owner === 'task' ? 'cardTask' : 'cardBox');
+    const panel = host.querySelector('.panel');
+    const fields = panel.querySelectorAll('.field');
+    const fresh = card(owner);
+    const freshFields = fresh[1].querySelectorAll('.field');
+    fields.forEach((f, i) => {
+      const keep = f.querySelector('input[type=color]');
+      if (keep) {
+        const sides = freshFields[i].querySelector('.sides');
+        f.querySelector('.sides').replaceWith(sides);
+        f.querySelectorAll('button[aria-pressed]').forEach((btn, j) => {
+          const twin = freshFields[i].querySelectorAll('button[aria-pressed]')[j];
+          if (twin) btn.setAttribute('aria-pressed', twin.getAttribute('aria-pressed'));
+        });
+      } else {
+        f.replaceWith(freshFields[i]);
+      }
+    });
+    host.querySelector('.stored').replaceWith(fresh[2]);
+    host.querySelector('.previews').replaceWith(fresh[3]);
+  }
+}
+
+function valueTable() {
+  const head = ['行', '名', '見本の語', 'ライト 塗り', 'ライト 縁', 'ライト 実績', 'ダーク 塗り', 'ダーク 縁', 'ダーク 実績'];
+  const table = el('table', { class: 't' }, el('tr', {}, head.map((h) => el('th', {}, h))));
+  const cell = (hex) => el('td', { class: 'c' }, el('span', { class: 'sw', style: paintStyle(state.mono ? grey(hex) : hex) }), ' ', hex);
+  for (const p of PALETTE) {
+    const a = (i) => (p.v[i] === null ? themeValue('actualFill', i === 5) : p.v[i]);
+    table.append(el('tr', {}, el('td', {}, p.row), el('td', {}, el('code', {}, p.name)), el('td', {}, w(p.name)),
+      cell(p.v[0]), cell(p.v[1]), cell(a(2)), cell(p.v[3]), cell(p.v[4]), cell(a(5))));
+  }
+  const themeRow = (label, keys) => el('tr', {}, el('td', {}, label), el('td', {}, el('code', {}, 'null')), el('td', {}, w('themeValue')),
+    keys.map((k) => cell(k.startsWith('#') ? k : themeValue(k.split(':')[0], k.endsWith(':d')))));
+  table.append(themeRow('S-155..158', ['planFill:l', 'planEdge:l', 'actualFill:l', 'planFill:d', 'planEdge:d', 'actualFill:d']));
+  table.append(themeRow('S-312', [ANNOTATION, ANNOTATION, ANNOTATION, ANNOTATION, ANNOTATION, ANNOTATION]));
+  return table;
+}
+
+function applyTheme() {
+  const root = document.documentElement.style;
+  for (const key of ['ground', 'ink', 'quiet', 'rule', 'panel']) {
+    const v = themeValue(key, state.dark);
+    root.setProperty('--' + key, state.mono ? grey(v) : v);
+  }
+  root.setProperty('--k', String(state.scale));
+  document.documentElement.lang = state.lang;
+}
+
+function render() {
+  applyTheme();
+  document.getElementById('cardTask').replaceChildren(...card('task'));
+  document.getElementById('cardBox').replaceChildren(...card('box'));
+  document.getElementById('valueTable').replaceChildren(valueTable());
+}
+
+// ---- Controls ----------------------------------------------------------------------------------
+
+document.querySelectorAll('input[name=lang]').forEach((r) => r.addEventListener('change', () => { state.lang = r.value; render(); }));
+document.querySelectorAll('input[name=theme]').forEach((r) => r.addEventListener('change', () => { state.dark = r.value === 'dark'; render(); }));
+document.getElementById('mono').addEventListener('change', (e) => { state.mono = e.target.checked; render(); });
+const hue = document.getElementById('hue'); const hueNum = document.getElementById('hueNum');
+hue.addEventListener('input', () => { state.hue = Number(hue.value); hueNum.value = hue.value; render(); });
+hueNum.addEventListener('change', () => { state.hue = clamp(Number(hueNum.value) || 0, 0, 359); hue.value = state.hue; hueNum.value = state.hue; render(); });
+document.getElementById('scale').addEventListener('change', (e) => { state.scale = Number(e.target.value); render(); });
+document.getElementById('reset').addEventListener('click', () => { state.doc = INITIAL(); state.openCustom = null; render(); });
+
+render();
+</script>
+</body>
+</html>
