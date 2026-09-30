@@ -1317,6 +1317,7 @@ const readingsAsking = (raised: RaisedConfirmation | null): ScreenViewReadings =
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
+  hintTargetDwellMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 0, y: 0 },
   // No case here reads the theme or the milestone glyph list: a question is

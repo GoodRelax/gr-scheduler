@@ -309,6 +309,7 @@ const READINGS: ScreenViewReadings = {
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
+  hintTargetDwellMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',

@@ -362,12 +362,20 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // part of the colour field by the part it names (CV-9); neither is a row.
   colourNames: 'spelling',
   colourField: 'part',
+  // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
+  rowMinHeightField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
   dualCursorReadout: 'line',
+  // WHY: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
+  // the state word of column SQ-5 by its row of table T-019a, and the panel's own
+  // words (SV-7's blank item, SQ-1's no-name word, SV-13's restore label) by the part they fill.
+  searchColumns: 'rowId',
+  planActualStates: 'rowId',
+  searchPanel: 'part',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -677,6 +685,7 @@ const SESSION: ScreenViewReadings = {
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
+  hintTargetDwellMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 500, y: 300 },
   // No case here reads the theme. S-72 takes the manuscript's default; S-73 is
@@ -935,6 +944,7 @@ for (const entry of GENERATED['icons'] ?? []) {
           pointer,
           iconUnderPointer: rowId,
           pointerRestedMs: ICON_HINT_MS + 1,
+          hintTargetDwellMs: ICON_HINT_MS + 1,
         },
       })
     }
@@ -1106,13 +1116,23 @@ const ON_A_HIGHLIGHT_BOX = 'HighlightBox'
  * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
  * であり、本行はその値をパネルに出す項目のほうである」, and FR-085 (MUST) calls
  * the field by AT-53 of fig-erd-detail when it says where the double click puts the
- * focus. ⭐ So the name field names the ATTRIBUTE row (the others carry their
- * `PR-n`, IR-1 of table T-263) -- and this reads the join out of table T-058
- * and the 備考 that names it rather than typing the row ids out here.
+ * focus. ⭐ ONLY the name field names the ATTRIBUTE row: IR-1 of table T-263
+ * reads 「欄なら 表 T-016 の行 ID」 and
+ * 「プロパティパネルの行の名前の欄なら `_assets/fig-erd-detail.md` の `AT-53`」.
+ * ⛔ A 備考 naming an AT row (PR-33's names `AT-144`) does not change that, so
+ * the AT row is read out of IR-1 and matched through table T-058's join.
  */
 const ENTITY_COLUMN = 'エンティティ'
 const COLUMN_COLUMN = '列'
 const T058 = specTable('T-058')
+
+const NAME_FIELD_CLAUSE = /プロパティパネルの行の名前の欄なら `_assets\/fig-erd-detail\.md` の `(AT-\d+)`/
+const NAME_FIELD_ROW = ((): string => {
+  const how = specTable('T-263').rows.find((row) => row.id === 'IR-1')?.by['書き方'] ?? ''
+  const found = NAME_FIELD_CLAUSE.exec(how)?.[1]
+  if (found === undefined) throw new Error('IR-1 of table T-263 no longer names the row-name field by an AT row')
+  return found
+})()
 
 const declaredRowOf = (rowId: string): string => {
   const item = T016.rows.find((row) => row.id === rowId)
@@ -1125,7 +1145,7 @@ const declaredRowOf = (rowId: string): string => {
   if (attribute === undefined) {
     throw new Error(`table T-058 has no row for ${ON_A_ROW}.${column}, which table T-016 ${rowId} edits`)
   }
-  return (item.by['備考'] ?? '').includes(attribute.id) ? attribute.id : rowId
+  return attribute.id === NAME_FIELD_ROW ? attribute.id : rowId
 }
 
 /**

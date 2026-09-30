@@ -33,14 +33,31 @@ export type FrameClockWakesHands = Pick<
 /** @purity non-pure */
 export function frameClockWakesOf(hands: FrameClockWakesHands) {
   let pointerRestingSince: number | null = null
+  let callOffTaskHintWait: (() => void) | null = null
+  let hintTargetEnteredAt: number | null = null
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
   // see SE-3, SE-4
   let callOffScaleMessage: (() => void) | null = null
 
+  // see EZ-6, S-439
   /** @purity non-pure */
   function beginPointerRest(): void {
     pointerRestingSince = readMonotonicMs()
+    callOffTaskHintWait?.()
+    callOffTaskHintWait = null
+    if (hands.screen === undefined) return
+    const wake = setTimeout(() => {
+      callOffTaskHintWait = null
+      hands.ask()
+    }, SETTINGS_CONSTANTS.taskHintDelayMs)
+    callOffTaskHintWait = () => clearTimeout(wake)
+  }
+
+  // see EZ-2, S-124
+  /** @purity non-pure */
+  function beginHintTargetDwell(): void {
+    hintTargetEnteredAt = readMonotonicMs()
     callOffIconHintWait?.()
     callOffIconHintWait = null
     if (hands.screen === undefined) return
@@ -91,13 +108,20 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     return pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
   }
 
+  /** @purity semi-pure-b */
+  function readHintTargetDwellMs(): number {
+    return hintTargetEnteredAt === null ? 0 : readMonotonicMs() - hintTargetEnteredAt
+  }
+
   return {
     beginPointerRest,
+    beginHintTargetDwell,
     startScaleMessageTimer,
     beginEntryRepeat,
     tickEntryRepeat,
     endEntryRepeat,
     readPointerRestedMs,
+    readHintTargetDwellMs,
   }
 }
 

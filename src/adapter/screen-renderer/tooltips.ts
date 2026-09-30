@@ -108,6 +108,42 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
+// see EZ-2, IN-3, S-124
+// WHY: the shell keeps the icon under the pointer while the pointer is on the icon's shown box,
+// and hintTargetDwellMs counts from entering the icon, so a move inside neither restarts nor hides it.
+/** @purity pure */
+function iconTooltipOf(
+  shown: Omit<ScreenView, 'tooltips'>,
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+): Tooltip | null {
+  const icon = readings.iconUnderPointer
+  const isDue = readings.hintTargetDwellMs >= SETTINGS_CONSTANTS.iconHintDelayMs
+  if (icon === null || readings.pointer === null || !isDue) return null
+  const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
+  const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
+  return {
+    anchor: { kind: 'icon', icon },
+    text: iconHint(icon, hintLanguage),
+    assignment: entryAssignment(icon, hintLanguage),
+  }
+}
+
+// see EZ-6, DC-3, S-439
+/** @purity pure */
+function taskTooltipOf(session: ScreenSession, readings: ScreenViewReadings): Tooltip | null {
+  const pointer = readings.pointer
+  const task = readings.taskUnderPointer ?? null
+  const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
+  if (pointer === null || task === null || isDualCursorOn(session) || !isDue) return null
+  return {
+    anchor: { kind: 'task', taskUid: task.uid },
+    text: taskHint(task, displayLanguageOf(session)),
+    assignment: null,
+    at: pointer,
+  }
+}
+
 // see EZ-2, EZ-6, FR-037, IN-3
 /** @purity pure */
 export function tooltipsFromScreenView(
@@ -120,33 +156,10 @@ export function tooltipsFromScreenView(
 
   const pointer = readings.pointer
   const language = displayLanguageOf(session)
-  const isHintDue = pointer !== null && readings.pointerRestedMs >= SETTINGS_CONSTANTS.iconHintDelayMs
-
-  const tooltips: Tooltip[] = []
-
-  const iconWithHintDue = isHintDue ? readings.iconUnderPointer : null
-  if (iconWithHintDue !== null) {
-    const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
-    const hintLanguage = help === null ? language : help.helpLanguage
-    tooltips.push({
-      anchor: { kind: 'icon', icon: iconWithHintDue },
-      text: iconHint(iconWithHintDue, hintLanguage),
-      assignment: entryAssignment(iconWithHintDue, hintLanguage),
-    })
-  }
+  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings)]
+    .filter((one): one is Tooltip => one !== null)
 
   if (pointer === null) return tooltips
-
-  // see EZ-6, DC-3
-  const task = isHintDue && !isDualCursorOn(session) ? (readings.taskUnderPointer ?? null) : null
-  if (task !== null) {
-    tooltips.push({
-      anchor: { kind: 'task', taskUid: task.uid },
-      text: taskHint(task, language),
-      assignment: null,
-      at: pointer,
-    })
-  }
 
   for (const scrollbar of shown.frame.scrollbars) {
     if (!rectHoldsPoint(scrollbar.track, pointer.x, pointer.y)) continue

@@ -58,6 +58,7 @@ NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く�
 NOT_STORED_DOWNLOAD_ADDRESS          最新版を入手する所の URL（`S-350`。版が新しい文書の案内の `{downloadUrl}`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルと基準日線の線の太さ（`S-194` / `S-333`）
 NOT_STORED_DELAY_MARK_SIZES          遅れの記号 `(!)` の縦棒と点の寸法（`S-328` 〜 `S-331`）
+NOT_STORED_BOTTLENECK_THRESHOLD      ボトルネックとする押し出し日数の下限（`S-397`、`CR-561`。`delay-diagnostics.ts` が読む）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
 NOT_STORED_END_POINTER_SIZES         本ツールが描くポインタの画像の大きさと縁（表 T-269。`S-249` / `S-294` 〜 `S-297`）
 NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）

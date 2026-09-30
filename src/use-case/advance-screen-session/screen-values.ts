@@ -57,6 +57,11 @@ export interface SearchColumnFilter {
   readonly to: string | null
 }
 
+export interface SearchFilters {
+  readonly columns: readonly SearchColumnFilter[]
+  readonly open: SearchColumn | null
+}
+
 export interface SearchSort {
   readonly column: SearchColumn
   readonly direction: 'ascending' | 'descending'
@@ -66,7 +71,7 @@ export interface SearchSort {
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
-  readonly filters: readonly SearchColumnFilter[]
+  readonly filters: SearchFilters
   readonly sort: SearchSort | null
   readonly at: { readonly x: number; readonly y: number } | null
   readonly size: { readonly width: number; readonly height: number } | null
@@ -86,7 +91,7 @@ const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
 export const emptySearchPanelSession: SearchPanelSession = {
   word: '',
   table: 'tasks',
-  filters: [],
+  filters: { columns: [], open: null },
   sort: null,
   at: null,
   size: null,
@@ -117,7 +122,7 @@ export interface ScreenValuesEventCarried {
   readonly isFullScreen: boolean
   readonly surfaceName: string
   // WHY: DFC-1280 -- no clause names this word; named after the surface
-  readonly target: 'surface' | 'panel' | 'help'
+  readonly target: 'surface' | 'panel' | 'helpModal'
   readonly rung: EscapeTarget
   readonly armKind: ArmKind
   readonly shapeKind: string | null
@@ -534,7 +539,7 @@ function propertiesPutAway(values: ScreenValues): ScreenStep {
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
-  if (event.target === 'help') return helpHidden(values)
+  if (event.target === 'helpModal') return helpHidden(values)
   if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
 }
@@ -581,7 +586,7 @@ function helpRungConsumed(values: ScreenValues): ScreenStep {
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
   if (event.rung === 'searchPanel') return onSearchPanelClosePressed(values)
   if (event.rung === 'surface') return surfaceRungConsumed(values)
-  if (event.rung === 'help') return helpRungConsumed(values)
+  if (event.rung === 'helpModal') return helpRungConsumed(values)
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)

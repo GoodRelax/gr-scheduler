@@ -53,7 +53,7 @@ const WATERMARK_ENTRY_PRESSED: ScreenValuesEvent = { type: 'watermarkEntryPresse
 
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 
-const HELP_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'help' }
+const HELP_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'helpModal' }
 
 const HELP_ENTRY_PRESSED: ScreenValuesEvent = { type: 'helpEntryPressed' }
 

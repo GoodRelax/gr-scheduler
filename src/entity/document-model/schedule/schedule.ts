@@ -61,6 +61,8 @@ export {
 } from './working-calendar'
 export type { WorkingCalendar } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
+export { diagnoseDelay, parentCandidatesOf } from './delay-diagnostics'
+export type { DelayDiagnosticsReport } from './delay-diagnostics'
 export {
   customColourChosen,
   customColourOf,

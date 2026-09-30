@@ -8,7 +8,13 @@ import {
   latestSequence,
   type DialogueMessage,
 } from '../../entity/document-model/dialogue-log/dialogue-log'
-import { searchRowsOf, type SearchRows } from '../../entity/document-model/schedule/schedule'
+import {
+  diagnoseDelay,
+  searchRowsOf,
+  workingCalendarOf,
+  type DelayDiagnosticsReport,
+  type SearchRows,
+} from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   applyDocumentChange,
@@ -124,6 +130,8 @@ export interface AgentApi {
   readDialogueMessages(): readonly DialogueMessage[]
   /** @purity semi-pure-b */
   readSearchRows(word: string): SearchRows
+  /** @purity semi-pure-b */
+  readDelayDiagnostics(): DelayDiagnosticsReport
 
   /** @purity non-pure */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
@@ -456,6 +464,15 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     readSearchRows(word: string): SearchRows {
       return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word))
+    },
+
+    // see AM-19, FR-134, AG-4
+    // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
+    // answers whether or not S-445 is on.
+    /** @purity semi-pure-b */
+    readDelayDiagnostics(): DelayDiagnosticsReport {
+      const document = source.readSnapshot().document
+      return frozenCopy(diagnoseDelay(document, workingCalendarOf(document.schedule)))
     },
 
     /** @purity non-pure */

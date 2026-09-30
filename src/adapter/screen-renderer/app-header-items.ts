@@ -37,6 +37,7 @@ const DISPLAY_SCALE_UP_ENTRY: IconId = 'IC-105'
 const DOCUMENT_SETTINGS_ENTRY: IconId = 'IC-17'
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 const AGENT_API_ENTRY: IconId = 'IC-20'
+const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
 
 const NO_WORDS = ''
 
@@ -118,6 +119,9 @@ function commandStateOf(
 
     case AGENT_API_ENTRY:
       return { isEnabled: true, isPressed: readings.isAgentApiEnabled }
+
+    case DELAY_DIAGNOSTICS_ENTRY:
+      return { isEnabled: true, isPressed: readings.isDelayDiagnosticsShown === true }
 
     default:
       return USABLE_AND_OFF

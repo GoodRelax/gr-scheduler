@@ -13,6 +13,7 @@ import {
   SCREEN_Z_ORDER_ATTRIBUTE,
   anchoredEntry,
   boxStyle,
+  commandEntry,
   entranceOuterHeightPx,
   made,
   part,
@@ -21,6 +22,10 @@ import {
 type SearchColumnView = SearchPanelView['columns'][number]
 
 type SearchRowView = SearchPanelView['rows'][number]
+
+type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
+
+type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
 
@@ -32,6 +37,15 @@ export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 export const SEARCH_WORD_ROW = 'SV-2'
 
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
+
+// see SV-7, IN-5a
+export const SEARCH_FILTER_ROW = 'SV-7'
+
+export const SEARCH_FILTER_COLUMN_ATTRIBUTE = 'data-search-filter-column'
+
+export const SEARCH_FILTER_VALUE_ATTRIBUTE = 'data-search-filter-value'
+
+export const SEARCH_FILTER_BOUND_ATTRIBUTE = 'data-search-filter-bound'
 
 export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
@@ -60,6 +74,11 @@ const WORD_FIELD_STYLE = 'flex:none;box-sizing:border-box;width:100%;'
 const TABLE_BOX_STYLE = 'flex:1;overflow:auto;'
 
 const TABLE_STYLE = 'border-collapse:collapse;'
+
+// WHY: shrinks and scrolls inside the panel, not a sized popup: S-423 to S-428 give the menu no size.
+const FILTER_MENU_STYLE = 'flex:0 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;'
+
+const FILTER_LINE_STYLE = 'display:flex;align-items:center;white-space:nowrap;'
 
 /** @purity pure */
 function cellStyle(): string {
@@ -185,13 +204,79 @@ function wordFieldElement(host: Document, word: string, fontPx: number): HTMLEle
   return field
 }
 
+// see SV-7
 /** @purity non-pure */
 function headerCellElement(host: Document, column: SearchColumnView): HTMLElement {
   const cell = made(host, 'th', headerCellStyle() + (column.isFixed ? fixedColumnStyle() : ''))
   cell.setAttribute('data-column', column.column)
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
-  cell.textContent = column.heading
+  const heading = made(host, 'span', '')
+  heading.textContent = column.heading
+  const filter = commandEntry(host, column.filterEntry)
+  filter.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, column.column)
+  cell.replaceChildren(heading, filter)
   return cell
+}
+
+/** @purity non-pure */
+function filterControl(host: Document, type: string, fontPx: number): HTMLInputElement {
+  const control = made(host, 'input', `font-size:${fontPx}px;`) as HTMLInputElement
+  control.setAttribute('type', type)
+  control.setAttribute(FIELD_ROW_ATTRIBUTE, SEARCH_FILTER_ROW)
+  return control
+}
+
+// see SV-7
+/** @purity non-pure */
+function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: number): HTMLElement {
+  const line = made(host, 'label', FILTER_LINE_STYLE + `font-size:${fontPx}px;`)
+  const mark = filterControl(host, 'checkbox', fontPx)
+  mark.setAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE, shown.value)
+  mark.checked = shown.isShown
+  if (shown.isShown) mark.setAttribute('checked', '')
+  const label = made(host, 'span', '')
+  label.textContent = shown.label
+  line.replaceChildren(mark, label)
+  return line
+}
+
+// see SV-7
+/** @purity non-pure */
+function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { kind: 'dates' }>, fontPx: number): HTMLElement {
+  const line = made(host, 'div', FILTER_LINE_STYLE)
+  const bounds = [
+    ['since', menu.from],
+    ['until', menu.to],
+  ] as const
+  line.replaceChildren(
+    ...bounds.map(([bound, day]) => {
+      const field = filterControl(host, 'date', fontPx)
+      field.setAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE, bound)
+      field.value = day ?? ''
+      return field
+    }),
+  )
+  return line
+}
+
+// see SV-7
+/** @purity non-pure */
+export function searchFilterMenuElement(
+  host: Document,
+  menu: SearchFilterMenuView,
+  fontPx: number,
+  anchors: Map<string, HTMLElement>,
+): HTMLElement {
+  const box = made(host, 'div', FILTER_MENU_STYLE)
+  box.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, menu.column)
+  const entries = made(host, 'div', FILTER_LINE_STYLE)
+  entries.replaceChildren(...menu.entries.map((item) => anchoredEntry(host, item, anchors)))
+  const choices =
+    menu.kind === 'dates'
+      ? [filterDateFields(host, menu, fontPx)]
+      : menu.values.map((shown) => filterValueLine(host, shown, fontPx))
+  box.replaceChildren(...choices, entries)
+  return box
 }
 
 // see SJ-1, SV-17
@@ -240,7 +325,9 @@ export function searchPanelElement(
     panel.replaceChildren(title)
     return panel
   }
-  panel.replaceChildren(title, wordFieldElement(host, view.word, placed.fontPx), searchTableElement(host, view, placed.fontPx))
+  const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
+  // TRAP: the table stays the last child; redrawInPlace replaces the last child as the table.
+  panel.replaceChildren(title, wordFieldElement(host, view.word, placed.fontPx), ...menu, searchTableElement(host, view, placed.fontPx))
   return panel
 }
 
