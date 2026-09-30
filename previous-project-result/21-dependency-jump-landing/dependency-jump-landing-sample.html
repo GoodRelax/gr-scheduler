@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>依存線ジャンプの着地の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* page colours: S-146 ground, S-147 text, S-148 muted, S-149 rule, S-150 panel (theme hue 214) */
+  :root {
+    --bg: #ffffff; --ink: #16181d; --muted: #5b6068; --rule: hsl(214 14% 87%); --panel: hsl(214 20% 97%);
+    --accent: hsl(214 59% 32%);
+  }
+  :root[data-theme="dark"] {
+    --bg: hsl(214 12% 9%); --ink: #e8eaee; --muted: #9aa1ab; --rule: hsl(214 12% 23%); --panel: hsl(214 14% 13%);
+    --accent: hsl(214 62% 68%);
+  }
+  html, body { background: var(--bg); color: var(--ink); height: 100%; }
+  body { margin: 0; font: 16px/1.7 system-ui, "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: minmax(0, 100vh); height: 100vh; }
+  .draw { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 16px; box-sizing: border-box; }
+  @media (max-width: 900px) { .app { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
+    .draw { height: 85vh; } }
+  h1 { font-size: 1.25rem; margin: 0 0 2px; }
+  p.note { color: var(--muted); margin: 0 0 8px; font-size: 0.875rem; line-height: 1.6; }
+  #status { font-size: 0.875rem; margin: 0 0 6px; min-height: 1.6em; }
+  #status b { color: var(--accent); }
+  #pane { flex: 1 1 0; min-height: 0; overflow: auto; border: 1px solid var(--rule); background: var(--bg);
+    position: relative; }
+  #chart { display: block; user-select: none; -webkit-user-select: none; }
+  .mark-hit { cursor: pointer; }
+  .settings { overflow: auto; background: var(--panel); border-left: 1px solid var(--rule); padding: 12px 16px;
+    box-sizing: border-box; }
+  .settings h2 { font-size: 1rem; margin: 14px 0 4px; padding-bottom: 2px; border-bottom: 1px solid var(--rule); }
+  .settings h2:first-child { margin-top: 0; }
+  .settings label { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 0.9375rem; }
+  .settings label .name { flex: 0 0 132px; }
+  .settings input[type=range] { flex: 1; min-width: 0; }
+  .settings output { flex: 0 0 64px; text-align: right; font-variant-numeric: tabular-nums; }
+  .settings select { font: inherit; font-size: 0.875rem; flex: 1; min-width: 0; }
+  .hint { color: var(--muted); font-size: 0.8125rem; margin: 2px 0 6px; line-height: 1.55; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 2px; vertical-align: -2px;
+    border: 1px solid var(--rule); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0; }
+  button { font: inherit; font-size: 0.875rem; padding: 2px 10px; }
+  textarea { width: 100%; box-sizing: border-box; height: 9.5em; font: 12px/1.5 ui-monospace, Consolas, monospace;
+    background: var(--bg); color: var(--ink); border: 1px solid var(--rule); resize: vertical; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  code { font-size: 0.875em; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="draw">
+  <h1>依存線の続きの印をクリックしたあとの着地（CR-596 の見本）</h1>
+  <p class="note"><b>タスク 62</b> の出口から上へ出ている依存線の、先の <b>3 つの点</b>（続きの印、表 T-303 の <code>EL-9</code>）を <b>1 回クリック</b>すると、
+  線の先のタスクまで表示を送り（<code>EL-11</code> / <code>EL-12</code>）、そのタスクの縁取りと依存線を太い赤で描きます。
+  図の中のほかの所のクリック・キー・スクロールで赤は消えます（右の設定の欄の操作では消えません）。
+  着地の先は依存線が集まる所です（<code>JDG-790</code> の理由）。</p>
+  <div id="status"></div>
+  <div id="pane"><svg id="chart" xmlns="http://www.w3.org/2000/svg"></svg></div>
+</div>
+
+<div class="settings" id="settings">
+  <h2>見る条件</h2>
+  <label><input id="dark" type="checkbox"> 暗いテーマ</label>
+  <label><span class="name">表示の倍率 <code>S-234</code></span>
+    <select id="scale"><option>50</option><option>67</option><option>75</option><option>90</option>
+    <option selected>100</option><option>110</option><option>125</option><option>150</option><option>175</option><option>200</option></select></label>
+  <label><span class="name">横のズーム</span><input id="zoomX" type="range" min="0.5" max="4" step="0.25" value="1"><output id="zoomXOut"></output></label>
+  <div class="row">
+    <button id="again" type="button">最初の位置からもう一度ジャンプ</button>
+    <button id="home" type="button">最初の位置へ戻す</button>
+  </div>
+
+  <h2>赤</h2>
+  <label><select id="red">
+    <option value="S-163" selected>S-163 基準日線の色（朱）</option>
+    <option value="S-387">S-387 ボトルネックの印の地（赤）</option>
+    <option value="S-154">S-154 不良の色</option>
+    <option value="S-160">S-160 イナズマ線の色</option>
+    <option value="S-318">S-318 パレットの赤の縁</option>
+    <option value="free">自由な色</option>
+  </select></label>
+  <label><span class="name">自由な色 明 ／ 暗</span><input id="freeLight" type="color" value="#e00000"><input id="freeDark" type="color" value="#ff6060"></label>
+  <p class="hint" id="redHint"></p>
+
+  <h2>依存線の太さ</h2>
+  <label><span class="name">× <code>S-18</code></span><input id="lineMul" type="range" min="1" max="6" step="0.25" value="2"><output id="lineMulOut"></output></label>
+  <p class="hint" id="lineHint"></p>
+  <label><input id="arrowRed" type="checkbox" checked> 矢じりも赤にする</label>
+  <label><input id="dotsRed" type="checkbox" checked> 続きの印（3 つの点）も赤にする</label>
+  <label><input id="fullRoute" type="checkbox"> 着地の線は、先の端が画面の外でも経路を全部描く</label>
+  <p class="hint">切ると表 T-303 のとおりです —— 着地したとき線の元の端は画面の外にあるので、線は着地先の入口の短い線と 3 つの点（<code>EL-5</code>）だけになります。
+  入れると、着地の線だけ <code>EL-3</code> と同じく経路を全部描きます（仕様にはまだ無い案です）。</p>
+
+  <h2>タスクの縁取りの太さ</h2>
+  <fieldset>
+    <label><input type="radio" name="outlineUnit" value="mul" checked> 予定の縁 <code>S-39</code> の倍率</label>
+    <label><input type="radio" name="outlineUnit" value="px"> 描いた px（表示の倍率を掛けない）</label>
+  </fieldset>
+  <label><span class="name">× <code>S-39</code></span><input id="outlineMul" type="range" min="1" max="12" step="0.5" value="2"><output id="outlineMulOut"></output></label>
+  <label><span class="name">px</span><input id="outlinePx" type="range" min="0.5" max="8" step="0.25" value="2"><output id="outlinePxOut"></output></label>
+  <p class="hint" id="outlineHint"></p>
+
+  <h2>いまの値（貼り返し用）</h2>
+  <textarea id="readout" readonly></textarea>
+  <div class="row"><button id="copy" type="button">写す</button><span id="copied" class="hint"></span></div>
+  <p class="hint">既定は、赤 ＝ <code>S-163</code>、線 ＝ <code>S-18</code> × <code>S-178</code>（2.4 × 2）、縁取り ＝ <code>S-39</code> × 2 です（いずれも <code>docs/spec/_assets/tbl-settings.md</code> の値）。
+  寸法は表示の倍率 100 の描く比 <code>S-236</code> 0.625 を掛けて描きます（表 T-252 の <code>DS-1</code> / <code>DS-3</code>）。</p>
+</div>
+</div>
+
+<script>
+'use strict';
+// CR-596 touchable sample: single click on a dependency line's continuation mark jumps to the far task,
+// and the landing (far task outline + that line) is drawn thick red until any other operation.
+// Every size and colour below is copied from docs/spec/_assets/tbl-settings.md; row ids beside each.
+
+const SPEC = {
+  pxPerDay: 6,           // S-1  pxPerDayAt1x
+  planHeight: 28,        // S-4  basePlanHeight
+  depWidth: 2.4,         // S-18 dependencyWidth
+  arrowLength: 9.6,      // S-19 dependencyArrowLength
+  arrowWidth: 8,         // S-300 dependencyArrowWidth
+  leadOut: 9.6,          // S-298 dependencyLeadOut
+  leadIn: 16,            // S-299 dependencyLeadIn
+  planStroke: 1,         // S-39 planStroke
+  selectedMul: 2,        // S-178 selected line multiplier
+  haloMul: 3,            // S-224 crossing halo multiplier
+  shortVertical: 9.6,    // S-360 short line vertical length (EL-7)
+  shortHorizontal: 19.2, // S-361 short line horizontal length (EL-8)
+  dot: 3.2,              // S-362 dot diameter and spacing (EL-9)
+  markPad: 4,            // S-363 mark hit pad, screen px, not scaled (DS-7)
+  drawRatio: 0.625,      // S-236 draw ratio at display scale 100
+};
+const HUE = 214; // theme hue default
+const THEME = {
+  light: { bg: '#ffffff', ink: '#16181d', band: `hsl(${HUE} 20% 99%)`, planFill: `hsl(${HUE} 46% 80%)`,
+           planLine: `hsl(${HUE} 44% 46%)`, dep: 'hsl(26 88% 44%)' },
+  dark:  { bg: `hsl(${HUE} 12% 9%)`, ink: '#e8eaee', band: `hsl(${HUE} 14% 11%)`, planFill: `hsl(${HUE} 32% 26%)`,
+           planLine: `hsl(${HUE} 46% 66%)`, dep: 'hsl(30 92% 60%)' },
+};
+// candidate reds (table T-236 and T-294), light / dark
+const REDS = {
+  'S-163': { light: '#d9381e', dark: '#ff5a3a', what: '基準日線の色（赤寄りの朱）' },
+  'S-387': { light: '#d32f2f', dark: '#ff5c5c', what: 'ボトルネックの印の地（S-398 も同じ値）' },
+  'S-154': { light: '#a02b2b', dark: '#e07a7a', what: '不良の色（遅れ）' },
+  'S-160': { light: 'hsl(354 62% 42%)', dark: 'hsl(354 70% 64%)', what: 'イナズマ線の色' },
+  'S-318': { light: '#a94c42', dark: '#d08880', what: 'パレットの赤の縁の色' },
+};
+
+// ---- scene: rows and days. Row 62 holds the jump origin; rows 16..31 are the crowded landing region.
+const TASKS = [
+  // origin region (initial view)
+  { id: 58, row: 58, start: 30, dur: 10 }, { id: 60, row: 60, start: 45, dur: 12 },
+  { id: 62, row: 62, start: 60, dur: 14 }, { id: 64, row: 64, start: 80, dur: 10 },
+  { id: 66, row: 66, start: 100, dur: 15 }, { id: 68, row: 68, start: 70, dur: 8 },
+  { id: 57, row: 57, start: 120, dur: 12 },
+  // crowded landing region
+  { id: 16, row: 16, start: 262, dur: 14 }, { id: 18, row: 18, start: 240, dur: 12 },
+  { id: 20, row: 20, start: 300, dur: 14 }, // the landing task
+  { id: 21, row: 21, start: 262, dur: 10 }, { id: 22, row: 22, start: 275, dur: 12 },
+  { id: 23, row: 23, start: 288, dur: 8 },  { id: 24, row: 24, start: 305, dur: 10 },
+  { id: 25, row: 25, start: 318, dur: 9 },  { id: 26, row: 26, start: 270, dur: 15 },
+  { id: 27, row: 27, start: 295, dur: 11 }, { id: 28, row: 28, start: 322, dur: 12 },
+  { id: 29, row: 29, start: 282, dur: 10 }, { id: 30, row: 30, start: 310, dur: 14 },
+  { id: 31, row: 31, start: 336, dur: 8 },
+];
+const DEPS = [
+  // origin region
+  [58, 60], [60, 62], [62, 64], [64, 66], [68, 66], [58, 57],
+  [62, 20], // the jump line: its far end is the landing task
+  // converging on / leaving the landing task
+  [21, 20], [23, 20], [26, 20], [29, 20], [16, 20], [18, 20],
+  [20, 24], [20, 25], [20, 28], [20, 30],
+  // the rest of the crowd
+  [21, 22], [22, 24], [23, 27], [26, 28], [27, 31], [29, 30], [25, 31], [24, 28], [18, 22], [16, 25],
+].map(([p, s], i) => ({ id: i, pred: p, succ: s }));
+const LANDING_TASK = 20;
+const JUMP_DEP = DEPS.find((d) => d.pred === 62 && d.succ === 20).id;
+const ROWS = 72, DAYS = 420, INITIAL_ROW = 55;
+
+const $ = (id) => document.getElementById(id);
+const pane = $('pane'), svg = $('chart');
+let landing = null;          // { dep, task } while the landing is marked
+let suppressScrollUntil = 0; // a scroll we caused ourselves does not clear the landing
+
+function theme() { return $('dark').checked ? 'dark' : 'light'; }
+function ratio() { return SPEC.drawRatio * Number($('scale').value) / 100; }
+function redValue(which) {
+  const k = $('red').value;
+  if (k === 'free') return which === 'dark' ? $('freeDark').value : $('freeLight').value;
+  return REDS[k][which];
+}
+function outlineDrawn() {
+  const unit = document.querySelector('input[name=outlineUnit]:checked').value;
+  return unit === 'mul' ? SPEC.planStroke * Number($('outlineMul').value) * ratio() : Number($('outlinePx').value);
+}
+
+// ---- geometry
+function geo() {
+  const r = ratio();
+  const planH = SPEC.planHeight * r;
+  const pitch = Math.round(planH * 2);
+  const day = SPEC.pxPerDay * r * Number($('zoomX').value);
+  return { r, planH, pitch, day, width: Math.ceil(DAYS * day + 200), height: ROWS * pitch };
+}
+function taskBox(t, g) {
+  const x = t.start * g.day + 40, w = t.dur * g.day;
+  const cy = t.row * g.pitch + g.pitch / 2;
+  return { x, y: cy - g.planH / 2, w, h: g.planH, cx: x + w / 2, cy, rowTop: t.row * g.pitch };
+}
+// finish-to-start route (05-07-design table T-222, RP-1 .. RP-5)
+function route(dep, g) {
+  const a = taskBox(byId[dep.pred], g), b = taskBox(byId[dep.succ], g);
+  const ex = a.x + a.w, y1 = a.cy, en = b.x, y2 = b.cy;
+  const x1 = ex + SPEC.leadOut * g.r, x2 = en - SPEC.leadIn * g.r;
+  if (y1 === y2 && en - ex >= SPEC.leadIn * g.r) return [[ex, y1], [en, y2]];            // RP-1
+  if (x2 >= x1) {                                                                          // RP-2 / RP-3
+    const mid = Math.min(Math.max((x1 + x2) / 2, x1), x2);
+    return [[ex, y1], [mid, y1], [mid, y2], [en, y2]];
+  }
+  const down = y2 >= y1;                                                                   // RP-4 / RP-5
+  const yc = down ? b.rowTop : b.rowTop + g.pitch;
+  return [[ex, y1], [x1, y1], [x1, yc], [x2, yc], [x2, y2], [en, y2]];
+}
+function firstVertical(points) { // sign of the first vertical run walking the points
+  for (let i = 1; i < points.length; i++) {
+    const dy = points[i][1] - points[i - 1][1];
+    if (dy !== 0) return Math.sign(dy);
+  }
+  return 0;
+}
+function visible(box) { // EL-1: the plan shape overlaps the Row Area with positive width and height
+  const L = pane.scrollLeft, T = pane.scrollTop, R = L + pane.clientWidth, B = T + pane.clientHeight;
+  return Math.min(box.x + box.w, R) - Math.max(box.x, L) > 0 && Math.min(box.y + box.h, B) - Math.max(box.y, T) > 0;
+}
+
+// ---- drawing
+const byId = Object.fromEntries(TASKS.map((t) => [t.id, t]));
+function pathD(pts) { return 'M' + pts.map((p) => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join(' L'); }
+function arrowHead(tip, g, colour) {
+  const L = SPEC.arrowLength * g.r, W = SPEC.arrowWidth * g.r / 2;
+  return `<polygon points="${tip[0]},${tip[1]} ${tip[0] - L},${tip[1] - W} ${tip[0] - L},${tip[1] + W}" fill="${colour}"/>`;
+}
+// one dependency line as drawn by table T-303; returns { svg, mark } where mark is the dot box or null
+function drawDep(dep, g, style) {
+  const pts = route(dep, g);
+  const a = taskBox(byId[dep.pred], g), b = taskBox(byId[dep.succ], g);
+  const va = visible(a), vb = visible(b);
+  if (style.full && (va || vb)) return drawDep(dep, g, { ...style, full: false, both: true });
+  if (!va && !vb) return { svg: '', mark: null };                                          // EL-6
+  const w = style.width, halo = w * SPEC.haloMul, L = SPEC.arrowLength * g.r;
+  const line = (p) => `<path d="${pathD(p)}" fill="none" stroke="${style.halo}" stroke-width="${halo}" stroke-linejoin="round"/>`
+                    + `<path d="${pathD(p)}" fill="none" stroke="${style.colour}" stroke-width="${w}" stroke-linejoin="miter"/>`;
+  if ((va && vb) || style.both) {                                                          // EL-3
+    const p = pts.map((q) => q.slice()); p[p.length - 1][0] -= L;
+    return { svg: line(p) + arrowHead(pts[pts.length - 1], g, style.arrow), mark: null };
+  }
+  // EL-4 / EL-5: short line from the visible end, then the three dots
+  const fromPred = va;
+  const walk = fromPred ? pts : pts.slice().reverse();
+  const start = walk[0];
+  const hdir = Math.sign(walk[1][0] - walk[0][0]) || (fromPred ? 1 : -1);
+  const vdir = firstVertical(walk);
+  let short, ddx, ddy;
+  if (vdir !== 0) {                                                                         // EL-7
+    const run = (fromPred ? SPEC.leadOut : SPEC.leadIn) * g.r;
+    const corner = [start[0] + hdir * run, start[1]];
+    short = [start, corner, [corner[0], corner[1] + vdir * SPEC.shortVertical * g.r]];
+    ddx = 0; ddy = vdir;
+  } else {                                                                                  // EL-8
+    short = [start, [start[0] + hdir * SPEC.shortHorizontal * g.r, start[1]]];
+    ddx = hdir; ddy = 0;
+  }
+  const end = short[short.length - 1], d = SPEC.dot * g.r;
+  const dots = [1.5, 3.5, 5.5].map((k) => [end[0] + ddx * d * k, end[1] + ddy * d * k]);
+  let s;
+  if (fromPred) s = line(short);
+  else { const p = short.map((q) => q.slice()).reverse(); p[p.length - 1][0] -= L; s = line(p) + arrowHead(start, g, style.arrow); }
+  s += dots.map((c) => `<circle cx="${c[0]}" cy="${c[1]}" r="${d / 2}" fill="${style.dots}"/>`).join('');
+  const xs = dots.map((c) => c[0]), ys = dots.map((c) => c[1]), pad = SPEC.markPad;
+  const box = { x: Math.min(...xs) - d / 2 - pad, y: Math.min(...ys) - d / 2 - pad,
+                w: Math.max(...xs) - Math.min(...xs) + d + 2 * pad, h: Math.max(...ys) - Math.min(...ys) + d + 2 * pad,
+                far: fromPred ? dep.succ : dep.pred };
+  return { svg: s, mark: box };
+}
+
+function render() {
+  const g = geo(), th = THEME[theme()], red = redValue(theme());
+  svg.setAttribute('width', g.width); svg.setAttribute('height', g.height);
+  let s = `<rect x="0" y="0" width="${g.width}" height="${g.height}" fill="${th.bg}"/>`;
+  for (let r = 0; r < ROWS; r += 2) s += `<rect x="0" y="${r * g.pitch}" width="${g.width}" height="${g.pitch}" fill="${th.band}"/>`;
+  const font = Math.max(12, 12 * Number($('scale').value) / 100);
+  for (const t of TASKS) {
+    const b = taskBox(t, g);
+    s += `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${th.planFill}" stroke="${th.planLine}" stroke-width="${SPEC.planStroke * g.r}"/>`;
+  }
+  let labels = '';
+  for (const t of TASKS) { // name labels sit above the lines, with the S-34 halo (font x 0.10)
+    const b = taskBox(t, g);
+    labels += `<text x="${b.x + b.w + 6}" y="${b.cy}" dominant-baseline="central" font-size="${font}" fill="${th.ink}" stroke="${th.bg}"`
+       + ` stroke-width="${font * 0.1 * 2}" paint-order="stroke">タスク ${t.id}</text>`;
+  }
+  const normal = { width: SPEC.depWidth * g.r, colour: th.dep, arrow: th.dep, dots: th.dep, halo: th.bg };
+  const marks = [];
+  let top = '';
+  for (const dep of DEPS) {
+    const isLanding = landing && landing.dep === dep.id;
+    const style = isLanding ? { width: SPEC.depWidth * Number($('lineMul').value) * g.r, colour: red,
+      arrow: $('arrowRed').checked ? red : th.dep, dots: $('dotsRed').checked ? red : th.dep, halo: th.bg,
+      full: $('fullRoute').checked } : normal;
+    const out = drawDep(dep, g, style);
+    if (isLanding) top += out.svg; else s += out.svg;
+    if (out.mark) marks.push({ dep: dep.id, ...out.mark });
+  }
+  s += labels + top; // the landing line is drawn above the crowd and the labels
+  if (landing) {
+    const b = taskBox(byId[landing.task], g);
+    s += `<rect id="landingOutline" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="none" stroke="${red}" stroke-width="${outlineDrawn()}"/>`;
+  }
+  for (const m of marks) {
+    s += `<rect class="mark-hit" data-dep="${m.dep}" data-far="${m.far}" x="${m.x}" y="${m.y}" width="${m.w}" height="${m.h}" fill="transparent"/>`;
+  }
+  svg.innerHTML = s;
+  $('status').innerHTML = landing ? `着地の印: <b>あり</b> —— タスク ${landing.task} と、その依存線を赤で描いています`
+                                  : '着地の印: なし';
+  document.body.dataset.landing = landing ? 'on' : 'off';
+}
+
+// ---- the jump (EL-11 horizontal, EL-12 vertical) and the clear (③)
+function scrollTo(left, top) {
+  suppressScrollUntil = performance.now() + 250;
+  pane.scrollLeft = left; pane.scrollTop = top;
+}
+function jump(depId, farId) {
+  const g = geo(), b = taskBox(byId[farId], g);
+  let left = pane.scrollLeft, top = pane.scrollTop;
+  const inX = b.x >= left && b.x + b.w <= left + pane.clientWidth;
+  if (!inX) left = b.cx - pane.clientWidth / 2;                 // EL-11: centre the shape horizontally
+  const inY = b.y + b.h > top && b.y < top + pane.clientHeight;
+  if (!inY) top = b.rowTop;                                     // EL-12: the row comes to the top
+  landing = { dep: depId, task: farId };
+  scrollTo(left, top);
+  render(); updateReadout();
+}
+function clearLanding() { if (landing) { landing = null; render(); updateReadout(); } }
+function home() { landing = null; const g = geo(); scrollTo(0, INITIAL_ROW * g.pitch); render(); updateReadout(); }
+
+pane.addEventListener('click', (e) => {
+  const hit = e.target.closest && e.target.closest('.mark-hit');
+  if (hit) jump(Number(hit.dataset.dep), Number(hit.dataset.far));
+});
+document.addEventListener('pointerdown', (e) => {
+  if ($('settings').contains(e.target)) return;                // the sample's own controls do not count
+  if (e.target.closest && e.target.closest('.mark-hit')) return;
+  clearLanding();
+}, true);
+document.addEventListener('keydown', (e) => { if (!$('settings').contains(e.target)) clearLanding(); });
+pane.addEventListener('wheel', () => clearLanding(), { passive: true });
+pane.addEventListener('scroll', () => {
+  if (performance.now() > suppressScrollUntil) clearLanding();
+  render();
+});
+
+// ---- settings pane
+function fmt(n) { return (Math.round(n * 100) / 100).toString(); }
+function updateReadout() {
+  const g = geo(), k = $('red').value, unit = document.querySelector('input[name=outlineUnit]:checked').value;
+  const lm = Number($('lineMul').value), om = Number($('outlineMul').value);
+  $('zoomXOut').value = '× ' + $('zoomX').value;
+  $('lineMulOut').value = '× ' + lm;
+  $('outlineMulOut').value = '× ' + om;
+  $('outlinePxOut').value = $('outlinePx').value + 'px';
+  $('outlineMul').disabled = unit !== 'mul'; $('outlinePx').disabled = unit !== 'px';
+  const rl = redValue('light'), rd = redValue('dark');
+  $('redHint').innerHTML = `<span class="swatch" style="background:${rl}"></span> 明 <code>${rl}</code>　`
+    + `<span class="swatch" style="background:${rd}"></span> 暗 <code>${rd}</code>`
+    + (k === 'free' ? '' : `<br>${REDS[k].what}`);
+  const lineDrawn = SPEC.depWidth * lm * g.r;
+  $('lineHint').textContent = `${SPEC.depWidth} × ${lm} = ${fmt(SPEC.depWidth * lm)}（描いて ${fmt(lineDrawn)}px）。`
+    + `ふだんの線は描いて ${fmt(SPEC.depWidth * g.r)}px、選んだ線（× S-178）は ${fmt(SPEC.depWidth * SPEC.selectedMul * g.r)}px。`;
+  $('outlineHint').textContent = unit === 'mul'
+    ? `${SPEC.planStroke} × ${om} = ${fmt(SPEC.planStroke * om)}（描いて ${fmt(outlineDrawn())}px）。予定の縁は描いて ${fmt(SPEC.planStroke * g.r)}px。`
+    : `描いて ${fmt(outlineDrawn())}px（表示の倍率で変わらない）。予定の縁は描いて ${fmt(SPEC.planStroke * g.r)}px。`;
+  const lines = [
+    'CR-596 landing (JDG-790) -- values chosen in the sample',
+    `red: ${k === 'free' ? 'free colour' : k} light ${rl} / dark ${rd}`,
+    `line: S-18 ${SPEC.depWidth} x ${lm} = ${fmt(SPEC.depWidth * lm)} (drawn ${fmt(lineDrawn)}px at S-234 ${$('scale').value})`,
+    unit === 'mul'
+      ? `outline: S-39 ${SPEC.planStroke} x ${om} = ${fmt(SPEC.planStroke * om)} (drawn ${fmt(outlineDrawn())}px at S-234 ${$('scale').value})`
+      : `outline: ${$('outlinePx').value}px drawn, not scaled by S-234`,
+    `arrowhead: ${$('arrowRed').checked ? 'red' : 'S-159 (unchanged)'}`,
+    `dots (EL-9): ${$('dotsRed').checked ? 'red' : 'S-159 (unchanged)'}`,
+    `landing line route: ${$('fullRoute').checked ? 'whole route even if the far end is off screen (not in the spec)' : 'as table T-303 (EL-4 / EL-5 short line)'}`,
+    `seen at: theme ${theme()}, S-234 ${$('scale').value}, zoomX ${$('zoomX').value}`,
+  ];
+  $('readout').value = lines.join('\n');
+}
+function onSetting() {
+  document.documentElement.dataset.theme = theme();
+  const wasLanding = landing;
+  render(); updateReadout();
+  if (wasLanding) { // keep the landing in view when a size changes the layout
+    const g = geo(), b = taskBox(byId[wasLanding.task], g);
+    scrollTo(b.cx - pane.clientWidth / 2, b.rowTop); render();
+  }
+}
+for (const id of ['dark', 'scale', 'zoomX', 'red', 'freeLight', 'freeDark', 'lineMul', 'arrowRed', 'dotsRed', 'fullRoute', 'outlineMul', 'outlinePx']) {
+  $(id).addEventListener('input', onSetting);
+}
+document.querySelectorAll('input[name=outlineUnit]').forEach((el) => el.addEventListener('change', onSetting));
+$('home').addEventListener('click', home);
+$('again').addEventListener('click', () => { home(); jump(JUMP_DEP, LANDING_TASK); });
+$('copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('readout').value); $('copied').textContent = '写しました'; }
+  catch (e) { $('readout').select(); $('copied').textContent = '選んだので Ctrl+C で写してください'; }
+});
+
+document.documentElement.dataset.theme = theme();
+render();
+home();
+</script>
+</body>
+</html>

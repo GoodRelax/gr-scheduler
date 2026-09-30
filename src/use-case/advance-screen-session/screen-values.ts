@@ -40,6 +40,11 @@ interface DualCursorDates {
   readonly date2: string
 }
 
+interface LandedLink {
+  readonly predecessorUid: number
+  readonly successorUid: number
+}
+
 export type SearchTable = 'tasks' | 'commentBoxes'
 
 // see T-331
@@ -104,6 +109,8 @@ export interface ScreenValuesStateCarried {
   readonly returnSubject: PropertiesSubject | null
   readonly percent: number
   readonly end: ScaleEnd
+  readonly landedLink: LandedLink
+  readonly landedTaskUid: number
 }
 
 export interface ScreenValuesEventCarried {
@@ -132,6 +139,8 @@ export interface ScreenValuesEventCarried {
   readonly taskUid: number
   readonly rememberedActual: RememberedActual | null
   readonly writes: readonly DocumentCommand[]
+  readonly landedLink: LandedLink
+  readonly landedTaskUid: number
 }
 
 type NoPayload = Readonly<Record<never, never>>
@@ -211,6 +220,8 @@ export type ScreenValuesKey =
   | 'helpDisplayStateMachine.shown.normal'
   | 'helpDisplayStateMachine.shown.minimised'
   | 'helpDisplayStateMachine.shown.maximised'
+  | 'landingMarkDisplayStateMachine.hidden'
+  | 'landingMarkDisplayStateMachine.shown'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -287,6 +298,10 @@ export type HelpDisplayState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'shown'; readonly child: HelpDisplayShownState }
 
+export type LandingMarkDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTaskUid: ScreenValuesStateCarried['landedTaskUid'] }
+
 export interface ScreenValues {
   readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
   readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
@@ -308,6 +323,7 @@ export interface ScreenValues {
   readonly tooltipDisplayState: TooltipDisplayState
   readonly searchPanelDisplayState: SearchPanelDisplayState
   readonly helpDisplayState: HelpDisplayState
+  readonly landingMarkDisplayState: LandingMarkDisplayState
 }
 
 export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
@@ -354,6 +370,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'helpEntryPressed' }
   | { readonly type: 'helpMinimiseToggled' }
   | { readonly type: 'helpMaximiseToggled' }
+  | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTaskUid: ScreenValuesEventCarried['landedTaskUid'] }
+  | { readonly type: 'landingMarkClearAsked' }
 
 export type ScreenValuesEffectName =
   | 'storeScreenLanguage'
@@ -402,6 +420,7 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   tooltipDisplayState: { kind: 'allowed' },
   searchPanelDisplayState: { kind: 'hidden' },
   helpDisplayState: { kind: 'hidden' },
+  landingMarkDisplayState: { kind: 'hidden' },
 }
 // </generated>
 
@@ -839,6 +858,23 @@ function onHintTargetChanged(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
+// see T-280, EL-16
+/** @purity pure */
+function onContinuationMarkClicked(
+  values: ScreenValues,
+  event: EventOf<'continuationMarkClicked'>,
+): ScreenStep {
+  const { landedLink, landedTaskUid } = event
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedLink, landedTaskUid } })
+}
+
+// see T-280, EL-17
+/** @purity pure */
+function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
+  if (values.landingMarkDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
+}
+
 type WindowShownKind = SearchPanelDisplayShownState['kind'] & HelpDisplayShownState['kind']
 
 const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
@@ -960,6 +996,8 @@ const HANDLERS: {
   helpEntryPressed: onHelpEntryPressed,
   helpMinimiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MINIMISE_TOGGLED_TO),
   helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
+  continuationMarkClicked: onContinuationMarkClicked,
+  landingMarkClearAsked: onLandingMarkClearAsked,
 }
 
 // see SF-2, SF-8, T-280

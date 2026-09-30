@@ -37,12 +37,17 @@ import {
   type Watermark,
 } from './svg-renderer'
 
-// see S-72, S-66
-// WHY: the two screen values the picture reads, spelled here so the renderer
+// see S-72, S-66, EL-16, T-280
+// WHY: the screen values the picture reads, spelled here so the renderer
 // depends on no use case; ScreenValues satisfies it as it stands.
 export interface ViewerValues {
   readonly themePreference: 'light' | 'dark'
   readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical'
+  // WHY: optional -- a viewer built before the landing mark carries none, and none reads as hidden.
+  readonly landingMarkDisplayState?:
+    | { readonly kind: 'hidden' }
+    | { readonly kind: 'shown'; readonly landedLink: { readonly predecessorUid: number;
+        readonly successorUid: number }; readonly landedTaskUid: number }
 }
 
 export interface OverlaysInput {

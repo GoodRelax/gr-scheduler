@@ -289,6 +289,13 @@ export interface TranslatedInput {
   // TRAP: present only on a row-axis input that wrote no zoom at an end; zoomY is the one drawn.
   // At the shrinking end (ZE-2) the action may still end temporarilyExpanded (FR-031).
   readonly rowZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
+  // see PE-12, EL-13, EL-16
+  // TRAP: present on every still single release on GA-24, even when the send writes nothing.
+  readonly landingMarked?: {
+    readonly predecessorUid: number
+    readonly successorUid: number
+    readonly landedTaskUid: number
+  }
 }
 
 export const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false }
@@ -910,7 +917,9 @@ export function isScrollPositionInForce(
 // see MK-12, T-023a
 /** @purity pure */
 function commandFromPointer(input: PointerInput, context: InputContext): TranslatedInput {
-  const assigned = pointerAssignment(input, context)
+  const press = context.pressed
+  const isSwallowed = input.phase === 'up' && press !== null && isSwallowedSecondPress(press, context)
+  const assigned = isSwallowed ? CONSUMED_ELSEWHERE : pointerAssignment(input, context)
   // TRAP: read MK-12 after table T-023a has decided; read before, it makes the gesture inert.
   if (isAssignedPointerCombo(gestureModifiers(input, context))) return assigned
   return isOnTheChart(context, input) ? browserStopped(assigned) : browserKept(assigned)
@@ -982,6 +991,12 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     case 'PTD-5':
       return CONSUMED_ELSEWHERE
   }
+}
+
+// see EL-18, MK-13
+/** @purity pure */
+export function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean {
+  return press.at.clickCount >= 2 && context.screen.landingMarkDisplayState.kind === 'shown'
 }
 
 /** @purity pure */

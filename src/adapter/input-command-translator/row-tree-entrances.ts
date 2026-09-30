@@ -139,7 +139,7 @@ export function everyRowDeleted(context: InputContext): TranslatedInput {
 }
 
 /** @purity pure */
-function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] {
+export function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] {
   const document = context.document
   return [
     ...treeStateWritesFor(document.schedule, event),

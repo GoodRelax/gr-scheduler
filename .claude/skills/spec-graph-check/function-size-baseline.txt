@@ -1,10 +1,12 @@
 excess-lines=6171 excess-branches=621
+# RAISED frameLoop 1501->1503, receiveInput 159/66->161/68 on 2026-09-30 under JDG-778 at the merge of refactor ef14d910 into lane-l1: lane L1's two CR-596 lines in receiveInput land on top of lane L4's; the coordinator re-measures the totals at merge.
 # RAISED 5998/599 -> 6171/621 on 2026-09-27 under JDG-778 at the merge of refactor e7c6fc4f into lane-l4: the L4 raises above (CR-574, CR-571, CR-575, CR-597; DFC-1284) on top of the coordinator's re-measure; domScreenSurface 378, showScreenView 140/45, carryOutAction 177/46 are the L3/L1 and L4 hunks added together -- the coordinator re-measures at merge.
 # RAISED domScreenSurface 374->377, readScreenPartAt 58->59, frameLoop 1492->1501, receiveInput 157->159, boot 212->219 on 2026-09-27 under JDG-778 (lane L4, CR-597 / CR-571: the search word, hit row and grab answers of IF-9 wired; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 369->374, showScreenView 134/42->139/44, answerSettledEntry 89/22->102/27, frameLoop 1478->1492, runFrame 137->138 on 2026-09-27 under JDG-778 (lane L4, CR-574: help drawn in its own layer beside another surface, IC-128..IC-131 dispatched, the help rung of Esc; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 362->369, frameLoop 1456->1478, receiveInput 154/64->157/66, runFrame 132/10->137/11, answerSettledEntry 84/21->89/22 on 2026-09-27 under JDG-778 (lane L4, CR-571 wave 2b part 2: the search panel layer UZ-6, its held values, the IN-5a gate and the Ctrl+F / IC-117 entries; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED commandFromKey 80/65->81/67 (SK-24) and commandFromWheel 49/16->54/18 (a wheel over the search panel is the panel's) on 2026-09-27 under JDG-778 (lane L4, CR-571, DFC-1284); carryOutAction 177/45 and boot 212 are the L2/L3/L4 hunks added together at the merge of refactor 9d6d59d9 -- the coordinator re-measures.
 # RAISED 6157/638 -> 6254/648 on 2026-09-27 under JDG-778 (the user: baselines may rise for a lane; the coordinator writes the final values at merge), DFC-1284: lane L4 CR-575 put the T-337 layer order and the palette band clamp into domScreenSurface 315->362, showScreenView 123/33->134/42, frameLoop 1428->1456, carryOutAction 172->176, receiveInput 150/63->154/64, boot 205->211; CR-578 splits frame-loop.ts.
+# RAISED frameLoop 1429->1431, receiveInput 150/63->152/65 and PRUNED dependencyLinkParts (86/19, now below the band) on 2026-09-27 under JDG-778 / JDG-520 (lane L1, CR-596): the shell sends landingMarkClearAsked and continuationMarkClicked on their own lines (lane L4's paths kept apart); the drawer split dependencyLinkParts into dependencyDefsOf / emphasisOf / inkOf. The coordinator re-measures the totals at merge.
 # LOWERED 6163/640 -> 5998/599 on 2026-09-27 under JDG-520 (coordinator): measured on the merge of lanes L1 and L3 into refactor.
 # RAISED 6160/639 -> 6163/640 on 2026-09-27 under JDG-778 (lane-l3, CR-586 S-3): builtMerge 279/56 -> 282/57 -- the MSPDI merge writes a kept visual whose shape disagrees with Task.milestone back with shapeKind null (MG-8); the coordinator re-measures at merge.
 # RAISED 6158/638 -> 6160/639 on 2026-09-27 under JDG-778 (lane-l3, CR-582 MH-4): showScreenView 123/33 -> 124/34 and domScreenSurface 315 -> 316 -- the readout text is rewritten in place each frame instead of rebuilding the panel; the coordinator re-measures at merge.
@@ -77,7 +79,6 @@ HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule l
 HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=62 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=77 branches=13
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=117 branches=21
-HELD src/adapter/svg-renderer/schedule-task-figures.ts::dependencyLinkParts lines=86 branches=19
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45
 HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=224 branches=19
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
@@ -104,8 +105,8 @@ HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lin
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=46
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1501 branches=5
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=159 branches=66
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1503 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=161 branches=68
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=138 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
