@@ -1533,7 +1533,8 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
     expect(read.tables, `the help lists ${table}, which FR-036 (MUST NOT) bars`).not.toContain(table)
   }
   // see FR-036
-  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7']
+  // WHY: MK-15 joined the list with CR-558.
+  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15']
   const t109Items = T109.rows.filter((row) => row.cells.length === T109_COLUMNS)
   const foldedIntoOne = t109Items.filter((row) => (row.cells[T109_STANCE] ?? '').includes('AR-3')).length
   const legendOnly = t109Items.filter((row) => (row.cells[T109_PLACE] ?? '').replace(/`/g, '').trim() === helpSurface).length
@@ -3990,7 +3991,17 @@ test('DFC-235: changing the display language changes the language the document n
   const opened = await openStubbedPage()
   try {
     const page = opened.page
-    const toggle = entranceBy(T109_SOURCE, 'FR-038')
+    // WHY: FR-038 has two entrances since CR-574 -- the screen's language in the
+    // WHY: App Header and the help's own inside the Help Modal; this case is the former.
+    const screenToggles = T109.rows
+      .filter((row) => row.cells.length === T109_COLUMNS)
+      .filter((row) => (row.cells[T109_SOURCE] ?? '').includes('FR-038'))
+      .filter((row) => (row.cells[T109_PLACE] ?? '').includes('App Header'))
+    expect(
+      screenToggles.map((row) => row.id),
+      'table T-109 must give FR-038 exactly one entrance in the App Header',
+    ).toHaveLength(1)
+    const toggle = screenToggles[0]?.id ?? ''
     const words = neverSavedByLanguage()
 
     /** Which language the header is printing in, by the word it carries. */
