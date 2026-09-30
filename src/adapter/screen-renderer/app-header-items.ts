@@ -115,9 +115,10 @@ function commandStateOf(
     case DOCUMENT_SETTINGS_ENTRY:
       return { isEnabled: true, isPressed: isShowingSettings(session) }
 
+    // WHY: never faint; a press while Agent API is off enables it and shows the field (FR-066).
     case DIALOGUE_FIELD_ENTRY:
       return {
-        isEnabled: readings.isAgentApiEnabled,
+        isEnabled: true,
         isPressed: readings.isAgentApiEnabled && isDialogueFieldShown(session),
       }
 

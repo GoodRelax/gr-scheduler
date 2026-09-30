@@ -395,12 +395,6 @@ export function modalElement(
     if (modal.windowState !== 'minimised') body.push(helpBodyElement(host, modal))
   }
 
-  if ('documentText' in modal) {
-    const text = made(host, 'pre', 'white-space:pre-wrap;overflow:auto;')
-    text.textContent = modal.documentText
-    body.push(text)
-  }
-
   if ('formats' in modal) {
     const choices = made(host, 'div', STYLE.formatChoices)
     for (const format of modal.formats) {

@@ -75,13 +75,13 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
 | 門 | **44** | `.claude/skills/spec-graph-check/` に 38、`tools/` に 4、`docs/review/` に 1、`tools/parity/` に 1 |
-| 生成器 | **27** | `tools/` に 17、`docs/spec/_source/` に 9、`tools/probe/` に 1 |
+| 生成器 | **28** | `tools/` に 18、`docs/spec/_source/` に 9、`tools/probe/` に 1 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **21** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 8、`tools/` に 3、`tools/probe/` に 1、`tools/parity/` に 1 |
 | 部品・走者 | **8** | `.claude/skills/spec-graph-check/` に 6、`tools/` に 2 |
-| **合計** | **104** | `.mjs` 14 ＋ `.py` 89 ＋ `.sh` 1 |
+| **合計** | **105** | `.mjs` 14 ＋ `.py` 90 ＋ `.sh` 1 |
 
-⚠️ 2026-09-26 に門 3 本（検査 64〜66）と部品 1 本（`purity-calls.mjs`）を足して数え直した（`CR-573` の波 3b）。同じ 2026-09-26 のうちに、CR-581 の並行の道具（第 12〜14 節）と `CR-581` の検査 67〜73 を本節へ合流し、次の 17 本を新たに数えた —— 門 6（`merge_driver.py`・`renumber_ids.py`・`check-literal-restatement.py`・`check-twin-comments.py`・`check-handoff-holds-state.py`・`check-rules-name-real-things.py`、検査 67/68/69/70/72/73）、生成器 6（`published_entries_json_to_md.py`・`generate_public_entry_index.py`・`generate_state_machine_types.py`・`state_machines_json_to_md.py`・`generate_test_inventory.py`・`grab-figures.mjs`）、調査 3（`body_brief.py`・`privacy_count.py`・`lm-19-frame-time-baseline.mjs`）、部品 2（`function-size.mjs`・`merge_branch.py`）。⛔ **この 104 本にはまだ入っていない門が 7 本ある** —— 検査 56・57・59・60・61・62・63（`check-grab-table-parents.py`・`check-decision-tables.py`・`check-component-edges.py`・`check-function-size.py`・`check-module-state.py`・`check-identifier-reservation.py`・`check-sm-ev-tn-prefix-gone.py`）は check.sh に既に在るが、第 4 節の表にまだ行を持たない（第 9 節に載せた）。それ以外の行は 2026-09-13 の実測のままである。
+⚠️ 2026-09-26 に門 3 本（検査 64〜66）と部品 1 本（`purity-calls.mjs`）を足して数え直した（`CR-573` の波 3b）。同じ 2026-09-26 のうちに、CR-581 の並行の道具（第 12〜14 節）と `CR-581` の検査 67〜73 を本節へ合流し、次の 17 本を新たに数えた —— 門 6（`merge_driver.py`・`renumber_ids.py`・`check-literal-restatement.py`・`check-twin-comments.py`・`check-handoff-holds-state.py`・`check-rules-name-real-things.py`、検査 67/68/69/70/72/73）、生成器 6（`published_entries_json_to_md.py`・`generate_public_entry_index.py`・`generate_state_machine_types.py`・`state_machines_json_to_md.py`・`generate_test_inventory.py`・`grab-figures.mjs`）、調査 3（`body_brief.py`・`privacy_count.py`・`lm-19-frame-time-baseline.mjs`）、部品 2（`function-size.mjs`・`merge_branch.py`）。⛔ **この 104 本にはまだ入っていない門が 7 本ある** —— 検査 56・57・59・60・61・62・63（`check-grab-table-parents.py`・`check-decision-tables.py`・`check-component-edges.py`・`check-function-size.py`・`check-module-state.py`・`check-identifier-reservation.py`・`check-sm-ev-tn-prefix-gone.py`）は check.sh に既に在るが、第 4 節の表にまだ行を持たない（第 9 節に載せた）。それ以外の行は 2026-09-13 の実測のままである。2026-09-27 に生成器 1 本（`generate_image_to_grs_json_prompt.py`、`CR-562`）を足した。
 
 ⛔ **目録は拡張子で数えるな。** 名指しではなく `import` で呼ばれる部品も、`.mjs` の走者も、道具である。
 
@@ -138,7 +138,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 5. 生成器 —— 書き出す道具（27 本）
+## 5. 生成器 —— 書き出す道具（28 本）
 
 ⭐ **生成器の `--check` は、書き出し先を作り直して比べるだけである。**
 ⛔ **入力の表が間違っていても緑になる。** 表そのものを見るのは門の側の仕事である。
@@ -155,6 +155,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 27 | `generate_help_roster.py` | docs/spec/01-04-requirements.mdの表T-023a・T-023b・T-023c・T-023d・T-023・T-036と、既存のsrc/adapter/screen-renderer/icon-roster.json（表T-109由来）を読み、行ID・キー割当・アイコン・駆動先入口をsrc/adapter/screen-renderer/help-roster.jsonへ書き出す。--checkはそのファイルの中身をビルド結果と比較する。 | 印字される語そのもの（display-words.jsonの内容）はここでは一切運ばれず突き合わせもされないため、ヘルプ画面が実際にこの行IDを正しい語へ解決できているかはこのスクリプトの検査範囲外。 | `npm run helproster`／`check.sh` |
 | 27 | `generate_icon_glyphs.py` | docs/spec/_assets/fig-icons.svg（図F-019）の各<g>要素と、docs/spec/_assets/tbl-glossary.mdの表T-109の行数を読み、パスやスタイルをcurrentColorへ正規化した図形と共有座標系をsrc/adapter/screen-renderer/icon-glyphs.jsonへ書き出す。--checkはディスク上のファイルとビルド結果をバイト比較する。 | 座標抽出とバウンディングボックス計算が正しく動いた結果を書き出すだけで、図形が実際に意図した見た目（絵柄）になっているかどうかは目視でしか分からず、このスクリプト自身は判定しない。 | `npm run glyphs`／`check.sh` |
 | 27 | `generate_icon_roster.py` | docs/spec/_assets/tbl-glossary.mdの表T-109（アイコン）・表T-103（面）、docs/spec/01-04-requirements.mdの表T-012（形）、docs/spec/_source/erd.jsonのTaskVisual列挙値を読み、行ごとのsurfaces/group/entryTo/authority/arms/armsShapeをsrc/adapter/screen-renderer/icon-roster.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | armsShapeの対応付け（AR-3の8個の刻印とmilestoneGlyphの8個の綴り）は印字順が同じであることだけを頼りに結び付けており、順序が意味的に正しく対応しているかどうかまでは検証できない。 | `npm run icons`／`check.sh` |
+| — | `generate_image_to_grs_json_prompt.py` | docs/spec/_source/image-to-grs-json-prompt.ja.md・.en.md（それぞれ 2 行目から）、docs/spec/_source/grs-document.schema.json、tools/generate_startup_template.py（import して版・documentSettings・暦・project の既定と check_schema を借りる）を読み、原稿 2 つ・版・最小化したスキーマ・タスクを持たない土台の文書（最小化。startup の check_schema に通してから書く）を src/adapter/screen-renderer/image-to-grs-json-prompt.json へ書き出す（`FR-068`、`CR-562`）。連ねた文字列は持たない。--checkはディスク上のファイルと比較する。 | 殻が連ねる文字列そのもの（区切りの空行と json の囲み）はここでは組まないので、写した文字列が `FR-068` の順どおりかは試験の側の仕事。土台の文書が開く路（validate-imported-document）を通るかも見ていない。⚠️ check.sh の検査 27 にはまだ行が無い。 | `npm run imageprompt`／`npm run gen:check` |
 | 27 | `generate_json_schema_validator.py` | docs/spec/_source/grs-document.schema.jsonを読み、EXPRESSEDに列挙された10種のJSON Schemaキーワードだけをsrc/adapter/document-codec/grs-json-schema.tsの<generated>〜</generated>マーカー間にTypeScriptのSchemaNode/GRS_DOCUMENT_SCHEMAとして書き出す。--checkはそのリージョンの中身をビルド結果と比較する。 | format:'uuid'を持つ10列はDROPPEDとして意図的に無検査のまま残り、UNCHECKEDとして毎回一覧表示されるだけで、--check自体はこれを合否判定に含めない（PND-189は未裁定のまま）。 | `npm run validator`／`check.sh` |
 | 27 | `generate_licence.py` | リポジトリ直下のLICENSE・NOTICE・package.jsonを読み、ライセンス全文・NOTICEのCopyright行・（dependenciesが空である限り）空のattributionsをsrc/adapter/screen-renderer/licence.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | package.jsonのdependenciesが空であることしか調べておらず、devDependencies由来のコードが実際にdist/index.htmlへ紛れ込んでいないかはビルド成果物（dist）を見て検証していない。 | `npm run licence`／`check.sh` |
 | 27 | `generate_mspdi_custom_fields.py` | docs/spec/_source/mspdi-custom-fields.json（同フォルダのmspdi-custom-fields.schema.jsonでjsonschema検証）と、docs/spec/_assets/fig-erd-detail.md中の表T-058のfadeInDays/fadeOutDays列を読み、2つのMSPDIカスタムフィールド枠をsrc/adapter/document-codec/mspdi-custom-fields.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | fig-erd-detail.mdはerd.jsonから生成された副産物であり、このスクリプト自身はerd.jsonを直接読まないため、fig-erd-detail.mdがerd.jsonからdriftしていた場合はそのdriftをそのまま読み込んでしまう（コード中のコメントも「二つが食い違えばcheck 16が先に言う」と認めている）。 | `npm run mspdi`／`check.sh` |

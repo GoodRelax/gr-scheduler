@@ -27,7 +27,6 @@ import licence from './licence.json'
 
 const HELP_MODAL = 'Help Modal'
 
-const AI_EXPORT_MODAL = 'AI Export Modal'
 const ICON_TABLE = 'T-109'
 
 // see WB-4
@@ -352,16 +351,6 @@ export function openModalFromSession(
       commands,
       droppedTaskNames: readings.droppedTaskNames ?? [],
       ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
-    }
-  }
-
-  // TRAP: an absent aiExportDocument falls to the catch-all; an empty text claims an empty document.
-  if (surface === AI_EXPORT_MODAL && readings.aiExportDocument !== undefined) {
-    return {
-      surface: AI_EXPORT_MODAL,
-      heading,
-      commands,
-      documentText: readings.aiExportDocument,
     }
   }
 

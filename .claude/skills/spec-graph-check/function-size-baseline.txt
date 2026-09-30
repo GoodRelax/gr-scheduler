@@ -1,4 +1,5 @@
 excess-lines=6171 excess-branches=621
+# RAISED commandFromEntry 152/66->154/67, commandStateOf 56->57, carryOutAction 177/46->177/47, frameLoop 1501->1506 on 2026-09-30 under JDG-778 (lane L4, CR-562: IC-115 copies the prompt with no surface, IC-18 enables Agent API, IC-18 never faint; DFC-1284).
 # RAISED 5998/599 -> 6171/621 on 2026-09-27 under JDG-778 at the merge of refactor e7c6fc4f into lane-l4: the L4 raises above (CR-574, CR-571, CR-575, CR-597; DFC-1284) on top of the coordinator's re-measure; domScreenSurface 378, showScreenView 140/45, carryOutAction 177/46 are the L3/L1 and L4 hunks added together -- the coordinator re-measures at merge.
 # RAISED domScreenSurface 374->377, readScreenPartAt 58->59, frameLoop 1492->1501, receiveInput 157->159, boot 212->219 on 2026-09-27 under JDG-778 (lane L4, CR-597 / CR-571: the search word, hit row and grab answers of IF-9 wired; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED domScreenSurface 369->374, showScreenView 134/42->139/44, answerSettledEntry 89/22->102/27, frameLoop 1478->1492, runFrame 137->138 on 2026-09-27 under JDG-778 (lane L4, CR-574: help drawn in its own layer beside another surface, IC-128..IC-131 dispatched, the help rung of Esc; DFC-1284 -- CR-578 splits frame-loop.ts).
@@ -59,7 +60,7 @@ HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
 HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn lines=47 branches=20
 HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=152 branches=66
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=154 branches=67
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=45 branches=22
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69
 HELD src/adapter/input-command-translator/item-grab.ts::highlightBoxRangeWrite lines=82 branches=31
@@ -70,7 +71,7 @@ HELD src/adapter/input-command-translator/screen-state-input.ts::screenEventFrom
 HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36
 HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=81 branches=67
 HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=54 branches=18
-HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=56 branches=13
+HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=57 branches=13
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=78 branches=22
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
@@ -102,9 +103,9 @@ HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf l
 HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=155 branches=32
 HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=69 branches=0
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
-HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=46
+HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1501 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1506 branches=5
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=159 branches=66
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=138 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19

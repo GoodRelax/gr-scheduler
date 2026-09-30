@@ -307,11 +307,6 @@ export interface HelpEntry {
   readonly indent: boolean
 }
 
-export interface AiExportModal extends OpenSurface {
-  readonly surface: 'AI Export Modal'
-  readonly documentText: string
-}
-
 export interface ResourceRoster extends OpenSurface {
   readonly surface: 'Resource Roster'
   readonly resources: readonly RosterResource[]
@@ -340,7 +335,6 @@ export interface ExportChooser extends OpenSurface {
 // @provisional PND-140
 export type OpenModal =
   | HelpModal
-  | AiExportModal
   | ResourceRoster
   | ExportChooser
   | (OpenSurface & {
@@ -483,7 +477,6 @@ export interface ScreenViewReadings {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   readonly isAgentApiEnabled: boolean
-  readonly aiExportDocument?: string
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206

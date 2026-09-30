@@ -273,6 +273,7 @@ export type InputAction =
   | { readonly kind: 'toggleDocumentSettingsProperties' }
   | { readonly kind: 'toggleAgentApi' }
   | { readonly kind: 'toggleDialogueFieldVisible' }
+  | { readonly kind: 'copyImageToJsonPrompt' }
   | { readonly kind: 'toggleMilestoneList' }
   | { readonly kind: 'togglePaletteMinimised' }
   | { readonly kind: 'toggleInteractionRecord' }
@@ -697,9 +698,9 @@ export const ENTRY = {
   displayScaleUp: 'IC-105',
   themePreference: 'IC-16',
   documentSettingsProperties: 'IC-17',
+  imageToJsonPrompt: 'IC-115',
   agentApi: 'IC-20',
   dialogueFieldVisible: 'IC-18',
-  aiExportModal: 'IC-19',
   help: 'IC-22',
   progressLineVisible: 'IC-39',
   progressMarkerVisible: 'IC-40',
@@ -1147,6 +1148,8 @@ function commandFromEntry(
       return acted({ kind: 'toggleAgentApi' })
     case ENTRY.dialogueFieldVisible:
       return acted({ kind: 'toggleDialogueFieldVisible' })
+    case ENTRY.imageToJsonPrompt:
+      return acted({ kind: 'copyImageToJsonPrompt' })
     case ENTRY.rosterChooseAll:
     case ENTRY.rosterClearChosen:
     case ENTRY.rosterChooseUnreferenced:
