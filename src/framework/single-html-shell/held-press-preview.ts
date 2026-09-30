@@ -85,8 +85,7 @@ function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean
   if (press.on !== null) return press.on.dividerPanel !== null
   // WHY: the one tentative line belongs to FR-009, so a previewed createDependency would draw it twice.
   if (press.pressRow === 'PTD-3' && isDependencyArmed) return false
-  // WHY: PTD-1 is not previewed: scrolledAnchor measures the travel against the
-  // previewed layout, so the picture would run away.
+  // WHY: PTD-1 is not previewed: scrolledAnchor measures against the previewed layout; it runs away.
   if (press.pressRow === 'PTD-4') return true
   return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
 }
