@@ -1,0 +1,186 @@
+{
+  "$comment": [
+    "SINGLE SOURCE OF TRUTH -- edit this file.",
+    "The model of figure F-045 (the MCP relay: where it sits) in docs/spec/_assets/design-mcp-relay.md.",
+    "fig-mcp-relay.drawio and _assets/fig-mcp-relay.svg are generated from it; never edit them by hand."
+  ],
+  "title": "MCP relay: where it sits",
+  "options": {
+    "engine": "cluster-dot",
+    "direction": "LR",
+    "column_width": 250,
+    "node_separation": 1.0,
+    "rank_separation": 1.4
+  },
+  "nodes": [
+    {
+      "name": "Person",
+      "shape": "actor",
+      "description": "Opens the page the relay serves and turns Agent API on.",
+      "remark": "FR-065 / IC-20"
+    },
+    {
+      "name": "McpClient",
+      "shape": "box",
+      "description": "The AI app that talks MCP. Not ours.",
+      "remark": "DEV-5"
+    },
+    {
+      "name": "McpRelayServer",
+      "shape": "component",
+      "description": "The relay process: serves the page on 127.0.0.1, holds the one page socket, carries calls and answers.",
+      "remark": "Framework, new"
+    },
+    {
+      "name": "McpToolTranslator",
+      "shape": "component",
+      "description": "Maps MCP tools/list and tools/call to relayed Agent API calls and back. Pure.",
+      "remark": "Adapter, new"
+    },
+    {
+      "name": "SingleHtmlShell",
+      "shape": "component",
+      "description": "Opens the relay socket while Agent API is on (new unit agent-api-relay-link.ts).",
+      "remark": "Framework, CP-25"
+    },
+    {
+      "name": "AgentApiEndpoint",
+      "shape": "component",
+      "description": "Answers one relayed call with the member of the same name (new unit relayed-call.ts).",
+      "remark": "Adapter, CP-17"
+    },
+    {
+      "name": "UseCase and Entity",
+      "shape": "box",
+      "description": "Unchanged. Every check, refusal and stamp comparison stays here (AG-5).",
+      "remark": "CP-1 .. CP-16, CP-32 .. CP-36, CP-39"
+    }
+  ],
+  "edges": [
+    {
+      "source": "McpClient",
+      "target": "McpRelayServer",
+      "arrow": "directed_association",
+      "label": "MCP over stdio"
+    },
+    {
+      "source": "McpRelayServer",
+      "target": "McpToolTranslator",
+      "arrow": "dependency",
+      "label": "translate"
+    },
+    {
+      "source": "SingleHtmlShell",
+      "target": "McpRelayServer",
+      "arrow": "directed_association",
+      "label": "HTTP GET / loads the page, then WebSocket (same origin, key)"
+    },
+    {
+      "source": "SingleHtmlShell",
+      "target": "AgentApiEndpoint",
+      "arrow": "dependency",
+      "label": "answerRelayedCall"
+    },
+    {
+      "source": "AgentApiEndpoint",
+      "target": "UseCase and Entity",
+      "arrow": "dependency",
+      "label": "same checks as the screen"
+    },
+    {
+      "source": "McpToolTranslator",
+      "target": "AgentApiEndpoint",
+      "arrow": "dependency",
+      "label": "types only"
+    },
+    {
+      "source": "SingleHtmlShell",
+      "target": "Person",
+      "arrow": "association",
+      "label": "person opens the URL, presses IC-20"
+    }
+  ],
+  "layout": {
+    "direction": "LR",
+    "clusters": [
+      {
+        "name": "aiApp",
+        "label": "AI app process (DEV-5)",
+        "color": "#666666",
+        "fill": "#EEEEEE",
+        "nodes": [
+          "McpClient"
+        ]
+      },
+      {
+        "name": "relay",
+        "label": "Relay process, listens on 127.0.0.1 only",
+        "color": "#7A4E9A",
+        "fill": "#F1E8F7",
+        "direction": "TB",
+        "clusters": [
+          {
+            "name": "relayFramework",
+            "label": "Framework",
+            "color": "#3A7D95",
+            "fill": "#87CEEB",
+            "nodes": [
+              "McpRelayServer"
+            ]
+          },
+          {
+            "name": "relayAdapter",
+            "label": "Adapter",
+            "color": "#4E9A4E",
+            "fill": "#90EE90",
+            "nodes": [
+              "McpToolTranslator"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "page",
+        "label": "Browser page the relay served (DEV-1)",
+        "color": "#333333",
+        "fill": "#FFFFFF",
+        "direction": "TB",
+        "clusters": [
+          {
+            "name": "pageFramework",
+            "label": "Framework ",
+            "color": "#3A7D95",
+            "fill": "#87CEEB",
+            "nodes": [
+              "SingleHtmlShell"
+            ]
+          },
+          {
+            "name": "pageAdapter",
+            "label": "Adapter ",
+            "color": "#4E9A4E",
+            "fill": "#90EE90",
+            "nodes": [
+              "AgentApiEndpoint"
+            ]
+          },
+          {
+            "name": "pageCore",
+            "label": "UseCase / Entity",
+            "color": "#B39400",
+            "fill": "#FFD700",
+            "nodes": [
+              "UseCase and Entity"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "person",
+        "nodes": [
+          "Person"
+        ]
+      }
+    ]
+  }
+}
