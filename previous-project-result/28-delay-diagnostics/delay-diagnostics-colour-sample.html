@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>遅延診断の色の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* page frame colours are rewritten by sync() from table T-236 (S-146..S-151) */
+  :root { --bg: #ffffff; --ink: #16181d; --muted: #5b6068; --rule: #dde1e6; --panel: #f6f7f9; --accent: #214e82; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { margin: 0; font: 16px/1.7 system-ui, "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 440px; min-height: 100vh; }
+  .draw { min-width: 0; padding: 12px 16px; box-sizing: border-box; }
+  @media (max-width: 1000px) { .app { grid-template-columns: 1fr; } }
+  h1 { font-size: 1.25rem; margin: 0 0 2px; }
+  h3 { font-size: 1rem; margin: 16px 0 4px; }
+  p.note { color: var(--muted); margin: 0 0 8px; font-size: 0.875rem; line-height: 1.6; }
+  .pane { overflow: auto; border: 1px solid var(--rule); background: var(--bg); }
+  svg { display: block; }
+  .settings { background: var(--panel); border-left: 1px solid var(--rule); padding: 12px 16px; box-sizing: border-box; }
+  .settings h2 { font-size: 1rem; margin: 14px 0 4px; padding-bottom: 2px; border-bottom: 1px solid var(--rule); }
+  .settings h2:first-child { margin-top: 0; }
+  .settings label { display: flex; align-items: flex-start; gap: 8px; margin: 3px 0; font-size: 0.9375rem; }
+  .settings select { font: inherit; font-size: 0.875rem; }
+  .hint { color: var(--muted); font-size: 0.8125rem; margin: 2px 0 6px; line-height: 1.55; }
+  .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; border: 1px solid var(--rule); }
+  table.metrics { border-collapse: collapse; font-size: 0.8125rem; line-height: 1.45; margin-top: 8px; width: 100%;
+    font-variant-numeric: tabular-nums; }
+  table.metrics th, table.metrics td { border: 1px solid var(--rule); padding: 2px 5px; text-align: right; }
+  table.metrics th { font-weight: 600; background: var(--panel); }
+  table.metrics td:first-child, table.metrics th:first-child { text-align: left; }
+  .bad { color: #c62828; font-weight: 700; }
+  code { font-size: 0.875em; }
+  .custom { display: grid; grid-template-columns: auto auto auto; gap: 2px 8px; align-items: center; font-size: 0.875rem; }
+  input[type=color] { width: 36px; height: 22px; padding: 0; border: 1px solid var(--rule); background: none; }
+  .legendBox { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 6px 0 0; font-size: 0.875rem; }
+  .legendBox span { display: inline-flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="draw">
+  <h1>遅延診断（Delay Diagnostics）のマーカーの色の見本</h1>
+  <p class="note">日程の図の一部に、遅延診断を出しているときのマーカー —— 紫の <b>?</b>（信用できない、<code>DG-1</code>）、赤の<b>炎</b>（ボトルネック、<code>DG-2</code>）、
+  <b>!!</b>（ボトルネック経路、<code>DG-3</code>。今は桃色、<code>JDG-1008</code> で黄の系統）、黄の <b>!</b>（遅れ、<code>DG-4</code> ＝ <code>PM-4</code>）—— と、ふだんのマーカー（✓ 完了、\ 中断、空の丸 進行中、点 未着手）、
+  基準日線（<code>S-163</code>）、2 本カーソル（<code>S-195</code>）、依存線（<code>S-159</code>）、イナズマ線（<code>S-160</code>）を、表 T-236 の色で描いています。
+  マーカーは実物と同じ寸法（既定の倍率で径 14px、縁 1.3px、記号は <code>S-328</code> 〜 <code>S-396</code>）です。行にポインタを当てると、その親の名札が <code>S-398</code> の色と太字になります。</p>
+  <div class="pane"><svg id="chart" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div class="legendBox" id="legendBox"></div>
+  <h3>案を並べて（いまのテーマの色相、1.6 倍）</h3>
+  <p class="note">左から: 明るいテーマの地 ／ 明るいテーマの実績バーの上 ／ 暗いテーマの地 ／ 暗いテーマの実績バーの上 ／ モノクロ（明）／ モノクロ（暗）。1 つの枠に <code>DG-1</code> → <code>DG-2</code> → <code>DG-3</code> → <code>DG-4</code> → ふだんの丸。</p>
+  <div class="pane"><svg id="strip" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <h3>いまの案の測った数</h3>
+  <table class="metrics" id="metrics"></table>
+  <p class="hint">「地・帯の最小」: 表 T-305 の 10 色相それぞれで地 <code>S-146</code>・行の帯 <code>S-164</code>・最上位の行 <code>S-166</code>・交互の行 <code>S-167</code> を解き、WCAG 2.1 の比 (L1 + 0.05) ÷ (L2 + 0.05) の最小。
+  マーカーは記号の色で縁を描くので、地が地に溶けても縁が形を保つ。「記号」: 地と記号の比（4.5 : 1 を目安）。「モノクロの灰」: <code>FR-041</code> / <code>CV-7</code> の HSL の明度。
+  色相は HLS の色相の差（0〜180°）。「バー ΔE」: 実績バー <code>S-157</code> との CIE76 の色差を 10 色相で解いた最小（マーカーは実績の開始の上に乗る、表 T-273 の <code>LP-1</code>）。</p>
+  <table class="metrics" id="pairs"></table>
+  <p class="hint">ΔE: CIELAB（D65）の CIE76 の色差。1 型・2 型: Machado 2009（強さ 1.0）で模擬した後の ΔE。灰の差: モノクロの明度の差（ポイント）。<span class="bad">赤</span> は ΔE 40 未満、灰の差 10 未満。</p>
+</div>
+<div class="settings">
+  <h2>案</h2>
+  <div id="cands"></div>
+  <div class="custom" id="custom"></div>
+  <p class="hint">「自分で試す」を選ぶと、いまの案の色から始まる 6 つの欄で地の色を変えられる（記号の色は「縁と記号の色」に従う）。</p>
+  <h2>縁と記号の色（JDG-995）</h2>
+  <label><input type="radio" name="edge" value="bang"> <span>縁も記号も遅れ <code>(!)</code> と同じ暗い色（<code>S-327</code>、両テーマで <code>#16181d</code>）</span></label>
+  <label><input type="radio" name="edge" value="edge"> <span>縁だけ <code>(!)</code> にそろえ、記号は案の色（A〜D の赤と紫は白）</span></label>
+  <label><input type="radio" name="edge" value="each"> <span>今の仕様（縁は記号の色 —— 案ごと、マーカーごとに違う）</span></label>
+  <h2>見え方</h2>
+  <label><input type="radio" name="mode" value="light" checked> 明るいテーマ</label>
+  <label><input type="radio" name="mode" value="dark"> 暗いテーマ</label>
+  <label><input type="checkbox" id="mono"> <span>モノクロ（<code>FR-041</code> / <code>CV-7</code>）</span></label>
+  <label>色覚の模擬 <select id="cvd"><option value="none">なし</option><option value="protan">1 型（赤が暗く見える）</option><option value="deutan">2 型（赤と緑が近く見える）</option></select></label>
+  <label>テーマの色相（表 T-305） <select id="hue"></select></label>
+  <label>表示の拡大 <select id="zoom"><option value="1" selected>× 1（実物の大きさ）</option><option value="2">× 2</option><option value="3">× 3</option></select></label>
+  <h2>出すもの</h2>
+  <label><input type="checkbox" id="showLegend" checked> <span>図の下に凡例を出す（案 —— 今の仕様には凡例が無い）</span></label>
+  <label><input type="checkbox" id="showCursor" checked> <span>2 本カーソル（<code>S-195</code>）</span></label>
+  <label><input type="checkbox" id="showProgress" checked> <span>イナズマ線（<code>S-160</code>）</span></label>
+  <label><input type="checkbox" id="showDiag" checked> <span>遅延診断を出している（切ると <code>DG-1</code> 〜 <code>DG-3</code> がふだんの記号に戻る）</span></label>
+  <h2>いまの値</h2>
+  <p class="hint" id="current"></p>
+  <p class="hint">色はすべて表 T-236（<code>docs/spec/_source/settings.json</code>、<code>refactor</code> b4af9080）から写し、案の色だけを差し替えた。行の高さ・タスクの並び・日付・どのタスクがどの状態かは見本の仮置き。
+  <code>DG-4</code>（黄）は <code>PM-4</code> そのもので、利用者が選んだ色（<code>JDG-368</code>）なので、どの案でも変えていない。凡例の文は <code>JDG-1009</code> で決まった文。</p>
+</div>
+</div>
+<svg width="0" height="0" style="position:absolute">
+  <!-- Machado 2009, severity 1.0; feColorMatrix works in linearRGB by default -->
+  <filter id="cvd-protan"><feColorMatrix type="matrix" values="0.152286 1.052583 -0.204868 0 0  0.114503 0.786281 0.099216 0 0  -0.003882 -0.048116 1.051998 0 0  0 0 0 1 0"/></filter>
+  <filter id="cvd-deutan"><feColorMatrix type="matrix" values="0.367322 0.860646 -0.227968 0 0  0.280085 0.672501 0.047413 0 0  -0.011820 0.042940 0.968881 0 0  0 0 0 1 0"/></filter>
+</svg>
+<script>
+'use strict';
+// Table T-236 (docs/spec/_source/settings.json), as of refactor b4af9080. "H" is the theme hue.
+const T236 = {
+  'S-146': ['#ffffff', 'hsl(H 12% 9%)'],
+  'S-147': ['#16181d', '#e8eaee'],
+  'S-148': ['#5b6068', '#9aa1ab'],
+  'S-149': ['hsl(H 14% 87%)', 'hsl(H 12% 23%)'],
+  'S-150': ['hsl(H 20% 97%)', 'hsl(H 14% 13%)'],
+  'S-151': ['hsl(H 59% 32%)', 'hsl(H 62% 68%)'],
+  'S-155': ['hsl(H 46% 80%)', 'hsl(H 32% 26%)'],
+  'S-156': ['hsl(H 44% 46%)', 'hsl(H 46% 66%)'],
+  'S-157': ['hsl(H 62% 34%)', 'hsl(H 62% 64%)'],
+  'S-158': ['hsl(H 66% 22%)', 'hsl(H 70% 80%)'],
+  'S-159': ['#6f472a', '#b38461'],
+  'S-160': ['#d66400', '#ff9933'],
+  'S-161': ['#16181d', '#e8eaee'],
+  'S-163': ['#008a7c', '#47d1bf'],
+  'S-164': ['hsl(H 42% 96%)', 'hsl(H 18% 20%)'],
+  'S-165': ['hsl(H 34% 88%)', 'hsl(H 16% 28%)'],
+  'S-166': ['hsl(H 40% 97%)', 'hsl(H 20% 17%)'],
+  'S-167': ['hsl(H 20% 99%)', 'hsl(H 14% 11%)'],
+  'S-168': ['#000000', '#ffffff'],
+  'S-195': ['#f500f5', '#ff40ff'],
+};
+T236['S-162'] = T236['S-146'];
+// Table T-305 roster (TH-1 is the S-73 default, 214).
+const ROSTER = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250];
+const INK = '#16181d', WHITE = '#ffffff';
+const YELLOW = { ground: ['#ffd400', '#e6c229'], ink: [INK, INK] };
+
+// Each palette: DG-1..DG-4 as { ground: [light, dark], ink: [light, dark] }. S-398 (the parent label) follows DG-2.
+const PALETTES = [
+  { key: 'V', label: 'V 採った値（JDG-997 ・ JDG-1008）', note: '紫 #9673d3 ／ #b697ed、赤 #ff8f8f ／ #f34949、!! は黄の系統 #feda76 ／ #e6d947（! の黄とは形で分ける）',
+    dg: { 'DG-1': { ground: ['#9673d3', '#b697ed'], ink: [INK, INK] }, 'DG-2': { ground: ['#ff8f8f', '#f34949'], ink: [INK, INK] },
+      'DG-3': { ground: ['#feda76', '#e6d947'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'U', label: 'U 利用者の値（JDG-995）', note: '紫 #8b47ff ／ #ff8cff、赤 #ff0a0a、桃 #ff8f9e ／ #f07070。暗いテーマの紫はカーソルと同じ色相 300°、暗いテーマの桃は赤と同じ色相 0°',
+    dg: { 'DG-1': { ground: ['#8b47ff', '#ff8cff'], ink: [INK, INK] }, 'DG-2': { ground: ['#ff0a0a', '#ff0a0a'], ink: [INK, INK] },
+      'DG-3': { ground: ['#ff8f9e', '#f07070'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'U2', label: 'U2 利用者の値を直した案', note: '赤と明るいテーマの桃は利用者の値のまま。紫を明るくして暗い記号を 4.5 : 1 以上に、暗いテーマの紫を紫に戻し（266°）、暗いテーマの桃を桃に戻す（352°）',
+    dg: { 'DG-1': { ground: ['#a166ff', '#c599ff'], ink: [INK, INK] }, 'DG-2': { ground: ['#ff0a0a', '#ff0a0a'], ink: [INK, INK] },
+      'DG-3': { ground: ['#ff8f9e', '#ffa3af'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'A', label: 'A 今の値（JDG-490）', note: '紫 #7e57c2 ／ 赤 #d32f2f ／ 桃 #f09199。暗いテーマでは紫と桃がどちらも淡く近い',
+    dg: { 'DG-1': { ground: ['#7e57c2', '#b39ddb'], ink: [WHITE, INK] }, 'DG-2': { ground: ['#d32f2f', '#ff5c5c'], ink: [WHITE, INK] },
+      'DG-3': { ground: ['#f09199', '#f4a7b9'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'B', label: 'B 同じ色相で明るさに段', note: '赤を深く、桃を淡く、紫を中ほどに。色の名前はそのまま、明るさで 4 つを離す',
+    dg: { 'DG-1': { ground: ['#9673d3', '#b697ed'], ink: [INK, INK] }, 'DG-2': { ground: ['#af1d1d', '#f34949'], ink: [WHITE, INK] },
+      'DG-3': { ground: ['#fcc0c8', '#fdc3cd'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'C', label: 'C 最小限', note: '桃だけを淡くし、暗いテーマの紫だけを深くする。明るいテーマの紫と赤は今のまま',
+    dg: { 'DG-1': { ground: ['#7e57c2', '#9677d4'], ink: [WHITE, INK] }, 'DG-2': { ground: ['#d32f2f', '#ff5c5c'], ink: [WHITE, INK] },
+      'DG-3': { ground: ['#fcc0c8', '#fdc3cd'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'D', label: 'D 濃い地に白い記号', note: '明るいテーマの紫と赤を濃くして白い記号に、桃は淡く。暗いテーマは C と同じ',
+    dg: { 'DG-1': { ground: ['#502e9e', '#9677d4'], ink: [WHITE, INK] }, 'DG-2': { ground: ['#cf1d17', '#f34949'], ink: [WHITE, INK] },
+      'DG-3': { ground: ['#fcc0c8', '#fdc3cd'], ink: [INK, INK] }, 'DG-4': YELLOW } },
+  { key: 'custom', label: '自分で試す', note: '下の 6 つの欄', dg: null },
+];
+// JDG-996 / JDG-1009: the legend says what each state means, precisely
+const DG_NAMES = {
+  'DG-1': '信用できない —— 矛盾や記載漏れがあると思われ、このタスクの遅れを判定できない。値の確認を要す',
+  'DG-2': 'ボトルネック —— 終わっていないこのタスク自身の遅れが、全体の日程を遅らせている',
+  'DG-3': 'ボトルネック経路 —— 配下にボトルネックがある。詳細日程を開いて、炎（ボトルネック）を要調査',
+  'DG-4': '遅れ —— 基準日の時点で予定より遅れているが、このタスク自身の遅れは全体の日程を遅らせていない（後ろの余裕に収まるか、前のタスクの遅れを受けただけ）' };
+
+const state = { pal: 'V', dark: false, mono: false, cvd: 'none', hue: 214, zoom: 1, legend: true, cursor: true, progress: true, diag: true, hover: -1,
+  custom: JSON.parse(JSON.stringify(PALETTES[0].dg)), edge: 'bang' };
+
+// ---- colour arithmetic (same method as previous-project-result/23-status-date-line-colour) ----
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255));
+}
+function parse(c) {
+  const hsl = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/.exec(c);
+  if (hsl) return hslToRgb(+hsl[1], +hsl[2], +hsl[3]);
+  const hex = /^#([0-9a-f]{6})$/i.exec(c);
+  if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16));
+  throw new Error('colour not understood: ' + c);
+}
+function lin(v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+function luminance(c) { const [r, g, b] = parse(c).map(lin); return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
+function ratio(a, b) { const x = luminance(a), y = luminance(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function hueOf(c) {
+  const [r, g, b] = parse(c).map((v) => v / 255);
+  const hi = Math.max(r, g, b), lo = Math.min(r, g, b), d = hi - lo;
+  if (d === 0) return 0;
+  const h = hi === r ? ((g - b) / d) % 6 : hi === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (h * 60 + 360) % 360;
+}
+function hueGap(a, b) { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d); }
+function monoL(c) { const rgb = parse(c); return (Math.max(...rgb) + Math.min(...rgb)) / 2 / 255 * 100; }
+// FR-041 / CV-7: keep only the HSL lightness (same as achromatic() in svg-renderer.ts).
+function achromatic(c) { return 'hsl(0 0% ' + (Math.round(monoL(c) * 100) / 100) + '%)'; }
+function labOfLinear([r, g, b]) {
+  const x = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047, y = 0.2126 * r + 0.7152 * g + 0.0722 * b,
+    z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883;
+  const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  return [116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z))];
+}
+const MACHADO = {
+  protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.011820, 0.042940, 0.968881]],
+};
+function lab(c, kind) {
+  let v = parse(c).map(lin);
+  if (kind) v = MACHADO[kind].map((row) => Math.max(0, Math.min(1, row[0] * v[0] + row[1] * v[1] + row[2] * v[2])));
+  return labOfLinear(v);
+}
+function dE(a, b, kind) { const p = lab(a, kind), q = lab(b, kind); return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]); }
+
+function themedAt(id, hue, dark) { return T236[id][dark ? 1 : 0].replace(/\bH\b/g, String(hue)); }
+function paletteOf(key) { return key === 'custom' ? state.custom : PALETTES.find((p) => p.key === key).dg; }
+function dgRaw(pal, id, part, dark) { return paletteOf(pal)[id][part][dark ? 1 : 0]; }
+function paint(c, mono) { return mono ? achromatic(c) : c; }
+function col(id) { return paint(themedAt(id, state.hue, state.dark), state.mono); }
+
+// ---- marker glyphs (src/adapter/svg-renderer/schedule-task-figures.ts, T-021, T-315) ----
+const SVGNS = 'http://www.w3.org/2000/svg';
+const MARK_R = 7, MARK_STROKE = 1.3;  // diameter 22.4 x 0.625 = 14px at zoom 100; S-24
+const K = { 'S-328': 1.7, 'S-329': 0.15, 'S-330': 0.8, 'S-331': 0.14, 'S-341': 0.5, 'S-391': 0.30, 'S-392': 0.36, 'S-393': 0.18, 'S-394': 0.62, 'S-396': 0.70, 'S-131': 0.20,
+  'S-395': 'M0.5 0.05 C0.62 0.28 0.86 0.42 0.86 0.66 C0.86 0.86 0.7 1 0.5 1 C0.3 1 0.14 0.86 0.14 0.66 C0.14 0.5 0.26 0.38 0.34 0.3 C0.36 0.44 0.42 0.52 0.5 0.54 C0.46 0.36 0.46 0.2 0.5 0.05 Z' };
+function el(name, attrs, parent) {
+  const e = document.createElementNS(SVGNS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function text(parent, x, y, s, attrs) { const t = el('text', Object.assign({ x, y }, attrs || {}), parent); t.textContent = s; return t; }
+function bang(g, x, cy, ink) {
+  const r = MARK_R * K['S-341'];
+  el('line', { x1: x, y1: cy - r, x2: x, y2: cy + r * K['S-329'], stroke: ink, 'stroke-width': MARK_STROKE * K['S-328'] }, g);
+  el('circle', { cx: x, cy: cy + r * K['S-330'], r: MARK_R * K['S-331'], fill: ink }, g);
+}
+// symbol: PM-1, PM-1a, PM-2, PM-3, DG-1..DG-4; colours: { ground, ink } already resolved
+function marker(parent, cx, cy, symbol, colours) {
+  const g = el('g', {}, parent);
+  if (symbol === 'PM-1a') g.setAttribute('opacity', K['S-131']);
+  el('circle', { cx, cy, r: MARK_R, fill: colours.ground, stroke: colours.edge || colours.ink, 'stroke-width': MARK_STROKE }, g);
+  const r = MARK_R * K['S-341'], ink = colours.ink;
+  if (symbol === 'PM-1a') el('circle', { cx, cy, r: MARK_R * 0.18, fill: ink }, g);
+  if (symbol === 'PM-2') el('polyline', { points: `${cx - r},${cy} ${cx - r * 0.2},${cy + r * 0.7} ${cx + r},${cy - r * 0.7}`, fill: 'none', stroke: ink, 'stroke-width': MARK_STROKE }, g);
+  if (symbol === 'PM-3') el('line', { x1: cx - r * 0.6, y1: cy + r, x2: cx + r * 0.6, y2: cy - r, stroke: ink, 'stroke-width': MARK_STROKE }, g);
+  if (symbol === 'DG-4') bang(g, cx, cy, ink);
+  if (symbol === 'DG-3') { const half = MARK_R * K['S-391']; bang(g, cx - half, cy, ink); bang(g, cx + half, cy, ink); }
+  if (symbol === 'DG-1') {
+    const top = cy - MARK_R, hookY = top + MARK_R * 2 * K['S-392'], hook = MARK_R * 2 * K['S-393'], stem = top + MARK_R * 2 * K['S-394'];
+    el('path', { d: `M${cx - hook} ${hookY} A${hook} ${hook} 0 1 1 ${cx} ${hookY + hook} L${cx} ${stem}`, fill: 'none', stroke: ink, 'stroke-width': MARK_STROKE * K['S-328'] }, g);
+    el('circle', { cx, cy: cy + r * K['S-330'], r: MARK_R * K['S-331'], fill: ink }, g);
+  }
+  if (symbol === 'DG-2') {
+    const side = MARK_R * 2 * K['S-396'];
+    el('path', { d: K['S-395'], transform: `translate(${cx - side / 2} ${cy - side / 2}) scale(${side})`, fill: ink }, g);
+  }
+  return g;
+}
+// JDG-995: the edge (and, in 'bang', the symbol too) takes the colour of the delay marker (!), S-327
+function dgColours(pal, symbol, dark, mono) {
+  const bangInk = YELLOW.ink[dark ? 1 : 0];
+  const ink = state.edge === 'bang' ? bangInk : dgRaw(pal, symbol, 'ink', dark);
+  const edge = state.edge === 'each' ? ink : bangInk;
+  return { ground: paint(dgRaw(pal, symbol, 'ground', dark), mono), ink: paint(ink, mono), edge: paint(edge, mono) };
+}
+function markColours(symbol, pal, dark, mono) {
+  if (symbol.startsWith('DG-')) return dgColours(pal, symbol, dark, mono);
+  return { ground: paint(themedAt('S-162', state.hue, dark), mono), ink: paint(themedAt('S-161', state.hue, dark), mono) };
+}
+
+// ---- the chart ----
+const DAY = 30, ROW = 26, LEFT = 170, TOP = 34, DAYS = 23;
+// [name, level, planStart, planEnd, actualStart, actualEnd (null = up to the status date, undefined = not started), milestone, diagnosed symbol, plain symbol, parent]
+const TASKS = [
+  ['リリース 1.0', 0, 0, 22, 0, null, false, 'DG-3', 'PM-1', -1],
+  ['設計', 1, 0, 11, 0, null, false, 'DG-3', 'PM-1', 0],
+  ['要件を読む', 2, 0, 3, 0, 3, false, 'PM-2', 'PM-2', 1],
+  ['画面の案', 2, 3, 8, 4, null, false, 'DG-2', 'DG-4', 1],
+  ['資料の更新', 2, 5, 11, 6, null, false, 'DG-4', 'DG-4', 1],
+  ['中間の確認', 2, 11, 11, undefined, undefined, true, 'DG-4', 'DG-4', 1],
+  ['製作', 1, 9, 18, 10, null, false, 'DG-1', 'PM-1', 0],
+  ['試作', 2, 9, 14, 10, null, false, 'DG-1', 'PM-1', 6],
+  ['評価', 2, 14, 18, undefined, undefined, false, 'DG-1', 'PM-1a', 6],
+  ['準備', 1, 12, 21, 12, null, false, 'PM-1', 'PM-1', 0],
+  ['手順書', 2, 12, 17, 12, null, false, 'PM-3', 'PM-3', 9],
+  ['出荷の判断', 2, 21, 21, undefined, undefined, true, 'PM-1a', 'PM-1a', 9],
+];
+const STATUS_DAY = 12.5, CURSORS = [3, 8];
+const DEPS = [[2, 3], [3, 7], [7, 8], [4, 5], [8, 11], [10, 11]];
+const xOf = (d) => LEFT + d * DAY;
+const yOf = (r) => TOP + r * ROW;
+
+function draw() {
+  const svg = document.getElementById('chart');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const W = LEFT + DAYS * DAY + 10, H = TOP + TASKS.length * ROW + 10;
+  svg.setAttribute('width', W * state.zoom); svg.setAttribute('height', H * state.zoom);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.filter = state.cvd === 'none' ? '' : `url(#cvd-${state.cvd})`;
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: col('S-146') }, svg);
+  const parentOfHover = state.hover >= 0 ? TASKS[state.hover][9] : -1;
+  TASKS.forEach((t, r) => {
+    let fill = t[1] === 0 ? col('S-166') : (r % 2 === 0 ? col('S-167') : null);
+    if (r === state.hover) fill = col('S-164');
+    if (fill) el('rect', { x: 0, y: yOf(r), width: W, height: ROW, fill }, svg);
+    const isParent = r === parentOfHover;
+    // FR-135: the parent's name label in S-398 (follows DG-2 here) and weight S-399
+    const nameFill = isParent ? paint(dgRaw(state.pal, 'DG-2', 'ground', state.dark), state.mono) : col('S-147');
+    text(svg, 8 + t[1] * 14, yOf(r) + 17, t[0], { fill: nameFill, 'font-size': 13, 'font-weight': isParent || t[1] === 0 ? 700 : 400 });
+  });
+  for (let d = 0; d <= DAYS; d++) {
+    el('line', { x1: xOf(d) + 0.5, x2: xOf(d) + 0.5, y1: TOP - 12, y2: H, stroke: col('S-149'), 'stroke-width': 1 }, svg);
+    if (d < DAYS) text(svg, xOf(d) + DAY / 2, TOP - 16, String(d + 1), { fill: col('S-148'), 'font-size': 11, 'text-anchor': 'middle' });
+  }
+  el('line', { x1: LEFT - 0.5, x2: LEFT - 0.5, y1: 0, y2: H, stroke: col('S-149') }, svg);
+  const rectPath = (x, y, w, h) => `M${x} ${y}h${w}v${h}h${-w}Z`;
+  const marks = [];
+  TASKS.forEach((t, r) => {
+    const y = yOf(r), cy = y + ROW / 2;
+    const started = t[4] !== undefined;
+    if (t[6]) {
+      const cx = xOf(t[2]) + DAY / 2, s = 7;
+      el('path', { d: `M${cx} ${cy - s}L${cx + s} ${cy}L${cx} ${cy + s}L${cx - s} ${cy}Z`, fill: col('S-155'), stroke: col('S-156'), 'stroke-width': 1 }, svg);
+      marks.push([cx + s + MARK_R, cy, t, r]);  // LP-7: to the right of the diamond
+      return;
+    }
+    el('path', { d: rectPath(xOf(t[2]) + 0.5, y + 3.5, (t[3] - t[2]) * DAY - 1, 9), fill: col('S-155'), stroke: col('S-156'), 'stroke-width': 0.625 }, svg);
+    if (started) {
+      const end = t[5] === null ? STATUS_DAY : t[5];
+      el('path', { d: rectPath(xOf(t[4]) + 0.5, y + 14.5, (end - t[4]) * DAY - 1, 8), fill: col('S-157'), stroke: col('S-158'), 'stroke-width': 0.625 }, svg);
+      marks.push([xOf(t[4]) + MARK_R + 1, cy, t, r]);  // LP-1: at the start of the actual
+    } else {
+      marks.push([xOf(t[2]) + MARK_R + 1, cy, t, r]);  // RF-1: the dummy sits at the plan start
+    }
+  });
+  DEPS.forEach(([a, b]) => {
+    const ta = TASKS[a], tb = TASKS[b];
+    const x1 = ta[6] ? xOf(ta[2]) + DAY / 2 + 7 : xOf(ta[3]);
+    const y1 = yOf(a) + (ta[6] ? ROW / 2 : 8);
+    const x2 = tb[6] ? xOf(tb[2]) + DAY / 2 - 7 : xOf(tb[2]);
+    const y2 = yOf(b) + (tb[6] ? ROW / 2 : 8);
+    const mid = Math.max(x1 + 6, x2 - 6);
+    el('path', { d: `M${x1} ${y1}H${mid}V${y2}H${x2 - 6}`, fill: 'none', stroke: col('S-159'), 'stroke-width': 1.5 }, svg);
+    el('path', { d: `M${x2} ${y2}l-6 -3.5v7z`, fill: col('S-159') }, svg);
+  });
+  marks.forEach(([cx, cy, t]) => {
+    const symbol = state.diag ? t[7] : t[8];
+    marker(svg, cx, cy, symbol, markColours(symbol, state.pal, state.dark, state.mono));
+  });
+  if (state.progress) {
+    const xs = xOf(STATUS_DAY), pts = [];
+    TASKS.forEach((t, r) => {
+      pts.push(`${xs},${yOf(r)}`);
+      if (t[6]) return;
+      // a finished task leaves no vertex; one in progress is drawn behind by a made-up amount
+      if (t[5] === null) pts.push(`${xOf(Math.min(STATUS_DAY, t[4] + (STATUS_DAY - t[4]) * 0.55))},${yOf(r) + ROW / 2}`);
+      else if (t[2] < STATUS_DAY) pts.push(`${xOf(t[2])},${yOf(r) + ROW / 2}`);
+    });
+    pts.push(`${xs},${yOf(TASKS.length)}`);
+    el('polyline', { points: pts.join(' '), fill: 'none', stroke: col('S-160'), 'stroke-width': 1.5 }, svg);
+  }
+  if (state.cursor) CURSORS.forEach((d) => el('line', { x1: xOf(d), x2: xOf(d), y1: TOP - 12, y2: H, stroke: col('S-195'), 'stroke-width': 1 }, svg));
+  el('line', { x1: xOf(STATUS_DAY), x2: xOf(STATUS_DAY), y1: TOP - 12, y2: H, stroke: col('S-163'), 'stroke-width': 2 }, svg);
+  // pointer rows: an invisible band per row
+  TASKS.forEach((t, r) => {
+    const band = el('rect', { x: 0, y: yOf(r), width: W, height: ROW, fill: 'transparent' }, svg);
+    band.addEventListener('mouseenter', () => { state.hover = r; draw(); });
+  });
+  svg.onmouseleave = () => { state.hover = -1; draw(); };
+}
+
+// ---- the four palettes side by side ----
+function drawStrip() {
+  const svg = document.getElementById('strip');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const S = 1.6, CELL_W = 5 * 16 + 8, CELL_H = 22, LABEL = 150;
+  const shown = PALETTES.filter((p) => p.key !== 'custom').map((p) => p.key).concat(state.pal === 'custom' ? ['custom'] : []);
+  const cols = [[false, false, false], [false, true, false], [true, false, false], [true, true, false], [false, false, true], [true, false, true]];
+  const W = LABEL + cols.length * CELL_W * S, H = shown.length * CELL_H * S;
+  svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.filter = state.cvd === 'none' ? '' : `url(#cvd-${state.cvd})`;
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: col('S-146') }, svg);
+  shown.forEach((key, i) => {
+    const p = PALETTES.find((q) => q.key === key);
+    text(svg, 6, i * CELL_H * S + CELL_H * S / 2 + 5, p.label, { fill: col('S-147'), 'font-size': 13, 'font-weight': key === state.pal ? 700 : 400 });
+    cols.forEach(([dark, onBar, mono], j) => {
+      const g = el('g', { transform: `translate(${LABEL + j * CELL_W * S} ${i * CELL_H * S}) scale(${S})` }, svg);
+      el('rect', { x: 0, y: 0, width: CELL_W, height: CELL_H, fill: paint(themedAt('S-146', state.hue, dark), mono), stroke: col('S-149'), 'stroke-width': 1 / S }, g);
+      if (onBar) el('rect', { x: 4, y: 8, width: CELL_W - 8, height: 10, fill: paint(themedAt('S-157', state.hue, dark), mono) }, g);
+      ['DG-1', 'DG-2', 'DG-3', 'DG-4', 'PM-1'].forEach((sym, k) => {
+        const colours = sym.startsWith('DG-') ? dgColours(key, sym, dark, mono)
+          : { ground: paint(themedAt('S-162', state.hue, dark), mono), ink: paint(themedAt('S-161', state.hue, dark), mono) };
+        marker(g, 12 + k * 16, CELL_H / 2, sym, colours);
+      });
+    });
+  });
+}
+
+// ---- measurements ----
+function fmt(v, bad, digits) { const s = v.toFixed(digits === undefined ? 2 : digits); return v < bad ? `<span class="bad">${s}</span>` : s; }
+function metrics() {
+  const ids = ['DG-1', 'DG-2', 'DG-3', 'DG-4'];
+  const groundsOf = (dark) => ROSTER.flatMap((h) => ['S-146', 'S-164', 'S-166', 'S-167'].map((s) => themedAt(s, h, dark)));
+  const rows = ids.map((id) => {
+    const cells = [false, true].map((dark) => {
+      const g = dgRaw(state.pal, id, 'ground', dark), ink = state.edge === 'bang' ? YELLOW.ink[dark ? 1 : 0] : dgRaw(state.pal, id, 'ink', dark);
+      const grd = Math.min(...groundsOf(dark).map((x) => ratio(g, x)));
+      const bar = Math.min(...ROSTER.map((h) => dE(g, themedAt('S-157', h, dark))));
+      const gaps = ['S-163', 'S-195', 'S-159', 'S-160'].map((s) => hueGap(hueOf(g), hueOf(themedAt(s, state.hue, dark))));
+      return `<td><code>${g}</code></td><td>${fmt(grd, 3)}</td><td>${fmt(ratio(g, ink), 4.5)}</td><td>${monoL(g).toFixed(0)}%</td><td>${fmt(bar, 20, 0)}</td>` +
+        gaps.map((v) => `<td>${fmt(v, 20, 0)}°</td>`).join('');
+    });
+    return `<tr><td>${id}</td>${cells[0]}</tr><tr><td>${id}（暗）</td>${cells[1]}</tr>`;
+  });
+  document.getElementById('metrics').innerHTML =
+    '<tr><th>状態</th><th>地の色</th><th>地・帯の最小</th><th>記号</th><th>モノクロの灰</th><th>バー ΔE</th><th>基準日線</th><th>カーソル</th><th>依存線</th><th>イナズマ線</th></tr>' + rows.join('');
+  const pairs = [];
+  ids.forEach((a, i) => ids.slice(i + 1).forEach((b) => pairs.push([a, b])));
+  const body = pairs.map(([a, b]) => {
+    const cells = [false, true].map((dark) => {
+      const x = dgRaw(state.pal, a, 'ground', dark), y = dgRaw(state.pal, b, 'ground', dark);
+      return `<td>${fmt(dE(x, y), 40, 0)}</td><td>${fmt(dE(x, y, 'protan'), 40, 0)}</td><td>${fmt(dE(x, y, 'deutan'), 40, 0)}</td><td>${fmt(Math.abs(monoL(x) - monoL(y)), 10, 0)}</td>`;
+    });
+    return `<tr><td>${a} と ${b}</td>${cells.join('')}</tr>`;
+  }).join('');
+  document.getElementById('pairs').innerHTML =
+    '<tr><th rowspan="2">2 つの状態</th><th colspan="4">明るいテーマ</th><th colspan="4">暗いテーマ</th></tr>' +
+    '<tr><th>ΔE</th><th>1 型</th><th>2 型</th><th>灰の差</th><th>ΔE</th><th>1 型</th><th>2 型</th><th>灰の差</th></tr>' + body;
+}
+
+// ---- controls ----
+function buildControls() {
+  const box = document.getElementById('cands');
+  PALETTES.forEach((p) => {
+    const l = document.createElement('label');
+    const sw = p.dg ? ['DG-1', 'DG-2', 'DG-3'].map((id) => `<span class="swatch" style="background:${p.dg[id].ground[0]}"></span>`).join('') + ' ' : '';
+    l.innerHTML = `<input type="radio" name="pal" value="${p.key}"> <span>${sw}<b>${p.label}</b><br><span class="hint">${p.note}</span></span>`;
+    l.querySelector('input').addEventListener('change', () => { state.pal = p.key; sync(); });
+    box.appendChild(l);
+  });
+  const custom = document.getElementById('custom');
+  custom.innerHTML = '<span></span><span>明</span><span>暗</span>';
+  ['DG-1', 'DG-2', 'DG-3'].forEach((id) => {
+    custom.insertAdjacentHTML('beforeend', `<span>${id}</span>` + [0, 1].map((t) => `<input type="color" data-id="${id}" data-t="${t}">`).join(''));
+  });
+  custom.querySelectorAll('input').forEach((inp) => inp.addEventListener('input', () => {
+    if (state.pal !== 'custom') state.custom = JSON.parse(JSON.stringify(paletteOf(state.pal)));
+    state.custom[inp.dataset.id].ground[+inp.dataset.t] = inp.value;
+    state.pal = 'custom'; sync();
+  }));
+  const hueSel = document.getElementById('hue');
+  ROSTER.forEach((h, i) => { const o = document.createElement('option'); o.value = h; o.textContent = `TH-${i + 1}　${h}°`; hueSel.appendChild(o); });
+  document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', () => { state.dark = r.value === 'dark'; sync(); }));
+  document.querySelectorAll('input[name=edge]').forEach((r) => r.addEventListener('change', () => { state.edge = r.value; sync(); }));
+  const bind = (id, key, conv) => document.getElementById(id).addEventListener('input', (e) => { state[key] = conv(e.target); sync(); });
+  bind('mono', 'mono', (t) => t.checked);
+  bind('cvd', 'cvd', (t) => t.value);
+  bind('hue', 'hue', (t) => Number(t.value));
+  bind('zoom', 'zoom', (t) => Number(t.value));
+  bind('showLegend', 'legend', (t) => t.checked);
+  bind('showCursor', 'cursor', (t) => t.checked);
+  bind('showProgress', 'progress', (t) => t.checked);
+  bind('showDiag', 'diag', (t) => t.checked);
+}
+function readHash() {
+  // #pal=B&mode=dark&hue=285&mono=1&cvd=protan&zoom=2&legend=0 -- used by the screenshot script
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (q.get('pal')) state.pal = q.get('pal');
+  if (q.get('mode')) state.dark = q.get('mode') === 'dark';
+  if (q.get('hue')) state.hue = Number(q.get('hue'));
+  if (q.get('mono')) state.mono = q.get('mono') === '1';
+  if (q.get('cvd')) state.cvd = q.get('cvd');
+  if (q.get('zoom')) state.zoom = Number(q.get('zoom'));
+  if (q.get('legend')) state.legend = q.get('legend') === '1';
+  if (q.get('diag')) state.diag = q.get('diag') === '1';
+  if (q.get('edge')) state.edge = q.get('edge');
+}
+function legend() {
+  const box = document.getElementById('legendBox');
+  box.innerHTML = '';
+  if (!state.legend) return;
+  ['DG-1', 'DG-2', 'DG-3', 'DG-4'].forEach((id) => {
+    const span = document.createElement('span');
+    const s = document.createElementNS(SVGNS, 'svg');
+    s.setAttribute('width', 18); s.setAttribute('height', 18); s.setAttribute('viewBox', '0 0 18 18');
+    marker(s, 9, 9, id, markColours(id, state.pal, state.dark, state.mono));
+    span.appendChild(s);
+    span.appendChild(document.createTextNode(DG_NAMES[id]));
+    box.appendChild(span);
+  });
+  box.style.filter = state.cvd === 'none' ? '' : `url(#cvd-${state.cvd})`;
+}
+function sync() {
+  document.querySelectorAll('input[name=pal]').forEach((r) => { r.checked = r.value === state.pal; });
+  document.querySelectorAll('input[name=mode]').forEach((r) => { r.checked = (r.value === 'dark') === state.dark; });
+  document.querySelectorAll('input[name=edge]').forEach((r) => { r.checked = r.value === state.edge; });
+  document.getElementById('mono').checked = state.mono;
+  document.getElementById('cvd').value = state.cvd;
+  document.getElementById('hue').value = String(state.hue);
+  document.getElementById('zoom').value = String(state.zoom);
+  document.getElementById('showLegend').checked = state.legend;
+  document.getElementById('showDiag').checked = state.diag;
+  document.querySelectorAll('#custom input').forEach((inp) => { inp.value = dgRaw(state.pal, inp.dataset.id, 'ground', inp.dataset.t === '1'); });
+  const root = document.documentElement.style;
+  root.setProperty('--bg', col('S-146')); root.setProperty('--ink', col('S-147')); root.setProperty('--muted', col('S-148'));
+  root.setProperty('--rule', col('S-149')); root.setProperty('--panel', col('S-150')); root.setProperty('--accent', col('S-151'));
+  document.documentElement.style.colorScheme = state.dark ? 'dark' : 'light';
+  draw(); drawStrip(); metrics(); legend();
+  const p = PALETTES.find((q) => q.key === state.pal);
+  document.getElementById('current').innerHTML = `案 <b>${p.label}</b><br>` +
+    ['DG-1', 'DG-2', 'DG-3'].map((id) => `${id}: 明 <code>${dgRaw(state.pal, id, 'ground', false)}</code> ／ 暗 <code>${dgRaw(state.pal, id, 'ground', true)}</code>`).join('<br>') +
+    `<br>${state.dark ? '暗い' : '明るい'}テーマ、色相 ${state.hue}°、モノクロ ${state.mono ? '入' : '切'}、色覚の模擬 ${state.cvd}`;
+}
+buildControls();
+readHash();
+sync();
+window.addEventListener('hashchange', () => { readHash(); sync(); });
+</script>
+</body>
+</html>
