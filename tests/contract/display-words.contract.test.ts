@@ -362,12 +362,20 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // part of the colour field by the part it names (CV-9); neither is a row.
   colourNames: 'spelling',
   colourField: 'part',
+  // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
+  rowMinHeightField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
   dualCursorReadout: 'line',
+  // WHY: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
+  // the state word of column SQ-5 by its row of table T-019a, and the panel's own
+  // words (SV-7's blank item, SQ-1's no-name word, SV-13's restore label) by the part they fill.
+  searchColumns: 'rowId',
+  planActualStates: 'rowId',
+  searchPanel: 'part',
 }
 
 const isWords = (value: unknown): value is Words =>
