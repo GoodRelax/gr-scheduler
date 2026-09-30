@@ -20,8 +20,8 @@
 | | 残件 | 総件数 | 未検討 | 裁定待ち | 仕様待ち | 実装待ち | 試験待ち | 実測待ち | 実測済 | 取下げ |
 | --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 223 | 793 | 56 | 3 | 58 | 70 | 25 | 11 | 515 | 55 |
-| 最新 2026-10-01 05:25 | 389 | 974 | 76 | 8 | 122 | 104 | 26 | 53 | 527 | 58 |
-| ⭐ 差分 | +166 | +181 | +20 | +5 | +64 | +34 | +1 | +42 | +12 | +3 |
+| 最新 2026-10-01 06:16 | 390 | 975 | 77 | 8 | 122 | 104 | 26 | 53 | 527 | 58 |
+| ⭐ 差分 | +167 | +182 | +21 | +5 | +64 | +34 | +1 | +42 | +12 | +3 |
 
 ⚠️ **巡の頭で `python tools/ledger_metrics.py --start` を 1 度走らせる。**⛔ **手で書かない** —— 測れる数を手で書けば必ず腐る。⚠️ **時刻まで持つ** —— 1 日に複数の巡が走るので、日付だけでは見分けられない。
 
@@ -34,8 +34,8 @@
 | | 未仕分け | 仕様の穴 | 製品の仕事 | 検証の借り | 決着 |
 | --- | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 56 | 61 | 95 | 11 | 570 |
-| 最新 2026-10-01 05:25 | 76 | 130 | 130 | 53 | 585 |
-| ⭐ 差分 | +20 | +69 | +35 | +42 | +15 |
+| 最新 2026-10-01 06:16 | 77 | 130 | 130 | 53 | 585 |
+| ⭐ 差分 | +21 | +69 | +35 | +42 | +15 |
 
 ⛔ **「不具合」と呼んでよいのは `製品の仕事` だけである。** `仕様の穴` は仕様を書く仕事、`検証の借り` は押しに行く仕事であって、どちらもコードの欠陥ではない。
 
@@ -492,3 +492,4 @@
 | DFC-1469 | ⚠️ **`tests/contract/units.contract.test.ts:51` が赤 —— 「counts the 160 units」が生の `160` を検めるが、表 T-075 は既に 167 行を持つ（増え続ける）** | ユニットの全数が、仕様が述べる数と一致すること（生の数値でなく仕様から導くこと） | 表 T-074 `SU-3`（本設計での全数「167。全数は 表 T-075」）から数を読んで比べる | 対応済み: 本行で直した（`STATED_UNIT_COUNT` を `T-074` `SU-3` の欄から正規表現で読む） | `実測待ち` | stage-B close（`JDG-778`）で見つけて記録。batch (a)（枝 `fix-reds-a`）。直す前: `toHaveLength(160)` に対し実測 167 で赤。直した後: 503 件緑。表 T-075 に行が増えたときは `SU-3` の欄も書き直す運用で、両者が食い違えば `SU-3` 対 表 T-075 として赤くなる（本ファイルの数値には依らない） | `tests/contract/units.contract.test.ts` | —— 実測: `node ../../../node_modules/vitest/vitest.mjs run tests/contract/units.contract.test.ts`（503 件緑） |
 | DFC-1470 | ⚠️ **`tests/contract/display-words.contract.test.ts` の「every word that IS written is printed」が `DFC-1466` を直した後も赤のまま —— `searchColumns`（17 セル）／ `planActualStates`（10 セル）／ `searchPanel`（4 セル）の 3 節、計 31 セルが、1 つの frame にも届かない** —— `DFC-1466` の修正前は `rowMinHeightField.current` の赤がループの先頭側で止めていたため、この 3 節は一度も読まれていなかった（覆面red）。`CR-571`（検索パネル、`search-panel.ts`）の語がこのファイルに一切 `place()` されていない | `searchColumns` / `planActualStates` / `searchPanel` の書かれたセルが、`rowMinHeightField` と同じく、実際に検索パネルを開いた frame から届くこと | 検索パネルを開いた frame（`readings.searchPanel` に `SearchPanelSession`、`root.screen.searchPanelDisplayState` を `open` 系にしたもの）を 1 つ以上足し、`view.searchPanel.columns[].heading`（`searchColumns`）／ `view.searchPanel.rows[].cells`（`planActualStates`、状態の列）／ `titleEntries` の `restore` ラベルとフィルタ値一覧の `blank`・タスク名の `noName`（`searchPanel`）を読む `place()` を足す | 未定（`CR-571` 域の新しい frame 構築が要り、batch (a) の試験限定の枠を超える規模と判断。要 別波） | `未検討` | stage-B close（`JDG-778`）で見つけて記録。batch (a)（枝 `fix-reds-a`）で `DFC-1466` を直した副作用として発見。3 節とも `place()` が 1 つも無く、`FRAMES`（237 件）のどれにも文字列が出ない。一時デバッグで実測: `searchColumns` 17 / `planActualStates` 10 / `searchPanel` 4 セルが届かず。範囲外のため本バンドでは直さない —— `check.sh` / `gen:check` はこの 1 件のために赤のまま | `CR-571`・`DFC-1466`・`tests/contract/display-words.contract.test.ts`・`src/adapter/screen-renderer/search-panel.ts` | —— 未再現（試験の一時デバッグで数えた。実装は読んだのみ） |
 | DFC-1600 | ⚠️ **e2e `tests/system/divider-colour-corner-and-sticky-field.test.ts` の「PR-21 / FR-006」が赤** —— コメントボックスの色の欄（`PR-21`・`PR-28`）が表 T-016 の操作子と合わない。段 B の `CR-559`（`PR-26`〜`28`・見本）と `FR-072` の 2 度押しの道（`CR-609` が外す）で形が変わった（段 B の閉じの振り分け、推測） | 表 T-016 どおりの操作子で、試験が緑 | `CR-606`（波 2 がこのファイルの `T016_COLUMNS` を書き直す）と `CR-609` と一緒に直す | 対応方針: `docs/spec/01-04-requirements.md` の 表 T-016 の `PR-21`・`PR-28` に従う。`CR-606`・`CR-609` を当てる回で直す | `実装待ち` | 持ち場: 設定とパネル（実装の回）。大きさ M。毎フレーム: いいえ。GT-2（2026-10-01、`051eab19`）で赤。`tests/known-red.txt` に載せた（`JDG-1007`） | `CR-606`・`CR-609`・`JDG-778` | —— e2e の結果だけ（未再現） |
+| DFC-1606 | ⚠️ **ズーム（`MK-2`）の p95 が段 0 より 1.6〜3.0 ms 遅い（175% 表示、lm-19）** —— 段 0 `5c1b915` は 3 回とも 33.33 ms、`e724925d` は 34.97〜36.3 ms。`CR-598`/`602` の前（`569135d7`）と `CR-601` の前（`8e60e6c8`）にも同じ幅があるので、原因はそれより前。最後の緑は 2026-09-26 の dist `bf503c5b`。ホイールの一刻みの配送も 9.4〜12.2 → 17〜20 ms | `MK-2` の p95 が段 0 の範囲に戻る（`PW-3` の読み） | `bf503c5b`〜`569135d7` を二分探索し、遅くした変更を突き止める | 対応方針: `docs/development-records/performance-runs.md` の 2026-10-01 の行（赤）と `JDG-1019` に従い、切り分けてから直す | `未検討` | 毎フレーム: はい（ズーム）。大きさ 未定。測定は `docs/development-records/measurements/perf-2026-10-01/`。`main` の早送りはこれを待つ | `JDG-605`・`JDG-726`・`JDG-1019` | ✅ 3 回ずつ交互に測った（`6a4a6746`） |
