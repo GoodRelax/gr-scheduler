@@ -128,7 +128,6 @@ import {
   type PointerInput,
   type PointerPress,
   type SpentEntranceSituation,
-  type TranslatedInput,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
   DEFAULT_ROW_NAME,
@@ -993,7 +992,7 @@ function isLandingMarkClearedBy(input: HumanInput, session: ScreenSession): bool
 
 // see EL-16, T-280
 /** @purity pure */
-function continuationMarkClickedOf(landed: NonNullable<TranslatedInput['landingMarked']>): ScreenValuesEvent {
+function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof commandFromInput>['landingMarked']>): ScreenValuesEvent {
   const { predecessorUid, successorUid, landedTaskUid } = landed
   return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTaskUid }
 }
