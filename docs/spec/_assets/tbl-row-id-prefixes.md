@@ -64,7 +64,7 @@
 | `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 76 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 37 |
-| `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
+| `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` ／ `docs/development-records/lane-l4-handoff-2026-10-01.md` | 18 |
 | `CQ` | Confirmation with a list | 名前の一覧を持つ確認の、見出し部・線・一覧の組み方 | 仕様書 | `T-258` | 4 |
 | `CS` | Consistency | 文書の見え方を一貫させる単位 | 仕様書 | `T-066` | 4 |
 | `CT` | Contrast | テーマ色が満たすコントラストの条件 | 仕様書 | `T-017a` | 5 |
