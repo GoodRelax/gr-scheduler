@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Non-working day shade sample (FR-054)</title>
+<style>
+  html, body { margin: 0; height: 100%; font: 14px/1.6 "Yu Gothic UI", "Yu Gothic", sans-serif; }
+  body { display: grid; grid-template-columns: 1fr 6px 380px; height: 100vh; }
+  #picture { overflow: auto; padding: 12px; }
+  #divider { background: #c9ced6; cursor: col-resize; }
+  #controls { overflow: auto; padding: 12px 14px; background: #f4f6f9; color: #16181d; }
+  body.dark #picture { background: #1b1e23; color: #e8eaee; }
+  h1 { font-size: 16px; margin: 0 0 6px; }
+  h2 { font-size: 14px; margin: 14px 0 4px; }
+  label { display: block; margin: 4px 0 2px; }
+  input[type=range] { width: 100%; }
+  select { font: inherit; }
+  .value { font-family: Consolas, monospace; }
+  table { border-collapse: collapse; margin: 6px 0; }
+  td, th { border: 1px solid #c9ced6; padding: 1px 6px; font-size: 12px; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  body.dark #picture td, body.dark #picture th { border-color: #3a4048; }
+  textarea { width: 100%; height: 170px; font: 12px Consolas, monospace; }
+  .note { font-size: 13px; color: #5b6068; }
+  body.dark #picture .note { color: #9aa1ab; }
+  .bad { color: #c62828; font-weight: bold; }
+</style>
+</head>
+<body>
+<div id="picture">
+  <h1>非稼働日（週末・例外日）の塗りの見本（FR-054）</h1>
+  <div class="note">暦は月〜金が稼働（表 T-209 の S-106）。例外日の休業を 1 つ（3 日の連なり）置いた。線の色は CR-602 の組（基準日線 青緑、カーソル マゼンタ、依存線 茶、イナズマ線 橙）。塗りは行の帯の上、罫線と図形の下に、連なりごとに 1 つの矩形で重ねる。</div>
+  <div id="chart"></div>
+  <div id="counts" class="note"></div>
+  <h2>線と字が塗りの上で読めるか（NFR-007 の線 3 : 1。表 T-305 の 10 色相の最悪）</h2>
+  <div id="contrast"></div>
+</div>
+<div id="divider"></div>
+<div id="controls">
+  <h2>明暗・色相</h2>
+  <label><input type="radio" name="theme" value="light" checked> 明</label>
+  <label><input type="radio" name="theme" value="dark"> 暗</label>
+  <label>テーマの色相（表 T-305） <select id="hue"></select></label>
+  <label><input type="checkbox" id="mono"> モノクロ（S-74。明度を保って彩度 0）</label>
+
+  <h2>塗りの色（候補）</h2>
+  <label>明: 黒を重ねる濃さ <span class="value" id="v-lightAlpha"></span></label>
+  <input type="range" id="lightAlpha" min="0" max="0.2" step="0.005" value="0.06">
+  <label>暗: 重ねる色 <select id="darkInk"><option value="white" selected>白を重ねる（明るくする）</option><option value="black">黒を重ねる（暗くする）</option></select></label>
+  <label>暗: 重ねる濃さ <span class="value" id="v-darkAlpha"></span></label>
+  <input type="range" id="darkAlpha" min="0" max="0.3" step="0.005" value="0.05">
+
+  <h2>倍率と間引き</h2>
+  <label>1 日の幅（描いた px） <span class="value" id="v-ppd"></span></label>
+  <input type="range" id="ppd" min="-1" max="5.4" step="0.01" value="3.3">
+  <label>低い倍率での描き方 <select id="lod">
+    <option value="all">A: どの倍率でも塗る</option>
+    <option value="week" selected>B: 目盛が週の段を持つ倍率から（S-84 = 2px/日 以上）</option>
+    <option value="weekEx">B′: B に加え、それより低い倍率でも例外日を含む連なりは塗る</option>
+    <option value="day">C: 目盛が日の段を持つ倍率から（S-85 = 17.5px/日 以上）</option>
+  </select></label>
+  <label><input type="checkbox" id="rulerShade"> タイムルーラーの帯も塗る</label>
+  <label><input type="checkbox" id="grid" checked> 日付罫線を出す（S-67）</label>
+
+  <h2>いまの値</h2>
+  <textarea id="values" readonly></textarea>
+  <div class="note">この欄を貼り返せば、そのまま裁定の記録になります。</div>
+</div>
+<script>
+'use strict'
+// Values from docs/spec/_assets/tbl-settings.md (tree 0590ad03) and the CR-602 rulings JDG-910..919.
+const HUES = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250]   // table T-305, TH-1 is S-73 = 214
+const TIER_WEEK = 2, TIER_DAY = 17.5, TIER_MONTH = 0.5       // S-84, S-85, S-83 (drawn px per day, rulerFont at fontMin)
+const DRAW_RATIO = 0.625
+const T = {
+  light: {
+    ground: [null, 0, 100], rule: ['H', 14, 87], band: ['H', 42, 96], top: ['H', 40, 97], alt: ['H', 20, 99], bandEdge: ['H', 34, 88],
+    plan: ['H', 46, 80], planEdge: ['H', 44, 46], actual: ['H', 62, 34], actualEdge: ['H', 66, 22],
+    text: '#16181d', label: '#000000',
+    status: '#008a7c', cursor: '#f500f5', dep: '#6f472a', light_: '#d66400',
+    grey: '#f5f5f5', blue: '#f1f4f9',
+  },
+  dark: {
+    ground: ['H', 12, 9], rule: ['H', 12, 23], band: ['H', 18, 20], top: ['H', 20, 17], alt: ['H', 14, 11], bandEdge: ['H', 16, 28],
+    plan: ['H', 32, 26], planEdge: ['H', 46, 66], actual: ['H', 62, 64], actualEdge: ['H', 70, 80],
+    text: '#e8eaee', label: '#ffffff',
+    status: '#47d1bf', cursor: '#ff40ff', dep: '#b38461', light_: '#ff9933',
+    grey: '#333333', blue: '#2a323c',
+  },
+}
+const $ = (id) => document.getElementById(id)
+HUES.forEach((hue, index) => { const o = document.createElement('option'); o.value = hue; o.textContent = `TH-${index + 1}  ${hue}`; $('hue').appendChild(o) })
+
+// ---- colour arithmetic (sRGB, WCAG 2.1) ----
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100
+  const k = (n) => (n + h / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  return [f(0) * 255, f(8) * 255, f(4) * 255]
+}
+function hexToRgb(hex) { const v = parseInt(hex.slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255] }
+function rgbToHsl([r, g, b]) {
+  r /= 255; g /= 255; b /= 255
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2
+  if (max === min) return [0, 0, l * 100]
+  const d = max - min, s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+  const h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return [h * 60, s * 100, l * 100]
+}
+function resolve(spec, hue, mono) {
+  let rgb = typeof spec === 'string' ? hexToRgb(spec) : hslToRgb(spec[0] === 'H' ? hue : 0, spec[1], spec[2])
+  if (mono) { const [, , l] = rgbToHsl(rgb); rgb = hslToRgb(0, 0, l) }
+  return rgb
+}
+const css = (rgb) => `rgb(${rgb.map((v) => Math.round(v)).join(',')})`
+function over(rgb, ink, alpha) { return rgb.map((v, i) => v * (1 - alpha) + ink[i] * alpha) }
+function lum(rgb) { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]) }
+function ratio(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+
+function state() {
+  const theme = document.querySelector('input[name=theme]:checked').value
+  const ppd = Math.round(Math.exp(Number($('ppd').value)) * 100) / 100
+  return {
+    theme, ppd, hue: Number($('hue').value), mono: $('mono').checked,
+    lightAlpha: Number($('lightAlpha').value), darkAlpha: Number($('darkAlpha').value), darkInk: $('darkInk').value,
+    lod: $('lod').value, rulerShade: $('rulerShade').checked, grid: $('grid').checked,
+  }
+}
+function shadeOf(s) {
+  return s.theme === 'light'
+    ? { ink: [0, 0, 0], alpha: s.lightAlpha, word: `rgba(0,0,0,${s.lightAlpha})` }
+    : s.darkInk === 'white'
+      ? { ink: [255, 255, 255], alpha: s.darkAlpha, word: `rgba(255,255,255,${s.darkAlpha})` }
+      : { ink: [0, 0, 0], alpha: s.darkAlpha, word: `rgba(0,0,0,${s.darkAlpha})` }
+}
+
+// ---- calendar: Mon..Fri work (S-106), one exception run of 3 days ----
+const START = Date.UTC(2026, 8, 7)      // 2026-09-07, a Monday
+const DAY = 86400000
+const HOLIDAY = [Date.UTC(2026, 8, 22), Date.UTC(2026, 8, 24)]   // 2026-09-22 .. 09-24, a 3-day exception
+function isWorking(t) {
+  if (t >= HOLIDAY[0] && t <= HOLIDAY[1]) return false
+  const wd = new Date(t).getUTCDay()
+  return wd !== 0 && wd !== 6
+}
+function runsIn(fromT, toT) {
+  // consecutive non-working days merged into one run [from, toInclusive]
+  const out = []
+  let open = null
+  for (let t = fromT; t <= toT; t += DAY) {
+    if (!isWorking(t)) { if (open === null) open = t } else if (open !== null) { out.push([open, t - DAY]); open = null }
+  }
+  if (open !== null) out.push([open, toT])
+  return out
+}
+function isWeeklyOnly(run) { return !(run[0] <= HOLIDAY[1] && run[1] >= HOLIDAY[0]) }
+
+// ---- the picture ----
+const ROWS = [
+  { kind: 'top', name: '最上位の行（S-166）' },
+  { kind: 'band', name: '行の帯（S-164）', plan: [3, 20], actual: [3, 14] },
+  { kind: 'alt', name: '交互の行（S-167）', plan: [15, 30], actual: [15, 22], dep: true },
+  { kind: 'band', name: '行の帯', plan: [31, 45] },
+  { kind: 'grey', name: '行の色: 薄い灰色（S-317）', plan: [8, 26], actual: [8, 25] },
+  { kind: 'blue', name: '行の色: 青（S-319）', plan: [22, 40] },
+  { kind: 'alt', name: '交互の行', plan: [36, 52] },
+  { kind: 'band', name: '行の帯', plan: [40, 60] },
+]
+const ROW_H = 36, RULER_H = 3 * 18, LEFT = 190, WIDTH = 1100
+
+function draw() {
+  const s = state()
+  document.body.classList.toggle('dark', s.theme === 'dark')
+  $('v-lightAlpha').textContent = s.lightAlpha.toFixed(3)
+  $('v-darkAlpha').textContent = s.darkAlpha.toFixed(3)
+  const tier = s.ppd >= TIER_DAY ? '年 ＋ 月 ＋ 日 ＋ 曜日' : s.ppd >= TIER_WEEK ? '年 ＋ 月 ＋ 週' : s.ppd >= TIER_MONTH ? '年 ＋ 月' : '年'
+  $('v-ppd').textContent = `${s.ppd} px（目盛: ${tier}）`
+  const c = T[s.theme]
+  const col = (key) => resolve(c[key], s.hue, s.mono)
+  const shade = shadeOf(s)
+  const days = Math.floor((WIDTH - LEFT) / s.ppd)
+  const x = (t) => LEFT + ((t - START) / DAY) * s.ppd
+  const visibleTo = START + (days - 1) * DAY
+  const drawShade = s.lod === 'all' || ((s.lod === 'week' || s.lod === 'weekEx') && s.ppd >= TIER_WEEK) || (s.lod === 'day' && s.ppd >= TIER_DAY)
+  const runs = runsIn(START, visibleTo).filter((run) => drawShade || (s.lod === 'weekEx' && !isWeeklyOnly(run)))
+  const top = RULER_H
+  const bottom = RULER_H + ROWS.length * ROW_H
+  let svg = `<rect x="0" y="0" width="${WIDTH}" height="${bottom}" fill="${css(col('ground'))}"/>`
+  // row bands
+  ROWS.forEach((row, i) => {
+    const fill = row.kind === 'top' ? col('top') : row.kind === 'alt' ? col('alt') : row.kind === 'grey' ? col('grey') : row.kind === 'blue' ? col('blue') : col('band')
+    svg += `<rect x="${LEFT}" y="${top + i * ROW_H}" width="${WIDTH - LEFT}" height="${ROW_H}" fill="${css(fill)}"/>`
+    svg += `<line x1="${LEFT}" y1="${top + (i + 1) * ROW_H}" x2="${WIDTH}" y2="${top + (i + 1) * ROW_H}" stroke="${css(col('bandEdge'))}" stroke-width="1"/>`
+    svg += `<text x="6" y="${top + i * ROW_H + 22}" font-size="12" fill="${css(col('text'))}">${row.name}</text>`
+  })
+  // the shade: ONE path element for every run, drawn above the bands and below rules and figures
+  if (runs.length > 0) {
+    const d = runs.map(([a, b]) => `M${x(a).toFixed(2)} ${s.rulerShade ? 0 : top}H${(x(b) + s.ppd).toFixed(2)}V${bottom}H${x(a).toFixed(2)}Z`).join('')
+    svg += `<path d="${d}" fill="${css(shade.ink)}" fill-opacity="${shade.alpha}"/>`
+  }
+  // ruler
+  svg += `<rect x="${LEFT}" y="0" width="${WIDTH - LEFT}" height="${RULER_H}" fill="${css(col('ground'))}" fill-opacity="${s.rulerShade ? 0 : 1}"/>`
+  svg += `<line x1="${LEFT}" y1="${RULER_H}" x2="${WIDTH}" y2="${RULER_H}" stroke="${css(col('rule'))}"/>`
+  const stride = s.ppd >= TIER_DAY ? 1 : s.ppd >= TIER_WEEK ? 7 : 0
+  for (let n = 0; n < days; n += 1) {
+    const t = START + n * DAY
+    const date = new Date(t)
+    const px = x(t)
+    if (date.getUTCDate() === 1 || n === 0) svg += `<text x="${px + 2}" y="14" font-size="12" fill="${css(col('text'))}">${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}</text>`
+    if (stride === 1) {
+      svg += `<text x="${px + 2}" y="32" font-size="11" fill="${css(col('text'))}">${date.getUTCDate()}</text>`
+      svg += `<text x="${px + 2}" y="48" font-size="10" fill="${css(col('text'))}">${'日月火水木金土'[date.getUTCDay()]}</text>`
+    } else if (stride === 7 && date.getUTCDay() === 1) {
+      svg += `<text x="${px + 2}" y="32" font-size="11" fill="${css(col('text'))}">${date.getUTCDate()}</text>`
+    }
+    if (s.grid && stride > 0 && (stride === 1 || date.getUTCDay() === 1)) {
+      svg += `<line x1="${px}" y1="${top}" x2="${px}" y2="${bottom}" stroke="${css(col('rule'))}" stroke-width="1"/>`
+    }
+  }
+  // bars, labels, lines
+  const dayX = (n) => LEFT + n * s.ppd
+  const k = DRAW_RATIO
+  ROWS.forEach((row, i) => {
+    const cy = top + i * ROW_H + ROW_H / 2
+    if (row.plan) svg += `<rect x="${dayX(row.plan[0])}" y="${cy - 9}" width="${(row.plan[1] - row.plan[0]) * s.ppd}" height="14" fill="${css(col('plan'))}" stroke="${css(col('planEdge'))}" stroke-width="${k}"/>`
+    if (row.actual) svg += `<rect x="${dayX(row.actual[0])}" y="${cy - 5}" width="${(row.actual[1] - row.actual[0]) * s.ppd}" height="8" fill="${css(col('actual'))}" stroke="${css(col('actualEdge'))}" stroke-width="${k}"/>`
+    if (row.plan) svg += `<text x="${dayX(row.plan[0]) + 3}" y="${cy + 14}" font-size="11" fill="${css(col('label'))}" stroke="${css(col('ground'))}" stroke-width="0.6" paint-order="stroke">タスク ${i}</text>`
+  })
+  // a dependency line from row 1 end to row 2 start, and the lightning line
+  const depY1 = top + 1 * ROW_H + ROW_H / 2, depY2 = top + 2 * ROW_H + ROW_H / 2
+  svg += `<polyline points="${dayX(20)},${depY1} ${dayX(20) + 8},${depY1} ${dayX(20) + 8},${depY2} ${dayX(15)},${depY2}" fill="none" stroke="${css(col('dep'))}" stroke-width="${2.4 * k}"/>`
+  const statusX = dayX(24)
+  let bolt = `${statusX},${top}`
+  ROWS.forEach((row, i) => { const cy = top + i * ROW_H + ROW_H / 2; const dx = row.actual ? dayX(row.actual[1]) : statusX; bolt += ` ${dx},${cy} ${statusX},${cy + ROW_H / 2}` })
+  svg += `<polyline points="${bolt}" fill="none" stroke="${css(col('light_'))}" stroke-width="${2 * k}"/>`
+  svg += `<line x1="${statusX}" y1="${top}" x2="${statusX}" y2="${bottom}" stroke="${css(col('status'))}" stroke-width="2"/>`
+  const cursorX = dayX(33)
+  svg += `<line x1="${cursorX}" y1="${top}" x2="${cursorX}" y2="${bottom}" stroke="${css(col('cursor'))}" stroke-width="1"/>`
+  $('chart').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${bottom}">${svg}</svg>`
+  const weekly = runs.filter(isWeeklyOnly).length
+  $('counts').textContent = `見えている日 ${days}、塗った連なり ${runs.length}（週末 ${weekly}、例外日を含む ${runs.length - weekly}）。塗りの要素は ${runs.length > 0 ? 1 : 0} 個（連なりを 1 本の path にまとめた）。${drawShade ? '' : ' ⚠️ この倍率では塗らない（間引き）。'}`
+  drawContrast(s, shade)
+  $('values').value = [
+    `theme: ${s.theme}, hue: ${s.hue}, monochrome: ${s.mono}`,
+    `shade light: rgba(0,0,0,${s.lightAlpha})`,
+    `shade dark: ${s.darkInk === 'white' ? 'rgba(255,255,255,' : 'rgba(0,0,0,'}${s.darkAlpha})`,
+    `px per day: ${s.ppd} (${tier})`,
+    `low zoom: ${({ all: 'A every zoom', week: 'B from S-84 (week tier)', weekEx: 'B-prime: B, and exception runs at every zoom', day: 'C from S-85 (day tier)' })[s.lod]}`,
+    `ruler shaded too: ${s.rulerShade}`,
+    `runs drawn: ${runs.length} in one path element`,
+  ].join('\n')
+}
+
+function drawContrast(s, shade) {
+  // worst case over the 10 hues of T-305, for each ink, over each shaded ground
+  const c = T[s.theme]
+  const inks = [['基準日線 S-163', 'status'], ['カーソル S-195', 'cursor'], ['依存線 S-159', 'dep'], ['イナズマ線 S-160', 'light_'], ['文字 S-147', 'text'], ['予定の縁 S-156', 'planEdge'], ['罫 S-149', 'rule']]
+  const grounds = [['地', 'ground'], ['帯 S-164', 'band'], ['最上位 S-166', 'top'], ['交互 S-167', 'alt']]
+  let html = '<table><tr><th>線</th>' + grounds.map(([w]) => `<th>${w}（塗りなし）</th><th>${w}（塗り）</th>`).join('') + '</tr>'
+  for (const [word, key] of inks) {
+    html += `<tr><td>${word}</td>`
+    for (const [, g] of grounds) {
+      let plain = Infinity, shaded = Infinity
+      for (const hue of HUES) {
+        const ink = resolve(c[key], hue, s.mono), ground = resolve(c[g], hue, s.mono)
+        plain = Math.min(plain, ratio(ink, ground))
+        shaded = Math.min(shaded, ratio(ink, over(ground, shade.ink, shade.alpha)))
+      }
+      const mark = (v) => (key !== 'rule' && key !== 'planEdge' && v < 3 ? ` class="bad"` : '')
+      html += `<td${mark(plain)}>${plain.toFixed(2)}</td><td${mark(shaded)}>${shaded.toFixed(2)}</td>`
+    }
+    html += '</tr>'
+  }
+  // how far the shade stands off its own ground
+  html += '<tr><td>塗りと塗らない地の比</td>'
+  for (const [, g] of grounds) {
+    let worst = Infinity
+    for (const hue of HUES) { const ground = resolve(c[g], hue, s.mono); worst = Math.min(worst, ratio(ground, over(ground, shade.ink, shade.alpha))) }
+    html += `<td colspan="2">${worst.toFixed(3)}</td>`
+  }
+  html += '</tr></table><div class="note">赤字は 3 : 1 を割る線（罫と予定の縁は NFR-007 の線の対象外なので印を付けない）。「塗りと塗らない地の比」は塗りの見えやすさの目安（1.00 は見えない）。</div>'
+  $('contrast').innerHTML = html
+}
+
+document.querySelectorAll('input, select').forEach((one) => one.addEventListener('input', draw))
+let dragging = false
+$('divider').addEventListener('pointerdown', () => { dragging = true })
+window.addEventListener('pointerup', () => { dragging = false })
+window.addEventListener('pointermove', (event) => {
+  if (!dragging) return
+  const width = Math.max(260, window.innerWidth - event.clientX)
+  document.body.style.gridTemplateColumns = `1fr 6px ${width}px`
+})
+draw()
+</script>
+</body>
+</html>
