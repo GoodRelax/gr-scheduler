@@ -266,7 +266,7 @@ export const SETTINGS_CONSTANTS: {
   labelBaseline: 0.35,
   labelCoef: 0.5,
   labelGap: 9.6,
-  labelHaloOfFont: 0.10,
+  labelHaloOfFont: 0.05,
   labelPad: 9.6,
   markerSize: 22.4,
   markerStroke: 1.3,
