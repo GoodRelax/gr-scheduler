@@ -253,7 +253,7 @@ describe('FR-021 -- the manuscript this file is driven by', () => {
     expect(FR_021).toContain(
       '⭐ **プロジェクトの要約タスクは `Task` にせず、原形のまま持ち回る** —— 読み方は 表 T-265 の `MR-4`、書き戻し方は 表 T-033 の `EX-5` が持つ。',
     )
-    expect(FR_021).toContain('⇒ 要約タスクを起点に数えないので、見本の 7 つはどれも起点が 1 になる。')
+    expect(FR_021).toContain('⇒ 要約タスクを起点に数えないので、測った 7 つはどれも起点が 1 になる。')
     expect(columnRow('Project', 'outlineBase').cells.join(' ')).toContain(
       'プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`',
     )
