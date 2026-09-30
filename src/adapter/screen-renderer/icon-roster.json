@@ -765,7 +765,8 @@
     "Export Chooser",
     "Open Chooser",
     "Properties Panel",
-    "Search Panel"
+    "Search Panel",
+    "Calendar Editor"
    ],
    "group": null,
    "entryTo": "開いている面とプロパティパネルと検索パネルを閉じる",
@@ -1071,6 +1072,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-132",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "暦の編集面を開く（稼働する曜日・例外日・週の始まり）",
+   "authority": "`FR-088`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-63",
    "surfaces": [
     "Resource Roster"
@@ -1133,6 +1145,72 @@
    "group": null,
    "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
    "authority": "`FR-099`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-133",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "その曜日を稼働日にするか休みにするかを、押すたびに切り替える",
+   "authority": "表 T-344 の `WC-2`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-134",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "週の始まりの曜日を選ぶ",
+   "authority": "表 T-344 の `WC-3`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-135",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "例外日を 1 行加える",
+   "authority": "表 T-344 の `WC-6`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-136",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "その行の例外日を除く",
+   "authority": "表 T-344 の `WC-4` ・ `WC-5`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-137",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "例外日が休みか稼働かを示し、同じ入口で反対にする",
+   "authority": "表 T-344 の `WC-4`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-138",
+   "surfaces": [
+    "Calendar Editor"
+   ],
+   "group": null,
+   "entryTo": "下書きを文書へ当てる（表 T-108 の `CM-39` を 1 回）",
+   "authority": "表 T-344 の `WC-7`",
    "arms": null,
    "armsShape": null
   },

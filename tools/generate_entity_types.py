@@ -1771,7 +1771,9 @@ COLOUR_TARGETS = {
                          # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
                          # FR-015); it inherits S-148 through sameAs.
                          # CR-602: S-448 left; a selected or landing dependency line keeps S-159.
-                         'S-443'],
+                         'S-443',
+                         # CR-605: the non-working day shade (OD-5 of table T-343, FR-054).
+                         'S-450'],
 }
 
 COLOUR_NOTE = [
