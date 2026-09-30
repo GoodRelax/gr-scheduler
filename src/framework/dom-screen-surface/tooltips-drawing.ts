@@ -23,10 +23,11 @@ const WINDOW_SIDES = 2
 const LINE_BREAK = '\n'
 
 // see EZ-2, IN-7
+// WHY: border-box, so the cap holds the padding and the border too; content-box let a capped tip end past S-339 (DFC-1476).
 /** @purity pure */
 function tooltipStyle(): string {
   return (
-    `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;` +
+    `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;box-sizing:border-box;` +
     `max-width:calc(100vw - ${WINDOW_SIDES * NOT_STORED_HELP_SIZES['S-339']}px);`
   )
 }
@@ -93,8 +94,9 @@ export function keepTooltipsInside(layer: HTMLElement): void {
     const anchorRight = anchorRightOf.get(drawn)
     if (anchorRight === undefined) continue
     const size = drawn.getBoundingClientRect()
-    if (size.right <= room.right - margin) continue
-    const left = Math.max(room.left + margin, anchorRight - size.width)
+    const fitsRight = size.right <= room.right - margin
+    if (fitsRight && size.left >= room.left + margin) continue
+    const left = Math.max(room.left + margin, fitsRight ? size.left : anchorRight - size.width)
     drawn.setAttribute('style', tooltipStyle() + `left:${left}px;top:${size.top}px;`)
   }
 }
