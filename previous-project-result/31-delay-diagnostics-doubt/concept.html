@@ -1,0 +1,274 @@
+<title>遅延診断の 7 原則</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --ground: #f5f7fa; --paper: #ffffff; --ink: #1b2330; --muted: #566273; --line: #d8dee7; --soft: #eef2f7;
+    --accent: #2f6fb0; --accent-ink: #ffffff; --ok: #2c7a4b; --open: #b4540a; --free: #6b4fb0;
+    --dg1: #9673d3; --dg2: #ff8f8f; --dg3: #feda76; --dg4: #ffd400; --edge: #16181d;
+    --sans: "IBM Plex Sans JP", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #0f141b; --paper: #161c25; --ink: #e4e9f0; --muted: #9aa6b5; --line: #2c3542; --soft: #1d2530;
+      --accent: #6aa7ea; --accent-ink: #0f141b; --ok: #6cc592; --open: #f0a060; --free: #b9a2f0;
+      --dg1: #b697ed; --dg2: #f34949; --dg3: #e6d947; --dg4: #e6c229;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #0f141b; --paper: #161c25; --ink: #e4e9f0; --muted: #9aa6b5; --line: #2c3542; --soft: #1d2530;
+    --accent: #6aa7ea; --accent-ink: #0f141b; --ok: #6cc592; --open: #f0a060; --free: #b9a2f0;
+    --dg1: #b697ed; --dg2: #f34949; --dg3: #e6d947; --dg4: #e6c229;
+  }
+  [hidden] { display: none !important; }
+  body { background: var(--ground); color: var(--ink); font: 16px/1.7 var(--sans); margin: 0; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 80px; }
+  h1 { font-size: 26px; line-height: 1.35; margin: 0 0 6px; text-wrap: balance; }
+  h2 { font-size: 20px; margin: 36px 0 10px; text-wrap: balance; }
+  p { max-width: 70ch; margin: 0 0 10px; }
+  code { font-family: var(--mono); font-size: 0.9em; }
+  a { color: var(--accent); }
+  .lede { color: var(--muted); }
+  .tablebox { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; color: var(--muted); background: var(--soft); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  .principles { display: grid; gap: 12px; }
+  .pcard { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; grid-template-columns: 56px 1fr; gap: 4px 14px; }
+  .pid { font-family: var(--mono); font-weight: 600; font-size: 22px; color: var(--accent); grid-row: span 4; }
+  .pcard h3 { margin: 0; font-size: 18px; line-height: 1.45; }
+  .pcard p { margin: 0; }
+  .pcard ul { margin: 2px 0 0; padding-left: 1.2em; font-size: 14.5px; }
+  .pcard .decides { font-size: 14px; color: var(--muted); }
+  .ends { border-collapse: collapse; font-size: 14px; margin: 4px 0; width: auto; }
+  .ends th, .ends td { padding: 2px 10px; border: 1px solid var(--line); }
+  .state { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .state.ok { color: var(--ok); }
+  .state.open { color: var(--open); }
+  .state.free { color: var(--free); }
+  .foot { display: flex; justify-content: flex-end; }
+  .cbtn { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--paper); color: var(--accent); border-radius: 6px; padding: 2px 10px; cursor: pointer; }
+  .cbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .marks { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+  .mark { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 16px; height: 16px; border-radius: 50%; border: 1.3px solid var(--edge); display: inline-grid; place-items: center; font: 700 11px/1 var(--sans); color: var(--edge); }
+  ol.ask li { margin: 6px 0; max-width: 75ch; }
+  .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .hint { font-size: 13px; color: var(--muted); }
+  @media (max-width: 560px) { .pcard { grid-template-columns: 1fr; } .pid { grid-row: auto; } }
+</style>
+
+<div class="wrap">
+  <h1>遅延診断の 7 原則</h1>
+  <p class="lede">JDG-1060「上位概念として、考え方/コンセプトを定めたらあとは自動で決められることもあるだろ？」への案です。原則を先に決めれば、個々の問いの答えと 123 の組み合わせの結果は機械的に決まります。仕様もコードもまだ変えていません。</p>
+  <p class="hint" id="comment-hint">原則のカードと表の行の「コメント」から、その場所にコメントを付けられます（claude.ai で開いたとき）。組み合わせの見本は <a href="https://claude.ai/artifact/EcMW6htaUQXkvUjc95LkNk" target="_blank" rel="noopener">遅延診断パターン集</a> にあります。</p>
+
+  <h2>遅延診断が答える問い</h2>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>問い</th><th>答えの印</th><th>見る人の次の行動</th></tr></thead>
+      <tbody>
+        <tr><td>どの数字が信用できないか</td><td><span class="mark"><span class="dot" style="background:var(--dg1)">?</span>確認を要す</span></td><td>実績の記載を確かめる</td></tr>
+        <tr><td>何が全体の日程を遅らせているか</td><td><span class="mark"><span class="dot" style="background:var(--dg2)">炎</span>ボトルネック</span></td><td>そこを支援する</td></tr>
+        <tr><td>炎はどこにあるか</td><td><span class="mark"><span class="dot" style="background:var(--dg3)">!!</span>WBS の祖先</span></td><td>配下を開いて炎を探す</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint" style="margin-top:6px"><span class="dot" style="background:var(--dg4)">!</span> 遅れ（PM-4）は診断の前からある印で、上の 3 つのどれでもない遅れを示します。</p>
+
+  <h2>7 つの原則</h2>
+  <div class="principles">
+    <article class="pcard" id="P1" data-comment-target>
+      <div class="pid">P1</div>
+      <h3>実績は事実、予定と依存は約束</h3>
+      <p>事実と約束が食い違ったら、約束が破られたと読む。事実を疑うのは、別の事実と食い違うときだけ（P5）。</p>
+      <ul>
+        <li>後続が先行の完了を待たずに着手した ⇒ その先行は後続の着手を止めていない。</li>
+        <li>節目の先行が全部完了した ⇒ 節目は達成している。手の完了が無いのは記載漏れで、遅れではない。</li>
+      </ul>
+      <div class="decides">決まること: 着手済みの最早開始（PND-636）、達成した節目の ! （DFC-1662）、完了率 100 以上で未完了は正常</div>
+    </article>
+    <article class="pcard" id="P2" data-comment-target>
+      <div class="pid">P2</div>
+      <h3>依存は、先行の 1 つの端が後続の 1 つの端を縛る約束</h3>
+      <div>
+        <table class="ends">
+          <thead><tr><th>依存</th><th>縛る端（先行）</th><th>縛られる端（後続）</th></tr></thead>
+          <tbody>
+            <tr><td>FS</td><td>終了</td><td>開始</td></tr>
+            <tr><td>SS</td><td>開始</td><td>開始</td></tr>
+            <tr><td>FF</td><td>終了</td><td>終了</td></tr>
+            <tr><td>SF</td><td>開始</td><td>終了</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li>検査も遅れの運び方も、この 2 つの端だけを見る。違反は「縛られる端が、縛る端より前に起きた」ときだけ。</li>
+        <li>縛る端と同じ日は間に合っている。遅れ（lag）は日として足す。</li>
+      </ul>
+      <div class="decides">決まること: FS の同じ日（CR-618）、lag の単位（JDG-822）、VC-13 と VS-3 の依存の種類（PND-635）、着手済みの最早開始を FS・SS に限る（PND-636）</div>
+    </article>
+    <article class="pcard" id="P3" data-comment-target>
+      <div class="pid">P3</div>
+      <h3>遅れの持ち主は、それを止められたただ 1 つのタスク</h3>
+      <p>縛られていないのに始めない・終えない分はそのタスク自身の遅れ。縛る先行を待った分はその先行の遅れ。</p>
+      <ul>
+        <li>先行が全部終わったのに着手していない ⇒ 着手の遅れはそのタスクのもの（炎になりうる）。</li>
+        <li>遅れた先行を待ってから着手した ⇒ 待った日数は先行のもの。その後さらに遅れた分は後続のもの。</li>
+      </ul>
+      <div class="decides">決まること: 予定を過ぎても未着手のタスク（PND-629）、着手済みの最早開始（PND-636）</div>
+    </article>
+    <article class="pcard" id="P4" data-comment-target>
+      <div class="pid">P4</div>
+      <h3>見込みは、分かっていることを全部使う</h3>
+      <p>見込みの終了は、実績、基準日、人が書いた最新の予定（再開の日など）から求める。分かっているのに読まない値を残さない。</p>
+      <ul>
+        <li>中断して、再開の予定が基準日より後 ⇒ 見込みの終了は、再開の日から残りの日数を足した日より前にならない。</li>
+      </ul>
+      <div class="decides">決まること: 再開の予定（DFC-1661）。徹底すると着手済みの見込み（BD-1）も変わる —— 下の「決まらないこと」</div>
+    </article>
+    <article class="pcard" id="P5" data-comment-target>
+      <div class="pid">P5</div>
+      <h3>疑わしい数字の上に結論を建てない</h3>
+      <p>他の事実と食い違う数字は ?（確認を要す）にし、その上に炎も !! も出さない。疑いの及ばない計算は止めない。依存の下流を止める（壁）のは矛盾（表 T-310）のときだけ。</p>
+      <ul>
+        <li>後続が着手しているのに先行に完了が無い（VO-3）⇒ 先行は ?。炎は出さない。下流の計算は続ける。</li>
+        <li>親子の両端が合わない（VC-11）⇒ 親は ?。親から下流は壁で止める（今のまま）。</li>
+      </ul>
+      <div class="decides">決まること: VO-3 の印（PND-630 の案 ①）、達成した節目の !（DFC-1662）、親子の矛盾は今のまま</div>
+    </article>
+    <article class="pcard" id="P6" data-comment-target>
+      <div class="pid">P6</div>
+      <h3>遅れを上へ運ぶのは WBS の親子だけ</h3>
+      <p>行は見るための器で、遅れを運ばない。遅れを上へ運ぶのは WBS の親子だけ。だから WBS の親は画面で見えていなければならない。</p>
+      <ul>
+        <li>同じ行の同僚の遅れは、隣のタスクに何も付けない。</li>
+        <li>子の炎は、親と祖父に !! を付ける。親が同じ行でも 1 段上の行でも同じ。</li>
+      </ul>
+      <div class="decides">決まること: !! の元（今のまま）、親の名を名前の上に出す（JDG-1058 ③）。A1 / A2 は A2 に寄る</div>
+    </article>
+    <article class="pcard" id="P7" data-comment-target>
+      <div class="pid">P7</div>
+      <h3>印は 1 つで、見る人の次の行動と 1 対 1</h3>
+      <p>1 つのタスクに付く印は 1 つだけ。優先順は ? → 炎 → !! → !（今の FR-133・表 T-315）。色だけでなく形でも見分ける。</p>
+      <div class="decides">決まること: 今のまま</div>
+    </article>
+  </div>
+
+  <h2>原則から決まること</h2>
+  <div class="tablebox">
+    <table id="decided">
+      <thead><tr><th>問い（台帳）</th><th>原則</th><th>導かれる答え</th><th>見本</th><th>状態</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2>原則だけでは決まらないこと</h2>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>問い</th><th>なぜ決まらないか</th><th>原則が寄せる向き</th></tr></thead>
+      <tbody>
+        <tr id="U1" data-comment-target><td>取り込みで親と子を同じ行に載せるか（A1）、分けるか（A2）<br><code>DFC-1630</code>・<code>JDG-560</code></td><td>見た目の好みを含む</td><td>P6 からは A2 に寄る —— 親のバーを 1 段上の行に置けば親子が見え、診断が親を導く規則（IP-1、1 段上の行）と、GRS で書くときの行と同じ規則になる</td></tr>
+        <tr id="U2" data-comment-target><td>着手済みの見込みの終了（BD-1、今は max(予定の終了, 基準日)）</td><td>P4 を徹底すると「基準日＋残りの日数」になるが、残りの数え方（完了率か実績の長さか）を決める必要がある</td><td>P4。下の測りには入れていない</td></tr>
+        <tr id="U3" data-comment-target><td>炎にする最小の押し出し日数（S-397、今は 1）</td><td>しきい値は運用の好み</td><td>—</td></tr>
+        <tr id="U4" data-comment-target><td>起動の見本の完了率（<code>DFC-1634</code>）</td><td>原則の外（データの誤り）</td><td>見本を直す回（PND-611）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>当てるとどう変わるか（測った）</h2>
+  <p>組み合わせの見本 123 件と、起動の見本（1000 タスク、基準日 2027-06-04）を 3 つの写しで診断しました。</p>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>写し</th><th>中身</th><th class="num">123 件で前と違う件数</th><th>起動の見本の印<br>? / 炎 / !! / !</th></tr></thead>
+      <tbody>
+        <tr><td>いま</td><td>refactor <code>bfbe7eb7</code> のコード</td><td class="num">—</td><td class="num">13 / 10 / 14 / 23</td></tr>
+        <tr><td>裁定済みを当てた後</td><td>＋ CR-618（FS の同じ日）＋ JDG-1057 の ④（P1〜P3 で限った読み）</td><td class="num">17</td><td class="num">13 / 11 / 17 / 23</td></tr>
+        <tr><td>原則どおり</td><td>＋ P2（VC-13・VS-3）＋ P3（未着手の遅れ）＋ P4（再開）＋ P5（VO-3 は ?、達成した節目に ! を出さない）</td><td class="num">31</td><td class="num">10 / 17 / 20 / 11</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li>起動の見本の ? 13 件（原因 3 件とその下流）は、どれも SS の依存に VC-13 が当たったものでした。原則どおりでは 0 件になり、代わりに VO-3 を持つ 10 件が ? になります。</li>
+    <li>炎は 10 → 17 件。裁定済みを当てた後（11 件）から増えた 6 件は、4 件が「縛る先行が無い・終わっているのに着手していない」タスク（P3）、2 件が「再開の予定が基準日より後」のタスク（P4）。減った炎はありません。</li>
+  </ul>
+
+  <h2>決めてほしいこと</h2>
+  <ol class="ask">
+    <li>7 つの原則を採るか（原則ごとに、採る・直す・採らない）。</li>
+    <li>原則を採るなら、「原則から決まること」の表の未裁定 6 行（PND-629・PND-630・PND-635・PND-636・DFC-1661・DFC-1662）を、原則の答えで決めてよいか。</li>
+    <li>原則だけでは決まらない A1 / A2。</li>
+  </ol>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var PATTERNS = "https://claude.ai/artifact/EcMW6htaUQXkvUjc95LkNk";
+  var ROWS = [
+    ["D1", "FS で先行の終わった同じ日に始める後続（DFC-1490）", "P2", "矛盾にしない", ["O02", "O04", "M01"], "ok", "裁定済（JDG-1005・JDG-1017、CR-618）—— 原則と一致"],
+    ["D2", "遅れ（lag）の単位（PND-606）", "P2", "日として足す", ["O38", "O40"], "ok", "裁定済（JDG-822）—— 原則と一致。変更要求はまだ"],
+    ["D3", "着手済みの最早開始（DFC-1631・PND-636）", "P1＋P2＋P3", "着手を縛る先行（FS・SS）が許す日より早く着手したときだけ、その先行の縛りを外して実績の開始で置く", ["D05", "D11", "D12", "D36"], "open", "JDG-1057 の ④ を原則で限った形"],
+    ["D4", "VC-13 と VS-3 の依存の種類（DFC-1660・PND-635）", "P2", "縛られる端が縛る端より前に起きたときだけ指摘する", ["D18", "D26", "D38", "D42"], "open", "未裁定 → 原則で決まる"],
+    ["D5", "予定を過ぎても未着手のタスク（DFC-1632・PND-629）", "P3", "何にも縛られていなければ自分の遅れ（炎になりうる）", ["D01", "D16", "A02"], "open", "未裁定 → 原則で決まる"],
+    ["D6", "記載漏れ（VO-3）を持つタスクの印（DFC-1633・PND-630）", "P5", "?（確認を要す）。炎は出さず、下流は止めない", ["D02", "D05"], "open", "未裁定 → 原則で決まる（案 ①）"],
+    ["D7", "再開の予定が基準日より後（DFC-1661）", "P4", "見込みの終了は、再開の日＋残りの日数を下回らない", ["A15"], "open", "未裁定 → 原則で決まる"],
+    ["D8", "達成した節目の !（DFC-1662）", "P1＋P5", "遅れの印を出さない（手の完了の記載漏れ VO-5 だけを告げる）", ["M01"], "open", "未裁定 → 原則で決まる"],
+    ["D9", "!! の元と親の見せ方（DFC-1630）", "P6", "!! は WBS の祖先だけ（今のまま）。親の名を名前の上に出す", ["W01", "W13"], "ok", "裁定済（JDG-1058 の ③）—— 原則と一致"],
+    ["D10", "完了率 100 以上で未完了", "P1", "正常", ["A08", "A09"], "ok", "仕様どおり（JDG-1057 の ③）—— 原則と一致"],
+    ["D11", "親子の矛盾（VC-9〜VC-12）", "P5", "? と壁", ["W07", "W08", "W09", "W10"], "ok", "今のまま —— 原則と一致"]
+  ];
+  var tbody = document.querySelector("#decided tbody");
+  ROWS.forEach(function (r) {
+    var tr = document.createElement("tr");
+    tr.id = r[0];
+    tr.setAttribute("data-comment-target", "");
+    function td(text) { var c = document.createElement("td"); if (text !== undefined) c.textContent = text; tr.appendChild(c); return c; }
+    td(r[1]); td(r[2]); td(r[3]);
+    var cases = td();
+    r[4].forEach(function (id, i) {
+      if (i) cases.appendChild(document.createTextNode("・"));
+      var a = document.createElement("a");
+      a.href = PATTERNS + "#" + id; a.target = "_blank"; a.rel = "noopener"; a.textContent = id;
+      cases.appendChild(a);
+    });
+    var st = td(); var s = document.createElement("span"); s.className = "state " + r[5]; s.textContent = r[6]; st.appendChild(s);
+    tbody.appendChild(tr);
+  });
+
+  var targets = Array.prototype.slice.call(document.querySelectorAll("[data-comment-target]"));
+  var buttons = [];
+  targets.forEach(function (t) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "cbtn"; b.textContent = "コメント"; b.id = "comment-" + t.id; b.hidden = true;
+    if (t.tagName === "TR") { var cell = t.lastElementChild; cell.appendChild(document.createElement("br")); cell.appendChild(b); }
+    else { var foot = document.createElement("div"); foot.className = "foot"; foot.appendChild(b); t.appendChild(foot); }
+    buttons.push({ button: b, target: t });
+  });
+  var api = null;
+  function hide() {
+    buttons.forEach(function (x) { x.button.hidden = true; });
+    document.getElementById("comment-hint").firstChild.textContent = "このページではカードからのコメントは使えません。claude.ai で開くと、原則のカードと表の行にコメントを付けられます。組み合わせの見本は ";
+  }
+  buttons.forEach(function (x) {
+    x.button.addEventListener("click", function () {
+      if (!api) return;
+      api.openComposer({ element: x.target }).catch(function (err) { if (err && err.code === "unavailable") hide(); });
+    });
+  });
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("comments").then(function (c) {
+      if (!c) { hide(); return; }
+      api = c;
+      buttons.forEach(function (x) { x.button.hidden = false; });
+    }).catch(hide);
+  } else {
+    hide();
+  }
+})();
+</script>
