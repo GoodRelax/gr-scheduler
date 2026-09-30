@@ -42,9 +42,10 @@ const LF_10_NOT_THE_CIRCLE = '⛔ 頂点を置いた円の中心を中心とし�
 
 const LF_18_BODY = '外形は塗り、縁の線で囲む。'
 const LF_18_INNER =
-  '絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・書類の折り返し・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。'
+  '絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。'
 const LF_18_DOT = '顔の目は点で塗る。'
-const LF_18_COLOUR = '⭐ 中の線と点の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする'
+const LF_18_SHADE = '書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く'
+const LF_18_COLOUR = '⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする'
 const LF_18_CUSTOM = 'カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。'
 const LF_18_ORDER = '⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。'
 const LF_18_CURVES = '⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない'
@@ -625,7 +626,17 @@ describe('CR-583 -- the clauses these cases quote still stand', () => {
       expect(lf10).toContain(clause)
     }
     const lf18 = cellText('T-221', 'LF-18')
-    for (const clause of [LF_18_BODY, LF_18_INNER, LF_18_DOT, LF_18_COLOUR, LF_18_CUSTOM, LF_18_ORDER, LF_18_CURVES, LF_18_F_044]) {
+    for (const clause of [
+      LF_18_BODY,
+      LF_18_INNER,
+      LF_18_DOT,
+      LF_18_SHADE,
+      LF_18_COLOUR,
+      LF_18_CUSTOM,
+      LF_18_ORDER,
+      LF_18_CURVES,
+      LF_18_F_044,
+    ]) {
       expect(lf18).toContain(clause)
     }
   })
@@ -794,6 +805,29 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
         expect(dots.length, `${glyph} ${seen.part}: no filled dot where F-044 puts one`).toBeGreaterThan(0)
         expect(dots.map((one) => colour(paintOf(one, 'fill')))).toContain(want)
       }
+    })
+  }
+
+  const FILE_GLYPH = 'file'
+
+  it(`LF-18 「${LF_18_SHADE}」 premise: F-044 gives the ${FILE_GLYPH} glyph exactly one shade layer`, () => {
+    expect(layersOf(FILE_GLYPH, 'shade')).toHaveLength(1)
+  })
+
+  for (const seen of SEEN.filter((one) => one.part !== 'dummies')) {
+    const ink = seen.part === 'plan' ? 'the plan edge colour' : 'the plan fill colour'
+
+    it(`LF-18 「${LF_18_SHADE}」 ${FILE_GLYPH} ${seen.part}: exactly one shade element, filled with ${ink}`, () => {
+      const stage = stageFor(FILE_GLYPH)
+      const figure = figureOf(stage.elements, seen.uid, seen.part)
+      const place = seen.place(stage)
+      const want = expectedInk(stage, seen.part)
+      const shade = layersOf(FILE_GLYPH, 'shade')[0] as Layer
+      const matches = figure.filter(
+        (one) => isFilled(one) && shade.outline.anchors.every((p) => distanceTo(one.outline, mapped(p, place)) <= EPS),
+      )
+      expect(matches.length, `${FILE_GLYPH} ${seen.part}: exactly one shade element`).toBe(1)
+      expect(colour(paintOf(matches[0] as Element, 'fill')), `${FILE_GLYPH} ${seen.part} shade fill`).toBe(want)
     })
   }
 

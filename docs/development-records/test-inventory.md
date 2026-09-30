@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 126 | 1645 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 126 | 1648 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 69 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 32 | 200 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 141 | 3258 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 319 | 5206 | 12 | 19 | 9 | 1 |
+| **all** | | | 319 | 5209 | 12 | 19 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -257,7 +257,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts` | 17 | FR-003, FR-016, FR-018, FR-055, FR-094 | - | T-036, T-262, T-329 | IC-10, IC-15, MK-2, MK-4, OP-10, S-4, S-5, S-6, S-53, S-54, S-172, S-173, ZE-1, ZE-3, ZE-5, ZE-6 | - | - | - | - |
 | `tests/contract/cr-582-the-drawn-floor-of-a-row-follows-the-zoom.test.ts` | 10 | FR-016, FR-039, FR-042 | - | T-252 | DS-13, LF-2, LF-3, MH-3, S-53, S-76, S-234, S-236 | - | - | - | - |
 | `tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts` | 18 | FR-042 | - | T-016, T-036, T-103, T-236, T-338 | IC-10, MH-1, MH-2, MH-3, MH-4, MH-5, MH-6, MK-4, MK-13, PR-20, S-87, S-149, S-440, S-441, U-25 | - | - | - | - |
-| `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | 25 | - | - | T-012, T-221 | AT-101, DM-4, DM-8, DM-9, DM-12, GA-15, HT-1, LF-10, LF-18, S-5, S-17, S-280, SH-5 | - | - | - | - |
+| `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | 27 | - | - | T-012, T-221 | AT-101, DM-4, DM-8, DM-9, DM-12, GA-15, HT-1, LF-10, LF-18, S-5, S-17, S-280, SH-5 | - | - | - | - |
 | `tests/contract/cr-584-the-picture-is-painted-on-the-ground-colour.test.ts` | 8 | FR-017, FR-093 | - | T-076, T-201, T-204, T-205, T-206, T-236, T-238 | DS-1, EP-1, IX-10, S-8, S-30, S-33, S-73, S-81, S-83, S-84, S-135, S-146, S-225, S-235, TM-1, TM-2, TM-3 | - | - | - | - |
 | `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
 | `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
@@ -266,7 +266,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-586-the-row-colour-list-is-one-and-black-is-refused.test.ts` | 12 | - | - | T-017b, T-233, T-294 | CM-30, CV-2, CV-9, RS-25, S-4, S-5, S-315 | - | - | - | - |
 | `tests/contract/cr-588-no-pre-change-plan-asks-for-the-file.contract.test.ts` | 23 | FR-015 | - | T-024a, T-027, T-109, T-202 | IC-4, OP-2, OP-3, OP-4, OP-13, OP-15, QN-5, RD-3, S-5, S-6, S-69, U-56, UN-7, UN-18 | - | - | - | - |
 | `tests/contract/cr-588-the-baseline-route-keeps-the-save-target.contract.test.ts` | 14 | FR-060 | - | T-024a, T-109 | IC-4, OP-2, OP-9, OP-15 | - | - | - | - |
-| `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 28 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339 | BL-1, BL-2, BL-3, BL-4, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
+| `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 29 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339 | BL-1, BL-2, BL-3, BL-4, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
 | `tests/contract/cr-592-monochrome-greys-every-t-236-row.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-147, S-159, S-162, S-163, S-169, S-183, S-311 | - | - | - | - |
 | `tests/contract/cr-593-a-held-field-keeps-its-text-while-the-zoom-moves.test.ts` | 6 | - | - | T-035, T-036, T-067, T-103, T-108 | AG-9, AG-9a, AT-53, CM-1, CM-64, CM-65, MK-4, MK-5, MK-13, PR-18, PR-20, RS-8, U-25, UN-8, UN-13, WS-2 | - | - | - | - |
 | `tests/contract/cr-593-an-unsettled-edit-lets-zoom-and-scroll-through.test.ts` | 12 | - | - | T-027, T-067, T-108, T-233 | AG-9, CM-65, CM-66, CM-71, RS-8, UN-7, UN-8, UN-13, WS-2 | - | - | - | - |
