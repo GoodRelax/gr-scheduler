@@ -257,7 +257,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
    "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
@@ -1008,22 +1008,24 @@
   {
    "rowId": "IC-123",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で昇順に並べる",
-   "authority": "`FR-151`",
+   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },
   {
    "rowId": "IC-124",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で降順に並べる",
-   "authority": "`FR-151`",
+   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },

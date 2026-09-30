@@ -259,8 +259,8 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する。テーマの色相もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen"
+    "ja": "文書の描画設定をプロパティパネルに表示する。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen"
    }
   },
   {
@@ -1981,8 +1981,8 @@
   {
    "rowId": "K-60",
    "label": {
-    "ja": "テーマの色相",
-    "en": "themeHue"
+    "ja": "テーマ色",
+    "en": "theme colour"
    }
   },
   {
@@ -4049,7 +4049,7 @@
   {
    "part": "custom",
    "text": {
-    "ja": "任意",
+    "ja": "その他の色",
     "en": "Custom"
    }
   },
@@ -4084,8 +4084,8 @@
   {
    "part": "theme",
    "text": {
-    "ja": "テーマ",
-    "en": "Theme"
+    "ja": "プロジェクトテーマ色",
+    "en": "Project theme colour"
    }
   },
   {

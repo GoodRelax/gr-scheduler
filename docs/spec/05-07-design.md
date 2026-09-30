@@ -1290,7 +1290,7 @@ flowchart TB
 | IV-7 | 暦が 1 つ以上あること | `Calendar` の並び | 構造 |
 | IV-17 | `FR-054` が解いた文書の暦が、稼働する曜日を 1 つ以上持つこと。<br>⚠️ **解かれなかった暦は対象外** —— 数え上げに使わない暦は、稼働する曜日を 1 つも持たなくてよい | `FR-054` の解き方と、その暦の `WeekDay` の並び | 構造 |
 | IV-8 | `TaskGroup` の `label` と `derivedFromTaskUid` が同時に `null` でないこと | その 2 列 | 組合せ |
-| IV-9 | `TaskVisual` の `fillColor` と `strokeColor` が同時に透明でないこと | その 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
+| IV-9 | `TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと | 実体ごとのその 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
 | IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ |
 | IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ |
 | IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。<br>⭐ **日数は暦日で数えること（MUST）** —— ⛔ 稼働日で数えると `FD-6`（暦日）と食い違う。<br>`FD-6` が正である。<br>⛔ ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST） | その 2 列と `start` ／ `finish` | 組合せ |

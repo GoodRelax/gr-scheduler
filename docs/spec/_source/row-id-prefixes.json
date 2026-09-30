@@ -1302,10 +1302,10 @@
   },
   {
    "prefix": "TH",
-   "words": "Theme Hue",
+   "words": "Theme Colour (Hue)",
    "owner": "spec",
    "means": {
-    "ja": "画面で選べるテーマの色相"
+    "ja": "画面で選べるテーマ色"
    }
   },
   {

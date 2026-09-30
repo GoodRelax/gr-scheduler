@@ -756,7 +756,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
+      "ja": "テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
      }
     },
     {
@@ -2793,14 +2793,13 @@
      "nullable": "可",
      "json": {
       "kind": "color",
-      "null": true,
-      "transparent": false
+      "null": true
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "枠の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`）"
+      "ja": "枠の色。形は `AT-102` と同じ。透明（線なし）も取るが、塗り（`AT-146`）と同時には取らない（`FR-019`）。`null` は注記の色 `S-312` で描く"
      }
     },
     {
@@ -2848,7 +2847,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "塗りの色。形は `AT-102` と同じ。透明も取る。`null` は `_assets/tbl-settings.md` の表 T-217 の `S-370` の色で描く（既定は透明 ＝ 塗らない。`FR-019`）"
+      "ja": "塗りの色。形は `AT-102` と同じ。透明も取る。`null` はテーマの色（`_assets/tbl-settings.md` の表 T-236 の `S-155`）で塗る。置くときは表 T-217 の `S-370`（透明）を写す（`FR-019`）"
      }
     },
     {
