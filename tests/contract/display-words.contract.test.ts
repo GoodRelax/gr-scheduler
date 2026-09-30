@@ -211,8 +211,10 @@ import {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   emptyScreenSession,
+  emptySearchPanelSession,
   type ScreenSession,
   type ScreenValues,
+  type SearchPanelSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
@@ -1742,6 +1744,132 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
       const readout = minHeightFieldOf(view)?.readout
       return readout === undefined ? undefined : minHeightWordOf(readout)
     },
+  })
+}
+
+// see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
+// WHY: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
+// in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the
+// assignee filter offers the blank item (SV-7).
+const SEARCH_STARTED = '2026-01-05T08:00:00'
+const SEARCH_TASK_BY_STATE: Readonly<
+  Record<string, { readonly uid: number; readonly name: string; readonly actuals: object }>
+> = {
+  'PS-1': { uid: 1, name: '', actuals: {} },
+  'PS-2': { uid: 2, name: 'a finished task', actuals: { actualStart: SEARCH_STARTED, actualFinish: '2026-01-09T17:00:00' } },
+  'PS-3': { uid: 3, name: 'a task paused with no resume date', actuals: { actualStart: SEARCH_STARTED, resumeValid: false } },
+  'PS-4': {
+    uid: 4,
+    name: 'a task paused with a resume date',
+    actuals: { actualStart: SEARCH_STARTED, resume: '2026-02-02T08:00:00', resumeValid: true },
+  },
+  'PS-5': { uid: 5, name: 'a task in progress', actuals: { actualStart: SEARCH_STARTED } },
+}
+
+const SEARCH_TEMPLATE_TASK = (SCHEDULE.tasks as readonly object[])[0] as object
+
+const SCHEDULE_TO_SEARCH = {
+  ...SCHEDULE,
+  tasks: Object.values(SEARCH_TASK_BY_STATE).map((one) => ({
+    ...SEARCH_TEMPLATE_TASK,
+    uid: one.uid,
+    name: one.name,
+    ...one.actuals,
+  })),
+  taskVisuals: [],
+} as unknown as Schedule
+
+const searchFrame = (shown: 'normal' | 'maximised', panel: Partial<SearchPanelSession>): Frame =>
+  frameWith({
+    schedule: SCHEDULE_TO_SEARCH,
+    selection: emptySelection(),
+    root: rootWith({ searchPanelDisplayState: { kind: 'shown', child: { kind: shown } } }),
+    readings: sessionWith({ searchPanel: { ...emptySearchPanelSession, ...panel } }),
+  })
+
+const ASSIGNEE_COLUMN = 'SQ-2'
+const STATE_COLUMN = 'SQ-5'
+const NAME_COLUMN = 'SQ-1'
+const MAXIMISE_ENTRY = 'IC-121'
+const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
+
+const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
+const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
+const SEARCH_MAXIMISED = searchFrame('maximised', {})
+
+// see SQ-1, SQ-5
+const searchCellOf = (view: ScreenView, taskUid: number, column: string): string | undefined => {
+  const panel = view.searchPanel
+  const at = panel?.columns.findIndex((one) => one.column === column) ?? -1
+  const row = panel?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === taskUid)
+  return at < 0 ? undefined : row?.cells[at]
+}
+
+for (const entry of GENERATED['searchColumns'] ?? []) {
+  const column = keyOf('searchColumns', entry)
+  place({
+    section: 'searchColumns',
+    key: column,
+    field: 'text',
+    unit: 'UF-180',
+    what: `the heading of column ${column} of table T-331 on the Search Panel's table`,
+    frame: COMMENT_BOX_COLUMNS.has(column) ? SEARCH_COMMENT_BOXES_SHOWN : SEARCH_TASKS_SHOWN,
+    read: (view) => view.searchPanel?.columns.find((one) => one.column === column)?.heading,
+  })
+}
+
+for (const entry of GENERATED['planActualStates'] ?? []) {
+  const state = keyOf('planActualStates', entry)
+  place({
+    section: 'planActualStates',
+    key: state,
+    field: 'text',
+    unit: 'UF-180',
+    what: `the state word ${state} of table T-019a in column SQ-5 of the Search Panel's task table`,
+    frame: SEARCH_TASKS_SHOWN,
+    read: (view) => {
+      const task = SEARCH_TASK_BY_STATE[state]
+      return task === undefined ? undefined : searchCellOf(view, task.uid, STATE_COLUMN)
+    },
+  })
+}
+
+// see SV-7, SV-13, SQ-1
+const SEARCH_PANEL_READS: Readonly<
+  Record<string, { readonly frame: Frame; readonly read: (view: ScreenView) => string | undefined }>
+> = {
+  blank: {
+    frame: SEARCH_TASKS_SHOWN,
+    read: (view) => {
+      const menu = view.searchPanel?.filterMenu
+      return menu?.kind === 'values' ? menu.values.find((one) => one.value === '')?.label : undefined
+    },
+  },
+  noName: {
+    frame: SEARCH_TASKS_SHOWN,
+    read: (view) => searchCellOf(view, SEARCH_TASK_BY_STATE['PS-1']?.uid ?? 0, NAME_COLUMN),
+  },
+  restore: {
+    frame: SEARCH_MAXIMISED,
+    read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMISE_ENTRY),
+  },
+}
+
+for (const entry of GENERATED['searchPanel'] ?? []) {
+  const part = keyOf('searchPanel', entry)
+  const reading = SEARCH_PANEL_READS[part]
+  if (reading === undefined) {
+    drop('searchPanel', part, 'no requirement of FR-151 names where this part of the Search Panel is printed')
+    continue
+  }
+  place({
+    section: 'searchPanel',
+    key: part,
+    field: 'text',
+    unit: 'UF-180',
+    what: `the ${part} word of the Search Panel (FR-151)`,
+    frame: reading.frame,
+    read: reading.read,
   })
 }
 

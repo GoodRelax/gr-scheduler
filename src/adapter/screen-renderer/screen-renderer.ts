@@ -39,13 +39,15 @@ import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 export {
   nextSearchPanelTextSizeStep,
+  searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
   searchPanelBoxAfterGrab,
   searchPanelFromSession,
   searchPanelWithFilterClosed,
+  searchPanelWithFilterOpened,
 } from './search-panel'
 export { imageToJsonPromptText } from './app-header-items'
-export type { SearchPanelShown, SearchPanelView } from './search-panel'
+export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'

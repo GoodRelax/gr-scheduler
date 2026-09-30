@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 136 | 1810 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 137 | 1872 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 35 | 231 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 142 | 3290 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 333 | 5435 | 12 | 19 | 9 | 1 |
+| **all** | | | 334 | 5497 | 12 | 19 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -286,6 +286,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-1230-the-continuation-send-moves-an-unplaced-view.contract.test.ts` | 10 | - | - | T-024a, T-203, T-270, T-303 | EL-11, EL-12, EL-16, MK-13, OP-10, PE-12, S-77, S-78, S-176 | - | - | - | - |
 | `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts` | 8 | FR-006 | - | T-016, T-034, T-036, T-062, T-065, T-067, T-078, T-103, T-218 | BT-4, CP-25, CP-38, FT-1, IF-1, IF-9, PR-1, PR-2, PR-9, PR-12, SK-19, TS-6, U-25, UF-48, UF-71, WS-1, WS-3, WS-6, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1361-the-search-table-header-stays-on-top.contract.test.ts` | 8 | FR-041, FR-151 | - | T-206, T-330, T-331, T-333 | RR-4, S-146, S-150, SV-6 | - | - | - | - |
+| `tests/contract/dfc-1362-search-column-filter.contract.test.ts` | 62 | FR-151 | - | T-019a, T-028, T-109, T-330, T-331 | IC-122, IC-123, IC-124, IC-125, IC-126, IN-4, PS-1, PS-2, PS-3, PS-4, PS-5, SQ-1, SQ-3, SQ-6, SQ-7, SQ-8, SV-3, SV-4, SV-7, SV-8, SV-12, SV-14 | - | - | - | - |
 | `tests/contract/dfc-1363-the-task-hint-wakes-at-its-own-wait.contract.test.ts` | 7 | FR-092 | - | T-212 | EZ-2, EZ-6, S-124, S-439 | - | - | - | - |
 | `tests/contract/dfc-152-in-6-the-same-value-writes-nothing.test.ts` | 13 | FR-031 | - | T-016, T-027, T-028, T-036, T-062, T-065, T-103, T-218 | CP-38, FT-1, IF-1, IF-9, IN-5a, IN-6, PR-1, PR-2, SK-19, TS-6, U-25, UF-8, UF-9, UF-71, UN-3 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
@@ -322,7 +323,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts` | 3 | FR-023 | - | - | CM-8, EX-12 | - | - | - | yes |
 | `tests/contract/dfc-806-double-clicking-a-highlight-box-focuses-its-frame-colour.test.ts` | 12 | FR-072, FR-097 | - | T-016, T-023, T-103 | CV-9, GA-3, GA-4, GR-14, IN-5a, MK-13, PR-21, PR-22, U-25 | - | - | - | - |
 | `tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts` | 8 | FR-024, FR-036, FR-060, FR-096, FR-101, NFR-010 | - | T-024, T-034, T-036, T-062, T-066, T-075, T-077, T-218, T-227 | BO-1, BT-4, CP-25, CS-4, DI-4, DI-5, IC-2, IF-3, IO-2, SK-11, TS-6, UF-48 | - | - | - | - |
-| `tests/contract/display-words.contract.test.ts` | 18 | FR-006, FR-017, FR-029, FR-032, FR-036, FR-037, FR-038, FR-039, FR-041, FR-042, FR-052, FR-053, FR-072, FR-073, FR-076, FR-085, FR-088, FR-096, FR-101, FR-151 | - | T-006a, T-012, T-015a, T-016, T-019a, T-023, T-023a, T-023b, T-023c, T-023d, T-024, T-026, T-028, T-031, T-036, T-037, T-040, T-050, T-052, T-058, T-064, T-075, T-103, T-104, T-109, T-206, T-218, T-220, T-233, T-234, T-255, T-263, T-294, T-305, T-331, T-335 | AR-1, AR-2, AR-3, AR-5, AR-6, AT-17, AT-53, AT-144, CV-9, DC-3, DR-3, DR-5, EZ-2, GR-21, HM-10, IC-1, IC-17, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-75, IC-130, IC-131, IN-4, IO-1, IO-7, IR-1, K-87, K-103, K-105, MH-3, MH-4, MH-5, MH-6, MK-1, MK-5, MK-13, NT-3, NT-7, NT-8, PI-36, PI-37, PR-14, PR-18, PR-21, PR-33, RC-13, S-72, S-73, S-99e, S-99g, S-124, S-142, S-171, S-216, S-350, SC-4, SE-2, SH-1, SL-1, SQ-1, SQ-5, SV-7, SV-13, TS-5, U-55, UF-32, UF-59, UF-60, UF-63, UF-64, UF-65, UF-66, UF-67, UF-69, UF-71, WB-3, WB-4 | - | DFC-1023 | - | - |
+| `tests/contract/display-words.contract.test.ts` | 18 | FR-006, FR-017, FR-029, FR-032, FR-036, FR-037, FR-038, FR-039, FR-041, FR-042, FR-052, FR-053, FR-072, FR-073, FR-076, FR-085, FR-088, FR-096, FR-101, FR-151 | - | T-006a, T-012, T-015a, T-016, T-019a, T-023, T-023a, T-023b, T-023c, T-023d, T-024, T-026, T-028, T-031, T-036, T-037, T-040, T-050, T-052, T-058, T-064, T-075, T-103, T-104, T-109, T-206, T-218, T-220, T-233, T-234, T-255, T-263, T-294, T-305, T-330, T-331, T-335 | AR-1, AR-2, AR-3, AR-5, AR-6, AT-17, AT-53, AT-144, CV-9, DC-3, DR-3, DR-5, EZ-2, GR-21, HM-10, IC-1, IC-17, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-75, IC-130, IC-131, IN-4, IO-1, IO-7, IR-1, K-87, K-103, K-105, MH-3, MH-4, MH-5, MH-6, MK-1, MK-5, MK-13, NT-3, NT-7, NT-8, PI-36, PI-37, PR-14, PR-18, PR-21, PR-33, PS-1, RC-13, S-72, S-73, S-99e, S-99g, S-124, S-142, S-171, S-216, S-350, SC-4, SE-2, SH-1, SL-1, SQ-1, SQ-5, SV-7, SV-13, TS-5, U-55, UF-32, UF-59, UF-60, UF-63, UF-64, UF-65, UF-66, UF-67, UF-69, UF-71, WB-3, WB-4 | - | DFC-1023 | - | - |
 | `tests/contract/document-invariants.contract.test.ts` | 8 | FR-019, FR-054, FR-088 | - | T-050, T-052, T-053, T-058, T-064, T-209, T-214, T-218, T-220 | AT-19, AT-46, AT-51, AT-72, AT-123, DF-4, DR-1, DR-4, IV-1, IV-2, IV-3, IV-4, IV-5, IV-6, IV-7, IV-8, IV-9, IV-12, IV-14, IV-15, IV-16, IV-17, IV-18, IV-19, IV-20, IV-21, P-19, PI-1, RL-12, RL-13, RL-15, S-3, S-73, S-119, S-125, S-126, TS-2, TS-3, TS-5, TS-6, W-7, W-9 | - | - | - | - |
 | `tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts` | 8 | FR-033 | - | T-233 | SL-2, SL-4 | - | - | 1: DFC-730 | - |
 | `tests/contract/erd-seats-are-never-reissued.contract.test.ts` | 9 | - | - | T-218 | AT-139, TS-5 | - | - | - | - |

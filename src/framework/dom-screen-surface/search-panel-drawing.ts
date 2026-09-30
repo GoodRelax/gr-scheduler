@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { ScreenPart, SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
+import type { ScreenPart, SearchFilterChange, SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
@@ -50,6 +50,10 @@ export const SEARCH_FILTER_BOUND_ATTRIBUTE = 'data-search-filter-bound'
 export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
 export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
+
+const ENTRY_ICON_ATTRIBUTE = 'data-icon'
+
+const FILTER_ENTRY = 'IC-122'
 
 // TRAP: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
 /** @purity pure */
@@ -422,6 +426,94 @@ function redrawInPlace(host: Document, drawnPanel: HTMLElement, panel: SearchPan
   pinFixedColumns(redrawn)
 }
 
+// WHY: the heading's IC-122 and the drawn filter both name their column; wantsEntry tells them apart (SV-7).
+/** @purity semi-pure-b */
+function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: boolean): string | null {
+  for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
+    const column = node.getAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE)
+    const isEntry = node.getAttribute(ENTRY_ICON_ATTRIBUTE) === FILTER_ENTRY
+    if (column !== null && isEntry === wantsEntry) return column
+  }
+  return null
+}
+
+// see IF-9, SV-7, IC-122
+/** @purity semi-pure-b */
+function withFilterColumn(answer: ScreenPart | null, first: Element | null, layer: Element): ScreenPart | null {
+  if (answer === null || first === null || !layer.contains(first)) return answer
+  const column = filterColumnAbove(first, layer, true)
+  return column === null ? answer : { ...answer, searchFilterColumn: column }
+}
+
+// see SV-7, IF-9
+/** @purity semi-pure-b */
+function filterChangeOf(control: HTMLInputElement | null, layer: Element): SearchFilterChange | null {
+  if (control === null || typeof control.getAttribute !== 'function') return null
+  const column = filterColumnAbove(control.parentElement, layer, false)
+  if (column === null) return null
+  const value = control.getAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE)
+  if (value !== null) return { kind: 'value', column, value, isShown: control.checked }
+  const bound = control.getAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE)
+  if (bound !== 'since' && bound !== 'until') return null
+  return { kind: 'bound', column, bound, day: control.value === '' ? null : control.value }
+}
+
+// WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
+/** @purity non-pure */
+function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } {
+  let changes: readonly SearchFilterChange[] = []
+  layer.addEventListener('input', (event: Event) => {
+    const change = filterChangeOf(event.target as HTMLInputElement | null, layer)
+    if (change === null) return
+    changes = [...changes, change]
+    onChanged()
+  })
+  /** @purity semi-pure-b */
+  const read = (): readonly SearchFilterChange[] => {
+    const taken = changes
+    changes = []
+    return taken
+  }
+  return { read }
+}
+
+const FOCUS_MARKS: readonly string[] = [
+  SEARCH_WORD_FIELD_ATTRIBUTE,
+  SEARCH_FILTER_VALUE_ATTRIBUTE,
+  SEARCH_FILTER_BOUND_ATTRIBUTE,
+  ENTRY_ICON_ATTRIBUTE,
+  SEARCH_FILTER_COLUMN_ATTRIBUTE,
+]
+
+type FocusMark = readonly (readonly [string, string | null])[]
+
+// see IN-4, SV-14
+/** @purity semi-pure-b */
+function focusMarkIn(host: Document, layer: Element): FocusMark | null {
+  const active = (host as Partial<Document>).activeElement ?? null
+  if (active === null || !isInside(layer, active)) return null
+  return FOCUS_MARKS.map((name) => [name, active.getAttribute(name)] as const)
+}
+
+// WHY: a redraw drops the focused control; focus goes back inside, so IN-4 still reads the panel (JDG-633).
+/** @purity non-pure */
+function focusKeptIn(host: Document, layer: Element, mark: FocusMark | null): void {
+  if (mark === null || isInside(layer, (host as Partial<Document>).activeElement ?? null)) return
+  const controls = [...layer.querySelectorAll<HTMLElement>('input, button')]
+  const twin = controls.find((node) => mark.every(([name, value]) => node.getAttribute(name) === value))
+  const target = twin ?? layer.querySelector<HTMLElement>(`[${SEARCH_WORD_FIELD_ATTRIBUTE}]`)
+  target?.focus()
+}
+
+// see IN-4, SV-14
+// WHY: the host is asked for the focus only while a panel stands; no panel, no focus to keep.
+/** @purity non-pure */
+function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): void {
+  const mark = (layer.firstElementChild ?? null) === null ? null : focusMarkIn(host, layer)
+  drawIt()
+  focusKeptIn(host, layer, mark)
+}
+
 // see SV-2, SV-5, IF-9
 /** @purity non-pure */
 function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
@@ -449,10 +541,15 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   let tableDrawn = ''
   let placed: PanelPlaced | null = null
   const typedWord = typedWordWatch(layer, onWordTyped)
+  const filterChanges = filterChangeWatch(layer, onWordTyped)
 
   /** @purity non-pure */
   function draw(panel: SearchPanelView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
-    if (!isChanged) return
+    if (isChanged) drawnKeepingFocus(host, layer, () => drawPanel(panel, anchorsOf))
+  }
+
+  /** @purity non-pure */
+  function drawPanel(panel: SearchPanelView | null | undefined, anchorsOf: () => Map<string, HTMLElement>): void {
     placed = panel === null || panel === undefined ? null : panelPlacedOf(panel)
     if (panel === null || panel === undefined || placed === null) {
       frameDrawn = ''
@@ -479,7 +576,9 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   return {
     draw,
     readWord: typedWord.read,
-    answerAt: (asked: PointAsked): ScreenPart | null => searchPanelPartAt(layer, placed, asked),
+    readFilterChanges: filterChanges.read,
+    answerAt: (asked: PointAsked): ScreenPart | null =>
+      withFilterColumn(searchPanelPartAt(layer, placed, asked), asked.first, layer),
     isFocused: (): boolean => isInside(layer, (host as Partial<Document>).activeElement ?? null),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
