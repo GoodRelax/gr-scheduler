@@ -392,6 +392,10 @@ const SEARCH_PANEL_SURFACE = 'Search Panel'
 // see U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
+// TRAP: dom-screen-surface.ts's ROLE.tooltips must spell it the same; a mismatch
+// hides an icon's hint as soon as the pointer reaches its box.
+const TOOLTIP_SURFACE = 'Tooltip'
+
 // see SV-2
 const SEARCH_WORD_ROW = 'SV-2'
 
@@ -420,7 +424,7 @@ const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'du
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
-const POINTER_RESTED: ScreenValuesEvent = { type: 'hintTargetChanged' }
+const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
@@ -798,6 +802,7 @@ interface ScreenViewReadingsTaken {
   readonly themePreference: ScreenValues['themePreference']
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
+  readonly hintTargetDwellMs: number
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly taskUnderPointer: Task | null
@@ -1474,6 +1479,29 @@ function hintEntryOf(under: IconId | null, released: IconId | null): IconId | nu
   return under === released ? null : under
 }
 
+interface HintTarget {
+  readonly icon: IconId | null
+  readonly taskUid: number | null
+  readonly scrollbarAxis: ScreenPart['scrollbarAxis'] | null
+}
+
+const NO_HINT_TARGET: HintTarget = { icon: null, taskUid: null, scrollbarAxis: null }
+
+// see EZ-2, EZ-6, FR-037, IN-3
+/** @purity pure */
+function hintTargetOf(partUnderHint: ScreenPart | null, grab: Grabbed | null): HintTarget {
+  return {
+    icon: partUnderHint?.entry ?? null,
+    taskUid: grab !== null && grab.item.kind === 'task' ? grab.item.taskUid : null,
+    scrollbarAxis: partUnderHint?.scrollbarAxis ?? null,
+  }
+}
+
+/** @purity pure */
+function isSameHintTarget(a: HintTarget, b: HintTarget): boolean {
+  return a.icon === b.icon && a.taskUid === b.taskUid && a.scrollbarAxis === b.scrollbarAxis
+}
+
 /** @purity pure */
 function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
@@ -1593,6 +1621,9 @@ export function frameLoop(
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
   let hintReleasedEntry: IconId | null = null
+  // WHY: the part the pointer was on before it reached a shown box; the box belongs to that target (EZ-2).
+  let partUnderHint: ScreenPart | null = null
+  let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
@@ -1671,8 +1702,10 @@ export function frameLoop(
   const { bandCeilingFor } = rowBandCeilingCacheOf()
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate } =
     heldViewPlaceOf(hands, startedFromTemplate)
-  const { beginPointerRest, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat, readPointerRestedMs } =
-    frameClockWakesOf(hands)
+  const {
+    beginPointerRest, beginHintTargetDwell, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat,
+    readPointerRestedMs, readHintTargetDwellMs,
+  } = frameClockWakesOf(hands)
   const interactionRecorder = interactionRecorderOf(hands)
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
@@ -1746,6 +1779,7 @@ export function frameLoop(
     owed = false
     const document = previewDocument ?? held.document
     const pointerRestedMs = readPointerRestedMs()
+    const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
@@ -1847,8 +1881,9 @@ export function frameLoop(
           themePreference: session.screen.themePreference,
           pointer: pointerAt,
           pointerRestedMs,
-          iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
-          isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
+          hintTargetDwellMs,
+          iconUnderPointer: hintEntryOf(partUnderHint?.entry ?? null, hintReleasedEntry),
+          isPointerOnHelp: partUnderHint?.part === HELP_MODAL_SURFACE,
           taskUnderPointer:
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
@@ -2091,6 +2126,7 @@ export function frameLoop(
           themePreference: session.screen.themePreference,
           pointer: null,
           pointerRestedMs: 0,
+          hintTargetDwellMs: 0,
           iconUnderPointer: null,
           taskUnderPointer: null,
           commandPaletteDraggedTo: null,
@@ -2764,6 +2800,18 @@ export function frameLoop(
     return !isSameGrab(grabUnderPointer, grabBefore)
   }
 
+  // see EZ-2, IN-3, JDG-668
+  // WHY: after the grab is read, since a task is a target; the icon's wait and the Esc-dismissed
+  // tooltip both follow the target, never a move inside it.
+  /** @purity non-pure */
+  function noteHintTarget(frame: FrameValues): void {
+    const next = hintTargetOf(partUnderHint, grabUnderPointer)
+    if (isSameHintTarget(next, hintTarget)) return
+    hintTarget = next
+    beginHintTargetDwell()
+    sendToSession(HINT_TARGET_CHANGED, frame)
+  }
+
   // see FT-1
   /** @purity non-pure */
   function receiveInput(input: HumanInput): void {
@@ -2798,10 +2846,9 @@ export function frameLoop(
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
-      // DEVIATION: spec says an elapsed rest allows the tooltip again (T-280); here a move does (DFC-692)
-      if (hasMoved) sendToSession(POINTER_RESTED, frame)
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
+      if (partUnderPointer?.part !== TOOLTIP_SURFACE) partUnderHint = partUnderPointer
       const entryUnder = partUnderPointer?.entry ?? null
       hintReleasedEntry = hintReleasedEntryAfter(hintReleasedEntry, input, pressed !== null, entryUnder)
       if (input.phase === 'down') {
@@ -2827,7 +2874,6 @@ export function frameLoop(
       return
     }
 
-    // DEVIATION: spec says owesFrame compares the whole root (UF-48); a restored tooltip owed no frame (DFC-692)
     const sessionBefore = session
     if (isLandingMarkClearedBy(input, session)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
@@ -2905,6 +2951,7 @@ export function frameLoop(
         pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )
     }
+    if (input.kind === 'pointer') noteHintTarget(frame)
 
     previewDocument = previewOfHeldPress(hands, pressed, pointerAt, context, frame)
     heldPropertyPanelWidth = heldPropertyPanelWidthOf(pressed, pointerAt, context)

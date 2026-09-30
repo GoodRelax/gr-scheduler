@@ -480,6 +480,7 @@ export interface ScreenViewReadings {
   readonly isAgentApiEnabled: boolean
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
+  readonly hintTargetDwellMs: number
   // STOP: spec does not decide what answers which icon is under the pointer. Looked in EZ-2, FR-092, FR-029, T-109, T-206
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null

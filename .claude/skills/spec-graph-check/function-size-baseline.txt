@@ -1,4 +1,5 @@
 excess-lines=6171 excess-branches=621
+# RAISED frameClockWakesOf 69->93, frameLoop 1508->1527, receiveInput 161/68->161/69, runFrame 138->139 on 2026-10-01 under JDG-778 (lane L4, CR-576 5.1 (b): two hint timers -- beginHintTargetDwell / readHintTargetDwellMs beside beginPointerRest -- and the hint target that restarts the icon wait; DFC-1284).
 # RAISED commandFromEntry 152/66->154/67, commandStateOf 56->57, carryOutAction 177/46->177/47, frameLoop 1501->1506 on 2026-09-30 under JDG-778 (lane L4, CR-562: IC-115 copies the prompt with no surface, IC-18 enables Agent API, IC-18 never faint; DFC-1284).
 # RAISED frameLoop 1501->1503, receiveInput 159/66->161/68 on 2026-09-30 under JDG-778 at the merge of refactor ef14d910 into lane-l1: lane L1's two CR-596 lines in receiveInput land on top of lane L4's; the coordinator re-measures the totals at merge.
 # RAISED 5998/599 -> 6171/621 on 2026-09-27 under JDG-778 at the merge of refactor e7c6fc4f into lane-l4: the L4 raises above (CR-574, CR-571, CR-575, CR-597; DFC-1284) on top of the coordinator's re-measure; domScreenSurface 378, showScreenView 140/45, carryOutAction 177/46 are the L3/L1 and L4 hunks added together -- the coordinator re-measures at merge.
@@ -102,13 +103,13 @@ HELD src/framework/file-system-access-file-store/file-system-access-file-store.t
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
 HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf lines=107 branches=0
 HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=155 branches=32
-HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=69 branches=0
+HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=93 branches=0
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1508 branches=5
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=161 branches=68
-HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=138 branches=11
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1527 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=161 branches=69
+HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=139 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=219 branches=6
