@@ -150,14 +150,15 @@ export interface TaskGeometry {
   readonly deadline?: DeadlineGeometry | null
 }
 
-// see EL-1, EL-2, EL-10, EL-11, EL-12
-// WHY: decided here once, where EL-1 and EL-2 are judged, so the double click (EL-10 .. EL-12) never judges them again.
+// see EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
+// WHY: decided here once, where EL-1, EL-2 and EL-20 are judged, so the click (EL-10 .. EL-12) never judges them again.
 export interface FarEndGeometry {
   readonly isAcrossInRowArea: boolean
   readonly isDownInRowPlace: boolean
   readonly groupId: string
   readonly middleX: number
   readonly undrawnRowDepth: number | null
+  readonly foldedRowId: string | null
 }
 
 // see EL-9, GA-24
@@ -304,7 +305,8 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
 // see EL-1, EL-2, FR-098, LF-14
 // WHY: an EL-2 end stands on a zero-height line, so it is never inside its row's place down.
 /** @purity pure */
-function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null, reading: EndReading): FarEndGeometry {
+function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null, foldedRowId: string | null,
+                  reading: EndReading): FarEndGeometry {
   const area = reading.regions.rowArea
   const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
   const isPinned = reading.rowById.get(groupId)?.isPinned === true
@@ -316,6 +318,7 @@ function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null,
     groupId,
     middleX: (end.x + (end.x + end.width)) / 2,
     undrawnRowDepth,
+    foldedRowId,
   }
 }
 
@@ -337,8 +340,9 @@ function standingYOf(row: RowPlacement, reading: EndReading): number {
   return floor
 }
 
-// see EL-2, EL-10, RT-4a, LC-1
+// see EL-2, EL-10, EL-20, RT-4a, LC-1
 // WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
+// WHY: a fold or a hide on the way up makes the end an EL-20 end; it stands like an EL-2 end all the same.
 /** @purity pure */
 function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
@@ -347,18 +351,20 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const groupId = reading.groupOfTask.get(task.uid)
   const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
   if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
-  if (own.treeState === 'hidden' || reading.rowById.has(own.id) || reading.pinnedIds.has(own.id)) return null
+  if (reading.rowById.has(own.id) || reading.pinnedIds.has(own.id)) return null
+  let isFolded = own.treeState === 'hidden' || settings.levelZeroTreeState === 'collapsed'
   let group: TaskGroup = own
   for (let step = 0; step < settings.maxGroupDepth; step += 1) {
     const parent: TaskGroup | undefined =
       group.parentId === null ? undefined : reading.groupById.get(group.parentId)
-    if (parent === undefined || parent.treeState === 'hidden' || parent.treeState === 'collapsed') return null
+    if (parent === undefined) return null
+    isFolded = isFolded || parent.treeState === 'hidden' || parent.treeState === 'collapsed'
     const row = reading.rowById.get(parent.id)
     if (row !== undefined) {
       const x = xFromDay(layout, start)
       const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
       // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
-      return { end, far: farEndOf(end, own.id, row.depth + step + 1, reading) }
+      return { end, far: farEndOf(end, own.id, row.depth + step + 1, isFolded ? own.id : null, reading) }
     }
     group = parent
   }
@@ -370,7 +376,7 @@ function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
   const placed = reading.placedByUid.get(uid)
   if (placed !== undefined) {
     const end = placedEndOf(placed, reading.inputs.settings)
-    return { end, far: farEndOf(end, placed.groupId, null, reading) }
+    return { end, far: farEndOf(end, placed.groupId, null, null, reading) }
   }
   const task = reading.inputs.taskByUid.get(uid)
   return task === undefined ? null : lodEndOf(task, reading)

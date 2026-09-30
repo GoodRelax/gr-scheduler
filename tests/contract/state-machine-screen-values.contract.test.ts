@@ -149,6 +149,9 @@ function completePath(key: string): string[] {
 const UNLOCK_SURFACE = 'U-60'
 const CHOICE = { selection: { items: [{ kind: 'task', uid: 1 }], ordered: false }, groupIds: [] }
 const NO_CHOICE = { selection: { items: [], ordered: false }, groupIds: [] }
+// see T-280, EL-16
+const STORED_LANDING = { predecessorUid: 1, successorUid: 2 }
+const NEW_LANDING = { predecessorUid: 3, successorUid: 4 }
 
 // see T-280
 const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
@@ -159,6 +162,8 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   returnSubject: [CHOICE, null],
   percent: [100],
   end: ['max'],
+  landedLink: [STORED_LANDING],
+  landedTaskUid: [STORED_LANDING.successorUid],
 }
 
 function memberFor(row: SmRow | undefined, kind: string): Loose[] {
@@ -244,6 +249,8 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   hasDaysToPlace: [true, false],
   writes: [[]],
   guideCursor: ['crosshair'],
+  landedLink: [NEW_LANDING],
+  landedTaskUid: [NEW_LANDING.successorUid],
 }
 
 const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(

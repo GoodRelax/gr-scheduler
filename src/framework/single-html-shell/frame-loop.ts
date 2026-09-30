@@ -421,6 +421,7 @@ const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'toolti
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
 const POINTER_RESTED: ScreenValuesEvent = { type: 'hintTargetChanged' }
+const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
@@ -977,6 +978,22 @@ function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
 function isNoticeDismissKey(input: HumanInput): boolean {
   if (input.kind !== 'key') return false
   return input.key === ESCAPE_KEY || (input.key === ENTER_KEY && isCombo(input.modifiers, false, false, false))
+}
+
+// see EL-17, EL-18
+// WHY: a pointer move never clears the mark; the eye hunts for the landing while the hand moves.
+/** @purity pure */
+function isLandingMarkClearedBy(input: HumanInput, session: ScreenSession): boolean {
+  if (session.screen.landingMarkDisplayState.kind !== 'shown') return false
+  if (input.kind !== 'pointer') return true
+  return input.phase === 'down' && input.clickCount < 2
+}
+
+// see EL-16, T-280
+/** @purity pure */
+function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof commandFromInput>['landingMarked']>): ScreenValuesEvent {
+  const { predecessorUid, successorUid, landedTaskUid } = landed
+  return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTaskUid }
 }
 
 /** @purity pure */
@@ -2812,6 +2829,7 @@ export function frameLoop(
 
     // DEVIATION: spec says owesFrame compares the whole root (UF-48); a restored tooltip owed no frame (DFC-692)
     const sessionBefore = session
+    if (isLandingMarkClearedBy(input, session)) sendToSession(LANDING_MARK_CLEAR_ASKED, frame)
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
     const context = collectInputContext(frame, isNoticeStandingOnArrival)
     // TRAP: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
@@ -2831,6 +2849,7 @@ export function frameLoop(
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null && !isRefusedPanelWidth(screenEvent, frame)) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
+    if (translated.landingMarked !== undefined) sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
     if (rungEvent !== null) sendToSession(rungEvent, frame)

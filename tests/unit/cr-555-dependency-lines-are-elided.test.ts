@@ -52,6 +52,8 @@ const DOT_MARGIN = T206('S-363')
 
 const SL_3_WHOLLY = '矩形に完全に囲まれた対象だけを取ること'
 const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きの印はその依存線の一部である'
+const EL_20_NOT_SEEN = 'その端は見えていない端とすること（MUST）。'
+const EL_20_STAND = '経路を引くために立つ所は `EL-2` と同じとする —— 描かれている最も近い祖先の行の帯の下端であり'
 
 const EPS = 1e-6
 // WHY: the SVG prints two decimals.
@@ -568,6 +570,12 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
 })
 
 describe('EL-2 -- the end of a row the group LOD does not draw stands at the foot of its nearest drawn ancestor', () => {
+  it('the manuscript: T-303 EL-20 still says it', () => {
+    const cell = specTable('T-303').rows.find((one) => one.id === 'EL-20')?.cells.join('') ?? ''
+    expect(cell.replace(/<br\s*\/?>/g, ''), EL_20_NOT_SEEN).toContain(EL_20_NOT_SEEN)
+    expect(cell.replace(/<br\s*\/?>/g, ''), EL_20_STAND).toContain(EL_20_STAND)
+  })
+
   // WHY: zoomY 0.4 draws depth 2 and hides depth 3; zoomY 1 draws both.
   const DEEP = [['a', null], ['a1', 'a'], ['a11', 'a1'], ['b', null]] as const satisfies readonly GroupSpec[]
   const deep = (zoomY: number): Scene =>
@@ -644,7 +652,7 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
     expect(lineOf(scene, 1, 2).points.at(-1)!.y).toBeCloseTo(scene.layout.scrollAreaY!, 9)
   })
 
-  it('RT-4a (not EL-2): an end under a row the person folded draws neither line nor mark', () => {
+  it('EL-20 (CR-596, no longer RT-4a): an end under a row the person folded stands on the foot of the drawn row, with a mark', () => {
     const scene = sceneOf({
       groups: [['a', null], ['a1', 'a', 'collapsed'], ['a11', 'a1']],
       tasks: [
@@ -652,12 +660,12 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
         [taskOf(2, 20, 5, [1]), 'a11'],
       ],
     })
-    const line = maybeLineOf(scene, 1, 2)
-    if (line !== undefined) {
-      expect(line.continuation ?? null, 'RT-4a drops the line before T-303: no mark').toBeNull()
-      expect(line.drawnPoints ?? [], 'RT-4a drops the line before T-303: nothing drawn').toEqual([])
-    }
-    expect(circlesAt(svgOf(scene), line?.points ?? []).length).toBe(0)
+    const line = lineOf(scene, 1, 2)
+    expect(line.elision, EL_20_NOT_SEEN).toBe('EL-4')
+    expect(line.continuation?.farUid, EL_20_NOT_SEEN).toBe(2)
+    const ancestor = rowOf(scene, 'a1')
+    expect(line.points.at(-1)!.y, EL_20_STAND).toBeCloseTo(ancestor.y + ancestor.height, 9)
+    expect(circlesAt(svgOf(scene), line.continuation?.dots ?? []).length, 'EL-9: the mark is drawn').toBe(3)
   })
 })
 

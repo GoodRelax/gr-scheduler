@@ -34,10 +34,13 @@ import {
   hasDraggedPastThreshold,
   isCombo,
   isOnRowArea,
+  isSwallowedSecondPress,
   pressRowOf,
   type GrabRow,
   type InputContext,
+  type PointerPress,
 } from './input-command-translator'
+import { isContinuationMarkClick } from './item-grab'
 
 // see PE-1, PE-6
 const BODY_GRAB_ROWS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
@@ -110,6 +113,14 @@ function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
   }
 }
 
+// see EL-18, T-023c
+// WHY: a press on a surface part, and the second press EL-18 swallows, leave the selection as it is.
+/** @purity pure */
+function chartPressOf(context: InputContext): PointerPress | null {
+  const press = context.pressed
+  if (press === null || press.on !== null) return null
+  return isSwallowedSecondPress(press, context) ? null : press
+}
 
 // see T-023c
 /** @purity pure */
@@ -141,9 +152,8 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
   }
   if (input.kind !== 'pointer' || input.phase !== 'up') return held
 
-  const press = context.pressed
+  const press = chartPressOf(context)
   if (press === null) return held
-  if (press.on !== null) return held
   if (!isOnRowArea(context, press.at.x, press.at.y)) return held
 
   const isAdding = press.at.modifiers.shift
@@ -152,6 +162,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     case 'PTD-3': {
       const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
       const ref = press.hit === null ? null : pickableRefOf(context, press.hit.item)
+      if (isContinuationMarkClick(press, input)) return emptySelection()
       if (ref === null || grab === null) return held
       if (grab === 'GA-20' && !hasDraggedPastThreshold(press, input)) return held
       if (isAdding) {

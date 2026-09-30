@@ -5,6 +5,7 @@
 
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import type { ItemRef } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
@@ -32,6 +33,7 @@ import {
   typefaceAttribute,
   type ChosenColour,
   type SchedulePicture,
+  type ViewerValues,
 } from './svg-renderer'
 
 type Placed = ScheduleLayout['placements'][number]
@@ -51,6 +53,8 @@ export interface TaskFiguresInput {
   readonly visualOf: ReadonlyMap<number, Schedule['taskVisuals'][number]>
   readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
   readonly selected: ReadonlySet<number>
+  readonly selectedLinks: ReadonlySet<string>
+  readonly landingLink: string | null
   readonly hover: Hit | null
   readonly hand: Point | null
   readonly skipsOffScreen: boolean
@@ -76,6 +80,7 @@ export interface TaskFigureParts {
   readonly barMaskParts: readonly string[]
   readonly handleParts: readonly string[]
   readonly selectionParts: readonly string[]
+  readonly endOutlineParts: readonly string[]
 }
 
 export interface BaselineOutlineParts {
@@ -88,6 +93,8 @@ export interface DependencyLinksInput {
   readonly settings: DrawnSettings
   readonly themed: (rowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
+  readonly landingLink: string | null
+  readonly landingWidth: number
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
   readonly barMaskParts: readonly string[]
@@ -177,7 +184,8 @@ function barBoxOf(placed: Placed): ScreenRect {
 
 // see DA-7
 /** @purity pure */
-function isCulled(box: ScreenRect | null, input: TaskFiguresInput): boolean {
+function isCulled(box: ScreenRect | null, input: Pick<TaskFiguresInput,
+  'skipsOffScreen' | 'drawnFrom' | 'drawnTo' | 'drawnLeftOf' | 'drawnRightOf'>): boolean {
   if (!input.skipsOffScreen || box === null) return false
   return (
     box.y + box.height < input.drawnFrom ||
@@ -525,6 +533,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   const barMaskParts: string[] = []
   const handleParts: string[] = []
   const selectionParts: string[] = []
+  const endOutlineParts: string[] = []
+  const ended = endedTasksOf(input)
 
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
@@ -595,14 +605,11 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
         `<g opacity="${rounded(faintness)}"${figureKey(`${taskKey}-dummies`)}>${marks}</g>`,
       )
     }
+    if (ended.has(task.taskUid)) {
+      endOutlineParts.push(...aroundTaskSvg(task, themed('S-448'), `${taskKey}-end-outline`, 'endOutline'))
+    }
     if (selected.has(task.taskUid)) {
-      const box = boxOfPoints([
-        ...(task.plan === null ? [] : cornersOfBar(task.plan)),
-        ...(task.actual === null ? [] : cornersOfBar(task.actual)),
-      ])
-      if (box !== null) {
-        selectionParts.push(selectionFrameSvg(box, themed('S-151'), `${taskKey}-frame`))
-      }
+      selectionParts.push(...aroundTaskSvg(task, themed('S-151'), `${taskKey}-frame`, 'frame'))
 
       const half = settings.fadeHandleHalfPx
       for (const foundAt of task.fadeHandles) {
@@ -679,6 +686,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     barMaskParts,
     handleParts,
     selectionParts,
+    endOutlineParts,
   }
 }
 
@@ -718,106 +726,112 @@ export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [nu
   return { baselineParts, baselinePartsPinned }
 }
 
-// see GD-6
+// see GD-6, SL-8, EL-16
+// TRAP: the heads are minted before any cull: a <marker> must exist even when the first line is culled.
 /** @purity pure */
-export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
-  const {
-    geometry,
-    settings,
-    themed,
-    selectedLinks,
-    placedOf,
-    pinnedGroupIds,
-    barMaskParts,
-    arrowId,
-    dependencyHaloMaskId,
-    width,
-    height,
-    skipsOffScreen,
-    drawnFrom,
-    drawnTo,
-    drawnLeftOf,
-    drawnRightOf,
-  } = input
-  const defsParts: string[] = []
-  const depLinkParts: string[] = []
-  const depLinkPartsPinned: string[] = []
-
-  const orderedDependencies = [...geometry.dependencies].sort((a, b) => {
-    const aFront = selectedLinks.has(`${a.predecessorUid}>${a.successorUid}`) ? 1 : 0
-    const bFront = selectedLinks.has(`${b.predecessorUid}>${b.successorUid}`) ? 1 : 0
-    return aFront - bFront
-  })
-  const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
-  // TRAP: mint the head once through arrowMinted, never by reading defsParts.length: the list is shared.
-  let arrowMinted = false
-  for (const link of orderedDependencies) {
-    if (!settings.dependencyVisible) break
-    if (!arrowMinted) {
-      arrowMinted = true
-      defsParts.push(
-        dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159')),
-      )
-      if (barMaskParts.length > 0) {
-        defsParts.push(
-          `<mask id="${dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
-            `<rect x="0" y="0" width="${rounded(width)}" height="${rounded(height)}"` +
-            ' fill="white"/>' +
-            barMaskParts.join('') +
-            '</mask>',
-        )
-      }
-    }
-    // TRAP: cull after minting: the <marker> must exist even when the first line is culled.
-    const drawnBox = boxOfPoints(link.drawnPoints)
-    if (drawnBox === null) continue
-    if (skipsOffScreen) {
-      if (drawnBox.y + drawnBox.height < drawnFrom || drawnBox.y > drawnTo) continue
-      if (drawnBox.x + drawnBox.width < drawnLeftOf || drawnBox.x > drawnRightOf) continue
-    }
-    /** @purity pure */
-    const isPinned = (uid: number): boolean => {
-      const placed = placedOf.get(uid)
-      return placed !== undefined && pinnedGroupIds.has(placed.groupId)
-    }
-    const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
-    ;(isInTheBand(link, isPinned) ? depLinkPartsPinned : depLinkParts).push(
-      dependencyLinkSvg(link, {
-        halo: `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`,
-        colour: themed('S-159'),
-        width: selectedLineWidth(
-          settings.dependencyWidth,
-          selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
-        ),
-        arrowId,
-      }),
+function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
+  const { settings, themed, barMaskParts, arrowId } = input
+  const defs = [dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159'))]
+  if (barMaskParts.length > 0) {
+    defs.push(
+      `<mask id="${input.dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
+        `<rect x="0" y="0" width="${rounded(input.width)}" height="${rounded(input.height)}"` +
+        ' fill="white"/>' +
+        barMaskParts.join('') +
+        '</mask>',
     )
   }
-  return { defsParts, depLinkParts, depLinkPartsPinned }
+  if (input.selectedLinks.size > 0 || input.landingLink !== null) {
+    defs.push(dependencyArrowSvg(emphasisArrowIdOf(arrowId), settings.dependencyArrowLength, themed('S-448')))
+  }
+  return defs
+}
+
+/** @purity pure */
+function emphasisArrowIdOf(arrowId: string): string {
+  return `${arrowId}-emphasis`
+}
+
+// see FR-009, SL-8, EL-16
+type Emphasis = 'none' | 'selected' | 'landing'
+
+// see FR-009
+// WHY: drawn back to front, so the landing line (order 0) is drawn last and the selected lines (order 1) just before it.
+const EMPHASIS_DRAW_RANK: Readonly<Record<Emphasis, number>> = { none: 0, selected: 1, landing: 2 }
+
+/** @purity pure */
+function emphasisOf(link: DependencyLink, input: Pick<DependencyLinksInput, 'selectedLinks' | 'landingLink'>): Emphasis {
+  const key = linkKeyOf(link)
+  if (key === input.landingLink) return 'landing'
+  return input.selectedLinks.has(key) ? 'selected' : 'none'
+}
+
+// see SL-8, EL-9, EL-16, EL-19, S-159, S-448
+/** @purity pure */
+function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): LinkInk {
+  const own = input.settings.dependencyWidth
+  if (emphasis === 'none') return { halo, colour: input.themed('S-159'), width: own, arrowId: input.arrowId, isWholeRoute: false }
+  const isWholeRoute = emphasis === 'landing'
+  const width = isWholeRoute ? input.landingWidth : selectedLineWidth(own, true)
+  return { halo, colour: input.themed('S-448'), width, arrowId: emphasisArrowIdOf(input.arrowId), isWholeRoute }
+}
+
+// see GD-6, FR-009, EL-19
+/** @purity pure */
+export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
+  const { geometry, settings, themed, placedOf, pinnedGroupIds, barMaskParts } = input
+  const depLinkParts: string[] = []
+  const depLinkPartsPinned: string[] = []
+  if (!settings.dependencyVisible || geometry.dependencies.length === 0) {
+    return { defsParts: [], depLinkParts, depLinkPartsPinned }
+  }
+  const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
+  const haloMask = barMaskParts.length > 0 ? ` mask="url(#${input.dependencyHaloMaskId})"` : ''
+  const halo = `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`
+  /** @purity pure */
+  const isPinned = (uid: number): boolean => {
+    const placed = placedOf.get(uid)
+    return placed !== undefined && pinnedGroupIds.has(placed.groupId)
+  }
+  const ranked = geometry.dependencies.map((link) => ({ link, emphasis: emphasisOf(link, input) }))
+  ranked.sort((a, b) => EMPHASIS_DRAW_RANK[a.emphasis] - EMPHASIS_DRAW_RANK[b.emphasis])
+  for (const { link, emphasis } of ranked) {
+    const ink = inkOf(input, emphasis, halo)
+    const drawnBox = boxOfPoints(ink.isWholeRoute ? link.points : link.drawnPoints)
+    if (drawnBox === null || isCulled(drawnBox, input)) continue
+    ;(isInTheBand(link, ink.isWholeRoute, isPinned) ? depLinkPartsPinned : depLinkParts).push(
+      dependencyLinkSvg(link, ink),
+    )
+  }
+  return { defsParts: dependencyDefsOf(input), depLinkParts, depLinkPartsPinned }
 }
 
 type DependencyLink = ScheduleGeometry['dependencies'][number]
 
-// see FR-098, T-303
-/** @purity pure */
-function isInTheBand(link: DependencyLink, isPinned: (uid: number) => boolean): boolean {
-  if (link.elision === 'EL-4') return isPinned(link.predecessorUid)
-  if (link.elision === 'EL-5') return isPinned(link.successorUid)
-  return isPinned(link.predecessorUid) && isPinned(link.successorUid)
-}
-
-// see GD-6, EL-9
-/** @purity pure */
-function dependencyLinkSvg(link: DependencyLink, ink: {
+interface LinkInk {
   readonly halo: string
   readonly colour: string
   readonly width: number
   readonly arrowId: string
-}): string {
-  const points = pointsOf(link.drawnPoints)
+  readonly isWholeRoute: boolean
+}
+
+// see FR-098, T-303, EL-19
+/** @purity pure */
+function isInTheBand(link: DependencyLink, isWholeRoute: boolean, isPinned: (uid: number) => boolean): boolean {
+  const elision = isWholeRoute ? 'EL-3' : link.elision
+  if (elision === 'EL-4') return isPinned(link.predecessorUid)
+  if (elision === 'EL-5') return isPinned(link.successorUid)
+  return isPinned(link.predecessorUid) && isPinned(link.successorUid)
+}
+
+// see GD-6, EL-9, EL-19
+/** @purity pure */
+function dependencyLinkSvg(link: DependencyLink, ink: LinkInk): string {
+  const points = pointsOf(ink.isWholeRoute ? link.points : link.drawnPoints)
   const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
-  const head = link.head === undefined ? '' : ` marker-end="url(#${ink.arrowId})"`
-  const mark = link.continuation
+  const head = link.head === undefined && !ink.isWholeRoute ? '' : ` marker-end="url(#${ink.arrowId})"`
+  const mark = ink.isWholeRoute ? null : link.continuation
   const dots = mark === null ? [] : mark.dots.map(
     (dot) =>
       `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}"` +
@@ -829,6 +843,72 @@ function dependencyLinkSvg(link: DependencyLink, ink: {
     ` stroke="${ink.colour}" stroke-width="${rounded(ink.width)}"${head}${linkKey}/>` +
     dots.join('')
   )
+}
+
+// see FR-009, SL-8, EL-16
+// WHY: one spelling of a line's key, so the selected set, the landing mark and the drawing cannot disagree.
+/** @purity pure */
+export function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string {
+  return `${link.predecessorUid}>${link.successorUid}`
+}
+
+// see SL-8, FR-009
+// TRAP: the ordinal is not the index in geometry.dependencies: RT-4a drops undrawn links.
+/** @purity pure */
+export function selectedLinksOfMarks(schedule: Schedule, marks: readonly ItemRef[]): ReadonlySet<string> {
+  const out = new Set<string>()
+  let linksOfTask: ReadonlyMap<number, Schedule['tasks'][number]['dependencies']> | null = null
+  for (const item of marks) {
+    if (item.kind !== 'dependency') continue
+    linksOfTask ??= new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
+    const link = linksOfTask.get(item.successorUid)?.[item.ordinal]
+    if (link !== undefined) out.add(linkKeyOf({ predecessorUid: link.predecessorUid, successorUid: item.successorUid }))
+  }
+  return out
+}
+
+// see EL-16, EL-17, EP-12, T-280
+// WHY: read through ?. -- a caller older than the landing mark passes none, and none reads as hidden.
+/** @purity pure */
+export function landingLinkOf(viewer: ViewerValues): string | null {
+  const mark = viewer.landingMarkDisplayState
+  return mark?.kind === 'shown' ? linkKeyOf(mark.landedLink) : null
+}
+
+// see EL-1, T-303, SL-8
+// WHY: the geometry judged EL-1 once and wrote it as the elision; an end it does not see is not drawn, so not outlined.
+const SEEN_ENDS: Readonly<Record<DependencyLink['elision'], { readonly predecessor: boolean; readonly successor: boolean }>> = {
+  'EL-3': { predecessor: true, successor: true },
+  'EL-4': { predecessor: true, successor: false },
+  'EL-5': { predecessor: false, successor: true },
+  'EL-6': { predecessor: false, successor: false },
+}
+
+// see SL-8, EL-16
+// WHY: a set, so a Task ending two such lines is outlined once; a line the geometry no longer holds outlines nothing.
+/** @purity pure */
+function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
+  const out = new Set<number>()
+  if (input.selectedLinks.size === 0 && input.landingLink === null) return out
+  for (const link of input.geometry.dependencies) {
+    if (emphasisOf(link, input) === 'none') continue
+    const seen = SEEN_ENDS[link.elision]
+    if (seen.predecessor) out.add(link.predecessorUid)
+    if (seen.successor) out.add(link.successorUid)
+  }
+  return out
+}
+
+// see SL-8, EL-16
+// WHY: around the drawn plan and actual together, the box SL-8 names for the frame and the outline alike.
+/** @purity pure */
+function aroundTaskSvg(task: ScheduleGeometry['tasks'][number], colour: string, key: string,
+                       form: 'frame' | 'endOutline'): readonly string[] {
+  const box = boxOfPoints([
+    ...(task.plan === null ? [] : cornersOfBar(task.plan)),
+    ...(task.actual === null ? [] : cornersOfBar(task.actual)),
+  ])
+  return box === null ? [] : [selectionFrameSvg(box, colour, key, form)]
 }
 
 // see T-266

@@ -1,4 +1,4 @@
-// CR-555: a double click on the continuation mark sends the view to the far end (T-303 EL-10 .. EL-12).
+// CR-555, CR-596: a click on the continuation mark sends the view to the far end (T-303 EL-10 .. EL-12).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -64,12 +64,13 @@ const EL_11_SEND =
   '印の先の端の予定の形が `Row Area` の横の範囲に入っていないときは、倍率を変えずに、その形の横の中点が `Row Area` の横の中点に来るよう、表示位置を横に送ること（MUST） —— 基準日線を出す操作（`FR-046`）と同じ送り方である。'
 const EL_11_STAY = '入っているときは横に送らない'
 const EL_12_SEND =
-  '印の先の端が `EL-1` の縦の範囲（その行を描く場所）に入っていないとき、または `EL-10` で縦の倍率を変えたときは、その端の行が帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST） —— `_assets/tbl-settings.md` の 表 T-203 の `S-78` をその行に、`S-176` を 0 にする（`Agent API` の `focusTask`、`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` と同じ置き方）。'
+  '印の先の端が `EL-1` の縦の範囲（その行を描く場所）に入っていないとき、または `EL-10` で縦の倍率を変えたとき、`EL-21` で行を開いたときは、その端の行が帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST） —— `_assets/tbl-settings.md` の 表 T-203 の `S-78` をその行に、`S-176` を 0 にする（`Agent API` の `focusTask`、`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` と同じ置き方）。'
 const EL_12_STAY = '入っているときは縦に送らない。'
 const EL_12_PINNED = '⚠️ ピン止めした行の端は、いつも縦の範囲に入っている'
 const MK_13_MARK =
-  '依存線の続きの印 ＝ `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従い、印の先の端が見える所まで表示を送ること（MUST）'
-const MK_13_FIRST_PRESS = '⚠️ 1 回目の押下は、依存線を押して離したときと同じく、その依存線を選ぶ（表 T-270 の `PE-12`）'
+  '依存線の続きの印 ＝ 宛先を持たない —— 送るのは 1 回の押して離すであり（表 T-270 の `PE-12`）'
+const PE_12_MARK_SENDS =
+  '続きの印では選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
 const FR_018_DEPTH_ONE = '`FR-018` は深さ 1 を倍率で落とさない'
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
@@ -283,7 +284,7 @@ const clickOn = (scene: Scene, at: Pt, clickCount: number): { readonly press: Po
   return { press, out: commandFromGrab(pointer('up', at, clickCount), press, context) }
 }
 
-const doubleClickOn = (scene: Scene, at: Pt) => clickOn(scene, at, 2)
+const clickOnce = (scene: Scene, at: Pt) => clickOn(scene, at, 1)
 
 const writesOf = (out: TranslatedInput): readonly Loose[] => {
   const action = out.action as unknown as { readonly kind?: string; readonly writes?: readonly (readonly Loose[])[] } | null
@@ -404,12 +405,11 @@ describe('CR-555 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it('T-023 MK-13 sends the mark to T-303 and leaves the first press to PE-12', () => {
+  it('T-023 MK-13 gives the mark no destination; T-270 PE-12 sends on one press and release', () => {
     const flat = MK_13.replace(/<br\s*\/?>/g, '')
     expect(flat).toContain(MK_13_MARK)
-    expect(flat).toContain(MK_13_FIRST_PRESS)
-    expect(PE_12, 'T-270 PE-12 is the dependency line, mark included, and selects').toContain('続きの印を含む')
-    expect(PE_12).toContain('選ぶ')
+    expect(PE_12, 'T-270 PE-12 is the dependency line, mark included').toContain('続きの印を含む')
+    expect(PE_12.replace(/<br\s*\/?>/g, '')).toContain(PE_12_MARK_SENDS)
   })
 
   it('T-027 UN-8 keeps zoom and scroll outside the history', () => {
@@ -436,8 +436,8 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
         before.x + before.width <= scene.rowArea.x || before.x >= scene.rowArea.x + scene.rowArea.width,
         'premise: the far end lies wholly outside the Row Area across',
       ).toBe(true)
-      const { press, out } = doubleClickOn(scene, markOf(scene, pair[0], pair[1]))
-      expect(press.hit?.grab, 'premise: the second press lands on GA-24').toBe('GA-24')
+      const { press, out } = clickOnce(scene, markOf(scene, pair[0], pair[1]))
+      expect(press.hit?.grab, 'premise: the press lands on GA-24').toBe('GA-24')
       const writes = writesOf(out)
       expect(onlyOf(writes, SET_ZOOM), `${EL_11_SEND} (倍率を変えずに)`).toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
@@ -455,7 +455,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       const scene = make()
       const top = topRowOf(scene)
       expect(top, 'premise: a row stands at the top of the scroll area').toBeDefined()
-      const writes = writesOf(doubleClickOn(scene, markOf(scene, pair[0], pair[1])).out)
+      const writes = writesOf(clickOnce(scene, markOf(scene, pair[0], pair[1])).out)
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, 'premise: EL-11 sent the view across').toBeDefined()
       expect(scroll!['scrollGroupId'], `${EL_12_STAY} (S-78 names the row already at the top)`).toBe(top!.groupId)
@@ -474,7 +474,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
   it(`(iv) pinned far end off to the right: sent across only -- ${EL_12_PINNED}`, () => {
     const scene = pinnedOffRight()
     expect(lineOf(scene, 1, 2).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
-    const writes = writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out)
+    const writes = writesOf(clickOnce(scene, markOf(scene, 1, 2)).out)
     const scroll = onlyOf(writes, SET_SCROLL)
     expect(scroll, EL_11_SEND).toBeDefined()
     expect(scroll!['scrollGroupId'], EL_12_PINNED).toBe(scene.settings['scrollGroupId'])
@@ -492,8 +492,8 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
     it(`${name}: S-78 becomes that row and S-176 becomes 0`, () => {
       const scene = make()
       expect(lineOf(scene, 1, 2).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
-      const { press, out } = doubleClickOn(scene, markOf(scene, 1, 2))
-      expect(press.hit?.grab, 'premise: the second press lands on GA-24').toBe('GA-24')
+      const { press, out } = clickOnce(scene, markOf(scene, 1, 2))
+      expect(press.hit?.grab, 'premise: the press lands on GA-24').toBe('GA-24')
       const writes = writesOf(out)
       expect(onlyOf(writes, SET_ZOOM), 'the far end is drawn, so EL-10 does not apply').toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
@@ -509,7 +509,7 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
         within(far.x, far.x + far.width, scene.rowArea.x, scene.rowArea.x + scene.rowArea.width),
         'premise: Task 2 lies inside the Row Area across',
       ).toBe(true)
-      const scroll = onlyOf(writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
+      const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
       expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
       expect(dayOf(scroll!['scrollDate']), EL_11_STAY).toBe(dayOf(scene.settings['scrollDate']))
       expect(scroll!['scrollDayOffset'], EL_11_STAY).toBe(scene.settings['scrollDayOffset'])
@@ -526,8 +526,8 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
 
   it(`(iii) zoomY becomes the threshold of depth ${DEEP_DEPTH}, zoomX stays (${EL_10_ZOOM_X})`, () => {
     const scene = deep()
-    const { press, out } = doubleClickOn(scene, markOf(scene, 1, 2))
-    expect(press.hit?.grab, 'premise: the second press lands on GA-24').toBe('GA-24')
+    const { press, out } = clickOnce(scene, markOf(scene, 1, 2))
+    expect(press.hit?.grab, 'premise: the press lands on GA-24').toBe('GA-24')
     const zoom = onlyOf(writesOf(out), SET_ZOOM)
     expect(zoom, EL_10_DEPTH).toBeDefined()
     expect(zoom!['zoomY'] as number, EL_10_DEPTH).toBeCloseTo(thresholdOf(DEEP_DEPTH), 12)
@@ -536,14 +536,14 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
 
   it('(iii) at the zoom written, the far end is drawn -- the threshold is reached, not approached', () => {
     const scene = deep()
-    const writes = writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out)
+    const writes = writesOf(clickOnce(scene, markOf(scene, 1, 2)).out)
     expect(onlyOf(writes, SET_ZOOM), 'premise: EL-10 wrote a zoom').toBeDefined()
     expect(placementOf(sceneAfter(scene, writes), 2), EL_10_DEPTH).toBeDefined()
   })
 
   it(`(iii) the zoom changed, so the far end's row is sent to the top: ${EL_12_SEND}`, () => {
     const scene = deep()
-    const scroll = onlyOf(writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
+    const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, EL_12_SEND).toBeDefined()
     expect(scroll!['scrollGroupId'], `${EL_12_SEND} (S-78)`).toBe('a11')
     expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
@@ -551,31 +551,30 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
 
   it(`(iii) the far end stands inside the Row Area across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
     const scene = deep()
-    const scroll = onlyOf(writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
+    const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
     expect(dayOf(scroll!['scrollDate']), EL_11_STAY).toBe(dayOf(scene.settings['scrollDate']))
     expect(scroll!['scrollDayOffset'], EL_11_STAY).toBe(scene.settings['scrollDayOffset'])
   })
 })
 
-describe(`UN-8 / MK-13 -- the double click writes the view only (${EL_10_UN_8})`, () => {
+describe(`UN-8 / PE-12 -- the click writes the view only (${EL_10_UN_8})`, () => {
   it.each([
     ['(i)', offRight],
     ['(ii)', below],
     ['(iii)', deep],
   ] as const)('%s writes nothing but CM-65 / CM-66', (_name, make) => {
     const scene = make()
-    const writes = writesOf(doubleClickOn(scene, markOf(scene, 1, 2)).out)
+    const writes = writesOf(clickOnce(scene, markOf(scene, 1, 2)).out)
     expect(writes.length, MK_13_MARK).toBeGreaterThan(0)
     expect(writes.map((one) => one['kind']).filter((kind) => kind !== SET_ZOOM && kind !== SET_SCROLL), EL_10_UN_8).toEqual([])
   })
 
-  it(`a single press and release on the mark sends nothing: ${MK_13_FIRST_PRESS}`, () => {
+  it(`the first press and release on the mark already sends -- no second press: ${PE_12_MARK_SENDS}`, () => {
     const scene = offRight()
     const { press, out } = clickOn(scene, markOf(scene, 1, 2), 1)
     expect(press.hit?.grab, 'premise: the first press lands on GA-24').toBe('GA-24')
     const kinds = writesOf(out).map((one) => one['kind'])
-    expect(kinds, MK_13_FIRST_PRESS).not.toContain(SET_ZOOM)
-    expect(kinds, MK_13_FIRST_PRESS).not.toContain(SET_SCROLL)
+    expect(kinds, `${MK_13_MARK} / ${PE_12_MARK_SENDS}`).toContain(SET_SCROLL)
   })
 })

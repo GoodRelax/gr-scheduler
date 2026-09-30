@@ -34,12 +34,14 @@ import {
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
+import { treeWritesOf } from './row-tree-entrances'
 import { namesAPlace, zoomOnScreen } from './zoom-and-fit'
 import {
   CONSUMED_ELSEWHERE,
   acted,
   boxById,
   changed,
+  changedInOrder,
   commentAnchorAt,
   compareDay,
   dayAnchorAt,
@@ -52,6 +54,7 @@ import {
   grabRowOf,
   hasDraggedPastThreshold,
   isScrollPositionInForce,
+  isSwallowedSecondPress,
   nothingToDo,
   placementAt,
   pointerDaySerial,
@@ -81,13 +84,16 @@ export function commandFromGrab(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  const hit = press.hit
+  const hit = grabbedHitOf(press, context)
   if (hit === null) return CONSUMED_ELSEWHERE
   const item = hit.item
+  if (hit.grab === 'GA-24') {
+    return isContinuationMarkClick(press, release) ? continuationSend(context, item) : CONSUMED_ELSEWHERE
+  }
 
   // TRAP: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
   // so the switch would rewrite the same day instead of opening the name.
-  const opened = release.clickCount >= 2 ? doubleClickOf(context, hit) : null
+  const opened = release.clickCount >= 2 ? doubleClickOf(hit) : null
   if (opened !== null) return opened
 
   if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
@@ -205,13 +211,17 @@ export function commandFromGrab(
   }
 }
 
-// see MK-13, PE-12
+// see EL-18, MK-13
+// TRAP: judged above MK-13 and every grab row; judged by the caller alone, a Task body's second press opens its name.
 /** @purity pure */
-function doubleClickOf(context: InputContext, hit: Hit): TranslatedInput | null {
+function grabbedHitOf(press: PointerPress, context: InputContext): Hit | null {
+  return isSwallowedSecondPress(press, context) ? null : press.hit
+}
+
+// see MK-13
+/** @purity pure */
+function doubleClickOf(hit: Hit): TranslatedInput | null {
   const item = hit.item
-  // TRAP: keyed on the second release only; GA-24 stays out of MK_13_GRAB_ROWS, whose single-click
-  // arm would swallow the first release that selects the line.
-  if (hit.grab === 'GA-24') return continuationSend(context, item)
   if (item.kind !== 'task') return null
   if (hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)) {
     return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
@@ -222,8 +232,15 @@ function doubleClickOf(context: InputContext, hit: Hit): TranslatedInput | null 
   return null
 }
 
-// see MK-13, EL-10, EL-11, EL-12
-// WHY: the geometry judged EL-1 and EL-2 when it drew the mark; the far end is read off it, never judged again.
+// see PE-12, EL-18
+/** @purity pure */
+export function isContinuationMarkClick(press: PointerPress, release: PointerInput): boolean {
+  if (press.hit === null || press.hit.grab !== 'GA-24') return false
+  return press.at.clickCount === 1 && !hasDraggedPastThreshold(press, release)
+}
+
+// see PE-12, EL-10, EL-11, EL-12, EL-16, EL-21, UN-8, UN-14
+// WHY: the geometry judged EL-1, EL-2 and EL-20 when it drew the mark; the far end is read off it, never judged again.
 /** @purity pure */
 function continuationSend(context: InputContext, item: Hit['item']): TranslatedInput {
   if (item.kind !== 'dependency') return CONSUMED_ELSEWHERE
@@ -233,12 +250,27 @@ function continuationSend(context: InputContext, item: Hit['item']): TranslatedI
       one.successorUid === item.successorUid &&
       one.continuation !== null,
   )
-  const far = line === undefined || line.continuation === null ? null : line.continuation.far
-  if (far === null) return CONSUMED_ELSEWHERE
-  const isDownOut = far.undrawnRowDepth !== null || !far.isDownInRowPlace
-  if (far.isAcrossInRowArea && !isDownOut) return CONSUMED_ELSEWHERE
-  const writes = farEndSendWrites(context, far, isDownOut)
-  return writes.length === 0 ? CONSUMED_ELSEWHERE : changed(writes)
+  const continuation = line === undefined ? null : line.continuation
+  if (continuation === null) return CONSUMED_ELSEWHERE
+  const far = continuation.far
+  const landingMarked = {
+    predecessorUid: item.predecessorUid,
+    successorUid: item.successorUid,
+    landedTaskUid: continuation.farUid,
+  }
+  const isDownOut = far.foldedRowId !== null || far.undrawnRowDepth !== null || !far.isDownInRowPlace
+  const sent =
+    far.isAcrossInRowArea && !isDownOut
+      ? CONSUMED_ELSEWHERE
+      : changedInOrder([farRowRevealWrites(context, far.foldedRowId), farEndSendWrites(context, far, isDownOut)])
+  return { ...sent, landingMarked }
+}
+
+// see EL-21, SJ-2, T-328
+/** @purity pure */
+function farRowRevealWrites(context: InputContext, foldedRowId: string | null): readonly DocumentCommand[] {
+  if (foldedRowId === null) return []
+  return treeWritesOf(context, { type: 'rowRevealAsked', revealedRowId: foldedRowId })
 }
 
 // see EL-11, EL-12, FR-046, AM-16, OP-10
@@ -260,7 +292,8 @@ function farEndSendWrites(
     scrollGroupId: isDownOut ? far.groupId : kept.scrollGroupId,
     scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
   } as const
-  const zoom = farEndZoomWrites(context, far.undrawnRowDepth, context.isPictureAtStoredZoom ?? isSeated)
+  const undrawnRowDepth = far.foldedRowId === null ? far.undrawnRowDepth : null
+  const zoom = farEndZoomWrites(context, undrawnRowDepth, context.isPictureAtStoredZoom ?? isSeated)
   return isScrollPositionInForce(context, to) ? zoom : [...zoom, to]
 }
 

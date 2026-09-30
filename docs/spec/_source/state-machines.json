@@ -1108,6 +1108,40 @@
       ]
      },
      "carries": []
+    },
+    {
+     "key": "continuationMarkClicked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "PE-12",
+       "EL-16"
+      ],
+      "note": {
+       "ja": "続きの印を押して離した（動かさない）"
+      }
+     },
+     "carries": [
+      {
+       "name": "landedLink"
+      },
+      {
+       "name": "landedTaskUid"
+      }
+     ]
+    },
+    {
+     "key": "landingMarkClearAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "EL-17"
+      ],
+      "note": {
+       "ja": "印が出ているあいだの押下・キー・ホイール。印を付けた押下の 2 回目（EL-18）を除く"
+      }
+     },
+     "carries": []
     }
    ],
    "machines": [
@@ -2752,6 +2786,70 @@
         "evidence": [
          "IN-4",
          "S-99g"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "landingMarkDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "EL-17"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "landedLink",
+         "note": {
+          "ja": "印を付けた依存線の先行と後続の `UID`"
+         }
+        },
+        {
+         "name": "landedTaskUid",
+         "note": {
+          "ja": "印の先の端の `Task` の `UID`"
+         }
+        }
+       ],
+       "evidence": [
+        "EL-16",
+        "EL-19"
+       ]
+      }
+     ],
+     "transitions": {
+      "continuationMarkClicked": {
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "EL-16"
+        ]
+       },
+       "shown": {
+        "to": "shown",
+        "evidence": [
+         "EL-16"
+        ],
+        "note": {
+         "ja": "中身を書き換える"
+        }
+       }
+      },
+      "landingMarkClearAsked": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "EL-17"
         ]
        }
       }
@@ -6544,10 +6642,11 @@
       "kind": "input",
       "rows": [
        "SJ-1",
-       "AM-16"
+       "AM-16",
+       "EL-21"
       ],
       "note": {
-       "ja": "検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶ"
+       "ja": "検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`）"
       }
      },
      "carries": [

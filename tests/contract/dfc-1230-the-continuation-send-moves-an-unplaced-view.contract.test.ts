@@ -1,4 +1,4 @@
-// DFC-1230: the continuation-mark double click sends a view whose document stores no place (T-303 EL-11 / EL-12, T-024a OP-10).
+// DFC-1230: one still click on the continuation mark sends a view whose document stores no place (T-303 EL-11 / EL-12 / EL-16, T-270 PE-12, T-024a OP-10).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -51,6 +51,8 @@ const flat = (cell: string): string => cell.replace(/<br\s*\/?>/g, '').replace(/
 
 const EL_11 = rowCells('T-303', 'EL-11')
 const EL_12 = rowCells('T-303', 'EL-12')
+const EL_16 = rowCells('T-303', 'EL-16')
+const PE_12 = rowCells('T-270', 'PE-12')
 const OP_10 = rowCells('T-024a', 'OP-10')
 const S_77 = rowCells('T-203', 'S-77')
 const S_78 = rowCells('T-203', 'S-78')
@@ -58,8 +60,10 @@ const S_176 = rowCells('T-203', 'S-176')
 
 const EL_11_STAY = '入っているときは横に送らない'
 const EL_12_SEND =
-  '印の先の端が `EL-1` の縦の範囲（その行を描く場所）に入っていないとき、または `EL-10` で縦の倍率を変えたときは、その端の行が帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST）'
+  '印の先の端が `EL-1` の縦の範囲（その行を描く場所）に入っていないとき、または `EL-10` で縦の倍率を変えたとき、`EL-21` で行を開いたときは、その端の行が帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST）'
 const EL_12_HOW = '`S-78` をその行に、`S-176` を 0 にする'
+const EL_16_MARK = '印の先の端の `Task` と、押した印の依存線（`EL-13` が応えた線）に、送った先の印を付けること（MUST）'
+const PE_12_SEND = '続きの印では選ばず、選択を空にしたうえで `FR-009` の 表 T-303 の `EL-10` 〜 `EL-12` に従って印の先へ送り'
 const OP_10_CHOICE = '人が倍率か表示位置を選んだときは、それを表示位置とすること（MUST）'
 const OP_10_NOT_REDONE = '選んだ時点で「人がまだ場所を決めていない」ではなくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない。'
 const OP_10_TEMPLATE_HAS_NO_PLACE = '同梱のテンプレートは誰も一度も開いたことがないので必ず表示位置を持たず'
@@ -285,13 +289,14 @@ const pointer = (phase: 'down' | 'up', at: Pt, clickCount: number): PointerInput
     clickCount,
   }) as unknown as PointerInput
 
-// WHY: a second click is read with the double-click reading (the TRAP on PointerPress.hit).
-const doubleClickOn = (scene: Scene): { readonly press: PointerPress; readonly out: TranslatedInput } => {
+// WHY: PE-12 sends on one still press and release (clickCount 1), read with the press reading
+// (the TRAP on PointerPress.hit); MK-13 gives the mark no double-click destination.
+const stillClickOn = (scene: Scene): { readonly press: PointerPress; readonly out: TranslatedInput } => {
   const at = markOf(scene)
-  const hit = itemAtPointer(scene.context.geometry, at.x, at.y, grabSizesOf(), 'doubleClick')
-  const press = { at: pointer('down', at, 2), hit, on: null, pressRow: 'PTD-3' } as unknown as PointerPress
+  const hit = itemAtPointer(scene.context.geometry, at.x, at.y, grabSizesOf(), 'press')
+  const press = { at: pointer('down', at, 1), hit, on: null, pressRow: 'PTD-3' } as unknown as PointerPress
   const context = { ...scene.context, pressed: press } as InputContext
-  return { press, out: commandFromGrab(pointer('up', at, 2), press, context) }
+  return { press, out: commandFromGrab(pointer('up', at, 1), press, context) }
 }
 
 const writesOf = (out: TranslatedInput): readonly Loose[] => {
@@ -317,11 +322,13 @@ const storedAfter = (stored: Loose, writes: readonly Loose[]): Loose => {
 }
 
 describe('DFC-1230 -- the manuscript these cases are driven by', () => {
-  it('T-303 EL-11 / EL-12, T-024a OP-10 and T-203 S-77 / S-78 / S-176 still hold the words quoted', () => {
+  it('T-303 EL-11 / EL-12 / EL-16, T-270 PE-12, T-024a OP-10 and T-203 S-77 / S-78 / S-176 still hold the words quoted', () => {
     for (const [cell, clause] of [
       [EL_11, EL_11_STAY],
       [EL_12, EL_12_SEND],
       [EL_12, EL_12_HOW],
+      [EL_16, EL_16_MARK],
+      [PE_12, PE_12_SEND],
       [OP_10, OP_10_CHOICE],
       [OP_10, OP_10_NOT_REDONE],
       [OP_10, OP_10_TEMPLATE_HAS_NO_PLACE],
@@ -356,13 +363,13 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
         far!.x >= scene.rowArea.x && far!.x + far!.width <= scene.rowArea.x + scene.rowArea.width,
         'premise: Task 2 lies inside the Row Area across',
       ).toBe(true)
-      const { press } = doubleClickOn(scene)
-      expect(press.hit?.grab, 'premise: the second press lands on GA-24').toBe('GA-24')
+      const { press } = stillClickOn(scene)
+      expect(press.hit?.grab, `premise: the still press lands on GA-24 (${PE_12_SEND})`).toBe('GA-24')
     })
 
     it(`${name}: ${EL_12_HOW}`, () => {
       const scene = make()
-      const writes = writesOf(doubleClickOn(scene).out)
+      const writes = writesOf(stillClickOn(scene).out)
       expect(onlyOf(writes, SET_ZOOM), 'the far end is drawn, so EL-10 does not apply').toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
@@ -371,7 +378,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
     })
 
     it(`${name}: the write names a whole place, not a null day -- ${OP_10_CHOICE}`, () => {
-      const scroll = onlyOf(writesOf(doubleClickOn(make()).out), SET_SCROLL)
+      const scroll = onlyOf(writesOf(stillClickOn(make()).out), SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
       expect(scroll!['scrollDate'], `${OP_10_CHOICE} / ${S_77_NULL}`).not.toBeNull()
       expect(scroll!['scrollDate'], OP_10_CHOICE).toBeDefined()
@@ -379,7 +386,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
 
     it(`${name}: the far end is inside across, so the view keeps the day it is drawn from (${EL_11_STAY})`, () => {
       const scene = make()
-      const scroll = onlyOf(writesOf(doubleClickOn(scene).out), SET_SCROLL)
+      const scroll = onlyOf(writesOf(stillClickOn(scene).out), SET_SCROLL)
       expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
       expect(dayOf(scroll!['scrollDate']), `${EL_11_STAY}; drawn from ${OP_10_TEMPLATE_PLACE}`).toBe(
         dayOf(scene.drawn['scrollDate']),
@@ -403,11 +410,11 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
     ['template, no place stored', unplaced],
     ['control, the place stored', placed],
   ] as const) {
-    it(`${name}: after the double click, the view's top row is the far row (${EL_12_HOW}), not discarded`, () => {
+    it(`${name}: after the still click, the view's top row is the far row (${EL_12_HOW}), not discarded`, () => {
       const scene = make()
       const shell = bootShell()
       shell.viewSettingsOnce(documentOf(scene.stored), scene.stored as unknown as DocumentSettings, REGIONS)
-      const stored = storedAfter(scene.stored, writesOf(doubleClickOn(scene).out))
+      const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       const view = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
       expect(view.settings.scrollGroupId, `${OP_10_CHOICE}; ${EL_12_HOW} (S-78)`).toBe(FAR_ROW)
       expect(view.settings.scrollGroupOffset, `${EL_12_HOW} (S-176)`).toBe(0)
@@ -418,7 +425,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
       const scene = make()
       const shell = bootShell()
       shell.viewSettingsOnce(documentOf(scene.stored), scene.stored as unknown as DocumentSettings, REGIONS)
-      const stored = storedAfter(scene.stored, writesOf(doubleClickOn(scene).out))
+      const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
       const again = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
       expect(again.settings.scrollGroupId, OP_10_NOT_REDONE).toBe(FAR_ROW)

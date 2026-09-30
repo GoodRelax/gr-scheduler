@@ -1387,6 +1387,16 @@ NOT_STORED_TARGETS = {
     # short line and the dots (seam S-1) and the renderer only draws them.
     'NOT_STORED_DEPENDENCY_SIZES': (['S-224', 'S-360', 'S-361', 'S-362'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-596: S-446 (the landing line's width, a multiplier on S-18 like
+    # S-178) and S-447 (the screen-px outline round a dependency line's end
+    # Tasks, SL-8 and EL-16). ⛔ NOT FOLDED INTO NOT_STORED_SELECTION_SIZES:
+    # one constant per consuming subject -- the subject is the EMPHASIS of a
+    # dependency line and its ends (a selected line or the landing line), not
+    # the selection sign. ⛔ NOT FOLDED INTO NOT_STORED_DEPENDENCY_SIZES
+    # either: that one is drawn into an exported picture (EL-15), and these
+    # never are (EP-12 of table T-076).
+    'NOT_STORED_DEPENDENCY_EMPHASIS_SIZES': (['S-446', 'S-447'],
+                                             DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
     # drawn by schedule-overlays.ts, which reads this constant already, and
@@ -1754,7 +1764,10 @@ COLOUR_TARGETS = {
                          'S-364',
                          # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
                          # FR-015); it inherits S-148 through sameAs.
-                         'S-443'],
+                         'S-443',
+                         # CR-596: the selected dependency line's and the landing
+                         # line's colour, and their end outlines (SL-8, EL-16).
+                         'S-448'],
 }
 
 COLOUR_NOTE = [
@@ -2884,6 +2897,9 @@ TARGETS = [
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES') + NEWLINE * 2
+     # CR-596: the emphasis of a selected or landing dependency line (S-446)
+     # and of its end Tasks (S-447), drawn only on the screen (EP-12).
+     + not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
