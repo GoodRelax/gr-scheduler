@@ -1327,6 +1327,15 @@
      }
     },
     {
+     "name": "isLandingMarkKeptBy",
+     "note": {
+      "ja": [
+       "着地の印が出ているとき、その入力が印を残すものか（表 T-303 の `EL-17` ・ `EL-18`）。",
+       "偽の入力で、シェルが出来事 `landingMarkClearAsked` を送る"
+      ]
+     }
+    },
+    {
      "name": "SpentEntranceSituation",
      "note": {
       "ja": [

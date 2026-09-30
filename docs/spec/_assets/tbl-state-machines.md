@@ -97,7 +97,7 @@
 | `screen/helpMinimiseToggled` | 入力: `IC-129` | — | `helpDisplayStateMachine` |
 | `screen/helpMaximiseToggled` | 入力: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 | `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTaskUid` | `landingMarkDisplayStateMachine` |
-| `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キー・ホイール。印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
+| `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
 
 ### 根 `screen` の値
 

@@ -38,8 +38,6 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   const plain = isCombo(modifiers, false, false, false)
   const ctrl = isCombo(modifiers, true, false, false)
   const ctrlShift = isCombo(modifiers, true, true, false)
-  const shiftOnly = isCombo(modifiers, false, true, false)
-  const altOnly = isCombo(modifiers, false, false, true)
 
   // see IN-5a
   // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
@@ -91,17 +89,16 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   // see FR-071, SK-15
   if (plain && key === KEY.f11) return acted({ kind: 'toggleFullScreen' })
 
-  if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
+  if (isTimeZoomKey(input)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
   }
-  if (altOnly && (key === KEY.plus || key === KEY.minus)) {
+  if (isRowZoomKey(input)) {
     return rowZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
   }
 
-  // see SK-22, SK-23, MK-10
   // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
-  if (ctrlShift && (key === KEY.plus || key === KEY.minus)) {
+  if (isDisplayScaleKey(input)) {
     return displayScaleStep(context, key === KEY.plus ? 1 : -1)
   }
 
@@ -112,6 +109,35 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   }
 
   return UNASSIGNED
+}
+
+/** @purity pure */
+function isPlusOrMinus(key: string): boolean {
+  return key === KEY.plus || key === KEY.minus
+}
+
+// see SK-16, SK-16b
+/** @purity pure */
+function isTimeZoomKey(input: KeyInput): boolean {
+  return isCombo(input.modifiers, false, true, false) && isPlusOrMinus(input.key)
+}
+
+// see SK-16a, SK-16c
+/** @purity pure */
+function isRowZoomKey(input: KeyInput): boolean {
+  return isCombo(input.modifiers, false, false, true) && isPlusOrMinus(input.key)
+}
+
+// see SK-22, SK-23, MK-10
+/** @purity pure */
+function isDisplayScaleKey(input: KeyInput): boolean {
+  return isCombo(input.modifiers, true, true, false) && isPlusOrMinus(input.key)
+}
+
+// see EL-17, UN-8, FR-039
+/** @purity pure */
+export function isViewScaleKey(input: KeyInput): boolean {
+  return isTimeZoomKey(input) || isRowZoomKey(input) || isDisplayScaleKey(input)
 }
 
 // see SK-3, SL-1, FR-046

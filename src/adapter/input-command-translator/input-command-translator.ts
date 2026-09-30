@@ -88,7 +88,7 @@ import {
   everyRowDeleted,
   rowStoodUp,
 } from './row-tree-entrances'
-import { commandFromKey } from './shortcut-keys'
+import { commandFromKey, isViewScaleKey } from './shortcut-keys'
 import { commandFromWheel } from './wheel-input'
 import {
   fitWrites,
@@ -414,6 +414,10 @@ export const KEY = {
   plus: '+',
   minus: '-',
   zero: '0',
+  control: 'Control',
+  shift: 'Shift',
+  alt: 'Alt',
+  meta: 'Meta',
 } as const
 
 /** @purity pure */
@@ -959,6 +963,39 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     case 'PTD-5':
       return CONSUMED_ELSEWHERE
   }
+}
+
+// see EL-17, UN-8, FR-039
+const MODIFIER_ONLY_KEYS: readonly string[] = [KEY.control, KEY.shift, KEY.alt, KEY.meta]
+
+// see IC-12, IC-13, IC-14, IC-15, IC-104, IC-105
+const VIEW_SCALE_ENTRIES: readonly string[] = [
+  ENTRY.zoomTimeOut,
+  ENTRY.zoomTimeIn,
+  ENTRY.zoomRowOut,
+  ENTRY.zoomRowIn,
+  ENTRY.displayScaleDown,
+  ENTRY.displayScaleUp,
+]
+
+// see EL-17, EL-18, UN-8, FR-039, MK-1, PTD-1, SC-4
+// WHY: the eye follows the landed line to its far end by scroll, pan and zoom; clearing the
+// mark on those loses which ends the line joins (JDG-900, JDG-902). Fit still clears it (UN-17).
+/** @purity pure */
+export function isLandingMarkKeptBy(
+  input: HumanInput,
+  press: Pick<PointerPress, 'on' | 'pressRow'> | null,
+  regions: ScreenRegions,
+): boolean {
+  if (input.kind === 'wheel') return true
+  if (input.kind === 'key') return MODIFIER_ONLY_KEYS.includes(input.key) || isViewScaleKey(input)
+  if (input.phase !== 'down' || input.clickCount >= 2) return true
+  if (press === null) return false
+  const on = press.on
+  // TRAP: the Row Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
+  if (on === null) return press.pressRow === 'PTD-1' && regionAtPointer(regions, input.x, input.y) === 'rowArea'
+  if (on.scrollbarAxis !== undefined) return true
+  return on.entry !== null && VIEW_SCALE_ENTRIES.includes(on.entry)
 }
 
 // see EL-18, MK-13
