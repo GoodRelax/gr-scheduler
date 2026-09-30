@@ -1268,6 +1268,13 @@
 | JDG-991 | **「コマンドパレット (Recommended)」**（2026-10-01。問い直した問い「暦の編集面を開く入口はどこに置きますか？」への答え。示した案: コマンドパレット（推奨。名簿 `FR-099` と同じ形）／ アプリのヘッダー） | ⭐ 暦の編集面（`PND-432` の案②）の入口は コマンドパレット に 1 つ置く | `docs/development-records/pending-decisions.md` の `PND-432` ／ `change-request/CR-605-non-working-days-are-shaded-and-the-calendar-is-edited-on-its-own-surface.md`（起草済、未着地） | 指示 —— 調整役が投入時期を決める |
 | JDG-992 | **「MSPDIの仕様はどうなってる？ これに合わせたい。」**（2026-10-01。問い直した問い「暦の編集面で足せる例外日は？（PND-432 で「独立した面、曜日 7 つのトグル＋例外日のリスト」は決まっています）」への、選択肢の外の答え。示した案: 休業日だけ足す（推奨）／ 稼働日の例外も足せる）<br>**「繰り返しなしで休みも稼働も (Recommended)」**（同日。MSPDI の `Exception` の要素を表で示したうえで問うた「暦の編集面で足せる例外日を、MSPDI のどこまでに合わせますか？」への答え。示した案: 繰り返しなしで休みも稼働も（推奨）／ 繰り返しなしの休業日だけ ／ 繰り返しも含めて全部） | ⭐ 暦の編集面で、繰り返しの無い例外（`AT-82` の `recurrenceKind` = 9）を足す・直す・消す。項目は名前（`AT-78`）・日付の範囲（`AT-79` ・ `AT-80`）・休みか稼働か（`AT-81`）。⭐ 稼働の時間帯は持たない（`FR-054` は時刻を解釈しない）。⭐ 取り込んだ繰り返しの例外は一覧に出して消せるが、直さない。`FR-054` の「繰り返しは展開しない」は保つ | `docs/development-records/pending-decisions.md` の `PND-432` ／ `change-request/CR-605-non-working-days-are-shaded-and-the-calendar-is-edited-on-its-own-surface.md`（起草済、未着地） | 指示 —— 調整役が投入時期を決める |
 
+## 2026-10-01 —— 段 B の閉じの赤（調整役）
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-999 | **「20 に上げる (推奨)」**（2026-10-01。調整役の問い「試験 cr-435 は…基準値は 17 で、今は 20 です…それまで一時的に基準値を 20 に上げてよいですか？」への答え） | ⭐ `requirement-owner-baseline.txt` の unfilled を 17 → 20 に一時的に上げる。`FR-130`・`FR-133`（`CR-590`）と `FR-150`（`CR-563`／`CR-613`）を埋めるコミットで 17 へ戻す | `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` が読む基準値（`.claude/skills/spec-graph-check/requirement-owner-baseline.txt`） | 適用済 |
+| JDG-1000 | **「載せる (推奨)」**（2026-10-01。調整役の問い「検索パネルの縁を掴んで大きさを変える e2e（GR-25）は…「既知の赤」の一覧（tests/known-red.txt）に DFC-1286 として載せてよいですか？」への答え） | ⭐ `tests/known-red.txt` に `DFC-1286` の行（SWS-8 の `GR-25`）を足す。`S-426` の値が決まったら外す | `tests/system/nfr-004-file-scheme-sweep.sws.test.ts` の既知の赤（`tests/known-red.txt` の `DFC-1286` の行） | 適用済 |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は

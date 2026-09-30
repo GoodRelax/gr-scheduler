@@ -1,4 +1,4 @@
-unfilled=17
+unfilled=20
 # Check: tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts
 #
 # The number of requirements that have no starting unit written yet, held as a
@@ -18,3 +18,6 @@ unfilled=17
 #    1  an entry deliberately unbuilt (FR-086)
 #
 # LOWER it in the same commit that fills an entry. Do not raise it.
+# RAISED 17 -> 20 on 2026-10-01 by the user (JDG-999): stage B left FR-130 and FR-133 (CR-561,
+# their owner lands with CR-590) and FR-150 (CR-563, the relay; lands with CR-563/CR-613) unfilled.
+# Lower it back to 17 in the commits that fill those three.
