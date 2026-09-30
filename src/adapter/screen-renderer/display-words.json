@@ -4657,27 +4657,5 @@
     "en": "Restore"
    }
   }
- ],
- "dependencyKinds": [
-  {
-   "rowId": "DP-1",
-   "linkType": 1,
-   "abbreviation": "FS"
-  },
-  {
-   "rowId": "DP-2",
-   "linkType": 2,
-   "abbreviation": "SF"
-  },
-  {
-   "rowId": "DP-3",
-   "linkType": 0,
-   "abbreviation": "FF"
-  },
-  {
-   "rowId": "DP-4",
-   "linkType": 3,
-   "abbreviation": "SS"
-  }
  ]
 }
