@@ -326,7 +326,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
     const at = rows.findIndex((row) => row.id === DATES_ENTRY)
     expect(rows[at + 1]?.id).toBe(STATUS_DATE_ENTRY)
     expect(bare(rows[at]?.by['群'] ?? '')).toBe(bare(rows[at + 1]?.by['群'] ?? ''))
-    expect(rows[at]?.by['何の入口か'] ?? '').toContain('`S-232`')
+    expect(rows[at]?.by['切り替える設定値'] ?? '').toBe('`S-232`')
   })
 
   it('the palette the renderer describes puts IC-103 immediately left of IC-44 in one group', () => {
@@ -371,7 +371,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
 describe('the bench -- a palette toggle that already exists is switched by the same press', () => {
   it('CONTROL: the Command Palette entry naming S-62 flips dependencyVisible through this harness', () => {
     const row = specTable('T-109').rows.find(
-      (one) => (one.by['何の入口か'] ?? '').includes('`S-62`') && (one.by['面'] ?? '').includes('Command Palette'),
+      (one) => (one.by['切り替える設定値'] ?? '') === '`S-62`' && (one.by['面'] ?? '').includes('Command Palette'),
     )
     expect(row, 'table T-109 has a palette entry for S-62').toBeDefined()
     const built = stage(SAME_YEAR, { dependencyVisible: false }, row?.id ?? '')

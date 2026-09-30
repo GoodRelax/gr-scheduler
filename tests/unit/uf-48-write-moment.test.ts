@@ -881,6 +881,8 @@ const SETTING_DEFAULT = 2
 /** Table T-109 prints the surface first, then the group, then what it is for. */
 const T_109_SURFACE = 0
 const T_109_ENTRANCE = 2
+// WHY: read by heading; the column stands mid-table, so a position would shift with the next insert.
+const T_109_SWITCH = '切り替える設定値'
 /** Table T-103 prints the settled English name first. */
 const T_103_NAME = 0
 
@@ -1038,44 +1040,28 @@ const ENTRANCES: readonly Entrance[] = [
   { entry: 'IC-48', part: COMMAND_PALETTE, table: 'T-206', row: 'S-66', key: 'guideCursorMode' },
 ]
 
-/**
- * The nine of the ten whose own cell in table T-109 names the settings row.
- *
- * ⚠️ The last one does not name one: IC-48 refers back to IC-47. A guard case
- * pins that, so that a manuscript which starts spelling it out reaches this
- * file rather than being inferred past.
- *
- * ⭐ IC-9 LEFT THE INFERRED SIDE ON 2026-09-07: it used to read 「同上」 off
- * IC-8, and now names S-228, its own row (the user's ruling).
- * ⭐ IC-47 REPLACED IC-46 AS THE HEAD OF THE 「同・」 CHAIN on 2026-09-06. The
- * guard is not dropped with the retired row -- it is pointed at the new head.
- */
-const NAMES_ITS_OWN_ROW = new Set([
-  'IC-4',
-  'IC-8',
-  'IC-9',
-  'IC-16',
-  'IC-39',
-  'IC-40',
-  'IC-42',
-  'IC-43',
-  'IC-47',
-])
+const THEME_ENTRY = 'IC-16'
+
+// WHY: kept out of ENTRANCES so the press cases over the ten stay as they were.
+const PALETTE_SWITCHES_NOT_PRESSED: readonly Entrance[] = [
+  { entry: 'IC-79', part: COMMAND_PALETTE, table: 'T-202', row: 'S-60', key: 'assigneeVisible' },
+  { entry: 'IC-80', part: COMMAND_PALETTE, table: 'T-202', row: 'S-61', key: 'percentCompleteVisible' },
+  { entry: 'IC-81', part: COMMAND_PALETTE, table: 'T-202', row: 'S-62', key: 'dependencyVisible' },
+  { entry: 'IC-103', part: COMMAND_PALETTE, table: 'T-202', row: 'S-232', key: 'planDatesVisible' },
+]
+
+const NAMED_IN_THE_SWITCH_COLUMN: readonly Entrance[] = [
+  ...ENTRANCES.filter((one) => one.entry !== THEME_ENTRY),
+  ...PALETTE_SWITCHES_NOT_PRESSED,
+]
 
 /** The five entrances whose row is one of table T-202's boolean ones. */
 const BOOLEAN_ENTRANCES = ENTRANCES.filter((one) => BOOLEAN_KEYS.includes(one.key))
 
-/**
- * The two guide-cursor entrances, each with the value table T-109 spells for
- * it -- the first `'value'` in its own cell.
- *
- * ⭐ IC-47's cell now spells two values, not one: `'crosshair'` first, then the
- * `'none'` its own re-press returns to (FR-048). The FIRST is the one the
- * entrance sets, which is why this reads `[0]` rather than the whole list.
- */
+// WHY: the sentence of IC-47 also spells the 'none' a re-press returns to; the column spells one value.
 const GUIDE_ENTRANCES = ENTRANCES.filter((one) => one.row === 'S-66').map((one) => ({
   ...one,
-  value: enumeratedValues(cellAt('T-109', one.entry, T_109_ENTRANCE))[0] ?? '',
+  value: enumeratedValues(rowOf('T-109', one.entry).by[T_109_SWITCH] ?? '')[0] ?? '',
 }))
 
 // ---------------------------------------------------------------------------
@@ -1359,16 +1345,11 @@ describe('the tables these ten entrances are driven by', () => {
     expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
     expect(specTable('T-206').headings.length).toBe(4)
     expect(keyOfRow('T-206', 'S-72')).toBe('themePreference')
-    // ⚠️ SIX, NOT FIVE, SINCE 構え WAS APPENDED AFTER 正. Table T-109's preamble
-    // states the new column and why it stands in the table at all:
-    // 「⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行
-    // である。**」 ⛔ The count alone would sleep through a column inserted in
-    // the middle while another is dropped -- which is the one shift `cellAt`
-    // read by position cannot survive -- so both positions this file reads are
-    // pinned by what stands in them, the way T-202 and T-206 are above.
-    expect(specTable('T-109').headings.length).toBe(6)
-    expect(bare(cellAt('T-109', 'IC-16', T_109_SURFACE))).toBe(APP_HEADER)
-    expect(cellAt('T-109', 'IC-16', T_109_ENTRANCE)).toContain('`S-72`')
+    // WHY: a count misses one column inserted while another is dropped, so the positions read are pinned too.
+    expect(specTable('T-109').headings.length).toBe(7)
+    expect(bare(cellAt('T-109', THEME_ENTRY, T_109_SURFACE))).toBe(APP_HEADER)
+    expect(cellAt('T-109', THEME_ENTRY, T_109_ENTRANCE)).toContain('`S-72`')
+    expect(specTable('T-109').headings, 'the column this file reads by heading').toContain(T_109_SWITCH)
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
@@ -1409,19 +1390,26 @@ describe('the tables these ten entrances are driven by', () => {
     }
   })
 
-  it('each of the ten is joined to the settings row this file pairs it with', () => {
-    for (const one of ENTRANCES) {
-      const cell = cellAt('T-109', one.entry, T_109_ENTRANCE)
-      if (NAMES_ITS_OWN_ROW.has(one.entry)) {
-        expect(cell, `${one.entry} no longer names ${one.row}`).toContain('`' + one.row + '`')
-      } else {
-        expect(
-          /`S-\d+`/.test(cell),
-          `${one.entry} now names a settings row of its own, so this file may not infer it`,
-        ).toBe(false)
-      }
+  it('each of the thirteen names, in its 切り替える設定値 cell, the settings row this file pairs it with', () => {
+    expect(NAMED_IN_THE_SWITCH_COLUMN.length).toBe(13)
+    for (const one of NAMED_IN_THE_SWITCH_COLUMN) {
+      const cell = rowOf('T-109', one.entry).by[T_109_SWITCH] ?? ''
+      expect(cell, `${one.entry} no longer names ${one.row} in the column`).toMatch(
+        new RegExp('^`' + one.row + "`(?:（`'[^']+'`）)?$"),
+      )
       expect(keyOfRow(one.table, one.row), one.row).toBe(one.key)
     }
+  })
+
+  it('IC-48 names S-66 and the value it writes in the column, not 「同・」 off IC-47', () => {
+    expect(rowOf('T-109', 'IC-48').by[T_109_SWITCH]).toBe("`S-66`（`'single-vertical'`）")
+    expect(rowOf('T-109', 'IC-47').by[T_109_SWITCH]).toBe("`S-66`（`'crosshair'`）")
+  })
+
+  it('IC-16 stays outside the column: its cell is an em dash and its sentence names S-72', () => {
+    expect(rowOf('T-109', THEME_ENTRY).by[T_109_SWITCH]).toBe('—')
+    expect(cellAt('T-109', THEME_ENTRY, T_109_ENTRANCE)).toContain('`S-72`')
+    expect(keyOfRow('T-206', 'S-72')).toBe('themePreference')
   })
 
   it('the two guide-cursor entrances spell the two values of S-66 that have one', () => {
