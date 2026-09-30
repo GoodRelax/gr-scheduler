@@ -120,6 +120,7 @@ const HELP = {
   licenceText: 'Licence text',
   copyrightNotice: 'Copyright notice',
   attributions: ['An attribution'],
+  footnotes: [],
   entries: [
     {
       table: 'T-036',

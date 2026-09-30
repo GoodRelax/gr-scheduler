@@ -301,6 +301,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   shortcuts: 'rowId',
   helpHeadings: 'block',
   helpNotes: 'rowId',
+  // see FR-036, CR-620
+  helpFootnotes: 'footnote',
   browserFunctions: 'rowId',
   reasons: 'rowId',
   invariants: 'rowId',
@@ -1400,6 +1402,16 @@ for (const section of ['helpHeadings', 'helpNotes'] as const) {
   }
 }
 
+// WHY: FR-073 draws note *1 as words around a link (SEAM-4 before, address, after),
+// so no one string carries it; the whole-view reading joins the three instead.
+for (const entry of GENERATED['helpFootnotes'] ?? []) {
+  drop(
+    'helpFootnotes',
+    keyOf('helpFootnotes', entry),
+    'FR-036 / FR-073 draw note *1 as words around the S-350 link, so the whole-view reading joins before, address and after',
+  )
+}
+
 // see FR-036, T-255
 const T_255_HELD_BY_T_036 = ((): ReadonlySet<string> => {
   const combosOf = (cell: string): readonly string[] =>
@@ -2073,6 +2085,17 @@ const helpNoteFramesShowing = (
     return text !== undefined && text.includes(word)
   })
 
+// see FR-036, FR-073
+const helpFootnoteFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) =>
+    (viewOf(screenViewFromRegions, one.frame, language).helpModal?.footnotes ?? []).some(
+      (note) => `${note.before}${note.address}${note.after}` === withDownloadAddress(word),
+    ),
+  )
+
 // see CR-582, FR-038
 // WHY: `current` carries a `{px}` slot filled with the real height, so a
 // literal match would never see it -- the other three entries hold no slot.
@@ -2544,6 +2567,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'invariants' ||
       cell.section === 'helpHeadings' ||
       cell.section === 'helpNotes' ||
+      cell.section === 'helpFootnotes' ||
       cell.section === 'questions' ||
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||
@@ -2576,7 +2600,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       const on =
         cell.section === 'helpNotes'
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)
-          : cell.section === 'scaleEcho'
+          : cell.section === 'helpFootnotes'
+            ? helpFootnoteFramesShowing(cell.word, cell.language)
+            : cell.section === 'scaleEcho'
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)

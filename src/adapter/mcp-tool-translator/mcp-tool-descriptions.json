@@ -1,0 +1,85 @@
+{
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-107 (the members of the Agent API) by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name and its description cell, <br> read as a newline (AG-12 (4), design-mcp-relay.md 3.1).",
+ "tools": [
+  {
+   "name": "agentApiVersion",
+   "description": "`Agent API` の版。\n呼ぶ側が最初に読む"
+  },
+  {
+   "name": "schemaVersion",
+   "description": "この版の `GRS` が読み書きする文書の形式の版。\nいま開いている文書が持つ値は `AM-3` で読む"
+  },
+  {
+   "name": "readDocument",
+   "description": "文書ぜんたいの凍結された複製。\nルートの 3 群すべてを含む"
+  },
+  {
+   "name": "readStamp",
+   "description": "文書の刻印。\n楽観ロックの照合に用いる"
+  },
+  {
+   "name": "readSelection",
+   "description": "いま選ばれている対象。\n選んだ順序を保つ"
+  },
+  {
+   "name": "readDialogueMessages",
+   "description": "人が確定した発話。\n文書には保存されない"
+  },
+  {
+   "name": "readSearchRows",
+   "description": "語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。\n列の絞り込みと並べ替えは当てない。\nパネルを読みも変えもしない"
+  },
+  {
+   "name": "readDelayDiagnostics",
+   "description": "遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。\n画面の値も文書も書かない"
+  },
+  {
+   "name": "applyCommands",
+   "description": "一括の書き込み。\n原子的に適用し、受理したか否かを値で返す"
+  },
+  {
+   "name": "importDocument",
+   "description": "取り込みと合流"
+  },
+  {
+   "name": "undoEdit",
+   "description": "履歴を戻す"
+  },
+  {
+   "name": "redoEdit",
+   "description": "履歴を進める"
+  },
+  {
+   "name": "exportJson",
+   "description": "`GRS JSON` を値で返す"
+  },
+  {
+   "name": "exportMspdi",
+   "description": "交換形式を値で返す"
+  },
+  {
+   "name": "exportSvg",
+   "description": "画面を縮めた絵を値で返す"
+  },
+  {
+   "name": "exportPng",
+   "description": "画像を値で返す。\n失敗も値で返す"
+  },
+  {
+   "name": "exportEmbeddedHtml",
+   "description": "本体と文書を合わせた 1 つの `.html` を値で返す"
+  },
+  {
+   "name": "focusTask",
+   "description": "指定したタスクが載る行と祖先を開き、見える位置へ表示を寄せる"
+  },
+  {
+   "name": "watchChanges",
+   "description": "自分以外が確定した変更と発話を待つ"
+  },
+  {
+   "name": "postDialogueMessage",
+   "description": "AI が確定した発話を対話欄へ置く"
+  }
+ ]
+}

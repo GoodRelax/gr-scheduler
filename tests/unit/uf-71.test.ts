@@ -1208,6 +1208,7 @@ const HELP_MODAL: HelpModal = {
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
+  footnotes: [],
 }
 
 /**

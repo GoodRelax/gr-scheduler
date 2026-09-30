@@ -36,7 +36,7 @@
 # Measured 2026-09-26 on the tree of branch p3/cr-581-duplicate-prevention:
 # 19 records, 14 restates and 5 coincidental.
 
-# --- restates (14) ---------------------------------------------------------
+# --- restates (15) ---------------------------------------------------------
 
 AppliesTo | union | property-items.json $.items[].appliesTo
 why: restates the appliesTo column of docs/spec/_source/property-items.json (src/adapter/screen-renderer/property-items.json); derive the union from that file.
@@ -82,6 +82,9 @@ why: restates the colour forms of table T-236 through the hand union ColourForm;
 
 MilestoneLayerRole | union | milestone-shapes.json $.shapes[].layers[].role
 why: restates the layer roles of docs/spec/_assets/fig-milestone-shapes.svg (CR-583); the JSON import widens role to string and no generated TS set of the roles exists yet -- held under JDG-778 (the user lets a lane raise for now), DFC-1227 closes it by generating the set
+
+WRITTEN_PROPERTIES | keys | mcp-tool-descriptions.json $.tools[].name
+why: restates the member names of table T-107 (mcp-tool-descriptions.json) as the MCP input-schema keys; the satisfies Record<keyof AgentApi> is the 1:1 compile guard CR-613 section 9 asks for, and tests/contract/cr-613-seam-2 holds the names and order against the table. Registered by the coordinator's leave, 2026-10-01.
 
 # --- coincidental (5) ------------------------------------------------------
 

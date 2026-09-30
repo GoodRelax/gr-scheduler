@@ -48,6 +48,7 @@ import {
   type StartupNoticeReason,
 } from './frame-loop'
 import startupTemplate from './startup-template.json'
+import { openAgentApiRelayLink, type AgentApiRelayLink } from './agent-api-relay-link'
 
 const SCHEDULE_CANVAS_ROLE = 'Schedule Canvas'
 
@@ -359,6 +360,28 @@ function environmentOf(
 }
 
 // see T-077
+// see FR-065, AG-12
+/** @purity non-pure */
+function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
+  const host = globalThis as unknown as Record<string, unknown>
+  let relayLink: AgentApiRelayLink | null = null
+  running.watchAgentApiEnabling((isEnabled) => {
+    relayLink?.close()
+    relayLink = null
+    if (!isEnabled) {
+      delete host[AGENT_API_IDENTIFIER]
+      return
+    }
+    const agentApi = installAgentApi({
+      ...running.agentApiSeams(),
+      writerName: AGENT_API_WRITER,
+      schemaVersion,
+    })
+    host[AGENT_API_IDENTIFIER] = agentApi
+    relayLink = openAgentApiRelayLink(agentApi, window.location, (address) => new WebSocket(address))
+  })
+}
+
 /** @purity non-pure */
 function boot(): void {
   // TRAP: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
@@ -545,18 +568,7 @@ function boot(): void {
   // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
   if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 
-  const host = globalThis as unknown as Record<string, unknown>
-  running.watchAgentApiEnabling((isEnabled) => {
-    if (!isEnabled) {
-      delete host[AGENT_API_IDENTIFIER]
-      return
-    }
-    host[AGENT_API_IDENTIFIER] = installAgentApi({
-      ...running.agentApiSeams(),
-      writerName: AGENT_API_WRITER,
-      schemaVersion: template.schemaVersion,
-    })
-  })
+  publishAgentApiWhileEnabled(running, template.schemaVersion)
 
   const inputSource = domInputSource(
     window,

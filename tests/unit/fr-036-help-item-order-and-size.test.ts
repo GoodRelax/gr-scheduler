@@ -291,6 +291,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     licenceText: 'LicenceTextHere',
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
+    footnotes: [],
   }) as unknown as OpenModal
 
 /** The App Header measures to something, so BO-1's dimension is settled. */

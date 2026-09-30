@@ -11,14 +11,17 @@ const T074 = specTable('T-074')
 
 // WHY: table T-074 SU-3 states the unit count in prose; a literal here went
 // stale (this file said 160 while T-075 already held 167). Read SU-3 instead.
-const STATED_UNIT_COUNT = ((): number => {
-  const row = T074.rows.find((one) => one.id === 'SU-3')
-  if (row === undefined) throw new Error('table T-074 no longer has a row SU-3')
+const statedCount = (id: string): number => {
+  const row = T074.rows.find((one) => one.id === id)
+  if (row === undefined) throw new Error(`table T-074 no longer has a row ${id}`)
   const cell = row.by['本設計での全数'] ?? ''
   const found = /\d+/.exec(cell)
-  if (found === null) throw new Error(`table T-074 row SU-3 no longer states a number of units: ${JSON.stringify(cell)}`)
+  if (found === null) throw new Error(`table T-074 row ${id} no longer states a number: ${JSON.stringify(cell)}`)
   return Number(found[0])
-})()
+}
+
+const STATED_UNIT_COUNT = statedCount('SU-3')
+const STATED_COMPONENT_COUNT = statedCount('SU-1')
 
 const LAYER_FOLDER: Record<string, string> = {
   documentModel: join('entity', 'document-model'),
@@ -63,10 +66,10 @@ describe('table T-075 -- the unit inventory', () => {
     expect(units).toHaveLength(STATED_UNIT_COUNT)
   })
 
-  it('names one public entry per component, and 37 of them', () => {
+  it('names one public entry per component, as many as table T-074 SU-1 states', () => {
     const entries = units.filter((u) => u.file === `${kebab(u.component)}.ts`)
     expect(entries).toHaveLength(new Set(units.map((u) => u.component)).size)
-    expect(entries).toHaveLength(37)
+    expect(entries).toHaveLength(STATED_COMPONENT_COUNT)
   })
 
   it.each(units)('$id $path exists', ({ path }) => {

@@ -143,7 +143,9 @@ check("T-064 covers every component", sorted(members), sorted(nodes))
 
 FRAMEWORK = {"SingleHtmlShell", "DomSvgSurface", "DomInputSource",
              "FileSystemAccessFileStore", "LocalStorageDocumentStore",
-             "BrowserClipboard", "CanvasRasterizer", "DomScreenSurface"}
+             "BrowserClipboard", "CanvasRasterizer", "DomScreenSurface",
+             # CR-613: the relay process entry; the AI app starts it, no component calls it (PI-41).
+             "McpRelayServer"}
 
 incoming = {}
 for e in model["edges"]:

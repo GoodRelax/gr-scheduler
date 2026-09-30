@@ -364,7 +364,7 @@ function writeThroughTheOnePath(
 }
 
 /** @purity pure */
-function messageOf(thrown: unknown): string {
+export function messageOf(thrown: unknown): string {
   return thrown instanceof Error ? thrown.message : String(thrown)
 }
 

@@ -35,8 +35,9 @@ THE LAYOUT IS FR-036'S OWN:
     indented;
   - the rows armed with AR-3 and `IC-50` as ONE item, drawn with the first
     and the last glyph `S-216` always shows and the glyph of `IC-50`;
-  - the item of `IC-54` carries its note (the row id whose note words it
-    reads), never a second item; `IC-102` is the legend and not an item.
+  - the items of `IC-54` and `IC-20` carry their notes (the row id whose note
+    words each reads), never a second item; `IC-102` is the legend and not an
+    item. The note *1 that IC-20 points at is not an item either.
 
 A row of table T-109 that no item carries stops the run: dropping an entrance
 from the help in silence is exactly what FR-036's "every row" forbids.
@@ -141,7 +142,8 @@ MILESTONE_ARM = 'AR-3'
 MILESTONE_LIST_ROW = 'IC-50'
 ALWAYS_SHOWN_GLYPHS = 'S-216'
 HELP_COLUMN_COUNT = 'S-202'
-ARMED_NOTE_ROW = 'IC-54'
+# FR-036: IC-54 notes that it stands only while armed; IC-20 points at note *1.
+NOTED_ROWS = ('IC-54', 'IC-20')
 LEGEND_ROW = 'IC-102'
 # CR-574: FR-036 (MUST) keeps the rows of table T-109 whose surface is the
 # Help Modal alone off the columns -- the legend and the title row's own
@@ -357,14 +359,14 @@ def build():
             continue
         browser.append(item(BROWSER, None, BROWSER_TABLE, row.id, keys=keys))
 
-    # FR-036: the note on IC-54 belongs to the IC-54 item, so an entrance
-    # never stands on a second item for it.
+    # FR-036: the note on IC-54 and on IC-20 belongs to that row's own item, so
+    # an entrance never stands on a second item for it.
     def icon_item(block, segment, rid, glyphs=None, indent=False):
         return item(block, segment, ICON_TABLE, rid, keys=keys_on.get(rid),
                     press=press_on.get(rid),
                     glyphs=glyphs if glyphs is not None else [rid],
                     indent=indent,
-                    note=rid if rid == ARMED_NOTE_ROW else None)
+                    note=rid if rid in NOTED_ROWS else None)
 
     # A row stands in ONE place on the help: the first surface of its cell that
     # has a block or stands under IC-1. IC-52 closes six surfaces and is listed

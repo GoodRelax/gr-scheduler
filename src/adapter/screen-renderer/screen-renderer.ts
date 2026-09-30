@@ -298,6 +298,12 @@ export interface HelpModal extends OpenSurface {
   readonly licenceText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
+  readonly footnotes: readonly HelpFootnote[]
+}
+
+// see FR-036
+export interface HelpFootnote extends LinkedWords {
+  readonly column: string
 }
 
 export interface HelpEntry {
