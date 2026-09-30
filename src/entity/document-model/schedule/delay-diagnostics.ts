@@ -2,6 +2,7 @@
 // @unit      UF-184  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
+// Generated region at the end: docs/spec/_source/settings.json (table T-206). Do not edit by hand; npm run gen.
 
 import { calendarDaysBetween, compareDays, dayOf, type CalendarDay } from './calendar-day'
 import { planActualState } from './plan-actual-state'
@@ -79,9 +80,6 @@ export interface DelayDiagnosticsReport {
   readonly settledPushOuts: readonly DelayQuantities[]
   readonly derivedWbsParents: readonly DerivedWbsParent[]
 }
-
-// TRAP: a hand copy of S-397; the generator prints that row only into the adapter, so change both together.
-const BOTTLENECK_MIN_PUSH_OUT_DAYS = 1
 
 // see T-018
 const FINISH_TO_FINISH = 0
@@ -875,7 +873,7 @@ function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
 // see FR-130, FR-131, FR-132, FR-133, FR-134
 /** @purity pure */
 export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCalendar,
-                              bottleneckMinPushOutDays = BOTTLENECK_MIN_PUSH_OUT_DAYS): DelayDiagnosticsReport {
+                              bottleneckMinPushOutDays = NOT_STORED_BOTTLENECK_THRESHOLD['S-397']): DelayDiagnosticsReport {
   const project = document.schedule.project
   const statusDate = dayOf(project.statusDate)
   if (statusDate === null) return emptyReport(project.statusDate)
@@ -937,3 +935,15 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
     .sort((a, b) => a.rank - b.rank || (a.rank === 2 ? a.near - b.near : 0) || a.order - b.order)
     .map((one) => one.bar.uid)
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_BOTTLENECK_THRESHOLD: {
+  readonly 'S-397': number
+} = {
+  'S-397': 1,
+}
+// </generated>

@@ -45,9 +45,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
 | `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
+| `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
 | `delayStart` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayStart` | -- | function delayStart(task: Task): { readonly row: string; readonly from: string \| null } \| null |
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
+| `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `ForeignKeyColumn` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ForeignKeyColumn` | -- | interface ForeignKeyColumn |
@@ -60,6 +62,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NestedRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#NestedRows` | -- | interface NestedRows |
 | `nextWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#nextWorkingDay` | PI-1 | 起点の**翌稼働日**。 |
 | `NoWorkingDayReached` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#NoWorkingDayReached` | -- | class NoWorkingDayReached extends Error |
+| `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親入力の面の候補の並び（表 T-318 の `IP-4`） |
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
@@ -83,6 +86,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
+| `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
+| `Bottleneck` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#Bottleneck` | -- | interface Bottleneck extends DelayQuantities |
+| `DelayFinding` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayFinding` | -- | interface DelayFinding |
+| `DelayMarkerRow` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayMarkerRow` | -- | type DelayMarkerRow = 'DG-1' \| 'DG-2' \| 'DG-3' \| 'DG-4' |
+| `DelayMarkerState` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayMarkerState` | -- | interface DelayMarkerState |
+| `DelayQuantities` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayQuantities` | -- | interface DelayQuantities |
+| `DerivedWbsParent` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DerivedWbsParent` | -- | interface DerivedWbsParent |
+| `FindingKind` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingKind` | -- | type FindingKind = 'contradiction' \| 'suspicion' \| 'omission' |
+| `FindingValue` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingValue` | -- | type FindingValue = string \| number \| boolean \| null \| readonly number[] |
+| `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
 | `rowPathOf` | file only | function | `src/entity/document-model/schedule/row-names.ts#rowPathOf` | -- | function rowPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
@@ -1436,4 +1449,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 707 name(s) leave through a public entry (229 of them published by table T-064), 529 more are exported by a file and not by its entry.
+Totals: 710 name(s) leave through a public entry (232 of them published by table T-064), 539 more are exported by a file and not by its entry.

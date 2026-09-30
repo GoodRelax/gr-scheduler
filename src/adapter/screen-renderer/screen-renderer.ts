@@ -517,6 +517,7 @@ export interface ScreenViewReadings {
   readonly canRedo?: boolean
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
+  readonly isDelayDiagnosticsShown?: boolean
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built

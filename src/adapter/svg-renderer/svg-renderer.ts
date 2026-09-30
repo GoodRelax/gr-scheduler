@@ -736,7 +736,6 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   readonly 'S-394': number
   readonly 'S-395': string
   readonly 'S-396': number
-  readonly 'S-397': number
   readonly 'S-399': number
 } = {
   'S-328': 1.7,
@@ -750,7 +749,6 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   'S-394': 0.62,
   'S-395': 'M0.5 0.05 C0.62 0.28 0.86 0.42 0.86 0.66 C0.86 0.86 0.7 1 0.5 1 C0.3 1 0.14 0.86 0.14 0.66 C0.14 0.5 0.26 0.38 0.34 0.3 C0.36 0.44 0.42 0.52 0.5 0.54 C0.46 0.36 0.46 0.2 0.5 0.05 Z',
   'S-396': 0.70,
-  'S-397': 1,
   'S-399': 700,
 }
 

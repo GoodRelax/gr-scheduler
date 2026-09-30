@@ -20,10 +20,13 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
+  diagnoseDelay,
   scheduleViolations,
   taskByUid,
   textOfDay,
+  workingCalendarOf,
   type CalendarDay,
+  type DelayDiagnosticsReport,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
@@ -402,6 +405,27 @@ const SEARCH_WORD_ROW = 'SV-2'
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
 const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
+
+const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
+const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
+
+type DelayDiagnosticsDrawing = NonNullable<Parameters<typeof geometryFromLayout>[6]>
+
+interface HeldDelayDiagnostics {
+  readonly of: Document
+  readonly report: DelayDiagnosticsReport
+  readonly drawing: DelayDiagnosticsDrawing
+}
+
+// see FR-133, T-315, S-3
+// WHY: DG-4 is left out; the geometry already draws it as PM-4.
+/** @purity pure */
+function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
+  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
+  for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
+  return { of: document, report, drawing: { shown: true, symbolByUid } }
+}
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
 
@@ -825,6 +849,7 @@ interface ScreenViewReadingsTaken {
   readonly canUndo?: boolean
   readonly canRedo?: boolean
   readonly searchPanel?: SearchPanelSession
+  readonly isDelayDiagnosticsShown?: boolean
 }
 
 // see PI-37, SF-5, SF-10
@@ -1607,6 +1632,10 @@ export function frameLoop(
   let searchPanelHeld: SearchPanelSession = emptySearchPanelSession
   let searchPanelPlaceAtPress: Pick<SearchPanelSession, 'at' | 'size'> | null = null
   let isSearchWordFocusOwed = false
+  // see S-445, FR-130
+  // WHY: diagnosed once per held document, never per frame (decision 17).
+  let delayDiagnosticsShown = false
+  let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -1792,9 +1821,13 @@ export function frameLoop(
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
     const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
+    const diagnostics = delayDiagnosticsNow()
+    // see FR-133, FR-049
+    // TRAP: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
+    const drawnSettings = diagnostics === null ? settings : { ...settings, progressMarkerVisible: true }
     const layout = layoutFromSchedule(
       document.schedule,
-      settings,
+      drawnSettings,
       regions,
       undefined,
       environment.rowControlsHeightPx,
@@ -1808,13 +1841,14 @@ export function frameLoop(
     }
     const geometry = geometryFromLayout(
       document.schedule,
-      settings,
+      drawnSettings,
       layout,
       regions,
       selectedObjectsIn(session),
       session.screen.dualCursor,
+      diagnostics?.drawing,
     )
-    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, settings, previewDocument !== null))
+    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
     values = {
       regions,
       layout,
@@ -1846,7 +1880,7 @@ export function frameLoop(
     const drawnSvg =
       svgFromSchedule(
         document.schedule,
-        settings,
+        drawnSettings,
         layout,
         geometry,
         regions,
@@ -1859,7 +1893,7 @@ export function frameLoop(
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
         watermarkNow(),
-        tentativeDependencyOf(hands, pressed, pointerAt, document, settings, layout, geometry, regions),
+        tentativeDependencyOf(hands, pressed, pointerAt, document, drawnSettings, layout, geometry, regions),
       )
     surface.showSvg(drawnSvg)
     if (screen === undefined) {
@@ -1900,6 +1934,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           searchPanel: searchPanelHeld,
+          isDelayDiagnosticsShown: delayDiagnosticsShown,
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -1913,6 +1948,19 @@ export function frameLoop(
     drainFieldEditNotices(hands, values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
+  }
+
+  /** @purity non-pure */
+  function delayDiagnosticsNow(): HeldDelayDiagnostics | null {
+    if (!delayDiagnosticsShown) return null
+    if (delayDiagnosticsHeld?.of !== held.document) delayDiagnosticsHeld = delayDiagnosticsOf(held.document)
+    return delayDiagnosticsHeld
+  }
+
+  /** @purity non-pure */
+  function showDelayDiagnostics(isShown: boolean): void {
+    delayDiagnosticsShown = isShown
+    if (!isShown) delayDiagnosticsHeld = null
   }
 
   /** @purity non-pure */
@@ -2388,6 +2436,7 @@ export function frameLoop(
       // fit the one before it was given.
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
         forgetFitForNoPlace()
+        showDelayDiagnostics(false)
       }
       if (isSizeSettled(environment)) ask()
       return true
@@ -2423,6 +2472,16 @@ export function frameLoop(
     if (panelAfter !== null) {
       searchPanelHeld = panelAfter
       return true
+    }
+    if (entry === DELAY_DIAGNOSTICS_ENTRY) {
+      showDelayDiagnostics(!delayDiagnosticsShown)
+      return true
+    }
+    // see FR-049, S-445
+    // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
+    if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
+      showDelayDiagnostics(false)
+      return !held.document.documentSettings.progressMarkerVisible
     }
     if (entry === SCREEN_LANGUAGE_ENTRY) {
       const language = screenLanguageIn(session) === 'ja' ? 'en' : 'ja'
