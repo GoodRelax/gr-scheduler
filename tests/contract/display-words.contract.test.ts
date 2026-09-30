@@ -677,6 +677,7 @@ const SESSION: ScreenViewReadings = {
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
+  hintTargetDwellMs: 0,
   iconUnderPointer: null,
   commandPaletteAt: { x: 500, y: 300 },
   // No case here reads the theme. S-72 takes the manuscript's default; S-73 is
@@ -935,6 +936,7 @@ for (const entry of GENERATED['icons'] ?? []) {
           pointer,
           iconUnderPointer: rowId,
           pointerRestedMs: ICON_HINT_MS + 1,
+          hintTargetDwellMs: ICON_HINT_MS + 1,
         },
       })
     }

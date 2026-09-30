@@ -285,6 +285,7 @@ const EMPTY_READINGS: ScreenViewReadings = {
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
+  hintTargetDwellMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
@@ -314,6 +315,8 @@ const readingsOf = (part: Partial<ScreenViewReadings> = {}): ScreenViewReadings 
 const RESTING_ON_THE_ICON = readingsOf({
   pointer: { x: 5, y: 5 },
   pointerRestedMs: WAIT_MS + 1,
+  // see EZ-2 -- the icon wait counts from entering the icon (CR-576)
+  hintTargetDwellMs: WAIT_MS + 1,
   iconUnderPointer: ICON,
 })
 
@@ -736,6 +739,7 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
     const away = RESTING_ON_THE_ICON
     expect(away.pointer).toEqual(standing.pointer)
     expect(away.pointerRestedMs).toBe(standing.pointerRestedMs)
+    expect(away.hintTargetDwellMs).toBe(standing.hintTargetDwellMs)
     expect(away.iconUnderPointer).toBe(standing.iconUnderPointer)
     expect(shownFor(standing).length).toBe(1)
     expect(shownFor(away, rootWithTooltipDismissed(true))).toEqual([])
@@ -766,7 +770,7 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
         ],
       },
     }
-    const onTheLane = readingsOf({ pointer: { x: 105, y: 300 }, pointerRestedMs: WAIT_MS * 10 })
+    const onTheLane = readingsOf({ pointer: { x: 105, y: 300 }, pointerRestedMs: WAIT_MS * 10, hintTargetDwellMs: WAIT_MS * 10 })
     const standing = tooltipsFromScreenView(lanes, SETTINGS, ROOT, onTheLane)
     expect(standing.length, 'FR-037 raised no hint, so this case holds nothing').toBeGreaterThan(0)
     const away = tooltipsFromScreenView(lanes, SETTINGS, rootWithTooltipDismissed(true), onTheLane)

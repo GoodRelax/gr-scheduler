@@ -178,6 +178,7 @@ const readingsAt = (pointer: { x: number; y: number } | null, part: Record<strin
     isAgentApiEnabled: false,
     pointer,
     pointerRestedMs: 0,
+    hintTargetDwellMs: 0,
     commandPaletteAt: { x: 0, y: 0 },
     iconUnderPointer: null,
     themePreference: 'light',
@@ -347,7 +348,12 @@ const taskTooltips = (mode: Mode): number => {
   const settings = stage.settings
   const readings = readingsAt(
     { x: stage.pointOn(2026, 4, 3).x, y: stage.middleY },
-    { pointerRestedMs: SETTINGS_CONSTANTS.iconHintDelayMs, taskUnderPointer: TASK },
+    // see EZ-6, S-439 -- the task wait is its own value, not S-124 (CR-576)
+    {
+      pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
+      hintTargetDwellMs: SETTINGS_CONSTANTS.taskHintDelayMs,
+      taskUnderPointer: TASK,
+    },
   )
   const shown = { frame: { scrollbars: [] } } as unknown as Omit<ScreenView, 'tooltips'>
   return tooltipsFromScreenView(shown, settings, sessionIn(mode, STORED), readings).filter(

@@ -347,6 +347,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
       isAgentApiEnabled: false,
       pointer: null,
       pointerRestedMs: 0,
+      hintTargetDwellMs: 0,
       commandPaletteAt: { x: 0, y: 0 },
       iconUnderPointer: null,
       themePreference: 'light',
