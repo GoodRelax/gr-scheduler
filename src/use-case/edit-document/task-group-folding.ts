@@ -224,6 +224,7 @@ export type TreeStateEvent =
   | { readonly type: 'topLevelOpenPressed' }
   | { readonly type: 'childRowAddPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
   | { readonly type: 'fitPressed' }
+  | { readonly type: 'everyRowDeletePressed' }
   | { readonly type: 'rowZoomShrinkPressed' }
   | { readonly type: 'rowRevealAsked'; readonly revealedRowId: TreeStateEventCarried['revealedRowId'] }
 
@@ -276,6 +277,14 @@ export const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'rowTree',
     event: 'fitPressed',
+    guard: 'isLevelZeroCollapsed',
+    to: 'rowTree',
+    effect: 'writeLevelZeroAuto',
+    effectArgument: null,
+  },
+  {
+    state: 'rowTree',
+    event: 'everyRowDeletePressed',
     guard: 'isLevelZeroCollapsed',
     to: 'rowTree',
     effect: 'writeLevelZeroAuto',
@@ -554,10 +563,18 @@ export const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
     effectArgument: null,
   },
   {
+    state: 'treeStateMachine.auto',
+    event: 'childRowAddPressed',
+    guard: 'isPressedRow',
+    to: 'treeStateMachine.temporarilyExpanded',
+    effect: null,
+    effectArgument: null,
+  },
+  {
     state: 'treeStateMachine.collapsed',
     event: 'childRowAddPressed',
     guard: 'isPressedRow',
-    to: 'treeStateMachine.auto',
+    to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
   },

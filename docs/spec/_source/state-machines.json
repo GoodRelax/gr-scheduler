@@ -6464,6 +6464,21 @@
        "ja": "同上"
       }
      },
+     "everyRowDeletePressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "HF-20",
+       "S-418"
+      ],
+      "note": {
+       "ja": "同上。消す書き込みと同じ束に入れる（`HF-20`）"
+      }
+     },
      "rowRevealAsked": {
       "guard": [
        {
@@ -6655,6 +6670,20 @@
      "carries": []
     },
     {
+     "key": "everyRowDeletePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-106",
+       "HF-20"
+      ],
+      "note": {
+       "ja": "頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "rowZoomShrinkPressed",
      "source": {
       "kind": "input",
@@ -6701,7 +6730,7 @@
       {
        "key": "auto",
        "parent": null,
-       "initial": true,
+       "initial": false,
        "carries": [],
        "evidence": [
         "AT-153",
@@ -6731,12 +6760,14 @@
       {
        "key": "temporarilyExpanded",
        "parent": null,
-       "initial": false,
+       "initial": true,
        "carries": [],
        "evidence": [
         "HR-3",
         "HR-1",
-        "FR-018"
+        "FR-018",
+        "AT-153",
+        "HF-14"
        ]
       },
       {
@@ -7213,8 +7244,20 @@
        }
       },
       "childRowAddPressed": {
+       "auto": {
+        "to": "temporarilyExpanded",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-14",
+         "HR-8"
+        ]
+       },
        "collapsed": {
-        "to": "auto",
+        "to": "temporarilyExpanded",
         "guard": [
          {
           "name": "isPressedRow"

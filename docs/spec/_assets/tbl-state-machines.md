@@ -1173,6 +1173,7 @@ stateDiagram-v2
 | `rowTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
 | `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
 | `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
+| `rowTree/everyRowDeletePressed` | 入力（頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
 | `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`））: `SJ-1` ・ `AM-16` ・ `EL-21` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
 
@@ -1188,6 +1189,7 @@ stateDiagram-v2
 | `rowTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
 | `rowTree/childRowAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、行の値は変えない（`HF-17`））<br>それ以外 → — |
 | `rowTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `rowTree/everyRowDeletePressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
 | `rowTree/rowRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
 
 **図 F-043 — 行の木の状態遷移**
@@ -1202,7 +1204,7 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> treeStateMachine_auto
+    [*] --> treeStateMachine_temporarilyExpanded
     treeStateMachine_auto : auto
     treeStateMachine_collapsed : collapsed
     treeStateMachine_expanded : expanded
@@ -1212,9 +1214,9 @@ stateDiagram-v2
     treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
     treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
     treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
-    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
-    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
-    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed, fitPressed
+    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, fitPressed
     treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
     treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed
     treeStateMachine_auto --> treeStateMachine_hidden : hidePressed
@@ -1238,15 +1240,15 @@ stateDiagram-v2
 | `rowTree/everyRowOpenPressed` | → `temporarilyExpanded` [not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] | — | — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] |
 | `rowTree/everyRowFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
 | `rowTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelRow`]<br>それ以外 → — |
-| `rowTree/childRowAddPressed` | — | → `auto` [`isPressedRow`]<br>それ以外 → — | — | — | — |
+| `rowTree/childRowAddPressed` | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | — | — | — |
 | `rowTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
 | `rowTree/rowZoomShrinkPressed` | — | — | — | → `auto` | — |
 | `rowTree/rowRevealAsked` | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — |
 
-- `treeStateMachine.auto` —— 初期。根拠 `AT-153` ・ `FR-018`
+- `treeStateMachine.auto` —— 根拠 `AT-153` ・ `FR-018`
 - `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`
 - `treeStateMachine.expanded` —— 根拠 `HR-7` ・ `FR-018`
-- `treeStateMachine.temporarilyExpanded` —— 根拠 `HR-3` ・ `HR-1` ・ `FR-018`
+- `treeStateMachine.temporarilyExpanded` —— 初期。根拠 `HR-3` ・ `HR-1` ・ `FR-018` ・ `AT-153` ・ `HF-14`
 - `treeStateMachine.hidden` —— 根拠 `HR-6`
 
 表に無い出来事は `treeStateMachine` を変えない（同じ参照）。
