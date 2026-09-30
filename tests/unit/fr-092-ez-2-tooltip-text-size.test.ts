@@ -27,10 +27,10 @@
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
 //
-//   EZ-2     表 T-040 (FR-092): 「アイコンにポインタを合わせて一定時間が経ったら、
-//            そのアイコンの説明を出すこと（MUST）。説明の後ろに、その行の割当も出
-//            すこと（MUST）」 —— ⭐ 「**字の大きさは 表 T-206 の `S-204` が定める
-//            係数で決めること（MUST）。**」 待ち時間は `S-124` が持つ。
+//   EZ-2     表 T-040 (FR-092): 「ポインタがアイコンに入ってから `_assets/tbl-settings.md`
+//            の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。」「説明の後ろ
+//            に、その行の割当も出すこと（MUST）」 —— 「字の大きさは 表 T-206 の `S-204`
+//            が定める係数で決めること（MUST）。」
 //   S-204    表 T-206 「ツールチップの文字の大きさの係数（`FR-092` の `EZ-2`）」 --
 //            ⭐ 「利用者の指示を比にしたものである（2026-08-29「仮に 16pt なら
 //            14pt ぐらいに小さくしろ」＝ 14 ÷ 16）」。⛔ 「px で持たない理由は
@@ -69,9 +69,9 @@
 //   3. THAT THE TOOLTIP IS SMALLER THAN ANY NEIGHBOUR IN PARTICULAR. The ruling
 //      that produced `S-204` is a RATIO against the host's own base, which is
 //      what the cases below drive; 「2 段階」 names no other part of the screen.
-//   4. THE WAIT BEFORE IT APPEARS. `S-124` holds it (DFC-106 「⚠️ `S-124` は 3000ms なの
-//      で、2.5 秒しか待たない測り方では 1 度も出なかった」, DFC-106's own note), and
-//      that is a rule about UF-69, which decides WHETHER a tooltip stands.
+//   4. THE WAIT BEFORE IT APPEARS. EZ-2 counts `S-124` from entering (「待ちは、ポイ
+//      ンタがそのアイコンに入った時から数えること（MUST）。」), and that is a rule
+//      about UF-69, which decides WHETHER a tooltip stands.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

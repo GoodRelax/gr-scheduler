@@ -784,6 +784,7 @@ const restingOn = (task: Task): ScreenViewReadings => ({
   isAgentApiEnabled: false,
   pointer: { x: 300, y: 200 },
   pointerRestedMs: S_439_MS + 1,
+  hintTargetDwellMs: S_439_MS + 1,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   taskUnderPointer: task,

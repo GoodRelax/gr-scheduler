@@ -135,6 +135,7 @@ function settingsPanel(preference: Preference, hue: number): PropertiesPanel {
     isDialogueFieldVisible: true,
     pointer: null,
     pointerRestedMs: 0,
+    hintTargetDwellMs: 0,
     commandPaletteAt: { x: 0, y: 0 },
     iconUnderPointer: null,
     themePreference: preference,

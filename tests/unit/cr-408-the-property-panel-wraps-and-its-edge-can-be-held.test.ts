@@ -37,6 +37,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-052 (MUST NOT) -- the width is written nowhere (CR-572)', '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'],
   ['FR-052 (MUST) -- the held boundary is drawn where the pointer names', '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'],
   ['FR-052 (MUST NOT) -- no pair leaving Row Area at 0 or less', 'これが 0 以下になる組を受け付けてはならない（MUST NOT）'],
+  ['T-023d (MUST) -- a higher row wins', '上の行ほど優先すること（MUST）'],
   ['T-023d GR-22 (MUST NOT) -- no part of the band misses the band', '⛔ 帯の幅のうち、押しても帯に届かない所を残してはならない（MUST NOT）'],
   ['FR-006 (MUST) -- text and multiline fit inside the panel', '⭐ ただし 表 T-016 の `入力の型` が `文字` と `複数行` の操作子には、上の「要る幅より狭い幅を割ってはならない」を当てず、パネルの幅の中に収めること（MUST）'],
   ['FR-006 (MUST NOT) -- they do not run out to the right', '⛔ その操作子をパネルの右へはみ出させてはならない（MUST NOT）'],
@@ -73,9 +74,9 @@ const T_016 = specTable('T-016')
 const kindOf = (row: string): string => (T_016.rows.find((one) => one.id === row)?.by[H_KIND] ?? '').trim()
 
 describe('CR-408 -- the premises read from the manuscript', () => {
-  it('T-023d prints GR-22 directly after GR-19, on the Panel Divider band of S-134', () => {
+  it('T-023d ranks GR-22 below GR-19, GR-24 and GR-25 only, on the Panel Divider band of S-134', () => {
     const ids = T_023D.rows.map((one) => one.id)
-    expect(ids.indexOf('GR-22')).toBe(ids.indexOf('GR-19') + 1)
+    expect(ids.slice(0, ids.indexOf('GR-22'))).toEqual(['GR-19', 'GR-24', 'GR-25'])
     expect(T_023D.rows.find((one) => one.id === 'GR-22')?.by[H_PLACE] ?? '').toContain('S-134')
   })
 

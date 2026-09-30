@@ -40,6 +40,8 @@ const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
 const HINT_DELAY_MS = numberIn(cellOf(T212, 'S-124', 1, 5), 'table T-212 row S-124')
 
+const TASK_HINT_DELAY_MS = numberIn(cellOf(T212, 'S-439', 1, 5), 'table T-212 row S-439')
+
 const ENTRANCE_SHAPE_PX = numberIn(cellOf(T206, 'S-138', 1, 3), 'table T-206 row S-138')
 
 const ROW_PANEL_ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-243', 1, 3), 'table T-206 row S-243')
@@ -356,9 +358,9 @@ async function restOnBar(
   await page.mouse.move(at.x - 60, at.y - 60)
   await page.waitForTimeout(300)
   await page.mouse.move(at.x, at.y)
-  await page.waitForTimeout(Math.round(HINT_DELAY_MS * 0.6))
+  await page.waitForTimeout(Math.round(TASK_HINT_DELAY_MS * 0.6))
   const early = await readTooltip(page)
-  await page.waitForTimeout(Math.round(HINT_DELAY_MS * 0.4) + 1500)
+  await page.waitForTimeout(Math.round(TASK_HINT_DELAY_MS * 0.4) + 1500)
   const late = await readTooltip(page)
   return { early, late }
 }
@@ -386,8 +388,8 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
     const one = await restOnBar(app.page, first)
     expect(
       one.early,
-      `something was put up after only ${Math.round(HINT_DELAY_MS * 0.6)}ms, and table T-212 row ` +
-        `S-124 gives the wait as ${HINT_DELAY_MS}ms`,
+      `something was put up after only ${Math.round(TASK_HINT_DELAY_MS * 0.6)}ms, and table T-212 row ` +
+        `S-439 gives the wait as ${TASK_HINT_DELAY_MS}ms`,
     ).toBe('')
     const told = tellingIn(one.late)
     expect(
