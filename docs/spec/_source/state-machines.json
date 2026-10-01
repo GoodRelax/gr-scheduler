@@ -799,6 +799,46 @@
      ]
     },
     {
+     "key": "dialogueFieldMinimiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-129"
+      ],
+      "note": {
+       "ja": "対話欄の題の行の最小化の入口"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "dialogueFieldMaximiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-130",
+       "IC-131"
+      ],
+      "note": {
+       "ja": "対話欄の題の行の最大化と元に戻す入口"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "dialogueFieldClosePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-52"
+      ],
+      "note": {
+       "ja": "対話欄の閉じる入口"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "dualCursorEntryPressed",
      "source": {
       "kind": "input",
@@ -1036,8 +1076,11 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-120"
-      ]
+       "IC-129"
+      ],
+      "note": {
+       "ja": "検索パネルの見出しの行の最小化の入口"
+      }
      },
      "carries": []
     },
@@ -1046,8 +1089,12 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-121"
-      ]
+       "IC-130",
+       "IC-131"
+      ],
+      "note": {
+       "ja": "検索パネルの見出しの行の最大化と元に戻す入口"
+      }
      },
      "carries": []
     },
@@ -1094,7 +1141,10 @@
       "kind": "input",
       "rows": [
        "IC-129"
-      ]
+      ],
+      "note": {
+       "ja": "ヘルプの題の行の最小化の入口"
+      }
      },
      "carries": []
     },
@@ -1105,7 +1155,10 @@
       "rows": [
        "IC-130",
        "IC-131"
-      ]
+      ],
+      "note": {
+       "ja": "ヘルプの題の行の最大化と元に戻す入口"
+      }
      },
      "carries": []
     },
@@ -2140,16 +2193,17 @@
      "name": "dialogueFieldDisplayStateMachine",
      "states": [
       {
-       "key": "shown",
+       "key": "hidden",
        "parent": null,
        "initial": true,
        "carries": [],
        "evidence": [
-        "S-99i"
+        "S-99i",
+        "FR-066"
        ]
       },
       {
-       "key": "hidden",
+       "key": "shown",
        "parent": null,
        "initial": false,
        "carries": [],
@@ -2157,10 +2211,53 @@
         "S-99i",
         "FR-066"
        ]
+      },
+      {
+       "key": "shown.normal",
+       "parent": "shown",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-1"
+       ]
+      },
+      {
+       "key": "shown.minimised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-2",
+        "IC-129"
+       ]
+      },
+      {
+       "key": "shown.maximised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-3",
+        "IC-130"
+       ]
       }
      ],
      "transitions": {
       "dialogueFieldEntryPressed": {
+       "hidden": {
+        "to": "shown.normal",
+        "evidence": [
+         "S-99i",
+         "IC-18",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
+        }
+       },
        "shown": [
         {
          "to": "hidden",
@@ -2175,7 +2272,7 @@
          ]
         },
         {
-         "to": "shown",
+         "to": "shown.normal",
          "guard": [
           {
            "name": "isAgentApiEnabled",
@@ -2187,20 +2284,64 @@
           "IC-18"
          ],
          "note": {
-          "ja": "欄は表示のまま。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
+          "ja": "欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
          }
         }
-       ],
-       "hidden": {
-        "to": "shown",
+       ]
+      },
+      "dialogueFieldMinimiseToggled": {
+       "shown.normal": {
+        "to": "shown.minimised",
         "evidence": [
-         "S-99i",
-         "IC-18",
+         "WB-1",
+         "IC-129"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-2",
+         "WB-5"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.minimised",
+        "evidence": [
+         "WB-3",
+         "IC-129"
+        ]
+       }
+      },
+      "dialogueFieldMaximiseToggled": {
+       "shown.normal": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-1",
+         "IC-130"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-2",
+         "IC-130"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-3",
+         "IC-131"
+        ]
+       }
+      },
+      "dialogueFieldClosePressed": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "IC-52",
          "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
-        }
+        ]
        }
       }
      }
@@ -2491,7 +2632,7 @@
        "evidence": [
         "S-442",
         "SV-12",
-        "IC-120"
+        "IC-129"
        ]
       },
       {
@@ -2502,7 +2643,7 @@
        "evidence": [
         "S-442",
         "SV-13",
-        "IC-121"
+        "IC-130"
        ]
       }
      ],
@@ -2547,21 +2688,21 @@
         "to": "shown.minimised",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        },
        "shown.minimised": {
         "to": "shown.normal",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        },
        "shown.maximised": {
         "to": "shown.minimised",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        }
       },
@@ -2570,21 +2711,21 @@
         "to": "shown.maximised",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-130"
         ]
        },
        "shown.minimised": {
         "to": "shown.maximised",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-130"
         ]
        },
        "shown.maximised": {
         "to": "shown.normal",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-131"
         ]
        }
       },

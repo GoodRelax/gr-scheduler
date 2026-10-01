@@ -76,6 +76,9 @@
 | `screen/createdNameSettled` | 入力（作った直後の名前の `Enter`）: `FR-091` | — | `propertiesPanelContentStateMachine` |
 | `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
+| `screen/dialogueFieldMinimiseToggled` | 入力（対話欄の題の行の最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
+| `screen/dialogueFieldMaximiseToggled` | 入力（対話欄の題の行の最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
+| `screen/dialogueFieldClosePressed` | 入力（対話欄の閉じる入口）: `IC-52` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | 根 ・ `dualCursorModeStateMachine` |
 | `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
@@ -89,13 +92,13 @@
 | `screen/progressMarkerPressed` | 入力（進捗マーカーの押下）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
 | `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |
 | `screen/searchEntryPressed` | 入力: `IC-117` ・ `SK-24` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMinimiseToggled` | 入力: `IC-120` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMaximiseToggled` | 入力: `IC-121` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMinimiseToggled` | 入力（検索パネルの見出しの行の最小化の入口）: `IC-129` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMaximiseToggled` | 入力（検索パネルの見出しの行の最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `searchPanelDisplayStateMachine` |
 | `screen/searchPanelClosePressed` | 入力（検索パネルの閉じる入口）: `IC-52` | — | `searchPanelDisplayStateMachine` |
 | `screen/searchHitJumped` | 入力（検索の表の行を押して飛んだ）: `SJ-1` | — | `searchPanelDisplayStateMachine` |
 | `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
-| `screen/helpMinimiseToggled` | 入力: `IC-129` | — | `helpDisplayStateMachine` |
-| `screen/helpMaximiseToggled` | 入力: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
+| `screen/helpMinimiseToggled` | 入力（ヘルプの題の行の最小化の入口）: `IC-129` | — | `helpDisplayStateMachine` |
+| `screen/helpMaximiseToggled` | 入力（ヘルプの題の行の最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 | `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTaskUid` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
 
@@ -322,21 +325,39 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
-    direction LR
-    [*] --> dialogueFieldDisplayStateMachine_shown
-    dialogueFieldDisplayStateMachine_shown : shown
+    direction TB
+    [*] --> dialogueFieldDisplayStateMachine_hidden
     dialogueFieldDisplayStateMachine_hidden : hidden
-    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed
-    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
-    dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_shown : shown
+    state dialogueFieldDisplayStateMachine_shown {
+        [*] --> dialogueFieldDisplayStateMachine_shown_normal
+        dialogueFieldDisplayStateMachine_shown_normal : normal
+        dialogueFieldDisplayStateMachine_shown_minimised : minimised
+        dialogueFieldDisplayStateMachine_shown_maximised : maximised
+        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_minimised : dialogueFieldMinimiseToggled
+        dialogueFieldDisplayStateMachine_shown_minimised --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMinimiseToggled
+        dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_shown_minimised : dialogueFieldMinimiseToggled
+        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_maximised : dialogueFieldMaximiseToggled
+        dialogueFieldDisplayStateMachine_shown_minimised --> dialogueFieldDisplayStateMachine_shown_maximised : dialogueFieldMaximiseToggled
+        dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMaximiseToggled
+    }
+    dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed, dialogueFieldClosePressed
+    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
 ```
 
-| 出来事 | `shown` | `hidden` |
-| --- | --- | --- |
-| `screen/dialogueFieldEntryPressed` | → `hidden` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`]（欄は表示のまま。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）） | → `shown`（`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）） |
+| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| --- | --- | --- | --- | --- |
+| `screen/dialogueFieldEntryPressed` | → `shown.normal`（`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） |
+| `screen/dialogueFieldMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
+| `screen/dialogueFieldMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/dialogueFieldClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
 
-- `dialogueFieldDisplayStateMachine.shown` —— 初期。根拠 `S-99i`
-- `dialogueFieldDisplayStateMachine.hidden` —— 根拠 `S-99i` ・ `FR-066`
+- `dialogueFieldDisplayStateMachine.hidden` —— 初期。根拠 `S-99i` ・ `FR-066`
+- `dialogueFieldDisplayStateMachine.shown` —— 根拠 `S-99i` ・ `FR-066`
+- `dialogueFieldDisplayStateMachine.shown.normal` —— 初期。親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-1`
+- `dialogueFieldDisplayStateMachine.shown.minimised` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-2` ・ `IC-129`
+- `dialogueFieldDisplayStateMachine.shown.maximised` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-3` ・ `IC-130`
 
 表に無い出来事は `dialogueFieldDisplayStateMachine` を変えない（同じ参照）。
 
@@ -457,8 +478,8 @@ stateDiagram-v2
 - `searchPanelDisplayStateMachine.hidden` —— 初期。根拠 `S-442`
 - `searchPanelDisplayStateMachine.shown` —— 根拠 `S-442` ・ `FR-151`
 - `searchPanelDisplayStateMachine.shown.normal` —— 初期。親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-9`
-- `searchPanelDisplayStateMachine.shown.minimised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-12` ・ `IC-120`
-- `searchPanelDisplayStateMachine.shown.maximised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-13` ・ `IC-121`
+- `searchPanelDisplayStateMachine.shown.minimised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-12` ・ `IC-129`
+- `searchPanelDisplayStateMachine.shown.maximised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-13` ・ `IC-130`
 
 表に無い出来事は `searchPanelDisplayStateMachine` を変えない（同じ参照）。
 

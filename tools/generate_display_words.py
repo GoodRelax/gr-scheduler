@@ -265,15 +265,16 @@ ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
-# table T-233. The three words no table holds as rows -- the value list's
-# blank entry (SV-7), the name of a nameless task (SQ-1) and the label IC-121
-# carries while maximised (SV-13) -- are HELD HERE, the same move as
-# COLOUR_FIELD_PARTS. KEYS, not words.
+# table T-233. The two words no table holds as rows -- the value list's
+# blank entry (SV-7) and the name of a nameless task (SQ-1) -- are HELD HERE,
+# the same move as COLOUR_FIELD_PARTS. KEYS, not words. CR-621 retired the
+# third (the label IC-121 carried while maximised): the window title row draws
+# IC-131 in its place instead (table T-335).
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
-SEARCH_PANEL_PARTS = ('blank', 'noName', 'restore')
+SEARCH_PANEL_PARTS = ('blank', 'noName')
 
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.

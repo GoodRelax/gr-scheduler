@@ -497,7 +497,7 @@
 **Type**: SECTION
 
 **本表はアイコンの全数である**（`FR-029`）。  
-**123 行ある。**  
+**121 行ある。**  
 ⛔ 本表の `群` の欄は、入口を並べる順を決めるためだけに在る。  
 画面に刷ってはならない（MUST NOT） —— 規則と理由は `FR-053` が持つ。  
 ⭐ **図形は 図 F-019 が正であり、本表は図形を語で説明しない**（1.9）—— 語で書き取らない理由は `FR-029` が持つ。  
@@ -594,15 +594,12 @@
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | `S-66`（`'single-vertical'`） | — |
 | IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — | — |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない | `FR-078` | — | — |
-| IC-52 | `Help Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Calendar Editor` | — | 開いている面とプロパティパネルと検索パネルと遅延診断レポートを閉じる | 表 T-028 の `IN-4` | — | — |
+| IC-52 | `Help Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Calendar Editor` / `Dialogue Field` | — | 開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる | 表 T-028 の `IN-4` | — | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。<br>**ボタンではない** | `FR-053` | — | — |
 | IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — | — |
 | IC-102 | `Help Modal` | — | マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す | `FR-036` | — | — |
 | IC-128 | `Help Modal` | — | ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである | `FR-038` | — | — |
-| IC-129 | `Help Modal` | — | ウインドウを最小化し、同じ入口で戻す（`S-435`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
-| IC-130 | `Help Modal` | — | ウインドウを最大化する（`S-435`） | `FR-036` の 表 T-335 | — | — |
-| IC-131 | `Help Modal` | — | 最大化したウインドウを元のサイズに戻す（`S-435`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
 | IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` | — | — |
 | IC-59 | `Row Title Panel` | — | この行を隠す | 表 T-051 の `HF-3` | — | — |
 | IC-77 | `Row Title Panel` | — | 行の配下をすべて畳む | 表 T-051 の `HF-11` | — | — |
@@ -613,8 +610,9 @@
 | IC-106 | `Row Title Panel` | — | すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
 | IC-118 | `Search Panel` | — | タスクとマイルストーンの表を出す | `FR-151` | — | — |
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
-| IC-120 | `Search Panel` / `Delay Diagnostics Report` | — | パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである | `FR-151` | — | — |
-| IC-121 | `Search Panel` / `Delay Diagnostics Report` | — | パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」 | `FR-151` | — | — |
+| IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | ウインドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
+| IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | ウインドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`） | `FR-036` の 表 T-335 | — | — |
+| IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | 最大化したウインドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
 | IC-122 | `Search Panel` | — | 列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
 | IC-123 | `Search Panel` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-124 | `Search Panel` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |

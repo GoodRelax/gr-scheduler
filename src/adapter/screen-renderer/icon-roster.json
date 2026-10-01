@@ -767,10 +767,11 @@
     "Properties Panel",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Calendar Editor"
+    "Calendar Editor",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルと検索パネルと遅延診断レポートを閉じる",
+   "entryTo": "開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -827,39 +828,6 @@
    "group": null,
    "entryTo": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである",
    "authority": "`FR-038`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-129",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "ウインドウを最小化し、同じ入口で戻す（`S-435`）。<br>⭐ 図形は `IC-75` と同じである",
-   "authority": "`FR-036` の 表 T-335",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-130",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "ウインドウを最大化する（`S-435`）",
-   "authority": "`FR-036` の 表 T-335",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-131",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
-   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
@@ -974,26 +942,44 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-120",
+   "rowId": "IC-129",
    "surfaces": [
+    "Help Modal",
     "Search Panel",
-    "Delay Diagnostics Report"
+    "Delay Diagnostics Report",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである",
-   "authority": "`FR-151`",
+   "entryTo": "ウインドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
   {
-   "rowId": "IC-121",
+   "rowId": "IC-130",
    "surfaces": [
+    "Help Modal",
     "Search Panel",
-    "Delay Diagnostics Report"
+    "Delay Diagnostics Report",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」",
-   "authority": "`FR-151`",
+   "entryTo": "ウインドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`）",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-131",
+   "surfaces": [
+    "Help Modal",
+    "Search Panel",
+    "Delay Diagnostics Report",
+    "Dialogue Field"
+   ],
+   "group": null,
+   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },

@@ -205,8 +205,11 @@ export type ScreenValuesKey =
   | 'propertiesPanelContentStateMachine.hidden'
   | 'propertiesPanelContentStateMachine.selectionDisplayed'
   | 'propertiesPanelContentStateMachine.documentSettingsDisplayed'
-  | 'dialogueFieldDisplayStateMachine.shown'
   | 'dialogueFieldDisplayStateMachine.hidden'
+  | 'dialogueFieldDisplayStateMachine.shown'
+  | 'dialogueFieldDisplayStateMachine.shown.normal'
+  | 'dialogueFieldDisplayStateMachine.shown.minimised'
+  | 'dialogueFieldDisplayStateMachine.shown.maximised'
   | 'dualCursorModeStateMachine.off'
   | 'dualCursorModeStateMachine.on'
   | 'dualCursorModeStateMachine.on.placingDate1'
@@ -231,6 +234,11 @@ export type ScreenValuesKey =
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
   | { readonly kind: 'minimised' }
+
+export type DialogueFieldDisplayShownState =
+  | { readonly kind: 'normal' }
+  | { readonly kind: 'minimised' }
+  | { readonly kind: 'maximised' }
 
 export type DualCursorModeOnState =
   | { readonly kind: 'placingDate1' }
@@ -280,8 +288,8 @@ export type PropertiesPanelContentState =
   | { readonly kind: 'documentSettingsDisplayed' }
 
 export type DialogueFieldDisplayState =
-  | { readonly kind: 'shown' }
   | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState }
 
 export type DualCursorModeState =
   | { readonly kind: 'off' }
@@ -355,6 +363,9 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
+  | { readonly type: 'dialogueFieldMinimiseToggled' }
+  | { readonly type: 'dialogueFieldMaximiseToggled' }
+  | { readonly type: 'dialogueFieldClosePressed' }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
   | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
@@ -401,11 +412,13 @@ export type ScreenValuesEffectName =
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
+  readonly 'dialogueFieldDisplayStateMachine.shown': DialogueFieldDisplayShownState
   readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
   readonly 'searchPanelDisplayStateMachine.shown': SearchPanelDisplayShownState
   readonly 'helpDisplayStateMachine.shown': HelpDisplayShownState
 } = {
   'paletteDisplayStateMachine.shown': { kind: 'expanded' },
+  'dialogueFieldDisplayStateMachine.shown': { kind: 'normal' },
   'dualCursorModeStateMachine.on': { kind: 'placingDate1' },
   'searchPanelDisplayStateMachine.shown': { kind: 'normal' },
   'helpDisplayStateMachine.shown': { kind: 'normal' },
@@ -419,7 +432,7 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   openSurfaceState: { kind: 'closed' },
   watermarkDisplayState: { kind: 'shown' },
   propertiesPanelContentState: { kind: 'hidden' },
-  dialogueFieldDisplayState: { kind: 'shown' },
+  dialogueFieldDisplayState: { kind: 'hidden' },
   dualCursorModeState: { kind: 'off' },
   scaleMessageDisplayState: { kind: 'hidden' },
   tooltipDisplayState: { kind: 'allowed' },

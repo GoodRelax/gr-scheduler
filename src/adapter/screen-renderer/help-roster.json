@@ -532,11 +532,11 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-120",
+   "row": "IC-129",
    "keys": null,
    "press": null,
    "glyphs": [
-    "IC-120"
+    "IC-129"
    ],
    "note": null
   },
@@ -547,11 +547,26 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-121",
+   "row": "IC-130",
    "keys": null,
    "press": null,
    "glyphs": [
-    "IC-121"
+    "IC-130"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-131",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-131"
    ],
    "note": null
   },

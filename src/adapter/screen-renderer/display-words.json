@@ -816,39 +816,6 @@
    }
   },
   {
-   "rowId": "IC-129",
-   "label": {
-    "ja": "最小化",
-    "en": "Minimise"
-   },
-   "hint": {
-    "ja": "ウインドウを最小化する。もう一度押すと戻る",
-    "en": "Minimise the window; press again to restore"
-   }
-  },
-  {
-   "rowId": "IC-130",
-   "label": {
-    "ja": "最大化",
-    "en": "Maximise"
-   },
-   "hint": {
-    "ja": "ウインドウを最大化する",
-    "en": "Maximise the window"
-   }
-  },
-  {
-   "rowId": "IC-131",
-   "label": {
-    "ja": "元のサイズに戻す",
-    "en": "Restore"
-   },
-   "hint": {
-    "ja": "最大化したウインドウを元のサイズに戻す",
-    "en": "Restore the window to its size"
-   }
-  },
-  {
    "rowId": "IC-58",
    "label": {
     "ja": "すべて開く",
@@ -959,25 +926,36 @@
    }
   },
   {
-   "rowId": "IC-120",
+   "rowId": "IC-129",
    "label": {
     "ja": "最小化",
     "en": "Minimise"
    },
    "hint": {
-    "ja": "パネルを最小化する。もう一度押すと戻る",
-    "en": "Minimise the panel; press again to restore it"
+    "ja": "ウインドウを最小化する。もう一度押すと戻る",
+    "en": "Minimise the window; press again to restore"
    }
   },
   {
-   "rowId": "IC-121",
+   "rowId": "IC-130",
    "label": {
     "ja": "最大化",
     "en": "Maximise"
    },
    "hint": {
-    "ja": "パネルを最大化する。もう一度押すと元のサイズに戻る",
-    "en": "Maximise the panel; press again to restore its size"
+    "ja": "ウインドウを最大化する",
+    "en": "Maximise the window"
+   }
+  },
+  {
+   "rowId": "IC-131",
+   "label": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
+   },
+   "hint": {
+    "ja": "最大化したウインドウを元のサイズに戻す",
+    "en": "Restore the window to its size"
    }
   },
   {
@@ -2883,6 +2861,13 @@
    "heading": {
     "ja": "暦",
     "en": "Working calendar"
+   }
+  },
+  {
+   "name": "Dialogue Field",
+   "heading": {
+    "ja": "対話欄",
+    "en": "Dialogue Field"
    }
   }
  ],
@@ -4806,13 +4791,6 @@
    "text": {
     "ja": "（名前なし）",
     "en": "(No name)"
-   }
-  },
-  {
-   "part": "restore",
-   "text": {
-    "ja": "元のサイズに戻す",
-    "en": "Restore"
    }
   }
  ]
