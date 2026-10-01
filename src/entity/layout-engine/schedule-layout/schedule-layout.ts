@@ -607,7 +607,7 @@ export function layoutFromSchedule(
         width: item.width,
         planEndsStandOnOneDay: item.oneDay,
         ...placedFadeOf(item.task, item.fade),
-        y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings, item.outline) + labelLiftOf(item.kind, settings),
+        y: tops[lane]! + drawnEdgeOverhangOf(item.kind, item.outline) + labelLiftOf(item.kind, settings),
         outlineWidth: item.outline,
         height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),

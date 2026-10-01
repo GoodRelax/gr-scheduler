@@ -47,11 +47,7 @@ export function outlineWidthOf(strokeWidthPx: number | null | undefined, setting
 
 // see VG-5
 /** @purity pure */
-export function drawnEdgeOverhangOf(
-  shapeKind: ShapeKind,
-  settings: DrawnSettings,
-  outlineWidth: number = settings.planStroke,
-): number {
+export function drawnEdgeOverhangOf(shapeKind: ShapeKind, outlineWidth: number): number {
   return laidBelow(shapeKind) ? 0 : outlineWidth / 2
 }
 
@@ -61,7 +57,7 @@ export function drawnExtentOf(
   settings: DrawnSettings,
   outlineWidth: number = settings.planStroke,
 ): number {
-  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, settings, outlineWidth) * 2
+  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, outlineWidth) * 2
 }
 
 /** @purity pure */

@@ -733,3 +733,5 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-disciplin
 | E-15 | `docs/spec/_source/state-machines.json` | `:4880-4889` | 1 |
 | E-16 | `docs/spec/05-07-design.md` | `:495` | 1 |
 | E-17 | `docs/spec/_source/row-id-prefixes.json` | `:1483-1489` | 1 |
+
+⭐ 後の手当て（2026-10-02、枝 `lane-panel`、`JDG-1116` と同じ回）: `FR-153` の起点のユニットを 表 T-075 の `UF-159`（`OW-1`）に書いた。`05-07-design.md` の 5.3 の結びの数を 131 → 132（`FR` 118 → 119）、名指す 107 → 108 に直した —— `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` が緑に戻る。`DFC-1677` を閉じた

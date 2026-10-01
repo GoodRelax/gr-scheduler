@@ -228,7 +228,3 @@ why: private in Schedule; EditDocument->Schedule is declared, so one T-064 row a
 copy | beginTaskActual.planStart :: the plan start day itself where schedule layout ts and
 twin: src/entity/layout-engine/schedule-geometry/task-figures.ts#dummyFromOf (and schedule-layout.ts#dummyReachOf)
 why: the plan start day as the dummy day at three sites; both twins private; EditDocument->ScheduleLayout is declared, no EditDocument->ScheduleGeometry edge.
-
-copy | isFoundBy :: the comparison of issearchwordfound schedule search ts change both
-twin: src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound
-why: AS-5 bids the assignee combo compare as SV-4 does; isSearchWordFound is not published by Schedule's entry (no T-064 row) though ScreenRenderer->Schedule is declared, so a T-064 row and an import fold it. Registered 2026-10-02 under JDG-520 (lane-panel).

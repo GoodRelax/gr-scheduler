@@ -92,7 +92,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            33, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            42, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -123,7 +123,13 @@ EXEMPT = {
                 'leave from the user (JDG-745). '
                 '⭐ 32 -> 33 on 2026-09-26: wave W4b of cr-organise -- '
                 'CR-563 adds PR-33, one more token of the same closed enum '
-                '(JDG-745).'),
+                '(JDG-745). '
+                '⭐ 33 -> 42 on 2026-10-02: CR-606 adds PR-34..PR-44 (the '
+                'milestone dates, predecessors / successors, outline colour '
+                'and width, and the Dependency rows), drawn from the same '
+                'closed enum with read-only / one-input qualifiers; raised '
+                'with leave from the user (JDG-1115). Lower it again once '
+                'the qualifiers move to the dictionary (DFC-1676).'),
     },
 }
 

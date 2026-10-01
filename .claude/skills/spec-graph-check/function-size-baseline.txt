@@ -79,7 +79,6 @@ HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=57 br
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=78 branches=22
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
-HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=62 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=77 branches=13
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=117 branches=21
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45

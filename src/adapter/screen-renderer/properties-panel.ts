@@ -16,6 +16,7 @@ import {
   customColourOf,
   customSideOf,
   dayOf,
+  isSearchWordFound,
   taskByUid,
   textOfDay,
   workingCalendarOf,
@@ -521,14 +522,6 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Assigne
   return { ...held, candidatesOf: (typed, isDescending) => assigneeCandidatesOf(held, typed, isDescending) }
 }
 
-// see SV-4
-// TRAP: the comparison of isSearchWordFound (schedule-search.ts); change both.
-/** @purity pure */
-function isFoundBy(name: string, typed: string): boolean {
-  const comparable = (text: string): string => text.normalize('NFKC').toLowerCase()
-  return comparable(name).includes(comparable(typed))
-}
-
 // see AS-5, AS-3, SV-4, IC-123, IC-124
 // WHY: an empty text adds no one: the add item names the person it makes (AS-7).
 /** @purity pure */
@@ -537,7 +530,7 @@ export function assigneeCandidatesOf(
   typed: string,
   isDescending: boolean,
 ): readonly AssigneeCandidate[] {
-  const found = combo.people.filter((one) => isFoundBy(one.name, typed))
+  const found = combo.people.filter((one) => isSearchWordFound(one.name, typed))
   const ordered = isDescending
     ? [...found].sort((a, b) => (a.name === b.name ? a.uid - b.uid : a.name < b.name ? 1 : -1))
     : found

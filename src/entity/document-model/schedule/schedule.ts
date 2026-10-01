@@ -73,7 +73,7 @@ export type { CustomColour } from './stored-colour'
 export { scheduleViolations } from './schedule-invariants'
 export type { InvariantKind, ScheduleViolation } from './schedule-invariants'
 export { rowNameOf } from './row-names'
-export { searchRowsOf } from './schedule-search'
+export { isSearchWordFound, searchRowsOf } from './schedule-search'
 export type { CommentBoxSearchRow, SearchRows, TaskSearchRow } from './schedule-search'
 
 /** @purity pure */
