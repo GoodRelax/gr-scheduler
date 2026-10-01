@@ -3225,6 +3225,17 @@
    }
   },
   {
+   "rowId": "RS-67",
+   "text": {
+    "ja": "このファイルは GRS で開ける .html ではありません",
+    "en": "This file is not an .html that GRS can open"
+   },
+   "nextStep": {
+    "ja": "GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください",
+    "en": "Check that it was written out from the GRS header, or where the file came from"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

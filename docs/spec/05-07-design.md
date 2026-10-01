@@ -480,7 +480,7 @@ src/
 | UF-154 | `DocumentCodec` | `mspdi-child-placement.ts` | `pure` | 書き出す要素の子を、交換相手のスキーマの `xsd:sequence` の順に置く（`EX-10`） —— 持ち回った子を届いた順で戻し、宣言の無い子を宣言された隣に付ける。<br>順の名簿（`pj15` だけが宣言する子の印を含む）を `mspdi-child-order.json` から持ち、`xsd:all` の親と名簿に無い親の子は届いた順に置く | — |
 | UF-155 | `DocumentCodec` | `mspdi-fade-frames.ts` | `pure` | フェード日数を、`MSPDI` の拡張領域の枠と相互に写す（`EX-6`・`EX-8`） —— 枠の定義を 1 度だけ書く。<br>名簿（`mspdi-custom-fields.json`）の順に使われていない枠を探し、取込元の枠を上書きせず、書けなければ告げ、読むときは `Alias` で名乗った枠だけを取る | — |
 | UF-156 | `DocumentCodec` | `mspdi-imported-rows.ts` | `pure` | 取り込んだタスクの WBS の木から、行と所属を作る（`FR-058`）。<br>子を持たないタスクには行を作らず親の行へ載せ、`maxGroupDepth` の深さで止めて、深いタスクは最も深い祖先の行へ載せ、行の ID をタスクの UID から作る（`AT-51`） | — |
-| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出し | `FR-067`（`OW-2`） |
+| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出しと、埋め込まれた文書の取り出し | `FR-067`（`OW-2`） |
 | UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） | — |
 | UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り | `FR-025`（`OW-2`） |
 | UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） | — |

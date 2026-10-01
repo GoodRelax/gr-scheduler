@@ -111,7 +111,7 @@ BANNER = (
     'the row is not a file at all: table %s writes an em dash there, and such a '
     'row is not a format a file may be read AS. A format is carried by '
     'its row id alone -- the table has no English column, and the names this '
-    'build uses for the two readable ones are bound to those row ids in '
+    'build uses for the readable ones are bound to those row ids in '
     'document-codec.ts.'
     % (REL_SOURCE, TABLE, REL_SELF, TABLE))
 
@@ -220,17 +220,22 @@ def build():
     if not judged:
         sys.exit('generate_exchange_formats: no row of table %s carries the two '
                  'columns OP-12 compares, so nothing could be judged' % TABLE)
-    # ⛔ OP-12 reads a file as the row BOTH sides match. Two rows sharing a
-    # side would make that row ambiguous, and the ambiguity would show up as a
-    # file opened as the wrong format rather than as a failure. ⚠️ Asked of the
-    # rows that carry values only: the rows that only go out are all null on
-    # both sides, and null is not a side anything is compared against.
-    for key, what in (('extension', 'extension'),
-                      ('firstCharacter', 'first non-blank character')):
-        seen = [f[key] for f in judged]
-        if len(set(seen)) != len(seen):
-            sys.exit('generate_exchange_formats: two rows of table %s share a '
-                     '%s, so OP-12 could not name one row' % (TABLE, what))
+    # ⛔ OP-12 reads a file as the row BOTH sides match, so what has to name
+    # one row is the PAIR (extension, first non-blank character) -- two rows
+    # wearing one pair would make the file ambiguous, and the ambiguity would
+    # show up as a file opened as the wrong format rather than as a failure.
+    # ⚠️ One column alone is NOT asked to be unique: IO-1 and IO-7 both open
+    # with `<`, and their extensions tell them apart (the note under table
+    # T-024; DFC-1427). The extension check below is stronger still, so the
+    # pair check is what states OP-12 and the one below what states FR-096.
+    # ⚠️ Asked of the rows that carry values only: the rows that only go out
+    # are all null on both sides, and null is not a side anything is compared
+    # against.
+    pairs = [(f['extension'], f['firstCharacter']) for f in judged]
+    if len(set(pairs)) != len(pairs):
+        sys.exit('generate_exchange_formats: two rows of table %s share an '
+                 'extension and a first non-blank character, so OP-12 could '
+                 'not name one row' % TABLE)
     # ⛔ And no two rows may share an extension at all, judged or not: FR-096
     # (MUST) suggests the document name with the chosen row extension, and two
     # rows wearing one extension would put the same suggested name on two
