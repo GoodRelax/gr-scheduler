@@ -398,6 +398,13 @@ function boot(): void {
   let rowControlsHeightPx = 0
   let commandPaletteBandPx = { width: 0, height: 0 }
   let loop: FrameLoop | null = null
+  // WHY: the reset's question (QN-11) named what is lost; a host prompt would keep the old page (FR-153).
+  let isLeavingForReset = false
+  /** @purity non-pure */
+  const reloadAfterReset = (): void => {
+    isLeavingForReset = true
+    window.location.reload()
+  }
   const nowEnvironment = (): FrameEnvironment =>
     environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx, commandPaletteBandPx)
 
@@ -551,6 +558,7 @@ function boot(): void {
     appShellSource(),
     template,
     pageFullScreenHost(),
+    reloadAfterReset,
   )
   loop = running
   running.fullScreenChanged(isPageFullScreen())
@@ -582,7 +590,7 @@ function boot(): void {
 
   // WHY: returnValue too, because older browsers of table T-003 gate the prompt on it.
   window.addEventListener('beforeunload', (event) => {
-    if (loop?.hasUnsavedEdits() !== true) return
+    if (isLeavingForReset || loop?.hasUnsavedEdits() !== true) return
     event.preventDefault()
     event.returnValue = ''
   })

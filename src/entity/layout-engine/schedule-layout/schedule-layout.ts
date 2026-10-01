@@ -49,6 +49,7 @@ import {
   labelLiftOf,
   laidBelow,
   markerDiameterOf,
+  outlineWidthOf,
   planHeightOf,
   shapeHeightOf,
 } from './shape-cross-sections'
@@ -130,6 +131,9 @@ export interface TaskPlacement {
   readonly occupiedX1: number
   // see DA-4
   readonly deadlineX: number | null
+  // see AT-104, VG-5
+  // WHY: optional, so a placement built without it still lays out; absent reads S-39 (outlineWidthOf).
+  readonly outlineWidth?: number
 }
 
 export interface RowPlacement {
@@ -455,7 +459,7 @@ export function layoutFromSchedule(
         const span = spanWidthOf(task, pxPerDay, reader)
         const glyph = milestoneGlyphOf(visualByUid, task)
         const oneDay = planEndsStandOnOneDay(task, reader)
-        return { task, kind, glyph, span, oneDay, width: shapeWidthOf(span, kind, settings) }
+        return { task, kind, glyph, span, oneDay, outline: outlineWidthOf(visualByUid.get(task.uid)?.strokeWidthPx, settings), width: shapeWidthOf(span, kind, settings) }
       })
       .sort(
         (a, b) =>
@@ -468,7 +472,7 @@ export function layoutFromSchedule(
     const laneMaxX1: number[] = []
     const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = drawnTasks.map(({ task, kind, glyph, oneDay, width }) => {
+    const measured = drawnTasks.map(({ task, kind, glyph, oneDay, outline, width }) => {
       const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
@@ -532,7 +536,7 @@ export function layoutFromSchedule(
       const labelled = { x0: assigneeAnchor - outsideWidth, x1: labelledX1 }
       // WHY: OC-8 is not counted yet: its mark is not drawn (MS-4).
       const occupied = occupiedSpanOf(labelled, spread, deadlineX, markerDiameter)
-      return { task, kind, glyph, oneDay, x, width, named, font, placement, actual, labelX,
+      return { task, kind, glyph, oneDay, outline, x, width, named, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
                occupiedX0: occupied.x0, occupiedX1: occupied.x1, markerAnchorX, text, deadlineX }
     })
@@ -572,7 +576,7 @@ export function layoutFromSchedule(
     // TRAP: no Math.max(...lane): spreading a huge lane throws RangeError.
     const laneHeights = lanes.map(() => 0)
     measured.forEach((item, index) => {
-      const reserved = drawnExtentOf(item.kind, settings)
+      const reserved = drawnExtentOf(item.kind, settings, item.outline)
       const lane = laneOf[index]!
       if (reserved > laneHeights[lane]!) laneHeights[lane] = reserved
     })
@@ -603,7 +607,8 @@ export function layoutFromSchedule(
         width: item.width,
         planEndsStandOnOneDay: item.oneDay,
         ...placedFadeOf(item.task, item.fade),
-        y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings) + labelLiftOf(item.kind, settings),
+        y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings, item.outline) + labelLiftOf(item.kind, settings),
+        outlineWidth: item.outline,
         height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),
         actualPlacement: actualPlacementOf(item.kind),

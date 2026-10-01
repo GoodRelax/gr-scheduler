@@ -352,7 +352,7 @@ const unchosenVisual = (uid: number): unknown => ({
   milestoneGlyph: null,
   fillColor: null,
   strokeColor: null,
-  lineWeight: null,
+  strokeWidthPx: null,
 })
 
 /** ⛔ NOTHING SELECTED and no Task at all -- SP-1's premise (FR-083). */

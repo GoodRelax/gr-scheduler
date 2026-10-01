@@ -44,9 +44,13 @@ const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).fil
 const RED = bare(rowIn('T-294', 'S-318').cells[1] ?? '')
 const colourWord = (spelling: string): string => WORDS.colourNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 // see T-016
-const LINE_ROW = specTable('T-016').rows.find(
-  (row) => bare(row.by['対象'] ?? '') === 'Task' && (row.by['列（`GRS JSON`）'] ?? '').includes('`strokeColor`'),
-)?.id ?? ''
+// WHY: the Task line and fill colours are two rows, found by the column each edits.
+const taskRowOf = (column: string): string =>
+  specTable('T-016').rows.find(
+    (row) => bare(row.by['対象'] ?? '') === 'Task' && (row.by['列（`GRS JSON`）'] ?? '').includes(`\`${column}\``),
+  )?.id ?? ''
+const LINE_ROW = taskRowOf('strokeColor')
+const FILL_ROW = taskRowOf('fillColor')
 const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -134,7 +138,7 @@ function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
     milestoneGlyph: null,
     fillColor: name,
     strokeColor: name,
-    lineWeight: null,
+    strokeWidthPx: null,
     ...(index === 0 ? first : {}),
   }))
   return document
@@ -190,24 +194,27 @@ function drawnPaint(built: Bench, uid: number, name: 'fill' | 'stroke'): string 
   return new RegExp(`\\b${name}="([^"]+)"`).exec(plan)?.[1] ?? ''
 }
 
-const panelNodes = (built: Bench): FakeElement[] => {
+const panelNodes = (built: Bench, row: string): FakeElement[] => {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
   if (panel === undefined) return []
-  return [...new Set(selfAndDescendants(panel).filter((one) => one.getAttribute('data-field-row') === LINE_ROW).flatMap((one) => selfAndDescendants(one)))]
+  return [...new Set(selfAndDescendants(panel).filter((one) => one.getAttribute('data-field-row') === row).flatMap((one) => selfAndDescendants(one)))]
 }
-// see T-016, PR-12
-const palettes = (built: Bench): FakeElement[] => panelNodes(built).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
+// see T-016, CV-9
+const palettes = (built: Bench, row: string): FakeElement[] =>
+  panelNodes(built, row).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
 const groundOf = (node: FakeElement): string => styleMap(node).get('background-color') ?? styleMap(node).get('background') ?? ''
-const sideSwatches = (built: Bench): FakeElement[] => panelNodes(built).filter((one) => one.getAttribute('data-colour-swatch') !== null)
-const sidesText = (built: Bench): string =>
-  panelNodes(built)
+const sideSwatches = (built: Bench, row: string): FakeElement[] =>
+  panelNodes(built, row).filter((one) => one.getAttribute('data-colour-swatch') !== null)
+const sidesText = (built: Bench, row: string): string =>
+  panelNodes(built, row)
     .filter((one) => one.getAttribute('data-colour-sides') !== null)
     .map((one) => selfAndDescendants(one).map((node) => (node.children.length === 0 ? node.textContent ?? '' : '')).join(''))
     .join(' | ')
 
 function namesPaintedAsDrawn(built: Bench): string[] {
-  const [line, fill] = palettes(built)
-  if (line === undefined || fill === undefined) throw new Error('the line colour field lays out no two palettes')
+  const [line] = palettes(built, LINE_ROW)
+  const [fill] = palettes(built, FILL_ROW)
+  if (line === undefined || fill === undefined) throw new Error('the line and fill colour fields lay out no palette each')
   const wrong: string[] = []
   NAMED.forEach((name, index) => {
     for (const [grid, paint] of [
@@ -248,17 +255,17 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     // see CV-9, CV-7, S-74
     const light = panelOnTask(documentOf(true), 'light')
     const dark = bench(documentOf(true), 'dark')
-    const [lightSide, darkSide] = sideSwatches(light).slice(2, 4)
+    const [lightSide, darkSide] = sideSwatches(light, FILL_ROW).slice(0, 2)
     expect(sameColour(groundOf(lightSide as FakeElement), drawnPaint(light, 1, 'fill')), 'the light side').toBe(true)
     expect(sameColour(groundOf(darkSide as FakeElement), drawnPaint(dark, 1, 'fill')), 'the dark side').toBe(true)
-    expect(sidesText(light)).toContain(colourWord(NAMED[0] as string))
+    expect(sidesText(light, FILL_ROW)).toContain(colourWord(NAMED[0] as string))
   })
 
   it('CV-9: with S-74 on, a custom colour keeps its uppercase hex in the words while its swatch turns grey', () => {
     // see CV-9, CV-7
     const built = panelOnTask(documentOf(true, { fillColor: '#c0504d/' }), 'light')
-    expect(sidesText(built)).toContain('#C0504D')
-    const fillLight = sideSwatches(built)[2] as FakeElement
+    expect(sidesText(built, FILL_ROW)).toContain('#C0504D')
+    const fillLight = sideSwatches(built, FILL_ROW)[0] as FakeElement
     expect(isGrey(groundOf(fillLight)), groundOf(fillLight)).toBe(true)
     expect(sameColour(groundOf(fillLight), drawnPaint(built, 1, 'fill'))).toBe(true)
   })
@@ -276,7 +283,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     // see CV-9
     const style = (mono: boolean): string[] => {
       const built = panelOnTask(documentOf(mono, { fillColor: '#c0504d/', strokeColor: TRANSPARENT }), 'light')
-      return sideSwatches(built).map((one) => {
+      return [...sideSwatches(built, LINE_ROW), ...sideSwatches(built, FILL_ROW)].map((one) => {
         const held = styleMap(one)
         return `${held.get('background') ?? ''}|${held.get('border') ?? ''}`
       })

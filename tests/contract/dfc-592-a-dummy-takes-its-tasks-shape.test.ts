@@ -85,7 +85,7 @@ const visualOf = (shapeKind: string): TaskVisual =>
     milestoneGlyph: null,
     fillColor: null,
     strokeColor: null,
-    lineWeight: null,
+    strokeWidthPx: null,
   }) as unknown as TaskVisual
 
 const scheduleOf = (one: Task, shapeKind: string): Schedule =>

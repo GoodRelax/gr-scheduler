@@ -113,7 +113,7 @@ const rootShowing = (showing: 'selection' | 'documentSettings'): ScreenSession =
     propertiesPanelContentState:
       showing === 'selection'
         ? { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } }
-        : { kind: 'documentSettingsDisplayed', returnSubject: null },
+        : { kind: 'documentSettingsDisplayed' },
   },
 })
 
@@ -144,7 +144,7 @@ const ONE_TASK = {
   taskVisuals: [
     {
       taskUid: THE_TASK, shapeKind: null,
-      milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null,
+      milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null,
     } as unknown as TaskVisual,
   ],
   commentBoxes: [],
@@ -275,12 +275,24 @@ describe('DFC-587 help title row: the entrances drawn on it', () => {
   })
 })
 
+// WHY: IC-123 / IC-124 head the open assignee list (AS-5); IC-139 heads the settings face only
+// (FR-153), so neither stands on both faces.
+const NOT_ON_THE_FACE: Readonly<Record<'selection' | 'documentSettings', readonly string[]>> = {
+  selection: ['IC-123', 'IC-124', 'IC-139'],
+  documentSettings: ['IC-123', 'IC-124'],
+}
+
+/** @purity pure */
+function rowsOnTheFace(showing: 'selection' | 'documentSettings'): readonly string[] {
+  return PANEL_ROWS.filter((row) => !NOT_ON_THE_FACE[showing].includes(row))
+}
+
 describe('DFC-587 Properties Panel: the entrances drawn on it', () => {
   it('FR-029 (MUST): アイコンの名簿と置き場は `_assets/tbl-glossary.md` の 表 T-109 に、各アイコンの図形は同書の 図 F-019 に従うこと（MUST）', () => {
     for (const showing of ['selection', 'documentSettings'] as const) {
       const panel = drawnPanel(showing)
       const entrances = entrancesIn(panel)
-      for (const row of PANEL_ROWS) expect(entrances, `${showing} ${row}: ${whatWasDrawn(panel)}`).toContain(row)
+      for (const row of rowsOnTheFace(showing)) expect(entrances, `${showing} ${row}: ${whatWasDrawn(panel)}`).toContain(row)
     }
   })
 
@@ -288,9 +300,17 @@ describe('DFC-587 Properties Panel: the entrances drawn on it', () => {
     for (const showing of ['selection', 'documentSettings'] as const) {
       const panel = drawnPanel(showing)
       const entrances = entrancesIn(panel)
-      for (const row of PANEL_ROWS) {
+      for (const row of rowsOnTheFace(showing)) {
         expect(entrances.filter((one) => one === row).length, `${showing} ${row}: ${whatWasDrawn(panel)}`).toBe(1)
       }
     }
+  })
+
+  it('FR-153: IC-139 is placed on the panel, drawn once on the settings face and not on the selection face', () => {
+    expect(PANEL_ROWS).toContain('IC-139')
+    const settings = drawnPanel('documentSettings')
+    expect(entrancesIn(settings).filter((one) => one === 'IC-139'), whatWasDrawn(settings)).toEqual(['IC-139'])
+    const selection = drawnPanel('selection')
+    expect(entrancesIn(selection), whatWasDrawn(selection)).not.toContain('IC-139')
   })
 })

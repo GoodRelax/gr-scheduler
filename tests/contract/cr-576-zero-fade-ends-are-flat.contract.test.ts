@@ -166,7 +166,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
     ],
     taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }] as unknown as readonly TaskGroupMember[],
     taskVisuals: [
-      { taskUid: 1, shapeKind, milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null } as unknown as TaskVisual,
+      { taskUid: 1, shapeKind, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null } as unknown as TaskVisual,
     ],
     commentBoxes: [],
     highlightBoxes: [],

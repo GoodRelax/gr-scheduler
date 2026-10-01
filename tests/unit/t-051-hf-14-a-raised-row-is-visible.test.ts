@@ -1,42 +1,8 @@
 // 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03 / 2026-09-04) -- the promise
 // this file is written for is HF-14's OWN summary of it: 「立てた行は見える」.
 //
-// ⭐⭐ HF-14 states this promise as TWO HALVES, and this file carries BOTH:
-//
-//   HALF 1 (詳しさの段, ruled 2026-09-03) --
-//     「**立てた行が、現に描かれている詳しさの段（`FR-018`）で落ちる深さになるとき
-//     は、その行が描かれるまで詳しさの段を開くこと（MUST）** —— **表示位置を送るだ
-//     けで済ませてはならない（MUST NOT）。**」
-//     「**これは `HF-17` の「行が見える位置まで送ること（MUST）」と同じ 1 つの約束
-//     である** —— **送っても、詳しさが落とした行は現れない。**」
-//
-//   HALF 2 (畳み, ruled 2026-09-04, DFC-251 「提案通りに進めよ。ただし開くのは押した親の
-//     1つだけ。」) --
-//     「**立てた行が、人が畳んだ親の下に入るときは、その親を開くこと（MUST）**
-//     —— **開いてよいのは押した親 1 つだけである。その先祖まで開いてはならない
-//     （MUST NOT）。**」
-//
-//   THE ROW ITSELF TIES THE TWO TOGETHER: 「**上の詳しさの段と合わせて、約束は
-//   1 つである** —— **立てた行は見える。**」「**`HF-7` の畳みは人が自分でしたこと
-//   なので、製品が動かすのはこの 1 つの場合に限る。**」 -- 表 T-051 の `HF-7`:
-//   「人が畳んだ状態は、表示量の増減（`FR-018`）より優先する。人の指定を倍率が
-//   上書きしてはならない（MUST NOT）」. HF-14 is the ONE case where a product
-//   action is allowed to touch a human fold at all, and only the one it just
-//   created a row under.
-//
-// ⭐ HF-14 is published for at 表 T-064's `PI-5` (docs/spec/05-07-design.md):
-// `groupDepthLimit`（いまの詳しさの段が描く最も深い段。`FR-018`）／
-// `groupDepthThresholdOf`（その段を描くのに要る倍率。`FR-018`）—— 「2 つとも
-// 表 T-051 の `HF-14` のために公開した…行を立てる側が、立てる前に落ちるかどうか
-// を問えなければならない」. ⛔ THIS FILE CALLS `groupDepthThresholdOf` NOWHERE:
-// no existing test drives it, so its call convention is unestablished and
-// guessing one would be exactly the "こうだろう" this body must not write.
-// `groupDepthLimit(settings)` IS already driven by tests/unit/layout-engine.
-// test.ts (`groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 1 }))`), so
-// this file drives the SAME one-argument function the same way and reads the
-// OUTCOME through it -- which is all HF-14 promises: that the tier a widened
-// zoomY draws through actually reaches the new row's depth, not by which
-// setting carried the widening.
+// WHY: HF-14 shows a raised row by tree state alone (AT-153, T-328, TD-6 / TD-7), never by
+// rewriting zoomY; groupDepthLimit only proves the raised row lies past the drawn tier.
 //
 // ---------------------------------------------------------------------------
 // Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
@@ -90,9 +56,8 @@
 //      `UN-8`-excluded one: two separate writes, ordered, only one counted
 //      ("全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）…①
 //      倍率と表示位置を置く（`UN-8` により段を積まない）② 畳んだ行をすべて開
-//      く（`UN-17` により段を 1 つ積む）"). Whether HF-14's row-add follows
-//      that SAME split (so undoing the add leaves the widened `zoomY` in
-//      place, the way `UN-8` promises for every other zoom change) is never
+//      く（`UN-17` により段を 1 つ積む）"). Whether HF-14's row-add and the
+//      parent's open share one step is never
 //      stated by 表 T-051's `HF-14` itself, and no other row was found that
 //      says it either. ⛔ PER THE BRIEF THIS FILE WAS WRITTEN TO, THAT SILENCE
 //      MEANS NO CASE HERE ASSERTS AN UNDO STEP COUNT FOR EITHER HALF. The
@@ -452,34 +417,29 @@ describe('the manuscript still says what these cases read', () => {
     expect(GROUP_LOD_BASE).toBeGreaterThan(0)
   })
 
-  it('⛔⛔ HF-14 half 1 still requires opening the detail tier, not just sending position', () => {
-    expect(says('T-051', 'HF-14')).toContain(
-      '立てた行が、現に描かれている詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれるまで詳しさの段を開くこと（MUST）',
-    )
+  it('⛔⛔ HF-14 keeps the raised row visible by the tree state, never by rewriting the vertical zoom', () => {
+    expect(says('T-051', 'HF-14')).toContain('立てた行は見える（MUST）')
+    expect(says('T-051', 'HF-14')).toContain('`AT-153` のとおり `temporarilyExpanded` で立ち')
+    expect(says('T-051', 'HF-14')).toContain('`auto` か `collapsed` なら `temporarilyExpanded` になる')
+    expect(says('T-051', 'HF-14')).toContain('いまの倍率のまま、立てた行とその兄弟とその祖先を描く')
+    expect(says('T-051', 'HF-14')).toContain('そのために縦の倍率を書き換えてはならない（MUST NOT）')
     expect(says('T-051', 'HF-14')).toContain('表示位置を送るだけで済ませてはならない（MUST NOT）')
     expect(says('T-051', 'HF-14')).toContain(
       'これは `HF-17` の「行が見える位置まで送ること（MUST）」と同じ 1 つの約束である',
     )
-    expect(says('T-051', 'HF-14')).toContain('送っても、詳しさが落とした行は現れない')
   })
 
-  it('⛔⛔ HF-14 half 2 still opens only the one parent that was pressed', () => {
-    expect(says('T-051', 'HF-14')).toContain(
-      '立てた行が、人が畳んだ親の下に入るときは、その親を開くこと（MUST）',
-    )
-    expect(says('T-051', 'HF-14')).toContain(
-      '開いてよいのは押した親 1 つだけである。その先祖まで開いてはならない（MUST NOT）',
-    )
+  it('⛔⛔ HF-14 still opens only the one parent that was pressed', () => {
+    expect(says('T-051', 'HF-14')).toContain('開いてよいのは押した親 1 つだけである')
+    expect(says('T-051', 'HF-14')).toContain('その先祖を書き換えてはならない（MUST NOT）')
   })
 
-  it('⭐ HF-14 states the two halves as one promise, and scopes it against HF-7', () => {
-    expect(says('T-051', 'HF-14')).toContain('上の詳しさの段と合わせて、約束は 1 つである')
-    expect(says('T-051', 'HF-14')).toContain('立てた行は見える')
+  it('⭐ HF-14 scopes its open against HF-7, and HF-7 lets an added row outrank the zoom', () => {
     expect(says('T-051', 'HF-14')).toContain(
-      '`HF-7` の畳みは人が自分でしたことなので、製品が動かすのはこの 1 つの場合に限る',
+      '`HF-7` の畳みは人が自分でしたことなので、製品が動かすのは押した親の畳みを開くこの 1 つの場合に限る',
     )
-    // 表 T-051's own HF-7, which HF-14 names as the rule it is allowed past.
     expect(says('T-051', 'HF-7')).toContain('人が畳んだ状態は、表示量の増減（`FR-018`）より優先する')
+    expect(says('T-051', 'HF-7')).toContain('人が足した行（`HF-14`）も、表示量の増減より優先する')
   })
 
   it('⭐ FR-018 still gives the group-LOD formula this file computes its zoomY from', () => {
@@ -530,18 +490,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-// ===========================================================================
-// HALF 1 (MUST): the drawn detail tier (`FR-018`) widens until the raised row
-// is drawn. ⛔ (MUST NOT): sending display position is not enough on its own
-// -- which this file reads as: the row is not visible merely because it was
-// scrolled to, but because the tier that decides WHETHER it is computed at
-// all now reaches its depth. `groupDepthLimit` is exactly that computed
-// reach (表 T-064's `PI-5`), so it is asked directly rather than inferred
-// from a scroll position this file never sets.
-// ===========================================================================
-
-describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until the raised row is drawn', () => {
-  it('⛔⛔ a child raised past the currently-drawn tier is drawn, and the tier now reaches its depth', () => {
+describe('表 T-051 HF-14 (MUST): a row raised past the drawn tier is drawn at the same zoom', () => {
+  it('⛔⛔ a child raised past the currently-drawn tier is drawn, both rows become temporarilyExpanded, and zoomY is unchanged', () => {
     // ⭐ Two levels, neither collapsed, so the ONLY obstacle in this case is
     // FR-018's group LOD: depth 1 root, depth 2 pressed row.
     const root = uuidOf(1)
@@ -572,25 +522,23 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
       pressed,
     )
 
-    // ⭐⭐ THE MUST: the detail tier now reaches the raised row's own depth.
-    expect(
-      groupDepthLimit(drawnSettingsOf(after.documentSettings)),
-      'HF-14 (MUST): the detail tier must open until depth 3 is drawn',
-    ).toBeGreaterThanOrEqual(3)
-
-    // ⭐⭐ THE PROMISE ITSELF: 「立てた行は見える」-- the raised row is actually
-    // drawn in the panel, not merely reachable by some other means.
+    expect(groupIn(after, raised).treeState, 'AT-153: a row CM-26 creates').toBe('temporarilyExpanded')
+    expect(groupIn(after, pressed).treeState, 'T-328 childRowAddPressed: the pressed auto parent').toBe(
+      'temporarilyExpanded',
+    )
+    expect(after.documentSettings.zoomY, 'HF-14 (MUST NOT): the vertical zoom is not rewritten').toBe(
+      before.documentSettings.zoomY,
+    )
+    expect(groupIn(after, root).treeState, 'HF-14 (MUST NOT): the ancestor is not rewritten').toBe('auto')
     expect(
       built.titleFor(raised),
-      'HF-14 (MUST): the raised row must be drawn once the tier opens for it',
+      'HF-14 (MUST): the raised row is drawn by TD-6 / TD-7 at the current zoom',
     ).not.toBeUndefined()
   })
 
-  it('control: a child raised INSIDE the already-drawn tier needs no widening to be visible', () => {
-    // ⚠️ WITHOUT THIS, A UNIT THAT NEVER DREW A ROW COULD NOT BE TOLD APART
-    // FROM ONE THAT ALWAYS WIDENS THE TIER REGARDLESS OF NEED. Here the root
-    // (depth 1) is pressed, so the raised child lands at depth 2 -- already
-    // inside the same `GROUP_LOD_BASE` tier that excluded depth 3 above.
+  it('control: a child raised INSIDE the already-drawn tier is drawn too', () => {
+    // WHY: the raised child lands at depth 2, inside the tier that excluded
+    // depth 3 above, so a unit that never draws a raised row fails here too.
     const root = uuidOf(3)
     const before = documentWith(
       [{ id: root, parentId: null, label: 'depth 1', treeState: 'auto' }],
@@ -666,8 +614,9 @@ describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed
     const raised = raisedRowId(before, after)
     expect(groupIn(after, raised).parentId).toBe(pressed)
 
-    // see T-328, HF-14
-    expect(groupIn(after, pressed).treeState, 'HF-14 (MUST): the pressed parent must open').toBe('auto')
+    expect(groupIn(after, pressed).treeState, 'HF-14 / T-328 (MUST): the pressed parent opens for now').toBe(
+      'temporarilyExpanded',
+    )
     // ⭐⭐ THE MUST NOT: nothing else did.
     expect(
       groupIn(after, elsewhere).treeState,
@@ -685,15 +634,8 @@ describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed
   })
 })
 
-// ===========================================================================
-// BOTH HALVES AT ONCE: 表 T-051's own words -- 「上の詳しさの段と合わせて、約束は
-// 1 つである —— 立てた行は見える。」 A row raised under a parent that is BOTH
-// past the drawn tier's depth AND folded by a person must still end up drawn,
-// which requires BOTH interventions to have happened.
-// ===========================================================================
-
-describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end with the row visible', () => {
-  it('⛔⛔ a child raised under a folded parent past the tier opens the parent AND widens the tier', () => {
+describe('表 T-051 HF-14: both obstacles together still end with the row visible', () => {
+  it('⛔⛔ a child raised under a folded parent past the tier opens the parent for now and keeps zoomY', () => {
     const root = uuidOf(7)
     const pressed = uuidOf(8)
     const before = documentWith(
@@ -715,10 +657,11 @@ describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end 
     const raised = raisedRowId(before, after)
     expect(groupIn(after, raised).parentId).toBe(pressed)
 
-    expect(groupIn(after, pressed).treeState, 'half 2: the folded parent opened').toBe('auto')
-    expect(groupDepthLimit(drawnSettingsOf(after.documentSettings)), 'half 1: the tier widened to depth 3').toBeGreaterThanOrEqual(
-      3,
+    expect(groupIn(after, pressed).treeState, 'the folded parent opens for now').toBe('temporarilyExpanded')
+    expect(groupIn(after, raised).treeState, 'AT-153: a row CM-26 creates').toBe('temporarilyExpanded')
+    expect(after.documentSettings.zoomY, 'HF-14 (MUST NOT): the vertical zoom is not rewritten').toBe(
+      before.documentSettings.zoomY,
     )
-    expect(built.titleFor(raised), '立てた行は見える -- both obstacles resolved, the row is drawn').not.toBeUndefined()
+    expect(built.titleFor(raised), 'both obstacles resolved, the row is drawn').not.toBeUndefined()
   })
 })

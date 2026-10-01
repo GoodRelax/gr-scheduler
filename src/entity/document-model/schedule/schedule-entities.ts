@@ -257,7 +257,7 @@ export interface TaskVisual {
   /** AT-103 */
   readonly strokeColor: string | null
   /** AT-104 */
-  readonly lineWeight: 'thin' | 'medium' | 'thick' | null
+  readonly strokeWidthPx: number | null
 }
 
 /** ET-12 of table T-056. */
@@ -442,7 +442,7 @@ export const COLUMN_SHAPES: {
     milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug'], min: null, max: null, isNullable: true },
     fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
-    lineWeight: { kind: 'enum', choices: ['thin', 'medium', 'thick'], min: null, max: null, isNullable: true },
+    strokeWidthPx: { kind: 'integer', choices: null, min: 1, max: 10, isNullable: true },
   },
   TaskGroup: {
     id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },

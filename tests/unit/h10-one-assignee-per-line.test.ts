@@ -361,8 +361,15 @@ const make = (name: string): Shape => ({ kind: CM_40, name })
 const seats = (taskUid: number, resourceUid: number): Shape => ({ kind: CM_44, taskUid, resourceUid })
 const releases = (taskUid: number, resourceUid: number): Shape => ({ kind: CM_45, taskUid, resourceUid })
 
-const committed = (taskUid: number, lineUid: number | null, text: string): readonly Shape[] => {
-  const commit: FieldCommit = { row: ASSIGNEE_ROW, key: lineKey(taskUid, lineUid), text }
+// WHY: pick says how the combo settled (CR-606 AS-5): a chosen candidate, the chosen add item, or
+// none for a commit with nothing highlighted.
+const committed = (
+  taskUid: number,
+  lineUid: number | null,
+  text: string,
+  pick?: FieldCommit['pick'],
+): readonly Shape[] => {
+  const commit: FieldCommit = { row: ASSIGNEE_ROW, key: lineKey(taskUid, lineUid), text, ...(pick === undefined ? {} : { pick }) }
   return commandFromFieldCommit(commit, CONTEXT).map(shapeOf)
 }
 
@@ -402,17 +409,17 @@ describe('AS-5 -- one line per seated person, then one empty line', () => {
     ])
   })
 
-  it('AS-5: every line is the same roster chooser with the same search words', () => {
+  it('AS-5: every line is the same combo over the same roster', () => {
     const lines = assigneeLinesOf(T_TWO)
     const first = lines[0] as PropertyControl
     expect(first.kind).toBe('choice')
     expect(first.choices ?? []).toHaveLength(ROSTER.length)
-    expect(first.searchWords).not.toBe(undefined)
+    expect(first.assignee?.people).toHaveLength(ROSTER.length)
     for (const line of lines) {
       expect(line.kind).toBe('choice')
       expect(line.choices).toEqual(first.choices)
       expect(line.choiceValues).toEqual(first.choiceValues)
-      expect(line.searchWords).toEqual(first.searchWords)
+      expect(line.assignee?.people).toEqual(first.assignee?.people)
     }
   })
 })
@@ -471,13 +478,11 @@ describe('AS-12 -- a roster person arriving on a line', () => {
     ])
   })
 
-  it('AS_12_SEATED_LINE_REPLACES via AS-9: the value the chooser commits for Charlie replaces too', () => {
+  it('AS_12_SEATED_LINE_REPLACES via AS-9: the value the combo commits for a chosen Charlie replaces too', () => {
     const line = assigneeLinesOf(T_TWO)[1] as PropertyControl
-    const words = line.choices ?? []
-    const at = words.indexOf(CHARLIE.name as string)
-    expect(at).toBeGreaterThanOrEqual(0)
-    const picked = line.choiceValues?.[at] ?? (words[at] as string)
-    expect(committed(T_TWO, BRAVO.uid, picked)).toEqual([
+    const chosen = line.assignee?.candidatesOf(CHARLIE.name as string, false).find((one) => one.pick === 'candidate')
+    expect(chosen).not.toBe(undefined)
+    expect(committed(T_TWO, BRAVO.uid, chosen?.value ?? '', 'candidate')).toEqual([
       seats(T_TWO, CHARLIE.uid),
       releases(T_TWO, BRAVO.uid),
     ])
@@ -492,9 +497,9 @@ describe('AS-12 -- a roster person arriving on a line', () => {
   })
 })
 
-describe('AS-7 / AS-12 -- a name the roster does not hold', () => {
+describe('AS-7 / AS-12 -- a name the roster does not hold, through the add item (CR-606)', () => {
   it('AS_7_ON_A_SEATED_LINE_TOO: on Bravo\'s line -> make, seat the new uid, release Bravo', () => {
-    expect(committed(T_TWO, BRAVO.uid, NEW_NAME)).toEqual([
+    expect(committed(T_TWO, BRAVO.uid, NEW_NAME, 'add')).toEqual([
       make(NEW_NAME),
       seats(T_TWO, NEW_PERSON_UID),
       releases(T_TWO, BRAVO.uid),
@@ -502,7 +507,12 @@ describe('AS-7 / AS-12 -- a name the roster does not hold', () => {
   })
 
   it('AS_7_THE_LINE_DECIDES: on the empty line -> make and seat, release nobody', () => {
-    expect(committed(T_TWO, null, NEW_NAME)).toEqual([make(NEW_NAME), seats(T_TWO, NEW_PERSON_UID)])
+    expect(committed(T_TWO, null, NEW_NAME, 'add')).toEqual([make(NEW_NAME), seats(T_TWO, NEW_PERSON_UID)])
+  })
+
+  it('AS-7: the name typed and committed with nothing chosen makes no one', () => {
+    expect(committed(T_TWO, null, NEW_NAME)).toEqual([])
+    expect(committed(T_TWO, BRAVO.uid, NEW_NAME)).toEqual([])
   })
 })
 
@@ -597,8 +607,8 @@ function drawnAssigneeField(taskUid: number): DrawnField {
   return {
     root: built.root(),
     lines: field.controls,
-    selects: inRow.filter((one) => one.tagName === 'SELECT'),
-    searches: inRow.filter((one) => one.hasAttribute('list')),
+    selects: inRow.filter((one) => one.hasAttribute('data-field-combo')),
+    searches: inRow.filter((one) => one.tagName === 'SELECT' || one.hasAttribute('list')),
     focus: (row) => {
       if (held === null) throw new Error('the surface handed over no focus seam')
       return (held as (row: string) => boolean)(row)
@@ -621,12 +631,12 @@ describe('S-3 through the real DOM surface -- the PR-16 focus lands on the isFoc
     ['material only -> the empty line (line 2)', T_STOCK_ONLY],
   ] as const)('AS_1_FOCUS_LINE: %s', (_name, taskUid) => {
     const drawn = drawnAssigneeField(taskUid)
-    expect(drawn.selects, 'one drawn chooser per line').toHaveLength(drawn.lines.length)
-    expect(drawn.searches, 'one drawn search box per line').toHaveLength(drawn.lines.length)
+    expect(drawn.selects, 'one drawn combo per line').toHaveLength(drawn.lines.length)
+    expect(drawn.searches, 'no second device on a line (AS-5)').toHaveLength(0)
     const at = focusIndexOf(drawn.lines)
     expect(at).toBeGreaterThanOrEqual(0)
     expect(drawn.focus(ASSIGNEE_ROW)).toBe(true)
-    expect([drawn.selects[at], drawn.searches[at]]).toContain(drawn.active())
+    expect(drawn.active()).toBe(drawn.selects[at])
   })
 
   it('premise: two of the fixtures put the focus line after the first line', () => {
@@ -641,19 +651,14 @@ describe('S-3 through the real DOM surface -- the PR-16 focus lands on the isFoc
   })
 })
 
-describe('S-6 through the real DOM surface -- one roster list for every line', () => {
+describe('S-6 through the real DOM surface -- one input per line (CR-606 AS-5)', () => {
   it.each([
     ['one line', T_NONE],
     ['three lines', T_TWO],
-  ] as const)('%s: every search box points at the same single datalist', (_name, taskUid) => {
+  ] as const)('%s: one combo per line and no datalist', (_name, taskUid) => {
     const drawn = drawnAssigneeField(taskUid)
-    const targets = new Set(drawn.searches.map((one) => one.getAttribute('list')))
-    expect(targets.size).toBe(1)
-    const target = [...targets][0] as string
-    const lists = selfAndDescendants(drawn.root).filter(
-      (one) => one.tagName === 'DATALIST' && one.getAttribute('id') === target,
-    )
-    expect(lists).toHaveLength(1)
+    expect(drawn.selects).toHaveLength(drawn.lines.length)
+    expect(selfAndDescendants(drawn.root).filter((one) => one.tagName === 'DATALIST')).toHaveLength(0)
   })
 
   it('no two elements of the drawn screen share an id', () => {
@@ -713,6 +718,14 @@ function pressKeyOn(drawn: DrawnField, target: FakeElement, key: string, ctrlKey
   return { commit: drawn.surface.readFieldCommit(), propagated: !stopped }
 }
 
+// WHY: in the one typed combo (AS-5) a person is chosen when the line's name is chosen whole.
+function chosenWhole(combo: FakeElement): FakeElement {
+  const typed = combo as unknown as { value: string; selectionStart: number; selectionEnd: number }
+  typed.selectionStart = 0
+  typed.selectionEnd = typed.value.length
+  return combo
+}
+
 describe('SK-3 -- Delete and Backspace are the one delete key', () => {
   it('01-04 holds the SK-3 row', () => {
     expect(REQUIREMENTS).toContain(SK_3_ROW)
@@ -723,9 +736,9 @@ describe.each(DELETE_KEYS)('AS-3 / SK-3 through the real DOM surface -- %s on a 
   it.each([
     ['Alpha', 0, ALPHA.uid],
     ['Bravo', 1, BRAVO.uid],
-  ] as const)('AS_3_ONLY_THAT_LINE: the key on %s\'s chooser -> "-" on that line, not propagated', (_name, at, uid) => {
+  ] as const)('AS_3_ONLY_THAT_LINE: the key on %s\'s combo, its name chosen whole -> "-" on that line, not propagated', (_name, at, uid) => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.selects[at] as FakeElement, key)
+    const outcome = pressKeyOn(drawn, chosenWhole(drawn.selects[at] as FakeElement), key)
     expect(outcome.commit).toEqual({ row: ASSIGNEE_ROW, key: lineKey(T_TWO, uid), text: UNASSIGN_TOKEN })
     expect(outcome.propagated, 'no Task delete may follow the key').toBe(false)
     expect(commandFromFieldCommit(outcome.commit as FieldCommit, CONTEXT).map(shapeOf)).toEqual([
@@ -733,23 +746,21 @@ describe.each(DELETE_KEYS)('AS-3 / SK-3 through the real DOM surface -- %s on a 
     ])
   })
 
-  it('AS_3_EMPTY_LINE_WRITES_NOTHING: the key on the empty line\'s chooser -> its commit writes nothing', () => {
+  it('AS_3_EMPTY_LINE_WRITES_NOTHING: the key on the empty line\'s combo is text editing -- nothing to release', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.selects[2] as FakeElement, key)
-    expect(outcome.commit).toEqual({ row: ASSIGNEE_ROW, key: lineKey(T_TWO, null), text: UNASSIGN_TOKEN })
-    expect(outcome.propagated).toBe(false)
-    expect(commandFromFieldCommit(outcome.commit as FieldCommit, CONTEXT)).toEqual([])
+    const outcome = pressKeyOn(drawn, chosenWhole(drawn.selects[2] as FakeElement), key)
+    expect(outcome.commit).toBe(null)
   })
 
-  it('control: the key in a line\'s search box is text editing -- no commit, and the key goes on', () => {
+  it('control: the key in a combo whose text is not chosen whole is text editing -- no commit, and the key goes on', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.searches[1] as FakeElement, key)
+    const outcome = pressKeyOn(drawn, drawn.selects[1] as FakeElement, key)
     expect(outcome.commit).toBe(null)
     expect(outcome.propagated).toBe(true)
   })
 
-  it('control: Ctrl with the key on a chooser commits nothing', () => {
+  it('control: Ctrl with the key on a combo commits nothing', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    expect(pressKeyOn(drawn, drawn.selects[1] as FakeElement, key, true).commit).toBe(null)
+    expect(pressKeyOn(drawn, chosenWhole(drawn.selects[1] as FakeElement), key, true).commit).toBe(null)
   })
 })

@@ -330,7 +330,7 @@ function chevronEnds(fadeInDays: number | null, fadeOutDays: number | null): End
     { name: 'Alpha', start: '2026-04-06', finish: '2026-05-29', part: { fadeInDays, fadeOutDays } },
   ])
   document.schedule.taskVisuals = [
-    { taskUid: 1, shapeKind: 'chevron', milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null },
+    { taskUid: 1, shapeKind: 'chevron', milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null },
   ]
   const built = bench(document)
   const plan = built.loop.current()?.geometry.tasks.find((one) => one.taskUid === 1)?.plan as
@@ -419,7 +419,7 @@ function oldDocumentText(): string {
     milestoneGlyph: null,
     fillColor: null,
     strokeColor: null,
-    lineWeight: null,
+    strokeWidthPx: null,
   }
   // WHY: the two values a saved document used to carry; any value is dropped before the schema runs.
   for (const one of RETIRED) visual[one.column] = one.column === 'nameAnchor' ? 'middleRight' : 'start'

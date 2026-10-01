@@ -926,7 +926,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     expect(built.states()).toEqual(before)
   })
 
-  it('createTaskGroup adds a row whose value is auto (AT-153), and the others keep theirs', () => {
+  it('createTaskGroup adds a row whose value is temporarilyExpanded (AT-153), and the others keep theirs', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R] })
     const fresh = 'bbbbbbbb-0000-4000-8000-000000000001'
     const result = editTaskGroup(
@@ -937,7 +937,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const groups = (result.document.schedule as any).taskGroups
-    expect(stateAmong(groups, fresh)).toBe('auto')
+    expect(stateAmong(groups, fresh)).toBe('temporarilyExpanded')
     expect(groups.filter((one: any) => one.treeState === 'expanded').map((one: any) => one.id)).toEqual([R])
   })
 

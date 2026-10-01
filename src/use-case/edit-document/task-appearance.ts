@@ -1,4 +1,4 @@
-// Rewrites how a Task looks: its shape, figure, colours, line weight and fades.
+// Rewrites how a Task looks: its shape, figure, colours, outline width and fades.
 // @unit      UF-76   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -150,12 +150,24 @@ export function resetTaskVisualColors(
   return edited(withVisual(document, { ...visual, fillColor: null, strokeColor: null }))
 }
 
+// see CM-24, AT-104, CL-2
+// WHY: the range is the column's own (AT-104), read from its generated shape, never a second copy.
 /** @purity pure */
-export function setTaskVisualLineWeight(
+export function setTaskVisualStrokeWidth(
   document: Document,
-  command: Extract<TaskCommand, { readonly kind: 'setTaskVisualLineWeight' }>,
+  command: Extract<TaskCommand, { readonly kind: 'setTaskVisualStrokeWidth' }>,
 ): EditResult {
+  const width = command.strokeWidthPx
+  const shape = COLUMN_SHAPES.TaskVisual.strokeWidthPx
+  const low = shape?.min ?? null
+  const high = shape?.max ?? null
+  const isOutside =
+    width !== null &&
+    (!Number.isInteger(width) || (low !== null && width < low) || (high !== null && width > high))
+  if (isOutside) {
+    return refused([reject('CM-24', 'AT-104', `the outline width must be a whole number from ${low} to ${high}, not ${width}`)])
+  }
   const schedule = document.schedule
   const visual = visualOf(schedule, command.uid)
-  return edited(withVisual(document, { ...visual, lineWeight: command.lineWeight }))
+  return edited(withVisual(document, { ...visual, strokeWidthPx: width }))
 }

@@ -81,13 +81,15 @@ function withFlow(fields: Loose): ScreenSession {
   return { ...regionsOf(emptyScreenSession), fileFlow: { ...flowOf(emptyScreenSession), ...fields } } as unknown as ScreenSession
 }
 
-// see QN-1, QN-4, QN-5, NT-7
+// see QN-1, QN-4, QN-5, QN-11, NT-7
 function question(row: string): Loose {
   return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherRow: false }] }
 }
 
 const CHANGE_WRITES: Loose = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
 const START_NEW: Loose = { kind: 'startNewDocument' }
+// see FR-153
+const RESET_GRS: Loose = { kind: 'resetGrs' }
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
 
 const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
@@ -108,6 +110,7 @@ const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
     { question: question('QN-5'), owedAction: START_NEW },
     { question: question('QN-5'), owedAction: null },
     { question: question('QN-4'), owedAction: null },
+    { question: question('QN-11'), owedAction: RESET_GRS },
   ],
 }
 
@@ -167,6 +170,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   confirmationAnswered: [{ isProceeding: true }, { isProceeding: false }],
   changeQuestionRaised: [{ question: question('QN-1'), owedAction: CHANGE_WRITES }],
   newDocumentEntryPressed: [true, false].map((hasStartupTemplate) => ({ hasStartupTemplate, question: question('QN-5') })),
+  grsResetEntryPressed: [{ question: question('QN-11') }],
   flowSurfaceClosed: ['U-56', 'U-61', 'U-62', 'U-30'].map((surfaceName) => ({ surfaceName })),
   documentFileRead: [{ question: question('QN-5') }],
   documentOpenFailed: [{}],
@@ -311,6 +315,10 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
     return { question: event['question'], owedAction: START_NEW }
   }
   if (type === 'newDocumentEntryPressed') return { question: before['question'], owedAction: before['owedAction'] }
+  if (type === 'grsResetEntryPressed' && kindOf(before) === 'notAsked') {
+    return { question: event['question'], owedAction: RESET_GRS }
+  }
+  if (type === 'grsResetEntryPressed') return { question: before['question'], owedAction: before['owedAction'] }
   return { question: event['question'], owedAction: null }
 }
 

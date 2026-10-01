@@ -1346,8 +1346,19 @@
   {
    "rowId": "PR-1",
    "label": {
-    "ja": "名称",
-    "en": "name"
+    "ja": "タスク名",
+    "en": "task name"
+   },
+   "milestoneLabel": {
+    "ja": "マイルストーン名",
+    "en": "milestone name"
+   }
+  },
+  {
+   "rowId": "PR-34",
+   "label": {
+    "ja": "UID",
+    "en": "UID"
    }
   },
   {
@@ -1355,6 +1366,13 @@
    "label": {
     "ja": "開始日 / 終了日",
     "en": "start / finish"
+   }
+  },
+  {
+   "rowId": "PR-35",
+   "label": {
+    "ja": "予定日",
+    "en": "planned date"
    }
   },
   {
@@ -1383,6 +1401,13 @@
    "label": {
     "ja": "実績終了日",
     "en": "actualFinish"
+   }
+  },
+  {
+   "rowId": "PR-36",
+   "label": {
+    "ja": "実績日",
+    "en": "actual date"
    }
   },
   {
@@ -1442,10 +1467,38 @@
    }
   },
   {
+   "rowId": "PR-37",
+   "label": {
+    "ja": "先行",
+    "en": "predecessors"
+   }
+  },
+  {
+   "rowId": "PR-38",
+   "label": {
+    "ja": "後続",
+    "en": "successors"
+   }
+  },
+  {
    "rowId": "PR-12",
    "label": {
-    "ja": "線 / 塗り / 太さ",
-    "en": "stroke / fill / weight"
+    "ja": "塗潰し色",
+    "en": "fill colour"
+   }
+  },
+  {
+   "rowId": "PR-39",
+   "label": {
+    "ja": "枠線色",
+    "en": "outline colour"
+   }
+  },
+  {
+   "rowId": "PR-40",
+   "label": {
+    "ja": "枠線幅（px）",
+    "en": "outline width (px)"
    }
   },
   {
@@ -1530,6 +1583,34 @@
    "label": {
     "ja": "塗り",
     "en": "fill"
+   }
+  },
+  {
+   "rowId": "PR-41",
+   "label": {
+    "ja": "種別",
+    "en": "type"
+   }
+  },
+  {
+   "rowId": "PR-42",
+   "label": {
+    "ja": "ラグ",
+    "en": "lag"
+   }
+  },
+  {
+   "rowId": "PR-43",
+   "label": {
+    "ja": "先行",
+    "en": "predecessor"
+   }
+  },
+  {
+   "rowId": "PR-44",
+   "label": {
+    "ja": "後続",
+    "en": "successor"
    }
   }
  ],
@@ -4127,6 +4208,57 @@
    "text": {
     "ja": "プロジェクトのテーマの色に従う",
     "en": "Follow the project theme"
+   }
+  },
+  {
+   "part": "noFill",
+   "text": {
+    "ja": "塗潰しなし",
+    "en": "No fill"
+   }
+  },
+  {
+   "part": "noLine",
+   "text": {
+    "ja": "線なし",
+    "en": "No line"
+   }
+  },
+  {
+   "part": "themeMark",
+   "text": {
+    "ja": "(テーマ)",
+    "en": "(theme)"
+   }
+  },
+  {
+   "part": "defaultMark",
+   "text": {
+    "ja": "(既定)",
+    "en": "(default)"
+   }
+  },
+  {
+   "part": "defaultColour",
+   "text": {
+    "ja": "既定の色",
+    "en": "Default colour"
+   }
+  }
+ ],
+ "propertyField": [
+  {
+   "part": "dependencyEnd",
+   "text": {
+    "ja": "{name}（UID {uid}）",
+    "en": "{name} (UID {uid})"
+   }
+  },
+  {
+   "part": "addResource",
+   "text": {
+    "ja": "“{name}” を追加",
+    "en": "Add “{name}”"
    }
   }
  ],

@@ -53,6 +53,10 @@ export interface FieldCommit {
   readonly row: string
   readonly key: PropertyFieldKey
   readonly text: string
+  // see AS-5, AS-7
+  // WHY: how the assignee field was settled: a candidate chosen (text is its uid), the add item
+  // chosen (text is the name to create), or absent for a commit with nothing highlighted.
+  readonly pick?: 'candidate' | 'add'
 }
 
 // see IF-9

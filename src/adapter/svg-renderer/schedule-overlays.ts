@@ -150,9 +150,17 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
 }
 
 // see FR-019, AT-146, AT-147, ZO-14
+// STOP: spec names S-155 for the null fill but marks it provisional. Looked in FR-019, AT-146, S-370
+// @provisional PND-609
 /** @purity pure */
-function highlightFillSvg(box: HighlightGeometry, chosen: ChosenColour, rounding: string): readonly string[] {
-  const fill = box.fillColor === TRANSPARENT ? null : chosen(box.fillColor, 'fill')
+function highlightFillSvg(
+  box: HighlightGeometry,
+  chosen: ChosenColour,
+  themed: (rowId: string) => string,
+  rounding: string,
+): readonly string[] {
+  const fill =
+    box.fillColor === null ? themed('S-155') : box.fillColor === TRANSPARENT ? null : chosen(box.fillColor, 'fill')
   if (fill === null) return []
   return [
     `<rect x="${rounded(box.box.x)}" y="${rounded(box.box.y)}"` +
@@ -185,7 +193,7 @@ function highlightBoxSvg(
     selectionFrameSvg(box.box, themed('S-151'), `box-${box.id}-frame`),
     ...grabPointSquares(box, themed('S-146'), themed('S-151')),
   ]
-  return { fill: highlightFillSvg(box, chosen, rounding), frame, selection }
+  return { fill: highlightFillSvg(box, chosen, themed, rounding), frame, selection }
 }
 
 // see FR-019, CV-6, LF-17

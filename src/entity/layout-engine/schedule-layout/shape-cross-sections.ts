@@ -37,14 +37,31 @@ function reservedHeight(shapeKind: ShapeKind, settings: DrawnSettings): number {
   return labelLiftOf(shapeKind, settings) + shapeHeightOf(shapeKind, settings)
 }
 
+// see AT-104, CL-2, VG-5, S-39
+// WHY: a task's own outline width takes the display ratio S-39 takes (FR-039); null draws S-39 itself.
 /** @purity pure */
-export function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
-  return laidBelow(shapeKind) ? 0 : settings.planStroke / 2
+export function outlineWidthOf(strokeWidthPx: number | null | undefined, settings: DrawnSettings): number {
+  if (strokeWidthPx === null || strokeWidthPx === undefined) return settings.planStroke
+  return strokeWidthPx * displayRatioOf(settings)
+}
+
+// see VG-5
+/** @purity pure */
+export function drawnEdgeOverhangOf(
+  shapeKind: ShapeKind,
+  settings: DrawnSettings,
+  outlineWidth: number = settings.planStroke,
+): number {
+  return laidBelow(shapeKind) ? 0 : outlineWidth / 2
 }
 
 /** @purity pure */
-export function drawnExtentOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
-  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, settings) * 2
+export function drawnExtentOf(
+  shapeKind: ShapeKind,
+  settings: DrawnSettings,
+  outlineWidth: number = settings.planStroke,
+): number {
+  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, settings, outlineWidth) * 2
 }
 
 /** @purity pure */

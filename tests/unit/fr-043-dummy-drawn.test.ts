@@ -315,7 +315,7 @@ const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
     milestoneGlyph: null,
     fillColor: null,
     strokeColor: null,
-    lineWeight: null,
+    strokeWidthPx: null,
     ...(shapeKind === 'milestone' ? { milestoneGlyph: 'diamond' } : {}),
   }) as unknown as TaskVisual
 

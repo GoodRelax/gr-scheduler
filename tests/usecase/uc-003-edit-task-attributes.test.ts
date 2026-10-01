@@ -30,29 +30,34 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
 
   await test.step('UC-003 step 2: the Properties Panel shows its attributes under display-language item names, English here as the locale is en-US (FR-072, T-016, FR-038)', async () => {
     await expect(page.locator('[data-role="Properties Panel"]')).toHaveAttribute('data-showing', 'selection')
-    const names = await page.locator(PANEL + '[data-field-row] > span:first-child').allTextContents()
+    const names = await page.locator(PANEL + ':not(button)[data-field-row] > span:first-child').allTextContents()
     expect(names.length).toBeGreaterThan(5)
     for (const name of names) expect(name).toMatch(/^[\x20-\x7e]+$/)
     await expect(page.locator(PANEL + 'textarea[data-field-row="PR-1"]')).toHaveValue(taskOf(await readDocument(page)).name)
   })
 
-  await test.step('UC-003 step 3: the author changes date, shape, colour, line weight and assignee (PR-3, SP-2, PR-12, PR-16)', async () => {
+  await test.step('UC-003 step 3: the author changes date, shape, colour, outline width and assignee (PR-3, SP-2, PR-39, PR-40, PR-16)', async () => {
     const before = await readDocument(page)
     await page.fill(PANEL + 'input[data-field-row="PR-3"] >> nth=0', '2026-05-01')
     await commit(page)
     expect(taskOf(await readDocument(page)).start.slice(0, 10)).toBe('2026-05-01')
     await press(page, 'IC-24')
     expect(visualOf(await readDocument(page)).shapeKind).toBe('chevron')
-    await page.click(PANEL + '[data-colour-palette="PR-12"] >> nth=0 >> [data-colour-choice="red"]')
+    await page.click(PANEL + '[data-colour-palette="PR-39"] >> nth=0 >> [data-colour-choice="red"]')
     await settle(page)
     expect(visualOf(await readDocument(page)).strokeColor).toBe('red')
-    await page.selectOption(PANEL + 'select[data-field-row="PR-12"]', 'thick')
+    await page.fill(PANEL + 'input[data-field-row="PR-40"]', '3')
     await commit(page)
-    expect(visualOf(await readDocument(page)).lineWeight).toBe('thick')
+    expect(visualOf(await readDocument(page)).strokeWidthPx).toBe(3)
     const other = before.schedule.resources.find((r) => !assigneesOf(before).includes(r.uid))!
-    await page.selectOption(PANEL + 'select[data-field-row="PR-16"] >> nth=0', String(other.uid))
-    await commit(page)
-    expect(assigneesOf(await readDocument(page))).toContain(other.uid)
+    await page.click(PANEL + 'input[data-field-row="PR-16"][data-field-combo] >> nth=-1')
+    await page.click(PANEL + `[data-combo-list="PR-16"] [data-combo-item="candidate"][value="${other.uid}"] >> nth=0`)
+    await settle(page)
+    await expect.poll(async () => assigneesOf(await readDocument(page))).toContain(other.uid)
+    // STEP: emptying the first line lets its person go (AS-3), so the new person is the only one
+    await page.fill(PANEL + 'input[data-field-row="PR-16"][data-field-combo] >> nth=0', '')
+    await settle(page)
+    await expect.poll(async () => assigneesOf(await readDocument(page))).toEqual([other.uid])
   })
 
   await test.step('UC-003 step 4: the drawing follows and the assignee and percent labels obey the display settings (FR-049, FR-090, S-60, S-61)', async () => {
@@ -102,9 +107,9 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await page.mouse.dblclick(plan.x + plan.w / 2, plan.y + plan.h / 2)
     await settle(page)
     await page.keyboard.press('Escape')
-    await page.click(PANEL + '[data-colour-palette="PR-12"] >> nth=0 >> [data-colour-choice="transparent"]')
+    await page.click(PANEL + '[data-colour-palette="PR-39"] >> nth=0 >> [data-colour-choice="transparent"]')
     await settle(page)
-    await page.click(PANEL + '[data-colour-palette="PR-12"] >> nth=1 >> [data-colour-choice="transparent"]')
+    await page.click(PANEL + '[data-colour-palette="PR-12"] >> nth=0 >> [data-colour-choice="transparent"]')
     await settle(page)
     const visual = visualOf(await readDocument(page))
     expect(visual.strokeColor === 'transparent' && visual.fillColor === 'transparent').toBe(false)

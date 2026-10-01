@@ -67,7 +67,7 @@
 | P-15 | `'milestone'` | マイルストーン（◇ ほか） |
 | P-16 | `milestoneGlyph` | マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽） |
 | P-17 | `actualPlacement` | 実績の置き方（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。<br>`shapeKind` から導出する |
-| P-18 | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ |
+| P-18 | `strokeColor` / `fillColor` / `strokeWidthPx` | 線色 / 塗り色 / 線の太さ |
 | P-19 | `'transparent'` | 透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値であり、`tbl-settings.md` の 表 T-294 の保存する綴りの 1 つである（`S-324`）。<br>`null`（選んでいない）とは別物である |
 | P-21 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
 | P-22 | `wbsParentUid` | WBS の親（深さは導出する） |
@@ -435,7 +435,7 @@
 | CM-21 | `TaskVisual` | `setTaskVisualMilestoneGlyph` | — | マイルストーン形状を変える | `FR-078` |
 | CM-22 | `TaskVisual` | `setTaskVisualColors` | ⭐ | 線色と塗り色を置く | `FR-007` |
 | CM-23 | `TaskVisual` | `resetTaskVisualColors` | ⭐ | 色をテーマ追随へ戻す | `FR-007` |
-| CM-24 | `TaskVisual` | `setTaskVisualLineWeight` | — | 線の太さを置く | `FR-007` |
+| CM-24 | `TaskVisual` | `setTaskVisualStrokeWidth` | — | 線の太さを置く | `FR-007` |
 | CM-26 | `TaskGroup` | `createTaskGroup` | ⭐ | 行を作る | `FR-085` |
 | CM-27 | `TaskGroup` | `deleteTaskGroup` | — | 行を消す | `FR-032` |
 | CM-28 | `TaskGroup` | `pasteTaskGroupSubtree` | ⭐ | 行の部分木を複製する | `FR-033` |

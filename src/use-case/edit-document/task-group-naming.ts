@@ -5,13 +5,13 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import { COLUMN_DEFAULTS, taskByUid, type TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { taskByUid, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, withRow, withSchedule } from './edit-task-group'
 
-// see CM-26, FR-085, FR-058
+// see CM-26, FR-085, FR-058, AT-153
 /** @purity pure */
 export function createTaskGroup(
   document: Document,
@@ -62,7 +62,7 @@ export function createTaskGroup(
     label: command.label,
     derivedFromTaskUid: command.derivedFromTaskUid,
     order: command.order,
-    treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
+    treeState: 'temporarilyExpanded',
     editGroup: null,
     color: null,
     minHeight: null,

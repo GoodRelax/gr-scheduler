@@ -40,6 +40,8 @@ import type {
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { colourOf, swatchOf } from '../svg-renderer/svg-renderer'
 import type {
+  AssigneeCandidate,
+  AssigneeCombo,
   ColourSide,
   CommandItem,
   DisplayLanguage,
@@ -89,10 +91,13 @@ function entryLabel(icon: IconId, language: DisplayLanguage): string {
   return word === '' ? NO_ENTRY_WORDS : word
 }
 
-// see FR-006, FR-038
+// see FR-006, FR-038, PR-1
+// WHY: a milestone's name row reads the row's own milestone word, any other row its label.
 /** @purity pure */
-function itemName(row: string, language: DisplayLanguage): string {
-  const word = ITEM_WORDS_BY_ROW.get(row)?.label[language]
+function itemName(row: string, language: DisplayLanguage, isMilestone = false): string {
+  const words = ITEM_WORDS_BY_ROW.get(row)
+  const said = isMilestone && words !== undefined && 'milestoneLabel' in words ? words.milestoneLabel : words?.label
+  const word = said?.[language]
   if (word === undefined) return NO_ENTRY_WORDS
   return word === '' ? NO_ENTRY_WORDS : word
 }
@@ -113,47 +118,64 @@ function settingsName(key: string, language: DisplayLanguage): string {
   return word === '' ? NO_ENTRY_WORDS : word
 }
 
+// see AS-5, IC-123, IC-124, IC-139
+const ASCENDING_ENTRY: IconId = 'IC-123'
+const DESCENDING_ENTRY: IconId = 'IC-124'
+const GRS_RESET_ENTRY: IconId = 'IC-139'
+// WHY: these sit inside a field of the panel, not on its way-out line beside IC-52.
+const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, GRS_RESET_ENTRY]
+
+/** @purity pure */
+function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
+  return { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: entryLabel(icon, language) }
+}
+
 // see T-109, FR-029
 /** @purity pure */
 function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
   return iconRoster.icons
-    .filter((row) => row.surfaces.includes(PROPERTIES_PANEL))
-    .map((row) => ({
-      icon: row.rowId,
-      isEnabled: true,
-      isPressed: false,
-      isArmed: false,
-      isChosen: false,
-      label: entryLabel(row.rowId, language),
-    }))
+    .filter((row) => row.surfaces.includes(PROPERTIES_PANEL) && !IN_FIELD_ENTRIES.includes(row.rowId))
+    .map((row) => commandItemOf(row.rowId, language))
 }
 
 // see T-016
-type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
+// WHY: 'derived' rows are not columns of the document (PR-37, PR-38); 'dependency' rows are
+// a selected dependency line's (FR-009).
+type PropertyItem = {
+  readonly row: string
+  readonly appliesTo: AppliesTo
+  readonly shownFor: string | null
+  readonly oneInput: boolean
+} & (
   | { readonly heldBy: 'task'; readonly columns: readonly (keyof Task)[] }
   | { readonly heldBy: 'taskVisual'; readonly columns: readonly (keyof TaskVisual)[] }
   | { readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
+  | { readonly heldBy: 'derived'; readonly columns: readonly string[] }
   | { readonly heldBy: 'taskGroup'; readonly columns: readonly (keyof TaskGroup)[] }
   | { readonly heldBy: 'commentBox'; readonly columns: readonly (keyof CommentBox)[] }
   | { readonly heldBy: 'highlightBox'; readonly columns: readonly (keyof HighlightBox)[] }
+  | { readonly heldBy: 'dependency'; readonly columns: readonly string[] }
 )
 
-type TaskPropertyItem = Extract<PropertyItem, { heldBy: 'task' | 'taskVisual' | 'assignment' }>
+type TaskPropertyItem = Extract<PropertyItem, { heldBy: 'task' | 'taskVisual' | 'assignment' | 'derived' }>
 type GroupPropertyItem = Extract<PropertyItem, { heldBy: 'taskGroup' }>
 type CommentBoxPropertyItem = Extract<PropertyItem, { heldBy: 'commentBox' }>
 type HighlightBoxPropertyItem = Extract<PropertyItem, { heldBy: 'highlightBox' }>
+type DependencyPropertyItem = Extract<PropertyItem, { heldBy: 'dependency' }>
 
-type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox'
+type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox' | 'Dependency'
 
 const APPLIES_TO_TASK: AppliesTo = 'Task'
 const APPLIES_TO_TASK_GROUP: AppliesTo = 'TaskGroup'
 const APPLIES_TO_COMMENT_BOX: AppliesTo = 'CommentBox'
 const APPLIES_TO_HIGHLIGHT_BOX: AppliesTo = 'HighlightBox'
+const APPLIES_TO_DEPENDENCY: AppliesTo = 'Dependency'
 
 const HELD_BY_OF_OBJECT: Readonly<Partial<Record<AppliesTo, PropertyItem['heldBy']>>> = {
   TaskGroup: 'taskGroup',
   CommentBox: 'commentBox',
   HighlightBox: 'highlightBox',
+  Dependency: 'dependency',
 }
 
 const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
@@ -172,6 +194,13 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-15': 'task',
   'PR-16': 'assignment',
   'PR-17': 'taskVisual',
+  'PR-34': 'task',
+  'PR-35': 'task',
+  'PR-36': 'task',
+  'PR-37': 'derived',
+  'PR-38': 'derived',
+  'PR-39': 'taskVisual',
+  'PR-40': 'taskVisual',
 }
 
 /** @purity pure */
@@ -189,6 +218,8 @@ const PROPERTY_ITEMS: readonly PropertyItem[] = propertyItems.items.map((item) =
   return {
     row: item.rowId,
     appliesTo,
+    shownFor: item.shownFor,
+    oneInput: item.oneInput,
     heldBy: heldByOf(item.rowId, appliesTo),
     columns: item.columns,
   } as PropertyItem
@@ -209,6 +240,53 @@ const COMMENT_BOX_ITEMS: readonly CommentBoxPropertyItem[] = PROPERTY_ITEMS.filt
 const HIGHLIGHT_BOX_ITEMS: readonly HighlightBoxPropertyItem[] = PROPERTY_ITEMS.filter(
   (item): item is HighlightBoxPropertyItem => item.appliesTo === APPLIES_TO_HIGHLIGHT_BOX,
 )
+
+const DEPENDENCY_ITEMS: readonly DependencyPropertyItem[] = PROPERTY_ITEMS.filter(
+  (item): item is DependencyPropertyItem => item.appliesTo === APPLIES_TO_DEPENDENCY,
+)
+
+// see FR-006, AT-30
+// WHY: by Task.milestone, never by the shape column.
+/** @purity pure */
+function isShownFor(item: PropertyItem, task: Task): boolean {
+  if (item.shownFor === null || item.shownFor === 'both') return true
+  return item.shownFor === (task.milestone === true ? 'milestone' : 'task')
+}
+
+const PROPERTY_FIELD_WORDS = new Map(displayWords.propertyField.map((entry) => [entry.part, entry.text]))
+
+const NAME_SLOT = '{name}'
+const UID_SLOT = '{uid}'
+const LINE_BREAK = '\n'
+
+// see FR-009, PR-37, PR-38, PR-43, PR-44, FR-038
+// WHY: replaced by a function, so a $ in a task's name is not read as a replacement pattern.
+/** @purity pure */
+function nameWithUid(name: string, uid: number, language: DisplayLanguage): string {
+  return (PROPERTY_FIELD_WORDS.get('dependencyEnd')?.[language] ?? '')
+    .replace(NAME_SLOT, () => name)
+    .replace(UID_SLOT, () => String(uid))
+}
+
+/** @purity pure */
+function dependencyEndText(schedule: Schedule, uid: number, language: DisplayLanguage): string {
+  return nameWithUid(taskByUid(schedule, uid)?.name ?? '', uid, language)
+}
+
+// see PR-37, PR-38
+/** @purity pure */
+function linkedEndsText(schedule: Schedule, task: Task, column: string, language: DisplayLanguage): string {
+  const uids =
+    column === 'predecessors'
+      ? task.dependencies.map((link) => link.predecessorUid)
+      : schedule.tasks.flatMap((one) =>
+          one.dependencies.filter((link) => link.predecessorUid === task.uid).map(() => one.uid),
+        )
+  return [...uids]
+    .sort((a, b) => a - b)
+    .map((uid) => dependencyEndText(schedule, uid, language))
+    .join(LINE_BREAK)
+}
 
 const READ_ONLY_ROWS: readonly string[] = propertyItems.items
   .filter((item) => item.isReadOnly)
@@ -425,14 +503,67 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
   return widest * labelCoef + NOT_STORED_PROPERTY_CONTROL_SIZES['S-199']
 }
 
+// see AS-5, AS-6
+// WHY: the uid is added to a name only where two people share it (AS-6).
+/** @purity pure */
+function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): AssigneeCombo {
+  const people = assigneeChoices(schedule)
+  const shared = (name: string): boolean => people.filter((one) => one.name === name).length > 1
+  const held = {
+    people: people.map((one) => ({
+      ...one,
+      word: shared(one.name) ? nameWithUid(one.name, one.uid, language) : one.name,
+    })),
+    addWord: PROPERTY_FIELD_WORDS.get('addResource')?.[language] ?? '',
+    sortEntries: [commandItemOf(ASCENDING_ENTRY, language), commandItemOf(DESCENDING_ENTRY, language)],
+  }
+  // WHY: carried with the roster, so the drawing side narrows it without a second reading of SV-4.
+  return { ...held, candidatesOf: (typed, isDescending) => assigneeCandidatesOf(held, typed, isDescending) }
+}
+
+// see SV-4
+// TRAP: the comparison of isSearchWordFound (schedule-search.ts); change both.
+/** @purity pure */
+function isFoundBy(name: string, typed: string): boolean {
+  const comparable = (text: string): string => text.normalize('NFKC').toLowerCase()
+  return comparable(name).includes(comparable(typed))
+}
+
+// see AS-5, AS-3, SV-4, IC-123, IC-124
+// WHY: an empty text adds no one: the add item names the person it makes (AS-7).
+/** @purity pure */
+export function assigneeCandidatesOf(
+  combo: Omit<AssigneeCombo, 'candidatesOf'>,
+  typed: string,
+  isDescending: boolean,
+): readonly AssigneeCandidate[] {
+  const found = combo.people.filter((one) => isFoundBy(one.name, typed))
+  const ordered = isDescending
+    ? [...found].sort((a, b) => (a.name === b.name ? a.uid - b.uid : a.name < b.name ? 1 : -1))
+    : found
+  const candidates = ordered.map((one) => ({ pick: 'candidate' as const, value: String(one.uid), word: one.word }))
+  const settled = typed.trim()
+  if (settled === '' || settled === UNASSIGN_TEXT || combo.people.some((one) => one.name === settled)) return candidates
+  return [...candidates, { pick: 'add' as const, value: settled, word: combo.addWord.replace(NAME_SLOT, () => settled) }]
+}
+
+// see AS-3
+const UNASSIGN_TEXT = '-'
+
 // see PR-16, AS-1, AS-5, AS-9
 /** @purity pure */
-function assigneeControls(schedule: Schedule, taskUid: number, labelCoef: number): readonly PropertyControl[] {
+function assigneeControls(
+  schedule: Schedule,
+  taskUid: number,
+  labelCoef: number,
+  language: DisplayLanguage,
+): readonly PropertyControl[] {
   const people = assigneeChoices(schedule)
   const names = people.map((person) => person.name)
   const seated = [...new Set(assigneesOf(schedule, taskUid).map((person) => person.uid))]
   const labelled = labelledAssigneeUidOf(schedule, taskUid)
   const focused = labelled !== null && seated.includes(labelled) ? labelled : null
+  const assignee = assigneeComboOf(schedule, language)
   return [...seated, null].map((resourceUid): PropertyControl => {
     const text = resourceUid === null ? '' : String(resourceUid)
     return {
@@ -441,7 +572,7 @@ function assigneeControls(schedule: Schedule, taskUid: number, labelCoef: number
       text,
       choices: names,
       choiceValues: people.map((person) => String(person.uid)),
-      searchWords: [...new Set(names)],
+      assignee,
       min: null,
       max: null,
       widthInFontSizes: widthOf(text, names, labelCoef),
@@ -450,20 +581,28 @@ function assigneeControls(schedule: Schedule, taskUid: number, labelCoef: number
   })
 }
 
+// see T-016, PR-35, PR-36
+// WHY: a oneInput row draws one input, for its first column; the commit writes the others (field-commit.ts).
+/** @purity pure */
+function drawnColumnsOf<Column>(item: { readonly oneInput: boolean; readonly columns: readonly Column[] }): readonly Column[] {
+  return item.oneInput ? item.columns.slice(0, 1) : item.columns
+}
+
 /** @purity pure */
 function controlsOfItem(
   schedule: Schedule,
   task: Task,
   item: TaskPropertyItem,
   labelCoef: number,
+  language: DisplayLanguage,
 ): readonly PropertyControl[] {
-  if (READ_ONLY_ROWS.includes(item.row)) return []
-  if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, labelCoef)
+  if (READ_ONLY_ROWS.includes(item.row) || item.heldBy === 'derived') return []
+  if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, labelCoef, language)
 
   const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
-  return item.columns.map((column) => {
+  return drawnColumnsOf<string>(item).map((column) => {
     const key: PropertyFieldKey =
       item.heldBy === 'task'
         ? { holder: 'task', uid: task.uid, column: column as keyof Task & string }
@@ -484,15 +623,18 @@ function textOfItem(
   task: Task,
   visual: TaskVisual | null,
   item: TaskPropertyItem,
+  language: DisplayLanguage,
 ): string {
   switch (item.heldBy) {
     case 'task':
-      return item.columns.map((column) => textOfTaskColumn(schedule, task, column)).join(PART_SEPARATOR)
+      return drawnColumnsOf(item).map((column) => textOfTaskColumn(schedule, task, column)).join(PART_SEPARATOR)
     case 'taskVisual':
       if (visual === null) return ''
       return item.columns.map((column) => textOfValue(visual[column])).join(PART_SEPARATOR)
     case 'assignment':
       return assigneeText(schedule, task.uid)
+    case 'derived':
+      return linkedEndsText(schedule, task, item.columns[0] ?? '', language)
   }
 }
 
@@ -506,35 +648,34 @@ function taskFields(
 ): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
-  return TASK_ITEMS.map((item) => ({
+  const isMilestone = task.milestone === true
+  return TASK_ITEMS.filter((item) => isShownFor(item, task)).map((item) => ({
     row: item.row,
-    name: itemName(item.row, language),
-    text: textOfItem(schedule, task, visual, item),
-    isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: controlsOfItem(schedule, task, item, labelCoef),
+    name: itemName(item.row, language, isMilestone),
+    text: textOfItem(schedule, task, visual, item, language),
+    isEditable: !READ_ONLY_ROWS.includes(item.row) && item.heldBy !== 'derived',
+    controls: controlsOfItem(schedule, task, item, labelCoef, language),
   }))
 }
 
-const DEPENDENCY_ITEMS: readonly { readonly row: string; readonly column: keyof Dependency }[] = [
-  { row: 'AT-46', column: 'linkType' },
-  { row: 'AT-47', column: 'lag' },
-  { row: 'AT-45', column: 'predecessorUid' },
-]
-
-const SUCCESSOR_ROW = 'FR-009'
-
-const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successorUid'
-
-// see T-018
+// see T-018, FR-009, PR-41, PR-43, PR-44
 /** @purity pure */
-function dependencyText(dependency: Dependency, column: keyof Dependency): string {
-  if (column !== 'linkType') return textOfValue(dependency[column])
+function dependencyText(
+  schedule: Schedule,
+  dependency: Dependency,
+  successorUid: number,
+  column: string,
+  language: DisplayLanguage,
+): string {
+  if (column === 'predecessorUid') return dependencyEndText(schedule, dependency.predecessorUid, language)
+  if (column === 'successorUid') return dependencyEndText(schedule, successorUid, language)
+  if (column !== 'linkType') return textOfValue((dependency as unknown as Record<string, unknown>)[column])
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
 }
 
-// see FR-009
-// DEVIATION: spec says only the lag is editable (FR-009); here kind, predecessor and far end are marked editable (DFC-565)
+// see FR-009, T-016
+// WHY: only the lag is editable (CM-38); kind and both ends are read-only rows of table T-016.
 /** @purity pure */
 function dependencyFields(
   schedule: Schedule,
@@ -542,35 +683,21 @@ function dependencyFields(
   successorUid: number,
   ordinal: number,
   labelCoef: number,
+  language: DisplayLanguage,
 ): readonly PropertyField[] {
-  const columnFields: readonly PropertyField[] = DEPENDENCY_ITEMS.map((item) => ({
-    row: item.row,
-    name: item.column,
-    text: dependencyText(dependency, item.column),
-    isEditable: true,
-    controls: [
-      controlOf(
-        schedule,
-        { holder: 'dependency', successorUid, ordinal, column: item.column },
-        'Dependency',
-        item.column,
-        textOfValue(dependency[item.column]),
-        successorUid,
-        labelCoef,
-      ),
-    ],
-  }))
-
-  return [
-    ...columnFields,
-    {
-      row: SUCCESSOR_ROW,
-      name: SUCCESSOR_NAME,
-      text: textOfValue(successorUid),
-      isEditable: true,
-      controls: [],
-    },
-  ]
+  return DEPENDENCY_ITEMS.map((item) => {
+    const column = (item.columns[0] ?? '') as keyof Dependency & string
+    const isEditable = !READ_ONLY_ROWS.includes(item.row)
+    const key: PropertyFieldKey = { holder: 'dependency', successorUid, ordinal, column }
+    const stored = textOfValue(dependency[column])
+    return {
+      row: item.row,
+      name: itemName(item.row, language),
+      text: dependencyText(schedule, dependency, successorUid, column, language),
+      isEditable,
+      controls: isEditable ? [controlOf(schedule, key, 'Dependency', column, stored, successorUid, labelCoef)] : [],
+    }
+  })
 }
 
 /** @purity pure */
@@ -596,7 +723,7 @@ function fieldsOfItem(
       const successor = taskByUid(schedule, subject.successorUid)
       const dependency = successor?.dependencies[subject.ordinal]
       if (successor === null || dependency === undefined) return null
-      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef)
+      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language)
     }
     case 'commentBox':
       return fieldsOfFound(schedule, schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
@@ -878,17 +1005,68 @@ interface ColourLook {
 
 type ColourForm = Parameters<typeof swatchOf>[1]
 
+// see FR-007, FR-019, FR-042, CV-9
+// WHY: the T-236 row each field's null draws; its hue column names the null theme or default.
+const NULL_ROW_OF_FIELD: Readonly<Record<string, string>> = {
+  'taskVisual.fillColor': 'S-155',
+  'taskVisual.strokeColor': 'S-156',
+  'taskGroup.color': 'S-164',
+  'commentBox.strokeColor': 'S-312',
+  'commentBox.fillColor': 'S-146',
+  'commentBox.textColor': 'S-147',
+  'highlightBox.strokeColor': 'S-312',
+  'highlightBox.fillColor': 'S-155',
+}
+
+// see CV-9
+const TRANSPARENT_WORD_OF_COLUMN: Readonly<Partial<Record<string, string>>> = {
+  fillColor: 'noFill',
+  color: 'noFill',
+  strokeColor: 'noLine',
+}
+
+// see T-236, CV-9
+// WHY: a row follows the theme hue (its hue column is a circle) exactly when its colour moves with
+// the hue; read through colourOf, the one published reading of table T-236.
+const HUES_APART: readonly [number, number] = [0, 180]
+
+/** @purity pure */
+function followsThemeHue(rowId: string): boolean {
+  const [one, other] = HUES_APART
+  return [false, true].some((dark) => colourOf(rowId, one, dark, false) !== colourOf(rowId, other, dark, false))
+}
+
+/** @purity pure */
+function colourWord(part: string, language: DisplayLanguage): string {
+  return COLOUR_FIELD_WORDS.get(part)?.[language] ?? ''
+}
+
 // see CV-9, CV-3, CV-7
 /** @purity pure */
-function colourSide(stored: string | null, form: ColourForm, look: ColourLook, dark: boolean): ColourSide {
+function colourSide(
+  stored: string | null,
+  form: ColourForm,
+  look: ColourLook,
+  dark: boolean,
+  nullRow: string | undefined,
+): ColourSide {
+  const word = colourWord(dark ? 'dark' : 'light', look.language)
+  if (stored === null && nullRow !== undefined) {
+    return {
+      word,
+      paint: colourOf(nullRow, look.hue, dark, look.monochrome),
+      note: '',
+      mark: colourWord(followsThemeHue(nullRow) ? 'themeMark' : 'defaultMark', look.language),
+    }
+  }
   const custom = stored === null ? null : customColourOf(stored)
   const isUndefinedSide = custom !== null && (dark ? custom.dark : custom.light) === null
   const notePart = dark ? 'sameAsLight' : 'sameAsDark'
   return {
-    word: COLOUR_FIELD_WORDS.get(dark ? 'dark' : 'light')?.[look.language] ?? '',
+    word,
     paint: swatchOf(stored, form, look.hue, dark, look.monochrome).paint,
     value: swatchOf(stored, form, look.hue, dark, false).paint,
-    note: isUndefinedSide ? (COLOUR_FIELD_WORDS.get(notePart)?.[look.language] ?? '') : '',
+    note: isUndefinedSide ? colourWord(notePart, look.language) : '',
   }
 }
 
@@ -903,7 +1081,10 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   const custom = stored === null ? null : customColourOf(stored)
   const order = displayWords.colourNames.map((entry) => entry.spelling)
   const names = order.filter((name) => offered.includes(name))
-  const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
+  const customWord = colourWord('custom', look.language)
+  const nullRow = NULL_ROW_OF_FIELD[`${control.key.holder}.${control.key.column}`]
+  const isThemeNull = nullRow === undefined || followsThemeHue(nullRow)
+  const transparentPart = TRANSPARENT_WORD_OF_COLUMN[control.key.column]
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps
   // the hue while monochrome is on; CV-7 greys only what is painted.
@@ -922,23 +1103,30 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
       inks: swatches.map((one) => one.ink),
       customWord,
       customValue: custom !== null ? customSideOf(custom, look.dark) : HEX_PAINT.test(drawn) ? drawn : '',
-      light: colourSide(stored, form, look, false),
-      dark: colourSide(stored, form, look, true),
+      light: colourSide(stored, form, look, false, nullRow),
+      dark: colourSide(stored, form, look, true, nullRow),
       names: order.map((name) => ({ name, isOffered: names.includes(name) })),
       theme: {
-        word: COLOUR_FIELD_WORDS.get('theme')?.[look.language] ?? '',
-        hint: COLOUR_FIELD_WORDS.get('themeHint')?.[look.language] ?? '',
+        word: colourWord(isThemeNull ? 'theme' : 'defaultColour', look.language),
+        hint: colourWord(isThemeNull ? 'themeHint' : 'defaultColour', look.language),
+        ...(nullRow === undefined ? {} : { paint: colourOf(nullRow, look.hue, look.dark, look.monochrome) }),
       },
+      ...(transparentPart === undefined || !names.includes(TRANSPARENT_NAME)
+        ? {}
+        : { transparentWord: colourWord(transparentPart, look.language) }),
     },
   }
 }
 
-// see CV-9
+const TRANSPARENT_NAME = 'transparent'
+
+// see CV-9, FR-006
+// WHY: a colour row also carries its name above the field (E-30).
 /** @purity pure */
 function withColourFields(fields: readonly PropertyField[], look: ColourLook): readonly PropertyField[] {
   return fields.map((field) =>
     field.controls.some((one) => one.kind === 'color')
-      ? { ...field, controls: field.controls.map((one) => withColourField(one, look)) }
+      ? { ...field, isNameAbove: true, controls: field.controls.map((one) => withColourField(one, look)) }
       : field,
   )
 }
@@ -965,6 +1153,7 @@ export function propertiesPanelFromSelection(
       isSubjectGone: false,
       fields: settingsFields(settings, schedule, dark, language),
       commands: panelCommands(language),
+      headEntry: commandItemOf(GRS_RESET_ENTRY, language),
     }
   }
 

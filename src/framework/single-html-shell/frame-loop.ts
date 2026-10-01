@@ -165,6 +165,7 @@ import {
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import {
+  clearBrowserStoredForReset,
   readBrowserStored,
   startupAgentApiEnabled,
   startupDisplayLanguage,
@@ -522,6 +523,10 @@ export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE
 export type ConfirmationQuestion = FileFlowQuestion['question']
 
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
+
+// see FR-153, IC-139, QN-11
+const GRS_RESET_ENTRY: IconId = 'IC-139'
+const GRS_RESET_QUESTION: ConfirmationQuestion = 'QN-11'
 
 export type NoticeReason =
   | 'RS-1'
@@ -1068,18 +1073,6 @@ function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): bool
   return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
 }
 
-// see FR-072, IC-17, EN-4, S-99h
-// DEVIATION: spec says a hidden panel keeps no subject (T-280, JDG-283); here the settings go back to the last one (DFC-677)
-/** @purity pure */
-function settingsEntryEventsOf(
-  session: ScreenSession,
-  kept: PropertiesSubject | null,
-): readonly ScreenValuesEvent[] {
-  const pressed: ScreenValuesEvent = { type: 'settingsEntryPressed' }
-  if (panelShowingIn(session) !== null || kept === null) return [pressed]
-  return [{ type: 'propertiesOfChoiceAsked', subject: kept }, pressed]
-}
-
 // see FR-072, T-280
 // DEVIATION: spec says a moved choice leaves the settings shown (T-280); here the choice is shown (DFC-706)
 /** @purity pure */
@@ -1532,6 +1525,23 @@ function flowSurfaceOf(surfaceName: string): FileFlowSurfaceName | null {
   return names.find((flow) => SURFACE_NAME_OF_FLOW[flow] === surfaceName) ?? null
 }
 
+// see FR-153, QN-11
+// WHY: asked even with no unsaved edits; the document is named only when it has some.
+/** @purity pure */
+function grsResetEntryPressedOf(document: Document, session: ScreenSession): SessionEvent {
+  const isUnsaved = session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'
+  const items = isUnsaved ? discardQuestionOf(document).items : []
+  return { type: 'grsResetEntryPressed', question: { manner: CONFIRMATION_MANNER, question: GRS_RESET_QUESTION, items } }
+}
+
+// see FR-153
+// TRAP: clear before the reload; the other way round the reloaded page starts with the old values.
+/** @purity non-pure */
+function resetGrs(pageReload: (() => void) | undefined): void {
+  clearBrowserStoredForReset()
+  pageReload?.()
+}
+
 /** @purity pure */
 export function discardQuestionOf(discarded: Document): FileFlowQuestion {
   return {
@@ -1658,6 +1668,7 @@ export function frameLoop(
   appShell?: AppShellSource,
   startupTemplate?: Document,
   fullScreen?: FullScreenHost,
+  pageReload?: () => void,
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
@@ -1699,9 +1710,6 @@ export function frameLoop(
   // @provisional PND-142
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
-  // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-171, T-206
-  // @provisional PND-338
-  let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
@@ -1846,11 +1854,6 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function isPropertiesPanelOnScreen(): boolean {
     return screen !== undefined && panelShowingIn(session) !== null
-  }
-
-  /** @purity non-pure */
-  function notePanelPutAway(): void {
-    propertiesPanelKept = propertiesPanelKept ?? { subject: null }
   }
 
   // see FR-052, FR-072, S-171, S-248
@@ -2510,6 +2513,7 @@ export function frameLoop(
       if (startupTemplate !== undefined) replaceHeldDocument({ row: 'RD-7', document: startupTemplate })
       return
     }
+    if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)
     if (frame === null) return
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
@@ -2571,6 +2575,10 @@ export function frameLoop(
       const hasStartupTemplate = startupTemplate !== undefined
       const question = discardQuestionOf(held.document)
       sendToSession({ type: 'newDocumentEntryPressed', hasStartupTemplate, question }, frame)
+      return true
+    }
+    if (entry === GRS_RESET_ENTRY) {
+      sendToSession(grsResetEntryPressedOf(held.document, session), frame)
       return true
     }
     if (entry === ROSTER_DELETE_ENTRY) {
@@ -2766,12 +2774,9 @@ export function frameLoop(
         sendToSession({ type: 'resourcesPicked', chosenResources }, frame)
         return
       }
-      case 'toggleDocumentSettingsProperties': {
-        const kept = propertiesPanelKept?.subject ?? null
-        propertiesPanelKept = { subject: kept }
-        for (const event of settingsEntryEventsOf(session, kept)) sendToSession(event, frame)
+      case 'toggleDocumentSettingsProperties':
+        sendToSession({ type: 'settingsEntryPressed' }, frame)
         return
-      }
       case 'toggleAgentApi':
         sendToSession(AGENT_API_ENTRY_PRESSED, frame)
         return
@@ -2796,7 +2801,6 @@ export function frameLoop(
     const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
     const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))
-    if (hasNoUnsettledEntry) notePanelPutAway()
     const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
     sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
   }
@@ -2812,7 +2816,6 @@ export function frameLoop(
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
     const followed = subject === null ? null : choiceFollowedOf(session, subject)
     if (followed === null) return
-    propertiesPanelKept = { subject }
     sendToSession(followed, frame)
   }
 
@@ -2862,7 +2865,6 @@ export function frameLoop(
     if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
-    propertiesPanelKept = { subject }
     sendToSession({ type: 'propertiesOfChoiceAsked', subject }, values)
   }
 

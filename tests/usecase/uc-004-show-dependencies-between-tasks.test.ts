@@ -1,7 +1,7 @@
 // Use-case test for UC-004 (show dependencies between tasks), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, launch, press, readDocument, settle, specMismatch, type Box } from './uc-harness'
+import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, launch, press, readDocument, settle, type Box } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -23,7 +23,6 @@ const pointsOf = async (page: Page, figure: string): Promise<number[][]> => {
 }
 
 test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-023b, S-201)', async ({ page }) => {
-  specMismatch('UC-004 step 5 / FR-009 T-018: the panel of a selected dependency offers linkType as an editable number instead of the FS/SF/FF/SS abbreviation')
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-106')
@@ -101,8 +100,8 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     const selection = await page.evaluate(() => (window as any).grSchedulerAgentApi.readSelection())
     expect(selection.items[0].kind).toBe('dependency')
     await expect.soft(page.locator('[data-role="Properties Panel"]')).toContainText('FS')
-    await expect.soft(page.locator(PANEL + 'input[data-field-row="AT-46"]')).toHaveCount(0)
-    await page.fill(PANEL + 'input[data-field-row="AT-47"]', '2')
+    await expect.soft(page.locator(PANEL + 'input[data-field-row="PR-41"]')).toHaveCount(0)
+    await page.fill(PANEL + 'input[data-field-row="PR-42"]', '2')
     await page.keyboard.press('Tab')
     await settle(page)
     const links = (await readDocument(page)).schedule.tasks.find((t) => t.uid === b)!.dependencies

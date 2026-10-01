@@ -15,7 +15,6 @@
 DFC-374 | tests/system/user-reported-fixes.test.ts | DFC-374: magnifying the row axis stops before one row fills the Row Area | - | - | the row-axis magnification has no ceiling
 DFC-1640 | tests/contract/display-words.contract.test.ts | every section is one this file can key and every entry is a place here or a stated omission | - | - | 28 entries of colourNames, colourField and themeHues (measured 2026-10-01) are neither a place here nor a stated omission
 DFC-1011 | tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts | UC-002 | - | - | UC-002 step 3 / T-015a HM-1: moving a derived row leaves Task.wbsParentUid unchanged
-DFC-1012 | tests/usecase/uc-004-show-dependencies-between-tasks.test.ts | UC-004 | - | - | UC-004 step 5 / FR-009 T-018: linkType is offered as a number, not FS/SF/FF/SS
 DFC-1013 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 4 / FR-047: no delay count in days is drawn
 DFC-1014 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 5 / FR-015: the overlaid pre-change plan loads but IC-4 draws nothing
 DFC-1015 | tests/usecase/uc-008-tell-by-annotations.test.ts | UC-008 | - | - | UC-008 extension 4a / FR-019: hiding the bottom row of a highlight box grows its frame
@@ -29,4 +28,3 @@ DFC-1024 | tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts | -- | STAC
 DFC-1024 | tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts | FR-016 | STACK_TRACE_ERROR | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/unit/uf-47-48-history-bytes.test.ts | -- | STACK_TRACE_ERROR | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-922 | tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts | the GRS JSON open path refuses IV-22 and a bandless row colour | - | - | the GRS JSON open path does not refuse a document breaking IV-22 yet; CR-586 question 2 chose B (wait for DFC-922 / DFC-586, JDG-78)
-DFC-1600 | tests/system/divider-colour-corner-and-sticky-field.test.ts | PR-21 / FR-006: the comment box's field carries the control table T-016 names | - | - | PR-21/PR-28: the comment box colour field no longer matches the T-016 control; lands with CR-606/CR-609 (user OK 2026-10-01, JDG-1007)

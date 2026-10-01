@@ -547,19 +547,21 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     }
     if (placed !== undefined && isCulled(barBoxOf(placed), input)) continue
     const outline = chosen(visual?.strokeColor ?? null, 'outline')
+    // WHY: the width the layout laid the task with (VG-5); a task it did not place draws S-39, as BL-3 does.
+    const outlineWidth = placed?.outlineWidth ?? settings.planStroke
     const plan = paintOf(
       outline,
       chosen(visual?.fillColor ?? null, 'fill'),
       themed('S-156'),
       themed('S-155'),
-      settings.planStroke,
+      outlineWidth,
     )
     const actual = paintOf(
       outline,
       chosen(visual?.fillColor ?? null, 'actual'),
       themed('S-158'),
       themed('S-157'),
-      settings.planStroke,
+      outlineWidth,
     )
     if (task.plan !== null) {
       ;(isPinnedTask ? planPartsPinned : planParts).push(
@@ -606,7 +608,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     }
     if (ended.has(task.taskUid)) {
       if (task.plan !== null) {
-        endOutlineParts.push(endOutlineSvg(task.plan, themed('S-159'), settings.planStroke, `${taskKey}-end-outline`))
+        endOutlineParts.push(endOutlineSvg(task.plan, themed('S-159'), outlineWidth, `${taskKey}-end-outline`))
       }
     }
     if (selected.has(task.taskUid)) {

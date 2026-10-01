@@ -32,7 +32,7 @@ import {
   resetTaskVisualColors,
   setTaskFadeDays,
   setTaskVisualColors,
-  setTaskVisualLineWeight,
+  setTaskVisualStrokeWidth,
   setTaskVisualMilestoneGlyph,
   setTaskVisualShapeKind,
 } from './task-appearance'
@@ -43,8 +43,6 @@ export { repriced } from './percent-complete'
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
-
-export type TaskLineWeight = NonNullable<TaskVisual['lineWeight']>
 
 // see T-019
 export type PlanActualPlacement =
@@ -131,9 +129,9 @@ export type TaskCommand =
     }
   | { readonly kind: 'resetTaskVisualColors'; readonly uid: number }
   | {
-      readonly kind: 'setTaskVisualLineWeight'
+      readonly kind: 'setTaskVisualStrokeWidth'
       readonly uid: number
-      readonly lineWeight: TaskLineWeight | null
+      readonly strokeWidthPx: number | null
     }
 
 /** @purity pure */
@@ -167,7 +165,7 @@ export function blankVisual(taskUid: number): TaskVisual {
     milestoneGlyph: null,
     fillColor: null,
     strokeColor: null,
-    lineWeight: null,
+    strokeWidthPx: null,
   }
 }
 
@@ -349,8 +347,8 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
     case 'resetTaskVisualColors':
       return resetTaskVisualColors(document, command)
 
-    case 'setTaskVisualLineWeight':
-      return setTaskVisualLineWeight(document, command)
+    case 'setTaskVisualStrokeWidth':
+      return setTaskVisualStrokeWidth(document, command)
   }
 }
 
@@ -373,5 +371,5 @@ const TABLE_T108_ROWS: Readonly<Record<TaskCommand['kind'], string>> = {
   setTaskVisualMilestoneGlyph: 'CM-21',
   setTaskVisualColors: 'CM-22',
   resetTaskVisualColors: 'CM-23',
-  setTaskVisualLineWeight: 'CM-24',
+  setTaskVisualStrokeWidth: 'CM-24',
 }

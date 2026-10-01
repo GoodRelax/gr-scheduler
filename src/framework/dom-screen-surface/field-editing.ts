@@ -33,6 +33,8 @@ export interface TextEntryControl {
 
 export const TYPED_CONTROLS = new WeakSet<object>()
 
+export const CONTROL_PICKS = new WeakMap<Element, NonNullable<FieldCommit['pick']>>()
+
 /** @purity pure */
 function textEntryControlOf(target: unknown): TextEntryControl | null {
   if (target === null || typeof target !== 'object') return null
@@ -51,15 +53,27 @@ function isUnchordedDeleteKey(key: Partial<KeyboardEvent>): boolean {
   return HOST_DELETE_KEYS.has(key.key) && !isChorded(key)
 }
 
-// WHY: AS-3, SK-3; the chooser takes no text, so a delete key would reach FR-046 and delete the task.
+// see AS-3, AS-5
+/** @purity pure */
+function isSeatedNameChosenWhole(target: unknown, key: PropertyFieldKey): boolean {
+  const typed = target as Partial<HTMLInputElement>
+  if (key.holder !== 'assignment' || key.resourceUid === null) return false
+  return typeof typed.value === 'string' && typed.value !== '' &&
+    typed.selectionStart === 0 && typed.selectionEnd === typed.value.length
+}
+
+// WHY: AS-3, SK-3; a delete key would otherwise reach FR-046 and delete the task.
 /** @purity non-pure */
 function assigneeLineDeleted(event: Event): FieldCommit | null {
   const key = event as Partial<KeyboardEvent>
   if (!isUnchordedDeleteKey(key)) return null
-  const drawn = textEntryControlOf(event.target) === null ? CONTROL_KEYS.get(event.target as Element) : undefined
+  const named = CONTROL_KEYS.get(event.target as Element)
+  const isTyped = textEntryControlOf(event.target) !== null
+  const drawn = named !== undefined && (!isTyped || isSeatedNameChosenWhole(event.target, named.key)) ? named : undefined
   if (drawn === undefined || drawn.key.holder !== 'assignment' || key.shiftKey === true) return null
   if (typeof event.preventDefault === 'function') event.preventDefault()
   if (typeof event.stopPropagation === 'function') event.stopPropagation()
+  if (isTyped) (event.target as Partial<HTMLElement>).blur?.()
   return { row: drawn.row, key: drawn.key, text: UNASSIGN_TEXT }
 }
 
@@ -75,7 +89,9 @@ function fieldCommitOf(target: unknown): FieldCommit | null {
   if (named === undefined) return null
   const input = target as HTMLInputElement
   const text = input.type === 'checkbox' ? String(input.checked) : input.value
-  return { row: named.row, key: named.key, text }
+  const pick = CONTROL_PICKS.get(target as Element)
+  CONTROL_PICKS.delete(target as Element)
+  return pick === undefined ? { row: named.row, key: named.key, text } : { row: named.row, key: named.key, text, pick }
 }
 
 const PANEL_KEY_SEPARATOR = '#'

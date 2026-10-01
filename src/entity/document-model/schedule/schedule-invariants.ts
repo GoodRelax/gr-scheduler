@@ -504,6 +504,15 @@ const INVARIANTS: readonly Invariant[] = [
           })
         }
       }
+      // WHY: a highlight box is held to the same pair since its outline takes transparent (FR-019).
+      for (const [index, box] of schedule.highlightBoxes.entries()) {
+        if (box.fillColor === TRANSPARENT && box.strokeColor === TRANSPARENT) {
+          found.push({
+            at: `/schedule/highlightBoxes/${index}`,
+            what: `highlight box ${box.id} is drawn with nothing at all`,
+          })
+        }
+      }
       return found
     },
   },

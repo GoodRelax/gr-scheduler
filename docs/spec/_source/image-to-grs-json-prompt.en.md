@@ -73,8 +73,8 @@ You are an expert at reading and converting schedule charts. Read the attached s
      - A gradient that fades into the background or transparency: use the strong end's colour as the fill, and express the fading part as a fade from step 6.
      - A gradient between two colours: use the colour covering more of the bar as the fill (the middle colour if it is half and half), and list it under "Could not match".
    - Leave the bar colour used most in the original as null, and instead set project.themeHue to that colour's hue (an integer 0 to 359: red 0, yellow 60, green 120, blue about 210, purple about 280). A null colour is drawn in the colour made from themeHue, and actual bars and marks follow it. If the original is nearly colourless, leave themeHue at 214.
-   - lineWeight is the outline thickness compared within the original: "thin" / "medium" / "thick". null when no difference is visible.
-   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": colour or null, "strokeColor": colour or null, "lineWeight": weight or null}
+   - strokeWidthPx is the outline thickness compared within the original, as an integer from 1 to 10 (px). When you see three weights, thin / medium / thick, write 1 / 2 / 3. null when no difference is visible.
+   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": colour or null, "strokeColor": colour or null, "strokeWidthPx": weight or null}
 9. People (only when readable)
    - resources gets {"uid": integer, "name": person's name, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}, and assignments gets {"uid": integer, "taskUid": uid, "resourceUid": the person's uid, "carry": {}, "carryElements": []}. These uids may be counted from 1 separately from tasks.
 10. project

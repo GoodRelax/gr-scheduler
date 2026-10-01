@@ -480,7 +480,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskVisual: {
     type: ['object'],
-    required: ['taskUid', 'shapeKind', 'milestoneGlyph', 'fillColor', 'strokeColor', 'lineWeight'],
+    required: ['taskUid', 'shapeKind', 'milestoneGlyph', 'fillColor', 'strokeColor', 'strokeWidthPx'],
     closed: true,
     properties: {
       taskUid: {
@@ -500,8 +500,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
         pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
-      lineWeight: {
-        enum: ['thin', 'medium', 'thick', null],
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+        minimum: 1,
+        maximum: 10,
       },
     },
   },

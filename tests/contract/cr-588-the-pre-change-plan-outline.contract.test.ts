@@ -50,7 +50,7 @@ const BL_2_SHAPE =
 const BL_2_PLACE = '置く区画（ピン止めの帯か、その下の残り、`FR-098`）は、一致する `Task` の予定の形と同じとする'
 const BL_3_NO_FILL = '塗らず、輪郭の線だけを描くこと（MUST）。'
 const BL_3_VALUES =
-  '色は `_assets/tbl-settings.md` の 表 T-236 の `S-443`、太さは同書の 表 T-201 の `S-39`（予定の輪郭と同じ太さ）、破線の刻みは同書の 表 T-206 の `S-444` とする。'
+  '色は `_assets/tbl-settings.md` の 表 T-236 の `S-443`、太さは同書の 表 T-201 の `S-39`（枠線の太さを指定していない予定の輪郭と同じ太さ —— 今の予定の `AT-104` は継がない）、破線の刻みは同書の 表 T-206 の `S-444` とする。'
 const BL_3_NOT_SAME_DASH =
   '⛔ 刻みを 表 T-208 の `S-104`（予実の補助線）や 表 T-206 の `S-175`（選択の枠）と同じ組にしてはならない（MUST NOT）'
 const BL_4 = '表 T-038 の占有に数えないこと（MUST）'
@@ -58,7 +58,7 @@ const BL_4_WHY = '数えると `S-69` を切り替えるたびに現在の日程
 const FR_015_ONE_SIDE = '片側にしか存在しない `Task` は描いてはならない（MUST NOT）。'
 const FR_108_THE_OVERLAY = '変更前の予定の重ね（`FR-015`）'
 const FR_108_NO_GRAB = 'を、掴めないようにし、ほかの操作で動かさないこと（MUST）'
-const VG_5_SCALED = '枠線（`S-39` に描く比を掛けた太さ）'
+const VG_5_SCALED = '枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）'
 const S_444_NOT_SCALED = '表示の倍率を掛けない —— `S-104` と `S-175` と同じく、表 T-252 に行を持たない'
 
 const REQUIREMENTS = unbroken(
@@ -139,6 +139,8 @@ interface StageWish {
   readonly baselines: readonly BaselineWish[]
   readonly rows?: Rows
   readonly settings?: Readonly<Record<string, unknown>>
+  // WHY: AT-104 on every drawn Task's visual; absent leaves it null.
+  readonly strokeWidthPx?: number
 }
 
 interface Stage {
@@ -179,8 +181,12 @@ const rowsOf = (base: Record<string, unknown>, rows: Rows): Record<string, unkno
 const stageOf = (wish: StageWish): Stage => {
   const rows = wish.rows ?? 'one'
   const base = scheduleOf({ tasks: wish.tasks, shapeKind: 'rectangle' }) as unknown as Record<string, unknown>
+  const visuals = (base['taskVisuals'] ?? []) as readonly Record<string, unknown>[]
   const schedule = {
     ...rowsOf(base, rows),
+    ...(wish.strokeWidthPx === undefined
+      ? {}
+      : { taskVisuals: visuals.map((one) => ({ ...one, strokeWidthPx: wish.strokeWidthPx })) }),
     baselineTasks: wish.baselines.map(baselineOf),
   } as unknown as Schedule
   const settings = {
@@ -562,7 +568,23 @@ describe('BL-3 -- the line', () => {
       for (const one of shapes) {
         const width = Number(painted(one, 'stroke-width'))
         expect(near(width, S_39 * displayRatioAt(scale)), `${VG_5_SCALED} at ${scale}: ${width}`).toBe(true)
-        expect(width, `${BL_3_VALUES} (the plan outline's width) at ${scale}`).toBe(planWidth)
+        expect(width, `${BL_3_VALUES} (the width of a plan outline that names none) at ${scale}`).toBe(planWidth)
+      }
+    }
+  })
+
+  it(`BL-3 「${BL_3_VALUES}」: a plan that names its own outline width (AT-104) does not pass it to the outline`, () => {
+    // see BL-3, VG-5, AT-104
+    const named = 5
+    for (const scale of SCALES) {
+      const svg = stageOf({ tasks: [PLAIN], baselines: [SHIFTED], settings: { [DISPLAY_SCALE]: scale }, strokeWidthPx: named }).svg()
+      const planWidth = Number(painted(planElementOf(svg, 1), 'stroke-width'))
+      expect(near(planWidth, named * displayRatioAt(scale)), `premise: ${VG_5_SCALED} -- the plan takes AT-104 at ${scale}`).toBe(true)
+      const shapes = outlineShapesOf(svg)
+      expect(shapes.length, 'premise: the outline is drawn').toBeGreaterThan(0)
+      for (const one of shapes) {
+        const width = Number(painted(one, 'stroke-width'))
+        expect(near(width, S_39 * displayRatioAt(scale)), `${BL_3_VALUES} at ${scale}: ${width}`).toBe(true)
       }
     }
   })

@@ -43,14 +43,19 @@ const INSIDE_PASSES_THROUGH =
 const FR_106_HIGHLIGHT =
   '⭐ ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、`FR-016` の 表 T-246 の `HB-8` 〜 `HB-12` が名指す形とすること（MUST）'
 // see FR-019
-const NULL_DRAWS_THE_DEFAULT = '⭐ 3 つの列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
+// WHY: the fill's null is no longer T-217's default but the theme colour (CR-606 E-31).
+const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
+const NULL_FILL_IS_THE_THEME =
+  '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
+const PLACED_UNFILLED = '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）を写すこと（MUST）'
 const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST）'
-const TRANSPARENT_IS_NOT_FILLED = '塗りの色が透明の箱は塗らない（`S-370` の既定は透明である）。'
+const TRANSPARENT_IS_NOT_FILLED = '塗りの色が透明の箱は塗らない —— 後ろが見える。'
 const FILL_AT_ZO_14 = '⭐ 塗りは `FR-110` の 表 T-020 の `ZO-14` に描くこと（MUST）'
 const CLAMPED_NOT_REWRITTEN = '範囲へ寄せて描き、文書を書き換えないこと（MUST）'
 const OUT_OF_RANGE_REFUSED =
   '⭐ 同じ範囲の外の値を置く命令（表 T-108 の `CM-77` ・ `CM-79` ・ `CM-81` ・ `CM-83`）は拒むこと（MUST）'
-const NO_TRANSPARENT_OUTLINE = 'ハイライトボックスの枠の線に透明を選ばせてはならない（MUST NOT）'
+const NO_TRANSPARENT_OUTLINE = 'ハイライトボックスの枠の線にも、タスクと同じく透明（線なし）を選ばせること（MUST）'
+const NOT_BOTH_TRANSPARENT = '⛔ ただし、塗りと枠の線を同時に透明にすることを許してはならない（MUST NOT）'
 const FILL_MAY_BE_TRANSPARENT = '⭐ 塗りには透明を選ばせてよい'
 // WHY: 05-07-design reads a GRS JSON document this way before the schema runs.
 const MISSING_COLUMNS_READ_AS_NULL =
@@ -404,12 +409,15 @@ describe('CR-558 premises: the clauses these cases read, and the fixture they st
       INSIDE_PASSES_THROUGH,
       FR_106_HIGHLIGHT,
       NULL_DRAWS_THE_DEFAULT,
+      NULL_FILL_IS_THE_THEME,
+      PLACED_UNFILLED,
       OPACITY,
       TRANSPARENT_IS_NOT_FILLED,
       FILL_AT_ZO_14,
       CLAMPED_NOT_REWRITTEN,
       OUT_OF_RANGE_REFUSED,
       NO_TRANSPARENT_OUTLINE,
+      NOT_BOTH_TRANSPARENT,
       FILL_MAY_BE_TRANSPARENT,
     ]) {
       expect(REQUIREMENTS, 'the requirements lost a clause').toContain(clause)
@@ -722,9 +730,12 @@ describe('FR-019: the stroke width and the fill a box is drawn with', () => {
     expect(attributeOf(fill?.text ?? '', 'fill')?.toLowerCase()).toBe('#123456')
   })
 
-  it(`${TRANSPARENT_IS_NOT_FILLED} -- transparent draws no fill, and null draws S-370, which is transparent`, () => {
+  it(`${TRANSPARENT_IS_NOT_FILLED} -- transparent draws no fill`, () => {
     expect(tagsOf(drawnSvg({ fillColor: 'transparent', fillTransparencyPercent: 0 }), FILL_FIGURE(BOX_ID))).toEqual([])
-    expect(tagsOf(drawnSvg({ fillColor: null }), FILL_FIGURE(BOX_ID))).toEqual([])
+  })
+
+  it(`${NULL_FILL_IS_THE_THEME} -- a null fill is painted`, () => {
+    expect(tagsOf(drawnSvg({ fillColor: null }), FILL_FIGURE(BOX_ID))).toHaveLength(1)
   })
 
   it(`${NULL_DRAWS_THE_DEFAULT} -- a null transparency draws S-371's default`, () => {
@@ -853,8 +864,8 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     expect(refusalOf({ kind: 'setHighlightBoxFillTransparency', id: missing, fillTransparencyPercent: 2 })).toEqual(expect.objectContaining({ command: 'CM-79', rule: 'AT-116' }))
   })
 
-  it(`${NO_TRANSPARENT_OUTLINE} -- CM-55 refuses a transparent outline`, () => {
-    expect(editAnnotation(document(), { kind: 'setHighlightBoxStrokeColor', id: BOX_ID, strokeColor: 'transparent' }).ok).toBe(false)
+  it(`${NO_TRANSPARENT_OUTLINE} -- CM-55 takes a transparent outline`, () => {
+    expect(editAnnotation(document(), { kind: 'setHighlightBoxStrokeColor', id: BOX_ID, strokeColor: 'transparent' }).ok).toBe(true)
   })
 
   it('placing the value a column already holds leaves the box as it was', () => {
@@ -868,7 +879,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     }
   })
 
-  it('createHighlightBox leaves the three columns null, so the box draws T-217 defaults', () => {
+  it(`${PLACED_UNFILLED} -- createHighlightBox leaves width and transparency null and copies S-370 to the fill`, () => {
     const result = editAnnotation(document(), {
       kind: 'createHighlightBox',
       id: OTHER_ID,
@@ -877,7 +888,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
     const made = (result.document.schedule.highlightBoxes as unknown as readonly Record<string, unknown>[]).find((one) => one['id'] === OTHER_ID)
     expect(made?.['strokeWidthPx']).toBeNull()
-    expect(made?.['fillColor']).toBeNull()
+    expect(made?.['fillColor']).toBe(S_370_FALLBACK)
     expect(made?.['fillTransparencyPercent']).toBeNull()
   })
 })

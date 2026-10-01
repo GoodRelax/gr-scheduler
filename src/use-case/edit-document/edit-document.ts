@@ -171,7 +171,7 @@ const TASK_KINDS = [
   'setTaskVisualMilestoneGlyph',
   'setTaskVisualColors',
   'resetTaskVisualColors',
-  'setTaskVisualLineWeight',
+  'setTaskVisualStrokeWidth',
 ] as const satisfies readonly TaskCommand['kind'][]
 
 const TASK_GROUP_KINDS = [

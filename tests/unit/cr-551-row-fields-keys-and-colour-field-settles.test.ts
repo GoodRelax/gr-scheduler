@@ -190,7 +190,7 @@ function documentWith(visual: Record<string, unknown> | null = null) {
   document.schedule.tasks = [taskOf(1, { name: 'Alpha', start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' })]
   if (visual !== null) {
     document.schedule.taskVisuals = [
-      { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null, ...visual },
+      { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null, ...visual },
     ]
   }
   return document
@@ -228,6 +228,17 @@ const lastLine = (grid: FakeElement): FakeElement[] => {
 const entryWith = (grid: FakeElement, word: string): FakeElement => {
   const found = lastLine(grid).find((one) => one.children.length === 0 && one.textContent === word)
   if (found === undefined) throw new Error(`the palette draws no entrance ${word}`)
+  return found
+}
+// see CV-9
+// WHY: the theme entrance stands above the grid of names and speaks the theme word for a Task line.
+const themeEntryOf = (grid: FakeElement): FakeElement => {
+  const palette = grid.parentNode as FakeElement
+  const found = palette.children
+    .slice(0, palette.children.indexOf(grid))
+    .flatMap((one) => selfAndDescendants(one))
+    .find((one) => one.getAttribute('data-colour-theme-entry') !== null && (one.textContent ?? '').trim() === THEME_WORD)
+  if (found === undefined) throw new Error(`the palette draws no entrance ${THEME_WORD} above the names`)
   return found
 }
 const transparentOf = (grid: FakeElement): FakeElement => {
@@ -278,7 +289,7 @@ describe('CV-9 / JDG-397 -- the custom colour input', () => {
 
   for (const [name, press] of [
     [TRANSPARENT, (grid: FakeElement) => transparentOf(grid)],
-    ['theme', (grid: FakeElement) => entryWith(grid, THEME_WORD)],
+    ['theme', (grid: FakeElement) => themeEntryOf(grid)],
     [BLUE, (grid: FakeElement) => swatchOf(grid, BLUE)],
   ] as const) {
     it(`CV-9: pressing ${name} while the Custom input is open removes the host input`, async () => {

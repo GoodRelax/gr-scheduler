@@ -36,6 +36,8 @@ OUT = os.path.join(ASSETS, 'tbl-property-items.md')
 
 LANG = 'ja'
 READ_ONLY_SUFFIX = '（読み取り専用）'
+ONE_INPUT_SUFFIX = '（1 つの入力）'
+SHOWN_FOR = ('task', 'milestone', 'both')
 JOIN = ' / '
 
 
@@ -196,6 +198,8 @@ def kinds_cell(item):
     per item.
     """
     kinds = JOIN.join(item['inputKinds'])
+    if item.get('oneInput'):
+        kinds += ONE_INPUT_SUFFIX
     return kinds + READ_ONLY_SUFFIX if item.get('isReadOnly') else kinds
 
 
@@ -208,6 +212,16 @@ def applies_to_cell(item):
     would be drawn on a Task's. ⚠️ Absent means `Task`.
     """
     return item.get('appliesTo', 'Task')
+
+
+def shown_for_cell(item):
+    """Which kind of task a Task row is printed for (CR-606 E-27).
+
+    FR-006 (MUST) filters a Task's rows by Task.milestone after appliesTo;
+    a row whose appliesTo is not Task carries no value and prints a dash.
+    """
+    shown = item.get('shownFor')
+    return '`%s`' % shown if shown else '—'
 
 
 def build(doc):
@@ -223,12 +237,15 @@ def build(doc):
         ' 本書はそれを `_source/property_items_json_to_md.py` が印字したものである。',
         '> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`（検査 16 が呼ぶ）。',
         '',
-        '規則は `FR-006` が持つ。本書は全数と、各行の列・入力の型・対象・備考・交換相手の対応を印字する。',
+        '規則は `FR-006` が持つ。本書は全数と、各行の列・入力の型・対象・出す種類・備考・交換相手の対応を印字する。',
         '',
         '⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** ——'
         ' `FR-006` が「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）」と定める。'
         '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が'
         '`Task` のパネルにも出る**。',
+        '',
+        '⛔ **`出す種類` の欄は、対象が `Task` の行を、タスクとマイルストーンのどちらを選んだときに出すかを言う（MUST）**'
+        ' —— `FR-006` が `Task.milestone` で絞ると定める。⚠️ **対象が `Task` でない行は欄を持たない（`—`）。**',
         '',
         '⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」'
         'と定めるので、表示名は `_source/display-words.json` の `properties` 節が同じ行 ID で持つ。'
@@ -241,15 +258,16 @@ def build(doc):
         '',
         '**表 T-016 — プロパティ項目**',
         '',
-        '| 行 ID | 列（`GRS JSON`）| 入力の型 | 対象 | 備考 | MSPDI |',
-        '| --- | --- | --- | --- | --- | --- |',
+        '| 行 ID | 列（`GRS JSON`）| 入力の型 | 対象 | 出す種類 | 備考 | MSPDI |',
+        '| --- | --- | --- | --- | --- | --- | --- |',
     ]
     for item in doc['items']:
-        out.append('| %s | %s | %s | `%s` | %s | %s |' % (
+        out.append('| %s | %s | %s | `%s` | %s | %s | %s |' % (
             item['id'],
             columns_cell(item),
             kinds_cell(item),
             applies_to_cell(item),
+            shown_for_cell(item),
             broken(prose(item['note'])),
             broken(prose(item['mspdi'])),
         ))
@@ -266,10 +284,22 @@ def problems(doc):
         if rid in seen:
             found.append('%s appears more than once' % rid)
         seen.add(rid)
-        if len(item['columns']) != len(item['inputKinds']):
+        if item.get('oneInput'):
+            if len(item['inputKinds']) != 1:
+                found.append('%s is oneInput and states %d input kind(s); '
+                             'one input has exactly one kind'
+                             % (rid, len(item['inputKinds'])))
+        elif len(item['columns']) != len(item['inputKinds']):
             found.append('%s states %d column(s) and %d input kind(s); '
                          'one kind per column is what the table prints'
                          % (rid, len(item['columns']), len(item['inputKinds'])))
+        is_task = item.get('appliesTo', 'Task') == 'Task'
+        if is_task and item.get('shownFor') not in SHOWN_FOR:
+            found.append('%s is a Task row without shownFor (task, milestone '
+                         'or both); FR-006 filters a Task row by it' % rid)
+        if not is_task and 'shownFor' in item:
+            found.append('%s is not a Task row and carries shownFor; only a '
+                         'Task row is filtered by the kind of task' % rid)
         for cell in ('note', 'mspdi'):
             if LANG not in item[cell]:
                 found.append('%s has no %s cell in %s' % (rid, cell, LANG))

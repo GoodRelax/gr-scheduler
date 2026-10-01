@@ -1148,7 +1148,7 @@ function commandFromEntry(
     case ENTRY.rowExpanderOpenLevelZero:
       return commandFromRowExpanderOpenLevelZero(context)
     case ENTRY.rowAddTopRow:
-      return rowStoodUp(context, null, 1)
+      return rowStoodUp(context, null)
     case ENTRY.rowDeleteAll:
       return everyRowDeleted(context)
     case ENTRY.documentSettingsProperties:

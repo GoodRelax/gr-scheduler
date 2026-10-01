@@ -366,6 +366,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // part of the colour field by the part it names (CV-9); neither is a row.
   colourNames: 'spelling',
   colourField: 'part',
+  // WHY: CR-606 keys the words a property field fills around a value (a dependency end, the
+  // assignee field's add item) by the part they fill; no row of table T-016 numbers them.
+  propertyField: 'part',
   // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
   rowMinHeightField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
@@ -671,7 +674,7 @@ const SCHEDULE = {
       // prints both notes of CV-9 (CR-548).
       fillColor: '#c0504d/',
       strokeColor: '/#3a5f8a',
-      lineWeight: null,
+      strokeWidthPx: null,
     },
   ],
   commentBoxes: [],
@@ -1057,7 +1060,7 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
     }),
   }),
   documentSettings: frameWith({
-    root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null } }),
+    root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
   }),
   noSelection: frameWith({
     selection: emptySelection(),
@@ -1239,6 +1242,41 @@ const HIGHLIGHT_BOX_PICKED: Frame = frameWith({
   selection: selectionWith(emptySelection(), { kind: 'highlightBox', id: THE_HIGHLIGHT_BOX }),
 })
 
+// see T-016, ET-3
+// WHY: the successor holds a dependency line, so the pick names it and the line's place.
+const ON_A_DEPENDENCY = 'Dependency'
+const THE_PREDECESSOR = 2
+
+const SCHEDULE_WITH_A_DEPENDENCY = {
+  ...SCHEDULE,
+  tasks: [
+    {
+      ...SCHEDULE.tasks[0],
+      dependencies: [
+        { predecessorUid: THE_PREDECESSOR, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] },
+      ],
+    },
+    { ...SCHEDULE.tasks[0], uid: THE_PREDECESSOR, name: 'a predecessor', dependencies: [] },
+  ],
+} as unknown as Schedule
+
+const DEPENDENCY_PICKED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_DEPENDENCY,
+  selection: selectionWith(emptySelection(), { kind: 'dependency', successorUid: THE_TASK, ordinal: 0 }),
+})
+
+// see FR-006, T-016
+// WHY: a milestone row is printed only for a milestone task, so its word arrives on this frame.
+const SHOWN_FOR_COLUMN = '出す種類'
+const FOR_A_MILESTONE = 'milestone'
+
+const MILESTONE_PICKED: Frame = frameWith({
+  schedule: {
+    ...SCHEDULE,
+    tasks: [{ ...SCHEDULE.tasks[0], milestone: true }],
+  } as unknown as Schedule,
+})
+
 /**
  * The frame that puts one row of table T-016 on the panel, by its 対象.
  *
@@ -1249,10 +1287,14 @@ const HIGHLIGHT_BOX_PICKED: Frame = frameWith({
  */
 const frameFor = (rowId: string): Frame => {
   const appliesTo = bare(T016.rows.find((row) => row.id === rowId)?.by[APPLIES_TO_COLUMN] ?? '')
-  if (appliesTo === ON_A_TASK) return PANEL_STATES['selection'] as Frame
+  if (appliesTo === ON_A_TASK) {
+    const shownFor = bare(T016.rows.find((row) => row.id === rowId)?.by[SHOWN_FOR_COLUMN] ?? '')
+    return shownFor === FOR_A_MILESTONE ? MILESTONE_PICKED : (PANEL_STATES['selection'] as Frame)
+  }
   if (appliesTo === ON_A_ROW) return ROW_PICKED
   if (appliesTo === ON_A_COMMENT_BOX) return BOX_PICKED
   if (appliesTo === ON_A_HIGHLIGHT_BOX) return HIGHLIGHT_BOX_PICKED
+  if (appliesTo === ON_A_DEPENDENCY) return DEPENDENCY_PICKED
   throw new Error(
     `table T-016 ${rowId} carries 対象 ${JSON.stringify(appliesTo)}, which this file can raise no frame for`,
   )
@@ -1269,6 +1311,72 @@ for (const entry of GENERATED['properties'] ?? []) {
     what: `the name the properties panel shows for ${rowId}`,
     frame: frameFor(rowId),
     read: (view) => propertyFieldName(view, declared),
+  })
+  // WHY: a row shown for both kinds may carry the milestone's own name too (FR-006).
+  if ('milestoneLabel' in entry) {
+    place({
+      section: 'properties',
+      key: rowId,
+      field: 'milestoneLabel',
+      unit: 'UF-67',
+      what: `the name the properties panel shows for ${rowId} while a milestone is selected`,
+      frame: MILESTONE_PICKED,
+      read: (view) => propertyFieldName(view, declared),
+    })
+  }
+}
+
+// see PR-43, FR-038
+const NAME_SLOT = '{name}'
+const UID_SLOT = '{uid}'
+const PREDECESSOR_NAME = 'a predecessor'
+// WHY: a row of table T-016 may list several columns; these two rows each edit one.
+const isOnlyColumn = (row: (typeof T016.rows)[number], column: string): boolean =>
+  (row.by[GRS_COLUMN] ?? '').trim() === `\`${column}\``
+const PREDECESSOR_ROW = T016.rows.find(
+  (row) => bare(row.by[APPLIES_TO_COLUMN] ?? '') === ON_A_DEPENDENCY && isOnlyColumn(row, 'predecessorUid'),
+)?.id
+const dependencyEndWordOf = (text: string): string =>
+  text
+    .split(PREDECESSOR_NAME)
+    .join(NAME_SLOT)
+    .replace(new RegExp(`(?<![0-9])${THE_PREDECESSOR}(?![0-9])`), UID_SLOT)
+// see PR-16, AS-5
+const ASSIGNEE_ROW = T016.rows.find(
+  (row) => bare(row.by[APPLIES_TO_COLUMN] ?? '') === ON_A_TASK && isOnlyColumn(row, 'assignee'),
+)?.id
+const PROPERTY_FIELD_READS: Readonly<Record<string, Pick<Place, 'frame' | 'read'>>> = {
+  dependencyEnd: {
+    frame: DEPENDENCY_PICKED,
+    read: (view) => {
+      const text = view.propertiesPanel?.fields.find((field) => field.row === PREDECESSOR_ROW)?.text
+      return text === undefined ? undefined : dependencyEndWordOf(text)
+    },
+  },
+  addResource: {
+    frame: PANEL_STATES['selection'] as Frame,
+    read: (view) =>
+      view.propertiesPanel?.fields
+        .find((field) => field.row === ASSIGNEE_ROW)
+        ?.controls.find((control) => control.assignee !== undefined)?.assignee?.addWord,
+  },
+}
+
+for (const entry of GENERATED['propertyField'] ?? []) {
+  const part = keyOf('propertyField', entry)
+  const reading = PROPERTY_FIELD_READS[part]
+  if (reading === undefined) {
+    drop('propertyField', part, 'no row of table T-016 names where this part of a property field is printed')
+    continue
+  }
+  place({
+    section: 'propertyField',
+    key: part,
+    field: 'text',
+    unit: 'UF-67',
+    what: `the ${part} word a property field fills around its value (FR-006, FR-038)`,
+    frame: reading.frame,
+    read: reading.read,
   })
 }
 
@@ -2110,6 +2218,26 @@ const rowMinHeightFieldFramesShowing = (
   )
 }
 
+// see CR-606, PR-37, PR-38, PR-43, PR-44, FR-038
+// WHY: a property field fills `{name}` and `{uid}` with a task's own, one line per end,
+// so the word is matched line by line with its slots open (a literal word still matches).
+const propertyFieldFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(
+    `^${word
+      .split(NAME_SLOT)
+      .map((part) => part.split(UID_SLOT).map(escapeForRegExp).join('[0-9]+'))
+      .join('.*')}$`,
+  )
+  return FRAMES.filter((one) =>
+    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) =>
+      text.split('\n').some((line) => pattern.test(line)),
+    ),
+  )
+}
+
 // ---------------------------------------------------------------------------
 // 1. THE CARRIAGE -- what a written word has to satisfy.
 // ---------------------------------------------------------------------------
@@ -2608,6 +2736,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
               : cell.section === 'rowMinHeightField'
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
+                : cell.section === 'propertyField'
+                ? propertyFieldFramesShowing(cell.word, cell.language)
                 : framesShowing(printed, cell.language)
       expect(
         on.length,

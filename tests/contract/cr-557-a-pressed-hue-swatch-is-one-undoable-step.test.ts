@@ -59,7 +59,7 @@ const CLAUSE_ONE_CM_5 =
 const CLAUSE_UN_13 = '取り消しの段は 表 T-027 の `UN-13` に従う。'
 const CLAUSE_NO_STEP = '⛔ 書き込みが文書の値を 1 つも変えなかったときは、取り消しの段を残さないこと（MUST）'
 const CLAUSE_EXCEPTION =
-  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマの色相の欄がこれである。'
+  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
 
 const K_60 = 'K-60'
 const HUE_KEY = { holder: 'project', column: 'themeHue' } as const
@@ -215,7 +215,7 @@ function settingsPanel(document: Document): PropertiesPanel {
       screenLanguage: 'ja',
       helpLanguage: 'ja',
       themePreference: 'light',
-      propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null },
+      propertiesPanelContentState: { kind: 'documentSettingsDisplayed' },
     },
   } as unknown as ScreenSession
   const readings = {

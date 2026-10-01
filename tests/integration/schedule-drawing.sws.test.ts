@@ -300,7 +300,7 @@ const taskVisual = (taskUid: number, over: Partial<TaskVisual> = {}): TaskVisual
   milestoneGlyph: null,
   fillColor: null,
   strokeColor: null,
-  lineWeight: null,
+  strokeWidthPx: null,
   ...over,
 })
 

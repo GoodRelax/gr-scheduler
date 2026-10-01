@@ -30,9 +30,9 @@ const FR_052_STOPS_AT_S_248 =
   '⭐ プロパティパネルの幅は、ポインタ位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST）'
 const FR_052_KEEPS_THE_STOPPED_WIDTH = '離したときの幅は止めて描いた幅とし、それを画面の値とすること（MUST）'
 const FR_052_WRITES_NOTHING = '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
-const FR_072_BACK_WHILE_SHOWN = '設定を開いても選択を解除せず、もう一度同じ入口を押したら直前の選択物へ戻すこと。'
-const FR_072_ONLY_WHILE_SHOWN =
-  '「もう一度同じ入口を押したら直前の選択物へ戻す」は、パネルが設定を出しているあいだの押しに限る。'
+const FR_072_SECOND_PRESS_CLOSES =
+  '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
+const FR_072_NOT_BACK_TO_THE_SELECTION = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
 const FR_072_SETTINGS_AFTER_A_CLOSE =
   '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST）'
 const FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE = '⛔ 閉じたあとの押しで、中身を直前の選択物へ切り替えてはならない（MUST NOT）'
@@ -45,8 +45,8 @@ describe('CR-424 -- the manuscript these cases are driven by', () => {
     ['FR-052 (MUST) -- the held width stops at S-248', FR_052_STOPS_AT_S_248],
     ['FR-052 (MUST) -- the release keeps the stopped width', FR_052_KEEPS_THE_STOPPED_WIDTH],
     ['FR-052 (MUST NOT) -- the width is written nowhere', FR_052_WRITES_NOTHING],
-    ['FR-072 -- a second press goes back to the selection', FR_072_BACK_WHILE_SHOWN],
-    ['FR-072 -- only while the settings are shown', FR_072_ONLY_WHILE_SHOWN],
+    ['FR-072 (MUST) -- a second press closes the panel', FR_072_SECOND_PRESS_CLOSES],
+    ['FR-072 -- with or without a selection, never back to it', FR_072_NOT_BACK_TO_THE_SELECTION],
     ['FR-072 (MUST) -- after a close the entrance shows the settings', FR_072_SETTINGS_AFTER_A_CLOSE],
     ['FR-072 (MUST NOT) -- not the previous selection', FR_072_NOT_THE_SELECTION_AFTER_A_CLOSE],
     ['FR-072 (MUST) -- the pressed state says what is shown', FR_072_THE_PRESSED_STATE],
@@ -366,14 +366,23 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
     },
   )
 
-  it('IC-17 pressed while the settings are shown goes back to the Task shown before', () => {
+  it('IC-17 pressed while the settings are shown closes the panel, not back to the Task shown before', () => {
     const built = bench()
     built.openBySelectingTheTask()
     built.pressIc17()
     expect(built.panel()?.showing, 'premise: IC-17 shows the settings').toBe('documentSettings')
     expect(built.isIc17Pressed(), FR_072_THE_PRESSED_STATE).toBe(true)
     built.pressIc17()
-    expect(built.panel()?.showing, FR_072_BACK_WHILE_SHOWN).toBe('selection')
+    expect(built.panel(), FR_072_SECOND_PRESS_CLOSES).toBeNull()
+    expect(built.isIc17Pressed(), FR_072_THE_PRESSED_STATE).toBe(false)
+  })
+
+  it('IC-17 pressed while the settings are shown closes the panel when nothing was selected too', () => {
+    const built = bench()
+    built.pressIc17()
+    expect(built.panel()?.showing, 'premise: IC-17 shows the settings').toBe('documentSettings')
+    built.pressIc17()
+    expect(built.panel(), FR_072_NOT_BACK_TO_THE_SELECTION).toBeNull()
     expect(built.isIc17Pressed(), FR_072_THE_PRESSED_STATE).toBe(false)
   })
 })

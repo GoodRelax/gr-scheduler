@@ -77,14 +77,28 @@
       "type": "boolean"
      },
      "appliesTo": {
-      "description": "Which selection this row belongs to. FR-006 (MUST) makes the panel print only the rows whose appliesTo matches what is selected, and forbids printing the others -- without it a TaskGroup's height would be drawn on a Task's panel, because the array's order IS the print order and every row in it would be printed. Absent means Task. A CommentBox row is one whose entrance is the panel (FR-097).",
+      "description": "Which selection this row belongs to. FR-006 (MUST) makes the panel print only the rows whose appliesTo matches what is selected, and forbids printing the others -- without it a TaskGroup's height would be drawn on a Task's panel, because the array's order IS the print order and every row in it would be printed. Absent means Task. A CommentBox row is one whose entrance is the panel (FR-097). A Dependency row is printed when a dependency line is selected (FR-009).",
       "type": "string",
       "enum": [
        "Task",
        "TaskGroup",
        "CommentBox",
-       "HighlightBox"
+       "HighlightBox",
+       "Dependency"
       ]
+     },
+     "shownFor": {
+      "description": "Which kind of task the row is printed for: task (Task.milestone is false), milestone (Task.milestone is true) or both. FR-006 (MUST) filters a Task's rows by it after appliesTo. REQUIRED on every row whose appliesTo is Task and FORBIDDEN on every other row -- property_items_json_to_md.py refuses both, so that no Task row is shown for a kind by accident.",
+      "type": "string",
+      "enum": [
+       "task",
+       "milestone",
+       "both"
+      ]
+     },
+     "oneInput": {
+      "description": "True when ONE input writes the same value to every entry of `columns` -- a milestone's planned date writes start and finish, its actual date actualStart and actualFinish (an MSPDI milestone starts and finishes on one day). `inputKinds` then holds exactly one kind. Absent means one input per column.",
+      "type": "boolean"
      },
      "note": {
       "$ref": "#/$defs/prose"

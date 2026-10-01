@@ -4,7 +4,6 @@
 // @purity    pure
 
 import {
-  COLUMN_SHAPES,
   customColourChosen,
   dayOf,
   lastDayForLength,
@@ -61,16 +60,6 @@ function settledTruth(text: string): boolean {
   return text.trim() === String(true)
 }
 
-type VisualColumn = keyof Schedule['taskVisuals'][number]
-
-type TaskLineWeight = NonNullable<Schedule['taskVisuals'][number]['lineWeight']>
-
-// see T-016
-/** @purity pure */
-function isVisualChoice(column: VisualColumn, value: string): boolean {
-  return COLUMN_SHAPES.TaskVisual[column]?.choices?.includes(value) ?? false
-}
-
 // see PR-5, P-5
 // WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
 const ACTUAL_LENGTH_ITEM = 'actualDuration'
@@ -123,6 +112,20 @@ const PLAN_ACTUAL_COLUMNS: readonly string[] = [
   'resume',
   'resumeValid',
 ]
+
+// see PR-35, PR-36, CM-11, CM-13
+/** @purity pure */
+function commandFromMilestoneDay(task: Task, column: keyof Task, text: string): readonly DocumentCommand[] | null {
+  const uid = task.uid
+  const isPlan = column === 'start' || column === 'finish'
+  if (!isPlan && column !== 'actualStart' && column !== 'actualFinish') return null
+  const day = settledDay(text)
+  if (day === undefined) return []
+  if (isPlan) return day === null ? [] : [{ kind: 'setTaskPlanDates', uid, start: day, finish: day }]
+  const place: PlacedPlanActual =
+    day === null ? { row: 'PA-1' } : { row: 'PA-5', actualStart: day, actualFinish: day }
+  return [{ kind: 'setTaskPlanActualState', uid, place }]
+}
 
 // see T-016, PR-3, CM-11, FR-006
 /** @purity pure */
@@ -213,11 +216,9 @@ function commandFromVisualColumn(
     case 'strokeColor':
     case 'fillColor':
       return commandsFromVisualColour(visual, uid, column === 'strokeColor', settledText(text), dark)
-    case 'lineWeight': {
-      const held = settledText(text)
-      if (held !== null && !isVisualChoice('lineWeight', held)) return []
-      const lineWeight = held as TaskLineWeight | null
-      return [{ kind: 'setTaskVisualLineWeight', uid, lineWeight }]
+    case 'strokeWidthPx': {
+      const strokeWidthPx = settledNumber(text)
+      return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidth', uid, strokeWidthPx }]
     }
     default:
       return []
@@ -383,18 +384,24 @@ function resourceUidOfName(schedule: Schedule, name: string): number | null {
 function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
   const uid = Number(text)
   if (!Number.isInteger(uid)) return null
-  // TRAP: ask the roster, not the spelling: a name made of digits must still reach AS-7 / AS-8,
-  // and a uid gone since the chooser was drawn is read as a name.
+  // TRAP: ask the roster: a uid gone since the list was drawn writes nothing.
   return schedule.resources.some((one) => one.uid === uid) ? uid : null
 }
 
-// see AS-3, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
+// see AS-5, AS-8
+/** @purity pure */
+function resourceUidOfCommit(schedule: Schedule, text: string, pick: FieldCommit['pick']): number | null {
+  return pick === 'candidate' ? resourceUidOfChoice(schedule, text) : resourceUidOfName(schedule, text)
+}
+
+// see AS-3, AS-5, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
 /** @purity pure */
 function commandsFromAssigneeField(
   schedule: Schedule,
   taskUid: number,
   seatedUid: number | null,
   text: string,
+  pick: FieldCommit['pick'],
 ): readonly DocumentCommand[] {
   const settled = settledText(text)
   const onTask = new Set<number | null>(
@@ -407,10 +414,11 @@ function commandsFromAssigneeField(
     seatedUid === null ? [] : [{ kind: 'unassignResource', taskUid, resourceUid: seatedUid }]
   if (settled === UNASSIGN_TOKEN) return unseat
 
-  const held = resourceUidOfChoice(schedule, settled) ?? resourceUidOfName(schedule, settled)
+  const held = pick === 'add' ? null : resourceUidOfCommit(schedule, settled, pick)
   if (held !== null) {
     return onTask.has(held) ? [] : [{ kind: 'createAssignment', taskUid, resourceUid: held }, ...unseat]
   }
+  if (pick !== 'add') return []
 
   return [
     { kind: 'createResource', name: settled },
@@ -441,7 +449,9 @@ export function commandFromFieldCommit(
   switch (key.holder) {
     case 'task': {
       const task = taskByUid(schedule, key.uid)
-      return task === null ? [] : commandFromTaskColumn(schedule, task, key.column, commit.text)
+      if (task === null) return []
+      const milestoneDay = task.milestone === true ? commandFromMilestoneDay(task, key.column, commit.text) : null
+      return milestoneDay ?? commandFromTaskColumn(schedule, task, key.column, commit.text)
     }
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
@@ -470,6 +480,6 @@ export function commandFromFieldCommit(
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []
-        : commandsFromAssigneeField(schedule, key.taskUid, key.resourceUid, commit.text)
+        : commandsFromAssigneeField(schedule, key.taskUid, key.resourceUid, commit.text, commit.pick)
   }
 }

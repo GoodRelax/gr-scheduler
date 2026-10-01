@@ -73,8 +73,8 @@
      - 背景の色や透明へ薄れていくグラデーションは、濃い側の色を塗りにし、薄れる部分を 6. のフェードで表す。
      - 2 つの色のあいだのグラデーションは、バーの面積の広いほうの色（半々なら中央の色）を塗りにし、「合わせきれなかったこと」に書く。
    - 原本で最も多く使われているバーの色は null にし、代わりに project.themeHue をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。null の色は themeHue から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHue は 214 のままにする。
-   - lineWeight は輪郭の太さを、原本の中で比べて "thin" / "medium" / "thick" から選ぶ。違いが見えなければ null。
-   - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "lineWeight": 太さか null}
+   - strokeWidthPx は輪郭の太さを、原本の中で比べて 1 〜 10 の整数（px）で選ぶ。細い・中くらい・太いの 3 つに見えるなら 1 ・ 2 ・ 3。違いが見えなければ null。
+   - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "strokeWidthPx": 太さか null}
 9. 担当者（読み取れたときだけ）
    - resources に {"uid": 整数, "name": 担当者名, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当者の uid, "carry": {}, "carryElements": []}。uid はタスクと別に 1 から振ってよい。
 10. project

@@ -18,11 +18,29 @@
    "inputKinds": [
     "文字"
    ],
+   "shownFor": "both",
    "note": {
     "ja": "バーに描くラベル"
    },
    "mspdi": {
     "ja": "`Task/Name`"
+   }
+  },
+  {
+   "id": "PR-34",
+   "columns": [
+    "uid"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": true,
+   "shownFor": "both",
+   "note": {
+    "ja": "**読み取り専用。** 文書の中で一意・不変の番号（`_assets/fig-erd-detail.md` の `AT-24`）。表示するだけであり、書き出しの順で変わる `Task/ID`（`DV-4`）ではない"
+   },
+   "mspdi": {
+    "ja": "`Task/UID`"
    }
   },
   {
@@ -35,11 +53,30 @@
     "日付",
     "日付"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "**予定**の日付"
    },
    "mspdi": {
     "ja": "`Task/Start` `Task/Finish`"
+   }
+  },
+  {
+   "id": "PR-35",
+   "columns": [
+    "start",
+    "finish"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "oneInput": true,
+   "shownFor": "milestone",
+   "note": {
+    "ja": "マイルストーンの**予定**の日。1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終了が同じ日である。空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ"
+   },
+   "mspdi": {
+    "ja": "`Task/Start` `Task/Finish`（同じ日）"
    }
   },
   {
@@ -50,6 +87,7 @@
    "inputKinds": [
     "選択"
    ],
+   "shownFor": "both",
    "note": {
     "ja": "編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。 ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する"
    },
@@ -65,6 +103,7 @@
    "inputKinds": [
     "日付"
    ],
+   "shownFor": "task",
    "note": {
     "ja": ""
    },
@@ -80,6 +119,7 @@
    "inputKinds": [
     "数値"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "文書の列ではない —— `FR-011` が日付から数えた実績の長さ（両端の日は非稼働日でも数える）。入れると、`actualStart` の後に来る稼働日を入れた数 − 1 個数えた日を実績の最後の日（完了していれば `actualFinish`、それ以外は `stop`）に置く"
    },
@@ -95,11 +135,30 @@
    "inputKinds": [
     "日付"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "完了したときだけ入る"
    },
    "mspdi": {
     "ja": "`Task/ActualFinish`"
+   }
+  },
+  {
+   "id": "PR-36",
+   "columns": [
+    "actualStart",
+    "actualFinish"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "oneInput": true,
+   "shownFor": "milestone",
+   "note": {
+    "ja": "マイルストーンの実績の日。1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`）"
+   },
+   "mspdi": {
+    "ja": "`Task/ActualStart` `Task/ActualFinish`（同じ日）"
    }
   },
   {
@@ -111,6 +170,7 @@
     "数値"
    ],
    "isReadOnly": true,
+   "shownFor": "task",
    "note": {
     "ja": "**読み取り専用。** 型と算出は `FR-012`"
    },
@@ -126,6 +186,7 @@
    "inputKinds": [
     "日付"
    ],
+   "shownFor": "both",
    "note": {
     "ja": "終了日とは別の独立マーカー"
    },
@@ -141,6 +202,7 @@
    "inputKinds": [
     "複数行"
    ],
+   "shownFor": "both",
    "note": {
     "ja": ""
    },
@@ -156,6 +218,7 @@
    "inputKinds": [
     "日付"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "中断したときだけ入る"
    },
@@ -171,6 +234,7 @@
    "inputKinds": [
     "真偽"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "`false` = 再開日未定の中断"
    },
@@ -186,8 +250,9 @@
    "inputKinds": [
     "選択"
    ],
+   "shownFor": "milestone",
    "note": {
-    "ja": "`shapeKind` が `'milestone'` のときだけ有効。置いた後も変えられること（`FR-078`）"
+    "ja": "マイルストーンの図形（`_assets/fig-erd-detail.md` の `AT-101`）。置いた後も変えられること（`FR-078`）"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -203,6 +268,7 @@
     "数値",
     "数値"
    ],
+   "shownFor": "task",
    "note": {
     "ja": "日付の曖昧さを端のぼかしで表す。**適用する形状は表 T-012a の `FD-5` が限る**"
    },
@@ -218,6 +284,7 @@
    "inputKinds": [
     "選択"
    ],
+   "shownFor": "both",
    "note": {
     "ja": "階層の深さはここから導出する"
    },
@@ -226,19 +293,82 @@
    }
   },
   {
-   "id": "PR-12",
+   "id": "PR-37",
    "columns": [
-    "strokeColor",
-    "fillColor",
-    "lineWeight"
+    "predecessors"
    ],
    "inputKinds": [
-    "色",
-    "色",
-    "選択"
+    "文字"
    ],
+   "isReadOnly": true,
+   "shownFor": "both",
    "note": {
-    "ja": "FR-007"
+    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは先行の `uid` の昇順。依存が無いときは空の欄とする"
+   },
+   "mspdi": {
+    "ja": "`Task/PredecessorLink/PredecessorUID`"
+   }
+  },
+  {
+   "id": "PR-38",
+   "columns": [
+    "successors"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": true,
+   "shownFor": "both",
+   "note": {
+    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは後続の `uid` の昇順。依存が無いときは空の欄とする"
+   },
+   "mspdi": {
+    "ja": "無い（後続のタスクの `PredecessorLink` から導く）"
+   }
+  },
+  {
+   "id": "PR-12",
+   "columns": [
+    "fillColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "塗りの色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-39",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "枠線の色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-40",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。`_assets/fig-erd-detail.md` の `AT-104`）。空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。範囲は `AT-104` が持つ"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -438,6 +568,73 @@
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-41",
+   "columns": [
+    "linkType"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": true,
+   "appliesTo": "Dependency",
+   "note": {
+    "ja": "**読み取り専用。** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`）"
+   },
+   "mspdi": {
+    "ja": "`PredecessorLink/Type`"
+   }
+  },
+  {
+   "id": "PR-42",
+   "columns": [
+    "lag"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "Dependency",
+   "note": {
+    "ja": "ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。単位は `_assets/tbl-settings.md` の 表 T-213。依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`）"
+   },
+   "mspdi": {
+    "ja": "`PredecessorLink/LinkLag`"
+   }
+  },
+  {
+   "id": "PR-43",
+   "columns": [
+    "predecessorUid"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": true,
+   "appliesTo": "Dependency",
+   "note": {
+    "ja": "**読み取り専用。** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。`FR-038` の辞書の形（名と `uid`）で示す"
+   },
+   "mspdi": {
+    "ja": "`PredecessorLink/PredecessorUID`"
+   }
+  },
+  {
+   "id": "PR-44",
+   "columns": [
+    "successorUid"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": true,
+   "appliesTo": "Dependency",
+   "note": {
+    "ja": "**読み取り専用。** 文書の列ではない —— 依存を入れ子で持つ後続タスク（`_assets/fig-erd-detail.md` の `ET-3`）。`FR-038` の辞書の形（名と `uid`）で示す"
+   },
+   "mspdi": {
+    "ja": "無い（入れ子の位置が表す）"
    }
   }
  ]

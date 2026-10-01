@@ -53,7 +53,7 @@ const CV_9_REFUSED =
 const CV_9_GENERATED =
   '⭐ 一覧は列の形（`_assets/fig-erd-detail.md` の `AT-58`）から生成し、欄・命令・取り込みのどれにも手で書き写してはならない（MUST NOT）。'
 const CV_9_SLOTS_KEPT = 'その欄に並べない名（下の 2 つ）の場所は空けたままとし、後ろの名を詰めてはならない（MUST NOT）'
-const CV_9_FRAME_NO_TRANSPARENT = 'ハイライトボックスの枠の欄には透明を並べない（`FR-019`）。'
+const CV_9_FRAME_TRANSPARENT = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる —— 線が透明でも枠は掴める（`FR-016` の 表 T-246 の `HB-12`）。'
 const CV_9_COMMENT_NO_TRANSPARENT = 'コメントボックスの線の欄と字の欄には透明を並べない（`FR-019`）。'
 // see CV-2
 const CV_2_TWO_VALUES = 'カスタムカラーは、明るいテーマの値と暗いテーマの値の 2 つを持つこと（MUST）。'
@@ -81,7 +81,7 @@ describe('CR-586 premise -- the clauses these cases are built from', () => {
     for (const clause of [CV_9_ONE_LIST, CV_9_REFUSED, CV_9_GENERATED, CV_9_SLOTS_KEPT]) {
       expect(cv9).toContain(clause)
     }
-    expect(cv9).toContain(CV_9_FRAME_NO_TRANSPARENT)
+    expect(cv9).toContain(CV_9_FRAME_TRANSPARENT)
     expect(cv9).toContain(CV_9_COMMENT_NO_TRANSPARENT)
     expect(rowOf(T_017B, 'CV-2').cells.join(' ')).toContain(CV_2_TWO_VALUES)
     expect(rowOf(T_233, 'RS-25').cells.join(' ')).toContain(RS_25_SCENE)
@@ -100,9 +100,9 @@ describe(`CV-9: ${CV_9_GENERATED}`, () => {
     expect(COLUMN_SHAPES.TaskGroup['color']?.choices).toEqual(ROW_COLOURS)
   })
 
-  it(`${CV_9_FRAME_NO_TRANSPARENT} ${CV_9_COMMENT_NO_TRANSPARENT} -- the fill columns still take transparent`, () => {
+  it(`${CV_9_FRAME_TRANSPARENT} ${CV_9_COMMENT_NO_TRANSPARENT} -- the fill columns and the highlight frame take transparent, the comment line and text do not`, () => {
     expect(COLUMN_SHAPES.HighlightBox['fillColor']?.choices).toContain(TRANSPARENT)
-    expect(COLUMN_SHAPES.HighlightBox['strokeColor']?.choices).not.toContain(TRANSPARENT)
+    expect(COLUMN_SHAPES.HighlightBox['strokeColor']?.choices).toContain(TRANSPARENT)
     expect(COLUMN_SHAPES.CommentBox['fillColor']?.choices).toContain(TRANSPARENT)
     expect(COLUMN_SHAPES.CommentBox['strokeColor']?.choices).not.toContain(TRANSPARENT)
     expect(COLUMN_SHAPES.CommentBox['textColor']?.choices).not.toContain(TRANSPARENT)
@@ -197,7 +197,7 @@ const COMMENT_ID = 'c1'
 
 const PANEL_SCHEDULE: Schedule = rowDocument([{ id: ROW_ID, parentId: null }], {}, {
   taskVisuals: [
-    { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null },
+    { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null },
   ],
   highlightBoxes: [
     {

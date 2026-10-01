@@ -144,7 +144,7 @@ erDiagram
         列挙 milestoneGlyph "GRS・15 値"
         文字列 fillColor "GRS"
         文字列 strokeColor "GRS"
-        列挙 lineWeight "GRS・3 値"
+        整数 strokeWidthPx "GRS・px"
     }
     TaskOrigin {
         整数 **taskUid** PK,FK "GRS"
@@ -412,7 +412,7 @@ erDiagram
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。`_assets/tbl-settings.md` の表 T-294 の保存する綴り（例: `red`）か、カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）。規則は表 T-017b。輪郭と同時に透明にできない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`） |
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
-| AT-104 | `TaskVisual` | `lineWeight` | 列挙（3 値） | 可 | — | GRS | — | 輪郭の太さ |
+| AT-104 | `TaskVisual` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-201 の `S-39`） | — | GRS | — | 輪郭（枠線）の太さ。予定バーと実績バーの縁の両方をこの太さで描く。`null` は `_assets/tbl-settings.md` の表 T-201 の `S-39` の太さで描く。範囲はハイライトボックスとコメントボックスの枠の太さ（表 T-217 の `S-369` ・ `S-374`）と揃える（`FR-007` の 表 T-017 の `CL-2`） |
 | AT-105 | `TaskOrigin` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**行が無い = 本ソフトウェア生まれ** |
 | AT-106 | `TaskOrigin` | `sourceProjectUid` | 文字列 | 可 | — | GRS | — | 取り込み元のプロジェクト |
 | AT-107 | `TaskOrigin` | `sourceUid` | 整数 | 否 | — | GRS | — | 取り込み元でのタスクの識別子 |

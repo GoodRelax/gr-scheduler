@@ -150,6 +150,7 @@ export interface PropertiesPanel {
   readonly isSubjectGone: boolean
   readonly fields: readonly PropertyField[]
   readonly commands: readonly CommandItem[]
+  readonly headEntry?: CommandItem
 }
 
 export interface PropertyField {
@@ -160,6 +161,7 @@ export interface PropertyField {
   readonly controls: readonly PropertyControl[]
   readonly unit?: string
   readonly readout?: string
+  readonly isNameAbove?: true
 }
 
 export type PropertyControlKind =
@@ -179,6 +181,7 @@ export interface ColourSide {
   // WHY: paint is greyed while monochrome is on, but the side's value still names the chosen colour.
   // Optional, so a description written before it still draws; absent, the value is read from paint.
   readonly value?: string
+  readonly mark?: string
 }
 
 // see CV-9
@@ -195,12 +198,29 @@ export interface ColourField {
   // see CV-9, CV-5, FR-007
   // WHY: optional for the same reason; the entrance back to the theme is drawn either way.
   readonly theme?: ColourThemeEntry
+  readonly transparentWord?: string
 }
 
 // see CV-9, CV-5
 export interface ColourThemeEntry {
   readonly word: string
   readonly hint: string
+  readonly paint?: string
+}
+
+// see AS-5, AS-6, IC-123, IC-124
+export interface AssigneeCombo {
+  readonly people: readonly { readonly name: string; readonly uid: number; readonly word: string }[]
+  readonly addWord: string
+  readonly sortEntries: readonly CommandItem[]
+  readonly candidatesOf: (typed: string, isDescending: boolean) => readonly AssigneeCandidate[]
+}
+
+// see AS-5, AS-7
+export interface AssigneeCandidate {
+  readonly pick: 'candidate' | 'add'
+  readonly value: string
+  readonly word: string
 }
 
 // see CV-9, T-294
@@ -218,7 +238,7 @@ export interface PropertyControl {
   readonly colour?: ColourField
   // WHY: bare swatches beside choiceValues; ColourField brings entrances FR-041's hue field must not have.
   readonly swatches?: readonly string[]
-  readonly searchWords?: readonly string[]
+  readonly assignee?: AssigneeCombo
   readonly min: number | null
   readonly max: number | null
   readonly widthInFontSizes: number

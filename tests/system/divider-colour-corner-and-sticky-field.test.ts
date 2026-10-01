@@ -101,9 +101,9 @@ const RULE_COLOUR_FOLLOWS_THE_HUE = cellOf(
   T236_COLUMNS,
 ).includes(FOLLOWS_THE_HUE)
 
-// WHY: table T-016 holds five cells after the row ID -- the column, the
-// input form, what it belongs to, the note, and the MSPDI counterpart.
-const T016_COLUMNS = 5
+// WHY: table T-016 holds six cells after the row ID -- the column, the
+// input form, what it belongs to, the kinds it is shown for, the note, and the MSPDI counterpart.
+const T016_COLUMNS = 6
 const T016_FORM = 1
 const T016_SUBJECT = 2
 
@@ -170,8 +170,6 @@ const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
 
 // see FR-065
 const AGENT_API_ENTRANCE = 'IC-20'
-// see FR-072
-const SETTINGS_ENTRANCE = 'IC-17'
 
 // see AM-3
 const AM_3 = 'readDocument'
@@ -595,7 +593,7 @@ async function panelFields(page: Page): Promise<Field[]> {
 }
 
 // WHY: goes red if the comment box's body field has no control or the wrong
-// form; reached via FR-072's IC-17 toggle, not the MK-13 double click route.
+// form; reached by MK-13's double click, as IC-17 now only toggles the settings face (FR-072).
 test(`PR-21 / FR-006: the comment box's field carries the control table T-016 names`, async ({
   baseURL,
 }) => {
@@ -617,19 +615,7 @@ test(`PR-21 / FR-006: the comment box's field carries the control table T-016 na
     // down before the box is picked -- else the press places a second box.
     await page.keyboard.press('Escape')
     await page.waitForTimeout(400)
-    await page.mouse.move(at.x, at.y)
-    await page.mouse.down()
-    await page.mouse.up()
-    await page.waitForTimeout(700)
-
-    expect(
-      await pressEntrance(page, SETTINGS_ENTRANCE),
-      `the entrance ${SETTINGS_ENTRANCE} is on the screen`,
-    ).toBe(true)
-    expect(
-      await pressEntrance(page, SETTINGS_ENTRANCE),
-      `FR-072: a second press on ${SETTINGS_ENTRANCE} goes back to the last selection`,
-    ).toBe(true)
+    await page.mouse.dblclick(at.x, at.y)
     await page.waitForTimeout(700)
 
     const fields = await panelFields(page)

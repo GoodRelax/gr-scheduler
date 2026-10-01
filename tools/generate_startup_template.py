@@ -870,13 +870,14 @@ PHASE_RESOURCES = (
 # Colours an author chose, so FR-007's override is exercised rather than every
 # bar taking the theme. They are stored names of table T-294 (CV-1 of table
 # T-017b, CR-548), which also holds what each draws. ⛔ Never both transparent
-# (IV-9).
+# (IV-9). The third value is the outline width in px (AT-104 strokeWidthPx,
+# 1..10 -- CR-606: thin / medium / thick became 1 / 2 / 3, JDG-922 #14).
 AUTHOR_PAINT = (
-    ('orange', 'dimgray', 'medium'),
-    ('lightgray', 'purple', 'thin'),
-    ('green', 'black', 'thick'),
-    ('transparent', 'red', 'medium'),
-    ('yellow', 'dimgray', 'thin'),
+    ('orange', 'dimgray', 2),
+    ('lightgray', 'purple', 1),
+    ('green', 'black', 3),
+    ('transparent', 'red', 2),
+    ('yellow', 'dimgray', 1),
 )
 
 # The rows that carry a colour of their own, so FR-042's override is drawn.
@@ -2453,7 +2454,7 @@ class Builder(object):
     # -- how it is drawn (A12, tables T-012 and T-012a) ---------------------
 
     def visual(self, uid, shape, glyph=None, fill=None, stroke=None,
-               weight=None):
+               stroke_width_px=None):
         """@purity pure"""
         return {
             'taskUid': uid,
@@ -2461,7 +2462,7 @@ class Builder(object):
             'milestoneGlyph': glyph,
             'fillColor': fill,
             'strokeColor': stroke,
-            'lineWeight': weight,
+            'strokeWidthPx': stroke_width_px,
         }
 
     def build_visuals(self):

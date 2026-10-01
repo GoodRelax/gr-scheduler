@@ -33,7 +33,7 @@ function documentOf(fillColor: string | null): Record<string, any> {
   const document = rowDocument([{ id: 'g1', parentId: null }])
   document.schedule.tasks = [taskOf(1, { name: 'Imported', start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })]
   document.schedule.taskVisuals = [
-    { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor, strokeColor: null, lineWeight: null },
+    { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor, strokeColor: null, strokeWidthPx: null },
   ]
   return document
 }

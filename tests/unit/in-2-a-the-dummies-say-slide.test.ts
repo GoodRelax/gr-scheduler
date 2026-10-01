@@ -127,7 +127,7 @@ const milestoneVisual = (taskUid: number): TaskVisual =>
     milestoneGlyph: 'diamond',
     fillColor: null,
     strokeColor: null,
-    lineWeight: null,
+    strokeWidthPx: null,
   }) as unknown as TaskVisual
 
 const rowOfSchedule = (id: string, order: number) => ({

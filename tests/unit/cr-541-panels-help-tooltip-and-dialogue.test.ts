@@ -35,7 +35,7 @@ import { REQUIREMENTS, rowDocument, rowOf, taskOf } from './cr-541-stage'
 
 const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
 const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
-const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマの色相の欄がこれである。'
+const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
 const Q08B = '⛔ 本要求がそうした欄を数え上げてはならない（MUST NOT）'
 const THEME_HUE_FIELD = 'K-60'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
@@ -82,7 +82,7 @@ const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSessio
     helpLanguage: 'ja',
     propertiesPanelContentState:
       showing === 'documentSettings'
-        ? { kind: 'documentSettingsDisplayed', returnSubject: null }
+        ? { kind: 'documentSettingsDisplayed' }
         : { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } },
   },
 })
@@ -92,7 +92,12 @@ const KINDS = specTable('T-018').rows.map((one) => ({
   abbreviation: (bare(one.by['名'] ?? one.cells[2] ?? '').split('（')[0] ?? '').trim(),
 }))
 
-const LINK_TYPE_SEAT = 'AT-46'
+// see T-016, IR-1
+// WHY: a field carries its T-016 row id; the dependency kind is the Dependency row of linkType.
+const LINK_TYPE_SEAT =
+  specTable('T-016').rows.find(
+    (one) => bare(one.by['対象'] ?? '') === 'Dependency' && (one.by['列（`GRS JSON`）'] ?? '').trim() === '`linkType`',
+  )?.id ?? 'no T-016 row for Dependency.linkType'
 const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const dependencyDocument = (linkType: number) =>

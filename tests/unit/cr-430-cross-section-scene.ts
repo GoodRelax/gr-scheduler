@@ -291,7 +291,7 @@ const visualOf = (taskUid: number, shapeKind: string): unknown => ({
   milestoneGlyph: null,
   fillColor: null,
   strokeColor: null,
-  lineWeight: null,
+  strokeWidthPx: null,
 })
 
 export const day = (n: number): string => `2026-03-${String(n).padStart(2, '0')}T00:00:00`

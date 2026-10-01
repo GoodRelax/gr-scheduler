@@ -196,7 +196,8 @@ export interface HighlightGeometry {
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
   readonly strokeWidthPx: number
-  readonly fillColor: string
+  // WHY: null is the project theme colour (FR-019, AT-146), painted from the theme by the renderer.
+  readonly fillColor: string | null
   readonly fillOpacity: number
   readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }

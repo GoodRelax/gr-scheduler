@@ -1021,7 +1021,7 @@
     "milestoneGlyph",
     "fillColor",
     "strokeColor",
-    "lineWeight"
+    "strokeWidthPx"
    ],
    "additionalProperties": false,
    "properties": {
@@ -1073,13 +1073,13 @@
      ],
      "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
-    "lineWeight": {
-     "enum": [
-      "thin",
-      "medium",
-      "thick",
-      null
-     ]
+    "strokeWidthPx": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "minimum": 1,
+     "maximum": 10
     }
    }
   },

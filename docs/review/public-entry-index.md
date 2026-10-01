@@ -206,11 +206,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `scrollOffsetOf` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf` | -- | function scrollOffsetOf( rows: readonly RowPlacement[], settings: DocumentSettings, rowAreaY: number, ): number |
 | `actualPlacementOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualPlacementOf` | -- | function actualPlacementOf(shapeKind: ShapeKind): 'inside' \| 'below' \| 'sideways' |
 | `actualReachOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualReachOf` | -- | function actualReachOf( shapeKind: ShapeKind, actual: { readonly x: number; readonly width: number }, settings: DrawnSettings, ): number |
-| `drawnEdgeOverhangOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf` | -- | function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
-| `drawnExtentOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnExtentOf` | -- | function drawnExtentOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `drawnEdgeOverhangOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf` | -- | function drawnEdgeOverhangOf( shapeKind: ShapeKind, settings: DrawnSettings, outlineWidth: number = settings.planStroke, |
+| `drawnExtentOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnExtentOf` | -- | function drawnExtentOf( shapeKind: ShapeKind, settings: DrawnSettings, outlineWidth: number = settings.planStroke, |
 | `labelFontSize` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelFontSize` | -- | function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `labelLiftOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelLiftOf` | -- | function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `laidBelow` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#laidBelow` | -- | function laidBelow(shapeKind: ShapeKind): boolean |
+| `outlineWidthOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#outlineWidthOf` | -- | function outlineWidthOf(strokeWidthPx: number \| null \| undefined, settings: DrawnSettings): number |
 | `planHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#planHeightOf` | -- | function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `shapeHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#shapeHeightOf` | -- | function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `zoomYAtPlanHeightFloor` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtPlanHeightFloor` | -- | function zoomYAtPlanHeightFloor(settings: DrawnSettings): number |
@@ -404,7 +405,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
-| `TaskLineWeight` | file only | type | `src/use-case/edit-document/edit-task.ts#TaskLineWeight` | -- | type TaskLineWeight = NonNullable<TaskVisual['lineWeight']> |
 | `visualOf` | file only | function | `src/use-case/edit-document/edit-task.ts#visualOf` | -- | function visualOf(schedule: Schedule, taskUid: number): TaskVisual |
 | `wbsSubtreeOf` | file only | function | `src/use-case/edit-document/edit-task.ts#wbsSubtreeOf` | -- | function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
@@ -412,9 +412,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `resetTaskVisualColors` | file only | function | `src/use-case/edit-document/task-appearance.ts#resetTaskVisualColors` | -- | function resetTaskVisualColors( document: Document, command: Extract<TaskCommand, { readonly kind: 'resetTaskVisualColors' }>, ): EditResult |
 | `setTaskFadeDays` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskFadeDays` | -- | function setTaskFadeDays( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskFadeInDays' \| 'setTaskFadeOutDays' }>, task: Task, ): Ed... |
 | `setTaskVisualColors` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskVisualColors` | -- | function setTaskVisualColors( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskVisualColors' }>, ): EditResult |
-| `setTaskVisualLineWeight` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskVisualLineWeight` | -- | function setTaskVisualLineWeight( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskVisualLineWeight' }>, ): EditResult |
 | `setTaskVisualMilestoneGlyph` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskVisualMilestoneGlyph` | -- | function setTaskVisualMilestoneGlyph( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskVisualMilestoneGlyph' }>, ): EditResult |
 | `setTaskVisualShapeKind` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskVisualShapeKind` | -- | function setTaskVisualShapeKind( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskVisualShapeKind' }>, task: Task, ): EditResult |
+| `setTaskVisualStrokeWidth` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskVisualStrokeWidth` | -- | function setTaskVisualStrokeWidth( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskVisualStrokeWidth' }>, ): EditResult |
 | `createTask` | file only | function | `src/use-case/edit-document/task-create.ts#createTask` | -- | function createTask( document: Document, command: Extract<TaskCommand, { readonly kind: 'createTask' }>, within: WorkingCalendar, ): EditResult |
 | `resetTaskGroupTreeStates` | file only | function | `src/use-case/edit-document/task-group-folding.ts#resetTaskGroupTreeStates` | -- | function resetTaskGroupTreeStates(document: Document): EditResult |
 | `setTaskGroupTreeState` | file only | function | `src/use-case/edit-document/task-group-folding.ts#setTaskGroupTreeState` | -- | function setTaskGroupTreeState( document: Document, command: TaskGroupCommandOf<'setTaskGroupTreeState'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
@@ -666,7 +666,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromRowExpanderOpenAll` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderOpenAll` | -- | function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput |
 | `commandFromRowExpanderOpenLevelZero` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderOpenLevelZero` | -- | function commandFromRowExpanderOpenLevelZero(context: InputContext): TranslatedInput |
 | `everyRowDeleted` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#everyRowDeleted` | -- | function everyRowDeleted(context: InputContext): TranslatedInput |
-| `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp( context: InputContext, parentGroupId: string \| null, depth: number, ): TranslatedInput |
+| `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp(context: InputContext, parentGroupId: string \| null): TranslatedInput |
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#commandFromKey` | -- | function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput |
 | `isViewScaleKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#isViewScaleKey` | -- | function isViewScaleKey(input: KeyInput): boolean |
@@ -865,6 +865,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApiRelayLink` | file only | interface | `src/framework/single-html-shell/agent-api-relay-link.ts#AgentApiRelayLink` | -- | interface AgentApiRelayLink |
 | `openAgentApiRelayLink` | file only | function | `src/framework/single-html-shell/agent-api-relay-link.ts#openAgentApiRelayLink` | -- | function openAgentApiRelayLink( api: AgentApi, place: RelayPlace, openSocket: (address: string) => WebSocket, ): AgentApiRelayLink \| null |
 | `RelayPlace` | file only | type | `src/framework/single-html-shell/agent-api-relay-link.ts#RelayPlace` | -- | type RelayPlace = Pick<Location, 'hash' \| 'host'> |
+| `clearBrowserStoredForReset` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#clearBrowserStoredForReset` | -- | function clearBrowserStoredForReset(): void |
 | `readBrowserStored` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#readBrowserStored` | -- | function readBrowserStored(row: BrowserStoredRow): string \| null |
 | `startupAgentApiEnabled` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupAgentApiEnabled` | -- | function startupAgentApiEnabled(): boolean |
 | `startupDisplayLanguage` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupDisplayLanguage` | -- | function startupDisplayLanguage(): DisplayLanguage |
@@ -1107,6 +1108,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-37 | `SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
 | `AppHeaderItems` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AppHeaderItems` | -- | interface AppHeaderItems |
+| `AssigneeCandidate` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCandidate` | -- | interface AssigneeCandidate |
+| `AssigneeCombo` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCombo` | -- | interface AssigneeCombo |
 | `ColourField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourField` | -- | interface ColourField |
 | `ColourName` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourName` | -- | interface ColourName |
 | `ColourSide` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourSide` | -- | interface ColourSide |
@@ -1192,6 +1195,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, ): OpenModal \| null |
+| `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
 | `NOT_STORED_PROPERTY_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/properties-panel.ts#NOT_STORED_PROPERTY_CONTROL_SIZES` | -- | const NOT_STORED_PROPERTY_CONTROL_SIZES: |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
 | `NOT_STORED_ROW_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/row-title-panel.ts#NOT_STORED_ROW_CONTROL_SIZES` | -- | const NOT_STORED_ROW_CONTROL_SIZES: |
@@ -1276,6 +1280,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillDialogueMessages` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#fillDialogueMessages` | -- | function fillDialogueMessages(host: Document, box: HTMLElement, field: DialogueField): void |
 | `placeDialogueField` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#placeDialogueField` | -- | function placeDialogueField(dialogueField: HTMLElement, view: ScreenView): void |
 | `CONTROL_KEYS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_KEYS` | -- | const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>() |
+| `CONTROL_PICKS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_PICKS` | -- | const CONTROL_PICKS = new WeakMap<Element, NonNullable<FieldCommit['pick']>>() |
 | `fieldEditingOf` | file only | function | `src/framework/dom-screen-surface/field-editing.ts#fieldEditingOf` | -- | function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) |
 | `TextEntryControl` | file only | interface | `src/framework/dom-screen-surface/field-editing.ts#TextEntryControl` | -- | interface TextEntryControl |
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
@@ -1504,4 +1509,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 732 name(s) leave through a public entry (245 of them published by table T-064), 562 more are exported by a file and not by its entry.
+Totals: 734 name(s) leave through a public entry (245 of them published by table T-064), 565 more are exported by a file and not by its entry.

@@ -44,6 +44,25 @@ export function writeBrowserStored(row: BrowserStoredRow, value: string): void {
   }
 }
 
+// see FR-153, T-345, WP-4, WP-5, WP-6
+// WHY: every key of GRS's prefix but S-99c's, old ones too (WP-5); never clear(), which would take
+// other pages' values sharing the origin (WP-6). A refusing host is left alone; the reload follows.
+/** @purity non-pure */
+export function clearBrowserStoredForReset(): void {
+  try {
+    const storage = globalThis.localStorage
+    if (storage === undefined || storage === null) return
+    const kept = BROWSER_STORED_KEY['S-99c']
+    const keys: string[] = []
+    for (let at = 0; at < storage.length; at += 1) {
+      const key = storage.key(at)
+      if (key !== null && key.startsWith(WEB_STORAGE_KEY_PREFIX) && key !== kept) keys.push(key)
+    }
+    for (const key of keys) storage.removeItem(key)
+  } catch {
+  }
+}
+
 // see FR-038, S-99
 /** @purity semi-pure-b */
 export function startupDisplayLanguage(): DisplayLanguage {

@@ -281,7 +281,8 @@ const KEYED_CASES: readonly OutsideCase[] = [
 
 const OUTSIDE_CASES: readonly OutsideCase[] = [...UN_7_CASES, ...KEYED_CASES]
 
-const ROWS_WITH_NO_DOCUMENT_COLUMN = ['UN-9', 'UN-10', 'UN-11'] as const
+// WHY: UN-19 (FR-153) clears browser storage and reloads the page; it writes no document column.
+const ROWS_WITH_NO_DOCUMENT_COLUMN = ['UN-9', 'UN-10', 'UN-11', 'UN-19'] as const
 
 
 describe('表 T-027 -- the 対象外 half, and this file covering all of it', () => {

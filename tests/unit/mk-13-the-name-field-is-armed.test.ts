@@ -1044,7 +1044,15 @@ const ASSIGNEE_FIELD: PropertyField = {
       kind: 'choice',
       text: '',
       choices: [THE_PERSON_ON_IT, THE_OTHER_PERSON],
-      searchWords: [THE_PERSON_ON_IT, THE_OTHER_PERSON],
+      assignee: {
+        people: [
+          { name: THE_PERSON_ON_IT, uid: 1, word: THE_PERSON_ON_IT },
+          { name: THE_OTHER_PERSON, uid: 2, word: THE_OTHER_PERSON },
+        ],
+        addWord: '',
+        sortEntries: [],
+        candidatesOf: () => [],
+      },
     }),
   ],
 }

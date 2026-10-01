@@ -16,10 +16,10 @@ const SETTINGS_MD = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md
 const CLAUSE_EVERY_ROW =
   '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
 const CLAUSE_ANY_HUE_COLUMN =
-  '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマの色相に追随するかだけである。'
+  '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマ色に追随するかだけである。'
 const CLAUSE_SAME_VALUE = '⭐ 画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
 const CLAUSE_FOLLOW_T236 =
-  '画面の色は `_assets/tbl-settings.md` の 表 T-236 に従うこと（MUST） —— 同表の色相の欄が、その行がテーマの色相に追随するかどうかを持つ。'
+  '画面の色は `_assets/tbl-settings.md` の 表 T-236 に従うこと（MUST） —— 同表の色相の欄が、その行がテーマ色に追随するかどうかを持つ。'
 const CLAUSE_COLOUR_ONLY =
   '⚠️ 色だけで分けていたもの（良・注意・不良の `S-152` 〜 `S-154`、依存線 `S-159` と基準日線 `S-163`、カーソル `S-195` と強調 `S-151`）は、モノクロでは明度と形でしか分からない'
 // WHY: no MUST states how the grey is chosen; table T-294's preamble is the one sentence that

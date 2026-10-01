@@ -138,6 +138,8 @@ const HIGHLIGHT_BOX = {
   bottomGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
+  // WHY: unfilled, as CM-52 places a box (S-370); a null fill paints the theme in ZO-14 (CR-606, FR-019).
+  fillColor: 'transparent',
 }
 
 const COMMENT_BOX = {

@@ -16,7 +16,7 @@ import {
   type EditHistory,
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
-import { COLUMN_DEFAULTS, type TaskGroup } from '../../entity/document-model/schedule/schedule'
+import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import {
   editDocument,
   type DocumentCommand,
@@ -174,7 +174,8 @@ function documentHoldingOneRow(
     label: defaultRowName,
     derivedFromTaskUid: null,
     order: 0,
-    treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
+    // WHY: the one row T-050 leaves stands open whatever emptied the rows, as a CM-26 row does (AT-153).
+    treeState: 'temporarilyExpanded',
     editGroup: null,
     color: null,
     minHeight: null,

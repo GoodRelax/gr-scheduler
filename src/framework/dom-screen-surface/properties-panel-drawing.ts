@@ -16,10 +16,11 @@ import {
   SCREEN_COLOURS,
   STYLE,
   anchoredEntry,
+  commandEntry,
   made,
 } from './dom-screen-surface'
 import type { TextEntryControl } from './field-editing'
-import { CONTROL_KEYS, TYPED_CONTROLS } from './field-editing'
+import { CONTROL_KEYS, CONTROL_PICKS, TYPED_CONTROLS } from './field-editing'
 
 // see FR-006
 /** @purity pure */
@@ -84,6 +85,12 @@ function propertyFieldNameStyle(): string {
     `color:${PAINT.quiet};flex:0 0 ${size.namePercent}%;` +
     `text-align:right;font-size:${size.nameTextScale}em;`
   )
+}
+
+// see FR-006, CV-9
+/** @purity pure */
+function propertyFieldNameAboveStyle(): string {
+  return `color:${PAINT.quiet};flex:1 1 100%;text-align:left;font-size:${fieldSizes().nameTextScale}em;`
 }
 
 function propertyControlsStyle(): string {
@@ -380,10 +387,11 @@ function sideSwatchSide(): string {
 }
 
 // see CV-9, CV-3
-// WHY: a side is undefined when the whole field is unset (JDG-403 closed PND-532: blank
-// value, dashed edge, no same-as word), or when the adapter names its twin.
+// WHY: a side is undefined when the adapter names its twin, or when an unset field carries no
+// null mark (a description built without one); a null with its mark is painted (CV-9).
 /** @purity pure */
 function isSideUndefined(control: PropertyControl, side: ColourSide): boolean {
+  if (side.mark !== undefined) return false
   return control.text === UNSET_COLOUR_VALUE || side.note !== ''
 }
 
@@ -406,6 +414,7 @@ function wordOfName(control: PropertyControl, name: string): string {
 
 /** @purity pure */
 function sideValueText(control: PropertyControl, side: ColourSide): string {
+  if (side.mark !== undefined) return side.mark
   if (isSideUndefined(control, side)) return ''
   if (paletteNamesOf(control).includes(control.text)) return wordOfName(control, control.text)
   if (side.paint === TRANSPARENT_PAINT) return wordOfName(control, TRANSPARENT_NAME)
@@ -419,28 +428,28 @@ function sideSwatchStyle(control: PropertyControl, side: ColourSide): string {
   return box + swatchPaint(side.paint, sideSwatchSide()) + SET_SWATCH_BORDER
 }
 
+// WHY: one side kept on one line; the two sides may break onto two lines (CV-9, FR-006).
 /** @purity non-pure */
-function sideElements(host: Document, control: PropertyControl, side: ColourSide): readonly HTMLElement[] {
+function sideElement(host: Document, control: PropertyControl, side: ColourSide, tail: string): HTMLElement {
+  const group = made(host, 'span', 'white-space:nowrap;')
   const word = made(host, 'span', '')
   word.textContent = `${side.word}${SIDE_WORD_END}`
   const mark = made(host, 'span', sideSwatchStyle(control, side))
   mark.setAttribute('data-colour-swatch', side.paint)
   const value = made(host, 'span', '')
-  value.textContent = `${VALUE_GAP}${sideValueText(control, side)}${side.note}`
-  return [word, mark, value]
+  value.textContent = `${VALUE_GAP}${sideValueText(control, side)}${side.note}${tail}`
+  group.append(word, mark, value)
+  return group
 }
 
 // see CV-9
 /** @purity non-pure */
 function colourSidesElement(host: Document, control: PropertyControl, colour: ColourField): HTMLElement {
-  const readout = made(host, 'span', 'flex:1 1 100%;')
+  const readout = made(host, 'span', 'flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;')
   readout.setAttribute('data-colour-sides', 'true')
-  const separator = made(host, 'span', '')
-  separator.textContent = SIDE_SEPARATOR
   readout.append(
-    ...sideElements(host, control, colour.light),
-    separator,
-    ...sideElements(host, control, colour.dark),
+    sideElement(host, control, colour.light, SIDE_SEPARATOR),
+    sideElement(host, control, colour.dark, ''),
   )
   return readout
 }
@@ -583,7 +592,46 @@ function themeEntryElement(host: Document, row: string, control: PropertyControl
   entry.setAttribute('title', hint)
   entry.setAttribute('aria-label', hint)
   if (control.text === UNSET_COLOUR_VALUE) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
-  entry.textContent = colour.theme?.word ?? ''
+  const paint = colour.theme?.paint
+  if (paint !== undefined) {
+    entry.append(made(host, 'span', swatchBox(sideSwatchSide()) + swatchPaint(paint, sideSwatchSide()) + SET_SWATCH_BORDER))
+  }
+  entry.append(wordSpan(host, `${paint === undefined ? '' : VALUE_GAP}${colour.theme?.word ?? ''}`))
+  CONTROL_KEYS.set(entry, { row, key: control.key })
+  commitOnPress(entry)
+  return entry
+}
+
+/** @purity non-pure */
+function wordSpan(host: Document, text: string): HTMLElement {
+  const word = made(host, 'span', '')
+  word.textContent = text
+  return word
+}
+
+// see CV-9
+// WHY: an entrance with its word (no fill / no line); a field that refuses transparent keeps the slot empty.
+/** @purity non-pure */
+function transparentEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
+  const style = `font:inherit;flex:none;min-height:${choiceSide()};`
+  const word = colour.transparentWord
+  if (word === undefined || !transparentOf(control, colour).isOffered) {
+    const slot = made(host, 'span', style + 'visibility:hidden;')
+    slot.setAttribute('data-colour-transparent-slot', 'true')
+    return slot
+  }
+  const entry = made(host, 'button', style)
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('value', TRANSPARENT_NAME)
+  ;(entry as HTMLButtonElement).value = TRANSPARENT_NAME
+  entry.setAttribute(COLOUR_CHOICE_ATTRIBUTE, TRANSPARENT_NAME)
+  entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  entry.setAttribute('aria-label', word)
+  if (control.text === TRANSPARENT_NAME) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
+  entry.append(
+    made(host, 'span', swatchBox(sideSwatchSide()) + swatchPaint(TRANSPARENT_PAINT, sideSwatchSide()) + SET_SWATCH_BORDER),
+    wordSpan(host, `${VALUE_GAP}${word}`),
+  )
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
   return entry
@@ -621,14 +669,17 @@ function colourFieldElements(
     slot.append(hostColourInput(host, row, control, colour))
   }
   const lastLine = made(host, 'div', colourLastLineStyle())
-  const transparent = colourSlotElement(host, row, control, transparentOf(control, colour))
+  const transparent = transparentEntryElement(host, row, control, colour)
   const theme = themeEntryElement(host, row, control, colour)
-  lastLine.append(customEntryElement(host, row, control, colour, slot), transparent, theme, slot)
+  lastLine.append(transparent, customEntryElement(host, row, control, colour, slot), slot)
   holdColourFocusTarget(focusByRow, row, [...slots, transparent, theme])
+  const themeLine = made(host, 'div', colourLastLineStyle())
+  themeLine.append(theme)
   const palette = made(host, 'div', 'flex:1 1 100%;')
   palette.setAttribute('data-colour-palette', row)
-  palette.append(grid, lastLine)
-  return [palette, colourSidesElement(host, control, colour)]
+  palette.setAttribute('data-field-kind', control.kind)
+  palette.append(themeLine, grid, lastLine)
+  return [colourSidesElement(host, control, colour), palette]
 }
 
 // see FR-041, S-368
@@ -645,6 +696,7 @@ function swatchFieldElements(
   holdColourFocusTarget(focusByRow, field.row, slots)
   const palette = made(host, 'div', 'flex:1 1 100%;')
   palette.setAttribute('data-colour-palette', field.row)
+  palette.setAttribute('data-field-kind', control.kind)
   palette.append(grid)
   const shown = made(host, 'span', 'flex:1 1 100%;')
   shown.textContent = field.text
@@ -662,42 +714,141 @@ function forgetClosedCustomColour(description: PropertiesPanel): void {
   }
 }
 
-function rosterId(row: string): string {
-  return `grs-roster-${row}`
+// see AS-5, IC-123, IC-124
+/** @purity pure */
+function comboListStyle(isShown: boolean): string {
+  return (
+    `flex:1 1 100%;display:${isShown ? 'flex' : 'none'};flex-direction:column;border:1px solid ${PAINT.rule};` +
+    `background:${PAINT.ground};color:${PAINT.ink};`
+  )
 }
 
-// see AS-5
+const COMBO_ITEM_ATTRIBUTE = 'data-combo-item'
+const COMBO_HIGHLIGHT_ATTRIBUTE = 'aria-selected'
+const HOST_ARROW_DOWN = 'ArrowDown'
+const HOST_ARROW_UP = 'ArrowUp'
+const NO_HIGHLIGHT = -1
+
+interface ComboState {
+  isDescending: boolean
+  highlighted: number
+}
+
 /** @purity non-pure */
-function searchElements(
+function comboInputOf(
   host: Document,
   row: string,
   control: PropertyControl,
-  words: readonly string[],
+  combo: NonNullable<PropertyControl['assignee']>,
   typedByRow: Map<string, TextEntryControl> | null,
-  withRoster: boolean,
-): readonly HTMLElement[] {
-  const id = rosterId(row)
+): HTMLElement {
   const box = made(host, 'input', propertyControlStyle(control.widthInFontSizes))
   box.setAttribute('type', 'text')
-  box.setAttribute('list', id)
   box.setAttribute('data-field-row', row)
-  box.setAttribute('data-field-search', 'true')
-  ;(box as HTMLInputElement).value = ''
-
+  box.setAttribute('data-field-kind', control.kind)
+  box.setAttribute('data-field-combo', 'true')
+  const seated = combo.people.find((one) => String(one.uid) === control.text)
+  ;(box as HTMLInputElement).value = seated?.name ?? ''
   CONTROL_KEYS.set(box, { row, key: control.key })
   TYPED_CONTROLS.add(box)
-  // TRAP: the only typed entrance into PR-16; without this entry its focus lands nowhere.
   holdTypedEntry(typedByRow, row, control, box)
-  if (!withRoster) return [box]
+  return box
+}
 
-  const roster = host.createElement('datalist')
-  roster.setAttribute('id', id)
-  for (const word of words) {
-    const option = host.createElement('option')
-    option.setAttribute('value', word)
-    roster.append(option)
+// WHY: preventDefault keeps the focus in the combo, and stopPropagation keeps the press from the
+// host's settle-on-press-outside, which would commit the typed text first.
+/** @purity non-pure */
+function onPressHeld(element: HTMLElement, act: () => void): void {
+  element.addEventListener('pointerdown', (event: Event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    act()
+  })
+}
+
+/** @purity non-pure */
+function pickComboItem(box: HTMLElement, item: HTMLElement): void {
+  ;(box as HTMLInputElement).value = item.getAttribute('value') ?? ''
+  CONTROL_PICKS.set(box, item.getAttribute(COMBO_ITEM_ATTRIBUTE) === 'add' ? 'add' : 'candidate')
+  if (typeof box.dispatchEvent === 'function') box.dispatchEvent(new Event('change', { bubbles: true }))
+  if (typeof box.blur === 'function') box.blur()
+}
+
+// see AS-5, IC-123, IC-124
+/** @purity non-pure */
+function drawComboList(
+  host: Document,
+  list: HTMLElement,
+  box: HTMLElement,
+  combo: NonNullable<PropertyControl['assignee']>,
+  state: ComboState,
+): void {
+  state.highlighted = NO_HIGHLIGHT
+  const sorts = combo.sortEntries.map((item, at) => {
+    const entry = commandEntry(host, { ...item, isPressed: (at === 1) === state.isDescending })
+    onPressHeld(entry, () => {
+      state.isDescending = at === 1
+      drawComboList(host, list, box, combo, state)
+    })
+    return entry
+  })
+  const head = made(host, 'div', 'display:flex;justify-content:flex-end;')
+  head.append(...sorts)
+  const shown = combo.candidatesOf((box as HTMLInputElement).value, state.isDescending).map((one) => {
+    const item = made(host, 'div', 'cursor:default;padding:0 0.25em;')
+    item.setAttribute(COMBO_ITEM_ATTRIBUTE, one.pick)
+    item.setAttribute('value', one.value)
+    item.textContent = one.word
+    onPressHeld(item, () => pickComboItem(box, item))
+    return item
+  })
+  list.replaceChildren(head, ...shown)
+}
+
+/** @purity non-pure */
+function onComboKey(event: Event, list: HTMLElement, box: HTMLElement, state: ComboState): void {
+  const key = event as Partial<KeyboardEvent>
+  const all: readonly HTMLElement[] = Array.from(list.querySelectorAll(`[${COMBO_ITEM_ATTRIBUTE}]`))
+  if (key.key === HOST_ARROW_DOWN || key.key === HOST_ARROW_UP) {
+    event.preventDefault()
+    if (all.length === 0) return
+    const step = key.key === HOST_ARROW_DOWN ? 1 : -1
+    const was = state.highlighted
+    state.highlighted = was === NO_HIGHLIGHT ? (step > 0 ? 0 : all.length - 1) : (was + step + all.length) % all.length
+    all.forEach((one, at) => one.setAttribute(COMBO_HIGHLIGHT_ATTRIBUTE, String(at === state.highlighted)))
+    return
   }
-  return [roster as HTMLElement, box]
+  const chosen = all[state.highlighted]
+  if (key.key !== HOST_ENTER || key.isComposing === true || chosen === undefined) return
+  event.preventDefault()
+  event.stopPropagation()
+  pickComboItem(box, chosen)
+}
+
+// see AS-5, AS-6, AS-7, SV-4
+// WHY: a pick commits through the panel's change listener with CONTROL_PICKS naming how it was
+// settled; an Enter with nothing highlighted bubbles on to the panel's own commit.
+/** @purity non-pure */
+function assigneeComboElements(
+  host: Document,
+  row: string,
+  control: PropertyControl,
+  combo: NonNullable<PropertyControl['assignee']>,
+  typedByRow: Map<string, TextEntryControl> | null,
+): readonly HTMLElement[] {
+  const box = comboInputOf(host, row, control, combo, typedByRow)
+  const list = made(host, 'div', comboListStyle(false))
+  list.setAttribute('data-combo-list', row)
+  if (typeof box.addEventListener !== 'function') return [box, list]
+  const state: ComboState = { isDescending: false, highlighted: NO_HIGHLIGHT }
+  box.addEventListener('focus', () => {
+    list.setAttribute('style', comboListStyle(true))
+    drawComboList(host, list, box, combo, state)
+  })
+  box.addEventListener('blur', () => list.setAttribute('style', comboListStyle(false)))
+  box.addEventListener('input', () => drawComboList(host, list, box, combo, state))
+  box.addEventListener('keydown', (event: Event) => onComboKey(event, list, box, state))
+  return [box, list]
 }
 
 const READOUT_ATTRIBUTE = 'data-field-readout'
@@ -752,14 +903,15 @@ export function fieldElement(
   field: PropertyField,
   typedByRow: Map<string, TextEntryControl> | null,
 ): HTMLElement {
-  const line = made(host, 'div', propertyFieldStyle())
+  const line = made(host, 'div', propertyFieldStyle() + (field.isNameAbove === true ? 'flex-wrap:wrap;' : ''))
   line.setAttribute('data-field-row', field.row)
   line.setAttribute('data-editable', String(field.isEditable))
-  const name = made(host, 'span', propertyFieldNameStyle())
+  const name = made(host, 'span', field.isNameAbove === true ? propertyFieldNameAboveStyle() : propertyFieldNameStyle())
   name.textContent = field.name
 
   if (field.controls.length === 0) {
-    const value = made(host, 'span', '')
+    // WHY: pre-line, so a read-only row of one line per dependency shows its lines (PR-37, PR-38).
+    const value = made(host, 'span', 'white-space:pre-line;')
     value.textContent = field.text
     line.append(name, value)
     return line
@@ -771,8 +923,6 @@ export function fieldElement(
     shown.textContent = field.text
     controls.append(shown)
   }
-  // TRAP: one datalist per row: its id is made from the row, and PR-16 draws one line per person.
-  let isRosterDrawn = false
   for (const control of field.controls) {
     if (control.colour !== undefined) {
       controls.append(...colourFieldElements(host, field.row, control, typedByRow))
@@ -782,16 +932,29 @@ export function fieldElement(
       controls.append(...swatchFieldElements(host, field, control, typedByRow))
       continue
     }
+    if (control.assignee !== undefined) {
+      controls.append(...assigneeComboElements(host, field.row, control, control.assignee, typedByRow))
+      continue
+    }
     const drawn = controlElement(host, field.row, control, typedByRow)
     if (control.placeholder !== undefined) drawn.setAttribute('placeholder', control.placeholder)
     controls.append(drawn)
-    const words = control.searchWords
-    if (words !== undefined) {
-      controls.append(...searchElements(host, field.row, control, words, typedByRow, !isRosterDrawn))
-      isRosterDrawn = true
-    }
   }
   if (field.readout !== undefined) controls.append(readoutElement(host, field, field.readout))
+  line.append(name, controls)
+  return line
+}
+
+// see FR-153, IC-139
+// WHY: laid out as a field row, name left and entry right, but carries no field row: it holds no
+// value; anchored so a press reaches the shell as any entry's does (T-109).
+/** @purity non-pure */
+function headEntryElement(host: Document, entry: PropertiesPanel['commands'][number], anchors: Map<string, HTMLElement>): HTMLElement {
+  const line = made(host, 'div', propertyFieldStyle())
+  const name = made(host, 'span', propertyFieldNameStyle())
+  name.textContent = entry.label
+  const controls = made(host, 'div', propertyControlsStyle())
+  controls.append(anchoredEntry(host, entry, anchors))
   line.append(name, controls)
   return line
 }
@@ -826,5 +989,6 @@ export function fillPropertiesPanel(
     if (first === undefined) drawn.push(wayOut)
     else first.append(wayOut)
   }
-  panel.replaceChildren(...drawn)
+  const head = description.headEntry === undefined ? [] : [headEntryElement(host, description.headEntry, anchors)]
+  panel.replaceChildren(...head, ...drawn)
 }

@@ -102,6 +102,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   confirmationAnswered: [{ isProceeding: true }, { isProceeding: false }],
   changeQuestionRaised: [{ question: question('QN-1'), owedAction: { kind: 'changeDocument', writes: [], created: null } }],
   newDocumentEntryPressed: [true, false].map((hasStartupTemplate) => ({ hasStartupTemplate, question: question('QN-5') })),
+  grsResetEntryPressed: [{ question: question('QN-11') }],
   flowSurfaceClosed: ['U-56', 'U-61', 'U-62'].map((surfaceName) => ({ surfaceName })),
   documentFileRead: [{ question: question('QN-5') }],
   documentOpenFailed: [{}],

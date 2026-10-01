@@ -56,7 +56,8 @@ function sameSide(linkType: number): boolean {
 /** @purity pure */
 function drawnOverhangOf(placed: TaskPlacement, settings: DrawnSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
-  return isLine ? 0 : settings.planStroke / 2
+  // see AT-104
+  return isLine ? 0 : (placed.outlineWidth ?? settings.planStroke) / 2
 }
 
 // see FR-009, EL-1

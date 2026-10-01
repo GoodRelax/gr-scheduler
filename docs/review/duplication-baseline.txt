@@ -51,7 +51,7 @@ tbl-glossary.md/T:T-104 K-126 + tbl-glossary.md/T:T-104 K-127
 01-04-requirements.md/T:T-051 HF-12 + 01-04-requirements.md/T:T-051 HF-20
 tbl-settings.md/T:T-205 S-83 + tbl-settings.md/T:T-205 S-84
 tbl-settings.md/T:T-212 S-124 + tbl-settings.md/T:T-212 S-439
-tbl-glossary.md/T:T-108 CM-55 + tbl-glossary.md/T:T-108 CM-77
+tbl-glossary.md/T:T-108 CM-55 + tbl-glossary.md/T:T-108 CM-77 + tbl-glossary.md/T:T-108 CM-78
 tbl-glossary.md/T:T-108 CM-80 + tbl-glossary.md/T:T-108 CM-81
 tbl-glossary.md/T:T-108 CM-79 + tbl-glossary.md/T:T-108 CM-83
 01-04-requirements.md/T:T-246 HB-10 + 01-04-requirements.md/T:T-246 HB-11

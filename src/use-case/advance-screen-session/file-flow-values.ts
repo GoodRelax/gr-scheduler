@@ -35,7 +35,7 @@ export type FileFlowWriteForm = { readonly kind: 'save' } | { readonly kind: 'ex
 // see NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
-  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10'
+  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
 }
 
@@ -51,6 +51,7 @@ export type FileFlowOwedAction =
       readonly created: FileFlowCreatedSubject | null
     }
   | { readonly kind: 'startNewDocument' }
+  | { readonly kind: 'resetGrs' }
 
 export type FileFlowSurfaceName = 'U-56' | 'U-61' | 'U-62'
 
@@ -450,6 +451,13 @@ function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDo
   return combined(values, { confirmationState: asked(event.question, { kind: 'startNewDocument' }) }, NO_EFFECTS)
 }
 
+// see FR-153, QN-11, T-290
+/** @purity pure */
+function onGrsResetEntryPressed(values: FileFlowValues, event: EventOf<'grsResetEntryPressed'>): FileFlowStep {
+  if (isQuestionAsked(values)) return refused(values)
+  return combined(values, { confirmationState: asked(event.question, { kind: 'resetGrs' }) }, NO_EFFECTS)
+}
+
 // WHY: a second question replaces the first, as today's shell overwrites it (CR-460 section 8).
 /** @purity pure */
 function onOverwriteQuestionRaised(values: FileFlowValues, event: EventOf<'overwriteQuestionRaised'>): FileFlowStep {
@@ -467,6 +475,7 @@ const HANDLERS: {
   confirmationAnswered: onConfirmationAnswered,
   changeQuestionRaised: onChangeQuestionRaised,
   newDocumentEntryPressed: onNewDocumentEntryPressed,
+  grsResetEntryPressed: onGrsResetEntryPressed,
   flowSurfaceClosed: onFlowSurfaceClosed,
   documentFileRead: onDocumentFileRead,
   documentOpenFailed: onDocumentOpenFailed,

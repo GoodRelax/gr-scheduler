@@ -2373,23 +2373,20 @@
     },
     {
      "seat": 104,
-     "name": "lineWeight",
-     "type": "列挙（3 値）",
-     "nullable": "可",
+     "name": "strokeWidthPx",
+     "type": "整数（px）",
+     "nullable": "可（`null` = 表 T-201 の `S-39`）",
      "json": {
-      "kind": "enum",
-      "values": [
-       "thin",
-       "medium",
-       "thick"
-      ],
+      "kind": "integer",
+      "min": 1,
+      "max": 10,
       "null": true
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "輪郭の太さ"
+      "ja": "輪郭（枠線）の太さ。予定バーと実績バーの縁の両方をこの太さで描く。`null` は `_assets/tbl-settings.md` の表 T-201 の `S-39` の太さで描く。範囲はハイライトボックスとコメントボックスの枠の太さ（表 T-217 の `S-369` ・ `S-374`）と揃える（`FR-007` の 表 T-017 の `CL-2`）"
      }
     }
    ]

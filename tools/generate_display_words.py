@@ -252,8 +252,21 @@ DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 # hint it shows (E-44, JDG-405). HELD HERE, the same move as SCALE_ECHO_ENDS:
 # CV-9 states them in prose and no table holds them as rows. KEYS, not words.
 # The hint is a part of its own: this section's entries carry one word each.
+#
+# CR-606 (CV-9's new order, JDG-863 / JDG-990): the transparent entrance reads
+# noFill on a fill field and noLine on a line field; the null marks themeMark /
+# defaultMark stand where the value would; defaultColour is the word of the
+# entrance back to a null that does not follow the theme hue (S-312, S-147).
 COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
-                      'theme', 'themeHint')
+                      'theme', 'themeHint', 'noFill', 'noLine', 'themeMark',
+                      'defaultMark', 'defaultColour')
+
+# CR-606 E-28: the words of the properties panel's rows that no table holds as
+# rows -- how one end of a dependency is written ({name} and {uid} slots, the
+# read-only rows PR-37/PR-38/PR-43/PR-44) and the item that adds a resource
+# (AS-5, {name} slot). HELD HERE, the same move as COLOUR_FIELD_PARTS. KEYS,
+# not words.
+PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource')
 
 # CR-582: the parts of a row's min height field (table T-338): the unit beside
 # the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
@@ -465,6 +478,7 @@ def roster():
         'weekdays': list(WEEKDAYS),
         'colourNames': colour_spellings(),
         'colourField': list(COLOUR_FIELD_PARTS),
+        'propertyField': list(PROPERTY_FIELD_PARTS),
         'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
@@ -534,6 +548,7 @@ SHAPE = {
     'weekdays': ('weekday', ('text',)),
     'colourNames': ('spelling', ('text',)),
     'colourField': ('part', ('text',)),
+    'propertyField': ('part', ('text',)),
     'rowMinHeightField': ('part', ('text',)),
     'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
@@ -541,6 +556,13 @@ SHAPE = {
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
+}
+
+
+# section -> the word fields an entry MAY carry beside SHAPE's. CR-606 E-17:
+# PR-1 names a milestone's name with its own word (FR-006), under the same row.
+OPTIONAL_WORD_FIELDS = {
+    'properties': ('milestoneLabel',),
 }
 
 
@@ -592,8 +614,14 @@ def problems(doc, wanted):
                 else:
                     found.extend(word_problems('%s/%s' % (where, field),
                                                entry[field]))
+            optional = OPTIONAL_WORD_FIELDS.get(section, ())
+            for field in optional:
+                if field in entry:
+                    found.extend(word_problems('%s/%s' % (where, field),
+                                               entry[field]))
             for field in entry:
-                if field != key_field and field not in word_fields:
+                if (field != key_field and field not in word_fields
+                        and field not in optional):
                     found.append('%s: %s is not a field of this section'
                                  % (where, field))
     for section in doc:
@@ -624,7 +652,8 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'colourNames', 'colourField', 'rowMinHeightField',
+                    'colourNames', 'colourField', 'propertyField',
+                    'rowMinHeightField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel'):

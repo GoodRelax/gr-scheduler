@@ -177,9 +177,9 @@ function writesOf(schedule: Schedule, event: TreeStateEvent): Written[] {
 }
 
 describe('table T-328 -- the manuscript this contract walks', () => {
-  it('the rowTree region holds the five values of AT-153, the ten events of CR-570 section 14 and rowRevealAsked', () => {
+  it('the rowTree region holds the five values of AT-153, starts a new row temporarilyExpanded, and names its twelve events', () => {
     expect(STATES).toEqual(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'])
-    expect(MACHINE.states.filter((s) => s.initial).map((s) => s.key)).toEqual(['auto'])
+    expect(MACHINE.states.filter((s) => s.initial).map((s) => s.key)).toEqual(['temporarilyExpanded'])
     expect(EVENTS.map((e) => e.key)).toEqual([
       'oneLevelOpenPressed',
       'allBelowOpenPressed',
@@ -190,6 +190,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
       'topLevelOpenPressed',
       'childRowAddPressed',
       'fitPressed',
+      'everyRowDeletePressed',
       'rowZoomShrinkPressed',
       'rowRevealAsked',
     ])

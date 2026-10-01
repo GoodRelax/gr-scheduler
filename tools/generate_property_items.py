@@ -75,6 +75,11 @@ def build():
             'inputKinds': list(item['inputKinds']),
             'isReadOnly': bool(item.get('isReadOnly', False)),
             'appliesTo': item.get('appliesTo', DEFAULT_APPLIES_TO),
+            # CR-606 E-26: a Task row says which kind of task it is printed
+            # for (FR-006 filters by Task.milestone); any other row has none.
+            'shownFor': item.get('shownFor'),
+            # CR-606 E-21: ONE input writes the same value to every column.
+            'oneInput': bool(item.get('oneInput', False)),
         }
         items.append(one)
     return {'$comment': BANNER, 'items': items}

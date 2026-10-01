@@ -47,7 +47,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 const CLAUSE_FIRST_FIELD =
-  '⭐ テーマの色相を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の先頭の欄とすること（MUST）'
+  '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の先頭の欄とすること（MUST）'
 const CLAUSE_ROWS_IN_ORDER =
   'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
 const CLAUSE_SWATCH_PAINT =
@@ -61,9 +61,9 @@ const CLAUSE_NO_ENTRANCES =
   '⛔ この欄に、カスタムカラーの入口・透明・テーマ追随へ戻す入口（表 T-017b の `CV-9` と `FR-007` の「戻す入口」）を並べてはならない（MUST NOT）'
 const CLAUSE_READ_ONLY = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）。'
 const CLAUSE_EXCEPTION =
-  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマの色相の欄がこれである。'
+  '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
 const CLAUSE_MONOCHROME_EXCEPTION =
-  '⚠️ 例外は、上の段落のテーマの色相の欄の見本だけである —— 見本は 表 T-305 の各行の色相で解いた `S-151` で塗り、モノクロを効かせない（上の段落の MUST NOT）。'
+  '⚠️ 例外は、上の段落のテーマ色の欄の見本だけである —— 見本は 表 T-305 の各行の色相で解いた `S-151` で塗り、モノクロを効かせない（上の段落の MUST NOT）。'
 
 const K_60 = 'K-60'
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
@@ -195,7 +195,7 @@ function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
       screenLanguage: language,
       helpLanguage: language,
       themePreference: preference,
-      propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null },
+      propertiesPanelContentState: { kind: 'documentSettingsDisplayed' },
     },
   } as unknown as ScreenSession
   const readings = {

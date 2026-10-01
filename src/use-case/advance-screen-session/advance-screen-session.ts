@@ -155,6 +155,7 @@ const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } 
   confirmationAnswered: true,
   changeQuestionRaised: true,
   newDocumentEntryPressed: true,
+  grsResetEntryPressed: true,
   flowSurfaceClosed: true,
   documentFileRead: true,
   documentOpenFailed: true,

@@ -7,7 +7,6 @@ import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-setting
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   groupDepthLimit,
-  groupDepthThresholdOf,
   keptInViewByTreeState,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -103,7 +102,7 @@ export function commandFromRowEntry(
     if (parentDepth >= SETTINGS_CONSTANTS.maxGroupDepth) {
       return nothingToDo('rowIsAtTheDeepestLevel')
     }
-    return rowStoodUp(context, rowGroupId, parentDepth + 1)
+    return rowStoodUp(context, rowGroupId)
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
@@ -126,15 +125,21 @@ function rowDeleted(context: InputContext, rowGroupId: string): TranslatedInput 
   return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId, newGroupId: context.newGroupId }])
 }
 
-// see HF-20, CD-6, IC-106
+// see HF-20, CD-6, IC-106, T-328
 // WHY: CM-27 once per top row in one bundle: one undo unit, and the row rule of T-050 sees the last go.
+// WHY: the same bundle opens level zero (everyRowDeletePressed), so the one row T-050 leaves is drawn.
 /** @purity pure */
 export function everyRowDeleted(context: InputContext): TranslatedInput {
   const newGroupId = context.newGroupId
-  const writes: DocumentCommand[] = context.document.schedule.taskGroups
+  const document = context.document
+  const deletes: DocumentCommand[] = document.schedule.taskGroups
     .filter((row) => row.parentId === null)
     .map((row) => ({ kind: 'deleteTaskGroup', groupId: row.id, newGroupId }))
-  if (writes.length === 0) return CONSUMED_ELSEWHERE
+  if (deletes.length === 0) return CONSUMED_ELSEWHERE
+  const writes: DocumentCommand[] = [
+    ...deletes,
+    ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, { type: 'everyRowDeletePressed' }),
+  ]
   return acted({ kind: 'changeDocument', writes: [writes], question: 'QN-10' })
 }
 
@@ -213,30 +218,14 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): n
   return lastOrder === null ? 0 : lastOrder + 1
 }
 
-// see HF-14, HF-17, T-328
+// see HF-14, HF-17, T-328, AT-153
+// WHY: the new row is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
-export function rowStoodUp(
-  context: InputContext,
-  parentGroupId: string | null,
-  depth: number,
-): TranslatedInput {
-  const settings = context.document.documentSettings
-  const drawn = drawnSettingsOf(settings)
-  const opensTier = depth > groupDepthLimit(drawn)
+export function rowStoodUp(context: InputContext, parentGroupId: string | null): TranslatedInput {
   const newGroupId = context.newGroupId
   // TRAP: keep the tree state writes in the row's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
     [
-      opensTier
-        ? [
-            {
-              kind: 'setZoom',
-              zoomX: settings.zoomX,
-              // TRAP: only `groupDepthThresholdOf`; any other route can differ by one ulp from `groupDepthLimit`.
-              zoomY: groupDepthThresholdOf(depth, drawn),
-            } as const,
-          ]
-        : [],
       [
         ...treeWritesOf(context, { type: 'childRowAddPressed', pressedRowId: parentGroupId }),
         {

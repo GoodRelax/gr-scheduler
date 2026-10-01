@@ -75,13 +75,17 @@ export type AnnotationCommand =
 const TRANSPARENT = 'transparent'
 
 // see FR-019, CV-1
+// WHY: the outline takes transparent (no line); the pair with the fill is IV-9's, checked on the result.
 /** @purity pure */
 function boxStrokeRefusal(strokeColor: string | null): Refusal | null {
-  if (strokeColor === TRANSPARENT) {
-    return reject('CM-55', 'FR-019', 'a highlight box outline may not be transparent')
-  }
-  if (strokeColor === null || isStoredColour(strokeColor, false)) return null
+  if (strokeColor === null || isStoredColour(strokeColor, true)) return null
   return reject('CM-55', 'CV-1', `not a palette name or a custom colour: ${strokeColor}`)
+}
+
+// see IV-9, FR-019, FR-007
+/** @purity pure */
+function boxDrawnWithNothing(box: HighlightBox): boolean {
+  return box.fillColor === TRANSPARENT && box.strokeColor === TRANSPARENT
 }
 
 // see CV-1, CV-9
@@ -258,7 +262,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         strokeColor: null,
         cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
         strokeWidthPx: null,
-        fillColor: null,
+        // WHY: placed unfilled (S-370); a null fill would paint the theme colour (FR-019).
+        fillColor: NOT_STORED_ANNOTATION_SIZES['S-370'],
         fillTransparencyPercent: null,
       }
       return edited(withSchedule(document, { highlightBoxes: [...schedule.highlightBoxes, box] }))
@@ -359,6 +364,9 @@ function editHighlightBoxLook(document: Document, command: HighlightBoxLookComma
   const { commandRow, refusal, look } = highlightBoxLookChange(command)
   const box = highlightBoxOf(document, command.id)
   if (box === null) return refused([reject(commandRow, 'AT-116', `no highlight box with id ${command.id}`)])
+  if (refusal === null && boxDrawnWithNothing({ ...box, ...look })) {
+    return refused([reject(commandRow, 'IV-9', 'a highlight box may not have both its fill and its outline transparent')])
+  }
   return lookEdited(document, box, refusal, look, putHighlightBox)
 }
 

@@ -264,7 +264,7 @@ function fixtureDocument(): Document {
           milestoneGlyph: 'diamond',
           fillColor: null,
           strokeColor: null,
-          lineWeight: null,
+          strokeWidthPx: null,
         },
       ],
       commentBoxes: [],

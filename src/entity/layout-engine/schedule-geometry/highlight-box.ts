@@ -62,7 +62,8 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
       // WHY: not defaulted to S-132: CM-52 gives that to a new box, and a box that states none draws none.
       cornerRadiusPx: box.cornerRadiusPx === null ? null : drawnAnnotationNumber(box.cornerRadiusPx, 'S-132'),
       strokeWidthPx: drawnAnnotationNumber(box.strokeWidthPx, 'S-369'),
-      fillColor: box.fillColor ?? NOT_STORED_ANNOTATION_SIZES['S-370'],
+      // WHY: null is the project theme colour (FR-019); the renderer, which holds the theme, paints it.
+      fillColor: box.fillColor ?? null,
       // see AT-147
       fillOpacity: 1 - drawnAnnotationNumber(box.fillTransparencyPercent, 'S-371') / 100,
       hasSideHandles: sideHandlesOf(width, height),

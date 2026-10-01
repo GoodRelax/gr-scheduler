@@ -358,7 +358,7 @@ function taskPanel(task: Record<string, unknown> = {}, visual: Record<string, un
   ]
   if (visual !== null) {
     document.schedule.taskVisuals = [
-      { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null, ...visual },
+      { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null, ...visual },
     ]
   }
   const bench = panelBench(document)

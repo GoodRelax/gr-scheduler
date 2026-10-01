@@ -199,7 +199,7 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
           milestoneGlyph: 'diamond',
           fillColor: null,
           strokeColor: null,
-          lineWeight: null,
+          strokeWidthPx: null,
         })),
       commentBoxes: [],
       highlightBoxes: [],

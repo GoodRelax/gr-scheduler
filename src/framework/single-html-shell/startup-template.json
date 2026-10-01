@@ -40538,7 +40538,7 @@
     "milestoneGlyph": "triangleDown",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 441,
@@ -40546,7 +40546,7 @@
     "milestoneGlyph": "diamond",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 448,
@@ -40554,7 +40554,7 @@
     "milestoneGlyph": "circle",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 644,
@@ -40562,7 +40562,7 @@
     "milestoneGlyph": "square",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 682,
@@ -40570,7 +40570,7 @@
     "milestoneGlyph": "star",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 700,
@@ -40578,7 +40578,7 @@
     "milestoneGlyph": "hexagon",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 883,
@@ -40586,7 +40586,7 @@
     "milestoneGlyph": "pentagon",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 942,
@@ -40594,7 +40594,7 @@
     "milestoneGlyph": "triangleUp",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 1,
@@ -40602,7 +40602,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 2,
@@ -40610,7 +40610,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 3,
@@ -40618,7 +40618,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 4,
@@ -40626,7 +40626,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 5,
@@ -40634,7 +40634,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 6,
@@ -40642,7 +40642,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 7,
@@ -40650,7 +40650,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 8,
@@ -40658,7 +40658,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 9,
@@ -40666,7 +40666,7 @@
     "milestoneGlyph": "circle",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 10,
@@ -40674,7 +40674,7 @@
     "milestoneGlyph": "hexagon",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 11,
@@ -40682,7 +40682,7 @@
     "milestoneGlyph": "pentagon",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 12,
@@ -40690,7 +40690,7 @@
     "milestoneGlyph": "diamond",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 13,
@@ -40698,7 +40698,7 @@
     "milestoneGlyph": "square",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 14,
@@ -40706,7 +40706,7 @@
     "milestoneGlyph": "triangleUp",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 15,
@@ -40714,7 +40714,7 @@
     "milestoneGlyph": "star",
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 35,
@@ -40722,7 +40722,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 36,
@@ -40730,7 +40730,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 299,
@@ -40738,7 +40738,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 300,
@@ -40746,7 +40746,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 474,
@@ -40754,7 +40754,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 475,
@@ -40762,7 +40762,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 606,
@@ -40770,7 +40770,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 607,
@@ -40778,7 +40778,7 @@
     "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
-    "lineWeight": null
+    "strokeWidthPx": null
    },
    {
     "taskUid": 30,
@@ -40786,7 +40786,7 @@
     "milestoneGlyph": null,
     "fillColor": "orange",
     "strokeColor": "dimgray",
-    "lineWeight": "medium"
+    "strokeWidthPx": 2
    },
    {
     "taskUid": 291,
@@ -40794,7 +40794,7 @@
     "milestoneGlyph": null,
     "fillColor": "lightgray",
     "strokeColor": "purple",
-    "lineWeight": "thin"
+    "strokeWidthPx": 1
    },
    {
     "taskUid": 468,
@@ -40802,7 +40802,7 @@
     "milestoneGlyph": null,
     "fillColor": "green",
     "strokeColor": "black",
-    "lineWeight": "thick"
+    "strokeWidthPx": 3
    },
    {
     "taskUid": 597,
@@ -40810,7 +40810,7 @@
     "milestoneGlyph": null,
     "fillColor": "transparent",
     "strokeColor": "red",
-    "lineWeight": "medium"
+    "strokeWidthPx": 2
    },
    {
     "taskUid": 715,
@@ -40818,7 +40818,7 @@
     "milestoneGlyph": null,
     "fillColor": "yellow",
     "strokeColor": "dimgray",
-    "lineWeight": "thin"
+    "strokeWidthPx": 1
    },
    {
     "taskUid": 837,
@@ -40826,7 +40826,7 @@
     "milestoneGlyph": null,
     "fillColor": "orange",
     "strokeColor": "dimgray",
-    "lineWeight": "medium"
+    "strokeWidthPx": 2
    }
   ],
   "commentBoxes": [],

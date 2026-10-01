@@ -259,7 +259,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
         milestoneGlyph: null,
         fillColor: null,
         strokeColor: null,
-        lineWeight: null,
+        strokeWidthPx: null,
       },
     ],
     commentBoxes: [],

@@ -111,7 +111,7 @@ export function confirmationElement(host: Document, confirmation: Confirmation):
   drawn.setAttribute('aria-modal', 'true')
   drawn.setAttribute('data-manner', confirmation.manner)
 
-  const text = made(host, 'div', '')
+  const text = made(host, 'div', 'white-space:pre-line;')
   text.textContent = confirmation.text
 
   const items = confirmation.items.map((item) => {

@@ -402,7 +402,7 @@ const VISUAL: TaskVisual = {
   milestoneGlyph: null,
   fillColor: null,
   strokeColor: null,
-  lineWeight: null,
+  strokeWidthPx: null,
 }
 
 // IV-15 weighs this against `Project.importSeq`, so the sound document sets the

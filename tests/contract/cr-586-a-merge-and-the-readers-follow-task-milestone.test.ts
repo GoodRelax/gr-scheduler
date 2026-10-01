@@ -200,7 +200,7 @@ function labelDatesOf(scene: LabelScene): string {
         milestoneGlyph: null,
         fillColor: null,
         strokeColor: null,
-        lineWeight: null,
+        strokeWidthPx: null,
       },
     ],
   })
@@ -248,7 +248,7 @@ function createdLinkType(milestone: boolean, shapeKind: TaskVisual['shapeKind'])
     { id: 'r2', parentId: null },
   ], {}, {
     taskVisuals: [
-      { taskUid: 1, shapeKind, milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null },
+      { taskUid: 1, shapeKind, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null },
     ],
   })
   json['schedule']['tasks'][0]['milestone'] = milestone

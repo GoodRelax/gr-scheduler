@@ -9,7 +9,7 @@ import {
   type EscapeTarget,
   type RememberedActual,
 } from '../../entity/document-model/screen-state/screen-state'
-import { emptySelection, type Selection } from '../../entity/document-model/selection/selection'
+import type { Selection } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../edit-document/edit-document'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
@@ -111,7 +111,6 @@ export interface ScreenValuesStateCarried {
   readonly glyph: string
   readonly surfaceName: string
   readonly subject: PropertiesSubject
-  readonly returnSubject: PropertiesSubject | null
   readonly percent: number
   readonly end: ScaleEnd
   readonly landedLink: LandedLink
@@ -675,16 +674,14 @@ function onWatermarkUnlockMismatched(values: ScreenValues): ScreenStep {
   return stayed(values, [{ type: 'raiseNotice', reason: 'RS-41' }])
 }
 
-// see T-280
+// see T-280, FR-072, IC-17
 /** @purity pure */
 function onSettingsEntryPressed(values: ScreenValues): ScreenStep {
   const properties = values.propertiesPanelContentState
   if (properties.kind === 'documentSettingsDisplayed') {
-    const subject = properties.returnSubject ?? { selection: emptySelection(), groupIds: [] }
-    return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject } })
+    return moved(values, { propertiesPanelContentState: { kind: 'hidden' } })
   }
-  const returnSubject = properties.kind === 'selectionDisplayed' ? properties.subject : null
-  return moved(values, { propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject } })
+  return moved(values, { propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } })
 }
 
 // see T-280

@@ -159,7 +159,6 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   glyph: ['SH-5'],
   surfaceName: ['U-30', UNLOCK_SURFACE],
   subject: [CHOICE],
-  returnSubject: [CHOICE, null],
   percent: [100],
   end: ['max'],
   landedLink: [STORED_LANDING],
