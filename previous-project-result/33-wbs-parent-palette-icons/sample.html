@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>親子判別と親定義の見本</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #57606a; --line: #d0d7de; --panel: #f6f8fa;
+    --bar: #9fb3c8; --bar-edge: #4a6b8a; --link: #0969da; --parent: #d32f2f;
+    --vo4: #8250df; --ok: #1a7f37; --ng: #cf222e; --armed: #fff3bf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+      --bar: #4a5d73; --bar-edge: #9fb3c8; --link: #58a6ff; --parent: #ff5c5c;
+      --vo4: #b697ed; --ok: #3fb950; --ng: #ff7b72; --armed: #3d3200;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+    --bar: #4a5d73; --bar-edge: #9fb3c8; --link: #58a6ff; --parent: #ff5c5c;
+    --vo4: #b697ed; --ok: #3fb950; --ng: #ff7b72; --armed: #3d3200;
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; line-height: 1.4; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  p, li { max-width: 76ch; }
+  .note { color: var(--muted); font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+  th, td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .tablewrap { overflow-x: auto; }
+
+  .switches { display: grid; gap: 6px; background: var(--panel); border: 1px solid var(--line);
+              border-radius: 8px; padding: 10px 12px; margin: 12px 0; font-size: 15px; }
+  .switches label { margin-right: 14px; white-space: nowrap; }
+  .switches .q { font-weight: 600; margin-right: 8px; }
+  .switches button { font: inherit; font-size: 14px; }
+
+  .palette { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
+             background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+             padding: 8px 10px; margin: 8px 0; }
+  .grp { display: flex; flex-direction: column; gap: 2px; }
+  .grp .name { font-size: 12px; color: var(--muted); }
+  .grp .icons { display: flex; gap: 4px; }
+  .ic { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 6px;
+        background: var(--bg); color: var(--fg); padding: 0; display: grid; place-items: center;
+        cursor: pointer; position: relative; }
+  .ic svg { width: 24px; height: 24px; }
+  .ic.dim { opacity: 0.35; cursor: default; }
+  .ic.new::after { content: "新"; position: absolute; top: -8px; right: -6px; font-size: 11px;
+                   background: var(--link); color: #fff; border-radius: 6px; padding: 0 3px; line-height: 1.4; }
+  .ic[aria-pressed="true"] { background: var(--armed); border: 2px solid var(--fg); }
+  .s { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .f { fill: currentColor; stroke: none; }
+  .d { stroke-dasharray: 3 2.4; }
+
+  .work { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 12px; }
+  @media (max-width: 760px) { .work { grid-template-columns: 1fr; } }
+  .chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px;
+           touch-action: none; user-select: none; -webkit-user-select: none; }
+  /* The link cursor: a child bar below, a parent bar above, an arrow between (JDG-1106). */
+  :root { --link-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='white' stroke-width='4' stroke-linecap='round'%3E%3Crect x='3' y='2' width='18' height='4' rx='1'/%3E%3Crect x='7' y='18' width='10' height='4' rx='1'/%3E%3Cpath d='M12 18 V8'/%3E%3C/g%3E%3Cg fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Crect x='3' y='2' width='18' height='4' rx='1'/%3E%3Crect x='7' y='18' width='10' height='4' rx='1'/%3E%3Cpath d='M12 18 V9'/%3E%3C/g%3E%3Cpath d='M12 7 L14.5 11 H9.5 Z' fill='black' stroke='white' stroke-width='0.8'/%3E%3C/svg%3E") 12 12, pointer; }
+  .chart.armed { cursor: var(--link-cursor); outline: 2px solid var(--fg); }
+  #gantt { width: 100%; height: auto; display: block; }
+  #gantt text { fill: var(--fg); font-size: 13px; pointer-events: none; }
+  #gantt .rowname { fill: var(--muted); font-size: 12px; }
+  #gantt .day { fill: var(--muted); font-size: 11px; }
+  #gantt .grid { stroke: var(--line); stroke-width: 1; }
+  #gantt .bar { fill: var(--bar); stroke: var(--bar-edge); stroke-width: 1; }
+  #gantt .hit { fill: transparent; }
+  #gantt .lbl-parent { fill: var(--parent); font-weight: 700; }
+  #gantt .ring-parent { fill: none; stroke: var(--parent); stroke-width: 2.5; }
+  #gantt .ring-sel { fill: none; stroke: var(--link); stroke-width: 2.5; }
+  #gantt .ring-cand { fill: none; stroke: var(--vo4); stroke-width: 2; stroke-dasharray: 4 3; }
+  #gantt .ring-ok { fill: none; stroke: var(--ok); stroke-width: 3; }
+  #gantt .ring-ng { fill: none; stroke: var(--ng); stroke-width: 2.5; stroke-dasharray: 4 3; }
+  #gantt .ar-explicit { stroke: var(--parent); stroke-width: 2; fill: none; }
+  #gantt .ar-derived { stroke: var(--parent); stroke-width: 2; fill: none; stroke-dasharray: 5 4; }
+  #gantt .ahead { fill: var(--parent); }
+  #gantt .ar-hit { stroke: transparent; stroke-width: 12; fill: none; }
+  #gantt .ar-hit.solid { cursor: var(--link-cursor); }
+  #gantt .ar-hit.derived { cursor: not-allowed; }
+  #gantt .ar-sel { stroke: var(--link); stroke-width: 7; stroke-opacity: 0.35; fill: none; }
+  #gantt .ar-end { fill: var(--bg); stroke: var(--link); stroke-width: 1.5; }
+  #gantt .ln-drag { stroke: var(--fg); stroke-width: 2; fill: none; stroke-dasharray: 2 3; }
+  #gantt .band { fill: var(--link); fill-opacity: 0.08; stroke: var(--link); stroke-dasharray: 4 3; }
+  #gantt .badge { fill: var(--vo4); }
+  #gantt .badge-t { fill: #fff; font-size: 11px; font-weight: 700; text-anchor: middle; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 15px; }
+  .panel .plink { color: var(--link); text-decoration: underline; cursor: pointer; background: none; border: 0;
+                  padding: 0; font: inherit; font-size: 14px; text-align: left; }
+  .panel .plink.vo4 { color: var(--vo4); }
+  .panel .tag { font-size: 12px; color: var(--muted); margin-left: 4px; }
+  .panel .tname { font-weight: 700; font-size: 17px; margin: 0 0 6px; }
+  .panel dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0 10px; font-size: 14px; }
+  .panel dt { color: var(--muted); }
+  .panel dd { margin: 0; }
+
+  .status { font-size: 14px; margin: 6px 0; min-height: 1.7em; }
+  .status .ng { color: var(--ng); }
+  .status .ok { color: var(--ok); }
+  .bar2 { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+  .bar2 button { font: inherit; font-size: 14px; }
+  .dirty { color: var(--ng); }
+
+  .report { font-size: 14px; margin: 6px 0; }
+  .report button { font: inherit; font-size: 14px; color: var(--link); background: none; border: 0;
+                   text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .chooser { position: fixed; display: none; background: var(--bg); color: var(--fg); border: 1px solid var(--fg);
+             border-radius: 8px; padding: 6px; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 5; }
+  .chooser.open { display: grid; gap: 4px; }
+  .chooser button { display: flex; align-items: center; gap: 8px; font: inherit; font-size: 14px; text-align: left;
+                    background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+  .chooser svg { width: 28px; height: 20px; flex: none; }
+  .chooser .hint { font-size: 12px; color: var(--muted); padding: 0 2px; }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center;
+              justify-content: center; padding: 16px; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 10px;
+           width: min(460px, 100%); max-height: 90vh; overflow: auto; padding: 14px 16px; }
+  .modal h3 { margin: 0 0 4px; font-size: 18px; }
+  .modal fieldset { border: 0; padding: 0; margin: 8px 0; }
+  .modal legend { font-size: 13px; color: var(--muted); padding: 0; margin-top: 6px; }
+  .modal label { display: block; padding: 2px 0; }
+  .modal .cur { font-size: 12px; color: var(--muted); margin-left: 6px; }
+  .modal .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .modal .btns button { font: inherit; }
+</style>
+</head>
+<body>
+<main>
+<h1>親子判別と親定義 —— パレットの 2 つのアイコン（見本 第 3 版）</h1>
+<p>
+<code>JDG-1062</code> の ③「親子判別アイコンと親定義アイコンをパレットに足せ」を触って決める見本です。
+第 3 版は、利用者の答え <code>JDG-1100</code>〜<code>JDG-1107</code> を入れました:
+家族だけを描く、赤太字は親子判別が入のときだけ、パネルに導いた親も出す、最上位の行は親なし、
+親子は<b>子から親への矢印</b>（矢じりは依存線と同じ <code>S-19</code> 9.6 × <code>S-300</code> 8）、<b>複数の子をまとめて結ぶ</b>、
+<b>実線の矢印を選んで <code>Del</code> で親を外す</b>（パネルの × でも外せる）、<b>点線の矢印は選べない</b>。
+</p>
+<ul>
+  <li><b>親子判別</b>（表示の群・トグル）—— 入れると、指したタスクと選んでいるタスクの家族（親と子）に矢印を引きます。実線＝明記の親、破線＝導いた親（保存しない）、紫の番号＝親が決まらない子の候補（<code>IP-4</code> の並び）。</li>
+  <li><b>親定義</b>（揃えるの群・構え）—— <b>クリックは子を選ぶ、ドラッグは結ぶ</b>。選んだ子のどれかから親のバーへドラッグすると、選んだ子すべての親をまとめて書きます（取り消し 1 段）。構えているあいだ、ポインタは上下のタスクをつなぐ形になります。</li>
+  <li><b>矢印の選択</b> —— 実線の矢印はクリックで選び、<code>Shift</code> か <code>Ctrl</code> を伴うクリックで足し、何も無い場所からのドラッグで囲んで選びます（囲みきったものだけ、<code>SL-3</code>）。<code>Del</code> で選んだ矢印の子の親を外します。点線の矢印は押すと理由を告げ、囲んでも黙って除きます。</li>
+  <li>右のプロパティパネルの青い下線の「親」（<code>JDG-1058</code> の ③）と、下の一覧の <code>VO-4</code> の行が、親入力の面を開きます。</li>
+</ul>
+<p class="note">
+親のいる場所は 2 通りあります。<code>GRS</code> で書いた行（行 1〜3）では親は 1 つ上の行にいて、明記が無ければ表 T-318 で導きます。
+<code>MSPDI</code> から取り込んだ行（行 4）では、要約とその直下の葉が同じ行に載ります（<code>JDG-560</code> の A1、<code>JDG-1063</code> で維持）。
+</p>
+
+<div class="switches" id="switches">
+  <div><span class="q">例</span>
+    <button type="button" id="demo">2 つの親と、それぞれ 2 つの子を見せる</button>
+    <button type="button" id="demo2">子を先に 2 つ選んでから構える</button></div>
+  <div><span class="q">最上位の要約の行（JDG-1062 ①）</span>
+    <label><input type="radio" name="top" value="off" checked> なし</label>
+    <label><input type="radio" name="top" value="on"> あり（「全体」を最上位の行に置く）</label></div>
+</div>
+<p class="note">決まったこと: 結べる先は期間を持つどのバーでも（<code>JDG-1105</code>）、まとめて結ぶときに結べない子が 1 件でも混じれば全部やめて理由を言う（<code>JDG-1107</code>）。</p>
+
+<div class="palette" aria-label="コマンドパレット（抜粋）">
+  <div class="grp"><span class="name">置く</span><div class="icons">
+    <button class="ic dim" title="IC-23 矩形を構える（見本では動かない）" tabindex="-1"><svg viewBox="0 0 24 24"><rect class="s" x="3" y="8" width="18" height="8" rx="1.5"/></svg></button>
+    <button class="ic dim" title="IC-27 マイルストーン（見本では動かない）" tabindex="-1"><svg viewBox="0 0 24 24"><circle class="s" cx="12" cy="12" r="6"/></svg></button>
+  </div></div>
+  <div class="grp"><span class="name">揃える</span><div class="icons">
+    <button class="ic dim" title="IC-61 依存線を構える（見本では動かない）" tabindex="-1"><svg viewBox="0 0 24 24"><rect class="s" x="3" y="4.5" width="7" height="4.5" rx="1.2"/><rect class="s" x="15.5" y="15" width="5.5" height="4.5" rx="1.2"/><path class="s" d="M10 6.75 H11 V17.25 H15.5"/><path class="s" d="M13.4 15.6 L15.5 17.25 L13.4 18.9"/></svg></button>
+    <button class="ic new" id="icDefine" aria-pressed="false" title="親定義 —— WBS の親を結ぶ構え（クリックで子を選び、子から親へドラッグで結ぶ）"><svg viewBox="0 0 24 24"><rect class="s d" x="3" y="4" width="18" height="4.5" rx="1.2"/><rect class="s" x="3" y="15.5" width="8" height="4.5" rx="1.2"/><rect class="s" x="13" y="15.5" width="8" height="4.5" rx="1.2"/><path class="s" d="M7 15.5 V11.2"/><path class="f" d="M7 8.9 L9.2 12.2 H4.8 Z"/><path class="s" d="M17 15.5 V11.2"/><path class="f" d="M17 8.9 L19.2 12.2 H14.8 Z"/></svg></button>
+    <button class="ic dim" title="IC-35 コメントボックス（見本では動かない）" tabindex="-1"><svg viewBox="0 0 24 24"><rect class="s" x="3" y="5" width="18" height="11" rx="1.5"/><path class="s" d="M8 16 L7 20 L12 16"/></svg></button>
+  </div></div>
+  <div class="grp"><span class="name">表示</span><div class="icons">
+    <button class="ic dim" title="IC-81 依存線を表示する（見本では動かない）" tabindex="-1"><svg viewBox="0 0 24 24"><path class="s" d="M4 7 H11 V17 H18"/><path class="s" d="M15.9 14.9 L18 17 L15.9 19.1"/></svg></button>
+    <button class="ic new" id="icShow" aria-pressed="false" title="親子判別 —— WBS の親子を矢印で見せる・隠す"><svg viewBox="0 0 24 24"><rect class="s" x="3" y="3.5" width="18" height="4.5" rx="1.2"/><rect class="s" x="3" y="16" width="7" height="4.5" rx="1.2"/><rect class="s" x="14" y="16" width="7" height="4.5" rx="1.2"/><path class="s" d="M6.5 16 V11.3"/><path class="f" d="M6.5 8.6 L8.4 11.8 H4.6 Z"/><path class="s" d="M17.5 16 V11.3"/><path class="f" d="M17.5 8.6 L19.4 11.8 H15.6 Z"/></svg></button>
+  </div></div>
+</div>
+
+<div class="work">
+  <div>
+    <div class="chart" id="chart"><svg id="gantt" role="img" aria-label="日程の見本"></svg></div>
+    <div class="bar2">
+      <button id="undo" disabled>取り消す（Ctrl+Z）</button>
+      <span id="dirty"></span>
+      <button id="reset">見本を初めに戻す</button>
+    </div>
+    <div class="status" id="status">親子判別を入れて、バーを指すかクリックしてください。</div>
+    <div class="report" id="report"></div>
+  </div>
+  <aside class="panel" id="panel" aria-label="プロパティパネル"></aside>
+</div>
+
+<h2>親定義の状態遷移（選ぶ順序はどちらでもよい）</h2>
+<p>選択（青枠）は 1 つで、構えの外と中で共有します。<b>クリックは選ぶ、ドラッグは結ぶ</b> —— 手の意味は、構えの前後でも選択の有無でも変わりません（表 T-023b の結びと同じ考え）。</p>
+<div class="tablewrap"><table>
+<tr><th>いまの状態</th><th>した操作</th><th>次の状態と結果</th></tr>
+<tr><td>構えなし・選択なし</td><td>親定義を押す</td><td>構え・選択なし。「子をクリックで選ぶか、子から親へドラッグ」と告げる</td></tr>
+<tr><td>構えなし・子を N 件選んでいる</td><td>親定義を押す</td><td>構え・選択はそのまま（N 件が子）。「N 件の子を選んでいる。親のバーへドラッグ」と告げる</td></tr>
+<tr><td>構え</td><td>バーをクリック（<code>Shift</code> で足す・外す）</td><td>選択が変わる。家族の矢印が選択に追随する</td></tr>
+<tr><td>構えあり・なし</td><td>何も無い場所をドラッグ</td><td>範囲選択（<code>PTD-5</code> ・ <code>SL-3</code>）—— 囲みきったバーと実線の矢印を選ぶ。点線は黙って除く</td></tr>
+<tr><td>構えあり・なし</td><td>何も無い場所をクリック</td><td>選択を外す</td></tr>
+<tr><td>構えあり・なし（矢印が見えている）</td><td>実線の矢印をクリック（<code>Shift</code> / <code>Ctrl</code> で足す）</td><td>矢印を選ぶ。<code>Del</code> で、その子の親を外す（取り消し 1 段）。外した子が 1 つ上の行のバー 1 つに収まっていれば、点線の矢印（導いた親）に変わる</td></tr>
+<tr><td>構えあり・なし</td><td>囲む・足すで、タスクと実線の矢印が混ざった（<code>JDG-1108</code>）</td><td>ポインタの近くに 2 択: 「[== ==] 親子関係を定義するため子タスクを選択」（構えが無ければ「タスクを選択」）／「[↑ ↑] 親子関係を削除するため矢印を選択」。選んだ種類だけ残す。<code>Esc</code> か外を押すと混ざる前の選択に戻る —— 混ざった選択は残らないので、<code>Del</code> がタスクを消すことは無い</td></tr>
+<tr><td>構えあり・なし（矢印が見えている）</td><td>点線の矢印をクリック</td><td>選ばない。「期間から推定された仮の親子関係は選択・削除できません」の趣旨と、確定のしかたを告げる</td></tr>
+<tr><td>構え・選択 S</td><td>S の中のバーから親のバーへドラッグ</td><td>S のすべての親をその親にする（<code>CM-18</code> を N 回、取り消し 1 段）。構えと選択はそのまま —— 結び直しが続けてできる</td></tr>
+<tr><td>構え・選択 S</td><td>S の外のバーからドラッグ</td><td>選択をそのバー 1 つに替えて、それを結ぶ</td></tr>
+<tr><td>構え</td><td>何も無い場所で離す</td><td>何もしない（依存線の構え <code>AR-4</code> と同じ）</td></tr>
+<tr><td>構え</td><td>マイルストーンの上で離す</td><td>結ばない。「マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません」と [OK] 1 つの面を出す（<code>JDG-1118</code>）</td></tr>
+<tr><td>構え</td><td>自分・子孫の上で離す</td><td>結ばない。どの子がなぜ結べないかを告げる（1 件でも当たれば全部やめる、<code>JDG-1107</code>）</td></tr>
+<tr><td>構え</td><td><code>Esc</code> か親定義の再押下</td><td>構えなし・選択はそのまま</td></tr>
+</table></div>
+
+<h2>状態ごとの振る舞い</h2>
+<div class="tablewrap"><table>
+<tr><th>子の状態</th><th>例（見本）</th><th>親子判別（入）</th><th>パネルの親リンク</th></tr>
+<tr><td>明記の親（<code>wbsParentUid</code> あり）</td><td>要求の聞き取り → 要件定義</td><td>子から親へ<b>実線の矢印</b>、親を赤枠・名を赤太字</td><td>「親: 要件定義」</td></tr>
+<tr><td>明記の親が同じ行（取り込み）</td><td>評価の実施 → 評価（要約）</td><td>同じ行の上の段のバーへ実線の矢印</td><td>「親: 評価（要約）」</td></tr>
+<tr><td>導いた親（<code>IP-2</code>、保存しない）</td><td>仕様書の作成 → 要件定義</td><td><b>破線の矢印</b></td><td>「親: 要件定義（導出）」</td></tr>
+<tr><td>決まらない・候補 2 以上（<code>VO-4</code>）</td><td>画面の設計</td><td>子に紫の <b>?</b>、候補に紫の破線と番号</td><td>「親: 未定（候補 2）」紫</td></tr>
+<tr><td>決まらない・候補 0（<code>VO-4</code>）</td><td>資材の手配</td><td>同上（一部重なるバーに番号）</td><td>「親: 未定（候補 0）」紫</td></tr>
+<tr><td>最上位の行（<code>JDG-1103</code>）</td><td>要件定義・設計・製作（要約の行なし）</td><td>矢印なし（根）。指摘しない</td><td>「親: なし」</td></tr>
+<tr><td>マイルストーン（子として）</td><td>試作完了 → 製作（導出）</td><td>点も子になれる</td><td>「親: 製作（導出）」</td></tr>
+<tr><td>マイルストーン（親として）</td><td>節目 A</td><td>親の候補にならない。落とすと [OK] の面で拒む（<code>JDG-1118</code>）</td><td>—</td></tr>
+</table></div>
+
+<div class="chooser" id="chooser" role="dialog" aria-label="選ぶものの種類">
+  <button type="button" id="chTasks"><svg viewBox="0 0 28 20"><rect class="s" x="2" y="8" width="10" height="4.5" rx="1.2"/><rect class="s" x="16" y="8" width="10" height="4.5" rx="1.2"/></svg><span id="chTasksT"></span></button>
+  <button type="button" id="chLinks"><svg viewBox="0 0 28 20"><path class="s" d="M7 17 V6"/><path class="f" d="M7 2.5 L9.5 7 H4.5 Z"/><path class="s" d="M21 17 V6"/><path class="f" d="M21 2.5 L23.5 7 H18.5 Z"/></svg><span id="chLinksT"></span></button>
+  <div class="hint">Esc か外を押すと、混ざる前の選択に戻る</div>
+</div>
+
+<div class="modal-bg" id="msgBg">
+  <div class="modal" role="alertdialog" aria-modal="true" aria-describedby="msgText">
+    <p id="msgText"></p>
+    <div class="btns"><button type="button" id="msgOk">OK</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h3 id="mTitle"></h3>
+    <div class="note" id="mNote"></div>
+    <form id="mForm"></form>
+    <div class="btns"><button type="button" id="mCancel">やめる</button><button type="button" id="mOk" disabled>決める</button></div>
+  </div>
+</div>
+</main>
+
+<script>
+"use strict";
+// --- data -----------------------------------------------------------------
+// row: the row (TaskGroup) the bar sits on; lane: the stacking lane inside the row.
+// s, f: start / finish in day numbers (finish exclusive); a milestone has s === f.
+// p: explicit wbsParentUid or null.
+const INITIAL = [
+  { uid: 1,  row: 0, name: "全体",           s: 0,  f: 40, p: null, top: true },
+  { uid: 10, row: 1, name: "要件定義",       s: 0,  f: 12, p: null },
+  { uid: 11, row: 1, lane: 1, name: "設計",  s: 10, f: 23, p: null },
+  { uid: 13, row: 1, name: "節目 A",         s: 24, f: 24, p: null },
+  { uid: 12, row: 1, name: "製作",           s: 27, f: 39, p: null },
+  { uid: 20, row: 2, name: "要求の聞き取り", s: 1,  f: 5,  p: 10 },
+  { uid: 21, row: 2, name: "仕様書の作成",   s: 5,  f: 9,  p: null },
+  { uid: 22, row: 2, name: "画面の設計",     s: 10, f: 12, p: null },
+  { uid: 23, row: 2, name: "データの設計",   s: 13, f: 17, p: null },
+  { uid: 27, row: 2, name: "試験の設計",     s: 17, f: 22, p: 11 },
+  { uid: 24, row: 2, name: "資材の手配",     s: 22, f: 28, p: null },
+  { uid: 25, row: 2, name: "組み立て",       s: 28, f: 34, p: 12 },
+  { uid: 26, row: 2, name: "試作完了",       s: 35, f: 35, p: null },
+  { uid: 31, row: 3, name: "検証の準備",     s: 29, f: 32, p: 25 },
+  // MSPDI import (JDG-560 A1, kept by JDG-1063): the summary and its leaves share one row.
+  { uid: 40, row: 9, lane: 0, name: "評価（要約）", s: 26, f: 40, p: null },
+  { uid: 41, row: 9, lane: 1, name: "評価の計画",   s: 26, f: 30, p: 40 },
+  { uid: 42, row: 9, lane: 1, name: "評価の実施",   s: 30, f: 37, p: 40 },
+  { uid: 43, row: 9, lane: 1, name: "評価の報告",   s: 37, f: 40, p: 40 }
+];
+const ROW_NAMES = { 0: "行 0（要約）", 1: "行 1", 2: "行 2", 3: "行 3", 9: "行 4（MSPDI から取り込み）" };
+// Arrowhead of the dependency line: S-19 dependencyArrowLength, S-300 dependencyArrowWidth.
+const ARROW_LEN = 9.6, ARROW_W = 8;
+
+let opt = { top: "off", target: "any", bulk: "all" };
+let tasks = [];
+let undoStack = [];
+let showOn = false;        // palette toggle: WBS parent links (親子判別)
+let armed = false;         // palette arm: define WBS parent (親定義)
+let hovered = null;
+let selected = [];
+let selLinks = [];         // selected parent arrows, each named by its child's uid (JDG-1106)
+let anchors = [];          // see focusTasks()
+let drawnLinks = [];       // arrows drawn in the last frame: { child, derived, bbox }
+let drag = null;          // bar drag: { sources, cx0, cy0, x, y, moved, target, ok }
+let band = null;           // empty-space drag: { x0, y0, x, y }
+let modalFor = null;
+
+function reset() {
+  tasks = INITIAL.map(t => Object.assign({}, t));
+  undoStack = [];
+  selected = [];
+  selLinks = [];
+  anchors = [];
+  hovered = null;
+}
+reset();
+
+// row tree: the row each row hangs under (null = a top-level row).
+function parentRow(row) {
+  if (row === 0) return null;
+  if (row === 1 || row === 9) return opt.top === "on" ? 0 : null;
+  return row - 1;
+}
+
+// --- geometry -------------------------------------------------------------
+const PX = 22, X0 = 70, ROW_H = 66, TOP_PAD = 26, BAR_Y = 30, BAR_H = 18;
+function visibleTasks() { return tasks.filter(t => opt.top === "on" || !t.top); }
+function visibleRows() { return [...new Set(visibleTasks().map(t => t.row))].sort((a, b) => a - b); }
+function laneCount(row) { return 1 + Math.max(0, ...visibleTasks().filter(t => t.row === row).map(t => t.lane || 0)); }
+function rowY(row) {
+  let y = TOP_PAD;
+  for (const r of visibleRows()) { if (r === row) return y; y += laneCount(r) * ROW_H; }
+  return y;
+}
+function isMs(t) { return t.s === t.f; }
+function byUid(uid) { return tasks.find(t => t.uid === uid); }
+function box(t) {
+  const y = rowY(t.row) + (t.lane || 0) * ROW_H + BAR_Y;
+  if (isMs(t)) { const cx = X0 + t.s * PX; return { x: cx - 9, y: y, w: 18, h: BAR_H, cx: cx }; }
+  const x = X0 + t.s * PX;
+  return { x: x, y: y, w: (t.f - t.s) * PX, h: BAR_H, cx: x + (t.f - t.s) * PX / 2 };
+}
+
+// --- parent resolution (table T-318, IP-1..IP-4; top-level rows are roots, JDG-1103) ---
+function barsInRow(row) { return visibleTasks().filter(t => t.row === row && !isMs(t)); }
+function contains(p, c) { return p.s <= c.s && c.f <= p.f; }
+function overlaps(p, c) { return p.s < Math.max(c.f, c.s + 0.001) && c.s < p.f; }
+
+// returns { kind: "explicit"|"derived"|"root"|"vo4", parent, cands }
+function resolve(t) {
+  if (t.p != null && byUid(t.p) && (opt.top === "on" || !byUid(t.p).top)) {
+    return { kind: "explicit", parent: byUid(t.p), cands: [] };
+  }
+  if (parentRow(t.row) === null) return { kind: "root", parent: null, cands: [] };
+  const cands = barsInRow(parentRow(t.row)).filter(p => contains(p, t));
+  if (cands.length === 1) return { kind: "derived", parent: cands[0], cands: cands };
+  return { kind: "vo4", parent: null, cands: cands };
+}
+function effParent(t) { return resolve(t).parent; }
+function childrenOf(p) { return visibleTasks().filter(t => effParent(t) === p); }
+function isDescendant(maybe, of) {
+  let cur = effParent(maybe), guard = 0;
+  while (cur && guard++ < 50) { if (cur === of) return true; cur = effParent(cur); }
+  return false;
+}
+// IP-4 order: (1) contains both ends, (2) overlaps, (3) nearest edge. Descendants removed.
+function candidateList(child) {
+  if (parentRow(child.row) === null) return [];
+  const pool = barsInRow(parentRow(child.row)).filter(p => p !== child && !isDescendant(p, child));
+  const dist = p => Math.min(Math.abs(child.s - p.f), Math.abs(child.f - p.s));
+  const a = pool.filter(p => contains(p, child));
+  const b = pool.filter(p => !contains(p, child) && overlaps(p, child));
+  const c = pool.filter(p => !contains(p, child) && !overlaps(p, child)).sort((x, y) => dist(x) - dist(y));
+  return [
+    { label: "① 両端で包含するバー", items: a },
+    { label: "② 一部でも重なるバー", items: b },
+    { label: "③ 端が近い順", items: c }
+  ];
+}
+
+// --- drop check (親定義) -----------------------------------------------------
+function refusal(s, target) {
+  if (isMs(target)) return "マイルストーンは親になれない（FR-135）";
+  if (s === target) return "「" + s.name + "」自身は親になれない";
+  if (isDescendant(target, s)) return "「" + target.name + "」は「" + s.name + "」の子孫なので親になれない（WBS の輪、表 T-220 の IV-4）";
+  if (opt.target === "above" && target.row !== parentRow(s.row)) return "「" + target.name + "」は「" + s.name + "」の 1 つ上の行のバーではない（問 6 の別案）";
+  return "";
+}
+function dropVerdict(sources, target) {
+  if (!target) return { ok: false, reason: "", good: [] };
+  const bad = sources.map(s => ({ s: s, why: refusal(s, target) })).filter(x => x.why);
+  const good = sources.filter(s => !refusal(s, target));
+  if (!bad.length) return { ok: true, reason: "", good: good };
+  if (opt.bulk === "some" && good.length) return { ok: true, reason: bad.length + " 件は結べないので除く: " + bad[0].why, good: good };
+  return { ok: false, reason: bad[0].why + (bad.length > 1 ? "（ほか " + (bad.length - 1) + " 件）" : ""), good: [] };
+}
+
+// --- edits ------------------------------------------------------------------
+function setParents(list, why) {
+  const changes = list.filter(c => c.task.p !== c.to).map(c => ({ uid: c.task.uid, before: c.task.p, after: c.to }));
+  if (!changes.length) { say("変わらない（すでにその親が明記されている）", ""); return; }
+  changes.forEach(c => { byUid(c.uid).p = c.after; });
+  undoStack.push(changes);
+  const to = changes[0].after == null ? "親なし" : "「" + byUid(changes[0].after).name + "」";
+  say(why + ": " + changes.length + " 件（" + changes.map(c => byUid(c.uid).name).join("、") + "）の親を " + to + " にした（setTaskWbsParent × " + changes.length + "、取り消し 1 段）", "ok");
+}
+// Remove explicit parents (JDG-1106). A child left inside exactly one bar of the row above
+// then shows a derived (dotted) parent again -- that is table T-318, not a failure.
+function unlink(children, why) {
+  const list = children.filter(c => c.p != null);
+  if (!list.length) return;
+  const changes = list.map(c => ({ uid: c.uid, before: c.p, after: null }));
+  changes.forEach(c => { byUid(c.uid).p = null; });
+  undoStack.push(changes);
+  selLinks = [];
+  const back = list.filter(c => resolve(c).kind === "derived").map(c => c.name);
+  say(why + ": " + list.length + " 件（" + list.map(c => c.name).join("、") + "）の親を外した（setTaskWbsParent × " + list.length + "、取り消し 1 段）" +
+      (back.length ? "。" + back.join("、") + " は期間から仮の親が導かれ、点線で出る" : ""), "ok");
+}
+function undo() {
+  const ch = undoStack.pop();
+  if (!ch) return;
+  ch.forEach(c => { byUid(c.uid).p = c.before; });
+  say("取り消した（" + ch.length + " 件を 1 段で）", "");
+  render();
+}
+
+// --- rendering ----------------------------------------------------------------
+const NS = "http://www.w3.org/2000/svg";
+function el(name, attrs, text) {
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+// focus = the pointed task plus every selected task (each one's family is drawn).
+// A selected arrow keeps its child in focus, so the arrow stays drawn.
+// anchors: the families that were showing when arrow selection began; they stay drawn so
+// further arrows can be added with Shift / Ctrl.
+function focusTasks() {
+  const f = selected.slice();
+  anchors.forEach(t => { if (f.indexOf(t) < 0) f.push(t); });
+  selLinks.forEach(uid => { const c = byUid(uid); if (c && f.indexOf(c) < 0) f.push(c); });
+  if (hovered && f.indexOf(hovered) < 0) f.push(hovered);
+  return f;
+}
+// child -> parent arrow; the head touches the parent's bottom edge.
+// The wide transparent hit path is drawn after the bars (late) so the arrow can be pressed.
+function arrow(svg, child, parent, derived, drawn, late) {
+  const key = child.uid + ">" + parent.uid;
+  if (drawn.has(key)) return;
+  drawn.add(key);
+  const cb = box(child), pb = box(parent);
+  const x = Math.min(Math.max(cb.cx, pb.x + 6), pb.x + pb.w - 6);
+  const tipY = pb.y + pb.h;
+  const baseY = tipY + ARROW_LEN;
+  let d;
+  if (Math.abs(x - cb.cx) < 0.5) d = "M" + cb.cx + " " + cb.y + " V" + baseY;
+  else { const midY = cb.y - 8; d = "M" + cb.cx + " " + cb.y + " V" + midY + " H" + x + " V" + baseY; }
+  const isSel = !derived && selLinks.indexOf(child.uid) >= 0;
+  if (isSel) svg.appendChild(el("path", { d: d + " V" + tipY, class: "ar-sel" }));
+  svg.appendChild(el("path", { d: d, class: derived ? "ar-derived" : "ar-explicit" }));
+  svg.appendChild(el("path", { d: "M" + x + " " + tipY + " L" + (x + ARROW_W / 2) + " " + baseY + " L" + (x - ARROW_W / 2) + " " + baseY + " Z", class: "ahead" }));
+  drawnLinks.push({ child: child, derived: derived,
+    bbox: { x1: Math.min(cb.cx, x) - ARROW_W / 2, x2: Math.max(cb.cx, x) + ARROW_W / 2, y1: tipY, y2: cb.y } });
+  late.push(() => {
+    // Square ends mark a selected arrow without relying on colour (SL-8).
+    if (isSel) {
+      svg.appendChild(el("rect", { x: cb.cx - 3, y: cb.y - 3, width: 6, height: 6, class: "ar-end" }));
+      svg.appendChild(el("rect", { x: x - 3, y: tipY - 3, width: 6, height: 6, class: "ar-end" }));
+    }
+    svg.appendChild(el("path", { d: "M" + cb.cx + " " + (cb.y - 2) + (Math.abs(x - cb.cx) < 0.5 ? "" : " V" + (cb.y - 8) + " H" + x) + " V" + tipY,
+      class: "ar-hit " + (derived ? "derived" : "solid"), "data-link": child.uid }));
+  });
+}
+function ring(svg, t, cls, pad) {
+  const b = box(t); pad = pad || 3;
+  svg.appendChild(el("rect", { x: b.x - pad, y: b.y - pad, width: b.w + 2 * pad, height: b.h + 2 * pad, rx: 4, class: cls }));
+}
+function badge(svg, t, text) {
+  const b = box(t);
+  const cx = b.x + b.w + 9, cy = b.y + b.h / 2;
+  svg.appendChild(el("circle", { cx: cx, cy: cy, r: 8, class: "badge" }));
+  svg.appendChild(el("text", { x: cx, y: cy + 4, class: "badge-t" }, text));
+}
+
+function render() {
+  const svg = document.getElementById("gantt");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const vis = visibleTasks();
+  const rows = visibleRows();
+  const width = X0 + 41 * PX, height = rowY(99) + 6;
+  svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+
+  for (let d = 0; d <= 40; d += 5) {
+    svg.appendChild(el("line", { x1: X0 + d * PX, x2: X0 + d * PX, y1: 18, y2: height, class: "grid" }));
+    svg.appendChild(el("text", { x: X0 + d * PX + 2, y: 14, class: "day" }, "d" + d));
+  }
+  rows.forEach(r => {
+    svg.appendChild(el("line", { x1: 0, x2: width, y1: rowY(r), y2: rowY(r), class: "grid" }));
+    svg.appendChild(el("text", { x: 4, y: rowY(r) + 16, class: "rowname" }, ROW_NAMES[r]));
+  });
+
+  // Family view: on with the toggle, and always while the arm is held. JDG-1101: the red
+  // bold label is drawn only while the family view is on.
+  const lineOn = showOn || armed;
+  const late = [];
+  const redParents = new Set();
+  const drawn = new Set();
+  drawnLinks = [];
+  if (lineOn) {
+    focusTasks().forEach(f => {
+      const r = resolve(f);
+      if (r.parent) { arrow(svg, f, r.parent, r.kind === "derived", drawn, late); redParents.add(r.parent); }
+      childrenOf(f).forEach(c => { arrow(svg, c, f, resolve(c).kind === "derived", drawn, late); redParents.add(f); });
+      if (r.kind === "vo4" && f === (hovered || selected[selected.length - 1])) {
+        let n = 0;
+        candidateList(f).forEach(g => g.items.forEach(p => { if (n < 3) { n++; const k = n; ring(svg, p, "ring-cand", 5); late.push(() => badge(svg, p, String(k))); } }));
+      }
+      if (r.kind === "vo4") late.push(() => badge(svg, f, "?"));
+    });
+    redParents.forEach(p => ring(svg, p, "ring-parent"));
+  }
+
+  vis.forEach(t => {
+    const b = box(t);
+    const g = el("g", { "data-uid": t.uid });
+    if (isMs(t)) {
+      const cy = b.y + b.h / 2;
+      g.appendChild(el("path", { d: "M" + b.cx + " " + (cy - 9) + " L" + (b.cx + 9) + " " + cy + " L" + b.cx + " " + (cy + 9) + " L" + (b.cx - 9) + " " + cy + " Z", class: "bar" }));
+    } else {
+      g.appendChild(el("rect", { x: b.x, y: b.y, width: b.w, height: b.h, rx: 3, class: "bar" }));
+    }
+    g.appendChild(el("rect", { x: b.x - 2, y: b.y - 22, width: Math.max(b.w, 80) + 4, height: b.h + 26, class: "hit" }));
+    g.appendChild(el("text", { x: isMs(t) ? b.cx - 9 : b.x, y: b.y - 6, class: redParents.has(t) ? "lbl-parent" : "" }, t.name));
+    svg.appendChild(g);
+  });
+  late.forEach(fn => fn());
+  selected.forEach(t => ring(svg, t, "ring-sel", 2));
+
+  if (drag && drag.moved) {
+    drag.sources.forEach(s => {
+      const b = box(s);
+      svg.appendChild(el("path", { d: "M" + b.cx + " " + b.y + " L" + drag.x + " " + drag.y, class: "ln-drag" }));
+    });
+    if (drag.target) ring(svg, drag.target, drag.ok ? "ring-ok" : "ring-ng", 5);
+  }
+  if (band) {
+    svg.appendChild(el("rect", { x: Math.min(band.x0, band.x), y: Math.min(band.y0, band.y),
+      width: Math.abs(band.x - band.x0), height: Math.abs(band.y - band.y0), class: "band" }));
+  }
+
+  document.getElementById("chart").classList.toggle("armed", armed);
+  document.getElementById("icDefine").setAttribute("aria-pressed", String(armed));
+  document.getElementById("icShow").setAttribute("aria-pressed", String(showOn));
+  document.getElementById("undo").disabled = undoStack.length === 0;
+  document.getElementById("dirty").innerHTML = undoStack.length ? '<span class="dirty">● 未保存の編集あり</span>' : "";
+  renderPanel();
+  renderReport();
+}
+
+function renderPanel() {
+  const p = document.getElementById("panel");
+  const t = selected.length ? selected[selected.length - 1] : null;
+  if (!t) { p.innerHTML = '<div class="note">バーをクリックすると、ここにプロパティが出ます。</div>'; return; }
+  const r = resolve(t);
+  let linkText, cls = "plink", tag = "";
+  if (r.kind === "explicit") linkText = "親: " + r.parent.name;
+  else if (r.kind === "derived") { linkText = "親: " + r.parent.name; tag = "（導出）"; }
+  else if (r.kind === "root") linkText = "親: なし";
+  else { linkText = "親: 未定（候補 " + r.cands.length + "）"; cls += " vo4"; }
+  p.innerHTML = "";
+  const b = document.createElement("button");
+  b.className = cls; b.textContent = linkText; b.title = "親入力の面を開く（FR-135）";
+  b.addEventListener("click", () => openModal(t, "パネルの親リンク"));
+  p.appendChild(b);
+  if (tag) { const s = document.createElement("span"); s.className = "tag"; s.textContent = tag; p.appendChild(s); }
+  if (r.kind === "explicit") {
+    // JDG-1106: the panel can remove an explicit parent (a derived one has nothing to remove).
+    const x = document.createElement("button");
+    x.className = "plink"; x.textContent = " ×"; x.title = "親を外す（wbsParentUid を null にする）";
+    x.setAttribute("aria-label", "親を外す");
+    x.addEventListener("click", () => { unlink([t], "パネルの ×"); render(); });
+    p.appendChild(x);
+  }
+  const n = document.createElement("p"); n.className = "tname"; n.textContent = t.name; p.appendChild(n);
+  const dl = document.createElement("dl");
+  [["種類", isMs(t) ? "マイルストーン" : "タスク"], ["開始", "d" + t.s], ["終了", "d" + t.f],
+   ["wbsParentUid", t.p == null ? "null" : String(t.p)], ["選択", selected.length + " 件"]].forEach(([k, v]) => {
+    const dt = document.createElement("dt"); dt.textContent = k;
+    const dd = document.createElement("dd"); dd.textContent = v;
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+  p.appendChild(dl);
+  const note = document.createElement("p"); note.className = "note";
+  note.textContent = "親の名を押すと親入力の面が開く（JDG-1058 ③）。× は明記の親を外す（JDG-1106）。";
+  p.appendChild(note);
+}
+
+function renderReport() {
+  const el2 = document.getElementById("report");
+  const rows = visibleTasks().filter(t => resolve(t).kind === "vo4");
+  el2.innerHTML = "<b>進捗妥当性検査の一覧（抜粋）</b> —— VO-4 親が決まらない: " + rows.length + " 件 ";
+  rows.forEach(t => {
+    const b = document.createElement("button");
+    b.textContent = t.name;
+    b.addEventListener("click", () => { selected = [t]; render(); openModal(t, "一覧の VO-4 の行"); });
+    el2.appendChild(document.createTextNode(" ／ "));
+    el2.appendChild(b);
+  });
+}
+
+function say(msg, cls) {
+  const s = document.getElementById("status");
+  s.innerHTML = "";
+  const span = document.createElement("span");
+  if (cls) span.className = cls;
+  span.textContent = msg;
+  s.appendChild(span);
+}
+
+// --- parent-input surface (FR-135) ------------------------------------------
+function openModal(child, door) {
+  modalFor = child;
+  document.getElementById("mTitle").textContent = "「" + child.name + "」の親を選ぶ";
+  document.getElementById("mNote").textContent = "開いた入口: " + door + "。並べるだけで、自動では選ばない（IP-4）。";
+  const form = document.getElementById("mForm");
+  form.innerHTML = "";
+  let any = false;
+  candidateList(child).forEach(g => {
+    if (!g.items.length) return;
+    any = true;
+    const fs = document.createElement("fieldset");
+    const lg = document.createElement("legend"); lg.textContent = g.label; fs.appendChild(lg);
+    g.items.forEach(p => {
+      const lab = document.createElement("label");
+      const inp = document.createElement("input"); inp.type = "radio"; inp.name = "par"; inp.value = String(p.uid);
+      lab.appendChild(inp);
+      lab.appendChild(document.createTextNode(" " + p.name + "（d" + p.s + "〜d" + p.f + "）"));
+      const r = resolve(child);
+      if (child.p === p.uid) { const c = document.createElement("span"); c.className = "cur"; c.textContent = "いまの親（明記）"; lab.appendChild(c); }
+      else if (r.kind === "derived" && r.parent === p) { const c = document.createElement("span"); c.className = "cur"; c.textContent = "いま導いている親"; lab.appendChild(c); }
+      fs.appendChild(lab);
+    });
+    form.appendChild(fs);
+  });
+  if (!any) { const n = document.createElement("p"); n.className = "note"; n.textContent = "1 つ上の行に候補が無い（最上位の行、または取り込みの行）。親定義の構えなら、どのバーへでも結べる。"; form.appendChild(n); }
+  document.getElementById("mOk").disabled = true;
+  document.getElementById("modalBg").classList.add("open");
+}
+function closeModal() { document.getElementById("modalBg").classList.remove("open"); modalFor = null; }
+document.getElementById("mForm").addEventListener("change", () => { document.getElementById("mOk").disabled = false; });
+document.getElementById("mCancel").addEventListener("click", closeModal);
+document.getElementById("mOk").addEventListener("click", () => {
+  const v = (document.querySelector('#mForm input[name="par"]:checked') || {}).value;
+  if (!v || !modalFor) return;
+  setParents([{ task: modalFor, to: Number(v) }], "親入力の面");
+  closeModal(); render();
+});
+document.getElementById("modalBg").addEventListener("click", e => { if (e.target.id === "modalBg") closeModal(); });
+
+// --- pointer ------------------------------------------------------------------
+const svgEl = document.getElementById("gantt");
+function svgPoint(e) {
+  const pt = svgEl.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svgEl.getScreenCTM().inverse());
+}
+function taskAt(e) {
+  const hit = document.elementFromPoint(e.clientX, e.clientY);
+  const g = hit && hit.closest ? hit.closest("[data-uid]") : null;
+  return g ? byUid(Number(g.getAttribute("data-uid"))) : null;
+}
+function linkAt(e) {
+  const hit = document.elementFromPoint(e.clientX, e.clientY);
+  if (!hit || !hit.getAttribute || hit.getAttribute("data-link") == null) return null;
+  const child = byUid(Number(hit.getAttribute("data-link")));
+  return { child: child, derived: hit.classList.contains("derived") };
+}
+// SL-2 / SL-4: a plain click replaces the selection; Shift (or Ctrl, JDG-1106) toggles one.
+function clickSelect(t, extend) {
+  if (!extend) anchors = [];
+  if (!t) { if (!extend) { selected = []; selLinks = []; } return; }
+  if (extend) selected = selected.indexOf(t) >= 0 ? selected.filter(x => x !== t) : selected.concat([t]);
+  else { selected = [t]; selLinks = []; }
+}
+function clickLink(uid, extend) {
+  if (!anchors.length) anchors = focusTasks();
+  if (extend) selLinks = selLinks.indexOf(uid) >= 0 ? selLinks.filter(x => x !== uid) : selLinks.concat([uid]);
+  else { selLinks = [uid]; selected = []; }
+}
+// JDG-1108: tasks and arrows may be picked together, but a mixed selection is resolved at once
+// by a two-way chooser next to the pointer; dismissing it restores the selection before the mix.
+let chooserBefore = null;
+function snapshot() { return { selected: selected.slice(), selLinks: selLinks.slice(), anchors: anchors.slice() }; }
+function chooserOpen() { return chooserBefore !== null; }
+function maybeChoose(e, before) {
+  if (!(selected.length && selLinks.length)) return false;
+  chooserBefore = before;
+  document.getElementById("chTasksT").textContent = (armed ? "親子関係を定義するため子タスクを選択" : "タスクを選択") + "（" + selected.length + " 件）";
+  document.getElementById("chLinksT").textContent = "親子関係を削除するため矢印を選択（" + selLinks.length + " 本）";
+  const c = document.getElementById("chooser");
+  c.style.left = Math.min(e.clientX + 12, window.innerWidth - 340) + "px";
+  c.style.top = Math.min(e.clientY + 12, window.innerHeight - 120) + "px";
+  c.classList.add("open");
+  say("タスクと矢印が混ざった —— どちらを選ぶかを決める", "");
+  return true;
+}
+function closeChooser(keep) {
+  if (!chooserOpen()) return;
+  if (keep === "tasks") selLinks = [];
+  else if (keep === "links") selected = [];
+  else { selected = chooserBefore.selected; selLinks = chooserBefore.selLinks; anchors = chooserBefore.anchors; }
+  chooserBefore = null;
+  document.getElementById("chooser").classList.remove("open");
+  say(keep ? selectionHint() : "混ざる前の選択に戻した", "");
+  render();
+}
+document.getElementById("chTasks").addEventListener("click", () => closeChooser("tasks"));
+document.getElementById("chLinks").addEventListener("click", () => closeChooser("links"));
+document.addEventListener("pointerdown", e => {
+  if (chooserOpen() && !document.getElementById("chooser").contains(e.target)) { closeChooser(null); e.stopPropagation(); }
+}, true);
+const MILESTONE_MSG = "マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません";
+function showMsg(text) {
+  document.getElementById("msgText").textContent = text;
+  document.getElementById("msgBg").classList.add("open");
+  document.getElementById("msgOk").focus();
+}
+function msgOpen() { return document.getElementById("msgBg").classList.contains("open"); }
+document.getElementById("msgOk").addEventListener("click", () => document.getElementById("msgBg").classList.remove("open"));
+const DERIVED_MSG = "期間から推定された仮の親子関係（点線）は、選ぶことも消すこともできない。確定するには、親定義で子から親へドラッグするか、パネルの親の名から選ぶ";
+function selectionHint() {
+  const parts = [];
+  if (selected.length) parts.push("タスク " + selected.length + " 件（" + selected.map(t => t.name).join("、") + "）");
+  if (selLinks.length) parts.push("親子の矢印 " + selLinks.length + " 本（Del で親を外す）");
+  const sel = parts.length ? "選んでいるもの: " + parts.join("、") + "。" : "";
+  if (armed) return "親定義の構え: " + sel + (selected.length ? "選んだ子のどれかから親のバーへドラッグで、まとめて結ぶ" : "子をクリックで選ぶ（Shift か Ctrl で足す）か、子から親のバーへドラッグ。Esc か同じアイコンで解く");
+  return sel || "何も選んでいない";
+}
+svgEl.addEventListener("pointermove", e => {
+  const p = svgPoint(e);
+  if (band) { band.x = p.x; band.y = p.y; render(); return; }
+  if (drag) {
+    drag.x = p.x; drag.y = p.y;
+    if (Math.hypot(e.clientX - drag.cx0, e.clientY - drag.cy0) > 4) drag.moved = true;
+    const t = taskAt(e);
+    drag.target = t && drag.sources.indexOf(t) < 0 ? t : (t && drag.moved ? t : null);
+    const v = dropVerdict(drag.sources, drag.target);
+    drag.ok = v.ok;
+    if (drag.moved) {
+      if (!drag.target) say(drag.sources.length + " 件の子を、親にするバーの上で離す（何も無い場所では何もしない）", "");
+      else if (v.ok) say("ここで離すと、" + v.good.length + " 件の親を「" + drag.target.name + "」にする" + (v.reason ? "（" + v.reason + "）" : ""), "ok");
+      else say(v.reason, "ng");
+    }
+    render();
+    return;
+  }
+  if (linkAt(e)) return;   // over an arrow: keep the family that drew it
+  const t = taskAt(e);
+  if (t !== hovered) { hovered = t; render(); }
+});
+svgEl.addEventListener("pointerleave", () => { if (!drag && !band && hovered) { hovered = null; render(); } });
+svgEl.addEventListener("pointerdown", e => {
+  const extend = e.shiftKey || e.ctrlKey || e.metaKey;
+  const lk = linkAt(e);
+  const before = snapshot();
+  if (lk) {
+    if (lk.derived) say(DERIVED_MSG, "ng");
+    else { clickLink(lk.child.uid, extend); if (!maybeChoose(e, before)) say(selectionHint(), ""); }
+    render();
+    return;
+  }
+  const t = taskAt(e);
+  const p = svgPoint(e);
+  if (!t) {
+    // PTD-5 range selection (SL-3); the same under the parent arm.
+    band = { x0: p.x, y0: p.y, x: p.x, y: p.y, extend: extend, cx0: e.clientX, cy0: e.clientY, before: before };
+    svgEl.setPointerCapture(e.pointerId);
+    return;
+  }
+  if (!armed) { clickSelect(t, extend); if (!maybeChoose(e, before)) say(selectionHint(), ""); render(); return; }
+  drag = { t: t, extend: extend, before: before, sources: null, cx0: e.clientX, cy0: e.clientY, x: p.x, y: p.y, moved: false, target: null, ok: false };
+  drag.sources = selected.indexOf(t) >= 0 ? selected.slice() : [t];
+  svgEl.setPointerCapture(e.pointerId);
+});
+svgEl.addEventListener("pointerup", e => {
+  if (band) {
+    const b = band; band = null;
+    if (Math.hypot(e.clientX - b.cx0, e.clientY - b.cy0) <= 4) { clickSelect(null, b.extend); say(selectionHint(), ""); render(); return; }
+    const x1 = Math.min(b.x0, b.x), x2 = Math.max(b.x0, b.x), y1 = Math.min(b.y0, b.y), y2 = Math.max(b.y0, b.y);
+    const inside = q => q.x1 >= x1 && q.x2 <= x2 && q.y1 >= y1 && q.y2 <= y2;   // SL-3: wholly enclosed only
+    const hitTasks = visibleTasks().filter(t => { const q = box(t); return inside({ x1: q.x, x2: q.x + q.w, y1: q.y, y2: q.y + q.h }); });
+    // Dotted (derived) arrows are left out without a word (JDG-1106).
+    const hitLinks = drawnLinks.filter(l => !l.derived && inside(l.bbox)).map(l => l.child.uid);
+    if (b.extend) {
+      selected = selected.concat(hitTasks.filter(t => selected.indexOf(t) < 0));
+      selLinks = selLinks.concat(hitLinks.filter(u => selLinks.indexOf(u) < 0));
+    } else { selected = hitTasks; selLinks = hitLinks; anchors = []; }
+    if (hitLinks.length && !anchors.length) anchors = b.before.selected.concat(b.before.anchors);
+    if (!maybeChoose(e, b.before)) say(selectionHint(), "");
+    render();
+    return;
+  }
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (!d.moved) { clickSelect(d.t, d.extend); if (!maybeChoose(e, d.before)) say(selectionHint(), ""); render(); return; }
+  selected = d.sources.slice();
+  const v = dropVerdict(d.sources, d.target);
+  // JDG-1118 (relayed by the coordinator): a milestone is never a parent; say exactly this, one OK.
+  if (d.target && isMs(d.target)) { showMsg(MILESTONE_MSG); say("結ばなかった（マイルストーン）", "ng"); render(); return; }
+  if (d.target && v.ok) setParents(v.good.map(s => ({ task: s, to: d.target.uid })), "親定義のドラッグ");
+  else if (d.target) say("結ばなかった: " + v.reason, "ng");
+  else say("何も無い場所で離したので何もしない（依存線の構え AR-4 と同じ）", "");
+  render();
+});
+
+// --- palette, keys, demos -------------------------------------------------------
+document.getElementById("icShow").addEventListener("click", () => {
+  showOn = !showOn;
+  say(showOn ? "親子判別: 入（指した／選んだタスクの家族に、子から親への矢印）" : "親子判別: 切", "");
+  render();
+});
+document.getElementById("icDefine").addEventListener("click", () => {
+  armed = !armed;
+  say(armed ? selectionHint() : "構えを解いた（選択はそのまま）", "");
+  render();
+});
+document.addEventListener("keydown", e => {
+  if (msgOpen()) { if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); document.getElementById("msgBg").classList.remove("open"); } return; }
+  if (chooserOpen()) { if (e.key === "Escape") closeChooser(null); return; }
+  if (e.key === "Escape") {
+    if (modalFor) { closeModal(); return; }
+    if (drag || band) { drag = null; band = null; say("ドラッグをやめた", ""); render(); return; }
+    if (armed) { armed = false; say("構えを解いた（Esc、選択はそのまま）", ""); render(); }
+  }
+  if ((e.key === "Delete" || e.key === "Backspace") && !modalFor) {
+    e.preventDefault();
+    if (selLinks.length) { unlink(selLinks.map(byUid), "矢印を選んで Del"); render(); }
+    else if (selected.length) say("タスクの削除は見本では行わない（Del は選んだものを消す。矢印だけを選べば親を外す）", "");
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !modalFor) { e.preventDefault(); undo(); }
+});
+document.getElementById("undo").addEventListener("click", undo);
+document.getElementById("reset").addEventListener("click", () => { reset(); armed = false; say("見本を初めに戻した", ""); render(); });
+document.getElementById("demo").addEventListener("click", () => {
+  showOn = true; hovered = null; selLinks = []; anchors = []; selected = [byUid(10), byUid(11)];
+  say("親子判別: 入。要件定義と設計を選んだ —— それぞれの 2 つの子から矢印が向かう（実線＝明記、破線＝導出）", "");
+  render();
+});
+document.getElementById("demo2").addEventListener("click", () => {
+  armed = false; hovered = null; selLinks = []; anchors = []; selected = [byUid(22), byUid(24)];
+  render();
+  armed = true;
+  say(selectionHint() + " —— 例えば「製作」へ", "");
+  render();
+});
+document.getElementById("switches").addEventListener("change", e => {
+  if (e.target.name) opt[e.target.name] = e.target.value;
+  if (e.target.name === "top") { selected = []; hovered = null; }
+  render();
+});
+render();
+</script>
+</body>
+</html>
