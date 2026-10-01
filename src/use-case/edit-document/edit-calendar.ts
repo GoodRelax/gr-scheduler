@@ -6,6 +6,8 @@
 import { workingCalendarOf } from '../../entity/document-model/schedule/schedule'
 import type {
   Calendar,
+  Exception,
+  Project,
   Schedule,
   Task,
   WeekDay,
@@ -22,6 +24,8 @@ export type CalendarCommand =
       // TRAP: dayType codes weekdays 1..7 (AT-73); weekStartDay codes them 0..6 (AT-17). Nothing converts.
       readonly workingDayTypes?: readonly number[]
       readonly weekStartDay?: number | null
+      // WHY: the whole list after the edit (T-344 WC-4..WC-6); omitted leaves the list as it is.
+      readonly exceptions?: readonly Exception[]
     }
 
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
@@ -31,7 +35,7 @@ const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {
     case 'setCalendar': {
-      const { workingDayTypes, weekStartDay } = command
+      const { workingDayTypes, weekStartDay, exceptions } = command
       const schedule = document.schedule
       const refusals: Refusal[] = []
 
@@ -60,28 +64,28 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       // TRAP: compare by identity, not uid: the T-209 default is built, and its uid can match a real row.
       const within = workingCalendarOf(schedule)
       const foundAt = schedule.calendars.indexOf(within.calendar)
-      if (workingDayTypes !== undefined && foundAt < 0) {
-        // STOP: spec does not decide creating a Calendar row for CM-39. Looked in T-108, FR-054, FR-088, T-209 (PND-490)
-        refusals.push(
-          reject('CM-39', 'FR-054', 'the document has no calendar of its own to write the weekdays into'),
-        )
-      }
 
       if (refusals.length > 0) return refused(refusals)
 
-      let calendars = schedule.calendars
-      if (workingDayTypes !== undefined) {
-        const next = withWorkingDayTypes(within.calendar, workingDayTypes)
-        // TRAP: keep the old reference when no weekday moved; document-change-plan.ts reads a new one as a change.
-        if (next !== within.calendar) {
-          calendars = schedule.calendars.map((one, index) => (index === foundAt ? next : one))
-        }
-      }
-
+      // TRAP: keep the old reference when nothing moved; document-change-plan.ts reads a new one as a change.
+      const reworked = withExceptions(
+        workingDayTypes === undefined ? within.calendar : withWorkingDayTypes(within.calendar, workingDayTypes),
+        exceptions,
+      )
+      const held =
+        reworked === within.calendar
+          ? { calendars: schedule.calendars, project: schedule.project }
+          : foundAt >= 0
+            ? {
+                calendars: schedule.calendars.map((one, index) => (index === foundAt ? reworked : one)),
+                project: schedule.project,
+              }
+            : withMadeCalendar(schedule, reworked)
+      const calendars = held.calendars
       const project =
-        weekStartDay === undefined || weekStartDay === schedule.project.weekStartDay
-          ? schedule.project
-          : { ...schedule.project, weekStartDay }
+        weekStartDay === undefined || weekStartDay === held.project.weekStartDay
+          ? held.project
+          : { ...held.project, weekStartDay }
 
       if (calendars === schedule.calendars && project === schedule.project) {
         return edited(document)
@@ -140,6 +144,46 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
   }
 
   return changed ? { ...calendar, weekDays: held } : calendar
+}
+
+/** @purity pure */
+function isSameException(left: Exception, right: Exception): boolean {
+  return (
+    left === right ||
+    (left.ordinal === right.ordinal &&
+      left.name === right.name &&
+      left.fromDate === right.fromDate &&
+      left.toDate === right.toDate &&
+      left.dayWorking === right.dayWorking &&
+      left.recurrenceKind === right.recurrenceKind &&
+      JSON.stringify([left.carry, left.carryElements]) === JSON.stringify([right.carry, right.carryElements]))
+  )
+}
+
+// see WC-7, FR-031
+/** @purity pure */
+function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | undefined): Calendar {
+  if (exceptions === undefined) return calendar
+  const isSame =
+    exceptions.length === calendar.exceptions.length &&
+    exceptions.every((one, index) => isSameException(one, calendar.exceptions[index] as Exception))
+  return isSame ? calendar : { ...calendar, exceptions: [...exceptions] }
+}
+
+// see FR-088, CM-39, AT-20, AT-67
+// WHY: the T-209 default is no row of the document, so the first edit makes one and points the project at it.
+/** @purity pure */
+function withMadeCalendar(
+  schedule: Schedule,
+  reworked: Calendar,
+): { readonly calendars: readonly Calendar[]; readonly project: Project } {
+  const uid = schedule.project.uidHighWaterMark + 1
+  const ordinal = schedule.calendars.reduce((high, one) => Math.max(high, one.ordinal), -1) + 1
+  const made: Calendar = { ...reworked, uid, ordinal, isBaseCalendar: true, baseCalendarUid: null }
+  return {
+    calendars: [...schedule.calendars, made],
+    project: { ...schedule.project, calendarUid: uid, uidHighWaterMark: uid },
+  }
 }
 
 /** @purity pure */
