@@ -213,8 +213,8 @@ const T036_ENTRANCE = 2
 const T023_COLUMNS = 3
 const T023_ENTRANCE = 2
 
-/** Columns of table T-016 after the row ID: column, input kind, subject, note, MSPDI. */
-const T016_COLUMNS = 5
+/** Columns of table T-016 after the row ID: column, input kind, subject, kinds shown for, note, MSPDI. */
+const T016_COLUMNS = 6
 const T016_INPUT_KIND = 1
 
 /** Columns of table T-109 after the row ID: surface, group, what it opens, source, setting, arming. */
@@ -538,8 +538,7 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
 function colourPropertyRows(): readonly string[] {
   const colour = String.fromCharCode(0x8272)
   const found = T016.rows
-    .filter((row) => row.cells.length === T016_COLUMNS)
-    .filter((row) => (row.cells[T016_INPUT_KIND] ?? '').includes(colour))
+    .filter((row) => cellOf(T016, row.id, T016_INPUT_KIND, T016_COLUMNS).includes(colour))
     .map((row) => row.id)
   if (found.length === 0) throw new Error('table T-016 marks no property as a colour')
   return found
