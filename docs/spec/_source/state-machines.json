@@ -41,30 +41,6 @@
     }
    },
    {
-    "id": "RG-15",
-    "keys": [
-     "Esc"
-    ],
-    "rung": {
-     "ja": "焦点がある検索パネル"
-    },
-    "states": [
-     {
-      "in": "searchPanelDisplayStateMachine.shown"
-     }
-    ],
-    "also": {
-     "ja": "フレームの値（焦点がパネルの中にある）"
-    },
-    "evidence": [
-     "IN-4",
-     "SV-14"
-    ],
-    "note": {
-     "ja": "列の絞り込みが開いていれば、絞り込みだけを閉じる（`SV-14`）"
-    }
-   },
-   {
     "id": "RG-2",
     "keys": [
      "Esc"
@@ -98,21 +74,14 @@
      },
      {
       "in": "openSurfaceStateMachine.open"
-     },
-     {
-      "in": "helpDisplayStateMachine.shown.normal"
-     },
-     {
-      "in": "helpDisplayStateMachine.shown.maximised"
      }
     ],
     "evidence": [
      "IN-4",
-     "FR-070",
-     "HN-2"
+     "FR-070"
     ],
     "note": {
-     "ja": "同じ段の中は、問い → 面 → ヘルプの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。最小化したヘルプはこの段に立たない（`HN-2`）"
+     "ja": "同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウインドウの段に立つ（`IN-4`）"
     }
    },
    {
@@ -136,6 +105,49 @@
     ]
    },
    {
+    "id": "RG-16",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "開いているウインドウ"
+    },
+    "states": [
+     {
+      "in": "searchPanelDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "searchPanelDisplayStateMachine.shown.maximised"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.maximised"
+     },
+     {
+      "in": "dialogueFieldDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "dialogueFieldDisplayStateMachine.shown.maximised"
+     }
+    ],
+    "also": {
+     "ja": "フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ"
+    },
+    "evidence": [
+     "IN-4",
+     "SV-14",
+     "HN-2",
+     "FR-066",
+     "FR-152",
+     "RW-1"
+    ],
+    "note": {
+     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField`"
+    }
+   },
+   {
     "id": "RG-14",
     "keys": [
      "Esc"
@@ -153,7 +165,7 @@
      "IN-4"
     ],
     "note": {
-     "ja": "面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ"
+     "ja": "面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ"
     }
    },
    {
@@ -2343,6 +2355,38 @@
          "FR-066"
         ]
        }
+      },
+      "escapePressed": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungDialogueField"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` は有効のまま（`FR-066`）"
+        }
+       },
+       "shown.maximised": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungDialogueField"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` は有効のまま（`FR-066`）"
+        }
+       }
       }
      }
     },
@@ -2739,7 +2783,19 @@
        }
       },
       "escapePressed": {
-       "shown": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungSearchPanel"
+         }
+        ],
+        "evidence": [
+         "SV-14",
+         "IN-4"
+        ]
+       },
+       "shown.maximised": {
         "to": "hidden",
         "guard": [
          {
@@ -2906,7 +2962,7 @@
         ],
         "evidence": [
          "IN-4",
-         "S-99g"
+         "HN-2"
         ]
        },
        "shown.maximised": {
@@ -2918,7 +2974,7 @@
         ],
         "evidence": [
          "IN-4",
-         "S-99g"
+         "HN-2"
         ]
        }
       }

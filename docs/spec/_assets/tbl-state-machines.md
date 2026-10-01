@@ -26,11 +26,11 @@
 | 行 ID | 奪い合う出来事 | 段 | 段ごとの状態のキー | 順を決めた行 | 注 |
 | --- | --- | --- | --- | --- | --- |
 | RG-1 | `Esc` | 出ている通知 | `noticeDisplayStateMachine.shown` | `IN-4` ・ `NT-8` | 消すものが無いときは消費しない（`NT-8`） |
-| RG-15 | `Esc` | 焦点がある検索パネル | `searchPanelDisplayStateMachine.shown` と、フレームの値（焦点がパネルの中にある） | `IN-4` ・ `SV-14` | 列の絞り込みが開いていれば、絞り込みだけを閉じる（`SV-14`） |
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
-| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` | `IN-4` ・ `FR-070` ・ `HN-2` | 同じ段の中は、問い → 面 → ヘルプの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。最小化したヘルプはこの段に立たない（`HN-2`） |
+| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウインドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
+| RG-16 | `Esc` | 開いているウインドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField` |
+| RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` | `IN-4` | 構えより前に置かない（`IN-4`） |
 | RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | — |
@@ -64,7 +64,7 @@
 | `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルかヘルプか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` |
-| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` |
+| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` |
 | `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
 | `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
 | `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
@@ -344,6 +344,8 @@ stateDiagram-v2
     dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed, dialogueFieldClosePressed
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_hidden : escapePressed
+    dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_hidden : escapePressed
 ```
 
 | 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
@@ -352,6 +354,7 @@ stateDiagram-v2
 | `screen/dialogueFieldMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
 | `screen/dialogueFieldMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
 | `screen/dialogueFieldClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
+| `screen/escapePressed` | — | → `hidden` [`isRungDialogueField`]（`Agent API` は有効のまま（`FR-066`））<br>それ以外 → — | — | → `hidden` [`isRungDialogueField`]（`Agent API` は有効のまま（`FR-066`））<br>それ以外 → — |
 
 - `dialogueFieldDisplayStateMachine.hidden` —— 初期。根拠 `S-99i` ・ `FR-066`
 - `dialogueFieldDisplayStateMachine.shown` —— 根拠 `S-99i` ・ `FR-066`
@@ -463,7 +466,9 @@ stateDiagram-v2
         searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_normal : searchPanelMaximiseToggled, searchHitJumped
     }
     searchPanelDisplayStateMachine_hidden --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
-    searchPanelDisplayStateMachine_shown --> searchPanelDisplayStateMachine_hidden : searchPanelClosePressed, escapePressed
+    searchPanelDisplayStateMachine_shown --> searchPanelDisplayStateMachine_hidden : searchPanelClosePressed
+    searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_hidden : escapePressed
+    searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_hidden : escapePressed
 ```
 
 | 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
@@ -472,7 +477,7 @@ stateDiagram-v2
 | `screen/searchPanelMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
 | `screen/searchPanelMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
 | `screen/searchPanelClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
-| `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） |
+| `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — |
 | `screen/searchHitJumped` | — | — | — | → `shown.normal` |
 
 - `searchPanelDisplayStateMachine.hidden` —— 初期。根拠 `S-442`

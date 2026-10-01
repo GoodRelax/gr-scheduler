@@ -2444,7 +2444,7 @@
      "note": {
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
-       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
       ]
      }
     }

@@ -1,8 +1,9 @@
 # CR-630 — `Esc` は前に在るウインドウを閉じる —— 焦点が外にあっても、対話欄も検索パネルも段に立つ
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 14 件は、読んだ木でどれも 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た —— 問い 1 は推奨の C（`JDG-1082`）、問い 2 は「Q3 の決まりによる」（`JDG-1083`）。⚠️ 問い 2 の答えは草案の推奨（常に窓が先）と、焦点がプロパティパネルの中にあるときだけ違う —— E-01・E-07・E-14 と 5 節の継ぎ目をその答えで書き直した（2026-10-01、調整役の依頼）。
+> 起草の状態: 当てた（2026-10-01、枝 `spec-pass-1001`、仕様の通し。`CR-621` の後の木 `37f3c446`）。本番の番号は `RG-16`（どの枝の `docs/spec` と `change-request/` にも `RG-16` 以上が無いことを測った。`RG-15` は退き、使い回さない）。旧 14 件のうち E-10 だけが 0 回だった —— `CR-621` が対話欄の機械に子の状態と行を足していたので、今の尾へ載せ直した（E-10 の注）。E-07 の対話欄の状態のキーを `shown.normal`・`shown.maximised` へ分け、表 T-335 の 4 つ目のウインドウ（遅延診断レポートの窓、`CR-617`・`CR-621`）を E-01（`RW-5` の 1 文）・E-07（`also`・`RW-1`・段の語 `delayDiagnosticsReport`）・5 節の継ぎ目に足した —— 当てる回の提案。
+> 起草の時: 起草のみ（2026-10-01、枝 `l4-review-crs`）。4 節の旧 14 件は、読んだ木でどれも 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た —— 問い 1 は推奨の C（`JDG-1082`）、問い 2 は「Q3 の決まりによる」（`JDG-1083`）。⚠️ 問い 2 の答えは草案の推奨（常に窓が先）と、焦点がプロパティパネルの中にあるときだけ違う —— E-01・E-07・E-14 と 5 節の継ぎ目をその答えで書き直した（2026-10-01、調整役の依頼）。
 > 読んだ木: `refactor` `bfbe7eb7`（枝 `l4-review-crs`）。行番号・数は、すべてこの木で測った（13 節）。
-> ID の帯: 調整役から受けた（`CR-630` のみ）。仕様の新しい識別子は仮番 `RG-<新1>` の 1 つだけ（2 節）。
+> ID の帯: 調整役から受けた（`CR-630` のみ）。仕様の新しい識別子は `RG-16` の 1 つだけ（2 節。起草の時は仮番）。
 > ⛔ 当てる順: `CR-621` → **本書**。E-03・E-04（`FR-036` のヘルプの行と 表 T-336）・E-10（対話欄の状態機械）・E-11（`S-99g` の注）・E-07 の状態のキー（対話欄）は、`CR-621` が書き換える所と重なる（4.1 節）。`CR-613` の J-02 とは旧の 1 行を分け合う（4.1 節）。
 > 閉じるもの: `DFC-1320` の `Esc` の半分（`JDG-850`・`JDG-896`）、`DFC-1347` の ⑥⑦（`JDG-877`）。`DFC-1280` の段の語の半分（12 節）。
 
@@ -46,7 +47,7 @@
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
 | 決定 1 | **窓の段を、進行中のドラッグの後に置く。** 今は通常か最大化のヘルプが「開いている面」の段（ドラッグより上）に、焦点がある検索パネルが通知の次に在る。どちらもドラッグの後の新しい段へ移る | `IN-1`（中断は `Esc`）と `SV-10`・`SV-11`（パネルを動かす・大きさを変えるドラッグの中断）。`PND-337` の裁定が、プロパティパネルを同じ理由でドラッグの後に置いた（「ドラッグより上に置くと `IN-1` の `Esc` による中断へ手が届かなくなる」）。`CR-621` はヘルプと対話欄にも動かす・大きさを変えるドラッグを足す | バーを引いているあいだにヘルプが開いていても、`Esc` はまずドラッグを中断する（今はヘルプを閉じる） |
-| 決定 2 | **3 つのウインドウを 1 つの段にまとめ、1 度の `Esc` で 1 つだけ閉じる。** 段の語（`escapePressed` の `rung`）はウインドウごとに `searchPanel`・`helpModal`・`dialogueField` とし、表 T-283 の窓の段の注に書く（E-07） | 今の「開いている面」の段が、1 つの段の中に問い・面・ヘルプの語を分けて持つ（`RG-3`）先例。`JDG-820` が `helpModal` を決め、`DFC-1280` が語を表に書くことを求めている | `RG-15` を退け、新しい行 `RG-<新1>` を起こす（2 節）。`RG-15` の意味（焦点がある検索パネル）が変わるので、番号を使い回さない |
+| 決定 2 | **3 つのウインドウを 1 つの段にまとめ、1 度の `Esc` で 1 つだけ閉じる。** 段の語（`escapePressed` の `rung`）はウインドウごとに `searchPanel`・`helpModal`・`dialogueField` とし、表 T-283 の窓の段の注に書く（E-07） | 今の「開いている面」の段が、1 つの段の中に問い・面・ヘルプの語を分けて持つ（`RG-3`）先例。`JDG-820` が `helpModal` を決め、`DFC-1280` が語を表に書くことを求めている | `RG-15` を退け、新しい行 `RG-16` を起こす（2 節）。`RG-15` の意味（焦点がある検索パネル）が変わるので、番号を使い回さない |
 | 決定 3 | **最小化したウインドウは段に立たない。** 検索パネルの `Esc` の升を `shown.normal`・`shown.maximised` の 2 つにする（E-08）。対話欄は `CR-621` が最小化を足した後、同じく最小化以外の子に載せ直す（4.1 節） | 表 T-336 の `HN-2`（最小化したヘルプは段を飛ばす）。題の行だけになったウインドウは何も覆っていない。`R2.14` | 今は、焦点が最小化した検索パネルの中にあれば `Esc` で閉じる —— その 1 つの場合が閉じなくなる。最小化すると入力欄が描かれない（`SV-12`）ので、焦点が中に残る場合はほぼ無い |
 | 決定 4 | **開いている面の段の中の順（問い → 面）を `IN-4` の文に書く。** ヘルプが抜けた後の `RG-3` の注も「問い → 面」にする（E-01・E-06） | 今は `RG-3` の注だけが持ち、`IN-4` の文は「面が先、ヘルプが後」しか言わない。表 T-337 で問い（`UZ-3`）は面（`UZ-13`）の手前 —— 「手前のものから閉じる」と同じ向き | 無い |
 | 決定 5 | **`Esc` で対話欄を隠しても、`Agent API` は有効のまま。** 升の先は `hidden` の 1 つで、`agentApiEnablingStateMachine` を動かさない（E-10 の注） | `FR-066` の「逆向きは無い —— 欄を非表示にしても `Agent API` は有効のままである」。`JDG-896` 案 A は有効の記憶を残す | 無い |
@@ -85,7 +86,7 @@
 | 段の並び・窓の段の規則・理由 | `IN-4`（表 T-028）の並びから段落「⭐ プロパティパネルを…」まで | E-01 | その区間 |
 | 検索パネルの閉じ方 | 表 T-330 の `SV-14` の最初の文 | E-02 | その文 |
 | ヘルプの `Esc` | `FR-036` の本文の 1 文、表 T-336 の `HN-2` | E-03・E-04 | その 2 か所 |
-| 表 T-283 | `state-machines.json` の `priorities`: `RG-15` を退け、`RG-3` からヘルプを外し、`RG-<新1>` を `RG-4` と `RG-14` の間に起こし、`RG-14` の注を直す | E-05・E-06・E-07 | その 4 つの段 |
+| 表 T-283 | `state-machines.json` の `priorities`: `RG-15` を退け、`RG-3` からヘルプを外し、`RG-16` を `RG-4` と `RG-14` の間に起こし、`RG-14` の注を直す | E-05・E-06・E-07 | その 4 つの段 |
 | 升 | 検索パネル・ヘルプ・対話欄の `escapePressed` | E-08・E-09・E-10 | その 3 行 |
 | 面と窓の区別の注 | `settings.json` の `S-99g`・`S-99h` の注 | E-11・E-12 | その 2 つの注 |
 | 公開の入口の注 | `published-entries.json` の `isHelpStandingIn` の注 | E-13 | その 1 行 |
@@ -95,9 +96,9 @@
 
 ## 2. 新しい識別子
 
-| 仮番 | 何か | 置き場 |
+| 番号（起草の時は仮番 `RG-<新1>`） | 何か | 置き場 |
 |---|---|---|
-| `RG-<新1>` | 表 T-283 の段「開いているウインドウ」 | `docs/spec/_source/state-machines.json` の `priorities`（E-07）。本表の「番号は最後の次を採り、並びは表の上下が持つ」（`RG-14` の注）に従う |
+| `RG-16` | 表 T-283 の段「開いているウインドウ」 | `docs/spec/_source/state-machines.json` の `priorities`（E-07）。本表の「番号は最後の次を採り、並びは表の上下が持つ」（`RG-14` の注）に従う |
 
 ⭐ 仮番の本番は、仕様を当てる会（spec-pass）が当てる時に振る（規則 02 の 2.5）。E-07 と E-13 の 2 か所に同じ仮番が出る —— 1 回で振り直す。
 ⭐ 識別子の表に載らない名が 2 つ増える: ガード `isRungDialogueField`（E-10）と、`escapePressed` の `rung` の語 `dialogueField`（E-07 の注）。接頭辞・表・要求・設定値の行・状態・出来事は足さない。
@@ -113,14 +114,14 @@
 | 「焦点がパネルの中にあるときの `Esc`」 | 同 `:4923`（`SV-14`） | 「`Esc`（…「開いているウインドウ」の段 —— 焦点がパネルの外にあっても段に立ち、…）」 | E-02 |
 | 「ホイールと `Esc` の段で」 | 同 `:7538`（`FR-036`） | 「ホイールの段で」＋ `Esc` の 1 文 | E-03 |
 | 「「開いている面」の段を飛ばし、次の段へ渡す。」 | 同 `:7559`（`HN-2`） | 「「開いているウインドウ」の段に立たない —— …」 | E-04 |
-| 段 `RG-15`（焦点がある検索パネル）の全体 | `docs/spec/_source/state-machines.json:43`〜`:66` | 無し（`RG-<新1>` が引き取る） | E-05 |
+| 段 `RG-15`（焦点がある検索パネル）の全体 | `docs/spec/_source/state-machines.json:43`〜`:66` | 無し（`RG-16` が引き取る） | E-05 |
 | `RG-3` のヘルプの 2 状態・根拠 `HN-2`・注の「→ ヘルプ」「最小化したヘルプは…」 | 同 `:87`〜`:117` | 問いと面の 2 状態、注「問い → 面」 | E-06 |
 | `RG-14` の注「進行中のドラッグの次に置く」 | 同 `:138`〜`:158` | 「進行中のドラッグと開いているウインドウの後に置く」 | E-07 |
 | 検索パネルの `escapePressed` の升 `shown`（合成） | 同 `:2608`〜`:2621` | `shown.normal`・`shown.maximised` | E-08 |
 | ヘルプの `escapePressed` の根拠 `S-99g`（2 升） | 同 `:2766`〜`:2790` | `HN-2` | E-09 |
 | `S-99g` の注「・表 T-028 の `IN-4` の「開いている面」の段では、…段の中では面の後（手前のものから閉じる）」と「進行中のドラッグの次に」 | `docs/spec/_source/settings.json:3845` | 「`Esc` では面の段に立たず、…「開いているウインドウ」の段に立つ」ほか | E-11 |
 | `S-99h` の注「進行中のドラッグの次に」 | 同 `:3857` | 「進行中のドラッグと開いているウインドウの後に」 | E-12 |
-| `isHelpStandingIn` の注「表 T-283 の `RG-3`」 | `docs/spec/_source/published-entries.json:2396` | 「表 T-283 の `RG-<新1>`」 | E-13 |
+| `isHelpStandingIn` の注「表 T-283 の `RG-3`」 | `docs/spec/_source/published-entries.json:2396` | 「表 T-283 の `RG-16`」 | E-13 |
 | 生成された表 T-283・遷移表・注 | `docs/spec/_assets/tbl-state-machines.md:29`〜`:36` ほか | `npm run gen` | ― |
 | コードの「焦点があるときだけ」 | 9 節の表 | 9 節 | 実装する者 |
 | 旧い文を逐語で引く試験 | 8 節の波 1 の表 | 新しい文へ | 実装する者・試験の体 |
@@ -137,7 +138,7 @@
 ```
 新
 ```text
-消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST） —— 説明を最後に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである。<br>⭐ 開いている面の段では、問いが先、立っている面が後である —— 手前のものから閉じる（`FR-152` の 表 T-337）。<br>⭐ 開いているウインドウの段に立つのは、`FR-036` の 表 T-335 のウインドウのうち、最小化していないものである —— 題の行だけになったウインドウは何も覆っていない（最小化したヘルプの 表 T-336 の `HN-2` と同じ）。<br>1 度の `Esc` で閉じるウインドウは 1 つとし、焦点がその中にあるウインドウを先に、ほかは `FR-152` の 表 T-337 の手前のものから閉じること（MUST）。<br>⛔ 焦点がウインドウの外にあることを理由に、開いているウインドウを段から外してはならない（MUST NOT） —— 外すと、焦点がほかの欄へ移ったあと、ウインドウを閉じる手立てが `Esc` から消える。<br>⭐ ただし焦点がプロパティパネル（`FR-006`）の中にあるあいだは、開いているウインドウはこの段に立たず、プロパティパネルの段が先に受けること（MUST） —— 焦点がある方を先に閉じる決まりを、ウインドウとプロパティパネルのあいだにも当てる。<br>パネルを閉じた後の次の `Esc` は、焦点がもうパネルの中に無いので、ウインドウを閉じる。<br>⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。<br>⭐ 開いているウインドウを進行中のドラッグより後に置くのは、ウインドウを動かすドラッグと大きさを変えるドラッグ（表 T-330 の `SV-10`・`SV-11`）の中断も `Esc` だからである（`IN-1`） —— 前に置くと、中断のつもりの `Esc` がウインドウを閉じる。<br>⭐ 焦点がウインドウの中にもプロパティパネルの中にも無いときにウインドウを先に閉じるのは、ウインドウがパネルの手前に重なるからである（表 T-337） —— 手前のものから閉じる。<br>⭐ プロパティパネルを進行中のドラッグより後に置くのは、ドラッグ中の `Esc` がほぼ「このドラッグをやめたい」という意味だからである。<br>
+消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST） —— 説明を最後に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである。<br>⭐ 開いている面の段では、問いが先、立っている面が後である —— 手前のものから閉じる（`FR-152` の 表 T-337）。<br>⭐ 開いているウインドウの段に立つのは、`FR-036` の 表 T-335 のウインドウのうち、最小化していないものである —— 題の行だけになったウインドウは何も覆っていない（最小化したヘルプの 表 T-336 の `HN-2` と同じ）。<br>1 度の `Esc` で閉じるウインドウは 1 つとし、焦点がその中にあるウインドウを先に、ほかは `FR-152` の 表 T-337 の手前のものから閉じること（MUST）。<br>遅延診断レポートの窓と検索パネルの前後は 表 T-346 の `RW-5` が持つ。<br>⛔ 焦点がウインドウの外にあることを理由に、開いているウインドウを段から外してはならない（MUST NOT） —— 外すと、焦点がほかの欄へ移ったあと、ウインドウを閉じる手立てが `Esc` から消える。<br>⭐ ただし焦点がプロパティパネル（`FR-006`）の中にあるあいだは、開いているウインドウはこの段に立たず、プロパティパネルの段が先に受けること（MUST） —— 焦点がある方を先に閉じる決まりを、ウインドウとプロパティパネルのあいだにも当てる。<br>パネルを閉じた後の次の `Esc` は、焦点がもうパネルの中に無いので、ウインドウを閉じる。<br>⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。<br>⭐ 開いているウインドウを進行中のドラッグより後に置くのは、ウインドウを動かすドラッグと大きさを変えるドラッグ（表 T-330 の `SV-10`・`SV-11`）の中断も `Esc` だからである（`IN-1`） —— 前に置くと、中断のつもりの `Esc` がウインドウを閉じる。<br>⭐ 焦点がウインドウの中にもプロパティパネルの中にも無いときにウインドウを先に閉じるのは、ウインドウがパネルの手前に重なるからである（表 T-337） —— 手前のものから閉じる。<br>⭐ プロパティパネルを進行中のドラッグより後に置くのは、ドラッグ中の `Esc` がほぼ「このドラッグをやめたい」という意味だからである。<br>
 ```
 
 ⭐ E-01 は **問い 1 の答え C**（`JDG-1082`。焦点を持つウインドウが先、ほかは 表 T-337 の手前から）と **問い 2 の答え**（`JDG-1083`。同じ決まりをプロパティパネルにも当てる —— 焦点がパネルの中にあればパネルが先、どちらの中にも無ければ窓が先。決定 10）で書いた。段の並び（窓の段はプロパティパネルより前）は草案のままである。
@@ -299,7 +300,7 @@
 新
 ```text
    {
-    "id": "RG-<新1>",
+    "id": "RG-16",
     "keys": [
      "Esc"
     ],
@@ -320,21 +321,25 @@
       "in": "helpDisplayStateMachine.shown.maximised"
      },
      {
-      "in": "dialogueFieldDisplayStateMachine.shown"
+      "in": "dialogueFieldDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "dialogueFieldDisplayStateMachine.shown.maximised"
      }
     ],
     "also": {
-     "ja": "フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）"
+     "ja": "フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ"
     },
     "evidence": [
      "IN-4",
      "SV-14",
      "HN-2",
      "FR-066",
-     "FR-152"
+     "FR-152",
+     "RW-1"
     ],
     "note": {
-     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `dialogueField`"
+     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField`"
     }
    },
    {
@@ -362,6 +367,7 @@
 
 ⭐ E-07 は **問い 1 の答え C**（`JDG-1082`。注の「焦点がその中にあるウインドウが先」）と **問い 2 の答え**（`JDG-1083`。段は `RG-4` と `RG-14` の間のまま、焦点がプロパティパネルの中にあるあいだは立たない —— `also` と注、決定 10）で書いた。⭐ `RG-14` の注は変えない —— 焦点がパネルの中にあるとき本段が先に受けるのは、窓の段が立たないからであり、`RG-14` の側の条件ではない。
 ⚠️ 状態のキー `dialogueFieldDisplayStateMachine.shown` は、`CR-621` が対話欄に最小化・最大化を足して子の状態を起こしたなら、最小化以外の子（ヘルプと同じなら `shown.normal`・`shown.maximised`）へ載せ直す（決定 3。4.1 節）。
+⭐ 当てる回（2026-10-01、`spec-pass-1001`）: `CR-621` が子の状態 `shown.normal`・`shown.minimised`・`shown.maximised` を起こしていたので、状態のキーを `shown.normal`・`shown.maximised` の 2 つへ載せ直した。`CR-617` と `CR-621` で遅延診断レポートの窓が 表 T-335 の 4 つ目のウインドウになっていたので、`also`・`evidence`（`RW-1`）・注（窓だけを閉じる、段の語 `delayDiagnosticsReport`）に書き足した —— 窓は状態機械を持たない（`S-451` の真偽だけ）ので、状態のキーと升は足せない。段の語 `delayDiagnosticsReport` は当てる回の提案（`S-451` の名 `delayDiagnosticsReportShown` に揃えた）。
 
 <!-- EDIT id=E-08 file=docs/spec/_source/state-machines.json -->
 旧
@@ -474,16 +480,13 @@
 <!-- EDIT id=E-10 file=docs/spec/_source/state-machines.json -->
 旧
 ```text
-       "hidden": {
-        "to": "shown",
+      "dialogueFieldClosePressed": {
+       "shown": {
+        "to": "hidden",
         "evidence": [
-         "S-99i",
-         "IC-18",
+         "IC-52",
          "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
-        }
+        ]
        }
       }
      }
@@ -491,20 +494,32 @@
 ```
 新
 ```text
-       "hidden": {
-        "to": "shown",
+      "dialogueFieldClosePressed": {
+       "shown": {
+        "to": "hidden",
         "evidence": [
-         "S-99i",
-         "IC-18",
+         "IC-52",
          "FR-066"
-        ],
-        "note": {
-         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
-        }
+        ]
        }
       },
       "escapePressed": {
-       "shown": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungDialogueField"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` は有効のまま（`FR-066`）"
+        }
+       },
+       "shown.maximised": {
         "to": "hidden",
         "guard": [
          {
@@ -524,7 +539,7 @@
     },
 ```
 
-⚠️ E-10 の升も、`CR-621` が子の状態を起こしたなら、最小化以外の子の升へ分ける（E-08 と同じ形）。
+⭐ 当てる回（2026-10-01、`spec-pass-1001`）: 旧の区間は `CR-621` の後の木で 0 回だった（`CR-621` が `dialogueFieldEntryPressed` の升を書き換え、最小化・最大化・閉じる入口の行と子の状態を足した）。旧を今の尾（`dialogueFieldClosePressed` の行）へ載せ直し、升を最小化以外の子 `shown.normal`・`shown.maximised` の 2 つに分けた（E-08 と同じ形、決定 3）。
 
 <!-- EDIT id=E-11 file=docs/spec/_source/settings.json -->
 旧
@@ -553,7 +568,7 @@
 ```
 新
 ```text
-       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-<新1>`）と、面が立っているかの判じに読む"
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
 ```
 
 <!-- EDIT id=E-14 file=docs/spec/05-07-design.md -->
@@ -577,7 +592,7 @@
 | `CR-613`（草案、枝 `b3-export-shell-crs`） | その J-02 の旧の 1 行目が、本書 E-13 の旧と同じ 1 行（`isHelpStandingIn` の注） | 本書が先に当たれば、`CR-613` の J-02 は旧の 1 行目を E-13 の新へ替えて数え直す。`CR-613` が先なら、本書の E-13 はそのまま（J-02 は後ろへ足すだけ） |
 | `CR-609`（草案、枝 `b2-panel-crs`。`IC-17` のもう一度の押しでパネルを閉じる） | `propertiesPanelContentStateMachine` の `settingsEntryPressed` の升と運ぶ値。本書はその機械の升に触れず、`RG-14`・`S-99h` の注の語だけを動かす | 重ならない。継ぎ目は「パネルを閉じる道が 1 つ増えても、`Esc` の段はプロパティパネルの段のまま」 |
 | `CR-605`（草案。暦の面 `U-65`） | `S-99g` の「面」に 1 つ足し、`UZ-13`・`IC-52` を書く。本書の E-11 は `S-99g` の注の別の文 | 重ならない見込み。`CR-605` が注を書くなら、後の側が数え直す |
-| `CR-617`（草案、遅延診断レポートの窓。⛔ 除外 —— 重なりだけ記す） | 「検索パネルと同じ作りの窓」に [_][□][x] を足す。表 T-335 のウインドウになれば、本書の窓の段に立つ | 後に当たる側が `RG-<新1>` の状態のキーに 1 つ足し、その機械に `escapePressed` の升を足す（E-08 と同じ形）。本書は書かない |
+| `CR-617`（草案、遅延診断レポートの窓。⛔ 除外 —— 重なりだけ記す） | 「検索パネルと同じ作りの窓」に [_][□][x] を足す。表 T-335 のウインドウになれば、本書の窓の段に立つ | 後に当たる側が `RG-16` の状態のキーに 1 つ足し、その機械に `escapePressed` の升を足す（E-08 と同じ形）。本書は書かない。⭐ 当てる回: `CR-617` は本書より先に着地し、窓は状態機械を持たない（`S-451` の真偽）—— 本書の E-01・E-07・5 節が窓を段に入れた（状態のキーと升は無し） |
 | `CR-603`〜`CR-620` のほか | 1〜10 行と本書の識別子で引いた（13 節）—— 重なり無し | ― |
 
 ## 5. 継ぎ目 —— 両側の依頼文にこのまま写すこと
@@ -589,12 +604,16 @@ SEAM (verbatim in the implementer's and the tester's brief)
     notice -> text edit -> open surface (question, then surface)
     -> gesture in flight -> OPEN WINDOW -> properties panel -> armed
     -> selection -> dual cursor mode -> tooltip
-- OPEN WINDOW rung (RG-<new1>): the windows of table T-335 (help, search
-  panel, dialogue field) that are shown and NOT minimised. The dialogue field
-  stands only while the Agent API is enabled and S-99i is shown.
+- OPEN WINDOW rung (RG-16): the windows of table T-335 (help, search
+  panel, delay diagnostics report window, dialogue field) that are shown and
+  NOT minimised. The dialogue field stands only while the Agent API is enabled
+  and S-99i is shown. The report window has no state machine: it stands while
+  S-451 is true and it is not minimised; Esc closes the window only, the
+  diagnosis display stays (RW-1).
   One Esc closes exactly one window: the window that holds the focus first;
   otherwise the front-most by table T-337 (search panel, then help, then the
-  dialogue field, as T-337 orders them today). Focus OUTSIDE every window
+  dialogue field, as T-337 orders them today); the report window and the
+  search panel: the one opened later is in front (RW-5). Focus OUTSIDE every window
   does NOT remove a window from the rung (JDG-877 (7)) -- with ONE exception:
   while the focus is inside the properties panel (FR-006), the OPEN WINDOW
   rung does not stand and the properties panel rung takes that Esc; the next
@@ -602,11 +621,13 @@ SEAM (verbatim in the implementer's and the tester's brief)
   focus in neither, the window goes first (it is in front of the panel, T-337).
 - Search panel: when its turn comes and a column filter is open, that Esc
   closes the filter only (SV-14); the next Esc closes the panel.
-- escapePressed.rung words: 'searchPanel' | 'helpModal' | 'dialogueField'.
+- escapePressed.rung words: 'searchPanel' | 'helpModal' |
+  'delayDiagnosticsReport' | 'dialogueField'.
   Guards: isRungSearchPanel, isRungHelp, isRungDialogueField (new).
   Cells: searchPanelDisplayStateMachine shown.normal / shown.maximised -> hidden;
   helpDisplayStateMachine shown.normal / shown.maximised -> hidden;
-  dialogueFieldDisplayStateMachine shown -> hidden (Agent API stays enabled).
+  dialogueFieldDisplayStateMachine shown.normal / shown.maximised -> hidden
+  (Agent API stays enabled). The report window has no cell (no machine).
   A minimised window has no Esc cell.
 - A drag in flight (including moving or resizing a window) takes Esc first
   (IN-1): the drag is interrupted, the window stays open.
@@ -639,7 +660,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 |---|---|---|
 | tables | 差 0 | 表を足しも消しもしない |
 | figures | 差 0 | 図の枚数は変わらない（状態図の矢印の名札は `npm run gen` が書き直す） |
-| rows | 差 0 | 表 T-283: `RG-15` を退け `RG-<新1>` を起こす（15 → 15。`Esc` の段は 10 → 10）。表 T-028・T-330・T-336・T-206・T-065 は行の中の文だけ |
+| rows | 差 0 | 表 T-283: `RG-15` を退け `RG-16` を起こす（15 → 15。`Esc` の段は 10 → 10）。表 T-028・T-330・T-336・T-206・T-065 は行の中の文だけ |
 | uids | 差 0 | 要求を足しも消しもしない |
 | 画面の値の出来事 | 差 0 | `escapePressed` は既に在る |
 | `dialogueFieldDisplayStateMachine` の遷移表の行 | 1 → 2 | `escapePressed` の行を足す（E-10） |
@@ -661,12 +682,12 @@ SEAM (verbatim in the implementer's and the tester's brief)
 
 | ファイル | 所 | 何を |
 |---|---|---|
-| `tests/contract/t-283-priorities.contract.test.ts` | `:22`・`:24`・`:26`（`IN_4_ORDER`・`IN_4_SURFACE_THEN_HELP`・`IN_4_SEARCH_PANEL_RUNG`）、`:95`〜`:98`・`:124`〜`:132`（段の番号の並び）、`:155`〜`:158`（`RG-15`）、`:260`〜`:263`・`:274`〜`:282`（段の語と材料の表） | E-01 の新しい文、`RG-<新1>` の位置、段の語 `searchPanel`・`helpModal`・`dialogueField` |
+| `tests/contract/t-283-priorities.contract.test.ts` | `:22`・`:24`・`:26`（`IN_4_ORDER`・`IN_4_SURFACE_THEN_HELP`・`IN_4_SEARCH_PANEL_RUNG`）、`:95`〜`:98`・`:124`〜`:132`（段の番号の並び）、`:155`〜`:158`（`RG-15`）、`:260`〜`:263`・`:274`〜`:282`（段の語と材料の表） | E-01 の新しい文、`RG-16` の位置、段の語 `searchPanel`・`helpModal`・`dialogueField` |
 | `tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts` | `:157`（`IN_4_THE_LADDER`）、`:196` 付近（`LADDER_AS_PRINTED`） | 新しい並び |
 | `tests/contract/state-machine-screen-values.contract.test.ts` | `:340`〜`:345`（`isRungHelp`・`isRungSearchPanel` を偽で待つ枝） | 段の語が名指されたので真の枝を主張し、`isRungDialogueField` を足す |
 | `tests/system/cr-571-the-search-panel-through-the-keys.test.ts` | `:14`（`SV_14_ESC`）・`:15`（`IN_4_RUNG`） | E-02・E-01 の新しい文 |
 | `tests/system/cr-574-help-window.test.ts` | `:30` | E-01 の新しい文（面の段の順） |
-| `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | `:48`（`RG_15_ROW`）・`:301`・`:596` | `RG-<新1>` の行 |
+| `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | `:48`（`RG_15_ROW`）・`:301`・`:596` | `RG-16` の行 |
 | `tests/unit/in-4-escape-closes-the-panel.test.ts` | `:185`（`HN_2`） | E-04 の新しい文 |
 | `tests/unit/document-model.test.ts` | `escapeTarget` の場合（`isSearchPanelFocused`・`isHelpStanding` を詰める所） | 新しい材料と順 |
 
@@ -711,7 +732,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 - ⭐ 本ツールには、開いたままのメニューが無い（`docs/spec` を「メニュー」で引いて 0 件 —— ブラウザのメニューの 1 か所だけ）。宿主が描く選び窓（日付・色・ファイル）は宿主が `Esc` を扱う（表 T-337 の注「宿主が出すものは本表に入れない」）—— 本書は触れない。
 - 対話欄の打ちかけの文字を `IN-5a`・`WS-2` の「入力中」に数えない（`PND-350` のまま）。`Esc` で隠したときに打ちかけを残すかは、`IC-18` で隠したときと同じ扱い（`CR-621` の持ち物）。
 - `WM-9`・`U-60` の「第 1 階層」の誤りは直さない（報告の潜む不具合）。
-- 遅延診断レポートの窓（`CR-617`）を段に足さない（4.1 節）。
+- ~~遅延診断レポートの窓（`CR-617`）を段に足さない（4.1 節）。~~ ⭐ 当てる回: `CR-617` が先に着地していたので、窓を段に入れた（4.1 節）。窓の状態機械を起こすのは本書の外。
 - `surfaceCloseAsked` の `target` の語（`isHelpTarget`、`DFC-1280` の残り半分）を決めない。
 
 ## 11. 利用者に問うこと
@@ -817,7 +838,7 @@ grep -n "DFC-1320 \|DFC-1347 \|DFC-1280 " docs/development-records/defects.md
 #   E-14 docs/spec/05-07-design.md 1
 # the same script applied every 新 to in-memory copies: the three JSON files parse; the IN-4 chain and the
 # Esc rung words of priorities match one for one (10 rungs); the RG ids read
-#   RG-1 RG-2 RG-3 RG-4 RG-<新1> RG-14 RG-5 RG-6 RG-7 RG-8 RG-9 RG-10 RG-11 RG-12 RG-13
+#   RG-1 RG-2 RG-3 RG-4 RG-16 RG-14 RG-5 RG-6 RG-7 RG-8 RG-9 RG-10 RG-11 RG-12 RG-13
 #   (MUST) 01-04 1407 -> 1408, (MUST NOT) 834 -> 835, (MUST) 05-07 100 -> 101
 
 # the two checks that read change requests, run alone (not check.sh)
