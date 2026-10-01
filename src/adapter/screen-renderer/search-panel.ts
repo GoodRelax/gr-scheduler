@@ -426,6 +426,58 @@ export function searchPanelAfterFilterEntry(
   return withColumnFilter(panel, { ...filter, hiddenValues: columnValuesOf(searchRowsOf(schedule, panel.word), column) })
 }
 
+// see SV-7, IC-122
+// WHY: opening another column's filter replaces the open one: SV-7 opens one filter at a time.
+/** @purity pure */
+export function searchPanelWithFilterOpened(
+  session: ScreenSession,
+  panel: SearchPanelSession,
+  column: SearchColumn,
+): SearchPanelSession | null {
+  const display = session.screen.searchPanelDisplayState
+  if (display.kind === 'hidden' || display.child.kind === 'minimised') return null
+  if (!TABLE_COLUMNS[panel.table].includes(column)) return null
+  return panel.filters.open === column ? panel : { ...panel, filters: { ...panel.filters, open: column } }
+}
+
+// see SV-7, IF-9
+// WHY: each change names its column, so a change the host raised for a filter no longer open is dropped.
+export type SearchFilterChange =
+  | { readonly kind: 'value'; readonly column: SearchColumn; readonly value: string; readonly isShown: boolean }
+  | {
+      readonly kind: 'bound'
+      readonly column: SearchColumn
+      readonly bound: 'since' | 'until'
+      readonly day: string | null
+    }
+
+// see SV-7
+/** @purity pure */
+function boundDayOf(day: string | null): string | null {
+  return day === null || dayOf(day) === null ? null : day.trim()
+}
+
+// see SV-7
+/** @purity pure */
+export function searchPanelAfterFilterChange(
+  session: ScreenSession,
+  panel: SearchPanelSession,
+  change: SearchFilterChange,
+): SearchPanelSession | null {
+  const display = session.screen.searchPanelDisplayState
+  const column = display.kind === 'hidden' ? null : openFilterOf(panel, display.child.kind)
+  if (column === null || column !== change.column) return null
+  const filter = columnFilterOf(panel, column)
+  if (change.kind === 'bound') {
+    if (!isDateSearchColumn(column)) return null
+    const day = boundDayOf(change.day)
+    return withColumnFilter(panel, change.bound === 'since' ? { ...filter, from: day } : { ...filter, to: day })
+  }
+  if (isDateSearchColumn(column)) return null
+  const others = filter.hiddenValues.filter((value) => value !== change.value)
+  return withColumnFilter(panel, { ...filter, hiddenValues: change.isShown ? others : [...others, change.value] })
+}
+
 // see SV-14, IN-4
 /** @purity pure */
 export function searchPanelWithFilterClosed(session: ScreenSession, panel: SearchPanelSession): SearchPanelSession | null {

@@ -21,6 +21,8 @@ export type {
   AgentWriteRequest,
 } from './agent-api-members'
 
+export { answerRelayedCall, type RelayedAnswer, type RelayedCall, type RelayedParams } from './relayed-call'
+
 import { agentApiMembers, type AgentApi, type AgentApiWiring } from './agent-api-members'
 
 /** @purity non-pure */

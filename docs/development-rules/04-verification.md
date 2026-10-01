@@ -227,7 +227,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 | 行 ID | 関門 | 打つもの | 打つ口 |
 |---|---|---|---|
 | GT-1 | commit | `gen:check` ＋ vitest ＋ `check.sh` | `npm run guard:commit`（`precheck` と `typecheck` も含む） |
-| GT-2 | `refactor` へ push | `GT-1` ＋ `vite build` ＋ ユースケース試験（file://）＋ e2e ＋ `npm run parity` | `npm run guard:publish` |
+| GT-2 | `refactor` へ push | `GT-1` ＋ `vite build` ＋ `npm run build:relay` ＋ ユースケース試験（file://）＋ e2e ＋ `npm run parity` | `npm run guard:publish` |
 | GT-3 | `main` の早送り | `GT-2` ＋ その CR の場面を出荷ビルドで 1 回押す ＋ 利用者に問う（`JDG-61`） | 手 |
 
 ⭐ どの関門も、既知の赤の一覧と突き合わせる（3.9 節）。⛔ **どの関門も `GRS_PERF` を付けない**（`JDG-640`・`JDG-643`）—— 性能を測る時は 5 節の表 `PW` が決める。

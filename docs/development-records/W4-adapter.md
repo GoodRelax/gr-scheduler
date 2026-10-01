@@ -708,6 +708,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-27 | `agent-api-endpoint.ts` | **公開エントリ** | non-pure | PI-17 | 🧪 試験済 |
 | UF-28 | `agent-api-members.ts` | 内部 | non-pure |  | 🧪 試験済 |
 | UF-29 | `snapshot-source.ts` | 内部 | n/a |  | 🧪 試験済 |
+| UF-185 | `relayed-call.ts` | 内部 | non-pure |  | 🧪 試験済 |
 
 ### `clipboard-gateway` —— ClipboardGateway（PI-24）
 
@@ -764,6 +765,12 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-101 | `selection-input.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-102 | `screen-state-input.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-31 | `input-source.ts` | 内部 | n/a |  | 🧪 試験済 |
+
+### `mcp-tool-translator` —— McpToolTranslator（PI-40）
+
+| ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
+| --- | --- | --- | --- | --- | --- |
+| UF-186 | `mcp-tool-translator.ts` | **公開エントリ** | pure | PI-40 | 🧪 試験済 |
 
 ### `screen-renderer` —— ScreenRenderer（PI-37）
 
@@ -870,3 +877,4 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | 2026-08-21 | 実装 | ⭐ **`UF-61` の幅 0 の仮置きをやめた**。`uf-61.test.ts` の ⛔ LEFT FAILING の 1 件が緑になり、`tests/unit` は **43 ファイル 1747 件全緑**。検査 21 の生成物は 13 → **14**（`screen-frame.ts` を名簿へ追加）|
 | 2026-08-21 | 実測 | ⭐ **`tests/integration`（`TS-2`）を開き、`SWS-1` 〜 `SWS-5` に 24 ケースを置いた** —— 駆動は `regionsFromScreen` → `layoutFromSchedule` → `geometryFromLayout`（＋ `svgFromSchedule`）。⚠️ **表の写しを打ち直さず `tests/contract/spec-table.ts` で読み時に解析している**ので、表 T-221 / T-222 を直すと落ちる。⛔ **本物の欠陥が 3 件出た**（`LF-11` 進捗マーカーが `Math.max` で違うバーに付く／`LF-12` イナズマ線が既定の `stackDirection: 'up'` で折り返す／`LF-1` 除数に `labelGap` が混ざり `FR-093` の純粋な積でない）。**3 件とも赤のまま残してある** —— 直すのは実装側であり、試験を触ってはならない（規則 04 の 1.）。⭐ **型検査も 2016 件の単体試験も 1 件も捕まえていない** |
 | 2026-08-21 | 決めた | ⚠️ **`SWS-6`（Canonical XML）にケースを置かない** —— `FR-021` の MSPDI 比較がまだ実装されていない。⭐ **試験ファイルの冒頭にそう書かせた** |
+| 2026-10-01 | 実装 | ⭐ **MCP の取次の `Adapter` 側を置いた**（`CR-613`、枝 `mcp-relay`）—— `UF-185` `relayed-call.ts`（`answerRelayedCall`）と `UF-186` `mcp-tool-translator.ts`。試験は仕様だけを読む体が書いた `tests/contract/cr-613-seam-1-*` ・ `cr-613-seam-2-*` |

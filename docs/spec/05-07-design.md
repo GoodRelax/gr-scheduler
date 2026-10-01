@@ -54,7 +54,7 @@ graph RL
 | LY-2 | `Entity` / `layoutEngine` | 画面の各部の矩形、日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
 | LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。<br>取り込みの検証。<br>変更の通知。<br>保存しない画面とセッションの流れの遷移（出来事から次の状態と副作用を決める） | 操作と検証は `pure`、確定と通知は `non-pure`。<br>遷移は `pure` |
 | LY-4 | `Adapter` | `Agent API`、SVG の生成、日程表の外側の UI パーツの記述の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
-| LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル。<br>**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
+| LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェルと、ページに載らない MCP の取次のプロセス（`FR-150`、`_assets/design-mcp-relay.md`）。<br>**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
 
 **表 T-061 — 依存の規則**
 
@@ -96,10 +96,12 @@ graph RL
 コンポーネントを 表 T-062 に、全体を 図 F-013 に、経路ごとの詳細を 図 F-014 〜 図 F-017 に示す。  
 層の定義と依存の規則は 5.1 が持つ。
 
-**コンポーネントはすべて機器 `DEV-1` に載る**（表 T-007）。
+**コンポーネントは、`McpToolTranslator`（`CP-40`）と `McpRelayServer`（`CP-41`）を除いて、すべて機器 `DEV-1` に載る**（表 T-007）。  
+⚠️ その 2 つは、ページの外にある MCP の取次のプロセスに載る（`FR-150`、`_assets/design-mcp-relay.md`）。
 
 **コンポーネントを分ける基準は 1 つである** —— 同じ表・同じ要求が寸法と規則を持っているなら 1 コンポーネント、別々の要求が持っているなら別コンポーネントとする。  
-`ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 7 コンポーネントが分かれているのは、実装するインターフェースが別だからである。
+`ScheduleGeometry` が予定・実績・依存線・注記をまとめて持つのは、それらの寸法を 表 T-201 が 1 枚で持ち `FR-094` が縛っているからであり、逆に `Framework` の 7 コンポーネントが分かれているのは、実装するインターフェースが別だからである。  
+`McpRelayServer`（`CP-41`）が分かれているのは、載るプロセスが別だからである。
 
 **表 T-062 — コンポーネント**
 
@@ -142,6 +144,8 @@ graph RL
 | CP-37 | `Adapter` | `ScreenRenderer` | 日程表の外側の UI パーツの記述を作り、対話欄で確定した発話を渡す。<br>`ScreenSurface` を宣言する | `FR-051` / `FR-006` / `FR-036` / `FR-053` / `FR-076` / `FR-066` |
 | CP-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 | — |
 | CP-39 | `UseCase` | `AdvanceScreenSession` | 保存しない画面とセッションの流れを、出来事を受けて 1 段進め、次の状態と副作用の列を返す。<br>副作用を実行しない | 5.6 の ADR-002 / 表 T-249 / 表 T-250 / 表 T-280 / 表 T-286 / 表 T-289 / 表 T-290 / 表 T-292 / 表 T-293 / 表 T-295 / 表 T-296 |
+| CP-40 | `Adapter` | `McpToolTranslator` | MCP の道具と `Agent API` のメンバのあいだで、呼び出しと答えを相互に写す。<br>取次のプロセスに載り、ページには載らない | `FR-150` / 表 T-035 の `AG-12` / 表 T-107 |
+| CP-41 | `Framework` | `McpRelayServer` | MCP の客の呼び出しを、自分が配ったページへ運ぶ。<br>運ぶために持つ値（鍵・繋いだページ・待っている呼び出し・溜めた変更の通知）を保持する。<br>取次のプロセスに載り、ページには載らない | `FR-150` / 表 T-035 の `AG-12` |
 
 各コンポーネントの内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。  
 本表が定めるのはコンポーネントの境界だけである。  
@@ -242,9 +246,9 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 
 | 行 ID | 語 | 定義 | 本設計での全数 |
 | --- | --- | --- | --- |
-| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
+| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **167。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **171。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -297,7 +301,7 @@ Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` 
 本節は `src/` だけを持つ。
 
 ディレクトリ構成を次に示す。  
-37 のフォルダは 表 T-062 の 37 コンポーネントと 1 対 1 である。
+39 のフォルダは 表 T-062 の 39 コンポーネントと 1 対 1 である。
 
 ```text
 src/
@@ -312,13 +316,13 @@ src/
                       post-dialogue-message/ · advance-screen-session/
   adapter/            agent-api-endpoint/ · input-command-translator/ · svg-renderer/
                       document-codec/ · image-exporter/ · file-gateway/
-                      clipboard-gateway/ · screen-renderer/
+                      clipboard-gateway/ · screen-renderer/ · mcp-tool-translator/
   framework/          single-html-shell/ · dom-svg-surface/ · dom-input-source/
                       file-system-access-file-store/ · browser-clipboard/
-                      canvas-rasterizer/ · dom-screen-surface/
+                      canvas-rasterizer/ · dom-screen-surface/ · mcp-relay-server/
 ```
 
-ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、37 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
+ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、39 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
 
 **表 T-063 が持つのは、割った理由だけである。**  
 ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。
@@ -330,9 +334,9 @@ src/
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
 | UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— 行の木と表示の位置をまたいで書くので、どの集約のファイルにも置かない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
-| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>設置は `FR-065`（既定で公開しない）が、20 メンバは 表 T-107 が縛るので、変更の理由が別である |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` ／ `relayed-call.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>設置は `FR-065`（既定で公開しない）が、20 メンバは 表 T-107 が、取次が運んだ呼び出しの受け方は 表 T-035 の `AG-12` が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
-| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `row-band-ceiling-cache.ts` ／ `copy-and-paste.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、行ズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、写しと貼り付けは `FR-033` が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
+| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `row-band-ceiling-cache.ts` ／ `copy-and-paste.ts` ／ `agent-api-relay-link.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、行ズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、写しと貼り付けは `FR-033` が、取次へ繋ぐ口は 表 T-035 の `AG-12` が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 11 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない。<br>検索パネルは、中身（`search-panel.ts`）と、列の絞り込みと並べ替え（`search-table-filters.ts`）の 2 つに割った —— 絞り込みの規則（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）が変わっても、パネルの中身の組み立ては変わらない |
 | UT-8 | `SvgRenderer` | `svg-renderer.ts` と、描く物ごとの 3 ファイル | **純粋性ではない** —— 表 T-075 のとおり 4 つとも同じである。<br>**描く物ごとに縛る要求が別なので割った**（表 T-276 の `UD-1`）—— 格子の規則（`FR-089`）が変わってもタスクの図の規則（`FR-013`・`FR-075`）は変わらない。<br>依存線をタスクの図と同じユニットに置くのは、両者が同じ変更で動いてきたからである |
 | UT-9 | `EditDocument` | `edit-task.ts` と要求ごとの 5 ファイル ／ `edit-task-group.ts` と要求ごとの 4 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>**1 つの集約の中でも、要求ごとに変更の理由が別なので割った**（表 T-276 の `UD-1`）—— 完了率の式（`FR-012`）が変わっても、予定と実績の置き方（`FR-011`・`FR-103`）は変わらない。<br>`FR-011` と `FR-103` は同じ変更で動いてきたので 1 つのユニットに置き、`FR-058` の規則は `FR-085` の分岐の中にあるので 1 つのユニットに置いた |
@@ -451,6 +455,7 @@ src/
 | UF-26 | `PostDialogueMessage` | `post-dialogue-message.ts` | `non-pure` | `CP-16` | — |
 | UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`） |
 | UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 20 メンバの結線 | `FR-028`（`OW-2`） |
+| UF-185 | `AgentApiEndpoint` | `relayed-call.ts` | `non-pure` | 取次が運んだ呼び出しを 1 つずつ、表 T-107 の同じ確定名のメンバへ渡し、答えを運べる値にして返す（`answerRelayedCall`） —— 画像のバイト列は base64 の文字列にし、購読した変更と発話は渡された送り口へ流す（`_assets/design-mcp-relay.md` の 3.2 ・ 3.3）。<br>呼び出しと答えの型（`RelayedCall` ・ `RelayedAnswer`）を宣言する | — |
 | UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
 | UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り —— 入力の種類と押した所から、答える兄弟を選ぶ（表 T-023a・表 T-109）。<br>兄弟が共有する語彙と補助 —— 出力の型、日と行の座標、スクロールの錨 —— を持つ。<br>行の軸の上限の字と帯を、写さずに `PI-5`・`PI-37` へ問う | `FR-016`（`OW-3`）・`FR-040`（`OW-4`）・`FR-070`（`OW-3`） |
 | UF-90 | `InputCommandTranslator` | `shortcut-keys.ts` | `pure` | 打鍵を、表 T-036 の割当に従って操作へ変える | — |
@@ -502,6 +507,7 @@ src/
 | UF-167 | `SingleHtmlShell` | `row-band-ceiling-cache.ts` | `non-pure` | 行ズームの天井（`FR-016`、`rowBandCeilingOf`）を、帯を変えない入力のあいだ使い回す（表 T-071 の `CA-1` の ②） —— 帯を変えない設定の列（縦の倍率と表示の位置）は鍵から外す | — |
 | UF-168 | `SingleHtmlShell` | `copy-and-paste.ts` | `non-pure` | 選んだ行かタスクを写し、写したものを貼る命令を作る（`FR-033`・`SK-4`・`SK-5`・`DU-2`） —— 重ねの上限を超える貼り付けは告げて止め、貼る先が 2 つ以上なら貼らない | — |
 | UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | 状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |
+| UF-188 | `SingleHtmlShell` | `agent-api-relay-link.ts` | `non-pure` | 取次が配ったページで、`Agent API` が有効であり URL の断片に鍵があるあいだだけ、同じ origin の WebSocket で取次へ繋ぎ、届いた呼び出しを `answerRelayedCall` へ渡して答えを返す（表 T-035 の `AG-12` の ② ⑦、`_assets/design-mcp-relay.md` の 3.2） —— 無効になれば閉じる | — |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
@@ -547,6 +553,8 @@ src/
 | UF-122 | `AdvanceScreenSession` | `selection-values.ts` | `pure` | 選択の領域の遷移（表 T-293）と、そこから生成した型と初期値の区画 | — |
 | UF-124 | `AdvanceScreenSession` | `interaction-record-values.ts` | `pure` | 操作の記録の領域の遷移（表 T-295）と、そこから生成した型と初期値の区画 | — |
 | UF-125 | `AdvanceScreenSession` | `agent-api-values.ts` | `pure` | `Agent API` の領域の遷移（表 T-296）と、そこから生成した型と初期値の区画 | — |
+| UF-186 | `McpToolTranslator` | `mcp-tool-translator.ts` | `pure` | MCP の道具の一覧・呼び出し・答えを、`Agent API` のメンバの中継の呼び出しと答えへ相互に写す（表 T-035 の `AG-12` の ④ ⑤、`_assets/design-mcp-relay.md` の 3.1） —— ページが繋がっていないときの答えも、理由の区分 `pageNotConnected` の拒否の値として写す | `FR-150`（`OW-2`） |
+| UF-187 | `McpRelayServer` | `mcp-relay-server.ts` | `non-pure` | MCP の客の呼び出しを、自分が `127.0.0.1` で配ったページへ運び、答えを返す（表 T-035 の `AG-12` の ① 〜 ③ ⑤ ⑦、`_assets/design-mcp-relay.md` の 3 〜 5） —— 起動ごとの鍵・繋いだページ・待っている呼び出し・溜めた変更の通知を現在値として持つ | — |
 
 ⚠️ `semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。  
 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。  
@@ -555,7 +563,7 @@ src/
 **「負う要求」の欄の結び。**
 
 `01-04-requirements.md` が持つ要求は 131 件である（`FR` が 118 件、`NFR` が 13 件）。  
-そのうち 106 件は、上の欄が起点のユニットを名指している。
+そのうち 107 件は、上の欄が起点のユニットを名指している。
 
 ⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。
@@ -568,11 +576,11 @@ src/
 - `FR-030`（色だけで伝えない）—— `tests/usecase/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
 - `FR-069`（ライセンス全文を成果物の中に持つ）—— 検査 27 が走らせる `tools/generate_licence.py --check`。
 
-⚠️ **起点をまだ書いていない要求が 20 件ある。**  
+⚠️ **起点をまだ書いていない要求が 19 件ある。**  
 ⛔ これは「持ち主が無い」ではなく「まだ決めていない」である。  
 理由は 3 つに分かれる。
 
-- **仕様が起点のユニットを決めていない（15 件）** —— `FR-027` ・ `FR-032` ・ `FR-034` ・ `FR-044` ・ `FR-048` ・ `FR-051` ・ `FR-091` ・ `FR-095` ・ `FR-097` ・ `FR-105` ・ `FR-106` ・ `FR-110` ・ `FR-130` ・ `FR-133` ・ `FR-150`。
+- **仕様が起点のユニットを決めていない（14 件）** —— `FR-027` ・ `FR-032` ・ `FR-034` ・ `FR-044` ・ `FR-048` ・ `FR-051` ・ `FR-091` ・ `FR-095` ・ `FR-097` ・ `FR-105` ・ `FR-106` ・ `FR-110` ・ `FR-130` ・ `FR-133`。
   ⚠️ どの行も起点を名指していないか、表 T-062 の `CP-n` と 表 T-075 の `UF-n` が別のファイルを指している。
   ⛔ どちらが正かは、本節では決めない。
 - **1 つのユニットの性質ではなく、木の全体の性質であり、確かめる手立てもまだ無い（4 件）** —— `NFR-005` ・ `NFR-006` ・ `NFR-008` ・ `NFR-012`。
@@ -1013,7 +1021,7 @@ stateDiagram-v2
 | 行 ID | 増やしたもの | 最小構成では | 増やした理由 | 代償 |
 | --- | --- | --- | --- | --- |
 | MN-1 | 層を 4 つに分け、`Entity` をさらに 2 つに割った（表 T-060） | 1 コンポーネント | `FR-092` の `EZ-5` が設計の合否を `R2` で判定すると定め、`R2.16` が CA を求める。<br>**割った側の理由は 5.1 が持つ** | 構造を保つ手間。<br>**非巡回であることを毎回検算する** |
-| MN-2 | コンポーネントを 37 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
+| MN-2 | コンポーネントを 39 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
 | MN-3 | 層をまたぐインターフェースを 8 本宣言した（表 T-065） | ブラウザの API を直に呼ぶ | `LR-5` | `Framework` に、宣言を実装するためのコンポーネントが増えた |
 | MN-4 | 文書への書き込みの経路を 1 本にした（`CP-8`） | 呼ぶ側が直に書き換える | `FR-028` と 表 T-042 の `MS-1`。<br>**入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる** | 描画がこの経路を通らないことを別に定める必要があった（5.1） |
 | MN-5 | 文書ルートをコンポーネントとして立てた（`CP-34`） | ルートに型を与えない | 表 T-052 の `DR-1` は 3 群すべてに同時に掛かる規則であり、どの 1 群からも検査できない | コンポーネントが 1 つ増えた。<br>⚠️ **辺はむしろ 6 本減った** |
@@ -1428,6 +1436,7 @@ flowchart TB
 | PO-4 | `script-src` | 埋め込んだスクリプトの `sha256` を 1 つだけ置くこと（MUST）。<br>`'unsafe-inline'` を書いてはならない（MUST NOT） —— それでは注入されたスクリプトも走る。<br>⛔ `nonce` は採れない —— サーバーが要り、`NFR-004` はファイルを直接開いた状態での判定を MUST としている |
 | PO-5 | `base-uri` | `'none'`。<br>⚠️ **`PO-1` は本指令に及ばない** —— 足さないと、注入された基底 URL が相対参照の行き先を変えられる |
 | PO-6 | `form-action` | `'none'`。<br>⚠️ **`PO-1` は本指令にも及ばない** |
+| PO-7 | `connect-src` | `'self'`。<br>取次が配ったページは、同じ origin の取次へ WebSocket で繋ぐ（`FR-150`、表 T-035 の `AG-12` の ①）。<br>⛔ ほかの取得元を足さない —— 本行が無ければ、`PO-1` がその接続も拒む |
 
 **ハッシュは、埋め込んだスクリプトの本文そのものから作ること（MUST）。**  
 ⚠️ 本文に制御文字が 1 つ混じるとブラウザの読む字面が変わり、ハッシュが合わずに画面全体が出なくなる。

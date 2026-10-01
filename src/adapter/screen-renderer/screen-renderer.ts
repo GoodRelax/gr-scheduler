@@ -39,13 +39,15 @@ import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 export {
   nextSearchPanelTextSizeStep,
+  searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
   searchPanelBoxAfterGrab,
   searchPanelFromSession,
   searchPanelWithFilterClosed,
+  searchPanelWithFilterOpened,
 } from './search-panel'
 export { imageToJsonPromptText } from './app-header-items'
-export type { SearchPanelShown, SearchPanelView } from './search-panel'
+export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
@@ -296,6 +298,12 @@ export interface HelpModal extends OpenSurface {
   readonly licenceText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
+  readonly footnotes: readonly HelpFootnote[]
+}
+
+// see FR-036
+export interface HelpFootnote extends LinkedWords {
+  readonly column: string
 }
 
 export interface HelpEntry {

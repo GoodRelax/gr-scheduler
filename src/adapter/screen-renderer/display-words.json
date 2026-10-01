@@ -272,8 +272,8 @@
     "en": "Agent API"
    },
    "hint": {
-    "ja": "Agent API を有効にする。もう一度押すと無効にする",
-    "en": "Enable the Agent API; press again to disable it"
+    "ja": "Agent API を有効にする。もう一度押すと無効にする (AI のアプリから使うときは、ヘルプに記載の .mcpb が必要)",
+    "en": "Enable the Agent API; press again to disable it (to use it from an AI app, get the .mcpb named in Help)"
    }
   },
   {
@@ -3010,6 +3010,22 @@
     "ja": "構えている間だけ出る",
     "en": "Shown only while armed"
    }
+  },
+  {
+   "rowId": "IC-20",
+   "text": {
+    "ja": "(備考 ※1を参照)",
+    "en": "(see note *1)"
+   }
+  }
+ ],
+ "helpFootnotes": [
+  {
+   "footnote": 1,
+   "text": {
+    "ja": "※1 AI のアプリから Agent API を使うための束（.mcpb）と最新版は、{downloadUrl} から入手する",
+    "en": "*1 Get the bundle (.mcpb) for using the Agent API from an AI app, and the latest version, from {downloadUrl}"
+   }
   }
  ],
  "browserFunctions": [
@@ -4758,28 +4774,6 @@
     "ja": "元のサイズに戻す",
     "en": "Restore"
    }
-  }
- ],
- "dependencyKinds": [
-  {
-   "rowId": "DP-1",
-   "linkType": 1,
-   "abbreviation": "FS"
-  },
-  {
-   "rowId": "DP-2",
-   "linkType": 2,
-   "abbreviation": "SF"
-  },
-  {
-   "rowId": "DP-3",
-   "linkType": 0,
-   "abbreviation": "FF"
-  },
-  {
-   "rowId": "DP-4",
-   "linkType": 3,
-   "abbreviation": "SS"
   }
  ]
 }

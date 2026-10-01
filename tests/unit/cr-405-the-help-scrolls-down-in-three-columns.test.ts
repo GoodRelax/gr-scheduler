@@ -149,9 +149,9 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     expect(S_202).toBe(T_256.rows.length)
   })
 
-  it('T-256 names basics, browser, Row Title Panel, Resource Roster, Search Panel, then App Header, then Command Palette', () => {
+  it('T-256 names basics, browser, Row Title Panel, Resource Roster, Search Panel, Calendar Editor, then App Header, then Command Palette', () => {
     expect(COLUMNS).toEqual([
-      [BASICS, BROWSER, 'Row Title Panel', 'Resource Roster', 'Search Panel'],
+      [BASICS, BROWSER, 'Row Title Panel', 'Resource Roster', 'Search Panel', 'Calendar Editor'],
       ['App Header'],
       ['Command Palette'],
     ])

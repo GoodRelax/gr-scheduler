@@ -17,6 +17,7 @@ import {
 import type {
   DisplayLanguage,
   ScreenSurface,
+  SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource } from '../dom-input-source/dom-input-source'
 import {
@@ -47,6 +48,7 @@ import {
   type StartupNoticeReason,
 } from './frame-loop'
 import startupTemplate from './startup-template.json'
+import { openAgentApiRelayLink, type AgentApiRelayLink } from './agent-api-relay-link'
 
 const SCHEDULE_CANVAS_ROLE = 'Schedule Canvas'
 
@@ -75,6 +77,19 @@ function readDeliveredHtml(): string {
 // TRAP: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
 // its T-109 row, and nothing of the value is read, so no document contents reach the record.
 const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
+
+type SearchPanelReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[0]['holdSearchPanelReaders']>>[0]
+
+// see SV-7, SV-14, IF-9
+/** @purity pure */
+function searchPanelReadersOf(read: () => SearchPanelReaders | null) {
+  return {
+    /** @purity semi-pure-b */
+    isSearchPanelFocused: (): boolean => read()?.isFocused() === true,
+    /** @purity semi-pure-b */
+    readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
+  }
+}
 
 /** @purity semi-pure-b */
 function focusPositionOfPage(): string {
@@ -345,6 +360,28 @@ function environmentOf(
 }
 
 // see T-077
+// see FR-065, AG-12
+/** @purity non-pure */
+function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
+  const host = globalThis as unknown as Record<string, unknown>
+  let relayLink: AgentApiRelayLink | null = null
+  running.watchAgentApiEnabling((isEnabled) => {
+    relayLink?.close()
+    relayLink = null
+    if (!isEnabled) {
+      delete host[AGENT_API_IDENTIFIER]
+      return
+    }
+    const agentApi = installAgentApi({
+      ...running.agentApiSeams(),
+      writerName: AGENT_API_WRITER,
+      schemaVersion,
+    })
+    host[AGENT_API_IDENTIFIER] = agentApi
+    relayLink = openAgentApiRelayLink(agentApi, window.location, (address) => new WebSocket(address))
+  })
+}
+
 /** @purity non-pure */
 function boot(): void {
   // TRAP: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
@@ -420,7 +457,7 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
-  let isSearchPanelFocusedHeld: (() => boolean) | null = null
+  let searchPanelReadersHeld: SearchPanelReaders | null = null
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -437,7 +474,7 @@ function boot(): void {
       readWatermarkUnlockAnswerHeld = read
     },
     /** @purity non-pure */
-    holdIsSearchPanelFocused: (read) => void (isSearchPanelFocusedHeld = read),
+    holdSearchPanelReaders: (readers) => void (searchPanelReadersHeld = readers),
     /** @purity non-pure */
     onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
@@ -504,8 +541,7 @@ function boot(): void {
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
       /** @purity semi-pure-b */
       readFocusPosition: focusPositionOfPage,
-      /** @purity semi-pure-b */
-      isSearchPanelFocused: () => isSearchPanelFocusedHeld?.() === true,
+      ...searchPanelReadersOf(() => searchPanelReadersHeld),
     },
     fileStore,
     showPointerShape,
@@ -532,18 +568,7 @@ function boot(): void {
   // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
   if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 
-  const host = globalThis as unknown as Record<string, unknown>
-  running.watchAgentApiEnabling((isEnabled) => {
-    if (!isEnabled) {
-      delete host[AGENT_API_IDENTIFIER]
-      return
-    }
-    host[AGENT_API_IDENTIFIER] = installAgentApi({
-      ...running.agentApiSeams(),
-      writerName: AGENT_API_WRITER,
-      schemaVersion: template.schemaVersion,
-    })
-  })
+  publishAgentApiWhileEnabled(running, template.schemaVersion)
 
   const inputSource = domInputSource(
     window,

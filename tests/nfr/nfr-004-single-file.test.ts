@@ -62,6 +62,15 @@ const IN_FILE_SCHEMES = /^(?:data|blob|about|javascript):/i
 
 const ABSOLUTE_URL = /(?:https?|wss?|ftps?):\/\/[^\s"'`<>()\\\][{}]+/gi
 
+// WHY: the scan above stops at `{`, so a same-origin `${...host}` WebSocket
+// URL leaves only the scheme and a trailing `$` behind, not an external one.
+const SAME_ORIGIN_HOST_HOLE = /^\{[^{}'"`]*\bhost\b[^{}'"`]*\}/
+
+// see AG-12
+function isSameOriginWsInterpolation(url: string, tail: string): boolean {
+  return /^wss?:\/\/\$$/.test(url) && SAME_ORIGIN_HOST_HOLE.test(tail)
+}
+
 type UrlUse = { where: string; value: string }
 
 let deliverable = ''
@@ -180,7 +189,10 @@ test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attrib
 test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350 link target remain', () => {
   const seen = new Set<string>()
   for (const match of deliverable.matchAll(ABSOLUTE_URL)) {
-    seen.add(match[0].replace(/[.,;:'")\]]+$/, ''))
+    const url = match[0].replace(/[.,;:'")\]]+$/, '')
+    const tail = deliverable.slice((match.index ?? 0) + match[0].length)
+    if (isSameOriginWsInterpolation(url, tail)) continue
+    seen.add(url)
   }
   const external = [...seen]
     .filter((url) => !NON_DEREFERENCED_URI_IDENTIFIERS.includes(url))

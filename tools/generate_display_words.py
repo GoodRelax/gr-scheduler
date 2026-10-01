@@ -48,6 +48,11 @@ REL_PROPERTY_ITEMS = 'docs/spec/_assets/tbl-property-items.md'
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 REL_DESIGN = 'docs/spec/05-07-design.md'
 REL_OUT = 'src/adapter/screen-renderer/display-words.json'
+# ⛔ NOT IN THE DICTIONARY. The note under table T-018 (FR-009) says the
+# abbreviations are symbols that do not change with the language, so FR-038's
+# dictionary must not hold them -- they are generated from the table and used.
+# They leave in a file of their own beside the dictionary.
+REL_OUT_DEPENDENCY_KINDS = 'src/adapter/screen-renderer/dependency-kinds.json'
 REL_SELF = 'tools/generate_display_words.py'
 
 
@@ -119,7 +124,12 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # holds the note on IC-54's row, so that section is keyed by the row id.
 # ⚠️ These are KEYS, not words.
 HELP_HEADINGS = ('basics', 'browser')
-HELP_NOTES = ('IC-54',)
+HELP_NOTES = ('IC-54', 'IC-20')
+# ⭐ The notes below the columns of the help body (FR-036, CR-620): note *1
+# names the bundle for using the Agent API from an AI app and the page that
+# setting S-350 names. A note is not a row of any table, so it is keyed by its
+# number, never by a minted row id. ⚠️ These are KEYS, not words.
+HELP_FOOTNOTES = (1,)
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -298,6 +308,13 @@ BANNER = (
     'prints one of these falls back to what it printed before -- a row id, an '
     'empty label -- while its entry is still unwritten.' % (REL_SOURCE, REL_SELF, ICON_TABLE))
 
+DEPENDENCY_KINDS_BANNER = (
+    'GENERATED -- do not edit by hand. Generated from table %s of %s by %s. '
+    'Rebuild: npm run gen -- npm run gen:check fails on drift. The '
+    'abbreviations are symbols that do not change with the language, so they '
+    'are not in the dictionary of FR-038 (the note under table %s).'
+    % (DEPENDENCY_KIND_TABLE, REL_REQUIREMENTS, REL_SELF, DEPENDENCY_KIND_TABLE))
+
 
 def say(message):
     """⛔ The Windows console is cp932 and these messages quote the marks the
@@ -421,6 +438,7 @@ def roster():
         'shortcuts': listed_shortcuts(),
         'helpHeadings': list(HELP_HEADINGS),
         'helpNotes': list(HELP_NOTES),
+        'helpFootnotes': list(HELP_FOOTNOTES),
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
                                         BROWSER_FUNCTION_TABLE)],
@@ -493,6 +511,7 @@ SHAPE = {
     'shortcuts': ('rowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
     'helpNotes': ('rowId', ('text',)),
+    'helpFootnotes': ('footnote', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
     'exportFormats': ('rowId', ('name',)),
@@ -599,7 +618,7 @@ def build(doc, keys_by_row):
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
-                    'shortcuts', 'helpHeadings', 'helpNotes',
+                    'shortcuts', 'helpHeadings', 'helpNotes', 'helpFootnotes',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
@@ -616,7 +635,16 @@ def build(doc, keys_by_row):
                             for entry in doc[section]]
             continue
         out[section] = doc[section]
-    out['dependencyKinds'] = dependency_kinds()
+    return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
+
+
+def build_dependency_kinds():
+    """Table T-018's rows for src/, outside FR-038's dictionary (FR-009 note).
+
+    @purity semi-pure-b
+    """
+    out = {'$comment': DEPENDENCY_KINDS_BANNER,
+           'dependencyKinds': dependency_kinds()}
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
 
 
@@ -675,22 +703,39 @@ def main():
         return 0
 
     built = build(doc, settings_keys())
-    out = path_of(REL_OUT)
+    kinds = build_dependency_kinds()
     if '--check' in sys.argv:
-        current = io.open(out, encoding='utf-8', newline='').read()
-        current = current.replace('\r\n', '\n')
-        if current != built:
-            say('DRIFTED  %s no longer matches %s -- rerun %s'
-                % (REL_OUT, REL_SOURCE, REL_SELF))
+        drifted = [rel for rel, body in ((REL_OUT, built),
+                                         (REL_OUT_DEPENDENCY_KINDS, kinds))
+                   if written_text(rel) != body]
+        for rel in drifted:
+            say('DRIFTED  %s no longer matches the specification -- rerun %s'
+                % (rel, REL_SELF))
+        if drifted:
             return 1
         say('OK       %s matches %s (%d word(s), %d written)'
             % (REL_OUT, REL_SOURCE, counted(doc), filled(doc)))
+        say('OK       %s matches table %s'
+            % (REL_OUT_DEPENDENCY_KINDS, DEPENDENCY_KIND_TABLE))
         return 0
 
-    io.open(out, 'w', encoding='utf-8', newline='\n').write(built)
+    io.open(path_of(REL_OUT), 'w', encoding='utf-8', newline='\n').write(built)
+    io.open(path_of(REL_OUT_DEPENDENCY_KINDS), 'w', encoding='utf-8',
+            newline='\n').write(kinds)
     say('wrote %s  (%d word(s), %d written)'
         % (REL_OUT, counted(doc), filled(doc)))
+    say('wrote %s' % REL_OUT_DEPENDENCY_KINDS)
     return 0
+
+
+def written_text(rel):
+    """The file as it stands, line ends folded, or None when it is absent.
+
+    @purity semi-pure-b
+    """
+    if not os.path.exists(path_of(rel)):
+        return None
+    return io.open(path_of(rel), encoding='utf-8', newline='').read().replace('\r\n', '\n')
 
 
 if __name__ == '__main__':

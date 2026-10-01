@@ -235,6 +235,18 @@
    "shape": "component",
    "description": "Puts that description on the page.",
    "remark": "implements ScreenSurface"
+  },
+  {
+   "name": "McpToolTranslator",
+   "shape": "component",
+   "description": "Maps MCP tool calls and answers to and from the Agent API members; runs in the relay process, not in the page.",
+   "remark": "FR-150 / AG-12"
+  },
+  {
+   "name": "McpRelayServer",
+   "shape": "component",
+   "description": "Carries an MCP client's calls to the page it served on 127.0.0.1 and holds the key, the connected page, the pending calls and the queued notices.",
+   "remark": "FR-150 / AG-12"
   }
  ],
  "edges": [
@@ -242,7 +254,7 @@
    "source": "SingleHtmlShell",
    "target": "AgentApiEndpoint",
    "arrow": "dependency",
-   "label": "installs / implements SnapshotSource",
+   "label": "installs / implements SnapshotSource / relays calls",
    "description": "installs the exposure point and implements the frozen-snapshot source it declares"
   },
   {
@@ -1274,6 +1286,20 @@
    "arrow": "dependency",
    "label": "date columns + day maths",
    "description": "reads the date columns and the day arithmetic each taken-in task is checked with"
+  },
+  {
+   "source": "McpRelayServer",
+   "target": "McpToolTranslator",
+   "arrow": "dependency",
+   "label": "translate tool calls",
+   "description": "maps each MCP tool call to a relayed call and each answer back"
+  },
+  {
+   "source": "McpToolTranslator",
+   "target": "AgentApiEndpoint",
+   "arrow": "dependency",
+   "label": "call and answer types",
+   "description": "reads only the types of the relayed call and answer (RelayedCall, RelayedAnswer, AgentApi)"
   }
  ],
  "layout": {
@@ -1356,7 +1382,8 @@
      "ImageExporter",
      "FileGateway",
      "ClipboardGateway",
-     "ScreenRenderer"
+     "ScreenRenderer",
+     "McpToolTranslator"
     ]
    },
    {
@@ -1373,7 +1400,8 @@
      "FileSystemAccessFileStore",
      "BrowserClipboard",
      "CanvasRasterizer",
-     "DomScreenSurface"
+     "DomScreenSurface",
+     "McpRelayServer"
     ]
    }
   ]

@@ -11,6 +11,7 @@ import {
   type ScreenPart,
   type ScreenSurface,
   type ScreenView,
+  type SearchFilterChange,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -677,7 +678,12 @@ export interface ScreenSurfaceWiring {
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
   // see SV-5, SV-14, RG-15
   readonly onSearchWordTyped?: () => void
-  readonly holdIsSearchPanelFocused?: (read: () => boolean) => void
+  // see SV-7, IF-9
+  // WHY: on the wiring, not the seam: the panel's focus and its settled filter changes are no member IF-9 lists.
+  readonly holdSearchPanelReaders?: (readers: {
+    readonly isFocused: () => boolean
+    readonly readFilterChanges: () => readonly SearchFilterChange[]
+  }) => void
   readonly readTheme: () => ScreenTheme
 }
 
@@ -1048,7 +1054,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
-  wiring.holdIsSearchPanelFocused?.(searchPanel.isFocused)
+  wiring.holdSearchPanelReaders?.(searchPanel)
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {

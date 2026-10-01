@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VO-3 と炎の見本</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #57606a; --line: #d0d7de; --panel: #f6f8fa;
+    --plan: #9fb3c8; --actual: #2f6fb0; --status: #d9480f; --dep: #6e7781;
+    --dg1: #9673d3; --dg2: #ff8f8f; --dg3: #feda76; --dg4: #ffd400; --edge: #16181d;
+    --pick: #0969da;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+      --plan: #4a5d73; --actual: #58a6ff; --status: #ff7b39; --dep: #8b949e;
+      --dg1: #b697ed; --dg2: #f34949; --dg3: #e6d947; --dg4: #e6c229;
+      --pick: #58a6ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+    --plan: #4a5d73; --actual: #58a6ff; --status: #ff7b39; --dep: #8b949e;
+    --dg1: #b697ed; --dg2: #f34949; --dg3: #e6d947; --dg4: #e6c229;
+    --pick: #58a6ff;
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; line-height: 1.4; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  h3 { font-size: 17px; margin: 24px 0 4px; }
+  p, li { max-width: 72ch; }
+  .note { color: var(--muted); font-size: 14px; }
+  .chart { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin: 8px 0 12px; }
+  svg text { fill: var(--fg); font-size: 13px; }
+  svg .axis { fill: var(--muted); font-size: 12px; }
+  table { border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+  th, td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .tabs button { font: inherit; font-size: 15px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); cursor: pointer; }
+  .tabs button[aria-pressed="true"] { border-color: var(--pick); box-shadow: inset 0 0 0 1px var(--pick); }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; font-size: 14px; }
+  .legend svg text { font-size: 12px; }
+  .ask { background: var(--panel); border-left: 4px solid var(--pick); padding: 8px 16px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>記載漏れ（VO-3）を持つタスクに炎を付けるか —— 実例</h1>
+<p class="note">JDG-1058 の ①「サンプルのhtmlで示して。」への見本。日付・状態は起動の見本（Three-Year Product Plan、基準日 2027-06-04）と、小さな日程を、いまの <code>diagnoseDelay</code> に通して得たもの（scratch で実測）。色は JDG-997 ・ JDG-1008 で決めた地（CR-616 はまだ当てていない）。</p>
+
+<div class="legend" id="legend"></div>
+
+<h2>1. 起動の見本の実物: 287 → 288 → 289</h2>
+<p>3 つとも「Web Service」の行にあり、WBS の親は 996「Web Service workstream」。依存はどれも FS（287 → 288 は遅れ 10 日、288 → 289 は 4 日）。</p>
+<ul>
+  <li><b>287 Book the training reviews</b>: 03-24 に着手、実績は 04-14（stop）まで、完了率 107、<b>実績の終了が無い</b>。</li>
+  <li><b>288 Baseline the migration schedule</b>: 04-28 に着手（287 はまだ「終わっていない」のに）→ 287 に <b>VO-3</b>（他の行の実績が、287 の記載漏れを示す）。288 も完了率 100 で終了なし。</li>
+  <li><b>289 Estimate the security effort</b>: 予定どおり 05-07 に着手、50% のまま予定の終了 05-25 を過ぎた。後続が無い（終端）。</li>
+</ul>
+<div class="tabs" id="tabs1"></div>
+<div class="chart"><svg id="chart1" role="img" aria-label="287 288 289 chart"></svg></div>
+<div id="explain1"></div>
+
+<h2>2. JDG-1057 の ④ の後にも残る形</h2>
+<p>起動の見本では、④（着手済みは実績の開始で置く）を当てると、VO-3 を持つタスクの炎は 0 件になる —— VO-3 は「後続が着手済み」のときに付き、着手済みの後続はもう先行に止められていないと読むから。<br>
+炎が残るのは、<b>VO-3 を持つタスクに、まだ着手していない別の後続があるとき</b>だけ。次の小さな日程がそれ（基準日 2027-05-21）。</p>
+<ul>
+  <li><b>A</b>: 05-03〜05-07 の予定。05-03 に着手、実績は 05-05 まで、<b>終了が無い</b>。</li>
+  <li><b>B</b>: A の FS の後続。05-10 に着手（→ A に VO-3）、実績は 05-12 まで、終了なし。</li>
+  <li><b>D</b>: A の FS の後続。05-10〜05-14 の予定だが<b>未着手</b> —— A を待っている（のかもしれない）。</li>
+  <li><b>C</b>: B の FS の後続。未着手。</li>
+</ul>
+<p>A が本当にまだ終わっていないなら、D を止めているのは A で、A の炎は正しい。A の終了を書き忘れただけなら、A の炎は誤りで、D は自分で始めていないだけ。<b>機械ではこの 2 つを区別できない</b>（FR-131 の RATIONALE）。</p>
+<div class="tabs" id="tabs2"></div>
+<div class="chart"><svg id="chart2" role="img" aria-label="A B C D chart"></svg></div>
+<div id="explain2"></div>
+
+<div class="ask">
+<p><b>問い（PND-630）</b>: 2. の形で、A の印をどれにしますか？ チャットで ①〜③ のどれか（または別案）を答えてください。</p>
+<ul>
+  <li><b>① ?（確認を要す）にする（推奨）</b> —— A には炎を出さず紫の ?。レポートに「VO-3: B が着手済みなのに A の実績の終了が無い」。D ・ C の計算は止めない。</li>
+  <li><b>② 今のまま</b> —— A に炎。VO-3 はレポートの「指摘」の行に載る。</li>
+  <li><b>③ 計算では完了とみなす</b> —— A の終了を「B が着手した日の前の稼働日」と仮に置いて流す。A に炎は出ない。</li>
+</ul>
+<p class="note">⚠️ ③ でも ② でも、D は「予定の開始を過ぎても着手していない」だけでは炎にならない（DFC-1632 ・ PND-629、別に問う）。</p>
+</div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var DAY = 86400000;
+  function day(s) { return Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)); }
+  function md(t) { var d = new Date(t); return (d.getUTCMonth() + 1) + "/" + d.getUTCDate(); }
+  var NS = "http://www.w3.org/2000/svg";
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // Marker glyphs: DG-1 "?", DG-2 flame, DG-3 "!!", DG-4 "!".
+  function marker(parent, x, y, kind) {
+    var g = el("g", { transform: "translate(" + x + "," + y + ")" }, parent);
+    var ground = { DG1: "var(--dg1)", DG2: "var(--dg2)", DG3: "var(--dg3)", DG4: "var(--dg4)" }[kind];
+    el("circle", { r: 9, fill: ground, stroke: "var(--edge)", "stroke-width": 1.3 }, g);
+    if (kind === "DG2") {
+      el("path", { d: "M0,-6 C3,-2 5,0 4,3 C3,6 -3,6 -4,3 C-5,0 -2,-1 -1,-4 C0,-2 1,-1 0,-6 Z", fill: "var(--edge)" }, g);
+    } else {
+      var t = el("text", { "text-anchor": "middle", y: 4.5, style: "fill: var(--edge); font-weight: 700; font-size: 13px" }, g);
+      t.textContent = { DG1: "?", DG3: "!!", DG4: "!" }[kind];
+    }
+    return g;
+  }
+
+  var LABELS = { DG1: "? 確認を要す（DG-1）", DG2: "炎 ボトルネック（DG-2）", DG3: "!! 配下に炎（DG-3）", DG4: "! 遅れ（DG-4）" };
+
+  (function legend() {
+    var box = document.getElementById("legend");
+    ["DG1", "DG2", "DG3", "DG4"].forEach(function (k) {
+      var span = document.createElement("span");
+      var svg = el("svg", { width: 22, height: 22, viewBox: "-11 -11 22 22" });
+      marker(svg, 0, 0, k);
+      span.appendChild(svg);
+      span.appendChild(document.createTextNode(" " + LABELS[k]));
+      box.appendChild(span);
+    });
+  })();
+
+  function draw(svgId, spec, variant) {
+    var svg = document.getElementById(svgId);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var from = day(spec.from), to = day(spec.to);
+    var left = 250, px = spec.px, rowH = 44, top = 34;
+    var width = left + (to - from) / DAY * px + 30;
+    var height = top + spec.rows.length * rowH + 26;
+    svg.setAttribute("width", width); svg.setAttribute("height", height);
+    svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+    function X(s) { return left + (day(s) - from) / DAY * px; }
+    // week ticks on Mondays
+    for (var t = from; t <= to; t += DAY) {
+      if (new Date(t).getUTCDay() === 1) {
+        var x = left + (t - from) / DAY * px;
+        el("line", { x1: x, x2: x, y1: top - 8, y2: height - 8, stroke: "var(--line)" }, svg);
+        var a = el("text", { x: x + 2, y: 16, class: "axis" }, svg); a.textContent = md(t);
+      }
+    }
+    var index = {};
+    spec.rows.forEach(function (r, i) { index[r.id] = i; });
+    function rowY(i) { return top + i * rowH; }
+    // dependencies
+    spec.deps.forEach(function (d) {
+      var p = spec.rows[index[d[0]]], s = spec.rows[index[d[1]]];
+      var x1 = X(p.finish) + px, y1 = rowY(index[d[0]]) + 12, x2 = X(s.start), y2 = rowY(index[d[1]]) + 12;
+      var mid = Math.max(x1 + 6, Math.min(x2 - 6, x1 + 10));
+      el("path", { d: "M" + x1 + "," + y1 + " H" + mid + " V" + y2 + " H" + (x2 - 1), fill: "none", stroke: "var(--dep)", "stroke-width": 1.2, "stroke-dasharray": "3 2" }, svg);
+      el("path", { d: "M" + (x2 - 1) + "," + y2 + " l-5,-3 v6 z", fill: "var(--dep)" }, svg);
+    });
+    spec.rows.forEach(function (r, i) {
+      var y = rowY(i);
+      var name = el("text", { x: 8, y: y + 17 }, svg); name.textContent = r.label;
+      el("rect", { x: X(r.start), y: y + 4, width: X(r.finish) - X(r.start) + px, height: 16, rx: 3, fill: "var(--plan)" }, svg);
+      if (r.actualStart) {
+        var last = r.actualFinish || r.stop;
+        el("rect", { x: X(r.actualStart), y: y + 22, width: X(last) - X(r.actualStart) + px, height: 8, rx: 2, fill: "var(--actual)" }, svg);
+        if (!r.actualFinish) {
+          var q = el("text", { x: X(last) + px + 4, y: y + 30, class: "axis" }, svg);
+          q.textContent = r.note || "終了なし";
+        }
+      }
+      var kind = variant.markers[r.id];
+      if (kind) marker(svg, X(r.finish) + px + 16, y + 12, kind);
+    });
+    var sx = X(spec.status) + px;
+    el("line", { x1: sx, x2: sx, y1: top - 10, y2: height - 18, stroke: "var(--status)", "stroke-width": 2 }, svg);
+    var st = el("text", { x: sx + 4, y: height - 4, class: "axis" }, svg); st.textContent = "基準日 " + md(day(spec.status));
+  }
+
+  function setup(tabsId, svgId, explainId, spec, variants) {
+    var tabs = document.getElementById(tabsId);
+    var buttons = variants.map(function (v, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = v.name;
+      b.addEventListener("click", function () { pick(i); });
+      tabs.appendChild(b);
+      return b;
+    });
+    function pick(i) {
+      buttons.forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+      draw(svgId, spec, variants[i]);
+      document.getElementById(explainId).innerHTML = variants[i].explain;
+    }
+    pick(0);
+  }
+
+  var scene1 = {
+    from: "2027-03-22", to: "2027-06-18", status: "2027-06-04", px: 9,
+    rows: [
+      { id: "996", label: "996 Web Service workstream（親）", start: "2027-03-22", finish: "2027-06-11" },
+      { id: "287", label: "287 Book the training reviews", start: "2027-03-24", finish: "2027-04-14", actualStart: "2027-03-24", stop: "2027-04-14", note: "107% ・ 終了なし" },
+      { id: "288", label: "288 Baseline the migration schedule", start: "2027-04-29", finish: "2027-04-30", actualStart: "2027-04-28", stop: "2027-04-28", note: "100% ・ 終了なし" },
+      { id: "289", label: "289 Estimate the security effort", start: "2027-05-07", finish: "2027-05-25", actualStart: "2027-05-07", stop: "2027-05-14", note: "50%" }
+    ],
+    deps: [["287", "288"], ["288", "289"]]
+  };
+  setup("tabs1", "chart1", "explain1", scene1, [
+    { name: "いま（コード）", markers: { "996": "DG3", "287": "DG2", "288": "DG4", "289": "DG4" },
+      explain: "<p>287 は「着手済みで未完了」なので、見込み終了は基準日（06-04）。自分で生んだ遅れ 37 稼働日。前向きの流しは着手済みの 288 ・ 289 の最早開始も 287 の見込み終了で縛るので、終端 289 の 8 日の遅れは 287 → 288 から持ち込まれたと数えられ、<b>炎は 287</b>（押し出し 8 日）。996 は 287 の WBS の親なので <b>!!</b>。</p>" },
+    { name: "JDG-1057 ④ の後", markers: { "996": "DG3", "287": "DG4", "288": "DG4", "289": "DG2" },
+      explain: "<p>着手済みの最早開始を実績の開始で置くと、288 ・ 289 は 287 に止められていない。289 は予定どおり始めて予定の終了を過ぎたので、遅れは 289 自身のもの —— <b>炎は 289</b>（押し出し 8 日）。287 は予定の終了を過ぎた未完了なので <b>!</b> のまま。VO-3 はレポートの指摘に残る。289 の WBS の親も 996 なので <b>!!</b> は残る。<b>起動の見本では、VO-3 を持つタスクの炎はこれで 0 件</b>（3 件 → 0 件、実測）。</p>" }
+  ]);
+
+  var scene2 = {
+    from: "2027-05-03", to: "2027-05-28", status: "2027-05-21", px: 26,
+    rows: [
+      { id: "A", label: "A", start: "2027-05-03", finish: "2027-05-07", actualStart: "2027-05-03", stop: "2027-05-05", note: "終了なし（VO-3）" },
+      { id: "B", label: "B（A の後続・着手済み）", start: "2027-05-10", finish: "2027-05-14", actualStart: "2027-05-10", stop: "2027-05-12", note: "終了なし" },
+      { id: "D", label: "D（A の後続・未着手）", start: "2027-05-10", finish: "2027-05-14" },
+      { id: "C", label: "C（B の後続・未着手）", start: "2027-05-17", finish: "2027-05-21" }
+    ],
+    deps: [["A", "B"], ["A", "D"], ["B", "C"]]
+  };
+  setup("tabs2", "chart2", "explain2", scene2, [
+    { name: "② 今のまま（④ の後）", markers: { A: "DG2", B: "DG2", D: "DG4", C: "DG4" },
+      explain: "<p>A は未完了なので見込み終了は基準日。未着手の D は A を待つと数えられ、<b>A に炎</b>（押し出し 9 日）。B は自分の遅れで炎（5 日）。VO-3 はレポートの指摘の行に載るが、画面の A は炎。</p>" },
+    { name: "① ? にする（推奨）", markers: { A: "DG1", B: "DG2", D: "DG4", C: "DG4" },
+      explain: "<p>A の数字（未完了）は、B の実績と食い違うので信用できない —— <b>A は ?（確認を要す）</b>。炎と !! は A からは出さない。D ・ C の計算は止めない（壁 DW-1 にしない）。A の終了を入れれば、次の診断で A は完了として流れ、D が本当に止められていたかが分かる。</p>" },
+    { name: "③ 完了とみなす", markers: { A: "", B: "DG2", D: "DG4", C: "DG4" },
+      explain: "<p>A の終了を「B が着手した日の前の稼働日（05-07）」と仮に置いて流す。A は予定どおり終わったことになり、印なし。D は 05-10 から始められたのに始めていないだけ —— いまの仕様では「始めていない」遅れは炎にならない（DFC-1632）ので <b>!</b>。⚠️ 数字を推測で埋めるので、レポートで「仮に完了とみなした」と説明する必要がある。</p>" }
+  ]);
+})();
+</script>
+</body>
+</html>

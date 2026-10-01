@@ -1,0 +1,25 @@
+{
+ "$comment": "GENERATED -- do not edit by hand. Generated from table T-018 of docs/spec/01-04-requirements.md by tools/generate_display_words.py. Rebuild: npm run gen -- npm run gen:check fails on drift. The abbreviations are symbols that do not change with the language, so they are not in the dictionary of FR-038 (the note under table T-018).",
+ "dependencyKinds": [
+  {
+   "rowId": "DP-1",
+   "linkType": 1,
+   "abbreviation": "FS"
+  },
+  {
+   "rowId": "DP-2",
+   "linkType": 2,
+   "abbreviation": "SF"
+  },
+  {
+   "rowId": "DP-3",
+   "linkType": 0,
+   "abbreviation": "FF"
+  },
+  {
+   "rowId": "DP-4",
+   "linkType": 3,
+   "abbreviation": "SS"
+  }
+ ]
+}
