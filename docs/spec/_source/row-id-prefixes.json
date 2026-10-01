@@ -99,6 +99,14 @@
    }
   },
   {
+   "prefix": "BK",
+   "words": "Blank document",
+   "owner": "spec",
+   "means": {
+    "ja": "新しく始めたときに置く空の文書の中身"
+   }
+  },
+  {
    "prefix": "BL",
    "words": "Baseline",
    "owner": "spec",

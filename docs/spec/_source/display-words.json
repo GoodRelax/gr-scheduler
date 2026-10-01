@@ -3268,8 +3268,8 @@
   {
    "rowId": "QN-5",
    "text": {
-    "ja": "保存していない編集があります。置き換えますか？ 失われます",
-    "en": "There are unsaved edits. Replace the document? They will be lost"
+    "ja": "いまの文書を閉じますか？ 保存していない編集と、元に戻す履歴は失われます",
+    "en": "Close the current document? Unsaved edits and the undo history will be lost"
    }
   },
   {

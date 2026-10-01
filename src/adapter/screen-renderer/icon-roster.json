@@ -26,7 +26,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "文書を新しく始める（開いている文書を捨て、表 T-034 の `BT-4` と同じ状態へ戻す）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
+   "entryTo": "文書を新しく始める（開いている文書を捨て、`01-04-requirements.md` の 表 T-342 の空の文書にする）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
    "authority": "`FR-095`",
    "arms": null,
    "armsShape": null

@@ -1,6 +1,7 @@
 # CR-611 — `N` で、問うてから、空の文書を新しく始める
 
-> 起草の状態: 起草（2026-10-01、枝 `b3-export-shell-crs`）。まだ当てていない。4 節の旧 11 件は、読んだ木で各 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た（`JDG-972`、2 つとも推奨）—— 答えは E-04 ・ E-10 と 9 節の見本の題に書き入れてある。
+> 起草の状態: 当てた（2026-10-01、枝 `spec-pass-1001`、仕様の通し、`bdeec320` の上）—— 波 S（E-01 〜 E-11 と `npm run gen`）だけを当てた。識別子は起草の番号のまま（`T-342`・接頭辞 `BK`・`BK-1` 〜 `BK-6`・`SK-25`、当てる日に各 0 件と測り直した）。旧 10 件はそのまま 1 回だった。⚠️ E-03 だけ、先に当たった変更要求が 表 T-109（121 行）と 表 T-234（9 行）の数を変えていたので、旧と新をいまの文の上へ書き直した（E-03 の注）。⚠️ 0.2 節の 10 の「行 1 つが `auto`」は `CR-608` で古くなっていたので直した（仕様の文は変わらない）。波 C1（生成器の題と `empty-document.json`）・C2・C3・T は当てていない —— 次の巡。
+> 起草のときの状態: 起草（2026-10-01、枝 `b3-export-shell-crs`）。4 節の旧 11 件は、読んだ木で各 1 回だった（13 節）。11 節の 2 つの問いは 2026-10-01 に答えを得た（`JDG-972`、2 つとも推奨）—— 答えは E-04 ・ E-10 と 9 節の見本の題に書き入れてある。
 > 読んだ木: `refactor` `0590ad03`（枝 `b3-export-shell-crs` の作業木。`docs/spec`・`src`・`tests`・`tools` は `0590ad03` のまま）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-611` を受けた。本書が仕様に取る識別子は、表 `T-342`・接頭辞 `BK`・行 `BK-1` 〜 `BK-6`・行 `SK-25` である（2 節。どれも当てる日に測り直す）。台帳の番号は取らない（12 節）。
 > 当てる順: 4 節の旧は、兄弟（`CR-610`・`CR-612`・`CR-613`）のどの旧とも重ならない（13 節）。⚠️ `CR-612` とは生成器 `tools/generate_startup_template.py` と生成物 `src/framework/single-html-shell/startup-template.json` を共有する —— 仕様の旧は重ならず、生成物は後に当てる側が `npm run gen` で起こし直す。⚠️ `CR-610` の `FR-101`（見出しに出すファイルの名）は、本書の E-01 の「新しく始めた後は上書きする先を持たない」を前提に読める（8 節）。仕様は L4 の合流の後、W0 〜 W5 と同じ 1 回の通しで当てる（8 節）。
@@ -39,7 +40,8 @@
 7. **新しく始めた後の上書きする先。** `FileStore`（`src/adapter/file-gateway/file-store.ts:59-73`）には上書きする先を手放す行いが無く、`RD-7` の道は店に触れない。`saveHeldDocumentToFile`（`src/framework/single-html-shell/document-file-flow.ts:693-701`）は開いたファイルがあればそこへ書き、`DI-5`（`:6807`）はその道で問わない。⇒ **いま `IC-98` の後の `Ctrl+S` は、前に開いたファイルへ新しい文書を黙って書く**（コードで確かめた。未再現）。`DI-5` の前提「開いたファイルは、定義によりこの文書のファイルである」が破れている。⇒ E-01 の 2 つ目の MUST。台帳の行は `DFC-1420`（前に立つ者が起こした。12 節）。
 8. **刻印。** `RD-7` の刻印の欄は「入ってきたまま」（`05-07-design.md:749`）。その理由（`:766-767`）は「ファイルと起動テンプレートから来る文書は、書かれたときの刻印を持っていなければ `FR-063` の等値の判定が意味を成さない」である。空の文書は差し替えるその時に作るので、書かれたときの刻印を持たない ⇒ 理由が当たらない。さらに `WS-7` は「日程データの群が動いたか」を `scheduleUpdatedUtc` の等値で導く（`:771`）ので、生成器の定めた刻（`tools/generate_startup_template.py:113` の `STAMPED_AT`。起動テンプレートと同じ値）を入ってきたままにすると、起動テンプレートから新しく始めたとき「動いていない」と導かれ、`AG-6` の監視が変化を見落とす。⇒ E-05（刻印を「進める」）。書き手の語は画面なので 表 T-229 の `ED-1` —— 表 T-229 は変えない。
 9. **`OP-10` と `FR-055`。** 空の文書は表示位置が `null`（`BK-5`）なので `OP-10` の冒頭（`FR-055` の全体表示）に入る。`FR-055`（`:5402-5403`）は「描くものが 1 つも無い文書では、倍率を等倍に戻し、表示位置を `scrollDate` に合わせる」「`null` のときは実行日に合わせてよい（MAY）」。`OP-10` の `BT-4` の除外は、空の文書が `BT-4` から開いた文書ではなく、`Task` も持たないので働かない。⇒ **`OP-10` は真のまま**。⚠️ コードの `:2350` `returnToStartupTemplate()` は除外を張り直すので、`leaveStartupTemplate()` に替える（9 節）。
-10. **`DFC-1323` の新規の半分。** `JDG-922` の #4 が新規に求めるのは Auto・段 0 を開く・合わせる・一番上である。空の文書は行 1 つが `auto`（`BK-2`、`TaskGroup.treeState` は「新しく作る行は `auto`」）、段 0 は `S-418` の既定 `'auto'`、倍率と位置は 9 のとおり `FR-055`、上端は `scrollGroupId` が `null`（`BK-5`）。⇒ **作りの帰結として満たす**。`fitPressed` を送る論理は足さない（`JDG-853`「新規作成専用のロジックにするな」）。
+10. **`DFC-1323` の新規の半分。** `JDG-922` の #4 が新規に求めるのは Auto・段 0 を開く・合わせる・一番上である。空の文書は行 1 つが `temporarilyExpanded`（`BK-2` は 表 T-050 の直下の規則に従い、その規則が `CM-26` と同じ値で行を立てる）、段 0 は `S-418` の既定 `'auto'`、倍率と位置は 9 のとおり `FR-055`、上端は `scrollGroupId` が `null`（`BK-5`）。⇒ **作りの帰結として満たす**。`fitPressed` を送る論理は足さない（`JDG-853`「新規作成専用のロジックにするな」）。  
+   ⚠️ 当てた日（2026-10-01、`bdeec320`）に直した —— 起草のときは「行 1 つが `auto`」と書いていたが、先に当たった `CR-608`（`JDG-969`）が 表 T-050 の直下の行を `temporarilyExpanded` で立てるとした。`BK-2` はその規則に従うと書くだけなので、仕様の文は変えずに済んだ。行が開いて見えることは変わらない。
 11. **`WY-1`（`:6300`）。** 「編集 → JSON へ書き出し → 初期化（`FR-095`）→ その JSON を読み込み」は、初期化の後が空の文書になるだけで真のまま（読み込みは `OP-4` の問いを経て置き換える）。語「初期化」も `FR-095` を名指したまま。
 12. **見本の題。** `tools/generate_startup_template.py:898` の `PROJECT_TITLE`（`:2539` で `Project.title` に入る。中立語の検査の集合 `:4052` にも入る）。生成物は `src/framework/single-html-shell/startup-template.json`（`:106-107` の `OUT`、`:7` に題）。⭐ 題を逐語で持つ試験は無い —— `tests/contract/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts:37` の同じ綴りは、自前の文書の値である。⚠️ 保存するときのファイル名の案は題に拡張子を足したもの（`document-file-flow.ts:175`）なので、題の末の `.` は `….json` の `..` になる。
 13. **散文の数。** `FR-086`（`:5776`）が「表 T-036 の 27 行」と数えている。`SK-25` を足すと 28 行 ⇒ E-03。
@@ -100,7 +102,7 @@
 
 | 識別子 | 種 | 何 | 空きの根拠 |
 |---|---|---|---|
-| `T-342` | 表 | 空の文書（`FR-095` の中、RATIONALE の後） | 表の番号は `docs/spec` で最大 `T-339`（0590ad03 で最大 T-339、当てる日に測り直す）。`T-340` ・ `T-341` は先に当てる `CR-610` が取る（前に立つ者の振り分け、2026-10-01） |
+| `T-342` | 表 | 空の文書（`FR-095` の中、RATIONALE の後） | 表の番号は `docs/spec` で最大 `T-345`（当てた日 2026-10-01 に `bdeec320` で測り直した。起草の `0590ad03` では最大 T-339）。T-342 は 0 件だった —— T-340 ・ T-341 は `CR-610`、T-343 ・ T-344 は `CR-605`、T-345 は `CR-607` が取った |
 | `BK` | 接頭辞 | Blank document —— 表 T-342 の行 | 登録簿（`_source/row-id-prefixes.json`）に無く、三つの木に `BK-n` が 0 件（13 節）。当てる日に測り直す |
 | `BK-1` 〜 `BK-6` | 行 | 表 T-342 の 6 行 | 接頭辞が新しい |
 | `SK-25` | 行 | 表 T-036 の `N`（新しく始める） | `SK` の行は最大 `SK-24`（0590ad03 で最大 SK-24、当てる日に測り直す） |
@@ -180,14 +182,15 @@
 <!-- EDIT id=E-03 file=docs/spec/01-04-requirements.md -->
 `FR-086`。旧
 ```text
-表 T-109 の 113 行・表 T-036 の 27 行・表 T-234 の 8 行
+表 T-109 の 121 行・表 T-036 の 27 行・表 T-234 の 9 行
 ```
 新
 ```text
-表 T-109 の 113 行・表 T-036 の 28 行・表 T-234 の 8 行
+表 T-109 の 121 行・表 T-036 の 28 行・表 T-234 の 9 行
 ```
 
-⚠️ 当てる日に 表 T-109 と 表 T-234 の行数も数え直す（兄弟が変えていれば、その数も直す）。
+⚠️ 当てる日に 表 T-109 と 表 T-234 の行数も数え直す（兄弟が変えていれば、その数も直す）。  
+⭐ 当てた日（2026-10-01、`bdeec320`）に測り直した —— この通しで先に当たった変更要求が 表 T-109 を 121 行（`IC-132` 〜 `IC-139`）、表 T-234 を 9 行（`QN-11`）にしていたので、旧と新をいまの文の上へ書き直した（`impact.py T-109 T-234`）。
 
 <!-- EDIT id=E-04 file=docs/spec/01-04-requirements.md -->
 表 T-234 の `QN-5`。⭐ 問い 1 の答え A（`JDG-972` の ①）。旧
@@ -380,7 +383,8 @@ SEAM-3 (the empty document, T-342)
   in the same run as startup-template.json: same schemaVersion, documentSettings = the T-202/T-203
   defaults, one calendar (Mon..Fri working, no exceptions; uid/name/ordinal as FR-068's base),
   project per BK-4, every schedule array empty INCLUDING taskGroups (the landing adds the row:
-  document-change-plan.ts:341 documentHoldingOneRow with a fresh id and the defaultNames row word).
+  document-change-plan.ts:341 documentHoldingOneRow with a fresh id and the defaultNames row word;
+  its treeState follows the T-050 rule, temporarilyExpanded since CR-608).
 - carryOutOwedAction('startNewDocument') -> replaceHeldDocument({ row: 'RD-7', document: empty,
   editedBy, updatedUtc }). RD-7 now ADVANCES the stamp like RD-3 (advancedStamp).
 - After landing, call leaveStartupTemplate(), not returnToStartupTemplate().

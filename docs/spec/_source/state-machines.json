@@ -3987,22 +3987,14 @@
       "kind": "input",
       "rows": [
        "IC-98",
+       "SK-25",
        "FR-095"
       ],
       "note": {
-       "ja": "新しく始める入口"
+       "ja": "新しく始める入口・`N`"
       }
      },
      "carries": [
-      {
-       "name": "hasStartupTemplate",
-       "rows": [
-        "FR-095"
-       ],
-       "note": {
-        "ja": "始める元の文書が在るか。呼び手が詰める"
-       }
-      },
       {
        "name": "question",
        "rows": [
@@ -4869,34 +4861,13 @@
        }
       },
       "newDocumentEntryPressed": {
-       "notAsked": [
-        {
-         "to": "questionAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate"
-          }
-         ],
-         "evidence": [
-          "FR-095",
-          "QN-5"
-         ]
-        },
-        {
-         "to": "notAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate",
-           "not": true
-          }
-         ],
-         "effect": "raiseNotice",
-         "effectArgument": "RS-27",
-         "evidence": [
-          "RS-27"
-         ]
-        }
-       ],
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "FR-095",
+         "QN-5"
+        ]
+       },
        "questionAsked": {
         "to": "questionAsked",
         "effect": "raiseNotice",
