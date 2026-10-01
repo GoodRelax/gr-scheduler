@@ -75,7 +75,7 @@ function reasonCell(row: string, cell: ReasonCell, language: DisplayLanguage): s
 
 // see FR-073
 /** @purity pure */
-function linkedWordsOf(word: string): LinkedWords | null {
+export function linkedWordsOf(word: string): LinkedWords | null {
   const at = word.indexOf(DOWNLOAD_ADDRESS_SLOT)
   if (at < 0) return null
   return {

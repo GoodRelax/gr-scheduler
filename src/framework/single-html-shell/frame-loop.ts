@@ -138,9 +138,11 @@ import {
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
+  searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
   searchPanelBoxAfterGrab,
   searchPanelWithFilterClosed,
+  searchPanelWithFilterOpened,
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
@@ -153,6 +155,7 @@ import {
   type ScreenPart,
   type ScreenSurface,
   type ScreenViewReadings,
+  type SearchFilterChange,
   type VerticalWhole,
   imageToJsonPromptText,
 } from '../../adapter/screen-renderer/screen-renderer'
@@ -319,6 +322,9 @@ export interface ScreenWiring {
   readonly readFocusPosition?: () => string
   // see RG-15, SV-5, SV-14
   readonly isSearchPanelFocused?: () => boolean
+  // see SV-7, IF-9
+  // TRAP: reading takes the changes, in the order the host raised them.
+  readonly readSearchFilterChanges?: () => readonly SearchFilterChange[]
 }
 
 export interface FrameLoopHands {
@@ -411,6 +417,7 @@ const SEARCH_FIELD_ROWS: ReadonlySet<string> = new Set([SEARCH_WORD_ROW, 'SV-7']
 const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
 const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
+const SEARCH_FILTER_ENTRY: IconId = 'IC-122'
 
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
 const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
@@ -1212,14 +1219,18 @@ export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-3, SV-7, SV-16, IC-127
+// see SV-3, SV-7, SV-16, IC-122, IC-127
 /** @purity pure */
 function searchPanelAfterEntry(
   held: SearchPanelSession,
   entry: IconId,
   session: ScreenSession,
   schedule: Document['schedule'],
+  filterColumn: string | null,
 ): SearchPanelSession | null {
+  if (entry === SEARCH_FILTER_ENTRY) {
+    return filterColumn === null ? null : searchPanelWithFilterOpened(session, held, filterColumn)
+  }
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
   if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule)
@@ -1308,6 +1319,24 @@ function searchPanelAfterEscapeRung(
   const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
   if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
   return held
+}
+
+// see SV-7, IF-9
+/** @purity semi-pure-b */
+function searchPanelWithFilterChanges(
+  held: SearchPanelSession,
+  session: ScreenSession,
+  screen: ScreenWiring | undefined,
+): SearchPanelSession {
+  const changes = screen?.readSearchFilterChanges?.() ?? []
+  return changes.reduce((panel, change) => searchPanelAfterFilterChange(session, panel, change) ?? panel, held)
+}
+
+// see SV-7, IC-122
+/** @purity pure */
+function filterColumnOf(input: HumanInput, context: InputContext): string | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  return context.pressed?.on?.searchFilterColumn ?? null
 }
 
 // see SV-2, SV-5
@@ -2018,7 +2047,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
-    searchPanelHeld = searchPanelWithTypedWord(searchPanelHeld, screen?.surface)
+    searchPanelHeld = searchPanelWithFilterChanges(searchPanelWithTypedWord(searchPanelHeld, screen?.surface), session, screen)
     runFrame()
   }
 
@@ -2488,16 +2517,12 @@ export function frameLoop(
 
   // see T-109
   /** @purity non-pure */
-  function answerSettledEntry(
-    entry: IconId,
-    surface: string | null,
-    frame: FrameValues,
-  ): boolean {
+  function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues, filterColumn: string | null): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry, session, held.document.schedule)
+    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry, session, held.document.schedule, filterColumn)
     if (panelAfter !== null) {
       searchPanelHeld = panelAfter
       return true
@@ -3001,7 +3026,7 @@ export function frameLoop(
     const settledAnswer = answerSettledOnRelease(input, context)
     const spent =
       (settledEntry !== null &&
-        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
+        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame, filterColumnOf(input, context))) ||
       (settledFormat !== null && answerSettledFormat(hands, settledFormat)) ||
       // TRAP: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
       (settledAnswer !== null &&

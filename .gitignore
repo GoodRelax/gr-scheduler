@@ -9,6 +9,8 @@ dist/*
 # to look at the product was to build it (the user's instruction 2026-09-07).
 # ⛔ It is generated -- never edit it by hand; rebuild instead.
 !dist/index.html
+# The relay bundle (npm run build:relay) is built, never committed.
+dist-relay/
 build/
 .vite/
 _site/

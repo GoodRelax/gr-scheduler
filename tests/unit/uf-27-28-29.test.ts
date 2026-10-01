@@ -685,12 +685,12 @@ describe('UF-27 installAgentApi -- FR-065 / PI-17', () => {
     expect(bench().api).not.toBe(bench().api)
   })
 
-  it('publishes one runtime name, PI-17s own, and re-publishes the seam as a type', () => {
+  it('publishes the two runtime names PI-17 lists (installAgentApi, answerRelayedCall), and re-publishes the seam as a type', () => {
     // The other half of PI-17 is `SnapshotSource`, which is a declaration and
     // leaves nothing behind at run time -- the import at the head of this file
     // is what proves Chapter 5.3s re-publication MUST, since no test outside
     // the folder may reach past this entry to get at it.
-    expect(Object.keys(agentApiEndpoint)).toEqual(['installAgentApi'])
+    expect([...Object.keys(agentApiEndpoint)].sort()).toEqual(['answerRelayedCall', 'installAgentApi'])
   })
 })
 

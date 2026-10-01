@@ -1233,6 +1233,16 @@
      }
     },
     {
+     "name": "answerRelayedCall",
+     "note": {
+      "ja": [
+       "`non-pure`。",
+       "取次が運んだ呼び出しを、表 T-107 の同じ確定名のメンバへ渡して答える。",
+       "型 `RelayedCall` ・ `RelayedAnswer` とともに公開する（`_assets/design-mcp-relay.md` の 3.2）"
+      ]
+     }
+    },
+    {
      "name": "SnapshotSource",
      "note": {
       "ja": [
@@ -2117,6 +2127,37 @@
      }
     },
     {
+     "name": "searchPanelWithFilterOpened",
+     "note": {
+      "ja": [
+       "列の見出しの `IC-122` の押下を、その列の絞り込みを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。",
+       "開いている絞り込みは 1 つなので、別の列の絞り込みは閉じる。",
+       "パネルが出ていないか最小化されているか、出している表の列でないときは `null`。",
+       "`SingleHtmlShell` が入口の押下を当てるために使う"
+      ]
+     }
+    },
+    {
+     "name": "searchPanelAfterFilterChange",
+     "note": {
+      "ja": [
+       "開いている絞り込みの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えている絞り込みへ当てる（`FR-151` の 表 T-330 の `SV-7`）。",
+       "変化の列が開いている絞り込みの列でないときは `null`。",
+       "`SingleHtmlShell` が面から読んだ変化を当てるために使う"
+      ]
+     }
+    },
+    {
+     "name": "SearchFilterChange",
+     "note": {
+      "ja": [
+       "型。",
+       "絞り込みの欄（`SV-7`）で確定した 1 つの変化 —— 値の印か、日付の端か。",
+       "`DomScreenSurface` が作り、`SingleHtmlShell` が読む"
+      ]
+     }
+    },
+    {
      "name": "searchPanelBoxAfterGrab",
      "note": {
       "ja": [
@@ -2404,6 +2445,65 @@
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-40",
+   "layer": "Adapter",
+   "component": "McpToolTranslator",
+   "members": [
+    {
+     "name": "mcpToolList",
+     "note": {
+      "ja": [
+       "MCP の道具の一覧。",
+       "名は 表 T-107 の確定名、説明は同表の「何を担うか」の欄（`_assets/design-mcp-relay.md` の 3.1）"
+      ]
+     }
+    },
+    {
+     "name": "relayedCallOf",
+     "note": {
+      "ja": [
+       "MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す"
+      ]
+     }
+    },
+    {
+     "name": "mcpToolResultOf",
+     "note": {
+      "ja": [
+       "ページの答えを MCP の道具の答えに写す。",
+       "拒否は値のまま写す（表 T-035 の `AG-9a`）"
+      ]
+     }
+    },
+    {
+     "name": "pageNotConnectedResult",
+     "note": {
+      "ja": [
+       "ページが繋がっていないときの答え。",
+       "理由の区分 `pageNotConnected` と開く URL を持つ拒否の値である（表 T-035 の `AG-12` の ②）"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-41",
+   "layer": "Framework",
+   "component": "McpRelayServer",
+   "members": [
+    {
+     "name": "startMcpRelay",
+     "note": {
+      "ja": [
+       "`non-pure`。",
+       "取次のプロセスの入口である。",
+       "他のコンポーネントからは呼ばれない"
       ]
      }
     }

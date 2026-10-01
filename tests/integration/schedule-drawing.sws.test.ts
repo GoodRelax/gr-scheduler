@@ -1378,6 +1378,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // told apart, there and back." The successor ends just to the left of the
       // predecessor, which is what brings the two together.
       // WHY: the runs are constants now; the day width is what brings the two verticals together.
+      // WHY: S-63 is on by default since CR-604, and the marker room it gives each label
+      // lifts the successor to a second lane; the case pins it off to keep its one lane.
       const leadIn = SETTINGS_CONSTANTS.dependencyLeadIn
       const leadOut = SETTINGS_CONSTANTS.dependencyLeadOut
       const drawn = draw(
@@ -1387,7 +1389,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
-        { zoomX: 1 },
+        { zoomX: 1, progressMarkerVisible: false },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-8')

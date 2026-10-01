@@ -387,18 +387,18 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
 })
 
 
-describe('S-63 -- progressMarkerVisible defaults to false', () => {
-  it('S-63: 既定 `false` -- the table, the settings defaults and the startup template agree', () => {
+describe('S-63 -- progressMarkerVisible defaults to true', () => {
+  it('S-63: 既定 `true` -- the table, the settings defaults and the startup template agree', () => {
     // see S-63
     const row = rowIn('T-202', 'S-63')
     const key = bare(row.by['キー'] ?? '')
     expect(key).toBe('progressMarkerVisible')
-    expect(bare(row.by['既定'] ?? '')).toBe('false')
-    expect((SETTINGS_DEFAULTS as unknown as Record<string, unknown>)[key]).toBe(false)
+    expect(bare(row.by['既定'] ?? '')).toBe('true')
+    expect((SETTINGS_DEFAULTS as unknown as Record<string, unknown>)[key]).toBe(true)
     const template = JSON.parse(
       readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
     ) as { documentSettings: Record<string, unknown> }
-    expect(template.documentSettings[key]).toBe(false)
+    expect(template.documentSettings[key]).toBe(true)
   })
 })
 

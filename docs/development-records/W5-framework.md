@@ -1157,6 +1157,12 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | --- | --- | --- | --- | --- | --- |
 | UF-51 | `file-system-access-file-store.ts` | **公開エントリ** | semi-pure-b ／ non-pure | PI-28 | ✅ 受入済 |
 
+### `mcp-relay-server` —— McpRelayServer（PI-41）
+
+| ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
+| --- | --- | --- | --- | --- | --- |
+| UF-187 | `mcp-relay-server.ts` | **公開エントリ** | non-pure | PI-41 | 🧪 試験済 |
+
 ### `single-html-shell` —— SingleHtmlShell（PI-25）
 
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
@@ -1175,6 +1181,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-167 | `row-band-ceiling-cache.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-168 | `copy-and-paste.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---
 
@@ -1256,3 +1263,4 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | 2026-08-23 | 発見 | ⛔ **画面からの書き込みが監視者に 1 人も届いていなかった**（`AG-6` / `WS-7`。仕様だけを読んだ試験が赤で出した）。⚠️ **シェルが両方の書き込み口に空の聴き手を渡しており、`ApplyDocumentChange → NotifyChangeWatchers` の辺は `Agent API` が書き手のときしか通っていなかった。** ⭐ **`PI-15` の冒頭が渡すべき形を逐語で指示していた。** 閉じた。試験は 1 文字も触っていない |
 | 2026-08-23 | 判断 | ⚠️ **赤 2 件を意図して残した** —— `AG-9` は「パンと範囲選択は拒否しない」と明文で除外するのに、`WS-2` に答えるシェルは押下中のすべてを拒否している。⛔ **どの行で始まった押下かを問う道が公開されていない**（`PND-169`）。⭐ **広いほうの誤りを採った** —— **`AG-9` の MUST を守るほうを残した。** 規則 05 の 1. のとおり、赤の理由をここまで絞って記録して止まる |
 | 2026-08-23 | 実測 | ⭐ **本日の総計。** 試験 2361 → **3263 件**（緑 3259）。⛔ **赤 4 件** —— 既知の `AM-13` 2 件と、上の `AG-9` の 2 件。機械検査 26 本 ALL GREEN ／ `audit-ch5` PASS ／ 描画 PASS ／ `typecheck` ／ `layers` ／ `gen:check` 12 本 OK ／ 生成器 7 → **9 本**（交換形式・アイコン図形）|
+| 2026-10-01 | 実装 | ⭐ **MCP の取次の `Framework` 側を置いた**（`CR-613` ・ `CR-620`、枝 `mcp-relay`）—— `UF-187` `mcp-relay-server.ts`（依存なしの手書きの WebSocket と MCP の stdio、`JDG-1046`）と `UF-188` `agent-api-relay-link.ts`。`UF-188` はページの中にあって単体の試験が無く、実物の確かめ（取次 ＋ 組み立てたページ ＋ Playwright、15 項目）だけが通した |
