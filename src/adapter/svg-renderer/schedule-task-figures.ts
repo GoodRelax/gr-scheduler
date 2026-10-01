@@ -264,7 +264,7 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
   )
 }
 
-// see ZO-3, T-021, T-315
+// see ZO-3, T-021, T-315, FR-013
 /** @purity pure */
 function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
   const { centre, radius } = marker
@@ -284,9 +284,9 @@ function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: DrawnSetti
       )
     case 'PM-3':
       return (
-        `<line x1="${rounded(centre.x - r * 0.6)}" y1="${rounded(centre.y + r)}` +
-        `" x2="${rounded(centre.x + r * 0.6)}" y2="${rounded(centre.y - r)}"` +
-        ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
+        `<line x1="${rounded(centre.x - r)}" y1="${rounded(centre.y)}` +
+        `" x2="${rounded(centre.x + r)}" y2="${rounded(centre.y)}"` +
+        ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>`
       )
     case 'PM-4':
       return bangSvg(centre.x, marker, ink, settings, named)
