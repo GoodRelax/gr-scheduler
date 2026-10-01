@@ -1,10 +1,10 @@
 # CR-629 — 検索パネルの列は見出しの境目で幅を変えて名を省略で切り、飛ぶと担当と完了率の札が左に見え、プロパティパネルの開閉は変わらない
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 13 件は、読んだ木でどれも 1 回だった（13 節）。
+> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 13 件は、読んだ木でどれも 1 回だった（13 節）。11 節の問い 1 は 2026-10-01 に推奨の A と答えを得た（`JDG-1096` の Q15）。同じ答えの Q16（`DFC-1645`: 列の絞り込みを押した見出しの下のドロップダウンにし、見出しの字でも開く）を本書が持つ —— 決定 11 と E-14 を足した（2026-10-01、調整役の依頼。E-14 の旧は `8b4b7907` で 1 回）。
 > 読んだ木: `refactor` `bfbe7eb7`。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-629` だけを受けた。⚠️ 仕様の新しい識別子は**仮番**である（2 節）—— 当てる時に仕様の波のセッションが本番を振る（規則 02 の 2.5）。
 > ⛔ 当てる順: `CR-621`（窓の枠）→ `CR-630`（Esc の段）→ **本書**。E-02・E-06・E-07・E-08・E-09 は、両書が書き換えうる所と同じ行・同じ升に載る（4.1 節）。`CR-617`（遅延診断レポート、起草）は 表 T-331 の 2 セルを書くが、本書は 表 T-331 を書かない —— 重ならない。`CR-609`（プロパティパネルの状態機械、起草）とは合成できる（5 節）。
-> 閉じるもの: `DFC-1347` の ①②④⑤（③ は `CR-621`、⑥⑦ は `CR-630`）と `DFC-1281`（`S-428` の値と `SJ-6` の寄せ）。`JDG-877` の該当 4 項を当てる。
+> 閉じるもの: `DFC-1347` の ①②④⑤（③ は `CR-621`、⑥⑦ は `CR-630`）と `DFC-1281`（`S-428` の値と `SJ-6` の寄せ）と `DFC-1645`（絞り込みの開き方、`JDG-1096` の Q16）。`JDG-877` の該当 4 項を当てる。
 
 ---
 
@@ -22,6 +22,10 @@
 | `JDG-619` | 「進め方も提案通り」（まとめの欄「パネルの寸法（既定の大きさ、列の最小幅、掴める縁の幅、表の行の高さ）は触れる見本…で決める」） | 寸法の値の出どころ。見本 `previous-project-result/18-search-panel-sample/` の初めの値を使うかを 11 節の問い 1 で問う |
 | `JDG-633` | 「→提案通り」（まとめの欄「⭐ 2: 大きさを変えて掴める縁は、縁の内側と外側に同じ幅ずつ」） | 先例。列の境目の掴みも、境目の左右に同じ幅ずつ敷く（決定 5） |
 | `JDG-614` | 「一般的な表と同様、表ヘッダーは固定、担当者名列・コメント列まで固定表示」 | 変えない。固定した列の境目が見えなくならないよう、引ける範囲を領域の中に留める（決定 4） |
+
+| 裁定 | 逐語（2026-10-01。Q の番号は調整役がチャットで振った番号） | 本書での扱い |
+|---|---|---|
+| `JDG-1096` の Q15・Q16 | 「Q14: 推奨通りA<br>Q15:  推奨通りA<br>Q16:  推奨通りA<br>Q17: 推奨通りA」（Q15 は本書の 11 節の問い 1、Q16 は `DFC-1645` の問い。Q14 は `CR-627`、Q17 は `DFC-1290`） | Q15: 見本の初めの値を 🔎 で入れる（E-11・E-12 のまま）。Q16: 列の絞り込みは、押した列の見出しの下に重ねるドロップダウンとして開き、見出しの字を押しても開く（決定 11、E-14） |
 
 ### 0.2 調べた結果（`bfbe7eb7`）
 
@@ -62,6 +66,12 @@
 | 決定 9 | **`SJ-6` は、飛ぶ先がタスクで、表 T-038 が左へ数える占有が日付より左へ出ているとき、日付ではなくその左端を `S-428` の所へ置く**（E-05） | `JDG-877` の「左上で担当者名や進捗が表示できるように」。担当と完了率の札は 表 T-038 の `OC-2` が「表示しているときだけ算入」するので、札を出す表示でだけ効き、出さない表示では今と同じ日付の寄せになる。数え上げを 2 か所に置かない —— 占有に何を数えるかは 表 T-038 だけが持つ（同表の「2 か所で別々に数え上げてはならない（MUST NOT）」の考え方） | 期限の印（`OC-9`）や予定より早く始めた実績（`OC-5`）が左へ出ているタスクも、それが見える所へ寄る（日付は `S-428` より右に来る） |
 | 決定 10 | 表 T-331 は書かない。列の既定の幅は 表 T-331 に列を足さず、表 T-206 の行に置く | 値は設定値の表に置く（規則 02・マジックナンバーの規則）。`CR-617` の E-12 と同じ表を触らずに済む | 無い |
 
+⭐ 次の 1 つは問うて決めた（`DFC-1645` の問い、答えは `JDG-1096` の Q16）。問わずに決めた上の 10 と区別するために、ここに分けて置く。
+
+| # | 決めたこと | 導き | 代償 |
+|---|---|---|---|
+| 決定 11 | **列の絞り込みは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開く。見出しの語を押しても `IC-122` と同じく開く（列の境目の掴み代の上を除く）。幅は中身の幅で見出しのセルより狭くせず、表を出している領域からはみ出す分は領域の中へ寄せ、縦に入らない分は絞り込みの中を送る**（E-14） | `JDG-877`「表のヘッダー部分をクリックしてフィルターを設定可能とせよ。フィルターはExcel同様、ドロップダウン」と `JDG-1096` の Q16。位置と幅を見出しのセルと中身から決めれば、新しい設定値の行を起こさずに済む（`R2.9`・マジックナンバーの規則）。見出しの語を押して開くので、`IC-122` の小さな印を狙わずに済む | 見出しの語を押して並べ替える手（表計算ソフトの一部が持つ）は持たない —— 並べ替えは絞り込みの中の `IC-123`・`IC-124` のまま。開いた絞り込みは表の数行を覆う |
+
 ---
 
 ## 1. 範囲 —— 行き先
@@ -81,6 +91,7 @@
 | 列の幅の下限の値 | 同 `S-425` | E-11 | その行 |
 | 寄せの入れ込みの値と新しい行 | 同 `S-428` と、その後ろの新しい 10 行 | E-12 | 11 行 |
 | 公開エントリの説明 | `docs/spec/_source/published-entries.json` の `SearchPanelSession` | E-13 | その 1 行 |
+| 絞り込みはドロップダウン（`DFC-1645`） | 表 T-330 の `SV-7` の 1 文目の後 | E-14（`JDG-1096` の Q16） | 足した 5 行 |
 
 ⭐ 生成物 `docs/spec/_assets/tbl-settings.md`・`docs/spec/_assets/tbl-published-entries.md`・`src/` の生成区画は `npm run gen` だけが書く。⛔ 手で書かない。`01-04-requirements.md` と `05-07-design.md` は手書きの仕様である（`CR-615` が同じ 2 つを直に書いた）。
 
@@ -108,6 +119,7 @@
 | コードの「プロパティパネルに出す」 | `src/framework/single-html-shell/frame-loop.ts` の `jumpToSearchHit`（`:1284`〜`:1296`）の `showProperties` の引数と呼び出し、呼ぶ所 `:2997` | 9 節 | 実装する者 |
 | コードの「日付を左端に入れ込み 0 で置く」 | `src/use-case/edit-document/search-jump.ts:65`〜`:67` | 9 節 | 実装する者 |
 | 試験の「飛ぶとパネルが出る」 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts:41`・`:315`・`:426` | 8 節の波 2 | 実装する者 |
+| コードの、絞り込みを語の欄と表のあいだの帯に開く描き方 | `src/framework/dom-screen-surface/search-panel-drawing.ts` の `FILTER_MENU_STYLE`（`DFC-1645`） | 押した見出しの下のドロップダウン（E-14） | 9 節 |
 | 試験の「`GR-22` の上は 3 行だけ」 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts:77`〜`:79` | 8 節の波 1 | 当てる体 |
 
 ## 4. 書き直す所（当てる体がそのまま使う文）
@@ -448,6 +460,16 @@
 
 ⭐ `settings.schema.json` が新しい行の形を検める（`num`・`suffix`・`mark`・`prefix` は `S-137`・`S-436` が既に使う形）。⚠️ 仮番の `S-<新n>` のままでは形の検査に通らない —— 本番に置き換えてから `npm run gen`。
 
+<!-- EDIT id=E-14 file=docs/spec/01-04-requirements.md -->
+`JDG-1096` の Q16（`DFC-1645`）で書いた（決定 11）。表 T-330 の `SV-7` の 1 文目の後に 5 行を足す（行の残りは変えない）。⚠️ `GR-<新1>` は本書の E-06 の仮番 —— E-06 と同じ回に本番へ置き換える。旧（`8b4b7907` で 1 回）
+```text
+| SV-7 | 列の絞り込み | どの列の見出しにも `IC-122` を置き、押すと絞り込みを開く。<br>
+```
+新
+```text
+| SV-7 | 列の絞り込み | どの列の見出しにも `IC-122` を置き、押すと絞り込みを開く。<br>見出しのセルの語を押したときも、`IC-122` を押したものとして同じ絞り込みを開くこと（MUST） —— ただし列の境目の掴み代（表 T-023d の `GR-<新1>`）の上では掴み代が答える（`05-07-design.md` の 表 T-065 の `IF-9`）。<br>絞り込みは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと（MUST） —— 左端を見出しのセルの左端に、上端を見出しの行の下端にそろえる。<br>幅は中身の幅とし、見出しのセルの幅より狭くしない。<br>表を出している領域の右か下に出る分は領域の中へ寄せ、それでも縦に入らない分は絞り込みの中を縦に送る。<br>⛔ 絞り込みを、語の欄と表のあいだの帯として開いてはならない（MUST NOT） —— 開いた列と絞り込みが離れ、どの列の絞り込みかを位置で読めない（利用者が「Excel同様、ドロップダウン」と定めた）。<br>
+```
+
 ### 4.1 重なり
 
 `change-request/CR-603` 〜 `CR-620` の 1 〜 10 行目と本文を、本書の編集する行・升・値（`FR-151`・`SV-14`・`SV-17`・`SJ-4`・`SJ-6`・`GR-22`・`GR-25`・`PK-10`・`FR-106`・`IF-9`・`S-420`・`S-425`・`S-428`・`SearchPanelSession`・表 T-330・表 T-332）で引いた（13 節）。
@@ -499,6 +521,17 @@ Jump, horizontal (SJ-6, S-428)
   The zoom is never written. AM-16 (SJ-9) passes the same reach.
 - S-428 reaches the code only through a generated constant; never a literal.
 
+Column filter as a drop-down (SV-7, DFC-1645, JDG-1096 Q16)
+- Pressing IC-122 OR the heading word of a column (anywhere on the heading
+  cell except the GR-<new1> border band) opens that column's filter. The
+  surface answers the heading word as IC-122 of that column (IF-9).
+- The filter is drawn ON TOP of the table, left edge = the pressed heading
+  cell's left edge, top edge = the heading row's bottom edge; width = its
+  content, never narrower than the heading cell; pushed back inside the
+  visible table box when it would leave it; scrolls inside when too tall.
+  Never as a band between the word field and the table. One open at a time
+  and Esc closes it first (SV-14) -- unchanged. No new setting row.
+
 Jump and the Properties Panel (SJ-4)
 - The jump sends searchHitJumped and objectsPicked, and NOTHING that asks the
   panel to show: no propertiesOfChoiceAsked. A hidden panel stays hidden. A
@@ -535,8 +568,8 @@ Jump and the Properties Panel (SJ-4)
 | figures | 差 0 | 図に触れない |
 | rows | ＋12 | 表 T-330 に `SV-<新1>` の 1、表 T-023d に `GR-<新1>` の 1、表 T-206 に `S-<新1>` 〜 `S-<新10>` の 10。ほかは升の中の文だけ |
 | uids | 差 0 | 要求を足しも消しもしない |
-| `（MUST）` の印（`01-04-requirements.md`） | ＋2 | `SV-<新1>` の「追従させること（MUST）」、`FR-106` の新しい 1 文。検査 39 のために試験が逐語で引く（8 節の波 4） |
-| `（MUST NOT）` の印（同） | ＋2 | `SV-<新1>` の「右へ引いてはならない（MUST NOT）」、`SJ-4` の「出したり閉じたりしてはならない（MUST NOT）」 |
+| `（MUST）` の印（`01-04-requirements.md`） | ＋4 | `SV-<新1>` の「追従させること（MUST）」、`FR-106` の新しい 1 文、`SV-7` の 2 文（E-14、2026-10-01 に足した）。検査 39 のために試験が逐語で引く（8 節の波 4） |
+| `（MUST NOT）` の印（同） | ＋3 | `SV-<新1>` の「右へ引いてはならない（MUST NOT）」、`SJ-4` の「出したり閉じたりしてはならない（MUST NOT）」、`SV-7` の「帯として開いてはならない（MUST NOT）」（E-14） |
 | 表 T-206 の「未定 🔎」 | 6 → 4 | `S-425`・`S-428` が値を持つ（`S-423`・`S-424`・`S-426`・`S-427` は残る） |
 
 ## 8. 波 —— 持ち場で割る
@@ -544,9 +577,9 @@ Jump and the Properties Panel (SJ-4)
 | 波 | 持ち場 | 中身 | 体 | 毎フレーム |
 |---|---|---|---|---|
 | 0 | ― | `CR-621`・`CR-630` を当てた木で、E-02・E-06・E-07・E-08・E-09 の旧を数え直し、4.1 節の差分で載せ直す。仮番を本番へ置き換える | 当てる体 | ― |
-| 1 | 仕様: `docs/spec/01-04-requirements.md`・`docs/spec/05-07-design.md`・`docs/spec/_source/settings.json`・`docs/spec/_source/published-entries.json`（E-01〜E-13）＋ `npm run gen`（調整役）＋ `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts:77`〜`:79` | ⚠️ cr-408 の試験は「表 T-023d で `GR-22` の上は `GR-19`・`GR-24`・`GR-25` だけ」を仕様から読む ⇒ E-06 と同じ波で `GR-<新1>` を加えた 4 行へ直す（名も「GR-19, GR-24, GR-25 and GR-<新1>」へ）。`tests/unit/t-023d-follows-the-pointer.test.ts` は E-07 の文から行を数えるので、E-07 と一緒なら緑のまま | 当てる体（L4 の後） | いいえ —— 文書だけ |
+| 1 | 仕様: `docs/spec/01-04-requirements.md`・`docs/spec/05-07-design.md`・`docs/spec/_source/settings.json`・`docs/spec/_source/published-entries.json`（E-01〜E-14）＋ `npm run gen`（調整役）＋ `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts:77`〜`:79` | ⚠️ cr-408 の試験は「表 T-023d で `GR-22` の上は `GR-19`・`GR-24`・`GR-25` だけ」を仕様から読む ⇒ E-06 と同じ波で `GR-<新1>` を加えた 4 行へ直す（名も「GR-19, GR-24, GR-25 and GR-<新1>」へ）。`tests/unit/t-023d-follows-the-pointer.test.ts` は E-07 の文から行を数えるので、E-07 と一緒なら緑のまま | 当てる体（L4 の後） | いいえ —— 文書だけ |
 | 2 | ⛔ L4（`frame-loop.ts`・`search-jump.ts` は L4 の持ち物）。`src/use-case/edit-document/search-jump.ts`・`src/framework/single-html-shell/frame-loop.ts`（`jumpToSearchHit` と呼ぶ所）・`src/adapter/agent-api-endpoint/agent-api-members.ts`（`:751`〜`:753`）・`tools/generate_entity_types.py`（新しい行を群に足す —— 波 3 の分も一緒に）＋ `tests/contract/cr-571-search-jump.contract.test.ts`（`searchJumpWrites` の 10 か所の呼び方と `:232`〜`:233` の注）＋ `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts`（`:41`・`:315`・`:426`） | ④⑤: 寄せる点を占有の左端へ、`S-428` を生成の定数から読む。飛ぶときに `propertiesOfChoiceAsked` を送らない。cr-597 は `SJ_4_CHOOSE` を E-04 の新しい文へ替え、`:426` の「パネルの幅が 0 より大きい」を「押す前に閉じていれば閉じたまま」と「出ていれば出たままで中身が飛ぶ先」の 2 つへ書き直す | L4 の実装の体 | いいえ —— 飛ぶ 1 回に 1 度だけ走る |
-| 3 | ⛔ L4（検索パネルの持ち場）。`src/use-case/advance-screen-session/screen-values.ts`（`SearchPanelSession`・`emptySearchPanelSession`）・`src/adapter/screen-renderer/search-panel.ts`・`src/adapter/screen-renderer/screen-surface.ts`・`src/framework/dom-screen-surface/search-panel-drawing.ts`・`src/framework/single-html-shell/frame-loop.ts`（`searchPanelHeldWhileGrabbed` の隣）＋ `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023d の全行を押す掃除 —— `GR-<新1>` の見本を 1 つ足す） | ①②: 列の幅の値・幅で組む表・境目の答え・握っているあいだの追従・`PK-10` | L4 の実装の体 | **はい** —— 握っているあいだ、ポインタが動くたびに表を描き直し、ポインタの下を答える。⇒ 着地の時に `docs/development-records/perf-pending.md` に 1 行を足す（PW-2） |
+| 3 | ⛔ L4（検索パネルの持ち場）。`src/use-case/advance-screen-session/screen-values.ts`（`SearchPanelSession`・`emptySearchPanelSession`）・`src/adapter/screen-renderer/search-panel.ts`・`src/adapter/screen-renderer/screen-surface.ts`・`src/framework/dom-screen-surface/search-panel-drawing.ts`・`src/framework/single-html-shell/frame-loop.ts`（`searchPanelHeldWhileGrabbed` の隣）＋ `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023d の全行を押す掃除 —— `GR-<新1>` の見本を 1 つ足す） | ①②: 列の幅の値・幅で組む表・境目の答え・握っているあいだの追従・`PK-10`。⭐ `DFC-1645`: 絞り込みを押した見出しの下のドロップダウンに描き、見出しの語の押しを `IC-122` として答える（E-14） | L4 の実装の体 | **はい** —— 握っているあいだ、ポインタが動くたびに表を描き直し、ポインタの下を答える。⇒ 着地の時に `docs/development-records/perf-pending.md` に 1 行を足す（PW-2） |
 | 4 | `tests/contract/cr-629-*.test.ts`（新しいファイルだけ） | 仕様だけを読む試験（下の表）。波 2・波 3 と並べてよい | 仕様だけの試験の体 | ― |
 
 **波 4 の試験（仕様だけを読む体が書く場合の名と中身）**
@@ -567,6 +600,9 @@ Jump and the Properties Panel (SJ-4)
 | `SJ-6: with neither shown, the date lands S-428 inside the view` | 札を出さないと日付が表示の左端 ＋ `S-428` |
 | `SJ-4: a closed Properties Panel stays closed after a jump (MUST NOT)` | 閉じたまま飛ぶと閉じたまま、選択は飛ぶ先 |
 | `SJ-4: a shown Properties Panel stays shown and shows the new choice` | 選択物を出していれば出たままで、中身が飛ぶ先 |
+| `SV-7: pressing the heading word opens that column's filter (MUST)` | 見出しの語を押すと `IC-122` と同じ絞り込みが開く。境目の掴み代の上では開かず、掴み代が答える |
+| `SV-7: the filter drops down under the pressed heading cell (MUST)` | 絞り込みの左端が見出しのセルの左端、上端が見出しの行の下端、幅は見出しのセル以上。表の右の縁の列で開いても領域の中に収まる |
+| `SV-7: the filter is never a band between the word field and the table (MUST NOT)` | 開いても語の欄と表のあいだの縦の位置が変わらない |
 
 ⭐ 既存の試験で旧の文を逐語で引くもの（`git grep`、13 節）: `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts:41`（`SJ-4`、波 2 で替える）。`SJ_6_NO_ZOOM`「倍率を変えない。」・`SJ_6_NO_DATE`「日付が空なら横は動かさない」（`tests/contract/cr-571-search-jump.contract.test.ts:29`〜`:30`）・`SV_17_ELLIPSIS`「セルの字は折り返さず、入らない分を省略記号で切る。」（`tests/contract/cr-571-search-panel-view.test.ts:68`）・`FR_106_PK_10`（`tests/unit/cr-551-fit-status-line-and-cursors.test.ts:254`）は、E-03・E-05・E-08 の新にそのまま残る —— 替えない。
 
@@ -582,12 +618,13 @@ Jump and the Properties Panel (SJ-4)
 | `src/adapter/screen-renderer/search-panel.ts` | 見せ方を組む所と `searchPanelBoxAfterGrab` の隣 | 列ごとの幅を見せ方に載せ、境目を引いた後の幅を求める | はい（握っているあいだ） |
 | `src/adapter/screen-renderer/screen-surface.ts` | `SearchPanelGrab`（`:19`〜`:22`） | 領域 `columnBorder` と `column`・押した時の幅 | ― |
 | `src/framework/dom-screen-surface/search-panel-drawing.ts` | `searchTableElement`（`:300`）・`headerCellElement`（`:209`）・`searchPanelPartAt`（`:388`） | 幅で組む（`<col>` か `table-layout` —— 選ぶのは実装）、`IC-122` を切らない見出し、境目の答え、`PK-10` | はい |
+| 同 | `FILTER_MENU_STYLE` と絞り込みを置く所（`DFC-1645`） | 語の欄と表のあいだの帯をやめ、押した見出しのセルの下に重ねて置く。見出しの語の押しを `IC-122` の答えにする（E-14） | はい（開いているあいだ） |
 
 ## 10. ⛔ この変更でやらないこと ・ 触れ合うもの
 
 - 縁と角で大きさを変える形とポインタ（`DFC-1347` の ③、`GR-25`・`S-426`・`PK-12`〜`PK-15`）—— `CR-621` が書く。
 - `Esc` で閉じる段（⑥⑦、`SV-14` の 1 文目・`IN-4`）—— `CR-630` が書く。
-- 表の見出しの地（`DFC-1361`、見出しが透けて行が重なる）と Excel 風の絞り込みを作ること（`DFC-1362`、`UF-181` が空）—— どちらも仕様は既にあり、コードの仕事として別の行が持つ。本書の `SV-<新1>` は、絞り込みの入口 `IC-122` を切らないことだけを言う。
+- 表の見出しの地（`DFC-1361`、見出しが透けて行が重なる）と Excel 風の絞り込みを作ること（`DFC-1362`、`UF-181` が空）—— どちらも仕様は既にあり、コードの仕事として別の行が持つ。本書の `SV-<新1>` は、絞り込みの入口 `IC-122` を切らないことだけを言う。⭐ ただし絞り込みを開く場所と見出しの語で開くことは、`DFC-1645`（`JDG-1096` の Q16）として本書の E-14 が書く。
 - 境目の 2 度押しで中身に合わせる・列の幅の上限の設定値・列を掴んで並べ替える —— 利用者が求めていない（`R2.9`）。
 - 表 T-331（列そのもの・書き方）と、`CR-617` の E-12 の升。
 - 表 T-280（`propertiesPanelContentStateMachine`）と `DFC-706`（設定を出しているあいだに選択が動く）—— 決めない（決定 1）。`CR-609` の升にも触れない。
@@ -595,6 +632,8 @@ Jump and the Properties Panel (SJ-4)
 - 読み上げの類 —— 足さない。
 
 ## 11. 利用者に問うこと
+
+⭐ **2026-10-01 に答えを得た** —— 問い 1 は `JDG-1096` の「Q15:  推奨通りA」。推奨で書いてあり、書き換えは無い。⭐ 同じ答えの「Q16:  推奨通りA」は `DFC-1645` の問い（列の絞り込みを押した見出しの下のドロップダウンにし、見出しの字でも開くか）への答えであり、本書の決定 11・E-14 が持つ。残る問いは無い。
 
 ### 問い 1: 列の幅・入れ込み・掴み代の値を、見本の初めの値で決めてよいか
 
@@ -612,10 +651,12 @@ Jump and the Properties Panel (SJ-4)
 
 | ID | 何か | 状態 |
 |---|---|---|
-| `DFC-1347` | 検索パネルの要望の束 | ①②④⑤ を本書が閉じる（仕様は波 1、コードは波 2・波 3）。③ は `CR-621`、⑥⑦ は `CR-630`。⇒ 3 本とも着地して行を閉じる。⚠️ 問い 1 の答えまでは ①②④ の値が仮 |
+| `DFC-1347` | 検索パネルの要望の束 | ①②④⑤ を本書が閉じる（仕様は波 1、コードは波 2・波 3）。③ は `CR-621`、⑥⑦ は `CR-630`。⇒ 3 本とも着地して行を閉じる。①②④ の値は問い 1 の答え A（`JDG-1096` の Q15）—— 🔎 のまま後から選び直せる |
 | `DFC-1281` | `S-428` が未定で、`SJ-6` が入れ込みなしで置く | 本書で閉じる —— 値（E-12、問い 1）と、寄せる点（E-05） |
 | `DFC-1286` | `S-426` が値を持たない | 触れない（`CR-621`）。⚠️ 同行の「触れる見本で `S-423` 〜 `S-428` を決める」のうち `S-425`・`S-428` は本書が値を入れる |
 | `DFC-1361`・`DFC-1362` | 見出しの地・絞り込み | 触れない（10 節） |
+| `DFC-1645` | 列の絞り込みが帯に開き、見出しの字で開かない | 本書で閉じる —— 仕様は E-14（波 1）、コードは波 3（`JDG-1096` の Q16） |
+| `JDG-1096` | Q14〜Q17 への答え（状態「指示 —— 調整役が投入時期を決める」）。本書は Q15・Q16 | 調整役へ: 本書の波が決まったら Q15・Q16 の部分を「指示 —— `CR-629` が当てる」 |
 | `JDG-877` | 利用者の裁定（状態「指示 —— 調整役が投入時期を決める」） | 調整役へ: 本書を当てる波が決まったら「指示 —— `CR-629` が当てる」（`CR-621`・`CR-630` と分けて持つ項を添える）。着地したら 適用済 |
 | `JDG-616` | 飛ぶと選ぶ（プロパティパネルに出る） | 調整役へ: 括弧「（プロパティパネルに出る）」を `JDG-877` が覆したことを同行に記す（ほかは有効のまま） |
 | `DFC-706` | 設定を出しているあいだに選択が動く | 触れない（決定 1）。⚠️ 本書の後は、飛ぶことも「選択が動く」の 1 つになる —— 同行の答えは飛ぶ時にも効く |

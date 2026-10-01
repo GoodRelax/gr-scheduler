@@ -1,10 +1,10 @@
 # CR-623 — ファイルの 2 つの選択面は選択肢を並べて見せ、絵をクリップボードへ写したら告げる
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 12 件は、読んだ木でどれも 1 回だった（13 節）。11 節の 2 つの問い（語）は答えを待つ —— 編集はどちらも推奨の案で書いてある。
+> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 12 件は、読んだ木でどれも 1 回だった（13 節）。11 節の 2 つの問い（語）は 2026-10-01 に答えを得た —— 問い 1 は推奨の A（`JDG-1094`）、問い 2 は「ファイルに保存 / 単一 HTML / SVG画像」（`JDG-1095`。見出しと `IO-7` は今の語のまま、絵の 2 つだけ空白を除く）。E-09・E-11 をその答えで書き直した（2026-10-01、調整役の依頼）。
 > 読んだ木: `refactor` `bfbe7eb7`（枝 `l4-review-crs`）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から `CR-623` を受けた。仕様の新しい行 ID は 2 つ —— 表 T-024a の `OP-<新1>` と 表 T-233 の `RS-<新1>`。どちらも仮の綴りであり、当てる日に仕様を当てるセッションが本番の番号を振る（2 節）。
 > ⛔ 当てる順: **`CR-610` の後**（E-05 が `CR-610` の起こす 表 T-341 の `HS-3` を指す。`CR-610` より先に当てると指す先が無い）。`CR-612`（表 T-233 の `RS-67`）・`CR-605`（`surfaces` に 1 項）とは旧を共有しない —— どちらが先でも、本書の旧は 1 回ずつ現れる（4.1 節）。
-> 閉じるもの: `DFC-1324`（`JDG-854`・`JDG-922` の #5）・`DFC-1357`（`JDG-887`）・`DFC-1328`（`JDG-858`）。語の 2 つの問い（11 節）の答えを受けるまで、3 行とも語の半分は「裁定待ち」である（12 節）。
+> 閉じるもの: `DFC-1324`（`JDG-854`・`JDG-922` の #5）・`DFC-1357`（`JDG-887`）・`DFC-1328`（`JDG-858`）。語の 2 つの問い（11 節）は答えを得た（`JDG-1094`・`JDG-1095`）—— 3 行とも `仕様待ち`（12 節）。
 
 ---
 
@@ -20,7 +20,9 @@
 | `JDG-887` | 「#38 ファイル保存のウインドウがダサい<br>以下のようにしろ<br>     ファイル保存                                          [x]<br>     ---------------------------------------------------------<br>       [GRS JSON .json]  [MSPDI XML .xml] [Single HTML .html]<br>       [SVG画像 .svg]    [PNG画像 .png  ]<br><br>ボタンの大きさは揃えろ」 | 保存の面の 2 段の格子と、ボタンの大きさを揃えること（E-02）。図の語を語の裁定とも読むかは問い 2（E-09・E-11） |
 | `JDG-858` | 「#9 スケジュールをクリップボードにコピーしたあと<br>スケジュールをクリップボードにコピーしました [OK] の表示を出せ。<br>何が動いているか分からない。」 | `FR-025` の 1 文（E-03）と 表 T-233 の `RS-<新1>`（E-04）。日本語の語は逐語（E-10） |
 | `JDG-130` | 「案 1とせよ。」（`Agent API` の `importDocument` が文書を渡すときも、開く道と同じ三択を問う） | 変えない。渡された文書にも開き方の面が立つので、ファイルの無いときの ② の扱いを決めた（決定 5） |
-| （`DFC-184` の裁定、2026-09-02） | 「案① `Save to File`」（保存の面の英語の見出し。`docs/development-records/fixed-defects.md`） | 変えない。問い 2 の推奨でも英語の見出しは `Save to File` のまま |
+| （`DFC-184` の裁定、2026-09-02） | 「案① `Save to File`」（保存の面の英語の見出し。`docs/development-records/fixed-defects.md`） | 変えない。問い 2 の答え（`JDG-1095`）でも英語の見出しは `Save to File` のまま |
+| `JDG-1094` | 「Q12: 推奨通りA」（11 節の問い 1 への答え、2026-10-01。Q の番号は調整役がチャットで振った番号） | 問い 1 は A —— 英語の語（「How to Open the File」ほか）と、コピーの知らせの次の一手を空にすること。E-09・E-10・E-12 のまま |
+| `JDG-1095` | 「Q13: ファイルに保存 / 単一 HTML / SVG画像」（11 節の問い 2 への答え、2026-10-01） | 問い 2 は 3 か所を 1 つずつ答えた —— 見出しは「ファイルに保存」のまま、`IO-7` は「単一 HTML」のまま、絵は「SVG画像」（空白なし）。英語は変えない。⚠️ 問いが絵の 2 つを 1 か所に束ねたので「PNG画像」も同じ形と読む（E-09・E-11） |
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
 
@@ -75,7 +77,7 @@
 | 読んだファイルを面へ運ぶ | `docs/spec/_source/state-machines.json` の出来事 `documentFileRead` と状態 `awaitingOpenChoice` | E-07・E-08 | 2 つの `carries` |
 | 見出しの語 | `docs/spec/_source/display-words.json` の `surfaces` | E-09 | 2 項 |
 | 知らせの語 | 同 `reasons`（`RS-15` の前） | E-10 | 1 項 |
-| 形式の語 | 同 `exportFormats` | E-11 | 3 語（問い 2） |
+| 形式の語 | 同 `exportFormats` | E-11 | 2 語（問い 2 の答え、`JDG-1095`） |
 | 段の名札と取りやめる語 | 同、新しい節 `openChooser`（`arms` の前） | E-12 | 1 節 |
 
 ⭐ 生成物 —— `docs/spec/_assets/tbl-state-machines.md`・`src/adapter/screen-renderer/display-words.json`・`src/use-case/advance-screen-session/file-flow-values.ts` の生成区画 —— は `npm run gen` だけが書く。⛔ 手で書かない。新しい節 `openChooser` は、生成器 `tools/generate_display_words.py` が節を知るまで `npm run gen` が止まる（9 節、波 1）。
@@ -97,9 +99,8 @@
 |---|---|---|---|
 | 「**例外は無い。**」 | `01-04-requirements.md:7267`（`FR-029` の RATIONALE） | 「**例外は 1 つだけである**」と、その例外と理由の 2 行 | E-01 |
 | 状態 `awaitingOpenChoice` の `"carries": []` | `state-machines.json:4304` | `incomingFile` の 1 項 | E-08 |
-| `surfaces` の `Export Chooser` の ja「ファイルに保存」 | `display-words.json:2373` | 「ファイル保存」（問い 2 の推奨） | E-09 |
-| `surfaces` の `Open Chooser` の ja「開き方」・en「Open Chooser」 | `display-words.json:2380`〜`:2381` | 「ファイルの開き方」・「How to Open the File」（問い 1 の推奨） | E-09 |
-| `exportFormats` の ja「単一 HTML」「SVG 画像」「PNG 画像」 | `display-words.json:3505`・`:3512`・`:3519` | 「Single HTML」「SVG画像」「PNG画像」（問い 2 の推奨） | E-11 |
+| `surfaces` の `Open Chooser` の ja「開き方」・en「Open Chooser」 | `display-words.json:2380`〜`:2381` | 「ファイルの開き方」・「How to Open the File」（問い 1 の答え A、`JDG-1094`）。⭐ `Export Chooser` の「ファイルに保存」は変えない（`JDG-1095`） | E-09 |
+| `exportFormats` の ja「SVG 画像」「PNG 画像」 | `display-words.json:3512`・`:3519` | 「SVG画像」「PNG画像」（問い 2 の答え、`JDG-1095`）。⭐ `IO-7` の「単一 HTML」は変えない | E-11 |
 | コードの、開き方の面の入口を見出しの行に並べる描き方 | `open-modals-drawing.ts` の `modalTitleRow`（`IC-71`〜`IC-73` も見出しの行へ） | 見出しの行は `IC-52` だけ。3 つは本体に縦に | 9 節 |
 | コードの `STYLE.formatChoices`（`display:flex;flex-wrap:wrap`） | `dom-screen-surface.ts:359` | 格子 | 9 節 |
 | コードの、写せたときに何も告げない枝 | `frame-loop.ts` の `case 'copyPictureToClipboard'`（`writing.ok` の後） | `RS-<新1>` を上げる | 9 節 |
@@ -285,7 +286,7 @@
 ⭐ 遷移（`documentFileRead` × `readingDocumentFile` → `awaitingOpenChoice`）は変えない —— 出来事が運んだ値を状態が持つのは、`mergeMappingAsked` → `awaitingMergeMapping` と同じ形である。状態を出るとき（`openChoiceAnswered`・`flowSurfaceClosed`）に値は捨てられる。
 
 <!-- EDIT id=E-09 file=docs/spec/_source/display-words.json -->
-`surfaces` の 2 つの面の見出し。**問い 1 と問い 2 の推奨で書いた。** 旧
+`surfaces` の `Open Chooser` の見出し。**問い 1 の答え A（`JDG-1094`）で書いた。** `Export Chooser` の見出しは問い 2 の答え（`JDG-1095`）で「ファイルに保存」のまま —— 旧と新の両方に、当てる所を 1 回に定める前後として残してある。旧
 ```text
    "name": "Export Chooser",
    "heading": {
@@ -304,7 +305,7 @@
 ```text
    "name": "Export Chooser",
    "heading": {
-    "ja": "ファイル保存",
+    "ja": "ファイルに保存",
     "en": "Save to File"
    }
   },
@@ -315,10 +316,10 @@
     "en": "How to Open the File"
    }
 ```
-⚠️ 問い 2 の答えが A（語を変えない）なら、`Export Chooser` の ja は「ファイルに保存」のまま —— `Open Chooser` の 2 語だけを当てる。
+⭐ 問い 2 の答え（`JDG-1095`）で、`Export Chooser` の ja は「ファイルに保存」のまま —— 本編集が変えるのは `Open Chooser` の 2 語だけである。
 
 <!-- EDIT id=E-10 file=docs/spec/_source/display-words.json -->
-`reasons` の `RS-15` の前（表 T-233 の並びと同じ所）。日本語の語は `JDG-858` の逐語。**英語の語と次の一手は問い 1 の推奨で書いた。** 旧
+`reasons` の `RS-15` の前（表 T-233 の並びと同じ所）。日本語の語は `JDG-858` の逐語。**英語の語と次の一手は問い 1 の答え A（`JDG-1094`）で書いた。** 旧
 ```text
   {
    "rowId": "RS-15",
@@ -342,7 +343,7 @@
 ⭐ 次の一手を空にすると、通知は語と `OK`（`NT-8`）だけになる —— `src/adapter/screen-renderer/notices.ts` は空の語を「次の一手なし」として描かない（`NO_WORDS` → `NO_NEXT_STEPS`）。`NT-3a` の行ではないので、次の一手を求める試験（`tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` の「adds the next step wherever the row calls for NT-3a」）にも当たらない。
 
 <!-- EDIT id=E-11 file=docs/spec/_source/display-words.json -->
-`exportFormats` の 3 語。**問い 2 の推奨で書いた。** 旧
+`exportFormats` の 2 語。**問い 2 の答え（`JDG-1095`「Q13: ファイルに保存 / 単一 HTML / SVG画像」）で書いた** —— `IO-7` の「単一 HTML」は変えず、絵の 2 つの空白を除く。旧
 ```text
    "rowId": "IO-7",
    "name": {
@@ -366,7 +367,7 @@
 ```text
    "rowId": "IO-7",
    "name": {
-    "ja": "Single HTML",
+    "ja": "単一 HTML",
     "en": "Single HTML"
    }
   },
@@ -382,7 +383,7 @@
    "name": {
     "ja": "PNG画像",
 ```
-⚠️ 問い 2 の答えが A なら本編集は当てない。C なら `IO-7` の 1 語だけを当てる。⭐ `FR-096` の「形式の名が日英で同じになることは正しい」「語が違うことを 2 言語の対の条件にしてはならない（MUST NOT）」により、`IO-7` の ja と en が同じ綴りになっても検査の対象外である。
+⭐ `IO-7` の行は旧と新で同じ（前後として残した）—— 変わるのは `IO-3`「SVG画像」と `IO-4`「PNG画像」の 2 語だけ。⚠️ 「PNG画像」は、問いが絵の 2 つを 1 か所に束ねて問うた（11 節の問い 2 の表）ことからの読みである（`JDG-1095` の読みの欄）。
 
 <!-- EDIT id=E-12 file=docs/spec/_source/display-words.json -->
 新しい節 `openChooser`（`exportFormats` の後、`arms` の前）。日本語の語は `JDG-854` の逐語（「ファイル」「プロジェクト名」「キャンセル」）。**英語の語は問い 1 の推奨で書いた。** 旧
@@ -555,7 +556,7 @@ Observable (for the tester, from docs/spec only):
 
 | 波 | 持ち場 | 中身 | 体 | 毎フレーム |
 |---|---|---|---|---|
-| 0 | ― | `CR-610` が当たったことを確かめる（`HS-3` が在る）。`CR-612`・`CR-605` の後なら、4 節の旧 12 件をもう 1 度数える。問い 1・問い 2 の答えで E-09・E-10・E-11・E-12 を確かめ直す（答えが推奨でなければ、その語だけを差し替える）。`OP-<新1>`・`RS-<新1>` に本番の番号を振り、本書と 5 節の綴りを機械で置き換える | 調整役 | ― |
+| 0 | ― | `CR-610` が当たったことを確かめる（`HS-3` が在る）。`CR-612`・`CR-605` の後なら、4 節の旧 12 件をもう 1 度数える。問い 1・問い 2 の答え（`JDG-1094`・`JDG-1095`）は E-09〜E-12 に書き入れてある（問い 2 は推奨 B ではない —— E-09 は `Open Chooser` だけ、E-11 は絵の 2 語だけ）。`OP-<新1>`・`RS-<新1>` に本番の番号を振り、本書と 5 節の綴りを機械で置き換える | 調整役 | ― |
 | 1 | ⛔ **L4 の合流を待つ**（`frame-loop.ts`・生成器は L4 の持ち物）。`docs/spec`（E-01〜E-12）＋ `tools/generate_display_words.py`（節 `openChooser`）＋ `tools/generate_exchange_formats.py`（用途の欄から絵の印）＋ `npm run gen` ＋ 読む側 —— `src/use-case/advance-screen-session/file-flow-values.ts`（手書きの 2 つの型と `onDocumentFileRead`）・`src/framework/single-html-shell/document-file-flow.ts`（`askHowToOpen` が送る）・`src/framework/single-html-shell/frame-loop.ts`（`NoticeReason`・`NOTICE_MANNER_OF_REASON`・写せたときに `RS-<新1>`）＋ 9 節の試験の 5 ファイル | 原稿と、それを読んで `tsc` か試験が落ちる側を 1 つの波で着地させる（規則 02 の 3.5 —— 生成区画の出来事に `incomingFile` が加わると `askHowToOpen` と 3 つの試験が `tsc` で落ち、表 T-233 に行が加わると `t-233` の指紋の試験が落ちる） | L4 の後の実装の体 | いいえ —— `incomingFile` はファイルを読んだとき 1 度だけ運ばれ、知らせは `IC-3` の 1 回の押しに 1 度だけ上がる。語は差し替わるだけで、描く手順も回数も変わらない |
 | 2 | ⛔ **L4 の合流を待つ**。`src/adapter/screen-renderer/open-modals.ts`・`src/adapter/screen-renderer/screen-renderer.ts`（`OpenModal` の新しい員・`ScreenViewReadings.incomingFile`）・`src/framework/dom-screen-surface/open-modals-drawing.ts`・`src/framework/dom-screen-surface/dom-screen-surface.ts`（`STYLE`）・`frame-loop.ts`（読みの 1 関数）・`HS-3` の綴りの関数の置き場（`CR-610` の波 1c の後） | 5 節の A と B の画面の側。`STOP`・`@provisional PND-140` の印は、`FR-074`・`FR-088` の 2 面について残る —— 開き方の面の枝だけを外す | 実装の体（波 1 と別の体） | **はい** —— 開いた面は描くフレームごとに組まれ、読みの関数が毎フレーム走る。⇒ 着地の時に `docs/development-records/perf-pending.md` に 1 行を足す（PW-2） |
 | 3 | `tests/contract/cr-623-*.test.ts`（新しいファイルだけ） | 下の「仕様だけの試験」 | 仕様だけを読む試験の体（波 2 と並べてよい。実装した体に書かせない） | ― |
@@ -611,6 +612,8 @@ Observable (for the tester, from docs/spec only):
 
 ## 11. 利用者に問うこと
 
+⭐ **2 つとも 2026-10-01 に答えを得た**（Q の番号は調整役がチャットで振った番号）—— 問い 1 は `JDG-1094`「Q12: 推奨通りA」、問い 2 は `JDG-1095`「Q13: ファイルに保存 / 単一 HTML / SVG画像」。問い 2 は推奨 B ではなく、見出しと `IO-7` は今の語のまま、絵のボタンだけ空白を除く答えである —— E-09・E-11 をその答えで書き直した。残る問いは無い。下の表は問うたときの形のまま残す。
+
 **問い 1 —— 新しく画面に出す語（英語の語と、コピーの知らせの次の一手）**
 
 日本語の語は利用者の図と文の逐語である。英語の語と次の一手は利用者の言葉に無いので、辞書の原稿の規則（「AN AGENT MUST NOT INVENT ONE」）により、案を見せて答えを受ける（先例 `JDG-510`）。
@@ -643,14 +646,14 @@ Observable (for the tester, from docs/spec only):
 
 | ID | 何か | 状態 |
 |---|---|---|
-| `DFC-1324` | 開き方の面が使いにくい | 本書で閉じる（仕様は波 1、画面は波 2）。⚠️ 問い 1 の答えまで、英語の語の半分は裁定待ち |
-| `DFC-1357` | 保存の面のボタンの幅がばらばら | 本書で閉じる（格子は波 2）。⚠️ 語は問い 2 の答え待ち |
-| `DFC-1328` | 絵を写しても成功を告げない | 本書で閉じる（波 1）。⚠️ 英語の語は問い 1 の答え待ち |
+| `DFC-1324` | 開き方の面が使いにくい | 本書で閉じる（仕様は波 1、画面は波 2）。英語の語は問い 1 の答え A（`JDG-1094`）で決まった |
+| `DFC-1357` | 保存の面のボタンの幅がばらばら | 本書で閉じる（格子は波 2）。語は問い 2 の答え（`JDG-1095`）で決まった —— 見出し「ファイルに保存」・「単一 HTML」は今のまま、「SVG画像」「PNG画像」 |
+| `DFC-1328` | 絵を写しても成功を告げない | 本書で閉じる（波 1）。英語の語は問い 1 の答え A（`JDG-1094`）で決まった |
 | `JDG-854`・`JDG-858`・`JDG-887` | 利用者の裁定（状態「指示 —— 調整役が投入時期を決める」） | 調整役へ: 本書を当てる波が決まったら「指示 —— `CR-623` が当てる」（検査 43）。着地したら 適用済 |
 | `JDG-922` | #5 の部分 | 同上（#5 のみ。ほかの項は他の変更要求の持ち物） |
 | `JDG-971` | ③ の部分（開き方の面も `HS-3`） | `CR-610` の持ち物。本書は指すだけ |
 | `PND-140`・`PND-448`・`PND-474` | 6 節 | 触れない（閉じない） |
-| 問い 1・問い 2 | 11 節 | 答えを受けたら、調整役が `JDG-` の行に起こす |
+| `JDG-1094`・`JDG-1095` | 11 節の問い 1・問い 2 への答え（状態「指示 —— 調整役が投入時期を決める」） | 調整役へ: 本書の波が決まったら「指示 —— `CR-623` が当てる」。着地したら 適用済 |
 
 ## 13. 測り方の再現
 
