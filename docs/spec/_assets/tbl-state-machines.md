@@ -293,12 +293,12 @@ stateDiagram-v2
     propertiesPanelContentStateMachine_selectionDisplayed : selectionDisplayed
     propertiesPanelContentStateMachine_documentSettingsDisplayed : documentSettingsDisplayed
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, settingsEntryPressed, createdNameSettled, settleKeyPressed
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
-    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : settingsEntryPressed, propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked, selectionMoved
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
     propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_hidden : createdNameSettled
 ```
 
@@ -306,7 +306,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`]<br>それ以外 → — | → `hidden` [`isPanelTarget`]<br>それ以外 → — |
 | `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — |
-| `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed`（`subject` を `returnSubject` に移す） | → `selectionDisplayed`（`returnSubject` を `subject` に戻す） |
+| `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed` | → `hidden`（直前の選択物の有無を問わない） |
 | `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
 | `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | — |
 | `screen/createdNameSettled` | → 自己 / `clearSelection` | → `hidden` / `clearSelection` | → `hidden` / `clearSelection` |
@@ -314,7 +314,7 @@ stateDiagram-v2
 
 - `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
 - `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択と行の集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
-- `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 運ぶ値 `returnSubject`（同じ入口をもう一度押したときに戻す選択物。無いこともある）。根拠 `S-99h` ・ `FR-072` ・ `IC-17`
+- `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 根拠 `S-99h` ・ `FR-072` ・ `IC-17`
 
 表に無い出来事は `propertiesPanelContentStateMachine` を変えない（同じ参照）。
 
@@ -723,15 +723,16 @@ stateDiagram-v2
 | `fileFlow/mergeMappingAnswered` | 入力（`U-61` の 3 つの入口）: `IC-95` ・ `IC-96` ・ `IC-97` ・ `FR-022` | `mergeMapping`（`MM-1` ・ `MM-2` ・ `MM-4`） | `fileOperationStateMachine` |
 | `fileFlow/confirmationAnswered` | 入力（`Yes` / `No`、`y` / `n`、`Esc`）: `NT-7` ・ `IN-4` | `isProceeding`（`NT-7`。`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除）、担当者の削除）: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `IC-66` | `question`（`QN-1` ・ `QN-2` ・ `QN-3`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
-| `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口）: `IC-98` ・ `FR-095` | `hasStartupTemplate`（`FR-095`。始める元の文書が在るか。呼び手が詰める） ／ `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
+| `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口・`N`）: `IC-98` ・ `SK-25` ・ `FR-095` | `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
+| `fileFlow/grsResetEntryPressed` | 入力（GRS リセットの入口）: `IC-139` ・ `FR-153` | `question`（`QN-11`。GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/flowSurfaceClosed` | ほかの領域の結果（画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた）: `IC-52` ・ `IN-4` | `surfaceName`（`U-56` ・ `U-61` ・ `U-62`） | 根 ・ `fileOperationStateMachine` |
 | `fileFlow/documentFileRead` | 副作用の結果（`readDocumentFile` が読み、形式を判じ、検証を通した）: `OP-5` ・ `OP-12` ・ `FR-023` | `question`（`QN-5`。読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/documentOpenFailed` | 副作用の結果（読めない・選ばなかった・検証が拒んだ・読み直す相手が無い・着地を拒まれた（告げるのは副作用の中身））: `OP-5` ・ `OP-13` ・ `FR-023` | — | `fileOperationStateMachine` |
 | `fileFlow/mergeMappingAsked` | 副作用の結果（`importIncomingDocument` が対応付けを問うことになった）: `FR-022` ・ `U-61` ・ `FR-073` | `mergeCandidates`（`U-61`） ／ `unreadColumns`（`FR-073`） | `fileOperationStateMachine` |
 | `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` | `droppedTaskNames`（`RS-50`） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/overwriteQuestionRaised` | 副作用の結果（`writeDocumentFile` の途中で、同じとみなせない相手を見つけた）: `DI-4` ・ `QN-4` | `question`（`QN-4`） | `confirmationStateMachine` |
-| `fileFlow/documentFileSaved` | 副作用の結果（保存が書けた）: `FR-060` ・ `FR-101` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
-| `fileFlow/documentFileWriteEnded` | 副作用の結果（書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` | — | `fileOperationStateMachine` |
+| `fileFlow/documentFileSaved` | 副作用の結果（`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である））: `FR-060` ・ `FR-101` ・ `SX-1` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
+| `fileFlow/documentFileWriteEnded` | 副作用の結果（`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` ・ `SX-2` | — | `fileOperationStateMachine` |
 | `fileFlow/documentEditLanded` | 副作用の結果（画面からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。`Agent API` の書き込みと合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない）: `WS-6` ・ `RD-1` ・ `RD-2` ・ `FR-100` | — | `unsavedEditsStateMachine` |
 | `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | `unsavedEditsStateMachine` |
 | `fileFlow/startupDocumentHeld` | 副作用の結果（起動時の文書の差し替えが受け入れられた）: `FR-062` ・ `RD-6` | — | `unsavedEditsStateMachine` |
@@ -826,23 +827,23 @@ stateDiagram-v2
     [*] --> confirmationStateMachine_notAsked
     confirmationStateMachine_notAsked : notAsked
     confirmationStateMachine_questionAsked : questionAsked
-    confirmationStateMachine_notAsked --> confirmationStateMachine_questionAsked : changeQuestionRaised, newDocumentEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
-    confirmationStateMachine_notAsked --> confirmationStateMachine_notAsked : newDocumentEntryPressed
-    confirmationStateMachine_questionAsked --> confirmationStateMachine_questionAsked : newDocumentEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
+    confirmationStateMachine_notAsked --> confirmationStateMachine_questionAsked : changeQuestionRaised, newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
+    confirmationStateMachine_questionAsked --> confirmationStateMachine_questionAsked : newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
     confirmationStateMachine_questionAsked --> confirmationStateMachine_notAsked : confirmationAnswered
 ```
 
 | 出来事 | `notAsked` | `questionAsked` |
 | --- | --- | --- |
 | `fileFlow/changeQuestionRaised` | → `questionAsked` | — |
-| `fileFlow/newDocumentEntryPressed` | → `questionAsked` [`hasStartupTemplate`]<br>→ 自己 [not `hasStartupTemplate`] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
+| `fileFlow/newDocumentEntryPressed` | → `questionAsked` | → 自己 / `raiseNotice`（`RS-27`） |
+| `fileFlow/grsResetEntryPressed` | → `questionAsked` | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/openChoiceAnswered` | → `questionAsked` [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる]<br>それ以外 → — | → 自己 [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる]<br>それ以外 → — |
 | `fileFlow/documentFileRead` | → `questionAsked` [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる]<br>それ以外 → — | → 自己 [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる]<br>それ以外 → — |
 | `fileFlow/overwriteQuestionRaised` | → `questionAsked` | → 自己 |
 | `fileFlow/confirmationAnswered` | — | → `notAsked` [`isProceeding` & not `isFileOperationQuestion`] / `carryOutOwedAction`<br>→ `notAsked` [`isProceeding` & `isFileOperationQuestion`]<br>→ `notAsked` [not `isProceeding`] |
 
 - `confirmationStateMachine.notAsked` —— 初期。根拠 `NT-7` ・ `U-55`
-- `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`
+- `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-11`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5` ・ `QN-11`
 
 表に無い出来事は `confirmationStateMachine` を変えない（同じ参照）。
 
@@ -1171,6 +1172,7 @@ stateDiagram-v2
 | `rowTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
 | `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
 | `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
+| `rowTree/everyRowDeletePressed` | 入力（頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
 | `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`））: `SJ-1` ・ `AM-16` ・ `EL-21` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
 
@@ -1186,6 +1188,7 @@ stateDiagram-v2
 | `rowTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
 | `rowTree/childRowAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、行の値は変えない（`HF-17`））<br>それ以外 → — |
 | `rowTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `rowTree/everyRowDeletePressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
 | `rowTree/rowRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
 
 **図 F-043 — 行の木の状態遷移**
@@ -1200,7 +1203,7 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> treeStateMachine_auto
+    [*] --> treeStateMachine_temporarilyExpanded
     treeStateMachine_auto : auto
     treeStateMachine_collapsed : collapsed
     treeStateMachine_expanded : expanded
@@ -1210,9 +1213,9 @@ stateDiagram-v2
     treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
     treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
     treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
-    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
-    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
-    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed, fitPressed
+    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, fitPressed
     treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
     treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed
     treeStateMachine_auto --> treeStateMachine_hidden : hidePressed
@@ -1236,15 +1239,15 @@ stateDiagram-v2
 | `rowTree/everyRowOpenPressed` | → `temporarilyExpanded` [not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] | — | — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] |
 | `rowTree/everyRowFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
 | `rowTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelRow`]<br>それ以外 → — |
-| `rowTree/childRowAddPressed` | — | → `auto` [`isPressedRow`]<br>それ以外 → — | — | — | — |
+| `rowTree/childRowAddPressed` | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | — | — | — |
 | `rowTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
 | `rowTree/rowZoomShrinkPressed` | — | — | — | → `auto` | — |
 | `rowTree/rowRevealAsked` | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — |
 
-- `treeStateMachine.auto` —— 初期。根拠 `AT-153` ・ `FR-018`
+- `treeStateMachine.auto` —— 根拠 `AT-153` ・ `FR-018`
 - `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`
 - `treeStateMachine.expanded` —— 根拠 `HR-7` ・ `FR-018`
-- `treeStateMachine.temporarilyExpanded` —— 根拠 `HR-3` ・ `HR-1` ・ `FR-018`
+- `treeStateMachine.temporarilyExpanded` —— 初期。根拠 `HR-3` ・ `HR-1` ・ `FR-018` ・ `AT-153` ・ `HF-14`
 - `treeStateMachine.hidden` —— 根拠 `HR-6`
 
 表に無い出来事は `treeStateMachine` を変えない（同じ参照）。

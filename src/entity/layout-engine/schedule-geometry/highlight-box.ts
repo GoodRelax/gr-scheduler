@@ -108,9 +108,9 @@ const NOT_STORED_ANNOTATION_BOUNDS: {
   readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
 } = {
   'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
-  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 8 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 10 },
   'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
-  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 8 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
   'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
 }
 // </generated>

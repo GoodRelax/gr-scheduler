@@ -482,7 +482,7 @@ export const COLUMN_SHAPES: {
     endDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     topGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     bottomGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
+    strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     cornerRadiusPx: { kind: 'number', choices: null, min: null, max: null, isNullable: true },
     strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },

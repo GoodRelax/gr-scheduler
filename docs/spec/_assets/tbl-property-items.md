@@ -53,5 +53,5 @@
 | PR-28 | `strokeColor` / `fillColor` / `textColor` | 色 / 色 / 色 | `CommentBox` | 枠と引出し線・本文の箱の塗り・本文の字の色。<br>`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。<br>⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`） | 無い（`GRS JSON` のみ） |
 | PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
 | PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-371` | 無い（`GRS JSON` のみ） |
-| PR-22 | `strokeColor` | 色 | `HighlightBox` | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ テーマから解く。<br>⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
-| PR-25 | `fillColor` | 色 | `HighlightBox` | 塗りの色。<br>`null` ＝ 同表の `S-370` の色（既定は透明 ＝ 塗らない）。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
+| PR-22 | `strokeColor` | 色 | `HighlightBox` | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。<br>透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
+| PR-25 | `fillColor` | 色 | `HighlightBox` | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |

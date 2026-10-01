@@ -1,6 +1,7 @@
 # CR-609 — 設定を出しているあいだに設定の入口をもう一度押すと、プロパティパネルを閉じる
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `b2-panel-crs`）。まだ当てていない。4 節の旧 5 件は、読んだ木でどれも 1 回だった（13 節）。
+> 起草の状態: 当てた —— 8 節の**波 1 の仕様と生成だけ**（2026-10-01、枝 `spec-pass-1001`、仕様の通し。`4064de8d` の上）。E-01 〜 E-05 を当て、`npm run gen` を打った。新しい識別子は無い（運ぶ値 `returnSubject` を消しただけ）。⚠️ 載せ直した旧: E-04・E-05（`CR-606` の波 1 が語「テーマの色相」を「テーマ色」に、英語の `theme hue` を `theme colour` に替えた。本書の差分はそのまま）。E-01・E-02・E-03 は旧のまま 1 回ずつ当たった。⛔ 波 1 の手書きのコード（`screen-values.ts` の `onSettingsEntryPressed` と手書きの `ScreenValuesStateCarried.returnSubject`）と試験の 8 ファイル、波 2・3 は当てていない —— 生成の区画から `returnSubject` が消えたので、`tsc` は `screen-values.ts` の `onSettingsEntryPressed` の 2 か所で落ちる（コードの巡が閉じる）。
+> 起草の状態（元）: 起草のみ（2026-10-01、枝 `b2-panel-crs`）。4 節の旧 5 件は、読んだ木でどれも 1 回だった（13 節）。
 > 読んだ木: `b2-panel-crs` の `0590ad03`（`refactor`）。行番号・数は、すべてこの木で測った（13 節）。
 > ID の帯: 調整役から受けた（B2: CR-606..609）。⭐ 本書は仕様の新しい識別子を 1 つも取らない（2 節）。
 > ⛔ 当てる順: `CR-606` → `CR-607` → **本書** → `CR-608`。E-01・E-04・E-05 は `CR-606`・`CR-607` が書き換える所と重なる（4.1 節「重なり」）。
@@ -186,23 +187,23 @@
 <!-- EDIT id=E-04 file=docs/spec/_assets/tbl-glossary.md -->
 旧
 ```text
-| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — | — |
+| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — | — |
 ```
 新
 ```text
-| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — | — |
+| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — | — |
 ```
 
 <!-- EDIT id=E-05 file=docs/spec/_source/display-words.json -->
 旧
 ```text
-    "ja": "文書の描画設定をプロパティパネルに表示する。テーマの色相もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen"
+    "ja": "文書の描画設定をプロパティパネルに表示する。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen"
 ```
 新
 ```text
-    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマの色相もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen; press again to close the panel"
+    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
 ```
 
 ⭐ 表 T-109 の `IC-17` とその表示語は、検査 37（`check-dictionary-table-covariance.py`）が対の指紋を持つ（`.claude/skills/spec-graph-check/dictionary-table-pairing.txt:237` の `T-109 IC-17`）。E-04・E-05 で指紋が変わる ⇒ 対を読み直したうえで、調整役がその 1 行だけを刷り直す（`CR-606`・`CR-607` も同じ対を動かすので、3 本を当てた後に 1 度でよい）。
@@ -274,7 +275,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 |---|---|---|---|---|
 | 0 | ― | `CR-606`・`CR-607` を当てた木で、E-01・E-04・E-05 の旧を数え直し、4.1 節の差分で載せ直す | 当てる体 | ― |
 | 1 | ⛔ **L4 の合流を待つ**（`screen-values.ts` は L4 の持ち物で、`npm run gen` がその生成区画を書く）。`docs/spec`（E-01〜E-05）＋ `npm run gen` ＋ `src/use-case/advance-screen-session/screen-values.ts` ＋ 試験の 8 ファイル（9 節の表の試験の 2 行） | 原稿と、それを読むコードを 1 つの波で着地させる（規則 02 の 3.5 —— 生成区画から `returnSubject` が消えると `onSettingsEntryPressed` が `tsc` で落ちる）。`tests/unit/cr-424-the-property-panel-keeps-a-minimum-width.test.ts` の逐語の 2 つを新しい文へ替え、`:369` の場合を「閉じる」へ書き直す（E-01 の「閉じること（MUST）」を逐語で引く） | L4 の後の実装の体 | いいえ —— `onSettingsEntryPressed` は `IC-17` を押した 1 回に 1 度だけ走る。生成した型はコンパイルの時だけのもの |
-| 2 | ⛔ **L4 の合流を待つ**（`frame-loop.ts` は L4 の持ち物）。`src/framework/single-html-shell/frame-loop.ts` ＋ `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 遠回りと `propertiesPanelKept` を消す（決定 6）。調整役は同じ波で `PND-338` の行を閉じる（12 節）。系の試験は、注釈枠のプロパティを出す道を `IC-17` の 2 度押しから別の道（同ファイルの名前の直接編集ほか、`FR-072` の入口を持つ要求の道）へ替える | 実装の体 | いいえ —— 入口の命令 `toggleDocumentSettingsProperties` を処す 1 回だけ。描く手順は変わらない |
+| 2 | ⛔ **L4 の合流を待つ**（`frame-loop.ts` は L4 の持ち物）。`src/framework/single-html-shell/frame-loop.ts` ＋ `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 遠回りと `propertiesPanelKept` を消す（決定 6）。調整役は同じ波で `PND-338` の行を閉じる（12 節）。系の試験は、注釈枠のプロパティを出す道を `IC-17` の 2 度押しから別の道（同ファイルの名前の直接編集ほか、`FR-072` の入口を持つ要求の道）へ替える。⭐ 同じ波で `tests/known-red.txt` から `DFC-1600` の行を落とす（`JDG-1007`。この系の試験が緑になったとき） | 実装の体 | いいえ —— 入口の命令 `toggleDocumentSettingsProperties` を処す 1 回だけ。描く手順は変わらない |
 | 3 | `tests/contract/cr-609-*.test.ts`（新しいファイルだけ） | 5 節の継ぎ目: 設定を出してもう一度押すと閉じる（直前に選択物を出していた場合・出していなかった場合・閉じたパネルから設定を出した場合の 3 つ）／ 閉じても選択は残る ／ `IC-17` の押下状態が落ちる ／ 閉じた後の押しは設定を出す（`JDG-173` の文が今も真） | 仕様だけの試験の体（波 1 と並べてよい） | ― |
 
 ⭐ 波 1 だけを当てた木でも利用者の #6 は直る —— シェルの遠回りは閉じたパネルから設定を出すときに 1 度 `selectionDisplayed` を通るだけで、終わりは `documentSettingsDisplayed`、もう一度の押しは `hidden` になる。波 2 は死んだ遠回りと `DEVIATION` の注を消す仕事である。

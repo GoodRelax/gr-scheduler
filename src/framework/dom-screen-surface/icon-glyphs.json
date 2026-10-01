@@ -6304,6 +6304,37 @@
      ]
     }
    ]
+  },
+  {
+   "rowId": "IC-139",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M19 12 A7 7 0 1 1 16.95 7.05"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M12.95 7.05 H16.95 V3.05"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
   }
  ]
 }

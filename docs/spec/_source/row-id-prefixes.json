@@ -99,6 +99,14 @@
    }
   },
   {
+   "prefix": "BK",
+   "words": "Blank document",
+   "owner": "spec",
+   "means": {
+    "ja": "新しく始めたときに置く空の文書の中身"
+   }
+  },
+  {
    "prefix": "BL",
    "words": "Baseline",
    "owner": "spec",
@@ -576,6 +584,14 @@
    "owner": "spec",
    "means": {
     "ja": "階層の操作（展開・畳み・隠し）の種別"
+   }
+  },
+  {
+   "prefix": "HS",
+   "words": "Header Status",
+   "owner": "spec",
+   "means": {
+    "ja": "ヘッダーのファイルの状態（名前・書けた時刻・大きさ）の見せ方の項目"
    }
   },
   {
@@ -1285,6 +1301,14 @@
    }
   },
   {
+   "prefix": "SX",
+   "words": "Save or Export",
+   "owner": "spec",
+   "means": {
+    "ja": "ファイルへ書けた後に、保存として扱うか書き出しとして扱うかの行"
+   }
+  },
+  {
    "prefix": "TC",
    "words": "Task Creation",
    "owner": "spec",
@@ -1302,10 +1326,10 @@
   },
   {
    "prefix": "TH",
-   "words": "Theme Hue",
+   "words": "Theme Colour (Hue)",
    "owner": "spec",
    "means": {
-    "ja": "画面で選べるテーマの色相"
+    "ja": "画面で選べるテーマ色"
    }
   },
   {
@@ -1501,6 +1525,14 @@
    "owner": "spec",
    "means": {
     "ja": "透かしの規則の条"
+   }
+  },
+  {
+   "prefix": "WP",
+   "words": "Wipe",
+   "owner": "spec",
+   "means": {
+    "ja": "GRS リセットが消すか残すかを決める 1 つのもの（表 T-345）"
    }
   },
   {

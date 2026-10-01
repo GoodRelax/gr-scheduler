@@ -1,8 +1,8 @@
 # CR-606 — プロパティパネルは、タスク・マイルストーン・依存線ごとに行を出し分け、色と担当者を 1 つずつの入力で選ばせる
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `b2-panel-crs`）。
+> 起草の状態: 当てた —— 8 節の**波 1（仕様の文）だけ**（2026-10-01、枝 `spec-pass-1001`、仕様の通し。`061a7f8c` の上）。E-01 〜 E-09・E-12・E-13・E-15・E-16・E-19・E-20・E-24・E-25・E-29 〜 E-37 と、E-26 の行 33・34（`PR-22`・`PR-25` の備考）を当て、`npm run gen`・`npm run gen:components` を打った。⛔ 波 2・3 の原稿の編集（E-10・E-11・E-14・E-17・E-18・E-21 〜 E-23・E-26 の残り・E-27・E-28）は当てていない —— 読む側のコードと同じ巡で当てる（規則 02 の 3.5: `heldByOf` は知らない行で投げ、`lineWeight` の改名は生成される型を変える）。⇒ 生成器（`tools/generate_property_items.py`・`generate_display_words.py`・`generate_startup_template.py`）にも触れていない。旧はどれも 1 回で当たった（CR-603 〜 CR-605 が変えた文に載るものは無い）。⚠️ 新を当てた字面に揃えたもの: E-01（まだ無い行 `PR-40` を名指すと検査 7 が赤 ⇒ 行 ID を落とした）・E-02 の末行と E-04（`CL-2`）・E-16（`S-374` の注）・E-24（`VG-5`）（検査 11 の新しい重複 ⇒ 言い直した）・E-31（1 行の末に改行の 2 つの空白を足した）・E-33（`erd.schema.json` は `transparent` に `false` しか許さず「無い ＝ 取る」⇒ 鍵を消した）。E-29 は `settings.json` で 19 回（`CR-605` の `S-450` の注が 1 回足した）。行 ID は `PR-<新1>` 〜 `PR-<新11>` → `PR-34` 〜 `PR-44`（本書の中だけ。表 T-016 には波 2 が足す）。検査 37 の対応表に `PR-22`・`PR-25`・`K-60`・`IC-17`・`IC-123`・`IC-124`・`IV-9` の指紋を登録した（対を読んでから）。
 > 読んだ木: `b2-panel-crs` の `0590ad03`（`refactor`）。行番号・数は、すべてこの木で測った（13 節）。
-> ID の帯: 調整役から受けた（B2: CR-606..609）。⭐ 本書が作る仕様の行 ID は表 T-016 の 11 行だけで、番号は仮（`PR-<新1>` 〜 `PR-<新11>`）とする（2 節）。
+> ID の帯: 調整役から受けた（B2: CR-606..609）。⭐ 本書が作る仕様の行 ID は表 T-016 の 11 行だけで、番号は仮（`PR-34` 〜 `PR-44`）とする（2 節）。
 > ⛔ 当てる順: `CR-606` → `CR-607` → `CR-609` → `CR-608`。本書は先頭であり、後の 2 つは本書の新しい文の上に載せ直す（「重なり」の節）。
 > 閉じるもの: `DFC-1329`・`DFC-1330`・`DFC-1331`・`DFC-1332`・`DFC-1333`・`DFC-1334` と、畳む `DFC-565`・`DFC-1012`（12 節）。
 > 並べ方の見本: `previous-project-result/25-colour-input-layout/index.html`（別の体が作っている。本書は書かない）。
@@ -15,8 +15,8 @@
 
 | 裁定 | 逐語 | 本書での扱い |
 |---|---|---|
-| `JDG-859` | 「#10 マイルストーンの依存関係がプロパティーパネルに表示されない。<br>依存先タスクのタスク名とUIDを書け」 | 表 T-016 に読むだけの先行・後続の行（`PR-<新4>`・`PR-<新5>`）と、依存線の行（`PR-<新8>` 〜 `PR-<新11>`） |
-| `JDG-860` | 「#11 タスクやマイルストーンのプロパティーパネルで現在<br>名称<br>となっている部分は<br>タスク名 / task name<br>マイルストーン名 / milestone name<br>とせよ。 ただし、データの識別子はMSPDIに合わせろ。<br>名称だけだと何の名称か分からない。<br><br>その下にタスクIDを入れろ。 一旦今は表示のみでOK。」 | `PR-1` の語を種類で分ける（E-02・E-17）。識別子は `name`（`Task/Name`）のまま。下に読むだけの `uid` の行（`PR-<新1>`） |
+| `JDG-859` | 「#10 マイルストーンの依存関係がプロパティーパネルに表示されない。<br>依存先タスクのタスク名とUIDを書け」 | 表 T-016 に読むだけの先行・後続の行（`PR-37`・`PR-38`）と、依存線の行（`PR-41` 〜 `PR-44`） |
+| `JDG-860` | 「#11 タスクやマイルストーンのプロパティーパネルで現在<br>名称<br>となっている部分は<br>タスク名 / task name<br>マイルストーン名 / milestone name<br>とせよ。 ただし、データの識別子はMSPDIに合わせろ。<br>名称だけだと何の名称か分からない。<br><br>その下にタスクIDを入れろ。 一旦今は表示のみでOK。」 | `PR-1` の語を種類で分ける（E-02・E-17）。識別子は `name`（`Task/Name`）のまま。下に読むだけの `uid` の行（`PR-34`） |
 | `JDG-861` | 「#12 プロパティーパネルで担当者名の表示がおかしい。<br>複数の担当者を入力するとき、なぜか2種類の入力方法があり、1つはまともに動かないで無駄に枠だけ増える。<br>担当者名を入力するとき、ドロップダウンだけでなく、昇順/降順ソートと部分一致検索を可能とせよ。」 | `AS-5` を 1 つの組み合わせの入力に書き換える（E-07） |
 | `JDG-862` | 「#13 プロパティーパネルでタスクに対してマイルストーン形状を選択可能としている。<br>同じくマイルストーンなのに開始日/終了日の両方(つまり期間)を入力できる。これはダメ。<br>マイルストーンは予定日/実績日だけを入力させろ<br>タスクとマイルストーンでプロパティーの構成を変えろ。」 | 表 T-016 の新しい欄 `出す種類`（`shownFor`）と、マイルストーンの予定日・実績日の行（E-02・E-26） |
 | `JDG-863` | 「#14 プロパティーパネルの色の入力が分かりにくい。 以下のように直せ。<br> fill color    Light: □/ Dark: □       塗塗潰し色<br>               [project theme color]     プロジェクトテーマ色<br>               □□□□□<br>               □□□□□<br>               [nofill][custom]          塗潰しなし/その他の色<br> outline color Light: □/ Dark: □       枠線色<br>               [project theme color]     プロジェクトテーマ色<br>               □□□□□<br>               □□□□□<br>               [noline][custom]          線なし/その他の色<br> outline width [1～10]px                 枠線幅」 | `CV-9` の並びを覆す（E-05）。`PR-12` を塗り・枠線の色・枠線幅の 3 行に割る（E-26）。`lineWeight` を `strokeWidthPx` へ（E-14） |
@@ -80,7 +80,7 @@
 | 裁定 4 | JDG-990 の問い 2: ハイライトボックスの枠にもタスクと同じ規則で「線なし」を置く（透明の線でも掴める） | E-05（`CV-9`）・E-31（`FR-019`）・E-32（`HB-12`: 掴み代は線の色によらない）・E-33（`AT-121`）・E-26（`PR-22`）・E-37（`IV-9`、決定 14） |
 | 裁定 5 | JDG-990 の問い 3: 塗潰しなし（背景が見える）とプロジェクトテーマ色（テーマの色で塗る）を別の値にする | 決定 13。E-31・E-34（`AT-146`）・E-35（`S-370`）・E-36（表 T-217 の結び）・E-26（`PR-25`） |
 | 裁定 6 | JDG-990 の問い 4: 色相に従わないボックスの枠の既定の値のボタンは「既定の色」（en: Default colour） | E-05（`CV-9` の ② の語の規則、決定 15）、E-28（`defaultColour`・`defaultMark`） |
-| 裁定 7 | JDG-990 の問い 5: 枠線幅は実績バーの縁にも掛ける | E-14（`AT-104` の意味）、E-26（`PR-<新7>`）、5 節 |
+| 裁定 7 | JDG-990 の問い 5: 枠線幅は実績バーの縁にも掛ける | E-14（`AT-104` の意味）、E-26（`PR-40`）、5 節 |
 | 裁定 8 | JDG-990 の問い 6: ボックスの欄の並びは別の変更要求で揃える | `DFC-1412`（10 節） |
 | 裁定 2 | 利用者の答え（2026-10-01、JDG-966）: 「en も theme colour に」 —— en の語も変える。識別子 `themeHue` は据え置く | E-29 が en の「theme hue」6 回（手書きの原稿）と `K-60` の en の語（`themeHue` → `theme colour`）も書き換える。綴りは辞書の英語の文に合わせて `colour`（決定 12） |
 
@@ -136,7 +136,7 @@
 
 ## 2. 新しい識別子
 
-- ⚠️ **表 T-016 の行 ID 11 個は仮である**: `PR-<新1>` 〜 `PR-<新11>`（何の行かは E-26 の表）。番号は当てる時に、その日の木で表 T-016 と退役の名簿（`.claude/skills/spec-graph-check/retired.py`）を測り直して取る（規則 02 の 2.5 節）。本書の中の `PR-<新n>` はすべてその番号に置き換える。
+- ⚠️ **表 T-016 の行 ID 11 個は仮である**: `PR-34` 〜 `PR-44`（何の行かは E-26 の表）。番号は当てる時に、その日の木で表 T-016 と退役の名簿（`.claude/skills/spec-graph-check/retired.py`）を測り直して取る（規則 02 の 2.5 節）。本書の中の `PR-<新n>` はすべてその番号に置き換える。
 - 表 T-016 の新しい列: 見出し `出す種類`、原稿の鍵 `shownFor`（値 `task`・`milestone`・`both`）。
 - 原稿の鍵（識別子ではない）: `property-items.json` の `oneInput`、`display-words.json` の `properties` の項の `milestoneLabel`、`display-words.json` の新しい節 `propertyField`（部 `dependencyEnd`・`addResource`）、`colourField` の部 `noFill`・`noLine`。
 - 名を変えるもの（数は増えない）: `AT-104` の列 `lineWeight` → `strokeWidthPx`、`CM-24` の確定名 `setTaskVisualLineWeight` → `setTaskVisualStrokeWidth`。
@@ -150,7 +150,7 @@
 | `setTaskVisualLineWeight` | `tbl-glossary.md` の `CM-24`、`src` の 4 ファイル | `setTaskVisualStrokeWidth` | E-11、9 節 |
 | `CL-2` の「細 / 中 / 太」 | `01-04-requirements.md:2006` | 整数の px（範囲は `AT-104`） | E-04 |
 | `CV-9` の「その下の段にカスタムカラーの入口、透明、テーマに戻す入口の順」 | `01-04-requirements.md:2030` | ① 側ごとの 1 行 ② テーマ ③ 5×2 ④ 透明・カスタム | E-05 |
-| `PR-12` の 3 列の 1 行（`strokeColor / fillColor / lineWeight`）と語「線 / 塗り / 太さ」 | `property-items.json`・`display-words.json` | `PR-12`（`fillColor`、塗潰し色）・`PR-<新6>`（`strokeColor`、枠線色）・`PR-<新7>`（`strokeWidthPx`、枠線幅（px）） | E-18・E-26 |
+| `PR-12` の 3 列の 1 行（`strokeColor / fillColor / lineWeight`）と語「線 / 塗り / 太さ」 | `property-items.json`・`display-words.json` | `PR-12`（`fillColor`、塗潰し色）・`PR-39`（`strokeColor`、枠線色）・`PR-40`（`strokeWidthPx`、枠線幅（px）） | E-18・E-26 |
 | `AS-5` の「名簿から選ばせる形とし、ドロップダウンと部分一致の検索を添える」と「空の欄で選ぶか打てば」 | `01-04-requirements.md:2222` | 1 つの組み合わせの入力（E-07） | E-07 |
 | 打っただけの字で `Resource` を作る道 | `AS-7`、`field-commit.ts` の `commandsFromAssigneeField` | `AS-5` の足す項目を選んだときだけ | E-08、9 節 |
 | 依存線の項目の手書きの表 | `properties-panel.ts` の `DEPENDENCY_ITEMS`・`SUCCESSOR_ROW`・`SUCCESSOR_NAME` | 表 T-016 の対象 `Dependency` の 4 行 | E-09・E-26、9 節 |
@@ -182,7 +182,7 @@
 新
 ```text
 ⭐ 色の行（表 T-016 の入力の型に `色` を含む行）は、同じ対象の行の並びの末尾に置くこと（MUST） —— 日付と名前を先に読ませ、見た目の設定を後ろへ寄せる。  
-⭐ ただし、`Task` の枠線幅の行（同表の `PR-<新7>`）は、色の行の後ろ（`Task` の行の最後）に置くこと（MUST） —— 塗りの色 → 枠線の色 → 枠線の幅 は、利用者が示した並びである。  
+⭐ ただし、`Task` の枠線幅の行は、色の行の後ろ（`Task` の行の最後）に置くこと（MUST） —— 塗りの色 → 枠線の色 → 枠線の幅 は、利用者が示した並びである。  
 ```
 
 <!-- EDIT id=E-02 file=docs/spec/01-04-requirements.md -->
@@ -207,7 +207,7 @@
 ⚠️ 同表の並びは下の段が定めるとおり印刷順そのものなので、対象を見ないと `TaskGroup` の `minHeight` が `Task` のパネルにも出る。  
 ⭐ **同じ対象の行どうしの相対順は変わらない** —— **絞るだけであって、並べ替えではない。**  
 ⭐ 対象が `Task` の行は、さらに同表の `出す種類` の欄で絞ること（MUST） —— `Task.milestone`（`_assets/fig-erd-detail.md` の `AT-30`）が真のタスクには `milestone` か `both` の行だけを、偽のタスクには `task` か `both` の行だけを出す。  
-⛔ 描いた形（`TaskVisual.shapeKind`）で絞ってはならない（MUST NOT） —— マイルストーンかどうかの正は `Task.milestone` であり（表 T-005 の `G-1`）、形を変えても変わらない。
+⛔ 絞る鍵を図形の列に取ってはならない（MUST NOT） —— 行の出し分けも、名称ラベルの `ND-1` ・ `ND-2` の書き分けと同じ鍵（表 T-251 の下の段）で決める。
 ```
 
 <!-- EDIT id=E-03 file=docs/spec/01-04-requirements.md -->
@@ -227,7 +227,7 @@
 ```
 新
 ```text
-| CL-2 | 線の太さ | 整数の px。<br>範囲は `_assets/fig-erd-detail.md` の `AT-104` が持つ。<br>`null` のときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く |
+| CL-2 | 線の太さ | 整数の px。<br>受ける下限と上限は列の定義（`AT-104`）に書く。<br>`null` のときは `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く |
 ```
 
 <!-- EDIT id=E-05 file=docs/spec/01-04-requirements.md -->
@@ -396,7 +396,7 @@
       "num": "10"
      },
      "note": {
-      "ja": "コメントボックスの本文の箱の枠と引出し線の太さ（px、`AT-149`）。列が `null` のときに描く値である。ズームによらず一定に描く規則は `FR-019` が持つ。既定は、本行より前のコードが描いていた太さ。下限は、1px を割ると画面の画素に届かず線が消えるからである（表 T-257 の `RR-5` と同じ理由）。上限はタスクの枠線の太さ（`AT-104`）と揃えた値であり、測って決めた値ではない"
+      "ja": "コメントボックスの本文の箱の枠と引出し線の太さ（px、`AT-149`）。列が `null` のときに描く値である。ズームによらず一定に描く規則は `FR-019` が持つ。既定は、本行より前のコードが描いていた太さ。下限は、1px を割ると画面の画素に届かず線が消えるからである（表 T-257 の `RR-5` と同じ理由）。上限の 10 は `S-369` と同じ数に置いた（測っていない）"
 ```
 
 <!-- EDIT id=E-17 file=docs/spec/_source/display-words.json -->
@@ -544,7 +544,7 @@
 ```
 新
 ```text
-| VG-5 | 測る端 | 上の形の描いた下端と、下の形の描いた上端のあいだで測ること（MUST）。<br>描いた端は、表 T-038 の `OC-6` を含めて形が縦に取る広がりの端とし、枠線を持つ形では枠線の外側の縁とする —— 枠線（その形の枠線の太さ —— `_assets/fig-erd-detail.md` の `AT-104`、`null` なら `S-39` —— に描く比を掛けた太さ）は形の端を中心に引くので、その半分が形の外へ出る。<br>⭐ 線だけの形（表 T-012 の `SH-3` / `SH-4`）の 1 段目は、字の大きさで数えること（MUST） —— 描いた字の箱ではない（`FR-109` の 表 T-271 の `XS-4`）。<br>⚠️ 再開アイコンの縦棒が下の隙間へ出るぶんは、本行の端に数えない —— 数えると、中断にするたびに段が動く |
+| VG-5 | 測る端 | 上の形の描いた下端と、下の形の描いた上端のあいだで測ること（MUST）。<br>描いた端は、表 T-038 の `OC-6` を含めて形が縦に取る広がりの端とし、枠線を持つ形では枠線の外側の縁とする —— 枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）は形の端を中心に引くので、その半分が形の外へ出る。<br>⭐ 線だけの形（表 T-012 の `SH-3` / `SH-4`）の 1 段目は、字の大きさで数えること（MUST） —— 描いた字の箱ではない（`FR-109` の 表 T-271 の `XS-4`）。<br>⚠️ 再開アイコンの縦棒が下の隙間へ出るぶんは、本行の端に数えない —— 数えると、中断にするたびに段が動く |
 ```
 
 <!-- EDIT id=E-25 file=docs/spec/01-04-requirements.md -->
@@ -588,7 +588,7 @@
 ```text
 ⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST） —— 既定の 1 行を替えれば、値を置いていない箱がすべて追随する。  
 ⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST） —— `null` は色の欄の「プロジェクトテーマ色」（表 T-017b の `CV-9` の ②）であり、透明（塗潰しなし）とは別の値である。  
-⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）を写すこと（MUST） —— 新しい箱は今までどおり塗らずに置く。
+⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）を写すこと（MUST） —— 新しい箱は今までどおり塗らずに置く。  
 ⭐ `HighlightBox.fillColor`（`AT-146`）は、描いた箱の内側を、パレット色なら `_assets/tbl-settings.md` の 表 T-294 がその名に持つ塗りの値で、カスタムカラーなら 表 T-017b の `CV-3` で決まった値そのもので、不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST） —— 描く値の選び方は同表の `CV-6` に従い、`CV-10` の導出は実績バーの塗りだけに当たるのでここには当てない。  
 `AT-147` は透過率（0 は不透明、100 は透明）である。  
 塗りの色が透明の箱は塗らない —— 後ろが見える。  
@@ -639,8 +639,7 @@
      "nullable": "可",
      "json": {
       "kind": "color",
-      "null": true,
-      "transparent": true
+      "null": true
      },
      "key": "",
      "origin": "GRS",
@@ -699,14 +698,14 @@
 | # | `id` | `columns` | `inputKinds` | `isReadOnly` | 対象 | `shownFor` | `oneInput` | `note.ja` | `mspdi.ja` |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | `PR-1` | `name` | 文字 | — | Task | `both` | — | 今のまま | 今のまま |
-| 2 | `PR-<新1>` | `uid` | 数値 | はい | Task | `both` | — | `**読み取り専用。** 文書の中で一意・不変の番号（`_assets/fig-erd-detail.md` の `AT-24`）。表示するだけであり、書き出しの順で変わる `Task/ID`（`DV-4`）ではない` | `` `Task/UID` `` |
+| 2 | `PR-34` | `uid` | 数値 | はい | Task | `both` | — | `**読み取り専用。** 文書の中で一意・不変の番号（`_assets/fig-erd-detail.md` の `AT-24`）。表示するだけであり、書き出しの順で変わる `Task/ID`（`DV-4`）ではない` | `` `Task/UID` `` |
 | 3 | `PR-3` | `start`・`finish` | 日付・日付 | — | Task | `task` | — | 今のまま | 今のまま |
-| 4 | `PR-<新2>` | `start`・`finish` | 日付 | — | Task | `milestone` | はい | `マイルストーンの**予定**の日。1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終了が同じ日である。空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ` | `` `Task/Start` `Task/Finish`（同じ日） `` |
+| 4 | `PR-35` | `start`・`finish` | 日付 | — | Task | `milestone` | はい | `マイルストーンの**予定**の日。1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終了が同じ日である。空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ` | `` `Task/Start` `Task/Finish`（同じ日） `` |
 | 5 | `PR-16` | `assignee` | 選択 | — | Task | `both` | — | 今のまま | 今のまま |
 | 6 | `PR-4` | `actualStart` | 日付 | — | Task | `task` | — | 今のまま | 今のまま |
 | 7 | `PR-5` | `actualDuration` | 数値 | — | Task | `task` | — | 今のまま | 今のまま |
 | 8 | `PR-6` | `actualFinish` | 日付 | — | Task | `task` | — | 今のまま | 今のまま |
-| 9 | `PR-<新3>` | `actualStart`・`actualFinish` | 日付 | — | Task | `milestone` | はい | `マイルストーンの実績の日。1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`）` | `` `Task/ActualStart` `Task/ActualFinish`（同じ日） `` |
+| 9 | `PR-36` | `actualStart`・`actualFinish` | 日付 | — | Task | `milestone` | はい | `マイルストーンの実績の日。1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`）` | `` `Task/ActualStart` `Task/ActualFinish`（同じ日） `` |
 | 10 | `PR-9` | `percentComplete` | 数値 | はい | Task | `task` | — | 今のまま | 今のまま |
 | 11 | `PR-10` | `deadline` | 日付 | — | Task | `both` | — | 今のまま | 今のまま |
 | 12 | `PR-2` | `notes` | 複数行 | — | Task | `both` | — | 今のまま | 今のまま |
@@ -715,21 +714,21 @@
 | 15 | `PR-17` | `milestoneGlyph` | 選択 | — | Task | `milestone` | — | `マイルストーンの図形（`_assets/fig-erd-detail.md` の `AT-101`）。置いた後も変えられること（`FR-078`）` | 今のまま |
 | 16 | `PR-14` | `fadeInDays`・`fadeOutDays` | 数値・数値 | — | Task | `task` | — | 今のまま | 今のまま |
 | 17 | `PR-15` | `wbsParentUid` | 選択 | — | Task | `both` | — | 今のまま | 今のまま |
-| 18 | `PR-<新4>` | `predecessors` | 文字 | はい | Task | `both` | — | `**読み取り専用。** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは先行の `uid` の昇順。依存が無いときは空の欄とする` | `` `Task/PredecessorLink/PredecessorUID` `` |
-| 19 | `PR-<新5>` | `successors` | 文字 | はい | Task | `both` | — | `**読み取り専用。** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは後続の `uid` の昇順。依存が無いときは空の欄とする` | `無い（後続のタスクの `PredecessorLink` から導く）` |
+| 18 | `PR-37` | `predecessors` | 文字 | はい | Task | `both` | — | `**読み取り専用。** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは先行の `uid` の昇順。依存が無いときは空の欄とする` | `` `Task/PredecessorLink/PredecessorUID` `` |
+| 19 | `PR-38` | `successors` | 文字 | はい | Task | `both` | — | `**読み取り専用。** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは後続の `uid` の昇順。依存が無いときは空の欄とする` | `無い（後続のタスクの `PredecessorLink` から導く）` |
 | 20 | `PR-12` | `fillColor` | 色 | — | Task | `both` | — | `塗りの色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`` | 今のまま |
-| 21 | `PR-<新6>` | `strokeColor` | 色 | — | Task | `both` | — | `枠線の色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`` | `無い（`GRS JSON` のみ）` |
-| 22 | `PR-<新7>` | `strokeWidthPx` | 数値 | — | Task | `both` | — | `枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。`_assets/fig-erd-detail.md` の `AT-104`）。空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。範囲は `AT-104` が持つ` | `無い（`GRS JSON` のみ）` |
+| 21 | `PR-39` | `strokeColor` | 色 | — | Task | `both` | — | `枠線の色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`` | `無い（`GRS JSON` のみ）` |
+| 22 | `PR-40` | `strokeWidthPx` | 数値 | — | Task | `both` | — | `枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。`_assets/fig-erd-detail.md` の `AT-104`）。空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。範囲は `AT-104` が持つ` | `無い（`GRS JSON` のみ）` |
 | 23 〜 26 | `PR-18`・`PR-20`・`PR-33`・`PR-19` | 今のまま | 今のまま | 今のまま | TaskGroup | 持たない | — | 今のまま | 今のまま |
 | 27 〜 30 | `PR-21`・`PR-26`・`PR-27`・`PR-28` | 今のまま | 今のまま | 今のまま | CommentBox | 持たない | — | 今のまま | 今のまま |
 | 31 | `PR-23` | 今のまま | 今のまま | 今のまま | HighlightBox | 持たない | — | 今のまま | 今のまま |
 | 32 | `PR-24` | 今のまま | 今のまま | 今のまま | HighlightBox | 持たない | — | 今のまま | 今のまま |
 | 33 | `PR-22` | 今のまま | 今のまま | 今のまま | HighlightBox | 持たない | — | `ハイライトボックスの枠の色（`CM-55`）。`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`）` | 今のまま |
 | 34 | `PR-25` | 今のまま | 今のまま | 今のまま | HighlightBox | 持たない | — | `塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。規則は `FR-019`` | 今のまま |
-| 35 | `PR-<新8>` | `linkType` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`）` | `` `PredecessorLink/Type` `` |
-| 36 | `PR-<新9>` | `lag` | 数値 | — | Dependency | 持たない | — | `ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。単位は `_assets/tbl-settings.md` の 表 T-213。依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`）` | `` `PredecessorLink/LinkLag` `` |
-| 37 | `PR-<新10>` | `predecessorUid` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。`FR-038` の辞書の形（名と `uid`）で示す` | `` `PredecessorLink/PredecessorUID` `` |
-| 38 | `PR-<新11>` | `successorUid` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 文書の列ではない —— 依存を入れ子で持つ後続タスク（`_assets/fig-erd-detail.md` の `ET-3`）。`FR-038` の辞書の形（名と `uid`）で示す` | `無い（入れ子の位置が表す）` |
+| 35 | `PR-41` | `linkType` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`）` | `` `PredecessorLink/Type` `` |
+| 36 | `PR-42` | `lag` | 数値 | — | Dependency | 持たない | — | `ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。単位は `_assets/tbl-settings.md` の 表 T-213。依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`）` | `` `PredecessorLink/LinkLag` `` |
+| 37 | `PR-43` | `predecessorUid` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。`FR-038` の辞書の形（名と `uid`）で示す` | `` `PredecessorLink/PredecessorUID` `` |
+| 38 | `PR-44` | `successorUid` | 文字 | はい | Dependency | 持たない | — | `**読み取り専用。** 文書の列ではない —— 依存を入れ子で持つ後続タスク（`_assets/fig-erd-detail.md` の `ET-3`）。`FR-038` の辞書の形（名と `uid`）で示す` | `無い（入れ子の位置が表す）` |
 
 ⚠️ 表の `note.ja` の欄の外側の 1 組の逆引用符は、この表で文を囲むための印であり、原稿には書かない（中の `` `…` `` は書く）。
 ⚠️ 行 27 〜 34 は今の原稿の順のまま（`PR-21`・`PR-26`・`PR-27`・`PR-28` と `PR-23`・`PR-24`・`PR-22`・`PR-25`）。並べ替えない（`DFC-1412`）。
@@ -751,17 +750,17 @@
 
 | `rowId` | `label.ja` | `label.en` |
 |---|---|---|
-| `PR-<新1>` | UID | UID |
-| `PR-<新2>` | 予定日 | planned date |
-| `PR-<新3>` | 実績日 | actual date |
-| `PR-<新4>` | 先行 | predecessors |
-| `PR-<新5>` | 後続 | successors |
-| `PR-<新6>` | 枠線色 | outline colour |
-| `PR-<新7>` | 枠線幅（px） | outline width (px) |
-| `PR-<新8>` | 種別 | type |
-| `PR-<新9>` | ラグ | lag |
-| `PR-<新10>` | 先行 | predecessor |
-| `PR-<新11>` | 後続 | successor |
+| `PR-34` | UID | UID |
+| `PR-35` | 予定日 | planned date |
+| `PR-36` | 実績日 | actual date |
+| `PR-37` | 先行 | predecessors |
+| `PR-38` | 後続 | successors |
+| `PR-39` | 枠線色 | outline colour |
+| `PR-40` | 枠線幅（px） | outline width (px) |
+| `PR-41` | 種別 | type |
+| `PR-42` | ラグ | lag |
+| `PR-43` | 先行 | predecessor |
+| `PR-44` | 後続 | successor |
 
 ② `colourField` の末尾（`themeHint` の項の後ろ）に 2 項を足す: `{"part": "noFill", "text": {"ja": "塗潰しなし", "en": "No fill"}}`・`{"part": "noLine", "text": {"ja": "線なし", "en": "No line"}}`（`CV-9` の ④ の透明の入口の語）。
 ③ 新しい節 `propertyField`（形は `colourField` と同じ `part` ／ `text`）を `colourField` の後ろに足す: `{"part": "dependencyEnd", "text": {"ja": "{name}（UID {uid}）", "en": "{name} (UID {uid})"}}`（依存の端と先行・後続の 1 行の形。名が空なら `{name}` を空にする）・`{"part": "addResource", "text": {"ja": "“{name}” を追加", "en": "Add “{name}”"}}`（`AS-5` の足す項目）。
@@ -879,7 +878,7 @@ SEAM (verbatim in the implementer's and the tester's brief)
 | tables | — | 差 0（表を足さない・消さない） |
 | figures | — | 差 0 |
 | uids | — | 差 0 |
-| rows | 表 T-016 27 | 38（＋11: `PR-<新1>` 〜 `PR-<新11>`）。ほかの表の行の数は差 0（`IC-123`・`IC-124`・`CM-24`・`AT-104`・`P-18`・`CL-2`・`CV-9`・`AS-*`・`VG-5`・`BL-3`・`S-369`・`S-374` は行の中だけが変わる） |
+| rows | 表 T-016 27 | 38（＋11: `PR-34` 〜 `PR-44`）。ほかの表の行の数は差 0（`IC-123`・`IC-124`・`CM-24`・`AT-104`・`P-18`・`CL-2`・`CV-9`・`AS-*`・`VG-5`・`BL-3`・`S-369`・`S-374` は行の中だけが変わる） |
 | 表 T-016 の列 | 6 | 7（`出す種類`） |
 | 辞書 `properties` ／ `colourField` ／ `propertyField` | 27 ／ 7 ／ — | 38 ／ 12 ／ 2 |
 | `git grep -o "テーマの色相" -- docs/spec` | 59（手書き 39 ＋ 生成 20） | 0 |

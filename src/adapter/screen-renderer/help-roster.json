@@ -737,6 +737,21 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
+   "block": "Properties Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-139",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-139"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
    "column": "HC-2",
    "block": "App Header",
    "segment": null,
@@ -758,7 +773,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-98",
-   "keys": null,
+   "keys": "N",
    "press": null,
    "glyphs": [
     "IC-98"

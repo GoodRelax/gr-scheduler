@@ -327,7 +327,7 @@ erDiagram
 | AT-16 | `Project` | `daysPerMonth` | 整数 | 可 | — | Own | `Project/DaysPerMonth` | 1 か月あたりの日数 |
 | AT-17 | `Project` | `weekStartDay` | 整数（0〜6） | 可 | — | Own | `Project/WeekStartDay` | 週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）。**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⛔ **`WeekDay.dayType` とは番号が 1 ずれる** —— 同じ曜日が別の数で書かれる。 |
 | AT-18 | `Project` | `calendarUid` | 整数 | 可 | FK | Consume | `Project/CalendarUID` | 既定の暦。文書の暦を指す（`FR-054`） |
-| AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマの色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
+| AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
@@ -366,7 +366,7 @@ erDiagram
 | AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
-| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。新しく作る行は `auto`。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
+| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足した行を倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
 | AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。ただし行の帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b |
 | AT-59 | `TaskGroup` | `minHeight` | 整数 | 可（`null` = 下限なし） | — | GRS | — | 行の最小の高さ。縦のズーム 100%・表示の倍率 100 のときの画面の px。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
@@ -434,10 +434,10 @@ erDiagram
 | AT-118 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
 | AT-119 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
 | AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
-| AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
+| AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色。形は `AT-102` と同じ。透明（線なし）も取るが、塗り（`AT-146`）と同時には取らない（`FR-019`）。`null` は注記の色 `S-312` で描く |
 | AT-122 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
 | AT-145 | `HighlightBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠の線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`。ズームによらず一定に描く（`FR-019`） |
-| AT-146 | `HighlightBox` | `fillColor` | 文字列 | 可（`null` = 表 T-217 の既定） | — | GRS | — | 塗りの色。形は `AT-102` と同じ。透明も取る。`null` は `_assets/tbl-settings.md` の表 T-217 の `S-370` の色で描く（既定は透明 ＝ 塗らない。`FR-019`） |
+| AT-146 | `HighlightBox` | `fillColor` | 文字列 | 可（`null` = 表 T-217 の既定） | — | GRS | — | 塗りの色。形は `AT-102` と同じ。透明も取る。`null` はテーマの色（`_assets/tbl-settings.md` の表 T-236 の `S-155`）で塗る。置くときは表 T-217 の `S-370`（透明）を写す（`FR-019`） |
 | AT-147 | `HighlightBox` | `fillTransparencyPercent` | 整数（0〜100） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`（`FR-019`） |
 | AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。所有者とこれで一意になる。これで元の位置に戻す |
 | AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |

@@ -1948,14 +1948,7 @@
        "key": "documentSettingsDisplayed",
        "parent": null,
        "initial": false,
-       "carries": [
-        {
-         "name": "returnSubject",
-         "note": {
-          "ja": "同じ入口をもう一度押したときに戻す選択物。無いこともある"
-         }
-        }
-       ],
+       "carries": [],
        "evidence": [
         "S-99h",
         "FR-072",
@@ -2034,18 +2027,16 @@
         "evidence": [
          "FR-072",
          "IC-17"
-        ],
-        "note": {
-         "ja": "`subject` を `returnSubject` に移す"
-        }
+        ]
        },
        "documentSettingsDisplayed": {
-        "to": "selectionDisplayed",
+        "to": "hidden",
         "evidence": [
-         "FR-072"
+         "FR-072",
+         "IC-17"
         ],
         "note": {
-         "ja": "`returnSubject` を `subject` に戻す"
+         "ja": "直前の選択物の有無を問わない"
         }
        }
       },
@@ -3996,22 +3987,14 @@
       "kind": "input",
       "rows": [
        "IC-98",
+       "SK-25",
        "FR-095"
       ],
       "note": {
-       "ja": "新しく始める入口"
+       "ja": "新しく始める入口・`N`"
       }
      },
      "carries": [
-      {
-       "name": "hasStartupTemplate",
-       "rows": [
-        "FR-095"
-       ],
-       "note": {
-        "ja": "始める元の文書が在るか。呼び手が詰める"
-       }
-      },
       {
        "name": "question",
        "rows": [
@@ -4019,6 +4002,30 @@
        ],
        "note": {
         "ja": "いまの文書を捨てる問い。呼び手が詰める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "grsResetEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-139",
+       "FR-153"
+      ],
+      "note": {
+       "ja": "GRS リセットの入口"
+      }
+     },
+     "carries": [
+      {
+       "name": "question",
+       "rows": [
+        "QN-11"
+       ],
+       "note": {
+        "ja": "GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める"
        }
       }
      ]
@@ -4184,10 +4191,11 @@
       "kind": "effectResult",
       "rows": [
        "FR-060",
-       "FR-101"
+       "FR-101",
+       "SX-1"
       ],
       "note": {
-       "ja": "保存が書けた"
+       "ja": "`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である）"
       }
      },
      "carries": [
@@ -4208,10 +4216,11 @@
       "kind": "effectResult",
       "rows": [
        "FR-096",
-       "CS-4"
+       "CS-4",
+       "SX-2"
       ],
       "note": {
-       "ja": "書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
+       "ja": "`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
       }
      },
      "carries": []
@@ -4814,13 +4823,14 @@
           "QN-2",
           "QN-3",
           "QN-4",
-          "QN-5"
+          "QN-5",
+          "QN-11"
          ]
         },
         {
          "name": "owedAction",
          "note": {
-          "ja": "「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い"
+          "ja": "「続ける」で行う書き込みの束か、新しく始めることか、GRS リセット（`FR-153`）。ファイル操作の問いでは無い"
          }
         }
        ],
@@ -4831,7 +4841,8 @@
         "QN-2",
         "QN-3",
         "QN-4",
-        "QN-5"
+        "QN-5",
+        "QN-11"
        ]
       }
      ],
@@ -4850,34 +4861,30 @@
        }
       },
       "newDocumentEntryPressed": {
-       "notAsked": [
-        {
-         "to": "questionAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate"
-          }
-         ],
-         "evidence": [
-          "FR-095",
-          "QN-5"
-         ]
-        },
-        {
-         "to": "notAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate",
-           "not": true
-          }
-         ],
-         "effect": "raiseNotice",
-         "effectArgument": "RS-27",
-         "evidence": [
-          "RS-27"
-         ]
-        }
-       ],
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "FR-095",
+         "QN-5"
+        ]
+       },
+       "questionAsked": {
+        "to": "questionAsked",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "RS-27"
+        ]
+       }
+      },
+      "grsResetEntryPressed": {
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "FR-153",
+         "QN-11"
+        ]
+       },
        "questionAsked": {
         "to": "questionAsked",
         "effect": "raiseNotice",
@@ -6430,6 +6437,21 @@
        "ja": "同上"
       }
      },
+     "everyRowDeletePressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "HF-20",
+       "S-418"
+      ],
+      "note": {
+       "ja": "同上。消す書き込みと同じ束に入れる（`HF-20`）"
+      }
+     },
      "rowRevealAsked": {
       "guard": [
        {
@@ -6621,6 +6643,20 @@
      "carries": []
     },
     {
+     "key": "everyRowDeletePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-106",
+       "HF-20"
+      ],
+      "note": {
+       "ja": "頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "rowZoomShrinkPressed",
      "source": {
       "kind": "input",
@@ -6667,7 +6703,7 @@
       {
        "key": "auto",
        "parent": null,
-       "initial": true,
+       "initial": false,
        "carries": [],
        "evidence": [
         "AT-153",
@@ -6697,12 +6733,14 @@
       {
        "key": "temporarilyExpanded",
        "parent": null,
-       "initial": false,
+       "initial": true,
        "carries": [],
        "evidence": [
         "HR-3",
         "HR-1",
-        "FR-018"
+        "FR-018",
+        "AT-153",
+        "HF-14"
        ]
       },
       {
@@ -7179,8 +7217,20 @@
        }
       },
       "childRowAddPressed": {
+       "auto": {
+        "to": "temporarilyExpanded",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-14",
+         "HR-8"
+        ]
+       },
        "collapsed": {
-        "to": "auto",
+        "to": "temporarilyExpanded",
         "guard": [
          {
           "name": "isPressedRow"

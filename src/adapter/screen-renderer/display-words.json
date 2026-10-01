@@ -250,8 +250,8 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する。テーマの色相もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen"
+    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
    }
   },
   {
@@ -1320,6 +1320,17 @@
     "ja": "取込をやめ、取込前と同じ状態へ戻す",
     "en": "Stop the import and put the document back exactly as it was"
    }
+  },
+  {
+   "rowId": "IC-139",
+   "label": {
+    "ja": "GRS リセット",
+    "en": "GRS Reset"
+   },
+   "hint": {
+    "ja": "GRS がこのブラウザに覚えた値を消して、ページを読み直す。先に確かめる",
+    "en": "Clear what GRS keeps in this browser and reload the page; asks first"
+   }
   }
  ],
  "properties": [
@@ -2170,8 +2181,8 @@
     "themeHue"
    ],
    "label": {
-    "ja": "テーマの色相",
-    "en": "themeHue"
+    "ja": "テーマ色",
+    "en": "theme colour"
    }
   },
   {
@@ -3695,6 +3706,17 @@
    }
   },
   {
+   "rowId": "RS-67",
+   "text": {
+    "ja": "このファイルは GRS で開ける .html ではありません",
+    "en": "This file is not an .html that GRS can open"
+   },
+   "nextStep": {
+    "ja": "GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください",
+    "en": "Check that it was written out from the GRS header, or where the file came from"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3971,8 +3993,8 @@
   {
    "rowId": "QN-5",
    "text": {
-    "ja": "保存していない編集があります。置き換えますか？ 失われます",
-    "en": "There are unsaved edits. Replace the document? They will be lost"
+    "ja": "いまの文書を閉じますか？ 保存していない編集と、元に戻す履歴は失われます",
+    "en": "Close the current document? Unsaved edits and the undo history will be lost"
    }
   },
   {
@@ -3987,6 +4009,13 @@
    "text": {
     "ja": "すべての行と、行に載っているタスクを削除しますか？",
     "en": "Delete all rows and the tasks on them?"
+   }
+  },
+  {
+   "rowId": "QN-11",
+   "text": {
+    "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl + F5 : 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
+    "en": "Reset GRS? What GRS keeps in this browser (such as the screen language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too\n* If resetting does not fix the problem, try the following.\nCtrl + F5 : reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
    }
   },
   {
@@ -4431,7 +4460,7 @@
   {
    "part": "custom",
    "text": {
-    "ja": "任意",
+    "ja": "その他の色",
     "en": "Custom"
    }
   },
@@ -4466,8 +4495,8 @@
   {
    "part": "theme",
    "text": {
-    "ja": "テーマ",
-    "en": "Theme"
+    "ja": "プロジェクトテーマ色",
+    "en": "Project theme colour"
    }
   },
   {

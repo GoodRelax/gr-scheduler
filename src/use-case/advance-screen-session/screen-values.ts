@@ -277,7 +277,7 @@ export type WatermarkDisplayState =
 export type PropertiesPanelContentState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject'] }
-  | { readonly kind: 'documentSettingsDisplayed'; readonly returnSubject: ScreenValuesStateCarried['returnSubject'] }
+  | { readonly kind: 'documentSettingsDisplayed' }
 
 export type DialogueFieldDisplayState =
   | { readonly kind: 'shown' }

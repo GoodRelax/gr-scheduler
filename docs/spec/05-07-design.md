@@ -485,7 +485,7 @@ src/
 | UF-154 | `DocumentCodec` | `mspdi-child-placement.ts` | `pure` | 書き出す要素の子を、交換相手のスキーマの `xsd:sequence` の順に置く（`EX-10`） —— 持ち回った子を届いた順で戻し、宣言の無い子を宣言された隣に付ける。<br>順の名簿（`pj15` だけが宣言する子の印を含む）を `mspdi-child-order.json` から持ち、`xsd:all` の親と名簿に無い親の子は届いた順に置く | — |
 | UF-155 | `DocumentCodec` | `mspdi-fade-frames.ts` | `pure` | フェード日数を、`MSPDI` の拡張領域の枠と相互に写す（`EX-6`・`EX-8`） —— 枠の定義を 1 度だけ書く。<br>名簿（`mspdi-custom-fields.json`）の順に使われていない枠を探し、取込元の枠を上書きせず、書けなければ告げ、読むときは `Alias` で名乗った枠だけを取る | — |
 | UF-156 | `DocumentCodec` | `mspdi-imported-rows.ts` | `pure` | 取り込んだタスクの WBS の木から、行と所属を作る（`FR-058`）。<br>子を持たないタスクには行を作らず親の行へ載せ、`maxGroupDepth` の深さで止めて、深いタスクは最も深い祖先の行へ載せ、行の ID をタスクの UID から作る（`AT-51`） | — |
-| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出し | `FR-067`（`OW-2`） |
+| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出しと、埋め込まれた文書の取り出し | `FR-067`（`OW-2`） |
 | UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） | — |
 | UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り | `FR-025`（`OW-2`） |
 | UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） | — |
@@ -497,7 +497,7 @@ src/
 | UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、行ズームの天井の使い回しは `row-band-ceiling-cache.ts` に、写しと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
 | UF-157 | `SingleHtmlShell` | `pointer-shape.ts` | `non-pure` | 指している掴み代に応じて、表 T-269 のポインタの形を描いて返す（`IN-2`・`FR-106`） —— 形の選び方は 表 T-266 の欄から読み、押している間は押した点の形を保ち、依存線を構えているあいだは形を出さない | — |
 | UF-158 | `SingleHtmlShell` | `held-press-preview.ts` | `semi-pure-b` | 掴んで動かす間、離したときの結果を先に描く文書と依存線を作る（表 T-023d・`PTD-3`・`PTD-5`・`FR-009`） —— 先に描く掴みの行を持ち、範囲選択の矩形を求め、保持中の文書から 1 度だけ当てる。<br>拒まれた引きは描かない | — |
-| UF-159 | `SingleHtmlShell` | `browser-stored-values.ts` | `non-pure` | ブラウザに残す値（表 T-206 の `S-99`〜`S-99c`）を読み書きする —— 起動時の画面の言語と `Agent API` の記憶を読む（`FR-038`・`FR-065`）。<br>鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない | — |
+| UF-159 | `SingleHtmlShell` | `browser-stored-values.ts` | `non-pure` | ブラウザに残す値（表 T-206 の `S-99`〜`S-99c`）を読み書きし、GRS リセット（`01-04-requirements.md` の `FR-153`）では同書の 表 T-345 が「消す」とする鍵を消す —— 起動時の画面の言語と `Agent API` の記憶を読む（`FR-038`・`FR-065`）。<br>鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない。<br>⭐ 消すときも、共通の接頭辞で `GRS` の鍵を見分け、ほかの鍵に触れない（同表の `WP-6`） | — |
 | UF-160 | `SingleHtmlShell` | `interaction-record.ts` | `non-pure` | 操作の記録（`FR-102`）の行を上限（`S-207`）の中に溜め、終わりにクリップボードへ渡す —— 入力・フレーム・完了の行（`IR-1`〜`IR-3`）を綴る。<br>文書の中身は記録せず、隠れたパレットの最小化を覚える | `FR-102`（`OW-2`） |
 | UF-161 | `SingleHtmlShell` | `view-place.ts` | `non-pure` | 表示の場所（`OP-10`）を決める —— 保存された場所があればそれを使い、無ければ全体表示（`FR-055`）を 1 度だけ解いて保つ（表 T-071 の `CA-1` の ①）。<br>起動見本から始めたかを覚え、画面の寸法が変われば解き直し、別の文書が来たら忘れる | — |
 | UF-163 | `SingleHtmlShell` | `frame-clock-wakes.ts` | `non-pure` | 時間が来たことでフレームを起こす待ちを計る（表 T-078 の `FT-4`） —— 説明の待ち（アイコンは `EZ-2`、タスクは `EZ-6`）・倍率の告げの期限（`SE-3`）・押し続けの繰り返し（`FR-018`）。<br>1 回ごとに次を仕掛ける | — |
@@ -520,7 +520,7 @@ src/
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | — |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 11 ファイルを束ねて公開し、画面の言語とヘルプの言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）、つまみが表す全体の測り（`GR-21` —— 内容の範囲といま見えている範囲の和。<br>押した時点の全体を保つのは値を持つ `SingleHtmlShell` である）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
-| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・画面の言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・画面の言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは名前と時刻と大きさの 3 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
@@ -533,7 +533,7 @@ src/
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
-| UF-104 | `DomScreenSurface` | `app-header-drawing.ts` | `non-pure` | `App Header` の中身 —— 文書名・ファイルの名と保存の時刻・ヘッダの入口 —— を描く（`U-31`）。<br>名前を時刻の上に置き（`FR-101`）、時刻を土地の時刻で綴り、画面の言語の入口に言語の略号を添える（`IC-21`） | `FR-101`（`OW-2`） |
+| UF-104 | `DomScreenSurface` | `app-header-drawing.ts` | `non-pure` | `App Header` の中身 —— 文書名・ファイルの名と保存の時刻と大きさ・ヘッダの入口 —— を描く（`U-31`）。<br>名前を時刻の上に置き（`FR-101`）、時刻と大きさを 表 T-341 のとおり綴り、2 段を `App Header` の高さに数えずに置き（`HS-8`）、画面の言語の入口に言語の略号を添える（`IC-21`） | `FR-101`（`OW-2`） |
 | UF-105 | `DomScreenSurface` | `row-title-panel-drawing.ts` | `non-pure` | `Row Title Tree` の行を、表 T-051 の操作子・掴み代・畳んだ数とともに描く（`U-22`・`FR-098`）。<br>パネルの角の入口（`HF-10`・`HF-12`・`HF-16`・`HF-17`）を描き、描いた操作子の格子の高さを測って知らせる（表 T-221 の `LF-16`・`HF-19`） | — |
 | UF-106 | `DomScreenSurface` | `properties-panel-drawing.ts` | `non-pure` | `Properties Panel` の欄を、表 T-016 の入力の型ごとの操作子として描く（`U-25`・`FR-006`・`FR-072`）。<br>長い値を折り返して高さを伸ばし、出口の入口を最初の欄の行に置く | — |
 | UF-107 | `DomScreenSurface` | `field-editing.ts` | `non-pure` | 文字入力の欄の編集 —— 焦点を持つ・`Esc` で打つ前へ戻す・`Enter` と欄の外の押しで確定する —— を 表 T-028 の `IN-4`・`IN-6` と `SK-19` に従って扱い、確定した値を欄の行 ID とともに返す（`IF-9`）。<br>欄はプロパティパネルの欄・文書名（`U-27`）・透かし解除の答え（`U-60`）である。<br>入力中かを答え（`IN-5a`）、立っている通知が `Enter` と `Esc` を先に取る（`NT-8`） | — |
@@ -754,15 +754,16 @@ src/
 | RD-3 | 取り込み（合流と重ね） | `ImportDocument`（`PI-10`） | いまのものを残す | 進める | 表 T-027 に従う | `FR-022` ／ `FR-056` ／ `UN-6` |
 | RD-4 | `OP-3` の置き換え | `ImportDocument`（`PI-10`） | 捨てる | 入ってきたまま | 積まない | `OP-4` ／ `UN-6` |
 | RD-6 | 起動時の文書 | 呼び手が持って来る | 空にする | 入ってきたまま | 積まない | `FR-062` ／ 表 T-034 |
-| RD-7 | `FR-095` の初期化 | 呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形） | 捨てる | 入ってきたまま | 積まない | `FR-095` ／ `OP-4` |
+| RD-7 | `FR-095` の初期化 | 呼び手が持って来る（`01-04-requirements.md` の 表 T-342 の空の文書） | 捨てる | 進める | 積まない | `FR-095` ／ `OP-4` |
 
 本表の 6 つが、まるごと差し替える呼び手の全数である。  
 呼び手は、自分がどの行かを名乗ること（MUST）。  
 名乗らない差し替えを受け付けてはならない（MUST NOT） —— 履歴を捨てるか残すかが呼び手の心得になると、`OP-4` が MUST で定めた履歴の扱いを経路の中で誰も検査しなくなる。
 
 ⭐ **`RD-5` は退役した席なので、番号を飛ばして `RD-7` としている**。  
-⭐ **扱いは `RD-4` と同じであり、選んだのではなく導いた** —— `FR-095` は人が求め、`OP-4`（問いは 表 T-234 の `QN-5`）で確かめたうえで、持っているものを置き換える道である。  
-⛔ **`RD-4` と違うのは、入ってくる文書の出どころだけである** —— **ファイルではなく、表 T-034 の `BT-4` の同梱の雛形から来る。**  
+⭐ **履歴と取り消しの 1 段の扱いは `RD-4` と同じであり、選んだのではなく導いた** —— `FR-095` は人が求め、`OP-4`（問いは 表 T-234 の `QN-5`）で確かめたうえで、持っているものを置き換える道である。  
+⛔ **`RD-4` と違うのは、入ってくる文書の出どころと刻印である** —— **空の文書（`01-04-requirements.md` の 表 T-342）は差し替えるその時に作るので、書かれたときの刻印を持たない。**  
+⭐ 下の「入ってきたまま」の理由（`FR-063` の等値）が当たらないので、刻印を進める。  
 ⚠️ 本行が無かったあいだ、`FR-095` は名乗る行を持たないので、直上の MUST によって実装できなかった。
 
 `WS-1` が照合するのは、呼び手が申告した「読んだ刻印」と現在の文書の刻印である（MUST）。  
@@ -1298,7 +1299,7 @@ flowchart TB
 | IV-7 | 暦が 1 つ以上あること | `Calendar` の並び | 構造 |
 | IV-17 | `FR-054` が解いた文書の暦が、稼働する曜日を 1 つ以上持つこと。<br>⚠️ **解かれなかった暦は対象外** —— 数え上げに使わない暦は、稼働する曜日を 1 つも持たなくてよい | `FR-054` の解き方と、その暦の `WeekDay` の並び | 構造 |
 | IV-8 | `TaskGroup` の `label` と `derivedFromTaskUid` が同時に `null` でないこと | その 2 列 | 組合せ |
-| IV-9 | `TaskVisual` の `fillColor` と `strokeColor` が同時に透明でないこと | その 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
+| IV-9 | `TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと | 実体ごとのその 2 列と、透明を表す値（`_assets/tbl-glossary.md` の `P-19`） | 組合せ |
 | IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと | その 2 列 | 組合せ |
 | IV-11 | `fadeInDays` または `fadeOutDays` を持つ `Task` が、`finish` を持つこと | その 3 列 | 組合せ |
 | IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。<br>⭐ **日数は暦日で数えること（MUST）** —— ⛔ 稼働日で数えると `FD-6`（暦日）と食い違う。<br>`FD-6` が正である。<br>⛔ ここでいう「期間」は、表 T-012a の `FD-6` と同じく暦日で数えること（MUST） | その 2 列と `start` ／ `finish` | 組合せ |

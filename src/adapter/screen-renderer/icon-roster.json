@@ -26,7 +26,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "文書を新しく始める（開いている文書を捨て、表 T-034 の `BT-4` と同じ状態へ戻す）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
+   "entryTo": "文書を新しく始める（開いている文書を捨て、`01-04-requirements.md` の 表 T-342 の空の文書にする）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
    "authority": "`FR-095`",
    "arms": null,
    "armsShape": null
@@ -257,7 +257,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
    "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
@@ -1008,22 +1008,24 @@
   {
    "rowId": "IC-123",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で昇順に並べる",
-   "authority": "`FR-151`",
+   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },
   {
    "rowId": "IC-124",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で降順に並べる",
-   "authority": "`FR-151`",
+   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
   },
@@ -1332,6 +1334,17 @@
    "group": null,
    "entryTo": "取込をやめ、取込前の状態へ戻す（表 T-032a の `MM-4`）",
    "authority": "`FR-022`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-139",
+   "surfaces": [
+    "Properties Panel"
+   ],
+   "group": null,
+   "entryTo": "`GRS` がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書の設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`）",
+   "authority": "`FR-153`",
    "arms": null,
    "armsShape": null
   }

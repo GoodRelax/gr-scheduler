@@ -355,7 +355,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image to send out, handing over the document's theme hue with the request"
+   "description": "gets the raster image to send out, handing over the document's theme colour with the request"
   },
   {
    "source": "InputCommandTranslator",
@@ -565,7 +565,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image, handing over the document's theme hue with the request"
+   "description": "gets the raster image, handing over the document's theme colour with the request"
   },
   {
    "source": "AgentApiEndpoint",
@@ -592,7 +592,7 @@
    "source": "SvgRenderer",
    "target": "Schedule",
    "arrow": "dependency",
-   "label": "colours + theme hue",
+   "label": "colours + theme colour",
    "description": "reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries"
   },
   {
@@ -705,7 +705,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "writes the image out for a person, and hands over the document's theme hue (Project.themeHue, AT-19) with the request"
+   "description": "writes the image out for a person, and hands over the document's theme colour (Project.themeHue, AT-19) with the request"
   },
   {
    "source": "SingleHtmlShell",
