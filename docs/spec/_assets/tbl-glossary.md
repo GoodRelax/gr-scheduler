@@ -145,6 +145,7 @@
 | U-63 | `Deadline Mark` | 期限の印。<br>`Task` の `deadline` を日程表の上に示す印。<br>描き方は `01-04-requirements.md` の `FR-045` の 表 T-304 が持つ。<br>⚠️ 「マーカー」と呼ばない（表 T-006b の `A-5`） |
 | U-64 | `Search Panel` | 検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない |
 | U-65 | `Calendar Editor` | 暦の編集面。<br>文書の暦（稼働する曜日・例外日）と週の始まりを直す面。<br>立てる規則は `01-04-requirements.md` の `FR-088`、欄と入口は同書の 表 T-344 |
+| U-66 | `Delay Diagnostics Report` | 遅延診断レポート。<br>遅延診断の凡例・まとめ・タスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない |
 
 > 呼び名は `Agent API` とする。  
 > 日本語でも `Agent API` と書く。
@@ -496,7 +497,7 @@
 **Type**: SECTION
 
 **本表はアイコンの全数である**（`FR-029`）。  
-**121 行ある。**  
+**123 行ある。**  
 ⛔ 本表の `群` の欄は、入口を並べる順を決めるためだけに在る。  
 画面に刷ってはならない（MUST NOT） —— 規則と理由は `FR-053` が持つ。  
 ⭐ **図形は 図 F-019 が正であり、本表は図形を語で説明しない**（1.9）—— 語で書き取らない理由は `FR-029` が持つ。  
@@ -593,7 +594,7 @@
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | `S-66`（`'single-vertical'`） | — |
 | IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — | — |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない | `FR-078` | — | — |
-| IC-52 | `Help Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Calendar Editor` | — | 開いている面とプロパティパネルと検索パネルを閉じる | 表 T-028 の `IN-4` | — | — |
+| IC-52 | `Help Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Calendar Editor` | — | 開いている面とプロパティパネルと検索パネルと遅延診断レポートを閉じる | 表 T-028 の `IN-4` | — | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。<br>**ボタンではない** | `FR-053` | — | — |
 | IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — | — |
@@ -612,14 +613,16 @@
 | IC-106 | `Row Title Panel` | — | すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
 | IC-118 | `Search Panel` | — | タスクとマイルストーンの表を出す | `FR-151` | — | — |
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
-| IC-120 | `Search Panel` | — | パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである | `FR-151` | — | — |
-| IC-121 | `Search Panel` | — | パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」 | `FR-151` | — | — |
+| IC-120 | `Search Panel` / `Delay Diagnostics Report` | — | パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである | `FR-151` | — | — |
+| IC-121 | `Search Panel` / `Delay Diagnostics Report` | — | パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」 | `FR-151` | — | — |
 | IC-122 | `Search Panel` | — | 列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
 | IC-123 | `Search Panel` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-124 | `Search Panel` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-125 | `Search Panel` | — | 値の一覧のすべてを表示に入れる | `FR-151` | — | — |
 | IC-126 | `Search Panel` | — | 値の一覧のすべてを表示から外す | `FR-151` | — | — |
-| IC-127 | `Search Panel` | — | パネルの表と入力欄の字の大きさの段を変える（`S-429`、4 値排他）。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
+| IC-127 | `Search Panel` / `Delay Diagnostics Report` | — | 表と入力欄の字の大きさの段（`S-429`、4 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
+| IC-140 | `Delay Diagnostics Report` | — | `.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` の写しと同じ文字列、置き場と名は 表 T-346 の `RW-7` | `FR-134` | — | — |
+| IC-108 | `Delay Diagnostics Report` | — | 表と凡例を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`） | `FR-134` | — | — |
 | IC-62 | `Command Palette` | 表示 | 担当者の名簿を表示する | `FR-099` | — | — |
 | IC-132 | `Command Palette` | 表示 | 暦の編集面を開く（稼働する曜日・例外日・週の始まり） | `FR-088` | — | — |
 | IC-63 | `Resource Roster` | — | 一覧のすべてを選ぶ | `FR-099` | — | — |

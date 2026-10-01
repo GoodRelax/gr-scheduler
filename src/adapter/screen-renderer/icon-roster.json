@@ -766,10 +766,11 @@
     "Open Chooser",
     "Properties Panel",
     "Search Panel",
+    "Delay Diagnostics Report",
     "Calendar Editor"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルと検索パネルを閉じる",
+   "entryTo": "開いている面とプロパティパネルと検索パネルと遅延診断レポートを閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -975,7 +976,8 @@
   {
    "rowId": "IC-120",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Delay Diagnostics Report"
    ],
    "group": null,
    "entryTo": "パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである",
@@ -986,7 +988,8 @@
   {
    "rowId": "IC-121",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Delay Diagnostics Report"
    ],
    "group": null,
    "entryTo": "パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」",
@@ -1054,11 +1057,34 @@
   {
    "rowId": "IC-127",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "パネルの表と入力欄の字の大きさの段を変える（`S-429`、4 値排他）。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "entryTo": "表と入力欄の字の大きさの段（`S-429`、4 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
    "authority": "`FR-151` の 表 T-330 の `SV-16`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-140",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` の写しと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
+   "authority": "`FR-134`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-108",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "表と凡例を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）",
+   "authority": "`FR-134`",
    "arms": null,
    "armsShape": null
   },

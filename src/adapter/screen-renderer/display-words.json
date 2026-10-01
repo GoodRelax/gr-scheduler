@@ -965,8 +965,8 @@
     "en": "Minimise"
    },
    "hint": {
-    "ja": "検索パネルを最小化する。もう一度押すと戻る",
-    "en": "Minimise the search panel; press again to restore it"
+    "ja": "パネルを最小化する。もう一度押すと戻る",
+    "en": "Minimise the panel; press again to restore it"
    }
   },
   {
@@ -976,8 +976,8 @@
     "en": "Maximise"
    },
    "hint": {
-    "ja": "検索パネルを最大化する。もう一度押すと元のサイズに戻る",
-    "en": "Maximise the search panel; press again to restore its size"
+    "ja": "パネルを最大化する。もう一度押すと元のサイズに戻る",
+    "en": "Maximise the panel; press again to restore its size"
    }
   },
   {
@@ -1042,8 +1042,30 @@
     "en": "Text size"
    },
    "hint": {
-    "ja": "検索パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
-    "en": "Change the text size of the search panel's table and search box (cycles through 12, 14, 16 and 20 px)"
+    "ja": "パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
+    "en": "Change the text size of the panel's table and search box (cycles through 12, 14, 16 and 20 px)"
+   }
+  },
+  {
+   "rowId": "IC-140",
+   "label": {
+    "ja": ".md",
+    "en": ".md"
+   },
+   "hint": {
+    "ja": "本レポートをMarkdownで出力する",
+    "en": "Write this report as a Markdown file"
+   }
+  },
+  {
+   "rowId": "IC-108",
+   "label": {
+    "ja": "写す",
+    "en": "Copy"
+   },
+   "hint": {
+    "ja": "遅延診断レポートを Markdown でクリップボードへ写す",
+    "en": "Copy this report to the clipboard as Markdown"
    }
   },
   {
@@ -2847,6 +2869,13 @@
    "heading": {
     "ja": "検索パネル",
     "en": "Search panel"
+   }
+  },
+  {
+   "name": "Delay Diagnostics Report",
+   "heading": {
+    "ja": "遅延診断レポート",
+    "en": "Delay Diagnostics Report"
    }
   },
   {

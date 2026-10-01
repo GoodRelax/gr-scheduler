@@ -648,6 +648,36 @@
   {
    "kind": "item",
    "column": "HC-1",
+   "block": "Delay Diagnostics Report",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-140",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-140"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Delay Diagnostics Report",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-108",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-108"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
    "block": "Calendar Editor",
    "segment": null,
    "indent": false,

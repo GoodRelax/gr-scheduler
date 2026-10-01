@@ -363,6 +363,14 @@
    }
   },
   {
+   "prefix": "DT",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断レポートの表の欄"
+   }
+  },
+  {
    "prefix": "DU",
    "words": "Duplicate",
    "owner": "spec",
@@ -1170,6 +1178,14 @@
    "owner": "spec",
    "means": {
     "ja": "描くときに求める値（文書は持たず、描くたびに導く）"
+   }
+  },
+  {
+   "prefix": "RW",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断レポートの窓が検索パネルと違う所"
    }
   },
   {
