@@ -6,8 +6,12 @@
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
+  workingCalendarOf,
+  workingDaysBetween,
   type CalendarDay,
   type Schedule,
+  type WeekDay,
+  type WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
 import {
   dateAtX,
@@ -209,21 +213,105 @@ export function bandWidthOf(input: GridInput): number {
   return input.area.width + input.settings.canvasPadding
 }
 
-// see FR-089, FR-042
+const NO_RECURRENCE = 9
+
+const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
+  ordinal,
+  dayType,
+  dayWorking: true,
+  carry: {},
+  carryElements: [],
+}))
+
+// see OD-1, OD-2
+// WHY: weekdays that all work leave only the days an Exception made non-working.
+/** @purity pure */
+function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): WorkingCalendar | null {
+  if (tier === 'year') return null
+  const within = workingCalendarOf(schedule)
+  const exceptions = within.exceptions.filter(
+    (one) => one.recurrenceKind === null || one.recurrenceKind === NO_RECURRENCE,
+  )
+  if (tier === 'yearMonthDayWeekday') return { ...within, exceptions }
+  const madeOff = exceptions.filter((one) => one.dayWorking !== true)
+  if (madeOff.length === 0) return null
+  return { ...within, weekDays: EVERY_WEEKDAY_WORKS, exceptions: madeOff }
+}
+
+// see T-343, FR-054
+// TRAP: one path for every run in view (OD-6); a rect per day multiplies the elements by the days drawn.
+/** @purity pure */
+function nonWorkingDaysSvg(input: GridInput): string | null {
+  const { schedule, layout, area, themed } = input
+  const shaded = shadedCalendarOf(schedule, layout.tier)
+  if (shaded === null || layout.pxPerDay <= 0) return null
+  const left = area.x
+  const right = area.x + bandWidthOf(input)
+  const from = dateAtX(layout, left)
+  if (from === null) return null
+  const top = rounded(area.y)
+  const bottom = rounded(area.y + area.height)
+  const runs: string[] = []
+  let runFrom: number | null = null
+  const closeRun = (endX: number): void => {
+    if (runFrom === null) return
+    const x0 = rounded(Math.max(left, runFrom))
+    const x1 = rounded(Math.min(right, endX))
+    if (x1 > x0) runs.push(`M${x0} ${top} H${x1} V${bottom} H${x0} Z`)
+    runFrom = null
+  }
+  for (let at = serialOf(from); ; at++) {
+    const day = dayOfSerial(at)
+    const x = xFromDay(layout, day)
+    if (x >= right) break
+    const isOff = workingDaysBetween(shaded, day, dayOfSerial(at + 1)) === 0
+    if (isOff && runFrom === null) runFrom = x
+    if (!isOff) closeRun(x)
+  }
+  closeRun(right)
+  if (runs.length === 0) return null
+  return `<path d="${runs.join(' ')}" fill="${themed('S-450')}"${figureKey('non-working-days')}/>`
+}
+
+// see FR-089
+/** @purity pure */
+function dateGridParts(input: GridInput): readonly string[] {
+  const { schedule, settings, layout, area, themed } = input
+  if (!settings.dateGridLinesVisible) return []
+  const gridFrom = dateAtX(layout, area.x)
+  if (gridFrom === null) return []
+  const finest = ROWS_OF_TIER[layout.tier][ROWS_OF_TIER[layout.tier].length - 1]
+  const gridCap = Math.ceil(area.width / Math.max(0.001, layout.pxPerDay)) + 1
+  const stride = tickStrideOf(layout, settings)
+  const weekStart = schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108']
+  const out: string[] = []
+  for (const day of ticksOfRow(
+    finest ?? 'year',
+    layout,
+    stride,
+    weekStart,
+    gridFrom,
+    area.x + area.width,
+    gridCap,
+  )) {
+    const x = xFromDay(layout, day)
+    if (x < area.x) continue
+    out.push(
+      `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
+        ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+        ` stroke="${themed('S-149')}" stroke-width="1"` +
+        `${figureKey(`date-grid-${serialOf(day)}`)}/>`,
+    )
+  }
+  return out
+}
+
+// see FR-089, FR-042, OD-4
 /** @purity pure */
 export function gridParts(input: GridInput): GridParts {
-  const {
-    schedule,
-    settings,
-    layout,
-    area,
-    areaBottom,
-    scrollTop,
-    themed,
-    chosen,
-    colourOfGroup,
-  } = input
+  const { settings, layout, area, areaBottom, scrollTop, themed, chosen, colourOfGroup } = input
   const bandParts: string[] = []
+  const ruleParts: string[] = []
   for (const [position, row] of layout.rows.entries()) {
     const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
@@ -236,40 +324,15 @@ export function gridParts(input: GridInput): GridParts {
         ` fill="${band}"${figureKey(`${rowKey}-band`)}/>`,
     )
     if (!settings.groupGridLinesVisible) continue
-    bandParts.push(
+    ruleParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + bandWidthOf(input))}" y2="${rounded(bottom)}"` +
         ` stroke="${themed('S-165')}"` +
         ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
     )
   }
-
-  if (settings.dateGridLinesVisible) {
-    const gridFrom = dateAtX(layout, area.x)
-    if (gridFrom !== null) {
-      const finest = ROWS_OF_TIER[layout.tier][ROWS_OF_TIER[layout.tier].length - 1]
-      const gridCap = Math.ceil(area.width / Math.max(0.001, layout.pxPerDay)) + 1
-      const stride = tickStrideOf(layout, settings)
-      const weekStart = schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108']
-      for (const day of ticksOfRow(
-        finest ?? 'year',
-        layout,
-        stride,
-        weekStart,
-        gridFrom,
-        area.x + area.width,
-        gridCap,
-      )) {
-        const x = xFromDay(layout, day)
-        if (x < area.x) continue
-        bandParts.push(
-          `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
-            ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
-            ` stroke="${themed('S-149')}" stroke-width="1"` +
-            `${figureKey(`date-grid-${serialOf(day)}`)}/>`,
-        )
-      }
-    }
-  }
+  const shade = nonWorkingDaysSvg(input)
+  if (shade !== null) bandParts.push(shade)
+  bandParts.push(...ruleParts, ...dateGridParts(input))
   return { bandParts }
 }
