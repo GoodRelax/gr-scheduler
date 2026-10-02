@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 
 // Chapter 5.3 forbids a main.ts: the entry is the shell itself
@@ -182,6 +184,44 @@ function inlineBuiltAssetsIntoHtml(): Plugin {
   }
 }
 
+// FR-027 (MUST NOT) keeps the startup template out of the script: a template
+// bundled into the module could not be taken out by FR-067's export without
+// changing the script's text, and then the `script-src` hash above would no
+// longer match. So the template rides in a container of its own, a
+// `<script type="application/json">` the browser never runs and the policy
+// never hashes, put into the page here on the dev server and in the build
+// alike. Its id and the template itself come from the files
+// tools/generate_startup_template.py writes; nothing here restates either.
+const STARTUP_TEMPLATE_FILE = fileURLToPath(
+  new URL('./src/framework/single-html-shell/startup-template.json', import.meta.url),
+)
+const STARTUP_TEMPLATE_MANIFEST_FILE = fileURLToPath(
+  new URL('./src/framework/single-html-shell/startup-template-manifest.json', import.meta.url),
+)
+
+function startupTemplateContainer(): Plugin {
+  return {
+    name: 'grs-startup-template-container',
+    transformIndexHtml(html) {
+      const manifest = JSON.parse(readFileSync(STARTUP_TEMPLATE_MANIFEST_FILE, 'utf8')) as {
+        readonly containerElementId?: unknown
+      }
+      const elementId = manifest.containerElementId
+      if (typeof elementId !== 'string' || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(elementId)) {
+        throw new Error('the startup template manifest names no usable container id')
+      }
+      // Parsed and written again compact: a template that is not JSON stops the build here.
+      const template: unknown = JSON.parse(readFileSync(STARTUP_TEMPLATE_FILE, 'utf8'))
+      // `<` is escaped, so no `</script` can end the element early.
+      const json = JSON.stringify(template).replaceAll('<', '\\u003c')
+      const container = `<script type="application/json" id="${elementId}">${json}</script>`
+      const bodyEnd = html.toLowerCase().lastIndexOf('</body')
+      if (bodyEnd < 0) throw new Error('index.html has no </body> to put the startup template before')
+      return `${html.slice(0, bodyEnd)}${container}\n${html.slice(bodyEnd)}`
+    },
+  }
+}
+
 // ⚠️ The dev server takes its port from the PORT environment variable when one
 // is set, because the tooling that launches it assigns a free port that way and
 // then looks for the server THERE. Vite does not read PORT on its own, so
@@ -195,7 +235,7 @@ const assignedPort = Number(process.env.PORT)
 const hasAssignedPort = Number.isInteger(assignedPort) && assignedPort > 0
 
 export default defineConfig({
-  plugins: [inlineBuiltAssetsIntoHtml()],
+  plugins: [startupTemplateContainer(), inlineBuiltAssetsIntoHtml()],
   server: {
     port: hasAssignedPort ? assignedPort : 5173,
     strictPort: hasAssignedPort,

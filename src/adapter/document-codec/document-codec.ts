@@ -15,14 +15,15 @@ export type { FormatVersionReading, JsonDecoding, JsonFault } from './json-codec
 export { documentFromMspdi, mspdiFromDocument } from './mspdi-codec'
 export type { MspdiDecoding, MspdiEncoding, MspdiFault, MspdiNotice } from './mspdi-codec'
 
-export { exportEmbeddedHtml } from './embedded-html-codec'
+export { documentFromEmbeddedHtml, exportEmbeddedHtml } from './embedded-html-codec'
 export type {
   EmbeddedHtmlExport,
   EmbeddedHtmlFault,
   EmbeddedHtmlFaultReason,
+  EmbeddedHtmlReading,
 } from './embedded-html-codec'
 
-export type ExchangeFormat = 'grsJson' | 'mspdi'
+export type ExchangeFormat = 'grsJson' | 'mspdi' | 'singleHtml'
 
 export type FormatMismatch = 'extension' | 'firstCharacter' | 'both'
 
@@ -41,6 +42,7 @@ const BLANK_CHARACTERS: ReadonlySet<string> = new Set([' ', '\t', '\n', '\r'])
 const ROW_OF_FORMAT: Readonly<Record<ExchangeFormat, string>> = {
   grsJson: 'IO-2',
   mspdi: 'IO-1',
+  singleHtml: 'IO-7',
 }
 
 interface ReadableFormat {
@@ -91,7 +93,8 @@ function mismatchOf(
   return 'both'
 }
 
-// see OP-12
+// see OP-12, T-024
+// WHY: the row is chosen by the pair; two readable rows share their first character, so one column names no row.
 /** @purity pure */
 export function formatFromFile(fileName: string, text: string): FormatReading {
   const extension = extensionOf(fileName)
@@ -102,7 +105,7 @@ export function formatFromFile(fileName: string, text: string): FormatReading {
       ? null
       : (READABLE_FORMATS.find((row) => row.firstCharacter === firstCharacter) ?? null)
 
-  if (byExtension !== null && byExtension === byFirstCharacter) {
+  if (byExtension !== null && byExtension.firstCharacter === firstCharacter) {
     return { ok: true, format: byExtension.format }
   }
   return {

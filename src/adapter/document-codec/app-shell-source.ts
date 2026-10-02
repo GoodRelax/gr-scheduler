@@ -7,6 +7,8 @@
 export interface AppShell {
   readonly html: string
   readonly embeddedDocumentElementId: string
+  // see FR-067
+  readonly omittedElementIds: readonly string[]
 }
 
 export type AppShellReading =

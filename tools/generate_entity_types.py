@@ -1641,6 +1641,15 @@ NOT_STORED_TARGETS = {
     # PLACES the label, and a weight is read only where the label is written.
     'NOT_STORED_NAME_LABEL_WEIGHT': (['S-245'],
                                      DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
+    # CR-610: the two lines of the App Header's file status (HS-7 of table
+    # T-341, FR-101) -- S-449 the file name above, S-210 the time and size
+    # below, each multiplied after S-235. Printed into app-header-drawing.ts,
+    # the one unit that draws the two lines. A NEW CONSTANT: one per consuming
+    # SUBJECT, and NOT_STORED_DOCUMENT_TITLE_SIZES is the title's.
+    'NOT_STORED_FILE_STATUS_SIZES': (['S-210', 'S-449'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-619: the id every file chooser is handed (FR-060). Read where it
+    # stands, by the one unit that opens the choosers.
+    'NOT_STORED_FILE_CHOOSER_ID': (['S-452'], READ_WHERE_IT_STANDS),
 }
 
 
@@ -1653,6 +1662,11 @@ def not_stored_cell(cell):
     if 'num' in cell:
         return (cell['num'], 'number')
     if 'lit' in cell:
+        # CR-619: S-452 states its value already quoted ('grs-files'), so the
+        # cell is the literal itself; a second pair of quotes would break it.
+        quoted = re.match(r"^'[A-Za-z0-9_-]*'$", cell['lit'])
+        if quoted:
+            return (cell['lit'], 'string')
         return ("'%s'" % cell['lit'], "'%s'" % cell['lit'])
     # ⭐ A CELL PRINTED AS ONE CODE SPAN AND NOTHING ELSE STATES ITS VALUE IN
     # THAT SPAN. S-246 (CR-419) is the first such row: its value is the CSS
@@ -2768,6 +2782,16 @@ TARGETS = [
     # reason words' {downloadUrl} (CR-565, FR-073).
     (os.path.join(ADAPTER, 'screen-renderer', 'notices.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOWNLOAD_ADDRESS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-610: the file status's two text sizes stand in the unit that draws
+    # the App Header's contents (HS-7).
+    (os.path.join(FRAMEWORK, 'dom-screen-surface', 'app-header-drawing.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_FILE_STATUS_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-619: the chooser id stands in the unit that opens every chooser.
+    (os.path.join(FRAMEWORK, 'file-system-access-file-store',
+                  'file-system-access-file-store.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_FILE_CHOOSER_ID'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ScheduleLayout's copy of NOT_STORED_SIZES stands in the one unit of the
     # component that reads it: label-placement.ts places the label past the

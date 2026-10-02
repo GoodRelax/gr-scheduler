@@ -1,11 +1,11 @@
-// Puts the application and one document into a single .html file.
+// Puts the application and one document into a single .html file, and reads the document back out.
 // @unit      UF-37   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    semi-pure-b
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { AppShellSource } from './app-shell-source'
-import { jsonFromDocument } from './json-codec'
+import { documentFromJson, jsonFromDocument, type JsonDecoding } from './json-codec'
 
 export type EmbeddedHtmlFaultReason =
   | 'appShellUnavailable'
@@ -21,6 +21,10 @@ export type EmbeddedHtmlExport =
   | { readonly ok: true; readonly html: string }
   | { readonly ok: false; readonly fault: EmbeddedHtmlFault }
 
+export type EmbeddedHtmlReading =
+  | JsonDecoding
+  | { readonly ok: false; readonly reason: 'entryCountNotOne'; readonly entryCount: number }
+
 const CONTAINER_TYPE = 'application/json'
 
 const BREAKING_ELEMENT_ID_CHARACTER = /[\s"'<>&\x00-\x1f\x7f]/
@@ -28,6 +32,8 @@ const BREAKING_ELEMENT_ID_CHARACTER = /[\s"'<>&\x00-\x1f\x7f]/
 interface ElementSpan {
   readonly begin: number
   readonly end: number
+  readonly textBegin: number
+  readonly textEnd: number
 }
 
 /** @purity pure */
@@ -80,7 +86,7 @@ function containerSpans(html: string, elementId: string): readonly ElementSpan[]
     const closeTagEnd = closeTag < 0 ? -1 : html.indexOf('>', closeTag)
     const end = closeTagEnd < 0 ? html.length : closeTagEnd + 1
     if (idOfStartTag(html.slice(begin, startTagEnd + 1)) === elementId) {
-      spans.push({ begin, end })
+      spans.push({ begin, end, textBegin: startTagEnd + 1, textEnd: closeTag < 0 ? html.length : closeTag })
     }
     foundAt = end
   }
@@ -120,6 +126,38 @@ function htmlWithContainer(html: string, elementId: string, json: string): Embed
   return { ok: true, html: `${html.slice(0, only.begin)}${container}${html.slice(only.end)}` }
 }
 
+// see FR-067
+/** @purity pure */
+function htmlWithout(html: string, elementIds: readonly string[]): string {
+  let left = html
+  for (const elementId of elementIds) {
+    const spans = containerSpans(left, elementId)
+    for (let at = spans.length - 1; at >= 0; at -= 1) {
+      const span = spans[at]
+      if (span !== undefined) left = `${left.slice(0, span.begin)}${left.slice(span.end)}`
+    }
+  }
+  return left
+}
+
+// see IO-7, FR-067, PI-20
+// WHY: the ids are tried in the order given and the first one found decides, so the read order is the caller's.
+/** @purity pure */
+export function documentFromEmbeddedHtml(
+  html: string,
+  elementIds: readonly string[],
+  greatestKnownVersion: string,
+): EmbeddedHtmlReading {
+  for (const elementId of elementIds) {
+    const spans = containerSpans(html, elementId)
+    const only = spans[0]
+    if (only === undefined) continue
+    if (spans.length > 1) return { ok: false, reason: 'entryCountNotOne', entryCount: spans.length }
+    return documentFromJson(html.slice(only.textBegin, only.textEnd), greatestKnownVersion)
+  }
+  return { ok: false, reason: 'entryCountNotOne', entryCount: 0 }
+}
+
 // see IO-7, FR-067
 /** @purity semi-pure-b */
 export async function exportEmbeddedHtml(
@@ -129,7 +167,7 @@ export async function exportEmbeddedHtml(
   const reading = await source.readAppShell()
   if (!reading.ok) return { ok: false, fault: fault('appShellUnavailable', reading.what) }
 
-  const { html, embeddedDocumentElementId } = reading.appShell
+  const { html, embeddedDocumentElementId, omittedElementIds } = reading.appShell
   if (!isUsableElementId(embeddedDocumentElementId)) {
     return {
       ok: false,
@@ -140,5 +178,5 @@ export async function exportEmbeddedHtml(
     }
   }
 
-  return htmlWithContainer(html, embeddedDocumentElementId, embeddedJson(document))
+  return htmlWithContainer(htmlWithout(html, omittedElementIds), embeddedDocumentElementId, embeddedJson(document))
 }
