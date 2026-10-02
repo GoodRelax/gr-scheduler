@@ -7678,7 +7678,7 @@
       "mark": "🔎"
      },
      "note": {
-      "ja": "週の目盛が書く日付の基準（`FR-054`）。置き場は `Project.weekStartDay`"
+      "ja": "週の目盛が書く日付の基準（`FR-054`）。置き場は `Project.weekStartDay`。⭐ 新しく始めた空の文書（`01-04-requirements.md` の 表 T-342 の `BK-4`）にもこの値を書く"
      }
     },
     {

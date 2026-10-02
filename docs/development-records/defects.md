@@ -20,8 +20,8 @@
 | | 残件 | 総件数 | 未検討 | 裁定待ち | 仕様待ち | 実装待ち | 試験待ち | 実測待ち | 実測済 | 取下げ |
 | --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 223 | 793 | 56 | 3 | 58 | 70 | 25 | 11 | 515 | 55 |
-| 最新 2026-10-03 08:18 | 425 | 1013 | 91 | 8 | 86 | 138 | 27 | 75 | 530 | 58 |
-| ⭐ 差分 | +202 | +220 | +35 | +5 | +28 | +68 | +2 | +64 | +15 | +3 |
+| 最新 2026-10-03 08:26 | 426 | 1014 | 91 | 8 | 86 | 139 | 27 | 75 | 530 | 58 |
+| ⭐ 差分 | +203 | +221 | +35 | +5 | +28 | +69 | +2 | +64 | +15 | +3 |
 
 ⚠️ **巡の頭で `python tools/ledger_metrics.py --start` を 1 度走らせる。**⛔ **手で書かない** —— 測れる数を手で書けば必ず腐る。⚠️ **時刻まで持つ** —— 1 日に複数の巡が走るので、日付だけでは見分けられない。
 
@@ -34,8 +34,8 @@
 | | 未仕分け | 仕様の穴 | 製品の仕事 | 検証の借り | 決着 |
 | --- | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 56 | 61 | 95 | 11 | 570 |
-| 最新 2026-10-03 08:18 | 91 | 94 | 165 | 75 | 588 |
-| ⭐ 差分 | +35 | +33 | +70 | +64 | +18 |
+| 最新 2026-10-03 08:26 | 91 | 94 | 166 | 75 | 588 |
+| ⭐ 差分 | +35 | +33 | +71 | +64 | +18 |
 
 ⛔ **「不具合」と呼んでよいのは `製品の仕事` だけである。** `仕様の穴` は仕様を書く仕事、`検証の借り` は押しに行く仕事であって、どちらもコードの欠陥ではない。
 
@@ -530,3 +530,4 @@
 | DFC-1710 | 💡 **ヘルプのコードと試験が `CR-635` の前の形のまま** —— 仕様（`FR-036`・表 T-256）と生成物（`src/adapter/screen-renderer/help-roster.json`・`display-words.json`）は `CR-635` で動いた: 塊は 5 つ（基本操作・ブラウザの機能・`App Header`・`Row Title Panel`・`Command Palette`）、どの塊にも見出し、項目 118 → 89（常識の図形と `SK-8` の `Esc` が外れた）、入口の語の直し。試験は塊の数・順・見出しが 2 つ・語の逐語を前提にしている | ヘルプがどの塊の頭にも題を描き、外した入口を描かず、直した語で出る。試験が新しい形で緑 | `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` の前提（`HC-1`〜`HC-3`、`HC-1` に 7 つの塊）と、ヘルプの名簿・見出し・語を逐語で比べる試験を直す。`src/framework/dom-screen-surface/open-modals-drawing.ts` が見出しを `basics`・`browser` だけと見ていないか、パレットの塊が掴み帯の区切りを前提にしていないかを確かめる | 対応方針・決定仕様: `FR-036`（載せる 表 T-109 の行・どの塊にも見出し）と 表 T-256 の `HC-4`（`Row Title Panel` だけ）、語は `docs/spec/_source/display-words.json`。仕様は着地済み —— `change-request/CR-635-the-help-drops-common-icons-titles-every-block-and-renames-words.md` の 9 節 | `実装待ち` | 2026-10-03、`CR-635` の仕様の波が起こした。大きさ S。毎フレーム: いいえ | `JDG-1154`・`JDG-1155`・`JDG-1157`・`CR-622`・`DFC-1335` | —— 未再現（仕様の後追い） |
 | DFC-1711 | 💡 **遅延診断レポートの窓の重ね順がコードに無い** —— `CR-636` で 表 T-337 の `UZ-6` が検索パネルと遅延診断レポートの窓の 2 つを持つようになった（同時に出ていれば後に開いたほうが前、表 T-346 の `RW-5`）。窓はまだ画面に描かれていない（`DFC-1481`） | 窓を描くとき、窓の層が `UZ-6` の z に在り、検索パネルと同時に出ているときは後に開いたほうが前に立つ。パレットより奥、面とヘルプより手前 | `src/framework/dom-screen-surface/dom-screen-surface.ts` の `markZOrder` で窓の層を `UZ-6` に置き、段の中の前後を開いた順で決める。`tests/contract/t-337-screen-z-order.contract.test.ts` の `PARTS` に `U-66` の組を足し、`RESERVED_NOT_YET_ON_SCREEN` の `UZ-6` の免除がまだ要るかを確かめる | 対応方針・決定仕様: `FR-152` の 表 T-337 の `UZ-6` と、`FR-134` の 表 T-346 の `RW-5`。仕様は着地済み —— `change-request/CR-636-the-report-window-stands-with-the-search-panel-in-the-z-order.md` の 9 節 | `実装待ち` | 2026-10-03、`CR-636` の仕様の波が起こした。大きさ S。毎フレーム: いいえ。⚠️ 列の幅（`SV-18`）の当たり方は同書の 11 節の問い 1 で未決 | `JDG-1158`・`DFC-1481`・`CR-617`・`CR-621`・`CR-630` | —— 未再現（仕様の後追い） |
 | DFC-1712 | 💡 **ヘルプの `Esc`・語・休日の設定の面の名がコードに無い** —— `CR-637` で、ヘルプの基本操作の塊に `SK-8`（`Esc`）が戻り（`FR-036` の新しい文。項目 89 → 90、辞書の `shortcuts` に `SK-8`）、`U-65` の確定名が `Holiday Settings` になり（面の名・`IC-132` の英語の名・面の題）、`IC-133`・`IC-96` の説明、`RS-46`・`MK-6` の語が Add ＝ 追加・Apply ＝ 適用に揃った。生成物（`help-roster.json`・`display-words.json`・`icon-roster.json`）は動いた | ヘルプの基本操作の塊に `Esc` の項目が辞書の語で出る。休日の設定の面は `Holiday Settings` の名で立つ。語を逐語で比べる試験が新しい語で緑 | `src/adapter/screen-renderer/open-modals.ts`・`src/framework/dom-screen-surface/open-modals-drawing.ts` が基本操作の塊の 表 T-036 の項目の語を `shortcuts` から引けるかを確かめる。ヘルプの項目を数える試験（89 → 90）と、旧の語（「当てるまで」「足せません」「選択に足す」「足した側」「Working calendar」）を逐語で比べる試験を直す。面を描くとき（`DFC-1671`）は面の名を `Holiday Settings` で持つ | 対応方針・決定仕様: `FR-036`（入口の項目が段に載らない割当は入口を持たない割当と同じ塊）、`_assets/tbl-glossary.md` の `U-65`、語は `docs/spec/_source/display-words.json`。仕様は着地済み —— `change-request/CR-637-esc-stays-in-the-help-and-the-words-follow-the-screen.md` の 9 節 | `実装待ち` | 2026-10-03、`CR-637` の仕様の波が起こした。大きさ S。毎フレーム: いいえ | `JDG-1180`・`JDG-1181`・`JDG-1182`・`DFC-1710`・`DFC-1671` | —— 未再現（仕様の後追い） |
+| DFC-1713 | 💡 **空の文書の週の始まりが仕様の読み B で組まれていない** —— `CR-638` で、`N` で始めた空の文書（`FR-095` の 表 T-342）の `Project.weekStartDay` は `null` ではなく `S-108`（月曜 ＝ `1`）になった（`BK-4`）。いまの `src/framework/single-html-shell/frame-loop.ts` の `carryOutOwedAction`（`startNewDocument`）は起動の見本（`FR-027`）で置き換えており、表 T-342 の空の文書はまだ組まれていない | 空の文書を組む所が `weekStartDay` を `DEFAULT_CALENDAR_VALUES['S-108']` で埋め、`calendarUid` と `weekStartDay` のほかの `null` を取れる列を `null` にする | 表 T-342 の空の文書を組むコード（`CR-611` のコードの巡）で `BK-4` の 2 つの例外を書く。持ち場 F の仕様だけを読む試験（別の枝の `tests/contract/cr-611-*.test.ts` の `BK-4` の `it.todo`）は読み B で書く | 対応方針・決定仕様: `FR-095` の 表 T-342 の `BK-4`、`_assets/tbl-settings.md` の `S-108`。仕様は着地済み —— `change-request/CR-638-a-new-blank-document-starts-the-week-at-s-108.md` の 9 節 | `実装待ち` | 2026-10-03、`CR-638` の仕様の波が起こした。大きさ S。毎フレーム: いいえ | `JDG-1184`・`CR-611`・`FR-054` | —— 未再現（仕様の後追い） |
