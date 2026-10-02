@@ -83,6 +83,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   if (ctrl && key === KEY.o) return acted({ kind: 'openDocumentFile' })
   if (ctrl && key === KEY.s) return acted({ kind: 'saveDocumentFile' })
   if (ctrl && key === KEY.r) return acted({ kind: 'reopenDocumentFile' })
+  if (plain && key === KEY.n) return acted({ kind: 'startNewDocument' })
 
   if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
   if (plain && (key === KEY.f1 || key === KEY.p)) return CONSUMED_ELSEWHERE
