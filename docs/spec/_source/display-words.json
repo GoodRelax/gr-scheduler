@@ -1070,7 +1070,7 @@
    "rowId": "IC-132",
    "label": {
     "ja": "休日の設定",
-    "en": "Working calendar"
+    "en": "Holiday Settings"
    },
    "hint": {
     "ja": "稼働する曜日・休業日・週の始まりを直す面を開く",
@@ -1150,7 +1150,7 @@
     "en": "Weekday"
    },
    "hint": {
-    "ja": "この曜日を稼働にするか休みにするかを切り替える（当てるまで文書は変わらない）",
+    "ja": "この曜日を稼働にするか休みにするかを切り替える（適用するまで文書は変わらない）",
     "en": "Switch this weekday between working and not working (the document changes only when applied)"
    }
   },
@@ -1315,7 +1315,7 @@
     "en": "Keep both"
    },
    "hint": {
-    "ja": "重複しているタスクを、別のものとして両方とも残す。足した側は取込元へ戻せなくなる",
+    "ja": "重複しているタスクを、別のものとして両方とも残す。追加した側は取込元へ戻せなくなる",
     "en": "Keep the duplicated tasks as separate things, both of them; the added ones can no longer be written back to their master"
    }
   },
@@ -2572,10 +2572,10 @@
    }
   },
   {
-   "name": "Calendar Editor",
+   "name": "Holiday Settings",
    "heading": {
     "ja": "休日の設定",
-    "en": "Working calendar"
+    "en": "Holiday Settings"
    }
   },
   {
@@ -3102,7 +3102,7 @@
   {
    "rowId": "RS-46",
    "text": {
-    "ja": "これ以上深い段には行を足せません",
+    "ja": "これ以上深い段には行を追加できません",
     "en": "A row cannot be added any deeper than this"
    },
    "nextStep": {
@@ -3853,6 +3853,13 @@
    }
   },
   {
+   "rowId": "SK-8",
+   "text": {
+    "ja": "取り消す・閉じる",
+    "en": "Cancel or close"
+   }
+  },
+  {
    "rowId": "SK-9",
    "text": {
     "ja": "文書名を編集する",
@@ -4027,7 +4034,7 @@
   {
    "rowId": "MK-6",
    "text": {
-    "ja": "範囲選択する（Shift を併せると選択に足す）",
+    "ja": "範囲選択する（Shift を併せると選択に追加する）",
     "en": "Marquee-select; hold Shift to add to the Selection"
    },
    "press": {

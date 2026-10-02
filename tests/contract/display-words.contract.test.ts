@@ -2518,8 +2518,18 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       .filter((row) => !/^[—-]$/.test((row.by['割当'] ?? '').trim()))
       .map((row) => row.id)
     expect(keyRowsWithoutEntrance.length).toBeGreaterThan(0)
+    const helpRoster = JSON.parse(
+      readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
+    ) as { readonly entries: readonly { readonly kind: string; readonly table: string; readonly row: string }[] }
+    const keyRowsOnTheirOwn = helpRoster.entries
+      .filter((entry) => entry.kind === 'item' && entry.table === 'T-036')
+      .map((entry) => entry.row)
+    expect(
+      keyRowsOnTheirOwn,
+      'CR-637 (FR-036): the help lists the key rows with no entrance, and those whose entrance item it leaves off',
+    ).toEqual(expect.arrayContaining(keyRowsWithoutEntrance))
     expect((MANUSCRIPT['shortcuts'] ?? []).map((entry) => keyOf('shortcuts', entry)).sort()).toEqual(
-      [...keyRowsWithoutEntrance].sort(),
+      [...keyRowsOnTheirOwn].sort(),
     )
     expect(T220.length).toBeGreaterThan(0)
     expect((MANUSCRIPT['invariants'] ?? []).map((entry) => keyOf('invariants', entry)).sort()).toEqual(

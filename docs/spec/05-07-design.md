@@ -538,7 +538,7 @@ src/
 | UF-106 | `DomScreenSurface` | `properties-panel-drawing.ts` | `non-pure` | `Properties Panel` の欄を、表 T-016 の入力の型ごとの操作子として描く（`U-25`・`FR-006`・`FR-072`）。<br>長い値を折り返して高さを伸ばし、出口の入口を最初の欄の行に置く | — |
 | UF-107 | `DomScreenSurface` | `field-editing.ts` | `non-pure` | 文字入力の欄の編集 —— 焦点を持つ・`Esc` で打つ前へ戻す・`Enter` と欄の外の押しで確定する —— を 表 T-028 の `IN-4`・`IN-6` と `SK-19` に従って扱い、確定した値を欄の行 ID とともに返す（`IF-9`）。<br>欄はプロパティパネルの欄・文書名（`U-27`）・透かし解除の答え（`U-60`）である。<br>入力中かを答え（`IN-5a`）、立っている通知が `Enter` と `Esc` を先に取る（`NT-8`） | — |
 | UF-108 | `DomScreenSurface` | `command-palette-drawing.ts` | `non-pure` | `Command Palette` —— 掴み帯・最小化・群と区切り線 —— を描く（`U-26`・`FR-053`・`GR-19`）。<br>区切り線の太さと間は `S-143` から読む | — |
-| UF-109 | `DomScreenSurface` | `open-modals-drawing.ts` | `non-pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）を、面の種類ごとに描く —— ヘルプ（`FR-036`・表 T-256）・資源の名簿（`FR-099`・表 T-257）・書き出しの形式・取り込みの報告（`FR-023`・`U-62`）・設定の欄・透かし解除の問い（`FR-020`）ほか。<br>名簿の横の送りを `Ctrl` ＋ `Shift` ＋ ホイールで受ける（`RR-3`・`MK-5`） | — |
+| UF-109 | `DomScreenSurface` | `open-modals-drawing.ts` | `non-pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）を、面の種類ごとに描く —— ヘルプ（`FR-036`・表 T-256）・担当者名簿（`FR-099`・表 T-257）・書き出しの形式・取り込みの報告（`FR-023`・`U-62`）・設定の欄・透かし解除の問い（`FR-020`）ほか。<br>担当者名簿の横の送りを `Ctrl` ＋ `Shift` ＋ ホイールで受ける（`RR-3`・`MK-5`） | — |
 | UF-110 | `DomScreenSurface` | `notices-drawing.ts` | `non-pure` | 通知と確認を、表 T-037 の作法で描く（`FR-076`・`NT-1`・`NT-7`・`NT-8`）。<br>確認の一覧と答えを区切り線の上に置く（`CQ-2`・`CQ-4`・表 T-258） | — |
 | UF-111 | `DomScreenSurface` | `dialogue-field-drawing.ts` | `non-pure` | `Dialogue Field` の発話を描き、`Enter` で確定した発話を返す（`FR-066`・`AG-11`）。<br>確定の時刻は `AT-129` の綴りで書く | — |
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |

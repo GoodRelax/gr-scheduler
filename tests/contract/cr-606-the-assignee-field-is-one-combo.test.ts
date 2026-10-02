@@ -33,7 +33,7 @@ import { specTable, unbroken } from './spec-table'
 const AS_5_ONE_LINE_EACH = '⭐ 担当者の欄は、そのタスクに就いている担当者 1 人につき 1 つ出し、その下に空の欄を常に 1 つ出すこと（MUST）'
 const AS_5_ONE_INPUT = '⭐ 1 つの欄は、字を打てて候補の一覧（ドロップダウン）を開ける 1 つの入力とすること（MUST）。'
 const AS_5_NOT_TWO_INPUTS = '⛔ 1 つの欄に、選ぶ器と打つ器を別々に置いてはならない（MUST NOT）'
-const AS_5_FILTER = '⭐ 候補は名簿の担当者とし、打った字を担当者名の一部と比べて、当たる候補だけに絞ること（MUST）。'
+const AS_5_FILTER = '⭐ 候補は担当者名簿の担当者とし、打った字を担当者名の一部と比べて、当たる候補だけに絞ること（MUST）。'
 const AS_5_SV_4 = '比べ方は 表 T-330 の `SV-4` と同じとすること（MUST）'
 const AS_5_ORDER =
   '⭐ 候補は名の昇順に並べ、一覧の頭に置く `IC-123`（昇順）と `IC-124`（降順）で向きを変えさせること（MUST）'

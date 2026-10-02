@@ -235,9 +235,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
   //   CR-340 was written to keep. ⇒ the words tell the scene.
   // ---------------------------------------------------------------------
-  // WHY: re-read 2026-10-03 (CR-635, JDG-1157 Add = tsuika): only the ja next step changed,
-  // from "ashite" to "tsuika shite"; it still offers the shallower row the scene leaves open.
-  'RS-46': 'bac76585cce3368a',
+  // WHY: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
+  // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower row.
+  'RS-46': '54875dcd9728b4a9',
   //
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row DFC-282,
   //   利用者の裁定 「② ただし、具体的に差分を表示してユーザーの確認を受ける」).
