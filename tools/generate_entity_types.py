@@ -1351,7 +1351,17 @@ NOT_STORED_TARGETS = {
     # yet (the table says so), so they join a group only when a later change
     # request gives them one. `dom-screen-surface.ts` reads it where it places
     # the panel (searchPanelBoxOf).
-    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422'],
+    # CR-639: S-475 .. S-481, the default widths of the Delay Diagnostics
+    # Report's table columns DT-1 .. DT-7 (RW-9 of table T-346, SV-18 as for
+    # the search panel). The window is drawn as the search panel's sibling
+    # with its view (FR-134), so the rows join this constant, which
+    # dom-screen-surface.ts already reads -- a constant of their own would
+    # stand unread until the window is drawn, and noUnusedLocals refuses it.
+    # @provisional PND-670 -- the seven values are placeholders until a
+    # touchable sample decides them (JDG-1183).
+    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422',
+                                       'S-475', 'S-476', 'S-477', 'S-478',
+                                       'S-479', 'S-480', 'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
     # points are drawn as. They are drawn in ZO-10 beside the selection frame,
