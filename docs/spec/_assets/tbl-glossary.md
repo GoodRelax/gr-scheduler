@@ -110,8 +110,8 @@
 | U-26 | `Command Palette` | コマンドパレット |
 | U-27 | `Document Title` | 文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-30 | `Help Modal` | ヘルプ |
-| U-31 | `App Header` | （画面に出ない構造名。<br>日本語を当てない） |
-| U-32 | `Schedule Canvas` | （同上） |
+| U-31 | `App Header` | ヘッダー |
+| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない） |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |

@@ -36,7 +36,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- the help also shows the rows of T-255', '下の 表 T-255 の行を示すこと（MUST）'],
-  ['FR-036 (MUST) -- two blocks, and only those two, carry a heading', 'この 2 つの塊にだけ見出しを刷ること（MUST）'],
+  ['FR-036 (MUST) -- every block carries a heading (CR-635)', 'どの塊にも見出しを刷ること（MUST）'],
   ['T-255 (MUST NOT) -- a row whose combination T-036 holds is not listed', '表 T-036 のいずれかの行が同じ組を `割当` に持つ本表の行を、ヘルプに載せてはならない（MUST NOT）'],
   ['T-255 (MUST NOT) -- no row of T-255 is placed in T-036', '本表の行を 表 T-036 に置いてはならない（MUST NOT）'],
   ['FR-036 (MUST) -- blocks go to the columns T-256 names', '塊をどの段に、どの順で置くかは 表 T-256 に従うこと（MUST）'],

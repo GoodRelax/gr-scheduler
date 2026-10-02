@@ -22,12 +22,17 @@ THE LAYOUT IS FR-036'S OWN:
 
   - blocks in the columns and the order table T-256 names them: the
     assignments with no entrance (`basics`) and the browser functions
-    (`browser`) -- the only two blocks with a heading -- then `Row Title Panel`
-    and `Resource Roster` and `Search Panel` (CR-571) and `Delay Diagnostics Report`
-    (CR-617) and `Calendar Editor` (CR-605)
-    and `Properties Panel` (CR-607) in HC-1, `App Header` in HC-2, `Command Palette` in
-    HC-3. Every entry carries the row id of its column, and the count of those
-    rows must equal S-202 (MUST);
+    (`browser`) in HC-1, `App Header` in HC-2, `Row Title Panel` in HC-4,
+    `Command Palette` in HC-3. Every block opens with its heading (CR-635:
+    every block carries one, keyed by the block's name). Every entry carries
+    the row id of its column, and the count of those rows must equal S-202
+    (MUST);
+  - CR-635 (MUST NOT): the rows of table T-109 whose surfaces are only
+    `Search Panel`, `Delay Diagnostics Report`, `Properties Panel`,
+    `Resource Roster`, `Calendar Editor` or `Dialogue Field` (with or without
+    `Help Modal`), and IC-52, IC-53 and IC-75, are left off the help -- the
+    icons any other tool already teaches. SK-8, whose entrance is IC-52,
+    leaves with it;
   - inside a block the order the screen shows, not the print order of table
     T-109;
   - an assignment whose table names an entrance sits on that entrance's item,
@@ -105,19 +110,18 @@ FULL_WIDTH_PLUS = u'\uff0b'
 BASICS = 'basics'
 BROWSER = 'browser'
 ROW_TITLE_PANEL = 'Row Title Panel'
-RESOURCE_ROSTER = 'Resource Roster'
-# CR-571: the search panel's own entrances, the last block of HC-1 (table T-256).
-SEARCH_PANEL = 'Search Panel'
-# CR-617: the delay diagnostics report window's own entrances, after the search panel in HC-1.
-DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
-# CR-605: the calendar surface's own entrances, the last block of HC-1 (table T-256).
-CALENDAR_EDITOR = 'Calendar Editor'
-# CR-607: the settings face's own entrance (the GRS reset), the last block of HC-1.
-PROPERTIES_PANEL = 'Properties Panel'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
-BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, SEARCH_PANEL,
-          DELAY_DIAGNOSTICS_REPORT, CALENDAR_EDITOR, PROPERTIES_PANEL, APP_HEADER, COMMAND_PALETTE)
+BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE)
+# CR-635: the blocks whose heading this script adds; basics and browser open
+# with theirs where they are built. The heading's word is keyed by the block.
+SURFACE_BLOCKS = (ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE)
+# CR-635 (FR-036, MUST NOT): a row of table T-109 whose surfaces are only these
+# (Help Modal beside them or not) is left off the help, and so are the three
+# rows named on their own -- IC-52 stands on Open Chooser too.
+LEFT_OUT_SURFACES = ('Search Panel', 'Delay Diagnostics Report', 'Properties Panel',
+                     'Resource Roster', 'Calendar Editor', 'Dialogue Field')
+LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
 # rows with an entrance and the rows it keeps off the help. A row of that table
@@ -374,11 +378,18 @@ def build():
                     note=rid if rid in NOTED_ROWS else None)
 
     # A row stands in ONE place on the help: the first surface of its cell that
-    # has a block or stands under IC-1. IC-52 closes six surfaces and is listed
-    # once, under the first of them that has a block.
+    # has a block or stands under IC-1. A row CR-635 leaves out has no place,
+    # IC-52 included although it stands on Open Chooser too.
     placed = BLOCKS + OPENED_SURFACES
 
+    def left_out(icon):
+        rest = [one for one in icon['surfaces'] if one != HELP_MODAL]
+        return (icon['rowId'] in LEFT_OUT_ROWS or
+                (len(rest) > 0 and all(one in LEFT_OUT_SURFACES for one in rest)))
+
     def home(icon):
+        if left_out(icon):
+            return None
         found = [one for one in icon['surfaces'] if one in placed]
         return found[0] if found else None
 
@@ -391,13 +402,6 @@ def build():
                            list(ROW_TITLE_PANEL_ORDER)))
     panel = [icon_item(ROW_TITLE_PANEL, None, rid) for rid in ROW_TITLE_PANEL_ORDER]
 
-    roster = [icon_item(RESOURCE_ROSTER, None, rid) for rid in on(RESOURCE_ROSTER)]
-    search = [icon_item(SEARCH_PANEL, None, rid) for rid in on(SEARCH_PANEL)]
-    report = [icon_item(DELAY_DIAGNOSTICS_REPORT, None, rid)
-              for rid in on(DELAY_DIAGNOSTICS_REPORT)]
-    calendar = [icon_item(CALENDAR_EDITOR, None, rid) for rid in on(CALENDAR_EDITOR)]
-    properties = [icon_item(PROPERTIES_PANEL, None, rid) for rid in on(PROPERTIES_PANEL)]
-
     header = []
     for rid in on(APP_HEADER):
         header.append(icon_item(APP_HEADER, None, rid))
@@ -407,7 +411,8 @@ def build():
                               for one in on(surface))
 
     # The palette as the screen draws it: the grab band (the rows with no
-    # group) first, then each group where it first appears, holding its rows
+    # group; CR-635 left IC-53 and IC-75 out, so none today) first, then
+    # each group where it first appears, holding its rows
     # in table order. IC-54 is the group drawn last, as the armed line.
     palette_rows = [i for i in icons if home(i) == COMMAND_PALETTE]
     band = [i for i in palette_rows if i['group'] is None]
@@ -442,11 +447,11 @@ def build():
             palette.append(icon_item(COMMAND_PALETTE, first, rid))
 
     by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
-                RESOURCE_ROSTER: roster, SEARCH_PANEL: search,
-                DELAY_DIAGNOSTICS_REPORT: report,
-                CALENDAR_EDITOR: calendar, PROPERTIES_PANEL: properties,
                 APP_HEADER: header,
                 COMMAND_PALETTE: palette}
+    for block in SURFACE_BLOCKS:
+        by_block[block] = ([item(block, None, REQUIREMENT, block, kind='heading')]
+                           + by_block[block])
     entries = []
     for column, blocks in column_layout():
         for block in blocks:
@@ -457,6 +462,7 @@ def build():
     # The one merged item stands for every row armed with AR-3 (FR-036).
     carried = set([LEGEND_ROW] + milestones)
     carried.update(i['rowId'] for i in icons if i['surfaces'] == [HELP_MODAL])
+    carried.update(i['rowId'] for i in icons if left_out(i))
     for one in entries:
         if one['table'] == ICON_TABLE:
             carried.add(one['row'])
