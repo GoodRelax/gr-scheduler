@@ -1176,7 +1176,7 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-437': number
 } = {
   'S-201': 0.95,
-  'S-202': 3,
+  'S-202': 4,
   'S-203': 0.80,
   'S-204': 0.875,
   'S-334': 0.4375,

@@ -3017,6 +3017,22 @@
    }
   }
  ],
+ "helpLegal": [
+  {
+   "part": "licensedUnder",
+   "text": {
+    "ja": "Apache License 2.0 で提供しています。",
+    "en": "Licensed under the Apache License 2.0."
+   }
+  },
+  {
+   "part": "fullText",
+   "text": {
+    "ja": "ライセンス全文",
+    "en": "Full license text"
+   }
+  }
+ ],
  "helpNotes": [
   {
    "rowId": "IC-54",

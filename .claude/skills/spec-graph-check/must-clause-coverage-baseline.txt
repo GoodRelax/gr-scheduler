@@ -1,4 +1,5 @@
-2161
+2166
+# RAISED 2161 -> 2166 on 2026-10-02 under JDG-1034 (the user approved): CR-622 adds 15 bare MUST/MUST NOT clauses (help in frames, two-line licence); its wave-2 contract tests quote them.
 # LOWERED 2163 -> 2161 on 2026-09-27 under JDG-743 / JDG-520: the CR-572 wave 3 spec-only tests quote two more MUST clauses (stage A, branch stage-a).
 # RAISED 2136 -> 2163 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W5 of cr-organise applied CR-577, CR-582, CR-586 and CR-583; the code lanes L1 and L3 write the tests that quote them.
 # RAISED 2052 -> 2136 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4b of cr-organise applied CR-562, CR-561, CR-563 and CR-589; the code lanes L1 and L4 write the tests that quote them.

@@ -130,6 +130,12 @@ HELP_NOTES = ('IC-54', 'IC-20')
 # setting S-350 names. A note is not a row of any table, so it is keyed by its
 # number, never by a minted row id. ⚠️ These are KEYS, not words.
 HELP_FOOTNOTES = (1,)
+# CR-622: the two words of the licence lines below the help's columns
+# (FR-069): the line naming the licence, and the word that opens the folded
+# full text. No table holds them as rows, so they are HELD HERE, the same move
+# as SEARCH_PANEL_PARTS. The copyright line is not a word: it is NOTICE's own
+# spelling, carried by generate_licence.py. These are KEYS, not words.
+HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -438,6 +444,7 @@ def roster():
         'settings': list(settings_keys()),
         'shortcuts': listed_shortcuts(),
         'helpHeadings': list(HELP_HEADINGS),
+        'helpLegal': list(HELP_LEGAL_PARTS),
         'helpNotes': list(HELP_NOTES),
         'helpFootnotes': list(HELP_FOOTNOTES),
         'browserFunctions': [row[0] for row in
@@ -511,6 +518,7 @@ SHAPE = {
     'settings': ('rowId', ('label',)),
     'shortcuts': ('rowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
+    'helpLegal': ('part', ('text',)),
     'helpNotes': ('rowId', ('text',)),
     'helpFootnotes': ('footnote', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
@@ -619,7 +627,8 @@ def build(doc, keys_by_row):
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
-                    'shortcuts', 'helpHeadings', 'helpNotes', 'helpFootnotes',
+                    'shortcuts', 'helpHeadings', 'helpLegal', 'helpNotes',
+                    'helpFootnotes',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
