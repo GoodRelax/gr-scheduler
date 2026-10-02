@@ -767,7 +767,7 @@
     "Properties Panel",
     "Search Panel",
     "Delay Diagnostics Report",
-    "Calendar Editor",
+    "Holiday Settings",
     "Dialogue Field"
    ],
    "group": null,
@@ -1080,7 +1080,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当者の名簿を表示する",
+   "entryTo": "担当者名簿を表示する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1091,7 +1091,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "暦の編集面を開く（稼働する曜日・例外日・週の始まり）",
+   "entryTo": "休日の設定を開く（稼働する曜日・例外日・週の始まり）",
    "authority": "`FR-088`",
    "arms": null,
    "armsShape": null
@@ -1165,7 +1165,7 @@
   {
    "rowId": "IC-133",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "その曜日を稼働日にするか休みにするかを、押すたびに切り替える",
@@ -1176,7 +1176,7 @@
   {
    "rowId": "IC-134",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "週の始まりの曜日を選ぶ",
@@ -1187,7 +1187,7 @@
   {
    "rowId": "IC-135",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "例外日を 1 行加える",
@@ -1198,7 +1198,7 @@
   {
    "rowId": "IC-136",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "その行の例外日を除く",
@@ -1209,7 +1209,7 @@
   {
    "rowId": "IC-137",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "例外日が休みか稼働かを示し、同じ入口で反対にする",
@@ -1220,7 +1220,7 @@
   {
    "rowId": "IC-138",
    "surfaces": [
-    "Calendar Editor"
+    "Holiday Settings"
    ],
    "group": null,
    "entryTo": "下書きを文書へ当てる（表 T-108 の `CM-39` を 1 回）",

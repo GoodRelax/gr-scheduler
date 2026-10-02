@@ -45,6 +45,11 @@ REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
 # manuscript and this reads only the row ids out of it, so the two cannot
 # disagree about which rows exist. ⚠️ `npm run gen` runs them in that order.
 REL_PROPERTY_ITEMS = 'docs/spec/_assets/tbl-property-items.md'
+# ⭐ The same one-way read, for CR-637: `tools/generate_help_roster.py` decides
+# which rows of table T-036 the help lists as an item of their own (an
+# assignment whose entrance item is left off the help joins them, FR-036), and
+# this reads only those row ids. ⚠️ `npm run gen` runs it first (helproster).
+REL_HELP_ROSTER = 'src/adapter/screen-renderer/help-roster.json'
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 REL_DESIGN = 'docs/spec/05-07-design.md'
 REL_OUT = 'src/adapter/screen-renderer/display-words.json'
@@ -115,6 +120,8 @@ SETTINGS_TABLE = 'T-104'
 # row with no assignment is not shown, so neither needs a word here (CR-377).
 # Tables T-023a, T-023c and T-023d left the help with that change and their
 # sections went with it.
+# CR-637: a row whose entrance item the help leaves off (SK-8, entrance IC-52)
+# is listed among the rows with no entrance, so it needs a word here too.
 SHORTCUT_TABLE = 'T-036'
 SHORTCUT_KEY_HEADING = u'割当'
 SHORTCUT_ENTRANCE_HEADING = u'入口'
@@ -431,15 +438,21 @@ def colour_spellings():
 def listed_shortcuts():
     """The rows of table T-036 FR-036 lists as their own item, in print order.
 
+    Those are the rows with no entrance and an assignment, and (CR-637) the
+    rows the help roster lists because their entrance item is left off.
+
     @purity semi-pure-b
     """
+    roster = json.load(io.open(path_of(REL_HELP_ROSTER), encoding='utf-8'))
+    on_help = set(entry['row'] for entry in roster['entries']
+                  if entry['kind'] == 'item' and entry['table'] == SHORTCUT_TABLE)
     found = []
     for row in spec_tables.read(REL_REQUIREMENTS, SHORTCUT_TABLE):
         if not SHORTCUT_ROW.match('| %s |' % row.id):
             continue
         keys = row.cell(SHORTCUT_KEY_HEADING).strip()
         entrance = row.cell(SHORTCUT_ENTRANCE_HEADING).strip()
-        if entrance == EM_DASH and keys not in ('', EM_DASH):
+        if (entrance == EM_DASH and keys not in ('', EM_DASH)) or row.id in on_help:
             found.append(row.id)
     if not found:
         raise SystemExit('%s: table %s lists no assignment without an entrance'

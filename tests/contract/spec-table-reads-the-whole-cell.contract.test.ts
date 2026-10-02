@@ -94,7 +94,7 @@ describe('bareAll -- every value a cell states', () => {
     expect(surfaces).toHaveLength(7)
     expect(surfaces[0]).toBe('Help Modal')
     expect(surfaces.at(-2)).toBe('Search Panel')
-    expect(surfaces.at(-1)).toBe('Calendar Editor')
+    expect(surfaces.at(-1)).toBe('Holiday Settings')
   })
 
   it('gives both purities 表 T-075 UF-41 states', () => {

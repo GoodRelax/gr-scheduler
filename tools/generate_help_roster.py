@@ -29,10 +29,11 @@ THE LAYOUT IS FR-036'S OWN:
     (MUST);
   - CR-635 (MUST NOT): the rows of table T-109 whose surfaces are only
     `Search Panel`, `Delay Diagnostics Report`, `Properties Panel`,
-    `Resource Roster`, `Calendar Editor` or `Dialogue Field` (with or without
+    `Resource Roster`, `Holiday Settings` or `Dialogue Field` (with or without
     `Help Modal`), and IC-52, IC-53 and IC-75, are left off the help -- the
-    icons any other tool already teaches. SK-8, whose entrance is IC-52,
-    leaves with it;
+    icons any other tool already teaches. CR-637 (MUST): an assignment
+    whose entrance item is left off sits in `basics` instead (SK-8, whose
+    entrance is IC-52);
   - inside a block the order the screen shows, not the print order of table
     T-109;
   - an assignment whose table names an entrance sits on that entrance's item,
@@ -120,7 +121,7 @@ SURFACE_BLOCKS = (ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE)
 # (Help Modal beside them or not) is left off the help, and so are the three
 # rows named on their own -- IC-52 stands on Open Chooser too.
 LEFT_OUT_SURFACES = ('Search Panel', 'Delay Diagnostics Report', 'Properties Panel',
-                     'Resource Roster', 'Calendar Editor', 'Dialogue Field')
+                     'Resource Roster', 'Holiday Settings', 'Dialogue Field')
 LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
@@ -318,6 +319,17 @@ def build():
     icons = json.load(io.open(ROSTER, encoding='utf-8'))['icons']
     by_id = dict((icon['rowId'], icon) for icon in icons)
 
+    def left_out(icon):
+        rest = [one for one in icon['surfaces'] if one != HELP_MODAL]
+        return (icon['rowId'] in LEFT_OUT_ROWS or
+                (len(rest) > 0 and all(one in LEFT_OUT_SURFACES for one in rest)))
+
+    # CR-637 (FR-036, MUST): an assignment whose entrance item is left off the
+    # help sits in the block of the assignments with no entrance. An unknown
+    # entrance is not 'left off' -- it still stops the run below.
+    def off_the_help(drives):
+        return all(one in by_id and left_out(by_id[one]) for one in drives)
+
     keys_on = {}
     press_on = {}
     held_chords = set()
@@ -329,7 +341,7 @@ def build():
         if keys is None:
             continue
         held_chords |= chords_of(keys)
-        if not drives:
+        if not drives or off_the_help(drives):
             basics.append(item(BASICS, None, SHORTCUT_TABLE, row.id, keys=keys))
             continue
         for icon in drives:
@@ -343,14 +355,14 @@ def build():
 
     for row in spec_tables.read(REL_REQUIREMENTS, ASSIGNMENT_TABLE):
         drives = entrances_of(row)
-        if drives:
+        if drives and not off_the_help(drives):
             for icon in drives:
                 if icon not in by_id or icon in press_on:
                     stop('%s of table %s names %s, which is unknown or already '
                          'carries a pointer assignment'
                          % (row.id, ASSIGNMENT_TABLE, icon))
                 press_on[icon] = row.id
-        elif row.id in SHOWN_ASSIGNMENTS:
+        elif drives or row.id in SHOWN_ASSIGNMENTS:
             basics.append(item(BASICS, None, ASSIGNMENT_TABLE, row.id, press=row.id))
         elif row.id not in UNLISTED_ASSIGNMENTS:
             stop('%s of table %s is neither shown nor kept off the help by '
@@ -381,11 +393,6 @@ def build():
     # has a block or stands under IC-1. A row CR-635 leaves out has no place,
     # IC-52 included although it stands on Open Chooser too.
     placed = BLOCKS + OPENED_SURFACES
-
-    def left_out(icon):
-        rest = [one for one in icon['surfaces'] if one != HELP_MODAL]
-        return (icon['rowId'] in LEFT_OUT_ROWS or
-                (len(rest) > 0 and all(one in LEFT_OUT_SURFACES for one in rest)))
 
     def home(icon):
         if left_out(icon):

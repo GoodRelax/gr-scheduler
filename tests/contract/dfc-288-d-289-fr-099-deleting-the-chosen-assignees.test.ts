@@ -70,7 +70,7 @@
 //                 担当者をまとめて消す」ことは、その全員をまとめて選ぶ操作と、選んだ
 //                 担当者を消す操作の 2 手で果たすこと（MUST）**」 -- why there is
 //                 exactly one deleting entrance and it is `IC-66`.
-//   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当者の名簿を表示する」,
+//   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当者名簿を表示する」,
 //                 `IC-66` 「`Resource Roster` | — | 選んだ担当者を消す |
 //                 `FR-099`（表 T-108 の `CM-42`）」, `IC-68` 「選ばれていないことを
 //                 示し、同じ入口で選ぶ」, `IC-67` 「選ばれていることを示し、同じ入口
@@ -558,7 +558,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
   })
 
   it('the roster opens at all', async () => {
-    // ⛔ THE ROAD EVERY CASE BELOW WALKS. `IC-62` 「担当者の名簿を表示する」.
+    // ⛔ THE ROAD EVERY CASE BELOW WALKS. `IC-62` 「担当者名簿を表示する」.
     const built = stage()
     built.take('IC-62')
 

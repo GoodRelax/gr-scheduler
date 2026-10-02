@@ -1197,9 +1197,23 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
+  readonly 'S-475': number
+  readonly 'S-476': number
+  readonly 'S-477': number
+  readonly 'S-478': number
+  readonly 'S-479': number
+  readonly 'S-480': number
+  readonly 'S-481': number
 } = {
   'S-421': 0.5,
   'S-422': 0.5,
+  'S-475': 150,
+  'S-476': 190,
+  'S-477': 110,
+  'S-478': 250,
+  'S-479': 220,
+  'S-480': 220,
+  'S-481': 380,
 }
 
 // see T-333, FR-151
