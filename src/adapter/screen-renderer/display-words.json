@@ -15,7 +15,7 @@
   {
    "rowId": "IC-98",
    "label": {
-    "ja": "新しく始める",
+    "ja": "新規作成",
     "en": "New"
    },
    "hint": {
@@ -70,7 +70,7 @@
   {
    "rowId": "IC-8",
    "label": {
-    "ja": "予定バー",
+    "ja": "予定の表示切替",
     "en": "Plan Bar"
    },
    "hint": {
@@ -81,7 +81,7 @@
   {
    "rowId": "IC-9",
    "label": {
-    "ja": "実績バー",
+    "ja": "実績の表示切替",
     "en": "Actual Bar"
    },
    "hint": {
@@ -675,7 +675,7 @@
   {
    "rowId": "IC-101",
    "label": {
-    "ja": "積む向き",
+    "ja": "日程が重複するタスクを積む向き",
     "en": "Stack direction"
    },
    "hint": {
@@ -862,11 +862,11 @@
   {
    "rowId": "IC-91",
    "label": {
-    "ja": "配下に足す",
+    "ja": "配下に追加",
     "en": "Add Below"
    },
    "hint": {
-    "ja": "この行の配下に行を 1 つ足す。名前はその場で打つ",
+    "ja": "この行の配下に行を 1 つ追加する。名前はその場で打つ",
     "en": "Add one row below this one, and type its name there"
    }
   },
@@ -1049,7 +1049,7 @@
   {
    "rowId": "IC-62",
    "label": {
-    "ja": "名簿",
+    "ja": "担当者名簿",
     "en": "Resource Roster"
    },
    "hint": {
@@ -1060,7 +1060,7 @@
   {
    "rowId": "IC-132",
    "label": {
-    "ja": "暦",
+    "ja": "休日の設定",
     "en": "Working calendar"
    },
    "hint": {
@@ -1104,11 +1104,11 @@
   {
    "rowId": "IC-66",
    "label": {
-    "ja": "消す",
+    "ja": "削除",
     "en": "Delete"
    },
    "hint": {
-    "ja": "選んだ担当者を消す。割当が解かれるタスクの名前を問いが示す",
+    "ja": "選んだ担当者を削除する。割当が解かれるタスクの名前を問いが示す",
     "en": "Delete the selected resources; the question names the tasks whose Assignment would be released"
    }
   },
@@ -1159,22 +1159,22 @@
   {
    "rowId": "IC-135",
    "label": {
-    "ja": "足す",
+    "ja": "追加",
     "en": "Add"
    },
    "hint": {
-    "ja": "例外日の行を足す",
+    "ja": "例外日の行を追加する",
     "en": "Add an exception day row"
    }
   },
   {
    "rowId": "IC-136",
    "label": {
-    "ja": "消す",
+    "ja": "削除",
     "en": "Delete"
    },
    "hint": {
-    "ja": "この例外日の行を消す（当てるまで文書は変わらない）",
+    "ja": "この例外日の行を削除する（適用するまで文書は変わらない）",
     "en": "Delete this exception day row (the document changes only when applied)"
    }
   },
@@ -1192,11 +1192,11 @@
   {
    "rowId": "IC-138",
    "label": {
-    "ja": "当てる",
+    "ja": "適用",
     "en": "Apply"
    },
    "hint": {
-    "ja": "下書きを文書へ当てる。取り消せる",
+    "ja": "下書きを文書へ適用する。取り消せる",
     "en": "Apply the draft to the document; it can be undone"
    }
   },
@@ -1218,7 +1218,7 @@
     "en": "Merge"
    },
    "hint": {
-    "ja": "読んだ内容を現在の文書へ足す",
+    "ja": "読んだ内容を現在の文書へ追加する",
     "en": "Add what was read to the current document"
    }
   },
@@ -1269,18 +1269,18 @@
   {
    "rowId": "IC-93",
    "label": {
-    "ja": "最も浅い段に足す",
+    "ja": "最も浅い段に追加",
     "en": "Add Top Row"
    },
    "hint": {
-    "ja": "最も浅い段に行を 1 つ足す。名前はその場で打つ",
+    "ja": "最も浅い段に行を 1 つ追加する。名前はその場で打つ",
     "en": "Add one row at the shallowest level, and type its name there"
    }
   },
   {
    "rowId": "IC-76",
    "label": {
-    "ja": "操作の記録",
+    "ja": "デバッグ用ログ取得の開始/停止",
     "en": "Interaction Log"
    },
    "hint": {
@@ -2898,7 +2898,7 @@
   {
    "name": "Resource Roster",
    "heading": {
-    "ja": "名簿",
+    "ja": "担当者名簿",
     "en": "Resource Roster"
    }
   },
@@ -2940,7 +2940,7 @@
   {
    "name": "Calendar Editor",
    "heading": {
-    "ja": "暦",
+    "ja": "休日の設定",
     "en": "Working calendar"
    }
   },
@@ -3095,6 +3095,27 @@
    "text": {
     "ja": "ブラウザの機能（GRS の機能ではない）",
     "en": "Browser functions (not GRS)"
+   }
+  },
+  {
+   "block": "App Header",
+   "text": {
+    "ja": "ヘッダー",
+    "en": "App Header"
+   }
+  },
+  {
+   "block": "Row Title Panel",
+   "text": {
+    "ja": "行見出しパネル",
+    "en": "Row Title Panel"
+   }
+  },
+  {
+   "block": "Command Palette",
+   "text": {
+    "ja": "コマンドパレット",
+    "en": "Command Palette"
    }
   }
  ],
@@ -3603,7 +3624,7 @@
     "en": "A row cannot be added any deeper than this"
    },
    "nextStep": {
-    "ja": "もっと浅い行に足してください",
+    "ja": "もっと浅い行に追加してください",
     "en": "Add it to a shallower row"
    }
   },
