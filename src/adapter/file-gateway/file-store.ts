@@ -63,6 +63,9 @@ export interface FileStore {
   // see FR-060, T-290
   adoptFileReadToOpen(): void
 
+  // see FR-095
+  forgetOpenedFile(): void
+
   readOpenedFileState(): Promise<OpenedFileState>
 
   restoreOpenedFilePermission(): Promise<OpenedFileState>

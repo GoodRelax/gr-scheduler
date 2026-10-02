@@ -91,7 +91,8 @@ export type DocumentFileSaving =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['grsJson', 'mspdi']
+// see SX-1, SX-2, FR-060
+const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['grsJson']
 
 /** @purity pure */
 function isRoundTripForm(form: SaveFileForm): boolean {
@@ -230,7 +231,6 @@ export async function saveDocumentFile(
       bytes,
       suggestedFileName: request.suggestedFileName,
       extension: request.extension,
-      // DEVIATION: spec says only GRS JSON round-trips (FR-060, SK-11); here mspdi also does (DFC-720)
       shouldBecomeOpenedFile: isRoundTripForm(request.form),
       // WHY: asked by the store once the destination is open, so it is read only once.
       askToWriteOver: (destination) => askToWriteOver(request, destination),
@@ -243,7 +243,7 @@ export async function saveDocumentFile(
       ok: false,
       fault: fault(
         'notAnOverwriteTarget',
-        'table T-024 gives this form no import direction, so it cannot stand as the file FR-060 writes over',
+        'table T-340 counts only a GRS JSON write as a save, so no other form stands as the file FR-060 writes over',
       ),
     }
   }
