@@ -4281,38 +4281,38 @@
  ],
  "dualCursorReadout": [
   {
-   "line": "a",
+   "line": "left",
    "text": {
-    "ja": "カーソルAの日付: {date}",
-    "en": "Cursor A: {date}"
+    "ja": "左: {date}",
+    "en": "Left: {date}"
    }
   },
   {
-   "line": "b",
+   "line": "right",
    "text": {
-    "ja": "カーソルBの日付: {date}",
-    "en": "Cursor B: {date}"
+    "ja": "右: {date}",
+    "en": "Right: {date}"
    }
   },
   {
    "line": "span",
    "text": {
-    "ja": "カーソルA-Bの期間: {span}",
-    "en": "A-B: {span}"
+    "ja": "間隔: {span}",
+    "en": "Interval: {span}"
    }
   },
   {
    "line": "days",
    "text": {
-    "ja": "{y}/{m}/{d} ({n} days)",
-    "en": "{y}/{m}/{d} ({n} days)"
+    "ja": "{y}年 {m}か月 {d}日 ({n} days)",
+    "en": "{y}y {m}m {d}d ({n} days)"
    }
   },
   {
    "line": "oneDay",
    "text": {
-    "ja": "{y}/{m}/{d} ({n} day)",
-    "en": "{y}/{m}/{d} ({n} day)"
+    "ja": "{y}年 {m}か月 {d}日 ({n} day)",
+    "en": "{y}y {m}m {d}d ({n} day)"
    }
   }
  ],

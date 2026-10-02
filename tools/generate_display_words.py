@@ -246,11 +246,11 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 SCALE_ECHO_ENDS = ('max', 'min')
 
 # The lines DC-3 of table T-029a (MUST) shows beside the pointer while the
-# Dual Cursor mode is on: the date of cursor A (date1), of cursor B (date2), and
-# the span between them, whose value is `days`, or `oneDay` when the count is 1.
-# HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 states the lines in prose
-# and no table holds them as rows (CR-550). These are KEYS, not words.
-DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
+# Dual Cursor mode is on: the earlier date (left), the later date (right), and
+# the interval between them, whose value is `days`, or `oneDay` when the count
+# is 1. HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 states the lines in
+# prose and no table holds them as rows (CR-550, CR-626). KEYS, not words.
+DUAL_CURSOR_READOUT_LINES = ('left', 'right', 'span', 'days', 'oneDay')
 
 # The parts of the colour field of the properties panel (CV-9 of table
 # T-017b, CR-548): the entrance to a custom colour, the two theme swatches and
