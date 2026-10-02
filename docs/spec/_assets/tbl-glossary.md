@@ -114,7 +114,7 @@
 | U-32 | `Schedule Canvas` | （同上） |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
-| U-35 | `Header Commands` / `Branding` | （同上） |
+| U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |
 | U-36 | `Agent API` | **`Agent API`**（日英とも同じ語を使い、訳語を当てない） |
 | U-37 | `WatermarkUnlockPassword` | **透かし解除パスワード**。<br>**「合言葉」と呼んではならない（MUST NOT）** —— 何のための語かが伝わらない。<br>既定値と SHA-256 は `tbl-settings.md` の表 T-207 が持つ |
 | U-38 | `ArmedShape` | **構え**。<br>直訳ではない。<br>例外は表 T-105。<br>パレットで選んでいて「次に引いたら作られる / 結ばれるもの」。<br>全数は表 T-023b が持つ。<br>**「選択」と呼んではならない（MUST NOT）** —— 選択（`Selection`）は既にある対象を選ぶことであり、別の状態である |

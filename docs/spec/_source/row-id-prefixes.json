@@ -123,6 +123,14 @@
    }
   },
   {
+   "prefix": "BR",
+   "words": "Branding",
+   "owner": "spec",
+   "means": {
+    "ja": "`App Header` の左端の `Branding`（製品の略称の字）の置き方・縁・押したときの行"
+   }
+  },
+  {
    "prefix": "BT",
    "words": "",
    "owner": "spec",

@@ -211,6 +211,12 @@ CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 # ⚠️ These are KEYS, not words.
 FILE_STATUS = ('neverSaved',)
 
+# CR-628: the App Header's Branding (U-35, table T-349 of FR-051) prints the
+# product's short name (BR-1); the word itself is the user's, in the
+# manuscript. HELD HERE, the same move as FILE_STATUS: BR-1 states it in prose
+# and no table holds it as a row. KEYS, not words.
+BRANDING_PARTS = ('logo',)
+
 # The name a row settles on when it has none of its own. FR-032 (MUST) has a
 # row whose derivation source is being deleted settle its name before the Task
 # goes, and (MUST NOT) forbids refusing the deletion because that source never
@@ -500,6 +506,7 @@ def roster():
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
         'fileStatus': list(FILE_STATUS),
+        'branding': list(BRANDING_PARTS),
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
         'colourNames': colour_spellings(),
@@ -564,6 +571,7 @@ SHAPE = {
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
     'fileStatus': ('state', ('text',)),
+    'branding': ('part', ('text',)),
     'defaultNames': ('use', ('text',)),
     # ⛔ TWO WORDS PER ROW. `text` is the 動作 column's -- what the gesture
     # does -- and `press` is the gesture itself, which FR-036 (MUST) puts in
@@ -667,7 +675,8 @@ def build(doc, keys_by_row):
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
-                    'confirmationMarks', 'fileStatus', 'defaultNames',
+                    'confirmationMarks', 'fileStatus', 'branding',
+                    'defaultNames',
                     'exportFormats', 'openChooser', 'assignments', 'arms',
                     'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'rowMinHeightField',
