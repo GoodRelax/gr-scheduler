@@ -26,7 +26,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "文書を新しく始める（開いている文書を捨て、表 T-034 の `BT-4` と同じ状態へ戻す）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
+   "entryTo": "文書を新しく始める（開いている文書を捨て、`01-04-requirements.md` の 表 T-342 の空の文書にする）。<br>⚠️ 捨てる前の確認は `FR-095` が表 T-024a の `OP-4` に揃えている",
    "authority": "`FR-095`",
    "arms": null,
    "armsShape": null
@@ -76,28 +76,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-5",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "履歴",
-   "entryTo": "編集を取り消す",
-   "authority": "`FR-031`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-6",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "履歴",
-   "entryTo": "取り消した編集をやり直す",
-   "authority": "`FR-031`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-8",
    "surfaces": [
     "App Header"
@@ -131,24 +109,24 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-117",
+   "rowId": "IC-104",
    "surfaces": [
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
-   "authority": "`FR-151`",
+   "entryTo": "表示の倍率を下げる（`S-234`）",
+   "authority": "`FR-039`",
    "arms": null,
    "armsShape": null
   },
   {
-   "rowId": "IC-107",
+   "rowId": "IC-105",
    "surfaces": [
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
-   "authority": "`FR-130`",
+   "entryTo": "表示の倍率を上げる（`S-234`）",
+   "authority": "`FR-039`",
    "arms": null,
    "armsShape": null
   },
@@ -208,28 +186,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-104",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "表示",
-   "entryTo": "表示の倍率を下げる（`S-234`）",
-   "authority": "`FR-039`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-105",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "表示",
-   "entryTo": "表示の倍率を上げる（`S-234`）",
-   "authority": "`FR-039`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-100",
    "surfaces": [
     "App Header"
@@ -252,13 +208,46 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-17",
+   "rowId": "IC-5",
    "surfaces": [
     "App Header"
    ],
-   "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
-   "authority": "`FR-072`",
+   "group": "履歴",
+   "entryTo": "編集を取り消す",
+   "authority": "`FR-031`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-6",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "履歴",
+   "entryTo": "取り消した編集をやり直す",
+   "authority": "`FR-031`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-117",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "調べる",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-107",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "調べる",
+   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
+   "authority": "`FR-130`",
    "arms": null,
    "armsShape": null
   },
@@ -292,6 +281,17 @@
    "group": "AI",
    "entryTo": "AI との対話欄を表示する・非表示にする",
    "authority": "`FR-066`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-17",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "補助",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
+   "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
   },
@@ -766,10 +766,12 @@
     "Open Chooser",
     "Properties Panel",
     "Search Panel",
-    "Calendar Editor"
+    "Delay Diagnostics Report",
+    "Calendar Editor",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルと検索パネルを閉じる",
+   "entryTo": "開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -826,39 +828,6 @@
    "group": null,
    "entryTo": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである",
    "authority": "`FR-038`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-129",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "ウインドウを最小化し、同じ入口で戻す（`S-435`）。<br>⭐ 図形は `IC-75` と同じである",
-   "authority": "`FR-036` の 表 T-335",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-130",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "ウインドウを最大化する（`S-435`）",
-   "authority": "`FR-036` の 表 T-335",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-131",
-   "surfaces": [
-    "Help Modal"
-   ],
-   "group": null,
-   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
-   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
@@ -973,24 +942,44 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-120",
+   "rowId": "IC-129",
    "surfaces": [
-    "Search Panel"
+    "Help Modal",
+    "Search Panel",
+    "Delay Diagnostics Report",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである",
-   "authority": "`FR-151`",
+   "entryTo": "ウインドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
   {
-   "rowId": "IC-121",
+   "rowId": "IC-130",
    "surfaces": [
-    "Search Panel"
+    "Help Modal",
+    "Search Panel",
+    "Delay Diagnostics Report",
+    "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」",
-   "authority": "`FR-151`",
+   "entryTo": "ウインドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`）",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-131",
+   "surfaces": [
+    "Help Modal",
+    "Search Panel",
+    "Delay Diagnostics Report",
+    "Dialogue Field"
+   ],
+   "group": null,
+   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
@@ -1054,11 +1043,34 @@
   {
    "rowId": "IC-127",
    "surfaces": [
-    "Search Panel"
+    "Search Panel",
+    "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "パネルの表と入力欄の字の大きさの段を変える（`S-429`、4 値排他）。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "entryTo": "表と入力欄の字の大きさの段（`S-429`、4 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
    "authority": "`FR-151` の 表 T-330 の `SV-16`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-140",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` の写しと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
+   "authority": "`FR-134`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-108",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "表と凡例を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）",
+   "authority": "`FR-134`",
    "arms": null,
    "armsShape": null
   },

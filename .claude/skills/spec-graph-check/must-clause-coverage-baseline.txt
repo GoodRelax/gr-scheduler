@@ -1,4 +1,11 @@
-2161
+2238
+# RAISED 2231 -> 2238 on 2026-10-02 under JDG-1034 (the user approved): CR-629 adds 7 bare MUST clauses (search panel column resize, GR-28, SV-18, a jump keeps the panel); its wave-1/2 tests quote them.
+# RAISED 2214 -> 2231 on 2026-10-02 under JDG-1034 (the user approved): CR-628 adds 17 bare MUST clauses (header logo, table T-349 BR, bold project name); its code-wave tests quote them.
+# RAISED 2212 -> 2214 on 2026-10-02 under JDG-1034 (the user approved): CR-626 adds 2 bare MUST clauses (dual cursor reads left/right by date, y/m/d written even when 0); its code-wave tests quote them.
+# RAISED 2199 -> 2212 on 2026-10-02 under JDG-1034 (the user approved): CR-625 adds 13 bare MUST clauses (pointer tip below the cursor, flips at the edges); its wave-2 tests quote them.
+# RAISED 2177 -> 2199 on 2026-10-02 under JDG-1034 (the user approved): CR-624 adds 22 bare MUST clauses (bar tooltip lines, table T-348); its code-round contract tests quote them.
+# RAISED 2166 -> 2177 on 2026-10-02 under JDG-1034 (the user approved): CR-623 adds 11 bare MUST clauses (open chooser lists its choices, a copy is told); its wave-1/2 tests quote them.
+# RAISED 2161 -> 2166 on 2026-10-02 under JDG-1034 (the user approved): CR-622 adds 15 bare MUST/MUST NOT clauses (help in frames, two-line licence); its wave-2 contract tests quote them.
 # LOWERED 2163 -> 2161 on 2026-09-27 under JDG-743 / JDG-520: the CR-572 wave 3 spec-only tests quote two more MUST clauses (stage A, branch stage-a).
 # RAISED 2136 -> 2163 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W5 of cr-organise applied CR-577, CR-582, CR-586 and CR-583; the code lanes L1 and L3 write the tests that quote them.
 # RAISED 2052 -> 2136 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4b of cr-organise applied CR-562, CR-561, CR-563 and CR-589; the code lanes L1 and L4 write the tests that quote them.

@@ -68,28 +68,6 @@
    }
   },
   {
-   "rowId": "IC-5",
-   "label": {
-    "ja": "取り消す",
-    "en": "Undo"
-   },
-   "hint": {
-    "ja": "直前の編集を取り消す",
-    "en": "Undo the last edit"
-   }
-  },
-  {
-   "rowId": "IC-6",
-   "label": {
-    "ja": "やり直す",
-    "en": "Redo"
-   },
-   "hint": {
-    "ja": "取り消した編集をやり直す",
-    "en": "Redo the edit that was undone"
-   }
-  },
-  {
    "rowId": "IC-8",
    "label": {
     "ja": "予定バー",
@@ -123,25 +101,25 @@
    }
   },
   {
-   "rowId": "IC-117",
+   "rowId": "IC-104",
    "label": {
-    "ja": "検索",
-    "en": "Search"
+    "ja": "小さく表示",
+    "en": "Smaller"
    },
    "hint": {
-    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
-    "en": "Open the search panel; if it is open, return to its search box"
+    "ja": "日程表の図形と字を 1 段小さくする",
+    "en": "Make the chart's shapes and text one step smaller"
    }
   },
   {
-   "rowId": "IC-107",
+   "rowId": "IC-105",
    "label": {
-    "ja": "遅延診断",
-    "en": "Delay Diagnostics"
+    "ja": "大きく表示",
+    "en": "Larger"
    },
    "hint": {
-    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
-    "en": "Run the Delay Diagnostics; press again to end its display"
+    "ja": "日程表の図形と字を 1 段大きくする",
+    "en": "Make the chart's shapes and text one step larger"
    }
   },
   {
@@ -200,28 +178,6 @@
    }
   },
   {
-   "rowId": "IC-104",
-   "label": {
-    "ja": "小さく表示",
-    "en": "Smaller"
-   },
-   "hint": {
-    "ja": "日程表の図形と字を 1 段小さくする",
-    "en": "Make the chart's shapes and text one step smaller"
-   }
-  },
-  {
-   "rowId": "IC-105",
-   "label": {
-    "ja": "大きく表示",
-    "en": "Larger"
-   },
-   "hint": {
-    "ja": "日程表の図形と字を 1 段大きくする",
-    "en": "Make the chart's shapes and text one step larger"
-   }
-  },
-  {
    "rowId": "IC-100",
    "label": {
     "ja": "モノクロ",
@@ -244,14 +200,47 @@
    }
   },
   {
-   "rowId": "IC-17",
+   "rowId": "IC-5",
    "label": {
-    "ja": "文書の設定",
-    "en": "Document settings"
+    "ja": "取り消す",
+    "en": "Undo"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
+    "ja": "直前の編集を取り消す",
+    "en": "Undo the last edit"
+   }
+  },
+  {
+   "rowId": "IC-6",
+   "label": {
+    "ja": "やり直す",
+    "en": "Redo"
+   },
+   "hint": {
+    "ja": "取り消した編集をやり直す",
+    "en": "Redo the edit that was undone"
+   }
+  },
+  {
+   "rowId": "IC-117",
+   "label": {
+    "ja": "検索",
+    "en": "Search"
+   },
+   "hint": {
+    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
+    "en": "Open the search panel; if it is open, return to its search box"
+   }
+  },
+  {
+   "rowId": "IC-107",
+   "label": {
+    "ja": "遅延診断",
+    "en": "Delay Diagnostics"
+   },
+   "hint": {
+    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
+    "en": "Run the Delay Diagnostics; press again to end its display"
    }
   },
   {
@@ -285,6 +274,17 @@
    "hint": {
     "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
     "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
+   }
+  },
+  {
+   "rowId": "IC-17",
+   "label": {
+    "ja": "文書の設定",
+    "en": "Document settings"
+   },
+   "hint": {
+    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
    }
   },
   {
@@ -816,39 +816,6 @@
    }
   },
   {
-   "rowId": "IC-129",
-   "label": {
-    "ja": "最小化",
-    "en": "Minimise"
-   },
-   "hint": {
-    "ja": "ウインドウを最小化する。もう一度押すと戻る",
-    "en": "Minimise the window; press again to restore"
-   }
-  },
-  {
-   "rowId": "IC-130",
-   "label": {
-    "ja": "最大化",
-    "en": "Maximise"
-   },
-   "hint": {
-    "ja": "ウインドウを最大化する",
-    "en": "Maximise the window"
-   }
-  },
-  {
-   "rowId": "IC-131",
-   "label": {
-    "ja": "元のサイズに戻す",
-    "en": "Restore"
-   },
-   "hint": {
-    "ja": "最大化したウインドウを元のサイズに戻す",
-    "en": "Restore the window to its size"
-   }
-  },
-  {
    "rowId": "IC-58",
    "label": {
     "ja": "すべて開く",
@@ -959,25 +926,36 @@
    }
   },
   {
-   "rowId": "IC-120",
+   "rowId": "IC-129",
    "label": {
     "ja": "最小化",
     "en": "Minimise"
    },
    "hint": {
-    "ja": "検索パネルを最小化する。もう一度押すと戻る",
-    "en": "Minimise the search panel; press again to restore it"
+    "ja": "ウインドウを最小化する。もう一度押すと戻る",
+    "en": "Minimise the window; press again to restore"
    }
   },
   {
-   "rowId": "IC-121",
+   "rowId": "IC-130",
    "label": {
     "ja": "最大化",
     "en": "Maximise"
    },
    "hint": {
-    "ja": "検索パネルを最大化する。もう一度押すと元のサイズに戻る",
-    "en": "Maximise the search panel; press again to restore its size"
+    "ja": "ウインドウを最大化する",
+    "en": "Maximise the window"
+   }
+  },
+  {
+   "rowId": "IC-131",
+   "label": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
+   },
+   "hint": {
+    "ja": "最大化したウインドウを元のサイズに戻す",
+    "en": "Restore the window to its size"
    }
   },
   {
@@ -1042,8 +1020,30 @@
     "en": "Text size"
    },
    "hint": {
-    "ja": "検索パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
-    "en": "Change the text size of the search panel's table and search box (cycles through 12, 14, 16 and 20 px)"
+    "ja": "パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
+    "en": "Change the text size of the panel's table and search box (cycles through 12, 14, 16 and 20 px)"
+   }
+  },
+  {
+   "rowId": "IC-140",
+   "label": {
+    "ja": ".md",
+    "en": ".md"
+   },
+   "hint": {
+    "ja": "本レポートをMarkdownで出力する",
+    "en": "Write this report as a Markdown file"
+   }
+  },
+  {
+   "rowId": "IC-108",
+   "label": {
+    "ja": "写す",
+    "en": "Copy"
+   },
+   "hint": {
+    "ja": "遅延診断レポートを Markdown でクリップボードへ写す",
+    "en": "Copy this report to the clipboard as Markdown"
    }
   },
   {
@@ -2912,8 +2912,8 @@
   {
    "name": "Open Chooser",
    "heading": {
-    "ja": "開き方",
-    "en": "Open Chooser"
+    "ja": "ファイルの開き方",
+    "en": "How to Open the File"
    }
   },
   {
@@ -2931,10 +2931,24 @@
    }
   },
   {
+   "name": "Delay Diagnostics Report",
+   "heading": {
+    "ja": "遅延診断レポート",
+    "en": "Delay Diagnostics Report"
+   }
+  },
+  {
    "name": "Calendar Editor",
    "heading": {
     "ja": "暦",
     "en": "Working calendar"
+   }
+  },
+  {
+   "name": "Dialogue Field",
+   "heading": {
+    "ja": "対話欄",
+    "en": "Dialogue Field"
    }
   }
  ],
@@ -3081,6 +3095,22 @@
    "text": {
     "ja": "ブラウザの機能（GRS の機能ではない）",
     "en": "Browser functions (not GRS)"
+   }
+  }
+ ],
+ "helpLegal": [
+  {
+   "part": "licensedUnder",
+   "text": {
+    "ja": "Apache License 2.0 で提供しています。",
+    "en": "Licensed under the Apache License 2.0."
+   }
+  },
+  {
+   "part": "fullText",
+   "text": {
+    "ja": "ライセンス全文",
+    "en": "Full license text"
    }
   }
  ],
@@ -3787,6 +3817,28 @@
    }
   },
   {
+   "rowId": "RS-67",
+   "text": {
+    "ja": "このファイルは GRS で開ける .html ではありません",
+    "en": "This file is not an .html that GRS can open"
+   },
+   "nextStep": {
+    "ja": "GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください",
+    "en": "Check that it was written out from the GRS header, or where the file came from"
+   }
+  },
+  {
+   "rowId": "RS-68",
+   "text": {
+    "ja": "スケジュールをクリップボードにコピーしました",
+    "en": "The schedule was copied to the clipboard"
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -4063,8 +4115,8 @@
   {
    "rowId": "QN-5",
    "text": {
-    "ja": "保存していない編集があります。置き換えますか？ 失われます",
-    "en": "There are unsaved edits. Replace the document? They will be lost"
+    "ja": "いまの文書を閉じますか？ 保存していない編集と、元に戻す履歴は失われます",
+    "en": "Close the current document? Unsaved edits and the undo history will be lost"
    }
   },
   {
@@ -4139,6 +4191,15 @@
    }
   }
  ],
+ "branding": [
+  {
+   "part": "logo",
+   "text": {
+    "ja": "GRS",
+    "en": "GRS"
+   }
+  }
+ ],
  "defaultNames": [
   {
    "use": "row",
@@ -4173,15 +4234,38 @@
   {
    "rowId": "IO-3",
    "name": {
-    "ja": "SVG 画像",
+    "ja": "SVG画像",
     "en": "SVG image"
    }
   },
   {
    "rowId": "IO-4",
    "name": {
-    "ja": "PNG 画像",
+    "ja": "PNG画像",
     "en": "PNG image"
+   }
+  }
+ ],
+ "openChooser": [
+  {
+   "part": "file",
+   "text": {
+    "ja": "ファイル",
+    "en": "File"
+   }
+  },
+  {
+   "part": "documentTitle",
+   "text": {
+    "ja": "プロジェクト名",
+    "en": "Project name"
+   }
+  },
+  {
+   "part": "cancel",
+   "text": {
+    "ja": "キャンセル",
+    "en": "Cancel"
    }
   }
  ],
@@ -4444,6 +4528,22 @@
    "text": {
     "ja": "土",
     "en": "Sat"
+   }
+  }
+ ],
+ "hintLines": [
+  {
+   "rowId": "TL-5",
+   "text": {
+    "ja": "予定",
+    "en": "Plan"
+   }
+  },
+  {
+   "rowId": "TL-6",
+   "text": {
+    "ja": "実績",
+    "en": "Actual"
    }
   }
  ],
@@ -4748,38 +4848,38 @@
  ],
  "dualCursorReadout": [
   {
-   "line": "a",
+   "line": "left",
    "text": {
-    "ja": "カーソルAの日付: {date}",
-    "en": "Cursor A: {date}"
+    "ja": "左: {date}",
+    "en": "Left: {date}"
    }
   },
   {
-   "line": "b",
+   "line": "right",
    "text": {
-    "ja": "カーソルBの日付: {date}",
-    "en": "Cursor B: {date}"
+    "ja": "右: {date}",
+    "en": "Right: {date}"
    }
   },
   {
    "line": "span",
    "text": {
-    "ja": "カーソルA-Bの期間: {span}",
-    "en": "A-B: {span}"
+    "ja": "間隔: {span}",
+    "en": "Interval: {span}"
    }
   },
   {
    "line": "days",
    "text": {
-    "ja": "{y}/{m}/{d} ({n} days)",
-    "en": "{y}/{m}/{d} ({n} days)"
+    "ja": "{y}年 {m}か月 {d}日 ({n} days)",
+    "en": "{y}y {m}m {d}d ({n} days)"
    }
   },
   {
    "line": "oneDay",
    "text": {
-    "ja": "{y}/{m}/{d} ({n} day)",
-    "en": "{y}/{m}/{d} ({n} day)"
+    "ja": "{y}年 {m}か月 {d}日 ({n} day)",
+    "en": "{y}y {m}m {d}d ({n} day)"
    }
   }
  ],
@@ -4898,13 +4998,6 @@
    "text": {
     "ja": "（名前なし）",
     "en": "(No name)"
-   }
-  },
-  {
-   "part": "restore",
-   "text": {
-    "ja": "元のサイズに戻す",
-    "en": "Restore"
    }
   }
  ]

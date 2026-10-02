@@ -1494,6 +1494,16 @@
      }
     },
     {
+     "name": "documentFromEmbeddedHtml",
+     "note": {
+      "ja": [
+       "`pure`。",
+       "単一 `.html` の字面から、埋め込まれた文書を読む。",
+       "表 T-024 の `IO-7`"
+      ]
+     }
+    },
+    {
      "name": "formatFromFile",
      "note": {
       "ja": [
@@ -2019,7 +2029,8 @@
       "ja": [
        "目盛の第 4 段が刷る曜日 7 語。",
        "言語ごと。",
-       "`FR-017` ／ `FR-038`"
+       "`FR-092` の 表 T-348 の `TL-11` が説明の日に添える曜日も、この 7 語である。",
+       "`FR-017` ／ `FR-038` ／ `FR-092`"
       ]
      }
     },
@@ -2422,7 +2433,7 @@
      "note": {
       "ja": [
        "型。",
-       "`Search Panel` の値 —— 語・表・絞り込み・並べ替え・位置・大きさ・字の大きさの段（`FR-151` の 表 T-330、`S-429`）"
+       "`Search Panel` の値 —— 語・表・絞り込み・並べ替え・列の幅・位置・大きさ・字の大きさの段（`FR-151` の 表 T-330、`S-429`）"
       ]
      }
     },
@@ -2448,7 +2459,7 @@
      "note": {
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
-       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-3`）と、面が立っているかの判じに読む"
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
       ]
      }
     }

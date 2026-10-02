@@ -99,6 +99,14 @@
    }
   },
   {
+   "prefix": "BK",
+   "words": "Blank document",
+   "owner": "spec",
+   "means": {
+    "ja": "新しく始めたときに置く空の文書の中身"
+   }
+  },
+  {
    "prefix": "BL",
    "words": "Baseline",
    "owner": "spec",
@@ -112,6 +120,14 @@
    "owner": "spec",
    "means": {
     "ja": "起動のときに行うことの順序の段"
+   }
+  },
+  {
+   "prefix": "BR",
+   "words": "Branding",
+   "owner": "spec",
+   "means": {
+    "ja": "`App Header` の左端の `Branding`（製品の略称の字）の置き方・縁・押したときの行"
    }
   },
   {
@@ -355,6 +371,14 @@
    }
   },
   {
+   "prefix": "DT",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断レポートの表の欄"
+   }
+  },
+  {
    "prefix": "DU",
    "words": "Duplicate",
    "owner": "spec",
@@ -576,6 +600,14 @@
    "owner": "spec",
    "means": {
     "ja": "階層の操作（展開・畳み・隠し）の種別"
+   }
+  },
+  {
+   "prefix": "HS",
+   "words": "Header Status",
+   "owner": "spec",
+   "means": {
+    "ja": "ヘッダーのファイルの状態（名前・書けた時刻・大きさ）の見せ方の項目"
    }
   },
   {
@@ -1157,6 +1189,14 @@
    }
   },
   {
+   "prefix": "RW",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断レポートの窓が検索パネルと違う所"
+   }
+  },
+  {
    "prefix": "S",
    "words": "Setting",
    "owner": "spec",
@@ -1285,6 +1325,14 @@
    }
   },
   {
+   "prefix": "SX",
+   "words": "Save or Export",
+   "owner": "spec",
+   "means": {
+    "ja": "ファイルへ書けた後に、保存として扱うか書き出しとして扱うかの行"
+   }
+  },
+  {
    "prefix": "TC",
    "words": "Task Creation",
    "owner": "spec",
@@ -1306,6 +1354,14 @@
    "owner": "spec",
    "means": {
     "ja": "画面で選べるテーマ色"
+   }
+  },
+  {
+   "prefix": "TL",
+   "words": "Tooltip Line",
+   "owner": "spec",
+   "means": {
+    "ja": "ポインタを止めたときの説明の行"
    }
   },
   {
@@ -1484,7 +1540,7 @@
    "words": "Window Behaviour",
    "owner": "spec",
    "means": {
-    "ja": "ウインドウの状態（通常・最小化・最大化）"
+    "ja": "ウインドウの状態と振舞い（通常・最小化・最大化・題の行・動かす・大きさを変える）"
    }
   },
   {

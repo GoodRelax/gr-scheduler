@@ -130,6 +130,12 @@ HELP_NOTES = ('IC-54', 'IC-20')
 # setting S-350 names. A note is not a row of any table, so it is keyed by its
 # number, never by a minted row id. ⚠️ These are KEYS, not words.
 HELP_FOOTNOTES = (1,)
+# CR-622: the two words of the licence lines below the help's columns
+# (FR-069): the line naming the licence, and the word that opens the folded
+# full text. No table holds them as rows, so they are HELD HERE, the same move
+# as SEARCH_PANEL_PARTS. The copyright line is not a word: it is NOTICE's own
+# spelling, carried by generate_licence.py. These are KEYS, not words.
+HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -205,6 +211,12 @@ CONFIRMATION_MARKS = ('shownOnAnotherRow',)
 # ⚠️ These are KEYS, not words.
 FILE_STATUS = ('neverSaved',)
 
+# CR-628: the App Header's Branding (U-35, table T-349 of FR-051) prints the
+# product's short name (BR-1); the word itself is the user's, in the
+# manuscript. HELD HERE, the same move as FILE_STATUS: BR-1 states it in prose
+# and no table holds it as a row. KEYS, not words.
+BRANDING_PARTS = ('logo',)
+
 # The name a row settles on when it has none of its own. FR-032 (MUST) has a
 # row whose derivation source is being deleted settle its name before the Task
 # goes, and (MUST NOT) forbids refusing the deletion because that source never
@@ -240,11 +252,11 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 SCALE_ECHO_ENDS = ('max', 'min')
 
 # The lines DC-3 of table T-029a (MUST) shows beside the pointer while the
-# Dual Cursor mode is on: the date of cursor A (date1), of cursor B (date2), and
-# the span between them, whose value is `days`, or `oneDay` when the count is 1.
-# HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 states the lines in prose
-# and no table holds them as rows (CR-550). These are KEYS, not words.
-DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
+# Dual Cursor mode is on: the earlier date (left), the later date (right), and
+# the interval between them, whose value is `days`, or `oneDay` when the count
+# is 1. HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 states the lines in
+# prose and no table holds them as rows (CR-550, CR-626). KEYS, not words.
+DUAL_CURSOR_READOUT_LINES = ('left', 'right', 'span', 'days', 'oneDay')
 
 # The parts of the colour field of the properties panel (CV-9 of table
 # T-017b, CR-548): the entrance to a custom colour, the two theme swatches and
@@ -278,15 +290,32 @@ ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
-# table T-233. The three words no table holds as rows -- the value list's
-# blank entry (SV-7), the name of a nameless task (SQ-1) and the label IC-121
-# carries while maximised (SV-13) -- are HELD HERE, the same move as
-# COLOUR_FIELD_PARTS. KEYS, not words.
+# table T-233. The two words no table holds as rows -- the value list's
+# blank entry (SV-7) and the name of a nameless task (SQ-1) -- are HELD HERE,
+# the same move as COLOUR_FIELD_PARTS. KEYS, not words. CR-621 retired the
+# third (the label IC-121 carried while maximised): the window title row draws
+# IC-131 in its place instead (table T-335).
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
-SEARCH_PANEL_PARTS = ('blank', 'noName', 'restore')
+SEARCH_PANEL_PARTS = ('blank', 'noName')
+# CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
+# its file line and document-title line, and the word beside its cancel row,
+# are no table's rows, so they are HELD HERE, the same move as
+# SEARCH_PANEL_PARTS. KEYS, not words.
+OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
+
+# CR-624: the words that head two lines of the hint a rested pointer shows
+# (table T-348 of FR-092): the plan line (TL-5) and the actual line (TL-6).
+# HELD HERE, the same move as OPEN_CHOOSER_PARTS: the other rows of table
+# T-348 carry no word of their own (the deadline line reuses PR-10's word, the
+# weekday reuses `weekdays`, and TL-9 / TL-11 forbid a second word), so a
+# roster of every row would ask for words the specification forbids. The row
+# id IS the key, and `hint_lines` checks each one is still a row of the table.
+HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
+HINT_LINE_TABLE = 'T-348'
+HINT_LINES = ('TL-5', 'TL-6')
 
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.
@@ -416,6 +445,21 @@ def listed_shortcuts():
     return found
 
 
+def hint_lines():
+    """The rows of table T-348 that own a word, after checking they exist.
+
+    @purity semi-pure-b
+    """
+    rows = [row[0] for row in
+            table_rows(REL_REQUIREMENTS, HINT_LINE_ROW, HINT_LINE_TABLE)]
+    missing = [row for row in HINT_LINES if row not in rows]
+    if missing:
+        raise SystemExit('%s: table %s has no row %s, so the hint line words '
+                         'cannot be keyed' % (REL_REQUIREMENTS, HINT_LINE_TABLE,
+                                              ', '.join(missing)))
+    return list(HINT_LINES)
+
+
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -450,6 +494,7 @@ def roster():
         'settings': list(settings_keys()),
         'shortcuts': listed_shortcuts(),
         'helpHeadings': list(HELP_HEADINGS),
+        'helpLegal': list(HELP_LEGAL_PARTS),
         'helpNotes': list(HELP_NOTES),
         'helpFootnotes': list(HELP_FOOTNOTES),
         'browserFunctions': [row[0] for row in
@@ -474,6 +519,7 @@ def roster():
         'noticeDismiss': list(NOTICE_DISMISS),
         'confirmationMarks': list(CONFIRMATION_MARKS),
         'fileStatus': list(FILE_STATUS),
+        'branding': list(BRANDING_PARTS),
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
         'colourNames': colour_spellings(),
@@ -489,6 +535,8 @@ def roster():
                              table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
+        'openChooser': list(OPEN_CHOOSER_PARTS),
+        'hintLines': hint_lines(),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -524,6 +572,7 @@ SHAPE = {
     'settings': ('rowId', ('label',)),
     'shortcuts': ('rowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
+    'helpLegal': ('part', ('text',)),
     'helpNotes': ('rowId', ('text',)),
     'helpFootnotes': ('footnote', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
@@ -536,6 +585,7 @@ SHAPE = {
     'noticeDismiss': ('answer', ('text',)),
     'confirmationMarks': ('mark', ('text',)),
     'fileStatus': ('state', ('text',)),
+    'branding': ('part', ('text',)),
     'defaultNames': ('use', ('text',)),
     # ⛔ TWO WORDS PER ROW. `text` is the 動作 column's -- what the gesture
     # does -- and `press` is the gesture itself, which FR-036 (MUST) puts in
@@ -556,6 +606,8 @@ SHAPE = {
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
+    'openChooser': ('part', ('text',)),
+    'hintLines': ('rowId', ('text',)),
 }
 
 
@@ -646,12 +698,15 @@ def build(doc, keys_by_row):
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
-                    'shortcuts', 'helpHeadings', 'helpNotes', 'helpFootnotes',
+                    'shortcuts', 'helpHeadings', 'helpLegal', 'helpNotes',
+                    'helpFootnotes',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
-                    'confirmationMarks', 'fileStatus', 'defaultNames',
-                    'exportFormats', 'assignments', 'arms', 'weekdays',
+                    'confirmationMarks', 'fileStatus', 'branding',
+                    'defaultNames',
+                    'exportFormats', 'openChooser', 'assignments', 'arms',
+                    'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'propertyField',
                     'rowMinHeightField',
                     'themeHues',

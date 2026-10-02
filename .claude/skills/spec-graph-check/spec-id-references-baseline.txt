@@ -1,4 +1,6 @@
-66
+99
+# RAISED 84 -> 99 on 2026-10-02 under JDG-1033 (the user approved): CR-630 retired RG-15 (Esc rungs renumbered, RG-16); input-command-translator.ts, dom-screen-surface.ts, frame-loop.ts and two tests cite it 15 times; the CR-630 code wave rewrites them.
+# RAISED 66 -> 84 on 2026-10-02 under JDG-1033 (the user approved): CR-621 retired IC-120/IC-121 (moved to IC-129..IC-131); src/ and tests/ comments citing them are rewritten by the CR-621 code wave.
 # LOWERED 83 -> 66 on 2026-09-27 under JDG-520: CR-572 stage A moved src/ and tests/ off the rows CR-572 retired (S-80, CM-59..CM-63, IV-13, UN-12) and a few more -- 53 retired, 13 undefined. Hold the ground.
 # LOWERED 88 -> 83 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): the retirement
 # pass moved src/ and tests/ off the rows CR-430 retired (GR-1 .. GR-18, GS-*, TE-*, NL-*,

@@ -41,30 +41,6 @@
     }
    },
    {
-    "id": "RG-15",
-    "keys": [
-     "Esc"
-    ],
-    "rung": {
-     "ja": "焦点がある検索パネル"
-    },
-    "states": [
-     {
-      "in": "searchPanelDisplayStateMachine.shown"
-     }
-    ],
-    "also": {
-     "ja": "フレームの値（焦点がパネルの中にある）"
-    },
-    "evidence": [
-     "IN-4",
-     "SV-14"
-    ],
-    "note": {
-     "ja": "列の絞り込みが開いていれば、絞り込みだけを閉じる（`SV-14`）"
-    }
-   },
-   {
     "id": "RG-2",
     "keys": [
      "Esc"
@@ -98,21 +74,14 @@
      },
      {
       "in": "openSurfaceStateMachine.open"
-     },
-     {
-      "in": "helpDisplayStateMachine.shown.normal"
-     },
-     {
-      "in": "helpDisplayStateMachine.shown.maximised"
      }
     ],
     "evidence": [
      "IN-4",
-     "FR-070",
-     "HN-2"
+     "FR-070"
     ],
     "note": {
-     "ja": "同じ段の中は、問い → 面 → ヘルプの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。最小化したヘルプはこの段に立たない（`HN-2`）"
+     "ja": "同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウインドウの段に立つ（`IN-4`）"
     }
    },
    {
@@ -136,6 +105,49 @@
     ]
    },
    {
+    "id": "RG-16",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "開いているウインドウ"
+    },
+    "states": [
+     {
+      "in": "searchPanelDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "searchPanelDisplayStateMachine.shown.maximised"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.maximised"
+     },
+     {
+      "in": "dialogueFieldDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "dialogueFieldDisplayStateMachine.shown.maximised"
+     }
+    ],
+    "also": {
+     "ja": "フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ"
+    },
+    "evidence": [
+     "IN-4",
+     "SV-14",
+     "HN-2",
+     "FR-066",
+     "FR-152",
+     "RW-1"
+    ],
+    "note": {
+     "ja": "1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField`"
+    }
+   },
+   {
     "id": "RG-14",
     "keys": [
      "Esc"
@@ -153,7 +165,7 @@
      "IN-4"
     ],
     "note": {
-     "ja": "面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ"
+     "ja": "面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ"
     }
    },
    {
@@ -799,6 +811,46 @@
      ]
     },
     {
+     "key": "dialogueFieldMinimiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-129"
+      ],
+      "note": {
+       "ja": "対話欄の題の行の最小化の入口"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "dialogueFieldMaximiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-130",
+       "IC-131"
+      ],
+      "note": {
+       "ja": "対話欄の題の行の最大化と元に戻す入口"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "dialogueFieldClosePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-52"
+      ],
+      "note": {
+       "ja": "対話欄の閉じる入口"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "dualCursorEntryPressed",
      "source": {
       "kind": "input",
@@ -1036,8 +1088,11 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-120"
-      ]
+       "IC-129"
+      ],
+      "note": {
+       "ja": "検索パネルの見出しの行の最小化の入口"
+      }
      },
      "carries": []
     },
@@ -1046,8 +1101,12 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-121"
-      ]
+       "IC-130",
+       "IC-131"
+      ],
+      "note": {
+       "ja": "検索パネルの見出しの行の最大化と元に戻す入口"
+      }
      },
      "carries": []
     },
@@ -1094,7 +1153,10 @@
       "kind": "input",
       "rows": [
        "IC-129"
-      ]
+      ],
+      "note": {
+       "ja": "ヘルプの題の行の最小化の入口"
+      }
      },
      "carries": []
     },
@@ -1105,7 +1167,10 @@
       "rows": [
        "IC-130",
        "IC-131"
-      ]
+      ],
+      "note": {
+       "ja": "ヘルプの題の行の最大化と元に戻す入口"
+      }
      },
      "carries": []
     },
@@ -2140,16 +2205,17 @@
      "name": "dialogueFieldDisplayStateMachine",
      "states": [
       {
-       "key": "shown",
+       "key": "hidden",
        "parent": null,
        "initial": true,
        "carries": [],
        "evidence": [
-        "S-99i"
+        "S-99i",
+        "FR-066"
        ]
       },
       {
-       "key": "hidden",
+       "key": "shown",
        "parent": null,
        "initial": false,
        "carries": [],
@@ -2157,10 +2223,53 @@
         "S-99i",
         "FR-066"
        ]
+      },
+      {
+       "key": "shown.normal",
+       "parent": "shown",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-1"
+       ]
+      },
+      {
+       "key": "shown.minimised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-2",
+        "IC-129"
+       ]
+      },
+      {
+       "key": "shown.maximised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "WB-3",
+        "IC-130"
+       ]
       }
      ],
      "transitions": {
       "dialogueFieldEntryPressed": {
+       "hidden": {
+        "to": "shown.normal",
+        "evidence": [
+         "S-99i",
+         "IC-18",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
+        }
+       },
        "shown": [
         {
          "to": "hidden",
@@ -2175,7 +2284,7 @@
          ]
         },
         {
-         "to": "shown",
+         "to": "shown.normal",
          "guard": [
           {
            "name": "isAgentApiEnabled",
@@ -2187,19 +2296,95 @@
           "IC-18"
          ],
          "note": {
-          "ja": "欄は表示のまま。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
+          "ja": "欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
          }
         }
-       ],
-       "hidden": {
-        "to": "shown",
+       ]
+      },
+      "dialogueFieldMinimiseToggled": {
+       "shown.normal": {
+        "to": "shown.minimised",
         "evidence": [
-         "S-99i",
-         "IC-18",
+         "WB-1",
+         "IC-129"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-2",
+         "WB-5"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.minimised",
+        "evidence": [
+         "WB-3",
+         "IC-129"
+        ]
+       }
+      },
+      "dialogueFieldMaximiseToggled": {
+       "shown.normal": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-1",
+         "IC-130"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-2",
+         "IC-130"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-3",
+         "IC-131"
+        ]
+       }
+      },
+      "dialogueFieldClosePressed": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "IC-52",
+         "FR-066"
+        ]
+       }
+      },
+      "escapePressed": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungDialogueField"
+         }
+        ],
+        "evidence": [
+         "IN-4",
          "FR-066"
         ],
         "note": {
-         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
+         "ja": "`Agent API` は有効のまま（`FR-066`）"
+        }
+       },
+       "shown.maximised": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungDialogueField"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` は有効のまま（`FR-066`）"
         }
        }
       }
@@ -2491,7 +2676,7 @@
        "evidence": [
         "S-442",
         "SV-12",
-        "IC-120"
+        "IC-129"
        ]
       },
       {
@@ -2502,7 +2687,7 @@
        "evidence": [
         "S-442",
         "SV-13",
-        "IC-121"
+        "IC-130"
        ]
       }
      ],
@@ -2547,21 +2732,21 @@
         "to": "shown.minimised",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        },
        "shown.minimised": {
         "to": "shown.normal",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        },
        "shown.maximised": {
         "to": "shown.minimised",
         "evidence": [
          "SV-12",
-         "IC-120"
+         "IC-129"
         ]
        }
       },
@@ -2570,21 +2755,21 @@
         "to": "shown.maximised",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-130"
         ]
        },
        "shown.minimised": {
         "to": "shown.maximised",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-130"
         ]
        },
        "shown.maximised": {
         "to": "shown.normal",
         "evidence": [
          "SV-13",
-         "IC-121"
+         "IC-131"
         ]
        }
       },
@@ -2598,7 +2783,19 @@
        }
       },
       "escapePressed": {
-       "shown": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungSearchPanel"
+         }
+        ],
+        "evidence": [
+         "SV-14",
+         "IN-4"
+        ]
+       },
+       "shown.maximised": {
         "to": "hidden",
         "guard": [
          {
@@ -2765,7 +2962,7 @@
         ],
         "evidence": [
          "IN-4",
-         "S-99g"
+         "HN-2"
         ]
        },
        "shown.maximised": {
@@ -2777,7 +2974,7 @@
         ],
         "evidence": [
          "IN-4",
-         "S-99g"
+         "HN-2"
         ]
        }
       }
@@ -3987,22 +4184,14 @@
       "kind": "input",
       "rows": [
        "IC-98",
+       "SK-25",
        "FR-095"
       ],
       "note": {
-       "ja": "新しく始める入口"
+       "ja": "新しく始める入口・`N`"
       }
      },
      "carries": [
-      {
-       "name": "hasStartupTemplate",
-       "rows": [
-        "FR-095"
-       ],
-       "note": {
-        "ja": "始める元の文書が在るか。呼び手が詰める"
-       }
-      },
       {
        "name": "question",
        "rows": [
@@ -4082,6 +4271,15 @@
        ],
        "note": {
         "ja": "読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める"
+       }
+      },
+      {
+       "name": "incomingFile",
+       "rows": [
+        "OP-16"
+       ],
+       "note": {
+        "ja": "読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open Chooser` が出す。副作用の実行が詰める"
        }
       }
      ]
@@ -4199,10 +4397,11 @@
       "kind": "effectResult",
       "rows": [
        "FR-060",
-       "FR-101"
+       "FR-101",
+       "SX-1"
       ],
       "note": {
-       "ja": "保存が書けた"
+       "ja": "`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である）"
       }
      },
      "carries": [
@@ -4223,10 +4422,11 @@
       "kind": "effectResult",
       "rows": [
        "FR-096",
-       "CS-4"
+       "CS-4",
+       "SX-2"
       ],
       "note": {
-       "ja": "書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
+       "ja": "`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
       }
      },
      "carries": []
@@ -4317,7 +4517,14 @@
        "key": "awaitingOpenChoice",
        "parent": null,
        "initial": false,
-       "carries": [],
+       "carries": [
+        {
+         "name": "incomingFile",
+         "rows": [
+          "OP-16"
+         ]
+        }
+       ],
        "evidence": [
         "OP-3",
         "U-56",
@@ -4867,34 +5074,13 @@
        }
       },
       "newDocumentEntryPressed": {
-       "notAsked": [
-        {
-         "to": "questionAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate"
-          }
-         ],
-         "evidence": [
-          "FR-095",
-          "QN-5"
-         ]
-        },
-        {
-         "to": "notAsked",
-         "guard": [
-          {
-           "name": "hasStartupTemplate",
-           "not": true
-          }
-         ],
-         "effect": "raiseNotice",
-         "effectArgument": "RS-27",
-         "evidence": [
-          "RS-27"
-         ]
-        }
-       ],
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "FR-095",
+         "QN-5"
+        ]
+       },
        "questionAsked": {
         "to": "questionAsked",
         "effect": "raiseNotice",
