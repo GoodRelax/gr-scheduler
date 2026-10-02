@@ -170,6 +170,7 @@ export function appHeaderItemsFromDocument(
 
     openedFileName: readings.openedFileName,
     fileSavedAt: readings.fileSavedAt,
+    fileSavedByteLength: readings.fileSavedByteLength,
     fileNeverSavedText:
       FILE_STATUS_BY_STATE.get('neverSaved')?.text[displayLanguageOf(session)] ?? '',
 
