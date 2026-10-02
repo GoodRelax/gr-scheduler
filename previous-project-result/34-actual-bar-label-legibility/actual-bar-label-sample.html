@@ -1,0 +1,363 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>実績バーの上の字</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f5f6f8; --pane: #ffffff; --ink: #1c2026; --sub: #59616c; --line: #d6dae0; --accent: #2a5db0;
+  --code: #eceff3; --bad: #b8321f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #121418; --pane: #1a1d22; --ink: #e7e9ed; --sub: #a2aab5; --line: #353b44; --accent: #8fb4f0;
+    --code: #24282f; --bad: #ff8a7a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #121418; --pane: #1a1d22; --ink: #e7e9ed; --sub: #a2aab5; --line: #353b44; --accent: #8fb4f0;
+  --code: #24282f; --bad: #ff8a7a;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 16px/1.7 "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif;
+  display: flex; flex-direction: column;
+}
+header { padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--pane); display: grid; gap: 4px; }
+header h1 { font-size: 20px; margin: 0; text-wrap: balance; }
+header p { margin: 0; font-size: 14px; color: var(--sub); max-width: 75em; }
+.themebar { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 14px; }
+#panes { flex: 1; display: flex; min-height: 0; }
+#picture { flex: 1; overflow: auto; min-width: 0; }
+#picture .inner { padding: 12px 16px 24px; }
+#splitter { width: 6px; cursor: col-resize; background: var(--line); flex: none; }
+#splitter:focus-visible { outline: 2px solid var(--accent); }
+#settings { width: 400px; overflow: auto; background: var(--pane); flex: none; }
+#settings .inner { padding: 12px 16px 24px; display: grid; gap: 12px; }
+table.grid { border-collapse: collapse; }
+table.grid th, table.grid td { border-bottom: 1px solid var(--line); padding: 6px 8px; vertical-align: top; text-align: left; }
+table.grid th { font-size: 14px; font-weight: 600; color: var(--sub); white-space: nowrap; }
+.optname { font-size: 14px; min-width: 200px; }
+.optname b { font-size: 16px; display: block; }
+.ratios { font-size: 12px; color: var(--sub); line-height: 1.5; margin-top: 4px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ratios .bad { color: var(--bad); font-weight: 600; }
+tr[data-option="mine"] td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.cell svg { display: block; }
+fieldset { border: 1px solid var(--line); border-radius: 6px; margin: 0; padding: 6px 12px 10px; display: grid; gap: 2px; }
+legend { font-size: 14px; font-weight: 600; padding: 0 4px; }
+.k { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; font-size: 14px; align-items: center; }
+.k input[type=range] { grid-column: 1 / 3; width: 100%; margin: 0 0 4px; accent-color: var(--accent); }
+.k output { font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: right; }
+.swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--line); vertical-align: -2px; margin-left: 6px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; }
+select, button, input { font: inherit; font-size: 14px; }
+button { padding: 2px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--page); color: var(--ink); cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+pre#values { background: var(--code); padding: 8px; margin: 0; font-size: 12px; line-height: 1.5; white-space: pre-wrap; user-select: text; }
+.note { font-size: 14px; color: var(--sub); margin: 0; }
+@media (max-width: 760px) {
+  #panes { flex-direction: column; overflow: auto; }
+  #picture { overflow-x: auto; flex: none; }
+  #settings { width: auto !important; flex: none; }
+  #splitter { display: none; }
+}
+</style>
+
+<header>
+  <h1>実績バーの上の字 —— 見比べる見本</h1>
+  <p>実際のアプリと同じ書体・同じバーの色・同じ字の大きさ（表示の倍率ごと）で描いた。1 行が 1 つの案で、いちばん上が「現状」。右のスライダーは最後の行「自分の案」を動かす。色のスライダーは、いま見ているテーマの側だけを動かす。</p>
+  <div class="themebar">
+    <span>アプリのテーマ:</span>
+    <label><input type="radio" name="theme" id="theme-light" value="light" checked> 明るい</label>
+    <label><input type="radio" name="theme" id="theme-dark" value="dark"> 暗い</label>
+    <span class="note">比は WCAG 2.1 の式。赤字は、字なら 4.5 : 1、形なら 3 : 1 を割るもの。</span>
+  </div>
+</header>
+<div id="panes">
+  <div id="picture"><div class="inner"><table class="grid" id="grid"></table></div></div>
+  <div id="splitter" title="引いて幅を変える" tabindex="0"></div>
+  <div id="settings"><div class="inner">
+    <fieldset>
+      <legend>出発点</legend>
+      <div class="row">
+        <label for="seed">この案の値を「自分の案」へ写す</label>
+        <select id="seed"></select>
+      </div>
+    </fieldset>
+    <fieldset id="knobs"></fieldset>
+    <fieldset>
+      <legend>今の値（そのまま貼って伝えられる）</legend>
+      <pre id="values"></pre>
+      <div class="row"><button type="button" id="copy">写す</button><span id="copied" class="note" aria-live="polite"></span></div>
+    </fieldset>
+    <p class="note">実物の寸法: 表示の倍率 100 で予定 17.5px・実績 10px・字 9px・字の太さ 600・縁取りの線 0.45px（字の外に 0.225px）。倍率を変えると、字も線もバーも同じ比で伸び縮みする（描く比 0.625 × 倍率 ÷ 100、S-236）。</p>
+  </div></div>
+</div>
+
+<script>
+'use strict'
+// --- colour helpers (WCAG 2.1) ---
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100
+  const k = (n) => (n + h / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255))
+}
+function rgbHex(c) { return '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('') }
+function luminance(c) {
+  const f = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+  const [r, g, b] = c.map(f)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+function contrast(a, b) {
+  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p)
+  return (x + 0.05) / (y + 0.05)
+}
+function mix(fg, bg, alpha) { return fg.map((v, i) => Math.round(v * alpha + bg[i] * (1 - alpha))) }
+const clone = (o) => JSON.parse(JSON.stringify(o))
+
+// --- the app's values (table T-236 at themeHue 214, T-201 S-34, T-206 S-245) ---
+// WHY: every colour is held as HSL so one slider per channel can move it; black/white are L 0/100.
+const BASE = {
+  hue: 214, halo: 0.05, haloOpacity: 1, weight: 600, twoTone: false,
+  light: { inkS: 0, inkL: 0, haloS: 0, haloL: 100, invS: 0, invL: 100, actualS: 62, actualL: 34, planS: 46, planL: 80 },
+  dark: { inkS: 0, inkL: 100, haloS: 12, haloL: 9, invS: 0, invL: 0, actualS: 62, actualL: 64, planS: 32, planL: 26 },
+}
+// Fixed colours the knobs do not move: ground, outlines, marker.
+const FIXED = {
+  light: { ground: [0, 0, 100], planLine: [44, 46], actualLine: [66, 22], marker: [22, 24, 29] },
+  dark: { ground: [12, 9], planLine: [46, 66], actualLine: [70, 80], marker: [232, 234, 238] },
+}
+
+const OPTIONS = [
+  { id: 'now', name: '現状', what: '縁取り 0.05・地の色・字 600', v: {} },
+  { id: 'A', name: '案 A 縁取りを太く', what: '縁取り 0.15（0.05 の 3 倍）', v: { halo: 0.15 } },
+  { id: 'B', name: '案 B 縁取りを太く、色を予定の塗りに', what: '縁取り 0.15・予定の塗り（S-155）',
+    v: { halo: 0.15, light: { haloS: 46, haloL: 80 }, dark: { haloS: 32, haloL: 26 } } },
+  { id: 'C', name: '案 C 実績の塗りの明度を 50% に', what: 'S-157 明 34→50 ／ 暗 64→50',
+    v: { light: { actualL: 50 }, dark: { actualL: 50 } } },
+  { id: 'D', name: '案 D 実績の上だけ字を反転', what: '実績の上は明: 白字 ／ 暗: 黒字。外は現状のまま', v: { twoTone: true } },
+  { id: 'E', name: '案 E 字を太く', what: '字 700（ほかは現状）', v: { weight: 700 } },
+  { id: 'F', name: '案 F 縁取り 0.30', what: '縁取り 0.30（利用者の案、2026-10-03）', v: { halo: 0.3 } },
+  { id: 'mine', name: '自分の案', what: '右のスライダーで動く', v: {} },
+]
+const SCALES = [50, 75, 100, 150, 200]
+let theme = 'light'
+let mine = clone(BASE)
+
+function valuesOf(opt) {
+  if (opt.id === 'mine') return mine
+  const v = clone(BASE)
+  for (const [k, val] of Object.entries(opt.v)) {
+    if (k === 'light' || k === 'dark') Object.assign(v[k], val)
+    else v[k] = val
+  }
+  return v
+}
+function coloursOf(v) {
+  const t = v[theme], f = FIXED[theme], h = v.hue
+  const ground = theme === 'light' ? hslToRgb(h, 0, 100) : hslToRgb(h, f.ground[0], f.ground[1])
+  return {
+    ground, marker: f.marker,
+    actual: hslToRgb(h, t.actualS, t.actualL), plan: hslToRgb(h, t.planS, t.planL),
+    planLine: hslToRgb(h, f.planLine[0], f.planLine[1]), actualLine: hslToRgb(h, f.actualLine[0], f.actualLine[1]),
+    ink: hslToRgb(h, t.inkS, t.inkL), halo: hslToRgb(h, t.haloS, t.haloL), inverse: hslToRgb(h, t.invS, t.invL),
+  }
+}
+
+// --- one cell: three tasks, drawn with the app's geometry at a display scale ---
+// WHY: sizes are the app's own before the draw ratio (S-4 28, S-5 0.5715, S-7 0.90, marker r 11.2, pad 32).
+const TASKS = [
+  { label: '設計の見直しと承認', planTo: 1.0, actualTo: 0.92 },
+  { label: 'Review the draft plan', planTo: 0.62, actualTo: 0.30 },
+  { label: '試作品の評価と記録', planTo: 0.55, actualTo: 0.24 },
+]
+let uid = 0
+function cellSvg(v, scale) {
+  const r = 0.625 * scale / 100
+  const planH = 28 * r, actualH = 28 * 0.5715 * r, font = 28 * 0.5715 * 0.9 * r
+  const rowH = planH + 10 * r + 6
+  const width = Math.round(330 * r / 0.625 * 0.62 + 24)
+  const height = rowH * TASKS.length + 8
+  const x0 = 8, span = width - 16
+  const c = coloursOf(v)
+  const parts = [`<rect width="${width}" height="${height}" fill="${rgbHex(c.ground)}"/>`]
+  TASKS.forEach((task, i) => {
+    const cy = 4 + rowH * i + rowH / 2
+    const planX2 = x0 + span * task.planTo
+    const actualX1 = x0 + 6 * r, actualX2 = x0 + span * task.actualTo
+    const stroke = 1.008 * r
+    parts.push(`<rect x="${x0}" y="${cy - planH / 2}" width="${planX2 - x0}" height="${planH}" fill="${rgbHex(c.plan)}" stroke="${rgbHex(c.planLine)}" stroke-width="${stroke}"/>`)
+    parts.push(`<rect data-actual="${i}" x="${actualX1}" y="${cy - actualH / 2}" width="${actualX2 - actualX1}" height="${actualH}" fill="${rgbHex(c.actual)}" stroke="${rgbHex(c.actualLine)}" stroke-width="${stroke}"/>`)
+    const mr = 11.2 * r
+    parts.push(`<circle cx="${actualX1 + mr}" cy="${cy}" r="${mr}" fill="${rgbHex(c.ground)}" stroke="${rgbHex(c.marker)}" stroke-width="${1.296 * r}"/>`)
+    const lx = actualX1 + 32 * r, ly = cy + font * 0.35
+    const textAttrs = (ink, halo, w) =>
+      `x="${lx}" y="${ly}" font-size="${font}" font-weight="${v.weight}"` +
+      ` font-family='"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif'` +
+      ` fill="${rgbHex(ink)}" stroke="${rgbHex(halo)}" stroke-opacity="${v.haloOpacity}" stroke-width="${w}"` +
+      ` stroke-linejoin="round" paint-order="stroke"`
+    if (!v.twoTone) {
+      parts.push(`<text data-label="${i}" ${textAttrs(c.ink, c.halo, font * v.halo)}>${task.label}</text>`)
+    } else {
+      // WHY: the same text twice - outside the actual bar as today, inside it in the inverse ink with no halo.
+      const id = `clip${uid++}`
+      const ay = cy - actualH / 2, aw = actualX2 - actualX1
+      parts.push(`<defs><clipPath id="${id}-in"><rect x="${actualX1}" y="${ay}" width="${aw}" height="${actualH}"/></clipPath>` +
+        `<mask id="${id}-out" maskUnits="userSpaceOnUse"><rect width="${width}" height="${height}" fill="#fff"/>` +
+        `<rect x="${actualX1}" y="${ay}" width="${aw}" height="${actualH}" fill="#000"/></mask></defs>`)
+      parts.push(`<text data-label="${i}" mask="url(#${id}-out)" ${textAttrs(c.ink, c.halo, font * v.halo)}>${task.label}</text>`)
+      parts.push(`<text clip-path="url(#${id}-in)" ${textAttrs(c.inverse, c.actual, 0)}>${task.label}</text>`)
+    }
+  })
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${parts.join('')}</svg>`
+}
+
+function ratiosHtml(v) {
+  const c = coloursOf(v)
+  const halo = mix(c.halo, c.actual, v.haloOpacity)
+  const f = (x, need) => { const s = x.toFixed(2); return x < need ? `<span class="bad">${s}</span>` : s }
+  const inkOnActual = v.twoTone ? c.inverse : c.ink
+  return `<div class="ratios">` +
+    `字 : 実績 ${f(contrast(inkOnActual, c.actual), 4.5)}${v.twoTone ? '（反転字）' : ''}　字 : 予定 ${f(contrast(c.ink, c.plan), 4.5)}　字 : 地 ${f(contrast(c.ink, c.ground), 4.5)}<br>` +
+    `字 : 縁 ${f(contrast(c.ink, halo), 4.5)}　縁 : 実績 ${contrast(halo, c.actual).toFixed(2)}<br>` +
+    `実績 : 予定 ${f(contrast(c.actual, c.plan), 3)}　実績 : 地 ${f(contrast(c.actual, c.ground), 3)}<br>` +
+    `字の外の縁 ${(9 * v.halo / 2).toFixed(3)}px（倍率 100）</div>`
+}
+
+// --- knobs: every parameter of "自分の案" is a slider ---
+// scope 'shared' moves both themes; 'theme' moves only the theme on screen.
+const KNOBS = [
+  { group: '縁取り（S-34・S-169）' },
+  { key: 'halo', scope: 'shared', label: '縁取りの割合（字の大きさ × 本値。字の外は半分）', min: 0, max: 0.3, step: 0.005, fmt: (x) => x.toFixed(3) },
+  { key: 'haloOpacity', scope: 'shared', label: '縁取りの不透明度', min: 0, max: 1, step: 0.05, fmt: (x) => x.toFixed(2) },
+  { key: 'haloL', scope: 'theme', label: '縁取りの色の明度（%）', min: 0, max: 100, step: 1, swatch: 'halo' },
+  { key: 'haloS', scope: 'theme', label: '縁取りの色の彩度（%）', min: 0, max: 100, step: 1 },
+  { group: '字（S-168・S-245）' },
+  { key: 'weight', scope: 'shared', label: '字の太さ（400 が標準、700 が太字）', min: 100, max: 900, step: 100 },
+  { key: 'inkL', scope: 'theme', label: '字の色の明度（%）', min: 0, max: 100, step: 1, swatch: 'ink' },
+  { key: 'inkS', scope: 'theme', label: '字の色の彩度（%）', min: 0, max: 100, step: 1 },
+  { key: 'twoTone', scope: 'shared', label: '実績の上だけ字の色を替える（0 = 替えない、1 = 替える）', min: 0, max: 1, step: 1 },
+  { key: 'invL', scope: 'theme', label: '実績の上の字の明度（%）', min: 0, max: 100, step: 1, swatch: 'inverse' },
+  { key: 'invS', scope: 'theme', label: '実績の上の字の彩度（%）', min: 0, max: 100, step: 1 },
+  { group: 'バー（S-157・S-155）と色相（S-73）' },
+  { key: 'actualL', scope: 'theme', label: '実績の塗りの明度（%）', min: 10, max: 90, step: 1, swatch: 'actual' },
+  { key: 'actualS', scope: 'theme', label: '実績の塗りの彩度（%）', min: 0, max: 100, step: 1 },
+  { key: 'planL', scope: 'theme', label: '予定の塗りの明度（%）', min: 10, max: 95, step: 1, swatch: 'plan' },
+  { key: 'planS', scope: 'theme', label: '予定の塗りの彩度（%）', min: 0, max: 100, step: 1 },
+  { key: 'hue', scope: 'shared', label: 'テーマ色の色相（themeHue）', min: 0, max: 359, step: 1 },
+]
+function knobValue(k) {
+  const x = k.scope === 'theme' ? mine[theme][k.key] : mine[k.key]
+  return typeof x === 'boolean' ? (x ? 1 : 0) : x
+}
+function buildKnobs() {
+  const box = document.getElementById('knobs')
+  let html = ''
+  for (const k of KNOBS) {
+    if (k.group) { html += `<legend>${k.group}</legend>`; continue }
+    html += `<label class="k" for="k-${k.key}">${k.label}` +
+      `<output id="o-${k.key}"></output>` +
+      `<input type="range" id="k-${k.key}" min="${k.min}" max="${k.max}" step="${k.step}"></label>`
+  }
+  // WHY: one fieldset per group reads better; split the flat list at each legend.
+  const groups = html.split('<legend>').filter(Boolean).map((g) => `<fieldset><legend>${g}</fieldset>`)
+  box.outerHTML = groups.join('')
+  for (const k of KNOBS) {
+    if (k.group) continue
+    document.getElementById(`k-${k.key}`).addEventListener('input', (e) => {
+      const n = +e.target.value
+      const val = k.key === 'twoTone' ? n === 1 : n
+      if (k.scope === 'theme') mine[theme][k.key] = val; else mine[k.key] = val
+      render()
+    })
+  }
+}
+function syncKnobs() {
+  const c = coloursOf(mine)
+  for (const k of KNOBS) {
+    if (k.group) continue
+    const x = knobValue(k)
+    document.getElementById(`k-${k.key}`).value = x
+    const sw = k.swatch ? `<span class="swatch" style="background:${rgbHex(c[k.swatch])}"></span>` : ''
+    document.getElementById(`o-${k.key}`).innerHTML = (k.fmt ? k.fmt(x) : String(x)) + sw
+  }
+  const side = (t) => {
+    const s = mine[t]
+    return `  ink (S-168): hsl(${mine.hue} ${s.inkS}% ${s.inkL}%)\n` +
+      `  halo (S-169): hsl(${mine.hue} ${s.haloS}% ${s.haloL}%)\n` +
+      (mine.twoTone ? `  ink over actual: hsl(${mine.hue} ${s.invS}% ${s.invL}%)\n` : '') +
+      `  actual fill (S-157): hsl(${mine.hue} ${s.actualS}% ${s.actualL}%)\n` +
+      `  plan fill (S-155): hsl(${mine.hue} ${s.planS}% ${s.planL}%)\n`
+  }
+  document.getElementById('values').textContent =
+    `labelHaloOfFont (S-34): ${mine.halo}\nhalo opacity: ${mine.haloOpacity}\n` +
+    `label weight (S-245): ${mine.weight}\ninvert ink over actual: ${mine.twoTone}\nthemeHue (S-73): ${mine.hue}\n` +
+    `light:\n${side('light')}dark:\n${side('dark')}`
+}
+
+function render() {
+  const grid = document.getElementById('grid')
+  let html = '<tr><th>案</th>' + SCALES.map((s) => `<th>倍率 ${s}（字 ${(9 * s / 100).toFixed(2)}px）</th>`).join('') + '</tr>'
+  for (const opt of OPTIONS) {
+    const v = valuesOf(opt)
+    html += `<tr data-option="${opt.id}"><td class="optname"><b>${opt.name}</b>${opt.what}${ratiosHtml(v)}</td>` +
+      SCALES.map((s) => `<td class="cell" data-scale="${s}">${cellSvg(v, s)}</td>`).join('') + '</tr>'
+  }
+  grid.innerHTML = html
+  syncKnobs()
+}
+function setTheme(t) {
+  theme = t
+  document.getElementById(`theme-${t}`).checked = true
+  render()
+}
+function bind() {
+  const seed = document.getElementById('seed')
+  seed.innerHTML = OPTIONS.filter((o) => o.id !== 'mine').map((o) => `<option value="${o.id}">${o.name}</option>`).join('')
+  seed.addEventListener('change', () => { mine = clone(valuesOf(OPTIONS.find((o) => o.id === seed.value))); render() })
+  for (const r of document.querySelectorAll('input[name=theme]')) r.addEventListener('change', () => setTheme(r.value))
+  document.getElementById('copy').addEventListener('click', () => {
+    const text = document.getElementById('values').textContent
+    const done = (m) => { document.getElementById('copied').textContent = m }
+    try {
+      navigator.clipboard.writeText(text).then(() => done('写した'), () => selectValues(done))
+    } catch { selectValues(done) }
+  })
+  const sp = document.getElementById('splitter'), st = document.getElementById('settings')
+  sp.addEventListener('pointerdown', (e) => {
+    sp.setPointerCapture(e.pointerId)
+    const move = (m) => { st.style.width = Math.max(240, window.innerWidth - m.clientX - 3) + 'px' }
+    const up = () => { sp.removeEventListener('pointermove', move); sp.removeEventListener('pointerup', up) }
+    sp.addEventListener('pointermove', move); sp.addEventListener('pointerup', up)
+  })
+  sp.addEventListener('keydown', (e) => {
+    const w = st.getBoundingClientRect().width
+    if (e.key === 'ArrowLeft') st.style.width = (w + 20) + 'px'
+    if (e.key === 'ArrowRight') st.style.width = Math.max(240, w - 20) + 'px'
+  })
+}
+function selectValues(done) {
+  const range = document.createRange()
+  range.selectNodeContents(document.getElementById('values'))
+  const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range)
+  done('選んだので Ctrl+C で写す')
+}
+
+const params = new URLSearchParams(location.search)
+// WHY: the sweep calibrates against the app by drawing the app's own label text in the first row.
+if (params.get('label0')) TASKS[0].label = params.get('label0')
+const wanted = params.get('theme') ?? (location.hash === '#dark' ? 'dark' : location.hash === '#light' ? 'light' : null)
+const rootTheme = document.documentElement.dataset.theme
+theme = wanted ?? (rootTheme === 'dark' || rootTheme === 'light' ? rootTheme
+  : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+buildKnobs()
+bind()
+setTheme(theme)
+// exposed for the sweep script
+window.sample = { OPTIONS, SCALES, setTheme, contrast, coloursOf, valuesOf }
+</script>
