@@ -71,7 +71,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install StrictDoc (pinned to latest stable)
-        run: pip install "strictdoc==0.27.0"
+        run: pip install "strictdoc==0.27.1"
 
       - name: Render StrictDoc spec to HTML
         # Config (project features, grammar) is read from docs/spec itself;
