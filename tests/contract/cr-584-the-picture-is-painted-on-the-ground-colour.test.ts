@@ -193,6 +193,7 @@ const VIEW: ScreenView = {
     documentTitle: TITLE,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [],
     language: 'en',

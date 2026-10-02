@@ -671,13 +671,14 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
       // 刻印「入ってきたまま」, 取り消しの 1 段「積まない」. The cases below read
       // every one of them out of the manuscript rather than from this comment.
       const template = instants === 'differ' ? THE_BUNDLED_TEMPLATE : TEMPLATE_SAME_SCHEDULE_STAMP
+      const writeInstant = instants === 'differ' ? WRITE_INSTANT : NOW
       return {
         start,
-        call: { row: 'RD-7', document: template },
+        call: { row: 'RD-7', document: template, editedBy: WRITER, updatedUtc: writeInstant },
         ws3Document: template,
         ws3History: null,
         outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: template.documentStamp.scheduleUpdatedUtc,
+        incomingScheduleUpdatedUtc: writeInstant,
       }
     }
     default:
@@ -723,7 +724,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
     // ⭐ RD-7 IS THE SECOND SUCH ROW, and its cell names where the document
     // comes from as well: 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）」.
-    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
+    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（`01-04-requirements.md` の 表 T-342 の空の文書）')
     expect(
       ROWS.filter((row) => cellOf(row, COL_WS3).startsWith('呼び手が持って来る')),
       'the rows whose WS-3 column has the caller bring the document',
@@ -939,11 +940,11 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
-  it('GIVEN the 刻印 column WHEN its six cells are read THEN exactly one says 進める, and it is the 取り込み row', () => {
+  it('GIVEN the 刻印 column WHEN its six cells are read THEN two say 進める: the 取り込み row and the 初期化 row', () => {
     const advancing = ROWS.filter((row) => cellOf(row, COL_STAMP).includes('進める'))
-    expect(advancing).toEqual(['RD-3'])
+    expect(advancing).toEqual(['RD-3', 'RD-7'])
     for (const row of ROWS) {
-      if (row === 'RD-3') continue
+      if (advancing.includes(row)) continue
       expect(cellOf(row, COL_STAMP), row).toBe('入ってきたまま')
     }
   })
@@ -1347,8 +1348,9 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
 // ---------------------------------------------------------------------------
 
 describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだのではなく導いた', () => {
-  it('GIVEN RD-7 WHEN its three settled columns are read THEN each is RD-4のもの', () => {
-    for (const column of [COL_HISTORY, COL_STAMP, COL_UNDO_STEP]) {
+  it('GIVEN RD-7 WHEN its history and undo-step columns are read THEN each is RD-4のもの', () => {
+    expect(cellOf('RD-7', COL_STAMP)).not.toBe(cellOf('RD-4', COL_STAMP))
+    for (const column of [COL_HISTORY, COL_UNDO_STEP]) {
       expect(cellOf('RD-7', column), `表 T-230 RD-7 / ${column}`).toBe(cellOf('RD-4', column))
     }
     // ⛔ AND NOT VACUOUS: RD-4's three cells are not the same as every other
@@ -1357,12 +1359,10 @@ describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだの�
     expect(cellOf('RD-7', COL_UNDO_STEP)).not.toBe(cellOf('RD-3', COL_UNDO_STEP))
   })
 
-  it('GIVEN RD-7 WHEN its WS-3 column is read THEN it differs from RD-4 in the 出どころ alone', () => {
-    // 「`RD-4` と違うのは、入ってくる文書の出どころだけである」 —— ファイルでは
-    // なく、表 T-034 の `BT-4` の同梱の雛形から来る。
+  it('GIVEN RD-7 WHEN its WS-3 column is read THEN the document is the empty one of table T-342', () => {
+    // 「`RD-4` と違うのは、入ってくる文書の出どころと刻印である」 (CR-611).
     expect(cellOf('RD-4', COL_WS3)).toContain('ImportDocument')
-    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
-    expect(cellOf('RD-7', COL_WS3), 'the template BT-4 of table T-034').toContain('BT-4')
+    expect(cellOf('RD-7', COL_WS3), 'the empty document of table T-342').toContain('T-342')
   })
 
   it('GIVEN RD-7 WHEN its 正 column is read THEN it is `FR-095` ／ `OP-4`', () => {
@@ -1391,15 +1391,15 @@ describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだの�
     expect(redoEdit(one.held()).redone).toBe(false)
   })
 
-  it('刻印: RD-7 (入ってきたまま) lands the template stamp, not the one this write would mint', () => {
-    // 「`WS-5` は …… 「入ってきたまま」の行で進めてはならない（MUST NOT）」.
+  it('刻印: RD-7 (進める) lands the stamp this write mints, not the one the document brought', () => {
+    // 「`WS-5` は、本表の刻印の欄が「進める」の行でだけ刻印を進めること（MUST）」 (CR-611).
     const drive = driveOf('RD-7')
     const one = bench(drive.start)
     const landed = accepted(one.run(drive.call)).document
-    expect(landed.documentStamp).toEqual(drive.ws3Document.documentStamp)
-    expect(landed.documentStamp.lastEditedBy).not.toBe(WRITER)
-    expect(landed.documentStamp.settingsUpdatedUtc).not.toBe(WRITE_INSTANT)
-    expect(landed.documentStamp.scheduleUpdatedUtc).not.toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.lastEditedBy).toBe(WRITER)
+    expect(landed.documentStamp.settingsUpdatedUtc).toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.scheduleUpdatedUtc).toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.fileSavedUtc).toBe(drive.ws3Document.documentStamp.fileSavedUtc)
   })
 
   it('取り消しの 1 段: RD-7 (積まない) pushes none', () => {
@@ -1418,11 +1418,13 @@ describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだの�
     const drive = driveOf('RD-7')
     const one = bench(drive.start)
     const landed = accepted(one.run(drive.call)).document
-    expect(landed).toEqual(THE_BUNDLED_TEMPLATE)
+    const { documentStamp: _landedStamp, ...landedContents } = landed
+    const { documentStamp: _broughtStamp, ...broughtContents } = THE_BUNDLED_TEMPLATE
+    expect(landedContents).toEqual(broughtContents)
     expect(landed).not.toEqual(OUT_OF_A_FILE)
     expect(one.order).toEqual(['WS-6', 'WS-7'])
     expect(one.swapped).toHaveLength(1)
     expect(one.delivered).toHaveLength(1)
-    expect(one.delivered[0]?.visibleToASubscriber).toEqual(THE_BUNDLED_TEMPLATE)
+    expect(one.delivered[0]?.visibleToASubscriber).toEqual(landed)
   })
 })

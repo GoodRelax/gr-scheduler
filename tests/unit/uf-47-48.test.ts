@@ -1700,13 +1700,14 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
       'RD-6',
       'RD-7',
     ])
-    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）')
+    expect(cellOf('RD-7', COL_WS3)).toBe('呼び手が持って来る（`01-04-requirements.md` の 表 T-342 の空の文書）')
     // ⭐ And the three columns RD-7 is settled by, read here so that a
     // manuscript which re-rules any of them reaches this file: 表 T-230 gives
     // RD-7 exactly RD-4's three answers.
-    for (const column of [COL_HISTORY, COL_STAMP, COL_UNDO_STEP]) {
+    for (const column of [COL_HISTORY, COL_UNDO_STEP]) {
       expect(cellOf('RD-7', column), `表 T-230 RD-7 / ${column}`).toBe(cellOf('RD-4', column))
     }
+    expect(cellOf('RD-7', COL_STAMP)).toBe('進める')
     expect(HELD_ROWS, 'this member still stands in one row of the two').toEqual(['RD-6'])
   })
 

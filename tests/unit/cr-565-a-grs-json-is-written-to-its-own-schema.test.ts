@@ -322,6 +322,7 @@ function bench(): Bench {
   const store: FileStore = {
     readFileToOpen: () => new Promise<FileReading>((resolve) => void answers.push(resolve)),
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => file,
     restoreOpenedFilePermission: async () => file,
     overwriteOpenedFile: async (bytes: Uint8Array) => {

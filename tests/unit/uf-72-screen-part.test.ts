@@ -1493,6 +1493,7 @@ const HEADER: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [
     // ⛔ FR-029: what cannot be used is drawn faint and does NOT go quiet.

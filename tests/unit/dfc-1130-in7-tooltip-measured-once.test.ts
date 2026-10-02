@@ -115,6 +115,7 @@ function header(title: string): AppHeaderItems {
     documentTitle: title,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [command('IC-5'), command('IC-6')],
     language: 'ja',

@@ -29,15 +29,15 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 
 
 const T_024_FILE_ROWS = [
-  { id: 'IO-1', form: 'mspdi', comesIn: true, extension: '.xml' },
-  { id: 'IO-2', form: 'grsJson', comesIn: true, extension: '.json' },
-  { id: 'IO-3', form: 'svg', comesIn: false, extension: '.svg' },
-  { id: 'IO-4', form: 'png', comesIn: false, extension: '.png' },
-  { id: 'IO-7', form: 'singleHtml', comesIn: false, extension: '.html' },
+  { id: 'IO-1', form: 'mspdi', isSaved: false, extension: '.xml' },
+  { id: 'IO-2', form: 'grsJson', isSaved: true, extension: '.json' },
+  { id: 'IO-3', form: 'svg', isSaved: false, extension: '.svg' },
+  { id: 'IO-4', form: 'png', isSaved: false, extension: '.png' },
+  { id: 'IO-7', form: 'singleHtml', isSaved: false, extension: '.html' },
 ] as const satisfies readonly {
   readonly id: string
   readonly form: SaveFileForm
-  readonly comesIn: boolean
+  readonly isSaved: boolean
   readonly extension: string
 }[]
 
@@ -153,6 +153,7 @@ function storeThat(answers: StoreAnswers = {}): StandIn {
       return answers.reading ?? { ok: false, fault: UNCONFIGURED }
     },
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       record('readOpenedFileState', undefined)
       return answers.openedState ?? { kind: 'none' }
@@ -243,11 +244,11 @@ const argumentOf = (calls: readonly StoreCall[], member: string): unknown => {
 
 
 describe('the rosters these cases walk are the ones the tables state', () => {
-  it('carries the five file rows of table T-024, two of which come in as well', () => {
+  it('carries the five file rows of table T-024, one of which is a save (SX-1 of table T-340)', () => {
     expect(T_024_FILE_ROWS).toHaveLength(5)
     expect(new Set(T_024_FILE_ROWS.map((row) => row.id)).size).toBe(5)
-    expect(T_024_FILE_ROWS.filter((row) => row.comesIn)).toHaveLength(2)
-    expect(T_024_FILE_ROWS.filter((row) => !row.comesIn)).toHaveLength(3)
+    expect(T_024_FILE_ROWS.filter((row) => row.isSaved)).toHaveLength(1)
+    expect(T_024_FILE_ROWS.filter((row) => !row.isSaved)).toHaveLength(4)
   })
 
   it('names one save form per file row of table T-024, and none for IO-5 or IO-6', () => {
@@ -496,7 +497,7 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
         overwrite: writtenTo({ kind: 'writable', fileName: 'a' }),
         chosen: writtenTo({ kind: 'writable', fileName: 'a' }),
       })
-      const request = row.comesIn
+      const request = row.isSaved
         ? overwriteRequest(row.form, { text: 'A' })
         : chosenRequest(row.form, { text: 'A' }, 'a')
       await saved(stand.store, request)
@@ -566,19 +567,19 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
 })
 
 
-describe('table T-024 direction column -- what may become the file FR-060 overwrites', () => {
+describe('table T-340 SX-1 -- what may become the file FR-060 overwrites', () => {
   it('never lets an out-only form take that position (one case walks table T-024)', async () => {
     for (const row of T_024_FILE_ROWS) {
       const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
       await saved(stand.store, chosenRequest(row.form, { text: 'A' }, 'a'))
       const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
       expect(typeof write.shouldBecomeOpenedFile, row.id).toBe('boolean')
-      if (!row.comesIn) expect(write.shouldBecomeOpenedFile, row.id).toBe(false)
+      if (!row.isSaved) expect(write.shouldBecomeOpenedFile, row.id).toBe(false)
     }
   })
 
   it('refuses to overwrite the opened file with a form that only goes out', async () => {
-    for (const row of T_024_FILE_ROWS.filter((one) => !one.comesIn)) {
+    for (const row of T_024_FILE_ROWS.filter((one) => !one.isSaved)) {
       const stand = storeThat({ overwrite: writtenTo({ kind: 'none' }) })
       const fault = await refusedSave(stand.store, overwriteRequest(row.form, { text: 'A' }))
       expect(fault.reason, row.id).toBe('notAnOverwriteTarget')
@@ -586,8 +587,8 @@ describe('table T-024 direction column -- what may become the file FR-060 overwr
     }
   })
 
-  it('accepts the two forms that come in as overwrite targets', async () => {
-    for (const row of T_024_FILE_ROWS.filter((one) => one.comesIn)) {
+  it('accepts the one form table T-340 calls a save as the overwrite target', async () => {
+    for (const row of T_024_FILE_ROWS.filter((one) => one.isSaved)) {
       const stand = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'a' }) })
       await saved(stand.store, overwriteRequest(row.form, { text: 'A' }))
       expect(stand.calls.map((call) => call.member), row.id).toEqual(['overwriteOpenedFile'])
@@ -686,7 +687,7 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
         ),
       ).resolves.toHaveProperty('ok', false)
     }
-    for (const row of T_024_FILE_ROWS.filter((one) => !one.comesIn)) {
+    for (const row of T_024_FILE_ROWS.filter((one) => !one.isSaved)) {
       await expect(
         saveDocumentFile(storeThat().store, overwriteRequest(row.form, { text: 'A' })),
       ).resolves.toHaveProperty('ok', false)
@@ -725,7 +726,7 @@ describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', (
         fault: await refusedOpen(storeThat({ reading: readingOf(bytesOf(row.bytes), 'a') }).store),
       })
     }
-    for (const row of T_024_FILE_ROWS.filter((one) => !one.comesIn)) {
+    for (const row of T_024_FILE_ROWS.filter((one) => !one.isSaved)) {
       faults.push({
         why: `overwrite refused for ${row.id}`,
         fault: await refusedSave(storeThat().store, overwriteRequest(row.form, { text: 'A' })),
@@ -979,6 +980,7 @@ function storeAt(
       return { ok: false, fault: UNCONFIGURED }
     },
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       calls.push({ member: 'readOpenedFileState', argument: undefined })
       return { kind: 'none' }
@@ -1284,7 +1286,7 @@ describe('table T-227 DI-5 -- FR-060 route asks nothing', () => {
   })
 
   it('GIVEN both forms that come in WHEN each is overwrite-saved THEN neither is asked about (one case walks the two)', async () => {
-    for (const row of T_024_FILE_ROWS.filter((one) => one.comesIn)) {
+    for (const row of T_024_FILE_ROWS.filter((one) => one.isSaved)) {
       const stand = storeAt(NOTHING_THERE, writtenTo({ kind: 'writable', fileName: 'plan-a.json' }))
       await saveDocumentFile(stand.store, overwriteRequest(row.form, { text: 'A' }))
       expect(stand.permissions, row.id).toEqual([])

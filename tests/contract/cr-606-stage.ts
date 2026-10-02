@@ -182,6 +182,7 @@ const readingsOf = (schedule: Schedule, groupIds: readonly string[]): ScreenView
   ({
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     isAgentApiEnabled: false,
     pointer: null,
     pointerRestedMs: 0,

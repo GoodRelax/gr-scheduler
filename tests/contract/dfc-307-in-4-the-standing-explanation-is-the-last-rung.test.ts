@@ -256,6 +256,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     documentTitle: null,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [commandOf(ICON)],
     language: 'ja',
@@ -282,6 +283,7 @@ const rootWithTooltipDismissed = (dismissed: boolean): ScreenSession => ({
 const EMPTY_READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

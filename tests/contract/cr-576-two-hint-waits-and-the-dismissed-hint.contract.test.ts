@@ -119,6 +119,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     documentTitle: null,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [COMMAND],
     language: 'ja',
@@ -176,6 +177,7 @@ const SETTINGS = nested({ ...SETTINGS_DEFAULTS }) as unknown as DocumentSettings
 const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: { x: 5, y: 5 },
   pointerRestedMs: 0,

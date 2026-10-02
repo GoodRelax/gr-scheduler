@@ -353,7 +353,11 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
   })
 
   it.each(['RD-6', 'RD-7'] as const)('%s: a document brought with no row', (row) => {
-    const document = replaced({ row, document: EMPTY_OF_ROWS })
+    const document = replaced(
+      row === 'RD-6'
+        ? { row, document: EMPTY_OF_ROWS }
+        : { row, document: EMPTY_OF_ROWS, editedBy: 'user', updatedUtc: '2026-10-03T00:00:00Z' },
+    )
     expect(theOneRow(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 })

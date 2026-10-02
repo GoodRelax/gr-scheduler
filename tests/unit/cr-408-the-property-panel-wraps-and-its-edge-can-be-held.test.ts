@@ -430,7 +430,7 @@ const viewWith = (propertiesPanel: PropertiesPanel | null): ScreenView => ({
       { axis: 'horizontal', track: rect(200, ROW_AREA_TOP + ROW_AREA_HEIGHT, LINE_X - 208, 8), thumb: rect(200, ROW_AREA_TOP + ROW_AREA_HEIGHT, 300, 8) },
     ],
   },
-  appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileNeverSavedText: '', commands: [], language: 'en' },
+  appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null, fileNeverSavedText: '', commands: [], language: 'en' },
   rowTitlePanel: { pinnedTitles: [], titles: [] },
   propertiesPanel,
   commandPalette: null,

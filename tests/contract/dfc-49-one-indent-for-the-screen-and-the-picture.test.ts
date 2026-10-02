@@ -97,6 +97,7 @@ const ROOT: ScreenSession = {
 const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
@@ -301,6 +302,7 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
       documentTitle: 'a document on its way to a picture',
       openedFileName: null,
       fileSavedAt: null,
+      fileSavedByteLength: null,
       fileNeverSavedText: '',
       commands: [],
       language: 'ja',

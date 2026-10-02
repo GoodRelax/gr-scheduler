@@ -289,6 +289,7 @@ function fileStore(opened: OpenedFileState): StoreProbe {
       })
     },
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => opened,
     restoreOpenedFilePermission: async () => opened,
     overwriteOpenedFile: async () => {

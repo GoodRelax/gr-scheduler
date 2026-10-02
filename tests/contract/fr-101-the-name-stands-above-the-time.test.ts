@@ -137,6 +137,7 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   language: 'ja',
@@ -170,6 +171,7 @@ const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
   openedFileName: 'OpenedFileNameHere.grs.json',
   fileSavedAt: '2026-08-29T01:02:03Z',
+  fileSavedByteLength: 48213,
   fileNeverSavedText: 'FileNeverSavedHere',
 }
 
@@ -177,6 +179,7 @@ const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
 const HEADER_NEVER_SAVED: AppHeaderItems = {
   ...HEADER_WITH_A_SAVED_FILE,
   fileSavedAt: null,
+  fileSavedByteLength: null,
 }
 
 /** The App Header measures to something, so BO-1's dimension is settled. */

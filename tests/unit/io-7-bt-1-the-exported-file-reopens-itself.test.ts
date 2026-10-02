@@ -90,7 +90,7 @@ const PLAIN_SHELL =
 
 function shellSource(html: string, embeddedDocumentElementId: string): AppShellSource {
   return {
-    readAppShell: async () => ({ ok: true, appShell: { html, embeddedDocumentElementId } }),
+    readAppShell: async () => ({ ok: true, appShell: { html, embeddedDocumentElementId, omittedElementIds: [] } }),
   }
 }
 

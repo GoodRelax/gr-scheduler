@@ -175,6 +175,7 @@ const readingsAt = (pointer: { x: number; y: number } | null, part: Record<strin
   ({
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     isAgentApiEnabled: false,
     pointer,
     pointerRestedMs: 0,
