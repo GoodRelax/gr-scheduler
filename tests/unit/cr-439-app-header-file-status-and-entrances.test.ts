@@ -89,6 +89,7 @@ function header(over: Partial<AppHeaderItems> = {}): AppHeaderItems {
     documentTitle: 'Plan of the year',
     openedFileName: 'plan.grs.json',
     fileSavedAt: SAVED_UTC,
+    fileSavedByteLength: 48213,
     fileNeverSavedText: 'not written to a file yet',
     commands: [command('IC-5', false), command('IC-6', true)],
     language: 'ja',

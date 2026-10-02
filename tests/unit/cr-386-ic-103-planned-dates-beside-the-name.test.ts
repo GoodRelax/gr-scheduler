@@ -344,6 +344,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
     const readings: ScreenViewReadings = {
       openedFileName: null,
       fileSavedAt: null,
+      fileSavedByteLength: null,
       isAgentApiEnabled: false,
       pointer: null,
       pointerRestedMs: 0,

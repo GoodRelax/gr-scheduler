@@ -689,6 +689,7 @@ const HOLDING_A_TASK: Selection = selectionWith(emptySelection(), TASK_REF)
 const SESSION: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

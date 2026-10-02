@@ -180,6 +180,7 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   language: 'ja',
@@ -210,6 +211,7 @@ const HEADER_WITH_A_SAVED_FILE: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
   openedFileName: 'OpenedFileNameHere.grs.json',
   fileSavedAt: STORED_AT,
+  fileSavedByteLength: 48213,
   fileNeverSavedText: 'FileNeverSavedHere',
 }
 

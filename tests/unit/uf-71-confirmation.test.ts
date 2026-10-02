@@ -1250,6 +1250,7 @@ const HEADER: AppHeaderItems = {
   documentTitle: 'DocumentTitleHere',
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [command({ icon: 'IC-7' })],
   // FR-038 (MUST): the header says which language is on, and it is the one
@@ -1315,6 +1316,7 @@ const rootAsking: ScreenSession = {
 const readingsAsking = (raised: RaisedConfirmation | null): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

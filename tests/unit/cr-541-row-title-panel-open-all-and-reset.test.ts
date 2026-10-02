@@ -187,7 +187,7 @@ function viewWith(panel: RowTitlePanel): ScreenView {
   return {
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
-    appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileNeverSavedText: '', commands: [], language: 'ja' },
+    appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null, fileNeverSavedText: '', commands: [], language: 'ja' },
     rowTitlePanel: panel,
     propertiesPanel: null,
     commandPalette: null,

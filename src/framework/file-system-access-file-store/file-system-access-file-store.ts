@@ -70,7 +70,13 @@ export interface DropSurface {
   ): void
 }
 
-export type OpenFilePicker = (options: {
+// see FR-060, S-452
+interface ChooserPlace {
+  readonly id: string
+  readonly startIn?: FileHandle
+}
+
+export type OpenFilePicker = (options: ChooserPlace & {
   readonly multiple: false
 }) => Promise<readonly FileHandle[]>
 
@@ -78,7 +84,7 @@ export interface SaveFileType {
   readonly accept: Readonly<Record<string, readonly string[]>>
 }
 
-export type SaveFilePicker = (options: {
+export type SaveFilePicker = (options: ChooserPlace & {
   readonly suggestedName: string
   readonly types?: readonly SaveFileType[]
   readonly excludeAcceptAllOption?: boolean
@@ -222,9 +228,27 @@ async function writeBytesToFile(
   }
 }
 
+// see FR-060, S-452
+// WHY: no known folder is ever passed as startIn; before the first read or write the browser's own default stands.
+/** @purity pure */
+function chooserPlaceOf(lastHandle: FileHandle | null): ChooserPlace {
+  const id = NOT_STORED_FILE_CHOOSER_ID['S-452']
+  return lastHandle === null ? { id } : { id, startIn: lastHandle }
+}
+
+// see FR-096, FR-060
+/** @purity pure */
+function saveChooserOptionsOf(write: ChosenFileWrite, place: ChooserPlace): Parameters<SaveFilePicker>[0] {
+  const types = saveFileTypesFor(write.extension)
+  return types === undefined
+    ? { ...place, suggestedName: write.suggestedFileName }
+    : { ...place, suggestedName: write.suggestedFileName, types, excludeAcceptAllOption: true }
+}
+
 /** @purity non-pure */
 async function readChosenFile(
   picker: OpenFilePicker | undefined,
+  place: ChooserPlace,
   proposeHandle: (handle: FileHandle) => void,
 ): Promise<FileReading> {
   if (picker === undefined) {
@@ -236,7 +260,7 @@ async function readChosenFile(
 
   let chosen: readonly FileHandle[]
   try {
-    chosen = await picker({ multiple: false })
+    chosen = await picker({ ...place, multiple: false })
   } catch (thrown) {
     if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
     return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
@@ -264,6 +288,9 @@ export function fileSystemAccessFileStore(
   environment: FileSystemAccessEnvironment,
 ): FileStore {
   let openedHandle: FileHandle | null = null
+  // see FR-060, IF-3
+  // WHY: apart from openedHandle: an overlay read moves the folder but never the save target.
+  let lastHandle: FileHandle | null = null
   // TRAP: a read only proposes its handle; adopting it on read let a merge save over the file it read (DFC-1224).
   let handleReadToOpen: { readonly handle: FileHandle | null } | null = null
 
@@ -309,6 +336,13 @@ export function fileSystemAccessFileStore(
   /** @purity non-pure */
   function proposeHandle(handle: FileHandle | null): void {
     handleReadToOpen = { handle }
+    noteHandleUsed(handle)
+  }
+
+  // see FR-060
+  /** @purity non-pure */
+  function noteHandleUsed(handle: FileHandle | null): void {
+    if (handle !== null) lastHandle = handle
   }
 
   // see OP-13
@@ -321,6 +355,7 @@ export function fileSystemAccessFileStore(
     try {
       const file = await handle.getFile()
       const bytes = new Uint8Array(await file.arrayBuffer())
+      noteHandleUsed(handle)
       return { ok: true, file: { bytes, fileName: file.name } }
     } catch (thrown) {
       return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
@@ -362,6 +397,7 @@ export function fileSystemAccessFileStore(
   ): Promise<FileWriting> {
     const failed = await writeBytesToFile(handle, bytes)
     if (failed !== null) return { ok: false, fault: failed }
+    noteHandleUsed(handle)
     if (becomesOpenedFile) openedHandle = handle
     return {
       ok: true,
@@ -385,9 +421,10 @@ export function fileSystemAccessFileStore(
       isBusy = true
       handleReadToOpen = null
       try {
-        if (route === 'chooser') return await readChosenFile(environment.openFilePicker, proposeHandle)
+        const place = chooserPlaceOf(lastHandle)
+        if (route === 'chooser') return await readChosenFile(environment.openFilePicker, place, proposeHandle)
         // WHY: OP-9 / OP-15 read a second file for the overlay; it is never a candidate to adopt, so the opened file stays the FR-060 save target.
-        if (route === 'baseline') return await readChosenFile(environment.openFilePicker, () => undefined)
+        if (route === 'baseline') return await readChosenFile(environment.openFilePicker, place, noteHandleUsed)
         if (route === 'reopen') return await readOpenedFileAgain()
         return await readDroppedFile()
       } finally {
@@ -398,6 +435,13 @@ export function fileSystemAccessFileStore(
     /** @purity non-pure */
     adoptFileReadToOpen(): void {
       if (handleReadToOpen !== null) openedHandle = handleReadToOpen.handle
+    },
+
+    // see FR-095
+    /** @purity non-pure */
+    forgetOpenedFile(): void {
+      openedHandle = null
+      handleReadToOpen = null
     },
 
     /** @purity semi-pure-b */
@@ -453,16 +497,7 @@ export function fileSystemAccessFileStore(
       try {
         let handle: FileHandle
         try {
-          const types = saveFileTypesFor(write.extension)
-          handle = await picker(
-            types === undefined
-              ? { suggestedName: write.suggestedFileName }
-              : {
-                  suggestedName: write.suggestedFileName,
-                  types,
-                  excludeAcceptAllOption: true,
-                },
-          )
+          handle = await picker(saveChooserOptionsOf(write, chooserPlaceOf(lastHandle)))
         } catch (thrown) {
           if (isDismissal(thrown)) {
             return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
@@ -496,3 +531,15 @@ export function fileSystemAccessFileStore(
     },
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_FILE_CHOOSER_ID: {
+  readonly 'S-452': string
+} = {
+  'S-452': 'grs-files',
+}
+// </generated>

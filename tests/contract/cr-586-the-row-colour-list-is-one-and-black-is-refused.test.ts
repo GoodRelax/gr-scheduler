@@ -218,6 +218,7 @@ const PANEL_SCHEDULE: Schedule = rowDocument([{ id: ROW_ID, parentId: null }], {
 const READINGS = (groupIds: readonly string[]): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

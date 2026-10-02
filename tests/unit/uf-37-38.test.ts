@@ -27,7 +27,7 @@ const T_024 = [
   { row: 'IO-3', format: 'SVG', isRead: false, isWritten: true },
   { row: 'IO-4', format: 'PNG', isRead: false, isWritten: true },
   { row: 'IO-5', format: 'localStorage', isRead: true, isWritten: true },
-  { row: 'IO-7', format: 'single .html', isRead: false, isWritten: true },
+  { row: 'IO-7', format: 'single .html', isRead: true, isWritten: true },
   { row: 'IO-6', format: 'clipboard', isRead: false, isWritten: true },
 ] as const
 
@@ -189,7 +189,7 @@ function shellSource(html: string, embeddedDocumentElementId: string): CountedSo
   const source: AppShellSource = {
     readAppShell: async () => {
       reads += 1
-      return { ok: true, appShell: { html, embeddedDocumentElementId } }
+      return { ok: true, appShell: { html, embeddedDocumentElementId, omittedElementIds: [] } }
     },
   }
   return { source, reads: () => reads }
@@ -376,17 +376,16 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
     expect(T_034.filter((rank) => rank.isFedByThisUnit)).toHaveLength(1)
   })
 
-  it('walks table T-024 -- IO-7 is the single .html and it is export only', async () => {
+  it('walks table T-024 -- IO-7 is the single .html, written and read back (CR-612)', async () => {
     for (const io of T_024) {
       if (io.format !== 'single .html') continue
       expect(io.row).toBe('IO-7')
       expect(io.isWritten).toBe(true)
-      // WHY: export only -- there is nothing here to hand a file back to.
-      expect(io.isRead).toBe(false)
+      expect(io.isRead).toBe(true)
     }
     const entry = (await import('../../src/adapter/document-codec/document-codec')) as unknown as Root
     const readers = Object.keys(entry).filter((name) => /fromhtml|fromembedded/i.test(name))
-    expect(readers).toEqual([])
+    expect(readers).toEqual(['documentFromEmbeddedHtml'])
   })
 
   it('writes table T-052 whole -- one case walks all five root keys (FR-024)', async () => {

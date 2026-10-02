@@ -91,6 +91,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     documentTitle: null,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [COMMAND],
     language: 'ja',
@@ -114,6 +115,7 @@ function restingOnTheIcon(restedMs: number): ScreenViewReadings {
   return {
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     isAgentApiEnabled: false,
     pointer: { x: 5, y: 5 },
     pointerRestedMs: restedMs,

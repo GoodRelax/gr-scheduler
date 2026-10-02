@@ -1,0 +1,140 @@
+{
+ "schemaVersion": "2026-09-27",
+ "schedule": {
+  "project": {
+   "id": null,
+   "name": null,
+   "title": null,
+   "subject": null,
+   "category": null,
+   "company": null,
+   "manager": null,
+   "author": null,
+   "created": null,
+   "revision": null,
+   "lastSaved": null,
+   "startDate": null,
+   "statusDate": null,
+   "minutesPerDay": null,
+   "minutesPerWeek": null,
+   "daysPerMonth": null,
+   "weekStartDay": null,
+   "calendarUid": 1,
+   "themeHue": 214,
+   "uidHighWaterMark": 0,
+   "importSeq": 0,
+   "outlineBase": 1,
+   "carry": {},
+   "carryElements": [],
+   "sourceFormat": "grs"
+  },
+  "calendars": [
+   {
+    "uid": 1,
+    "name": "Standard",
+    "isBaseCalendar": true,
+    "baseCalendarUid": null,
+    "ordinal": 0,
+    "carry": {},
+    "carryElements": [],
+    "weekDays": [
+     {
+      "ordinal": 0,
+      "dayType": 1,
+      "dayWorking": false,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 1,
+      "dayType": 2,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 2,
+      "dayType": 3,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 3,
+      "dayType": 4,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 4,
+      "dayType": 5,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 5,
+      "dayType": 6,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 6,
+      "dayType": 7,
+      "dayWorking": false,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "exceptions": []
+   }
+  ],
+  "tasks": [],
+  "resources": [],
+  "assignments": [],
+  "taskGroups": [],
+  "taskGroupMembers": [],
+  "taskVisuals": [],
+  "commentBoxes": [],
+  "highlightBoxes": [],
+  "taskOrigins": [],
+  "baselineTasks": []
+ },
+ "documentSettings": {
+  "actualVisible": true,
+  "assigneeVisible": false,
+  "baselineVisible": false,
+  "dateGridLinesVisible": false,
+  "dependencyVisible": true,
+  "displayScale": 100,
+  "fontScale": "M",
+  "groupGridLinesVisible": true,
+  "levelZeroTreeState": "auto",
+  "percentCompleteVisible": false,
+  "pinnedGroupIds": [],
+  "planDatesVisible": false,
+  "planVisible": true,
+  "progressLineVisible": false,
+  "progressMarkerVisible": true,
+  "rowTitlePanelWidth": 300,
+  "rulerFont": 21,
+  "rulerHeight": 69,
+  "scrollDate": null,
+  "scrollDayOffset": 0,
+  "scrollGroupId": null,
+  "scrollGroupOffset": 0,
+  "stackDirection": "up",
+  "themeMonochrome": false,
+  "zoomX": 1,
+  "zoomY": 1
+ },
+ "documentStamp": {
+  "scheduleUpdatedUtc": "2026-08-20T00:00:00Z",
+  "lastEditedBy": "template",
+  "settingsUpdatedUtc": "2026-08-20T00:00:00Z",
+  "fileSavedUtc": null
+ },
+ "changeLog": []
+}

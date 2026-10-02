@@ -463,8 +463,8 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
     )
     await store.readFileToOpen('chooser')
     expect(openCalls).toHaveLength(1)
-    expect(Object.keys(openCalls[0] as object)).toEqual(['multiple'])
-    expect(openCalls[0]).toEqual({ multiple: false })
+    expect(Object.keys(openCalls[0] as object).sort()).toEqual(['id', 'multiple'])
+    expect(openCalls[0]).toEqual({ id: expect.any(String) as unknown as string, multiple: false })
   })
 
   it('hands back the bytes and the name, and nothing else', async () => {
@@ -812,8 +812,11 @@ describe('writeChosenFile -- a file the person points at', () => {
       }),
     )
     expect(saveCalls).toHaveLength(1)
-    expect(Object.keys(saveCalls[0] as object)).toEqual(['suggestedName'])
-    expect(saveCalls[0]).toEqual({ suggestedName: `schedule${AN_EXTENSION_NO_ROW_CARRIES}` })
+    expect(Object.keys(saveCalls[0] as object).sort()).toEqual(['id', 'suggestedName'])
+    expect(saveCalls[0]).toEqual({
+      id: expect.any(String) as unknown as string,
+      suggestedName: `schedule${AN_EXTENSION_NO_ROW_CARRIES}`,
+    })
   })
 
   it('FR-096 (MUST): the chooser is told the extension as a type, for every row of table T-024', async () => {

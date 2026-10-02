@@ -183,6 +183,7 @@ import {
   answerSettledFormat,
   askToOpenDroppedFile,
   documentFileFlowOf,
+  NO_FILE_SAVED,
   takeInHandedDocument,
   OPEN_ROUTE_FROM_CHOOSER,
   OPEN_ROUTE_REOPEN,
@@ -214,7 +215,7 @@ import {
   recordLine,
 } from './interaction-record'
 import { rowBandCeilingCacheOf } from './row-band-ceiling-cache'
-import startupTemplate from './startup-template.json'
+import startupTemplateManifest from './startup-template-manifest.json'
 import { runSessionEffects, type EffectRunners } from './session-effects'
 import { heldViewPlaceOf } from './view-place'
 import { answerWatermarkUnlock, matchWatermarkUnlock } from './watermark-unlock'
@@ -227,7 +228,7 @@ export { copiedForPasteOf, pasteRefusedFor } from './copy-and-paste'
 export { FOCUS_ON_DOCUMENT_BODY } from './interaction-record'
 export { OPEN_ROUTE_FROM_DROP } from './document-file-flow'
 
-export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
+export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplateManifest.schemaVersion
 
 // see FR-051
 export interface FrameEnvironment {
@@ -265,7 +266,7 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
 
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64' | 'RS-67'
 >
 
 // see T-078
@@ -584,6 +585,7 @@ export type NoticeReason =
   | 'RS-64'
   | 'RS-65'
   | 'RS-66'
+  | 'RS-67'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -642,6 +644,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-64': 'NT-1',
   'RS-65': 'NT-5',
   'RS-66': 'NT-3a',
+  'RS-67': 'NT-1',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -840,6 +843,7 @@ export type MergeMapping = NonNullable<MergeChoices['mapping']>
 interface ScreenViewReadingsTaken {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
+  readonly fileSavedByteLength: number | null
   readonly isAgentApiEnabled: boolean
   readonly themePreference: ScreenValues['themePreference']
   readonly pointer: { readonly x: number; readonly y: number } | null
@@ -1643,6 +1647,12 @@ export function readToday(): string {
   return textOfDay(day)
 }
 
+// see FR-095, RD-7
+/** @purity semi-pure-b */
+function startingAfreshCall(emptyDocument: Document): ReplacementCall {
+  return { row: 'RD-7', document: emptyDocument, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
+}
+
 // see FR-063
 /** @purity semi-pure-b */
 export function readInstantOfWrite(): string {
@@ -1666,7 +1676,7 @@ export function frameLoop(
   startedFromTemplate?: boolean,
   rasterizer?: Rasterizer,
   appShell?: AppShellSource,
-  startupTemplate?: Document,
+  emptyDocument?: Document,
   fullScreen?: FullScreenHost,
   pageReload?: () => void,
 ): FrameLoop {
@@ -1795,7 +1805,7 @@ export function frameLoop(
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
-  const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate } =
+  const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } =
     heldViewPlaceOf(hands, startedFromTemplate)
   const {
     beginPointerRest, beginHintTargetDwell, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat,
@@ -1811,7 +1821,7 @@ export function frameLoop(
     beginWritingDocumentFile,
     settleIncomingDocument,
     answerOverwriteQuestion,
-    readFileSavedAt,
+    readFileSaved,
   } = documentFileFlow
 
   // see SF-6, UF-123
@@ -1971,7 +1981,7 @@ export function frameLoop(
         dialogueLog,
         screenViewReadingsOf(document, regions, layout, heldWholeOf(pressed), {
           openedFileName: session.fileFlow.openedFileName,
-          fileSavedAt: readFileSavedAt(),
+          ...readFileSaved(),
           isAgentApiEnabled: isAgentApiEnabledIn(session),
           themePreference: session.screen.themePreference,
           pointer: pointerAt,
@@ -2230,7 +2240,7 @@ export function frameLoop(
         dialogueLog,
         screenViewReadingsOf(document, regions, layout, null, {
           openedFileName: null,
-          fileSavedAt: null,
+          ...NO_FILE_SAVED,
           isAgentApiEnabled: false,
           themePreference: session.screen.themePreference,
           pointer: null,
@@ -2491,8 +2501,8 @@ export function frameLoop(
       heldPropertyPanelWidth = null
       const landing = LANDING_OF_REPLACEMENT_ROW[call.row]
       if (landing !== null) sendToSession(landing, values)
-      if (call.row === 'RD-4') leaveStartupTemplate()
-      if (call.row === 'RD-7') returnToStartupTemplate()
+      if (call.row === 'RD-4' || call.row === 'RD-7') leaveStartupTemplate()
+      if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
       // TRAP: the rows that make it another document, or an arriving document is drawn at the
       // fit the one before it was given.
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
@@ -2510,7 +2520,7 @@ export function frameLoop(
   function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
     if (owedAction.kind === 'startNewDocument') {
       // TRAP: not RD-6, whose history cell differs.
-      if (startupTemplate !== undefined) replaceHeldDocument({ row: 'RD-7', document: startupTemplate })
+      if (emptyDocument !== undefined) replaceHeldDocument(startingAfreshCall(emptyDocument))
       return
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)
@@ -2518,6 +2528,11 @@ export function frameLoop(
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
   }
+
+  // see FR-095, SK-25, IC-98
+  /** @purity non-pure */
+  const askToStartNewDocument = (frame: FrameValues | null): void =>
+    sendToSession({ type: 'newDocumentEntryPressed', question: discardQuestionOf(held.document) }, frame)
 
   // see T-109
   /** @purity non-pure */
@@ -2572,9 +2587,7 @@ export function frameLoop(
       return true
     }
     if (entry === NEW_DOCUMENT_ENTRY) {
-      const hasStartupTemplate = startupTemplate !== undefined
-      const question = discardQuestionOf(held.document)
-      sendToSession({ type: 'newDocumentEntryPressed', hasStartupTemplate, question }, frame)
+      askToStartNewDocument(frame)
       return true
     }
     if (entry === GRS_RESET_ENTRY) {
@@ -2697,6 +2710,9 @@ export function frameLoop(
       case 'reopenDocumentFile':
         if (files === undefined) return
         sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_REOPEN }, frame)
+        return
+      case 'startNewDocument':
+        askToStartNewDocument(frame)
         return
       case 'saveDocumentFile':
         if (files === undefined) return

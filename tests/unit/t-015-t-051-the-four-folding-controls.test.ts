@@ -544,6 +544,7 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   language: 'ja',

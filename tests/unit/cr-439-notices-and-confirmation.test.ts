@@ -93,6 +93,7 @@ function viewWith(notices: readonly Notice[], confirmation: Confirmation | null)
       documentTitle: null,
       openedFileName: null,
       fileSavedAt: null,
+      fileSavedByteLength: null,
       fileNeverSavedText: '',
       commands: [],
       language: 'ja',

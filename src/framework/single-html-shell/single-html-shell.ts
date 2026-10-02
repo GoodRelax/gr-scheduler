@@ -11,6 +11,7 @@ import { canvasRasterizer } from '../canvas-rasterizer/canvas-rasterizer'
 import type { Document } from '../../entity/document-model/document/document'
 import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
+  documentFromEmbeddedHtml,
   documentFromJson,
   type AppShellSource,
 } from '../../adapter/document-codec/document-codec'
@@ -47,7 +48,8 @@ import {
   type PointerShape,
   type StartupNoticeReason,
 } from './frame-loop'
-import startupTemplate from './startup-template.json'
+import { EMBEDDED_DOCUMENT_ELEMENT_ID, STARTUP_TEMPLATE_ELEMENT_ID } from './document-file-flow'
+import emptyDocumentRoot from './empty-document.json'
 import { openAgentApiRelayLink, type AgentApiRelayLink } from './agent-api-relay-link'
 
 const SCHEDULE_CANVAS_ROLE = 'Schedule Canvas'
@@ -59,10 +61,6 @@ const SCROLLBAR_PROBE_PX = 100
 // DEVIATION: spec says the person writes as user (ED-1); here the name is empty (DFC-560)
 // TRAP: AG-6 tells writers apart by name alone, so a subscriber under an empty name is woken by the person's own lines.
 const AUTHOR_NOT_HELD = ''
-
-const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document'
-
-const EMBEDDED_DOCUMENT_ABSENT = 'null'
 
 // WHY: taken once at boot: fetch(location.href) fails on file:// (LM-14), and the live DOM carries the drawn screen.
 let deliveredAppShellHtml: string | null = null
@@ -177,6 +175,7 @@ function appShellSource(): AppShellSource {
         appShell: {
           html: delivered,
           embeddedDocumentElementId: EMBEDDED_DOCUMENT_ELEMENT_ID,
+          omittedElementIds: [STARTUP_TEMPLATE_ELEMENT_ID],
         },
       }
     },
@@ -188,24 +187,68 @@ const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
 // DEVIATION: spec says the caller declares its writer name (ED-2); here every caller is agent (DFC-560)
 const AGENT_API_WRITER = 'agent'
 
-// see BT-4, FR-027, FR-023
-/** @purity semi-pure-a */
-function startupTemplateDocument(): Document {
-  // TRAP: pass the version although it always answers known; omitting it reports notCompared.
-  const read = documentFromJson(
-    JSON.stringify(startupTemplate),
-    GREATEST_KNOWN_SCHEMA_VERSION,
-  )
+/** @purity pure */
+function shippedDocumentOf(read: ReturnType<typeof documentFromJson>, what: string): Document {
   if (!read.ok) {
-    throw new Error(
-      'the bundled startup template is not a GRS JSON document: ' +
-        read.faults.map((one) => `${one.at} ${one.what}`).join('; '),
-    )
+    throw new Error(`${what} is not a GRS JSON document: ` + read.faults.map((one) => `${one.at} ${one.what}`).join('; '))
   }
   return read.document
 }
 
+// see BT-4, FR-027, FR-023
+// WHY: null where the page carries no template container, as an exported .html does.
+/** @purity semi-pure-b */
+function startupTemplateDocument(): Document | null {
+  // TRAP: pass the version although it always answers known; omitting it reports notCompared.
+  const read = documentFromEmbeddedHtml(
+    deliveredAppShellHtml ?? '',
+    [STARTUP_TEMPLATE_ELEMENT_ID],
+    GREATEST_KNOWN_SCHEMA_VERSION,
+  )
+  if (!read.ok && read.reason === 'entryCountNotOne' && read.entryCount === 0) return null
+  if (!read.ok && read.reason === 'entryCountNotOne') throw new Error('the page carries the startup template twice')
+  return shippedDocumentOf(read, 'the startup template the page carries')
+}
+
+// see FR-095, T-342
+/** @purity semi-pure-a */
+function emptyDocument(): Document {
+  return shippedDocumentOf(
+    documentFromJson(JSON.stringify(emptyDocumentRoot), GREATEST_KNOWN_SCHEMA_VERSION),
+    'the bundled empty document',
+  )
+}
+
+interface ShippedDocuments {
+  readonly template: Document
+  readonly isTemplateShipped: boolean
+  readonly startingAfresh: Document
+}
+
+/** @purity pure */
+function isStartedFromTemplate(row: StartupRow, shipped: ShippedDocuments): boolean {
+  return row === 'BT-4' && shipped.isTemplateShipped
+}
+
+// see BT-4, FR-067
+// WHY: an exported .html carries no template container, so its last startup choice is the empty document.
+/** @purity semi-pure-b */
+function shippedDocuments(): ShippedDocuments {
+  const startingAfresh = emptyDocument()
+  const shipped = startupTemplateDocument()
+  return { template: shipped ?? startingAfresh, isTemplateShipped: shipped !== null, startingAfresh }
+}
+
+// see T-050, RD-6
+// WHY: the empty document carries no row; this replacement lands it with the one row every document holds.
+/** @purity non-pure */
+function holdWithItsRow(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
+  if (chosen === shipped.startingAfresh) running.holdDocument({ row: 'RD-6', document: chosen })
+}
+
 type StartupCandidates = Parameters<typeof chooseStartupDocument>[0]
+
+type StartupRow = ReturnType<typeof chooseStartupDocument>['row']
 
 type EmbeddedCandidate = StartupCandidates['embedded']
 
@@ -213,7 +256,7 @@ type StartupNoticeCode = ReturnType<typeof chooseStartupDocument>['notices'][num
 
 const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeReason>> = {
   embeddedUnreadable: 'RS-25',
-  embeddedEntryCountNotOne: 'RS-15',
+  embeddedEntryCountNotOne: 'RS-67',
   handedUnreadable: 'RS-26',
 }
 
@@ -262,24 +305,16 @@ function embeddedStartupDocument(): StartupReadings & {
   readonly candidate: EmbeddedCandidate
   readonly refusal: StartupNoticeReason | null
 } {
-  // TRAP: CSS.escape, since an id may begin with a digit; querySelectorAll, since FR-067 needs the count.
-  const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
-  if (containers.length === 0) {
-    return { candidate: { kind: 'none' }, refusal: null, ...NOTHING_READ }
+  const read = documentFromEmbeddedHtml(
+    deliveredAppShellHtml ?? '',
+    [EMBEDDED_DOCUMENT_ELEMENT_ID],
+    GREATEST_KNOWN_SCHEMA_VERSION,
+  )
+  if (!read.ok && read.reason === 'entryCountNotOne') {
+    const candidate: EmbeddedCandidate =
+      read.entryCount === 0 ? { kind: 'none' } : { kind: 'entryCountNotOne', entryCount: read.entryCount }
+    return { candidate, refusal: null, ...NOTHING_READ }
   }
-  if (containers.length > 1) {
-    return {
-      candidate: { kind: 'entryCountNotOne', entryCount: containers.length },
-      refusal: null,
-      ...NOTHING_READ,
-    }
-  }
-  const embedded = containers[0]?.textContent?.trim() ?? ''
-  if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
-    return { candidate: { kind: 'none' }, refusal: null, ...NOTHING_READ }
-  }
-  // TRAP: do not un-escape first: embeddedJson wrote JSON escapes, which the reader gives back.
-  const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
   const readings = startupReadingsOf(read)
   if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null, ...readings }
   const refusal = noWorkingWeekdayReason(read.document)
@@ -408,10 +443,11 @@ function boot(): void {
   const nowEnvironment = (): FrameEnvironment =>
     environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx, commandPaletteBandPx)
 
+  const shipped = shippedDocuments()
+  const template = shipped.template
+
   // TRAP: read before BO-2: readTheme is asked while the surface factory runs, before chosen exists,
   // and reading chosen there throws a ReferenceError that stops the whole boot.
-  const template = startupTemplateDocument()
-
   let themeDocument: Document = template
 
   const startupTheme = startupThemePreference()
@@ -553,14 +589,15 @@ function boot(): void {
     fileStore,
     showPointerShape,
     browserClipboard(globalThis.navigator?.clipboard),
-    chosen.row === 'BT-4',
+    isStartedFromTemplate(chosen.row, shipped),
     canvasRasterizer(document),
     appShellSource(),
-    template,
+    shipped.startingAfresh,
     pageFullScreenHost(),
     reloadAfterReset,
   )
   loop = running
+  holdWithItsRow(running, chosen.document, shipped)
   running.fullScreenChanged(isPageFullScreen())
 
   // TRAP: run the frame, not resize(): a scheduled animation frame lands late and draws against the unmeasured header.
@@ -576,7 +613,7 @@ function boot(): void {
   // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
   if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 
-  publishAgentApiWhileEnabled(running, template.schemaVersion)
+  publishAgentApiWhileEnabled(running, GREATEST_KNOWN_SCHEMA_VERSION)
 
   const inputSource = domInputSource(
     window,

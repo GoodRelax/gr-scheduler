@@ -107,8 +107,7 @@ export function heldViewPlaceOf(
   hands: ViewPlaceHands,
   startedFromTemplate: boolean | undefined,
 ) {
-  // WHY: not read off the document's template stamp, which the first write turns into
-  // user, so the view would jump to the fit on typing.
+  // WHY: not read off the template stamp, which the first write turns into user; the view would jump.
   let fromStartupTemplate = startedFromTemplate === true
   let fitHeldForNoPlace:
     | {
@@ -165,12 +164,7 @@ export function heldViewPlaceOf(
     fromStartupTemplate = false
   }
 
-  /** @purity non-pure */
-  function returnToStartupTemplate(): void {
-    fromStartupTemplate = true
-  }
-
-  return { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate }
+  return { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate }
 }
 
 export type HeldViewPlace = ReturnType<typeof heldViewPlaceOf>

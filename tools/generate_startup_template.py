@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
-"""Write the bundled startup template (FR-027, table T-226).
+"""Write the startup template (FR-027, table T-226) and the documents beside it.
 
     python tools/generate_startup_template.py
     python tools/generate_startup_template.py --check
+
+⭐ ONE RUN, FOUR ARTIFACTS (CR-611, CR-612):
+    startup-template.json           the template FR-027 ships. ⛔ No module
+                                    imports it: the build puts it in a
+                                    non-running JSON container of its own
+                                    (vite.config.ts), so the export of FR-067
+                                    can leave it out.
+    startup-template-manifest.json  the format version (FR-073) and the id of
+                                    that container -- the two small facts the
+                                    program and the build read instead.
+    empty-document.json             table T-342, the empty document FR-095
+                                    starts afresh with (and BT-4's document in
+                                    an exported .html, which holds no template).
+    tests/fixtures/measuring-document.json
+                                    MC-10 of table T-025, the document the
+                                    performance tests measure. Today it is the
+                                    template byte for byte (JDG-970, PND-611).
 
 FR-027 requires the template to be a bundled `GRS JSON` and forbids building
 the document in code, so that the same validator the import path uses can be
@@ -105,6 +122,17 @@ SETTINGS_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
 OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
                    'startup-template.json')
+MANIFEST_OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
+                            'startup-template-manifest.json')
+EMPTY_OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
+                         'empty-document.json')
+MEASURING_OUT = os.path.join(ROOT, 'tests', 'fixtures', 'measuring-document.json')
+ERD_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
+
+# CR-612 decision 1: the template's container carries an id of its own, never
+# BT-1's `embedded-document`, so a shipped page still opens from BT-4 and an
+# export can take the template out without touching the embedded document.
+STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
@@ -898,7 +926,7 @@ STAMP_AUTHOR = 'template'
 # ⚠️ `title` is the DOCUMENT name (FR-035) and `name` is the PROJECT name
 # (PF-1). They are different fields with different owners, so they are not the
 # same string.
-PROJECT_TITLE = 'Three-Year Product Plan'          # FR-035, Project.title
+PROJECT_TITLE = 'Sample Project - Press N to start a new one'  # FR-035, SK-25 (JDG-972)
 PROJECT_NAME = 'Product Development Programme'     # PF-1
 PROJECT_SUBJECT = 'Building and delivering the product over three years'
 PROJECT_CATEGORY = 'Software Development'
@@ -1048,7 +1076,8 @@ def constant(name):
 def manuscript_number(row_id):
     """The number a settings row states, straight from the manuscript.
 
-    ⛔ Used for `S-73` alone. DR-5 keeps the theme hue on `Project` and out of
+    ⭐ Used for `S-73`, and for `S-71` by the empty document (BK-4).
+    DR-5 keeps the theme hue on `Project` and out of
     the presentation group, so it is the one value this file needs that
     SETTINGS_DEFAULTS does not carry -- and writing `214` here would put a
     second copy of a decided value in the tree (rule 03 of
@@ -4419,31 +4448,124 @@ def build():
     return document
 
 
+def nullable_project_columns():
+    """The `Project` columns table T-058 lets be null, read from erd.json.
+
+    @purity semi-pure-b
+    """
+    erd = json.load(io.open(ERD_JSON, encoding='utf-8'))
+    project = [one for one in erd['entities'] if one.get('name') == 'Project']
+    insist(len(project) == 1, 'erd.json holds no single Project entity')
+    # The nullable cell reads U+53EF ("may be null") for exactly those columns.
+    return set(column['name'] for column in project[0]['columns']
+               if column.get('nullable') == '\u53ef')
+
+
+def empty_document():
+    """Table T-342 -- the empty document FR-095 starts afresh with.
+
+    ⛔ No row: BK-2's one row is the one the rule under table T-050 makes on
+    landing, with an id taken afresh each time (document-change-plan.ts).
+
+    @purity semi-pure-b
+    """
+    settings = settings_defaults()
+    assert_settings_complete(settings)
+    built = Builder(settings)
+    project = built.project(0, manuscript_number('S-73'))
+    for column in nullable_project_columns():
+        project[column] = None
+    # BK-4: calendarUid points at BK-3's calendar; the other non-null columns
+    # take the values that row names.
+    project['calendarUid'] = 1
+    project['importSeq'] = manuscript_number('S-71')
+    project['uidHighWaterMark'] = 0
+    project['outlineBase'] = 1
+    project['sourceFormat'] = PROJECT_SOURCE_FORMAT
+    project['carry'] = {}
+    project['carryElements'] = []
+    calendar = built.calendar()
+    # BK-3: the working days of S-106 and the exceptions of S-107.
+    calendar['exceptions'] = list(CALENDAR_VALUES['S-107'])
+    document = {
+        'schemaVersion': SCHEMA_VERSION,
+        'schedule': {
+            'project': project,
+            'calendars': [calendar],
+            'tasks': [],
+            'resources': [],
+            'assignments': [],
+            'taskGroups': [],
+            'taskGroupMembers': [],
+            'taskVisuals': [],
+            'commentBoxes': [],
+            'highlightBoxes': [],
+            'taskOrigins': [],
+            'baselineTasks': [],
+        },
+        'documentSettings': settings,
+        # BK-6: the replacement (RD-7) advances these; fileSavedUtc stays empty.
+        'documentStamp': {
+            'scheduleUpdatedUtc': STAMPED_AT,
+            'lastEditedBy': STAMP_AUTHOR,
+            'settingsUpdatedUtc': STAMPED_AT,
+            'fileSavedUtc': None,
+        },
+        'changeLog': [],
+    }
+    check_schema(document)
+    return document
+
+
+def manifest():
+    """The two facts the program and the build read instead of the template.
+
+    @purity pure
+    """
+    return {
+        'schemaVersion': SCHEMA_VERSION,
+        'containerElementId': STARTUP_TEMPLATE_ELEMENT_ID,
+    }
+
+
+def json_text(value):
+    """@purity pure"""
+    return json.dumps(value, ensure_ascii=False, indent=1) + '\n'
+
+
 def main():
     """@purity non-pure"""
     document = build()
-    body = json.dumps(document, ensure_ascii=False, indent=1) + '\n'
+    body = json_text(document)
+    wanted = (
+        (OUT, body),
+        (MANIFEST_OUT, json_text(manifest())),
+        (EMPTY_OUT, json_text(empty_document())),
+        # MC-10: the same forest as the template, so today the same bytes.
+        (MEASURING_OUT, body),
+    )
     if '--check' in sys.argv:
-        if not os.path.exists(OUT):
-            sys.stdout.write('PROBLEM  %s has not been written yet\n'
-                             % os.path.relpath(OUT, ROOT))
-            return 1
-        on_disk = io.open(OUT, encoding='utf-8', newline='').read()
-        if on_disk != body:
-            sys.stdout.write('PROBLEM  %s has drifted from its manuscript -- '
-                             'run `python tools/generate_startup_template.py`\n'
-                             % os.path.relpath(OUT, ROOT))
-            return 1
-        sys.stdout.write('OK       the startup template matches its manuscript '
-                         '(%d row(s), %d task(s))\n'
-                         % (len(document['schedule']['taskGroups']),
+        for path, text in wanted:
+            if not os.path.exists(path):
+                sys.stdout.write('PROBLEM  %s has not been written yet\n'
+                                 % os.path.relpath(path, ROOT))
+                return 1
+            on_disk = io.open(path, encoding='utf-8', newline='').read()
+            if on_disk != text:
+                sys.stdout.write('PROBLEM  %s has drifted from its manuscript -- '
+                                 'run `python tools/generate_startup_template.py`\n'
+                                 % os.path.relpath(path, ROOT))
+                return 1
+        sys.stdout.write('OK       the startup template and the %d file(s) '
+                         'beside it match their manuscript (%d row(s), %d task(s))\n'
+                         % (len(wanted) - 1,
+                            len(document['schedule']['taskGroups']),
                             len(document['schedule']['tasks'])))
         return 0
-    io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
-    sys.stdout.write('wrote %s (%d row(s), %d task(s), %d byte(s))\n'
-                     % (os.path.relpath(OUT, ROOT),
-                        len(document['schedule']['taskGroups']),
-                        len(document['schedule']['tasks']), len(body)))
+    for path, text in wanted:
+        io.open(path, 'w', encoding='utf-8', newline='\n').write(text)
+        sys.stdout.write('wrote %s (%d byte(s))\n'
+                         % (os.path.relpath(path, ROOT), len(text)))
     return 0
 
 

@@ -453,6 +453,7 @@ const EXPORT_VIEW: ScreenView = {
     documentTitle: 'a document on its way to the clipboard',
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [],
     language: 'ja',

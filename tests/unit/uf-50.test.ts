@@ -121,6 +121,7 @@ const T_036_KEYS = [
   { row: 'SK-8', hostKey: 'Escape', hostCode: 'Escape', mods: {}, key: 'Esc' },
   { row: 'SK-9', hostKey: 'F2', hostCode: 'F2', mods: {}, key: 'F2' },
   { row: 'SK-10', hostKey: 'o', hostCode: 'KeyO', mods: { ctrl: true }, key: 'O' },
+  { row: 'SK-25', hostKey: 'n', hostCode: 'KeyN', mods: {}, key: 'N' },
   { row: 'SK-11', hostKey: 's', hostCode: 'KeyS', mods: { ctrl: true }, key: 'S' },
   { row: 'SK-12', hostKey: 'E', hostCode: 'KeyE', mods: { ctrl: true, shift: true }, key: 'E' },
   { row: 'SK-13', hostKey: 'F1', hostCode: 'F1', mods: {}, key: 'F1' },

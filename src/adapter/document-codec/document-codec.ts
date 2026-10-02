@@ -15,14 +15,15 @@ export type { FormatVersionReading, JsonDecoding, JsonFault } from './json-codec
 export { documentFromMspdi, mspdiFromDocument } from './mspdi-codec'
 export type { MspdiDecoding, MspdiEncoding, MspdiFault, MspdiNotice } from './mspdi-codec'
 
-export { exportEmbeddedHtml } from './embedded-html-codec'
+export { documentFromEmbeddedHtml, exportEmbeddedHtml } from './embedded-html-codec'
 export type {
   EmbeddedHtmlExport,
   EmbeddedHtmlFault,
   EmbeddedHtmlFaultReason,
+  EmbeddedHtmlReading,
 } from './embedded-html-codec'
 
-export type ExchangeFormat = 'grsJson' | 'mspdi'
+export type ExchangeFormat = 'grsJson' | 'mspdi' | 'singleHtml'
 
 export type FormatMismatch = 'extension' | 'firstCharacter' | 'both'
 
@@ -38,25 +39,31 @@ export type FormatReading =
 // TRAP: not trimStart() or \s: both eat U+FEFF and undo the drop-the-mark-first order.
 const BLANK_CHARACTERS: ReadonlySet<string> = new Set([' ', '\t', '\n', '\r'])
 
-const ROW_OF_FORMAT: Readonly<Record<ExchangeFormat, string>> = {
-  grsJson: 'IO-2',
-  mspdi: 'IO-1',
-}
-
 interface ReadableFormat {
   readonly format: ExchangeFormat
   readonly extension: string
   readonly firstCharacter: string
 }
 
-const READABLE_FORMATS: readonly ReadableFormat[] = (
-  Object.keys(ROW_OF_FORMAT) as readonly ExchangeFormat[]
-).flatMap((format) => {
-  const row = exchangeFormats.formats.find((one) => one.rowId === ROW_OF_FORMAT[format])
-  if (row === undefined) return []
+// see T-024, OP-1
+// TRAP: a row table T-024 lets in with no decoder named here stops this module from loading, never silently.
+/** @purity pure */
+function formatOfReadableRow(rowId: string): ExchangeFormat {
+  switch (rowId) {
+    case 'IO-2':
+      return 'grsJson'
+    case 'IO-1':
+      return 'mspdi'
+    case 'IO-7':
+      return 'singleHtml'
+  }
+  throw new Error(`table T-024 row ${rowId} comes in, and DocumentCodec has no decoder for it`)
+}
+
+const READABLE_FORMATS: readonly ReadableFormat[] = exchangeFormats.formats.flatMap((row) => {
   const { extension, firstCharacter } = row
   if (extension === null || firstCharacter === null) return []
-  return [{ format, extension, firstCharacter }]
+  return [{ format: formatOfReadableRow(row.rowId), extension, firstCharacter }]
 })
 
 // see T-024
@@ -91,7 +98,8 @@ function mismatchOf(
   return 'both'
 }
 
-// see OP-12
+// see OP-12, T-024
+// WHY: the row is chosen by the pair; two readable rows share their first character, so one column names no row.
 /** @purity pure */
 export function formatFromFile(fileName: string, text: string): FormatReading {
   const extension = extensionOf(fileName)
@@ -102,7 +110,7 @@ export function formatFromFile(fileName: string, text: string): FormatReading {
       ? null
       : (READABLE_FORMATS.find((row) => row.firstCharacter === firstCharacter) ?? null)
 
-  if (byExtension !== null && byExtension === byFirstCharacter) {
+  if (byExtension !== null && byExtension.firstCharacter === firstCharacter) {
     return { ok: true, format: byExtension.format }
   }
   return {

@@ -234,7 +234,7 @@ const EMPTY_VIEW: ScreenView = {
   language: 'en',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
-    documentTitle: null, openedFileName: null, fileSavedAt: null,
+    documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null,
     fileNeverSavedText: '', commands: [], language: 'en',
   },
   rowTitlePanel: { pinnedTitles: [], titles: [] },

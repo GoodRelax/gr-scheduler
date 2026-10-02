@@ -144,6 +144,7 @@ async function stage(): Promise<Stage> {
       return new Promise<FileReading>((resolve) => void answers.push(resolve))
     },
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({

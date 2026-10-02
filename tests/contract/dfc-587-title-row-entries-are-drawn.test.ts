@@ -77,6 +77,7 @@ const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
@@ -175,7 +176,7 @@ const EMPTY_VIEW: ScreenView = {
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: {
-    documentTitle: null, openedFileName: null, fileSavedAt: null,
+    documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null,
     fileNeverSavedText: '', commands: [], language: 'ja',
   },
   rowTitlePanel: { pinnedTitles: [], titles: [] },

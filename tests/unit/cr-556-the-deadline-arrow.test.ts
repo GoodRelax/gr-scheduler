@@ -760,6 +760,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     documentTitle: null,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [],
     language: 'ja',
@@ -781,6 +782,7 @@ const sessionIn = (language: 'ja' | 'en'): ScreenSession => ({
 const restingOn = (task: Task): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: { x: 300, y: 200 },
   pointerRestedMs: S_439_MS + 1,

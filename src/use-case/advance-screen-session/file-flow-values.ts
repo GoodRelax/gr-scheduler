@@ -60,7 +60,15 @@ export type FileFlowImportAnswer =
   | { readonly kind: 'openChoice'; readonly openChoice: FileFlowOpenChoice }
   | { readonly kind: 'mergeMapping'; readonly mergeMapping: FileFlowMergeMapping }
 
+// see OP-16
+export interface FileFlowIncomingFile {
+  readonly fileName: string | null
+  readonly byteLength: number
+  readonly documentTitle: string | null
+}
+
 export interface FileFlowValuesStateCarried {
+  readonly incomingFile: FileFlowIncomingFile
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
   readonly openRoute: FileFlowOpenRoute
@@ -79,7 +87,7 @@ export interface FileFlowValuesEventCarried {
   readonly mergeMapping: FileFlowMergeMapping
   readonly isProceeding: boolean
   readonly owedAction: FileFlowOwedAction
-  readonly hasStartupTemplate: boolean
+  readonly incomingFile: FileFlowIncomingFile
   readonly surfaceName: string
   readonly droppedTaskNames: readonly (string | null)[]
   readonly openedFileName: string | null
@@ -309,7 +317,7 @@ function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFile
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
     return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
   }
-  const choosing: FileOperationState = { kind: 'awaitingOpenChoice' }
+  const choosing: FileOperationState = { kind: 'awaitingOpenChoice', incomingFile: event.incomingFile }
   return combined(values, { fileOperationState: choosing }, [{ type: 'raiseFlowSurface', surfaceName: 'U-56' }])
 }
 
@@ -447,7 +455,7 @@ function onChangeQuestionRaised(values: FileFlowValues, event: EventOf<'changeQu
 // see T-290, FR-095, QN-5
 /** @purity pure */
 function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDocumentEntryPressed'>): FileFlowStep {
-  if (isQuestionAsked(values) || !event.hasStartupTemplate) return refused(values)
+  if (isQuestionAsked(values)) return refused(values)
   return combined(values, { confirmationState: asked(event.question, { kind: 'startNewDocument' }) }, NO_EFFECTS)
 }
 

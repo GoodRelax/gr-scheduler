@@ -106,6 +106,7 @@ export interface AppHeaderItems {
   readonly documentTitle: string | null
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
+  readonly fileSavedByteLength: number | null
   readonly fileNeverSavedText: string
   readonly commands: readonly CommandItem[]
   readonly language: DisplayLanguage
@@ -511,6 +512,7 @@ export interface DualCursorReadout {
 export interface ScreenViewReadings {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
+  readonly fileSavedByteLength: number | null
   readonly isAgentApiEnabled: boolean
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number

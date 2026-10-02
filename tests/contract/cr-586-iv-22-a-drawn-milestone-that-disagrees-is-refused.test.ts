@@ -229,6 +229,7 @@ function bench(): Bench {
         answers.push(resolve)
       }),
     adoptFileReadToOpen: () => {},
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({

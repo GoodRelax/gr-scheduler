@@ -21,6 +21,7 @@ import {
 } from '../../src/framework/file-system-access-file-store/file-system-access-file-store'
 
 const T024 = specTable('T-024')
+const T340 = specTable('T-340')
 const T227 = specTable('T-227')
 
 interface SeamCase {
@@ -645,12 +646,16 @@ function extensionOfForm(form: SaveFileForm): string {
   return /`([^`]+)`/.exec(row.by['拡張子'] ?? '')?.[1] ?? ''
 }
 
+// see SX-1, T-340
+const SAVED_ROWS: readonly string[] = (T340.rows.find((row) => row.id === 'SX-1')?.by['書けたもの'] ?? '')
+  .match(/IO-\d+/g) ?? []
+
 const saveForms = T024.rows
   .filter((row) => FORM_OF_ROW[row.id] !== undefined)
   .map((row) => ({
     id: row.id,
     form: FORM_OF_ROW[row.id] as SaveFileForm,
-    comesIn: (row.by['方向'] ?? '').includes('取込'),
+    comesIn: SAVED_ROWS.includes(row.id),
   }))
 
 describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
@@ -664,7 +669,6 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
     ])
     expect(saveForms.filter((one) => one.comesIn).map((one) => one.form).sort()).toEqual([
       'grsJson',
-      'mspdi',
     ])
     for (const one of saveForms) {
       expect(
@@ -678,7 +682,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
   it.each(saveForms)(
     seamCase(
       ['IO-n'],
-      'only a form the direction column lets IN becomes the file to overwrite ($id)',
+      'only a form table T-340 calls a save (SX-1) becomes the file to overwrite ($id)',
     ),
     async ({ id, form, comesIn }) => {
       const log: string[] = []
@@ -704,7 +708,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
       const state = await store.readOpenedFileState()
       expect(
         state.kind === 'none' ? 'not the overwrite target' : 'the overwrite target',
-        `${id}: direction is ${comesIn ? 'in and out' : 'out only'}`,
+        `${id}: ${comesIn ? 'a save (SX-1)' : 'an export (SX-2)'}`,
       ).toBe(comesIn ? 'the overwrite target' : 'not the overwrite target')
     },
   )

@@ -201,6 +201,7 @@ function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
   const readings = {
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     isAgentApiEnabled: false,
     isDialogueFieldVisible: true,
     pointer: null,
@@ -246,6 +247,7 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   language: 'ja',

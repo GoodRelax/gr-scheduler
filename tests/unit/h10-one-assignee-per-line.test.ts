@@ -306,6 +306,7 @@ const SESSION: ScreenSession = {
 const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,
@@ -555,6 +556,7 @@ const viewOf = (panel: PropertiesPanel | null): ScreenView => ({
     documentTitle: null,
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     fileNeverSavedText: '',
     commands: [],
     language: 'ja',

@@ -698,6 +698,7 @@ function fileStore(behaviour: StoreBehaviour = {}): StoreProbe {
         waiting.push(resolve)
       }),
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({
@@ -1496,9 +1497,9 @@ describe('table T-037 NT-7 (MUST) -- the question is answered from the keyboard'
     const beforeAnyQuestion = CONFIRMATION_ANSWERS.map((answer) =>
       loop.isBrowserDefaultStopped(answerKeyFor(answer)),
     )
-    expect(beforeAnyQuestion, 'the keys were taken with no question standing').toEqual([
+    expect(beforeAnyQuestion, 'with no question standing only N is taken, as SK-25 of table T-036').toEqual([
       false,
-      false,
+      true,
     ])
   })
 
@@ -2725,7 +2726,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
   const readableAppShell = (): AppShellSource => ({
     readAppShell: async (): Promise<AppShellReading> => ({
       ok: true,
-      appShell: { html: APP_SHELL_HTML, embeddedDocumentElementId: 'embedded-document' },
+      appShell: { html: APP_SHELL_HTML, embeddedDocumentElementId: 'embedded-document', omittedElementIds: [] },
     }),
   })
 
@@ -3069,6 +3070,7 @@ describe('FR-025 (MUST) -- a picture past the height ceiling is refused with RS-
       appShell: {
         html: '<!DOCTYPE html><html><body>GRS</body></html>',
         embeddedDocumentElementId: 'embedded-document',
+        omittedElementIds: [],
       },
     }),
   })

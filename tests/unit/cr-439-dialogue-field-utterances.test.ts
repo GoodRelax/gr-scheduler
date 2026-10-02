@@ -64,6 +64,7 @@ function viewWith(dialogueField: DialogueField | null): ScreenView {
       documentTitle: null,
       openedFileName: null,
       fileSavedAt: null,
+      fileSavedByteLength: null,
       fileNeverSavedText: '',
       commands: [],
       language: 'ja',

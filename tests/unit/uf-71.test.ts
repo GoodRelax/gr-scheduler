@@ -1058,6 +1058,7 @@ const EMPTY_HEADER: AppHeaderItems = {
   documentTitle: null,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   // FR-038 (MUST): the header says which language is on. The same value the
@@ -1244,6 +1245,7 @@ const RICH_VIEW: ScreenView = viewWith({
     // differing is normal, so the two fixtures here differ.
     openedFileName: 'OpenedFileNameHere.grs.json',
     fileSavedAt: '2026-08-29T01:02:03Z',
+    fileSavedByteLength: 48213,
     fileNeverSavedText: 'FileNeverSavedHere',
     commands: [command({ icon: 'IC-20', label: 'HeaderCommandOne' })],
     // FR-038: the same language the view carries.

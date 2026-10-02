@@ -259,8 +259,6 @@ export function entranceStateFill(standing: readonly EntranceStateRow[]): string
   return ''
 }
 
-const FILE_STATUS_TEXT_SCALE = 0.75
-
 const STOPPING_BOX =
   'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
   'box-sizing:border-box;max-width:92%;max-height:92%;overflow:auto;padding:1em;' +
@@ -290,12 +288,12 @@ export const STYLE = {
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
+  // WHY: height 0, its lines hanging evenly about the header's middle, so the box never sets the header's height.
   fileStatus:
-    `margin-left:auto;color:${PAINT.quiet};display:flex;` +
-    `flex-direction:column;align-items:flex-end;line-height:1.2;` +
-    `font-size:${FILE_STATUS_TEXT_SCALE}em;`,
-  openedFileName: 'overflow:hidden;text-overflow:ellipsis;max-width:24ch;',
-  fileSavedAt: '',
+    `margin-left:auto;color:${PAINT.quiet};display:flex;height:0;` +
+    `flex-direction:column;justify-content:center;align-items:flex-end;line-height:1.2;`,
+  openedFileName: 'flex-shrink:0;overflow:hidden;text-overflow:ellipsis;max-width:24ch;',
+  fileSavedAt: 'flex-shrink:0;white-space:pre;',
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   languageCode:
     'display:inline-block;vertical-align:middle;margin-left:0.25em;' +

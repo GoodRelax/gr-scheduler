@@ -354,6 +354,7 @@ function fileStore(): StoreProbe {
         waiting.push(resolve)
       }),
     adoptFileReadToOpen: () => undefined,
+    forgetOpenedFile: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({

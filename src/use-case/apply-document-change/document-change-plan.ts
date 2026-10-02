@@ -298,7 +298,12 @@ export type ReplacementCall =
     }
   | { readonly row: 'RD-4'; readonly importing: ImportCall<'replace'> }
   | { readonly row: 'RD-6'; readonly document: Document }
-  | { readonly row: 'RD-7'; readonly document: Document }
+  | {
+      readonly row: 'RD-7'
+      readonly document: Document
+      readonly editedBy: string
+      readonly updatedUtc: string
+    }
 
 export interface ReplacementInput {
   readonly held: HeldDocument
@@ -343,6 +348,14 @@ function replacementSettled(
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
   return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }
+}
+
+// see RD-7, FR-095
+/** @purity pure */
+function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { readonly row: 'RD-7' }>): Document {
+  const hasMovedSchedule = hasMovedScheduleGroup(outgoing, call.document)
+  const documentStamp = advancedStamp(call.document.documentStamp, call.editedBy, call.updatedUtc, { hasMovedSchedule })
+  return { ...call.document, documentStamp }
 }
 
 /** @purity pure */
@@ -425,10 +438,6 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       )
 
     case 'RD-7':
-      return replacementSettled(
-        held,
-        { document: call.document, history: emptyHistory() },
-        input,
-      )
+      return replacementSettled(held, { document: startedAfresh(held.document, call), history: emptyHistory() }, input)
   }
 }

@@ -235,6 +235,7 @@ export type InputAction =
   | { readonly kind: 'openDocumentFile'; readonly openRoute?: 'baseline' }
   | { readonly kind: 'saveDocumentFile' }
   | { readonly kind: 'reopenDocumentFile' }
+  | { readonly kind: 'startNewDocument' }
   | { readonly kind: 'copyPictureToClipboard' }
   | { readonly kind: 'settleTextEntry' }
   | { readonly kind: 'dismissNotice' }
@@ -404,6 +405,7 @@ export const KEY = {
   d: 'D',
   e: 'E',
   f: 'F',
+  n: 'N',
   o: 'O',
   p: 'P',
   r: 'R',

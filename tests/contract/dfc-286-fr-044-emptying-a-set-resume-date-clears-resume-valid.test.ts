@@ -316,6 +316,7 @@ const documentOf = (schedule: Schedule): Document =>
 const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   pointer: null,
   pointerRestedMs: 0,

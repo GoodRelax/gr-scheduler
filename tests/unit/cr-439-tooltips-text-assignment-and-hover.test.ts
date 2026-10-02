@@ -57,6 +57,7 @@ function viewWith(tooltips: readonly Tooltip[]): ScreenView {
       documentTitle: null,
       openedFileName: null,
       fileSavedAt: null,
+      fileSavedByteLength: null,
       fileNeverSavedText: '',
       commands: [],
       language: 'ja',

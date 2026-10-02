@@ -1,4 +1,4 @@
-// DomScreenSurface -- the App Header contents: document title, file name and saved time, entries.
+// DomScreenSurface -- the App Header contents: document title, file name, saved time and size, entries.
 // @unit      UF-104  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -31,9 +31,7 @@ function documentTitleStyle(): string {
   return `${STYLE.documentTitle}font-size:${size}px;`
 }
 
-// see FR-101
-// STOP: spec does not decide how a local stamp spells its zone offset. Looked in FR-101, AT-129
-// @provisional PND-325
+// see HS-2, FR-101
 /** @purity semi-pure-b */
 function readableStamp(utc: string): string {
   const foundAt = new Date(utc)
@@ -45,7 +43,33 @@ function readableStamp(utc: string): string {
   const hour = padded(foundAt.getHours(), 2)
   const minute = padded(foundAt.getMinutes(), 2)
   const second = padded(foundAt.getSeconds(), 2)
-  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+  return `${year}/${month}/${day} ${hour}:${minute}:${second}`
+}
+
+const BYTES_PER_TENTH_OF_KB = 100
+
+const TENTHS_PER_KB = 10
+
+// see HS-3
+// WHY: whole tenths in integers, so the half-up rounding never meets a binary fraction.
+/** @purity pure */
+export function spelledFileSize(byteLength: number): string {
+  const tenths = Math.floor((byteLength + BYTES_PER_TENTH_OF_KB / 2) / BYTES_PER_TENTH_OF_KB)
+  return `${Math.floor(tenths / TENTHS_PER_KB)}.${tenths % TENTHS_PER_KB}[kB]`
+}
+
+// see HS-1, HS-5
+/** @purity semi-pure-b */
+function fileSavedLine(items: AppHeaderItems): string {
+  if (items.fileSavedAt === null) return items.fileNeverSavedText
+  const stamp = readableStamp(items.fileSavedAt)
+  return items.fileSavedByteLength === null ? stamp : `${stamp}  ${spelledFileSize(items.fileSavedByteLength)}`
+}
+
+// see HS-7, FR-051
+/** @purity pure */
+function fileStatusLineStyle(base: string, lineRow: 'S-210' | 'S-449'): string {
+  return `${base}font-size:${chromeScaledPx(NOT_STORED_FILE_STATUS_SIZES[lineRow])}em;`
 }
 
 // see FR-038, IC-21, IC-128
@@ -69,14 +93,11 @@ export function fillAppHeader(
   title.textContent = items.documentTitle
 
   const fileStatus = part(host, 'span', ROLE.fileStatus, STYLE.fileStatus)
-  const fileName = part(host, 'span', ROLE.openedFileName, STYLE.openedFileName)
+  const fileName = part(host, 'span', ROLE.openedFileName, fileStatusLineStyle(STYLE.openedFileName, 'S-449'))
   fileName.textContent = items.openedFileName
   fileStatus.append(fileName)
-  const savedAt = part(host, 'span', ROLE.fileSavedAt, STYLE.fileSavedAt)
-  savedAt.textContent =
-    items.fileSavedAt === null
-      ? items.fileNeverSavedText
-      : readableStamp(items.fileSavedAt)
+  const savedAt = part(host, 'span', ROLE.fileSavedAt, fileStatusLineStyle(STYLE.fileSavedAt, 'S-210'))
+  savedAt.textContent = fileSavedLine(items)
   fileStatus.append(savedAt)
 
   const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
@@ -93,3 +114,17 @@ export function fillAppHeader(
   header.replaceChildren(title, fileStatus, commands)
   return title
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_FILE_STATUS_SIZES: {
+  readonly 'S-210': number
+  readonly 'S-449': number
+} = {
+  'S-210': 0.9375,
+  'S-449': 1.125,
+}
+// </generated>

@@ -366,6 +366,7 @@ const APP_HEADER_ITEMS: AppHeaderItems = {
   documentTitle: DOCUMENT_TITLE,
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [commandOf(HEADER_COMMAND_LABEL)],
   // FR-038 (MUST): the header says which language is on. The same value the
@@ -1201,6 +1202,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
             documentTitle: DOCUMENT_TITLE,
             openedFileName: null,
             fileSavedAt: null,
+            fileSavedByteLength: null,
             fileNeverSavedText: '',
             commands: [],
             language: 'ja',

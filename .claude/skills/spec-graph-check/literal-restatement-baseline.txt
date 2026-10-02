@@ -65,8 +65,8 @@ why: restates the RS rows of table T-233 (docs/spec/_source/display-words.json) 
 NoticeReason | union | display-words.json $.reasons[].rowId
 why: restates 54 of the 59 RS rows of table T-233 (docs/spec/_source/display-words.json); a row added to the table is not a reason the shell can raise.
 
-ROOT_KEYS | array | generated GRS_DOCUMENT_SCHEMA.properties keys
-why: restates the root properties of docs/spec/_source/grs-document.schema.json, printed as GRS_DOCUMENT_SCHEMA in grs-json-schema.ts.
+ROOT_KEYS | array | empty-document.json ${keys}
+why: restates the root properties of docs/spec/_source/grs-document.schema.json, printed as GRS_DOCUMENT_SCHEMA in grs-json-schema.ts; renamed, not raised, on 2026-10-03 (CR-611): the generated empty document carries the same five keys and wins the name tie-break.
 
 ROW_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
 why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region rowTree); Record<string, ...>, so an unknown guard throws only at run time.

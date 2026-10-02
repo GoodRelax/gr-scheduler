@@ -127,6 +127,7 @@ const readingsOf = (): ScreenViewReadings =>
   ({
     openedFileName: null,
     fileSavedAt: null,
+    fileSavedByteLength: null,
     isAgentApiEnabled: false,
     pointer: null,
     pointerRestedMs: 0,
@@ -280,6 +281,7 @@ const HEADER: AppHeaderItems = {
   documentTitle: '',
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   fileNeverSavedText: '',
   commands: [],
   language: 'ja',

@@ -53,6 +53,7 @@ describe('CR-541 -- the clauses still stand in the manuscript', () => {
 const READINGS = {
   openedFileName: null,
   fileSavedAt: null,
+  fileSavedByteLength: null,
   isAgentApiEnabled: false,
   isDialogueFieldVisible: true,
   pointer: null,
@@ -192,7 +193,7 @@ function viewWith(part: Partial<ScreenView>): ScreenView {
   return {
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
-    appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileNeverSavedText: '', commands: [], language: 'ja' },
+    appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null, fileNeverSavedText: '', commands: [], language: 'ja' },
     rowTitlePanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
