@@ -2,11 +2,11 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { AppShellSource } from '../../src/adapter/document-codec/document-codec'
 import {
   REQUIREMENTS,
   STATE_MACHINES_SOURCE,
   mergeSomething,
+  shellAppSource,
   shellStage,
   stageWithTarget,
 } from './cr-610-file-flow-stage'
@@ -24,9 +24,7 @@ const PLAIN_SHELL =
   '<title>GRS</title></head><body><div id="app"></div>' +
   '<script type="module">boot()</script></body></html>\n'
 
-const appShell: AppShellSource = {
-  readAppShell: async () => ({ ok: true, appShell: { html: PLAIN_SHELL, embeddedDocumentElementId: 'embedded-document' } }),
-}
+const appShell = shellAppSource(PLAIN_SHELL)
 
 function eventSource(key: string): readonly string[] {
   for (const region of STATE_MACHINES_SOURCE.regions) {

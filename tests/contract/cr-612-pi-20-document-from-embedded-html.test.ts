@@ -40,7 +40,8 @@ const page = (...containers: string[]): string =>
   PLAIN_SHELL.replace('<script type="module">', `${containers.join('')}<script type="module">`)
 
 const shellSource = (html: string): AppShellSource => ({
-  readAppShell: async () => ({ ok: true, appShell: { html, embeddedDocumentElementId: DOCUMENT_ID } }) as AppShellReading,
+  readAppShell: async () =>
+    ({ ok: true, appShell: { html, embeddedDocumentElementId: DOCUMENT_ID, omittedElementIds: [] } }) as AppShellReading,
 })
 
 function titleOf(reading: EmbeddedReading): unknown {
