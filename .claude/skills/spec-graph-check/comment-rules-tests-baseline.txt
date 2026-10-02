@@ -205,5 +205,5 @@ tests/unit/uf-71-confirmation.test.ts 706
 tests/unit/uf-71.test.ts 1430
 tests/unit/uf-72-screen-part.test.ts 2534
 tests/unit/uf-8-9-history-depth.test.ts 0
-tests/unit/uf-8-9-replace-document.test.ts 540
+tests/unit/uf-8-9-replace-document.test.ts 538
 tests/unit/use-case.test.ts 0

@@ -24,5 +24,4 @@
 #          belongs. It is printed on every green run, so keep it readable.
 # Blank lines and lines opening with "#" are ignored.
 
-PI-20 | DocumentCodec | documentFromEmbeddedHtml | src/adapter/document-codec/document-codec.ts
 why: CR-612 landed the spec first on spec-pass-1001 (JDG-1031, the user approved); the CR-612 code wave writes and exports the member and deletes these two lines.
