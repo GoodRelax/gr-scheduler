@@ -746,12 +746,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AppShell` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShell` | -- | interface AppShell |
 | `AppShellReading` | entry | type | `src/adapter/document-codec/app-shell-source.ts#AppShellReading` | -- | type AppShellReading = \| { readonly ok: true; readonly appShell: AppShell } \| { readonly ok: false; readonly what: string } export interface AppShellSource |
 | `AppShellSource` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShellSource` | PI-20 | 表 T-065 |
+| `documentFromEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#documentFromEmbeddedHtml` | PI-20 | `pure`。 |
 | `documentFromJson` | entry | function | `src/adapter/document-codec/json-codec.ts#documentFromJson` | PI-20 | function documentFromJson( text: string, greatestKnownSchemaVersion?: string, ): JsonDecoding |
 | `documentFromMspdi` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#documentFromMspdi` | PI-20 | function documentFromMspdi(text: string, current: Document): MspdiDecoding |
-| `EmbeddedHtmlExport` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlExport` | -- | type EmbeddedHtmlExport = \| { readonly ok: true; readonly html: string } \| { readonly ok: false; readonly fault: EmbeddedHtmlFault } const CONTAINER_TYPE = '... |
+| `EmbeddedHtmlExport` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlExport` | -- | type EmbeddedHtmlExport = \| { readonly ok: true; readonly html: string } \| { readonly ok: false; readonly fault: EmbeddedHtmlFault } export type EmbeddedHtml... |
 | `EmbeddedHtmlFault` | entry | interface | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlFault` | -- | interface EmbeddedHtmlFault |
 | `EmbeddedHtmlFaultReason` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlFaultReason` | -- | type EmbeddedHtmlFaultReason = \| 'appShellUnavailable' \| 'unusableElementId' \| 'moreThanOneEntry' export interface EmbeddedHtmlFault |
-| `ExchangeFormat` | entry | type | `src/adapter/document-codec/document-codec.ts#ExchangeFormat` | -- | type ExchangeFormat = 'grsJson' \| 'mspdi' |
+| `EmbeddedHtmlReading` | entry | type | `src/adapter/document-codec/embedded-html-codec.ts#EmbeddedHtmlReading` | -- | type EmbeddedHtmlReading = \| JsonDecoding \| { readonly ok: false; readonly reason: 'entryCountNotOne'; readonly entryCount: number } const CONTAINER_TYPE = '... |
+| `ExchangeFormat` | entry | type | `src/adapter/document-codec/document-codec.ts#ExchangeFormat` | -- | type ExchangeFormat = 'grsJson' \| 'mspdi' \| 'singleHtml' |
 | `exportEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#exportEmbeddedHtml` | PI-20 | `semi-pure-b`。 |
 | `extensionOfFormat` | entry | function | `src/adapter/document-codec/document-codec.ts#extensionOfFormat` | PI-20 | 表 T-024 の行 ID から、その形式の拡張子を答える。 |
 | `formatFromFile` | entry | function | `src/adapter/document-codec/document-codec.ts#formatFromFile` | PI-20 | どちらの形式として読むかを答える。 |
@@ -831,7 +833,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DocumentFileFaultReason` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileFaultReason` | -- | type DocumentFileFaultReason = \| FileStoreFaultReason \| 'notUtf8' \| 'notAnOverwriteTarget' export interface DocumentFileFault |
 | `DocumentFileOpening` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileOpening` | -- | type DocumentFileOpening = \| |
 | `DocumentFileSaveRequest` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaveRequest` | -- | type DocumentFileSaveRequest = \| |
-| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } const ROU... |
+| `DocumentFileSaving` | entry | type | `src/adapter/file-gateway/file-gateway.ts#DocumentFileSaving` | -- | type DocumentFileSaving = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: DocumentFileFault } // see SX... |
 | `DocumentIdentity` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#DocumentIdentity` | -- | interface DocumentIdentity extends ProjectIdentity |
 | `FileReading` | entry | type | `src/adapter/file-gateway/file-store.ts#FileReading` | -- | type FileReading = \| |
 | `FileStore` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStore` | PI-22 | 表 T-065 |
@@ -883,11 +885,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DocumentFileFlow` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlow` | -- | type DocumentFileFlow = ReturnType<typeof documentFileFlowOf> |
 | `DocumentFileFlowHands` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlowHands` | -- | type DocumentFileFlowHands = Pick< |
 | `documentFileFlowOf` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentFileFlowOf` | -- | function documentFileFlowOf(hands: DocumentFileFlowHands) |
+| `EMBEDDED_DOCUMENT_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#EMBEDDED_DOCUMENT_ELEMENT_ID` | -- | const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document' |
+| `FileSavedReading` | file only | interface | `src/framework/single-html-shell/document-file-flow.ts#FileSavedReading` | -- | interface FileSavedReading |
+| `NO_FILE_SAVED` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#NO_FILE_SAVED` | -- | const NO_FILE_SAVED: FileSavedReading = { fileSavedAt: null, fileSavedByteLength: null } |
 | `OPEN_ROUTE_FROM_CHOOSER` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_CHOOSER` | -- | const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser' |
 | `OPEN_ROUTE_FROM_DROP` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_DROP` | -- | const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop' |
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
-| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: Pick<DocumentFileFlow, 'askHowToOpen' \| 'askWhichFileToTakeFrom'>, store: FileStore ... |
-| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: Pick<DocumentFileFlow, 'askHowToOpen' \| 'askWhichFileToTakeFrom'>, incoming: Documen... |
+| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
+| `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
+| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: Pick<HandedImport, 'unreadColumns' \|... |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -924,7 +930,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FrameLoopHands` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#FrameLoopHands` | -- | interface FrameLoopHands |
 | `FrameValues` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#FrameValues` | -- | interface FrameValues |
 | `FullScreenHost` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#FullScreenHost` | -- | interface FullScreenHost |
-| `GREATEST_KNOWN_SCHEMA_VERSION` | file only | const | `src/framework/single-html-shell/frame-loop.ts#GREATEST_KNOWN_SCHEMA_VERSION` | -- | const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion |
+| `GREATEST_KNOWN_SCHEMA_VERSION` | file only | const | `src/framework/single-html-shell/frame-loop.ts#GREATEST_KNOWN_SCHEMA_VERSION` | -- | const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplateManifest.schemaVersion |
 | `HandedImport` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#HandedImport` | -- | interface HandedImport |
 | `HEIGHT_CEILING_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#HEIGHT_CEILING_REASON` | -- | const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43' |
 | `HeldDocumentCall` | file only | type | `src/framework/single-html-shell/frame-loop.ts#HeldDocumentCall` | -- | type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }> |
@@ -1021,9 +1027,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FilePermissionState` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#FilePermissionState` | -- | type FilePermissionState = 'granted' \| 'denied' \| 'prompt' |
 | `FileSystemAccessEnvironment` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#FileSystemAccessEnvironment` | -- | interface FileSystemAccessEnvironment |
 | `fileSystemAccessFileStore` | entry | function | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#fileSystemAccessFileStore` | PI-28 | `FileStore` の実装 1 つを返す |
-| `OpenFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#OpenFilePicker` | -- | type OpenFilePicker = (options: |
+| `OpenFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#OpenFilePicker` | -- | type OpenFilePicker = (options: ChooserPlace & |
 | `ReadableFile` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#ReadableFile` | -- | interface ReadableFile |
-| `SaveFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFilePicker` | -- | type SaveFilePicker = (options: |
+| `SaveFilePicker` | entry | type | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFilePicker` | -- | type SaveFilePicker = (options: ChooserPlace & |
 | `SaveFileType` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#SaveFileType` | -- | interface SaveFileType |
 | `WritableFileStream` | entry | interface | `src/framework/file-system-access-file-store/file-system-access-file-store.ts#WritableFileStream` | -- | interface WritableFileStream |
 
@@ -1273,6 +1279,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `appHeaderStyle` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#appHeaderStyle` | -- | function appHeaderStyle(): string |
 | `drawLanguageReading` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#drawLanguageReading` | -- | function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void |
 | `fillAppHeader` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#fillAppHeader` | -- | function fillAppHeader( host: Document, header: HTMLElement, items: AppHeaderItems, anchors: Map<string, HTMLElement>, ): HTMLElement |
+| `spelledFileSize` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#spelledFileSize` | -- | function spelledFileSize(byteLength: number): string |
 | `PALETTE_GRAB_BAND_ENTRY` | file only | const | `src/framework/dom-screen-surface/command-palette-drawing.ts#PALETTE_GRAB_BAND_ENTRY` | -- | const PALETTE_GRAB_BAND_ENTRY = 'IC-53' |
 | `paletteElement` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteElement` | -- | function paletteElement( host: Document, palette: CommandPalette, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `paletteGroupRuleStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteGroupRuleStyle` | -- | function paletteGroupRuleStyle(): string |
@@ -1397,6 +1404,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationState` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#ConfirmationState` | -- | type ConfirmationState = \| { readonly kind: 'notAsked' } \| { readonly kind: 'questionAsked'; readonly question: FileFlowValuesStateCarried['question']; reado... |
 | `emptyFileFlowValues` | file only | const | `src/use-case/advance-screen-session/file-flow-values.ts#emptyFileFlowValues` | -- | const emptyFileFlowValues: FileFlowValues = |
 | `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'row'; readonly groupId: string } export type FileFlowOwed... |
+| `FileFlowIncomingFile` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFile` | -- | interface FileFlowIncomingFile |
 | `FileFlowMergeCandidate` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeCandidate` | -- | interface FileFlowMergeCandidate |
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
 | `FileFlowOpenChoice` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenChoice` | -- | type FileFlowOpenChoice = 'replace' \| 'merge' \| 'baseline' |
@@ -1510,4 +1518,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 735 name(s) leave through a public entry (246 of them published by table T-064), 565 more are exported by a file and not by its entry.
+Totals: 737 name(s) leave through a public entry (247 of them published by table T-064), 571 more are exported by a file and not by its entry.
