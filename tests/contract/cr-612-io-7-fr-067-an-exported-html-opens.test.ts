@@ -2,11 +2,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  exportEmbeddedHtml,
-  type AppShellReading,
-  type AppShellSource,
-} from '../../src/adapter/document-codec/document-codec'
+import { exportEmbeddedHtml } from '../../src/adapter/document-codec/document-codec'
+import { EMBEDDED_DOCUMENT_ELEMENT_ID } from '../../src/framework/single-html-shell/document-file-flow'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   OPEN_CHOOSER,
@@ -14,6 +11,7 @@ import {
   UTF8,
   reasonWords,
   replaceWith,
+  shellAppSource,
   shellStage,
   stageWithTarget,
   there,
@@ -21,7 +19,6 @@ import {
 } from './cr-610-file-flow-stage'
 import { specTable } from './spec-table'
 
-const DOCUMENT_ID = 'embedded-document'
 const RS_67 = reasonWords('RS-67')
 
 const OPENS_ELSEWHERE = '書き出した `.html` は、開く道（`FR-087`）でも読めること（MUST）'
@@ -32,12 +29,8 @@ const PLAIN_SHELL =
   '<title>GRS</title></head><body><div id="app"></div>' +
   '<script type="module">boot()</script></body></html>\n'
 
-const shellSource = (html: string): AppShellSource => ({
-  readAppShell: async () => ({ ok: true, appShell: { html, embeddedDocumentElementId: DOCUMENT_ID } }) as AppShellReading,
-})
-
 async function exported(document: Document): Promise<string> {
-  const made = await exportEmbeddedHtml(shellSource(PLAIN_SHELL), document)
+  const made = await exportEmbeddedHtml(shellAppSource(PLAIN_SHELL), document)
   if (!made.ok) throw new Error(`precondition: IO-7 refused to write: ${JSON.stringify(made.fault)}`)
   return made.html
 }
@@ -105,8 +98,12 @@ describe('FR-067 (MUST NOT) / RS-67 -- an .html GRS cannot open', () => {
   it('RS-67: an .html with two embedded documents is not opened and RS-67 is told', async () => {
     const built = await shellStage()
     const one = await exported(there())
-    const twice = one.replace('</body>', `${/<script[^>]*id="embedded-document"[^>]*>[\s\S]*?<\/script>/.exec(one)?.[0] ?? ''}</body>`)
-    expect(twice.split('id="embedded-document"').length - 1, 'precondition: the page holds two containers').toBe(2)
+    const marker = `id="${EMBEDDED_DOCUMENT_ELEMENT_ID}"`
+    const containerAt = one.indexOf(marker)
+    const begin = one.lastIndexOf('<script', containerAt)
+    const end = one.indexOf('</script>', containerAt) + '</script>'.length
+    const twice = one.replace('</body>', `${one.slice(begin, end)}</body>`)
+    expect(twice.split(marker).length - 1, 'precondition: the page holds two containers').toBe(2)
     await built.open(built.file('twice.html', UTF8.encode(twice)))
     expect(built.last().openModal).toBeNull()
     expect(told(built)).toContain(RS_67.text.ja)

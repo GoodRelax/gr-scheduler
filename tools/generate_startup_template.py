@@ -4478,6 +4478,9 @@ def empty_document():
     # BK-4: calendarUid points at BK-3's calendar; the other non-null columns
     # take the values that row names.
     project['calendarUid'] = 1
+    # BK-4 / JDG-1184 (reading B): weekStartDay is not nulled; it takes S-108,
+    # the default FR-054 names for a document no import has profiled.
+    project['weekStartDay'] = CALENDAR_VALUES['S-108']
     project['importSeq'] = manuscript_number('S-71')
     project['uidHighWaterMark'] = 0
     project['outlineBase'] = 1

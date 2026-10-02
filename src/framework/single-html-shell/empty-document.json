@@ -18,7 +18,7 @@
    "minutesPerDay": null,
    "minutesPerWeek": null,
    "daysPerMonth": null,
-   "weekStartDay": null,
+   "weekStartDay": 1,
    "calendarUid": 1,
    "themeHue": 214,
    "uidHighWaterMark": 0,

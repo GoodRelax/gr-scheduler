@@ -20,14 +20,12 @@ import {
   shellStage,
   surfaceOfEntrance,
   here,
-  templateDocument,
   there,
   type ShellStage,
 } from './cr-610-file-flow-stage'
 import { bare, specTable } from './spec-table'
 
 const SK_25 = keyOfRow('SK-25')
-const WITH_TEMPLATE = { startupTemplate: templateDocument() }
 const T_342 = specTable('T-342')
 const ERD = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8')) as {
   entities: { name: string; columns: { name: string; json: { null: boolean } }[] }[]
@@ -72,7 +70,7 @@ function livedIn(): Document {
 }
 
 async function emptyDocument(): Promise<{ before: Loose; after: Loose }> {
-  const built = await shellStage({ ...WITH_TEMPLATE, document: livedIn() })
+  const built = await shellStage({ document: livedIn() })
   const before = documentOf(built)
   await startAnew(built)
   return { before, after: documentOf(built) }
@@ -126,14 +124,14 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
 
 describe('FR-095 (MUST) / SK-25 -- N asks first, always', () => {
   it('SK-25 / FR-095: N with nothing unsaved raises QN-5', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     expect(built.loop.hasUnsavedEdits(), 'precondition: the bench starts with unsaved edits').toBe(false)
     await built.key(SK_25)
     expect(built.last().confirmation?.question, 'FR-095: N did not ask before discarding').toBe('QN-5')
   })
 
   it('SK-25 / NT-7: N pressed again while QN-5 stands closes it and discards nothing', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     const before = documentOf(built)
     await built.key(SK_25)
     expect(built.last().confirmation?.question, 'precondition: N raised no QN-5').toBe('QN-5')
@@ -143,13 +141,13 @@ describe('FR-095 (MUST) / SK-25 -- N asks first, always', () => {
   })
 
   it('FR-095 / IC-98: the header entrance asks the same question', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
     expect(built.last().confirmation?.question).toBe('QN-5')
   })
 
   it('FR-095 / IC-98: proceeding from the header entrance lands the same empty document as N', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
     await built.answer('proceed')
     const after = documentOf(built)
@@ -177,7 +175,7 @@ describe('T-342 -- the empty document, after N and proceed', () => {
   })
 
   it('BK-2: the row id is taken anew each time a document is started', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     await startAnew(built)
     const first = documentOf(built)['schedule']['taskGroups'][0]['id']
     await startAnew(built)
@@ -210,10 +208,13 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     expect(project['calendarUid']).toBe(after['schedule']['calendars'][0]['uid'])
   })
 
-  it.todo(
-    'BK-4 vs S-108: project.weekStartDay -- reading A: null, as BK-4 nulls every column that takes null; ' +
-      'reading B: 1, since S-108 names Project.weekStartDay as its place and the FR-068 base document (BK-3 points at it) holds 1',
-  )
+  // WHY: JDG-1184 settled reading B (CR-638 writes it into BK-4); reading A (null) was turned down.
+  it('BK-4 / S-108 (JDG-1184, reading B): project.weekStartDay is not null; it holds S-108', async () => {
+    const { after } = await emptyDocument()
+    const days = settingRow('S-108')['value']['days'] as readonly number[]
+    expect(days, 'precondition: S-108 names exactly one day').toHaveLength(1)
+    expect(after['schedule']['project']['weekStartDay'], 'JDG-1184: weekStartDay is not S-108').toBe(days[0])
+  })
 
   it('BK-4: the columns that do not take null hold S-73, S-71, 0, 1, grs and empty carries', async () => {
     const { after } = await emptyDocument()
@@ -254,7 +255,7 @@ describe('T-342 -- the empty document, after N and proceed', () => {
 
 describe('FR-095 (MUST) -- no save target after starting anew', () => {
   it('FR-095: after a replace-open then N, SK-11 asks for a file and never writes the file opened', async () => {
-    const built = await shellStage(WITH_TEMPLATE)
+    const built = await shellStage()
     await replaceWith(built, built.file('theirs.json', jsonBytes(there())))
     await startAnew(built)
     const questionsBefore = built.browser.saveQuestions()

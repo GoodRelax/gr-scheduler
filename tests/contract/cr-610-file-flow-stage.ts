@@ -7,6 +7,10 @@ import { afterEach, expect } from 'vitest'
 
 import type { Clipboard } from '../../src/adapter/clipboard-gateway/clipboard'
 import { documentFromJson, type AppShellSource } from '../../src/adapter/document-codec/document-codec'
+import {
+  EMBEDDED_DOCUMENT_ELEMENT_ID,
+  STARTUP_TEMPLATE_ELEMENT_ID,
+} from '../../src/framework/single-html-shell/document-file-flow'
 import type { Rasterizer } from '../../src/adapter/image-exporter/rasterizer'
 import type {
   HumanInput,
@@ -49,6 +53,11 @@ export const SPEC_WORDS = JSON.parse(
 ) as Record<string, any>
 export const TEMPLATE_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
+  'utf8',
+)
+// WHY: the shell hands the frame loop the bundled empty document for FR-095; the bench hands the same file.
+const EMPTY_DOCUMENT_TEXT = readFileSync(
+  join(process.cwd(), 'src', 'framework', 'single-html-shell', 'empty-document.json'),
   'utf8',
 )
 
@@ -132,6 +141,28 @@ export function templateDocument(): Document {
   const read = documentFromJson(TEMPLATE_TEXT)
   if (!read.ok) throw new Error(`the bundled template is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
+}
+
+// see FR-095, T-342
+function shippedEmptyDocument(): Document {
+  const read = documentFromJson(EMPTY_DOCUMENT_TEXT)
+  if (!read.ok) throw new Error(`the bundled empty document is not GRS JSON: ${JSON.stringify(read.faults)}`)
+  return read.document
+}
+
+// see IF-8, IO-7, FR-067
+// WHY: stands in for the shell's own AppShellSource, so it names the containers the shell names.
+export function shellAppSource(html: string): AppShellSource {
+  return {
+    readAppShell: async () => ({
+      ok: true,
+      appShell: {
+        html,
+        embeddedDocumentElementId: EMBEDDED_DOCUMENT_ELEMENT_ID,
+        omittedElementIds: [STARTUP_TEMPLATE_ELEMENT_ID],
+      },
+    }),
+  }
 }
 
 export function oneRowDocument(title: string, rowId: string, uid: number): Document {
@@ -311,7 +342,6 @@ export interface StageOptions {
   readonly document?: Document
   readonly dom?: boolean
   readonly appShell?: AppShellSource
-  readonly startupTemplate?: Document
   readonly clipboard?: Clipboard
   readonly rasterizer?: Rasterizer
 }
@@ -359,7 +389,7 @@ export async function shellStage(options: StageOptions = {}): Promise<ShellStage
     undefined,
     options.rasterizer,
     options.appShell,
-    options.startupTemplate,
+    shippedEmptyDocument(),
   )
   const turn = async (): Promise<void> => {
     frames()
