@@ -4441,6 +4441,22 @@
    }
   }
  ],
+ "hintLines": [
+  {
+   "rowId": "TL-5",
+   "text": {
+    "ja": "予定",
+    "en": "Plan"
+   }
+  },
+  {
+   "rowId": "TL-6",
+   "text": {
+    "ja": "実績",
+    "en": "Actual"
+   }
+  }
+ ],
  "colourNames": [
   {
    "spelling": "white",

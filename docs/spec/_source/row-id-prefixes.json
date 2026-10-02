@@ -1349,6 +1349,14 @@
    }
   },
   {
+   "prefix": "TL",
+   "words": "Tooltip Line",
+   "owner": "spec",
+   "means": {
+    "ja": "ポインタを止めたときの説明の行"
+   }
+  },
+  {
    "prefix": "TM",
    "words": "",
    "owner": "spec",

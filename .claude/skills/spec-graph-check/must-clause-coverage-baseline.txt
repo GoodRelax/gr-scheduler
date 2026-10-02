@@ -1,4 +1,5 @@
-2177
+2199
+# RAISED 2177 -> 2199 on 2026-10-02 under JDG-1034 (the user approved): CR-624 adds 22 bare MUST clauses (bar tooltip lines, table T-348); its code-round contract tests quote them.
 # RAISED 2166 -> 2177 on 2026-10-02 under JDG-1034 (the user approved): CR-623 adds 11 bare MUST clauses (open chooser lists its choices, a copy is told); its wave-1/2 tests quote them.
 # RAISED 2161 -> 2166 on 2026-10-02 under JDG-1034 (the user approved): CR-622 adds 15 bare MUST/MUST NOT clauses (help in frames, two-line licence); its wave-2 contract tests quote them.
 # LOWERED 2163 -> 2161 on 2026-09-27 under JDG-743 / JDG-520: the CR-572 wave 3 spec-only tests quote two more MUST clauses (stage A, branch stage-a).

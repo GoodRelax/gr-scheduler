@@ -287,6 +287,17 @@ SEARCH_PANEL_PARTS = ('blank', 'noName')
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
 
+# CR-624: the words that head two lines of the hint a rested pointer shows
+# (table T-348 of FR-092): the plan line (TL-5) and the actual line (TL-6).
+# HELD HERE, the same move as OPEN_CHOOSER_PARTS: the other rows of table
+# T-348 carry no word of their own (the deadline line reuses PR-10's word, the
+# weekday reuses `weekdays`, and TL-9 / TL-11 forbid a second word), so a
+# roster of every row would ask for words the specification forbids. The row
+# id IS the key, and `hint_lines` checks each one is still a row of the table.
+HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
+HINT_LINE_TABLE = 'T-348'
+HINT_LINES = ('TL-5', 'TL-6')
+
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.
 REL_SETTINGS = 'docs/spec/_source/settings.json'
@@ -415,6 +426,21 @@ def listed_shortcuts():
     return found
 
 
+def hint_lines():
+    """The rows of table T-348 that own a word, after checking they exist.
+
+    @purity semi-pure-b
+    """
+    rows = [row[0] for row in
+            table_rows(REL_REQUIREMENTS, HINT_LINE_ROW, HINT_LINE_TABLE)]
+    missing = [row for row in HINT_LINES if row not in rows]
+    if missing:
+        raise SystemExit('%s: table %s has no row %s, so the hint line words '
+                         'cannot be keyed' % (REL_REQUIREMENTS, HINT_LINE_TABLE,
+                                              ', '.join(missing)))
+    return list(HINT_LINES)
+
+
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -489,6 +515,7 @@ def roster():
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
+        'hintLines': hint_lines(),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -557,6 +584,7 @@ SHAPE = {
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
+    'hintLines': ('rowId', ('text',)),
 }
 
 
@@ -641,7 +669,7 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'openChooser', 'assignments', 'arms',
-                    'weekdays',
+                    'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'rowMinHeightField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
