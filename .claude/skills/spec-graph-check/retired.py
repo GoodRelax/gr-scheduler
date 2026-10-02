@@ -308,4 +308,10 @@ RETIRED = {'FR-050', 'T-030',
            # their place is taken by IC-129 .. IC-131, which every window carries.
            # CR-621, CR-629 and the ledgers name both, so the seats stay burnt.
            'IC-120', 'IC-121',
+           # CR-630 (2026-10-02, rulings JDG-850 / JDG-1082 / JDG-1083): RG-15
+           # (the Esc rung for a search panel holding focus) left when Esc came to close the
+           # window in front, whichever of the four windows of table T-335 it is;
+           # the new rung is RG-16. CR-630 and the ledgers name it, so the seat
+           # stays burnt.
+           'RG-15',
            'T-006'}
