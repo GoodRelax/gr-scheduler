@@ -1,6 +1,7 @@
 # CR-627 — ヘッダーの入口を似た機能で寄せて並べ直し、文字の大きさを変える入口の図形を「Aa」にする
 
-> 起草の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。まだ当てていない。4 節の旧 16 件は、読んだ木でどれも 1 回、上から順に当てた各回でも 1 回だった（13 節）。
+> 起草の状態: 当てた（2026-10-01、枝 `spec-pass-1001`、仕様の通し。`CR-626` の後の木 `04a2c409`）。旧 16 件のうち E-12 だけが 0 回だった（`CR-613`・`CR-620` が `IC-20` の `hint` に `.mcpb` の括弧書きを足した）—— E-12 の旧と E-13 の新の `IC-20` の項を、いまの語に写し直した（E-12 の注）。残る 15 件は上から順に当てた各回で 1 回。新しい識別子は無い。生成は `npm run gen` だけ（名簿・辞書・ヘルプ・図形の 4 つ）。検査 37 の 3 行（`T-109 IC-117`・`T-109 IC-107`・`T-109 IC-17`）は対を読み直して刷り直した。`CR-628`（ヘッダーのロゴ）は本書の後に当たる。
+> 起草の時の状態: 起草のみ（2026-10-01、枝 `l4-review-crs`）。4 節の旧 16 件は、読んだ木でどれも 1 回、上から順に当てた各回でも 1 回だった（13 節）。
 > 読んだ木: `refactor` `bfbe7eb7`。行番号・数は、すべてこの木で測った（13 節）。
 > ⚠️ 調整役の数え直し（2026-10-01、`refactor` `7a5b387b`）: 旧 16 件のうち E-12（辞書 `icons` の AI の 3 項）だけが 0 回 —— その間に `CR-613`・`CR-620` が着地して辞書を書き換えた（変わったのは `IC-20` の語と見込む。`JDG-1053`）。当てる体が `7a5b387b` 以降の 3 項を旧に写し直し、E-13 の新の `IC-20` の項もその語に合わせること。残る 15 件は 1 回。
 > ID の帯: 調整役から `CR-627` を受けた。⭐ 本書は仕様の新しい識別子を 1 つも取らない（2 節）。
@@ -345,7 +346,7 @@
 ```
 
 <!-- EDIT id=E-12 file=docs/spec/_source/display-words.json -->
-辞書 `icons` の AI の 3 項を消す（E-13 が置き直す）。旧
+辞書 `icons` の AI の 3 項を消す（E-13 が置き直す）。⚠️ 当てる体が写し直した（2026-10-01、枝 `spec-pass-1001`）: `IC-20` の `hint` は `CR-613`・`CR-620` の後の語（`.mcpb` の括弧書き）にした。E-13 の新の `IC-20` の項も同じ語。旧
 ```text
   {
    "rowId": "IC-115",
@@ -365,8 +366,8 @@
     "en": "Agent API"
    },
    "hint": {
-    "ja": "Agent API を有効にする。もう一度押すと無効にする",
-    "en": "Enable the Agent API; press again to disable it"
+    "ja": "Agent API を有効にする。もう一度押すと無効にする (AI のアプリから使うときは、ヘルプに記載の .mcpb が必要)",
+    "en": "Enable the Agent API; press again to disable it (to use it from an AI app, get the .mcpb named in Help)"
    }
   },
   {
@@ -476,8 +477,8 @@
     "en": "Agent API"
    },
    "hint": {
-    "ja": "Agent API を有効にする。もう一度押すと無効にする",
-    "en": "Enable the Agent API; press again to disable it"
+    "ja": "Agent API を有効にする。もう一度押すと無効にする (AI のアプリから使うときは、ヘルプに記載の .mcpb が必要)",
+    "en": "Enable the Agent API; press again to disable it (to use it from an AI app, get the .mcpb named in Help)"
    }
   },
   {

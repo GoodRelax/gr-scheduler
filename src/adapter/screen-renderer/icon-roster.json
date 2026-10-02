@@ -76,28 +76,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-5",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "履歴",
-   "entryTo": "編集を取り消す",
-   "authority": "`FR-031`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-6",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "履歴",
-   "entryTo": "取り消した編集をやり直す",
-   "authority": "`FR-031`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-8",
    "surfaces": [
     "App Header"
@@ -131,24 +109,24 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-117",
+   "rowId": "IC-104",
    "surfaces": [
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
-   "authority": "`FR-151`",
+   "entryTo": "表示の倍率を下げる（`S-234`）",
+   "authority": "`FR-039`",
    "arms": null,
    "armsShape": null
   },
   {
-   "rowId": "IC-107",
+   "rowId": "IC-105",
    "surfaces": [
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
-   "authority": "`FR-130`",
+   "entryTo": "表示の倍率を上げる（`S-234`）",
+   "authority": "`FR-039`",
    "arms": null,
    "armsShape": null
   },
@@ -208,28 +186,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-104",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "表示",
-   "entryTo": "表示の倍率を下げる（`S-234`）",
-   "authority": "`FR-039`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-105",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "表示",
-   "entryTo": "表示の倍率を上げる（`S-234`）",
-   "authority": "`FR-039`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-100",
    "surfaces": [
     "App Header"
@@ -252,13 +208,46 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-17",
+   "rowId": "IC-5",
    "surfaces": [
     "App Header"
    ],
-   "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
-   "authority": "`FR-072`",
+   "group": "履歴",
+   "entryTo": "編集を取り消す",
+   "authority": "`FR-031`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-6",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "履歴",
+   "entryTo": "取り消した編集をやり直す",
+   "authority": "`FR-031`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-117",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "調べる",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-107",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "調べる",
+   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
+   "authority": "`FR-130`",
    "arms": null,
    "armsShape": null
   },
@@ -292,6 +281,17 @@
    "group": "AI",
    "entryTo": "AI との対話欄を表示する・非表示にする",
    "authority": "`FR-066`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-17",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "補助",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する・プロパティパネルを閉じる（`S-99h`）。<br>⭐ テーマ色は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
+   "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
   },

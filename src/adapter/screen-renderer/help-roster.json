@@ -397,36 +397,6 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-5",
-   "keys": "Ctrl ＋ Z",
-   "press": null,
-   "glyphs": [
-    "IC-5"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "indent": false,
-   "table": "T-109",
-   "row": "IC-6",
-   "keys": "Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z",
-   "press": null,
-   "glyphs": [
-    "IC-6"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "indent": false,
-   "table": "T-109",
    "row": "IC-8",
    "keys": null,
    "press": null,
@@ -472,11 +442,11 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-117",
-   "keys": "Ctrl ＋ F",
+   "row": "IC-104",
+   "keys": "Ctrl ＋ Shift ＋ -",
    "press": null,
    "glyphs": [
-    "IC-117"
+    "IC-104"
    ],
    "note": null
   },
@@ -487,11 +457,11 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-107",
-   "keys": null,
+   "row": "IC-105",
+   "keys": "Ctrl ＋ Shift ＋ +",
    "press": null,
    "glyphs": [
-    "IC-107"
+    "IC-105"
    ],
    "note": null
   },
@@ -577,36 +547,6 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-104",
-   "keys": "Ctrl ＋ Shift ＋ -",
-   "press": null,
-   "glyphs": [
-    "IC-104"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "indent": false,
-   "table": "T-109",
-   "row": "IC-105",
-   "keys": "Ctrl ＋ Shift ＋ +",
-   "press": null,
-   "glyphs": [
-    "IC-105"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "indent": false,
-   "table": "T-109",
    "row": "IC-100",
    "keys": null,
    "press": null,
@@ -637,11 +577,56 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-17",
+   "row": "IC-5",
+   "keys": "Ctrl ＋ Z",
+   "press": null,
+   "glyphs": [
+    "IC-5"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-6",
+   "keys": "Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z",
+   "press": null,
+   "glyphs": [
+    "IC-6"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-117",
+   "keys": "Ctrl ＋ F",
+   "press": null,
+   "glyphs": [
+    "IC-117"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-107",
    "keys": null,
    "press": null,
    "glyphs": [
-    "IC-17"
+    "IC-107"
    ],
    "note": null
   },
@@ -687,6 +672,21 @@
    "press": null,
    "glyphs": [
     "IC-18"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-17",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-17"
    ],
    "note": null
   },

@@ -77,28 +77,6 @@
    }
   },
   {
-   "rowId": "IC-5",
-   "label": {
-    "ja": "取り消す",
-    "en": "Undo"
-   },
-   "hint": {
-    "ja": "直前の編集を取り消す",
-    "en": "Undo the last edit"
-   }
-  },
-  {
-   "rowId": "IC-6",
-   "label": {
-    "ja": "やり直す",
-    "en": "Redo"
-   },
-   "hint": {
-    "ja": "取り消した編集をやり直す",
-    "en": "Redo the edit that was undone"
-   }
-  },
-  {
    "rowId": "IC-8",
    "label": {
     "ja": "予定バー",
@@ -132,25 +110,25 @@
    }
   },
   {
-   "rowId": "IC-117",
+   "rowId": "IC-104",
    "label": {
-    "ja": "検索",
-    "en": "Search"
+    "ja": "小さく表示",
+    "en": "Smaller"
    },
    "hint": {
-    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
-    "en": "Open the search panel; if it is open, return to its search box"
+    "ja": "日程表の図形と字を 1 段小さくする",
+    "en": "Make the chart's shapes and text one step smaller"
    }
   },
   {
-   "rowId": "IC-107",
+   "rowId": "IC-105",
    "label": {
-    "ja": "遅延診断",
-    "en": "Delay Diagnostics"
+    "ja": "大きく表示",
+    "en": "Larger"
    },
    "hint": {
-    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
-    "en": "Run the Delay Diagnostics; press again to end its display"
+    "ja": "日程表の図形と字を 1 段大きくする",
+    "en": "Make the chart's shapes and text one step larger"
    }
   },
   {
@@ -209,28 +187,6 @@
    }
   },
   {
-   "rowId": "IC-104",
-   "label": {
-    "ja": "小さく表示",
-    "en": "Smaller"
-   },
-   "hint": {
-    "ja": "日程表の図形と字を 1 段小さくする",
-    "en": "Make the chart's shapes and text one step smaller"
-   }
-  },
-  {
-   "rowId": "IC-105",
-   "label": {
-    "ja": "大きく表示",
-    "en": "Larger"
-   },
-   "hint": {
-    "ja": "日程表の図形と字を 1 段大きくする",
-    "en": "Make the chart's shapes and text one step larger"
-   }
-  },
-  {
    "rowId": "IC-100",
    "label": {
     "ja": "モノクロ",
@@ -253,14 +209,47 @@
    }
   },
   {
-   "rowId": "IC-17",
+   "rowId": "IC-5",
    "label": {
-    "ja": "文書の設定",
-    "en": "Document settings"
+    "ja": "取り消す",
+    "en": "Undo"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
+    "ja": "直前の編集を取り消す",
+    "en": "Undo the last edit"
+   }
+  },
+  {
+   "rowId": "IC-6",
+   "label": {
+    "ja": "やり直す",
+    "en": "Redo"
+   },
+   "hint": {
+    "ja": "取り消した編集をやり直す",
+    "en": "Redo the edit that was undone"
+   }
+  },
+  {
+   "rowId": "IC-117",
+   "label": {
+    "ja": "検索",
+    "en": "Search"
+   },
+   "hint": {
+    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
+    "en": "Open the search panel; if it is open, return to its search box"
+   }
+  },
+  {
+   "rowId": "IC-107",
+   "label": {
+    "ja": "遅延診断",
+    "en": "Delay Diagnostics"
+   },
+   "hint": {
+    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
+    "en": "Run the Delay Diagnostics; press again to end its display"
    }
   },
   {
@@ -294,6 +283,17 @@
    "hint": {
     "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
     "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
+   }
+  },
+  {
+   "rowId": "IC-17",
+   "label": {
+    "ja": "文書の設定",
+    "en": "Document settings"
+   },
+   "hint": {
+    "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
    }
   },
   {

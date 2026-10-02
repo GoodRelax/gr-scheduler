@@ -538,9 +538,9 @@
   </g>
   <text class="lbl" x="316" y="354">IC-98</text>
   <g transform="translate(340 320)">
-    <path class="s" d="M9.5 6.5 H14.5"/>
-    <path class="s" d="M7 12 H17"/>
-    <path class="s" d="M4.5 17.5 H19.5"/>
+    <path class="s" d="M2.5 20 L7 5 L11.5 20 M4 15 H10"/>
+    <circle class="s" cx="18" cy="16.75" r="3.25"/>
+    <path class="s" d="M21.25 12.5 V20"/>
   </g>
   <text class="lbl" x="352" y="354">IC-99</text>
   <g transform="translate(376 320)">
@@ -639,8 +639,9 @@
   </g>
   <text class="lbl" x="100" y="442">IC-126</text>
   <g transform="translate(124 408)">
-    <path class="s" d="M5.5 20 L12 4 L18.5 20"/>
-    <path class="s" d="M8.2 14 H15.8"/>
+    <path class="s" d="M2.5 20 L7 5 L11.5 20 M4 15 H10"/>
+    <circle class="s" cx="18" cy="16.75" r="3.25"/>
+    <path class="s" d="M21.25 12.5 V20"/>
   </g>
   <text class="lbl" x="136" y="442">IC-127</text>
   <g transform="translate(160 408)">
