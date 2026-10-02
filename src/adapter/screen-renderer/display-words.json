@@ -2831,8 +2831,8 @@
   {
    "name": "Open Chooser",
    "heading": {
-    "ja": "開き方",
-    "en": "Open Chooser"
+    "ja": "ファイルの開き方",
+    "en": "How to Open the File"
    }
   },
   {
@@ -3747,6 +3747,17 @@
    }
   },
   {
+   "rowId": "RS-68",
+   "text": {
+    "ja": "スケジュールをクリップボードにコピーしました",
+    "en": "The schedule was copied to the clipboard"
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -4133,15 +4144,38 @@
   {
    "rowId": "IO-3",
    "name": {
-    "ja": "SVG 画像",
+    "ja": "SVG画像",
     "en": "SVG image"
    }
   },
   {
    "rowId": "IO-4",
    "name": {
-    "ja": "PNG 画像",
+    "ja": "PNG画像",
     "en": "PNG image"
+   }
+  }
+ ],
+ "openChooser": [
+  {
+   "part": "file",
+   "text": {
+    "ja": "ファイル",
+    "en": "File"
+   }
+  },
+  {
+   "part": "documentTitle",
+   "text": {
+    "ja": "プロジェクト名",
+    "en": "Project name"
+   }
+  },
+  {
+   "part": "cancel",
+   "text": {
+    "ja": "キャンセル",
+    "en": "Cancel"
    }
   }
  ],

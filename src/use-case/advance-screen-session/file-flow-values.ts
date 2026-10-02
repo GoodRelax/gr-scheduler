@@ -124,7 +124,7 @@ export type FileFlowValuesKey =
 export type FileOperationState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'readingDocumentFile'; readonly openRoute: FileFlowValuesStateCarried['openRoute'] }
-  | { readonly kind: 'awaitingOpenChoice' }
+  | { readonly kind: 'awaitingOpenChoice'; readonly incomingFile: FileFlowValuesStateCarried['incomingFile'] }
   | { readonly kind: 'awaitingDiscardAnswer' }
   | { readonly kind: 'importingDocument' }
   | { readonly kind: 'awaitingMergeMapping'; readonly mergeCandidates: FileFlowValuesStateCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesStateCarried['unreadColumns'] }
@@ -159,7 +159,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'newDocumentEntryPressed'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'grsResetEntryPressed'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'flowSurfaceClosed'; readonly surfaceName: FileFlowValuesEventCarried['surfaceName'] }
-  | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question'] }
+  | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question']; readonly incomingFile: FileFlowValuesEventCarried['incomingFile'] }
   | { readonly type: 'documentOpenFailed' }
   | { readonly type: 'mergeMappingAsked'; readonly mergeCandidates: FileFlowValuesEventCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesEventCarried['unreadColumns'] }
   | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }

@@ -4272,6 +4272,15 @@
        "note": {
         "ja": "読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める"
        }
+      },
+      {
+       "name": "incomingFile",
+       "rows": [
+        "OP-16"
+       ],
+       "note": {
+        "ja": "読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open Chooser` が出す。副作用の実行が詰める"
+       }
       }
      ]
     },
@@ -4508,7 +4517,14 @@
        "key": "awaitingOpenChoice",
        "parent": null,
        "initial": false,
-       "carries": [],
+       "carries": [
+        {
+         "name": "incomingFile",
+         "rows": [
+          "OP-16"
+         ]
+        }
+       ],
        "evidence": [
         "OP-3",
         "U-56",
