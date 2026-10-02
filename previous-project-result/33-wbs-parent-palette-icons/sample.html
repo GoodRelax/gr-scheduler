@@ -62,7 +62,7 @@
   @media (max-width: 760px) { .work { grid-template-columns: 1fr; } }
   .chart { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px;
            touch-action: none; user-select: none; -webkit-user-select: none; }
-  /* The link cursor: a child bar below, a parent bar above, an arrow between (JDG-1106). */
+  /* The link cursor: a child bar below, a parent bar above, an arrow between (JDG-1137). */
   :root { --link-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='white' stroke-width='4' stroke-linecap='round'%3E%3Crect x='3' y='2' width='18' height='4' rx='1'/%3E%3Crect x='7' y='18' width='10' height='4' rx='1'/%3E%3Cpath d='M12 18 V8'/%3E%3C/g%3E%3Cg fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E%3Crect x='3' y='2' width='18' height='4' rx='1'/%3E%3Crect x='7' y='18' width='10' height='4' rx='1'/%3E%3Cpath d='M12 18 V9'/%3E%3C/g%3E%3Cpath d='M12 7 L14.5 11 H9.5 Z' fill='black' stroke='white' stroke-width='0.8'/%3E%3C/svg%3E") 12 12, pointer; }
   .chart.armed { cursor: var(--link-cursor); outline: 2px solid var(--fg); }
   #gantt { width: 100%; height: auto; display: block; }
@@ -139,7 +139,7 @@
 <h1>親子判別と親定義 —— パレットの 2 つのアイコン（見本 第 3 版）</h1>
 <p>
 <code>JDG-1062</code> の ③「親子判別アイコンと親定義アイコンをパレットに足せ」を触って決める見本です。
-第 3 版は、利用者の答え <code>JDG-1100</code>〜<code>JDG-1107</code> を入れました:
+第 3 版は、利用者の答え <code>JDG-1131</code>〜<code>JDG-1138</code> を入れました:
 家族だけを描く、赤太字は親子判別が入のときだけ、パネルに導いた親も出す、最上位の行は親なし、
 親子は<b>子から親への矢印</b>（矢じりは依存線と同じ <code>S-19</code> 9.6 × <code>S-300</code> 8）、<b>複数の子をまとめて結ぶ</b>、
 <b>実線の矢印を選んで <code>Del</code> で親を外す</b>（パネルの × でも外せる）、<b>点線の矢印は選べない</b>。
@@ -152,7 +152,7 @@
 </ul>
 <p class="note">
 親のいる場所は 2 通りあります。<code>GRS</code> で書いた行（行 1〜3）では親は 1 つ上の行にいて、明記が無ければ表 T-318 で導きます。
-<code>MSPDI</code> から取り込んだ行（行 4）では、要約とその直下の葉が同じ行に載ります（<code>JDG-560</code> の A1、<code>JDG-1063</code> で維持）。
+<code>MSPDI</code> から取り込んだ行（行 4）では、要約とその直下の葉が同じ行に載ります（<code>JDG-560</code> の A1、<code>JDG-1130</code> で維持）。
 </p>
 
 <div class="switches" id="switches">
@@ -163,7 +163,7 @@
     <label><input type="radio" name="top" value="off" checked> なし</label>
     <label><input type="radio" name="top" value="on"> あり（「全体」を最上位の行に置く）</label></div>
 </div>
-<p class="note">決まったこと: 結べる先は期間を持つどのバーでも（<code>JDG-1105</code>）、まとめて結ぶときに結べない子が 1 件でも混じれば全部やめて理由を言う（<code>JDG-1107</code>）。</p>
+<p class="note">決まったこと: 結べる先は期間を持つどのバーでも（<code>JDG-1136</code>）、まとめて結ぶときに結べない子が 1 件でも混じれば全部やめて理由を言う（<code>JDG-1138</code>）。</p>
 
 <div class="palette" aria-label="コマンドパレット（抜粋）">
   <div class="grp"><span class="name">置く</span><div class="icons">
@@ -205,13 +205,13 @@
 <tr><td>構えあり・なし</td><td>何も無い場所をドラッグ</td><td>範囲選択（<code>PTD-5</code> ・ <code>SL-3</code>）—— 囲みきったバーと実線の矢印を選ぶ。点線は黙って除く</td></tr>
 <tr><td>構えあり・なし</td><td>何も無い場所をクリック</td><td>選択を外す</td></tr>
 <tr><td>構えあり・なし（矢印が見えている）</td><td>実線の矢印をクリック（<code>Shift</code> / <code>Ctrl</code> で足す）</td><td>矢印を選ぶ。<code>Del</code> で、その子の親を外す（取り消し 1 段）。外した子が 1 つ上の行のバー 1 つに収まっていれば、点線の矢印（導いた親）に変わる</td></tr>
-<tr><td>構えあり・なし</td><td>囲む・足すで、タスクと実線の矢印が混ざった（<code>JDG-1108</code>）</td><td>ポインタの近くに 2 択: 「[== ==] 親子関係を定義するため子タスクを選択」（構えが無ければ「タスクを選択」）／「[↑ ↑] 親子関係を削除するため矢印を選択」。選んだ種類だけ残す。<code>Esc</code> か外を押すと混ざる前の選択に戻る —— 混ざった選択は残らないので、<code>Del</code> がタスクを消すことは無い</td></tr>
+<tr><td>構えあり・なし</td><td>囲む・足すで、タスクと実線の矢印が混ざった（<code>JDG-1139</code>）</td><td>ポインタの近くに 2 択: 「[== ==] 親子関係を定義するため子タスクを選択」（構えが無ければ「タスクを選択」）／「[↑ ↑] 親子関係を削除するため矢印を選択」。選んだ種類だけ残す。<code>Esc</code> か外を押すと混ざる前の選択に戻る —— 混ざった選択は残らないので、<code>Del</code> がタスクを消すことは無い</td></tr>
 <tr><td>構えあり・なし（矢印が見えている）</td><td>点線の矢印をクリック</td><td>選ばない。「期間から推定された仮の親子関係は選択・削除できません」の趣旨と、確定のしかたを告げる</td></tr>
 <tr><td>構え・選択 S</td><td>S の中のバーから親のバーへドラッグ</td><td>S のすべての親をその親にする（<code>CM-18</code> を N 回、取り消し 1 段）。構えと選択はそのまま —— 結び直しが続けてできる</td></tr>
 <tr><td>構え・選択 S</td><td>S の外のバーからドラッグ</td><td>選択をそのバー 1 つに替えて、それを結ぶ</td></tr>
 <tr><td>構え</td><td>何も無い場所で離す</td><td>何もしない（依存線の構え <code>AR-4</code> と同じ）</td></tr>
-<tr><td>構え</td><td>マイルストーンの上で離す</td><td>結ばない。「マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません」と [OK] 1 つの面を出す（<code>JDG-1118</code>）</td></tr>
-<tr><td>構え</td><td>自分・子孫の上で離す</td><td>結ばない。どの子がなぜ結べないかを告げる（1 件でも当たれば全部やめる、<code>JDG-1107</code>）</td></tr>
+<tr><td>構え</td><td>マイルストーンの上で離す</td><td>結ばない。「マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません」と [OK] 1 つの面を出す（<code>JDG-1141</code>）</td></tr>
+<tr><td>構え</td><td>自分・子孫の上で離す</td><td>結ばない。どの子がなぜ結べないかを告げる（1 件でも当たれば全部やめる、<code>JDG-1138</code>）</td></tr>
 <tr><td>構え</td><td><code>Esc</code> か親定義の再押下</td><td>構えなし・選択はそのまま</td></tr>
 </table></div>
 
@@ -223,9 +223,9 @@
 <tr><td>導いた親（<code>IP-2</code>、保存しない）</td><td>仕様書の作成 → 要件定義</td><td><b>破線の矢印</b></td><td>「親: 要件定義（導出）」</td></tr>
 <tr><td>決まらない・候補 2 以上（<code>VO-4</code>）</td><td>画面の設計</td><td>子に紫の <b>?</b>、候補に紫の破線と番号</td><td>「親: 未定（候補 2）」紫</td></tr>
 <tr><td>決まらない・候補 0（<code>VO-4</code>）</td><td>資材の手配</td><td>同上（一部重なるバーに番号）</td><td>「親: 未定（候補 0）」紫</td></tr>
-<tr><td>最上位の行（<code>JDG-1103</code>）</td><td>要件定義・設計・製作（要約の行なし）</td><td>矢印なし（根）。指摘しない</td><td>「親: なし」</td></tr>
+<tr><td>最上位の行（<code>JDG-1134</code>）</td><td>要件定義・設計・製作（要約の行なし）</td><td>矢印なし（根）。指摘しない</td><td>「親: なし」</td></tr>
 <tr><td>マイルストーン（子として）</td><td>試作完了 → 製作（導出）</td><td>点も子になれる</td><td>「親: 製作（導出）」</td></tr>
-<tr><td>マイルストーン（親として）</td><td>節目 A</td><td>親の候補にならない。落とすと [OK] の面で拒む（<code>JDG-1118</code>）</td><td>—</td></tr>
+<tr><td>マイルストーン（親として）</td><td>節目 A</td><td>親の候補にならない。落とすと [OK] の面で拒む（<code>JDG-1141</code>）</td><td>—</td></tr>
 </table></div>
 
 <div class="chooser" id="chooser" role="dialog" aria-label="選ぶものの種類">
@@ -272,7 +272,7 @@ const INITIAL = [
   { uid: 25, row: 2, name: "組み立て",       s: 28, f: 34, p: 12 },
   { uid: 26, row: 2, name: "試作完了",       s: 35, f: 35, p: null },
   { uid: 31, row: 3, name: "検証の準備",     s: 29, f: 32, p: 25 },
-  // MSPDI import (JDG-560 A1, kept by JDG-1063): the summary and its leaves share one row.
+  // MSPDI import (JDG-560 A1, kept by JDG-1130): the summary and its leaves share one row.
   { uid: 40, row: 9, lane: 0, name: "評価（要約）", s: 26, f: 40, p: null },
   { uid: 41, row: 9, lane: 1, name: "評価の計画",   s: 26, f: 30, p: 40 },
   { uid: 42, row: 9, lane: 1, name: "評価の実施",   s: 30, f: 37, p: 40 },
@@ -289,7 +289,7 @@ let showOn = false;        // palette toggle: WBS parent links (親子判別)
 let armed = false;         // palette arm: define WBS parent (親定義)
 let hovered = null;
 let selected = [];
-let selLinks = [];         // selected parent arrows, each named by its child's uid (JDG-1106)
+let selLinks = [];         // selected parent arrows, each named by its child's uid (JDG-1137)
 let anchors = [];          // see focusTasks()
 let drawnLinks = [];       // arrows drawn in the last frame: { child, derived, bbox }
 let drag = null;          // bar drag: { sources, cx0, cy0, x, y, moved, target, ok }
@@ -332,7 +332,7 @@ function box(t) {
   return { x: x, y: y, w: (t.f - t.s) * PX, h: BAR_H, cx: x + (t.f - t.s) * PX / 2 };
 }
 
-// --- parent resolution (table T-318, IP-1..IP-4; top-level rows are roots, JDG-1103) ---
+// --- parent resolution (table T-318, IP-1..IP-4; top-level rows are roots, JDG-1134) ---
 function barsInRow(row) { return visibleTasks().filter(t => t.row === row && !isMs(t)); }
 function contains(p, c) { return p.s <= c.s && c.f <= p.f; }
 function overlaps(p, c) { return p.s < Math.max(c.f, c.s + 0.001) && c.s < p.f; }
@@ -395,7 +395,7 @@ function setParents(list, why) {
   const to = changes[0].after == null ? "親なし" : "「" + byUid(changes[0].after).name + "」";
   say(why + ": " + changes.length + " 件（" + changes.map(c => byUid(c.uid).name).join("、") + "）の親を " + to + " にした（setTaskWbsParent × " + changes.length + "、取り消し 1 段）", "ok");
 }
-// Remove explicit parents (JDG-1106). A child left inside exactly one bar of the row above
+// Remove explicit parents (JDG-1137). A child left inside exactly one bar of the row above
 // then shows a derived (dotted) parent again -- that is table T-318, not a failure.
 function unlink(children, why) {
   const list = children.filter(c => c.p != null);
@@ -492,7 +492,7 @@ function render() {
     svg.appendChild(el("text", { x: 4, y: rowY(r) + 16, class: "rowname" }, ROW_NAMES[r]));
   });
 
-  // Family view: on with the toggle, and always while the arm is held. JDG-1101: the red
+  // Family view: on with the toggle, and always while the arm is held. JDG-1132: the red
   // bold label is drawn only while the family view is on.
   const lineOn = showOn || armed;
   const late = [];
@@ -567,7 +567,7 @@ function renderPanel() {
   p.appendChild(b);
   if (tag) { const s = document.createElement("span"); s.className = "tag"; s.textContent = tag; p.appendChild(s); }
   if (r.kind === "explicit") {
-    // JDG-1106: the panel can remove an explicit parent (a derived one has nothing to remove).
+    // JDG-1137: the panel can remove an explicit parent (a derived one has nothing to remove).
     const x = document.createElement("button");
     x.className = "plink"; x.textContent = " ×"; x.title = "親を外す（wbsParentUid を null にする）";
     x.setAttribute("aria-label", "親を外す");
@@ -584,7 +584,7 @@ function renderPanel() {
   });
   p.appendChild(dl);
   const note = document.createElement("p"); note.className = "note";
-  note.textContent = "親の名を押すと親入力の面が開く（JDG-1058 ③）。× は明記の親を外す（JDG-1106）。";
+  note.textContent = "親の名を押すと親入力の面が開く（JDG-1058 ③）。× は明記の親を外す（JDG-1137）。";
   p.appendChild(note);
 }
 
@@ -667,7 +667,7 @@ function linkAt(e) {
   const child = byUid(Number(hit.getAttribute("data-link")));
   return { child: child, derived: hit.classList.contains("derived") };
 }
-// SL-2 / SL-4: a plain click replaces the selection; Shift (or Ctrl, JDG-1106) toggles one.
+// SL-2 / SL-4: a plain click replaces the selection; Shift (or Ctrl, JDG-1137) toggles one.
 function clickSelect(t, extend) {
   if (!extend) anchors = [];
   if (!t) { if (!extend) { selected = []; selLinks = []; } return; }
@@ -679,7 +679,7 @@ function clickLink(uid, extend) {
   if (extend) selLinks = selLinks.indexOf(uid) >= 0 ? selLinks.filter(x => x !== uid) : selLinks.concat([uid]);
   else { selLinks = [uid]; selected = []; }
 }
-// JDG-1108: tasks and arrows may be picked together, but a mixed selection is resolved at once
+// JDG-1139: tasks and arrows may be picked together, but a mixed selection is resolved at once
 // by a two-way chooser next to the pointer; dismissing it restores the selection before the mix.
 let chooserBefore = null;
 function snapshot() { return { selected: selected.slice(), selLinks: selLinks.slice(), anchors: anchors.slice() }; }
@@ -781,7 +781,7 @@ svgEl.addEventListener("pointerup", e => {
     const x1 = Math.min(b.x0, b.x), x2 = Math.max(b.x0, b.x), y1 = Math.min(b.y0, b.y), y2 = Math.max(b.y0, b.y);
     const inside = q => q.x1 >= x1 && q.x2 <= x2 && q.y1 >= y1 && q.y2 <= y2;   // SL-3: wholly enclosed only
     const hitTasks = visibleTasks().filter(t => { const q = box(t); return inside({ x1: q.x, x2: q.x + q.w, y1: q.y, y2: q.y + q.h }); });
-    // Dotted (derived) arrows are left out without a word (JDG-1106).
+    // Dotted (derived) arrows are left out without a word (JDG-1137).
     const hitLinks = drawnLinks.filter(l => !l.derived && inside(l.bbox)).map(l => l.child.uid);
     if (b.extend) {
       selected = selected.concat(hitTasks.filter(t => selected.indexOf(t) < 0));
@@ -797,7 +797,7 @@ svgEl.addEventListener("pointerup", e => {
   if (!d.moved) { clickSelect(d.t, d.extend); if (!maybeChoose(e, d.before)) say(selectionHint(), ""); render(); return; }
   selected = d.sources.slice();
   const v = dropVerdict(d.sources, d.target);
-  // JDG-1118 (relayed by the coordinator): a milestone is never a parent; say exactly this, one OK.
+  // JDG-1141 (relayed by the coordinator): a milestone is never a parent; say exactly this, one OK.
   if (d.target && isMs(d.target)) { showMsg(MILESTONE_MSG); say("結ばなかった（マイルストーン）", "ng"); render(); return; }
   if (d.target && v.ok) setParents(v.good.map(s => ({ task: s, to: d.target.uid })), "親定義のドラッグ");
   else if (d.target) say("結ばなかった: " + v.reason, "ng");
