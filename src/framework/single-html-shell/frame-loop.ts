@@ -29,10 +29,14 @@ import {
   type DelayDiagnosticsReport,
 } from '../../entity/document-model/schedule/schedule'
 import {
+  answersAtPointer,
   grabSizesOf,
   itemAtPointer,
+  pointerWalkOf,
   selectionWithinDrawnRows,
   type Hit,
+  type PointerAnswers,
+  type PointerWalk,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -1807,20 +1811,21 @@ interface HintWalk {
 }
 
 // see EZ-6, T-023d, GR-26, GR-27
-// WHY: the press gates of grabAtPointer; walked again only when the point or the drawn geometry moved, never per frame.
+// WHY: kept while the point and the drawn geometry stay, so the holder read by the frame keeps its identity.
 /** @purity pure */
 function hintWalkAt(
   walked: HintWalk | null,
   frame: FrameValues,
   at: { readonly x: number; readonly y: number },
-  on: ScreenPart | null,
-  isDualCursorFollowing: boolean,
+  holder: HintHolder | null,
 ): HintWalk | null {
-  if (on !== null || isDualCursorFollowing || regionAtPointer(frame.regions, at.x, at.y) !== 'rowArea') return null
+  if (holder === null) return null
   const isSamePoint = walked !== null && walked.at.x === at.x && walked.at.y === at.y
   if (isSamePoint && walked.geometry === frame.geometry) return walked
-  return { geometry: frame.geometry, at, holder: itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), 'hint') }
+  return { geometry: frame.geometry, at, holder }
 }
+
+const NO_POINTER_ANSWERS: PointerAnswers = { hit: null, hint: null }
 
 /** @purity pure */
 function isSameHintTarget(a: HintTarget, b: HintTarget): boolean {
@@ -1957,6 +1962,7 @@ export function frameLoop(
   let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
   let hintWalk: HintWalk | null = null
+  let pointerWalk: PointerWalk | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
@@ -2610,17 +2616,15 @@ export function frameLoop(
     return region === 'rowArea' || region === 'timeRuler' || region === 'scheduleCanvas'
   }
 
-  /** @purity semi-pure-b */
-  function grabAtPointer(
-    frame: FrameValues,
-    x: number,
-    y: number,
-    on: ScreenPart | null,
-  ): Grabbed | null {
-    if (on !== null) return null
-    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    if (dualCursorFollowingIn(session) !== null) return null
-    return itemAtPointer(frame.geometry, x, y, grabSizesOf())
+  // see T-023d, EZ-6, DFC-1810, DFC-1811
+  // WHY: one walk per input answers the press and the hint; its regions are built once per drawn geometry.
+  /** @purity non-pure */
+  function answersAtPointerOf(frame: FrameValues, x: number, y: number, on: ScreenPart | null): PointerAnswers {
+    if (on !== null) return NO_POINTER_ANSWERS
+    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return NO_POINTER_ANSWERS
+    if (dualCursorFollowingIn(session) !== null) return NO_POINTER_ANSWERS
+    if (pointerWalk?.geometry !== frame.geometry) pointerWalk = pointerWalkOf(frame.geometry, grabSizesOf())
+    return answersAtPointer(pointerWalk, x, y)
   }
 
   /** @purity non-pure */
@@ -3308,8 +3312,9 @@ export function frameLoop(
 
     // TRAP: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
     if (pointerAt !== null) {
-      grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
-      hintWalk = hintWalkAt(hintWalk, frame, pointerAt, partUnderPointer, dualCursorFollowingIn(session) !== null)
+      const answers = answersAtPointerOf(frame, pointerAt.x, pointerAt.y, partUnderPointer)
+      grabUnderPointer = answers.hit
+      hintWalk = hintWalkAt(hintWalk, frame, pointerAt, answers.hint)
       showPointerShape?.(
         windowGrabPointerOf(pressed === null ? partUnderPointer : pressed.on) ?? pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )
