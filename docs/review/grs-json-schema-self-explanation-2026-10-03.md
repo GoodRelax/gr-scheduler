@@ -78,6 +78,8 @@
 | C-11 | `docs/spec/_assets/fig-erd-detail.md` の `AT-47` と、`docs/spec/_source/image-to-grs-json-prompt.ja.md`・`image-to-grs-json-prompt.en.md` の手順 5 | ラグの単位を XSD に合わせる（`DFC-1791`） | ラグ |
 | C-12 | `docs/spec/_source/image-to-grs-json-prompt.ja.md`・`image-to-grs-json-prompt.en.md` の手順 3 | 既知の残り（`height` → `minHeight`、`editGroup`、行の色に `black` を使えない）。スキーマが言うようになったことは、プロンプトから削ってよい | — |
 
+⛔ 2026-10-03: C-4 と C-7 は `CR-642` が当てなかった（`DFC-1795`・`DFC-1794`）。裁定 `JDG-1200`・`JDG-1202` の後、C-4 は C-15・C-29 が、C-7 は C-31 が継ぐ（5.3 節） —— 下の ⚠️ の 1 つ目と 2 つ目は裁定の前に書いた。
+
 ⚠️ 当てる前に確かめること。
 
 - **`src/adapter/document-codec/grs-json-schema.ts` は、スキーマから刷られた照合の表である。** C-4 の `pattern` が入ると、日付だけの文書（1 回目の 2 体が書いた形）は読み込みで拒まれる（`RS-25`）。日程側は厳格という今の決まり（`OP-6`）のとおりであり、書き手の約束がはっきりする。
@@ -86,14 +88,14 @@
 - **C-6 の既定値の正をどこに置くかは、当てる者が決める。** 設定の表の既定の欄は、`rulerFont` のように式で書かれた行がある。写しでは起動時の文書（`empty-document.json`）の値を使った。
 - 生成物が変わるので `npm run gen` と `npm run gen:check` を回す。検査 75（案内の照合）も回す。
 
-## 4. 残した問い
+## 4. 残した問い（2026-10-03 にすべて裁定された）
 
 | 番号 | 問い |
 | --- | --- |
-| `PND-675` | 誰も読まない `TaskGroupMember.stackOrder` を、文書から消すか |
-| `PND-676` | 読み込んだ `percentComplete` が日付と食い違うとき、どちらを正とするか |
-| `PND-677` | どの `Task` も `TaskVisual` を持たなければならないか |
-| `PND-678` | `fadeInDays`・`fadeOutDays` の名を「薄れ」と読む体が多い —— 名を変えるか |
+| `PND-675` | 誰も読まない `TaskGroupMember.stackOrder` を、文書から消すか ⇒ `JDG-1195`: 消し、積む向きに Why（C-25・C-26） |
+| `PND-676` | 読み込んだ `percentComplete` が日付と食い違うとき、どちらを正とするか ⇒ `JDG-1196`: `GRS JSON` を読むときは日付が正（C-27） |
+| `PND-677` | どの `Task` も `TaskVisual` を持たなければならないか ⇒ `JDG-1197`: ちょうど 1 つを課す（C-22・C-28） |
+| `PND-678` | `fadeInDays`・`fadeOutDays` の名を「薄れ」と読む体が多い —— 名を変えるか ⇒ `JDG-1198`: 名は変えず 1 文で補う（`CR-642` で着地済み —— 7.4 節） |
 
 ## 5. 日時の時刻（`PND-679` → `JDG-1203`〜`JDG-1205`）
 
@@ -139,20 +141,35 @@
 
 ### 5.3 変える所（調整役へ）
 
-| # | どこを | どう変えるか |
-| --- | --- | --- |
-| C-13 | 表 T-033 の `EX-7` | 「時刻は `00:00:00`」を 5.2 節の表に替える（列の種類ごとの時刻） |
-| C-14 | `docs/spec/_assets/fig-erd-detail.md`・`erd.json` の `Project` | `defaultStartTime` ／ `defaultFinishTime`（`xsd:time` の字面、出自 Own、交換相手 `Project/DefaultStartTime` ／ `DefaultFinishTime`）を足す（今は `Project.carry` に持ち回っている） |
-| C-15 | `erd_json_to_schema.py` と照合の表の生成器 | 日時の `pattern` を `xsd:dateTime` の字面にする。照合では捨てる（`JDG-1200`） |
-| C-16 | 根の説明・プロンプトの原稿の手順 2・雛形・見本 | 「GRS は 00:00:00 を書く」を 5.2 節の時刻に替える。生成物は作り直す |
-| C-17 | 書く路（`textOfDay` を使う所） | 開始の側と終了の側で時刻を分ける。MSPDI の書き出しも同じ時刻を書く |
-| C-18 | 表 T-297 と見本 | 行を足さない（`JDG-1206`）。起動時の見本・3 年の見本・試験用の文書・案内の土台を新しい形で作り直す |
-| C-19 | 表 T-033 の `EX-11`・`EX-12`、`AT-9`・`AT-11` | （`CreationDate` ／ `LastSaved` は C-23 へ移した —— `JDG-1210`）`ConstraintDate` は書き出した `Start` と同じ値。`ManualStart` ／ `ManualFinish` は書き出した `Start` ／ `Finish` と同じ日時を取り込んだ綴りで（`JDG-1207`） |
-| C-20 | `AT-48`・`S-118`・`PR-42`・`VC-15`・`BD-2`・`delay-diagnostics.ts` の STOP | 解するのは `lagFormat` 7 だけ。パネルは稼働日で見せ、打つのは整数の稼働日で `lagFormat` 7 を書く。ほかの形式は読むだけ・数えない（`JDG-1208`）。起動時の見本の生成器が日数で書くラグを 0.1 分へ直す（6 節の D5） |
-| C-21 | 表 T-052 の `DR-4`・起動時の文書の版 | 版を当てる日の日付へ上げる（`JDG-1209`） |
-| C-22 | `mspdi-codec.ts` の取り込みと `import-document.ts` の合流 | どの `Task` も `TaskVisual` を 1 つ持つように作る（`JDG-1197`。6 節の D3 が測った 2 か所） |
-| C-23 | `AT-9`・`AT-11`・表 T-059・`docs/spec/_source/erd.json` の `Project` | `created` は GRS で新しく作るときに書く。`lastSaved` の列を消し、MSPDI の `LastSaved` は書き出す瞬間の現地時刻で作る（表 T-059 の新しい行）。往復の突き合わせから外す（`JDG-1210`） |
-| C-24 | スキーマの説明（`erd.json` の `schemaNote` と根の説明） | 日時の使い分けの理由を書く（`JDG-1211`）。付録 A の根の説明の日時の文は、下の 1 つ目に替える。<br>根の説明（日時の文を替える）: 「Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, notes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column, and 00:00:00..23:59:00 for a whole-day range, because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time.」<br>`documentStamp`: 「When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.」<br>`documentStamp.fileSavedUtc`: 「When this document was last written to its file. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.」<br>`Project.created`: 「MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one.」<br>`Project.defaultStartTime` ／ `defaultFinishTime`（新しい列）: 「MS Project's DefaultStartTime / DefaultFinishTime: the times GRS writes on start-side and finish-side dates; 08:00:00 and 17:00:00 when the file has none.」 |
+⭐ 2026-10-03 に改めた —— 独立のレビューワーが「まだ変更要求にできない」とした指摘 14 を当てた。行の番号は統合点 `fc89944b` の木で測り直した。
+⭐ どの C も「裁定」の欄に仕える裁定を名指す。裁定から C への引き当ては 7.2 節、C から変更要求への割り当ては 7.1 節が持つ。
+⚠️ 「案」と書いた所は裁定が言っていないことであり、当てる変更要求が決める。
+
+| # | 裁定 | どこを（`fc89944b` で測った） | どう変えるか | CR |
+| --- | --- | --- | --- | --- |
+| C-13 | `JDG-1205`・`JDG-1203`・`JDG-1204` | 表 T-033 の `EX-7`（`01-04-requirements.md:6193`） | 「時刻は `00:00:00`」を 5.2 節の表（列の側ごとの時刻）に替える。根拠の欄は公式の出典だけを名指し、類推で埋めた行は「GRS の選択」と名乗る（`JDG-1204`）。⭐ 1 文を足す —— MSPDI の `Project/FinishDate` は `GRS` が作る値で、最も遅い `Task.finish` の字面をそのまま書く（`mspdi-codec.ts:920`〜`:921` の `latestTaskFinish`、`:966`〜`:978`）ので、終了の側の時刻を継ぐ。⚠️ 当たるまで `EX-7` と `JDG-1205` は食い違ったまま（7.3 節） | D |
+| C-14 | `JDG-1205` | `docs/spec/_assets/fig-erd-detail.md` の `Project` の行・`docs/spec/_source/erd.json` の `Project` | `defaultStartTime` ／ `defaultFinishTime` を足す（`xsd:time` の字面、可、出自 Own、交換相手 `Project/DefaultStartTime` ／ `DefaultFinishTime`）。今は取り込みで `Project.carry` に入り、書き出し（`mspdi-codec.ts:891` の `writtenProjectChildren`）は名で書かない。往復は C-33 | D |
+| C-15 | `JDG-1200`・`JDG-1205` | `docs/spec/_source/erd_json_to_schema.py`（`:30`〜`:32` が「a date column carries NO pattern yet」と書く）・`tools/generate_json_schema_validator.py`・`tests/fixtures/grs-document.ts` | ⭐ 最小の形。① スキーマは `$defs/DateTime` を 1 つ置き（`{"type": ["string", "null"], "pattern": …}`）、`isDate` の 18 列をどれもそれへの `$ref` にする —— 18 列はどれも `null` 可（`erd.json` で数えた）。`pattern` は `xsd:dateTime` の字面 `^-?\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z\|[+-]\d{2}:\d{2})?$`（小数秒と帯を許す。`JDG-1205` が `JDG-1200` の字面を広げた）。② 照合の表の生成器は、パスで語を捨てる仕組みを既に持つ —— `RELAXED_ROOT`（`:106`）と `RELAXED_OFF`（`:116`）を `:172`〜`:176` が読む。同じ形でポインタの定数を 1 つ（`/$defs/DateTime`）足し、そこでは `pattern` だけを捨て、理由を「日付は `FR-023` の検査（`IV-14`。先頭の日を読み、使えない行だけ落とす）が見る」と書く。⚠️ `$ref` の隣に `DROPPED` でない語を置くと生成器は止まる（`:150`〜`:157`）—— `pattern` は `$defs` の側だけに置く。③ `scrollDate` は `documentSettings` の下なので、`pattern` は既に `RELAXED_OFF` で捨てられる —— スキーマに出すだけでよい。④ 試験の側の ajv（`tests/fixtures/grs-document.ts:11`、`strict: false` で `pattern` を守らせる。読み込むファイルは 30）は書く路（`FR-024`）の確かめなので守らせたままにし、`FR-023` の入力（使えない日付）をその確かめに通さない —— 通している試験を CR A が数えて分ける | A |
+| C-16 | `JDG-1205` | 原稿の手順 2（`docs/spec/_source/image-to-grs-json-prompt.ja.md:25` ほか、`.en.md` も）・案内の土台（`docs/guides/schedule-to-grs-json/grs-skeleton.json`）・見本 | 「`T00:00:00` の形」を 5.2 節の時刻に替える。生成物は作り直す（C-18）。根の説明は C-24 が持つ | D |
+| C-17 | `JDG-1205` | 書く路の `textOfDay`（`src/entity/document-model/schedule/calendar-day.ts:30`〜`:33`、いつも `T00:00:00` を書く）。呼び口 46（18 ファイル） | ⛔ `textOfDay` は日だけを表す鍵の字面として変えない —— 毎フレームの路が `Map` の鍵に使う（`task-figures.ts:668`、`schedule-layout.ts:193`。`frame-loop.ts:1876` の `readToday` も同じ関数）ので、側で時刻を変えると同じ日の鍵が割れる。⭐ 書く所にだけ、側ごとの書き手（開始の側・終了の側・丸 1 日）を別に足し、C-14 の 2 列を読ませる。MSPDI の書き出しも同じ書き手を使う。⚠️ 毎フレームの源に触れるので、当てるコミットは `docs/development-records/perf-pending.md` に CR の行を 1 つ持つ（検査 66） | D |
+| C-18 | `JDG-1206`・`JDG-1209` | 表 T-297（足さない）・起動時の見本・3 年の見本（`sample-schedule/Three-Year Product Plan.json`）・試験用の文書・案内の土台 | 行を足さない（`JDG-1206`）。D の形で全部を 1 度だけ作り直す —— D の版を上げた後。⭐ `DFC-1799`（3 年の見本が刊行するスキーマに 2175 件合わない）はこの作り直しで閉じる | D |
+| C-19 | `JDG-1207` の後半（`JDG-1210` が保つ） | 表 T-033 の `EX-11`（`01-04-requirements.md:6197`）・`EX-12`（`:6198`） | `ConstraintDate` は書き出した `Start` と同じ値（開始の側の時刻を含む）。`ManualStart` ／ `ManualFinish` は書き出した `Start` ／ `Finish` と同じ日時を、取り込んだ綴りで。（`CreationDate` ／ `LastSaved` は C-23 —— `JDG-1207` の前半は `JDG-1210` が覆した） | D |
+| C-20 | `JDG-1201`・`JDG-1208` | `AT-48`（`fig-erd-detail.md:361`）・`S-118`（`tbl-settings.md:652`）・`PR-42`（`tbl-property-items.md:69`）・`VC-15`（`01-04-requirements.md:3434`）・`BD-2`（`:3511`）・`delay-diagnostics.ts:333` の STOP・`field-commit.ts:340`〜`:343`・`edit-dependency.ts:102`〜`:103`・`:136`・`tools/generate_startup_template.py:2336`〜`:2341` と `:3328` | 保存は 0.1 分（`AT-47` は `CR-642` で済み）。`S-118` を「見せる単位: 稼働日」と読める文に替える。解するのは `lagFormat` 7 だけ —— パネルは稼働日で見せ、打つのは整数の稼働日で、書くときは 日数 × `Project.minutesPerDay`（空なら `S-128`）× 10 を `lag` に、7 を `lagFormat` に書く（新しい依存は今 `lagFormat: null` を書く —— `edit-dependency.ts:103`）。ほかの形式はパネルで MS Project の字面（`2ed`・`50%`）で読むだけ、遅延診断は数えず（`VC-15`・`BD-2` の結果が変わる）、値は往復でそのまま。取り込んだ端数は見せるだけ。起動時の見本の生成器が日数で書くラグ（`:2336`）と、日数であることを確かめる所（`:3328`）を 0.1 分へ直す。⚠️ 当たるまで `S-118` と `AT-47` は食い違ったまま（7.3 節） | B |
+| C-21 | `JDG-1209` | 表 T-052 の `DR-4`（`01-04-requirements.md:6385`）・`FR-073`・`FR-024`・`tools/generate_startup_template.py:140` の `SCHEMA_VERSION` | 版の正は 1 つ —— `SCHEMA_VERSION`（`startup-template-manifest.json:2` へ刷られる。スキーマの `const` も同じ所から読む —— C-31）。D の全部を 1 つの CR に入れ、版を 1 度だけ、当てる日の日付へ上げる | D |
+| C-22 | `JDG-1197` | `mspdi-codec.ts:381`（取り込みが `taskVisuals: []` を組む）・`import-document.ts:783`（合流が `visuals.delete(uid)` する） | どの `Task` も `TaskVisual` を 1 つ持つように作る。無いときの代わりの描き方（約 8 か所）は C-28 の不変条件が立った後に消す | D |
+| C-23 | `JDG-1210` | `AT-9`（`fig-erd-detail.md:320`）・`AT-11`（`:322`、消す）・`AT-140`（`:449`）・表 T-059（`:464`）・`FR-101`・`erd.json:580`（`created`）・`:613`（`lastSaved`）・`mspdi-codec.ts:406`・`:408`（読む）・`:910`・`:912`（書く） | `created` は `GRS` で新しく作るときに、その場所の時刻（帯なし）を書く。取り込んだ値は保つ。`lastSaved` の列を消し、MSPDI の `LastSaved` は書き出すその瞬間の現地時刻（帯なし、秒まで）で作る（表 T-059 に行）。往復の突き合わせから外す（`fileSavedUtc` と同じ扱い） | D |
+| C-24 | `JDG-1211`・`JDG-1210` | スキーマの説明（`erd.json` の `schemaNote` と、`erd_json_to_schema.py:167` の `ROOT_DESCRIPTION` —— `:173`〜`:174` が今「writes 00:00:00」と言う） | 日時の使い分けの理由を書く（`JDG-1211`）。⚠️ `fileSavedUtc` の文は、`JDG-1210` の文案の 3 つの理由（`schedule.project` でなく刻印に置くので保存が `scheduleUpdatedUtc` を動かさない ／ UTC なので読む人の現地時刻で示せる ／ `LastSaved` は書き出しで作る）を落とさないこと。付録 A の根の説明の日時の文は、下の 1 つ目に替える。<br>根の説明（日時の文を替える）: 「Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, notes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column, and 00:00:00..23:59:00 for a whole-day range, because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time.」<br>`documentStamp`: 「When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.」<br>`documentStamp.fileSavedUtc`: 「When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.」<br>`Project.created`: 「MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one.」<br>`Project.defaultStartTime` ／ `defaultFinishTime`（新しい列）: 「MS Project's DefaultStartTime / DefaultFinishTime: the times GRS writes on start-side and finish-side dates; 08:00:00 and 17:00:00 when the file has none.」 | D |
+| C-25 | `JDG-1195` | `AT-62`（`fig-erd-detail.md:375`、図の行 `:95`）・`erd.json:1628`・生成物 4（`grs-json-schema.ts:281`・`:290`、`schedule-entities.ts:156`、`startup-template.json`、`image-to-grs-json-prompt.json`）・手書き 2（`mspdi-imported-rows.ts:49`、`task-create.ts:90`）・`tools/generate_startup_template.py:1548`（書く）と `:4142`〜`:4157` の `check_stack_order`（呼び口 `:4404`）・原稿の手順 3（`image-to-grs-json-prompt.ja.md:62`・`.en.md:62`）・名の例（表 T-005 の `G-4` = `01-04-requirements.md:254`、語幹の例 `:312`、表 T-006a の `W-2` = `:327`・`W-7` = `:332`、所属の例 `:405`、`tbl-glossary.md:31` の `N-4`）・`ST-6`（`:1568`）・付録 A の `TaskGroupMember.stackOrder` の行 | 列を文書から消す（運用前なので読み替えない —— `JDG-1206`）。積む順は `ST-2` の自動のまま。生成物は `npm run gen` で刷り直す。名の例は生きた列の名へ替える（案: `W-2` は `groupId`、`W-7` は `TaskGroupMember.groupId`）。`G-4`・`N-4` の語「積み順」を、列を指さない語として残すか退かせるかは CR D が決める。`ST-6` の「人が `stackOrder` を指定した」の文を列なしで書き直す。試験は 93 ファイルが名を持つ（上限） | D |
+| C-26 | `JDG-1195` | `ST-5`（`01-04-requirements.md:1567`）・`S-58`（`tbl-settings.md:163`）・スキーマの `documentSettings.stackDirection`（`grs-document.schema.json:263`、今は `enum` と `default` だけ） | `ST-5` と `S-58` に Why を 1 文 —— `up` は右上のゴールへ積み上げる図、`down` は右下のゴールへ積み下げる図にするため。スキーマにも 1 文。⚠️ `documentSettings` の鍵に説明を出す路が生成器に無い（`erd_json_to_schema.py:377` は列の `schemaNote` だけを `description` にする）—— `settings.json` の行に `schemaNote` を持たせて刷る路を足す。文案: 「up stacks a row's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right.」 | D |
+| C-27 | `JDG-1196` | `FR-012`（`01-04-requirements.md:3134`〜）・`OP-6`（`:6578`）・`AT-39`（`fig-erd-detail.md:352`）・`VC-5`（`01-04-requirements.md:3424`）・`erd.json:1176` の `schemaNote`・`documentFromJson`（`json-codec.ts:336`）の呼び口 6 | ① `FR-012` に 1 文: `GRS JSON`（単一 `.html` に埋め込んだものを含む）を読んだときも、格納済みの完了率を日付から数え直す。MSPDI を読んだときは取り込んだ値を保つ（`FR-021`）。今の `FR-012` は「日付を編集したとき」と暦の編集だけを言う。② `OP-6` と `AT-39` に同じ向きを 1 句。③ 読む路の呼び口は 6 —— `agent-api-members.ts:285`・`embedded-html-codec.ts:156`・`document-file-flow.ts:249`・`:344`・`:740`・`single-html-shell.ts:222`。数え直しは `percent-complete.ts:45` の `repriced` が既に持つ。6 か所に散らさず 1 か所で当てる席と、`Agent API` の読み（`:285`）が「`GRS JSON` を読んだとき」に入るかを CR C が決める。④ `VC-5`（`percentComplete` が 0 より大きいのに `actualStart` が無い）は、数え直した `GRS JSON` では立たない —— MSPDI だけに当たる行と書く。⑤ `schemaNote` の「GRS keeps it in step when dates change, so write what the dates give」を「GRS recounts it from the dates whenever it reads this file, so the dates decide; write what they give.」に替える。⑥ 開いただけで値が変わりうる（見落とし 5、試験 `dfc-378`）—— 件数を告げる（`FR-012` の暦の数え直しと同じ `NT-3`・`RS-52`）か黙って直すかを CR C が決める | C |
+| C-28 | `JDG-1197` | 表 T-220（`05-07-design.md:1304` の `IV-6` の隣）・`AT-97`（`fig-erd-detail.md:410`）・`erd.json` の `TaskVisual` の説明 | `IV-6` と同じ形の行を足す: 「どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること ｜ `Task` の主キーと `TaskVisual.taskUid` ｜ 構造」。`AT-97` の意味の欄に「どの `Task` にもちょうど 1 つ」。スキーマの `TaskVisual` の説明に `TaskGroupMember` と同じ形の 1 句（「every task has exactly one」） | D |
+| C-29 | `JDG-1200` | 表 T-220 の前文（`05-07-design.md:1290`「日程データの群がスキーマに合わない文書は、文書ごと拒む」）・`UF-152`（`:483`「11 の語だけを解し」）・`FR-024`（`01-04-requirements.md:6359`〜） | ① `:1290` の MUST に、日時の列の `pattern` だけを外す 1 文を足す —— 日時の形は `IV-14` と `FR-023` が判じ、照合の表に載せない（使えない日付の行だけを落とすため）。② `UF-152` に、日付の `pattern` を捨てることを 1 句。③ `FR-024` に「日時の列は、いつも日時の形で書くこと（MUST）」を足す —— 今の `FR-024`（`:6361`〜`:6369`）に日時の形の文は無い | A |
+| C-30 | `JDG-1201` | 原稿の手順 5（`image-to-grs-json-prompt.ja.md:54`「null なら 480 分」、`.en.md:54`「480 when that is null」）・`erd.json:1347` の `Dependency.lag` の `schemaNote`・案内の手順 5（`DFC-1796`） | 手順 5 の 480 は `S-128`（🔎 の値）の手の写しである —— 生成器が `S-128` から刷る（今の原稿の生成器 `tools/generate_image_to_grs_json_prompt.py` は散文の値を差し込まない）か、値を書かない文にする。`schemaNote` は `minutesPerDay` が `null` のときの換算を言わない —— 同じく `S-128` から刷った値で 1 句足す。手書きの案内（`DFC-1796`）も同じ文へ | B |
+| C-31 | `JDG-1202`・`JDG-1209` | `erd_json_to_schema.py`・`tools/generate_json_schema_validator.py` の `DROPPED`（`:92`〜`:100`）・`DR-4`（`01-04-requirements.md:6385`） | （`CR-642` が当てなかった C-7 を継ぐ）スキーマは `schemaVersion` を `const` で言う。値は `tools/generate_startup_template.py:140` の `SCHEMA_VERSION` から読み、打ち込まない（C-21）。照合の表の生成器は `DROPPED` に `const` を足し、理由を「版は `formatVersionReading` が判じる」とする（`JDG-1202`）—— `json-codec.ts:351` が照合（`:357`）の前に判じる。`DR-4` に、スキーマが版を `const` で言うことを 1 文 | A |
+| C-32 | `JDG-1205` | 5.2 節の表の「丸 1 日の範囲」の行 | `JDG-1205` が言わない 3 つを決める。① `CommentBox.anchorDate` と `scrollDate` は範囲ではなく 1 点である —— 1 点が書く時刻を名指す（案: 範囲の始まりと同じ `00:00:00`。根拠 8 の FromDate の例）。② 既定の時刻 `08:00:00` ／ `17:00:00` の置き場を名指す（案: `tbl-settings.md` と `settings.json` の新しい 2 行。生成器が刷り、`src` に打ち込まない —— 6 節の D7 の「設定 2 行」）。③ 保存された `defaultStartTime` ／ `defaultFinishTime` が `xsd:time` の字面でないとき（案: `GRS JSON` ではスキーマが `xsd:time` の `pattern` を言い、照合はそれを守らせる —— 日程データの群なので `05-07-design.md:1290` のとおり文書ごと拒む。MSPDI の取り込みでは字面の合わない値を列へ移さず `carry` に残し（`EX-4`）、列は `null` で ② の既定を使う） | D |
+| C-33 | `JDG-1205`（`FR-021` の往復） | `mspdi-codec.ts` の取り込み（`Project` の知らない子は `Project.carry` へ）と書き出し（`:891`〜`:922` の `writtenProjectChildren`）・`mspdi-child-order.json:37`〜`:38`（XSD の並び: `CalendarUID` の後、`MinutesPerDay` の前） | 取り込みで `DefaultStartTime` ／ `DefaultFinishTime` を `carry` から列（C-14）へ移し、書き出しでは XSD の並びの位置に `PlacedChild` として書く。`carry` に残すと、2 度書くか、列の値が書き出しに届かない | D |
+| C-34 | `JDG-1205`（見落とし 6） | `delay-diagnostics-report.ts:181`（`plannedStart === plannedFinish` で 1 日を判じる）・`edit-annotation.ts:222`（`anchorDate ===`）・`:293`〜`:294`（`startDate` ／ `endDate ===`）・`edit-calendar.ts:155`〜`:156`（`fromDate` ／ `toDate ===`） | 日付の字面の等しさを、日で比べる形に替える（`dayOf`・`compareDays`）—— 開始の側 `08:00` と終了の側 `17:00` は同じ日でも字面が違う。マイルストーンを切り替えるときは終了の時刻も書き直す | D |
+| C-35 | `JDG-1197`（見落とし 7） | 見本 3 本（起動時の見本はタスク 1000 のうち 963 が `TaskVisual` を持たない）・性能の関門（`JDG-605`） | C-18 の作り直しで `TaskVisual` が見本ごとに約 960 増える —— 主へ早送りする前に性能の関門で測り、毎フレームの路が描く数の差を報告する | D |
 
 ## 6. 影響範囲（`JDG-1195`〜`JDG-1205` の全部、2026-10-03 に測った）
 
@@ -160,10 +177,10 @@
 
 | 決定 | 仕様 | 原稿・生成器 | `src` | 試験 | 出荷する文書 |
 | --- | --- | --- | --- | --- | --- |
-| D1 `stackOrder` を消す（`JDG-1195`） | 9 行。`stackOrder` は命名規則の例（表 T-005 の `G-4`、表 T-006a の `W-2`・`W-7` ほか 5 行と `N-4`） | `erd.json`・プロンプトの原稿 2・スキーマ・ERD の図。`generate_startup_template.py` の 2 行 | 手書き 4（`mspdi-imported-rows.ts`・`task-create.ts` ほか）、生成物 3 | 92 ファイル | 起動時の見本・3 年の見本・試験用の文書・案内 2 |
+| D1 `stackOrder` を消す（`JDG-1195`） | 9 行。`stackOrder` は命名規則の例（表 T-005 の `G-4`、表 T-006a の `W-2`・`W-7` ほか 5 行と `N-4`） | `erd.json`・プロンプトの原稿 2・スキーマ・ERD の図。`generate_startup_template.py` の書く 1 行（`:1548`）と確かめる `check_stack_order`（`:4142`〜`:4157`、呼び口 `:4404`） | 手書き 2（`mspdi-imported-rows.ts:49`・`task-create.ts:90`）、生成物 4（`grs-json-schema.ts`・`schedule-entities.ts`・`startup-template.json`・`image-to-grs-json-prompt.json`） —— 2026-10-03 に `fc89944b` で数え直した（前は「手書き 4、生成物 3」と書いていた） | 92 ファイル | 起動時の見本・3 年の見本・試験用の文書・案内 2 |
 | D2 読むとき完了率を数え直す（`JDG-1196`） | `FR-012`・`OP-6`・`AT-39`・`VC-5`・`VC-7` | プロンプトの原稿と案内 | 読み込みの呼び口 6（`json-codec.ts` の `documentFromJson` を呼ぶ所）。数え直しは `percent-complete.ts` の `repriced` が既にある | 17 ファイルに直接 | 3 本（食い違う値の数は測っていない） |
 | D3 `TaskVisual` をちょうど 1 つ（`JDG-1197`） | 表 T-220 に新しい行 | — | ⚠️ 今これを破る 2 か所: `mspdi-codec.ts` の取り込み（`taskVisuals: []`）と `import-document.ts` の合流（`visuals.delete`）。代わりの描き方 約 8 か所 | 69 ファイル | ⚠️ 起動時の見本はタスク 1000 のうち 963 が持たない（3 年の見本と試験用の文書も同じ） |
-| D4 日付の形を見せ、照合で捨てる（`JDG-1200`） | `FR-023`・`FR-024`・表 T-220 の前文・`UF-152` | `erd_json_to_schema.py`。⚠️ 照合の生成器 `generate_json_schema_validator.py` は語ごとにしか捨てられず、日付だけ捨てる仕組みが新しく要る | 手で直す所 0 | ⚠️ 試験の照合（`tests/fixtures/grs-document.ts` の ajv）は `pattern` を守らせる —— 最大 20 ファイル | — |
+| D4 日付の形を見せ、照合で捨てる（`JDG-1200`） | `FR-023`・`FR-024`・表 T-220 の前文・`UF-152` | `erd_json_to_schema.py`。照合の生成器 `generate_json_schema_validator.py` は、パスで語を捨てる仕組みを既に持つ（`RELAXED_ROOT` `:106`・`RELAXED_OFF` `:116`） —— 日付の `$defs` のポインタを 1 つ足せば済む（C-15）。⚠️ 2026-10-03 に改めた —— 前は「語ごとにしか捨てられず、新しい仕組みが要る」と書いていた（誤り） | 手で直す所 0 | ⚠️ 試験の照合（`tests/fixtures/grs-document.ts` の ajv）は `pattern` を守らせる —— 最大 20 ファイル | — |
 | D5 ラグは 0.1 分、パネルは日（`JDG-1201`） | `AT-47`（済）・`S-118`・`PR-42`・`S-128`・`VC-15`・`BD-2` | `settings.json`・`property-items.json`・`display-words.json`。⚠️ `generate_startup_template.py` がラグを日数で書き、日数であることを確かめている | `field-commit.ts`・`properties-panel.ts`・`edit-dependency.ts`。`delay-diagnostics.ts` の STOP（単位が未決）が外れ、`VC-15`・`BD-2` の結果が変わる | 23 ファイル | ⚠️ 見本 3 本のラグ 354 件が日数（MSPDI の見本は 0.1 分）—— 今、出荷データの中で単位が食い違う |
 | D6 版の `const`（`JDG-1202`） | 表 T-052 の `DR-4` | `erd_json_to_schema.py`・照合の生成器の捨てる語 | 0 | 0（版を上げるたびに案内の例が動く） | 版の字面を持つ 6 本 |
 | D7 書く時刻を側で分ける（`JDG-1205`） | `EX-7`・`EX-4`・`FR-054`・`AT-28` ほか、新しい `AT` 2 行と設定 2 行 | `erd.json`・プロンプトの原稿・`settings.json`・`published-entries.json`（`textOfDay`）。`generate_startup_template.py` の `text_of` | `textOfDay` の呼び口 45（17 ファイル）、うち書く所 約 36 | `T00:00:00` を持つ 86 ファイル、`Project` を組む 101 ファイル | 見本 3 本の日付 各 2,500〜2,600、案内の土台 14 |
@@ -179,6 +196,62 @@
 | 見落とし 5 | D2: 読むたびに数え直すので、AI が書いた完了率は無視され、`VC-5` は `GRS JSON` では出なくなる。開いただけで文書が変わりうる（試験 `dfc-378`） | 変更要求で扱う |
 | 見落とし 6 | D7: 日付を文字列で比べる所（`delay-diagnostics-report.ts` の 1 日の判定、`edit-annotation.ts`・`edit-calendar.ts` の変化なしの判定）が時刻で誤る —— 日で比べる。マイルストーンを切り替えると終了の時刻も書き直す | 変更要求で扱う |
 | 見落とし 7 | D3: 見本 3 本が `TaskVisual` を約 960 ずつ増やす —— 性能の関門（`JDG-605`）で測る | 変更要求で扱う |
+
+## 7. CR split（変更要求への分け方）
+
+⭐ 2026-10-03、独立のレビューワーの順に従う。番号と当てる時期は調整役が配る（`JDG-1199`）。
+
+### 7.1 4 つの変更要求
+
+⭐ A・B・C は形を変えないので版を上げず、互いに独立である。⛔ どれも D の前に当てる —— D は見本と雛形を 1 度だけ作り直し、版を 1 度だけ上げる（`JDG-1209`）。
+
+| CR | 中身 | C | 版 |
+| --- | --- | --- | --- |
+| A | 日付の形と版をスキーマで見せ、照合では捨てる（`JDG-1200`・`JDG-1202`、`JDG-1205` の `pattern` の字面） | C-15・C-29・C-31 | 上げない |
+| B | ラグ（`JDG-1201`・`JDG-1208`） | C-20・C-30 | 上げない |
+| C | 読むとき完了率を数え直す（`JDG-1196`） | C-27 | 上げない |
+| D | 形を変える 1 つの変更要求（`JDG-1209` の版上げ 1 度）—— `stackOrder` を消す、`TaskVisual` の不変条件、側ごとの時刻と `Project` の 2 列、`created` ／ `lastSaved`（`JDG-1210`）、説明（`JDG-1211`）、見落とし 6、見本・試験用の文書・案内の土台の作り直し | C-13・C-14・C-16・C-17・C-18・C-19・C-21・C-22・C-23・C-24・C-25・C-26・C-28・C-32・C-33・C-34・C-35 | 上げる |
+
+⇒ 数: A 3、B 2、C 1、D 17、計 23（C-13〜C-35）。どの C もちょうど 1 つの変更要求に属する。
+⚠️ C-1〜C-12 は `CR-642` の一覧である（3 節）。そのうち `CR-642` が当てなかった C-4 は C-15・C-29 が、C-7 は C-31 が継ぐので、4 つの変更要求には数えない。
+
+### 7.2 裁定から C への引き当て（`JDG-1195`〜`JDG-1211`）
+
+| 裁定 | C | 備考 |
+| --- | --- | --- |
+| `JDG-1195` | C-25・C-26 | |
+| `JDG-1196` | C-27 | |
+| `JDG-1197` | C-22・C-28・C-35 | |
+| `JDG-1198` | C-1（`CR-642` で着地済み） | 7.4 節 |
+| `JDG-1199` | —— | 手順の指示。本節がそれを果たす（レビューを経た一覧を、調整役が変更要求へ分ける） |
+| `JDG-1200` | C-15・C-29 | |
+| `JDG-1201` | C-20・C-30 | |
+| `JDG-1202` | C-31 | |
+| `JDG-1203` | C-13 | 5 節で決めた時刻を `EX-7` へ着地させる |
+| `JDG-1204` | C-13 | `EX-7` の根拠は公式の出典だけ、類推は「GRS の選択」 |
+| `JDG-1205` | C-13・C-14・C-15・C-16・C-17・C-32・C-33・C-34 | |
+| `JDG-1206` | C-18・C-25 | 読み替えない ／ 見本を作り直す |
+| `JDG-1207` | C-19 | 前半は `JDG-1210` が覆した（C-23） |
+| `JDG-1208` | C-20 | |
+| `JDG-1209` | C-21・C-31 | 版の正は `SCHEMA_VERSION` の 1 つ |
+| `JDG-1210` | C-23・C-24 | |
+| `JDG-1211` | C-24 | |
+
+### 7.3 当たるまで食い違ったままのもの
+
+| 食い違い | 一方 | もう一方 | 消す C |
+| --- | --- | --- | --- |
+| ラグの単位 | `S-118`「ラグの単位: 稼働日」（`tbl-settings.md:652`） | `AT-47`「単位は `lagFormat` が何であっても 0.1 分」（`fig-erd-detail.md:360`） | C-20（B） |
+| 書く時刻 | `EX-7`「`GRS` が書く日付の時刻は `00:00:00`」（`01-04-requirements.md:6193`）と、根の説明の「writes 00:00:00」（`erd_json_to_schema.py:173`〜`:174`） | `JDG-1205`（側ごとの時刻） | C-13・C-24（D） |
+
+⚠️ 当たるまで、裁定はまだ仕様に無い。実装する者は裁定を先取りしない —— 食い違いは右の C が当たって消える。
+
+### 7.4 `JDG-1198` と `CR-642` の突き合わせ
+
+- `JDG-1198` の状態は「適用済 —— `CR-642` が当てた」である。
+- 一方 `CR-642` は、6 行と 210 行で「`PND-675`〜`PND-678` は決めない」「どちらの答えも先取りしない」と書く。
+- ⇒ 両方とも事実である。`CR-642` が当てた `Task.fadeInDays` の `schemaNote`（`erd.json:1196`「drawn slanted to say the start is not yet firm」）は、名を変えずに 1 文で補う形であり、後から下りた `JDG-1198` と同じ形だった。
+- `CR-642` は着地済みなので追記しない（検査 62）。突き合わせは本節と `JDG-1198` の状態の欄が持つ。
 
 ## 付録 A —— 写しの 4 版で当てた説明（英語、そのまま原稿へ写せる形）
 
