@@ -4183,7 +4183,7 @@ def check_stack_order(built):
 SCHEMA_READ = frozenset((
     'type', 'properties', 'required', 'additionalProperties', 'items',
     'enum', 'minimum', 'maximum', 'minLength', 'maxLength', 'format', '$ref',
-    'pattern',
+    'pattern', 'const',
 ))
 # Words a subschema may carry that say nothing about whether a value is valid.
 # ⚠️ `$defs` is among them because it holds subschemas nothing is measured
@@ -4246,6 +4246,9 @@ def schema_faults(value, shape, defs, path):
     if 'enum' in shape and value not in shape['enum']:
         out.append('%s is %r, which is not one of the values the schema '
                    'spells' % (path, value))
+    if 'const' in shape and value != shape['const']:
+        out.append('%s is %r, and the schema fixes it to %r'
+                   % (path, value, shape['const']))
     if shape.get('format') == 'uuid' and isinstance(value, str):
         if SPELLED_UUID.match(value) is None:
             out.append('%s does not spell a uuid' % path)

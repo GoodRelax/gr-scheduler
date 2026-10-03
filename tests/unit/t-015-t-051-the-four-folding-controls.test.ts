@@ -316,7 +316,7 @@ function documentWith(part: Fixture = {}): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: ROWS.map((_row, index) =>
-        task(index + 1, '2026-04-01', '2026-04-10', `Task${index + 1}`),
+        task(index + 1, '2026-04-01T00:00:00', '2026-04-10T00:00:00', `Task${index + 1}`),
       ),
       resources: [],
       assignments: [],
@@ -344,7 +344,7 @@ function documentWith(part: Fixture = {}): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      ...(part.atStoredZoom === true ? { scrollDate: '2026-04-01', scrollGroupId: ALPHA } : {}),
+      ...(part.atStoredZoom === true ? { scrollDate: '2026-04-01T00:00:00', scrollGroupId: ALPHA } : {}),
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],

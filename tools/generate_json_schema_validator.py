@@ -23,7 +23,8 @@ schema speaks only eleven keywords (EXPRESSED below), and this generator REFUSES
 to run when it grows a twelfth, so the walker can never be handed a rule it
 would silently ignore.
 
-Two departures from the manuscript, both required rather than chosen:
+Three departures from the manuscript, all required rather than chosen (the
+third is DATE_TIME_DEF below: the date-time `pattern` is dropped, CR-643):
 
 ⛔ The `documentSettings` group loses every bound -- `minimum`, `maximum`,
 `maxLength`, `pattern` -- through its whole subtree. Chapter 6.1 lets the
@@ -97,7 +98,18 @@ DROPPED = {
     '$comment': 'prose',
     'default': 'a validator judges what is there; it does not fill in',
     'format': 'the user\'s ruling of 2026-08-24 -- see the head of this file',
+    # CR-643: json-codec.ts judges the version with formatVersionReading
+    # (FR-073) before the walker runs, and rewrites it to this build's own.
+    'const': 'the format version is judged by formatVersionReading',
 }
+
+# ⛔ The one date-time definition the date columns point at. Its `pattern` is
+# a promise to the writer (FR-024), not a reading condition: FR-023 drops an
+# unusable date row by row (IV-14 of table T-220), and this walker would
+# refuse the whole file over it (Chapter 6.1, CR-643). Named by its pointer,
+# like RELAXED_ROOT, so that a rename stops this generator instead of quietly
+# arming the pattern.
+DATE_TIME_DEF = '/$defs/DateTime'
 
 # The path under which the strictness keywords must not be applied.
 # ⛔ Stated as the pointer rather than as the word, so that a rename of the
@@ -170,7 +182,8 @@ def reduce_node(node, at, formats):
         out['enum'] = list(node['enum'])
 
     strict = not (at == RELAXED_ROOT or at.startswith(RELAXED_ROOT + '/'))
-    keeps = (lambda keyword: strict or keyword not in RELAXED_OFF)
+    keeps = (lambda keyword: (strict or keyword not in RELAXED_OFF)
+             and not (at == DATE_TIME_DEF and keyword == 'pattern'))
 
     for keyword in ('minimum', 'maximum', 'maxLength', 'pattern'):
         if keyword in node and keeps(keyword):
@@ -302,6 +315,11 @@ KIND_ORDER = ('null', 'boolean', 'integer', 'number', 'string', 'array', 'object
 
 def build(schema):
     formats = []
+    pointed = schema.get('$defs', {}).get(DATE_TIME_DEF[len('/$defs/'):])
+    if not isinstance(pointed, dict) or 'pattern' not in pointed:
+        raise SystemExit('generate_json_schema_validator: the schema holds no '
+                         '%s with a pattern, so DATE_TIME_DEF names nothing; '
+                         'follow the rename here' % DATE_TIME_DEF)
     defs = collections.OrderedDict()
     for name, node in schema.get('$defs', {}).items():
         defs[name] = reduce_node(node, '/$defs/' + name, formats)

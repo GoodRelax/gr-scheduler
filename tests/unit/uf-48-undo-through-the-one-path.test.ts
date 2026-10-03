@@ -252,8 +252,8 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: [
-        task(1, '2026-04-01', '2026-04-10', 'One'),
-        task(2, '2026-05-06', '2026-05-20', 'Two'),
+        task(1, '2026-04-01T00:00:00', '2026-04-10T00:00:00', 'One'),
+        task(2, '2026-05-06T00:00:00', '2026-05-20T00:00:00', 'Two'),
       ],
       resources: [],
       assignments: [],
@@ -387,8 +387,8 @@ const REDO: HumanInput = key('Y', { ctrl: true })
 // WHY: showing the status line slides the view to centre it, and undo leaves the view where it is;
 // Task 1 spans INSTANT, so its bar stays under the pointer after the one edit.
 function underTheStatusLine(draft: any): void {
-  draft.schedule.tasks[0].start = '2026-08-14'
-  draft.schedule.tasks[0].finish = '2026-08-28'
+  draft.schedule.tasks[0].start = '2026-08-14T00:00:00'
+  draft.schedule.tasks[0].finish = '2026-08-28T00:00:00'
 }
 
 /** The centre of a Task's plan bar, in the frame of reference a press speaks in. */

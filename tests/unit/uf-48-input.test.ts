@@ -294,8 +294,8 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: [
-        task(1, '2026-04-01', '2026-04-10', 'One'),
-        task(2, '2026-05-06', '2026-05-20', 'Two'),
+        task(1, '2026-04-01T00:00:00', '2026-04-10T00:00:00', 'One'),
+        task(2, '2026-05-06T00:00:00', '2026-05-20T00:00:00', 'Two'),
       ],
       resources: [],
       assignments: [],

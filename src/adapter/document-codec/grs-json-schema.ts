@@ -73,19 +73,19 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
       },
       created: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       revision: {
         type: ['integer', 'null'],
       },
       lastSaved: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       startDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       statusDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       minutesPerDay: {
         type: ['integer', 'null'],
@@ -150,16 +150,16 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
       },
       start: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       finish: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       milestone: {
         type: ['boolean', 'null'],
       },
       deadline: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       notes: {
         type: ['string', 'null'],
@@ -168,16 +168,16 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer', 'null'],
       },
       actualStart: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       stop: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       actualFinish: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       resume: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       resumeValid: {
         type: ['boolean', 'null'],
@@ -374,10 +374,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
       },
       fromDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       toDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       dayWorking: {
         type: ['boolean', 'null'],
@@ -520,7 +520,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
       },
       anchorDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       anchorGroupId: {
         type: ['string', 'null'],
@@ -567,10 +567,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string'],
       },
       startDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       endDate: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       topGroupId: {
         type: ['string', 'null'],
@@ -672,10 +672,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
       },
       start: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       finish: {
-        type: ['string', 'null'],
+        ref: 'DateTime',
       },
       milestone: {
         type: ['boolean', 'null'],
@@ -687,6 +687,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
     values: {
       type: ['string'],
     },
+  },
+  DateTime: {
+    type: ['string', 'null'],
   },
 }
 
