@@ -1,4 +1,4 @@
-// The place of the latest version (S-350) read from the settings manuscript, and the seat a word names it by.
+// The place of the latest version (S-350) and of the repository (S-459) read from the settings manuscript, and the seat a word names S-350 by.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -14,16 +14,19 @@ const SETTINGS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 ) as SettingsManuscript
 
-const s350Cell = (): string => {
+const defaultAddressOf = (id: string): string => {
   for (const block of SETTINGS.blocks) {
-    const row = block.rows?.find((one) => one.id === 'S-350')
-    if (row?.default?.ja !== undefined) return row.default.ja
+    const row = block.rows?.find((one) => one.id === id)
+    if (row?.default?.ja !== undefined) return row.default.ja.replace(/^`|`$/g, '')
   }
-  throw new Error('the settings manuscript has no default for S-350')
+  throw new Error(`the settings manuscript has no default for ${id}`)
 }
 
 // see S-350
-export const DOWNLOAD_ADDRESS: string = s350Cell().replace(/^`|`$/g, '')
+export const DOWNLOAD_ADDRESS: string = defaultAddressOf('S-350')
+
+// see S-459, FR-069, BR-4
+export const REPOSITORY_ADDRESS: string = defaultAddressOf('S-459')
 
 // see FR-073
 export const DOWNLOAD_URL_SEAT = '{downloadUrl}'

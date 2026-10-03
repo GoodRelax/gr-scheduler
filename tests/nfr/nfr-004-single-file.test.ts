@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { DOWNLOAD_ADDRESS } from '../fixtures/download-address'
+import { DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS } from '../fixtures/download-address'
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const DIST_DIR = join(REPO_ROOT, 'dist')
@@ -31,10 +31,12 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
   'https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json',
 ]
 
-// see CN-6, FR-073
-// WHY: not copied as a literal -- FR-073 (MUST NOT) forbids writing S-350
-// into code, and DOWNLOAD_ADDRESS already reads it from the manuscript.
-const LINK_PRESSED_BY_A_PERSON = DOWNLOAD_ADDRESS
+// see CN-6, FR-073, FR-069, BR-4
+// WHY: CN-6 says a link a person presses, opened by the browser in a new tab,
+// is not this row's communication; S-350 (FR-073) and S-459 (FR-069's copyright,
+// BR-4's Branding) are the two such targets. Not copied as literals -- both rows
+// forbid writing the address into code, so they are read from the manuscript.
+const LINKS_PRESSED_BY_A_PERSON: readonly string[] = [DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS]
 
 // WHY: a minified call sits next to its string argument, so this window
 // catches fetch(...), xhr.open(...), import(...), importScripts(...).
@@ -175,18 +177,18 @@ test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attrib
   const offFile = uses.filter(({ where, value }) => {
     if (value.startsWith('#')) return false
     if (IN_FILE_SCHEMES.test(value)) return false
-    if (where === '<a href>' && value === LINK_PRESSED_BY_A_PERSON) return false
+    if (where === '<a href>' && LINKS_PRESSED_BY_A_PERSON.includes(value)) return false
     // WHY: a relative path here means a second file, which CN-1 already
     // forbids, so it counts as off-file too.
     return true
   })
   expect(
     offFile.map((u) => `${u.where} ${u.value}`),
-    'CN-6: no reference may fetch a resource from outside the file (an <a href> may only carry the S-350 address a person presses)',
+    'CN-6: no reference may fetch a resource from outside the file (an <a href> may only carry the S-350 or S-459 address a person presses)',
   ).toEqual([])
 })
 
-test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350 link target remain', () => {
+test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350 and S-459 link targets remain', () => {
   const seen = new Set<string>()
   for (const match of deliverable.matchAll(ABSOLUTE_URL)) {
     const url = match[0].replace(/[.,;:'")\]]+$/, '')
@@ -196,11 +198,11 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
   }
   const external = [...seen]
     .filter((url) => !NON_DEREFERENCED_URI_IDENTIFIERS.includes(url))
-    .filter((url) => url !== LINK_PRESSED_BY_A_PERSON)
+    .filter((url) => !LINKS_PRESSED_BY_A_PERSON.includes(url))
     .sort()
   expect(
     external,
-    'CN-6: an absolute URL that is not a declared identifier or the S-350 link target means the deliverable points outside itself',
+    'CN-6: an absolute URL that is not a declared identifier or an S-350 / S-459 link target means the deliverable points outside itself',
   ).toEqual([])
   // TRAP: if this assertion needs deleting, the namespace exemption above has
   // gone stale and its entries should be reconsidered.
@@ -208,10 +210,12 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
     seen.has('http://www.w3.org/2000/svg'),
     'IF-1 of table T-065 puts an SVG surface on screen, so its namespace name should be present',
   ).toBe(true)
-  expect(
-    loaderCallsAddress(deliverable, LINK_PRESSED_BY_A_PERSON),
-    'CN-6: the S-350 address may sit as a link target only, never as the argument of a fetch/open/import call',
-  ).toBe(false)
+  for (const address of LINKS_PRESSED_BY_A_PERSON) {
+    expect(
+      loaderCallsAddress(deliverable, address),
+      `CN-6: ${address} may sit as a link target only, never as the argument of a fetch/open/import call`,
+    ).toBe(false)
+  }
 })
 
 test('NFR-004 (judged from file://) / CN-6: given the deliverable opened as file://, when it has finished loading, then no request left the file and none failed', async ({ page }) => {

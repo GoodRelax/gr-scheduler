@@ -25,7 +25,8 @@ const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec',
 
 const IF_9_WORD =
   '上の MUST NOT の例外は、検索パネル（`U-64`）の入力欄（`FR-151` の 表 T-330 の `SV-2`）の 1 つだけとする —— 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）'
-const IF_9_POINT = '⭐ 検索パネルの上の点には、上の UI パーツと入口の答えに加えて 2 つを答えること（MUST）'
+const IF_9_POINT =
+  '⭐ ウインドウ（`01-04-requirements.md` の `FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）の上の点には、上の UI パーツと入口の答えに加えて下の 2 つ目を、検索パネルの上の点には 1 つ目も答えること（MUST）'
 const IF_9_OTHER_CELLS = 'ほかのセルの上では、この答えを `null` とする —— `SJ-1` のとおり、ほかのセルは飛ばない。'
 const IF_9_ENTRY_ONLY = '入口の上では入口だけを答える —— `GR-24` は入口の載っていない所である'
 const SV_5_EACH = '語を 1 文字打つたびに表を作り直す。'
