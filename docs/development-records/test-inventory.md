@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 166 | 2312 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 167 | 2316 | 3 | 4 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 41 | 263 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 167 | 3773 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 168 | 3788 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 394 | 6452 | 11 | 17 | 9 | 1 |
+| **all** | | | 396 | 6471 | 11 | 17 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -69,12 +69,12 @@ named either way: 1 of 11.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (167) -- listing only
+## 6. The unit files kept for now (168) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 19 of 167.
+`semi-pure-a` (rule 04 table UO, row UO-1): 20 of 168.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -133,7 +133,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021 |
 | `tests/unit/cr-604-the-pause-bar-and-markers-shown-by-default.test.ts` | - | - | FR-013, FR-046, FR-094, T-019, T-019a, T-021, T-021b |
 | `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | applyDocumentChange (non-pure), editDocument (pure), undoEdit (pure) | - | FR-031, FR-054, FR-088, T-108, T-209, T-344 |
-| `tests/unit/cr-605-the-non-working-day-shade.test.ts` | dateAtX (pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), workingCalendarOf (pure), workingDaysBetween (pure), xFromDay (pure) | yes | FR-017, FR-054, T-202, T-203, T-205, T-216, T-236, T-343 |
+| `tests/unit/cr-605-the-non-working-day-shade.test.ts` | dateAtX (pure), emptySelection (pure), geometryFromLayout (pure), isNonRecurringException (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), workingCalendarOf (pure), workingDaysBetween (pure), xFromDay (pure) | yes | FR-017, FR-054, T-202, T-203, T-205, T-216, T-236, T-343 |
 | `tests/unit/cr-607-the-reset-clears-only-what-table-t-345-clears.test.ts` | - | - | FR-153, T-206, T-345 |
 | `tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts` | answerDelayDiagnosticsReportEntry (non-pure), columnWidthPx (pure), delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFileNameOf (pure), delayDiagnosticsReportFromWindow (pure), delayDiagnosticsReportMarkdown (pure), delayDiagnosticsReportMarkdownOf (pure), delayDiagnosticsReportRows (pure), delayDiagnosticsReportWithColumnWidth (pure), delayDiagnosticsReportWithFilterClosed (pure) | - | FR-134, T-335, T-346, T-347 |
 | `tests/unit/cr-618-same-day-links-hold.test.ts` | documentFromJson (pure) | yes | FR-011, FR-131, T-310, T-311, T-312, T-313, T-314, T-315, T-316, T-317 |
@@ -154,6 +154,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-649-exception-times-duration-and-the-open-chooser-words.test.ts` | documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure) | yes | FR-038, FR-057, T-033, T-059, T-108, T-350 |
 | `tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editProject (pure), jsonFromDocument (pure), mspdiFromDocument (pure), planDocumentChange (pure), undoEdit (pure) | yes | FR-014, FR-054, FR-073, FR-131, FR-135, T-022, T-108, T-311, T-315 |
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | armedLabelStyle (pure), paletteColumnsOf (pure), paletteColumnsStyle (pure), paletteElement (non-pure) | - | FR-053, T-109, T-201, T-206 |
+| `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | documentFromMspdi (pure), isNonRecurringException (pure), isWorkingDay (pure), mspdiFromDocument (pure), workingCalendarOf (pure) | yes | FR-054, T-033, T-058, T-344 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
@@ -332,6 +333,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-620-seam-4-help-footnote.contract.test.ts` | 11 | FR-036, FR-038, FR-073 | - | - | IC-20, IC-54, PI-37, S-202, S-350 | - | - | - | - |
 | `tests/contract/cr-633-delay-diagnostics-judges-by-the-link-ends.contract.test.ts` | 27 | FR-011, FR-135, FR-136 | - | T-310, T-311, T-312, T-313, T-315, T-316, T-318 | AT-46, BD-1, BD-2, DG-1, DG-2, DG-3, DG-4, DQ-2, DQ-3, DQ-4, DW-2, DX-4, DX-5, DX-7, PS-4, VC-11, VC-13, VO-1, VO-3, VO-4, VO-5, VS-2, VS-3 | - | - | - | - |
 | `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 17 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
+| `tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts` | 4 | FR-021 | - | - | EX-1, EX-13, EX-14 | - | - | - | yes |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
 | `tests/contract/dfc-1224-merge-and-overlay-keep-the-save-target.test.ts` | 8 | FR-060, FR-096 | VT-2 | T-036, T-103, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
@@ -539,6 +541,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-649-exception-times-duration-and-the-open-chooser-words.test.ts` | 21 | FR-038, FR-057 | - | T-033, T-059, T-108, T-350 | CM-39, DV-8, EX-12, IC-71, IC-72, IC-73, S-128, U-56, WT-6, WT-7, WT-10 | - | - | - | - |
 | `tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts` | 38 | FR-014, FR-054, FR-073, FR-131, FR-135 | - | T-022, T-108, T-311, T-315 | AT-156, CM-87, DG-1, PL-1, PL-2, PL-3, PL-4, PL-5, PS-3, S-487, UN-13, VS-6 | - | - | - | - |
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | 17 | FR-053 | - | T-109, T-201, T-206 | IC-54, S-8, S-143, S-216, S-234, S-235, S-488, S-489 | - | - | - | - |
+| `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | 15 | FR-054 | - | T-033, T-058, T-344 | AT-82, EX-13, EX-14, WC-6 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |

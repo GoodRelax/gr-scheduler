@@ -22,7 +22,9 @@ import {
   actualLastDay,
   actualLengthOf,
   blankTaskVisual,
+  DAILY_RECURRENCE_KIND,
   dayOf,
+  isNonRecurringException,
   lastDayForLength,
   plannedDurationMinutesOf,
   textOfFinishSide,
@@ -298,6 +300,16 @@ function optionalLeaf(name: string, value: string | number | boolean | null): Pl
   if (value === null) return []
   if (typeof value === 'boolean') return [leaf(name, value ? '1' : '0')]
   return [leaf(name, String(value))]
+}
+
+const WHOLE_UNITS = 1
+const ONE_OCCURRENCE = 1
+const ENDS_BY_FINISH_DATE = 0
+
+// WHY: a value the row carries goes back as read (FR-021), so a made one is placed only where none was carried.
+/** @purity pure */
+function absentLeaf(carry: Readonly<Record<string, string>>, name: string, text: string): PlacedChild[] {
+  return Object.hasOwn(carry, name) ? [] : [leaf(name, text)]
 }
 
 interface ImportRun {
@@ -875,28 +887,26 @@ function exceptionsOfCalendar(
     if (element.name !== 'Exception') return
     const split = carrySplit(element, EXCEPTION_CONSUMED)
     const period = childOf(element, 'TimePeriod')
-    const recurrenceKind = integerColumn(element, 'Type')
-    if (recurrenceKind !== null && recurrenceKind !== NO_RECURRENCE) {
-      run.notices.push(notice(
-        `/Project/Calendars/Calendar[uid=${calendarUid}]/Exceptions/Exception[${ordinal + 1}]`,
-        'repeats, and repeating exception days are not spread over real dates',
-      ))
-    }
-    exceptions.push({
+    const exception: Exception = {
       ordinal,
       name: textColumn(element, 'Name'),
       fromDate: period === null ? null : textColumn(period, 'FromDate'),
       toDate: period === null ? null : textColumn(period, 'ToDate'),
       dayWorking: booleanColumn(element, 'DayWorking'),
-      recurrenceKind,
+      recurrenceKind: integerColumn(element, 'Type'),
       carry: split.carry,
       carryElements: split.carryElements,
-    })
+    }
+    if (!isNonRecurringException(exception)) {
+      run.notices.push(notice(
+        `/Project/Calendars/Calendar[uid=${calendarUid}]/Exceptions/Exception[${ordinal + 1}]`,
+        'repeats, and repeating exception days are not spread over real dates',
+      ))
+    }
+    exceptions.push(exception)
   })
   return exceptions
 }
-
-const NO_RECURRENCE = 9
 
 export interface ExportRun {
   readonly notices: MspdiNotice[]
@@ -1288,12 +1298,14 @@ function writtenResources(schedule: Schedule): readonly XmlElement[] {
   return splicedCarriedRows(written, schedule.project.carryElements, 'Resource')
 }
 
+// see EX-14, DV-15
 /** @purity pure */
 function writtenAssignment(assignment: Assignment): XmlElement {
   const named: PlacedChild[] = [
     leaf('UID', String(assignment.uid)),
     ...optionalLeaf('TaskUID', assignment.taskUid),
     ...optionalLeaf('ResourceUID', assignment.resourceUid),
+    ...absentLeaf(assignment.carry, 'Units', String(WHOLE_UNITS)),
   ]
   return {
     name: 'Assignment',
@@ -1336,6 +1348,7 @@ function writtenWeekDay(weekDay: WeekDay): XmlElement {
   }
 }
 
+// see EX-13, DV-13, DV-14
 /** @purity pure */
 function writtenException(exception: Exception): XmlElement {
   const named: PlacedChild[] = [
@@ -1343,6 +1356,12 @@ function writtenException(exception: Exception): XmlElement {
     ...optionalLeaf('Type', exception.recurrenceKind),
     ...optionalLeaf('DayWorking', exception.dayWorking),
   ]
+  if (exception.recurrenceKind === DAILY_RECURRENCE_KIND && isNonRecurringException(exception)) {
+    named.push(
+      ...absentLeaf(exception.carry, 'Occurrences', String(ONE_OCCURRENCE)),
+      ...absentLeaf(exception.carry, 'EnteredByOccurrences', String(ENDS_BY_FINISH_DATE)),
+    )
+  }
   const period: PlacedChild[] = [
     ...optionalLeaf('FromDate', exception.fromDate),
     ...optionalLeaf('ToDate', exception.toDate),

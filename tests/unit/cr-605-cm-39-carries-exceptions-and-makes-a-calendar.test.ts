@@ -29,7 +29,7 @@ const ERD = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'u
 const FR_088_MAKE =
   '⭐ 文書の暦が 表 T-209 の既定に解けるとき、`CM-39` は同じ書き込みで `Calendar` を 1 行作り、`Project.calendarUid` に指させてから、曜日と例外日を書くこと（MUST） —— 作らないと、新しい文書では暦を 1 つも直せない。'
 const FR_088_UID = '作る暦の `uid` は `Project.uidHighWaterMark`（`AT-20`）に従って採り、`isBaseCalendar` を真とする。'
-const FR_088_EXCEPTIONS = '例外日は、繰り返しの無いもの（表 T-058 の `AT-82` の `9`）を足し、直し、消せること（MUST）。'
+const FR_088_EXCEPTIONS = '例外日は、繰り返しの無いもの（表 T-058 の `AT-82` が言う繰り返しの無い例外日）を足し、直し、消せること（MUST）。'
 const FR_088_DAY_WORKING = '行ごとに休みか稼働か（`AT-81`）を選べること（MUST） —— 交換相手の `Exception` がその両方を持つ。'
 const FR_088_RECURRING_DELETE =
   '⚠️ 取り込んだ繰り返しの例外日は、一覧に出して消せるようにし、直させてはならない（MUST NOT） —— 繰り返しを展開しない（`FR-054`）ので、直した結果を画面で確かめられない。'

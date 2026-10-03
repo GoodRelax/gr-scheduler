@@ -12,6 +12,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import {
+  isNonRecurringException,
   workingCalendarOf,
   workingDaysBetween,
   type CalendarDay,
@@ -35,7 +36,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const FR_054_POINTER = '非稼働日を描くときは 表 T-343 に従うこと（MUST）。'
 // see OD-1
 const OD_1_RULE = '本要求が決める文書の暦で、稼働日でない日を塗ること（MUST）。'
-const OD_1_BOTH = '曜日の稼働（`WeekDay`）と、繰り返しの無い例外日（`Exception`）の両方に従う。'
+const OD_1_BOTH = '曜日の稼働（`WeekDay`）と、繰り返しの無い例外日（`Exception`、`_assets/fig-erd-detail.md` の `AT-82`）の両方に従う。'
 const OD_1_RECURRING = '⚠️ 繰り返しの例外日は実日付へ展開しない（本要求の RATIONALE）ので、塗らない。'
 const OD_1_WORKING = '⭐ 稼働にする例外日（`dayWorking` が真）は、週末でも塗らない'
 // see OD-2
@@ -298,7 +299,7 @@ const covers = (row: ExceptionRow, at: CalendarDay): boolean =>
 
 // see OD-2
 const offByException = (exceptions: readonly ExceptionRow[]): ((at: CalendarDay) => boolean) => (at) =>
-  exceptions.some((row) => row.dayWorking === false && (row.recurrenceKind === 9 || row.recurrenceKind === null) && covers(row, at))
+  exceptions.some((row) => row.dayWorking === false && isNonRecurringException(row) && covers(row, at))
 
 const expectedRunsOf = (frame: Frame, svg: string, shaded: (at: CalendarDay) => boolean): readonly Run[] => {
   const left = frame.rowArea.x

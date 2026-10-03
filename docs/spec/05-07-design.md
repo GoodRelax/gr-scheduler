@@ -388,7 +388,7 @@ src/
 | UF-126 | `Schedule` | `schedule-entities.ts` | `pure` | 日程データの群のエンティティ（表 T-056）の型と、列（表 T-058）と既定の暦（表 T-209）の定数を持つ | — |
 | UF-127 | `Schedule` | `plan-actual-state.ts` | `pure` | `Task` の予実の状態を表 T-019a の手順で判別し、その状態から 表 T-022 の頂点を打つ日を答える（`FR-010` ・ `FR-014` ・ `FR-131`） | `FR-010`（`OW-1`） |
 | UF-170 | `Schedule` | `calendar-day.ts` | `pure` | 暦の日付（`CalendarDay`）を字と相互に変え、比べ、日の番号で数える（`EX-2`・`EX-7`・`FD-6`）。<br>日を表す鍵の字（時刻を持たない読みのための字）と、丸 1 日の始まりと終わりの字（`01-04-requirements.md` の 表 T-350 の `WT-6`〜`WT-8`）を別に作る | — |
-| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する（`FR-054`・`FR-009`）。<br>予定の長さ（`_assets/fig-erd-detail.md` の `DV-8`）を数えるのも本ユニットだけである。<br>文書の既定の時刻（`Project.defaultStartTime` ／ `defaultFinishTime`、空なら `S-482` ／ `S-483`）で、開始の側と終了の側の日時の字を作る（`01-04-requirements.md` の 表 T-350） | `FR-054`（`OW-2`） |
+| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する（`FR-054`・`FR-009`）。<br>予定の長さ（`_assets/fig-erd-detail.md` の `DV-8`）を数えるのも本ユニットだけである。<br>繰り返しの無い例外日を見分ける述語（同書の `AT-82`）を持つのも本ユニットだけであり、取り込み・書き出し・稼働日の数え・非稼働日の塗りがそれを使う。<br>文書の既定の時刻（`Project.defaultStartTime` ／ `defaultFinishTime`、空なら `S-482` ／ `S-483`）で、開始の側と終了の側の日時の字を作る（`01-04-requirements.md` の 表 T-350） | `FR-054`（`OW-2`） |
 | UF-129 | `Schedule` | `task-delay.ts` | `pure` | `Task` が遅れているかと、遅れの稼働日数を表 T-021b の起点と終点から判ずる（`FR-047`） | `FR-047`（`OW-1`） |
 | UF-130 | `Schedule` | `stored-colour.ts` | `pure` | 選んだ色の保存の綴り —— パレット色の名とカスタムカラーの明暗の 2 値 —— を表 T-017b の `CV-1`〜`CV-4` に従って作り・読み・確かめる | — |
 | UF-131 | `Schedule` | `schedule-invariants.ts` | `pure` | 文書の不変条件を表 T-220 の行ごとに判じ、違反の箇所を返す | — |

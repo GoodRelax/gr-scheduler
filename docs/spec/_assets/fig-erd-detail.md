@@ -394,7 +394,7 @@ erDiagram
 | AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
 | AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
 | AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
-| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる（`FR-088`）。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD） |
+| AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13` |
 | AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
 | AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
@@ -478,3 +478,6 @@ erDiagram
 | DV-8 | `Task` | `duration` | `Task/Duration` | `start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 終わりの日を含めるのは、交換相手の公式の例が、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書くからである（Microsoft Learn の Project XML の `Task` の要素の例）。⚠️ `FR-054`（時刻を解釈しない）とは矛盾しない —— 数えるのは稼働日であって時刻ではない。**人が編集していないタスクは受け取った値をそのまま返す** |
 | DV-11 | `Task` | `actualDuration` | `Task/ActualDuration` | `FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記） |
 | DV-10 | `Resource` | `id` | `Resource/ID` | 書き出す順に振り直す。**`uid` とは別物** |
+| DV-13 | `Exception` | `occurrences` | `…/Exception/Occurrences` | `carry` に控えた原値。無く、行が `01-04-requirements.md` の 表 T-033 の `EX-13` に当たるときは `1` |
+| DV-14 | `Exception` | `enteredByOccurrences` | `…/Exception/EnteredByOccurrences` | `carry` に控えた原値。無く、行が `EX-13` に当たるときは `0`（範囲を終わりの日で決める） |
+| DV-15 | `Assignment` | `units` | `Assignment/Units` | `carry` に控えた原値。無いときは `1`（`01-04-requirements.md` の 表 T-033 の `EX-14`）。`GRS` は解釈しない |

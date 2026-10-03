@@ -41,11 +41,26 @@ interface CalendarIndex {
   readonly worksWeekday: readonly (boolean | undefined)[]
 }
 
+export const DAILY_RECURRENCE_KIND = 1
+const NO_RECURRENCE_KIND = 9
+const ONE_DAY_PERIOD = 1
+
+// see AT-82, FR-054
+/** @purity pure */
+export function isNonRecurringException(exception: Pick<Exception, 'recurrenceKind' | 'carry'>): boolean {
+  const kind = exception.recurrenceKind
+  if (kind === null || kind === NO_RECURRENCE_KIND) return true
+  if (kind !== DAILY_RECURRENCE_KIND) return false
+  const period = exception.carry['Period']?.trim() ?? ''
+  return period === '' || Number(period) === ONE_DAY_PERIOD
+}
+
 // TRAP: build it once per walk, never per day: the layout counts working days for every Task each frame.
 /** @purity pure */
 function indexOfCalendar(within: WorkingCalendar): CalendarIndex {
   const exceptionSpans: ExceptionSpan[] = []
   for (const exception of within.exceptions) {
+    if (!isNonRecurringException(exception)) continue
     const from = dayOf(exception.fromDate)
     if (from === null) continue
     const toInclusive = dayOf(exception.toDate) ?? from

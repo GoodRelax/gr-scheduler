@@ -40,6 +40,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `customColourChosen` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customColourChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
 | `customColourOf` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customColourOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
 | `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
+| `DAILY_RECURRENCE_KIND` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#DAILY_RECURRENCE_KIND` | PI-1 | 日次の繰り返しの種別 `1`（`AT-82`）。 |
 | `DATE_COLUMNS` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DATE_COLUMNS` | PI-1 | 表 T-058 の型の欄が日付とする列の全数。 |
 | `dateFromWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#dateFromWorkingDays` | PI-1 | 起点の日付に稼働日を加えた日 |
 | `DAY_END_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_END_TIME` | PI-1 | 丸 1 日の範囲の終わりの時刻（表 T-350 の `WT-7`） |
@@ -71,6 +72,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HighlightBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#HighlightBox` | -- | interface HighlightBox |
 | `InvariantKind` | entry | type | `src/entity/document-model/schedule/schedule-invariants.ts#InvariantKind` | -- | type InvariantKind = \| 'unique' \| 'reference' \| 'structure' \| 'combination' \| 'range' export interface ScheduleViolation |
 | `isDelayed` | entry | function | `src/entity/document-model/schedule/task-delay.ts#isDelayed` | PI-1 | 表 T-021b の 3 条件 |
+| `isNonRecurringException` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isNonRecurringException` | PI-1 | 例外日が繰り返しの無いものか。 |
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
 | `isStoredColour` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#isStoredColour` | PI-1 | 色の列が取る綴りか。 |
@@ -1673,4 +1675,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 808 name(s) leave through a public entry (303 of them published by table T-064), 655 more are exported by a file and not by its entry.
+Totals: 810 name(s) leave through a public entry (305 of them published by table T-064), 655 more are exported by a file and not by its entry.
