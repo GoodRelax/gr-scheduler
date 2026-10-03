@@ -391,9 +391,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
-  // WHY: CR-648 keys the report's column headings by their row of table T-347, its
-  // statuses by the DG / DX row each is made of (DT-1), and its summary, Markdown
-  // and DT-7 words by the part they fill (FR-134).
+  // WHY: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
+  // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
   delayReportColumns: 'rowId',
   delayReportStatuses: 'rowId',
   delayReportSummary: 'part',
@@ -2135,7 +2134,6 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
   })
 }
 
-// see FR-134, S-451
 for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(

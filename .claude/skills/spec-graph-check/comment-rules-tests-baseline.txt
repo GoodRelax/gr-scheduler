@@ -35,7 +35,7 @@
 # LOWERED 4 lines on 2026-09-25 to the measured values (tree density -> 2221 bp) under JDG-520; CR-565 and CR-567 tests, measured on f7687f2a.
 # RENAMED 2026-09-26: 43 key(s) tests/unit/... -> tests/contract/..., numbers unchanged, under JDG-520 (delegated by the coordinator for the CR-573 waves 2a/3a commit).
 # LOWERED 2026-09-26: pruned 93 key(s) whose file CR-573 wave 3a deleted, under JDG-520 (delegated by the coordinator).
-tree-density-basis-points 1741
+tree-density-basis-points 1722
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -193,7 +193,7 @@ tests/unit/uf-37-38.test.ts 1
 tests/unit/uf-39-40.test.ts 790
 tests/unit/uf-41-42.test.ts 0
 tests/unit/uf-45-46.test.ts 0
-tests/unit/uf-47-48-choosers.test.ts 1409
+tests/unit/uf-47-48-choosers.test.ts 1405
 tests/unit/uf-47-48-history-bytes.test.ts 504
 tests/unit/uf-47-48.test.ts 815
 tests/unit/uf-48-input.test.ts 554
