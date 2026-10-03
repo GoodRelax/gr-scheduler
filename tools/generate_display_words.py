@@ -349,7 +349,8 @@ DELAY_REPORT_SUMMARY_PARTS = ('statusDate', 'afterStatusDate', 'count', 'between
 DELAY_REPORT_MARKDOWN_PARTS = ('documentName', 'madeAt', 'filter', 'none')
 DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckPath', 'late', 'settled',
                              'finding', 'wall', 'missingActual',
-                             'milestoneAchieved', 'proposal')
+                             'milestoneAchieved', 'parentProgressOutside',
+                             'proposal')
 
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'

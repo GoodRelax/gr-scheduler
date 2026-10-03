@@ -74,6 +74,15 @@
      }
     },
     {
+     "name": "progressPointDayOf",
+     "note": {
+      "ja": [
+       "表 T-022 の頂点を打つ日。",
+       "`ScheduleGeometry` のイナズマ線と `diagnoseDelay` の `VS-6` が同じ日を読むために公開した"
+      ]
+     }
+    },
+    {
      "name": "isDelayed",
      "note": {
       "ja": [

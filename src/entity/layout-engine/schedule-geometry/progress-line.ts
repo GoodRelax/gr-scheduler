@@ -4,37 +4,25 @@
 // @purity    pure
 
 import {
-  compareDays,
-  dayOf,
   planActualState,
+  progressPointDayOf,
   type CalendarDay,
   type Task,
 } from '../../document-model/schedule/schedule'
 import { xFromDay, type TaskPlacement } from '../schedule-layout/schedule-layout'
 import { point, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
-// see T-022
+// see T-022, RV-1
+// WHY: the day comes from progressPointDayOf, which VS-6 reads too; the in-progress x stays the drawn actual bar's end.
+// TRAP: an in-progress task with no stop has no day there, yet its zero-width actual bar still places a vertex.
 /** @purity pure */
 function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    statusDate: CalendarDay): number | null {
-  /** @purity pure */
-  const before = (text: string | null): number | null => {
-    const day = dayOf(text)
-    if (day === null || compareDays(day, statusDate) >= 0) return null
-    return xFromDay(inputs.layout, day)
+  if (planActualState(task) === 'inProgress') {
+    return placed.actualX === null ? null : placed.actualX + placed.actualWidth
   }
-  switch (planActualState(task)) {
-    case 'finished':
-      return null
-    case 'suspendedResumeUnknown':
-      return null
-    case 'suspendedResumePlanned':
-      return before(task.resume)
-    case 'notStarted':
-      return before(task.start)
-    case 'inProgress':
-      return placed.actualX === null ? null : placed.actualX + placed.actualWidth
-  }
+  const day = progressPointDayOf(task, statusDate)
+  return day === null ? null : xFromDay(inputs.layout, day)
 }
 
 // see FR-014, LF-12

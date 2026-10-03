@@ -2852,6 +2852,16 @@
    }
   },
   {
+   "rowId": "K-140",
+   "keys": [
+    "parentProgressToleranceDays"
+   ],
+   "label": {
+    "ja": "親子の進捗の疑義が許す日数（稼働日）",
+    "en": "parentProgressToleranceDays"
+   }
+  },
+  {
    "rowId": "K-90",
    "keys": [
     "screenLanguage"
@@ -5338,6 +5348,13 @@
    "text": {
     "ja": "このマイルストーンは達成してるのでは？",
     "en": "Isn't this milestone already achieved?"
+   }
+  },
+  {
+   "part": "parentProgressOutside",
+   "text": {
+    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} 〜 {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
+    "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} to {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
    }
   },
   {

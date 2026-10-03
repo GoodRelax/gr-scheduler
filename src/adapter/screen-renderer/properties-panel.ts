@@ -1008,7 +1008,34 @@ function themeHueField(hue: number, dark: boolean, language: DisplayLanguage): P
   }
 }
 
-// see IC-17, T-104, FR-072
+const PARENT_PROGRESS_TOLERANCE_KEY = { holder: 'project', column: 'parentProgressToleranceDays' } as const
+
+// see FR-131, K-140, CM-87, S-487
+// WHY: no floor here: CM-87 alone refuses a value below S-487's bound and says so, so the range lives once.
+/** @purity pure */
+function parentProgressToleranceField(workingDays: number, language: DisplayLanguage): PropertyField {
+  const column = PARENT_PROGRESS_TOLERANCE_KEY.column
+  const text = String(workingDays)
+  return {
+    row: settingsWordOf(column)?.rowId ?? column,
+    name: settingsName(column, language),
+    text,
+    isEditable: true,
+    controls: [
+      {
+        key: PARENT_PROGRESS_TOLERANCE_KEY,
+        kind: 'number',
+        text,
+        choices: null,
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(text, null, SETTINGS_CONSTANTS.labelCoef),
+      },
+    ],
+  }
+}
+
+// see IC-17, T-104, FR-072, FR-131
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
@@ -1023,7 +1050,11 @@ function settingsFields(
     isEditable: false,
     controls: [],
   }))
-  return [themeHueField(schedule.project.themeHue, dark, language), ...readOnly]
+  return [
+    themeHueField(schedule.project.themeHue, dark, language),
+    parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
+    ...readOnly,
+  ]
 }
 
 type ColourHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox

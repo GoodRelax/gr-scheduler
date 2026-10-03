@@ -182,6 +182,15 @@ const TABLE_S: readonly TableSRow[] = [
   },
 ]
 const BOTTLENECK_AND_UNRELIABLE_SLACK = 1
+const VS_6 = 'VS-6'
+// see VS-6, S-487
+// TRAP: that table's count cell says 9 for the large sample but its parent column lists 10 uids
+// (208, 200, 182, 181 and 125 .. 145); 10 is the count by leaf descendants (decision 1), 9 the count without 181.
+const VS_6_COUNT_OF_SAMPLE: ReadonlyMap<string, number> = new Map([
+  ['sample-small-website-renewal', 1],
+  ['sample-medium-sfa-webapp', 0],
+  ['sample-large-erp-program', 10],
+])
 const PATH_SLACK_BELOW_TABLE_NUMBER = 2
 const DELAY_AT_LEAST = 1
 const LANGUAGES = ['en', 'ja'] as const
@@ -229,8 +238,11 @@ describe('CR-618 T8 -- each MSPDI sample diagnoses to table S of CR-618 section 
     expect(counts['DG-4'], JSON.stringify(counts)).toBeGreaterThanOrEqual(DELAY_AT_LEAST)
   })
 
-  it.each(cases)('%s: exactly one VC-5 finding and zero of every other row', (file) => {
-    expect(countsOf(file).findings).toEqual(['VC-5'])
+  // WHY: CR-651 added VS-6 after table S was written; its count per sample is CR-651 section 0.3 at S-487 = 1.
+  it.each(cases)('%s: exactly one VC-5 finding, the VS-6 count of CR-651, and zero of every other row', (file, row) => {
+    const findings = countsOf(file).findings
+    expect(findings.filter((one) => one !== VS_6)).toEqual(['VC-5'])
+    expect(findings.filter((one) => one === VS_6)).toHaveLength(VS_6_COUNT_OF_SAMPLE.get(row.sample) ?? -1)
   })
 
   it.each(TABLE_S.map((row) => [row.sample] as const))('%s: en and ja give identical counts', (sample) => {

@@ -73,8 +73,9 @@ const LAST_FIXED_COLUMN = 'DT-4'
 // see RW-3
 const WORD_COLUMNS_AT: readonly number[] = [0, 1, 2, 3, 4]
 
-// see VO-5
+// see VO-5, VS-6
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
+const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
 
 const PERCENT = '%'
 
@@ -175,12 +176,26 @@ function datesText(start: string | null, finish: string | null, isOneDay: boolea
   return isOneDay || from === to ? from : `${from}${DATE_RANGE}${to}`
 }
 
-// see DT-7, DX-3, T-312, VO-5
+// see DT-7, VS-6
+/** @purity pure */
+function parentProgressSlotsOf(values: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number]['values']): Readonly<Record<string, string | number>> {
+  const day = (key: string) => dateText(typeof values[key] === 'string' ? values[key] : null)
+  return {
+    parent: day('parentPoint'),
+    leftmost: day('leftmostPoint'),
+    rightmost: day('rightmostPoint'),
+    days: String(values['outsideWorkingDays']),
+    tolerance: String(values['parentProgressToleranceDays']),
+  }
+}
+
+// see DT-7, DX-3, T-312, VO-5, VS-6
 /** @purity pure */
 function findingText(one: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number], language: DisplayLanguage): string {
   const word = partWordsIn(REASON_WORDS, language)
   const proposal = one.proposedActualFinish === null ? '' : filled(word('proposal'), { date: dateText(one.proposedActualFinish) })
   if (one.row === MILESTONE_ACHIEVED_ROW) return `${word('milestoneAchieved')}${proposal}`
+  if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) return `${filled(word('parentProgressOutside'), parentProgressSlotsOf(one.values))}${proposal}`
   // DEVIATION: spec says DT-7 prints the aspect word of a T-310 / T-311 row; here its row ID (DFC-1940).
   const aspect = one.kind === 'omission' ? word('missingActual') : one.row
   const values = Object.entries(one.values).map(([key, value]) => `${key}=${String(value)}`).join(' ')

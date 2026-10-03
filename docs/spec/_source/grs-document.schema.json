@@ -16,7 +16,7 @@
  "properties": {
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-03"
+   "const": "2026-10-04"
   },
   "schedule": {
    "type": "object",
@@ -323,6 +323,7 @@
     "defaultStartTime",
     "defaultFinishTime",
     "themeHue",
+    "parentProgressToleranceDays",
     "uidHighWaterMark",
     "importSeq",
     "carry",
@@ -445,6 +446,12 @@
      "minimum": 0,
      "maximum": 359,
      "default": 214
+    },
+    "parentProgressToleranceDays": {
+     "description": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings.",
+     "type": "integer",
+     "minimum": 0,
+     "default": 1
     },
     "uidHighWaterMark": {
      "description": "One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it.",

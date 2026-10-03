@@ -341,6 +341,7 @@ const scheduleOf = (
     defaultStartTime: null,
     defaultFinishTime: null,
     themeHue: 214,
+    parentProgressToleranceDays: 1,
     uidHighWaterMark: 1000,
     importSeq: 0,
     outlineBase: 1,

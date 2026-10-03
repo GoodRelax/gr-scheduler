@@ -59,9 +59,10 @@ describe('CR-646 the manuscript as these cases read it', () => {
     expect(REQUIREMENTS).toContain('⚠️ 版を上げても、古い形の文書を読み替えない')
   })
 
-  it('FR-073 / JDG-1209: the schema const is the manifest version, and it is the day CR-646 was applied', () => {
+  // WHY: CR-651 raised the version again on 2026-10-04, when it added Project.parentProgressToleranceDays.
+  it('FR-073 / JDG-1209: the schema const is the manifest version, and it is the day the last shape change was applied', () => {
     expect(SCHEMA['properties'].schemaVersion.const).toBe(MANIFEST['schemaVersion'])
-    expect(SCHEMA['properties'].schemaVersion.const).toBe('2026-10-03')
+    expect(SCHEMA['properties'].schemaVersion.const).toBe('2026-10-04')
   })
 
   it('$defs/Time: the two default-time columns point at one time definition with the xsd:time pattern', () => {

@@ -439,10 +439,11 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
   })
 
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
+    // WHY: FR-131 (CR-651) places one more field under this one, K-140; every other setting stays read only.
     const rest = settingsPanel().fields.slice(1)
     expect(rest.length, 'premise: the panel shows other settings too').toBeGreaterThan(0)
-    expect(rest.filter((one) => one.isEditable).map((one) => one.row)).toEqual([])
-    expect(rest.filter((one) => one.controls.length > 0).map((one) => one.row)).toEqual([])
+    expect(rest.filter((one) => one.isEditable).map((one) => one.row)).toEqual(['K-140'])
+    expect(rest.filter((one) => one.controls.length > 0).map((one) => one.row)).toEqual(['K-140'])
   })
 })
 

@@ -127,6 +127,48 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
     expect(milestone?.cells[6]).toBe(`${wordIn('delayReportReasons', 'part', 'milestoneAchieved').ja}（達成日の候補: 2027/05/07）`)
   })
 
+  it('DT-7 / T-311 / VS-6: the dictionary holds the told words of table T-311, its slots named in ASCII', () => {
+    const told = specTable('T-311').rows.find((one) => one.id === 'VS-6')?.by['告げる語'] ?? ''
+    const slotted = told
+      .replace(/^「|」$/g, '')
+      .replace('{親の点}', '{parent}')
+      .replace('{最も左}', '{leftmost}')
+      .replace('{最も右}', '{rightmost}')
+      .replace('{日数}', '{days}')
+      .replace('{許す日数}', '{tolerance}')
+    expect(wordIn('delayReportReasons', 'part', 'parentProgressOutside').ja).toBe(slotted)
+  })
+
+  it('DT-7 / T-311 / VS-6: the parent-progress doubt prints its told words, filled with the points, the days and the tolerance', () => {
+    const values = {
+      parentPoint: '2027-05-03T08:00:00',
+      leftmostPoint: '2027-05-10T08:00:00',
+      leftmostUid: 1,
+      rightmostPoint: '2027-05-12T08:00:00',
+      rightmostUid: 2,
+      outsideWorkingDays: 5,
+      parentProgressToleranceDays: 1,
+    }
+    const report: DelayDiagnosticsReport = {
+      ...REPORT,
+      findings: [{ row: 'VS-6', kind: 'suspicion', layer: 4, uid: 4, name: 'Delta', values, proposedActualFinish: null }],
+    }
+    const slots = { parent: '2027/05/03', leftmost: '2027/05/10', rightmost: '2027/05/12', days: '5', tolerance: '1' }
+    for (const language of ['ja', 'en'] as const) {
+      const view = delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, report, SCHEDULE, {
+        canvas: { x: 0, y: 40, width: 1000, height: 600 },
+        textSizeStep: 0,
+      })
+      const delta = view?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 4)
+      const expected = Object.entries(slots).reduce(
+        (text, [slot, value]) => text.replace(`{${slot}}`, value),
+        wordIn('delayReportReasons', 'part', 'parentProgressOutside')[language],
+      )
+      expect(expected).not.toContain('{')
+      expect(delta?.cells[6]).toBe(expected)
+    }
+  })
+
   it('DT-7: a bottleneck reason fills the pattern with DQ-4, DQ-2, DQ-3 and the end tasks reached', () => {
     const alpha = viewIn('en')?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 1)
     expect(alpha?.cells[6]).toBe('Delaying the whole schedule by 5 working days (inherited 1, own 2; reaches 3 end tasks)')

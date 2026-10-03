@@ -5,8 +5,8 @@
 // Generated region at the end: docs/spec/_source/settings.json (table T-206). Do not edit by hand; npm run gen.
 
 import { SETTINGS_CONSTANTS } from '../document-settings/document-settings'
-import { calendarDaysBetween, compareDays, dayOf, type CalendarDay } from './calendar-day'
-import { planActualState } from './plan-actual-state'
+import { calendarDaysBetween, compareDays, dayOf, textOfDay, type CalendarDay } from './calendar-day'
+import { planActualState, progressPointDayOf } from './plan-actual-state'
 import type { Dependency, Schedule, Task } from './schedule-entities'
 import { isDelayed } from './task-delay'
 import {
@@ -95,7 +95,7 @@ const START_TO_START = 3
 const FINDING_LAYERS: Readonly<Record<string, number>> = {
   'VC-1': 1, 'VC-2': 1, 'VC-3': 1, 'VC-4': 2, 'VC-5': 3, 'VC-6': 3, 'VC-7': 3, 'VC-8': 3,
   'VC-9': 4, 'VC-10': 4, 'VC-11': 4, 'VC-12': 4, 'VC-13': 5, 'VC-14': 5, 'VC-15': 5,
-  'VS-1': 1, 'VS-2': 2, 'VS-3': 5, 'VS-4': 5, 'VS-5': 6,
+  'VS-1': 1, 'VS-2': 2, 'VS-3': 5, 'VS-4': 5, 'VS-5': 6, 'VS-6': 4,
 }
 
 type ScalarColumn = {
@@ -647,9 +647,64 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
   return found
 }
 
+// see VS-6
+// WHY: only descendants with no child count: a middle parent's own stray point would hide its ancestor's (CR-651).
+/** @purity pure */
+function leafDescendantsOf(facts: Facts, parentUid: number): readonly Task[] {
+  const leaves: Task[] = []
+  const queued = new Set([parentUid])
+  const pending: Task[] = []
+  const enqueueChildrenOf = (uid: number): readonly Task[] => {
+    const children = facts.explicitChildrenOf.get(uid) ?? []
+    pending.push(...children.filter((child) => !queued.has(child.uid)))
+    for (const child of children) queued.add(child.uid)
+    return children
+  }
+  enqueueChildrenOf(parentUid)
+  for (let task = pending.pop(); task !== undefined; task = pending.pop()) {
+    if (enqueueChildrenOf(task.uid).length === 0) leaves.push(task)
+  }
+  return leaves
+}
+
+interface PointOfTask {
+  readonly uid: number
+  readonly day: CalendarDay
+}
+
+// see VS-6, T-022, FR-014, S-487
+// WHY: a leaf with no vertex is read at the status date, as the progress line passes there (FR-014).
+/** @purity pure */
+function progressSpreadSuspicion(facts: Facts, parent: Task, toleranceDays: number): readonly DelayFinding[] {
+  const children = facts.explicitChildrenOf.get(parent.uid) ?? []
+  if (parent.milestone === true || children.length === 0) return []
+  const parentPoint = progressPointDayOf(parent, facts.statusDate)
+  if (parentPoint === null) return []
+  let leftmost: PointOfTask | null = null
+  let rightmost: PointOfTask | null = null
+  for (const leaf of leafDescendantsOf(facts, parent.uid)) {
+    const one = { uid: leaf.uid, day: progressPointDayOf(leaf, facts.statusDate) ?? facts.statusDate }
+    if (leftmost === null || compareDays(one.day, leftmost.day) < 0) leftmost = one
+    if (rightmost === null || compareDays(one.day, rightmost.day) > 0) rightmost = one
+  }
+  if (leftmost === null || rightmost === null) return []
+  const left = workingDaysBetween(facts.calendar, parentPoint, leftmost.day)
+  const right = workingDaysBetween(facts.calendar, rightmost.day, parentPoint)
+  if (left <= toleranceDays && right <= toleranceDays) return []
+  return [findingOf('VS-6', parent, {
+    parentPoint: textOfDay(parentPoint),
+    leftmostPoint: textOfDay(leftmost.day),
+    leftmostUid: leftmost.uid,
+    rightmostPoint: textOfDay(rightmost.day),
+    rightmostUid: rightmost.uid,
+    outsideWorkingDays: Math.max(left, right),
+    parentProgressToleranceDays: toleranceDays,
+  })]
+}
+
 // see T-311
 /** @purity pure */
-function suspicionsOf(facts: Facts): readonly DelayFinding[] {
+function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFinding[] {
   const found: DelayFinding[] = []
   for (const task of facts.tasks) {
     found.push(...linkSuspicions(facts, task))
@@ -661,6 +716,7 @@ function suspicionsOf(facts: Facts): readonly DelayFinding[] {
     if (actualDays.some((day) => isBefore(facts.statusDate, day))) {
       found.push(findingOf('VS-5', task, columnsOf(task, ['actualStart', 'stop', 'actualFinish'])))
     }
+    found.push(...progressSpreadSuspicion(facts, task, toleranceDays))
   }
   return found
 }
@@ -989,7 +1045,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
   return {
     outcome: 'diagnosed',
     statusDate: project.statusDate,
-    findings: [...contradictions, ...suspicionsOf(facts), ...omissions],
+    findings: [...contradictions, ...suspicionsOf(facts, project.parentProgressToleranceDays), ...omissions],
     bottlenecks,
     terminalPushOuts: terminals,
     walls,

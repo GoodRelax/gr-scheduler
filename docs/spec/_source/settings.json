@@ -2126,6 +2126,24 @@
      }
     },
     {
+     "id": "S-487",
+     "key": "`parentProgressToleranceDays`",
+     "type": {
+      "ja": "整数"
+     },
+     "default": {
+      "num": "1",
+      "code": true
+     },
+     "min": {
+      "num": "0"
+     },
+     "max": "—",
+     "note": {
+      "ja": "親子の進捗の疑義（`FR-131` の 表 T-311 の `VS-6`）が許す日数。置き場は `Project.parentProgressToleranceDays`（表 T-058 の `AT-156`）。欄と命令は `FR-131`。⭐ 1 は、日の単位の点が分の実績を日へ丸める差である。上限は置かない —— 大きい値は疑義を黙らせるだけで、図も文書も壊さない。⭐ 文書に保存する —— 進捗の刈り取り方はプロジェクトの属性である（表 T-052 の `DR-5` と同じ理由）"
+     }
+    },
+    {
      "id": "S-71",
      "key": "`importSeq`",
      "type": {
