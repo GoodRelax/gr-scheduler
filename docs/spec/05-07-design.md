@@ -431,7 +431,7 @@ src/
 | UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`） |
 | UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクを WBS の部分木ごと写す | `FR-033`（`OW-2`） |
 | UF-74 | `EditDocument` | `task-plan-actual.ts` | `pure` | 予定と実績の日付を、表 T-245・表 T-019・表 T-021a に従って置く | `FR-011`（`OW-2`）・`FR-103`（`OW-2`） |
-| UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す | `FR-012`（`OW-2`） |
+| UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す。<br>文書の全 `Task` を数え直して、値が変わった `Task` を答える —— 暦の編集（`UF-16`）と `GRS JSON` の読み（`UF-35`）が同じ式を呼ぶ | `FR-012`（`OW-2`） |
 | UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`） |
 | UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | `FR-111`（`OW-2`） |
 | UF-77 | `EditDocument` | `task-group-naming.ts` | `pure` | 行を、名か由来を持つものとして立て、名を付け替える | `FR-058`（`OW-2`）・`FR-085`（`OW-2`） |
@@ -479,7 +479,7 @@ src/
 | UF-83 | `SvgRenderer` | `schedule-overlays.ts` | `pure` | タスクに属さない重ね描き —— 進捗線・状態線・二重カーソル・ガイドカーソル・注記・透かし | — |
 | UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） | — |
 | UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する | `FR-096`（`OW-3`） |
-| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` の文字列と文書を相互に変える（`FR-024`・`FR-073`） —— 形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数える（`OP-6`・`PI-2`）。<br>スキーマに照らす問いは兄弟に問い、外れの型を出し直す | `FR-024`（`OW-1`）・`FR-073`（`OW-2`） |
+| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` の文字列と文書を相互に変える（`FR-024`・`FR-073`） —— 形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数え（`OP-6`・`PI-2`）、完了率を日付から数え直して数える（`FR-012`・`RS-52`）。<br>スキーマに照らす問いは兄弟に問い、外れの型を出し直す | `FR-024`（`OW-1`）・`FR-073`（`OW-2`） |
 | UF-152 | `DocumentCodec` | `grs-json-schema.ts` | `pure` | `GRS JSON` のスキーマ（表 T-220 の前文、`grs-document.schema.json`）を持ち、それに照らして答える —— 値の外れを並べ（`FR-023`・`RS-25`）、実体を持つ集まりの名を答える（表 T-297）。<br>節の表は生成器が刷り、11 の語だけを解し、知らない鍵の外れを名乗らせる（`isUnknownKeyFault`）。<br>日時の `pattern` と形式の版の `const` は節の表に刷らない —— 日時は `FR-023` が、版は `FR-073` が判じる（Chapter 6.1） | — |
 | UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` の要素の木と文書を、列ごとに相互に写す（`FR-021`・`FR-057`） —— 読まない子を `carry` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、プロジェクトの要約タスクを `Task` にせず原形のまま控え（`MR-4`・`EX-5`）、版を判じ（`EX-1`・`AT-143`）、書き出すときに作る値を作り（表 T-059）、実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写す（`EX-11`・`EX-12`）。<br>XML の文字列と要素の木の変換は `mspdi-xml.ts` に、書き出す要素の子の並び（`EX-10`）は `mspdi-child-placement.ts` に、フェード日数と拡張領域の枠（`EX-6`・`EX-8`）は `mspdi-fade-frames.ts` に、取り込んだタスクの行と所属（`FR-058`）は `mspdi-imported-rows.ts` に問う。<br>兄弟が使う要素の木の語彙と、外へ見せる入口と型を持ち、外れの型を出し直す | `FR-021`（`OW-2`）・`FR-057`（`OW-1`） |
 | UF-153 | `DocumentCodec` | `mspdi-xml.ts` | `pure` | XML の文字列と要素の木を相互に変える。<br>宣言に無い属性と、定義の無い実体参照を拒み（`FR-023`）、入れ子を明示のスタックで読み、UTF-8 の宣言と名前空間を置いて書く（`CN-5`） | — |

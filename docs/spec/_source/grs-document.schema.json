@@ -567,7 +567,7 @@
      ]
     },
     "percentComplete": {
-     "description": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS keeps it in step when dates change, so write what the dates give. Not capped at 100, because an overrun reports more.",
+     "description": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS recounts it whenever the dates change and whenever it reads this file, so the dates decide; write what they give. Not capped at 100, because an overrun reports more.",
      "type": [
       "integer",
       "null"

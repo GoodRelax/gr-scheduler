@@ -268,7 +268,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 10 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; InputCommandTranslator -> EditDocument; InputCommandTranslator -> AdvanceScreenSession; ScreenRenderer -> AdvanceScreenSession"
+   "description": "backed by 11 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; DocumentCodec -> EditDocument; InputCommandTranslator -> EditDocument; InputCommandTranslator -> AdvanceScreenSession; ScreenRenderer -> AdvanceScreenSession"
   },
   {
    "source": "framework",

@@ -1093,6 +1093,15 @@
      }
     },
     {
+     "name": "recountedPercentComplete",
+     "note": {
+      "ja": [
+       "文書の全 `Task` の完了率を日付から数え直し、値が変わった `Task` の uid を答える（`FR-012`）。",
+       "`GRS JSON` を読む `DocumentCodec` が呼ぶ —— 式を 1 か所に閉じ込める（`EZ-5`）"
+      ]
+     }
+    },
+    {
      "name": "treeStateWritesFor",
      "note": {
       "ja": [

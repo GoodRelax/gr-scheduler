@@ -910,6 +910,13 @@
    "description": "reads the schedule types, the day arithmetic and the calendar defaults both exchange formats are written in"
   },
   {
+   "source": "DocumentCodec",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "percent complete",
+   "description": "recounts the percent complete of a GRS JSON it read from the dates (FR-012)"
+  },
+  {
    "source": "DomScreenSurface",
    "target": "ScreenRegions",
    "arrow": "dependency",

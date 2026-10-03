@@ -20,8 +20,8 @@
 | | 残件 | 総件数 | 未検討 | 裁定待ち | 仕様待ち | 実装待ち | 試験待ち | 実測待ち | 実測済 | 取下げ |
 | --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 223 | 793 | 56 | 3 | 58 | 70 | 25 | 11 | 515 | 55 |
-| 最新 2026-10-03 17:15 | 452 | 1043 | 103 | 8 | 91 | 139 | 30 | 81 | 532 | 59 |
-| ⭐ 差分 | +229 | +250 | +47 | +5 | +33 | +69 | +5 | +70 | +17 | +4 |
+| 最新 2026-10-03 17:47 | 453 | 1044 | 103 | 8 | 91 | 140 | 30 | 81 | 532 | 59 |
+| ⭐ 差分 | +230 | +251 | +47 | +5 | +33 | +70 | +5 | +70 | +17 | +4 |
 
 ⚠️ **巡の頭で `python tools/ledger_metrics.py --start` を 1 度走らせる。**⛔ **手で書かない** —— 測れる数を手で書けば必ず腐る。⚠️ **時刻まで持つ** —— 1 日に複数の巡が走るので、日付だけでは見分けられない。
 
@@ -34,12 +34,12 @@
 | | 未仕分け | 仕様の穴 | 製品の仕事 | 検証の借り | 決着 |
 | --- | --: | --: | --: | --: | --: |
 | セッション開始時 2026-09-26 04:44 | 56 | 61 | 95 | 11 | 570 |
-| 最新 2026-10-03 17:15 | 103 | 99 | 169 | 81 | 591 |
-| ⭐ 差分 | +47 | +38 | +74 | +70 | +21 |
+| 最新 2026-10-03 17:47 | 103 | 99 | 170 | 81 | 591 |
+| ⭐ 差分 | +47 | +38 | +75 | +70 | +21 |
 
 ⛔ **「不具合」と呼んでよいのは `製品の仕事` だけである。** `仕様の穴` は仕様を書く仕事、`検証の借り` は押しに行く仕事であって、どちらもコードの欠陥ではない。
 
-⚠️ **`道具・試験の借り`（重なりを許す目安。上の 5 束とは重なる。分割ではない）: 68 件** —— 開いている行（`決着` でない行）のうち、行の全文（全セル）が正規表現 `\b(tools|tests|src)/[\w./-]+` で拾える語のうち `tools/` か `tests/` で始まる語を 1 つ以上持ち、`src/` で始まる語を 1 つも持たない行の数。
+⚠️ **`道具・試験の借り`（重なりを許す目安。上の 5 束とは重なる。分割ではない）: 69 件** —— 開いている行（`決着` でない行）のうち、行の全文（全セル）が正規表現 `\b(tools|tests|src)/[\w./-]+` で拾える語のうち `tools/` か `tests/` で始まる語を 1 つ以上持ち、`src/` で始まる語を 1 つも持たない行の数。
 
 <!-- ledger-metrics: end -->
 
@@ -559,3 +559,4 @@
 | DFC-1810 | ⚠️ **説明の持ち主を、ポインタの入力 1 つごとに日程表の全 `Task` を歩いて探している**（`src/framework/single-html-shell/frame-loop.ts` の `receiveInput` → `hintWalkAt` → `src/entity/layout-engine/item-hit-area/item-hit-area.ts` の `itemAtPointer(…, 'hint')`。`0f91160b`（`CR-624`・`CR-625`・`DFC-1720`）、合流 `327f66fb`）—— `itemAtPointer` は呼ぶたびに `geometry.tasks.map(shapeOf)` で全 `Task` の形を作り直し、`noteHitOf`・`scheduleShapeHitOf`・`deadlineHintOf`・`baselineHintOf` を走らせる。隣の `grabAtPointer` が同じ入力で同じ歩きを既にしているので、歩きは入力 1 つにつき 2 回になった。`hintWalkAt` の「点か描いた幾何が動いたときだけ」は、指が動いているあいだは毎回である。押したままのドラッグ（`MK-6`・`MK-7`）では説明は出ないのに歩く。計り: `MK-6` で 1098 回・計 1613.8 ms（1 回 1.47 ms）、`MK-7` 799 回・1176.7 ms。描き直しの呼び出しの中の p95 は動かず、入力の受け取りの時間が増えた | `MK-6` の fps が `a171f67a` の範囲（47.19〜52.52、中央値 49.06）に戻る | ① 押しているあいだは歩かない（`pressed !== null` なら `hintWalk = null`）。② 説明は指が `S-124` だけ止まってから出る（`EZ-6`）ので、歩きを入力ごとから「止まったと分かった時」へ移す —— 入力では点を覚えるだけにし、`noteHintTarget` か描き直しの呼び出しの中で、止まった点について 1 回だけ歩く。③ 少なくとも `grabAtPointer` の答えと形の一覧を使い回し、同じ入力で 2 度歩かない。期待: 反実仮想（`hintWalkAt` を呼ばない写し）で `MK-6` 45.28 → 50.07 fps（+11 %）・p95 33.33 → 28.5 ms、`MK-7` 25.09 → 29.07 fps（+16 %）、`MK-2` 24.96 → 26.04、`MK-1` 29.23 → 30.45。①〜③ はその上限に近づく | 対応方針: 提案のみ（未適用）。測定は `docs/development-records/measurements/performance-runs.md` の走行 5 | `未検討` | 毎フレーム: はい（ポインタの入力ごと）。大きさ 1 回 1.47 ms。生の記録は `docs/development-records/measurements/perf-2026-10-03/`（`medians.txt` の組 C、`instr-walk-counters.txt`） | `DFC-1695`・`DFC-1606`・`JDG-1064`・`NFR-013`・perf-pending の行 49・50 | ✅ 6 回ずつ順を回して測った（反実仮想の写しを含む） |
 | DFC-1811 | ⚠️ **押しの当たり `grabAtPointer` も、ポインタの入力 1 つごとに全 `Task` の形を作り直す**（`src/framework/single-html-shell/frame-loop.ts` の `grabAtPointer` → `src/entity/layout-engine/item-hit-area/item-hit-area.ts` の `itemAtPointer` の `geometry.tasks.map(shapeOf)` と線形の当たり）—— 今回の巡の悪化ではない（`39e56cdd` より前から在る）が、`DFC-1810` と同じ計りで見えた。`MK-6` で 1098 回・計 2087.1 ms（1 回 1.90 ms）。規則 04 の 5 節「毎フレームの経路では、配列の線形探索を書く前に `Map` を作る」に当たる | 入力 1 つあたりの当たりの時間が、`Task` の数に比例しない | 形の一覧を `geometry` ごとに 1 度だけ作って持つ（`WeakMap<ScheduleGeometry, readonly TaskShape[]>`）、行の範囲から候補を引く `Map` を置いて点の近くの形だけを見る。期待: 測っていない。上限は 1 回 1.90 ms ぶん（`MK-6` の 3 秒のうち約 2 秒の主スレッド） | 対応方針: 提案のみ（未適用）。`DFC-1810` の ③ と同じ置き場を直すので、まとめて当てるのがよい | `未検討` | 毎フレーム: はい（ポインタの入力ごと）。大きさ 1 回 1.90 ms。生の記録は `docs/development-records/measurements/perf-2026-10-03/instr-walk-counters.txt` | `DFC-1810`・`NFR-013` | ✅ 計りの写しで 1 回測った |
 | DFC-1815 | ⚠️ **見本 `sample-schedule/sample-large-erp-program.en.xml`・`.ja.xml` の依存 1 本が、ラグを読むと `VC-15` の矛盾になり、`CR-618` の 9.2 節の表 S と食い違う** —— UID 230 の後続は、先行の終了 2027-07-12 から FS・`LinkLag` 216000（`LagFormat` 7、`MinutesPerDay` 480 で 45 稼働日）だが、2027-07-30 に始まる。`CR-644` で `VC-15` が `lag` を稼働日で数えるようになり（`JDG-1201`・`JDG-1208`・`JDG-822`）、この 1 本が矛盾になって、`DW-1` が下流を紫にする（`DG-1` が 13 前後 → 25）。表 S（`tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts` の `TABLE_S`）は、ラグを 0 で読んでいたときに測った数であり、試験 4 件（en・ja × 「`VC-5` だけ」・「`DG-1` が ±1」）が赤い | 見本の日付とラグが `VC-15` に従うか、表 S が `CR-644` 後の読みで測り直されているか、どちらか一方 | ① 見本の UID 230 のラグか日付を直す（MS Project の見本の作り直しは CR D の C-18・`JDG-1206`） ② 表 S を `CR-644` の読みで測り直す（`VC-15` 1 件・`DG-1` 25 を正とする） | ⛔ まだ決めていない。`CR-644` を当てた体は、どちらの側も選ばずに本行を起こした（共通の指示）。試験は直していない | `未検討` | 2026-10-03、`CR-644` を当てた体が `vitest` フルで見つけた。毎フレーム: いいえ | `CR-618` ／ `DFC-1798` ／ `JDG-822` | XML の UID 230 の行と、`vitest` の失敗の文（`{"DG-1":25,"DG-2":11,"DG-3":14,"DG-4":9,"findings":["VC-5","VC-15"]}`）を読んだ |
+| DFC-1816 | ⚠️ **`GRS JSON` を読んで数え直した完了率を、2 つの読む路が告げない**（`CR-645`） —— `FR-012` は「読んで数え直したときも、値が変わった `Task` の件数を添えて告げること（MUST）」と言い、作法は `NT-3`、理由は `RS-52` である。数え直しは `json-codec.ts` の `documentFromJson` が 1 か所で行い、ファイルを開く路（`document-file-flow.ts` の `openDocumentIntoHold`）と `Agent API` の `AM-8`（`takeInHandedDocument`）は `RS-52` を件数とともに立てる。⛔ 起動時に単一 `.html` へ埋め込まれた文書（表 T-034 の `BT-1`、`single-html-shell.ts`）は、数え直すが告げない —— 起動時の通知の型 `StartupNoticeReason`（`frame-loop.ts`）が `RS-52` を持たず、`frame-loop.ts` はこの巡では性能の体の持ち場なので触れなかった | `BT-1` で開いた文書の完了率が日付と食い違っていたとき、`RS-52` が件数とともに立つ | ① `frame-loop.ts` の `StartupNoticeReason` に `RS-52` を足し、`single-html-shell.ts` の `RS-51` の隣で `embedded.recountedCount` を告げる（`StartupReadings` に `recountedCount` を足す）。② 試験は `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` の告知の段に `BT-1` の段を足す | ⭐ 仕様は決まっている（`FR-012`、`JDG-1196`）。コードだけが外れている —— `single-html-shell.ts` に `DEVIATION ... (DFC-1816)` | `実装待ち` | 2026-10-03、`CR-645` を当てた体が起こした。毎フレーム: いいえ（起動時に 1 回） | `CR-645` ／ `JDG-1196` ／ `FR-012` ／ `RS-52` | `single-html-shell.ts` の `raiseStartupNotice` の呼び口と `frame-loop.ts` の `StartupNoticeReason` を読んだ |
