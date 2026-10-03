@@ -188,7 +188,7 @@ tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts 142
 tests/unit/uf-24-25.test.ts 0
 tests/unit/uf-26.test.ts 0
 tests/unit/uf-27-28-29.test.ts 362
-tests/unit/uf-36.test.ts 504
+tests/unit/uf-36.test.ts 502
 tests/unit/uf-37-38.test.ts 1
 tests/unit/uf-39-40.test.ts 790
 tests/unit/uf-41-42.test.ts 0

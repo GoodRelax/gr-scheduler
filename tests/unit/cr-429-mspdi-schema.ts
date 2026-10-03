@@ -457,15 +457,22 @@ function normalizedNode(node: XmlNode, path: string, keepOrder: boolean): Normal
   return { name: node.name, uri: node.uri, attributes, text: null, groups }
 }
 
-// see T-228, NR-1, NR-2, NR-3, NR-4, NR-5, NR-6
+// see NR-7, DV-12
+function withoutMadeAtWrite(root: XmlNode): XmlNode {
+  if (root.name !== 'Project') return root
+  const made = (child: XmlNode): boolean => child.name === 'LastSaved' && child.uri === root.uri
+  return { ...root, children: root.children.filter((child) => !made(child)) }
+}
+
+// see T-228, NR-1, NR-2, NR-3, NR-4, NR-5, NR-6, NR-7
 export function normalizedMspdi(text: string): Normalized {
-  const root = parseXml(text)
+  const root = withoutMadeAtWrite(parseXml(text))
   return normalizedNode(root, root.name, false)
 }
 
 // WHY: NR-6 forgets the order EX-10 decides, so outputs that must be written alike are compared ordered.
 export function orderedMspdi(text: string): Normalized {
-  const root = parseXml(text)
+  const root = withoutMadeAtWrite(parseXml(text))
   return normalizedNode(root, root.name, true)
 }
 

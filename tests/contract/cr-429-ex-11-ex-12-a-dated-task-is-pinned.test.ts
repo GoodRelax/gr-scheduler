@@ -31,7 +31,7 @@ import {
 } from '../unit/cr-429-mspdi-schema'
 
 const EX_11_PINNED =
-  '`GRS` が作ったタスクと、日付を編集したタスクには、`ConstraintType` に `2`（この日に開始、`mspdi_pj12.xsd:1996`）を、`ConstraintDate` に開始日を書くこと（MUST）'
+  '`GRS` が作ったタスクと、日付を編集したタスクには、`ConstraintType` に `2`（この日に開始、`mspdi_pj12.xsd:1996`）を、`ConstraintDate` に書き出した `Start` と同じ値（開始の側の時刻を含む、表 T-350）を書くこと（MUST）'
 
 const EX_11_NOT_UNEDITED = '⛔ 編集していないタスクには書いてはならない（MUST NOT、`EX-2`）。'
 
@@ -43,7 +43,7 @@ const EX_11_MSPDI_ON_EDIT =
 const EX_12_DURATION = '日付を編集したタスクでは、`Duration` を `DV-8` のとおり作り直すこと（MUST）。'
 
 const EX_12_MANUAL =
-  '`ManualStart` / `ManualFinish` / `ManualDuration` を持っていれば、新しい日付から、取り込んだときと同じ綴り（`EX-4`）で作り直すこと（MUST）。'
+  '`ManualStart` / `ManualFinish` / `ManualDuration` を持っていれば、新しい日付から、取り込んだときと同じ綴り（`EX-4`）で作り直すこと（MUST）—— `ManualStart` ／ `ManualFinish` は、書き出した `Start` ／ `Finish` と同じ日時を表す。'
 
 const EX_12_NO_SLACK = '余裕日数（`FreeSlack` / `TotalSlack` / `StartSlack` / `FinishSlack`）は書いてはならない（MUST NOT）'
 

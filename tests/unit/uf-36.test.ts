@@ -963,7 +963,17 @@ describe('the ordinary case -- one MSPDI in', () => {
     const document = accepted(BASE_TEXT)
     expect(CURRENT.schedule.tasks.length).toBeGreaterThan(2)
     expect(document.schedule.tasks).toHaveLength(2)
-    expect(document.schedule.taskVisuals).toEqual([])
+    // see IV-23
+    expect(document.schedule.taskVisuals).toEqual(
+      document.schedule.tasks.map((each) => ({
+        taskUid: each.uid,
+        shapeKind: null,
+        fillColor: null,
+        strokeColor: null,
+        strokeWidthPx: null,
+        milestoneGlyph: null,
+      })),
+    )
     expect(document.schedule.commentBoxes).toEqual([])
     expect(document.schedule.highlightBoxes).toEqual([])
     expect(document.schedule.taskOrigins).toEqual([])
@@ -1589,9 +1599,9 @@ describe('table T-033 -- writing', () => {
     expect(textAt(attributes[0] ?? ({} as XmlNode), 'Value')).toBe('7')
   })
 
-  it('EX-7: the one date GRS decides itself is written at 00:00:00', () => {
-    // See FR-011 and AT-141. The fixture
-    // brings no Stop, so this is the value GRS made, and EX-7 fixes its time.
+  it('EX-7, WT-4: the one date GRS decides itself is written at the document default finish time', () => {
+    // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141) and EX-7 gives it
+    // the finish-side time of WT-4, the DefaultFinishTime the file brought (AT-155).
     const suspended = mspdi(
       [
         projectHeadXml(),
@@ -1611,8 +1621,7 @@ describe('table T-033 -- writing', () => {
     const written9 = writtenInstance(written(accepted(suspended)), 'Task')
     const stop = textAt(written9, 'Stop')
     expect(stop, 'AT-141 writes a Stop for a suspended task').not.toBeNull()
-    expect(stop).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00$/)
-    expect(stop).toBe('2026-04-08T00:00:00')
+    expect(stop).toBe(`2026-04-08T${SAMPLE.projectDefaultFinishTime}`)
     // MUST NOT apply to a value that only arrived: the plan dates keep theirs.
     expect(textAt(written9, 'Start')).toBe('2026-04-01T09:30:00')
     expect(textAt(written9, 'ActualStart')).toBe('2026-04-06T08:45:00')
@@ -1668,14 +1677,14 @@ describe('table T-019 -- the last column, which state writes a Stop', () => {
     }
   })
 
-  it('writes that Stop at 00:00:00 (EX-7)', () => {
+  it('writes that Stop at the document default finish time (EX-7, WT-4)', () => {
     const root = written(accepted(planActualTasksText()))
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
     for (const row of T_019_STOP) {
       if (!row.writesStop) continue
       const task = tasks.find((each) => textAt(each, 'UID') === String(row.uid))
       expect(textAt(task ?? ({} as XmlNode), 'Stop'), row.row).toMatch(
-        /^\d{4}-\d{2}-\d{2}T00:00:00$/,
+        new RegExp(`^\\d{4}-\\d{2}-\\d{2}T${SAMPLE.projectDefaultFinishTime}$`),
       )
     }
   })
