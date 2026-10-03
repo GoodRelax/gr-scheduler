@@ -796,6 +796,27 @@
      }
     },
     {
+     "seat": 156,
+     "name": "parentProgressToleranceDays",
+     "type": "整数（稼働日）",
+     "nullable": "否",
+     "json": {
+      "kind": "integer",
+      "min": 0,
+      "defaultFrom": "S-487",
+      "null": false
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "親子の進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない"
+     },
+     "schemaNote": {
+      "en": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
+     }
+    },
+    {
      "seat": 20,
      "name": "uidHighWaterMark",
      "type": "整数",

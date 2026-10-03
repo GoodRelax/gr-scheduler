@@ -306,6 +306,7 @@
 | K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指す行のどこにあるか |
 | K-121 | 画面の状態 | `scrollDayOffset` | 表示の左端が指す日のどこにあるか |
 | K-138 | 画面の状態 | `levelZeroTreeState` | 段 0 の木の状態 |
+| K-140 | 遅延診断 | `parentProgressToleranceDays` | 親子の進捗の疑義が許す日数（稼働日） |
 | K-90 | 保存しないもの（別枠） | `screenLanguage` ⛔ | 画面の言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99` |
 | K-139 | 保存しないもの | `helpLanguage` ⛔ | ヘルプの言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-434` |
 
@@ -417,6 +418,7 @@
 | CM-3 | `Project` | `setStatusDate` | — | 基準日を置く・動かす | `FR-046` |
 | CM-4 | `Project` | `clearStatusDate` | — | 基準日を消す | `FR-046` |
 | CM-5 | `Project` | `setThemeHue` | — | テーマ色を変える | `FR-041` |
+| CM-87 | `Project` | `setParentProgressTolerance` | — | 親子の進捗の疑義が許す日数を変える | `FR-131` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
 | CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ）。<br>`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |

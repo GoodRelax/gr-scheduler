@@ -142,7 +142,7 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # CR-646 (JDG-1209): the shape changed (no stackOrder, no Project.lastSaved,
 # Project.defaultStartTime / defaultFinishTime), so the version is the day the
 # change was applied.
-SCHEMA_VERSION = '2026-10-03'
+SCHEMA_VERSION = '2026-10-04'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -2677,6 +2677,8 @@ class Builder(object):
             'defaultStartTime': None,
             'defaultFinishTime': None,
             'themeHue': hue,
+            # AT-156 (CR-651): the tolerance VS-6 allows, saved with the document.
+            'parentProgressToleranceDays': manuscript_number('S-487'),
             'uidHighWaterMark': self.next_uid,
             'importSeq': 0,
             # FR-021: a document GRS made itself counts its outline

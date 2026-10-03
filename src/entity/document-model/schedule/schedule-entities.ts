@@ -50,6 +50,8 @@ export interface Project {
   readonly defaultFinishTime: string | null
   /** AT-19 */
   readonly themeHue: number
+  /** AT-156 */
+  readonly parentProgressToleranceDays: number
   /** AT-20 */
   readonly uidHighWaterMark: number
   /** AT-21 */

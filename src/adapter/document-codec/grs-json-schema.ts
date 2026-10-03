@@ -44,7 +44,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
     closed: true,
     properties: {
       id: {
@@ -111,6 +111,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer'],
         minimum: 0,
         maximum: 359,
+      },
+      parentProgressToleranceDays: {
+        type: ['integer'],
+        minimum: 0,
       },
       uidHighWaterMark: {
         type: ['integer'],

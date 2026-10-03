@@ -1,5 +1,5 @@
 {
- "schemaVersion": "2026-10-03",
+ "schemaVersion": "2026-10-04",
  "schedule": {
   "project": {
    "id": null,
@@ -22,6 +22,7 @@
    "defaultStartTime": null,
    "defaultFinishTime": null,
    "themeHue": 214,
+   "parentProgressToleranceDays": 1,
    "uidHighWaterMark": 1960,
    "importSeq": 0,
    "outlineBase": 1,

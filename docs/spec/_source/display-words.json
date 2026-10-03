@@ -2492,6 +2492,13 @@
    }
   },
   {
+   "rowId": "K-140",
+   "label": {
+    "ja": "親子の進捗の疑義が許す日数（稼働日）",
+    "en": "parentProgressToleranceDays"
+   }
+  },
+  {
    "rowId": "K-90",
    "label": {
     "ja": "画面の言語（ja / en）。置き場と規則は表 T-206 の S-99",
