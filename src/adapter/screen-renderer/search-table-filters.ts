@@ -36,14 +36,14 @@ const LINE_BREAK_SPACE = ' '
 
 const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
-// see SQ-5, T-315 DG-2
 export const BOTTLENECK_STATE = 'bottleneck'
 
 export type SearchTaskState = TaskSearchRow['planActualState'] | typeof BOTTLENECK_STATE
 
-// see SQ-5
 /** @purity pure */
 export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
+  // STOP: spec does not decide whether this column follows DT-1, where a doubt outranks the bottleneck. Looked in SQ-5, SV-8, DT-1
+  // @provisional PND-710
   return row.isBottleneck ? BOTTLENECK_STATE : row.planActualState
 }
 

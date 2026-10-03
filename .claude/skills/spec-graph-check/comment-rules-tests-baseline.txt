@@ -38,7 +38,7 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1741 -> 1720 bp) under JDG-520: the CR-631 tests added 86 cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the merge of CR-648 (8573378a) into coord, whose tests added cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
-tree-density-basis-points 1711
+tree-density-basis-points 1695
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -99,7 +99,7 @@ tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts 24
 tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts 183
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts 246
 tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts 155
-tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts 364
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts 362
 tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts 200
 tests/contract/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts 0
 tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts 256

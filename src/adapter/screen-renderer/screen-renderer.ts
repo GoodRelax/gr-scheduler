@@ -633,7 +633,7 @@ export interface ScreenViewReadings {
     readonly window: DelayDiagnosticsReportWindow
     readonly report: DelayDiagnosticsReport
   } | null
-  // see SQ-5, S-445: the tasks T-315 DG-2 names while the delay diagnostics are shown; absent reads as none.
+  // see SQ-5, S-445
   readonly bottleneckUids?: ReadonlySet<number>
 }
 

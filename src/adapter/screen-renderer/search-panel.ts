@@ -95,7 +95,7 @@ const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
 
 const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry]))
 const STATE_WORDS = new Map(displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]))
-// see SQ-5: the word of table T-315 DG-2
+// see SQ-5, DG-2
 const BOTTLENECK_WORD = displayWords.delayReportStatuses.find((entry) => entry.rowId === 'DG-2')?.text
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry]))
 const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARCH_PANEL)?.heading
