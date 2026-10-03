@@ -310,11 +310,7 @@ const TOOLTIP_TEXT_SCALE = numberIn(cellOf(T206, 'S-204', T206_DEFAULT, T206_COL
  */
 const SAVED_AT_TEXT_SCALE = numberIn(cellOf(T206, 'S-210', T206_DEFAULT, T206_COLUMNS), 'T-206 S-210')
 
-/**
- * `S-235` of table T-206: the App Header's own scale. Row `HS-7` of table T-341
- * (`FR-101`, MUST) multiplies the host's ground text by it first, and only then
- * by `S-210` for the stamp.
- */
+// see S-235, HS-7
 const HEADER_SCALE = numberIn(cellOf(T206, 'S-235', T206_DEFAULT, T206_COLUMNS), 'T-206 S-235')
 
 /**
@@ -502,24 +498,16 @@ function pressable(cell: string): string {
   return said.split(plus).join('+').replace(/\s+/g, '').replace(/^Ctrl\+/, 'Control+')
 }
 
-/** The surfaces a T-109 row's surface cell names, by their settled English names. @purity pure */
+// see T-109
+/** @purity pure */
 function surfacesOf(cell: string): readonly string[] {
   return Array.from(cell.matchAll(/`([^`]+)`/g), (one) => one[1] ?? '')
 }
 
-/**
- * What `FR-036` (MUST NOT, CR-635) keeps off the help's list: the surfaces whose
- * rows of table T-109 are not listed when that is all they stand on (with or
- * without `Help Modal`), and the rows the same sentence names by ID.
- *
- * ⭐ READ OUT OF THE SENTENCE ITSELF, so a surface added to it is swept without
- * editing this file. ⚠️ The sentence is found by its Japanese opening, given by
- * code point for the reason rule 03 section 5 gives: U+26D4, then table T-109,
- * then "no uchi" (U+306E U+3046 U+3061). Only ASCII names are kept as surfaces,
- * which drops the backticked column heading the sentence also quotes.
- *
- * @purity semi-pure-b
- */
+// see FR-036
+// WHY: read out of the sentence, found by its opening in code points (rule 03 section 5),
+// WHY: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
+/** @purity semi-pure-b */
 function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
   const opening = `${String.fromCharCode(0x26d4)} ${String.fromCharCode(0x8868)} T-109 ` +
     String.fromCharCode(0x306e, 0x3046, 0x3061)
@@ -538,14 +526,8 @@ function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: 
   return { surfaces, rows }
 }
 
-/**
- * The rows of table T-109 that stand on the help's list as an entrance item:
- * every full row but the legend-only ones (`Help Modal` alone) and the ones
- * `helpBarred` names. A key whose entrance is not among them goes to the block
- * of keys with no entrance (`FR-036`, CR-637: `SK-8` through `IC-52`).
- *
- * @purity semi-pure-b
- */
+// see FR-036
+/** @purity semi-pure-b */
 function helpListedEntrances(): ReadonlySet<string> {
   const barred = helpBarred()
   return new Set(
@@ -569,8 +551,7 @@ function helpListedEntrances(): ReadonlySet<string> {
  * and the screen prints the key alone, quite correctly. Asserting the whole
  * cell there would be asserting the manuscript's punctuation. The filter is
  * "no Japanese script in the cell". The second member is the help item the key
- * sits on: the entrance the row names when the help lists it (FR-036), or the
- * row itself.
+ * sits on: the entrance the row names (FR-036), or the row itself.
  *
  * @purity pure
  */
@@ -1338,8 +1319,8 @@ test('DFC-126: the header stands the file name above the time it was written', a
 // DFC-65, first half -- how the header's stamp is written
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: the stamp stops being drawn at `S-210` times `S-235` times the
-// host's ground text (row `HS-7` of table T-341), or the same coefficient starts being applied to the file's NAME, or the
+// GOES RED IF: the stamp stops being drawn at `S-210` times the host's ground
+// text, or the same coefficient starts being applied to the file's NAME, or the
 // header shows an empty stamp before anything has been written. `FR-101` (MUST)
 // says 「更新日時の字の大きさは ... 表 T-206 の `S-210` が定める係数で決める
 // こと（MUST）。px で持ってはならない（MUST NOT）」 and 「まだ 1 度もファイルへ

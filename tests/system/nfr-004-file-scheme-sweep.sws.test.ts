@@ -1488,7 +1488,7 @@ const PROBES: readonly Probe[] = [
     act: async (p) => stroke(p, 'Enter'),
   },
   { rows: ['SK-21'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+r') },
-  // see FR-095; calm answers the question it raises with No, so nothing is discarded
+  // WHY: calm answers the FR-095 question with No, so nothing is discarded.
   { rows: ['SK-25'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'n') },
   { rows: ['SK-24'], expect: 'answers', act: async (p) => stroke(p, 'Control+f') },
   {
@@ -1605,10 +1605,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // GR-26 answers a resting pointer only (EZ-6, TL-2), so the act rests and
-    // judges the tooltip's words; the deadline is set through the Agent API a
-    // little past the bar's finish, where nothing else is drawn.
-    // see FR-045, T-304
+    // WHY: GR-26 answers a resting pointer only (EZ-6), so the act judges the tooltip's
+    // WHY: words; the deadline sits a little past the bar's finish, where nothing else is drawn.
     rows: ['GR-26'],
     expect: 'answers',
     setUp: async (p, g) => {
@@ -1662,11 +1660,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // GR-27 answers a resting pointer only (EZ-6, TL-3). The overlay is the
-    // document itself with every task moved back half its span, handed to IC-4
-    // through the open chooser, so the left half of each outline lies clear of
-    // the task's own bar (GR-27 yields to GR-23 where they overlap).
-    // see FR-015, T-339, OP-15
+    // WHY: the overlay is the document with every task moved back half its span, so half
+    // WHY: of each outline lies clear of its own bar (GR-27 yields to GR-23 where they overlap).
     rows: ['GR-27'],
     expect: 'answers',
     setUp: async (p) => {

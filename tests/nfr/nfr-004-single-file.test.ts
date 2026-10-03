@@ -32,10 +32,8 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
 ]
 
 // see CN-6, FR-073, FR-069, BR-4
-// WHY: CN-6 says a link a person presses, opened by the browser in a new tab,
-// is not this row's communication; S-350 (FR-073) and S-459 (FR-069's copyright,
-// BR-4's Branding) are the two such targets. Not copied as literals -- both rows
-// forbid writing the address into code, so they are read from the manuscript.
+// WHY: CN-6 exempts a link a person presses; S-350 and S-459 are the two targets,
+// read from the manuscript because both rows forbid copying the address into code.
 const LINKS_PRESSED_BY_A_PERSON: readonly string[] = [DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS]
 
 // WHY: a minified call sits next to its string argument, so this window
