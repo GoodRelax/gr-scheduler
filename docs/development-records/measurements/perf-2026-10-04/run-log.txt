@@ -1,0 +1,36 @@
+# Run 10 of performance-runs.md (2026-10-04). Per-round summary lines (round.sh), then load snapshots (load.sh).
+# Columns: start time, group+round, sha, fps and interval p95 per stretch.
+# Builds (git archive + root vite): de7514df dist/index.html sha256 b4012c0470711b03..., 5456f72d f730972f82268ce4...
+08:13:44 A1 de7514df MK-1 scroll: 35.87 fps p95 36.6ms;MK-2 zoom: 31.94 fps p95 42.5ms;MK-7 pan: 36.2 fps p95 33.37ms;MK-6 range select: 66.8 fps p95 24.3ms;
+08:14:10 A1 5456f72d MK-1 scroll: 32.15 fps p95 48.4ms;MK-2 zoom: 28.81 fps p95 50ms;MK-7 pan: 29.62 fps p95 50ms;MK-6 range select: 72.33 fps p95 24.3ms;
+08:14:43 A2 de7514df MK-1 scroll: 31.26 fps p95 50ms;MK-2 zoom: 28.08 fps p95 50ms;MK-7 pan: 31.85 fps p95 50ms;MK-6 range select: 71.44 fps p95 24.3ms;
+08:15:21 A2 5456f72d MK-1 scroll: 33.27 fps p95 48.5ms;MK-2 zoom: 29.28 fps p95 50ms;MK-7 pan: 29.83 fps p95 50ms;MK-6 range select: 71.9 fps p95 24.4ms;
+08:15:52 A3 de7514df MK-1 scroll: 33.43 fps p95 42.4ms;MK-2 zoom: 31 fps p95 50ms;MK-7 pan: 29.43 fps p95 50ms;MK-6 range select: 73.16 fps p95 24.3ms;
+08:16:21 A3 5456f72d MK-1 scroll: 32.97 fps p95 48.3ms;MK-2 zoom: 29.47 fps p95 50ms;MK-7 pan: 29.96 fps p95 50ms;MK-6 range select: 70.86 fps p95 24.3ms;
+08:17:39 B1 5456f72d MK-1 scroll: 22.69 fps p95 72.74ms;MK-2 zoom: 18.51 fps p95 83.33ms;MK-7 pan: 24.95 fps p95 53.04ms;MK-6 range select: 59.69 fps p95 24.3ms;
+08:18:18 B1 de7514df MK-1 scroll: 25.28 fps p95 54.6ms;MK-2 zoom: 25.05 fps p95 54.6ms;MK-7 pan: 25 fps p95 54.6ms;MK-6 range select: 57.71 fps p95 24.3ms;
+08:18:51 B2 5456f72d MK-1 scroll: 27.42 fps p95 54.5ms;MK-2 zoom: 26.61 fps p95 60.4ms;MK-7 pan: 26.98 fps p95 50ms;MK-6 range select: 61.54 fps p95 24.3ms;
+08:19:31 B2 de7514df MK-1 scroll: 25.89 fps p95 53.07ms;MK-2 zoom: 26.4 fps p95 54.5ms;MK-7 pan: 26.21 fps p95 51.57ms;MK-6 range select: 63.29 fps p95 24.3ms;
+08:20:08 B3 5456f72d MK-1 scroll: 30.36 fps p95 42.8ms;MK-2 zoom: 27.48 fps p95 50ms;MK-7 pan: 31.76 fps p95 39.37ms;MK-6 range select: 66.83 fps p95 24.3ms;
+08:20:38 B3 de7514df MK-1 scroll: 33.36 fps p95 42.4ms;MK-2 zoom: 30.55 fps p95 50ms;MK-7 pan: 29.92 fps p95 42.6ms;MK-6 range select: 64.46 fps p95 24.3ms;
+08:22:39 C1 de7514df MK-1 scroll: 27.35 fps p95 51.47ms;MK-2 zoom: 24.46 fps p95 60.6ms;MK-7 pan: 22.52 fps p95 66.66ms;MK-6 range select: 48.47 fps p95 30.3ms;
+08:23:12 C1 5456f72d MK-1 scroll: 26.12 fps p95 54.5ms;MK-2 zoom: 20.33 fps p95 72.8ms;MK-7 pan: 20.32 fps p95 66.66ms;MK-6 range select: 53.53 fps p95 25.83ms;
+08:23:48 C2 de7514df MK-1 scroll: 25.45 fps p95 54.6ms;MK-2 zoom: 21.7 fps p95 66.66ms;MK-7 pan: 22.36 fps p95 60.5ms;MK-6 range select: 52.74 fps p95 24.5ms;
+08:24:22 C2 5456f72d MK-1 scroll: 26.7 fps p95 59.07ms;MK-2 zoom: 25.44 fps p95 60.5ms;MK-7 pan: 21.81 fps p95 60.5ms;MK-6 range select: 58.32 fps p95 24.4ms;
+08:24:55 C3 de7514df MK-1 scroll: 29.28 fps p95 50ms;MK-2 zoom: 27.59 fps p95 57.47ms;MK-7 pan: 24.36 fps p95 54.6ms;MK-6 range select: 63.42 fps p95 24.3ms;
+08:25:27 C3 5456f72d MK-1 scroll: 29.97 fps p95 50ms;MK-2 zoom: 24.74 fps p95 66.66ms;MK-7 pan: 26.37 fps p95 50ms;MK-6 range select: 64.71 fps p95 24.3ms;
+08:29:00 D1 5456f72d MK-1 scroll: 31.07 fps p95 42.5ms;MK-2 zoom: 29.15 fps p95 50ms;MK-7 pan: 27.97 fps p95 50ms;MK-6 range select: 66.64 fps p95 24.3ms;
+08:29:30 D1 de7514df MK-1 scroll: 32.51 fps p95 42.5ms;MK-2 zoom: 30.52 fps p95 50ms;MK-7 pan: 32.08 fps p95 36.4ms;MK-6 range select: 78.88 fps p95 24.3ms;
+08:29:58 D2 5456f72d MK-1 scroll: 33.92 fps p95 42.2ms;MK-2 zoom: 32.18 fps p95 42.5ms;MK-7 pan: 32.52 fps p95 39.27ms;MK-6 range select: 69.75 fps p95 24.3ms;
+08:30:25 D2 de7514df MK-1 scroll: 35.22 fps p95 36.5ms;MK-2 zoom: 28.16 fps p95 54.6ms;MK-7 pan: 27.06 fps p95 50ms;MK-6 range select: 62.66 fps p95 24.4ms;
+08:30:54 D3 5456f72d MK-1 scroll: 31.99 fps p95 42.4ms;MK-2 zoom: 30 fps p95 48.3ms;MK-7 pan: 33.23 fps p95 37.77ms;MK-6 range select: 73.45 fps p95 24.3ms;
+08:31:22 D3 de7514df MK-1 scroll: 32.8 fps p95 42.4ms;MK-2 zoom: 29.38 fps p95 50ms;MK-7 pan: 30.19 fps p95 45.47ms;MK-6 range select: 60.59 fps p95 27.07ms;
+# load (load.sh): total CPU % x5 over 10 s | OneDrive CPU-seconds in those 10 s | top processes
+07:59:06 A-before cpu% 21.9 34.4 25.9 36.3 19.9 | cpu-seconds in 10s: msedge x10 0.00s, MsMpEng x1 0.00s, node x3 0.00s, OneDrive x1 9.58s, SearchIndexer x1 0.00s
+08:16:52 A-after cpu% 23.9 24.3 47 86.4 33.1 | OneDrive 9.55s | top cpu-seconds in 10s: OneDrive 9.55s, node 5.34s, node 4.25s, claude 0.94s, claude 0.91s, claude 0.75s
+08:17:03 B-before cpu% 25.2 20.4 18.7 14.7 38 | OneDrive 9.77s | top cpu-seconds in 10s: node 10.58s, OneDrive 9.77s, powershell 0.56s, claude 0.5s, pwsh 0.42s, claude 0.17s
+08:21:06 B-after cpu% 18.2 27.9 21.6 21.6 23.3 | OneDrive 9.45s | top cpu-seconds in 10s: OneDrive 9.45s, python 2.83s, claude 1.14s, claude 1.02s, ctfmon 0.72s, claude 0.55s
+08:21:42 C-before cpu% 20 15 36.8 38.9 5 | OneDrive 10.17s | top cpu-seconds in 10s: OneDrive 10.17s, ctfmon 0.75s, claude 0.67s, claude 0.47s, powershell 0.45s, claude 0.42s
+08:25:58 C-after cpu% 36.4 35.3 39.7 13.5 0 | OneDrive 9.91s | top cpu-seconds in 10s: OneDrive 9.91s, python 4.72s, claude 0.8s, claude 0.8s, claude 0.62s, claude 0.47s
+08:26:09 D-before cpu% 21.8 31.2 38.4 21.6 19.6 | OneDrive 9.77s | top cpu-seconds in 10s: OneDrive 9.77s, claude 1.27s, ctfmon 1.06s, python 0.83s, claude 0.64s, claude 0.55s
+08:31:50 D-after cpu% 44.1 15.4 16.1 16.7 31.7 | OneDrive 9.88s | top cpu-seconds in 10s: OneDrive 9.88s, python 5.75s, claude 1.42s, claude 1.14s, claude 0.55s, claude 0.52s
