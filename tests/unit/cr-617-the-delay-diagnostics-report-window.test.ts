@@ -1,4 +1,4 @@
-// CR-617 / CR-639 / DFC-1711: the report window -- T-347 rows, the T-346 window, and the one Markdown string of IC-108 and IC-140.
+// CR-617 / CR-639 / DFC-1711 / CR-648: the report window -- T-347 rows, the T-346 window, and the one Markdown string of IC-108 and IC-140.
 
 import { describe, expect, it } from 'vitest'
 
@@ -93,10 +93,10 @@ describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
   it('holds one row per Task, under the first status of DT-1 it holds', () => {
     expect(rows.map((one) => [one.taskUid, one.status])).toEqual([
       [1, 'DG-1'],
+      [6, 'doubtful'],
       [2, 'DG-2'],
       [3, 'DG-3'],
       [4, 'DG-4'],
-      [6, 'finding'],
       [5, 'settled'],
     ])
   })
@@ -111,9 +111,9 @@ describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
     expect(rows.find((one) => one.taskUid === 1)?.reason.kind).toBe('unreliable')
   })
 
-  it('orders a status by the oldest Task.start, then by Task.uid', () => {
+  it('orders a status by the oldest Task.start, then by Task.uid (the doubtful before DG-4, CR-648)', () => {
     const tied: DelayDiagnosticsReport = { ...REPORT, markerStates: [1, 3, 4].map((uid) => ({ uid, row: 'DG-4' as const })) }
-    expect(delayDiagnosticsReportRows(tied, SCHEDULE).map((one) => one.taskUid)).toEqual([4, 3, 1, 6, 5])
+    expect(delayDiagnosticsReportRows(tied, SCHEDULE).map((one) => one.taskUid)).toEqual([1, 6, 4, 3, 5])
   })
 })
 
@@ -129,8 +129,8 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.toolEntries.map((one) => one.icon)).toEqual(['IC-140', 'IC-108'])
   })
 
-  it('RW-4: the legend holds DG-1 .. DG-4 and the summary counts every status and DX-7', () => {
-    expect(view?.legend.map((one) => one.status)).toEqual(['DG-1', 'DG-2', 'DG-3', 'DG-4'])
+  it('RW-4: the summary counts every status and DX-7, and the view holds no legend (CR-648)', () => {
+    expect(view).not.toHaveProperty('legend')
     expect(view?.summary.at(-1)?.text).toContain('1')
     expect(view?.summary).toHaveLength(8)
   })
@@ -168,7 +168,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
 })
 
 describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-14)', () => {
-  const rows = { report: REPORT, schedule: SCHEDULE }
+  const rows = { report: REPORT, schedule: SCHEDULE, language: 'ja' as const }
   const after = (window: DelayDiagnosticsReportWindow, entry: string, column: string | null = null) =>
     delayDiagnosticsReportAfterEntry(window, entry, column, rows)
 
@@ -207,7 +207,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
 
   it('opens with the heading, then the document name, the status date and the moment it was made', () => {
     expect(lines[0]).toMatch(/^# /)
-    expect(lines.slice(2, 5)).toEqual(['- Plan', '- DX-2: 2026/01/02', '- 2026/10/03 10:00'])
+    expect(lines.slice(2, 5)).toEqual(['- 文書名: Plan', '- 基準日 2026/01/02', '- 作った日時: 2026/10/03 10:00'])
   })
 
   it('writes the table rows in the window order, with a cell pipe escaped', () => {
@@ -222,34 +222,31 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
 
   it('names the filter that stands, and the rows it keeps', () => {
     const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), REPORT, SCHEDULE, 'ja', stamp)
-    expect(filtered).toContain('- Bravo')
+    expect(filtered).toContain('- 絞り込み: Bravo')
     expect(filtered.split('\n').filter((line) => line.startsWith('| '))).toHaveLength(3)
   })
 
-  it('delayDiagnosticsReportMarkdown writes a legend of DG-1 .. DG-4', () => {
+  it('delayDiagnosticsReportMarkdown writes the summary line it is handed, and no legend (CR-648)', () => {
     const words = {
       heading: 'H',
       documentName: 'Doc',
-      statusDate: 'Date',
       madeAt: 'Made',
       filter: 'Filter',
       none: 'none',
-      legend: 'Legend',
-      summary: 'Summary',
-      unanalysed: 'Left',
       columns: ['a', 'b'],
       statuses: Object.fromEntries(
-        ['DG-1', 'DG-2', 'DG-3', 'DG-4', 'finding', 'settled'].map((status) => [status, { symbol: '', word: status, meaning: 'm' }]),
+        ['DG-1', 'doubtful', 'DG-2', 'DG-3', 'DG-4', 'settled'].map((status) => [status, { symbol: '', word: status }]),
       ) as never,
     }
-    const written = delayDiagnosticsReportMarkdown(REPORT, [], { word: '', columns: [] }, words, { documentName: 'D', statusDate: 'S', madeAt: 'M' })
+    const dates = { documentName: 'D', statusDateLine: 'S', madeAt: 'M', summaryLine: 'ONE LINE' }
+    const written = delayDiagnosticsReportMarkdown([], { word: '', columns: [] }, words, dates)
     expect(written).toContain('- Filter: none')
-    expect(written.split('\n').filter((line) => line.endsWith('-- m'))).toHaveLength(4)
+    expect(written.split('\n').filter((line) => line === 'ONE LINE')).toHaveLength(1)
+    expect(written).not.toMatch(/^## /m)
   })
 
-  it('RW-7: the name is the document name, the word and the status date', () => {
-    expect(delayDiagnosticsReportFileNameOf('Plan', REPORT.statusDate, 'ja')).toBe('Plan_遅延診断_2026-01-02.md')
-    expect(delayDiagnosticsReportFileNameOf('Plan', REPORT.statusDate, 'en')).toBe('Plan_delay-diagnostics_2026-01-02.md')
+  it('RW-7: the name is the document name, delay-diagnostics and the status date, whatever the language (CR-648)', () => {
+    expect(delayDiagnosticsReportFileNameOf('Plan', REPORT.statusDate)).toBe('Plan_delay-diagnostics_2026-01-02.md')
   })
 })
 
@@ -287,7 +284,7 @@ describe('IC-108 / IC-140 -- the shell hands the string out', () => {
     const written: ChosenFileWrite[] = []
     expect(answerDelayDiagnosticsReportEntry('IC-140', null, held, outletsOf([], written, []))).toBe(true)
     await Promise.resolve()
-    expect(written[0]?.suggestedFileName).toBe('Plan_遅延診断_2026-01-02.md')
+    expect(written[0]?.suggestedFileName).toBe('Plan_delay-diagnostics_2026-01-02.md')
     expect(written[0]?.extension).toBe('.md')
     expect(written[0]?.shouldBecomeOpenedFile).toBe(false)
   })

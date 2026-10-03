@@ -107,6 +107,38 @@ function exportFormatChoices(
 
 const NO_WORDS = ''
 
+// see FN-1
+const FILE_NAME_REPLACED = /[\s\\/:*?"<>|\x00-\x1f\x7f]/g
+
+// see FN-2
+const FILE_NAME_DROPPED = /[^\x00-\x7f]/g
+
+const FILE_NAME_RUNS = /_+/g
+
+const FILE_NAME_ENDS = /^[_. ]+|[_. ]+$/g
+
+const FILE_NAME_JOINER = '_'
+
+// see FN-5
+const FILE_NAME_WHEN_EMPTY = 'schedule'
+
+// see T-351, FR-096, RW-7
+/** @purity pure */
+export function exportNameBodyOf(documentName: string): string {
+  return documentName
+    .replace(FILE_NAME_REPLACED, FILE_NAME_JOINER)
+    .replace(FILE_NAME_DROPPED, NO_WORDS)
+    .replace(FILE_NAME_RUNS, FILE_NAME_JOINER)
+    .replace(FILE_NAME_ENDS, NO_WORDS)
+}
+
+// see FR-096, FN-5
+/** @purity pure */
+export function exportFileNameOf(documentName: string, extension: string): string {
+  const body = exportNameBodyOf(documentName)
+  return `${body === NO_WORDS ? FILE_NAME_WHEN_EMPTY : body}${extension}`
+}
+
 const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
 

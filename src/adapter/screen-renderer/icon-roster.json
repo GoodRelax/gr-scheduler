@@ -1047,7 +1047,7 @@
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "表と入力欄の字の大きさの段（`S-429`、4 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "entryTo": "表・入力欄・見出しの行の面の名の字の大きさの段（`S-429`、3 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
    "authority": "`FR-151` の 表 T-330 の `SV-16`",
    "arms": null,
    "armsShape": null
@@ -1069,7 +1069,7 @@
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "表と凡例を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）",
+   "entryTo": "まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`）",
    "authority": "`FR-134`",
    "arms": null,
    "armsShape": null

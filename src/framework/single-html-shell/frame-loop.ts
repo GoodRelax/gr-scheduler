@@ -427,6 +427,9 @@ const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 // see U-64, FR-151
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
+// see SJ-3, SV-13
+const REPORT_RESTORE_ENTRY: IconId = 'IC-131'
+
 // see U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
@@ -1552,11 +1555,17 @@ function reportHeldOf(
   return { window, report: diagnostics.report, schedule: document.schedule, documentName, language }
 }
 
+interface ReportBeforeJump {
+  readonly windows: { readonly report: () => DelayDiagnosticsReportWindow | null }
+  readonly answerReportEntry: (entry: IconId, filterColumn: string | null) => boolean
+}
+
 // see T-332, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
 // WHY: no propertiesOfChoiceAsked: a hidden panel stays hidden, a shown one follows selectionMoved (SJ-4).
 /** @purity non-pure */
-function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues): void {
+function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
+  if (report.windows.report()?.shown === 'maximised') report.answerReportEntry(REPORT_RESTORE_ENTRY, null)
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
@@ -1594,12 +1603,13 @@ function searchPanelWithTypedWord(held: SearchPanelSession, surface: ScreenSurfa
   return typed === null ? held : { ...held, word: typed }
 }
 
-// see SV-15, MK-10
+// see SV-15, MK-10, T-023, RW-4
 /** @purity semi-pure-b */
-function isOnSearchPanelBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind === 'key' || surface === undefined) return false
   const on = surface.readScreenPartAt(input.x, input.y)
-  return on?.part === SEARCH_PANEL_SURFACE && (input.kind === 'wheel' || on.entry === null)
+  const isTableWindow = on?.part === SEARCH_PANEL_SURFACE || on?.part === DELAY_DIAGNOSTICS_REPORT_SURFACE
+  return isTableWindow && (input.kind === 'wheel' || on.entry === null)
 }
 
 // see IN-5a, SV-5
@@ -3265,8 +3275,8 @@ export function frameLoop(
 
     const didSettleFieldEntry = spendFieldCommit(hands, frame)
     // WHY: the wheel scrolls the panel's table and leaves the chart still (SV-15).
-    if (input.kind === 'wheel' && isOnSearchPanelBody(input, screen?.surface)) {
-      recordLine(hands, interactionRecorder, 'done', 'spent=searchPanelWheel')
+    if (input.kind === 'wheel' && isOnTableWindowBody(input, screen?.surface)) {
+      recordLine(hands, interactionRecorder, 'done', 'spent=tableWindowWheel')
       return
     }
 
@@ -3339,7 +3349,7 @@ export function frameLoop(
     windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame)
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry })
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
@@ -3447,7 +3457,7 @@ export function frameLoop(
         return false
       }
       if (isWindowGrabPress(input, screen?.surface)) return true
-      if (isOnSearchPanelBody(input, screen?.surface)) return false
+      if (isOnTableWindowBody(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },

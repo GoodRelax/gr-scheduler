@@ -50,7 +50,7 @@ function titleRowStyle(): string {
   return `display:flex;align-items:center;flex:none;background:${PAINT.panel};height:${entranceOuterHeightPx()}px;`
 }
 
-// see WB-7, SV-1, GR-24
+// see WB-7, SV-1, SV-16, GR-24
 /** @purity non-pure */
 export function windowTitleRowElement(
   host: Document,
@@ -58,10 +58,11 @@ export function windowTitleRowElement(
   entries: { readonly before: readonly CommandItem[]; readonly titled: readonly CommandItem[] },
   anchors: Map<string, HTMLElement>,
   surface: string,
+  headingFontPx?: number,
 ): HTMLElement {
   const row = made(host, 'div', titleRowStyle())
   row.setAttribute(WINDOW_GRAB_ATTRIBUTE, 'true')
-  const title = made(host, 'span', HEADING_STYLE)
+  const title = made(host, 'span', HEADING_STYLE + (headingFontPx === undefined ? '' : `font-size:${headingFontPx}px;`))
   title.textContent = heading
   const before = entries.before.map((item) => anchoredEntry(host, item, anchors, surface))
   const titled = entries.titled.map((item) => anchoredEntry(host, item, anchors, surface))

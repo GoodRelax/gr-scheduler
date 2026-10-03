@@ -322,6 +322,29 @@ OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
 # weekday reuses `weekdays`, and TL-9 / TL-11 forbid a second word), so a
 # roster of every row would ask for words the specification forbids. The row
 # id IS the key, and `hint_lines` checks each one is still a row of the table.
+# CR-648: the Delay Diagnostics Report window (FR-134, table T-346). The column
+# headings are READ from table T-347, the move `searchColumns` makes with table
+# T-331. The statuses are DT-1's six in its order, each keyed by the row it is
+# made of -- four rows of table T-315, and the two rows of table T-317 DT-1 names
+# for the doubtful-or-missing finding (DX-3) and the settled push-out (DX-9) --
+# so no word of the code's vocabulary enters the manuscript. They are HELD HERE
+# and `delay_report_statuses` checks each still stands in its table. The summary line (RW-4), the Markdown labels
+# (RW-6) and the sentence patterns of DT-7 are no table's rows either: HELD
+# HERE, the same move as SEARCH_PANEL_PARTS. KEYS, not words.
+DELAY_REPORT_COLUMN_ROW = re.compile(r'^\| (DT-\d+[a-z]?) \|')
+DELAY_REPORT_COLUMN_TABLE = 'T-347'
+DELAY_MARKER_ROW = re.compile(r'^\| (DG-\d+[a-z]?) \|')
+DELAY_MARKER_TABLE = 'T-315'
+DELAY_REPORT_ROW = re.compile(r'^\| (DX-\d+[a-z]?) \|')
+DELAY_REPORT_TABLE = 'T-317'
+DELAY_REPORT_STATUSES = ('DG-1', 'DX-3', 'DG-2', 'DG-3', 'DG-4', 'DX-9')
+DELAY_REPORT_SUMMARY_PARTS = ('statusDate', 'afterStatusDate', 'count', 'between',
+                              'unanalysed')
+DELAY_REPORT_MARKDOWN_PARTS = ('documentName', 'madeAt', 'filter', 'none')
+DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckPath', 'late', 'settled',
+                             'finding', 'wall', 'missingActual',
+                             'milestoneAchieved', 'proposal')
+
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'
 HINT_LINES = ('TL-5', 'TL-6')
@@ -475,6 +498,24 @@ def hint_lines():
     return list(HINT_LINES)
 
 
+def delay_report_statuses():
+    """DT-1's statuses, after checking their rows still stand.
+
+    @purity semi-pure-b
+    """
+    rows = ([row[0] for row in table_rows(REL_REQUIREMENTS, DELAY_MARKER_ROW,
+                                          DELAY_MARKER_TABLE)]
+            + [row[0] for row in table_rows(REL_REQUIREMENTS, DELAY_REPORT_ROW,
+                                            DELAY_REPORT_TABLE)])
+    missing = [status for status in DELAY_REPORT_STATUSES if status not in rows]
+    if missing:
+        raise SystemExit('%s: tables %s and %s have no row %s, so the report '
+                         'statuses cannot be keyed'
+                         % (REL_REQUIREMENTS, DELAY_MARKER_TABLE,
+                            DELAY_REPORT_TABLE, ', '.join(missing)))
+    return list(DELAY_REPORT_STATUSES)
+
+
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -550,6 +591,13 @@ def roster():
                              table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
+        'delayReportColumns': [row[0] for row in
+                               table_rows(REL_REQUIREMENTS, DELAY_REPORT_COLUMN_ROW,
+                                          DELAY_REPORT_COLUMN_TABLE)],
+        'delayReportStatuses': delay_report_statuses(),
+        'delayReportSummary': list(DELAY_REPORT_SUMMARY_PARTS),
+        'delayReportMarkdown': list(DELAY_REPORT_MARKDOWN_PARTS),
+        'delayReportReasons': list(DELAY_REPORT_REASON_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'hintLines': hint_lines(),
         'assignments': [row[0] for row in
@@ -621,6 +669,11 @@ SHAPE = {
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
+    'delayReportColumns': ('rowId', ('text',)),
+    'delayReportStatuses': ('rowId', ('text',)),
+    'delayReportSummary': ('part', ('text',)),
+    'delayReportMarkdown': ('part', ('text',)),
+    'delayReportReasons': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
 }
@@ -726,7 +779,9 @@ def build(doc, keys_by_row):
                     'rowMinHeightField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
-                    'planActualStates', 'searchPanel'):
+                    'planActualStates', 'searchPanel', 'delayReportColumns',
+                    'delayReportStatuses', 'delayReportSummary',
+                    'delayReportMarkdown', 'delayReportReasons'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

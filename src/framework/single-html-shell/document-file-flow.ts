@@ -43,7 +43,7 @@ import {
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
 import { exportPng, exportSvg, type ExportScene } from '../../adapter/image-exporter/image-exporter'
-import { DEFAULT_ROW_NAME, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
+import { DEFAULT_ROW_NAME, exportFileNameOf, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
 import {
   AGENT_DOCUMENT_HANDED,
   CONFIRMATION_MANNER,
@@ -190,10 +190,10 @@ function defaultDocumentSettings(): DocumentSettings {
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 
-// see FR-096
+// see FR-096, T-351
 /** @purity pure */
 function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
-  return `${project.title ?? ''}${extensionOfForm(form)}`
+  return exportFileNameOf(project.title ?? '', extensionOfForm(form))
 }
 
 // see AT-140, FR-101
