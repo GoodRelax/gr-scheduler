@@ -2871,7 +2871,20 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // canvas draws and 〇 is not one. Table T-109's IC-30 is 「同・◇」, and the
     // figure is read out of that cell rather than typed as a row id.
     const diamond = entranceBy(T109_PURPOSE, '◇')
+    // WHY: FR-053 (MUST) shows only the first S-216 milestone shapes of SH-5 and
+    // WHY: keeps the rest off the palette until the one list entrance opens them
+    // WHY: (S-142, closed by default); the diamond is past S-216, so the list is
+    // WHY: opened here, before any ground is searched, so the palette the gestures
+    // WHY: below are measured beside is the one the diamond is armed from.
+    const milestoneList = entranceBy(T109_PURPOSE, 'S-142')
     await readSettledDrawnSvg(page)
+    if ((await entranceBox(page, diamond)) === null) {
+      expect(await pressEntrance(page, milestoneList), `${milestoneList} could not be pressed`).toBe(true)
+    }
+    expect(
+      await entranceBox(page, diamond),
+      `${milestoneList} was pressed and ${diamond} is still not on the palette, which FR-053 (MUST) shows once the list is open`,
+    ).not.toBeNull()
 
     const startX = 700
     const dragPx = 160
