@@ -375,10 +375,19 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
   return [{ kind: 'setThemeHue', hue }]
 }
 
-// see FR-035, CM-1, FR-041
+// see FR-131, CM-87
+/** @purity pure */
+function commandFromParentProgressTolerance(text: string): readonly DocumentCommand[] {
+  const workingDays = settledNumber(text)
+  if (workingDays === undefined || workingDays === null) return []
+  return [{ kind: 'setParentProgressTolerance', workingDays }]
+}
+
+// see FR-035, CM-1, FR-041, FR-131
 /** @purity pure */
 function commandFromProjectColumn(column: string, text: string): readonly DocumentCommand[] {
   if (column === 'themeHue') return commandFromThemeHue(text)
+  if (column === 'parentProgressToleranceDays') return commandFromParentProgressTolerance(text)
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
 }

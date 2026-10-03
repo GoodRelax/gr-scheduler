@@ -298,6 +298,7 @@ const PROJECT: Project = {
   // this is a placeholder inside the column's range and not a reading of S-73,
   // whose value reaches no generated artifact this file can call.
   themeHue: 0,
+  parentProgressToleranceDays: 1,
   uidHighWaterMark: 400,
   importSeq: 3,
   outlineBase: 1,

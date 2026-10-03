@@ -41,13 +41,13 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            134, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            135, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            147, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            148, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
@@ -80,7 +80,11 @@ EXEMPT = {
                  'cr-organise -- CR-558 and CR-559 add eight columns to '
                  'HighlightBox and CommentBox (AT-145..AT-152), each one '
                  'more type and nullable token of the same classification; '
-                 'raised with leave from the user (JDG-745).'),
+                 'raised with leave from the user (JDG-745). '
+                 '⭐ 134->135 / 147->148 on 2026-10-04: CR-651 adds '
+                 'Project.parentProgressToleranceDays (AT-156), one more '
+                 '整数 / 否 whose values already sat in the file; a CR '
+                 'that only adds a column raises these by one (JDG-300).'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '

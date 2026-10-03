@@ -86,6 +86,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
+| `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `rowNameOf` | entry | function | `src/entity/document-model/schedule/row-names.ts#rowNameOf` | PI-1 | 行の名前を `AT-53` と `AT-54` から導く。 |
@@ -1665,4 +1666,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 804 name(s) leave through a public entry (301 of them published by table T-064), 651 more are exported by a file and not by its entry.
+Totals: 805 name(s) leave through a public entry (302 of them published by table T-064), 651 more are exported by a file and not by its entry.

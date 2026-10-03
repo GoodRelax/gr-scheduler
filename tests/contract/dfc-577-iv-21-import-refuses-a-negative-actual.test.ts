@@ -97,6 +97,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   defaultStartTime: null,
   defaultFinishTime: null,
   themeHue: 214,
+  parentProgressToleranceDays: 1,
   uidHighWaterMark: 0,
   importSeq: 0,
   outlineBase: 1,

@@ -233,6 +233,7 @@ const PROJECT_KINDS = [
   'setStatusDate',
   'clearStatusDate',
   'setThemeHue',
+  'setParentProgressTolerance',
 ] as const satisfies readonly ProjectCommand['kind'][]
 
 const SETTINGS_KINDS = [

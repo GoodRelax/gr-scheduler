@@ -35,7 +35,7 @@ export type {
   TaskVisual,
   WeekDay,
 } from './schedule-entities'
-export { planActualState } from './plan-actual-state'
+export { planActualState, progressPointDayOf } from './plan-actual-state'
 export type { PlanActualState } from './plan-actual-state'
 export {
   calendarDaysBetween,

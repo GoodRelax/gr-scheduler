@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# PRUNED edit-project.ts::editProject (held 49/22, now below the band) on 2026-10-04 (CR-651): the CM-2 and CM-87 bodies moved to withProjectProfile and withParentProgressTolerance. Totals left for the coordinator to lower.
 # LOWERED frameLoop 1561 -> 1553, runFrame 145/12 -> 137/11 on 2026-10-03 (DFC-1820): the layout and the geometry calls moved out of runFrame into drawnPictureOf, which hands back the held picture while no input moved. Totals left for the coordinator to lower.
 # PRUNED mspdi-codec.ts::writtenProjectChildren (held 56/7, now below the band) on 2026-10-03 (CR-646 K-3): the Project columns it writes moved to writtenProjectColumns. Totals left for the coordinator to lower.
 # PRUNED json-codec.ts::documentFromJson (held 53/9, now below the band) and LOWERED openDocumentIntoHold 155/32 -> 150/30 on 2026-10-03 (CR-645): the recount and the settings clamp of a GRS JSON read moved to settledReading, the intake notices to tellDecodedIntake. Totals left for the coordinator to lower.
@@ -121,7 +122,6 @@ HELD src/use-case/edit-document/edit-annotation.ts::editAnnotation lines=154 bra
 HELD src/use-case/edit-document/edit-calendar.ts::editCalendar lines=69 branches=22
 HELD src/use-case/edit-document/edit-dependency.ts::editDependency lines=92 branches=21
 HELD src/use-case/edit-document/edit-document-settings.ts::editDocumentSettings lines=102 branches=21
-HELD src/use-case/edit-document/edit-project.ts::editProject lines=49 branches=22
 HELD src/use-case/edit-document/edit-resource.ts::editResource lines=132 branches=16
 HELD src/use-case/edit-document/edit-task-group.ts::editTaskGroup lines=233 branches=53
 HELD src/use-case/edit-document/edit-task.ts::editTask lines=132 branches=36

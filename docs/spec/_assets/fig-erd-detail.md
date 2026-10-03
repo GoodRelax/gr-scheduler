@@ -41,7 +41,7 @@ erDiagram
         時刻 defaultStartTime "Own"
         時刻 defaultFinishTime "Own"
         整数 themeHue "GRS・0〜359"
-        整数 parentProgressToleranceDays "GRS・稼働日"
+        整数 parentProgressToleranceDays "GRS"
         整数 uidHighWaterMark "GRS"
         整数 importSeq "GRS"
         連想 carry "Carry・文字列→文字列"
@@ -330,7 +330,7 @@ erDiagram
 | AT-154 | `Project` | `defaultStartTime` | 時刻 | 可 | — | Own | `Project/DefaultStartTime` | 既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） |
 | AT-155 | `Project` | `defaultFinishTime` | 時刻 | 可 | — | Own | `Project/DefaultFinishTime` | 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483` |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
-| AT-156 | `Project` | `parentProgressToleranceDays` | 整数（稼働日） | 否 | — | GRS | — | 親子の進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
+| AT-156 | `Project` | `parentProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親子の進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |

@@ -25,6 +25,7 @@ export type ProjectCommand =
   | { readonly kind: 'setStatusDate'; readonly date: string }
   | { readonly kind: 'clearStatusDate' }
   | { readonly kind: 'setThemeHue'; readonly hue: number }
+  | { readonly kind: 'setParentProgressTolerance'; readonly workingDays: number }
 
 const PROFILE_KEYS = [
   'name',
@@ -42,7 +43,7 @@ function withProject(document: Document, project: Document['schedule']['project'
   return { ...document, schedule: { ...document.schedule, project } }
 }
 
-// see CM-1, CM-2, CM-3, CM-4, CM-5
+// see CM-1, CM-2, CM-3, CM-4, CM-5, CM-87
 /** @purity pure */
 export function editProject(document: Document, command: ProjectCommand): EditResult {
   const project = document.schedule.project
@@ -56,21 +57,8 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return edited(withProject(document, { ...project, title: command.title }))
     }
 
-    case 'setProjectProfile': {
-      const refusals: Refusal[] = []
-      const { startDate } = command.fields
-      if (startDate !== undefined && startDate !== null && dayOf(startDate) === null) {
-        refusals.push(reject('CM-2', 'PF-8', `startDate is not a date: ${startDate}`))
-      }
-      if (refusals.length > 0) return refused(refusals)
-      let held = project
-      for (const key of PROFILE_KEYS) {
-        const value = command.fields[key]
-        if (value !== undefined && value !== held[key]) held = { ...held, [key]: value }
-      }
-      if (held === project) return edited(document)
-      return edited(withProject(document, held))
-    }
+    case 'setProjectProfile':
+      return withProjectProfile(document, command.fields)
 
     case 'setStatusDate': {
       if (dayOf(command.date) === null) {
@@ -91,5 +79,39 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       if (project.themeHue === command.hue) return edited(document)
       return edited(withProject(document, { ...project, themeHue: command.hue }))
     }
+
+    case 'setParentProgressTolerance':
+      return withParentProgressTolerance(document, command.workingDays)
   }
+}
+
+// see CM-2, PF-8
+/** @purity pure */
+function withProjectProfile(document: Document, fields: ProjectProfileFields): EditResult {
+  const project = document.schedule.project
+  const refusals: Refusal[] = []
+  const { startDate } = fields
+  if (startDate !== undefined && startDate !== null && dayOf(startDate) === null) {
+    refusals.push(reject('CM-2', 'PF-8', `startDate is not a date: ${startDate}`))
+  }
+  if (refusals.length > 0) return refused(refusals)
+  let held = project
+  for (const key of PROFILE_KEYS) {
+    const value = fields[key]
+    if (value !== undefined && value !== held[key]) held = { ...held, [key]: value }
+  }
+  if (held === project) return edited(document)
+  return edited(withProject(document, held))
+}
+
+// see CM-87, FR-131, S-487
+// WHY: refused, not clamped: a value moved into range would differ from the value the author set.
+/** @purity pure */
+function withParentProgressTolerance(document: Document, workingDays: number): EditResult {
+  const project = document.schedule.project
+  if (!Number.isInteger(workingDays) || workingDays < 0) {
+    return refused([reject('CM-87', 'S-487', `not an integer of 0 or more: ${workingDays}`)])
+  }
+  if (project.parentProgressToleranceDays === workingDays) return edited(document)
+  return edited(withProject(document, { ...project, parentProgressToleranceDays: workingDays }))
 }

@@ -427,6 +427,8 @@ function projectFromRoot(
     defaultStartTime,
     defaultFinishTime,
     themeHue: current.schedule.project.themeHue,
+    // WHY: MSPDI has no place for this GRS column (AT-156), so an open keeps the current value, as themeHue.
+    parentProgressToleranceDays: current.schedule.project.parentProgressToleranceDays,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSeq: current.schedule.project.importSeq,
     carry: split.carry,

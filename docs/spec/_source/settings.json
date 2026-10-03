@@ -2129,7 +2129,7 @@
      "id": "S-487",
      "key": "`parentProgressToleranceDays`",
      "type": {
-      "ja": "整数（稼働日）"
+      "ja": "整数"
      },
      "default": {
       "num": "1",

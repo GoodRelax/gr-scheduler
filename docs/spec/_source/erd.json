@@ -798,7 +798,7 @@
     {
      "seat": 156,
      "name": "parentProgressToleranceDays",
-     "type": "整数（稼働日）",
+     "type": "整数",
      "nullable": "否",
      "json": {
       "kind": "integer",
