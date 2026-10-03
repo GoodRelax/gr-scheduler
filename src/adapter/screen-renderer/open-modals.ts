@@ -122,7 +122,7 @@ const FILE_NAME_JOINER = '_'
 // see FN-5
 const FILE_NAME_WHEN_EMPTY = 'schedule'
 
-// see T-351, FR-096, RW-7
+// see T-352, FR-096, RW-7
 /** @purity pure */
 export function exportNameBodyOf(documentName: string): string {
   return documentName

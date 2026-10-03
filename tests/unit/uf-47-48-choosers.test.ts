@@ -1845,11 +1845,11 @@ describe('FR-096 -- the name the chooser proposes', () => {
     ).toBe(1)
     expect(
       files.written[0]?.suggestedFileName,
-      'FR-096 (MUST) / T-351 FN-1 (CR-648): the document name with its spaces made _, then the extension of table T-024',
+      'FR-096 (MUST) / T-352 FN-1 (CR-648): the document name with its spaces made _, then the extension of table T-024',
     ).toBe(`Plan_of_record${extension}`)
   })
 
-  it('FR-035 empty: T-351 FN-5 proposes schedule with the extension (CR-648)', async () => {
+  it('FR-035 empty: T-352 FN-5 proposes schedule with the extension (CR-648)', async () => {
     // FR-035 keeps `title` from ever being the empty string (MUST NOT), so
     // `null` is the one way a document has no name.
     const extension = extensionOf('IO-2')
@@ -1859,7 +1859,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     expect(files.written.length).toBe(1)
     expect(
       files.written[0]?.suggestedFileName,
-      'FR-096 (MUST) / T-351 FN-5: a name with nothing left is schedule',
+      'FR-096 (MUST) / T-352 FN-5: a name with nothing left is schedule',
     ).toBe(`schedule${extension}`)
   })
 
@@ -1939,7 +1939,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     }
   })
 
-  it('FR-035 empty: T-351 FN-5 proposes schedule with the chosen format\'s extension (CR-648)', async () => {
+  it('FR-035 empty: T-352 FN-5 proposes schedule with the chosen format\'s extension (CR-648)', async () => {
     // Again per row, so the same sweep with no document name.
     const drivable = EXCHANGE_FORMATS.filter(
       (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
@@ -1959,7 +1959,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
 
       expect(
         files.written[0]?.suggestedFileName,
-        `FR-096 (MUST) / T-351 FN-5: the name proposed for table T-024 row ${format.rowId} with no document name`,
+        `FR-096 (MUST) / T-352 FN-5: the name proposed for table T-024 row ${format.rowId} with no document name`,
       ).toBe(`schedule${format.extension}`)
     }
   })

@@ -190,7 +190,7 @@ function defaultDocumentSettings(): DocumentSettings {
 
 const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
 
-// see FR-096, T-351
+// see FR-096, T-352
 /** @purity pure */
 function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
   return exportFileNameOf(project.title ?? '', extensionOfForm(form))

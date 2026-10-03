@@ -1,4 +1,4 @@
-// CR-648: the Delay Diagnostics Report window fixes -- DT-1 order, the dictionary words, no legend, RW-10, T-333 steps, T-351 names.
+// CR-648: the Delay Diagnostics Report window fixes -- DT-1 order, the dictionary words, no legend, RW-10, T-333 steps, T-352 names.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -172,7 +172,7 @@ describe('CR-648 T-333 / S-429 -- three text steps, the first is the default', (
   })
 })
 
-describe('CR-648 T-351 / FR-096 / RW-7 -- one rule shapes every suggested name', () => {
+describe('CR-648 T-352 / FR-096 / RW-7 -- one rule shapes every suggested name', () => {
   it('FN-1 .. FN-4: spaces and OS-forbidden characters become _, non-ASCII drops, runs fold, ends trim', () => {
     expect(exportFileNameOf('Sample Project - Press N to start a new one', '.json')).toBe('Sample_Project_-_Press_N_to_start_a_new_one.json')
     expect(exportFileNameOf('a/b\\c:d*e?f"g<h>i|j', '.svg')).toBe('a_b_c_d_e_f_g_h_i_j.svg')
