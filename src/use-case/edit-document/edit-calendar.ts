@@ -3,9 +3,16 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 
-import { isSameDay, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
+import {
+  dayOf,
+  isSameDay,
+  textOfDayEnd,
+  textOfDayStart,
+  workingCalendarOf,
+} from '../../entity/document-model/schedule/schedule'
 import type {
   Calendar,
+  CalendarDay,
   Exception,
   Project,
   Schedule,
@@ -147,7 +154,33 @@ function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | u
   const isSame =
     exceptions.length === calendar.exceptions.length &&
     exceptions.every((one, index) => isSameException(one, calendar.exceptions[index] as Exception))
-  return isSame ? calendar : { ...calendar, exceptions: [...exceptions] }
+  return isSame ? calendar : { ...calendar, exceptions: stampedExceptions(calendar.exceptions, exceptions) }
+}
+
+// see FR-057, CM-39, WT-6, WT-7, WT-10
+// WHY: the one writer stamps the times, so the issuers (the panel's draft WC-6, the agent relay) never learn them.
+/** @purity pure */
+function stampedExceptions(held: readonly Exception[], incoming: readonly Exception[]): Exception[] {
+  const heldByOrdinal = new Map(held.map((one) => [one.ordinal, one]))
+  return incoming.map((one) => {
+    const before = heldByOrdinal.get(one.ordinal)
+    const fromDate = writtenDayText(before?.fromDate, one.fromDate, textOfDayStart)
+    const toDate = writtenDayText(before?.toDate, one.toDate, textOfDayEnd)
+    return fromDate === one.fromDate && toDate === one.toDate ? one : { ...one, fromDate, toDate }
+  })
+}
+
+// see WT-10, EX-4
+// WHY: a text with no readable day is kept as it came; stamping it would have to invent the day.
+/** @purity pure */
+function writtenDayText(
+  heldText: string | null | undefined,
+  incomingText: string | null,
+  textOfSide: (day: CalendarDay) => string,
+): string | null {
+  if (heldText !== undefined && isSameDay(heldText, incomingText)) return heldText
+  const day = dayOf(incomingText)
+  return day === null ? incomingText : textOfSide(day)
 }
 
 // see FR-088, CM-39, AT-20, AT-67

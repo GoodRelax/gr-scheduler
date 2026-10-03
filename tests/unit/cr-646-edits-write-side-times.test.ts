@@ -313,11 +313,6 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
     expect(after?.slice(0, 10), 'premise: the scroll moved the day in view').not.toBe(before?.slice(0, 10))
     expect(timeOf(after)).toBe(DAY_START)
   })
-
-  it.todo(
-    'WT-6 / WT-7 Exception.fromDate / toDate: CR-646 K-2 says the calendar edit makes them, but CM-39 (setCalendar) ' +
-      'carries whole Exception rows -- the spec names no seam where the times are stamped (use case or the panel) -- STOP DFC-1836',
-  )
 })
 
 describe('X-3 WT-10 / EX-4: an imported value the command did not move keeps its spelling', () => {
@@ -408,9 +403,4 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     })
     expect(after.schedule.highlightBoxes).toEqual(before.schedule.highlightBoxes)
   })
-
-  it.todo(
-    'FR-054 (CR-646 X-4 second half): a task from T08:00:00 to T17:00:00 of one day counts as a one-day task -- ' +
-      'the spec names no published reading that says "one-day" (K-5 points at delay-diagnostics-report.ts, an internal line; DV-8 Duration counts it as 0 days today) -- STOP DFC-1837',
-  )
 })

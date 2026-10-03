@@ -447,7 +447,7 @@
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
 | CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
-| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す | `FR-088` |
+| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ | `FR-088` |
 | CM-40 | `Resource` | `createResource` | — | 担当者を足す | `FR-008` |
 | CM-41 | `Resource` | `setResourceName` | — | 担当者の名前を変える | `FR-008` |
 | CM-42 | `Resource` | `deleteResource` | — | 選んだ担当者を消す | `FR-099` |

@@ -66,6 +66,7 @@ export {
   minutesPerWorkingDayOf,
   nextWorkingDay,
   NoWorkingDayReached,
+  plannedDurationMinutesOf,
   TENTHS_OF_A_MINUTE,
   textOfFinishSide,
   textOfStartSide,

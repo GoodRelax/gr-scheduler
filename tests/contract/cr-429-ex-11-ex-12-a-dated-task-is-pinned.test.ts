@@ -54,7 +54,8 @@ const EX_12_PASTED =
 
 const SO_10_PEOPLE_DECIDE = '日付は人が決める'
 
-const DV_8_FROM_DATES = '`finish` − `start` と暦。'
+// WHY: CR-649 (JDG-1222) rewrote DV-8 to count both end days; the clause still makes Duration from the dates.
+const DV_8_FROM_DATES = '`start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数'
 
 const START_ON = '2'
 

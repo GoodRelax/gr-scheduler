@@ -359,6 +359,15 @@
      }
     },
     {
+     "name": "plannedDurationMinutesOf",
+     "note": {
+      "ja": [
+       "予定の長さの分数。",
+       "数え方は `_assets/fig-erd-detail.md` の `DV-8` が持ち（両端の日を含めた稼働日の数 × 1 稼働日の分数、マイルストーンは 0）、書き出し（`UF-36`）と日付の編集（`UF-74`）の 2 か所がこれを読む"
+      ]
+     }
+    },
+    {
      "name": "lastDayForLength",
      "note": {
       "ja": [

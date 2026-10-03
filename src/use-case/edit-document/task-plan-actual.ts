@@ -7,16 +7,15 @@ import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
-  DEFAULT_CALENDAR_VALUES,
   actualLengthOf,
   calendarDaysBetween,
   compareDays,
   dayOf,
   lastDayForLength,
   planActualState,
+  plannedDurationMinutesOf,
   textOfFinishSide,
   textOfStartSide,
-  workingDaysBetween,
   type CalendarDay,
   type Project,
   type Schedule,
@@ -230,11 +229,9 @@ interface DatedPlan {
 function datedPlanOf(task: Task, schedule: Schedule, within: WorkingCalendar): DatedPlan | null {
   const startText = task.start
   const finishText = task.finish
-  const start = dayOf(startText)
-  const finish = dayOf(finishText)
-  if (start === null || finish === null || startText === null || finishText === null) return null
-  const duration = durationText(workingDaysBetween(within, start, finish) * minutesPerDayOf(schedule))
-  return { startText, finishText, duration }
+  const minutes = plannedDurationMinutesOf(within, task, schedule.project)
+  if (minutes === null || startText === null || finishText === null) return null
+  return { startText, finishText, duration: durationText(minutes) }
 }
 
 // see EX-11, EX-12, AT-143
@@ -271,13 +268,6 @@ export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingC
     .filter(([name]) => !CARRIED_SLACKS.includes(name))
     .map(([name, value]): [string, string] => [name, rebuilt.get(name) ?? value])
   return pinnedToStart({ ...task, carry: Object.fromEntries(kept) }, schedule, span)
-}
-
-// see FR-054, S-128
-/** @purity pure */
-function minutesPerDayOf(schedule: Schedule): number {
-  const held = schedule.project.minutesPerDay
-  return held !== null && held > 0 ? held : DEFAULT_CALENDAR_VALUES['S-128']
 }
 
 // see EX-9
