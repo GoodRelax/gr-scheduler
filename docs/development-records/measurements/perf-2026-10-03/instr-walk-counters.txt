@@ -1,0 +1,5 @@
+WALK warm-up {"grab":[16,51.299999833106995],"hint":[16,23.899999976158142],"walked":8} svgNodes 2044 domNodes 2526
+WALK MK-1 scroll {"grab":[207,498.79999828338623],"hint":[207,345.2000011205673],"walked":159} svgNodes 1971 domNodes 2453
+WALK MK-2 zoom {"grab":[423,930.199999332428],"hint":[423,705.8999997377396],"walked":353} svgNodes 2414 domNodes 2856
+WALK MK-7 pan {"grab":[799,1633.1999977827072],"hint":[799,1176.6999996900558],"walked":616} svgNodes 1660 domNodes 2102
+WALK MK-6 range select {"grab":[1098,2087.099998354912],"hint":[1098,1613.7999994754791],"walked":913} svgNodes 1245 domNodes 1687
