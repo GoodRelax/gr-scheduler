@@ -122,7 +122,7 @@ function oneTaskDocument(): Document {
       taskGroups: [
         { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeight: null },
       ],
-      taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID, stackOrder: null }],
+      taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

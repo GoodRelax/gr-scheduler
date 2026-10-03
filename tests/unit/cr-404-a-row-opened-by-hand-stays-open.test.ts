@@ -22,6 +22,8 @@ import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument, validateEntity } from '../fixtures/grs-document'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
@@ -250,7 +252,7 @@ function smallDocument(part: Fixture): Record<string, any> {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: TREE.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
+      taskGroupMembers: TREE.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -994,8 +996,8 @@ describe('AT-153 -- saved in the document, required by the schema, not exported'
   })
 
   it('the MSPDI export carries no treeState, and the values do not change its text', () => {
-    const plain = mspdiFromDocument(smallDocument({ zoomY: 1 }) as any).text
-    const opened = mspdiFromDocument(smallDocument({ zoomY: 1, expanded: ALL }) as any).text
+    const plain = mspdiFromDocument(smallDocument({ zoomY: 1 }) as any, LAST_SAVED_AT).text
+    const opened = mspdiFromDocument(smallDocument({ zoomY: 1, expanded: ALL }) as any, LAST_SAVED_AT).text
     expect(opened).not.toMatch(/treeState|temporarilyExpanded/i)
     expect(opened).toBe(plain)
   })

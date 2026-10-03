@@ -149,10 +149,10 @@ const wbsDocument = (): Record<string, unknown> =>
         taskOf(B, { name: 'B', start: '2026-04-27T08:00:00', finish: '2026-05-01T17:00:00' }),
       ],
       taskGroupMembers: [
-        { taskUid: P, groupId: 'row-1', stackOrder: null },
-        { taskUid: A, groupId: 'row-2', stackOrder: null },
-        { taskUid: A1, groupId: 'row-3', stackOrder: null },
-        { taskUid: B, groupId: 'row-1', stackOrder: null },
+        { taskUid: P, groupId: 'row-1' },
+        { taskUid: A, groupId: 'row-2' },
+        { taskUid: A1, groupId: 'row-3' },
+        { taskUid: B, groupId: 'row-1' },
       ],
     },
   )

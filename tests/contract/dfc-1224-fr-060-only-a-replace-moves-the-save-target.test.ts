@@ -29,6 +29,8 @@ import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell
 import { pointerOf, REQUIREMENTS, rowDocument, SCREEN } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const T_036 = specTable('T-036')
 const T_103 = specTable('T-103')
 const T_109 = specTable('T-109')
@@ -96,6 +98,7 @@ const oneRowDocument = (title: string, rowId: string, uid: number): Document => 
   draft.schedule.tasks[0].wbsOrder = uid
   draft.schedule.tasks[0].name = `Task ${uid}`
   draft.schedule.taskGroupMembers[0].taskUid = uid
+  draft.schedule.taskVisuals[0].taskUid = uid
   // WHY: with a row id held in scrollGroupId on either side, IC-72 landed no
   // task in this build; that is not the seam under test, so neither holds one.
   draft.documentSettings.scrollGroupId = null
@@ -498,7 +501,7 @@ describe(`FR-060 (MUST) -- ${KEEP_THE_TARGET_MUST}`, () => {
 describe(`FR-096 -- ${MSPDI_HAS_NO_TARGET}`, () => {
   it('⛔ after IC-71 on an MSPDI file, SK-11 asks for a file and never writes the .xml', async () => {
     const { built } = await stageWithTarget()
-    const xml = mspdiFromDocument(there()).text
+    const xml = mspdiFromDocument(there(), LAST_SAVED_AT).text
     const theirs = built.file('theirs.xml', UTF8.encode(xml))
     const fresh = built.file('fresh.json', new Uint8Array(0))
     await openIntoChooser(built, theirs)
@@ -515,7 +518,7 @@ describe(`FR-096 -- ${MSPDI_HAS_NO_TARGET}`, () => {
 
   it('⛔ after a merge of an MSPDI file, SK-11 writes the previous target', async () => {
     const { built } = await stageWithTarget()
-    const theirs = built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there()).text))
+    const theirs = built.file('theirs.xml', UTF8.encode(mspdiFromDocument(there(), LAST_SAVED_AT).text))
     await openIntoChooser(built, theirs)
     await built.take(OPEN_CHOOSER, 'IC-72')
     expect(built.last().openModal).toBeNull()

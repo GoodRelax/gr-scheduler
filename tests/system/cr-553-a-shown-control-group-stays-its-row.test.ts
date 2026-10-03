@@ -92,7 +92,7 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
             resume: null, resumeValid: true, wbsParentUid: null, milestone: false,
           }
           tasks.push({ ...task0, ...Object.fromEntries(Object.entries(over).filter(([key]) => key in task0)) })
-          members.push({ groupId, taskUid: uid, stackOrder: null })
+          members.push({ groupId, taskUid: uid })
           uid += 1
         }
       }

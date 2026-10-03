@@ -191,7 +191,7 @@ const SCHEDULE = {
     editGroup: null,
     color: null,
   })),
-  taskGroupMembers: TASKS.map(([task, groupId]) => ({ groupId, taskUid: task['uid'], stackOrder: null })),
+  taskGroupMembers: TASKS.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
   taskVisuals: TASKS.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
   taskOrigins: [],
   baselineTasks: [],

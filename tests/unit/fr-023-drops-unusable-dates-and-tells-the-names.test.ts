@@ -74,7 +74,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { Task } from '../../src/entity/document-model/schedule/schedule'
+import { blankTaskVisual, type Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -244,8 +244,8 @@ function documentWith(rowId: string, rowLabel: string, tasks: readonly Task[]): 
       resources: [],
       assignments: [],
       taskGroups: [row(rowId, rowLabel)],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowId, stackOrder: null })),
-      taskVisuals: [],
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowId })),
+      taskVisuals: tasks.map((one) => blankTaskVisual(one.uid)),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],

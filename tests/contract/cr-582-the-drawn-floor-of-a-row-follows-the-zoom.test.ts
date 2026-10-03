@@ -128,7 +128,7 @@ function documentText(minHeight: number | null): string {
         color: null,
         minHeight: id === FLOORED ? minHeight : null,
       })),
-      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id, stackOrder: null })),
+      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

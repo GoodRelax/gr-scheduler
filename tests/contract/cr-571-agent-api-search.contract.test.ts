@@ -90,8 +90,8 @@ const scheduleWith = (parentState: string, childState: string): Loose => ({
   tasks: [task(DEEP_UID, 'PM review', '2026-05-01T00:00:00'), task(OTHER_UID, 'Budget', '2026-04-01T00:00:00')],
   taskGroups: rowsWith(parentState, childState),
   taskGroupMembers: [
-    { taskUid: DEEP_UID, groupId: CHILD, stackOrder: null },
-    { taskUid: OTHER_UID, groupId: OTHER, stackOrder: null },
+    { taskUid: DEEP_UID, groupId: CHILD },
+    { taskUid: OTHER_UID, groupId: OTHER },
   ],
   resources: [{ ...(templateResources[0] as Loose), uid: 301, name: 'Pm Lead' }],
   assignments: [{ ...(templateAssignments[0] as Loose), uid: 401, taskUid: OTHER_UID, resourceUid: 301 }],
@@ -181,6 +181,7 @@ function bench(parentState: string, childState: string): Bench {
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,
     readAt: READ_AT,
+    localReadAt: '2026-10-03T09:00:00',
   })
   const wiring: AgentApiWiring = {
     source: { readSnapshot: snapshotOf },

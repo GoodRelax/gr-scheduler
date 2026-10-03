@@ -154,13 +154,13 @@ const TASKS = [
 ]
 
 const MEMBERS = [
-  { taskUid: 201, groupId: R11, stackOrder: null },
-  { taskUid: 202, groupId: R2, stackOrder: null },
-  { taskUid: 203, groupId: R12, stackOrder: null },
-  { taskUid: 204, groupId: R2, stackOrder: null },
-  { taskUid: 205, groupId: R1, stackOrder: null },
-  { taskUid: 206, groupId: R1, stackOrder: null },
-  { taskUid: 207, groupId: R11, stackOrder: null },
+  { taskUid: 201, groupId: R11 },
+  { taskUid: 202, groupId: R2 },
+  { taskUid: 203, groupId: R12 },
+  { taskUid: 204, groupId: R2 },
+  { taskUid: 205, groupId: R1 },
+  { taskUid: 206, groupId: R1 },
+  { taskUid: 207, groupId: R11 },
 ]
 
 // WHY: resource 302 is assigned before 301, the reverse of both uid and reading order, so

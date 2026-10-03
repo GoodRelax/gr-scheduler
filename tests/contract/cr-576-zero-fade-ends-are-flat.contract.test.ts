@@ -148,7 +148,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
   ({
     project: {
       id: null, name: null, title: null, subject: null, category: null, company: null,
-      manager: null, author: null, created: null, revision: null, lastSaved: null,
+      manager: null, author: null, created: null, revision: null,
       startDate: '2026-03-01T00:00:00', statusDate: null, minutesPerDay: null,
       minutesPerWeek: null, daysPerMonth: null, weekStartDay: null,
       calendarUid: EVERY_DAY_WORKED.uid, themeHue: 214, uidHighWaterMark: 1000,
@@ -164,7 +164,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
         treeState: 'auto', color: null, minHeight: null,
       } as unknown as TaskGroup,
     ],
-    taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }] as unknown as readonly TaskGroupMember[],
+    taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }] as unknown as readonly TaskGroupMember[],
     taskVisuals: [
       { taskUid: 1, shapeKind, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null } as unknown as TaskVisual,
     ],

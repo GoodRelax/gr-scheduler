@@ -354,9 +354,9 @@ function fixtureDocument(): Document {
         rowOfSchedule(NEW_STONE_ROW, 2),
       ],
       taskGroupMembers: [
-        { taskUid: BAR_UID, groupId: BAR_ROW, stackOrder: null },
-        { taskUid: STONE_UID, groupId: STONE_ROW, stackOrder: null },
-        { taskUid: NEW_STONE_UID, groupId: NEW_STONE_ROW, stackOrder: null },
+        { taskUid: BAR_UID, groupId: BAR_ROW },
+        { taskUid: STONE_UID, groupId: STONE_ROW },
+        { taskUid: NEW_STONE_UID, groupId: NEW_STONE_ROW },
       ],
       taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(NEW_STONE_UID)],
       commentBoxes: [],

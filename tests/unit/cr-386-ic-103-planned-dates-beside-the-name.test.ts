@@ -190,7 +190,7 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
         treeState: 'auto', color: null,
         minHeight: null,
       })),
-      taskGroupMembers: planned.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid), stackOrder: null })),
+      taskGroupMembers: planned.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid) })),
       taskVisuals: planned
         .filter((one) => one.milestone)
         .map((one) => ({

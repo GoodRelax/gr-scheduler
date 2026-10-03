@@ -17,6 +17,8 @@ import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/d
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { DESIGN, REQUIREMENTS, rowDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const Q29 = '⭐ 同じ id の行（`TaskGroup`）または注記が両側にあり、中身が違うときは、現在の文書の中身を保ち、取込元の違いを捨てること（MUST）'
 const Q30 = '⭐ 置き換えを選んで MSPDI を読んだときは、`documentSettings` のすべての項目を既定値とすること（MUST）'
 const Q31 = '⭐ 同じ名前（表 T-229 の `ED-2`）で 2 度購読したときは、新しい購読が古い購読を置き換えること（MUST）'
@@ -92,7 +94,7 @@ describe('OP-6 -- an MSPDI read by replace puts every setting to its default', (
   it(Q30, () => {
     const moved = { zoomX: 7, zoomY: 0.5, scrollDate: '2026-06-01', displayScale: 125, dependencyVisible: false }
     const current = documentWith('current label', 'current note', moved)
-    const decoded = documentFromMspdi(mspdiFromDocument(current).text, current)
+    const decoded = documentFromMspdi(mspdiFromDocument(current, LAST_SAVED_AT).text, current)
     if (!decoded.ok) throw new Error(`premise: the MSPDI text decodes, was ${JSON.stringify(decoded).slice(0, 300)}`)
     const outcome = importDocument(
       requestOf({ current, incoming: decoded.document, format: 'mspdi', choice: 'replace', merge: null }),

@@ -15,6 +15,8 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const READ_AS_SUMMARY =
   '`UID` が 0 で `OutlineLevel` が 0 の `Task` は、プロジェクトの要約タスクとして読むこと（MUST）'
 const NOT_A_TASK = '文書の全体を束ねる行である。⛔ `Task` にしてはならない（MUST NOT）'
@@ -55,7 +57,7 @@ function accepted(text: string): Document {
   return read.document
 }
 
-const written = (document: Document): string => mspdiFromDocument(document).text
+const written = (document: Document): string => mspdiFromDocument(document, LAST_SAVED_AT).text
 
 const SUMMARY_NAME = 'Whole project'
 const SUMMARY_START = '2026-04-06T08:00:00'

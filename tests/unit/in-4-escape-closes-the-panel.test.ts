@@ -289,8 +289,8 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: THE_TASK, groupId: ALPHA, stackOrder: null },
-        { taskUid: 2, groupId: BETA, stackOrder: null },
+        { taskUid: THE_TASK, groupId: ALPHA },
+        { taskUid: 2, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

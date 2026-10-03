@@ -12,6 +12,8 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import {
+  DEFAULT_CALENDAR_VALUES,
+  dayOf,
   planActualState,
   type Schedule,
   type Task,
@@ -87,6 +89,9 @@ const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padSta
 
 // see EX-7
 const stored = (iso: string): string => `${iso}T00:00:00`
+
+// WHY: stop is on the finish side of T-350; the project leaves defaultFinishTime empty, so S-483 stands.
+const finishSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-483']}`
 
 const dayPart = (value: string | null): string => {
   if (value === null) throw new Error('the column this case reads holds nothing')
@@ -177,7 +182,7 @@ const documentWith = (task: Task, shapeKind: string): Document =>
       resources: [],
       assignments: [],
       taskGroups: [groupOf()],
-      taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
+      taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }],
       taskVisuals: [visualOf(shapeKind)],
       commentBoxes: [],
       highlightBoxes: [],
@@ -248,8 +253,9 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(5)))
     expect(task.actualFinish, 'PV-1: actualFinish stays empty until PV-2').toBeNull()
-    expect(task.stop, 'PV-1 floor day').toBe(stored(ymd(5)))
-    expect(task.stop, 'FR-011 last day of a 1-day actual is its start').toBe(task.actualStart)
+    expect(task.stop, 'PV-1 floor day').toBe(finishSide(ymd(5)))
+    // WHY: the two ends sit on different sides of T-350, so FR-054 compares the day parts.
+    expect(dayOf(task.stop), 'FR-011 last day of a 1-day actual is its start').toEqual(dayOf(task.actualStart))
     expect(task.stop, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5))))
     expect(planActualState(task)).toBe('inProgress')
   })
@@ -257,7 +263,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
   it('PV-1 on a Friday still stops that Friday, not on the Saturday right end nor the next worked day', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(9)), finish: stored(ymd(23)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(9)))
-    expect(task.stop, 'PV-1 floor day').toBe(stored(ymd(9)))
+    expect(task.stop, 'PV-1 floor day').toBe(finishSide(ymd(9)))
     expect(rightEndOf(ymd(9))).toBe(ymd(10))
     expect(task.stop, 'MUST NOT: the next worked day (Monday)').not.toBe(stored(ymd(12)))
     expect(task.stop, 'MUST NOT: the right end (Saturday)').not.toBe(stored(ymd(10)))

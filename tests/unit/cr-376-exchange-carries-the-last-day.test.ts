@@ -11,6 +11,8 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import { specTable } from '../contract/spec-table'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const cellOf = (tableId: string, rowId: string, heading: string): string => {
   const row = specTable(tableId).rows.find((one) => one.id === rowId)
   if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
@@ -94,7 +96,7 @@ const documentObject = (tasks: readonly Record<string, unknown>[], minutesPerDay
       taskGroups: [
         { id: ROW, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeight: null },
       ],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW, stackOrder: null })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -144,7 +146,7 @@ const minutesOf = (duration: string | null): number => {
 }
 
 const written = (minutesPerDay: number | null): string =>
-  mspdiFromDocument(documentObject(exchangeTasks(), minutesPerDay) as unknown as Document).text
+  mspdiFromDocument(documentObject(exchangeTasks(), minutesPerDay) as unknown as Document, LAST_SAVED_AT).text
 
 describe('CR-376 exchange premises read from the manuscript', () => {
   it('AT-141 maps stop to Task/Stop, DV-11 makes ActualDuration, and S-128 is a number of minutes', () => {

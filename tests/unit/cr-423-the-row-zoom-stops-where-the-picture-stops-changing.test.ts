@@ -251,7 +251,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
+      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

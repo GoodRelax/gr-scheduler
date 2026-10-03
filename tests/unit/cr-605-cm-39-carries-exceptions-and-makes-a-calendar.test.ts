@@ -130,6 +130,8 @@ const documentOf = (project: Record<string, unknown>, calendars: readonly Calend
         minutesPerDay: null,
         weekStartDay: 1,
         calendarUid: null,
+        defaultStartTime: null,
+        defaultFinishTime: null,
         uidHighWaterMark: HIGH_WATER,
         carry: {},
         carryElements: [],

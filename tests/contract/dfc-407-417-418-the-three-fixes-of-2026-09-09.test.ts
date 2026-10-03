@@ -151,7 +151,7 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
   ({
     project: {
       id: null, name: null, title: null, subject: null, category: null, company: null,
-      manager: null, author: null, created: null, revision: null, lastSaved: null,
+      manager: null, author: null, created: null, revision: null,
       startDate: '2026-03-01T00:00:00', statusDate: null, minutesPerDay: null,
       minutesPerWeek: null, daysPerMonth: null, weekStartDay: null,
       calendarUid: EVERY_DAY_WORKED.uid, themeHue: 214, uidHighWaterMark: 1000,
@@ -163,7 +163,7 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
     assignments: [],
     taskGroups: [taskGroup('g1', 0)],
     taskGroupMembers: tasks.map((one) => ({
-      taskUid: one.uid, groupId: 'g1', stackOrder: null,
+      taskUid: one.uid, groupId: 'g1',
     })) as unknown as readonly TaskGroupMember[],
     taskVisuals: visuals,
     commentBoxes: [],

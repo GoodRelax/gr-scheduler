@@ -115,6 +115,7 @@ function bench(): Bench {
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,
     readAt: READ_AT,
+    localReadAt: '2026-10-03T09:00:00',
   })
 
   const wiring: AgentApiWiring = {

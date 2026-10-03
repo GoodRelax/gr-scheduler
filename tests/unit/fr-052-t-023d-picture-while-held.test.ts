@@ -314,7 +314,7 @@ function fixtureDocument(): Document {
           minHeight: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: FADED_UID, groupId: ROW_ID, stackOrder: null }],
+      taskGroupMembers: [{ taskUid: FADED_UID, groupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

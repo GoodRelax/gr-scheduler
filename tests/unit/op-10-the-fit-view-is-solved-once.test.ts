@@ -172,7 +172,6 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
       taskGroupMembers: GROUPS.map((one, index) => ({
         taskUid: index + 1,
         groupId: one.id,
-        stackOrder: null,
       })),
       taskVisuals: [],
       commentBoxes: [],

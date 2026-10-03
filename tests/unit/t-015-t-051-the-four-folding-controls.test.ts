@@ -334,7 +334,6 @@ function documentWith(part: Fixture = {}): Document {
       taskGroupMembers: ROWS.map((one, index) => ({
         taskUid: index + 1,
         groupId: one.id,
-        stackOrder: null,
       })),
       taskVisuals: [],
       commentBoxes: [],

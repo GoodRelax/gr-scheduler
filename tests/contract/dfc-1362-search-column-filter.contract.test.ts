@@ -251,7 +251,7 @@ const SCHEDULE = {
     groupOf(G_REVIEW, null, 1, REVIEW),
     groupOf(G_ARCHIVE, null, 2, ARCHIVE),
   ],
-  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, groupId: one.group, stackOrder: null })),
+  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, groupId: one.group })),
   resources: PEOPLE.map(([uid, name]) => ({ ...firstOf('resources'), uid, name })),
   assignments: ASSIGNED.map(([taskUid, resourceUid], at) => ({
     ...firstOf('assignments'),

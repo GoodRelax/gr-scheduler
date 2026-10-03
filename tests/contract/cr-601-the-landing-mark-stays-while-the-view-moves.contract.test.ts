@@ -318,7 +318,7 @@ const shellDocument = (rows: readonly string[], tasks: readonly (readonly [Loose
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: tasks.map(([task, groupId]) => ({ taskUid: task['uid'], groupId, stackOrder: null })),
+      taskGroupMembers: tasks.map(([task, groupId]) => ({ taskUid: task['uid'], groupId })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

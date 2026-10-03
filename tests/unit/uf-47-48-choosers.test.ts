@@ -86,7 +86,7 @@ import type {
   Rasterizer,
 } from '../../src/adapter/image-exporter/image-exporter'
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { Task } from '../../src/entity/document-model/schedule/schedule'
+import { blankTaskVisual, type Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -520,8 +520,8 @@ function documentWith(
       resources: [],
       assignments: [],
       taskGroups: [row(rowId, rowLabel)],
-      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId, stackOrder: null })),
-      taskVisuals: [],
+      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId })),
+      taskVisuals: uids.map(blankTaskVisual),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],

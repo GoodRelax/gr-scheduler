@@ -216,8 +216,8 @@ function documentOf(statusDate: string, children: readonly Child[]): Document {
   )
   raw.schedule.tasks = [root, ...tasks]
   raw.schedule.taskGroupMembers = [
-    { taskUid: P, groupId: 'r0', stackOrder: null },
-    ...children.map((one) => ({ taskUid: one.uid, groupId: 'r1', stackOrder: null })),
+    { taskUid: P, groupId: 'r0' },
+    ...children.map((one) => ({ taskUid: one.uid, groupId: 'r1' })),
   ]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)

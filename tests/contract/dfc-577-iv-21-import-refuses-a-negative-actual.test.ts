@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { Project, Task } from '../../src/entity/document-model/schedule/schedule'
+import { blankTaskVisual, type Project, type Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   validateImportedDocument,
   type ImportCandidate,
@@ -87,7 +87,6 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   author: null,
   created: null,
   revision: null,
-  lastSaved: null,
   startDate: null,
   statusDate: null,
   minutesPerDay: null,
@@ -95,6 +94,8 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   daysPerMonth: null,
   weekStartDay: null,
   calendarUid: null,
+  defaultStartTime: null,
+  defaultFinishTime: null,
   themeHue: 214,
   uidHighWaterMark: 0,
   importSeq: 0,
@@ -116,7 +117,7 @@ const documentOf = (tasks: readonly Task[]): Document =>
       assignments: [],
       taskGroups: [],
       taskGroupMembers: [],
-      taskVisuals: [],
+      taskVisuals: tasks.map((one) => blankTaskVisual(one.uid)),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],

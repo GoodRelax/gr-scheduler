@@ -175,7 +175,6 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   author: null,
   created: null,
   revision: null,
-  lastSaved: null,
   startDate: null,
   statusDate: null,
   minutesPerDay: null,
@@ -183,6 +182,8 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   daysPerMonth: null,
   weekStartDay: null,
   calendarUid: null,
+  defaultStartTime: null,
+  defaultFinishTime: null,
   themeHue: 214,
   uidHighWaterMark: 0,
   importSeq: 0,
@@ -231,7 +232,6 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
 const memberOf = (taskUid: number, groupId: string): TaskGroupMember => ({
   taskUid,
   groupId,
-  stackOrder: null,
 })
 
 // Carried on BOTH sides of every merge, so that a key which happens to be

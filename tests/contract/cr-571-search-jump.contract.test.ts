@@ -110,7 +110,7 @@ function documentOf(arranged: Arranged = {}): Document {
     ...TEMPLATE.schedule,
     tasks: [task(201, '2026-05-01T00:00:00')],
     taskGroups,
-    taskGroupMembers: [{ taskUid: 201, groupId: R11, stackOrder: null }],
+    taskGroupMembers: [{ taskUid: 201, groupId: R11 }],
     commentBoxes: [commentBox('c-dated', R12, '2026-04-20T00:00:00'), commentBox('c-undated', R12, null)],
     resources: [],
     assignments: [],

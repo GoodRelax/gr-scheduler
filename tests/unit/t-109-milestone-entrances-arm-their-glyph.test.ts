@@ -290,7 +290,6 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
       taskGroupMembers: tasks.map((one) => ({
         taskUid: (one as any).uid as number,
         groupId: ROW,
-        stackOrder: null,
       })),
       taskVisuals,
       commentBoxes: [],

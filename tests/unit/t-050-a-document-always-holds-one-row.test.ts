@@ -175,7 +175,6 @@ const taskOf = (uid: number, name: string | null): Task =>
 const memberOf = (taskUid: number, groupId: string): TaskGroupMember => ({
   taskUid,
   groupId,
-  stackOrder: null,
 })
 
 const STAMP: DocumentStamp = {

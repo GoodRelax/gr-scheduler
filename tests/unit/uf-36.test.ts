@@ -12,7 +12,7 @@
 // facts (Chapter 6.2 names it the authority), and of the unit itself only its
 // head comment, its four published types (`MspdiFault`, `MspdiNotice`,
 // `MspdiDecoding`, `MspdiEncoding`), the constant `MSPDI_NAMESPACE` and the two
-// signatures `documentFromMspdi(text, current)` and `mspdiFromDocument(doc)`.
+// signatures `documentFromMspdi(text, current)` and `mspdiFromDocument(doc, LAST_SAVED_AT)`.
 // Every expected value here comes from a requirement, a table or the official
 // schema -- never from the implementation.
 //
@@ -80,6 +80,8 @@ import {
 import type { Document } from '../../src/entity/document-model/document/document'
 import { DEFAULT_CALENDAR_VALUES } from '../../src/entity/document-model/schedule/schedule'
 import { validateDocument } from '../fixtures/grs-document'
+
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 // ---------------------------------------------------------------------------
 // The exchange partner's own facts, read from the official schema.
@@ -218,6 +220,8 @@ const SAMPLE = {
   projectCreated: '2026-03-06T09:15:00',
   projectRevision: 37,
   projectLastSaved: '2027-06-14T18:40:00',
+  projectDefaultStartTime: '09:00:00',
+  projectDefaultFinishTime: '18:00:00',
   projectStart: '2026-04-01T08:30:00',
   // Deliberately NOT the latest Task/Finish: DV-1 would compute a different
   // one, and G-13 of table T-005 says the arrived value is what goes back.
@@ -426,6 +430,8 @@ function projectHeadXml(): string {
   <CurrencyDigits>${SAMPLE.currencyDigits}</CurrencyDigits>
   <CurrencyCode>${SAMPLE.currencyCode}</CurrencyCode>
   <CalendarUID>${SAMPLE.calendarUid}</CalendarUID>
+  <DefaultStartTime>${SAMPLE.projectDefaultStartTime}</DefaultStartTime>
+  <DefaultFinishTime>${SAMPLE.projectDefaultFinishTime}</DefaultFinishTime>
   <MinutesPerDay>${SAMPLE.minutesPerDay}</MinutesPerDay>
   <MinutesPerWeek>${SAMPLE.minutesPerWeek}</MinutesPerWeek>
   <DaysPerMonth>${SAMPLE.daysPerMonth}</DaysPerMonth>
@@ -586,7 +592,7 @@ function everyNodeName(node: XmlNode): readonly string[] {
 }
 
 function written(document: Document): XmlNode {
-  const encoding: MspdiEncoding = mspdiFromDocument(document)
+  const encoding: MspdiEncoding = mspdiFromDocument(document, LAST_SAVED_AT)
   return parseXml(encoding.text)
 }
 
@@ -662,7 +668,7 @@ const T_058_MSPDI: readonly ColumnRow[] = [
   column('AT-8', 'Project', 'author', 'Author', SAMPLE.projectAuthor),
   column('AT-9', 'Project', 'created', 'CreationDate', SAMPLE.projectCreated),
   column('AT-10', 'Project', 'revision', 'Revision', SAMPLE.projectRevision),
-  column('AT-11', 'Project', 'lastSaved', 'LastSaved', SAMPLE.projectLastSaved),
+
   column('AT-12', 'Project', 'startDate', 'StartDate', SAMPLE.projectStart),
   column('AT-13', 'Project', 'statusDate', 'StatusDate', SAMPLE.projectStatusDate),
   column('AT-14', 'Project', 'minutesPerDay', 'MinutesPerDay', SAMPLE.minutesPerDay),
@@ -670,6 +676,8 @@ const T_058_MSPDI: readonly ColumnRow[] = [
   column('AT-16', 'Project', 'daysPerMonth', 'DaysPerMonth', SAMPLE.daysPerMonth),
   column('AT-17', 'Project', 'weekStartDay', 'WeekStartDay', SAMPLE.weekStartDay),
   column('AT-18', 'Project', 'calendarUid', 'CalendarUID', SAMPLE.calendarUid, false),
+  column('AT-154', 'Project', 'defaultStartTime', 'DefaultStartTime', SAMPLE.projectDefaultStartTime),
+  column('AT-155', 'Project', 'defaultFinishTime', 'DefaultFinishTime', SAMPLE.projectDefaultFinishTime),
 
   column('AT-24', 'Task', 'uid', 'UID', SAMPLE.taskUid),
   column('AT-27', 'Task', 'name', 'Name', SAMPLE.taskName),
@@ -832,7 +840,7 @@ describe('FR-023 -- external entities are disabled and nothing reaches innerHTML
     const task = instanceOf(document, 'Task')
     expect(task['notes']).toBe('<img src=x onerror=alert(1)> & more')
     // Round trip: the writer escapes it again rather than emitting live markup.
-    const back = mspdiFromDocument(document).text
+    const back = mspdiFromDocument(document, LAST_SAVED_AT).text
     expect(back).not.toContain('<img src=x')
     expect(accepted(back).schedule.tasks[0]?.notes).toBe('<img src=x onerror=alert(1)> & more')
   })
@@ -921,7 +929,7 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
   })
 
   it('answers a write with notices beside the text, never a throw', () => {
-    const encoding: MspdiEncoding = mspdiFromDocument(accepted(BASE_TEXT))
+    const encoding: MspdiEncoding = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT)
     expect(typeof encoding.text).toBe('string')
     expect(Array.isArray(encoding.notices)).toBe(true)
     for (const notice of encoding.notices) {
@@ -1431,7 +1439,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
 
 describe('Chapter 5.4 -- only the WBS axis crosses the wire', () => {
   it('writes no row and no member into the XML', () => {
-    const text = mspdiFromDocument(accepted(BASE_TEXT)).text
+    const text = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text
     for (const name of [
       'TaskGroup',
       'TaskGroupMember',
@@ -1726,14 +1734,14 @@ describe('table T-059 -- made at write time, not stored', () => {
 describe('FR-021 -- one MSPDI in, not merged, not edited, out again', () => {
   it('comes back to the same document through a whole round trip', () => {
     const once = accepted(BASE_TEXT)
-    const twice = accepted(mspdiFromDocument(once).text)
+    const twice = accepted(mspdiFromDocument(once, LAST_SAVED_AT).text)
     expect(twice).toEqual(once)
   })
 
   it('stays put on a third pass -- the writer is stable, not merely reversible', () => {
     const once = accepted(BASE_TEXT)
-    const secondText = mspdiFromDocument(once).text
-    const thirdText = mspdiFromDocument(accepted(secondText)).text
+    const secondText = mspdiFromDocument(once, LAST_SAVED_AT).text
+    const thirdText = mspdiFromDocument(accepted(secondText), LAST_SAVED_AT).text
     expect(thirdText).toBe(secondText)
   })
 
@@ -1814,8 +1822,8 @@ describe('PI-20 -- the published pair', () => {
     const first = documentFromMspdi(BASE_TEXT, CURRENT)
     const second = documentFromMspdi(BASE_TEXT, CURRENT)
     expect(second).toEqual(first)
-    expect(mspdiFromDocument(accepted(BASE_TEXT)).text).toBe(
-      mspdiFromDocument(accepted(BASE_TEXT)).text,
+    expect(mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text).toBe(
+      mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text,
     )
   })
 
@@ -1823,7 +1831,7 @@ describe('PI-20 -- the published pair', () => {
     const frozen = JSON.parse(JSON.stringify(CURRENT)) as Document
     const before = JSON.stringify(frozen)
     const document = accepted(BASE_TEXT, frozen)
-    mspdiFromDocument(document)
+    mspdiFromDocument(document, LAST_SAVED_AT)
     expect(JSON.stringify(frozen)).toBe(before)
   })
 })
@@ -2028,7 +2036,7 @@ function writeOf(document: Document): {
   readonly root: XmlNode
   readonly notices: readonly MspdiNotice[]
 } {
-  const encoding: MspdiEncoding = mspdiFromDocument(document)
+  const encoding: MspdiEncoding = mspdiFromDocument(document, LAST_SAVED_AT)
   return { root: parseXml(encoding.text), notices: encoding.notices }
 }
 
@@ -2141,18 +2149,18 @@ describe('FR-023 -- a leading byte order mark is accepted and dropped', () => {
 
 describe('CN-5 -- what GRS writes carries no byte order mark', () => {
   it('GIVEN an imported document WHEN written THEN the text does not begin with a BOM (MUST)', () => {
-    const text = mspdiFromDocument(accepted(BASE_TEXT)).text
+    const text = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text
     expect(text.startsWith(BYTE_ORDER_MARK)).toBe(false)
     expect(text.startsWith('<?xml')).toBe(true)
   })
 
   it('GIVEN a document imported FROM a BOM`d file WHEN written THEN no BOM comes back out', () => {
-    const text = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`)).text
+    const text = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`), LAST_SAVED_AT).text
     expect(text.includes(BYTE_ORDER_MARK)).toBe(false)
   })
 
   it('GIVEN a GRS-born document WHEN written THEN it carries no BOM either', () => {
-    expect(mspdiFromDocument(CURRENT).text.includes(BYTE_ORDER_MARK)).toBe(false)
+    expect(mspdiFromDocument(CURRENT, LAST_SAVED_AT).text.includes(BYTE_ORDER_MARK)).toBe(false)
   })
 })
 
@@ -2286,7 +2294,7 @@ describe('EX-6 -- writing the fade day counts into a frame', () => {
   })
 
   it('GIVEN nowhere to write the fade WHEN written THEN the rest of the work is not stopped (NT-5)', () => {
-    const encoding = mspdiFromDocument(withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS))
+    const encoding = mspdiFromDocument(withFade(accepted(bothHeld()), FADE_IN_DAYS, FADE_OUT_DAYS), LAST_SAVED_AT)
     // NT-5 does not stop the operation: the text is whole and the task is in it.
     expect(encoding.text.length).toBeGreaterThan(0)
     const task = writtenInstance(parseXml(encoding.text), 'Task')
@@ -2591,7 +2599,7 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
       return
     }
     const faded = withFade(accepted(fadeFileText([], [])), FADE_IN_DAYS, FADE_OUT_DAYS)
-    const again = instanceOf(accepted(mspdiFromDocument(faded).text), 'Task')
+    const again = instanceOf(accepted(mspdiFromDocument(faded, LAST_SAVED_AT).text), 'Task')
     expect(again['fadeInDays']).toBe(FADE_IN_DAYS)
     expect(again['fadeOutDays']).toBe(FADE_OUT_DAYS)
   })
@@ -2654,8 +2662,8 @@ describe('FR-023 -- the boundaries of the leading byte order mark', () => {
   })
 
   it('GIVEN a byte order mark`d file WHEN written THEN the text is the one the unmarked file writes (FR-021, CN-5)', () => {
-    const marked = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`))
-    const plain = mspdiFromDocument(accepted(BASE_TEXT))
+    const marked = mspdiFromDocument(accepted(`${BYTE_ORDER_MARK}${BASE_TEXT}`), LAST_SAVED_AT)
+    const plain = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT)
     expect(marked.text).toBe(plain.text)
     expect(marked.text.startsWith(BYTE_ORDER_MARK)).toBe(false)
   })
@@ -2852,8 +2860,8 @@ describe('DF-2 -- an extension element the tool does not recognise', () => {
   })
 
   it('GIVEN an unrecognised frame WHEN the document is written twice THEN the second text is the first (stability)', () => {
-    const once = mspdiFromDocument(accepted(outsideFrame('42'))).text
-    const twice = mspdiFromDocument(accepted(once)).text
+    const once = mspdiFromDocument(accepted(outsideFrame('42')), LAST_SAVED_AT).text
+    const twice = mspdiFromDocument(accepted(once), LAST_SAVED_AT).text
     expect(twice).toBe(once)
   })
 })
@@ -3053,7 +3061,7 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
 
   it('GIVEN a rounded amount WHEN the written file is read again THEN nothing is rounded a second time (FR-054)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
-    const again = mspdiFromDocument(accepted(text)).text
+    const again = mspdiFromDocument(accepted(text), LAST_SAVED_AT).text
     expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[5])
     expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), again)).toHaveLength(0)
   })

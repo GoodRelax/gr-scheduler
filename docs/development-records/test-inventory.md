@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 163 | 2261 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 163 | 2262 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 38 | 253 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 155 | 3489 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 376 | 6107 | 11 | 17 | 9 | 1 |
+| **all** | | | 376 | 6108 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -142,7 +142,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts` | anchorKey (pure), baselineHint (pure), deadlineHint (pure), guideCursorLabelOf (pure), keepTooltipsInside (non-pure), regionsFromScreen (pure), tooltipElement (non-pure), tooltipsFromScreenView (pure) | - | T-023d |
 | `tests/unit/cr-628-the-branding-seat.test.ts` | appHeaderStyle (pure), chromeScaledPx (pure), fillAppHeader (non-pure), themeStyle (pure) | - | 12 rows |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, T-075, T-209, T-213 |
-| `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-100, T-024a, T-036, T-103, T-233 |
+| `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | blankTaskVisual (pure), documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-100, T-024a, T-036, T-103, T-233 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
 | `tests/unit/document-model.test.ts` | DaySpanTooWide (class), NoWorkingDayReached (class), advanceScreenSession (pure), advancedStamp (pure), clampedSettings (pure), compareDays (pure), dateFromWorkingDays (pure), dayOf (pure), delayWorkingDays (pure), documentViolations (pure), emptyDialogueLog (pure), emptyHistory (pure), emptySelection (pure), escapeContextOf (pure), escapeTarget (pure), historyWithStep (pure), isDelayed (pure), isSelected (pure), isStampMatched (pure), isWorkingDay (pure), lastPicked (pure), latestSequence (pure), logWithMessage (pure), messagesSince (pure), nextStep (pure), planActualState (pure), previousStep (pure), selectionOfAll (pure), selectionWith (pure), selectionWithout (pure), stepCount (pure), textOfDay (pure), workingCalendarOf (pure), workingDaysBetween (pure) | - | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101, T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 |
@@ -155,7 +155,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-020-both-ways-ic-41.test.ts` | frameLoop (non-pure) | - | FR-020, FR-029, T-060, T-062, T-075, T-103, T-109, T-202, T-206, T-207, T-218 |
 | `tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts` | domScreenSurface (non-pure), openModalFromSession (pure) | - | FR-020, FR-029, FR-038, T-028, T-037, T-062, T-103, T-109, T-207, T-216, T-218, T-233, T-234 |
 | `tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts` | documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021, T-058, T-059 |
-| `tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts` | frameLoop (non-pure) | - | FR-023, FR-036, T-036, T-050, T-060, T-062, T-075, T-103, T-214, T-218, T-220 |
+| `tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts` | blankTaskVisual (pure), frameLoop (non-pure) | - | FR-023, FR-036, T-036, T-050, T-060, T-062, T-075, T-103, T-214, T-218, T-220 |
 | `tests/unit/fr-023-import-report-ok-closes-the-surface.test.ts` | advanceScreenSession (pure), domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), openModalFromSession (pure), pressRowOf (pure), regionsFromScreen (pure), screenEventFromInput (pure) | - | FR-023, FR-038, T-037, T-065, T-103, T-206, T-218, T-233 |
 | `tests/unit/fr-025-no-png-scale-and-retained-key.test.ts` | documentFromJson (pure), exportPng (semi-pure-b), jsonFromDocument (pure) | - | FR-025, T-216 |
 | `tests/unit/fr-027-startup-shows-its-depth.test.ts` | commandFromInput (pure), dayOf (pure), drawnSettingsOf (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), groupDepthLimit (pure), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-018, FR-027, FR-051, FR-055, FR-094, T-015, T-024a, T-025, T-034, T-036, T-051, T-068, T-077, T-201, T-203, T-206, T-218, T-226 |
@@ -218,7 +218,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/uf-39-40.test.ts` | colourOf (pure), exportPng (semi-pure-b), exportSvg (pure) | - | FR-021, FR-023, FR-025, FR-028, FR-029, FR-035, FR-036, FR-038, FR-039, FR-051, FR-052, FR-053, FR-055, FR-072, FR-080, FR-085, FR-098, T-023d, T-024, T-035, T-037, T-040, T-041, T-051, T-052, T-062, T-064, T-065, T-066, T-075, T-076, T-077, T-103, T-104, T-109, T-201, T-204, T-206, T-216, T-218, T-233, T-252 |
 | `tests/unit/uf-41-42.test.ts` | openDocumentFile (semi-pure-b), saveDocumentFile (non-pure) | - | FR-023, FR-028, FR-031, FR-060, FR-096, T-024, T-024a, T-227, T-340 |
 | `tests/unit/uf-45-46.test.ts` | exportPng (semi-pure-b), exportSvg (pure), writeClipboard (non-pure) | - | FR-023, FR-025, FR-028, FR-033, T-008, T-024, T-037, T-041, T-064, T-204, T-216 |
-| `tests/unit/uf-47-48-choosers.test.ts` | frameLoop (non-pure) | - | FR-015, FR-022, FR-023, FR-025, FR-027, FR-029, FR-031, FR-035, FR-038, FR-051, FR-055, FR-060, FR-067, FR-076, FR-080, FR-087, FR-096, FR-102, NFR-010, NFR-011, T-003, T-004, T-019a, T-023, T-023b, T-024, T-024a, T-027, T-028, T-032, T-034, T-036, T-037, T-041, T-058, T-066, T-067, T-077, T-078, T-103, T-109, T-202, T-204, T-218, T-224, T-230, T-233 |
+| `tests/unit/uf-47-48-choosers.test.ts` | blankTaskVisual (pure), frameLoop (non-pure) | - | FR-015, FR-022, FR-023, FR-025, FR-027, FR-029, FR-031, FR-035, FR-038, FR-051, FR-055, FR-060, FR-067, FR-076, FR-080, FR-087, FR-096, FR-102, NFR-010, NFR-011, T-003, T-004, T-019a, T-023, T-023b, T-024, T-024a, T-027, T-028, T-032, T-034, T-036, T-037, T-041, T-058, T-066, T-067, T-077, T-078, T-103, T-109, T-202, T-204, T-218, T-224, T-230, T-233 |
 | `tests/unit/uf-47-48-history-bytes.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-027, FR-031, FR-046, FR-051, FR-063, FR-070, T-027, T-034, T-036, T-058, T-062, T-075, T-077, T-078, T-206, T-218, T-229, T-230 |
 | `tests/unit/uf-47-48.test.ts` | compareDays (pure), dayOf (pure), frameLoop (non-pure), planActualState (pure), rulerWeekdayWords (pure), textOfDay (pure) | - | FR-017, FR-020, FR-027, FR-038, FR-051, FR-055, FR-062, FR-063, FR-066, FR-072, FR-084, FR-095, FR-098, NFR-010, NFR-011, T-012, T-019a, T-024a, T-027, T-031, T-034, T-036, T-038, T-041, T-051, T-058, T-064, T-065, T-067, T-068, T-070, T-071, T-075, T-077, T-078, T-109, T-203, T-205, T-212, T-218, T-230, T-231 |
 | `tests/unit/uf-48-input.test.ts` | dayOf (pure), frameLoop (non-pure) | - | FR-011, FR-013, FR-027, FR-043, FR-046, FR-048, FR-051, FR-053, FR-063, NFR-010, NFR-011, T-006a, T-019a, T-023, T-023a, T-023d, T-027, T-028, T-029, T-034, T-035, T-036, T-052, T-058, T-060, T-062, T-065, T-066, T-067, T-071, T-075, T-077, T-078, T-103, T-109, T-203, T-206, T-218, T-229 |
@@ -305,7 +305,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-610-op-16-rs-68-the-size-read-and-the-copy-told.test.ts` | 4 | FR-025 | - | T-233 | HS-3, IC-3, NT-5, OP-16, RS-68, U-56 | - | - | - | - |
 | `tests/contract/cr-610-sx-1-sx-2-a-grs-json-write-is-a-save.test.ts` | 14 | FR-060, FR-096, FR-100, FR-101 | VT-2 | T-290, T-340 | DI-5, IC-2, IO-1, IO-2, IO-7, SK-11, SX-1, SX-2, U-58, U-59 | - | - | - | - |
 | `tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts` | 15 | FR-101 | - | T-206, T-341 | AT-140, HS-1, HS-2, HS-3, HS-4, HS-5, HS-6, HS-7, HS-8, IC-72, S-210, S-235, S-449, U-58 | - | - | - | - |
-| `tests/contract/cr-611-sk-25-fr-095-n-starts-an-empty-document.test.ts` | 19 | FR-036, FR-068, FR-095 | - | T-036, T-202, T-203, T-229, T-342 | BK-1, BK-2, BK-3, BK-4, BK-5, BK-6, ED-1, IC-98, NT-7, QN-5, RD-7, S-71, S-73, S-106, S-107, S-108, SK-11, SK-25 | - | - | - | - |
+| `tests/contract/cr-611-sk-25-fr-095-n-starts-an-empty-document.test.ts` | 20 | FR-036, FR-068, FR-095 | - | T-036, T-202, T-203, T-229, T-342 | BK-1, BK-2, BK-3, BK-4, BK-5, BK-6, ED-1, IC-98, NT-7, QN-5, RD-7, S-71, S-73, S-106, S-107, S-108, SK-11, SK-25, WT-9 | - | - | - | - |
 | `tests/contract/cr-611-t-290-the-new-document-question-has-no-guard.test.ts` | 5 | FR-095 | VT-2 | T-290 | IC-98, QN-5, RS-27, SK-25 | - | - | - | - |
 | `tests/contract/cr-612-fr-027-mc-10-the-template-rides-in-its-own-container.test.ts` | 5 | FR-027 | - | T-025, T-226 | BT-1, MC-10, TP-5, TP-6 | - | - | - | - |
 | `tests/contract/cr-612-io-7-fr-067-an-exported-html-opens.test.ts` | 7 | FR-022, FR-060, FR-067, FR-096 | - | T-233 | IC-71, IC-72, IO-7, NT-1, OP-3, RS-67, SK-10, SK-11, U-56 | - | - | - | - |
@@ -347,10 +347,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-407-417-418-the-three-fixes-of-2026-09-09.test.ts` | 6 | FR-039, FR-043, FR-054, FR-078, FR-094 | - | T-012, T-068, T-077, T-108, T-201, T-218, T-231, T-252 | AG-5, AT-101, BO-1, NS-3, PI-19, S-24, S-63, S-64, SH-5, TS-6 | - | - | - | - |
 | `tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts` | 4 | FR-029, FR-039, FR-085, FR-093 | - | T-252 | S-30, S-36, S-37, S-38, S-79, S-125, S-126, S-138, S-140, S-218 | - | - | - | - |
 | `tests/contract/dfc-507-go-3-go-4-a-finished-actual-finish-follows-the-grab.test.ts` | 14 | FR-006, FR-011, FR-103 | - | T-016, T-019, T-021a, T-245 | GA-3, GA-4, GA-16, GO-3, GO-4, PA-5, PR-6, PV-2, S-1, S-75 | - | - | - | - |
-| `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129 | - | - | - | - |
+| `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266, T-350 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129, S-482, S-483 | - | - | - | - |
 | `tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts` | 63 | FR-019, FR-097 | - | T-023d, T-108, T-206, T-221, T-246 | AT-110, AT-115, AT-117, CM-50, CM-51, CM-54, GR-14, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-11, HB-12, IV-19, LF-14, LF-15, LF-17, RS-44, S-1, S-12, S-75, S-137, S-230, S-292, S-293 | - | - | - | - |
 | `tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts` | 4 | - | - | T-035, T-065 | AG-11, IF-9 | - | - | - | - |
-| `tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts` | 11 | FR-011 | - | T-012, T-021a, T-209 | EX-7, PV-1, PV-2, PV-5, RV-1, S-129, S-130, SH-5 | - | - | - | - |
+| `tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts` | 11 | FR-011, FR-054 | - | T-012, T-021a, T-209, T-350 | EX-7, PV-1, PV-2, PV-5, RV-1, S-129, S-130, S-483, SH-5 | - | - | - | - |
 | `tests/contract/dfc-577-iv-21-import-refuses-a-negative-actual.test.ts` | 5 | FR-011, FR-023 | - | T-024a, T-220 | IV-21, OP-5, UF-22 | - | - | - | - |
 | `tests/contract/dfc-578-a-press-on-the-dialogue-field-keeps-the-browser-default.test.ts` | 3 | FR-066 | - | T-023, T-035 | AG-11, MK-10 | - | - | - | - |
 | `tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts` | 9 | - | - | T-028, T-065 | IF-9, IN-4, IN-5a, MK-10, SK-14, SK-18, U-44 | - | - | - | - |

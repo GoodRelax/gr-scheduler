@@ -19,6 +19,8 @@ import { importDocument, type ImportRequest } from '../../src/use-case/import-do
 import { rowDocument, shell } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
@@ -113,7 +115,7 @@ function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   if (task === undefined) throw new Error(`premise: the template holds task ${taskUid}`)
   if (flip) task['milestone'] = !(task['milestone'] === true)
   const source = decoded(json)
-  const read = documentFromMspdi(mspdiFromDocument(source).text, current)
+  const read = documentFromMspdi(mspdiFromDocument(source, LAST_SAVED_AT).text, current)
   if (!read.ok) throw new Error(`premise: the MSPDI text decodes, was ${JSON.stringify(read).slice(0, 400)}`)
   const incomingTask = read.document.schedule.tasks.find((one) => one.uid === taskUid)
   expect(incomingTask?.milestone === true, 'premise: the MSPDI carries the milestone value').toBe(

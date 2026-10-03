@@ -175,8 +175,8 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: [group(ROW_A, 0, 'A'), group(ROW_B, 1, 'B')],
       taskGroupMembers: [
-        { taskUid: PLAIN_UID, groupId: ROW_A, stackOrder: null },
-        { taskUid: MILESTONE_UID, groupId: ROW_B, stackOrder: null },
+        { taskUid: PLAIN_UID, groupId: ROW_A },
+        { taskUid: MILESTONE_UID, groupId: ROW_B },
       ],
       taskVisuals: [],
       commentBoxes: [],

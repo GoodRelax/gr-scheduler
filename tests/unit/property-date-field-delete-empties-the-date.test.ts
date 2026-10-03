@@ -279,7 +279,7 @@ const scheduleWith = (task: Task): Schedule =>
     resources: [],
     assignments: [],
     taskGroups: [groupOf()],
-    taskGroupMembers: [{ taskUid: THE_TASK, groupId: 'g1', stackOrder: null }],
+    taskGroupMembers: [{ taskUid: THE_TASK, groupId: 'g1' }],
     taskVisuals: [],
     commentBoxes: [],
     highlightBoxes: [],

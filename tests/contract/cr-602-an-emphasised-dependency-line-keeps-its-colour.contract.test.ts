@@ -249,7 +249,7 @@ const svgOf = (wish: SceneWish, picture: 'screen' | 'export' = 'screen', theme: 
       editGroup: null,
       color: null,
     })),
-    taskGroupMembers: tasks.map((task, at) => ({ groupId: at === 0 ? 'a' : 'b', taskUid: task['uid'], stackOrder: null })),
+    taskGroupMembers: tasks.map((task, at) => ({ groupId: at === 0 ? 'a' : 'b', taskUid: task['uid'] })),
     taskVisuals: tasks.map((task) => ({ taskUid: task['uid'], shapeKind: wish.shape ?? 'rectangle' })),
     taskOrigins: [],
     baselineTasks: [],

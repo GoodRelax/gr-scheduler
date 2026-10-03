@@ -292,7 +292,7 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: ROWS.map((id, i) => group(id, i, `R${i + 1}`)),
-      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_ROW, stackOrder: null }],
+      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_ROW }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

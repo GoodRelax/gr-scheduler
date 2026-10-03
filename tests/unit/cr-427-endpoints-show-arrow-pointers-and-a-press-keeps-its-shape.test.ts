@@ -104,7 +104,7 @@ const documentAt = (displayScale: number): Document =>
           minHeight: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: BAR_UID, groupId: 'g1', stackOrder: null }],
+      taskGroupMembers: [{ taskUid: BAR_UID, groupId: 'g1' }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

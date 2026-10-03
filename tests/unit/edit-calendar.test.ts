@@ -93,6 +93,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
         minutesPerDay: null,
         weekStartDay: 1, // S-108's 月曜 in AT-17's coding (first code = Sunday)
         calendarUid: null,
+        defaultStartTime: null,
+        defaultFinishTime: null,
         carry: {},
         carryElements: [],
         ...((part.project as Record<string, unknown>) ?? {}),

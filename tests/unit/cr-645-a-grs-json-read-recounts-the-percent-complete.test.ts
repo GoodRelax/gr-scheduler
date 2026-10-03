@@ -12,7 +12,7 @@ import type { ChosenFileWrite, FileReading, FileStore } from '../../src/adapter/
 import type { InputModifiers, KeyInput, PointerInput, PointerPhase } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Notice, ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { Task } from '../../src/entity/document-model/schedule/schedule'
+import { blankTaskVisual, type Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -20,6 +20,8 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable } from '../contract/spec-table'
+
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const SPEC_DIR = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = readFileSync(join(SPEC_DIR, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n')
@@ -85,8 +87,8 @@ const documentObject = (tasks: readonly Record<string, unknown>[]): Record<strin
       taskGroups: [
         { id: ROW, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeight: null },
       ],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW, stackOrder: null })),
-      taskVisuals: [],
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW })),
+      taskVisuals: tasks.map((one) => blankTaskVisual(one['uid'] as number)),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],
@@ -206,7 +208,7 @@ describe('FR-012 / IO-7: a GRS JSON embedded in a single .html is recounted too'
 describe('FR-012 / FR-021: an MSPDI read keeps the value it carried', () => {
   it('a Task written as 70 with no actuals still reads as 70', () => {
     const source = documentObject([UNSTARTED_WRITTEN_70, AGREEING]) as unknown as Document
-    const text = mspdiFromDocument(source).text
+    const text = mspdiFromDocument(source, LAST_SAVED_AT).text
     const read = documentFromMspdi(text, source)
     if (!read.ok) throw new Error(`refused: ${JSON.stringify(read.faults).slice(0, 400)}`)
     expect(taskOf(read.document, 1).percentComplete).toBe(70)
@@ -378,7 +380,7 @@ describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells t
 
   it('FR-012 / FR-021: opening an MSPDI with the same value tells no recount and keeps 70', async () => {
     const source = documentObject([UNSTARTED_WRITTEN_70, AGREEING]) as unknown as Document
-    const { loop, notices } = await openedByReplacing(mspdiFromDocument(source).text, 'incoming.xml')
+    const { loop, notices } = await openedByReplacing(mspdiFromDocument(source, LAST_SAVED_AT).text, 'incoming.xml')
     expect(taskOf(loop.document(), 1).percentComplete).toBe(70)
     expect(notices().find((one) => one.text === reasonTextOf('RS-52'))).toBeUndefined()
   })

@@ -168,7 +168,7 @@ export const commentBoxOf = (id: string, part: Record<string, unknown> = {}): Re
 export function documentOf(seed: Seed): Document {
   const built = rowDocument([{ id: GROUP_ID, parentId: null }], {}, {
     tasks: seed.tasks,
-    taskGroupMembers: seed.tasks.map((one) => ({ taskUid: one['uid'], groupId: GROUP_ID, stackOrder: null })),
+    taskGroupMembers: seed.tasks.map((one) => ({ taskUid: one['uid'], groupId: GROUP_ID })),
     taskVisuals: seed.visuals ?? [],
     resources: seed.resources ?? [],
     assignments: seed.assignments ?? [],

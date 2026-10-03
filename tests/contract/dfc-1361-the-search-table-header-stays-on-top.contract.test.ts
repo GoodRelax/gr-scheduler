@@ -100,7 +100,7 @@ const SCHEDULE = {
   ...TEMPLATE.schedule,
   tasks: UIDS.map(task),
   taskGroups: [{ ...firstOf('taskGroups'), id: TOP, parentId: null, order: 0, label: 'Program', derivedFromTaskUid: null, treeState: 'expanded' }],
-  taskGroupMembers: UIDS.map((uid) => ({ taskUid: uid, groupId: TOP, stackOrder: null })),
+  taskGroupMembers: UIDS.map((uid) => ({ taskUid: uid, groupId: TOP })),
   resources: [{ ...firstOf('resources'), uid: 301, name: 'Aki Yamashita' }],
   assignments: UIDS.map((uid) => ({ ...firstOf('assignments'), uid: 400 + uid, taskUid: uid, resourceUid: 301 })),
   commentBoxes: Array.from({ length: COMMENT_COUNT }, (_unused, at) => comment(at + 1)),

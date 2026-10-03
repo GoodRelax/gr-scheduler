@@ -209,7 +209,7 @@ function sceneOf(options: SceneOptions = {}): Document {
         color: null,
         minHeight: options.minHeightOf?.[one.id] ?? null,
       })),
-      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
+      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
