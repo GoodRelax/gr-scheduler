@@ -116,7 +116,7 @@ export function cursorDateText(day: CalendarDay, language: DisplayLanguage): str
   return withWeekday(`${year}/${month}/${date}`, day, language)
 }
 
-const HINT_YEAR_DIGITS = 2
+const HINT_YEAR_DIGITS = 4
 
 // see TL-10, ND-4, ND-5
 // DEVIATION: spec says TL-10 writes a day as ND-4 / ND-5 do; the writer is name-label.ts planDateText, file only, so this is a copy (DFC-1785)
@@ -124,7 +124,7 @@ const HINT_YEAR_DIGITS = 2
 function hintDayText(day: CalendarDay, isYearWritten: boolean, language: DisplayLanguage): string {
   const monthDay = `${day.month}/${day.day}`
   if (!isYearWritten) return withWeekday(monthDay, day, language)
-  const year = String(day.year % 10 ** HINT_YEAR_DIGITS).padStart(HINT_YEAR_DIGITS, '0')
+  const year = String(day.year).padStart(HINT_YEAR_DIGITS, '0')
   return withWeekday(`${year}/${monthDay}`, day, language)
 }
 

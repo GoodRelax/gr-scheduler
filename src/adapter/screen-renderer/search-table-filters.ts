@@ -36,8 +36,20 @@ const LINE_BREAK_SPACE = ' '
 
 const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
+export const BOTTLENECK_STATE = 'bottleneck'
+
+export type SearchTaskState = TaskSearchRow['planActualState'] | typeof BOTTLENECK_STATE
+
+/** @purity pure */
+export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
+  // STOP: spec does not decide whether this column follows DT-1, where a doubt outranks the bottleneck. Looked in SQ-5, SV-8, DT-1
+  // @provisional PND-710
+  return row.isBottleneck ? BOTTLENECK_STATE : row.planActualState
+}
+
 // see SV-8
-const STATES_ASCENDING: readonly TaskSearchRow['planActualState'][] = [
+const STATES_ASCENDING: readonly SearchTaskState[] = [
+  BOTTLENECK_STATE,
   'notStarted',
   'inProgress',
   'finished',
@@ -62,7 +74,7 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   values: {
     'SQ-1': (row) => [row.name],
     'SQ-2': (row) => (row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : row.assigneeNames),
-    'SQ-5': (row) => [row.planActualState],
+    'SQ-5': (row) => [searchTaskStateOf(row)],
     'SQ-6': (row) => [row.rowPath.join(ROW_PATH_SEPARATOR)],
   },
   dates: {

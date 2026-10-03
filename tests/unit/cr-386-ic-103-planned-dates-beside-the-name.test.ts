@@ -89,7 +89,7 @@ const yearOf = (day: string): number => Number(day.slice(0, 4))
 const dayText = (day: string, withYear: boolean): string => {
   const [year, month, date] = day.split('-').map(Number)
   const monthDay = `${month}/${date}`
-  return withYear ? `${String(Number(year) % 100).padStart(2, '0')}/${monthDay}` : monthDay
+  return withYear ? `${String(Number(year)).padStart(4, '0')}/${monthDay}` : monthDay
 }
 
 // see ND-5
@@ -116,9 +116,9 @@ describe('the derivation above, read against table T-251 by hand', () => {
     expect(labelText('Beta', oneDay, [oneDay])).toBe('Beta 4/13 - 4/13')
     expect(labelText('Gamma', stone, [stone])).toBe('Gamma 4/15')
     expect(labelText('', plain, [plain])).toBe('4/6 - 4/8')
-    expect(labelText('Alpha', plain, [plain, nextYear])).toBe('Alpha 26/4/6 - 26/4/8')
+    expect(labelText('Alpha', plain, [plain, nextYear])).toBe('Alpha 2026/4/6 - 2026/4/8')
     const early: Dated = { start: '2005-03-01', finish: '2005-03-01', milestone: true }
-    expect(labelText('Delta', early, [early, nextYear])).toBe('Delta 05/3/1')
+    expect(labelText('Delta', early, [early, nextYear])).toBe('Delta 2005/3/1')
   })
 })
 
