@@ -115,6 +115,7 @@ import type {
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   emptyScreenSession,
   type ScreenSession,
@@ -249,6 +250,9 @@ const commandOf = (icon: IconId): CommandItem => ({
   label: `the name of ${icon}`,
 })
 
+// WHY: no task is rested on in this file, so the schedule the tooltips read holds none.
+const NO_TASKS = { tasks: [], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule
+
 const VIEW: Omit<ScreenView, 'tooltips'> = {
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
@@ -323,7 +327,7 @@ const RESTING_ON_THE_ICON = readingsOf({
 })
 
 const shownFor = (readings: ScreenViewReadings, root: ScreenSession = ROOT): readonly Tooltip[] =>
-  tooltipsFromScreenView(VIEW, SETTINGS, root, readings)
+  tooltipsFromScreenView(VIEW, SETTINGS, root, readings, NO_TASKS)
 
 // ===========================================================================
 // 4. The premises every case below stands on
@@ -773,9 +777,9 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
       },
     }
     const onTheLane = readingsOf({ pointer: { x: 105, y: 300 }, pointerRestedMs: WAIT_MS * 10, hintTargetDwellMs: WAIT_MS * 10 })
-    const standing = tooltipsFromScreenView(lanes, SETTINGS, ROOT, onTheLane)
+    const standing = tooltipsFromScreenView(lanes, SETTINGS, ROOT, onTheLane, NO_TASKS)
     expect(standing.length, 'FR-037 raised no hint, so this case holds nothing').toBeGreaterThan(0)
-    const away = tooltipsFromScreenView(lanes, SETTINGS, rootWithTooltipDismissed(true), onTheLane)
+    const away = tooltipsFromScreenView(lanes, SETTINGS, rootWithTooltipDismissed(true), onTheLane, NO_TASKS)
     expect(away).toEqual([])
   })
 })

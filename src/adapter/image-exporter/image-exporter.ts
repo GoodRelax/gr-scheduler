@@ -141,7 +141,9 @@ function appHeaderSvg(
   // see FR-051, EP-1
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
-  const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
+  // DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
+  const seatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']
+  const x = (band.x + (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx) * chrome) * ratio
   const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)

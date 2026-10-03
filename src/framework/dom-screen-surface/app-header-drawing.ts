@@ -6,6 +6,7 @@
 import type { AppHeaderItems, DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOT_STORED_DOCUMENT_TITLE_SIZES,
+  NOT_STORED_HELP_SIZES,
   ROLE,
   STYLE,
   anchorKey,
@@ -14,8 +15,11 @@ import {
   made,
   part,
 } from './dom-screen-surface'
+import { linkElement } from './notices-drawing'
 
 const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
+
+const STROKE_SIDES = 2
 
 // see EP-1, FR-051
 /** @purity pure */
@@ -29,6 +33,20 @@ export function appHeaderStyle(): string {
 function documentTitleStyle(): string {
   const size = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
   return `${STYLE.documentTitle}font-size:${size}px;font-weight:${NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']};`
+}
+
+// see U-35, BR-1, BR-2, BR-3, BR-4
+// DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
+/** @purity non-pure */
+function brandingElement(host: Document, text: string): HTMLElement {
+  const glyph = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
+  const rim = glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-461']
+  const seat = made(host, 'span', `${STYLE.brandingSeat}width:${glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']}px;`)
+  const link = linkElement(host, NOT_STORED_HELP_SIZES['S-459'], text)
+  link.setAttribute('data-role', ROLE.branding)
+  link.setAttribute('style', `${STYLE.branding}font-size:${glyph}px;-webkit-text-stroke-width:${STROKE_SIDES * rim}px;padding-left:${rim}px;`)
+  seat.append(link)
+  return seat
 }
 
 // see HS-2, FR-101
@@ -91,6 +109,8 @@ export function fillAppHeader(
 ): HTMLElement {
   const title = part(host, 'span', ROLE.documentTitle, documentTitleStyle())
   title.textContent = items.documentTitle
+  const titleBlock = made(host, 'span', STYLE.brandedTitle)
+  titleBlock.append(brandingElement(host, items.brandingText ?? ''), title)
 
   const fileStatus = part(host, 'span', ROLE.fileStatus, STYLE.fileStatus)
   const fileName = part(host, 'span', ROLE.openedFileName, fileStatusLineStyle(STYLE.openedFileName, 'S-449'))
@@ -111,7 +131,7 @@ export function fillAppHeader(
     commands.append(entry)
   }
 
-  header.replaceChildren(title, fileStatus, commands)
+  header.replaceChildren(titleBlock, fileStatus, commands)
   return title
 }
 

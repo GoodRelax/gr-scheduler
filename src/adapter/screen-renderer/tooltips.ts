@@ -12,6 +12,7 @@ import {
   compareDays,
   dayOf,
   serial,
+  taskByUid,
   type BaselineTask,
   type CalendarDay,
   type Schedule,
@@ -30,6 +31,7 @@ import type { ScreenSession } from '../../use-case/advance-screen-session/advanc
 import type {
   DisplayLanguage,
   DualCursorReadout,
+  GuideCursorLabel,
   ScreenView,
   ScreenViewReadings,
   IconId,
@@ -302,30 +304,43 @@ function iconTooltipOf(
   if (icon === null || readings.pointer === null || !isDue) return null
   const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
   const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
+  const row = readings.iconRowUnderPointer ?? null
   return {
-    anchor: { kind: 'icon', icon },
+    anchor: { kind: 'icon', icon, ...(row === null ? {} : { groupId: row }) },
     text: iconHint(icon, hintLanguage),
     assignment: entryAssignment(icon, hintLanguage),
   }
 }
 
-// see EZ-6, DC-3, S-439, TL-1
+type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
+
+// see TL-1, TL-2, TL-3
+/** @purity pure */
+function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage): string | null {
+  if (holder.kind === 'baseline') {
+    const baseline = schedule.baselineTasks.find((one) => one.uid === holder.taskUid)
+    return baseline === undefined ? null : baselineHint(baseline, schedule, language)
+  }
+  const task = taskByUid(schedule, holder.taskUid)
+  if (task === null) return null
+  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language)
+  return taskHint(task, hintContextOf(schedule, task.uid), language)
+}
+
+// see EZ-6, DC-3, S-439, T-023d
 /** @purity pure */
 function taskTooltipOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
-  schedule: Schedule | null,
+  schedule: Schedule,
 ): Tooltip | null {
   const pointer = readings.pointer
-  const task = readings.taskUnderPointer ?? null
+  const holder = readings.hintHolderUnderPointer ?? null
   const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
-  if (pointer === null || task === null || isDualCursorOn(session) || !isDue) return null
-  return {
-    anchor: { kind: 'task', taskUid: task.uid },
-    text: taskHint(task, hintContextOf(schedule, task.uid), displayLanguageOf(session)),
-    assignment: null,
-    at: pointer,
-  }
+  if (pointer === null || holder === null || isDualCursorOn(session) || !isDue) return null
+  const text = hintTextOf(holder, schedule, displayLanguageOf(session))
+  if (text === null || text === '') return null
+  return { anchor: holder, text, assignment: null, at: pointer }
 }
 
 // see EZ-2, EZ-6, FR-037, IN-3
@@ -335,7 +350,7 @@ export function tooltipsFromScreenView(
   _settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
-  schedule: Schedule | null = null,
+  schedule: Schedule,
 ): readonly Tooltip[] {
   if (session.screen.tooltipDisplayState.kind === 'dismissed') return []
 
@@ -444,11 +459,6 @@ export function dualCursorReadoutOf(
     ],
     at: pointer,
   }
-}
-
-export interface GuideCursorLabel {
-  readonly text: string
-  readonly at: { readonly x: number; readonly y: number }
 }
 
 const GUIDE_CURSOR_NONE = 'none'

@@ -26,6 +26,9 @@ const FILE_STATUS_BY_STATE = new Map(
   displayWords.fileStatus.map((entry) => [entry.state, entry]),
 )
 
+// see BR-1
+const BRANDING_LOGO = displayWords.branding.find((entry) => entry.part === 'logo')
+
 const APP_HEADER = 'App Header'
 
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
@@ -166,6 +169,7 @@ export function appHeaderItemsFromDocument(
   readings: ScreenViewReadings,
 ): AppHeaderItems {
   return {
+    brandingText: BRANDING_LOGO?.text[displayLanguageOf(session)] ?? NO_WORDS,
     documentTitle: schedule.project.title,
 
     openedFileName: readings.openedFileName,

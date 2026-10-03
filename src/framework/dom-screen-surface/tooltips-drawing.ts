@@ -4,12 +4,12 @@
 // @purity    non-pure
 
 import type {
-  ScreenView,
   Tooltip,
   TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOT_STORED_HELP_SIZES,
+  PAINT,
   STYLE,
   anchorKey,
   appendAssignment,
@@ -18,7 +18,7 @@ import {
 
 const anchorRightOf = new WeakMap<Element, number>()
 
-const pointOf = new WeakMap<Element, Point>()
+const pointOf = new WeakMap<Element, { readonly at: Point; readonly ink: string }>()
 
 type Point = { readonly x: number; readonly y: number }
 
@@ -53,8 +53,9 @@ export function tooltipElement(
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
   if (tip.at !== undefined) {
-    drawn.setAttribute('style', pointTipStyle(tip.at.x, tip.at.y + NOT_STORED_HELP_SIZES['S-460']))
-    pointOf.set(drawn, tip.at)
+    const placed = { at: tip.at, ink: tipInkOf(tip.anchor) }
+    drawn.setAttribute('style', pointTipStyle(tip.at.x, tip.at.y + NOT_STORED_HELP_SIZES['S-460'], placed.ink))
+    pointOf.set(drawn, placed)
     return drawn
   }
 
@@ -87,8 +88,13 @@ function appendTextLines(host: Document, drawn: HTMLElement, text: string): void
 }
 
 /** @purity pure */
-function pointTipStyle(left: number, top: number): string {
-  return tooltipStyle() + `pointer-events:none;left:${left}px;top:${top}px;`
+function tipInkOf(anchor: TooltipAnchor): string {
+  return anchor.kind === 'baseline' ? `color:${PAINT.quiet};` : ''
+}
+
+/** @purity pure */
+function pointTipStyle(left: number, top: number, ink: string): string {
+  return tooltipStyle() + `${ink}pointer-events:none;left:${left}px;top:${top}px;`
 }
 
 // see IN-7, S-460
@@ -116,8 +122,8 @@ export function keepTooltipsInside(layer: HTMLElement): void {
   for (const drawn of tooltips) {
     const point = pointOf.get(drawn)
     if (point !== undefined) {
-      const placed = pointTipPlace(point, drawn.getBoundingClientRect(), room)
-      drawn.setAttribute('style', pointTipStyle(placed.left, placed.top))
+      const placed = pointTipPlace(point.at, drawn.getBoundingClientRect(), room)
+      drawn.setAttribute('style', pointTipStyle(placed.left, placed.top, point.ink))
       continue
     }
     const anchorRight = anchorRightOf.get(drawn)
@@ -150,7 +156,7 @@ export function tooltipAnchorTable(root: HTMLElement) {
       const found = held.get(key)
       if (found !== undefined) return found
     }
-    if (anchor.kind !== 'icon') return undefined
+    if (anchor.kind !== 'icon' || anchor.groupId !== undefined) return undefined
     return root.querySelector<HTMLElement>(`[data-icon="${anchor.icon}"]`) ?? undefined
   }
 
@@ -163,7 +169,7 @@ const shownPointTipOf = new WeakMap<Element, string>()
 // WHY: placed after it is in the layer, since only then does it have a size to turn back by.
 // TRAP: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
 /** @purity non-pure */
-function showPointTip(
+export function showPointTip(
   host: Document,
   layer: HTMLElement,
   tip: { readonly lines: readonly string[]; readonly at: Point } | undefined,
@@ -184,15 +190,6 @@ function showPointTip(
   layer.replaceChildren(box)
   const placed = pointTipPlace(tip.at, box.getBoundingClientRect(), layer.getBoundingClientRect())
   box.setAttribute('style', readoutStyle(placed.left, placed.top))
-}
-
-/** @purity non-pure */
-export function showDualCursorReadout(
-  host: Document,
-  layer: HTMLElement,
-  readout: ScreenView['dualCursorReadout'],
-): void {
-  showPointTip(host, layer, readout)
 }
 
 /** @purity pure */

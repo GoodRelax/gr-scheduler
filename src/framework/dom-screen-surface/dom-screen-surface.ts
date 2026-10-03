@@ -22,7 +22,7 @@ import { appHeaderStyle, fillAppHeader } from './app-header-drawing'
 import { confirmationElement, noticeElement } from './notices-drawing'
 import { PALETTE_GRAB_BAND_ENTRY, paletteElement } from './command-palette-drawing'
 import { fieldEditingOf } from './field-editing'
-import { keepTooltipsInside, showDualCursorReadout, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
+import { keepTooltipsInside, showPointTip, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
 import {
   fillPropertiesPanel,
   growWrappingFields,
@@ -60,6 +60,7 @@ const REPORT_IDENTITY = { window: 'delayDiagnosticsReport', role: 'Delay Diagnos
 
 export const ROLE = {
   appHeader: 'App Header',
+  branding: 'Branding',
   documentTitle: 'Document Title',
   fileStatus: 'File Status',
   openedFileName: 'Opened File Name',
@@ -108,6 +109,7 @@ const PAINT_ROW = {
   grabAxisDepth: 'S-152',
   heldRow: 'S-151',
   caution: 'S-153',
+  brandingRim: 'S-464',
 } as const
 
 /** @purity pure */
@@ -132,6 +134,7 @@ export const PAINT = {
   grabAxisDepth: painted('grabAxisDepth'),
   heldRow: painted('heldRow'),
   caution: painted('caution'),
+  brandingRim: painted('brandingRim'),
 } as const
 
 /** @purity pure */
@@ -283,9 +286,14 @@ export const STYLE = {
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   // see FR-039
-  // TRAP: every text here stays at the normal weight, the h2 heading included; S-245 is the OC-1 name
-  // labels' alone, and NT-7's answer initial is the one bold.
+  // TRAP: every text here stays at the normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
+  // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
   documentTitle: 'overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
+  brandedTitle: 'display:flex;align-items:center;min-width:0;overflow:hidden;',
+  brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
+  branding:
+    `font-weight:normal;color:${PAINT.ink};line-height:1.2;text-decoration:none;` +
+    `-webkit-text-stroke-color:${PAINT.brandingRim};paint-order:stroke fill;`,
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
@@ -566,13 +574,15 @@ export function boxStyle(box: ScreenRect): string {
   )
 }
 
-// see IN-3, DFC-1287
+// see IN-3, EZ-6, DFC-1287, DFC-1720
 /** @purity pure */
 export function anchorKey(anchor: TooltipAnchor): string {
-  if (anchor.kind === 'icon') return anchor.surface === undefined ? `icon ${anchor.icon}` : `icon ${anchor.surface} ${anchor.icon}`
-  if (anchor.kind === 'task') return `task ${anchor.taskUid}`
+  if (anchor.kind === 'icon') {
+    return [anchor.kind, anchor.surface, anchor.icon, anchor.groupId].filter((one) => one !== undefined).join(' ')
+  }
   if (anchor.kind === 'rowTitle') return `rowTitle ${anchor.groupId}`
-  return `scrollbar ${anchor.axis}`
+  if (anchor.kind === 'scrollbar') return `scrollbar ${anchor.axis}`
+  return `${anchor.kind} ${anchor.taskUid}`
 }
 
 /** @purity pure */
@@ -1141,7 +1151,7 @@ function showScaleMessage(host: Document, layer: HTMLElement, text: string | und
   layer.append(box)
 }
 
-// see SE-5, DC-3
+// see SE-5, DC-3, CU-3, DC-9
 /** @purity non-pure */
 function showUnpressableWords(
   host: Document,
@@ -1150,7 +1160,8 @@ function showUnpressableWords(
   view: ScreenView,
 ): void {
   showScaleMessage(host, scaleMessageLayer, view.scaleMessage)
-  showDualCursorReadout(host, readoutLayer, view.dualCursorReadout)
+  const label = view.guideCursorLabel
+  showPointTip(host, readoutLayer, view.dualCursorReadout ?? (label === undefined ? undefined : { lines: [label.text], at: label.at }))
 }
 
 // see FR-039, SE-5

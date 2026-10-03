@@ -23,12 +23,10 @@ import {
 import {
   diagnoseDelay,
   scheduleViolations,
-  taskByUid,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
-  type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
   grabSizesOf,
@@ -890,7 +888,8 @@ interface ScreenViewReadingsTaken {
   readonly hintTargetDwellMs: number
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
-  readonly taskUnderPointer: Task | null
+  readonly hintHolderUnderPointer: HintHolder | null
+  readonly iconRowUnderPointer?: string | null
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   readonly rowGrabbedAt: {
     readonly groupId: string
@@ -1773,27 +1772,60 @@ function hintEntryOf(under: IconId | null, released: IconId | null): IconId | nu
   return under === released ? null : under
 }
 
+type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
+
 interface HintTarget {
   readonly icon: IconId | null
-  readonly taskUid: number | null
+  readonly iconRow: string | null
+  readonly hint: HintHolder | null
   readonly scrollbarAxis: ScreenPart['scrollbarAxis'] | null
 }
 
-const NO_HINT_TARGET: HintTarget = { icon: null, taskUid: null, scrollbarAxis: null }
+const NO_HINT_TARGET: HintTarget = { icon: null, iconRow: null, hint: null, scrollbarAxis: null }
+
+// see EZ-2, DFC-1720
+/** @purity pure */
+function iconRowOf(partUnderHint: ScreenPart | null): string | null {
+  return partUnderHint === null || partUnderHint.entry === null ? null : partUnderHint.rowGroupId
+}
 
 // see EZ-2, EZ-6, FR-037, IN-3
 /** @purity pure */
-function hintTargetOf(partUnderHint: ScreenPart | null, grab: Grabbed | null): HintTarget {
+function hintTargetOf(partUnderHint: ScreenPart | null, hint: HintHolder | null): HintTarget {
   return {
     icon: partUnderHint?.entry ?? null,
-    taskUid: grab !== null && grab.item.kind === 'task' ? grab.item.taskUid : null,
+    iconRow: iconRowOf(partUnderHint),
+    hint,
     scrollbarAxis: partUnderHint?.scrollbarAxis ?? null,
   }
 }
 
+interface HintWalk {
+  readonly geometry: ScheduleGeometry
+  readonly at: { readonly x: number; readonly y: number }
+  readonly holder: HintHolder | null
+}
+
+// see EZ-6, T-023d, GR-26, GR-27
+// WHY: the press gates of grabAtPointer; walked again only when the point or the drawn geometry moved, never per frame.
+/** @purity pure */
+function hintWalkAt(
+  walked: HintWalk | null,
+  frame: FrameValues,
+  at: { readonly x: number; readonly y: number },
+  on: ScreenPart | null,
+  isDualCursorFollowing: boolean,
+): HintWalk | null {
+  if (on !== null || isDualCursorFollowing || regionAtPointer(frame.regions, at.x, at.y) !== 'rowArea') return null
+  const isSamePoint = walked !== null && walked.at.x === at.x && walked.at.y === at.y
+  if (isSamePoint && walked.geometry === frame.geometry) return walked
+  return { geometry: frame.geometry, at, holder: itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), 'hint') }
+}
+
 /** @purity pure */
 function isSameHintTarget(a: HintTarget, b: HintTarget): boolean {
-  return a.icon === b.icon && a.taskUid === b.taskUid && a.scrollbarAxis === b.scrollbarAxis
+  const isSameHint = a.hint?.kind === b.hint?.kind && a.hint?.taskUid === b.hint?.taskUid
+  return a.icon === b.icon && a.iconRow === b.iconRow && isSameHint && a.scrollbarAxis === b.scrollbarAxis
 }
 
 /** @purity pure */
@@ -1924,6 +1956,7 @@ export function frameLoop(
   let partUnderHint: ScreenPart | null = null
   let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
+  let hintWalk: HintWalk | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
@@ -2183,10 +2216,8 @@ export function frameLoop(
           hintTargetDwellMs,
           iconUnderPointer: hintEntryOf(partUnderHint?.entry ?? null, hintReleasedEntry),
           isPointerOnHelp: partUnderHint?.part === HELP_MODAL_SURFACE,
-          taskUnderPointer:
-            grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
-              ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
-              : null,
+          hintHolderUnderPointer: hintWalk?.holder ?? null,
+          iconRowUnderPointer: iconRowOf(partUnderHint),
           commandPaletteDraggedTo,
           rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
@@ -2456,7 +2487,7 @@ export function frameLoop(
           pointerRestedMs: 0,
           hintTargetDwellMs: 0,
           iconUnderPointer: null,
-          taskUnderPointer: null,
+          hintHolderUnderPointer: null,
           commandPaletteDraggedTo: null,
           rowGrabbedAt: null,
           isRecordingInteractions: false,
@@ -3137,7 +3168,7 @@ export function frameLoop(
   // tooltip both follow the target, never a move inside it.
   /** @purity non-pure */
   function noteHintTarget(frame: FrameValues): void {
-    const next = hintTargetOf(partUnderHint, grabUnderPointer)
+    const next = hintTargetOf(partUnderHint, hintWalk?.holder ?? null)
     if (isSameHintTarget(next, hintTarget)) return
     hintTarget = next
     beginHintTargetDwell()
@@ -3278,6 +3309,7 @@ export function frameLoop(
     // TRAP: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
     if (pointerAt !== null) {
       grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
+      hintWalk = hintWalkAt(hintWalk, frame, pointerAt, partUnderPointer, dualCursorFollowingIn(session) !== null)
       showPointerShape?.(
         windowGrabPointerOf(pressed === null ? partUnderPointer : pressed.on) ?? pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )

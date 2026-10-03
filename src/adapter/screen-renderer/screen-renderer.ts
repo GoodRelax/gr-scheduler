@@ -7,7 +7,7 @@
 import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { DelayDiagnosticsReport, Exception, Schedule, Task, WeekDay } from '../../entity/document-model/schedule/schedule'
+import type { DelayDiagnosticsReport, Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   ScreenRect,
@@ -73,7 +73,7 @@ export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-fra
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
 export { achromatic } from '../svg-renderer/svg-renderer'
 import type { DialogueInput } from './screen-surface'
-import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
+import { dualCursorReadoutOf, guideCursorLabelOf, tooltipsFromScreenView } from './tooltips'
 
 export type { DialogueInput, FieldCommit, FieldEditNotice, ScreenPart, ScreenSurface } from './screen-surface'
 export type { WindowName } from '../../use-case/advance-screen-session/advance-screen-session'
@@ -122,6 +122,7 @@ export interface ScrollExtent {
 }
 
 export interface AppHeaderItems {
+  readonly brandingText?: string
   readonly documentTitle: string | null
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
@@ -524,8 +525,10 @@ export interface Tooltip {
 }
 
 export type TooltipAnchor =
-  | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string }
+  | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string }
   | { readonly kind: 'task'; readonly taskUid: number }
+  | { readonly kind: 'deadline'; readonly taskUid: number }
+  | { readonly kind: 'baseline'; readonly taskUid: number }
   | { readonly kind: 'rowTitle'; readonly groupId: string }
   | { readonly kind: 'scrollbar'; readonly axis: 'horizontal' | 'vertical' }
 
@@ -552,11 +555,17 @@ export interface ScreenView {
   // see DC-3
   // TRAP: never a Tooltip: it neither waits for S-124 nor sits in the tooltip count the shell reads.
   readonly dualCursorReadout?: DualCursorReadout
+  readonly guideCursorLabel?: GuideCursorLabel
 }
 
 // see DC-3, IN-3
 export interface DualCursorReadout {
   readonly lines: readonly string[]
+  readonly at: { readonly x: number; readonly y: number }
+}
+
+export interface GuideCursorLabel {
+  readonly text: string
   readonly at: { readonly x: number; readonly y: number }
 }
 
@@ -573,7 +582,8 @@ export interface ScreenViewReadings {
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
-  readonly taskUnderPointer?: Task | null
+  readonly hintHolderUnderPointer?: Extract<TooltipAnchor, { readonly taskUid: number }> | null
+  readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   readonly themePreference: 'light' | 'dark'
   readonly themeHue: number
@@ -645,6 +655,26 @@ function helpWindowAreaOf(regions: ScreenRegions): HelpWindowArea {
   return { belowAppHeader: below, browserWindow: { x: 0, y: 0, width: regions.appHeader.width, height: below.y + below.height } }
 }
 
+// see EZ-6, DC-3, CU-3, DC-9
+/** @purity pure */
+function pointerWordsOf(
+  shown: Omit<ScreenView, 'tooltips'>,
+  regions: ScreenRegions,
+  schedule: Schedule,
+  settings: DocumentSettings,
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+): Pick<ScreenView, 'tooltips' | 'dualCursorReadout' | 'guideCursorLabel'> {
+  const readout = dualCursorReadoutOf(regions, settings, session, readings)
+  const tooltips = tooltipsFromScreenView(shown, settings, session, readings, schedule)
+  const label = guideCursorLabelOf(regions, settings, session, readings, tooltips)
+  return {
+    tooltips,
+    ...(readout === null ? {} : { dualCursorReadout: readout }),
+    ...(label === null ? {} : { guideCursorLabel: label }),
+  }
+}
+
 // see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
@@ -687,11 +717,9 @@ export function screenViewFromRegions(
   }
 
   const echo = session.screen.scaleMessageDisplayState
-  const readout = dualCursorReadoutOf(regions, settings, session, readings)
   return {
     ...shown,
-    tooltips: tooltipsFromScreenView(shown, settings, session, readings),
-    ...(readout === null ? {} : { dualCursorReadout: readout }),
+    ...pointerWordsOf(shown, regions, schedule, settings, session, readings),
     ...(echo.kind === 'hidden'
       ? {}
       : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),
