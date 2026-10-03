@@ -61,7 +61,7 @@ export interface Hit {
   readonly boxPart?: BoxPart
 }
 
-export type PointerResolution = 'press' | 'doubleClick' | 'hint'
+export type PointerResolution = 'press' | 'doubleClick' | 'hint' | 'pressAndHint'
 
 // see EZ-6, GR-23, GR-26, GR-27
 export interface HintHolder {
@@ -774,25 +774,29 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
   return region !== null && region.covers(x, y)
 }
 
+interface PointerWalk {
+  readonly geometry: ScheduleGeometry
+  readonly sizes: GrabSizes
+  readonly shapes: readonly TaskShape[]
+  readonly taskRegions: readonly Region[]
+}
+
 /** @purity pure */
-function claimingRegions(
-  geometry: ScheduleGeometry,
-  shapes: readonly TaskShape[],
-  x: number,
-  y: number,
-  sizes: GrabSizes,
-  onShape: boolean,
-): readonly Region[] {
-  const out: Region[] = []
-  for (const shape of shapes) {
-    out.push(...regionsOfTask(shape, sizes).filter((region) => isCovering(region, x, y)))
-  }
-  for (const [index, line] of geometry.dependencies.entries()) {
-    const region = dependencyRegionOf(line, sizes, onShape)
+function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes): PointerWalk {
+  const shapes = geometry.tasks.map(shapeOf)
+  const taskRegions = shapes.flatMap((shape) => regionsOfTask(shape, sizes)).filter((one): one is Region => one !== null)
+  return { geometry, sizes, shapes, taskRegions }
+}
+
+/** @purity pure */
+function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boolean): readonly Region[] {
+  const out = walk.taskRegions.filter((region) => region.covers(x, y))
+  for (const [index, line] of walk.geometry.dependencies.entries()) {
+    const region = dependencyRegionOf(line, walk.sizes, onShape)
     if (isCovering(region, x, y)) out.push(region)
-    const mark = continuationRegionOf(line, sizes, onShape)
+    const mark = continuationRegionOf(line, walk.sizes, onShape)
     if (mark !== null && line.continuation !== null && mark.covers(x, y)) {
-      out.push({ ...mark, nearness: nearnessOf(line, line.continuation.farUid, shapes, index) })
+      out.push({ ...mark, nearness: nearnessOf(line, line.continuation.farUid, walk.shapes, index) })
     }
   }
   return out
@@ -878,20 +882,13 @@ function isInsideOrNull(box: ScreenRect | null, x: number, y: number): boolean {
 
 // see GR-23, T-267
 /** @purity pure */
-function scheduleShapeHitOf(
-  geometry: ScheduleGeometry,
-  shapes: readonly TaskShape[],
-  x: number,
-  y: number,
-  sizes: GrabSizes,
-): Hit | null {
-  const covered = shapes.filter((one) => isOnTheDrawnShape(one, x, y))
+function scheduleShapeHitOf(walk: PointerWalk, covered: readonly TaskShape[], x: number, y: number): Hit | null {
   const onShape = covered.length > 0
-  const claiming = claimingRegions(geometry, shapes, x, y, sizes, onShape)
+  const claiming = claimingRegions(walk, x, y, onShape)
   const kept = onShape
     ? keptOnTheShape(claiming, covered)
-    : keptByVerticalNearness(claiming, shapes, y)
-  const onMarkerBox = shapes.some(
+    : keptByVerticalNearness(claiming, walk.shapes, y)
+  const onMarkerBox = walk.shapes.some(
     (one) => isInsideOrNull(one.markerBox, x, y) || isInsideOrNull(one.resumeBox, x, y),
   )
   return bestOf(kept, orderFor(onShape, onMarkerBox), x, y)
@@ -1058,26 +1055,40 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
 // see EZ-6, GR-26, GR-27
 // WHY: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
 /** @purity pure */
-function hintPastNotesOf(
-  geometry: ScheduleGeometry,
-  shapes: readonly TaskShape[],
-  x: number,
-  y: number,
-  sizes: GrabSizes,
-): HintHolder | null {
-  const deadline = deadlineHintOf(geometry, x, y)
+function hintPastNotesOf(walk: PointerWalk, pressed: Hit | null, x: number, y: number): HintHolder | null {
+  const deadline = deadlineHintOf(walk.geometry, x, y)
   if (deadline !== null) return deadline
-  const pressed = scheduleShapeHitOf(geometry, shapes, x, y, sizes)
-  if (pressed === null) return baselineHintOf(geometry, x, y)
+  if (pressed === null) return baselineHintOf(walk.geometry, x, y)
   return pressed.item.kind === 'task' ? { kind: 'task', taskUid: pressed.item.taskUid } : null
 }
 
+interface PointerAnswers {
+  readonly hit: Hit | null
+  readonly hint: HintHolder | null
+}
+
+// see T-023d, EZ-6
+// WHY: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both (DFC-1810).
+// TRAP: keep the printed order -- the notes, the schedule shapes, the status line; sorting by row ID reverses it.
+/** @purity pure */
+function answersAtPointer(walk: PointerWalk, x: number, y: number): PointerAnswers {
+  const covered = walk.shapes.filter((one) => isOnTheDrawnShape(one, x, y))
+  const note = noteHitOf(walk.geometry, x, y, walk.sizes, covered.length > 0)
+  if (note !== null) return { hit: note, hint: null }
+  const shape = scheduleShapeHitOf(walk, covered, x, y)
+  return {
+    hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes),
+    hint: hintPastNotesOf(walk, shape, x, y),
+  }
+}
+
 // see T-023d
-// TRAP: keep the printed order -- the two labels, the notes, the schedule shapes, the status line;
-// sorting by row ID reverses it.
 export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint',
 ): HintHolder | null
+export function itemAtPointer(
+  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'pressAndHint',
+): PointerAnswers
 export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving?: 'press' | 'doubleClick',
 ): Hit | null
@@ -1088,19 +1099,14 @@ export function itemAtPointer(
   y: number,
   sizes: GrabSizes,
   resolving: PointerResolution = 'press',
-): Hit | HintHolder | null {
-  const shapes = geometry.tasks.map(shapeOf)
+): Hit | HintHolder | PointerAnswers | null {
   if (resolving === 'doubleClick') {
     const label = labelHitOf(geometry, x, y)
     if (label !== null) return label
   }
-  const onShape = shapes.some((one) => isOnTheDrawnShape(one, x, y))
-  const note = noteHitOf(geometry, x, y, sizes, onShape)
-  if (resolving === 'hint') return note === null ? hintPastNotesOf(geometry, shapes, x, y, sizes) : null
-  if (note !== null) return note
-  const shape = scheduleShapeHitOf(geometry, shapes, x, y, sizes)
-  if (shape !== null) return shape
-  return statusLineHitOf(geometry, x, y, sizes)
+  const answers = answersAtPointer(pointerWalkOf(geometry, sizes), x, y)
+  if (resolving === 'pressAndHint') return answers
+  return resolving === 'hint' ? answers.hint : answers.hit
 }
 
 // <generated -- do not edit by hand>
