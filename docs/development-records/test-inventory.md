@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 163 | 2262 | 3 | 4 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 164 | 2268 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 38 | 254 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 159 | 3593 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 380 | 6213 | 11 | 17 | 9 | 1 |
+| **all** | | | 381 | 6219 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -38,7 +38,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
 | FR | 119 | 113 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-150 |
-| NFR | 13 | 8 | NFR-005, NFR-006, NFR-008, NFR-009, NFR-012 |
+| NFR | 13 | 9 | NFR-005, NFR-006, NFR-008, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
 
@@ -317,6 +317,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-613-seam-1-answer-relayed-call.contract.test.ts` | 15 | - | - | T-107 | AG-6, AG-8, AG-9a, PI-17, UF-185 | - | - | - | - |
 | `tests/contract/cr-613-seam-2-mcp-tool-translator.contract.test.ts` | 20 | - | - | T-107 | AG-5, AG-8, AG-9a, AG-12, PI-40, UF-186 | - | - | - | - |
 | `tests/contract/cr-613-seam-3-mcp-relay-server.contract.test.ts` | 39 | - | - | - | AG-5, AG-6, AG-9a, AG-12, PI-41, UF-187 | - | - | - | - |
+| `tests/contract/cr-614-chapter-2-knows-the-relay.contract.test.ts` | 6 | FR-023, NFR-009 | - | T-007, T-008, T-107 | AG-5, AG-9a, AG-12, CHN-10, CHN-12, CHN-13, CHN-14, CN-6, DEV-6, PI-17, UF-188 | - | - | - | - |
 | `tests/contract/cr-616-delay-diagnostics-marks-one-dark-edge.contract.test.ts` | 10 | FR-013, FR-041, FR-133, NFR-007 | - | T-236, T-315 | DG-1, DG-2, DG-3, DG-4, PM-2, PM-3, PM-4, S-22, S-24, S-161, S-327, S-387, S-398 | - | - | - | - |
 | `tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts` | 9 | - | - | T-311, T-315, T-317 | DG-1, DG-2, DG-3, DG-4, DX-3, DX-8, VC-5, VS-5 | - | - | - | - |
 | `tests/contract/cr-619-fr-060-every-chooser-opens-in-the-last-folder.test.ts` | 13 | FR-060 | - | T-024 | IF-3, OP-2, OP-9, S-452, SK-11 | - | - | - | - |
