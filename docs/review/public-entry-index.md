@@ -291,6 +291,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `answersAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#answersAtPointer` | PI-7 | `PointerWalk` と点から、押したときの当たりと、説明の持ち主（表 T-040 の `EZ-6`）を 1 度の歩きで答える。 |
 | `bottomOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#bottomOf` | -- | function bottomOf(box: ScreenRect): number |
 | `boxOfPath` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#boxOfPath` | -- | function boxOfPath(points: Path): ScreenRect \| null |
 | `BoxPart` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BoxPart` | -- | type BoxPart = \| { readonly kind: 'body' } \| { readonly kind: 'anchor' } \| { readonly kind: 'leader' } \| |
@@ -314,7 +315,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `itemsInMarquee` | entry | function | `src/entity/layout-engine/item-hit-area/marquee.ts#itemsInMarquee` | PI-7 | `SL-3`。 |
 | `merged` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#merged` | -- | function merged(a: ScreenRect \| null, b: ScreenRect \| null): ScreenRect \| null |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
-| `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' \| 'hint' \| 'pressAndHint' |
+| `PointerAnswers` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerAnswers` | PI-7 | 型。 |
+| `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' \| 'hint' |
+| `PointerWalk` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerWalk` | PI-7 | 型。 |
+| `pointerWalkOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#pointerWalkOf` | PI-7 | 描いた幾何と掴み代の大きさ（`grabSizesOf` の答え）から、点に依らない当たりの領域 —— タスクの形・掴みの領域・依存線の領域・期限の箱 —— を 1 度に組んで答える。 |
 | `rightOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#rightOf` | -- | function rightOf(box: ScreenRect): number |
 | `selectionWithinDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawn` | PI-7 | 選択から、幾何に描かれていないタスクを外した選択を答える。 |
 | `selectionWithinDrawnRows` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawnRows` | PI-7 | `selectionWithinDrawn` の答えに、表 T-023c が名指さない行 —— ピン止めの帯に入りきらない行（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかった行 —— のタスクを戻した選択を答える。 |
@@ -1626,4 +1630,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 783 name(s) leave through a public entry (282 of them published by table T-064), 633 more are exported by a file and not by its entry.
+Totals: 787 name(s) leave through a public entry (286 of them published by table T-064), 633 more are exported by a file and not by its entry.

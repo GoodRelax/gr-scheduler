@@ -61,7 +61,7 @@ export interface Hit {
   readonly boxPart?: BoxPart
 }
 
-export type PointerResolution = 'press' | 'doubleClick' | 'hint' | 'pressAndHint'
+export type PointerResolution = 'press' | 'doubleClick' | 'hint'
 
 // see EZ-6, GR-23, GR-26, GR-27
 export interface HintHolder {
@@ -774,27 +774,68 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
   return region !== null && region.covers(x, y)
 }
 
-interface PointerWalk {
+type LineRegions = {
+  readonly line: DependencyGeometry
+  readonly index: number
+  readonly region: Region | null
+  readonly mark: Region | null
+}
+
+type DeadlineBox = { readonly taskUid: number; readonly box: ScreenRect }
+
+// see T-023d, DFC-1811
+// WHY: no region depends on the point; built once per drawn geometry, not once per input (a walk of every Task).
+export interface PointerWalk {
   readonly geometry: ScheduleGeometry
   readonly sizes: GrabSizes
   readonly shapes: readonly TaskShape[]
   readonly taskRegions: readonly Region[]
+  readonly linesOnShape: readonly LineRegions[]
+  readonly linesOffShape: readonly LineRegions[]
+  readonly deadlineBoxes: readonly DeadlineBox[]
 }
 
 /** @purity pure */
-function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes): PointerWalk {
-  const shapes = geometry.tasks.map(shapeOf)
-  const taskRegions = shapes.flatMap((shape) => regionsOfTask(shape, sizes)).filter((one): one is Region => one !== null)
-  return { geometry, sizes, shapes, taskRegions }
+function linesOf(geometry: ScheduleGeometry, sizes: GrabSizes, onShape: boolean): readonly LineRegions[] {
+  return geometry.dependencies.map((line, index) => ({
+    line,
+    index,
+    region: dependencyRegionOf(line, sizes, onShape),
+    mark: continuationRegionOf(line, sizes, onShape),
+  }))
 }
 
+/** @purity pure */
+function deadlineBoxesOf(geometry: ScheduleGeometry): readonly DeadlineBox[] {
+  const boxes: DeadlineBox[] = []
+  for (const task of geometry.tasks) {
+    const mark = task.deadline ?? null
+    const box = mark === null ? null : boxOfPath(mark.outline)
+    if (box !== null) boxes.push({ taskUid: task.taskUid, box })
+  }
+  return boxes
+}
+
+/** @purity pure */
+export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes): PointerWalk {
+  const shapes = geometry.tasks.map(shapeOf)
+  return {
+    geometry,
+    sizes,
+    shapes,
+    taskRegions: shapes.flatMap((shape) => regionsOfTask(shape, sizes)).filter((one): one is Region => one !== null),
+    linesOnShape: linesOf(geometry, sizes, true),
+    linesOffShape: linesOf(geometry, sizes, false),
+    deadlineBoxes: deadlineBoxesOf(geometry),
+  }
+}
+
+// TRAP: the nearness walks every shape, so it is asked only of a mark that covers the point.
 /** @purity pure */
 function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boolean): readonly Region[] {
   const out = walk.taskRegions.filter((region) => region.covers(x, y))
-  for (const [index, line] of walk.geometry.dependencies.entries()) {
-    const region = dependencyRegionOf(line, walk.sizes, onShape)
+  for (const { line, index, region, mark } of onShape ? walk.linesOnShape : walk.linesOffShape) {
     if (isCovering(region, x, y)) out.push(region)
-    const mark = continuationRegionOf(line, walk.sizes, onShape)
     if (mark !== null && line.continuation !== null && mark.covers(x, y)) {
       out.push({ ...mark, nearness: nearnessOf(line, line.continuation.farUid, walk.shapes, index) })
     }
@@ -1030,13 +1071,9 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
 
 // see GR-26, DA-2
 /** @purity pure */
-function deadlineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
-  for (const task of geometry.tasks) {
-    const mark = task.deadline ?? null
-    const box = mark === null ? null : boxOfPath(mark.outline)
-    if (box !== null && isInsideRect(x, y, box)) return { kind: 'deadline', taskUid: task.taskUid }
-  }
-  return null
+function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): HintHolder | null {
+  const found = boxes.find((one) => isInsideRect(x, y, one.box))
+  return found === undefined ? null : { kind: 'deadline', taskUid: found.taskUid }
 }
 
 // see GR-27, BL-2
@@ -1056,22 +1093,22 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
 // WHY: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
 /** @purity pure */
 function hintPastNotesOf(walk: PointerWalk, pressed: Hit | null, x: number, y: number): HintHolder | null {
-  const deadline = deadlineHintOf(walk.geometry, x, y)
+  const deadline = deadlineHintOf(walk.deadlineBoxes, x, y)
   if (deadline !== null) return deadline
   if (pressed === null) return baselineHintOf(walk.geometry, x, y)
   return pressed.item.kind === 'task' ? { kind: 'task', taskUid: pressed.item.taskUid } : null
 }
 
-interface PointerAnswers {
+export interface PointerAnswers {
   readonly hit: Hit | null
   readonly hint: HintHolder | null
 }
 
-// see T-023d, EZ-6
-// WHY: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both (DFC-1810).
+// see T-023d, EZ-6, DFC-1810
+// WHY: the press rows and the hint rows share the notes and the schedule shapes, so one walk answers both.
 // TRAP: keep the printed order -- the notes, the schedule shapes, the status line; sorting by row ID reverses it.
 /** @purity pure */
-function answersAtPointer(walk: PointerWalk, x: number, y: number): PointerAnswers {
+export function answersAtPointer(walk: PointerWalk, x: number, y: number): PointerAnswers {
   const covered = walk.shapes.filter((one) => isOnTheDrawnShape(one, x, y))
   const note = noteHitOf(walk.geometry, x, y, walk.sizes, covered.length > 0)
   if (note !== null) return { hit: note, hint: null }
@@ -1087,9 +1124,6 @@ export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint',
 ): HintHolder | null
 export function itemAtPointer(
-  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'pressAndHint',
-): PointerAnswers
-export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving?: 'press' | 'doubleClick',
 ): Hit | null
 /** @purity pure */
@@ -1099,13 +1133,12 @@ export function itemAtPointer(
   y: number,
   sizes: GrabSizes,
   resolving: PointerResolution = 'press',
-): Hit | HintHolder | PointerAnswers | null {
+): Hit | HintHolder | null {
   if (resolving === 'doubleClick') {
     const label = labelHitOf(geometry, x, y)
     if (label !== null) return label
   }
   const answers = answersAtPointer(pointerWalkOf(geometry, sizes), x, y)
-  if (resolving === 'pressAndHint') return answers
   return resolving === 'hint' ? answers.hint : answers.hit
 }
 
