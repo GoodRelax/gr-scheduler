@@ -657,6 +657,9 @@
      "exchange": "Project/StatusDate",
      "meaning": {
       "ja": "基準日線が立つ日"
+     },
+     "schemaNote": {
+      "en": "MS Project's StatusDate; the progress line is drawn on this day."
      }
     },
     {
@@ -723,6 +726,9 @@
      "exchange": "Project/WeekStartDay",
      "meaning": {
       "ja": "週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）。**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⛔ **`WeekDay.dayType` とは番号が 1 ずれる** —— 同じ曜日が別の数で書かれる。"
+     },
+     "schemaNote": {
+      "en": "MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType)."
      }
     },
     {
@@ -750,6 +756,7 @@
       "kind": "integer",
       "min": 0,
       "max": 359,
+      "defaultFrom": "S-73",
       "null": false
      },
      "key": "",
@@ -757,6 +764,9 @@
      "exchange": "",
      "meaning": {
       "ja": "テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
+     },
+     "schemaNote": {
+      "en": "The hue that tasks and rows without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings."
      }
     },
     {
@@ -773,6 +783,9 @@
      "exchange": "",
      "meaning": {
       "ja": "発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う**"
+     },
+     "schemaNote": {
+      "en": "One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it."
      }
     },
     {
@@ -875,7 +888,7 @@
    "name": "Task",
    "description": {
     "ja": "タスク 1 つ。予定と実績を同じ行が持つ",
-    "en": "One task. The plan and the actual are held by the same row."
+    "en": "One task: its plan, and its actual given by dates."
    },
    "export": true,
    "carry": true,
@@ -993,6 +1006,9 @@
      "exchange": "Task/Milestone",
      "meaning": {
       "ja": "**マイルストーンかどうかの正。** 描画の形（`TaskVisual.shapeKind`）とは別である。⛔ **形を変えても本列は変わらない。**⚠️ **プロパティパネルの項目ではない** —— 表 T-016 に行を持たない"
+     },
+     "schemaNote": {
+      "en": "The fact, exported to MS Project; TaskVisual.shapeKind only draws it and must agree with it."
      }
     },
     {
@@ -1042,6 +1058,9 @@
      "exchange": "Task/CalendarUID",
      "meaning": {
       "ja": "交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     },
+     "schemaNote": {
+      "en": "Kept only for the MS Project round trip; working days are counted with the one calendar project.calendarUid names."
      }
     },
     {
@@ -1076,6 +1095,9 @@
      "exchange": "Task/Stop",
      "meaning": {
       "ja": "進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは空** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る"
+     },
+     "schemaNote": {
+      "en": "MS Project's Stop, kept under its name for the round trip: the last day the actual has reached while the task is unfinished; null once actualFinish is set."
      }
     },
     {
@@ -1110,6 +1132,9 @@
      "exchange": "Task/Resume",
      "meaning": {
       "ja": "中断中に、残りが始まる予定の日"
+     },
+     "schemaNote": {
+      "en": "MS Project's Resume: the day the rest of an interrupted task is planned to restart."
      }
     },
     {
@@ -1126,6 +1151,9 @@
      "exchange": "Task/ResumeValid",
      "meaning": {
       "ja": "偽 = 再開日が未定の中断"
+     },
+     "schemaNote": {
+      "en": "MS Project's ResumeValid: false means interrupted with no restart day decided."
      }
     },
     {
@@ -1143,6 +1171,9 @@
      "exchange": "Task/PercentComplete",
      "meaning": {
       "ja": "完了率。**上限を型に持たせない**（`FR-012`）"
+     },
+     "schemaNote": {
+      "en": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS keeps it in step when dates change, so write what the dates give. Not capped at 100, because an overrun reports more."
      }
     },
     {
@@ -1160,6 +1191,9 @@
      "exchange": "Task/ExtendedAttribute",
      "meaning": {
       "ja": "左のぼかしの日数。`null` と `0` を区別する"
+     },
+     "schemaNote": {
+      "en": "Days at the start of the bar, inside start..finish, drawn slanted to say the start is not yet firm; a fact about the task, so it travels to MS Project rather than living in TaskVisual."
      }
     },
     {
@@ -1177,6 +1211,9 @@
      "exchange": "Task/ExtendedAttribute",
      "meaning": {
       "ja": "右のぼかしの日数。同上"
+     },
+     "schemaNote": {
+      "en": "As fadeInDays, for the finish."
      }
     },
     {
@@ -1245,7 +1282,7 @@
    "name": "Dependency",
    "description": {
     "ja": "依存 1 本。**後続タスクの下に入れ子で持つ**",
-    "en": "One dependency. **Nested under the task that succeeds it.**"
+    "en": "One dependency, nested under the task that follows it, as MS Project nests it."
    },
    "export": true,
    "carry": true,
@@ -1286,6 +1323,9 @@
      "exchange": "PredecessorLink/Type",
      "meaning": {
       "ja": "依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS"
+     },
+     "schemaNote": {
+      "en": "MS Project's codes: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start."
      }
     },
     {
@@ -1301,7 +1341,10 @@
      "origin": "Consume",
      "exchange": "PredecessorLink/LinkLag",
      "meaning": {
-      "ja": "ラグ。単位は `lagFormat`"
+      "ja": "ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分である"
+     },
+     "schemaNote": {
+      "en": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes."
      }
     },
     {
@@ -1318,6 +1361,9 @@
      "exchange": "PredecessorLink/LagFormat",
      "meaning": {
       "ja": "ラグの単位"
+     },
+     "schemaNote": {
+      "en": "MS Project's LagFormat: the unit the lag is shown in (7 = days)."
      }
     },
     {
@@ -1366,7 +1412,7 @@
    "name": "TaskGroup",
    "description": {
     "ja": "行の器。縦積みの軸を作る（`FR-004`）",
-    "en": "A row, and the container that gives stacking its axis (`FR-004`)."
+    "en": "A row on screen. Rows are kept apart from the WBS (Task.wbsParentUid) so that several tasks can share one row; rows are not exported to MS Project."
    },
    "export": false,
    "carry": false,
@@ -1475,6 +1521,9 @@
      "exchange": "",
      "meaning": {
       "ja": "行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足した行を倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う"
+     },
+     "schemaNote": {
+      "en": "Saved, like every row state, so that reopening shows what was saved."
      }
     },
     {
@@ -1533,7 +1582,7 @@
    "name": "TaskGroupMember",
    "description": {
     "ja": "どのタスクがどの行の何段目に載るか",
-    "en": "Which task sits on which row, and at which stacking position."
+    "en": "Which row a task sits on; every task sits on exactly one row."
    },
    "export": false,
    "carry": false,
@@ -1588,6 +1637,9 @@
      "exchange": "",
      "meaning": {
       "ja": "段。人が指定できるかは表 T-014 の `ST-6`"
+     },
+     "schemaNote": {
+      "en": "Not read: GRS stacks the tasks of a row automatically. Write null."
      }
     }
    ]
@@ -1769,7 +1821,7 @@
    "name": "WeekDay",
    "description": {
     "ja": "曜日ごとの稼働の定め（弱エンティティ）",
-    "en": "What one day of the week is worked as (a weak entity)."
+    "en": "Whether one day of the week is worked."
    },
    "export": true,
    "carry": true,
@@ -1810,6 +1862,9 @@
      "exchange": "Calendars/Calendar/WeekDays/WeekDay/DayType",
      "meaning": {
       "ja": "曜日。**`1` が日曜で、土曜の `7` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⚠️ **`0` は例外日を表すので本列は採らない** —— 例外日は `Exception` が持つ。⛔ **`Project.weekStartDay` とは番号が 1 ずれる** —— 交換相手が列ごとに別の体系を使っている。"
+     },
+     "schemaNote": {
+      "en": "MS Project's numbering: 1 Sunday ... 7 Saturday (one more than Project.weekStartDay)."
      }
     },
     {
@@ -1874,7 +1929,7 @@
    "name": "Exception",
    "description": {
     "ja": "暦の例外日（弱エンティティ）",
-    "en": "One exception day of a calendar (a weak entity)."
+    "en": "An exception to a calendar's week, possibly recurring."
    },
    "export": true,
    "carry": true,
@@ -1930,6 +1985,9 @@
      "exchange": "…/Exception/TimePeriod/FromDate",
      "meaning": {
       "ja": "⚠️ **繰り返しの起点であって実日付の範囲ではない**"
+     },
+     "schemaNote": {
+      "en": "MS Project's start of the recurrence, not a range of real days."
      }
     },
     {
@@ -1981,6 +2039,9 @@
      "exchange": "…/Exception/Type",
      "meaning": {
       "ja": "繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる（`FR-088`）。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）"
+     },
+     "schemaNote": {
+      "en": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none."
      }
     },
     {
@@ -2081,6 +2142,9 @@
      "exchange": "Resource/Type",
      "meaning": {
       "ja": "`0` = 材料 / `1` = 作業 / `2` = 費用"
+     },
+     "schemaNote": {
+      "en": "MS Project's Type: 0 material, 1 work, 2 cost."
      }
     },
     {
@@ -2113,6 +2177,9 @@
      "exchange": "Resource/CalendarUID",
      "meaning": {
       "ja": "交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+     },
+     "schemaNote": {
+      "en": "As Task.calendarUid."
      }
     },
     {
@@ -2260,8 +2327,8 @@
    "seat": 11,
    "name": "TaskVisual",
    "description": {
-    "ja": "タスクの見せ方。形・色・名前の置き方",
-    "en": "How a task is drawn: its shape, its colours and where its name sits."
+    "ja": "タスクの見せ方。形と色",
+    "en": "How a task is drawn: its shape and its colours."
    },
    "export": false,
    "carry": false,
@@ -2396,7 +2463,7 @@
    "name": "TaskOrigin",
    "description": {
     "ja": "取り込み元の記録。合流の照合に使う",
-    "en": "What an import brought this task from. Used to match rows when merging."
+    "en": "Where an imported task came from, so that importing the same file again updates the task instead of adding a copy."
    },
    "export": false,
    "carry": false,
@@ -2870,7 +2937,7 @@
    "name": "CarryElement",
    "description": {
     "ja": "解釈しない要素 1 つを、原形のまま抱える器（自己参照）",
-    "en": "A container that keeps one uninterpreted element exactly as it arrived (self-referencing)."
+    "en": "One element of an imported MS Project file that GRS does not interpret, kept as it arrived so that it is written back unchanged."
    },
    "export": true,
    "carry": false,
@@ -2956,7 +3023,7 @@
    "name": "documentStamp",
    "description": {
     "ja": "3 つの刻と、最後に書いた者",
-    "en": "The three instants, and who last wrote the document."
+    "en": "When the document last changed and was saved, and who wrote it last."
    },
    "export": false,
    "carry": false,
@@ -3038,7 +3105,7 @@
    "name": "changeLog",
    "description": {
     "ja": "変更の理由。**会話そのものは保存しない**（`FR-066`）",
-    "en": "Why a change was made. **The conversation itself is not stored** (`FR-066`)."
+    "en": "Why a change was made; the conversation that led to it is not stored."
    },
    "export": false,
    "carry": false,
@@ -3115,7 +3182,7 @@
    "name": "BaselineTask",
    "description": {
     "ja": "変更前の予定のタスク 1 つ。輪郭を重ねて描くためだけに持つ",
-    "en": "One task of the plan as it stood before a change. Held only so its outline can be drawn over the current one."
+    "en": "One task of an earlier plan, matched to the current task by uid and drawn only as an outline over it."
    },
    "export": false,
    "carry": false,

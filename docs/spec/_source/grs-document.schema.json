@@ -1,8 +1,9 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json",
+ "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
  "title": "GRS JSON document",
- "description": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
+ "description": "A GRS schedule document. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Dates are local date-times without a zone, as MS Project writes them; GRS uses only the day for now and writes 00:00:00, and a last day (finish, actualFinish, stop, endDate) is included. A null colour or width follows the theme. A custom colour gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark colour cannot be derived from a light one.",
  "type": "object",
  "required": [
   "schemaVersion",
@@ -18,7 +19,7 @@
   },
   "schedule": {
    "type": "object",
-   "description": "The schedule group (DR-2 of table T-052).",
+   "description": "The data: what is exported to MS Project, and what GRS adds to draw it.",
    "required": [
     "project",
     "calendars",
@@ -108,7 +109,7 @@
   },
   "documentSettings": {
    "type": "object",
-   "description": "The presentation group (DR-3 of table T-052). FR-063 fixes what is in it.",
+   "description": "How the document is drawn when opened. Every key is written even at its default, so that a later change of a default never changes this picture.",
    "required": [
     "actualVisible",
     "assigneeVisible",
@@ -140,19 +141,24 @@
    "additionalProperties": false,
    "properties": {
     "actualVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": true
     },
     "assigneeVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "baselineVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "dateGridLinesVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "dependencyVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": true
     },
     "displayScale": {
      "enum": [
@@ -166,89 +172,116 @@
       150,
       175,
       200
-     ]
+     ],
+     "default": 100
     },
     "fontScale": {
      "enum": [
       "S",
       "M",
       "L"
-     ]
+     ],
+     "default": "M"
     },
     "groupGridLinesVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": true
     },
     "levelZeroTreeState": {
      "enum": [
       "auto",
       "collapsed"
-     ]
+     ],
+     "default": "auto"
     },
     "percentCompleteVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "pinnedGroupIds": {
      "type": "array",
      "items": {
       "type": "string",
       "format": "uuid"
-     }
+     },
+     "default": []
     },
     "planDatesVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "planVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": true
     },
     "progressLineVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "progressMarkerVisible": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": true
     },
     "rowTitlePanelWidth": {
-     "type": "number"
+     "type": "number",
+     "default": 300,
+     "minimum": 80
     },
     "rulerFont": {
-     "type": "number"
+     "type": "number",
+     "default": 21,
+     "minimum": 12
     },
     "rulerHeight": {
      "type": "number",
-     "maximum": 150
+     "maximum": 150,
+     "default": 69
     },
     "scrollDate": {
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "default": null
     },
     "scrollDayOffset": {
-     "type": "number"
+     "type": "number",
+     "default": 0
     },
     "scrollGroupId": {
      "type": [
       "string",
       "null"
      ],
-     "format": "uuid"
+     "format": "uuid",
+     "default": null
     },
     "scrollGroupOffset": {
-     "type": "number"
+     "type": "number",
+     "default": 0
     },
     "stackDirection": {
      "enum": [
       "up",
       "down"
-     ]
+     ],
+     "default": "up"
     },
     "themeMonochrome": {
-     "type": "boolean"
+     "type": "boolean",
+     "default": false
     },
     "zoomX": {
-     "type": "number"
+     "type": "number",
+     "default": 1,
+     "minimum": 0.02,
+     "maximum": 64
     },
     "zoomY": {
-     "type": "number"
+     "type": "number",
+     "default": 1,
+     "minimum": 0.02,
+     "maximum": 64
     }
    }
   },
@@ -369,6 +402,7 @@
      ]
     },
     "statusDate": {
+     "description": "MS Project's StatusDate; the progress line is drawn on this day.",
      "type": [
       "string",
       "null"
@@ -393,6 +427,7 @@
      ]
     },
     "weekStartDay": {
+     "description": "MS Project's numbering: 0 Sunday ... 6 Saturday (one less than WeekDay.dayType).",
      "type": [
       "integer",
       "null"
@@ -407,21 +442,21 @@
      ]
     },
     "themeHue": {
+     "description": "The hue that tasks and rows without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings.",
      "type": "integer",
      "minimum": 0,
-     "maximum": 359
+     "maximum": 359,
+     "default": 214
     },
     "uidHighWaterMark": {
+     "description": "One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it.",
      "type": "integer"
     },
     "importSeq": {
      "type": "integer"
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -444,7 +479,7 @@
   },
   "Task": {
    "type": "object",
-   "description": "One task. The plan and the actual are held by the same row.",
+   "description": "One task: its plan, and its actual given by dates.",
    "required": [
     "uid",
     "wbsParentUid",
@@ -504,6 +539,7 @@
      ]
     },
     "milestone": {
+     "description": "The fact, exported to MS Project; TaskVisual.shapeKind only draws it and must agree with it.",
      "type": [
       "boolean",
       "null"
@@ -522,6 +558,7 @@
      ]
     },
     "calendarUid": {
+     "description": "Kept only for the MS Project round trip; working days are counted with the one calendar project.calendarUid names.",
      "type": [
       "integer",
       "null"
@@ -534,6 +571,7 @@
      ]
     },
     "stop": {
+     "description": "MS Project's Stop, kept under its name for the round trip: the last day the actual has reached while the task is unfinished; null once actualFinish is set.",
      "type": [
       "string",
       "null"
@@ -546,18 +584,21 @@
      ]
     },
     "resume": {
+     "description": "MS Project's Resume: the day the rest of an interrupted task is planned to restart.",
      "type": [
       "string",
       "null"
      ]
     },
     "resumeValid": {
+     "description": "MS Project's ResumeValid: false means interrupted with no restart day decided.",
      "type": [
       "boolean",
       "null"
      ]
     },
     "percentComplete": {
+     "description": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS keeps it in step when dates change, so write what the dates give. Not capped at 100, because an overrun reports more.",
      "type": [
       "integer",
       "null"
@@ -565,6 +606,7 @@
      "minimum": 0
     },
     "fadeInDays": {
+     "description": "Days at the start of the bar, inside start..finish, drawn slanted to say the start is not yet firm; a fact about the task, so it travels to MS Project rather than living in TaskVisual.",
      "type": [
       "integer",
       "null"
@@ -572,6 +614,7 @@
      "minimum": 0
     },
     "fadeOutDays": {
+     "description": "As fadeInDays, for the finish.",
      "type": [
       "integer",
       "null"
@@ -585,10 +628,7 @@
      }
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -600,7 +640,7 @@
   },
   "Dependency": {
    "type": "object",
-   "description": "One dependency. **Nested under the task that succeeds it.**",
+   "description": "One dependency, nested under the task that follows it, as MS Project nests it.",
    "required": [
     "predecessorUid",
     "linkType",
@@ -615,27 +655,27 @@
      "type": "integer"
     },
     "linkType": {
+     "description": "MS Project's codes: 0 finish-to-finish, 1 finish-to-start, 2 start-to-finish, 3 start-to-start.",
      "type": "integer",
      "minimum": 0,
      "maximum": 3
     },
     "lag": {
+     "description": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes.",
      "type": [
       "integer",
       "null"
      ]
     },
     "lagFormat": {
+     "description": "MS Project's LagFormat: the unit the lag is shown in (7 = days).",
      "type": [
       "integer",
       "null"
      ]
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -647,7 +687,7 @@
   },
   "TaskGroup": {
    "type": "object",
-   "description": "A row, and the container that gives stacking its axis (`FR-004`).",
+   "description": "A row on screen. Rows are kept apart from the WBS (Task.wbsParentUid) so that several tasks can share one row; rows are not exported to MS Project.",
    "required": [
     "id",
     "parentId",
@@ -688,6 +728,7 @@
      "type": "integer"
     },
     "treeState": {
+     "description": "Saved, like every row state, so that reopening shows what was saved.",
      "enum": [
       "auto",
       "collapsed",
@@ -720,7 +761,7 @@
   },
   "TaskGroupMember": {
    "type": "object",
-   "description": "Which task sits on which row, and at which stacking position.",
+   "description": "Which row a task sits on; every task sits on exactly one row.",
    "required": [
     "taskUid",
     "groupId",
@@ -736,6 +777,7 @@
      "format": "uuid"
     },
     "stackOrder": {
+     "description": "Not read: GRS stacks the tasks of a row automatically. Write null.",
      "type": [
       "integer",
       "null"
@@ -784,10 +826,7 @@
      "type": "integer"
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -811,7 +850,7 @@
   },
   "WeekDay": {
    "type": "object",
-   "description": "What one day of the week is worked as (a weak entity).",
+   "description": "Whether one day of the week is worked.",
    "required": [
     "ordinal",
     "dayType",
@@ -825,6 +864,7 @@
      "type": "integer"
     },
     "dayType": {
+     "description": "MS Project's numbering: 1 Sunday ... 7 Saturday (one more than Project.weekStartDay).",
      "type": [
       "integer",
       "null"
@@ -839,10 +879,7 @@
      ]
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -854,7 +891,7 @@
   },
   "Exception": {
    "type": "object",
-   "description": "One exception day of a calendar (a weak entity).",
+   "description": "An exception to a calendar's week, possibly recurring.",
    "required": [
     "ordinal",
     "name",
@@ -877,6 +914,7 @@
      ]
     },
     "fromDate": {
+     "description": "MS Project's start of the recurrence, not a range of real days.",
      "type": [
       "string",
       "null"
@@ -895,6 +933,7 @@
      ]
     },
     "recurrenceKind": {
+     "description": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none.",
      "type": [
       "integer",
       "null"
@@ -903,10 +942,7 @@
      "maximum": 9
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -940,6 +976,7 @@
      ]
     },
     "resourceKind": {
+     "description": "MS Project's Type: 0 material, 1 work, 2 cost.",
      "type": [
       "integer",
       "null"
@@ -952,16 +989,14 @@
      ]
     },
     "calendarUid": {
+     "description": "As Task.calendarUid.",
      "type": [
       "integer",
       "null"
      ]
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -999,10 +1034,7 @@
      ]
     },
     "carry": {
-     "type": "object",
-     "additionalProperties": {
-      "type": "string"
-     }
+     "$ref": "#/$defs/Carry"
     },
     "carryElements": {
      "type": "array",
@@ -1014,7 +1046,7 @@
   },
   "TaskVisual": {
    "type": "object",
-   "description": "How a task is drawn: its shape, its colours and where its name sits.",
+   "description": "How a task is drawn: its shape and its colours.",
    "required": [
     "taskUid",
     "shapeKind",
@@ -1085,7 +1117,7 @@
   },
   "TaskOrigin": {
    "type": "object",
-   "description": "What an import brought this task from. Used to match rows when merging.",
+   "description": "Where an imported task came from, so that importing the same file again updates the task instead of adding a copy.",
    "required": [
     "taskUid",
     "sourceProjectUid",
@@ -1303,7 +1335,7 @@
   },
   "CarryElement": {
    "type": "object",
-   "description": "A container that keeps one uninterpreted element exactly as it arrived (self-referencing).",
+   "description": "One element of an imported MS Project file that GRS does not interpret, kept as it arrived so that it is written back unchanged.",
    "required": [
     "ordinal",
     "name",
@@ -1334,7 +1366,7 @@
   },
   "documentStamp": {
    "type": "object",
-   "description": "The three instants, and who last wrote the document.",
+   "description": "When the document last changed and was saved, and who wrote it last.",
    "required": [
     "scheduleUpdatedUtc",
     "lastEditedBy",
@@ -1368,7 +1400,7 @@
   },
   "changeLog": {
    "type": "object",
-   "description": "Why a change was made. **The conversation itself is not stored** (`FR-066`).",
+   "description": "Why a change was made; the conversation that led to it is not stored.",
    "required": [
     "ordinal",
     "editedBy",
@@ -1395,7 +1427,7 @@
   },
   "BaselineTask": {
    "type": "object",
-   "description": "One task of the plan as it stood before a change. Held only so its outline can be drawn over the current one.",
+   "description": "One task of an earlier plan, matched to the current task by uid and drawn only as an outline over it.",
    "required": [
     "uid",
     "name",
@@ -1432,6 +1464,13 @@
       "null"
      ]
     }
+   }
+  },
+  "Carry": {
+   "type": "object",
+   "description": "Values of an imported MS Project element that GRS does not interpret, kept to write them back unchanged; {} when nothing was imported.",
+   "additionalProperties": {
+    "type": "string"
    }
   }
  }

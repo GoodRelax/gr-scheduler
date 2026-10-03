@@ -418,6 +418,20 @@
     "meaning": {
      "$ref": "#/$defs/prose",
      "description": "What the column is for, written for a reader. The longest prose in this file and the largest part of a later edition's work."
+    },
+    "schemaNote": {
+     "type": "object",
+     "required": [
+      "en"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "en": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "description": "Optional. The column's description in the generated GRS JSON schema, written for one who has only that schema and writes a document with it: a summary and the reason, never what the name and the structure already say, and no specification ID, which that reader cannot look up (Chapter 6.2). English only, because the schema belongs to no language. Not \"meaning\": that one is printed for a reader of the specification. Absent on most columns, on purpose -- a column whose name and type say enough gets no description."
     }
    }
   },
@@ -485,6 +499,11 @@
       "boolean"
      ],
      "description": "The value the specification uses when the column is absent. ⛔ Only where the specification HAS decided one -- a generator must not invent a default, and a column without this key has none. ⚠️ It is a machine value and belongs to no language, which is why it sits here rather than in the prose of \"meaning\": the number or spelling is the same in every edition, and holding it twice would let the two disagree. An enum default must be one of \"values\"; erd_json_to_md.py checks that, because a schema cannot say it."
+    },
+    "defaultFrom": {
+     "type": "string",
+     "pattern": "^S-[0-9]+[a-z]?$",
+     "description": "The settings row (settings.json) whose machine default is this column's default, for a column whose value is decided there and not here. The generator reads the row, so the number is held once. Never together with \"default\"."
     },
     "of": {
      "$ref": "#/$defs/jsonTypeElement"
