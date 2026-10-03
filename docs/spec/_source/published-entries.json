@@ -1108,6 +1108,15 @@
        "表 T-332 の `SJ-2` —— `Agent API` の `focusTask`（`AM-16`）と検索パネルの飛び先が同じ並びを当てる"
       ]
      }
+    },
+    {
+     "name": "searchJumpReachOf",
+     "note": {
+      "ja": [
+       "飛ぶ先のタスクの占有（表 T-038）が日付より左へ出ている幅と、1 日の幅を、配置から読む（表 T-332 の `SJ-6`）。",
+       "`SingleHtmlShell` と `AgentApiEndpoint`（`AM-16`、`SJ-9`）が同じ値を `searchJumpWrites` へ渡すために使う"
+      ]
+     }
     }
    ]
   },
@@ -1335,7 +1344,7 @@
      "note": {
       "ja": [
        "入力の文脈から `EscapeContext` を詰める（表 T-028 の `IN-4`、表 T-283）。",
-       "`SingleHtmlShell` が `Esc` の段を決めるときも同じ項目を同じく詰めるために使う（`CR-630` の 5 節）"
+       "`SingleHtmlShell` が `Esc` の段を決めるときも同じ項目を同じく詰めるために使う（CR-630 の 5 節）"
       ]
      }
     },
@@ -2172,6 +2181,15 @@
      }
     },
     {
+     "name": "searchPanelWithColumnWidth",
+     "note": {
+      "ja": [
+       "列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。",
+       "`SingleHtmlShell` が握っているあいだの幅を決めるために使う"
+      ]
+     }
+    },
+    {
      "name": "searchPanelAfterFilterChange",
      "note": {
       "ja": [
@@ -2192,11 +2210,85 @@
      }
     },
     {
-     "name": "searchPanelBoxAfterGrab",
+     "name": "windowBoxAfterGrab",
      "note": {
       "ja": [
-       "`Search Panel` の見出しの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、`Schedule Canvas` の中に収めて答える（`FR-151` の 表 T-330 の `SV-10`・`SV-11`）。",
+       "ウインドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。",
+       "4 つのウインドウがこの 1 つを使う（`R2.21`）。",
        "`SingleHtmlShell` が握っているあいだの位置と大きさを決めるために使う"
+      ]
+     }
+    },
+    {
+     "name": "windowNormalBoxOf",
+     "note": {
+      "ja": [
+       "ウインドウの `WB-1` の箱を、覚えた位置と大きさ（無ければ既定の箱）から、範囲に収めて答える（表 T-335 の `WB-1`・`WB-6`）。",
+       "`DomScreenSurface` がウインドウを描き、掴みを答えるために使う"
+      ]
+     }
+    },
+    {
+     "name": "windowBoxOf",
+     "note": {
+      "ja": [
+       "ウインドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。",
+       "`DomScreenSurface` が使う"
+      ]
+     }
+    },
+    {
+     "name": "windowPlaceOf",
+     "note": {
+      "ja": [
+       "掴みを離した箱を、覚える位置と大きさにする（表 T-335 の `WB-8`・`WB-9`）。",
+       "`SingleHtmlShell` が掴みの終わりに使う"
+      ]
+     }
+    },
+    {
+     "name": "windowEdgeAt",
+     "note": {
+      "ja": [
+       "点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。",
+       "`DomScreenSurface` が縁の掴みを答えるために使う"
+      ]
+     }
+    },
+    {
+     "name": "DEFAULT_WINDOW_PLACE",
+     "note": {
+      "ja": [
+       "覚えた位置も大きさも無いウインドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。",
+       "`SingleHtmlShell` が閉じたヘルプの位置を捨てるときに使う（`S-455`）"
+      ]
+     }
+    },
+    {
+     "name": "WindowPlace",
+     "note": {
+      "ja": [
+       "型。",
+       "ウインドウの覚えた位置と大きさ（画面の px）。",
+       "文書にも閲覧環境の保管庫にも置かない（表 T-335 の `WB-6`、`S-455`・`S-456`）"
+      ]
+     }
+    },
+    {
+     "name": "WindowShown",
+     "note": {
+      "ja": [
+       "型。",
+       "ウインドウの表示の子の状態（通常・最小化・最大化、表 T-335 の `WB-1` 〜 `WB-3`）"
+      ]
+     }
+    },
+    {
+     "name": "WindowName",
+     "note": {
+      "ja": [
+       "型。",
+       "`ScreenState` の `WindowName` を、`DomScreenSurface` へ写さずに渡し直したもの（表 T-335 のウインドウの語）"
       ]
      }
     },
@@ -2488,6 +2580,15 @@
       "ja": [
        "ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）に読む"
+      ]
+     }
+    },
+    {
+     "name": "WindowName",
+     "note": {
+      "ja": [
+       "型。",
+       "`ScreenState` の `WindowName` を、`ScreenRenderer` へ写さずに渡し直したもの（表 T-335 のウインドウの語）"
       ]
      }
     }

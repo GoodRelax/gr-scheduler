@@ -67,7 +67,7 @@ export interface SearchSort {
   readonly direction: 'ascending' | 'descending'
 }
 
-// see S-419, S-420, S-429, SV-7, SV-8
+// see S-419, S-420, S-429, SV-7, SV-8, SV-18
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
@@ -76,6 +76,7 @@ export interface SearchPanelSession {
   readonly at: { readonly x: number; readonly y: number } | null
   readonly size: { readonly width: number; readonly height: number } | null
   readonly textSizeStep: number
+  readonly columnWidths: Readonly<Record<SearchColumn, number>>
 }
 
 export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
@@ -96,6 +97,7 @@ export const emptySearchPanelSession: SearchPanelSession = {
   at: null,
   size: null,
   textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
+  columnWidths: {},
 }
 
 export interface ScreenValuesStateCarried {

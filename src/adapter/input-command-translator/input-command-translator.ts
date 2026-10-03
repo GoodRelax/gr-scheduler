@@ -751,8 +751,9 @@ export const ENTRY = {
   rosterChosen: 'IC-67',
   rosterUnchosen: 'IC-68',
   search: 'IC-117',
-  searchPanelMinimise: 'IC-120',
-  searchPanelMaximise: 'IC-121',
+  windowMinimise: 'IC-129',
+  windowMaximise: 'IC-130',
+  windowRestore: 'IC-131',
 } as const
 
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']

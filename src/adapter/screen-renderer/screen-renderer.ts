@@ -37,15 +37,18 @@ import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
+import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
-  searchPanelBoxAfterGrab,
   searchPanelFromSession,
+  searchPanelWithColumnWidth,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
 } from './search-panel'
+export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
+export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 
@@ -58,6 +61,7 @@ import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
 
 export type { DialogueInput, FieldCommit, FieldEditNotice, ScreenPart, ScreenSurface } from './screen-surface'
+export type { WindowName } from '../../use-case/advance-screen-session/advance-screen-session'
 
 export type IconId = string
 
@@ -320,6 +324,7 @@ export interface HelpModal extends OpenSurface {
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
   readonly footnotes: readonly HelpFootnote[]
+  readonly place?: WindowPlace
 }
 
 // see FR-036
@@ -461,8 +466,14 @@ export interface ConfirmationAnswer {
   readonly text: string
 }
 
+// see FR-066, T-335
 export interface DialogueField {
   readonly messages: readonly DialogueMessage[]
+  readonly heading: string
+  readonly shown: WindowShown
+  readonly titleEntries: readonly CommandItem[]
+  readonly place: WindowPlace
+  readonly canvas: ScreenRect
 }
 
 export interface Tooltip {
@@ -473,7 +484,7 @@ export interface Tooltip {
 }
 
 export type TooltipAnchor =
-  | { readonly kind: 'icon'; readonly icon: IconId }
+  | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string }
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'rowTitle'; readonly groupId: string }
   | { readonly kind: 'scrollbar'; readonly axis: 'horizontal' | 'vertical' }
@@ -553,6 +564,8 @@ export interface ScreenViewReadings {
   readonly canRedo?: boolean
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
+  // see WB-6, S-455, S-456
+  readonly windowPlaces?: { readonly helpModal: WindowPlace; readonly dialogueField: WindowPlace }
   readonly isDelayDiagnosticsShown?: boolean
 }
 
@@ -578,6 +591,7 @@ export function screenViewFromRegions(
   readings: ScreenViewReadings,
 ): ScreenView {
   const language = displayLanguageOf(session)
+  const help = helpModalFromSession(session)
   const shown: Omit<ScreenView, 'tooltips'> = {
     language,
     frame: screenFrameFromRegions(regions, settings, session, readings),
@@ -593,10 +607,10 @@ export function screenViewFromRegions(
       schedule,
     ),
     openModal: openModalFromSession(session, schedule, readings),
-    helpModal: helpModalFromSession(session),
+    helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
-    dialogueField: dialogueFieldFromLog(dialogueLog, session, readings),
+    dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
     searchPanel: searchPanelFromSession(
       session,
       readings.searchPanel ?? emptySearchPanelSession,

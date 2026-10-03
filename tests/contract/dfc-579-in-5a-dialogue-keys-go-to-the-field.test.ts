@@ -244,7 +244,7 @@ describe('IF-9 -- hasUnsettledTextEntry() does not count the focused Dialogue Fi
     openModal: null,
     notices: [],
     confirmation: null,
-    dialogueField: { messages: [] } as DialogueField,
+    dialogueField: { messages: [], heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 } } as DialogueField,
     tooltips: [],
   }
 

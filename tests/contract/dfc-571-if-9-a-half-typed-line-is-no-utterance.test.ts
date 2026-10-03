@@ -55,7 +55,7 @@ const EMPTY_HEADER: AppHeaderItems = {
 
 const EMPTY_FRAME: ScreenFrame = { isFullScreen: false, dividers: [], scrollbars: [] }
 
-const DIALOGUE: DialogueField = { messages: [] }
+const DIALOGUE: DialogueField = { messages: [], heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 } }
 
 const VIEW: ScreenView = {
   language: 'ja',

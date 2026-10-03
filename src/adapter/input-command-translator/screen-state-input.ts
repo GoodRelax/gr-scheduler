@@ -41,9 +41,23 @@ const EXPORT_CHOOSER = 'Export Chooser'
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
 const PROPERTIES_PANEL = 'Properties Panel'
 
-// see U-64, S-99g
-// WHY: not an open surface either (FR-151): IC-52 on it closes the panel, never the surface.
+// see U-64, U-44, S-99g
+// WHY: windows, not open surfaces (T-335): IC-52 on one closes that window, never the surface.
 const SEARCH_PANEL = 'Search Panel'
+const DIALOGUE_FIELD = 'Dialogue Field'
+
+type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValuesEvent | null]
+
+// WHY: the help's IC-52 stays surfaceCloseAsked (IC-52 of table T-109); the report window has no machine (RW-1).
+const WINDOW_EVENTS: Readonly<Record<string, WindowEvents>> = {
+  [HELP_MODAL]: [{ type: 'helpMinimiseToggled' }, { type: 'helpMaximiseToggled' }, null],
+  [SEARCH_PANEL]: [{ type: 'searchPanelMinimiseToggled' }, { type: 'searchPanelMaximiseToggled' }, { type: 'searchPanelClosePressed' }],
+  [DIALOGUE_FIELD]: [
+    { type: 'dialogueFieldMinimiseToggled' },
+    { type: 'dialogueFieldMaximiseToggled' },
+    { type: 'dialogueFieldClosePressed' },
+  ],
+}
 
 const SEARCH_ENTRY_PRESSED: ScreenValuesEvent = { type: 'searchEntryPressed' }
 
@@ -111,14 +125,16 @@ function surfaceCloseOf(part: string | null): ScreenValuesEvent | null {
   return part === HELP_MODAL ? HELP_CLOSE_ASKED : SURFACE_CLOSE_ASKED
 }
 
-// see IC-117, IC-120, IC-121, IC-52, SV-14
+// see IC-117, WB-7, SV-14, FR-066
 /** @purity pure */
-function searchPanelEventOf(entry: string, part: string): ScreenValuesEvent | null {
+function windowEventOf(entry: string, part: string): ScreenValuesEvent | null {
   if (entry === ENTRY.search) return SEARCH_ENTRY_PRESSED
-  if (entry === ENTRY.searchPanelMinimise) return { type: 'searchPanelMinimiseToggled' }
-  if (entry === ENTRY.searchPanelMaximise) return { type: 'searchPanelMaximiseToggled' }
-  const isPanelClose = entry === ENTRY.closeSurface && part === SEARCH_PANEL
-  return isPanelClose ? { type: 'searchPanelClosePressed' } : null
+  const events = WINDOW_EVENTS[part]
+  if (events === undefined) return null
+  const [minimised, maximised, closed] = events
+  if (entry === ENTRY.windowMinimise) return minimised
+  if (entry === ENTRY.windowMaximise || entry === ENTRY.windowRestore) return maximised
+  return entry === ENTRY.closeSurface ? closed : null
 }
 
 // see FR-039, IC-16, T-280
@@ -200,5 +216,5 @@ export function screenEventFromInput(
     return screenEventFromPanelDivider(input, press, context)
   }
   if (on.entry === null) return null
-  return searchPanelEventOf(on.entry, on.part) ?? screenEventFromEntry(on.entry, context)
+  return windowEventOf(on.entry, on.part) ?? screenEventFromEntry(on.entry, context)
 }

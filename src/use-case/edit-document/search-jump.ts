@@ -5,7 +5,8 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf, textOfDay } from '../../entity/document-model/schedule/schedule'
+import { dayFromSerial, dayOf, serial, textOfDay } from '../../entity/document-model/schedule/schedule'
+import { taskPlacement, type ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
@@ -20,6 +21,12 @@ export type SearchJumpPlan = {
   readonly treeStateWrites: readonly DocumentCommand[]
   readonly scrollWrite: DocumentCommand | null
   readonly isBlockedByPinnedRows: boolean
+}
+
+// see SJ-6, T-038
+export interface SearchJumpReach {
+  readonly pxPerDay: number
+  readonly leftReachPx: number
 }
 
 interface JumpPlace {
@@ -56,15 +63,26 @@ function revealWrites(document: Document, groupId: string | null): readonly Docu
   ]
 }
 
+// see SJ-6, T-038
+/** @purity pure */
+export function searchJumpReachOf(layout: ScheduleLayout, target: SearchJumpTarget): SearchJumpReach {
+  const placed = target.kind === 'task' ? taskPlacement(layout, target.taskUid) : null
+  if (placed === null) return { pxPerDay: layout.pxPerDay, leftReachPx: 0 }
+  const dateX = placed.shapeKind === 'milestone' ? placed.x + placed.width / 2 : placed.x
+  return { pxPerDay: layout.pxPerDay, leftReachPx: Math.max(0, dateX - placed.occupiedX0) }
+}
+
 // see SJ-5, SJ-6, SJ-7
 /** @purity pure */
-function scrollWriteTo(document: Document, place: JumpPlace): DocumentCommand | null {
+function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpReach): DocumentCommand | null {
   const held = document.documentSettings
   const row = place.groupId !== null && !held.pinnedGroupIds.includes(place.groupId) ? place.groupId : null
   const day = dayOf(place.date)
-  // WHY: S-428 has no value in table T-206 yet, so the date lands on the left edge with no inset.
-  const scrollDate = day === null ? held.scrollDate : textOfDay(day)
-  const scrollDayOffset = day === null ? held.scrollDayOffset : 0
+  // DEVIATION: spec says the left end lands S-428 inside the view (SJ-6); here at the edge, S-428 is not generated (DFC-1770)
+  const left = day === null || reach.pxPerDay <= 0 ? null : serial(day) - reach.leftReachPx / reach.pxPerDay
+  const leftDay = left === null ? null : Math.floor(left)
+  const scrollDate = leftDay === null ? held.scrollDate : textOfDay(dayFromSerial(leftDay))
+  const scrollDayOffset = left === null || leftDay === null ? held.scrollDayOffset : left - leftDay
   const scrollGroupId = row ?? held.scrollGroupId
   const scrollGroupOffset = row === null ? held.scrollGroupOffset : 0
   if (
@@ -84,12 +102,13 @@ export function searchJumpWrites(
   document: Document,
   target: SearchJumpTarget,
   hasRoomBelowPins: boolean,
+  reach: SearchJumpReach,
 ): SearchJumpPlan {
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
   const treeStateWrites = revealWrites(document, place.groupId)
   if (!hasRoomBelowPins) return { treeStateWrites, scrollWrite: null, isBlockedByPinnedRows: true }
-  return { treeStateWrites, scrollWrite: scrollWriteTo(document, place), isBlockedByPinnedRows: false }
+  return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedRows: false }
 }
 
 // see T-332

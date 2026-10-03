@@ -20,6 +20,7 @@ import {
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
+import { windowPlaceInRange, type WindowShown } from './window-box'
 import {
   ASSIGNEE_SEPARATOR,
   BLANK_SEARCH_VALUE,
@@ -37,8 +38,9 @@ const SEARCH_PANEL = 'Search Panel'
 const TASKS_TABLE_ENTRY: IconId = 'IC-118'
 const COMMENT_BOXES_TABLE_ENTRY: IconId = 'IC-119'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const MINIMISE_ENTRY: IconId = 'IC-120'
-const MAXIMISE_ENTRY: IconId = 'IC-121'
+const MINIMISE_ENTRY: IconId = 'IC-129'
+const MAXIMISE_ENTRY: IconId = 'IC-130'
+const RESTORE_ENTRY: IconId = 'IC-131'
 const CLOSE_ENTRY: IconId = 'IC-52'
 const FILTER_ENTRY: IconId = 'IC-122'
 const SORT_ASCENDING_ENTRY: IconId = 'IC-123'
@@ -92,13 +94,16 @@ const STATE_WORDS = new Map(displayWords.planActualStates.map((entry, at) => [ST
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry]))
 const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARCH_PANEL)?.heading
 
-export type SearchPanelShown = 'normal' | 'minimised' | 'maximised'
+export type SearchPanelShown = WindowShown
 
+// see SV-18
+// WHY: null is the column's default row of table T-206, which only the surface reads (generated there).
 export interface SearchColumnView {
   readonly column: SearchColumn
   readonly heading: string
   readonly isFixed: boolean
   readonly filterEntry: CommandItem
+  readonly width: number | null
 }
 
 export interface SearchFilterValueView {
@@ -131,18 +136,6 @@ export interface SearchRowView {
     | { readonly kind: 'commentBox'; readonly commentBoxId: CommentBoxSearchRow['commentBoxId'] }
 }
 
-// see GR-24, GR-25
-export type SearchPanelGrabRegion =
-  | 'headingBand'
-  | 'top'
-  | 'bottom'
-  | 'left'
-  | 'right'
-  | 'topLeft'
-  | 'topRight'
-  | 'bottomLeft'
-  | 'bottomRight'
-
 export interface SearchPanelView {
   readonly heading: string
   readonly shown: SearchPanelShown
@@ -171,16 +164,11 @@ function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, labe
   return { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen, label: word }
 }
 
-// see SV-1, SV-13
+// see WB-4, WB-7
 /** @purity pure */
-function titleEntriesOf(shown: SearchPanelShown, language: DisplayLanguage): readonly CommandItem[] {
-  const restore = shown === 'maximised' ? wordOf(PANEL_WORDS.get('restore')?.text, language) : undefined
-  return [
-    entryOf(TEXT_SIZE_ENTRY, language),
-    entryOf(MINIMISE_ENTRY, language),
-    entryOf(MAXIMISE_ENTRY, language, false, restore),
-    entryOf(CLOSE_ENTRY, language),
-  ]
+export function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] {
+  const maximise = shown === 'maximised' ? RESTORE_ENTRY : MAXIMISE_ENTRY
+  return [entryOf(MINIMISE_ENTRY, language), entryOf(maximise, language), entryOf(CLOSE_ENTRY, language)]
 }
 
 // see SQ-3, SQ-9
@@ -212,14 +200,15 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
 }
 
 /** @purity pure */
-function columnsOf(table: SearchTable, language: DisplayLanguage): readonly SearchColumnView[] {
-  const columns = TABLE_COLUMNS[table]
-  const lastFixed = columns.indexOf(LAST_FIXED_COLUMN[table])
+function columnsOf(panel: SearchPanelSession, language: DisplayLanguage): readonly SearchColumnView[] {
+  const columns = TABLE_COLUMNS[panel.table]
+  const lastFixed = columns.indexOf(LAST_FIXED_COLUMN[panel.table])
   return columns.map((column, at) => ({
     column,
     heading: wordOf(COLUMN_WORDS.get(column)?.text, language),
     isFixed: at <= lastFixed,
     filterEntry: entryOf(FILTER_ENTRY, language),
+    width: panel.columnWidths[column] ?? null,
   }))
 }
 
@@ -281,83 +270,6 @@ function filterMenuOf(
   return { kind: 'values', column, values, entries: [...shows, ...sorts] }
 }
 
-interface Span {
-  readonly start: number
-  readonly end: number
-}
-
-type SpanSide = 'start' | 'end' | null
-
-const EDGE_SIDES: { readonly [R in Exclude<SearchPanelGrabRegion, 'headingBand'>]: readonly [SpanSide, SpanSide] } = {
-  top: [null, 'start'],
-  bottom: [null, 'end'],
-  left: ['start', null],
-  right: ['end', null],
-  topLeft: ['start', 'start'],
-  topRight: ['end', 'start'],
-  bottomLeft: ['start', 'end'],
-  bottomRight: ['end', 'end'],
-}
-
-/** @purity pure */
-function withinSpan(value: number, low: number, high: number): number {
-  return Math.min(Math.max(value, low), high)
-}
-
-// see SV-10, SV-11
-/** @purity pure */
-function spanMoved(span: Span, travel: number, within: Span): Span {
-  const length = span.end - span.start
-  const start = withinSpan(span.start + travel, within.start, within.end - length)
-  return { start, end: start + length }
-}
-
-// see SV-11
-// WHY: an edge stops at the opposite edge: S-423 and S-424 have no value, and a box has no negative size.
-/** @purity pure */
-function spanAfterEdge(span: Span, side: SpanSide, travel: number, within: Span): Span {
-  if (side === 'start') return { start: withinSpan(span.start + travel, within.start, span.end), end: span.end }
-  if (side === 'end') return { start: span.start, end: withinSpan(span.end + travel, span.start, within.end) }
-  return span
-}
-
-/** @purity pure */
-function spansOf(box: ScreenRect): readonly [Span, Span] {
-  return [
-    { start: box.x, end: box.x + box.width },
-    { start: box.y, end: box.y + box.height },
-  ]
-}
-
-// see SV-10, SV-11, GR-24, GR-25
-/** @purity pure */
-export function searchPanelBoxAfterGrab(
-  region: SearchPanelGrabRegion,
-  box: ScreenRect,
-  travel: { readonly dx: number; readonly dy: number },
-  canvas: ScreenRect,
-): ScreenRect {
-  const [xs, ys] = spansOf(box)
-  const [canvasXs, canvasYs] = spansOf(canvas)
-  const [xSide, ySide] = region === 'headingBand' ? [null, null] : EDGE_SIDES[region]
-  const x = region === 'headingBand' ? spanMoved(xs, travel.dx, canvasXs) : spanAfterEdge(xs, xSide, travel.dx, canvasXs)
-  const y = region === 'headingBand' ? spanMoved(ys, travel.dy, canvasYs) : spanAfterEdge(ys, ySide, travel.dy, canvasYs)
-  return { x: x.start, y: y.start, width: x.end - x.start, height: y.end - y.start }
-}
-
-// see SV-11
-// WHY: a held place is fitted again on every frame, so a smaller window never leaves the panel outside.
-/** @purity pure */
-function heldPlaceInCanvas(panel: SearchPanelSession, canvas: ScreenRect): Pick<SearchPanelView, 'at' | 'size'> {
-  const held = panel.size
-  const size = held === null ? null : { width: Math.min(held.width, canvas.width), height: Math.min(held.height, canvas.height) }
-  if (panel.at === null) return { at: null, size }
-  const [canvasXs, canvasYs] = spansOf(canvas)
-  const x = spanMoved({ start: panel.at.x, end: panel.at.x + (size?.width ?? 0) }, 0, canvasXs)
-  const y = spanMoved({ start: panel.at.y, end: panel.at.y + (size?.height ?? 0) }, 0, canvasYs)
-  return { at: { x: x.start, y: y.start }, size }
-}
-
 // see FR-151, T-330, S-442
 /** @purity pure */
 export function searchPanelFromSession(
@@ -376,16 +288,16 @@ export function searchPanelFromSession(
     heading: wordOf(PANEL_HEADING, language),
     shown,
     canvas,
-    ...heldPlaceInCanvas(panel, canvas),
+    ...windowPlaceInRange(panel, canvas),
     textSizeStep: panel.textSizeStep,
     tableEntries: [
       entryOf(TASKS_TABLE_ENTRY, language, panel.table === 'tasks'),
       entryOf(COMMENT_BOXES_TABLE_ENTRY, language, panel.table === 'commentBoxes'),
     ],
-    titleEntries: titleEntriesOf(shown, language),
+    titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(shown, language)],
     word: panel.word,
     table: panel.table,
-    columns: columnsOf(panel.table, language),
+    columns: columnsOf(panel, language),
     filterMenu: open === null || found === null ? null : filterMenuOf(panel, open, found, language),
     rows: found === null ? [] : rowsOf(filteredSearchRows(found, panel.filters, panel.sort), panel, language),
   }
@@ -395,6 +307,13 @@ export function searchPanelFromSession(
 /** @purity pure */
 export function nextSearchPanelTextSizeStep(step: number): number {
   return (step + 1) % SEARCH_PANEL_TEXT_SIZE_ROWS.length
+}
+
+// see SV-18, GR-28
+/** @purity pure */
+export function searchPanelWithColumnWidth(panel: SearchPanelSession, column: SearchColumn, width: number): SearchPanelSession {
+  if (panel.columnWidths[column] === width) return panel
+  return { ...panel, columnWidths: { ...panel.columnWidths, [column]: width } }
 }
 
 // see SV-7

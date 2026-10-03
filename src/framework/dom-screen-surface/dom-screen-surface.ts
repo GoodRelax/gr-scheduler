@@ -14,7 +14,7 @@ import {
   type SearchFilterChange,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
-import type { WindowName } from '../../entity/document-model/screen-state/screen-state'
+import type { WindowName } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
 import { fillScreenFrame, horizontalScrollbar, panelEdge } from './screen-frame-drawing'
@@ -45,13 +45,10 @@ import {
   rowControlsMeasureKey,
   rowsTopPx,
 } from './row-title-panel-drawing'
-import {
-  dialogueSettlement,
-  fillDialogueMessages,
-  placeDialogueField,
-} from './dialogue-field-drawing'
+import { dialogueFieldPainter } from './dialogue-field-drawing'
 import { ROSTER_SCROLLER, keepRosterScroll, modalElement } from './open-modals-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
+import type { PointAsked } from './window-frame-drawing'
 
 const UNIT_ROW = 'UF-71'
 
@@ -384,10 +381,10 @@ export const STYLE = {
     `display:block;box-sizing:border-box;width:100%;margin:0.5em 0;font:inherit;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`,
   dialogueField:
-    'position:absolute;box-sizing:border-box;display:flex;flex-direction:column;' +
-    `width:24em;height:14em;padding:0.5em;background:${PAINT.ground};color:${PAINT.ink};` +
+    'box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;' +
+    `background:${PAINT.ground};color:${PAINT.ink};` +
     `border:1px solid ${PAINT.rule};pointer-events:auto;`,
-  dialogueMessages: 'flex:1;overflow-y:auto;',
+  dialogueMessages: 'flex:1;overflow-y:auto;padding:0 0.5em;',
   dialogueMessage: 'line-height:1.5;',
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
@@ -566,9 +563,10 @@ export function boxStyle(box: ScreenRect): string {
   )
 }
 
+// see IN-3, DFC-1287
 /** @purity pure */
 export function anchorKey(anchor: TooltipAnchor): string {
-  if (anchor.kind === 'icon') return `icon ${anchor.icon}`
+  if (anchor.kind === 'icon') return anchor.surface === undefined ? `icon ${anchor.icon}` : `icon ${anchor.surface} ${anchor.icon}`
   if (anchor.kind === 'task') return `task ${anchor.taskUid}`
   if (anchor.kind === 'rowTitle') return `rowTitle ${anchor.groupId}`
   return `scrollbar ${anchor.axis}`
@@ -658,9 +656,11 @@ export function anchoredEntry(
   host: Document,
   item: CommandItem,
   anchors: Map<string, HTMLElement>,
+  surface?: string,
 ): HTMLElement {
   const entry = commandEntry(host, item)
   anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
+  if (surface !== undefined) anchors.set(anchorKey({ kind: 'icon', icon: item.icon, surface }), entry)
   return entry
 }
 
@@ -713,6 +713,50 @@ function windowReadersOf(
   return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges }
 }
 
+// see T-337
+// WHY: stacking comes from each element's z-index (markZOrder), not the order of the tree.
+/** @purity non-pure */
+function screenLayersOf(host: Document) {
+  const hoverSheet = host.createElement('style')
+  hoverSheet.textContent = hoverCss()
+  const layers = {
+    hoverSheet,
+    frameLayer: made(host, 'div', STYLE.layer),
+    rowTitlePanel: part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden),
+    rowTitleTree: part(host, 'div', ROLE.rowTitleTree, STYLE.layer + STYLE.treeIsolation),
+    propertiesPanel: part(host, 'div', ROLE.propertiesPanel, STYLE.hidden),
+    dividerBandLayer: made(host, 'div', STYLE.layer),
+    paletteLayer: made(host, 'div', STYLE.layer),
+    searchPanelLayer: made(host, 'div', STYLE.layer),
+    dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
+    appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
+    // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
+    modalLayer: made(host, 'div', STYLE.layer),
+    helpLayer: made(host, 'div', STYLE.layer),
+    noticeLayer: part(host, 'div', ROLE.notices, STYLE.layer),
+    confirmationLayer: made(host, 'div', STYLE.layer),
+    tooltipLayer: part(host, 'div', ROLE.tooltips, STYLE.layer),
+  }
+  const rows: readonly (readonly [HTMLElement, string])[] = [
+    [layers.tooltipLayer, 'UZ-2'],
+    [layers.confirmationLayer, 'UZ-3'],
+    [layers.noticeLayer, 'UZ-4'],
+    [layers.paletteLayer, 'UZ-5'],
+    [layers.searchPanelLayer, 'UZ-6'],
+    [layers.modalLayer, 'UZ-13'],
+    [layers.helpLayer, 'UZ-7'],
+    [layers.appHeader, 'UZ-8'],
+    [layers.dialogueField, 'UZ-9'],
+    [layers.dividerBandLayer, 'UZ-10'],
+    [layers.rowTitlePanel, 'UZ-11'],
+    [layers.rowTitleTree, 'UZ-11'],
+    [layers.propertiesPanel, 'UZ-11'],
+    [layers.frameLayer, 'UZ-12'],
+  ]
+  for (const [layer, row] of rows) markZOrder(layer, row)
+  return layers
+}
+
 // see IF-9, PI-38
 /** @purity non-pure */
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
@@ -720,43 +764,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const root = made(host, 'div', STYLE.root + typefaceStyle() + themeStyle(readTheme()))
   root.setAttribute('data-unit', UNIT_ROW)
-
-  const hoverSheet = host.createElement('style')
-  hoverSheet.textContent = hoverCss()
-
-  const frameLayer = made(host, 'div', STYLE.layer)
-  const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
-  const rowTitleTree = part(host, 'div', ROLE.rowTitleTree, STYLE.layer + STYLE.treeIsolation)
-  const propertiesPanel = part(host, 'div', ROLE.propertiesPanel, STYLE.hidden)
-  const dividerBandLayer = made(host, 'div', STYLE.layer)
-  const paletteLayer = made(host, 'div', STYLE.layer)
-  const searchPanelLayer = made(host, 'div', STYLE.layer)
-  const dialogueField = part(host, 'div', ROLE.dialogueField, STYLE.hidden)
-  const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
-  const dialogueEntry = host.createElement('input')
-  const appHeader = part(host, 'div', ROLE.appHeader, appHeaderStyle())
-  // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
-  const modalLayer = made(host, 'div', STYLE.layer)
-  const helpLayer = made(host, 'div', STYLE.layer)
-  const noticeLayer = part(host, 'div', ROLE.notices, STYLE.layer)
-  const confirmationLayer = made(host, 'div', STYLE.layer)
-  const tooltipLayer = part(host, 'div', ROLE.tooltips, STYLE.layer)
-
-  // see T-337
-  markZOrder(tooltipLayer, 'UZ-2')
-  markZOrder(confirmationLayer, 'UZ-3')
-  markZOrder(noticeLayer, 'UZ-4')
-  markZOrder(paletteLayer, 'UZ-5')
-  markZOrder(searchPanelLayer, 'UZ-6')
-  markZOrder(modalLayer, 'UZ-13')
-  markZOrder(helpLayer, 'UZ-7')
-  markZOrder(appHeader, 'UZ-8')
-  markZOrder(dialogueField, 'UZ-9')
-  markZOrder(dividerBandLayer, 'UZ-10')
-  markZOrder(rowTitlePanel, 'UZ-11')
-  markZOrder(rowTitleTree, 'UZ-11')
-  markZOrder(propertiesPanel, 'UZ-11')
-  markZOrder(frameLayer, 'UZ-12')
+  const layers = screenLayersOf(host)
+  const { frameLayer, rowTitlePanel, rowTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
+  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer } = layers
 
   const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
     headEntryElements(host)
@@ -764,29 +774,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const head = [openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow]
   rowTitlePanel.append(...head, headFoldedRows)
 
-  dialogueEntry.setAttribute('type', 'text')
-  dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
-  dialogueField.append(dialogueMessages, dialogueEntry)
-
-  // see T-337
-  // WHY: stacking comes from each element's z-index (markZOrder), not this order.
-  root.append(
-    hoverSheet,
-    frameLayer,
-    rowTitlePanel,
-    rowTitleTree,
-    propertiesPanel,
-    dividerBandLayer,
-    paletteLayer,
-    searchPanelLayer,
-    dialogueField,
-    appHeader,
-    modalLayer,
-    helpLayer,
-    noticeLayer,
-    confirmationLayer,
-    tooltipLayer,
-  )
+  root.append(...Object.values(layers))
   wiring.mount.append(root)
 
   // see T-337, SE-5
@@ -834,7 +822,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const reportRowControlsHeight = rowControlsHeightReporter(rowTitleTree, readClockMs, wiring)
 
-  const dialogue = dialogueSettlement(dialogueEntry, readAuthor, readClockMs)
+  const dialogue = dialogueFieldPainter(host, dialogueField, readAuthor, readClockMs)
 
   const searchPanel = searchPanelPainter(host, searchPanelLayer, () => wiring.onSearchWordTyped?.())
 
@@ -975,19 +963,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         ...(asked === null ? [] : [confirmationElement(host, asked)]),
       )
     }
-    if (changed('dialogueField')) {
-      const field = view.dialogueField
-      dialogue.markFieldUp(field !== null)
-      if (field !== null) fillDialogueMessages(host, dialogueMessages, field)
-    }
 
     if (changed('frame') || changed('commandPalette')) reportPaletteBand()
     if (isHeaderMoved || changed('frame') || changed('propertiesPanel')) placePanels(view)
-    if (isHeaderMoved || changed('frame') || changed('dialogueField')) {
-      placeDialogueField(dialogueField, view)
-      // WHY: placeDialogueField rewrites the style attribute and so drops the layer's z-index (T-337 UZ-9).
-      markZOrder(dialogueField, 'UZ-9')
-    }
+    if (changed('dialogueField')) dialogue.draw(view.dialogueField ?? null, anchorsOf('dialogueField'), zIndexStyle('UZ-9'))
     if (isHeaderMoved || changed('notices')) {
       noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;` + zIndexStyle('UZ-4'))
     }
@@ -1054,8 +1033,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (role !== null) part = role
       node = node.parentElement
     }
-    if (node !== root || part === null) return searchPanel.answerAt({ x, y, first, walked: null })
-    return searchPanel.answerAt({ x, y, first, walked: {
+    if (node !== root || part === null) return windowsAnswerAt({ x, y, first, walked: null })
+    return windowsAnswerAt({ x, y, first, walked: {
       part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
       entry,
       format,
@@ -1069,6 +1048,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
     } })
   }
+
+  /** @purity semi-pure-b */
+  const windowsAnswerAt = (asked: PointAsked): ScreenPart | null =>
+    dialogue.answerAt({ ...asked, walked: searchPanel.answerAt(asked) })
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
   // reach for the surface, and BO-1's regions must wait for it.

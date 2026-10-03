@@ -248,7 +248,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **171。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **173。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -530,6 +530,7 @@ src/
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
 | UF-180 | `ScreenRenderer` | `search-panel.ts` | `pure` | `Search Panel`（`U-64`）の中身 —— 見出しの行・入力欄・出している表とその固定 | `FR-151`（`OW-2`） |
 | UF-181 | `ScreenRenderer` | `search-table-filters.ts` | `pure` | 検索の表に列の絞り込みと並べ替えを当て、列ごとの値の一覧を返す（表 T-330 の `SV-7`・`SV-8`） | — |
+| UF-189 | `ScreenRenderer` | `window-box.ts` | `pure` | ウインドウ（`01-04-requirements.md` の 表 T-335）の箱を、4 つのウインドウに 1 か所で求める —— 既定と覚えた位置、範囲への収め、最小化と最大化の箱、題の行の帯と縁を引いた後の箱（`WB-8`・`WB-9`、表 T-023d の `GR-24`・`GR-25`） | — |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
@@ -543,6 +544,7 @@ src/
 | UF-111 | `DomScreenSurface` | `dialogue-field-drawing.ts` | `non-pure` | `Dialogue Field` の発話を描き、`Enter` で確定した発話を返す（`FR-066`・`AG-11`）。<br>確定の時刻は `AT-129` の綴りで書く | — |
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |
 | UF-182 | `DomScreenSurface` | `search-panel-drawing.ts` | `non-pure` | `Search Panel` を描く —— 固定した見出しと列、絞り込み、見出しの帯と縁の掴み | — |
+| UF-191 | `DomScreenSurface` | `window-frame-drawing.ts` | `non-pure` | ウインドウ（表 T-335）に共通の枠を描く —— 題の行（`WB-7`）を描き、点がどのウインドウの題の行の帯か縁か（表 T-023d の `GR-24`・`GR-25`）を答える（`IF-9`） | — |
 | UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
 | UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
 | UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と初期値の区画 | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |

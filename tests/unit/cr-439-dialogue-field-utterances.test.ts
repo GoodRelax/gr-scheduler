@@ -50,6 +50,7 @@ const SK_19_KEY = bare(rowOf('T-036', 'SK-19').by['割当'] ?? '')
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
 const WITH_MESSAGES: DialogueField = {
+  heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
   messages: [
     { sequence: 1, author: 'Ann', text: 'Move the review to Friday', settledAt: '2026-08-30T03:04:05Z' },
     { sequence: 2, author: 'Agent', text: 'Moved it', settledAt: '2026-08-30T03:04:09Z' },

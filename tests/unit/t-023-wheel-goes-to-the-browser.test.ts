@@ -454,7 +454,9 @@ const SELECT_ALL = (): HumanInput => key('A', { ctrl: true })
 const DELETE = (): HumanInput => key('Delete')
 const SAVE = (): HumanInput => key('S', { ctrl: true })
 
-const HELP_MODAL = (specTable('T-109').rows.find((one) => one.id === 'IC-129')?.by['面'] ?? '').replace(/[`*]/g, '').trim()
+const HELP_MODAL = ((specTable('T-109').rows.find((one) => one.id === 'IC-129')?.by['面'] ?? '').split(' / ')[0] ?? '')
+  .replace(/[`*]/g, '')
+  .trim()
 
 const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に当たらない —— 日程表に当てる'
 

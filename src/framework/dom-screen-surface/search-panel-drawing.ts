@@ -3,14 +3,19 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { ScreenPart, SearchFilterChange, SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
+import {
+  windowBoxOf,
+  windowNormalBoxOf,
+  type CommandItem,
+  type ScreenPart,
+  type SearchFilterChange,
+  type SearchPanelView,
+} from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   NOT_STORED_SEARCH_PANEL_SIZES,
   PAINT,
-  SCREEN_Z_ORDER,
-  SCREEN_Z_ORDER_ATTRIBUTE,
   anchoredEntry,
   boxStyle,
   commandEntry,
@@ -18,6 +23,13 @@ import {
   made,
   part,
 } from './dom-screen-surface'
+import {
+  windowPartAt,
+  windowPartOf,
+  windowTitleRowElement,
+  type PlacedWindow,
+  type PointAsked,
+} from './window-frame-drawing'
 
 type SearchColumnView = SearchPanelView['columns'][number]
 
@@ -27,9 +39,14 @@ type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
 
 type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
-const SEARCH_PANEL_ROLE = 'Search Panel'
+// see SV-6, SV-17, SV-18, RW-9
+export interface DrawnTable {
+  readonly columns: readonly SearchColumnView[]
+  readonly rows: readonly SearchRowView[]
+  readonly jumpAt?: number
+}
 
-export const SEARCH_PANEL_GRAB_ATTRIBUTE = 'data-search-panel-grab'
+const SEARCH_PANEL_ROLE = 'Search Panel'
 
 export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 
@@ -53,34 +70,44 @@ export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
 
 const ENTRY_ICON_ATTRIBUTE = 'data-icon'
 
+const COLUMN_ATTRIBUTE = 'data-column'
+
+const FILTER_MENU_ATTRIBUTE = 'data-search-filter-menu'
+
 const FILTER_ENTRY = 'IC-122'
+
+type SearchPanelSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
+
+// see SV-18, RW-9
+// WHY: S-466 .. S-474 hold SQ-1 .. SQ-9 and S-475 .. S-481 hold DT-1 .. DT-7, each in its table's row order.
+const FIRST_DEFAULT_WIDTH_ROW: { readonly [table: string]: SearchPanelSizeRow } = { SQ: 'S-466', DT: 'S-475' }
 
 // TRAP: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
 /** @purity pure */
-function panelStyle(): string {
+export function windowStyle(): string {
   return (
     'box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;pointer-events:auto;' +
     `background:${PAINT.ground};color:${PAINT.ink};box-shadow:0 0.5em 1.5em ${PAINT.shadow};`
   )
 }
 
-/** @purity pure */
-function titleRowStyle(): string {
-  return `display:flex;align-items:center;flex:none;background:${PAINT.panel};`
-}
-
-const HEADING_STYLE = 'padding:0 0.5em;white-space:nowrap;'
-
-const TITLE_GAP_STYLE = 'flex:1;'
-
 const WORD_FIELD_STYLE = 'flex:none;box-sizing:border-box;width:100%;'
 
 const TABLE_BOX_STYLE = 'flex:1;overflow:auto;'
 
-const TABLE_STYLE = 'border-collapse:collapse;'
+const TABLE_STYLE = 'border-collapse:collapse;table-layout:fixed;'
 
-// WHY: shrinks and scrolls inside the panel, not a sized popup: S-423 to S-428 give the menu no size.
-const FILTER_MENU_STYLE = 'flex:0 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;'
+const HEADING_WORD_STYLE = 'flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;'
+
+const HEADING_LINE_STYLE = 'display:flex;align-items:center;'
+
+/** @purity pure */
+function filterMenuStyle(): string {
+  return (
+    'position:absolute;z-index:4;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;' +
+    `background:${PAINT.ground};border:1px solid ${PAINT.rule};box-shadow:0 0.25em 0.75em ${PAINT.shadow};`
+  )
+}
 
 const FILTER_LINE_STYLE = 'display:flex;align-items:center;white-space:nowrap;'
 
@@ -115,75 +142,46 @@ const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
 
 const JUMP_CELL_STYLE = 'cursor:pointer;'
 
-type SearchPanelGrab = NonNullable<ScreenPart['searchPanelGrab']>
-
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// WHY: S-426 has no value in table T-206 yet, so the edge strip has no width and GR-25 answers nowhere.
-const SEARCH_PANEL_EDGE_PX = 0
-
-type EdgeSide = 'start' | 'end' | 'middle'
+// see SV-18, RW-9
+/** @purity pure */
+export function columnWidthPx(column: SearchColumnView): number {
+  if (column.width !== null) return column.width
+  const [table = '', place = ''] = column.column.split('-')
+  const rows = Object.keys(NOT_STORED_SEARCH_PANEL_SIZES) as readonly SearchPanelSizeRow[]
+  const first = FIRST_DEFAULT_WIDTH_ROW[table]
+  const row = first === undefined ? undefined : rows[rows.indexOf(first) + Number(place) - 1]
+  if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
+  return NOT_STORED_SEARCH_PANEL_SIZES[row]
+}
 
 type SizeRatio = { readonly width: number; readonly height: number }
-
-const EDGE_REGIONS: {
-  readonly [Down in EdgeSide]: { readonly [Across in EdgeSide]: SearchPanelGrab['region'] | null }
-} = {
-  start: { start: 'topLeft', middle: 'top', end: 'topRight' },
-  middle: { start: 'left', middle: null, end: 'right' },
-  end: { start: 'bottomLeft', middle: 'bottom', end: 'bottomRight' },
-}
-
-// see SV-9, SV-11
-/** @purity pure */
-function searchPanelPlaceOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
-  const canvas = view.canvas
-  const size = view.size ?? { width: canvas.width * defaultRatio.width, height: canvas.height * defaultRatio.height }
-  const at = view.at ?? { x: canvas.x, y: canvas.y + canvas.height - size.height }
-  return { ...at, ...size }
-}
 
 // see SV-9, SV-12, SV-13
 /** @purity pure */
 export function searchPanelBoxOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
-  if (view.shown === 'maximised') return view.canvas
-  const place = searchPanelPlaceOf(view, defaultRatio)
-  if (view.shown === 'normal') return place
-  const titleHeight = entranceOuterHeightPx()
-  return { x: place.x, y: place.y + place.height - titleHeight, width: place.width, height: titleHeight }
+  return windowBoxOf(view.shown, searchPanelPlaceOf(view, defaultRatio), view.canvas, entranceOuterHeightPx())
 }
 
-// see GR-25
 /** @purity pure */
-function edgeSideOf(at: number, start: number, end: number, reach: number): EdgeSide | null {
-  const fromStart = at - start
-  const fromEnd = end - at
-  if (fromStart <= -reach || fromEnd <= -reach) return null
-  if (Math.min(fromStart, fromEnd) >= reach) return 'middle'
-  return fromStart <= fromEnd ? 'start' : 'end'
+function searchPanelPlaceOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
+  const canvas = view.canvas
+  const size = { width: canvas.width * defaultRatio.width, height: canvas.height * defaultRatio.height }
+  const defaultBox = { x: canvas.x, y: canvas.y + canvas.height - size.height, ...size }
+  return windowNormalBoxOf(view, defaultBox, canvas)
 }
 
-// see GR-25
-/** @purity pure */
-function edgeRegionAt(x: number, y: number, box: ScreenRect, reach: number): SearchPanelGrab['region'] | null {
-  const across = edgeSideOf(x, box.x, box.x + box.width, reach)
-  const down = edgeSideOf(y, box.y, box.y + box.height, reach)
-  return across === null || down === null ? null : EDGE_REGIONS[down][across]
-}
-
-// see SJ-1, GR-24
+// see SJ-1
 /** @purity semi-pure-b */
-function searchMarksFrom(start: Element, layer: Element): { readonly jump: SearchJumpCell | null; readonly isOnBand: boolean } {
-  let jump: SearchJumpCell | null = null
-  let isOnBand = false
+function searchJumpFrom(start: Element, layer: Element): SearchJumpCell | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
     const task = node.getAttribute(SEARCH_JUMP_TASK_ATTRIBUTE)
-    if (task !== null && jump === null) jump = { kind: 'task', taskUid: Number(task) }
+    if (task !== null) return { kind: 'task', taskUid: Number(task) }
     const box = node.getAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE)
-    if (box !== null && jump === null) jump = { kind: 'commentBox', commentBoxId: box }
-    if (node.getAttribute(SEARCH_PANEL_GRAB_ATTRIBUTE) !== null) isOnBand = true
+    if (box !== null) return { kind: 'commentBox', commentBoxId: box }
   }
-  return { jump, isOnBand }
+  return null
 }
 
 // see SV-16, T-333
@@ -195,22 +193,9 @@ export function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row
   return fontPx
 }
 
-// see SV-1
-/** @purity non-pure */
-function titleRowElement(host: Document, view: SearchPanelView, anchors: Map<string, HTMLElement>): HTMLElement {
-  const row = made(host, 'div', titleRowStyle() + `height:${entranceOuterHeightPx()}px;`)
-  row.setAttribute(SEARCH_PANEL_GRAB_ATTRIBUTE, 'true')
-  const heading = made(host, 'span', HEADING_STYLE)
-  heading.textContent = view.heading
-  const tables = view.tableEntries.map((item) => anchoredEntry(host, item, anchors))
-  const titled = view.titleEntries.map((item) => anchoredEntry(host, item, anchors))
-  row.replaceChildren(heading, ...tables, made(host, 'span', TITLE_GAP_STYLE), ...titled)
-  return row
-}
-
 // see SV-2, SV-16
 /** @purity non-pure */
-function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement {
+export function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement {
   const field = made(host, 'input', WORD_FIELD_STYLE + `font-size:${fontPx}px;`) as HTMLInputElement
   field.setAttribute('type', 'search')
   field.setAttribute(SEARCH_WORD_FIELD_ATTRIBUTE, 'true')
@@ -219,17 +204,20 @@ function wordFieldElement(host: Document, word: string, fontPx: number): HTMLEle
   return field
 }
 
-// see SV-7
+// see SV-7, SV-18
 /** @purity non-pure */
 function headerCellElement(host: Document, column: SearchColumnView): HTMLElement {
   const cell = made(host, 'th', headerCellStyle(column.isFixed))
-  cell.setAttribute('data-column', column.column)
+  cell.setAttribute(COLUMN_ATTRIBUTE, column.column)
+  cell.setAttribute('data-width', String(columnWidthPx(column)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
-  const heading = made(host, 'span', '')
+  const line = made(host, 'div', HEADING_LINE_STYLE)
+  const heading = made(host, 'span', HEADING_WORD_STYLE)
   heading.textContent = column.heading
   const filter = commandEntry(host, column.filterEntry)
   filter.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, column.column)
-  cell.replaceChildren(heading, filter)
+  line.replaceChildren(heading, filter)
+  cell.replaceChildren(line)
   return cell
 }
 
@@ -282,10 +270,11 @@ export function searchFilterMenuElement(
   fontPx: number,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const box = made(host, 'div', FILTER_MENU_STYLE)
+  const box = made(host, 'div', filterMenuStyle())
   box.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, menu.column)
+  box.setAttribute(FILTER_MENU_ATTRIBUTE, 'true')
   const entries = made(host, 'div', FILTER_LINE_STYLE)
-  entries.replaceChildren(...menu.entries.map((item) => anchoredEntry(host, item, anchors)))
+  entries.replaceChildren(...menu.entries.map((item: CommandItem) => anchoredEntry(host, item, anchors)))
   const choices =
     menu.kind === 'dates'
       ? [filterDateFields(host, menu, fontPx)]
@@ -296,10 +285,10 @@ export function searchFilterMenuElement(
 
 // see SJ-1, SV-17
 /** @purity non-pure */
-function bodyRowElement(host: Document, row: SearchRowView, columns: readonly SearchColumnView[]): HTMLElement {
+function bodyRowElement(host: Document, row: SearchRowView, columns: readonly SearchColumnView[], jumpAt: number): HTMLElement {
   const line = made(host, 'tr', '')
   row.cells.forEach((text, at) => {
-    const isJump = at === 0
+    const isJump = at === jumpAt
     const isFixed = columns[at]?.isFixed === true
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? JUMP_CELL_STYLE : ''))
@@ -312,18 +301,22 @@ function bodyRowElement(host: Document, row: SearchRowView, columns: readonly Se
   return line
 }
 
-// see SV-6, SV-16, SV-17, T-331
+// see SV-6, SV-16, SV-17, SV-18, T-331
 /** @purity non-pure */
-export function searchTableElement(host: Document, view: SearchPanelView, fontPx: number): HTMLElement {
+export function searchTableElement(host: Document, view: DrawnTable, fontPx: number): HTMLElement {
   const box = made(host, 'div', TABLE_BOX_STYLE)
-  const table = made(host, 'table', TABLE_STYLE + `font-size:${fontPx}px;`)
+  const widths = view.columns.map(columnWidthPx)
+  const width = widths.reduce((sum, one) => sum + one, 0)
+  const table = made(host, 'table', TABLE_STYLE + `width:${width}px;font-size:${fontPx}px;`)
+  const columns = made(host, 'colgroup', '')
+  columns.replaceChildren(...widths.map((one) => made(host, 'col', `width:${one}px;`)))
   const head = made(host, 'thead', '')
   const headings = made(host, 'tr', '')
   headings.replaceChildren(...view.columns.map((column) => headerCellElement(host, column)))
   head.append(headings)
   const body = made(host, 'tbody', '')
-  body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns)))
-  table.replaceChildren(head, body)
+  body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns, view.jumpAt ?? 0)))
+  table.replaceChildren(columns, head, body)
   box.append(table)
   return box
 }
@@ -336,8 +329,9 @@ export function searchPanelElement(
   placed: { readonly box: ScreenRect; readonly fontPx: number },
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const panel = part(host, 'div', SEARCH_PANEL_ROLE, boxStyle(placed.box) + panelStyle())
-  const title = titleRowElement(host, view, anchors)
+  const panel = part(host, 'div', SEARCH_PANEL_ROLE, boxStyle(placed.box) + windowStyle())
+  const entries = { before: view.tableEntries, titled: view.titleEntries }
+  const title = windowTitleRowElement(host, view.heading, entries, anchors, SEARCH_PANEL_ROLE)
   if (view.shown === 'minimised') {
     panel.replaceChildren(title)
     return panel
@@ -346,6 +340,26 @@ export function searchPanelElement(
   // TRAP: the table stays the last child; redrawInPlace replaces the last child as the table.
   panel.replaceChildren(title, wordFieldElement(host, view.word, placed.fontPx), ...menu, searchTableElement(host, view, placed.fontPx))
   return panel
+}
+
+// see SV-7
+// WHY: under the pressed heading cell, at least its width, pushed back inside the visible table box (JDG-1096 Q16).
+/** @purity non-pure */
+function placeFilterMenu(window: HTMLElement): void {
+  const menu = window.querySelector<HTMLElement>(`[${FILTER_MENU_ATTRIBUTE}]`)
+  const tableBox = window.lastElementChild
+  const column = menu?.getAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE) ?? null
+  const cell = column === null ? null : window.querySelector(`thead th[${COLUMN_ATTRIBUTE}="${column}"]`)
+  if (menu === null || tableBox === null || cell === null || typeof cell.getBoundingClientRect !== 'function') return
+  const frame = window.getBoundingClientRect()
+  const shown = tableBox.getBoundingClientRect()
+  const heading = cell.getBoundingClientRect()
+  menu.style.minWidth = `${heading.width}px`
+  menu.style.maxHeight = `${Math.max(0, shown.bottom - heading.bottom)}px`
+  const right = Math.min(heading.left + menu.getBoundingClientRect().width, shown.right)
+  const left = Math.max(shown.left, right - menu.getBoundingClientRect().width)
+  menu.style.left = `${left - frame.left}px`
+  menu.style.top = `${heading.bottom - frame.top}px`
 }
 
 // see SV-6
@@ -371,54 +385,64 @@ export function focusSearchWordIn(panel: HTMLElement): boolean {
   return true
 }
 
-interface PanelPlaced {
-  readonly place: ScreenRect
-  readonly box: ScreenRect
-}
-
-interface PointAsked {
-  readonly x: number
-  readonly y: number
-  readonly first: Element | null
-  readonly walked: ScreenPart | null
-}
-
 // see SV-9, SV-12, SV-13
 /** @purity pure */
-function panelPlacedOf(panel: SearchPanelView): PanelPlaced {
+function panelPlacedOf(panel: SearchPanelView): PlacedWindow {
   const ratio = { width: NOT_STORED_SEARCH_PANEL_SIZES['S-421'], height: NOT_STORED_SEARCH_PANEL_SIZES['S-422'] }
-  return { place: searchPanelPlaceOf(panel, ratio), box: searchPanelBoxOf(panel, ratio) }
+  const place = searchPanelPlaceOf(panel, ratio)
+  return { window: 'searchPanel', shown: panel.shown, place, box: searchPanelBoxOf(panel, ratio), range: panel.canvas }
 }
 
-// see T-337
+// see GR-28, SV-18, RW-9
+// WHY: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
 /** @purity semi-pure-b */
-function isInFrontOf(node: Element, layer: Element): boolean {
-  let carrier: Element | null = node
-  while (carrier !== null && carrier.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) === null) carrier = carrier.parentElement
-  const front = SCREEN_Z_ORDER.indexOf(carrier?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
-  return front >= 0 && front < SCREEN_Z_ORDER.indexOf(layer.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
+function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked): NonNullable<ScreenPart['windowGrab']> | null {
+  const head = window.querySelector('thead')
+  const tableBox = window.lastElementChild
+  if (head === null || tableBox === null || typeof head.getBoundingClientRect !== 'function') return null
+  const row = head.getBoundingClientRect()
+  if (asked.y < row.top || asked.y > row.bottom) return null
+  const reach = NOT_STORED_SEARCH_PANEL_SIZES['S-465']
+  const shown = tableBox.getBoundingClientRect()
+  for (const cell of window.querySelectorAll('thead th')) {
+    const drawn = cell.getBoundingClientRect()
+    if (Math.abs(asked.x - drawn.right) > reach || drawn.right > shown.right + reach) continue
+    const column = cell.getAttribute(COLUMN_ATTRIBUTE) ?? ''
+    const widthAtPress = Number(cell.getAttribute('data-width'))
+    const widthCeiling = Math.max(shown.right - drawn.left, NOT_STORED_SEARCH_PANEL_SIZES['S-425'])
+    return { window: placed.window, region: 'columnBorder', column, widthAtPress, widthFloor: NOT_STORED_SEARCH_PANEL_SIZES['S-425'], widthCeiling }
+  }
+  return null
 }
 
-// see IF-9, GR-24, GR-25, SJ-1, T-023d
-// WHY: an entrance, and anything drawn in front of the panel, answers alone; GR-24 is where no entrance sits.
+// see SV-7, IF-9
 /** @purity semi-pure-b */
-function searchPanelPartAt(layer: Element, placed: PanelPlaced | null, asked: PointAsked): ScreenPart | null {
-  const { x, y, first, walked } = asked
-  if (placed === null || (walked !== null && walked.entry !== null)) return walked
-  const isInPanel = first !== null && layer.contains(first)
-  if (!isInPanel && first !== null && isInFrontOf(first, layer)) return walked
-  const marks = isInPanel && first !== null ? searchMarksFrom(first, layer) : { jump: null, isOnBand: false }
-  const region = marks.isOnBand ? 'headingBand' : edgeRegionAt(x, y, placed.box, SEARCH_PANEL_EDGE_PX)
-  if (!isInPanel && region === null) return walked
-  const base = isInPanel && walked !== null ? walked : panelPartOf()
-  const grab = region === null ? {} : { searchPanelGrab: { region, panelBox: placed.place } }
-  return { ...base, searchJumpTarget: marks.jump, ...grab }
+function headingColumnOf(start: Element, window: Element): string | null {
+  for (let node: Element | null = start; node !== null && node !== window; node = node.parentElement) {
+    if (node.tagName === 'TH') return node.getAttribute(COLUMN_ATTRIBUTE)
+  }
+  return null
+}
+
+// see IF-9, GR-24, GR-25, GR-28, SJ-1, SV-7, T-023d
+// WHY: the heading word of a column answers as that column's IC-122 (SV-7), below the border band.
+/** @purity semi-pure-b */
+function tableWindowPartAt(window: Element | null, placed: PlacedWindow | null, asked: PointAsked, role: string): ScreenPart | null {
+  const answer = windowPartAt(window, placed, asked, windowPartOf(role))
+  const first = asked.first
+  if (window === null || placed === null || answer === null || answer.entry !== null || first === null || !window.contains(first)) return answer
+  if (answer.windowGrab !== undefined) return answer
+  const border = columnBorderAt(window, placed, asked)
+  if (border !== null) return { ...answer, windowGrab: border }
+  const column = headingColumnOf(first, window)
+  if (column !== null) return { ...answer, entry: FILTER_ENTRY, searchFilterColumn: column }
+  return { ...answer, searchJumpTarget: searchJumpFrom(first, window) }
 }
 
 // see SV-5, SV-10, SV-11
 /** @purity non-pure */
-function redrawInPlace(host: Document, drawnPanel: HTMLElement, panel: SearchPanelView, box: ScreenRect, tableFontPx: number | null): void {
-  drawnPanel.setAttribute('style', boxStyle(box) + panelStyle())
+function redrawInPlace(host: Document, drawnPanel: HTMLElement, panel: DrawnTable, box: ScreenRect, tableFontPx: number | null): void {
+  drawnPanel.setAttribute('style', boxStyle(box) + windowStyle())
   const drawnTable = drawnPanel.lastElementChild
   if (tableFontPx === null || drawnTable === null) return
   const redrawn = searchTableElement(host, panel, tableFontPx)
@@ -460,7 +484,7 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element): Searc
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
 /** @purity non-pure */
-function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } {
+export function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } {
   let changes: readonly SearchFilterChange[] = []
   layer.addEventListener('input', (event: Event) => {
     const change = filterChangeOf(event.target as HTMLInputElement | null, layer)
@@ -506,7 +530,6 @@ function focusKeptIn(host: Document, layer: Element, mark: FocusMark | null): vo
 }
 
 // see IN-4, SV-14
-// WHY: the host is asked for the focus only while a panel stands; no panel, no focus to keep.
 /** @purity non-pure */
 function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): void {
   const mark = (layer.firstElementChild ?? null) === null ? null : focusMarkIn(host, layer)
@@ -516,7 +539,7 @@ function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): 
 
 // see SV-2, SV-5, IF-9
 /** @purity non-pure */
-function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
+export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string | null } {
   let typed: string | null = null
   layer.addEventListener('input', (event: Event) => {
     const field = event.target as HTMLInputElement | null
@@ -533,13 +556,19 @@ function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly
   return { read }
 }
 
+// see SV-7, SV-18
+/** @purity pure */
+export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string {
+  return JSON.stringify([table.rows, table.columns, fontPx, filterMenu])
+}
+
 // see FR-151, SV-5, SV-9, SV-16, IF-9
 // TRAP: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
 /** @purity non-pure */
 export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) {
   let frameDrawn = ''
   let tableDrawn = ''
-  let placed: PanelPlaced | null = null
+  let placed: PlacedWindow | null = null
   const typedWord = typedWordWatch(layer, onWordTyped)
   const filterChanges = filterChangeWatch(layer, onWordTyped)
 
@@ -558,8 +587,8 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     }
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
     // WHY: not the word: only typing changes it, and the typed field already holds it.
-    const frameKey = JSON.stringify({ ...panel, rows: [], at: null, size: null, canvas: null, word: null })
-    const tableKey = JSON.stringify([panel.rows, fontPx])
+    const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null })
+    const tableKey = tableKeyOf(panel, fontPx, null)
     const drawnPanel = layer.firstElementChild as HTMLElement | null
     const isTableKept = tableKey === tableDrawn
     tableDrawn = tableKey
@@ -571,6 +600,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx }, anchorsOf())
     layer.replaceChildren(drawn)
     if (panel.shown !== 'minimised' && drawn.lastElementChild !== null) pinFixedColumns(drawn.lastElementChild)
+    placeFilterMenu(drawn)
   }
 
   return {
@@ -578,8 +608,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withFilterColumn(searchPanelPartAt(layer, placed, asked), asked.first, layer),
-    isFocused: (): boolean => isInside(layer, (host as Partial<Document>).activeElement ?? null),
+      withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, SEARCH_PANEL_ROLE), asked.first, layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }
@@ -587,17 +616,4 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
 /** @purity semi-pure-b */
 function isInside(layer: Element, node: Element | null): boolean {
   return node !== null && layer.contains(node)
-}
-
-/** @purity pure */
-function panelPartOf(): ScreenPart {
-  return {
-    part: SEARCH_PANEL_ROLE,
-    entry: null,
-    format: null,
-    rowGroupId: null,
-    resourceUid: null,
-    dividerPanel: null,
-    noticeDismissKey: null,
-  }
 }
