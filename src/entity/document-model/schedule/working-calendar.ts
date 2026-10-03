@@ -9,6 +9,7 @@ import {
   dayOf,
   serial,
   textOfDay,
+  textOfDayAt,
   type CalendarDay,
 } from './calendar-day'
 import { planActualState } from './plan-actual-state'
@@ -236,6 +237,30 @@ export const WORKING_DAY_LAG_FORMAT = 7
 export function minutesPerWorkingDayOf(project: Project): number {
   const held = project.minutesPerDay
   return held !== null && held > 0 ? held : DEFAULT_CALENDAR_VALUES['S-128']
+}
+
+/** @purity pure */
+export function defaultStartTimeOf(project: Project): string {
+  const held = project.defaultStartTime
+  return held ?? DEFAULT_CALENDAR_VALUES['S-482']
+}
+
+/** @purity pure */
+export function defaultFinishTimeOf(project: Project): string {
+  const held = project.defaultFinishTime
+  return held ?? DEFAULT_CALENDAR_VALUES['S-483']
+}
+
+/** @purity pure */
+export function textOfStartSide(day: CalendarDay, project: Project): string {
+  const time = defaultStartTimeOf(project)
+  return textOfDayAt(day, time)
+}
+
+/** @purity pure */
+export function textOfFinishSide(day: CalendarDay, project: Project, milestone: boolean): string {
+  const time = milestone ? defaultStartTimeOf(project) : defaultFinishTimeOf(project)
+  return textOfDayAt(day, time)
 }
 
 // see FR-009, AT-47, AT-48

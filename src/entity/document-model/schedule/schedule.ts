@@ -4,7 +4,7 @@
 // @purity    pure
 // @publishes table T-064 row PI-1
 
-import type { Schedule, Task } from './schedule-entities'
+import type { Schedule, Task, TaskVisual } from './schedule-entities'
 
 export {
   COLUMN_DEFAULTS,
@@ -43,8 +43,13 @@ export {
   compareDays,
   dayFromSerial,
   dayOf,
+  isSameDay,
+  DAY_END_TIME,
+  DAY_START_TIME,
   serial,
   textOfDay,
+  textOfDayEnd,
+  textOfDayStart,
 } from './calendar-day'
 export type { CalendarDay, CalendarSpan } from './calendar-day'
 export {
@@ -52,6 +57,8 @@ export {
   actualLengthOf,
   dateFromWorkingDays,
   DaySpanTooWide,
+  defaultFinishTimeOf,
+  defaultStartTimeOf,
   isWorkingDay,
   lagOfWorkingDays,
   lagWorkingDaysOf,
@@ -60,6 +67,8 @@ export {
   nextWorkingDay,
   NoWorkingDayReached,
   TENTHS_OF_A_MINUTE,
+  textOfFinishSide,
+  textOfStartSide,
   WORKING_DAY_LAG_FORMAT,
   workingCalendarOf,
   workingDaysBetween,
@@ -98,4 +107,19 @@ export type { CommentBoxSearchRow, SearchRows, TaskSearchRow } from './schedule-
 /** @purity pure */
 export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
+}
+
+// see IV-23, AT-97
+// WHY: a Task whose colour and shape nobody chose still holds its one TaskVisual, so no reader needs
+// a second way to draw a Task without one.
+/** @purity pure */
+export function blankTaskVisual(taskUid: number): TaskVisual {
+  return {
+    taskUid,
+    shapeKind: null,
+    milestoneGlyph: null,
+    fillColor: null,
+    strokeColor: null,
+    strokeWidthPx: null,
+  }
 }

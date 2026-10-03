@@ -12,6 +12,7 @@ import {
   actualLengthOf,
   compareDays,
   dayOf,
+  scheduleViolations,
   workingCalendarOf,
   type CalendarDay,
   type Task,
@@ -301,5 +302,20 @@ export function validateImportedDocument(
     }
   }
 
-  return found.length === 0 ? { ok: true } : { ok: false, refusals: found }
+  return verdictOf([...found, ...oneVisualRefusals(candidate.document)])
+}
+
+/** @purity pure */
+function verdictOf(refusals: readonly ImportRefusal[]): ImportVerdict {
+  return refusals.length === 0 ? { ok: true } : { ok: false, refusals }
+}
+
+const ONE_VISUAL_PER_TASK = 'IV-23'
+
+// see IV-23, NT-1
+// WHY: the row is judged where table T-220 holds it, so the read refuses exactly what the invariant names.
+/** @purity pure */
+function oneVisualRefusals(document: Document): readonly ImportRefusal[] {
+  return scheduleViolations(document.schedule, document.documentSettings, [ONE_VISUAL_PER_TASK])
+    .map((one) => refusal(one.row, one.at, one.what, 'NT-1'))
 }

@@ -21,6 +21,7 @@ import type {
   TaskOrigin,
   TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
+import { blankTaskVisual } from '../../entity/document-model/schedule/schedule'
 
 export type ImportFormat = 'grsJson' | 'mspdi'
 
@@ -161,9 +162,8 @@ const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Proj
   { row: 'PF-6', key: 'author' },
   { row: 'PF-7', key: 'revision' },
   { row: 'PF-8', key: 'startDate' },
-  // WHY: PF-9 and PF-10 are asked about too; narrowing to editable rows would be this file deciding.
+  // WHY: PF-9 is asked about too; narrowing to editable rows would be this file deciding.
   { row: 'PF-9', key: 'created' },
-  { row: 'PF-10', key: 'lastSaved' },
 ]
 
 /** @purity pure */
@@ -779,9 +779,9 @@ function builtMerge(input: MergeInput): ImportOutcome {
     tasks.set(uid, { ...task, uid, wbsParentUid, calendarUid, dependencies })
 
     if (request.format === 'grsJson' || !wasHeld) {
-      const visual = incomingVisualByTaskUid.get(task.uid)
-      if (visual === undefined) visuals.delete(uid)
-      else visuals.set(uid, { ...visual, taskUid: uid })
+      // WHY: a read document holds one row for every Task (IV-23); the blank one keeps a merge to the rule all the same.
+      const visual = incomingVisualByTaskUid.get(task.uid) ?? blankTaskVisual(task.uid)
+      visuals.set(uid, { ...visual, taskUid: uid })
 
       const member = incomingMemberByTaskUid.get(task.uid)
       if (member !== undefined) members.set(uid, { ...member, taskUid: uid })

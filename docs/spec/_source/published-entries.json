@@ -249,7 +249,48 @@
      "name": "textOfDay",
      "note": {
       "ja": [
-       "日を日付の字面に戻す"
+       "日を日付の字面に戻す。",
+       "日を表す鍵の字であり、列へ書く字は側ごとの関数が作る（`UF-170`）"
+      ]
+     }
+    },
+    {
+     "name": "blankTaskVisual",
+     "note": {
+      "ja": [
+       "`taskUid` のほかがすべて `null` の `TaskVisual`（表 T-220 の `IV-23`）"
+      ]
+     }
+    },
+    {
+     "name": "textOfDayStart",
+     "note": {
+      "ja": [
+       "丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`）"
+      ]
+     }
+    },
+    {
+     "name": "textOfDayEnd",
+     "note": {
+      "ja": [
+       "丸 1 日の範囲の終わりの字（表 T-350 の `WT-7`）"
+      ]
+     }
+    },
+    {
+     "name": "DAY_START_TIME",
+     "note": {
+      "ja": [
+       "丸 1 日の範囲の始まりの時刻（表 T-350 の `WT-6`）"
+      ]
+     }
+    },
+    {
+     "name": "DAY_END_TIME",
+     "note": {
+      "ja": [
+       "丸 1 日の範囲の終わりの時刻（表 T-350 の `WT-7`）"
       ]
      }
     },
@@ -258,6 +299,15 @@
      "note": {
       "ja": [
        "2 つの日の前後"
+      ]
+     }
+    },
+    {
+     "name": "isSameDay",
+     "note": {
+      "ja": [
+       "2 つの日時の字が同じ日か。",
+       "日の部分で比べる（`FR-054`）"
       ]
      }
     },
@@ -305,6 +355,41 @@
       "ja": [
        "1 稼働日の分数。",
        "`Project.minutesPerDay`、空なら `S-128`（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "defaultStartTimeOf",
+     "note": {
+      "ja": [
+       "文書の既定の開始時刻。",
+       "`Project.defaultStartTime`、空なら `S-482`（表 T-350 の `WT-1`）"
+      ]
+     }
+    },
+    {
+     "name": "defaultFinishTimeOf",
+     "note": {
+      "ja": [
+       "文書の既定の終了時刻。",
+       "`Project.defaultFinishTime`、空なら `S-483`（表 T-350 の `WT-2`）"
+      ]
+     }
+    },
+    {
+     "name": "textOfStartSide",
+     "note": {
+      "ja": [
+       "開始の側の列へ書く日時の字（表 T-350 の `WT-1`・`WT-3`）"
+      ]
+     }
+    },
+    {
+     "name": "textOfFinishSide",
+     "note": {
+      "ja": [
+       "終了の側の列へ書く日時の字。",
+       "マイルストーンは開始の時刻（表 T-350 の `WT-2`・`WT-4`・`WT-5`）"
       ]
      }
     },

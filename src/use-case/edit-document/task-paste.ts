@@ -4,8 +4,8 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { Assignment, CalendarDay, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
-import { dayFromSerial, dayOf, serial, taskByUid, textOfDay } from '../../entity/document-model/schedule/schedule'
+import type { Assignment, CalendarDay, Project, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
+import { dayFromSerial, dayOf, serial, taskByUid, textOfFinishSide, textOfStartSide } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { wbsSubtreeOf, withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
@@ -35,12 +35,16 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
 // see CY-5
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
-function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
+function shiftedPlan(task: Task, landing: PasteLanding | undefined, project: Project): Task {
   const start = dayOf(task.start)
   const finish = dayOf(task.finish)
   if (landing === undefined || landing.dayShift === 0 || start === null || finish === null) return task
   const days = landing.dayShift
-  return { ...task, start: textOfDay(dayShiftedBy(start, days)), finish: textOfDay(dayShiftedBy(finish, days)) }
+  return {
+    ...task,
+    start: textOfStartSide(dayShiftedBy(start, days), project),
+    finish: textOfFinishSide(dayShiftedBy(finish, days), project, task.milestone === true),
+  }
 }
 
 /** @purity pure */
@@ -83,7 +87,8 @@ export function pasteTaskSubtree(
 
   const copies = schedule.tasks
     .filter((one) => subtree.has(one.uid))
-    .map((one) => planDatesEdited(shiftedPlan(copiedTask(one, subtree, remap), landing), schedule, within))
+    .map((one) =>
+      planDatesEdited(shiftedPlan(copiedTask(one, subtree, remap), landing, schedule.project), schedule, within))
 
   const visualCopies = schedule.taskVisuals
     .filter((one) => subtree.has(one.taskUid))

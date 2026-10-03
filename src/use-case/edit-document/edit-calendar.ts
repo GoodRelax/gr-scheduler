@@ -3,7 +3,7 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 
-import { workingCalendarOf } from '../../entity/document-model/schedule/schedule'
+import { isSameDay, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
 import type {
   Calendar,
   Exception,
@@ -132,8 +132,8 @@ function isSameException(left: Exception, right: Exception): boolean {
     left === right ||
     (left.ordinal === right.ordinal &&
       left.name === right.name &&
-      left.fromDate === right.fromDate &&
-      left.toDate === right.toDate &&
+      isSameDay(left.fromDate, right.fromDate) &&
+      isSameDay(left.toDate, right.toDate) &&
       left.dayWorking === right.dayWorking &&
       left.recurrenceKind === right.recurrenceKind &&
       JSON.stringify([left.carry, left.carryElements]) === JSON.stringify([right.carry, right.carryElements]))

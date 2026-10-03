@@ -25,11 +25,41 @@ export function dayOf(text: string | null): CalendarDay | null {
   return { year, month, day }
 }
 
-// see EX-7
+// see WT-6
+export const DAY_START_TIME = '00:00:00'
+// see WT-7
+export const DAY_END_TIME = '23:59:00'
+
+/** @purity pure */
+function dateTextOf(day: CalendarDay): string {
+  const pad = (n: number, width: number): string => String(n).padStart(width, '0')
+  return `${pad(day.year, 4)}-${pad(day.month, 2)}-${pad(day.day, 2)}`
+}
+
+// see EX-7, UF-170
+/** @purity pure */
+export function textOfDayAt(day: CalendarDay, time: string): string {
+  return `${dateTextOf(day)}T${time}`
+}
+
+// see UF-170
+// TRAP: this is the day's KEY, read back by dayOf and used as a Map key on per-frame paths;
+// a writer that stores a column picks a side (textOfDayStart, textOfStartSide, ...) instead.
 /** @purity pure */
 export function textOfDay(day: CalendarDay): string {
-  const pad = (n: number, width: number): string => String(n).padStart(width, '0')
-  return `${pad(day.year, 4)}-${pad(day.month, 2)}-${pad(day.day, 2)}T00:00:00`
+  return textOfDayAt(day, DAY_START_TIME)
+}
+
+// see WT-6, WT-8
+/** @purity pure */
+export function textOfDayStart(day: CalendarDay): string {
+  return textOfDayAt(day, DAY_START_TIME)
+}
+
+// see WT-7
+/** @purity pure */
+export function textOfDayEnd(day: CalendarDay): string {
+  return textOfDayAt(day, DAY_END_TIME)
 }
 
 /** @purity pure */
@@ -37,6 +67,17 @@ export function compareDays(a: CalendarDay, b: CalendarDay): number {
   if (a.year !== b.year) return a.year - b.year
   if (a.month !== b.month) return a.month - b.month
   return a.day - b.day
+}
+
+// see FR-054
+// WHY: GRS writes a different time on each side (T-350), so the texts of one day differ; a text that names
+// no day is compared as it stands.
+/** @purity pure */
+export function isSameDay(left: string | null, right: string | null): boolean {
+  const leftDay = dayOf(left)
+  const rightDay = dayOf(right)
+  if (leftDay === null || rightDay === null) return left === right
+  return compareDays(leftDay, rightDay) === 0
 }
 
 // TRAP: Date.UTC maps years 0 to 99 onto 1900 to 1999; dayOf's round-trip check shares

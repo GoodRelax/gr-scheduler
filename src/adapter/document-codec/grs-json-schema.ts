@@ -1016,6 +1016,18 @@ export function collectSchemaFaults(value: unknown, out: JsonFault[]): void {
   collectFaults(value, GRS_DOCUMENT_SCHEMA, '', out)
 }
 
+// see FR-021, AT-154, AT-155
+// WHY: held to the same $defs/Time a GRS JSON read holds the two columns to, so a value moved into a column
+// from MSPDI always reads back from the GRS JSON written of it.
+/** @purity pure */
+export function isTimeText(text: string): boolean {
+  const faults: JsonFault[] = []
+  collectFaults(text, { ref: TIME_DEFINITION }, '', faults)
+  return faults.length === 0
+}
+
+const TIME_DEFINITION = 'Time'
+
 /** @purity pure */
 export function collectionNamesOfEntity(entity: string): readonly string[] {
   const scheduleNode = GRS_DOCUMENT_SCHEMA.properties?.['schedule']

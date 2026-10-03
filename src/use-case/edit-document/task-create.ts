@@ -87,7 +87,7 @@ export function createTask(
   }
   const taskGroupMembers = [
     ...schedule.taskGroupMembers,
-    { taskUid: uid, groupId: command.groupId, stackOrder: null },
+    { taskUid: uid, groupId: command.groupId },
   ]
   return edited(
     withSchedule(document, {

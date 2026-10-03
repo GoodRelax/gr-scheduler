@@ -1880,13 +1880,30 @@ export function readToday(): string {
 // see FR-095, RD-7
 /** @purity semi-pure-b */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
-  return { row: 'RD-7', document: emptyDocument, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
+  const document = startedDocumentOf(emptyDocument, readLocalMoment())
+  return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
+}
+
+// see BK-4, WT-9
+/** @purity pure */
+export function startedDocumentOf(emptyDocument: Document, created: string): Document {
+  const schedule = emptyDocument.schedule
+  return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, created } } }
 }
 
 // see FR-063
 /** @purity semi-pure-b */
 export function readInstantOfWrite(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z')
+}
+
+// see WT-9, DV-12
+/** @purity semi-pure-b */
+export function readLocalMoment(): string {
+  const now = new Date()
+  const parts = [now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]
+  const [year, month, date, hours, minutes, seconds] = parts.map((part, at) => String(part).padStart(at === 0 ? 4 : 2, '0'))
+  return `${year}-${month}-${date}T${hours}:${minutes}:${seconds}`
 }
 
 /** @purity semi-pure-b */
@@ -2554,6 +2571,7 @@ export function frameLoop(
         settingsLimits: settingsLimitsOf(frame),
         defaultRowName: DEFAULT_ROW_NAME,
         readAt: readInstantOfWrite(),
+        localReadAt: readLocalMoment(),
       }
     },
   }

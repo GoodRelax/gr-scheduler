@@ -63,6 +63,25 @@ interface Nesting<TKey> {
   readonly rings: readonly (readonly TKey[])[]
 }
 
+// see IV-6, IV-23
+/** @purity pure */
+function tasksNotNamedOnce(
+  schedule: Schedule,
+  naming: readonly { readonly taskUid: number }[],
+  entity: string,
+): readonly Breach[] {
+  const namedBy = new Map<number, number>()
+  for (const row of naming) namedBy.set(row.taskUid, (namedBy.get(row.taskUid) ?? 0) + 1)
+  const found: Breach[] = []
+  for (const [index, task] of schedule.tasks.entries()) {
+    const count = namedBy.get(task.uid) ?? 0
+    if (count !== 1) {
+      found.push({ at: `/schedule/tasks/${index}`, what: `Task uid ${task.uid} is named by ${count} ${entity} rows` })
+    }
+  }
+  return found
+}
+
 // see IV-4, IV-5, IV-18
 /** @purity pure */
 function nestingOf<TKey, TRow>(
@@ -424,23 +443,13 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-6',
     kind: 'structure',
     /** @purity pure */
-    find: ({ schedule }) => {
-      const namedBy = new Map<number, number>()
-      for (const member of schedule.taskGroupMembers) {
-        namedBy.set(member.taskUid, (namedBy.get(member.taskUid) ?? 0) + 1)
-      }
-      const found: Breach[] = []
-      for (const [index, task] of schedule.tasks.entries()) {
-        const count = namedBy.get(task.uid) ?? 0
-        if (count !== 1) {
-          found.push({
-            at: `/schedule/tasks/${index}`,
-            what: `Task uid ${task.uid} is named by ${count} TaskGroupMember rows`,
-          })
-        }
-      }
-      return found
-    },
+    find: ({ schedule }) => tasksNotNamedOnce(schedule, schedule.taskGroupMembers, 'TaskGroupMember'),
+  },
+  {
+    row: 'IV-23',
+    kind: 'structure',
+    /** @purity pure */
+    find: ({ schedule }) => tasksNotNamedOnce(schedule, schedule.taskVisuals, 'TaskVisual'),
   },
   {
     row: 'IV-7',
@@ -748,14 +757,17 @@ const INVARIANTS: readonly Invariant[] = [
 ]
 
 // see T-220
+// WHY: `rows` lets a caller that refuses one row judge only it, without walking rows that count working days.
 /** @purity pure */
 export function scheduleViolations(
   schedule: Schedule,
   settings: DocumentSettings,
+  rows?: readonly string[],
 ): readonly ScheduleViolation[] {
   const subject: DocumentUnderTest = { schedule, settings }
   const found: ScheduleViolation[] = []
   for (const invariant of INVARIANTS) {
+    if (rows !== undefined && !rows.includes(invariant.row)) continue
     for (const breach of invariant.find(subject)) {
       found.push({ row: invariant.row, kind: invariant.kind, at: breach.at, what: breach.what })
     }

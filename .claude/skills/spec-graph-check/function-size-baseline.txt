@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# PRUNED mspdi-codec.ts::writtenProjectChildren (held 56/7, now below the band) on 2026-10-03 (CR-646 K-3): the Project columns it writes moved to writtenProjectColumns. Totals left for the coordinator to lower.
 # PRUNED json-codec.ts::documentFromJson (held 53/9, now below the band) and LOWERED openDocumentIntoHold 155/32 -> 150/30 on 2026-10-03 (CR-645): the recount and the settings clamp of a GRS JSON read moved to settledReading, the intake notices to tellDecodedIntake. Totals left for the coordinator to lower.
 # RAISED 6171 -> 6216, agentApiMembers 345->350, frameLoop 1527->1561, runFrame 139/11->145/12 on 2026-10-01 under JDG-778 (lane L4, CR-561 S-5 / S-6: the shell holds delayDiagnosticsShown and the report, recomputed only when the document changes; readDelayDiagnostics; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED frameClockWakesOf 69->93, frameLoop 1508->1527, receiveInput 161/68->161/69, runFrame 138->139 on 2026-10-01 under JDG-778 (lane L4, CR-576 5.1 (b): two hint timers -- beginHintTargetDwell / readHintTargetDwellMs beside beginPointerRest -- and the hint target that restarts the icon wait; DFC-1284).
@@ -58,7 +59,6 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 bra
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
-HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
 HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
 HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25

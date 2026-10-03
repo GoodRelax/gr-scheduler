@@ -6,6 +6,7 @@
 import type { Document } from '../../entity/document-model/document/document'
 import {
   COLUMN_SHAPES,
+  blankTaskVisual,
   calendarDaysBetween,
   dayOf,
   isStoredColour,
@@ -15,7 +16,6 @@ import {
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import {
-  blankVisual,
   isMilestone,
   sameRow,
   visualOf,
@@ -31,7 +31,7 @@ function withVisual(document: Document, next: TaskVisual): Document {
   const held = document.schedule.taskVisuals
   const foundAt = held.findIndex((one) => one.taskUid === next.taskUid)
   // TRAP: an absent row compares as blank, or a no-op would append a null row and move the instant.
-  const standing = foundAt < 0 ? blankVisual(next.taskUid) : held[foundAt]
+  const standing = foundAt < 0 ? blankTaskVisual(next.taskUid) : held[foundAt]
   if (standing !== undefined && sameRow(standing, next)) return document
   const taskVisuals = foundAt < 0 ? [...held, next] : held.map((one, index) => (index === foundAt ? next : one))
   return withSchedule(document, { ...document.schedule, taskVisuals })

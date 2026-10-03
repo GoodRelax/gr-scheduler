@@ -3,7 +3,12 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { textOfDay } from '../../entity/document-model/schedule/schedule'
+import {
+  textOfDayEnd,
+  textOfDayStart,
+  textOfFinishSide,
+  textOfStartSide,
+} from '../../entity/document-model/schedule/schedule'
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
@@ -110,8 +115,8 @@ export function commandFromArmed(
       {
         kind: 'createTask',
         shapeKind,
-        start: textOfDay(start),
-        finish: textOfDay(finish),
+        start: textOfStartSide(start, context.document.schedule.project),
+        finish: textOfFinishSide(finish, context.document.schedule.project, isMilestone),
         groupId,
       },
     ]
@@ -156,8 +161,8 @@ export function commandFromArmed(
         kind: 'createHighlightBox',
         id: context.newHighlightBoxId,
         range: {
-          startDate: textOfDay(early),
-          endDate: textOfDay(late),
+          startDate: textOfDayStart(early),
+          endDate: textOfDayEnd(late),
           topGroupId: top.groupId,
           bottomGroupId: bottom.groupId,
         },

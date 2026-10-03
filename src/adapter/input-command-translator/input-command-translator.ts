@@ -17,7 +17,9 @@ import {
   dayOf,
   planActualState,
   taskByUid,
-  textOfDay,
+  textOfDayStart,
+  textOfFinishSide,
+  textOfStartSide,
   type CalendarDay,
   type Schedule,
   type Task,
@@ -493,7 +495,7 @@ export function commentAnchorAt(
   if (day === null) return CONSUMED_ELSEWHERE
   const row = rowAtY(layout, y)
   if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
-  return { date: textOfDay(day), groupId: row.groupId }
+  return { date: textOfDayStart(day), groupId: row.groupId }
 }
 
 /** @purity pure */
@@ -544,7 +546,7 @@ export function dayAnchorAt(
     return { scrollDate: settings.scrollDate, scrollDayOffset: settings.scrollDayOffset }
   }
   return {
-    scrollDate: textOfDay(day),
+    scrollDate: textOfDayStart(day),
     scrollDayOffset: unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay),
   }
 }
@@ -1272,6 +1274,7 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
   if (anchorDay === null) return []
 
   const commands: DocumentCommand[] = []
+  const project = context.document.schedule.project
   for (const one of chosen) {
     if (one.kind !== 'task' || one.uid === anchorRef.uid) continue
     const task = taskByUid(context.document.schedule, one.uid)
@@ -1284,8 +1287,8 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
     commands.push({
       kind: 'setTaskPlanDates',
       uid: one.uid,
-      start: textOfDay(dayShifted(start, shift)),
-      finish: textOfDay(dayShifted(finish, shift)),
+      start: textOfStartSide(dayShifted(start, shift), project),
+      finish: textOfFinishSide(dayShifted(finish, shift), project, task.milestone === true),
     })
   }
   return commands

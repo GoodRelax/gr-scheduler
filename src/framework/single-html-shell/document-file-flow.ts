@@ -62,6 +62,7 @@ import {
   isSizeSettled,
   noWorkingWeekdayReason,
   readInstantOfWrite,
+  readLocalMoment,
   type ConfirmationQuestion,
   type FrameLoopHands,
   type FrameValues,
@@ -201,15 +202,20 @@ function savedDocumentText(document: Document, savedAt: string): string {
   return jsonFromDocument({ ...document, documentStamp: { ...document.documentStamp, fileSavedUtc: savedAt } })
 }
 
-// see FR-096
+interface WriteMoment {
+  readonly savedAt: string
+  readonly savedLocalAt: string
+}
+
+// see FR-096, AT-140, DV-12
 /** @purity pure */
-function exportedText(form: SaveFileForm, document: Document, savedAt: string): string | null {
+function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): string | null {
   switch (form) {
     case 'grsJson':
-      return savedDocumentText(document, savedAt)
+      return savedDocumentText(document, moment.savedAt)
     case 'mspdi':
       // DEVIATION: spec says export notices are told (EX-3, EX-6); here they are dropped (DFC-557)
-      return mspdiFromDocument(document).text
+      return mspdiFromDocument(document, moment.savedLocalAt).text
     case 'svg':
     case 'png':
     case 'singleHtml':
@@ -838,7 +844,7 @@ async function exportHeldDocumentToFile(
   if (form === null) return
   const written = hands.readHeld().document
   const savedAt = readInstantOfWrite()
-  const text = exportedText(form, written, savedAt)
+  const text = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
   // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
   const picture =
     text === null ? await exportPictureContent(hands, form, written) : { content: { text }, capStopGroupId: null }

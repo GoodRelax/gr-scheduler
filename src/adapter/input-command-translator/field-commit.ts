@@ -9,8 +9,11 @@ import {
   lastDayForLength,
   planActualState,
   taskByUid,
-  textOfDay,
+  textOfFinishSide,
+  textOfStartSide,
   workingCalendarOf,
+  type CalendarDay,
+  type Project,
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
@@ -38,12 +41,25 @@ function settledNumber(text: string): number | null | undefined {
   return Number.isFinite(value) ? value : undefined
 }
 
+type SideText = (day: CalendarDay) => string
+
+// see WT-1, WT-3
+const START_SIDE_COLUMNS: readonly string[] = ['start', 'actualStart', 'resume']
+
+// see T-350
 /** @purity pure */
-function settledDay(text: string): string | null | undefined {
+function sideTextOf(project: Project, task: Task, column: string): SideText {
+  return START_SIDE_COLUMNS.includes(column)
+    ? (day) => textOfStartSide(day, project)
+    : (day) => textOfFinishSide(day, project, task.milestone === true)
+}
+
+/** @purity pure */
+function settledDay(text: string, sideText: SideText): string | null | undefined {
   const held = settledText(text)
   if (held === null) return null
   const day = dayOf(held)
-  return day === null ? undefined : textOfDay(day)
+  return day === null ? undefined : sideText(day)
 }
 
 // see CV-4, CV-5
@@ -81,10 +97,10 @@ function planActualWithColumn(
     const days = settledNumber(text)
     const from = dayOf(task.actualStart)
     if (days === undefined || days === null || from === null) return null
-    const lastDay = textOfDay(lastDayForLength(workingCalendarOf(schedule), from, days))
+    const lastDay = sideTextOf(schedule.project, task, 'stop')(lastDayForLength(workingCalendarOf(schedule), from, days))
     written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = lastDay
   } else {
-    const day = settledDay(text)
+    const day = settledDay(text, sideTextOf(schedule.project, task, column))
     if (day === undefined) return null
     written[column] = day
     // TRAP: set resumeValid with resume before the row is read: without true a date on PA-4 is
@@ -115,15 +131,15 @@ const PLAN_ACTUAL_COLUMNS: readonly string[] = [
 
 // see PR-35, PR-36, CM-11, CM-13
 /** @purity pure */
-function commandFromMilestoneDay(task: Task, column: keyof Task, text: string): readonly DocumentCommand[] | null {
+function commandFromMilestoneDay(task: Task, column: keyof Task, text: string, project: Project): readonly DocumentCommand[] | null {
   const uid = task.uid
   const isPlan = column === 'start' || column === 'finish'
   if (!isPlan && column !== 'actualStart' && column !== 'actualFinish') return null
-  const day = settledDay(text)
-  if (day === undefined) return []
-  if (isPlan) return day === null ? [] : [{ kind: 'setTaskPlanDates', uid, start: day, finish: day }]
+  const typed = settledDay(text, sideTextOf(project, task, column))
+  if (typed === undefined) return []
+  if (isPlan) return typed === null ? [] : [{ kind: 'setTaskPlanDates', uid, start: typed, finish: typed }]
   const place: PlacedPlanActual =
-    day === null ? { row: 'PA-1' } : { row: 'PA-5', actualStart: day, actualFinish: day }
+    typed === null ? { row: 'PA-1' } : { row: 'PA-5', actualStart: typed, actualFinish: typed }
   return [{ kind: 'setTaskPlanActualState', uid, place }]
 }
 
@@ -149,7 +165,7 @@ function commandFromTaskColumn(
       return [{ kind: 'setTaskNotes', uid, notes: settledText(text) }]
     case 'start':
     case 'finish': {
-      const settled = settledDay(text)
+      const settled = settledDay(text, sideTextOf(schedule.project, task, column))
       if (settled === undefined || settled === null) return []
       const start = column === 'start' ? settled : task.start
       const finish = column === 'finish' ? settled : task.finish
@@ -157,7 +173,7 @@ function commandFromTaskColumn(
       return [{ kind: 'setTaskPlanDates', uid, start, finish }]
     }
     case 'deadline': {
-      const deadline = settledDay(text)
+      const deadline = settledDay(text, sideTextOf(schedule.project, task, column))
       return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', uid, deadline }]
     }
     case 'fadeInDays': {
@@ -451,7 +467,8 @@ export function commandFromFieldCommit(
     case 'task': {
       const task = taskByUid(schedule, key.uid)
       if (task === null) return []
-      const milestoneDay = task.milestone === true ? commandFromMilestoneDay(task, key.column, commit.text) : null
+      const milestoneDay =
+        task.milestone === true ? commandFromMilestoneDay(task, key.column, commit.text, schedule.project) : null
       return milestoneDay ?? commandFromTaskColumn(schedule, task, key.column, commit.text)
     }
     case 'taskVisual':
