@@ -38,7 +38,7 @@ function rowOf(table: string, id: string) {
 
 const rowText = (table: string, id: string): string => unbroken(rowOf(table, id).cells.join(' '))
 
-const FR_066_SHOW = '`Agent API` が有効であるあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
+const FR_066_SHOW = '`Agent API` が有効であり、閲覧者が求めているあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
 const FR_066_HIDDEN = '**閲覧者がその欄を非表示にしているあいだは表示しないこと（MUST）**'
 const IF_9_UTTERANCE = '対話欄で確定した発話を返し、'
 const IF_9_NO_EDIT_NOTICE = '対話欄（`U-44`）は編集の始まりも終わりも知らせない'

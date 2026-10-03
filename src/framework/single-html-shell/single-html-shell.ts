@@ -9,6 +9,7 @@ import { NOT_STORED_SCROLLBAR_SIZES } from './frame-loop'
 import { browserClipboard } from '../browser-clipboard/browser-clipboard'
 import { canvasRasterizer } from '../canvas-rasterizer/canvas-rasterizer'
 import type { Document } from '../../entity/document-model/document/document'
+import type { WindowName } from '../../entity/document-model/screen-state/screen-state'
 import { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
   documentFromEmbeddedHtml,
@@ -76,14 +77,16 @@ function readDeliveredHtml(): string {
 // its T-109 row, and nothing of the value is read, so no document contents reach the record.
 const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
 
-type SearchPanelReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[0]['holdSearchPanelReaders']>>[0]
+type WindowReaders = Parameters<NonNullable<Parameters<typeof domScreenSurface>[0]['holdWindowReaders']>>[0]
 
 // see SV-7, SV-14, IF-9
 /** @purity pure */
-function searchPanelReadersOf(read: () => SearchPanelReaders | null) {
+function windowReadersOf(read: () => WindowReaders | null) {
   return {
     /** @purity semi-pure-b */
-    isSearchPanelFocused: (): boolean => read()?.isFocused() === true,
+    readFocusedWindow: (): WindowName | null => read()?.readFocusedWindow() ?? null,
+    /** @purity semi-pure-b */
+    isFocusInPropertiesPanel: (): boolean => read()?.isFocusInPropertiesPanel() === true,
     /** @purity semi-pure-b */
     readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
   }
@@ -500,7 +503,7 @@ function boot(): void {
   let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
-  let searchPanelReadersHeld: SearchPanelReaders | null = null
+  let windowReadersHeld: WindowReaders | null = null
 
   const screenSurface = domScreenSurface({
     host: document,
@@ -517,7 +520,7 @@ function boot(): void {
       readWatermarkUnlockAnswerHeld = read
     },
     /** @purity non-pure */
-    holdSearchPanelReaders: (readers) => void (searchPanelReadersHeld = readers),
+    holdWindowReaders: (readers) => void (windowReadersHeld = readers),
     /** @purity non-pure */
     onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
@@ -584,7 +587,7 @@ function boot(): void {
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
       /** @purity semi-pure-b */
       readFocusPosition: focusPositionOfPage,
-      ...searchPanelReadersOf(() => searchPanelReadersHeld),
+      ...windowReadersOf(() => windowReadersHeld),
     },
     fileStore,
     showPointerShape,

@@ -71,7 +71,12 @@ export type {
   SearchSort,
   SearchTable,
 } from './screen-values'
-export { SEARCH_PANEL_TEXT_SIZE_ROWS, emptySearchPanelSession, isHelpStandingIn } from './screen-values'
+export {
+  SEARCH_PANEL_TEXT_SIZE_ROWS,
+  emptySearchPanelSession,
+  isHelpStandingIn,
+  isWindowStandingIn,
+} from './screen-values'
 export type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,

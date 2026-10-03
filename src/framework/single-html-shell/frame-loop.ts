@@ -11,6 +11,7 @@ import {
   escapeTarget,
   type DualCursorSide,
   type EscapeTarget,
+  type WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import { emptySelection, selectionWith, selectionWithinSchedule } from '../../entity/document-model/selection/selection'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
@@ -118,6 +119,7 @@ import {
 } from '../../adapter/image-exporter/image-exporter'
 import {
   commandFromInput,
+  escapeContextOf,
   isCombo,
   isLandingMarkKeptBy,
   isTypedIntoSearchWord,
@@ -322,8 +324,9 @@ export interface ScreenWiring {
   // see FR-102, IR-1
   // TRAP: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
   readonly readFocusPosition?: () => string
-  // see RG-15, SV-5, SV-14
-  readonly isSearchPanelFocused?: () => boolean
+  // see RG-16, SV-5, IF-9
+  readonly readFocusedWindow?: () => WindowName | null
+  readonly isFocusInPropertiesPanel?: () => boolean
   // see SV-7, IF-9
   // TRAP: reading takes the changes, in the order the host raised them.
   readonly readSearchFilterChanges?: () => readonly SearchFilterChange[]
@@ -459,6 +462,7 @@ const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surfac
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
+const ESCAPE_DIALOGUE_FIELD: ScreenValuesEvent = { type: 'escapePressed', rung: 'dialogueField' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
@@ -494,15 +498,17 @@ const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 
 // see IN-4, T-283
 // WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
-// by the surface (IF-9), gesture below the translators, selection by selectionFromInput.
+// by the surface (IF-9), gesture below the translators, selection by selectionFromInput, the report window by the shell.
 const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
   notice: null,
-  searchPanel: ESCAPE_SEARCH_PANEL,
   textEntry: null,
   confirmation: null,
   surface: ESCAPE_SURFACE,
-  helpModal: ESCAPE_HELP,
   gesture: null,
+  searchPanel: ESCAPE_SEARCH_PANEL,
+  helpModal: ESCAPE_HELP,
+  delayDiagnosticsReport: null,
+  dialogueField: ESCAPE_DIALOGUE_FIELD,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
   selection: null,
@@ -1373,19 +1379,20 @@ function escapeLevelOf(
   isTooltipStanding: boolean,
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
-  return escapeTarget({
-    isNoticeStanding: context.isNoticeStanding === true,
-    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
-    isTextEntryUnsettled: context.isTextEntryUnsettled,
-    isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
-    isHelpStanding: isHelpStandingIn(context.screen),
-    gestureInFlight: context.pressed !== null,
-    isArmed: context.screen.armModeState.kind !== 'notArmed',
-    dualCursorMode: context.dualCursorFollowing !== null,
-    isConfirmationStanding,
-    isPropertiesPanelOpen,
-    isTooltipStanding,
-  })
+  return escapeTarget({ ...escapeContextOf(context), isConfirmationStanding, isPropertiesPanelOpen, isTooltipStanding })
+}
+
+// see RG-16, IF-9
+/** @purity semi-pure-b */
+function windowFocusContextOf(
+  screen: ScreenWiring | undefined,
+  session: ScreenSession,
+): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled'> {
+  return {
+    focusedWindow: screen?.readFocusedWindow?.() ?? null,
+    isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
+    isAgentApiEnabled: isAgentApiEnabledIn(session),
+  }
 }
 
 /** @purity pure */
@@ -2418,7 +2425,7 @@ export function frameLoop(
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
-      isSearchPanelFocused: screen?.isSearchPanelFocused?.() === true,
+      ...windowFocusContextOf(screen, session),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),

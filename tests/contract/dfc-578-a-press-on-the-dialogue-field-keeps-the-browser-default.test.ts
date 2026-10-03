@@ -40,7 +40,7 @@ function statementOf(uid: string): string {
 }
 
 const FR_066 = statementOf('FR-066')
-const FR_066_FIELD = '`Agent API` が有効であるあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
+const FR_066_FIELD = '`Agent API` が有効であり、閲覧者が求めているあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
 
 const AG_11 = specTable('T-035').rows.find((one) => one.id === 'AG-11')
 if (AG_11 === undefined) throw new Error('table T-035 has no row AG-11')

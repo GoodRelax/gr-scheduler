@@ -14,6 +14,7 @@ import {
   type SearchFilterChange,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
+import type { WindowName } from '../../entity/document-model/screen-state/screen-state'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
 import { fillScreenFrame, horizontalScrollbar, panelEdge } from './screen-frame-drawing'
@@ -676,13 +677,40 @@ export interface ScreenSurfaceWiring {
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
   // see SV-5, SV-14, RG-15
   readonly onSearchWordTyped?: () => void
-  // see SV-7, IF-9
-  // WHY: on the wiring, not the seam: the panel's focus and its settled filter changes are no member IF-9 lists.
-  readonly holdSearchPanelReaders?: (readers: {
-    readonly isFocused: () => boolean
-    readonly readFilterChanges: () => readonly SearchFilterChange[]
-  }) => void
+  // see SV-7, RG-16, IF-9
+  // WHY: on the wiring, not the seam: the focus and the settled filter changes are no member IF-9 lists.
+  readonly holdWindowReaders?: (readers: WindowReaders) => void
   readonly readTheme: () => ScreenTheme
+}
+
+export interface WindowReaders {
+  readonly readFocusedWindow: () => WindowName | null
+  readonly isFocusInPropertiesPanel: () => boolean
+  readonly readFilterChanges: () => readonly SearchFilterChange[]
+}
+
+// see RG-16, IF-9
+/** @purity pure */
+function windowReadersOf(
+  host: Document,
+  windows: Partial<Readonly<Record<WindowName, Element>>>,
+  propertiesPanel: Element,
+  readFilterChanges: () => readonly SearchFilterChange[],
+): WindowReaders {
+  /** @purity semi-pure-b */
+  const focused = (): Element | null => (host as Partial<Document>).activeElement ?? null
+  /** @purity semi-pure-b */
+  const readFocusedWindow = (): WindowName | null => {
+    const at = focused()
+    const held = Object.entries(windows).find(([, layer]) => at !== null && layer.contains(at))
+    return held === undefined ? null : (held[0] as WindowName)
+  }
+  /** @purity semi-pure-b */
+  const isFocusInPropertiesPanel = (): boolean => {
+    const at = focused()
+    return at !== null && propertiesPanel.contains(at)
+  }
+  return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges }
 }
 
 // see IF-9, PI-38
@@ -1052,7 +1080,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
-  wiring.holdSearchPanelReaders?.(searchPanel)
+  wiring.holdWindowReaders?.(windowReadersOf(host, { searchPanel: searchPanelLayer, helpModal: helpLayer, dialogueField }, propertiesPanel, searchPanel.readFilterChanges))
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {

@@ -970,7 +970,7 @@ describe('the manuscript still states the rule this file is about', () => {
     // （押して状態を巡らせる）、`GA-19`（選ぶ）、`GR-10` / `GR-11`（ダブルクリック
     // だけを持つ）、`GR-19`（パレット自身が `FR-053` で追従する）」
     const segment = exemptSegment()
-    expect(exemptRows()).toEqual(['GR-10', 'GR-11', 'GR-19'])
+    expect(exemptRows()).toEqual(['GR-10', 'GR-11', 'GR-26', 'GR-27', 'GR-19'])
     const clauses = segment.split('、').filter((part) => rowIdsIn(part).length > 0)
     for (const clause of clauses) {
       expect(

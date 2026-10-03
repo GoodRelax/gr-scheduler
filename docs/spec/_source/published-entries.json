@@ -1331,6 +1331,15 @@
      }
     },
     {
+     "name": "escapeContextOf",
+     "note": {
+      "ja": [
+       "入力の文脈から `EscapeContext` を詰める（表 T-028 の `IN-4`、表 T-283）。",
+       "`SingleHtmlShell` が `Esc` の段を決めるときも同じ項目を同じく詰めるために使う（`CR-630` の 5 節）"
+      ]
+     }
+    },
+    {
      "name": "screenEventFromInput",
      "note": {
       "ja": [
@@ -1944,6 +1953,16 @@
      }
     },
     {
+     "name": "WindowName",
+     "note": {
+      "ja": [
+       "型。",
+       "`FR-036` の 表 T-335 のウインドウの語 —— `escapePressed` の `rung` の語と同じ（表 T-283 の `RG-16`）。",
+       "`InputCommandTranslator` と `SingleHtmlShell` と `DomScreenSurface` が、焦点のあるウインドウを運ぶために読む"
+      ]
+     }
+    },
+    {
      "name": "RememberedActual",
      "note": {
       "ja": [
@@ -2460,6 +2479,15 @@
       "ja": [
        "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
+      ]
+     }
+    },
+    {
+     "name": "isWindowStandingIn",
+     "note": {
+      "ja": [
+       "ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。",
+       "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）に読む"
       ]
      }
     }

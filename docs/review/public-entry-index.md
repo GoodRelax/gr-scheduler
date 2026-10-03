@@ -579,7 +579,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `drawnRowsCrossed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnRowsCrossed` | -- | function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number |
 | `drawnRowsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnRowsOf` | -- | function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] |
 | `ENTRY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#ENTRY` | -- | const ENTRY = |
-| `escapeContextOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#escapeContextOf` | -- | function escapeContextOf(context: InputContext): EscapeContext |
+| `escapeContextOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#escapeContextOf` | PI-18 | 入力の文脈から `EscapeContext` を詰める（表 T-028 の `IN-4`、表 T-283）。 |
 | `foldsOrNothing` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#foldsOrNothing` | -- | function foldsOrNothing( commands: readonly DocumentCommand[], situation: SpentEntranceSituation \| null, ): TranslatedInput |
 | `followingTravel` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#followingTravel` | -- | function followingTravel( at: PointerInput, press: PointerPress, ): { readonly dx: number; readonly dy: number } |
 | `GrabRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#GrabRow` | -- | type GrabRow = GrabArea |
@@ -1107,6 +1107,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `escapeTarget` | entry | function | `src/entity/document-model/screen-state/screen-state.ts#escapeTarget` | PI-36 | `EscapeContext` だけから、`Esc` が次に消費する段を答える。 |
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/entity/document-model/screen-state/screen-state.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | PI-36 | `Search Panel` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。 |
 | `RememberedActual` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#RememberedActual` | PI-36 | 型。 |
+| `windowClosedByEscape` | entry | function | `src/entity/document-model/screen-state/screen-state.ts#windowClosedByEscape` | -- | function windowClosedByEscape(standing: WindowStanding): WindowName \| null |
+| `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-36 | 型。 |
+| `WindowStanding` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#WindowStanding` | -- | interface WindowStanding |
 
 ## ScreenRenderer (PI-37, `src/adapter/screen-renderer/screen-renderer.ts`)
 
@@ -1276,6 +1279,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthRow: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
+| `WindowReaders` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#WindowReaders` | -- | interface WindowReaders |
 | `appHeaderStyle` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#appHeaderStyle` | -- | function appHeaderStyle(): string |
 | `drawLanguageReading` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#drawLanguageReading` | -- | function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void |
 | `fillAppHeader` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#fillAppHeader` | -- | function fillAppHeader( host: Document, header: HTMLElement, items: AppHeaderItems, anchors: Map<string, HTMLElement>, ): HTMLElement |
@@ -1360,6 +1364,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
+| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
@@ -1478,6 +1483,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchPanelDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayShownState` | -- | type SearchPanelDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type HelpDisplaySh... |
 | `SearchPanelDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayState` | -- | type SearchPanelDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: SearchPanelDisplayShownState } export type HelpDispl... |
 | `stepScreenValues` | file only | function | `src/use-case/advance-screen-session/screen-values.ts#stepScreenValues` | -- | function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent): ScreenStep |
+| `ToggleableWindowKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ToggleableWindowKey` | -- | type ToggleableWindowKey = 'searchPanelDisplayState' \| 'helpDisplayState' \| 'dialogueFieldDisplayState' |
 | `TooltipDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#TooltipDisplayState` | -- | type TooltipDisplayState = \| { readonly kind: 'allowed' } \| { readonly kind: 'dismissed' } export type SearchPanelDisplayState = \| { readonly kind: 'hidden' ... |
 | `WatermarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WatermarkDisplayState` | -- | type WatermarkDisplayState = \| { readonly kind: 'shown' } \| { readonly kind: 'hidden' } export type PropertiesPanelContentState = \| { readonly kind: 'hidden'... |
 | `emptySelectionValues` | file only | const | `src/use-case/advance-screen-session/selection-values.ts#emptySelectionValues` | -- | const emptySelectionValues: SelectionValues = |
@@ -1518,4 +1524,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 737 name(s) leave through a public entry (247 of them published by table T-064), 571 more are exported by a file and not by its entry.
+Totals: 742 name(s) leave through a public entry (250 of them published by table T-064), 572 more are exported by a file and not by its entry.
