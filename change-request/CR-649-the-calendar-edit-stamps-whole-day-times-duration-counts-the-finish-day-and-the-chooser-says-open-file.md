@@ -13,7 +13,7 @@
 
 | 裁定 | 逐語（抜粋） | 本書での扱い |
 |---|---|---|
-| `JDG-1221` | 「editCalendar が揃える (推奨)」（`JDG-1220` で規則 07 に照らして問い直した答え） | `CM-39`（表 T-108）に 3 文（E-01）。`UF-16` に 1 文（E-05）。コードは 5 節 |
+| `JDG-1221` | 「editCalendar が揃える (推奨)」（`JDG-1220` で規則 07 に照らして問い直した答え） | `FR-057` の 表 T-350 の前文に 3 文、`CM-39`（表 T-108）に指す 1 文（E-01）。`UF-16` に 1 文（E-05）。コードは 5 節 |
 | `JDG-1222` | 「終わりの日を含める (推奨)」 | `DV-8`（表 T-059、原稿は `erd.json`）を書き直す（E-02）。`EX-12` に理由の 1 文（E-03）。`UF-128` に 1 文（E-05） |
 | `JDG-1164` | 「案Aでいい」 —— 見出し「ファイルを開く」、3 つの説明を替える | 辞書の `surfaces` の `Open Chooser` の ja と、`IC-71`〜`IC-73` の `hint`（E-04） |
 | `JDG-1223` | 「Open File (推奨)」 | 同じ見出しの en（E-04） |
@@ -61,14 +61,14 @@
 
 | 何 | 仕様で変える所 | 編集 |
 |---|---|---|
-| 命令 | `docs/spec/_assets/tbl-glossary.md` の 表 T-108 の `CM-39` | E-01 |
+| 要求と命令 | `docs/spec/01-04-requirements.md` の `FR-057`（表 T-350 の前文）、`docs/spec/_assets/tbl-glossary.md` の 表 T-108 の `CM-39` | E-01 |
 | 書き出す値 | `docs/spec/_source/erd.json` の `Task.duration`（生成: `_assets/fig-erd-detail.md` の 表 T-059 の `DV-8`） | E-02 |
 | 書き出しの規約 | `docs/spec/01-04-requirements.md` の 表 T-033 の `EX-12` | E-03 |
 | 語 | `docs/spec/_source/display-words.json` の `surfaces`（`Open Chooser`）と `IC-71`〜`IC-73` の `hint` | E-04 |
 | ユニット・公開名 | `docs/spec/05-07-design.md` の 表 T-075 の `UF-16`・`UF-128`、`docs/spec/_source/published-entries.json`（`plannedDurationMinutesOf`） | E-05 |
 | コード | `src/entity/document-model/schedule/working-calendar.ts`・`schedule.ts`、`src/use-case/edit-document/edit-calendar.ts`・`task-plan-actual.ts`、`src/adapter/document-codec/mspdi-codec.ts` | 5 節 |
 
-**数**: `CM-39` に `（MUST）` 2、文 3。`DV-8` の升 1（文 4）。`EX-12` に文 1。辞書の語 8（見出し 2、説明 6）。`UF-16`・`UF-128` に文 1 ずつ。表の行 0、設定の行 0、要求 0。
+**数**: `FR-057` に `（MUST）` 2、文 3。`CM-39` に文 1（規則は持たない）。`DV-8` の升 1（文 4）。`EX-12` に文 1。辞書の語 8（見出し 2、説明 6）。`UF-16`・`UF-128` に文 1 ずつ。表の行 0、設定の行 0、要求 0。
 
 ---
 
@@ -96,7 +96,7 @@
 
 ⭐ 文の正は当てたファイルそのものである。
 
-- **E-01**（`CM-39`）—— 例外日の `fromDate` ／ `toDate` は、本命令を受けて文書へ書く側が、足した行と日の動いた列だけを 表 T-350 の `WT-6` ／ `WT-7` の時刻で書く（MUST）。元の行（同じ `ordinal`）と日で比べて同じ列は元の字面を保つ（MUST、`WT-10`）。書く側の 1 か所にする理由（命令を出す側が時刻を知らずに済む）。
+- **E-01**（`FR-057` と `CM-39`）—— `FR-057` の 表 T-350 の前文に: 例外日の `fromDate` ／ `toDate` は、`CM-39` を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書く（MUST）。元の行（同じ `ordinal`）と日で比べて同じ列は元の字面を保つ（MUST、`WT-10`）。書く側の 1 か所にする理由（命令を出す側が時刻を知らずに済む）。`CM-39` には、時刻を揃えるのは書く側であり規則は `FR-057` が持つ、と指す 1 文だけを置いた。⚠️ はじめ `CM-39` の升に MUST を書いたら、検査 12（名の表に規則を置かない）が赤くなった —— 規則は要求に置いた。
 - **E-02**（`DV-8`）—— 数え方、マイルストーン、終わりの日を含める理由（交換相手の公式の例: 水曜〜木曜 = `PT16H0M0S`）、`FR-054` と矛盾しない理由。「人が編集していないタスクは受け取った値をそのまま返す」は残した。
 - **E-03**（`EX-12`）—— 「⚠️ `DV-8` は終わりの日も数えに入れる」—— 日の差で数えると、書き出した `Start` ／ `Finish` から交換相手が読む長さより 1 日短くなる理由。
 - **E-04**（辞書）—— 3 節の表のとおり。
@@ -141,7 +141,9 @@ SEAM (CR-649)
 | `tests/contract/cr-618-…`（見本がふつうに管理された日程に見える） | 緑 → 緑 | `vitest` |
 | `npm run typecheck` の誤り | 0 → 0 | 同 |
 | 新しい試験 | 21 件（`tests/unit/cr-649-…`）。壊した写し 4 つで、半開の数え 6 件、マイルストーンを外して 1 件、例外日を揃えないで 5 件、辞書の英語を戻して 1 件が赤くなった | 13 節 |
-| 古い振る舞いを留めていた試験 | 1 ファイル —— `cr-605-cm-39-carries-exceptions-and-makes-a-calendar`（足す行の `toDate` を `T00:00:00` で送り、そのまま返ると読んでいた —— 行の終わりの日を `T23:59:00` にした） | 同 |
+| 古い振る舞いを留めていた試験 | 2 ファイル —— `cr-605-cm-39-carries-exceptions-and-makes-a-calendar`（足す行の `toDate` を `T00:00:00` で送り、そのまま返ると読んでいた —— 行の終わりの日を `T23:59:00` にした）、`cr-429-ex-11-ex-12-a-dated-task-is-pinned`（`DV-8` の旧い文「`finish` − `start` と暦。」を引いていた —— 新しい文に） | 同 |
+| 自動試験の失敗（`vitest` フル） | base 19（30535 件）→ 6（30554 件）。新しい失敗は上の `cr-429` の 1 件だけで、直した。残る 5 件は base にも在る（`cr-430` の表 PK 1、`cr-586` 2、`display-words.contract` 1、`cr-605-the-non-working-day-shade` 1） | 13 節 |
+| 検査 37（表の行と辞書の語の指紋） | `IC-71`〜`IC-73` の 3 つが動いた —— 表 T-109 の「読んだ内容で…」と新しい説明を読み合わせ、同じことを言うので `--write-baseline` で書き直した（`dictionary-table-pairing.txt` の 3 行） | `check.sh` |
 
 ---
 

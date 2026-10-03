@@ -157,7 +157,7 @@ function withExceptions(calendar: Calendar, exceptions: readonly Exception[] | u
   return isSame ? calendar : { ...calendar, exceptions: stampedExceptions(calendar.exceptions, exceptions) }
 }
 
-// see CM-39, WT-6, WT-7, WT-10
+// see FR-057, CM-39, WT-6, WT-7, WT-10
 // WHY: the one writer stamps the times, so the issuers (the panel's draft WC-6, the agent relay) never learn them.
 /** @purity pure */
 function stampedExceptions(held: readonly Exception[], incoming: readonly Exception[]): Exception[] {

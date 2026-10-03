@@ -32,11 +32,12 @@ import {
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const A_MOMENT = '2026-10-04T09:00:00'
 
-// see CM-39, T-108
-const CM_39_STAMPS =
-  '例外日の `fromDate` ／ `toDate` は、本命令を受けて文書へ書く側が、足した行と日の動いた列だけを `01-04-requirements.md` の 表 T-350 の `WT-6` ／ `WT-7` の時刻で書くこと（MUST）。'
-const CM_39_KEEPS =
+// see FR-057, CM-39
+const FR_057_STAMPS =
+  '例外日の `fromDate` ／ `toDate` は、`CM-39`（`_assets/tbl-glossary.md` の 表 T-108）を受けて文書へ書く側が、足した行と日の動いた列だけを `WT-6` ／ `WT-7` の時刻で書くこと（MUST）。'
+const FR_057_KEEPS =
   '元の行（同じ `ordinal`、`_assets/fig-erd-detail.md` の `AT-77`）と日で比べて同じ列は、元の行の字面を保つこと（MUST、`WT-10`）。'
+const CM_39_POINTS = '例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える'
 // see DV-8, T-059
 const DV_8_COUNTS =
   '`start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。'
@@ -105,10 +106,10 @@ function writtenDuration(task: Record<string, unknown>, project: Record<string, 
 }
 
 describe('CR-649 the manuscript as these cases read it', () => {
-  it('CM-39 (T-108): the writer stamps added rows and moved columns, and keeps a same-day column', () => {
-    const cells = cellsOf('T-108', 'CM-39')
-    expect(cells).toContain(CM_39_STAMPS)
-    expect(cells).toContain(CM_39_KEEPS)
+  it('FR-057 / CM-39 (T-108): the writer stamps added rows and moved columns, and keeps a same-day column', () => {
+    expect(REQUIREMENTS).toContain(FR_057_STAMPS)
+    expect(REQUIREMENTS).toContain(FR_057_KEEPS)
+    expect(cellsOf('T-108', 'CM-39')).toContain(CM_39_POINTS)
   })
 
   it('DV-8 (T-059): Duration counts both end days, and a milestone is PT0H0M0S', () => {
