@@ -144,7 +144,6 @@ const S_210_CELL = cellOf('S-210')
 /** `S-210` -- the coefficient FR-101 makes a MUST. */
 const S_210 = numberIn(S_210_CELL, "table T-206's S-210")
 
-/** `S-235` -- the chrome scale HS-7 of table T-341 multiplies in first (FR-051). */
 const S_235 = numberIn(cellOf('S-235'), "table T-206's S-235")
 
 const HS_7_CHROME_FIRST =
@@ -346,7 +345,6 @@ describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px
     const { factor, stated } = scaleUpTo(moment, header)
 
     expect(factor, `stated: ${stated.join(' <- ') || 'nothing'}`).not.toBeNull()
-    // WHY: HS-7 multiplies the host's size by S-235 first, then by S-210.
     expect(factor as number, `stated: ${stated.join(' <- ') || 'nothing'} -- ${HS_7_CHROME_FIRST}`).toBeCloseTo(
       S_235 * S_210,
       6,

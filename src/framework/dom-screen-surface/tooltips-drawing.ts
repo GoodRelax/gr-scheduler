@@ -163,7 +163,7 @@ const shownPointTipOf = new WeakMap<Element, string>()
 // WHY: placed after it is in the layer, since only then does it have a size to turn back by.
 // TRAP: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
 /** @purity non-pure */
-export function showPointTip(
+function showPointTip(
   host: Document,
   layer: HTMLElement,
   tip: { readonly lines: readonly string[]; readonly at: Point } | undefined,
