@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 167 | 2316 | 3 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 168 | 2325 | 3 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 41 | 263 | 0 | 1 | 0 | 0 |
+| `system` | TS-3 | - | 42 | 265 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 170 | 3835 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 398 | 6518 | 11 | 18 | 10 | 1 |
+| **all** | | | 400 | 6529 | 11 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -336,6 +336,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-633-delay-diagnostics-judges-by-the-link-ends.contract.test.ts` | 27 | FR-011, FR-135, FR-136 | - | T-310, T-311, T-312, T-313, T-315, T-316, T-318 | AT-46, BD-1, BD-2, DG-1, DG-2, DG-3, DG-4, DQ-2, DQ-3, DQ-4, DW-2, DX-4, DX-5, DX-7, PS-4, VC-11, VC-13, VO-1, VO-3, VO-4, VO-5, VS-2, VS-3 | - | - | - | - |
 | `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 17 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
 | `tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts` | 4 | FR-021 | - | - | EX-1, EX-13, EX-14 | - | - | - | yes |
+| `tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 9 | FR-042, FR-098 | - | T-041, T-076, T-202, T-216 | EP-3, S-68, U-18, U-22 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
 | `tests/contract/dfc-1224-merge-and-overlay-keep-the-save-target.test.ts` | 8 | FR-060, FR-096 | VT-2 | T-036, T-103, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
@@ -449,6 +450,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333 | IC-127, S-429, SJ-3, SV-15, SV-16, U-66 | - | - | - | - |
 | `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
+| `tests/system/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |
