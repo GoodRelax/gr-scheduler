@@ -4,6 +4,7 @@
 // @purity    pure
 // Generated region at the end: docs/spec/_source/settings.json (table T-206). Do not edit by hand; npm run gen.
 
+import { SETTINGS_CONSTANTS } from '../document-settings/document-settings'
 import { calendarDaysBetween, compareDays, dayOf, type CalendarDay } from './calendar-day'
 import { planActualState } from './plan-actual-state'
 import type { Dependency, Schedule, Task } from './schedule-entities'
@@ -11,9 +12,11 @@ import { isDelayed } from './task-delay'
 import {
   actualLengthOf,
   dateFromWorkingDays,
+  isWorkingDay,
   lagWorkingDaysOf,
   lastDayForLength,
   minutesPerWorkingDayOf,
+  nextWorkingDay,
   workingDaysBetween,
   type WorkingCalendar,
 } from './working-calendar'
@@ -171,6 +174,20 @@ function isStarted(task: Task): boolean {
   return planActualState(task) !== 'notStarted'
 }
 
+// see VC-13, VO-1, T-018
+// WHY: a link binds one end of the predecessor to one end of the successor; SS and SF bind the predecessor's start.
+/** @purity pure */
+function hasBindingEndHappened(predecessor: Task, linkType: number): boolean {
+  const bindsByStart = linkType === START_TO_START || linkType === START_TO_FINISH
+  return bindsByStart ? isStarted(predecessor) : isFinished(predecessor)
+}
+
+// see VS-3, VO-1, BD-2
+/** @purity pure */
+function bindsSuccessorStart(linkType: number): boolean {
+  return linkType === FINISH_TO_START || linkType === START_TO_START
+}
+
 /** @purity pure */
 function laterOf(a: CalendarDay, b: CalendarDay): CalendarDay {
   return compareDays(a, b) >= 0 ? a : b
@@ -265,14 +282,22 @@ function encloses(parent: Task, child: Task): boolean {
   return compareDays(outer.start, inner.start) <= 0 && compareDays(inner.finish, outer.finish) <= 0
 }
 
+// see FR-135
+// WHY: a point holds no span, so a stated parent that is a milestone is read as no parent and the child is derived.
+/** @purity pure */
+function statedParentUidOf(task: Task, byUid: ReadonlyMap<number, Task>): number | null {
+  const parent = task.wbsParentUid === null ? undefined : byUid.get(task.wbsParentUid)
+  return parent?.milestone === true ? null : task.wbsParentUid
+}
+
 // see FR-135, IP-2, IP-3
 /** @purity pure */
-function derivedParentsOf(tasks: readonly Task[], rowDepthOf: ReadonlyMap<number, number>,
+function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>, rowDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>): ReadonlyMap<number, ParentDerivation> {
   const derived = new Map<number, ParentDerivation>()
   for (const task of tasks) {
     const depth = rowDepthOf.get(task.uid)
-    if (task.wbsParentUid !== null || depth === undefined) continue
+    if (statedParentUidOf(task, byUid) !== null || depth === undefined) continue
     // WHY: a task on a top row has no row above it, so no parent is derived (PND-605, JDG-823).
     if (depth === 0) continue
     const candidates = (tasksAtDepth.get(depth - 1) ?? [])
@@ -288,7 +313,7 @@ function wbsParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>,
                       derivations: ReadonlyMap<number, ParentDerivation>): ReadonlyMap<number, number> {
   const parents = new Map<number, number>()
   for (const task of tasks) {
-    const parent = task.wbsParentUid ?? derivations.get(task.uid)?.parentUid ?? null
+    const parent = statedParentUidOf(task, byUid) ?? derivations.get(task.uid)?.parentUid ?? null
     if (parent !== null && byUid.has(parent)) parents.set(task.uid, parent)
   }
   return parents
@@ -381,7 +406,7 @@ function structureOf(schedule: Schedule): Structure {
   const byUid = new Map(tasks.map((task) => [task.uid, task]))
   const rowDepthOf = rowDepthByTask(schedule)
   const tasksAtDepth = groupBy(tasks, (task) => rowDepthOf.get(task.uid))
-  const derivations = derivedParentsOf(tasks, rowDepthOf, tasksAtDepth)
+  const derivations = derivedParentsOf(tasks, byUid, rowDepthOf, tasksAtDepth)
   return { tasks, byUid, rowDepthOf, tasksAtDepth, derivations, parentOf: wbsParentsOf(tasks, byUid, derivations) }
 }
 
@@ -564,9 +589,10 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
     const predecessor = facts.byUid.get(dependency.predecessorUid)
     if (predecessor === undefined || predecessor === task) continue
     const predecessorUid = predecessor.uid
-    if (!isFinished(predecessor) && isFinished(task)) {
+    if (isFinished(task) && !hasBindingEndHappened(predecessor, dependency.linkType)) {
       found.push(findingOf('VC-13', task, {
-        predecessorUid, predecessorActualFinish: predecessor.actualFinish, ...columnsOf(task, ['actualFinish']),
+        predecessorUid, linkType: dependency.linkType, predecessorActualStart: predecessor.actualStart,
+        predecessorActualFinish: predecessor.actualFinish, ...columnsOf(task, ['actualFinish']),
       }))
     }
     if (linkHolds(facts, dependency, plannedEnds(predecessor), plannedEnds(task)) === false) {
@@ -590,7 +616,9 @@ function contradictionsOf(facts: Facts): readonly DelayFinding[] {
   return [
     ...dependencyShapeContradictions(facts),
     ...facts.tasks.flatMap((task) => columnContradictions(task)),
-    ...facts.tasks.flatMap((task) => parentContradictions(task, facts.explicitChildrenOf.get(task.uid) ?? [])),
+    // WHY: FR-135 reads no milestone as a parent; VS-2 alone tells that pair.
+    ...facts.tasks.filter((task) => task.milestone !== true)
+      .flatMap((task) => parentContradictions(task, facts.explicitChildrenOf.get(task.uid) ?? [])),
     ...facts.tasks.flatMap((task) => orderContradictions(facts, task)),
   ]
 }
@@ -606,7 +634,7 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
     if (predecessor.wbsParentUid === task.uid || task.wbsParentUid === predecessorUid) {
       found.push(findingOf('VS-1', task, { predecessorUid, ...columnsOf(task, ['wbsParentUid']) }))
     }
-    if (!isStarted(predecessor) && isStarted(task)) {
+    if (bindsSuccessorStart(dependency.linkType) && !isStarted(predecessor) && isStarted(task)) {
       found.push(findingOf('VS-3', task, { predecessorUid, ...columnsOf(task, ['actualStart']) }))
     }
     if (linkHolds(facts, dependency, actualEnds(predecessor), actualEnds(task)) === false) {
@@ -641,10 +669,13 @@ function suspicionsOf(facts: Facts): readonly DelayFinding[] {
 /** @purity pure */
 function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
-  const predecessors = (facts.linksOf.get(task.uid) ?? []).map((link) => facts.byUid.get(link.predecessorUid))
+  const isStartFree = (facts.linksOf.get(task.uid) ?? []).filter((link) => bindsSuccessorStart(link.linkType))
+    .every((link) => {
+      const predecessor = facts.byUid.get(link.predecessorUid)
+      return predecessor !== undefined && hasBindingEndHappened(predecessor, link.linkType)
+    })
   const ends = plannedEnds(task)
-  if (isBefore(ends.start, facts.statusDate) && task.actualStart === null
-    && predecessors.every((one) => one !== undefined && isFinished(one))) {
+  if (isBefore(ends.start, facts.statusDate) && task.actualStart === null && isStartFree) {
     found.push(findingOf('VO-1', task, columnsOf(task, ['start', 'actualStart'])))
   }
   if (isBefore(ends.finish, facts.statusDate) && task.actualStart !== null
@@ -774,6 +805,30 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   }
 }
 
+// see BD-1, FR-011
+// WHY: a started task without a last day has worked at least up to the FR-011 floor day.
+/** @purity pure */
+function remainingWorkingDaysOf(facts: Facts, task: Task, actualStart: CalendarDay, length: number): number {
+  const floorDay = task.milestone === true ? actualStart
+    : lastDayForLength(facts.calendar, actualStart, SETTINGS_CONSTANTS.actualInitialDuration)
+  const actualLength = actualLengthOf(facts.calendar, actualStart, dayOf(task.stop) ?? floorDay)
+  // WHY: a task that used up its planned days is still not finished, so at least one day is left.
+  return Math.max(1, length - actualLength)
+}
+
+// see BD-1, PS-4
+// WHY: the status date's own work is already in the actual, so the remaining days start the next working day.
+/** @purity pure */
+function startedFinishOf(facts: Facts, task: Task, actualStart: CalendarDay, finish: CalendarDay, length: number): CalendarDay {
+  const remaining = remainingWorkingDaysOf(facts, task, actualStart, length)
+  const projected = lastDayForLength(facts.calendar, nextWorkingDay(facts.calendar, facts.statusDate), remaining)
+  const resume = planActualState(task) === 'suspendedResumePlanned' ? dayOf(task.resume) : null
+  const resumeDay = resume === null || isWorkingDay(facts.calendar, resume) ? resume : nextWorkingDay(facts.calendar, resume)
+  const resumed = resumeDay !== null && isBefore(facts.statusDate, resumeDay)
+    ? laterOf(projected, lastDayForLength(facts.calendar, resumeDay, remaining)) : projected
+  return laterOf(finish, resumed)
+}
+
 // see BD-1, BD-2
 /** @purity pure */
 function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
@@ -784,8 +839,10 @@ function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
   if (actualFinish !== null) return actualFinish
   const achieved = dayOf(facts.achievedOnOf.get(task.uid) ?? null)
   if (achieved !== null) return achieved
-  if (isStarted(task)) return laterOf(finish, facts.statusDate)
-  return lastDayForLength(facts.calendar, earliestStart, length)
+  const actualStart = dayOf(task.actualStart)
+  if (actualStart !== null) return startedFinishOf(facts, task, actualStart, finish, length)
+  // WHY: a task not started may start on the status date itself, whose work is not in any actual yet.
+  return lastDayForLength(facts.calendar, laterOf(earliestStart, facts.statusDate), length)
 }
 
 // see BD-2, BD-3, T-314
@@ -794,9 +851,15 @@ function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flo
   const { start, finish } = plannedEnds(task)
   if (start === null || finish === null) return null
   const length = actualLengthOf(facts.calendar, start, finish)
+  const actualStart = dayOf(task.actualStart)
+  // WHY: a task that started was not held by an FS or SS bound later than its start; that wait is its own.
+  const isHeldBy = (link: Link, day: CalendarDay | null): boolean =>
+    actualStart === null || !bindsSuccessorStart(link.linkType) || day === null || !isBefore(actualStart, day)
   const bounds = (facts.linksOf.get(task.uid) ?? [])
-    .map((link) => ({ uid: link.predecessorUid, day: boundOf(facts, link, flows, length) }))
-  let earliestStart = isStarted(task) ? start : laterOf(start, facts.statusDate)
+    .map((link) => ({ link, uid: link.predecessorUid, day: boundOf(facts, link, flows, length) }))
+    .filter((bound) => isHeldBy(bound.link, bound.day))
+  // WHY: a task not started is not pushed to the status date here; BD-1 counts that wait as its own delay.
+  let earliestStart = start
   for (const bound of bounds) if (bound.day !== null) earliestStart = laterOf(earliestStart, bound.day)
   const drivers = compareDays(earliestStart, start) > 0
     ? bounds.filter((bound) => sameDay(bound.day, earliestStart)).map((bound) => bound.uid) : []
@@ -885,6 +948,13 @@ function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenec
   })
 }
 
+// see VO-3, VO-5, DG-1
+// WHY: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
+/** @purity pure */
+function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5'): ReadonlySet<number> {
+  return new Set(findings.filter((one) => one.row === row).map((one) => one.uid))
+}
+
 /** @purity pure */
 function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
   return {
@@ -910,17 +980,21 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     const task = facts.byUid.get(uid)
     return task !== undefined && !isFinished(task)
   }
-  const bottlenecks = pushing.filter((one) => isOpen(one.uid))
+  const omissions = omissionsOf(facts)
+  const omittedFinishUids = uidsWith(omissions, 'VO-3')
+  const doubted = new Set([...unreliable, ...omittedFinishUids, ...uidsWith(omissions, 'VO-5')])
+  // see VO-3, DG-2
+  const bottlenecks = pushing.filter((one) => isOpen(one.uid) && !omittedFinishUids.has(one.uid))
     .map((one) => ({ ...one, path: ancestorsOf(one.uid, facts.parentOf) }))
   return {
     outcome: 'diagnosed',
     statusDate: project.statusDate,
-    findings: [...contradictions, ...suspicionsOf(facts), ...omissionsOf(facts)],
+    findings: [...contradictions, ...suspicionsOf(facts), ...omissions],
     bottlenecks,
     terminalPushOuts: terminals,
     walls,
-    unanalysedCount: facts.tasks.filter((task) => unreliable.has(task.uid)).length,
-    markerStates: markerStatesOf(facts, unreliable, bottlenecks),
+    unanalysedCount: facts.tasks.filter((task) => doubted.has(task.uid)).length,
+    markerStates: markerStatesOf(facts, doubted, bottlenecks),
     settledPushOuts: pushing.filter((one) => !isOpen(one.uid)),
     derivedWbsParents: [...facts.derivations]
       .flatMap(([uid, one]) => (one.parentUid === null ? [] : [{ uid, parentUid: one.parentUid }])),

@@ -32,7 +32,7 @@ const FR_135_NOT_NARROWER = '⛔ 候補が 2 つ以上のとき、狭いほう�
 const FR_135_VO_4 = '導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと（MUST）。'
 const FR_136_DW_3 = '先行を 1 つも持たないマイルストーンは、表 T-316 の `DW-3` とすること（MUST）。'
 const FR_136_NO_WRITE =
-  '⛔ 診断がマイルストーンの `actualFinish` を書いてはならず、マーカーの状態を変えてはならない（MUST NOT）。'
+  '⛔ 診断がマイルストーンの `actualFinish` を書いてはならない（MUST NOT）。'
 const FR_136_VO_5 =
   '導いた達成が成り立ち、手の `actualFinish` が無いマイルストーンは、表 T-312 の `VO-5` として、完了にする提案（達成日の候補 ＝ `MP-4` の日）をレポートに出すこと（MUST）。'
 
@@ -247,8 +247,8 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
 
 const STATUS = F(15)
 
-// WHY: B and B2 start on the 8th, their predecessor's finish day (BD-2, CR-618), so A's 5 late days
-// reach B's end (17th - 10th) whole; B2 keeps min(1, 3) and hands A2 min(2, 2) = 2 (T-313 BD-1 .. BD-4).
+// WHY: B, B2 start on their predecessor's finish day (BD-2). A counts 1 actual day (FR-011), so BD-1 ends it the 17th,
+// 7 late, all reaching B's end; B2 also ends the 17th, keeps min(3, 5) and hands A2 min(2, 2) = 2 (CR-633).
 const P = 100
 const A = 101
 const B = 102
@@ -352,7 +352,7 @@ const DERIVED = documentOf(STATUS, [
   {
     id: 'r1b',
     parentId: 'r0',
-    // WHY: Z starts on the 8th, Y's finish day (BD-2, CR-618), so Y's 5 days reach Z's end whole.
+    // WHY: Z starts on the 8th, Y's finish day (BD-2, CR-618), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
     tasks: [taskOf(Z, { name: 'Zoning', wbsParentUid: W, start: S(8), finish: F(10), dependencies: [after(Y)] })],
   },
   {
@@ -495,7 +495,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-9',
       'DX-10',
     ])
-    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は `max(finish, 基準日)`。')
+    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残りの日数 とし')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')
     expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付ける行')).toBe('原因の `Task` と、その依存の下流すべて')
     expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付ける行')).toContain('候補が 0 なら原因だけ')
@@ -577,11 +577,11 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
     expect(PAINTED).not.toContain(markOf(report(), B))
   })
 
-  it(`${FR_132_WORKING_DAYS} -- A: DQ-2 0, DQ-3 5, DQ-4 5 (T-313 BD-1, T-314)`, () => {
+  it(`${FR_132_WORKING_DAYS} -- A: DQ-2 0, DQ-3 7, DQ-4 7 (T-313 BD-1, T-314, CR-633)`, () => {
     const entry = onePushed(report(), A)
     expect(entry.values['inheritedDelayDays']).toBe(0)
-    expect(entry.values['selfDelayDays']).toBe(5)
-    expect(entry.values['pushOutDays']).toBe(5)
+    expect(entry.values['selfDelayDays']).toBe(7)
+    expect(entry.values['pushOutDays']).toBe(7)
   })
 
   it('DX-4: the entry names A by uid and name, and says one terminal was reached', () => {
@@ -593,12 +593,12 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
     expect(others.map(([, value]) => value)).toContain(1)
   })
 
-  it('DX-5: terminal B carries its delay of 5 and hands it to A', () => {
+  it('DX-5: terminal B carries its delay of 7 and hands it to A', () => {
     const terminals = everything(report())
       .filter((one) => one.container !== null && isPlain(one.node))
       .map((one) => one.node as Loose)
       .filter((one) => !Object.hasOwn(flat(one), 'pushOutDays') && owns(one, B) && holdsNumber(one, A))
-    expect(terminals.some((one) => Object.values(flat(one)).includes(5) && holdsNumber(one, 5))).toBe(true)
+    expect(terminals.some((one) => Object.values(flat(one)).includes(7) && holdsNumber(one, 7))).toBe(true)
   })
 })
 
@@ -659,7 +659,7 @@ describe(`FR-131 -- ${FR_131_ONE_EACH}`, () => {
     expect(namesTask(diagnose(CHAIN_ROWS(STATUS)), 'VO-2', A).length).toBeGreaterThan(0)
   })
 
-  it('a doubt and an omission do not paint: DG-1 is T-310 and T-316 only (T-315), so L and M are not DG-1', () => {
+  it('a doubt and a VO-1 omission do not paint: DG-1 takes T-310, VO-3, VO-5 and T-316 only (T-315), so L and M are not DG-1', () => {
     const one = diagnose(DOUBT)
     expect(markOf(one, L)).not.toBe('DG-1')
     expect(markOf(one, M)).not.toBe('DG-1')
@@ -675,7 +675,7 @@ describe(`FR-135 -- ${FR_135_DERIVE}`, () => {
 
   it('Y, started and late, is the bottleneck (it pushes Z\'s end)', () => {
     expect(markOf(report(), Y)).toBe('DG-2')
-    expect(onePushed(report(), Y).values['pushOutDays']).toBe(5)
+    expect(onePushed(report(), Y).values['pushOutDays']).toBe(7)
   })
 
   it(`${FR_133_PATH_MARK} -- X, the derived parent, is DG-3`, () => {
@@ -726,10 +726,10 @@ describe(`FR-136 -- ${FR_136_DW_3}`, () => {
     expect(namesTask(one, 'DW-3', M0).length).toBeGreaterThan(0)
   })
 
-  it('M1 has T1 and T2 by MP-1, so it is no DW-3 and is not painted', () => {
+  it('M1 has T1 and T2 by MP-1, so it is no DW-3; its VO-5 makes it DG-1, not a wall (T-315 DG-1, CR-633)', () => {
     const one = diagnose(ACHIEVED)
     expect(namesTask(one, 'DW-3', M1)).toEqual([])
-    expect(PAINTED).not.toContain(markOf(one, M1))
+    expect(markOf(one, M1)).toBe('DG-1')
   })
 })
 
