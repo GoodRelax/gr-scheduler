@@ -95,11 +95,36 @@ const SCHEMA_TEXT = JSON.stringify(
   JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json'), 'utf8')),
 )
 
+interface SettingsBlock {
+  readonly id?: string
+  readonly rows?: readonly { readonly id?: string; readonly value?: { readonly num?: string } }[]
+}
+
+// see T-209
+const T_209_ROWS = (
+  JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'settings.json'), 'utf8')) as {
+    readonly blocks: readonly SettingsBlock[]
+  }
+).blocks.find((block) => block.id === 'T-209')?.rows ?? []
+
+// WHY: the manuscript names a value of table T-209 as `{{S-128}}`, and the prompt carries the number
+// that row states, so no prose holds a copy of it (CR-644).
+/** @purity pure */
+function t209Number(id: string): string {
+  const found = T_209_ROWS.filter((row) => row.id === id)
+  const value = Number(found.length === 1 ? found[0]?.value?.num : NaN)
+  if (!Number.isFinite(value)) throw new Error(`table T-209 states no single plain number for ${id}`)
+  return String(value)
+}
+
 // WHY: the manuscript's first line is its own role line and not part of the prompt (CR-562 section 5).
 /** @purity non-pure */
 function manuscriptOf(language: Language): string {
   const text = readFileSync(join(ROOT, 'docs', 'spec', '_source', `image-to-grs-json-prompt.${language}.md`), 'utf8')
-  return text.replace(/\r\n/g, '\n').split('\n').slice(1).join('\n').replace(/\s+$/, '')
+  const body = text.replace(/\r\n/g, '\n').split('\n').slice(1).join('\n').replace(/\s+$/, '')
+  const printed = body.replace(/\{\{(S-[0-9]+[a-z]?)\}\}/g, (_token, id: string) => t209Number(id))
+  if (printed.includes('{{') || printed.includes('}}')) throw new Error(`${language}: a {{...}} token names no row of T-209`)
+  return printed
 }
 
 const FENCE = '```'

@@ -442,7 +442,7 @@ export function documentOf(arranged: Arrangement): string {
       pinnedGroupIds: arranged.pinned ?? [],
       scrollGroupId: 'T1',
       scrollGroupOffset: 0,
-      scrollDate: '2026-01-01',
+      scrollDate: '2026-01-01T00:00:00',
       scrollDayOffset: 0,
     },
   }

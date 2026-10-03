@@ -414,7 +414,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-551-a-swatch-pressed-with-space.test.ts` | 2 | - | - | T-016, T-025, T-294 | CV-6, CV-9, FT-1, MC-6, SK-6, U-25 | - | - | - | - |
 | `tests/system/cr-551-tooltips-stay-on-one-line.test.ts` | 2 | FR-038 | - | T-025, T-028, T-206, T-212 | EZ-2, IC-22, IN-7, MC-6, S-124, S-339, U-53 | - | - | - | - |
 | `tests/system/cr-553-a-shown-control-group-stays-its-row.test.ts` | 6 | FR-022, FR-051, FR-055, FR-065, FR-067 | - | T-025, T-051, T-107, T-109 | AM-8, GR-21, HF-6, HF-13, HF-19, LF-16 | - | - | - | - |
-| `tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts` | 11 | FR-065, FR-066, FR-068 | - | T-103, T-109 | IC-18, IC-20, IC-21, IC-115, OP-2, RS-15, RS-65 | - | - | - | - |
+| `tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts` | 11 | FR-065, FR-066, FR-068 | - | T-103, T-109, T-209 | IC-18, IC-20, IC-21, IC-115, OP-2, RS-15, RS-65, S-128 | - | - | - | - |
 | `tests/system/cr-565-a-newer-document-leads-to-the-latest-version.test.ts` | 1 | FR-073 | - | T-025, T-103, T-109 | RS-63, S-350 | - | - | - | - |
 | `tests/system/cr-570-tree-state-drawing-and-arming.test.ts` | 8 | - | - | T-329 | HF-2, HF-10, HF-11, HF-12, HF-13, RS-28, RS-29, RS-30, RS-31, RS-32 | - | - | - | - |
 | `tests/system/cr-570-tree-state-on-the-large-sample.test.ts` | 13 | FR-018, FR-055 | - | T-051, T-328, T-329 | HF-2, HF-3, HF-8, HF-10, HF-11, HF-13, OP-3, OP-10, TD-6, TD-7, ZE-1, ZE-2 | - | - | - | - |
