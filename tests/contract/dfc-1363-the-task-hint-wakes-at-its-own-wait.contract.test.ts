@@ -15,7 +15,7 @@ const SETTINGS_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec'
 const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'
 const EZ_6_WAIT =
-  'タスクの上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そのタスクの名前と、`start` と `finish` の 2 つの日付を出すこと（MUST）。'
+  '日程の上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
 const EZ_6_TWO_VALUES = '⚠️ 待ち時間は `S-439` とし、`EZ-2` の待ち（`S-124`）とは別の値として持つこと（MUST）'
 const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインタが止まった時である'
 const S_439_APART = '⚠️ **`S-124` とは別の値である** —— 片方を選び直しても、もう片方は動かない（`EZ-6`）。'

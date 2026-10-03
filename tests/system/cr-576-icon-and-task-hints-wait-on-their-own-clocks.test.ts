@@ -16,11 +16,12 @@ const EZ_2_STAYS =
   '⭐ 出した説明は、ポインタがそのアイコンか、その説明の上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
 const EZ_2_LEAVING = 'ポインタがそのアイコンとその説明の外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）。'
 const EZ_6_WAIT =
-  'タスクの上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そのタスクの名前と、`start` と `finish` の 2 つの日付を出すこと（MUST）。'
+  '日程の上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
 const EZ_6_MOVE_HIDES = 'ポインタが動いたら消すこと（MUST）'
 const EZ_6_TWO_VALUES = '⚠️ 待ち時間は `S-439` とし、`EZ-2` の待ち（`S-124`）とは別の値として持つこと（MUST）'
 const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と違い、ポインタが止まった時である'
-const EZ_6_DATES = '日付は `YYYY-MM-DD` で書き、開始・終了の順に `/` で並べること（MUST）。'
+const EZ_6_DATES =
+  '予定の日は、マイルストーンなら `start` の日（`TL-10`）1 つ、ほかは `start` の日、半角空白 1 つ、`-`、半角空白 1 つ、`finish` の日 の順とすること（MUST）'
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること。'
 const IN_4_LAST_RUNG = '`Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 const MACHINE_ROW_TARGET = '| `screen/hintTargetChanged` | — | → `allowed` |'
@@ -68,7 +69,8 @@ const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
 )
 
 // see EZ-6
-const TELLING = /\d{4}-\d{2}-\d{2}\s*\/\s*\d{4}-\d{2}-\d{2}/
+// see TL-5, TL-10, TL-11
+const TELLING = /: (?:\d{2}\/)?\d{1,2}\/\d{1,2} \([^)]+\) - (?:\d{2}\/)?\d{1,2}\/\d{1,2} \([^)]+\)/
 
 // WHY: "a few pixels" of claim 3 -- small enough to stay inside an entrance of the App Header.
 const WIGGLE_PX = 2
