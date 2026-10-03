@@ -1472,6 +1472,13 @@ NOT_STORED_TARGETS = {
     # never are (EP-12 of table T-076).
     'NOT_STORED_DEPENDENCY_EMPHASIS_SIZES': (['S-447'],
                                              DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-631: S-485, how wide a WBS parent arrow answers the pointer, and
+    # S-486, the dash of an arrow to a derived parent (FR-135). One constant
+    # for the one consuming subject, the family arrows, printed into the unit
+    # that lays them out (wbs-parent-arrows.ts); the hit test and the renderer
+    # read both off the geometry instead of a copy of their own.
+    'NOT_STORED_WBS_PARENT_ARROW_SIZES': (['S-485', 'S-486'],
+                                          DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
     # drawn by schedule-overlays.ts, which reads this constant already, and
@@ -2786,6 +2793,10 @@ TARGETS = [
     (os.path.join(LAYOUT, 'schedule-geometry', 'dependency-route.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-631: the family arrows' hit width and derived-parent dash (FR-135).
+    (os.path.join(LAYOUT, 'schedule-geometry', 'wbs-parent-arrows.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_WBS_PARENT_ARROW_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
     # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and

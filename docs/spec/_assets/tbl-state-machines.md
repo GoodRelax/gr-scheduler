@@ -65,7 +65,7 @@
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルかヘルプか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` |
 | `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` |
-| `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
+| `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `IC-142` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
 | `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
 | `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
 | `screen/watermarkUnlockMatched` | 副作用の結果（照合）: `WM-6` ・ `WM-8` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
@@ -136,6 +136,7 @@ stateDiagram-v2
         armModeStateMachine_dependencyArmed : dependencyArmed
         armModeStateMachine_commentBoxArmed : commentBoxArmed
         armModeStateMachine_highlightBoxArmed : highlightBoxArmed
+        armModeStateMachine_wbsParentArmed : wbsParentArmed
     }
     note right of armModeStateMachine_group : armEntryPressed は組のどの 2 つの間も結ぶ
     armModeStateMachine_group --> armModeStateMachine_notArmed : escapePressed, armEntryPressed, dualCursorEntryPressed
@@ -143,11 +144,11 @@ stateDiagram-v2
     armModeStateMachine_group --> armModeStateMachine_group : armEntryPressed
 ```
 
-| 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` |
-| --- | --- | --- | --- | --- | --- | --- |
-| `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
-| `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
-| `screen/dualCursorEntryPressed` | — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — |
+| 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` | `wbsParentArmed` |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
+| `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
+| `screen/dualCursorEntryPressed` | — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — |
 
 - `armModeStateMachine.notArmed` —— 初期。根拠 `AR-1`
 - `armModeStateMachine.taskShapeArmed` —— 運ぶ値 `shapeKind`（`SH-1` ・ `SH-2` ・ `SH-3` ・ `SH-4`）。根拠 `AR-2` ・ `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26`
@@ -155,6 +156,7 @@ stateDiagram-v2
 - `armModeStateMachine.dependencyArmed` —— 根拠 `AR-4` ・ `IC-61`
 - `armModeStateMachine.commentBoxArmed` —— 根拠 `AR-5` ・ `IC-35`
 - `armModeStateMachine.highlightBoxArmed` —— 根拠 `AR-6` ・ `IC-36`
+- `armModeStateMachine.wbsParentArmed` —— 根拠 `AR-7` ・ `IC-142`
 
 表に無い出来事は `armModeStateMachine` を変えない（同じ参照）。
 

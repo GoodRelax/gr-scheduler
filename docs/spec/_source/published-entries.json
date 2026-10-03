@@ -175,6 +175,24 @@
      }
     },
     {
+     "name": "wbsParentResolutionsOf",
+     "note": {
+      "ja": [
+       "どの `Task` の WBS の親も、明記・導いた親（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。",
+       "`ScheduleGeometry` が家族の矢印を描くため、`InputCommandTranslator` が破線の矢印を断るために使う（`FR-135`）"
+      ]
+     }
+    },
+    {
+     "name": "WbsParentResolution",
+     "note": {
+      "ja": [
+       "型。",
+       "`wbsParentResolutionsOf` が 1 つの `Task` について答える値"
+      ]
+     }
+    },
+    {
      "name": "workingDaysBetween",
      "note": {
       "ja": [
@@ -935,6 +953,16 @@
        "型。",
        "描いた依存線 1 本 —— 結ぶ 2 つの `Task` と種別、経路（`LC-10`、表 T-222）、描いた太さと矢じり、端点が見えていないときに描く短い線と続きの印（`01-04-requirements.md` の 表 T-303）。",
        "⭐ 太さと矢じりは任せてよい —— 当たりだけを問う呼び手は描く値を持たない"
+      ]
+     }
+    },
+    {
+     "name": "WbsParentFamilies",
+     "note": {
+      "ja": [
+       "型。",
+       "家族の矢印を描く持ち主（指した・選んだ `Task`、選んだ矢印の子、矢印を選び始めたときの家族）と、表 T-318 の親の答え（`FR-135`）。",
+       "`SingleHtmlShell` が `geometryFromLayout` に渡す —— 何も渡さなければ矢印を描かない"
       ]
      }
     },
@@ -1984,6 +2012,15 @@
     },
     {
      "name": "isSelected"
+    },
+    {
+     "name": "taskUidsIn",
+     "note": {
+      "ja": [
+       "選択に含まれる `Task` の `uid` を、選んだ順に答える（`SL-1`、`SL-7b`）。",
+       "⭐ 描く側・写す側・WBS の親を結ぶ側（`FR-135`）が同じ 1 つの取り出しを使うために公開した"
+      ]
+     }
     },
     {
      "name": "selectionWithinSchedule",

@@ -539,6 +539,17 @@
    }
   },
   {
+   "rowId": "IC-142",
+   "label": {
+    "ja": "親定義",
+    "en": "Set a WBS Parent"
+   },
+   "hint": {
+    "ja": "WBS の親を結ぶ構え。子を選び、子から親へ引く",
+    "en": "Arm WBS parent linking; select the children, then drag from a child to its parent"
+   }
+  },
+  {
    "rowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
@@ -668,6 +679,17 @@
    "hint": {
     "ja": "依存線を表示する。もう一度押すと非表示にする",
     "en": "Show the Dependency Lines; press again to hide them"
+   }
+  },
+  {
+   "rowId": "IC-141",
+   "label": {
+    "ja": "親子判別",
+    "en": "Show WBS Parents"
+   },
+   "hint": {
+    "ja": "WBS の親子を、子から親への矢印で表示する。もう一度押すと非表示にする",
+    "en": "Show the WBS parents as arrows from child to parent; press again to hide them"
    }
   },
   {
@@ -3342,6 +3364,28 @@
    }
   },
   {
+   "rowId": "RS-69",
+   "text": {
+    "ja": "マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません",
+    "en": "A milestone has no start-to-finish span, so it cannot be a parent task"
+   },
+   "nextStep": {
+    "ja": "期間を持つタスクへ引いてください",
+    "en": "Drag to a task that has a span"
+   }
+  },
+  {
+   "rowId": "RS-70",
+   "text": {
+    "ja": "期間から推定された仮の親子関係は選択・削除できません",
+    "en": "A parent inferred from the dates cannot be selected or deleted"
+   },
+   "nextStep": {
+    "ja": "確定するには、親定義を構えて子から親へ引いてください",
+    "en": "To make it definite, arm Set a WBS Parent and drag from the child to the parent"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3408,6 +3452,13 @@
    "text": {
     "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl + F5 : 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
     "en": "Reset GRS? What GRS keeps in this browser (such as the screen language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too\n* If resetting does not fix the problem, try the following.\nCtrl + F5 : reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
+   }
+  },
+  {
+   "rowId": "QN-12",
+   "text": {
+    "ja": "タスクと親子関係の矢印が一緒に選ばれました。どちらを選びますか",
+    "en": "Tasks and parent arrows are selected together. Which do you want to select?"
    }
   },
   {
@@ -3824,6 +3875,13 @@
    "text": {
     "ja": "ハイライトボックス",
     "en": "Highlight box"
+   }
+  },
+  {
+   "rowId": "AR-7",
+   "text": {
+    "ja": "WBS の親",
+    "en": "WBS parent"
    }
   }
  ],
@@ -4611,6 +4669,29 @@
    "text": {
     "ja": "（名前なし）",
     "en": "(No name)"
+   }
+  }
+ ],
+ "wbsParentChoice": [
+  {
+   "part": "childTasks",
+   "text": {
+    "ja": "[==  ==] 親子関係を定義するため子タスクを選択",
+    "en": "[==  ==] Select the child tasks to define their parent"
+   }
+  },
+  {
+   "part": "tasks",
+   "text": {
+    "ja": "[==  ==] タスクを選択",
+    "en": "[==  ==] Select the tasks"
+   }
+  },
+  {
+   "part": "links",
+   "text": {
+    "ja": "[↑ ↑] 親子関係を削除するため矢印を選択",
+    "en": "[↑ ↑] Select the arrows to delete their parent link"
    }
   }
  ]

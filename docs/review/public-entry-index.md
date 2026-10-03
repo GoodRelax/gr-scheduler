@@ -107,6 +107,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字。 |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字（表 T-350 の `WT-1`・`WT-3`） |
+| `WbsParentResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#WbsParentResolution` | PI-1 | 型。 |
+| `wbsParentResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#wbsParentResolutionsOf` | PI-1 | どの `Task` の WBS の親も、明記・導いた親（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
@@ -278,6 +280,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
+| `WbsParentFamilies` | entry | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentFamilies` | PI-6 | 型。 |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
 | `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
@@ -297,6 +300,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isThinShape` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#isThinShape` | -- | function isThinShape(shapeKind: ShapeKind): boolean |
 | `taskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf` | -- | function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry |
 | `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings, isActual: boolean): number |
+| `WbsParentArrowGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentArrowGeometry` | -- | interface WbsParentArrowGeometry |
+| `WbsParentCandidateGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentCandidateGeometry` | -- | interface WbsParentCandidateGeometry |
+| `WbsParentGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentGeometry` | -- | interface WbsParentGeometry |
+| `wbsParentGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#wbsParentGeometryOf` | -- | function wbsParentGeometryOf(inputs: GeometryInputs, families: WbsParentFamilies \| null): WbsParentGeometry |
+| `WbsParentQueryGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentQueryGeometry` | -- | interface WbsParentQueryGeometry |
 
 ## ItemHitArea (PI-7, `src/entity/layout-engine/item-hit-area/item-hit-area.ts`)
 
@@ -633,6 +641,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isCombo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isCombo` | PI-18 | 修飾キーの組が求める組と一致するかを答える。 |
 | `isLandingMarkKeptBy` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isLandingMarkKeptBy` | PI-18 | 着地の印が出ているとき、その入力が印を残すものか（表 T-303 の `EL-17` ・ `EL-18`）。 |
 | `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
+| `isParentPickingCtrlClick` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isParentPickingCtrlClick` | -- | function isParentPickingCtrlClick( press: PointerPress, release: { readonly x: number; readonly y: number }, context: Pick<InputContext, 'screen'>, ): boolean |
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
 | `isSwallowedSecondPress` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSwallowedSecondPress` | -- | function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean |
@@ -684,6 +693,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromArmed` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmed` | -- | function commandFromArmed( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
 | `commandFromDependencyDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromDependencyDrag` | -- | function commandFromDependencyDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
+| `commandFromWbsParentDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromWbsParentDrag` | -- | function commandFromWbsParentDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
+| `commandFromWbsParentLinkRelease` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromWbsParentLinkRelease` | -- | function commandFromWbsParentLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput |
 | `displayScaleStep` | file only | function | `src/adapter/input-command-translator/display-scale-steps.ts#displayScaleStep` | -- | function displayScaleStep(context: InputContext, towards: 1 \| -1): TranslatedInput |
 | `screenEventFromDualCursorEntry` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorEntry` | -- | function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent |
 | `screenEventFromDualCursorPress` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorPress` | -- | function screenEventFromDualCursorPress( press: PointerPress, context: InputContext, ): ScreenValuesEvent \| null |
@@ -763,6 +774,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `overlayParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#overlayParts` | -- | function overlayParts(input: OverlaysInput): OverlayParts |
 | `OverlaysInput` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlaysInput` | -- | interface OverlaysInput |
 | `watermarkSvg` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#watermarkSvg` | -- | function watermarkSvg( area: ScreenRect, pictureWidth: number, mark: Watermark, ink: string, clipId: string, ): string |
+| `wbsParentParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#wbsParentParts` | -- | function wbsParentParts( geometry: ScheduleGeometry, settings: DrawnSettings, themed: (rowId: string) => string, drawsOperationState: boolean, ): readonly st... |
 | `BaselineOutlineParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#BaselineOutlineParts` | -- | interface BaselineOutlineParts |
 | `baselineOutlineParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#baselineOutlineParts` | -- | function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts |
 | `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg(id: string, length: number, colour: string): string |
@@ -1042,6 +1054,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `answerWatermarkUnlock` | file only | function | `src/framework/single-html-shell/watermark-unlock.ts#answerWatermarkUnlock` | -- | function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding: boolean): boolean |
 | `matchWatermarkUnlock` | file only | function | `src/framework/single-html-shell/watermark-unlock.ts#matchWatermarkUnlock` | -- | async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: string): Promise<void> |
 | `WatermarkUnlockHands` | file only | type | `src/framework/single-html-shell/watermark-unlock.ts#WatermarkUnlockHands` | -- | type WatermarkUnlockHands = Pick<FrameLoopHands, 'readSession' \| 'readValues' \| 'sendToSession' \| 'ask'> |
+| `choiceStepOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#choiceStepOf` | -- | function choiceStepOf(mixed: Selection, input: HumanInput, answer: string \| null): WbsParentChoiceStep \| null |
+| `isMixedParentPick` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#isMixedParentPick` | -- | function isMixedParentPick(picked: Selection): boolean |
+| `selectionOfParentChoice` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#selectionOfParentChoice` | -- | function selectionOfParentChoice(mixed: Selection, answer: string): Selection |
+| `WbsParentChoiceStep` | file only | type | `src/framework/single-html-shell/wbs-parent-hold.ts#WbsParentChoiceStep` | -- | type WbsParentChoiceStep = \| { readonly kind: 'kept' } \| { readonly kind: 'closed' } \| { readonly kind: 'picked'; readonly picked: Selection } export type Wb... |
+| `wbsParentFamiliesOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#wbsParentFamiliesOf` | -- | function wbsParentFamiliesOf( resolutions: ReadonlyMap<number, WbsParentResolution>, selection: Selection, pointedUid: number \| null, held: WbsParentFamilies... |
+| `wbsParentHoldOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#wbsParentHoldOf` | -- | function wbsParentHoldOf() |
+| `WbsParentReadings` | file only | type | `src/framework/single-html-shell/wbs-parent-hold.ts#WbsParentReadings` | -- | type WbsParentReadings = Pick<ScreenViewReadings, 'isDelayDiagnosticsShown' \| 'isWbsParentLinksShown'> & |
 
 ## DomSvgSurface (PI-26, `src/framework/dom-svg-surface/dom-svg-surface.ts`)
 
@@ -1098,12 +1117,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isSelected` | entry | function | `src/entity/document-model/selection/selection.ts#isSelected` | PI-32 | function isSelected(selection: Selection, item: ItemRef): boolean |
 | `ItemRef` | entry | type | `src/entity/document-model/selection/selection.ts#ItemRef` | -- | type ItemRef = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'dependency'; readonly successorUid: number; readonly ordinal: number } \|... |
 | `lastPicked` | entry | function | `src/entity/document-model/selection/selection.ts#lastPicked` | -- | function lastPicked(selection: Selection): ItemRef \| null |
-| `SelectableKind` | entry | type | `src/entity/document-model/selection/selection.ts#SelectableKind` | -- | type SelectableKind = \| 'task' \| 'dependency' \| 'highlightBox' \| 'commentBox' \| 'statusLine' export type ItemRef = \| { readonly kind: 'task'; readonly uid: n... |
+| `SelectableKind` | entry | type | `src/entity/document-model/selection/selection.ts#SelectableKind` | -- | type SelectableKind = \| 'task' \| 'dependency' \| 'highlightBox' \| 'commentBox' \| 'statusLine' \| 'wbsParentLink' export type ItemRef = \| { readonly kind: 'task... |
 | `Selection` | entry | interface | `src/entity/document-model/selection/selection.ts#Selection` | PI-32 | 型。 |
 | `selectionOfAll` | entry | function | `src/entity/document-model/selection/selection.ts#selectionOfAll` | -- | function selectionOfAll(items: readonly ItemRef[]): Selection |
 | `selectionWith` | entry | function | `src/entity/document-model/selection/selection.ts#selectionWith` | PI-32 | function selectionWith(selection: Selection, item: ItemRef): Selection |
 | `selectionWithinSchedule` | entry | function | `src/entity/document-model/selection/selection.ts#selectionWithinSchedule` | PI-32 | 文書に無くなった対象を外した選択を答える —— `FR-081` の結びの「文書に実在する対象だけを指すこと」。 |
 | `selectionWithout` | entry | function | `src/entity/document-model/selection/selection.ts#selectionWithout` | PI-32 | function selectionWithout(selection: Selection, item: ItemRef): Selection |
+| `taskUidsIn` | entry | function | `src/entity/document-model/selection/selection.ts#taskUidsIn` | PI-32 | 選択に含まれる `Task` の `uid` を、選んだ順に答える（`SL-1`、`SL-7b`）。 |
 
 ## DialogueLog (PI-33, `src/entity/document-model/dialogue-log/dialogue-log.ts`)
 
@@ -1249,6 +1269,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
+| `WbsParentChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#WbsParentChoice` | -- | interface WbsParentChoice |
 | `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウインドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
 | `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウインドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
@@ -1643,4 +1664,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 797 name(s) leave through a public entry (296 of them published by table T-064), 636 more are exported by a file and not by its entry.
+Totals: 803 name(s) leave through a public entry (300 of them published by table T-064), 651 more are exported by a file and not by its entry.
