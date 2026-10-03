@@ -17,8 +17,8 @@
     "en": "Command Palette"
    },
    "hint": {
-    "ja": "コマンドパレットを表示する。もう一度押すと非表示にする",
-    "en": "Show the Command Palette; press again to hide it"
+    "ja": "コマンドパレットの表示切替",
+    "en": "Show or hide the Command Palette"
    }
   },
   {
@@ -28,8 +28,8 @@
     "en": "New"
    },
    "hint": {
-    "ja": "開いている文書を捨てて、新しく始める",
-    "en": "Discard the open document and start a new one"
+    "ja": "現在の文書を破棄して、新規に文書を作成する",
+    "en": "Discard the current document and create a new one"
    }
   },
   {
@@ -72,8 +72,8 @@
     "en": "Baseline"
    },
    "hint": {
-    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする。重ねる予定が無いときは、そのファイルを選ぶ",
-    "en": "Overlay the baseline; press again to hide it. With no baseline yet, choose its file"
+    "ja": "変更前の予定の表示切替。変更前の予定が無いときは、そのファイルを選ぶ",
+    "en": "Show or hide the baseline. With no baseline yet, choose its file"
    }
   },
   {
@@ -83,8 +83,8 @@
     "en": "Plan Bar"
    },
    "hint": {
-    "ja": "予定バーを表示する。もう一度押すと非表示にする。実績の表示には影響しない",
-    "en": "Show the Plan Bar; press again to hide it — the actual is left as it stands"
+    "ja": "予定の表示切替",
+    "en": "Show or hide the plan"
    }
   },
   {
@@ -94,8 +94,8 @@
     "en": "Actual Bar"
    },
    "hint": {
-    "ja": "実績バーを表示する。もう一度押すと非表示にする。予定の表示には影響しない",
-    "en": "Show the Actual Bar; press again to hide it — the plan is left as it stands"
+    "ja": "実績の表示切替",
+    "en": "Show or hide the actual"
    }
   },
   {
@@ -105,8 +105,8 @@
     "en": "Fit"
    },
    "hint": {
-    "ja": "日程の全体が 1 画面に収まる倍率と位置にする",
-    "en": "Set the zoom and position that fit the whole schedule on one screen"
+    "ja": "日程の全体を表示",
+    "en": "Show the whole schedule"
    }
   },
   {
@@ -116,8 +116,8 @@
     "en": "Smaller"
    },
    "hint": {
-    "ja": "日程表の図形と字を 1 段小さくする",
-    "en": "Make the chart's shapes and text one step smaller"
+    "ja": "日程表の図形と文字を縮小",
+    "en": "Make the chart's shapes and text smaller"
    }
   },
   {
@@ -127,8 +127,8 @@
     "en": "Larger"
    },
    "hint": {
-    "ja": "日程表の図形と字を 1 段大きくする",
-    "en": "Make the chart's shapes and text one step larger"
+    "ja": "日程表の図形と文字を拡大",
+    "en": "Make the chart's shapes and text larger"
    }
   },
   {
@@ -138,8 +138,8 @@
     "en": "Full screen"
    },
    "hint": {
-    "ja": "全画面表示にする。もう一度押すと戻る",
-    "en": "Enter full screen; press again to leave"
+    "ja": "全画面表示の切替",
+    "en": "Enter or leave full screen"
    }
   },
   {
@@ -149,8 +149,8 @@
     "en": "Zoom out horizontally"
    },
    "hint": {
-    "ja": "時間軸（横）を縮小する",
-    "en": "Zoom the time axis out"
+    "ja": "時間軸（横）を縮小",
+    "en": "Zoom the time axis (horizontal) out"
    }
   },
   {
@@ -160,8 +160,8 @@
     "en": "Zoom in horizontally"
    },
    "hint": {
-    "ja": "時間軸（横）を拡大する",
-    "en": "Zoom the time axis in"
+    "ja": "時間軸（横）を拡大",
+    "en": "Zoom the time axis (horizontal) in"
    }
   },
   {
@@ -171,8 +171,8 @@
     "en": "Zoom out vertically"
    },
    "hint": {
-    "ja": "行軸（縦）を縮小する",
-    "en": "Zoom the row axis out"
+    "ja": "行軸（縦）を縮小",
+    "en": "Zoom the row axis (vertical) out"
    }
   },
   {
@@ -182,8 +182,8 @@
     "en": "Zoom in vertically"
    },
    "hint": {
-    "ja": "行軸（縦）を拡大する",
-    "en": "Zoom the row axis in"
+    "ja": "行軸（縦）を拡大",
+    "en": "Zoom the row axis (vertical) in"
    }
   },
   {
@@ -281,8 +281,8 @@
     "en": "Dialogue Field"
    },
    "hint": {
-    "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
-    "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
+    "ja": "AI との対話欄の表示切替（Agent API も有効にする）",
+    "en": "Show or hide the Dialogue Field for the AI (also turns the Agent API on)"
    }
   },
   {
@@ -303,8 +303,8 @@
     "en": "Screen language"
    },
    "hint": {
-    "ja": "画面の言語を選ぶ。ヘルプの中は変えない。いまの言語は入口に出る",
-    "en": "Choose the screen language; the help keeps its own. The current one shows on the entry"
+    "ja": "画面の言語選択",
+    "en": "Choose the screen language"
    }
   },
   {
