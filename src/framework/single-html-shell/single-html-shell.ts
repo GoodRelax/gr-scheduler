@@ -399,8 +399,7 @@ function environmentOf(
   }
 }
 
-// see T-077
-// see FR-065, AG-12
+// see T-077, FR-065, AG-12
 /** @purity non-pure */
 function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
   const host = globalThis as unknown as Record<string, unknown>
@@ -615,6 +614,7 @@ function boot(): void {
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
   }
+  // DEVIATION: spec says a recount on reading is told (FR-012, RS-52); here BT-1 recounts untold (DFC-1816)
   // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
   if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 

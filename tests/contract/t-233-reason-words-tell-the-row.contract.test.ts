@@ -335,7 +335,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-52': 'e03ca614bf0bcdbc',
+  'RS-52': 'e3b89df280d173ec',
   // RS-53 -- 「バーの形状を構えたまま、引かずに離した」, 作法 `NT-1`, 正 `FR-001`.
   //   Read against the words before the fingerprint was taken: the text says a
   //   task has a span and so is not made without a drag, and the next step names

@@ -18,6 +18,7 @@ export type {
   CycledPlanActual,
 } from './edit-task'
 export { cycleTaskPlanActualState } from './edit-task'
+export { recountedPercentComplete } from './percent-complete'
 export type { TaskGroupCommand } from './edit-task-group'
 export { wbsSubtreesOf } from './edit-task-group'
 export { pastedUidsOf } from './task-paste'

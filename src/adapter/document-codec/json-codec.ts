@@ -14,6 +14,7 @@ import {
   textOfDay,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
+import { recountedPercentComplete } from '../../use-case/edit-document/edit-document'
 import {
   collectSchemaFaults,
   collectionNamesOfEntity,
@@ -41,6 +42,8 @@ export type JsonDecoding =
       readonly ok: true
       readonly document: Document
       readonly clampedCount: number
+      // see FR-012, RS-52
+      readonly recountedCount: number
       readonly formatVersion: FormatVersionReading
       readonly unreadColumns: readonly string[]
     }
@@ -331,7 +334,7 @@ function withStopsFromOlderLengths(
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// see FR-023, FR-073, OP-7
+// see FR-023, FR-073, OP-7, FR-012
 /** @purity pure */
 export function documentFromJson(
   text: string,
@@ -371,17 +374,32 @@ export function documentFromJson(
     ], refusedWith)
   }
 
-  const clamp = clampedSettings(read.documentSettings)
+  return settledReading(read, formatVersion, unreadColumns)
+}
+
+// see FR-012, OP-6, RS-51, RS-52
+/** @purity pure */
+function settledReading(
+  read: Document,
+  formatVersion: FormatVersionReading,
+  unreadColumns: readonly string[],
+): JsonDecoding {
+  const recount = recountedPercentComplete(read.schedule)
+  const recounted = recount.schedule === read.schedule ? read : { ...read, schedule: recount.schedule }
+  const recountedCount = recount.movedTaskUids.length
+
+  const clamp = clampedSettings(recounted.documentSettings)
   if (clamp.clamped.length === 0) {
-    return { ok: true, document: read, clampedCount: 0, formatVersion, unreadColumns }
+    return { ok: true, document: recounted, clampedCount: 0, recountedCount, formatVersion, unreadColumns }
   }
   // WHY: rowGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
   // it, but it is left out of the count RS-51 tells.
   const toldClamped = clamp.clamped.filter((one) => one.key !== 'rowGap')
   return {
     ok: true,
-    document: { ...read, documentSettings: clamp.settings },
+    document: { ...recounted, documentSettings: clamp.settings },
     clampedCount: toldClamped.length,
+    recountedCount,
     formatVersion,
     unreadColumns,
   }
