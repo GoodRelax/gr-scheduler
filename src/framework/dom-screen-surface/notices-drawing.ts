@@ -28,14 +28,14 @@ const LINK_KEPT_FROM_INPUT: readonly string[] = ['pointerdown', 'pointerup']
 
 const LINK_OPENING_KEY = 'Enter'
 
-// see FR-073, CN-6
+// see FR-073, FR-069, CN-6
 /** @purity non-pure */
-function linkElement(host: Document, address: string): HTMLElement {
+export function linkElement(host: Document, address: string, words: string = address): HTMLElement {
   const link = made(host, 'a', STYLE.noticeLink)
   link.setAttribute('href', address)
   link.setAttribute('target', LINK_TARGET)
   link.setAttribute('rel', LINK_RELATION)
-  link.textContent = address
+  link.textContent = words
   for (const type of LINK_KEPT_FROM_INPUT) link.addEventListener(type, (event) => event.stopPropagation())
   link.addEventListener('keydown', (event) => {
     if ((event as KeyboardEvent).key === LINK_OPENING_KEY) event.stopPropagation()

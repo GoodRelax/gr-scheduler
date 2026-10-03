@@ -155,6 +155,8 @@ import { rowNameFont } from '../fixtures/row-name-font'
 import { S_235 } from '../fixtures/display-scale'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
+const LINK_GUARDS: readonly string[] = ['pointerdown', 'pointerup', 'keydown']
+
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
 // ---------------------------------------------------------------------------
@@ -1210,6 +1212,8 @@ const HELP_MODAL: HelpModal = {
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
+  helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+  area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } },
   footnotes: [],
 }
 
@@ -1557,8 +1561,11 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
       // ⛔ FT-1 of 表 T-078 has the human input reach the shell through IF-2 and
       // says the supply is not widened, so a listener OUTSIDE these two parts
       // would be this unit becoming a second source of input.
+      // WHY: FR-069 / FR-073 links keep their own press and Enter from the shell, so they open; they raise no frame.
+      const isLinkGuard = one.node.getAttribute('target') === '_blank' && LINK_GUARDS.includes(one.type)
       expect(
         noticing.some((part) => part.contains(one.node)) ||
+          isLinkGuard ||
           (one.type === 'input' && searchLayers.some((layer) => layer.contains(one.node))),
         `${one.type} on [data-role="${one.node.getAttribute('data-role') ?? ''}"]` +
           `[data-field-row="${one.node.getAttribute('data-field-row') ?? ''}"]`,

@@ -11,15 +11,18 @@ import type {
   HelpEntry,
   HelpFootnote,
   HelpModal,
+  HelpWindowArea,
   ExportFormatChoice,
   IconId,
   LinkedWords,
+  OpenChooser,
   OpenModal,
   RosterResource,
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
+import { iconHint } from './tooltips'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -37,6 +40,18 @@ const RESTORE_ICON: IconId = 'IC-131'
 const RESOURCE_ROSTER = 'Resource Roster'
 
 const EXPORT_CHOOSER = 'Export Chooser'
+
+const OPEN_CHOOSER = 'Open Chooser'
+
+const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
+
+// see FR-035, OP-16
+// WHY: single-html-shell.ts spells FR-035's tab heading too; one holder needs a T-064 member (DFC-1780).
+const UNTITLED_DOCUMENT_TITLE = 'Untitled'
+
+const OPEN_CHOOSER_WORDS_BY_PART = new Map(displayWords.openChooser.map((entry) => [entry.part, entry]))
+
+const HELP_LEGAL_WORDS_BY_PART = new Map(displayWords.helpLegal.map((entry) => [entry.part, entry]))
 
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
@@ -277,6 +292,48 @@ function rosterResourcesOf(
   }))
 }
 
+// see FR-069
+/** @purity pure */
+function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
+  return {
+    licensedUnder: HELP_LEGAL_WORDS_BY_PART.get('licensedUnder')?.text[language] ?? NO_WORDS,
+    fullText: HELP_LEGAL_WORDS_BY_PART.get('fullText')?.text[language] ?? NO_WORDS,
+  }
+}
+
+// see OP-16
+/** @purity pure */
+function openChooserWord(part: string, language: DisplayLanguage): string {
+  return OPEN_CHOOSER_WORDS_BY_PART.get(part)?.text[language] ?? NO_WORDS
+}
+
+// see OP-16, AM-8
+// WHY: read off the state that raised the chooser, so the rows keep what was read while it stands.
+/** @purity pure */
+function incomingFileOf(session: ScreenSession): OpenChooser['incomingFile'] {
+  const state = session.fileFlow.fileOperationState
+  if (state.kind !== 'awaitingOpenChoice') return null
+  const read = state.incomingFile
+  return { fileName: read.fileName, byteLength: read.byteLength, documentTitle: read.documentTitle ?? UNTITLED_DOCUMENT_TITLE }
+}
+
+// see OP-16, FR-029, EZ-2
+/** @purity pure */
+function openChooserOf(session: ScreenSession, heading: string, commands: readonly CommandItem[], language: DisplayLanguage): OpenChooser {
+  return {
+    surface: OPEN_CHOOSER,
+    heading,
+    commands,
+    incomingFile: incomingFileOf(session),
+    choices: commands
+      .filter((item) => item.icon !== CLOSE_SURFACE_ENTRY)
+      .map((entry) => ({ entry, hint: iconHint(entry.icon, language) })),
+    fileWord: openChooserWord('file', language),
+    documentTitleWord: openChooserWord('documentTitle', language),
+    cancelWord: openChooserWord('cancel', language),
+  }
+}
+
 // DEVIATION: spec says a surface is named by its U row (T-280); here only U-60 is, by the state machine (DFC-703)
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
@@ -287,7 +344,7 @@ function openSurfaceNameOf(session: ScreenSession): string | null {
 
 // see FR-036, FR-038, T-335, HN-4
 /** @purity pure */
-export function helpModalFromSession(session: ScreenSession): HelpModal | null {
+export function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal | null {
   const help = session.screen.helpDisplayState
   if (help.kind === 'hidden') return null
   const helpLanguage = session.screen.helpLanguage ?? displayLanguageOf(session)
@@ -305,6 +362,8 @@ export function helpModalFromSession(session: ScreenSession): HelpModal | null {
     copyrightNotice: licence.copyrightNotice,
     attributions: licence.attributions,
     footnotes: helpFootnotes(helpLanguage),
+    helpLegal: helpLegalWords(helpLanguage),
+    area,
   }
 }
 
@@ -338,6 +397,8 @@ export function openModalFromSession(
       formats: exportFormatChoices(language),
     }
   }
+
+  if (surface === OPEN_CHOOSER) return openChooserOf(session, heading, commands, language)
 
   if (surface === WATERMARK_UNLOCK) {
     return {

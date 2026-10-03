@@ -30,6 +30,18 @@ const FR_038_NOT_STORED = '⛔ ヘルプの言語を保存してはならない�
 const IN_4_SURFACE_THEN_HELP =
   '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウインドウ」の段に立つ'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
+const FR_036_UNDER_THE_HEADER =
+  'ヘルプは、閲覧環境の窓から `App Header` を除いた領域の中央に、その領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと（MUST）'
+const FR_036_NOT_SIDEWAYS_WHEN_OPENED =
+  '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'
+const FR_069_TWO_LINES =
+  '⭐ ヘルプは、本文の領域の段の下に、著作権表示の 1 行と、ライセンスの名を言う 1 行の 2 行を常に見せ、その下に全文と帰属表示を畳んで置くこと（MUST）'
+const FR_036_NARROWED_SCROLLS_SIDEWAYS =
+  '⭐ 利用者がヘルプを狭めて（表 T-335 の `WB-9`）段の並びが本文の領域の幅に入り切らないときは、本文の領域を横にもスクロールさせること（MUST）'
+const FR_036_COLUMNS_STAY = '⛔ 本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしてはならない（MUST NOT）'
+const FR_069_FOLDED = '⛔ 全文と帰属表示を、ヘルプを開いたときに開いた形で出してはならない（MUST NOT）'
+const FR_069_NEW_TAB =
+  '⭐ 著作権表示を押したら、閲覧環境の新しいタブで、同書の 表 T-206 の `S-459`（本ソフトウェアのリポジトリの所）の頁を開くこと（MUST）'
 
 const CLAUSES: readonly string[] = [
   FR_036_TITLE_ORDER,
@@ -50,6 +62,13 @@ const CLAUSES: readonly string[] = [
   FR_038_NOT_STORED,
   IN_4_SURFACE_THEN_HELP,
   T_337_THE_FRONT_ONE_TAKES_THE_PRESS,
+  FR_036_UNDER_THE_HEADER,
+  FR_036_NOT_SIDEWAYS_WHEN_OPENED,
+  FR_036_NARROWED_SCROLLS_SIDEWAYS,
+  FR_036_COLUMNS_STAY,
+  FR_069_TWO_LINES,
+  FR_069_FOLDED,
+  FR_069_NEW_TAB,
 ]
 
 const T_103 = specTable('T-103')
@@ -104,6 +123,8 @@ const numberOf = (cell: string): number => {
 
 // see S-436
 const S_436_EM = numberOf(rowOf(T_206, 'S-436').by['既定'] ?? '')
+const S_201_SHARE = numberOf(rowOf(T_206, 'S-201').by['既定'] ?? '')
+const S_459_ADDRESS = bare(rowOf(T_206, 'S-459').by['既定'] ?? '')
 
 type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
@@ -905,6 +926,130 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
       const control = new Set(differingPaths(plain, plainAgain))
       expect(differingPaths(plain, whileMaximised).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
       expect(differingPaths(plain, whileMinimised).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
+    } finally {
+      await stage.close()
+    }
+  })
+})
+
+/** @purity semi-pure-b */
+async function readLicenceLines(page: Page) {
+  return page.evaluate((help: string) => {
+    // WHY: the last link outside the fold; the S-350 note link stands earlier, inside the columns.
+    const link = [...document.querySelectorAll(`${help} a[target="_blank"]`)].filter((one) => one.closest('details') === null).at(-1)
+    const line = link?.parentElement ?? null
+    const next = line?.nextElementSibling ?? null
+    const folded = next?.nextElementSibling ?? null
+    const body = link?.closest('[style*="overflow"]') ?? null
+    return {
+      href: link?.getAttribute('href') ?? null,
+      rel: link?.getAttribute('rel') ?? null,
+      linkText: link?.textContent ?? null,
+      licensedUnder: next?.textContent ?? null,
+      isFolded: folded instanceof HTMLDetailsElement ? !folded.open : null,
+      sideways: body === null ? null : body.scrollWidth - body.clientWidth,
+    }
+  }, HELP)
+}
+
+test.describe('CR-622 -- where the help opens, and the two licence lines (FR-036, FR-069)', () => {
+  test('item 12: opened, the help stands centred in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
+    test.setTimeout(240_000)
+    const stage = await openTheSample(TALL)
+    try {
+      const { page } = stage
+      const opened = await openHelp(page)
+      const area = await page.evaluate((header: string) => {
+        const bottom = document.querySelector(header)?.getBoundingClientRect().bottom ?? Number.NaN
+        return { left: 0, top: bottom, right: window.innerWidth, bottom: window.innerHeight }
+      }, HEADER)
+      const width = (area.right - area.left) * S_201_SHARE
+      const height = (area.bottom - area.top) * S_201_SHARE
+      const wanted = {
+        left: area.left + (area.right - area.left - width) / 2,
+        top: area.top + (area.bottom - area.top - height) / 2,
+        right: area.left + (area.right - area.left + width) / 2,
+        bottom: area.top + (area.bottom - area.top + height) / 2,
+      }
+      for (const side of ['left', 'top', 'right', 'bottom'] as const) {
+        expect(Math.abs(opened.box[side] - wanted[side]), `${FR_036_UNDER_THE_HEADER}: ${said(opened.box)} vs ${said(wanted)}`).toBeLessThanOrEqual(EDGE)
+      }
+      const lines = await readLicenceLines(page)
+      expect(lines.sideways, FR_036_NOT_SIDEWAYS_WHEN_OPENED).toBe(0)
+    } finally {
+      await stage.close()
+    }
+  })
+
+  test('item 13: below the columns, the copyright links S-459 in a new tab, the licence name stands next, and the full text is folded', async () => {
+    test.setTimeout(240_000)
+    const stage = await openTheSample(TALL)
+    try {
+      const { page } = stage
+      await openHelp(page)
+      const lines = await readLicenceLines(page)
+      expect(lines.href, FR_069_NEW_TAB).toBe(S_459_ADDRESS)
+      expect(lines.rel, FR_069_NEW_TAB).toBe('noopener noreferrer')
+      expect(lines.linkText ?? '', FR_069_TWO_LINES).not.toBe('')
+      expect(lines.licensedUnder ?? '', FR_069_TWO_LINES).not.toBe('')
+      expect(lines.isFolded, FR_069_FOLDED).toBe(true)
+    } finally {
+      await stage.close()
+    }
+  })
+})
+
+/** @purity semi-pure-b */
+async function readHelpColumns(page: Page) {
+  return page.evaluate((help: string) => {
+    const columns = [...document.querySelectorAll(`${help} [data-help-column]`)]
+    const body = columns[0]?.parentElement?.parentElement ?? null
+    return {
+      count: columns.length,
+      lefts: columns.map((one) => Math.round(one.getBoundingClientRect().left - (body?.getBoundingClientRect().left ?? 0) + (body?.scrollLeft ?? 0))),
+      sideways: body === null ? null : body.scrollWidth - body.clientWidth,
+    }
+  }, HELP)
+}
+
+/** @purity non-pure */
+async function dragBy(page: Page, from: Point, by: Point): Promise<void> {
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  await page.mouse.move(from.x + by.x / 2, from.y + by.y / 2, { steps: 4 })
+  await page.mouse.move(from.x + by.x, from.y + by.y, { steps: 4 })
+  await page.mouse.up()
+  await settle(page)
+}
+
+test.describe('CR-621 -- the help moves and narrows like every window (T-335 WB-8, WB-9, WB-6, FR-036)', () => {
+  test('item 14: moved by its title band and narrowed by its right edge, the body scrolls sideways and keeps its columns; closed, the box is forgotten', async () => {
+    test.setTimeout(240_000)
+    const stage = await openTheSample(TALL)
+    try {
+      const { page } = stage
+      const opened = await openHelp(page)
+      const columnsAtOpening = await readHelpColumns(page)
+
+      // STEP: GR-24 -- the title row left of the legend, where no entrance stands
+      const band = { x: opened.title.left + 8, y: (opened.title.top + opened.title.bottom) / 2 }
+      await dragBy(page, band, { x: -40, y: -30 })
+      const moved = await readHelp(page)
+      expect(Math.abs(moved.box.left - (opened.box.left - 40)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
+      expect(Math.abs(moved.box.top - (opened.box.top - 30)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
+
+      // STEP: GR-25 -- the right edge, half way down
+      const edge = { x: moved.box.right - 1, y: (moved.box.top + moved.box.bottom) / 2 }
+      await dragBy(page, edge, { x: -600, y: 0 })
+      const narrowed = await readHelp(page)
+      expect(narrowed.box.right - narrowed.box.left, 'WB-9: the right edge narrows the help').toBeLessThan(moved.box.right - moved.box.left - 300)
+      const columnsNarrowed = await readHelpColumns(page)
+      expect(columnsNarrowed.count, FR_036_COLUMNS_STAY).toBe(columnsAtOpening.count)
+      expect(columnsNarrowed.sideways ?? 0, FR_036_NARROWED_SCROLLS_SIDEWAYS).toBeGreaterThan(0)
+
+      await press(page, inHelp(CLOSE))
+      const again = await openHelp(page)
+      expect(sameRect(again.box, opened.box), `WB-6: ${said(again.box)} vs ${said(opened.box)}`).toBe(true)
     } finally {
       await stage.close()
     }

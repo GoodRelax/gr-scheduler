@@ -46,7 +46,7 @@ import {
   rowsTopPx,
 } from './row-title-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
-import { ROSTER_SCROLLER, keepRosterScroll, modalElement } from './open-modals-drawing'
+import { ROSTER_SCROLLER, helpWindowPainter, keepRosterScroll, modalElement } from './open-modals-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
 import type { PointAsked } from './window-frame-drawing'
 
@@ -353,7 +353,7 @@ export const STYLE = {
   helpBlock: '',
   helpHeading: '',
   helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
-  helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
+  helpLegal: '',
   helpLegalSummary: 'cursor:pointer;',
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
   formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
@@ -578,6 +578,13 @@ export function anchorKey(anchor: TooltipAnchor): string {
 /** @purity pure */
 function described(part: unknown): string {
   return JSON.stringify(part) ?? ''
+}
+
+/** @purity pure */
+function helpKeysOf(helpModal: ScreenView['openModal']): { readonly helpModal: string; readonly helpPlace: string } {
+  if (helpModal === null) return { helpModal: described(null), helpPlace: described(null) }
+  const place = 'place' in helpModal ? helpModal.place : null
+  return { helpModal: described({ ...helpModal, place: undefined }), helpPlace: described(place) }
 }
 
 /** @purity non-pure */
@@ -837,6 +844,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const dialogue = dialogueFieldPainter(host, dialogueField, readAuthor, readClockMs)
 
+  const help = helpWindowPainter(host, helpLayer)
+
   const searchPanel = searchPanelPainter(host, searchPanelLayer, () => wiring.onSearchWordTyped?.())
 
   const report = searchPanelPainter(host, reportLayer, () => wiring.onSearchWordTyped?.(), REPORT_IDENTITY)
@@ -894,7 +903,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(surfaceModal),
-      helpModal: described(helpModal),
+      ...helpKeysOf(helpModal),
       notices: described(view.notices),
       confirmation: described(view.confirmation),
       dialogueField: described(view.dialogueField),
@@ -978,10 +987,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
-    if (changed('helpModal')) {
-      const anchors = anchorsOf('helpModal')
-      helpLayer.replaceChildren(...(helpModal === null ? [] : [modalElement(host, helpModal, anchors).element]))
-    }
+    if (changed('helpModal') || changed('helpPlace')) help.draw(helpModal, changed('helpModal'), () => anchorsOf('helpModal'))
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
     report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
     orderTableWindows(view)
@@ -1083,7 +1089,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity semi-pure-b */
   const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
     const [back, front] = isReportInFront ? [searchPanel, report] : [report, searchPanel]
-    return dialogue.answerAt({ ...asked, walked: front.answerAt({ ...asked, walked: back.answerAt(asked) }) })
+    const tableWindows = front.answerAt({ ...asked, walked: back.answerAt(asked) })
+    return dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: tableWindows }) })
   }
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not

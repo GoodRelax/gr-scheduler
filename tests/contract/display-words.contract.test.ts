@@ -1509,14 +1509,28 @@ for (const entry of GENERATED['shortcuts'] ?? []) {
   })
 }
 
-for (const section of ['helpHeadings', 'helpNotes'] as const) {
-  for (const entry of GENERATED[section] ?? []) {
-    drop(
-      section,
-      keyOf(section, entry),
-      'FR-036 names no member of the help that carries this word, so the whole-view reading asks for it instead',
-    )
-  }
+// see FR-036, CR-635
+// WHY: every block carries its heading as a heading entry keyed by the block, whose name also travels
+// untranslated on each entry (T-256) -- so only a place, not the whole-view reading, can hold this word.
+for (const entry of GENERATED['helpHeadings'] ?? []) {
+  const block = keyOf('helpHeadings', entry)
+  place({
+    section: 'helpHeadings',
+    key: block,
+    field: 'text',
+    unit: 'UF-66',
+    what: `the heading of the help block ${block}`,
+    frame: HELP_SHOWN,
+    read: (view) => view.helpModal?.entries.find((one) => one.kind === 'heading' && one.row === block)?.text,
+  })
+}
+
+for (const entry of GENERATED['helpNotes'] ?? []) {
+  drop(
+    'helpNotes',
+    keyOf('helpNotes', entry),
+    'FR-036 names no member of the help that carries this word, so the whole-view reading asks for it instead',
+  )
 }
 
 // WHY: FR-073 draws note *1 as words around a link (SEAM-4 before, address, after),
@@ -1781,13 +1795,65 @@ for (const entry of GENERATED['weekdays'] ?? []) {
 
 // WHY: no unit hands these words to ScreenView yet; each becomes a place once its surface is drawn.
 const NOT_YET_DRAWN: Readonly<Record<string, string>> = {
-  helpLegal: 'CR-622 (FR-069) prints it on the help, and no unit carries it into the help OpenModal yet',
   branding: 'CR-628 (BR-1 of table T-349) prints it in the App Header, and appHeaderItems carries no Branding yet',
-  openChooser: 'CR-623 prints it on the Open Chooser, and no OpenModal for that chooser is built yet',
   hintLines: 'CR-624 (table T-348) prints it on a bar tooltip, and no tooltip line is built from it yet',
 }
 for (const [section, why] of Object.entries(NOT_YET_DRAWN)) {
   for (const entry of GENERATED[section] ?? []) drop(section, keyOf(section, entry), why)
+}
+
+// see FR-069
+for (const entry of GENERATED['helpLegal'] ?? []) {
+  const part = keyOf('helpLegal', entry) as 'licensedUnder' | 'fullText'
+  place({
+    section: 'helpLegal',
+    key: part,
+    field: 'text',
+    unit: 'UF-66',
+    what: `the help's licence word ${part}`,
+    frame: HELP_SHOWN,
+    read: (view) => view.helpModal?.helpLegal[part],
+  })
+}
+
+// see OP-16
+// WHY: the chooser stands while the file flow waits for the OP-3 answer, which is what carries the file read.
+const OPEN_CHOOSER_SHOWN = frameWith({
+  root: {
+    ...rootWithSurface('Open Chooser'),
+    fileFlow: {
+      ...SCREEN_ROOT.fileFlow,
+      fileOperationState: {
+        kind: 'awaitingOpenChoice',
+        incomingFile: { fileName: 'IncomingFileName.json', byteLength: 2048, documentTitle: null },
+      },
+    },
+  },
+})
+const OPEN_CHOOSER_WORD: Readonly<Record<string, 'fileWord' | 'documentTitleWord' | 'cancelWord'>> = {
+  file: 'fileWord',
+  documentTitle: 'documentTitleWord',
+  cancel: 'cancelWord',
+}
+for (const entry of GENERATED['openChooser'] ?? []) {
+  const part = keyOf('openChooser', entry)
+  const member = OPEN_CHOOSER_WORD[part]
+  if (member === undefined) {
+    drop('openChooser', part, 'OP-16 names no row of the Open Chooser for this part')
+    continue
+  }
+  place({
+    section: 'openChooser',
+    key: part,
+    field: 'text',
+    unit: 'UF-66',
+    what: `the Open Chooser's ${part} word`,
+    frame: OPEN_CHOOSER_SHOWN,
+    read: (view) => {
+      const chooser = view.openModal
+      return chooser !== null && 'choices' in chooser ? chooser[member] : undefined
+    },
+  })
 }
 
 // see FR-039, SE-2

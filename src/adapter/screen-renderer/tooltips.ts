@@ -77,7 +77,7 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
 }
 
 /** @purity pure */
-function iconHint(icon: IconId, language: DisplayLanguage): string {
+export function iconHint(icon: IconId, language: DisplayLanguage): string {
   const held = HINTS_BY_ROW.get(icon)
   if (held === undefined) return icon
   if (held.hint[language] !== '') return held.hint[language]
