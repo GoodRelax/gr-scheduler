@@ -6,12 +6,14 @@
 
 import { calendarDaysBetween, compareDays, dayOf, type CalendarDay } from './calendar-day'
 import { planActualState } from './plan-actual-state'
-import type { Schedule, Task } from './schedule-entities'
+import type { Dependency, Schedule, Task } from './schedule-entities'
 import { isDelayed } from './task-delay'
 import {
   actualLengthOf,
   dateFromWorkingDays,
+  lagWorkingDaysOf,
   lastDayForLength,
+  minutesPerWorkingDayOf,
   workingDaysBetween,
   type WorkingCalendar,
 } from './working-calendar'
@@ -102,9 +104,11 @@ interface DiagnosedDocument {
   readonly schedule: Schedule
 }
 
+// WHY: lagWorkingDays is null for a lag whose format FR-009 does not read; VC-15 skips it, BD-2 flows it as 0.
 interface Link {
   readonly predecessorUid: number
   readonly linkType: number
+  readonly lagWorkingDays: number | null
 }
 
 interface Ends {
@@ -128,6 +132,7 @@ interface Structure {
 
 interface Facts extends Structure {
   readonly calendar: WorkingCalendar
+  readonly minutesPerDay: number
   readonly statusDate: CalendarDay
   readonly explicitChildrenOf: ReadonlyMap<number, readonly Task[]>
   readonly childrenOf: ReadonlyMap<number, readonly Task[]>
@@ -327,17 +332,33 @@ function milestoneLinksOf(milestone: Task, rowDepthOf: ReadonlyMap<number, numbe
   }
   const below = (tasksAtDepth.get(depth + 1) ?? []).filter((task) => before(task) && unowned(task))
   return [...previous, ...peers.filter(afterPrevious), ...below.filter(afterPrevious)]
-    .map((task) => ({ predecessorUid: task.uid, linkType: FINISH_TO_START }))
+    .map((task) => ({ predecessorUid: task.uid, linkType: FINISH_TO_START, lagWorkingDays: 0 }))
 }
 
-// STOP: spec does not decide the unit of Dependency.lag, which follows lagFormat; every link is read with no lag.
-// Looked in AT-47, AT-48, VC-15, BD-2, T-213
-// @provisional PND-606
+// see VC-15, BD-2
+// TRAP: most links carry no lag; walking the calendar for them would index it once per link for nothing.
 /** @purity pure */
-function statedLinksOf(task: Task, byUid: ReadonlyMap<number, Task>): readonly Link[] {
+function laggedDay(calendar: WorkingCalendar, day: CalendarDay, lagWorkingDays: number): CalendarDay {
+  return lagWorkingDays === 0 ? day : dateFromWorkingDays(calendar, day, lagWorkingDays)
+}
+
+// see VC-15, BD-2, FR-009
+// WHY: rounding down never makes a bound later, so a lag with a fraction cannot raise a contradiction.
+/** @purity pure */
+function wholeLagWorkingDays(dependency: Dependency, minutesPerDay: number): number | null {
+  const workingDays = lagWorkingDaysOf(dependency, minutesPerDay)
+  return workingDays === null ? null : Math.floor(workingDays)
+}
+
+/** @purity pure */
+function statedLinksOf(task: Task, byUid: ReadonlyMap<number, Task>, minutesPerDay: number): readonly Link[] {
   return task.dependencies
     .filter((dependency) => byUid.has(dependency.predecessorUid))
-    .map((dependency) => ({ predecessorUid: dependency.predecessorUid, linkType: dependency.linkType }))
+    .map((dependency) => ({
+      predecessorUid: dependency.predecessorUid,
+      linkType: dependency.linkType,
+      lagWorkingDays: wholeLagWorkingDays(dependency, minutesPerDay),
+    }))
 }
 
 // see MP-4
@@ -367,13 +388,14 @@ function structureOf(schedule: Schedule): Structure {
 /** @purity pure */
 function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: CalendarDay): Facts {
   const structure = structureOf(schedule)
+  const minutesPerDay = minutesPerWorkingDayOf(schedule.project)
   const { tasks, byUid, rowDepthOf, tasksAtDepth, parentOf } = structure
   const explicitChildrenOf = groupBy(tasks, (task) => task.wbsParentUid ?? undefined)
   const childrenOf = groupBy(tasks, (task) => parentOf.get(task.uid))
   const linksOf = new Map<number, readonly Link[]>()
   const achievedOnOf = new Map<number, string>()
   for (const task of tasks) {
-    const stated = statedLinksOf(task, byUid)
+    const stated = statedLinksOf(task, byUid, minutesPerDay)
     const links = task.milestone === true && task.dependencies.length === 0
       ? milestoneLinksOf(task, rowDepthOf, tasksAtDepth, parentOf) : stated
     linksOf.set(task.uid, links)
@@ -382,19 +404,21 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   }
   const successorsOf = successorMapOf(tasks.flatMap((task) => (linksOf.get(task.uid) ?? [])
     .map((link) => ({ from: link.predecessorUid, to: task.uid }))))
-  return { ...structure, calendar, statusDate, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf }
+  return { ...structure, calendar, minutesPerDay, statusDate, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf }
 }
 
 // WHY: days compare as days and the same day never breaks a link, as VC-15 states; ND-3 is display only.
-// see VC-15, VS-4
+// see VC-15, VS-4, FR-009
 /** @purity pure */
-function linkHolds(linkType: number, predecessor: Ends, successor: Ends): boolean | null {
+function linkHolds(facts: Facts, dependency: Dependency, predecessor: Ends, successor: Ends): boolean | null {
+  const linkType = dependency.linkType
   const [later, earlier, least] = linkType === FINISH_TO_START ? [successor.start, predecessor.finish, 0]
     : linkType === START_TO_START ? [successor.start, predecessor.start, 0]
       : linkType === FINISH_TO_FINISH ? [successor.finish, predecessor.finish, 0]
         : linkType === START_TO_FINISH ? [successor.finish, predecessor.start, 0] : [null, null, 0]
-  if (later === null || earlier === null) return null
-  return calendarDaysBetween(earlier, later) >= least
+  const lagWorkingDays = wholeLagWorkingDays(dependency, facts.minutesPerDay)
+  if (later === null || earlier === null || lagWorkingDays === null) return null
+  return calendarDaysBetween(laggedDay(facts.calendar, earlier, lagWorkingDays), later) >= least
 }
 
 // see VC-1
@@ -545,7 +569,7 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
         predecessorUid, predecessorActualFinish: predecessor.actualFinish, ...columnsOf(task, ['actualFinish']),
       }))
     }
-    if (linkHolds(dependency.linkType, plannedEnds(predecessor), plannedEnds(task)) === false) {
+    if (linkHolds(facts, dependency, plannedEnds(predecessor), plannedEnds(task)) === false) {
       found.push(findingOf('VC-15', task, {
         predecessorUid, linkType: dependency.linkType, lag: dependency.lag, ...columnsOf(task, ['start', 'finish']),
         predecessorStart: predecessor.start, predecessorFinish: predecessor.finish,
@@ -585,7 +609,7 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
     if (!isStarted(predecessor) && isStarted(task)) {
       found.push(findingOf('VS-3', task, { predecessorUid, ...columnsOf(task, ['actualStart']) }))
     }
-    if (linkHolds(dependency.linkType, actualEnds(predecessor), actualEnds(task)) === false) {
+    if (linkHolds(facts, dependency, actualEnds(predecessor), actualEnds(task)) === false) {
       found.push(findingOf('VS-4', task, {
         predecessorUid, linkType: dependency.linkType, ...columnsOf(task, ['actualStart', 'actualFinish']),
         predecessorActualStart: predecessor.actualStart, predecessorActualFinish: predecessor.actualFinish,
@@ -739,11 +763,13 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   const began = isStarted(predecessor) ? (dayOf(predecessor.actualStart) ?? flow.earliestStart) : flow.earliestStart
   const startFor = (last: CalendarDay): CalendarDay =>
     length > 1 ? dateFromWorkingDays(facts.calendar, last, 1 - length) : last
+  // WHY: BD-2 flows a lag whose format FR-009 does not read as zero; the diagnostics never count that unit.
+  const lagged = (day: CalendarDay): CalendarDay => laggedDay(facts.calendar, day, link.lagWorkingDays ?? 0)
   switch (link.linkType) {
-    case FINISH_TO_START: return flow.projectedFinish
-    case START_TO_START: return began
-    case FINISH_TO_FINISH: return startFor(flow.projectedFinish)
-    case START_TO_FINISH: return startFor(began)
+    case FINISH_TO_START: return lagged(flow.projectedFinish)
+    case START_TO_START: return lagged(began)
+    case FINISH_TO_FINISH: return startFor(lagged(flow.projectedFinish))
+    case START_TO_FINISH: return startFor(lagged(began))
     default: return null
   }
 }

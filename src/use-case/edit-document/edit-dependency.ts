@@ -6,7 +6,12 @@
 import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { Dependency, Task } from '../../entity/document-model/schedule/schedule'
-import { taskByUid } from '../../entity/document-model/schedule/schedule'
+import {
+  lagOfWorkingDays,
+  minutesPerWorkingDayOf,
+  taskByUid,
+  WORKING_DAY_LAG_FORMAT,
+} from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -29,7 +34,7 @@ export type DependencyCommand =
       readonly kind: 'setDependencyLag'
       readonly predecessorUid: number
       readonly successorUid: number
-      readonly lag: number
+      readonly lagWorkingDays: number
     }
 
 /** @purity pure */
@@ -53,7 +58,7 @@ function withTask(document: Document, task: Task): Document {
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// see CM-36, CM-37, CM-38, FR-009
+// see CM-36, CM-37, CM-38, FR-009, AT-47
 /** @purity pure */
 export function editDependency(document: Document, command: DependencyCommand): EditResult {
   const schedule = document.schedule
@@ -99,8 +104,8 @@ export function editDependency(document: Document, command: DependencyCommand): 
       const dependency: Dependency = {
         predecessorUid: command.predecessorUid,
         linkType,
-        lag: SETTINGS_CONSTANTS.dependencyLagDefault,
-        lagFormat: null,
+        lag: lagOfWorkingDays(SETTINGS_CONSTANTS.dependencyLagDefault, minutesPerWorkingDayOf(schedule.project)),
+        lagFormat: WORKING_DAY_LAG_FORMAT,
         carry: {},
         carryElements: [],
       }
@@ -123,27 +128,34 @@ export function editDependency(document: Document, command: DependencyCommand): 
       return edited(withTask(document, { ...successor, dependencies: kept }))
     }
 
-    case 'setDependencyLag': {
-      const successor = taskByUid(schedule, command.successorUid)
-      const held = successor?.dependencies
-        .find((one) => one.predecessorUid === command.predecessorUid) ?? null
-      if (successor === null || held === null) {
-        return refused([
-          reject('CM-38', 'FR-009',
-                 `no dependency runs from ${command.predecessorUid} to ${command.successorUid}`),
-        ])
-      }
-      if (!Number.isInteger(command.lag)) {
-        return refused([reject('CM-38', 'AT-47', `lag must be an integer: ${command.lag}`)])
-      }
-      if (held.lag === command.lag) {
-        return edited(document)
-      }
-
-      const dependencies = successor.dependencies.map((one) =>
-        one.predecessorUid === command.predecessorUid ? { ...one, lag: command.lag } : one,
-      )
-      return edited(withTask(document, { ...successor, dependencies }))
-    }
+    case 'setDependencyLag':
+      return withLagSet(document, command)
   }
+}
+
+// see CM-38, FR-009, AT-47
+/** @purity pure */
+function withLagSet(document: Document, command: Extract<DependencyCommand, { kind: 'setDependencyLag' }>): EditResult {
+  const schedule = document.schedule
+  const successor = taskByUid(schedule, command.successorUid)
+  const held = successor?.dependencies
+    .find((one) => one.predecessorUid === command.predecessorUid) ?? null
+  if (successor === null || held === null) {
+    return refused([
+      reject('CM-38', 'FR-009',
+             `no dependency runs from ${command.predecessorUid} to ${command.successorUid}`),
+    ])
+  }
+  if (!Number.isInteger(command.lagWorkingDays)) {
+    return refused([reject('CM-38', 'FR-009', `lag must be whole working days: ${command.lagWorkingDays}`)])
+  }
+  const lag = lagOfWorkingDays(command.lagWorkingDays, minutesPerWorkingDayOf(schedule.project))
+  if (held.lag === lag && held.lagFormat === WORKING_DAY_LAG_FORMAT) {
+    return edited(document)
+  }
+
+  const dependencies = successor.dependencies.map((one) =>
+    one.predecessorUid === command.predecessorUid ? { ...one, lag, lagFormat: WORKING_DAY_LAG_FORMAT } : one,
+  )
+  return edited(withTask(document, { ...successor, dependencies }))
 }

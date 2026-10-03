@@ -1,4 +1,4 @@
-// Schedule -- working days on the document's calendar: judged, counted, stepped, and the actual length.
+// Schedule -- working days on the document's calendar: judged, counted, stepped, a lag's working days, the actual length.
 // @unit      UF-128  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -15,7 +15,9 @@ import { planActualState } from './plan-actual-state'
 import {
   DEFAULT_CALENDAR_VALUES,
   type Calendar,
+  type Dependency,
   type Exception,
+  type Project,
   type Schedule,
   type Task,
   type WeekDay,
@@ -220,4 +222,34 @@ export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,
     if (isWorkingDayAt(index, at)) remaining -= 1
   }
   return dayFromSerial(at)
+}
+
+// see AT-47
+export const TENTHS_OF_A_MINUTE = 10
+
+// see FR-009, S-118, AT-48
+// WHY: the code is the exchange partner's (mspdi_pj12.xsd:2203, 7 = d); no table of the spec holds it as a value.
+export const WORKING_DAY_LAG_FORMAT = 7
+
+// see FR-054, S-128
+/** @purity pure */
+export function minutesPerWorkingDayOf(project: Project): number {
+  const held = project.minutesPerDay
+  return held !== null && held > 0 ? held : DEFAULT_CALENDAR_VALUES['S-128']
+}
+
+// see FR-009, AT-47, AT-48
+// TRAP: null means GRS does not read the lag's format, never "no lag"; a zero lag is zero whatever its format.
+/** @purity pure */
+export function lagWorkingDaysOf(dependency: Dependency, minutesPerDay: number): number | null {
+  const lag = dependency.lag ?? 0
+  if (lag === 0) return 0
+  if (dependency.lagFormat !== WORKING_DAY_LAG_FORMAT) return null
+  return lag / TENTHS_OF_A_MINUTE / minutesPerDay
+}
+
+// see FR-009, AT-47
+/** @purity pure */
+export function lagOfWorkingDays(workingDays: number, minutesPerDay: number): number {
+  return Math.round(workingDays * minutesPerDay * TENTHS_OF_A_MINUTE)
 }
