@@ -378,22 +378,28 @@ export const NO_FILE_SAVED: FileSavedReading = { fileSavedAt: null, fileSavedByt
 /** @purity non-pure */
 function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
   let fileSaved: FileSavedReading = NO_FILE_SAVED
+  let hasSavedOpenedFile = false
   return {
     /** @purity semi-pure-b */
     readFileSaved: (): FileSavedReading => fileSaved,
+    /** @purity semi-pure-b */
+    hasSavedOpenedFile: (): boolean => hasSavedOpenedFile,
     /** @purity non-pure */
     noteFileSaved(byteLength: number, savedAt: string): void {
       fileSaved = { fileSavedAt: savedAt, fileSavedByteLength: byteLength }
+      hasSavedOpenedFile = true
     },
     /** @purity non-pure */
     noteFileOpened(savedAt: string | null, byteLength: number): void {
       fileSaved = savedAt === null ? NO_FILE_SAVED : { fileSavedAt: savedAt, fileSavedByteLength: byteLength }
+      hasSavedOpenedFile = false
     },
     // see FR-095, HS-5
     /** @purity non-pure */
     forgetOpenedFile(): void {
       hands.files?.forgetOpenedFile()
       fileSaved = NO_FILE_SAVED
+      hasSavedOpenedFile = false
     },
   }
 }
@@ -746,12 +752,14 @@ export async function takeInHandedDocument(
   }
 }
 
-// see FR-096, FR-060
+// see FR-096, FR-060, SX-1
 // WHY: a file opened as MSPDI or as a single .html is not written over with GRS JSON; its first save
 // asks for a file. OP-12 opens a file only when its extension names its format, so the extension tells.
 /** @purity pure */
-function isOverwritableOpenedFile(openedFile: OpenedFileState): boolean {
-  return openedFile.kind !== 'none' && openedFile.fileName.endsWith(extensionOfForm(SAVE_FORM))
+function isOverwritableOpenedFile(openedFile: OpenedFileState, hasSavedOpenedFile: boolean): boolean {
+  if (openedFile.kind === 'none') return false
+  // TRAP: judging a file this run saved by its extension asks again on every save whose name lacks it.
+  return hasSavedOpenedFile || openedFile.fileName.endsWith(extensionOfForm(SAVE_FORM))
 }
 
 // see SX-1, HS-4, T-340
@@ -777,7 +785,7 @@ function byteLengthOfText(text: string): number {
 /** @purity non-pure */
 async function saveHeldDocumentToFile(
   hands: DocumentFileFlowHands,
-  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved'>,
+  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved' | 'hasSavedOpenedFile'>,
   store: FileStore,
 ): Promise<void> {
   // TRAP: read before the first await; a later read saves a document nobody asked to save (CS-4).
@@ -788,7 +796,7 @@ async function saveHeldDocumentToFile(
 
   const openedFile = await store.readOpenedFileState()
   const saving: DocumentFileSaving =
-    !isOverwritableOpenedFile(openedFile)
+    !isOverwritableOpenedFile(openedFile, flow.hasSavedOpenedFile())
       ? await saveDocumentFile(store, chosenFileSave(flow, { text }, project, SAVE_FORM))
       : await saveDocumentFile(store, {
           destination: 'openedFile',
