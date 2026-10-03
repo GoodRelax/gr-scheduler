@@ -300,6 +300,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   notices: 'rowId',
   shortcuts: 'rowId',
   helpHeadings: 'block',
+  // WHY: CR-622 keys the help's two licence words (FR-069) by the part they fill.
+  helpLegal: 'part',
   helpNotes: 'rowId',
   // see FR-036, CR-620
   helpFootnotes: 'footnote',
@@ -318,6 +320,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // T-109: `FR-096`'s chooser prints one line per format and FR-038 (MUST NOT)
   // forbids the 形式 column of that table being carried to the screen.
   fileStatus: 'state',
+  // WHY: CR-628 keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
+  branding: 'part',
   // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a row whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
   // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を
@@ -332,6 +336,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
   exportFormats: 'rowId',
+  // WHY: CR-623 keys the Open Chooser's words by the part they fill.
+  openChooser: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
   // manuscript -- 「名簿は 表 T-109・表 T-037・表 T-233・表 T-234・表 T-023・
@@ -362,6 +368,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // stands last for the same reason `arms` does: this roster is the GENERATED
   // file's printed order, and the generator prints `weekdays` after `arms`.
   weekdays: 'weekday',
+  // WHY: CR-624 keys a bar tooltip's line words by their row of table T-348.
+  hintLines: 'rowId',
   // WHY: CR-548 keys a palette colour by its stored spelling (table T-294) and a
   // part of the colour field by the part it names (CV-9); neither is a row.
   colourNames: 'spelling',
@@ -379,7 +387,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   dualCursorReadout: 'line',
   // WHY: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
   // the state word of column SQ-5 by its row of table T-019a, and the panel's own
-  // words (SV-7's blank item, SQ-1's no-name word, SV-13's restore label) by the part they fill.
+  // words (SV-7's blank item, SQ-1's no-name word) by the part they fill.
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
@@ -1771,6 +1779,19 @@ for (const entry of GENERATED['weekdays'] ?? []) {
   )
 }
 
+// see CR-622, CR-623, CR-624, CR-628
+// STOP: the four sections landed with the dictionary and no unit hands their words to ScreenView
+// yet; each becomes a place once its surface is drawn.
+const NOT_YET_DRAWN: Readonly<Record<string, string>> = {
+  helpLegal: 'CR-622 (FR-069) prints it on the help, and no unit carries it into the help OpenModal yet',
+  branding: 'CR-628 (BR-1 of table T-349) prints it in the App Header, and appHeaderItems carries no Branding yet',
+  openChooser: 'CR-623 prints it on the Open Chooser, and no OpenModal for that chooser is built yet',
+  hintLines: 'CR-624 (table T-348) prints it on a bar tooltip, and no tooltip line is built from it yet',
+}
+for (const [section, why] of Object.entries(NOT_YET_DRAWN)) {
+  for (const entry of GENERATED[section] ?? []) drop(section, keyOf(section, entry), why)
+}
+
 // see FR-039, SE-2
 for (const entry of GENERATED['scaleEcho'] ?? []) {
   const end = keyOf('scaleEcho', entry)
@@ -1791,7 +1812,7 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
 
 // see DC-3
 // WHY: the mode is on and the pointer stands on the Row Area, the one frame DC-3 shows the readout in.
-const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { a: 0, b: 1, span: 2 }
+const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { left: 0, right: 1, span: 2 }
 // WHY: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
 // holds {date} or {span}; the mark is put back so the line can be held to the written word.
 const READOUT_DASH = /—$/
