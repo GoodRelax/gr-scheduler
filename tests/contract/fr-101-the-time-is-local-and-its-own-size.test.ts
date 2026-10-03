@@ -144,6 +144,12 @@ const S_210_CELL = cellOf('S-210')
 /** `S-210` -- the coefficient FR-101 makes a MUST. */
 const S_210 = numberIn(S_210_CELL, "table T-206's S-210")
 
+/** `S-235` -- the chrome scale HS-7 of table T-341 multiplies in first (FR-051). */
+const S_235 = numberIn(cellOf('S-235'), "table T-206's S-235")
+
+const HS_7_CHROME_FIRST =
+  '宿主の地の文字に `_assets/tbl-settings.md` の 表 T-206 の `S-235` を掛け（`FR-051`）、上段にはさらに同表の `S-449` を、下段には本要求の上の段のとおり `S-210` を掛けること（MUST）'
+
 // ---------------------------------------------------------------------------
 // The description to draw
 // ---------------------------------------------------------------------------
@@ -311,6 +317,7 @@ describe('the manuscripts still say what these cases read', () => {
     // LEAVE THEM PASSING ON NOTHING (rule 04 section 2).
     expect(REQUIREMENTS, 'FR-101 no longer makes the shown time local').toContain(THE_LOCAL_MUST)
     expect(REQUIREMENTS, 'FR-101 no longer sizes the moment by S-210').toContain(THE_SIZE_MUST)
+    expect(REQUIREMENTS, 'HS-7 no longer multiplies S-235 in first').toContain(HS_7_CHROME_FIRST)
     expect(REQUIREMENTS, 'FR-101 no longer forbids UTC on the screen').toContain(
       '画面に UTC をそのまま出してはならない（MUST NOT）',
     )
@@ -339,7 +346,11 @@ describe('FR-101 (MUST / MUST NOT) -- the moment is sized by S-210 and not by px
     const { factor, stated } = scaleUpTo(moment, header)
 
     expect(factor, `stated: ${stated.join(' <- ') || 'nothing'}`).not.toBeNull()
-    expect(factor as number, `stated: ${stated.join(' <- ') || 'nothing'}`).toBeCloseTo(S_210, 6)
+    // WHY: HS-7 multiplies the host's size by S-235 first, then by S-210.
+    expect(factor as number, `stated: ${stated.join(' <- ') || 'nothing'} -- ${HS_7_CHROME_FIRST}`).toBeCloseTo(
+      S_235 * S_210,
+      6,
+    )
   })
 
   it('⛔ MUST NOT: no size on that chain is held as px', () => {

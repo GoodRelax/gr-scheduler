@@ -286,6 +286,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GrabSizes` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#GrabSizes` | -- | type GrabSizes = typeof NOT_STORED_SIZES |
 | `grabSizesOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#grabSizesOf` | PI-7 | `itemAtPointer` に渡す掴み代の大きさを、`_assets/tbl-settings.md` の 表 T-206 の掴み代の行（`01-04-requirements.md` の `FR-104` の 表 T-266 が読む `S-250` 〜 `S-290` と、`S-137` / `S-230`... |
 | `grown` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#grown` | -- | function grown(box: ScreenRect, across: number, down: number): ScreenRect |
+| `HintHolder` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#HintHolder` | -- | interface HintHolder |
 | `Hit` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#Hit` | -- | interface Hit |
 | `isInsideRect` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isInsideRect` | PI-7 | 点が矩形の中（縁を含む）にあるかを答える。 |
 | `isOnTheDrawnShape` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isOnTheDrawnShape` | -- | function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean |
@@ -295,7 +296,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `itemsInMarquee` | entry | function | `src/entity/layout-engine/item-hit-area/marquee.ts#itemsInMarquee` | PI-7 | `SL-3`。 |
 | `merged` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#merged` | -- | function merged(a: ScreenRect \| null, b: ScreenRect \| null): ScreenRect \| null |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
-| `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' |
+| `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' \| 'hint' |
 | `rightOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#rightOf` | -- | function rightOf(box: ScreenRect): number |
 | `selectionWithinDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawn` | PI-7 | 選択から、幾何に描かれていないタスクを外した選択を答える。 |
 | `selectionWithinDrawnRows` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawnRows` | PI-7 | `selectionWithinDrawn` の答えに、表 T-023c が名指さない行 —— ピン止めの帯に入りきらない行（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかった行 —— のタスクを戻した選択を答える。 |
@@ -1223,8 +1224,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ROW_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ROW_PATH_SEPARATOR` | -- | const ROW_PATH_SEPARATOR = ' \u2192 ' |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6'] |
+| `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage): string |
+| `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
+| `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage): string \| null |
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
-| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): r... |
+| `GuideCursorLabel` | file only | interface | `src/adapter/screen-renderer/tooltips.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
+| `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
+| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sche... |
 
 ## DomScreenSurface (PI-38, `src/framework/dom-screen-surface/dom-screen-surface.ts`)
 
@@ -1293,6 +1299,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
 | `confirmationElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationElement` | -- | function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement |
+| `LINK_RELATION` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_RELATION` | -- | const LINK_RELATION = 'noopener noreferrer' |
+| `LINK_TARGET` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_TARGET` | -- | const LINK_TARGET = '_blank' |
 | `nextStepElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#nextStepElement` | -- | function nextStepElement(host: Document, text: string, link?: LinkedWords \| null): HTMLElement |
 | `noticeElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#noticeElement` | -- | function noticeElement(host: Document, notice: Notice): HTMLElement |
 | `keepRosterScroll` | file only | function | `src/framework/dom-screen-surface/open-modals-drawing.ts#keepRosterScroll` | -- | function keepRosterScroll(before: Element \| null, after: Element \| null): void |
@@ -1339,7 +1347,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) |
 | `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: SearchPanelView, fontPx: number): HTMLElement |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
+| `pointTipPlace` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#pointTipPlace` | -- | function pointTipPlace(point: Point, size: Size, room: Size): { readonly left: number; readonly top: number } |
 | `showDualCursorReadout` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showDualCursorReadout` | -- | function showDualCursorReadout( host: Document, layer: HTMLElement, readout: ScreenView['dualCursorReadout'], ): void |
+| `showPointTip` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showPointTip` | -- | function showPointTip( host: Document, layer: HTMLElement, tip: { readonly lines: readonly string[]; readonly at: Point } \| undefined, ): void |
 | `tooltipAnchorTable` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#tooltipAnchorTable` | -- | function tooltipAnchorTable(root: HTMLElement) |
 | `tooltipElement` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#tooltipElement` | -- | function tooltipElement( host: Document, tip: Tooltip, anchorFor: (key: string, anchor: TooltipAnchor) => HTMLElement \| undefined, ): HTMLElement |
 
@@ -1518,4 +1528,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 737 name(s) leave through a public entry (247 of them published by table T-064), 571 more are exported by a file and not by its entry.
+Totals: 738 name(s) leave through a public entry (247 of them published by table T-064), 580 more are exported by a file and not by its entry.

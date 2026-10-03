@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 37 | 247 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 147 | 3385 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 147 | 3390 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 367 | 5990 | 11 | 17 | 9 | 1 |
+| **all** | | | 367 | 5995 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -74,7 +74,7 @@ named either way: 1 of 11.
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 13 of 147.
+`semi-pure-a` (rule 04 table UO, row UO-1): 11 of 147.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -112,7 +112,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-541-merge-replace-watchers-and-utterances.test.ts` | documentFromMspdi (pure), emptyChangeWatchers (pure), emptyDialogueLog (pure), importDocument (pure), installAgentApi (non-pure), mspdiFromDocument (pure), notifyChangeWatchers (non-pure), unwatchChanges (non-pure), watchChanges (non-pure) | - | 4 rows |
 | `tests/unit/cr-541-panels-help-tooltip-and-dialogue.test.ts` | domScreenSurface (non-pure), emptySelection (pure), propertiesPanelFromSelection (pure), selectionWith (pure) | - | FR-036, FR-041, FR-072, T-016, T-018 |
 | `tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts` | domScreenSurface (non-pure) | - | T-109, T-328 |
-| `tests/unit/cr-550-dual-cursor-readout.test.ts` | calendarSpanOf (pure), dateAtX (pure), dualCursorReadoutOf (pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), regionsFromScreen (pure), showDualCursorReadout (non-pure), svgFromSchedule (pure), timeAxisOf (pure), tooltipsFromScreenView (pure), xFromDay (pure) | - | 5 rows |
+| `tests/unit/cr-550-dual-cursor-readout.test.ts` | calendarSpanOf (pure), dateAtX (pure), dualCursorReadoutOf (pure), emptySelection (pure), geometryFromLayout (pure), guideCursorLabelOf (pure), layoutFromSchedule (pure), regionsFromScreen (pure), showDualCursorReadout (non-pure), svgFromSchedule (pure), timeAxisOf (pure), tooltipsFromScreenView (pure), xFromDay (pure) | - | 7 rows |
 | `tests/unit/cr-551-agent-import-checks-every-shape.test.ts` | documentFromJson (pure), installAgentApi (non-pure) | - | T-220 |
 | `tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts` | frameLoop (non-pure) | - | FR-006, FR-007, FR-038, T-016, T-109, T-234, T-294 |
 | `tests/unit/cr-551-fit-status-line-and-cursors.test.ts` | frameLoop (non-pure), showDualCursorReadout (non-pure) | - | FR-046, FR-048, FR-055, FR-082, FR-106, T-023d, T-109 |
@@ -122,12 +122,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-002, FR-013, FR-093, FR-094, T-012a, T-251, T-273, T-297 |
 | `tests/unit/cr-551-probe-real-app.test.ts` | frameLoop (non-pure) | - | FR-006, FR-051, FR-055, T-016, T-020, T-023d, T-078, T-103, T-206 |
 | `tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts` | frameLoop (non-pure) | - | T-016, T-294 |
-| `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), itemsInMarquee (pure), layoutFromSchedule (pure), regionsFromScreen (pure), selectionWith (pure), selectionWithinDrawn (pure), svgFromSchedule (pure) | yes | FR-009, FR-039, FR-098, FR-108, T-201, T-206, T-236, T-252, T-268, T-303 |
-| `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | commandFromGrab (pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), layoutFromSchedule (pure), regionsFromScreen (pure) | yes | FR-018, T-023, T-027, T-205, T-270, T-303 |
-| `tests/unit/cr-556-the-deadline-arrow.test.ts` | domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), taskPlacement (pure), tooltipsFromScreenView (pure) | - | FR-045, FR-094, T-012, T-020, T-028, T-038, T-040, T-076, T-304 |
-| `tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (pure), pointerImageOf (pure), pointerRowOf (pure) | - | FR-019, FR-106, T-023d, T-108, T-206, T-217, T-236, T-246, T-269, T-294 |
-| `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (pure), leaderOf (pure), pointerImageOf (pure), pointerRowOf (pure) | - | FR-019, FR-097, FR-106, T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 |
-| `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | commandFromInput (pure), editDocument (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (pure), pastedUidsOf (pure), pointerImageOf (pure), pressRowOf (pure) | - | FR-036, FR-111, T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 |
+| `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (untagged), itemsInMarquee (pure), layoutFromSchedule (pure), regionsFromScreen (pure), selectionWith (pure), selectionWithinDrawn (pure), svgFromSchedule (pure) | - | FR-009, FR-039, FR-098, FR-108, T-201, T-206, T-236, T-252, T-268, T-303 |
+| `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | commandFromGrab (pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (untagged), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-018, T-023, T-027, T-205, T-270, T-303 |
+| `tests/unit/cr-556-the-deadline-arrow.test.ts` | domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (untagged), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), taskPlacement (pure), tooltipsFromScreenView (pure) | - | FR-045, FR-094, T-012, T-020, T-028, T-038, T-040, T-076, T-304 |
+| `tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pointerImageOf (pure), pointerRowOf (pure) | - | FR-019, FR-106, T-023d, T-108, T-206, T-217, T-236, T-246, T-269, T-294 |
+| `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), leaderOf (pure), pointerImageOf (pure), pointerRowOf (pure) | - | FR-019, FR-097, FR-106, T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 |
+| `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | commandFromInput (pure), editDocument (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pastedUidsOf (pure), pointerImageOf (pure), pressRowOf (pure) | - | FR-036, FR-111, T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-024, FR-073, T-036, T-103, T-220, T-233 |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editTask (pure), editTaskGroup (pure) | yes | FR-058 |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021 |
@@ -365,7 +365,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts` | 10 | FR-053 | - | T-004, T-023d, T-062, T-075, T-103, T-109, T-206, T-218, T-237 | BO-1, CP-38, EN-5, GR-19, IC-53, IC-75, IF-9, LM-2, S-99e, S-135a, S-200, TS-6, U-26, UF-65, UF-71 | - | - | - | - |
 | `tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts` | 5 | FR-098 | - | T-233 | - | - | - | - | - |
 | `tests/contract/fr-101-the-name-stands-above-the-time.test.ts` | 8 | FR-101 | - | T-062, T-075, T-076, T-103, T-206, T-218 | BO-1, CP-38, EP-1, IF-9, S-210, TS-6, U-27, U-31, U-58, U-59, UF-62, UF-71 | - | - | - | - |
-| `tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts` | 7 | FR-101, NFR-007 | - | T-006a, T-028, T-058, T-060, T-062, T-064, T-075, T-103, T-206, T-218 | AT-127, AT-140, BO-1, CP-38, IN-2, LY-5, PI-38, S-203, S-210, TS-6, U-31, U-58, U-59, UF-71, W-4 | - | - | - | - |
+| `tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts` | 7 | FR-051, FR-101, NFR-007 | - | T-006a, T-028, T-058, T-060, T-062, T-064, T-075, T-103, T-206, T-218, T-341 | AT-127, AT-140, BO-1, CP-38, HS-7, IN-2, LY-5, PI-38, S-203, S-210, S-235, TS-6, U-31, U-58, U-59, UF-71, W-4 | - | - | - | - |
 | `tests/contract/grs-document.contract.test.ts` | 8 | - | - | T-052, T-056, T-058 | AT-130 | - | - | - | - |
 | `tests/contract/if-1-svg-surface.test.ts` | 14 | FR-048, NFR-010, NFR-011 | - | T-060, T-061, T-065, T-077, T-078, T-218 | BO-1, BO-5, CP-19, CP-26, IF-1, LR-6, LY-5, TS-5 | - | - | - | - |
 | `tests/contract/if-3-file-store.test.ts` | 21 | FR-023, FR-060, FR-096 | - | T-003, T-024, T-066, T-227, T-340 | CN-5, CP-22, CP-28, CS-4, DI-6, IF-3, NT-7, OP-1, S-113 | - | - | - | - |
@@ -414,7 +414,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-571-the-search-panel-through-the-keys.test.ts` | 7 | - | - | T-076, T-103, T-330 | EP-23, IN-4, IN-5a, MK-10, SK-24, SV-2, SV-14 | - | - | - | - |
 | `tests/system/cr-574-help-window.test.ts` | 14 | FR-036, FR-038 | - | T-036, T-103, T-109, T-206, T-335, T-336, T-337 | HN-1, HN-2, HN-4, HN-5, IC-2, IC-22, IC-52, IC-62, IC-128, IC-129, IC-130, IC-131, IN-4, OP-3, S-434, S-436, SK-12, UZ-5, UZ-7, UZ-13, WB-2, WB-3, WB-4, WB-5, WB-6 | - | - | - | - |
 | `tests/system/cr-575-the-palette-stays-grabbable-over-the-header.test.ts` | 7 | FR-053, FR-152 | - | T-103, T-109, T-212, T-337 | GR-19, IC-22, IC-75, IN-3, OP-3, S-124, UZ-5, UZ-7, UZ-8 | - | - | - | - |
-| `tests/system/cr-576-icon-and-task-hints-wait-on-their-own-clocks.test.ts` | 6 | FR-038 | - | T-023d, T-109, T-212 | EZ-2, EZ-6, IC-20, IN-3, IN-4, OP-3, S-124, S-439, U-31, U-53 | - | - | - | - |
+| `tests/system/cr-576-icon-and-task-hints-wait-on-their-own-clocks.test.ts` | 6 | FR-038 | - | T-023d, T-109, T-212 | EZ-2, EZ-6, IC-20, IN-3, IN-4, OP-3, S-124, S-439, TL-5, TL-10, TL-11, U-31, U-53 | - | - | - | - |
 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, S-426, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, WS-2 | - | - | - | - |
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
@@ -435,7 +435,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/single-html-policy.sws.test.ts` | 4 | SWS-8 | - | T-232 | - | - | - | - | - |
 | `tests/system/step-safety-valve-and-its-telling.test.ts` | 7 | - | - | T-025, T-103, T-201, T-205 | IO-6, NT-3a, NT-8, RS-24, ST-7 | - | - | - | - |
 | `tests/system/three-rows-read-from-the-spec-alone.test.ts` | 6 | FR-018, FR-019, FR-020, FR-029, FR-032, FR-065, FR-085, NFR-004 | - | T-023a, T-023b, T-023c, T-025, T-028, T-036, T-037, T-051, T-077, T-107, T-109, T-206, T-217, T-219, T-328, T-329 | AM-3, AR-5, AR-6, BO-1, CN-1, HF-1, HF-10, IC-20, IC-35, IC-36, IC-74, IN-2, IN-4, MC-6, NT-7, NT-8, PTD-5, RS-31, S-99g, S-132, S-208, SK-2, SK-3, SK-13, SL-1, TW-2, U-55 | - | - | - | - |
-| `tests/system/user-reported-fixes.test.ts` | 12 | FR-016, FR-029, FR-032, FR-039, FR-077, FR-094 | - | T-025, T-109, T-201, T-202, T-206, T-212, T-252 | DS-1, DS-7, HF-10, HF-19, HF-20, MC-6, S-4, S-5, S-7, S-13, S-36, S-38, S-66, S-229, S-235, S-237, S-243 | - | DFC-374 | - | - |
+| `tests/system/user-reported-fixes.test.ts` | 12 | FR-016, FR-029, FR-032, FR-039, FR-077, FR-094 | - | T-025, T-109, T-201, T-202, T-206, T-212, T-252 | DS-1, DS-7, HF-10, HF-19, HF-20, MC-6, S-4, S-5, S-7, S-13, S-36, S-38, S-66, S-229, S-235, S-237, S-243, TL-1, TL-4, TL-5 | - | DFC-374 | - | - |
 | `tests/unit/cr-376-exchange-carries-the-last-day.test.ts` | 12 | FR-011, FR-073 | - | T-058 | AT-141, DV-11, S-106, S-128 | - | - | - | - |
 | `tests/unit/cr-376-go-3-a-rest-day-release-stays.test.ts` | 4 | - | - | T-245 | GA-4, GO-3, S-1, S-75 | - | - | - | - |
 | `tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts` | 10 | - | - | T-006a, T-024, T-060, T-061, T-062, T-064, T-074, T-247, T-248 | EG-1, EG-2, EG-3, EG-4, EG-8, HF-14, JF-1, JF-3, JF-4, LR-1, LR-2, LR-3, LR-4, PI-9, PI-37, SU-1, W-11 | - | - | - | - |
@@ -468,9 +468,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-439-text-field-editing-keys-and-press-outside.test.ts` | 11 | - | - | - | AG-11, IN-4, IN-5a, IN-6, SK-19 | - | - | - | - |
 | `tests/unit/cr-439-tooltips-text-assignment-and-hover.test.ts` | 6 | - | - | - | EZ-2, EZ-6, IN-3, S-204, U-53 | - | - | - | - |
 | `tests/unit/cr-541-merge-replace-watchers-and-utterances.test.ts` | 6 | - | - | - | AG-6, AG-11, MG-12, OP-6 | - | - | - | - |
-| `tests/unit/cr-541-panels-help-tooltip-and-dialogue.test.ts` | 11 | FR-036, FR-041, FR-072 | - | T-016, T-018 | AT-46, EZ-6, IN-3, IR-1, SK-19 | - | - | - | - |
+| `tests/unit/cr-541-panels-help-tooltip-and-dialogue.test.ts` | 11 | FR-036, FR-041, FR-072 | - | T-016, T-018 | AT-46, EZ-6, IN-3, IN-7, IR-1, SK-19 | - | - | - | - |
 | `tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts` | 8 | - | - | T-109, T-328 | HF-2, HF-4, HF-10, S-313 | - | - | - | - |
-| `tests/unit/cr-550-dual-cursor-readout.test.ts` | 13 | - | - | - | DC-1, DC-3, EZ-6, S-124, S-439 | - | - | - | - |
+| `tests/unit/cr-550-dual-cursor-readout.test.ts` | 17 | - | - | - | CU-3, DC-1, DC-3, EZ-6, IN-7, S-124, S-439 | - | - | - | - |
 | `tests/unit/cr-551-agent-import-checks-every-shape.test.ts` | 3 | - | - | T-220 | AG-9a, AM-8, CV-1, RS-25 | - | - | - | - |
 | `tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts` | 26 | FR-006, FR-007, FR-038 | - | T-016, T-109, T-234, T-294 | CD-2, CD-6, CV-1, CV-2, CV-3, CV-5, CV-9, HF-10, HF-12, HF-16, HF-17, HF-20, IC-106, MK-13, NT-7, PR-3, PR-10, PR-19, QN-10, S-315, S-335, S-336, S-337, S-338, SK-6 | - | - | - | - |
 | `tests/unit/cr-551-fit-status-line-and-cursors.test.ts` | 18 | FR-046, FR-048, FR-055, FR-082, FR-106 | - | T-023d, T-109 | CU-2, CU-3, DC-3, DC-4, DC-7, DC-8, DC-9, EN-7, GR-10, GR-16, GR-22, GR-23, IC-44, IC-45, IC-48, LC-5, OC-2, PK-10, S-30, S-65, S-66, S-163, S-177, S-183, S-194, S-195, S-332, S-333, S-334, S-340, SL-8 | - | - | - | - |
@@ -482,7 +482,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts` | 5 | - | - | T-016, T-294 | AT-53, CV-9, IR-1, MK-13 | - | - | - | - |
 | `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | 50 | FR-009, FR-039, FR-098, FR-108 | - | T-201, T-206, T-236, T-252, T-268, T-303 | DS-3, DS-7, EL-1, EL-2, EL-3, EL-4, EL-5, EL-6, EL-7, EL-8, EL-9, EL-13, EL-14, EL-15, EL-20, GA-24, HT-1, PE-12, RP-1, RP-3, RT-3, RT-4a, RT-6, S-19, S-49, S-159, S-224, S-298, S-299, S-300, S-360, S-361, S-362, S-363, SL-3, SL-5, SL-8, TY-2, TY-5 | - | - | - | - |
 | `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | 17 | FR-018 | - | T-023, T-027, T-205, T-270, T-303 | CM-65, CM-66, EL-2, EL-10, EL-11, EL-12, MK-13, OP-10a, PE-12, S-78, S-176, UN-8 | - | - | - | - |
-| `tests/unit/cr-556-the-deadline-arrow.test.ts` | 37 | FR-045, FR-094 | - | T-012, T-020, T-028, T-038, T-040, T-076, T-304 | DA-1, DA-2, DA-3, DA-4, DA-5, DA-6, DA-7, EP-5, EZ-6, IN-7, OC-9, S-7, S-146, S-364, S-365, S-366, S-367, SH-5, WY-3, ZO-1, ZO-2, ZO-3, ZO-4, ZO-5, ZO-8, ZO-13 | - | - | - | - |
+| `tests/unit/cr-556-the-deadline-arrow.test.ts` | 38 | FR-045, FR-094 | - | T-012, T-020, T-028, T-038, T-040, T-076, T-304 | DA-1, DA-2, DA-3, DA-4, DA-5, DA-6, DA-7, EP-5, EZ-6, IN-7, OC-9, S-7, S-146, S-364, S-365, S-366, S-367, SH-5, TL-9, TL-11, WY-3, ZO-1, ZO-2, ZO-3, ZO-4, ZO-5, ZO-8, ZO-13 | - | - | - | - |
 | `tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts` | 48 | FR-019, FR-106 | - | T-023d, T-108, T-206, T-217, T-236, T-246, T-269, T-294 | AT-116, CM-55, CM-77, CM-78, CM-79, CV-1, CV-3, CV-6, GR-14, HB-6, HB-7, HB-8, HB-9, HB-10, HB-11, HB-12, S-146, S-151, S-174, S-230, S-293, S-369, S-370, S-371, S-372, S-373, ZO-14 | - | - | - | - |
 | `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | 50 | FR-019, FR-097, FR-106 | - | T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 | AT-110, AT-148, AT-152, CM-51, CM-80, CM-81, CM-82, CM-83, CM-84, CV-1, CV-3, CV-6, LF-15, LF-17, PK-11, S-208, S-292, S-374, S-375, S-376 | - | - | - | - |
 | `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | 42 | FR-036, FR-111 | - | T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 | CM-8, CM-28, CY-1, CY-2, CY-3, CY-5, CY-6, CY-7, CY-8, CY-9, CY-10, CY-11, DU-1, DU-2, GA-2, GA-9, IN-2, MK-7, MK-15, PK-16, PTD-1, PTD-7, S-1, S-75, S-208, SK-4, SK-5 | - | - | - | - |

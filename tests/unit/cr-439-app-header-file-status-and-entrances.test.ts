@@ -67,6 +67,9 @@ const FILE_SAVED_AT = englishName('U-59')
 const DOCUMENT_TITLE = englishName('U-27')
 
 const S_210 = Number.parseFloat(bare(rowOf('T-206', 'S-210').by['既定'] ?? ''))
+const S_235 = Number.parseFloat(bare(rowOf('T-206', 'S-235').by['既定'] ?? ''))
+const HS_7_CHROME_FIRST =
+  '宿主の地の文字に `_assets/tbl-settings.md` の 表 T-206 の `S-235` を掛け（`FR-051`）、上段にはさらに同表の `S-449` を、下段には本要求の上の段のとおり `S-210` を掛けること（MUST）'
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 const S_149_LIGHT = bare(rowOf('T-236', 'S-149').by['明るいテーマ'] ?? '')
   .replace('H', String(THEME.hue))
@@ -220,7 +223,9 @@ describe('FR-101 -- the opened file and when it was last written', () => {
       size = styleMap(at).get('font-size')
       at = at.parentNode
     }
-    expect(size).toBe(`${S_210}em`)
+    expect(REQUIREMENTS, 'premise').toContain(HS_7_CHROME_FIRST)
+    expect(size?.endsWith('em'), 'a coefficient of the host size, never px').toBe(true)
+    expect(Number.parseFloat(size ?? 'NaN'), HS_7_CHROME_FIRST).toBeCloseTo(S_235 * S_210, 6)
   })
 })
 
