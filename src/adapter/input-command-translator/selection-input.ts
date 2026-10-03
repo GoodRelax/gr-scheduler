@@ -189,7 +189,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       if (isContinuationMarkClick(press, input)) return emptySelection()
       if (ref === null || grab === null) return held
       if (grab === 'GA-20' && !hasDraggedPastThreshold(press, input)) return held
-      if (isAdding) {
+      if (isAdding && !hasDraggedPastThreshold(press, input)) {
         return isSelected(held, ref) ? selectionWithout(held, ref) : selectionWith(held, ref)
       }
       return isChoiceKeptByDrag(grab, ref, press, input, context) ? held : selectionWith(emptySelection(), ref)
