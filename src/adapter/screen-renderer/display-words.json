@@ -530,17 +530,6 @@
    }
   },
   {
-   "rowId": "IC-142",
-   "label": {
-    "ja": "親定義",
-    "en": "Set a WBS Parent"
-   },
-   "hint": {
-    "ja": "WBS の親を結ぶ構え。子を選び、子から親へ引く",
-    "en": "Arm WBS parent linking; select the children, then drag from a child to its parent"
-   }
-  },
-  {
    "rowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
@@ -681,6 +670,17 @@
    "hint": {
     "ja": "WBS の親子を、子から親への矢印で表示する。もう一度押すと非表示にする",
     "en": "Show the WBS parents as arrows from child to parent; press again to hide them"
+   }
+  },
+  {
+   "rowId": "IC-142",
+   "label": {
+    "ja": "親定義",
+    "en": "Set a WBS Parent"
+   },
+   "hint": {
+    "ja": "WBS の親を結ぶ構え。子を選び、子から親へ引く",
+    "en": "Arm WBS parent linking; select the children, then drag from a child to its parent"
    }
   },
   {

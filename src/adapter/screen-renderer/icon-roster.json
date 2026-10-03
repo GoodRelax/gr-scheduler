@@ -538,17 +538,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-142",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "揃える",
-   "entryTo": "WBS の親を結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 依存線の構え（`IC-61`）の右に並べる —— 見る入口（`IC-141`）と結ぶ入口が、依存線の 2 つの入口と同じ並びで読める",
-   "authority": "`FR-135`",
-   "arms": "AR-7",
-   "armsShape": null
-  },
-  {
    "rowId": "IC-35",
    "surfaces": [
     "Command Palette"
@@ -689,6 +678,17 @@
    "entryTo": "WBS の親子を、子から親への矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文）",
    "authority": "`FR-135`",
    "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-142",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "表示",
+   "entryTo": "WBS の親を結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親子判別（`IC-141`）のすぐ右に並べる —— 親子を見る入口の右隣に、親子を結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ",
+   "authority": "`FR-135`",
+   "arms": "AR-7",
    "armsShape": null
   },
   {

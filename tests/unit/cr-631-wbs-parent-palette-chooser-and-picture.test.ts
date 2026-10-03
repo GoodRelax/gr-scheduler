@@ -84,10 +84,11 @@ describe('CR-631 -- the manuscript these cases are driven by', () => {
     expect(wordOf('links', 'ja').length).toBeGreaterThan(0)
   })
 
-  it('S-484 defaults to off, and IC-141 / IC-142 sit right of IC-81 / IC-61', () => {
+  it('S-484 defaults to off, IC-141 sits right of IC-81, and IC-142 right of IC-141 (CR-658)', () => {
     expect(cellOf('T-206', 'S-484', '既定')).toContain('false')
     expect(flat(rowText('T-109', 'IC-141'))).toContain('依存線の表示（`IC-81`）の右に並べる。')
-    expect(flat(rowText('T-109', 'IC-142'))).toContain('依存線の構え（`IC-61`）の右に並べる')
+    expect(flat(rowText('T-109', 'IC-142'))).toContain('親子判別（`IC-141`）のすぐ右に並べる')
+    expect(cellOf('T-109', 'IC-142', '群')).toBe(cellOf('T-109', 'IC-141', '群'))
   })
 })
 
@@ -272,7 +273,7 @@ describe('T-109 IC-141 / IC-142 -- the two palette entries', () => {
 
   it.each([
     ['IC-141', 'IC-81'],
-    ['IC-142', 'IC-61'],
+    ['IC-142', 'IC-141'],
   ] as const)('%s stands immediately right of %s in the same group', (entry, left) => {
     const group = paletteOf(sessionWith(null), false).groups.find((one) => one.commands.some((command) => command.icon === left))
     const icons = (group?.commands ?? []).map((one) => one.icon as string)

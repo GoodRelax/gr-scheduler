@@ -1064,21 +1064,6 @@
    "segment": "IC-61",
    "indent": false,
    "table": "T-109",
-   "row": "IC-142",
-   "keys": null,
-   "press": null,
-   "glyphs": [
-    "IC-142"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-3",
-   "block": "Command Palette",
-   "segment": "IC-61",
-   "indent": false,
-   "table": "T-109",
    "row": "IC-35",
    "keys": null,
    "press": null,
@@ -1264,6 +1249,21 @@
    "press": null,
    "glyphs": [
     "IC-141"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-3",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-142",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-142"
    ],
    "note": null
   },
