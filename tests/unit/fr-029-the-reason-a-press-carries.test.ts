@@ -337,9 +337,9 @@ function documentWith(part: Fixture = {}): Document {
         row(GAMMA, BETA, 'Gamma', 0),
       ],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA, stackOrder: null },
-        { taskUid: 2, groupId: BETA, stackOrder: null },
-        { taskUid: 3, groupId: GAMMA, stackOrder: null },
+        { taskUid: 1, groupId: ALPHA },
+        { taskUid: 2, groupId: BETA },
+        { taskUid: 3, groupId: GAMMA },
       ],
       taskVisuals: [],
       commentBoxes: [],

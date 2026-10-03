@@ -123,7 +123,7 @@ const THE_TASK = 1
 const ONE_TASK = {
   project: {
     id: null, name: null, title: null, subject: null, category: null, company: null,
-    manager: null, author: null, created: null, revision: null, lastSaved: null,
+    manager: null, author: null, created: null, revision: null,
     startDate: null, statusDate: null, minutesPerDay: null, minutesPerWeek: null,
     daysPerMonth: null, weekStartDay: null, calendarUid: null, themeHue: THEME_HUE,
     uidHighWaterMark: THE_TASK, importSeq: 0, carry: {}, carryElements: [],

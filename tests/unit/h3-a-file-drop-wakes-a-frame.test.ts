@@ -85,6 +85,7 @@ const there = (): Document => {
   draft.schedule.tasks[0].uid = THERE_UID
   draft.schedule.tasks[0].wbsOrder = THERE_UID
   draft.schedule.taskGroupMembers[0].taskUid = THERE_UID
+  draft.schedule.taskVisuals[0].taskUid = THERE_UID
   return draft as unknown as Document
 }
 

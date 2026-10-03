@@ -8,7 +8,7 @@ import {
   type DocumentSettings,
   type DrawnSettings,
 } from '../../document-model/document-settings/document-settings'
-import { textOfDay, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
+import { textOfDayStart, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
 import { drawnSettingsOf, type ScreenRegions } from '../screen-regions/screen-regions'
 import { drawnGroups } from './drawn-rows'
 import { groupDepthThresholdOf } from './group-level-of-detail'
@@ -198,7 +198,7 @@ export function fitZoom(
   return {
     zoomX: landed.fitted.zoomX,
     zoomY: landed.zoomY,
-    scrollDate: left === null ? settings.scrollDate : textOfDay(left.day),
+    scrollDate: left === null ? settings.scrollDate : textOfDayStart(left.day),
     scrollDayOffset: left === null ? 0 : left.offset,
     scrollGroupId:
       chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,

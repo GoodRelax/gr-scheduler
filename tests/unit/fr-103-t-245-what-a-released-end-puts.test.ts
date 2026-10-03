@@ -165,7 +165,6 @@ function documentWith(
       taskGroupMembers: tasks.map((one, index) => ({
         taskUid: one.uid,
         groupId: rows[index],
-        stackOrder: null,
       })),
       taskVisuals: [],
       commentBoxes: [],

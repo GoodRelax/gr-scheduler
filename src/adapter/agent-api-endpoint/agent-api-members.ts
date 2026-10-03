@@ -409,6 +409,12 @@ function planAndApply(
 // WHY: refused like a write -- a subscriber answering mid-delivery would
 // keep the round from ever finishing (Chapter 5.5).
 /** @purity non-pure */
+// see AM-11, DV-12
+/** @purity pure */
+function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
+  return mspdiFromDocument(snapshot.document, snapshot.localReadAt).text
+}
+
 function postAgentUtterance(
   wiring: AgentApiWiring,
   snapshot: AgentSnapshot,
@@ -602,7 +608,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     exportMspdi(): AgentExport<string> {
-      return { ok: true, value: mspdiFromDocument(source.readSnapshot().document).text }
+      return { ok: true, value: mspdiOfSnapshot(source.readSnapshot()) }
     },
 
     /** @purity semi-pure-b */

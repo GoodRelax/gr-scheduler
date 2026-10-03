@@ -21,12 +21,14 @@ import {
   DEFAULT_CALENDAR_VALUES,
   actualLastDay,
   actualLengthOf,
+  blankTaskVisual,
   dayOf,
   lastDayForLength,
-  textOfDay,
+  textOfFinishSide,
   workingCalendarOf,
   workingDaysBetween,
 } from '../../entity/document-model/schedule/schedule'
+import { isTimeText } from './grs-json-schema'
 import {
   PARENT_ORDERS,
   writtenCarriedElement,
@@ -377,8 +379,9 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     },
     taskGroups: rows.taskGroups,
     taskGroupMembers: rows.taskGroupMembers,
+    // WHY: no MSPDI element holds a look, so every Task holds the blank one (IV-23).
+    taskVisuals: tasksRead.tasks.map((task) => blankTaskVisual(task.uid)),
     // WHY: empty; these entities have no MSPDI element, and task origins are the import use case's.
-    taskVisuals: [],
     commentBoxes: [],
     highlightBoxes: [],
     taskOrigins: [],
@@ -393,7 +396,15 @@ function projectFromRoot(
   carriedRows: readonly CarryElement[],
   outlineBase: number,
 ): Omit<Project, 'sourceFormat'> {
-  const split = carrySplit(root, PROJECT_CONSUMED)
+  const defaultStartTime = timeColumn(root, DEFAULT_START_TIME)
+  const defaultFinishTime = timeColumn(root, DEFAULT_FINISH_TIME)
+  // WHY: a time spelled other than $defs/Time stays in the carry and its column stays empty (FR-021, EX-4).
+  const consumed = [
+    ...PROJECT_CONSUMED,
+    ...(defaultStartTime === null ? [] : [DEFAULT_START_TIME]),
+    ...(defaultFinishTime === null ? [] : [DEFAULT_FINISH_TIME]),
+  ]
+  const split = carrySplit(root, consumed)
   return {
     id: textColumn(root, 'UID'),
     name: textColumn(root, 'Name'),
@@ -405,7 +416,6 @@ function projectFromRoot(
     author: textColumn(root, 'Author'),
     created: textColumn(root, 'CreationDate'),
     revision: integerColumn(root, 'Revision'),
-    lastSaved: textColumn(root, 'LastSaved'),
     startDate: textColumn(root, 'StartDate'),
     statusDate: textColumn(root, 'StatusDate'),
     minutesPerDay: integerColumn(root, 'MinutesPerDay'),
@@ -414,6 +424,8 @@ function projectFromRoot(
     // TRAP: kept as it arrives (0 = Sunday), one apart from DayType (1 = Sunday); never convert either.
     weekStartDay: integerColumn(root, 'WeekStartDay'),
     calendarUid: integerColumn(root, 'CalendarUID'),
+    defaultStartTime,
+    defaultFinishTime,
     themeHue: current.schedule.project.themeHue,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSeq: current.schedule.project.importSeq,
@@ -423,12 +435,25 @@ function projectFromRoot(
   }
 }
 
+// WHY: LastSaved is consumed and dropped, not carried: export makes it anew (DV-12), and carrying it
+// would write it twice (NR-7).
 const PROJECT_CONSUMED: readonly string[] = [
   'UID', 'Name', 'Title', 'Subject', 'Category', 'Company', 'Manager', 'Author',
   'CreationDate', 'Revision', 'LastSaved', 'StartDate', 'StatusDate', 'MinutesPerDay',
   'MinutesPerWeek', 'DaysPerMonth', 'WeekStartDay', 'CalendarUID',
   'Calendars', 'Tasks', 'Resources', 'Assignments',
 ]
+
+const DEFAULT_START_TIME = 'DefaultStartTime'
+
+const DEFAULT_FINISH_TIME = 'DefaultFinishTime'
+
+// see AT-154, AT-155
+/** @purity pure */
+function timeColumn(element: XmlElement, name: string): string | null {
+  const text = textColumn(element, name)
+  return text !== null && isTimeText(text) ? text : null
+}
 
 // WHY: ID, OutlineLevel, OutlineNumber and Summary are consumed, not carried: they are rebuilt on write.
 const TASK_CONSUMED: readonly string[] = [
@@ -630,7 +655,8 @@ function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run:
     const days = workingDaysOfActualDuration(task.carry['ActualDuration'] ?? null, minutesPerDay, at, run)
     if (days === null) return task
     try {
-      return { ...task, stop: textOfDay(lastDayForLength(within, start, days)) }
+      const lastDay = lastDayForLength(within, start, days)
+      return { ...task, stop: textOfFinishSide(lastDay, schedule.project, task.milestone === true) }
     } catch (why) {
       run.notices.push(notice(`${at}/Stop`,
         `could not be counted: ${why instanceof Error ? why.message : String(why)}`))
@@ -874,31 +900,24 @@ export interface ExportRun {
   readonly notices: MspdiNotice[]
 }
 
-// see FR-021
+// see FR-021, DV-12
+// WHY: the moment of the write is handed in (local wall time, no zone, to the second), so this stays pure.
 /** @purity pure */
-export function mspdiFromDocument(document: Document): MspdiEncoding {
+export function mspdiFromDocument(document: Document, lastSaved: string): MspdiEncoding {
   const run: ExportRun = { notices: [] }
   const schedule = document.schedule
   const root: XmlElement = {
     name: 'Project',
     text: '',
-    children: writtenProjectChildren(schedule, run),
+    children: writtenProjectChildren(schedule, lastSaved, run),
   }
   return { text: writtenXml(root, MSPDI_NAMESPACE), notices: run.notices }
 }
 
+// see FR-021, DV-12
 /** @purity pure */
-function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly XmlElement[] {
-  const project = schedule.project
-  const frames = claimedFrames(schedule, run)
-  const definitions = writtenFadeDefinitions(frames, project.carryElements, project.carry)
-  const named: PlacedChild[] = [
-    ...(project.carry['SaveVersion'] === undefined
-      ? [leaf('SaveVersion', GRS_SAVE_VERSION)]
-      : []),
-    ...(project.carry['CurrencyCode'] === undefined
-      ? [leaf('CurrencyCode', UNSTATED_CURRENCY_CODE)]
-      : []),
+function writtenProjectColumns(project: Project, lastSaved: string): PlacedChild[] {
+  return [
     ...optionalLeaf('UID', project.id),
     ...optionalLeaf('Name', project.name),
     ...optionalLeaf('Title', project.title),
@@ -909,7 +928,7 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     ...optionalLeaf('Author', project.author),
     ...optionalLeaf('CreationDate', project.created),
     ...optionalLeaf('Revision', project.revision),
-    ...optionalLeaf('LastSaved', project.lastSaved),
+    leaf('LastSaved', lastSaved),
     ...optionalLeaf('StartDate', project.startDate),
     ...optionalLeaf('StatusDate', project.statusDate),
     ...optionalLeaf('MinutesPerDay', project.minutesPerDay),
@@ -917,6 +936,24 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     ...optionalLeaf('DaysPerMonth', project.daysPerMonth),
     ...optionalLeaf('WeekStartDay', project.weekStartDay),
     ...optionalLeaf('CalendarUID', project.calendarUid),
+    ...optionalLeaf(DEFAULT_START_TIME, project.defaultStartTime),
+    ...optionalLeaf(DEFAULT_FINISH_TIME, project.defaultFinishTime),
+  ]
+}
+
+/** @purity pure */
+function writtenProjectChildren(schedule: Schedule, lastSaved: string, run: ExportRun): readonly XmlElement[] {
+  const project = schedule.project
+  const frames = claimedFrames(schedule, run)
+  const definitions = writtenFadeDefinitions(frames, project.carryElements, project.carry)
+  const named: PlacedChild[] = [
+    ...(project.carry['SaveVersion'] === undefined
+      ? [leaf('SaveVersion', GRS_SAVE_VERSION)]
+      : []),
+    ...(project.carry['CurrencyCode'] === undefined
+      ? [leaf('CurrencyCode', UNSTATED_CURRENCY_CODE)]
+      : []),
+    ...writtenProjectColumns(project, lastSaved),
     ...(project.carry['FinishDate'] === undefined
       ? optionalLeaf('FinishDate', latestTaskFinish(schedule))
       : []),
@@ -1156,12 +1193,13 @@ const MUST_START_ON = '2'
 // WHY: a document read from MSPDI gets these when a task is edited (edit-task.ts), never on write (EX-2).
 /** @purity pure */
 function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun): PlacedChild[] {
-  const start = dayOf(task.start)
+  const startText = task.start
+  const start = dayOf(startText)
   const finish = dayOf(task.finish)
-  if (schedule.project.sourceFormat !== 'grs' || start === null || finish === null) return []
+  if (schedule.project.sourceFormat !== 'grs' || start === null || finish === null || startText === null) return []
   const constraint = [
     leaf('ConstraintType', MUST_START_ON),
-    leaf('ConstraintDate', textOfDay(start)),
+    leaf('ConstraintDate', startText),
   ]
   // see DV-8
   if (task.carry['Duration'] !== undefined) return constraint

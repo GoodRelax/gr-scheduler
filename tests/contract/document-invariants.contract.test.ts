@@ -283,7 +283,6 @@ const PROJECT: Project = {
   author: null,
   created: null,
   revision: null,
-  lastSaved: null,
   startDate: null,
   statusDate: null,
   minutesPerDay: null,
@@ -293,6 +292,8 @@ const PROJECT: Project = {
   // FR-054: the document's calendar is the one this names. Naming it keeps the
   // IV-17 case honest -- the calendar it breaks is the resolved one.
   calendarUid: CALENDAR_UID,
+  defaultStartTime: null,
+  defaultFinishTime: null,
   // ⛔ Table T-220 judges nothing about the hue and AT-19 refuses `null`, so
   // this is a placeholder inside the column's range and not a reading of S-73,
   // whose value reaches no generated artifact this file can call.
@@ -371,8 +372,8 @@ const GROUP_TWO: TaskGroup = {
 }
 
 // IV-6 asks for exactly one of these per `Task`, so the sound document has two.
-const MEMBER_A: TaskGroupMember = { taskUid: TASK_A_UID, groupId: GROUP_ONE_ID, stackOrder: 1 }
-const MEMBER_B: TaskGroupMember = { taskUid: TASK_B_UID, groupId: GROUP_TWO_ID, stackOrder: 1 }
+const MEMBER_A: TaskGroupMember = { taskUid: TASK_A_UID, groupId: GROUP_ONE_ID }
+const MEMBER_B: TaskGroupMember = { taskUid: TASK_B_UID, groupId: GROUP_TWO_ID }
 
 const RESOURCE_UID = 201
 
@@ -405,6 +406,8 @@ const VISUAL: TaskVisual = {
   strokeWidthPx: null,
 }
 
+const VISUAL_B: TaskVisual = { ...VISUAL, taskUid: TASK_B_UID }
+
 // IV-15 weighs this against `Project.importSeq`, so the sound document sets the
 // two equal -- the boundary the row admits.
 const ORIGIN: TaskOrigin = {
@@ -423,7 +426,7 @@ const SCHEDULE: Schedule = {
   assignments: [ASSIGNMENT],
   taskGroups: [GROUP_ONE, GROUP_TWO],
   taskGroupMembers: [MEMBER_A, MEMBER_B],
-  taskVisuals: [VISUAL],
+  taskVisuals: [VISUAL, VISUAL_B],
   commentBoxes: [],
   highlightBoxes: [],
   taskOrigins: [ORIGIN],
@@ -591,6 +594,8 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // A `Task` no `TaskGroupMember` names.
   'IV-6': () => withSchedule({ taskGroupMembers: [MEMBER_A] }),
 
+  'IV-23': () => withSchedule({ taskVisuals: [VISUAL] }),
+
   // No calendar at all. `Project.calendarUid` is cleared with it, so the
   // dangling reference of IV-2 is not raised alongside; FR-054 then resolves
   // the document's calendar to table T-209's default, which is worked, so
@@ -617,7 +622,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // is not `null`, which means unchosen.
   'IV-9': () =>
     withSchedule({
-      taskVisuals: [{ ...VISUAL, fillColor: 'transparent', strokeColor: 'transparent' }],
+      taskVisuals: [{ ...VISUAL, fillColor: 'transparent', strokeColor: 'transparent' }, VISUAL_B],
     }),
 
   // `finish` before `start`, both present.
@@ -711,7 +716,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // A milestone shape drawn for a Task whose `milestone` is not true.
   'IV-22': () =>
     withSchedule({
-      taskVisuals: [{ ...VISUAL, shapeKind: 'milestone' }],
+      taskVisuals: [{ ...VISUAL, shapeKind: 'milestone' }, VISUAL_B],
     }),
 }
 
@@ -779,7 +784,7 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
     withSchedule({ taskGroups: [GROUP_ONE, GROUP_TWO, { ...GROUP_TWO, order: 3 }] }),
 
   'TaskGroupMember.taskUid': () =>
-    withSchedule({ taskGroupMembers: [MEMBER_A, MEMBER_B, { ...MEMBER_B, stackOrder: 2 }] }),
+    withSchedule({ taskGroupMembers: [MEMBER_A, MEMBER_B, { ...MEMBER_B }] }),
 
   'Calendar.uid': () =>
     withSchedule({ calendars: [CALENDAR, { ...CALENDAR, ordinal: 2, isBaseCalendar: false }] }),

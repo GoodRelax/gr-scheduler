@@ -188,7 +188,7 @@ function documentWith(settings: Readonly<Record<string, unknown>>): Document {
           minHeight: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: 1, groupId: ROW_ID, stackOrder: null }],
+      taskGroupMembers: [{ taskUid: 1, groupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

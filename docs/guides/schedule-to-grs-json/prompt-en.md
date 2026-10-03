@@ -43,7 +43,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
 2. Schema rules
    - Every object has all of the schema's required keys and no key the schema does not list (additionalProperties is false). When there is no value, use null (only for keys whose type allows null).
    - carry is {} and carryElements is [] (in tasks, dependencies, resources, assignments, calendars and project).
-   - Dates and date-times are strings shaped "YYYY-MM-DDT00:00:00" (the time is always 00:00:00). Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
+   - Dates and date-times are strings shaped "YYYY-MM-DDTHH:MM:SS" (no zone). The time follows the column's side: a start-side date (start, actualStart, resume, project.startDate) takes project.defaultStartTime (08:00:00 when that is null), a finish-side date (finish, actualFinish, stop, deadline, project.statusDate) takes project.defaultFinishTime (17:00:00 when that is null). A milestone takes the start-side time for both start and finish. A calendar exception's fromDate is 00:00:00 and its toDate 23:59:00. Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
    - Dates lie between 1970-01-01 and 2200-12-31.
 3. Rows (taskGroups)
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
@@ -80,7 +80,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - fadeInDays and fadeOutDays are 0 or more, and together do not exceed the calendar days of finish − start. A task with a fade has a finish. GRS refuses to open a document that breaks this.
    - Actual bars have no fades. Do not read slants or fading on actuals.
 7. Which row holds each task (taskGroupMembers)
-   - Every task is pointed at by exactly one {"taskUid": uid, "groupId": row id, "stackOrder": null}. Choose the row in which the original draws the bar (including the child rows made in step 4).
+   - Every task is pointed at by exactly one {"taskUid": uid, "groupId": row id}. Write no lane within the row (GRS stacks a row's tasks itself). Choose the row in which the original draws the bar (including the child rows made in step 4).
 8. Shapes and colours (taskVisuals)
    - Put exactly one for every task.
    - shapeKind:
@@ -138,15 +138,15 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "tasks": [
     {
       "uid": 1, "wbsParentUid": null, "wbsOrder": 0, "name": "Draft the plan",
-      "start": "2026-04-06T00:00:00", "finish": "2026-04-24T00:00:00", "milestone": false,
+      "start": "2026-04-06T08:00:00", "finish": "2026-04-24T17:00:00", "milestone": false,
       "deadline": null, "notes": null, "calendarUid": null,
-      "actualStart": "2026-04-06T00:00:00", "stop": null, "actualFinish": "2026-04-27T00:00:00",
+      "actualStart": "2026-04-06T08:00:00", "stop": null, "actualFinish": "2026-04-27T17:00:00",
       "resume": null, "resumeValid": null, "percentComplete": 100,
       "fadeInDays": null, "fadeOutDays": 5, "dependencies": [], "carry": {}, "carryElements": []
     },
     {
       "uid": 2, "wbsParentUid": null, "wbsOrder": 1, "name": "Plan approved",
-      "start": "2026-04-30T00:00:00", "finish": "2026-04-30T00:00:00", "milestone": true,
+      "start": "2026-04-30T08:00:00", "finish": "2026-04-30T08:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
@@ -158,7 +158,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
     },
     {
       "uid": 3, "wbsParentUid": null, "wbsOrder": 2, "name": "Budget review",
-      "start": "2026-05-04T00:00:00", "finish": "2026-05-13T00:00:00", "milestone": false,
+      "start": "2026-05-04T08:00:00", "finish": "2026-05-13T17:00:00", "milestone": false,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
@@ -166,7 +166,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
     },
     {
       "uid": 4, "wbsParentUid": null, "wbsOrder": 3, "name": "Budget approved",
-      "start": "2026-05-15T00:00:00", "finish": "2026-05-15T00:00:00", "milestone": true,
+      "start": "2026-05-15T08:00:00", "finish": "2026-05-15T08:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
@@ -188,10 +188,10 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
     }
   ],
   "taskGroupMembers": [
-    { "taskUid": 1, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "stackOrder": null },
-    { "taskUid": 2, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null },
-    { "taskUid": 3, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null },
-    { "taskUid": 4, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null }
+    { "taskUid": 1, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01" },
+    { "taskUid": 2, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
+    { "taskUid": 3, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
+    { "taskUid": 4, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" }
   ],
   "taskVisuals": [
     {

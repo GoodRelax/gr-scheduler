@@ -132,7 +132,7 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
       resources: [],
       assignments: [],
       taskGroups: rows.map((id, index) => group(id, index)),
-      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, groupId: rows[index], stackOrder: null })),
+      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, groupId: rows[index] })),
       taskVisuals: tasks.flatMap((one) =>
         SHAPES[one.uid] === undefined ? [] : [{ taskUid: one.uid, shapeKind: SHAPES[one.uid] }],
       ),

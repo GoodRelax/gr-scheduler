@@ -84,7 +84,7 @@ const COMMENT = {
 
 function documentOf(strokeColor: string | null): Record<string, any> {
   const document = rowDocument(ROWS, { progressMarkerVisible: false }, {
-    taskGroupMembers: TASKED_ROWS.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
+    taskGroupMembers: TASKED_ROWS.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
     highlightBoxes: [{ ...HIGHLIGHT, strokeColor }],
     commentBoxes: [COMMENT],
   })

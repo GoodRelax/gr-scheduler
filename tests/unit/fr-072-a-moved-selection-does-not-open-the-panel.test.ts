@@ -287,8 +287,8 @@ function twoTaskDocument(): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: THE_TASK, groupId: ALPHA, stackOrder: null },
-        { taskUid: THE_OTHER_TASK, groupId: BETA, stackOrder: null },
+        { taskUid: THE_TASK, groupId: ALPHA },
+        { taskUid: THE_OTHER_TASK, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

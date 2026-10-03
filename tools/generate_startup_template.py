@@ -118,6 +118,8 @@ SETTINGS_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
                            'document-settings', 'document-settings.ts')
 SCHEDULE_ENTITIES_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
                                     'schedule', 'schedule-entities.ts')
+CALENDAR_DAY_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
+                               'schedule', 'calendar-day.ts')
 SETTINGS_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
 OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
@@ -137,7 +139,10 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
 # documents from several versions tells them apart by nothing else.
-SCHEMA_VERSION = '2026-09-27'
+# CR-646 (JDG-1209): the shape changed (no stackOrder, no Project.lastSaved,
+# Project.defaultStartTime / defaultFinishTime), so the version is the day the
+# change was applied.
+SCHEMA_VERSION = '2026-10-03'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -949,7 +954,6 @@ PROJECT_COMPANY = 'Product Organization'
 PROJECT_MANAGER = 'Programme Manager A'
 PROJECT_AUTHOR = 'Planner A'
 PROJECT_CREATED = date(2026, 3, 6)
-PROJECT_LAST_SAVED = date(2027, 6, 14)
 # PF-7: the exchange partner's save count, which is NOT the document's stamp
 # (FR-074 says so). A plan fourteen months in has been saved more than once.
 PROJECT_REVISION = 37
@@ -1136,6 +1140,10 @@ CALENDAR_VALUES = generated_object(SCHEDULE_ENTITIES_TS, 'DEFAULT_CALENDAR_VALUE
 # manuscript says so in as many words -- converting between them is the
 # reader's job.
 WORKING_DAY_TYPES = tuple(CALENDAR_VALUES['S-106'])
+# T-350 WT-1 / WT-2: the project leaves both default-time columns empty
+# (AT-154 / AT-155), so the rows of table T-209 decide the times written.
+START_TIME = CALENDAR_VALUES['S-482']
+FINISH_TIME = CALENDAR_VALUES['S-483']
 
 
 def shut_days():
@@ -1197,16 +1205,70 @@ def index_of(day):
     return WORKDAY_INDEX[day]
 
 
-def text_of(day):
-    """The spelling GRS uses for a day it decided itself.
+def calendar_day_time(name):
+    """A time of day `src/entity/document-model/schedule/calendar-day.ts` holds.
 
-    ⭐ EX-7 of table T-033: the time is `00:00:00` and the spelling follows the
-    exchange partner's type. ⚠️ A value GRS did not touch keeps the text it
-    arrived with (EX-2), which is why this is not a general date formatter.
+    ⭐ WT-6 / WT-7 of table T-350 are read where the app holds them, so this
+    file keeps no second copy of either time.
+
+    @purity semi-pure-b
+    """
+    text = io.open(CALENDAR_DAY_TS, encoding='utf-8').read()
+    found = re.search(r"^export const %s = '([0-9:]+)'$" % name, text, re.M)
+    insist(found is not None, '%s is not in %s' % (name, os.path.relpath(CALENDAR_DAY_TS, ROOT)))
+    return found.group(1)
+
+
+DAY_START_TIME = calendar_day_time('DAY_START_TIME')
+DAY_END_TIME = calendar_day_time('DAY_END_TIME')
+
+
+def text_at(day, time):
+    """The spelling GRS uses for a moment it decided itself.
+
+    ⭐ EX-7 of table T-033: the time follows table T-350, and the spelling the
+    exchange partner's type, with no zone and to the second. ⚠️ A value GRS did
+    not touch keeps the text it arrived with (EX-2), which is why this is not a
+    general date formatter.
 
     @purity pure
     """
-    return '%sT00:00:00' % day.isoformat()
+    return '%sT%s' % (day.isoformat(), time)
+
+
+def text_of_start_side(day):
+    """`start`, `actualStart`, `resume`, `Project.startDate` (WT-1, WT-3).
+
+    @purity pure
+    """
+    return text_at(day, START_TIME)
+
+
+def text_of_finish_side(day, milestone):
+    """`finish`, `actualFinish`, `stop`, `statusDate` (WT-2, WT-4).
+
+    ⭐ WT-5: a milestone's finish side takes the start time, so its two ends
+    are one moment.
+
+    @purity pure
+    """
+    return text_at(day, START_TIME if milestone else FINISH_TIME)
+
+
+def text_of_day_start(day):
+    """The first moment of a whole day: an exception's `fromDate` (WT-6).
+
+    @purity pure
+    """
+    return text_at(day, DAY_START_TIME)
+
+
+def text_of_day_end(day):
+    """The last moment of a whole day: an exception's `toDate` (WT-7).
+
+    @purity pure
+    """
+    return text_at(day, DAY_END_TIME)
 
 
 # ---------------------------------------------------------------------------
@@ -1539,8 +1601,8 @@ class Builder(object):
             'wbsParentUid': parent_uid,
             'wbsOrder': 0,
             'name': name,
-            'start': text_of(WORKDAYS[start_at]),
-            'finish': text_of(WORKDAYS[finish_at]),
+            'start': text_of_start_side(WORKDAYS[start_at]),
+            'finish': text_of_finish_side(WORKDAYS[finish_at], milestone),
             'milestone': milestone,
             'deadline': None,
             'notes': None,
@@ -1559,8 +1621,7 @@ class Builder(object):
         }
         self.tasks.append(task)
         self.by_uid[uid] = task
-        self.members.append({'taskUid': uid, 'groupId': row['id'],
-                             'stackOrder': None})
+        self.members.append({'taskUid': uid, 'groupId': row['id']})
         row['tasks'].append(uid)
         task['startAt'] = start_at
         task['finishAt'] = finish_at
@@ -1986,8 +2047,9 @@ class Builder(object):
             task['stop'] = None
             return
         reach = 0 if task['milestone'] else max(0, task['actualLength'] - 1)
-        task['stop'] = text_of(WORKDAYS[min(len(WORKDAYS) - 1,
-                                            task['actualStartAt'] + reach)])
+        task['stop'] = text_of_finish_side(
+            WORKDAYS[min(len(WORKDAYS) - 1, task['actualStartAt'] + reach)],
+            task['milestone'])
 
     def is_band(self, task):
         """Whether this task is a band of the first tree rather than work.
@@ -2020,7 +2082,7 @@ class Builder(object):
             return                                        # PS-1, all null
         if began_at > status_at:
             return                                        # PS-1, all null
-        task['actualStart'] = text_of(WORKDAYS[began_at])
+        task['actualStart'] = text_of_start_side(WORKDAYS[began_at])
         if span == 0:
             # FR-011 (CR-376): an actual whose start and last day are one day
             # is ONE day long, never zero. The length is not stored; it is
@@ -2028,7 +2090,8 @@ class Builder(object):
             # own note of it and never reaches the template.
             # No division at span zero (FR-012): a recorded finish reads 100.
             task['actualLength'] = 1
-            task['actualFinish'] = task['actualStart']
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[began_at],
+                                                       task['milestone'])
             task['resumeValid'] = False
             task['percentComplete'] = 100
             return
@@ -2047,7 +2110,8 @@ class Builder(object):
         if ended_at <= status_at and not stuck:           # PS-2, finished
             # FR-011: the last day of finished work IS `actualFinish`.
             task['actualLength'] = worked
-            task['actualFinish'] = text_of(WORKDAYS[ended_at])
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended_at],
+                                                       task['milestone'])
             task['resumeValid'] = False
         else:                                             # PS-5, running
             # NOT the elapsed days. The length is how far the work has got,
@@ -2178,8 +2242,8 @@ class Builder(object):
             # ⚠️ Every third of them is a day that has already gone by, so
             # that `DL-3` has something to be read against.
             away = 18 if turn % 3 == 0 else -12
-            task['resume'] = text_of(WORKDAYS[min(len(WORKDAYS) - 1,
-                                                  max(0, status_at + away))])
+            task['resume'] = text_of_start_side(
+                WORKDAYS[min(len(WORKDAYS) - 1, max(0, status_at + away))])
             task['resumeValid'] = True
 
     def derive_actuals(self, status_at):
@@ -2224,12 +2288,13 @@ class Builder(object):
         if not begun:
             return                                        # PS-1, all null
         task['actualStartAt'] = min(one['actualStartAt'] for one in begun)
-        task['actualStart'] = text_of(WORKDAYS[task['actualStartAt']])
+        task['actualStart'] = text_of_start_side(WORKDAYS[task['actualStartAt']])
         span = task['finishAt'] - task['startAt']
         if all(one['actualFinish'] is not None for one in held):
             ended = max(index_of(date.fromisoformat(one['actualFinish'][:10]))
                         for one in held)
-            task['actualFinish'] = text_of(WORKDAYS[ended])
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended],
+                                                       task['milestone'])
             task['actualLength'] = max(1, ended - task['actualStartAt'] + 1)
             task['resumeValid'] = False
             task['percentComplete'] = (100 if span == 0
@@ -2542,6 +2607,13 @@ class Builder(object):
             self.painted.append(closer)
             self.visuals.append(self.visual(closer['uid'], 'rectangle', None,
                                             fill, stroke, weight))
+        # ⭐ IV-23 of table T-220: every task holds exactly one TaskVisual, so
+        # a task nobody chose a look for holds the blank one (every column but
+        # `taskUid` null) instead of none.
+        chosen = set(one['taskUid'] for one in self.visuals)
+        for task in self.tasks:
+            if task['uid'] not in chosen:
+                self.visuals.append(self.visual(task['uid'], None))
 
     def top_rows(self):
         """The product trees, in the order the forest lists them.
@@ -2576,9 +2648,9 @@ class Builder(object):
 
     def project(self, status_at, hue):
         """@purity semi-pure-a"""
-        # ⭐ Every row of table T-224 (PF-1 .. PF-10) carries a value: that
+        # ⭐ Every row of table T-224 (PF-1 .. PF-9) carries a value: that
         # table is the whole list of what the document information panel
-        # shows, and a template that leaves all ten empty ships a panel with
+        # shows, and a template that leaves all nine empty ships a panel with
         # nothing in it. ⛔ Neutral values, because FR-027 puts identifier
         # VALUES in scope as well as prose.
         return {
@@ -2590,16 +2662,20 @@ class Builder(object):
             'company': PROJECT_COMPANY,               # PF-4
             'manager': PROJECT_MANAGER,               # PF-5
             'author': PROJECT_AUTHOR,                 # PF-6
-            'created': text_of(PROJECT_CREATED),      # PF-9
+            # WT-9: the moment the sample was made, which is the day it names.
+            'created': text_of_day_start(PROJECT_CREATED),  # PF-9
             'revision': PROJECT_REVISION,             # PF-7
-            'lastSaved': text_of(PROJECT_LAST_SAVED),  # PF-10
-            'startDate': text_of(PROJECT_START),
-            'statusDate': text_of(WORKDAYS[status_at]),
+            'startDate': text_of_start_side(PROJECT_START),
+            'statusDate': text_of_finish_side(WORKDAYS[status_at], False),
             'minutesPerDay': None,
             'minutesPerWeek': None,
             'daysPerMonth': None,
             'weekStartDay': CALENDAR_VALUES['S-108'],
             'calendarUid': 1,
+            # AT-154 / AT-155: null, so S-482 / S-483 decide the written times
+            # and an export leaves MS Project's own defaults (CR-646).
+            'defaultStartTime': None,
+            'defaultFinishTime': None,
             'themeHue': hue,
             'uidHighWaterMark': self.next_uid,
             'importSeq': 0,
@@ -2665,7 +2741,8 @@ class Builder(object):
             # own, and `is_working_day` counts by them.
             'exceptions': [
                 {'ordinal': turn, 'name': name,
-                 'fromDate': text_of(first), 'toDate': text_of(last),
+                 'fromDate': text_of_day_start(first),
+                 'toDate': text_of_day_end(last),
                  'dayWorking': False,
                  # 9 is "no recurrence" (erd.json, Exception.recurrenceKind).
                  # ⛔ Never a repeating kind: FR-054 says GRS does not expand
@@ -2975,9 +3052,9 @@ def check_overview(built):
     @purity semi-pure-b
     """
     bar = built.by_uid[built.overview_uid]
-    insist(bar['start'] == text_of(PROJECT_START),
+    insist(bar['start'] == text_of_start_side(PROJECT_START),
            'A11: the overview bar starts %s and Project.startDate is %s'
-           % (bar['start'], text_of(PROJECT_START)))
+           % (bar['start'], text_of_start_side(PROJECT_START)))
     insist(bar['finishAt'] == index_of(PROJECT_FINISH),
            'A11: the overview bar ends %s, not at the end of the project'
            % bar['finish'])
@@ -3056,7 +3133,8 @@ def check_dead_data(built, status_at):
     insist(kinds == set([0, 1, 2, 3]),
            'A12: the dependencies use link types %s, and table T-018 has four'
            % sorted(kinds))
-    shapes = set(one['shapeKind'] for one in built.visuals)
+    shapes = set(one['shapeKind'] for one in built.visuals
+                 if one['shapeKind'] is not None)
     insist(shapes == set(SHAPE_KINDS),
            'A12: the drawn shapes are %s, and table T-012 has five'
            % sorted(shapes))
@@ -3927,7 +4005,7 @@ def check_settings_bounds(settings):
 
 
 def check_invariants(document, settings):
-    """Table T-220, IV-1 .. IV-17. Refuse to write a document that breaks one.
+    """Table T-220, IV-1 .. IV-17 and IV-23. Refuse to write a document that breaks one.
 
     ⚠️ What is NOT here: every condition that one column settles on its own.
     The preamble of table T-220 says the generated schema already enforces the
@@ -3990,6 +4068,14 @@ def check_invariants(document, settings):
         insist(held.get(uid, 0) == 1,
                'IV-6: the task %d is named by %d TaskGroupMembers, and each '
                'task is named by exactly one' % (uid, held.get(uid, 0)))
+
+    pointed = {}
+    for visual in schedule['taskVisuals']:
+        pointed[visual['taskUid']] = pointed.get(visual['taskUid'], 0) + 1
+    for uid in task_uids:
+        insist(pointed.get(uid, 0) == 1,
+               'IV-23: the task %d is pointed at by %d TaskVisuals, and each '
+               'task is pointed at by exactly one' % (uid, pointed.get(uid, 0)))
 
     insist(len(schedule['calendars']) >= 1, 'IV-7: the document has no calendar')
     # ⚠️ `check_keys_and_references` has already resolved the same calendar
@@ -4153,24 +4239,6 @@ def check_neutrality(document, settings):
            'declares, so nothing vouches for them being free of an industry, '
            'a product, a company or a person:\n    %s'
            % (len(strange), '\n    '.join(strange[:12])))
-
-
-def check_stack_order(built):
-    """ST-6 of table T-014 -- the stack order is settled automatically.
-
-    ⛔ ST-6 forbids (MUST NOT) giving a person any way to place a task on a
-    stacking level by hand, and `AT-62` of the ERD spells `null` as "automatic".
-    A template that shipped a level chosen by hand would be the one document in
-    existence asking the reader to honour a setting the specification says
-    nobody can make. One shipped with exit 0.
-
-    @purity semi-pure-b
-    """
-    for member in built.members:
-        insist(member['stackOrder'] is None,
-               'ST-6: the task %d is placed on stacking level %s by hand, and '
-               'the order is settled automatically'
-               % (member['taskUid'], member['stackOrder']))
 
 
 # ---------------------------------------------------------------------------
@@ -4420,7 +4488,6 @@ def build():
     check_links(built)
     check_reach(built)
     check_rollup_reading(built)
-    check_stack_order(built)
 
     hue = manuscript_number('S-73')
     # ⛔ No "$comment" banner rides in this file, and that is deliberate. The

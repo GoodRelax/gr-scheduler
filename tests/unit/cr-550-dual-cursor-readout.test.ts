@@ -180,7 +180,7 @@ const SCHEDULE = {
       minHeight: null,
     },
   ],
-  taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
+  taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }],
   taskVisuals: [],
   commentBoxes: [],
   highlightBoxes: [],

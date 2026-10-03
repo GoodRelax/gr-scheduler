@@ -344,7 +344,7 @@ function documentOfOverlaps(howMany: number): Document {
           minHeight: null,
         },
       ],
-      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: ROW_ID, stackOrder: null })),
+      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: ROW_ID })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

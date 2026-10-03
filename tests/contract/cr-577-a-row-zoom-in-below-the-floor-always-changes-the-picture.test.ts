@@ -237,7 +237,7 @@ function taskOf(uid: number): Record<string, unknown> {
 // WHY: the `stacked` extra tasks share the first row's dates, so FR-003 stacks them into one tall band;
 // that band is how a case gets an FR-016 ceiling below the ZE-6 target without typing a ceiling.
 function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Document {
-  const members = rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null }))
+  const members = rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id }))
   const extra = Array.from({ length: stacked }, (_unused, index) => rows.length + index + 1)
   return {
     schemaVersion: TEMPLATE.schemaVersion,
@@ -258,7 +258,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: [...members, ...extra.map((uid) => ({ taskUid: uid, groupId: rows[0]!.id, stackOrder: null }))],
+      taskGroupMembers: [...members, ...extra.map((uid) => ({ taskUid: uid, groupId: rows[0]!.id }))],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

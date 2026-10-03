@@ -220,7 +220,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: fixture.withTask === true ? [{ taskUid: TASK_UID, groupId: ROW.B, stackOrder: null }] : [],
+      taskGroupMembers: fixture.withTask === true ? [{ taskUid: TASK_UID, groupId: ROW.B }] : [],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: (fixture.boxes ?? [{}]).map(boxRecord),

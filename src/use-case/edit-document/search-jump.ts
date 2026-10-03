@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayFromSerial, dayOf, serial, textOfDay } from '../../entity/document-model/schedule/schedule'
+import { dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
 import { taskPlacement, type ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
@@ -81,7 +81,7 @@ function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpRe
   // DEVIATION: spec says the left end lands S-428 inside the view (SJ-6); here at the edge, S-428 is not generated (DFC-1770)
   const left = day === null || reach.pxPerDay <= 0 ? null : serial(day) - reach.leftReachPx / reach.pxPerDay
   const leftDay = left === null ? null : Math.floor(left)
-  const scrollDate = leftDay === null ? held.scrollDate : textOfDay(dayFromSerial(leftDay))
+  const scrollDate = leftDay === null ? held.scrollDate : textOfDayStart(dayFromSerial(leftDay))
   const scrollDayOffset = left === null || leftDay === null ? held.scrollDayOffset : left - leftDay
   const scrollGroupId = row ?? held.scrollGroupId
   const scrollGroupOffset = row === null ? held.scrollGroupOffset : 0

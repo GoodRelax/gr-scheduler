@@ -28,7 +28,6 @@
 | N-1 | `Task` | タスク。<br>`milestone` が真のときマイルストーンである。<br>⚠️ 描画の形は `TaskVisual.shapeKind` が別に持つ。<br>混同しない（往復の規則は `_assets/fig-erd-detail.md` の `AT-30`） |
 | N-2 | `TaskGroup` | タスクグループ |
 | N-3 | `TaskGroupMember` | タスクグループメンバー |
-| N-4 | `stackOrder` | 積み順。<br>**人が指定できるかどうかは表 T-014 の `ST-6` が定める** |
 | N-4a | `Item` | **アイテム**。<br>**当たり判定と選択の対象となるものの総称。<br>** 全数は表 T-023c の `SL-1` が持つ。<br>⚠️ **`Task` の別名ではない** —— 外延が広いので 1.9 の命名の規約（同じものを 2 つの語で呼ばない）には当たらない。<br>**`Task` 1 つを指すときは「タスク」と書く** |
 | N-5 | `CommentBox` / `commentBoxes` | コメントボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Comment Boxes`（`U-14`） |
 | N-6 | `HighlightBox` / `highlightBoxes` | ハイライトボックス 1 つ分の型と、文書が持つその配列の鍵。<br>UI パーツ名は `Highlight Boxes`（`U-15`） |

@@ -256,7 +256,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: withTasks ? LETTERS.map((letter, index) => ({ taskUid: index + 1, groupId: ROW[letter], stackOrder: null })) : [],
+      taskGroupMembers: withTasks ? LETTERS.map((letter, index) => ({ taskUid: index + 1, groupId: ROW[letter] })) : [],
       taskVisuals: [],
       commentBoxes: (fixture.notes ?? [{}]).map(noteRecord),
       highlightBoxes: [],

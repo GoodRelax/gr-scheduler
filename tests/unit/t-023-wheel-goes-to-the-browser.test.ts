@@ -357,8 +357,8 @@ function twoRowDocument(): Document {
       assignments: [],
       taskGroups: [row(ALPHA, 'Alpha', 0), row(BETA, 'Beta', 1)],
       taskGroupMembers: [
-        { taskUid: PARENT, groupId: ALPHA, stackOrder: null },
-        { taskUid: CHILD, groupId: BETA, stackOrder: null },
+        { taskUid: PARENT, groupId: ALPHA },
+        { taskUid: CHILD, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

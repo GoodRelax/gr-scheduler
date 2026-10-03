@@ -39,6 +39,8 @@ import {
 import {
   frameLoop,
   noWorkingWeekdayReason,
+  readLocalMoment,
+  startedDocumentOf,
   startupDisplayLanguage,
   startupThemePreference,
   GREATEST_KNOWN_SCHEMA_VERSION,
@@ -215,13 +217,14 @@ function startupTemplateDocument(): Document | null {
   return shippedDocumentOf(read, 'the startup template the page carries')
 }
 
-// see FR-095, T-342
-/** @purity semi-pure-a */
+// see FR-095, T-342, BK-4
+/** @purity semi-pure-b */
 function emptyDocument(): Document {
-  return shippedDocumentOf(
+  const read = shippedDocumentOf(
     documentFromJson(JSON.stringify(emptyDocumentRoot), GREATEST_KNOWN_SCHEMA_VERSION),
     'the bundled empty document',
   )
+  return startedDocumentOf(read, readLocalMoment())
 }
 
 interface ShippedDocuments {

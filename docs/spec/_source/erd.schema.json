@@ -479,6 +479,10 @@
      "const": true,
      "description": "This column is one table T-058 gives a date or a datetime type. ⚠️ NOT a format: EX-4 keeps whatever spelling the value arrived in, and this says nothing about that. It exists because IV-14 reaches these columns as a set without naming them, so without a marker the roster gets copied by hand and goes stale (F-3)."
     },
+    "isTime": {
+     "const": true,
+     "description": "This column is one table T-058 gives a time-of-day type (xsd:time, Project.defaultStartTime / defaultFinishTime). The schema generator points it at one definition whose pattern is the lexical form of xsd:time, and unlike a date's pattern the reading path enforces it: the column sits on the one Project, so no row can be dropped instead (Chapter 6.1)."
+    },
     "values": {
      "type": "array",
      "minItems": 1,

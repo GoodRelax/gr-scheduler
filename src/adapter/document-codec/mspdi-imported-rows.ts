@@ -46,7 +46,7 @@ export function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): Im
     const own = rowOfTask.get(task.uid)
     const groupId = own ?? deepestAncestorRow(task, tasks, rowOfTask)
     if (groupId === null) continue
-    taskGroupMembers.push({ taskUid: task.uid, groupId, stackOrder: null })
+    taskGroupMembers.push({ taskUid: task.uid, groupId })
   }
   return { taskGroups, taskGroupMembers }
 }

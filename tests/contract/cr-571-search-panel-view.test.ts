@@ -170,8 +170,8 @@ const SCHEDULE = {
   ],
   taskGroups: [row(TOP, null, TOP_NAME), row(INNER, TOP, INNER_NAME)],
   taskGroupMembers: [
-    { taskUid: NAMED_UID, groupId: INNER, stackOrder: null },
-    { taskUid: NAMELESS_UID, groupId: TOP, stackOrder: null },
+    { taskUid: NAMED_UID, groupId: INNER },
+    { taskUid: NAMELESS_UID, groupId: TOP },
   ],
   resources: [
     { ...firstOf('resources'), uid: 301, name: FIRST_ASSIGNEE },

@@ -221,6 +221,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
               frame.regions.propertiesPanel.width,
       },
       readAt: '2026-08-20T08:30:00Z',
+      localReadAt: '2026-10-03T09:00:00',
     }
     last = snapshot
     return snapshot

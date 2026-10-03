@@ -11,11 +11,12 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import type {
-  Schedule,
-  Task,
-  TaskGroup,
-  TaskVisual,
+import {
+  DEFAULT_CALENDAR_VALUES,
+  type Schedule,
+  type Task,
+  type TaskGroup,
+  type TaskVisual,
 } from '../../src/entity/document-model/schedule/schedule'
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from './spec-table'
@@ -88,6 +89,10 @@ const signedLength = (startIso: string, lastIso: string): number => {
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
 
 const stored = (iso: string): string => `${iso}T00:00:00`
+
+// WHY: T-350 writes each side at its own time; the project leaves both default times empty, so S-482 / S-483 stand.
+const startSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-482']}`
+const finishSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-483']}`
 
 const PLAN_START = ymd(12)
 const PLAN_FINISH = ymd(23)
@@ -164,7 +169,7 @@ const notStarted = (): Document =>
           minHeight: null,
         } as unknown as TaskGroup,
       ],
-      taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
+      taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }],
       taskVisuals: [
         {
           taskUid: 1,
@@ -236,8 +241,8 @@ describe('DFC-554 table T-266 GA-6: released on the dummy day', () => {
     expect(result.ok, 'FR-043: moving the end point to the start point position is accepted').toBe(true)
     if (!result.ok) return
     const task = taskOf(result.document)
-    expect(task.actualStart, 'T-245 GO-7: actualStart is the plan start day').toBe(stored(DUMMY_DAY))
-    expect(task.stop, 'FR-011 (MUST): stop is not before the floor day').toBe(stored(DUMMY_DAY))
+    expect(task.actualStart, 'T-245 GO-7: actualStart is the plan start day').toBe(startSide(DUMMY_DAY))
+    expect(task.stop, 'FR-011 (MUST): stop is not before the floor day').toBe(finishSide(DUMMY_DAY))
     expect(signedLength(DUMMY_DAY, DUMMY_DAY), 'FR-043 / FR-011: same start and last day is one day, not zero').toBe(1)
     expect(task.resumeValid).toBe(true)
     if (task.percentComplete !== null) {
@@ -254,7 +259,7 @@ describe('DFC-554 table T-023d GA-6: released on a rest day left of the dummy da
       expect(result.ok, 'FR-011 (MUST): a zero length is lifted, not refused').toBe(true)
       if (!result.ok) return
       const task = taskOf(result.document)
-      expect(task.stop, 'FR-011 (MUST): the floor day').toBe(stored(DUMMY_DAY))
+      expect(task.stop, 'FR-011 (MUST): the floor day').toBe(finishSide(DUMMY_DAY))
       if (task.percentComplete !== null) {
         expect(task.percentComplete, 'AT-39: integer, 0 or more').toBeGreaterThanOrEqual(0)
       }

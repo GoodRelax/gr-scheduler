@@ -214,8 +214,8 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA, stackOrder: null },
-        { taskUid: 2, groupId: BETA, stackOrder: null },
+        { taskUid: 1, groupId: ALPHA },
+        { taskUid: 2, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -1237,7 +1237,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
           color: null,
           minHeight: null,
         })
-        members.push({ taskUid: 1, groupId: id, stackOrder: null })
+        members.push({ taskUid: 1, groupId: id })
       }
       draft.schedule.tasks = tasks.slice(0, 1)
       draft.schedule.taskGroups = rows

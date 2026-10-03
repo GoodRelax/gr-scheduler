@@ -48,6 +48,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
         weekStartDay: 1,
         uidHighWaterMark: 9,
         calendarUid: null,
+        defaultStartTime: null,
+        defaultFinishTime: null,
       },
       calendars: [],
       tasks: [],

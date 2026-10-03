@@ -13,6 +13,7 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { blankTaskVisual } from '../../src/entity/document-model/schedule/schedule'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
@@ -120,8 +121,8 @@ export function rowDocument(
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
-      taskVisuals: [],
+      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+      taskVisuals: rows.map((_one, index) => blankTaskVisual(index + 1)),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],

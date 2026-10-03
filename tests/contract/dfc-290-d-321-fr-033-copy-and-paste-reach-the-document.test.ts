@@ -287,9 +287,9 @@ function documentOfTwoRows(fillers = 0): Document {
       assignments: [],
       taskGroups: [group(PARENT_ROW, null, 0), group(CHILD_ROW, PARENT_ROW, 0)],
       taskGroupMembers: [
-        { taskUid: PARENT_TASK, groupId: PARENT_ROW, stackOrder: null },
-        { taskUid: CHILD_TASK, groupId: CHILD_ROW, stackOrder: null },
-        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_ROW, stackOrder: null })),
+        { taskUid: PARENT_TASK, groupId: PARENT_ROW },
+        { taskUid: CHILD_TASK, groupId: CHILD_ROW },
+        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_ROW })),
       ],
       taskVisuals: [],
       commentBoxes: [],

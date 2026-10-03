@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf, isStoredColour } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isSameDay, isStoredColour } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -219,7 +219,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = anchorRefusals('CM-50', document, command.anchor)
       if (refusals.length > 0) return refused(refusals)
-      if (box.anchorDate === command.anchor.date && box.anchorGroupId === command.anchor.groupId) {
+      if (isSameDay(box.anchorDate, command.anchor.date) && box.anchorGroupId === command.anchor.groupId) {
         return edited(document)
       }
       return edited(
@@ -290,8 +290,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (refusals.length > 0) return refused(refusals)
       const { startDate, endDate, topGroupId, bottomGroupId } = command.range
       if (
-        box.startDate === startDate &&
-        box.endDate === endDate &&
+        isSameDay(box.startDate, startDate) &&
+        isSameDay(box.endDate, endDate) &&
         box.topGroupId === topGroupId &&
         box.bottomGroupId === bottomGroupId
       ) {

@@ -72,9 +72,9 @@ function chainDocument(statusDate: string | null): Document {
     }),
   ]
   raw.schedule.taskGroupMembers = [
-    { taskUid: 100, groupId: 'r0', stackOrder: null },
-    { taskUid: 101, groupId: 'r1', stackOrder: null },
-    { taskUid: 102, groupId: 'r1', stackOrder: null },
+    { taskUid: 100, groupId: 'r0' },
+    { taskUid: 101, groupId: 'r1' },
+    { taskUid: 102, groupId: 'r1' },
   ]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
@@ -133,6 +133,7 @@ function bench(statusDate: string | null): Bench {
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,
     readAt: READ_AT,
+    localReadAt: '2026-10-03T09:00:00',
   })
   const wiring: AgentApiWiring = {
     source: { readSnapshot: snapshotOf },

@@ -352,7 +352,6 @@ function documentWithRoster(): Document {
       taskGroupMembers: [ALPHA, BETA, GAMMA].map((taskUid) => ({
         taskUid,
         groupId: ROW_ID,
-        stackOrder: null,
       })),
       taskVisuals: [],
       commentBoxes: [],

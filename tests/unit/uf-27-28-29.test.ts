@@ -103,6 +103,8 @@ import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
 // ---------------------------------------------------------------------------
@@ -247,8 +249,8 @@ const SMALL_SCHEDULE: Loose = {
   ],
   taskGroups: [FIRST_GROUP, SECOND_GROUP],
   taskGroupMembers: [
-    { taskUid: FIRST_UID, groupId: FIRST_GROUP_ID, stackOrder: null },
-    { taskUid: SECOND_UID, groupId: SECOND_GROUP_ID, stackOrder: null },
+    { taskUid: FIRST_UID, groupId: FIRST_GROUP_ID },
+    { taskUid: SECOND_UID, groupId: SECOND_GROUP_ID },
   ],
   taskVisuals: [],
   resources: [],
@@ -366,7 +368,8 @@ interface Bench {
   isEditingInPlace: boolean
   /** S-94 / S-95, which the document does not keep. A case may move them. */
   historyLimits: { maxSteps: number; maxTotalSizeBytes: number }
-  readAt: string
+  readAt: string,
+  localReadAt: '2026-10-03T09:00:00',
   /** What a watcher installed through AM-17 was handed. */
   readonly notices: ChangeNotice[]
   /** A write made by somebody who is not this API, through the one write path. */
@@ -405,6 +408,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     isDeliveringNotices: false,
     historyLimits: { ...HISTORY_LIMITS },
     readAt: READ_AT,
+    localReadAt: '2026-10-03T09:00:00',
     notices: [] as ChangeNotice[],
   }
 
@@ -427,6 +431,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       historyLimits: state.historyLimits,
       settingsLimits: SETTINGS_LIMITS,
       readAt: state.readAt,
+      localReadAt: '2026-10-03T09:00:00',
     }
   }
 
@@ -1293,7 +1298,7 @@ describe('AM-12 exportMspdi -- wired 2026-09-05, no longer a refusal (AG-7, FR-0
     const one = bench()
     const text = exported(one.api.exportMspdi())
 
-    expect(text).toBe(mspdiFromDocument(one.document).text)
+    expect(text).toBe(mspdiFromDocument(one.document, LAST_SAVED_AT).text)
   })
 })
 

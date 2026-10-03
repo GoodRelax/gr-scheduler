@@ -1584,6 +1584,14 @@
    }
   },
   {
+   "prefix": "WT",
+   "words": "Written Time",
+   "owner": "spec",
+   "means": {
+    "ja": "`GRS` が書く日時の時刻（列の側ごと）"
+   }
+  },
+  {
    "prefix": "WY",
    "words": "WYSIWYG",
    "owner": "spec",

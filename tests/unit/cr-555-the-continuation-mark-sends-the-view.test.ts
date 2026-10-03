@@ -196,7 +196,7 @@ const scheduleOf = (spec: SceneSpec): Schedule =>
       editGroup: null,
       color: null,
     })),
-    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'], stackOrder: null })),
+    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
     taskOrigins: [],
     baselineTasks: [],

@@ -31,7 +31,6 @@ erDiagram
         文字列 author "Own"
         日時 created "Own"
         整数 revision "Own"
-        日時 lastSaved "Own"
         日付 startDate "Own"
         日付 statusDate "Own"
         整数 minutesPerDay "Own"
@@ -39,6 +38,8 @@ erDiagram
         整数 daysPerMonth "Own"
         整数 weekStartDay "Own・0〜6"
         整数 **calendarUid** FK "Consume"
+        時刻 defaultStartTime "Own"
+        時刻 defaultFinishTime "Own"
         整数 themeHue "GRS・0〜359"
         整数 uidHighWaterMark "GRS"
         整数 importSeq "GRS"
@@ -92,7 +93,6 @@ erDiagram
     TaskGroupMember {
         整数 **taskUid** PK,FK "GRS"
         文字列 **groupId** FK "GRS・UUID"
-        整数 stackOrder "GRS"
     }
     Calendar {
         整数 **uid** PK "Own"
@@ -247,13 +247,13 @@ erDiagram
 | ET-2 | `Task` | タスク 1 つ。予定と実績を同じ行が持つ | `uid` | 書き出す | あり |
 | ET-3 | `Dependency` | 依存 1 本。**後続タスクの下に入れ子で持つ** | — （後続タスクの下での位置が表す） | 書き出す | あり |
 | ET-4 | `TaskGroup` | 行の器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
-| ET-5 | `TaskGroupMember` | どのタスクがどの行の何段目に載るか | `taskUid`（一意） | **書き出さない** | — |
+| ET-5 | `TaskGroupMember` | どのタスクがどの行に載るか。段は持たない —— 行の中の積み順は表 T-014 の `ST-2` が決める | `taskUid`（一意） | **書き出さない** | — |
 | ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
 | ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
 | ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
-| ET-11 | `TaskVisual` | タスクの見せ方。形と色 | `taskUid` | **書き出さない** | — |
+| ET-11 | `TaskVisual` | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | `taskUid` | **書き出さない** | — |
 | ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
 | ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
 | ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
@@ -317,9 +317,8 @@ erDiagram
 | AT-6 | `Project` | `company` | 文字列 | 可 | — | Own | `Project/Company` | 会社名 |
 | AT-7 | `Project` | `manager` | 文字列 | 可 | — | Own | `Project/Manager` | 管理者名 |
 | AT-8 | `Project` | `author` | 文字列 | 可 | — | Own | `Project/Author` | 作成者。最後に書いた者ではない |
-| AT-9 | `Project` | `created` | 日時 | 可 | — | Own | `Project/CreationDate` | 作成日時 |
+| AT-9 | `Project` | `created` | 日時 | 可 | — | Own | `Project/CreationDate` | 作成日時。`GRS` が新しく作る文書（`01-04-requirements.md` の 表 T-342 の `BK-4`）には、作ったその瞬間を、その場所の時刻で帯を持たず秒まで書く（`01-04-requirements.md` の 表 T-350 の `WT-9`）。取り込んだ値は保つ（表 T-033 の `EX-4`） |
 | AT-10 | `Project` | `revision` | 整数 | 可 | — | Own | `Project/Revision` | ⚠️ 交換相手の保存回数。`documentStamp` の 2 つの刻とは別物 |
-| AT-11 | `Project` | `lastSaved` | 日時 | 可 | — | Own | `Project/LastSaved` | 最後に保存した日時 |
 | AT-12 | `Project` | `startDate` | 日付 | 可 | — | Own | `Project/StartDate` | プロジェクトの開始日 |
 | AT-13 | `Project` | `statusDate` | 日付 | 可 | — | Own | `Project/StatusDate` | 基準日線が立つ日 |
 | AT-14 | `Project` | `minutesPerDay` | 整数 | 可 | — | Own | `Project/MinutesPerDay` | 1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128` |
@@ -327,6 +326,8 @@ erDiagram
 | AT-16 | `Project` | `daysPerMonth` | 整数 | 可 | — | Own | `Project/DaysPerMonth` | 1 か月あたりの日数 |
 | AT-17 | `Project` | `weekStartDay` | 整数（0〜6） | 可 | — | Own | `Project/WeekStartDay` | 週の始まりの曜日。暦ではなくここが置き場である（`FR-088`）。**`0` が日曜で、土曜の `6` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⛔ **`WeekDay.dayType` とは番号が 1 ずれる** —— 同じ曜日が別の数で書かれる。 |
 | AT-18 | `Project` | `calendarUid` | 整数 | 可 | FK | Consume | `Project/CalendarUID` | 既定の暦。文書の暦を指す（`FR-054`） |
+| AT-154 | `Project` | `defaultStartTime` | 時刻 | 可 | — | Own | `Project/DefaultStartTime` | 既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） |
+| AT-155 | `Project` | `defaultFinishTime` | 時刻 | 可 | — | Own | `Project/DefaultFinishTime` | 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483` |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
@@ -372,7 +373,6 @@ erDiagram
 | AT-59 | `TaskGroup` | `minHeight` | 整数 | 可（`null` = 下限なし） | — | GRS | — | 行の最小の高さ。縦のズーム 100%・表示の倍率 100 のときの画面の px。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
 | AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |
 | AT-61 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せる行 |
-| AT-62 | `TaskGroupMember` | `stackOrder` | 整数 | 可（`null` = 自動） | — | GRS | — | 段。人が指定できるかは表 T-014 の `ST-6` |
 | AT-63 | `Calendar` | `uid` | 整数 | 否 | PK | Own | `Calendars/Calendar/UID` | 暦の識別子 |
 | AT-64 | `Calendar` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Name` | 暦の名前 |
 | AT-65 | `Calendar` | `isBaseCalendar` | 真偽 | 可 | — | Own | `Calendars/Calendar/IsBaseCalendar` | 基準の暦か |
@@ -407,7 +407,7 @@ erDiagram
 | AT-94 | `Assignment` | `resourceUid` | 整数 | 可 | FK | Consume | `Assignment/ResourceUID` | 就く担当者 |
 | AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
-| AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
+| AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**どの `Task` も、ちょうど 1 つの `TaskVisual` から指される**（`05-07-design.md` の 表 T-220 の `IV-23`）。色も形も決めていないタスクは、本列のほかがすべて `null` の 1 つを持つ |
 | AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | 描画の形だけを決める。`Task.milestone` を変えない（表 T-012）。`'milestone'` であるかどうかは `Task.milestone` が真であるかどうかと食い違えない（`05-07-design.md` の表 T-220 の `IV-22`） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。`_assets/tbl-settings.md` の表 T-294 の保存する綴り（例: `red`）か、カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）。規則は表 T-017b。輪郭と同時に透明にできない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`） |
@@ -446,7 +446,7 @@ erDiagram
 | AT-127 | `documentStamp` | `scheduleUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | 日程データの群が動いた刻。動かす条件は `FR-063`。**監視（`AG-6`）が見るのはこれだけである** |
 | AT-128 | `documentStamp` | `lastEditedBy` | 文字列 | 否 | — | GRS | — | 最後に書いた者。書く語の全数は 表 T-229 が持つ |
 | AT-129 | `documentStamp` | `settingsUpdatedUtc` | 文字列（`ISO 8601`・UTC・秒） | 否 | — | GRS | — | どちらの群であれ動いた刻。**秒までとする**（透かしと精度を揃える） |
-| AT-140 | `documentStamp` | `fileSavedUtc` | 文字列（`ISO 8601`・UTC・秒） | 可 | — | GRS | — | 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。 |
+| AT-140 | `documentStamp` | `fileSavedUtc` | 文字列（`ISO 8601`・UTC・秒） | 可 | — | GRS | — | 開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである |
 | AT-130 | `changeLog` | `ordinal` | 整数 | 否 | PK | GRS | — | 文書の中での出現順。`WeekDay` / `Exception` / `CarryElement` と同じ作法である |
 | AT-131 | `changeLog` | `editedBy` | 文字列 | 否 | — | GRS | — | その版を書いた者 |
 | AT-132 | `changeLog` | `explanation` | 文字列 | 否 | — | GRS | — | なぜそう変えたか（`UC-013`） |
@@ -465,7 +465,8 @@ erDiagram
 
 | 行 ID | エンティティ | 交換相手での名前 | 交換相手の要素 | 何から作るか |
 | --- | --- | --- | --- | --- |
-| DV-1 | `Project` | `finishDate` | `Project/FinishDate` | 最も遅い `Task.finish` |
+| DV-1 | `Project` | `finishDate` | `Project/FinishDate` | 最も遅い `Task.finish` の字面をそのまま書く —— 終了の側の時刻（`01-04-requirements.md` の 表 T-350）を継ぐ |
+| DV-12 | `Project` | `lastSaved` | `Project/LastSaved` | 書き出すその瞬間の、その場所の時刻（帯を持たず秒まで）。文書には持たない —— ファイルへ書けた時刻は `AT-140` だけが持つ（`FR-101`）。往復の突き合わせでは比べない（`05-07-design.md` の 表 T-228 の `NR-7`） |
 | DV-2 | `Project` | `saveVersion` | `Project/SaveVersion` | 取り込んだ値をそのまま返す。取り込まずに作った文書は `12`（`EX-1`） |
 | DV-3 | `Project` | `currencyCode` | `Project/CurrencyCode` | `carry` に控えた原値 |
 | DV-4 | `Task` | `id` | `Task/ID` | 書き出す順に振り直す。**`uid` とは別物で、可変である** |

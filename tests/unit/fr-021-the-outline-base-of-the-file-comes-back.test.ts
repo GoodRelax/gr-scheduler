@@ -13,6 +13,8 @@ import {
 import type { Document } from '../../src/entity/document-model/document/document'
 import { specTable, unbroken } from '../contract/spec-table'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -209,7 +211,7 @@ function imported(text: string): Document {
   return reading.document
 }
 
-const roundTripped = (text: string): string => mspdiFromDocument(imported(text)).text
+const roundTripped = (text: string): string => mspdiFromDocument(imported(text), LAST_SAVED_AT).text
 
 const baseOf = (document: Document): unknown =>
   (document as any).schedule.project.outlineBase as unknown
@@ -314,7 +316,7 @@ describe('FR-021 (MUST) -- the outline base of the file that came in is kept', (
     rounded.schedule.project.outlineBase = 1
 
     const before = tasksOf(fileOf(BASE_ZERO_ROWS))
-    const damaged = tasksOf(mspdiFromDocument(rounded as Document).text)
+    const damaged = tasksOf(mspdiFromDocument(rounded as Document, LAST_SAVED_AT).text)
     const differing = [...before.keys()].filter(
       (uid) =>
         JSON.stringify(fourOf(damaged.get(uid) ?? {})) !==
@@ -329,14 +331,14 @@ describe('FR-021 (MUST) -- the outline base of the file that came in is kept', (
   it('keeps the base itself across the round trip, not only the first read', () => {
     for (const rows of [BASE_ONE_ROWS, BASE_ZERO_ROWS, MS_PROJECT_ROWS]) {
       const once = imported(fileOf(rows))
-      const twice = imported(mspdiFromDocument(once).text)
+      const twice = imported(mspdiFromDocument(once, LAST_SAVED_AT).text)
       expect(baseOf(twice), 'the base changed on the second pass').toBe(baseOf(once))
     }
   })
 
   it('writes from 1 for a document GRS made itself, which is the default', () => {
     expect(baseOf(TEMPLATE)).toBe(1)
-    const levels = [...tasksOf(mspdiFromDocument(current()).text).values()]
+    const levels = [...tasksOf(mspdiFromDocument(current(), LAST_SAVED_AT).text).values()]
       .map((fields) => Number(fields['OutlineLevel']))
       .filter((level) => Number.isFinite(level))
     expect(levels.length, 'the shipped template writes at least one Task').toBeGreaterThan(0)

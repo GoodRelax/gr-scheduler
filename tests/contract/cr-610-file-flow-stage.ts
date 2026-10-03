@@ -172,6 +172,7 @@ export function oneRowDocument(title: string, rowId: string, uid: number): Docum
   draft.schedule.tasks[0].wbsOrder = uid
   draft.schedule.tasks[0].name = `Task ${uid}`
   draft.schedule.taskGroupMembers[0].taskUid = uid
+  draft.schedule.taskVisuals[0].taskUid = uid
   draft.documentSettings.scrollGroupId = null
   const read = documentFromJson(JSON.stringify(draft))
   if (!read.ok) throw new Error(`the bench document is not GRS JSON: ${JSON.stringify(read.faults)}`)

@@ -166,8 +166,8 @@ const scheduleWith = (wish: Wish = {}): Schedule => {
     calendars: [calendarOf(wish.exceptions ?? EXCEPTIONS, wish.working)],
     taskGroups: [g1, { ...g1, id: 'g2', label: 'g2', order: 1 }],
     taskGroupMembers: [
-      { taskUid: 1, groupId: 'g1', stackOrder: null },
-      { taskUid: 2, groupId: 'g2', stackOrder: null },
+      { taskUid: 1, groupId: 'g1' },
+      { taskUid: 2, groupId: 'g2' },
     ],
   } as unknown as Schedule
 }

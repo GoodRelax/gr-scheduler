@@ -250,12 +250,12 @@ function fixtureDocument(): Document {
         minHeight: null,
       })),
       taskGroupMembers: [
-        { taskUid: ROOT, groupId: ROW_A, stackOrder: null },
-        { taskUid: PAUSED, groupId: ROW_B, stackOrder: null },
-        { taskUid: CHILD, groupId: ROW_C, stackOrder: null },
-        { taskUid: STONE, groupId: ROW_D, stackOrder: null },
-        { taskUid: OTHER, groupId: ROW_E, stackOrder: null },
-        { taskUid: HALTED, groupId: ROW_F, stackOrder: null },
+        { taskUid: ROOT, groupId: ROW_A },
+        { taskUid: PAUSED, groupId: ROW_B },
+        { taskUid: CHILD, groupId: ROW_C },
+        { taskUid: STONE, groupId: ROW_D },
+        { taskUid: OTHER, groupId: ROW_E },
+        { taskUid: HALTED, groupId: ROW_F },
       ],
       taskVisuals: [
         {

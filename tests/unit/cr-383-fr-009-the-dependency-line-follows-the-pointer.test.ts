@@ -170,8 +170,8 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: [groupRow(ROW_A, 0), groupRow(ROW_B, 1)],
       taskGroupMembers: [
-        { taskUid: UID_A, groupId: ROW_A, stackOrder: null },
-        { taskUid: UID_B, groupId: ROW_B, stackOrder: null },
+        { taskUid: UID_A, groupId: ROW_A },
+        { taskUid: UID_B, groupId: ROW_B },
       ],
       taskVisuals: [],
       commentBoxes: [],

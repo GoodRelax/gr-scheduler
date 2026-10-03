@@ -20,7 +20,7 @@
 //
 //   mspdi-codec.ts    `MSPDI_NAMESPACE`, `MspdiDecoding`, `MspdiEncoding`, and
 //                     the two signatures `documentFromMspdi(text, current)` and
-//                     `mspdiFromDocument(document)`
+//                     `mspdiFromDocument(document, LAST_SAVED_AT)`
 //   edit-task.ts      the signature `editTask(document, command)`, the
 //                     `TaskCommand` union and `PlanActualPlacement`
 //   edit-document.ts  `EditResult`
@@ -69,6 +69,8 @@ import {
 import type { Document } from '../../src/entity/document-model/document/document'
 import { editTask, type TaskCommand } from '../../src/use-case/edit-document/edit-task'
 import { bare, specTable, type SpecTable, unbroken } from './spec-table'
+
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -243,7 +245,7 @@ function imported(file: string = SUSPENDED_FILE): Document {
 
 /** The `<ActualDuration>` the writer put on the one task, or `null` where it wrote none. */
 function exportedActualDuration(document: Document): string | null {
-  const { text } = mspdiFromDocument(document)
+  const { text } = mspdiFromDocument(document, LAST_SAVED_AT)
   const found = /<ActualDuration>([^<]*)<\/ActualDuration>/.exec(text)
   return found === null ? null : (found[1] ?? null)
 }

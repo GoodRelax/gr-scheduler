@@ -30,8 +30,6 @@ export interface Project {
   readonly created: string | null
   /** AT-10 */
   readonly revision: number | null
-  /** AT-11 */
-  readonly lastSaved: string | null
   /** AT-12 */
   readonly startDate: string | null
   /** AT-13 */
@@ -46,6 +44,10 @@ export interface Project {
   readonly weekStartDay: number | null
   /** AT-18 */
   readonly calendarUid: number | null
+  /** AT-154 */
+  readonly defaultStartTime: string | null
+  /** AT-155 */
+  readonly defaultFinishTime: string | null
   /** AT-19 */
   readonly themeHue: number
   /** AT-20 */
@@ -152,8 +154,6 @@ export interface TaskGroupMember {
   readonly taskUid: number
   /** AT-61 */
   readonly groupId: string
-  /** AT-62 */
-  readonly stackOrder: number | null
 }
 
 /** ET-6 of table T-056. */
@@ -375,7 +375,7 @@ export const DATE_COLUMNS: {
   readonly HighlightBox: readonly (keyof HighlightBox & string)[]
   readonly BaselineTask: readonly (keyof BaselineTask & string)[]
 } = {
-  Project: ['created', 'lastSaved', 'startDate', 'statusDate'],
+  Project: ['created', 'startDate', 'statusDate'],
   Task: ['start', 'finish', 'deadline', 'actualStart', 'stop', 'actualFinish', 'resume'],
   Exception: ['fromDate', 'toDate'],
   CommentBox: ['anchorDate'],
@@ -693,10 +693,16 @@ export const DEFAULT_CALENDAR_VALUES: {
   readonly 'S-108': number
   /** S-128, the number the row states */
   readonly 'S-128': number
+  /** S-482, the time of day the row states (HH:MM:SS) */
+  readonly 'S-482': string
+  /** S-483, the time of day the row states (HH:MM:SS) */
+  readonly 'S-483': string
 } = {
   'S-106': [2, 3, 4, 5, 6],
   'S-107': [],
   'S-108': 1,
   'S-128': 480,
+  'S-482': '08:00:00',
+  'S-483': '17:00:00',
 }
 // </generated>

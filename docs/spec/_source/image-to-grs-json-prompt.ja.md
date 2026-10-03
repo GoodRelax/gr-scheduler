@@ -22,7 +22,7 @@
 2. スキーマの決まり
    - どのオブジェクトも、スキーマの required の鍵をすべて持ち、スキーマに無い鍵を持たない（additionalProperties は false）。値が無いときは null にする（型が null を許す鍵だけ）。
    - carry は {}、carryElements は [] にする（tasks・dependencies・resources・assignments・calendars・project すべて）。
-   - 日付と日時は "YYYY-MM-DDT00:00:00" の形の文字列にする（時刻は常に 00:00:00）。documentStamp だけは "YYYY-MM-DDTHH:MM:SSZ"。
+   - 日付と日時は "YYYY-MM-DDTHH:MM:SS" の形の文字列にする（帯は書かない）。時刻は列の側で決まる: 開始の側（start・actualStart・resume・project.startDate）は project.defaultStartTime（null なら {{S-482}}）、終了の側（finish・actualFinish・stop・deadline・project.statusDate）は project.defaultFinishTime（null なら {{S-483}}）。マイルストーンは start も finish も開始の側の時刻。暦の例外の fromDate は 00:00:00、toDate は 23:59:00。documentStamp だけは "YYYY-MM-DDTHH:MM:SSZ"。
    - 日付は 1970-01-01 から 2200-12-31 の間にする。
 3. 行（taskGroups）
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
@@ -59,7 +59,7 @@
    - fadeInDays と fadeOutDays は 0 以上、足して finish − start の暦日の日数を超えない。フェードを付けるタスクは finish を持つ。GRS はこれに反する文書を開かない。
    - 実績のバーにはフェードが無い。実績の斜めや薄れは読み取らない。
 7. どの行に載せるか（taskGroupMembers）
-   - どのタスクも、ちょうど 1 つの {"taskUid": uid, "groupId": 行の id, "stackOrder": null} から指されるようにする。原本でそのバーが描かれている行（4. で作った子の行を含む）を選ぶ。
+   - どのタスクも、ちょうど 1 つの {"taskUid": uid, "groupId": 行の id} から指されるようにする。行の中で積む段は書かない（GRS が自動で積む）。原本でそのバーが描かれている行（4. で作った子の行を含む）を選ぶ。
 8. 形状と色（taskVisuals）
    - どのタスクにも 1 件ずつ置く。
    - shapeKind:

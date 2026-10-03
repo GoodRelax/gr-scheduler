@@ -36,6 +36,12 @@ the writer of a document -- an AI included -- holding this one file, so:
     whole file (Chapter 6.1). `scrollDate` carries the same pattern inline,
     because tools/generate_entity_types.py types a presentation key from its
     own node and cannot follow a reference;
+  - every time-of-day column (`isTime`, Project.defaultStartTime /
+    defaultFinishTime) points at one `$defs/Time` with the lexical form of
+    xsd:time, and that pattern IS a reading condition (CR-646): the column
+    sits on the one Project, so no row can be dropped in its place;
+  - a documentSettings key's description is its row's `schemaNote` in
+    settings.json (stackDirection, CR-646), under the column's rule;
   - `schemaVersion` is the `const` of this build's version, read from
     tools/generate_startup_template.py (SCHEMA_VERSION), never retyped; the
     reader judges the version itself (FR-073), so the validator drops it too;
@@ -137,6 +143,26 @@ def manuscript_types():
 MANUSCRIPT_TYPES = manuscript_types()
 
 
+def manuscript_notes():
+    """Rows of settings.json that carry a `schemaNote` for their key (CR-646).
+
+    The description a documentSettings key prints, under the same rule as an
+    erd.json column's schemaNote (Chapter 6.2): most rows carry none.
+    """
+    doc = json.load(io.open(os.path.join(HERE, 'settings.json'), encoding='utf-8'))
+    out = {}
+    for block in doc['blocks']:
+        if block['kind'] != 'table':
+            continue
+        for row in block['rows']:
+            if 'schemaNote' in row:
+                out[row['id']] = row['schemaNote']['en']
+    return out
+
+
+MANUSCRIPT_NOTES = manuscript_notes()
+
+
 def colour_names():
     """The stored spellings of the palette colours: table T-294's key column.
 
@@ -181,6 +207,13 @@ CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
 DATE_TIME_DEF = 'DateTime'
 DATE_TIME_PATTERN = (r'^-?\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?'
                      r'(Z|[+-]\d{2}:\d{2})?$')
+# ⭐ The lexical form of xsd:time, for the two time-of-day columns of Project
+# (defaultStartTime / defaultFinishTime, MSPDI's DefaultStartTime /
+# DefaultFinishTime, CR-646). Unlike DATE_TIME_PATTERN this one is a reading
+# condition: the column sits on the one Project, so no row can be dropped in
+# its place and a value that does not fit refuses the document (Chapter 6.1).
+TIME_DEF = 'Time'
+TIME_PATTERN = r'^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$'
 # The one root key that is the format version (DR-4 of table T-052).
 VERSION_KEY = 'schemaVersion'
 
@@ -193,9 +226,19 @@ ROOT_DESCRIPTION = (
     'and why it changed. Every key is written, null included, so that "the source '
     'had no value" and "the value is 0" are never confused. What comes from MS '
     'Project XML (MSPDI) keeps its names and codes, so that a round trip loses '
-    'nothing. Dates are local date-times without a zone, as MS Project writes them; '
-    'GRS uses only the day for now and writes 00:00:00, and a last day (finish, '
-    'actualFinish, stop, endDate) is included. A null colour or width follows the '
+    'nothing. Times come in two kinds, for two reasons. Schedule dates (start, '
+    'finish, deadline, statusDate, calendar exceptions, comment and highlight '
+    'boxes) are local date-times without a zone, exactly as MS Project writes '
+    'them, so that they round-trip unchanged. GRS uses only their day for now; '
+    'when it writes one it uses the project\'s default start time on a start-side '
+    'column and its default finish time on a finish-side column (a milestone '
+    'takes the start time at both ends), and 00:00:00..23:59:00 for a whole-day '
+    'range (00:00:00 for a single day such as a comment\'s anchor), because that '
+    'is what MS Project does with a date entered without a time, so the value '
+    'already means the right instant when times are used. A last day (finish, '
+    'actualFinish, stop, endDate) is included. Record instants (documentStamp, '
+    'changeLog) are UTC, so that every reader sees them in their own local time. '
+    'A null colour or width follows the '
     'theme. A custom colour gives the light-theme and the dark-theme value '
     '("#light/#dark"; an empty side is drawn with the other), because a readable '
     'dark colour cannot be derived from a light one.')
@@ -382,24 +425,35 @@ def carry_def(erd):
     ])
 
 
-def date_time_ref(spec, where):
-    """A date column: a reference to the one date-time definition.
+def date_time_ref(spec, where, marker='isDate', target=None):
+    """A date (or time) column: a reference to its one definition.
 
     ⛔ The definition admits null, so a column that does not would be widened
     by it; such a column stops the build rather than being widened.
     """
+    target = target or DATE_TIME_DEF
     if spec['kind'] != 'string' or not spec.get('null') or \
-            set(spec) - {'kind', 'isDate', 'null'}:
-        raise SystemExit('%s is a date column that is not a plain nullable '
+            set(spec) - {'kind', marker, 'null'}:
+        raise SystemExit('%s is a %s column that is not a plain nullable '
                          'string, so it cannot point at $defs/%s'
-                         % (where, DATE_TIME_DEF))
-    return collections.OrderedDict([('$ref', '#/$defs/%s' % DATE_TIME_DEF)])
+                         % (where, marker, target))
+    return collections.OrderedDict([('$ref', '#/$defs/%s' % target)])
 
 
 def date_time_def():
     return collections.OrderedDict([
         ('type', ['string', 'null']),
         ('pattern', DATE_TIME_PATTERN),
+    ])
+
+
+def time_def():
+    """The one time-of-day definition (CR-646). Its pattern IS a reading
+    condition: tools/generate_json_schema_validator.py drops the pattern only
+    at DATE_TIME_DEF, so the walker keeps this one (Chapter 6.1)."""
+    return collections.OrderedDict([
+        ('type', ['string', 'null']),
+        ('pattern', TIME_PATTERN),
     ])
 
 
@@ -415,8 +469,12 @@ def entity_defs(erd, open_enums):
                 props[c['name']] = collections.OrderedDict(
                     [('$ref', '#/$defs/%s' % CARRY_DEF)])
                 continue
-            body = (date_time_ref(c['json'], where) if c['json'].get('isDate')
-                    else frag(c['json'], open_enums, where))
+            if c['json'].get('isDate'):
+                body = date_time_ref(c['json'], where)
+            elif c['json'].get('isTime'):
+                body = date_time_ref(c['json'], where, 'isTime', TIME_DEF)
+            else:
+                body = frag(c['json'], open_enums, where)
             if 'schemaNote' in c:
                 # A note naming a value of table T-209 (`{{S-128}}`) is printed
                 # from that row, never retyped (CR-644).
@@ -653,6 +711,7 @@ def as_object(tree, description=None):
 
 def document_settings(tables, open_types, skipped):
     flat = collections.OrderedDict()
+    noted = set()
     for tid, t in tables.items():
         group = TABLE_GROUP.get(tid, (None, None))[0]
         if group != 'documentSettings':
@@ -686,6 +745,17 @@ def document_settings(tables, open_types, skipped):
             else:
                 flat[key.group(1)] = settings_type(row, header, key.group(1),
                                                    open_types)
+            note = MANUSCRIPT_NOTES.get(row[0])
+            if note is not None:
+                described = collections.OrderedDict([('description', note)])
+                described.update(flat[key.group(1)])
+                flat[key.group(1)] = described
+                noted.add(row[0])
+    # ⛔ A note on a row that prints no stored key would be read by nobody.
+    unused = set(MANUSCRIPT_NOTES) - noted
+    if unused:
+        raise SystemExit('settings.json rows %s carry a schemaNote but print no '
+                         'documentSettings key' % ', '.join(sorted(unused)))
     with_defaults_and_bounds(flat)
     return as_object(nest(flat), SETTINGS_DESCRIPTION)
 
@@ -781,6 +851,7 @@ def build():
     defs = entity_defs(erd, open_enums)
     defs[CARRY_DEF] = carry_def(erd)
     defs[DATE_TIME_DEF] = date_time_def()
+    defs[TIME_DEF] = time_def()
     schedule = schedule_object(erd, reachable)
     settings = document_settings(tables, open_types, skipped)
 

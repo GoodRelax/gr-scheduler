@@ -312,8 +312,8 @@ function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [group(ROW_ONE, 0, 'One'), group(ROW_TWO, 1, 'Two')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ROW_ONE, stackOrder: null },
-        { taskUid: 2, groupId: ROW_TWO, stackOrder: null },
+        { taskUid: 1, groupId: ROW_ONE },
+        { taskUid: 2, groupId: ROW_TWO },
       ],
       taskVisuals: [],
       commentBoxes: [],

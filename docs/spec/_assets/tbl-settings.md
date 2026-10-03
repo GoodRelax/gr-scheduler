@@ -160,7 +160,7 @@
 
 | 行 ID | キー | 型 | 既定 | 下限 | 上限 | 意味 |
 | --- | --- | --- | --- | --- | --- | --- |
-| S-58 | `stackDirection` | `'up'` / `'down'` | `'up'` | — | — | 積む向き |
+| S-58 | `stackDirection` | `'up'` / `'down'` | `'up'` | — | — | 積む向き。<br>向きを選ぶ理由は表 T-014 の `ST-5` が持つ |
 | S-227 | `planVisible` | 真偽 | `true` | — | — | 予定の表示。<br>実績（`S-228`）とは独立に切り替える。<br>規則と理由は `FR-049` |
 | S-228 | `actualVisible` | 真偽 | `true` | — | — | 実績の表示。<br>予定（`S-227`）とは独立に切り替える。<br>規則と理由は `FR-049` |
 | S-60 | `assigneeVisible` | 真偽 | `false` | — | — | 担当ラベル。<br>既定は隠す（下記） |
@@ -692,6 +692,8 @@
 | S-107 | 例外日（休業日） | **無し** 🔎 | **祝日を持たない** （理由は `FR-088`）。<br>必要なら MSPDI を取り込むか、非稼働日として個別に置く |
 | S-108 | 週の始まり | 月曜 🔎 | 週の目盛が書く日付の基準（`FR-054`）。<br>置き場は `Project.weekStartDay`。<br>⭐ 新しく始めた空の文書（`01-04-requirements.md` の 表 T-342 の `BK-4`）にもこの値を書く |
 | S-128 | 1 日あたりの分数 | `480` 🔎 | `Project.minutesPerDay` が空のときに使う（`FR-054`）。<br>1 日 8 時間。<br>選び方は `S-106` と同じである |
+| S-482 | 既定の開始時刻 | `08:00:00` | `Project.defaultStartTime` が空のときに、`GRS` が開始の側の日時に書く時刻（`01-04-requirements.md` の 表 T-350）。<br>値は MS Project の既定の開始時刻（Microsoft サポート「How Project schedules tasks: Behind the scenes」、`https://support.microsoft.com/en-us/project/how-project-schedules-tasks-behind-the-scenes`）。<br>⚠️ 列へは書かない —— 列が空のまま往復し、交換相手は自分の既定を使う |
+| S-483 | 既定の終了時刻 | `17:00:00` | `S-482` の終了の側の対。<br>`Project.defaultFinishTime` が空のときに使い、出典と列へ書かない理由も `S-482` と同じである |
 
 ⚠️ 保存の可否: 保存する。  
 規則と理由は `FR-054` が持つ。

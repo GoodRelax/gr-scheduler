@@ -499,9 +499,9 @@ function fixtureDocument(): Document {
         group(ROW_E, 4, 'E'),
       ],
       taskGroupMembers: [
-        { taskUid: PLAIN_UID, groupId: ROW_A, stackOrder: null },
-        { taskUid: MILESTONE_UID, groupId: ROW_C, stackOrder: null },
-        { taskUid: SUSPENDED_UID, groupId: ROW_D, stackOrder: null },
+        { taskUid: PLAIN_UID, groupId: ROW_A },
+        { taskUid: MILESTONE_UID, groupId: ROW_C },
+        { taskUid: SUSPENDED_UID, groupId: ROW_D },
       ],
       taskVisuals: [],
       commentBoxes: [
@@ -1543,7 +1543,7 @@ function wideFixtureDocument(): Document {
     schedule: {
       tasks: Task[]
       taskGroups: unknown[]
-      taskGroupMembers: { taskUid: number; groupId: string; stackOrder: null }[]
+      taskGroupMembers: { taskUid: number; groupId: string }[]
     }
   }
   const overflowGroup = overflowGroupId(900)
@@ -1551,7 +1551,6 @@ function wideFixtureDocument(): Document {
   draft.schedule.taskGroupMembers.push({
     taskUid: OVERFLOW_UID,
     groupId: overflowGroup,
-    stackOrder: null,
   })
   draft.schedule.tasks.push(
     task({

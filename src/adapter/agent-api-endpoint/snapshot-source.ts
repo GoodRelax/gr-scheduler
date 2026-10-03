@@ -36,6 +36,8 @@ export interface AgentSnapshot {
   readonly settingsLimits: SettingsLimits
   readonly defaultRowName: PlanInput['defaultRowName']
   readonly readAt: string
+  // WHY: an MSPDI export writes this as LastSaved (DV-12), which is the place's wall time, not readAt's UTC.
+  readonly localReadAt: string
 }
 
 // see IF-7

@@ -97,7 +97,7 @@ function sceneOf(): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id, stackOrder: null })),
+      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

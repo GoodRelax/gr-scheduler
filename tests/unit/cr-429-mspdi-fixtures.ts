@@ -24,6 +24,8 @@ import {
   type XmlNode,
 } from './cr-429-mspdi-schema'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 export const TEMPLATE_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
@@ -54,7 +56,7 @@ export function accepted(text: string, current: Document = currentDocument()): A
 }
 
 export function writtenText(document: Document): string {
-  return mspdiFromDocument(document).text
+  return mspdiFromDocument(document, LAST_SAVED_AT).text
 }
 
 export function taskNode(root: XmlNode, uid: number): XmlNode {

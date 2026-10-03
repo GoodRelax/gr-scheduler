@@ -7,6 +7,7 @@ import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
+  blankTaskVisual,
   compareDays,
   dayOf,
   taskByUid,
@@ -157,21 +158,10 @@ export function withTask(document: Document, next: Task): Document {
   return withSchedule(document, { ...document.schedule, tasks })
 }
 
-/** @purity pure */
-export function blankVisual(taskUid: number): TaskVisual {
-  return {
-    taskUid,
-    shapeKind: null,
-    milestoneGlyph: null,
-    fillColor: null,
-    strokeColor: null,
-    strokeWidthPx: null,
-  }
-}
-
+// WHY: IV-23 holds one row for every Task; the blank row answers only for a uid no Task holds yet (CM-6 makes it).
 /** @purity pure */
 export function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
-  return schedule.taskVisuals.find((one) => one.taskUid === taskUid) ?? blankVisual(taskUid)
+  return schedule.taskVisuals.find((one) => one.taskUid === taskUid) ?? blankTaskVisual(taskUid)
 }
 
 // see G-1, IV-22

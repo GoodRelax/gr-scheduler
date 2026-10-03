@@ -330,8 +330,8 @@ const withTwoRows = (hiddenState: 'hidden' | 'collapsedParent'): Stage2 => {
       ? [g1, { ...g1, id: 'g2', label: 'g2', order: 1, treeState: 'hidden' }]
       : [{ ...g1, treeState: 'collapsed' }, { ...g1, id: 'g2', label: 'g2', parentId: 'g1', order: 0 }]
   const members = [
-    { taskUid: 1, groupId: 'g1', stackOrder: null },
-    { taskUid: 2, groupId: 'g2', stackOrder: null },
+    { taskUid: 1, groupId: 'g1' },
+    { taskUid: 2, groupId: 'g2' },
   ]
   return built({ ...base, taskGroups: groups, taskGroupMembers: members } as unknown as Schedule)
 }

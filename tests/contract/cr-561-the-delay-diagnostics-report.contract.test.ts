@@ -231,7 +231,7 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
   raw.schedule.taskGroupMembers = rows.flatMap((row) =>
-    row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id, stackOrder: null })),
+    row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id })),
   )
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)

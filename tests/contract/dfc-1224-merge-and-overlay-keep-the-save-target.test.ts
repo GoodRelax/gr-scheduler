@@ -30,6 +30,8 @@ import {
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
 
+const LAST_SAVED_AT = '2026-10-03T09:00:00'
+
 const T_036 = specTable('T-036')
 const T_103 = specTable('T-103')
 const T_036_ASSIGNMENT = 1
@@ -105,8 +107,10 @@ function documentWith(title: string, rowId: string, uids: readonly number[]): Do
         id: rowId, parentId: null, label: title, derivedFromTaskUid: null, order: 0,
         treeState: 'auto', editGroup: null, color: null, minHeight: null,
       }],
-      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId, stackOrder: null })),
-      taskVisuals: [],
+      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId })),
+      taskVisuals: uids.map((uid) => ({
+        taskUid: uid, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null,
+      })),
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],
@@ -350,7 +354,7 @@ describe('DFC-1224 -- only a replace makes the chosen file the save target', () 
   })
 
   it('IC-71 from an MSPDI file: the first SK-11 still asks for a file (FR-096)', async () => {
-    const chosen = recordingHandle(CHOSEN_MSPDI_NAME, mspdiFromDocument(there()).text)
+    const chosen = recordingHandle(CHOSEN_MSPDI_NAME, mspdiFromDocument(there(), LAST_SAVED_AT).text)
     const { built, saveTo } = await savedThenChosen(chosen)
     await built.take(OPEN_CHOOSER, 'IC-71')
     if (built.confirmation() !== null) await built.take(CONFIRMATION, null, PROCEED_ANSWER)

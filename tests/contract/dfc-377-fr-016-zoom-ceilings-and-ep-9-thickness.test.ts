@@ -471,7 +471,6 @@ const SCHEDULE: Schedule = (() => {
     taskGroupMembers: groups.map((group, index) => ({
       groupId: group.id,
       taskUid: index + 1,
-      stackOrder: null,
     })),
     taskVisuals: [],
     commentBoxes: [],

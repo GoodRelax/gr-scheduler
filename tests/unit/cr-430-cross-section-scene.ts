@@ -323,7 +323,6 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
       author: null,
       created: null,
       revision: null,
-      lastSaved: null,
       startDate: day(1),
       statusDate: wish.statusDate ?? null,
       minutesPerDay: null,
@@ -331,6 +330,8 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
       daysPerMonth: null,
       weekStartDay: null,
       calendarUid: EVERY_DAY_WORKED.uid,
+      defaultStartTime: null,
+      defaultFinishTime: null,
       themeHue: 214,
       uidHighWaterMark: 1000,
       importSeq: 0,
@@ -374,7 +375,6 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
     taskGroupMembers: wish.tasks.map((one) => ({
       taskUid: (one as unknown as { uid: number }).uid,
       groupId: 'g1',
-      stackOrder: null,
     })),
     taskVisuals: wish.tasks.map((one) => {
       const uid = (one as unknown as { uid: number }).uid

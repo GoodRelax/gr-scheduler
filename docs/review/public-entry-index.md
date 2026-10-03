@@ -23,6 +23,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `actualLengthOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#actualLengthOf` | PI-1 | 実績の長さ。 |
 | `Assignment` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Assignment` | -- | interface Assignment |
 | `BaselineTask` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#BaselineTask` | -- | interface BaselineTask |
+| `blankTaskVisual` | entry | function | `src/entity/document-model/schedule/schedule.ts#blankTaskVisual` | PI-1 | `taskUid` のほかがすべて `null` の `TaskVisual`（表 T-220 の `IV-23`） |
 | `Calendar` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Calendar` | -- | interface Calendar |
 | `CalendarDay` | entry | interface | `src/entity/document-model/schedule/calendar-day.ts#CalendarDay` | -- | interface CalendarDay |
 | `calendarDaysBetween` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#calendarDaysBetween` | PI-1 | 2 つの日付のあいだの**暦日**数。 |
@@ -41,10 +42,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
 | `DATE_COLUMNS` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DATE_COLUMNS` | PI-1 | 表 T-058 の型の欄が日付とする列の全数。 |
 | `dateFromWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#dateFromWorkingDays` | PI-1 | 起点の日付に稼働日を加えた日 |
+| `DAY_END_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_END_TIME` | PI-1 | 丸 1 日の範囲の終わりの時刻（表 T-350 の `WT-7`） |
+| `DAY_START_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_START_TIME` | PI-1 | 丸 1 日の範囲の始まりの時刻（表 T-350 の `WT-6`） |
 | `dayFromSerial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayFromSerial` | PI-1 | 通し番号から日付へ —— `serial` の逆。 |
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
 | `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
+| `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
+| `defaultStartTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultStartTimeOf` | PI-1 | 文書の既定の開始時刻。 |
 | `DELAY_REPORT_STATUSES` | entry | const | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DELAY_REPORT_STATUSES` | PI-1 | 表 T-347 の `DT-1` のステータスを、表の順に並べたもの。 |
 | `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
 | `delayDiagnosticsReportMarkdown` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportMarkdown` | PI-1 | 遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。 |
@@ -66,6 +71,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HighlightBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#HighlightBox` | -- | interface HighlightBox |
 | `InvariantKind` | entry | type | `src/entity/document-model/schedule/schedule-invariants.ts#InvariantKind` | -- | type InvariantKind = \| 'unique' \| 'reference' \| 'structure' \| 'combination' \| 'range' export interface ScheduleViolation |
 | `isDelayed` | entry | function | `src/entity/document-model/schedule/task-delay.ts#isDelayed` | PI-1 | 表 T-021b の 3 条件 |
+| `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
 | `isStoredColour` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#isStoredColour` | PI-1 | 色の列が取る綴りか。 |
 | `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | -- | function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean |
@@ -96,12 +102,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#TaskSearchRow` | PI-1 | 型。 |
 | `TaskVisual` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskVisual` | -- | interface TaskVisual |
 | `TENTHS_OF_A_MINUTE` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#TENTHS_OF_A_MINUTE` | PI-1 | `lag` の 1 分あたりの数（`AT-47`） |
-| `textOfDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDay` | PI-1 | 日を日付の字面に戻す |
+| `textOfDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDay` | PI-1 | 日を日付の字面に戻す。 |
+| `textOfDayEnd` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayEnd` | PI-1 | 丸 1 日の範囲の終わりの字（表 T-350 の `WT-7`） |
+| `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
+| `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字。 |
+| `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字（表 T-350 の `WT-1`・`WT-3`） |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
+| `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
 | `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
 | `Bottleneck` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#Bottleneck` | -- | interface Bottleneck extends DelayQuantities |
 | `DelayFinding` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayFinding` | -- | interface DelayFinding |
@@ -424,7 +435,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `tasksRankedByTheRowTree` | file only | function | `src/use-case/edit-document/task-group-order.ts#tasksRankedByTheRowTree` | -- | function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] |
 | `withRow` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withRow` | -- | function withRow(document: Document, row: TaskGroup): Document |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withSchedule` | -- | function withSchedule(document: Document, part: Partial<Schedule>): Document |
-| `blankVisual` | file only | function | `src/use-case/edit-document/edit-task.ts#blankVisual` | -- | function blankVisual(taskUid: number): TaskVisual |
 | `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
 | `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task): boolean |
 | `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
@@ -793,12 +803,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MspdiDecoding` | entry | type | `src/adapter/document-codec/mspdi-codec.ts#MspdiDecoding` | -- | type MspdiDecoding = \| |
 | `MspdiEncoding` | entry | interface | `src/adapter/document-codec/mspdi-codec.ts#MspdiEncoding` | -- | interface MspdiEncoding |
 | `MspdiFault` | entry | interface | `src/adapter/document-codec/mspdi-xml.ts#MspdiFault` | -- | interface MspdiFault |
-| `mspdiFromDocument` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#mspdiFromDocument` | PI-20 | function mspdiFromDocument(document: Document): MspdiEncoding |
+| `mspdiFromDocument` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#mspdiFromDocument` | PI-20 | function mspdiFromDocument(document: Document, lastSaved: string): MspdiEncoding |
 | `MspdiNotice` | entry | interface | `src/adapter/document-codec/mspdi-codec.ts#MspdiNotice` | -- | interface MspdiNotice |
 | `collectionNamesOfEntity` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#collectionNamesOfEntity` | -- | function collectionNamesOfEntity(entity: string): readonly string[] |
 | `collectSchemaFaults` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#collectSchemaFaults` | -- | function collectSchemaFaults(value: unknown, out: JsonFault[]): void |
 | `fault` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#fault` | -- | function fault(at: string, what: string): JsonFault |
 | `isMissingKeyFault` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#isMissingKeyFault` | -- | function isMissingKeyFault(one: JsonFault): boolean |
+| `isTimeText` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#isTimeText` | -- | function isTimeText(text: string): boolean |
 | `isUnknownKeyFault` | file only | function | `src/adapter/document-codec/grs-json-schema.ts#isUnknownKeyFault` | -- | function isUnknownKeyFault(one: JsonFault): boolean |
 | `JsonRefusalReason` | file only | type | `src/adapter/document-codec/json-codec.ts#JsonRefusalReason` | -- | type JsonRefusalReason = 'RS-25' \| 'RS-64' |
 | `PARENT_ORDERS` | file only | const | `src/adapter/document-codec/mspdi-child-placement.ts#PARENT_ORDERS` | -- | const PARENT_ORDERS: ReadonlyMap<string, ParentOrder> = new Map( |
@@ -988,6 +999,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pointerRowOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerRowOf` | -- | function pointerRowOf(hit: Grabbed \| null, armed: boolean): PointerRow \| null |
 | `PointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShape` | -- | type PointerShape = \| 'default' \| 'copy' \| 'grabbing' \| 'grab' \| 'pointer' \| 'col-resize' \| 'move' \| 'ew-resize' \| 'ns-resize' \| 'nwse-resize' \| 'nesw-resize' |
 | `readInstantOfWrite` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readInstantOfWrite` | -- | function readInstantOfWrite(): string |
+| `readLocalMoment` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readLocalMoment` | -- | function readLocalMoment(): string |
 | `readMonotonicMs` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readMonotonicMs` | -- | function readMonotonicMs(): number |
 | `readToday` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readToday` | -- | function readToday(): string |
 | `ScreenWiring` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#ScreenWiring` | -- | interface ScreenWiring |
@@ -996,6 +1008,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ShowPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#ShowPointerShape` | -- | type ShowPointerShape = (shape: PointerShape \| null) => void |
 | `STACK_SAFETY_CAP_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#STACK_SAFETY_CAP_REASON` | -- | const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24' |
 | `standingNoticesIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#standingNoticesIn` | -- | function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] |
+| `startedDocumentOf` | file only | function | `src/framework/single-html-shell/frame-loop.ts#startedDocumentOf` | -- | function startedDocumentOf(emptyDocument: Document, created: string): Document |
 | `StartupNoticeReason` | file only | type | `src/framework/single-html-shell/frame-loop.ts#StartupNoticeReason` | -- | type StartupNoticeReason = Extract< |
 | `WATERMARK_UNLOCK_DIGEST` | file only | const | `src/framework/single-html-shell/watermark-unlock.ts#WATERMARK_UNLOCK_DIGEST` | -- | const WATERMARK_UNLOCK_DIGEST: |
 | `WATERMARK_UNLOCK_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#WATERMARK_UNLOCK_ROW` | -- | const WATERMARK_UNLOCK_ROW = 'U-60' |
@@ -1630,4 +1643,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 787 name(s) leave through a public entry (286 of them published by table T-064), 633 more are exported by a file and not by its entry.
+Totals: 797 name(s) leave through a public entry (296 of them published by table T-064), 636 more are exported by a file and not by its entry.

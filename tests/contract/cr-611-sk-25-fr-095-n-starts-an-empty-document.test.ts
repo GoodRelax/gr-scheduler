@@ -202,10 +202,16 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     const { after } = await emptyDocument()
     const project = after['schedule']['project'] as Loose
     for (const column of nullableColumns('Project')) {
-      if (column === 'calendarUid' || column === 'weekStartDay') continue
+      if (column === 'calendarUid' || column === 'weekStartDay' || column === 'created') continue
       expect(project[column], `BK-4: project.${column}`).toBeNull()
     }
     expect(project['calendarUid']).toBe(after['schedule']['calendars'][0]['uid'])
+  })
+
+  // WHY: CR-646 (JDG-1210) moved created out of the null columns: BK-4 writes the moment the document began (WT-9).
+  it('BK-4 / WT-9: project.created holds the moment the document began, zoneless and to the second', async () => {
+    const { after } = await emptyDocument()
+    expect(after['schedule']['project']['created']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
   })
 
   // WHY: JDG-1184 settled reading B (CR-638 writes it into BK-4); reading A (null) was turned down.

@@ -14,9 +14,11 @@ import {
   dayOf,
   lastDayForLength,
   planActualState,
-  textOfDay,
+  textOfFinishSide,
+  textOfStartSide,
   workingDaysBetween,
   type CalendarDay,
+  type Project,
   type Schedule,
   type Task,
   type WorkingCalendar,
@@ -216,19 +218,21 @@ const CARRIED_PLAN_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDat
 const MUST_START_ON = '2'
 
 interface DatedPlan {
-  readonly start: CalendarDay
-  readonly finish: CalendarDay
+  readonly startText: string
+  readonly finishText: string
   readonly duration: string
 }
 
 // see DV-8, EX-9
 /** @purity pure */
 function datedPlanOf(task: Task, schedule: Schedule, within: WorkingCalendar): DatedPlan | null {
-  const start = dayOf(task.start)
-  const finish = dayOf(task.finish)
-  if (start === null || finish === null) return null
+  const startText = task.start
+  const finishText = task.finish
+  const start = dayOf(startText)
+  const finish = dayOf(finishText)
+  if (start === null || finish === null || startText === null || finishText === null) return null
   const duration = durationText(workingDaysBetween(within, start, finish) * minutesPerDayOf(schedule))
-  return { start, finish, duration }
+  return { startText, finishText, duration }
 }
 
 // see EX-11, EX-12, AT-143
@@ -240,7 +244,7 @@ function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
     const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_PLAN_LEAVES.includes(name))
     return { ...task, carry: Object.fromEntries(kept) }
   }
-  const pinned = { ConstraintType: MUST_START_ON, ConstraintDate: textOfDay(span.start), Duration: span.duration }
+  const pinned = { ConstraintType: MUST_START_ON, ConstraintDate: span.startText, Duration: span.duration }
   return { ...task, carry: { ...task.carry, ...pinned } }
 }
 
@@ -257,8 +261,8 @@ export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingC
     return { ...task, carry: Object.fromEntries(kept) }
   }
   const rebuilt: ReadonlyMap<string, string> = new Map([
-    ['ManualStart', textOfDay(span.start)],
-    ['ManualFinish', textOfDay(span.finish)],
+    ['ManualStart', span.startText],
+    ['ManualFinish', span.finishText],
     ['ManualDuration', span.duration],
   ])
   const kept = Object.entries(task.carry)
@@ -352,7 +356,8 @@ export function setTaskPlanActualState(
       reject('CM-13', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
     ])
   }
-  const lastDay = compareDays(settled.lastDay, asked) === 0 ? askedText : textOfDay(settled.lastDay)
+  const lastDay = compareDays(settled.lastDay, asked) === 0
+    ? askedText : textOfFinishSide(settled.lastDay, document.schedule.project, milestone)
 
   let placed: Task
   switch (place.row) {
@@ -412,6 +417,7 @@ export function beginTaskActual(
     return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
   }
   const milestone = isMilestone(task)
+  const project: Project = document.schedule.project
   const dropped = checkDay(command.droppedDay)
   if (!dropped.ok) {
     return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
@@ -436,16 +442,16 @@ export function beginTaskActual(
     }
     const pulled: Task = {
       ...task,
-      actualStart: textOfDay(pinned),
-      stop: textOfDay(settled.lastDay),
+      actualStart: textOfStartSide(pinned, project),
+      stop: textOfFinishSide(settled.lastDay, project, milestone),
       resumeValid: true,
     }
     return edited(withTask(document, repriced(within, actualsEdited(pulled))))
   }
   const begun: Task = {
     ...task,
-    actualStart: textOfDay(dropped.day),
-    stop: textOfDay(floorDayOf(within, dropped.day, milestone)),
+    actualStart: textOfStartSide(dropped.day, project),
+    stop: textOfFinishSide(floorDayOf(within, dropped.day, milestone), project, milestone),
     resumeValid: true,
   }
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -468,7 +474,8 @@ export function cycleTaskPlanActualStateInDocument(
   if (state === 'inProgress' && task.stop === null) {
     return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
   }
-  const floorDay = from === null ? null : textOfDay(floorDayOf(within, from, milestone))
+  const project = document.schedule.project
+  const floorDay = from === null ? null : textOfFinishSide(floorDayOf(within, from, milestone), project, milestone)
   const turned = cycleTaskPlanActualState(task, command.remembered, { floorDay, milestone })
   return edited(withTask(document, repriced(within, turned.task)))
 }

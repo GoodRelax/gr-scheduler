@@ -589,7 +589,10 @@
      "origin": "Own",
      "exchange": "Project/CreationDate",
      "meaning": {
-      "ja": "作成日時"
+      "ja": "作成日時。`GRS` が新しく作る文書（`01-04-requirements.md` の 表 T-342 の `BK-4`）には、作ったその瞬間を、その場所の時刻で帯を持たず秒まで書く（`01-04-requirements.md` の 表 T-350 の `WT-9`）。取り込んだ値は保つ（表 T-033 の `EX-4`）"
+     },
+     "schemaNote": {
+      "en": "MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one."
      }
     },
     {
@@ -606,23 +609,6 @@
      "exchange": "Project/Revision",
      "meaning": {
       "ja": "⚠️ 交換相手の保存回数。`documentStamp` の 2 つの刻とは別物"
-     }
-    },
-    {
-     "seat": 11,
-     "name": "lastSaved",
-     "type": "日時",
-     "nullable": "可",
-     "json": {
-      "kind": "string",
-      "isDate": true,
-      "null": true
-     },
-     "key": "",
-     "origin": "Own",
-     "exchange": "Project/LastSaved",
-     "meaning": {
-      "ja": "最後に保存した日時"
      }
     },
     {
@@ -745,6 +731,46 @@
      "exchange": "Project/CalendarUID",
      "meaning": {
       "ja": "既定の暦。文書の暦を指す（`FR-054`）"
+     }
+    },
+    {
+     "seat": 154,
+     "name": "defaultStartTime",
+     "type": "時刻",
+     "nullable": "可",
+     "json": {
+      "kind": "string",
+      "isTime": true,
+      "null": true
+     },
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/DefaultStartTime",
+     "meaning": {
+      "ja": "既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1）"
+     },
+     "schemaNote": {
+      "en": "MS Project's DefaultStartTime: the time GRS writes on start-side dates; {{S-482}} when the file has none."
+     }
+    },
+    {
+     "seat": 155,
+     "name": "defaultFinishTime",
+     "type": "時刻",
+     "nullable": "可",
+     "json": {
+      "kind": "string",
+      "isTime": true,
+      "null": true
+     },
+     "key": "",
+     "origin": "Own",
+     "exchange": "Project/DefaultFinishTime",
+     "meaning": {
+      "ja": "既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483`"
+     },
+     "schemaNote": {
+      "en": "MS Project's DefaultFinishTime: the time GRS writes on finish-side dates; {{S-483}} when the file has none."
      }
     },
     {
@@ -1581,8 +1607,8 @@
    "seat": 5,
    "name": "TaskGroupMember",
    "description": {
-    "ja": "どのタスクがどの行の何段目に載るか",
-    "en": "Which row a task sits on; every task sits on exactly one row."
+    "ja": "どのタスクがどの行に載るか。段は持たない —— 行の中の積み順は表 T-014 の `ST-2` が決める",
+    "en": "Which row a task sits on; every task sits on exactly one row. No lane is stored: GRS stacks a row's tasks itself, in the direction documentSettings.stackDirection names."
    },
    "export": false,
    "carry": false,
@@ -1621,25 +1647,6 @@
      "exchange": "",
      "meaning": {
       "ja": "載せる行"
-     }
-    },
-    {
-     "seat": 62,
-     "name": "stackOrder",
-     "type": "整数",
-     "nullable": "可（`null` = 自動）",
-     "json": {
-      "kind": "integer",
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": {
-      "ja": "段。人が指定できるかは表 T-014 の `ST-6`"
-     },
-     "schemaNote": {
-      "en": "Not read: GRS stacks the tasks of a row automatically. Write null."
      }
     }
    ]
@@ -2327,8 +2334,8 @@
    "seat": 11,
    "name": "TaskVisual",
    "description": {
-    "ja": "タスクの見せ方。形と色",
-    "en": "How a task is drawn: its shape and its colours."
+    "ja": "タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ",
+    "en": "How a task is drawn: its shape and its colours; every task has exactly one, so that no other way of drawing a task is needed."
    },
    "export": false,
    "carry": false,
@@ -2346,7 +2353,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "対象のタスク"
+      "ja": "対象のタスク。**どの `Task` も、ちょうど 1 つの `TaskVisual` から指される**（`05-07-design.md` の 表 T-220 の `IV-23`）。色も形も決めていないタスクは、本列のほかがすべて `null` の 1 つを持つ"
      }
     },
     {
@@ -3023,7 +3030,7 @@
    "name": "documentStamp",
    "description": {
     "ja": "3 つの刻と、最後に書いた者",
-    "en": "When the document last changed and was saved, and who wrote it last."
+    "en": "When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock."
    },
    "export": false,
    "carry": false,
@@ -3095,7 +3102,10 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。"
+      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである"
+     },
+     "schemaNote": {
+      "en": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change."
      }
     }
    ]
@@ -3538,7 +3548,16 @@
    "name": "finishDate",
    "exchange": "Project/FinishDate",
    "source": {
-    "ja": "最も遅い `Task.finish`"
+    "ja": "最も遅い `Task.finish` の字面をそのまま書く —— 終了の側の時刻（`01-04-requirements.md` の 表 T-350）を継ぐ"
+   }
+  },
+  {
+   "seat": 12,
+   "entity": "Project",
+   "name": "lastSaved",
+   "exchange": "Project/LastSaved",
+   "source": {
+    "ja": "書き出すその瞬間の、その場所の時刻（帯を持たず秒まで）。文書には持たない —— ファイルへ書けた時刻は `AT-140` だけが持つ（`FR-101`）。往復の突き合わせでは比べない（`05-07-design.md` の 表 T-228 の `NR-7`）"
    }
   },
   {

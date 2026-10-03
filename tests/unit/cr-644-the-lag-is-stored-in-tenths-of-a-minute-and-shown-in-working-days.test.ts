@@ -218,7 +218,7 @@ function planDocument(plan: Plan): Document {
       dependencies: [{ ...linkOf(plan.lag, plan.lagFormat), predecessorUid: A }],
     }),
   ]
-  raw.schedule.taskGroupMembers = [A, B].map((taskUid) => ({ taskUid, groupId: 'r0', stackOrder: null }))
+  raw.schedule.taskGroupMembers = [A, B].map((taskUid) => ({ taskUid, groupId: 'r0' }))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

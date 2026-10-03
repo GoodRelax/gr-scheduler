@@ -218,7 +218,6 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       author: null,
       created: null,
       revision: null,
-      lastSaved: null,
       startDate: null,
       statusDate: null,
       minutesPerDay: null,
@@ -227,6 +226,8 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       weekStartDay: null,
       // FR-054: the document's calendar is the one this names.
       calendarUid: CALENDAR.uid,
+      defaultStartTime: null,
+      defaultFinishTime: null,
       themeHue: 0,
       uidHighWaterMark: 400,
       importSeq: 3,
@@ -249,7 +250,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       },
     ],
     // IV-6 asks for exactly one of these per `Task`.
-    taskGroupMembers: [{ taskUid: 1, groupId: GROUP_ID, stackOrder: 1 }],
+    taskGroupMembers: [{ taskUid: 1, groupId: GROUP_ID }],
     // FD-5 of table T-012a gives the fade to SH-1 and SH-2 only, so the shape
     // is named rather than left to a default.
     taskVisuals: [

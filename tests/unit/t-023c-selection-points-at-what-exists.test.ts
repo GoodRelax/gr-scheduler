@@ -294,9 +294,9 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, 'Alpha', 0), row(BETA, 'Beta', 1)],
       taskGroupMembers: [
-        { taskUid: PREDECESSOR, groupId: ALPHA, stackOrder: null },
-        { taskUid: SUCCESSOR, groupId: BETA, stackOrder: null },
-        { taskUid: SPARE, groupId: BETA, stackOrder: null },
+        { taskUid: PREDECESSOR, groupId: ALPHA },
+        { taskUid: SUCCESSOR, groupId: BETA },
+        { taskUid: SPARE, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [

@@ -44,7 +44,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'lastSaved', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
     closed: true,
     properties: {
       id: {
@@ -78,9 +78,6 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       revision: {
         type: ['integer', 'null'],
       },
-      lastSaved: {
-        ref: 'DateTime',
-      },
       startDate: {
         ref: 'DateTime',
       },
@@ -103,6 +100,12 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       calendarUid: {
         type: ['integer', 'null'],
+      },
+      defaultStartTime: {
+        ref: 'Time',
+      },
+      defaultFinishTime: {
+        ref: 'Time',
       },
       themeHue: {
         type: ['integer'],
@@ -278,7 +281,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroupMember: {
     type: ['object'],
-    required: ['taskUid', 'groupId', 'stackOrder'],
+    required: ['taskUid', 'groupId'],
     closed: true,
     properties: {
       taskUid: {
@@ -286,9 +289,6 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       groupId: {
         type: ['string'],
-      },
-      stackOrder: {
-        type: ['integer', 'null'],
       },
     },
   },
@@ -691,6 +691,10 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   DateTime: {
     type: ['string', 'null'],
   },
+  Time: {
+    type: ['string', 'null'],
+    pattern: '^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$',
+  },
 }
 
 // see T-220, OP-6, PI-2
@@ -1011,6 +1015,18 @@ function collectFaults(
 export function collectSchemaFaults(value: unknown, out: JsonFault[]): void {
   collectFaults(value, GRS_DOCUMENT_SCHEMA, '', out)
 }
+
+// see FR-021, AT-154, AT-155
+// WHY: held to the same $defs/Time a GRS JSON read holds the two columns to, so a value moved into a column
+// from MSPDI always reads back from the GRS JSON written of it.
+/** @purity pure */
+export function isTimeText(text: string): boolean {
+  const faults: JsonFault[] = []
+  collectFaults(text, { ref: TIME_DEFINITION }, '', faults)
+  return faults.length === 0
+}
+
+const TIME_DEFINITION = 'Time'
 
 /** @purity pure */
 export function collectionNamesOfEntity(entity: string): readonly string[] {

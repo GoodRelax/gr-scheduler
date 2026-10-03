@@ -119,7 +119,7 @@ const oneTaskDocument = (): Document =>
           minHeight: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: TASK_UID, groupId: 'g1', stackOrder: null }],
+      taskGroupMembers: [{ taskUid: TASK_UID, groupId: 'g1' }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],

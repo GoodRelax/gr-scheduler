@@ -301,8 +301,8 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA, stackOrder: null },
-        { taskUid: 2, groupId: BETA, stackOrder: null },
+        { taskUid: 1, groupId: ALPHA },
+        { taskUid: 2, groupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

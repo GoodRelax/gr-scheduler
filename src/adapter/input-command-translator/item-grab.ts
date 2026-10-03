@@ -9,7 +9,12 @@ import {
   planActualState,
   taskByUid,
   textOfDay,
+  textOfDayEnd,
+  textOfDayStart,
+  textOfFinishSide,
+  textOfStartSide,
   type CalendarDay,
+  type Project,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
@@ -98,7 +103,10 @@ export function commandFromGrab(
 
   if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
     const day = dayAtX(context.layout, release.x)
-    return day === null ? CONSUMED_ELSEWHERE : changed([{ kind: 'setStatusDate', date: textOfDay(day) }])
+    const project = context.document.schedule.project
+    return day === null
+      ? CONSUMED_ELSEWHERE
+      : changed([{ kind: 'setStatusDate', date: textOfFinishSide(day, project, false) }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -144,19 +152,18 @@ export function commandFromGrab(
     case 'GA-2':
     case 'GA-11': {
       const task = taskByUid(context.document.schedule, uid)
-      const start = dayOf(task === null ? null : task.start)
-      const finish = dayOf(task === null ? null : task.finish)
       const day = dayAtX(context.layout, release.x)
-      if (start === null || finish === null || day === null) return CONSUMED_ELSEWHERE
+      if (task === null || task.start === null || task.finish === null || day === null) return CONSUMED_ELSEWHERE
+      if (dayOf(task.start) === null || dayOf(task.finish) === null) return CONSUMED_ELSEWHERE
       const isStartHeld = grab === 'GA-1' || grab === 'GA-10'
-      const moved = isStartHeld ? { start: day, finish } : { start, finish: day }
+      const project = context.document.schedule.project
       // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
       return changed([
         {
           kind: 'setTaskPlanDates',
           uid,
-          start: textOfDay(moved.start),
-          finish: textOfDay(moved.finish),
+          start: isStartHeld ? textOfStartSide(day, project) : task.start,
+          finish: isStartHeld ? task.finish : textOfFinishSide(day, project, task.milestone === true),
         },
       ])
     }
@@ -193,6 +200,7 @@ export function commandFromGrab(
       // see GO-10
       const earliest = dayShifted(lastDay, 1)
       const resume = compareDay(dropped, earliest) < 0 ? earliest : dropped
+      const project = context.document.schedule.project
       return changed([
         {
           kind: 'setTaskPlanActualState',
@@ -200,8 +208,8 @@ export function commandFromGrab(
           place: {
             row: 'PA-3',
             actualStart: task.actualStart,
-            stop: textOfDay(lastDay),
-            resume: textOfDay(resume),
+            stop: textOfFinishSide(lastDay, project, task.milestone === true),
+            resume: textOfStartSide(resume, project),
           },
         },
       ])
@@ -360,7 +368,7 @@ function actualEndWrite(
   const task = taskByUid(context.document.schedule, uid)
   const dropped = dayAtX(context.layout, release.x)
   if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-  const place = actualEndPlacement(task, grab, dropped)
+  const place = actualEndPlacement(task, grab, dropped, context.document.schedule.project)
   if (place === null) return CONSUMED_ELSEWHERE
   return changed([{ kind: 'setTaskPlanActualState', uid, place }])
 }
@@ -399,6 +407,7 @@ function bodyMoveWrites(
   const moving = movedTaskUids(context, uid)
   const shift = dayShift(context, press.at.x, release.x)
   const crossed = clampedRowShift(context, rows, moving, drawnRowsCrossed(rows, press.at.y, release.y))
+  const project = context.document.schedule.project
   const commands: DocumentCommand[] = []
   for (const each of moving) {
     const task = taskByUid(context.document.schedule, each)
@@ -409,8 +418,8 @@ function bodyMoveWrites(
       commands.push({
         kind: 'setTaskPlanDates',
         uid: each,
-        start: textOfDay(dayShifted(start, shift)),
-        finish: textOfDay(dayShifted(finish, shift)),
+        start: textOfStartSide(dayShifted(start, shift), project),
+        finish: textOfFinishSide(dayShifted(finish, shift), project, task.milestone === true),
       })
     }
     const at = rowIndexOfTask(context, rows, each)
@@ -656,13 +665,20 @@ function highlightBoxRangeWrite(
       kind: 'setHighlightBoxRange',
       id,
       range: {
-        startDate: textOfDay(isLeftFirst ? left : right),
-        endDate: textOfDay(isLeftFirst ? right : left),
+        startDate: heldOrWritten(box.startDate, isLeftFirst ? left : right, textOfDayStart),
+        endDate: heldOrWritten(box.endDate, isLeftFirst ? right : left, textOfDayEnd),
         topGroupId: (isUpperFirst ? upper : lower).groupId,
         bottomGroupId: (isUpperFirst ? lower : upper).groupId,
       },
     },
   ])
+}
+
+// see WT-10
+/** @purity pure */
+function heldOrWritten(held: string | null, day: CalendarDay, write: (day: CalendarDay) => string): string {
+  const heldDay = dayOf(held)
+  return held !== null && heldDay !== null && compareDay(heldDay, day) === 0 ? held : write(day)
 }
 
 // see GR-14, CM-50, CM-51, FR-019, RS-44
@@ -738,13 +754,15 @@ function actualEndPlacement(
   task: Task,
   grab: ActualEndHold,
   dropped: CalendarDay,
+  project: Project,
 ): PlacedPlanActual | null {
-  const held = dayOf(task.actualStart)
-  if (held === null) return null
+  const heldText = task.actualStart
+  if (dayOf(heldText) === null || heldText === null) return null
   const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
-  const actualStart = isStartHeld || grab === 'GA-16' ? textOfDay(dropped) : textOfDay(held)
+  // WHY: an actual start not moved keeps its text as it stands (T-350 WT-10).
+  const actualStart = isStartHeld || grab === 'GA-16' ? textOfStartSide(dropped, project) : heldText
   // WHY: GO-5 keeps the last day; the end holds put the released day itself, not a working day (GO-3).
-  const lastDay = isStartHeld ? null : textOfDay(dropped)
+  const lastDay = isStartHeld ? null : textOfFinishSide(dropped, project, task.milestone === true)
   const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
   const moved: Task = lastDay === null
     ? { ...task, actualStart }

@@ -7,6 +7,7 @@ import {
   DELAY_REPORT_STATUSES,
   delayDiagnosticsReportMarkdown,
   delayDiagnosticsReportRows,
+  isSameDay,
   isSearchWordFound,
   type DelayDiagnosticsReport,
   type DelayReportReason,
@@ -178,7 +179,7 @@ function cellsOf(row: DelayReportRow): readonly string[] {
     row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     row.percentComplete === null ? '' : `${Math.round(row.percentComplete)}${PERCENT}`,
     row.name,
-    datesText(row.plannedStart, row.plannedFinish, row.plannedStart === row.plannedFinish),
+    datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish)),
     isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${DATE_RANGE}`,
     reasonText(row.reason),
   ]

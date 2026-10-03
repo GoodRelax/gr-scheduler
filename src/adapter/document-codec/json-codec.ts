@@ -11,7 +11,7 @@ import {
 import {
   dayOf,
   lastDayForLength,
-  textOfDay,
+  textOfFinishSide,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
 import { recountedPercentComplete } from '../../use-case/edit-document/edit-document'
@@ -329,7 +329,8 @@ function withStopsFromOlderLengths(
     const start = dayOf(task.actualStart)
     const length = lengthByTaskIndex.get(index)
     if (task.actualFinish !== null || start === null || typeof length !== 'number') return task
-    return { ...task, stop: textOfDay(lastDayForLength(within, start, length)) }
+    const lastDay = lastDayForLength(within, start, length)
+    return { ...task, stop: textOfFinishSide(lastDay, document.schedule.project, task.milestone === true) }
   })
   return { ...document, schedule: { ...document.schedule, tasks } }
 }

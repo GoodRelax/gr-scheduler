@@ -331,7 +331,6 @@ const scheduleOf = (
     author: null,
     created: null,
     revision: null,
-    lastSaved: null,
     startDate: '2026-03-01T00:00:00',
     statusDate,
     minutesPerDay: null,
@@ -339,6 +338,8 @@ const scheduleOf = (
     daysPerMonth: null,
     weekStartDay: null,
     calendarUid: EVERY_DAY_WORKED.uid,
+    defaultStartTime: null,
+    defaultFinishTime: null,
     themeHue: 214,
     uidHighWaterMark: 1000,
     importSeq: 0,
@@ -402,7 +403,6 @@ const draw = (
   const members: TaskGroupMember[] = tasks.map((t, i) => ({
     taskUid: t.uid,
     groupId: groupIds[i] ?? ids[0] ?? 'g1',
-    stackOrder: null,
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
   // scrollDate (S-77) pins the left edge of the Row Area, so the axis is fixed
@@ -638,7 +638,7 @@ const TIER_DAY_PX = pxPerDayReaching(
 const ONE_TASK_SCHEDULE = scheduleOf(
   [task({ uid: 1, name: 'A', start: day(2), finish: day(6) })],
   [taskGroup('g1', 0)],
-  [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
+  [{ taskUid: 1, groupId: 'g1' }],
   [taskVisual(1)],
   null,
 )
