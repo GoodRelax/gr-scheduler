@@ -1375,11 +1375,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HOST_ENTER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#HOST_ENTER` | -- | const HOST_ENTER = 'Enter' |
 | `IMPORT_REPORT_DISMISS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#IMPORT_REPORT_DISMISS_ATTRIBUTE` | -- | const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss' |
 | `made` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#made` | -- | function made(host: Document, tag: string, style: string): HTMLElement |
+| `NOT_STORED_ARMED_LABEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ARMED_LABEL_SIZES` | -- | const NOT_STORED_ARMED_LABEL_SIZES: |
 | `NOT_STORED_CONFIRMATION_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_CONFIRMATION_RULE_SIZES` | -- | const NOT_STORED_CONFIRMATION_RULE_SIZES: |
 | `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
 | `NOT_STORED_HELP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_HELP_SIZES` | -- | const NOT_STORED_HELP_SIZES: |
 | `NOT_STORED_ICON_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ICON_SIZES` | -- | const NOT_STORED_ICON_SIZES: |
 | `NOT_STORED_PALETTE_GROUP_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_GROUP_RULE_SIZES` | -- | const NOT_STORED_PALETTE_GROUP_RULE_SIZES: |
+| `NOT_STORED_PALETTE_ROW_CAP` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_ROW_CAP` | -- | const NOT_STORED_PALETTE_ROW_CAP: |
 | `NOT_STORED_PROPERTY_FIELD_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PROPERTY_FIELD_SIZES` | -- | const NOT_STORED_PROPERTY_FIELD_SIZES: |
 | `NOT_STORED_RESOURCE_ROSTER_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_RESOURCE_ROSTER_SIZES` | -- | const NOT_STORED_RESOURCE_ROSTER_SIZES: |
 | `NOT_STORED_ROW_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_BAND_SIZES` | -- | const NOT_STORED_ROW_BAND_SIZES: |
@@ -1407,7 +1409,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `drawLanguageReading` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#drawLanguageReading` | -- | function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void |
 | `fillAppHeader` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#fillAppHeader` | -- | function fillAppHeader( host: Document, header: HTMLElement, items: AppHeaderItems, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `spelledFileSize` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#spelledFileSize` | -- | function spelledFileSize(byteLength: number): string |
+| `armedLabelStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#armedLabelStyle` | -- | function armedLabelStyle(): string |
 | `PALETTE_GRAB_BAND_ENTRY` | file only | const | `src/framework/dom-screen-surface/command-palette-drawing.ts#PALETTE_GRAB_BAND_ENTRY` | -- | const PALETTE_GRAB_BAND_ENTRY = 'IC-53' |
+| `paletteColumnsOf` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteColumnsOf` | -- | function paletteColumnsOf(entranceCount: number, perRowCap: number): number |
+| `paletteColumnsStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteColumnsStyle` | -- | function paletteColumnsStyle(entranceCount: number): string |
 | `paletteElement` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteElement` | -- | function paletteElement( host: Document, palette: CommandPalette, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `paletteGroupRuleStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteGroupRuleStyle` | -- | function paletteGroupRuleStyle(): string |
 | `dialogueFieldPainter` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#dialogueFieldPainter` | -- | function dialogueFieldPainter( host: Document, dialogueField: HTMLElement, readAuthor: () => string, readClockMs: () => number, ) |
@@ -1667,4 +1672,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 805 name(s) leave through a public entry (302 of them published by table T-064), 652 more are exported by a file and not by its entry.
+Totals: 807 name(s) leave through a public entry (302 of them published by table T-064), 655 more are exported by a file and not by its entry.

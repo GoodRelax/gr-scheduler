@@ -345,7 +345,7 @@ export const NOT_STORED_COMMAND_PALETTE_SIZES: {
   readonly 'S-216': number
 } = {
   'S-135a': 24,
-  'S-216': 6,
+  'S-216': 3,
 }
 
 // see T-109, FR-049

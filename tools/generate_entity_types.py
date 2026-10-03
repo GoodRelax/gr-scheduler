@@ -1214,6 +1214,12 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_COMMAND_PALETTE_SIZES': (['S-135a', 'S-216'], READ_WHERE_IT_STANDS),
     'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
                                             DRAWN_INSIDE_THE_COMMAND_PALETTE),
+    # CR-652: NOT FOLDED INTO THE LINE ABOVE nor into each other -- one
+    # constant per consuming SUBJECT. S-488 is how many entrances one group
+    # lays in a row (FR-053), S-489 is the armed-name label's font size
+    # (IC-54). Both are drawn inside the palette by command-palette-drawing.ts.
+    'NOT_STORED_PALETTE_ROW_CAP': (['S-488'], DRAWN_INSIDE_THE_COMMAND_PALETTE),
+    'NOT_STORED_ARMED_LABEL_SIZES': (['S-489'], DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
     # NOT FOLDED INTO THE LINE ABOVE. S-248 is the least width FR-052 lets the
     # properties panel be drawn at, and TWO units read it that may not import
@@ -2997,6 +3003,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
      + search_panel_font_sizes_block() + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_PALETTE_ROW_CAP') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ARMED_LABEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CONFIRMATION_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
@@ -3226,6 +3234,8 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_HELP_SIZES',
         'NOT_STORED_ICON_SIZES',
         'NOT_STORED_PALETTE_GROUP_RULE_SIZES',
+        'NOT_STORED_PALETTE_ROW_CAP',
+        'NOT_STORED_ARMED_LABEL_SIZES',
         'NOT_STORED_PROPERTY_FIELD_SIZES',
         'NOT_STORED_RESOURCE_ROSTER_SIZES',
         'NOT_STORED_ROW_BAND_SIZES',
