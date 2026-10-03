@@ -314,7 +314,7 @@ interface Telling {
 /** @purity pure */
 function tellingIn(said: string): Telling | null {
   const [name, planned] = said.trim().split('\n')
-  const day = '((?:\\d{2}/)?\\d{1,2}/\\d{1,2} \\([^)]+\\))'
+  const day = '((?:\\d{4}/)?\\d{1,2}/\\d{1,2} \\([^)]+\\))'
   const found = new RegExp(`^[^:]+: ${day} - ${day}$`).exec((planned ?? '').trim())
   if (found === null) return null
   return { name: (name ?? '').trim(), start: found[1] ?? '', finish: found[2] ?? '' }

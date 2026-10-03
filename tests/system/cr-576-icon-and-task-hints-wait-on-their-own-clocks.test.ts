@@ -71,7 +71,7 @@ const HINTS: ReadonlyMap<string, readonly string[]> = new Map(
 
 // see EZ-6
 // see TL-5, TL-10, TL-11
-const TELLING = /: (?:\d{2}\/)?\d{1,2}\/\d{1,2} \([^)]+\) - (?:\d{2}\/)?\d{1,2}\/\d{1,2} \([^)]+\)/
+const TELLING = /: (?:\d{4}\/)?\d{1,2}\/\d{1,2} \([^)]+\) - (?:\d{4}\/)?\d{1,2}\/\d{1,2} \([^)]+\)/
 
 // WHY: "a few pixels" of claim 3 -- small enough to stay inside an entrance of the App Header.
 const WIGGLE_PX = 2
