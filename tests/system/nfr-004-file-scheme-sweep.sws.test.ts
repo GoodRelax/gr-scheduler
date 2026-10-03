@@ -149,7 +149,7 @@ const HOST_STUB = `
       try { return await inner(...args) } catch (thrown) { return undefined }
     }
   }
-  const handle = (name) => ({
+  const handle = (name, text = '') => ({
     kind: 'file',
     name,
     async createWritable() {
@@ -160,14 +160,19 @@ const HOST_STUB = `
     },
     async queryPermission() { return 'granted' },
     async requestPermission() { return 'granted' },
-    async getFile() { return new File([''], name) },
+    async getFile() { return new File([text], name) },
   })
   window.showSaveFilePicker = async (options) => {
     const name = (options && options.suggestedName) || 'unnamed'
     window.__grsAsked.push(name)
     return handle(name)
   }
-  window.showOpenFilePicker = async () => [handle('handed.json')]
+  // WHY: the shell binds this picker once at boot, so a probe that hands a
+  // WHY: file of its own (GR-27) fills this slot rather than replacing the picker.
+  window.__grsNextOpen = null
+  window.showOpenFilePicker = async () => [
+    window.__grsNextOpen ? handle(window.__grsNextOpen.name, window.__grsNextOpen.text) : handle('handed.json'),
+  ]
 `
 
 const READ_SCRIPT = `(() => {
@@ -779,6 +784,57 @@ async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | 
   })
 }
 
+// see GR-28, SV-18
+async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: number } | null> {
+  return page.evaluate(() => {
+    const cell = document.querySelector('[data-role="Search Panel"] thead th')
+    if (cell === null) return null
+    const r = cell.getBoundingClientRect()
+    if (r.width < 1 || r.height < 1) return null
+    return { border: { x: Math.round(r.right - 1), y: Math.round(r.top + r.height / 2) }, width: r.width }
+  })
+}
+
+// WHY: the Agent API (FR-065) is the one road that sets a value or reads the
+// WHY: document without pressing a row of the population, so the two setUps
+// WHY: of GR-26 and GR-27 below take it rather than a probed gesture.
+// see FR-065, IC-20
+async function openAgentApi(page: Page): Promise<void> {
+  const isOpen = await page.evaluate(() => (window as unknown as { grSchedulerAgentApi?: unknown }).grSchedulerAgentApi !== undefined)
+  if (isOpen) return
+  await press(page, 'IC-20')
+  await page.waitForTimeout(600)
+}
+
+// WHY: the figure key is `task-<uid>-...` (svg-renderer.ts), so the uid of the
+// WHY: bar under a point is read off whatever part of it the point lands on.
+async function taskUidAt(page: Page, at: Spot): Promise<number> {
+  const uid = await page.evaluate((point: Spot) => {
+    const top = document.elementFromPoint(point.x, point.y)
+    const key = top?.closest('[data-figure]')?.getAttribute('data-figure') ?? ''
+    const found = /^task-(\d+)-/.exec(key)
+    return found === null ? null : Number(found[1])
+  }, at)
+  if (uid === null) throw new Error(`no task figure lies under (${String(at.x)}, ${String(at.y)})`)
+  return uid
+}
+
+const DAY_MS = 86_400_000
+
+// WHY: the tooltip's words are what TL-2 / TL-3 of table T-348 change, so a
+// WHY: hover is judged by them and not by a role that is always in the page.
+// see EZ-6, T-348
+async function tooltipWordsAfterResting(page: Page, at: Spot, away: Spot | null): Promise<{ before: string; after: string }> {
+  const words = async (): Promise<string> =>
+    page.evaluate(() => (document.querySelector('[data-role="Tooltip"]')?.textContent ?? '').trim())
+  if (away !== null) await page.mouse.move(away.x, away.y)
+  await page.waitForTimeout(400)
+  const before = await words()
+  await page.mouse.move(at.x, at.y)
+  await page.waitForTimeout(2_000)
+  return { before, after: await words() }
+}
+
 interface Box4 {
   readonly x: number
   readonly y: number
@@ -1161,9 +1217,16 @@ const PROBES: readonly Probe[] = [
           const r = band.getBoundingClientRect()
           if (r.width < 1 || r.height < 1) return null
           const x = Math.round(r.left + r.width / 2)
-          const y = Math.round(r.top + Math.min(r.height / 2, 200))
-          const top = document.elementFromPoint(x, y)
-          return { x, y, hit: top === band }
+          const palette = document.querySelector('[data-role="Command Palette"]')
+          // WHY: table T-337 draws the Command Palette (UZ-5) in front of this
+          // WHY: band (UZ-10), and its first corner sits on the Row Area's edge,
+          // WHY: so a stretch it covers is passed over rather than read as GR-22's.
+          for (let y = Math.round(r.top + Math.min(r.height / 2, 200)); y < r.bottom - 4; y += 40) {
+            const top = document.elementFromPoint(x, y)
+            if (top !== null && palette !== null && palette.contains(top)) continue
+            return { x, y, hit: top === band }
+          }
+          return null
         })
       const before = await bandAt()
       if (before === null) throw new Error('GR-22 needs a Panel Divider band (U-24) on the screen')
@@ -1425,6 +1488,8 @@ const PROBES: readonly Probe[] = [
     act: async (p) => stroke(p, 'Enter'),
   },
   { rows: ['SK-21'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+r') },
+  // WHY: calm answers the FR-095 question with No, so nothing is discarded.
+  { rows: ['SK-25'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'n') },
   { rows: ['SK-24'], expect: 'answers', act: async (p) => stroke(p, 'Control+f') },
   {
     // WHY: the act judges for itself, as GR-22's does -- a redraw alone would read as moved.
@@ -1456,6 +1521,23 @@ const PROBES: readonly Probe[] = [
       const after = await searchPanelPlaces(p)
       if (after === null || after.box.width === before.box.width) {
         throw new Error('GR-25: the right edge of the Search Panel was dragged and its width stayed (SV-11; DFC-1286: S-426 has no value)')
+      }
+      return held
+    },
+  },
+  {
+    // WHY: the act judges for itself, as GR-24's does -- a redraw alone would read as moved.
+    rows: ['GR-28'],
+    expect: 'answers',
+    setUp: async (p) => { await p.keyboard.press('Control+f'); await p.waitForTimeout(400) },
+    act: async (p) => {
+      const before = await searchColumnBorder(p)
+      if (before === null) throw new Error('GR-28 needs the Search Panel heading row (SK-24 opens it)')
+      const held = await dragFrom(p, before.border, 60, 0)
+      await settled(p)
+      const after = await searchColumnBorder(p)
+      if (after === null || after.width === before.width) {
+        throw new Error('GR-28: the first column border of the Search Panel was dragged and the column kept its width (SV-18)')
       }
       return held
     },
@@ -1506,6 +1588,155 @@ const PROBES: readonly Probe[] = [
     rows: ['IO-6'],
     expect: 'answers',
     act: async (p) => press(p, 'IC-3'),
+  },
+
+  {
+    // WHY: late in the list -- the copy is a new bar, and the widest-bar
+    // WHY: geometry of the probes before it should not have to step round it.
+    // see FR-033, T-308
+    rows: ['MK-15', 'PTD-7'],
+    expect: 'answers',
+    setUp: selectBar,
+    act: async (p, g) => {
+      await p.keyboard.down('Control')
+      const held = await dragFrom(p, g.barBody, 120, 60)
+      await p.keyboard.up('Control')
+      return held
+    },
+  },
+  {
+    // WHY: GR-26 answers a resting pointer only (EZ-6), so the act judges the tooltip's
+    // WHY: words; the deadline sits a little past the bar's finish, where nothing else is drawn.
+    rows: ['GR-26'],
+    expect: 'answers',
+    setUp: async (p, g) => {
+      await openAgentApi(p)
+      const uid = await taskUidAt(p, g.barBody)
+      const pxPerDay = await p.evaluate(
+        (asked: { uid: number; width: number; dayMs: number }) => {
+          const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): { schedule: { tasks: { uid: number; start: string; finish: string }[] } } } }).grSchedulerAgentApi
+          const task = api.readDocument().schedule.tasks.find((one) => one.uid === asked.uid)
+          if (task === undefined) return null
+          const days = (Date.parse(`${task.finish}Z`) - Date.parse(`${task.start}Z`)) / asked.dayMs
+          return days > 0 ? asked.width / days : null
+        },
+        { uid, width: g.barFinish.x - g.barStart.x, dayMs: DAY_MS },
+      )
+      if (pxPerDay === null) throw new Error(`GR-26: task ${String(uid)} has no plan span to set a deadline past`)
+      const pastFinishDays = Math.max(1, Math.ceil(30 / pxPerDay))
+      const accepted = await p.evaluate(
+        async (asked: { uid: number; days: number; dayMs: number }) => {
+          const api = (window as unknown as {
+            grSchedulerAgentApi: {
+              readDocument(): { schedule: { tasks: { uid: number; finish: string }[] } }
+              readStamp(): unknown
+              applyCommands(request: unknown): Promise<{ accepted: boolean }>
+            }
+          }).grSchedulerAgentApi
+          const task = api.readDocument().schedule.tasks.find((one) => one.uid === asked.uid)
+          if (task === undefined) return false
+          const deadline = new Date(Date.parse(`${task.finish}Z`) + asked.days * asked.dayMs).toISOString().slice(0, 19)
+          const answer = await api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskDeadline', uid: asked.uid, deadline }] })
+          return answer.accepted
+        },
+        { uid, days: pastFinishDays, dayMs: DAY_MS },
+      )
+      if (!accepted) throw new Error(`GR-26: the Agent API refused a deadline on task ${String(uid)}`)
+    },
+    act: async (p, g) => {
+      const uid = await taskUidAt(p, g.barBody)
+      const mark = await p.evaluate((wanted: string) => {
+        const drawn = document.querySelector(`[data-figure="${wanted}"]`)
+        if (drawn === null) return null
+        const r = drawn.getBoundingClientRect()
+        return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) }
+      }, `task-${String(uid)}-deadline`)
+      if (mark === null) throw new Error(`GR-26: no deadline mark was drawn for task ${String(uid)} (FR-045)`)
+      const words = await tooltipWordsAfterResting(p, mark, g.empty)
+      if (words.after === '' || words.after === words.before) {
+        throw new Error(`GR-26: resting on the deadline mark of task ${String(uid)} put up no new explanation (EZ-6, TL-2)`)
+      }
+      return null
+    },
+  },
+  {
+    // WHY: the overlay is the document with every task moved back half its span, so half
+    // WHY: of each outline lies clear of its own bar (GR-27 yields to GR-23 where they overlap).
+    rows: ['GR-27'],
+    expect: 'answers',
+    setUp: async (p) => {
+      await openAgentApi(p)
+      const movedBack = await p.evaluate((dayMs: number) => {
+        const api = (window as unknown as { grSchedulerAgentApi: { exportJson(): unknown } }).grSchedulerAgentApi
+        const exported = api.exportJson() as { value?: unknown } | string
+        const text = typeof exported === 'string' ? exported : String(exported.value ?? '')
+        const exportedDocument = JSON.parse(text) as { schedule: { tasks: { start: string | null; finish: string | null }[] } }
+        let count = 0
+        for (const task of exportedDocument.schedule.tasks) {
+          if (task.start === null || task.finish === null) continue
+          const start = Date.parse(`${task.start}Z`)
+          const finish = Date.parse(`${task.finish}Z`)
+          if (!(finish > start)) continue
+          const back = Math.ceil((finish - start) / dayMs / 2) * dayMs
+          task.start = new Date(start - back).toISOString().slice(0, 19)
+          task.finish = new Date(finish - back).toISOString().slice(0, 19)
+          count += 1
+        }
+        ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = {
+          name: 'baseline.grs.json',
+          text: JSON.stringify(exportedDocument),
+        }
+        return count
+      }, DAY_MS)
+      if (movedBack === 0) throw new Error('GR-27: the Agent API exported no task with a plan span to move back')
+      try {
+        await press(p, 'IC-4')
+        await p.waitForTimeout(1_500)
+      } finally {
+        await p.evaluate(() => {
+          ;(window as unknown as { __grsNextOpen: unknown }).__grsNextOpen = null
+        })
+      }
+    },
+    act: async (p, g) => {
+      // WHY: any drawn outline of a bar will do (a milestone's diamond leaves its
+      // WHY: box corners empty); up to a few are rested on, each clear of panels and bars.
+      const found = await p.evaluate(() => {
+        const canvas = document.querySelector('[data-role="Schedule Canvas"]')
+        if (canvas === null) return { drawn: 0, spots: [] }
+        const area = canvas.getBoundingClientRect()
+        const outlines = [...canvas.querySelectorAll('[data-figure$="-baseline"]')]
+        const spots: { key: string; x: number; y: number }[] = []
+        for (const outline of outlines) {
+          const key = outline.getAttribute('data-figure') ?? ''
+          const plan = canvas.querySelector(`polygon[data-figure="${key.replace(/-baseline$/, '-plan')}"]`)
+          if (plan === null) continue
+          const o = outline.getBoundingClientRect()
+          const right = Math.min(o.right, plan.getBoundingClientRect().left)
+          if (right - o.left < 4 || o.height < 4) continue
+          const x = Math.round((o.left + right) / 2)
+          const y = Math.round(o.top + o.height / 2)
+          if (x < area.left + 8 || x > area.right - 8 || y < area.top + 8 || y > area.bottom - 8) continue
+          const top = document.elementFromPoint(x, y)
+          if (top === null || !canvas.contains(top)) continue
+          const over = top.closest('[data-figure]')?.getAttribute('data-figure') ?? ''
+          if (/^task-\d+-(?:plan|actual|label|deadline)/.test(over)) continue
+          spots.push({ key, x, y })
+          if (spots.length === 4) break
+        }
+        return { drawn: outlines.length, spots }
+      })
+      if (found.spots.length === 0) {
+        throw new Error(`GR-27: of ${String(found.drawn)} outlines drawn, none has a clear half in the open schedule area (FR-015, BL-2)`)
+      }
+      const tried: string[] = []
+      for (const spot of found.spots) {
+        const words = await tooltipWordsAfterResting(p, spot, g.empty)
+        if (words.after !== '' && words.after !== words.before) return null
+        tried.push(`${spot.key} at (${String(spot.x)}, ${String(spot.y)}): ${JSON.stringify(words.before)} -> ${JSON.stringify(words.after)}`)
+      }
+      throw new Error(`GR-27: resting on an outline put up no new explanation (EZ-6, TL-3): ${tried.join('; ')}`)
+    },
   },
 
   // WHY: GR-21 moves the display position, and geometryOf takes the widest

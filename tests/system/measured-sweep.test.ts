@@ -310,6 +310,9 @@ const TOOLTIP_TEXT_SCALE = numberIn(cellOf(T206, 'S-204', T206_DEFAULT, T206_COL
  */
 const SAVED_AT_TEXT_SCALE = numberIn(cellOf(T206, 'S-210', T206_DEFAULT, T206_COLUMNS), 'T-206 S-210')
 
+// see S-235, HS-7
+const HEADER_SCALE = numberIn(cellOf(T206, 'S-235', T206_DEFAULT, T206_COLUMNS), 'T-206 S-235')
+
 /**
  * `S-124` (`iconHintDelayMs`) of table T-212: how long a pointer rests before
  * an explanation is put up. `FR-092` row `EZ-2` (MUST) has one value for every
@@ -495,6 +498,51 @@ function pressable(cell: string): string {
   return said.split(plus).join('+').replace(/\s+/g, '').replace(/^Ctrl\+/, 'Control+')
 }
 
+// see T-109
+/** @purity pure */
+function surfacesOf(cell: string): readonly string[] {
+  return Array.from(cell.matchAll(/`([^`]+)`/g), (one) => one[1] ?? '')
+}
+
+// see FR-036
+// WHY: read out of the sentence, found by its opening in code points (rule 03 section 5),
+// WHY: so a surface it gains is swept unedited; ASCII names drop the quoted column heading.
+/** @purity semi-pure-b */
+function helpBarred(): { readonly surfaces: ReadonlySet<string>; readonly rows: ReadonlySet<string> } {
+  const opening = `${String.fromCharCode(0x26d4)} ${String.fromCharCode(0x8868)} T-109 ` +
+    String.fromCharCode(0x306e, 0x3046, 0x3061)
+  const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const line = requirements.split(/\r?\n/).find((one) => one.startsWith(opening))
+  if (line === undefined) throw new Error('FR-036 no longer holds the sentence that keeps rows of table T-109 off the help')
+  const sentence = line.slice(0, line.indexOf('MUST NOT'))
+  const named = surfacesOf(sentence)
+  const rows = new Set(named.filter((one) => /^IC-\d+$/.test(one)))
+  const surfaces = new Set(
+    named.filter((one) => /^[A-Z][A-Za-z ]+$/.test(one) && one !== HELP_SURFACE_NAME),
+  )
+  if (surfaces.size === 0 || rows.size === 0) {
+    throw new Error('the FR-036 sentence that keeps rows off the help names no surface or no row')
+  }
+  return { surfaces, rows }
+}
+
+// see FR-036
+/** @purity semi-pure-b */
+function helpListedEntrances(): ReadonlySet<string> {
+  const barred = helpBarred()
+  return new Set(
+    T109.rows
+      .filter((row) => row.cells.length === T109_COLUMNS)
+      .filter((row) => {
+        const on = surfacesOf(row.cells[T109_PLACE] ?? '').filter((one) => one !== HELP_SURFACE_NAME)
+        if (on.length === 0) return false
+        if (on.every((one) => barred.surfaces.has(one))) return false
+        return !barred.rows.has(row.id)
+      })
+      .map((row) => row.id),
+  )
+}
+
 /**
  * The rows of table T-036 whose assignment is a bare key, with that key.
  *
@@ -508,6 +556,7 @@ function pressable(cell: string): string {
  * @purity pure
  */
 function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
+  const listed = helpListedEntrances()
   const out: Array<readonly [string, string, string]> = []
   for (const row of T036.rows) {
     if (!/^SK-/.test(row.id)) continue
@@ -517,7 +566,7 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
     // U+2014, the dash the manuscript writes where a row has no assignment.
     if (key === String.fromCharCode(0x2014)) continue
     const entrance = /IC-\d+/.exec(row.cells[T036_ENTRANCE] ?? '')
-    out.push([row.id, entrance === null ? row.id : entrance[0], key])
+    out.push([row.id, entrance === null || !listed.has(entrance[0]) ? row.id : entrance[0], key])
   }
   if (out.length < 10) {
     throw new Error(`table T-036 gave only ${out.length} rows with a bare key; this file needs more`)
@@ -639,7 +688,8 @@ const CANVAS = '[data-role="Schedule Canvas"] svg'
 const TOOLTIP = '[data-role="Tooltip"]'
 const PANEL = '[data-role="Properties Panel"]'
 const PALETTE = '[data-role="Command Palette"]'
-const HELP = '[data-role="Help Modal"]'
+const HELP_SURFACE_NAME = 'Help Modal'
+const HELP = `[data-role="${HELP_SURFACE_NAME}"]`
 const HEADER_FILE_STATUS = '[data-role="File Status"]'
 const HEADER_FILE_NAME = '[data-role="Opened File Name"]'
 const HEADER_SAVED_AT = '[data-role="File Saved At"]'
@@ -1303,15 +1353,16 @@ test('DFC-65: the header stamp is drawn at S-210 of the ground text, and says so
   expect(drawn, 'the header has no File Saved At part').not.toBeNull()
   if (drawn === null) return
 
+  const headerGround = ground * HEADER_SCALE
   expect(
     drawn.stampPx,
-    `the stamp is drawn at ${drawn.stampPx}px, and S-210 (${SAVED_AT_TEXT_SCALE}) of the ground ` +
-      `text (${ground}px) is ${ground * SAVED_AT_TEXT_SCALE}px`,
-  ).toBeCloseTo(ground * SAVED_AT_TEXT_SCALE, 1)
+    `the stamp is drawn at ${drawn.stampPx}px, and HS-7 puts it at S-210 (${SAVED_AT_TEXT_SCALE}) of ` +
+      `S-235 (${HEADER_SCALE}) of the ground text (${ground}px), ${headerGround * SAVED_AT_TEXT_SCALE}px`,
+  ).toBeCloseTo(headerGround * SAVED_AT_TEXT_SCALE, 1)
   expect(
     drawn.stampPx,
-    'the stamp is drawn at the ground size, so the coefficient reaches nothing',
-  ).not.toBeCloseTo(ground, 1)
+    'the stamp is drawn at the header ground size, so the coefficient reaches nothing',
+  ).not.toBeCloseTo(headerGround, 1)
 
   const words = neverSavedWords()
   expect(
@@ -1534,14 +1585,19 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   // see FR-036
   // WHY: MK-15 joined the list with CR-558.
   const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15']
-  const t109Items = T109.rows.filter((row) => row.cells.length === T109_COLUMNS)
-  const foldedIntoOne = t109Items.filter((row) => (row.cells[T109_STANCE] ?? '').includes('AR-3')).length
-  const legendOnly = t109Items.filter((row) => (row.cells[T109_PLACE] ?? '').replace(/`/g, '').trim() === helpSurface).length
+  // WHY: CR-635 keeps the rows helpBarred names off the list, and CR-637 moves
+  // WHY: a key whose entrance item is not listed into the block of keys with no entrance.
+  const listedEntrances = helpListedEntrances()
+  const t109Listed = T109.rows.filter((row) => listedEntrances.has(row.id))
+  const foldedIntoOne = t109Listed.filter((row) => (row.cells[T109_STANCE] ?? '').includes('AR-3')).length
   const keysWithoutEntrance = T036.rows
     .filter((row) => /^SK-/.test(row.id) && row.cells.length === T036_COLUMNS)
     .filter((row) => {
       const dash = String.fromCharCode(0x2014)
-      return assignmentText(row.cells[T036_ENTRANCE] ?? '') === dash && assignmentText(row.cells[T036_ASSIGNMENT] ?? '') !== dash
+      if (assignmentText(row.cells[T036_ASSIGNMENT] ?? '') === dash) return false
+      if (assignmentText(row.cells[T036_ENTRANCE] ?? '') === dash) return true
+      const entrances = (row.cells[T036_ENTRANCE] ?? '').match(/IC-\d+/g) ?? []
+      return entrances.length > 0 && !entrances.some((one) => listedEntrances.has(one))
     }).length
   // see FR-036, T-255
   const combosOf = (cell: string): string[] =>
@@ -1554,7 +1610,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
     (row) => !combosOf(row.by['割当'] ?? '').some((one) => t036Combos.has(one)),
   ).length
   const owedItems =
-    t109Items.length - legendOnly - foldedIntoOne + keysWithoutEntrance + helpMouseRows.length + browserRowsListed
+    t109Listed.length - foldedIntoOne + keysWithoutEntrance + helpMouseRows.length + browserRowsListed
   expect(read.count, 'the help does not put up the item count FR-036 adds up to').toBe(owedItems)
 
   const wrongPlaces = read.shaped.filter((one) => one.places !== 3)
