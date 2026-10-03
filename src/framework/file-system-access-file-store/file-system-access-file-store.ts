@@ -97,13 +97,17 @@ export interface FileSystemAccessEnvironment {
   readonly dropSurface: DropSurface
 }
 
-// see FR-096, T-024
+// see FR-096, T-024, RW-7
+// TRAP: Chromium adds every extension it knows for a well-known media type (text/html brings .htm and .shtml),
+// so a type it maps to more than one extension goes under an unregistered x- key (DFC-1722, JDG-1165).
+// WHY: no description: the OS names the one extension in its own language; a word here would be one language.
 const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
   '.json': 'application/json',
   '.xml': 'application/xml',
-  '.svg': 'image/svg+xml',
+  '.svg': 'image/x-grs-svg',
   '.png': 'image/png',
-  '.html': 'text/html',
+  '.html': 'text/x-grs-html',
+  '.md': 'text/x-grs-markdown',
 }
 
 // see FR-096
