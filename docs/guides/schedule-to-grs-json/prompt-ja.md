@@ -32,7 +32,7 @@
 - 行の分け方の希望: ［例 原本の左端の見出しを行にする／担当ごとに行にする。無ければ原本の見た目どおり］
 - 色の合わせ方: ［パレット／自由。書かなければパレット］
   - パレット: 色は "white" "black" "dimgray"（濃い灰色）"lightgray"（薄い灰色）"red" "blue" "yellow" "green" "orange" "purple" "transparent"（透明）の 11 語から、原本に最も近いものを選ぶ。GRS の中で後から色を選び直せる
-  - 自由: 上の 11 語に加えて "#RRGGBB" の形の色も使ってよい。原本に近くなるが、GRS の色の選び肢には無い色になる
+  - 自由: 上の 11 語に加えて "#rrggbb/" の形の色も使ってよい（明るいテーマの色だけを書き、/ の後ろは空ける）。原本に近くなるが、GRS の色の選び肢には無い色になる
 
 # 作り方
 1. grs-skeleton.json を丸ごと写し、次の所だけを書き換える。それ以外の値（documentSettings・calendars・schemaVersion など）は変えない。
@@ -49,8 +49,8 @@
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
    - label に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
-   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、行が GRS の中で畳まれていたか・1 階層だけ開かれていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ開いたままにする "expanded"、縮小するまで配下をすべて開いたままにする "temporarilyExpanded"、行自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。height は null。
-   - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。帯に色が無ければ null。
+   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、行が GRS の中で畳まれていたか・1 階層だけ開かれていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ開いたままにする "expanded"、縮小するまで配下をすべて開いたままにする "temporarilyExpanded"、行自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editGroup は null（誰でも編集できる行）、minHeight は null。
+   - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。ただし行の色に "black" は使えない。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
    - GRS は 1 つの行の中のタスクを、開始日の早い順に、重ならない一番上の段へ自動で積む。そのため原本で横一列に並んでいた物が、同じ行の別の物に押されて段が崩れることがある。これを防ぐため、次のようにする。
@@ -94,8 +94,8 @@
      - 背景の色や透明へ薄れていくグラデーションは、濃い側の色を塗りにし、薄れる部分を 6. のフェードで表す。
      - 2 つの色のあいだのグラデーションは、バーの面積の広いほうの色（半々なら中央の色）を塗りにし、「合わせきれなかったこと」に書く。
    - 原本で最も多く使われているバーの色は null にし、代わりに project.themeHue をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。null の色は themeHue から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHue は 214 のままにする。
-   - lineWeight は輪郭の太さを、原本の中で比べて "thin" / "medium" / "thick" から選ぶ。違いが見えなければ null。
-   - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "lineWeight": 太さか null}
+   - strokeWidthPx は輪郭の太さを、原本の中で比べて 1 〜 10 の整数（px）で選ぶ。細い・中くらい・太いの 3 つに見えるなら 1 ・ 2 ・ 3。違いが見えなければ null。
+   - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "strokeWidthPx": 太さか null}
 9. 担当者（読み取れたときだけ）
    - resources に {"uid": 整数, "name": 担当者名, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当者の uid, "carry": {}, "carryElements": []}。uid はタスクと別に 1 から振ってよい。
 10. project
@@ -131,7 +131,7 @@
 - 「Draft the plan」: 終了側がグラデーションで薄れていくオレンジのバー（完了）。濃い側のオレンジを塗りにし、薄れる 5 日をフェードアウトにした
 - 「Plan approved」・「Budget review」・「Budget approved」: 同じ高さに並んだ ◇・灰色のバー・◇。形状は混ざっているが 1 本の並びなので、3 つを 1 つの子の行に載せ、見出しを "Approvals" とした。見出しの行には「Draft the plan」もあるので、子の行を作った
 
-これを `grs-skeleton.json` に差し込み、`schedule.project.uidHighWaterMark` を `4` にすると、スキーマに照らして通ります（2026-09-16 に照合）。原本で最も多い色が青なら、`schedule.project.themeHue` は `214` のままです。
+これを `grs-skeleton.json` に差し込み、`schedule.project.uidHighWaterMark` を `4` にすると、スキーマに照らして通ります（2026-10-03 に照合）。原本で最も多い色が青なら、`schedule.project.themeHue` は `214` のままです。
 
 ```json
 {
@@ -180,11 +180,11 @@
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "minHeight": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeight": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "minHeight": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeight": null
     }
   ],
   "taskGroupMembers": [
@@ -196,19 +196,19 @@
   "taskVisuals": [
     {
       "taskUid": 1, "shapeKind": "rectangle",
-      "milestoneGlyph": null, "fillColor": "orange", "strokeColor": "dimgray", "lineWeight": "medium"
+      "milestoneGlyph": null, "fillColor": "orange", "strokeColor": "dimgray", "strokeWidthPx": 2
     },
     {
       "taskUid": 2, "shapeKind": "milestone",
-      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
+      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "strokeWidthPx": null
     },
     {
       "taskUid": 3, "shapeKind": "rectangle",
-      "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "lineWeight": "thin"
+      "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "strokeWidthPx": 1
     },
     {
       "taskUid": 4, "shapeKind": "milestone",
-      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
+      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "strokeWidthPx": null
     }
   ]
 }
@@ -244,4 +244,4 @@ python -c "import json,sys,jsonschema; s=json.load(open('grs-document.schema.jso
 
 - 形の正は `docs/spec/_source/grs-document.schema.json`（`docs/spec/05-07-design.md` の 6.2）。本書の決まりはそこと、同じ 6.1 の `IV-` の行、`docs/spec/01-04-requirements.md` の表 T-052（4.1）、表 T-012a のフェード（`FD-`）、表 T-014 の積み方（`ST-`）、表 T-017 のパレット（`CL-`）から写した。仕様が変わったら本書・英語版・`grs-skeleton.json` を見直すこと。
 - パレットの色の綴り（`dimgray` など）は仕様がまだ決めていない（`PND-494`）。本書は GRS の起動時の雛形 `src/framework/single-html-shell/startup-template.json` が使う綴りに合わせた。
-- `grs-skeleton.json` は同じ雛形から、日程の中身を空にし行を 1 つだけ残して作った。⚠️ 生成物ではないので、`npm run gen:check` はずれを見ない。
+- `grs-skeleton.json` は同じ雛形から、日程の中身を空にし行を 1 つだけ残して作った。⚠️ 生成物ではないので、`npm run gen:check` はずれを見ない。見るのは `.claude/skills/spec-graph-check/check.sh` の検査 75（`check-guide-grs-json.py`）である —— `grs-skeleton.json` と、それに各プロンプトの形の例を差し込んだものをスキーマに照らし、プロンプトがスキーマに無い `TaskVisual` ・ `Project` ・ `TaskGroup` の鍵を名指すか、`TaskVisual` ・ `TaskGroup` の必須の鍵を書き落とすと赤にする。許す値について本文が言うことは読まない。

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 71 mechanical checks for the gr-scheduler specification.
+# All 72 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 54. (Recounted 2026-10-01 at the
+# The ranges today are 1 + 4 + 8 + 4 + 55. (Recounted 2026-10-03 at check 75
+# (the schedule-to-grs-json guide, DFC-1790): 54 + 1. Recounted 2026-10-01 at the
 # merge of check 74 (conflict markers, DFC-1461): 53 + 1. Recounted
 # 2026-09-26 at the
 # merge of checks 67-68 (parallel tools), 69-70 (CR-581),
@@ -335,6 +336,13 @@
 #          `npm run` script and every 検査 number that a rule of
 #          docs/development-rules/ names still exists. Check 0 keeps the
 #          links; this keeps the names. No baseline: 0
+#   75     check-guide-grs-json.py : the hand-written guide
+#          docs/guides/schedule-to-grs-json/ still yields a document the
+#          GRS JSON schema accepts -- grs-skeleton.json and each prompt's
+#          worked example validate, and a prompt names no TaskVisual /
+#          Project / TaskGroup key the schema lacks and leaves out no key
+#          TaskVisual / TaskGroup require. Nothing generates the guide, so
+#          gen:check never saw it drift (DFC-1790). No baseline: 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -945,6 +953,21 @@ section "74  no tracked text file holds a git conflict marker"
 # clean setext heading (0 hits) against the in-memory scanner.
 PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" || failed
+
+echo ""
+section "75  the schedule-to-grs-json guide still yields a document the schema accepts"
+# DFC-1790 (2026-10-03): grs-skeleton.json lacked the required
+# Project.sourceFormat and TaskGroup.editGroup, and both prompts told the AI
+# to write TaskVisual.lineWeight, which strokeWidthPx replaced -- MEASURED on
+# 633db463: 32 problems (2 in the skeleton, 15 in each prompt). The guide is
+# hand-written for app users who only download files, so no generator and no
+# gen:check stands behind it. It does NOT read what the prose says about
+# values (colour forms, ranges), nor whether ja and en agree; the in-app
+# prompt is gen:check's. --self-test feeds a skeleton without sourceFormat
+# and a prompt naming lineWeight and omitting editGroup, and is red unless
+# all three are reported and a clean pair reports none.
+PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

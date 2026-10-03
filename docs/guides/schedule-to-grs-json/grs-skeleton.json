@@ -25,7 +25,8 @@
       "importSeq": 0,
       "outlineBase": 1,
       "carry": {},
-      "carryElements": []
+      "carryElements": [],
+      "sourceFormat": "grs"
     },
     "calendars": [
       {
@@ -172,6 +173,7 @@
         "derivedFromTaskUid": null,
         "order": 0,
         "treeState": "auto",
+        "editGroup": null,
         "color": null,
         "minHeight": null
       }
