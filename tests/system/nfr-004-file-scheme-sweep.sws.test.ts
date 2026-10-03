@@ -1093,6 +1093,14 @@ const PROBES: readonly Probe[] = [
   { rows: ['AR-5'], expect: 'answers', act: async (p) => press(p, 'IC-35') },
   { rows: ['AR-6'], expect: 'answers', act: async (p) => press(p, 'IC-36') },
   {
+    // WHY: AR-7 armed by IC-142 selects a bar released without a drag; the arm
+    // WHY: is taken in setUp, as for AR-4, since arming changes the screen itself.
+    rows: ['AR-7'],
+    expect: 'answers',
+    setUp: async (p) => { await press(p, 'IC-142'); await p.waitForTimeout(300) },
+    act: async (p, g) => { await p.mouse.click(g.barBody.x, g.barBody.y); return null },
+  },
+  {
     // AR-1: 「解除は `Esc`」. Something has to be armed for the release to show.
     rows: ['AR-1'],
     expect: 'answers',
