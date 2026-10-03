@@ -94,7 +94,7 @@ function tipInkOf(anchor: TooltipAnchor): string {
 
 /** @purity pure */
 function pointTipStyle(left: number, top: number, ink: string): string {
-  return tooltipStyle() + `${ink}pointer-events:none;left:${left}px;top:${top}px;`
+  return tooltipStyle() + `${ink}left:${left}px;top:${top}px;`
 }
 
 // see IN-7, S-460

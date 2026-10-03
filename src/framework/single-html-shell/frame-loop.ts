@@ -432,10 +432,6 @@ const SEARCH_PANEL_SURFACE = 'Search Panel'
 // see U-30, FR-036
 const HELP_MODAL_SURFACE = 'Help Modal'
 
-// TRAP: this is table T-103's name for the Tooltip part (U-53); a wrong
-// literal hides an icon's hint as soon as the pointer reaches its box.
-const TOOLTIP_SURFACE = 'Tooltip'
-
 // see SV-2
 const SEARCH_WORD_ROW = 'SV-2'
 
@@ -1884,18 +1880,18 @@ const NO_HINT_TARGET: HintTarget = { icon: null, iconRow: null, hint: null, scro
 
 // see EZ-2, DFC-1720
 /** @purity pure */
-function iconRowOf(partUnderHint: ScreenPart | null): string | null {
-  return partUnderHint === null || partUnderHint.entry === null ? null : partUnderHint.rowGroupId
+function iconRowOf(partUnderPointer: ScreenPart | null): string | null {
+  return partUnderPointer === null || partUnderPointer.entry === null ? null : partUnderPointer.rowGroupId
 }
 
 // see EZ-2, EZ-6, FR-037, IN-3
 /** @purity pure */
-function hintTargetOf(partUnderHint: ScreenPart | null, hint: HintHolder | null): HintTarget {
+function hintTargetOf(partUnderPointer: ScreenPart | null, hint: HintHolder | null): HintTarget {
   return {
-    icon: partUnderHint?.entry ?? null,
-    iconRow: iconRowOf(partUnderHint),
+    icon: partUnderPointer?.entry ?? null,
+    iconRow: iconRowOf(partUnderPointer),
     hint,
-    scrollbarAxis: partUnderHint?.scrollbarAxis ?? null,
+    scrollbarAxis: partUnderPointer?.scrollbarAxis ?? null,
   }
 }
 
@@ -2070,8 +2066,6 @@ export function frameLoop(
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
   let hintReleasedEntry: IconId | null = null
-  // WHY: the part the pointer was on before it reached a shown box; the box belongs to that target (EZ-2).
-  let partUnderHint: ScreenPart | null = null
   let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
   let hintWalk: HintWalk | null = null
@@ -2317,10 +2311,10 @@ export function frameLoop(
           pointer: pointerAt,
           pointerRestedMs,
           hintTargetDwellMs,
-          iconUnderPointer: hintEntryOf(partUnderHint?.entry ?? null, hintReleasedEntry),
-          isPointerOnHelp: partUnderHint?.part === HELP_MODAL_SURFACE,
+          iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
+          isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
           hintHolderUnderPointer: hintWalk?.holder ?? null,
-          iconRowUnderPointer: iconRowOf(partUnderHint),
+          iconRowUnderPointer: iconRowOf(partUnderPointer),
           commandPaletteDraggedTo,
           rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
@@ -3286,7 +3280,7 @@ export function frameLoop(
   // tooltip both follow the target, never a move inside it.
   /** @purity non-pure */
   function noteHintTarget(frame: FrameValues): void {
-    const next = hintTargetOf(partUnderHint, hintWalk?.holder ?? null)
+    const next = hintTargetOf(partUnderPointer, hintWalk?.holder ?? null)
     if (isSameHintTarget(next, hintTarget)) return
     hintTarget = next
     beginHintTargetDwell()
@@ -3330,7 +3324,6 @@ export function frameLoop(
       if (hasMoved) beginPointerRest()
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
-      if (partUnderPointer?.part !== TOOLTIP_SURFACE) partUnderHint = partUnderPointer
       const entryUnder = partUnderPointer?.entry ?? null
       hintReleasedEntry = hintReleasedEntryAfter(hintReleasedEntry, input, pressed !== null, entryUnder)
       if (input.phase === 'down') {

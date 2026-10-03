@@ -399,10 +399,11 @@ export const STYLE = {
   dialogueMessage: 'line-height:1.5;',
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
+  // TRAP: none, or the box takes the press meant for the entrance under it (IN-3, UZ-2).
   tooltip:
     'position:absolute;width:max-content;white-space:normal;' +
     `padding:0.25em 0.5em;background:${PAINT.ground};` +
-    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
+    `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:none;`,
   hidden: 'display:none;position:absolute;',
 } as const
 
