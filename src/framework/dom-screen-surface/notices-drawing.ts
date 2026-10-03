@@ -20,9 +20,9 @@ const CONFIRMATION_PART_ATTRIBUTE = 'data-confirmation-part'
 
 type LinkedWords = Exclude<NonNullable<Notice['nextStepLinks']>[number], null>
 
-const LINK_TARGET = '_blank'
+export const LINK_TARGET = '_blank'
 
-const LINK_RELATION = 'noopener noreferrer'
+export const LINK_RELATION = 'noopener noreferrer'
 
 const LINK_KEPT_FROM_INPUT: readonly string[] = ['pointerdown', 'pointerup']
 

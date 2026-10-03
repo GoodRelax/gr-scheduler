@@ -24,9 +24,14 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenView, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
-import { dualCursorReadoutOf, tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  dualCursorReadoutOf,
+  guideCursorLabelOf,
+  tooltipsFromScreenView,
+} from '../../src/adapter/screen-renderer/tooltips'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { showDualCursorReadout } from '../../src/framework/dom-screen-surface/tooltips-drawing'
+import { NOT_STORED_HELP_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
   emptyScreenSession,
   type ScreenSession,
@@ -36,14 +41,28 @@ import { unbroken } from '../contract/spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const DC_3_THREE_LINES = '本モードにいるあいだ、ポインタのそばに 3 行を小さく示すこと（MUST）'
+const DC_3_BY_DATE =
+  '⭐ 左と右は、カーソル A（`date1`）とカーソル B（`date2`）の別ではなく、日付の順で名づけること（MUST）'
 const DC_3_FOLLOWING = '⭐ 追従している側の日付は、その線がいま立っている日とすること（MUST）'
-const DC_3_DATE = '線と字が同じ日を指す。日付は `yyyy/m/d` と書くこと（MUST）'
-const DC_3_SPAN = '⭐ 期間は、2 つの日付のうち早いほうを E、遅いほうを L として、`y/m/d (n days)` の形で書くこと（MUST）'
+const DC_3_DATE = '日付は、表 T-029 の `CU-3` の日付の札と同じ書き方で書くこと（MUST）'
+const DC_3_SPAN =
+  '⭐ 間隔は、2 つの日付のうち早いほうを E、遅いほうを L として、年・か月・日の数 y・m・d と暦日の数 n を 1 行に書くこと（MUST）'
+const DC_3_ZEROS = '⭐ y・m・d は、0 のときも省かずに 3 つとも書くこと（MUST）'
 const DC_3_ONE_DAY = 'n が 1 のときは `(1 day)` と書くこと（MUST）'
-const DC_3_UNDECIDED = '日付が決まっていない側は、その行の日付と期間の行を `—` で示すこと（MUST）'
-const DC_3_PLACE = '⭐ 置き方は、表 T-028 の `IN-3` が `FR-092` の `EZ-6` の説明に定める例外と同じとすること（MUST）'
-const DC_3_RIGHT = '⭐ ポインタの右に置くと画面の右端に収まらないときは、ポインタの左へ返すこと（MUST）'
-const DC_3_BOTTOM = 'ポインタの下に置くと画面の下端に収まらないときは、ポインタの上へ返すこと（MUST）'
+const DC_3_UNDECIDED =
+  '日付が 1 つしか決まっていないときは、決まっている日付を左の行に示し、右の行と間隔の行を `—` で示すこと（MUST）'
+const DC_3_PLACE =
+  '⭐ 置き方は、表 T-028 の `IN-7` の後段（ポインタの点に出す説明）に従い、ポインタを受け取らせないこと（MUST）'
+const IN_7_BELOW =
+  '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
+const IN_7_RIGHT =
+  '右端が窓の右端から `S-339` の内側に収まらないときは、右端をポインタの点の横の位置に揃え、ポインタの左へ返すこと（MUST）'
+const IN_7_LEFT =
+  'それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）'
+const IN_7_BOTTOM =
+  '下端が窓の下端から `S-339` の内側に収まらないときに限り、下端を点から `S-460` だけ上に揃え、ポインタの上へ返すこと（MUST）'
+const IN_7_NOT_ABOVE =
+  '上へ返しても上端が窓の上端から `S-339` の内側に収まらないときは、返さずに下に置くこと（MUST）'
 const DC_3_NO_EZ_6 = '⛔ 本モードにいるあいだ、`EZ-6` の説明を出してはならない（MUST NOT）'
 const DC_3_NOT_EXPORTED = '⛔ 書き出し（表 T-076）に出してはならない（MUST NOT）'
 const EZ_6_NOT_IN_MODE =
@@ -51,14 +70,19 @@ const EZ_6_NOT_IN_MODE =
 
 const CLAUSES = [
   DC_3_THREE_LINES,
+  DC_3_BY_DATE,
   DC_3_FOLLOWING,
   DC_3_DATE,
   DC_3_SPAN,
+  DC_3_ZEROS,
   DC_3_ONE_DAY,
   DC_3_UNDECIDED,
   DC_3_PLACE,
-  DC_3_RIGHT,
-  DC_3_BOTTOM,
+  IN_7_BELOW,
+  IN_7_RIGHT,
+  IN_7_LEFT,
+  IN_7_BOTTOM,
+  IN_7_NOT_ABOVE,
   DC_3_NO_EZ_6,
   DC_3_NOT_EXPORTED,
   EZ_6_NOT_IN_MODE,
@@ -70,10 +94,19 @@ describe('CR-550 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-const A_WORD = 'カーソルAの日付: '
-const B_WORD = 'カーソルBの日付: '
-const SPAN_WORD = 'カーソルA-Bの期間: '
+const LEFT_WORD = '左: '
+const RIGHT_WORD = '右: '
+const SPAN_WORD = '間隔: '
 const UNDECIDED = '—'
+// WHY: the CU-3 form, written out from the manuscript's examples (2026/04/01 is a Wednesday).
+const APRIL_2026: Readonly<Record<number, string>> = {
+  1: '2026/04/01 (水)',
+  2: '2026/04/02 (木)',
+  3: '2026/04/03 (金)',
+  10: '2026/04/10 (金)',
+  15: '2026/04/15 (水)',
+  20: '2026/04/20 (月)',
+}
 
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
@@ -160,12 +193,12 @@ type Mode = 'off' | 'placingDate1' | 'placingDate2'
 type Placed = { readonly date1: string; readonly date2: string } | null
 
 // WHY: DC-1 holds the two dates in the screen values (CR-572), no longer in the document.
-const sessionIn = (mode: Mode, placed: Placed = null): ScreenSession => ({
+const sessionIn = (mode: Mode, placed: Placed = null, language: 'ja' | 'en' = 'ja'): ScreenSession => ({
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    screenLanguage: 'ja',
-    helpLanguage: 'ja',
+    screenLanguage: language,
+    helpLanguage: language,
     dualCursorModeState: mode === 'off' ? { kind: 'off' } : { kind: 'on', child: { kind: mode } },
     dualCursor: mode === 'off' ? null : placed,
   },
@@ -204,8 +237,8 @@ const stageOf = (stored: Placed) => {
     expect(dateAtX(axis, x), 'premise: the point stands on that day').toEqual({ year, month, day })
     return { x, y: middleY }
   }
-  const readout = (mode: Mode, pointer: { x: number; y: number } | null) =>
-    dualCursorReadoutOf(regions, settings, sessionIn(mode, stored), readingsAt(pointer))
+  const readout = (mode: Mode, pointer: { x: number; y: number } | null, language: 'ja' | 'en' = 'ja') =>
+    dualCursorReadoutOf(regions, settings, sessionIn(mode, stored, language), readingsAt(pointer))
   return { settings, regions, layout, axis, pointOn, readout, middleY }
 }
 
@@ -225,20 +258,45 @@ describe('DC-3 -- the readout', () => {
     const stage = stageOf(STORED)
     const point = stage.pointOn(2026, 4, 10)
     const whileA = stage.readout('placingDate1', point)
-    expect(whileA?.lines[0], 'A follows: its line stands under the pointer').toBe(`${A_WORD}2026/4/10`)
-    expect(whileA?.lines[1], 'B stays where it was placed').toBe(`${B_WORD}2026/4/15`)
+    expect(whileA?.lines[0], 'A follows: its line stands under the pointer').toBe(`${LEFT_WORD}${APRIL_2026[10]}`)
+    expect(whileA?.lines[1], 'B stays where it was placed').toBe(`${RIGHT_WORD}${APRIL_2026[15]}`)
     const whileB = stage.readout('placingDate2', point)
-    expect(whileB?.lines[0]).toBe(`${A_WORD}2026/4/1`)
-    expect(whileB?.lines[1]).toBe(`${B_WORD}2026/4/10`)
+    expect(whileB?.lines[0]).toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
+    expect(whileB?.lines[1]).toBe(`${RIGHT_WORD}${APRIL_2026[10]}`)
+  })
+
+  it(DC_3_BY_DATE, () => {
+    const reversed = stageOf({ date1: '2026-04-15T00:00:00', date2: STORED.date2 })
+    const shown = reversed.readout('placingDate2', reversed.pointOn(2026, 4, 1))
+    expect(shown?.lines[0], 'date2 is the earlier day, so it stands on the left line').toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
+    expect(shown?.lines[1]).toBe(`${RIGHT_WORD}${APRIL_2026[15]}`)
+    const stage = stageOf(STORED)
+    const before = stage.readout('placingDate1', stage.pointOn(2026, 4, 10))
+    const past = stage.readout('placingDate1', stage.pointOn(2026, 4, 20))
+    expect(before?.lines[0], 'the following day is the earlier one').toBe(`${LEFT_WORD}${APRIL_2026[10]}`)
+    expect(past?.lines[0], 'past the standing day, the standing day moves to the left line').toBe(
+      `${LEFT_WORD}${APRIL_2026[15]}`,
+    )
+    expect(past?.lines[1]).toBe(`${RIGHT_WORD}${APRIL_2026[20]}`)
   })
 
   it(DC_3_DATE, () => {
     const stage = stageOf(STORED)
-    const shown = stage.readout('placingDate2', stage.pointOn(2026, 4, 3))
-    for (const line of (shown?.lines ?? []).slice(0, 2)) {
-      expect(line).toMatch(/: \d{4}\/[1-9]\d?\/[1-9]\d?$/)
-    }
-    expect(shown?.lines[0], 'no zero padding: 2026/4/1').toBe(`${A_WORD}2026/4/1`)
+    const point = stage.pointOn(2026, 4, 3)
+    const shown = stage.readout('placingDate2', point)
+    expect(shown?.lines[0], 'month and day padded to two digits').toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
+    const guided = sessionIn('off')
+    const label = guideCursorLabelOf(
+      stage.regions,
+      stage.settings,
+      { ...guided, screen: { ...guided.screen, guideCursorMode: 'single-vertical' } },
+      readingsAt(point),
+      [],
+    )
+    expect(label?.text, 'the CU-3 label of the same day').toBe(APRIL_2026[3])
+    expect(shown?.lines[1], 'the readout writes the day as the CU-3 label does').toBe(`${RIGHT_WORD}${label?.text}`)
+    const english = stage.readout('placingDate2', point, 'en')
+    expect(english?.lines[1]).toBe('Right: 2026/04/03 (Fri)')
   })
 
   it(DC_3_SPAN, () => {
@@ -247,6 +305,7 @@ describe('DC-3 -- the readout', () => {
       [[2026, 1, 31], [2026, 2, 28], [0, 1, 0, 28]],
       [[2026, 1, 31], [2026, 3, 1], [0, 1, 1, 29]],
       [[2024, 2, 29], [2025, 2, 28], [1, 0, 0, 365]],
+      [[2024, 1, 1], [2026, 3, 4], [2, 2, 3, 793]],
       [[2026, 4, 1], [2026, 4, 1], [0, 0, 0, 0]],
     ] as const
     for (const [a, b, [years, months, days, dayCount]] of examples) {
@@ -256,22 +315,35 @@ describe('DC-3 -- the readout', () => {
       expect(calendarSpanOf(l, e), `${b} .. ${a}`).toEqual({ years, months, days, dayCount })
     }
     const stage = stageOf(STORED)
-    expect(stage.readout('placingDate2', stage.pointOn(2026, 4, 15))?.lines[2]).toBe(`${SPAN_WORD}0/0/14 (14 days)`)
+    const at15 = stage.pointOn(2026, 4, 15)
+    expect(stage.readout('placingDate2', at15)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 14日 (14 days)`)
+    expect(stage.readout('placingDate2', at15, 'en')?.lines[2]).toBe('Interval: 0y 0m 14d (14 days)')
     const reversed = stageOf({ date1: '2026-04-15T00:00:00', date2: STORED.date2 })
     expect(reversed.readout('placingDate2', reversed.pointOn(2026, 4, 1))?.lines[2], 'A after B').toBe(
-      `${SPAN_WORD}0/0/14 (14 days)`,
+      `${SPAN_WORD}0年 0か月 14日 (14 days)`,
     )
+  })
+
+  it(DC_3_ZEROS, () => {
+    const stage = stageOf(STORED)
+    expect(stage.readout('placingDate2', stage.pointOn(2026, 4, 1))?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 0日 (0 days)`)
   })
 
   it(DC_3_ONE_DAY, () => {
     const stage = stageOf(STORED)
-    expect(stage.readout('placingDate2', stage.pointOn(2026, 4, 2))?.lines[2]).toBe(`${SPAN_WORD}0/0/1 (1 day)`)
+    const at2 = stage.pointOn(2026, 4, 2)
+    expect(stage.readout('placingDate2', at2)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 1日 (1 day)`)
+    expect(stage.readout('placingDate2', at2, 'en')?.lines[2]).toBe('Interval: 0y 0m 1d (1 day)')
   })
 
   it(DC_3_UNDECIDED, () => {
     const stage = stageOf(null)
     const shown = stage.readout('placingDate1', stage.pointOn(2026, 4, 10))
-    expect(shown?.lines).toEqual([`${A_WORD}2026/4/10`, `${B_WORD}${UNDECIDED}`, `${SPAN_WORD}${UNDECIDED}`])
+    expect(shown?.lines).toEqual([`${LEFT_WORD}${APRIL_2026[10]}`, `${RIGHT_WORD}${UNDECIDED}`, `${SPAN_WORD}${UNDECIDED}`])
+    const second = stage.readout('placingDate2', stage.pointOn(2026, 4, 10))
+    expect(second?.lines[0], 'the one known day is on the left line, whichever cursor holds it').toBe(
+      `${LEFT_WORD}${APRIL_2026[10]}`,
+    )
   })
 })
 
@@ -323,24 +395,37 @@ const drawnReadout = (at: { x: number; y: number }, room: { width: number; heigh
   return { style, left: px('left'), top: px('top'), box }
 }
 
-describe('DC-3 -- where the readout stands', () => {
-  it(DC_3_PLACE, () => {
+const OFFSET = NOT_STORED_HELP_SIZES['S-460']
+const MARGIN = NOT_STORED_HELP_SIZES['S-339']
+
+describe('DC-3 / IN-7 -- where the readout stands', () => {
+  it(`${DC_3_PLACE} / ${IN_7_BELOW}`, () => {
     const { style, left, top } = drawnReadout({ x: 100, y: 120 }, { width: 1000, height: 700 })
     expect(left).toBe(100)
-    expect(top).toBe(120)
+    expect(top, 'S-460 below the point').toBe(120 + OFFSET)
     expect(style).toContain('pointer-events:none')
   })
 
-  it(DC_3_RIGHT, () => {
+  it(IN_7_RIGHT, () => {
     const { left, top, box } = drawnReadout({ x: 900, y: 120 }, { width: 1000, height: 700 })
     expect(left, 'turned to the left of the pointer').toBe(900 - box.width)
-    expect(top).toBe(120)
+    expect(top).toBe(120 + OFFSET)
   })
 
-  it(DC_3_BOTTOM, () => {
+  it(IN_7_LEFT, () => {
+    const { left } = drawnReadout({ x: 100, y: 20 }, { width: 150, height: 700 })
+    expect(left, 'neither side fits: the left edge stands S-339 in').toBe(MARGIN)
+  })
+
+  it(IN_7_BOTTOM, () => {
     const { left, top, box } = drawnReadout({ x: 100, y: 680 }, { width: 1000, height: 700 })
-    expect(top, 'turned above the pointer').toBe(680 - box.height)
+    expect(top, 'turned above the pointer').toBe(680 - OFFSET - box.height)
     expect(left).toBe(100)
+  })
+
+  it(IN_7_NOT_ABOVE, () => {
+    const { top } = drawnReadout({ x: 100, y: 60 }, { width: 1000, height: 100 })
+    expect(top, 'neither fits: it stays below').toBe(60 + OFFSET)
   })
 })
 
@@ -388,6 +473,8 @@ describe('DC-3 -- the export', () => {
       'export',
       sessionIn('placingDate2', STORED).screen,
     )
-    for (const word of [A_WORD, B_WORD, SPAN_WORD, '2026/4/1', '(14 days)']) expect(svg).not.toContain(word)
+    for (const word of [LEFT_WORD, RIGHT_WORD, SPAN_WORD, APRIL_2026[1] as string, '(14 days)']) {
+      expect(svg).not.toContain(word)
+    }
   })
 })

@@ -24,11 +24,11 @@ export function appHeaderStyle(): string {
   return `${STYLE.appHeader}padding-left:${inset}px;`
 }
 
-// see EP-1, FR-051
+// see EP-1, FR-051, FR-039
 /** @purity pure */
 function documentTitleStyle(): string {
   const size = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
-  return `${STYLE.documentTitle}font-size:${size}px;`
+  return `${STYLE.documentTitle}font-size:${size}px;font-weight:${NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']};`
 }
 
 // see HS-2, FR-101

@@ -18,7 +18,11 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection, selectionWith } from '../../src/entity/document-model/selection/selection'
-import { domScreenSurface, type ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
+import {
+  NOT_STORED_HELP_SIZES,
+  domScreenSurface,
+  type ScreenTheme,
+} from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 import {
   descendants,
@@ -43,9 +47,11 @@ const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出�
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
 const Q34 = '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT）'
 const Q38 = '説明をポインタの点に出し、ポインタを受け取らせないこと（MUST）'
+const IN_7_BELOW =
+  '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38])('%s', (clause) => {
+  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38, IN_7_BELOW])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
@@ -300,17 +306,19 @@ describe('IN-3 / EZ-6 -- a task tooltip', () => {
     const TOOLTIP = bare(rowOf('T-103', 'U-53').by['確定名（英）'] ?? '')
     const tip: Tooltip = {
       anchor: { kind: 'task', taskUid: 3 },
-      text: 'A task 2026-09-01 / 2026-09-12',
+      text: 'A task',
       assignment: null,
       at: { x: 200, y: 150 },
     }
-    const built = stage({ 'App Header': 37 })
+    // WHY: a window the tip fits in below and to the right, so IN-7 leaves it at its first place.
+    const built = stage({ 'App Header': 37, [TOOLTIP]: 700 })
+    built.world.widthsByRole.set(TOOLTIP, 1000)
     domScreenSurface(wiringOf(built, THEME)).showScreenView(viewWith({ tooltips: [tip] }))
     const shown = oneByRole(built.root(), TOOLTIP).children[0] as FakeElement | undefined
     expect(shown, 'premise: the tooltip is drawn').toBeDefined()
     const style = styleMap(shown!)
     expect(style.get('pointer-events'), 'it takes no pointer').toBe('none')
     expect(Number.parseFloat(style.get('left') ?? 'NaN'), 'it stands at the pointer').toBe(200)
-    expect(Number.parseFloat(style.get('top') ?? 'NaN')).toBe(150)
+    expect(Number.parseFloat(style.get('top') ?? 'NaN'), IN_7_BELOW).toBe(150 + NOT_STORED_HELP_SIZES['S-460'])
   })
 })

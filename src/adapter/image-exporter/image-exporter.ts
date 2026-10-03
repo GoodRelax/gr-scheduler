@@ -117,9 +117,12 @@ function rectSvg(rect: ScreenRect, fill: string): string {
 }
 
 /** @purity pure */
-function textSvg(x: number, y: number, fontSizePx: number, text: string, ink: string): string {
+function textSvg(
+  x: number, y: number, fontSizePx: number, text: string, ink: string, weight: number | null = null,
+): string {
+  const weighted = weight === null ? '' : ` font-weight="${weight}"`
   return (
-    `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSizePx)}"` +
+    `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSizePx)}"${weighted}` +
     ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"` +
     ` fill="${ink}" xml:space="preserve">${escaped(text)}</text>`
   )
@@ -140,7 +143,8 @@ function appHeaderSvg(
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
   const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
   const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
-  return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene))
+  const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
+  return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
 }
 
 // see EP-3

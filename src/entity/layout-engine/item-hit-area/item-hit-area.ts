@@ -61,7 +61,13 @@ export interface Hit {
   readonly boxPart?: BoxPart
 }
 
-export type PointerResolution = 'press' | 'doubleClick'
+export type PointerResolution = 'press' | 'doubleClick' | 'hint'
+
+// see EZ-6, GR-23, GR-26, GR-27
+export interface HintHolder {
+  readonly kind: 'task' | 'deadline' | 'baseline'
+  readonly taskUid: number
+}
 
 // see T-206
 export type GrabSizes = typeof NOT_STORED_SIZES
@@ -1025,9 +1031,56 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
   return on ? { item: { kind: 'statusLine' }, grab: 'GR-16' } : null
 }
 
+// see GR-26, DA-2
+/** @purity pure */
+function deadlineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
+  for (const task of geometry.tasks) {
+    const mark = task.deadline ?? null
+    const box = mark === null ? null : boxOfPath(mark.outline)
+    if (box !== null && isInsideRect(x, y, box)) return { kind: 'deadline', taskUid: task.taskUid }
+  }
+  return null
+}
+
+// see GR-27, BL-2
+/** @purity pure */
+function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
+  for (const outline of geometry.baselineOutlines) {
+    const centre = centreOf(outline.box)
+    const across = Math.abs(x - centre.x) / (outline.box.width / 2)
+    const down = Math.abs(y - centre.y) / (outline.box.height / 2)
+    const isInside = outline.kind === 'diamond' ? across + down <= 1 : isInsideRect(x, y, outline.box)
+    if (isInside) return { kind: 'baseline', taskUid: outline.taskUid }
+  }
+  return null
+}
+
+// see EZ-6, GR-26, GR-27
+// WHY: the press rows in their printed order with the two hint rows set between; the first row holding the point answers, and one with no hint answers none.
+/** @purity pure */
+function hintPastNotesOf(
+  geometry: ScheduleGeometry,
+  shapes: readonly TaskShape[],
+  x: number,
+  y: number,
+  sizes: GrabSizes,
+): HintHolder | null {
+  const deadline = deadlineHintOf(geometry, x, y)
+  if (deadline !== null) return deadline
+  const pressed = scheduleShapeHitOf(geometry, shapes, x, y, sizes)
+  if (pressed === null) return baselineHintOf(geometry, x, y)
+  return pressed.item.kind === 'task' ? { kind: 'task', taskUid: pressed.item.taskUid } : null
+}
+
 // see T-023d
 // TRAP: keep the printed order -- the two labels, the notes, the schedule shapes, the status line;
 // sorting by row ID reverses it.
+export function itemAtPointer(
+  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint',
+): HintHolder | null
+export function itemAtPointer(
+  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving?: 'press' | 'doubleClick',
+): Hit | null
 /** @purity pure */
 export function itemAtPointer(
   geometry: ScheduleGeometry,
@@ -1035,7 +1088,7 @@ export function itemAtPointer(
   y: number,
   sizes: GrabSizes,
   resolving: PointerResolution = 'press',
-): Hit | null {
+): Hit | HintHolder | null {
   const shapes = geometry.tasks.map(shapeOf)
   if (resolving === 'doubleClick') {
     const label = labelHitOf(geometry, x, y)
@@ -1043,6 +1096,7 @@ export function itemAtPointer(
   }
   const onShape = shapes.some((one) => isOnTheDrawnShape(one, x, y))
   const note = noteHitOf(geometry, x, y, sizes, onShape)
+  if (resolving === 'hint') return note === null ? hintPastNotesOf(geometry, shapes, x, y, sizes) : null
   if (note !== null) return note
   const shape = scheduleShapeHitOf(geometry, shapes, x, y, sizes)
   if (shape !== null) return shape

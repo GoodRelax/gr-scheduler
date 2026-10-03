@@ -66,17 +66,20 @@ const DA_5_CENTRE = '箱の中心を予定と同じ中心に置くこと（MUST�
 const DA_5_TIER_ONE = '箱を 1 段目（表 T-271 の `XS-4`）に置くこと（MUST） —— 先端が 2 段目の予定の線を指す'
 const DA_5_MILESTONE = '箱の中心を予定の菱形と同じ中心に置くこと（MUST）'
 const DA_5_SAME_BAND = '箱はマーカーと同じ帯に収まる'
-const DA_6_NO_HIT = '印を当たり判定の対象にしてはならない（MUST NOT）'
-const DA_6_SAME_ANSWER = '印の上でポインタを押したとき・止めたときは、印が無いときと同じものが応える'
+const DA_6_NO_HIT = '⛔ 印を押しの当たり判定の対象にしてはならない（MUST NOT）'
+const DA_6_SAME_ANSWER = '⇒ 印の上でポインタを押したときは、印が無いときと同じものが応える'
+const DA_6_OWN_HINT = '⭐ 印の上でポインタを止めたときは、印そのものの説明を出すこと（MUST）'
 const DA_7_CUT = '`Row Area` の外に立つ印は、ほかの形と同じく `Row Area` の縁で切って描くこと（MUST）'
 const OC_9_WIDTH = '数える幅は、印の軸を中心とした矢じりの幅（表 T-304 の `DA-2`）とすること（MUST）'
 const OC_9_ONE_OCCUPATION = '形状から離れて立つ印も、形状とのあいだを含めて 1 つの占有として数えること（MUST）'
 const ZO_13_PLACE = '形と依存線より手前、イナズマ線と線の道具（`ZO-8`）・進捗マーカー（`ZO-3`）・札（`ZO-5`）より奥とする'
-const EZ_6_NEXT_LINE =
-  'そのタスクの `deadline` が `null` でないときは、次の行に、期限の語と `deadline` の日付を半角空白 1 つで区切って出すこと（MUST）'
-const EZ_6_THE_WORD = '期限の語は、プロパティパネルの期限の欄と同じ語（`FR-038` の辞書の `properties` の `PR-10` の語）とすること（MUST）'
-const EZ_6_NO_LINE = '`deadline` が `null` のときは、期限の行を出さないこと（MUST）'
-const EZ_6_ISO = '期限の日付も `YYYY-MM-DD` で書くこと（MUST）'
+const TL_9_LINE = '期限の語と `deadline` の日（`TL-10`）を、半角空白 1 つで区切って書くこと（MUST）'
+const TL_9_THE_WORD = '期限の語は、プロパティパネルの期限の欄と同じ語（`FR-038` の辞書の `properties` の `PR-10` の語）とすること（MUST）'
+const TL_9_NO_LINE = '`deadline` が `null` のときは、期限の行を出さないこと（MUST）'
+const TL_10_DAY = '月、`/`、日 の順とし、月も日も 0 で埋めない（表 T-251 の `ND-4` と同じ）'
+const TL_1_ORDER = '`TL-9` の期限を、この順に 1 行ずつ出すこと（MUST）'
+// WHY: 2026-03-20 is a Friday; TL-11 adds the weekday word of the dictionary's weekdays.
+const DAY_20 = { ja: '3/20 (金)', en: '3/20 (Fri)' } as const
 const IN_7_ONE_LINE = 'ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）'
 const EP_5_HAS_THE_MARK = '`Deadline Mark`（`U-63`）'
 
@@ -369,10 +372,12 @@ describe('CR-556 -- the clauses these cases quote still stand', () => {
     expect(anyRowText('T-038', 'OC-9')).toContain(OC_9_WIDTH)
     expect(anyRowText('T-038', 'OC-9')).toContain(OC_9_ONE_OCCUPATION)
     expect(anyRowText('T-020', 'ZO-13')).toContain(ZO_13_PLACE)
-    expect(anyRowText('T-040', 'EZ-6')).toContain(EZ_6_NEXT_LINE)
-    expect(anyRowText('T-040', 'EZ-6')).toContain(EZ_6_THE_WORD)
-    expect(anyRowText('T-040', 'EZ-6')).toContain(EZ_6_NO_LINE)
-    expect(anyRowText('T-040', 'EZ-6')).toContain(EZ_6_ISO)
+    expect(rowText('T-304', 'DA-6')).toContain(DA_6_OWN_HINT)
+    expect(anyRowText('T-348', 'TL-9')).toContain(TL_9_LINE)
+    expect(anyRowText('T-348', 'TL-9')).toContain(TL_9_THE_WORD)
+    expect(anyRowText('T-348', 'TL-9')).toContain(TL_9_NO_LINE)
+    expect(anyRowText('T-348', 'TL-10')).toContain(TL_10_DAY)
+    expect(anyRowText('T-348', 'TL-1')).toContain(TL_1_ORDER)
     expect(anyRowText('T-028', 'IN-7')).toContain(IN_7_ONE_LINE)
     expect(anyRowText('T-076', 'EP-5')).toContain(EP_5_HAS_THE_MARK)
   })
@@ -608,7 +613,7 @@ describe('DA-5 -- where the box stands down the row', () => {
   })
 })
 
-describe('DA-6 -- the mark takes no press and no hover', () => {
+describe('DA-6 -- the mark takes no press, and a rest on it tells its own hint', () => {
   const sizes = grabSizesOf()
   for (const [name, deadline] of [
     ['far right of the bar', day(20)],
@@ -633,6 +638,16 @@ describe('DA-6 -- the mark takes no press and no hover', () => {
       }
     })
   }
+
+  it(`DA-6 「${DA_6_OWN_HINT}」: a rest on the mark far right of the bar names the deadline hint`, () => {
+    const withMark = oneTask({ deadline: day(20) })
+    const tip = partsOf(markOf(withMark, 1).outline).tip
+    const centre = { x: tip.x, y: tip.y - 1 }
+    expect(itemAtPointer(withMark.whole as never, centre.x, centre.y, sizes, 'hint')).toEqual({
+      kind: 'deadline',
+      taskUid: 1,
+    })
+  })
 
   it('DA-6 control: far right of the bar, the tip of the mark is on no Task without it', () => {
     const without = oneTask({ deadline: null })
@@ -813,22 +828,20 @@ const taskTipOf = (task: Task, language: 'ja' | 'en'): string => {
 
 const HINTED = { uid: 3, name: 'a named task', start: day(2), finish: day(8) }
 
-describe('EZ-6 -- the tooltip names the deadline on a second line', () => {
+describe('TL-9 -- the tooltip names the deadline on its last line', () => {
   for (const language of ['ja', 'en'] as const) {
-    it(`EZ-6 「${EZ_6_NEXT_LINE}」 / 「${EZ_6_THE_WORD}」 / 「${EZ_6_ISO}」 (${language})`, () => {
+    it(`TL-9 「${TL_9_LINE}」 / 「${TL_9_THE_WORD}」 / 「${TL_10_DAY}」 (${language})`, () => {
       const plain = taskTipOf(taskOf({ ...HINTED, deadline: null }), language)
       const withDeadline = taskTipOf(taskOf({ ...HINTED, deadline: day(20) }), language)
       const lines = withDeadline.split('\n')
-      expect(lines).toHaveLength(2)
-      expect(lines[0], 'the first line is the tooltip without a deadline').toBe(plain)
-      expect(lines[1]).toBe(`${PR_10_WORD[language]} ${day(20).slice(0, 10)}`)
+      expect(lines.slice(0, -1).join('\n'), 'the lines before it are the tooltip without a deadline').toBe(plain)
+      expect(lines.at(-1)).toBe(`${PR_10_WORD[language]} ${DAY_20[language]}`)
     })
 
-    it(`EZ-6 「${EZ_6_NO_LINE}」 (${language})`, () => {
+    it(`TL-9 「${TL_9_NO_LINE}」 (${language})`, () => {
       const plain = taskTipOf(taskOf({ ...HINTED, deadline: null }), language)
-      expect(plain.includes('\n')).toBe(false)
       expect(plain.includes(PR_10_WORD[language])).toBe(false)
-      expect(plain, 'the first line still names the Task').toContain(HINTED.name)
+      expect(plain.split('\n')[0], 'the first line still names the Task').toBe(HINTED.name)
     })
   }
 
@@ -850,9 +863,9 @@ describe('IN-7 / S-7 -- the tooltip drawer shows each line as its own line', () 
     return tips[0] as FakeElement
   }
 
-  it(`IN-7 「${IN_7_ONE_LINE}」 with EZ-6's second line: one element per line, no line break character left in any`, () => {
-    const first = 'a named task 2026-03-02 / 2026-03-08'
-    const second = `${PR_10_WORD.ja} 2026-03-20`
+  it(`IN-7 「${IN_7_ONE_LINE}」 with TL-9's line: one element per line, no line break character left in any`, () => {
+    const first = 'a named task'
+    const second = `${PR_10_WORD.ja} ${DAY_20.ja}`
     const tip = drawnTip(`${first}\n${second}`)
     const all = selfAndDescendants(tip)
     expect(all.some((one) => one.textContent === first), 'the first line is one element').toBe(true)
@@ -861,7 +874,7 @@ describe('IN-7 / S-7 -- the tooltip drawer shows each line as its own line', () 
   })
 
   it('IN-7 control: a text without a line break stays one element holding the whole text', () => {
-    const text = 'a named task 2026-03-02 / 2026-03-08'
+    const text = 'a named task'
     expect(selfAndDescendants(drawnTip(text)).some((one) => one.textContent === text)).toBe(true)
   })
 })

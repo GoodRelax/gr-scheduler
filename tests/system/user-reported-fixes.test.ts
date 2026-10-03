@@ -310,11 +310,14 @@ interface Telling {
   readonly finish: string
 }
 
+// see TL-1, TL-4, TL-5
 /** @purity pure */
 function tellingIn(said: string): Telling | null {
-  const found = /^(.*?)\s*(\d{4}-\d{2}-\d{2})\s*\/\s*(\d{4}-\d{2}-\d{2})$/.exec(said.trim())
+  const [name, planned] = said.trim().split('\n')
+  const day = '((?:\\d{2}/)?\\d{1,2}/\\d{1,2} \\([^)]+\\))'
+  const found = new RegExp(`^[^:]+: ${day} - ${day}$`).exec((planned ?? '').trim())
   if (found === null) return null
-  return { name: found[1] ?? '', start: found[2] ?? '', finish: found[3] ?? '' }
+  return { name: (name ?? '').trim(), start: found[1] ?? '', finish: found[2] ?? '' }
 }
 
 async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: number; width: number; height: number }>> {
@@ -344,7 +347,8 @@ async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: numbe
 
 async function readTooltip(page: Page): Promise<string> {
   return page.evaluate(
-    (selector: string) => (document.querySelector(selector)?.textContent ?? '').trim(),
+    // WHY: innerText, not textContent: TL-1 puts each line in its own box, and only innerText keeps the breaks.
+    (selector: string) => ((document.querySelector(selector) as HTMLElement | null)?.innerText ?? '').trim(),
     TOOLTIP,
   )
 }
@@ -395,7 +399,7 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
     expect(
       told,
       `resting on the bar at (${first.x}, ${first.y}) said ${JSON.stringify(one.late)}, which is ` +
-        'not a name followed by start and finish as YYYY-MM-DD with a / between them (EZ-6)',
+        'not a name line followed by the plan line of table T-348 (TL-4, TL-5)',
     ).not.toBeNull()
     if (told === null) return
     expect(told.name, 'the telling carries no name at all').not.toBe('')

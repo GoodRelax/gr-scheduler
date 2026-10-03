@@ -18,6 +18,12 @@ import {
 
 const anchorRightOf = new WeakMap<Element, number>()
 
+const pointOf = new WeakMap<Element, Point>()
+
+type Point = { readonly x: number; readonly y: number }
+
+type Size = { readonly width: number; readonly height: number }
+
 const WINDOW_SIDES = 2
 
 const LINE_BREAK = '\n'
@@ -47,10 +53,8 @@ export function tooltipElement(
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
   if (tip.at !== undefined) {
-    drawn.setAttribute(
-      'style',
-      tooltipStyle() + `pointer-events:none;left:${tip.at.x}px;top:${tip.at.y}px;`,
-    )
+    drawn.setAttribute('style', pointTipStyle(tip.at.x, tip.at.y + NOT_STORED_HELP_SIZES['S-460']))
+    pointOf.set(drawn, tip.at)
     return drawn
   }
 
@@ -82,15 +86,40 @@ function appendTextLines(host: Document, drawn: HTMLElement, text: string): void
   }
 }
 
+/** @purity pure */
+function pointTipStyle(left: number, top: number): string {
+  return tooltipStyle() + `pointer-events:none;left:${left}px;top:${top}px;`
+}
+
+// see IN-7, S-460
+// WHY: one placing for every tip at the pointer's point (EZ-6, DC-3, CU-3); S-460 is never scaled.
+/** @purity pure */
+export function pointTipPlace(point: Point, size: Size, room: Size): { readonly left: number; readonly top: number } {
+  const offset = NOT_STORED_HELP_SIZES['S-460']
+  const margin = NOT_STORED_HELP_SIZES['S-339']
+  const rightTurned = point.x + size.width > room.width - margin ? point.x - size.width : point.x
+  const left = Math.max(margin, rightTurned)
+  const below = point.y + offset
+  const above = point.y - offset - size.height
+  const isTurnedUp = below + size.height > room.height - margin && above >= margin
+  return { left, top: isTurnedUp ? above : below }
+}
+
 // see EZ-2, IN-7
 // WHY: measured once, when shown: the surface places again only for a changed set, never for a resize (IN-7, JDG-728).
 /** @purity non-pure */
 export function keepTooltipsInside(layer: HTMLElement): void {
   const tooltips = Array.from(layer.children)
-  if (!tooltips.some((drawn) => anchorRightOf.has(drawn))) return
+  if (!tooltips.some((drawn) => anchorRightOf.has(drawn) || pointOf.has(drawn))) return
   const room = layer.getBoundingClientRect()
   const margin = NOT_STORED_HELP_SIZES['S-339']
   for (const drawn of tooltips) {
+    const point = pointOf.get(drawn)
+    if (point !== undefined) {
+      const placed = pointTipPlace(point, drawn.getBoundingClientRect(), room)
+      drawn.setAttribute('style', pointTipStyle(placed.left, placed.top))
+      continue
+    }
     const anchorRight = anchorRightOf.get(drawn)
     if (anchorRight === undefined) continue
     const size = drawn.getBoundingClientRect()
@@ -128,32 +157,42 @@ export function tooltipAnchorTable(root: HTMLElement) {
   return { anchorsOf, anchorFor }
 }
 
-// see DC-3, IN-3
+const shownPointTipOf = new WeakMap<Element, string>()
+
+// see DC-3, CU-3, IN-7
 // WHY: placed after it is in the layer, since only then does it have a size to turn back by.
 // TRAP: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
+/** @purity non-pure */
+function showPointTip(
+  host: Document,
+  layer: HTMLElement,
+  tip: { readonly lines: readonly string[]; readonly at: Point } | undefined,
+): void {
+  const key = tip === undefined ? '' : JSON.stringify(tip)
+  if (shownPointTipOf.get(layer) === key) return
+  shownPointTipOf.set(layer, key)
+  if (tip === undefined) {
+    if (layer.firstElementChild !== null) layer.replaceChildren()
+    return
+  }
+  const box = made(host, 'div', readoutStyle(tip.at.x, tip.at.y))
+  for (const line of tip.lines) {
+    const drawn = made(host, 'div', '')
+    drawn.textContent = line
+    box.append(drawn)
+  }
+  layer.replaceChildren(box)
+  const placed = pointTipPlace(tip.at, box.getBoundingClientRect(), layer.getBoundingClientRect())
+  box.setAttribute('style', readoutStyle(placed.left, placed.top))
+}
+
 /** @purity non-pure */
 export function showDualCursorReadout(
   host: Document,
   layer: HTMLElement,
   readout: ScreenView['dualCursorReadout'],
 ): void {
-  if (readout === undefined) {
-    if (layer.firstElementChild !== null) layer.replaceChildren()
-    return
-  }
-  const box = made(host, 'div', readoutStyle(readout.at.x, readout.at.y))
-  for (const line of readout.lines) {
-    const drawn = made(host, 'div', '')
-    drawn.textContent = line
-    box.append(drawn)
-  }
-  box.setAttribute('style', readoutStyle(readout.at.x, readout.at.y))
-  layer.replaceChildren(box)
-  const room = layer.getBoundingClientRect()
-  const size = box.getBoundingClientRect()
-  const x = readout.at.x + size.width > room.width ? readout.at.x - size.width : readout.at.x
-  const y = readout.at.y + size.height > room.height ? readout.at.y - size.height : readout.at.y
-  if (x !== readout.at.x || y !== readout.at.y) box.setAttribute('style', readoutStyle(x, y))
+  showPointTip(host, layer, readout)
 }
 
 /** @purity pure */

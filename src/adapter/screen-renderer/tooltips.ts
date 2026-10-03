@@ -9,12 +9,19 @@ import {
 } from '../../entity/document-model/document-settings/document-settings'
 import {
   calendarSpanOf,
+  compareDays,
   dayOf,
-  textOfDay,
+  serial,
+  type BaselineTask,
   type CalendarDay,
+  type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
-import { dateAtX, timeAxisOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  dateAtX,
+  labelledAssigneeUidOf,
+  timeAxisOf,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   ScreenRect,
   ScreenRegions,
@@ -28,7 +35,7 @@ import type {
   IconId,
   Tooltip,
 } from './screen-renderer'
-import { displayLanguageOf } from './screen-renderer'
+import { displayLanguageOf, rulerWeekdayWords } from './screen-renderer'
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 
@@ -56,7 +63,7 @@ const PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )
 
-const ASSIGNMENT_SEPARATOR = ' \uFF0F '
+const ASSIGNMENT_SEPARATOR = ' ／ '
 
 // see EZ-2, FR-036
 /** @purity pure */
@@ -77,22 +84,195 @@ function iconHint(icon: IconId, language: DisplayLanguage): string {
   return held.label[language] === '' ? icon : held.label[language]
 }
 
-const DAY_TIME_SEPARATOR = 'T'
+const DAYS_PER_WEEK = 7
 
+const WEEKDAY_OF_SERIAL_ZERO = 4
+
+// see TL-11, CU-3
 /** @purity pure */
-function dateText(stored: string | null): string {
-  const day = dayOf(stored)
-  if (day === null) return ''
-  return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
+function weekdayWordOf(day: CalendarDay, language: DisplayLanguage): string {
+  const weekday = (((serial(day) + WEEKDAY_OF_SERIAL_ZERO) % DAYS_PER_WEEK) + DAYS_PER_WEEK) % DAYS_PER_WEEK
+  return rulerWeekdayWords(language)[weekday] ?? ''
 }
 
-// see EZ-6
+// see TL-11, CU-3
 /** @purity pure */
-function taskHint(task: Task, language: DisplayLanguage): string {
+function withWeekday(written: string, day: CalendarDay, language: DisplayLanguage): string {
+  return `${written} (${weekdayWordOf(day, language)})`
+}
+
+const CURSOR_YEAR_DIGITS = 4
+const CURSOR_MONTH_DAY_DIGITS = 2
+
+// see CU-3, DC-3
+/** @purity pure */
+export function cursorDateText(day: CalendarDay, language: DisplayLanguage): string {
+  const padded = (value: number, width: number): string => String(value).padStart(width, '0')
+  const year = padded(day.year, CURSOR_YEAR_DIGITS)
+  const month = padded(day.month, CURSOR_MONTH_DAY_DIGITS)
+  const date = padded(day.day, CURSOR_MONTH_DAY_DIGITS)
+  return withWeekday(`${year}/${month}/${date}`, day, language)
+}
+
+const HINT_YEAR_DIGITS = 2
+
+// see TL-10, ND-4, ND-5
+// DEVIATION: spec says TL-10 writes a day as ND-4 / ND-5 do; the writer is name-label.ts planDateText, file only, so this is a copy (DFC-1785)
+/** @purity pure */
+function hintDayText(day: CalendarDay, isYearWritten: boolean, language: DisplayLanguage): string {
+  const monthDay = `${day.month}/${day.day}`
+  if (!isYearWritten) return withWeekday(monthDay, day, language)
+  const year = String(day.year % 10 ** HINT_YEAR_DIGITS).padStart(HINT_YEAR_DIGITS, '0')
+  return withWeekday(`${year}/${monthDay}`, day, language)
+}
+
+interface HintContext {
+  readonly assigneeNames: readonly string[]
+  readonly isYearWritten: boolean
+}
+
+const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false }
+
+// see ND-5
+// DEVIATION: spec says TL-10 judges the year as ND-5 does; the judgement is name-label.ts planDatesSpanYears, file only, so this is a copy (DFC-1785)
+/** @purity pure */
+function isYearWrittenIn(schedule: Schedule): boolean {
+  const years = new Set<number>()
+  for (const task of schedule.tasks) {
+    for (const text of [task.start, task.finish]) {
+      const day = dayOf(text)
+      if (day !== null) years.add(day.year)
+    }
+  }
+  return years.size > 1
+}
+
+// see TL-7, FR-059
+// WHY: asked of labelledAssigneeUidOf one name at a time, so FR-059's filter and order stay in ScheduleLayout alone.
+/** @purity pure */
+function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[] {
+  const names: string[] = []
+  let left = schedule
+  for (let next = labelledAssigneeUidOf(left, taskUid); next !== null; next = labelledAssigneeUidOf(left, taskUid)) {
+    const named = next
+    names.push(left.resources.find((one) => one.uid === named)?.name ?? '')
+    left = { ...left, resources: left.resources.filter((one) => one.uid !== named) }
+  }
+  return names
+}
+
+// see TL-7, TL-10
+/** @purity pure */
+function hintContextOf(schedule: Schedule | null, taskUid: number): HintContext {
+  if (schedule === null) return NO_HINT_CONTEXT
+  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule) }
+}
+
+const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
+const PLAN_LINE_ROW = 'TL-5'
+const ACTUAL_LINE_ROW = 'TL-6'
+const HINT_WORD_SEPARATOR = ': '
+const DAY_RANGE_SEPARATOR = ' -'
+const DEADLINE_NAME_SEPARATOR = ' : '
+const PERCENT_SIGN = '%'
+
+/** @purity pure */
+function hintLineWord(row: string, language: DisplayLanguage): string {
+  return HINT_LINE_WORDS.get(row)?.[language] ?? row
+}
+
+/** @purity pure */
+function deadlineWord(language: DisplayLanguage): string {
+  return DEADLINE_WORDS?.[language] ?? DEADLINE_ROW
+}
+
+// see TL-5, TL-6, ND-1
+/** @purity pure */
+function daysLine(
+  row: string,
+  first: CalendarDay,
+  last: CalendarDay | null,
+  isMilestone: boolean,
+  context: HintContext,
+  language: DisplayLanguage,
+): string {
+  const word = `${hintLineWord(row, language)}${HINT_WORD_SEPARATOR}`
+  const firstText = hintDayText(first, context.isYearWritten, language)
+  if (isMilestone) return `${word}${firstText}`
+  const lastText = last === null ? '' : ` ${hintDayText(last, context.isYearWritten, language)}`
+  return `${word}${firstText}${DAY_RANGE_SEPARATOR}${lastText}`
+}
+
+// see TL-5, ND-2, ND-3
+/** @purity pure */
+function planLine(
+  planned: Pick<Task, 'start' | 'finish' | 'milestone'>,
+  context: HintContext,
+  language: DisplayLanguage,
+): string | null {
+  const start = dayOf(planned.start)
+  const finish = dayOf(planned.finish)
+  const isMilestone = planned.milestone === true
+  if (start === null || (finish === null && !isMilestone)) return null
+  return daysLine(PLAN_LINE_ROW, start, finish, isMilestone, context, language)
+}
+
+// see TL-6, AT-34
+// TRAP: an unfinished actual stops at the dash; never write stop (FR-011) as its last day (TL-6 MUST NOT).
+/** @purity pure */
+function actualLine(task: Task, context: HintContext, language: DisplayLanguage): string | null {
+  const start = dayOf(task.actualStart)
+  if (start === null) return null
+  return daysLine(ACTUAL_LINE_ROW, start, dayOf(task.actualFinish), task.milestone === true, context, language)
+}
+
+// see TL-8, FR-090
+/** @purity pure */
+function percentLine(task: Task): string | null {
+  if (task.percentComplete === null || task.actualStart === null) return null
+  return `${task.percentComplete}${PERCENT_SIGN}`
+}
+
+// see TL-9, TL-2
+/** @purity pure */
+function deadlineDayText(task: Task, context: HintContext, language: DisplayLanguage): string | null {
+  const day = dayOf(task.deadline)
+  if (day === null) return null
+  return `${deadlineWord(language)} ${hintDayText(day, context.isYearWritten, language)}`
+}
+
+// see TL-1
+/** @purity pure */
+function taskHint(task: Task, context: HintContext, language: DisplayLanguage): string {
   const name = task.name ?? ''
-  const planned = `${name} ${dateText(task.start)} / ${dateText(task.finish)}`
-  if ((task.deadline ?? null) === null) return planned
-  return `${planned}${LINE_BREAK}${DEADLINE_WORDS?.[language] ?? DEADLINE_ROW} ${dateText(task.deadline)}`
+  const lines = [
+    name === '' ? null : name,
+    planLine(task, context, language),
+    actualLine(task, context, language),
+    ...context.assigneeNames,
+    percentLine(task),
+    deadlineDayText(task, context, language),
+  ]
+  return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
+}
+
+// see TL-2
+/** @purity pure */
+export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage): string | null {
+  const context = hintContextOf(schedule, task.uid)
+  const marked = deadlineDayText(task, context, language)
+  if (marked === null) return null
+  const name = task.name ?? ''
+  return name === '' ? marked : `${marked}${DEADLINE_NAME_SEPARATOR}${name}`
+}
+
+// see TL-3
+/** @purity pure */
+export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage): string {
+  const context = hintContextOf(schedule, baseline.uid)
+  const name = baseline.name ?? ''
+  const lines = [name === '' ? null : name, planLine(baseline, context, language)]
+  return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
 }
 
 /** @purity pure */
@@ -129,16 +309,20 @@ function iconTooltipOf(
   }
 }
 
-// see EZ-6, DC-3, S-439
+// see EZ-6, DC-3, S-439, TL-1
 /** @purity pure */
-function taskTooltipOf(session: ScreenSession, readings: ScreenViewReadings): Tooltip | null {
+function taskTooltipOf(
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+  schedule: Schedule | null,
+): Tooltip | null {
   const pointer = readings.pointer
   const task = readings.taskUnderPointer ?? null
   const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
   if (pointer === null || task === null || isDualCursorOn(session) || !isDue) return null
   return {
     anchor: { kind: 'task', taskUid: task.uid },
-    text: taskHint(task, displayLanguageOf(session)),
+    text: taskHint(task, hintContextOf(schedule, task.uid), displayLanguageOf(session)),
     assignment: null,
     at: pointer,
   }
@@ -151,12 +335,13 @@ export function tooltipsFromScreenView(
   _settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
+  schedule: Schedule | null = null,
 ): readonly Tooltip[] {
   if (session.screen.tooltipDisplayState.kind === 'dismissed') return []
 
   const pointer = readings.pointer
   const language = displayLanguageOf(session)
-  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings)]
+  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings, schedule)]
     .filter((one): one is Tooltip => one !== null)
 
   if (pointer === null) return tooltips
@@ -175,7 +360,6 @@ export function tooltipsFromScreenView(
 
 const READOUT_WORDS = new Map(displayWords.dualCursorReadout.map((one) => [one.line, one.text]))
 const UNKNOWN = '—'
-const YEAR_DIGITS = 4
 
 /** @purity pure */
 function isDualCursorOn(session: ScreenSession): boolean {
@@ -189,9 +373,8 @@ function readoutWord(line: string, language: DisplayLanguage): string {
 
 // see DC-3
 /** @purity pure */
-function readoutDate(day: CalendarDay | null): string {
-  if (day === null) return UNKNOWN
-  return `${String(day.year).padStart(YEAR_DIGITS, '0')}/${day.month}/${day.day}`
+function readoutDate(day: CalendarDay | null, language: DisplayLanguage): string {
+  return day === null ? UNKNOWN : cursorDateText(day, language)
 }
 
 // see DC-3
@@ -225,6 +408,17 @@ function readoutDays(
   }
 }
 
+// see DC-3
+/** @purity pure */
+function inDateOrder(
+  a: CalendarDay | null,
+  b: CalendarDay | null,
+): { readonly left: CalendarDay | null; readonly right: CalendarDay | null } {
+  if (a === null) return { left: b, right: null }
+  if (b === null) return { left: a, right: null }
+  return compareDays(a, b) <= 0 ? { left: a, right: b } : { left: b, right: a }
+}
+
 // see DC-3, IN-3, EZ-6
 /** @purity pure */
 export function dualCursorReadoutOf(
@@ -241,12 +435,39 @@ export function dualCursorReadoutOf(
   if (!isOverChart) return null
   const language = displayLanguageOf(session)
   const { date1, date2 } = readoutDays(regions, settings, session, pointer.x)
+  const { left, right } = inDateOrder(date1, date2)
   return {
     lines: [
-      readoutWord('a', language).replace('{date}', readoutDate(date1)),
-      readoutWord('b', language).replace('{date}', readoutDate(date2)),
-      readoutWord('span', language).replace('{span}', readoutSpan(date1, date2, language)),
+      readoutWord('left', language).replace('{date}', readoutDate(left, language)),
+      readoutWord('right', language).replace('{date}', readoutDate(right, language)),
+      readoutWord('span', language).replace('{span}', readoutSpan(left, right, language)),
     ],
     at: pointer,
   }
+}
+
+export interface GuideCursorLabel {
+  readonly text: string
+  readonly at: { readonly x: number; readonly y: number }
+}
+
+const GUIDE_CURSOR_NONE = 'none'
+
+// see CU-3, DC-9
+// WHY: tooltips is this frame's set: CU-3 stands down in the frame an EZ-6 tip (one placed at the point) is shown.
+/** @purity pure */
+export function guideCursorLabelOf(
+  regions: ScreenRegions,
+  settings: DocumentSettings,
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+  tooltips: readonly Tooltip[],
+): GuideCursorLabel | null {
+  const pointer = readings.pointer
+  if (pointer === null || session.screen.guideCursorMode === GUIDE_CURSOR_NONE) return null
+  if (isDualCursorOn(session) || !rectHoldsPoint(regions.rowArea, pointer.x, pointer.y)) return null
+  if (tooltips.some((one) => one.at !== undefined)) return null
+  const day = dateAtX(timeAxisOf(settings, regions), pointer.x)
+  if (day === null) return null
+  return { text: cursorDateText(day, displayLanguageOf(session)), at: pointer }
 }
