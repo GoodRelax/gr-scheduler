@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 38 | 254 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 159 | 3593 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 160 | 3612 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 382 | 6246 | 11 | 17 | 9 | 1 |
+| **all** | | | 383 | 6265 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -69,12 +69,12 @@ named either way: 1 of 11.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (159) -- listing only
+## 6. The unit files kept for now (160) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 15 of 159.
+`semi-pure-a` (rule 04 table UO, row UO-1): 16 of 160.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -147,6 +147,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-220, T-224, T-297 |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | dayOf (pure), documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure), readLocalMoment (semi-pure-b) | - | FR-021, FR-101, T-059, T-220, T-228 |
 | `tests/unit/cr-646-side-time-writers.test.ts` | dayOf (pure) | yes | T-064, T-209, T-350 |
+| `tests/unit/cr-649-exception-times-duration-and-the-open-chooser-words.test.ts` | documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure) | yes | FR-038, T-033, T-059, T-108, T-350 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
 | `tests/unit/document-model.test.ts` | DaySpanTooWide (class), NoWorkingDayReached (class), advanceScreenSession (pure), advancedStamp (pure), clampedSettings (pure), compareDays (pure), dateFromWorkingDays (pure), dayOf (pure), delayWorkingDays (pure), documentViolations (pure), emptyDialogueLog (pure), emptyHistory (pure), emptySelection (pure), escapeContextOf (pure), escapeTarget (pure), historyWithStep (pure), isDelayed (pure), isSelected (pure), isStampMatched (pure), isWorkingDay (pure), lastPicked (pure), latestSequence (pure), logWithMessage (pure), messagesSince (pure), nextStep (pure), planActualState (pure), previousStep (pure), selectionOfAll (pure), selectionWith (pure), selectionWithout (pure), stepCount (pure), textOfDay (pure), workingCalendarOf (pure), workingDaysBetween (pure) | - | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101, T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 |
@@ -505,7 +506,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | 19 | FR-058 | - | - | HM-9, IV-6, MR-4, S-125, ST-2 | - | - | - | - |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | 19 | FR-021 | - | - | AT-93, AT-139, EX-5, IV-2, MR-4 | - | - | - | - |
 | `tests/unit/cr-604-the-pause-bar-and-markers-shown-by-default.test.ts` | 14 | FR-013, FR-046, FR-094 | - | T-019, T-019a, T-021, T-021b | DL-2, DL-3, PA-2, PA-4, PM-1, PM-3, PM-4, PS-3, PS-4, S-24, S-63, S-328, S-341 | - | - | - | - |
-| `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | 19 | FR-031, FR-054, FR-088 | - | T-108, T-209, T-344 | AT-20, AT-67, AT-73, CM-39, S-106, S-107, UN-13, WC-7 | - | - | - | - |
+| `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | 19 | FR-031, FR-054, FR-088 | - | T-108, T-209, T-344 | AT-20, AT-67, AT-73, CM-39, S-106, S-107, UN-13, WC-7, WT-6, WT-7 | - | - | - | - |
 | `tests/unit/cr-605-the-non-working-day-shade.test.ts` | 29 | FR-017, FR-054 | - | T-202, T-203, T-205, T-216, T-236, T-343 | AT-73, AT-82, OD-1, OD-2, OD-3, OD-4, OD-5, OD-6, OD-7, S-8, S-83, S-84, S-85, S-450, ZO-7 | - | DFC-1670 | - | - |
 | `tests/unit/cr-607-the-reset-clears-only-what-table-t-345-clears.test.ts` | 13 | FR-153 | - | T-206, T-345 | S-99, S-99a, S-99b, S-99c, UF-159, WP-1, WP-4, WP-5, WP-6, WP-7, WP-9 | - | - | - | - |
 | `tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts` | 26 | FR-134 | - | T-335, T-346, T-347 | DG-1, DG-4, DT-1, DT-2, DT-3, DT-4, DT-5, DT-6, DT-7, DX-7, IC-52, IC-108, IC-118, IC-119, IC-122, IC-124, IC-127, IC-129, IC-130, IC-131, IC-140, RW-1, RW-2, RW-3, RW-4, RW-6, RW-7, RW-9, S-475, S-481, SQ-2, SV-7, SV-8, SV-14, WB-2, WB-3, WB-5 | - | - | - | - |
@@ -516,10 +517,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-628-the-branding-seat.test.ts` | 6 | - | - | - | BR-1, BR-2, BR-3, BR-4, S-147, S-225, S-226, S-235, S-459, S-461, S-462, S-464 | - | - | - | - |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 23 | FR-009 | - | T-075, T-209, T-213 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | 15 | FR-011, FR-012, FR-021, FR-100 | - | T-024a, T-036, T-103, T-233 | AT-39, IO-7, NT-3, OP-3, OP-4, OP-6, RS-52, VC-5 | - | - | - | - |
-| `tests/unit/cr-646-edits-write-side-times.test.ts` | 27 | FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-39, CM-50, CM-54, EX-4, GA-9, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, K-2, S-77, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
+| `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, S-77, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-220, T-224, T-297 | AT-154, AT-155, BK-4, CP-13, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, PI-13, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | 26 | FR-021, FR-101 | - | T-059, T-220, T-228 | AT-154, AT-155, DV-12, EX-4, EX-10, EX-11, EX-12, IV-23, K-3, NR-1, NR-7, S-482, UF-36, WT-1, WT-9, WT-10, X-5 | - | - | - | - |
 | `tests/unit/cr-646-side-time-writers.test.ts` | 18 | - | - | T-064, T-209, T-350 | AT-154, AT-155, EX-7, K-1, PI-1, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2 | - | - | - | - |
+| `tests/unit/cr-649-exception-times-duration-and-the-open-chooser-words.test.ts` | 21 | FR-038 | - | T-033, T-059, T-108, T-350 | CM-39, DV-8, EX-12, IC-71, IC-72, IC-73, S-128, U-56, WT-6, WT-7, WT-10 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
 | `tests/unit/document-model.test.ts` | 62 | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101 | - | T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 | AG-2, AG-6, AG-11, AT-73, AT-140, DR-1, DR-4, DR-5, EX-7, IN-4, IN-4a, PI-1, PI-2, PI-3, PI-4, PI-13, PI-18, PI-32, PI-33, PI-34, PI-36, S-2, S-54, S-55, S-75, S-99e, S-99g, S-106, S-129, SL-7b, U-55 | - | - | - | - |

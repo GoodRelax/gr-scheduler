@@ -1216,8 +1216,8 @@
     "en": "Replace"
    },
    "hint": {
-    "ja": "読んだ内容で現在の文書を置き換える",
-    "en": "Replace the current document with what was read"
+    "ja": "開くファイルで現在の文書を置き換える",
+    "en": "Replace the current document with the file being opened"
    }
   },
   {
@@ -1227,8 +1227,8 @@
     "en": "Merge"
    },
    "hint": {
-    "ja": "読んだ内容を現在の文書へ追加する",
-    "en": "Add what was read to the current document"
+    "ja": "開くファイルの内容を現在の文書に追加する",
+    "en": "Add the contents of the file being opened to the current document"
    }
   },
   {
@@ -1238,8 +1238,8 @@
     "en": "Baseline"
    },
    "hint": {
-    "ja": "読んだ内容を変更前の予定として重ねる",
-    "en": "Overlay what was read as the baseline"
+    "ja": "開くファイルの内容を変更前の予定として重ねる",
+    "en": "Overlay the contents of the file being opened as the baseline"
    }
   },
   {
@@ -2546,8 +2546,8 @@
   {
    "name": "Open Chooser",
    "heading": {
-    "ja": "ファイルの開き方",
-    "en": "How to Open the File"
+    "ja": "ファイルを開く",
+    "en": "Open File"
    }
   },
   {

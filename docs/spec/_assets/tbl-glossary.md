@@ -447,7 +447,7 @@
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
 | CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
-| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す | `FR-088` |
+| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` は、本命令を受けて文書へ書く側が、足した行と日の動いた列だけを `01-04-requirements.md` の 表 T-350 の `WT-6` ／ `WT-7` の時刻で書くこと（MUST）。<br>元の行（同じ `ordinal`、`_assets/fig-erd-detail.md` の `AT-77`）と日で比べて同じ列は、元の行の字面を保つこと（MUST、`WT-10`）。<br>⭐ 時刻を揃えるのを書く側の 1 か所にするのは、命令を出す側（休日の面の下書きの `WC-6`、AI の取次）が時刻を知らずに済むからである | `FR-088` |
 | CM-40 | `Resource` | `createResource` | — | 担当者を足す | `FR-008` |
 | CM-41 | `Resource` | `setResourceName` | — | 担当者の名前を変える | `FR-008` |
 | CM-42 | `Resource` | `deleteResource` | — | 選んだ担当者を消す | `FR-099` |

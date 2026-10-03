@@ -24,9 +24,9 @@ import {
   blankTaskVisual,
   dayOf,
   lastDayForLength,
+  plannedDurationMinutesOf,
   textOfFinishSide,
   workingCalendarOf,
-  workingDaysBetween,
 } from '../../entity/document-model/schedule/schedule'
 import { isTimeText } from './grs-json-schema'
 import {
@@ -1204,9 +1204,8 @@ function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun):
   // see DV-8
   if (task.carry['Duration'] !== undefined) return constraint
   try {
-    const span = workingDaysBetween(workingCalendarOf(schedule), start, finish)
-    const minutes = span * minutesPerWorkingDay(schedule.project.minutesPerDay)
-    return [...constraint, leaf('Duration', durationOfMinutes(minutes))]
+    const minutes = plannedDurationMinutesOf(workingCalendarOf(schedule), task, schedule.project)
+    return minutes === null ? constraint : [...constraint, leaf('Duration', durationOfMinutes(minutes))]
   } catch (why) {
     run.notices.push(notice(
       `/Project/Tasks/Task[uid=${task.uid}]/Duration`,

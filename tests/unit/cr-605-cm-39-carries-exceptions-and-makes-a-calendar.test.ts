@@ -64,10 +64,11 @@ interface ExceptionRow {
   readonly carryElements: readonly unknown[]
 }
 
+// WHY: CM-39 writes the WT-6 / WT-7 times on a row it adds (CR-649), so the rows carry them and read back as sent.
 const exceptionOf = (part: Partial<ExceptionRow> & { ordinal: number }): ExceptionRow => ({
   name: `x${part.ordinal}`,
   fromDate: '2026-08-13T00:00:00',
-  toDate: '2026-08-14T00:00:00',
+  toDate: '2026-08-14T23:59:00',
   dayWorking: false,
   recurrenceKind: 9,
   carry: {},
@@ -80,7 +81,7 @@ const WORKED_SATURDAY = exceptionOf({
   ordinal: 1,
   name: 'worked saturday',
   fromDate: '2026-08-22T00:00:00',
-  toDate: '2026-08-22T00:00:00',
+  toDate: '2026-08-22T23:59:00',
   dayWorking: true,
 })
 // WHY: an imported yearly row with a carried column, so a rewrite that drops carry shows.
@@ -88,7 +89,7 @@ const IMPORTED_YEARLY = exceptionOf({
   ordinal: 2,
   name: 'new year',
   fromDate: '2026-01-01T00:00:00',
-  toDate: '2026-01-01T00:00:00',
+  toDate: '2026-01-01T23:59:00',
   recurrenceKind: 2,
   carry: { EnteredByOccurrences: '0' },
 })

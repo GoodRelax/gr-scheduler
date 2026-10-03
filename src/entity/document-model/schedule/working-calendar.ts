@@ -207,6 +207,19 @@ export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
   return between + 2
 }
 
+// see DV-8, EX-12, S-128
+// WHY: both end days count (the partner's own example writes a Wednesday-to-Thursday task as PT16H0M0S);
+// FR-012's plan span is half-open and prices percent complete, so it is not this length.
+/** @purity pure */
+export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task, project: Project): number | null {
+  const start = dayOf(task.start)
+  const finishInclusive = dayOf(task.finish)
+  if (start === null || finishInclusive === null) return null
+  if (task.milestone === true) return 0
+  const finishExclusive = dayFromSerial(serial(finishInclusive) + 1)
+  return workingDaysBetween(within, start, finishExclusive) * minutesPerWorkingDayOf(project)
+}
+
 // see FR-011
 /** @purity pure */
 export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,

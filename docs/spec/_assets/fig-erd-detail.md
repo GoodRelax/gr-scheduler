@@ -473,6 +473,6 @@ erDiagram
 | DV-5 | `Task` | `outlineLevel` | `Task/OutlineLevel` | `wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`） |
 | DV-6 | `Task` | `outlineNumber` | `Task/OutlineNumber` | 木の道すじ。**照合の鍵にしない** |
 | DV-7 | `Task` | `summary` | `Task/Summary` | 子を持つかどうか |
-| DV-8 | `Task` | `duration` | `Task/Duration` | `finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す** |
+| DV-8 | `Task` | `duration` | `Task/Duration` | `start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 終わりの日を含めるのは、交換相手の公式の例が、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書くからである（Microsoft Learn の Project XML の `Task` の要素の例）。⚠️ `FR-054`（時刻を解釈しない）とは矛盾しない —— 数えるのは稼働日であって時刻ではない。**人が編集していないタスクは受け取った値をそのまま返す** |
 | DV-11 | `Task` | `actualDuration` | `Task/ActualDuration` | `FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記） |
 | DV-10 | `Resource` | `id` | `Resource/ID` | 書き出す順に振り直す。**`uid` とは別物** |
