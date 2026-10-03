@@ -124,7 +124,7 @@ describe('CR-560 premises: the clauses read this way', () => {
   })
 
   it('FR-036: the help lists MK-15', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` と')
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` と')
   })
 
   it('S-208 is the distance that tells a copy drag from a press', () => {
@@ -558,10 +558,12 @@ describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressRowOf
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), CTRL).pressRow).not.toBe('PTD-7')
   })
 
-  it('PTD-7 asks for Ctrl only: Ctrl + Shift on the selected body does not copy', () => {
+  it('PTD-7 takes Ctrl alone or Ctrl + Shift (CR-656): Alt beside Ctrl on the selected body does not copy', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
-    expect(pressAt(built, context, bodyOf(built.loop, ROOT), { ctrl: true, shift: true }).pressRow).not.toBe('PTD-7')
+    const body = bodyOf(built.loop, ROOT)
+    expect(pressAt(built, context, body, { ctrl: true, shift: true }).pressRow).toBe('PTD-7')
+    expect(pressAt(built, context, body, { ctrl: true, alt: true }).pressRow).not.toBe('PTD-7')
   })
 
   it('PTD-7 asks for a left drag: the middle button on the selected body pans', () => {

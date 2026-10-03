@@ -393,8 +393,20 @@ function isAssignedPointerCombo(modifiers: InputModifiers): boolean {
   return (
     isCombo(modifiers, false, false, false) ||
     isCombo(modifiers, true, false, false) ||
-    isCombo(modifiers, false, true, false)
+    isCombo(modifiers, false, true, false) ||
+    isCombo(modifiers, true, true, false)
   )
+}
+
+/** @purity pure */
+function isCtrlDragCombo(modifiers: InputModifiers): boolean {
+  return isCombo(modifiers, true, false, false) || isCombo(modifiers, true, true, false)
+}
+
+// see MK-16, CY-5, CY-11, T-270
+/** @purity pure */
+export function isDateKeepingDrag(press: Pick<PointerPress, 'at'>): boolean {
+  return press.at.modifiers.shift && !press.at.modifiers.alt
 }
 
 /** @purity pure */
@@ -643,7 +655,7 @@ function isCopyDragPress(
   context: Pick<InputContext, 'dualCursorFollowing' | 'selection'>,
 ): boolean {
   const { at, hit } = press
-  if (at.button !== 'left' || !isCombo(at.modifiers, true, false, false)) return false
+  if (at.button !== 'left' || !isCtrlDragCombo(at.modifiers)) return false
   if (context.dualCursorFollowing !== null || hit === null || hit.item.kind !== 'task') return false
   return COPY_DRAG_GRABS.includes(hit.grab) && isSelected(context.selection, { kind: 'task', uid: hit.item.taskUid })
 }
@@ -657,7 +669,7 @@ export function pressRowOf(
   const modifiers = press.at.modifiers
   if (press.at.button === 'middle') return 'PTD-1'
   if (isCopyDragPress(press, context)) return 'PTD-7'
-  if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PTD-1'
+  if (press.at.button === 'left' && isCtrlDragCombo(modifiers)) return 'PTD-1'
   if (context.dualCursorFollowing !== null) return 'PTD-2'
   if (press.hit !== null) return 'PTD-3'
   const armed = context.screen.armModeState

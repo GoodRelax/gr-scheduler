@@ -1613,6 +1613,18 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
+    // see MK-16, T-270
+    rows: ['MK-16'],
+    expect: 'answers',
+    setUp: selectBar,
+    act: async (p, g) => {
+      await p.keyboard.down('Shift')
+      const held = await dragFrom(p, g.barBody, 120, 60)
+      await p.keyboard.up('Shift')
+      return held
+    },
+  },
+  {
     // WHY: GR-26 answers a resting pointer only (EZ-6), so the act judges the tooltip's
     // WHY: words; the deadline sits a little past the bar's finish, where nothing else is drawn.
     rows: ['GR-26'],
