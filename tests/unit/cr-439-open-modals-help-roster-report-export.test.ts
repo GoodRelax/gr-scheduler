@@ -121,6 +121,8 @@ const HELP = {
   licenceText: 'Licence text',
   copyrightNotice: 'Copyright notice',
   attributions: ['An attribution'],
+  helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+  area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } },
   footnotes: [],
   entries: [
     {

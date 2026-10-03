@@ -339,7 +339,31 @@ export interface HelpModal extends OpenSurface {
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
   readonly footnotes: readonly HelpFootnote[]
+  readonly helpLegal: { readonly licensedUnder: string; readonly fullText: string }
+  readonly area: HelpWindowArea
   readonly place?: WindowPlace
+}
+
+// see WB-1, WB-3, FR-036
+export interface HelpWindowArea {
+  readonly belowAppHeader: ScreenRect
+  readonly browserWindow: ScreenRect
+}
+
+// see OP-16, IC-71, IC-72, IC-73
+export interface OpenChoiceLine {
+  readonly entry: CommandItem
+  readonly hint: string
+}
+
+// see OP-16, U-56
+export interface OpenChooser extends OpenSurface {
+  readonly surface: 'Open Chooser'
+  readonly incomingFile: { readonly fileName: string | null; readonly byteLength: number; readonly documentTitle: string } | null
+  readonly choices: readonly OpenChoiceLine[]
+  readonly fileWord: string
+  readonly documentTitleWord: string
+  readonly cancelWord: string
 }
 
 // see FR-036
@@ -393,6 +417,7 @@ export type OpenModal =
   | HelpModal
   | ResourceRoster
   | ExportChooser
+  | OpenChooser
   | (OpenSurface & {
       readonly surface: 'FR-074'
       readonly fields: readonly PropertyField[]
@@ -613,6 +638,13 @@ function delayDiagnosticsReportOf(
   return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
 }
 
+// see WB-1, WB-3
+/** @purity pure */
+function helpWindowAreaOf(regions: ScreenRegions): HelpWindowArea {
+  const below = regions.scheduleCanvas
+  return { belowAppHeader: below, browserWindow: { x: 0, y: 0, width: regions.appHeader.width, height: below.y + below.height } }
+}
+
 // see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
@@ -625,7 +657,7 @@ export function screenViewFromRegions(
   readings: ScreenViewReadings,
 ): ScreenView {
   const language = displayLanguageOf(session)
-  const help = helpModalFromSession(session)
+  const help = helpModalFromSession(session, helpWindowAreaOf(regions))
   const shown: Omit<ScreenView, 'tooltips'> = {
     language,
     frame: screenFrameFromRegions(regions, settings, session, readings),

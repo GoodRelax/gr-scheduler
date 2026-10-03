@@ -107,6 +107,7 @@ const REFUSED_BROWSER_ROWS = T_255.rows.map((row) => row.id).filter((row) => isH
 const plain = (cell: string): string => cell.replace(/[`*]/g, '').trim()
 
 const S_202 = Number(bare(rowOf(T_206, 'S-202').by[H_DEFAULT] ?? ''))
+const S_458 = Number.parseFloat(bare(rowOf(T_206, 'S-458').by[H_DEFAULT] ?? ''))
 
 const LEFT_OFF_CLAUSE = CLAUSES.find(([name]) => name.includes('leaves off'))?.[1] ?? ''
 const LEFT_OFF_AT = REQUIREMENTS.indexOf(LEFT_OFF_CLAUSE)
@@ -236,7 +237,7 @@ function helpModal(language: DisplayLanguage): HelpModal {
     ...root,
     screen: { ...root.screen, helpDisplayState: { kind: 'shown', child: { kind: 'normal' } } },
   } as unknown as ScreenSession
-  const modal = helpModalFromSession(opened)
+  const modal = helpModalFromSession(opened, { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } })
   if (modal === null) throw new Error('the help is open but nothing describes it')
   return modal
 }
@@ -511,12 +512,14 @@ describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideway
     expect(chain.some((one) => scrollsOn(one, 'y')), chain.map(whatWasDrawn).join('\n').slice(0, 800)).toBe(true)
   })
 
-  it('no box from the help surface down to the columns scrolls horizontally', () => {
+  // WHY: CR-621 E-14 lets the body scroll sideways once narrowed; the floor keeps the opened help from doing so.
+  it('the body scrolls on both axes, and each column floors at min(S-458 em, the opened column width)', () => {
     const help = drawnHelp()
-    const { container, columns } = columnsOf(help)
-    const chain = [...chainFrom(container, help), ...columns]
-    const sideways = chain.filter((one) => scrollsOn(one, 'x'))
-    expect(sideways.map((one) => [...styleMap(one)].map(([k, v]) => `${k}:${v}`).join(';'))).toEqual([])
+    const { container } = columnsOf(help)
+    const chain = chainFrom(container, help)
+    expect(chain.some((one) => scrollsOn(one, 'x') && scrollsOn(one, 'y')), chain.map(whatWasDrawn).join('\n').slice(0, 800)).toBe(true)
+    const template = styleMap(container).get('grid-template-columns') ?? ''
+    expect(template).toContain(`repeat(${S_202},minmax(min(${S_458}em,`)
   })
 
   it('neither the column boxes nor the box holding them is bound to a height', () => {

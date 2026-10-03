@@ -1576,6 +1576,8 @@ const HELP_MODAL: HelpModal = {
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
+  helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
+  area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } },
   footnotes: [],
 }
 

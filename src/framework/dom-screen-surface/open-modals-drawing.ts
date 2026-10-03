@@ -3,7 +3,16 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { CommandItem, HelpModal, OpenModal } from '../../adapter/screen-renderer/screen-renderer'
+import {
+  DEFAULT_WINDOW_PLACE,
+  windowBoxOf,
+  windowNormalBoxOf,
+  type CommandItem,
+  type HelpModal,
+  type OpenModal,
+  type ScreenPart,
+} from '../../adapter/screen-renderer/screen-renderer'
+import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   IMPORT_REPORT_DISMISS_ATTRIBUTE,
   NOT_STORED_HELP_SIZES,
@@ -11,16 +20,20 @@ import {
   NOT_STORED_RESOURCE_ROSTER_SIZES,
   PAINT,
   STYLE,
+  anchorKey,
   anchoredEntry,
   appendAssignment,
+  boxStyle,
   chromeScaledPx,
+  entranceOuterHeightPx,
   entryStyle,
   fillEntry,
   made,
   part,
 } from './dom-screen-surface'
-import { drawLanguageReading } from './app-header-drawing'
-import { confirmationAnswerElement, nextStepElement } from './notices-drawing'
+import { drawLanguageReading, spelledFileSize } from './app-header-drawing'
+import { confirmationAnswerElement, linkElement, nextStepElement } from './notices-drawing'
+import { windowPartAt, windowPartOf, windowTitleRowElement, type PlacedWindow, type PointAsked } from './window-frame-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
 import { fieldElement } from './properties-panel-drawing'
@@ -29,6 +42,9 @@ const ROSTER_CHOSEN_ENTRY = 'IC-67'
 const CLOSE_SURFACE_ENTRY = 'IC-52'
 const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
+const HELP_SURFACE = 'Help Modal'
+
+const MODAL_BORDER_PX = 1
 
 // WHY: anywhere, because the address has no space to break at and would widen the column.
 // WHY: one empty line (1lh) parts the note from the column's last item (JDG-1048, JDG-1049).
@@ -38,14 +54,19 @@ const HELP_FOOTNOTE_STYLE = 'overflow-wrap:anywhere;margin-top:1lh;'
 // @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
-// see FR-036, T-256, S-457
+// see FR-036, T-256, S-457, S-458
 // TRAP: a height bound here (flex:1 with min-height:0, or column-fill over a bounded box) sends a
 // block that does not fit into a column added to the right, and the help scrolls sideways.
+// WHY: the floor is the opened column width where that is under S-458, so the opened help never scrolls sideways.
 /** @purity pure */
-function helpColumnsStyle(): string {
+function helpColumnsStyle(openedBodyWidthPx: number): string {
+  const count = NOT_STORED_HELP_SIZES['S-202']
+  const gap = NOT_STORED_HELP_SIZES['S-457']
+  const openedColumn = `calc((${openedBodyWidthPx}px - ${(count + 1) * gap}em) / ${count})`
+  const floor = `min(${NOT_STORED_HELP_SIZES['S-458']}em, ${openedColumn})`
   return (
-    `display:grid;grid-template-columns:repeat(${NOT_STORED_HELP_SIZES['S-202']},minmax(0,1fr));` +
-    `column-gap:${NOT_STORED_HELP_SIZES['S-457']}em;align-items:start;flex:0 0 auto;`
+    `display:grid;grid-template-columns:repeat(${count},minmax(${floor},1fr));` +
+    `column-gap:${gap}em;align-items:start;flex:0 0 auto;`
   )
 }
 
@@ -63,35 +84,69 @@ function helpBlockFrameStyle(): string {
   )
 }
 
-// see FR-036, T-335, JDG-665
+// see FR-036, WB-1, S-201
 /** @purity pure */
-function helpStyle(windowState: HelpModal['windowState']): string {
-  const share = NOT_STORED_HELP_SIZES['S-201'] * 100
-  const box =
-    'display:flex;flex-direction:column;overflow:hidden;padding:0;' +
-    `font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
-  if (windowState === 'maximised') {
-    return box + 'left:0;top:0;right:0;bottom:0;transform:none;max-width:none;max-height:none;'
+function defaultHelpBox(belowAppHeader: ScreenRect): ScreenRect {
+  const share = NOT_STORED_HELP_SIZES['S-201']
+  const width = belowAppHeader.width * share
+  const height = belowAppHeader.height * share
+  return {
+    x: belowAppHeader.x + (belowAppHeader.width - width) / 2,
+    y: belowAppHeader.y + (belowAppHeader.height - height) / 2,
+    width,
+    height,
   }
-  if (windowState === 'normal') {
-    return box + `width:${share}vw;max-width:${share}vw;height:${share}vh;max-height:${share}vh;`
-  }
-  // WHY: the right and bottom edges of the centred normal box, so WB-2's corner is where the box was.
-  const beside = (100 - share) / 2
-  return box + `left:auto;top:auto;right:${beside}vw;bottom:${beside}vh;transform:none;`
 }
 
-// see FR-036
+// see FR-036, T-335, WB-1, WB-3, S-455
 /** @purity pure */
-function helpTitleRowStyle(): string {
-  return 'flex:0 0 auto;margin:0;padding:0.5em 1em;'
+function helpPlacedOf(modal: HelpModal): PlacedWindow {
+  const range = modal.area.browserWindow
+  const place = windowNormalBoxOf(modal.place ?? DEFAULT_WINDOW_PLACE, defaultHelpBox(modal.area.belowAppHeader), range)
+  const box = windowBoxOf(modal.windowState, place, range, entranceOuterHeightPx())
+  return { window: 'helpModal', shown: modal.windowState, place, box, range }
 }
 
-// see FR-036, S-437, S-457
+// see FR-036, T-335
+/** @purity pure */
+function helpWindowStyle(placed: PlacedWindow): string {
+  const frame =
+    `${STYLE.modal}display:flex;flex-direction:column;overflow:hidden;padding:0;` +
+    `transform:none;max-width:none;max-height:none;font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
+  if (placed.shown !== 'minimised') return frame + boxStyle(placed.box)
+  // WHY: WB-2 shrinks the title row to its content, so only the restore box's bottom-right corner is placed.
+  const { range, place } = placed
+  const right = range.x + range.width - (place.x + place.width)
+  const bottom = range.y + range.height - (place.y + place.height)
+  return frame + `left:auto;top:auto;right:${right}px;bottom:${bottom}px;width:max-content;height:auto;`
+}
+
+// see FR-036, WB-1
+/** @purity pure */
+function openedHelpBodyWidthPx(modal: HelpModal, gutterPx: number): number {
+  return defaultHelpBox(modal.area.belowAppHeader).width - MODAL_BORDER_PX * 2 - gutterPx
+}
+
+interface HelpColumnsDrawn {
+  readonly body: HTMLElement
+  readonly columns: HTMLElement
+}
+
+// see FR-036, S-458
+// WHY: the gutter is measured once the help is in the page; the host is never asked (LY-5), and a host with no layout keeps 0.
+/** @purity non-pure */
+function fitHelpColumnFloor(drawn: HelpColumnsDrawn | null, modal: HelpModal): void {
+  if (drawn === null) return
+  const gutterPx = drawn.body.offsetWidth - drawn.body.clientWidth
+  if (!Number.isFinite(gutterPx) || gutterPx <= 0) return
+  drawn.columns.setAttribute('style', helpColumnsStyle(openedHelpBodyWidthPx(modal, gutterPx)))
+}
+
+// see FR-036, S-437, S-457, CR-621
 /** @purity pure */
 function helpBodyStyle(): string {
   return (
-    'flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;' +
+    'flex:1 1 auto;min-height:0;overflow:auto;scrollbar-gutter:stable;' +
     `display:flex;flex-direction:column;padding:${NOT_STORED_HELP_SIZES['S-457']}em;` +
     `border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};`
   )
@@ -192,6 +247,10 @@ function helpItemElement(
 }
 
 type OpenHelpEntry = Extract<OpenModal, { readonly entries: unknown }>['entries'][number]
+
+type OpenChooser = Extract<OpenModal, { readonly choices: unknown }>
+
+type ExportChooser = Extract<OpenModal, { readonly formats: unknown }>
 
 type RosterLine = Extract<OpenModal, { readonly resources: unknown }>['resources'][number]
 
@@ -303,8 +362,9 @@ function helpColumnsElement(
   host: Document,
   entries: readonly OpenHelpEntry[],
   footnotes: HelpModal['footnotes'],
+  openedBodyWidthPx: number,
 ): HTMLElement {
-  const columns = made(host, 'div', helpColumnsStyle())
+  const columns = made(host, 'div', helpColumnsStyle(openedBodyWidthPx))
   const columnByRow = new Map<string, HTMLElement>()
   let block: HTMLElement | null = null
   let blockName: string | null = null
@@ -362,31 +422,38 @@ function appendHelpFootnotes(
 interface DrawnModal {
   readonly element: HTMLElement
   readonly watermarkUnlockEntry: TextEntryControl | null
+  readonly helpColumns: HelpColumnsDrawn | null
 }
 
-// see FR-036
+// see FR-036, WB-7, GR-24
+/** @purity non-pure */
+function helpTitleRow(host: Document, modal: HelpModal, anchors: Map<string, HTMLElement>): HTMLElement {
+  const titled = headingRowCommands(modal).filter((item) => item.icon !== modal.legend)
+  const row = windowTitleRowElement(host, modal.heading, { before: [], titled }, anchors, HELP_SURFACE)
+  const languageEntry = anchors.get(anchorKey({ kind: 'icon', icon: HELP_LANGUAGE_ENTRY })) ?? null
+  if (languageEntry !== null) drawLanguageReading(host, languageEntry, modal.helpLanguage)
+  const legendItem = modal.commands.find((item) => item.icon === modal.legend)
+  if (legendItem !== undefined) row.insertBefore(helpLegendElement(host, legendItem), languageEntry)
+  return row
+}
+
+// see FR-029, RR-6, FR-096, OP-16
 /** @purity non-pure */
 function modalTitleRow(
   host: Document,
   modal: OpenModal,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const header = made(
-    host,
-    'div',
-    STYLE.surfaceHeader + ('entries' in modal ? helpTitleRowStyle() : ''),
-  )
+  if ('entries' in modal) return helpTitleRow(host, modal, anchors)
+  const header = made(host, 'div', STYLE.surfaceHeader)
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
-  const legendItem =
-    'entries' in modal ? modal.commands.find((item) => item.icon === modal.legend) : undefined
-  if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
-  for (const item of headingRowCommands(modal)) {
-    if ('entries' in modal && item.icon === modal.legend) continue
+  const isCloseAtTheRightEnd = 'resources' in modal || 'formats' in modal || 'choices' in modal
+  const inHeadingRow = 'choices' in modal ? modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY) : headingRowCommands(modal)
+  for (const item of inHeadingRow) {
     const entry = anchoredEntry(host, item, anchors)
-    if (('resources' in modal || 'formats' in modal) && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
-    if ('entries' in modal && item.icon === HELP_LANGUAGE_ENTRY) drawLanguageReading(host, entry, modal.helpLanguage)
+    if (isCloseAtTheRightEnd && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
     header.append(entry)
   }
   return header
@@ -416,8 +483,7 @@ export function modalElement(
     host,
     'div',
     modal.surface,
-    STYLE.modal +
-      ('entries' in modal ? helpStyle(modal.windowState) : '') +
+    ('entries' in modal ? helpWindowStyle(helpPlacedOf(modal)) : STYLE.modal) +
       ('resources' in modal ? rosterBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
@@ -427,29 +493,16 @@ export function modalElement(
   const header = modalTitleRow(host, modal, anchors)
   const body: HTMLElement[] = []
   let watermarkUnlockEntry: TextEntryControl | null = null
+  let helpColumns: HelpColumnsDrawn | null = null
 
   if ('entries' in modal) {
     drawn.setAttribute('data-language', modal.helpLanguage)
     drawn.setAttribute('lang', modal.helpLanguage)
-    if (modal.windowState !== 'minimised') body.push(helpBodyElement(host, modal))
+    if (modal.windowState !== 'minimised') helpColumns = helpBodyElement(host, modal)
+    if (helpColumns !== null) body.push(helpColumns.body)
   }
 
-  if ('formats' in modal) {
-    // DEVIATION: spec says a two-row grid (FR-096); here one wrapping row, as JDG-1162 overturns it (DFC-1357)
-    const choices = made(host, 'div', STYLE.formatChoices)
-    for (const format of modal.formats) {
-      const choice = made(host, 'button', entryStyle())
-      choice.setAttribute('type', 'button')
-      // STOP: spec does not decide how a format choice is marked for read-back. Looked in W-4, IF-9, T-024
-      // @provisional PND-474
-      choice.setAttribute('data-format', format.row)
-      const shown = `${format.name} ${format.extension}`
-      choice.setAttribute('aria-label', shown)
-      choice.textContent = shown
-      choices.append(choice)
-    }
-    body.push(choices)
-  }
+  if ('formats' in modal) body.push(exportFormatChoicesElement(host, modal))
 
   if ('resources' in modal) {
     const scroller = rosterGridElement(host, modal.resources)
@@ -501,6 +554,8 @@ export function modalElement(
 
   if ('droppedTaskNames' in modal) body.push(...importReportElements(host, modal))
 
+  if ('choices' in modal) body.push(...openChooserRows(host, modal, anchors))
+
   if ('fields' in modal) {
     // TRAP: null, not a map: modal controls must not answer focusPropertyField for panel rows.
     for (const field of modal.fields) body.push(fieldElement(host, field, null))
@@ -551,24 +606,98 @@ export function modalElement(
   }
 
   drawn.replaceChildren(header, ...body)
-  return { element: drawn, watermarkUnlockEntry }
+  return { element: drawn, watermarkUnlockEntry, helpColumns }
 }
 
-// see FR-036, T-335
+// see FR-069, S-437, S-149, S-457
+/** @purity pure */
+function helpLegalStyle(): string {
+  const gap = NOT_STORED_HELP_SIZES['S-457']
+  return `${STYLE.helpLegal}border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};margin-top:${gap}em;padding-top:${gap}em;`
+}
+
+// see FR-069, S-459
 /** @purity non-pure */
-function helpBodyElement(host: Document, modal: HelpModal): HTMLElement {
-  const legal = made(host, 'details', STYLE.helpLegal)
+function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
+  const legal = made(host, 'div', helpLegalStyle())
+  const copyright = made(host, 'div', '')
+  copyright.append(linkElement(host, NOT_STORED_HELP_SIZES['S-459'], modal.copyrightNotice))
+  const licensedUnder = made(host, 'div', '')
+  licensedUnder.textContent = modal.helpLegal.licensedUnder
+  const fullText = made(host, 'details', '')
   const summary = made(host, 'summary', STYLE.helpLegalSummary)
-  summary.textContent = modal.copyrightNotice
-  legal.append(summary)
+  summary.textContent = modal.helpLegal.fullText
+  fullText.append(summary)
   for (const text of [modal.licenceText, ...modal.attributions]) {
     const line = made(host, 'p', STYLE.helpLegalText)
     line.textContent = text
-    legal.append(line)
+    fullText.append(line)
   }
-  const helpBody = made(host, 'div', helpBodyStyle())
-  helpBody.append(helpColumnsElement(host, modal.entries, modal.footnotes), legal)
-  return helpBody
+  legal.append(copyright, licensedUnder, fullText)
+  return legal
+}
+
+// see FR-036, FR-069, T-335
+/** @purity non-pure */
+function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
+  const body = made(host, 'div', helpBodyStyle())
+  const columns = helpColumnsElement(host, modal.entries, modal.footnotes, openedHelpBodyWidthPx(modal, 0))
+  body.append(columns, helpLegalElement(host, modal))
+  return { body, columns }
+}
+
+// see FR-096
+/** @purity non-pure */
+function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLElement {
+  // DEVIATION: spec says a two-row grid (FR-096); here one wrapping row, as JDG-1162 overturns it (DFC-1357)
+  const choices = made(host, 'div', STYLE.formatChoices)
+  for (const format of modal.formats) {
+    const choice = made(host, 'button', entryStyle())
+    choice.setAttribute('type', 'button')
+    // STOP: spec does not decide how a format choice is marked for read-back. Looked in W-4, IF-9, T-024
+    // @provisional PND-474
+    choice.setAttribute('data-format', format.row)
+    const shown = `${format.name} ${format.extension}`
+    choice.setAttribute('aria-label', shown)
+    choice.textContent = shown
+    choices.append(choice)
+  }
+  return choices
+}
+
+// see OP-16, AM-8, HS-3
+/** @purity non-pure */
+function openChooserRows(host: Document, modal: OpenChooser, anchors: Map<string, HTMLElement>): readonly HTMLElement[] {
+  const rows: HTMLElement[] = []
+  const read = modal.incomingFile
+  if (read !== null && read.fileName !== null) {
+    const file = made(host, 'div', STYLE.field)
+    file.textContent = `${modal.fileWord}: ${read.fileName} (${spelledFileSize(read.byteLength)})`
+    rows.push(file)
+  }
+  if (read !== null) {
+    const title = made(host, 'div', STYLE.field)
+    title.textContent = `${modal.documentTitleWord}: ${read.documentTitle}`
+    rows.push(title)
+  }
+  for (const choice of modal.choices) rows.push(openChooserLine(host, anchoredEntry(host, choice.entry, anchors), choice.hint))
+  // WHY: a second IC-52, not anchored, so the tooltip and the anchor stay with the heading row's (OP-16, FR-029).
+  const cancel = made(host, 'button', entryStyle())
+  cancel.setAttribute('type', 'button')
+  cancel.setAttribute('data-icon', CLOSE_SURFACE_ENTRY)
+  cancel.setAttribute('aria-label', modal.cancelWord)
+  fillEntry(host, cancel, CLOSE_SURFACE_ENTRY)
+  rows.push(openChooserLine(host, cancel, modal.cancelWord))
+  return rows
+}
+
+/** @purity non-pure */
+function openChooserLine(host: Document, entry: HTMLElement, words: string): HTMLElement {
+  const line = made(host, 'div', STYLE.field)
+  const said = made(host, 'span', '')
+  said.textContent = words
+  line.append(entry, said)
+  return line
 }
 
 type ImportReport = Extract<OpenModal, { readonly droppedTaskNames: readonly (string | null)[] }>
@@ -600,4 +729,29 @@ function importReportElements(host: Document, modal: ImportReport): readonly HTM
   const wayOut = made(host, 'div', STYLE.confirmationAnswers)
   wayOut.replaceChildren(dismiss)
   return [names, wayOut]
+}
+
+// see FR-036, T-335, IF-9, S-455
+/** @purity non-pure */
+export function helpWindowPainter(host: Document, helpLayer: HTMLElement) {
+  let placed: PlacedWindow | null = null
+  let drawn: HTMLElement | null = null
+
+  /** @purity non-pure */
+  function draw(help: OpenModal | null, isContentChanged: boolean, anchors: () => Map<string, HTMLElement>): void {
+    placed = help !== null && 'entries' in help ? helpPlacedOf(help) : null
+    if (isContentChanged) {
+      const built = help === null ? null : modalElement(host, help, anchors())
+      drawn = built === null ? null : built.element
+      helpLayer.replaceChildren(...(drawn === null ? [] : [drawn]))
+      if (built !== null && help !== null && 'entries' in help) fitHelpColumnFloor(built.helpColumns, help)
+      return
+    }
+    if (drawn !== null && placed !== null) drawn.setAttribute('style', helpWindowStyle(placed))
+  }
+
+  return {
+    draw,
+    answerAt: (asked: PointAsked): ScreenPart | null => windowPartAt(drawn, placed, asked, windowPartOf(HELP_SURFACE)),
+  }
 }

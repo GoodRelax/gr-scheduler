@@ -212,7 +212,7 @@ function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
 }
 
 function drawnHelp(language: DisplayLanguage, window: HelpWindow = 'normal'): FakeElement {
-  const modal = helpModalFromSession(helpShown(language, window))
+  const modal = helpModalFromSession(helpShown(language, window), { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } })
   if (modal === null) throw new Error('the help is open but nothing describes it')
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, helpModal: { ...modal, heading: HEADING_MARK } })
