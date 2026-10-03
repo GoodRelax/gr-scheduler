@@ -26,9 +26,10 @@ const FR_104_EACH_NAMES_A_TABLE =
 // WHY: count to 87/83/4. The spec is measured below, and this is the claim it is compared with, so a
 // WHY: later row that moves them again is a red that names the claim. Ten rows came since, each
 // WHY: covered (PK-11..PK-16, ZO-13..ZO-15, GA-24; CR-558 brought PK-11..PK-15 and ZO-14), so the
-// WHY: claim is 97/93/4, recounted row by row from the nine tables.
-const CLAIMED_ROWS = 97
-const CLAIMED_COVERED = 93
+// WHY: claim is 97/93/4, recounted row by row from the nine tables. CR-631 added PK-17 and PK-18 to
+// WHY: table T-269 and to PP-6's covered rows: 99/95/4.
+const CLAIMED_ROWS = 99
+const CLAIMED_COVERED = 95
 const CLAIMED_EXCEPTIONS = 4
 
 const ROW_ID = /`([A-Z]+-\d+[a-z]?)`/g

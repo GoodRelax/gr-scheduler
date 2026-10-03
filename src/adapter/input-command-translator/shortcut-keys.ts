@@ -171,6 +171,9 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
       case 'statusLine':
         commands.push({ kind: 'clearStatusDate' })
         break
+      case 'wbsParentLink':
+        commands.push({ kind: 'setTaskWbsParent', uid: one.childUid, parentUid: null })
+        break
     }
   }
   return commands

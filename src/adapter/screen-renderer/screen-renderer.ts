@@ -495,6 +495,13 @@ export interface Confirmation extends RaisedConfirmation {
   readonly text: string
   readonly answers: readonly ConfirmationAnswer[]
   readonly shownOnAnotherRowMark: string
+  readonly at?: { readonly x: number; readonly y: number }
+}
+
+// see QN-12, WL-13, JDG-1142
+export interface WbsParentChoice {
+  readonly at: { readonly x: number; readonly y: number }
+  readonly isArmed: boolean
 }
 
 export interface ConfirmationItem {
@@ -618,6 +625,8 @@ export interface ScreenViewReadings {
   // see WB-6, S-455, S-456
   readonly windowPlaces?: { readonly helpModal: WindowPlace; readonly dialogueField: WindowPlace }
   readonly isDelayDiagnosticsShown?: boolean
+  readonly isWbsParentLinksShown?: boolean
+  readonly wbsParentChoice?: WbsParentChoice | null
   // see RW-1, S-451
   readonly delayDiagnosticsReport?: {
     readonly window: DelayDiagnosticsReportWindow

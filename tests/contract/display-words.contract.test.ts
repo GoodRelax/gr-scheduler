@@ -391,6 +391,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
+  // WHY: CR-631 keys QN-12's two choices by the part they fill (WL-13): the armed and the unarmed
+  // wording of the first choice, then the arrows; no table row numbers them.
+  wbsParentChoice: 'part',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -1676,7 +1679,7 @@ for (const entry of GENERATED['arms'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks']) {
+for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks', 'wbsParentChoice']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,
@@ -2224,6 +2227,10 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
  * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
  * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
  */
+// see QN-12, WL-13
+const WBS_PARENT_CHOICE = (isArmed: boolean): Frame =>
+  frameWith({ readings: sessionWith({ wbsParentChoice: { at: { x: 40, y: 40 }, isArmed } }) })
+
 const TELLING = (manner: string, reason: string): Frame =>
   frameWith({ readings: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
 
@@ -2258,6 +2265,8 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
     })),
     // see CR-582, MH-3
     { what: 'a picked row that is placed (MH-3 of table T-338)', frame: ROW_PLACED },
+    { what: 'the QN-12 chooser while WBS parents are armed', frame: WBS_PARENT_CHOICE(true) },
+    { what: 'the QN-12 chooser while nothing is armed', frame: WBS_PARENT_CHOICE(false) },
   ]) {
     if (seen.has(one.frame)) continue
     seen.add(one.frame)

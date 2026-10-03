@@ -75,8 +75,8 @@ export {
 } from './working-calendar'
 export type { WorkingCalendar } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
-export { diagnoseDelay, parentCandidatesOf } from './delay-diagnostics'
-export type { DelayDiagnosticsReport } from './delay-diagnostics'
+export { diagnoseDelay, parentCandidatesOf, wbsParentResolutionsOf } from './delay-diagnostics'
+export type { DelayDiagnosticsReport, WbsParentResolution } from './delay-diagnostics'
 export {
   DELAY_REPORT_STATUSES,
   delayDiagnosticsReportMarkdown,

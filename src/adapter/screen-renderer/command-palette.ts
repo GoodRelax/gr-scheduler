@@ -108,12 +108,15 @@ const DUAL_CURSOR_ROW: IconId = 'IC-45'
 
 const STATUS_DATE_ROW: IconId = 'IC-44'
 
+const WBS_PARENT_LINKS_ROW: IconId = 'IC-141'
+
 // see FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
   readonly guideCursorMode: ScreenValues['guideCursorMode']
   readonly isDualCursorOn: boolean
   readonly isStatusDateDrawn: boolean
+  readonly isWbsParentLinksShown: boolean
 }
 
 // see FR-048, T-237, DC-9
@@ -130,6 +133,7 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
+  if (row.rowId === WBS_PARENT_LINKS_ROW) return facts.isWbsParentLinksShown
   return isSettingsToggleOn(row, facts.settings)
 }
 
@@ -139,12 +143,14 @@ function entranceFactsOf(
   settings: DocumentSettings,
   session: ScreenSession,
   schedule: Schedule | undefined,
+  readings: ScreenViewReadings,
 ): EntranceFacts {
   return {
     settings,
     guideCursorMode: session.screen.guideCursorMode,
     isDualCursorOn: session.screen.dualCursorModeState.kind !== 'off',
     isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
+    isWbsParentLinksShown: readings.isWbsParentLinksShown === true,
   }
 }
 
@@ -250,6 +256,8 @@ function armedEntry(armed: ScreenSession['screen']['armModeState']): ArmedEntry 
       return { row: 'AR-5', shape: null }
     case 'highlightBoxArmed':
       return { row: 'AR-6', shape: null }
+    case 'wbsParentArmed':
+      return { row: 'AR-7', shape: null }
   }
 }
 
@@ -296,7 +304,7 @@ export function commandPaletteFromSession(
   const language = displayLanguageOf(session)
   const armed = session.screen.armModeState
   const isMinimised = palette.child.kind === 'minimised'
-  const facts = entranceFactsOf(settings, session, schedule)
+  const facts = entranceFactsOf(settings, session, schedule, readings)
 
   return {
     at: readings.commandPaletteAt,

@@ -34,6 +34,7 @@ import {
   hasDraggedPastThreshold,
   isCombo,
   isOnRowArea,
+  isParentPickingCtrlClick,
   isSwallowedSecondPress,
   pressRowOf,
   type GrabRow,
@@ -64,6 +65,8 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
       return { kind: 'commentBox', id: item.id }
     case 'statusLine':
       return { kind: 'statusLine' }
+    case 'wbsParentLink':
+      return item.isStated ? { kind: 'wbsParentLink', childUid: item.childUid } : null
   }
 }
 
@@ -122,6 +125,27 @@ function chartPressOf(context: InputContext): PointerPress | null {
   return isSwallowedSecondPress(press, context) ? null : press
 }
 
+// see T-023a, SL-4, WL-3, WL-10
+/** @purity pure */
+function pickRowOf(press: PointerPress, release: PointerInput, context: InputContext): string {
+  return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressRowOf(press, context)
+}
+
+// see SL-7, WL-5
+/** @purity pure */
+function isChoiceKeptByDrag(grab: GrabRow, ref: ItemRef, press: PointerPress, release: PointerInput,
+                           context: InputContext): boolean {
+  const isArmedForParents = context.screen.armModeState.kind === 'wbsParentArmed'
+  const isDragGrab = BODY_GRAB_ROWS.has(grab) || isArmedForParents
+  return isDragGrab && isSelected(context.selection, ref) && hasDraggedPastThreshold(press, release)
+}
+
+// see SL-3
+/** @purity pure */
+function caughtInMarquee(context: InputContext, rect: ScreenRect): readonly ItemRef[] {
+  return itemsInMarquee(context.geometry, rect).flatMap((item) => itemRefOf(context.document.schedule, item) ?? [])
+}
+
 // see T-023c
 /** @purity pure */
 export function selectionFromInput(input: HumanInput, context: InputContext): Selection {
@@ -156,9 +180,9 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
   if (press === null) return held
   if (!isOnRowArea(context, press.at.x, press.at.y)) return held
 
-  const isAdding = press.at.modifiers.shift
+  const isAdding = press.at.modifiers.shift || isParentPickingCtrlClick(press, input, context)
 
-  switch (pressRowOf(press, context)) {
+  switch (pickRowOf(press, input, context)) {
     case 'PTD-3': {
       const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
       const ref = press.hit === null ? null : pickableRefOf(context, press.hit.item)
@@ -168,20 +192,14 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       if (isAdding) {
         return isSelected(held, ref) ? selectionWithout(held, ref) : selectionWith(held, ref)
       }
-      const isWholeMoved =
-        BODY_GRAB_ROWS.has(grab) && isSelected(held, ref) && hasDraggedPastThreshold(press, input)
-      return isWholeMoved ? held : selectionWith(emptySelection(), ref)
+      return isChoiceKeptByDrag(grab, ref, press, input, context) ? held : selectionWith(emptySelection(), ref)
     }
     case 'PTD-5': {
       const rect = marqueeRect(press.at, input)
       if (rect.width === 0 && rect.height === 0) {
         return isAdding ? held : emptySelection()
       }
-      const caught: ItemRef[] = []
-      for (const item of itemsInMarquee(context.geometry, rect)) {
-        const ref = itemRefOf(context.document.schedule, item)
-        if (ref !== null) caught.push(ref)
-      }
+      const caught = caughtInMarquee(context, rect)
       return isAdding ? selectionOfAll([...held.items, ...caught]) : selectionOfAll(caught)
     }
     default:
