@@ -61,6 +61,9 @@ const REPORT_IDENTITY = { window: 'delayDiagnosticsReport', role: 'Delay Diagnos
 export const ROLE = {
   appHeader: 'App Header',
   branding: 'Branding',
+  brandingDivider: 'Branding Divider',
+  titleAndFileStrip: 'Title And File Strip',
+  documentTitleGround: 'Document Title Ground',
   documentTitle: 'Document Title',
   fileStatus: 'File Status',
   openedFileName: 'Opened File Name',
@@ -110,6 +113,7 @@ const PAINT_ROW = {
   heldRow: 'S-151',
   caution: 'S-153',
   brandingRim: 'S-464',
+  brandingDivider: 'S-493',
 } as const
 
 /** @purity pure */
@@ -135,6 +139,7 @@ export const PAINT = {
   heldRow: painted('heldRow'),
   caution: painted('caution'),
   brandingRim: painted('brandingRim'),
+  brandingDivider: painted('brandingDivider'),
 } as const
 
 /** @purity pure */
@@ -269,6 +274,8 @@ const STOPPING_BOX =
   `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};` +
   `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`
 
+const APP_HEADER_BLOCK_PADDING = '0.375em'
+
 export const STYLE = {
   root:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
@@ -282,15 +289,23 @@ export const STYLE = {
   treeIsolation: 'isolation:isolate;',
   appHeader:
     'position:absolute;left:0;top:0;right:0;box-sizing:border-box;display:flex;' +
-    'align-items:center;gap:0.75em;padding:0.375em 0.75em;line-height:1.5;' +
+    `align-items:center;padding:${APP_HEADER_BLOCK_PADDING} 0.75em;line-height:1.5;` +
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
   // see FR-039
   // TRAP: every text here stays at the normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
   // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
-  documentTitle: 'overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
-  brandedTitle: 'display:flex;align-items:center;min-width:0;overflow:hidden;',
+  documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
+  brandingDivider:
+    `flex-shrink:0;align-self:stretch;margin:-${APP_HEADER_BLOCK_PADDING} 0;background:${PAINT.brandingDivider};`,
+  // WHY: x-only clip lets file lines hang into the padding the title's border-block grounds; contain:inline-size: name adds no width.
+  titleAndFileStrip:
+    'display:flex;align-items:center;flex:1 1 0;min-width:0;align-self:stretch;overflow-x:clip;overflow-y:visible;',
+  documentTitleGround:
+    'position:relative;z-index:1;display:flex;align-items:center;flex:0 1 auto;min-width:0;' +
+    `background:${PAINT.ground};border-block:${APP_HEADER_BLOCK_PADDING} solid ${PAINT.ground};` +
+    `margin-block:-${APP_HEADER_BLOCK_PADDING};`,
   branding:
     `font-weight:normal;color:${PAINT.ink};line-height:1.2;text-decoration:none;` +
     `-webkit-text-stroke-color:${PAINT.brandingRim};paint-order:stroke fill;`,
@@ -299,9 +314,9 @@ export const STYLE = {
     'background:transparent;border:0;padding:0;margin:0;',
   // WHY: height 0, its lines hanging evenly about the header's middle, so the box never sets the header's height.
   fileStatus:
-    `margin-left:auto;color:${PAINT.quiet};display:flex;height:0;` +
+    `flex:1 0 auto;color:${PAINT.quiet};display:flex;height:0;` +
     `flex-direction:column;justify-content:center;align-items:flex-end;line-height:1.2;`,
-  openedFileName: 'flex-shrink:0;overflow:hidden;text-overflow:ellipsis;max-width:24ch;',
+  openedFileName: 'align-self:stretch;contain:inline-size;display:flex;justify-content:flex-end;',
   fileSavedAt: 'flex-shrink:0;white-space:pre;',
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   languageCode:
@@ -1402,12 +1417,18 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-461': number
   readonly 'S-462': number
   readonly 'S-463': number
+  readonly 'S-490': number
+  readonly 'S-491': number
+  readonly 'S-492': number
 } = {
   'S-225': 20,
   'S-226': 12,
   'S-461': 0.05,
   'S-462': 2.5,
   'S-463': 700,
+  'S-490': 16.5,
+  'S-491': 18,
+  'S-492': 1,
 }
 
 // see T-206
@@ -1447,5 +1468,6 @@ export const SCREEN_COLOURS: {
   'S-336': { light: '#ffffff', dark: '#ffffff', followsHue: false },
   'S-337': { light: '#c0c0c0', dark: '#c0c0c0', followsHue: false },
   'S-464': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+  'S-493': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
 }
 // </generated>
