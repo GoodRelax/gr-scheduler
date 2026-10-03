@@ -169,6 +169,15 @@ function rowTitleSvg(
   return textSvg(x, y, fontSizePx * ratio, title.label, ink)
 }
 
+// see EP-3, FR-042
+/** @purity pure */
+function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
+  const ink = colourOf('S-165', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  return (view.rowTitlePanel.groupGridLines ?? [])
+    .map((line) => rectSvg(scaledRect(line, ratio), ink))
+    .join('')
+}
+
 // see EP-9
 /** @purity pure */
 function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
@@ -204,6 +213,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     rectSvg(scaledRect(panel, ratio), chromeGround(scene)) +
     pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     titles.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
+    groupGridLinesSvg(screenView, scene, ratio) +
     dividerLinesSvg(screenView, scene, ratio)
 
   const width = canvas.width

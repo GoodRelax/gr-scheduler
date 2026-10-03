@@ -141,6 +141,7 @@ export interface RowTitlePanel {
   readonly canCloseEveryRow?: boolean
   readonly canOpenLevelZero?: boolean
   readonly foldedRowCount?: number
+  readonly groupGridLines?: readonly ScreenRect[]
 }
 
 export interface RowTitle {

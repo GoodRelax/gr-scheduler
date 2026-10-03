@@ -1846,9 +1846,12 @@ COLOUR_TARGETS = {
     # CR-628: S-464, the Branding outline (BR-3 of table T-349), drawn in the
     # App Header on this side; it names S-148 through sameAs.
     # CR-650: S-493, the App Header divider rule (BR-7), names S-149 likewise.
+    # CR-657: S-165, the Group Grid Lines colour, which FR-042 now has drawn
+    # across the Row Title Panel too -- the panel is DOM, so it reads the row
+    # here. ONE row read by two units, like S-151 above.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
-                       'S-336', 'S-337', 'S-464', 'S-493'],
+                       'S-336', 'S-337', 'S-464', 'S-493', 'S-165'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
