@@ -8,7 +8,7 @@
 
 ## 決まったこと
 
-利用者の答えは `docs/development-records/rulings.md` の `JDG-1131`〜`JDG-1140`・`JDG-1142`（と調整役が記録した `JDG-1141`）に逐語で在る。
+利用者の答えは `docs/development-records/rulings.md` の `JDG-1131`〜`JDG-1140`・`JDG-1142`（と調整役が記録した `JDG-1118`）に逐語で在る。
 変更要求は `change-request/CR-631-the-palette-shows-and-sets-the-wbs-parent.md`。
 
 - 親子判別（群 `表示`）は、指した・選んだタスクの家族だけに、子から親への矢印を描く。実線は明記の親、破線は期間から導いた親（保存しない）。
