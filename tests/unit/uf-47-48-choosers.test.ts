@@ -166,6 +166,8 @@ const T_036_ASSIGNMENT = 1
 const T_036_ENTRANCE = 2
 /** Table T-233 prints the situation first, then the row of table T-037 that is its manner. */
 const T_233_MANNER = 1
+// see NT-3a
+const NEXT_STEP_MANNER = 'NT-3a'
 
 /**
  * The settled name table T-103 gives one UI part.
@@ -225,6 +227,16 @@ const OUT_DIRECTION = '書出'
 function outDirectionRows(): readonly string[] {
   return T_024.rows
     .filter((row) => (row.cells[T_024_DIRECTION] ?? '').includes(OUT_DIRECTION))
+    .map((row) => row.id)
+}
+
+const IN_DIRECTION = '取込'
+
+// see OP-1
+/** @purity pure */
+function inDirectionRows(): readonly string[] {
+  return T_024.rows
+    .filter((row) => (row.cells[T_024_DIRECTION] ?? '').includes(IN_DIRECTION))
     .map((row) => row.id)
 }
 
@@ -2420,7 +2432,7 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
 
 describe('FR-076 -- OP-12 of table T-024a tells its three refusals apart', () => {
   /**
-   * The rows of table T-024 a file may be read AS -- the two OP-1 accepts.
+   * The rows of table T-024 a file may be read AS -- the rows OP-1 accepts.
    *
    * @purity pure
    */
@@ -2447,11 +2459,9 @@ describe('FR-076 -- OP-12 of table T-024a tells its three refusals apart', () =>
     return screen.last()
   }
 
-  it('the rows a file may be read as are the two OP-1 accepts', () => {
-    // ⭐ A premise for the three cases below, and read rather than typed:
-    // 「先頭の非空白 1 文字の欄を持つのは、`OP-1` が取込で受け付ける 2 行だけ
-    //   である」.
-    expect(readableFormats().length).toBe(2)
+  it('the rows a file may be read as are the rows OP-1 accepts', () => {
+    expect(readableFormats().map((one) => one.rowId)).toEqual(inDirectionRows())
+    expect(new Set(readableFormats().map((one) => one.firstCharacter)).size).toBeGreaterThan(1)
     for (const format of readableFormats()) {
       expect(firstCharacterOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
       expect(extensionOf(format.rowId), `table T-024 row ${format.rowId}`).not.toBeNull()
@@ -2621,8 +2631,13 @@ describe('the tables are read by position, so the positions are pinned', () => {
           '',
         )
         expect(
+          words.nextStep[language] === '',
+          `table T-233 row ${row.id} has a next step in one language only`,
+        ).toBe(words.nextStep.ja === '')
+        if (mannerFor(row.id) !== NEXT_STEP_MANNER) continue
+        expect(
           words.nextStep[language],
-          `table T-233 row ${row.id} has no next step in ${language}`,
+          `table T-233 row ${row.id} is ${NEXT_STEP_MANNER} and has no next step in ${language}`,
         ).not.toBe('')
       }
       expect(

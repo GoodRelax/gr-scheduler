@@ -1,4 +1,4 @@
-// CR-405: the help lays its blocks out in the three columns of T-256, lists T-255, and scrolls down only.
+// CR-405, CR-622, CR-635: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,6 +23,7 @@ import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-scr
 import { frameLoop, type FrameEnvironment } from '../../src/framework/single-html-shell/frame-loop'
 import {
   oneByRole,
+  resolved,
   selfAndDescendants,
   styleMap,
   surfaceOf,
@@ -44,8 +45,13 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- as many columns as S-202 and T-256 rows', 'その数と 表 T-256 の行の数を一致させること（MUST）'],
   ['FR-036 (MUST) -- no flowing into columns', '段へは流し込まずに、表 T-256 が名指す段へ塊を置くこと（MUST）'],
   ['FR-036 (MUST) -- the body region scrolls down', '⭐ 段が本文の領域に入り切らないときは、本文の領域を縦にスクロールさせること（MUST）'],
-  ['FR-036 (MUST NOT) -- the box never scrolls sideways', '⛔ 横にスクロールさせてはならない（MUST NOT）'],
+  ['FR-036 (MUST) -- opened at its default size, the body does not scroll sideways', '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'],
   ['FR-036 (MUST NOT) -- a column is not bound to the body region height', '⛔ 段の高さを本文の領域の高さで縛ってはならない（MUST NOT）'],
+  ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '⭐ 塊を 1 つずつ枠で囲むこと（MUST）'],
+  ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とし、枠の線は 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること（MUST）。'],
+  ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`Command Palette` の塊の中の群の境目は、線で示すこと（MUST）。'],
+  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635)', '・`Holiday Settings`・`Dialogue Field` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
+  ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '⭐ 入口の項目が段に載らない割当は、上の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと（MUST）'],
 ]
 
 describe('CR-405 -- the manuscript these cases are driven by', () => {
@@ -102,9 +108,25 @@ const plain = (cell: string): string => cell.replace(/[`*]/g, '').trim()
 
 const S_202 = Number(bare(rowOf(T_206, 'S-202').by[H_DEFAULT] ?? ''))
 
+const LEFT_OFF_CLAUSE = CLAUSES.find(([name]) => name.includes('leaves off'))?.[1] ?? ''
+const LEFT_OFF_AT = REQUIREMENTS.indexOf(LEFT_OFF_CLAUSE)
+const LEFT_OFF_SENTENCE = REQUIREMENTS.slice(REQUIREMENTS.lastIndexOf('⛔ 表 T-109 のうち', LEFT_OFF_AT), LEFT_OFF_AT + LEFT_OFF_CLAUSE.length)
+const LEFT_OFF_NAMES = [...LEFT_OFF_SENTENCE.matchAll(/`([^`]+)`/g)].map((found) => found[1] ?? '')
+const LEFT_OFF_ICONS = LEFT_OFF_NAMES.filter((name) => /^IC-\d+$/.test(name))
+const LEFT_OFF_SURFACES = LEFT_OFF_NAMES.filter((name) => !/^IC-\d+$/.test(name) && name !== H_SURFACE)
+
+// see FR-036
+function isLeftOff(row: string): boolean {
+  if (LEFT_OFF_ICONS.includes(row)) return true
+  return bareAll(rowOf(T_109, row).by[H_SURFACE] ?? '').every((surface) => LEFT_OFF_SURFACES.includes(surface))
+}
+
+const isOffTheHelpEntrance = (cell: string): boolean => /^IC-\d+$/.test(plain(cell)) && isLeftOff(plain(cell))
+
 const BASIC_ROWS = new Set([
   ...T_036.rows
-    .filter((row) => plain(row.by[H_ENTRANCE] ?? '') === DASH && plain(row.by[H_KEYS] ?? DASH) !== DASH)
+    .filter((row) => plain(row.by[H_KEYS] ?? DASH) !== DASH)
+    .filter((row) => plain(row.by[H_ENTRANCE] ?? '') === DASH || isOffTheHelpEntrance(row.by[H_ENTRANCE] ?? ''))
     .map((row) => row.id),
   'MK-2',
   'MK-5',
@@ -124,7 +146,7 @@ const BASICS = 'basics'
 function blockOfRow(row: string): string | null {
   if (T_255.rows.some((one) => one.id === row)) return BROWSER
   if (BASIC_ROWS.has(row)) return BASICS
-  if (!/^IC-\d+$/.test(row) || row === 'IC-52') return null
+  if (!/^IC-\d+$/.test(row) || isLeftOff(row)) return null
   const first = bareAll(rowOf(T_109, row).by[H_SURFACE] ?? '')[0] ?? ''
   return AFTER_OPENING[first] ?? first
 }
@@ -144,17 +166,20 @@ const COLUMNS: readonly (readonly string[])[] = T_256.rows.map((row) => blocksOf
 const BLOCK_ORDER: readonly string[] = COLUMNS.flat()
 
 describe('CR-405 -- the premises read from the manuscript', () => {
-  it('T-256 holds HC-1 to HC-3, as many as S-202 says', () => {
-    expect(T_256.rows.map((row) => row.id)).toEqual(['HC-1', 'HC-2', 'HC-3'])
+  it('T-256 holds HC-1, HC-2, HC-4 and HC-3 in that order, as many as S-202 says', () => {
+    expect(T_256.rows.map((row) => row.id)).toEqual(['HC-1', 'HC-2', 'HC-4', 'HC-3'])
     expect(S_202).toBe(T_256.rows.length)
   })
 
-  it('T-256 names basics, browser, Row Title Panel, Resource Roster, Search Panel, Holiday Settings, Properties Panel, then App Header, then Command Palette', () => {
-    expect(COLUMNS).toEqual([
-      [BASICS, BROWSER, 'Row Title Panel', 'Resource Roster', 'Search Panel', 'Holiday Settings', 'Properties Panel'],
-      ['App Header'],
-      ['Command Palette'],
-    ])
+  it('T-256 names basics and browser, then App Header, then Row Title Panel, then Command Palette', () => {
+    expect(COLUMNS).toEqual([[BASICS, BROWSER], ['App Header'], ['Row Title Panel'], ['Command Palette']])
+  })
+
+  it('FR-036 leaves off IC-52, IC-53, IC-75 and the rows of the surfaces it names, and puts SK-8 with the basics', () => {
+    expect(LEFT_OFF_ICONS).toEqual(['IC-52', 'IC-53', 'IC-75'])
+    expect(LEFT_OFF_SURFACES).toContain('Search Panel')
+    expect(LEFT_OFF_SURFACES).not.toContain('Row Title Panel')
+    expect(BASIC_ROWS.has('SK-8')).toBe(true)
   })
 
   it('T-255 holds BF-1 and BF-2, and T-036 holds none of their ids', () => {
@@ -247,11 +272,13 @@ const EMPTY_VIEW: ScreenView = {
   tooltips: [],
 }
 
-function drawnHelp(language: DisplayLanguage = 'en'): FakeElement {
+function helpStage(language: DisplayLanguage = 'en'): { readonly built: ReturnType<typeof wire>; readonly help: FakeElement } {
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, helpModal: helpModal(language) })
-  return oneByRole(built.root(), HELP_SURFACE)
+  return { built, help: oneByRole(built.root(), HELP_SURFACE) }
 }
+
+const drawnHelp = (language: DisplayLanguage = 'en'): FakeElement => helpStage(language).help
 
 const itemNodesOf = (help: FakeElement): readonly FakeElement[] =>
   selfAndDescendants(help).filter((one) => one.getAttribute('data-row') !== null && one.getAttribute('data-table') !== null)
@@ -339,16 +366,24 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     expect(entry?.['icon'] ?? null).toBeNull()
   })
 
-  it('carries exactly two headings: one ahead of the basics block and one ahead of the browser block', () => {
+  it('carries one heading ahead of every block, in the order T-256 names the blocks, and no other', () => {
     const headings = entries.filter((one) => one['kind'] === 'heading')
-    expect(headings, JSON.stringify(headings)).toHaveLength(2)
+    expect(headings.map(rowIdOf)).toEqual([...BLOCK_ORDER])
     expect(entries.indexOf(headings[0] as Entry)).toBe(0)
-    const firstBrowser = entries.findIndex((one) => blockOfEntry(one) === BROWSER)
-    expect(firstBrowser).toBeGreaterThan(0)
-    expect(entries.indexOf(headings[1] as Entry)).toBe(firstBrowser - 1)
+    for (const heading of headings) {
+      const next = entries.slice(entries.indexOf(heading) + 1).map(blockOfEntry).find((one) => one !== null)
+      expect(next, `the heading ${rowIdOf(heading)}`).toBe(rowIdOf(heading))
+      expect(heading['text'], `the heading ${rowIdOf(heading)} has no word`).not.toBe('')
+    }
   })
 
-  it('FR-038 holds a heading word for the browser block, and words for BF-1, in both languages', () => {
+  it('lists no row FR-036 leaves off, and lists SK-8 in the basics block', () => {
+    const listed = entries.filter((one) => one['kind'] !== 'heading').map(rowIdOf)
+    expect(listed.filter((row) => /^IC-\d+$/.test(row) && isLeftOff(row))).toEqual([])
+    expect(entries.find((one) => rowIdOf(one) === 'SK-8')?.['block']).toBe(BASICS)
+  })
+
+  it('FR-038 holds a heading word for every block, and words for BF-1, in both languages', () => {
     const words = JSON.parse(
       readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as Record<string, unknown>
@@ -360,7 +395,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     expect(bf1[0]?.text?.['ja'] ?? '').not.toBe('')
     expect(bf1[0]?.text?.['en'] ?? '').not.toBe('')
     const headings = (words['helpHeadings'] ?? []) as { block: string; text: Record<string, string> }[]
-    expect(headings, 'helpHeadings holds the basics heading and one more').toHaveLength(2)
+    expect(headings.map((one) => one.block), 'helpHeadings holds one heading per block').toEqual([...BLOCK_ORDER])
     for (const heading of headings) {
       expect(heading.text['ja'] ?? '').not.toBe('')
       expect(heading.text['en'] ?? '').not.toBe('')
@@ -370,7 +405,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
   it.skip('T-255 (MUST NOT): with a row of T-036 put on Ctrl + 0 in a copy of the manuscript, BF-2 is refused -- open: needs the roster generator run against a modified manuscript, which a unit case cannot do', () => {})
 })
 
-describe('FR-036 + T-256 (MUST) -- the page: three columns placed by T-256, not flowed', () => {
+describe('FR-036 + T-256 (MUST) -- the page: the columns placed by T-256, not flowed', () => {
   it('draws every item with the data-row the system sweep reads, BF-1 included', () => {
     const rows = itemNodesOf(drawnHelp()).map((one) => one.getAttribute('data-row'))
     for (const row of LISTED_BROWSER_ROWS) expect(rows, row).toContain(row)
@@ -398,6 +433,57 @@ describe('FR-036 + T-256 (MUST) -- the page: three columns placed by T-256, not 
   })
 })
 
+const numberIn = (cell: string): number => Number(/\d+(?:\.\d+)?/.exec(bare(cell))?.[0] ?? Number.NaN)
+
+const S_437_PX = numberIn(rowOf(T_206, 'S-437').by[H_DEFAULT] ?? '')
+const S_457_EM = numberIn(rowOf(T_206, 'S-457').by[H_DEFAULT] ?? '')
+const S_149_LIGHT = bare(rowOf(specTable('T-236'), 'S-149').by[String.fromCodePoint(0x660e, 0x308b, 0x3044, 0x30c6, 0x30fc, 0x30de)] ?? '')
+  .replace('H', String(THEME_HUE))
+  .replace(/\s+/g, '')
+  .toLowerCase()
+
+const isRuleLine = (one: FakeElement): boolean =>
+  one.children.length === 0 && (one.textContent ?? '') === '' && styleMap(one).has('height') && styleMap(one).has('background')
+
+// see FR-036, S-437, S-457
+function frameOf(help: FakeElement, block: string): FakeElement | null {
+  const { container } = columnsOf(help)
+  const items = itemNodesOf(help).filter((one) => blockOfRow(one.getAttribute('data-row') ?? '') === block)
+  const others = itemNodesOf(help).filter((one) => !items.includes(one))
+  for (let at: FakeElement | null = commonAncestor(items); at !== null && at.parentNode !== container; at = at.parentNode) {
+    if (others.some((one) => at?.contains(one))) return null
+    if ((styleMap(at).get('border') ?? '') !== '') return at
+  }
+  return null
+}
+
+describe('FR-036 (MUST) -- every block stands in a frame of its own (CR-622)', () => {
+  it('rules every block with S-437 px of S-149 and pads it S-457 em, inside one column', () => {
+    const { built, help } = helpStage()
+    for (const block of BLOCK_ORDER) {
+      const frame = frameOf(help, block)
+      if (frame === null) throw new Error(`the ${block} block has no frame of its own: ${whatWasDrawn(help).slice(0, 400)}`)
+      const [width, kind, ...colour] = (styleMap(frame).get('border') ?? '').trim().split(/\s+/)
+      expect(width, block).toBe(`${S_437_PX}px`)
+      expect(kind, block).toBe('solid')
+      expect(resolved(built, colour.join(' ')), block).toBe(S_149_LIGHT)
+      expect(styleMap(frame).get('padding'), block).toBe(`${S_457_EM}em`)
+    }
+  })
+
+  it('draws the group lines inside the Command Palette frame only, and no line between two frames', () => {
+    const help = drawnHelp()
+    for (const block of BLOCK_ORDER) {
+      const frame = frameOf(help, block) as FakeElement
+      const lines = selfAndDescendants(frame).filter(isRuleLine)
+      if (block === 'Command Palette') expect(lines.length, block).toBeGreaterThan(0)
+      else expect(lines.length, block).toBe(0)
+    }
+    const { columns } = columnsOf(help)
+    expect(columns.flatMap((column) => column.children.filter(isRuleLine))).toEqual([])
+  })
+})
+
 const scrollsOn = (element: FakeElement, axis: 'x' | 'y'): boolean => {
   const style = styleMap(element)
   const shorthand = (style.get('overflow') ?? '').trim().split(/\s+/)
@@ -417,7 +503,7 @@ const chainFrom = (from: FakeElement, to: FakeElement): readonly FakeElement[] =
 
 const BOUNDING = ['height', 'max-height']
 
-describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down and never sideways', () => {
+describe('FR-036 (MUST / MUST NOT) -- the help box scrolls down, and not sideways at its default size', () => {
   it('a box between the columns and the help surface scrolls vertically', () => {
     const help = drawnHelp()
     const { container } = columnsOf(help)

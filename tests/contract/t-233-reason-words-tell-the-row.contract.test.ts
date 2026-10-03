@@ -504,6 +504,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-09-30; too many pinned rows to show the jump target, and unpinning is the road.
   'RS-66': '03f75c78c0234c09',
   'RS-67': '3ce77e4ce9aa953e',
+  // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
+  'RS-68': 'de02bc0ee9928819',
 }
 
 const fingerprintOf = (rowId: string): string => {

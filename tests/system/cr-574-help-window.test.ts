@@ -12,10 +12,11 @@ const FR_036_TITLE_ORDER =
   '⭐ ヘルプの題の行は、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）。'
 const FR_036_NOTHING_ELSE = '⛔ 題の行に、ほかのものを置いてはならない（MUST NOT）'
 const FR_036_TWO_REGIONS = '⭐ ヘルプを、題の行と本文の 2 つの領域に分け、上下に並べること（MUST）。'
-const FR_036_BODY_SCROLLS = '本文の領域だけを縦にスクロールさせること（MUST）。'
+const FR_036_BODY_SCROLLS = '本文の領域だけをスクロールさせること（MUST）'
 const FR_036_TITLE_OUTSIDE_THE_SCROLL =
   '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文が題の行の縁に透け、送る前は題の行が最初の見出しを覆う。'
-const FR_036_GAP = '⭐ 割当は説明の直後に、`_assets/tbl-settings.md` の 表 T-206 の `S-436` の間隔をあけて置くこと（MUST）。'
+const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
+const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
 const FR_036_MAXIMISED = 'ヘルプを最大化したときに占める範囲は、閲覧環境の窓の全体とする（MUST）'
 const FR_036_NOT_A_SURFACE =
   '⭐ ヘルプは `_assets/tbl-settings.md` の `S-99g` の面ではない —— ほかの面を立ててもヘルプを閉じず、ヘルプの状態も言語も変えないこと（MUST）。'
@@ -27,7 +28,7 @@ const FR_038_SEEDED_ON_OPENING = '⭐ ヘルプを開くたびに、ヘルプの
 const FR_038_NOT_THE_SCREEN = '⛔ ヘルプの言語を替えて画面の言語を替えてはならない（MUST NOT）。'
 const FR_038_NOT_STORED = '⛔ ヘルプの言語を保存してはならない（MUST NOT） —— 文書にも、閲覧環境の保管庫にも置かない。'
 const IN_4_SURFACE_THEN_HELP =
-  '⭐ 開いている面の段では、立っている面が先、通常か最大化のヘルプが後である（`_assets/tbl-settings.md` の `S-99g`） —— 手前のものから閉じる。'
+  '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウインドウ」の段に立つ'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
 
 const CLAUSES: readonly string[] = [
@@ -37,6 +38,7 @@ const CLAUSES: readonly string[] = [
   FR_036_BODY_SCROLLS,
   FR_036_TITLE_OUTSIDE_THE_SCROLL,
   FR_036_GAP,
+  FR_036_RIGHT_END,
   FR_036_MAXIMISED,
   FR_036_NOT_A_SURFACE,
   FR_036_OTHERS_IN_FRONT,
@@ -163,6 +165,8 @@ interface Gap {
   readonly row: string
   readonly gap: number
   readonly font: number
+  readonly keyRight: number
+  readonly innerRight: number
 }
 
 interface HelpReading {
@@ -354,7 +358,7 @@ async function readHelp(page: Page): Promise<HelpReading> {
       const textOverTitle: string[] = []
       let hitsOverTitle = 0
       let firstHeading: { rect: Box; onHeading: number; underHelp: number; underFront: number } | null = null
-      const gaps: { row: string; gap: number; font: number }[] = []
+      const gaps: { row: string; gap: number; font: number; keyRight: number; innerRight: number }[] = []
       if (body !== null) {
         const bodyRect = rectOf(body)
         const texts = document.createTreeWalker(body, NodeFilter.SHOW_TEXT)
@@ -430,11 +434,26 @@ async function readHelp(page: Page): Promise<HelpReading> {
             return Array.from(range.getClientRects()).filter((one) => one.width > 0)
           }
           const last = rectsOf(descStart, descEnd).pop()
-          const first = rectsOf(keyStart, keyStart + key.length)[0]
+          const keyRects = rectsOf(keyStart, keyStart + key.length)
+          const first = keyRects[0]
+          const keyEnd = keyRects[keyRects.length - 1]
           const describedBy = at(Math.max(descEnd - 1, descStart))?.node.parentElement ?? null
-          if (last === undefined || first === undefined || describedBy === null) continue
+          if (last === undefined || first === undefined || keyEnd === undefined || describedBy === null) continue
           if (Math.abs(last.bottom - first.bottom) > 2) continue
-          gaps.push({ row: item.getAttribute('data-row') ?? '', gap: first.left - last.right, font: parseFloat(getComputedStyle(describedBy).fontSize) })
+          let frame = item.parentElement
+          while (frame !== null && frame !== body && parseFloat(getComputedStyle(frame).borderRightWidth) === 0) frame = frame.parentElement
+          const framed = frame === null || frame === body ? null : getComputedStyle(frame)
+          const innerRight =
+            frame === null || framed === null
+              ? Number.NaN
+              : frame.getBoundingClientRect().right - parseFloat(framed.borderRightWidth) - parseFloat(framed.paddingRight)
+          gaps.push({
+            row: item.getAttribute('data-row') ?? '',
+            gap: first.left - last.right,
+            font: parseFloat(getComputedStyle(describedBy).fontSize),
+            keyRight: keyEnd.right,
+            innerRight,
+          })
         }
       }
       return {
@@ -619,15 +638,17 @@ test.describe('CR-574 item 3 -- what the title row holds, left to right (FR-036,
   })
 })
 
-test.describe('CR-574 item 4 -- the assignment follows its description at S-436 (FR-036)', () => {
-  test('item 4: on every one-line item with a key, the space from the description to the key is S-436 em of the help text', async () => {
+test.describe('CR-574 item 4, CR-622 -- the assignment stands at the right end, at least S-436 after its description (FR-036)', () => {
+  test('item 4: on every one-line item with a key, the key ends at the frame inner right edge, S-436 em or more after the description', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const opened = await openHelp(stage.page)
       expect(opened.gaps.length, 'premise: the help draws items whose description and key share a line').toBeGreaterThan(0)
-      const wrong = opened.gaps.filter((one) => Math.abs(one.gap - S_436_EM * one.font) > 1)
-      expect(wrong.map((one) => `${one.row}: ${one.gap.toFixed(2)}px at ${one.font}px`), `${FR_036_GAP} (${S_436_EM} em)`).toEqual([])
+      const narrow = opened.gaps.filter((one) => one.gap < S_436_EM * one.font - 1)
+      expect(narrow.map((one) => `${one.row}: ${one.gap.toFixed(2)}px at ${one.font}px`), `${FR_036_GAP} (${S_436_EM} em)`).toEqual([])
+      const astray = opened.gaps.filter((one) => !(Math.abs(one.keyRight - one.innerRight) <= 1))
+      expect(astray.map((one) => `${one.row}: key ends ${one.keyRight.toFixed(2)}, frame inside ${one.innerRight.toFixed(2)}`), FR_036_RIGHT_END).toEqual([])
     } finally {
       await stage.close()
     }

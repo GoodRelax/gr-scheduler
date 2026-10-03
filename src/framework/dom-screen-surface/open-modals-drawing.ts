@@ -38,14 +38,28 @@ const HELP_FOOTNOTE_STYLE = 'overflow-wrap:anywhere;margin-top:1lh;'
 // @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
-// see FR-036, T-256
+// see FR-036, T-256, S-457
 // TRAP: a height bound here (flex:1 with min-height:0, or column-fill over a bounded box) sends a
 // block that does not fit into a column added to the right, and the help scrolls sideways.
 /** @purity pure */
 function helpColumnsStyle(): string {
   return (
     `display:grid;grid-template-columns:repeat(${NOT_STORED_HELP_SIZES['S-202']},minmax(0,1fr));` +
-    'column-gap:1.5em;align-items:start;flex:0 0 auto;'
+    `column-gap:${NOT_STORED_HELP_SIZES['S-457']}em;align-items:start;flex:0 0 auto;`
+  )
+}
+
+/** @purity pure */
+function helpColumnStyle(): string {
+  return `${STYLE.helpColumn}display:flex;flex-direction:column;row-gap:${NOT_STORED_HELP_SIZES['S-457']}em;`
+}
+
+// see FR-036, S-437, S-457
+/** @purity pure */
+function helpBlockFrameStyle(): string {
+  return (
+    `${STYLE.helpBlock}border:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};` +
+    `padding:${NOT_STORED_HELP_SIZES['S-457']}em;`
   )
 }
 
@@ -73,12 +87,12 @@ function helpTitleRowStyle(): string {
   return 'flex:0 0 auto;margin:0;padding:0.5em 1em;'
 }
 
-// see FR-036, S-437
+// see FR-036, S-437, S-457
 /** @purity pure */
 function helpBodyStyle(): string {
   return (
     'flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;' +
-    'display:flex;flex-direction:column;padding:0.5em 1em 1em 1em;' +
+    `display:flex;flex-direction:column;padding:${NOT_STORED_HELP_SIZES['S-457']}em;` +
     `border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};`
   )
 }
@@ -96,15 +110,19 @@ function helpIndentPx(isIndented: boolean): number {
 const HELP_GLYPH_GAP_EM = 0.5
 
 // see FR-036, S-436
-// WHY: the glyph hangs in the row's left padding, out of the flex line, so an assignment sent to the
-// next line starts under the explanation; the explanation's right margin is the gap on one line.
+// WHY: margin-left:auto, not only the growing explanation, so an assignment sent to the next line stays right.
 /** @purity pure */
-function helpItemStyles(glyphCount: number, isIndented: boolean): { readonly row: string; readonly glyph: string } {
+function helpItemStyles(
+  glyphCount: number,
+  isIndented: boolean,
+): { readonly row: string; readonly glyph: string; readonly text: string; readonly keys: string } {
   const indent = helpIndentPx(isIndented)
   const slot = `${chromeScaledPx(NOT_STORED_ICON_SIZES['S-138']) * glyphCount}px + ${HELP_GLYPH_GAP_EM}em`
   return {
     row: `${STYLE.helpEntry}position:relative;padding-left:calc(${indent}px + ${slot});`,
     glyph: `${STYLE.helpGlyph}position:absolute;left:${indent}px;top:0;height:1lh;`,
+    text: `${STYLE.helpText}flex:1 1 auto;margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`,
+    keys: `${STYLE.helpKeys}margin-left:auto;`,
   }
 }
 
@@ -163,12 +181,11 @@ function helpItemElement(
   const written = [line.keys, line.press]
     .filter((one): one is string => one !== null)
     .join(ASSIGNMENT_SEPARATOR)
-  const gap = written === '' ? '' : `margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`
-  const text = made(host, 'span', STYLE.helpText + gap)
+  const text = made(host, 'span', written === '' ? STYLE.helpText : styles.text)
   text.textContent = line.text
   row.append(text)
 
-  const assignment = made(host, 'span', STYLE.helpKeys)
+  const assignment = made(host, 'span', styles.keys)
   if (written !== '') appendAssignment(host, assignment, written, false)
   row.append(assignment)
   return { row, text }
@@ -297,16 +314,14 @@ function helpColumnsElement(
     const lineSegment = line.segment
     if (block === null || name !== blockName) {
       let column = columnByRow.get(line.column)
-      const isColumnTop = column === undefined
       if (column === undefined) {
-        column = made(host, 'div', STYLE.helpColumn)
+        column = made(host, 'div', helpColumnStyle())
         column.setAttribute('data-help-column', line.column)
         columnByRow.set(line.column, column)
         columns.append(column)
       }
-      const opened = made(host, 'div', STYLE.helpBlock)
+      const opened = made(host, 'div', helpBlockFrameStyle())
       opened.setAttribute('data-help-block', name)
-      if (!isColumnTop) opened.append(made(host, 'div', paletteGroupRuleStyle()))
       column.append(opened)
       block = opened
       blockName = name
@@ -370,7 +385,7 @@ function modalTitleRow(
   for (const item of headingRowCommands(modal)) {
     if ('entries' in modal && item.icon === modal.legend) continue
     const entry = anchoredEntry(host, item, anchors)
-    if ('resources' in modal && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
+    if (('resources' in modal || 'formats' in modal) && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
     if ('entries' in modal && item.icon === HELP_LANGUAGE_ENTRY) drawLanguageReading(host, entry, modal.helpLanguage)
     header.append(entry)
   }
@@ -385,7 +400,7 @@ function headingRowCommands(modal: OpenModal): readonly CommandItem[] {
   return [...modal.commands.filter((item) => item.icon !== CLOSE_SURFACE_ENTRY), ...close]
 }
 
-// see RR-6
+// see RR-6, FR-096
 /** @purity non-pure */
 function pushToTheRightEnd(entry: HTMLElement): void {
   entry.setAttribute('style', `${entry.getAttribute('style') ?? ''}margin-left:auto;`)
@@ -420,6 +435,7 @@ export function modalElement(
   }
 
   if ('formats' in modal) {
+    // DEVIATION: spec says a two-row grid (FR-096); here one wrapping row, as JDG-1162 overturns it (DFC-1357)
     const choices = made(host, 'div', STYLE.formatChoices)
     for (const format of modal.formats) {
       const choice = made(host, 'button', entryStyle())
