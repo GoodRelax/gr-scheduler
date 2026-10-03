@@ -97,7 +97,7 @@ const SCHEMA_TEXT = JSON.stringify(
 
 interface SettingsBlock {
   readonly id?: string
-  readonly rows?: readonly { readonly id?: string; readonly value?: { readonly num?: string } }[]
+  readonly rows?: readonly { readonly id?: string; readonly value?: { readonly num?: string; readonly lit?: string } }[]
 }
 
 // see T-209
@@ -107,13 +107,15 @@ const T_209_ROWS = (
   }
 ).blocks.find((block) => block.id === 'T-209')?.rows ?? []
 
-// WHY: the manuscript names a value of table T-209 as `{{S-128}}`, and the prompt carries the number
-// that row states, so no prose holds a copy of it (CR-644).
+// WHY: the manuscript names a T-209 value as `{{S-128}}` and the prompt carries what the row states (CR-644);
+// a literal row (S-482 / S-483, CR-646) is carried as its own text.
 /** @purity pure */
-function t209Number(id: string): string {
+function t209Value(id: string): string {
   const found = T_209_ROWS.filter((row) => row.id === id)
+  const literal = found.length === 1 ? found[0]?.value?.lit : undefined
+  if (typeof literal === 'string') return literal
   const value = Number(found.length === 1 ? found[0]?.value?.num : NaN)
-  if (!Number.isFinite(value)) throw new Error(`table T-209 states no single plain number for ${id}`)
+  if (!Number.isFinite(value)) throw new Error(`table T-209 states no single plain value for ${id}`)
   return String(value)
 }
 
@@ -122,7 +124,7 @@ function t209Number(id: string): string {
 function manuscriptOf(language: Language): string {
   const text = readFileSync(join(ROOT, 'docs', 'spec', '_source', `image-to-grs-json-prompt.${language}.md`), 'utf8')
   const body = text.replace(/\r\n/g, '\n').split('\n').slice(1).join('\n').replace(/\s+$/, '')
-  const printed = body.replace(/\{\{(S-[0-9]+[a-z]?)\}\}/g, (_token, id: string) => t209Number(id))
+  const printed = body.replace(/\{\{(S-[0-9]+[a-z]?)\}\}/g, (_token, id: string) => t209Value(id))
   if (printed.includes('{{') || printed.includes('}}')) throw new Error(`${language}: a {{...}} token names no row of T-209`)
   return printed
 }

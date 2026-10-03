@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 163 | 2262 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 38 | 253 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 159 | 3592 | 1 | 2 | 2 | 0 |
+| `system` | TS-3 | - | 38 | 254 | 0 | 1 | 0 | 0 |
+| `unit` | TS-6 | - | 159 | 3593 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 380 | 6211 | 11 | 17 | 9 | 1 |
+| **all** | | | 380 | 6213 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -74,7 +74,7 @@ named either way: 1 of 11.
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 16 of 159.
+`semi-pure-a` (rule 04 table UO, row UO-1): 15 of 159.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -144,8 +144,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, T-075, T-209, T-213 |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | blankTaskVisual (pure), documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-100, T-024a, T-036, T-103, T-233 |
 | `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-054, FR-083, T-245, T-350 |
-| `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-224, T-297 |
-| `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | dayOf (pure), documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure) | yes | FR-021, FR-101, T-059, T-220, T-228 |
+| `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-220, T-224, T-297 |
+| `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | dayOf (pure), documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure), readLocalMoment (semi-pure-b) | - | FR-021, FR-101, T-059, T-220, T-228 |
 | `tests/unit/cr-646-side-time-writers.test.ts` | dayOf (pure) | yes | T-064, T-209, T-350 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
@@ -354,7 +354,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266, T-350 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129, S-482, S-483 | - | - | - | - |
 | `tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts` | 63 | FR-019, FR-097 | - | T-023d, T-108, T-206, T-221, T-246 | AT-110, AT-115, AT-117, CM-50, CM-51, CM-54, GR-14, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-11, HB-12, IV-19, LF-14, LF-15, LF-17, RS-44, S-1, S-12, S-75, S-137, S-230, S-292, S-293 | - | - | - | - |
 | `tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts` | 4 | - | - | T-035, T-065 | AG-11, IF-9 | - | - | - | - |
-| `tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts` | 11 | FR-011, FR-054 | - | T-012, T-021a, T-209, T-350 | EX-7, PV-1, PV-2, PV-5, RV-1, S-129, S-130, S-483, SH-5 | - | - | - | - |
+| `tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts` | 11 | FR-011, FR-054 | - | T-012, T-021a, T-209, T-350 | EX-7, PV-1, PV-2, PV-5, RV-1, S-129, S-130, S-482, S-483, SH-5, WT-3 | - | - | - | - |
 | `tests/contract/dfc-577-iv-21-import-refuses-a-negative-actual.test.ts` | 5 | FR-011, FR-023 | - | T-024a, T-220 | IV-21, OP-5, UF-22 | - | - | - | - |
 | `tests/contract/dfc-578-a-press-on-the-dialogue-field-keeps-the-browser-default.test.ts` | 3 | FR-066 | - | T-023, T-035 | AG-11, MK-10 | - | - | - | - |
 | `tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts` | 9 | - | - | T-028, T-065 | IF-9, IN-4, IN-5a, MK-10, SK-14, SK-18, U-44 | - | - | - | - |
@@ -418,7 +418,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-551-a-swatch-pressed-with-space.test.ts` | 2 | - | - | T-016, T-025, T-294 | CV-6, CV-9, FT-1, MC-6, SK-6, U-25 | - | - | - | - |
 | `tests/system/cr-551-tooltips-stay-on-one-line.test.ts` | 2 | FR-038 | - | T-025, T-028, T-206, T-212 | EZ-2, IC-22, IN-7, MC-6, S-124, S-339, U-53 | - | - | - | - |
 | `tests/system/cr-553-a-shown-control-group-stays-its-row.test.ts` | 6 | FR-022, FR-051, FR-055, FR-065, FR-067 | - | T-025, T-051, T-107, T-109 | AM-8, GR-21, HF-6, HF-13, HF-19, LF-16 | - | - | - | - |
-| `tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts` | 11 | FR-065, FR-066, FR-068 | - | T-103, T-109, T-209 | IC-18, IC-20, IC-21, IC-115, OP-2, RS-15, RS-65, S-128 | - | - | - | - |
+| `tests/system/cr-562-the-image-to-grs-json-prompt-is-copied.test.ts` | 11 | FR-065, FR-066, FR-068 | - | T-103, T-109, T-209 | IC-18, IC-20, IC-21, IC-115, OP-2, RS-15, RS-65, S-128, S-482, S-483 | - | - | - | - |
 | `tests/system/cr-565-a-newer-document-leads-to-the-latest-version.test.ts` | 1 | FR-073 | - | T-025, T-103, T-109 | RS-63, S-350 | - | - | - | - |
 | `tests/system/cr-570-tree-state-drawing-and-arming.test.ts` | 8 | - | - | T-329 | HF-2, HF-10, HF-11, HF-12, HF-13, RS-28, RS-29, RS-30, RS-31, RS-32 | - | - | - | - |
 | `tests/system/cr-570-tree-state-on-the-large-sample.test.ts` | 13 | FR-018, FR-055 | - | T-051, T-328, T-329 | HF-2, HF-3, HF-8, HF-10, HF-11, HF-13, OP-3, OP-10, TD-6, TD-7, ZE-1, ZE-2 | - | - | - | - |
@@ -440,7 +440,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/fr-052-no-band-on-a-panel-not-shown.test.ts` | 1 | FR-052 | - | T-023d, T-025, T-206 | GR-22, S-99h, S-134, S-208 | - | - | - | - |
 | `tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts` | 2 | FR-022, FR-065, FR-073, FR-076, NFR-004 | - | T-025, T-032, T-032a, T-103, T-107, T-109, T-219, T-233 | AM-2, AM-3, AM-8, AM-11, CN-1, IC-20, IC-95, IC-97, MC-6, MG-1, MG-6, MM-1, MM-2, MM-4, RS-48, S-99, S-350, TW-2, U-57, U-61 | - | - | - | - |
 | `tests/system/measured-sweep.test.ts` | 27 | FR-001, FR-006, FR-017, FR-019, FR-020, FR-025, FR-029, FR-031, FR-036, FR-038, FR-039, FR-043, FR-053, FR-055, FR-060, FR-080, FR-083, FR-085, FR-091, FR-092, FR-096, FR-101, FR-102, NFR-004, SWS-1, SWS-8 | - | T-006a, T-012, T-012a, T-016, T-017b, T-023, T-023a, T-023d, T-024, T-024a, T-025, T-028, T-034, T-036, T-037, T-051, T-064, T-068, T-075, T-076, T-077, T-109, T-201, T-202, T-204, T-206, T-212, T-215, T-219, T-220, T-221, T-227, T-233, T-238, T-252, T-255, T-328 | BO-1, BT-2, CM-20, CN-1, CV-9, DI-5, DS-1, EP-1, EP-3, EP-12, EZ-2, FD-6, HF-6, HF-8, HF-9, HF-10, HF-12, HF-14, HF-17, HS-7, IC-12, IC-13, IC-14, IC-15, IC-30, IC-53, IC-102, IN-4, IN-6, IO-1, IO-2, IO-3, IO-4, IO-6, IO-7, IV-12, IV-19, LF-1, MC-6, MK-3, MK-4, MK-13, MK-15, NT-3, NT-8, OP-13, OP-14, PI-1, PR-1, PR-3, PR-14, PTD-4, RS-25, RS-26, RS-30, RS-42, RS-43, S-3, S-4, S-5, S-13, S-37, S-49, S-81, S-83, S-85, S-124, S-136, S-179, S-197, S-200, S-203, S-204, S-210, S-217, S-234, S-235, S-236, SH-1, SH-4, SH-5, SK-3, SK-6, SK-7, SK-8, SK-11, SK-14, SK-16, SK-19, SK-21, SP-2, SP-4, TM-1, TM-2, TM-3, TM-4, TW-2, U-39, UF-71, W-2 | - | - | - | - |
-| `tests/system/mspdi-normalization.sws.test.ts` | 5 | SWS-6 | - | T-003, T-024, T-025, T-033, T-103, T-109, T-218, T-228, T-265 | CN-5, DI-4, DI-6, IC-2, IC-3, NR-1, NR-2, NR-3, NR-6, TS-3 | - | - | - | - |
+| `tests/system/mspdi-normalization.sws.test.ts` | 6 | SWS-6 | - | T-003, T-024, T-025, T-033, T-103, T-109, T-218, T-228, T-265 | CN-5, DI-4, DI-6, DV-12, IC-2, IC-3, NR-1, NR-2, NR-3, NR-6, NR-7, TS-3 | - | - | - | - |
 | `tests/system/nfr-004-file-scheme-sweep.sws.test.ts` | 3 | FR-013, FR-016, FR-018, FR-029, FR-033, FR-034, FR-038, FR-039, FR-044, FR-051, FR-052, FR-053, FR-060, FR-065, FR-071, FR-085, FR-095, NFR-004 | - | T-003, T-020, T-023, T-023a, T-023b, T-023c, T-023d, T-024, T-028, T-036, T-051, T-103, T-109, T-202, T-206, T-234, T-237, T-252, T-260, T-308, T-337, T-348 | AR-1, AR-5, AS-1, CN-1, DS-4, EN-1, EZ-6, GA-1, GA-2, GA-9, GA-19, GR-16, GR-19, GR-20, GR-21, GR-22, GR-23, GR-24, GR-25, GR-26, GR-27, GR-28, HF-6, IC-3, IC-7, IC-14, IC-15, IC-17, IC-20, IC-21, IC-27, IC-34, IC-45, IC-50, IN-4, IO-5, IO-6, LM-14, MK-4, MK-6, MK-8, MK-10, MK-11, MK-12, MK-13, NT-7, NT-8, PTD-1, PTD-2, PTD-3, PTD-4, PTD-4a, PTD-5, RT-4a, S-1, S-234, SE-1, SE-2, SE-4, SK-1, SK-1a, SK-4, SK-8, SK-11, SK-14, SK-15, SK-16, SK-16a, SK-16c, SK-18, SK-19, SK-22, SK-23, SL-1, SL-2, SL-3, SL-4, SL-7a, SL-8, SV-10, SV-11, SV-18, TL-2, TL-3, U-21, U-55, UZ-5, UZ-10, W-4, ZO-6 | - | - | - | - |
 | `tests/system/open-defect-pins.test.ts` | 10 | FR-001, FR-019, FR-029, FR-043, FR-091 | - | T-023b, T-025, T-240 | DM-3, DS-1, DS-4, DS-8, GA-1, GA-5, GA-6, PM-1a, PTD-3, PTD-4, PTD-5, S-1, S-4, S-5, S-22, S-75, S-76, S-99g, S-129, S-180, S-208, S-247 | - | - | - | - |
 | `tests/system/pinned-band-and-the-empty-document.test.ts` | 6 | FR-006, FR-085, NFR-004 | - | T-025, T-028, T-051, T-058, T-103, T-109, T-203 | CN-1, HF-1, HF-10, HF-12, HF-14, HF-17, IN-4, IN-5a, S-418, U-60 | - | - | - | - |
@@ -515,8 +515,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 23 | FR-009 | - | T-075, T-209, T-213 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | 15 | FR-011, FR-012, FR-021, FR-100 | - | T-024a, T-036, T-103, T-233 | AT-39, IO-7, NT-3, OP-3, OP-4, OP-6, RS-52, VC-5 | - | - | - | - |
 | `tests/unit/cr-646-edits-write-side-times.test.ts` | 27 | FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-39, CM-50, CM-54, EX-4, GA-9, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, K-2, S-77, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
-| `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-224, T-297 | AT-154, AT-155, BK-4, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
-| `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | 25 | FR-021, FR-101 | - | T-059, T-220, T-228 | AT-154, AT-155, DV-12, EX-4, EX-10, EX-11, EX-12, IV-23, K-3, NR-1, NR-7, S-482, WT-1, WT-9, WT-10, X-5 | - | - | - | - |
+| `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-220, T-224, T-297 | AT-154, AT-155, BK-4, CP-13, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, PI-13, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
+| `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | 26 | FR-021, FR-101 | - | T-059, T-220, T-228 | AT-154, AT-155, DV-12, EX-4, EX-10, EX-11, EX-12, IV-23, K-3, NR-1, NR-7, S-482, UF-36, WT-1, WT-9, WT-10, X-5 | - | - | - | - |
 | `tests/unit/cr-646-side-time-writers.test.ts` | 18 | - | - | T-064, T-209, T-350 | AT-154, AT-155, EX-7, K-1, PI-1, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |

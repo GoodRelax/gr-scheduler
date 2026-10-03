@@ -42,6 +42,12 @@ const NAME_ROW = 'NR-3'
 // see T-228
 const SIBLING_ORDER_ROW = 'NR-6'
 
+// see T-228
+const MADE_AT_WRITE_ROW = 'NR-7'
+
+// see DV-12
+const MADE_AT_WRITE_ELEMENT = 'LastSaved'
+
 // WHY: read out of the tables rather than written down here, so a row ID that
 // moves fails at once instead of printing a dead reference in a message.
 // see T-265
@@ -263,13 +269,18 @@ async function sameAfterNormalization(
 ): Promise<{ same: boolean; at: number; firstAt: string; secondAt: string }> {
   return page.evaluate(
     /** @purity pure */
-    (pair: { first: string; second: string }) => {
+    (pair: { first: string; second: string; madeAtWrite: string }) => {
       const XMLNS = 'http://www.w3.org/2000/xmlns/'
       /** @purity pure */
       const shapeOf = (markup: string): string => {
         const parsed = new DOMParser().parseFromString(markup, 'application/xml')
         const failed = parsed.querySelector('parsererror')
         if (failed !== null) return `not xml: ${failed.textContent ?? ''}`
+        // see NR-7
+        const root = parsed.documentElement
+        for (const child of Array.from(root.children)) {
+          if (child.localName === pair.madeAtWrite && child.namespaceURI === root.namespaceURI) root.removeChild(child)
+        }
         /** @purity pure */
         const written = (element: Element): string => {
           // see NR-3
@@ -328,7 +339,43 @@ async function sameAfterNormalization(
         secondAt: two.slice(Math.max(0, at - 80), at + 80),
       }
     },
-    { first, second },
+    { first, second, madeAtWrite: MADE_AT_WRITE_ELEMENT },
+  )
+}
+
+// WHY: cut from the written document: one copy moves only the value made at the write (NR-7), the other
+// the first other leaf of Project, so the step drops that one value and nothing beside it.
+/** @purity semi-pure-b */
+async function projectLeafCopies(
+  page: Page,
+  markup: string,
+): Promise<{ madeAtWriteCount: number; madeAtWriteMoved: string; otherLeaf: string; otherMoved: string | null }> {
+  return page.evaluate(
+    /** @purity pure */
+    (pair: { text: string; madeAtWrite: string }) => {
+      const serializer = new XMLSerializer()
+      /** @purity pure */
+      const parsed = (): Document => new DOMParser().parseFromString(pair.text, 'application/xml')
+      /** @purity pure */
+      const leavesOf = (doc: Document): Element[] =>
+        Array.from(doc.documentElement.children).filter((one) => one.children.length === 0)
+      const counted = parsed()
+      const madeAtWriteCount = leavesOf(counted).filter((one) => one.localName === pair.madeAtWrite).length
+      const moved = parsed()
+      for (const one of leavesOf(moved)) {
+        if (one.localName === pair.madeAtWrite) one.textContent = `${one.textContent ?? ''}0`
+      }
+      const other = parsed()
+      const otherOne = leavesOf(other).find((one) => one.localName !== pair.madeAtWrite) ?? null
+      if (otherOne !== null) otherOne.textContent = `${otherOne.textContent ?? ''}0`
+      return {
+        madeAtWriteCount,
+        madeAtWriteMoved: serializer.serializeToString(moved),
+        otherLeaf: otherOne?.localName ?? 'none',
+        otherMoved: otherOne === null ? null : serializer.serializeToString(other),
+      }
+    },
+    { text: markup, madeAtWrite: MADE_AT_WRITE_ELEMENT },
   )
 }
 
@@ -627,6 +674,52 @@ test(
       `table T-228 row ${SIBLING_ORDER_ROW} (MUST NOT) / table T-265 row ${REPEAT_ROW} ` +
         `(${copies.withinOneNameAt}): the order of two children of a single name was taken out ` +
         'of the verdict as well, though that order is itself what the document says',
+    ).toBe(false)
+
+    await context.close()
+  },
+)
+
+test(
+  swsCase({
+    sws: 'SWS-6',
+    level: 'System',
+    covers: [MADE_AT_WRITE_ROW],
+    given: 'the application up in the reference browser on the screen of the base environment, having written the document it starts with out in the exchange format',
+    when: 'that document is compared with a copy whose Project/LastSaved holds another value and with a copy whose first other Project leaf holds another value',
+    then: 'the copy that moved only Project/LastSaved is judged the same document and the copy that moved another Project leaf is judged a different one, though both differ from it as text',
+  }),
+  async ({ baseURL }) => {
+    test.setTimeout(180_000)
+    const { context, page } = await openedApplication(baseURL)
+
+    const written = await writeOutOnce(page)
+    const copies = await projectLeafCopies(page, written.text)
+
+    // WHY: checked before the verdicts -- with no LastSaved written the step has nothing to drop.
+    expect(
+      copies.madeAtWriteCount,
+      `table T-059 row DV-12 / table T-228 row ${MADE_AT_WRITE_ROW}: the document written out ` +
+        `holds ${copies.madeAtWriteCount} Project/${MADE_AT_WRITE_ELEMENT}, not one`,
+    ).toBe(1)
+    expect(copies.madeAtWriteMoved, 'the copy with another LastSaved equals the document as text').not.toBe(written.text)
+    const { otherMoved } = copies
+    expect(otherMoved, 'the document written out carries no Project leaf beside LastSaved').not.toBeNull()
+    if (otherMoved === null) throw new Error('unreachable: the check above holds this')
+
+    const dropped = await sameAfterNormalization(page, written.text, copies.madeAtWriteMoved)
+    expect(
+      dropped.same,
+      `table T-228 row ${MADE_AT_WRITE_ROW}: a document that differs only in Project/` +
+        `${MADE_AT_WRITE_ELEMENT} reached the verdict as a different one\n  first : ` +
+        `${dropped.firstAt}\n  second: ${dropped.secondAt}`,
+    ).toBe(true)
+
+    const kept = await sameAfterNormalization(page, written.text, otherMoved)
+    expect(
+      kept.same,
+      `table T-228 row ${MADE_AT_WRITE_ROW}: Project/${copies.otherLeaf} was taken out of the ` +
+        'verdict as well, though the row drops only the value made at the write',
     ).toBe(false)
 
     await context.close()

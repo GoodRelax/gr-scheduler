@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { documentFromMspdi, mspdiFromDocument } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { dayOf } from '../../src/entity/document-model/schedule/schedule'
+import { readLocalMoment } from '../../src/framework/single-html-shell/frame-loop'
 import { editDocument, type SettingsLimits } from '../../src/use-case/edit-document/edit-document'
 import { specTable } from '../contract/spec-table'
 import {
@@ -37,9 +38,12 @@ function read(text: string): Document {
   return result.document
 }
 
+// WHY: UF-36 keeps mspdi-codec.ts pure, so the DV-12 moment of the write is handed in by the caller.
+const A_MOMENT = '2026-10-03T14:05:06'
+
 /** @purity pure */
-function written(document: Document): string {
-  return mspdiFromDocument(document).text
+function written(document: Document, lastSaved = A_MOMENT): string {
+  return mspdiFromDocument(document, lastSaved).text
 }
 
 const MANUAL = (start: string, finish: string): string =>
@@ -116,17 +120,19 @@ describe('X-6 DV-12 / NR-7 / FR-101: LastSaved is made at export and never held'
   const NOW = new Date(2026, 9, 3, 14, 5, 6)
   const NOW_TEXT = '2026-10-03T14:05:06'
 
-  it('DV-12: the exported LastSaved is the local instant of the export, without a zone, to the second', () => {
+  it('DV-12: the shell reads the moment of a write as local wall time, without a zone, to the second', () => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(NOW)
+    expect(readLocalMoment()).toBe(NOW_TEXT)
+  })
+
+  it('DV-12: the exported LastSaved is the moment of the export handed to the pure codec (UF-36), written once', () => {
     const document = asDocument({ tasks: [taskRow(1)] })
-    expect(elementTexts(projectLevelOf(written(document)), 'LastSaved')).toEqual([NOW_TEXT])
+    expect(elementTexts(projectLevelOf(written(document, NOW_TEXT)), 'LastSaved')).toEqual([NOW_TEXT])
   })
 
   it('DV-12 / FR-021: an imported LastSaved is not carried -- the export writes its own, once', () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(NOW)
-    expect(elementTexts(projectLevelOf(written(read(sourceText()))), 'LastSaved')).toEqual([NOW_TEXT])
+    expect(elementTexts(projectLevelOf(written(read(sourceText()), NOW_TEXT)), 'LastSaved')).toEqual([NOW_TEXT])
   })
 
   it('FR-101 / AT-11 retired: the document read from MSPDI holds no lastSaved column', () => {
@@ -141,11 +147,8 @@ describe('X-6 DV-12 / NR-7 / FR-101: LastSaved is made at export and never held'
 
   it('NR-7: two exports of one document differ only in LastSaved', () => {
     const document = read(sourceText())
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(NOW)
-    const first = written(document)
-    vi.setSystemTime(new Date(2026, 9, 4, 9, 0, 0))
-    const second = written(document)
+    const first = written(document, NOW_TEXT)
+    const second = written(document, '2026-10-04T09:00:00')
     expect(first, 'premise: LastSaved moved with the clock').not.toBe(second)
     const dropped = (text: string): string => text.replace(/<LastSaved>[^<]*<\/LastSaved>/g, '')
     expect(dropped(first)).toBe(dropped(second))

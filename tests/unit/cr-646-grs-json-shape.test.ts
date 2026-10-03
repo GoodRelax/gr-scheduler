@@ -112,32 +112,33 @@ describe('X-9 IV-23: exactly one TaskVisual per Task', () => {
     expect(rows).toContain('IV-23')
   })
 
-  it('IV-23 / IV-1: a Task two TaskVisuals point at is a violation (IV-23 or the key rule IV-1)', () => {
+  // WHY: Chapter 6.1 has scheduleViolations driven by table T-220, row by row, and nothing there lets one
+  // row stand in for another; IV-1 (duplicate key taskUid) and IV-23 ("exactly one") are both broken.
+  it('IV-23 / IV-1: a Task two TaskVisuals point at is told under both rows it breaks', () => {
     const document = twoTasks()
     document['schedule'].taskVisuals = [visualOf(1), visualOf(2), visualOf(2, { fillColor: 'red' })]
     const typed = document as unknown as Document
     const rows = scheduleViolations(typed.schedule, typed.documentSettings as DocumentSettings).map((one) => one.row)
-    expect(rows.some((one) => one === 'IV-23' || one === 'IV-1')).toBe(true)
+    expect(rows).toContain('IV-1')
+    expect(rows).toContain('IV-23')
   })
-
-  it.todo(
-    'IV-23 vs IV-1: for two TaskVisuals of one Task the spec does not say whether IV-23 is told beside IV-1 ' +
-      '(T-220 IV-1 keys TaskVisual by taskUid; IV-23 says exactly one) -- reading A: both rows, reading B: IV-1 only',
-  )
 
   it('IV-23: a sound document answers no IV-23', () => {
     const typed = twoTasks() as unknown as Document
     expect(scheduleViolations(typed.schedule, typed.documentSettings as DocumentSettings).map((one) => one.row)).not.toContain('IV-23')
   })
 
-  it('IV-23 / OP-5: opening a GRS JSON whose Task lacks a TaskVisual is refused with reason IV-23 (NT-1)', () => {
-    const read = documentFromJson(textOf(missingOne()), KNOWN_VERSION)
-    const told = read.ok
-      ? validateImportedDocument({ document: read.document, byteLength: textOf(missingOne()).length, emptyRowTaskUids: [] })
-      : { ok: false as const, refusals: read.faults.map((one) => ({ rule: '', at: one.at, what: one.what, notice: 'NT-1' })) }
+  // WHY: IV-23 spans two arrays, so the schema shape (RS-25) cannot hold it; CP-13 makes ValidateImportedDocument
+  // (PI-13) the check the three import routes share, so the T-220 row is refused there, not in the codec.
+  it('IV-23 / CP-13: the codec opens a GRS JSON whose Task lacks a TaskVisual (no RS-25 shape fault)', () => {
+    expect(documentFromJson(textOf(missingOne()), KNOWN_VERSION).ok).toBe(true)
+  })
+
+  it('IV-23 / OP-5: opening a GRS JSON whose Task lacks a TaskVisual is refused by PI-13 with reason IV-23 (NT-1)', () => {
+    const told = validateImportedDocument({ document: readOk(textOf(missingOne())), byteLength: textOf(missingOne()).length, emptyRowTaskUids: [] })
     expect(told.ok).toBe(false)
     if (!told.ok) {
-      const named = told.refusals.filter((one) => `${one.rule} ${one.what}`.includes('IV-23'))
+      const named = told.refusals.filter((one) => one.rule === 'IV-23')
       expect(named.length).toBeGreaterThan(0)
       expect(named.every((one) => one.notice === 'NT-1')).toBe(true)
     }
@@ -175,7 +176,10 @@ describe('X-10 FR-073 / T-297 / JDG-1206: the old shape is refused, not read acr
   })
 
   it('JDG-1206: a Project carrying lastSaved refuses the document', () => {
-    const document = twoTasks({ lastSaved: '2026-01-01T00:00:00' })
+    // WHY: documentObject drops a lastSaved handed in through the project part, so it is put back after.
+    const document = twoTasks()
+    document['schedule'].project.lastSaved = '2026-01-01T00:00:00'
+    expect(Object.keys(document['schedule'].project), 'premise: the Project carries lastSaved').toContain('lastSaved')
     expect(documentFromJson(textOf(document), KNOWN_VERSION).ok).toBe(false)
   })
 
