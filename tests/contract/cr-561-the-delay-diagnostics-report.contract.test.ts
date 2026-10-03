@@ -468,7 +468,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-9 are still the rows read here', () => {
+  it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-10 are still the rows read here', () => {
     expect(specTable('T-313').rows.map((row) => row.id)).toEqual(['BD-1', 'BD-2', 'BD-3', 'BD-4'])
     expect(specTable('T-314').rows.map((row) => bare(row.by['英（コード）'] ?? ''))).toEqual([
       'projectedFinish',
@@ -486,6 +486,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-7',
       'DX-8',
       'DX-9',
+      'DX-10',
     ])
     expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は `max(finish, 基準日)`。')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')

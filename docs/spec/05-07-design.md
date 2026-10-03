@@ -248,7 +248,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **171。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **177。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -395,6 +395,7 @@ src/
 | UF-177 | `Schedule` | `row-names.ts` | `pure` | 行の名前を `AT-53` と `AT-54` から導き、最上位までの名前の並びを返す | — |
 | UF-178 | `Schedule` | `schedule-search.ts` | `pure` | 語に当たるタスクとコメントボックスの行を、表 T-331 の列の値とともに返す（表 T-330 の `SV-4`） | — |
 | UF-184 | `Schedule` | `delay-diagnostics.ts` | `pure` | 遅延診断のレポート（表 T-317）を、進捗妥当性検査（表 T-310 〜 T-312）・ボトルネック検出（表 T-313 ・ 表 T-314 ・ 表 T-316）・明記されていない親（表 T-318）・マイルストーンの先行と達成（表 T-319）から作る | `FR-131`（`OW-1`）・`FR-132`（`OW-1`）・`FR-134`（`OW-2`）・`FR-135`（`OW-1`）・`FR-136`（`OW-1`） |
+| UF-192 | `Schedule` | `delay-diagnostics-report-table.ts` | `pure` | 遅延診断レポートの表（`01-04-requirements.md` の 表 T-347）の行を、`AM-19` と同じレポートから既定の並びで作り、写しと書き出しの Markdown の文字列（表 T-346 の `RW-6`）を 1 つの関数で作る（`delayDiagnosticsReportMarkdown`） | — |
 | UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
 | UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
 | UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
@@ -508,6 +509,7 @@ src/
 | UF-168 | `SingleHtmlShell` | `copy-and-paste.ts` | `non-pure` | 選んだ行かタスクを写し、写したものを貼る命令を作る（`FR-033`・`SK-4`・`SK-5`・`DU-2`） —— 重ねの上限を超える貼り付けは告げて止め、貼る先が 2 つ以上なら貼らない | — |
 | UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | 状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |
 | UF-188 | `SingleHtmlShell` | `agent-api-relay-link.ts` | `non-pure` | 取次が配ったページで、`Agent API` が有効であり URL の断片に鍵があるあいだだけ、同じ origin の WebSocket で取次へ繋ぎ、届いた呼び出しを `answerRelayedCall` へ渡して答えを返す（表 T-035 の `AG-12` の ② ⑦、`_assets/design-mcp-relay.md` の 3.2） —— 無効になれば閉じる | — |
+| UF-195 | `SingleHtmlShell` | `delay-diagnostics-report-window.ts` | `non-pure` | 遅延診断レポートの窓の入口に答える —— 表と枠の入口は窓の値へ、`IC-108` はクリップボードへ、`IC-140` は `.md` のファイルへ（`01-04-requirements.md` の 表 T-346） | — |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
@@ -530,6 +532,9 @@ src/
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
 | UF-180 | `ScreenRenderer` | `search-panel.ts` | `pure` | `Search Panel`（`U-64`）の中身 —— 見出しの行・入力欄・出している表とその固定 | `FR-151`（`OW-2`） |
 | UF-181 | `ScreenRenderer` | `search-table-filters.ts` | `pure` | 検索の表に列の絞り込みと並べ替えを当て、列ごとの値の一覧を返す（表 T-330 の `SV-7`・`SV-8`） | — |
+| UF-189 | `ScreenRenderer` | `window-box.ts` | `pure` | ウインドウ（`01-04-requirements.md` の 表 T-335）の箱を、4 つのウインドウに 1 か所で求める —— 既定と覚えた位置、範囲への収め、最小化と最大化の箱、題の行の帯と縁を引いた後の箱（`WB-8`・`WB-9`、表 T-023d の `GR-24`・`GR-25`） | — |
+| UF-193 | `ScreenRenderer` | `table-window.ts` | `pure` | 表を持つ 2 つのウインドウ（`Search Panel`・`Delay Diagnostics Report`）に共通の部分 —— 列の見出しと幅、1 つだけ開く列の絞り込みとその中身、並べ替え、題の行の入口（表 T-330 の `SV-7`・`SV-8`・`SV-18`、表 T-335 の `WB-7`） | — |
+| UF-194 | `ScreenRenderer` | `delay-diagnostics-report.ts` | `pure` | `Delay Diagnostics Report`（`U-66`）の中身 —— 題の行・`IC-140`・`IC-108`・入力欄・凡例とまとめ・表 T-347 の表（表 T-346）と、写しと書き出しの文字列とファイルの名（`RW-6`・`RW-7`） | — |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
@@ -543,6 +548,7 @@ src/
 | UF-111 | `DomScreenSurface` | `dialogue-field-drawing.ts` | `non-pure` | `Dialogue Field` の発話を描き、`Enter` で確定した発話を返す（`FR-066`・`AG-11`）。<br>確定の時刻は `AT-129` の綴りで書く | — |
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |
 | UF-182 | `DomScreenSurface` | `search-panel-drawing.ts` | `non-pure` | `Search Panel` を描く —— 固定した見出しと列、絞り込み、見出しの帯と縁の掴み | — |
+| UF-191 | `DomScreenSurface` | `window-frame-drawing.ts` | `non-pure` | ウインドウ（表 T-335）に共通の枠を描く —— 題の行（`WB-7`）を描き、点がどのウインドウの題の行の帯か縁か（表 T-023d の `GR-24`・`GR-25`）を答える（`IF-9`） | — |
 | UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
 | UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
 | UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と初期値の区画 | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |

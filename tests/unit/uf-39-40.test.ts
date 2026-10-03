@@ -536,6 +536,7 @@ const viewOf = (
   // NT-7 of table T-037: `null` while nothing is waiting to be answered.
   confirmation: null,
   dialogueField: {
+    heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
     messages: [
       { sequence: 1, author: 'someone', text: DIALOGUE_TEXT, settledAt: '2026-08-19T09:00:00Z' },
     ],

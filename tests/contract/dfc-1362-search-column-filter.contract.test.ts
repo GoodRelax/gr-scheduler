@@ -71,15 +71,15 @@ const SV_8_DEFAULT =
   '既定の並びは、行の木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
 
 const SV_3_ONE = '表は一度に 1 つだけ出す。'
-const SV_12_ONLY_TITLE = '`IC-120` で見出しの行だけを残し、同じ入口で戻す。'
+const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
 
 const SV_14_ESC = '列の絞り込みが開いていれば、`Esc` はまず絞り込みだけを閉じ、次の `Esc` でパネルを閉じる。'
-const SV_14_REMEMBER = '語・表の切り替え・絞り込み・並べ替え・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
+const SV_14_REMEMBER = '語・表の切り替え・絞り込み・並べ替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 焦点がある検索パネル → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 const IN_4_SEARCH =
-  '⭐ 焦点がある検索パネル（`FR-151`）の段は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+  '⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
 
 const IC_WORDS: Readonly<Record<string, string>> = {
   'IC-122': '列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ）',
@@ -128,10 +128,10 @@ const TEMPLATE = JSON.parse(
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 
 const D = (day: string): string => `${day}T00:00:00`
-// WHY: T-331 writes a date "with its year (2026/1/1)", so a nameless row is told apart by its start cell.
+// WHY: T-331 writes a date "as yyyy/mm/dd (2026/01/01)", so a nameless row is told apart by its start cell.
 const written = (day: string): string => {
   const [y, m, d] = day.split('-')
-  return `${Number(y)}/${Number(m)}/${Number(d)}`
+  return `${y}/${m}/${d}`
 }
 
 type State = 'notStarted' | 'inProgress' | 'finished' | 'resumePlanned' | 'resumeUnknown'
@@ -731,27 +731,24 @@ describe('T-330 SV-14 / T-028 IN-4 -- Esc closes the open filter first, then the
       gestureInFlight: false,
       isArmed: false,
       dualCursorMode: false,
-      isSearchPanelFocused: false,
+      isSearchPanelStanding: false,
       ...over,
     }) as unknown as EscapeContext
 
-  it('IN-4: with the focus in the panel, Esc goes to the search panel step', () => {
-    expect(escapeTarget(context({ isSearchPanelFocused: true }))).toBe('searchPanel')
+  it('IN-4: a shown panel stands on the open-window rung, with or without the focus in it', () => {
+    expect(escapeTarget(context({ isSearchPanelStanding: true }))).toBe('searchPanel')
+    expect(escapeTarget({ ...context({ isSearchPanelStanding: true }), focusedWindow: 'searchPanel' })).toBe('searchPanel')
   })
 
-  it('IN-4: the search panel step comes before an unsettled edit, an open surface, a drag, an arm and Dual Cursor', () => {
-    const everything = context({
-      isSearchPanelFocused: true,
-      isTextEntryUnsettled: true,
-      isSurfaceOpen: true,
-      gestureInFlight: true,
-      isArmed: true,
-      dualCursorMode: true,
-    })
-    expect(escapeTarget(everything)).toBe('searchPanel')
+  it('IN-4: the window step comes after an unsettled edit, an open surface and a drag, before an arm and Dual Cursor', () => {
+    const below = context({ isSearchPanelStanding: true, isArmed: true, dualCursorMode: true })
+    expect(escapeTarget(below)).toBe('searchPanel')
+    expect(escapeTarget(context({ isSearchPanelStanding: true, isTextEntryUnsettled: true }))).toBe('textEntry')
+    expect(escapeTarget(context({ isSearchPanelStanding: true, isSurfaceOpen: true }))).toBe('surface')
+    expect(escapeTarget(context({ isSearchPanelStanding: true, gestureInFlight: true }))).toBe('gesture')
   })
 
-  it('IN-4: with the focus outside the panel, Esc does not go to the search panel step', () => {
+  it('IN-4: with no panel standing, Esc does not go to the search panel step', () => {
     expect(escapeTarget(context({ isSurfaceOpen: true }))).not.toBe('searchPanel')
   })
 

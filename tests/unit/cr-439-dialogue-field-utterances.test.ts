@@ -38,7 +38,7 @@ function rowOf(table: string, id: string) {
 
 const rowText = (table: string, id: string): string => unbroken(rowOf(table, id).cells.join(' '))
 
-const FR_066_SHOW = '`Agent API` が有効であるあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
+const FR_066_SHOW = '`Agent API` が有効であり、閲覧者が求めているあいだ、`GRS` は、画面上で AI と言葉をやり取りする欄を表示すること。'
 const FR_066_HIDDEN = '**閲覧者がその欄を非表示にしているあいだは表示しないこと（MUST）**'
 const IF_9_UTTERANCE = '対話欄で確定した発話を返し、'
 const IF_9_NO_EDIT_NOTICE = '対話欄（`U-44`）は編集の始まりも終わりも知らせない'
@@ -50,6 +50,7 @@ const SK_19_KEY = bare(rowOf('T-036', 'SK-19').by['割当'] ?? '')
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
 const WITH_MESSAGES: DialogueField = {
+  heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
   messages: [
     { sequence: 1, author: 'Ann', text: 'Move the review to Friday', settledAt: '2026-08-30T03:04:05Z' },
     { sequence: 2, author: 'Agent', text: 'Moved it', settledAt: '2026-08-30T03:04:09Z' },

@@ -67,7 +67,7 @@ export interface SearchSort {
   readonly direction: 'ascending' | 'descending'
 }
 
-// see S-419, S-420, S-429, SV-7, SV-8
+// see S-419, S-420, S-429, SV-7, SV-8, SV-18
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
@@ -76,6 +76,7 @@ export interface SearchPanelSession {
   readonly at: { readonly x: number; readonly y: number } | null
   readonly size: { readonly width: number; readonly height: number } | null
   readonly textSizeStep: number
+  readonly columnWidths: Readonly<Record<SearchColumn, number>>
 }
 
 export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
@@ -96,6 +97,7 @@ export const emptySearchPanelSession: SearchPanelSession = {
   at: null,
   size: null,
   textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
+  columnWidths: {},
 }
 
 export interface ScreenValuesStateCarried {
@@ -581,24 +583,34 @@ function tooltipDismissed(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'dismissed' } })
 }
 
+export type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState' | 'dialogueFieldDisplayState'
+
+// see RG-16, HN-2, T-335
+/** @purity pure */
+export function isWindowStandingIn(values: ScreenValues, key: ToggleableWindowKey): boolean {
+  const display = values[key]
+  return display.kind === 'shown' && display.child.kind !== 'minimised'
+}
+
 // see S-99g, HN-1, HN-2, HN-3
 /** @purity pure */
 export function isHelpStandingIn(values: ScreenValues): boolean {
-  const help = values.helpDisplayState
-  return help.kind === 'shown' && help.child.kind !== 'minimised'
+  return isWindowStandingIn(values, 'helpDisplayState')
 }
 
 /** @purity pure */
-function helpRungConsumed(values: ScreenValues): ScreenStep {
-  return isHelpStandingIn(values) ? helpHidden(values) : unchanged(values)
+function windowRungConsumed(values: ScreenValues, key: ToggleableWindowKey): ScreenStep {
+  if (!isWindowStandingIn(values, key)) return unchanged(values)
+  return moved(values, { [key]: { kind: 'hidden' } } as Partial<ScreenValues>)
 }
 
-// see T-280, IN-4
+// see T-280, IN-4, RG-16
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
-  if (event.rung === 'searchPanel') return onSearchPanelClosePressed(values)
+  if (event.rung === 'searchPanel') return windowRungConsumed(values, 'searchPanelDisplayState')
   if (event.rung === 'surface') return surfaceRungConsumed(values)
-  if (event.rung === 'helpModal') return helpRungConsumed(values)
+  if (event.rung === 'helpModal') return windowRungConsumed(values, 'helpDisplayState')
+  if (event.rung === 'dialogueField') return windowRungConsumed(values, 'dialogueFieldDisplayState')
   if (event.rung === 'armed') return disarmed(values)
   if (event.rung === 'dualCursorMode') return dualCursorCleared(values)
   if (event.rung === 'tooltip') return tooltipDismissed(values)
@@ -926,8 +938,6 @@ function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
 }
-
-type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState' | 'dialogueFieldDisplayState'
 
 // see T-280, T-335
 /** @purity pure */

@@ -1144,6 +1144,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-111 | `dialogue-field-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-112 | `tooltips-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-182 | `search-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-191 | `window-frame-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ### `dom-svg-surface` —— DomSvgSurface（PI-26）
 
@@ -1182,6 +1183,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-168 | `copy-and-paste.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-195 | `delay-diagnostics-report-window.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---
 

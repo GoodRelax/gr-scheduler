@@ -11,6 +11,7 @@ import {
   escapeTarget,
   type DualCursorSide,
   type EscapeTarget,
+  type WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import { emptySelection, selectionWith, selectionWithinSchedule } from '../../entity/document-model/selection/selection'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
@@ -67,6 +68,7 @@ import {
 import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
+  searchJumpReachOf,
   searchJumpWrites,
   searchJumpCommands,
   NOT_STORED_ZOOM_BOUNDS,
@@ -77,6 +79,7 @@ import {
   emptyScreenSession,
   emptySearchPanelSession,
   isHelpStandingIn,
+  isWindowStandingIn,
   type FileFlowImportAnswer,
   type FileFlowOpenRoute,
   type FileFlowOwedAction,
@@ -118,6 +121,7 @@ import {
 } from '../../adapter/image-exporter/image-exporter'
 import {
   commandFromInput,
+  escapeContextOf,
   isCombo,
   isLandingMarkKeptBy,
   isTypedIntoSearchWord,
@@ -140,7 +144,17 @@ import {
   rulerWeekdayWords,
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
-  searchPanelBoxAfterGrab,
+  searchPanelWithColumnWidth,
+  OPENED_DELAY_DIAGNOSTICS_REPORT,
+  delayDiagnosticsReportAfterFilterChange,
+  delayDiagnosticsReportWithColumnWidth,
+  delayDiagnosticsReportWithFilterClosed,
+  type DelayDiagnosticsReportWindow,
+  windowBoxAfterGrab,
+  windowPlaceOf,
+  DEFAULT_WINDOW_PLACE,
+  type WindowPlace,
+  type WindowShown,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
   screenViewFromRegions,
@@ -173,11 +187,15 @@ import {
   writeBrowserStored,
 } from './browser-stored-values'
 import {
+  pointerImageOf,
   pressedPointerShapeOf,
   type Grabbed,
+  type PointerRow,
+  type PointerShape,
   type ShowPointerShape,
 } from './pointer-shape'
 import { copyForPaste, landCopyDrag, pasteWhatWasCopied } from './copy-and-paste'
+import { DELAY_DIAGNOSTICS_REPORT_SURFACE, answerDelayDiagnosticsReportEntry } from './delay-diagnostics-report-window'
 import {
   answerOpenChoice,
   answerSettledFormat,
@@ -322,11 +340,17 @@ export interface ScreenWiring {
   // see FR-102, IR-1
   // TRAP: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
   readonly readFocusPosition?: () => string
-  // see RG-15, SV-5, SV-14
-  readonly isSearchPanelFocused?: () => boolean
+  // see RG-16, SV-5, IF-9
+  readonly readFocusedWindow?: () => WindowName | null
+  readonly isFocusInPropertiesPanel?: () => boolean
   // see SV-7, IF-9
   // TRAP: reading takes the changes, in the order the host raised them.
   readonly readSearchFilterChanges?: () => readonly SearchFilterChange[]
+  // see RW-3, SV-7
+  readonly readDelayDiagnosticsReportInput?: () => {
+    readonly word: string | null
+    readonly changes: readonly SearchFilterChange[]
+  }
 }
 
 export interface FrameLoopHands {
@@ -374,8 +398,6 @@ export const EDITED_BY_SCREEN = 'user'
 
 const SCREEN_LANGUAGE_ENTRY: IconId = 'IC-21'
 const HELP_LANGUAGE_ENTRY: IconId = 'IC-128'
-const HELP_MINIMISE_ENTRY: IconId = 'IC-129'
-const HELP_MAXIMISE_ENTRIES: ReadonlySet<IconId> = new Set(['IC-130', 'IC-131'])
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
 const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
@@ -459,6 +481,7 @@ const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surfac
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 const ESCAPE_HELP: ScreenValuesEvent = { type: 'escapePressed', rung: 'helpModal' }
 const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 'searchPanel' }
+const ESCAPE_DIALOGUE_FIELD: ScreenValuesEvent = { type: 'escapePressed', rung: 'dialogueField' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
@@ -494,20 +517,31 @@ const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 
 // see IN-4, T-283
 // WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
-// by the surface (IF-9), gesture below the translators, selection by selectionFromInput.
+// by the surface (IF-9), gesture below the translators, selection by selectionFromInput, the report window by the shell.
 const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
   notice: null,
-  searchPanel: ESCAPE_SEARCH_PANEL,
   textEntry: null,
   confirmation: null,
   surface: ESCAPE_SURFACE,
-  helpModal: ESCAPE_HELP,
   gesture: null,
+  searchPanel: ESCAPE_SEARCH_PANEL,
+  helpModal: ESCAPE_HELP,
+  delayDiagnosticsReport: null,
+  dialogueField: ESCAPE_DIALOGUE_FIELD,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
   selection: null,
   dualCursorMode: ESCAPE_DUAL_CURSOR,
   tooltip: ESCAPE_TOOLTIP,
+}
+
+// see T-335, RG-16
+// WHY: the report window has no state machine; the shell holds its state (RW-1, S-451).
+const WINDOW_DISPLAY_KEYS: { readonly [W in WindowName]: Parameters<typeof isWindowStandingIn>[1] | null } = {
+  searchPanel: 'searchPanelDisplayState',
+  helpModal: 'helpDisplayState',
+  delayDiagnosticsReport: null,
+  dialogueField: 'dialogueFieldDisplayState',
 }
 
 const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
@@ -871,6 +905,7 @@ interface ScreenViewReadingsTaken {
   readonly canUndo?: boolean
   readonly canRedo?: boolean
   readonly searchPanel?: SearchPanelSession
+  readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
 }
 
@@ -1234,11 +1269,11 @@ function searchPanelAfterEntry(
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
-// see GR-24, GR-25, SV-15
+// see GR-24, GR-25, GR-28, SV-15
 /** @purity semi-pure-b */
-function isSearchPanelGrabPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+function isWindowGrabPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
-  return surface.readScreenPartAt(input.x, input.y)?.searchPanelGrab !== undefined
+  return surface.readScreenPartAt(input.x, input.y)?.windowGrab !== undefined
 }
 
 // see SJ-1, IN-1
@@ -1247,7 +1282,7 @@ function searchJumpOnRelease(input: HumanInput, press: PointerPress | null, on: 
   if (input.kind !== 'pointer' || input.phase !== 'up' || press?.on == null) return null
   const pressedCell = press.on.searchJumpTarget ?? null
   const releasedCell = on?.searchJumpTarget ?? null
-  if (pressedCell === null || releasedCell === null || press.on.searchPanelGrab !== undefined) return null
+  if (pressedCell === null || releasedCell === null || press.on.windowGrab !== undefined) return null
   const isSameCell =
     pressedCell.kind === 'task'
       ? releasedCell.kind === 'task' && releasedCell.taskUid === pressedCell.taskUid
@@ -1266,56 +1301,210 @@ function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { re
   return { item: { kind: 'commentBox', id: cell.commentBoxId }, groupId: box?.anchorGroupId ?? null }
 }
 
-// see SV-10, SV-11, SV-12, SV-13, IN-1
-// WHY: a maximised panel fills the canvas and a minimised one keeps its size for the restore, so
-// only a normal panel changes size and a maximised one never moves.
-/** @purity pure */
-function searchPanelHeldWhileGrabbed(
-  held: SearchPanelSession,
-  session: ScreenSession,
-  input: HumanInput,
-  press: PointerPress | null,
-  canvas: ScreenRect,
-): SearchPanelSession {
-  const grab = press?.on?.searchPanelGrab
-  const shown = session.screen.searchPanelDisplayState
-  if (input.kind !== 'pointer' || input.phase === 'down' || press == null || grab === undefined) return held
-  if (shown.kind !== 'shown' || shown.child.kind === 'maximised') return held
-  if (grab.region !== 'headingBand' && shown.child.kind !== 'normal') return held
-  const travel = { dx: input.x - press.at.x, dy: input.y - press.at.y }
-  const box = searchPanelBoxAfterGrab(grab.region, grab.panelBox, travel, canvas)
-  return { ...held, at: { x: box.x, y: box.y }, size: { width: box.width, height: box.height } }
+type WindowGrab = NonNullable<ScreenPart['windowGrab']>
+
+// see FR-106, GR-25, GR-28, T-269
+const WINDOW_GRAB_POINTERS: { readonly [R in Exclude<WindowGrab['region'], 'titleBand'>]: PointerRow } = {
+  left: 'PK-12',
+  right: 'PK-12',
+  top: 'PK-13',
+  bottom: 'PK-13',
+  topLeft: 'PK-14',
+  bottomRight: 'PK-14',
+  topRight: 'PK-15',
+  bottomLeft: 'PK-15',
+  columnBorder: 'PK-10',
 }
 
-// see T-332, SJ-2, SJ-3, SJ-4, SJ-8
+// see FR-106
+// WHY: the title band keeps the host's pointer (CR-621 decision 11); an edge or a border names its row.
+/** @purity pure */
+function windowGrabPointerOf(on: ScreenPart | null): PointerShape | null {
+  const region = on?.windowGrab?.region
+  return region === undefined || region === 'titleBand' ? null : pointerImageOf(WINDOW_GRAB_POINTERS[region])
+}
+
+// see T-335
+/** @purity pure */
+function windowShownIn(session: ScreenSession, window: WindowName): WindowShown | null {
+  const display = WINDOW_DISPLAY_KEYS[window]
+  const shown = display === null ? null : session.screen[display]
+  return shown === null || shown.kind === 'hidden' ? null : shown.child.kind
+}
+
+// see WB-8, WB-9, GR-24, GR-25, GR-28, SV-18
+// WHY: a maximised window neither moves nor resizes, and a minimised one only moves; its restore box moves with it.
+/** @purity pure */
+function grabbedWindowBox(grab: WindowGrab, shown: WindowShown | null, travel: { readonly dx: number; readonly dy: number }): ScreenRect | null {
+  if (grab.region === 'columnBorder' || shown === null || shown === 'maximised') return null
+  if (grab.region !== 'titleBand' && shown !== 'normal') return null
+  return windowBoxAfterGrab(grab.region, grab.windowBox, travel, grab.range, grab.floor)
+}
+
+interface WindowPlaces {
+  readonly searchPanel: SearchPanelSession
+  readonly helpModal: WindowPlace
+  readonly dialogueField: WindowPlace
+  readonly delayDiagnosticsReport: DelayDiagnosticsReportWindow | null
+}
+
+const STARTING_WINDOW_PLACES: WindowPlaces = {
+  searchPanel: emptySearchPanelSession,
+  helpModal: DEFAULT_WINDOW_PLACE,
+  dialogueField: DEFAULT_WINDOW_PLACE,
+  delayDiagnosticsReport: null,
+}
+
+type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
+
+// see WB-8, WB-9, GR-24, GR-25
+/** @purity pure */
+function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: ScreenRect): WindowPlaces {
+  const place = windowPlaceOf(box)
+  const report = held.delayDiagnosticsReport
+  if (grab.window === 'searchPanel') return { ...held, searchPanel: { ...held.searchPanel, ...place } }
+  if (grab.window !== 'delayDiagnosticsReport') return { ...held, [grab.window]: place }
+  return report === null ? held : { ...held, delayDiagnosticsReport: { ...report, panel: { ...report.panel, ...place } } }
+}
+
+// see SV-18, RW-9, GR-28
+/** @purity pure */
+function windowPlacesAfterColumnDrag(held: WindowPlaces, grab: Extract<WindowGrab, { region: 'columnBorder' }>, dx: number): WindowPlaces {
+  const width = Math.min(Math.max(grab.widthAtPress + dx, grab.widthFloor), grab.widthCeiling)
+  const report = held.delayDiagnosticsReport
+  if (grab.window === 'searchPanel') return { ...held, searchPanel: searchPanelWithColumnWidth(held.searchPanel, grab.column, width) }
+  if (grab.window !== 'delayDiagnosticsReport' || report === null) return held
+  return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithColumnWidth(report, grab.column, width) }
+}
+
+// see RW-3, RW-8, SV-7
+/** @purity pure */
+function reportWithInput(window: DelayDiagnosticsReportWindow | null, input: ReportInput | undefined): DelayDiagnosticsReportWindow | null {
+  if (window === null || input === undefined) return window
+  const typed = input.word === null ? window : { ...window, panel: { ...window.panel, word: input.word } }
+  return input.changes.reduce(delayDiagnosticsReportAfterFilterChange, typed)
+}
+
+// see SV-2, SV-7, RW-3, IF-9
+/** @purity semi-pure-b */
+function windowPlacesAfterTyping(held: WindowPlaces, session: ScreenSession, screen: ScreenWiring | undefined): WindowPlaces {
+  const searchPanel = searchPanelWithFilterChanges(searchPanelWithTypedWord(held.searchPanel, screen?.surface), session, screen)
+  const report = reportWithInput(held.delayDiagnosticsReport, screen?.readDelayDiagnosticsReportInput?.())
+  return { ...held, searchPanel, delayDiagnosticsReport: report }
+}
+
+// see WB-6, RW-1, S-451
+/** @purity pure */
+function windowReadingsOf(held: WindowPlaces, report: DelayDiagnosticsReport | null) {
+  const window = held.delayDiagnosticsReport
+  return {
+    searchPanel: held.searchPanel,
+    windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField },
+    delayDiagnosticsReport: window === null || report === null ? null : { window, report },
+  }
+}
+
+// see RW-5, T-337
+// WHY: the window opened later is in front; the report opens in front, so only a search panel opening after it changes that.
+/** @purity pure */
+function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isShown: boolean): WindowPlaces {
+  const report = held.delayDiagnosticsReport
+  if (report === null || wasShown || !isShown || !report.isInFront) return held
+  return { ...held, delayDiagnosticsReport: { ...report, isInFront: false } }
+}
+
+// see IN-4, SV-14, RG-16, RW-1
+// WHY: an open filter closes first (SV-14); the window alone closes after it, and the markers stay (RW-1).
+/** @purity pure */
+function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, level: EscapeTarget | null): WindowPlaces | null {
+  const report = held.delayDiagnosticsReport
+  if (level === 'searchPanel') {
+    const closed = searchPanelWithFilterClosed(session, held.searchPanel)
+    return closed === null ? null : { ...held, searchPanel: closed }
+  }
+  if (level !== 'delayDiagnosticsReport' || report === null) return null
+  return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithFilterClosed(report) }
+}
+
+// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
+// WHY: frame values like the palette's corner; nothing of a window is saved (FR-151, FR-066, FR-134, WB-6).
 /** @purity non-pure */
-function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, showProperties: () => void): void {
+function heldWindowsOf() {
+  let held: WindowPlaces = STARTING_WINDOW_PLACES
+  let atPress: WindowPlaces | null = null
+  let wasSearchPanelShown = false
+
+  return {
+    searchPanel: (): SearchPanelSession => held.searchPanel,
+    holdSearchPanel: (panel: SearchPanelSession): void => void (held = { ...held, searchPanel: panel }),
+    report: (): DelayDiagnosticsReportWindow | null => held.delayDiagnosticsReport,
+    holdReport: (report: DelayDiagnosticsReportWindow | null): void => void (held = { ...held, delayDiagnosticsReport: report }),
+    takeTypedInput: (session: ScreenSession, screen: ScreenWiring | undefined): void =>
+      void (held = windowPlacesAfterTyping(held, session, screen)),
+    /** @purity non-pure */
+    readings(session: ScreenSession, diagnostics: { readonly report: DelayDiagnosticsReport } | null) {
+      const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
+      held = reportBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
+      wasSearchPanelShown = isSearchPanelShown
+      return windowReadingsOf(held, diagnostics?.report ?? null)
+    },
+    notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
+    /** @purity non-pure */
+    endPress(isInterrupted: boolean): void {
+      if (isInterrupted && atPress !== null) held = atPress
+      atPress = null
+    },
+    // see IN-1, WB-6
+    /** @purity non-pure */
+    followGrab(session: ScreenSession, input: HumanInput, press: PointerPress | null): void {
+      if (session.screen.helpDisplayState.kind === 'hidden') held = { ...held, helpModal: DEFAULT_WINDOW_PLACE }
+      const grab = press?.on?.windowGrab
+      if (input.kind !== 'pointer' || input.phase === 'down' || press == null || grab === undefined) return
+      const travel = { dx: input.x - press.at.x, dy: input.y - press.at.y }
+      if (grab.region === 'columnBorder') return void (held = windowPlacesAfterColumnDrag(held, grab, travel.dx))
+      const shown = grab.window === 'delayDiagnosticsReport' ? (held.delayDiagnosticsReport?.shown ?? null) : windowShownIn(session, grab.window)
+      const box = grabbedWindowBox(grab, shown, travel)
+      if (box !== null) held = windowPlacesAfterGrab(held, grab, box)
+    },
+    // see IN-4, SV-14, RG-16
+    /** @purity non-pure */
+    spendEscapeRung(hands: FrameLoopHands, level: EscapeTarget | null, frame: FrameValues): void {
+      const closed = windowPlacesAfterEscape(hands.readSession(), held, level)
+      if (closed !== null) return void (held = closed)
+      const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
+      if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
+    },
+  }
+}
+
+// see FR-134, RW-6, RW-7
+/** @purity pure */
+function reportHeldOf(
+  window: DelayDiagnosticsReportWindow | null,
+  diagnostics: { readonly report: DelayDiagnosticsReport } | null,
+  document: Document,
+  language: DisplayLanguage,
+) {
+  if (window === null || diagnostics === null) return null
+  const documentName = document.schedule.project.title ?? ''
+  return { window, report: diagnostics.report, schedule: document.schedule, documentName, language }
+}
+
+// see T-332, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
+// WHY: no propertiesOfChoiceAsked: a hidden panel stays hidden, a shown one follows selectionMoved (SJ-4).
+/** @purity non-pure */
+function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues): void {
   if (cell === null) return
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
-  const plan = searchJumpWrites(document, cell, hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, hit.groupId))
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, hit.groupId)
+  const plan = searchJumpWrites(document, cell, hasRoom, searchJumpReachOf(frame.layout, cell))
   const writes = searchJumpCommands(plan)
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
-  showProperties()
   if (plan.isBlockedByPinnedRows) hands.raiseNotice(PINNED_ROWS_LEAVE_NO_ROOM_REASON, null)
-}
-
-// see IN-4, SV-14
-/** @purity non-pure */
-function searchPanelAfterEscapeRung(
-  hands: FrameLoopHands,
-  level: EscapeTarget | null,
-  held: SearchPanelSession,
-  frame: FrameValues,
-): SearchPanelSession {
-  const filterClosed = level === 'searchPanel' ? searchPanelWithFilterClosed(hands.readSession(), held) : null
-  if (filterClosed !== null) return filterClosed
-  const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
-  if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
-  return held
 }
 
 // see SV-7, IF-9
@@ -1373,19 +1562,22 @@ function escapeLevelOf(
   isTooltipStanding: boolean,
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
-  return escapeTarget({
-    isNoticeStanding: context.isNoticeStanding === true,
-    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
-    isTextEntryUnsettled: context.isTextEntryUnsettled,
-    isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
-    isHelpStanding: isHelpStandingIn(context.screen),
-    gestureInFlight: context.pressed !== null,
-    isArmed: context.screen.armModeState.kind !== 'notArmed',
-    dualCursorMode: context.dualCursorFollowing !== null,
-    isConfirmationStanding,
-    isPropertiesPanelOpen,
-    isTooltipStanding,
-  })
+  return escapeTarget({ ...escapeContextOf(context), isConfirmationStanding, isPropertiesPanelOpen, isTooltipStanding })
+}
+
+// see RG-16, IF-9
+/** @purity semi-pure-b */
+function windowFocusContextOf(
+  screen: ScreenWiring | undefined,
+  session: ScreenSession,
+  report: DelayDiagnosticsReportWindow | null,
+): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled' | 'delayDiagnosticsReport'> {
+  return {
+    focusedWindow: screen?.readFocusedWindow?.() ?? null,
+    isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
+    isAgentApiEnabled: isAgentApiEnabledIn(session),
+    delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront },
+  }
 }
 
 /** @purity pure */
@@ -1706,10 +1898,7 @@ export function frameLoop(
   let heldPropertyPanelWidth: number | null = null
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
-  // see S-419, S-420, S-429
-  // WHY: a frame value like the palette's corner; the panel's values are never saved (FR-151).
-  let searchPanelHeld: SearchPanelSession = emptySearchPanelSession
-  let searchPanelPlaceAtPress: Pick<SearchPanelSession, 'at' | 'size'> | null = null
+  const windows = heldWindowsOf()
   let isSearchWordFocusOwed = false
   // see S-445, FR-130
   // WHY: diagnosed once per held document, never per frame (decision 17).
@@ -2004,7 +2193,7 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
-          searchPanel: searchPanelHeld,
+          ...windows.readings(session, delayDiagnosticsNow()),
           isDelayDiagnosticsShown: delayDiagnosticsShown,
         }),
       )
@@ -2028,10 +2217,26 @@ export function frameLoop(
     return delayDiagnosticsHeld
   }
 
+  // see RW-1, S-451
   /** @purity non-pure */
   function showDelayDiagnostics(isShown: boolean): void {
     delayDiagnosticsShown = isShown
     if (!isShown) delayDiagnosticsHeld = null
+    windows.holdReport(isShown ? (windows.report() ?? OPENED_DELAY_DIAGNOSTICS_REPORT) : null)
+  }
+
+  // see FR-134, T-346, RW-6, RW-7
+  /** @purity non-pure */
+  function answerReportEntry(entry: IconId, filterColumn: string | null): boolean {
+    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session))
+    return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
+      clipboard,
+      files,
+      confirmOverwrite: documentFileFlow.askToWriteOverDestination,
+      raiseCopyRefused: () => raiseNotice(PROMPT_NOT_COPIED_REASON, null),
+      raiseFileFault,
+      holdWindow: windows.holdReport,
+    })
   }
 
   /** @purity non-pure */
@@ -2060,7 +2265,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
-    searchPanelHeld = searchPanelWithFilterChanges(searchPanelWithTypedWord(searchPanelHeld, screen?.surface), session, screen)
+    windows.takeTypedInput(session, screen)
     runFrame()
   }
 
@@ -2104,7 +2309,7 @@ export function frameLoop(
   function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
     if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
     sendToSession({ type: 'pointerPressed', pressRow: press.pressRow, pressedOn: pressedOnOf(on, press.hit) }, frame)
-    searchPanelPlaceAtPress = on?.searchPanelGrab === undefined ? null : { at: searchPanelHeld.at, size: searchPanelHeld.size }
+    windows.notePress(on)
   }
 
   // see IN-1, IN-1a, FR-053, T-289
@@ -2115,8 +2320,7 @@ export function frameLoop(
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
     rowGrabbedAt = null
-    if (isInterrupted && searchPanelPlaceAtPress !== null) searchPanelHeld = { ...searchPanelHeld, ...searchPanelPlaceAtPress }
-    searchPanelPlaceAtPress = null
+    windows.endPress(isInterrupted)
     // see FR-053, JDG-660
     // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
@@ -2418,7 +2622,7 @@ export function frameLoop(
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
-      isSearchPanelFocused: screen?.isSearchPanelFocused?.() === true,
+      ...windowFocusContextOf(screen, session, windows.report()),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -2541,9 +2745,10 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry, session, held.document.schedule, filterColumn)
+    if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn)) return true
+    const panelAfter = searchPanelAfterEntry(windows.searchPanel(), entry, session, held.document.schedule, filterColumn)
     if (panelAfter !== null) {
-      searchPanelHeld = panelAfter
+      windows.holdSearchPanel(panelAfter)
       return true
     }
     if (entry === DELAY_DIAGNOSTICS_ENTRY) {
@@ -2564,14 +2769,6 @@ export function frameLoop(
     if (entry === HELP_LANGUAGE_ENTRY) {
       const helpLanguage = (session.screen.helpLanguage ?? screenLanguageIn(session)) === 'ja' ? 'en' : 'ja'
       sendToSession({ type: 'helpLanguageChosen', helpLanguage }, frame)
-      return true
-    }
-    if (entry === HELP_MINIMISE_ENTRY) {
-      sendScreenEvent({ type: 'helpMinimiseToggled' }, frame)
-      return true
-    }
-    if (HELP_MAXIMISE_ENTRIES.has(entry)) {
-      sendScreenEvent({ type: 'helpMaximiseToggled' }, frame)
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
@@ -3028,16 +3225,16 @@ export function frameLoop(
     const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
-    searchPanelHeld = searchPanelAfterEscapeRung(hands, escapeLevel, searchPanelHeld, frame)
+    windows.spendEscapeRung(hands, escapeLevel, frame)
 
     // TRAP: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).
     const isDragInterrupted =
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
-    searchPanelHeld = searchPanelHeldWhileGrabbed(searchPanelHeld, session, input, context.pressed, frame.regions.scheduleCanvas)
+    windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, showPropertiesOfChoice)
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame)
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
@@ -3078,7 +3275,7 @@ export function frameLoop(
     if (pointerAt !== null) {
       grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
       showPointerShape?.(
-        pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
+        windowGrabPointerOf(pressed === null ? partUnderPointer : pressed.on) ?? pointerShapeAt(frame, pointerAt.x, pointerAt.y, partUnderPointer, grabUnderPointer),
       )
     }
     if (input.kind === 'pointer') noteHintTarget(frame)
@@ -3142,7 +3339,7 @@ export function frameLoop(
       ) {
         return false
       }
-      if (isSearchPanelGrabPress(input, screen?.surface)) return true
+      if (isWindowGrabPress(input, screen?.surface)) return true
       if (isOnSearchPanelBody(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped

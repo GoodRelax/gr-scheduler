@@ -14,11 +14,11 @@ import type { SearchPanelSession } from '../../use-case/advance-screen-session/a
 
 type SearchFilters = SearchPanelSession['filters']
 
-type SearchColumnFilter = SearchFilters['columns'][number]
+export type SearchColumnFilter = SearchFilters['columns'][number]
 
-type SearchColumn = SearchColumnFilter['column']
+export type SearchColumn = SearchColumnFilter['column']
 
-type SearchSort = NonNullable<SearchPanelSession['sort']>
+export type SearchSort = NonNullable<SearchPanelSession['sort']>
 
 export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6']
 
@@ -45,9 +45,11 @@ const STATES_ASCENDING: readonly TaskSearchRow['planActualState'][] = [
   'suspendedResumeUnknown',
 ]
 
-interface TableColumns<Row> {
+// see SV-7, SV-8, T-331, T-347
+export interface TableColumns<Row> {
   readonly values: { readonly [column: SearchColumn]: (row: Row) => readonly string[] }
   readonly dates: { readonly [column: SearchColumn]: (row: Row) => string | null }
+  readonly orders?: { readonly [column: SearchColumn]: (a: string, b: string) => number }
 }
 
 // see SQ-7, SV-17
@@ -104,8 +106,8 @@ function compareStates(a: string, b: string): number {
 }
 
 /** @purity pure */
-function valueOrderOf(column: SearchColumn): (a: string, b: string) => number {
-  return column === STATUS_COLUMN ? compareStates : compareTexts
+function valueOrderOf<Row>(table: TableColumns<Row>, column: SearchColumn): (a: string, b: string) => number {
+  return table.orders?.[column] ?? (column === STATUS_COLUMN ? compareStates : compareTexts)
 }
 
 interface ColumnOrder<Row> {
@@ -128,7 +130,7 @@ function columnOrderOf<Row>(table: TableColumns<Row>, column: SearchColumn): Col
   }
   const values = table.values[column]
   if (values === undefined) return null
-  const order = valueOrderOf(column)
+  const order = valueOrderOf(table, column)
   const textOf = (row: Row): string => values(row).join(ASSIGNEE_SEPARATOR)
   return { isBlank: (row) => textOf(row) === BLANK_SEARCH_VALUE, compare: (a, b) => order(textOf(a), textOf(b)) }
 }
@@ -162,7 +164,7 @@ function isKept<Row>(row: Row, filter: SearchColumnFilter, table: TableColumns<R
 }
 
 /** @purity pure */
-function tableFilteredAndSorted<Row>(
+export function filteredTableRows<Row>(
   rows: readonly Row[],
   table: TableColumns<Row>,
   filters: SearchFilters,
@@ -178,24 +180,24 @@ function tableFilteredAndSorted<Row>(
 /** @purity pure */
 export function filteredSearchRows(rows: SearchRows, filters: SearchFilters, sort: SearchSort | null): SearchRows {
   return {
-    taskRows: tableFilteredAndSorted(rows.taskRows, TASK_TABLE, filters, sort),
-    commentBoxRows: tableFilteredAndSorted(rows.commentBoxRows, COMMENT_BOX_TABLE, filters, sort),
+    taskRows: filteredTableRows(rows.taskRows, TASK_TABLE, filters, sort),
+    commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, filters, sort),
   }
 }
 
 // WHY: listed in the column's ascending order with the blank last, as SV-8 sorts it; SV-7 gives the list no order.
 /** @purity pure */
-function valuesIn<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] {
+export function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] {
   const values = table.values[column]
   if (values === undefined) return []
   const seen = new Set(rows.flatMap((row) => values(row)))
-  const filled = [...seen].filter((value) => value !== BLANK_SEARCH_VALUE).sort(valueOrderOf(column))
+  const filled = [...seen].filter((value) => value !== BLANK_SEARCH_VALUE).sort(valueOrderOf(table, column))
   return seen.has(BLANK_SEARCH_VALUE) ? [...filled, BLANK_SEARCH_VALUE] : filled
 }
 
 // see SV-7
 /** @purity pure */
 export function columnValuesOf(rows: SearchRows, column: SearchColumn): readonly string[] {
-  if (isColumnOf(TASK_TABLE, column)) return valuesIn(rows.taskRows, TASK_TABLE, column)
-  return valuesIn(rows.commentBoxRows, COMMENT_BOX_TABLE, column)
+  if (isColumnOf(TASK_TABLE, column)) return tableColumnValues(rows.taskRows, TASK_TABLE, column)
+  return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column)
 }

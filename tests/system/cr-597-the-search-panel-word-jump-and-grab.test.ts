@@ -38,14 +38,17 @@ const SJ_2_OPEN =
 const SJ_2_LEVEL_ZERO = '段 0 が畳まれていれば開く。'
 const SJ_2_ONE_STEP = '値が変われば未保存の編集（`FR-100`）であり、取り消しの 1 段である。'
 const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
-const SJ_4_CHOOSE = '飛ぶ先のタスクかコメントボックスを選び（表 T-023c の `SL-1`）、プロパティパネルに出す'
-const SV_10_FOLLOW = '`GR-24` を握っているあいだ、パネルをポインタに追従させること（MUST）。'
-const SV_10_SETTLE = '角が決まるのは離した時点、中断では元の角へ戻す（表 T-028 の `IN-1`、`FR-053` の掴み帯と同じ）'
-const SV_11_INSIDE = 'パネルを `Schedule Canvas` の外へ出してはならない（MUST NOT）'
-const SV_11_EDGE = '縁と角（`GR-25`）を握って大きさを変える。'
-const GR_24_WHERE = '見出しの行の、入口の載っていない所'
+const SJ_4_CHOOSE = '飛ぶ先のタスクかコメントボックスを選ぶ（表 T-023c の `SL-1`）。'
+const SJ_4_PANEL_KEPT =
+  '飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしてはならない（MUST NOT）'
+const SV_10_WB_8 = '`FR-036` の 表 T-335 の `WB-8` に従う（掴む帯は `GR-24`）。'
+const SV_10_FOLLOW = '題の行の帯（表 T-023d の `GR-24`）を握っているあいだ、ウインドウをポインタに追従させること（MUST）。'
+const SV_10_SETTLE = '位置が決まるのは離した時点、中断では元の位置へ戻す（表 T-028 の `IN-1`）。'
+const SV_11_INSIDE = 'ウインドウを、ウインドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
+const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウインドウの大きさをポインタに追従させること（MUST）。'
+const GR_24_WHERE = '題の行の、入口の載っていない所（検索パネルでは 表 T-330 の `SV-1` の見出しの行）。'
 const GR_25_WHERE = '縁の内側と外側に、同じ `_assets/tbl-settings.md` の `S-426` の幅ずつ敷く'
-const RG_15_ROW = '| RG-15 | `Esc` | 焦点がある検索パネル |'
+const RG_16_ROW = '| RG-16 | `Esc` | 開いているウインドウ |'
 const AM_25_SAME_ROWS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 const IN_1_ESC = '中断は `Esc` で行い'
 
@@ -304,18 +307,20 @@ test.describe('CR-597 -- the clauses these cases are driven by', () => {
     expect(DESIGN).toContain(IF_9_OTHER_CELLS)
     expect(DESIGN).toContain(IF_9_ENTRY_ONLY)
     expect(cellOf('T-330', 'SV-5', '定め')).toBe(`${SV_5_EACH}${SV_5_NO_ENTER}${SV_5_ENTER}`)
-    expect(cellOf('T-330', 'SV-10', '定め')).toBe(`${SV_10_FOLLOW}${SV_10_SETTLE}`)
-    expect(cellOf('T-330', 'SV-11', '定め')).toContain(SV_11_EDGE)
-    expect(cellOf('T-330', 'SV-11', '定め')).toContain(SV_11_INSIDE)
+    expect(cellOf('T-330', 'SV-10', '定め')).toContain(SV_10_WB_8)
+    expect(cellOf('T-335', 'WB-8', '描くもの')).toContain(`${SV_10_FOLLOW}${SV_10_SETTLE}`)
+    expect(cellOf('T-335', 'WB-9', '描くもの')).toContain(SV_11_EDGE)
+    expect(cellOf('T-335', 'WB-8', '置き場と大きさ')).toContain(SV_11_INSIDE)
     expect(cellOf('T-332', 'SJ-1', '定め')).toBe(`${SJ_1_WHERE}${SJ_1_OTHERS}`)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_OPEN)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_LEVEL_ZERO)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_ONE_STEP)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_NO_STEP)
     expect(cellOf('T-332', 'SJ-4', '定め')).toContain(SJ_4_CHOOSE)
-    expect(cellOf('T-023d', 'GR-24', '場所')).toBe(GR_24_WHERE)
+    expect(cellOf('T-332', 'SJ-4', '定め')).toContain(SJ_4_PANEL_KEPT)
+    expect(cellOf('T-023d', 'GR-24', '場所')).toContain(GR_24_WHERE)
     expect(cellOf('T-023d', 'GR-25', '場所')).toBe(GR_25_WHERE)
-    expect(STATE_MACHINES).toContain(RG_15_ROW)
+    expect(STATE_MACHINES).toContain(RG_16_ROW)
     expect(unbroken(specTable('T-107').rows.find((one) => one.id === 'AM-25')?.cells.join(' ') ?? '')).toContain(AM_25_SAME_ROWS)
     expect(REQUIREMENTS).toContain(IN_1_ESC)
   })
@@ -423,7 +428,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       }
       expect(opened.levelZero, SJ_2_LEVEL_ZERO).not.toBe('collapsed')
       expect(JSON.parse(await selection(one.page))).toMatchObject({ items: [{ kind: 'task', uid }] })
-      expect((await boxOf(one.page, PROPERTIES_PANEL))?.width ?? 0, SJ_4_CHOOSE).toBeGreaterThan(0)
+      expect((await boxOf(one.page, PROPERTIES_PANEL))?.width ?? 0, SJ_4_PANEL_KEPT).toBe(0)
     } finally {
       await one.close()
     }
@@ -574,7 +579,7 @@ test.describe(`SV-10 -- ${SV_10_FOLLOW}`, () => {
     }
   })
 
-  test.skip(`GR-25 (DFC-1286: S-426 has no value, the strip is 0 px): ${SV_11_EDGE} -- the right edge widens the panel`, async () => {
+  test(`GR-25: ${SV_11_EDGE} -- the right edge widens the panel`, async () => {
     const one = await stage()
     try {
       await one.page.keyboard.press(OPEN_SEARCH)
@@ -593,7 +598,7 @@ test.describe(`SV-10 -- ${SV_10_FOLLOW}`, () => {
   })
 })
 
-test.describe(`RG-15 -- ${RG_15_ROW}`, () => {
+test.describe(`RG-16 -- ${RG_16_ROW}`, () => {
   test('Esc with the focus in the panel closes it', async () => {
     const one = await stage()
     try {

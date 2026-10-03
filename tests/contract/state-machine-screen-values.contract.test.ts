@@ -215,6 +215,10 @@ const RUNGS = [
   'confirmation',
   'surface',
   'gesture',
+  'searchPanel',
+  'helpModal',
+  'delayDiagnosticsReport',
+  'dialogueField',
   'propertiesPanel',
   'armed',
   'selection',
@@ -336,12 +340,13 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['rung'] === 'dualCursorMode'
     case 'isRungTooltip':
       return event['rung'] === 'tooltip'
-    // WHY: IN-4 consumes one rung per Esc (surface before help in RG-3), so these words differ
-    // from every word of RUNGS; no clause names them, so the true branch is not asserted (DFC-105).
+    // see RG-16
     case 'isRungHelp':
+      return event['rung'] === 'helpModal'
     case 'isRungSearchPanel':
-      if (!(RUNGS as readonly unknown[]).includes(event['rung'])) throw new Error(`unsampled rung ${String(event['rung'])}`)
-      return false
+      return event['rung'] === 'searchPanel'
+    case 'isRungDialogueField':
+      return event['rung'] === 'dialogueField'
     case 'isSurfaceTarget':
       return event['target'] === 'surface'
     case 'isPanelTarget':
@@ -561,11 +566,11 @@ describe('T-280 manuscript: helpDisplayStateMachine holds the states and cells C
     ])
   })
 
-  it('HN-2: no escapePressed cell stands on shown.minimised or on the parent shown, and RG-3 lists only normal and maximised', () => {
+  it('HN-2: no escapePressed cell stands on shown.minimised or on the parent shown, and RG-16 lists only normal and maximised', () => {
     expect(Object.keys(machine.transitions['escapePressed'] ?? {}).sort()).toEqual(['shown.maximised', 'shown.normal'])
     const rungs = (MANUSCRIPT as unknown as { priorities: { rungs: { id: string; states: { in?: string }[] }[] } }).priorities.rungs
-    const rg3 = rungs.find((r) => r.id === 'RG-3')
-    expect(rg3?.states.map((s) => s.in).filter((k) => k?.startsWith(`${HELP}.`) === true)).toEqual([
+    const rg16 = rungs.find((r) => r.id === 'RG-16')
+    expect(rg16?.states.map((s) => s.in).filter((k) => k?.startsWith(`${HELP}.`) === true)).toEqual([
       `${HELP}.shown.normal`,
       `${HELP}.shown.maximised`,
     ])

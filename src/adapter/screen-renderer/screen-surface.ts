@@ -4,6 +4,7 @@
 // @purity    n/a
 // @seam      ScreenSurface, implemented in another layer (LR-5)
 
+import type { WindowName } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type {
   ExportFormatId,
@@ -13,14 +14,27 @@ import type {
   Scrollbar,
   ScreenView,
 } from './screen-renderer'
-import type { SearchPanelGrabRegion, SearchRowView } from './search-panel'
+import type { SearchRowView } from './search-panel'
+import type { WindowFloor, WindowGrabRegion } from './window-box'
 
-// see IF-9, GR-24, GR-25
-// WHY: the box rides on the answer: the shell moves the box the person grabbed, whose default size only the surface reads.
-export interface SearchPanelGrab {
-  readonly region: SearchPanelGrabRegion
-  readonly panelBox: ScreenRect
-}
+// see IF-9, GR-24, GR-25, GR-28
+// WHY: the box, range and floor ride on the answer: only the surface reads the drawn box and the generated sizes.
+export type WindowGrab =
+  | {
+      readonly window: WindowName
+      readonly region: WindowGrabRegion
+      readonly windowBox: ScreenRect
+      readonly range: ScreenRect
+      readonly floor: WindowFloor
+    }
+  | {
+      readonly window: WindowName
+      readonly region: 'columnBorder'
+      readonly column: string
+      readonly widthAtPress: number
+      readonly widthFloor: number
+      readonly widthCeiling: number
+    }
 
 export interface ScreenPart {
   readonly part: string
@@ -36,7 +50,7 @@ export interface ScreenPart {
   readonly scrollbarAxis?: Scrollbar['axis']
   // see IF-9, SJ-1
   readonly searchJumpTarget?: SearchRowView['target'] | null
-  readonly searchPanelGrab?: SearchPanelGrab
+  readonly windowGrab?: WindowGrab
   // see IF-9, SV-7, IC-122
   // WHY: every column heading carries IC-122, so the entry alone does not say which column's filter to open.
   readonly searchFilterColumn?: string | null

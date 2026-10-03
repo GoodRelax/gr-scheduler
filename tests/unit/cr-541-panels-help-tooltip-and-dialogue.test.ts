@@ -249,7 +249,7 @@ describe('SK-19 -- Enter in the dialogue field', () => {
     expect(ENTER).toBe('Enter')
     const built = stage({ 'App Header': 37 })
     const surface = domScreenSurface(wiringOf(built, THEME))
-    surface.showScreenView(viewWith({ dialogueField: { messages: [] } }))
+    surface.showScreenView(viewWith({ dialogueField: { messages: [], heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 } } }))
     const field = oneByRole(built.root(), DIALOGUE_FIELD)
     const entry = descendants(field).find((one) => one.tagName === 'INPUT' || one.tagName === 'TEXTAREA')
     expect(entry, 'premise: the field has an entry').toBeDefined()

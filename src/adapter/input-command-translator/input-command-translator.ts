@@ -11,6 +11,7 @@ import type {
   DualCursorSide,
   EscapeContext,
   RememberedActual,
+  WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   dayOf,
@@ -54,7 +55,7 @@ import type {
   TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
 import {
-  isHelpStandingIn,
+  isWindowStandingIn,
   type ScreenValues,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
@@ -174,8 +175,12 @@ export interface InputContext {
   // see IN-5a, SV-2, SV-5
   // WHY: judged by where the keys go, never counted as AG-9's state (IN-5a).
   readonly isSearchWordFocused?: boolean
-  // see RG-15, SV-14
-  readonly isSearchPanelFocused?: boolean
+  // see RG-16, IF-9
+  readonly focusedWindow?: WindowName | null
+  readonly isFocusInPropertiesPanel?: boolean
+  readonly isAgentApiEnabled?: boolean
+  // see RW-1, RW-5, S-451
+  readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
@@ -746,8 +751,9 @@ export const ENTRY = {
   rosterChosen: 'IC-67',
   rosterUnchosen: 'IC-68',
   search: 'IC-117',
-  searchPanelMinimise: 'IC-120',
-  searchPanelMaximise: 'IC-121',
+  windowMinimise: 'IC-129',
+  windowMaximise: 'IC-130',
+  windowRestore: 'IC-131',
 } as const
 
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
@@ -830,7 +836,7 @@ export function isTypedIntoSearchWord(input: HumanInput, context: InputContext):
 // see SV-5
 /** @purity pure */
 function isEnterInSearchPanel(input: HumanInput, context: InputContext): boolean {
-  if (input.kind !== 'key' || context.isSearchPanelFocused !== true) return false
+  if (input.kind !== 'key' || context.focusedWindow !== 'searchPanel') return false
   return input.key === KEY.enter && isCombo(input.modifiers, false, false, false)
 }
 
@@ -1359,13 +1365,20 @@ export function rowsAtZoomY(
 // see IN-4
 /** @purity pure */
 export function escapeContextOf(context: InputContext): EscapeContext {
+  const report = context.delayDiagnosticsReport ?? null
   return {
     isNoticeStanding: context.isNoticeStanding === true,
-    isSearchPanelFocused: context.screen.searchPanelDisplayState.kind === 'shown' && context.isSearchPanelFocused === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
     isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
-    isHelpStanding: isHelpStandingIn(context.screen),
     gestureInFlight: context.pressed !== null,
+    isSearchPanelStanding: isWindowStandingIn(context.screen, 'searchPanelDisplayState'),
+    isHelpStanding: isWindowStandingIn(context.screen, 'helpDisplayState'),
+    isDelayDiagnosticsReportStanding: report !== null && report.shown !== 'minimised',
+    isDialogueFieldStanding:
+      context.isAgentApiEnabled === true && isWindowStandingIn(context.screen, 'dialogueFieldDisplayState'),
+    focusedWindow: context.focusedWindow ?? null,
+    isDelayDiagnosticsReportInFront: report?.isInFront === true,
+    isFocusInPropertiesPanel: context.isFocusInPropertiesPanel === true,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
     isSelectionStanding: context.selection.items.length > 0,

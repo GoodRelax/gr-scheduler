@@ -74,9 +74,9 @@ const T_016 = specTable('T-016')
 const kindOf = (row: string): string => (T_016.rows.find((one) => one.id === row)?.by[H_KIND] ?? '').trim()
 
 describe('CR-408 -- the premises read from the manuscript', () => {
-  it('T-023d ranks GR-22 below GR-19, GR-24 and GR-25 only, on the Panel Divider band of S-134', () => {
+  it('T-023d ranks GR-22 below GR-19, GR-24, GR-25 and GR-28 only, on the Panel Divider band of S-134', () => {
     const ids = T_023D.rows.map((one) => one.id)
-    expect(ids.slice(0, ids.indexOf('GR-22'))).toEqual(['GR-19', 'GR-24', 'GR-25'])
+    expect(ids.slice(0, ids.indexOf('GR-22'))).toEqual(['GR-19', 'GR-24', 'GR-25', 'GR-28'])
     expect(T_023D.rows.find((one) => one.id === 'GR-22')?.by[H_PLACE] ?? '').toContain('S-134')
   })
 

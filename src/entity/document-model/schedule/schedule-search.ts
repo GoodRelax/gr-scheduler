@@ -57,7 +57,7 @@ export function isSearchWordFound(text: string, word: string): boolean {
 
 // see SV-8
 /** @purity pure */
-function compareDates(left: string | null, right: string | null): number {
+export function compareDates(left: string | null, right: string | null): number {
   const [a, b] = [dayOf(left), dayOf(right)]
   if (a !== null && b !== null) return compareDays(a, b)
   return a === b ? 0 : a === null ? 1 : -1
@@ -78,7 +78,7 @@ function inDefaultOrder<T>(ranked: readonly Ranked<T>[]): readonly T[] {
 
 // see SQ-2
 /** @purity pure */
-function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> {
+export function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> {
   const nameByResourceUid = new Map(schedule.resources.map((one) => [one.uid, one.name]))
   const names = new Map<number, string[]>()
   for (const assignment of schedule.assignments) {
@@ -94,7 +94,7 @@ function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonl
 
 // see SQ-4
 /** @purity pure */
-function plannedFinishOf(task: Task): string | null {
+export function plannedFinishOf(task: Task): string | null {
   return task.milestone === true ? task.start : task.finish
 }
 

@@ -750,8 +750,8 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     expect(screen.last().helpModal ?? null).not.toBeNull()
   })
 
-  it('IN-4 (MUST): the first Esc takes the normal help and leaves the drag in flight', () => {
-    // WHY: IN-4 spends one rung per press, and S-99g counts the normal help in the open-surface rung.
+  it('IN-4 (MUST): the first Esc interrupts the drag and leaves the normal help open', () => {
+    // WHY: IN-4 spends one rung per press, and the drag stands above the open-window rung where the help is.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
@@ -764,13 +764,15 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     loop.receiveInput(key('Esc'))
     pane.runAnimationFrames()
 
-    // Level 1 is gone ...
-    expect(screen.last().helpModal ?? null).toBeNull()
-    // ... and level 2 has NOT been taken with it, so the key is still assigned.
+    // The drag is gone, and the window below it has NOT been taken with it, so the key is still assigned.
     expect(
-      loop.isBrowserDefaultStopped(key('Esc')),
-      'IN-4 consumes one level per press, so the drag begun before the first Esc must still be in flight',
-    ).toBe(true)
+      screen.last().helpModal ?? null,
+      'IN-4 consumes one level per press, so the help opened before the drag must still stand',
+    ).not.toBeNull()
+    expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(true)
+    loop.receiveInput(key('Esc'))
+    pane.runAnimationFrames()
+    expect(screen.last().helpModal ?? null).toBeNull()
   })
 
   it('IN-4a (MUST): the surface alone is one level -- the Esc after it goes to the browser', () => {
@@ -1282,7 +1284,7 @@ describe('the specification still says what these cases copy', () => {
   it('IN-4 still fixes the order of the levels, and IN-4a still hands the rest to the browser', () => {
     const in4 = rowOf('T-028', 'IN-4').cells.join(' ')
     expect(in4).toContain('1 階層ぶん消費し')
-    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え')
+    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え')
     expect(rowOf('T-028', 'IN-4a').cells.join(' ')).toContain(
       '消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）',
     )

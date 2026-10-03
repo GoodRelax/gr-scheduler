@@ -45,7 +45,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_1_ORDER =
-  '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`。右端に、左から `IC-127`（字の大きさ）・`IC-120`（最小化）・`IC-121`（最大化）・`IC-52`（閉じる）。'
+  '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`。右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化 —— 最大化しているあいだは同じ場所に `IC-131`）・`IC-52`（閉じる）。'
 const SV_1_TITLE_FONT = '見出しの行の字は `IC-127` の段に追随しない。'
 const SV_1_GRAB = '見出しの行は掴んで動かす帯である（表 T-023d の `GR-24`）'
 const SV_2_FIELD = '見出しの行の下に 1 行。'
@@ -57,10 +57,10 @@ const SV_6_FIXED = '横は、タスクの表は `SQ-2` まで、コメントボ�
 const SV_9_SIZE =
   '幅は `Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を、高さはその高さに `S-422` を掛けた大きさ。'
 const SV_9_CORNER = '左下の角を `Schedule Canvas` の左下に合わせる。'
-const SV_12_ONLY_TITLE = '`IC-120` で見出しの行だけを残し、同じ入口で戻す。'
-const SV_12_BOTTOM = '残した見出しの行は、最小化の前のパネルの下の縁に置く。'
-const SV_13_FILL = '`IC-121` で `Schedule Canvas` いっぱいに広げ、同じ入口で戻す。'
-const SV_13_LABEL = '最大化しているあいだ、`IC-121` は札「元のサイズに戻す」を名乗る。'
+const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
+const SV_12_BOTTOM = '題の行を中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
+const SV_13_FILL = '範囲は `Schedule Canvas` いっぱい。'
+const SV_13_LABEL = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く（`IC-67`・`IC-68` と同じ組み）'
 const SV_16_PX = '表と入力欄の字は、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px（既定 16 px）。'
 const SV_16_CYCLE =
   '`IC-127` を押すたびに表 T-333 の並びの次の段へ移り、末尾（20 px）の次は先頭（12 px）へ戻る（`IC-99` と同じ巡り方）。'
@@ -315,9 +315,9 @@ describe('FR-151 tables T-330 / T-331 / T-333 -- the clauses these cases are dri
     expect(say('SV-9')).toContain(SV_9_SIZE)
     expect(say('SV-9')).toContain(SV_9_CORNER)
     expect(say('SV-12')).toContain(SV_12_ONLY_TITLE)
-    expect(say('SV-12')).toContain(SV_12_BOTTOM)
+    expect(cellOf('T-335', 'WB-2', '置き場と大きさ')).toContain(SV_12_BOTTOM)
     expect(say('SV-13')).toContain(SV_13_FILL)
-    expect(say('SV-13')).toContain(SV_13_LABEL)
+    expect(cellOf('T-335', 'WB-4', '描くもの')).toContain(SV_13_LABEL)
     for (const clause of [SV_16_PX, SV_16_CYCLE, SV_16_RULE]) expect(say('SV-16')).toContain(clause)
     expect(say('SV-17')).toContain(SV_17_ELLIPSIS)
   })
@@ -366,11 +366,11 @@ describe(`T-330 SV-3 -- ${SV_3_DEFAULT} ${SV_3_CHOSEN}`, () => {
   })
 })
 
-describe(`T-330 SV-13 -- ${SV_13_LABEL}`, () => {
-  it.each(LANGUAGES)('%s: IC-121 is called by the restore word while maximised, and not otherwise', (language) => {
-    const restore = panelWordOf('restore', language)
-    expect(entryOf(viewOf(sessionIn(language, 'searchPanelMaximiseToggled')), 'IC-121')['label']).toBe(restore)
-    expect(entryOf(viewOf(sessionIn(language)), 'IC-121')['label']).not.toBe(restore)
+describe(`T-335 WB-4 -- ${SV_13_LABEL}`, () => {
+  it.each(LANGUAGES)('%s: IC-131 stands where IC-130 stood while maximised, and IC-130 otherwise', (language) => {
+    const icons = (view: SearchPanelView): readonly string[] => view.titleEntries.map((one) => one.icon)
+    expect(icons(viewOf(sessionIn(language, 'searchPanelMaximiseToggled')))).toEqual(['IC-127', 'IC-129', 'IC-131', 'IC-52'])
+    expect(icons(viewOf(sessionIn(language)))).toEqual(['IC-127', 'IC-129', 'IC-130', 'IC-52'])
   })
 })
 
@@ -421,7 +421,7 @@ describe(`T-330 SV-9 -- ${SV_9_SIZE} ${SV_9_CORNER}`, () => {
 })
 
 describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
-  it.each(LANGUAGES)('%s: the name, then IC-118 and IC-119, then IC-127, IC-120, IC-121 and IC-52', (language) => {
+  it.each(LANGUAGES)('%s: the name, then IC-118 and IC-119, then IC-127, IC-129, IC-130 and IC-52', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     const title = titleRowOf(panel)
     const order = nodesInOrder(title)
@@ -429,7 +429,7 @@ describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
       const icon = 'tagName' in node ? node.getAttribute('data-icon') : null
       return icon === null ? [] : [icon]
     })
-    expect(icons).toEqual(['IC-118', 'IC-119', 'IC-127', 'IC-120', 'IC-121', 'IC-52'])
+    expect(icons).toEqual(['IC-118', 'IC-119', 'IC-127', 'IC-129', 'IC-130', 'IC-52'])
     const nameAt = order.findIndex((node) => !('tagName' in node) && node.data.trim() === panelNameOf(language))
     const firstEntryAt = order.findIndex((node) => 'tagName' in node && node.getAttribute('data-icon') === 'IC-118')
     expect(nameAt, `the panel name ${panelNameOf(language)} is drawn in the heading row`).toBeGreaterThanOrEqual(0)
@@ -438,7 +438,7 @@ describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
 
   it.each(LANGUAGES)('%s: every entry of the heading row is called by its dictionary word', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
-    for (const icon of ['IC-118', 'IC-119', 'IC-127', 'IC-120', 'IC-121', 'IC-52']) {
+    for (const icon of ['IC-118', 'IC-119', 'IC-127', 'IC-129', 'IC-130', 'IC-52']) {
       const entry = found(
         selfAndDescendants(panel).find((one) => one.getAttribute('data-icon') === icon),
         `drawn ${icon}`,
@@ -529,10 +529,10 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     expect(taskCells('ja', NAMED_UID)[1]).toBe(`${FIRST_ASSIGNEE}, ${SECOND_ASSIGNEE}`)
   })
 
-  it('SQ-3 and SQ-4 write the date with its year (例: 2026/1/1)', () => {
+  it('SQ-3 and SQ-4 write the date as yyyy/mm/dd (例: 2026/01/01)', () => {
     const cells = taskCells('ja', NAMED_UID)
-    expect(cells[2]).toBe('2026/1/1')
-    expect(cells[3]).toBe('2026/1/9')
+    expect(cells[2]).toBe('2026/01/01')
+    expect(cells[3]).toBe('2026/01/09')
   })
 
   it.each(LANGUAGES)('%s: SQ-5 writes one of the state words of table T-019a', (language) => {
@@ -548,7 +548,7 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     const { panel } = drawn(viewOf(sessionIn('ja'), { table: 'commentBoxes' }))
     const rows = byTag(panel, 'TR').filter((one) => byTag(one, 'TD').length > 0)
     expect(rows).toHaveLength(1)
-    expect(byTag(rows[0] as FakeElement, 'TD').map(textOf)).toEqual([COMMENT_LINES.join(' '), INNER_NAME, '2026/5/2'])
+    expect(byTag(rows[0] as FakeElement, 'TD').map(textOf)).toEqual([COMMENT_LINES.join(' '), INNER_NAME, '2026/05/02'])
   })
 })
 

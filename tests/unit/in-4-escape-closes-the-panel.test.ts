@@ -180,9 +180,9 @@ const PANEL_ENTRANCES = specTable('T-109').rows.filter((row) =>
 /** Everything IN-4 and IN-4a write, as one string each. */
 const IN_4 = rowOf('T-028', 'IN-4').cells.join(' ')
 const IN_4A = rowOf('T-028', 'IN-4a').cells.join(' ')
-const IN_4_LADDER = '開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル'
+const IN_4_LADDER = '開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル'
 
-const HN_2 = '「開いている面」の段を飛ばし、次の段へ渡す。'
+const HN_2 = '「開いているウインドウ」の段に立たない —— ほかに段に立つウインドウが無ければ、次の段へ渡す。'
 
 const HELP_MODAL = surfacesOf(rowOf('T-109', 'IC-129').by[SURFACE_COLUMN] ?? '')[0] ?? ''
 
@@ -596,8 +596,8 @@ describe('the manuscript still says what these cases read', () => {
     expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザへ渡すこと')
     expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('「開いている面」で閉じられるもの')
     // Q20 (2026-09-22): the panel is no 面 any more; IN-4 gives it a rung of its own.
-    expect(IN_4, 'IN-4 gives the panel its own rung after the drag').toContain(
-      '進行中のドラッグ・引きかけの矢印 → プロパティパネル',
+    expect(IN_4, 'IN-4 gives the panel its own rung after the drag and the open windows').toContain(
+      '進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル',
     )
   })
 
@@ -754,7 +754,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
 
 describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
   it('⛔ MUST: with the help AND the panel up, the first `Esc` takes exactly one of them -- the help', () => {
-    // WHY: IN-4 puts the open-surface rung above the properties panel, and S-99g counts the normal help in it.
+    // WHY: IN-4 puts the open-window rung, where the normal help stands, above the properties panel.
     expect(IN_4).toContain(IN_4_LADDER)
     const built = withThePanelUp()
     built.send(OPEN_HELP())

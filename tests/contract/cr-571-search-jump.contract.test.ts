@@ -32,6 +32,9 @@ const SJ_7_PINNED = '飛ぶ先の行がピン止めの行（`S-126`）なら、`
 const SJ_8_NO_ROOM =
   'ピン止めの帯の下に残る `Row Area`（`U-50`）の高さが、飛ぶ先の行の描く高さより小さいときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
+// see SJ-6
+// WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
+const NO_REACH = { pxPerDay: 10, leftReachPx: 0 }
 const RS_66_SCENE = '**ピン止めした行が多く、検索パネルから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
@@ -175,7 +178,7 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
     const plan = searchJumpWrites(
       documentOf({ treeStates: { [R1]: 'collapsed', [R11]: 'hidden', [R2]: 'collapsed' }, levelZero: 'collapsed' }),
       TO_TASK,
-      true,
+      true, NO_REACH,
     )
     expect(treeWritesOf(plan)).toEqual([
       { kind: 'setLevelZeroTreeState', id: 'level 0', to: 'auto' },
@@ -185,7 +188,7 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   })
 
   it('opens the AT-114 row of a comment box and its ancestor', () => {
-    const plan = searchJumpWrites(documentOf({ treeStates: { [R1]: 'temporarilyExpanded', [R12]: 'collapsed' } }), TO_DATED_BOX, true)
+    const plan = searchJumpWrites(documentOf({ treeStates: { [R1]: 'temporarilyExpanded', [R12]: 'collapsed' } }), TO_DATED_BOX, true, NO_REACH)
     expect(treeWritesOf(plan)).toEqual([
       { kind: 'setTaskGroupTreeState', id: R1, to: 'expanded' },
       { kind: 'setTaskGroupTreeState', id: R12, to: 'expanded' },
@@ -193,20 +196,28 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   })
 
   it(`writes nothing to the tree when nothing would change -- ${SJ_2_NOTHING_CHANGED}`, () => {
-    const plan = searchJumpWrites(documentOf({ treeStates: { [R1]: 'expanded', [R11]: 'expanded' } }), TO_TASK, true)
+    const plan = searchJumpWrites(documentOf({ treeStates: { [R1]: 'expanded', [R11]: 'expanded' } }), TO_TASK, true, NO_REACH)
     expect(plan.treeStateWrites).toEqual([])
   })
 })
 
 describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
   it('puts the task\'s row at the top of the view with no offset inside it', () => {
-    const plan = searchJumpWrites(documentOf(), TO_TASK, true)
+    const plan = searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)
     expect(plan.isBlockedByPinnedRows).toBe(false)
     expect(scrollOf(plan)).toMatchObject({ kind: 'setScrollPosition', scrollGroupId: R11, scrollGroupOffset: 0 })
   })
 
+  it('SJ-6: what the task reaches left of its date moves the view left by that much (CR-629)', () => {
+    const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)) as Loose
+    const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { pxPerDay: 10, leftReachPx: 25 })) as Loose
+    expect(atDate['scrollDayOffset']).toBe(0)
+    const daysBack = (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
+    expect([daysBack, reached['scrollDayOffset']]).toEqual([3, 0.5])
+  })
+
   it(`a comment box with no date moves the row only -- SJ-6: ${SJ_6_NO_DATE}`, () => {
-    const plan = searchJumpWrites(documentOf(), TO_UNDATED_BOX, true)
+    const plan = searchJumpWrites(documentOf(), TO_UNDATED_BOX, true, NO_REACH)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
       scrollGroupId: R12,
@@ -218,7 +229,7 @@ describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
 
   it(`SJ-6: ${SJ_6_NO_ZOOM} -- no write of the plan touches the zoom`, () => {
     for (const target of [TO_TASK, TO_DATED_BOX, TO_UNDATED_BOX]) {
-      for (const write of everyWrite(searchJumpWrites(documentOf({ levelZero: 'collapsed' }), target, true))) {
+      for (const write of everyWrite(searchJumpWrites(documentOf({ levelZero: 'collapsed' }), target, true, NO_REACH))) {
         expect(['setTaskGroupTreeState', 'setLevelZeroTreeState', 'setScrollPosition'], JSON.stringify(target)).toContain(
           write['kind'],
         )
@@ -231,7 +242,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
   it('leaves the row anchor where it was when the task\'s row is pinned, and still writes the SJ-6 move', () => {
     // WHY: the view starts two months before the task, so SJ-6 has to write; its date is not
     // asserted because S-428 is still undecided.
-    const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true)
+    const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true, NO_REACH)
     expect(plan.isBlockedByPinnedRows).toBe(false)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
@@ -241,7 +252,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
   })
 
   it('an undated comment box on a pinned row moves nothing at all', () => {
-    const scroll = scrollOf(searchJumpWrites(documentOf({ pinned: [R12] }), TO_UNDATED_BOX, true))
+    const scroll = scrollOf(searchJumpWrites(documentOf({ pinned: [R12] }), TO_UNDATED_BOX, true, NO_REACH))
     if (scroll !== null) expect(scroll).toMatchObject({ kind: 'setScrollPosition', ...START_SCROLL })
   })
 })
@@ -251,7 +262,7 @@ describe(`T-332 SJ-8 -- ${SJ_8_NO_ROOM}`, () => {
     const plan = searchJumpWrites(
       documentOf({ pinned: [R2], treeStates: { [R1]: 'collapsed' }, levelZero: 'collapsed' }),
       TO_TASK,
-      false,
+      false, NO_REACH,
     )
     expect(plan.isBlockedByPinnedRows).toBe(true)
     expect(plan.scrollWrite).toBeNull()
@@ -263,6 +274,6 @@ describe(`T-332 SJ-8 -- ${SJ_8_NO_ROOM}`, () => {
   })
 
   it('with room below the pinned rows it is not blocked', () => {
-    expect(searchJumpWrites(documentOf({ pinned: [R2] }), TO_TASK, true).isBlockedByPinnedRows).toBe(false)
+    expect(searchJumpWrites(documentOf({ pinned: [R2] }), TO_TASK, true, NO_REACH).isBlockedByPinnedRows).toBe(false)
   })
 })

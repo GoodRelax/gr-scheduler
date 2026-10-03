@@ -38,7 +38,7 @@ const AM_19_NO_WRITE = '画面の値も文書も書かない'
 const AG_4_COPY = '読み出しは**凍結された複製**を返すこと。'
 const AG_4_UNCHANGED = '受け取った側がそれを書き換えても本体が変わらない'
 const FR_134_TWO_READERS =
-  '`GRS` は、診断の結果を 表 T-317 の欄を持つ 1 つのレポートにまとめ、人には一覧として、AI には `Agent API` の 表 T-107 の `AM-19` の値として渡すこと。'
+  '`GRS` は、診断の結果を 表 T-317 の欄を持つ 1 つのレポートにまとめ、人には遅延診断レポートの窓（`_assets/tbl-glossary.md` の `U-66`）として、AI には `Agent API` の 表 T-107 の `AM-19` の値として渡すこと。'
 const FR_133_NO_S_63 =
   '⛔ そのために `S-63` を書いてはならない（MUST NOT） —— 画面の値 `delayDiagnosticsShown`（`_assets/tbl-settings.md` の 表 T-206 の `S-445`）を真にする。'
 

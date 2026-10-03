@@ -19,11 +19,17 @@ const PUBLISHED = unbroken(
 )
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 焦点がある検索パネル → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
-const IN_4_SURFACE_THEN_HELP =
-  '⭐ 開いている面の段では、立っている面が先、通常か最大化のヘルプが後である（`_assets/tbl-settings.md` の `S-99g`） —— 手前のものから閉じる。'
+  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+const IN_4_QUESTION_THEN_SURFACE =
+  '⭐ 開いている面の段では、問いが先、立っている面が後である —— 手前のものから閉じる（`FR-152` の 表 T-337）。'
 const IN_4_SEARCH_PANEL_RUNG =
-  '⭐ 焦点がある検索パネル（`FR-151`）の段は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+  '⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+const IN_4_ONE_WINDOW =
+  '1 度の `Esc` で閉じるウインドウは 1 つとし、焦点がその中にあるウインドウを先に、ほかは `FR-152` の 表 T-337 の手前のものから閉じること（MUST）。'
+const IN_4_FOCUS_OUTSIDE =
+  '⛔ 焦点がウインドウの外にあることを理由に、開いているウインドウを段から外してはならない（MUST NOT）'
+const IN_4_PANEL_FOCUS_FIRST =
+  '⭐ ただし焦点がプロパティパネル（`FR-006`）の中にあるあいだは、開いているウインドウはこの段に立たず、プロパティパネルの段が先に受けること（MUST）'
 const SV_14_FILTER_FIRST = '列の絞り込みが開いていれば、`Esc` はまず絞り込みだけを閉じ、次の `Esc` でパネルを閉じる。'
 const IN_4_SELECTION_AFTER_ARM = '⭐ **選択は構えの次に置く** —— ⛔ **構えより前に置いてはならない（MUST NOT）'
 const NT_8_FIRST = '⛔ この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）'
@@ -92,10 +98,10 @@ const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
   .split(' → ')
 
 describe('table T-283 -- the manuscript and the printed table agree', () => {
-  it('the priorities block names table T-283 and holds RG-1..RG-15, RG-15 after RG-1 and RG-14 after RG-4', () => {
+  it('the priorities block names table T-283 and holds RG-1..RG-14 and RG-16, RG-16 after RG-4 and RG-14 after RG-16', () => {
     expect(MANUSCRIPT.priorities.table.id).toBe('T-283')
     expect(RUNGS.map((r) => r.id)).toEqual([
-      'RG-1', 'RG-15', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
+      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
     ])
   })
 
@@ -121,7 +127,7 @@ describe('table T-283 -- the manuscript and the printed table agree', () => {
   })
 })
 
-describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-15) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
+describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-16) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
   it('the requirement still says it, word for word', () => {
     expect(REQUIREMENTS).toContain(IN_4_ORDER)
   })
@@ -129,7 +135,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-15) -- IN-4 (MUST): ${IN_4_
   it('the Esc rungs, top to bottom, are the IN-4 rungs one for one', () => {
     expect(rungsOf('Esc').map((r) => r.rung.ja)).toEqual(IN_4_WORDS)
     expect(rungsOf('Esc').map((r) => r.id)).toEqual([
-      'RG-1', 'RG-15', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8',
+      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8',
     ])
   })
 
@@ -141,25 +147,28 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-15) -- IN-4 (MUST): ${IN_4_
     expect(RUNGS.find((r) => r.id === 'RG-6')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
 
-  it(`RG-3 holds, inside the one rung, the question, then the surface, then the help -- ${IN_4_SURFACE_THEN_HELP}`, () => {
-    expect(REQUIREMENTS).toContain(IN_4_SURFACE_THEN_HELP)
+  it(`RG-3 holds, inside the one rung, the question, then the surface -- ${IN_4_QUESTION_THEN_SURFACE}`, () => {
+    expect(REQUIREMENTS).toContain(IN_4_QUESTION_THEN_SURFACE)
     const rg3 = RUNGS.find((r) => r.id === 'RG-3')
     expect(rg3?.states).toEqual([
       { in: 'confirmationStateMachine.questionAsked' },
       { in: 'openSurfaceStateMachine.open' },
-      { in: 'helpDisplayStateMachine.shown.normal' },
-      { in: 'helpDisplayStateMachine.shown.maximised' },
     ])
   })
 
-  it(`RG-15 is the search panel while it is shown, and cites SV-14 -- ${IN_4_SEARCH_PANEL_RUNG}`, () => {
+  it(`RG-16 is every window shown and not minimised, and cites SV-14 -- ${IN_4_SEARCH_PANEL_RUNG}`, () => {
     expect(REQUIREMENTS).toContain(IN_4_SEARCH_PANEL_RUNG)
     expect(REQUIREMENTS).toContain(SV_14_FILTER_FIRST)
-    const rg15 = RUNGS.find((r) => r.id === 'RG-15')
-    expect(rg15?.keys).toEqual(['Esc'])
-    expect(rg15?.states).toEqual([{ in: 'searchPanelDisplayStateMachine.shown' }])
-    expect(rg15?.evidence).toEqual(['IN-4', 'SV-14'])
-    expect(rg15?.note?.ja ?? '').toContain('`SV-14`')
+    const rg16 = RUNGS.find((r) => r.id === 'RG-16')
+    expect(rg16?.keys).toEqual(['Esc'])
+    expect(rg16?.states).toEqual(
+      ['searchPanel', 'help', 'dialogueField'].flatMap((window) => [
+        { in: `${window}DisplayStateMachine.shown.normal` },
+        { in: `${window}DisplayStateMachine.shown.maximised` },
+      ]),
+    )
+    expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-066', 'FR-152', 'RW-1'])
+    expect(rg16?.note?.ja ?? '').toContain('`SV-14`')
   })
 
   it('the properties panel is RG-14, after the drag', () => {
@@ -253,15 +262,17 @@ describe(`PI-36 -- ${PI_36_ESCAPE_TARGET.join(' ')}`, () => {
   })
 })
 
-type Flag = keyof EscapeContext
+type Flag = Exclude<keyof EscapeContext, 'focusedWindow' | 'isDelayDiagnosticsReportInFront' | 'isFocusInPropertiesPanel'>
 
-const NOTHING_ON: EscapeContext = {
+const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isNoticeStanding: false,
-  isSearchPanelFocused: false,
   isTextEntryUnsettled: false,
   isSurfaceOpen: false,
-  isHelpStanding: false,
   gestureInFlight: false,
+  isSearchPanelStanding: false,
+  isDelayDiagnosticsReportStanding: false,
+  isHelpStanding: false,
+  isDialogueFieldStanding: false,
   isArmed: false,
   isSelectionStanding: false,
   dualCursorMode: false,
@@ -270,17 +281,19 @@ const NOTHING_ON: EscapeContext = {
   isTooltipStanding: false,
 }
 
-// see T-283, IN-4
-// WHY: no clause names the word or flag of RG-15, nor of the help inside RG-3 (DFC-1280); those two rows
-// carry the seam's provisional names, and what they hold from the spec is their place in the order.
+// see T-283, IN-4, RG-16
+// WHY: inside RG-16 the windows stand in the order of table T-337 (UZ-6, UZ-7, UZ-9) while no window
+// holds the focus; the search panel is in front of the report window until RW-5 says otherwise.
 const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-1', 'notice', 'isNoticeStanding'],
-  ['RG-15', 'searchPanel', 'isSearchPanelFocused'],
   ['RG-2', 'textEntry', 'isTextEntryUnsettled'],
   ['RG-3', 'confirmation', 'isConfirmationStanding'],
   ['RG-3', 'surface', 'isSurfaceOpen'],
-  ['RG-3', 'helpModal', 'isHelpStanding'],
   ['RG-4', 'gesture', 'gestureInFlight'],
+  ['RG-16', 'searchPanel', 'isSearchPanelStanding'],
+  ['RG-16', 'delayDiagnosticsReport', 'isDelayDiagnosticsReportStanding'],
+  ['RG-16', 'helpModal', 'isHelpStanding'],
+  ['RG-16', 'dialogueField', 'isDialogueFieldStanding'],
   ['RG-14', 'propertiesPanel', 'isPropertiesPanelOpen'],
   ['RG-5', 'armed', 'isArmed'],
   ['RG-6', 'selection', 'isSelectionStanding'],
@@ -292,6 +305,8 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
 const EVERY_WORD: Record<EscapeTarget, true> = {
   notice: true,
   searchPanel: true,
+  delayDiagnosticsReport: true,
+  dialogueField: true,
   textEntry: true,
   confirmation: true,
   surface: true,
@@ -362,5 +377,38 @@ describe(`PI-36 escapeTarget against table T-283 -- IN-4 (MUST): ${IN_4_ORDER}`,
 
   it(`${IN_4_SELECTION_AFTER_ARM} -- armed and selected, Esc drops the arm first`, () => {
     expect(escapeTarget(on('isArmed', 'isSelectionStanding'))).toBe('armed')
+  })
+})
+
+describe(`RG-16, one window per Esc -- IN-4 (MUST): ${IN_4_ONE_WINDOW}`, () => {
+  const everyWindow = on('isSearchPanelStanding', 'isDelayDiagnosticsReportStanding', 'isHelpStanding', 'isDialogueFieldStanding')
+
+  it('the requirement still says it, word for word', () => {
+    expect(REQUIREMENTS).toContain(IN_4_ONE_WINDOW)
+    expect(REQUIREMENTS).toContain(IN_4_FOCUS_OUTSIDE)
+    expect(REQUIREMENTS).toContain(IN_4_PANEL_FOCUS_FIRST)
+  })
+
+  it.each(['delayDiagnosticsReport', 'helpModal', 'dialogueField'] as const)('the focused %s closes before the front-most window', (window) => {
+    expect(escapeTarget({ ...everyWindow, focusedWindow: window })).toBe(window)
+  })
+
+  it('a focused window that does not stand gives way to the front-most one', () => {
+    expect(escapeTarget({ ...on('isHelpStanding', 'isDialogueFieldStanding'), focusedWindow: 'searchPanel' })).toBe('helpModal')
+  })
+
+  it('RW-5: the report window opened after the search panel is in front of it', () => {
+    expect(escapeTarget({ ...everyWindow, isDelayDiagnosticsReportInFront: true })).toBe('delayDiagnosticsReport')
+    expect(escapeTarget({ ...everyWindow, isDelayDiagnosticsReportInFront: false })).toBe('searchPanel')
+  })
+
+  it(`${IN_4_FOCUS_OUTSIDE} -- the panel open with the focus elsewhere, the window still goes first`, () => {
+    expect(escapeTarget(on('isSearchPanelStanding', 'isPropertiesPanelOpen'))).toBe('searchPanel')
+  })
+
+  it(`${IN_4_PANEL_FOCUS_FIRST} -- the next Esc, focus out of the panel, closes the window`, () => {
+    const panelFocused = { ...on('isSearchPanelStanding', 'isPropertiesPanelOpen'), isFocusInPropertiesPanel: true }
+    expect(escapeTarget(panelFocused)).toBe('propertiesPanel')
+    expect(escapeTarget(on('isSearchPanelStanding'))).toBe('searchPanel')
   })
 })

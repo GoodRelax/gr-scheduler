@@ -1595,6 +1595,7 @@ const DIALOGUE: DialogueField = {
   messages: [
     { sequence: 1, author: 'Someone', text: 'MessageOne', settledAt: '2026-08-20T00:00:00Z' },
   ],
+  heading: '', shown: 'normal', titleEntries: [], place: { at: null, size: null }, canvas: { x: 0, y: 0, width: 800, height: 600 },
 }
 
 const BASE_VIEW: ScreenView = {
