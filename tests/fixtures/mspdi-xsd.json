@@ -16,6 +16,7 @@
     "tests/contract/cr-429-mr-1-mr-2-ex-10-child-order.test.ts",
     "tests/contract/cr-429-mr-3-the-first-of-a-repeated-leaf.test.ts",
     "tests/contract/cr-429-the-two-schemas.test.ts",
+    "tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts",
     "tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts",
     "tests/unit/cr-429-rs-60-the-notice-is-raised.test.ts",
     "tests/unit/uf-36.test.ts"

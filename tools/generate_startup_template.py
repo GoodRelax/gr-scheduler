@@ -880,11 +880,13 @@ SHAPE_KINDS = ('rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone')
 # these names a country, a culture, a religion or a festival. A year-end
 # shutdown stated in neutral words is a fact about an organisation's calendar;
 # naming the festival it happens to sit next to is not.
-# ⚠️ `recurrenceKind` is 9, "no recurrence" (erd.json, `Exception`): FR-054
-# says GRS does NOT expand a repeating exception into real days, so a template
-# that stated these as yearly repeats would carry days nothing counts.
-# ⚠️ `fromDate` and `toDate` are inclusive real days here, which is what
-# `recurrenceKind` 9 makes them.
+# ⚠️ `recurrenceKind` is 1 with no `Period`, the one-off kind GRS adds
+# (erd.json, `Exception`, AT-82; T-344 WC-6; CR-654): FR-054 says GRS does NOT
+# count a repeating exception, so a template that stated these as yearly
+# repeats would carry days nothing counts. EX-13 writes it out in the official
+# one-off shape (Type 1, Occurrences 1, EnteredByOccurrences 0).
+# ⚠️ `fromDate` and `toDate` are inclusive real days here, which is what the
+# AT-82 non-recurring predicate makes them.
 CALENDAR_EXCEPTIONS = (
     ('Year-end shutdown', date(2026, 12, 24), date(2027, 1, 1)),
     ('Mid-year shutdown', date(2027, 8, 16), date(2027, 8, 20)),
@@ -1149,7 +1151,7 @@ FINISH_TIME = CALENDAR_VALUES['S-483']
 def shut_days():
     """Every real day the document's own exceptions close.
 
-    ⚠️ Expanded once, here, because `recurrenceKind` 9 means these ARE real
+    ⚠️ Expanded once, here, because AT-82's one-off kind means these ARE real
     days -- FR-054 forbids expanding a REPEATING exception, and none of these
     repeat.
 
@@ -2744,11 +2746,11 @@ class Builder(object):
                  'fromDate': text_of_day_start(first),
                  'toDate': text_of_day_end(last),
                  'dayWorking': False,
-                 # 9 is "no recurrence" (erd.json, Exception.recurrenceKind).
-                 # ⛔ Never a repeating kind: FR-054 says GRS does not expand
-                 # one into real days, so a repeating exception here would be
-                 # days nothing counts.
-                 'recurrenceKind': 9,
+                 # 1 with no Period is the one-off kind GRS adds (AT-82,
+                 # WC-6). ⛔ Never a repeating kind: FR-054 says GRS does not
+                 # count one, so a repeating exception here would be days
+                 # nothing counts.
+                 'recurrenceKind': DAILY_RECURRENCE_KIND,
                  'carry': {}, 'carryElements': []}
                 for turn, (name, first, last) in enumerate(CALENDAR_EXCEPTIONS)
             ],
@@ -3715,7 +3717,7 @@ def document_calendar(document):
     rule some other way would pass a document whose dates had been moved onto
     a Saturday or into its own shutdown.
 
-    ⚠️ `recurrenceKind` 9 is "no recurrence", which is what makes `fromDate`
+    ⚠️ AT-82's non-recurring predicate is what makes `fromDate`
     and `toDate` real inclusive days. FR-054 does not expand a REPEATING
     exception, so one of those closes nothing this reader can count.
 
@@ -3731,7 +3733,7 @@ def document_calendar(document):
                   if day['dayWorking'])
     shut = set()
     for one in calendar['exceptions']:
-        if one['dayWorking'] or one['recurrenceKind'] != NO_RECURRENCE:
+        if one['dayWorking'] or not is_non_recurring(one):
             continue
         first, last = day_of(one['fromDate']), day_of(one['toDate'])
         insist(first is not None and last is not None,
@@ -3801,8 +3803,24 @@ SPELLED_DAY = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 # interpret, so a reader has to accept one -- and has to accept ONLY one.
 SPELLED_TIME = re.compile(r'^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$')
 
-# `Exception.recurrenceKind` 9, "no recurrence" (erd.json).
+# `Exception.recurrenceKind` (erd.json, AT-82): 9 is "no recurrence", 1 is
+# daily; a daily row with no `Period` (or a `Period` of 1) is its range.
 NO_RECURRENCE = 9
+DAILY_RECURRENCE_KIND = 1
+
+
+def is_non_recurring(exception):
+    """AT-82's predicate: 9 or empty, or 1 with no `Period` or a `Period` of 1.
+
+    @purity pure
+    """
+    kind = exception['recurrenceKind']
+    if kind is None or kind == NO_RECURRENCE:
+        return True
+    if kind != DAILY_RECURRENCE_KIND:
+        return False
+    period = str(exception['carry'].get('Period', '')).strip()
+    return period == '' or float(period) == 1
 
 
 def day_of(value):

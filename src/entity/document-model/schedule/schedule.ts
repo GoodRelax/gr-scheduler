@@ -55,10 +55,12 @@ export type { CalendarDay, CalendarSpan } from './calendar-day'
 export {
   actualLastDay,
   actualLengthOf,
+  DAILY_RECURRENCE_KIND,
   dateFromWorkingDays,
   DaySpanTooWide,
   defaultFinishTimeOf,
   defaultStartTimeOf,
+  isNonRecurringException,
   isWorkingDay,
   lagOfWorkingDays,
   lagWorkingDaysOf,

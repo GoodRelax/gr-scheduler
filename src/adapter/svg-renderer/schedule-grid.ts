@@ -6,6 +6,7 @@
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
+  isNonRecurringException,
   workingCalendarOf,
   workingDaysBetween,
   type CalendarDay,
@@ -213,8 +214,6 @@ export function bandWidthOf(input: GridInput): number {
   return input.area.width + input.settings.canvasPadding
 }
 
-const NO_RECURRENCE = 9
-
 const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
   ordinal,
   dayType,
@@ -229,9 +228,7 @@ const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayTy
 function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): WorkingCalendar | null {
   if (tier === 'year') return null
   const within = workingCalendarOf(schedule)
-  const exceptions = within.exceptions.filter(
-    (one) => one.recurrenceKind === null || one.recurrenceKind === NO_RECURRENCE,
-  )
+  const exceptions = within.exceptions.filter(isNonRecurringException)
   if (tier === 'yearMonthDayWeekday') return { ...within, exceptions }
   const madeOff = exceptions.filter((one) => one.dayWorking !== true)
   if (madeOff.length === 0) return null
