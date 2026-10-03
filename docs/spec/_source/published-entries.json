@@ -246,6 +246,24 @@
      }
     },
     {
+     "name": "isNonRecurringException",
+     "note": {
+      "ja": [
+       "例外日が繰り返しの無いものか。",
+       "述語は `_assets/fig-erd-detail.md` の `AT-82` が持ち、取り込み（`UF-36`）・書き出し（`EX-13`）・非稼働日の塗り（`OD-1`）がこれを読む"
+      ]
+     }
+    },
+    {
+     "name": "DAILY_RECURRENCE_KIND",
+     "note": {
+      "ja": [
+       "日次の繰り返しの種別 `1`（`AT-82`）。",
+       "`GRS` が足す例外日の種別であり（`WC-6`）、書き出し（`EX-13`）がこれで形を選ぶ"
+      ]
+     }
+    },
+    {
      "name": "workingCalendarOf",
      "note": {
       "ja": [

@@ -2045,10 +2045,10 @@
      "origin": "Consume",
      "exchange": "…/Exception/Type",
      "meaning": {
-      "ja": "繰り返しの種別。これを読まないと毎年 1 日の祝日が何年ぶんも非稼働になる（`FR-088`）。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）"
+      "ja": "繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13`"
      },
      "schemaNote": {
-      "en": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none."
+      "en": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. A row is a one-off (non-recurring) exception when this is 9 or null, or 1 with no carry.Period or a Period of 1; any other row repeats and is not counted as days off. Write 1 for an exception you add."
      }
     },
     {
@@ -3639,6 +3639,33 @@
    "exchange": "Resource/ID",
    "source": {
     "ja": "書き出す順に振り直す。**`uid` とは別物**"
+   }
+  },
+  {
+   "seat": 13,
+   "entity": "Exception",
+   "name": "occurrences",
+   "exchange": "…/Exception/Occurrences",
+   "source": {
+    "ja": "`carry` に控えた原値。無く、行が `01-04-requirements.md` の 表 T-033 の `EX-13` に当たるときは `1`"
+   }
+  },
+  {
+   "seat": 14,
+   "entity": "Exception",
+   "name": "enteredByOccurrences",
+   "exchange": "…/Exception/EnteredByOccurrences",
+   "source": {
+    "ja": "`carry` に控えた原値。無く、行が `EX-13` に当たるときは `0`（範囲を終わりの日で決める）"
+   }
+  },
+  {
+   "seat": 15,
+   "entity": "Assignment",
+   "name": "units",
+   "exchange": "Assignment/Units",
+   "source": {
+    "ja": "`carry` に控えた原値。無いときは `1`（`01-04-requirements.md` の 表 T-033 の `EX-14`）。`GRS` は解釈しない"
    }
   }
  ]

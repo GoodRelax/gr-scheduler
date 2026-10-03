@@ -896,7 +896,7 @@
      ]
     },
     "recurrenceKind": {
-     "description": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none.",
+     "description": "MS Project's Exception/Type: 1 daily, 2 yearly by day of the month, 3 yearly by position, 4 monthly by day of the month, 5 monthly by position, 6 weekly, 7 by day count, 8 by weekday count, 9 none. A row is a one-off (non-recurring) exception when this is 9 or null, or 1 with no carry.Period or a Period of 1; any other row repeats and is not counted as days off. Write 1 for an exception you add.",
      "type": [
       "integer",
       "null"
