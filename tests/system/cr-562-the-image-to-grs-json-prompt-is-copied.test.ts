@@ -107,9 +107,8 @@ const T_209_ROWS = (
   }
 ).blocks.find((block) => block.id === 'T-209')?.rows ?? []
 
-// WHY: the manuscript names a value of table T-209 as `{{S-128}}`, and the prompt carries the value
-// that row states, so no prose holds a copy of it (CR-644). A literal row (the times of day S-482 /
-// S-483, CR-646) is carried as its own text.
+// WHY: the manuscript names a T-209 value as `{{S-128}}` and the prompt carries what the row states (CR-644);
+// a literal row (S-482 / S-483, CR-646) is carried as its own text.
 /** @purity pure */
 function t209Value(id: string): string {
   const found = T_209_ROWS.filter((row) => row.id === id)

@@ -45,7 +45,7 @@ const SIBLING_ORDER_ROW = 'NR-6'
 // see T-228
 const MADE_AT_WRITE_ROW = 'NR-7'
 
-// see T-059 DV-12
+// see DV-12
 const MADE_AT_WRITE_ELEMENT = 'LastSaved'
 
 // WHY: read out of the tables rather than written down here, so a row ID that
@@ -343,9 +343,8 @@ async function sameAfterNormalization(
   )
 }
 
-// WHY: cut from the document the application wrote: one copy moves only the value made at the
-// write (NR-7), the other moves the first other leaf of Project, so the step is shown to drop that
-// one value and nothing beside it.
+// WHY: cut from the written document: one copy moves only the value made at the write (NR-7), the other
+// the first other leaf of Project, so the step drops that one value and nothing beside it.
 /** @purity semi-pure-b */
 async function projectLeafCopies(
   page: Page,
