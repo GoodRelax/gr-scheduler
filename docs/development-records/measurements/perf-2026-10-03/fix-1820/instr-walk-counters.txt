@@ -1,0 +1,14 @@
+# window.__grsWalk after each stretch, cumulative over the run: one stretch = its line minus the line above.
+# answers = answersAtPointerOf calls / ms, build = pointerWalkOf rebuilds / ms, picture = drawnPictureOf held / built (tip only).
+## b0da31f6instr
+WALK warm-up {"answers":[16,41.300000071525574],"build":[8,24.200000166893005],"picture":[0,0]} svgNodes 2044 domNodes 2526
+WALK MK-1 scroll {"answers":[209,466.49999940395355],"build":[156,320.79999911785126],"picture":[0,0]} svgNodes 2094 domNodes 2576
+WALK MK-2 zoom {"answers":[423,947.1999988555908],"build":[347,682.699999332428],"picture":[0,0]} svgNodes 2414 domNodes 2856
+WALK MK-7 pan {"answers":[794,1532.4999992847443],"build":[513,1036.0999994277954],"picture":[0,0]} svgNodes 2525 domNodes 2987
+WALK MK-6 range select {"answers":[1093,1900.6999986171722],"build":[670,1273.1999999284744],"picture":[0,0]} svgNodes 2301 domNodes 2763
+## cfbd92bfinstr
+WALK warm-up {"answers":[16,46.799999713897705],"build":[8,28.699999809265137],"picture":[0,10]} svgNodes 2044 domNodes 2526
+WALK MK-1 scroll {"answers":[209,500.5999994277954],"build":[163,354.30000030994415],"picture":[0,165]} svgNodes 2133 domNodes 2595
+WALK MK-2 zoom {"answers":[420,967.9000000953674],"build":[350,696.700000166893],"picture":[0,352]} svgNodes 2614 domNodes 3096
+WALK MK-7 pan {"answers":[793,1529.3999984264374],"build":[514,1044.499998807907],"picture":[3,516]} svgNodes 2940 domNodes 3382
+WALK MK-6 range select {"answers":[1095,1692.0999991893768],"build":[516,1050.599998831749],"picture":[156,517]} svgNodes 2618 domNodes 3100
