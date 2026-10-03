@@ -487,10 +487,10 @@ interface DrawnPicture {
 /** @purity pure */
 function isSameRecord(a: object, b: object, isSame: (x: unknown, y: unknown) => boolean = Object.is): boolean {
   if (a === b) return true
-  const left = a as Readonly<Record<string, unknown>>
   const right = b as Readonly<Record<string, unknown>>
-  const keys = Object.keys(left)
-  return keys.length === Object.keys(right).length && keys.every((key) => Object.hasOwn(right, key) && isSame(left[key], right[key]))
+  const fields = Object.entries(a)
+  if (fields.length !== Object.keys(right).length) return false
+  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key]))
 }
 
 // TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
