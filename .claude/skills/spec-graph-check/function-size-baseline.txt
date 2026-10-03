@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# LOWERED frameLoop 1561 -> 1553, runFrame 145/12 -> 137/11 on 2026-10-03 (DFC-1820): the layout and the geometry calls moved out of runFrame into drawnPictureOf, which hands back the held picture while no input moved. Totals left for the coordinator to lower.
 # PRUNED json-codec.ts::documentFromJson (held 53/9, now below the band) and LOWERED openDocumentIntoHold 155/32 -> 150/30 on 2026-10-03 (CR-645): the recount and the settings clamp of a GRS JSON read moved to settledReading, the intake notices to tellDecodedIntake. Totals left for the coordinator to lower.
 # RAISED 6171 -> 6216, agentApiMembers 345->350, frameLoop 1527->1561, runFrame 139/11->145/12 on 2026-10-01 under JDG-778 (lane L4, CR-561 S-5 / S-6: the shell holds delayDiagnosticsShown and the report, recomputed only when the document changes; readDelayDiagnostics; DFC-1284 -- CR-578 splits frame-loop.ts).
 # RAISED frameClockWakesOf 69->93, frameLoop 1508->1527, receiveInput 161/68->161/69, runFrame 138->139 on 2026-10-01 under JDG-778 (lane L4, CR-576 5.1 (b): two hint timers -- beginHintTargetDwell / readHintTargetDwellMs beside beginPointerRest -- and the hint target that restarts the icon wait; DFC-1284).
@@ -106,9 +107,9 @@ HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lin
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=102 branches=27
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=177 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=86 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1561 branches=5
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1553 branches=5
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=161 branches=69
-HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=145 branches=12
+HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=137 branches=11
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=219 branches=6
