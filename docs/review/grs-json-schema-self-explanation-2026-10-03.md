@@ -147,10 +147,12 @@
 | C-16 | 根の説明・プロンプトの原稿の手順 2・雛形・見本 | 「GRS は 00:00:00 を書く」を 5.2 節の時刻に替える。生成物は作り直す |
 | C-17 | 書く路（`textOfDay` を使う所） | 開始の側と終了の側で時刻を分ける。MSPDI の書き出しも同じ時刻を書く |
 | C-18 | 表 T-297 と見本 | 行を足さない（`JDG-1206`）。起動時の見本・3 年の見本・試験用の文書・案内の土台を新しい形で作り直す |
-| C-19 | 表 T-033 の `EX-11`・`EX-12`、`AT-9`・`AT-11` | `CreationDate` ／ `LastSaved` は書かない。`ConstraintDate` は書き出した `Start` と同じ値。`ManualStart` ／ `ManualFinish` は書き出した `Start` ／ `Finish` と同じ日時を取り込んだ綴りで（`JDG-1207`） |
+| C-19 | 表 T-033 の `EX-11`・`EX-12`、`AT-9`・`AT-11` | （`CreationDate` ／ `LastSaved` は C-23 へ移した —— `JDG-1210`）`ConstraintDate` は書き出した `Start` と同じ値。`ManualStart` ／ `ManualFinish` は書き出した `Start` ／ `Finish` と同じ日時を取り込んだ綴りで（`JDG-1207`） |
 | C-20 | `AT-48`・`S-118`・`PR-42`・`VC-15`・`BD-2`・`delay-diagnostics.ts` の STOP | 解するのは `lagFormat` 7 だけ。パネルは稼働日で見せ、打つのは整数の稼働日で `lagFormat` 7 を書く。ほかの形式は読むだけ・数えない（`JDG-1208`）。起動時の見本の生成器が日数で書くラグを 0.1 分へ直す（6 節の D5） |
 | C-21 | 表 T-052 の `DR-4`・起動時の文書の版 | 版を当てる日の日付へ上げる（`JDG-1209`） |
 | C-22 | `mspdi-codec.ts` の取り込みと `import-document.ts` の合流 | どの `Task` も `TaskVisual` を 1 つ持つように作る（`JDG-1197`。6 節の D3 が測った 2 か所） |
+| C-23 | `AT-9`・`AT-11`・表 T-059・`docs/spec/_source/erd.json` の `Project` | `created` は GRS で新しく作るときに書く。`lastSaved` の列を消し、MSPDI の `LastSaved` は書き出す瞬間の現地時刻で作る（表 T-059 の新しい行）。往復の突き合わせから外す（`JDG-1210`） |
+| C-24 | スキーマの説明（`erd.json` の `schemaNote` と根の説明） | 日時の使い分けの理由を書く（`JDG-1211`）。付録 A の根の説明の日時の文は、下の 1 つ目に替える。<br>根の説明（日時の文を替える）: 「Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, notes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column, and 00:00:00..23:59:00 for a whole-day range, because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time.」<br>`documentStamp`: 「When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.」<br>`documentStamp.fileSavedUtc`: 「When this document was last written to its file. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.」<br>`Project.created`: 「MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one.」<br>`Project.defaultStartTime` ／ `defaultFinishTime`（新しい列）: 「MS Project's DefaultStartTime / DefaultFinishTime: the times GRS writes on start-side and finish-side dates; 08:00:00 and 17:00:00 when the file has none.」 |
 
 ## 6. 影響範囲（`JDG-1195`〜`JDG-1205` の全部、2026-10-03 に測った）
 
@@ -171,7 +173,7 @@
 | # | 何が | 誰が決めるか |
 | --- | --- | --- |
 | 見落とし 1 | 「読み替えはしない」（`JDG-601`）と、表 T-297 の MUST（退いた列の扱い）が両立しない。D1・D7 で必須の列が変わると、今保存されている `GRS JSON` は `RS-25` で文書ごと拒まれる | `JDG-1206`: 読み替えない（B） |
-| 見落とし 2 | D7 の表に `Project.created`・`Project.lastSaved` が無い。GRS が MSPDI へ書く `ConstraintDate`・`ManualStart`・`ManualFinish` も無い | `JDG-1207`: 5.3 節の C-19 |
+| 見落とし 2 | D7 の表に `Project.created`・`Project.lastSaved` が無い。GRS が MSPDI へ書く `ConstraintDate`・`ManualStart`・`ManualFinish` も無い | `JDG-1207`（前半は `JDG-1210` が覆した）: 5.3 節の C-19・C-23 |
 | 見落とし 3 | D5 は日の形式しか見ていない —— `lagFormat` 8（暦日、1 日 = 1440 分）と 19・20（百分率）。日に満たない端数の丸め | `JDG-1208`: 日の形式だけを解する（A） |
 | 見落とし 4 | D1・D7 で形式の版を上げるか | `JDG-1209`: 上げる（A） |
 | 見落とし 5 | D2: 読むたびに数え直すので、AI が書いた完了率は無視され、`VC-5` は `GRS JSON` では出なくなる。開いただけで文書が変わりうる（試験 `dfc-378`） | 変更要求で扱う |
