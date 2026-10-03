@@ -1336,8 +1336,27 @@ NOT_STORED_TARGETS = {
     # CR-574: S-436 is the gap between an entry's text and its assignment (an
     # em ratio, FR-036) and S-437 the rule between the help's title row and its
     # body; both are drawn by the help's own drawing unit beside S-201 .. S-204.
+    # CR-622: S-457 (the room inside and around a block's frame) and S-458 (the
+    # floor under a column's width) are the help's layout, em ratios like S-436.
+    # CR-625: S-460, how far below the pointer's point a tooltip stands (IN-7),
+    # joins S-339, IN-7's inset from the window edge, read by tooltips-drawing.ts.
+    # CR-621: S-423 / S-424 (the floor under a window's width and height) and
+    # S-426 (the strip a window's edge is held by, GR-25) are rows of table
+    # T-335, which FR-036 holds for the help, the search panel, the Delay
+    # Diagnostics Report and the dialogue field alike; S-453 / S-454 are the
+    # dialogue field's default size, em ratios like S-436 (FR-066). They ride
+    # this constant, as S-475 .. S-481 ride the search panel's (CR-639): every
+    # window is drawn by this file's drawing units, and a constant of their own
+    # would stand unread until the code wave draws them -- noUnusedLocals
+    # refuses an unread const and check 30 an exported copy nobody imports.
+    # CR-628: S-459, the repository's address, which the help's copyright line
+    # (FR-069) and the App Header's Branding (BR-4 of table T-349) both open;
+    # both are drawn on this side. A string, as S-350 is in notices.ts.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
-                               'S-339', 'S-340', 'S-436', 'S-437'],
+                               'S-339', 'S-340', 'S-436', 'S-437',
+                               'S-457', 'S-458', 'S-460',
+                               'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
+                               'S-459'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
     # and the rule width RR-5 reads. Not folded into the help line above -- one
@@ -1347,10 +1366,14 @@ NOT_STORED_TARGETS = {
                                          DRAWN_WITH_WHERE_IT_STANDS),
     # CR-571: the search panel's default width and height as ratios of the
     # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
-    # the roster's, its sibling floating surface. S-423 .. S-428 hold no value
-    # yet (the table says so), so they join a group only when a later change
-    # request gives them one. `dom-screen-surface.ts` reads it where it places
-    # the panel (searchPanelBoxOf).
+    # the roster's, its sibling floating surface. `dom-screen-surface.ts` reads
+    # it where it places the panel (searchPanelBoxOf).
+    # CR-629: S-425 (the floor under a column's width, SV-18 / RW-9), S-465
+    # (the strip either side of a column boundary, GR-28) and S-466 .. S-474,
+    # the default widths of SQ-1 .. SQ-9 of table T-331. S-423 / S-424 / S-426
+    # went to NOT_STORED_HELP_SIZES with the rest of table T-335 (CR-621).
+    # S-427 still holds no value and S-428 is read by the use case that jumps
+    # (search-jump.ts), so neither is here.
     # CR-639: S-475 .. S-481, the default widths of the Delay Diagnostics
     # Report's table columns DT-1 .. DT-7 (RW-9 of table T-346, SV-18 as for
     # the search panel). The window is drawn as the search panel's sibling
@@ -1359,7 +1382,10 @@ NOT_STORED_TARGETS = {
     # stand unread until the window is drawn, and noUnusedLocals refuses it.
     # @provisional PND-670 -- the seven values are placeholders until a
     # touchable sample decides them (JDG-1183).
-    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422',
+    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
+                                       'S-466', 'S-467', 'S-468', 'S-469',
+                                       'S-470', 'S-471', 'S-472', 'S-473',
+                                       'S-474',
                                        'S-475', 'S-476', 'S-477', 'S-478',
                                        'S-479', 'S-480', 'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
@@ -1473,7 +1499,12 @@ NOT_STORED_TARGETS = {
     # constant is generated a second time into the unit that paints it -- the
     # bargain S-218 already stands on in two units, and what EP-1 of table
     # T-076 asks for.
-    'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226'],
+    # CR-628: S-462 (the Branding seat beside the title, BR-2 of table T-349)
+    # and S-463 (the title's weight, FR-039) are read by the screen and the
+    # export alike (EP-1); S-461 (the Branding outline, BR-3) is the screen's
+    # alone, and rides here because the Branding is drawn beside the title.
+    'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226', 'S-461', 'S-462',
+                                         'S-463'],
                                         DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
@@ -1757,9 +1788,11 @@ COLOUR_TARGETS = {
     # ⭐ CR-551: S-336 / S-337 are CV-9's checker squares, which the property
     # panel draws on this side (properties-panel-drawing.ts), so they are the
     # chrome's too.
+    # CR-628: S-464, the Branding outline (BR-3 of table T-349), drawn in the
+    # App Header on this side; it names S-148 through sameAs.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
-                       'S-336', 'S-337'],
+                       'S-336', 'S-337', 'S-464'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no

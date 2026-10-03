@@ -247,9 +247,15 @@ export async function exportPng(
 export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
+  readonly 'S-461': number
+  readonly 'S-462': number
+  readonly 'S-463': number
 } = {
   'S-225': 20,
   'S-226': 12,
+  'S-461': 0.05,
+  'S-462': 2.5,
+  'S-463': 700,
 }
 
 // see T-206

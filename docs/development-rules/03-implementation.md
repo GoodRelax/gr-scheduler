@@ -62,7 +62,7 @@ NOT_STORED_BOTTLENECK_THRESHOLD      ボトルネックとする押し出し日�
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
 NOT_STORED_END_POINTER_SIZES         本ツールが描くポインタの画像の大きさと縁（表 T-269。`S-249` / `S-294` 〜 `S-297`）
 NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
-NOT_STORED_HELP_SIZES                ヘルプの取り分と列、ツールチップと読み出しの字と余白（`S-201` 〜 `S-204` / `S-334` / `S-339` / `S-340`）
+NOT_STORED_HELP_SIZES                ヘルプの取り分と列と塊の空き、ツールチップと読み出しの字と余白とポインタからの隔たり、表 T-335 のウインドウの下限と縁、対話欄の既定の大きさ、リポジトリの所（`S-201` 〜 `S-204` / `S-334` / `S-339` / `S-340` / `S-436` / `S-437` / `S-457` / `S-458` / `S-460` / `S-423` / `S-424` / `S-426` / `S-453` / `S-454` / `S-459`）
 NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、行見出しパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
 NOT_STORED_LABEL_SIZES               ラベルの幅の係数と予定日の字の係数（`S-196` / `S-233` / `S-325`）
@@ -93,11 +93,11 @@ NOT_STORED_ANNOTATION_BOUNDS         その数値の行の下限・上限と鍵�
 NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの明度の下限・上限（`S-415` / `S-416`）
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
-NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさ（`S-421` / `S-422`、`CR-571`）
+NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_DEPENDENCY_EMPHASIS_SIZES 選んだ依存線と着地の印の線・両端の囲みに足す太さ（`S-447`、`CR-602`）
-NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白（`S-225` / `S-226`）
+NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白と太さ、`Branding` の縁と席（`S-225` / `S-226` / `S-461` 〜 `S-463`）
 NOT_STORED_SELECTION_SIZES           選択の枠の太さ・刻みと、追従しているカーソルの倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（表 T-266 の `S-250` 〜 `S-290` ／ `S-137` ／ `S-230` ／ `S-291` 〜 `S-293`）
 NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-214` / `S-215`）
