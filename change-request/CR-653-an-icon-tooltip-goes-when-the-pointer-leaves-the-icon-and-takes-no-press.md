@@ -180,7 +180,7 @@ SEAM (CR-653)
   - `tests/unit/uf-71-confirmation.test.ts:1543` —— `IN-3` の鏡（「次の 3 つ」「ポインタを乗せられること」）を新しい 2 つへ。
   - `tests/unit/cr-541-panels-help-tooltip-and-dialogue.test.ts` の `Q38` —— 決定 2 の逐語へ。
   - `tests/unit/uf-72-screen-part.test.ts` —— 説明の箱が出ていても、その下の入口を `readScreenPartAt` が答えることを足す。
-  - 新しい system 試験: `IC-59` の上で説明が出るまで待ち、真下の `IC-90` へ動いて押すと `IC-90` が構える（`data-armed`）。パレットの `IC-23` → `IC-61` も同じ。
+  - 新しい system 試験: `IC-59` の上で説明が出るまで待ち、真下の `IC-90` へ動いて押すと、`IC-90` の働き（表 T-051 の `HF-13`、行の配下を 1 階層だけ開く）が起きる —— `IC-90` は構えを持たない（表 T-109 の `構え` の欄が「—」）。パレットの `IC-23` → `IC-61` では、押すと `IC-61` が構える（`data-armed`）。
 - 台帳: `defects.md` の `DFC-1903`（`仕様待ち` → `実測待ち`）と `DFC-693`（`未検討` → `取下げ`）、`rulings.md` の `JDG-1252`・`JDG-1254`（適用済）、`perf-pending.md` の 1 行（8 節）。
 
 ---

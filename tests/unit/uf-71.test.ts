@@ -2311,7 +2311,7 @@ describe('EZ-2 of 表 T-040 -- the entry the pointer rests on can be found', () 
   })
 })
 
-describe('IN-3 of 表 T-028 -- a tooltip is pointable and does not go by itself', () => {
+describe('IN-3 of 表 T-028 -- a tooltip takes no pointer and does not go by itself', () => {
   const tooltipView = viewWith({ tooltips: [iconTooltip('IC-20', 'TooltipTextOne')] })
 
   const tooltipsBox = (root: FakeElement): FakeElement => oneByRole(root, 'Tooltip')
@@ -2323,13 +2323,15 @@ describe('IN-3 of 表 T-028 -- a tooltip is pointable and does not go by itself'
     return { built, surface }
   }
 
-  it('takes the pointer, so a person can reach into it', () => {
+  it('IN-3 / UZ-2 -- takes no pointer, so a press on it passes to what lies below', () => {
     const { built } = draw()
 
     const box = tooltipsBox(built.root())
     expect(box.textContent).toContain('TooltipTextOne')
-    const styles = selfAndDescendants(box).map((one) => styleOf(one)).join(' ')
-    expect(styles).toContain('pointer-events:auto')
+    const styles = selfAndDescendants(box).map((one) => styleOf(one))
+    expect(styles.join(' ')).toContain('pointer-events:none')
+    expect(styles.join(' ')).not.toContain('pointer-events:auto')
+    expect(styles[0]).toContain('pointer-events:none')
   })
 
   it('⛔ does not go away by itself -- no clock of its own takes it', () => {

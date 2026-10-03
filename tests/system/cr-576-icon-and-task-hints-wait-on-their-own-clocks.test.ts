@@ -12,9 +12,9 @@ import { rowOf } from './sws-case'
 const EZ_2_WAIT = 'ポインタがアイコンに入ってから `_assets/tbl-settings.md` の `S-124` が経ったら、そのアイコンの説明を出すこと（MUST）。'
 const EZ_2_FROM_ENTERING = '⭐ 待ちは、ポインタがそのアイコンに入った時から数えること（MUST）。'
 const EZ_2_NO_RESTART = 'アイコンの中でポインタが動いても数え直してはならない（MUST NOT）'
-const EZ_2_STAYS =
-  '⭐ 出した説明は、ポインタがそのアイコンか、その説明の上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
-const EZ_2_LEAVING = 'ポインタがそのアイコンとその説明の外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）。'
+const EZ_2_STAYS = '⭐ 出した説明は、ポインタがそのアイコンの上にあるあいだ、消さず、置き場も動かさないこと（MUST）'
+const EZ_2_LEAVING = 'ポインタがそのアイコンの外へ出たら、説明を消し、次に入った対象で待ちを数え直すこと（MUST）'
+const EZ_2_THE_BOX_IS_OUTSIDE = '説明の箱の上へ動いたことも、アイコンの外へ出たことに数える（説明はポインタを受け取らない —— `IN-3`）。'
 const EZ_6_WAIT =
   '日程の上でポインタが `_assets/tbl-settings.md` の `S-439` のあいだ止まったら、そこに当たったものの説明を、表 T-348 の行で出すこと（MUST）。'
 const EZ_6_MOVE_HIDES = 'ポインタが動いたら消すこと（MUST）'
@@ -32,6 +32,7 @@ const CLAUSES: readonly string[] = [
   EZ_2_NO_RESTART,
   EZ_2_STAYS,
   EZ_2_LEAVING,
+  EZ_2_THE_BOX_IS_OUTSIDE,
   EZ_6_WAIT,
   EZ_6_MOVE_HIDES,
   EZ_6_TWO_VALUES,
@@ -227,6 +228,26 @@ async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; 
   return found.slice(0, 2)
 }
 
+// see EZ-2
+/** @purity pure */
+function pointOfTheBoxOutside(box: Rect, icon: Rect, centre: Point): Point | null {
+  const at = { x: Math.min(Math.max(centre.x, box.left + 2), box.right - 2), y: (box.top + box.bottom) / 2 }
+  const outside = at.y < icon.top || at.y > icon.bottom || at.x < icon.left || at.x > icon.right
+  return outside ? at : null
+}
+
+// see IN-3, UZ-2
+/** @purity semi-pure-b */
+async function frontIsTheTooltip(page: Page, at: Point): Promise<boolean> {
+  return page.evaluate(
+    ({ point, tooltip }: { point: Point; tooltip: string }) => {
+      const front = document.elementFromPoint(point.x, point.y)
+      return front !== null && front.closest(tooltip) !== null
+    },
+    { point: at, tooltip: TOOLTIP },
+  )
+}
+
 /** @purity pure */
 function isHintOf(icon: string, text: string): boolean {
   return (HINTS.get(icon) ?? []).some((hint) => hint !== '' && text.includes(hint))
@@ -325,8 +346,8 @@ test.describe('CR-576 claim 3 -- the icon wait counts from entering the icon (EZ
   })
 })
 
-test.describe('CR-576 claim 4 -- a shown icon description stays put until the pointer leaves the icon and its box (EZ-2, IN-3)', () => {
-  test(`${EZ_2_STAYS}`, async () => {
+test.describe('CR-576 claim 4 -- a shown icon description stays put while the pointer is on the icon, and goes when it leaves, onto its box too (EZ-2, IN-3)', () => {
+  test(`EZ-2 -- ${EZ_2_STAYS} ${EZ_2_NO_RESTART}`, async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample()
     try {
@@ -336,24 +357,14 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put until the po
       await goNowhere(page)
       const centre = centreOf(one.rect)
       const first = await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
-      const inTheBox = {
-        x: Math.min(Math.max(centre.x, first.rect.left + 2), first.rect.right - 2),
-        y: (first.rect.top + first.rect.bottom) / 2,
-      }
-      expect(
-        inTheBox.y < one.rect.top || inTheBox.y > one.rect.bottom || inTheBox.x < one.rect.left || inTheBox.x > one.rect.right,
-        `premise: a point of the box ${said(first.rect)} lies outside ${one.icon} ${said(one.rect)}`,
-      ).toBe(true)
 
       const since = await nowOf(page)
-      // STEP: move inside the icon, jump onto the box, move inside the box, and stay past S-124
-      await wiggleInside(page, centre, 5)
-      await page.mouse.move(inTheBox.x, inTheBox.y)
-      await wiggleInside(page, inTheBox, 5)
+      // STEP: move a few pixels inside the icon again and again, then stay past S-124
+      await wiggleInside(page, centre, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
 
       const log = await logSince(page, since)
-      expect(log.moves.length, 'premise: the page saw the moves').toBeGreaterThanOrEqual(11)
+      expect(log.moves.length, 'premise: the page saw the moves').toBeGreaterThanOrEqual(10)
       for (const seen of log.seen) {
         expect(seen.text, `${EZ_2_STAYS} -- at ${seen.at.toFixed(0)} ms the box read ${JSON.stringify(seen.text)}`).toBe(first.text)
         expect(sameRect(seen.rect, first.rect), `${EZ_2_STAYS} -- the box moved from ${said(first.rect)} to ${said(seen.rect)}`).toBe(true)
@@ -366,7 +377,33 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put until the po
     }
   })
 
-  test(`${EZ_2_LEAVING}`, async () => {
+  test(`EZ-2 / IN-3 -- ${EZ_2_LEAVING} ${EZ_2_THE_BOX_IS_OUTSIDE}`, async () => {
+    test.setTimeout(240_000)
+    const stage = await openTheSample()
+    try {
+      const { page } = stage
+      const [one] = await twoHintedEntrances(page)
+      if (one === undefined) throw new Error('premise: no entrance')
+      await goNowhere(page)
+      const centre = centreOf(one.rect)
+      const first = await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
+      const inTheBox = pointOfTheBoxOutside(first.rect, one.rect, centre)
+      expect(inTheBox, `premise: a point of the box ${said(first.rect)} lies outside ${one.icon} ${said(one.rect)}`).not.toBeNull()
+      if (inTheBox === null) return
+      expect(await frontIsTheTooltip(page, inTheBox), `${EZ_2_THE_BOX_IS_OUTSIDE} -- the box takes the pointer at ${JSON.stringify(inTheBox)}`).toBe(false)
+
+      const since = await nowOf(page)
+      await page.mouse.move(inTheBox.x, inTheBox.y)
+      await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: EZ_2_THE_BOX_IS_OUTSIDE }).not.toBe(first.text)
+      const log = await logSince(page, since)
+      const change = log.seen.find((seen) => seen.text !== first.text)
+      expect(change?.text, `${EZ_2_LEAVING} -- after moving onto the box the first change read ${JSON.stringify(change?.text)}`).toBe('')
+    } finally {
+      await stage.close()
+    }
+  })
+
+  test(`EZ-2 -- ${EZ_2_LEAVING}`, async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample()
     try {
