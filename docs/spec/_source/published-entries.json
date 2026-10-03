@@ -300,6 +300,48 @@
      }
     },
     {
+     "name": "minutesPerWorkingDayOf",
+     "note": {
+      "ja": [
+       "1 稼働日の分数。",
+       "`Project.minutesPerDay`、空なら `S-128`（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "lagWorkingDaysOf",
+     "note": {
+      "ja": [
+       "ラグを稼働日で読む。",
+       "`lag` が 0 か空なら 0、`lagFormat` が 7 でなければ無い（`FR-009`）"
+      ]
+     }
+    },
+    {
+     "name": "lagOfWorkingDays",
+     "note": {
+      "ja": [
+       "稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`）"
+      ]
+     }
+    },
+    {
+     "name": "WORKING_DAY_LAG_FORMAT",
+     "note": {
+      "ja": [
+       "`GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`）"
+      ]
+     }
+    },
+    {
+     "name": "TENTHS_OF_A_MINUTE",
+     "note": {
+      "ja": [
+       "`lag` の 1 分あたりの数（`AT-47`）"
+      ]
+     }
+    },
+    {
      "name": "isStoredColour",
      "note": {
       "ja": [

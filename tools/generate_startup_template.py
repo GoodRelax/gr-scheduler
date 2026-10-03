@@ -518,9 +518,11 @@ WAITS_ON = (
 # every task of another.
 WAITING_LINKS = 3
 
-# The unit of `Dependency.lag`. ⭐ S-118 fixes the unit as working days;
-# `erd.json` says the column's unit IS `lagFormat`, so a lag without one is a
-# number without a unit, and the exchange partner's own documentation states
+# The unit of `Dependency.lag`. ⭐ AT-47 stores it in tenths of a minute
+# whatever `lagFormat` says (JDG-1201); S-118 is only the unit the panel SHOWS,
+# working days, and FR-009 has a working-day lag written with `lagFormat` 7,
+# the one format GRS reads (JDG-1208). A lag without a format is a number
+# without a unit, and the exchange partner's own documentation states
 # that "LinkLag requires a LagFormat to be specified"
 # (docs/reference/mspdi/learn-docs/.../linklag-element.md). ⛔ The CODE is not a
 # value docs/spec decided, so it is read from the canon rather than invented:
@@ -528,6 +530,19 @@ WAITING_LINKS = 3
 # days), and working days is the first of the two
 # (docs/reference/mspdi/pj12/_erd-part-M2-task.md, PredecessorLink row 6).
 LAG_FORMAT_WORKING_DAYS = 7
+# LinkLag counts tenths of a minute (AT-47, mspdi_pj12.xsd:2198).
+TENTHS_OF_A_MINUTE = 10
+
+
+def lag_of_working_days(days):
+    """The stored `lag` of a gap of `days` working days (FR-009, AT-47).
+
+    The template writes `Project.minutesPerDay` as null, so a working day is
+    S-128's minutes (FR-054), read from the generated table, never retyped.
+
+    @purity pure
+    """
+    return days * CALENDAR_VALUES['S-128'] * TENTHS_OF_A_MINUTE
 
 # ⛔ THE VOCABULARY OF WORK, BY KIND AND THEN BY PHASE. Seven tuples per kind,
 # in the order of PHASES, and one tuple of OBJECTS per kind -- the concrete
@@ -2329,11 +2344,12 @@ class Builder(object):
             succ['dependencies'].append({
                 'predecessorUid': pred['uid'],
                 'linkType': kind,
-                # S-118 fixes the unit as working days; S-117 makes 0 "no gap".
+                # The gap is measured in working days and stored in tenths of
+                # a minute (FR-009, AT-47); S-117 makes 0 "no gap".
                 # ⚠️ Only a finish-to-start link has room between its ends to
                 # measure; the other three name one edge of each bar, so the
                 # value there is S-117's zero.
-                'lag': gap if kind == 1 else 0,
+                'lag': lag_of_working_days(gap if kind == 1 else 0),
                 # ⛔ NOT left unstated. `erd.json` says this column IS the unit
                 # of `lag`, and the exchange partner's own documentation says
                 # "LinkLag requires a LagFormat to be specified". The code for
@@ -3325,12 +3341,12 @@ def check_links(built):
                    'A17: %s depends on %s across %d working days, and a link '
                    'that far apart constrains nothing'
                    % (task['name'], pred['name'], gap))
-            insist(link['lag'] == (gap if kind == 1 else 0),
+            insist(link['lag'] == lag_of_working_days(gap if kind == 1 else 0),
                    'A17: the lag on %s does not measure its own gap'
                    % task['name'])
-            insist(link['lagFormat'] is not None,
-                   'A17: %s carries a lag with no unit, and erd.json says the '
-                   'unit of `lag` IS `lagFormat`' % task['name'])
+            insist(link['lagFormat'] == LAG_FORMAT_WORKING_DAYS,
+                   'A17: %s carries a lag not in working days, the one format '
+                   'GRS reads (FR-009)' % task['name'])
     insist(held >= 200, 'A17: %d dependencies is not a web' % held)
 
 

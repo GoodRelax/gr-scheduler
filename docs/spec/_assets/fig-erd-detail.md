@@ -357,8 +357,8 @@ erDiagram
 | AT-44 | `Task` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-45 | `Dependency` | `predecessorUid` | 整数 | 否 | FK | Consume | `PredecessorLink/PredecessorUID` | 先行タスク。**後続は入れ子の位置が表す** |
 | AT-46 | `Dependency` | `linkType` | 整数（0〜3） | 否 | — | Consume | `PredecessorLink/Type` | 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS |
-| AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分である |
-| AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグの単位 |
+| AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分（空なら `_assets/tbl-settings.md` の `S-128`）である |
+| AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）だけである —— ほかの値は読んで保ち、見せるだけにする（`FR-009`） |
 | AT-49 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
 | AT-50 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-51 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 行の識別子 |

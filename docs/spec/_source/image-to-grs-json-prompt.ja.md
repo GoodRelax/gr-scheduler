@@ -51,7 +51,7 @@
      - 未着手・実績が描かれていない: actualStart・stop・actualFinish は null、percentComplete は null。
      - 実績の最後の日を actualStart より前にしない。
    - resume は null、resumeValid は null。deadline・notes・calendarUid は null。
-   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lag の単位は、lagFormat が何であっても 0.1 分である（lagFormat 7 は、日で表示することだけを言う）。1 日は project.minutesPerDay 分で、null なら 480 分 —— ラグが無ければ 0、2 日のラグは 480 × 2 × 10 = 9600。矢印が無ければ []。
+   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lag の単位は、lagFormat が何であっても 0.1 分である（lagFormat 7 は、日で表示することだけを言う）。1 日は project.minutesPerDay 分で、null なら {{S-128}} 分 —— ラグが無ければ 0、2 日のラグは 2 × 1 日の分数 × 10（project.minutesPerDay が null なら 2 × {{S-128}} × 10）。矢印が無ければ []。
 6. フェードと、薄れていくグラデーション（fadeInDays / fadeOutDays）
    - GRS のフェードは、予定のバーの端を斜めにする印である（日付がまだ確かでないことを表す）。開始側だけなら左の辺が斜めの台形、終了側だけなら右の辺が斜めの台形、両方なら平行四辺形になる。
    - 原本のバーの端が斜め、先細り、または色のグラデーションで背景の色や透明へ薄れていくときは、開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。

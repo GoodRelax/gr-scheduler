@@ -26,7 +26,8 @@ the writer of a document -- an AI included -- holding this one file, so:
   - a description says a summary and the reason, never what the name and the
     structure already say, and names no specification ID (Chapter 6.2). A
     column's description is its `schemaNote` in erd.json; most columns have
-    none, on purpose;
+    none, on purpose. A note that needs a value of table T-209 names the row
+    (`{{S-128}}`) and the value is printed from settings.json (CR-644);
   - every date column (`isDate` in erd.json) points at one `$defs/DateTime`,
     whose pattern is the lexical form of xsd:dateTime, the type MS Project
     gives every date (CR-643). It is a promise to the writer (FR-024) and NOT a
@@ -417,8 +418,11 @@ def entity_defs(erd, open_enums):
             body = (date_time_ref(c['json'], where) if c['json'].get('isDate')
                     else frag(c['json'], open_enums, where))
             if 'schemaNote' in c:
-                described = collections.OrderedDict(
-                    [('description', c['schemaNote']['en'])])
+                # A note naming a value of table T-209 (`{{S-128}}`) is printed
+                # from that row, never retyped (CR-644).
+                note = settings_reader.with_calendar_rows_printed(
+                    c['schemaNote']['en'], where)
+                described = collections.OrderedDict([('description', note)])
                 described.update(body)
                 body = described
             props[c['name']] = body

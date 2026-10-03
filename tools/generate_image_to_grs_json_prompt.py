@@ -21,7 +21,9 @@ and the join is the shell's one line.
 THE PIECES ARE READ, NEVER RETYPED.
   prompt         docs/spec/_source/image-to-grs-json-prompt.<lang>.md, from its
                  second line (the first line declares the file's role and is
-                 not part of the prompt -- 05-07-design.md 6.2)
+                 not part of the prompt -- 05-07-design.md 6.2); a value of
+                 table T-209 it names as `{{S-128}}` is printed from
+                 settings.json (CR-644)
   schemaVersion  the startup template's version (FR-027), taken from
                  tools/generate_startup_template.py, which prints that template
   schema         docs/spec/_source/grs-document.schema.json, whitespace removed
@@ -41,6 +43,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import generate_entity_types as settings_reader  # noqa: E402
 import generate_startup_template as startup  # noqa: E402
 
 SOURCE = os.path.join(ROOT, 'docs', 'spec', '_source')
@@ -115,7 +118,9 @@ def prompt_of(language):
         sys.exit('%s holds a fenced block; the schema and the base document '
                  'are appended by this generator and must not be copied into '
                  'the manuscript (05-07-design.md 6.2, MUST NOT)' % name)
-    return body
+    # A value of table T-209 is named in the manuscript (`{{S-128}}`) and
+    # printed here, so the prompt holds no hand copy of it (CR-644).
+    return settings_reader.with_calendar_rows_printed(body, name)
 
 
 def minified(value):
