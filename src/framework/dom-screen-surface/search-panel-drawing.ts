@@ -43,7 +43,6 @@ type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['
 // see T-330, T-346, RW-3, RW-4
 export type TableWindowView = Omit<SearchPanelView, 'table'> & {
   readonly toolEntries?: readonly CommandItem[]
-  readonly legend?: readonly { readonly text: string }[]
   readonly summary?: readonly { readonly text: string }[]
   readonly jumpAt?: number
 }
@@ -67,7 +66,9 @@ const SEARCH_PANEL_IDENTITY: TableWindowIdentity = { window: 'searchPanel', role
 
 const TOOL_LINE_STYLE = 'display:flex;align-items:center;flex:none;'
 
-const PREAMBLE_STYLE = 'flex:none;display:flex;gap:1em;padding:0.25em 0.5em;'
+const SUMMARY_LINE_STYLE = 'flex:none;display:flex;flex-wrap:wrap;column-gap:1.5em;padding:0.25em 0.5em;'
+
+const SUMMARY_ITEM_STYLE = 'white-space:nowrap;'
 
 export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 
@@ -349,14 +350,10 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   const tools = view.toolEntries === undefined ? [] : view.toolEntries.map((item) => anchoredEntry(host, item, anchors, role))
   const line = made(host, 'div', TOOL_LINE_STYLE)
   line.replaceChildren(...tools, word)
-  if (view.legend === undefined) return [tools.length === 0 ? word : line]
-  const preamble = made(host, 'div', PREAMBLE_STYLE + `font-size:${fontPx}px;`)
-  preamble.replaceChildren(...[view.legend, view.summary ?? []].map((lines) => {
-    const block = made(host, 'div', '')
-    block.replaceChildren(...lines.map((one) => Object.assign(made(host, 'div', ''), { textContent: one.text })))
-    return block
-  }))
-  return [line, preamble]
+  if (view.summary === undefined) return [tools.length === 0 ? word : line]
+  const summary = made(host, 'div', SUMMARY_LINE_STYLE + `font-size:${fontPx}px;`)
+  summary.replaceChildren(...view.summary.map((one) => Object.assign(made(host, 'span', SUMMARY_ITEM_STYLE), { textContent: one.text })))
+  return [line, summary]
 }
 
 // see U-64, U-66, FR-134, FR-151, T-330, T-346
@@ -370,7 +367,7 @@ export function searchPanelElement(
 ): HTMLElement {
   const panel = part(host, 'div', role, boxStyle(placed.box) + windowStyle())
   const entries = { before: view.tableEntries, titled: view.titleEntries }
-  const title = windowTitleRowElement(host, view.heading, entries, anchors, role)
+  const title = windowTitleRowElement(host, view.heading, entries, anchors, role, placed.fontPx)
   if (view.shown === 'minimised') {
     panel.replaceChildren(title)
     return panel

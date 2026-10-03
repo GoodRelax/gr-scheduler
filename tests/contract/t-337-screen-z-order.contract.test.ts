@@ -171,7 +171,6 @@ const REPORT: DelayDiagnosticsReportView = {
   heading: 'ReportHeading',
   isInFront: true,
   toolEntries: [],
-  legend: [],
   summary: [],
   rows: [],
   jumpAt: 3,

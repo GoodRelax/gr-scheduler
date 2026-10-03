@@ -14,10 +14,10 @@ import type { Schedule, Task } from './schedule-entities'
 import { assigneeNamesByTaskUid, compareDates, plannedFinishOf } from './schedule-search'
 
 // see DT-1
-export type DelayReportStatus = DelayMarkerRow | 'finding' | 'settled'
+export type DelayReportStatus = DelayMarkerRow | 'doubtful' | 'settled'
 
 // see DT-1
-export const DELAY_REPORT_STATUSES: readonly DelayReportStatus[] = ['DG-1', 'DG-2', 'DG-3', 'DG-4', 'finding', 'settled']
+export const DELAY_REPORT_STATUSES: readonly DelayReportStatus[] = ['DG-1', 'doubtful', 'DG-2', 'DG-3', 'DG-4', 'settled']
 
 // see DT-7
 export type DelayReportReason =
@@ -52,31 +52,24 @@ export interface DelayReportFilter {
   readonly columns: readonly { readonly heading: string; readonly condition: string }[]
 }
 
-// see RW-4, RW-6, T-315
+// see RW-6, T-315
 export interface DelayReportWords {
   readonly heading: string
   readonly documentName: string
-  readonly statusDate: string
   readonly madeAt: string
   readonly filter: string
   readonly none: string
-  readonly legend: string
-  readonly summary: string
-  readonly unanalysed: string
   readonly columns: readonly string[]
-  readonly statuses: Readonly<
-    Record<DelayReportStatus, { readonly symbol: string; readonly word: string; readonly meaning: string }>
-  >
+  readonly statuses: Readonly<Record<DelayReportStatus, { readonly symbol: string; readonly word: string }>>
 }
 
-// see RW-6
+// see RW-4, RW-6
 export interface DelayReportDates {
   readonly documentName: string
-  readonly statusDate: string
+  readonly statusDateLine: string
   readonly madeAt: string
+  readonly summaryLine: string
 }
-
-const LEGEND_STATUSES: readonly DelayReportStatus[] = ['DG-1', 'DG-2', 'DG-3', 'DG-4']
 
 const MARKDOWN_LINE_BREAKS = /\r\n|\r|\n/g
 
@@ -93,13 +86,12 @@ function earlierStatus(held: DelayReportStatus | undefined, status: DelayReportS
 }
 
 // see DT-1, DX-3, DX-8, DX-9
-// WHY: one Task is one row, under the first status of DT-1's order that it holds.
 /** @purity pure */
 function delayReportStatusesOf(report: DelayDiagnosticsReport): ReadonlyMap<number, DelayReportStatus> {
   const statuses = new Map<number, DelayReportStatus>()
   const note = (uid: number, status: DelayReportStatus): void => void statuses.set(uid, earlierStatus(statuses.get(uid), status))
   for (const one of report.markerStates) note(one.uid, one.row)
-  for (const one of report.findings) note(one.uid, 'finding')
+  for (const one of report.findings) note(one.uid, 'doubtful')
   for (const one of report.settledPushOuts) note(one.uid, 'settled')
   return statuses
 }
@@ -109,7 +101,7 @@ function delayReportStatusesOf(report: DelayDiagnosticsReport): ReadonlyMap<numb
 function reasonOf(report: DelayDiagnosticsReport, uid: number, status: DelayReportStatus): DelayReportReason {
   switch (status) {
     case 'DG-1':
-    case 'finding':
+    case 'doubtful':
       return {
         kind: 'unreliable',
         findings: report.findings.filter((one) => one.uid === uid),
@@ -146,7 +138,6 @@ function rowOf(task: Task, status: DelayReportStatus, report: DelayDiagnosticsRe
 }
 
 // see FR-134, T-347
-// WHY: in the default order -- DT-1's order, then the oldest Task.start, then Task.uid; built from AM-19's value (S-1).
 /** @purity pure */
 export function delayDiagnosticsReportRows(report: DelayDiagnosticsReport, schedule: Schedule): readonly DelayReportRow[] {
   const statuses = delayReportStatusesOf(report)
@@ -187,11 +178,6 @@ function filterText(filter: DelayReportFilter, none: string): string {
 }
 
 /** @purity pure */
-function section(heading: string, lines: readonly string[]): readonly string[] {
-  return heading === '' ? [...lines, ''] : [`## ${heading}`, '', ...lines, '']
-}
-
-/** @purity pure */
 function tableLines(rows: readonly DelayReportTextRow[], words: DelayReportWords): readonly string[] {
   const line = (cells: readonly string[]): string => `| ${cells.map(markdownCell).join(' | ')} |`
   return [
@@ -205,30 +191,21 @@ function tableLines(rows: readonly DelayReportTextRow[], words: DelayReportWords
 // WHY: the one string IC-108 copies and IC-140 writes, so the two never differ (CR-617 decision 5).
 /** @purity pure */
 export function delayDiagnosticsReportMarkdown(
-  report: DelayDiagnosticsReport,
   rows: readonly DelayReportTextRow[],
   filter: DelayReportFilter,
   words: DelayReportWords,
   dates: DelayReportDates,
 ): string {
-  const counts = new Map<DelayReportStatus, number>()
-  for (const status of delayReportStatusesOf(report).values()) counts.set(status, (counts.get(status) ?? 0) + 1)
-  const legend = LEGEND_STATUSES.map((status) => `- ${statusText(words, status)} -- ${words.statuses[status].meaning}`)
-  const summary = [
-    labelled(words.statusDate, dates.statusDate),
-    ...DELAY_REPORT_STATUSES.map((status) => labelled(statusText(words, status), String(counts.get(status) ?? 0))),
-    labelled(words.unanalysed, String(report.unanalysedCount)),
-  ]
   return [
     `# ${words.heading}`,
     '',
     labelled(words.documentName, dates.documentName),
-    labelled(words.statusDate, dates.statusDate),
+    labelled('', dates.statusDateLine),
     labelled(words.madeAt, dates.madeAt),
     labelled(words.filter, filterText(filter, words.none)),
     '',
-    ...section(words.legend, legend),
-    ...section(words.summary, summary),
+    dates.summaryLine,
+    '',
     ...tableLines(rows, words),
     '',
   ].join('\n')

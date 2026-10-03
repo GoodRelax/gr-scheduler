@@ -58,7 +58,7 @@ tbl-glossary.md/T:T-108 CM-79 + tbl-glossary.md/T:T-108 CM-83
 tbl-settings.md/T:T-206 S-366 + tbl-settings.md/T:T-206 S-367
 tbl-settings.md/T:T-206 S-247 + tbl-settings.md/T:T-206 S-365
 01-04-requirements.md/T:T-023a PTD-4 + 01-04-requirements.md/T:T-023a PTD-7
-tbl-settings.md/T:T-333 S-431 + tbl-settings.md/T:T-333 S-432 + tbl-settings.md/T:T-333 S-433
+tbl-settings.md/T:T-333 S-431 + tbl-settings.md/T:T-333 S-432
 tbl-glossary.md/T:T-109 IC-129 + tbl-glossary.md/T:T-109 IC-130 + tbl-glossary.md/T:T-109 IC-131
 tbl-glossary.md/T:T-109 IC-123 + tbl-glossary.md/T:T-109 IC-124
 tbl-glossary.md/T:T-109 IC-125 + tbl-glossary.md/T:T-109 IC-126

@@ -325,4 +325,9 @@ RETIRED = {'FR-050', 'T-030',
            # the review docs/review/grs-json-schema-self-explanation-2026-10-03.md
            # name them, so the seats stay burnt.
            'AT-62', 'AT-11', 'PF-10', 'N-4',
+           # CR-648 (2026-10-04, ruling JDG-1232): table T-333 went from
+           # four text-size steps to three (9 / 10 / 12 px), so S-433 (the
+           # fourth step, 20 px) left it. CR-571, CR-617 and the changelog
+           # name it, so the seat stays burnt.
+           'S-433',
            'T-006'}

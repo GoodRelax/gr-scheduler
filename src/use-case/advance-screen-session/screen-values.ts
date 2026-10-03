@@ -87,7 +87,7 @@ export const SEARCH_PANEL_TEXT_SIZE_ROWS = Object.keys(
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
 ) as readonly SearchPanelTextSizeRow[]
 
-const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
+const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-430'
 
 export const emptySearchPanelSession: SearchPanelSession = {
   word: '',

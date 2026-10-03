@@ -483,6 +483,14 @@
    }
   },
   {
+   "prefix": "FN",
+   "words": "File Name",
+   "owner": "spec",
+   "means": {
+    "ja": "書き出しの提案する名の整え方の段"
+   }
+  },
+  {
    "prefix": "FT",
    "words": "Frame Trigger",
    "owner": "spec",

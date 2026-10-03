@@ -63,7 +63,7 @@ function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets
   void files
     .writeChosenFile({
       bytes: new TextEncoder().encode(text),
-      suggestedFileName: delayDiagnosticsReportFileNameOf(held.documentName, held.report.statusDate, held.language),
+      suggestedFileName: delayDiagnosticsReportFileNameOf(held.documentName, held.report.statusDate),
       extension: MARKDOWN_EXTENSION,
       shouldBecomeOpenedFile: false,
       askToWriteOver: async (there) => !(there.kind === 'occupied' && there.bytes.byteLength > 0) || (await outlets.confirmOverwrite()),

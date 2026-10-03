@@ -394,6 +394,13 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // WHY: CR-631 keys QN-12's two choices by the part they fill (WL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
   wbsParentChoice: 'part',
+  // WHY: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
+  // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
+  delayReportColumns: 'rowId',
+  delayReportStatuses: 'rowId',
+  delayReportSummary: 'part',
+  delayReportMarkdown: 'part',
+  delayReportReasons: 'part',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -2128,6 +2135,16 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     frame: reading.frame,
     read: reading.read,
   })
+}
+
+for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons']) {
+  for (const entry of GENERATED[section] ?? []) {
+    drop(
+      section,
+      keyOf(section, entry),
+      'the report window is held by the shell and never by the session (S-451), so no frame this file builds shows it; tests/unit/cr-648-the-delay-diagnostics-report-window-fixes.test.ts reads these words off the report view',
+    )
+  }
 }
 
 /** One case per place per language, so a failure names one cell of the dictionary. */

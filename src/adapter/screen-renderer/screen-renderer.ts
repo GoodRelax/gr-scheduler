@@ -55,6 +55,7 @@ export {
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
+export { exportFileNameOf } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export {
   OPENED_DELAY_DIAGNOSTICS_REPORT,

@@ -46,7 +46,7 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 
 const SV_1_ORDER =
   '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`。右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化 —— 最大化しているあいだは同じ場所に `IC-131`）・`IC-52`（閉じる）。'
-const SV_1_TITLE_FONT = '見出しの行の字は `IC-127` の段に追随しない。'
+const SV_1_TITLE_FONT = '見出しの行の面の名の字は `SV-16` の段に従う —— 入口の図形は段に従わない。'
 const SV_1_GRAB = '見出しの行は掴んで動かす帯である（表 T-023d の `GR-24`）'
 const SV_2_FIELD = '見出しの行の下に 1 行。'
 const SV_2_REFOCUS = '`SK-24` を押したとき、パネルが出ていれば焦点をここへ戻し、打ってある語をすべて選ぶこと（MUST）'
@@ -61,9 +61,9 @@ const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は
 const SV_12_BOTTOM = '題の行を中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
 const SV_13_FILL = '範囲は `Schedule Canvas` いっぱい。'
 const SV_13_LABEL = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く（`IC-67`・`IC-68` と同じ組み）'
-const SV_16_PX = '表と入力欄の字は、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px（既定 16 px）。'
+const SV_16_PX = '表・入力欄・見出しの行の面の名の字は、`S-429` が選ぶ `_assets/tbl-settings.md` の 表 T-333 の段の px。'
 const SV_16_CYCLE =
-  '`IC-127` を押すたびに表 T-333 の並びの次の段へ移り、末尾（20 px）の次は先頭（12 px）へ戻る（`IC-99` と同じ巡り方）。'
+  '`IC-127` を押すたびに表 T-333 の並びの次の段へ移り、末尾の段の次は先頭の段へ戻る（`IC-99` と同じ巡り方）。'
 const SV_16_RULE = '罫線は表 T-257 の `RR-5` と同じく、すべての欄のあいだに画面の 1px で引く。'
 const SV_17_ELLIPSIS = 'セルの字は折り返さず、入らない分を省略記号で切る。'
 const IC_127_CYCLE = '押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る'
@@ -328,7 +328,7 @@ describe('FR-151 tables T-330 / T-331 / T-333 -- the clauses these cases are dri
     expect(cellOf('T-206', 'S-442', '既定')).toBe(S_442_DEFAULT)
   })
 
-  it('table T-333 holds four ascending steps and S-429 names one of them', () => {
+  it('table T-333 holds ascending steps and S-429 names one of them', () => {
     expect(T_333.map((one) => one.px)).toEqual([...T_333.map((one) => one.px)].sort((a, b) => a - b))
     expect(T_333.every((one) => Number.isFinite(one.px))).toBe(true)
     expect(S_429_STEP).toBeGreaterThanOrEqual(0)
@@ -375,7 +375,7 @@ describe(`T-335 WB-4 -- ${SV_13_LABEL}`, () => {
 })
 
 describe(`T-330 SV-16 -- ${SV_16_CYCLE}`, () => {
-  it('S-429: a fresh panel stands on the step table T-206 names (16 px)', () => {
+  it('S-429: a fresh panel stands on the step table T-206 names', () => {
     expect(emptySearchPanelSession.textSizeStep).toBe(S_429_STEP)
     expect(searchPanelFontPxOf(emptySearchPanelSession.textSizeStep, T_333_SIZES)).toBe(T_333[S_429_STEP]?.px)
   })
@@ -447,11 +447,18 @@ describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
     }
   })
 
-  it(`${SV_1_TITLE_FONT} -- but the table and the field do`, () => {
-    const small = drawn(viewOf(sessionIn('ja')), T_333[0]?.px)
-    const large = drawn(viewOf(sessionIn('ja')), T_333[T_333.length - 1]?.px)
-    expect(fontSizeOf(titleRowOf(large.panel))).toBe(fontSizeOf(titleRowOf(small.panel)))
-    expect(fontSizeOf(wordFieldOf(large.panel))).not.toBe(fontSizeOf(wordFieldOf(small.panel)))
+  it(`CR-648 SV-1: ${SV_1_TITLE_FONT} -- the surface name, the table and the field all follow the step`, () => {
+    const view = viewOf(sessionIn('ja'))
+    const headingOf = (panel: FakeElement): FakeElement =>
+      found(
+        selfAndDescendants(titleRowOf(panel)).find((one) => one.tagName === 'SPAN' && textOf(one) === view.heading),
+        'drawn surface name',
+      )
+    for (const step of T_333) {
+      const { panel } = drawn(view, step.px)
+      expect(fontSizeOf(headingOf(panel)), step.id).toBe(`${step.px}px`)
+      expect(fontSizeOf(wordFieldOf(panel)), step.id).toBe(`${step.px}px`)
+    }
   })
 })
 

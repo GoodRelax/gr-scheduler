@@ -1051,8 +1051,8 @@
     "en": "Text size"
    },
    "hint": {
-    "ja": "パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
-    "en": "Change the text size of the panel's table and search box (cycles through 12, 14, 16 and 20 px)"
+    "ja": "パネルの見出しと表と入力欄の文字の大きさを変える（9・10・12 px を順に巡る）",
+    "en": "Change the text size of the panel's heading, table and search box (cycles through 9, 10 and 12 px)"
    }
   },
   {
@@ -1069,7 +1069,7 @@
   {
    "rowId": "IC-108",
    "label": {
-    "ja": "写す",
+    "ja": "Copy",
     "en": "Copy"
    },
    "hint": {
@@ -4692,6 +4692,233 @@
    "text": {
     "ja": "[↑ ↑] 親子関係を削除するため矢印を選択",
     "en": "[↑ ↑] Select the arrows to delete their parent link"
+   }
+  }
+ ],
+ "delayReportColumns": [
+  {
+   "rowId": "DT-1",
+   "text": {
+    "ja": "ステータス",
+    "en": "Status"
+   }
+  },
+  {
+   "rowId": "DT-2",
+   "text": {
+    "ja": "担当",
+    "en": "Assignee"
+   }
+  },
+  {
+   "rowId": "DT-3",
+   "text": {
+    "ja": "進捗",
+    "en": "Progress"
+   }
+  },
+  {
+   "rowId": "DT-4",
+   "text": {
+    "ja": "タスク（マイルストーン）",
+    "en": "Task (Milestone)"
+   }
+  },
+  {
+   "rowId": "DT-5",
+   "text": {
+    "ja": "予定日",
+    "en": "Planned Dates"
+   }
+  },
+  {
+   "rowId": "DT-6",
+   "text": {
+    "ja": "実績日",
+    "en": "Actual Dates"
+   }
+  },
+  {
+   "rowId": "DT-7",
+   "text": {
+    "ja": "理由",
+    "en": "Reason"
+   }
+  }
+ ],
+ "delayReportStatuses": [
+  {
+   "rowId": "DG-1",
+   "text": {
+    "ja": "信用できない・要修正",
+    "en": "Unreliable, fix needed"
+   }
+  },
+  {
+   "rowId": "DX-3",
+   "text": {
+    "ja": "疑義・記載漏れ",
+    "en": "Doubtful or missing"
+   }
+  },
+  {
+   "rowId": "DG-2",
+   "text": {
+    "ja": "ボトルネック",
+    "en": "Bottleneck"
+   }
+  },
+  {
+   "rowId": "DG-3",
+   "text": {
+    "ja": "ボトルネック経路",
+    "en": "Bottleneck path"
+   }
+  },
+  {
+   "rowId": "DG-4",
+   "text": {
+    "ja": "遅れ",
+    "en": "Late"
+   }
+  },
+  {
+   "rowId": "DX-9",
+   "text": {
+    "ja": "確定",
+    "en": "Confirmed"
+   }
+  }
+ ],
+ "delayReportSummary": [
+  {
+   "part": "statusDate",
+   "text": {
+    "ja": "基準日 {date}",
+    "en": "Status date {date}"
+   }
+  },
+  {
+   "part": "afterStatusDate",
+   "text": {
+    "ja": "　",
+    "en": "  "
+   }
+  },
+  {
+   "part": "count",
+   "text": {
+    "ja": "{status} {count} 件",
+    "en": "{status} {count}"
+   }
+  },
+  {
+   "part": "between",
+   "text": {
+    "ja": " ／ ",
+    "en": " / "
+   }
+  },
+  {
+   "part": "unanalysed",
+   "text": {
+    "ja": "解析できなかった {count} 件",
+    "en": "Not analysed {count}"
+   }
+  }
+ ],
+ "delayReportMarkdown": [
+  {
+   "part": "documentName",
+   "text": {
+    "ja": "文書名",
+    "en": "Document name"
+   }
+  },
+  {
+   "part": "madeAt",
+   "text": {
+    "ja": "作った日時",
+    "en": "Made at"
+   }
+  },
+  {
+   "part": "filter",
+   "text": {
+    "ja": "絞り込み",
+    "en": "Filter"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "なし",
+    "en": "None"
+   }
+  }
+ ],
+ "delayReportReasons": [
+  {
+   "part": "bottleneck",
+   "text": {
+    "ja": "全体の日程を {days} 日遅らせている（持ち込まれた遅れ {inherited} 日・自分で生んだ遅れ {own} 日、届いた終端 {ends}）",
+    "en": "Delaying the whole schedule by {days} working days (inherited {inherited}, own {own}; reaches {ends} end tasks)"
+   }
+  },
+  {
+   "part": "bottleneckPath",
+   "text": {
+    "ja": "配下のボトルネック: {names}",
+    "en": "Bottleneck below: {names}"
+   }
+  },
+  {
+   "part": "late",
+   "text": {
+    "ja": "{days} 日の遅れ",
+    "en": "{days} working days late"
+   }
+  },
+  {
+   "part": "settled",
+   "text": {
+    "ja": "全体の日程を {days} 日押し出した（完了済み）",
+    "en": "Pushed the whole schedule out by {days} working days (finished)"
+   }
+  },
+  {
+   "part": "finding",
+   "text": {
+    "ja": "{aspect}: {values}",
+    "en": "{aspect}: {values}"
+   }
+  },
+  {
+   "part": "wall",
+   "text": {
+    "ja": "{wall}: {cause}",
+    "en": "{wall}: {cause}"
+   }
+  },
+  {
+   "part": "missingActual",
+   "text": {
+    "ja": "実績が入力されていない",
+    "en": "Actual not entered"
+   }
+  },
+  {
+   "part": "milestoneAchieved",
+   "text": {
+    "ja": "このマイルストーンは達成してるのでは？",
+    "en": "Isn't this milestone already achieved?"
+   }
+  },
+  {
+   "part": "proposal",
+   "text": {
+    "ja": "（達成日の候補: {date}）",
+    "en": "(candidate achieved date: {date})"
    }
   }
  ]
