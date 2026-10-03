@@ -16,13 +16,13 @@ const VS_4_ACTUALS = '実績の日付が依存の向きに反する（式は `VC
 const BD_2_SAME_DAY =
   'FS の後続の最早開始は、先行の見込み終了と **同じ日** ＋ `lag` であり、翌稼働日ではない。'
 const BD_2_NOT_BELOW_START = '⭐ 最早開始は `start` を下回らない'
-const BD_2_NOT_BELOW_STATUS = '未着手の `Task` の最早開始は、さらに基準日を下回らない。'
-const BD_1_STARTED = '着手済みで未完了は `max(finish, 基準日)`。'
+const BD_2_NOT_PUSHED_TO_STATUS = '⭐ 未着手の `Task` の最早開始は、基準日で押し上げない'
+const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残りの日数 とし、`finish` より前にはしない'
 const DQ_2 = 'max(0, 最早開始 − `start`) —— 巻き添え'
 const DQ_3 = 'max(0, `DQ-1` − (最早開始 ＋ 計画期間)) —— 発生源'
 const DW_1_PURPLE = '原因の `Task` と、その依存の下流すべて'
-const DG_1_WHEN = '表 T-310 の指摘を持つ、または 表 T-316 が紫とする'
-const DG_2_WHEN = '`DQ-4` が `S-397` 以上で、完了（`PS-2`）していない'
+const DG_1_WHEN = '表 T-310 の指摘を持つ、表 T-312 の `VO-3`（先行の側）か `VO-5` の指摘を持つ、または 表 T-316 が紫とする'
+const DG_2_WHEN = '`DQ-4` が `S-397` 以上で、完了（`PS-2`）しておらず、表 T-312 の `VO-3` の指摘を持たない'
 const FR_131_ONE_EACH =
   '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
 const FR_132_WORKING_DAYS = '日数はすべて稼働日で数えること（MUST、暦は `FR-054`）。'
@@ -243,7 +243,7 @@ describe('CR-618 -- the sentences T1 .. T7 are driven by', () => {
     ['T-311 VS-4', () => cellOf('T-311', 'VS-4', '観点'), VS_4_ACTUALS],
     ['T-313 BD-2', () => cellOf('T-313', 'BD-2', '何をするか'), BD_2_SAME_DAY],
     ['T-313 BD-2', () => cellOf('T-313', 'BD-2', '何をするか'), BD_2_NOT_BELOW_START],
-    ['T-313 BD-2', () => cellOf('T-313', 'BD-2', '何をするか'), BD_2_NOT_BELOW_STATUS],
+    ['T-313 BD-2', () => cellOf('T-313', 'BD-2', '何をするか'), BD_2_NOT_PUSHED_TO_STATUS],
     ['T-313 BD-1', () => cellOf('T-313', 'BD-1', '何をするか'), BD_1_STARTED],
     ['T-314 DQ-2', () => cellOf('T-314', 'DQ-2', '定義'), DQ_2],
     ['T-314 DQ-3', () => cellOf('T-314', 'DQ-3', '定義'), DQ_3],
@@ -452,9 +452,9 @@ describe(`CR-618 T6 -- T-313 BD-2: ${BD_2_SAME_DAY}`, () => {
   })
 })
 
-describe(`CR-618 T7 -- T-313 BD-2 / BD-4: the first step of the T6 chain ends 3 working days late`, () => {
-  // WHY: A started on time and is not done; the status date is the 13th, 3 working days after
-  // A's finish (9th, 10th, 13th), so BD-1 puts A's projected finish on the 13th.
+describe(`CR-618 T7 -- T-313 BD-1 / BD-2 / BD-4: the first step of the T6 chain ends 5 working days late (CR-633)`, () => {
+  // WHY: A (6th .. 8th) started, has no stop and is not done; FR-011 counts 1 actual day, so BD-1 leaves 2 days
+  // after the status date (13th): A ends the 15th, 5 working days past its finish on the 8th.
   const make = (): Document =>
     documentOf(at(13, 17), [
       { ...(CHAIN[0] as Child), actualStart: at(6, 8), percentComplete: 50 },
@@ -470,13 +470,13 @@ describe(`CR-618 T7 -- T-313 BD-2 / BD-4: the first step of the T6 chain ends 3 
     expect(marksOf(diagnose(make())).get(A)).toBe('DG-2')
   })
 
-  it(`${DQ_3} -- A: DQ-2 0, DQ-3 3, DQ-4 3 (T-317 DX-4)`, () => {
+  it(`${DQ_3} -- A: DQ-2 0, DQ-3 5, DQ-4 5 (T-317 DX-4)`, () => {
     const found = quantitiesOf(diagnose(make()), A)
     expect(found.length).toBeGreaterThan(0)
     const entry = found[0] as Loose
     expect(entry['inheritedDelayDays']).toBe(0)
-    expect(entry['selfDelayDays']).toBe(3)
-    expect(entry['pushOutDays']).toBe(3)
+    expect(entry['selfDelayDays']).toBe(5)
+    expect(entry['pushOutDays']).toBe(5)
   })
 
   it('B and C generate nothing: neither is DG-2, and neither has a DQ-3 above 0', () => {
@@ -489,14 +489,14 @@ describe(`CR-618 T7 -- T-313 BD-2 / BD-4: the first step of the T6 chain ends 3 
     }
   })
 
-  it(`${DQ_2} -- the downstream carries 3, not 3 plus a day per link: terminal C is 3 late (DX-5)`, () => {
-    expect(terminalDelaysOf(diagnose(make()), C)).toContain(3)
+  it(`${DQ_2} -- the downstream carries 5, not 5 plus a day per link: terminal C is 5 late (DX-5)`, () => {
+    expect(terminalDelaysOf(diagnose(make()), C)).toContain(5)
   })
 
-  it('where the report lists B or C with T-314 quantities, their DQ-2 is 3', () => {
+  it('where the report lists B or C with T-314 quantities, their DQ-2 is 5', () => {
     const report = diagnose(make())
     for (const uid of [B, C]) {
-      for (const entry of quantitiesOf(report, uid)) expect(entry['inheritedDelayDays']).toBe(3)
+      for (const entry of quantitiesOf(report, uid)) expect(entry['inheritedDelayDays']).toBe(5)
     }
   })
 })
