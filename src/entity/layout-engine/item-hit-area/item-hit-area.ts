@@ -33,6 +33,7 @@ export type Item =
   | { readonly kind: 'highlightBox'; readonly id: string }
   | { readonly kind: 'commentBox'; readonly id: string }
   | { readonly kind: 'statusLine' }
+  | { readonly kind: 'wbsParentLink'; readonly childUid: number; readonly isStated: boolean }
 
 // see T-266, GR-23
 export type GrabArea =
@@ -40,6 +41,7 @@ export type GrabArea =
   | 'GA-9' | 'GA-10' | 'GA-11' | 'GA-12' | 'GA-13' | 'GA-14' | 'GA-15' | 'GA-16'
   | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20' | 'GA-21' | 'GA-22' | 'GA-24'
   | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
+  | 'WL-10'
 
 // see GR-14
 // WHY: 'body' reads as "move the whole thing", which a highlight box answers on its frame alone.
@@ -1069,6 +1071,17 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
   return on ? { item: { kind: 'statusLine' }, grab: 'GR-16' } : null
 }
 
+// see FR-135, S-485, WL-10, WL-12
+/** @purity pure */
+function wbsParentLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
+  for (const arrow of geometry.wbsParents?.arrows ?? []) {
+    if (isOnPolyline(x, y, arrow.hitPoints, arrow.hitWidth / 2)) {
+      return { item: { kind: 'wbsParentLink', childUid: arrow.childUid, isStated: arrow.isStated }, grab: 'WL-10' }
+    }
+  }
+  return null
+}
+
 // see GR-26, DA-2
 /** @purity pure */
 function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): HintHolder | null {
@@ -1114,7 +1127,7 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
   if (note !== null) return { hit: note, hint: null }
   const shape = scheduleShapeHitOf(walk, covered, x, y)
   return {
-    hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes),
+    hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes) ?? wbsParentLinkHitOf(walk.geometry, x, y),
     hint: hintPastNotesOf(walk, shape, x, y),
   }
 }

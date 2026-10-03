@@ -15,7 +15,7 @@ import {
   type TaskGroup,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
-import type { Selection } from '../../document-model/selection/selection'
+import { taskUidsIn, type Selection } from '../../document-model/selection/selection'
 import {
   inTreeOrder,
   thinEndHalfHeightOf,
@@ -40,9 +40,11 @@ import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
 import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
+import { wbsParentGeometryOf, type WbsParentFamilies, type WbsParentGeometry } from './wbs-parent-arrows'
 
 export { commentAnchorPointOf, leaderOf } from './comment-box'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
+export type { WbsParentFamilies } from './wbs-parent-arrows'
 
 export interface Point {
   readonly x: number
@@ -241,6 +243,8 @@ export interface ScheduleGeometry {
   readonly dualCursor: DualCursorGeometry | null
   readonly highlightBoxes: readonly HighlightGeometry[]
   readonly commentBoxes: readonly CommentGeometry[]
+  // WHY: optional, read as none when absent: a hand-built geometry draws no family.
+  readonly wbsParents?: WbsParentGeometry
 }
 
 /** @purity pure */
@@ -500,6 +504,13 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   return out
 }
 
+/** @purity pure */
+function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
+  if (inputs.statusDate === null) return null
+  const area = regions.rowArea
+  return { x: xFromDay(inputs.layout, inputs.statusDate), top: area.y, bottom: area.y + area.height }
+}
+
 // see CP-6, LC-10, LC-11, RV-5
 /** @purity pure */
 export function geometryFromLayout(
@@ -510,6 +521,7 @@ export function geometryFromLayout(
   selection: Selection,
   dualCursor: DualCursorDates | null,
   delayDiagnostics?: GeometryInputs['delayDiagnostics'],
+  wbsParentFamilies: WbsParentFamilies | null = null,
 ): ScheduleGeometry {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
@@ -521,7 +533,7 @@ export function geometryFromLayout(
     statusDate: dayOf(schedule.project.statusDate),
     showPlan: settings.planVisible,
     showActual: settings.actualVisible,
-    selectedTaskUids: new Set(selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))),
+    selectedTaskUids: new Set(taskUidsIn(selection)),
     selectedLinks: selectedLinksOf(schedule, selection),
     dummyFromByStart: new Map<string, CalendarDay | null>(),
     dummyEndByFrom: new Map<string, CalendarDay>(),
@@ -539,16 +551,10 @@ export function geometryFromLayout(
     baselineOutlines: baselineOutlinesOf(schedule, inputs),
     dependencies: dependenciesOf(schedule, inputs, regions),
     progressLine: progressLineOf(inputs),
-    statusLine:
-      inputs.statusDate === null
-        ? null
-        : {
-            x: xFromDay(layout, inputs.statusDate),
-            top: regions.rowArea.y,
-            bottom: regions.rowArea.y + regions.rowArea.height,
-          },
+    statusLine: statusLineOf(inputs, regions),
     dualCursor: dualCursorGeometry(dualCursor, layout, regions),
     highlightBoxes: highlightGeometry(schedule, layout),
     commentBoxes: commentGeometry(schedule, settings, layout),
+    wbsParents: wbsParentGeometryOf(inputs, wbsParentFamilies),
   }
 }

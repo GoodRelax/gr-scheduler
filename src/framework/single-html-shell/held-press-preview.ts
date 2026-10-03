@@ -62,6 +62,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-11': false,
   'GR-14': true,
   'GR-16': true,
+  'WL-10': false,
 }
 
 // see PTD-5

@@ -641,6 +641,7 @@
        "IC-61",
        "IC-35",
        "IC-36",
+       "IC-142",
        "FR-016"
       ]
      },
@@ -1291,6 +1292,16 @@
         "AR-6",
         "IC-36"
        ]
+      },
+      {
+       "key": "wbsParentArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "AR-7",
+        "IC-142"
+       ]
       }
      ],
      "transitions": {
@@ -1354,6 +1365,19 @@
          "FR-016",
          "IN-4"
         ]
+       },
+       "wbsParentArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4",
+         "WL-2"
+        ]
        }
       },
       "armEntryPressed": {
@@ -1365,7 +1389,8 @@
          "AR-3",
          "AR-4",
          "AR-5",
-         "AR-6"
+         "AR-6",
+         "AR-7"
         ]
        },
        "taskShapeArmed": [
@@ -1497,6 +1522,33 @@
           "FR-016"
          ]
         }
+       ],
+       "wbsParentArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4",
+          "WL-2"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
        ]
       },
       "dualCursorEntryPressed": {
@@ -1545,6 +1597,17 @@
         ]
        },
        "highlightBoxArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       },
+       "wbsParentArmed": {
         "to": "notArmed",
         "guard": [
          {

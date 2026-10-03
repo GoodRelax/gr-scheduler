@@ -106,7 +106,9 @@ export function confirmationAnswerElement(
 // see U-55, NT-7, FR-032, FR-076, T-258
 /** @purity non-pure */
 export function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement {
-  const drawn = part(host, 'div', ROLE.confirmation, STYLE.confirmation)
+  const at = confirmation.at
+  const placed = at === undefined ? '' : `left:${at.x}px;top:${at.y}px;transform:none;`
+  const drawn = part(host, 'div', ROLE.confirmation, STYLE.confirmation + placed)
   drawn.setAttribute('role', 'alertdialog')
   drawn.setAttribute('aria-modal', 'true')
   drawn.setAttribute('data-manner', confirmation.manner)

@@ -326,13 +326,14 @@ const inTheMode = (screen: ScreenValues, side: DualCursorSide | null): ScreenVal
         dualCursor: { date1: '2026-03-02', date2: '2026-03-05' },
       }
 
-/** The six values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenSession.screen` holds. */
+/** The seven values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenSession.screen` holds. AR-7 came with CR-631. */
 const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
   { row: 'AR-2', armed: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
   { row: 'AR-3', armed: { kind: 'milestoneShapeArmed', glyph: 'IC-30' } },
   { row: 'AR-4', armed: { kind: 'dependencyArmed' } },
   { row: 'AR-5', armed: { kind: 'commentBoxArmed' } },
   { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } },
+  { row: 'AR-7', armed: { kind: 'wbsParentArmed' } },
 ]
 
 const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })
@@ -368,11 +369,11 @@ describe('DFC-295 -- the manuscript this file is driven by', () => {
     expect(dc4?.cells.join(' ')).toContain('同じ入口の再押下')
   })
 
-  it('still gives the arm five values other than AR-1, and this file drives all of them', () => {
+  it('still gives the arm six values other than AR-1, and this file drives all of them', () => {
     const t023b = specTable('T-023b')
     const rows = t023b.rows.map((one) => one.id)
-    expect(rows).toEqual(['AR-1', 'AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6'])
-    expect(ARMS.map((one) => one.row)).toEqual(['AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6'])
+    expect(rows).toEqual(['AR-1', 'AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6', 'AR-7'])
+    expect(ARMS.map((one) => one.row)).toEqual(['AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6', 'AR-7'])
   })
 })
 
@@ -447,7 +448,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   /** The entrances 表 T-109 marks with a row of 表 T-023b, read from the table. */
   const ARMING_ENTRIES = T_109.rows
     .map((one) => one.id)
-    .filter((id) => /^AR-[2-6]$/.test(armRowOfEntry(id)))
+    .filter((id) => /^AR-[2-7]$/.test(armRowOfEntry(id)))
 
   it('drives at least one entrance per arming row of table T-023b', () => {
     // ⭐ The premise of the control itself: if 表 T-109 stopped marking any
@@ -456,7 +457,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
     // the control below drives every arming row of 表 T-023b and not four of
     // the five -- which is the same set `ARMS` above drives from the other side.
     const rowsCovered = new Set(ARMING_ENTRIES.map(armRowOfEntry))
-    expect([...rowsCovered].sort()).toEqual(['AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6'])
+    expect([...rowsCovered].sort()).toEqual(['AR-2', 'AR-3', 'AR-4', 'AR-5', 'AR-6', 'AR-7'])
     expect([...rowsCovered].sort()).toEqual(ARMS.map((one) => one.row))
     expect(ARMING_ENTRIES.length).toBeGreaterThan(4)
   })

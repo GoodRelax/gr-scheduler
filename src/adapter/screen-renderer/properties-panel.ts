@@ -794,6 +794,7 @@ function fieldsOfItem(
       return fieldsOfFound(schedule, box, highlightBoxRows, labelCoef, language)
     }
     case 'statusLine':
+    case 'wbsParentLink':
       return []
   }
 }

@@ -31,7 +31,7 @@ const T_269_WHITE_IS_PLAN = '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、�
 const T_269_NO_DISPLAY_SCALE =
   '⛔ ポインタの画像に表示の倍率を掛けてはならない（MUST NOT） —— 画像は画面の点であり、日程の寸法ではない。'
 const T_269_FALLBACKS =
-  '⭐ 画像のポインタを描けない環境では、動く向きを示す環境の形に替えること（MUST） —— 端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）、依存線の線の矢印は `pointer`（押して選ぶだけ）とする。'
+  '⭐ 画像のポインタを描けない環境では、動く向きを示す環境の形に替えること（MUST） —— 端の箱の矢印・フェードの三角・マイルストーンの実績とダミーの ●・再開の折れ矢印は `ew-resize`、マイルストーンの予定の ○ は `move`（横にも縦にも動く）、依存線の線の矢印は `pointer`（押して選ぶだけ）、親子をつなぐ形は `pointer`（押して選び、引いて結ぶ）とする。'
 const T_269_ARMED_WINS = '⚠️ 依存線の道具を構えているあいだは、本表の形を当てないこと（MUST NOT）'
 const T_269_TWO_HEADINGS =
   '幅の広い箱型の矢印（← ／ →）'
@@ -271,8 +271,8 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it('the image rows are the five PK-1, PK-3, PK-4, PK-5, PK-9, each naming an S row; every other row takes the environment shape', () => {
-    expect(IMAGE_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-9'])
+  it('the image rows are the six PK-1, PK-3, PK-4, PK-5, PK-9 and PK-17 (CR-631), each naming an S row; every other row takes the environment shape', () => {
+    expect(IMAGE_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-9', 'PK-17'])
     for (const row of IMAGE_ROWS) expect(sizeNumbersOf(row).length, `${row}: ${cellOf(row, SIZE)}`).toBeGreaterThan(0)
     for (const row of ENVIRONMENT_ROWS) {
       expect(cellOf(row, SIZE), `${row}: ${SIZE}`).toBe('環境のまま')

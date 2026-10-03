@@ -343,6 +343,14 @@ function resumeSvg(
   )
 }
 
+// see FR-135, S-398, S-399, S-245
+/** @purity pure */
+function nameLabelInkOf(input: TaskFiguresInput, taskUid: number): { readonly ink: string; readonly weight: number } {
+  const isParentShown = input.picture === 'screen' && input.geometry.wbsParents?.highlightedParentUid === taskUid
+  if (isParentShown) return { ink: 'S-398', weight: NOT_STORED_DELAY_MARK_SIZES['S-399'] }
+  return { ink: 'S-168', weight: NOT_STORED_NAME_LABEL_WEIGHT['S-245'] }
+}
+
 // see ZO-5, FR-077, FR-039
 /** @purity pure */
 function labelSvg(
@@ -649,11 +657,11 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
           placed.label.slice(0, placed.label.length - placed.labelDates.length),
           placed.labelFontSize,
           settings,
-          themed('S-168'),
+          themed(nameLabelInkOf(input, task.taskUid).ink),
           themed('S-169'),
           `${taskKey}-label`,
           'start',
-          NOT_STORED_NAME_LABEL_WEIGHT['S-245'],
+          nameLabelInkOf(input, task.taskUid).weight,
           placed.labelDates,
         ),
       )

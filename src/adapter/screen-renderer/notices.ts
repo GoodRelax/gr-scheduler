@@ -11,6 +11,7 @@ import type {
   Notice,
   RaisedNotice,
   ScreenViewReadings,
+  WbsParentChoice,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
@@ -29,6 +30,12 @@ const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId,
 const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
 
 const INVARIANTS_BY_ROW = new Map(displayWords.invariants.map((entry) => [entry.rowId, entry]))
+
+const CHOICES_BY_PART = new Map(displayWords.wbsParentChoice.map((entry) => [entry.part, entry]))
+
+const WBS_PARENT_CHOICE_QUESTION = 'QN-12'
+
+const WBS_PARENT_CHOICE_LINKS = 'links'
 
 type ReasonCell = 'text' | 'nextStep'
 
@@ -251,6 +258,22 @@ export function noticesFromSession(
   return shown
 }
 
+// see QN-12, WL-13, JDG-1142
+/** @purity pure */
+function wbsParentChoiceOf(choice: WbsParentChoice, language: DisplayLanguage): Confirmation {
+  const parts = [choice.isArmed ? 'childTasks' : 'tasks', WBS_PARENT_CHOICE_LINKS]
+  return {
+    manner: WBS_PARENT_CHOICE_QUESTION,
+    question: WBS_PARENT_CHOICE_QUESTION,
+    items: [],
+    mannerText: NO_WORDS,
+    text: questionText(WBS_PARENT_CHOICE_QUESTION, language),
+    answers: parts.map((part) => ({ answer: part, text: CHOICES_BY_PART.get(part)?.text[language] ?? NO_WORDS })),
+    shownOnAnotherRowMark: NO_WORDS,
+    at: choice.at,
+  }
+}
+
 // see NT-7
 /** @purity pure */
 export function confirmationFromSession(
@@ -258,8 +281,9 @@ export function confirmationFromSession(
   readings: ScreenViewReadings,
 ): Confirmation | null {
   const raised = readings.confirmation
-  if (raised === null) return null
   const language = displayLanguageOf(session)
+  const choice = readings.wbsParentChoice ?? null
+  if (raised === null) return choice === null ? null : wbsParentChoiceOf(choice, language)
   return {
     ...raised,
     mannerText: mannerText(raised.manner, language),

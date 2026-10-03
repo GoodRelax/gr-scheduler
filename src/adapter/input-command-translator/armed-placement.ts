@@ -4,6 +4,7 @@
 // @purity    pure
 
 import {
+  taskByUid,
   textOfDayEnd,
   textOfDayStart,
   textOfFinishSide,
@@ -12,7 +13,10 @@ import {
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
+  grabSizesOf,
+  itemAtPointer,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
+import { taskUidsIn } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
 import {
@@ -84,6 +88,34 @@ export function commandFromDependencyDrag(
       successorEdge: into.edge,
     },
   ])
+}
+
+// see FR-135, WL-5, WL-6, WL-7, WL-8, WL-9, JDG-1138
+// WHY: one call holds every child's CM-18, so one refused child refuses them all and one undo step undoes them all.
+/** @purity pure */
+export function commandFromWbsParentDrag(
+  release: PointerInput,
+  press: PointerPress,
+  context: InputContext,
+): TranslatedInput {
+  const from = press.hit?.item
+  if (from === undefined || from.kind !== 'task' || !hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
+  const into = itemAtPointer(context.geometry, release.x, release.y, grabSizesOf())?.item
+  if (into === undefined || into.kind !== 'task') return CONSUMED_ELSEWHERE
+  const parent = taskByUid(context.document.schedule, into.taskUid)
+  if (parent === null) return CONSUMED_ELSEWHERE
+  if (parent.milestone === true) return nothingToDo('milestoneCannotBeAParent')
+  const chosen = taskUidsIn(context.selection)
+  const children = chosen.includes(from.taskUid) ? chosen : [from.taskUid]
+  return changed(children.map((uid) => ({ kind: 'setTaskWbsParent', uid, parentUid: parent.uid })))
+}
+
+// see WL-10, WL-12, RS-70
+/** @purity pure */
+export function commandFromWbsParentLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput {
+  const item = press.hit?.item
+  if (item === undefined || item.kind !== 'wbsParentLink' || hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
+  return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
 // see PTD-4, FR-001, FR-019

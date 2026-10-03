@@ -25,6 +25,7 @@ import {
   NOT_STORED_DUAL_CURSOR_SIZES,
   NOT_STORED_SELECTION_SIZES,
   WATERMARK_MARKS,
+  emphasisedWidthOf,
   escaped,
   figureKey,
   pointsOf,
@@ -79,6 +80,53 @@ export interface OverlayParts {
 }
 
 const WATERMARK_ROLE = 'Watermark'
+
+const UNDECIDED_PARENT_MARK = '?'
+
+// see FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4
+/** @purity pure */
+export function wbsParentParts(
+  geometry: ScheduleGeometry,
+  settings: DrawnSettings,
+  themed: (rowId: string) => string,
+  drawsOperationState: boolean,
+): readonly string[] {
+  const drawing = geometry.wbsParents
+  if (!drawsOperationState || drawing === undefined) return []
+  const parts: string[] = []
+  const ink = themed('S-398')
+  for (const arrow of drawing.arrows) {
+    const width = arrow.isSelected ? emphasisedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
+    const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
+    const key = `wbs-parent-${arrow.childUid}`
+    parts.push(
+      `<polyline points="${pointsOf(arrow.points)}" fill="none" stroke="${ink}"` +
+        ` stroke-width="${rounded(width)}"${dash}${figureKey(key)}/>` +
+        `<polygon points="${pointsOf(arrow.head)}" fill="${ink}"${figureKey(`${key}-head`)}/>`,
+    )
+  }
+  const query = themed('S-389')
+  for (const one of drawing.queries) {
+    const dash = ` stroke-dasharray="${rounded(one.dash[0])} ${rounded(one.dash[1])}"`
+    for (const candidate of one.candidates) {
+      const { box } = candidate
+      parts.push(
+        `<rect x="${rounded(box.x)}" y="${rounded(box.y)}" width="${rounded(box.width)}"` +
+          ` height="${rounded(box.height)}" fill="none" stroke="${query}"` +
+          ` stroke-width="${rounded(settings.dependencyWidth)}"${dash}${figureKey(`wbs-candidate-${candidate.uid}`)}/>` +
+          `<text x="${rounded(candidate.labelAt.x)}" y="${rounded(candidate.labelAt.y)}"` +
+          ` font-size="${rounded(one.fontSize)}" fill="${query}" text-anchor="middle"` +
+          ` dominant-baseline="central"${typefaceAttribute()}>${candidate.order}</text>`,
+      )
+    }
+    parts.push(
+      `<text x="${rounded(one.markAt.x)}" y="${rounded(one.markAt.y)}" font-size="${rounded(one.fontSize)}"` +
+        ` fill="${query}" text-anchor="middle" dominant-baseline="central"${typefaceAttribute()}` +
+        `${figureKey(`wbs-undecided-${one.childUid}`)}>${escaped(UNDECIDED_PARENT_MARK)}</text>`,
+    )
+  }
+  return parts
+}
 
 // see FR-020, T-207
 /** @purity pure */

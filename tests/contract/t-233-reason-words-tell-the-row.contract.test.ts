@@ -506,6 +506,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-67': '3ce77e4ce9aa953e',
   // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
   'RS-68': 'de02bc0ee9928819',
+  // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (WL-8).
+  'RS-69': '28e3c4fa360f7b04',
+  // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (WL-12).
+  'RS-70': 'e99b94d159d09037',
 }
 
 const fingerprintOf = (rowId: string): string => {

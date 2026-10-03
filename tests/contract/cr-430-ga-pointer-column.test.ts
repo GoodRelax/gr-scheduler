@@ -36,8 +36,10 @@ describe('table T-269 -- the manuscript shape of the nine pointers', () => {
     expect(ids.filter((id) => ALL_POINTER_IDS.includes(id))).toEqual(ALL_POINTER_IDS)
   })
 
-  it('every row the eight do not cover takes the environment shape, the way PK-10 does', () => {
-    const rest = rowsOf('T-269').filter((row) => !ALL_POINTER_IDS.includes(row.id))
+  it('every row the eight do not cover takes the environment shape, the way PK-10 does, but PK-17 (CR-631)', () => {
+    // WHY: CR-631 added PK-17, a shape the product draws; it names its size the way the eight drawn rows do.
+    expect(cellOf('T-269', 'PK-17', '大きさ')).toContain('S-249')
+    const rest = rowsOf('T-269').filter((row) => !ALL_POINTER_IDS.includes(row.id) && row.id !== 'PK-17')
     expect(rest.length, 'table T-269 holds no row past the eight').toBeGreaterThan(0)
     for (const row of rest) {
       expect(row.by['形'], `${row.id}: 形`).toContain('閲覧環境')

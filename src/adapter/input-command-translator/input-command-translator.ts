@@ -69,6 +69,8 @@ import {
   commandFromArmed,
   commandFromArmingEntry,
   commandFromDependencyDrag,
+  commandFromWbsParentDrag,
+  commandFromWbsParentLinkRelease,
 } from './armed-placement'
 import { displayScaleStep } from './display-scale-steps'
 import {
@@ -219,6 +221,8 @@ export type SpentEntranceSituation =
   | 'noRowToPutTheAnnotationOn'
   | 'rowIsAtTheDeepestLevel'
   | 'barShapeReleasedWithoutADrag'
+  | 'milestoneCannotBeAParent'
+  | 'derivedParentCannotBePicked'
 
 export type CreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
@@ -461,6 +465,18 @@ export function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: n
 }
 
 /** @purity pure */
+export function isParentPickingCtrlClick(
+  press: PointerPress,
+  release: { readonly x: number; readonly y: number },
+  context: Pick<InputContext, 'screen'>,
+): boolean {
+  if (press.at.button !== 'left' || !isCombo(press.at.modifiers, true, false, false)) return false
+  if (press.hit === null || hasDraggedPastThreshold(press, release)) return false
+  const kind = press.hit.item.kind
+  return kind === 'wbsParentLink' || (kind === 'task' && context.screen.armModeState.kind === 'wbsParentArmed')
+}
+
+/** @purity pure */
 export function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   return dateAtX(layout, x)
 }
@@ -646,6 +662,7 @@ export function pressRowOf(
   if (press.hit !== null) return 'PTD-3'
   const armed = context.screen.armModeState
   if (armed.kind === 'dependencyArmed') return 'PTD-4a'
+  if (armed.kind === 'wbsParentArmed') return 'PTD-5'
   if (armed.kind !== 'notArmed') return 'PTD-4'
   return 'PTD-5'
 }
@@ -810,6 +827,7 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-35': { kind: 'commentBoxArmed' },
   'IC-36': { kind: 'highlightBoxArmed' },
   'IC-61': { kind: 'dependencyArmed' },
+  'IC-142': { kind: 'wbsParentArmed' },
 }
 
 /** @purity pure */
@@ -927,6 +945,22 @@ function browserStopped(answer: TranslatedInput): TranslatedInput {
   return { action: answer.action, isBrowserDefaultStopped: true }
 }
 
+/** @purity pure */
+function panOnRelease(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
+  if (isParentPickingCtrlClick(press, release, context)) return CONSUMED_ELSEWHERE
+  const by = followingTravel(release, press)
+  return panTo(context, -by.dx, -by.dy)
+}
+
+/** @purity pure */
+function commandFromItemPress(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
+  if (press.hit?.item.kind === 'wbsParentLink') return commandFromWbsParentLinkRelease(release, press)
+  const armed = context.screen.armModeState.kind
+  if (armed === 'wbsParentArmed') return commandFromWbsParentDrag(release, press, context)
+  if (armed === 'dependencyArmed') return commandFromDependencyDrag(release, press, context)
+  return commandFromGrab(release, press, context)
+}
+
 // see T-023a, IN-1, IN-1a, MK-10
 /** @purity pure */
 function pointerAssignment(input: PointerInput, context: InputContext): TranslatedInput {
@@ -956,16 +990,10 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
 
   switch (pressRowOf(press, context)) {
     case 'PTD-7': return copyDragWrite(context, press, input)
-    case 'PTD-1': {
-      const by = followingTravel(input, press)
-      return panTo(context, -by.dx, -by.dy)
-    }
+    case 'PTD-1': return panOnRelease(input, press, context)
     case 'PTD-2':
       return CONSUMED_ELSEWHERE
-    case 'PTD-3':
-      return context.screen.armModeState.kind === 'dependencyArmed'
-        ? commandFromDependencyDrag(input, press, context)
-        : commandFromGrab(input, press, context)
+    case 'PTD-3': return commandFromItemPress(input, press, context)
     case 'PTD-4':
       return commandFromArmed(input, press, context)
     case 'PTD-4a':

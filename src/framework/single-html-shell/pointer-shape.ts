@@ -27,6 +27,7 @@ export type PointerShape =
   | 'nwse-resize'
   | 'nesw-resize'
   | 'crosshair'
+  | 'not-allowed'
   | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
@@ -51,6 +52,8 @@ export type PointerRow =
   | 'PK-14'
   | 'PK-15'
   | 'PK-16'
+  | 'PK-17'
+  | 'PK-18'
 
 // see T-266, T-269
 export type PointerFacing = 'start' | 'end'
@@ -93,6 +96,7 @@ const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> =
   'GR-11': null,
   'GR-14': null,
   'GR-16': { row: 'PK-10', facing: 'start' },
+  'WL-10': { row: 'PK-17', facing: 'start' },
 }
 
 // WHY: read by row ID: the map above is exhaustive over the grab rows, and a row outside it has none.
@@ -121,6 +125,8 @@ const LINE_ARROW_END_PATH = 'M2 11 H13 V6 L22 12 L13 18 V13 H2 Z'
 const RESUME_ARROW_PATH = 'M2 3 H6 V10 H15 V6 L22 12 L15 18 V14 H6 V21 H2 Z'
 
 const RESUME_ARROW_BEND = { x: 4, y: 12 }
+
+const PARENT_LINK_PATH = 'M3 2 H21 V6 H3 Z M7 18 H17 V22 H7 Z M11 18 V12 H8 L12 7 L16 12 H13 V18 Z'
 
 const URL_UNSAFE_LEFT_BY_ENCODING = /['()]/g
 
@@ -209,6 +215,14 @@ function resumeArrowPointer(): DrawnPointer {
   )
 }
 
+// see PK-17, FR-135
+/** @purity pure */
+function parentLinkPointer(): DrawnPointer {
+  const side = NOT_STORED_END_POINTER_SIZES['S-249']
+  const middle = POINTER_GRID / 2
+  return squarePointer(side, PARENT_LINK_PATH, 'hollow', 'round', false, { x: middle, y: middle }, 'pointer')
+}
+
 // see PK-3
 // WHY: the triangle is set in by half the outline, so the edge stands inside S-294, not past it.
 /** @purity pure */
@@ -249,6 +263,20 @@ function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
 }
 
 // see T-269
+const NATIVE_POINTER_BY_ROW: Readonly<Record<Exclude<PointerRow, 'PK-1' | 'PK-3' | 'PK-4' | 'PK-5' | 'PK-9' | 'PK-17'>, PointerShape>> = {
+  'PK-7': 'pointer',
+  'PK-8': 'grab',
+  'PK-10': 'col-resize',
+  'PK-11': 'move',
+  'PK-12': 'ew-resize',
+  'PK-13': 'ns-resize',
+  'PK-14': 'nwse-resize',
+  'PK-15': 'nesw-resize',
+  'PK-16': 'copy',
+  'PK-18': 'not-allowed',
+}
+
+// see T-269
 /** @purity pure */
 export function pointerImageOf(
   row: PointerRow,
@@ -264,26 +292,12 @@ export function pointerImageOf(
       return lineArrowPointer()
     case 'PK-5':
       return discPointer(ink, ink === 'hollow' ? 'move' : 'ew-resize')
-    case 'PK-7':
-      return 'pointer'
-    case 'PK-8':
-      return 'grab'
     case 'PK-9':
       return resumeArrowPointer()
-    case 'PK-10':
-      return 'col-resize'
-    case 'PK-11':
-      return 'move'
-    case 'PK-12':
-      return 'ew-resize'
-    case 'PK-13':
-      return 'ns-resize'
-    case 'PK-14':
-      return 'nwse-resize'
-    case 'PK-15':
-      return 'nesw-resize'
-    case 'PK-16':
-      return 'copy'
+    case 'PK-17':
+      return parentLinkPointer()
+    default:
+      return NATIVE_POINTER_BY_ROW[row]
   }
 }
 
@@ -312,6 +326,7 @@ export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | 
   if (armed || hit === null) return null
   if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
   if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : null
+  if (hit.grab === 'WL-10') return hit.item.kind === 'wbsParentLink' && !hit.item.isStated ? 'PK-18' : 'PK-17'
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 
@@ -380,6 +395,7 @@ function pointerShapeUnder(
   if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
   if (dualCursorFollowingIn(session) !== null) return null
   const armed = session.screen.armModeState
+  if (armed.kind === 'wbsParentArmed') return pointerImageOf('PK-17')
   const isArmedDependency = armed.kind === 'dependencyArmed'
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))

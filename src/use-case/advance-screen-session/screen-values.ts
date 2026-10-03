@@ -191,6 +191,7 @@ export type ScreenValuesKey =
   | 'armModeStateMachine.dependencyArmed'
   | 'armModeStateMachine.commentBoxArmed'
   | 'armModeStateMachine.highlightBoxArmed'
+  | 'armModeStateMachine.wbsParentArmed'
   | 'paletteDisplayStateMachine.shown'
   | 'paletteDisplayStateMachine.shown.expanded'
   | 'paletteDisplayStateMachine.shown.minimised'
@@ -262,6 +263,7 @@ export type ArmModeState =
   | { readonly kind: 'dependencyArmed' }
   | { readonly kind: 'commentBoxArmed' }
   | { readonly kind: 'highlightBoxArmed' }
+  | { readonly kind: 'wbsParentArmed' }
 
 export type PaletteDisplayState =
   | { readonly kind: 'shown'; readonly child: PaletteDisplayShownState }
@@ -631,6 +633,7 @@ const ARMED_BY_KIND: {
   dependencyArmed: () => ({ kind: 'dependencyArmed' }),
   commentBoxArmed: () => ({ kind: 'commentBoxArmed' }),
   highlightBoxArmed: () => ({ kind: 'highlightBoxArmed' }),
+  wbsParentArmed: () => ({ kind: 'wbsParentArmed' }),
 }
 
 /** @purity pure */
@@ -644,6 +647,7 @@ function carriedArmOf(armed: ArmModeState): string | null {
     case 'dependencyArmed':
     case 'commentBoxArmed':
     case 'highlightBoxArmed':
+    case 'wbsParentArmed':
       return null
     default:
       return assertNever(armed)

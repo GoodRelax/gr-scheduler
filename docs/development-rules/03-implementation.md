@@ -93,6 +93,7 @@ NOT_STORED_ANNOTATION_BOUNDS         その数値の行の下限・上限と鍵�
 NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの明度の下限・上限（`S-415` / `S-416`）
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
+NOT_STORED_WBS_PARENT_ARROW_SIZES    WBS の親子の矢印の当たりの太さと、導いた親への矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）

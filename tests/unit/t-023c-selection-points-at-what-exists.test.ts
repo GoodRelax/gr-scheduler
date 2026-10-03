@@ -404,6 +404,8 @@ function itemExists(document: Document, item: ItemRef): boolean {
       return schedule.commentBoxes.some((one: any) => one.id === item.id)
     case 'statusLine':
       return schedule.project.statusDate !== null
+    case 'wbsParentLink':
+      return schedule.tasks.some((one: any) => one.uid === item.childUid && one.wbsParentUid !== null)
   }
 }
 

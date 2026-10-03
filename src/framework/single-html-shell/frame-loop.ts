@@ -41,6 +41,7 @@ import {
 import {
   geometryFromLayout,
   type ScheduleGeometry,
+  type WbsParentFamilies,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   hasRoomBelowPinsIn,
@@ -227,6 +228,7 @@ import {
   previewOfHeldPress,
   tentativeDependencyOf,
 } from './held-press-preview'
+import { wbsParentHoldOf } from './wbs-parent-hold'
 import {
   interactionRecorderOf,
   isRecordingInteractionsIn,
@@ -476,6 +478,7 @@ interface PictureInputs {
   readonly selection: Selection
   readonly dualCursor: GeometryArguments[5]
   readonly delayDiagnostics: DelayDiagnosticsDrawing | undefined
+  readonly wbsParentFamilies: WbsParentFamilies | null
 }
 
 interface DrawnPicture {
@@ -501,6 +504,7 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
     a.selection === b.selection &&
     a.dualCursor === b.dualCursor &&
     a.delayDiagnostics === b.delayDiagnostics &&
+    a.wbsParentFamilies === b.wbsParentFamilies &&
     a.rowControlsHeightPx === b.rowControlsHeightPx &&
     isSameRecord(a.settings, b.settings) &&
     isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
@@ -516,8 +520,25 @@ function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): Drawn
   const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.rowControlsHeightPx)
   const geometry = geometryFromLayout(
     schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
+    inputs.wbsParentFamilies,
   )
   return { inputs, layout, geometry }
+}
+
+// see PTD-1
+/** @purity pure */
+function followedPressOf(press: PointerPress | null, input: HumanInput, isFollowing: boolean): PointerPress | null {
+  if (!isFollowing || press === null || input.kind !== 'pointer' || input.phase !== 'move') return press
+  const isDragged = press.on === null ? press.pressRow === 'PTD-1' : press.on.scrollbarAxis !== undefined
+  return isDragged ? { ...press, followedTo: { x: input.x, y: input.y } } : press
+}
+
+// see RS-24
+/** @purity pure */
+function stackSafetyCapToldAfter(told: string | null, layout: ScheduleLayout): { readonly told: string | null; readonly isNew: boolean } {
+  const capStop = layout.stackSafetyCapReached
+  if (capStop === null) return { told: null, isNew: false }
+  return { told: capStop.groupId, isNew: told !== capStop.groupId }
 }
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
@@ -677,6 +698,8 @@ export type NoticeReason =
   | 'RS-66'
   | 'RS-67'
   | 'RS-68'
+  | 'RS-69'
+  | 'RS-70'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -737,6 +760,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-66': 'NT-3a',
   'RS-67': 'NT-1',
   'RS-68': 'NT-5',
+  'RS-69': 'NT-1',
+  'RS-70': 'NT-1',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -844,6 +869,8 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   noRowToPutTheAnnotationOn: 'RS-44',
   rowIsAtTheDeepestLevel: 'RS-46',
   barShapeReleasedWithoutADrag: 'RS-53',
+  milestoneCannotBeAParent: 'RS-69',
+  derivedParentCannotBePicked: 'RS-70',
 }
 
 const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
@@ -969,6 +996,8 @@ interface ScreenViewReadingsTaken {
   readonly searchPanel?: SearchPanelSession
   readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
+  readonly isWbsParentLinksShown?: boolean
+  readonly wbsParentChoice?: NonNullable<ScreenViewReadings['wbsParentChoice']> | null
 }
 
 // see PI-37, SF-5, SF-10
@@ -1088,6 +1117,14 @@ export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | 
 /** @purity pure */
 function screenLanguageIn(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? 'en'
+}
+
+// see FR-052, FR-072, S-171, S-248
+/** @purity pure */
+function propertiesPanelWidthOf(session: ScreenSession, held: number | null): number {
+  if (panelShowingIn(session) === null) return 0
+  const width = held ?? session.screen.propertyPanelWidth ?? NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
+  return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], width)
 }
 
 /** @purity pure */
@@ -1671,6 +1708,8 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
       return b.kind === 'commentBox' && a.id === b.id
     case 'statusLine':
       return b.kind === 'statusLine'
+    case 'wbsParentLink':
+      return b.kind === 'wbsParentLink' && a.childUid === b.childUid
   }
 }
 
@@ -1720,6 +1759,8 @@ function itemKeyOf(item: Hit['item']): string {
       return `${item.kind}:${item.id}`
     case 'statusLine':
       return item.kind
+    case 'wbsParentLink':
+      return `${item.kind}:${item.childUid}`
   }
 }
 
@@ -2017,6 +2058,7 @@ export function frameLoop(
   // WHY: diagnosed once per held document, never per frame (decision 17).
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
+  const wbsParents = wbsParentHoldOf()
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -2171,14 +2213,6 @@ export function frameLoop(
     return screen !== undefined && panelShowingIn(session) !== null
   }
 
-  // see FR-052, FR-072, S-171, S-248
-  /** @purity semi-pure-b */
-  function propertiesPanelWidthOnScreen(): number {
-    if (panelShowingIn(session) === null) return 0
-    const width = heldPropertyPanelWidth ?? session.screen.propertyPanelWidth ?? NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
-    return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], width)
-  }
-
   /** @purity non-pure */
   function runFrame(): void {
     owed = false
@@ -2191,7 +2225,7 @@ export function frameLoop(
       height: environment.height,
       appHeaderHeight: environment.appHeaderHeight,
       scrollbarThickness: environment.scrollbarThickness,
-      propertyPanelWidth: propertiesPanelWidthOnScreen(),
+      propertyPanelWidth: propertiesPanelWidthOf(session, heldPropertyPanelWidth),
     }
     const regions = regionsFromScreen(environmentForRegions, stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
@@ -2209,15 +2243,12 @@ export function frameLoop(
       selection: selectedObjectsIn(session),
       dualCursor: session.screen.dualCursor,
       delayDiagnostics: diagnostics?.drawing,
+      wbsParentFamilies: wbsParents.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
     })
     const { layout, geometry } = drawnPicture
-    const capStop = layout.stackSafetyCapReached
-    if (capStop !== null && stackSafetyCapToldFor !== capStop.groupId) {
-      stackSafetyCapToldFor = capStop.groupId
-      raiseNotice(STACK_SAFETY_CAP_REASON, null)
-    } else if (capStop === null) {
-      stackSafetyCapToldFor = null
-    }
+    const capTold = stackSafetyCapToldAfter(stackSafetyCapToldFor, layout)
+    stackSafetyCapToldFor = capTold.told
+    if (capTold.isNew) raiseNotice(STACK_SAFETY_CAP_REASON, null)
     const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
     values = {
       regions,
@@ -2302,7 +2333,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           ...windows.readings(session, delayDiagnosticsNow()),
-          isDelayDiagnosticsShown: delayDiagnosticsShown,
+          ...wbsParents.readings(session, delayDiagnosticsShown),
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -2316,6 +2347,22 @@ export function frameLoop(
     drainFieldEditNotices(hands, values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
+  }
+
+  // see WL-13, WL-14, QN-12
+  /** @purity non-pure */
+  function spentOnWbsParentChoice(input: HumanInput, frame: FrameValues): boolean {
+    const answer = input.kind === 'pointer' ? screen?.surface.readScreenPartAt(input.x, input.y)?.confirmationAnswer : undefined
+    const step = wbsParents.choiceStepFor(input, answer ?? null)
+    if (step === null) return false
+    if (step.kind === 'picked') {
+      sendToSession({ type: 'objectsPicked', pickedObjects: step.picked }, frame)
+      noteChoiceMoved(hands, frame)
+      followChoiceOnPanel(frame)
+    }
+    ask()
+    recordLine(hands, interactionRecorder, 'done', 'spent=wbsParentChoice frame=yes')
+    return true
   }
 
   /** @purity non-pure */
@@ -2861,6 +2908,7 @@ export function frameLoop(
       showDelayDiagnostics(!delayDiagnosticsShown)
       return true
     }
+    if (wbsParents.isToggledBy(entry)) return true
     // see FR-049, S-445
     // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
     if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
@@ -3269,6 +3317,7 @@ export function frameLoop(
       recordLine(hands, interactionRecorder, 'done', 'spent=searchPanelWheel')
       return
     }
+    if (spentOnWbsParentChoice(input, frame)) return
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
@@ -3319,7 +3368,7 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    const pickedObjects = pickedObjectsOf(input, context)
+    const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context), context.selection, pointerAt)
     const hasChoiceMoved = pickedObjects !== context.selection
     if (hasChoiceMoved) {
       sendToSession({ type: 'objectsPicked', pickedObjects }, frame)
@@ -3361,18 +3410,7 @@ export function frameLoop(
     if (rowZoomEnd !== undefined) showRowZoomEndMessage(rowZoomEnd)
     const isRowZoomEndShown = rowZoomEnd !== undefined
 
-    if (
-      !spent &&
-      input.kind === 'pointer' &&
-      input.phase === 'move' &&
-      pressed !== null &&
-      (pressed.on === null
-        ? pressed.pressRow === 'PTD-1'
-        : pressed.on.scrollbarAxis !== undefined) &&
-      translated.action !== null
-    ) {
-      pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
-    }
+    pressed = followedPressOf(pressed, input, !spent && translated.action !== null)
 
     if (hasChoiceMoved) followChoiceOnPanel(frame)
 
@@ -3436,6 +3474,7 @@ export function frameLoop(
         isTooltipStanding,
       )
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
+      if (wbsParents.isChoiceStanding() && input.kind === 'key') return true
       if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
       // TRAP: rowArea's rectangle also covers the floating Dialogue Field; without this escape,
       // its own press reads as rowArea and preventDefault blocks native focus (DFC-578, FR-066).

@@ -18,6 +18,15 @@ function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boole
   )
 }
 
+// see WL-4
+// WHY: a dashed arrow is left out in silence; it can be neither picked nor deleted (RS-70).
+/** @purity pure */
+function wbsParentLinksIn(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
+  return (geometry.wbsParents?.arrows ?? [])
+    .filter((arrow) => arrow.isStated && isEnclosedInclusive(boxOfPath(arrow.hitPoints), marquee))
+    .map((arrow) => ({ kind: 'wbsParentLink', childUid: arrow.childUid, isStated: true }))
+}
+
 // see SL-3, SL-7b, EL-14
 /** @purity pure */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
@@ -43,5 +52,5 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
   for (const box of geometry.highlightBoxes) {
     if (isEnclosedInclusive(box.box, marquee)) out.push({ kind: 'highlightBox', id: box.id })
   }
-  return out
+  return [...out, ...wbsParentLinksIn(geometry, marquee)]
 }

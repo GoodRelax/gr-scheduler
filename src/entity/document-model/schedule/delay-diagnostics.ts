@@ -1033,6 +1033,38 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
     .map((one) => one.bar.uid)
 }
 
+// see FR-135, IP-2, IP-4, IP-5, VO-4
+export type WbsParentResolution =
+  | { readonly kind: 'stated'; readonly parentUid: number }
+  | { readonly kind: 'derived'; readonly parentUid: number }
+  | { readonly kind: 'undecided'; readonly candidates: readonly number[] }
+  | { readonly kind: 'root' }
+
+// see FR-135, IP-2, IP-4, IP-5, VO-4
+// WHY: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
+/** @purity pure */
+export function wbsParentResolutionsOf(document: DiagnosedDocument): ReadonlyMap<number, WbsParentResolution> {
+  const { tasks, byUid, rowDepthOf, derivations } = structureOf(document.schedule)
+  const resolutions = new Map<number, WbsParentResolution>()
+  for (const task of tasks) {
+    // WHY: FR-135 reads a stated milestone parent as no parent, so that child falls through to the derivation.
+    const statedUid = statedParentUidOf(task, byUid)
+    if (statedUid !== null) {
+      if (byUid.has(statedUid)) resolutions.set(task.uid, { kind: 'stated', parentUid: statedUid })
+      continue
+    }
+    const derivation = derivations.get(task.uid)
+    if (derivation === undefined) {
+      if (rowDepthOf.get(task.uid) === 0) resolutions.set(task.uid, { kind: 'root' })
+      continue
+    }
+    resolutions.set(task.uid, derivation.parentUid === null
+      ? { kind: 'undecided', candidates: parentCandidatesOf(document, task.uid) }
+      : { kind: 'derived', parentUid: derivation.parentUid })
+  }
+  return resolutions
+}
+
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)

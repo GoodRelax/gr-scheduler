@@ -314,6 +314,12 @@ SEARCH_PANEL_PARTS = ('blank', 'noName')
 # are no table's rows, so they are HELD HERE, the same move as
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
+# CR-631: the two choices QN-12 of table T-234 offers when a selection mixes
+# tasks and WBS parent arrows (WL-13 of table T-351): the first in its armed
+# and its unarmed wording (JDG-1142), then the arrows. Not NT-7's Yes / No, and
+# no table holds them as rows, so they are HELD HERE, the same move as
+# OPEN_CHOOSER_PARTS. KEYS, not words.
+WBS_PARENT_CHOICE_PARTS = ('childTasks', 'tasks', 'links')
 
 # CR-624: the words that head two lines of the hint a rested pointer shows
 # (table T-348 of FR-092): the plan line (TL-5) and the actual line (TL-6).
@@ -551,6 +557,7 @@ def roster():
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
+        'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
         'hintLines': hint_lines(),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -622,6 +629,7 @@ SHAPE = {
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
+    'wbsParentChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
 }
 
@@ -726,7 +734,7 @@ def build(doc, keys_by_row):
                     'rowMinHeightField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
-                    'planActualStates', 'searchPanel'):
+                    'planActualStates', 'searchPanel', 'wbsParentChoice'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

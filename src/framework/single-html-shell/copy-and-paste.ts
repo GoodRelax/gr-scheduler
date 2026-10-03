@@ -3,7 +3,7 @@
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { Selection } from '../../entity/document-model/selection/selection'
+import { taskUidsIn, type Selection } from '../../entity/document-model/selection/selection'
 import { taskByUid, type Schedule, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import { layoutFromSchedule } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
@@ -26,7 +26,7 @@ type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 export function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied | null {
   if (chosenRows.length === 1) return { kind: 'row', groupId: chosenRows[0] as string }
   if (chosenRows.length > 1) return null
-  const uids = selected.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))
+  const uids = taskUidsIn(selected)
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
