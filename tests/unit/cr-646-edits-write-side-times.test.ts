@@ -316,7 +316,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
 
   it.todo(
     'WT-6 / WT-7 Exception.fromDate / toDate: CR-646 K-2 says the calendar edit makes them, but CM-39 (setCalendar) ' +
-      'carries whole Exception rows -- the spec names no seam where the times are stamped (use case or the panel)',
+      'carries whole Exception rows -- the spec names no seam where the times are stamped (use case or the panel) -- STOP DFC-1836',
   )
 })
 
@@ -411,6 +411,6 @@ describe('X-4 FR-054: dates are compared by their day', () => {
 
   it.todo(
     'FR-054 (CR-646 X-4 second half): a task from T08:00:00 to T17:00:00 of one day counts as a one-day task -- ' +
-      'the spec names no published reading that says "one-day" (K-5 points at delay-diagnostics-report.ts, an internal line)',
+      'the spec names no published reading that says "one-day" (K-5 points at delay-diagnostics-report.ts, an internal line; DV-8 Duration counts it as 0 days today) -- STOP DFC-1837',
   )
 })

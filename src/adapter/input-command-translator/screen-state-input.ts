@@ -173,6 +173,7 @@ function screenEventAfterMarkerPress(
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)
   const turned = cycleTaskPlanActualState(task, remembered, {
+    startSide: task.start,
     floorDay: task.start,
     milestone: task.milestone === true,
   })

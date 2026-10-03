@@ -74,6 +74,8 @@ function actualsEdited(task: Task): Task {
 }
 
 export interface CycleSurroundings {
+  // WHY: PV-1 / PV-5 put the start's day back as an actual the cycle writes, so it takes the WT-3 start-side time.
+  readonly startSide: string | null
   readonly floorDay: string | null
   readonly milestone: boolean
 }
@@ -139,7 +141,7 @@ function startedAgain(task: Task, remembered: RememberedActual | null,
   if (task.start === null) return task
   return actualsEdited({
     ...task,
-    actualStart: task.start,
+    actualStart: around.startSide,
     stop: around.floorDay,
     actualFinish: null,
     resume: null,
@@ -150,7 +152,7 @@ function startedAgain(task: Task, remembered: RememberedActual | null,
 // see PV-5
 /** @purity pure */
 function cycledMilestone(task: Task, remembered: RememberedActual | null,
-                         state: ReturnType<typeof planActualState>): CycledPlanActual {
+                         state: ReturnType<typeof planActualState>, startSide: string | null): CycledPlanActual {
   if (state !== 'notStarted') {
     return { task: actualCleared(task), remembered: actualTakenOff(task) }
   }
@@ -161,8 +163,8 @@ function cycledMilestone(task: Task, remembered: RememberedActual | null,
   return {
     task: actualsEdited({
       ...task,
-      actualStart: task.start,
-      actualFinish: task.start,
+      actualStart: startSide,
+      actualFinish: startSide,
       stop: null,
       resume: null,
       resumeValid: false,
@@ -177,10 +179,10 @@ function cycledMilestone(task: Task, remembered: RememberedActual | null,
 export function cycleTaskPlanActualState(
   task: Task,
   remembered: RememberedActual | null,
-  around: CycleSurroundings = { floorDay: task.start, milestone: task.milestone === true },
+  around: CycleSurroundings = { startSide: task.start, floorDay: task.start, milestone: task.milestone === true },
 ): CycledPlanActual {
   const state = planActualState(task)
-  if (around.milestone) return cycledMilestone(task, remembered, state)
+  if (around.milestone) return cycledMilestone(task, remembered, state, around.startSide)
   switch (state) {
     case 'notStarted':
       return { task: startedAgain(task, remembered, around), remembered: null }
@@ -475,7 +477,8 @@ export function cycleTaskPlanActualStateInDocument(
     return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
   }
   const project = document.schedule.project
+  const startSide = from === null ? null : textOfStartSide(from, project)
   const floorDay = from === null ? null : textOfFinishSide(floorDayOf(within, from, milestone), project, milestone)
-  const turned = cycleTaskPlanActualState(task, command.remembered, { floorDay, milestone })
+  const turned = cycleTaskPlanActualState(task, command.remembered, { startSide, floorDay, milestone })
   return edited(withTask(document, repriced(within, turned.task)))
 }
