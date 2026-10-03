@@ -314,4 +314,15 @@ RETIRED = {'FR-050', 'T-030',
            # the new rung is RG-16. CR-630 and the ledgers name it, so the seat
            # stays burnt.
            'RG-15',
+           # CR-646 (2026-10-03, rulings JDG-1195 / JDG-1210): AT-62
+           # (TaskGroupMember.stackOrder, a lane nobody read -- ST-2 stacks a
+           # row by itself) and AT-11 (Project.lastSaved -- the save time is
+           # held once, in documentStamp.fileSavedUtc, and MSPDI's LastSaved
+           # is made at export, DV-12) left table T-058. PF-10 (the document
+           # information panel's row for lastSaved, table T-224) and N-4 (the
+           # data word stackOrder, table T-101) left with them; G-4 of table
+           # T-005 now names the concept 積み順 instead. CR-646, rulings.md and
+           # the review docs/review/grs-json-schema-self-explanation-2026-10-03.md
+           # name them, so the seats stay burnt.
+           'AT-62', 'AT-11', 'PF-10', 'N-4',
            'T-006'}

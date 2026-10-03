@@ -30,8 +30,9 @@ OUT = os.path.join(ASSETS, 'tbl-settings.md')
 
 LANG = 'ja'
 
-# Row keys that are not printed cells.
-METADATA = frozenset(['json'])
+# Row keys that are not printed cells. `schemaNote` is the English
+# description erd_json_to_schema.py prints on a documentSettings key (CR-646).
+METADATA = frozenset(['json', 'schemaNote'])
 
 def say(message):
     """⛔ The Windows console is cp932 and this file's messages quote the

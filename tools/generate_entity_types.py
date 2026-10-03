@@ -867,22 +867,27 @@ def number_of(cell):
 # (AT-73 and AT-17) -- so each row states its own encoding and this generator
 # never converts between them. Monday is 2 in one row and 1 in the next, and
 # that is the format's doing, not a mistake here.
-DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128']
+# S-482 / S-483 are the default start and finish times (CR-646): a literal
+# time of day, typed as a string.
+DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128', 'S-482', 'S-483']
 
 
-def default_calendar_number(row_id):
-    """The number one plain-number row of table T-209 states, read where it is held.
+def default_calendar_value(row_id):
+    """The one plain value a row of table T-209 states, read where it is held.
 
     Prose that a generator prints (a schemaNote, the image prompt) names the row
-    as `{{S-128}}` and gets the number from here, so no prose holds a copy of it
-    (CR-644).
+    as `{{S-128}}` and gets the value from here, so no prose holds a copy of it
+    (CR-644). A number comes back as a number; a literal (the times of day
+    S-482 / S-483, CR-646) comes back as its own text.
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-209']
     rows = [r for r in (block[0]['rows'] if block else []) if r.get('id') == row_id]
     cell = rows[0].get('value') if len(rows) == 1 else None
+    if isinstance(cell, dict) and 'lit' in cell:
+        return cell['lit']
     if not isinstance(cell, dict) or 'num' not in cell:
-        raise SystemExit('table T-209 states no single plain number for %s' % row_id)
+        raise SystemExit('table T-209 states no single plain value for %s' % row_id)
     number = float(cell['num'])
     return int(number) if number.is_integer() else number
 
@@ -891,9 +896,9 @@ CALENDAR_ROW_TOKEN = re.compile(r'\{\{(S-[0-9]+[a-z]?)\}\}')
 
 
 def with_calendar_rows_printed(text, where):
-    """`text` with every `{{S-n}}` replaced by the number table T-209 states."""
+    """`text` with every `{{S-n}}` replaced by the value table T-209 states."""
     printed = CALENDAR_ROW_TOKEN.sub(
-        lambda found: str(default_calendar_number(found.group(1))), text)
+        lambda found: str(default_calendar_value(found.group(1))), text)
     if '{{' in printed or '}}' in printed:
         raise SystemExit('%s holds a {{...}} token that names no row of table '
                          'T-209' % where)
@@ -933,6 +938,10 @@ def default_calendar_block():
             unit = (cell.get('suffix') or '').strip()
             got.append((row_id, cell['num'], 'number',
                         unit_phrase(unit) or 'the number the row states'))
+        elif 'lit' in cell:
+            # A time of day in the xsd:time form (S-482 / S-483, CR-646).
+            got.append((row_id, "'%s'" % cell['lit'], 'string',
+                        'the time of day the row states (HH:MM:SS)'))
         else:
             raise SystemExit(
                 'table T-209 row %s holds no machine value this generator '

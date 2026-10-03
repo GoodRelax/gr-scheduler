@@ -75,7 +75,7 @@ BASE_ROW = {
 # base document is a blank the AI fills, so each is null there.
 BLANKED_PROJECT_COLUMNS = (
     'name', 'title', 'subject', 'category', 'company', 'manager', 'author',
-    'created', 'revision', 'lastSaved', 'startDate', 'statusDate',
+    'created', 'revision', 'startDate', 'statusDate',
 )
 
 BANNER = (

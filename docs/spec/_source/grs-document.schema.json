@@ -3,7 +3,7 @@
  "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json",
  "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
  "title": "GRS JSON document",
- "description": "A GRS schedule document. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Dates are local date-times without a zone, as MS Project writes them; GRS uses only the day for now and writes 00:00:00, and a last day (finish, actualFinish, stop, endDate) is included. A null colour or width follows the theme. A custom colour gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark colour cannot be derived from a light one.",
+ "description": "A GRS schedule document. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, comment and highlight boxes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column (a milestone takes the start time at both ends), and 00:00:00..23:59:00 for a whole-day range (00:00:00 for a single day such as a comment's anchor), because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. A last day (finish, actualFinish, stop, endDate) is included. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time. A null colour or width follows the theme. A custom colour gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark colour cannot be derived from a light one.",
  "type": "object",
  "required": [
   "schemaVersion",
@@ -16,7 +16,7 @@
  "properties": {
   "schemaVersion": {
    "type": "string",
-   "const": "2026-09-27"
+   "const": "2026-10-03"
   },
   "schedule": {
    "type": "object",
@@ -263,6 +263,7 @@
      "default": 0
     },
     "stackDirection": {
+     "description": "up stacks a row's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right.",
      "enum": [
       "up",
       "down"
@@ -312,7 +313,6 @@
     "author",
     "created",
     "revision",
-    "lastSaved",
     "startDate",
     "statusDate",
     "minutesPerDay",
@@ -320,6 +320,8 @@
     "daysPerMonth",
     "weekStartDay",
     "calendarUid",
+    "defaultStartTime",
+    "defaultFinishTime",
     "themeHue",
     "uidHighWaterMark",
     "importSeq",
@@ -380,6 +382,7 @@
      ]
     },
     "created": {
+     "description": "MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one.",
      "$ref": "#/$defs/DateTime"
     },
     "revision": {
@@ -387,9 +390,6 @@
       "integer",
       "null"
      ]
-    },
-    "lastSaved": {
-     "$ref": "#/$defs/DateTime"
     },
     "startDate": {
      "$ref": "#/$defs/DateTime"
@@ -430,6 +430,14 @@
       "integer",
       "null"
      ]
+    },
+    "defaultStartTime": {
+     "description": "MS Project's DefaultStartTime: the time GRS writes on start-side dates; 08:00:00 when the file has none.",
+     "$ref": "#/$defs/Time"
+    },
+    "defaultFinishTime": {
+     "description": "MS Project's DefaultFinishTime: the time GRS writes on finish-side dates; 17:00:00 when the file has none.",
+     "$ref": "#/$defs/Time"
     },
     "themeHue": {
      "description": "The hue that tasks and rows without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings.",
@@ -730,11 +738,10 @@
   },
   "TaskGroupMember": {
    "type": "object",
-   "description": "Which row a task sits on; every task sits on exactly one row.",
+   "description": "Which row a task sits on; every task sits on exactly one row. No lane is stored: GRS stacks a row's tasks itself, in the direction documentSettings.stackDirection names.",
    "required": [
     "taskUid",
-    "groupId",
-    "stackOrder"
+    "groupId"
    ],
    "additionalProperties": false,
    "properties": {
@@ -744,13 +751,6 @@
     "groupId": {
      "type": "string",
      "format": "uuid"
-    },
-    "stackOrder": {
-     "description": "Not read: GRS stacks the tasks of a row automatically. Write null.",
-     "type": [
-      "integer",
-      "null"
-     ]
     }
    }
   },
@@ -1009,7 +1009,7 @@
   },
   "TaskVisual": {
    "type": "object",
-   "description": "How a task is drawn: its shape and its colours.",
+   "description": "How a task is drawn: its shape and its colours; every task has exactly one, so that no other way of drawing a task is needed.",
    "required": [
     "taskUid",
     "shapeKind",
@@ -1320,7 +1320,7 @@
   },
   "documentStamp": {
    "type": "object",
-   "description": "When the document last changed and was saved, and who wrote it last.",
+   "description": "When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.",
    "required": [
     "scheduleUpdatedUtc",
     "lastEditedBy",
@@ -1343,6 +1343,7 @@
      "$comment": "ISO 8601, UTC, to the second."
     },
     "fileSavedUtc": {
+     "description": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.",
      "type": [
       "string",
       "null"
@@ -1427,6 +1428,13 @@
     "null"
    ],
    "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+  },
+  "Time": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
   }
  }
 }

@@ -1,5 +1,5 @@
 {
- "schemaVersion": "2026-09-27",
+ "schemaVersion": "2026-10-03",
  "schedule": {
   "project": {
    "id": null,
@@ -12,7 +12,6 @@
    "author": null,
    "created": null,
    "revision": null,
-   "lastSaved": null,
    "startDate": null,
    "statusDate": null,
    "minutesPerDay": null,
@@ -20,6 +19,8 @@
    "daysPerMonth": null,
    "weekStartDay": 1,
    "calendarUid": 1,
+   "defaultStartTime": null,
+   "defaultFinishTime": null,
    "themeHue": 214,
    "uidHighWaterMark": 0,
    "importSeq": 0,

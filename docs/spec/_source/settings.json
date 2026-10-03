@@ -1553,7 +1553,10 @@
      "min": "—",
      "max": "—",
      "note": {
-      "ja": "積む向き"
+      "ja": "積む向き。向きを選ぶ理由は表 T-014 の `ST-5` が持つ"
+     },
+     "schemaNote": {
+      "en": "up stacks a row's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right."
      }
     },
     {
@@ -7791,6 +7794,32 @@
      },
      "note": {
       "ja": "`Project.minutesPerDay` が空のときに使う（`FR-054`）。1 日 8 時間。選び方は `S-106` と同じである"
+     }
+    },
+    {
+     "id": "S-482",
+     "name": {
+      "ja": "既定の開始時刻"
+     },
+     "value": {
+      "lit": "08:00:00",
+      "code": true
+     },
+     "note": {
+      "ja": "`Project.defaultStartTime` が空のときに、`GRS` が開始の側の日時に書く時刻（`01-04-requirements.md` の 表 T-350）。値は MS Project の既定の開始時刻（Microsoft サポート「How Project schedules tasks: Behind the scenes」、`https://support.microsoft.com/en-us/project/how-project-schedules-tasks-behind-the-scenes`）。⚠️ 列へは書かない —— 列が空のまま往復し、交換相手は自分の既定を使う"
+     }
+    },
+    {
+     "id": "S-483",
+     "name": {
+      "ja": "既定の終了時刻"
+     },
+     "value": {
+      "lit": "17:00:00",
+      "code": true
+     },
+     "note": {
+      "ja": "`S-482` の終了の側の対。`Project.defaultFinishTime` が空のときに使い、出典と列へ書かない理由も `S-482` と同じである"
      }
     }
    ]

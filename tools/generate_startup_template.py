@@ -137,7 +137,10 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
 # documents from several versions tells them apart by nothing else.
-SCHEMA_VERSION = '2026-09-27'
+# CR-646 (JDG-1209): the shape changed (no stackOrder, no Project.lastSaved,
+# Project.defaultStartTime / defaultFinishTime), so the version is the day the
+# change was applied.
+SCHEMA_VERSION = '2026-10-03'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -949,7 +952,6 @@ PROJECT_COMPANY = 'Product Organization'
 PROJECT_MANAGER = 'Programme Manager A'
 PROJECT_AUTHOR = 'Planner A'
 PROJECT_CREATED = date(2026, 3, 6)
-PROJECT_LAST_SAVED = date(2027, 6, 14)
 # PF-7: the exchange partner's save count, which is NOT the document's stamp
 # (FR-074 says so). A plan fourteen months in has been saved more than once.
 PROJECT_REVISION = 37
@@ -1559,8 +1561,7 @@ class Builder(object):
         }
         self.tasks.append(task)
         self.by_uid[uid] = task
-        self.members.append({'taskUid': uid, 'groupId': row['id'],
-                             'stackOrder': None})
+        self.members.append({'taskUid': uid, 'groupId': row['id']})
         row['tasks'].append(uid)
         task['startAt'] = start_at
         task['finishAt'] = finish_at
@@ -2592,7 +2593,6 @@ class Builder(object):
             'author': PROJECT_AUTHOR,                 # PF-6
             'created': text_of(PROJECT_CREATED),      # PF-9
             'revision': PROJECT_REVISION,             # PF-7
-            'lastSaved': text_of(PROJECT_LAST_SAVED),  # PF-10
             'startDate': text_of(PROJECT_START),
             'statusDate': text_of(WORKDAYS[status_at]),
             'minutesPerDay': None,
@@ -2600,6 +2600,10 @@ class Builder(object):
             'daysPerMonth': None,
             'weekStartDay': CALENDAR_VALUES['S-108'],
             'calendarUid': 1,
+            # AT-154 / AT-155: null, so S-482 / S-483 decide the written times
+            # and an export leaves MS Project's own defaults (CR-646).
+            'defaultStartTime': None,
+            'defaultFinishTime': None,
             'themeHue': hue,
             'uidHighWaterMark': self.next_uid,
             'importSeq': 0,
@@ -4155,24 +4159,6 @@ def check_neutrality(document, settings):
            % (len(strange), '\n    '.join(strange[:12])))
 
 
-def check_stack_order(built):
-    """ST-6 of table T-014 -- the stack order is settled automatically.
-
-    ⛔ ST-6 forbids (MUST NOT) giving a person any way to place a task on a
-    stacking level by hand, and `AT-62` of the ERD spells `null` as "automatic".
-    A template that shipped a level chosen by hand would be the one document in
-    existence asking the reader to honour a setting the specification says
-    nobody can make. One shipped with exit 0.
-
-    @purity semi-pure-b
-    """
-    for member in built.members:
-        insist(member['stackOrder'] is None,
-               'ST-6: the task %d is placed on stacking level %s by hand, and '
-               'the order is settled automatically'
-               % (member['taskUid'], member['stackOrder']))
-
-
 # ---------------------------------------------------------------------------
 # ⭐ The GRS JSON schema, run over what is about to be written
 #
@@ -4420,7 +4406,6 @@ def build():
     check_links(built)
     check_reach(built)
     check_rollup_reading(built)
-    check_stack_order(built)
 
     hue = manuscript_number('S-73')
     # ⛔ No "$comment" banner rides in this file, and that is deliberate. The
