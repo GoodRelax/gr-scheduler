@@ -2901,11 +2901,8 @@ export function frameLoop(
             kind: 'picture',
             pngBytes: painted.png.pngBytes,
           })
-          if (!writing.ok) {
-            raiseNotice('RS-15', null)
-            return
-          }
-          // WHY: told only after the board took the picture; a refused write is RS-15 alone (FR-025 MUST NOT).
+          // WHY: RS-68 only after the board took the picture; a refused write is RS-15 alone (FR-025 MUST NOT).
+          if (!writing.ok) return void raiseNotice('RS-15', null)
           raiseNotice(PICTURE_COPIED_REASON, null)
           if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
         })
