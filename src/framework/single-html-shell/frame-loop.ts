@@ -620,6 +620,7 @@ export type NoticeReason =
   | 'RS-65'
   | 'RS-66'
   | 'RS-67'
+  | 'RS-68'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -679,6 +680,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-65': 'NT-5',
   'RS-66': 'NT-3a',
   'RS-67': 'NT-1',
+  'RS-68': 'NT-5',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -751,6 +753,9 @@ export const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 const PROMPT_COPIED_REASON: NoticeReason = 'RS-65'
 
 const PROMPT_NOT_COPIED_REASON: NoticeReason = 'RS-15'
+
+// see FR-025
+const PICTURE_COPIED_REASON: NoticeReason = 'RS-68'
 
 export const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
@@ -2900,6 +2905,8 @@ export function frameLoop(
             raiseNotice('RS-15', null)
             return
           }
+          // WHY: told only after the board took the picture; a refused write is RS-15 alone (FR-025 MUST NOT).
+          raiseNotice(PICTURE_COPIED_REASON, null)
           if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
         })
         return
