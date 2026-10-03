@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[表示] 列と「チェックしたものだけ表示」 触れる見本</title>
+<style>
+:root{
+  --bg:#f3f4f7; --ink:#1c1f24; --muted:#5b6370; --line:#cfd4dc; --accent:#1f5fd0;
+  --panel-head:#2d4a7a; --yellow:#fff6c7; --yellow-line:#e2c84f;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Yu Gothic UI","Meiryo","Hiragino Sans",system-ui,sans-serif;font-size:14px;line-height:1.5}
+h1{font-size:18px;margin:0 0 4px}
+.lead{margin:0 0 12px;color:var(--muted);font-size:14px}
+.page{display:grid;grid-template-columns:minmax(960px,1fr) 400px;gap:16px;padding:14px 16px;align-items:start}
+button{font:inherit;font-size:14px;cursor:pointer}
+input[type=text]{font:inherit;font-size:14px}
+
+/* canvas area */
+.stage{position:relative}
+.cvcard{width:960px;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.cvtop{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--line);background:#fafbfc;min-height:38px}
+.cvtop .cvt{font-weight:600}
+.btn{border:1px solid #98a2b3;background:#fff;border-radius:4px;padding:3px 10px;color:var(--ink)}
+.btn:hover{background:#eef3ff}
+.banner{display:flex;align-items:center;gap:14px;padding:6px 10px;background:var(--yellow);border-bottom:1px solid var(--yellow-line);font-weight:600}
+.cv{overflow:auto;max-height:460px;background:#fff}
+.cv svg{display:block}
+.note{padding:5px 10px;border-top:1px solid var(--line);color:var(--muted);min-height:30px;background:#fafbfc}
+.bar{cursor:pointer}
+.bar.dim{pointer-events:none}
+.flashbox{animation:flashpulse .5s ease-in-out 2}
+@keyframes flashpulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* floating panel */
+.panel{position:absolute;width:700px;background:#fff;border:1px solid #6b7a99;border-radius:6px;box-shadow:0 6px 22px rgba(20,30,60,.28);z-index:20}
+.ptitle{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;background:var(--panel-head);color:#fff;border-radius:5px 5px 0 0;cursor:move;user-select:none;touch-action:none}
+.ptname{font-weight:700}
+.ptitle .grow{flex:1}
+.modebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid #c5d0e6;background:rgba(255,255,255,.12);color:#fff;border-radius:4px;padding:3px 10px;cursor:pointer}
+.modebtn[aria-pressed=true]{background:#ffd54a;color:#1c1f24;border-color:#fff;font-weight:700;box-shadow:inset 0 0 0 2px #b88a00}
+.modebtn:disabled{opacity:.5;cursor:not-allowed}
+.xbtn{border:0;background:transparent;color:#fff;font-size:20px;line-height:1;padding:0 6px;border-radius:4px}
+.xbtn:hover{background:rgba(255,255,255,.2)}
+.psearch{padding:8px 10px}
+.psearch input{width:100%;padding:5px 8px;border:1px solid #98a2b3;border-radius:4px}
+.pscroll{overflow:auto;max-height:262px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+table.t{border-collapse:separate;border-spacing:0;table-layout:fixed;width:1158px;font-size:14px}
+.t th,.t td{padding:4px 8px;height:32px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff;border-bottom:1px solid #e3e6eb;border-right:1px solid #eef0f3}
+.t thead th{position:sticky;top:0;background:#eaeff7;z-index:2;font-weight:600}
+.t .f{position:sticky;z-index:1}
+.t thead th.f{z-index:4}
+.t .c0{left:0}.t .c1{left:100px}.t .c2{left:204px}.t .c3{left:268px;border-right:2px solid #8793ab;box-shadow:3px 0 4px -2px rgba(0,0,0,.25)}
+.t tr.on td{background:#e8f0ff}
+.hcell{display:inline-flex;align-items:center;gap:5px}
+.fun{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;border:1px solid transparent;border-radius:3px;background:transparent;color:#5b6370;padding:0}
+.fun:hover{background:#dbe4f5}
+.fun.act{background:var(--accent);color:#fff}
+.fun.open{border-color:var(--accent);box-shadow:0 0 0 2px #bcd0f7}
+a.tl{color:#0b57d0;text-decoration:underline}
+.st-prog{color:#c26a00}.st-done{color:#1a7f37}.st-todo{color:#6b7280}
+.pcount{padding:6px 12px;color:var(--muted)}
+.empty td{color:var(--muted)}
+input[type=checkbox]{width:16px;height:16px;margin:0;cursor:pointer;accent-color:var(--accent)}
+input[type=checkbox]:disabled{cursor:not-allowed}
+
+/* dropdown filter */
+.dd{position:absolute;width:250px;background:#fff;border:1px solid #6b7a99;border-radius:4px;box-shadow:0 6px 18px rgba(20,30,60,.3);z-index:30}
+.dd-top{padding:8px;border-bottom:1px solid var(--line);background:#f7f8fb;border-radius:4px 4px 0 0}
+.dd-top input[type=text]{width:100%;padding:4px 8px;border:1px solid #98a2b3;border-radius:4px;margin-bottom:6px}
+.dd-btns{display:flex;gap:6px}
+.dd-btns button{flex:1;border:1px solid #98a2b3;background:#fff;border-radius:4px;padding:3px 4px}
+.dd-btns button:hover{background:#eef3ff}
+.dd-list{max-height:150px;overflow:auto;padding:4px 0}
+.dd-list label{display:flex;align-items:center;gap:8px;padding:4px 10px;cursor:pointer}
+.dd-list label:hover{background:#eef3ff}
+.dd-none{padding:6px 10px;color:var(--muted)}
+.dd-hint{padding:5px 10px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+
+/* control pane */
+.ctrl{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px;position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto}
+.ctrl h2{font-size:16px;margin:0 0 8px}
+fieldset{border:1px solid var(--line);border-radius:5px;margin:0 0 8px;padding:4px 10px 6px}
+legend{font-weight:700;padding:0 4px}
+.opt{display:flex;gap:8px;align-items:flex-start;padding:3px 0;cursor:pointer}
+.opt input{margin-top:3px;width:16px;height:16px}
+.opt .k{font-weight:700;color:var(--accent);min-width:14px}
+.opt small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+pre.out{background:#eceef2;border:1px solid var(--line);border-radius:5px;padding:8px 10px;margin:8px 0;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-all;font-family:"Consolas","Yu Gothic UI","Meiryo",monospace}
+.ctrl .row{display:flex;align-items:center;gap:10px}
+.copied{color:#1a7f37;font-weight:600}
+</style>
+</head>
+<body>
+<div class="page">
+  <div>
+    <h1>検索パネルの [表示] 列と「チェックしたものだけ表示」</h1>
+    <p class="lead">右の「比べる択」を切り替えながら、パネルで担当者を絞って [表示] にチェックを入れ、トグルを押して予定表の変わり方を触って比べる見本です。</p>
+    <div class="stage" id="stage">
+      <div class="cvcard" id="cvcard">
+        <div class="cvtop">
+          <span class="cvt">予定表（見本）</span>
+          <button type="button" class="btn" id="openPanel" hidden>検索パネルを開く</button>
+        </div>
+        <div class="banner" id="banner" hidden>
+          <span id="bannerText"></span>
+          <button type="button" class="btn" id="resetMode">すべて表示に戻す</button>
+        </div>
+        <div class="cv" id="cv"></div>
+        <div class="note" id="note">&nbsp;</div>
+      </div>
+
+      <div class="panel" id="panel">
+        <div class="ptitle" id="ptitle">
+          <span class="ptname">検索パネル</span>
+          <span class="grow"></span>
+          <span id="toggleWrap"><button type="button" class="modebtn" id="modeBtn" aria-pressed="false"></button></span>
+          <button type="button" class="xbtn" id="closeBtn" aria-label="検索パネルを閉じる" title="閉じる (Esc)">&times;</button>
+        </div>
+        <div class="psearch"><input type="text" id="q" placeholder="検索語（タスク名・担当名）" autocomplete="off"></div>
+        <div class="pscroll" id="pscroll"><table class="t" id="tbl"></table></div>
+        <div class="pcount" id="pcount"></div>
+        <div class="dd" id="dd" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <h2>比べる択</h2>
+    <div id="qs"></div>
+    <div><b>伝える値</b></div>
+    <pre class="out" id="out"></pre>
+    <div class="row"><button type="button" class="btn" id="copyBtn">写す</button><span id="copied" class="copied"></span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- constants and data ---------- */
+  var DAY_W = 18, DAYS = 44, TREE_W = 140, HEAD_H = 44, LANE_H = 24, BAR_H = 18, ROW_PAD = 6;
+  var TAIL = 3, TAIL_MS = 4;
+  var BASE = Date.UTC(2026, 0, 5);
+  var PEOPLE = ['山下 亜紀', '伊藤 直子', '佐藤 健', '田中 未来'];
+  var COLS = [100, 104, 64, 120, 120, 206, 206, 250];
+
+  var ROWS = [
+    { id: 'r1', label: '1. 計画', level: 1, parent: null },
+    { id: 'r2', label: '1.1 要件', level: 2, parent: 'r1' },
+    { id: 'r3', label: '1.2 設計', level: 2, parent: 'r1' },
+    { id: 'r4', label: '2. 開発', level: 1, parent: null },
+    { id: 'r5', label: '2.1 実装', level: 2, parent: 'r4' },
+    { id: 'r6', label: '2.1.1 画面側', level: 3, parent: 'r5' },
+    { id: 'r7', label: '2.1.2 処理側', level: 3, parent: 'r5' },
+    { id: 'r8', label: '2.2 試験', level: 2, parent: 'r4' },
+    { id: 'r9', label: '3. 導入', level: 1, parent: null },
+    { id: 'r10', label: '3.1 準備', level: 2, parent: 'r9' },
+    { id: 'r11', label: '3.2 切替', level: 2, parent: 'r9' }
+  ];
+  var ROW_BY_ID = {};
+  ROWS.forEach(function (r) { ROW_BY_ID[r.id] = r; r.hasChildren = false; });
+  ROWS.forEach(function (r) { if (r.parent) { ROW_BY_ID[r.parent].hasChildren = true; } });
+
+  function T(id, name, row, s, len, who, st, pct, as, af, ms) {
+    return { id: id, name: name, row: row, s: s, len: len, who: who, st: st, pct: pct, as: as, af: af, ms: !!ms };
+  }
+  var TASKS = [
+    T('T01', 'レビュー A', 'r1', 2, 5, '田中 未来', 'done', 100, 2, 7),
+    T('T02', '要件定義', 'r2', 0, 5, '山下 亜紀', 'done', 100, 0, 4),
+    T('T03', '文書作成 A', 'r2', 8, 4, '', 'done', 100, 8, 12),
+    T('T04', '基本設計', 'r3', 5, 5, '伊藤 直子', 'done', 100, 5, 10),
+    T('T05', '詳細設計', 'r3', 8, 7, '佐藤 健', 'prog', 60, 9, null),
+    T('T06', '設計完了', 'r3', 15, 0, '山下 亜紀', 'todo', 0, null, null, true),
+    T('T07', '文書作成 B', 'r5', 16, 5, '伊藤 直子', 'prog', 30, 16, null),
+    T('T08', '実装 A', 'r6', 15, 8, '山下 亜紀', 'prog', 40, 15, null),
+    T('T09', 'レビュー B', 'r6', 20, 5, '田中 未来', 'todo', 0, null, null),
+    T('T10', '実装 B', 'r7', 15, 10, '伊藤 直子', 'prog', 20, 16, null),
+    T('T11', '結合試験', 'r8', 25, 4, '田中 未来', 'todo', 0, null, null),
+    T('T12', '受入試験', 'r8', 32, 4, '佐藤 健', 'todo', 0, null, null),
+    T('T13', '移行準備', 'r10', 22, 6, '佐藤 健', 'todo', 0, null, null),
+    T('T14', '教育', 'r10', 31, 4, '田中 未来', 'todo', 0, null, null),
+    T('T15', '本番切替', 'r11', 36, 4, '山下 亜紀', 'todo', 0, null, null),
+    T('T16', '稼働開始', 'r9', 40, 0, '田中 未来', 'todo', 0, null, null, true)
+  ];
+  var TASK_BY_ID = {};
+  TASKS.forEach(function (t) { TASK_BY_ID[t.id] = t; });
+
+  /* finish-to-start dependencies: from (predecessor) -> to (successor) */
+  var DEPS = [
+    { from: 'T02', to: 'T04' }, { from: 'T05', to: 'T06' }, { from: 'T06', to: 'T08' },
+    { from: 'T06', to: 'T10' }, { from: 'T10', to: 'T11' }, { from: 'T08', to: 'T11' },
+    { from: 'T11', to: 'T12' }, { from: 'T12', to: 'T15' }, { from: 'T15', to: 'T16' }
+  ];
+
+  var COLORS = {
+    '山下 亜紀': { fill: '#cfe3ff', stroke: '#3a78d4', prog: '#8dbaf5' },
+    '伊藤 直子': { fill: '#d3f0d6', stroke: '#3d9a4a', prog: '#94d49d' },
+    '佐藤 健': { fill: '#ffe3c2', stroke: '#d6881f', prog: '#f5c283' },
+    '田中 未来': { fill: '#ead5f7', stroke: '#9a55c4', prog: '#cfa3ea' },
+    '': { fill: '#e4e4e4', stroke: '#888888', prog: '#bbbbbb' }
+  };
+  var STATUS = {
+    done: { glyph: '✓', word: '完了', cls: 'st-done' },
+    prog: { glyph: '●', word: '進行中', cls: 'st-prog' },
+    todo: { glyph: '○', word: '未着手', cls: 'st-todo' }
+  };
+
+  var QDEFS = [
+    { id: 'q1', cap: 'Q1 チェックしていないタスク', short: 'チェックしていないタスク', opts: [
+      ['A', '描かない（推奨）', '帯も文字も消える。画面がいちばん静か。', '描かない'],
+      ['B', '薄く描く（20% の不透明度、押せない）', '位置の見当は残るが、他人の帯が目に入る。', '薄く描く']] },
+    { id: 'q2', cap: 'Q2 チェックしたタスクが 1 つも載らない行', short: '空になる行', opts: [
+      ['A', '行ごと詰める。チェックしたタスクの行の祖先は見出しとして残す（推奨）', '下の行が上へ詰まる。見出しは残るので所属が分かる。', '行ごと詰める'],
+      ['B', '行は残し、空のまま', '行の並びは変わらず、場所は動かない。', '空のまま残す']] },
+    { id: 'q3', cap: 'Q3 積み（同じ行で重なるタスクの段）', short: '積み', opts: [
+      ['A', '見えるタスクだけで積み直す（推奨）', '重なりが無くなれば 1 段に戻り、行が低くなる。', '積み直す'],
+      ['B', '元の段のまま（隙間が残る）', '帯の高さは動かないが、隙間が空く。', '元の段のまま']] },
+    { id: 'q4', cap: 'Q4 依存線の相手が見えないとき', short: '見えない相手の依存線', opts: [
+      ['A', '見えている側に短い線と「…」を描く（推奨）', '「…」にマウスを載せると相手の名が出る。', '短い線と …'],
+      ['B', '線を描かない', '相手のいる気配は消える。', '描かない'],
+      ['C', '相手を薄く描いて線を引く', '相手の行も残るので、Q2 の詰めは弱まる。', '相手を薄く描く']] },
+    { id: 'q5', cap: 'Q5 モードの入り方', short: 'モードの入り方', opts: [
+      ['A', 'パネルの見出しのトグルで入る（推奨）', 'チェックだけでは予定表は変わらない。', 'トグルで入る'],
+      ['B', '1 つでもチェックしたら自動で入る', '0 件から 1 件になった時に入る。', '自動で入る']] },
+    { id: 'q6', cap: 'Q6 パネルを閉じたとき', short: 'パネルを閉じたとき', opts: [
+      ['A', 'モードは続き、帯で知らせる（推奨）', '閉じても絞り込みが残る。', 'モードは続く'],
+      ['B', 'モードも終わる', '閉じると全部が見える。', 'モードも終わる']] },
+    { id: 'q7', cap: 'Q7 チェックしていないタスクの名をパネルで押したとき', short: '未チェックの名を押したとき', opts: [
+      ['A', 'そのタスクを表示に入れてから飛ぶ（推奨）', '押した行がチェックされて現れる。', '表示に入れてから飛ぶ'],
+      ['B', 'モードを終えてから飛ぶ', '全部が見える状態に戻って飛ぶ。', 'モードを終えてから飛ぶ']] }
+  ];
+
+  /* ---------- state ---------- */
+  var state = {
+    checked: new Set(),
+    q: '',
+    f: { show: new Set(['on', 'off']), who: new Set(PEOPLE.concat(['']) ) },
+    openFilter: null,
+    filterQ: '',
+    mode: false,
+    panelOpen: true,
+    selected: null,
+    flashId: null,
+    opts: { q1: 'A', q2: 'A', q3: 'A', q4: 'A', q5: 'A', q6: 'A', q7: 'A' }
+  };
+  var flashTimer = null;
+
+  /* ---------- helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function norm(s) { return String(s).normalize('NFKC').toLowerCase(); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function dstr(n) {
+    var d = new Date(BASE + n * 86400000);
+    return d.getUTCFullYear() + '/' + pad2(d.getUTCMonth() + 1) + '/' + pad2(d.getUTCDate());
+  }
+  function planText(t) { return t.ms ? dstr(t.s) + ' - ' + dstr(t.s) : dstr(t.s) + ' - ' + dstr(t.s + t.len - 1); }
+  function actText(t) { return t.as == null ? '' : dstr(t.as) + ' - ' + (t.af == null ? '' : dstr(t.af)); }
+  function rowChain(rowId) { var c = [], r = ROW_BY_ID[rowId]; while (r) { c.unshift(r); r = r.parent ? ROW_BY_ID[r.parent] : null; } return c; }
+  function hierText(t) { return rowChain(t.row).map(function (r) { return r.label; }).join(' ＞ '); }
+  function say(msg) { $('note').textContent = msg || ' '; }
+
+  /* ---------- lanes ---------- */
+  function assignLanes(list) {
+    var sorted = list.slice().sort(function (a, b) { return a.s - b.s || (a.id < b.id ? -1 : 1); });
+    var ends = [], lane = {};
+    sorted.forEach(function (t) {
+      var end = t.s + (t.ms ? TAIL_MS : t.len + TAIL);
+      var k = 0;
+      while (k < ends.length && ends[k] > t.s) { k++; }
+      ends[k] = end;
+      lane[t.id] = k;
+    });
+    return { lane: lane, count: Math.max(1, ends.length) };
+  }
+  var ORIG = {};
+  ROWS.forEach(function (r) {
+    ORIG[r.id] = assignLanes(TASKS.filter(function (t) { return t.row === r.id; }));
+  });
+
+  /* ---------- view computation (Q1-Q4) ---------- */
+  function computeView() {
+    var mode = state.mode, o = state.opts, ck = state.checked;
+    var ghost = new Set();
+    if (mode && o.q4 === 'C') {
+      DEPS.forEach(function (d) {
+        var a = ck.has(d.from), b = ck.has(d.to);
+        if (a !== b) { ghost.add(a ? d.to : d.from); }
+      });
+    }
+    var rows;
+    if (!mode || o.q2 === 'B') {
+      rows = ROWS.slice();
+    } else {
+      var anchorRows = new Set();
+      TASKS.forEach(function (t) {
+        if (ck.has(t.id) || ghost.has(t.id)) {
+          rowChain(t.row).forEach(function (r) { anchorRows.add(r.id); });
+        }
+      });
+      rows = ROWS.filter(function (r) { return anchorRows.has(r.id); });
+    }
+    var rowSet = new Set(rows.map(function (r) { return r.id; }));
+    var drawn = {};
+    TASKS.forEach(function (t) {
+      if (!rowSet.has(t.row)) { return; }
+      if (!mode || ck.has(t.id) || ghost.has(t.id) || o.q1 === 'B') { drawn[t.id] = t; }
+    });
+    var rowTop = {}, rowH = {}, lanes = {}, y = 0;
+    rows.forEach(function (r) {
+      var list = TASKS.filter(function (t) { return t.row === r.id && drawn[t.id]; });
+      var res;
+      if (mode && o.q3 === 'B') { res = ORIG[r.id]; } else { res = assignLanes(list); }
+      lanes[r.id] = res;
+      rowTop[r.id] = y;
+      rowH[r.id] = res.count * LANE_H + ROW_PAD;
+      y += rowH[r.id];
+    });
+    var pos = {};
+    Object.keys(drawn).forEach(function (id) {
+      var t = drawn[id];
+      var lane = lanes[t.row].lane[id] || 0;
+      var yy = HEAD_H + rowTop[t.row] + ROW_PAD + lane * LANE_H;
+      pos[id] = {
+        x: TREE_W + t.s * DAY_W, w: t.len * DAY_W, y: yy, yc: yy + BAR_H / 2,
+        dim: mode && !ck.has(id)
+      };
+    });
+    return { rows: rows, rowTop: rowTop, rowH: rowH, drawn: drawn, pos: pos, totalH: y, ghost: ghost };
+  }
+
+  /* ---------- canvas rendering ---------- */
+  function routePath(x1, y1, x2, y2) {
+    if (x2 >= x1 + 14) { return 'M' + x1 + ' ' + y1 + ' H' + (x1 + 7) + ' V' + y2 + ' H' + x2; }
+    var ym = Math.abs(y2 - y1) < 4 ? y1 - 15 : (y2 > y1 ? y1 + 12 : y1 - 12);
+    return 'M' + x1 + ' ' + y1 + ' H' + (x1 + 7) + ' V' + ym + ' H' + (x2 - 7) + ' V' + y2 + ' H' + x2;
+  }
+  function arrow(x, y) { return '<polygon points="' + x + ',' + y + ' ' + (x - 7) + ',' + (y - 4) + ' ' + (x - 7) + ',' + (y + 4) + '" fill="#3b4252"/>'; }
+  function endAnchor(t, p) { return { x: t.ms ? p.x + 7 : p.x + p.w, y: p.yc }; }
+  function startAnchor(t, p) { return { x: t.ms ? p.x - 7 : p.x, y: p.yc }; }
+
+  function renderCanvas() {
+    var v = computeView();
+    var W = TREE_W + DAYS * DAY_W, H = HEAD_H + v.totalH + 2;
+    var s = [];
+    s.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" font-family="Yu Gothic UI, Meiryo, sans-serif">');
+    s.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#ffffff"/>');
+    /* weekend shading and day grid */
+    for (var i = 0; i < DAYS; i++) {
+      var wd = new Date(BASE + i * 86400000).getUTCDay();
+      var x = TREE_W + i * DAY_W;
+      if (wd === 0 || wd === 6) { s.push('<rect x="' + x + '" y="' + HEAD_H + '" width="' + DAY_W + '" height="' + (H - HEAD_H) + '" fill="#f1efe6"/>'); }
+      s.push('<line x1="' + x + '" y1="' + HEAD_H + '" x2="' + x + '" y2="' + H + '" stroke="#e8eaee"/>');
+    }
+    /* rows: stripes, separators, titles */
+    v.rows.forEach(function (r) {
+      var top = HEAD_H + v.rowTop[r.id], h = v.rowH[r.id];
+      s.push('<line x1="0" y1="' + (top + h) + '" x2="' + W + '" y2="' + (top + h) + '" stroke="#d7dbe2"/>');
+      var ix = 6 + (r.level - 1) * 12;
+      if (r.hasChildren) {
+        s.push('<polygon points="' + ix + ',' + (top + 11) + ' ' + (ix + 9) + ',' + (top + 11) + ' ' + (ix + 4.5) + ',' + (top + 18) + '" fill="#6b7280"/>');
+      }
+      s.push('<text x="' + (ix + 13) + '" y="' + (top + 20) + '" font-size="13" font-weight="' + (r.level === 1 ? '700' : '400') + '" fill="#1c1f24">' + esc(r.label) + '</text>');
+    });
+    s.push('<line x1="' + TREE_W + '" y1="0" x2="' + TREE_W + '" y2="' + H + '" stroke="#98a2b3"/>');
+    /* ruler */
+    s.push('<rect x="0" y="0" width="' + W + '" height="' + HEAD_H + '" fill="#eaeff7"/>');
+    s.push('<line x1="0" y1="' + HEAD_H + '" x2="' + W + '" y2="' + HEAD_H + '" stroke="#98a2b3"/>');
+    s.push('<text x="8" y="26" font-size="13" font-weight="700" fill="#1c1f24">行の見出し</text>');
+    for (var k = 0; k < DAYS; k++) {
+      var d = new Date(BASE + k * 86400000);
+      var dx = TREE_W + k * DAY_W;
+      if (k === 0 || d.getUTCDate() === 1) {
+        s.push('<text x="' + (dx + 3) + '" y="16" font-size="12" font-weight="700" fill="#1c1f24">' + d.getUTCFullYear() + '/' + pad2(d.getUTCMonth() + 1) + '</text>');
+      }
+      s.push('<text x="' + (dx + DAY_W / 2) + '" y="37" font-size="12" text-anchor="middle" fill="' + (d.getUTCDay() === 0 || d.getUTCDay() === 6 ? '#b4442f' : '#3b4252') + '">' + d.getUTCDate() + '</text>');
+    }
+    /* bars and milestones */
+    TASKS.forEach(function (t) {
+      var p = v.pos[t.id];
+      if (!p) { return; }
+      var c = COLORS[t.who] || COLORS[''];
+      var isSel = state.selected === t.id, isFlash = state.flashId === t.id;
+      var op = p.dim ? ' opacity="0.2"' : '';
+      s.push('<g class="bar' + (p.dim ? ' dim' : '') + '" data-task="' + t.id + '"' + op + '>');
+      s.push('<title>' + esc(t.name + (t.who ? '（' + t.who + '）' : '') + ' ' + planText(t)) + '</title>');
+      if (t.ms) {
+        var cx = p.x, cy = p.yc;
+        s.push('<polygon points="' + cx + ',' + (cy - 8) + ' ' + (cx + 8) + ',' + cy + ' ' + cx + ',' + (cy + 8) + ' ' + (cx - 8) + ',' + cy + '" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/>');
+        var right = cx + 10 + 60 <= TREE_W + DAYS * DAY_W;
+        s.push('<text x="' + (right ? cx + 12 : cx - 12) + '" y="' + (cy + 4.5) + '" font-size="12" text-anchor="' + (right ? 'start' : 'end') + '" fill="#1c1f24">' + esc(t.name) + '</text>');
+        if (isSel) { s.push('<polygon points="' + cx + ',' + (cy - 13) + ' ' + (cx + 13) + ',' + cy + ' ' + cx + ',' + (cy + 13) + ' ' + (cx - 13) + ',' + cy + '" fill="none" stroke="#0b3fcf" stroke-width="2.5"/>'); }
+        if (isFlash) { s.push('<polygon class="flashbox" points="' + cx + ',' + (cy - 15) + ' ' + (cx + 15) + ',' + cy + ' ' + cx + ',' + (cy + 15) + ' ' + (cx - 15) + ',' + cy + '" fill="none" stroke="#ff6a00" stroke-width="3.5"/>'); }
+      } else {
+        var bw = Math.max(p.w - 1, 4);
+        s.push('<clipPath id="clip_' + t.id + '"><rect x="' + p.x + '" y="' + p.y + '" width="' + bw + '" height="' + BAR_H + '" rx="4"/></clipPath>');
+        s.push('<rect x="' + p.x + '" y="' + p.y + '" width="' + bw + '" height="' + BAR_H + '" rx="4" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.5"/>');
+        if (t.pct > 0) { s.push('<rect x="' + p.x + '" y="' + (p.y + BAR_H - 4) + '" width="' + (bw * t.pct / 100) + '" height="4" fill="' + c.stroke + '" clip-path="url(#clip_' + t.id + ')"/>'); }
+        s.push('<text x="' + (p.x + 5) + '" y="' + (p.y + 13.5) + '" font-size="12" fill="#1c1f24" clip-path="url(#clip_' + t.id + ')">' + esc(t.name) + '</text>');
+        if (t.who) { s.push('<text x="' + (p.x + bw + 5) + '" y="' + (p.y + 13.5) + '" font-size="12" fill="#4b5563">' + esc(t.who) + '</text>'); }
+        if (isSel) { s.push('<rect x="' + (p.x - 3) + '" y="' + (p.y - 3) + '" width="' + (bw + 6) + '" height="' + (BAR_H + 6) + '" rx="6" fill="none" stroke="#0b3fcf" stroke-width="2.5"/>'); }
+        if (isFlash) { s.push('<rect class="flashbox" x="' + (p.x - 5) + '" y="' + (p.y - 5) + '" width="' + (bw + 10) + '" height="' + (BAR_H + 10) + '" rx="7" fill="none" stroke="#ff6a00" stroke-width="3.5"/>'); }
+      }
+      s.push('</g>');
+    });
+    /* dependencies */
+    DEPS.forEach(function (d) {
+      var tf = TASK_BY_ID[d.from], tt = TASK_BY_ID[d.to];
+      var pf = v.pos[d.from], pt = v.pos[d.to];
+      var cf = state.checked.has(d.from), ctt = state.checked.has(d.to);
+      if (pf && pt) {
+        var a = endAnchor(tf, pf), b = startAnchor(tt, pt);
+        var faint = state.mode && !cf && !ctt;
+        s.push('<g' + (faint ? ' opacity="0.2"' : '') + '><path d="' + routePath(a.x, a.y, b.x, b.y) + '" fill="none" stroke="#3b4252" stroke-width="1.3"/>' + arrow(b.x, b.y) + '</g>');
+      } else if (state.mode && state.opts.q4 === 'A' && (pf || pt)) {
+        if (pf && cf) {
+          var a2 = endAnchor(tf, pf);
+          var tip1 = '後続のタスク「' + tt.name + '」' + (tt.who ? '（' + tt.who + '）' : '') + ' は表示していません';
+          s.push('<g><path d="M' + a2.x + ' ' + a2.y + ' H' + (a2.x + 12) + '" fill="none" stroke="#3b4252" stroke-width="1.3"/><text x="' + (a2.x + 14) + '" y="' + (a2.y + 5) + '" font-size="15" font-weight="700" fill="#3b4252">…</text><rect x="' + (a2.x + 12) + '" y="' + (a2.y - 10) + '" width="20" height="20" fill="transparent" style="cursor:help"><title>' + esc(tip1) + '</title></rect></g>');
+        } else if (pt && ctt) {
+          var b2 = startAnchor(tt, pt);
+          var tip2 = '先行のタスク「' + tf.name + '」' + (tf.who ? '（' + tf.who + '）' : '') + ' は表示していません';
+          s.push('<g><path d="M' + (b2.x - 12) + ' ' + b2.y + ' H' + b2.x + '" fill="none" stroke="#3b4252" stroke-width="1.3"/>' + arrow(b2.x, b2.y) + '<text x="' + (b2.x - 15) + '" y="' + (b2.y + 5) + '" font-size="15" font-weight="700" text-anchor="end" fill="#3b4252">…</text><rect x="' + (b2.x - 34) + '" y="' + (b2.y - 10) + '" width="20" height="20" fill="transparent" style="cursor:help"><title>' + esc(tip2) + '</title></rect></g>');
+        }
+      }
+    });
+    if (v.rows.length === 0) {
+      s.push('<text x="' + (TREE_W + 20) + '" y="' + (HEAD_H + 30) + '" font-size="14" fill="#5b6370">表示するタスクがありません</text>');
+    }
+    s.push('</svg>');
+    $('cv').innerHTML = s.join('');
+  }
+
+  function scrollToTask(id) {
+    var cv = $('cv'), el = cv.querySelector('[data-task="' + id + '"]');
+    if (!el) { return; }
+    var r = el.getBoundingClientRect(), c = cv.getBoundingClientRect();
+    if (r.top < c.top) { cv.scrollTop -= (c.top - r.top) + 10; } else if (r.bottom > c.bottom) { cv.scrollTop += (r.bottom - c.bottom) + 10; }
+    if (r.left < c.left) { cv.scrollLeft -= (c.left - r.left) + 10; } else if (r.right > c.right) { cv.scrollLeft += (r.right - c.right) + 10; }
+  }
+
+  /* ---------- list and panel ---------- */
+  function listed() {
+    var q = norm(state.q.trim());
+    return TASKS.filter(function (t) {
+      if (q && norm(t.name).indexOf(q) < 0 && norm(t.who).indexOf(q) < 0) { return false; }
+      if (!state.f.show.has(state.checked.has(t.id) ? 'on' : 'off')) { return false; }
+      if (!state.f.who.has(t.who)) { return false; }
+      return true;
+    });
+  }
+  var FUNNEL = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M1 2h14l-5.5 6.5V14l-3-1.5V8.5z" fill="currentColor"/></svg>';
+  function funBtn(col, active) {
+    var open = state.openFilter === col;
+    return '<button type="button" class="fun' + (active ? ' act' : '') + (open ? ' open' : '') + '" data-fun="' + col + '" data-fk="fun:' + col + '" aria-expanded="' + open + '" title="' + (open ? '絞り込みを閉じる (Esc)' : 'この列の絞り込み') + '">' + FUNNEL + '</button>';
+  }
+  var EYE_ON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/><line x1="3" y1="21" x2="21" y2="3" stroke="currentColor" stroke-width="2.5"/></svg>';
+
+  function renderPanel() {
+    var ae = document.activeElement;
+    var fk = ae && ae.getAttribute ? ae.getAttribute('data-fk') : null;
+    var L = listed();
+    var allOn = L.length > 0 && L.every(function (t) { return state.checked.has(t.id); });
+    var someOn = L.some(function (t) { return state.checked.has(t.id); });
+    var h = [];
+    h.push('<colgroup>' + COLS.map(function (w) { return '<col style="width:' + w + 'px">'; }).join('') + '</colgroup>');
+    h.push('<thead><tr>');
+    h.push('<th class="f c0" data-col="show"><span class="hcell"><input type="checkbox" id="hdrchk" data-fk="hdr"' + (L.length ? '' : ' disabled') + ' title="一覧に出ている行をまとめて入れる／外す" aria-label="一覧の行をすべて表示に入れる"><span>表示</span>' + funBtn('show', state.f.show.size < 2) + '</span></th>');
+    h.push('<th class="f c1">ステータス</th><th class="f c2">進捗</th><th class="f c3">タスク</th>');
+    h.push('<th data-col="who"><span class="hcell"><span>担当</span>' + funBtn('who', state.f.who.size < PEOPLE.length + 1) + '</span></th>');
+    h.push('<th>予定</th><th>実績</th><th>最上位までの階層</th></tr></thead><tbody>');
+    if (L.length === 0) {
+      h.push('<tr class="empty"><td class="f c0"></td><td class="f c1" colspan="3">該当するタスクがありません</td><td colspan="4"></td></tr>');
+    }
+    L.forEach(function (t) {
+      var on = state.checked.has(t.id), st = STATUS[t.st];
+      h.push('<tr class="' + (on ? 'on' : '') + '">');
+      h.push('<td class="f c0"><input type="checkbox" class="rowchk" data-id="' + t.id + '" data-fk="row:' + t.id + '"' + (on ? ' checked' : '') + ' aria-label="' + esc(t.name) + ' を表示に入れる"></td>');
+      h.push('<td class="f c1 ' + st.cls + '">' + st.glyph + ' ' + st.word + '</td>');
+      h.push('<td class="f c2">' + t.pct + '%</td>');
+      h.push('<td class="f c3"><a href="#" class="tl" data-id="' + t.id + '">' + esc(t.name) + '</a></td>');
+      h.push('<td>' + esc(t.who) + '</td><td>' + planText(t) + '</td><td>' + actText(t) + '</td><td>' + esc(hierText(t)) + '</td></tr>');
+    });
+    h.push('</tbody>');
+    $('tbl').innerHTML = h.join('');
+    var hc = $('hdrchk');
+    hc.checked = allOn;
+    hc.indeterminate = !allOn && someOn;
+    var out = 0;
+    state.checked.forEach(function (id) { if (L.indexOf(TASK_BY_ID[id]) < 0) { out++; } });
+    $('pcount').textContent = '一覧 ' + L.length + ' 件 ／ 表示に入れた ' + state.checked.size + ' 件' + (out ? '（うち一覧に出ていない ' + out + ' 件）' : '');
+    if (fk) { var re = $('panel').querySelector('[data-fk="' + fk + '"]'); if (re && !re.disabled) { re.focus(); } }
+    positionDd();
+  }
+
+  function renderChrome() {
+    var n = state.checked.size;
+    var btn = $('modeBtn'), wrap = $('toggleWrap');
+    btn.innerHTML = (state.mode ? EYE_ON : EYE_OFF) + '<span>チェックしたものだけ表示</span>';
+    btn.setAttribute('aria-pressed', state.mode ? 'true' : 'false');
+    btn.disabled = (n === 0);
+    wrap.title = n === 0 ? 'チェックが 0 件' : (state.mode ? 'いま入っています。押すと全部を表示します' : '押すとチェックしたタスクだけを予定表に出します');
+    $('banner').hidden = !state.mode;
+    $('bannerText').textContent = 'チェックしたタスクだけを表示しています（' + TASKS.length + ' 件中 ' + n + ' 件）';
+    $('openPanel').hidden = state.panelOpen;
+    $('panel').hidden = !state.panelOpen;
+    $('out').textContent = buildOutput();
+  }
+
+  function renderAll() { renderChrome(); renderCanvas(); if (state.panelOpen) { renderPanel(); } }
+
+  /* ---------- dropdown filter ---------- */
+  function ddValues() {
+    if (state.openFilter === 'show') { return [['on', '表示に入れた'], ['off', '入れていない']]; }
+    var arr = PEOPLE.map(function (p) { return [p, p]; });
+    arr.push(['', '（空白）']);
+    var q = norm(state.filterQ.trim());
+    return q ? arr.filter(function (x) { return norm(x[1]).indexOf(q) >= 0; }) : arr;
+  }
+  function openDd(col) {
+    state.openFilter = col; state.filterQ = '';
+    var dd = $('dd');
+    var h = '<div class="dd-top">';
+    if (col === 'who') { h += '<input type="text" id="ddq" placeholder="担当を探す" autocomplete="off" aria-label="値の絞り込み">'; }
+    h += '<div class="dd-btns"><button type="button" data-act="all">すべて入れる</button><button type="button" data-act="none">すべて外す</button></div></div>';
+    h += '<div class="dd-list" id="ddlist"></div>';
+    h += '<div class="dd-hint">閉じるには、もう一度じょうごを押すか Esc。</div>';
+    dd.innerHTML = h;
+    dd.hidden = false;
+    renderDdList();
+    renderPanel();
+    if (col === 'who') { $('ddq').focus(); }
+  }
+  function closeDd() {
+    state.openFilter = null;
+    $('dd').hidden = true;
+    $('dd').innerHTML = '';
+    if (state.panelOpen) { renderPanel(); }
+  }
+  function renderDdList() {
+    var set = state.f[state.openFilter], vals = ddValues(), h = [];
+    if (!vals.length) { h.push('<div class="dd-none">該当する値がありません</div>'); }
+    vals.forEach(function (x) {
+      h.push('<label><input type="checkbox" data-val="' + esc(x[0]) + '"' + (set.has(x[0]) ? ' checked' : '') + '><span>' + esc(x[1]) + '</span></label>');
+    });
+    $('ddlist').innerHTML = h.join('');
+  }
+  function positionDd() {
+    var dd = $('dd');
+    if (!state.openFilter || dd.hidden) { return; }
+    var th = $('panel').querySelector('th[data-col="' + state.openFilter + '"]');
+    if (!th) { return; }
+    var pr = $('panel').getBoundingClientRect(), tr = th.getBoundingClientRect();
+    var left = Math.max(4, Math.min(tr.left - pr.left, pr.width - dd.offsetWidth - 4));
+    dd.style.left = left + 'px';
+    dd.style.top = (tr.bottom - pr.top) + 'px';
+  }
+
+  /* ---------- state changes ---------- */
+  function pruneSelection() { if (state.selected && !state.checked.has(state.selected)) { state.selected = null; } }
+  function setMode(on, why) {
+    if (on && state.checked.size === 0) { return; }
+    state.mode = on;
+    if (on) { pruneSelection(); }
+    if (why) { say(why); }
+    renderAll();
+  }
+  function afterChecksChanged(prev) {
+    var n = state.checked.size;
+    if (n === 0 && state.mode) { state.mode = false; say('チェックが 0 件になったので、チェックしたものだけ表示するモードを終えました。'); }
+    else if (n > 0 && prev === 0 && state.opts.q5 === 'B' && !state.mode) { state.mode = true; say('Q5=B: 最初のチェックでモードに入りました。'); }
+    if (state.mode) { pruneSelection(); }
+    renderAll();
+  }
+  function setChecked(id, on) {
+    var prev = state.checked.size;
+    if (on) { state.checked.add(id); } else { state.checked.delete(id); }
+    afterChecksChanged(prev);
+  }
+  function toggleAllListed() {
+    var L = listed();
+    if (!L.length) { return; }
+    var prev = state.checked.size;
+    var all = L.every(function (t) { return state.checked.has(t.id); });
+    L.forEach(function (t) { if (all) { state.checked.delete(t.id); } else { state.checked.add(t.id); } });
+    afterChecksChanged(prev);
+  }
+  function closePanel() {
+    if (!state.panelOpen) { return; }
+    state.panelOpen = false;
+    if (state.openFilter) { closeDd(); }
+    if (state.opts.q6 === 'B' && state.mode) { state.mode = false; say('Q6=B: パネルを閉じたのでモードも終えました。'); }
+    else if (state.mode) { say('Q6=A: パネルは閉じましたが、モードは続いています。'); }
+    renderAll();
+  }
+  function flash(id) {
+    state.flashId = id;
+    if (flashTimer) { clearTimeout(flashTimer); }
+    renderCanvas();
+    scrollToTask(id);
+    flashTimer = setTimeout(function () { state.flashId = null; flashTimer = null; renderCanvas(); }, 1000);
+  }
+  function onTaskLink(id) {
+    var t = TASK_BY_ID[id];
+    if (state.mode && !state.checked.has(id)) {
+      if (state.opts.q7 === 'A') {
+        var prev = state.checked.size;
+        state.checked.add(id);
+        say('Q7=A: 「' + t.name + '」を表示に入れてから飛びました。');
+        afterChecksChanged(prev);
+      } else {
+        state.mode = false;
+        say('Q7=B: モードを終えてから「' + t.name + '」へ飛びました。');
+        renderAll();
+      }
+    } else {
+      say('「' + t.name + '」へ飛びました。');
+    }
+    flash(id);
+  }
+
+  /* ---------- output block ---------- */
+  function buildOutput() {
+    var L = ['比べる択（検索パネルの [表示] 列）'];
+    QDEFS.forEach(function (q) {
+      var cur = state.opts[q.id];
+      var o = q.opts.filter(function (x) { return x[0] === cur; })[0];
+      L.push(q.id.toUpperCase() + '=' + cur + '  ' + q.short + ': ' + o[3]);
+    });
+    L.push('モード: ' + (state.mode ? '入っている' : '入っていない'));
+    var names = [];
+    TASKS.forEach(function (t) { if (state.checked.has(t.id)) { names.push(t.name + (t.who ? '（' + t.who + '）' : '')); } });
+    L.push('チェックしたタスク（' + names.length + ' 件）: ' + (names.length ? names.join('、') : 'なし'));
+    return L.join('\n');
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-1000px';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function copyOut() {
+    var text = buildOutput();
+    function done(ok) {
+      $('copied').textContent = ok ? '写しました' : '写せませんでした。上の枠を選んで写してください';
+      setTimeout(function () { $('copied').textContent = ''; }, 2500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+    } else { done(fallbackCopy(text)); }
+  }
+
+  /* ---------- control pane ---------- */
+  function buildControls() {
+    var h = [];
+    QDEFS.forEach(function (q) {
+      h.push('<fieldset><legend>' + esc(q.cap) + '</legend>');
+      q.opts.forEach(function (o) {
+        h.push('<label class="opt"><input type="radio" name="' + q.id + '" value="' + o[0] + '"' + (state.opts[q.id] === o[0] ? ' checked' : '') + '><span><span class="k">' + o[0] + '</span> ' + esc(o[1]) + '<small>' + esc(o[2]) + '</small></span></label>');
+      });
+      h.push('</fieldset>');
+    });
+    $('qs').innerHTML = h.join('');
+  }
+
+  /* ---------- events ---------- */
+  function wire() {
+    $('qs').addEventListener('change', function (e) {
+      var r = e.target;
+      if (r && r.name && state.opts.hasOwnProperty(r.name)) { state.opts[r.name] = r.value; renderAll(); }
+    });
+    $('copyBtn').addEventListener('click', copyOut);
+    $('openPanel').addEventListener('click', function () { state.panelOpen = true; renderAll(); });
+    $('resetMode').addEventListener('click', function () { setMode(false, 'すべて表示に戻しました（チェックは残っています）。'); });
+    $('closeBtn').addEventListener('click', closePanel);
+    $('modeBtn').addEventListener('click', function () { setMode(!state.mode, state.mode ? 'モードを終えました。' : 'チェックしたタスクだけを表示します。'); });
+    $('q').addEventListener('input', function (e) { state.q = e.target.value; renderPanel(); });
+    $('pscroll').addEventListener('scroll', positionDd);
+
+    $('panel').addEventListener('change', function (e) {
+      var t = e.target;
+      if (t.id === 'hdrchk') { toggleAllListed(); }
+      else if (t.classList && t.classList.contains('rowchk')) { setChecked(t.getAttribute('data-id'), t.checked); }
+    });
+    $('panel').addEventListener('click', function (e) {
+      var fun = e.target.closest('[data-fun]');
+      if (fun) {
+        var col = fun.getAttribute('data-fun');
+        if (state.openFilter === col) { closeDd(); } else { openDd(col); }
+        return;
+      }
+      var link = e.target.closest('a.tl');
+      if (link) { e.preventDefault(); onTaskLink(link.getAttribute('data-id')); }
+    });
+    /* dropdown */
+    $('dd').addEventListener('input', function (e) {
+      if (e.target.id === 'ddq') { state.filterQ = e.target.value; renderDdList(); }
+    });
+    $('dd').addEventListener('change', function (e) {
+      var cb = e.target;
+      if (cb.hasAttribute && cb.hasAttribute('data-val')) {
+        var set = state.f[state.openFilter], v = cb.getAttribute('data-val');
+        if (cb.checked) { set.add(v); } else { set.delete(v); }
+        renderPanel();
+      }
+    });
+    $('dd').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-act]');
+      if (!b) { return; }
+      var set = state.f[state.openFilter], on = b.getAttribute('data-act') === 'all';
+      ddValues().forEach(function (x) { if (on) { set.add(x[0]); } else { set.delete(x[0]); } });
+      renderDdList();
+      renderPanel();
+    });
+    /* canvas selection */
+    $('cv').addEventListener('click', function (e) {
+      var g = e.target.closest('[data-task]');
+      var id = g ? g.getAttribute('data-task') : null;
+      if (id && state.mode && !state.checked.has(id)) { id = null; }
+      state.selected = (id && state.selected !== id) ? id : null;
+      renderCanvas();
+    });
+    /* Esc: filter first, then panel; never leaves the mode */
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') { return; }
+      if (state.openFilter) { closeDd(); e.preventDefault(); }
+      else if (state.panelOpen) { closePanel(); e.preventDefault(); }
+    });
+    /* drag by title bar */
+    var panel = $('panel'), title = $('ptitle'), drag = null;
+    title.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('button') || e.target.closest('#toggleWrap')) { return; }
+      drag = { dx: e.clientX - panel.offsetLeft, dy: e.clientY - panel.offsetTop };
+      title.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    title.addEventListener('pointermove', function (e) {
+      if (!drag) { return; }
+      var stage = $('stage');
+      var x = Math.max(0, Math.min(e.clientX - drag.dx, stage.clientWidth - 140));
+      var y = Math.max(0, Math.min(e.clientY - drag.dy, stage.clientHeight - 40));
+      panel.style.left = x + 'px'; panel.style.top = y + 'px';
+      positionDd();
+    });
+    function endDrag() { drag = null; }
+    title.addEventListener('pointerup', endDrag);
+    title.addEventListener('pointercancel', endDrag);
+  }
+
+  /* ---------- init ---------- */
+  buildControls();
+  wire();
+  renderAll();
+  (function placePanel() {
+    var card = $('cvcard'), panel = $('panel'), stage = $('stage');
+    panel.style.left = '130px';
+    panel.style.top = (card.offsetHeight + 14) + 'px';
+    stage.style.minHeight = (card.offsetHeight + panel.offsetHeight + 40) + 'px';
+  })();
+})();
+</script>
+</body>
+</html>
