@@ -1,0 +1,6 @@
+# DFC-1820 shadow check (shadow_patch.py over the full vitest run, tip cfbd92bf, 30118 tests)
+# On every redraw that drawnPictureOf answered with the held picture, the layout and the geometry were
+# also built afresh from the same inputs and compared with node:util isDeepStrictEqual.
+held, deep-equal to a fresh build : 5569
+held, different from a fresh build: 0
+built (an input moved)            : 5231

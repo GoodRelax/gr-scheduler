@@ -466,6 +466,60 @@ function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
   return { of: document, report, drawing: { shown: true, symbolByUid } }
 }
 
+type GeometryArguments = Parameters<typeof geometryFromLayout>
+
+interface PictureInputs {
+  readonly schedule: GeometryArguments[0]
+  readonly settings: DocumentSettings
+  readonly regions: ScreenRegions
+  readonly rowControlsHeightPx: number | undefined
+  readonly selection: Selection
+  readonly dualCursor: GeometryArguments[5]
+  readonly delayDiagnostics: DelayDiagnosticsDrawing | undefined
+}
+
+interface DrawnPicture {
+  readonly inputs: PictureInputs
+  readonly layout: ScheduleLayout
+  readonly geometry: ScheduleGeometry
+}
+
+/** @purity pure */
+function isSameRecord(a: object, b: object, isSame: (x: unknown, y: unknown) => boolean = Object.is): boolean {
+  if (a === b) return true
+  const right = b as Readonly<Record<string, unknown>>
+  const fields = Object.entries(a)
+  if (fields.length !== Object.keys(right).length) return false
+  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key]))
+}
+
+// TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
+/** @purity pure */
+function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
+  return (
+    a.schedule === b.schedule &&
+    a.selection === b.selection &&
+    a.dualCursor === b.dualCursor &&
+    a.delayDiagnostics === b.delayDiagnostics &&
+    a.rowControlsHeightPx === b.rowControlsHeightPx &&
+    isSameRecord(a.settings, b.settings) &&
+    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+  )
+}
+
+// see DFC-1820
+// WHY: the same objects come back while no input moved, so the pointer walk held per drawn geometry is not rebuilt.
+/** @purity pure */
+function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
+  if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
+  const { schedule, settings, regions } = inputs
+  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.rowControlsHeightPx)
+  const geometry = geometryFromLayout(
+    schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
+  )
+  return { inputs, layout, geometry }
+}
+
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
 
 const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
@@ -1963,6 +2017,7 @@ export function frameLoop(
   let grabUnderPointer: Grabbed | null = null
   let hintWalk: HintWalk | null = null
   let pointerWalk: PointerWalk | null = null
+  let drawnPicture: DrawnPicture | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
@@ -2129,13 +2184,16 @@ export function frameLoop(
     // see FR-133, FR-049
     // TRAP: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
     const drawnSettings = diagnostics === null ? settings : { ...settings, progressMarkerVisible: true }
-    const layout = layoutFromSchedule(
-      document.schedule,
-      drawnSettings,
+    drawnPicture = drawnPictureOf(drawnPicture, {
+      schedule: document.schedule,
+      settings: drawnSettings,
       regions,
-      undefined,
-      environment.rowControlsHeightPx,
-    )
+      rowControlsHeightPx: environment.rowControlsHeightPx,
+      selection: selectedObjectsIn(session),
+      dualCursor: session.screen.dualCursor,
+      delayDiagnostics: diagnostics?.drawing,
+    })
+    const { layout, geometry } = drawnPicture
     const capStop = layout.stackSafetyCapReached
     if (capStop !== null && stackSafetyCapToldFor !== capStop.groupId) {
       stackSafetyCapToldFor = capStop.groupId
@@ -2143,15 +2201,6 @@ export function frameLoop(
     } else if (capStop === null) {
       stackSafetyCapToldFor = null
     }
-    const geometry = geometryFromLayout(
-      document.schedule,
-      drawnSettings,
-      layout,
-      regions,
-      selectedObjectsIn(session),
-      session.screen.dualCursor,
-      diagnostics?.drawing,
-    )
     const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
     values = {
       regions,
