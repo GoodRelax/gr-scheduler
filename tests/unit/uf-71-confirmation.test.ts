@@ -1305,7 +1305,7 @@ const rootAsking: ScreenSession = {
     ...emptyScreenSession.screen,
     screenLanguage: LANGUAGE,
     helpLanguage: LANGUAGE,
-    dialogueFieldDisplayState: { kind: 'shown' },
+    dialogueFieldDisplayState: { kind: 'shown', child: { kind: 'normal' } },
     milestoneListDisplayState: { kind: 'closed' },
     paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
     dualCursorModeState: { kind: 'off' },

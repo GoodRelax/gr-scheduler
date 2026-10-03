@@ -1172,6 +1172,15 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-340': number
   readonly 'S-436': number
   readonly 'S-437': number
+  readonly 'S-457': number
+  readonly 'S-458': number
+  readonly 'S-460': number
+  readonly 'S-423': number
+  readonly 'S-424': number
+  readonly 'S-426': number
+  readonly 'S-453': number
+  readonly 'S-454': number
+  readonly 'S-459': string
 } = {
   'S-201': 0.95,
   'S-202': 4,
@@ -1182,6 +1191,15 @@ export const NOT_STORED_HELP_SIZES: {
   'S-340': 10,
   'S-436': 1.0,
   'S-437': 1,
+  'S-457': 0.5,
+  'S-458': 18,
+  'S-460': 24,
+  'S-423': 360,
+  'S-424': 160,
+  'S-426': 6,
+  'S-453': 24,
+  'S-454': 14,
+  'S-459': 'https://github.com/GoodRelax/gr-scheduler',
 }
 
 // see T-206
@@ -1197,6 +1215,17 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
+  readonly 'S-425': number
+  readonly 'S-465': number
+  readonly 'S-466': number
+  readonly 'S-467': number
+  readonly 'S-468': number
+  readonly 'S-469': number
+  readonly 'S-470': number
+  readonly 'S-471': number
+  readonly 'S-472': number
+  readonly 'S-473': number
+  readonly 'S-474': number
   readonly 'S-475': number
   readonly 'S-476': number
   readonly 'S-477': number
@@ -1207,6 +1236,17 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
 } = {
   'S-421': 0.5,
   'S-422': 0.5,
+  'S-425': 64,
+  'S-465': 6,
+  'S-466': 250,
+  'S-467': 190,
+  'S-468': 110,
+  'S-469': 110,
+  'S-470': 150,
+  'S-471': 380,
+  'S-472': 300,
+  'S-473': 240,
+  'S-474': 110,
   'S-475': 150,
   'S-476': 190,
   'S-477': 110,
@@ -1282,9 +1322,15 @@ export const NOT_STORED_CONFIRMATION_RULE_SIZES: {
 export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
+  readonly 'S-461': number
+  readonly 'S-462': number
+  readonly 'S-463': number
 } = {
   'S-225': 20,
   'S-226': 12,
+  'S-461': 0.05,
+  'S-462': 2.5,
+  'S-463': 700,
 }
 
 // see T-206
@@ -1323,5 +1369,6 @@ export const SCREEN_COLOURS: {
   'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
   'S-336': { light: '#ffffff', dark: '#ffffff', followsHue: false },
   'S-337': { light: '#c0c0c0', dark: '#c0c0c0', followsHue: false },
+  'S-464': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }
 // </generated>

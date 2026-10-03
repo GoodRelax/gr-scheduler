@@ -96,7 +96,7 @@ const BOUNDARY_TEXTS: readonly { readonly why: string; readonly text: string }[]
 const EVERY_CONTENT: readonly { readonly why: string; readonly content: ClipboardContent }[] = [
   ...BOUNDARY_TEXTS.map(({ why, text }) => ({
     why: `picture, ${why}`,
-    content: { kind: 'picture', svg: text } as ClipboardContent,
+    content: { kind: 'picture', pngBytes: new TextEncoder().encode(text) } as ClipboardContent,
   })),
   ...BOUNDARY_TEXTS.map(({ why, text }) => ({
     why: `document, ${why}`,
@@ -104,11 +104,12 @@ const EVERY_CONTENT: readonly { readonly why: string; readonly content: Clipboar
   })),
 ]
 
-const PICTURE: ClipboardContent = { kind: 'picture', svg: '<svg/>' }
+const PICTURE: ClipboardContent = { kind: 'picture', pngBytes: Uint8Array.from([0x89, 0x50, 0x4e, 0x47]) }
 const DOCUMENT: ClipboardContent = { kind: 'document', text: 'a document for an AI' }
 
+// WHY: FR-025 puts PNG bytes on the board, so a picture is compared by the bytes it carries.
 const stringOf = (content: ClipboardContent): string =>
-  content.kind === 'picture' ? content.svg : content.text
+  content.kind === 'picture' ? new TextDecoder().decode(content.pngBytes) : content.text
 
 
 interface Recording {
@@ -526,6 +527,25 @@ const STILL_RASTERIZER: Rasterizer = {
   rasterizePng: () => Promise.resolve({ ok: true, pngBytes: Uint8Array.from([0x89, 0x50]) }),
 }
 
+interface PaintedSize {
+  readonly widthPx: number
+  readonly heightPx: number
+}
+
+// WHY: a stub paints no pixels, so the size IO-6 carries is read from what the painter was asked for.
+const sizeRecordingRasterizer = (asked: PaintedSize[]): Rasterizer => ({
+  rasterizePng: (_svg, sizePx) => {
+    asked.push(sizePx)
+    return Promise.resolve({ ok: true, pngBytes: Uint8Array.from([0x89, 0x50]) })
+  },
+})
+
+const pngOrThrow = (painted: Awaited<ReturnType<typeof exportPng>>): Uint8Array => {
+  const fit = fitOrThrow(painted)
+  if (!fit.png.ok) throw new Error('FR-025: the still rasterizer refused to paint')
+  return fit.png.pngBytes
+}
+
 const fitOrThrow = <T extends { readonly ok: boolean }>(result: T): Extract<T, { readonly ok: true }> => {
   if (!result.ok) {
     throw new Error('CR-337: exportSvg/exportPng refused a picture this fixture expected to fit (S-217)')
@@ -534,26 +554,29 @@ const fitOrThrow = <T extends { readonly ok: boolean }>(result: T): Extract<T, {
 }
 
 describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () => {
-  it('GIVEN the picture ImageExporter assembled WHEN it leaves by the clipboard THEN the seam is handed that very string (IO-6, FR-025 :3145)', async () => {
-    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
+  it('GIVEN the PNG ImageExporter painted WHEN it leaves by the clipboard THEN the seam is handed those very bytes (IO-6, FR-025)', async () => {
+    const pngBytes = pngOrThrow(await exportPng(STILL_RASTERIZER, EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
-    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+    await writeClipboard(clipboard, { kind: 'picture', pngBytes })
 
     expect(received).toHaveLength(1)
     const sent = received[0]
     expect(sent?.kind).toBe('picture')
-    expect(sent === undefined ? '' : stringOf(sent)).toBe(assembled.svg)
+    expect(sent?.kind === 'picture' ? sent.pngBytes : null).toBe(pngBytes)
   })
 
-  it('GIVEN IO-6 payload WHEN its root is read THEN it is exportCanvas wide and tall, as IO-3 is (S-81 of table T-204)', async () => {
-    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
+  it('GIVEN IO-6 payload WHEN its painted size is read THEN it is exportCanvas wide and tall, as IO-3 is (S-81 of table T-204)', async () => {
+    const asked: PaintedSize[] = []
+    const pngBytes = pngOrThrow(await exportPng(sizeRecordingRasterizer(asked), EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
-    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+    await writeClipboard(clipboard, { kind: 'picture', pngBytes })
 
-    const sent = received[0]
-    const size = rootSizeOf(sent === undefined ? '' : stringOf(sent))
+    expect(received).toHaveLength(1)
+    expect(asked).toHaveLength(1)
+    const size = { width: asked[0]?.widthPx ?? Number.NaN, height: asked[0]?.heightPx ?? Number.NaN }
+    expect(size.width).toBe(rootSizeOf(fitOrThrow(exportSvg(EXPORT_SCENE)).svg).width)
     expect(size.width).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(size.height).toBeGreaterThanOrEqual(SETTINGS_CONSTANTS.exportCanvas.height)
     expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
@@ -564,11 +587,12 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
     const both = fitOrThrow(await exportPng(STILL_RASTERIZER, EXPORT_SCENE))
     const { clipboard, received } = answeringClipboard({ ok: true })
 
-    await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+    if (!both.png.ok) throw new Error('FR-025: the still rasterizer refused to paint')
+    await writeClipboard(clipboard, { kind: 'picture', pngBytes: both.png.pngBytes })
 
     expect(both.svg).toBe(assembled.svg)
     const sent = received[0]
-    expect(sent === undefined ? '' : stringOf(sent)).toBe(both.svg)
+    expect(sent?.kind === 'picture' ? sent.pngBytes : null).toBe(both.png.pngBytes)
   })
 
   it('GIVEN a scene too tall for S-217 WHEN IO-6 is taken THEN nothing reaches the clipboard (FR-025 MUST, CR-337)', async () => {
@@ -580,8 +604,8 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
 
     const sentFor = async (screenHeight: number): Promise<readonly ClipboardContent[]> => {
       const { clipboard, received } = answeringClipboard({ ok: true })
-      const answer = exportSvg(sceneOfScreenHeight(screenHeight))
-      if (answer.ok) await writeClipboard(clipboard, { kind: 'picture', svg: answer.svg })
+      const answer = await exportPng(STILL_RASTERIZER, sceneOfScreenHeight(screenHeight))
+      if (answer.ok && answer.png.ok) await writeClipboard(clipboard, { kind: 'picture', pngBytes: answer.png.pngBytes })
       return received
     }
 
@@ -590,12 +614,13 @@ describe('IO-6 of table T-024 -- the picture on this route is IO-3\'s own', () =
   })
 
   it('GIVEN the clipboard refuses WHEN an assembled picture is sent THEN the refusal is a value and the picture is untouched (FR-028)', async () => {
-    const assembled = fitOrThrow(exportSvg(EXPORT_SCENE))
+    const pngBytes = pngOrThrow(await exportPng(STILL_RASTERIZER, EXPORT_SCENE))
+    const before = Array.from(pngBytes)
     for (const fault of CLIPBOARD_FAULTS) {
       const { clipboard } = answeringClipboard({ ok: false, fault })
-      const writing = await writeClipboard(clipboard, { kind: 'picture', svg: assembled.svg })
+      const writing = await writeClipboard(clipboard, { kind: 'picture', pngBytes })
       expect(writing, fault).toEqual({ ok: false, fault })
     }
-    expect(fitOrThrow(exportSvg(EXPORT_SCENE)).svg).toBe(assembled.svg)
+    expect(Array.from(pngBytes)).toEqual(before)
   })
 })

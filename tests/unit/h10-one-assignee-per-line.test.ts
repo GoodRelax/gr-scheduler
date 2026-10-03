@@ -292,7 +292,7 @@ const SESSION: ScreenSession = {
     ...emptyScreenSession.screen,
     screenLanguage: 'ja',
     helpLanguage: 'ja',
-    dialogueFieldDisplayState: { kind: 'shown' },
+    dialogueFieldDisplayState: { kind: 'shown', child: { kind: 'normal' } },
     milestoneListDisplayState: { kind: 'closed' },
     paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
     dualCursorModeState: { kind: 'off' },

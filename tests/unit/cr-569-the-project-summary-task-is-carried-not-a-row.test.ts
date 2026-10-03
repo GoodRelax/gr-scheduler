@@ -186,6 +186,8 @@ function danglingReferences(document: Document): readonly string[] {
   const uids = new Set(document.schedule.tasks.map((each) => each.uid))
   const found: string[] = []
   for (const assignment of document.schedule.assignments) {
+    // WHY: AT-93 may be empty; an assignment on no task points nowhere, so it cannot dangle.
+    if (assignment.taskUid === null) continue
     if (!uids.has(assignment.taskUid)) found.push(`assignment ${assignment.uid} -> task ${assignment.taskUid}`)
   }
   for (const task of document.schedule.tasks) {

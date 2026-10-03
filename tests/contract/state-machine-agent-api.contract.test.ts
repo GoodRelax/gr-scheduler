@@ -427,21 +427,30 @@ describe('CR-562 (FR-066, IC-18): one press of the dialogue field entry is two e
     const asked = step(field.state, ASKED)
     return { state: asked.state, effects: [...effectsOf(field), ...effectsOf(asked)] }
   }
-  const fieldOf = (session: ScreenSession): unknown =>
-    ((regionsOf(session)['screen'] as Loose)['dialogueFieldDisplayState'] as Loose)['kind']
+  const fieldOf = (session: ScreenSession): string[] => {
+    const field = (regionsOf(session)['screen'] as Loose)['dialogueFieldDisplayState'] as Loose
+    const child = field['child'] as Loose | undefined
+    return child === undefined ? [String(field['kind'])] : [String(field['kind']), String(child['kind'])]
+  }
+
+  it('the field starts hidden (CR-621, S-99i)', () => {
+    expect(fieldOf(emptyScreenSession)).toEqual(['hidden'])
+  })
 
   it('while disabled, a press shows the field, enables Agent API and stores the enabling', () => {
     const pressed = press(emptyScreenSession, false)
-    expect(fieldOf(pressed.state)).toBe('shown')
+    expect(fieldOf(pressed.state)).toEqual(['shown', 'normal'])
     expect(enablingOf(pressed.state)).toEqual({ kind: 'enabled' })
     expect(pressed.effects).toEqual([STORE])
   })
 
   it('while enabled, a press that hides the field leaves Agent API enabled and stores nothing', () => {
-    const enabled = withEnabling('enabled')
-    const pressed = press(enabled, true)
-    expect(fieldOf(pressed.state)).toBe('hidden')
-    expect(agentOf(pressed.state)).toBe(agentOf(enabled))
+    const shown = press(withEnabling('enabled'), true)
+    expect(fieldOf(shown.state)).toEqual(['shown', 'normal'])
+    const pressed = press(shown.state, true)
+    expect(fieldOf(pressed.state)).toEqual(['hidden'])
+    expect(agentOf(pressed.state)).toBe(agentOf(shown.state))
+    expect(enablingOf(pressed.state)).toEqual({ kind: 'enabled' })
     expect(pressed.effects).toEqual([])
   })
 })

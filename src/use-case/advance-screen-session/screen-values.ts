@@ -738,10 +738,19 @@ function onDialogueFieldEntryPressed(
   values: ScreenValues,
   event: EventOf<'dialogueFieldEntryPressed'>,
 ): ScreenStep {
-  const isShown = values.dialogueFieldDisplayState.kind === 'shown'
-  // WHY: while Agent API is off the same press enables it (FR-066), so a shown field stays.
-  if (isShown && !event.isAgentApiEnabled) return unchanged(values)
-  return moved(values, { dialogueFieldDisplayState: { kind: isShown ? 'hidden' : 'shown' } })
+  const field = values.dialogueFieldDisplayState
+  if (field.kind === 'shown' && event.isAgentApiEnabled) return dialogueFieldHidden(values)
+  // WHY: while Agent API is off the same press enables it (FR-066), so a shown field is shown again in WB-1.
+  if (field.kind === 'shown' && field.child.kind === 'normal') return unchanged(values)
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['dialogueFieldDisplayStateMachine.shown']
+  return moved(values, { dialogueFieldDisplayState: { kind: 'shown', child } })
+}
+
+// see T-280, FR-066
+/** @purity pure */
+function dialogueFieldHidden(values: ScreenValues): ScreenStep {
+  if (values.dialogueFieldDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { dialogueFieldDisplayState: { kind: 'hidden' } })
 }
 
 // see T-280, FR-016
@@ -891,7 +900,9 @@ function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
   return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
 }
 
-type WindowShownKind = SearchPanelDisplayShownState['kind'] & HelpDisplayShownState['kind']
+type WindowShownKind = SearchPanelDisplayShownState['kind'] &
+  HelpDisplayShownState['kind'] &
+  DialogueFieldDisplayShownState['kind']
 
 const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
 
@@ -916,9 +927,9 @@ function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
 }
 
-type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
+type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState' | 'dialogueFieldDisplayState'
 
-// see T-280, SV-12, SV-13
+// see T-280, T-335
 /** @purity pure */
 function windowDisplayToggled(
   values: ScreenValues,
@@ -991,6 +1002,9 @@ const HANDLERS: {
   createdNameSettled: onCreatedNameSettled,
   settleKeyPressed: onSettleKeyPressed,
   dialogueFieldEntryPressed: onDialogueFieldEntryPressed,
+  dialogueFieldMinimiseToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MINIMISE_TOGGLED_TO),
+  dialogueFieldMaximiseToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MAXIMISE_TOGGLED_TO),
+  dialogueFieldClosePressed: dialogueFieldHidden,
   dualCursorEntryPressed: onDualCursorEntryPressed,
   guideCursorEntryPressed: onGuideCursorEntryPressed,
   dualCursorPlaced: onDualCursorPlaced,

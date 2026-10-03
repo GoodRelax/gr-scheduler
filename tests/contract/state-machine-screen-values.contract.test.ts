@@ -698,13 +698,22 @@ describe('CR-571 (T-280, T-330, T-332): searchPanelDisplayStateMachine cells', (
 describe('CR-562 (T-280, FR-066, IC-18): the dialogue field entry while Agent API is disabled', () => {
   const event = { type: 'dialogueFieldEntryPressed', isAgentApiEnabled: false }
 
-  it.each(['dialogueFieldDisplayStateMachine.shown', 'dialogueFieldDisplayStateMachine.hidden'])(
-    '%s x dialogueFieldEntryPressed [not isAgentApiEnabled] -> shown, no notice, no effect',
+  it('starts hidden (CR-621, S-99i)', () => {
+    expect(kindPath(screenOf(emptyScreenSession)['dialogueFieldDisplayState'])).toEqual(['hidden'])
+  })
+
+  it.each([
+    'dialogueFieldDisplayStateMachine.hidden',
+    'dialogueFieldDisplayStateMachine.shown.normal',
+    'dialogueFieldDisplayStateMachine.shown.minimised',
+    'dialogueFieldDisplayStateMachine.shown.maximised',
+  ])(
+    '%s x dialogueFieldEntryPressed [not isAgentApiEnabled] -> shown.normal, no notice, no effect',
     (key) => {
       const session = sessionIn(key)
       expectStepMatchesManuscript(session, event)
       const result = step(session, event)
-      expect(kindPath(screenOf(result.state)['dialogueFieldDisplayState'])).toEqual(['shown'])
+      expect(kindPath(screenOf(result.state)['dialogueFieldDisplayState'])).toEqual(['shown', 'normal'])
       expect(result.effects).toEqual([])
     },
   )
