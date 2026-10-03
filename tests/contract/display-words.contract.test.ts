@@ -1779,9 +1779,7 @@ for (const entry of GENERATED['weekdays'] ?? []) {
   )
 }
 
-// see CR-622, CR-623, CR-624, CR-628
-// STOP: the four sections landed with the dictionary and no unit hands their words to ScreenView
-// yet; each becomes a place once its surface is drawn.
+// WHY: no unit hands these words to ScreenView yet; each becomes a place once its surface is drawn.
 const NOT_YET_DRAWN: Readonly<Record<string, string>> = {
   helpLegal: 'CR-622 (FR-069) prints it on the help, and no unit carries it into the help OpenModal yet',
   branding: 'CR-628 (BR-1 of table T-349) prints it in the App Header, and appHeaderItems carries no Branding yet',
