@@ -1793,13 +1793,61 @@ for (const entry of GENERATED['weekdays'] ?? []) {
   )
 }
 
-// WHY: no unit hands these words to ScreenView yet; each becomes a place once its surface is drawn.
-const NOT_YET_DRAWN: Readonly<Record<string, string>> = {
-  branding: 'CR-628 (BR-1 of table T-349) prints it in the App Header, and appHeaderItems carries no Branding yet',
-  hintLines: 'CR-624 (table T-348) prints it on a bar tooltip, and no tooltip line is built from it yet',
+for (const entry of GENERATED['branding'] ?? []) {
+  const part = keyOf('branding', entry)
+  if (part !== 'logo') {
+    drop('branding', part, 'BR-1 of table T-349 prints one word, the logo; no other part is drawn')
+    continue
+  }
+  place({
+    section: 'branding',
+    key: part,
+    field: 'text',
+    unit: 'UF-62',
+    what: 'the Branding word BR-1 prints at the App Header s left end',
+    frame: BASE,
+    read: (view) => view.appHeaderItems.brandingText,
+  })
 }
-for (const [section, why] of Object.entries(NOT_YET_DRAWN)) {
-  for (const entry of GENERATED[section] ?? []) drop(section, keyOf(section, entry), why)
+
+// WHY: TL-1 prints the name first, then the plan line and the actual line; the word stands before ': '.
+const HINT_LINE_INDEX: Readonly<Record<string, number>> = { 'TL-5': 1, 'TL-6': 2 }
+const RESTING_ON_A_STARTED_TASK = frameWith({
+  selection: emptySelection(),
+  schedule: {
+    ...SCHEDULE,
+    tasks: SCHEDULE.tasks.map((task) => ({
+      ...task,
+      start: '2026-04-01T08:00:00',
+      finish: '2026-04-08T17:00:00',
+      actualStart: '2026-04-02T08:00:00',
+    })),
+  },
+  readings: sessionWith({
+    pointer: { x: REGIONS.rowArea.x + REGIONS.rowArea.width / 2, y: REGIONS.rowArea.y + REGIONS.rowArea.height / 2 },
+    pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
+    hintHolderUnderPointer: { kind: 'task', taskUid: THE_TASK },
+  }),
+})
+for (const entry of GENERATED['hintLines'] ?? []) {
+  const row = keyOf('hintLines', entry)
+  const index = HINT_LINE_INDEX[row]
+  if (index === undefined) {
+    drop('hintLines', row, 'table T-348 names no line of the task tooltip for this row')
+    continue
+  }
+  place({
+    section: 'hintLines',
+    key: row,
+    field: 'text',
+    unit: 'UF-69',
+    what: `the word line ${row} of table T-348 opens the task tooltip with`,
+    frame: RESTING_ON_A_STARTED_TASK,
+    read: (view) => {
+      const tip = view.tooltips.find((one) => one.anchor.kind === 'task')
+      return tip?.text.split('\n')[index]?.split(': ')[0]
+    },
+  })
 }
 
 // see FR-069
@@ -2265,6 +2313,17 @@ const dualCursorReadoutFramesShowing = (
   FRAMES.filter((one) =>
     (viewOf(screenViewFromRegions, one.frame, language).dualCursorReadout?.lines ?? []).some(
       (line, index) => readoutWordOf(line, index) === word,
+    ),
+  )
+
+// see TL-5, TL-6, FR-038
+const hintLineFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) =>
+    viewOf(screenViewFromRegions, one.frame, language).tooltips.some((tip) =>
+      tip.text.split('\n').some((line) => line.startsWith(`${word}: `)),
     ),
   )
 
@@ -2830,6 +2889,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
+              : cell.section === 'hintLines'
+              ? hintLineFramesShowing(cell.word, cell.language)
               : cell.section === 'rowMinHeightField'
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'

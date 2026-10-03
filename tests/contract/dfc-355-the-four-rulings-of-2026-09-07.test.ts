@@ -481,6 +481,7 @@ function settingsRowValue(rowId: string): number {
 
 const S_225_TITLE_FONT_PX = settingsRowValue('S-225')
 const S_226_TITLE_INSET_PX = settingsRowValue('S-226')
+const S_462_SEAT_OVER_GLYPH = settingsRowValue('S-462')
 const S_235_TWO_THIRDS = settingsRowValue('S-235')
 
 const TITLE = 'DFC-355 fixture title'
@@ -588,8 +589,8 @@ describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () =
     ).toBeCloseTo(S_225_TITLE_FONT_PX * S_235_TWO_THIRDS, 2)
     expect(
       drawn.x,
-      'EP-1 (MUST): the left inset is S-226 of table T-206, drawn at that same S-235 two thirds -- the picture writes every length to two decimals',
-    ).toBeCloseTo(S_226_TITLE_INSET_PX * S_235_TWO_THIRDS, 2)
+      'EP-1 / BR-2 (MUST): the left inset is S-226 plus the Branding seat S-225 x S-462 of table T-206, drawn at that same S-235 two thirds -- the picture writes every length to two decimals',
+    ).toBeCloseTo((S_226_TITLE_INSET_PX + S_225_TITLE_FONT_PX * S_462_SEAT_OVER_GLYPH) * S_235_TWO_THIRDS, 2)
   })
 
   it('⛔ neither number moves when the band’s height does', () => {
