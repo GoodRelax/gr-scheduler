@@ -128,7 +128,9 @@ function textSvg(
   )
 }
 
-// see EP-1
+const DIVIDER_SIDES = 2
+
+// see EP-1, BR-2, BR-6, BR-7
 /** @purity pure */
 function appHeaderSvg(
   band: ScreenRect,
@@ -142,8 +144,10 @@ function appHeaderSvg(
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
   // DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
-  const seatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']
-  const x = (band.x + (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx) * chrome) * ratio
+  const seatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']
+  const dividerGapsPx = DIVIDER_SIDES * NOT_STORED_DOCUMENT_TITLE_SIZES['S-491']
+  const scaledInsetPx = (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx + dividerGapsPx) * chrome
+  const x = (band.x + scaledInsetPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']) * ratio
   const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
@@ -256,12 +260,18 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-461': number
   readonly 'S-462': number
   readonly 'S-463': number
+  readonly 'S-490': number
+  readonly 'S-491': number
+  readonly 'S-492': number
 } = {
   'S-225': 20,
   'S-226': 12,
   'S-461': 0.05,
   'S-462': 2.5,
   'S-463': 700,
+  'S-490': 16.5,
+  'S-491': 18,
+  'S-492': 1,
 }
 
 // see T-206

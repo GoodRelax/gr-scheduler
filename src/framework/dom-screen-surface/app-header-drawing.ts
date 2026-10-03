@@ -21,12 +21,15 @@ const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
 
 const STROKE_SIDES = 2
 
-// see EP-1, FR-051
+// see EP-1, FR-051, BR-7, HS-9
 /** @purity pure */
 export function appHeaderStyle(): string {
   const inset = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
-  return `${STYLE.appHeader}padding-left:${inset}px;`
+  return `${STYLE.appHeader}padding-left:${inset}px;column-gap:${appHeaderGapPx()}px;`
 }
+
+/** @purity pure */
+const appHeaderGapPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-491'])
 
 // see EP-1, FR-051, FR-039
 /** @purity pure */
@@ -39,7 +42,7 @@ function documentTitleStyle(): string {
 // DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
 /** @purity non-pure */
 function brandingElement(host: Document, text: string): HTMLElement {
-  const glyph = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
+  const glyph = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'])
   const rim = glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-461']
   const seat = made(host, 'span', `${STYLE.brandingSeat}width:${glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']}px;`)
   const link = linkElement(host, NOT_STORED_HELP_SIZES['S-459'], text)
@@ -99,7 +102,7 @@ export function drawLanguageReading(host: Document, entry: HTMLElement, language
   entry.append(code)
 }
 
-// see U-31, FR-101
+// see U-31, FR-101, BR-7, HS-9, HS-10
 /** @purity non-pure */
 export function fillAppHeader(
   host: Document,
@@ -109,16 +112,20 @@ export function fillAppHeader(
 ): HTMLElement {
   const title = part(host, 'span', ROLE.documentTitle, documentTitleStyle())
   title.textContent = items.documentTitle
-  const titleBlock = made(host, 'span', STYLE.brandedTitle)
-  titleBlock.append(brandingElement(host, items.brandingText ?? ''), title)
+  const ruleWidth = NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']
+  const divider = part(host, 'span', ROLE.brandingDivider, `${STYLE.brandingDivider}width:${ruleWidth}px;`)
+  const groundStyle = `${STYLE.documentTitleGround}padding-right:${appHeaderGapPx()}px;`
+  const titleGround = part(host, 'span', ROLE.documentTitleGround, groundStyle)
+  titleGround.append(title)
 
   const fileStatus = part(host, 'span', ROLE.fileStatus, STYLE.fileStatus)
   const fileName = part(host, 'span', ROLE.openedFileName, fileStatusLineStyle(STYLE.openedFileName, 'S-449'))
   fileName.textContent = items.openedFileName
-  fileStatus.append(fileName)
   const savedAt = part(host, 'span', ROLE.fileSavedAt, fileStatusLineStyle(STYLE.fileSavedAt, 'S-210'))
   savedAt.textContent = fileSavedLine(items)
-  fileStatus.append(savedAt)
+  fileStatus.append(fileName, savedAt)
+  const strip = part(host, 'span', ROLE.titleAndFileStrip, STYLE.titleAndFileStrip)
+  strip.append(titleGround, fileStatus)
 
   const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
   for (const item of items.commands) {
@@ -131,7 +138,7 @@ export function fillAppHeader(
     commands.append(entry)
   }
 
-  header.replaceChildren(titleBlock, fileStatus, commands)
+  header.replaceChildren(brandingElement(host, items.brandingText ?? ''), divider, strip, commands)
   return title
 }
 

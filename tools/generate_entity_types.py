@@ -1549,8 +1549,11 @@ NOT_STORED_TARGETS = {
     # and S-463 (the title's weight, FR-039) are read by the screen and the
     # export alike (EP-1); S-461 (the Branding outline, BR-3) is the screen's
     # alone, and rides here because the Branding is drawn beside the title.
+    # CR-650: S-490 (the Branding glyph size, BR-1), S-491 (the gap on either
+    # side of the divider rule, BR-7) and S-492 (that rule's width) also place
+    # the title (BR-2), so the screen and the export read them alike (EP-1).
     'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226', 'S-461', 'S-462',
-                                         'S-463'],
+                                         'S-463', 'S-490', 'S-491', 'S-492'],
                                         DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
@@ -1836,9 +1839,10 @@ COLOUR_TARGETS = {
     # chrome's too.
     # CR-628: S-464, the Branding outline (BR-3 of table T-349), drawn in the
     # App Header on this side; it names S-148 through sameAs.
+    # CR-650: S-493, the App Header divider rule (BR-7), names S-149 likewise.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
-                       'S-336', 'S-337', 'S-464'],
+                       'S-336', 'S-337', 'S-464', 'S-493'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no

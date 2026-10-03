@@ -1,4 +1,4 @@
-// CR-628 part 2: the Branding link stands in its own seat left of the Document Title, and the title starts where the seat ends.
+// CR-628 part 2, moved by CR-650: the Branding link stands in its own seat; a divider and its two gaps put the title right of it.
 
 import { describe, expect, it } from 'vitest'
 
@@ -61,11 +61,11 @@ describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Document Ti
     expect(all.indexOf(branding)).toBeLessThan(all.indexOf(title))
   })
 
-  it('BR-1: the glyphs are the Document Title size, normal weight, in S-147', () => {
+  it('BR-1: the glyphs are S-490 x S-235, smaller than the Document Title, normal weight, in S-147', () => {
     const { branding, title } = drawnHeader()
     const style = styleMap(branding)
-    expect(px(style.get('font-size'))).toBeCloseTo(chromeScaledPx(SIZES['S-225']), 6)
-    expect(style.get('font-size')).toBe(styleMap(title).get('font-size'))
+    expect(px(style.get('font-size'))).toBeCloseTo(chromeScaledPx(SIZES['S-490']), 6)
+    expect(px(style.get('font-size'))).toBeLessThan(px(styleMap(title).get('font-size')))
     expect(style.get('font-weight')).toBe('normal')
     expect(style.get('color')).toBe(PAINT.ink)
   })
@@ -74,7 +74,7 @@ describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Document Ti
 describe('BR-3 -- the rim is S-461 of the glyph size in S-464, under the fill', () => {
   it('stroke width is twice the rim, its colour S-464, painted before the fill', () => {
     const style = styleMap(drawnHeader().branding)
-    const rim = chromeScaledPx(SIZES['S-225']) * SIZES['S-461']
+    const rim = chromeScaledPx(SIZES['S-490']) * SIZES['S-461']
     expect(px(style.get('-webkit-text-stroke-width'))).toBeCloseTo(2 * rim, 6)
     expect(style.get('-webkit-text-stroke-color')).toBe(PAINT.brandingRim)
     expect(style.get('paint-order')).toBe('stroke fill')
@@ -90,22 +90,30 @@ describe('BR-3 -- the rim is S-461 of the glyph size in S-464, under the fill', 
 })
 
 describe('BR-2 -- the seat, and the title at its right edge', () => {
-  it('the seat is S-225 x S-462 x S-235 wide and never shrinks', () => {
+  it('the seat is S-490 x S-462 x S-235 wide and never shrinks', () => {
     const seat = drawnHeader().branding.parentNode as FakeElement
     const style = styleMap(seat)
-    expect(px(style.get('width'))).toBeCloseTo(chromeScaledPx(SIZES['S-225'] * SIZES['S-462']), 6)
+    expect(px(style.get('width'))).toBeCloseTo(chromeScaledPx(SIZES['S-490'] * SIZES['S-462']), 6)
     expect(style.get('flex-shrink')).toBe('0')
   })
 
-  it('the title follows the seat in one flex item with no gap, so its left is (S-226 + S-225 x S-462) x S-235', () => {
-    const { header, branding, title } = drawnHeader()
+  it('the title starts after the seat, the divider and two S-491 gaps: (S-226 + S-490 x S-462 + 2 x S-491) x S-235 + S-492', () => {
+    const { header, all, branding, title } = drawnHeader()
     const seat = branding.parentNode as FakeElement
-    const block = seat.parentNode as FakeElement
-    expect(title.parentNode, 'the seat and the title share one flex item').toBe(block)
-    expect(block.children.indexOf(seat) + 1).toBe(block.children.indexOf(title))
-    expect(styleMap(block).has('gap'), 'no gap stands between the seat and the title').toBe(false)
-    const inset = px(styleMap(header).get('padding-left'))
-    const left = inset + px(styleMap(seat).get('width'))
-    expect(left).toBeCloseTo(chromeScaledPx(SIZES['S-226'] + SIZES['S-225'] * SIZES['S-462']), 6)
+    const divider = all.find((one) => one.getAttribute('data-role') === 'Branding Divider')
+    expect(divider, 'premise: the header draws the divider').toBeDefined()
+    expect(header.children.indexOf(seat) + 1, 'the divider stands right of the seat').toBe(
+      header.children.indexOf(divider as FakeElement),
+    )
+    const strip = (title.parentNode as FakeElement).parentNode as FakeElement
+    expect(header.children.indexOf(divider as FakeElement) + 1, 'the title strip follows the divider').toBe(
+      header.children.indexOf(strip),
+    )
+    expect(strip.children[0], 'the title leads its strip').toBe(title.parentNode)
+    const gap = px(styleMap(header).get('column-gap'))
+    const left = px(styleMap(header).get('padding-left')) + px(styleMap(seat).get('width')) + gap +
+      px(styleMap(divider as FakeElement).get('width')) + gap
+    const derived = chromeScaledPx(SIZES['S-226'] + SIZES['S-490'] * SIZES['S-462'] + 2 * SIZES['S-491']) + SIZES['S-492']
+    expect(left).toBeCloseTo(derived, 6)
   })
 })
