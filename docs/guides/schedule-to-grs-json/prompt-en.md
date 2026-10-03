@@ -32,7 +32,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
 - How to split rows: [e.g. one row per heading at the left edge / one row per person; if blank, follow the original's layout]
 - Colour mode: [palette / free; if blank, palette]
   - palette: pick the closest of these 11 names: "white" "black" "dimgray" (dark grey) "lightgray" (light grey) "red" "blue" "yellow" "green" "orange" "purple" "transparent". The colours can be chosen again inside GRS later
-  - free: "#RRGGBB" colours are allowed as well as the 11 names. Closer to the original, but the colour is not one of GRS's choices
+  - free: "#rrggbb/" colours are allowed as well as the 11 names (write the light-theme colour only and leave the part after / empty). Closer to the original, but the colour is not one of GRS's choices
 
 # How to build it
 1. Copy grs-skeleton.json whole and change only the following. Leave every other value (documentSettings, calendars, schemaVersion and so on) unchanged.
@@ -49,8 +49,8 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
    - Put the heading's text in label. derivedFromTaskUid is null.
    - For nested headings, set parentId to the parent's id.
-   - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). height is null.
-   - color is the row band (background) colour of the original, chosen by the colour mode. null if the band has no colour.
+   - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). editGroup is null (anyone may edit the row) and minHeight is null.
+   - color is the row band (background) colour of the original, chosen by the colour mode, except that a row cannot be "black". null if the band has no colour.
    - Always have at least one TaskGroup.
 4. Keep horizontal lines (important)
    - Within one row, GRS stacks tasks automatically, earliest start first, into the topmost lane where they do not overlap. So items that sat in one horizontal line in the original can be pushed into different lanes by other items in the same row. To prevent this:
@@ -94,8 +94,8 @@ You are an expert at reading and converting schedule charts. Read the attached s
      - A gradient that fades into the background or transparency: use the strong end's colour as the fill, and express the fading part as a fade from step 6.
      - A gradient between two colours: use the colour covering more of the bar as the fill (the middle colour if it is half and half), and list it under "Could not match".
    - Leave the bar colour used most in the original as null, and instead set project.themeHue to that colour's hue (an integer 0 to 359: red 0, yellow 60, green 120, blue about 210, purple about 280). A null colour is drawn in the colour made from themeHue, and actual bars and marks follow it. If the original is nearly colourless, leave themeHue at 214.
-   - lineWeight is the outline thickness compared within the original: "thin" / "medium" / "thick". null when no difference is visible.
-   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": colour or null, "strokeColor": colour or null, "lineWeight": weight or null}
+   - strokeWidthPx is the outline thickness compared within the original, as an integer from 1 to 10 (px). When you see three weights, thin / medium / thick, write 1 / 2 / 3. null when no difference is visible.
+   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": colour or null, "strokeColor": colour or null, "strokeWidthPx": weight or null}
 9. People (only when readable)
    - resources gets {"uid": integer, "name": person's name, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}, and assignments gets {"uid": integer, "taskUid": uid, "resourceUid": the person's uid, "carry": {}, "carryElements": []}. These uids may be counted from 1 separately from tasks.
 10. project
@@ -131,7 +131,7 @@ For an English schedule with one heading row, one child row below it and four ta
 - "Draft the plan": an orange bar whose finish end fades out through a gradient (done). The strong orange is the fill, and the 5 fading days are the fade-out
 - "Plan approved", "Budget review", "Budget approved": a ◇, a grey bar and a ◇ at the same height. The shapes are mixed but they form one line, so all three sit in one child row labelled "Approvals". The heading row also holds "Draft the plan", so the child row is needed
 
-Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to `4`, it validates against the schema (checked 2026-09-16). If the colour used most in the original is blue, `schedule.project.themeHue` stays at `214`.
+Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to `4`, it validates against the schema (checked 2026-10-03). If the colour used most in the original is blue, `schedule.project.themeHue` stays at `214`.
 
 ```json
 {
@@ -180,11 +180,11 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "minHeight": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeight": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "minHeight": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeight": null
     }
   ],
   "taskGroupMembers": [
@@ -196,19 +196,19 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "taskVisuals": [
     {
       "taskUid": 1, "shapeKind": "rectangle",
-      "milestoneGlyph": null, "fillColor": "orange", "strokeColor": "dimgray", "lineWeight": "medium"
+      "milestoneGlyph": null, "fillColor": "orange", "strokeColor": "dimgray", "strokeWidthPx": 2
     },
     {
       "taskUid": 2, "shapeKind": "milestone",
-      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
+      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "strokeWidthPx": null
     },
     {
       "taskUid": 3, "shapeKind": "rectangle",
-      "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "lineWeight": "thin"
+      "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "strokeWidthPx": 1
     },
     {
       "taskUid": 4, "shapeKind": "milestone",
-      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
+      "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "strokeWidthPx": null
     }
   ]
 }
@@ -244,4 +244,4 @@ If you only use the app, you can skip this section.
 
 - The authority on the shape is `docs/spec/_source/grs-document.schema.json` (section 6.2 of `docs/spec/05-07-design.md`). The rules here were taken from it, from the `IV-` rows of section 6.1, and from `docs/spec/01-04-requirements.md`'s table T-052 (4.1), table T-012a for fades (`FD-`), table T-014 for stacking (`ST-`) and table T-017 for the palette (`CL-`). When the specification changes, review this guide, the Japanese version and `grs-skeleton.json`.
 - The specification has not yet fixed how the palette colours are spelled (`PND-494`). This guide follows the spellings (`dimgray` and so on) used by GRS's startup template, `src/framework/single-html-shell/startup-template.json`.
-- `grs-skeleton.json` was made from the same template by emptying the schedule and keeping one row. ⚠️ It is not a generated file, so `npm run gen:check` does not catch drift.
+- `grs-skeleton.json` was made from the same template by emptying the schedule and keeping one row. ⚠️ It is not a generated file, so `npm run gen:check` does not catch drift. Check 75 of `.claude/skills/spec-graph-check/check.sh` (`check-guide-grs-json.py`) does: it validates `grs-skeleton.json`, and each prompt's worked example merged into it, against the schema, and goes red when a prompt names a `TaskVisual` / `Project` / `TaskGroup` key the schema does not define or leaves out a `TaskVisual` / `TaskGroup` key the schema requires. It does not read what the prose says about allowed values.
