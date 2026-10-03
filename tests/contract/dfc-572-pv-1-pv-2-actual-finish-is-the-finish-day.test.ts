@@ -93,6 +93,9 @@ const stored = (iso: string): string => `${iso}T00:00:00`
 // WHY: stop is on the finish side of T-350; the project leaves defaultFinishTime empty, so S-483 stands.
 const finishSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-483']}`
 
+// WHY: PV-1 / PV-5 write actualStart as a column of their own, so it takes the T-350 start side (WT-3), S-482 here.
+const startSide = (iso: string): string => `${iso}T${DEFAULT_CALENDAR_VALUES['S-482']}`
+
 const dayPart = (value: string | null): string => {
   if (value === null) throw new Error('the column this case reads holds nothing')
   return value.slice(0, 10)
@@ -251,7 +254,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
   // and not `actualFinish`; the day is the actual's last, not the bar's end.
   it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes stop = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
-    expect(task.actualStart).toBe(stored(ymd(5)))
+    expect(task.actualStart).toBe(startSide(ymd(5)))
     expect(task.actualFinish, 'PV-1: actualFinish stays empty until PV-2').toBeNull()
     expect(task.stop, 'PV-1 floor day').toBe(finishSide(ymd(5)))
     // WHY: the two ends sit on different sides of T-350, so FR-054 compares the day parts.
@@ -262,7 +265,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
 
   it('PV-1 on a Friday still stops that Friday, not on the Saturday right end nor the next worked day', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(9)), finish: stored(ymd(23)) }), 'rectangle'))
-    expect(task.actualStart).toBe(stored(ymd(9)))
+    expect(task.actualStart).toBe(startSide(ymd(9)))
     expect(task.stop, 'PV-1 floor day').toBe(finishSide(ymd(9)))
     expect(rightEndOf(ymd(9))).toBe(ymd(10))
     expect(task.stop, 'MUST NOT: the next worked day (Monday)').not.toBe(stored(ymd(12)))
@@ -274,7 +277,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
       documentWith(taskOf({ name: 'Ship', start: stored(ymd(9)), finish: stored(ymd(9)), milestone: true }), 'milestone'),
     )
     expect(task.stop, 'PV-1: stop stays empty').toBeNull()
-    expect(task.actualStart).toBe(stored(ymd(9)))
+    expect(task.actualStart).toBe(startSide(ymd(9)))
     expect(task.actualFinish, 'FR-011: a milestone finishes on its actualStart').toBe(task.actualStart)
     expect(planActualState(task)).toBe('finished')
   })
