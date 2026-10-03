@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 38 | 253 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 153 | 3451 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 154 | 3474 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 374 | 6069 | 11 | 17 | 9 | 1 |
+| **all** | | | 375 | 6092 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -69,12 +69,12 @@ named either way: 1 of 11.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (153) -- listing only
+## 6. The unit files kept for now (154) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 11 of 153.
+`semi-pure-a` (rule 04 table UO, row UO-1): 12 of 154.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -141,6 +141,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-622-the-copyright-link.test.ts` | linkElement (non-pure) | - | FR-069, FR-073 |
 | `tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts` | anchorKey (pure), baselineHint (pure), deadlineHint (pure), guideCursorLabelOf (pure), keepTooltipsInside (non-pure), regionsFromScreen (pure), tooltipElement (non-pure), tooltipsFromScreenView (pure) | - | T-023d |
 | `tests/unit/cr-628-the-branding-seat.test.ts` | appHeaderStyle (pure), chromeScaledPx (pure), fillAppHeader (non-pure), themeStyle (pure) | - | 12 rows |
+| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, T-075, T-209, T-213 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
 | `tests/unit/document-model.test.ts` | DaySpanTooWide (class), NoWorkingDayReached (class), advanceScreenSession (pure), advancedStamp (pure), clampedSettings (pure), compareDays (pure), dateFromWorkingDays (pure), dayOf (pure), delayWorkingDays (pure), documentViolations (pure), emptyDialogueLog (pure), emptyHistory (pure), emptySelection (pure), escapeContextOf (pure), escapeTarget (pure), historyWithStep (pure), isDelayed (pure), isSelected (pure), isStampMatched (pure), isWorkingDay (pure), lastPicked (pure), latestSequence (pure), logWithMessage (pure), messagesSince (pure), nextStep (pure), planActualState (pure), previousStep (pure), selectionOfAll (pure), selectionWith (pure), selectionWithout (pure), stepCount (pure), textOfDay (pure), workingCalendarOf (pure), workingDaysBetween (pure) | - | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101, T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 |
@@ -506,6 +507,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-622-the-copyright-link.test.ts` | 3 | FR-069, FR-073 | - | - | S-459 | - | - | - | - |
 | `tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts` | 10 | - | - | T-023d | CU-3, DC-9, EZ-6, GR-23, GR-26, GR-27, IN-3, S-148, S-439, TL-1, TL-2, TL-3 | - | - | - | - |
 | `tests/unit/cr-628-the-branding-seat.test.ts` | 6 | - | - | - | BR-1, BR-2, BR-3, BR-4, S-147, S-225, S-226, S-235, S-459, S-461, S-462, S-464 | - | - | - | - |
+| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 23 | FR-009 | - | T-075, T-209, T-213 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
 | `tests/unit/document-model.test.ts` | 62 | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101 | - | T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 | AG-2, AG-6, AG-11, AT-73, AT-140, DR-1, DR-4, DR-5, EX-7, IN-4, IN-4a, PI-1, PI-2, PI-3, PI-4, PI-13, PI-18, PI-32, PI-33, PI-34, PI-36, S-2, S-54, S-55, S-75, S-99e, S-99g, S-106, S-129, SL-7b, U-55 | - | - | - | - |

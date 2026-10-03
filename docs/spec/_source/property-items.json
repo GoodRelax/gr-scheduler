@@ -597,7 +597,7 @@
    ],
    "appliesTo": "Dependency",
    "note": {
-    "ja": "ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。単位は `_assets/tbl-settings.md` の 表 T-213。依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`）"
+    "ja": "ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118`（稼働日）であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`）"
    },
    "mspdi": {
     "ja": "`PredecessorLink/LinkLag`"

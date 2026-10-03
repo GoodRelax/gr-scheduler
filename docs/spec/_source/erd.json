@@ -1341,10 +1341,10 @@
      "origin": "Consume",
      "exchange": "PredecessorLink/LinkLag",
      "meaning": {
-      "ja": "ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分である"
+      "ja": "ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分（空なら `_assets/tbl-settings.md` の `S-128`）である"
      },
      "schemaNote": {
-      "en": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes."
+      "en": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes, or {{S-128}} when that is null."
      }
     },
     {
@@ -1360,10 +1360,10 @@
      "origin": "Consume",
      "exchange": "PredecessorLink/LagFormat",
      "meaning": {
-      "ja": "ラグの単位"
+      "ja": "ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）だけである —— ほかの値は読んで保ち、見せるだけにする（`FR-009`）"
      },
      "schemaNote": {
-      "en": "MS Project's LagFormat: the unit the lag is shown in (7 = days)."
+      "en": "MS Project's LagFormat: the unit the lag is shown in. 7 (working days) is the one GRS reads and the one to write; any other is kept but not counted."
      }
     },
     {

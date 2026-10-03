@@ -630,14 +630,14 @@
      "maximum": 3
     },
     "lag": {
-     "description": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes.",
+     "description": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes, or 480 when that is null.",
      "type": [
       "integer",
       "null"
      ]
     },
     "lagFormat": {
-     "description": "MS Project's LagFormat: the unit the lag is shown in (7 = days).",
+     "description": "MS Project's LagFormat: the unit the lag is shown in. 7 (working days) is the one GRS reads and the one to write; any other is kept but not counted.",
      "type": [
       "integer",
       "null"

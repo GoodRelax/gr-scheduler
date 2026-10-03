@@ -329,7 +329,8 @@ function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dar
   return box === undefined ? [] : commandFromHighlightBoxColumn(box, key.column, text, dark)
 }
 
-// see FR-009, CM-38
+// see FR-009, CM-38, S-118
+// WHY: the panel takes working days; EditDocument turns them into the stored tenths of a minute (FR-009).
 /** @purity pure */
 function commandFromDependencyColumn(
   predecessorUid: number,
@@ -338,9 +339,9 @@ function commandFromDependencyColumn(
   text: string,
 ): readonly DocumentCommand[] {
   if (column !== 'lag') return []
-  const lag = settledNumber(text)
-  if (lag === undefined || lag === null) return []
-  return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lag }]
+  const lagWorkingDays = settledNumber(text)
+  if (lagWorkingDays === undefined || lagWorkingDays === null) return []
+  return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lagWorkingDays }]
 }
 
 // TRAP: change with setThemeHue's range check in edit-project.ts; no generated bound of S-73 reaches here.

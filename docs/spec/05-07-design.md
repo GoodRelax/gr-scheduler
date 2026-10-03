@@ -388,7 +388,7 @@ src/
 | UF-126 | `Schedule` | `schedule-entities.ts` | `pure` | 日程データの群のエンティティ（表 T-056）の型と、列（表 T-058）と既定の暦（表 T-209）の定数を持つ | — |
 | UF-127 | `Schedule` | `plan-actual-state.ts` | `pure` | `Task` の予実の状態を表 T-019a の手順で判別する（`FR-010`） | `FR-010`（`OW-1`） |
 | UF-170 | `Schedule` | `calendar-day.ts` | `pure` | 暦の日付（`CalendarDay`）を字と相互に変え、比べ、日の番号で数える（`EX-2`・`EX-7`・`FD-6`） | — |
-| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進める（`FR-054`） | `FR-054`（`OW-2`） |
+| UF-128 | `Schedule` | `working-calendar.ts` | `pure` | 文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する（`FR-054`・`FR-009`） | `FR-054`（`OW-2`） |
 | UF-129 | `Schedule` | `task-delay.ts` | `pure` | `Task` が遅れているかと、遅れの稼働日数を表 T-021b の起点と終点から判ずる（`FR-047`） | `FR-047`（`OW-1`） |
 | UF-130 | `Schedule` | `stored-colour.ts` | `pure` | 選んだ色の保存の綴り —— パレット色の名とカスタムカラーの明暗の 2 値 —— を表 T-017b の `CV-1`〜`CV-4` に従って作り・読み・確かめる | — |
 | UF-131 | `Schedule` | `schedule-invariants.ts` | `pure` | 文書の不変条件を表 T-220 の行ごとに判じ、違反の箇所を返す | — |

@@ -17,10 +17,14 @@ import {
   customSideOf,
   dayOf,
   isSearchWordFound,
+  lagWorkingDaysOf,
+  minutesPerWorkingDayOf,
+  TENTHS_OF_A_MINUTE,
   taskByUid,
   textOfDay,
   workingCalendarOf,
   type Dependency,
+  type Project,
   type Schedule,
   type Task,
   type TaskVisual,
@@ -651,7 +655,71 @@ function taskFields(
   }))
 }
 
-// see T-018, FR-009, PR-41, PR-43, PR-44
+// WHY: the elapsed units are fixed by their name; the working ones follow the Project columns (FR-009).
+const MINUTES_PER_HOUR = 60
+const MINUTES_PER_ELAPSED_DAY = 24 * MINUTES_PER_HOUR
+const MINUTES_PER_ELAPSED_WEEK = 7 * MINUTES_PER_ELAPSED_DAY
+
+type LagUnitLength = number | 'workingDay' | 'workingWeek' | 'workingMonth' | null
+
+// see FR-009, AT-48
+// WHY: the codes and symbols are mspdi_pj12.xsd:2203's; a null length is one FR-009 cannot settle (percent, elapsed month); such a lag is shown in minutes.
+const LAG_FORMAT_UNITS: ReadonlyMap<number, { readonly symbol: string; readonly length: LagUnitLength }> = new Map([
+  [3, { symbol: 'm', length: 1 }],
+  [4, { symbol: 'em', length: 1 }],
+  [5, { symbol: 'h', length: MINUTES_PER_HOUR }],
+  [6, { symbol: 'eh', length: MINUTES_PER_HOUR }],
+  [7, { symbol: 'd', length: 'workingDay' }],
+  [8, { symbol: 'ed', length: MINUTES_PER_ELAPSED_DAY }],
+  [9, { symbol: 'w', length: 'workingWeek' }],
+  [10, { symbol: 'ew', length: MINUTES_PER_ELAPSED_WEEK }],
+  [11, { symbol: 'mo', length: 'workingMonth' }],
+  [12, { symbol: 'emo', length: null }],
+  [19, { symbol: '%', length: null }],
+  [20, { symbol: 'e%', length: null }],
+])
+
+// see FR-009
+// WHY: mspdi_pj12.xsd:2203 numbers the estimated forms ("?") 32 above their plain ones.
+const ESTIMATED_LAG_FORMAT_OFFSET = 32
+const ESTIMATED_MARK = '?'
+const MINUTE_SYMBOL = 'm'
+
+// see FR-009
+const SHOWN_LAG_SCALE = 100
+
+/** @purity pure */
+function shownLagNumber(value: number): string {
+  return String(Math.round(value * SHOWN_LAG_SCALE) / SHOWN_LAG_SCALE)
+}
+
+/** @purity pure */
+function minutesOfUnit(project: Project, length: LagUnitLength): number | null {
+  const minutesPerDay = minutesPerWorkingDayOf(project)
+  switch (length) {
+    case 'workingDay': return minutesPerDay
+    case 'workingWeek': return project.minutesPerWeek !== null && project.minutesPerWeek > 0 ? project.minutesPerWeek : null
+    case 'workingMonth': return project.daysPerMonth !== null && project.daysPerMonth > 0 ? project.daysPerMonth * minutesPerDay : null
+    default: return length
+  }
+}
+
+// see FR-009, S-118, AT-47, AT-48
+/** @purity pure */
+function lagText(project: Project, dependency: Dependency): string {
+  if (dependency.lag === null) return ''
+  const workingDays = lagWorkingDaysOf(dependency, minutesPerWorkingDayOf(project))
+  if (workingDays !== null) return shownLagNumber(workingDays)
+  const minutes = dependency.lag / TENTHS_OF_A_MINUTE
+  const format = dependency.lagFormat ?? 0
+  const isEstimated = format > ESTIMATED_LAG_FORMAT_OFFSET
+  const unit = LAG_FORMAT_UNITS.get(isEstimated ? format - ESTIMATED_LAG_FORMAT_OFFSET : format)
+  const unitMinutes = unit === undefined ? null : minutesOfUnit(project, unit.length)
+  if (unit === undefined || unitMinutes === null) return `${shownLagNumber(minutes)}${MINUTE_SYMBOL}`
+  return `${shownLagNumber(minutes / unitMinutes)}${unit.symbol}${isEstimated ? ESTIMATED_MARK : ''}`
+}
+
+// see T-018, FR-009, PR-41, PR-42, PR-43, PR-44
 /** @purity pure */
 function dependencyText(
   schedule: Schedule,
@@ -662,6 +730,7 @@ function dependencyText(
 ): string {
   if (column === 'predecessorUid') return dependencyEndText(schedule, dependency.predecessorUid, language)
   if (column === 'successorUid') return dependencyEndText(schedule, successorUid, language)
+  if (column === 'lag') return lagText(schedule.project, dependency)
   if (column !== 'linkType') return textOfValue((dependency as unknown as Record<string, unknown>)[column])
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
@@ -682,13 +751,13 @@ function dependencyFields(
     const column = (item.columns[0] ?? '') as keyof Dependency & string
     const isEditable = !READ_ONLY_ROWS.includes(item.row)
     const key: PropertyFieldKey = { holder: 'dependency', successorUid, ordinal, column }
-    const stored = textOfValue(dependency[column])
+    const text = dependencyText(schedule, dependency, successorUid, column, language)
     return {
       row: item.row,
       name: itemName(item.row, language),
-      text: dependencyText(schedule, dependency, successorUid, column, language),
+      text,
       isEditable,
-      controls: isEditable ? [controlOf(schedule, key, 'Dependency', column, stored, successorUid, labelCoef)] : [],
+      controls: isEditable ? [controlOf(schedule, key, 'Dependency', column, text, successorUid, labelCoef)] : [],
     }
   })
 }

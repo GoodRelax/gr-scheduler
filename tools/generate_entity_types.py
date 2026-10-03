@@ -870,6 +870,36 @@ def number_of(cell):
 DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128']
 
 
+def default_calendar_number(row_id):
+    """The number one plain-number row of table T-209 states, read where it is held.
+
+    Prose that a generator prints (a schemaNote, the image prompt) names the row
+    as `{{S-128}}` and gets the number from here, so no prose holds a copy of it
+    (CR-644).
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-209']
+    rows = [r for r in (block[0]['rows'] if block else []) if r.get('id') == row_id]
+    cell = rows[0].get('value') if len(rows) == 1 else None
+    if not isinstance(cell, dict) or 'num' not in cell:
+        raise SystemExit('table T-209 states no single plain number for %s' % row_id)
+    number = float(cell['num'])
+    return int(number) if number.is_integer() else number
+
+
+CALENDAR_ROW_TOKEN = re.compile(r'\{\{(S-[0-9]+[a-z]?)\}\}')
+
+
+def with_calendar_rows_printed(text, where):
+    """`text` with every `{{S-n}}` replaced by the number table T-209 states."""
+    printed = CALENDAR_ROW_TOKEN.sub(
+        lambda found: str(default_calendar_number(found.group(1))), text)
+    if '{{' in printed or '}}' in printed:
+        raise SystemExit('%s holds a {{...}} token that names no row of table '
+                         'T-209' % where)
+    return printed
+
+
 def default_calendar_block():
     """Table T-209, by row ID, with the encoding written beside each row."""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
