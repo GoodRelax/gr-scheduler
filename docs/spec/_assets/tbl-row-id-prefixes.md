@@ -77,7 +77,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1064 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1067 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -126,7 +126,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 833 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 838 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 124 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -166,7 +166,7 @@
 | `PL` | Progress Line | イナズマ線の頂点の打ち方 | 仕様書 | `T-022` | 5 |
 | `PLM` | — | いまの日程表の作り方が抱えている問題 | 仕様書 | `T-001` | 9 |
 | `PM` | Progress Marker | 進捗マーカーの記号 | 仕様書 | `T-021` | 5 |
-| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 291 |
+| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 295 |
 | `PO` | Policy | 単一 HTML の内容セキュリティ方針の指令 | 仕様書 | `T-232` | 7 |
 | `PP` | — | 直接操作の原則（なぜその振る舞いなのかの理由） | 仕様書 | `T-274` | 7 |
 | `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 38 |
