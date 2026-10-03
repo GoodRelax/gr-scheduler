@@ -1584,7 +1584,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   }
   // see FR-036
   // WHY: MK-15 joined the list with CR-558.
-  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15']
+  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16']
   // WHY: CR-635 keeps the rows helpBarred names off the list, and CR-637 moves
   // WHY: a key whose entrance item is not listed into the block of keys with no entrance.
   const listedEntrances = helpListedEntrances()

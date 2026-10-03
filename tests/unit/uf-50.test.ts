@@ -1168,8 +1168,8 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
   })
 
   it('leaves an unassigned modifier drag to the browser (MK-12, MUST NOT)', () => {
-    // MK-12 gives `Alt`＋ドラッグ and `Ctrl`＋`Shift`＋ドラッグ no assignment of
-    // this tool's, and MK-10 forbids stopping a combination that has none.
+    // MK-12 leaves Alt + drag unassigned (CR-656 gave Ctrl + Shift + drag to MK-7 / MK-15),
+    // and MK-10 forbids stopping a combination that has none.
     const run = harness()
     run.answer(false)
     run.watch()
@@ -1178,13 +1178,9 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
     run.fake.send('pointermove', hostPointer({ altKey: true, clientX: 160, timeStamp: 1040 }))
     run.fake.send('pointerup', hostPointer({ altKey: true, clientX: 160, timeStamp: 1080 }))
 
-    const ctrlShiftDrag = hostPointer({ ctrlKey: true, shiftKey: true, timeStamp: 1600 })
-    run.fake.send('pointerdown', ctrlShiftDrag)
-    run.fake.send('pointerup', hostPointer({ ctrlKey: true, shiftKey: true, timeStamp: 1680 }))
-
-    expect([altDrag.preventedCount(), ctrlShiftDrag.preventedCount()]).toEqual([0, 0])
+    expect(altDrag.preventedCount()).toBe(0)
     expect(run.fake.captureCalls.filter((one) => one.startsWith('set:'))).toEqual([])
-    expect(pointers(run).map((one) => one.phase)).toEqual(['down', 'move', 'up', 'down', 'up'])
+    expect(pointers(run).map((one) => one.phase)).toEqual(['down', 'move', 'up'])
   })
 
   it('stops the browser exactly once for one happening', () => {

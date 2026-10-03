@@ -58,6 +58,7 @@ import {
   drawnRowsOf,
   grabRowOf,
   hasDraggedPastThreshold,
+  isDateKeepingDrag,
   isScrollPositionInForce,
   isSwallowedSecondPress,
   nothingToDo,
@@ -395,7 +396,7 @@ function markerPullWrite(
   ])
 }
 
-// see PE-1, PE-6, SL-7
+// see PE-1, PE-6, SL-7, MK-16
 /** @purity pure */
 function bodyMoveWrites(
   context: InputContext,
@@ -404,8 +405,8 @@ function bodyMoveWrites(
   uid: number,
 ): readonly DocumentCommand[] {
   const rows = drawnRowsOf(context.layout)
-  const moving = movedTaskUids(context, uid)
-  const shift = dayShift(context, press.at.x, release.x)
+  const moving = movedTaskUids(context, uid, press)
+  const shift = draggedDayCount(context, press, release)
   const crossed = clampedRowShift(context, rows, moving, drawnRowsCrossed(rows, press.at.y, release.y))
   const project = context.document.schedule.project
   const commands: DocumentCommand[] = []
@@ -429,6 +430,11 @@ function bodyMoveWrites(
     }
   }
   return commands
+}
+
+/** @purity pure */
+function draggedDayCount(context: InputContext, press: PointerPress, release: PointerInput): number {
+  return isDateKeepingDrag(press) ? 0 : dayShift(context, press.at.x, release.x)
 }
 
 /** @purity pure */
@@ -497,7 +503,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
   const rows = drawnRowsOf(layoutAtPressOf(context, press))
-  const dayCount = dayShift(context, press.at.x, release.x)
+  const dayCount = draggedDayCount(context, press, release)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
   const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
   if (sources.length === 0 || (dayCount === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
@@ -770,16 +776,17 @@ function actualEndPlacement(
   return placementAt(moved)
 }
 
-// see SL-7
+// see SL-7, SL-4, MK-16
 /** @purity pure */
-function movedTaskUids(context: InputContext, grabbed: number): readonly number[] {
+function movedTaskUids(context: InputContext, grabbed: number, press: PointerPress): readonly number[] {
   const held: ItemRef = { kind: 'task', uid: grabbed }
-  if (!isSelected(context.selection, held)) return [grabbed]
+  const isSelectedHeld = isSelected(context.selection, held)
+  if (!isSelectedHeld && !isDateKeepingDrag(press)) return [grabbed]
   const uids: number[] = []
   for (const one of context.selection.items) {
     if (one.kind === 'task') uids.push(one.uid)
   }
-  return uids
+  return isSelectedHeld ? uids : [...uids, grabbed]
 }
 
 // TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already

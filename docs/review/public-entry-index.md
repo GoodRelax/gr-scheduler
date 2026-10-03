@@ -643,6 +643,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `InputSource` | entry | interface | `src/adapter/input-command-translator/input-source.ts#InputSource` | PI-18 | 表 T-065 |
 | `InputWatcher` | entry | type | `src/adapter/input-command-translator/input-source.ts#InputWatcher` | -- | type InputWatcher = (input: HumanInput) => void |
 | `isCombo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isCombo` | PI-18 | 修飾キーの組が求める組と一致するかを答える。 |
+| `isDateKeepingDrag` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isDateKeepingDrag` | -- | function isDateKeepingDrag(press: Pick<PointerPress, 'at'>): boolean |
 | `isLandingMarkKeptBy` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isLandingMarkKeptBy` | PI-18 | 着地の印が出ているとき、その入力が印を残すものか（表 T-303 の `EL-17` ・ `EL-18`）。 |
 | `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
 | `isParentPickingCtrlClick` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isParentPickingCtrlClick` | -- | function isParentPickingCtrlClick( press: PointerPress, release: { readonly x: number; readonly y: number }, context: Pick<InputContext, 'screen'>, ): boolean |
@@ -1678,4 +1679,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 810 name(s) leave through a public entry (305 of them published by table T-064), 658 more are exported by a file and not by its entry.
+Totals: 811 name(s) leave through a public entry (305 of them published by table T-064), 658 more are exported by a file and not by its entry.

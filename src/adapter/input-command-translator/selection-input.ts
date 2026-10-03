@@ -32,6 +32,7 @@ import {
   escapeContextOf,
   grabRowOf,
   hasDraggedPastThreshold,
+  isDateKeepingDrag,
   isCombo,
   isOnRowArea,
   isParentPickingCtrlClick,
@@ -140,6 +141,23 @@ function isChoiceKeptByDrag(grab: GrabRow, ref: ItemRef, press: PointerPress, re
   return isDragGrab && isSelected(context.selection, ref) && hasDraggedPastThreshold(press, release)
 }
 
+// see SL-4, MK-16
+/** @purity pure */
+function isShiftBodyMove(press: PointerPress, release: PointerInput, context: InputContext): boolean {
+  const armed = context.screen.armModeState.kind
+  const isMoveArm = armed !== 'dependencyArmed' && armed !== 'wbsParentArmed'
+  return isMoveArm && isDateKeepingDrag(press) && hasDraggedPastThreshold(press, release)
+}
+
+// see SL-2, SL-7, T-270
+/** @purity pure */
+function selectionAfterDrag(press: PointerPress, release: PointerInput, context: InputContext,
+                            grab: GrabRow, ref: ItemRef): Selection {
+  if (isChoiceKeptByDrag(grab, ref, press, release, context)) return context.selection
+  const isJoining = BODY_GRAB_ROWS.has(grab) && isShiftBodyMove(press, release, context)
+  return selectionWith(isJoining ? context.selection : emptySelection(), ref)
+}
+
 // see SL-3
 /** @purity pure */
 function caughtInMarquee(context: InputContext, rect: ScreenRect): readonly ItemRef[] {
@@ -192,7 +210,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
       if (isAdding && !hasDraggedPastThreshold(press, input)) {
         return isSelected(held, ref) ? selectionWithout(held, ref) : selectionWith(held, ref)
       }
-      return isChoiceKeptByDrag(grab, ref, press, input, context) ? held : selectionWith(emptySelection(), ref)
+      return selectionAfterDrag(press, input, context, grab, ref)
     }
     case 'PTD-5': {
       const rect = marqueeRect(press.at, input)

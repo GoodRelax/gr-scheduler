@@ -129,7 +129,8 @@ LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 # in none of the three stops the run -- FR-036 (MUST) has the requirement decide
 # a new row, and this script must not decide it.
 # CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
-SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15')
+# CR-656: FR-036 names MK-16 (the Shift drag that moves to another row only).
+SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 
