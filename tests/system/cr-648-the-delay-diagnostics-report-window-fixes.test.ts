@@ -5,7 +5,6 @@ import { bare, specTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
 import { ERP_SAMPLE, openDocument, openStage, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
-import { NOT_STORED_SEARCH_PANEL_FONT_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 
 const T_103 = specTable('T-103')
 const REPORT = `[data-role="${bare(rowOf(T_103, 'U-66').cells[0] ?? '')}"]`
@@ -13,7 +12,7 @@ const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const MAXIMISE = rowOf(specTable('T-109'), 'IC-130').id
 const TEXT_SIZE = rowOf(specTable('T-109'), 'IC-127').id
 const NAME_CELL = `${REPORT} td[data-search-task]`
-const STEPS = Object.values(NOT_STORED_SEARCH_PANEL_FONT_SIZES)
+const STEPS = specTable('T-333').rows.map((one) => Number(bare(one.by['値'] ?? '').replace(/\D+$/, '')))
 
 let browser: Browser | null = null
 

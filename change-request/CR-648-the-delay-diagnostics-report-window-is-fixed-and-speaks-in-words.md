@@ -197,8 +197,9 @@ git log --all --oneline -S"T-351"
 # the steps of table T-333 before and after
 PYTHONIOENCODING=utf-8 python -c "import json; d=json.load(open('docs/spec/_source/settings.json', encoding='utf-8')); print([(r['id'], r['value']['num']) for b in d['blocks'] if b.get('id')=='T-333' for r in b['rows']])"
 
-# the wheel and the jump on the dev build
-GRS_DEV_PORT=5991 node tools/gate/gate-queue.mjs run -- npx playwright test tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts
+# the wheel, the jump and the text steps on the shipped build (the stage opens dist/index.html)
+npm run build
+node tools/gate/gate-queue.mjs run -- node node_modules/@playwright/test/cli.js test tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts
 
 # graph (section 6)
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py RW-7

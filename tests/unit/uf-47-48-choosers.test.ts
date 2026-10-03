@@ -1845,15 +1845,13 @@ describe('FR-096 -- the name the chooser proposes', () => {
     ).toBe(1)
     expect(
       files.written[0]?.suggestedFileName,
-      'FR-096 (MUST): 「選択面が提案する名は、文書名（`FR-035`）に 表 T-024 が定める' +
-        '拡張子を付けたものとすること（MUST）」',
-    ).toBe(`Plan of record${extension}`)
+      'FR-096 (MUST) / T-351 FN-1 (CR-648): the document name with its spaces made _, then the extension of table T-024',
+    ).toBe(`Plan_of_record${extension}`)
   })
 
-  it('FR-035 empty: the extension alone is proposed', async () => {
-    // 「文書名が空のときは拡張子だけを提案すること。」 FR-035 keeps `title` from
-    // ever being the empty string (MUST NOT), so `null` is the one way a
-    // document has no name.
+  it('FR-035 empty: T-351 FN-5 proposes schedule with the extension (CR-648)', async () => {
+    // FR-035 keeps `title` from ever being the empty string (MUST NOT), so
+    // `null` is the one way a document has no name.
     const extension = extensionOf('IO-2')
 
     const files = await saveOnce(here(null))
@@ -1861,8 +1859,8 @@ describe('FR-096 -- the name the chooser proposes', () => {
     expect(files.written.length).toBe(1)
     expect(
       files.written[0]?.suggestedFileName,
-      'FR-096 (MUST): 「文書名が空のときは拡張子だけを提案すること」',
-    ).toBe(extension)
+      'FR-096 (MUST) / T-351 FN-5: a name with nothing left is schedule',
+    ).toBe(`schedule${extension}`)
   })
 
   it('⛔ the extension is not written out here: table T-024 is the one place it stands', () => {
@@ -1937,13 +1935,12 @@ describe('FR-096 -- the name the chooser proposes', () => {
       expect(
         files.written[0]?.suggestedFileName,
         `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId}`,
-      ).toBe(`Plan of record${format.extension}`)
+      ).toBe(`Plan_of_record${format.extension}`)
     }
   })
 
-  it('FR-035 empty: the extension of the chosen format alone is proposed', async () => {
-    // 「文書名が空のときは拡張子だけを提案すること。」 -- again per row, so the
-    // same sweep with no document name.
+  it('FR-035 empty: T-351 FN-5 proposes schedule with the chosen format\'s extension (CR-648)', async () => {
+    // Again per row, so the same sweep with no document name.
     const drivable = EXCHANGE_FORMATS.filter(
       (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
     )
@@ -1962,8 +1959,8 @@ describe('FR-096 -- the name the chooser proposes', () => {
 
       expect(
         files.written[0]?.suggestedFileName,
-        `FR-096 (MUST): the name proposed for table T-024 row ${format.rowId} with no document name`,
-      ).toBe(format.extension)
+        `FR-096 (MUST) / T-351 FN-5: the name proposed for table T-024 row ${format.rowId} with no document name`,
+      ).toBe(`schedule${format.extension}`)
     }
   })
 
