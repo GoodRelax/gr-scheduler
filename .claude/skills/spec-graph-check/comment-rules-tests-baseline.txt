@@ -193,7 +193,7 @@ tests/unit/uf-37-38.test.ts 1
 tests/unit/uf-39-40.test.ts 790
 tests/unit/uf-41-42.test.ts 0
 tests/unit/uf-45-46.test.ts 0
-tests/unit/uf-47-48-choosers.test.ts 1415
+tests/unit/uf-47-48-choosers.test.ts 1409
 tests/unit/uf-47-48-history-bytes.test.ts 504
 tests/unit/uf-47-48.test.ts 815
 tests/unit/uf-48-input.test.ts 555

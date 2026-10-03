@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 37 | 247 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 147 | 3385 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 147 | 3390 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 367 | 5990 | 11 | 17 | 9 | 1 |
+| **all** | | | 367 | 5995 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -85,7 +85,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-386-ic-103-planned-dates-beside-the-name.test.ts` | commandPaletteFromSession (pure), emptySelection (pure), frameLoop (non-pure) | - | FR-002, FR-039, FR-049, FR-055, T-109, T-202, T-251 |
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | frameLoop (non-pure) | - | FR-038, FR-071, T-036, T-078, T-109, T-233 |
 | `tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts` | commandFromInput (pure), documentFromJson (pure), editTaskGroup (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), jsonFromDocument (pure), layoutFromSchedule (pure), mspdiFromDocument (pure), regionsFromScreen (pure), rowBandCeilingOf (pure) | - | FR-016, FR-018, FR-029, FR-031, FR-055, T-109, T-328, T-329 |
-| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | frameLoop (non-pure), helpModalFromSession (pure) | - | FR-036, FR-038, T-023, T-036, T-109, T-206, T-216, T-255, T-256 |
+| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | frameLoop (non-pure), helpModalFromSession (pure) | - | FR-036, FR-038, T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 |
 | `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` | frameLoop (non-pure) | - | FR-029, T-023, T-109, T-206, T-257 |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | domScreenSurface (non-pure), frameLoop (non-pure) | - | FR-006, FR-052, FR-072, T-016, T-023d, T-206 |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | displayRatioOf (pure), documentFromJson (pure), frameLoop (non-pure), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-029, FR-039, T-201, T-202 |
@@ -443,7 +443,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-386-ic-103-planned-dates-beside-the-name.test.ts` | 14 | FR-002, FR-039, FR-049, FR-055 | - | T-109, T-202, T-251 | IC-44, IC-103, ND-1, ND-2, ND-3, ND-4, ND-5, OP-10, S-1, S-7, S-62, S-75, S-227, S-232, S-332 | - | - | - | - |
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | 23 | FR-038, FR-071 | - | T-036, T-078, T-109, T-233 | FT-6, IC-11, NT-3a, RS-59, S-99e, S-99f, SK-15, UF-48 | - | - | - | - |
 | `tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts` | 50 | FR-016, FR-018, FR-029, FR-031, FR-055 | - | T-109, T-328, T-329 | AT-153, CM-72, CM-85, CM-86, DU-2, HF-2, HF-3, HF-8, HF-10, HF-11, HF-12, HF-13, HF-16, RS-28, RS-30, S-54, S-87, S-88, S-418, TD-1, TD-3, TD-5, TD-6, TD-7, UN-14, UN-17 | - | - | - | - |
-| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | 22 | FR-036, FR-038 | - | T-023, T-036, T-109, T-206, T-216, T-255, T-256 | BF-1, BF-2, HC-1, HC-3, MK-10, S-202 | - | - | - | - |
+| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | 27 | FR-036, FR-038 | - | T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 | BF-1, BF-2, HC-1, HC-2, HC-3, HC-4, IC-52, IC-53, IC-75, MK-10, S-149, S-202, S-437, S-457, SK-8 | - | - | - | - |
 | `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` | 19 | FR-029 | - | T-023, T-109, T-206, T-257 | IC-63, IC-66, IC-67, IC-68, MK-5, RR-1, RR-2, RR-3, RR-4, RR-5, S-234, S-240, S-241 | - | - | - | - |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | 21 | FR-006, FR-052, FR-072 | - | T-016, T-023d, T-206 | GR-19, GR-22, GR-24, GR-25, IC-52, MK-13, PR-1, PR-2, PR-18, PR-21, S-134, S-171, S-193 | - | - | - | - |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | 12 | FR-029, FR-039 | - | T-201, T-202 | IC-104, IC-105, OP-6, RS-25, S-1, S-234, S-236 | - | - | - | - |
