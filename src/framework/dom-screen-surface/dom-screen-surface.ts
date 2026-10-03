@@ -349,7 +349,8 @@ export const STYLE = {
     'cursor:pointer;pointer-events:auto;',
   paletteContents: 'padding:0.5em;',
   paletteGroup: '',
-  paletteCommands: 'display:flex;flex-wrap:wrap;gap:0.25em;',
+  // WHY: start keeps auto columns from stretching to a wider sibling group (FR-053, S-488).
+  paletteCommands: 'display:grid;justify-content:start;gap:0.25em;',
   armedText: `color:${PAINT.ink};`,
   modal: STOPPING_BOX,
   surfaceHeader: 'display:flex;align-items:center;gap:0.75em;margin-bottom:0.5em;',
@@ -1337,6 +1338,20 @@ export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
   readonly 'S-143': readonly [number, number]
 } = {
   'S-143': [1, 6],
+}
+
+// see T-206
+export const NOT_STORED_PALETTE_ROW_CAP: {
+  readonly 'S-488': number
+} = {
+  'S-488': 11,
+}
+
+// see T-206
+export const NOT_STORED_ARMED_LABEL_SIZES: {
+  readonly 'S-489': number
+} = {
+  'S-489': 12,
 }
 
 // see T-206

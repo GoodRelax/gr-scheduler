@@ -71,6 +71,8 @@ NOT_STORED_FILE_STATUS_SIZES         ヘッダーのファイルの状態の 2 �
 NOT_STORED_FILE_CHOOSER_ID           ファイルを選ばせる面に渡す `id`（`S-452`、`FR-060`、`CR-619`）
 NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）
 NOT_STORED_PALETTE_GROUP_RULE_SIZES  パレットの群の境目の線（`S-143`）
+NOT_STORED_PALETTE_ROW_CAP           パレットの 1 つの群が 1 段に並べる入口の数の上限（`S-488`、`CR-652`）
+NOT_STORED_ARMED_LABEL_SIZES         パレットの、いま構えているものの名称ラベルの字の大きさ（`S-489`、`CR-652`）
 NOT_STORED_PANEL_DIVIDER_SIZES       `Panel Divider` の掴み帯（`S-134`）
 NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`）
 NOT_STORED_PROPERTIES_PANEL_FLOOR    `Properties Panel` の幅の下限（`S-248`）

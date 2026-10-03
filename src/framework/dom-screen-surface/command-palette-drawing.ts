@@ -5,7 +5,9 @@
 
 import type { CommandItem, CommandPalette } from '../../adapter/screen-renderer/screen-renderer'
 import {
+  NOT_STORED_ARMED_LABEL_SIZES,
   NOT_STORED_PALETTE_GROUP_RULE_SIZES,
+  NOT_STORED_PALETTE_ROW_CAP,
   PAINT,
   ROLE,
   STYLE,
@@ -27,6 +29,26 @@ export function paletteGroupRuleStyle(): string {
     `height:${thickness}px;margin:${clearance}px;` +
     `background:${PAINT.rule};pointer-events:none;`
   )
+}
+
+// see FR-053, S-488
+/** @purity pure */
+export function paletteColumnsOf(entranceCount: number, perRowCap: number): number {
+  if (entranceCount <= 0) return 0
+  const rows = Math.ceil(entranceCount / perRowCap)
+  return Math.ceil(entranceCount / rows)
+}
+
+/** @purity pure */
+export function paletteColumnsStyle(entranceCount: number): string {
+  const columns = paletteColumnsOf(entranceCount, NOT_STORED_PALETTE_ROW_CAP['S-488'])
+  return `grid-template-columns:repeat(${columns},auto);`
+}
+
+// WHY: screen px on purpose (FR-053, IC-54, S-489); S-235 would take it below FR-077's S-8.
+/** @purity pure */
+export function armedLabelStyle(): string {
+  return `font-size:${NOT_STORED_ARMED_LABEL_SIZES['S-489']}px;`
 }
 
 /** @purity pure */
@@ -72,7 +94,8 @@ export function paletteElement(
   for (const group of palette.groups) {
     if (laid.length > 0) laid.push(made(host, 'div', paletteGroupRuleStyle()))
     const box = part(host, 'div', ROLE.paletteGroups, STYLE.paletteGroup)
-    const commands = part(host, 'div', ROLE.paletteCommands, STYLE.paletteCommands)
+    const columns = paletteColumnsStyle(group.commands.length)
+    const commands = part(host, 'div', ROLE.paletteCommands, STYLE.paletteCommands + columns)
     for (const item of group.commands) {
       commands.append(anchoredEntry(host, item, anchors))
     }
@@ -80,7 +103,7 @@ export function paletteElement(
     laid.push(box)
   }
   const armed =
-    palette.armedText === null ? null : made(host, 'div', STYLE.armedText)
+    palette.armedText === null ? null : made(host, 'div', STYLE.armedText + armedLabelStyle())
   if (armed !== null) armed.textContent = palette.armedText
 
   // TRAP: the band is a child of the palette part, never a sibling: PALETTE_FAINT_CSS uses
