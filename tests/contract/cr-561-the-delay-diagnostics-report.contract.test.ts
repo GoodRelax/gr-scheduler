@@ -23,8 +23,8 @@ const FR_132_WORKING_DAYS = '日数はすべて稼働日で数えること（MUS
 const FR_132_NOT_DONE = '⛔ 完了（表 T-019a の `PS-2`）したタスクをボトルネックとしてはならない（MUST NOT）。'
 const FR_132_DX_9 =
   '押し出し日数が `S-397` 以上の完了したタスクは、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと（MUST）。'
-const FR_133_PINK =
-  '桃色（`DG-3`）は、ボトルネックの WBS の祖先（`wbsParentUid` を遡る縦の道、`FR-135` で導いた親を含む）にだけ付けること（MUST）。'
+const FR_133_PATH_MARK =
+  'ボトルネック経路の印（`DG-3`）は、ボトルネックの WBS の祖先（`wbsParentUid` を遡る縦の道、`FR-135` で導いた親を含む）にだけ付けること（MUST）。'
 const FR_133_NOT_DOWNSTREAM = '⛔ 依存の下流に付けてはならない（MUST NOT）。'
 const FR_135_DERIVE = '`Task.wbsParentUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。'
 const FR_135_NOT_WRITTEN = '⛔ 導いた親を文書へ書いてはならない（MUST NOT）。'
@@ -45,7 +45,7 @@ const CLAUSES = [
   FR_132_WORKING_DAYS,
   FR_132_NOT_DONE,
   FR_132_DX_9,
-  FR_133_PINK,
+  FR_133_PATH_MARK,
   FR_133_NOT_DOWNSTREAM,
   FR_135_DERIVE,
   FR_135_NOT_WRITTEN,
@@ -670,7 +670,7 @@ describe(`FR-135 -- ${FR_135_DERIVE}`, () => {
     expect(onePushed(report(), Y).values['pushOutDays']).toBe(5)
   })
 
-  it(`${FR_133_PINK} -- X, the derived parent, is DG-3`, () => {
+  it(`${FR_133_PATH_MARK} -- X, the derived parent, is DG-3`, () => {
     expect(markOf(report(), X)).toBe('DG-3')
   })
 

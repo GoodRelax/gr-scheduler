@@ -58,7 +58,12 @@ const settingIdOf = (cell: string): string => {
 
 type Theme = 'light' | 'dark'
 const THEME_COLUMN: Record<Theme, string> = { light: '明るいテーマ', dark: '暗いテーマ' }
-const colourOf = (id: string, theme: Theme): string => hexOf(cellOf('T-236', id, THEME_COLUMN[theme]))
+// WHY: CR-616 made S-386 / S-388 / S-390 cells point at S-327; the colour is the one that row holds.
+const colourOf = (id: string, theme: Theme): string => {
+  const cell = cellOf('T-236', id, THEME_COLUMN[theme])
+  const same = /(S-\d+[a-z]?)`?\s*に同じ/.exec(cell)
+  return same === null ? hexOf(cell) : colourOf(same[1] as string, theme)
+}
 const ratioOf = (id: string): number => numberOf(cellOf('T-206', id, '既定'))
 
 type DgRow = 'DG-1' | 'DG-2' | 'DG-3' | 'DG-4'
