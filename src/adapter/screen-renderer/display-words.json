@@ -4527,12 +4527,23 @@
   {
    "rowId": "MK-15",
    "text": {
-    "ja": "選んでいるものを写して、離した所に置く",
-    "en": "Copy the Selection and put the copy where you release"
+    "ja": "選んでいるものを写して、離した所に置く（Shift を併せると日付を変えない）",
+    "en": "Copy the Selection and put the copy where you release; hold Shift too to keep the dates"
    },
    "press": {
     "ja": "選んでいるものの上で Ctrl ＋ ドラッグ",
     "en": "Ctrl + drag on the Selection"
+   }
+  },
+  {
+   "rowId": "MK-16",
+   "text": {
+    "ja": "日付を変えずに行だけを移す（選択に無いタスクは選択に足す）",
+    "en": "Move to another row only, keeping the dates; a task outside the Selection joins it"
+   },
+   "press": {
+    "ja": "タスクの上で Shift ＋ ドラッグ",
+    "en": "Shift + drag on a task"
    }
   }
  ],

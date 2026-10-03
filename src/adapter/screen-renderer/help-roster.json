@@ -185,6 +185,19 @@
    "note": null
   },
   {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-023",
+   "row": "MK-16",
+   "keys": null,
+   "press": "MK-16",
+   "glyphs": [],
+   "note": null
+  },
+  {
    "kind": "heading",
    "column": "HC-1",
    "block": "browser",
