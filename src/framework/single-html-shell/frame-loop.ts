@@ -29,10 +29,14 @@ import {
   type DelayDiagnosticsReport,
 } from '../../entity/document-model/schedule/schedule'
 import {
+  answersAtPointer,
   grabSizesOf,
   itemAtPointer,
+  pointerWalkOf,
   selectionWithinDrawnRows,
   type Hit,
+  type PointerAnswers,
+  type PointerWalk,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -1821,7 +1825,7 @@ function hintWalkAt(
   return { geometry: frame.geometry, at, holder }
 }
 
-const NO_POINTER_ANSWERS = { hit: null, hint: null } as const
+const NO_POINTER_ANSWERS: PointerAnswers = { hit: null, hint: null }
 
 /** @purity pure */
 function isSameHintTarget(a: HintTarget, b: HintTarget): boolean {
@@ -1958,6 +1962,7 @@ export function frameLoop(
   let hintTarget: HintTarget = NO_HINT_TARGET
   let grabUnderPointer: Grabbed | null = null
   let hintWalk: HintWalk | null = null
+  let pointerWalk: PointerWalk | null = null
   let isTooltipStanding = false
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
@@ -2611,14 +2616,15 @@ export function frameLoop(
     return region === 'rowArea' || region === 'timeRuler' || region === 'scheduleCanvas'
   }
 
-  // see T-023d, EZ-6
-  // WHY: one walk per input answers the press and the hint, never two (DFC-1810).
-  /** @purity semi-pure-b */
-  function answersAtPointerOf(frame: FrameValues, x: number, y: number, on: ScreenPart | null) {
+  // see T-023d, EZ-6, DFC-1810, DFC-1811
+  // WHY: one walk per input answers the press and the hint; its regions are built once per drawn geometry.
+  /** @purity non-pure */
+  function answersAtPointerOf(frame: FrameValues, x: number, y: number, on: ScreenPart | null): PointerAnswers {
     if (on !== null) return NO_POINTER_ANSWERS
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return NO_POINTER_ANSWERS
     if (dualCursorFollowingIn(session) !== null) return NO_POINTER_ANSWERS
-    return itemAtPointer(frame.geometry, x, y, grabSizesOf(), 'pressAndHint')
+    if (pointerWalk?.geometry !== frame.geometry) pointerWalk = pointerWalkOf(frame.geometry, grabSizesOf())
+    return answersAtPointer(pointerWalk, x, y)
   }
 
   /** @purity non-pure */
