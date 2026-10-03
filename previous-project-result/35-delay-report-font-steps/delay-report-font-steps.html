@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delay report font steps</title>
+<style>
+  :root {
+    --ink: #16181d; --rule: #c9ccd3; --panel: #ffffff; --ground: #eef0f4; --head: #f4f5f7;
+    --dg1: #b9a2e6; --dg2: #f2a3b8; --dg3: #f7c6a6; --dg4: #f5d34a;
+    font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif;
+  }
+  html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink); }
+  #shell { display: flex; height: 100vh; }
+  #picture { flex: 1; overflow: auto; min-width: 200px; }
+  #picture-inner { padding: 16px; }
+  #split { width: 6px; cursor: col-resize; background: #c3c7d0; }
+  #settings { width: 380px; overflow: auto; background: #fafbfc; }
+  #settings-inner { padding: 12px 16px; font-size: 14px; line-height: 1.6; }
+  #settings h2 { font-size: 15px; margin: 12px 0 4px; }
+  .knob { display: grid; grid-template-columns: 7em 1fr 4.5em; gap: 6px; align-items: center; }
+  .knob input[type=range] { width: 100%; }
+  #paste { white-space: pre; background: #e6e8ec; padding: 8px; font-family: Consolas, monospace; font-size: 13px; user-select: all; }
+  .ref { margin: 2px 0; }
+  .ref span { border-bottom: 1px dotted #999; }
+  /* The report window, drawn like the app's */
+  .win { background: var(--panel); border: 1px solid var(--rule); box-shadow: 0 2px 8px #0002; width: 800px; height: 460px; display: flex; flex-direction: column; margin-bottom: 12px; }
+  .title { display: flex; align-items: center; border-bottom: 1px solid var(--rule); padding: 0 4px; height: 22px; }
+  .title .name { flex: 1; }
+  .title button, .tools button { font: inherit; font-size: 11px; border: 1px solid var(--rule); background: var(--panel); padding: 0 4px; margin-left: 2px; cursor: pointer; }
+  .tools { display: flex; gap: 2px; padding: 2px 4px; border-bottom: 1px solid var(--rule); align-items: center; }
+  .tools input { flex: 1; font: inherit; border: 1px solid var(--rule); }
+  .top { display: flex; flex-wrap: wrap; column-gap: 1.5em; row-gap: 0.1em; padding: 3px 8px; border-bottom: 1px solid var(--rule); line-height: 1.35; }
+  .top span.item { white-space: nowrap; }
+  .mark { display: inline-block; width: 1.1em; height: 1.1em; border-radius: 50%; text-align: center; line-height: 1.1em; font-size: 0.8em; font-weight: 700; margin-right: 0.3em; vertical-align: -0.1em; }
+  .scroll { flex: 1; overflow: auto; }
+  table { border-collapse: collapse; table-layout: fixed; }
+  th { background: var(--head); position: sticky; top: 0; }
+  th, td { border: 1px solid var(--rule); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 0.25em; text-align: left; }
+  td.jump { cursor: pointer; color: #1a4fa3; }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="picture"><div id="picture-inner">
+    <div id="win" class="win"></div>
+    <div style="font-size:13px;max-width:800px;line-height:1.6">
+      上の窓は遅延診断レポートの窓を、アプリと同じ書体・同じ表の組み方で描いたものです（中身は見本の値）。
+      窓の右上の <b>Aa</b> を押すと、右で決めた 3 段を順に巡ります。
+      語は案です（いまのアプリは <code>DT-1</code> などの行 ID を出しています ── <code>DFC-1771</code>）。
+    </div>
+  </div></div>
+  <div id="split" title="drag to resize"></div>
+  <div id="settings"><div id="settings-inner">
+    <div><label><input type="radio" name="lang" value="ja" checked> 日本語</label> <label><input type="radio" name="lang" value="en"> English</label></div>
+    <h2>3 つの段（px）</h2>
+    <div class="knob"><span>段 1（小）</span><input id="s0" type="range" min="8" max="20" step="0.5" value="9"><span id="s0v"></span></div>
+    <div class="knob"><span>段 2</span><input id="s1" type="range" min="8" max="20" step="0.5" value="10"><span id="s1v"></span></div>
+    <div class="knob"><span>段 3（大）</span><input id="s2" type="range" min="8" max="20" step="0.5" value="12"><span id="s2v"></span></div>
+    <h2>既定の段（開いたとき）</h2>
+    <div><label><input type="radio" name="def" value="0" checked> 段 1</label> <label><input type="radio" name="def" value="1"> 段 2</label> <label><input type="radio" name="def" value="2"> 段 3</label></div>
+    <h2>いま見ている段</h2>
+    <div id="nowStep"></div>
+    <h2>見出しの行の字</h2>
+    <div><label><input type="checkbox" id="headFollows" checked> 見出しの行（窓の名）も段に従う</label><br><small>いまのアプリは段によらず 16px</small></div>
+    <h2>見比べる字（アプリの実測）</h2>
+    <div class="ref" style="font-size:9px"><span>9px ── チャートのタスク名のラベル</span></div>
+    <div class="ref" style="font-size:13.13px"><span>13.1px ── チャートのまとめの行の名</span></div>
+    <div class="ref" style="font-size:13.33px"><span>13.3px ── 上の帯の文書名</span></div>
+    <div class="ref" style="font-size:16px"><span>16px ── いまのレポートの既定の段</span></div>
+    <div class="ref"><small>いまの段: 12 / 14 / 16 / 20 px（既定 16、検索パネルと共有）</small></div>
+    <h2>値を伝える（この塊をそのまま貼る）</h2>
+    <div id="paste"></div>
+  </div></div>
+</div>
+<script>
+'use strict'
+const WORDS = {
+  ja: {
+    heading: '遅延診断レポート', copy: 'Copy', search: '',
+    columns: ['ステータス', '担当', '進捗', 'タスク（マイルストーン）', '予定日', '実績日', '理由'],
+    status: { 'DG-1': '信用できない', 'DG-2': 'ボトルネック', 'DG-3': 'ボトルネック経路', 'DG-4': '遅延', finding: '指摘', settled: '確定' },
+    statusDate: '基準日', unanalysed: '解析できなかった', count: (n) => `${n} 件`,
+  },
+  en: {
+    heading: 'Delay Diagnostics Report', copy: 'Copy', search: '',
+    columns: ['Status', 'Assignee', 'Progress', 'Task (milestone)', 'Planned', 'Actual', 'Reason'],
+    status: { 'DG-1': 'Unreliable', 'DG-2': 'Bottleneck', 'DG-3': 'Bottleneck path', 'DG-4': 'Delayed', finding: 'Finding', settled: 'Settled' },
+    statusDate: 'Status date', unanalysed: 'Not analysed', count: (n) => `${n}`,
+  },
+}
+const MARK = { 'DG-1': ['?', 'var(--dg1)'], 'DG-2': ['♨', 'var(--dg2)'], 'DG-3': ['!!', 'var(--dg3)'], 'DG-4': ['!', 'var(--dg4)'] }
+const WIDTHS = [110, 110, 70, 250, 190, 190, 380]
+const NAMES = ['Script the batch steps', 'Design the signing chain', 'Make the picker reachable by keyboard', 'Choose the release key', 'Build the avatar markup', 'Make the drawer follow the window size', 'Style the toolbar', 'Wire the search field to its data', 'Add the registry failure path', 'Instrument the hotfix checks']
+const PEOPLE = ['Developer A', 'Designer A', 'Developer B', 'Designer B', 'Developer C']
+const STATUSES = ['DG-1', 'DG-1', 'DG-1', 'DG-2', 'DG-2', 'DG-3', 'DG-3', 'DG-4', 'DG-4', 'DG-4', 'finding', 'settled']
+const REASON = {
+  ja: { 'DG-1': '実績の終わりが状況日より後（2027/06/12）', 'DG-2': '全体の日程を 6 日遅らせている（受けた遅れ 2、自身の遅れ 4、終端 1）', 'DG-3': 'Build the avatar markup', 'DG-4': '3 日（稼働日）', finding: '進捗 100% だが実績の終わりが無い', settled: '押し出し 5 日' },
+  en: { 'DG-1': 'Actual finish after the status date (2027/06/12)', 'DG-2': 'Delays the whole schedule by 6 days (inherited 2, own 4, 1 end reached)', 'DG-3': 'Build the avatar markup', 'DG-4': '3 working days', finding: 'Progress 100% but no actual finish', settled: 'Pushed out 5 days' },
+}
+const ROWS = Array.from({ length: 40 }, (_, i) => ({
+  status: STATUSES[i % STATUSES.length], who: PEOPLE[i % PEOPLE.length], pct: [79, 100, 67, 71, 92, 0, 40][i % 7],
+  name: NAMES[i % NAMES.length], plan: `2027/0${3 + (i % 6)}/${String(2 + (i % 27)).padStart(2, '0')}〜2027/0${4 + (i % 5)}/15`,
+  act: i % 3 === 0 ? '' : `2027/0${3 + (i % 6)}/${String(4 + (i % 20)).padStart(2, '0')}〜`,
+}))
+const ORDER = ['DG-1', 'DG-2', 'DG-3', 'DG-4', 'finding', 'settled']
+ROWS.sort((a, b) => ORDER.indexOf(a.status) - ORDER.indexOf(b.status))
+
+let step = 0
+const $ = (id) => document.getElementById(id)
+const steps = () => [0, 1, 2].map((i) => Number($('s' + i).value))
+const lang = () => document.querySelector('input[name=lang]:checked').value
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])
+function statusCell(w, s) {
+  const m = MARK[s]
+  return m ? `<span class="mark" style="background:${m[1]}">${m[0]}</span>${esc(w.status[s])}` : esc(w.status[s])
+}
+function draw() {
+  const w = WORDS[lang()], px = steps()[step]
+  const headPx = $('headFollows').checked ? px : 16
+  // Summary on one wrapping line; no legend (user 2026-10-04: the legend repeats the counts).
+  const counts = ORDER.map((s) => `<span class="item">${statusCell(w, s)} ${w.count(ROWS.filter((r) => r.status === s).length)}</span>`).join('')
+  $('win').innerHTML = `
+    <div class="title" style="font-size:${headPx}px;height:${Math.round(headPx * 1.4)}px"><span class="name">${esc(w.heading)}</span>
+      <button id="aa" title="text size">Aa</button><button>&ndash;</button><button>&#9633;</button><button>&times;</button></div>
+    <div class="tools" style="font-size:${px}px"><button>.md</button><button>${esc(w.copy)}</button><input placeholder=""></div>
+    <div class="top" style="font-size:${px}px">
+      <span class="item">${esc(w.statusDate)} 2027/06/04</span>${counts}<span class="item">${esc(w.unanalysed)} ${w.count(13)}</span>
+    </div>
+    <div class="scroll"><table style="font-size:${px}px">
+      <colgroup>${WIDTHS.map((v) => `<col style="width:${Math.round((v * px) / 16)}px">`).join('')}</colgroup>
+      <thead><tr>${w.columns.map((c) => `<th>${esc(c)} &#9663;</th>`).join('')}</tr></thead>
+      <tbody>${ROWS.map((r) => `<tr><td>${statusCell(w, r.status)}</td><td>${esc(r.who)}</td><td>${r.pct}%</td><td class="jump">${esc(r.name)}</td><td>${r.plan}</td><td>${r.act}</td><td>${esc(REASON[lang()][r.status])}</td></tr>`).join('')}</tbody>
+    </table></div>`
+  $('aa').onclick = () => { step = (step + 1) % 3; draw() }
+  ;[0, 1, 2].forEach((i) => { $('s' + i + 'v').textContent = $('s' + i).value + ' px' })
+  $('nowStep').textContent = `段 ${step + 1}（${px} px）`
+  const def = Number(document.querySelector('input[name=def]:checked').value)
+  $('paste').textContent = [
+    'delay-report-font-steps (35)',
+    `steps px: ${steps().join(' / ')}`,
+    `default step: ${def + 1} (${steps()[def]} px)`,
+    `heading follows steps: ${$('headFollows').checked ? 'yes' : 'no (16px)'}`,
+  ].join('\n')
+}
+for (const el of document.querySelectorAll('input')) el.addEventListener('input', () => {
+  const v = steps()
+  if (v[0] > v[1]) $('s1').value = v[0]
+  if (Number($('s1').value) > v[2]) $('s2').value = $('s1').value
+  draw()
+})
+document.querySelectorAll('input[name=def]').forEach((r) => r.addEventListener('change', () => { step = Number(r.value); draw() }))
+// Splitter
+let dragging = false
+$('split').addEventListener('pointerdown', (e) => { dragging = true; $('split').setPointerCapture(e.pointerId) })
+$('split').addEventListener('pointermove', (e) => { if (dragging) $('settings').style.width = Math.max(0, window.innerWidth - e.clientX - 3) + 'px' })
+$('split').addEventListener('pointerup', () => { dragging = false })
+draw()
+</script>
+</body>
+</html>
