@@ -116,10 +116,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -204,10 +201,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         },
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -237,10 +231,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer', 'null'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -322,10 +313,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -364,10 +352,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['boolean', 'null'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -403,10 +388,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         maximum: 9,
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -437,10 +419,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer', 'null'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -465,10 +444,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['integer', 'null'],
       },
       carry: {
-        type: ['object'],
-        values: {
-          type: ['string'],
-        },
+        ref: 'Carry',
       },
       carryElements: {
         type: ['array'],
@@ -704,6 +680,12 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       milestone: {
         type: ['boolean', 'null'],
       },
+    },
+  },
+  Carry: {
+    type: ['object'],
+    values: {
+      type: ['string'],
     },
   },
 }

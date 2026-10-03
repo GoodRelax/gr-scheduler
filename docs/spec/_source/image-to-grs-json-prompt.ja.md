@@ -28,8 +28,8 @@
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
    - label に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
-   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、行が GRS の中で畳まれていたか・1 階層だけ開かれていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ開いたままにする "expanded"、縮小するまで配下をすべて開いたままにする "temporarilyExpanded"、行自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。height は null。
-   - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。帯に色が無ければ null。
+   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、行が GRS の中で畳まれていたか・1 階層だけ開かれていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ開いたままにする "expanded"、縮小するまで配下をすべて開いたままにする "temporarilyExpanded"、行自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editGroup は null（誰でも編集できる行）、minHeight は null。
+   - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。ただし行の色に "black" は使えない。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
    - GRS は 1 つの行の中のタスクを、開始日の早い順に、重ならない一番上の段へ自動で積む。そのため原本で横一列に並んでいた物が、同じ行の別の物に押されて段が崩れることがある。これを防ぐため、次のようにする。
@@ -51,7 +51,7 @@
      - 未着手・実績が描かれていない: actualStart・stop・actualFinish は null、percentComplete は null。
      - 実績の最後の日を actualStart より前にしない。
    - resume は null、resumeValid は null。deadline・notes・calendarUid は null。
-   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lagFormat 7 は日で、lag はその日数。矢印が無ければ []。
+   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lag の単位は、lagFormat が何であっても 0.1 分である（lagFormat 7 は、日で表示することだけを言う）。1 日は project.minutesPerDay 分で、null なら 480 分 —— ラグが無ければ 0、2 日のラグは 480 × 2 × 10 = 9600。矢印が無ければ []。
 6. フェードと、薄れていくグラデーション（fadeInDays / fadeOutDays）
    - GRS のフェードは、予定のバーの端を斜めにする印である（日付がまだ確かでないことを表す）。開始側だけなら左の辺が斜めの台形、終了側だけなら右の辺が斜めの台形、両方なら平行四辺形になる。
    - 原本のバーの端が斜め、先細り、または色のグラデーションで背景の色や透明へ薄れていくときは、開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。

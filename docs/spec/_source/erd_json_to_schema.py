@@ -20,6 +20,24 @@ Never edit it by hand; run this instead.
 This generator never invents a value.  Where a source names how many members
 an enumeration has but not their spellings, the property widens to a plain
 string and the omission is recorded in the schema and printed by --report.
+
+⭐ THE SCHEMA EXPLAINS ITSELF TO ONE WHO HAS ONLY IT (CR-642). Its reader is
+the writer of a document -- an AI included -- holding this one file, so:
+  - a description says a summary and the reason, never what the name and the
+    structure already say, and names no specification ID (Chapter 6.2). A
+    column's description is its `schemaNote` in erd.json; most columns have
+    none, on purpose;
+  - ⚠️ a date column carries NO pattern yet: the walker generated from this
+    schema would refuse a whole file over a date that FR-023 drops row by row
+    (DFC-1795), so the date-time shape is said in the root description only;
+  - every `carry` points at one `$defs/Carry`, so its reason is said once;
+  - every documentSettings key carries its `default`, and a bound the table
+    writes as the name of a constant (`zoomMin`) is carried as that constant's
+    number. ⛔ Both are READ, never retyped: the values come from
+    settings.json through the very functions tools/generate_entity_types.py
+    prints SETTINGS_DEFAULTS with, so the schema is not a third copy;
+  - a column whose default a settings row decides names that row
+    (`defaultFrom`, `S-73` for Project.themeHue) and the row is read.
 Run with PYTHONIOENCODING=utf-8.
 """
 import collections
@@ -30,6 +48,11 @@ import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# tools/generate_entity_types.py owns the one reading of settings.json's
+# defaults and bound fields; it is imported, not copied (CR-642).
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))),
+                                'tools'))
+import generate_entity_types as settings_reader  # noqa: E402
 # HERE is docs/spec/_source/ (the manuscripts, which belong to no language);
 # what it writes goes to docs/spec/_assets/ (CR-175).
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
@@ -138,6 +161,39 @@ def bandless_colour_names():
 # (table T-017b CV-2 of 01-04).
 CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
 
+# ⭐ The prose a document writer reads, in English because the schema belongs
+# to no language (Chapter 6.2). A summary and the reason only; no
+# specification ID, which a reader holding only the schema cannot look up.
+ROOT_DESCRIPTION = (
+    'A GRS schedule document. `schedule` is the data; `documentSettings` is how '
+    'it is drawn when opened; `documentStamp` and `changeLog` record when, by whom '
+    'and why it changed. Every key is written, null included, so that "the source '
+    'had no value" and "the value is 0" are never confused. What comes from MS '
+    'Project XML (MSPDI) keeps its names and codes, so that a round trip loses '
+    'nothing. Dates are local date-times without a zone, as MS Project writes them; '
+    'GRS uses only the day for now and writes 00:00:00, and a last day (finish, '
+    'actualFinish, stop, endDate) is included. A null colour or width follows the '
+    'theme. A custom colour gives the light-theme and the dark-theme value '
+    '("#light/#dark"; an empty side is drawn with the other), because a readable '
+    'dark colour cannot be derived from a light one.')
+SCHEDULE_DESCRIPTION = ('The data: what is exported to MS Project, and what GRS '
+                        'adds to draw it.')
+SETTINGS_DESCRIPTION = ('How the document is drawn when opened. Every key is '
+                        'written even at its default, so that a later change of '
+                        'a default never changes this picture.')
+CARRY_DESCRIPTION = ('Values of an imported MS Project element that GRS does not '
+                     'interpret, kept to write them back unchanged; {} when '
+                     'nothing was imported.')
+# The provenance banner check 21 reads near the top of the file. It is a
+# `$comment`, not the description, because it speaks to whoever maintains the
+# schema and not to the writer of a document.
+PROVENANCE = (
+    'Generated from docs/spec/_source/erd.json (the schedule group) and '
+    'docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the '
+    'presentation group). Never edit by hand. Rebuild: npm run gen -- npm run '
+    'gen:check fails on drift. The generator is '
+    'docs/spec/_source/erd_json_to_schema.py.')
+
 NOT_STORED_MARK = '⛔'          # the stop sign the sources put on a key
 UNSOURCED_MARK = '\U0001f50e'       # the magnifier marking a default with no origin
 
@@ -159,7 +215,42 @@ def frag(spec, open_enums, where):
     out = frag_body(spec, open_enums, where)
     if 'default' in spec:
         out['default'] = spec['default']
+    elif 'defaultFrom' in spec:
+        out['default'] = settings_row_default(spec['defaultFrom'], where)
     return out
+
+
+def settings_row_default(row_id, where):
+    """The machine default one settings row states, read where it is held."""
+    found = [said for said in settings_reader.settings_manuscript().values()
+             if said['row'] == row_id]
+    if len(found) != 1 or settings_value(found[0]['default']) is None:
+        raise SystemExit('%s names %s as its default, but settings.json states '
+                         'no single machine default there' % (where, row_id))
+    return settings_value(found[0]['default'])
+
+
+def settings_value(cell):
+    """One machine cell of settings.json as a JSON value, or None.
+
+    The same cells tools/generate_entity_types.py's literal_of reads: `num` is a
+    number, `lit` a literal that is quoted when it is a string.
+    """
+    if not isinstance(cell, dict):
+        return None
+    if 'num' in cell:
+        number = float(cell['num'])
+        return int(number) if number.is_integer() else number
+    if 'lit' in cell:
+        lit = cell['lit']
+        if cell.get('quote') or (lit[:1] == "'" and lit[-1:] == "'"):
+            return lit.strip("'")
+        return json.loads(lit)
+    if 'pair' in cell and 'parts' in cell:
+        return collections.OrderedDict(
+            (name, settings_value({'num': number}))
+            for name, number in zip(cell['parts'], cell['pair']))
+    return None
 
 
 def frag_body(spec, open_enums, where):
@@ -240,13 +331,53 @@ def element(spec):
     return collections.OrderedDict([('type', kind)])
 
 
+CARRY_DEF = 'Carry'
+
+
+def is_carry_store(entity, column):
+    """The `carry` column of an entity erd.json marks as holding one."""
+    if not (entity.get('carry') and column['name'] == 'carry'):
+        return False
+    if column['json']['kind'] != 'map' or column['json'].get('null'):
+        raise SystemExit('%s.carry is no longer a non-null map, so it cannot '
+                         'point at $defs/%s' % (entity['name'], CARRY_DEF))
+    return True
+
+
+def carry_def(erd):
+    """The one definition every carry store points at, typed by erd.json."""
+    stores = [c for e in erd['entities'] for c in e['columns']
+              if is_carry_store(e, c)]
+    shapes = set(json.dumps(element(c['json']['of'])) for c in stores)
+    if len(shapes) != 1:
+        raise SystemExit('the carry stores of erd.json disagree on their '
+                         'element type: %s' % sorted(shapes))
+    return collections.OrderedDict([
+        ('type', 'object'),
+        ('description', CARRY_DESCRIPTION),
+        ('additionalProperties', element(stores[0]['json']['of'])),
+    ])
+
+
 def entity_defs(erd, open_enums):
     defs = collections.OrderedDict()
     for e in erd['entities']:
         props = collections.OrderedDict()
         for c in e['columns']:
-            props[c['name']] = frag(c['json'], open_enums,
-                                    '%s.%s' % (e['name'], c['name']))
+            where = '%s.%s' % (e['name'], c['name'])
+            if is_carry_store(e, c):
+                # ⭐ One definition for every carry store, so that its reason
+                # is said once (CR-642).
+                props[c['name']] = collections.OrderedDict(
+                    [('$ref', '#/$defs/%s' % CARRY_DEF)])
+                continue
+            body = frag(c['json'], open_enums, where)
+            if 'schemaNote' in c:
+                described = collections.OrderedDict(
+                    [('description', c['schemaNote']['en'])])
+                described.update(body)
+                body = described
+            props[c['name']] = body
         defs[e['name']] = collections.OrderedDict([
             ('type', 'object'),
             ('description', e['description']['en']),
@@ -273,7 +404,7 @@ def schedule_object(erd, reachable):
             props[key] = ref
     return collections.OrderedDict([
         ('type', 'object'),
-        ('description', 'The schedule group (DR-2 of table T-052).'),
+        ('description', SCHEDULE_DESCRIPTION),
         ('required', order),
         ('additionalProperties', False),
         ('properties', props),
@@ -506,7 +637,84 @@ def document_settings(tables, open_types, skipped):
             else:
                 flat[key.group(1)] = settings_type(row, header, key.group(1),
                                                    open_types)
-    return as_object(nest(flat), 'The presentation group (DR-3 of table T-052). FR-063 fixes what is in it.')
+    with_defaults_and_bounds(flat)
+    return as_object(nest(flat), SETTINGS_DESCRIPTION)
+
+
+NO_DEFAULT = object()
+
+
+def with_defaults_and_bounds(flat):
+    """Give each presentation key its default and its constant-named bounds.
+
+    ⭐ Read through tools/generate_entity_types.py's own reading of
+    settings.json -- settings_manuscript for the cells, derived_defaults for a
+    default a rule computes (S-2, S-3) -- so SETTINGS_DEFAULTS and this schema
+    cannot hold two different answers (CR-642).
+    ⚠️ A bound is folded into a number only when every key it names is a
+    constant the document does not store: a bound naming a stored key
+    (`rulerHeight`) moves with the document, so a number here would be the
+    answer for the defaults and for nothing else. That is the same line
+    generate_entity_types.py draws when it folds a constant into IV-16's
+    expression.
+    """
+    manuscript = settings_reader.settings_manuscript()
+    direct, values = {}, {}
+    for key, said in manuscript.items():
+        cell = said['default']
+        if not isinstance(cell, dict):
+            continue
+        if 'pair' in cell and 'parts' in cell:
+            for name, number in zip(cell['parts'], cell['pair']):
+                direct['%s.%s' % (key, name)] = float(number)
+                values['%s.%s' % (key, name)] = settings_value({'num': number})
+            continue
+        if 'num' not in cell and 'lit' not in cell:
+            continue
+        direct[key] = float(cell['num']) if 'num' in cell else cell['lit']
+        values[key] = settings_value(cell)
+    values.update(settings_reader.derived_defaults(manuscript, direct))
+
+    for key, node in flat.items():
+        value = values.get(key, NO_DEFAULT)
+        if value is not NO_DEFAULT:
+            node['default'] = value
+        kinds = node.get('type')
+        kinds = [kinds] if isinstance(kinds, str) else (kinds or [])
+        said = manuscript.get(key)
+        if said is None or not set(kinds) & {'integer', 'number'}:
+            continue
+        for edge, keyword in (('min', 'minimum'), ('max', 'maximum')):
+            folded = constant_bound(said[edge], flat, direct)
+            if keyword not in node and folded is not None:
+                node[keyword] = folded
+
+
+def constant_bound(cell, stored, direct):
+    """A bound field that names only constants, worked out; else None."""
+    if not isinstance(cell, str):
+        return None
+    named = re.findall(r'`([^`]+)`', cell)
+    if not named or any(one in stored or not isinstance(direct.get(one), float)
+                        for one in named):
+        return None
+    pieces = settings_reader.bound_pieces(cell)
+    expression = (settings_reader.bound_expression(pieces)
+                  if pieces is not None else None)
+    if expression is None:
+        return None
+    stack = []
+    for kind, held in expression:
+        if kind == 'key':
+            stack.append(direct[held])
+        elif kind == 'num':
+            stack.append(float(held))
+        else:
+            right, left = stack.pop(), stack.pop()
+            stack.append({'+': left + right, '-': left - right,
+                          '*': left * right, '/': left / right}[held])
+    number = round(stack[0], 9)
+    return int(number) if number.is_integer() else number
 
 
 # ---------------------------------------------------------------------- build
@@ -522,6 +730,7 @@ def build():
 
     reachable = set()
     defs = entity_defs(erd, open_enums)
+    defs[CARRY_DEF] = carry_def(erd)
     schedule = schedule_object(erd, reachable)
     settings = document_settings(tables, open_types, skipped)
 
@@ -561,13 +770,7 @@ def build():
     schema = collections.OrderedDict()
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
     schema['$id'] = SCHEMA_ID
-    schema['title'] = 'GRS JSON document'
-    schema['description'] = (
-        'Generated from docs/spec/_source/erd.json (the schedule group) '
-        'and docs/spec/_assets/tbl-settings.md (the presentation group). '
-        'Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails '
-        'on drift. The generator is docs/spec/_source/erd_json_to_schema.py.')
-    note = []
+    note = [PROVENANCE]
     if open_enums:
         note.append('Enumerations whose members the specification has not spelled '
                     'out, widened to a plain string here: %s.' % ', '.join(open_enums))
@@ -578,8 +781,9 @@ def build():
     if unplaced:
         note.append('Entities the container does not place anywhere, so no property '
                     'points at their definition: %s.' % ', '.join(unplaced))
-    if note:
-        schema['$comment'] = ' '.join(note)
+    schema['$comment'] = ' '.join(note)
+    schema['title'] = 'GRS JSON document'
+    schema['description'] = ROOT_DESCRIPTION
     schema['type'] = 'object'
     schema['required'] = order
     schema['additionalProperties'] = False

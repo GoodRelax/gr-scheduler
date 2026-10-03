@@ -253,7 +253,7 @@ erDiagram
 | ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
 | ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
-| ET-11 | `TaskVisual` | タスクの見せ方。形・色・名前の置き方 | `taskUid` | **書き出さない** | — |
+| ET-11 | `TaskVisual` | タスクの見せ方。形と色 | `taskUid` | **書き出さない** | — |
 | ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
 | ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
 | ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
@@ -357,7 +357,7 @@ erDiagram
 | AT-44 | `Task` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-45 | `Dependency` | `predecessorUid` | 整数 | 否 | FK | Consume | `PredecessorLink/PredecessorUID` | 先行タスク。**後続は入れ子の位置が表す** |
 | AT-46 | `Dependency` | `linkType` | 整数（0〜3） | 否 | — | Consume | `PredecessorLink/Type` | 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS |
-| AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。単位は `lagFormat` |
+| AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分である |
 | AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグの単位 |
 | AT-49 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
 | AT-50 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
