@@ -46,12 +46,13 @@ const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` �
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
 const Q34 = '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT）'
-const Q38 = '説明をポインタの点に出し、ポインタを受け取らせないこと（MUST）'
+const Q38 = '説明をポインタの点に出すこと（MUST）'
+const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）'
 const IN_7_BELOW =
   '左上の隅を、ポインタの点と同じ横の位置で、点から `_assets/tbl-settings.md` の 表 T-206 の `S-460` だけ下に置く'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38, IN_7_BELOW])('%s', (clause) => {
+  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38, IN_3_TAKES_NO_POINTER, IN_7_BELOW])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
@@ -319,7 +320,7 @@ describe('IN-3 / EZ-6 -- a task tooltip', () => {
     const shown = oneByRole(built.root(), TOOLTIP).children[0] as FakeElement | undefined
     expect(shown, 'premise: the tooltip is drawn').toBeDefined()
     const style = styleMap(shown!)
-    expect(style.get('pointer-events'), 'it takes no pointer').toBe('none')
+    expect(style.get('pointer-events'), IN_3_TAKES_NO_POINTER).toBe('none')
     expect(Number.parseFloat(style.get('left') ?? 'NaN'), 'it stands at the pointer').toBe(200)
     expect(Number.parseFloat(style.get('top') ?? 'NaN'), IN_7_BELOW).toBe(150 + NOT_STORED_HELP_SIZES['S-460'])
   })

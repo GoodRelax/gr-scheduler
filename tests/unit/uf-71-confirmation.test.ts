@@ -1532,15 +1532,15 @@ describe('the specification still says what these cases copy', () => {
     // A-appendix.md (CR-240) records why that went: SC 1.4.13 of
     // `docs/reference/wcag/` limits its third condition to 「引き金が外れるまで」
     // and the specification 「その限りを落として絶対化していた」. The row now
-    // names three conditions and counts them, so the mirror names all three and
-    // the count with them -- a mirror that could still pass on the old wording,
-    // or on any wording, would not be one.
+    // names two conditions and counts them (CR-653 took Hoverable out), so the
+    // mirror names both and the count with them -- a mirror that could still pass
+    // on the old wording, or on any wording, would not be one.
     const manner = specTable('T-028').rows.find((one) => one.id === 'IN-3')?.cells.join(' ') ?? ''
     expect(manner).toContain('ツールチップ')
-    expect(manner).toContain('次の 3 つをすべて満たすこと（MUST）')
-    // Dismissible, Hoverable, Persistent -- the three, in the row's own words.
+    expect(manner).toContain('次の 2 つをすべて満たすこと（MUST）')
+    // Dismissible, Persistent -- the two, in the row's own words.
     expect(manner).toContain('消せること')
-    expect(manner).toContain('ポインタを乗せられること')
+    expect(manner).not.toContain('ポインタを乗せられること')
     expect(manner).toContain('引き金が外れるまで出ていること')
     // ⭐ And the clause that keeps the row off THIS surface: the tooltip is let
     // go once its trigger comes off. Nothing takes a confirmation away but an

@@ -5659,3 +5659,70 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
     ).toBeNull()
   })
 })
+
+const IN_3_TAKES_NO_POINTER = '\u2b50 \u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u306f\u30dd\u30a4\u30f3\u30bf\u3092\u53d7\u3051\u53d6\u3089\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09'
+const UZ_2_PASSES_THE_PRESS = '\u62bc\u4e0b\u3092\u53d7\u3051\u305a\u3001\u4e0b\u3078\u901a\u3059\u3053\u3068\uff08MUST\uff09\u2014\u2014 \u8aac\u660e\u306f\u77ed\u304f\u3001\u62bc\u3059\u3082\u306e\u3092\u6301\u305f\u306a\u3044\u306e\u3067\u3001\u8986\u3063\u305f\u5165\u53e3\u304b\u3089\u62bc\u3059\u624b\u3092\u596a\u3063\u3066\u306f\u306a\u3089\u306a\u3044'
+const TOOLTIP_PART = bare(specTable('T-103').rows.find((one) => one.id === 'U-53')?.by['\u78ba\u5b9a\u540d\uff08\u82f1\uff09'] ?? '')
+const TIPPED_ENTRY = 'IC-23'
+const COVERED_ENTRY = 'IC-61'
+const COVERED_BOX = paletteEntryBox(T_109_ARMING.findIndex((one) => one.row === COVERED_ENTRY))
+const UNDER_THE_TIP = { x: COVERED_BOX.x + ENTRY / 2, y: COVERED_BOX.y + ENTRY / 2 }
+const TIP_OVER_THE_ENTRY = new Map<string, ScreenRect>([
+  ...LAYOUT,
+  [`role:${TOOLTIP_PART}`, rect(COVERED_BOX.x - ENTRY, COVERED_BOX.y - ENTRY / 2, 5 * ENTRY, 2 * ENTRY)],
+])
+const TIPPED_PALETTE: ScreenView = viewWith({
+  commandPalette: PALETTE,
+  tooltips: [{ anchor: { kind: 'icon', icon: TIPPED_ENTRY, surface: 'Command Palette' }, text: 'TipTextOne', assignment: null }],
+})
+
+// WHY: a browser skips a node whose pointer-events resolve to none; the shared fake does not, so only this bench does.
+/** @purity non-pure */
+function drawnHonouringPointerEvents(view: ScreenView): Stage {
+  const built = stage(TIP_OVER_THE_ENTRY)
+  const takes = (one: FakeElement): boolean => inheritedPointerEvents(one).value !== 'none'
+  const made = built.host as unknown as { createElement(tagName: string): FakeElement }
+  const host = {
+    createElement: (tagName: string): FakeElement => made.createElement(tagName),
+    elementFromPoint: (x: number, y: number): FakeElement | null => stackAt(built.mount, x, y).find(takes) ?? null,
+    elementsFromPoint: (x: number, y: number): FakeElement[] => stackAt(built.mount, x, y).filter(takes),
+  } as unknown as Document
+  const honouring: Stage = { ...built, host }
+  honouring.surface = domScreenSurface(wiringOf(honouring))
+  surfaceOf(honouring).showScreenView(view)
+  return honouring
+}
+
+describe('IN-3 of table T-028 / UZ-2 of table T-337 -- an icon tooltip drawn over an entrance takes no press', () => {
+  it('IN-3 / UZ-2 -- the clauses still stand', () => {
+    expect(specText('01-04-requirements.md')).toContain(IN_3_TAKES_NO_POINTER)
+    expect(specText('01-04-requirements.md')).toContain(UZ_2_PASSES_THE_PRESS)
+  })
+
+  it('IN-3 / UZ-2 -- premise: the tooltip really is drawn over the entrance, the front of the plain stack', () => {
+    const built = wire(TIP_OVER_THE_ENTRY)
+    surfaceOf(built).showScreenView(TIPPED_PALETTE)
+    const tip = byRole(built.root(), TOOLTIP_PART)[0]
+    expect(tip?.textContent ?? '', 'the tooltip is drawn').toContain('TipTextOne')
+    const front = stackAt(built.mount, UNDER_THE_TIP.x, UNDER_THE_TIP.y)[0]
+    expect(front !== undefined && (tip as FakeElement).contains(front), `the front at ${JSON.stringify(UNDER_THE_TIP)} is ${front === undefined ? 'nothing' : serialize(front)}`).toBe(true)
+    expect(stackAt(built.mount, UNDER_THE_TIP.x, UNDER_THE_TIP.y).some((one) => one.attributes.get('data-icon') === COVERED_ENTRY)).toBe(true)
+  })
+
+  it('IN-3 / UZ-2 -- every node of the tooltip resolves to pointer-events none, and the covered entrance does not', () => {
+    const built = wire(TIP_OVER_THE_ENTRY)
+    surfaceOf(built).showScreenView(TIPPED_PALETTE)
+    const tip = byRole(built.root(), TOOLTIP_PART)[0] as FakeElement
+    for (const one of selfAndDescendants(tip)) {
+      expect(inheritedPointerEvents(one).value, `${IN_3_TAKES_NO_POINTER} -- ${serialize(one)}`).toBe('none')
+    }
+    expect(inheritedPointerEvents(entryFor(built.root(), COVERED_ENTRY)).value, `premise: ${COVERED_ENTRY} takes the press`).not.toBe('none')
+  })
+
+  it('IN-3 / UZ-2 -- a press under the tooltip answers the entrance beneath it, in a host that skips what takes no pointer', () => {
+    const built = drawnHonouringPointerEvents(TIPPED_PALETTE)
+    const answer = ask(built, UNDER_THE_TIP.x, UNDER_THE_TIP.y)
+    expect(answer?.part, UZ_2_PASSES_THE_PRESS).toBe(partName('U-26'))
+    expect(answer?.entry, UZ_2_PASSES_THE_PRESS).toBe(COVERED_ENTRY)
+  })
+})

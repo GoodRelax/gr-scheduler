@@ -32,7 +32,9 @@ const rowText = (table: string, id: string): string => unbroken(rowOf(table, id)
 const EZ_2_ASSIGNMENT = '説明の後ろに、その行の割当も出すこと（MUST）'
 const EZ_2_SIZE = '字の大きさは 表 T-206 の `S-204` が定める係数で決めること（MUST）'
 const EZ_6_WHOLE_NAME = '**名前は打ち切らずに全文を出すこと（MUST）**'
-const IN_3_HOVERABLE = '**ポインタを乗せられること** —— 説明そのものの上へポインタを移しても消えないこと。'
+const IN_3_TAKES_NO_POINTER = '⭐ ツールチップはポインタを受け取らず、下へ通すこと（MUST）（`FR-152` の 表 T-337 の `UZ-2`）'
+const UZ_2_PASSES_THE_PRESS = '押下を受けず、下へ通すこと（MUST）—— 説明は短く、押すものを持たないので、覆った入口から押す手を奪ってはならない'
+const IN_3_THE_OLD_CLAUSE = 'ポインタを乗せられること'
 
 const TOOLTIP = bare(rowOf('T-103', 'U-53').by['確定名（英）'] ?? '')
 const S_204 = Number.parseFloat(bare(rowOf('T-206', 'S-204').by['既定'] ?? ''))
@@ -81,12 +83,24 @@ function drawn(tooltips: readonly Tooltip[]): Stage {
 
 const tipsOf = (built: Stage): FakeElement[] => oneByRole(built.root(), TOOLTIP).children
 
+// WHY: pointer-events inherits, so the value a node takes is the nearest declaration up the tree.
+/** @purity pure */
+function pointerEventsReaching(element: FakeElement): string {
+  for (let at: FakeElement | null = element; at !== null; at = at.parentNode) {
+    const held = (styleMap(at).get('pointer-events') ?? '').trim().toLowerCase()
+    if (held !== '' && held !== 'inherit') return held
+  }
+  return 'auto'
+}
+
 describe('CR-439 Tooltip -- the clauses still stand', () => {
   it('EZ-2, EZ-6 and IN-3 still say what these cases test', () => {
     expect(rowText('T-040', 'EZ-2')).toContain(EZ_2_ASSIGNMENT)
     expect(rowText('T-040', 'EZ-2')).toContain(EZ_2_SIZE)
     expect(rowText('T-040', 'EZ-6')).toContain(EZ_6_WHOLE_NAME)
-    expect(rowText('T-028', 'IN-3')).toContain(IN_3_HOVERABLE)
+    expect(rowText('T-028', 'IN-3')).toContain(IN_3_TAKES_NO_POINTER)
+    expect(rowText('T-028', 'IN-3')).not.toContain(IN_3_THE_OLD_CLAUSE)
+    expect(rowText('T-337', 'UZ-2')).toContain(UZ_2_PASSES_THE_PRESS)
     expect(Number.isFinite(S_204)).toBe(true)
   })
 })
@@ -118,9 +132,14 @@ describe('the Tooltip (U-53)', () => {
     expect(style.get('text-overflow')).not.toBe('ellipsis')
   })
 
-  it('IN-3 ポインタを乗せられること -- the tip itself takes the pointer', () => {
-    const built = drawn([ICON_TIP])
-    expect(styleMap(tipsOf(built)[0] as FakeElement).get('pointer-events')).not.toBe('none')
+  it('IN-3 / UZ-2 ツールチップはポインタを受け取らず、下へ通すこと -- the tip takes no pointer, and nothing inside it takes one back', () => {
+    for (const tip of [ICON_TIP, TASK_TIP]) {
+      const built = drawn([tip])
+      const box = tipsOf(built)[0] as FakeElement
+      for (const one of selfAndDescendants(box)) {
+        expect(pointerEventsReaching(one), `${tip.anchor.kind} tip: ${one.tagName}`).toBe('none')
+      }
+    }
   })
 
   it('no tooltip in the description, none on the screen', () => {

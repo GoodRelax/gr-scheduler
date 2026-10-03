@@ -1,6 +1,6 @@
 // 表 T-028 の `IN-3` と `IN-4` (docs/spec/01-04-requirements.md:4096-4098):
 //
-//   IN-3 「ツールチップは、次の 3 つをすべて満たすこと（MUST）。**消せること**
+//   IN-3 「ツールチップは、次の 2 つをすべて満たすこと（MUST）。**消せること**
 //        —— ポインタもフォーカスも動かさずに消す手立てがあること。」
 //   IN-4 「**消費する階層は 出ている通知 → 確定していないその場の編集 → 開いて
 //        いる面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor`
@@ -84,9 +84,8 @@
 //   - The WORDS of any explanation. FR-038's dictionary holds those and
 //     tests/unit/uf-69.test.ts drives them; a case here that compared text
 //     would be measuring the wrong member.
-//   - IN-3's other two thirds (ポインタを乗せられること / 引き金が外れるまで
-//     出ていること). DFC-307 is about the first, and the third is a geometry and
-//     a rest that uf-69.test.ts already holds.
+//   - IN-3's other condition (引き金が外れるまで出ていること). DFC-307 is
+//     about the first, and the second is a rest that uf-69.test.ts already holds.
 //   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against the
 //     selection. Since Q20 (2026-09-22) IN-4 prints the panel its own rung, right
 //     after the drag, and only its place above the selection is asserted here:
@@ -148,11 +147,11 @@ import { specTable, unbroken } from './spec-table'
  * clauses, quoted to the character so that a re-wording of the manuscript takes
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
-const IN_3_THE_THREE =
-  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す |\n| IN-3 | ツールチップは、次の 3 つをすべて満たすこと（MUST）'
+const IN_3_THE_TWO =
+  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す |\n| IN-3 | ツールチップは、次の 2 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
-  'ること** —— 説明そのものの上へポインタを移しても消えないこと。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
+  '手立てがあること。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
   'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
@@ -335,7 +334,7 @@ const shownFor = (readings: ScreenViewReadings, root: ScreenSession = ROOT): rea
 
 describe('DFC-307 -- the manuscript these cases are driven by', () => {
   it('still asks (MUST) that a standing explanation can be put away', () => {
-    expect(REQUIREMENTS).toContain(IN_3_THE_THREE)
+    expect(REQUIREMENTS).toContain(IN_3_THE_TWO)
     expect(REQUIREMENTS).toContain(IN_3_CAN_BE_PUT_AWAY)
     expect(REQUIREMENTS).toContain(IN_3_UNTIL_THE_TRIGGER_GOES)
   })
