@@ -259,7 +259,7 @@ function smallDocument(part: Fixture): Record<string, any> {
     },
     documentSettings: {
       ...structuredClone(TEMPLATE_SETTINGS),
-      scrollDate: '2026-04-01',
+      scrollDate: '2026-04-01T00:00:00',
       scrollGroupId: A,
       zoomY: part.zoomY,
       levelZeroTreeState: part.levelZero ?? 'auto',
@@ -490,7 +490,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
   function templateDocument(): Record<string, any> {
     const doc = structuredClone(TEMPLATE)
     doc.schedule.taskGroups = doc.schedule.taskGroups.map((one: any) => withTreeState(one, 'auto'))
-    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05', scrollGroupId: target.id }
+    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollGroupId: target.id }
     return doc
   }
 
@@ -1038,7 +1038,7 @@ describe(`FR-016 -- ${FR_016_TALLEST_AMONG_DRAWN}`, () => {
     const deep = groups.find((one: any) => depthOf(one) === 4)
     doc.schedule.taskGroups = groups.map((one: any) => withTreeState(one, one.id === deep.parentId ? parentState : 'auto'))
     doc.schedule.taskGroupMembers = doc.schedule.taskGroupMembers.map((one: any) => ({ ...one, groupId: deep.id }))
-    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05', scrollGroupId: groups[0].id }
+    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollGroupId: groups[0].id }
     return doc
   }
 

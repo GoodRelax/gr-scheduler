@@ -243,8 +243,8 @@ function twoRowDocument(): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: [
-        task(1, '2026-04-01', '2026-04-10', 'One'),
-        task(2, '2026-05-06', '2026-05-20', 'Two'),
+        task(1, '2026-04-01T00:00:00', '2026-04-10T00:00:00', 'One'),
+        task(2, '2026-05-06T00:00:00', '2026-05-20T00:00:00', 'Two'),
       ],
       resources: [],
       assignments: [],
@@ -1547,7 +1547,7 @@ describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the
   // the DOCUMENT holds, never a value the shell began at.
   // WHY: OP-15 (T-024a) -- IC-4 only toggles S-69 while a pre-change plan (a BaselineTask, ET-18) is held; with none
   // held it asks for the file instead (FR-015), tested elsewhere, so the IC-4 cases stand on a document holding one.
-  const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25', finish: '2026-04-03', milestone: false }]
+  const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25T00:00:00', finish: '2026-04-03T00:00:00', milestone: false }]
   const standingToToggle = (entry: string, overrides: Record<string, unknown>): Standing => {
     if (entry !== 'IC-4') return standing(overrides)
     const draft = documentWithSettings(overrides) as any

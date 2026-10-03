@@ -15,7 +15,8 @@
  "additionalProperties": false,
  "properties": {
   "schemaVersion": {
-   "type": "string"
+   "type": "string",
+   "const": "2026-09-27"
   },
   "schedule": {
    "type": "object",
@@ -242,6 +243,7 @@
       "string",
       "null"
      ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
      "default": null
     },
     "scrollDayOffset": {
@@ -378,10 +380,7 @@
      ]
     },
     "created": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "revision": {
      "type": [
@@ -390,23 +389,14 @@
      ]
     },
     "lastSaved": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "startDate": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "statusDate": {
      "description": "MS Project's StatusDate; the progress line is drawn on this day.",
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "minutesPerDay": {
      "type": [
@@ -527,16 +517,10 @@
      ]
     },
     "start": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "finish": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "milestone": {
      "description": "The fact, exported to MS Project; TaskVisual.shapeKind only draws it and must agree with it.",
@@ -546,10 +530,7 @@
      ]
     },
     "deadline": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "notes": {
      "type": [
@@ -565,30 +546,18 @@
      ]
     },
     "actualStart": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "stop": {
      "description": "MS Project's Stop, kept under its name for the round trip: the last day the actual has reached while the task is unfinished; null once actualFinish is set.",
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "actualFinish": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "resume": {
      "description": "MS Project's Resume: the day the rest of an interrupted task is planned to restart.",
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "resumeValid": {
      "description": "MS Project's ResumeValid: false means interrupted with no restart day decided.",
@@ -915,16 +884,10 @@
     },
     "fromDate": {
      "description": "MS Project's start of the recurrence, not a range of real days.",
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "toDate": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "dayWorking": {
      "type": [
@@ -1186,10 +1149,7 @@
      ]
     },
     "anchorDate": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "anchorGroupId": {
      "type": [
@@ -1274,16 +1234,10 @@
      "format": "uuid"
     },
     "startDate": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "endDate": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "topGroupId": {
      "type": [
@@ -1447,16 +1401,10 @@
      ]
     },
     "start": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "finish": {
-     "type": [
-      "string",
-      "null"
-     ]
+     "$ref": "#/$defs/DateTime"
     },
     "milestone": {
      "type": [
@@ -1472,6 +1420,13 @@
    "additionalProperties": {
     "type": "string"
    }
+  },
+  "DateTime": {
+   "type": [
+    "string",
+    "null"
+   ],
+   "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
   }
  }
 }

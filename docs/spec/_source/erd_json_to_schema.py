@@ -27,9 +27,17 @@ the writer of a document -- an AI included -- holding this one file, so:
     structure already say, and names no specification ID (Chapter 6.2). A
     column's description is its `schemaNote` in erd.json; most columns have
     none, on purpose;
-  - ⚠️ a date column carries NO pattern yet: the walker generated from this
-    schema would refuse a whole file over a date that FR-023 drops row by row
-    (DFC-1795), so the date-time shape is said in the root description only;
+  - every date column (`isDate` in erd.json) points at one `$defs/DateTime`,
+    whose pattern is the lexical form of xsd:dateTime, the type MS Project
+    gives every date (CR-643). It is a promise to the writer (FR-024) and NOT a
+    reading condition: tools/generate_json_schema_validator.py drops it, since
+    FR-023 drops an unusable date row by row where the walker would refuse the
+    whole file (Chapter 6.1). `scrollDate` carries the same pattern inline,
+    because tools/generate_entity_types.py types a presentation key from its
+    own node and cannot follow a reference;
+  - `schemaVersion` is the `const` of this build's version, read from
+    tools/generate_startup_template.py (SCHEMA_VERSION), never retyped; the
+    reader judges the version itself (FR-073), so the validator drops it too;
   - every `carry` points at one `$defs/Carry`, so its reason is said once;
   - every documentSettings key carries its `default`, and a bound the table
     writes as the name of a constant (`zoomMin`) is carried as that constant's
@@ -53,6 +61,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))),
                                 'tools'))
 import generate_entity_types as settings_reader  # noqa: E402
+# ⭐ The format version has ONE source, the build's own startup document
+# (DR-4 of table T-052); the schema's `const` is read from it (CR-643).
+from generate_startup_template import SCHEMA_VERSION  # noqa: E402
 # HERE is docs/spec/_source/ (the manuscripts, which belong to no language);
 # what it writes goes to docs/spec/_assets/ (CR-175).
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
@@ -160,6 +171,17 @@ def bandless_colour_names():
 # A custom colour: <light>/<dark>, each #rrggbb or empty, never both empty
 # (table T-017b CV-2 of 01-04).
 CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
+
+# ⭐ The lexical form of xsd:dateTime: fractional seconds and a zone are
+# allowed, because a value imported from MS Project keeps its spelling (EX-4
+# of table T-033). GRS itself writes no zone and stops at the second.
+# tools/generate_json_schema_validator.py names DATE_TIME_DEF by its pointer
+# and drops this pattern there (Chapter 6.1, CR-643).
+DATE_TIME_DEF = 'DateTime'
+DATE_TIME_PATTERN = (r'^-?\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?'
+                     r'(Z|[+-]\d{2}:\d{2})?$')
+# The one root key that is the format version (DR-4 of table T-052).
+VERSION_KEY = 'schemaVersion'
 
 # ⭐ The prose a document writer reads, in English because the schema belongs
 # to no language (Chapter 6.2). A summary and the reason only; no
@@ -359,6 +381,27 @@ def carry_def(erd):
     ])
 
 
+def date_time_ref(spec, where):
+    """A date column: a reference to the one date-time definition.
+
+    ⛔ The definition admits null, so a column that does not would be widened
+    by it; such a column stops the build rather than being widened.
+    """
+    if spec['kind'] != 'string' or not spec.get('null') or \
+            set(spec) - {'kind', 'isDate', 'null'}:
+        raise SystemExit('%s is a date column that is not a plain nullable '
+                         'string, so it cannot point at $defs/%s'
+                         % (where, DATE_TIME_DEF))
+    return collections.OrderedDict([('$ref', '#/$defs/%s' % DATE_TIME_DEF)])
+
+
+def date_time_def():
+    return collections.OrderedDict([
+        ('type', ['string', 'null']),
+        ('pattern', DATE_TIME_PATTERN),
+    ])
+
+
 def entity_defs(erd, open_enums):
     defs = collections.OrderedDict()
     for e in erd['entities']:
@@ -371,7 +414,8 @@ def entity_defs(erd, open_enums):
                 props[c['name']] = collections.OrderedDict(
                     [('$ref', '#/$defs/%s' % CARRY_DEF)])
                 continue
-            body = frag(c['json'], open_enums, where)
+            body = (date_time_ref(c['json'], where) if c['json'].get('isDate')
+                    else frag(c['json'], open_enums, where))
             if 'schemaNote' in c:
                 described = collections.OrderedDict(
                     [('description', c['schemaNote']['en'])])
@@ -502,7 +546,8 @@ def settings_type(row, header, key, open_types):
             return collections.OrderedDict([('type', 'number')])
         if text.startswith('日付'):
             return collections.OrderedDict([
-                ('type', ['string', 'null'] if nullable else 'string')])
+                ('type', ['string', 'null'] if nullable else 'string'),
+                ('pattern', DATE_TIME_PATTERN)])
         if 'UUID' in text and '配列' not in text:
             return collections.OrderedDict([
                 ('type', ['string', 'null'] if nullable else 'string'),
@@ -731,6 +776,7 @@ def build():
     reachable = set()
     defs = entity_defs(erd, open_enums)
     defs[CARRY_DEF] = carry_def(erd)
+    defs[DATE_TIME_DEF] = date_time_def()
     schedule = schedule_object(erd, reachable)
     settings = document_settings(tables, open_types, skipped)
 
@@ -751,8 +797,15 @@ def build():
         elif shape == 'オブジェクト':
             props[key] = collections.OrderedDict([('$ref', '#/$defs/%s' % key)])
             reachable.add(key)
+        elif key == VERSION_KEY:
+            props[key] = collections.OrderedDict([('type', 'string'),
+                                                  ('const', SCHEMA_VERSION)])
         else:
             props[key] = collections.OrderedDict([('type', 'string')])
+    if VERSION_KEY not in props:
+        raise SystemExit('the root box of erd.json no longer holds %r, so the '
+                         'format version has no key to carry its const'
+                         % VERSION_KEY)
 
     # An entity a column points at is reachable too.
     changed = True

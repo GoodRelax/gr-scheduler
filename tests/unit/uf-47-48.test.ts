@@ -115,7 +115,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 /** A `TaskGroup.id` no row carries -- OP-10's "指す行が存在しない". */
 const GONE = '99999999-9999-4999-8999-999999999999'
 
-const FIRST_START = '2026-04-01'
+const FIRST_START = '2026-04-01T00:00:00'
 
 /**
  * An actual that begins after its Task's plan has already finished, which is
@@ -123,8 +123,8 @@ const FIRST_START = '2026-04-01'
  * overhang is drawn. Long enough that the actual bar ends beyond every plan bar
  * in the document, short enough to leave the fit a readable zoom.
  */
-const LATE_ACTUAL_START = '2026-04-20'
-const LATE_ACTUAL_LAST_DAY = '2026-05-15'
+const LATE_ACTUAL_START = '2026-04-20T00:00:00'
+const LATE_ACTUAL_LAST_DAY = '2026-05-15T00:00:00'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -209,7 +209,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     schedule: {
       project: { ...structuredClone(template.schedule.project), uidHighWaterMark: 100 },
       calendars: structuredClone(template.schedule.calendars),
-      tasks: [task(1, FIRST_START, '2026-04-10', 'One'), task(2, '2026-04-06', '2026-04-20', 'Two')],
+      tasks: [task(1, FIRST_START, '2026-04-10T00:00:00', 'One'), task(2, '2026-04-06T00:00:00', '2026-04-20T00:00:00', 'Two')],
       resources: [],
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
@@ -646,7 +646,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // pointing at a live row, so this state is reachable in a valid document
     // (CD-2 makes it on purpose when a row is deleted).
     const stale = twoRowDocument((draft) => {
-      draft.documentSettings.scrollDate = '2026-04-05'
+      draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = GONE
     })
     expect(validateDocument(stale).valid).toBe(true)
@@ -667,7 +667,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // wants the same JSON to come back looking the same, so a place the person
     // did choose is used as it stands.
     const placed = twoRowDocument((draft) => {
-      draft.documentSettings.scrollDate = '2026-04-05'
+      draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = ALPHA
     })
     const pane = host()
@@ -752,7 +752,7 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
     const before = pane.frames()
     const next = twoRowDocument((draft) => {
-      draft.schedule.tasks[1].finish = '2026-05-29'
+      draft.schedule.tasks[1].finish = '2026-05-29T00:00:00'
     })
 
     loop.holdDocument(RESTORED(next))
@@ -971,9 +971,9 @@ const titlesOf = (view: ScreenView) => [
 const shortDocument = () =>
   twoRowDocument((draft) => {
     draft.schedule.tasks[0].start = FIRST_START
-    draft.schedule.tasks[0].finish = '2026-04-03'
-    draft.schedule.tasks[1].start = '2026-04-02'
-    draft.schedule.tasks[1].finish = '2026-04-08'
+    draft.schedule.tasks[0].finish = '2026-04-03T00:00:00'
+    draft.schedule.tasks[1].start = '2026-04-02T00:00:00'
+    draft.schedule.tasks[1].finish = '2026-04-08T00:00:00'
   })
 
 /** A document with no rows and no tasks -- the empty case SC-4 still has to draw for. */
@@ -1184,7 +1184,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     // on 2026-04-05 in one case and OP-10's fit decides it in the other, so the
     // two frames look at different days -- and the panel stands where it stood.
     const scrolled = twoRowDocument((draft) => {
-      draft.documentSettings.scrollDate = '2026-04-05'
+      draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = ALPHA
     })
     expect(validateDocument(scrolled).valid).toBe(true)

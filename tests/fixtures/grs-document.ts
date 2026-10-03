@@ -8,6 +8,8 @@ const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document
 
 export const documentSchema: unknown = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8'))
 
+// WHY: the published schema is the writer's promise (FR-024), so its date
+// pattern and version const hold here though the reader drops them (CR-643).
 const ajv = new Ajv2020({ allErrors: true, strict: false })
 // WHY: registered once under its own $id so a reference reaches it, rather
 // than compiling the schema a second time for each reference.

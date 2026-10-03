@@ -516,7 +516,7 @@ function documentWith(
         uidHighWaterMark: 100,
       },
       calendars: structuredClone(template.schedule.calendars),
-      tasks: uids.map((uid) => task(uid, '2026-04-01', '2026-04-10', `Task ${uid}`)),
+      tasks: uids.map((uid) => task(uid, '2026-04-01T00:00:00', '2026-04-10T00:00:00', `Task ${uid}`)),
       resources: [],
       assignments: [],
       taskGroups: [row(rowId, rowLabel)],
