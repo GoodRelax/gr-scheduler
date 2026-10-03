@@ -69,6 +69,8 @@ const ROW_FOLDING_GRID_MARK = 'data-row-folding-grid'
 
 const ROW_CONTROL_PAIR_MARK = 'data-row-control-pair'
 
+const GROUP_GRID_LINE_MARK = 'data-group-grid-line'
+
 const ROW_CONTROLS_LULL_MS = 1000
 
 /** @purity pure */
@@ -535,6 +537,14 @@ export function fillRowTitleTree(
     const row = rowTitleElement(host, title, false, { anchors, groupId: title.groupId })
     anchors.set(anchorKey({ kind: 'rowTitle', groupId: title.groupId }), row)
     drawn.push(row)
+  }
+  // WHY: after the rows, whose opaque ground would hide a line set before them; a hovered
+  // row's z-index still lifts its controls over the lines (HF-19).
+  for (const line of panel.groupGridLines ?? []) {
+    const rule = made(host, 'div', boxStyle(line) + STYLE.groupGridLine)
+    rule.setAttribute(GROUP_GRID_LINE_MARK, 'true')
+    rule.setAttribute('aria-hidden', 'true')
+    drawn.push(rule)
   }
   tree.replaceChildren(...drawn)
 }

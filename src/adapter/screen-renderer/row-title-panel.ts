@@ -15,6 +15,7 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { groupDepthLimit, keptInViewByTreeState } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenViewReadings } from './screen-renderer'
 
 interface PanelIndex extends OpenArming {
@@ -335,6 +336,19 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   }
 }
 
+// see FR-042, FR-098
+// WHY: from the placed boxes, not a held row's moved one: the schedule side's line stays put too.
+/** @purity pure */
+function groupGridLinesOf(placedBoxes: readonly ScreenRect[], settings: DrawnSettings): readonly ScreenRect[] {
+  if (!settings.groupGridLinesVisible) return []
+  return placedBoxes.map((box) => ({
+    x: box.x,
+    y: box.y + box.height - GROUP_GRID_LINE_WIDTH_PX / 2,
+    width: box.width,
+    height: GROUP_GRID_LINE_WIDTH_PX,
+  }))
+}
+
 // see FR-085, FR-098
 /** @purity pure */
 export function rowTitlePanelFromSchedule(
@@ -361,11 +375,13 @@ export function rowTitlePanelFromSchedule(
           resistedPx: grabbed.resistedPx,
         }
 
+  const placedBoxes: ScreenRect[] = []
   const pinnedTitles: RowTitle[] = []
   for (const groupId of pinnedGroupIds) {
     const group = index.groupsById.get(groupId)
     const box = index.boxByGroupId.get(groupId)
     if (group === undefined || box === undefined) continue
+    placedBoxes.push(box)
     pinnedTitles.push(rowTitleOf(group, box, true, index, settings, chosenGroupIds, null))
   }
 
@@ -376,6 +392,7 @@ export function rowTitlePanelFromSchedule(
     const group = index.groupsById.get(placed.groupId)
     if (group === undefined) continue
     describedGroupIds.add(placed.groupId)
+    placedBoxes.push(placed.box)
     titles.push(
       rowTitleOf(
         group,
@@ -396,6 +413,7 @@ export function rowTitlePanelFromSchedule(
   return {
     pinnedTitles,
     titles,
+    groupGridLines: groupGridLinesOf(placedBoxes, settings),
     canOpenEveryRow: index.isAnyRowUnplaced,
     canCloseEveryRow:
       !isLevelZeroCollapsed && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),

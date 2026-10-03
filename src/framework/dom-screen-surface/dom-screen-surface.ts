@@ -114,6 +114,7 @@ const PAINT_ROW = {
   caution: 'S-153',
   brandingRim: 'S-464',
   brandingDivider: 'S-493',
+  groupGridLine: 'S-165',
 } as const
 
 /** @purity pure */
@@ -140,6 +141,7 @@ export const PAINT = {
   caution: painted('caution'),
   brandingRim: painted('brandingRim'),
   brandingDivider: painted('brandingDivider'),
+  groupGridLine: painted('groupGridLine'),
 } as const
 
 /** @purity pure */
@@ -324,6 +326,7 @@ export const STYLE = {
     'font-size:0.8em;line-height:1;pointer-events:none;',
   dividerBand: 'cursor:col-resize;pointer-events:auto;',
   dividerLine: `background:${PAINT.rule};pointer-events:none;`,
+  groupGridLine: `background:${PAINT.groupGridLine};pointer-events:none;`,
   scrollbarTrack: `background:${PAINT.panel};pointer-events:auto;`,
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
   rowTitlePanel: `position:absolute;background:${PAINT.panel};`,
@@ -1469,5 +1472,6 @@ export const SCREEN_COLOURS: {
   'S-337': { light: '#c0c0c0', dark: '#c0c0c0', followsHue: false },
   'S-464': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-493': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
+  'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
 }
 // </generated>
