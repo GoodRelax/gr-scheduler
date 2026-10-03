@@ -116,6 +116,48 @@ describe('T-318 -- how a parent not written down is resolved', () => {
   })
 })
 
+const FR_135_NO_MILESTONE_PARENT = '⛔ マイルストーンを親にしてはならない（MUST NOT） —— `wbsParentUid` が明記していても同じである。'
+const FR_135_READ_AS_NULL = '診断は、マイルストーンを指す `wbsParentUid` を親として読まず、その子を `wbsParentUid` が `null` の `Task` として 表 T-318 で親を導くこと（MUST）'
+
+// WHY: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top row.
+const X = 10
+const Y = 11
+const Z = 12
+const N = 13
+const MILESTONE_PARENTS: SceneSpec = {
+  groups: FAMILY.groups,
+  tasks: [
+    ...FAMILY.tasks,
+    [taskOf(N, 44, 44, null, true), 'top'],
+    [taskOf(Z, 46, 50, N), 'top'],
+    [taskOf(X, 5, 9, M), 'low'],
+    [taskOf(Y, 19, 23, M), 'low'],
+  ],
+}
+
+describe('FR-135 / JDG-1118 -- "マイルストーンを親にしてはならない", even when wbsParentUid states one', () => {
+  it('FR-135 still says a stated milestone parent is read as null and the child derived by T-318', () => {
+    expect(REQUIREMENTS, FR_135_NO_MILESTONE_PARENT).toContain(FR_135_NO_MILESTONE_PARENT)
+    expect(REQUIREMENTS, FR_135_READ_AS_NULL).toContain(FR_135_READ_AS_NULL)
+  })
+
+  it('FR-135 / JDG-1118: no child is resolved as stated with a milestone for its parent', () => {
+    const resolutions = resolutionsOf(MILESTONE_PARENTS)
+    for (const uid of [X, Y, Z]) {
+      expect(resolutions.get(uid)?.kind, `task ${String(uid)} states a milestone parent`).not.toBe('stated')
+    }
+  })
+
+  it('FR-135 / JDG-1118: a child stating a milestone parent falls to T-318 -- derived, undecided or root', () => {
+    const resolutions = resolutionsOf(MILESTONE_PARENTS)
+    expect(resolutions.get(X), 'IP-2: P alone encloses X').toEqual({ kind: 'derived', parentUid: P })
+    const found = resolutions.get(Y)
+    expect(found?.kind, 'IP-3: no bar encloses Y').toBe('undecided')
+    expect(found?.kind === 'undecided' ? [...found.candidates] : [], 'IP-4: a milestone is never a candidate').not.toContain(M)
+    expect(resolutions.get(Z), 'IP-5: Z on the top row is a root').toEqual({ kind: 'root' })
+  })
+})
+
 const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const DRAW_RATIO_AT_100 = T206('S-236')
