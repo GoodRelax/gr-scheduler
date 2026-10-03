@@ -1,0 +1,5 @@
+WALK warm-up {"answers":[16,44.299999952316284],"build":[8,27.59999978542328]} svgNodes 2044 domNodes 2526
+WALK MK-1 scroll {"answers":[213,423.400000333786],"build":[162,291.400000333786]} svgNodes 1971 domNodes 2453
+WALK MK-2 zoom {"answers":[438,870.9000009298325],"build":[363,629.200001001358]} svgNodes 2528 domNodes 2990
+WALK MK-7 pan {"answers":[793,1327.700001001358],"build":[532,921.0000015497208]} svgNodes 2542 domNodes 3004
+WALK MK-6 range select {"answers":[1092,1707.5000027418137],"build":[716,1188.9000024795532]} svgNodes 2201 domNodes 2683
