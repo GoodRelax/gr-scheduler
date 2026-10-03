@@ -30,7 +30,7 @@ import {
   tooltipsFromScreenView,
 } from '../../src/adapter/screen-renderer/tooltips'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
-import { showDualCursorReadout } from '../../src/framework/dom-screen-surface/tooltips-drawing'
+import { showPointTip } from '../../src/framework/dom-screen-surface/tooltips-drawing'
 import { NOT_STORED_HELP_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
   emptyScreenSession,
@@ -387,7 +387,7 @@ const drawnReadout = (at: { x: number; y: number }, room: { width: number; heigh
   }
   Object.defineProperty(layer, 'firstElementChild', { get: () => layer.children[0] ?? null })
   const readout: ScreenView['dualCursorReadout'] = { lines: ['a', 'b', 'c'], at }
-  showDualCursorReadout(host as unknown as Document, layer as unknown as HTMLElement, readout)
+  showPointTip(host as unknown as Document, layer as unknown as HTMLElement, readout)
   const shown = layer.children[0] as FakeNode | undefined
   expect(shown, 'premise: the readout is in the layer').toBeDefined()
   const style = shown!.style.replace(/\s/g, '')
@@ -438,11 +438,11 @@ const taskTooltips = (mode: Mode): number => {
     {
       pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
       hintTargetDwellMs: SETTINGS_CONSTANTS.taskHintDelayMs,
-      taskUnderPointer: TASK,
+      hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid },
     },
   )
   const shown = { frame: { scrollbars: [] } } as unknown as Omit<ScreenView, 'tooltips'>
-  return tooltipsFromScreenView(shown, settings, sessionIn(mode, STORED), readings).filter(
+  return tooltipsFromScreenView(shown, settings, sessionIn(mode, STORED), readings, SCHEDULE).filter(
     (one) => one.anchor.kind === 'task',
   ).length
 }

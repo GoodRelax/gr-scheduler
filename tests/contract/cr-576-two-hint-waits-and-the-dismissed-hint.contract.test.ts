@@ -11,7 +11,7 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import type { Task } from '../../src/entity/document-model/schedule/schedule'
+import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   advanceScreenSession,
   emptyScreenSession,
@@ -158,6 +158,9 @@ const TASK = {
   carryElements: [],
 } as unknown as Task
 
+// WHY: the hint holder names the Task by uid, so the schedule the tooltips read must hold it.
+const SCHEDULE = { tasks: [TASK], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule
+
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
   for (const key of Object.keys(flat)) {
@@ -197,7 +200,7 @@ const READINGS: ScreenViewReadings = {
 // WHY: a pointer that entered the target and stopped at once has rested as long as it has dwelt.
 const onTheIcon = (ms: number): ScreenViewReadings => ({ ...READINGS, iconUnderPointer: ICON, pointerRestedMs: ms, hintTargetDwellMs: ms })
 const onTheTask = (ms: number): ScreenViewReadings =>
-  ({ ...READINGS, taskUnderPointer: TASK, pointerRestedMs: ms, hintTargetDwellMs: ms }) as unknown as ScreenViewReadings
+  ({ ...READINGS, hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid }, pointerRestedMs: ms, hintTargetDwellMs: ms }) as unknown as ScreenViewReadings
 
 type Counted = { readonly icon: (ms: number) => number; readonly task: (ms: number) => number }
 
@@ -210,7 +213,7 @@ async function queriesWith(replaced: Readonly<Record<string, number>>): Promise<
   })
   const { tooltipsFromScreenView } = await import('../../src/adapter/screen-renderer/tooltips')
   const kindCount = (readings: ScreenViewReadings, kind: string): number =>
-    tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('allowed'), readings).filter((one) => one.anchor.kind === kind).length
+    tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('allowed'), readings, SCHEDULE).filter((one) => one.anchor.kind === kind).length
   return { icon: (ms) => kindCount(onTheIcon(ms), 'icon'), task: (ms) => kindCount(onTheTask(ms), 'task') }
 }
 
@@ -280,7 +283,7 @@ describe('CR-576 claim 5 (contract) -- a dismissed hint comes back only on scree
     vi.resetModules()
     const { tooltipsFromScreenView } = await import('../../src/adapter/screen-renderer/tooltips')
     const long = 10 * (ICON_WAIT.ms + TASK_WAIT.ms)
-    expect(tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('allowed'), onTheIcon(long)).length, 'premise').toBe(1)
-    expect(tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('dismissed'), onTheIcon(long)), IN_3_CAN_BE_PUT_AWAY).toEqual([])
+    expect(tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('allowed'), onTheIcon(long), SCHEDULE).length, 'premise').toBe(1)
+    expect(tooltipsFromScreenView(VIEW, SETTINGS, sessionWith('dismissed'), onTheIcon(long), SCHEDULE), IN_3_CAN_BE_PUT_AWAY).toEqual([])
   })
 })

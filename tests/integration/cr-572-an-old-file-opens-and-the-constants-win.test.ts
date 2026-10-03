@@ -172,17 +172,17 @@ describe('CR-572 item 3 -- an old file opens and the carried keys are dropped (O
 describe('CR-572 item 3 -- the delay in effect is S-124, not the 1000 the file carried (DFC-995)', () => {
   it(`EZ-2 「${EZ_2_WAIT}」: resting S-124 + 1 ms on an icon of the opened document shows its explanation`, () => {
     const settings = opened().document.documentSettings
-    expect(tooltipsFromScreenView(VIEW, settings, SESSION, restingOnTheIcon(S_124_MS + 1)).length).toBe(1)
+    expect(tooltipsFromScreenView(VIEW, settings, SESSION, restingOnTheIcon(S_124_MS + 1), opened().document.schedule).length).toBe(1)
   })
 
   it('EZ-2: a settings object still carrying the stale 1000 does not delay the explanation either', () => {
     const stale = { ...opened().document.documentSettings, ...CARRIED_OVER } as unknown as DocumentSettings
-    expect(tooltipsFromScreenView(VIEW, stale, SESSION, restingOnTheIcon(S_124_MS + 1)).length).toBe(1)
+    expect(tooltipsFromScreenView(VIEW, stale, SESSION, restingOnTheIcon(S_124_MS + 1), opened().document.schedule).length).toBe(1)
   })
 
   it('control: resting less than S-124 shows nothing', () => {
     const settings = opened().document.documentSettings
-    expect(tooltipsFromScreenView(VIEW, settings, SESSION, restingOnTheIcon(S_124_MS - 1))).toEqual([])
+    expect(tooltipsFromScreenView(VIEW, settings, SESSION, restingOnTheIcon(S_124_MS - 1), opened().document.schedule)).toEqual([])
   })
 
   it('the drawn view carries S-124 and the constant basePlanHeight whatever the stored object carries', () => {

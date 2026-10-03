@@ -804,7 +804,7 @@ const restingOn = (task: Task): ScreenViewReadings => ({
   hintTargetDwellMs: S_439_MS + 1,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
-  taskUnderPointer: task,
+  hintHolderUnderPointer: { kind: 'task', taskUid: task.uid },
   themePreference: 'light',
   themeHue: THEME_HUE,
   selectedGroupIds: [],
@@ -821,6 +821,7 @@ const taskTipOf = (task: Task, language: 'ja' | 'en'): string => {
     SETTINGS_DEFAULTS as unknown as DocumentSettings,
     sessionIn(language),
     restingOn(task),
+    { tasks: [task], resources: [], assignments: [], baselineTasks: [] } as unknown as Schedule,
   ).filter((one) => one.anchor.kind === 'task')
   if (tips.length !== 1) throw new Error(`EZ-6: ${tips.length} task tooltips after resting S-439 on a task`)
   return (tips[0] as Tooltip).text

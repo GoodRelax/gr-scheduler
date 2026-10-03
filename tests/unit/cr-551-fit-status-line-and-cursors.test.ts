@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { showDualCursorReadout } from '../../src/framework/dom-screen-surface/tooltips-drawing'
+import { showPointTip } from '../../src/framework/dom-screen-surface/tooltips-drawing'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import {
   byRole,
@@ -442,7 +442,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
     // see DC-3, S-334, S-340
     const built = stage()
     const layer = built.host.createElement('div') as unknown as FakeElement
-    showDualCursorReadout(built.host, layer as unknown as HTMLElement, { lines: ['a', 'b', 'c'], at: { x: 10, y: 10 } })
+    showPointTip(built.host, layer as unknown as HTMLElement, { lines: ['a', 'b', 'c'], at: { x: 10, y: 10 } })
     const box = layer.children[0] as FakeElement
     const size = (styleMap(box).get('font-size') ?? '').replace(/\s/g, '')
     expect(size).toBe(`max(${S_340}px,${S_334}em)`)

@@ -241,13 +241,19 @@ function rowGrabStripStyle(isHeld: boolean): string {
   )
 }
 
-// see FR-029, HF-5, T-109
+interface RowAnchors {
+  readonly anchors: Map<string, HTMLElement>
+  readonly groupId: string
+}
+
+// see FR-029, HF-5, T-109, IN-3, DFC-1720
 /** @purity non-pure */
 function rowControlElement(
   host: Document,
   role: string | null,
   icon: string,
   canAct: boolean,
+  anchoredIn: RowAnchors,
 ): HTMLElement {
   const style =
     (canAct ? STYLE.rowControl : STYLE.rowControl + STYLE.rowControlFaintInk) +
@@ -258,12 +264,13 @@ function rowControlElement(
   control.setAttribute('aria-label', icon)
   if (!canAct) control.setAttribute('aria-disabled', 'true')
   fillEntry(host, control, icon, rowControlGlyphGapStyle())
+  anchoredIn.anchors.set(anchorKey({ kind: 'icon', icon, groupId: anchoredIn.groupId }), control)
   return control
 }
 
 // see FR-098, GR-20, HF-4, HF-15, HF-18
 /** @purity non-pure */
-function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HTMLElement {
+function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean, anchoredIn: RowAnchors): HTMLElement {
   const row = made(
     host,
     'div',
@@ -314,7 +321,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   row.append(foldingGrid)
 
   if (title.expander !== null) {
-    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.expander.canOpen)
+    const open = rowControlElement(host, ROLE.rowExpander, 'IC-58', title.expander.canOpen, anchoredIn)
     open.setAttribute('data-can-open', String(title.expander.canOpen))
     open.setAttribute(
       'style',
@@ -322,7 +329,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     )
     foldingGrid.append(open)
 
-    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.expander.canClose)
+    const close = rowControlElement(host, ROLE.rowExpander, 'IC-59', title.expander.canClose, anchoredIn)
     close.setAttribute('data-can-close', String(title.expander.canClose))
     close.setAttribute(
       'style',
@@ -330,12 +337,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     )
     foldingGrid.append(close)
 
-    const closeBelow = rowControlElement(
-      host,
-      ROLE.rowExpander,
-      'IC-77',
-      title.expander.canCloseBelow,
-    )
+    const closeBelow = rowControlElement(host, ROLE.rowExpander, 'IC-77', title.expander.canCloseBelow, anchoredIn)
     closeBelow.setAttribute('data-can-close-below', String(title.expander.canCloseBelow))
     closeBelow.setAttribute(
       'style',
@@ -345,12 +347,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   }
 
   // TRAP: outside the expander block: expander is null on a leaf, where HF-13 still draws IC-90.
-  const openOneLevel = rowControlElement(
-    host,
-    ROLE.rowExpander,
-    OPEN_ONE_LEVEL_ENTRY,
-    title.canOpenOneLevel ?? true,
-  )
+  const openOneLevel = rowControlElement(host, ROLE.rowExpander, OPEN_ONE_LEVEL_ENTRY, title.canOpenOneLevel ?? true, anchoredIn)
   openOneLevel.setAttribute('data-can-open-one-level', String(title.canOpenOneLevel ?? true))
   openOneLevel.setAttribute(
     'style',
@@ -362,19 +359,14 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   controlPair.setAttribute(ROW_CONTROL_PAIR_MARK, 'true')
   row.append(controlPair)
 
-  const remove = rowControlElement(host, null, DELETE_ROW_ENTRY, true)
+  const remove = rowControlElement(host, null, DELETE_ROW_ENTRY, true, anchoredIn)
   remove.setAttribute(
     'style',
     remove.getAttribute('style') + rowControlCellStyle(ROW_CONTROL_PAIR_CELLS.remove),
   )
   controlPair.append(remove)
 
-  const addChild = rowControlElement(
-    host,
-    null,
-    ADD_CHILD_ROW_ENTRY,
-    title.canAddChildRow ?? true,
-  )
+  const addChild = rowControlElement(host, null, ADD_CHILD_ROW_ENTRY, title.canAddChildRow ?? true, anchoredIn)
   addChild.setAttribute('data-can-add-child-row', String(title.canAddChildRow ?? true))
   addChild.setAttribute(
     'style',
@@ -382,7 +374,7 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
   )
   controlPair.append(addChild)
 
-  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', true)
+  const pin = rowControlElement(host, ROLE.rowPin, 'IC-60', true, anchoredIn)
   pin.setAttribute('data-pinned', String(title.isPinned))
   pin.setAttribute('aria-pressed', String(title.isPinned))
   pin.setAttribute(
@@ -535,12 +527,12 @@ export function fillRowTitleTree(
 ): void {
   const drawn: HTMLElement[] = []
   for (const title of panel.pinnedTitles) {
-    const row = rowTitleElement(host, title, true)
+    const row = rowTitleElement(host, title, true, { anchors, groupId: title.groupId })
     anchors.set(anchorKey({ kind: 'rowTitle', groupId: title.groupId }), row)
     drawn.push(row)
   }
   for (const title of panel.titles) {
-    const row = rowTitleElement(host, title, false)
+    const row = rowTitleElement(host, title, false, { anchors, groupId: title.groupId })
     anchors.set(anchorKey({ kind: 'rowTitle', groupId: title.groupId }), row)
     drawn.push(row)
   }
