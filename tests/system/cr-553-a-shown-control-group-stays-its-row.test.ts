@@ -106,7 +106,7 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
         },
         documentSettings: {
           ...held.documentSettings, displayScale: 100, zoomY: 1, zoomX: 1, pinnedGroupIds: [],
-          scrollGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01', scrollDayOffset: 0,
+          scrollGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDayOffset: 0,
         },
       })
     }, { count: roots, offset })
