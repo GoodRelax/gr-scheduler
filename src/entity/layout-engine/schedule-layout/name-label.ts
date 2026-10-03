@@ -48,13 +48,13 @@ export function planDatesSpanYears(schedule: Schedule, reader: DayReader): boole
 }
 
 // see ND-5
-const YEAR_DIGITS = 2
+const YEAR_DIGITS = 4
 
 // see ND-4, ND-5
 /** @purity pure */
 function planDateText(day: CalendarDay, withYear: boolean): string {
   if (!withYear) return `${day.month}/${day.day}`
-  const year = String(day.year % 10 ** YEAR_DIGITS).padStart(YEAR_DIGITS, '0')
+  const year = String(day.year).padStart(YEAR_DIGITS, '0')
   return `${year}/${day.month}/${day.day}`
 }
 

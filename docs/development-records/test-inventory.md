@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 41 | 263 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 168 | 3788 | 1 | 2 | 2 | 0 |
+| `unit` | TS-6 | - | 169 | 3799 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 396 | 6471 | 11 | 17 | 10 | 1 |
+| **all** | | | 397 | 6482 | 11 | 17 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -69,12 +69,12 @@ named either way: 1 of 11.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (168) -- listing only
+## 6. The unit files kept for now (169) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 20 of 168.
+`semi-pure-a` (rule 04 table UO, row UO-1): 21 of 169.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -155,6 +155,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editProject (pure), jsonFromDocument (pure), mspdiFromDocument (pure), planDocumentChange (pure), undoEdit (pure) | yes | FR-014, FR-054, FR-073, FR-131, FR-135, T-022, T-108, T-311, T-315 |
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | armedLabelStyle (pure), paletteColumnsOf (pure), paletteColumnsStyle (pure), paletteElement (non-pure) | - | FR-053, T-109, T-201, T-206 |
 | `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | documentFromMspdi (pure), isNonRecurringException (pure), isWorkingDay (pure), mspdiFromDocument (pure), workingCalendarOf (pure) | yes | FR-054, T-033, T-058, T-344 |
+| `tests/unit/cr-655-nd-5-tl-10-sq-5-sv-8-the-four-digit-year-and-the-bottleneck-state.test.ts` | advanceScreenSession (pure), columnValuesOf (pure), dayOf (pure), deadlineHint (pure), documentFromJson (pure), filteredSearchRows (pure), nameLabelOf (pure), planDatesSpanYears (pure), searchPanelAfterFilterEntry (pure), searchPanelFromSession (pure), searchPanelWithFilterOpened (pure) | yes | T-019a, T-251, T-315, T-330, T-331, T-348 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | fillRowTitleTree (non-pure), tooltipAnchorTable (non-pure), tooltipElement (non-pure) | - | 2 rows |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
@@ -542,6 +543,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts` | 38 | FR-014, FR-054, FR-073, FR-131, FR-135 | - | T-022, T-108, T-311, T-315 | AT-156, CM-87, DG-1, PL-1, PL-2, PL-3, PL-4, PL-5, PS-3, S-487, UN-13, VS-6 | - | - | - | - |
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | 17 | FR-053 | - | T-109, T-201, T-206 | IC-54, S-8, S-143, S-216, S-234, S-235, S-488, S-489 | - | - | - | - |
 | `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | 15 | FR-054 | - | T-033, T-058, T-344 | AT-82, EX-13, EX-14, WC-6 | - | - | - | - |
+| `tests/unit/cr-655-nd-5-tl-10-sq-5-sv-8-the-four-digit-year-and-the-bottleneck-state.test.ts` | 11 | - | - | T-019a, T-251, T-315, T-330, T-331, T-348 | DG-2, IC-126, ND-5, SQ-5, SV-7, SV-8, TL-10 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |

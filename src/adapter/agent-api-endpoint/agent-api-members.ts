@@ -477,6 +477,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return frozenCopy(source.readSnapshot().dialogue.messages)
     },
 
+    // STOP: spec does not decide whether this answers SQ-5's bottleneck, shown only while S-445 is on. Looked in AM-25, SQ-5, AM-19 (PND-711)
     /** @purity semi-pure-b */
     readSearchRows(word: string): SearchRows {
       return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word))

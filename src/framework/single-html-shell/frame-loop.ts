@@ -455,6 +455,8 @@ interface HeldDelayDiagnostics {
   readonly of: Document
   readonly report: DelayDiagnosticsReport
   readonly drawing: DelayDiagnosticsDrawing
+  // see SQ-5
+  readonly bottleneckUids: ReadonlySet<number>
 }
 
 // see FR-133, T-315, S-3
@@ -464,7 +466,8 @@ function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
   const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
   for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
-  return { of: document, report, drawing: { shown: true, symbolByUid } }
+  const bottleneckUids = new Set(report.bottlenecks.map((one) => one.uid))
+  return { of: document, report, drawing: { shown: true, symbolByUid }, bottleneckUids }
 }
 
 type GeometryArguments = Parameters<typeof geometryFromLayout>
@@ -1349,7 +1352,7 @@ export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-3, SV-7, SV-16, IC-122, IC-127
+// see SV-3, SV-7, SV-16, IC-122, IC-127, SQ-5
 /** @purity pure */
 function searchPanelAfterEntry(
   held: SearchPanelSession,
@@ -1357,13 +1360,14 @@ function searchPanelAfterEntry(
   session: ScreenSession,
   schedule: Document['schedule'],
   filterColumn: string | null,
+  bottleneckUids: ReadonlySet<number> | undefined,
 ): SearchPanelSession | null {
   if (entry === SEARCH_FILTER_ENTRY) {
     return filterColumn === null ? null : searchPanelWithFilterOpened(session, held, filterColumn)
   }
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
-  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule)
+  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule, bottleneckUids)
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
@@ -1491,14 +1495,16 @@ function windowPlacesAfterTyping(held: WindowPlaces, session: ScreenSession, scr
   return { ...held, searchPanel, delayDiagnosticsReport: report }
 }
 
-// see WB-6, RW-1, S-451
+// see WB-6, RW-1, S-451, SQ-5
 /** @purity pure */
-function windowReadingsOf(held: WindowPlaces, report: DelayDiagnosticsReport | null) {
+function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null) {
   const window = held.delayDiagnosticsReport
+  const report = diagnostics?.report ?? null
   return {
     searchPanel: held.searchPanel,
     windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report },
+    bottleneckUids: diagnostics?.bottleneckUids,
   }
 }
 
@@ -1540,11 +1546,11 @@ function heldWindowsOf() {
     takeTypedInput: (session: ScreenSession, screen: ScreenWiring | undefined): void =>
       void (held = windowPlacesAfterTyping(held, session, screen)),
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: { readonly report: DelayDiagnosticsReport } | null) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = reportBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
-      return windowReadingsOf(held, diagnostics?.report ?? null)
+      return windowReadingsOf(held, diagnostics)
     },
     notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
     /** @purity non-pure */
@@ -2903,7 +2909,9 @@ export function frameLoop(
       return true
     }
     if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn)) return true
-    const panelAfter = searchPanelAfterEntry(windows.searchPanel(), entry, session, held.document.schedule, filterColumn)
+    const panelAfter = searchPanelAfterEntry(
+      windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids,
+    )
     if (panelAfter !== null) {
       windows.holdSearchPanel(panelAfter)
       return true

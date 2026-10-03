@@ -36,8 +36,20 @@ const LINE_BREAK_SPACE = ' '
 
 const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
+// see SQ-5, T-315 DG-2
+export const BOTTLENECK_STATE = 'bottleneck'
+
+export type SearchTaskState = TaskSearchRow['planActualState'] | typeof BOTTLENECK_STATE
+
+// see SQ-5
+/** @purity pure */
+export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
+  return row.isBottleneck ? BOTTLENECK_STATE : row.planActualState
+}
+
 // see SV-8
-const STATES_ASCENDING: readonly TaskSearchRow['planActualState'][] = [
+const STATES_ASCENDING: readonly SearchTaskState[] = [
+  BOTTLENECK_STATE,
   'notStarted',
   'inProgress',
   'finished',
@@ -62,7 +74,7 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   values: {
     'SQ-1': (row) => [row.name],
     'SQ-2': (row) => (row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : row.assigneeNames),
-    'SQ-5': (row) => [row.planActualState],
+    'SQ-5': (row) => [searchTaskStateOf(row)],
     'SQ-6': (row) => [row.rowPath.join(ROW_PATH_SEPARATOR)],
   },
   dates: {

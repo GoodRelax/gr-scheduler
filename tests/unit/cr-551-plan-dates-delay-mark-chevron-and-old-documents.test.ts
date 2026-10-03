@@ -121,12 +121,12 @@ const labelOf = (loop: FrameLoop, uid: number): string => placementOf(loop, uid)
 
 
 const ND_5_ONE_YEAR = '文書のすべてのタスクとマイルストーンの `start` と `finish` が 1 つの暦年に収まるときは書かない。'
-const ND_5_TWO_DIGITS = '年（西暦の下 2 桁、1 桁のときは 0 を詰めて 2 桁とする）、`/`、月、`/`、日 の順で書く'
+const ND_5_FOUR_DIGITS = '年（西暦の 4 桁）、`/`、月、`/`、日 の順で書く'
 
 describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
-  it('ND-5 still says: 1 つの暦年に収まるときは書かない / 西暦の下 2 桁、1 桁のときは 0 を詰めて 2 桁', () => {
+  it('ND-5 still says: 1 つの暦年に収まるときは書かない / 西暦の 4 桁 (CR-655)', () => {
     expect(REQUIREMENTS).toContain(ND_5_ONE_YEAR)
-    expect(REQUIREMENTS).toContain(ND_5_TWO_DIGITS)
+    expect(REQUIREMENTS).toContain(ND_5_FOUR_DIGITS)
   })
 
   it('ND-5: 1 つの暦年に収まるときは書かない -- a one-year document writes month/day only', () => {
@@ -144,7 +144,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
     expect(labelOf(built.loop, 2)).toBe('Beta 11/2 - 12/30')
   })
 
-  it('ND-5: 2 つ以上の暦年にまたがるときは、すべての日を 年（西暦の下 2 桁） / 月 / 日 -- every day of the document', () => {
+  it('ND-5: 2 つ以上の暦年にまたがるときは、すべての日を 年（西暦の 4 桁） / 月 / 日 -- every day of the document', () => {
     // see ND-5
     const built = bench(
       documentOf(
@@ -155,11 +155,11 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
         { planDatesVisible: true },
       ),
     )
-    expect(labelOf(built.loop, 1)).toBe('Alpha 25/12/29 - 26/1/5')
-    expect(labelOf(built.loop, 2), 'ND-5: a task inside one year still carries the year').toBe('Beta 26/4/6 - 26/4/10')
+    expect(labelOf(built.loop, 1)).toBe('Alpha 2025/12/29 - 2026/1/5')
+    expect(labelOf(built.loop, 2), 'ND-5: a task inside one year still carries the year').toBe('Beta 2026/4/6 - 2026/4/10')
   })
 
-  it('ND-5: 1 桁のときは 0 を詰めて 2 桁とする -- 2005 is written 05', () => {
+  it('ND-5: 年を下 2 桁に縮めない -- 2005 is written 2005, not 05', () => {
     // see ND-5
     const built = bench(
       documentOf([{ name: 'Alpha', start: '2005-12-29', finish: '2006-01-05' }], {
@@ -167,7 +167,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
         scrollDate: '2005-12-01',
       }),
     )
-    expect(labelOf(built.loop, 1)).toBe('Alpha 05/12/29 - 06/1/5')
+    expect(labelOf(built.loop, 1)).toBe('Alpha 2005/12/29 - 2006/1/5')
   })
 })
 

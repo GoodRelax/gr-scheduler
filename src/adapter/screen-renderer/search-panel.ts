@@ -23,6 +23,7 @@ import { windowPlaceInRange, type WindowShown } from './window-box'
 import {
   ASSIGNEE_SEPARATOR,
   BLANK_SEARCH_VALUE,
+  BOTTLENECK_STATE,
   COMMENT_BOX_SEARCH_COLUMNS,
   ROW_PATH_SEPARATOR,
   TASK_SEARCH_COLUMNS,
@@ -30,6 +31,8 @@ import {
   filteredSearchRows,
   isDateSearchColumn,
   searchBodyTextOf,
+  searchTaskStateOf,
+  type SearchTaskState,
 } from './search-table-filters'
 import {
   dateText,
@@ -92,6 +95,8 @@ const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
 
 const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry]))
 const STATE_WORDS = new Map(displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]))
+// see SQ-5: the word of table T-315 DG-2
+const BOTTLENECK_WORD = displayWords.delayReportStatuses.find((entry) => entry.rowId === 'DG-2')?.text
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry]))
 const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARCH_PANEL)?.heading
 
@@ -121,6 +126,13 @@ export interface SearchPanelView {
   readonly rows: readonly SearchRowView[]
 }
 
+// see SQ-5, T-019a, T-315
+/** @purity pure */
+function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string {
+  if (state === BOTTLENECK_STATE) return wordOf(BOTTLENECK_WORD, language)
+  return wordOf(STATE_WORDS.get(state)?.text, language)
+}
+
 // see T-331
 /** @purity pure */
 function taskCells(row: TaskSearchRow, language: DisplayLanguage): readonly string[] {
@@ -130,7 +142,7 @@ function taskCells(row: TaskSearchRow, language: DisplayLanguage): readonly stri
     row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     dateText(row.plannedStart),
     dateText(row.plannedFinish),
-    wordOf(STATE_WORDS.get(row.planActualState)?.text, language),
+    stateWordOf(searchTaskStateOf(row), language),
     row.rowPath.join(ROW_PATH_SEPARATOR),
   ]
 }
@@ -161,7 +173,7 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayL
 function valueLabelOf(column: SearchColumn, value: string, language: DisplayLanguage): string {
   if (value === BLANK_SEARCH_VALUE) return wordOf(PANEL_WORDS.get('blank')?.text, language)
   if (column !== STATUS_COLUMN) return value
-  return wordOf(STATE_WORDS.get(value as PlanActualState)?.text, language)
+  return stateWordOf(value as SearchTaskState, language)
 }
 
 // see SV-6, SV-7, T-331
@@ -185,18 +197,19 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
   return display.kind === 'hidden' ? null : display.child.kind
 }
 
-// see FR-151, T-330, S-442
+// see FR-151, T-330, S-442, SQ-5
 /** @purity pure */
 export function searchPanelFromSession(
   session: ScreenSession,
   panel: SearchPanelSession,
   schedule: Schedule,
   canvas: ScreenRect,
+  bottleneckUids?: ReadonlySet<number>,
 ): SearchPanelView | null {
   const shown = shownIn(session)
   if (shown === null) return null
   const language = displayLanguageOf(session)
-  const found = shown === 'minimised' ? null : searchRowsOf(schedule, panel.word)
+  const found = shown === 'minimised' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
   const table = searchTableOf(session, panel, () => found ?? NOTHING_FOUND)
   const open = openFilterIn(panel, shown, table)
   return {
@@ -230,15 +243,16 @@ export function searchPanelWithColumnWidth(panel: SearchPanelSession, column: Se
   return tableWithColumnWidth(panel, column, width)
 }
 
-// see SV-7, SV-8, T-109
+// see SV-7, SV-8, T-109, SQ-5
 /** @purity pure */
 export function searchPanelAfterFilterEntry(
   session: ScreenSession,
   panel: SearchPanelSession,
   entry: IconId,
   schedule: Schedule,
+  bottleneckUids?: ReadonlySet<number>,
 ): SearchPanelSession | null {
-  const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word))
+  const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
   return tableAfterFilterEntry(panel, shownIn(session), entry, table)
 }
 

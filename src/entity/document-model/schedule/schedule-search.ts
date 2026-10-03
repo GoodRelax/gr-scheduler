@@ -18,6 +18,8 @@ export type TaskSearchRow = {
   readonly plannedStart: string | null
   readonly plannedFinish: string | null
   readonly planActualState: PlanActualState
+  // see SQ-5, DG-2
+  readonly isBottleneck: boolean
   readonly rowPath: readonly string[]
   readonly groupId: string | null
 }
@@ -98,9 +100,17 @@ export function plannedFinishOf(task: Task): string | null {
   return task.milestone === true ? task.start : task.finish
 }
 
-// see SV-4, T-331
+// see SQ-5
+const NO_BOTTLENECK_UIDS: ReadonlySet<number> = new Set()
+
+// see SV-4, T-331, SQ-5
+// WHY: the bottlenecks come from the caller; only a shown diagnosis has judged them (S-445).
 /** @purity pure */
-export function searchRowsOf(schedule: Schedule, word: string): SearchRows {
+export function searchRowsOf(
+  schedule: Schedule,
+  word: string,
+  bottleneckUids: ReadonlySet<number> = NO_BOTTLENECK_UIDS,
+): SearchRows {
   const rankById = taskGroupRankById(schedule.taskGroups)
   const rankOf = (groupId: string | null): number =>
     (groupId === null ? undefined : rankById.get(groupId)) ?? rankById.size
@@ -129,6 +139,7 @@ export function searchRowsOf(schedule: Schedule, word: string): SearchRows {
       plannedStart: task.start,
       plannedFinish: plannedFinishOf(task),
       planActualState: planActualState(task),
+      isBottleneck: bottleneckUids.has(task.uid),
       rowPath: pathOf(groupId),
       groupId,
     }

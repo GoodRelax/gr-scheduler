@@ -633,6 +633,8 @@ export interface ScreenViewReadings {
     readonly window: DelayDiagnosticsReportWindow
     readonly report: DelayDiagnosticsReport
   } | null
+  // see SQ-5, S-445: the tasks T-315 DG-2 names while the delay diagnostics are shown; absent reads as none.
+  readonly bottleneckUids?: ReadonlySet<number>
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built
@@ -722,6 +724,7 @@ export function screenViewFromRegions(
       readings.searchPanel ?? emptySearchPanelSession,
       schedule,
       regions.scheduleCanvas,
+      readings.bottleneckUids,
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
   }
