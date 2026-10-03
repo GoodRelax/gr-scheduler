@@ -529,10 +529,10 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     expect(taskCells('ja', NAMED_UID)[1]).toBe(`${FIRST_ASSIGNEE}, ${SECOND_ASSIGNEE}`)
   })
 
-  it('SQ-3 and SQ-4 write the date with its year (例: 2026/1/1)', () => {
+  it('SQ-3 and SQ-4 write the date as yyyy/mm/dd (例: 2026/01/01)', () => {
     const cells = taskCells('ja', NAMED_UID)
-    expect(cells[2]).toBe('2026/1/1')
-    expect(cells[3]).toBe('2026/1/9')
+    expect(cells[2]).toBe('2026/01/01')
+    expect(cells[3]).toBe('2026/01/09')
   })
 
   it.each(LANGUAGES)('%s: SQ-5 writes one of the state words of table T-019a', (language) => {
@@ -548,7 +548,7 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     const { panel } = drawn(viewOf(sessionIn('ja'), { table: 'commentBoxes' }))
     const rows = byTag(panel, 'TR').filter((one) => byTag(one, 'TD').length > 0)
     expect(rows).toHaveLength(1)
-    expect(byTag(rows[0] as FakeElement, 'TD').map(textOf)).toEqual([COMMENT_LINES.join(' '), INNER_NAME, '2026/5/2'])
+    expect(byTag(rows[0] as FakeElement, 'TD').map(textOf)).toEqual([COMMENT_LINES.join(' '), INNER_NAME, '2026/05/02'])
   })
 })
 

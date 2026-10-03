@@ -45,6 +45,7 @@ const PROPERTIES_PANEL = 'Properties Panel'
 // WHY: windows, not open surfaces (T-335): IC-52 on one closes that window, never the surface.
 const SEARCH_PANEL = 'Search Panel'
 const DIALOGUE_FIELD = 'Dialogue Field'
+const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 
 type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValuesEvent | null]
 
@@ -121,7 +122,7 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
 // see IC-52, FR-036
 /** @purity pure */
 function surfaceCloseOf(part: string | null): ScreenValuesEvent | null {
-  if (part === PROPERTIES_PANEL) return null
+  if (part === PROPERTIES_PANEL || part === DELAY_DIAGNOSTICS_REPORT) return null
   return part === HELP_MODAL ? HELP_CLOSE_ASKED : SURFACE_CLOSE_ASKED
 }
 

@@ -45,7 +45,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
 | `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
+| `DELAY_REPORT_STATUSES` | entry | const | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DELAY_REPORT_STATUSES` | PI-1 | 表 T-347 の `DT-1` のステータスを、表の順に並べたもの。 |
 | `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
+| `delayDiagnosticsReportMarkdown` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportMarkdown` | PI-1 | 遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。 |
+| `delayDiagnosticsReportRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportRows` | PI-1 | 遅延診断レポートの表（表 T-347）の行を、`AM-19` と同じレポートから、`DT-1` の順・`Task.start`・`Task.uid` の既定の並びで作る（`FR-134`）。 |
+| `DelayReportDates` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportDates` | -- | interface DelayReportDates |
+| `DelayReportFilter` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportFilter` | -- | interface DelayReportFilter |
+| `DelayReportReason` | entry | type | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportReason` | PI-1 | 表 T-347 の `DT-7`（理由）に入れる値の型 |
+| `DelayReportRow` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportRow` | PI-1 | 表 T-347 の行ごとの値の型 |
+| `DelayReportStatus` | entry | type | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportStatus` | PI-1 | 表 T-347 の `DT-1` のステータスの型 —— 表 T-315 の `DG-1` 〜 `DG-4`、指摘、確定 |
+| `DelayReportTextRow` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportTextRow` | -- | interface DelayReportTextRow |
+| `DelayReportWords` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWords` | PI-1 | `delayDiagnosticsReportMarkdown` に渡す語の型（表 T-346 の `RW-6`） |
 | `delayStart` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayStart` | -- | function delayStart(task: Task): { readonly row: string; readonly from: string \| null } \| null |
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
@@ -100,6 +110,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rowPathOf` | file only | function | `src/entity/document-model/schedule/row-names.ts#rowPathOf` | -- | function rowPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
+| `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
+| `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
+| `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
 | `TRANSPARENT` | file only | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | -- | const TRANSPARENT = 'transparent' |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
@@ -881,6 +894,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `landCopyDrag` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#landCopyDrag` | -- | function landCopyDrag( hands: CopyAndPasteHands, bundle: readonly DocumentCommand[], picked: Selection, frame: FrameValues, ): void |
 | `pasteRefusedFor` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteRefusedFor` | -- | function pasteRefusedFor(chosenRows: readonly string[]): boolean |
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
+| `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, ): boolean |
+| `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
+| `ReportHeld` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportHeld` | -- | interface ReportHeld |
+| `ReportOutlets` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportOutlets` | -- | interface ReportOutlets |
 | `answerOpenChoice` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerOpenChoice` | -- | function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues \| null): void |
 | `answerSettledFormat` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerSettledFormat` | -- | function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean |
 | `askToOpenDroppedFile` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#askToOpenDroppedFile` | -- | function askToOpenDroppedFile(hands: DocumentFileFlowHands): void |
@@ -1132,6 +1149,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationItem` | -- | interface ConfirmationItem |
 | `DEFAULT_ROW_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_ROW_NAME` | PI-37 | 行を既定の名前で立てるときの語。 |
 | `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウインドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
+| `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
+| `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列の絞り込みの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
+| `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
+| `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えと絞り込みで、写しと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
+| `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'> |
+| `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・絞り込み・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
+| `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
+| `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列の絞り込みを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1155,6 +1180,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
 | `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | PI-37 | `IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`） |
 | `Notice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Notice` | -- | interface Notice |
+| `OPENED_DELAY_DIAGNOSTICS_REPORT` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#OPENED_DELAY_DIAGNOSTICS_REPORT` | PI-37 | 開いたばかりの遅延診断レポートの窓の値（表 T-346 の `RW-1`、`S-451`）。 |
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ResourceRoster \| ExportChooser \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
@@ -1181,7 +1207,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Scrollbar` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Scrollbar` | -- | interface Scrollbar |
 | `ScrollExtent` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScrollExtent` | -- | interface ScrollExtent |
 | `scrollExtentOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#scrollExtentOf` | PI-37 | 配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。 |
-| `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchFilterChange` | PI-37 | 型。 |
+| `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterChange` | PI-37 | 型。 |
 | `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いている絞り込みの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えている絞り込みへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列の絞り込みの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えている絞り込みと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
 | `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, schedule: Schedule, canvas: ScreenRect, ): SearchPanelView \| null |
@@ -1206,6 +1232,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `displayScaleMessageText` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#displayScaleMessageText` | -- | function displayScaleMessageText( displayScale: number, end: 'max' \| 'min' \| null, language: DisplayLanguage, ): string |
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
 | `NOT_STORED_COMMAND_PALETTE_SIZES` | file only | const | `src/adapter/screen-renderer/command-palette.ts#NOT_STORED_COMMAND_PALETTE_SIZES` | -- | const NOT_STORED_COMMAND_PALETTE_SIZES: |
+| `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = ['DT-1', 'DT-2', 'DT-3', 'DT-4', 'DT-5', 'DT-6', 'DT-7'] |
+| `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, report: DelayDiagnosticsReport \| null, schedu... |
+| `DelayReportLine` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportLine` | -- | interface DelayReportLine |
+| `DelayReportRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportRowView` | -- | interface DelayReportRowView extends SearchRowView |
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
@@ -1223,20 +1253,40 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
-| `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchColumnView` | -- | interface SearchColumnView |
-| `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/search-panel.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
-| `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
+| `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchColumnView` | -- | interface SearchColumnView |
+| `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
+| `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
-| `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
+| `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
 | `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn): readonly string[] |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows(rows: SearchRows, filters: SearchFilters, sort: SearchSort \| null): SearchRows |
+| `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, filters: SearchFilters, sort: SearchSort \| null, ): readonly Row[] |
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
 | `ROW_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ROW_PATH_SEPARATOR` | -- | const ROW_PATH_SEPARATOR = ' \u2192 ' |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
+| `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = SearchColumnFilter['column'] |
+| `SearchColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumnFilter` | -- | type SearchColumnFilter = SearchFilters['columns'][number] |
+| `SearchSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchSort` | -- | type SearchSort = NonNullable<SearchPanelSession['sort']> |
+| `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
+| `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6'] |
+| `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
+| `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
+| `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
+| `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): P \| null |
+| `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, entry: IconId, table: WindowTable, ): P \| null |
+| `tableColumnsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableColumnsOf` | -- | function tableColumnsOf(panel: TableWindowSession, table: WindowTable, language: DisplayLanguage): readonly SearchColumnView[] |
+| `tableFilterMenuOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableFilterMenuOf` | -- | function tableFilterMenuOf( panel: TableWindowSession, column: SearchColumn, table: WindowTable, language: DisplayLanguage, ): SearchFilterMenuView |
+| `TableWindowSession` | file only | type | `src/adapter/screen-renderer/table-window.ts#TableWindowSession` | -- | type TableWindowSession = Omit<SearchPanelSession, 'table' \| 'textSizeStep'> |
+| `tableWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithColumnWidth` | -- | function tableWithColumnWidth<P extends TableWindowSession>(panel: P, column: SearchColumn, width: number): P |
+| `tableWithFilterClosed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterClosed` | -- | function tableWithFilterClosed<P extends TableWindowSession>(panel: P, shown: WindowShown \| null, table: WindowTable): P \| null |
+| `tableWithFilterOpened` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterOpened` | -- | function tableWithFilterOpened<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, column: SearchColumn, table: WindowTable, ): P \| null |
+| `windowShownAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowShownAfterEntry` | -- | function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown \| null \| undefined |
+| `WindowTable` | file only | interface | `src/adapter/screen-renderer/table-window.ts#WindowTable` | -- | interface WindowTable |
+| `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
 | `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): r... |
 | `WindowEdge` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowEdge` | -- | type WindowEdge = 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' |
@@ -1354,12 +1404,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SEARCH_WORD_FIELD_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_FIELD_ATTRIBUTE` | -- | const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word' |
 | `SEARCH_WORD_ROW` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_ROW` | -- | const SEARCH_WORD_ROW = 'SV-2' |
 | `searchFilterMenuElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchFilterMenuElement` | -- | function searchFilterMenuElement( host: Document, menu: SearchFilterMenuView, fontPx: number, anchors: Map<string, HTMLElement>, ): HTMLElement |
-| `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect |
-| `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: SearchPanelView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
+| `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf(view: TableWindowView, defaultRatio: SizeRatio): ScreenRect |
+| `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: TableWindowView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
 | `searchPanelFontPxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelFontPxOf` | -- | function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number |
-| `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) |
+| `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void, identity = SEARCH_PANEL_IDENTITY) |
 | `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: DrawnTable, fontPx: number): HTMLElement |
 | `tableKeyOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#tableKeyOf` | -- | function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string |
+| `TableWindowIdentity` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowIdentity` | -- | interface TableWindowIdentity |
+| `TableWindowView` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowView` | -- | type TableWindowView = Omit<SearchPanelView, 'table'> & |
 | `typedWordWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#typedWordWatch` | -- | function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string \| null } |
 | `windowStyle` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#windowStyle` | -- | function windowStyle(): string |
 | `wordFieldElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#wordFieldElement` | -- | function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement |
@@ -1552,4 +1604,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 753 name(s) leave through a public entry (261 of them published by table T-064), 589 more are exported by a file and not by its entry.
+Totals: 772 name(s) leave through a public entry (276 of them published by table T-064), 622 more are exported by a file and not by its entry.

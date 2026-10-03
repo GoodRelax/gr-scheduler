@@ -89,6 +89,8 @@ function windowReadersOf(read: () => WindowReaders | null) {
     isFocusInPropertiesPanel: (): boolean => read()?.isFocusInPropertiesPanel() === true,
     /** @purity semi-pure-b */
     readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
+    /** @purity semi-pure-b */
+    readDelayDiagnosticsReportInput: () => read()?.readReportInput() ?? { word: null, changes: [] },
   }
 }
 

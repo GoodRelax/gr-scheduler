@@ -128,10 +128,10 @@ const TEMPLATE = JSON.parse(
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 
 const D = (day: string): string => `${day}T00:00:00`
-// WHY: T-331 writes a date "with its year (2026/1/1)", so a nameless row is told apart by its start cell.
+// WHY: T-331 writes a date "as yyyy/mm/dd (2026/01/01)", so a nameless row is told apart by its start cell.
 const written = (day: string): string => {
   const [y, m, d] = day.split('-')
-  return `${Number(y)}/${Number(m)}/${Number(d)}`
+  return `${y}/${m}/${d}`
 }
 
 type State = 'notStarted' | 'inProgress' | 'finished' | 'resumePlanned' | 'resumeUnknown'

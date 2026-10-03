@@ -9,7 +9,7 @@ import type { ScreenSession } from '../../use-case/advance-screen-session/advanc
 import displayWords from './display-words.json'
 import type { DialogueField, ScreenViewReadings } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import { windowTitleEntriesOf } from './search-panel'
+import { windowTitleEntriesOf } from './table-window'
 import { DEFAULT_WINDOW_PLACE } from './window-box'
 
 const DIALOGUE_FIELD = 'Dialogue Field'

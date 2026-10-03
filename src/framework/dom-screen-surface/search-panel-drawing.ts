@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Search Panel: its title row, word field and the shown table.
+// DomScreenSurface -- the two table windows (Search Panel, Delay Diagnostics Report): title row, word field and table.
 // @unit      UF-182  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -10,6 +10,7 @@ import {
   type ScreenPart,
   type SearchFilterChange,
   type SearchPanelView,
+  type WindowName,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
@@ -39,6 +40,20 @@ type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
 
 type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
+// see T-330, T-346, RW-3, RW-4
+export type TableWindowView = Omit<SearchPanelView, 'table'> & {
+  readonly toolEntries?: readonly CommandItem[]
+  readonly legend?: readonly { readonly text: string }[]
+  readonly summary?: readonly { readonly text: string }[]
+  readonly jumpAt?: number
+}
+
+// see T-337, RW-5
+export interface TableWindowIdentity {
+  readonly window: WindowName
+  readonly role: string
+}
+
 // see SV-6, SV-17, SV-18, RW-9
 export interface DrawnTable {
   readonly columns: readonly SearchColumnView[]
@@ -47,6 +62,12 @@ export interface DrawnTable {
 }
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
+
+const SEARCH_PANEL_IDENTITY: TableWindowIdentity = { window: 'searchPanel', role: SEARCH_PANEL_ROLE }
+
+const TOOL_LINE_STYLE = 'display:flex;align-items:center;flex:none;'
+
+const PREAMBLE_STYLE = 'flex:none;display:flex;gap:1em;padding:0.25em 0.5em;'
 
 export const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word'
 
@@ -160,12 +181,12 @@ type SizeRatio = { readonly width: number; readonly height: number }
 
 // see SV-9, SV-12, SV-13
 /** @purity pure */
-export function searchPanelBoxOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
+export function searchPanelBoxOf(view: TableWindowView, defaultRatio: SizeRatio): ScreenRect {
   return windowBoxOf(view.shown, searchPanelPlaceOf(view, defaultRatio), view.canvas, entranceOuterHeightPx())
 }
 
 /** @purity pure */
-function searchPanelPlaceOf(view: SearchPanelView, defaultRatio: SizeRatio): ScreenRect {
+function searchPanelPlaceOf(view: TableWindowView, defaultRatio: SizeRatio): ScreenRect {
   const canvas = view.canvas
   const size = { width: canvas.width * defaultRatio.width, height: canvas.height * defaultRatio.height }
   const defaultBox = { x: canvas.x, y: canvas.y + canvas.height - size.height, ...size }
@@ -321,24 +342,42 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   return box
 }
 
-// see U-64, FR-151, T-330
+// see RW-3, RW-4
+/** @purity non-pure */
+function aboveTableElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
+  const word = wordFieldElement(host, view.word, fontPx)
+  const tools = view.toolEntries === undefined ? [] : view.toolEntries.map((item) => anchoredEntry(host, item, anchors, role))
+  const line = made(host, 'div', TOOL_LINE_STYLE)
+  line.replaceChildren(...tools, word)
+  if (view.legend === undefined) return [tools.length === 0 ? word : line]
+  const preamble = made(host, 'div', PREAMBLE_STYLE + `font-size:${fontPx}px;`)
+  preamble.replaceChildren(...[view.legend, view.summary ?? []].map((lines) => {
+    const block = made(host, 'div', '')
+    block.replaceChildren(...lines.map((one) => Object.assign(made(host, 'div', ''), { textContent: one.text })))
+    return block
+  }))
+  return [line, preamble]
+}
+
+// see U-64, U-66, FR-134, FR-151, T-330, T-346
 /** @purity non-pure */
 export function searchPanelElement(
   host: Document,
-  view: SearchPanelView,
+  view: TableWindowView,
   placed: { readonly box: ScreenRect; readonly fontPx: number },
   anchors: Map<string, HTMLElement>,
+  role: string = SEARCH_PANEL_ROLE,
 ): HTMLElement {
-  const panel = part(host, 'div', SEARCH_PANEL_ROLE, boxStyle(placed.box) + windowStyle())
+  const panel = part(host, 'div', role, boxStyle(placed.box) + windowStyle())
   const entries = { before: view.tableEntries, titled: view.titleEntries }
-  const title = windowTitleRowElement(host, view.heading, entries, anchors, SEARCH_PANEL_ROLE)
+  const title = windowTitleRowElement(host, view.heading, entries, anchors, role)
   if (view.shown === 'minimised') {
     panel.replaceChildren(title)
     return panel
   }
   const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
   // TRAP: the table stays the last child; redrawInPlace replaces the last child as the table.
-  panel.replaceChildren(title, wordFieldElement(host, view.word, placed.fontPx), ...menu, searchTableElement(host, view, placed.fontPx))
+  panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, searchTableElement(host, view, placed.fontPx))
   return panel
 }
 
@@ -387,10 +426,10 @@ export function focusSearchWordIn(panel: HTMLElement): boolean {
 
 // see SV-9, SV-12, SV-13
 /** @purity pure */
-function panelPlacedOf(panel: SearchPanelView): PlacedWindow {
+function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow {
   const ratio = { width: NOT_STORED_SEARCH_PANEL_SIZES['S-421'], height: NOT_STORED_SEARCH_PANEL_SIZES['S-422'] }
   const place = searchPanelPlaceOf(panel, ratio)
-  return { window: 'searchPanel', shown: panel.shown, place, box: searchPanelBoxOf(panel, ratio), range: panel.canvas }
+  return { window, shown: panel.shown, place, box: searchPanelBoxOf(panel, ratio), range: panel.canvas }
 }
 
 // see GR-28, SV-18, RW-9
@@ -565,7 +604,7 @@ export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknow
 // see FR-151, SV-5, SV-9, SV-16, IF-9
 // TRAP: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
 /** @purity non-pure */
-export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void) {
+export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void, identity = SEARCH_PANEL_IDENTITY) {
   let frameDrawn = ''
   let tableDrawn = ''
   let placed: PlacedWindow | null = null
@@ -573,13 +612,13 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   const filterChanges = filterChangeWatch(layer, onWordTyped)
 
   /** @purity non-pure */
-  function draw(panel: SearchPanelView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
+  function draw(panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
     if (isChanged) drawnKeepingFocus(host, layer, () => drawPanel(panel, anchorsOf))
   }
 
   /** @purity non-pure */
-  function drawPanel(panel: SearchPanelView | null | undefined, anchorsOf: () => Map<string, HTMLElement>): void {
-    placed = panel === null || panel === undefined ? null : panelPlacedOf(panel)
+  function drawPanel(panel: TableWindowView | null | undefined, anchorsOf: () => Map<string, HTMLElement>): void {
+    placed = panel === null || panel === undefined ? null : panelPlacedOf(panel, identity.window)
     if (panel === null || panel === undefined || placed === null) {
       frameDrawn = ''
       layer.replaceChildren()
@@ -597,9 +636,10 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
       return
     }
     frameDrawn = frameKey
-    const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx }, anchorsOf())
+    const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx }, anchorsOf(), identity.role)
     layer.replaceChildren(drawn)
-    if (panel.shown !== 'minimised' && drawn.lastElementChild !== null) pinFixedColumns(drawn.lastElementChild)
+    const tableBox = drawn.lastElementChild ?? null
+    if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
     placeFilterMenu(drawn)
   }
 
@@ -608,7 +648,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, SEARCH_PANEL_ROLE), asked.first, layer),
+      withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }

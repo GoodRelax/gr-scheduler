@@ -55,6 +55,9 @@ const UNIT_ROW = 'UF-71'
 // see T-337
 const HELP_MODAL_SURFACE = 'Help Modal'
 
+// see U-66, RW-5
+const REPORT_IDENTITY = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report' } as const
+
 export const ROLE = {
   appHeader: 'App Header',
   documentTitle: 'Document Title',
@@ -687,6 +690,12 @@ export interface WindowReaders {
   readonly readFocusedWindow: () => WindowName | null
   readonly isFocusInPropertiesPanel: () => boolean
   readonly readFilterChanges: () => readonly SearchFilterChange[]
+  readonly readReportInput: () => { readonly word: string | null; readonly changes: readonly SearchFilterChange[] }
+}
+
+interface TableWindowInput {
+  readonly readWord: () => string | null
+  readonly readFilterChanges: () => readonly SearchFilterChange[]
 }
 
 // see RG-16, IF-9
@@ -695,7 +704,7 @@ function windowReadersOf(
   host: Document,
   windows: Partial<Readonly<Record<WindowName, Element>>>,
   propertiesPanel: Element,
-  readFilterChanges: () => readonly SearchFilterChange[],
+  painters: { readonly search: TableWindowInput; readonly report: TableWindowInput },
 ): WindowReaders {
   /** @purity semi-pure-b */
   const focused = (): Element | null => (host as Partial<Document>).activeElement ?? null
@@ -710,7 +719,9 @@ function windowReadersOf(
     const at = focused()
     return at !== null && propertiesPanel.contains(at)
   }
-  return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges }
+  /** @purity semi-pure-b */
+  const readReportInput = () => ({ word: painters.report.readWord(), changes: painters.report.readFilterChanges() })
+  return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput }
 }
 
 // see T-337
@@ -728,6 +739,7 @@ function screenLayersOf(host: Document) {
     dividerBandLayer: made(host, 'div', STYLE.layer),
     paletteLayer: made(host, 'div', STYLE.layer),
     searchPanelLayer: made(host, 'div', STYLE.layer),
+    reportLayer: made(host, 'div', STYLE.layer),
     dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
     // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
@@ -743,6 +755,7 @@ function screenLayersOf(host: Document) {
     [layers.noticeLayer, 'UZ-4'],
     [layers.paletteLayer, 'UZ-5'],
     [layers.searchPanelLayer, 'UZ-6'],
+    [layers.reportLayer, 'UZ-6'],
     [layers.modalLayer, 'UZ-13'],
     [layers.helpLayer, 'UZ-7'],
     [layers.appHeader, 'UZ-8'],
@@ -766,7 +779,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   root.setAttribute('data-unit', UNIT_ROW)
   const layers = screenLayersOf(host)
   const { frameLayer, rowTitlePanel, rowTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
-  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer } = layers
+  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer } = layers
 
   const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
     headEntryElements(host)
@@ -826,6 +839,21 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const searchPanel = searchPanelPainter(host, searchPanelLayer, () => wiring.onSearchWordTyped?.())
 
+  const report = searchPanelPainter(host, reportLayer, () => wiring.onSearchWordTyped?.(), REPORT_IDENTITY)
+
+  let isReportInFront = true
+
+  // see RW-5, T-337
+  // WHY: both windows sit in UZ-6, where the later in the tree is drawn in front; the layer opened later moves last.
+  /** @purity non-pure */
+  function orderTableWindows(view: ScreenView): void {
+    const inFront = view.delayDiagnosticsReport?.isInFront !== false
+    if (inFront === isReportInFront) return
+    isReportInFront = inFront
+    if (inFront) searchPanelLayer.after(reportLayer)
+    else reportLayer.after(searchPanelLayer)
+  }
+
   /** @purity non-pure */
   function placePanels(view: ScreenView): void {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
@@ -871,6 +899,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       confirmation: described(view.confirmation),
       dialogueField: described(view.dialogueField),
       searchPanel: described(view.searchPanel),
+      delayDiagnosticsReport: described(view.delayDiagnosticsReport ?? null),
       tooltips: described(view.tooltips),
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
@@ -954,6 +983,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       helpLayer.replaceChildren(...(helpModal === null ? [] : [modalElement(host, helpModal, anchors).element]))
     }
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
+    report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
+    orderTableWindows(view)
     if (changed('notices')) {
       noticeLayer.replaceChildren(...view.notices.map((one) => noticeElement(host, one)))
     }
@@ -1050,8 +1081,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   /** @purity semi-pure-b */
-  const windowsAnswerAt = (asked: PointAsked): ScreenPart | null =>
-    dialogue.answerAt({ ...asked, walked: searchPanel.answerAt(asked) })
+  const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
+    const [back, front] = isReportInFront ? [searchPanel, report] : [report, searchPanel]
+    return dialogue.answerAt({ ...asked, walked: front.answerAt({ ...asked, walked: back.answerAt(asked) }) })
+  }
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
   // reach for the surface, and BO-1's regions must wait for it.
@@ -1063,7 +1096,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
-  wiring.holdWindowReaders?.(windowReadersOf(host, { searchPanel: searchPanelLayer, helpModal: helpLayer, dialogueField }, propertiesPanel, searchPanel.readFilterChanges))
+  const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, helpModal: helpLayer, dialogueField }
+  wiring.holdWindowReaders?.(windowReadersOf(host, windowLayers, propertiesPanel, { search: searchPanel, report }))
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {

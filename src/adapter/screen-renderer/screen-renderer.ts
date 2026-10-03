@@ -7,7 +7,7 @@
 import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { Exception, Schedule, Task, WeekDay } from '../../entity/document-model/schedule/schedule'
+import type { DelayDiagnosticsReport, Exception, Schedule, Task, WeekDay } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   ScreenRect,
@@ -37,6 +37,11 @@ import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
+import {
+  delayDiagnosticsReportFromWindow,
+  type DelayDiagnosticsReportView,
+  type DelayDiagnosticsReportWindow,
+} from './delay-diagnostics-report'
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
@@ -51,6 +56,16 @@ export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, wi
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
+export {
+  OPENED_DELAY_DIAGNOSTICS_REPORT,
+  delayDiagnosticsReportAfterEntry,
+  delayDiagnosticsReportAfterFilterChange,
+  delayDiagnosticsReportFileNameOf,
+  delayDiagnosticsReportMarkdownOf,
+  delayDiagnosticsReportWithColumnWidth,
+  delayDiagnosticsReportWithFilterClosed,
+} from './delay-diagnostics-report'
+export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
@@ -504,6 +519,7 @@ export interface ScreenView {
   readonly tooltips: readonly Tooltip[]
   // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
+  readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
@@ -567,6 +583,11 @@ export interface ScreenViewReadings {
   // see WB-6, S-455, S-456
   readonly windowPlaces?: { readonly helpModal: WindowPlace; readonly dialogueField: WindowPlace }
   readonly isDelayDiagnosticsShown?: boolean
+  // see RW-1, S-451
+  readonly delayDiagnosticsReport?: {
+    readonly window: DelayDiagnosticsReportWindow
+    readonly report: DelayDiagnosticsReport
+  } | null
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built
@@ -577,6 +598,19 @@ const DEFAULT_DISPLAY_LANGUAGE: DisplayLanguage = 'en'
 /** @purity pure */
 export function displayLanguageOf(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? DEFAULT_DISPLAY_LANGUAGE
+}
+
+// see RW-1, RW-5, S-451
+/** @purity pure */
+function delayDiagnosticsReportOf(
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+  schedule: Schedule,
+  canvas: ScreenRect,
+): DelayDiagnosticsReportView | null {
+  const held = readings.delayDiagnosticsReport ?? null
+  const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
+  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
 }
 
 // see PI-37, SF-5
@@ -617,6 +651,7 @@ export function screenViewFromRegions(
       schedule,
       regions.scheduleCanvas,
     ),
+    delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
   }
 
   const echo = session.screen.scaleMessageDisplayState

@@ -77,7 +77,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1058 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1060 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -217,7 +217,7 @@
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 65 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
-| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 89 行。写しとして申告済み） | `T-075` | 173 |
+| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 92 行。写しとして申告済み） | `T-075` | 177 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 19 |
 | `UO` | Unit-test Omission | 単体試験を省略してよい場合 1 つ。<br>どの行にも当たらない関数には単体試験を書く | 規則 | `docs/development-rules/04-verification.md` | 11 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 17 |

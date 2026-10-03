@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 163 | 2261 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 37 | 247 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 148 | 3394 | 1 | 2 | 2 | 0 |
+| `system` | TS-3 | - | 38 | 250 | 0 | 1 | 0 | 0 |
+| `unit` | TS-6 | - | 149 | 3420 | 1 | 2 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 368 | 6006 | 11 | 17 | 9 | 1 |
+| **all** | | | 370 | 6035 | 11 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 119 | 112 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-134, FR-150 |
+| FR | 119 | 113 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-150 |
 | NFR | 13 | 8 | NFR-005, NFR-006, NFR-008, NFR-009, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
@@ -69,12 +69,12 @@ named either way: 1 of 11.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (148) -- listing only
+## 6. The unit files kept for now (149) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 13 of 148.
+`semi-pure-a` (rule 04 table UO, row UO-1): 13 of 149.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -135,6 +135,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | applyDocumentChange (non-pure), editDocument (pure), undoEdit (pure) | - | FR-031, FR-054, FR-088, T-108, T-209, T-344 |
 | `tests/unit/cr-605-the-non-working-day-shade.test.ts` | dateAtX (pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), workingCalendarOf (pure), workingDaysBetween (pure), xFromDay (pure) | yes | FR-017, FR-054, T-202, T-203, T-205, T-216, T-236, T-343 |
 | `tests/unit/cr-607-the-reset-clears-only-what-table-t-345-clears.test.ts` | - | - | FR-153, T-206, T-345 |
+| `tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts` | answerDelayDiagnosticsReportEntry (non-pure), columnWidthPx (pure), delayDiagnosticsReportAfterEntry (pure), delayDiagnosticsReportFileNameOf (pure), delayDiagnosticsReportFromWindow (pure), delayDiagnosticsReportMarkdown (pure), delayDiagnosticsReportMarkdownOf (pure), delayDiagnosticsReportRows (pure), delayDiagnosticsReportWithColumnWidth (pure), delayDiagnosticsReportWithFilterClosed (pure) | - | FR-134, T-335, T-346, T-347 |
 | `tests/unit/cr-618-same-day-links-hold.test.ts` | documentFromJson (pure) | yes | FR-131, T-310, T-311, T-312, T-313, T-314, T-315, T-316, T-317 |
 | `tests/unit/cr-621-a-window-answers-its-title-band-and-edges.test.ts` | windowPartAt (semi-pure-b), windowPartOf (pure) | - | T-337 |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
@@ -419,6 +420,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-16, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, WS-2 | - | - | - | - |
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
+| `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |
@@ -494,6 +496,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | 19 | FR-031, FR-054, FR-088 | - | T-108, T-209, T-344 | AT-20, AT-67, AT-73, CM-39, S-106, S-107, UN-13, WC-7 | - | - | - | - |
 | `tests/unit/cr-605-the-non-working-day-shade.test.ts` | 29 | FR-017, FR-054 | - | T-202, T-203, T-205, T-216, T-236, T-343 | AT-73, AT-82, OD-1, OD-2, OD-3, OD-4, OD-5, OD-6, OD-7, S-8, S-83, S-84, S-85, S-450, ZO-7 | - | DFC-1670 | - | - |
 | `tests/unit/cr-607-the-reset-clears-only-what-table-t-345-clears.test.ts` | 13 | FR-153 | - | T-206, T-345 | S-99, S-99a, S-99b, S-99c, UF-159, WP-1, WP-4, WP-5, WP-6, WP-7, WP-9 | - | - | - | - |
+| `tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts` | 26 | FR-134 | - | T-335, T-346, T-347 | DG-1, DG-4, DT-1, DT-2, DT-3, DT-4, DT-5, DT-6, DT-7, DX-7, IC-52, IC-108, IC-118, IC-119, IC-122, IC-124, IC-127, IC-129, IC-130, IC-131, IC-140, RW-1, RW-2, RW-3, RW-4, RW-6, RW-7, RW-9, S-475, S-481, SQ-2, SV-7, SV-8, SV-14, WB-2, WB-3, WB-5 | - | - | - | - |
 | `tests/unit/cr-618-same-day-links-hold.test.ts` | 24 | FR-131 | - | T-310, T-311, T-312, T-313, T-314, T-315, T-316, T-317 | AT-46, BD-1, BD-2, BD-4, DG-1, DG-2, DG-3, DQ-2, DQ-3, DQ-4, DW-1, DX-3, DX-4, DX-5, DX-8, PM-4, S-397, VC-15, VS-4 | - | - | - | - |
 | `tests/unit/cr-621-a-window-answers-its-title-band-and-edges.test.ts` | 9 | - | - | T-337 | GR-24, GR-25, S-423, S-424, WB-2, WB-3, WB-8, WB-9 | - | - | - | - |
 | `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |

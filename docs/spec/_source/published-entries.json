@@ -108,6 +108,65 @@
      }
     },
     {
+     "name": "delayDiagnosticsReportRows",
+     "note": {
+      "ja": [
+       "遅延診断レポートの表（表 T-347）の行を、`AM-19` と同じレポートから、`DT-1` の順・`Task.start`・`Task.uid` の既定の並びで作る（`FR-134`）。",
+       "`ScreenRenderer` が窓の表と写しの文字列を作るために使う —— 窓のために診断をもう 1 度回さない"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportMarkdown",
+     "note": {
+      "ja": [
+       "遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。",
+       "写す入口（`IC-108`）と書き出す入口（`IC-140`）が同じ文字列を使う（CR-617 の決定 5）"
+      ]
+     }
+    },
+    {
+     "name": "DELAY_REPORT_STATUSES",
+     "note": {
+      "ja": [
+       "表 T-347 の `DT-1` のステータスを、表の順に並べたもの。",
+       "`ScreenRenderer` がまとめの件数と並べ替えに使う"
+      ]
+     }
+    },
+    {
+     "name": "DelayReportStatus",
+     "note": {
+      "ja": [
+       "表 T-347 の `DT-1` のステータスの型 —— 表 T-315 の `DG-1` 〜 `DG-4`、指摘、確定"
+      ]
+     }
+    },
+    {
+     "name": "DelayReportRow",
+     "note": {
+      "ja": [
+       "表 T-347 の行ごとの値の型"
+      ]
+     }
+    },
+    {
+     "name": "DelayReportReason",
+     "note": {
+      "ja": [
+       "表 T-347 の `DT-7`（理由）に入れる値の型"
+      ]
+     }
+    },
+    {
+     "name": "DelayReportWords",
+     "note": {
+      "ja": [
+       "`delayDiagnosticsReportMarkdown` に渡す語の型（表 T-346 の `RW-6`）"
+      ]
+     }
+    },
+    {
      "name": "parentCandidatesOf",
      "note": {
       "ja": [
@@ -2186,6 +2245,77 @@
       "ja": [
        "列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。",
        "`SingleHtmlShell` が握っているあいだの幅を決めるために使う"
+      ]
+     }
+    },
+    {
+     "name": "OPENED_DELAY_DIAGNOSTICS_REPORT",
+     "note": {
+      "ja": [
+       "開いたばかりの遅延診断レポートの窓の値（表 T-346 の `RW-1`、`S-451`）。",
+       "`SingleHtmlShell` が診断を始めたときに窓を置くために使う"
+      ]
+     }
+    },
+    {
+     "name": "DelayDiagnosticsReportWindow",
+     "note": {
+      "ja": [
+       "遅延診断レポートの窓の値の型 —— 表示の状態・語・絞り込み・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`）"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportAfterEntry",
+     "note": {
+      "ja": [
+       "遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportAfterFilterChange",
+     "note": {
+      "ja": [
+       "列の絞り込みの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportWithFilterClosed",
+     "note": {
+      "ja": [
+       "開いている列の絞り込みを閉じた窓の値を答える（表 T-330 の `SV-14`）。",
+       "`SingleHtmlShell` が `Esc` の段（`IN-4`）に使う"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportWithColumnWidth",
+     "note": {
+      "ja": [
+       "列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportMarkdownOf",
+     "note": {
+      "ja": [
+       "窓のいまの並べ替えと絞り込みで、写しと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。",
+       "`SingleHtmlShell` が `IC-108` と `IC-140` に使う"
+      ]
+     }
+    },
+    {
+     "name": "delayDiagnosticsReportFileNameOf",
+     "note": {
+      "ja": [
+       "書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。",
+       "`SingleHtmlShell` が `IC-140` に使う"
       ]
      }
     },

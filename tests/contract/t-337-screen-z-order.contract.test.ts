@@ -12,8 +12,10 @@ import type {
   Confirmation,
   Notice,
   OpenModal,
+  DelayDiagnosticsReportView,
   PaletteGroup,
   ScreenView,
+  SearchPanelView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
@@ -74,9 +76,9 @@ const says = (id: string): string => {
   return row === undefined ? `T-337 has no row ${id}` : `T-337 ${id} [${RANK}: ${row.rank}] ${row.part}`
 }
 
-// WHY: CR-575 section 5 reserves UZ-6 (Search Panel) until CR-571 draws it; the exemption covers
-// absence only, so a UZ-6 layer that is on the screen is ordered like every other row.
-const RESERVED_NOT_YET_ON_SCREEN = new Set(['UZ-6'])
+// WHY: CR-575 section 5 reserved UZ-6 until a window was drawn there; the search panel and the
+// report window (DFC-1711) now are, so no row is reserved. The exemption covers absence only.
+const RESERVED_NOT_YET_ON_SCREEN = new Set<string>()
 
 const englishName = (id: string): string => {
   const row = specTable('T-103').rows.find((one) => one.id === id)
@@ -144,6 +146,37 @@ const CHOOSER: OpenModal = {
   formats: [{ row: 'IO-1', name: 'GRS JSON', extension: '.json' }],
 }
 
+const CANVAS = { x: 0, y: 40, width: 800, height: 600 }
+
+const SEARCH_PANEL: SearchPanelView = {
+  heading: 'SearchHeading',
+  shown: 'normal',
+  canvas: CANVAS,
+  at: null,
+  size: null,
+  textSizeStep: 0,
+  tableEntries: [],
+  titleEntries: [],
+  word: '',
+  table: 'tasks',
+  columns: [],
+  filterMenu: null,
+  rows: [],
+}
+
+const { table: _table, ...SEARCH_PANEL_FRAME } = SEARCH_PANEL
+
+const REPORT: DelayDiagnosticsReportView = {
+  ...SEARCH_PANEL_FRAME,
+  heading: 'ReportHeading',
+  isInFront: true,
+  toolEntries: [],
+  legend: [],
+  summary: [],
+  rows: [],
+  jumpAt: 3,
+}
+
 const viewWith = (openModal: OpenModal): ScreenView => ({
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
@@ -156,6 +189,8 @@ const viewWith = (openModal: OpenModal): ScreenView => ({
   confirmation: CONFIRMATION,
   dialogueField: null,
   tooltips: [],
+  searchPanel: SEARCH_PANEL,
+  delayDiagnosticsReport: REPORT,
 })
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
@@ -223,7 +258,7 @@ describe('T-337 -- the premises read from the manuscript', () => {
     expect(written, T_337_ROW_ORDER_IS_NOT_ID_ORDER).not.toEqual(byId)
   })
 
-  it('CR-575 section 5: the reserved row UZ-6 is still a row of the table', () => {
+  it('CR-575 section 5: every reserved row is still a row of the table', () => {
     for (const id of RESERVED_NOT_YET_ON_SCREEN) expect(ROWS.map((one) => one.id), says(id)).toContain(id)
   })
 })
@@ -295,6 +330,8 @@ const PARTS: readonly (readonly [string, string, 'help' | 'chooser'])[] = [
   ['U-54', 'UZ-13', 'chooser'],
   ['U-30', 'UZ-7', 'help'],
   ['U-31', 'UZ-8', 'help'],
+  ['U-64', 'UZ-6', 'help'],
+  ['U-66', 'UZ-6', 'help'],
 ]
 
 describe('T-337 -- each UI part is drawn inside the layer of the row that names it', () => {

@@ -64,6 +64,20 @@ export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport } from './delay-diagnostics'
 export {
+  DELAY_REPORT_STATUSES,
+  delayDiagnosticsReportMarkdown,
+  delayDiagnosticsReportRows,
+} from './delay-diagnostics-report-table'
+export type {
+  DelayReportDates,
+  DelayReportFilter,
+  DelayReportReason,
+  DelayReportRow,
+  DelayReportStatus,
+  DelayReportTextRow,
+  DelayReportWords,
+} from './delay-diagnostics-report-table'
+export {
   customColourChosen,
   customColourOf,
   customSideOf,

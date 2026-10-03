@@ -145,6 +145,11 @@ import {
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
   searchPanelWithColumnWidth,
+  OPENED_DELAY_DIAGNOSTICS_REPORT,
+  delayDiagnosticsReportAfterFilterChange,
+  delayDiagnosticsReportWithColumnWidth,
+  delayDiagnosticsReportWithFilterClosed,
+  type DelayDiagnosticsReportWindow,
   windowBoxAfterGrab,
   windowPlaceOf,
   DEFAULT_WINDOW_PLACE,
@@ -190,6 +195,7 @@ import {
   type ShowPointerShape,
 } from './pointer-shape'
 import { copyForPaste, landCopyDrag, pasteWhatWasCopied } from './copy-and-paste'
+import { DELAY_DIAGNOSTICS_REPORT_SURFACE, answerDelayDiagnosticsReportEntry } from './delay-diagnostics-report-window'
 import {
   answerOpenChoice,
   answerSettledFormat,
@@ -340,6 +346,11 @@ export interface ScreenWiring {
   // see SV-7, IF-9
   // TRAP: reading takes the changes, in the order the host raised them.
   readonly readSearchFilterChanges?: () => readonly SearchFilterChange[]
+  // see RW-3, SV-7
+  readonly readDelayDiagnosticsReportInput?: () => {
+    readonly word: string | null
+    readonly changes: readonly SearchFilterChange[]
+  }
 }
 
 export interface FrameLoopHands {
@@ -1334,38 +1345,109 @@ interface WindowPlaces {
   readonly searchPanel: SearchPanelSession
   readonly helpModal: WindowPlace
   readonly dialogueField: WindowPlace
+  readonly delayDiagnosticsReport: DelayDiagnosticsReportWindow | null
 }
 
 const STARTING_WINDOW_PLACES: WindowPlaces = {
   searchPanel: emptySearchPanelSession,
   helpModal: DEFAULT_WINDOW_PLACE,
   dialogueField: DEFAULT_WINDOW_PLACE,
+  delayDiagnosticsReport: null,
 }
 
-// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-455, S-456
-// WHY: frame values like the palette's corner; nothing of a window is saved (FR-151, FR-066, WB-6).
+type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
+
+// see WB-8, WB-9, GR-24, GR-25
+/** @purity pure */
+function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: ScreenRect): WindowPlaces {
+  const place = windowPlaceOf(box)
+  const report = held.delayDiagnosticsReport
+  if (grab.window === 'searchPanel') return { ...held, searchPanel: { ...held.searchPanel, ...place } }
+  if (grab.window !== 'delayDiagnosticsReport') return { ...held, [grab.window]: place }
+  return report === null ? held : { ...held, delayDiagnosticsReport: { ...report, panel: { ...report.panel, ...place } } }
+}
+
+// see SV-18, RW-9, GR-28
+/** @purity pure */
+function windowPlacesAfterColumnDrag(held: WindowPlaces, grab: Extract<WindowGrab, { region: 'columnBorder' }>, dx: number): WindowPlaces {
+  const width = Math.min(Math.max(grab.widthAtPress + dx, grab.widthFloor), grab.widthCeiling)
+  const report = held.delayDiagnosticsReport
+  if (grab.window === 'searchPanel') return { ...held, searchPanel: searchPanelWithColumnWidth(held.searchPanel, grab.column, width) }
+  if (grab.window !== 'delayDiagnosticsReport' || report === null) return held
+  return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithColumnWidth(report, grab.column, width) }
+}
+
+// see RW-3, RW-8, SV-7
+/** @purity pure */
+function reportWithInput(window: DelayDiagnosticsReportWindow | null, input: ReportInput | undefined): DelayDiagnosticsReportWindow | null {
+  if (window === null || input === undefined) return window
+  const typed = input.word === null ? window : { ...window, panel: { ...window.panel, word: input.word } }
+  return input.changes.reduce(delayDiagnosticsReportAfterFilterChange, typed)
+}
+
+// see SV-2, SV-7, RW-3, IF-9
+/** @purity semi-pure-b */
+function windowPlacesAfterTyping(held: WindowPlaces, session: ScreenSession, screen: ScreenWiring | undefined): WindowPlaces {
+  const searchPanel = searchPanelWithFilterChanges(searchPanelWithTypedWord(held.searchPanel, screen?.surface), session, screen)
+  const report = reportWithInput(held.delayDiagnosticsReport, screen?.readDelayDiagnosticsReportInput?.())
+  return { ...held, searchPanel, delayDiagnosticsReport: report }
+}
+
+// see WB-6, RW-1, S-451
+/** @purity pure */
+function windowReadingsOf(held: WindowPlaces, report: DelayDiagnosticsReport | null) {
+  const window = held.delayDiagnosticsReport
+  return {
+    searchPanel: held.searchPanel,
+    windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField },
+    delayDiagnosticsReport: window === null || report === null ? null : { window, report },
+  }
+}
+
+// see RW-5, T-337
+// WHY: the window opened later is in front; the report opens in front, so only a search panel opening after it changes that.
+/** @purity pure */
+function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isShown: boolean): WindowPlaces {
+  const report = held.delayDiagnosticsReport
+  if (report === null || wasShown || !isShown || !report.isInFront) return held
+  return { ...held, delayDiagnosticsReport: { ...report, isInFront: false } }
+}
+
+// see IN-4, SV-14, RG-16, RW-1
+// WHY: an open filter closes first (SV-14); the window alone closes after it, and the markers stay (RW-1).
+/** @purity pure */
+function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, level: EscapeTarget | null): WindowPlaces | null {
+  const report = held.delayDiagnosticsReport
+  if (level === 'searchPanel') {
+    const closed = searchPanelWithFilterClosed(session, held.searchPanel)
+    return closed === null ? null : { ...held, searchPanel: closed }
+  }
+  if (level !== 'delayDiagnosticsReport' || report === null) return null
+  return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithFilterClosed(report) }
+}
+
+// see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
+// WHY: frame values like the palette's corner; nothing of a window is saved (FR-151, FR-066, FR-134, WB-6).
 /** @purity non-pure */
 function heldWindowsOf() {
   let held: WindowPlaces = STARTING_WINDOW_PLACES
   let atPress: WindowPlaces | null = null
-
-  /** @purity non-pure */
-  function placeGrab(grab: WindowGrab, box: ScreenRect): void {
-    const place = windowPlaceOf(box)
-    if (grab.window === 'searchPanel') held = { ...held, searchPanel: { ...held.searchPanel, ...place } }
-    if (grab.window === 'helpModal' || grab.window === 'dialogueField') held = { ...held, [grab.window]: place }
-  }
-
-  /** @purity non-pure */
-  function widenColumn(grab: Extract<WindowGrab, { region: 'columnBorder' }>, dx: number): void {
-    const width = Math.min(Math.max(grab.widthAtPress + dx, grab.widthFloor), grab.widthCeiling)
-    if (grab.window === 'searchPanel') held = { ...held, searchPanel: searchPanelWithColumnWidth(held.searchPanel, grab.column, width) }
-  }
+  let wasSearchPanelShown = false
 
   return {
     searchPanel: (): SearchPanelSession => held.searchPanel,
     holdSearchPanel: (panel: SearchPanelSession): void => void (held = { ...held, searchPanel: panel }),
-    readings: () => ({ searchPanel: held.searchPanel, windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField } }),
+    report: (): DelayDiagnosticsReportWindow | null => held.delayDiagnosticsReport,
+    holdReport: (report: DelayDiagnosticsReportWindow | null): void => void (held = { ...held, delayDiagnosticsReport: report }),
+    takeTypedInput: (session: ScreenSession, screen: ScreenWiring | undefined): void =>
+      void (held = windowPlacesAfterTyping(held, session, screen)),
+    /** @purity non-pure */
+    readings(session: ScreenSession, diagnostics: { readonly report: DelayDiagnosticsReport } | null) {
+      const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
+      held = reportBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
+      wasSearchPanelShown = isSearchPanelShown
+      return windowReadingsOf(held, diagnostics?.report ?? null)
+    },
     notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
     /** @purity non-pure */
     endPress(isInterrupted: boolean): void {
@@ -1379,19 +1461,33 @@ function heldWindowsOf() {
       const grab = press?.on?.windowGrab
       if (input.kind !== 'pointer' || input.phase === 'down' || press == null || grab === undefined) return
       const travel = { dx: input.x - press.at.x, dy: input.y - press.at.y }
-      if (grab.region === 'columnBorder') return widenColumn(grab, travel.dx)
-      const box = grabbedWindowBox(grab, windowShownIn(session, grab.window), travel)
-      if (box !== null) placeGrab(grab, box)
+      if (grab.region === 'columnBorder') return void (held = windowPlacesAfterColumnDrag(held, grab, travel.dx))
+      const shown = grab.window === 'delayDiagnosticsReport' ? (held.delayDiagnosticsReport?.shown ?? null) : windowShownIn(session, grab.window)
+      const box = grabbedWindowBox(grab, shown, travel)
+      if (box !== null) held = windowPlacesAfterGrab(held, grab, box)
     },
     // see IN-4, SV-14, RG-16
     /** @purity non-pure */
     spendEscapeRung(hands: FrameLoopHands, level: EscapeTarget | null, frame: FrameValues): void {
-      const filterClosed = level === 'searchPanel' ? searchPanelWithFilterClosed(hands.readSession(), held.searchPanel) : null
-      if (filterClosed !== null) return void (held = { ...held, searchPanel: filterClosed })
+      const closed = windowPlacesAfterEscape(hands.readSession(), held, level)
+      if (closed !== null) return void (held = closed)
       const rungEvent = level === null ? null : ESCAPE_RUNG_EVENTS[level]
       if (rungEvent !== null) hands.sendToSession(rungEvent, frame)
     },
   }
+}
+
+// see FR-134, RW-6, RW-7
+/** @purity pure */
+function reportHeldOf(
+  window: DelayDiagnosticsReportWindow | null,
+  diagnostics: { readonly report: DelayDiagnosticsReport } | null,
+  document: Document,
+  language: DisplayLanguage,
+) {
+  if (window === null || diagnostics === null) return null
+  const documentName = document.schedule.project.title ?? ''
+  return { window, report: diagnostics.report, schedule: document.schedule, documentName, language }
 }
 
 // see T-332, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
@@ -1474,11 +1570,13 @@ function escapeLevelOf(
 function windowFocusContextOf(
   screen: ScreenWiring | undefined,
   session: ScreenSession,
-): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled'> {
+  report: DelayDiagnosticsReportWindow | null,
+): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled' | 'delayDiagnosticsReport'> {
   return {
     focusedWindow: screen?.readFocusedWindow?.() ?? null,
     isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
     isAgentApiEnabled: isAgentApiEnabledIn(session),
+    delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront },
   }
 }
 
@@ -2095,7 +2193,7 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
-          ...windows.readings(),
+          ...windows.readings(session, delayDiagnosticsNow()),
           isDelayDiagnosticsShown: delayDiagnosticsShown,
         }),
       )
@@ -2119,10 +2217,26 @@ export function frameLoop(
     return delayDiagnosticsHeld
   }
 
+  // see RW-1, S-451
   /** @purity non-pure */
   function showDelayDiagnostics(isShown: boolean): void {
     delayDiagnosticsShown = isShown
     if (!isShown) delayDiagnosticsHeld = null
+    windows.holdReport(isShown ? (windows.report() ?? OPENED_DELAY_DIAGNOSTICS_REPORT) : null)
+  }
+
+  // see FR-134, T-346, RW-6, RW-7
+  /** @purity non-pure */
+  function answerReportEntry(entry: IconId, filterColumn: string | null): boolean {
+    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session))
+    return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
+      clipboard,
+      files,
+      confirmOverwrite: documentFileFlow.askToWriteOverDestination,
+      raiseCopyRefused: () => raiseNotice(PROMPT_NOT_COPIED_REASON, null),
+      raiseFileFault,
+      holdWindow: windows.holdReport,
+    })
   }
 
   /** @purity non-pure */
@@ -2151,7 +2265,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
-    windows.holdSearchPanel(searchPanelWithFilterChanges(searchPanelWithTypedWord(windows.searchPanel(), screen?.surface), session, screen))
+    windows.takeTypedInput(session, screen)
     runFrame()
   }
 
@@ -2508,7 +2622,7 @@ export function frameLoop(
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
-      ...windowFocusContextOf(screen, session),
+      ...windowFocusContextOf(screen, session, windows.report()),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -2631,6 +2745,7 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
+    if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn)) return true
     const panelAfter = searchPanelAfterEntry(windows.searchPanel(), entry, session, held.document.schedule, filterColumn)
     if (panelAfter !== null) {
       windows.holdSearchPanel(panelAfter)
