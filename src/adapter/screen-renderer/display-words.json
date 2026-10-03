@@ -3704,12 +3704,12 @@
   {
    "rowId": "RS-52",
    "text": {
-    "ja": "稼働日の暦が変わったので、完了率を数え直しました",
-    "en": "The working-day calendar changed, so the percent complete was counted again"
+    "ja": "完了率を日付から数え直しました",
+    "en": "The percent complete was counted again from the dates"
    },
    "nextStep": {
-    "ja": "元の完了率が要るときは、取り消しで暦の変更ごと戻せます",
-    "en": "Undo puts back the calendar change and the percent complete together"
+    "ja": "暦を変えたときは、取り消しで暦ごと戻せます。ファイルを開いたときは、元の値が日付と食い違っていました",
+    "en": "After a calendar change, Undo puts both back. After opening a file, its stored values disagreed with its dates"
    }
   },
   {

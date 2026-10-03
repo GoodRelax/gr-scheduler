@@ -144,6 +144,7 @@
 | dependency | ChooseStartupDocument | Document | document type | reads the document root type each candidate is |  |
 | dependency | DocumentCodec | DocumentSettings | clamped settings | clamps the settings it read back out of a file |  |
 | dependency | DocumentCodec | Schedule | days + calendar | reads the schedule types, the day arithmetic and the calendar defaults both exchange formats are written in |  |
+| dependency | DocumentCodec | EditDocument | percent complete | recounts the percent complete of a GRS JSON it read from the dates (FR-012) |  |
 | dependency | DomScreenSurface | ScreenRegions | rectangle type | reads the rectangle type it puts each UI part at |  |
 | dependency | EditDocument | Document | document type | reads the document root type every edit takes and returns |  |
 | dependency | EditDocument | ScreenRegions | display ratio | asks what ratio the display is drawn at when a settings edit moves it |  |

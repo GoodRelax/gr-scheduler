@@ -7,7 +7,9 @@ import {
   actualLastDay,
   actualLengthOf,
   dayOf,
+  workingCalendarOf,
   workingDaysBetween,
+  type Schedule,
   type Task,
   type WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
@@ -44,4 +46,30 @@ function heldActualLength(within: WorkingCalendar, task: Task): number {
 /** @purity pure */
 export function repriced(within: WorkingCalendar, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(within, task) }
+}
+
+export interface PercentCompleteRecount {
+  readonly schedule: Schedule
+  readonly movedTaskUids: readonly number[]
+}
+
+// see FR-012, RS-52
+// WHY: the calendar edit and the GRS JSON read recount through this one place (EZ-5).
+/** @purity pure */
+export function recountedPercentComplete(schedule: Schedule): PercentCompleteRecount {
+  const within = workingCalendarOf(schedule)
+  const movedTaskUids: number[] = []
+
+  const tasks: Task[] = schedule.tasks.map((task) => {
+    const next = repriced(within, task)
+    if (next.percentComplete === task.percentComplete) return task
+    // WHY: a finish before its start counts below 0; FR-023 drops that Task (IV-10), so it is not told.
+    if (next.percentComplete !== null && next.percentComplete < 0) return task
+    movedTaskUids.push(task.uid)
+    return next
+  })
+
+  // TRAP: keep the old reference when nothing moved; document-change-plan.ts reads a new one as a change.
+  if (movedTaskUids.length === 0) return { schedule, movedTaskUids: [] }
+  return { schedule: { ...schedule, tasks }, movedTaskUids }
 }

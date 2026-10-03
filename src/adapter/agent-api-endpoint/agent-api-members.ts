@@ -254,6 +254,8 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
 interface HandedFormatReading {
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
+  // see FR-012, RS-52
+  readonly recountedCount: number
 }
 
 // see AM-8, AG-9a
@@ -263,6 +265,7 @@ type HandedReading =
       readonly document: Document
       readonly unreadColumns: readonly string[]
       readonly isNewerFormat: boolean
+      readonly recountedCount: number
     }
   | { readonly ok: false; readonly reason: AgentRefusalReason; readonly what: string }
 
@@ -285,7 +288,13 @@ function handedDocument(
   const read = DocumentCodec.documentFromJson(given.json, greatestKnownSchemaVersion)
   if (read.ok) {
     const isNewerFormat = read.formatVersion === 'newerThanKnown'
-    return { ok: true, document: read.document, unreadColumns: read.unreadColumns, isNewerFormat }
+    return {
+      ok: true,
+      document: read.document,
+      unreadColumns: read.unreadColumns,
+      isNewerFormat,
+      recountedCount: read.recountedCount,
+    }
   }
   const faults = read.faults.map((one) => `${one.at} ${one.what}`).join('; ')
   const what = `the codec refused it (${read.reason}): ${faults}`

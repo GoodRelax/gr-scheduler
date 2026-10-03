@@ -349,7 +349,7 @@ erDiagram
 | AT-36 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
 | AT-37 | `Task` | `resume` | 日時 | 可 | — | Own | `Task/Resume` | 中断中に、残りが始まる予定の日 |
 | AT-38 | `Task` | `resumeValid` | 真偽 | 可 | — | Own | `Task/ResumeValid` | 偽 = 再開日が未定の中断 |
-| AT-39 | `Task` | `percentComplete` | 整数（0 以上） | 可 | — | Own | `Task/PercentComplete` | 完了率。**上限を型に持たせない**（`FR-012`） |
+| AT-39 | `Task` | `percentComplete` | 整数（0 以上） | 可 | — | Own | `Task/PercentComplete` | 完了率。**上限を型に持たせない**（`FR-012`）。`GRS JSON` を読むときは日付から数え直し、`MSPDI` から取り込んだ値は保つ（`FR-012`・`FR-021`） |
 | AT-40 | `Task` | `fadeInDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 左のぼかしの日数。`null` と `0` を区別する |
 | AT-41 | `Task` | `fadeOutDays` | 整数（日数） | 可 | — | Consume | `Task/ExtendedAttribute` | 右のぼかしの日数。同上 |
 | AT-42 | `Task` | `dependencies` | `Dependency[]` | 否（空可） | — | Consume | `Task/PredecessorLink` | **このタスクを後続とする依存**（表 T-053 の `DF-4`） |

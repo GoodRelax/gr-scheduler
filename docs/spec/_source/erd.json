@@ -1170,10 +1170,10 @@
      "origin": "Own",
      "exchange": "Task/PercentComplete",
      "meaning": {
-      "ja": "完了率。**上限を型に持たせない**（`FR-012`）"
+      "ja": "完了率。**上限を型に持たせない**（`FR-012`）。`GRS JSON` を読むときは日付から数え直し、`MSPDI` から取り込んだ値は保つ（`FR-012`・`FR-021`）"
      },
      "schemaNote": {
-      "en": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS keeps it in step when dates change, so write what the dates give. Not capped at 100, because an overrun reports more."
+      "en": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS recounts it whenever the dates change and whenever it reads this file, so the dates decide; write what they give. Not capped at 100, because an overrun reports more."
      }
     },
     {

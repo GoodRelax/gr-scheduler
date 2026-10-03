@@ -225,7 +225,7 @@ interface Row {
   readonly tasks: readonly Loose[]
 }
 
-function documentOf(statusDate: string | null, rows: readonly Row[]): Document {
+function documentOf(statusDate: string | null, rows: readonly Row[], keepsWrittenPercent = false): Document {
   const raw = rowDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
@@ -235,7 +235,14 @@ function documentOf(statusDate: string | null, rows: readonly Row[]): Document {
   )
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
-  return decoded.document
+  if (!keepsWrittenPercent) return decoded.document
+  // WHY: a GRS JSON read recounts percentComplete (FR-012); VC-5 stands on a value an MSPDI import keeps (FR-021).
+  const written = new Map(raw.schedule.tasks.map((task: Loose) => [task['uid'], task['percentComplete']]))
+  const tasks = decoded.document.schedule.tasks.map((task) => ({
+    ...task,
+    percentComplete: (written.get(task.uid) as number | null | undefined) ?? task.percentComplete,
+  }))
+  return { ...decoded.document, schedule: { ...decoded.document.schedule, tasks } }
 }
 
 const STATUS = F(15)
@@ -314,7 +321,7 @@ const TRUST = (statusDate: string | null): Document =>
         }),
       ],
     },
-  ])
+  ], true)
 
 const K = 140
 const L = 141

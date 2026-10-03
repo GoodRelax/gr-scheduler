@@ -9,13 +9,12 @@ import type {
   Exception,
   Project,
   Schedule,
-  Task,
   WeekDay,
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditReport, EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
-import { repriced } from './edit-task'
+import { recountedPercentComplete } from './percent-complete'
 
 // see CM-39, FR-088
 export type CalendarCommand =
@@ -100,25 +99,6 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       return edited({ ...document, schedule: settled }, report)
     }
   }
-}
-
-/** @purity pure */
-function recountedPercentComplete(schedule: Schedule): {
-  readonly schedule: Schedule
-  readonly movedTaskUids: readonly number[]
-} {
-  const within = workingCalendarOf(schedule)
-  const movedTaskUids: number[] = []
-
-  const tasks: Task[] = schedule.tasks.map((task) => {
-    const next = repriced(within, task)
-    if (next.percentComplete === task.percentComplete) return task
-    movedTaskUids.push(task.uid)
-    return next
-  })
-
-  if (movedTaskUids.length === 0) return { schedule, movedTaskUids: [] }
-  return { schedule: { ...schedule, tasks }, movedTaskUids }
 }
 
 /** @purity pure */

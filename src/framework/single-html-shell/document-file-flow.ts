@@ -101,6 +101,9 @@ const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
 
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 
+// see FR-012
+const PERCENT_COMPLETE_RECOUNTED_REASON: NoticeReason = 'RS-52'
+
 // see MR-3
 const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
@@ -226,6 +229,7 @@ function importedFormatOf(format: ExchangeFormat): ImportedFormat {
 interface DecodedIntake {
   readonly document: Document
   readonly clampedCount: number
+  readonly recountedCount: number
   readonly duplicateLeaves: number
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
@@ -253,6 +257,7 @@ function decodedDocument(
       ? {
           document: read.document,
           clampedCount: read.clampedCount,
+          recountedCount: read.recountedCount,
           duplicateLeaves: 0,
           unreadColumns: read.unreadColumns,
           isNewerFormat: read.formatVersion === 'newerThanKnown',
@@ -265,6 +270,8 @@ function decodedDocument(
     ? {
         document: read.document,
         clampedCount: 0,
+        // WHY: an MSPDI keeps the percent complete it carried (FR-012, FR-021).
+        recountedCount: 0,
         duplicateLeaves: read.duplicateLeaves,
         unreadColumns: [],
         isNewerFormat: false,
@@ -590,12 +597,7 @@ export async function openDocumentIntoHold(
     if (decoded === null) return false
     handedIn = { format: importedFormatOf(reading.format), byteLength: file.byteLength, fileName: file.fileName }
     incoming = decoded.document
-    if (decoded.clampedCount > 0) {
-      hands.raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
-    }
-    if (decoded.duplicateLeaves > 0) {
-      hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
-    }
+    tellDecodedIntake(hands, decoded)
     newer = { ...NOT_NEWER, isNewerFormat: decoded.isNewerFormat, couldNotBeRead: decoded.unreadColumns }
   }
   const readIn = handedIn
@@ -722,6 +724,19 @@ async function reopenDocumentIntoHold(
   await openDocumentIntoHold(hands, flow, store, OPEN_ROUTE_REOPEN)
 }
 
+// see RS-51, RS-52, RS-60
+/** @purity non-pure */
+function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, decoded: DecodedIntake): void {
+  if (decoded.clampedCount > 0) hands.raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
+  if (decoded.recountedCount > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, decoded.recountedCount)
+  if (decoded.duplicateLeaves > 0) hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
+}
+
+// see FR-012, RS-52
+type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> & {
+  readonly recountedCount?: number
+}
+
 // see AM-8, FR-022, FR-073
 // TRAP: the handed document was decoded once already and its unread columns dropped there;
 // reading its text again finds none, so a caller that has the first reading must pass it.
@@ -730,7 +745,7 @@ export async function takeInHandedDocument(
   hands: DocumentFileFlowHands,
   flow: OpeningFlow,
   incoming: Document,
-  firstReading?: Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'>,
+  firstReading?: HandedFirstReading,
 ): Promise<boolean> {
   const before = hands.readSession()
   hands.sendToSession(AGENT_DOCUMENT_HANDED, null)
@@ -738,15 +753,18 @@ export async function takeInHandedDocument(
   try {
     const handedText = jsonFromDocument(incoming)
     const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
-    return await openDocumentIntoHold(hands, flow, null, OPEN_ROUTE_FROM_CHOOSER, {
+    const landed = await openDocumentIntoHold(hands, flow, null, OPEN_ROUTE_FROM_CHOOSER, {
       incoming,
       format: 'grsJson',
       byteLength: new TextEncoder().encode(handedText).length,
-      unreadColumns: reread.ok ? reread.unreadColumns : [],
-      isNewerFormat: reread.ok && reread.formatVersion === 'newerThanKnown',
-      ...firstReading,
+      unreadColumns: firstReading?.unreadColumns ?? (reread.ok ? reread.unreadColumns : []),
+      isNewerFormat: firstReading?.isNewerFormat ?? (reread.ok && reread.formatVersion === 'newerThanKnown'),
       choice: 'merge',
     })
+    // TRAP: the reread finds nothing to recount; the count is the first reading's.
+    const recountedCount = firstReading?.recountedCount ?? 0
+    if (landed && recountedCount > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, recountedCount)
+    return landed
   } finally {
     hands.endFileOperation(DOCUMENT_OPEN_FAILED)
   }

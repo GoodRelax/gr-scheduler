@@ -392,6 +392,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string } \| |
 | `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: string \| null } \| { readonly kind: 'setProjectProfile'; readonly fields: ProjectP... |
 | `ProjectProfileFields` | entry | interface | `src/use-case/edit-document/edit-project.ts#ProjectProfileFields` | -- | interface ProjectProfileFields |
+| `recountedPercentComplete` | entry | function | `src/use-case/edit-document/percent-complete.ts#recountedPercentComplete` | PI-9 | 文書の全 `Task` の完了率を日付から数え直し、値が変わった `Task` の uid を答える（`FR-012`）。 |
 | `Refusal` | entry | type | `src/use-case/edit-document/edit-document.ts#Refusal` | PI-9 | 型。 |
 | `refused` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `refusedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
@@ -429,6 +430,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wbsSubtreeOf` | file only | function | `src/use-case/edit-document/edit-task.ts#wbsSubtreeOf` | -- | function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
 | `withTask` | file only | function | `src/use-case/edit-document/edit-task.ts#withTask` | -- | function withTask(document: Document, next: Task): Document |
+| `PercentCompleteRecount` | file only | interface | `src/use-case/edit-document/percent-complete.ts#PercentCompleteRecount` | -- | interface PercentCompleteRecount |
 | `SearchJumpReach` | file only | interface | `src/use-case/edit-document/search-jump.ts#SearchJumpReach` | -- | interface SearchJumpReach |
 | `resetTaskVisualColors` | file only | function | `src/use-case/edit-document/task-appearance.ts#resetTaskVisualColors` | -- | function resetTaskVisualColors( document: Document, command: Extract<TaskCommand, { readonly kind: 'resetTaskVisualColors' }>, ): EditResult |
 | `setTaskFadeDays` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskFadeDays` | -- | function setTaskFadeDays( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskFadeInDays' \| 'setTaskFadeOutDays' }>, task: Task, ): Ed... |
@@ -918,7 +920,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
 | `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
-| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: Pick<HandedImport, 'unreadColumns' \|... |
+| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -1624,4 +1626,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 782 name(s) leave through a public entry (281 of them published by table T-064), 632 more are exported by a file and not by its entry.
+Totals: 783 name(s) leave through a public entry (282 of them published by table T-064), 633 more are exported by a file and not by its entry.

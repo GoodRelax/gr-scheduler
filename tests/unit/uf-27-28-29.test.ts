@@ -227,7 +227,8 @@ const taskOf = (uid: number, start: string, finish: string): Loose => ({
   actualFinish: null,
   resume: null,
   resumeValid: null,
-  percentComplete: null,
+  // WHY: what the dates give an unstarted Task; a GRS JSON read recounts any other value (FR-012).
+  percentComplete: 0,
   fadeInDays: null,
   fadeOutDays: null,
   dependencies: [],
