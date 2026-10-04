@@ -113,7 +113,7 @@ function propertyControlsStyle(): string {
 /** @purity pure */
 function propertyControlStyle(widthInFontSizes: number): string {
   return (
-    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;` +
+    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;text-overflow:ellipsis;` +
     `min-height:${fieldSizes().controlMinHeight}px;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
   )
