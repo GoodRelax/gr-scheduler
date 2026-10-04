@@ -1039,10 +1039,11 @@ test.describe('CR-621 -- the help moves and narrows like every window (T-335 WB-
 
       // STEP: GR-24 -- the title row left of the legend, where no entrance stands
       const band = { x: opened.title.left + 8, y: (opened.title.top + opened.title.bottom) / 2 }
-      await dragBy(page, band, { x: -40, y: -30 })
+      // WHY: CR-669 keeps the help inside the Schedule Canvas, so the drag stays below the App Header.
+      await dragBy(page, band, { x: -40, y: -20 })
       const moved = await readHelp(page)
       expect(Math.abs(moved.box.left - (opened.box.left - 40)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
-      expect(Math.abs(moved.box.top - (opened.box.top - 30)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
+      expect(Math.abs(moved.box.top - (opened.box.top - 20)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
 
       // STEP: GR-25 -- the right edge, half way down
       const edge = { x: moved.box.right - 1, y: (moved.box.top + moved.box.bottom) / 2 }
