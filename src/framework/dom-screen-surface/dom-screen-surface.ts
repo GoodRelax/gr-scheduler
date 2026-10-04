@@ -1309,6 +1309,9 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-472': number
   readonly 'S-473': number
   readonly 'S-474': number
+  readonly 'S-500': number
+  readonly 'S-501': number
+  readonly 'S-502': number
   readonly 'S-475': number
   readonly 'S-476': number
   readonly 'S-477': number
@@ -1323,19 +1326,22 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-465': 6,
   'S-466': 250,
   'S-467': 190,
-  'S-468': 110,
-  'S-469': 110,
-  'S-470': 150,
+  'S-468': 99,
+  'S-469': 105,
+  'S-470': 152,
   'S-471': 380,
   'S-472': 300,
   'S-473': 240,
-  'S-474': 110,
-  'S-475': 150,
+  'S-474': 70,
+  'S-500': 73,
+  'S-501': 89,
+  'S-502': 95,
+  'S-475': 138,
   'S-476': 190,
-  'S-477': 110,
+  'S-477': 73,
   'S-478': 250,
-  'S-479': 220,
-  'S-480': 220,
+  'S-479': 143,
+  'S-480': 143,
   'S-481': 380,
 }
 
@@ -1473,5 +1479,16 @@ export const SCREEN_COLOURS: {
   'S-464': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-493': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
+  'S-503': { light: '#214b82', dark: '#7ba7e0', followsHue: false },
+  'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
+  'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-385': { light: '#feda76', dark: '#e6d947', followsHue: false },
+  'S-386': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-387': { light: '#ff8f8f', dark: '#f34949', followsHue: false },
+  'S-388': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-389': { light: '#9673d3', dark: '#b697ed', followsHue: false },
+  'S-390': { light: '#16181d', dark: '#16181d', followsHue: false },
 }
 // </generated>

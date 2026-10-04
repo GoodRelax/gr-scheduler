@@ -4574,6 +4574,20 @@
  ],
  "searchColumns": [
   {
+   "rowId": "SQ-5",
+   "text": {
+    "ja": "ステータス",
+    "en": "Status"
+   }
+  },
+  {
+   "rowId": "SQ-11",
+   "text": {
+    "ja": "進捗",
+    "en": "Progress"
+   }
+  },
+  {
    "rowId": "SQ-1",
    "text": {
     "ja": "タスク（マイルストーン）",
@@ -4602,10 +4616,17 @@
    }
   },
   {
-   "rowId": "SQ-5",
+   "rowId": "SQ-12",
    "text": {
-    "ja": "状態",
-    "en": "Status"
+    "ja": "実績開始",
+    "en": "Actual Start"
+   }
+  },
+  {
+   "rowId": "SQ-13",
+   "text": {
+    "ja": "実績終了",
+    "en": "Actual Finish"
    }
   },
   {
@@ -4688,6 +4709,13 @@
     "ja": "（名前なし）",
     "en": "(No name)"
    }
+  },
+  {
+   "part": "filterSearch",
+   "text": {
+    "ja": "検索",
+    "en": "Search"
+   }
   }
  ],
  "wbsParentChoice": [
@@ -4722,13 +4750,6 @@
    }
   },
   {
-   "rowId": "DT-2",
-   "text": {
-    "ja": "担当",
-    "en": "Assignee"
-   }
-  },
-  {
    "rowId": "DT-3",
    "text": {
     "ja": "進捗",
@@ -4740,6 +4761,13 @@
    "text": {
     "ja": "タスク（マイルストーン）",
     "en": "Task (Milestone)"
+   }
+  },
+  {
+   "rowId": "DT-2",
+   "text": {
+    "ja": "担当",
+    "en": "Assignee"
    }
   },
   {

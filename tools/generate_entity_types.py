@@ -1430,7 +1430,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
                                        'S-466', 'S-467', 'S-468', 'S-469',
                                        'S-470', 'S-471', 'S-472', 'S-473',
-                                       'S-474',
+                                       'S-474', 'S-500', 'S-501', 'S-502',
                                        'S-475', 'S-476', 'S-477', 'S-478',
                                        'S-479', 'S-480', 'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
@@ -1851,7 +1851,10 @@ COLOUR_TARGETS = {
     # here. ONE row read by two units, like S-151 above.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
-                       'S-336', 'S-337', 'S-464', 'S-493', 'S-165'],
+                       'S-336', 'S-337', 'S-464', 'S-493', 'S-165',
+                       'S-503', 'S-161', 'S-162', 'S-326', 'S-327',
+                       'S-385', 'S-386', 'S-387', 'S-388', 'S-389',
+                       'S-390'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
