@@ -127,7 +127,7 @@ SEAM (CR-671)
 | 2 | `src/adapter/screen-renderer/properties-panel.ts`・`src/framework/dom-screen-surface/properties-panel-drawing.ts` | 5 節の継ぎ目 |
 | 3 | `tests/` | 9 節 |
 
-- ⭐ **毎フレームの経路: いいえ。** パネルの DOM は記述が変わったときだけ作り直す（`propertiesPanelKeyOf`）。`perf-pending.md` に行は足さない。
+- ⭐ **毎フレームの経路: いいえ。** パネルの DOM は記述が変わったときだけ作り直す（`propertiesPanelKeyOf`）。ただし検査 66 は `properties-panel.ts` を毎フレームの経路の名簿に数えるので、`perf-pending.md` に行 92 を足した。
 
 ---
 
