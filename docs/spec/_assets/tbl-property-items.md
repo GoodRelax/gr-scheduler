@@ -58,13 +58,15 @@
 | PR-33 | `editGroup` | 文字 | `TaskGroup` | — | 行を編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。<br>空の欄は `null` ＝ 誰でも編集できる。<br>⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でない行でも編集でき、`Agent API` からは書けない。<br>規則は `FR-111` の 表 T-275 の `GP-1` が持つ | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | — | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | — | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |
+| PR-45 | `fillColor` | 色 | `CommentBox` | — | 本文の箱の塗りの色。<br>`null` ＝ `FR-019` が名指す地の色（`_assets/tbl-settings.md` の 表 T-236 の `S-146`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
+| PR-27 | `fillTransparencyPercent` | 数値 | `CommentBox` | — | 本文の箱の塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375` | 無い（`GRS JSON` のみ） |
+| PR-28 | `strokeColor` | 色 | `CommentBox` | — | 本文の箱の枠と引出し線の色。<br>`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
 | PR-26 | `strokeWidthPx` | 数値 | `CommentBox` | — | 本文の箱の枠と引出し線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374` | 無い（`GRS JSON` のみ） |
-| PR-27 | `fillTransparencyPercent` | 数値 | `CommentBox` | — | 本文の箱の塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-375` | 無い（`GRS JSON` のみ） |
-| PR-28 | `strokeColor` / `fillColor` / `textColor` | 色 / 色 / 色 | `CommentBox` | — | 枠と引出し線・本文の箱の塗り・本文の字の色。<br>`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。<br>⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`） | 無い（`GRS JSON` のみ） |
-| PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | — | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
-| PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | — | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-371` | 無い（`GRS JSON` のみ） |
-| PR-22 | `strokeColor` | 色 | `HighlightBox` | — | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。<br>透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
+| PR-46 | `textColor` | 色 | `CommentBox` | — | 本文の字の色。<br>`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
 | PR-25 | `fillColor` | 色 | `HighlightBox` | — | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
+| PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | — | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371` | 無い（`GRS JSON` のみ） |
+| PR-22 | `strokeColor` | 色 | `HighlightBox` | — | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。<br>透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
+| PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | — | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
 | PR-41 | `linkType` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。<br>`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。<br>種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`） | `PredecessorLink/Type` |
 | PR-42 | `lag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118`（稼働日）であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |
 | PR-43 | `predecessorUid` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。<br>`FR-038` の辞書の形（名と `uid`）で示す | `PredecessorLink/PredecessorUID` |

@@ -324,7 +324,7 @@ export const SETTINGS_CONSTANTS: {
   stackGap: 1,
   stackSafetyCap: 255,
   starInnerOfOuter: 0.45,
-  taskHintDelayMs: 500,
+  taskHintDelayMs: 1000,
   thinArrowHeadHeight: 5.6,
   thinArrowHeadLength: 5.6,
   thinFontScale: 0.85,
