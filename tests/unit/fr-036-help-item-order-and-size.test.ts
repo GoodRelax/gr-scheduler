@@ -263,7 +263,6 @@ interface HelpItem {
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly string[]
-  readonly indent: boolean
 }
 
 const entry = (patch: Partial<HelpItem> = {}): HelpItem => ({
@@ -277,7 +276,6 @@ const entry = (patch: Partial<HelpItem> = {}): HelpItem => ({
   block: '',
   segment: null,
   glyphs: [ITEM_ICON],
-  indent: false,
   ...patch,
 })
 

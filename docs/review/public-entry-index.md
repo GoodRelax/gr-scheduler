@@ -1223,7 +1223,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
-| `HelpFootnote` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | interface HelpFootnote extends LinkedWords |
+| `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HelpWindowArea` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpWindowArea` | -- | interface HelpWindowArea |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |

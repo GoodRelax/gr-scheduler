@@ -130,9 +130,12 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # is on the screen only while something is armed. FR-036 says the dictionary
 # holds the note on IC-54's row, so that section is keyed by the row id.
 # CR-635: every block of the help carries a heading, keyed by the block's name
-# in the help roster (tools/generate_help_roster.py).
+# in the help roster (tools/generate_help_roster.py). CR-665: the palette's
+# group moved under the Row Title Panel is a block of its own, with its own
+# heading.
 # ⚠️ These are KEYS, not words.
-HELP_HEADINGS =('basics', 'browser', 'App Header', 'Row Title Panel', 'Command Palette')
+HELP_HEADINGS =('basics', 'browser', 'App Header', 'Row Title Panel',
+                'Command Palette (continued)', 'Command Palette')
 HELP_NOTES = ('IC-54', 'IC-20')
 # ⭐ The notes below the columns of the help body (FR-036, CR-620): note *1
 # names the bundle for using the Agent API from an AI app and the page that

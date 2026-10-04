@@ -3987,6 +3987,13 @@
    }
   },
   {
+   "block": "Command Palette (continued)",
+   "text": {
+    "ja": "コマンドパレット（続き）",
+    "en": "Command Palette (continued)"
+   }
+  },
+  {
    "block": "Command Palette",
    "text": {
     "ja": "コマンドパレット",

@@ -46,9 +46,8 @@ const HELP_SURFACE = 'Help Modal'
 
 const MODAL_BORDER_PX = 1
 
-// WHY: anywhere, because the address has no space to break at and would widen the column.
-// WHY: one empty line (1lh) parts the note from the column's last item (JDG-1048, JDG-1049).
-const HELP_FOOTNOTE_STYLE = 'overflow-wrap:anywhere;margin-top:1lh;'
+// WHY: right-aligned above the licence line (JDG-1396); anywhere, as the address has no space to break at.
+const HELP_FOOTNOTE_STYLE = 'text-align:right;overflow-wrap:anywhere;'
 
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
@@ -156,26 +155,21 @@ function helpBodyStyle(): string {
 // TRAP: the tooltip joins with the same one; EZ-2 forbids the pair built two ways.
 const ASSIGNMENT_SEPARATOR = ' \uFF0F '
 
-// see FR-036
-/** @purity pure */
-function helpIndentPx(isIndented: boolean): number {
-  return isIndented ? NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2 : 0
-}
-
 const HELP_GLYPH_GAP_EM = 0.5
 
 // see FR-036, S-436
 // WHY: margin-left:auto, not only the growing explanation, so an assignment sent to the next line stays right.
 /** @purity pure */
-function helpItemStyles(
-  glyphCount: number,
-  isIndented: boolean,
-): { readonly row: string; readonly glyph: string; readonly text: string; readonly keys: string } {
-  const indent = helpIndentPx(isIndented)
+function helpItemStyles(glyphCount: number): {
+  readonly row: string
+  readonly glyph: string
+  readonly text: string
+  readonly keys: string
+} {
   const slot = `${chromeScaledPx(NOT_STORED_ICON_SIZES['S-138']) * glyphCount}px + ${HELP_GLYPH_GAP_EM}em`
   return {
-    row: `${STYLE.helpEntry}position:relative;padding-left:calc(${indent}px + ${slot});`,
-    glyph: `${STYLE.helpGlyph}position:absolute;left:${indent}px;top:0;height:1lh;`,
+    row: `${STYLE.helpEntry}position:relative;padding-left:calc(${slot});`,
+    glyph: `${STYLE.helpGlyph}position:absolute;left:0;top:0;height:1lh;`,
     text: `${STYLE.helpText}flex:1 1 auto;margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`,
     keys: `${STYLE.helpKeys}margin-left:auto;`,
   }
@@ -213,13 +207,11 @@ function helpItemElement(
   host: Document,
   line: OpenHelpEntry,
   glyphs: readonly string[],
-  isIndented: boolean,
 ): { readonly row: HTMLElement; readonly text: HTMLElement } {
-  const styles = helpItemStyles(glyphs.length, isIndented)
+  const styles = helpItemStyles(glyphs.length)
   const row = made(host, 'div', styles.row)
   row.setAttribute('data-table', line.table)
   row.setAttribute('data-row', line.row)
-  if (isIndented) row.setAttribute('data-indent', 'true')
 
   const glyph = made(host, 'span', styles.glyph)
   if (glyphs.length === 1) {
@@ -361,7 +353,6 @@ function wheelUnitPx(event: WheelEvent, scroller: HTMLElement): number {
 function helpColumnsElement(
   host: Document,
   entries: readonly OpenHelpEntry[],
-  footnotes: HelpModal['footnotes'],
   openedBodyWidthPx: number,
 ): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle(openedBodyWidthPx))
@@ -387,7 +378,8 @@ function helpColumnsElement(
       blockName = name
       segment = lineSegment
     } else if (lineSegment !== segment) {
-      block.append(made(host, 'div', paletteGroupRuleStyle()))
+      // WHY: a heading is no group, so the first group under it takes no line (CR-665: one group, no line).
+      if (segment !== null) block.append(made(host, 'div', paletteGroupRuleStyle()))
       segment = lineSegment
     }
     if (line.kind === 'heading') {
@@ -397,26 +389,20 @@ function helpColumnsElement(
       block.append(heading)
       continue
     }
-    const drawnItem = helpItemElement(host, line, line.glyphs, line.indent)
+    const drawnItem = helpItemElement(host, line, line.glyphs)
     block.append(drawnItem.row)
   }
-  appendHelpFootnotes(host, footnotes, columnByRow, columns)
   return columns
 }
 
 /** @purity non-pure */
-function appendHelpFootnotes(
-  host: Document,
-  footnotes: HelpModal['footnotes'],
-  columnByRow: ReadonlyMap<string, HTMLElement>,
-  columns: HTMLElement,
-): void {
-  for (const footnote of footnotes) {
-    const column = columnByRow.get(footnote.column) ?? [...columnByRow.values()].at(-1) ?? columns
+function helpFootnoteElements(host: Document, footnotes: HelpModal['footnotes']): readonly HTMLElement[] {
+  return footnotes.map((footnote) => {
     const note = made(host, 'div', HELP_FOOTNOTE_STYLE)
+    note.setAttribute('data-help-footnote', 'true')
     note.append(nextStepElement(host, footnote.before, footnote.address === '' ? null : footnote))
-    column.append(note)
-  }
+    return note
+  })
 }
 
 interface DrawnModal {
@@ -609,20 +595,29 @@ export function modalElement(
   return { element: drawn, watermarkUnlockEntry, helpColumns }
 }
 
-// see FR-069, S-437, S-149, S-457
+// see FR-069, FR-036, S-437, S-149, S-457
 /** @purity pure */
 function helpLegalStyle(): string {
   const gap = NOT_STORED_HELP_SIZES['S-457']
-  return `${STYLE.helpLegal}border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};margin-top:${gap}em;padding-top:${gap}em;`
+  return (
+    `${STYLE.helpLegal}border-top:${NOT_STORED_HELP_SIZES['S-437']}px solid ${PAINT.rule};margin-top:${gap}em;padding-top:${gap}em;` +
+    'display:flow-root;'
+  )
 }
 
-// see FR-069, S-459
+// WHY: floats, so the folded text's summary shares their line (JDG-1391) and the opened text spans the box.
+/** @purity pure */
+function helpLegalLeadStyle(): string {
+  return `float:left;margin-right:${NOT_STORED_HELP_SIZES['S-436']}em;`
+}
+
+// see FR-069, FR-036, S-459
 /** @purity non-pure */
 function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
   const legal = made(host, 'div', helpLegalStyle())
-  const copyright = made(host, 'div', '')
+  const copyright = made(host, 'div', helpLegalLeadStyle())
   copyright.append(linkElement(host, NOT_STORED_HELP_SIZES['S-459'], modal.copyrightNotice))
-  const licensedUnder = made(host, 'div', '')
+  const licensedUnder = made(host, 'div', helpLegalLeadStyle())
   licensedUnder.textContent = modal.helpLegal.licensedUnder
   const fullText = made(host, 'details', '')
   const summary = made(host, 'summary', STYLE.helpLegalSummary)
@@ -633,7 +628,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
     line.textContent = text
     fullText.append(line)
   }
-  legal.append(copyright, licensedUnder, fullText)
+  legal.append(...helpFootnoteElements(host, modal.footnotes), copyright, licensedUnder, fullText)
   return legal
 }
 
@@ -641,7 +636,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
 /** @purity non-pure */
 function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   const body = made(host, 'div', helpBodyStyle())
-  const columns = helpColumnsElement(host, modal.entries, modal.footnotes, openedHelpBodyWidthPx(modal, 0))
+  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0))
   body.append(columns, helpLegalElement(host, modal))
   return { body, columns }
 }

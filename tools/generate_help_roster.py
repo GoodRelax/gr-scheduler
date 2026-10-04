@@ -22,15 +22,18 @@ THE LAYOUT IS FR-036'S OWN:
 
   - blocks in the columns and the order table T-256 names them: the
     assignments with no entrance (`basics`) and the browser functions
-    (`browser`) in HC-1, `App Header` in HC-2, `Row Title Panel` in HC-4,
-    `Command Palette` in HC-3. Every block opens with its heading (CR-635:
-    every block carries one, keyed by the block's name). Every entry carries
-    the row id of its column, and the count of those rows must equal S-202
-    (MUST);
+    (`browser`) in HC-1, `App Header` in HC-2, `Row Title Panel` and then the
+    palette's continuation in HC-4, `Command Palette` in HC-3. CR-665: the
+    continuation holds the palette group table T-256 names by its name, and
+    `Command Palette` holds the other groups. Every block opens with its
+    heading (CR-635: every block carries one, keyed by the block's name).
+    Every entry carries the row id of its column, and the count of those rows
+    must equal S-202 (MUST);
   - CR-635 (MUST NOT): the rows of table T-109 whose surfaces are only
     `Search Panel`, `Delay Diagnostics Report`, `Properties Panel`,
-    `Resource Roster`, `Holiday Settings` or `Dialogue Field` (with or without
-    `Help Modal`), and IC-52, IC-53 and IC-75, are left off the help -- the
+    `Resource Roster`, `Holiday Settings`, `Dialogue Field`, `Open Chooser`
+    or `Difference Review` (with or without `Help Modal`; CR-665 added the
+    last two), and IC-52, IC-53 and IC-75, are left off the help -- the
     icons any other tool already teaches. CR-637 (MUST): an assignment
     whose entrance item is left off sits in `basics` instead (SK-8, whose
     entrance is IC-52);
@@ -38,8 +41,6 @@ THE LAYOUT IS FR-036'S OWN:
     T-109;
   - an assignment whose table names an entrance sits on that entrance's item,
     never as a second item (MUST NOT);
-  - under `IC-1`, the entrances of the surfaces that stand after opening,
-    indented;
   - the rows armed with AR-3 and `IC-50` as ONE item, drawn with the first
     and the last glyph `S-216` always shows and the glyph of `IC-50`;
   - the items of `IC-54` and `IC-20` carry their notes (the row id whose note
@@ -104,6 +105,16 @@ PROSE_OPENS = u'\uff08'
 COLUMN_BLOCKS_HEADING = u'\u7f6e\u304f\u584a\uff08\u4e0a\u304b\u3089\u9806\u306b\uff09'
 COLUMN_BLOCK_SEPARATOR = u' \u2192 '
 BASICS_WORDS = u'\u5165\u53e3\u3092\u6301\u305f\u306a\u3044\u5272\u5f53'
+# CR-665: table T-256 splits the palette in two by naming one group of table
+# T-109's group column -- HC-4 holds the palette's continuation, "the rows whose
+# group is <group>", and HC-3 holds `Command Palette` "minus the rows whose
+# group is <group>". The two cells must name the same group.
+PALETTE_CONTINUED_STEP = re.compile(
+    u'^`Command Palette` \u306e\u7d9a\u304d\uff08\u8868 T-109 \u306e '
+    u'`\u7fa4` \u304c `([^`]+)` \u306e\u884c\uff09$')
+PALETTE_REST_STEP = re.compile(
+    u'^`Command Palette`\uff08\u7fa4\u304c `([^`]+)` '
+    u'\u306e\u884c\u3092\u9664\u304f\uff09$')
 # A chord is compared after dropping spaces and reading the full-width plus as
 # a plain one, so a key that is itself a plus (`Ctrl` + `+`) compares too.
 FULL_WIDTH_PLUS = u'\uff0b'
@@ -113,15 +124,21 @@ BROWSER = 'browser'
 ROW_TITLE_PANEL = 'Row Title Panel'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
-BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE)
+# CR-665: the block of the palette group moved under the Row Title Panel. The
+# name keys its heading in the dictionary, as every block's name does.
+PALETTE_CONTINUED = 'Command Palette (continued)'
+BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE,
+          PALETTE_CONTINUED)
 # CR-635: the blocks whose heading this script adds; basics and browser open
 # with theirs where they are built. The heading's word is keyed by the block.
-SURFACE_BLOCKS = (ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE)
+SURFACE_BLOCKS = (ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE, PALETTE_CONTINUED)
 # CR-635 (FR-036, MUST NOT): a row of table T-109 whose surfaces are only these
 # (Help Modal beside them or not) is left off the help, and so are the three
-# rows named on their own -- IC-52 stands on Open Chooser too.
+# rows named on their own. CR-665 added Open Chooser and Difference Review:
+# the user dropped the open detail to fit the help on one screen (JDG-1391).
 LEFT_OUT_SURFACES = ('Search Panel', 'Delay Diagnostics Report', 'Properties Panel',
-                     'Resource Roster', 'Holiday Settings', 'Dialogue Field')
+                     'Resource Roster', 'Holiday Settings', 'Dialogue Field',
+                     'Open Chooser', 'Difference Review')
 LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
@@ -144,10 +161,6 @@ UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
 ROW_TITLE_PANEL_ORDER = ('IC-78', 'IC-92', 'IC-74', 'IC-93', 'IC-106',
                          'IC-59', 'IC-90', 'IC-77', 'IC-58', 'IC-82', 'IC-91',
                          'IC-60')
-
-# FR-036: under IC-1, the entrances of Open Chooser then Difference Review.
-OPENED_UNDER = 'IC-1'
-OPENED_SURFACES = ('Open Chooser', 'Difference Review')
 
 MILESTONE_ARM = 'AR-3'
 MILESTONE_LIST_ROW = 'IC-50'
@@ -258,12 +271,23 @@ def chords_of(keys):
                for one in keys.split(ASSIGNMENT_SEPARATOR))
 
 
-def block_of(written):
+def block_of(written, moved):
     """The block one step of a table T-256 cell names.
+
+    A step that splits the palette (CR-665) records the group it names in
+    `moved`, under the block it stands for.
 
     @purity non-pure
     """
     step = written.strip()
+    continued = PALETTE_CONTINUED_STEP.match(step)
+    if continued:
+        moved[PALETTE_CONTINUED] = continued.group(1)
+        return PALETTE_CONTINUED
+    rest = PALETTE_REST_STEP.match(step)
+    if rest:
+        moved[COMMAND_PALETTE] = rest.group(1)
+        return COMMAND_PALETTE
     if len(step) > 1 and step.startswith(CODE_FENCE) and step.endswith(CODE_FENCE):
         return step.strip(CODE_FENCE)
     if BROWSER_TABLE in step:
@@ -276,13 +300,19 @@ def block_of(written):
 
 
 def column_layout():
-    """[(column row id, [block, ...]), ...] in table T-256's order.
+    """([(column row id, [block, ...]), ...] in table T-256's order, moved group).
 
     @purity non-pure
     """
-    layout = [(row.id, [block_of(step) for step in
+    moved = {}
+    layout = [(row.id, [block_of(step, moved) for step in
                         row.cell(COLUMN_BLOCKS_HEADING).split(COLUMN_BLOCK_SEPARATOR)])
               for row in spec_tables.read(REL_REQUIREMENTS, COLUMN_TABLE)]
+    groups = set(moved.values())
+    if len(moved) != 2 or len(groups) != 1:
+        stop('table %s must name one palette group twice -- the rows %s holds '
+             'and the rows %s leaves out (CR-665); it names %s'
+             % (COLUMN_TABLE, PALETTE_CONTINUED, COMMAND_PALETTE, moved))
     placed = [block for _column, blocks in layout for block in blocks]
     if sorted(placed) != sorted(BLOCKS):
         stop('table %s places %s, and the blocks this script builds are %s'
@@ -291,18 +321,17 @@ def column_layout():
     if len(layout) != count:
         stop('table %s has %d row(s) and %s says %d columns; FR-036 (MUST) has '
              'the two agree' % (COLUMN_TABLE, len(layout), HELP_COLUMN_COUNT, count))
-    return layout
+    return layout, groups.pop()
 
 
 def item(block, segment, table, row, keys=None, press=None, glyphs=None,
-         indent=False, kind='item', note=None):
+         kind='item', note=None):
     """@purity pure"""
     return {
         'kind': kind,
         'column': None,
         'block': block,
         'segment': segment,
-        'indent': indent,
         'table': table,
         'row': row,
         'keys': keys,
@@ -319,6 +348,7 @@ def build():
     """
     icons = json.load(io.open(ROSTER, encoding='utf-8'))['icons']
     by_id = dict((icon['rowId'], icon) for icon in icons)
+    layout, moved_group = column_layout()
 
     def left_out(icon):
         rest = [one for one in icon['surfaces'] if one != HELP_MODAL]
@@ -383,22 +413,18 @@ def build():
 
     # FR-036: the note on IC-54 and on IC-20 belongs to that row's own item, so
     # an entrance never stands on a second item for it.
-    def icon_item(block, segment, rid, glyphs=None, indent=False):
+    def icon_item(block, segment, rid, glyphs=None):
         return item(block, segment, ICON_TABLE, rid, keys=keys_on.get(rid),
                     press=press_on.get(rid),
                     glyphs=glyphs if glyphs is not None else [rid],
-                    indent=indent,
                     note=rid if rid in NOTED_ROWS else None)
 
     # A row stands in ONE place on the help: the first surface of its cell that
-    # has a block or stands under IC-1. A row CR-635 leaves out has no place,
-    # IC-52 included although it stands on Open Chooser too.
-    placed = BLOCKS + OPENED_SURFACES
-
+    # has a block. A row CR-635 leaves out has no place.
     def home(icon):
         if left_out(icon):
             return None
-        found = [one for one in icon['surfaces'] if one in placed]
+        found = [one for one in icon['surfaces'] if one in BLOCKS]
         return found[0] if found else None
 
     on = lambda surface: [i['rowId'] for i in icons if home(i) == surface]
@@ -410,13 +436,7 @@ def build():
                            list(ROW_TITLE_PANEL_ORDER)))
     panel = [icon_item(ROW_TITLE_PANEL, None, rid) for rid in ROW_TITLE_PANEL_ORDER]
 
-    header = []
-    for rid in on(APP_HEADER):
-        header.append(icon_item(APP_HEADER, None, rid))
-        if rid == OPENED_UNDER:
-            for surface in OPENED_SURFACES:
-                header.extend(icon_item(APP_HEADER, None, one, indent=True)
-                              for one in on(surface))
+    header = [icon_item(APP_HEADER, None, rid) for rid in on(APP_HEADER)]
 
     # The palette as the screen draws it: the grab band (the rows with no
     # group; CR-635 left IC-53 and IC-75 out, so none today) first, then
@@ -440,28 +460,35 @@ def build():
              % (ICON_TABLE, MILESTONE_ARM, len(milestones), ALWAYS_SHOWN_GLYPHS))
     milestone_glyphs = [milestones[0], milestones[shown - 1], MILESTONE_LIST_ROW]
 
+    # CR-665 (FR-036, MUST): the group table T-256 names goes to the palette's
+    # continuation under the Row Title Panel, in the same order; the rest stay.
+    if moved_group not in [cell for cell, _first, _members in groups]:
+        stop('table %s moves the palette group %r, which no row of table %s '
+             'holds' % (COLUMN_TABLE, moved_group, ICON_TABLE))
     palette = [icon_item(COMMAND_PALETTE, band[0]['rowId'], i['rowId']) for i in band]
-    for _cell, first, members in groups:
+    continued = []
+    for cell, first, members in groups:
+        block = PALETTE_CONTINUED if cell == moved_group else COMMAND_PALETTE
+        into = continued if cell == moved_group else palette
         for icon in members:
             rid = icon['rowId']
             if rid == MILESTONE_LIST_ROW:
                 continue
             if rid in milestones:
                 if rid == milestones[0]:
-                    palette.append(icon_item(COMMAND_PALETTE, first,
-                                             MILESTONE_LIST_ROW,
-                                             glyphs=milestone_glyphs))
+                    into.append(icon_item(block, first, MILESTONE_LIST_ROW,
+                                          glyphs=milestone_glyphs))
                 continue
-            palette.append(icon_item(COMMAND_PALETTE, first, rid))
+            into.append(icon_item(block, first, rid))
 
     by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
                 APP_HEADER: header,
-                COMMAND_PALETTE: palette}
+                COMMAND_PALETTE: palette, PALETTE_CONTINUED: continued}
     for block in SURFACE_BLOCKS:
         by_block[block] = ([item(block, None, REQUIREMENT, block, kind='heading')]
                            + by_block[block])
     entries = []
-    for column, blocks in column_layout():
+    for column, blocks in layout:
         for block in blocks:
             for one in by_block[block]:
                 one['column'] = column
