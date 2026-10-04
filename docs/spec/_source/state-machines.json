@@ -199,8 +199,12 @@
       "in": "selectionStateMachine.objectsSelected"
      }
     ],
+    "also": {
+     "ja": "根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`）"
+    },
     "evidence": [
-     "IN-4"
+     "IN-4",
+     "FR-085"
     ],
     "note": {
      "ja": "構えより前に置かない（`IN-4`）"
@@ -344,8 +348,12 @@
       "in": "selectionStateMachine.objectsSelected"
      }
     ],
+    "also": {
+     "ja": "根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`）"
+    },
     "evidence": [
-     "SK-19"
+     "SK-19",
+     "FR-085"
     ],
     "note": {
      "ja": "プロパティパネルも出していないとき"
@@ -6116,7 +6124,9 @@
      "FR-085",
      "FR-099",
      "FR-033",
-     "UN-9"
+     "UN-9",
+     "IN-4",
+     "SK-19"
     ],
     "transitions": {
      "rowsPicked": {
@@ -6153,6 +6163,37 @@
       ],
       "note": {
        "ja": "`copiedForPaste` を書き換える"
+      }
+     },
+     "selectionEscapePressed": {
+      "guard": [
+       {
+        "name": "isRungSelection"
+       }
+      ],
+      "evidence": [
+       "IN-4",
+       "FR-085"
+      ],
+      "note": {
+       "ja": "`chosenRows` を空にする —— 段「選択」は対象と行の両方を解く"
+      }
+     },
+     "selectionSettleKeyPressed": {
+      "evidence": [
+       "SK-19",
+       "FR-085"
+      ],
+      "note": {
+       "ja": "`chosenRows` を空にする —— 対象と行の両方を解く"
+      }
+     },
+     "selectionPruned": {
+      "evidence": [
+       "FR-085"
+      ],
+      "note": {
+       "ja": "`chosenRows` を、運ぶ `chosenRows`（文書に在る行だけ）に置き換える"
       }
      }
     }
@@ -6254,15 +6295,25 @@
        "FR-049",
        "FR-018",
        "HR-1a",
-       "HR-6"
+       "HR-6",
+       "FR-085"
       ],
       "note": {
-       "ja": "書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った"
+       "ja": "書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなった行も行の選択から刈る（`FR-085`）"
       }
      },
      "carries": [
       {
        "name": "remainingObjects"
+      },
+      {
+       "name": "chosenRows",
+       "rows": [
+        "FR-085"
+       ],
+       "note": {
+        "ja": "刈ったあとに残る行。文書から消えた行を除いた行の選択"
+       }
       }
      ]
     },
@@ -7097,7 +7148,7 @@
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない"
+        "ja": "押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない。値は `null` とする"
        }
       }
      ]

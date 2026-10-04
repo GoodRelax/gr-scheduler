@@ -32,14 +32,14 @@
 | RG-16 | `Esc` | 開いているウインドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
-| RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` | `IN-4` | 構えより前に置かない（`IN-4`） |
+| RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
 | RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | — |
 | RG-8 | `Esc` | 出ている説明 | `tooltipDisplayStateMachine.allowed` と、フレームの値（描いた説明がある） | `IN-4` ・ `IN-3` | 状態だけでは決まらない段（`SF-5`） |
 | RG-17 | `Esc` | 全画面表示 | `fullScreenModeStateMachine.full` | `IN-4` ・ `FR-071` | 最後の段。全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。閲覧環境が Keyboard Lock を持たないときはブラウザが先に取る（`IN-4a`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-9 | `Enter` | 出ている通知 | `noticeDisplayStateMachine.shown` | `SK-19` ・ `NT-8` | — |
 | RG-10 | `Enter` | その場の編集の確定 | `fieldEditStateMachine.editingField` ／ `createdTaskNamingStateMachine.namingCreatedTask` | `SK-19` ・ `FR-091` | 面も問いも立っていないとき |
 | RG-11 | `Enter` | プロパティパネルを出すのをやめる | `propertiesPanelContentStateMachine`（`hidden` 以外） | `SK-19` | 面も問いも立っておらず、確定していないその場の編集も無いとき |
-| RG-12 | `Enter` | 選択を解く | `selectionStateMachine.objectsSelected` | `SK-19` | プロパティパネルも出していないとき |
+| RG-12 | `Enter` | 選択を解く | `selectionStateMachine.objectsSelected` と、根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`） | `SK-19` ・ `FR-085` | プロパティパネルも出していないとき |
 | RG-13 | `y` ／ `n` | 問いに答える | `confirmationStateMachine.questionAsked` | `NT-7` | `NT-8` の消去の次、`IN-4` と `SK-19` の階層より先 |
 
 ## 画面の値（`screen`）
@@ -1010,10 +1010,10 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `selection/objectsPicked` | 入力（対象を選ぶ押下・範囲・`Shift` での増減・全選択・端のドラッグで絞ること。新しい選択は呼び手（入力の翻訳係）が組み、値が変わったときだけ送る。⭐ `Ctrl` ドラッグの写し（表 T-308 の `CY-8`）だけは、写しが着地したあとに殻が組んで送る —— 写しの `UID` は書き込みが払い出す）: `SL-2` ・ `SL-3` ・ `SL-4` ・ `SK-2` ・ `SL-7a` ・ `CY-8` | `pickedObjects`（`SL-1` ・ `SL-7b`） | `selectionStateMachine` |
 | `selection/emptyAreaClicked` | 入力（何にも当たらない場所での素の左クリック（構えなし））: `MK-11` ・ `SL-6` | — | `selectionStateMachine` |
-| `selection/selectionEscapePressed` | 入力（`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `selectionStateMachine` |
-| `selection/selectionSettleKeyPressed` | 入力（`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る）: `SK-19` | — | `selectionStateMachine` |
+| `selection/selectionEscapePressed` | 入力（`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | 根 ・ `selectionStateMachine` |
+| `selection/selectionSettleKeyPressed` | 入力（`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る）: `SK-19` | — | 根 ・ `selectionStateMachine` |
 | `selection/selectionCleared` | 副作用の結果（画面の値の副作用 `clearSelection` の結果）: `FR-091` | — | `selectionStateMachine` |
-| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った）: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` | `remainingObjects` | `selectionStateMachine` |
+| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなった行も行の選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenRows`（`FR-085`。刈ったあとに残る行。文書から消えた行を除いた行の選択） | 根 ・ `selectionStateMachine` |
 | `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
 | `selection/rowsPicked` | 入力（行見出しパネルで行を選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenRows` | 根 |
 | `selection/createdRowSelected` | 副作用の結果（行を足す書き込みが着地し、足した行が文書に在る）: `HF-14` | `createdGroupId` | 根 |
@@ -1023,7 +1023,7 @@ stateDiagram-v2
 ### 根 `selection` の値
 
 運ぶ値: `chosenRows`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある。`Task` を写したときは、選ばれていた `Task` をすべて持つ）。  
-根拠: `FR-081` ・ `FR-085` ・ `FR-099` ・ `FR-033` ・ `UN-9`。
+根拠: `FR-081` ・ `FR-085` ・ `FR-099` ・ `FR-033` ・ `UN-9` ・ `IN-4` ・ `SK-19`。
 
 | 出来事 | `selection` |
 | --- | --- |
@@ -1031,6 +1031,9 @@ stateDiagram-v2
 | `selection/createdRowSelected` | → 自己（`chosenRows` を作った行 1 つにする） |
 | `selection/resourcesPicked` | → 自己（`chosenResources` を書き換える） |
 | `selection/copyTaken` | → 自己（`copiedForPaste` を書き換える） |
+| `selection/selectionEscapePressed` | → 自己 [`isRungSelection`]（`chosenRows` を空にする —— 段「選択」は対象と行の両方を解く）<br>それ以外 → — |
+| `selection/selectionSettleKeyPressed` | → 自己（`chosenRows` を空にする —— 対象と行の両方を解く） |
+| `selection/selectionPruned` | → 自己（`chosenRows` を、運ぶ `chosenRows`（文書に在る行だけ）に置き換える） |
 
 **図 F-039 — 選択の状態遷移**
 
@@ -1199,7 +1202,7 @@ stateDiagram-v2
 | `rowTree/everyRowOpenPressed` | 入力（頭のすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
 | `rowTree/everyRowFoldPressed` | 入力（頭のすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
 | `rowTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
-| `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
+| `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない。値は `null` とする） | 根 ・ `treeStateMachine` |
 | `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
 | `rowTree/everyRowDeletePressed` | 入力（頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |

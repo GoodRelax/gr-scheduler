@@ -32,14 +32,14 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     ).toEqual([])
   })
 
-  it('FR-098 names exactly three reasons a pinned row is not drawn, the third being the overflow', () => {
+  it('FR-098 limits an undrawn pinned row to the all-required rows of table T-329 and the overflow', () => {
     // WHY: latched whole, not paraphrased, so a rewrite that keeps the
-    // count but swaps a reason cannot slip past separate substring checks.
+    // overflow but drops the table cannot slip past separate substring checks.
     expect(REQUIREMENTS).toContain(
-      'ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015 の `HR-1a`）と、' +
-        '隠した行の配下にあるとき（同表の `HR-6`）と、帯が `Row Area` に収まらず入りきらないとき' +
-        'の 3 つに限ること（MUST）。それ以外の理由で描くのをやめてはならない（MUST NOT）。',
+      'ピン止めした行が描かれないのは、`FR-018` の 表 T-329 の種類「すべて要る」の行のどれかが成り立たないときと、' +
+        '帯が `Row Area` に収まらず入りきらないときに限ること（MUST）',
     )
+    expect(REQUIREMENTS).toContain('それ以外の理由で描くのをやめてはならない（MUST NOT）。')
   })
 
   it('⛔ the MUST NOT against filling the Row Area is gone, and its replacement stands', () => {

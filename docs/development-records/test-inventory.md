@@ -404,7 +404,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/fr-029-glyph-coordinate-system.contract.test.ts` | 14 | FR-029, FR-036 | - | T-026, T-109, T-206, T-218 | IC-102, RC-13, S-138, S-141, TS-5, UF-71 | - | - | - | - |
 | `tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts` | 19 | FR-029, FR-049, FR-053, FR-072 | - | T-051, T-062, T-075, T-109, T-206, T-218, T-236, T-237 | AR-4, BO-1, CP-38, EN-1, EN-2, EN-3, EN-4, EN-5, HF-6, IC-7, IC-17, IC-18, IC-39, IC-61, S-64, S-73, S-138, S-146, S-149, S-183, TS-6, UF-71 | - | - | - | - |
 | `tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts` | 10 | FR-053 | - | T-004, T-023d, T-062, T-075, T-103, T-109, T-206, T-218, T-237 | BO-1, CP-38, EN-5, GR-19, IC-53, IC-75, IF-9, LM-2, S-99e, S-135a, S-200, TS-6, U-26, UF-65, UF-71 | - | - | - | - |
-| `tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts` | 5 | FR-098 | - | T-233 | - | - | - | - | - |
+| `tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts` | 5 | FR-098 | - | T-233, T-329 | - | - | - | - | - |
 | `tests/contract/fr-101-the-name-stands-above-the-time.test.ts` | 8 | FR-101 | - | T-062, T-075, T-076, T-103, T-206, T-218 | BO-1, CP-38, EP-1, IF-9, S-210, TS-6, U-27, U-31, U-58, U-59, UF-62, UF-71 | - | - | - | - |
 | `tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts` | 7 | FR-101, NFR-007 | - | T-006a, T-028, T-058, T-060, T-062, T-064, T-075, T-103, T-206, T-218 | AT-127, AT-140, BO-1, CP-38, IN-2, LY-5, PI-38, S-203, S-210, TS-6, U-31, U-58, U-59, UF-71, W-4 | - | - | - | - |
 | `tests/contract/grs-document.contract.test.ts` | 8 | - | - | T-052, T-056, T-058 | AT-130 | - | - | - | - |
@@ -423,7 +423,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/state-machine-interaction-record.contract.test.ts` | 13 | FR-102, NFR-010 | VT-2 | T-295 | IC-76, S-206, SD-3, SD-5, SF-3, SS-6 | - | - | - | - |
 | `tests/contract/state-machine-notices.contract.test.ts` | 8 | - | VT-2 | T-233, T-250, T-286 | AG-6, NT-3, NT-8, SD-3, SF-3, SS-5, SS-6 | - | - | - | - |
 | `tests/contract/state-machine-screen-values.contract.test.ts` | 29 | FR-016, FR-036, FR-038, FR-066, FR-070, FR-072 | VT-2 | T-250, T-280, T-283, T-330, T-332 | EL-16, HN-2, HN-4, HN-5, HN-6, IC-18, IC-52, IN-4, RG-3, RG-16, S-99i, S-434, S-435, SD-3, SF-3, SH-1, SH-2, SH-5, SJ-3, SV-2, SV-14, U-60, WB-1, WB-3, WM-6, WM-8 | - | - | - | - |
-| `tests/contract/state-machine-selection.contract.test.ts` | 8 | FR-072, FR-091 | VT-2 | T-023c, T-250, T-293 | IN-4, SD-3, SD-5, SF-3, SL-7b, SP-1, SP-2, SP-3, SP-4, SS-5 | - | - | - | - |
+| `tests/contract/state-machine-selection.contract.test.ts` | 8 | FR-072, FR-085, FR-091 | VT-2 | T-023c, T-250, T-293 | IN-4, SD-3, SD-5, SF-3, SK-19, SL-7b, SP-1, SP-2, SP-3, SP-4, SS-5 | - | - | - | - |
 | `tests/contract/state-machine-unsaved-edits.contract.test.ts` | 12 | FR-100 | VT-2 | T-290 | OP-3, SD-3, SD-5, SS-5 | - | - | - | - |
 | `tests/contract/t-012-sh-5-glyph-binding.test.ts` | 11 | - | - | T-012, T-109 | AR-3, SH-5 | - | - | - | - |
 | `tests/contract/t-020-zo-layer-membership.test.ts` | 5 | FR-019 | - | T-020, T-023c, T-029 | CM-52, CU-2, S-370, SL-3, ZO-1, ZO-2, ZO-3, ZO-5, ZO-6, ZO-8, ZO-9, ZO-12, ZO-14 | - | - | - | - |
