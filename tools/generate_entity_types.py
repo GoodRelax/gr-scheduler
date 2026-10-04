@@ -1617,6 +1617,9 @@ NOT_STORED_TARGETS = {
     # {downloadUrl} and notices.ts, which fills every reason word, puts this
     # row there. not_stored_cell reads the whole-cell code span as the value.
     'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS),
+    # CR-663: the cap on the names TL-7 of table T-348 writes on the task
+    # tooltip's one assignee line. Only tooltips.ts builds that line.
+    'NOT_STORED_TASK_HINT_ASSIGNEE_CAP': (['S-513'], READ_WHERE_IT_STANDS),
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
@@ -2888,6 +2891,10 @@ TARGETS = [
     # reason words' {downloadUrl} (CR-565, FR-073).
     (os.path.join(ADAPTER, 'screen-renderer', 'notices.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOWNLOAD_ADDRESS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-663: the assignee line's cap stands in the unit that writes the line (TL-7).
+    (os.path.join(ADAPTER, 'screen-renderer', 'tooltips.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_TASK_HINT_ASSIGNEE_CAP'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # CR-610: the file status's two text sizes stand in the unit that draws
     # the App Header's contents (HS-7).

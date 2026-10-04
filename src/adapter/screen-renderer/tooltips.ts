@@ -178,9 +178,65 @@ const DAY_RANGE_SEPARATOR = ' -'
 const DEADLINE_NAME_SEPARATOR = ' : '
 const PERCENT_SIGN = '%'
 
+const ASSIGNEE_LINE_ROW = 'DT-2'
+const PROGRESS_LINE_ROW = 'DT-3'
+const NAME_SEPARATOR = ', '
+const NAME_CUT_MARK = '…'
+const NAME_CUT_GAP = ' '
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_TASK_HINT_ASSIGNEE_CAP: {
+  readonly 'S-513': number
+} = {
+  'S-513': 84,
+}
+// </generated>
+
 /** @purity pure */
 function hintLineWord(row: string, language: DisplayLanguage): string {
   return HINT_LINE_WORDS.get(row)?.[language] ?? row
+}
+
+// see TL-7, TL-8
+// WHY: the two lines take the delay report's column words (DT-2, DT-3) and hold none of their own, as TL-9 takes PR-10's.
+/** @purity pure */
+function columnWord(row: string, language: DisplayLanguage): string {
+  return displayWords.delayReportColumns.find((entry) => entry.rowId === row)?.text[language] ?? row
+}
+
+/** @purity pure */
+function characterCount(text: string): number {
+  return Array.from(text).length
+}
+
+// see TL-7, S-513
+// WHY: whole names are kept from the head; only a first name longer than the cap is cut inside itself.
+/** @purity pure */
+function namesWithin(names: readonly string[], cap: number): string {
+  const whole = names.join(NAME_SEPARATOR)
+  if (characterCount(whole) <= cap) return whole
+  const tail = `${NAME_CUT_GAP}${NAME_CUT_MARK}`
+  let kept = ''
+  for (const name of names) {
+    const next = kept === '' ? name : `${kept}${NAME_SEPARATOR}${name}`
+    if (characterCount(next) + characterCount(tail) > cap) break
+    kept = next
+  }
+  if (kept !== '') return `${kept}${tail}`
+  const head = Array.from(names[0] ?? '').slice(0, cap - characterCount(NAME_CUT_MARK))
+  return `${head.join('')}${NAME_CUT_MARK}`
+}
+
+// see TL-7, FR-059
+/** @purity pure */
+function assigneeLine(names: readonly string[], language: DisplayLanguage): string | null {
+  if (names.length === 0) return null
+  const written = namesWithin(names, NOT_STORED_TASK_HINT_ASSIGNEE_CAP['S-513'])
+  return `${columnWord(ASSIGNEE_LINE_ROW, language)}${HINT_WORD_SEPARATOR}${written}`
 }
 
 /** @purity pure */
@@ -230,9 +286,9 @@ function actualLine(task: Task, context: HintContext, language: DisplayLanguage)
 
 // see TL-8, FR-090
 /** @purity pure */
-function percentLine(task: Task): string | null {
+function percentLine(task: Task, language: DisplayLanguage): string | null {
   if (task.percentComplete === null || task.actualStart === null) return null
-  return `${task.percentComplete}${PERCENT_SIGN}`
+  return `${columnWord(PROGRESS_LINE_ROW, language)}${HINT_WORD_SEPARATOR}${task.percentComplete}${PERCENT_SIGN}`
 }
 
 // see TL-9, TL-2
@@ -251,8 +307,8 @@ function taskHint(task: Task, context: HintContext, language: DisplayLanguage): 
     name === '' ? null : name,
     planLine(task, context, language),
     actualLine(task, context, language),
-    ...context.assigneeNames,
-    percentLine(task),
+    assigneeLine(context.assigneeNames, language),
+    percentLine(task, language),
     deadlineDayText(task, context, language),
   ]
   return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
