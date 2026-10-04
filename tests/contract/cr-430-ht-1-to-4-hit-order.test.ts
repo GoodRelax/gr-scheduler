@@ -119,8 +119,10 @@ describe(`HT-1 -- on a drawn shape only that Task answers: ${HT_1_OWN_TASK_ONLY}
   it(`treats the space between the two lines of a line-only shape as outside a shape: ${HT_1_GAPS_ARE_OUTSIDE}`, () => {
     const plan = boxOf((STACKED_ARROW.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(STACKED_ARROW.started))
-    const between = (plan.middleY + actual.middleY) / 2
-    expect(grabAt(STACKED_ARROW, plan.middleX, between), HT_1_GAPS_ARE_OUTSIDE).not.toBe('GA-14')
+    // WHY: the gap is below the plan line's drawn band and above the actual's, where both lines run (RV-6 moved the
+    // plan middle off the old probe, which sat on the resume icon by chance).
+    const between = (plan.bottom + actual.top) / 2
+    expect(grabAt(STACKED_ARROW, actual.middleX, between), HT_1_GAPS_ARE_OUTSIDE).not.toBe('GA-14')
   })
 
   it(`lets a dependency line answer on a drawn shape only where its own ink is: ${HT_1_LINE_INK_ONLY}`, () => {

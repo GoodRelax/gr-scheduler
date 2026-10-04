@@ -1254,7 +1254,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // route drops into the corridor of LF-5's third clause.
       const same = draw(
         [
-          task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
+          task({ uid: 1, name: 'p', start: day(2), finish: day(5) }),
           task({ uid: 2, name: 's', start: day(6), finish: day(9), dependencies: [dependency(1, 1)] }),
         ],
         ['g1', 'g1'],
@@ -1293,7 +1293,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
           [
             // WHY: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
             // and onto s's lane; the one day of clear air between the bars is unchanged.
-            task({ uid: 1, name: 'p', start: day(2), finish: day(10) }),
+            task({ uid: 1, name: 'p', start: day(2), finish: day(9) }),
             task({ uid: 2, name: 's', start: day(11), finish: day(13), dependencies: [dependency(1, 1)] }),
           ],
           ['g1', 'g1'],
@@ -1337,7 +1337,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // becomes RP-4, which would test a different row.
       const drawn = draw(
         [
-          task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
+          task({ uid: 1, name: 'p', start: day(2), finish: day(5) }),
           task({ uid: 2, name: 's', start: day(7), finish: day(12), dependencies: [dependency(1, 1)] }),
         ],
         ['g1', 'g2'],

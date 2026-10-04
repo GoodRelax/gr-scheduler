@@ -210,6 +210,13 @@ function verticalGapOf(settings: DrawnSettings): number {
   return settings.stackGap + settings.dependencyWidth + settings.stackGap
 }
 
+// see FD-6, IV-12, RV-6
+// WHY: the fades share the days from start to finish, not the finish day the bar also covers, so FD-6 clips where IV-12 refuses.
+/** @purity pure */
+function fadeRoomOf(span: number, pxPerDay: number, settings: DrawnSettings): number {
+  return Math.max(span - pxPerDay, settings.minShapeWidth)
+}
+
 // see FD-5, FD-6, FD-6b
 /** @purity pure */
 function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number): {
@@ -257,12 +264,14 @@ function milestoneGlyphOf(
   return visualByUid.get(task.uid)?.milestoneGlyph ?? COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
 }
 
+// see RV-6
+// WHY: the finish day's column is covered too, as the actual bar covers its last day (RV-1).
 /** @purity pure */
 function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
   const from = reader.day(task.start)
   const toDay = reader.day(task.finish)
   if (from === null || toDay === null) return 0
-  return Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay
+  return Math.max(0, serialOf(toDay) + 1 - serialOf(from)) * pxPerDay
 }
 
 // see T-023d
@@ -303,17 +312,21 @@ function actualSpanOf(
   }
 }
 
-// see DA-4
+// see DA-4, RV-6
+// WHY: a bar's tip stands where its plan right end would on that day; a milestone's on its diamond's day.
 /** @purity pure */
 function deadlineXOf(
   task: Task,
+  kind: ShapeKind,
   reader: DayReader,
   originSerial: number,
   pxPerDay: number,
   originX: number,
 ): number | null {
   const day = reader.day(task.deadline)
-  return day === null ? null : xOnTimeAxis(originSerial, pxPerDay, originX, day)
+  if (day === null) return null
+  const dayLeft = xOnTimeAxis(originSerial, pxPerDay, originX, day)
+  return kind === 'milestone' ? dayLeft : dayLeft + pxPerDay
 }
 
 // see DA-2, OC-9
@@ -483,14 +496,14 @@ export function layoutFromSchedule(
     const laneMaxX1: number[] = []
     const laneMinX0: number[] = []
     const laneOf: number[] = []
-    const measured = drawnTasks.map(({ task, kind, glyph, oneDay, outline, width }) => {
+    const measured = drawnTasks.map(({ task, kind, glyph, span, oneDay, outline, width }) => {
       const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
       const named = nameLabelOf(task, reader, datesWithYear, settings)
       const font = labelFontSize(kind, settings)
       const text = nameLabelWidthOf(named, font, settings)
-      const fade = clampedFade(task, kind, width, pxPerDay)
+      const fade = clampedFade(task, kind, fadeRoomOf(span, pxPerDay, settings), pxPerDay)
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
       const markerDiameter = markerDiameterOf(kind, font, settings)
@@ -543,7 +556,7 @@ export function layoutFromSchedule(
         actual === null ? x : Math.min(x, actual.x),
         settings,
       )
-      const deadlineX = deadlineXOf(task, reader, originSerial, pxPerDay, originX)
+      const deadlineX = deadlineXOf(task, kind, reader, originSerial, pxPerDay, originX)
       const labelled = { x0: assigneeAnchor - outsideWidth, x1: labelledX1 }
       // WHY: OC-8 is not counted yet: its mark is not drawn (MS-4).
       const occupied = occupiedSpanOf(labelled, spread, deadlineX, markerDiameter)
