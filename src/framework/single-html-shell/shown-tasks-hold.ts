@@ -4,7 +4,7 @@
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import { searchJumpCommands, searchJumpWrites } from '../../use-case/edit-document/edit-document'
+import { shownTasksRevealWrites } from '../../use-case/edit-document/edit-document'
 import type {
   ScreenSession,
   ScreenValuesEvent,
@@ -18,9 +18,9 @@ const SEARCH_PANEL_MINIMISE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMin
 
 const SHOW_COLUMN = 'SQ-10'
 
-const NO_JUMP_REACH = { pxPerDay: 0, leftReachPx: 0 } as const
-
 type Schedule = Document['schedule']
+
+type HeldShownTasks = ReturnType<NonNullable<AgentApiSeams['shownTasks']>['readShownTasks']>
 
 interface HeldSearchPanel {
   readonly searchPanel: () => SearchPanelSession
@@ -50,6 +50,13 @@ function panelWithShownChange(session: ScreenSession, panel: SearchPanelSession,
   return searchPanelAfterFilterChange(session, panel, { kind: 'shown', column: SHOW_COLUMN, taskUids, isShown }) ?? panel
 }
 
+// see SJ-0, SJ-9
+/** @purity pure */
+function panelWithJumpTarget(session: ScreenSession, panel: SearchPanelSession, taskUid: number): SearchPanelSession {
+  if (!panel.showOnlyChecked || panel.shownTaskUids.includes(taskUid)) return panel
+  return panelWithShownChange(session, panel, [taskUid], true)
+}
+
 // see TV-6, SJ-2
 /** @purity pure */
 function shownTasksToOpen(before: SearchPanelSession, after: SearchPanelSession): readonly number[] {
@@ -71,15 +78,21 @@ function panelWithCreatedTasks(session: ScreenSession, panel: SearchPanelSession
 // see AM-26, AM-27, TV-8, PND-712
 /** @purity non-pure */
 function shownTasksHolderOf(hands: FrameLoopHands, windows: HeldSearchPanel): NonNullable<AgentApiSeams['shownTasks']> {
+  const holdShownTasks = (shown: HeldShownTasks): void => {
+    windows.holdSearchPanel({ ...windows.searchPanel(), shownTaskUids: shown.taskUids, showOnlyChecked: shown.isShowOnlyChecked })
+    if (shown.isShowOnlyChecked && hands.readSession().screen.searchPanelDisplayState.kind === 'hidden') {
+      hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
+      hands.sendToSession(SEARCH_PANEL_MINIMISE_TOGGLED, hands.readValues())
+    }
+    if (isSizeSettled(hands.readEnvironment())) hands.ask()
+  }
   return {
     readShownTasks: () => ({ taskUids: windows.searchPanel().shownTaskUids, isShowOnlyChecked: windows.searchPanel().showOnlyChecked }),
-    holdShownTasks(shown): void {
-      windows.holdSearchPanel({ ...windows.searchPanel(), shownTaskUids: shown.taskUids, showOnlyChecked: shown.isShowOnlyChecked })
-      if (shown.isShowOnlyChecked && hands.readSession().screen.searchPanelDisplayState.kind === 'hidden') {
-        hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
-        hands.sendToSession(SEARCH_PANEL_MINIMISE_TOGGLED, hands.readValues())
-      }
-      if (isSizeSettled(hands.readEnvironment())) hands.ask()
+    holdShownTasks,
+    holdJumpTarget(taskUid): void {
+      const panel = windows.searchPanel()
+      const next = panelWithJumpTarget(hands.readSession(), panel, taskUid)
+      if (next !== panel) holdShownTasks({ taskUids: next.shownTaskUids, isShowOnlyChecked: next.showOnlyChecked })
     },
   }
 }
@@ -108,7 +121,7 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldSearchPanel
   const openNewlyShown = (before: SearchPanelSession, frame: FrameValues): void => {
     const taskUids = shownTasksToOpen(before, windows.searchPanel())
     const document = hands.readHeld().document
-    const writes = taskUids.length === 0 ? [] : searchJumpCommands(searchJumpWrites(document, { kind: 'shownTasks', taskUids }, true, NO_JUMP_REACH))
+    const writes = shownTasksRevealWrites(document, taskUids)
     if (writes.length > 0) hands.writeDocument(writes, frame)
   }
   return {
@@ -116,7 +129,8 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldSearchPanel
     keepWithinSchedule: (schedule: Schedule): void => hold(shownWithinSchedule(hands.readSession(), windows.searchPanel(), schedule)),
     holdJumpTarget: (taskUid: number): void => {
       const panel = windows.searchPanel()
-      if (panel.showOnlyChecked && !panel.shownTaskUids.includes(taskUid)) hold(panelWithShownChange(hands.readSession(), panel, [taskUid], true))
+      const next = panelWithJumpTarget(hands.readSession(), panel, taskUid)
+      if (next !== panel) hold(next)
     },
     holdCreatedTasks: (before: Schedule, after: Schedule): void =>
       hold(panelWithCreatedTasks(hands.readSession(), windows.searchPanel(), before, after)),

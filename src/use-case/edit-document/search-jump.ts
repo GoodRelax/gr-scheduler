@@ -11,11 +11,10 @@ import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 
-// see SJ-1, TV-6
+// see SJ-1
 export type SearchJumpTarget =
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'commentBox'; readonly commentBoxId: string }
-  | { readonly kind: 'shownTasks'; readonly taskUids: readonly number[] }
 
 export type SearchJumpPlan = {
   readonly treeStateWrites: readonly DocumentCommand[]
@@ -23,7 +22,6 @@ export type SearchJumpPlan = {
   readonly isBlockedByPinnedRows: boolean
 }
 
-// see SJ-6, T-038
 export interface SearchJumpReach {
   readonly pxPerDay: number
   readonly leftReachPx: number
@@ -38,7 +36,7 @@ const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBloc
 
 // see SJ-2, SJ-6
 /** @purity pure */
-function placeOf(schedule: Schedule, target: Exclude<SearchJumpTarget, { readonly kind: 'shownTasks' }>): JumpPlace | null {
+function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null {
   const heldRow = (groupId: string | null): string | null =>
     groupId !== null && schedule.taskGroups.some((row) => row.id === groupId) ? groupId : null
   if (target.kind === 'task') {
@@ -63,8 +61,9 @@ function revealWrites(document: Document, groupId: string | null): readonly Docu
   ]
 }
 
+// see TV-6, SJ-2
 /** @purity pure */
-function shownTasksRevealWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
+export function shownTasksRevealWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
   const wanted = new Set(taskUids)
   const held = new Set(document.schedule.taskGroups.map((row) => row.id))
   const rows = new Set(
@@ -120,9 +119,6 @@ export function searchJumpWrites(
   hasRoomBelowPins: boolean,
   reach: SearchJumpReach,
 ): SearchJumpPlan {
-  if (target.kind === 'shownTasks') {
-    return { ...NO_JUMP, treeStateWrites: shownTasksRevealWrites(document, target.taskUids) }
-  }
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
   const treeStateWrites = revealWrites(document, place.groupId)
