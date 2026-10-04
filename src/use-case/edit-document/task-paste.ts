@@ -8,24 +8,15 @@ import type { Assignment, CalendarDay, Project, Schedule, Task, WorkingCalendar 
 import { dayFromSerial, dayOf, serial, taskByUid, textOfFinishSide, textOfStartSide } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
-import { wbsSubtreeOf, withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
-import { planDatesEdited, unstartedCopyOf } from './task-plan-actual'
-
-// see CM-8, FR-033
-/** @purity pure */
-function copiedUids(schedule: Schedule, sourceUids: readonly number[]): ReadonlySet<number> {
-  const subtree = new Set<number>()
-  for (const source of sourceUids) {
-    for (const uid of wbsSubtreeOf(schedule, source)) subtree.add(uid)
-  }
-  return subtree
-}
+import { withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
+import { wbsSubtreesOf } from './edit-task-group'
+import { pastedCopyOf } from './task-plan-actual'
 
 // see CM-8, FR-033
 // WHY: the one owner of the copies' UIDs, so the shell can pick the copies (T-308 CY-8) without a second count.
 /** @purity pure */
 export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]): ReadonlyMap<number, number> {
-  const subtree = copiedUids(schedule, sourceUids)
+  const subtree = wbsSubtreesOf(schedule.tasks, sourceUids)
   let mark = schedule.project.uidHighWaterMark
   const remap = new Map<number, number>()
   for (const one of schedule.tasks) if (subtree.has(one.uid)) remap.set(one.uid, ++mark)
@@ -53,17 +44,17 @@ function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
 }
 
 // see CM-8, DU-1
-// WHY: unstarted on every road that copies: the copy keeps the plan and the links closed inside the subtree.
+// WHY: the copy keeps the plan and the links closed inside the subtree; pastedCopyOf makes it unstarted.
 /** @purity pure */
 function copiedTask(one: Task, subtree: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
-  return unstartedCopyOf({
+  return {
     ...one,
     uid: remap.get(one.uid) as number,
     wbsParentUid: one.wbsParentUid === null ? null : (remap.get(one.wbsParentUid) ?? one.wbsParentUid),
     dependencies: one.dependencies
       .filter((link) => subtree.has(link.predecessorUid))
       .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
-  })
+  }
 }
 
 // see CM-8, FR-033
@@ -79,7 +70,7 @@ export function pasteTaskSubtree(
     return refused([reject('CM-8', 'IV-2', `no Task with uid ${missing.join(', ') || '(none given)'}`)])
   }
   // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038, T-067 (PND-179)
-  const subtree = copiedUids(schedule, command.sourceUids)
+  const subtree = wbsSubtreesOf(schedule.tasks, command.sourceUids)
 
   const remap = pastedUidsOf(schedule, command.sourceUids)
   let mark = schedule.project.uidHighWaterMark + remap.size
@@ -88,7 +79,7 @@ export function pasteTaskSubtree(
   const copies = schedule.tasks
     .filter((one) => subtree.has(one.uid))
     .map((one) =>
-      planDatesEdited(shiftedPlan(copiedTask(one, subtree, remap), landing, schedule.project), schedule, within))
+      pastedCopyOf(shiftedPlan(copiedTask(one, subtree, remap), landing, schedule.project), schedule, within))
 
   const visualCopies = schedule.taskVisuals
     .filter((one) => subtree.has(one.taskUid))

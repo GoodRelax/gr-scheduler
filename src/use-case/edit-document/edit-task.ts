@@ -20,7 +20,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
-import { tasksRankedByTheRowTree } from './edit-task-group'
+import { tasksRankedByTheRowTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
 import { pasteTaskSubtree } from './task-paste'
 import {
@@ -190,23 +190,6 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
-// see IV-4
-// WHY: a sweep, not a recursion, because rows arrive in no parent-before-child order.
-/** @purity pure */
-export function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> {
-  const held = new Set<number>([root])
-  for (let grew = true; grew; ) {
-    grew = false
-    for (const task of schedule.tasks) {
-      if (task.wbsParentUid !== null && held.has(task.wbsParentUid) && !held.has(task.uid)) {
-        held.add(task.uid)
-        grew = true
-      }
-    }
-  }
-  return held
-}
-
 // see T-108, IV-2
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultRowName: string): EditResult {
@@ -229,7 +212,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
       return createTask(document, command, within)
 
     case 'deleteTask': {
-      const doomed = wbsSubtreeOf(schedule, command.uid)
+      const doomed = wbsSubtreesOf(schedule.tasks, [command.uid])
 
       const taskGroups: TaskGroup[] = []
       for (const group of schedule.taskGroups) {
@@ -300,7 +283,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
         if (taskByUid(schedule, command.parentUid) === null) {
           return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentUid}`)])
         }
-        if (wbsSubtreeOf(schedule, command.uid).has(command.parentUid)) {
+        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentUid)) {
           return refused([
             reject('CM-18', 'HM-4', `uid ${command.parentUid} is inside the subtree of ${command.uid}`),
           ])

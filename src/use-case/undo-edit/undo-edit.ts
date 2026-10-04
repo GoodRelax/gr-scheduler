@@ -28,32 +28,14 @@ export type UndoOutcome =
       readonly commands: readonly string[]
     }
 
+// see FR-031, PI-11
 /** @purity pure */
 export function undoEdit(held: HeldDocument): UndoOutcome {
-  const moved = previousStep(held.history)
+  const moved = previousStep(held.history, (step) => ({ ...step, document: held.document }))
   if (moved.step === null) return { undone: false, next: held }
   return {
     undone: true,
-    next: {
-      document: moved.step.document,
-      history: withDocumentLeftBehind(moved.history, held.document),
-    },
+    next: { document: moved.step.document, history: moved.history },
     commands: moved.step.commands,
-  }
-}
-
-/** @purity pure */
-function withDocumentLeftBehind(
-  history: EditHistory<ChangeStep>,
-  leaving: Document,
-): EditHistory<ChangeStep> {
-  const entry = history.undone[0]
-  if (entry === undefined) return history
-  return {
-    done: history.done,
-    undone: [
-      { ...entry, step: { ...entry.step, document: leaving } },
-      ...history.undone.slice(1),
-    ],
   }
 }

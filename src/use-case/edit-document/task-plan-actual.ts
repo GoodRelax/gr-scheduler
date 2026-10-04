@@ -128,8 +128,15 @@ function actualCleared(task: Task): Task {
 
 // see DU-1, PV-4, FR-090
 /** @purity pure */
-export function unstartedCopyOf(task: Task): Task {
+function unstartedCopyOf(task: Task): Task {
   return { ...actualCleared(task), percentComplete: 0 }
+}
+
+// see CM-8, CM-28, DU-1, EX-12
+// WHY: the one rule for a copy on both pastes (Task and row): unstarted, and its dates read as edited.
+/** @purity pure */
+export function pastedCopyOf(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
+  return planDatesEdited(unstartedCopyOf(task), schedule, within)
 }
 
 // see PV-1

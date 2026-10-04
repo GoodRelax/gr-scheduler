@@ -31,7 +31,8 @@ function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
   const span = plannedLengthOf(within, task)
   if (span === null) return task.percentComplete
   if (span === 0) return task.actualFinish !== null ? 100 : 0
-  return Math.round((heldActualLength(within, task) / span) * 100)
+  // TRAP: multiply before dividing: (23 / 40) * 100 is 57.49999999999999 and rounds to 57, not 58.
+  return Math.round((heldActualLength(within, task) * 100) / span)
 }
 
 // see FR-011, FR-012

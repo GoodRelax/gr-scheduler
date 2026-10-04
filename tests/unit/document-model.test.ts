@@ -84,17 +84,18 @@ describe('Selection (PI-32)', () => {
 
 describe('EditHistory (PI-4)', () => {
   const limits = { maxSteps: 3, maxTotalSizeBytes: 1000 }
+  const kept = (step: string): string => step
 
   it('FR-031 undoes the previous edit and redoes what was undone', () => {
     let history = emptyHistory<string>()
     history = historyWithStep(history, 'a', 1, limits)
     history = historyWithStep(history, 'b', 1, limits)
 
-    const undo = previousStep(history)
+    const undo = previousStep(history, kept)
     expect(undo.step).toBe('b')
     expect(stepCount(undo.history)).toBe(1)
 
-    const redo = nextStep(undo.history)
+    const redo = nextStep(undo.history, kept)
     expect(redo.step).toBe('b')
     expect(stepCount(redo.history)).toBe(2)
   })
@@ -114,14 +115,14 @@ describe('EditHistory (PI-4)', () => {
 
   it('a new edit makes what was undone unreachable', () => {
     let history = historyWithStep(emptyHistory<string>(), 'a', 1, limits)
-    history = previousStep(history).history
+    history = previousStep(history, kept).history
     history = historyWithStep(history, 'b', 1, limits)
-    expect(nextStep(history).step).toBeNull()
+    expect(nextStep(history, kept).step).toBeNull()
   })
 
   it('undo and redo on an empty history hand back nothing', () => {
-    expect(previousStep(emptyHistory<string>()).step).toBeNull()
-    expect(nextStep(emptyHistory<string>()).step).toBeNull()
+    expect(previousStep(emptyHistory<string>(), kept).step).toBeNull()
+    expect(nextStep(emptyHistory<string>(), kept).step).toBeNull()
   })
 })
 
