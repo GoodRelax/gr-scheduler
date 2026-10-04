@@ -118,7 +118,12 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   selectionEscapePressed: RUNGS.map((rung) => ({ rung })),
   selectionSettleKeyPressed: [{}],
   selectionCleared: [{}],
-  selectionPruned: [{ remainingObjects: PICKED }, { remainingObjects: OTHER_PICK }, { remainingObjects: NOTHING }],
+  // WHY: the same landing prunes the chosen rows (FR-085), so each variant carries what remains.
+  selectionPruned: [
+    { remainingObjects: PICKED, chosenRows: ROWS },
+    { remainingObjects: OTHER_PICK, chosenRows: ['group2'] },
+    { remainingObjects: NOTHING, chosenRows: [] },
+  ],
   createdTaskSelected: [{ createdTaskUid: 3 }, { createdTaskUid: 8 }],
   rowsPicked: [{ chosenRows: ROWS }, { chosenRows: ['group3'] }, { chosenRows: [] }],
   createdRowSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
@@ -191,7 +196,7 @@ function expectedSelected(event: Loose): { items: unknown; ordered?: unknown; sa
 
 function expectedRoot(event: Loose, before: Loose): Loose {
   const kept = { chosenRows: before['chosenRows'], chosenResources: before['chosenResources'], copiedForPaste: before['copiedForPaste'] }
-  if (SELECTION.root.transitions[String(event['type'])] === undefined) return kept
+  if (pick(SELECTION.root.transitions[String(event['type'])], event) === undefined) return kept
   switch (event['type']) {
     case 'rowsPicked':
       return { ...kept, chosenRows: event['chosenRows'] }
@@ -201,6 +206,12 @@ function expectedRoot(event: Loose, before: Loose): Loose {
       return { ...kept, chosenResources: event['chosenResources'] }
     case 'copyTaken':
       return { ...kept, copiedForPaste: event['copiedForPaste'] }
+    // see IN-4, SK-19, FR-085
+    case 'selectionEscapePressed':
+    case 'selectionSettleKeyPressed':
+      return { ...kept, chosenRows: [] }
+    case 'selectionPruned':
+      return { ...kept, chosenRows: event['chosenRows'] }
     default:
       throw new Error(`root cell for ${String(event['type'])} has no oracle`)
   }
