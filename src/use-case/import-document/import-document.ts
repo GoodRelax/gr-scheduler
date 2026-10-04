@@ -500,6 +500,12 @@ function conflictingSettingsKeys(
   return differing.sort()
 }
 
+// see T-032, MG-5, IV-1
+/** @purity pure */
+function uidKeptUnlessHeld(uid: number, held: ReadonlySet<number>, highWater: number): number {
+  return held.has(uid) ? highWater + 1 : uid
+}
+
 // see IV-1, AT-20
 // WHY: every row is scanned; an imported uidHighWaterMark may be lower than its rows.
 /** @purity pure */
@@ -642,11 +648,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const importSeq = previousSeq + 1
 
   let highWater = highWaterOf(current, incoming)
-  /** @purity non-pure */
-  const nextUid = (): number => {
-    highWater += 1
-    return highWater
-  }
 
   // WHY: keep an incoming uid unless taken; re-issuing it would lose FR-021's round trip.
   const calendars: Calendar[] = [...current.calendars]
@@ -660,7 +661,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
       continue
     }
     topOrdinal += 1
-    const uid = heldCalendarUids.has(calendar.uid) ? nextUid() : calendar.uid
+    const uid = uidKeptUnlessHeld(calendar.uid, heldCalendarUids, highWater)
+    highWater = Math.max(highWater, uid)
     heldCalendarUids.add(uid)
     calendars.push({ ...calendar, uid, ordinal: topOrdinal })
     calendarUidOf.set(calendar.uid, uid)
@@ -675,7 +677,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
       resourceUidOf.set(resource.uid, held)
       continue
     }
-    const uid = heldResourceUids.has(resource.uid) ? nextUid() : resource.uid
+    const uid = uidKeptUnlessHeld(resource.uid, heldResourceUids, highWater)
+    highWater = Math.max(highWater, uid)
     heldResourceUids.add(uid)
     const calendarUid =
       resource.calendarUid === null ? null : (calendarUidOf.get(resource.calendarUid) ?? null)
@@ -710,7 +713,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
         mergedUidOf.set(task.uid, plan.currentTaskUid)
         overwritten.push(plan.currentTaskUid)
       } else {
-        const uid = nextUid()
+        highWater += 1
+        const uid = highWater
         mergedUidOf.set(task.uid, uid)
         added.push(uid)
         addedAsDifferent.push({ incomingTaskUid: task.uid, taskUid: uid })
@@ -823,7 +827,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
     const pair = assignmentKey(taskUid, resourceUid)
     if (assignmentPairs.has(pair)) continue
     assignmentPairs.add(pair)
-    const uid = heldAssignmentUids.has(assignment.uid) ? nextUid() : assignment.uid
+    const uid = uidKeptUnlessHeld(assignment.uid, heldAssignmentUids, highWater)
+    highWater = Math.max(highWater, uid)
     heldAssignmentUids.add(uid)
     assignments.push({ ...assignment, uid, taskUid, resourceUid })
   }
