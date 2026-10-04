@@ -46,7 +46,7 @@ export type TaskGroupCommand =
   | { readonly kind: 'setTaskGroupMinHeight'; readonly groupId: string; readonly minHeight: number | null }
   | {
       readonly kind: 'setTaskGroupTreeState'
-      readonly taskGroupId: string
+      readonly groupId: string
       readonly treeState: TaskGroup['treeState']
     }
   | {

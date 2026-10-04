@@ -846,12 +846,12 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
 
   it('CM-85 setTaskGroupTreeState, applied on its own, writes one row and nothing else', () => {
     const doc = smallDocument({ zoomY: 0.8 })
-    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', taskGroupId: R, treeState: 'expanded' } as any, 'Row')
+    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'expanded' } as any, 'Row')
     expect(on?.ok, 'CM-85 is answered by the task group command module').toBe(true)
     if (!on?.ok) return
     const groups = (on.document.schedule as any).taskGroups
     expect(groups.filter((one: any) => one.treeState !== 'auto').map((one: any) => one.id)).toEqual([R])
-    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', taskGroupId: R, treeState: 'auto' } as any, 'Row')
+    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'auto' } as any, 'Row')
     expect(off.ok).toBe(true)
     if (off.ok) expect(stateAmong((off.document.schedule as any).taskGroups, R)).toBe('auto')
   })

@@ -426,8 +426,16 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   return (
     (canAct ? entryStyle('S-243') : entryFaintStyle('S-243')) +
     STYLE.panelCornerEntry +
-    `right:${panelCornerStepPx() * stepsFromEdge}px;`
+    `right:${panelCornerRightPx(stepsFromEdge)}px;`
   )
+}
+
+// see HF-10, T-206
+// WHY: the head stands S-313 off the right edge, the same distance as the row controls (HF-4).
+// TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
+/** @purity pure */
+function panelCornerRightPx(stepsFromEdge: number): number {
+  return NOT_STORED_ROW_CONTROL_EDGE_SIZES['S-313'] + panelCornerStepPx() * stepsFromEdge
 }
 
 // see FR-029, S-237
@@ -443,10 +451,11 @@ function headStepFromEdge(icon: HeadIcon): number {
   return HEAD_RUN.length - 1 - HEAD_RUN.indexOf(icon)
 }
 
-// see HF-12
+// see HF-10, HF-12
+// WHY: the count's right edge touches the left edge of the leftmost entry, one step past the run.
 /** @purity pure */
 export function headFoldedRowCountRight(): string {
-  return `right:${panelCornerStepPx() * HEAD_RUN.length}px;`
+  return `right:${panelCornerRightPx(HEAD_RUN.length)}px;`
 }
 
 /** @purity non-pure */

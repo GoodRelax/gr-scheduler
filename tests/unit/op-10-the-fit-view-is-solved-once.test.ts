@@ -23,7 +23,7 @@ const sectionOf = (uid: string): string => {
 }
 
 const OP_10_IS_THE_FIT =
-  '| OP-10 | **表示位置が `null`、または指す行が存在しないとき** | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
+  '| OP-10 | **表示位置が `null`、または指す行が存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端の行が、行だけでは左端の日が決まらない） | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
 const OP_10_NOT_EVERY_FRAME =
   '⛔ **本行を毎フレームやり直してはならない（MUST NOT）** —— **本行は結果を定めるものであって、頻度を定めるものではない。'
 const OP_10_A_PERSON_CHOOSES =
