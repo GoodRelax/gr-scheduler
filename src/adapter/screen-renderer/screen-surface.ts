@@ -54,6 +54,8 @@ export interface ScreenPart {
   // see IF-9, SV-7, IC-122
   // WHY: every column heading carries IC-122, so the entry alone does not say which column's filter to open.
   readonly searchFilterColumn?: string | null
+  // see IF-9, SV-7, IC-125, IC-126
+  readonly searchFilterListed?: readonly string[] | null
 }
 
 export interface DialogueInput {

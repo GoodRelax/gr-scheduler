@@ -53,7 +53,7 @@ const SV_2_REFOCUS = '`SK-24` を押したとき、パネルが出ていれば�
 const SV_3_ONE = '表は一度に 1 つだけ出す。'
 const SV_3_DEFAULT = '既定はタスクの表。'
 const SV_3_CHOSEN = '出している表の入口は 表 T-237 の `EN-6`（排他の選択のうち選ばれているもの）で示す'
-const SV_6_FIXED = '横は、タスクの表は `SQ-2` まで、コメントボックスの表は `SQ-7` までを左に固定し'
+const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで ステータス・進捗・タスク の 3 列）、コメントボックスの表は `SQ-7` までを左に固定し'
 const SV_9_SIZE =
   '幅は `Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を、高さはその高さに `S-422` を掛けた大きさ。'
 const SV_9_CORNER = '左下の角を `Schedule Canvas` の左下に合わせる。'
@@ -517,11 +517,13 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     const { panel } = drawn(viewOf(sessionIn(language)))
     const rows = byTag(panel, 'TR').filter((one) => byTag(one, 'TD').length > 0)
     const want = uid === NAMED_UID ? NAMED : panelWordOf('noName', language)
+    const nameAt = TASK_COLUMNS.indexOf('SQ-1')
     const hit = found(
-      rows.find((one) => textOf(byTag(one, 'TD')[0] as FakeElement) === want),
+      rows.find((one) => textOf(byTag(one, 'TD')[nameAt] as FakeElement) === want),
       `a drawn row for task ${uid}`,
     )
-    return byTag(hit, 'TD').map(textOf)
+    const cells = byTag(hit, 'TD').map(textOf)
+    return ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6'].map((column) => cells[TASK_COLUMNS.indexOf(column)] ?? '')
   }
 
   it('SQ-1 writes the name as it is', () => {
@@ -568,11 +570,11 @@ describe(`T-330 SV-6 -- ${SV_6_FIXED}`, () => {
   const stuckInEveryRow = (panel: FakeElement): readonly (readonly boolean[])[] =>
     byTag(panel, 'TR').map((line) => [...byTag(line, 'TH'), ...byTag(line, 'TD')].map(stuckLeft))
 
-  it('the tasks table holds SQ-1 and SQ-2 at the left, and no other column, in every row', () => {
+  it('the tasks table holds the columns up to SQ-1 (SQ-5, SQ-11, SQ-1) at the left, and no other column, in every row', () => {
     const { panel } = drawn(viewOf(sessionIn('ja')))
     const rows = stuckInEveryRow(panel)
     expect(rows.length).toBeGreaterThan(1)
-    for (const line of rows) expect(line).toEqual(TASK_COLUMNS.map((_column, at) => at < 2))
+    for (const line of rows) expect(line).toEqual(TASK_COLUMNS.map((_column, at) => at <= TASK_COLUMNS.indexOf('SQ-1')))
   })
 
   it('the comment box table holds SQ-7 at the left, and no other column, in every row', () => {

@@ -3,7 +3,8 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import { dayOf } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isSearchWordFound } from '../../entity/document-model/schedule/schedule'
+import { markerGlyphSvg } from '../svg-renderer/svg-renderer'
 import type { SearchPanelSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { SearchColumn, SearchColumnFilter, SearchSort } from './search-table-filters'
 import displayWords from './display-words.json'
@@ -34,6 +35,31 @@ const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
+const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
+
+export type MarkGlyph = Parameters<typeof markerGlyphSvg>[0]
+
+// see FR-133, T-236, T-021, T-315
+export const MARK_COLOUR_ROWS: readonly string[] = [
+  'S-161', 'S-162', 'S-326', 'S-327', 'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390',
+]
+
+/** @purity pure */
+export function markColourVariableOf(rowId: string): string {
+  return `--gr-mark-${rowId}`
+}
+
+// see SQ-5, DT-1, RW-4, FR-133
+/** @purity pure */
+export function statusGlyphSvg(symbol: MarkGlyph): string {
+  return markerGlyphSvg(symbol, (rowId) => `var(${markColourVariableOf(rowId)})`)
+}
+
+/** @purity pure */
+export function isFilterValueListed(label: string, typed: string): boolean {
+  return isSearchWordFound(label, typed)
+}
+
 // see SV-18
 // WHY: null is the column's default row of table T-206, which only the surface reads (generated there).
 export interface SearchColumnView {
@@ -57,6 +83,7 @@ export type SearchFilterMenuView =
       readonly column: SearchColumn
       readonly values: readonly SearchFilterValueView[]
       readonly entries: readonly CommandItem[]
+      readonly searchHint: string
     }
   | {
       readonly kind: 'dates'
@@ -168,7 +195,7 @@ export function tableFilterMenuOf(
     isShown: !hidden.has(value),
   }))
   const shows = [entryOf(SHOW_ALL_ENTRY, language), entryOf(HIDE_ALL_ENTRY, language)]
-  return { kind: 'values', column, values, entries: [...shows, ...sorts] }
+  return { kind: 'values', column, values, entries: [...shows, ...sorts], searchHint: wordOf(FILTER_SEARCH_HINT, language) }
 }
 
 /** @purity pure */
@@ -193,6 +220,7 @@ export function tableAfterFilterEntry<P extends TableWindowSession>(
   shown: WindowShown | null,
   entry: IconId,
   table: WindowTable,
+  listed?: readonly string[] | null,
 ): P | null {
   const column = openFilterIn(panel, shown, table)
   if (column === null) return null
@@ -200,13 +228,15 @@ export function tableAfterFilterEntry<P extends TableWindowSession>(
   if (direction !== undefined) return { ...panel, sort: { column, direction } }
   if (table.isDateColumn(column)) return null
   const filter = columnFilterOf(panel, column)
-  if (entry === SHOW_ALL_ENTRY) return withColumnFilter(panel, { ...filter, hiddenValues: [] })
+  // see SV-7
+  const reached = listed === undefined || listed === null ? null : new Set(listed)
+  const untouched = reached === null ? [] : filter.hiddenValues.filter((value) => !reached.has(value))
+  if (entry === SHOW_ALL_ENTRY) return withColumnFilter(panel, { ...filter, hiddenValues: untouched })
   if (entry !== HIDE_ALL_ENTRY) return null
-  return withColumnFilter(panel, { ...filter, hiddenValues: table.valuesOf(column) })
+  return withColumnFilter(panel, { ...filter, hiddenValues: [...untouched, ...(reached ?? table.valuesOf(column))] })
 }
 
 // see SV-7, IC-122
-// WHY: opening another column's filter replaces the open one: SV-7 opens one filter at a time.
 /** @purity pure */
 export function tableWithFilterOpened<P extends TableWindowSession>(
   panel: P,
@@ -215,7 +245,8 @@ export function tableWithFilterOpened<P extends TableWindowSession>(
   table: WindowTable,
 ): P | null {
   if (!isTableDrawn(shown) || !table.columns.includes(column)) return null
-  return panel.filters.open === column ? panel : { ...panel, filters: { ...panel.filters, open: column } }
+  const open = panel.filters.open === column ? null : column
+  return { ...panel, filters: { ...panel.filters, open } }
 }
 
 // see SV-7

@@ -87,6 +87,10 @@ const withWord = (word: string): DelayDiagnosticsReportWindow => ({
   panel: { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, word },
 })
 
+
+// see T-347
+const REPORT_ORDER: readonly string[] = ['DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
+
 describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
   const rows = delayDiagnosticsReportRows(REPORT, SCHEDULE)
 
@@ -135,27 +139,27 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.summary).toHaveLength(8)
   })
 
-  it('T-347: the columns are DT-1 .. DT-7, and the name cell DT-4 is the one a press jumps from', () => {
-    expect(view?.columns.map((one) => one.column)).toEqual(['DT-1', 'DT-2', 'DT-3', 'DT-4', 'DT-5', 'DT-6', 'DT-7'])
-    expect(view?.jumpAt).toBe(3)
+  it('T-347: the columns are DT-1, DT-3, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
+    expect(view?.columns.map((one) => one.column)).toEqual(REPORT_ORDER)
+    expect(view?.jumpAt).toBe(REPORT_ORDER.indexOf('DT-4'))
   })
 
   it('RW-9 / CR-639: a column starts at S-475 .. S-481 and a held width replaces it', () => {
     const columns = view?.columns ?? []
     expect(columns.map(columnWidthPx)).toEqual(
-      ['S-475', 'S-476', 'S-477', 'S-478', 'S-479', 'S-480', 'S-481'].map(
+      ['S-475', 'S-477', 'S-478', 'S-476', 'S-479', 'S-480', 'S-481'].map(
         (row) => NOT_STORED_SEARCH_PANEL_SIZES[row as keyof typeof NOT_STORED_SEARCH_PANEL_SIZES],
       ),
     )
     const widened = delayDiagnosticsReportWithColumnWidth(OPENED_DELAY_DIAGNOSTICS_REPORT, 'DT-4', 333)
-    expect(viewOf(widened)?.columns[3]?.width).toBe(333)
+    expect(viewOf(widened)?.columns[REPORT_ORDER.indexOf('DT-4')]?.width).toBe(333)
   })
 
   it('DT-3, DT-5 and DT-6 write 40%, yyyy/mm/dd and an open actual range', () => {
     const bravo = view?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 2)
-    expect(bravo?.cells[2]).toBe('40%')
-    expect(bravo?.cells[4]).toBe('2026/01/05')
-    expect(bravo?.cells[5]).toBe('2026/01/05〜')
+    expect(bravo?.cells[REPORT_ORDER.indexOf('DT-3')]).toBe('40%')
+    expect(bravo?.cells[REPORT_ORDER.indexOf('DT-5')]).toBe('2026/01/05')
+    expect(bravo?.cells[REPORT_ORDER.indexOf('DT-6')]).toBe('2026/01/05〜')
   })
 
   it('RW-3: the word keeps the rows whose DT-1 .. DT-5 hold it', () => {
@@ -190,7 +194,7 @@ describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-
     expect(opened.panel.filters.open).toBe('DT-4')
     const sorted = after(opened, 'IC-124')?.window as DelayDiagnosticsReportWindow
     expect(sorted.panel.sort).toEqual({ column: 'DT-4', direction: 'descending' })
-    expect(viewOf(sorted)?.rows.map((one) => one.cells[3])).toEqual(['Foxtrot|Pipe', 'Echo', 'Delta', 'Charlie', 'Bravo', 'Alpha'])
+    expect(viewOf(sorted)?.rows.map((one) => one.cells[REPORT_ORDER.indexOf('DT-4')])).toEqual(['Foxtrot|Pipe', 'Echo', 'Delta', 'Charlie', 'Bravo', 'Alpha'])
     expect(delayDiagnosticsReportWithFilterClosed(sorted)?.panel.filters.open).toBeNull()
     expect(delayDiagnosticsReportWithFilterClosed(OPENED_DELAY_DIAGNOSTICS_REPORT)).toBeNull()
   })

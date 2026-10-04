@@ -32,7 +32,7 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 const SV_7 = cellOf('T-330', 'SV-7', '定め')
 const SV_7_ITEMS =
   '値の一覧は、担当者名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
-const SV_7_DATES = '日付の 2 列は、値の一覧の代わりに「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
+const SV_7_DATES = '日付の列は、値の一覧と絞る入力欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
 const SV_7_ALL = '列の絞り込みどうし、語と絞り込みは、すべてを満たす行だけを残す。'
 const SV_7_ASSIGNEES = '担当者名の列は、担当者のうち 1 人でも表示に入れた値なら残す。'
 const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置くと、その日付の空の行は外す。'
@@ -72,6 +72,9 @@ const task = (
   assigneeNames,
   plannedStart,
   plannedFinish: plannedStart,
+  percentComplete: null,
+  actualStart: null,
+  actualFinish: null,
   planActualState,
   isBottleneck: false,
   rowPath,

@@ -751,6 +751,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
+| `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
 | `NOT_STORED_DUAL_CURSOR_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUAL_CURSOR_SIZES` | -- | const NOT_STORED_DUAL_CURSOR_SIZES: |
@@ -934,7 +935,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `landCopyDrag` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#landCopyDrag` | -- | function landCopyDrag( hands: CopyAndPasteHands, bundle: readonly DocumentCommand[], picked: Selection, frame: FrameValues, ): void |
 | `pasteRefusedFor` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteRefusedFor` | -- | function pasteRefusedFor(chosenRows: readonly string[]): boolean |
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
-| `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, ): boolean |
+| `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, listed?: readonly st... |
 | `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
 | `ReportHeld` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportHeld` | -- | interface ReportHeld |
 | `ReportOutlets` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportOutlets` | -- | interface ReportOutlets |
@@ -1229,7 +1230,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、表示言語と版で組む。 |
+| `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
+| `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
+| `markColourVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColourVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |
+| `MarkGlyph` | entry | type | `src/adapter/screen-renderer/table-window.ts#MarkGlyph` | -- | type MarkGlyph = Parameters<typeof markerGlyphSvg>[0] |
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
 | `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | PI-37 | `IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`） |
 | `Notice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Notice` | -- | interface Notice |
@@ -1271,6 +1276,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
 | `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列の絞り込みを閉じた検索パネルの値を答える。 |
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列の絞り込みを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
+| `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
@@ -1320,9 +1326,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `BOTTLENECK_STATE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BOTTLENECK_STATE` | -- | const BOTTLENECK_STATE = 'bottleneck' |
 | `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn): readonly string[] |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
+| `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
 | `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows(rows: SearchRows, filters: SearchFilters, sort: SearchSort \| null): SearchRows |
 | `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, filters: SearchFilters, sort: SearchSort \| null, ): readonly Row[] |
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
+| `percentText` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#percentText` | -- | function percentText(percent: number \| null): string |
 | `ROW_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ROW_PATH_SEPARATOR` | -- | const ROW_PATH_SEPARATOR = ' \u2192 ' |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = SearchColumnFilter['column'] |
@@ -1332,12 +1340,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
-| `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6'] |
+| `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
 | `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): P \| null |
-| `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, entry: IconId, table: WindowTable, ): P \| null |
+| `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, entry: IconId, table: WindowTable, listed?: readonly strin... |
 | `tableColumnsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableColumnsOf` | -- | function tableColumnsOf(panel: TableWindowSession, table: WindowTable, language: DisplayLanguage): readonly SearchColumnView[] |
 | `tableFilterMenuOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableFilterMenuOf` | -- | function tableFilterMenuOf( panel: TableWindowSession, column: SearchColumn, table: WindowTable, language: DisplayLanguage, ): SearchFilterMenuView |
 | `TableWindowSession` | file only | type | `src/adapter/screen-renderer/table-window.ts#TableWindowSession` | -- | type TableWindowSession = Omit<SearchPanelSession, 'table' \| 'textSizeStep'> |
@@ -1472,6 +1480,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SEARCH_FILTER_BOUND_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_BOUND_ATTRIBUTE` | -- | const SEARCH_FILTER_BOUND_ATTRIBUTE = 'data-search-filter-bound' |
 | `SEARCH_FILTER_COLUMN_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_COLUMN_ATTRIBUTE` | -- | const SEARCH_FILTER_COLUMN_ATTRIBUTE = 'data-search-filter-column' |
 | `SEARCH_FILTER_ROW` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_ROW` | -- | const SEARCH_FILTER_ROW = 'SV-7' |
+| `SEARCH_FILTER_SEARCH_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_SEARCH_ATTRIBUTE` | -- | const SEARCH_FILTER_SEARCH_ATTRIBUTE = 'data-search-filter-search' |
 | `SEARCH_FILTER_VALUE_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_VALUE_ATTRIBUTE` | -- | const SEARCH_FILTER_VALUE_ATTRIBUTE = 'data-search-filter-value' |
 | `SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | -- | const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box' |
 | `SEARCH_JUMP_TASK_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_TASK_ATTRIBUTE` | -- | const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task' |
@@ -1679,4 +1688,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 811 name(s) leave through a public entry (305 of them published by table T-064), 658 more are exported by a file and not by its entry.
+Totals: 817 name(s) leave through a public entry (310 of them published by table T-064), 661 more are exported by a file and not by its entry.

@@ -1361,13 +1361,14 @@ function searchPanelAfterEntry(
   schedule: Document['schedule'],
   filterColumn: string | null,
   bottleneckUids: ReadonlySet<number> | undefined,
+  listed?: readonly string[] | null,
 ): SearchPanelSession | null {
   if (entry === SEARCH_FILTER_ENTRY) {
     return filterColumn === null ? null : searchPanelWithFilterOpened(session, held, filterColumn)
   }
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
-  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule, bottleneckUids)
+  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule, bottleneckUids, listed)
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
 }
 
@@ -1633,6 +1634,13 @@ function searchPanelWithFilterChanges(
 function filterColumnOf(input: HumanInput, context: InputContext): string | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   return context.pressed?.on?.searchFilterColumn ?? null
+}
+
+// see SV-7, IF-9, IC-125, IC-126
+/** @purity pure */
+function filterListedOf(input: HumanInput, context: InputContext): readonly string[] | null {
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  return context.pressed?.on?.searchFilterListed ?? null
 }
 
 // see SV-2, SV-5
@@ -2392,7 +2400,7 @@ export function frameLoop(
 
   // see FR-134, T-346, RW-6, RW-7
   /** @purity non-pure */
-  function answerReportEntry(entry: IconId, filterColumn: string | null): boolean {
+  function answerReportEntry(entry: IconId, filterColumn: string | null, listed?: readonly string[] | null): boolean {
     const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session))
     return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
       clipboard,
@@ -2401,7 +2409,7 @@ export function frameLoop(
       raiseCopyRefused: () => raiseNotice(PROMPT_NOT_COPIED_REASON, null),
       raiseFileFault,
       holdWindow: windows.holdReport,
-    })
+    }, listed)
   }
 
   /** @purity non-pure */
@@ -2903,14 +2911,14 @@ export function frameLoop(
 
   // see T-109
   /** @purity non-pure */
-  function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues, filterColumn: string | null): boolean {
+  function answerSettledEntry(entry: IconId, surface: string | null, frame: FrameValues, filterColumn: string | null, listed: readonly string[] | null): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
-    if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn)) return true
+    if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn, listed)) return true
     const panelAfter = searchPanelAfterEntry(
-      windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids,
+      windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids, listed,
     )
     if (panelAfter !== null) {
       windows.holdSearchPanel(panelAfter)
@@ -3406,7 +3414,7 @@ export function frameLoop(
     const settledAnswer = answerSettledOnRelease(input, context)
     const spent =
       (settledEntry !== null &&
-        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame, filterColumnOf(input, context))) ||
+        answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame, filterColumnOf(input, context), filterListedOf(input, context))) ||
       (settledFormat !== null && answerSettledFormat(hands, settledFormat)) ||
       // TRAP: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
       (settledAnswer !== null &&

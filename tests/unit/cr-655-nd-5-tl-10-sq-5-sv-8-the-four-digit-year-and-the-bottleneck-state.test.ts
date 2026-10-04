@@ -12,7 +12,7 @@ import {
   searchPanelFromSession,
   searchPanelWithFilterOpened,
 } from '../../src/adapter/screen-renderer/search-panel'
-import { columnValuesOf, filteredSearchRows } from '../../src/adapter/screen-renderer/search-table-filters'
+import { TASK_SEARCH_COLUMNS, columnValuesOf, filteredSearchRows } from '../../src/adapter/screen-renderer/search-table-filters'
 import { deadlineHint } from '../../src/adapter/screen-renderer/tooltips'
 import type { DrawnSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
@@ -78,6 +78,9 @@ const labelOf = (schedule: scheduleEntry.Schedule, uid: number): string => {
   const named = nameLabelOf(task, READER, planDatesSpanYears(schedule, READER), SETTINGS)
   return `${named.name}${named.labelDates}`
 }
+
+
+const STATE_AT = TASK_SEARCH_COLUMNS.indexOf('SQ-5')
 
 describe('CR-655 ND-5 (table T-251) -- a document that crosses a calendar year writes the year in 4 digits', () => {
   it('ND-5 says: 年（西暦の 4 桁） / 下 2 桁に縮めない / 月と日は 0 で埋めない', () => {
@@ -191,7 +194,7 @@ function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlySet<number>)
 }
 
 const stateCellOf = (view: SearchPanelView, uid: number): string | undefined =>
-  view.rows.find((row) => row.target.kind === 'task' && row.target.taskUid === uid)?.cells[4]
+  view.rows.find((row) => row.target.kind === 'task' && row.target.taskUid === uid)?.cells[STATE_AT]
 
 const uidsOf = (rows: readonly scheduleEntry.TaskSearchRow[]): readonly number[] => rows.map((row) => row.taskUid)
 
@@ -217,7 +220,7 @@ describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the sear
 
   it('SQ-5: with the diagnosis not shown, nothing reads ボトルネック and Lead keeps its T-019a state', () => {
     expect(stateCellOf(viewOf('ja'), LEAD)).toBe('進行中')
-    expect(viewOf('ja').rows.map((row) => row.cells[4])).not.toContain(DG_2_WORD?.ja)
+    expect(viewOf('ja').rows.map((row) => row.cells[STATE_AT])).not.toContain(DG_2_WORD?.ja)
   })
 
   it('SV-8: ascending puts the bottleneck first, descending puts it last', () => {

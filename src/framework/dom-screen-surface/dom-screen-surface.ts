@@ -5,7 +5,9 @@
 // @publishes table T-064 row PI-38
 
 import {
+  MARK_COLOUR_ROWS,
   achromatic,
+  markColourVariableOf,
   type CommandItem,
   type ScreenFrame,
   type ScreenPart,
@@ -115,6 +117,7 @@ const PAINT_ROW = {
   brandingRim: 'S-464',
   brandingDivider: 'S-493',
   groupGridLine: 'S-165',
+  link: 'S-503',
 } as const
 
 /** @purity pure */
@@ -142,6 +145,7 @@ export const PAINT = {
   brandingRim: painted('brandingRim'),
   brandingDivider: painted('brandingDivider'),
   groupGridLine: painted('groupGridLine'),
+  link: painted('link'),
 } as const
 
 /** @purity pure */
@@ -462,6 +466,13 @@ export function themeStyle(theme: ScreenTheme): string {
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
     written += `--gr-${name}:${hued(chosen, row.followsHue, theme)};`
+  }
+  // see FR-133, SQ-5, DT-1
+  for (const rowId of MARK_COLOUR_ROWS) {
+    const row = SCREEN_COLOURS[rowId]
+    if (row === undefined) continue
+    const chosen = theme.preference === 'dark' ? row.dark : row.light
+    written += `${markColourVariableOf(rowId)}:${hued(chosen, row.followsHue, theme)};`
   }
   return written
 }
