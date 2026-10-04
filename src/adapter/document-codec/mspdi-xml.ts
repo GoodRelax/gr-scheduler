@@ -21,8 +21,9 @@ interface OpenElement {
   readonly children: XmlElement[]
 }
 
+// WHY: rootNamespace is the URI the root's own start tag binds to the root's prefix; null when it binds none (EX-15).
 type XmlReading =
-  | { readonly ok: true; readonly root: XmlElement }
+  | { readonly ok: true; readonly root: XmlElement; readonly rootNamespace: string | null }
   | { readonly ok: false; readonly fault: MspdiFault }
 
 const NAME_START = /[A-Za-z_:]/
@@ -76,10 +77,9 @@ function decodedText(raw: string): string | null {
 export function readXml(text: string): XmlReading {
   const stack: OpenElement[] = []
   let root: XmlElement | null = null
+  let rootNamespace: string | null = null
   let foundAt = 0
-
-  const where = (): string =>
-    stack.length === 0 ? '' : '/' + stack.map((frame) => frame.name).join('/')
+  const where = (): string => pathOf(stack, stack.length)
 
   while (foundAt < text.length) {
     const open = text.indexOf('<', foundAt)
@@ -135,52 +135,72 @@ export function readXml(text: string): XmlReading {
       foundAt = end + 2
       continue
     }
+    let built: XmlElement | null = null
     if (text.startsWith('</', foundAt)) {
-      const end = text.indexOf('>', foundAt + 2)
-      if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated end tag') }
-      const name = text.slice(foundAt + 2, end).trim()
-      const frame = stack.pop()
-      if (frame === undefined) {
-        return { ok: false, fault: fault('', `an end tag </${name}> with no start tag`) }
-      }
-      if (localName(name) !== frame.name) {
-        return { ok: false, fault: fault(where(), `an end tag </${name}> closing <${frame.name}>`) }
-      }
-      const built: XmlElement = {
-        name: frame.name,
-        text: frame.texts.join(''),
-        children: frame.children,
-      }
-      const parent = stack[stack.length - 1]
-      if (parent === undefined) root = built
-      else parent.children.push(built)
-      foundAt = end + 1
-      continue
-    }
-
-    const started = readStartTag(text, foundAt, where())
-    if (!started.ok) return { ok: false, fault: started.fault }
-    if (root !== null && stack.length === 0) {
-      return { ok: false, fault: fault('', 'a second root element') }
-    }
-    if (started.isEmpty) {
-      const built: XmlElement = { name: started.name, text: '', children: [] }
-      const parent = stack[stack.length - 1]
-      if (parent === undefined) root = built
-      else parent.children.push(built)
+      const closed = readEndTag(text, foundAt, stack)
+      if (!closed.ok) return { ok: false, fault: closed.fault }
+      stack.pop()
+      built = closed.built
+      foundAt = closed.after
     } else {
-      stack.push({ name: started.name, texts: [], children: [] })
+      const started = readStartTag(text, foundAt, where())
+      if (!started.ok) return { ok: false, fault: started.fault }
+      if (root !== null && stack.length === 0) return { ok: false, fault: fault('', 'a second root element') }
+      if (stack.length === 0) rootNamespace = started.namespace
+      if (started.isEmpty) built = { name: started.name, text: '', children: [] }
+      else stack.push({ name: started.name, texts: [], children: [] })
+      foundAt = started.after
     }
-    foundAt = started.after
+    if (built === null) continue
+    const parent = stack[stack.length - 1]
+    if (parent === undefined) root = built
+    else parent.children.push(built)
   }
 
   if (stack.length > 0) return { ok: false, fault: fault(where(), 'an element that was never closed') }
   if (root === null) return { ok: false, fault: fault('', 'no element at all') }
-  return { ok: true, root }
+  return { ok: true, root, rootNamespace }
+}
+
+/** @purity pure */
+function pathOf(stack: readonly OpenElement[], depth: number): string {
+  return depth <= 0 ? '' : '/' + stack.slice(0, depth).map((frame) => frame.name).join('/')
+}
+
+type EndTagReading =
+  | { readonly ok: true; readonly built: XmlElement; readonly after: number }
+  | { readonly ok: false; readonly fault: MspdiFault }
+
+// WHY: reads the end tag against the open element on top without popping it; the caller pops.
+/** @purity pure */
+function readEndTag(text: string, from: number, stack: readonly OpenElement[]): EndTagReading {
+  const end = text.indexOf('>', from + 2)
+  if (end < 0) return { ok: false, fault: fault(pathOf(stack, stack.length), 'an unterminated end tag') }
+  const name = text.slice(from + 2, end).trim()
+  const frame = stack[stack.length - 1]
+  if (frame === undefined) {
+    return { ok: false, fault: fault('', `an end tag </${name}> with no start tag`) }
+  }
+  if (localName(name) !== frame.name) {
+    const above = pathOf(stack, stack.length - 1)
+    return { ok: false, fault: fault(above, `an end tag </${name}> closing <${frame.name}>`) }
+  }
+  return { ok: true, built: { name: frame.name, text: frame.texts.join(''), children: frame.children }, after: end + 1 }
 }
 
 type StartTagReading =
-  | { readonly ok: true; readonly name: string; readonly isEmpty: boolean; readonly after: number }
+  | {
+      readonly ok: true
+      readonly name: string
+      readonly isEmpty: boolean
+      readonly after: number
+      // WHY: only the declarations on this tag, which is all the root has (EX-15).
+      readonly namespace: string | null
+    }
+  | { readonly ok: false; readonly fault: MspdiFault }
+
+type AttributeReading =
+  | { readonly ok: true; readonly name: string; readonly value: string; readonly after: number }
   | { readonly ok: false; readonly fault: MspdiFault }
 
 /** @purity pure */
@@ -196,42 +216,68 @@ function readStartTag(text: string, from: number, path: string): StartTagReading
     if (character === undefined || !NAME_REST.test(character)) break
     end += 1
   }
-  const name = localName(text.slice(foundAt, end))
+  const qualified = text.slice(foundAt, end)
+  const name = localName(qualified)
+  const declared = new Map<string, string>()
+  const namespace = (): string | null => declared.get(prefixOf(qualified)) ?? null
   foundAt = end
 
   for (;;) {
-    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
-    if (text.startsWith('/>', foundAt)) return { ok: true, name, isEmpty: true, after: foundAt + 2 }
-    if (text.startsWith('>', foundAt)) return { ok: true, name, isEmpty: false, after: foundAt + 1 }
-    const attributeStart = foundAt
-    while (foundAt < text.length && NAME_REST.test(text[foundAt] ?? '')) foundAt += 1
-    const attributeName = text.slice(attributeStart, foundAt)
-    if (attributeName === '') {
-      return { ok: false, fault: fault(path, `an unterminated start tag <${name}>`) }
-    }
-    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
-    if (text[foundAt] !== '=') {
-      return { ok: false, fault: fault(path, `an attribute ${attributeName} with no value`) }
-    }
-    foundAt += 1
-    while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
-    const quote = text[foundAt]
-    if (quote !== '"' && quote !== "'") {
-      return { ok: false, fault: fault(path, `an unquoted attribute ${attributeName}`) }
-    }
-    const close = text.indexOf(quote, foundAt + 1)
-    if (close < 0) {
-      return { ok: false, fault: fault(path, `an unterminated attribute ${attributeName}`) }
-    }
-    foundAt = close + 1
-    // WHY: refused, since the XSD declares no attribute and carry has no room for one; it would vanish on write.
-    if (attributeName !== 'xmlns' && !attributeName.startsWith('xmlns:')) {
-      return {
-        ok: false,
-        fault: fault(path, `the attribute ${attributeName}, which the official schema does not declare`),
-      }
+    foundAt = afterSpace(text, foundAt)
+    if (text.startsWith('/>', foundAt)) return { ok: true, name, isEmpty: true, after: foundAt + 2, namespace: namespace() }
+    if (text.startsWith('>', foundAt)) return { ok: true, name, isEmpty: false, after: foundAt + 1, namespace: namespace() }
+    const attribute = readAttribute(text, foundAt, path, name)
+    if (!attribute.ok) return attribute
+    declared.set(attribute.name === 'xmlns' ? '' : attribute.name.slice('xmlns:'.length), attribute.value)
+    foundAt = attribute.after
+  }
+}
+
+// WHY: only namespace declarations are read; any other attribute is refused, since the XSD declares no
+// attribute and carry has no room for one; it would vanish on write.
+/** @purity pure */
+function readAttribute(text: string, from: number, path: string, element: string): AttributeReading {
+  let foundAt = from
+  while (foundAt < text.length && NAME_REST.test(text[foundAt] ?? '')) foundAt += 1
+  const attributeName = text.slice(from, foundAt)
+  if (attributeName === '') {
+    return { ok: false, fault: fault(path, `an unterminated start tag <${element}>`) }
+  }
+  foundAt = afterSpace(text, foundAt)
+  if (text[foundAt] !== '=') {
+    return { ok: false, fault: fault(path, `an attribute ${attributeName} with no value`) }
+  }
+  foundAt += 1
+  foundAt = afterSpace(text, foundAt)
+  const quote = text[foundAt]
+  if (quote !== '"' && quote !== "'") {
+    return { ok: false, fault: fault(path, `an unquoted attribute ${attributeName}`) }
+  }
+  const close = text.indexOf(quote, foundAt + 1)
+  if (close < 0) {
+    return { ok: false, fault: fault(path, `an unterminated attribute ${attributeName}`) }
+  }
+  if (attributeName !== 'xmlns' && !attributeName.startsWith('xmlns:')) {
+    return {
+      ok: false,
+      fault: fault(path, `the attribute ${attributeName}, which the official schema does not declare`),
     }
   }
+  const raw = text.slice(foundAt + 1, close)
+  return { ok: true, name: attributeName, value: decodedText(raw) ?? raw, after: close + 1 }
+}
+
+/** @purity pure */
+function afterSpace(text: string, from: number): number {
+  let foundAt = from
+  while (foundAt < text.length && /\s/.test(text[foundAt] ?? '')) foundAt += 1
+  return foundAt
+}
+
+/** @purity pure */
+function prefixOf(qualified: string): string {
+  const colon = qualified.lastIndexOf(':')
+  return colon < 0 ? '' : qualified.slice(0, colon)
 }
 
 /** @purity pure */

@@ -121,6 +121,17 @@ interface Ends {
   readonly finish: CalendarDay | null
 }
 
+// WHY: seconds since the start of the day, or null for a value that names no time.
+interface Clocks {
+  readonly start: number | null
+  readonly finish: number | null
+}
+
+interface LinkClocks {
+  readonly predecessor: Clocks
+  readonly successor: Clocks
+}
+
 interface ParentDerivation {
   readonly parentUid: number | null
   readonly candidates: readonly number[]
@@ -137,6 +148,8 @@ interface Structure {
 
 interface Facts extends Structure {
   readonly calendar: WorkingCalendar
+  // WHY: a document imported from MSPDI compares the links by the time of day (VC-15, BD-2).
+  readonly readsTime: boolean
   readonly minutesPerDay: number
   readonly statusDate: CalendarDay
   readonly explicitChildrenOf: ReadonlyMap<number, readonly Task[]>
@@ -214,6 +227,35 @@ function plannedEnds(task: Task): Ends {
 /** @purity pure */
 function actualEnds(task: Task): Ends {
   return { start: dayOf(task.actualStart), finish: dayOf(task.actualFinish) }
+}
+
+const CLOCK_OF_TEXT = /^\d{4}-\d{2}-\d{2}[T ](\d{2}):(\d{2})(?::(\d{2}))?/
+
+// see VC-15, BD-2
+/** @purity pure */
+function clockOf(text: string | null): number | null {
+  const hit = text === null ? null : CLOCK_OF_TEXT.exec(text.trim())
+  if (hit === null) return null
+  return (Number(hit[1]) * 60 + Number(hit[2])) * 60 + Number(hit[3] ?? 0)
+}
+
+/** @purity pure */
+function plannedClocks(task: Task): Clocks {
+  return { start: clockOf(task.start), finish: clockOf(task.finish) }
+}
+
+// see VC-15, T-018
+// WHY: the successor's side first, then the predecessor's, as the four formulas of VC-15 read.
+/** @purity pure */
+function boundSides<T>(linkType: number, predecessor: { readonly start: T; readonly finish: T },
+                       successor: { readonly start: T; readonly finish: T }): readonly [T, T] | null {
+  switch (linkType) {
+    case FINISH_TO_START: return [successor.start, predecessor.finish]
+    case START_TO_START: return [successor.start, predecessor.start]
+    case FINISH_TO_FINISH: return [successor.finish, predecessor.finish]
+    case START_TO_FINISH: return [successor.finish, predecessor.start]
+    default: return null
+  }
 }
 
 /** @purity pure */
@@ -431,21 +473,26 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   }
   const successorsOf = successorMapOf(tasks.flatMap((task) => (linksOf.get(task.uid) ?? [])
     .map((link) => ({ from: link.predecessorUid, to: task.uid }))))
-  return { ...structure, calendar, minutesPerDay, statusDate, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf }
+  const readsTime = schedule.project.sourceFormat !== 'grs'
+  return {
+    ...structure, calendar, readsTime, minutesPerDay, statusDate, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
+  }
 }
 
 // WHY: days compare as days and the same day never breaks a link, as VC-15 states; ND-3 is display only.
+// With clocks (an MSPDI document's plan), the same day compares the times and the lag keeps the time;
+// a value that names no time still compares as a day.
 // see VC-15, VS-4, FR-009
 /** @purity pure */
-function linkHolds(facts: Facts, dependency: Dependency, predecessor: Ends, successor: Ends): boolean | null {
-  const linkType = dependency.linkType
-  const [later, earlier, least] = linkType === FINISH_TO_START ? [successor.start, predecessor.finish, 0]
-    : linkType === START_TO_START ? [successor.start, predecessor.start, 0]
-      : linkType === FINISH_TO_FINISH ? [successor.finish, predecessor.finish, 0]
-        : linkType === START_TO_FINISH ? [successor.finish, predecessor.start, 0] : [null, null, 0]
+function linkHolds(facts: Facts, dependency: Dependency, predecessor: Ends, successor: Ends,
+                   clocks: LinkClocks | null): boolean | null {
+  const days = boundSides(dependency.linkType, predecessor, successor)
   const lagWorkingDays = wholeLagWorkingDays(dependency, facts.minutesPerDay)
-  if (later === null || earlier === null || lagWorkingDays === null) return null
-  return calendarDaysBetween(laggedDay(facts.calendar, earlier, lagWorkingDays), later) >= least
+  if (days === null || days[0] === null || days[1] === null || lagWorkingDays === null) return null
+  const gap = calendarDaysBetween(laggedDay(facts.calendar, days[1], lagWorkingDays), days[0])
+  const times = clocks === null ? null : boundSides(dependency.linkType, clocks.predecessor, clocks.successor)
+  if (gap !== 0 || times === null || times[0] === null || times[1] === null) return gap >= 0
+  return times[0] >= times[1]
 }
 
 // see VC-1
@@ -597,7 +644,8 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
         predecessorActualFinish: predecessor.actualFinish, ...columnsOf(task, ['actualFinish']),
       }))
     }
-    if (linkHolds(facts, dependency, plannedEnds(predecessor), plannedEnds(task)) === false) {
+    const clocks = facts.readsTime ? { predecessor: plannedClocks(predecessor), successor: plannedClocks(task) } : null
+    if (linkHolds(facts, dependency, plannedEnds(predecessor), plannedEnds(task), clocks) === false) {
       found.push(findingOf('VC-15', task, {
         predecessorUid, linkType: dependency.linkType, lag: dependency.lag, ...columnsOf(task, ['start', 'finish']),
         predecessorStart: predecessor.start, predecessorFinish: predecessor.finish,
@@ -639,7 +687,8 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
     if (bindsSuccessorStart(dependency.linkType) && !isStarted(predecessor) && isStarted(task)) {
       found.push(findingOf('VS-3', task, { predecessorUid, ...columnsOf(task, ['actualStart']) }))
     }
-    if (linkHolds(facts, dependency, actualEnds(predecessor), actualEnds(task)) === false) {
+    // WHY: VS-4 compares the actuals as days in every document.
+    if (linkHolds(facts, dependency, actualEnds(predecessor), actualEnds(task), null) === false) {
       found.push(findingOf('VS-4', task, {
         predecessorUid, linkType: dependency.linkType, ...columnsOf(task, ['actualStart', 'actualFinish']),
         predecessorActualStart: predecessor.actualStart, predecessorActualFinish: predecessor.actualFinish,
@@ -844,16 +893,42 @@ function flowOrder(facts: Facts, nodes: ReadonlySet<number>): readonly number[] 
 }
 
 // see BD-2
+// WHY: the predecessor's end keeps its time: a finish is actualFinish's once finished, else finish's; a start
+// is actualStart's once started, else start's. The side it binds is the successor's planned column.
 /** @purity pure */
-function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, length: number): CalendarDay | null {
+function imposedClocksOf(predecessor: Task, task: Task): LinkClocks {
+  return {
+    predecessor: {
+      start: clockOf(isStarted(predecessor) ? predecessor.actualStart : predecessor.start),
+      finish: clockOf(isFinished(predecessor) ? predecessor.actualFinish : predecessor.finish),
+    },
+    successor: plannedClocks(task),
+  }
+}
+
+// see BD-2
+// WHY: an imposed time later than the bound side's time on that day cannot be met that day, so the next
+// working day is imposed; a document that does not read time, or a value with no time, imposes the day.
+/** @purity pure */
+function imposedDay(facts: Facts, linkType: number, clocks: LinkClocks, day: CalendarDay): CalendarDay {
+  const times = facts.readsTime ? boundSides(linkType, clocks.predecessor, clocks.successor) : null
+  if (times === null || times[0] === null || times[1] === null || times[1] <= times[0]) return day
+  return nextWorkingDay(facts.calendar, day)
+}
+
+// see BD-2
+/** @purity pure */
+function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, task: Task, length: number): CalendarDay | null {
   const predecessor = facts.byUid.get(link.predecessorUid)
   const flow = flows.get(link.predecessorUid)
   if (predecessor === undefined || flow === undefined) return null
   const began = isStarted(predecessor) ? (dayOf(predecessor.actualStart) ?? flow.earliestStart) : flow.earliestStart
   const startFor = (last: CalendarDay): CalendarDay =>
     length > 1 ? dateFromWorkingDays(facts.calendar, last, 1 - length) : last
+  const clocks = imposedClocksOf(predecessor, task)
   // WHY: BD-2 flows a lag whose format FR-009 does not read as zero; the diagnostics never count that unit.
-  const lagged = (day: CalendarDay): CalendarDay => laggedDay(facts.calendar, day, link.lagWorkingDays ?? 0)
+  const lagged = (day: CalendarDay): CalendarDay =>
+    imposedDay(facts, link.linkType, clocks, laggedDay(facts.calendar, day, link.lagWorkingDays ?? 0))
   switch (link.linkType) {
     case FINISH_TO_START: return lagged(flow.projectedFinish)
     case START_TO_START: return lagged(began)
@@ -914,7 +989,7 @@ function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flo
   const isHeldBy = (link: Link, day: CalendarDay | null): boolean =>
     actualStart === null || !bindsSuccessorStart(link.linkType) || day === null || !isBefore(actualStart, day)
   const bounds = (facts.linksOf.get(task.uid) ?? [])
-    .map((link) => ({ link, uid: link.predecessorUid, day: boundOf(facts, link, flows, length) }))
+    .map((link) => ({ link, uid: link.predecessorUid, day: boundOf(facts, link, flows, task, length) }))
     .filter((bound) => isHeldBy(bound.link, bound.day))
   // WHY: a task not started is not pushed to the status date here; BD-1 counts that wait as its own delay.
   let earliestStart = start

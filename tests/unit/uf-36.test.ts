@@ -591,6 +591,18 @@ function everyNodeName(node: XmlNode): readonly string[] {
   return [node.name, ...node.children.flatMap(everyNodeName)]
 }
 
+/**
+ * The document after the person edited every task's actual: the T-019 note drops the carried
+ * `ActualDuration` original on that edit, and FR-011 then writes the `Stop` the source did not have.
+ */
+function actualsEdited(document: Document): Document {
+  const tasks = document.schedule.tasks.map((task) => ({
+    ...task,
+    carry: Object.fromEntries(Object.entries(task.carry).filter(([name]) => name !== 'ActualDuration')),
+  }))
+  return { ...document, schedule: { ...document.schedule, tasks } }
+}
+
 function written(document: Document): XmlNode {
   const encoding: MspdiEncoding = mspdiFromDocument(document, LAST_SAVED_AT)
   return parseXml(encoding.text)
@@ -1070,7 +1082,8 @@ describe('table T-058 -- the column-by-column mapping', () => {
   it('keeps the partner spelling of a carried name (W-9 of table T-006a)', () => {
     const document = accepted(BASE_TEXT)
     const project = instanceOf(document, 'Project')
-    const names = Object.keys(project['carry'] as Record<string, string>)
+    // WHY: EX-15 keeps the source's namespace URI under the key xmlns, which is no carried element name.
+    const names = Object.keys(project['carry'] as Record<string, string>).filter((name) => name !== 'xmlns')
     expect(names.length, 'the fixture brings scalars this software does not use').toBeGreaterThan(0)
     for (const name of names) {
       expect(name, 'a carried name is the partner spelling, not a lowercased one').not.toBe(
@@ -1602,6 +1615,7 @@ describe('table T-033 -- writing', () => {
   it('EX-7, WT-4: the one date GRS decides itself is written at the document default finish time', () => {
     // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141) and EX-7 gives it
     // the finish-side time of WT-4, the DefaultFinishTime the file brought (AT-155).
+    // FR-011 writes that Stop only once the person has edited the actual.
     const suspended = mspdi(
       [
         projectHeadXml(),
@@ -1618,7 +1632,8 @@ describe('table T-033 -- writing', () => {
   </Tasks>`,
       ].join('\n'),
     )
-    const written9 = writtenInstance(written(accepted(suspended)), 'Task')
+    expect(textAt(writtenInstance(written(accepted(suspended)), 'Task'), 'Stop'), 'FR-011: unedited, no Stop').toBeNull()
+    const written9 = writtenInstance(written(actualsEdited(accepted(suspended))), 'Task')
     const stop = textAt(written9, 'Stop')
     expect(stop, 'AT-141 writes a Stop for a suspended task').not.toBeNull()
     expect(stop).toBe(`2026-04-08T${SAMPLE.projectDefaultFinishTime}`)
@@ -1665,7 +1680,8 @@ function planActualTasksText(): string {
 
 describe('table T-019 -- the last column, which state writes a Stop', () => {
   it('writes a Stop for exactly the three started, unfinished states (one case, every row)', () => {
-    const document = accepted(planActualTasksText())
+    // WHY: the fixture brings no Stop, so FR-011 writes one only after the actual is edited.
+    const document = actualsEdited(accepted(planActualTasksText()))
     const root = written(document)
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
     expect(tasks).toHaveLength(T_019_STOP.length)
@@ -1678,7 +1694,7 @@ describe('table T-019 -- the last column, which state writes a Stop', () => {
   })
 
   it('writes that Stop at the document default finish time (EX-7, WT-4)', () => {
-    const root = written(accepted(planActualTasksText()))
+    const root = written(actualsEdited(accepted(planActualTasksText())))
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
     for (const row of T_019_STOP) {
       if (!row.writesStop) continue
@@ -3068,11 +3084,14 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     expect(spelled ?? '').toMatch(/^-?PT\d+H\d+M\d+S$/)
   })
 
-  it('GIVEN a rounded amount WHEN the written file is read again THEN nothing is rounded a second time (FR-054)', () => {
+  it('GIVEN a rounded amount WHEN the written file is read again THEN it is rounded from the same original, once (FR-054, FR-011)', () => {
+    // WHY: FR-011 writes no Stop the source did not have while the actual is unedited, so the file
+    // read again carries the same ActualDuration and tells the same rounding, never a compounded one.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const again = mspdiFromDocument(accepted(text), LAST_SAVED_AT).text
     expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[5])
-    expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), again)).toHaveLength(0)
+    const baseline = durationFileText([WHOLE_FIVE_DAYS])
+    expect(noticesBeyond(baseline, again)).toEqual(noticesBeyond(baseline, text))
   })
 })
 
