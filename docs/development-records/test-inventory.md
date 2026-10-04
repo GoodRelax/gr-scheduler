@@ -270,7 +270,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-430-ty-1-to-9-type-order.test.ts` | 17 | - | - | T-268, T-273 | LP-2, S-63, TY-1, TY-2, TY-3, TY-4, TY-5, TY-6, TY-7, TY-8, TY-9 | - | - | - | - |
 | `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` | 11 | - | - | T-075, T-277 | - | - | - | - | - |
 | `tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts` | 5 | FR-016, FR-106 | - | T-270 | PE-8, S-63 | - | DFC-1024 (flaky) | - | - |
-| `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts` | 11 | FR-104 | - | T-269, T-274 | GA-24, PK-10, PK-11, PK-15, PK-16, PK-17, PK-18, PP-6, ZO-13, ZO-14, ZO-15 | - | - | - | - |
+| `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts` | 11 | FR-104 | - | T-020, T-269, T-274 | GA-24, PK-10, PK-11, PK-15, PK-16, PK-17, PK-18, PP-6, PP-7, ZO-13, ZO-14, ZO-15, ZO-16 | - | - | - | - |
 | `tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts` | 10 | FR-016, FR-029 | - | - | IN-4, IN-5a, MK-1, SE-1, SE-5, SK-2 | - | - | - | - |
 | `tests/contract/cr-557-a-pressed-hue-swatch-is-one-undoable-step.test.ts` | 9 | FR-031, FR-041 | - | T-027, T-103, T-108, T-216, T-305 | CM-5, S-3, S-4, S-73, U-25, UN-13 | - | - | - | - |
 | `tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts` | 15 | FR-041, FR-072, FR-131 | - | T-103, T-104, T-206, T-216, T-236, T-305 | K-60, K-140, S-2, S-4, S-73, S-74, S-151, S-368, U-25 | - | - | - | - |
