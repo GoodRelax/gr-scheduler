@@ -4,7 +4,7 @@
 // @purity    pure
 
 import { compareDays, dayOf, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
-import { xFromDay, type ScheduleLayout } from '../schedule-layout/schedule-layout'
+import { inTreeOrder, xFromDay, type RowPlacement, type ScheduleLayout } from '../schedule-layout/schedule-layout'
 import { isAtLeastDrawnPx } from './dependency-route'
 import type { HighlightGeometry } from './schedule-geometry'
 
@@ -33,21 +33,67 @@ function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSid
   return { leftRight: isAtLeastDrawnPx(height, shortest), topBottom: isAtLeastDrawnPx(width, shortest) }
 }
 
+// see FR-019, UC-008
+interface DrawnRowsInTree {
+  readonly treeIndexOf: ReadonlyMap<string, number>
+  // WHY: the drawn rows in tree order, each with its index in the whole tree (drawn or not).
+  readonly drawn: readonly { readonly row: RowPlacement; readonly at: number }[]
+}
+
+// see FR-019, UC-008
+/** @purity pure */
+function drawnRowsInTreeOf(schedule: Schedule, rowById: ReadonlyMap<string, RowPlacement>): DrawnRowsInTree {
+  const tree = inTreeOrder(schedule.taskGroups, new Map(schedule.taskGroups.map((group) => [group.id, group])))
+  const drawn: { row: RowPlacement; at: number }[] = []
+  for (const [at, group] of tree.entries()) {
+    const row = rowById.get(group.id)
+    if (row !== undefined) drawn.push({ row, at })
+  }
+  return { treeIndexOf: new Map(tree.map((group, at) => [group.id, at])), drawn }
+}
+
+// see FR-019, UC-008
+// WHY: UC-008 4a -- an undrawn end row gives way to the nearest drawn row of the range in tree order, so the frame
+// shrinks to the shown rows; a null or unknown end keeps the screen's first or last row, and no drawn row, no box.
+/** @purity pure */
+function drawnEndsOf(
+  box: Schedule['highlightBoxes'][number],
+  rowById: ReadonlyMap<string, RowPlacement>,
+  treeOf: () => DrawnRowsInTree,
+  screen: readonly RowPlacement[],
+): { readonly top: RowPlacement; readonly bottom: RowPlacement } | undefined {
+  const topId = box.topGroupId
+  const bottomId = box.bottomGroupId
+  const top = topId === null ? screen[0] : rowById.get(topId)
+  const bottom = bottomId === null ? screen[screen.length - 1] : rowById.get(bottomId)
+  if (top !== undefined && bottom !== undefined) return { top, bottom }
+  // TRAP: built only when an end is not drawn, so a frame whose ends are both drawn pays no tree walk.
+  const rows = treeOf()
+  const low = (topId === null ? undefined : rows.treeIndexOf.get(topId)) ?? -Infinity
+  const high = (bottomId === null ? undefined : rows.treeIndexOf.get(bottomId)) ?? Infinity
+  const inRange = rows.drawn.filter((one) => one.at >= Math.min(low, high) && one.at <= Math.max(low, high))
+  /** @purity pure */
+  const isInTree = (id: string | null): boolean => id !== null && rows.treeIndexOf.has(id)
+  const shownTop = top ?? (isInTree(topId) ? inRange[0]?.row : screen[0])
+  const shownBottom = bottom ?? (isInTree(bottomId) ? inRange[inRange.length - 1]?.row : screen[screen.length - 1])
+  return shownTop === undefined || shownBottom === undefined ? undefined : { top: shownTop, bottom: shownBottom }
+}
+
 // see FR-019
 /** @purity pure */
 export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
   const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
+  let tree: DrawnRowsInTree | null = null
+  /** @purity pure */
+  const treeOf = (): DrawnRowsInTree => (tree ??= drawnRowsInTreeOf(schedule, rowById))
   const out: HighlightGeometry[] = []
   for (const box of schedule.highlightBoxes) {
     const from = dayOf(box.startDate)
     const toDay = dayOf(box.endDate)
     if (from === null || toDay === null) continue
-    const top =
-      (box.topGroupId === null ? undefined : rowById.get(box.topGroupId)) ?? layout.rows[0]
-    const bottom =
-      (box.bottomGroupId === null ? undefined : rowById.get(box.bottomGroupId)) ??
-      layout.rows[layout.rows.length - 1]
-    if (top === undefined || bottom === undefined) continue
+    const ends = drawnEndsOf(box, rowById, treeOf, layout.rows)
+    if (ends === undefined) continue
+    const { top, bottom } = ends
     // TRAP: both edges through min / max: rows are stored in tree order but drawn in screen order, and pinning inverts them.
     const early = compareDays(from, toDay) <= 0 ? from : toDay
     const late = compareDays(from, toDay) <= 0 ? toDay : from

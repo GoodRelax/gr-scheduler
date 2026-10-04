@@ -359,7 +359,9 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const status = geometry.statusLine
   if (status !== null) {
-    const statusWidth = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-333'], selectedStatusLine)
+    // see SL-8, S-438
+    // WHY: S-438 is the chosen line's own width, not S-333 times S-178: the two are picked apart in px.
+    const statusWidth = NOT_STORED_DUAL_CURSOR_SIZES[selectedStatusLine ? 'S-438' : 'S-333']
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
         ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
