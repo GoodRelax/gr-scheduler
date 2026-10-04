@@ -248,8 +248,6 @@ test.describe('FR-154 / QN-13 on the shipped build', () => {
   })
 
   test(`AG-9 (MUST): ${AG_9.slice(-30)} -- an agent write is refused while QN-13 stands`, async () => {
-    // WHY: the Agent API snapshot reads only the pointer gesture, not the standing QN-13 (finding, no row yet).
-    test.fail()
     const { stage: opened, days } = await stage()
     try {
       await dragPlanEndBy(opened.page, days, 3)
