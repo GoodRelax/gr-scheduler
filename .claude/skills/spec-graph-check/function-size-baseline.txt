@@ -77,7 +77,6 @@ HELD src/adapter/input-command-translator/screen-state-input.ts::screenEventFrom
 HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36
 HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=81 branches=67
 HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=54 branches=18
-HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=57 branches=13
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=78 branches=22
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12

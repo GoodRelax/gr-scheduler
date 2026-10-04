@@ -352,6 +352,8 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
+const HELP_ANCHOR = { surface: 'Help Modal' } as const
+
 // see EZ-2, IN-3, S-124, TV-5, FR-092
 // WHY: the shell keeps the icon under the pointer while the pointer is on the icon's shown box,
 // and hintTargetDwellMs counts from entering the icon, so a move inside neither restarts nor hides it.
@@ -364,13 +366,14 @@ function iconTooltipOf(
   const icon = readings.iconUnderPointer
   const isDue = readings.hintTargetDwellMs >= SETTINGS_CONSTANTS.iconHintDelayMs
   if (icon === null || readings.pointer === null || !isDue) return null
-  const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
+  const isOnHelp = readings.isPointerOnHelp === true
+  const help = isOnHelp ? (shown.helpModal ?? null) : null
   const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
   const row = readings.iconRowUnderPointer ?? null
   const refusal = shown.searchPanel?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
   const hint = iconHint(icon, hintLanguage)
   return {
-    anchor: { kind: 'icon', icon, ...(row === null ? {} : { groupId: row }) },
+    anchor: { kind: 'icon', icon, ...(isOnHelp ? HELP_ANCHOR : {}), ...(row === null ? {} : { groupId: row }) },
     text: refusal === null ? hint : `${hint}${LINE_BREAK}${refusal}`,
     assignment: entryAssignment(icon, hintLanguage),
   }
