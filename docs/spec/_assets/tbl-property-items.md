@@ -47,7 +47,7 @@
 | PR-8 | `resumeValid` | 真偽 | `Task` | `task` | `false` = 再開日未定の中断 | `Task/ResumeValid` |
 | PR-17 | `milestoneGlyph` | 選択 | `Task` | `milestone` | マイルストーンの図形（`_assets/fig-erd-detail.md` の `AT-101`）。<br>置いた後も変えられること（`FR-078`） | 無い（`GRS JSON` のみ） |
 | PR-14 | `fadeInDays` / `fadeOutDays` | 数値 / 数値 | `Task` | `task` | 日付の曖昧さを端のぼかしで表す。<br>**適用する形状は表 T-012a の `FD-5` が限る** | `Task/ExtendedAttribute`（通常の列は無い。<br>拡張領域を使うのはこの 2 つだけである。<br>枠の選び方は 表 T-033 の `EX-6`） |
-| PR-15 | `wbsParentUid` | 選択 | `Task` | `both` | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
+| PR-15 | `wbsParentUid` | リンク | `Task` | `both` | 階層の深さはここから導出する。<br>出し方と押した先は 表 T-351 の `WL-15` 〜 `WL-17` に従う | `Task/OutlineLevel` へ導出 |
 | PR-37 | `predecessors` | 文字（読み取り専用） | `Task` | `both` | **読み取り専用。<br>** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。<br>並びは先行の `uid` の昇順。<br>依存が無いときは空の欄とする | `Task/PredecessorLink/PredecessorUID` |
 | PR-38 | `successors` | 文字（読み取り専用） | `Task` | `both` | **読み取り専用。<br>** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。<br>並びは後続の `uid` の昇順。<br>依存が無いときは空の欄とする | 無い（後続のタスクの `PredecessorLink` から導く） |
 | PR-12 | `fillColor` | 色 | `Task` | `both` | 塗りの色（`FR-007`）。<br>欄の並べ方は 表 T-017b の `CV-9` | 無い（`GRS JSON` のみ） |

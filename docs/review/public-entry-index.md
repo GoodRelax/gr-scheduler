@@ -84,7 +84,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NestedRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#NestedRows` | -- | interface NestedRows |
 | `nextWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#nextWorkingDay` | PI-1 | 起点の**翌稼働日**。 |
 | `NoWorkingDayReached` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#NoWorkingDayReached` | -- | class NoWorkingDayReached extends Error |
-| `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親入力の面の候補の並び（表 T-318 の `IP-4`） |
+| `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
