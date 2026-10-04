@@ -53,7 +53,7 @@ const FR_041_ALL_GREY =
 const FR_041_SWATCH_PAINT =
   '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
 const FR_041_SWATCH_GREY =
-  '⚠️ モノクロ（`S-74`）が入っているあいだは、見本も次の段落のとおり灰で描く —— 色相ごとに灰の明るさが違うので、灰にしたときの見え方で選べる'
+  '⚠️ モノクロ（`S-74`）が入っているあいだは、見本も次の段落のとおり灰で描く —— 灰は HSL の明度を保つので（`_assets/tbl-settings.md` の 表 T-294 の前文）、どの行の見本も `S-151` の明度の同じ灰になり'
 const FR_041_NO_EXCEPTION = '⚠️ 例外を置かない —— 上の段落のテーマ色の欄の見本も灰で描く。'
 const FR_109_STOPPED =
   '⭐ 実績を隠しても、実績が無くても、3 段目を取っておくこと（MUST）。⭐ 中断のあいだの実績の線は、停止日で矢じり（端点スパンは終わりの点）を付けずに止めること（MUST）'
@@ -217,6 +217,15 @@ function groundsOf(built: Stage, element: FakeElement): string[] {
   })
 }
 
+// see T-236, T-294
+// WHY: the grey keeps the HSL lightness (T-294's preamble), so S-151's written lightness is the grey every hue gives.
+function s151LightnessOf(preference: Preference): number {
+  const written = bare(rowOf('T-236', 'S-151').by[preference === 'light' ? '明るいテーマ' : '暗いテーマ'] ?? '')
+  const lightness = /([\d.]+)%\s*\)$/.exec(written)
+  if (lightness === null) throw new Error(`premise: S-151 (${preference}) is written as hsl(), got ${written}`)
+  return Number(lightness[1])
+}
+
 // see K-60
 function swatchColours(preference: Preference, monochrome: boolean): Rgb[] {
   const built = wire({ preference, hue: S_73_DEFAULT, monochrome }, HEADER_HEIGHT)
@@ -254,8 +263,16 @@ describe(`CR-673 FR-041 "${FR_041_SWATCH_GREY}"`, () => {
       })
     })
 
-    // WHY: measured all ten greys equal (HSL lightness of S-151 kept); FR-041's note says they differ -- sent to the coordinator.
-    it.todo(`${preference}: with S-74 on, the grey lightness differs by hue`)
+    it(`${preference}: with S-74 on, every K-60 swatch is the one grey of S-151's lightness`, () => {
+      const grey = CHANNEL_MAX * s151LightnessOf(preference) / PERCENT
+      const colours = swatchColours(preference, true)
+      expect(colours).toHaveLength(ROSTER.length)
+      colours.forEach((rgb, index) => {
+        rgb.forEach((channel) => {
+          expect(Math.abs(channel - grey), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')})`).toBeLessThanOrEqual(CHANNEL_TOLERANCE)
+        })
+      })
+    })
 
     it(`${preference}: with S-74 off, the swatches keep their hues (the grey comes from S-74, not from the field)`, () => {
       const colours = swatchColours(preference, false)

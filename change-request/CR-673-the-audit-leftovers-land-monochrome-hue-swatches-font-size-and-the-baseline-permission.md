@@ -84,6 +84,13 @@
 
 2 節の 1・2 のとおり。コード: `src/adapter/screen-renderer/properties-panel.ts` の `themeHueField` が `settings.themeMonochrome` を受け取り、見本の `colourOf` に渡す。
 
+⚠️ 追記（2026-10-04、仕様だけの試験の波が見つけた） —— 最初に当てた文は「色相ごとに灰の明るさが違うので、灰にしたときの見え方で選べる」と書いたが、誤りであった。
+仕様の灰は HSL の明度を保って彩度を 0 にする（`_assets/tbl-settings.md` の 表 T-294 の前文、`CV-7` の「赤・青・オレンジ・紫・薄い灰色は同じ灰」、公開入口 `achromatic` の「明度を保ったまま」）。
+`S-151` の明度は明暗ごとに 1 つ（明 32%・暗 68%）なので、どの色相の見本も同じ灰になる —— 消した MUST NOT の理由「すべての見本が同じ灰になり」と同じ事実である。
+⇒ `FR-041` の文を「灰は HSL の明度を保つので（表 T-294 の前文）、どの行の見本も `S-151` の明度の同じ灰になり、モノクロの絵が色相で変わらないことをそのまま見せる」に直した。コードは変えない（`achromatic` は既にその灰を返す）。
+試験 `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` の `it.todo` を、明暗ごとに「見本の灰がすべて `S-151` の明度の灰に等しい」の 1 件にした。
+⚠️ 色相ごとに違う灰（知覚の明るさを保つ灰）にするなら、`achromatic` の式そのものを変える別の CR になる —— `CV-7`・`CV-10`・表 T-294 の前文と `NFR-007` の実測が動く。
+
 ### E-02 辞書 `IC-127` —— `DFC-1881`
 
 `docs/spec/_source/display-words.json` の `IC-127`: 札 ja「文字サイズ」・en "Font size"、説明 ja「パネルの見出しと表と入力欄の文字サイズを変える（9・10・12 px を順に巡る）」・en "Change the font size of the panel's heading, table and search box (cycles through 9, 10 and 12 px)"。窓の字を保存しないこと（`S-429`）は変えない。`npm run gen` が `src/adapter/screen-renderer/display-words.json` を刷る。
@@ -204,7 +211,7 @@ python .claude/skills/spec-graph-check/impact.py PR-15
 
 調整役が作り直した `dist/index.html` を開く。
 
-1. ヘッダーのモノクロの入口を入にし、`IC-17` で文書の設定の面を出す。⇒ テーマ色の見本 10 個が灰で、色相ごとに灰の明るさが違うこと。モノクロを切ると色に戻ること。
+1. ヘッダーのモノクロの入口を入にし、`IC-17` で文書の設定の面を出す。⇒ テーマ色の見本 10 個が灰で、どれも同じ灰であること（E-01 の追記）。モノクロを切ると色に戻ること。
 2. 検索パネル（`Ctrl` ＋ `F`）と遅延診断のレポートの窓で、見出しの行の Aa にポインタを当てる。⇒ 説明が「文字サイズ」（英語では "Font size"）であること。
 3. 中断中のタスク（再開予定あり・再開日未定のどちらか）の実績の線を見る。⇒ 停止日で平らに止まり、矢じり（線だけの矢印の形）も終わりの点（端点スパンの形）も無いこと。
 4. 依存線の上にポインタを当てる。⇒ 線の矢印のポインタの矢じりが、前より細いこと（幅が半分）。

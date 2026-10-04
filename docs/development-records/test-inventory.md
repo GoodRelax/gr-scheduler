@@ -348,7 +348,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts` | 5 | FR-011, FR-012 | - | T-236 | EP-9, OP-6, S-149, WY-2 | - | - | - | - |
 | `tests/contract/cr-668-a-non-working-end-day-asks-before-the-calendar-changes.contract.test.ts` | 12 | FR-031, FR-154 | - | T-354 | AT-81, AT-82, CM-39, HW-9, HW-10, WC-6 | - | - | - | - |
 | `tests/contract/cr-670-the-report-joins-dates-with-a-dash-and-speaks-reasons-in-words.contract.test.ts` | 11 | - | - | T-021b, T-310, T-311, T-316, T-347 | AT-46, DG-4, DL-2, DT-5, DT-6, DT-7, DX-6, DX-10, PM-4, RW-4, VS-6 | - | - | - | - |
-| `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
+| `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-236, T-294, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
