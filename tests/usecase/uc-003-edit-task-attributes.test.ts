@@ -120,6 +120,10 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     const startBefore = taskOf(await readDocument(page)).start
     await drag(page, { x: plan.x + plan.w / 2, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w / 2 + 60, y: plan.y + plan.h / 2 })
+    // WHY: the ends land on a weekend, so FR-154 T-354 HW-5 asks QN-13 once; `n` (HW-11) still places the ends.
+    await expect(page.locator('[data-role="Confirmation"]')).toHaveCount(1)
+    await page.keyboard.press('n')
+    await settle(page)
     const startAfter = taskOf(await readDocument(page)).start
     expect(startAfter).not.toBe(startBefore)
     await expect(page.locator(PANEL + 'input[data-field-row="PR-3"] >> nth=0')).toHaveValue(startAfter.slice(0, 10))

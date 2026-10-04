@@ -60,7 +60,7 @@ test('the manuscript: table T-329 and the HF-10 faint rule this file presses', (
   expect(REQUIREMENTS).toContain(T_329_DRAWS_WHEN)
   expect(REQUIREMENTS).toContain(HF_10_FAINT_WHEN)
   const kinds = specTable('T-329').rows.map((row) => `${row.id}`)
-  expect(kinds).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7'])
+  expect(kinds).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7', 'TD-8'])
 })
 
 const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrangement; readonly drawn: readonly string[] }[] = [
