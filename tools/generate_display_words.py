@@ -323,6 +323,11 @@ SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', '
 # are no table's rows, so they are HELD HERE, the same move as
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
+# CR-677: the one line the Export Chooser (U-54, FR-096) shows under its
+# format grid while the document holds an export span (S-518 / S-519). No
+# table holds it as a row, so it is HELD HERE, the same move as
+# OPEN_CHOOSER_PARTS. KEYS, not words.
+EXPORT_CHOOSER_PARTS = ('exportSpan',)
 # CR-631: the two choices QN-12 of table T-234 offers when a selection mixes
 # tasks and WBS parent arrows (WL-13 of table T-351): the first in its armed
 # and its unarmed wording (JDG-1142), then the arrows. Not NT-7's Yes / No, and
@@ -630,6 +635,7 @@ def roster():
         'delayReportWalls': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, DELAY_WALL_ROW,
                                         DELAY_WALL_TABLE)],
+        'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
         'hintLines': hint_lines(),
@@ -709,6 +715,7 @@ SHAPE = {
     'delayReportReasons': ('part', ('text',)),
     'delayReportAspects': ('rowId', ('text',)),
     'delayReportWalls': ('rowId', ('text',)),
+    'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'wbsParentChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
@@ -809,7 +816,8 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'branding',
                     'defaultNames',
-                    'exportFormats', 'openChooser', 'assignments', 'arms',
+                    'exportFormats', 'exportChooser', 'openChooser',
+                    'assignments', 'arms',
                     'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'propertyField',
                     'rowMinHeightField',

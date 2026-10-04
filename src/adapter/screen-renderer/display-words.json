@@ -2624,6 +2624,17 @@
    }
   },
   {
+   "rowId": "K-141",
+   "keys": [
+    "exportSpanStart",
+    "exportSpanFinish"
+   ],
+   "label": {
+    "ja": "書き出す期間",
+    "en": "Export span"
+   }
+  },
+  {
    "rowId": "K-91",
    "keys": [
     "planActualGuideWeight"
@@ -4382,6 +4393,15 @@
    "name": {
     "ja": "PNG画像",
     "en": "PNG image"
+   }
+  }
+ ],
+ "exportChooser": [
+  {
+   "part": "exportSpan",
+   "text": {
+    "ja": "書き出す期間 {start} - {finish}",
+    "en": "Export span {start} - {finish}"
    }
   }
  ],

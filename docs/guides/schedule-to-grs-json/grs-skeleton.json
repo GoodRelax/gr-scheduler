@@ -194,6 +194,8 @@
     "dateGridLinesVisible": false,
     "dependencyVisible": true,
     "displayScale": 100,
+    "exportSpanFinish": null,
+    "exportSpanStart": null,
     "fontScale": "M",
     "groupGridLinesVisible": true,
     "levelZeroTreeState": "auto",
