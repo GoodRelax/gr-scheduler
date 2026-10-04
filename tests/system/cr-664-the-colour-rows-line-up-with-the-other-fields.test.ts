@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { CLEARING_UP_MS, DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
+import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf, taskBodyPoint } from './live-app'
 import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -97,19 +97,7 @@ function mostCommon(values: readonly number[]): number {
 async function openOnATask(page: Page): Promise<void> {
   await page.goto('/')
   await readSettledDrawnSvg(page)
-  const target = await page.evaluate((selector: string) => {
-    const drawing = document.querySelector(selector)
-    for (const plan of Array.from(drawing?.querySelectorAll('[data-figure$="-plan"]') ?? [])) {
-      if (!/^task-\d+-plan$/.test(plan.getAttribute('data-figure') ?? '')) continue
-      const box = plan.getBoundingClientRect()
-      if (box.width < 30 || box.height < 6) continue
-      const x = box.left + box.width / 2
-      const y = box.top + box.height / 2
-      if (document.elementFromPoint(x, y) !== plan) continue
-      return { x, y }
-    }
-    return null
-  }, DRAWN_SVG)
+  const target = await taskBodyPoint(page)
   expect(target, 'premise: a task plan wide enough to double-click is drawn').not.toBeNull()
   if (target === null) return
   await page.mouse.dblclick(target.x, target.y)

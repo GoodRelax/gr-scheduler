@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { expect, test, type Browser } from '@playwright/test'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { CLEARING_UP_MS, DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
+import { CLEARING_UP_MS, DRAWN_SVG, launchReferenceBrowser, readSettledDrawnSvg, screenOf, taskBodyPoint } from './live-app'
 import { rowOf } from './sws-case'
 
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
@@ -64,21 +64,7 @@ test('FT-1: Space on a focused swatch shows its colour in the field and on the s
   try {
     await page.goto('/')
     await readSettledDrawnSvg(page)
-    const target = await page.evaluate((selector: string) => {
-      const drawing = document.querySelector(selector)
-      const plans = Array.from(drawing?.querySelectorAll('[data-figure$="-plan"]') ?? [])
-      for (const plan of plans) {
-        const uid = /^task-(\d+)-plan$/.exec(plan.getAttribute('data-figure') ?? '')?.[1]
-        const box = plan.getBoundingClientRect()
-        if (uid === undefined || box.width < 30 || box.height < 6) continue
-        const x = box.left + box.width / 2
-        const y = box.top + box.height / 2
-        const hit = document.elementFromPoint(x, y)
-        if (hit !== plan) continue
-        return { uid, x, y }
-      }
-      return null
-    }, DRAWN_SVG)
+    const target = await taskBodyPoint(page)
     expect(target, 'premise: a task plan wide enough to double-click is drawn').not.toBeNull()
     if (target === null) return
     await page.mouse.dblclick(target.x, target.y)
