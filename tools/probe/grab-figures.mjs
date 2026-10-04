@@ -457,7 +457,7 @@ async function buildLabelPlacementFigure(page) {
  *  (same generated markup, width/height scaled -- NOT re-invoked at 4x the px argument, because
  *  several glyph functions hold their rim to a constant PHYSICAL width via rimUnits(px), so a fresh
  *  call at a larger px would change the shape's proportions rather than just magnify it). Rows 7/8
- *  and 10..16 have no drawn glyph in the sample -- they are the environment's native cursor -- so this
+ *  and 10..16 and 18 have no drawn glyph in the sample -- they are the environment's native cursor -- so this
  *  figure says so in words instead of inventing artwork for them. */
 function scaleGlyph(svg, factor) {
   return svg.replace(/width="([\d.]+)" height="([\d.]+)"/, (_, w, h) =>
@@ -474,6 +474,7 @@ async function buildPointerShapesFigure(page) {
     'PK-5a': { label: '円 〇', svg: discGlyph(false, S.msCur) },
     'PK-5b': { label: '円 ●', svg: discGlyph(true, S.msActCur) },
     'PK-9': { label: '再開の折れ矢印', svg: resumeGlyph(S.resumeCur) },
+    'PK-17': { label: '親子をつなぐ形', svg: parentLinkGlyph(S.cur) },
   }))
   // The environment's own cursors (table T-269): named in words with their CSS keyword, never drawn.
   const NATIVE = {
@@ -486,6 +487,7 @@ async function buildPointerShapesFigure(page) {
     'PK-14': '左上と右下の隅（環境の nwse-resize）',
     'PK-15': '右上と左下の隅（環境の nesw-resize）',
     'PK-16': '写し（環境の copy）',
+    'PK-18': '禁止（環境の not-allowed）',
   }
 
   const rowH = 84, labelW = 220, cellW = 140, pad = 8, headerH = 16
