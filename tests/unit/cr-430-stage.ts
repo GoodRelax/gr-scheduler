@@ -179,6 +179,9 @@ export function pointer(
   return { kind: 'pointer', phase, button, x, y, modifiers: { ...modifiers }, clickCount: 1 }
 }
 
+const NON_WORKING_DAY_QUESTION = 'QN-13'
+const DECLINE_KEY = 'N'
+
 export interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
@@ -200,8 +203,11 @@ export function stage(document: Document): Stage {
     }
   }
   const shapes: string[] = []
+  let standingQuestion: string | null = null
   const surface: ScreenSurface = {
-    showScreenView: () => undefined,
+    showScreenView: (view) => {
+      standingQuestion = view.confirmation?.question ?? null
+    },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     hasUnsettledTextEntry: () => false,
@@ -221,6 +227,10 @@ export function stage(document: Document): Stage {
     loop,
     send: (input) => {
       loop.receiveInput(input)
+      drain()
+      // WHY: a release on a rest day asks QN-13 (FR-154); these cases assert the No path of HW-11 (JDG-67).
+      if (standingQuestion !== NON_WORKING_DAY_QUESTION) return
+      loop.receiveInput({ kind: 'key', key: DECLINE_KEY, modifiers: { ctrl: false, shift: false, alt: false, meta: false } })
       drain()
     },
     shown: () => shapes,

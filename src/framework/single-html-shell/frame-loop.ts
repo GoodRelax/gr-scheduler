@@ -71,6 +71,7 @@ import {
 import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
+  nonWorkingDayQuestionOwedBy,
   searchJumpReachOf,
   searchJumpWrites,
   searchJumpCommands,
@@ -644,6 +645,8 @@ const PERCENT_PER_WHOLE = 100
 export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
 export type ConfirmationQuestion = FileFlowQuestion['question']
+
+const NON_WORKING_DAY_QUESTION: ConfirmationQuestion = 'QN-13'
 
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 
@@ -1864,6 +1867,35 @@ function isChangingDocumentIn(session: ScreenSession): boolean {
   return session.gesture.pointerPressState.kind === 'changingDocument'
 }
 
+// see FR-032, FR-099, FR-154, T-354, QN-13
+// WHY: a copy drag (CY-5) is not asked QN-13; its picked copies (CY-8) would wait on the answer.
+/** @purity pure */
+function changeQuestionRaisedBy(
+  action: Extract<InputAction, { readonly kind: 'changeDocument' }>,
+  document: Document,
+): Extract<SessionEvent, { readonly type: 'changeQuestionRaised' }> | null {
+  const created = action.created ?? null
+  const deletion = confirmationOwedBy(action.writes.flat(), document, action.question)
+  if (deletion !== null) {
+    const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }
+    return { type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...deletion }, owedAction }
+  }
+  const owed = action.picked === undefined ? nonWorkingDayQuestionOwedBy(action.writes.flat(), document) : null
+  if (owed === null) return null
+  const question = { manner: CONFIRMATION_MANNER, question: NON_WORKING_DAY_QUESTION, items: [], days: owed.days }
+  const madeWorking: readonly DocumentCommand[] = [owed.madeWorking, ...action.writes.flat()]
+  const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: [madeWorking], created, declinedWrites: action.writes }
+  return { type: 'changeQuestionRaised', question, owedAction }
+}
+
+// see FR-154, AG-9
+// WHY: the bundle a Yes or a No writes was built at the release; another writer must not age it meanwhile.
+/** @purity pure */
+function isNonWorkingDayQuestionStandingIn(session: ScreenSession): boolean {
+  const confirmation = session.fileFlow.confirmationState
+  return confirmation.kind === 'questionAsked' && confirmation.question.question === NON_WORKING_DAY_QUESTION
+}
+
 /** @purity pure */
 function isAgentApiEnabledIn(session: ScreenSession): boolean {
   return session.agentApi.agentApiEnablingState.kind === 'enabled'
@@ -2953,7 +2985,7 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
-      gestureInFlight: isChangingDocumentIn(session),
+      gestureInFlight: isChangingDocumentIn(session) || isNonWorkingDayQuestionStandingIn(session),
       editingInPlace: !isSettlingFieldCommit && isEditingField(hands),
       deliveringNotices: isDeliveringNoticesIn(session),
     }
@@ -3149,13 +3181,8 @@ export function frameLoop(
     switch (action.kind) {
       case 'changeDocument': {
         if (isQuestionAskedIn(session)) return
-        const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document, action.question)
-        if (owedQuestion !== null) {
-          const created = action.created ?? null
-          const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }
-          sendToSession({ type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...owedQuestion }, owedAction }, frame)
-          return
-        }
+        const raised = changeQuestionRaisedBy(action, held.document)
+        if (raised !== null) return sendToSession(raised, frame)
         if (action.picked !== undefined) return landCopyDrag(hands, action.writes.flat(), action.picked, frame)
         for (const bundle of action.writes) writeDocument(bundle, frame)
         if (action.created !== undefined) standOnWhatWasCreated(action.created)

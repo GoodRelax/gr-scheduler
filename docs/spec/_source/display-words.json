@@ -3480,6 +3480,13 @@
    }
   },
   {
+   "rowId": "QN-13",
+   "text": {
+    "ja": "{days} は非稼働日です。稼働日にしますか？",
+    "en": "Non-working day(s): {days}. Make them working days?"
+   }
+  },
+  {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",

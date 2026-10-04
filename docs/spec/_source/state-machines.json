@@ -5314,6 +5314,27 @@
           {
            "name": "isProceeding",
            "not": true
+          },
+          {
+           "name": "hasDeclinedWrites"
+          }
+         ],
+         "effect": "carryOutOwedAction",
+         "evidence": [
+          "NT-7",
+          "FR-154"
+         ]
+        },
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "name": "isProceeding",
+           "not": true
+          },
+          {
+           "name": "hasDeclinedWrites",
+           "not": true
           }
          ],
          "evidence": [

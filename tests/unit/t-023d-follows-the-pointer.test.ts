@@ -614,11 +614,15 @@ function host(): Host {
  * which is where table T-023d rules, so the honest answer for all of them is
  * that the surface drew nothing there.
  */
+// WHY: a release on a rest day asks QN-13 (FR-154); these cases assert the No path of HW-11 (JDG-67).
+let standingQuestion: string | null = null
+
 function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
   const views: ScreenView[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
       views.push(view)
+      standingQuestion = view.confirmation?.question ?? null
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
@@ -670,6 +674,9 @@ function stage(): Stage {
   const loop = frameLoop(pen.surface as any, fixtureDocument(), SCREEN, screenPane())
   const send = (input: HumanInput): void => {
     loop.receiveInput(input)
+    pen.runAnimationFrames()
+    if (standingQuestion !== 'QN-13') return
+    loop.receiveInput({ kind: 'key', key: 'N', modifiers: { ...NO_MODIFIERS } })
     pen.runAnimationFrames()
   }
   // FT-3 of table T-078 is not what starts this: the first frame is owed by the

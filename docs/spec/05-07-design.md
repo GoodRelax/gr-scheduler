@@ -442,7 +442,7 @@ src/
 | UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 | — |
 | UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`） |
 | UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 | `FR-008`（`OW-2`） |
-| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-glossary.md` の `CM-39`） | `FR-088`（`OW-2`） |
+| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-glossary.md` の `CM-39`）。<br>人の置いた端の日が非稼働日かを判じ、稼働日にする `CM-39` を組むのも本ユニットである（`01-04-requirements.md` の `FR-154`） | `FR-088`（`OW-2`）・`FR-154`（`OW-2`） |
 | UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 | `FR-035`（`OW-2`）・`FR-046`（`OW-2`） |
 | UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
 | UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— 行と共に消える行とタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
@@ -570,8 +570,8 @@ src/
 
 **「負う要求」の欄の結び。**
 
-`01-04-requirements.md` が持つ要求は 132 件である（`FR` が 119 件、`NFR` が 13 件）。  
-そのうち 108 件は、上の欄が起点のユニットを名指している。
+`01-04-requirements.md` が持つ要求は 133 件である（`FR` が 120 件、`NFR` が 13 件）。  
+そのうち 109 件は、上の欄が起点のユニットを名指している。
 
 ⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。
