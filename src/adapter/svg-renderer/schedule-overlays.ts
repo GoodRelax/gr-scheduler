@@ -75,6 +75,8 @@ export interface OverlayParts {
   // see ZO-14
   readonly fillParts: readonly string[]
   readonly linkParts: readonly string[]
+  // see ZO-16
+  readonly progressLineParts: readonly string[]
   readonly annotationParts: readonly string[]
   readonly selectionParts: readonly string[]
 }
@@ -334,12 +336,14 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   } = input
   const fillParts: string[] = []
   const linkParts: string[] = []
+  const progressLineParts: string[] = []
   const annotationParts: string[] = []
   const selectionParts: string[] = []
   const annotationColour = themed('S-312')
 
+  // see FR-110, ZO-16
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
-    linkParts.push(
+    progressLineParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
         ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +
         `${figureKey('progress-line')}/>`,
@@ -404,5 +408,5 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
       )
     }
   }
-  return { fillParts, linkParts, annotationParts, selectionParts }
+  return { fillParts, linkParts, progressLineParts, annotationParts, selectionParts }
 }

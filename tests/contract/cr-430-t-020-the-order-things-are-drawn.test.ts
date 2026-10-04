@@ -28,7 +28,7 @@ const says = (row: string): string =>
 const FR_110_ONE_TABLE_DECIDES =
   '`GRS` は、日程表に描くものの前後（どれが手前に見えるか）を 1 つの表で決めること（MUST）。'
 const FR_110_LABELS_IN_FRONT_OF_LINES =
-  '名称・担当と進捗・進捗マーカーは、線と形より手前に描くこと（MUST）。'
+  '名称・担当と進捗・進捗マーカーは、イナズマ線を除く線と形より手前に描くこと（MUST）。'
 const FR_110_THE_THREE_IN_FRONT =
   '選択の枠・構えて引いている仮の依存線・範囲選択の矩形は、それよりさらに手前とすること（MUST）。'
 const ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME = '**実績バーが名称ラベルを覆ってはならない（MUST NOT）。**'
@@ -84,6 +84,8 @@ const TENTATIVE_LINK = {
 }
 
 const BASELINE_VISIBLE = cellOf('T-202', 'S-69', 'キー')
+// WHY: S-64 defaults to false, and ZO-16 (the progress line) is a row the sweep must see drawn.
+const PROGRESS_LINE_VISIBLE = cellOf('T-202', 'S-64', 'キー')
 
 const BASELINE = { uid: 1, name: null, start: day(4), finish: day(12), milestone: false }
 
@@ -126,6 +128,7 @@ const RICH: SceneWish = {
       dualCursorVisible: true,
       progressMarkerVisible: true, // see S-63
       [BASELINE_VISIBLE]: true,
+      [PROGRESS_LINE_VISIBLE]: true,
     },
 }
 

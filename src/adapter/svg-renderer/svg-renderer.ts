@@ -627,6 +627,7 @@ export function svgFromSchedule(
       ...zoLayer('ZO-8', overlays.linkParts),
       ...zoLayer('ZO-3', [...figures.markerPartsPinned, scrolling(figures.markerParts)]),
       ...zoLayer('ZO-5', [...figures.labelPartsPinned, scrolling(figures.labelParts)]),
+      ...zoLayer('ZO-16', overlays.progressLineParts),
       ...zoLayer('ZO-9', overlays.annotationParts),
       ...zoLayer('ZO-10', [
         ...figures.endOutlineParts, ...figures.selectionParts, ...overlays.selectionParts, ...figures.handleParts,
