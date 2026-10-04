@@ -16,26 +16,22 @@ const FR_006_SAME_EDGES =
   'その 1 行でも項目名はほかの行と同じ項目名の欄に右詰めで置き、色の欄の中身は値の欄の左端から始めること（MUST）'
 const FR_006_WRAP = '同じ行に並ぶ操作子をすべてその幅で並べられないときは、その行を折り返すこと（MUST）'
 
-// see U-25, U-24
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`
 const PROPERTIES_PANEL = roleOf('U-25')
 const PANEL_DIVIDER = roleOf('U-24')
 
-// see T-016
 const COLOUR_FORM = '色'
 const COLOUR_ROWS = specTable('T-016')
   .rows.filter((row) => bare(row.by['入力の型'] ?? '') === COLOUR_FORM && bare(row.by['対象'] ?? '') === 'Task')
   .map((row) => row.id)
 
-// see S-248
 const S_248 = ((): number => {
   const found = /(\d+(?:\.\d+)?)/.exec(bare(specTable('T-206').rows.find((one) => one.id === 'S-248')?.by['既定'] ?? ''))
   if (found === null) throw new Error('table T-206 row S-248 states no number')
   return Number(found[1])
 })()
 
-// see MC-6
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
 // WHY: sub-pixel layout rounds differently per row; one pixel is the line the eye cannot tell apart.

@@ -922,16 +922,9 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     showScreenView: (view) => {
       views.push(view)
     },
-    // ⚠️ Nothing below drives the two pulled members. `readDialogueInput`
-    // answers `null` because the person has typed nothing, and
-    // `readScreenPartAt` answers `null` because this fake has drawn nothing
-    // anywhere -- which is what that member calls "the schedule below is
-    // exposed".
+    // WHY: this fake draws nothing, which readScreenPartAt answers as "the schedule below is exposed".
     readDialogueInput: () => null,
-    // IF-9 also returns what a properties-panel field settled at.
-    // Nothing here drives one, so there is never a commit to take.
     readFieldCommit: () => null,
-    // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
     readScreenPartAt: () => null,
   }
   return {

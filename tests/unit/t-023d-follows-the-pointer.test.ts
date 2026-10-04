@@ -626,7 +626,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
     readScreenPartAt: (): ScreenPart | null => null,
   }
   return { surface, language }

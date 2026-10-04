@@ -94,7 +94,6 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
   readonly delayReportColumns: readonly { readonly rowId: string; readonly text: Words }[]
 }
 
-// see T-331, T-347
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
 const COMMENT_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'コメントボックス').map((row) => row.id)
 const REPORT_COLUMNS = specTable('T-347').rows.map((row) => row.id)
@@ -115,8 +114,6 @@ function settingPx(row: string): number {
   return Number(px[1])
 }
 
-// WHY: A schedule with one task per T-019a state (dfc-1362 builds its own the same way)
-
 type Loose = Record<string, unknown>
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -126,7 +123,6 @@ const D = (day: string): string => `${day}T00:00:00`
 
 type State = 'notStarted' | 'inProgress' | 'finished' | 'resumePlanned' | 'resumeUnknown'
 
-// WHY: T-019a -- PS-1 no actualStart, PS-2 actualFinish, PS-3 resumeValid false, PS-4 resume, PS-5 otherwise.
 const STATE_FIELDS: Readonly<Record<State, Loose>> = {
   notStarted: { actualStart: null, stop: null, actualFinish: null, resume: null, resumeValid: null },
   inProgress: { actualStart: D('2026-03-30'), stop: null, actualFinish: null, resume: null, resumeValid: null },
@@ -225,8 +221,6 @@ const cellsByColumn = (view: SearchPanelView, uid: number): Readonly<Record<stri
   )
   return Object.fromEntries(view.columns.map((column, at) => [column.column, line.cells[at] ?? '']))
 }
-
-// WHY: A delay diagnostics report holding every DT-1 status (the CR-617 unit test builds one the same way)
 
 const reportTask = (uid: number, name: string, start: string, extra: Loose = {}): Loose => ({
   uid,

@@ -1319,9 +1319,6 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   //   tell when editing began and ended        readFieldEditNotices
   //   answer what is drawn at a point          readScreenPartAt
   //
-  // ⚠️ The older boolean member (hasUnsettledTextEntry) left the roster with
-  // its declaration (DFC-1876, CR-673); the begin and end notices replace it.
-  //
   // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
   // would go green on a member swapped for another, and one that read the keys
   // off the very surface under test would agree with any surface at all. The

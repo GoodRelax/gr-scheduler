@@ -286,7 +286,6 @@ function bench(document: Document): Bench {
       views.push(view)
     },
     readDialogueInput: () => null,
-    // Nothing here drives a panel field, so there is never a commit to take.
     readFieldCommit: () => null as never,
     readScreenPartAt: () => null as ScreenPart | null,
   }
