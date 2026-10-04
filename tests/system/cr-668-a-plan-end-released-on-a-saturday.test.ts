@@ -14,10 +14,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_154_ONE_STEP =
   '`Yes` と答えたときは、例外日を足す書き込み（`_assets/tbl-glossary.md` の 表 T-108 の `CM-39`）と端を置く書き込みを 1 つの束とし、取り消しを 1 段とすること（MUST）'
-const FR_154_NOT_SILENTLY = `その日を文書の暦の稼働日にすれば、どの数え方も同じ日数を数える。
-⛔ 暦を黙って変えてはならない（MUST NOT）`
-const FR_154_NO_SNAP = `⇒ 変えるかどうかは、端を置いた人がその場で選ぶ。
-⛔ 端を稼働日へ寄せてはならない（MUST NOT）`
+const FR_154_NOT_SILENTLY =
+  'その日を文書の暦の稼働日にすれば、どの数え方も同じ日数を数える。⛔ 暦を黙って変えてはならない（MUST NOT）'
+const FR_154_NO_SNAP = '⇒ 変えるかどうかは、端を置いた人がその場で選ぶ。⛔ 端を稼働日へ寄せてはならない（MUST NOT）'
 const FR_031_NO_OTHER = 'それ以外の場面で確認を求めてはならない（MUST NOT）'
 const HW_11 = '`Yes`（`y`）・`No`（`n`）。<br>`Esc` は `No` と同じ'
 const QN_13_DAYS = '挙げない —— 日付を挙げる。<br>日の書き方は 表 T-348 の `TL-10` と `TL-11`（曜日を添える）'

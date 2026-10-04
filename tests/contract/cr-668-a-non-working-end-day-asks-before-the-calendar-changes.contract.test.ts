@@ -23,10 +23,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const FR_031_ONLY_THESE =
   '例外は、取り消しで取り戻せないものを失う場面と、人の 1 つの所作が文書ぜんたいの設定（表 T-027 の `UN-13`）を変えうる場面に限る（MUST）'
 const FR_031_NO_OTHER = '文書ぜんたいの設定は 1 つの値がすべてのタスクに効くので、人が選ばないまま変えてはならない（`FR-154`）。それ以外の場面で確認を求めてはならない（MUST NOT）'
-const FR_154_NOT_SILENTLY = `その日を文書の暦の稼働日にすれば、どの数え方も同じ日数を数える。
-⛔ 暦を黙って変えてはならない（MUST NOT）`
-const FR_154_NO_SNAP = `⇒ 変えるかどうかは、端を置いた人がその場で選ぶ。
-⛔ 端を稼働日へ寄せてはならない（MUST NOT）`
+const FR_154_NOT_SILENTLY =
+  'その日を文書の暦の稼働日にすれば、どの数え方も同じ日数を数える。⛔ 暦を黙って変えてはならない（MUST NOT）'
+const FR_154_NO_SNAP = '⇒ 変えるかどうかは、端を置いた人がその場で選ぶ。⛔ 端を稼働日へ寄せてはならない（MUST NOT）'
 const FR_154_ONE_STEP =
   '`Yes` と答えたときは、例外日を足す書き込み（`_assets/tbl-glossary.md` の 表 T-108 の `CM-39`）と端を置く書き込みを 1 つの束とし、取り消しを 1 段とすること（MUST）'
 const FR_154_ROW_SHAPE =
