@@ -453,10 +453,12 @@
       "effect": "writeProgressStep",
       "evidence": [
        "FR-107",
-       "PV-4"
+       "PV-4",
+       "GA-18",
+       "WS-2"
       ],
       "note": {
-       "ja": "`rememberedActuals` を書き換える"
+       "ja": "`rememberedActuals` を書き換え、運ぶ `writes` を文書に書く"
       }
      },
      "themePreferenceChosen": {
@@ -624,7 +626,7 @@
       {
        "name": "target",
        "note": {
-        "ja": "閉じる対象。面かパネルかヘルプか"
+        "ja": "閉じる対象。語は `surface`（開いている面、`S-99g`）・`panel`（プロパティパネル、`S-99h`）・`helpModal`（ヘルプ、`U-30`）の 3 つ"
        }
       }
      ]
@@ -937,14 +939,17 @@
     {
      "key": "displayScaleStepped",
      "source": {
-      "kind": "input",
+      "kind": "effectResult",
       "rows": [
        "IC-104",
        "IC-105",
        "SK-22",
        "SK-23",
        "SE-1"
-      ]
+      ],
+      "note": {
+       "ja": "倍率を書いた後にシェルが送る。運ぶ `percent` は書いた後に立っている値であり、入力の翻訳係は知らない（書き込みが拒まれたときは立っている値のまま）"
+      }
      },
      "carries": [
       {
@@ -1060,7 +1065,7 @@
        "PV-4"
       ],
       "note": {
-       "ja": "進捗マーカーの押下"
+       "ja": "進捗マーカーの押下が離れた（`GA-18`）。押下の最中には送らない —— 副作用の書き込みが `WS-2` に拒まれる"
       }
      },
      "carries": [
@@ -1872,7 +1877,49 @@
         "evidence": [
          "S-99g"
         ]
-       }
+       },
+       "open": [
+        {
+         "to": "open",
+         "guard": [
+          {
+           "name": "isAnotherSurface"
+          },
+          {
+           "name": "isFlowAwaitingAnswer",
+           "not": true
+          }
+         ],
+         "effect": "tellFlowSurfaceClosed",
+         "evidence": [
+          "S-99g"
+         ],
+         "note": {
+          "ja": "開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える"
+         }
+        },
+        {
+         "to": "open",
+         "guard": [
+          {
+           "name": "isAnotherSurface"
+          },
+          {
+           "name": "isFlowAwaitingAnswer"
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-27",
+         "evidence": [
+          "S-99g",
+          "OP-3",
+          "RS-27"
+         ],
+         "note": {
+          "ja": "開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かないことを告げる"
+         }
+        }
+       ]
       },
       "surfaceRaisedByFlow": {
        "closed": {
@@ -1882,6 +1929,26 @@
          "U-61",
          "U-62"
         ]
+       },
+       "open": {
+        "to": "open",
+        "guard": [
+         {
+          "name": "isAnotherSurface"
+         },
+         {
+          "name": "isFlowAwaitingAnswer",
+          "not": true
+         }
+        ],
+        "effect": "tellFlowSurfaceClosed",
+        "evidence": [
+         "OP-3",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開く道が立てる面も、開いている面を差し替える。答えを待つ面が開いているあいだ、開く道は次の面を立てない"
+        }
        }
       },
       "flowSurfaceAnswered": {
@@ -1940,7 +2007,56 @@
         "note": {
          "ja": "`surfaceName` は `U-60`"
         }
-       }
+       },
+       "open": [
+        {
+         "to": "open",
+         "guard": [
+          {
+           "in": "watermarkDisplayStateMachine.shown"
+          },
+          {
+           "name": "isAnotherSurface"
+          },
+          {
+           "name": "isFlowAwaitingAnswer",
+           "not": true
+          }
+         ],
+         "effect": "tellFlowSurfaceClosed",
+         "evidence": [
+          "WM-10",
+          "S-99g"
+         ],
+         "note": {
+          "ja": "開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`）"
+         }
+        },
+        {
+         "to": "open",
+         "guard": [
+          {
+           "in": "watermarkDisplayStateMachine.shown"
+          },
+          {
+           "name": "isAnotherSurface"
+          },
+          {
+           "name": "isFlowAwaitingAnswer"
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-27",
+         "evidence": [
+          "S-99g",
+          "OP-3",
+          "RS-27"
+         ],
+         "note": {
+          "ja": "開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かないことを告げる"
+         }
+        }
+       ]
       },
       "watermarkUnlockAnswered": {
        "open": [
@@ -2225,6 +2341,20 @@
         ],
         "note": {
          "ja": "`subject` を書き換える"
+        }
+       },
+       "documentSettingsDisplayed": {
+        "to": "selectionDisplayed",
+        "guard": [
+         {
+          "name": "hasChoice"
+         }
+        ],
+        "evidence": [
+         "FR-072"
+        ],
+        "note": {
+         "ja": "`subject` を書き換える。設定を出していても、選んだものへ移る"
         }
        }
       },
@@ -4236,13 +4366,18 @@
       "rows": [
        "FR-032",
        "FR-099",
+       "FR-154",
        "QN-1",
        "QN-2",
        "QN-3",
-       "IC-66"
+       "QN-10",
+       "QN-13",
+       "IC-66",
+       "IC-106",
+       "HF-20"
       ],
       "note": {
-       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除）、担当者の削除"
+       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除・すべての行の削除・非稼働日に置いた端）、担当者の削除"
       }
      },
      "carries": [
@@ -4251,7 +4386,9 @@
        "rows": [
         "QN-1",
         "QN-2",
-        "QN-3"
+        "QN-3",
+        "QN-10",
+        "QN-13"
        ]
       },
       {
@@ -4526,7 +4663,7 @@
        "FR-100"
       ],
       "note": {
-       "ja": "画面からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。`Agent API` の書き込みと合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない"
+       "ja": "画面か `Agent API` からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない"
       }
      },
      "carries": []
@@ -5121,7 +5258,9 @@
           "QN-3",
           "QN-4",
           "QN-5",
-          "QN-11"
+          "QN-10",
+          "QN-11",
+          "QN-13"
          ]
         },
         {
@@ -5139,7 +5278,9 @@
         "QN-3",
         "QN-4",
         "QN-5",
-        "QN-11"
+        "QN-10",
+        "QN-11",
+        "QN-13"
        ]
       }
      ],
@@ -5379,6 +5520,22 @@
          "RD-1",
          "RD-2"
         ]
+       },
+       "editsUnsaved": {
+        "to": "nothingUnsaved",
+        "guard": [
+         {
+          "name": "isBackToSavedDocument"
+         }
+        ],
+        "evidence": [
+         "FR-100",
+         "RD-1",
+         "RD-2"
+        ],
+        "note": {
+         "ja": "取り消し・やり直しが、印を下ろした時点（保存・置き換え・新しく始める・起動）に持っていた文書そのものへ戻した"
+        }
        }
       },
       "documentOpenLanded": {
@@ -5392,10 +5549,11 @@
         ],
         "evidence": [
          "FR-100",
-         "RD-3"
+         "RD-3",
+         "OP-9"
         ],
         "note": {
-         "ja": "合流・重ねは、ファイルに無い文書を作る"
+         "ja": "合流・重ねは、ファイルに無い文書を作る。重ねも、重ねた予定と `S-69` を文書に書くので数える"
         }
        },
        "editsUnsaved": {
