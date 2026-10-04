@@ -1461,7 +1461,7 @@ NOT_STORED_TARGETS = {
     # the default widths of SQ-1 .. SQ-9 of table T-331. S-423 / S-424 / S-426
     # went to NOT_STORED_HELP_SIZES with the rest of table T-335 (CR-621).
     # S-427 still holds no value and S-428 is read by the use case that jumps
-    # (search-jump.ts), so neither is here.
+    # (search-jump.ts), so neither is here -- S-428 has its own constant below.
     # CR-639: S-475 .. S-481, the default widths of the Delay Diagnostics
     # Report's table columns DT-1 .. DT-7 (RW-9 of table T-346, SV-18 as for
     # the search panel). The window is drawn as the search panel's sibling
@@ -1470,6 +1470,10 @@ NOT_STORED_TARGETS = {
     # stand unread until the window is drawn, and noUnusedLocals refuses it.
     # @provisional PND-670 -- the seven values are placeholders until a
     # touchable sample decides them (JDG-1183).
+    # DFC-1770: S-428, the room SJ-6 of table T-332 leaves between the view's
+    # left edge and where a jump lands. One constant per consuming SUBJECT:
+    # the jump is decided by search-jump.ts, which reads it where it stands.
+    'NOT_STORED_SEARCH_JUMP_INSET': (['S-428'], READ_WHERE_IT_STANDS),
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
                                        'S-466', 'S-467', 'S-468', 'S-469',
                                        'S-470', 'S-471', 'S-472', 'S-473',
@@ -3104,6 +3108,10 @@ TARGETS = [
          ENTRY_SWITCH_NAMES),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
       'docs/spec/_assets/tbl-glossary.md (table T-109)']),
+    # DFC-1770: the jump's inset stands in the unit that places the jump (SJ-6).
+    (os.path.join(USECASE, 'edit-document', 'search-jump.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
