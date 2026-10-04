@@ -88,9 +88,22 @@ function propertyFieldNameStyle(): string {
 }
 
 // see FR-006, CV-9
+// WHY: alone on its line (the field wraps under it), padded back to the name column of S-189.
 /** @purity pure */
 function propertyFieldNameAboveStyle(): string {
-  return `color:${PAINT.quiet};flex:1 1 100%;text-align:left;font-size:${fieldSizes().nameTextScale}em;`
+  const size = fieldSizes()
+  return (
+    `color:${PAINT.quiet};flex:0 0 100%;box-sizing:border-box;padding-right:${100 - size.namePercent}%;` +
+    `text-align:right;font-size:${size.nameTextScale}em;`
+  )
+}
+
+// see FR-006, CV-9
+// WHY: the wrapped field starts where every other row's value starts: the name column and S-190.
+/** @purity pure */
+function propertyControlsBelowNameStyle(): string {
+  const size = fieldSizes()
+  return `${propertyControlsStyle()}margin-left:calc(${size.namePercent}% + ${size.nameGap}px);`
 }
 
 function propertyControlsStyle(): string {
@@ -553,9 +566,14 @@ function colourGridStyle(perLine: number): string {
   )
 }
 
+// see FR-006
+// WHY: the field starts at the value column (CV-9), so a narrow panel wraps the entries, never narrows them.
 /** @purity pure */
 function colourLastLineStyle(): string {
-  return `display:flex;align-items:center;gap:${fieldSizes().rowGap}px;margin-top:${fieldSizes().rowGap}px;`
+  return (
+    `display:flex;flex-wrap:wrap;align-items:center;gap:${fieldSizes().rowGap}px;` +
+    `margin-top:${fieldSizes().rowGap}px;`
+  )
 }
 
 /** @purity non-pure */
@@ -917,7 +935,11 @@ export function fieldElement(
     return line
   }
 
-  const controls = made(host, 'div', propertyControlsStyle())
+  const controls = made(
+    host,
+    'div',
+    field.isNameAbove === true ? propertyControlsBelowNameStyle() : propertyControlsStyle(),
+  )
   if (field.text !== '' && field.controls.every((one) => one.text === '')) {
     const shown = made(host, 'span', '')
     shown.textContent = field.text
