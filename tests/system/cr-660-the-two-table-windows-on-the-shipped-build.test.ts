@@ -15,7 +15,7 @@ const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-1
 const SV_7_CLOSE = '⭐ 開いている絞り込みは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）で閉じる。'
 const SV_7_NOT_OUTSIDE = '⛔ 絞り込みの外を押しても閉じてはならない（MUST NOT）'
 const SV_7_DROPDOWN = '絞り込みは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと（MUST）'
-const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで ステータス・進捗・タスク の 3 列）、コメントボックスの表は `SQ-7` までを左に固定し'
+const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
 const RW_10_FIXED = '横は `DT-1`・`DT-3`・`DT-4`（ステータス・進捗・タスク —— 表 T-347 の並びで左の 3 列）を左に固定し'
 const SV_18_MEASURED =
   '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、表 T-333 のどの段でも、どちらの言語でも、値も見出し（語と `IC-122`）も省略記号で切られない最小の幅とする'
@@ -53,6 +53,7 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
+  'SQ-10': 'S-496',
 }
 
 /** @purity pure */
@@ -214,7 +215,8 @@ async function menuCount(page: Page, window: string): Promise<number> {
 /** @purity semi-pure-b */
 async function marksOf(page: Page, window: string): Promise<readonly Mark[]> {
   return page.evaluate((asked: string) => {
-    return Array.from(document.querySelectorAll<HTMLInputElement>(`${asked} input[type="checkbox"]`)).map((mark) => ({
+    // WHY: the open filter's marks only, not the SQ-10 boxes of the table rows.
+    return Array.from(document.querySelectorAll<HTMLInputElement>(`${asked} [data-search-filter-menu] input[type="checkbox"]`)).map((mark) => ({
       value: mark.getAttribute('data-search-filter-value') ?? '',
       label: (mark.closest('label')?.textContent ?? '').trim(),
       checked: mark.checked,

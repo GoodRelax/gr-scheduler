@@ -39,9 +39,9 @@ function landingZoomY(depth: number, settings: DrawnSettings, step: number): num
 }
 
 /** @purity pure */
-function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): number {
+function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings, shownTaskUids: ReadonlySet<number> | null): number {
   let deepest = 0
-  for (const row of drawnGroups(schedule, { ...settings, levelZeroTreeState: 'auto' })) {
+  for (const row of drawnGroups(schedule, { ...settings, levelZeroTreeState: 'auto' }, shownTaskUids)) {
     if (row.depth > deepest) deepest = row.depth
   }
   return Math.min(deepest, SETTINGS_CONSTANTS.maxGroupDepth)
@@ -159,7 +159,7 @@ function fittedLeftEdge(
   return { day, offset: into > 0 && into < 1 ? into : 0 }
 }
 
-// see FR-055, S-332
+// see FR-055, S-332, TV-1
 // DEVIATION: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726)
 /** @purity pure */
 export function fitZoom(
@@ -168,13 +168,14 @@ export function fitZoom(
   regions: ScreenRegions,
   zoom: NotStoredZoom,
   rowControlsHeightPx?: number,
+  shownTaskUids: ReadonlySet<number> | null = null,
 ): FitToScreen {
   const drawn = drawnSettingsOf(settings)
   const floorZoomY = zoomYAtPlanHeightFloor(drawn)
-  const deepest = deepestDrawnDepth(schedule, settings)
+  const deepest = deepestDrawnDepth(schedule, settings, shownTaskUids)
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
     layoutFromSchedule(
-      schedule, { ...settings, zoomX, zoomY }, regions, cap, rowControlsHeightPx,
+      schedule, { ...settings, zoomX, zoomY }, regions, cap, rowControlsHeightPx, shownTaskUids,
     )
 
   const atUnity = runAt(1, floorZoomY, deepest)

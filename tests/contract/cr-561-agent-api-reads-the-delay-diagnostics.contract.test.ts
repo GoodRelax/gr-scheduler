@@ -168,6 +168,7 @@ function bench(statusDate: string | null): Bench {
     },
     rasterizer: undefined,
     takeInDocument: undefined,
+    shownTasks: undefined,
     appShell: undefined,
     writerName,
     schemaVersion: String(state.document.schemaVersion),

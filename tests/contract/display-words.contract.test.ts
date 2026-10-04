@@ -2043,7 +2043,7 @@ const SCHEDULE_TO_SEARCH = {
   taskVisuals: [],
 } as unknown as Schedule
 
-const searchFrame = (shown: 'normal' | 'maximised', panel: Partial<SearchPanelSession>): Frame =>
+const searchFrame = (shown: 'normal' | 'maximised' | 'minimised', panel: Partial<SearchPanelSession>): Frame =>
   frameWith({
     schedule: SCHEDULE_TO_SEARCH,
     selection: emptySelection(),
@@ -2058,6 +2058,19 @@ const MAXIMISE_ENTRY = 'IC-121'
 const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
 
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
+// see SQ-10, TV-11, IX-11
+const SHOW_COLUMN = 'SQ-10'
+const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, shownTaskUids: [2, 3] })
+const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
+const SEARCH_SHOWING_ONLY_CHECKED = searchFrame('minimised', { shownTaskUids: SHOWN_SEARCH_UIDS, showOnlyChecked: true })
+// WHY: TV-11 and IX-11 fill {total} and {shown} with the counts, so the digits are put back to see the literal word
+// (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
+const countSlotsOf = (text: string | null | undefined): string | undefined =>
+  text === null || text === undefined
+    ? undefined
+    : text
+        .replace(new RegExp(`(?<![0-9])${Object.keys(SEARCH_TASK_BY_STATE).length}(?![0-9])`), '{total}')
+        .replace(new RegExp(`(?<![0-9])${SHOWN_SEARCH_UIDS.length}(?![0-9])`), '{shown}')
 const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
 const SEARCH_MAXIMISED = searchFrame('maximised', {})
 
@@ -2116,6 +2129,36 @@ const SEARCH_PANEL_READS: Readonly<
   restore: {
     frame: SEARCH_MAXIMISED,
     read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMISE_ENTRY),
+  },
+  shownValue: {
+    frame: SEARCH_SHOW_FILTER_OPEN,
+    read: (view) => {
+      const menu = view.searchPanel?.filterMenu
+      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'shown')?.label : undefined
+    },
+  },
+  notShownValue: {
+    frame: SEARCH_SHOW_FILTER_OPEN,
+    read: (view) => {
+      const menu = view.searchPanel?.filterMenu
+      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'notShown')?.label : undefined
+    },
+  },
+  nothingChecked: {
+    frame: SEARCH_TASKS_SHOWN,
+    read: (view) => view.searchPanel?.entryRefusals?.find((one) => one.icon === 'IC-143')?.reason,
+  },
+  showOnlyCheckedBar: {
+    frame: SEARCH_SHOWING_ONLY_CHECKED,
+    read: (view) => countSlotsOf(view.searchPanel?.showOnlyCheckedBar?.text),
+  },
+  showAll: {
+    frame: SEARCH_SHOWING_ONLY_CHECKED,
+    read: (view) => view.searchPanel?.showOnlyCheckedBar?.showAllLabel,
+  },
+  showOnlyCheckedCaption: {
+    frame: SEARCH_SHOWING_ONLY_CHECKED,
+    read: (view) => countSlotsOf(view.showOnlyCheckedCaption),
   },
 }
 
@@ -2406,6 +2449,19 @@ const propertyFieldFramesShowing = (
     stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) =>
       text.split('\n').some((line) => pattern.test(line)),
     ),
+  )
+}
+
+// see TV-11, IX-11
+// WHY: the band and the caption fill {total} and {shown} with counts, so the word is matched with its slots open.
+const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['showOnlyCheckedBar', 'showOnlyCheckedCaption'])
+const countSlottedFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(`^${word.split(/\{total\}|\{shown\}/).map(escapeForRegExp).join('[0-9]+')}$`)
+  return FRAMES.filter((one) =>
+    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
 }
 
@@ -2921,6 +2977,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'
                 ? propertyFieldFramesShowing(cell.word, cell.language)
+                : cell.section === 'searchPanel' && COUNT_SLOTTED_SEARCH_PANEL_PARTS.has(cell.key)
+                ? countSlottedFramesShowing(cell.word, cell.language)
                 : framesShowing(printed, cell.language)
       expect(
         on.length,

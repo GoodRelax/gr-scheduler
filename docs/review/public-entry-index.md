@@ -295,6 +295,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
 | `SightedEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#SightedEnd` | -- | interface SightedEnd |
 | `standingEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#standingEndOf` | -- | function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd |
+| `unseenEndStubOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#unseenEndStubOf` | -- | function unseenEndStubOf(from: Point, toward: number, settings: DrawnSettings): |
 | `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
 | `drawnAnnotationNumber` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnAnnotationNumber` | -- | function drawnAnnotationNumber(held: number \| null, row: AnnotationNumberRow): number |
@@ -586,6 +587,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = Document \| { readonly document: Document } \| { readonly text: string } |
 | `AgentRefusal` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusal` | -- | interface AgentRefusal |
 | `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'gestureInFlight' \| 'editingInPlace' \| 'deliveringNotices' \| 'commandRefused' \| 'unknownTask' \| 'notDrawnYet' \| 't... |
+| `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
 | `AgentSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#AgentSnapshot` | -- | interface AgentSnapshot |
 | `AgentUtteranceOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentUtteranceOutcome` | -- | type AgentUtteranceOutcome = \| { readonly accepted: true; readonly message: DialogueMessage } \| { readonly accepted: false; readonly refusal: AgentRefusal } ... |
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
@@ -597,6 +599,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RelayedAnswer` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedAnswer` | -- | type RelayedAnswer = \| { readonly result: unknown } \| { readonly error: { readonly code: number; readonly message: string } } type ParameterisedMember = |
 | `RelayedCall` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedCall` | -- | type RelayedCall = |
 | `RelayedParams` | entry | interface | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedParams` | -- | interface RelayedParams |
+| `ShownTasksHolder` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#ShownTasksHolder` | -- | interface ShownTasksHolder |
 | `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065 |
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
@@ -1270,15 +1273,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterChange` | PI-37 | 型。 |
 | `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いている絞り込みの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えている絞り込みへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列の絞り込みの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えている絞り込みと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
-| `searchPanelAfterShowOnlyChecked` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterShowOnlyChecked` | -- | function searchPanelAfterShowOnlyChecked(panel: SearchPanelSession): SearchPanelSession |
 | `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, schedule: Schedule, canvas: ScreenRect, bottleneckUids?: ReadonlySet<numb... |
 | `SearchPanelShown` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelShown` | -- | type SearchPanelShown = WindowShown |
 | `SearchPanelView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchPanelView` | PI-37 | 型。 |
 | `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
 | `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列の絞り込みを閉じた検索パネルの値を答える。 |
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列の絞り込みを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
-| `searchPanelWithinSchedule` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithinSchedule` | -- | function searchPanelWithinSchedule(panel: SearchPanelSession, schedule: Schedule): SearchPanelSession |
-| `SHOW_ONLY_CHECKED_ENTRY` | entry | const | `src/adapter/screen-renderer/search-panel.ts#SHOW_ONLY_CHECKED_ENTRY` | -- | const SHOW_ONLY_CHECKED_ENTRY: IconId = 'IC-143' |
 | `ShowOnlyCheckedBarView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#ShowOnlyCheckedBarView` | -- | interface ShowOnlyCheckedBarView |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
@@ -1320,11 +1320,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
+| `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#EntryRefusal` | -- | interface EntryRefusal |
 | `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchColumnView` | -- | interface SearchColumnView |
 | `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `searchPanelWithShownTasks` | file only | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithShownTasks` | -- | function searchPanelWithShownTasks(panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
+| `shownCountWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#shownCountWordOf` | -- | function shownCountWordOf(part: string, panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): string \| null |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
@@ -1481,7 +1483,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
 | `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'rowTitlePanel' \| 'propertiesPanel', ): ScreenRect \| null |
 | `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView): number |
-| `DrawnTable` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | interface DrawnTable |
+| `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick< |
 | `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } |
 | `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): boolean |
 | `pinFixedColumns` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#pinFixedColumns` | -- | function pinFixedColumns(tableBox: Element): void |
@@ -1696,4 +1698,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 822 name(s) leave through a public entry (310 of them published by table T-064), 664 more are exported by a file and not by its entry.
+Totals: 821 name(s) leave through a public entry (310 of them published by table T-064), 667 more are exported by a file and not by its entry.

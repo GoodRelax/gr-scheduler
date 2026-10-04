@@ -543,15 +543,17 @@ function measuredSettings(context: InputContext): DocumentSettings {
 
 // TRAP: do not move the discard into fitZoom: viewSettings in view-place.ts shares fitZoom,
 // and HF-8 forbids the discard at startup.
-// see FR-055, HF-8
+// TRAP: only the fit command passes the drawn filter (TV-1); zoomOnScreen answers the zoom OP-10 drew, which knows no filter.
+// see FR-055, HF-8, TV-1
 /** @purity pure */
-function fittedNow(context: InputContext) {
+function fittedNow(context: InputContext, shownTaskUids: ReadonlySet<number> | null = null) {
   return fitZoom(
     treeStatesReset(context.document.schedule),
     measuredSettings(context),
     context.regions,
     { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
     context.rowControlsHeightPx,
+    shownTaskUids,
   )
 }
 
@@ -603,7 +605,7 @@ function statusLineCentred(context: InputContext, date: string): readonly Docume
 /** @purity pure */
 function fitCommand(context: InputContext): DocumentCommand {
   const schedule = context.document.schedule
-  const fitted = fittedNow(context)
+  const fitted = fittedNow(context, context.layout.shownTaskUids ?? null)
   const at = scrolledAnchor(context, 0, 0)
   const place =
     namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId) ||

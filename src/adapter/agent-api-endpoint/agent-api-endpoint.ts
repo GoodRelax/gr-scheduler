@@ -15,10 +15,12 @@ export type {
   AgentImportSource,
   AgentRefusal,
   AgentRefusalReason,
+  AgentShownTasks,
   AgentUtteranceOutcome,
   AgentWatch,
   AgentWriteOutcome,
   AgentWriteRequest,
+  ShownTasksHolder,
 } from './agent-api-members'
 
 export { answerRelayedCall, type RelayedAnswer, type RelayedCall, type RelayedParams } from './relayed-call'

@@ -101,10 +101,17 @@ export function wbsParentParts(
     const width = arrow.isSelected ? emphasisedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
     const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
     const key = `wbs-parent-${arrow.childUid}`
+    // see FR-135, EL-20, TV-3
+    const radius = arrow.continuationRadius ?? 0
+    const dots = (arrow.continuationDots ?? []).map(
+      (dot) => `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}" r="${rounded(radius)}" fill="${ink}"${figureKey(key)}/>`,
+    )
+    const head = arrow.head.length === 0 ? '' : `<polygon points="${pointsOf(arrow.head)}" fill="${ink}"${figureKey(`${key}-head`)}/>`
     parts.push(
       `<polyline points="${pointsOf(arrow.points)}" fill="none" stroke="${ink}"` +
         ` stroke-width="${rounded(width)}"${dash}${figureKey(key)}/>` +
-        `<polygon points="${pointsOf(arrow.head)}" fill="${ink}"${figureKey(`${key}-head`)}/>`,
+        head +
+        dots.join(''),
     )
   }
   const query = themed('S-389')

@@ -249,6 +249,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
     // AM-14 and AM-15 answer `notAvailable`.
     rasterizer: undefined,
     takeInDocument: undefined,
+    shownTasks: undefined,
     appShell: undefined,
     writerName: 'the contract test for IF-7',
     schemaVersion: (startupTemplate as { readonly schemaVersion: string }).schemaVersion,

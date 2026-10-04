@@ -36,7 +36,7 @@ export const DEFAULT_ROW_NAME: string =
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
-import { searchPanelFromSession, type SearchPanelView } from './search-panel'
+import { searchPanelFromSession, shownCountWordOf, type SearchPanelView } from './search-panel'
 import {
   delayDiagnosticsReportFromWindow,
   type DelayDiagnosticsReportView,
@@ -45,15 +45,12 @@ import {
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
-  SHOW_ONLY_CHECKED_ENTRY,
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
-  searchPanelAfterShowOnlyChecked,
   searchPanelFromSession,
   searchPanelWithColumnWidth,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
-  searchPanelWithinSchedule,
 } from './search-panel'
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
@@ -562,6 +559,8 @@ export interface ScreenView {
   // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
   readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
+  // TRAP: optional so literals compile; absent writes no caption (IX-11), the same as null.
+  readonly showOnlyCheckedCaption?: string | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
@@ -733,6 +732,7 @@ export function screenViewFromRegions(
       readings.bottleneckUids,
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
+    showOnlyCheckedCaption: shownCountWordOf('showOnlyCheckedCaption', readings.searchPanel ?? emptySearchPanelSession, schedule, language),
   }
 
   const echo = session.screen.scaleMessageDisplayState

@@ -11,12 +11,12 @@ import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 
-// see SJ-1
+// see SJ-1, TV-6
 export type SearchJumpTarget =
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'commentBox'; readonly commentBoxId: string }
+  | { readonly kind: 'shownTasks'; readonly taskUids: readonly number[] }
 
-// see T-332
 export type SearchJumpPlan = {
   readonly treeStateWrites: readonly DocumentCommand[]
   readonly scrollWrite: DocumentCommand | null
@@ -38,7 +38,7 @@ const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBloc
 
 // see SJ-2, SJ-6
 /** @purity pure */
-function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null {
+function placeOf(schedule: Schedule, target: Exclude<SearchJumpTarget, { readonly kind: 'shownTasks' }>): JumpPlace | null {
   const heldRow = (groupId: string | null): string | null =>
     groupId !== null && schedule.taskGroups.some((row) => row.id === groupId) ? groupId : null
   if (target.kind === 'task') {
@@ -61,6 +61,22 @@ function revealWrites(document: Document, groupId: string | null): readonly Docu
     ...treeStateWritesFor(document.schedule, event),
     ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
   ]
+}
+
+/** @purity pure */
+function shownTasksRevealWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
+  const wanted = new Set(taskUids)
+  const held = new Set(document.schedule.taskGroups.map((row) => row.id))
+  const rows = new Set(
+    document.schedule.taskGroupMembers.filter((one) => wanted.has(one.taskUid) && held.has(one.groupId)).map((one) => one.groupId),
+  )
+  const writes = new Map<string, DocumentCommand>()
+  for (const groupId of rows) {
+    for (const write of revealWrites(document, groupId)) {
+      writes.set(write.kind === 'setTaskGroupTreeState' ? write.taskGroupId : write.kind, write)
+    }
+  }
+  return [...writes.values()]
 }
 
 // see SJ-6, T-038
@@ -104,6 +120,9 @@ export function searchJumpWrites(
   hasRoomBelowPins: boolean,
   reach: SearchJumpReach,
 ): SearchJumpPlan {
+  if (target.kind === 'shownTasks') {
+    return { ...NO_JUMP, treeStateWrites: shownTasksRevealWrites(document, target.taskUids) }
+  }
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
   const treeStateWrites = revealWrites(document, place.groupId)
@@ -111,7 +130,6 @@ export function searchJumpWrites(
   return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedRows: false }
 }
 
-// see T-332
 /** @purity pure */
 export function searchJumpCommands(plan: SearchJumpPlan): readonly DocumentCommand[] {
   return plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]

@@ -19,6 +19,7 @@ const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
   readSelection: [],
   readDialogueMessages: [],
   readSearchRows: ['word'],
+  readShownTasks: [],
   readDelayDiagnostics: [],
   applyCommands: ['request'],
   importDocument: ['source'],
@@ -30,6 +31,7 @@ const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
   exportPng: [],
   exportEmbeddedHtml: [],
   focusTask: ['taskUid'],
+  showOnlyTasks: ['taskUids'],
   watchChanges: [],
   postDialogueMessage: ['text'],
 }
@@ -50,6 +52,7 @@ const PARAMS_OF: Readonly<Record<string, Record<string, unknown>>> = {
   applyCommands: { request: { stamp: A_STAMP, commands: [{ kind: 'setProjectTitle', title: 'x' }] } },
   importDocument: { source: { kind: 'grsJson', text: '{}' } },
   focusTask: { taskUid: 17 },
+  showOnlyTasks: { taskUids: [17] },
   postDialogueMessage: { text: 'why did you move it?' },
 }
 

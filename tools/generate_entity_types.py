@@ -1252,6 +1252,8 @@ NOT_STORED_TARGETS = {
     # takes off the top of the Schedule Canvas, and S-498 its text size, which
     # the surface draws with. One name printed into both units, as
     # NOT_STORED_SCROLLBAR_SIZES is -- neither may import the other's.
+    # IX-11 writes the caption of a filtered picture in the same S-498, so the
+    # image exporter is the third unit it is printed into (one name, one set).
     'NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES': (['S-497', 'S-498'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
@@ -3132,7 +3134,9 @@ TARGETS = [
      # ⭐ CR-419: the title and row names this unit draws AROUND the chart's
      # SVG are texts of the exported picture too (FR-039 MUST), and the chart's
      # own texts already carry the list inside that SVG.
-     + not_stored_block('NOT_STORED_TYPEFACES'),
+     + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
+     # CR-661: IX-11's caption is written in S-498, the band's text size.
+     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means

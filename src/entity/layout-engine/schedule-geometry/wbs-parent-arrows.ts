@@ -6,7 +6,7 @@
 
 import type { WbsParentResolution } from '../../document-model/schedule/schedule'
 import type { ScreenRect } from '../screen-regions/screen-regions'
-import { placedEndOf, plannedPlacementsOf, type LinkEnd } from './dependency-route'
+import { placedEndOf, plannedPlacementsOf, unseenEndStubOf, type LinkEnd } from './dependency-route'
 import { point, type GeometryInputs, type Path, type Point } from './schedule-geometry'
 
 // see FR-135, T-351
@@ -28,6 +28,10 @@ export interface WbsParentArrowGeometry {
   readonly hitPoints: Path
   readonly hitWidth: number
   readonly dash: readonly [number, number] | null
+  // see FR-135, EL-20, TV-3
+  // TRAP: optional so literals compile; absent draws no mark, the same as an empty list.
+  readonly continuationDots?: readonly Point[]
+  readonly continuationRadius?: number
 }
 
 // see FR-135, VO-4, IP-4
@@ -103,6 +107,35 @@ function arrowOf(inputs: GeometryInputs, child: LinkEnd, parent: LinkEnd, resolu
   }
 }
 
+// see FR-135, EL-20, TV-3
+// WHY: the far end is the one the filter leaves undrawn; the stub stands on the seen end, up from a child and down from a parent.
+/** @purity pure */
+function stubOf(inputs: GeometryInputs, seen: LinkEnd, isChildSeen: boolean, childUid: number, parentUid: number,
+                resolution: WbsParentResolution): WbsParentArrowGeometry {
+  const midX = middleXOf(seen)
+  const from = point(midX, isChildSeen ? seen.top : seen.bottom)
+  const stub = unseenEndStubOf(from, isChildSeen ? -1 : 1, inputs.settings)
+  const half = inputs.settings.dependencyArrowWidth / 2
+  const length = inputs.settings.dependencyArrowLength
+  const points: Path = isChildSeen ? stub.line : [...stub.line].reverse()
+  const head: Path = isChildSeen ? [] : [from, point(midX + half, from.y + length), point(midX - half, from.y + length)]
+  const isStated = resolution.kind === 'stated'
+  const sizes = NOT_STORED_WBS_PARENT_ARROW_SIZES
+  return {
+    childUid,
+    parentUid,
+    isStated,
+    isSelected: false,
+    points,
+    head,
+    hitPoints: stub.line,
+    hitWidth: sizes['S-485'],
+    dash: isStated ? null : sizes['S-486'],
+    continuationDots: stub.dots,
+    continuationRadius: stub.radius,
+  }
+}
+
 // see FR-135, VO-4, IP-4
 /** @purity pure */
 function queryOf(child: LinkEnd, fontSize: number, candidates: readonly number[],
@@ -149,13 +182,25 @@ export function wbsParentGeometryOf(inputs: GeometryInputs, families: WbsParentF
   const arrows: WbsParentArrowGeometry[] = []
   const queries: WbsParentQueryGeometry[] = []
   const drawn = new Set<number>()
+  const shown = inputs.layout.shownTaskUids ?? null
+  // see TV-3
+  const isFiltered = (uid: number): boolean => shown !== null && !shown.has(uid)
   const pairOf = (childUid: number): void => {
     if (drawn.has(childUid)) return
     const resolution = families.resolutions.get(childUid)
     const parentUid = parentUidOf(resolution)
     const child = endByUid.get(childUid)
     const parent = parentUid === null ? undefined : endByUid.get(parentUid)
-    if (resolution === undefined || child === undefined || parent === undefined) return
+    if (resolution === undefined || parentUid === null) return
+    if (child !== undefined && parent === undefined && isFiltered(parentUid)) {
+      drawn.add(childUid)
+      return void arrows.push(stubOf(inputs, child, true, childUid, parentUid, resolution))
+    }
+    if (child === undefined && parent !== undefined && isFiltered(childUid)) {
+      drawn.add(childUid)
+      return void arrows.push(stubOf(inputs, parent, false, childUid, parentUid, resolution))
+    }
+    if (child === undefined || parent === undefined) return
     drawn.add(childUid)
     arrows.push(arrowOf(inputs, child, parent, resolution, families.selectedLinkChildUids.has(childUid)))
   }

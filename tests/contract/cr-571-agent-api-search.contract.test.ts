@@ -41,7 +41,7 @@ const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同
 const AM_25_NO_FILTER = '列の絞り込みと並べ替えは当てない。'
 const AM_25_NO_PANEL = 'パネルを読みも変えもしない'
 const AM_16_DOES = '指定したタスクが載る行と祖先を開き、見える位置へ表示を寄せる'
-const SJ_9_WHICH_STEPS = '`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-2`・`SJ-5` 〜 `SJ-8` を行う。'
+const SJ_9_WHICH_STEPS = '`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8` を行う。'
 const SJ_9_ANSWER = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
 const SJ_2_ONE_STEP = '値が変われば未保存の編集（`FR-100`）であり、取り消しの 1 段である。'
 const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
@@ -216,6 +216,7 @@ function bench(parentState: string, childState: string): Bench {
     },
     rasterizer: undefined,
     takeInDocument: undefined,
+    shownTasks: undefined,
     appShell: undefined,
     writerName,
     schemaVersion: TEMPLATE['schemaVersion'] as string,

@@ -65,8 +65,7 @@ const SEARCH_PANEL = 'Search Panel'
 const TASKS_TABLE_ENTRY: IconId = 'IC-118'
 const COMMENT_BOXES_TABLE_ENTRY: IconId = 'IC-119'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-// see SV-1, TV-5
-export const SHOW_ONLY_CHECKED_ENTRY: IconId = 'IC-143'
+const SHOW_ONLY_CHECKED_ENTRY: IconId = 'IC-143'
 
 type SearchTable = SearchPanelSession['table']
 
@@ -157,6 +156,12 @@ export interface SearchPanelView {
   readonly showAt?: number | null
   readonly showHeading?: 'all' | 'some' | 'none'
   readonly showOnlyCheckedBar?: ShowOnlyCheckedBarView | null
+  readonly entryRefusals?: readonly EntryRefusal[]
+}
+
+export interface EntryRefusal {
+  readonly icon: IconId
+  readonly reason: string
 }
 
 // see TV-11, U-67, S-497
@@ -260,16 +265,29 @@ function showOnlyCheckedEntryOf(panel: SearchPanelSession, language: DisplayLang
   return { ...entry, isEnabled: panel.showOnlyChecked || panel.shownTaskUids.length > 0, isPressed: panel.showOnlyChecked }
 }
 
+// see TV-5, FR-092
+/** @purity pure */
+function entryRefusalsOf(panel: SearchPanelSession, language: DisplayLanguage): readonly EntryRefusal[] {
+  if (panel.table !== 'tasks' || panel.showOnlyChecked || panel.shownTaskUids.length > 0) return []
+  return [{ icon: SHOW_ONLY_CHECKED_ENTRY, reason: wordOf(PANEL_WORDS.get('nothingChecked')?.text, language) }]
+}
+
 // see TV-11, U-67
 /** @purity pure */
 function showOnlyCheckedBarOf(panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): ShowOnlyCheckedBarView | null {
+  const text = shownCountWordOf('showOnlyCheckedBar', panel, schedule, language)
+  return text === null ? null : { text, showAllLabel: wordOf(PANEL_WORDS.get('showAll')?.text, language) }
+}
+
+// see TV-11, IX-11
+/** @purity pure */
+export function shownCountWordOf(part: string, panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): string | null {
   if (!panel.showOnlyChecked) return null
   const shown = new Set(panel.shownTaskUids)
   const counted = schedule.tasks.filter((task) => shown.has(task.uid)).length
-  const text = wordOf(PANEL_WORDS.get('showOnlyCheckedBar')?.text, language)
+  return wordOf(PANEL_WORDS.get(part)?.text, language)
     .replace('{total}', String(schedule.tasks.length))
     .replace('{shown}', String(counted))
-  return { text, showAllLabel: wordOf(PANEL_WORDS.get('showAll')?.text, language) }
 }
 
 // see FR-151, T-330, S-442, SQ-5
@@ -310,6 +328,7 @@ export function searchPanelFromSession(
     showAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(SHOW_COLUMN) : null,
     showHeading: showHeadingOf(rows),
     showOnlyCheckedBar: showOnlyCheckedBarOf(panel, schedule, language),
+    entryRefusals: entryRefusalsOf(panel, language),
   }
 }
 
@@ -335,6 +354,7 @@ export function searchPanelAfterFilterEntry(
   bottleneckUids?: ReadonlySet<number>,
   listed?: readonly string[] | null,
 ): SearchPanelSession | null {
+  if (entry === SHOW_ONLY_CHECKED_ENTRY) return searchPanelAfterShowOnlyChecked(panel)
   const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
   return tableAfterFilterEntry(panel, shownIn(session), entry, table, listed)
 }
@@ -376,16 +396,8 @@ export function searchPanelWithShownTasks(panel: SearchPanelSession, taskUids: r
 
 // see TV-5, TV-8, IC-143
 /** @purity pure */
-export function searchPanelAfterShowOnlyChecked(panel: SearchPanelSession): SearchPanelSession {
+function searchPanelAfterShowOnlyChecked(panel: SearchPanelSession): SearchPanelSession {
   if (panel.showOnlyChecked) return { ...panel, showOnlyChecked: false }
   return panel.shownTaskUids.length === 0 ? panel : { ...panel, showOnlyChecked: true }
 }
 
-// see TV-2
-/** @purity pure */
-export function searchPanelWithinSchedule(panel: SearchPanelSession, schedule: Schedule): SearchPanelSession {
-  if (panel.shownTaskUids.length === 0) return panel
-  const present = new Set(schedule.tasks.map((task) => task.uid))
-  const kept = panel.shownTaskUids.filter((uid) => present.has(uid))
-  return kept.length === panel.shownTaskUids.length ? panel : { ...panel, shownTaskUids: kept }
-}

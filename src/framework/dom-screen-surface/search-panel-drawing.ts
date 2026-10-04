@@ -56,14 +56,10 @@ export interface TableWindowIdentity {
 }
 
 // see SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
-export interface DrawnTable {
-  readonly columns: readonly SearchColumnView[]
-  readonly rows: readonly SearchRowView[]
-  readonly jumpAt?: number
-  readonly glyphAt?: number | null
-  readonly showAt?: number | null
-  readonly showHeading?: SearchPanelView['showHeading']
-}
+export type DrawnTable = Pick<
+  SearchPanelView,
+  'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading'
+>
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
 
@@ -155,7 +151,6 @@ const FILTER_LIST_STYLE = 'flex:1 1 auto;min-height:0;overflow:auto;'
 
 const FILTER_SEARCH_STYLE = 'box-sizing:border-box;width:100%;'
 
-// see SQ-5, DT-1, RW-4
 const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
 /** @purity pure */
