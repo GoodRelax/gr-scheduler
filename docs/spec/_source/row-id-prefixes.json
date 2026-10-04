@@ -1405,6 +1405,14 @@
    }
   },
   {
+   "prefix": "TV",
+   "words": "Task Visibility",
+   "owner": "spec",
+   "means": {
+    "ja": "検索パネルの [表示] の列でチェックしたタスクだけを日程表に描く、表示の絞り込みの規則"
+   }
+  },
+  {
    "prefix": "TW",
    "words": "",
    "owner": "spec",
