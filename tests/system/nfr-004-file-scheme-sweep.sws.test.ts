@@ -348,7 +348,7 @@ const GEOMETRY_SCRIPT = `(() => {
     // here asked it to -- measured: SK-19 stopped answering once a plain
     // data-figure selector let such a path compete for the widest box.
     .filter((run) => run.key.endsWith('-plan') && run.elements.some((e) => e.tagName === 'polygon'))
-    .map((run) => unionOf(run.elements))
+    .map((run) => Object.assign(unionOf(run.elements), { task: run.key.slice(0, -'-plan'.length) }))
     .filter((r) => r.width >= 40 && r.width <= 600 && r.height >= 8 &&
       r.top > area.top + 120 && r.bottom < area.bottom - 40 &&
       r.left > area.left + 220 && r.right < area.right - 80)
@@ -396,9 +396,33 @@ const GEOMETRY_SCRIPT = `(() => {
   const pressable = middleClear.filter((r) =>
     uncovered(r.left + 2, r.top + r.height / 2) &&
     uncovered(r.right - 2, r.top + r.height / 2))
+  // see PE-1, PE-8, PE-13, HT-3, S-253, S-257, S-260
+  // WHY: only the plan body selects (PE-1); HT-3 puts the marker (PE-8 cycles the state), the resume icon
+  // WHY: and the ends first. Measured 2026-10-04: after CR-667 a middle press suspended task 158 (SL-2).
+  const END_REACH = 12
+  const MARK_REACH = 16
+  const bodyX = (r) => {
+    const keepOut = [[r.left - END_REACH, r.left + END_REACH], [r.right - END_REACH, r.right + END_REACH]]
+    for (const e of svg.querySelectorAll('[data-figure]')) {
+      const key = e.getAttribute('data-figure') || ''
+      const b = e.getBoundingClientRect()
+      if (key === r.task + '-marker' || key === r.task + '-resume') keepOut.push([b.left - MARK_REACH, b.right + MARK_REACH])
+      if (key === r.task + '-actual' || key === r.task + '-dummies') {
+        keepOut.push([b.left - END_REACH, b.left + END_REACH], [b.right - END_REACH, b.right + END_REACH])
+      }
+    }
+    const y = r.top + r.height / 2
+    for (let d = 0; d <= r.width / 2; d += 1) {
+      for (const x of [r.left + r.width / 2 - d, r.left + r.width / 2 + d]) {
+        if (keepOut.some((span) => x >= span[0] && x <= span[1])) continue
+        if (uncovered(x, y)) return x
+      }
+    }
+    return null
+  }
   const first = pressable[0]
   const second = first
-    ? (middleClear.find((r) => r !== first && Math.abs(r.top - first.top) > 20) || null)
+    ? (middleClear.find((r) => r !== first && Math.abs(r.top - first.top) > 20 && bodyX(r) !== null) || null)
     : null
   const band = (() => {
     const grip = document.querySelector('[data-icon="IC-53"]')
@@ -497,7 +521,7 @@ const GEOMETRY_SCRIPT = `(() => {
     barBody: first ? spot(first, first.width / 2) : null,
     barStart: first ? spot(first, 2) : null,
     barFinish: first ? spot(first, first.width - 2) : null,
-    otherBar: second ? spot(second, second.width / 2) : null,
+    otherBar: second ? spot(second, bodyX(second) - second.left) : null,
     empty,
     paletteBand: band,
     rowGrab,
@@ -785,9 +809,10 @@ async function searchPanelPlaces(page: Page): Promise<{ box: Box4; band: Spot | 
 }
 
 // see GR-28, SV-18
+// WHY: SV-18 gives the Show column (SQ-10, first since CR-661) no GR-28 border, so it is passed over.
 async function searchColumnBorder(page: Page): Promise<{ border: Spot; width: number } | null> {
   return page.evaluate(() => {
-    const cell = document.querySelector('[data-role="Search Panel"] thead th')
+    const cell = document.querySelector('[data-role="Search Panel"] thead th:not([data-column="SQ-10"])')
     if (cell === null) return null
     const r = cell.getBoundingClientRect()
     if (r.width < 1 || r.height < 1) return null
