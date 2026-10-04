@@ -274,6 +274,7 @@ const REPORT: DelayDiagnosticsReport = {
   ],
   settledPushOuts: [{ uid: 5, name: 'Echo', ...QUANTITIES }],
   derivedWbsParents: [],
+  lateDays: [],
 } as unknown as DelayDiagnosticsReport
 
 // see DT-1

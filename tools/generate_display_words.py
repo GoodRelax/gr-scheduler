@@ -358,6 +358,15 @@ DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckPath', 'late', 'settled',
                              'finding', 'wall', 'missingActual',
                              'milestoneAchieved', 'parentProgressOutside',
                              'proposal')
+# CR-670: the aspect word DT-7 prints for a finding (one per row of tables
+# T-310 and T-311) and the wall word it prints for a wall (one per row of table
+# T-316). READ from the tables, the move `delayReportColumns` makes. VS-6 is
+# left out: it speaks in its own told words, `parentProgressOutside` above.
+DELAY_ASPECT_ROW = re.compile(r'^\| (V[CS]-\d+[a-z]?) \|')
+DELAY_ASPECT_TABLES = ('T-310', 'T-311')
+DELAY_ASPECTS_WITH_OWN_WORDS = ('VS-6',)
+DELAY_WALL_ROW = re.compile(r'^\| (DW-\d+[a-z]?) \|')
+DELAY_WALL_TABLE = 'T-316'
 
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'
@@ -612,6 +621,13 @@ def roster():
         'delayReportSummary': list(DELAY_REPORT_SUMMARY_PARTS),
         'delayReportMarkdown': list(DELAY_REPORT_MARKDOWN_PARTS),
         'delayReportReasons': list(DELAY_REPORT_REASON_PARTS),
+        'delayReportAspects': [row[0] for table in DELAY_ASPECT_TABLES
+                               for row in table_rows(REL_REQUIREMENTS,
+                                                     DELAY_ASPECT_ROW, table)
+                               if row[0] not in DELAY_ASPECTS_WITH_OWN_WORDS],
+        'delayReportWalls': [row[0] for row in
+                             table_rows(REL_REQUIREMENTS, DELAY_WALL_ROW,
+                                        DELAY_WALL_TABLE)],
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
         'hintLines': hint_lines(),
@@ -689,6 +705,8 @@ SHAPE = {
     'delayReportSummary': ('part', ('text',)),
     'delayReportMarkdown': ('part', ('text',)),
     'delayReportReasons': ('part', ('text',)),
+    'delayReportAspects': ('rowId', ('text',)),
+    'delayReportWalls': ('rowId', ('text',)),
     'openChooser': ('part', ('text',)),
     'wbsParentChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
@@ -798,7 +816,8 @@ def build(doc, keys_by_row):
                     'planActualStates', 'searchPanel', 'wbsParentChoice',
                     'delayReportColumns',
                     'delayReportStatuses', 'delayReportSummary',
-                    'delayReportMarkdown', 'delayReportReasons'):
+                    'delayReportMarkdown', 'delayReportReasons',
+                    'delayReportAspects', 'delayReportWalls'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

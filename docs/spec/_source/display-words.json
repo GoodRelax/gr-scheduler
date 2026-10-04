@@ -5037,8 +5037,8 @@
   {
    "part": "parentProgressOutside",
    "text": {
-    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} 〜 {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
-    "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} to {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
+    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
+    "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
    }
   },
   {
@@ -5046,6 +5046,171 @@
    "text": {
     "ja": "（達成日の候補: {date}）",
     "en": "(candidate achieved date: {date})"
+   }
+  }
+ ],
+ "delayReportAspects": [
+  {
+   "rowId": "VC-1",
+   "text": {
+    "ja": "依存に輪がある",
+    "en": "The dependencies form a loop"
+   }
+  },
+  {
+   "rowId": "VC-2",
+   "text": {
+    "ja": "同じタスクを先行と後続にする依存（自己依存）",
+    "en": "A dependency links a task to itself"
+   }
+  },
+  {
+   "rowId": "VC-3",
+   "text": {
+    "ja": "同じ 2 つのタスクの間に依存が 2 本以上ある",
+    "en": "Two or more dependencies join the same two tasks"
+   }
+  },
+  {
+   "rowId": "VC-4",
+   "text": {
+    "ja": "マイルストーンなのに開始と終了が違う",
+    "en": "A milestone whose start and finish differ"
+   }
+  },
+  {
+   "rowId": "VC-5",
+   "text": {
+    "ja": "完了率が 0 より大きいのに実績開始が無い",
+    "en": "Progress above 0 but no actual start"
+   }
+  },
+  {
+   "rowId": "VC-6",
+   "text": {
+    "ja": "実績終了があるのに実績開始が無い",
+    "en": "An actual finish but no actual start"
+   }
+  },
+  {
+   "rowId": "VC-7",
+   "text": {
+    "ja": "未着手なのに中断または再開の日を持つ",
+    "en": "Not started but has a stop or resume date"
+   }
+  },
+  {
+   "rowId": "VC-8",
+   "text": {
+    "ja": "実績終了があるのに再開の日が有効",
+    "en": "An actual finish but the resume date is still valid"
+   }
+  },
+  {
+   "rowId": "VC-9",
+   "text": {
+    "ja": "親が完了なのに、子に未完了がある",
+    "en": "The parent is finished but a child is not"
+   }
+  },
+  {
+   "rowId": "VC-10",
+   "text": {
+    "ja": "子が全部完了なのに、親が未完了",
+    "en": "Every child is finished but the parent is not"
+   }
+  },
+  {
+   "rowId": "VC-11",
+   "text": {
+    "ja": "親の予定の両端が、子の両端と違う",
+    "en": "The parent's planned ends differ from its children's"
+   }
+  },
+  {
+   "rowId": "VC-12",
+   "text": {
+    "ja": "親の実績の両端が、子の両端と違う",
+    "en": "The parent's actual ends differ from its children's"
+   }
+  },
+  {
+   "rowId": "VC-13",
+   "text": {
+    "ja": "後続が完了しているのに、依存が縛る先行の端がまだ起きていない",
+    "en": "The successor is finished but the predecessor end it waits for has not happened"
+   }
+  },
+  {
+   "rowId": "VC-14",
+   "text": {
+    "ja": "手で完了にしたマイルストーンの先行に、未完了がある",
+    "en": "A milestone finished by hand has an unfinished predecessor"
+   }
+  },
+  {
+   "rowId": "VC-15",
+   "text": {
+    "ja": "予定の日付が依存の向きに反する",
+    "en": "The planned dates go against a dependency"
+   }
+  },
+  {
+   "rowId": "VS-1",
+   "text": {
+    "ja": "親子の関係にある 2 つのタスクの間に依存がある",
+    "en": "A dependency joins a parent and its own child"
+   }
+  },
+  {
+   "rowId": "VS-2",
+   "text": {
+    "ja": "この行を束ねる上位タスクが無い",
+    "en": "No summary task holds this row"
+   }
+  },
+  {
+   "rowId": "VS-3",
+   "text": {
+    "ja": "先行が未着手なのに、後続が着手済み",
+    "en": "The predecessor has not started but the successor has"
+   }
+  },
+  {
+   "rowId": "VS-4",
+   "text": {
+    "ja": "実績の日付が依存の向きに反する",
+    "en": "The actual dates go against a dependency"
+   }
+  },
+  {
+   "rowId": "VS-5",
+   "text": {
+    "ja": "実績の日付が基準日より後",
+    "en": "An actual date is after the status date"
+   }
+  }
+ ],
+ "delayReportWalls": [
+  {
+   "rowId": "DW-1",
+   "text": {
+    "ja": "矛盾があるので、依存の下流を解析できない",
+    "en": "A contradiction stops the analysis downstream"
+   }
+  },
+  {
+   "rowId": "DW-2",
+   "text": {
+    "ja": "親が決まらないので、遅れを祖先へ上げられない",
+    "en": "No single parent, so the delay is not passed up"
+   }
+  },
+  {
+   "rowId": "DW-3",
+   "text": {
+    "ja": "先行の無いマイルストーンは診断できない",
+    "en": "A milestone with no predecessor cannot be diagnosed"
    }
   }
  ]
