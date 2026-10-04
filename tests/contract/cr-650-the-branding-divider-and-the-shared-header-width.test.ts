@@ -70,7 +70,7 @@ const huedAt = (written: string, hue: number): string => written.replace(/\bH\b/
 
 const HUE = 214
 
-// see BR-2, EP-1 -- CR-659: the divider's two sides are S-226, no longer S-491
+// see BR-2, EP-1
 const TITLE_LEFT = (3 * S_226 + S_490 * S_462) * S_235 + S_492
 
 const px = (value: string | undefined): number => Number((value ?? '').replace('px', ''))
@@ -184,7 +184,7 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Document Title
     expect(style.get('background') ?? style.get('background-color')).toBe(PAINT.brandingDivider)
   })
 
-  // CR-659 retired the S-491 gap here (JDG-1350): the divider's two sides are the inset left of the mark.
+  // WHY: CR-659 retired the S-491 gap here (JDG-1350); the divider's two sides are the inset left of the mark.
   it('BR-7 S-226: the gap on both sides of the divider is S-226 x S-235, the same as the inset left of the seat', () => {
     const { header, byRole } = drawnHeader()
     const style = styleMap(header)

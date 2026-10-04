@@ -35,7 +35,7 @@ const S_492 = settingOf('S-492')
 // see HS-9, HS-10
 const GAP_PX = S_491 * S_235
 
-// see BR-7 -- CR-659 moved the divider's two sides from S-491 to S-226, the inset left of the mark
+// see BR-7
 const DIVIDER_GAP_PX = S_226 * S_235
 
 // WHY: half a pixel either way is subpixel layout, not a different gap.

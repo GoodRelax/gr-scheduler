@@ -97,7 +97,7 @@ describe('BR-2 -- the seat, and the title at its right edge', () => {
     expect(style.get('flex-shrink')).toBe('0')
   })
 
-  // CR-659 retired the two S-491 gaps beside the divider: BR-7 now spaces it by S-226 on both sides.
+  // WHY: CR-659 retired the two S-491 gaps beside the divider; BR-7 now spaces it by S-226 on both sides.
   it('the title starts after the seat, the divider and two S-226 gaps: (3 x S-226 + S-490 x S-462) x S-235 + S-492', () => {
     const { header, all, branding, title } = drawnHeader()
     const seat = branding.parentNode as FakeElement

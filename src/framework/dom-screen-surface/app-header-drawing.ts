@@ -21,16 +21,15 @@ const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
 
 const STROKE_SIDES = 2
 
-// see EP-1, FR-051
+// see EP-1, FR-051, BR-7
+// WHY: one row for the left inset and both sides of the divider, so the mark's two margins stay equal.
+/** @purity pure */
+const appHeaderInsetPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
+
 /** @purity pure */
 export function appHeaderStyle(): string {
   return `${STYLE.appHeader}padding-left:${appHeaderInsetPx()}px;`
 }
-
-// see EP-1, BR-2, BR-7
-// WHY: one row for the left inset and both sides of the divider, so the mark's two margins stay equal.
-/** @purity pure */
-const appHeaderInsetPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
 
 // see HS-9, HS-10
 /** @purity pure */
@@ -117,8 +116,7 @@ export function fillAppHeader(
 ): HTMLElement {
   const title = part(host, 'span', ROLE.documentTitle, documentTitleStyle())
   title.textContent = items.documentTitle
-  const ruleWidth = NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']
-  const dividerStyle = `${STYLE.brandingDivider}width:${ruleWidth}px;margin-inline:${appHeaderInsetPx()}px;`
+  const dividerStyle = `${STYLE.brandingDivider}width:${NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']}px;margin-inline:${appHeaderInsetPx()}px;`
   const divider = part(host, 'span', ROLE.brandingDivider, dividerStyle)
   const groundStyle = `${STYLE.documentTitleGround}padding-right:${appHeaderGapPx()}px;`
   const titleGround = part(host, 'span', ROLE.documentTitleGround, groundStyle)
