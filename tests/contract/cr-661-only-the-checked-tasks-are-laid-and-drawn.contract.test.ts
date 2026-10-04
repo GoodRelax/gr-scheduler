@@ -226,8 +226,8 @@ describe(`EL-20 (MUST): ${EL_20_FILTERED_END}`, () => {
     expect(linkOf(geometryOf(OPEN, [ALPHA, CHARLIE]))?.continuation ?? null).toBeNull()
   })
 
-  // WHY: row Q is left undrawn by TD-8, so the end stands per EL-20's earlier rule; the build drops the line (finding, no row yet).
-  it.fails(`Charlie unchecked and row Q undrawn: ${EL_20_NOT_DROPPED}`, () => {
+  // WHY: row Q is left undrawn by TD-8 and has no drawn ancestor, so the end stands per EL-20's earlier rule.
+  it(`Charlie unchecked and row Q undrawn: ${EL_20_NOT_DROPPED}`, () => {
     const link = linkOf(geometryOf(OPEN, [ALPHA]))
     expect(link?.continuation?.farUid).toBe(CHARLIE)
     expect(link?.continuation?.dots.length ?? 0).toBeGreaterThan(0)
