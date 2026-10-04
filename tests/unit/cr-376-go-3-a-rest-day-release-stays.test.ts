@@ -137,6 +137,9 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
+// WHY: a release on a rest day asks QN-13 (FR-154); these cases assert the No path of HW-11 (JDG-67).
+let standingQuestion: string | null = null
+
 function stage(): { readonly loop: FrameLoop; send(input: HumanInput): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
@@ -150,7 +153,9 @@ function stage(): { readonly loop: FrameLoop; send(input: HumanInput): void } {
     }
   }
   const surface: ScreenSurface = {
-    showScreenView: () => undefined,
+    showScreenView: (view) => {
+      standingQuestion = view.confirmation?.question ?? null
+    },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     hasUnsettledTextEntry: () => false,
@@ -163,6 +168,9 @@ function stage(): { readonly loop: FrameLoop; send(input: HumanInput): void } {
     loop,
     send: (input: HumanInput) => {
       loop.receiveInput(input)
+      run()
+      if (standingQuestion !== 'QN-13') return
+      loop.receiveInput({ kind: 'key', key: 'N', modifiers: { ctrl: false, shift: false, alt: false, meta: false } })
       run()
     },
   }

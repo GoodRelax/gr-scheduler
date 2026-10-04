@@ -35,8 +35,9 @@ export type FileFlowWriteForm = { readonly kind: 'save' } | { readonly kind: 'ex
 // see NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
-  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11'
+  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11' | 'QN-13'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
+  readonly days?: readonly string[]
 }
 
 // WHY: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).
@@ -49,6 +50,8 @@ export type FileFlowOwedAction =
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       readonly created: FileFlowCreatedSubject | null
+      // WHY: FR-154 -- a No still writes -- the end without the calendar change; absent, a No writes nothing.
+      readonly declinedWrites?: readonly (readonly DocumentCommand[])[]
     }
   | { readonly kind: 'startNewDocument' }
   | { readonly kind: 'resetGrs' }
@@ -355,8 +358,18 @@ function answeredOperation(values: FileFlowValues, isProceeding: boolean): Step<
 /** @purity pure */
 function answeredQuestion(confirmation: ConfirmationState, isProceeding: boolean): Step<ConfirmationState, FileFlowValuesEffect> {
   if (confirmation.kind === 'notAsked') return unchanged(confirmation)
-  if (!isProceeding || confirmation.owedAction === null) return { state: NOT_ASKED, effects: NO_EFFECTS }
-  return { state: NOT_ASKED, effects: [{ type: 'carryOutOwedAction', owedAction: confirmation.owedAction }] }
+  const owed = confirmation.owedAction
+  if (!isProceeding) return { state: NOT_ASKED, effects: declinedEffects(owed) }
+  if (owed === null) return { state: NOT_ASKED, effects: NO_EFFECTS }
+  return { state: NOT_ASKED, effects: [{ type: 'carryOutOwedAction', owedAction: owed }] }
+}
+
+// see FR-154, HW-11
+/** @purity pure */
+function declinedEffects(owed: FileFlowOwedAction | null): Effects {
+  if (owed === null || owed.kind !== 'changeDocument' || owed.declinedWrites === undefined) return NO_EFFECTS
+  const declined: FileFlowOwedAction = { kind: 'changeDocument', writes: owed.declinedWrites, created: owed.created }
+  return [{ type: 'carryOutOwedAction', owedAction: declined }]
 }
 
 // WHY: both machines read the state before the answer, so the file machine still sees QN-4.

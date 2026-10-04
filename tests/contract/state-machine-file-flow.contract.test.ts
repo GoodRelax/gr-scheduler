@@ -87,6 +87,8 @@ function question(row: string): Loose {
 }
 
 const CHANGE_WRITES: Loose = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }
+// see FR-154, HW-11
+const DECLINABLE_WRITES: Loose = { ...CHANGE_WRITES, declinedWrites: [[{ kind: 'CM-11' }]] }
 const START_NEW: Loose = { kind: 'startNewDocument' }
 // see FR-153
 const RESET_GRS: Loose = { kind: 'resetGrs' }
@@ -111,6 +113,7 @@ const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
     { question: question('QN-5'), owedAction: null },
     { question: question('QN-4'), owedAction: null },
     { question: question('QN-11'), owedAction: RESET_GRS },
+    { question: question('QN-13'), owedAction: DECLINABLE_WRITES },
   ],
 }
 
@@ -234,6 +237,9 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
     // question (FR-032, FR-099) or the new-document one (FR-095) owes the action it carries.
     case 'isFileOperationQuestion':
       return confirmation['owedAction'] === null
+    // WHY: FR-154 -- a QN-13 question owes a write on No as well (HW-11).
+    case 'hasDeclinedWrites':
+      return (confirmation['owedAction'] as Loose | null)?.['declinedWrites'] !== undefined
     case 'isImportCancelled':
       return (event['mergeMapping'] as Loose)['kind'] === 'cancelImport'
     case 'isOpenChooserSurface':
@@ -293,8 +299,12 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
       return { type: 'discardIncomingDocument' }
     case 'answerOverwriteQuestion':
       return { type: 'answerOverwriteQuestion', isProceeding: event['isProceeding'] }
-    case 'carryOutOwedAction':
-      return { type: 'carryOutOwedAction', owedAction: confirmation['owedAction'] }
+    case 'carryOutOwedAction': {
+      const owed = confirmation['owedAction'] as Loose
+      if (event['isProceeding'] !== false) return { type: 'carryOutOwedAction', owedAction: owed }
+      // see FR-154, HW-11
+      return { type: 'carryOutOwedAction', owedAction: { kind: owed['kind'], writes: owed['declinedWrites'], created: owed['created'] } }
+    }
     default:
       throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
   }

@@ -288,9 +288,14 @@ function host(): { readonly surface: { showSvg(svg: string): void }; runAnimatio
   }
 }
 
+// WHY: a release on a rest day asks QN-13 (FR-154); these cases assert the No path of HW-11 (JDG-67).
+let standingQuestion: string | null = null
+
 function screenPane(): ScreenWiring {
   const surface: ScreenSurface = {
-    showScreenView: () => undefined,
+    showScreenView: (view) => {
+      standingQuestion = view.confirmation?.question ?? null
+    },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     hasUnsettledTextEntry: () => false,
@@ -326,6 +331,9 @@ function stage(document: Document): Stage {
   const loop = frameLoop(pen.surface as any, document, SCREEN, screenPane())
   const send = (input: HumanInput): void => {
     loop.receiveInput(input)
+    pen.runAnimationFrames()
+    if (standingQuestion !== 'QN-13') return
+    loop.receiveInput({ kind: 'key', key: 'N', modifiers: { ctrl: false, shift: false, alt: false, meta: false } })
     pen.runAnimationFrames()
   }
   pen.runAnimationFrames()

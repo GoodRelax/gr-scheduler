@@ -902,6 +902,9 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     loop.receiveInput(pointer('move', centre.x + width, centre.y))
     loop.receiveInput(pointer('up', centre.x + width, centre.y))
     pane.runAnimationFrames()
+    // WHY: an end landing on a rest day asks QN-13 (FR-154); No keeps the move as it was (HW-11).
+    loop.receiveInput({ kind: 'key', key: 'N', modifiers: { ...NO_MODIFIERS } })
+    pane.runAnimationFrames()
 
     const after = loop.document()
     expect(dayText(taskOf(after, 1).start)!.day).not.toBe(dayText(taskOf(before, 1).start)!.day)
