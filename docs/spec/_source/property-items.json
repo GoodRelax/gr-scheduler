@@ -455,6 +455,54 @@
    }
   },
   {
+   "id": "PR-45",
+   "columns": [
+    "fillColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の塗りの色。`null` ＝ `FR-019` が名指す地の色（`_assets/tbl-settings.md` の 表 T-236 の `S-146`）。並びは `FR-006` の見た目の行の順"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-27",
+   "columns": [
+    "fillTransparencyPercent"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の塗りの透過率。0 は不透明、100 は透明。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-28",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の枠と引出し線の色。`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）。並びは `FR-006` の見た目の行の順"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-26",
    "columns": [
     "strokeWidthPx"
@@ -471,52 +519,32 @@
    }
   },
   {
-   "id": "PR-27",
+   "id": "PR-46",
    "columns": [
-    "fillTransparencyPercent"
-   ],
-   "inputKinds": [
-    "数値"
-   ],
-   "appliesTo": "CommentBox",
-   "note": {
-    "ja": "本文の箱の塗りの透過率。0 は不透明、100 は透明。既定と範囲は同表の `S-375`"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-28",
-   "columns": [
-    "strokeColor",
-    "fillColor",
     "textColor"
    ],
    "inputKinds": [
-    "色",
-    "色",
     "色"
    ],
    "appliesTo": "CommentBox",
    "note": {
-    "ja": "枠と引出し線・本文の箱の塗り・本文の字の色。`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`）"
+    "ja": "本文の字の色。`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）。並びは `FR-006` の見た目の行の順"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
    }
   },
   {
-   "id": "PR-23",
+   "id": "PR-25",
    "columns": [
-    "strokeWidthPx"
+    "fillColor"
    ],
    "inputKinds": [
-    "数値"
+    "色"
    ],
    "appliesTo": "HighlightBox",
    "note": {
-    "ja": "枠の線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`"
+    "ja": "塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。規則は `FR-019`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -532,7 +560,7 @@
    ],
    "appliesTo": "HighlightBox",
    "note": {
-    "ja": "塗りの透過率。0 は不透明、100 は透明。既定と範囲は同表の `S-371`"
+    "ja": "塗りの透過率。0 は不透明、100 は透明。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -555,16 +583,16 @@
    }
   },
   {
-   "id": "PR-25",
+   "id": "PR-23",
    "columns": [
-    "fillColor"
+    "strokeWidthPx"
    ],
    "inputKinds": [
-    "色"
+    "数値"
    ],
    "appliesTo": "HighlightBox",
    "note": {
-    "ja": "塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。規則は `FR-019`"
+    "ja": "枠の線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

@@ -1561,10 +1561,10 @@
    }
   },
   {
-   "rowId": "PR-26",
+   "rowId": "PR-45",
    "label": {
-    "ja": "線の太さ",
-    "en": "stroke width"
+    "ja": "塗潰し色",
+    "en": "fill colour"
    }
   },
   {
@@ -1577,15 +1577,29 @@
   {
    "rowId": "PR-28",
    "label": {
-    "ja": "線 / 塗り / 文字",
-    "en": "stroke / fill / text"
+    "ja": "枠線色",
+    "en": "outline colour"
    }
   },
   {
-   "rowId": "PR-23",
+   "rowId": "PR-26",
    "label": {
-    "ja": "線の太さ",
-    "en": "stroke width"
+    "ja": "枠線幅（px）",
+    "en": "outline width (px)"
+   }
+  },
+  {
+   "rowId": "PR-46",
+   "label": {
+    "ja": "文字色",
+    "en": "text colour"
+   }
+  },
+  {
+   "rowId": "PR-25",
+   "label": {
+    "ja": "塗潰し色",
+    "en": "fill colour"
    }
   },
   {
@@ -1598,15 +1612,15 @@
   {
    "rowId": "PR-22",
    "label": {
-    "ja": "枠の色",
-    "en": "strokeColor"
+    "ja": "枠線色",
+    "en": "outline colour"
    }
   },
   {
-   "rowId": "PR-25",
+   "rowId": "PR-23",
    "label": {
-    "ja": "塗り",
-    "en": "fill"
+    "ja": "枠線幅（px）",
+    "en": "outline width (px)"
    }
   },
   {
@@ -5176,6 +5190,20 @@
    "text": {
     "ja": "検索",
     "en": "Search"
+   }
+  },
+  {
+   "part": "dateFrom",
+   "text": {
+    "ja": "いつから",
+    "en": "From"
+   }
+  },
+  {
+   "part": "dateTo",
+   "text": {
+    "ja": "いつまで",
+    "en": "To"
    }
   },
   {

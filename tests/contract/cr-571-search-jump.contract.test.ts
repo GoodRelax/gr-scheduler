@@ -28,9 +28,10 @@ const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
 const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をその行にし、行の中のずれを 0 にする'
 const SJ_6_NO_ZOOM = '倍率を変えない。'
 const SJ_6_NO_DATE = '日付が空なら横は動かさない'
-const SJ_7_PINNED = '飛ぶ先の行がピン止めの行（`S-126`）なら、`SJ-5` を行わず、`SJ-6` だけを行う'
+const SJ_7_PINNED =
+  '飛ぶ先の行がピン止めの行（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
 const SJ_8_NO_ROOM =
-  'ピン止めの帯の下に残る `Row Area`（`U-50`）の高さが、飛ぶ先の行の描く高さより小さいときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
+  '飛ぶ先の行を画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.

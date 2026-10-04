@@ -308,7 +308,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-602-an-emphasised-dependency-line-keeps-its-colour.contract.test.ts` | 14 | FR-009, FR-039, FR-082 | - | T-020, T-201, T-206, T-236, T-252 | DC-8, EL-16, EP-12, S-18, S-39, S-159, S-178, S-194, S-195, S-447, SL-8, ZO-1, ZO-10 | - | - | - | - |
 | `tests/contract/cr-606-a-milestone-date-is-one-input.test.ts` | 11 | FR-006 | - | T-016 | CM-11, CM-13, PA-1, PA-5, PR-35, PR-36 | - | - | - | - |
 | `tests/contract/cr-606-the-assignee-field-is-one-combo.test.ts` | 30 | - | - | T-016, T-225, T-330 | AS-3, AS-5, AS-6, AS-7, AS-8, AS-12, IC-124, PR-16, SV-4 | - | - | - | - |
-| `tests/contract/cr-606-the-colour-field-words-follow-cv-9.test.ts` | 15 | FR-019 | - | T-016, T-017b, T-236, T-294 | CV-9, PR-28, S-146, S-147, S-155, S-312 | - | - | - | - |
+| `tests/contract/cr-606-the-colour-field-words-follow-cv-9.test.ts` | 15 | FR-019 | - | T-016, T-017b, T-236, T-294 | CV-9, PR-28, PR-45, PR-46, S-146, S-147, S-155, S-312 | - | - | - | - |
 | `tests/contract/cr-606-the-outline-width-and-the-highlight-box.test.ts` | 24 | FR-019 | - | T-064, T-202, T-217, T-236 | AT-104, BL-3, CL-2, CM-24, CM-52, CM-55, CM-78, HB-12, IV-9, S-39, S-155, S-370, VG-5 | - | - | - | - |
 | `tests/contract/cr-606-the-panel-rows-follow-t-016.test.ts` | 28 | FR-006, FR-009 | - | T-016, T-018 | CM-38, PR-1, PR-34, PR-37, PR-38, PR-40 | - | - | - | - |
 | `tests/contract/cr-607-the-settings-panel-resets-grs.test.ts` | 26 | FR-153 | - | T-027, T-036, T-103, T-107, T-109, T-233, T-234, T-345 | AM-9, IC-139, K-60, NT-7, QN-5, QN-11, RS-27, S-99, S-99b, SK-6, UN-19 | - | - | - | - |
