@@ -221,7 +221,7 @@
     "wbsParentUid"
    ],
    "inputKinds": [
-    "選択"
+    "リンク"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",

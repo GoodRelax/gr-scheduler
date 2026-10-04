@@ -472,7 +472,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-667-panel-divider-in-the-rule-colour.test.ts` | 2 | - | - | T-025, T-236 | EP-9, S-149, S-165, U-18, U-24 | - | - | - | - |
 | `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | 7 | FR-031, FR-154 | - | - | AG-9, QN-13, TL-10, TL-11 | - | - | - | - |
 | `tests/system/cr-669-the-help-maximises-to-the-schedule-canvas.test.ts` | 9 | FR-036 | - | T-103, T-109, T-335, T-336, T-337 | GR-24, GR-25, HN-6, IC-20, IC-54, S-203, U-32, UZ-9, WB-3, WB-8, WB-9 | - | - | - | - |
-| `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206 | PR-15, PR-16, PR-17, S-171, S-248, U-24, U-25 | - | - | - | - |
+| `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206, T-351 | PR-15, PR-16, PR-17, S-171, S-248, U-24, U-25, WL-15, WL-17 | - | - | - | - |
 | `tests/system/cr-675-the-download-page.test.ts` | 14 | - | - | - | IC-1, IC-2, IC-20, S-350 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |

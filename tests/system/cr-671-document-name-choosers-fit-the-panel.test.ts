@@ -203,9 +203,11 @@ test('CR-671 the manuscript this file is driven by: FR-006 still reads this way'
   for (const clause of [FR_006_FITS, FR_006_NO_OVERFLOW, FR_006_ELLIPSIS, FR_006_VALUE_KEPT, FR_006_FLOOR]) {
     expect(REQUIREMENTS, clause).toContain(clause)
   }
-  for (const row of [...DOCUMENT_NAME_ROWS, 'PR-17']) {
+  // WHY: CR-676 made PR-15 a link (table T-351 WL-15 to WL-17); its live cases below follow when the panel draws the link.
+  for (const row of ['PR-16', 'PR-17']) {
     expect(bare(specTable('T-016').rows.find((one) => one.id === row)?.by['入力の型'] ?? ''), `${row} is a choice`).toBe('選択')
   }
+  expect(bare(specTable('T-016').rows.find((one) => one.id === 'PR-15')?.by['入力の型'] ?? ''), 'PR-15 is a link').toBe('リンク')
 })
 
 const CASES = [

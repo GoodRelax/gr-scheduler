@@ -282,11 +282,11 @@
     "wbsParentUid"
    ],
    "inputKinds": [
-    "選択"
+    "リンク"
    ],
    "shownFor": "both",
    "note": {
-    "ja": "階層の深さはここから導出する"
+    "ja": "階層の深さはここから導出する。出し方と押した先は 表 T-351 の `WL-15` 〜 `WL-17` に従う"
    },
    "mspdi": {
     "ja": "`Task/OutlineLevel` へ導出"
