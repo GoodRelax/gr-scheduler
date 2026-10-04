@@ -100,7 +100,7 @@ function defaultHelpBox(belowAppHeader: ScreenRect): ScreenRect {
 // see FR-036, T-335, WB-1, WB-3, S-455
 /** @purity pure */
 function helpPlacedOf(modal: HelpModal): PlacedWindow {
-  const range = modal.area.browserWindow
+  const range = modal.area.belowAppHeader
   const place = windowNormalBoxOf(modal.place ?? DEFAULT_WINDOW_PLACE, defaultHelpBox(modal.area.belowAppHeader), range)
   const box = windowBoxOf(modal.windowState, place, range, entranceOuterHeightPx())
   return { window: 'helpModal', shown: modal.windowState, place, box, range }

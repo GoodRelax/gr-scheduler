@@ -17,7 +17,8 @@ const FR_036_TITLE_OUTSIDE_THE_SCROLL =
   '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文が題の行の縁に透け、送る前は題の行が最初の見出しを覆う。'
 const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
 const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
-const FR_036_MAXIMISED = 'ヘルプを最大化したときに占める範囲は、閲覧環境の窓の全体とする（MUST）'
+// WHY: CR-669 moved the maximised help from the browser window to the Schedule Canvas.
+const FR_036_MAXIMISED = 'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
 const FR_036_NOT_A_SURFACE =
   '⭐ ヘルプは `_assets/tbl-settings.md` の `S-99g` の面ではない —— ほかの面を立ててもヘルプを閉じず、ヘルプの状態も言語も変えないこと（MUST）。'
 const FR_036_OTHERS_IN_FRONT = 'ほかの面はヘルプより手前に描く（`FR-152` の 表 T-337）。'
@@ -874,13 +875,17 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
 })
 
 test.describe('CR-574 item 10 -- maximise and restore (T-335 WB-3, WB-4, WB-5)', () => {
-  test('item 10: maximised the help fills the browser window; IC-131 restores it; maximised then minimised, IC-129 brings it to normal', async () => {
+  // @provisional PND-746
+  test('item 10: maximised the help fills the Schedule Canvas below the App Header; IC-131 restores it; maximised then minimised, IC-129 brings it to normal', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
       const normal = await openHelp(page)
-      const whole = await page.evaluate(() => ({ left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }))
+      const whole = await page.evaluate((header: string) => {
+        const bottom = document.querySelector(header)?.getBoundingClientRect().bottom ?? Number.NaN
+        return { left: 0, top: bottom, right: window.innerWidth, bottom: window.innerHeight }
+      }, HEADER)
 
       await press(page, inHelp(MAXIMISE))
       const maximised = await readHelp(page)
@@ -954,6 +959,7 @@ async function readLicenceLines(page: Page) {
 }
 
 test.describe('CR-622 -- where the help opens, and the licence line (FR-036, FR-069)', () => {
+  // @provisional PND-745
   test('item 12: opened, the help stands centred in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -1034,10 +1040,11 @@ test.describe('CR-621 -- the help moves and narrows like every window (T-335 WB-
 
       // STEP: GR-24 -- the title row left of the legend, where no entrance stands
       const band = { x: opened.title.left + 8, y: (opened.title.top + opened.title.bottom) / 2 }
-      await dragBy(page, band, { x: -40, y: -30 })
+      // WHY: CR-669 keeps the help inside the Schedule Canvas, so the drag stays below the App Header.
+      await dragBy(page, band, { x: -40, y: -20 })
       const moved = await readHelp(page)
       expect(Math.abs(moved.box.left - (opened.box.left - 40)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
-      expect(Math.abs(moved.box.top - (opened.box.top - 30)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
+      expect(Math.abs(moved.box.top - (opened.box.top - 20)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
 
       // STEP: GR-25 -- the right edge, half way down, past the S-423 floor: no S-202 columns at their S-458 floor fit there, whatever S-203 is
       const edge = { x: moved.box.right - 1, y: (moved.box.top + moved.box.bottom) / 2 }

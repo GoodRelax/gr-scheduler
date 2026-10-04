@@ -349,10 +349,9 @@ export interface HelpModal extends OpenSurface {
   readonly place?: WindowPlace
 }
 
-// see WB-1, WB-3, FR-036
+// see WB-1, WB-3, WB-8, FR-036
 export interface HelpWindowArea {
   readonly belowAppHeader: ScreenRect
-  readonly browserWindow: ScreenRect
 }
 
 // see OP-16, IC-71, IC-72, IC-73
@@ -663,11 +662,11 @@ function delayDiagnosticsReportOf(
   return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
 }
 
-// see WB-1, WB-3
+// see WB-1, WB-3, WB-8
 /** @purity pure */
 function helpWindowAreaOf(regions: ScreenRegions): HelpWindowArea {
-  const below = regions.scheduleCanvas
-  return { belowAppHeader: below, browserWindow: { x: 0, y: 0, width: regions.appHeader.width, height: below.y + below.height } }
+  const belowAppHeader = regions.scheduleCanvas
+  return { belowAppHeader }
 }
 
 // see EZ-6, DC-3, CU-3, DC-9
