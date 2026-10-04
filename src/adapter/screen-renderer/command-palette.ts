@@ -110,6 +110,8 @@ const STATUS_DATE_ROW: IconId = 'IC-44'
 
 const WBS_PARENT_LINKS_ROW: IconId = 'IC-141'
 
+const WATERMARK_ROW: IconId = 'IC-41'
+
 // see FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
@@ -117,6 +119,7 @@ interface EntranceFacts {
   readonly isDualCursorOn: boolean
   readonly isStatusDateDrawn: boolean
   readonly isWbsParentLinksShown: boolean
+  readonly isWatermarkShown: boolean
 }
 
 // see FR-048, T-237, DC-9
@@ -129,11 +132,12 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
 }
 
 // see FR-046, FR-049, T-237
-// WHY: EN-7 and EN-2 paint alike (S-183), so the line being drawn rides on isPressed.
+// WHY: EN-7, EN-5 and EN-2 paint alike (S-183), so the drawn line and the shown watermark ride on isPressed.
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
   if (row.rowId === WBS_PARENT_LINKS_ROW) return facts.isWbsParentLinksShown
+  if (row.rowId === WATERMARK_ROW) return facts.isWatermarkShown
   return isSettingsToggleOn(row, facts.settings)
 }
 
@@ -151,6 +155,7 @@ function entranceFactsOf(
     isDualCursorOn: session.screen.dualCursorModeState.kind !== 'off',
     isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
     isWbsParentLinksShown: readings.isWbsParentLinksShown === true,
+    isWatermarkShown: session.screen.watermarkDisplayState.kind === 'shown',
   }
 }
 
