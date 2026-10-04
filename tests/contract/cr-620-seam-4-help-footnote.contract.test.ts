@@ -177,24 +177,9 @@ describe('SEAM-4 the note *1 at the end of the IC-20 column (FR-036, FR-073, S-3
   })
 })
 
+// WHY: CR-665 retired the two cases that put note *1 in the IC-20 column (JDG-1048 overturned);
+// the note now stands below the columns, above the licence line, and names no column.
 describe('SEAM-4 the note is not an item (FR-036, S-202)', () => {
-  it('FR-036 (JDG-1048): note *1 stands in the column that holds the IC-20 item, in each help language', () => {
-    for (const language of LANGUAGES) {
-      const help = helpOf(language)
-      const ic20 = help.entries.filter((entry) => entry.row === 'IC-20')
-      expect(ic20, language).toHaveLength(1)
-      expect((help.footnotes[0] as HelpFootnote).column, language).toBe(ic20[0]?.column)
-    }
-  })
-
-  it('FR-036: the note adds no column -- its column is one the items already fill', () => {
-    for (const language of LANGUAGES) {
-      const help = helpOf(language)
-      const columns = new Set(help.entries.map((entry) => entry.column))
-      expect(columns.has((help.footnotes[0] as HelpFootnote).column), language).toBe(true)
-    }
-  })
-
   it('FR-036: no item of the help carries the note\'s words or the S-350 address', () => {
     for (const language of LANGUAGES) {
       const help = helpOf(language)

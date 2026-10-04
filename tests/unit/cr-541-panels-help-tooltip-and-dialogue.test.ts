@@ -289,7 +289,7 @@ describe('FR-036 -- the help title row stands outside what scrolls', () => {
       area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } },
       footnotes: [],
       entries: [
-        { table: 'T-036', row: 'SK-19', text: 'Settle the edit', press: null, keys: 'Enter', icon: 'IC-5', kind: 'key', column: 'c1', block: 'b1', segment: null, glyphs: ['IC-5'], indent: false },
+        { table: 'T-036', row: 'SK-19', text: 'Settle the edit', press: null, keys: 'Enter', icon: 'IC-5', kind: 'key', column: 'c1', block: 'b1', segment: null, glyphs: ['IC-5'] },
       ],
     } as unknown as OpenModal
     const built = stage({ 'App Header': 37 })

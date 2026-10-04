@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 171 | 2379 | 3 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 171 | 2377 | 3 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 44 | 288 | 0 | 1 | 0 | 0 |
-| `unit` | TS-6 | - | 171 | 3840 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 171 | 3841 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 406 | 6611 | 11 | 18 | 10 | 1 |
+| **all** | | | 406 | 6610 | 11 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -333,7 +333,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-616-delay-diagnostics-marks-one-dark-edge.contract.test.ts` | 10 | FR-013, FR-041, FR-133, NFR-007 | - | T-236, T-315 | DG-1, DG-2, DG-3, DG-4, PM-2, PM-3, PM-4, S-22, S-24, S-161, S-327, S-387, S-398 | - | - | - | - |
 | `tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts` | 9 | - | - | T-311, T-315, T-317 | DG-1, DG-2, DG-3, DG-4, DX-3, DX-8, S-487, VC-5, VS-5, VS-6 | - | - | - | - |
 | `tests/contract/cr-619-fr-060-every-chooser-opens-in-the-last-folder.test.ts` | 13 | FR-060 | - | T-024 | IF-3, OP-2, OP-9, S-452, SK-11 | - | - | - | - |
-| `tests/contract/cr-620-seam-4-help-footnote.contract.test.ts` | 11 | FR-036, FR-038, FR-073 | - | - | IC-20, IC-54, PI-37, S-202, S-350 | - | - | - | - |
+| `tests/contract/cr-620-seam-4-help-footnote.contract.test.ts` | 9 | FR-036, FR-038, FR-073 | - | - | IC-20, IC-54, PI-37, S-202, S-350 | - | - | - | - |
 | `tests/contract/cr-633-delay-diagnostics-judges-by-the-link-ends.contract.test.ts` | 27 | FR-011, FR-135, FR-136 | - | T-310, T-311, T-312, T-313, T-315, T-316, T-318 | AT-46, BD-1, BD-2, DG-1, DG-2, DG-3, DG-4, DQ-2, DQ-3, DQ-4, DW-2, DX-4, DX-5, DX-7, PS-4, VC-11, VC-13, VO-1, VO-3, VO-4, VO-5, VS-2, VS-3 | - | - | - | - |
 | `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 17 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
 | `tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts` | 4 | FR-021 | - | - | EX-1, EX-13, EX-14 | - | - | - | yes |
@@ -482,7 +482,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-386-ic-103-planned-dates-beside-the-name.test.ts` | 14 | FR-002, FR-039, FR-049, FR-055 | - | T-109, T-202, T-251 | IC-44, IC-103, ND-1, ND-2, ND-3, ND-4, ND-5, OP-10, S-1, S-7, S-62, S-75, S-227, S-232, S-332 | - | - | - | - |
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | 23 | FR-038, FR-071 | - | T-036, T-078, T-109, T-233 | FT-6, IC-11, NT-3a, RS-59, S-99e, S-99f, SK-15, UF-48 | - | - | - | - |
 | `tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts` | 50 | FR-016, FR-018, FR-029, FR-031, FR-055 | - | T-109, T-328, T-329 | AT-153, CM-72, CM-85, CM-86, DU-2, HF-2, HF-3, HF-8, HF-10, HF-11, HF-12, HF-13, HF-16, RS-28, RS-30, S-54, S-87, S-88, S-418, TD-1, TD-3, TD-5, TD-6, TD-7, UN-14, UN-17 | - | - | - | - |
-| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | 27 | FR-036, FR-038 | - | T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 | BF-1, BF-2, HC-1, HC-2, HC-3, HC-4, IC-52, IC-53, IC-75, MK-10, S-149, S-202, S-437, S-457, S-458, SK-8 | - | - | - | - |
+| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | 28 | FR-036, FR-038 | - | T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 | BF-1, BF-2, HC-1, HC-2, HC-3, HC-4, IC-52, IC-53, IC-75, MK-10, S-149, S-202, S-437, S-457, S-458, SK-8 | - | - | - | - |
 | `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` | 19 | FR-029 | - | T-023, T-109, T-206, T-257 | IC-63, IC-66, IC-67, IC-68, MK-5, RR-1, RR-2, RR-3, RR-4, RR-5, S-234, S-240, S-241 | - | - | - | - |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | 21 | FR-006, FR-052, FR-072 | - | T-016, T-023d, T-206 | GR-19, GR-22, GR-24, GR-25, GR-28, IC-52, MK-13, PR-1, PR-2, PR-18, PR-21, S-134, S-171, S-193 | - | - | - | - |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | 12 | FR-029, FR-039 | - | T-201, T-202 | IC-104, IC-105, OP-6, RS-25, S-1, S-234, S-236 | - | - | - | - |

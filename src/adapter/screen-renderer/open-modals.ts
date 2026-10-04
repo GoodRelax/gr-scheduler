@@ -173,17 +173,12 @@ const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
-const FOOTNOTE_ANCHOR_ROW = 'IC-20'
-
-const FOOTNOTE_COLUMN = helpRoster.entries.find((entry) => entry.row === FOOTNOTE_ANCHOR_ROW)?.column ?? NO_WORDS
-
 // see FR-036, FR-073
 /** @purity pure */
 function helpFootnotes(language: DisplayLanguage): readonly HelpFootnote[] {
   return displayWords.helpFootnotes.map((footnote) => {
     const word = footnote.text[language]
-    const linked = linkedWordsOf(word) ?? { before: word, address: NO_WORDS, after: NO_WORDS }
-    return { ...linked, column: FOOTNOTE_COLUMN }
+    return linkedWordsOf(word) ?? { before: word, address: NO_WORDS, after: NO_WORDS }
   })
 }
 
@@ -234,7 +229,6 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
     block: entry.block,
     segment: entry.segment,
     glyphs: entry.glyphs,
-    indent: entry.indent,
   }))
 }
 

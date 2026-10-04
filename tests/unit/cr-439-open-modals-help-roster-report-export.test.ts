@@ -137,7 +137,6 @@ const HELP = {
       block: 'b1',
       segment: null,
       glyphs: ['IC-5'],
-      indent: false,
     },
   ],
 } as unknown as OpenModal

@@ -371,10 +371,9 @@ export interface OpenChooser extends OpenSurface {
   readonly cancelWord: string
 }
 
-// see FR-036
-export interface HelpFootnote extends LinkedWords {
-  readonly column: string
-}
+// see FR-036, FR-069
+// WHY: note *1 stands below the columns, above the licence line (CR-665), so it names no column.
+export type HelpFootnote = LinkedWords
 
 export interface HelpEntry {
   readonly table: string
@@ -389,7 +388,6 @@ export interface HelpEntry {
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly IconId[]
-  readonly indent: boolean
 }
 
 export interface ResourceRoster extends OpenSurface {

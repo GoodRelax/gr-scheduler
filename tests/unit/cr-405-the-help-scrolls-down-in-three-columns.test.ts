@@ -1,4 +1,4 @@
-// CR-405, CR-622, CR-635: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
+// CR-405, CR-622, CR-635, CR-665: the help lays its framed blocks out in the columns of T-256, lists T-255, and scrolls down.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -50,7 +50,8 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- every block in a frame of its own (CR-622)', '⭐ 塊を 1 つずつ枠で囲むこと（MUST）'],
   ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とし、枠の線は 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること（MUST）。'],
   ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`Command Palette` の塊の中の群の境目は、線で示すこと（MUST）。'],
-  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635)', '・`Holiday Settings`・`Dialogue Field` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
+  ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Dialogue Field`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
+  ['FR-036 (MUST) -- the palette group T-256 names moves under the Row Title Panel (CR-665)', '⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Row Title Panel` の塊の下の塊へ移すこと（MUST）'],
   ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '⭐ 入口の項目が段に載らない割当は、上の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと（MUST）'],
 ]
 
@@ -65,6 +66,7 @@ const H_ENTRANCE = String.fromCodePoint(0x5165, 0x53e3)
 const H_SURFACE = String.fromCodePoint(0x9762)
 const H_DEFAULT = String.fromCodePoint(0x65e2, 0x5b9a)
 const H_BLOCKS = String.fromCodePoint(0x7f6e, 0x304f, 0x584a)
+const H_GROUP = String.fromCodePoint(0x7fa4)
 const DASH = String.fromCodePoint(0x2014)
 const ARROW = String.fromCodePoint(0x2192)
 const NO_ENTRANCE_BLOCK = String.fromCodePoint(0x5165, 0x53e3, 0x3092, 0x6301, 0x305f, 0x306a, 0x3044, 0x5272, 0x5f53)
@@ -136,30 +138,39 @@ const BASIC_ROWS = new Set([
   'MK-16',
 ])
 
-const AFTER_OPENING: Readonly<Record<string, string>> = {
-  'Open Chooser': 'App Header',
-  'Difference Review': 'App Header',
-}
-
 const BROWSER = 'browser'
 const BASICS = 'basics'
-
-// see T-256
-function blockOfRow(row: string): string | null {
-  if (T_255.rows.some((one) => one.id === row)) return BROWSER
-  if (BASIC_ROWS.has(row)) return BASICS
-  if (!/^IC-\d+$/.test(row) || isLeftOff(row)) return null
-  const first = bareAll(rowOf(T_109, row).by[H_SURFACE] ?? '')[0] ?? ''
-  return AFTER_OPENING[first] ?? first
-}
+const PALETTE = 'Command Palette'
+// see CR-665, T-256
+const PALETTE_CONTINUED = 'Command Palette (continued)'
+// see CR-665, T-256, T-109
+const MOVED_GROUP_IN_CELL = new RegExp(`\`${H_GROUP}\` [^\`]*\`([^\`]+)\``)
+const CONTINUED_WORD = String.fromCodePoint(0x306e, 0x7d9a, 0x304d)
 
 // see T-256
 function blocksOfColumn(cell: string): readonly string[] {
   return cell.split(ARROW).map((part) => {
     if (part.includes(NO_ENTRANCE_BLOCK)) return BASICS
     if (part.includes('T-255')) return BROWSER
+    if (part.trim().startsWith(`\`${PALETTE}\``)) return part.includes(CONTINUED_WORD) ? PALETTE_CONTINUED : PALETTE
     return bare(part)
   })
+}
+
+const MOVED_GROUP = T_256.rows
+  .flatMap((row) => Object.values(row.by))
+  .map((cell) => MOVED_GROUP_IN_CELL.exec(cell)?.[1])
+  .find((one) => one !== undefined) ?? ''
+
+// see T-256
+function blockOfRow(row: string): string | null {
+  if (T_255.rows.some((one) => one.id === row)) return BROWSER
+  if (BASIC_ROWS.has(row)) return BASICS
+  if (!/^IC-\d+$/.test(row) || isLeftOff(row)) return null
+  const found = rowOf(T_109, row)
+  const first = bareAll(found.by[H_SURFACE] ?? '')[0] ?? ''
+  if (first === PALETTE && bare(found.by[H_GROUP] ?? '') === MOVED_GROUP) return PALETTE_CONTINUED
+  return first
 }
 
 const BLOCKS_HEADING = T_256.headings.find((one) => one.startsWith(H_BLOCKS)) ?? H_BLOCKS
@@ -173,13 +184,23 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     expect(S_202).toBe(T_256.rows.length)
   })
 
-  it('T-256 names basics and browser, then App Header, then Row Title Panel, then Command Palette', () => {
-    expect(COLUMNS).toEqual([[BASICS, BROWSER], ['App Header'], ['Row Title Panel'], ['Command Palette']])
+  it('T-256 names basics and browser, then App Header, then Row Title Panel and the palette continued, then Command Palette', () => {
+    expect(COLUMNS).toEqual([[BASICS, BROWSER], ['App Header'], ['Row Title Panel', PALETTE_CONTINUED], [PALETTE]])
+  })
+
+  it('T-256 moves one palette group, and T-109 holds rows of that group on the palette (CR-665)', () => {
+    expect(MOVED_GROUP).not.toBe('')
+    const moved = T_109.rows.filter(
+      (row) => bareAll(row.by[H_SURFACE] ?? '')[0] === PALETTE && bare(row.by[H_GROUP] ?? '') === MOVED_GROUP,
+    )
+    expect(moved.length).toBeGreaterThan(0)
   })
 
   it('FR-036 leaves off IC-52, IC-53, IC-75 and the rows of the surfaces it names, and puts SK-8 with the basics', () => {
     expect(LEFT_OFF_ICONS).toEqual(['IC-52', 'IC-53', 'IC-75'])
     expect(LEFT_OFF_SURFACES).toContain('Search Panel')
+    expect(LEFT_OFF_SURFACES).toContain('Open Chooser')
+    expect(LEFT_OFF_SURFACES).toContain('Difference Review')
     expect(LEFT_OFF_SURFACES).not.toContain('Row Title Panel')
     expect(BASIC_ROWS.has('SK-8')).toBe(true)
   })
@@ -478,7 +499,7 @@ describe('FR-036 (MUST) -- every block stands in a frame of its own (CR-622)', (
     for (const block of BLOCK_ORDER) {
       const frame = frameOf(help, block) as FakeElement
       const lines = selfAndDescendants(frame).filter(isRuleLine)
-      if (block === 'Command Palette') expect(lines.length, block).toBeGreaterThan(0)
+      if (block === PALETTE) expect(lines.length, block).toBeGreaterThan(0)
       else expect(lines.length, block).toBe(0)
     }
     const { columns } = columnsOf(help)
