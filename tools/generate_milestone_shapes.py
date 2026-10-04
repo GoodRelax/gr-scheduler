@@ -41,7 +41,11 @@ WHAT IT WRITES: `src/entity/layout-engine/schedule-geometry/milestone-shapes.jso
 the chart's shape table, one entry per spelling with its layers as SVG path
 data in unit coordinates (a circle and a rect are written as the path they
 draw) -- the table the chart's geometry reads instead of holding the shapes
-itself.
+itself. ⭐ It also writes the marked region of
+`src/entity/layout-engine/schedule-geometry/schedule-geometry.ts`: the union
+`MilestoneLayerRole` of the roles above (ROLE_CLASS, the roles LF-18 names and
+this script checks the figure against), because the JSON import widens `role`
+to a string and a hand-written union would drift (DFC-1227, check 69).
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -62,6 +66,14 @@ OUT = os.path.join(ROOT, 'src', 'entity', 'layout-engine', 'schedule-geometry',
 
 REL_FIGURE = 'docs/spec/_assets/fig-milestone-shapes.svg'
 REL_OUT = 'src/entity/layout-engine/schedule-geometry/milestone-shapes.json'
+# DFC-1227: the layer roles as a TS union, so src/ reads them instead of
+# writing them again (check 69). The region between the two markers is ours;
+# the rest of the unit is written by hand.
+REL_UNIT = 'src/entity/layout-engine/schedule-geometry/schedule-geometry.ts'
+UNIT = os.path.join(ROOT, *REL_UNIT.split('/'))
+OPEN = '// <generated -- do not edit by hand>'
+CLOSE = '// </generated>'
+REGION = re.compile(re.escape(OPEN) + r'\n.*?' + re.escape(CLOSE), re.S)
 REL_SELF = 'tools/generate_milestone_shapes.py'
 FIGURE_ID = 'F-044'
 GLYPH_FIGURE_ID = 'F-019'
@@ -401,27 +413,59 @@ def build():
     return {'$comment': BANNER, 'shapes': entries}
 
 
+def role_region():
+    """The layer roles as a TS union, fenced as the unit's generated region."""
+    # @purity pure
+    return '\n'.join([
+        OPEN,
+        '// Single source of truth:',
+        '//   %s (figure %s; the layer roles of LF-18, table T-221)'
+        % (REL_FIGURE, FIGURE_ID),
+        '// Rebuild: npm run gen   ||   npm run gen:check fails on drift (%s).'
+        % REL_SELF,
+        'export type MilestoneLayerRole = %s'
+        % ' | '.join("'%s'" % one for one in ROLE_CLASS),
+        CLOSE,
+    ])
+
+
+def unit_with_roles():
+    """(on disk, wanted) for the unit whose region holds the role union."""
+    # @purity semi-pure-b
+    body = io.open(UNIT, encoding='utf-8', newline='').read()
+    ending = '\r\n' if body.count('\r\n') * 2 > body.count('\n') else '\n'
+    text = body.replace('\r\n', '\n')
+    if len(REGION.findall(text)) != 1:
+        fail('%s holds no single generated region (%s ... %s)'
+             % (REL_UNIT, OPEN, CLOSE))
+    region = role_region()
+    return body, REGION.sub(lambda _m: region, text).replace('\n', ending)
+
+
 def main():
-    """Write the table, or say whether the one on disk still matches."""
+    """Write the table and the role union, or say whether both still match."""
     # @purity non-pure
     table = build()
     body = json.dumps(table, ensure_ascii=False, indent=1) + '\n'
+    unit_on_disk, unit_wanted = unit_with_roles()
     if '--check' in sys.argv:
         if not os.path.exists(OUT):
             sys.stdout.write('PROBLEM  %s has not been written yet\n' % REL_OUT)
             return 1
         on_disk = io.open(OUT, encoding='utf-8', newline='').read()
-        if on_disk != body:
-            sys.stdout.write('PROBLEM  %s has drifted from figure %s -- run '
-                             '`python %s`\n' % (REL_OUT, FIGURE_ID, REL_SELF))
+        if on_disk != body or unit_on_disk != unit_wanted:
+            sys.stdout.write('PROBLEM  %s or the region of %s has drifted from '
+                             'figure %s -- run `python %s`\n'
+                             % (REL_OUT, REL_UNIT, FIGURE_ID, REL_SELF))
             return 1
         sys.stdout.write('OK       the chart\'s milestone shapes match figure %s '
                          'and agree with figure %s (%d shape(s))\n'
                          % (FIGURE_ID, GLYPH_FIGURE_ID, len(table['shapes'])))
         return 0
     io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
-    sys.stdout.write('wrote %s (%d shape(s), %d byte(s))\n'
-                     % (REL_OUT, len(table['shapes']), len(body)))
+    io.open(UNIT, 'w', encoding='utf-8', newline='').write(unit_wanted)
+    sys.stdout.write('wrote %s (%d shape(s), %d byte(s)) and the region of %s\n'
+                     % (REL_OUT, len(table['shapes']), len(body), REL_UNIT))
     return 0
 
 

@@ -23,7 +23,6 @@ import type { ScreenRect } from '../screen-regions/screen-regions'
 export { dependencyEndAtPointer, dependencyStartOfHit } from './dependency-end'
 export type { DependencyEnd } from './dependency-end'
 export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnRows } from './drawn-selection'
-export type { ChosenItem, DrawnChoice } from './drawn-selection'
 export { itemsInMarquee } from './marquee'
 
 // see SL-1
@@ -776,6 +775,56 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
   return region !== null && region.covers(x, y)
 }
 
+// see FR-098, S-78, HT-1
+// WHY: what a scrolling row draws is cut at the top of the area below the band, so no point in the band reaches it.
+type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
+
+/** @purity pure */
+function isScrolling(cut: BandCut, taskUid: number): boolean {
+  return cut !== null && !cut.pinnedTaskUids.has(taskUid)
+}
+
+// see FR-098, T-303, EL-4, EL-5
+// WHY: a line stays in the band only with both ends pinned; a short line and its mark go with their visible end.
+/** @purity pure */
+function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean {
+  if (line.elision === 'EL-4') return isScrolling(cut, line.predecessorUid)
+  if (line.elision === 'EL-5') return isScrolling(cut, line.successorUid)
+  return isScrolling(cut, line.predecessorUid) || isScrolling(cut, line.successorUid)
+}
+
+/** @purity pure */
+function isCutAway(cut: BandCut, isCut: boolean, y: number): boolean {
+  return cut !== null && isCut && y < cut.scrollTop
+}
+
+/** @purity pure */
+function cutCovers<T extends { readonly covers: (x: number, y: number) => boolean }>(
+  one: T,
+  cut: BandCut,
+  isCut: boolean,
+): T {
+  if (cut === null || !isCut) return one
+  return { ...one, covers: (x, y) => !isCutAway(cut, true, y) && one.covers(x, y) }
+}
+
+/** @purity pure */
+function cutRect(box: ScreenRect | null, cut: BandCut, isCut: boolean): ScreenRect | null {
+  if (box === null || cut === null || !isCut) return box
+  return rectOfSpans(acrossOf(box), { from: Math.max(box.y, cut.scrollTop), to: bottomOf(box) })
+}
+
+/** @purity pure */
+function cutShape(shape: TaskShape, cut: BandCut): TaskShape {
+  if (!isScrolling(cut, shape.task.taskUid)) return shape
+  return {
+    ...shape,
+    markerBox: cutRect(shape.markerBox, cut, true),
+    resumeBox: cutRect(shape.resumeBox, cut, true),
+    drawn: shape.drawn.map((one) => cutCovers(one, cut, true)),
+  }
+}
+
 type LineRegions = {
   readonly line: DependencyGeometry
   readonly index: number
@@ -799,20 +848,27 @@ export interface PointerWalk {
 
 /** @purity pure */
 function linesOf(geometry: ScheduleGeometry, sizes: GrabSizes, onShape: boolean): readonly LineRegions[] {
-  return geometry.dependencies.map((line, index) => ({
-    line,
-    index,
-    region: dependencyRegionOf(line, sizes, onShape),
-    mark: continuationRegionOf(line, sizes, onShape),
-  }))
+  const cut = geometry.pinnedBand ?? null
+  return geometry.dependencies.map((line, index) => {
+    const region = dependencyRegionOf(line, sizes, onShape)
+    const mark = continuationRegionOf(line, sizes, onShape)
+    const isCut = isLineScrolling(cut, line)
+    return {
+      line,
+      index,
+      region: region === null ? null : cutCovers(region, cut, isCut),
+      mark: mark === null ? null : cutCovers(mark, cut, isCut),
+    }
+  })
 }
 
 /** @purity pure */
 function deadlineBoxesOf(geometry: ScheduleGeometry): readonly DeadlineBox[] {
+  const cut = geometry.pinnedBand ?? null
   const boxes: DeadlineBox[] = []
   for (const task of geometry.tasks) {
     const mark = task.deadline ?? null
-    const box = mark === null ? null : boxOfPath(mark.outline)
+    const box = cutRect(mark === null ? null : boxOfPath(mark.outline), cut, isScrolling(cut, task.taskUid))
     if (box !== null) boxes.push({ taskUid: task.taskUid, box })
   }
   return boxes
@@ -820,12 +876,16 @@ function deadlineBoxesOf(geometry: ScheduleGeometry): readonly DeadlineBox[] {
 
 /** @purity pure */
 export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes): PointerWalk {
+  const cut = geometry.pinnedBand ?? null
   const shapes = geometry.tasks.map(shapeOf)
   return {
     geometry,
     sizes,
-    shapes,
-    taskRegions: shapes.flatMap((shape) => regionsOfTask(shape, sizes)).filter((one): one is Region => one !== null),
+    shapes: shapes.map((shape) => cutShape(shape, cut)),
+    taskRegions: shapes.flatMap((shape) =>
+      regionsOfTask(shape, sizes)
+        .filter((one): one is Region => one !== null)
+        .map((one) => cutCovers(one, cut, isScrolling(cut, shape.task.taskUid)))),
     linesOnShape: linesOf(geometry, sizes, true),
     linesOffShape: linesOf(geometry, sizes, false),
     deadlineBoxes: deadlineBoxesOf(geometry),
@@ -941,12 +1001,14 @@ function scheduleShapeHitOf(walk: PointerWalk, covered: readonly TaskShape[], x:
 // TRAP: the row order, not the Task order: GR-10 answers for every Task before GR-11 answers for any.
 /** @purity pure */
 function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
-  for (const task of geometry.tasks) {
+  const cut = geometry.pinnedBand ?? null
+  const tasks = geometry.tasks.filter((task) => !isCutAway(cut, isScrolling(cut, task.taskUid), y))
+  for (const task of tasks) {
     if (task.label !== null && isInsideRect(x, y, task.label)) {
       return { item: { kind: 'task', taskUid: task.taskUid }, grab: 'GR-10' }
     }
   }
-  for (const task of geometry.tasks) {
+  for (const task of tasks) {
     if (task.assigneeLabel !== null && isInsideRect(x, y, task.assigneeLabel)) {
       return { item: { kind: 'task', taskUid: task.taskUid }, grab: 'GR-11' }
     }
@@ -1092,7 +1154,9 @@ function deadlineHintOf(boxes: readonly DeadlineBox[], x: number, y: number): Hi
 // see GR-27, BL-2
 /** @purity pure */
 function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintHolder | null {
+  const cut = geometry.pinnedBand ?? null
   for (const outline of geometry.baselineOutlines) {
+    if (isCutAway(cut, !outline.isPinned, y)) continue
     const centre = centreOf(outline.box)
     const across = Math.abs(x - centre.x) / (outline.box.width / 2)
     const down = Math.abs(y - centre.y) / (outline.box.height / 2)

@@ -58,8 +58,12 @@ export interface SpanDot {
   readonly radius: number
 }
 
-// see LF-18, F-044
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_assets/fig-milestone-shapes.svg (figure F-044; the layer roles of LF-18, table T-221)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift (tools/generate_milestone_shapes.py).
 export type MilestoneLayerRole = 'body' | 'inner' | 'dot' | 'shade'
+// </generated>
 
 export type PathSegment =
   | { readonly command: 'M' | 'L'; readonly to: Point }
@@ -245,6 +249,10 @@ export interface ScheduleGeometry {
   readonly commentBoxes: readonly CommentGeometry[]
   // WHY: optional, read as none when absent: a hand-built geometry draws no family.
   readonly wbsParents?: WbsParentGeometry
+  readonly pinnedBand?: {
+    readonly scrollTop: number
+    readonly pinnedTaskUids: ReadonlySet<number>
+  }
 }
 
 /** @purity pure */
@@ -579,5 +587,17 @@ export function geometryFromLayout(
     highlightBoxes: highlightGeometry(schedule, layout),
     commentBoxes: commentGeometry(schedule, settings, layout),
     wbsParents: wbsParentGeometryOf(inputs, wbsParentFamilies),
+    ...pinnedBandOf(layout, regions),
   }
+}
+
+// see FR-098, S-78
+/** @purity pure */
+function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<ScheduleGeometry, 'pinnedBand'> {
+  const pinnedIds = new Set(layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId))
+  if (pinnedIds.size === 0) return {}
+  const pinnedTaskUids = new Set(
+    layout.placements.filter((one) => pinnedIds.has(one.groupId)).map((one) => one.taskUid),
+  )
+  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids } }
 }

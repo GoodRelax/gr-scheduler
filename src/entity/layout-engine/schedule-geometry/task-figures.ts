@@ -346,9 +346,13 @@ function mergedLayers(layers: readonly MilestoneLayer[]): readonly MilestoneLaye
   return out
 }
 
+// see LF-18, F-044, DFC-1227
+// WHY: keyed over the generated union, so a role figure F-044 adds or drops stops the build here.
+const LAYER_ROLES: Readonly<Record<MilestoneLayerRole, true>> = { body: true, inner: true, dot: true, shade: true }
+
 /** @purity pure */
 function isLayerRole(role: string): role is MilestoneLayerRole {
-  return role === 'body' || role === 'inner' || role === 'dot' || role === 'shade'
+  return Object.hasOwn(LAYER_ROLES, role)
 }
 
 // see LF-18, F-044
