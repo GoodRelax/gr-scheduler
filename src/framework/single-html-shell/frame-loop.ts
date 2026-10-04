@@ -3646,7 +3646,7 @@ export function frameLoop(
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
+const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   readonly 'S-171': number
 } = {
   'S-171': 280,

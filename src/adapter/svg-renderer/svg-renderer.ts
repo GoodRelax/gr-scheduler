@@ -710,15 +710,6 @@ const NOT_STORED_DEPENDENCY_EMPHASIS_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_DUMMY_SIZES: {
-  readonly 'S-180': number
-  readonly 'S-247': number
-} = {
-  'S-180': 30,
-  'S-247': 0.5,
-}
-
-// see T-206
 export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
   readonly 'S-333': number

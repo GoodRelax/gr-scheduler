@@ -206,7 +206,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, rowControlsHeightPx?: numb... |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
-| `NOT_STORED_DUMMY_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/label-placement.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
@@ -338,7 +337,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `itemAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#itemAtPointer` | PI-7 | 対象は 表 T-023c の `SL-1`。 |
 | `itemsInMarquee` | entry | function | `src/entity/layout-engine/item-hit-area/marquee.ts#itemsInMarquee` | PI-7 | `SL-3`。 |
 | `merged` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#merged` | -- | function merged(a: ScreenRect \| null, b: ScreenRect \| null): ScreenRect \| null |
-| `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `PointerAnswers` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerAnswers` | PI-7 | 型。 |
 | `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' \| 'hint' |
 | `PointerWalk` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerWalk` | PI-7 | 型。 |
@@ -441,7 +439,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskShapeKind` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskShapeKind` | -- | type TaskShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `TreeStateEvent` | entry | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEvent` | PI-9 | 型。 |
 | `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換える行の `treeState` を求める。 |
-| `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'planVisible' \| 'actualVisible' \| 'assigneeVisible' \| 'percentCompleteVisible' \| 'dependencyVisible' \| 'progressMarkerVisible' \| 'pro... |
+| `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
 | `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number |
@@ -761,7 +759,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
 | `NOT_STORED_DUAL_CURSOR_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUAL_CURSOR_SIZES` | -- | const NOT_STORED_DUAL_CURSOR_SIZES: |
-| `NOT_STORED_DUMMY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `NOT_STORED_NAME_LABEL_WEIGHT` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_NAME_LABEL_WEIGHT` | -- | const NOT_STORED_NAME_LABEL_WEIGHT: |
 | `NOT_STORED_RULER_WEEKDAY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_RULER_WEEKDAY_SIZES` | -- | const NOT_STORED_RULER_WEEKDAY_SIZES: |
 | `NOT_STORED_SELECTION_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_SELECTION_SIZES` | -- | const NOT_STORED_SELECTION_SIZES: |
@@ -876,7 +873,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `exportSvg` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportSvg` | PI-21 | 表 T-076 が「描く」とした UI パーツを組み立てて返す。 |
 | `ImageExport` | entry | type | `src/adapter/image-exporter/image-exporter.ts#ImageExport` | -- | type ImageExport = \| ({ readonly ok: true } & SvgPicture & { readonly png: Rastering }) \| { readonly ok: false; readonly fault: ImageExportFault } /** @purit... |
 | `ImageExportFault` | entry | interface | `src/adapter/image-exporter/image-exporter.ts#ImageExportFault` | -- | interface ImageExportFault |
-| `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/adapter/image-exporter/image-exporter.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
 | `RasterFault` | entry | interface | `src/adapter/image-exporter/rasterizer.ts#RasterFault` | -- | interface RasterFault |
 | `RasterFaultReason` | entry | type | `src/adapter/image-exporter/rasterizer.ts#RasterFaultReason` | -- | type RasterFaultReason = \| 'unsupported' \| 'tooLarge' \| 'rasterFailed' export interface RasterFault |
 | `Rastering` | entry | type | `src/adapter/image-exporter/rasterizer.ts#Rastering` | -- | type Rastering = \| { readonly ok: true; readonly pngBytes: Uint8Array } \| { readonly ok: false; readonly fault: RasterFault } export interface Rasterizer |
@@ -1007,7 +1003,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MergeCandidateLine` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeCandidateLine` | -- | type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number] |
 | `MergeChoices` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeChoices` | -- | type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']> |
 | `MergeMapping` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeMapping` | -- | type MergeMapping = NonNullable<MergeChoices['mapping']> |
-| `NOT_STORED_PROPERTIES_PANEL_SIZES` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOT_STORED_PROPERTIES_PANEL_SIZES` | -- | const NOT_STORED_PROPERTIES_PANEL_SIZES: |
 | `NOT_STORED_SCROLLBAR_SIZES` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOT_STORED_SCROLLBAR_SIZES` | -- | const NOT_STORED_SCROLLBAR_SIZES: |
 | `NOTHING_TO_DO_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTHING_TO_DO_REASON` | -- | const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27' |
 | `NOTICE_REASON_OF_RASTER_FAULT` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTICE_REASON_OF_RASTER_FAULT` | -- | const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = |
@@ -1303,7 +1298,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `appHeaderItemsFromDocument` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#appHeaderItemsFromDocument` | -- | function appHeaderItemsFromDocument( schedule: Schedule, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): AppHeaderItems |
 | `displayScaleMessageText` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#displayScaleMessageText` | -- | function displayScaleMessageText( displayScale: number, end: 'max' \| 'min' \| null, language: DisplayLanguage, ): string |
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
-| `NOT_STORED_COMMAND_PALETTE_SIZES` | file only | const | `src/adapter/screen-renderer/command-palette.ts#NOT_STORED_COMMAND_PALETTE_SIZES` | -- | const NOT_STORED_COMMAND_PALETTE_SIZES: |
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, report: DelayDiagnosticsReport \| null, schedu... |
 | `DelayReportLine` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportLine` | -- | interface DelayReportLine |
@@ -1319,11 +1313,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, ): OpenModal \| null |
 | `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
-| `NOT_STORED_PROPERTY_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/properties-panel.ts#NOT_STORED_PROPERTY_CONTROL_SIZES` | -- | const NOT_STORED_PROPERTY_CONTROL_SIZES: |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
-| `NOT_STORED_ROW_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/row-title-panel.ts#NOT_STORED_ROW_CONTROL_SIZES` | -- | const NOT_STORED_ROW_CONTROL_SIZES: |
 | `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
-| `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
 | `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#EntryRefusal` | -- | interface EntryRefusal |
@@ -1705,4 +1696,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 824 name(s) leave through a public entry (316 of them published by table T-064), 671 more are exported by a file and not by its entry.
+Totals: 820 name(s) leave through a public entry (316 of them published by table T-064), 666 more are exported by a file and not by its entry.

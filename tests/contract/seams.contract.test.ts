@@ -19,20 +19,15 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
-import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
 import * as scheduleLayout from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
-import { NOT_STORED_COMMAND_PALETTE_SIZES } from '../../src/adapter/screen-renderer/command-palette'
-import { NOT_STORED_PROPERTY_CONTROL_SIZES } from '../../src/adapter/screen-renderer/properties-panel'
-import { NOT_STORED_ROW_CONTROL_SIZES } from '../../src/adapter/screen-renderer/row-title-panel'
-import { NOT_STORED_PANEL_DIVIDER_SIZES } from '../../src/adapter/screen-renderer/screen-frame'
 import {
   NOT_STORED_DUAL_CURSOR_SIZES,
-  NOT_STORED_DUMMY_SIZES,
   NOT_STORED_SELECTION_SIZES,
 } from '../../src/adapter/svg-renderer/svg-renderer'
+import { generatedConstantOf } from '../fixtures/setting-number'
 
 const T065 = specTable('T-065')
 const T062 = specTable('T-062')
@@ -192,17 +187,17 @@ describe('the values table T-206 keeps out of the document', () => {
   // have. They are the remaining debt of DFC-93, and the count below is what says
   // how much of the table is now held.
   const generated: Record<string, number | readonly [number, number]> = {
-    ...NOT_STORED_SIZES,
+    ...generatedConstantOf('src/entity/layout-engine/item-hit-area/item-hit-area.ts', 'NOT_STORED_SIZES'),
     ...NOT_STORED_LIMITS,
     ...((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined),
     ...NOT_STORED_ZOOM_BOUNDS,
     ...NOT_STORED_ZOOM_STEP,
-    ...NOT_STORED_COMMAND_PALETTE_SIZES,
-    ...NOT_STORED_PROPERTY_CONTROL_SIZES,
-    ...NOT_STORED_ROW_CONTROL_SIZES,
-    ...NOT_STORED_PANEL_DIVIDER_SIZES,
+    ...generatedConstantOf('src/adapter/screen-renderer/command-palette.ts', 'NOT_STORED_COMMAND_PALETTE_SIZES'),
+    ...generatedConstantOf('src/adapter/screen-renderer/properties-panel.ts', 'NOT_STORED_PROPERTY_CONTROL_SIZES'),
+    ...generatedConstantOf('src/adapter/screen-renderer/row-title-panel.ts', 'NOT_STORED_ROW_CONTROL_SIZES'),
+    ...generatedConstantOf('src/adapter/screen-renderer/screen-frame.ts', 'NOT_STORED_PANEL_DIVIDER_SIZES'),
     ...NOT_STORED_SELECTION_SIZES,
-    ...NOT_STORED_DUMMY_SIZES,
+    ...generatedConstantOf('src/entity/layout-engine/schedule-layout/schedule-layout.ts', 'NOT_STORED_DUMMY_SIZES'),
     ...NOT_STORED_DUAL_CURSOR_SIZES,
   }
 

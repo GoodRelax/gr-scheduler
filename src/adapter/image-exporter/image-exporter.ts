@@ -275,7 +275,7 @@ export async function exportPng(
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
+const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
   readonly 'S-461': number

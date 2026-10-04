@@ -71,6 +71,7 @@
 // FR-089's grid lines are not drawn at all.
 
 import { describe, expect, it } from 'vitest'
+import { settingNumber } from '../fixtures/setting-number'
 import { specTable, type SpecTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/display-scale'
 import {
@@ -92,7 +93,6 @@ import {
   dateAtX,
   layoutFromSchedule,
   xFromDay,
-  NOT_STORED_DUMMY_SIZES,
   NOT_STORED_SIZES,
   type RulerTier,
   type ScheduleLayout,
@@ -1746,7 +1746,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker.centre.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
       const holdRight =
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
-        Math.min(SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
+        Math.min(SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * S_247, settingNumber('S-180'))
       expect(
         marker.centre.x - marker.radius - holdRight,
         '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',

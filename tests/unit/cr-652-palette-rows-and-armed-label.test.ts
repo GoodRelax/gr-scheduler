@@ -10,7 +10,7 @@ import type {
   CommandPalette,
   PaletteGroup,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { NOT_STORED_COMMAND_PALETTE_SIZES } from '../../src/adapter/screen-renderer/command-palette'
+import { generatedConstantOf, settingNumber } from '../fixtures/setting-number'
 import {
   armedLabelStyle,
   paletteColumnsOf,
@@ -91,7 +91,7 @@ const groupOf = (name: string, count: number): PaletteGroup => ({
 
 const paletteWith = (counts: readonly number[]): CommandPalette => ({
   at: { x: 400, y: 300 },
-  grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
+  grabBandHeight: settingNumber('S-135a'),
   minimise: entryFor('IC-75'),
   isMinimised: false,
   groups: counts.map((count, at) => groupOf(`GroupWord${at}`, count)),
@@ -269,7 +269,7 @@ describe('FR-053 / IC-54 / S-489 -- the armed label', () => {
 
 describe('FR-053 / S-216 -- shapes always shown', () => {
   it('S-216 -- table T-206 and NOT_STORED_COMMAND_PALETTE_SIZES agree on 3', () => {
-    expect(NOT_STORED_COMMAND_PALETTE_SIZES['S-216']).toBe(S_216)
+    expect(generatedConstantOf('src/adapter/screen-renderer/command-palette.ts', 'NOT_STORED_COMMAND_PALETTE_SIZES')['S-216']).toBe(S_216)
     expect(S_216).toBe(3)
     expect(unbroken(rowOf('T-206', 'S-216').cells.join(' '))).toContain('S-142')
   })

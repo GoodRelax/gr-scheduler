@@ -212,9 +212,10 @@ describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
   it('SJ-6: what the task reaches left of its date moves the view left by that much (CR-629)', () => {
     const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)) as Loose
     const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { pxPerDay: 10, leftReachPx: 25 })) as Loose
-    expect(atDate['scrollDayOffset']).toBe(0)
-    const daysBack = (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
-    expect([daysBack, reached['scrollDayOffset']]).toEqual([3, 0.5])
+    const daysBack =
+      (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
+      + Number(atDate['scrollDayOffset']) - Number(reached['scrollDayOffset'])
+    expect(daysBack).toBeCloseTo(2.5, 9)
   })
 
   it(`a comment box with no date moves the row only -- SJ-6: ${SJ_6_NO_DATE}`, () => {

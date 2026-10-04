@@ -340,7 +340,7 @@ export function commandPaletteFromSession(
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_COMMAND_PALETTE_SIZES: {
+const NOT_STORED_COMMAND_PALETTE_SIZES: {
   readonly 'S-135a': number
   readonly 'S-216': number
 } = {

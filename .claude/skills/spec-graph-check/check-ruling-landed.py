@@ -141,7 +141,10 @@ NOISE = re.compile(u'[*`⭐⚠⛔️　\\s]+')
 QUOTE_ENDS = u'「」『』'          # 「」『』
 
 # A path written in the 着地先 cell, with or without backticks.
-PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml)')
+# ⭐ DFC-632: `txt` is here because a baseline file (`*-baseline.txt`) is a
+# real landing place -- without it a cell naming only a baseline read as
+# naming no file. The file must still exist (named_files), so nothing loosens.
+PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml|txt)')
 
 HELD_LINE = re.compile(u'^HELD\\s+(JDG-\\d+)\\s*(.*)$')
 

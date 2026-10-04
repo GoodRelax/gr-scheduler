@@ -22,7 +22,7 @@ import {
   type CalendarDay,
   type Task,
 } from '../../src/entity/document-model/schedule/schedule'
-import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import { settingNumber } from '../fixtures/setting-number'
 import type {
   BarGeometry,
   Point,
@@ -101,8 +101,8 @@ const dayPart = (value: string | null | undefined): string => {
 
 const S_129 = SETTINGS_CONSTANTS['actualInitialDuration'] as number
 const S_130 = SETTINGS_CONSTANTS['milestoneActualDuration'] as number
-const S_90 = NOT_STORED_SIZES['S-250']
-const S_91 = NOT_STORED_SIZES['S-257']
+const S_90 = settingNumber('S-250')
+const S_91 = settingNumber('S-257')
 
 const PX_PER_DAY_AT_1X = 20
 

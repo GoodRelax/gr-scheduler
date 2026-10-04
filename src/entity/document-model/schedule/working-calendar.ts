@@ -12,6 +12,7 @@ import {
   textOfDayAt,
   type CalendarDay,
 } from './calendar-day'
+import { SETTINGS_CONSTANTS } from '../document-settings/document-settings'
 import { planActualState } from './plan-actual-state'
 import {
   DEFAULT_CALENDAR_VALUES,
@@ -132,10 +133,21 @@ export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
   return { calendar, weekDays: calendar.weekDays, exceptions: calendar.exceptions }
 }
 
-const IMPORT_MIN_DAY: CalendarDay = { year: 1970, month: 1, day: 1 }
-const IMPORT_MAX_DAY: CalendarDay = { year: 2200, month: 12, day: 31 }
+const ACCEPTED_DAY_SPAN = daySpanOf(
+  SETTINGS_CONSTANTS.importMinDate,
+  SETTINGS_CONSTANTS.importMaxDate,
+)
 
-const ACCEPTED_DAY_SPAN = serial(IMPORT_MAX_DAY) - serial(IMPORT_MIN_DAY)
+// see S-119, S-120
+/** @purity pure */
+function daySpanOf(fromText: string, toText: string): number {
+  const from = dayOf(fromText)
+  const to = dayOf(toText)
+  if (from === null || to === null) {
+    throw new Error(`S-119 / S-120: ${fromText} to ${toText} is not a pair of days`)
+  }
+  return serial(to) - serial(from)
+}
 
 // see T-214
 export class NoWorkingDayReached extends Error {
