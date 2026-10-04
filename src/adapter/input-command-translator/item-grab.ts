@@ -14,6 +14,8 @@ import {
   textOfFinishSide,
   textOfStartSide,
   type CalendarDay,
+  type CommentBox,
+  type HighlightBox,
   type Project,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
@@ -396,7 +398,8 @@ function markerPullWrite(
   ])
 }
 
-// see PE-1, PE-6, SL-7, MK-16
+// see PE-1, PE-6, SL-1, SL-7, MK-16
+// WHY: the Selection's boxes go in the same bundle as its tasks, so one drag is one undo step (FR-031).
 /** @purity pure */
 function bodyMoveWrites(
   context: InputContext,
@@ -406,8 +409,9 @@ function bodyMoveWrites(
 ): readonly DocumentCommand[] {
   const rows = drawnRowsOf(context.layout)
   const moving = movedTaskUids(context, uid, press)
+  const boxes = isSelectionMoved(context, uid, press) ? selectedBoxesOf(context) : NO_BOXES
   const shift = draggedDayCount(context, press, release)
-  const crossed = clampedRowShift(context, rows, moving, drawnRowsCrossed(rows, press.at.y, release.y))
+  const crossed = clampedRowShift(context, rows, moving, boxes, drawnRowsCrossed(rows, press.at.y, release.y))
   const project = context.document.schedule.project
   const commands: DocumentCommand[] = []
   for (const each of moving) {
@@ -429,7 +433,79 @@ function bodyMoveWrites(
       commands.push({ kind: 'moveTaskToTaskGroup', uid: each, groupId: landed.groupId })
     }
   }
+  for (const box of boxes.highlightBoxes) {
+    const write = highlightBoxShiftWrite(context, rows, box, shift, crossed)
+    if (write !== null) commands.push(write)
+  }
+  for (const box of boxes.commentBoxes) {
+    const write = commentBoxShiftWrite(context, rows, box, shift, crossed)
+    if (write !== null) commands.push(write)
+  }
   return commands
+}
+
+interface SelectedBoxes {
+  readonly highlightBoxes: readonly HighlightBox[]
+  readonly commentBoxes: readonly CommentBox[]
+}
+
+const NO_BOXES: SelectedBoxes = { highlightBoxes: [], commentBoxes: [] }
+
+// see SL-1, SL-7, CY-4
+/** @purity pure */
+function selectedBoxesOf(context: InputContext): SelectedBoxes {
+  const schedule = context.document.schedule
+  const highlightBoxes: HighlightBox[] = []
+  const commentBoxes: CommentBox[] = []
+  for (const one of context.selection.items) {
+    const highlight = one.kind === 'highlightBox' ? boxById(schedule.highlightBoxes, one.id) : undefined
+    if (highlight !== undefined) highlightBoxes.push(highlight)
+    const comment = one.kind === 'commentBox' ? boxById(schedule.commentBoxes, one.id) : undefined
+    if (comment !== undefined) commentBoxes.push(comment)
+  }
+  return { highlightBoxes, commentBoxes }
+}
+
+// see PE-1, SL-7, FR-019
+// WHY: the frame keeps its size: both dates by the same days, both rows by the same rows, as a GR-14 body drag does.
+/** @purity pure */
+function highlightBoxShiftWrite(
+  context: InputContext,
+  rows: readonly RowPlacement[],
+  box: HighlightBox,
+  days: number,
+  crossed: number,
+): DocumentCommand | null {
+  const start = dayOf(box.startDate)
+  const end = dayOf(box.endDate)
+  const span = highlightRowSpanOf(context, rows, box)
+  if (start === null || end === null || span === null || (days === 0 && crossed === 0)) return null
+  const upper = rows[span.upperAt + crossed]
+  const lower = rows[span.lowerAt + crossed]
+  if (upper === undefined || lower === undefined) return null
+  const { early, late } = orderedDays(start, end)
+  return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
+}
+
+// see PE-1, SL-7, FR-019, CM-50
+// WHY: CM-50 alone: the body stands off the anchor (bodyOffsetPx), so it rides along with the moved anchor.
+/** @purity pure */
+function commentBoxShiftWrite(
+  context: InputContext,
+  rows: readonly RowPlacement[],
+  box: CommentBox,
+  days: number,
+  crossed: number,
+): DocumentCommand | null {
+  if (box.anchorGroupId === null) return null
+  const stood = dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
+  if (stood === null) return null
+  const at = drawnRowIndexOf(rows, box.anchorGroupId)
+  const landed = at === null ? undefined : rows[at + crossed]
+  const groupId = landed === undefined ? box.anchorGroupId : landed.groupId
+  if (days === 0 && groupId === box.anchorGroupId) return null
+  const date = heldOrWritten(box.anchorDate, dayShifted(stood, days), textOfDayStart)
+  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { date, groupId } }
 }
 
 /** @purity pure */
@@ -443,10 +519,19 @@ function rowIndexOfTask(
   rows: readonly RowPlacement[],
   uid: number,
 ): number | null {
-  const groupId = rowOfTask(context, uid)
+  return drawnRowIndexOf(rows, rowOfTask(context, uid))
+}
+
+/** @purity pure */
+function drawnRowIndexOf(rows: readonly RowPlacement[], groupId: string | null): number | null {
   if (groupId === null) return null
   const at = rows.findIndex((one) => one.groupId === groupId)
   return at < 0 ? null : at
+}
+
+/** @purity pure */
+function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: CalendarDay; readonly late: CalendarDay } {
+  return compareDay(start, end) <= 0 ? { early: start, late: end } : { early: end, late: start }
 }
 
 // see PE-1, SL-7
@@ -457,6 +542,7 @@ function clampedRowShift(
   context: InputContext,
   rows: readonly RowPlacement[],
   moving: readonly number[],
+  boxes: SelectedBoxes,
   asked: number,
 ): number {
   const held: number[] = []
@@ -464,14 +550,13 @@ function clampedRowShift(
     const at = rowIndexOfTask(context, rows, uid)
     if (at !== null) held.push(at)
   }
-  for (const one of context.selection.items) {
-    if (one.kind !== 'highlightBox') continue
-    const box = boxById(context.document.schedule.highlightBoxes, one.id)
-    if (box === undefined) continue
-    for (const groupId of [box.topGroupId, box.bottomGroupId]) {
-      const at = rows.findIndex((row) => row.groupId === groupId)
-      if (at >= 0) held.push(at)
-    }
+  for (const box of boxes.highlightBoxes) {
+    const span = highlightRowSpanOf(context, rows, box)
+    if (span !== null) held.push(span.upperAt, span.lowerAt)
+  }
+  for (const box of boxes.commentBoxes) {
+    const at = drawnRowIndexOf(rows, box.anchorGroupId)
+    if (at !== null) held.push(at)
   }
   return shiftWithinRows(rows, held, asked)
 }
@@ -626,22 +711,14 @@ function highlightBoxRangeWrite(
   const start = dayOf(box === undefined ? null : box.startDate)
   const end = dayOf(box === undefined ? null : box.endDate)
   const rows = drawnRowsOf(context.layout)
-  const firstRow = context.layout.rows[0]
-  const lastRow = context.layout.rows[context.layout.rows.length - 1]
-  if (box === undefined || start === null || end === null || firstRow === undefined || lastRow === undefined) {
-    return CONSUMED_ELSEWHERE
-  }
+  const span = box === undefined ? null : highlightRowSpanOf(context, rows, box)
+  if (box === undefined || start === null || end === null || span === null) return CONSUMED_ELSEWHERE
   // WHY: a highlight box holds a frame and eight grab points only; the anchor and the leader
   // belong to a comment box, and CM-54 has no value to write for either.
   if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
 
-  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
-  const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
-  const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
-  const upperAt = Math.min(topAt, bottomAt)
-  const lowerAt = Math.max(topAt, bottomAt)
-  const early = compareDay(start, end) <= 0 ? start : end
-  const late = compareDay(start, end) <= 0 ? end : start
+  const { upperAt, lowerAt } = span
+  const { early, late } = orderedDays(start, end)
 
   let upper: RowPlacement | undefined
   let lower: RowPlacement | undefined
@@ -661,23 +738,47 @@ function highlightBoxRangeWrite(
     ;({ upper, lower, left, right } = grabPointRange(held, draggedSidesOf(part), atPointer, release.y))
   }
   if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
+  return changed([highlightRangeWrite(context, box, { upper, lower, left, right })])
+}
 
-  // TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
+// see HB-3, FR-019
+/** @purity pure */
+function highlightRowSpanOf(
+  context: InputContext,
+  rows: readonly RowPlacement[],
+  box: HighlightBox,
+): { readonly upperAt: number; readonly lowerAt: number } | null {
+  const firstRow = context.layout.rows[0]
+  const lastRow = context.layout.rows[context.layout.rows.length - 1]
+  if (firstRow === undefined || lastRow === undefined) return null
+  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
+  const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
+  const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
+  return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
+}
+
+// see CM-54, FR-019, WT-10
+// TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
+/** @purity pure */
+function highlightRangeWrite(
+  context: InputContext,
+  box: HighlightBox,
+  to: { readonly upper: RowPlacement; readonly lower: RowPlacement; readonly left: CalendarDay; readonly right: CalendarDay },
+): DocumentCommand {
+  const { upper, lower, left, right } = to
   const rankById = taskGroupRankById(context.document.schedule.taskGroups)
   const isUpperFirst = (rankById.get(upper.groupId) ?? 0) <= (rankById.get(lower.groupId) ?? 0)
   const isLeftFirst = compareDay(left, right) <= 0
-  return changed([
-    {
-      kind: 'setHighlightBoxRange',
-      id,
-      range: {
-        startDate: heldOrWritten(box.startDate, isLeftFirst ? left : right, textOfDayStart),
-        endDate: heldOrWritten(box.endDate, isLeftFirst ? right : left, textOfDayEnd),
-        topGroupId: (isUpperFirst ? upper : lower).groupId,
-        bottomGroupId: (isUpperFirst ? lower : upper).groupId,
-      },
+  return {
+    kind: 'setHighlightBoxRange',
+    id: box.id,
+    range: {
+      startDate: heldOrWritten(box.startDate, isLeftFirst ? left : right, textOfDayStart),
+      endDate: heldOrWritten(box.endDate, isLeftFirst ? right : left, textOfDayEnd),
+      topGroupId: (isUpperFirst ? upper : lower).groupId,
+      bottomGroupId: (isUpperFirst ? lower : upper).groupId,
     },
-  ])
+  }
 }
 
 // see WT-10
@@ -779,14 +880,19 @@ function actualEndPlacement(
 // see SL-7, SL-4, MK-16
 /** @purity pure */
 function movedTaskUids(context: InputContext, grabbed: number, press: PointerPress): readonly number[] {
-  const held: ItemRef = { kind: 'task', uid: grabbed }
-  const isSelectedHeld = isSelected(context.selection, held)
-  if (!isSelectedHeld && !isDateKeepingDrag(press)) return [grabbed]
+  if (!isSelectionMoved(context, grabbed, press)) return [grabbed]
   const uids: number[] = []
   for (const one of context.selection.items) {
     if (one.kind === 'task') uids.push(one.uid)
   }
-  return isSelectedHeld ? uids : [...uids, grabbed]
+  return isSelected(context.selection, { kind: 'task', uid: grabbed }) ? uids : [...uids, grabbed]
+}
+
+// see SL-7, SL-4, MK-16
+/** @purity pure */
+function isSelectionMoved(context: InputContext, grabbed: number, press: PointerPress): boolean {
+  const held: ItemRef = { kind: 'task', uid: grabbed }
+  return isSelected(context.selection, held) || isDateKeepingDrag(press)
 }
 
 // TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already
