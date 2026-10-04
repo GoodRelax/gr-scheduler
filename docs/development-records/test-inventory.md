@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 180 | 2456 | 3 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 52 | 333 | 0 | 1 | 0 | 0 |
+| `system` | TS-3 | - | 53 | 347 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 171 | 3849 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 423 | 6742 | 11 | 18 | 10 | 1 |
+| **all** | | | 424 | 6756 | 11 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -474,6 +474,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | 7 | FR-031, FR-154 | - | - | AG-9, QN-13, TL-10, TL-11 | - | - | - | - |
 | `tests/system/cr-669-the-help-maximises-to-the-schedule-canvas.test.ts` | 9 | FR-036 | - | T-103, T-109, T-335, T-336, T-337 | GR-24, GR-25, HN-6, IC-20, IC-54, S-203, U-32, UZ-9, WB-3, WB-8, WB-9 | - | - | - | - |
 | `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206 | PR-15, PR-16, PR-17, S-171, S-248, U-24, U-25 | - | - | - | - |
+| `tests/system/cr-675-the-download-page.test.ts` | 14 | - | - | - | IC-1, IC-2, IC-20, S-350 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |

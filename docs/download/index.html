@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-aDFqcQ532sWjv/c972udGCgfARRxC4gXpDTX51u2VjE='; script-src 'sha256-WV669eWoz6z/x3UJ/lhVRRwXxFeGZssG2T5dhKyapw0='; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Download GoodRelax Scheduler</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1d2330;
+  --muted: #5a6475;
+  --line: #d9dee7;
+  --accent: #1f5fbf;
+  --accent-text: #ffffff;
+  --accent-soft: #e6eefb;
+  --note-bg: #fff7e0;
+  --note-line: #e8c55a;
+  --code-bg: #eef1f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c;
+    --surface: #1c2027;
+    --text: #e6e9ef;
+    --muted: #a3acba;
+    --line: #333a46;
+    --accent: #6ea2f0;
+    --accent-text: #0d1420;
+    --accent-soft: #22324a;
+    --note-bg: #2e2a1c;
+    --note-line: #8a7433;
+    --code-bg: #262b34;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.brand { font-weight: 700; font-size: 17px; }
+.brand span { color: var(--muted); font-weight: 400; }
+.langs {
+  display: inline-flex;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  overflow: hidden;
+  flex: none;
+}
+.langs button {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border: 0;
+  background: var(--surface);
+  color: var(--accent);
+  cursor: pointer;
+}
+.langs button + button { border-left: 2px solid var(--accent); }
+.langs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+.langs button:focus-visible { outline: 3px solid var(--note-line); outline-offset: -3px; }
+main { max-width: 780px; margin: 0 auto; padding: 8px 16px 48px; }
+h1 { font-size: 28px; line-height: 1.3; margin: 28px 0 8px; }
+h2 { font-size: 22px; line-height: 1.35; margin: 40px 0 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+h3 { font-size: 17px; margin: 24px 0 4px; }
+p, ul, ol { margin: 8px 0; }
+.lead { font-size: 17px; color: var(--muted); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 16px 0;
+}
+.get {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 19px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.get:hover { filter: brightness(1.08); }
+.get:focus-visible { outline: 3px solid var(--note-line); outline-offset: 2px; }
+.get svg { width: 24px; height: 24px; flex: none; }
+.small { font-size: 14px; color: var(--muted); }
+.steps { list-style: none; padding: 0; counter-reset: step; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 4px 0 12px 48px;
+}
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  text-align: center;
+  line-height: 32px;
+}
+.steps ul { padding-left: 20px; }
+.note {
+  background: var(--note-bg);
+  border-left: 4px solid var(--note-line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 12px 0;
+}
+.say {
+  display: block;
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 6px 0;
+  font-weight: 600;
+}
+code, pre {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, "Menlo", monospace;
+  font-size: 14px;
+  background: var(--code-bg);
+  border-radius: 4px;
+}
+code { padding: 1px 5px; }
+pre { padding: 10px 12px; overflow-x: auto; }
+.ic {
+  display: inline-block;
+  width: 22px;
+  height: 20px;
+  vertical-align: -4px;
+  padding: 1px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+}
+.menu { font-weight: 700; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.two h3 { margin-top: 0; }
+@media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+details { margin: 16px 0; }
+summary { cursor: pointer; font-weight: 700; }
+a { color: var(--accent); }
+footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line); }
+.sprite { position: absolute; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="ic-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13.5 v4.5 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-4.5"/><path d="M12 4 V16.5"/><path d="M8 12.5 L12 16.5 L16 12.5"/></g></symbol>
+    <symbol id="ic-open" viewBox="0.8 1.5 22.7 21"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13.5 v4.5 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-4.5"/><path d="M12 16.5 V4"/><path d="M8 8 L12 4 L16 8"/></g></symbol>
+    <symbol id="ic-save" viewBox="0.8 1.5 22.7 21"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13.5 v4.5 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 v-4.5"/><path d="M12 4 V16.5"/><path d="M8 12.5 L12 16.5 L16 12.5"/></g></symbol>
+    <symbol id="ic-agent" viewBox="0.8 1.5 22.7 21"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><path d="M8 13.8 q4 3 8 0"/></g><circle cx="8.2" cy="11" r="0.95" fill="currentColor"/><circle cx="15.8" cy="11" r="0.95" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<header class="bar">
+  <div class="brand">GoodRelax Scheduler <span data-lang="en">Download</span><span data-lang="ja" hidden>ダウンロード</span></div>
+  <div class="langs" role="group" aria-label="Language / 言語">
+    <button type="button" data-set-lang="en" aria-pressed="true" lang="en">English</button>
+    <button type="button" data-set-lang="ja" aria-pressed="false" lang="ja">日本語</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== English ===================== -->
+<div data-lang="en" lang="en" data-title="Download GoodRelax Scheduler">
+
+<h1>Get GoodRelax Scheduler (GRS)</h1>
+<p class="lead">GRS is one HTML file. Save it anywhere and open it in a Chromium-based browser such as Google Chrome or Microsoft Edge. Nothing to install, and it works offline.</p>
+<p><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>Download GRS.html</a></p>
+<p class="small">To update, download it again here and use the new file instead of the old one. Your schedule files are separate files and are not changed.</p>
+
+<h2 id="ai">Use GRS from an AI app (AI integration)</h2>
+<p>With the AI integration, the AI app on your PC can read and edit the schedule you have open in GRS &mdash; for example &ldquo;Which tasks are late?&rdquo; or &ldquo;Move the review one week later.&rdquo; You keep working in GRS as usual; the AI works on the same screen. Everything you need is on this page.</p>
+
+<div class="card">
+  <h3>What you need</h3>
+  <ul>
+    <li><b>Claude Desktop</b> &mdash; the Claude app for Windows or macOS, signed in. If you do not have it yet, get it from <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a>.</li>
+    <li>A Chromium-based browser (Google Chrome or Microsoft Edge).</li>
+  </ul>
+  <p>You do <b>not</b> need to install Node.js or anything else: Claude Desktop runs the relay by itself.</p>
+  <p><a class="get" href="grs-relay.mcpb" download="grs-relay.mcpb"><svg aria-hidden="true"><use href="#ic-download"/></svg>Download grs-relay.mcpb</a></p>
+  <p class="small">GRS relay: the small program that lets Claude Desktop reach the GRS page in your browser. It already contains the same GRS as GRS.html above.</p>
+</div>
+
+<h3>Steps</h3>
+<ol class="steps">
+  <li><b>Download grs-relay.mcpb</b> with the button above.</li>
+  <li><b>Install it in Claude Desktop.</b> Do one of these:
+    <ul>
+      <li>Double-click the downloaded <code>grs-relay.mcpb</code>, or</li>
+      <li>drag it onto the Claude Desktop window, or</li>
+      <li>in Claude Desktop, open <span class="menu">Settings › Extensions › Advanced settings</span>, and in the <span class="menu">Extension Developer</span> section click <span class="menu">Install Extension…</span>, then choose the file.</li>
+    </ul>
+    An install screen for <b>GRS relay</b> opens. Check it and finish the installation.
+    <div class="note">GRS relay is not from Claude&rsquo;s extension directory and is not signed, so Claude Desktop may ask you to confirm. It comes from this page.</div>
+  </li>
+  <li><b>Check that it is on.</b> In <span class="menu">Settings › Extensions</span>, <b>GRS relay</b> is listed and enabled.</li>
+  <li><b>Ask Claude for the address of the GRS page.</b> Start a new chat in Claude Desktop and send:
+    <span class="say">Use GRS relay and tell me the address to open the GRS page.</span>
+    If Claude asks whether it may use a tool of GRS relay, allow it. Claude answers with an address that starts with <code>http://127.0.0.1:</code> and has a long part after <code>#</code>.</li>
+  <li><b>Open that address in your browser.</b> Copy the <b>whole</b> address, including the part after <code>#</code>, and open it in a new tab. GRS opens.</li>
+  <li><b>Open your schedule in that tab</b> with the <span class="menu">Open</span> button <svg class="ic" aria-hidden="true"><use href="#ic-open"/></svg> in the header. You can also try it with the sample that is shown.
+    <div class="note">Use this tab for work with the AI. A GRS.html you opened from a file on your PC does not connect to the AI.</div>
+  </li>
+  <li><b>Press the <span class="menu">Agent API</span> button</b> <svg class="ic" aria-hidden="true"><use href="#ic-agent"/></svg> in the header so that it looks pressed. The tab is now connected.</li>
+  <li><b>Ask Claude what you want.</b> For example:
+    <span class="say">Read the schedule open in GRS and list the tasks that are late.</span>
+    Changes the AI makes appear on your screen at once. You can undo them like your own edits.</li>
+  <li><b>Save as usual</b> with <span class="menu">Save to File</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> in that tab. The relay saves nothing for you.</li>
+</ol>
+
+<div class="note"><b>Each time Claude Desktop starts again, the address changes.</b> Ask Claude for the address again (step 4), open it, open your file, and press <span class="menu">Agent API</span> again (steps 5 to 7). Save your work before you quit Claude Desktop.</div>
+
+<h2>What the AI can and cannot do</h2>
+<div class="two">
+  <div class="card">
+    <h3>It can</h3>
+    <ul>
+      <li>Read the schedule open in the tab: tasks, dates, what you have selected, search results and the delay diagnostics report.</li>
+      <li>Edit it. Every change goes through the same checks as your own edits, shows on screen at once, and can be undone.</li>
+      <li>Bring in another document&rsquo;s contents, and hand back the schedule as GRS JSON, MS Project XML, an image or one HTML file.</li>
+      <li>Show or jump to tasks, wait for your edits, and write messages in the Dialogue Field.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>It cannot</h3>
+    <ul>
+      <li>Open or save files on your PC. You open and save in the GRS tab.</li>
+      <li>Work while the tab is closed or <span class="menu">Agent API</span> is off. It then answers that no GRS page is connected.</li>
+      <li>Connect to two GRS tabs at once. Only the first tab connects.</li>
+      <li>Edit read-only rows, or write while you are dragging or still typing in a field.</li>
+      <li>Be reached from another computer.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>What stays on your PC</h3>
+<ul>
+  <li>The relay runs on your PC and listens only on <code>127.0.0.1</code> (this computer). Other computers cannot connect to it.</li>
+  <li>Your schedule stays in the browser tab. The relay keeps no copy and saves nothing. GRS itself sends nothing to the internet.</li>
+  <li>Only the tab that the relay itself served, with the secret key of this start in its address, can connect. Other web pages cannot.</li>
+  <li><b>But what the AI reads becomes part of your chat with Claude</b> and goes to the AI service like anything you type. Let the AI read only a schedule you would also paste into the chat.</li>
+</ul>
+
+<h2>Turn it off or remove it</h2>
+<ul>
+  <li>To stop for now, press <span class="menu">Agent API</span> again in the GRS tab. What the AI has already read cannot be taken back.</li>
+  <li>To turn the relay off or remove it, use <span class="menu">Settings › Extensions</span> in Claude Desktop.</li>
+</ul>
+
+<h2>If something does not work</h2>
+<ul>
+  <li><b>Claude says no GRS page is connected.</b> Open the address it gives you (the whole address, with the part after <code>#</code>) and press <span class="menu">Agent API</span> in that tab.</li>
+  <li><b>The address does not open.</b> Claude Desktop has started again, so the address has changed. Ask Claude for the address again.</li>
+  <li><b><span class="menu">Agent API</span> is pressed but nothing connects.</b> Check that you are in the tab opened from the address, not in a GRS.html opened from a file. Close other tabs with the same address: only one tab connects.</li>
+  <li><b>Claude does not know GRS relay.</b> Check step 3, then start a new chat.</li>
+</ul>
+
+<details>
+  <summary>Other ways and checks (for advanced users)</summary>
+  <h3>Run the relay with Node.js yourself</h3>
+  <p>For an AI app that starts MCP servers as a command, with Node.js 18 or later installed on your PC: download <a href="grs-relay.mjs" download="grs-relay.mjs">grs-relay.mjs</a> (the same relay as one file) and register the command <code>node</code> with the saved file as its argument, for example:</p>
+  <pre>{
+  "mcpServers": {
+    "grs-relay": { "command": "node", "args": ["FOLDER/grs-relay.mjs"] }
+  }
+}</pre>
+  <p>Replace <code>FOLDER</code> with the folder where you saved the file. The relay also writes the address to open to its error output.</p>
+  <h3>Check the download</h3>
+  <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> holds the SHA-256 of grs-relay.mcpb. The bundle is not signed; the build records which source it was made from (a build provenance attestation).</p>
+</details>
+
+<footer class="small">This page holds every step of the setup. You do not need another manual.</footer>
+</div>
+
+<!-- ===================== Japanese ===================== -->
+<div data-lang="ja" lang="ja" data-title="GoodRelax Scheduler のダウンロード" hidden>
+
+<h1>GoodRelax Scheduler（GRS）を入手する</h1>
+<p class="lead">GRS は 1 つの HTML ファイルです。好きな場所に保存し、Google Chrome や Microsoft Edge など Chromium 系のブラウザで開いてください。インストールは不要で、オフラインでも動きます。</p>
+<p><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>GRS.html をダウンロード</a></p>
+<p class="small">新しい版にするときは、ここでもう一度ダウンロードし、古いファイルの代わりに使ってください。日程のファイルは別のファイルなので、変わりません。</p>
+
+<h2 id="ai-ja">AI のアプリから GRS を使う（AI 連携）</h2>
+<p>AI 連携を入れると、PC の AI のアプリが、GRS で開いている日程を読んだり直したりできます —— たとえば「遅れているタスクはどれ？」「レビューを 1 週間後ろへ動かして」。GRS はいつもどおり使えて、AI は同じ画面の上で作業します。必要なことは、すべてこのページに書いてあります。</p>
+
+<div class="card">
+  <h3>必要なもの</h3>
+  <ul>
+    <li><b>Claude Desktop</b> —— Windows または macOS 用の Claude のアプリ（サインイン済み）。まだ無ければ <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a> から入手してください。</li>
+    <li>Chromium 系のブラウザ（Google Chrome または Microsoft Edge）。</li>
+  </ul>
+  <p>Node.js などを入れる必要は<b>ありません</b>。取次（relay）は Claude Desktop が自分で動かします。</p>
+  <p><a class="get" href="grs-relay.mcpb" download="grs-relay.mcpb"><svg aria-hidden="true"><use href="#ic-download"/></svg>grs-relay.mcpb をダウンロード</a></p>
+  <p class="small">GRS relay（取次）: Claude Desktop がブラウザの GRS のページへ届くようにする小さなプログラムです。上の GRS.html と同じ GRS を中に持っています。</p>
+</div>
+
+<h3>手順</h3>
+<ol class="steps">
+  <li>上のボタンで <b>grs-relay.mcpb をダウンロード</b>します。</li>
+  <li><b>Claude Desktop に入れます。</b>次のどれか 1 つを行ってください。
+    <ul>
+      <li>ダウンロードした <code>grs-relay.mcpb</code> をダブルクリックする。</li>
+      <li>Claude Desktop の窓へドラッグして落とす。</li>
+      <li>Claude Desktop で <span class="menu">Settings › Extensions › Advanced settings</span> を開き、<span class="menu">Extension Developer</span> の欄の <span class="menu">Install Extension…</span> を押して、ファイルを選ぶ（日本語の表示では、同じ場所にある対応する項目です）。</li>
+    </ul>
+    <b>GRS relay</b> を入れる画面が開きます。中身を確かめて、最後まで進めてください。
+    <div class="note">GRS relay は Claude の拡張機能の一覧に載っておらず、署名もありません。そのため Claude Desktop が確認を求めることがあります。出どころはこのページです。</div>
+  </li>
+  <li><b>有効になっているか確かめます。</b><span class="menu">Settings › Extensions</span> に <b>GRS relay</b> があり、有効になっていれば大丈夫です。</li>
+  <li><b>GRS のページのアドレスを Claude に聞きます。</b>Claude Desktop で新しいチャットを始め、次のように送ってください。
+    <span class="say">GRS relay を使って、GRS のページを開くアドレスを教えて。</span>
+    GRS relay の道具を使ってよいかを Claude が尋ねたら、許可してください。Claude は <code>http://127.0.0.1:</code> で始まり、<code>#</code> の後ろに長い文字列が続くアドレスを答えます。</li>
+  <li><b>そのアドレスをブラウザで開きます。</b><code>#</code> の後ろまで含めて、アドレスを<b>まるごと</b>写し、新しいタブで開いてください。GRS が開きます。</li>
+  <li><b>そのタブで日程を開きます。</b>ヘッダーの <span class="menu">開く</span> ボタン <svg class="ic" aria-hidden="true"><use href="#ic-open"/></svg> を使います。表示されている見本で試すこともできます。
+    <div class="note">AI と作業するときは、このタブを使ってください。PC のファイルから開いた GRS.html は AI とつながりません。</div>
+  </li>
+  <li>ヘッダーの <b><span class="menu">Agent API</span> ボタン</b> <svg class="ic" aria-hidden="true"><use href="#ic-agent"/></svg> を押して、押された見た目にします。これでタブがつながりました。</li>
+  <li><b>Claude に頼みたいことを伝えます。</b>たとえば:
+    <span class="say">GRS で開いている日程を読んで、遅れているタスクを挙げて。</span>
+    AI が加えた変更は、すぐ画面に出ます。自分の編集と同じように取り消せます。</li>
+  <li><b>いつもどおり保存します。</b>そのタブの <span class="menu">書き出して保存</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> を使ってください。取次は何も保存しません。</li>
+</ol>
+
+<div class="note"><b>Claude Desktop を起動し直すたびに、アドレスが変わります。</b>もう一度 Claude にアドレスを聞き（手順 4）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 5〜7）。Claude Desktop を終える前に、作業を保存してください。</div>
+
+<h2>AI にできること・できないこと</h2>
+<div class="two">
+  <div class="card">
+    <h3>できること</h3>
+    <ul>
+      <li>タブで開いている日程を読む —— タスク、日付、選んでいるもの、検索の結果、遅延診断のレポート。</li>
+      <li>日程を直す。どの変更も自分の編集と同じ検査を通り、すぐ画面に出て、取り消せます。</li>
+      <li>別の文書の中身を取り込む。日程を GRS JSON・MS Project の XML・画像・1 つの HTML ファイルとして受け取る。</li>
+      <li>タスクを表示したり、そこへ移ったりする。あなたの編集を待つ。対話欄にメッセージを書く。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>できないこと</h3>
+    <ul>
+      <li>PC のファイルを開く・保存する。開くのも保存するのも、GRS のタブで行います。</li>
+      <li>タブが閉じているとき、<span class="menu">Agent API</span> が切れているときに働く。そのときは、GRS のページがつながっていないと答えます。</li>
+      <li>2 つの GRS のタブに同時につながる。つながるのは最初の 1 つだけです。</li>
+      <li>読み取り専用の行を直す。あなたがドラッグしている間や、欄に入力している途中に書き込む。</li>
+      <li>ほかのコンピューターからつながる。</li>
+    </ul>
+  </div>
+</div>
+
+<h3>PC の外へ出ないもの</h3>
+<ul>
+  <li>取次はあなたの PC で動き、<code>127.0.0.1</code>（このコンピューター）でだけ待ち受けます。ほかのコンピューターからはつながりません。</li>
+  <li>日程はブラウザのタブの中にあります。取次は写しを持たず、何も保存しません。GRS 自身はインターネットへ何も送りません。</li>
+  <li>つながれるのは、取次が自分で配ったタブで、その起動の秘密の鍵をアドレスに持つものだけです。ほかの Web ページからはつながりません。</li>
+  <li><b>ただし、AI が読んだ内容は Claude とのチャットの一部になり</b>、あなたが打った文と同じように AI のサービスへ送られます。チャットに貼ってもよい日程だけを AI に読ませてください。</li>
+</ul>
+
+<h2>止める・取り除く</h2>
+<ul>
+  <li>いったん止めるときは、GRS のタブで <span class="menu">Agent API</span> をもう一度押します。AI が既に読んだものは取り戻せません。</li>
+  <li>取次を無効にする・取り除くときは、Claude Desktop の <span class="menu">Settings › Extensions</span> で行います。</li>
+</ul>
+
+<h2>うまくいかないとき</h2>
+<ul>
+  <li><b>GRS のページがつながっていないと Claude が言う。</b>Claude が示すアドレスを（<code>#</code> の後ろまでまるごと）開き、そのタブで <span class="menu">Agent API</span> を押してください。</li>
+  <li><b>アドレスが開かない。</b>Claude Desktop が起動し直したため、アドレスが変わっています。もう一度 Claude にアドレスを聞いてください。</li>
+  <li><b><span class="menu">Agent API</span> を押したのにつながらない。</b>ファイルから開いた GRS.html ではなく、アドレスから開いたタブを使っているか確かめてください。同じアドレスのタブがほかにあれば閉じてください —— つながるのは 1 つのタブだけです。</li>
+  <li><b>Claude が GRS relay を知らない。</b>手順 3 を確かめてから、新しいチャットを始めてください。</li>
+</ul>
+
+<details>
+  <summary>ほかの使い方と確かめ方（詳しい人向け）</summary>
+  <h3>Node.js で取次を自分で動かす</h3>
+  <p>MCP のサーバーをコマンドとして起動する AI のアプリで、PC に Node.js 18 以降が入っているときは、<a href="grs-relay.mjs" download="grs-relay.mjs">grs-relay.mjs</a>（同じ取次を 1 つのファイルにしたもの）をダウンロードし、コマンド <code>node</code> と、引数に保存したファイルを登録します。例:</p>
+  <pre>{
+  "mcpServers": {
+    "grs-relay": { "command": "node", "args": ["FOLDER/grs-relay.mjs"] }
+  }
+}</pre>
+  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。取次は、開くアドレスをエラー出力にも書きます。</p>
+  <h3>ダウンロードしたものを確かめる</h3>
+  <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> は grs-relay.mcpb の SHA-256 を持ちます。束に署名はありません。どのソースから作ったかは、組み立てが記録しています（ビルドの来歴の証明）。</p>
+</details>
+
+<footer class="small">このページに、入れる手順のすべてがあります。ほかの説明書は要りません。</footer>
+</div>
+
+</main>
+<script>
+(function () {
+  var STORE_KEY = 'grs-download-lang';
+  var LANGS = ['en', 'ja'];
+  var DEFAULT_LANG = 'en';
+
+  function readSaved() {
+    try {
+      var saved = window.localStorage.getItem(STORE_KEY);
+      return LANGS.indexOf(saved) >= 0 ? saved : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function save(lang) {
+    try {
+      window.localStorage.setItem(STORE_KEY, lang);
+    } catch (e) {
+      // The choice is a convenience only; without storage the page stays usable.
+    }
+  }
+
+  function show(lang) {
+    document.documentElement.lang = lang;
+    var blocks = document.querySelectorAll('[data-lang]');
+    for (var i = 0; i < blocks.length; i++) {
+      var on = blocks[i].getAttribute('data-lang') === lang;
+      blocks[i].hidden = !on;
+      if (on && blocks[i].hasAttribute('data-title')) document.title = blocks[i].getAttribute('data-title');
+    }
+    var buttons = document.querySelectorAll('[data-set-lang]');
+    for (var j = 0; j < buttons.length; j++) {
+      buttons[j].setAttribute('aria-pressed', String(buttons[j].getAttribute('data-set-lang') === lang));
+    }
+  }
+
+  var switches = document.querySelectorAll('[data-set-lang]');
+  for (var k = 0; k < switches.length; k++) {
+    switches[k].addEventListener('click', function (event) {
+      var lang = event.currentTarget.getAttribute('data-set-lang');
+      show(lang);
+      save(lang);
+    });
+  }
+
+  show(readSaved() || DEFAULT_LANG);
+})();
+</script>
+</body>
+</html>
