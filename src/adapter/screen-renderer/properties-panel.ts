@@ -436,6 +436,8 @@ function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKin
 interface Candidates {
   readonly words: readonly string[]
   readonly values: readonly string[] | null
+  // WHY: names gathered from the document have no length bound, so FR-006 lets their field fit the panel.
+  readonly areDocumentNames: boolean
 }
 
 // see PR-15, AT-25
@@ -450,7 +452,7 @@ function parentCandidates(schedule: Schedule, subjectUid: number): Candidates {
     values.push(String(one.uid))
   }
 
-  return { words, values }
+  return { words, values, areDocumentNames: true }
 }
 
 /** @purity pure */
@@ -464,7 +466,7 @@ function candidatesOf(
     return parentCandidates(schedule, subjectUid)
   }
   const choices = COLUMN_SHAPES[entity][column]?.choices ?? null
-  return choices === null ? null : { words: choices, values: null }
+  return choices === null ? null : { words: choices, values: null, areDocumentNames: false }
 }
 
 /** @purity pure */
@@ -489,7 +491,10 @@ function controlOf(
     ...(values === null ? {} : { choiceValues: values }),
     min: kind === 'number' ? (shape?.min ?? annotationBoundsOf(entity, column)?.min ?? null) : null,
     max: kind === 'number' ? (shape?.max ?? annotationBoundsOf(entity, column)?.max ?? null) : null,
-    widthInFontSizes: widthOf(text, candidates === null ? null : candidates.words, labelCoef),
+    widthInFontSizes:
+      candidates?.areDocumentNames === true
+        ? NO_ROOM_FLOOR
+        : widthOf(text, candidates === null ? null : candidates.words, labelCoef),
   }
 }
 
@@ -500,6 +505,11 @@ function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly mi
   const key = `${entity}.${column}`
   return Object.values(NOT_STORED_ANNOTATION_BOUNDS).find((row) => row.key === key) ?? null
 }
+
+// see FR-006
+// WHY: a chooser of names gathered from the document takes no floor: it fits the panel and the
+// drawing side cuts a name too long for it (FR-006), so the longest name cannot push it past the edge.
+const NO_ROOM_FLOOR = 0
 
 // see FR-006, FR-093, S-199
 /** @purity pure */
@@ -552,7 +562,6 @@ const UNASSIGN_TEXT = '-'
 function assigneeControls(
   schedule: Schedule,
   taskUid: number,
-  labelCoef: number,
   language: DisplayLanguage,
 ): readonly PropertyControl[] {
   const people = assigneeChoices(schedule)
@@ -572,7 +581,7 @@ function assigneeControls(
       assignee,
       min: null,
       max: null,
-      widthInFontSizes: widthOf(text, names, labelCoef),
+      widthInFontSizes: NO_ROOM_FLOOR,
       ...(resourceUid === focused ? { isFocusTarget: true } : {}),
     }
   })
@@ -594,7 +603,7 @@ function controlsOfItem(
   language: DisplayLanguage,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row) || item.heldBy === 'derived') return []
-  if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, labelCoef, language)
+  if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, language)
 
   const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null

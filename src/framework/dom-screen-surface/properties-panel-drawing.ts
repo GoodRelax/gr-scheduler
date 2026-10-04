@@ -110,10 +110,13 @@ function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
+// see FR-006
+// WHY: ellipsis, for a chooser of document names handed no floor: a value wider than the field is
+// cut with a mark, never pushed past the panel's edge. A field with its floor never reaches it.
 /** @purity pure */
 function propertyControlStyle(widthInFontSizes: number): string {
   return (
-    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;` +
+    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;text-overflow:ellipsis;` +
     `min-height:${fieldSizes().controlMinHeight}px;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
   )
