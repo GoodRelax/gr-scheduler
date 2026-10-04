@@ -233,5 +233,5 @@ grep -rn "rowPlacesAtZoomY" src --include=*.ts                    # callers: zoo
 grep -n "function namesAPlace" -A6 src/adapter/input-command-translator/zoom-and-fit.ts
 grep -n "y = (title.box.y + fontSizePx)" src/adapter/image-exporter/image-exporter.ts
 grep -rl "rulerTierPxPerDayDay" sample-schedule                   # 0 files
-python -c "r=0.625;d=21*r/12;w=1920-300*r-10*r-18;print(d,w,w/61/1.1/d,w/(17.5*d),12*0.6*17.7/8.4+2)"
+python -c "r=0.625;d=21*r/12;w=1920 - 300*r - 10*r - 18;print(d,w,w/61/1.1/d,w/(17.5*d),12*0.6*17.7/8.4+2)"
 ```
