@@ -1416,6 +1416,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenSurfaceWiring` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenSurfaceWiring` | -- | interface ScreenSurfaceWiring |
 | `ScreenTheme` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenTheme` | PI-38 | 型 |
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
+| `SEARCH_COLUMN_WIDTH_ROWS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEARCH_COLUMN_WIDTH_ROWS` | -- | const SEARCH_COLUMN_WIDTH_ROWS: |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthRow: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
@@ -1688,4 +1689,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 817 name(s) leave through a public entry (310 of them published by table T-064), 661 more are exported by a file and not by its entry.
+Totals: 818 name(s) leave through a public entry (310 of them published by table T-064), 661 more are exported by a file and not by its entry.

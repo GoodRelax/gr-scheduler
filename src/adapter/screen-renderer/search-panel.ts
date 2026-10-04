@@ -79,13 +79,8 @@ const TABLE_COLUMNS: { readonly [T in SearchTable]: readonly SearchColumn[] } = 
   commentBoxes: COMMENT_BOX_SEARCH_COLUMNS,
 }
 
-// see SV-6
-const LAST_FIXED_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
-  tasks: 'SQ-1',
-  commentBoxes: 'SQ-7',
-}
-
-// see SJ-1
+// see SJ-1, SV-6
+// WHY: the jump column is also the last fixed one: SV-6 fixes each table up to the cell SJ-1 jumps from.
 const JUMP_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
   tasks: 'SQ-1',
   commentBoxes: 'SQ-7',
@@ -210,7 +205,7 @@ function searchTableOf(session: ScreenSession, panel: SearchPanelSession, found:
   const columns = TABLE_COLUMNS[panel.table]
   return {
     columns,
-    fixedCount: columns.indexOf(LAST_FIXED_COLUMN[panel.table]) + 1,
+    fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
     valuesOf: (column) => columnValuesOf(found(), column),

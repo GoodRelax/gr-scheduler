@@ -19,6 +19,7 @@ import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   NOT_STORED_SEARCH_PANEL_SIZES,
   PAINT,
+  SEARCH_COLUMN_WIDTH_ROWS,
   anchoredEntry,
   boxStyle,
   commandEntry,
@@ -108,31 +109,6 @@ const FILTER_ENTRY = 'IC-122'
 
 const LISTED_ENTRIES: readonly string[] = ['IC-125', 'IC-126']
 
-type SearchPanelSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
-
-// see SV-18, RW-9
-const DEFAULT_WIDTH_ROWS: { readonly [column: string]: SearchPanelSizeRow } = {
-  'SQ-1': 'S-466',
-  'SQ-2': 'S-467',
-  'SQ-3': 'S-468',
-  'SQ-4': 'S-469',
-  'SQ-5': 'S-470',
-  'SQ-6': 'S-471',
-  'SQ-7': 'S-472',
-  'SQ-8': 'S-473',
-  'SQ-9': 'S-474',
-  'SQ-11': 'S-500',
-  'SQ-12': 'S-501',
-  'SQ-13': 'S-502',
-  'DT-1': 'S-475',
-  'DT-2': 'S-476',
-  'DT-3': 'S-477',
-  'DT-4': 'S-478',
-  'DT-5': 'S-479',
-  'DT-6': 'S-480',
-  'DT-7': 'S-481',
-}
-
 // TRAP: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
 /** @purity pure */
 export function windowStyle(): string {
@@ -213,7 +189,7 @@ type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView): number {
   if (column.width !== null) return column.width
-  const row = DEFAULT_WIDTH_ROWS[column.column]
+  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column]
   if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
 }

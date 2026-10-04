@@ -1356,6 +1356,31 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-481': 380,
 }
 
+// see SV-18, RW-9, T-206
+export const SEARCH_COLUMN_WIDTH_ROWS: {
+  readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
+} = {
+  'SQ-1': 'S-466',
+  'SQ-2': 'S-467',
+  'SQ-3': 'S-468',
+  'SQ-4': 'S-469',
+  'SQ-5': 'S-470',
+  'SQ-6': 'S-471',
+  'SQ-7': 'S-472',
+  'SQ-8': 'S-473',
+  'SQ-9': 'S-474',
+  'SQ-11': 'S-500',
+  'SQ-12': 'S-501',
+  'SQ-13': 'S-502',
+  'DT-1': 'S-475',
+  'DT-2': 'S-476',
+  'DT-3': 'S-477',
+  'DT-4': 'S-478',
+  'DT-5': 'S-479',
+  'DT-6': 'S-480',
+  'DT-7': 'S-481',
+}
+
 // see T-333, FR-151
 export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   readonly 'S-430': number

@@ -96,7 +96,7 @@ NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの�
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
 NOT_STORED_WBS_PARENT_ARROW_SIZES    WBS の親子の矢印の当たりの太さと、導いた親への矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
-NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`）
+NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`。`S-500` 〜 `S-502`、`CR-660`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_DEPENDENCY_EMPHASIS_SIZES 選んだ依存線と着地の印の線・両端の囲みに足す太さ（`S-447`、`CR-602`）
@@ -113,6 +113,7 @@ SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUME
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
+SEARCH_COLUMN_WIDTH_ROWS             検索の表と遅延診断レポートの表の列ごとに、既定の幅を持つ 表 T-206 の行（`S-466` 〜 `S-481`・`S-500` 〜 `S-502` の値の欄が名指す列から、`CR-660`）
 SELECTION_VALUES_INITIAL_AXES        選択の状態機械の初期の種類（表 T-293 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SETTINGS_CONSTANTS                   文書に保存しない設定の値（`_assets/tbl-settings.md` の見出しに「文書には保存しない」とある表。表 T-064 の `PI-2`、`CR-572`）
 SETTINGS_BOUNDS                      その下限・上限
