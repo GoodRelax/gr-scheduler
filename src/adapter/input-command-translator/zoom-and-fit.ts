@@ -532,29 +532,33 @@ function treeStatesReset(schedule: Schedule): Schedule {
   }
 }
 
-// see FR-055, OP-10, S-418
+// see FR-055, OP-10
 // WHY: with no stored date the fit has no origin day and places no left edge; any date measures alike.
 /** @purity pure */
-function measuredSettings(context: InputContext): DocumentSettings {
-  const settings = { ...context.document.documentSettings, levelZeroTreeState: 'auto' as const }
+function datedSettings(context: InputContext): DocumentSettings {
+  const settings = context.document.documentSettings
   if (dayOf(settings.scrollDate) !== null) return settings
   return { ...settings, scrollDate: scrolledAnchor(context, 0, 0).scrollDate ?? context.today }
 }
 
-// TRAP: do not move the discard into fitZoom: viewSettings in view-place.ts shares fitZoom,
-// and HF-8 forbids the discard at startup.
-// TRAP: only the fit command passes the drawn filter (TV-1); zoomOnScreen answers the zoom OP-10 drew, which knows no filter.
-// see FR-055, HF-8, TV-1
+// TRAP: keep the discard out of fitZoom: viewSettings in view-place.ts shares it; HF-8 forbids it at startup.
+// TRAP: only the fit command passes the drawn filter (TV-1); fittedAsDrawn answers the zoom OP-10 drew, which knows no filter.
+// see FR-055, HF-8, TV-1, S-418
 /** @purity pure */
 function fittedNow(context: InputContext, shownTaskUids: ReadonlySet<number> | null = null) {
-  return fitZoom(
-    treeStatesReset(context.document.schedule),
-    measuredSettings(context),
-    context.regions,
-    { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
-    context.rowControlsHeightPx,
-    shownTaskUids,
-  )
+  const settings: DocumentSettings = { ...datedSettings(context), levelZeroTreeState: 'auto' }
+  return fitOf(context, treeStatesReset(context.document.schedule), settings, shownTaskUids)
+}
+
+/** @purity pure */
+function fitOf(
+  context: InputContext,
+  schedule: Schedule,
+  settings: DocumentSettings,
+  shownTaskUids: ReadonlySet<number> | null,
+) {
+  const bounds = { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax }
+  return fitZoom(schedule, settings, context.regions, bounds, context.rowControlsHeightPx, shownTaskUids)
 }
 
 // see OP-10, FR-055
@@ -568,8 +572,14 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
   if (atStoredZoom) {
     return { x: settings.zoomX, y: settings.zoomY }
   }
-  const fitted = fittedNow(context)
+  const fitted = fittedAsDrawn(context)
   return { x: fitted.zoomX, y: fitted.zoomY }
+}
+
+// TRAP: keep the folds as viewSettings in view-place.ts drew them; only the asked fit discards (HF-8).
+/** @purity pure */
+function fittedAsDrawn(context: InputContext) {
+  return fitOf(context, context.document.schedule, datedSettings(context), null)
 }
 
 // see FR-046, IC-44

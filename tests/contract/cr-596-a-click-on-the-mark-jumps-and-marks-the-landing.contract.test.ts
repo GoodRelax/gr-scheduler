@@ -680,7 +680,7 @@ const DEEP: SceneSpec = {
 const treeWritesOf = (writes: readonly Loose[]): Readonly<Record<string, unknown>> => {
   const out: Record<string, unknown> = {}
   for (const write of writes) {
-    if (write['kind'] === SET_TREE_STATE) out[String(write['taskGroupId'])] = write['treeState']
+    if (write['kind'] === SET_TREE_STATE) out[String(write['groupId'])] = write['treeState']
     if (write['kind'] === SET_LEVEL_ZERO) out['(level zero)'] = write['levelZeroTreeState']
   }
   return out

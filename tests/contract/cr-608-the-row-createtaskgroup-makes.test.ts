@@ -109,8 +109,8 @@ function scheduleOf(rows: readonly { id: string; parentId: string | null; treeSt
 
 const writesOf = (schedule: Schedule, event: TreeStateEvent) =>
   treeStateWritesFor(schedule, event).map((command) => {
-    const loose = command as unknown as { taskGroupId: string; treeState: string }
-    return { id: loose.taskGroupId, to: loose.treeState }
+    const loose = command as unknown as { groupId: string; treeState: string }
+    return { id: loose.groupId, to: loose.treeState }
   })
 
 describe('CR-608 seam -- the pressed parent (childRowAddPressed), and no ancestor is written', () => {

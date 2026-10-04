@@ -72,7 +72,7 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
   const writes = new Map<string, DocumentCommand>()
   for (const groupId of rows) {
     for (const write of revealWrites(document, groupId)) {
-      writes.set(write.kind === 'setTaskGroupTreeState' ? write.taskGroupId : write.kind, write)
+      writes.set(write.kind === 'setTaskGroupTreeState' ? write.groupId : write.kind, write)
     }
   }
   return [...writes.values()]

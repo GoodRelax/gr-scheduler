@@ -141,7 +141,7 @@ function treeWritesOf(plan: SearchJumpPlan): readonly Written[] {
     .map((command) => {
       const loose = command as unknown as Loose
       const kind = String(loose['kind'])
-      if (kind === 'setTaskGroupTreeState') return { kind, id: String(loose['taskGroupId']), to: String(loose['treeState']) }
+      if (kind === 'setTaskGroupTreeState') return { kind, id: String(loose['groupId']), to: String(loose['treeState']) }
       if (kind === 'setLevelZeroTreeState') return { kind, id: 'level 0', to: String(loose['levelZeroTreeState']) }
       return { kind, id: '?', to: '?' }
     })
