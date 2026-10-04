@@ -162,6 +162,8 @@ export interface ScheduleLayout {
   readonly pinnedBandHeight?: number
   readonly scrollAreaY?: number
   readonly stackSafetyCapReached: StackSafetyCapStop | null
+  // see TV-1, TV-3, EL-20
+  readonly shownTaskUids?: ReadonlySet<number> | null
 }
 
 // see ST-7
@@ -412,6 +414,7 @@ export function layoutFromSchedule(
   regions: ScreenRegions,
   groupDepthCap?: number,
   rowControlsHeightPx?: number,
+  shownTaskUids: ReadonlySet<number> | null = null,
 ): ScheduleLayout {
   const settings = drawnSettingsOf(storedSettings)
   const { pxPerDay, originDay, originX } = timeAxisOf(storedSettings, regions)
@@ -419,7 +422,7 @@ export function layoutFromSchedule(
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const pinnedIds = new Set(settings.pinnedGroupIds)
-  const unfoldedRows = drawnGroups(schedule, settings)
+  const unfoldedRows = drawnGroups(schedule, settings, shownTaskUids)
   const keptOpenIds = keptInViewByTreeState(unfoldedRows, 'expandedAndTemporary')
   const rows = unfoldedRows.filter(
     (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id) || keptOpenIds.has(glyph.id),
@@ -453,7 +456,8 @@ export function layoutFromSchedule(
   for (const row of rows) {
     const drawnTasks = (membersByGroup.get(row.id) ?? [])
       .map((match) => taskByUid.get(match.taskUid))
-      .filter((text): text is Task => text !== undefined)
+      // WHY: TV-3 and FR-003 -- a task the filter leaves out is not laid, so the lanes stack what is drawn.
+      .filter((text): text is Task => text !== undefined && (shownTaskUids === null || shownTaskUids.has(text.uid)))
       .map((task) => {
         const kind = shapeKindOf(visualByUid, task)
         const span = spanWidthOf(task, pxPerDay, reader)
@@ -671,6 +675,7 @@ export function layoutFromSchedule(
     pinnedBandHeight: band.height,
     scrollAreaY: band.scrollAreaY,
     stackSafetyCapReached: capStop,
+    shownTaskUids,
   }
 }
 

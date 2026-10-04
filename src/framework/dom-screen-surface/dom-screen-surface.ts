@@ -14,6 +14,7 @@ import {
   type ScreenSurface,
   type ScreenView,
   type SearchFilterChange,
+  type SearchPanelView,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { WindowName } from '../../adapter/screen-renderer/screen-renderer'
@@ -788,6 +789,7 @@ function screenLayersOf(host: Document) {
     paletteLayer: made(host, 'div', STYLE.layer),
     searchPanelLayer: made(host, 'div', STYLE.layer),
     reportLayer: made(host, 'div', STYLE.layer),
+    showOnlyCheckedBarLayer: made(host, 'div', STYLE.layer),
     dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
     // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
@@ -807,6 +809,7 @@ function screenLayersOf(host: Document) {
     [layers.modalLayer, 'UZ-13'],
     [layers.helpLayer, 'UZ-7'],
     [layers.appHeader, 'UZ-8'],
+    [layers.showOnlyCheckedBarLayer, 'UZ-8'],
     [layers.dialogueField, 'UZ-9'],
     [layers.dividerBandLayer, 'UZ-10'],
     [layers.rowTitlePanel, 'UZ-11'],
@@ -816,6 +819,33 @@ function screenLayersOf(host: Document) {
   ]
   for (const [layer, row] of rows) markZOrder(layer, row)
   return layers
+}
+
+const SHOW_ONLY_CHECKED_BAR_ROLE = 'Show Only Checked Bar'
+
+const SHOW_ONLY_CHECKED_ENTRY = 'IC-143'
+
+// see TV-11, U-67, S-497, S-498
+// WHY: drawn in the band the shell takes off the top of the Schedule Canvas (TV-11), so it covers no row.
+/** @purity non-pure */
+function showOnlyCheckedBarElements(host: Document, panel: SearchPanelView | null | undefined): readonly HTMLElement[] {
+  const bar = panel?.showOnlyCheckedBar ?? null
+  if (panel === null || panel === undefined || bar === null) return []
+  const height = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497']
+  const band = made(host, 'div',
+    `position:absolute;left:${panel.canvas.x}px;top:${panel.canvas.y - height}px;width:${panel.canvas.width}px;height:${height}px;` +
+    `box-sizing:border-box;display:flex;align-items:center;gap:1em;padding:0 0.5em;pointer-events:auto;` +
+    `font-size:${NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']}px;font-weight:bold;white-space:nowrap;overflow:hidden;` +
+    `background:${PAINT.ground};color:${PAINT.ink};border-bottom:1px solid ${PAINT.rule};`)
+  band.setAttribute('data-role', SHOW_ONLY_CHECKED_BAR_ROLE)
+  const text = made(host, 'span', '')
+  text.textContent = bar.text
+  const showAll = made(host, 'button', `font:inherit;font-weight:normal;`)
+  showAll.setAttribute('type', 'button')
+  showAll.setAttribute('data-icon', SHOW_ONLY_CHECKED_ENTRY)
+  showAll.textContent = bar.showAllLabel
+  band.replaceChildren(text, showAll)
+  return [band]
 }
 
 // see IF-9, PI-38
@@ -1030,6 +1060,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('helpModal') || changed('helpPlace')) help.draw(helpModal, changed('helpModal'), () => anchorsOf('helpModal'))
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
+    if (changed('searchPanel')) layers.showOnlyCheckedBarLayer.replaceChildren(...showOnlyCheckedBarElements(host, view.searchPanel))
     report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
     orderTableWindows(view)
     if (changed('notices')) {
@@ -1323,6 +1354,7 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-500': number
   readonly 'S-501': number
   readonly 'S-502': number
+  readonly 'S-496': number
   readonly 'S-475': number
   readonly 'S-476': number
   readonly 'S-477': number
@@ -1347,6 +1379,7 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-500': 73,
   'S-501': 89,
   'S-502': 95,
+  'S-496': 28,
   'S-475': 138,
   'S-476': 190,
   'S-477': 73,
@@ -1372,6 +1405,7 @@ export const SEARCH_COLUMN_WIDTH_ROWS: {
   'SQ-11': 'S-500',
   'SQ-12': 'S-501',
   'SQ-13': 'S-502',
+  'SQ-10': 'S-496',
   'DT-1': 'S-475',
   'DT-2': 'S-476',
   'DT-3': 'S-477',
@@ -1390,6 +1424,15 @@ export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   'S-430': 9,
   'S-431': 10,
   'S-432': 12,
+}
+
+// see T-206
+const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+  readonly 'S-497': number
+  readonly 'S-498': number
+} = {
+  'S-497': 24,
+  'S-498': 12,
 }
 
 // see T-206

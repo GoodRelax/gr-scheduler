@@ -11,7 +11,7 @@ import displayWords from './display-words.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import type { WindowShown } from './window-box'
 
-export type TableWindowSession = Omit<SearchPanelSession, 'table' | 'textSizeStep'>
+export type TableWindowSession = Omit<SearchPanelSession, 'table' | 'textSizeStep' | 'shownTaskUids' | 'showOnlyChecked'>
 
 const MINIMISE_ENTRY: IconId = 'IC-129'
 const MAXIMISE_ENTRY: IconId = 'IC-130'
@@ -102,6 +102,7 @@ export type SearchFilterChange =
       readonly bound: 'since' | 'until'
       readonly day: string | null
     }
+  | { readonly kind: 'shown'; readonly column: SearchColumn; readonly taskUids: readonly number[]; readonly isShown: boolean }
 
 // see SV-6, SV-7, T-331, T-347
 export interface WindowTable {
@@ -264,7 +265,7 @@ export function tableAfterFilterChange<P extends TableWindowSession>(
   table: WindowTable,
 ): P | null {
   const column = openFilterIn(panel, shown, table)
-  if (column === null || column !== change.column) return null
+  if (change.kind === 'shown' || column === null || column !== change.column) return null
   const filter = columnFilterOf(panel, column)
   if (change.kind === 'bound') {
     if (!table.isDateColumn(column)) return null

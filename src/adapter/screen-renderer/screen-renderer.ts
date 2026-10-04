@@ -45,18 +45,21 @@ import {
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
+  SHOW_ONLY_CHECKED_ENTRY,
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
+  searchPanelAfterShowOnlyChecked,
   searchPanelFromSession,
   searchPanelWithColumnWidth,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
+  searchPanelWithinSchedule,
 } from './search-panel'
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export { exportFileNameOf } from './open-modals'
-export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
+export type { SearchFilterChange, SearchPanelShown, SearchPanelView, ShowOnlyCheckedBarView } from './search-panel'
 export { MARK_COLOUR_ROWS, isFilterValueListed, markColourVariableOf, statusGlyphSvg } from './table-window'
 export type { MarkGlyph } from './table-window'
 export {

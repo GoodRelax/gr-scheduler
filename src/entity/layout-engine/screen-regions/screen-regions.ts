@@ -24,6 +24,7 @@ export interface ScreenEnvironment {
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
   readonly propertyPanelWidth: number
+  readonly topBandHeight?: number
 }
 
 export interface ScreenRegions {
@@ -153,7 +154,8 @@ export function regionsFromScreen(
   const headerHeight = Math.min(env.appHeaderHeight, drawn.appHeaderMaxHeight)
 
   const appHeader = rect(0, 0, env.width, headerHeight)
-  const canvas = rect(0, headerHeight, env.width, env.height - headerHeight)
+  const canvasTop = headerHeight + (env.topBandHeight ?? 0)
+  const canvas = rect(0, canvasTop, env.width, env.height - canvasTop)
 
   const titleWidth = drawn.rowTitlePanelWidth
   const propsWidth = env.propertyPanelWidth
@@ -199,6 +201,7 @@ export function regionsAtDisplayScale(
     scrollbarThickness:
       canvas.height - drawn.rulerHeight - drawn.canvasPadding - regions.rowArea.height,
     propertyPanelWidth: regions.propertiesPanel.width,
+    topBandHeight: canvas.y - regions.appHeader.height,
   }
   return regionsFromScreen(env, { ...settings, displayScale })
 }

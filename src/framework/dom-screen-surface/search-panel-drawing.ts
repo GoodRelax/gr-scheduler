@@ -61,6 +61,8 @@ export interface DrawnTable {
   readonly rows: readonly SearchRowView[]
   readonly jumpAt?: number
   readonly glyphAt?: number | null
+  readonly showAt?: number | null
+  readonly showHeading?: SearchPanelView['showHeading']
 }
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
@@ -104,6 +106,14 @@ const ENTRY_ICON_ATTRIBUTE = 'data-icon'
 const COLUMN_ATTRIBUTE = 'data-column'
 
 const FILTER_MENU_ATTRIBUTE = 'data-search-filter-menu'
+
+const SHOWN_TASK_ATTRIBUTE = 'data-search-shown-task'
+
+const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
+
+const SHOW_COLUMN = 'SQ-10'
+
+const NO_BORDER_ATTRIBUTE = 'data-no-border'
 
 const FILTER_ENTRY = 'IC-122'
 
@@ -254,19 +264,49 @@ export function wordFieldElement(host: Document, word: string, fontPx: number): 
 
 // see SV-7, SV-18
 /** @purity non-pure */
-function headerCellElement(host: Document, column: SearchColumnView): HTMLElement {
+function headerCellElement(host: Document, column: SearchColumnView, showHeading: SearchPanelView['showHeading'] | null): HTMLElement {
   const cell = made(host, 'th', headerCellStyle(column.isFixed))
   cell.setAttribute(COLUMN_ATTRIBUTE, column.column)
   cell.setAttribute('data-width', String(columnWidthPx(column)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
   const line = made(host, 'div', HEADING_LINE_STYLE)
-  const heading = made(host, 'span', HEADING_WORD_STYLE)
-  heading.textContent = column.heading
   const filter = commandEntry(host, column.filterEntry)
   filter.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, column.column)
+  if (showHeading !== null) {
+    cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
+    cell.setAttribute('title', column.heading)
+    line.replaceChildren(shownBoxElement(host, showHeading), filter)
+    cell.replaceChildren(line)
+    return cell
+  }
+  const heading = made(host, 'span', HEADING_WORD_STYLE)
+  heading.textContent = column.heading
   line.replaceChildren(heading, filter)
   cell.replaceChildren(line)
   return cell
+}
+
+// see SQ-10
+// WHY: the heading's box shows all / some / none of the listed rows; some is the host's indeterminate mark.
+/** @purity non-pure */
+function shownBoxElement(host: Document, showHeading: SearchPanelView['showHeading'] | undefined): HTMLInputElement {
+  const box = made(host, 'input', 'margin:0;flex:none;') as HTMLInputElement
+  box.setAttribute('type', 'checkbox')
+  box.setAttribute(SHOWN_ALL_ATTRIBUTE, 'true')
+  box.checked = showHeading === 'all'
+  box.indeterminate = showHeading === 'some'
+  return box
+}
+
+// see SQ-10
+/** @purity non-pure */
+function shownTaskBox(host: Document, taskUid: number, isShown: boolean): HTMLInputElement {
+  const box = made(host, 'input', 'margin:0;') as HTMLInputElement
+  box.setAttribute('type', 'checkbox')
+  box.setAttribute(SHOWN_TASK_ATTRIBUTE, String(taskUid))
+  box.checked = isShown
+  if (isShown) box.setAttribute('checked', '')
+  return box
 }
 
 /** @purity non-pure */
@@ -375,7 +415,12 @@ function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
 
 // see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
 /** @purity non-pure */
-function bodyRowElement(host: Document, row: SearchRowView, columns: readonly SearchColumnView[], places: { readonly jumpAt: number; readonly glyphAt: number | null }): HTMLElement {
+function bodyRowElement(
+  host: Document,
+  row: SearchRowView,
+  columns: readonly SearchColumnView[],
+  places: { readonly jumpAt: number; readonly glyphAt: number | null; readonly showAt: number | null },
+): HTMLElement {
   const line = made(host, 'tr', '')
   row.cells.forEach((text, at) => {
     const isJump = at === places.jumpAt
@@ -383,6 +428,7 @@ function bodyRowElement(host: Document, row: SearchRowView, columns: readonly Se
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
     if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph), text)
+    else if (at === places.showAt && row.target.kind === 'task') cell.replaceChildren(shownTaskBox(host, row.target.taskUid, row.shown === true))
     else cell.textContent = text
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
     if (isJump && row.target.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
@@ -403,10 +449,11 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   columns.replaceChildren(...widths.map((one) => made(host, 'col', `width:${one}px;`)))
   const head = made(host, 'thead', '')
   const headings = made(host, 'tr', '')
-  headings.replaceChildren(...view.columns.map((column) => headerCellElement(host, column)))
+  const showAt = view.showAt ?? null
+  headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'none') : null)))
   head.append(headings)
   const body = made(host, 'tbody', '')
-  const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null }
+  const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null, showAt }
   body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns, places)))
   table.replaceChildren(columns, head, body)
   box.append(table)
@@ -520,6 +567,7 @@ function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked
   const reach = NOT_STORED_SEARCH_PANEL_SIZES['S-465']
   const shown = tableBox.getBoundingClientRect()
   for (const cell of window.querySelectorAll('thead th')) {
+    if (cell.getAttribute(NO_BORDER_ATTRIBUTE) !== null) continue
     const drawn = cell.getBoundingClientRect()
     if (Math.abs(asked.x - drawn.right) > reach || drawn.right > shown.right + reach) continue
     const column = cell.getAttribute(COLUMN_ATTRIBUTE) ?? ''
@@ -549,6 +597,7 @@ function tableWindowPartAt(window: Element | null, placed: PlacedWindow | null, 
   if (answer.windowGrab !== undefined) return answer
   const border = columnBorderAt(window, placed, asked)
   if (border !== null) return { ...answer, windowGrab: border }
+  if (first.getAttribute(SHOWN_ALL_ATTRIBUTE) !== null || first.getAttribute(SHOWN_TASK_ATTRIBUTE) !== null) return answer
   const column = headingColumnOf(first, window)
   if (column !== null) return { ...answer, entry: FILTER_ENTRY, searchFilterColumn: column }
   return { ...answer, searchJumpTarget: searchJumpFrom(first, window) }
@@ -589,6 +638,8 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
 /** @purity semi-pure-b */
 function filterChangeOf(control: HTMLInputElement | null, layer: Element): SearchFilterChange | null {
   if (control === null || typeof control.getAttribute !== 'function') return null
+  const shown = shownChangeOf(control, layer)
+  if (shown !== null) return shown
   const column = filterColumnAbove(control.parentElement, layer, false)
   if (column === null) return null
   const value = control.getAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE)
@@ -596,6 +647,17 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element): Searc
   const bound = control.getAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE)
   if (bound !== 'since' && bound !== 'until') return null
   return { kind: 'bound', column, bound, day: control.value === '' ? null : control.value }
+}
+
+// see SQ-10, TV-2
+// WHY: the heading's box names every listed row, read off the drawn boxes, so rows not listed keep their checks.
+/** @purity semi-pure-b */
+function shownChangeOf(control: HTMLInputElement, layer: Element): SearchFilterChange | null {
+  const one = control.getAttribute(SHOWN_TASK_ATTRIBUTE)
+  if (one !== null) return { kind: 'shown', column: SHOW_COLUMN, taskUids: [Number(one)], isShown: control.checked }
+  if (control.getAttribute(SHOWN_ALL_ATTRIBUTE) === null) return null
+  const listed = [...layer.querySelectorAll(`[${SHOWN_TASK_ATTRIBUTE}]`)].map((box) => Number(box.getAttribute(SHOWN_TASK_ATTRIBUTE)))
+  return { kind: 'shown', column: SHOW_COLUMN, taskUids: listed, isShown: control.checked }
 }
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).

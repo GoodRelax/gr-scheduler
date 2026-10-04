@@ -144,6 +144,9 @@ import {
   dismissKeyOf,
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
+  searchPanelAfterShowOnlyChecked,
+  searchPanelWithinSchedule,
+  SHOW_ONLY_CHECKED_ENTRY,
   rulerWeekdayWords,
   searchPanelAfterFilterChange,
   searchPanelAfterFilterEntry,
@@ -481,6 +484,8 @@ interface PictureInputs {
   readonly dualCursor: GeometryArguments[5]
   readonly delayDiagnostics: DelayDiagnosticsDrawing | undefined
   readonly wbsParentFamilies: WbsParentFamilies | null
+  // see TV-1, S-495
+  readonly shownTaskUids: ReadonlySet<number> | null
 }
 
 interface DrawnPicture {
@@ -507,6 +512,7 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
     a.dualCursor === b.dualCursor &&
     a.delayDiagnostics === b.delayDiagnostics &&
     a.wbsParentFamilies === b.wbsParentFamilies &&
+    a.shownTaskUids === b.shownTaskUids &&
     a.rowControlsHeightPx === b.rowControlsHeightPx &&
     isSameRecord(a.settings, b.settings) &&
     isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
@@ -519,7 +525,7 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
 function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
   if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
   const { schedule, settings, regions } = inputs
-  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.rowControlsHeightPx)
+  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.rowControlsHeightPx, inputs.shownTaskUids)
   const geometry = geometryFromLayout(
     schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
     inputs.wbsParentFamilies,
@@ -1367,6 +1373,7 @@ function searchPanelAfterEntry(
     return filterColumn === null ? null : searchPanelWithFilterOpened(session, held, filterColumn)
   }
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
+  if (entry === SHOW_ONLY_CHECKED_ENTRY) return searchPanelAfterShowOnlyChecked(held)
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
   if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule, bottleneckUids, listed)
   return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
@@ -1518,6 +1525,30 @@ function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isSho
   return { ...held, delayDiagnosticsReport: { ...report, isInFront: false } }
 }
 
+// see TV-8, SV-14, S-495
+// WHY: a minimised panel keeps the filter; only a closed one ends it, and the checks stay (TV-8).
+/** @purity pure */
+function filterEndedWithClosedPanel(held: WindowPlaces, isShown: boolean): WindowPlaces {
+  if (isShown || !held.searchPanel.showOnlyChecked) return held
+  return { ...held, searchPanel: { ...held.searchPanel, showOnlyChecked: false } }
+}
+
+// see TV-1, TV-3, TD-8, DFC-1820
+// WHY: one set per held list, so the picture inputs keep their identity while no box is ticked (DFC-1820).
+/** @purity non-pure */
+function shownSetKeeper(): (panel: SearchPanelSession) => ReadonlySet<number> | null {
+  let list: readonly number[] | null = null
+  let set: ReadonlySet<number> | null = null
+  return (panel) => {
+    if (!panel.showOnlyChecked) return null
+    if (panel.shownTaskUids !== list) {
+      list = panel.shownTaskUids
+      set = new Set(list)
+    }
+    return set
+  }
+}
+
 // see IN-4, SV-14, RG-16, RW-1
 // WHY: an open filter closes first (SV-14); the window alone closes after it, and the markers stay (RW-1).
 /** @purity pure */
@@ -1550,6 +1581,7 @@ function heldWindowsOf() {
     readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = reportBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
+      held = filterEndedWithClosedPanel(held, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
       return windowReadingsOf(held, diagnostics)
     },
@@ -2073,6 +2105,7 @@ export function frameLoop(
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   const windows = heldWindowsOf()
+  const shownSetOf = shownSetKeeper()
   let isSearchWordFocusOwed = false
   // see S-445, FR-130
   // WHY: diagnosed once per held document, never per frame (decision 17).
@@ -2238,12 +2271,15 @@ export function frameLoop(
     const pointerRestedMs = readPointerRestedMs()
     const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
+    windows.holdSearchPanel(searchPanelWithinSchedule(windows.searchPanel(), held.document.schedule))
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
       height: environment.height,
       appHeaderHeight: environment.appHeaderHeight,
       scrollbarThickness: environment.scrollbarThickness,
       propertyPanelWidth: propertiesPanelWidthOf(session, heldPropertyPanelWidth),
+      // see TV-11, S-497
+      topBandHeight: windows.searchPanel().showOnlyChecked ? NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497'] : 0,
     }
     const regions = regionsFromScreen(environmentForRegions, stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
@@ -2262,6 +2298,7 @@ export function frameLoop(
       dualCursor: session.screen.dualCursor,
       delayDiagnostics: diagnostics?.drawing,
       wbsParentFamilies: wbsParents.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
+      shownTaskUids: shownSetOf(windows.searchPanel()),
     })
     const { layout, geometry } = drawnPicture
     const capTold = stackSafetyCapToldAfter(stackSafetyCapToldFor, layout)
@@ -2883,6 +2920,8 @@ export function frameLoop(
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
         forgetFitForNoPlace()
         showDelayDiagnostics(false)
+        // see TV-9
+        windows.holdSearchPanel({ ...windows.searchPanel(), shownTaskUids: [], showOnlyChecked: false })
       }
       if (isSizeSettled(environment)) ask()
       return true
@@ -3605,6 +3644,15 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
   readonly 'S-205': number
 } = {
   'S-205': 8,
+}
+
+// see T-206
+const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+  readonly 'S-497': number
+  readonly 'S-498': number
+} = {
+  'S-497': 24,
+  'S-498': 12,
 }
 
 // see T-206

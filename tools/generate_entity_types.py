@@ -1248,6 +1248,11 @@ NOT_STORED_TARGETS = {
     # the one subject table T-206's row names -- the least a scrollbar is drawn
     # at. Two names for one set would be the invented distinction.
     'NOT_STORED_SCROLLBAR_SIZES': (['S-205'], READ_WHERE_THE_FRAME_STANDS),
+    # CR-661: the band U-67 (TV-11). S-497 is its height, which the shell
+    # takes off the top of the Schedule Canvas, and S-498 its text size, which
+    # the surface draws with. One name printed into both units, as
+    # NOT_STORED_SCROLLBAR_SIZES is -- neither may import the other's.
+    'NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES': (['S-497', 'S-498'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
     # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
@@ -1431,7 +1436,7 @@ NOT_STORED_TARGETS = {
                                        'S-466', 'S-467', 'S-468', 'S-469',
                                        'S-470', 'S-471', 'S-472', 'S-473',
                                        'S-474', 'S-500', 'S-501', 'S-502',
-                                       'S-475', 'S-476', 'S-477', 'S-478',
+                                       'S-496', 'S-475', 'S-476', 'S-477', 'S-478',
                                        'S-479', 'S-480', 'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
@@ -3056,6 +3061,7 @@ TARGETS = [
      # CR-660: which T-206 row holds each column's default width.
      + search_column_width_rows_block() + NEWLINE * 2
      + search_panel_font_sizes_block() + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_ROW_CAP') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ARMED_LABEL_SIZES') + NEWLINE * 2
@@ -3137,6 +3143,7 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
      # names. ⛔ Not folded into the digest watermark-unlock.ts holds -- that one
      # is a row of table T-207 baked into the artifact, and this is a row of
