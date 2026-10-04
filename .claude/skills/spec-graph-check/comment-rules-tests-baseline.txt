@@ -38,7 +38,7 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1741 -> 1720 bp) under JDG-520: the CR-631 tests added 86 cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the merge of CR-648 (8573378a) into coord, whose tests added cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
-tree-density-basis-points 1661
+tree-density-basis-points 1639
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -122,7 +122,7 @@ tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts 0
 tests/contract/dfc-582-every-invariant-row-has-a-dictionary-entry.test.ts 0
 tests/contract/dfc-587-title-row-entries-are-drawn.test.ts 0
 tests/contract/dfc-592-a-dummy-takes-its-tasks-shape.test.ts 0
-tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts 248
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts 247
 tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts 182
 tests/unit/document-model.test.ts 96
 tests/unit/edit-calendar.test.ts 295
@@ -146,12 +146,12 @@ tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts 0
 tests/unit/fr-036-help-item-order-and-size.test.ts 303
 tests/unit/fr-038-panel-date-language.test.ts 246
 tests/unit/fr-043-dummy-drawn.test.ts 625
-tests/unit/fr-052-t-023d-picture-while-held.test.ts 498
+tests/unit/fr-052-t-023d-picture-while-held.test.ts 495
 tests/unit/fr-053-palette-group-boundary.test.ts 257
 tests/unit/fr-053-palette-group-rule-isotropic-gap.test.ts 297
 tests/unit/fr-053-re-showing-clears-the-minimise.test.ts 134
 tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts 301
-tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 405
+tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 404
 tests/unit/fr-085-double-click-a-row-name.test.ts 179
 tests/unit/fr-092-ez-2-tooltip-text-size.test.ts 249
 tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts 0
@@ -162,8 +162,8 @@ tests/unit/fr-103-t-245-what-a-released-end-puts.test.ts 0
 tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts 0
 tests/unit/in-2-a-the-dummies-say-slide.test.ts 0
 tests/unit/in-2-b-armed-dependency-shows-the-arrow.test.ts 0
-tests/unit/in-2-pointer-shape.test.ts 408
-tests/unit/in-4-escape-closes-the-panel.test.ts 450
+tests/unit/in-2-pointer-shape.test.ts 405
+tests/unit/in-4-escape-closes-the-panel.test.ts 447
 tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts 0
 tests/unit/mk-13-the-name-field-is-armed.test.ts 344
 tests/unit/nt-8-enter-keeps-the-telling-its-own-settling-raised.test.ts 129
@@ -171,9 +171,9 @@ tests/contract/t-012-sh-5-glyph-binding.test.ts 0
 tests/unit/t-015-t-051-the-four-folding-controls.test.ts 431
 tests/unit/t-023-wheel-goes-to-the-browser.test.ts 351
 tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts 379
-tests/unit/t-023c-selection-points-at-what-exists.test.ts 293
+tests/unit/t-023c-selection-points-at-what-exists.test.ts 292
 tests/unit/t-023c-sl-3-marquee-drawn-while-held.test.ts 352
-tests/unit/t-023d-follows-the-pointer.test.ts 753
+tests/unit/t-023d-follows-the-pointer.test.ts 752
 tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts 0
 tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts 299
 tests/unit/t-024a-op-10-first-day-covered.test.ts 378
@@ -196,16 +196,16 @@ tests/unit/uf-37-38.test.ts 1
 tests/unit/uf-39-40.test.ts 790
 tests/unit/uf-41-42.test.ts 0
 tests/unit/uf-45-46.test.ts 0
-tests/unit/uf-47-48-choosers.test.ts 1405
+tests/unit/uf-47-48-choosers.test.ts 1402
 tests/unit/uf-47-48-history-bytes.test.ts 504
-tests/unit/uf-47-48.test.ts 815
-tests/unit/uf-48-input.test.ts 554
+tests/unit/uf-47-48.test.ts 806
+tests/unit/uf-48-input.test.ts 551
 tests/unit/uf-48-undo-through-the-one-path.test.ts 379
-tests/unit/uf-48-write-moment.test.ts 760
+tests/unit/uf-48-write-moment.test.ts 757
 tests/unit/uf-50.test.ts 325
 tests/unit/uf-51.test.ts 0
 tests/unit/uf-71-confirmation.test.ts 706
-tests/unit/uf-71.test.ts 1430
+tests/unit/uf-71.test.ts 1424
 tests/unit/uf-72-screen-part.test.ts 2534
 tests/unit/uf-8-9-history-depth.test.ts 0
 tests/unit/uf-8-9-replace-document.test.ts 538
