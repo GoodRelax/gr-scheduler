@@ -69,7 +69,6 @@ import {
   scrolledAnchor,
   serialOfDay,
   taskGroupRankById,
-  rememberedActualIn,
   type ActualEndHold,
   type InPlaceTarget,
   type InputContext,
@@ -137,16 +136,9 @@ export function commandFromGrab(
   const uid = item.taskUid
   const grab = grabRowOf(hit)
   switch (grab) {
+    // see T-280: a press without a drag is progressMarkerPressed, whose effect writes the step.
     case 'GA-18':
-      return hasDraggedPastThreshold(press, release)
-        ? markerPullWrite(context, release, uid)
-        : changed([
-            {
-              kind: 'cycleTaskPlanActualState',
-              uid,
-              remembered: rememberedActualIn(context, uid),
-            },
-          ])
+      return hasDraggedPastThreshold(press, release) ? markerPullWrite(context, release, uid) : CONSUMED_ELSEWHERE
     case 'GA-7':
     case 'GA-8':
       return fadeEndWrite(context, release, uid, grab)

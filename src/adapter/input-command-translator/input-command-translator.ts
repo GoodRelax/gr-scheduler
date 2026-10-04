@@ -160,6 +160,8 @@ export interface InputContext {
   readonly regions: ScreenRegions
   readonly screen: ScreenValues
   readonly selection: Selection
+  // see FR-085, IN-4
+  readonly chosenRows?: readonly string[]
   readonly zoomStep: number
   readonly zoomMin: number
   readonly zoomMax: number
@@ -1421,7 +1423,7 @@ export function escapeContextOf(context: InputContext): EscapeContext {
     isFocusInPropertiesPanel: context.isFocusInPropertiesPanel === true,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
-    isSelectionStanding: context.selection.items.length > 0,
+    isSelectionStanding: context.selection.items.length > 0 || (context.chosenRows?.length ?? 0) > 0,
     dualCursorMode: context.dualCursorFollowing !== null,
     isFullScreen: context.screen.fullScreenModeState.kind === 'full',
   }

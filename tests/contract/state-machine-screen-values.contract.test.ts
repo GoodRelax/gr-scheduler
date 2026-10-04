@@ -226,9 +226,8 @@ const RUNGS = [
   'tooltip',
 ] as const
 
-// WHY: no clause names the `target` word for help (CR-574 adds it to IC-52), so no event
-// sampled here carries it; see isHelpTarget.
-const TARGETS = ['surface', 'panel'] as const
+// see T-280: the three words surfaceCloseAsked's target carries.
+const TARGETS = ['surface', 'panel', 'helpModal'] as const
 
 const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   surfaceName: ['U-30'],
@@ -332,6 +331,17 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       const surface = screen['openSurfaceState'] as Loose
       return surface['kind'] === 'open' && surface['surfaceName'] === UNLOCK_SURFACE
     }
+    // see S-99g: watermarkEntryPressed opens U-60, the other two carry the surface they open.
+    case 'isAnotherSurface': {
+      const surface = screen['openSurfaceState'] as Loose
+      const opening = event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
+      return surface['kind'] === 'open' && surface['surfaceName'] !== opening
+    }
+    // see T-280: the surfaces flowSurfaceAnswered answers (U-56, U-61).
+    case 'isFlowAwaitingAnswer': {
+      const surface = screen['openSurfaceState'] as Loose
+      return surface['kind'] === 'open' && ['U-56', 'U-61'].includes(String(surface['surfaceName']))
+    }
     case 'isRungSurface':
       return event['rung'] === 'surface'
     case 'isRungArmed':
@@ -351,11 +361,9 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['target'] === 'surface'
     case 'isPanelTarget':
       return event['target'] === 'panel'
-    // WHY: IC-52 on a surface or the panel closes that one only; help is not a surface of
-    // openSurfaceStateMachine (CR-574 3.2), and its word is unnamed as for isRungHelp.
+    // see T-280 surfaceCloseAsked: the target words are surface, panel and helpModal.
     case 'isHelpTarget':
-      if (!(TARGETS as readonly unknown[]).includes(event['target'])) throw new Error(`unsampled target ${String(event['target'])}`)
-      return false
+      return event['target'] === 'helpModal'
     // WHY: req:4194 sends the closing hand to a standing surface, not the panel
     // behind it, so the panel is topmost only while no surface is open.
     case 'isPanelTopmost':

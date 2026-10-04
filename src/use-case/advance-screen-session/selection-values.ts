@@ -173,17 +173,37 @@ function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'
   return hasPickedObjects(event) ? selected(values, event.pickedObjects) : deselected(values)
 }
 
+// see FR-085, T-293
+// WHY: the root's chosenRows moves in the same step as the machine; neither moving keeps the reference (SF-3).
+/** @purity pure */
+function withRowsAlso(step: SelectionStep, chosenRows: readonly string[]): SelectionStep {
+  if (isSameList(step.state.chosenRows, chosenRows)) return step
+  return { state: { ...step.state, chosenRows }, effects: step.effects }
+}
+
 // WHY: pruning only narrows what stands; it never selects from nothing (T-293).
 /** @purity pure */
-function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
+function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   if (values.selectionState.kind === 'nothingSelected') return unchanged(values)
   return hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
 }
 
-// see IN-4
+// see FR-085
+/** @purity pure */
+function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
+  return withRowsAlso(objectsPruned(values, event), event.chosenRows)
+}
+
+// see IN-4, FR-085
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
-  return isRungSelection(event) ? deselected(values) : unchanged(values)
+  return isRungSelection(event) ? withRowsAlso(deselected(values), NO_CHOSEN_ROWS) : unchanged(values)
+}
+
+// see SK-19, FR-085
+/** @purity pure */
+function onSelectionSettleKeyPressed(values: SelectionValues): SelectionStep {
+  return withRowsAlso(deselected(values), NO_CHOSEN_ROWS)
 }
 
 // see FR-001, FR-091, TC-9
@@ -229,7 +249,7 @@ const HANDLERS: {
   objectsPicked: onObjectsPicked,
   emptyAreaClicked: deselected,
   selectionEscapePressed: onSelectionEscapePressed,
-  selectionSettleKeyPressed: deselected,
+  selectionSettleKeyPressed: onSelectionSettleKeyPressed,
   selectionCleared: deselected,
   selectionPruned: onSelectionPruned,
   createdTaskSelected: onCreatedTaskSelected,
