@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>親を選ぶ面の見本</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #57606a; --line: #d0d7de; --panel: #f6f8fa;
+    --link: #0969da; --ok: #1a7f37; --ng: #cf222e; --armed: #fff3bf;
+    --accent-soft: #dbe8fd; --head: #eef2f7; --vo4: #8250df; --cur: #fdecea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+      --link: #58a6ff; --ok: #3fb950; --ng: #ff7b72; --armed: #3d3200;
+      --accent-soft: #1c3a63; --head: #1c2430; --vo4: #b697ed; --cur: #3d1f1f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1117; --fg: #e6edf3; --muted: #9da7b3; --line: #30363d; --panel: #161b22;
+    --link: #58a6ff; --ok: #3fb950; --ng: #ff7b72; --armed: #3d3200;
+    --accent-soft: #1c3a63; --head: #1c2430; --vo4: #b697ed; --cur: #3d1f1f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; line-height: 1.4; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+  p, li { max-width: 76ch; }
+  .note { color: var(--muted); font-size: 14px; }
+  table { border-collapse: collapse; margin: 8px 0 16px; font-size: 15px; }
+  th, td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .tablewrap { overflow-x: auto; }
+
+  .switches { display: grid; gap: 6px; background: var(--panel); border: 1px solid var(--line);
+              border-radius: 8px; padding: 10px 12px; margin: 12px 0; font-size: 15px;
+              position: sticky; top: 0; z-index: 20; }
+  .switches label { margin-right: 14px; white-space: nowrap; }
+  .switches .q { font-weight: 600; margin-right: 8px; }
+  .switches button { font: inherit; font-size: 14px; }
+  .shape-row label { font-size: 16px; font-weight: 600; }
+
+  /* ---- the stage: a stand-in for the app ---- */
+  .stage { position: relative; display: grid; grid-template-columns: 1fr 280px; gap: 12px;
+           border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-height: 720px;
+           background: var(--panel); overflow: hidden; }
+  .win { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+  .win .phead { height: 32px; display: flex; align-items: center; padding: 0 10px; background: var(--head);
+                border-bottom: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+  .chart { height: 150px; position: relative; margin-bottom: 12px; overflow: hidden; }
+  .chart .lane { position: absolute; left: 0; right: 0; height: 22px; border-top: 1px dashed var(--line); }
+  .chart .bar { position: absolute; height: 14px; top: 4px; border-radius: 3px; background: #9fb3c8;
+                border: 1px solid #4a6b8a; font-size: 11px; line-height: 12px; white-space: nowrap; overflow: hidden; padding: 0 3px; color: #1f2328; }
+  .chart .bar.child { background: #f4d58d; border-color: #9a6700; }
+  .chart .bar.hot { outline: 3px solid var(--link); outline-offset: 1px; z-index: 2; }
+  .report table { width: 100%; margin: 0; font-size: 14px; }
+  .report td, .report th { padding: 3px 8px; }
+  .report tr.vo4 td:first-child { color: var(--vo4); font-weight: 600; }
+  .report tr.sel td { background: var(--accent-soft); }
+  .linkish { color: var(--link); text-decoration: underline; cursor: pointer; background: none; border: 0;
+             font: inherit; padding: 0; text-align: left; }
+  .props { padding: 8px 10px; font-size: 14px; }
+  .props .field { margin: 6px 0; }
+  .props .lab { color: var(--muted); font-size: 12px; display: block; }
+  .props .parent { display: flex; gap: 6px; align-items: center; min-width: 0; }
+  .props .parent .linkish { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .props .x { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 4px;
+              width: 22px; height: 22px; padding: 0; cursor: pointer; flex: none; font-size: 13px; line-height: 1; }
+  .props .tname { font-weight: 600; }
+  .log { font-size: 14px; margin-top: 8px; min-height: 1.7em; }
+  .log .ok { color: var(--ok); } .log .ng { color: var(--ng); }
+
+  /* ---- common to the three shapes ---- */
+  .pick { --fs: 16px; font-size: var(--fs); background: var(--bg); color: var(--fg); }
+  .pick .filter { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .pick .filter input { flex: 1; min-width: 0; font: inherit; font-size: var(--fs); padding: 2px 6px;
+                        border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+  .pick .count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .pick .list { overflow-y: auto; }
+  .pick .grp { font-size: 12px; color: var(--muted); padding: 4px 10px 0; position: sticky; top: 0; background: var(--bg); }
+  .pick .row { display: flex; gap: 10px; align-items: baseline; padding: 3px 10px; cursor: pointer; min-width: 0; }
+  .pick .row .nm { flex: 1; min-width: 0; }
+  .pick.clip .row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pick .row .pd { font-size: 12px; color: var(--muted); white-space: nowrap; flex: none; }
+  .pick .row .cur { font-size: 12px; color: var(--ng); white-space: nowrap; flex: none; }
+  .pick .row[aria-selected="true"] { background: var(--accent-soft); }
+  .pick .row.chosen { background: var(--armed); }
+  .pick .empty { padding: 8px 10px; color: var(--muted); font-size: 14px; }
+  .pick .hint { font-size: 12px; color: var(--muted); padding: 4px 10px; border-top: 1px solid var(--line); }
+
+  /* A: floating list next to the press */
+  .pickA { position: absolute; z-index: 10; background: var(--bg); border: 1px solid var(--fg); border-radius: 8px;
+           box-shadow: 0 4px 14px rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden; }
+  .pickA .ttl { font-size: 12px; color: var(--muted); padding: 4px 10px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* B: centred window, modal, title strip like the search panel (JDG-1163) */
+  .shade { position: absolute; inset: 0; background: rgba(0,0,0,0.35); z-index: 9; }
+  .pickB { position: absolute; z-index: 10; border: 1px solid #6b7a99; border-radius: 6px;
+           box-shadow: 0 6px 22px rgba(20,30,60,.28); display: flex; flex-direction: column; overflow: hidden; }
+  .pickB .ptitle { display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 12px; background: var(--head);
+                   border-bottom: 1px solid var(--line); cursor: move; font-size: 14px; font-weight: 600; user-select: none; }
+  .pickB .ptitle span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pickB .ptitle button { width: 28px; height: 24px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 4px; cursor: pointer; }
+  .pickB .btns { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); }
+  .pickB .btns button { font: inherit; font-size: 14px; min-width: 88px; padding: 2px 10px; }
+
+  /* C: narrowing inside the Command Palette */
+  .palette { position: absolute; z-index: 10; left: 50%; top: 12px; transform: translateX(-50%);
+             border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+             box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+  .palette .icons { display: flex; gap: 4px; padding: 6px 8px; }
+  .palette .ic { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg);
+                 display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+  .palette .ic.on { background: var(--armed); border: 2px solid var(--fg); color: var(--fg); }
+  .palette .pick { border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; display: flex; flex-direction: column; }
+  .palette .ttl { font-size: 12px; color: var(--muted); padding: 4px 10px 0; }
+
+  .cmp { width: 100%; }
+  .cmp td:first-child { white-space: nowrap; font-weight: 600; }
+  pre.out { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+            font-size: 14px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<main>
+<h1>親を選ぶ面 —— 3 つの形を触って比べる見本</h1>
+<p class="note" style="border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--panel)">
+  ⭐ 決まったこと（2026-10-04 夜、JDG-1464〜JDG-1467）: 一覧の面は作らない。親は親定義のドラッグで結ぶ。報告の行は子へ飛ぶだけ、パネルの親の名は親へ飛ぶ。この見本は、比べた記録として残す。
+</p>
+<p>
+  タスクの WBS の親を人が選ぶ面（仕様では「親入力の面」、FR-135）は、何をするかは決まっている。
+  候補を表 T-318 の IP-4 の順（① 子を両端で含む → ② 子と重なる → ③ 端が近い）に並べる。人が 1 つ選んだときだけ親を書く（自動では選ばない）。
+  「親なし」の選択肢は置かない（JDG-1137）。
+  決まっていないのは<strong>形と寸法</strong>だけである（PND-749、DFC-2091・DFC-1850）。
+</p>
+<p class="note">
+  入口は 2 つある。遅延診断の報告の紫の行「親が決まらない」（VO-4）と、プロパティパネルの青い「親: …」のリンク（PR-15）。
+  候補は大きな ERP の見本スケジュールから取った 41 本で、長い名と似た名（「業務設計 - 生産管理」と「構築 - 生産管理」）が混ざる。
+  絞り込みは検索パネル・フィルタと同じく、NFKC と大文字小文字をそろえた部分一致（SV-4）。
+  ↑↓ は端で折り返し、Enter で選ぶ（担当者欄と同じ）。変換中の Enter は無視する。Esc は書かずに閉じる。
+</p>
+
+<div class="switches">
+  <div class="shape-row"><span class="q">形</span>
+    <label><input type="radio" name="shape" value="A" checked> A 押した所の横に浮く一覧</label>
+    <label><input type="radio" name="shape" value="B"> B 中央の窓 ＋［決める］</label>
+    <label><input type="radio" name="shape" value="C"> C コマンドパレットで絞る</label>
+  </div>
+  <div><span class="q">寸法</span>
+    <label>幅 <select id="kW"><option>320</option><option selected>400</option><option>480</option><option>560</option></select> px</label>
+    <label>見える行数 <select id="kRows"><option>6</option><option selected>10</option><option>14</option><option>20</option></select></label>
+    <label>文字 <button type="button" id="kFont" title="12 → 14 → 16 → 20（検索パネルの A ボタンと同じ巡り）">A 16px</button></label>
+    <label>長い名 <select id="kClip"><option value="clip" selected>1 行で「…」</option><option value="wrap">折り返す</option></select></label>
+  </div>
+  <div><span class="q">見た目</span>
+    <label><input type="radio" name="theme" value="" checked> OS どおり</label>
+    <label><input type="radio" name="theme" value="light"> 明</label>
+    <label><input type="radio" name="theme" value="dark"> 暗</label>
+    <button type="button" id="reset">最初に戻す</button>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <div>
+    <div class="win chart" id="chart"><div class="phead">チャート（候補を指すと、そのバーが青い枠になる）</div></div>
+    <div class="win report">
+      <div class="phead">遅延診断の報告</div>
+      <table>
+        <thead><tr><th>理由</th><th>タスク</th></tr></thead>
+        <tbody id="report"></tbody>
+      </table>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+  <div class="win">
+    <div class="phead">プロパティ</div>
+    <div class="props" id="props"></div>
+  </div>
+</div>
+
+<h2>3 つの形の違い</h2>
+<div class="tablewrap"><table class="cmp">
+  <thead><tr><th></th><th>A 押した所の横に浮く一覧</th><th>B 中央の窓 ＋［決める］</th><th>C コマンドパレットで絞る</th></tr></thead>
+  <tbody>
+    <tr><td>出る場所</td><td>押したリンク・報告の行のすぐ下（画面からはみ出すなら内へ寄せる）</td><td>画面の中央。題の帯で動かせる</td><td>パレットの下に伸びる</td></tr>
+    <tr><td>チャート</td><td>見えたまま。候補を指すとバーが光る</td><td>暗い幕の下。光ってもよく見えない</td><td>見えたまま（パレットのある上側は隠れる）</td></tr>
+    <tr><td>選ぶ動作</td><td>押す ／ Enter で、すぐ書いて閉じる</td><td>押して印を付け、［決める］か Enter か ダブルクリックで書く</td><td>押す ／ Enter で、すぐ書いて閉じる</td></tr>
+    <tr><td>閉じる</td><td>Esc ・ 枠の外を押す（書かない）</td><td>Esc ・ × ・［やめる］。枠の外では閉じない（JDG-1353 と同じ）</td><td>Esc ・ 枠の外を押す</td></tr>
+    <tr><td>前例</td><td>混ざった選択の 2 択（QN-12、JDG-1139）。担当者欄の候補</td><td>「ファイルを開く」（CR-623・JDG-1163）。33 の見本の窓</td><td>無い —— パレットは絵だけで、文字で絞る場所が仕様に無い</td></tr>
+    <tr><td>新しく要るもの</td><td>浮く一覧 1 つ（表 T-337 に 1 行）</td><td>S-99g の面 1 つ（表 T-337 の UZ-13 に足す）</td><td>パレットの中の文字入力と一覧（パレットの規則に新しい章）</td></tr>
+  </tbody>
+</table></div>
+
+<h2>決めたら伝える値</h2>
+<p class="note">いま選んでいる形と寸法を、そのまま文字にしたもの。</p>
+<pre class="out" id="out"></pre>
+</main>
+
+<script>
+"use strict";
+// ---- data: summary tasks of the large ERP sample schedule (names as in the sample) ----
+const CANDS = [
+  ["プログラム管理", "2026-01-05", "2027-12-24"],
+  ["ステアリングコミッティ", "2026-01-19", "2027-12-17"],
+  ["プログラム構想・立ち上げ", "2026-01-05", "2026-03-27"],
+  ["技術基盤・インフラ", "2026-02-02", "2027-03-26"],
+  ["業務設計(ブループリント)", "2026-04-06", "2026-08-28"],
+  ["ブループリント準備・ワークショップ計画", "2026-04-06", "2026-05-15"],
+  ["業務設計 - 財務・管理会計", "2026-05-11", "2026-07-24"],
+  ["業務設計 - 購買・在庫管理", "2026-05-18", "2026-07-31"],
+  ["業務設計 - 生産管理", "2026-06-15", "2026-08-21"],
+  ["業務設計 - 販売・物流", "2026-05-25", "2026-08-07"],
+  ["ギャップ対応方針 決定 - 財務・管理会計", "2026-07-06", "2026-07-24"],
+  ["構築(リアライゼーション)", "2026-08-31", "2027-02-26"],
+  ["構築 - 財務・管理会計", "2026-08-31", "2027-01-29"],
+  ["構築 - 購買・在庫管理", "2026-09-07", "2027-02-05"],
+  ["構築 - 生産管理", "2026-09-14", "2027-02-26"],
+  ["構築 - 販売・物流", "2026-09-07", "2027-02-12"],
+  ["プレイバック(業務確認会) - 購買・在庫管理", "2026-11-16", "2026-12-11"],
+  ["インターフェース・連携", "2026-07-06", "2027-03-12"],
+  ["銀行決済 連携", "2026-08-03", "2026-12-18"],
+  ["仕入先 EDI 連携", "2026-06-22", "2026-11-27"],
+  ["倉庫管理(WMS) 連携", "2026-08-17", "2027-01-15"],
+  ["製造実行(MES) 連携", "2026-09-21", "2027-02-19"],
+  ["CRM 連携", "2026-10-05", "2027-02-26"],
+  ["BI・連結会計 連携", "2026-10-19", "2027-03-12"],
+  ["データ移行", "2026-06-01", "2027-06-25"],
+  ["移行対象 - 得意先マスタ", "2026-08-03", "2027-04-30"],
+  ["移行対象 - 仕入先マスタ", "2026-08-03", "2027-04-30"],
+  ["移行対象 - 品目マスタ", "2026-07-20", "2027-04-30"],
+  ["移行対象 - 部品表・工順", "2026-08-17", "2027-06-25"],
+  ["移行対象 - 未処理 受発注データ", "2026-09-07", "2027-06-25"],
+  ["移行対象 - 総勘定元帳 残高", "2026-10-05", "2027-04-30"],
+  ["移行対象 - 固定資産", "2026-10-05", "2027-04-30"],
+  ["統合テスト", "2027-01-11", "2027-05-28"],
+  ["システム統合テスト(SIT)", "2027-01-11", "2027-03-26"],
+  ["性能・セキュリティテスト", "2027-02-15", "2027-04-09"],
+  ["受入テスト(UAT)", "2027-03-29", "2027-05-28"],
+  ["組織変革・教育", "2026-04-06", "2027-09-24"],
+  ["移行・稼働 第 1 波(財務・購買)", "2027-04-05", "2027-07-30"],
+  ["移行・稼働 第 2 波(生産・販売)", "2027-07-05", "2027-11-26"],
+  ["変革コミュニケーション実施 - 2027 年度 下期", "2027-10-04", "2028-03-31"],
+  ["プログラム完了", "2027-11-29", "2027-12-24"]
+].map((r, i) => ({ uid: 100 + i, name: r[0], s: r[1], f: r[2] }));
+
+const CHILDREN0 = [
+  { uid: 1, name: "Fit&Gap ワークショップ - 購買・在庫管理", s: "2026-06-08", f: "2026-06-26", parent: null },
+  { uid: 2, name: "マッピング・抽出 - 未処理 受発注データ", s: "2026-09-14", f: "2026-10-16", parent: null },
+  { uid: 3, name: "詳細設定(コンフィグ) - 財務・管理会計", s: "2026-09-14", f: "2026-11-27", parent: 112 }
+];
+let children = [];
+let selectedChild = null;
+let shape = "A", W = 400, ROWS = 10, FS = 16, CLIP = true;
+
+const day = d => Date.parse(d + "T00:00:00Z") / 86400000;
+const byUid = u => CANDS.find(c => c.uid === u) || null;
+const norm = s => s.normalize("NFKC").toLowerCase();
+
+// IP-4: (1) contains the child at both ends -> (2) overlaps it at all -> (3) nearest ends.
+function ip4(child) {
+  const cs = day(child.s), cf = day(child.f);
+  const g1 = [], g2 = [], g3 = [];
+  CANDS.forEach(p => {
+    const ps = day(p.s), pf = day(p.f);
+    if (ps <= cs && pf >= cf) g1.push(p);
+    else if (ps <= cf && pf >= cs) g2.push(p);
+    else g3.push(Object.assign({ gap: ps > cf ? ps - cf : cs - pf }, p));
+  });
+  const width = p => day(p.f) - day(p.s);
+  g1.sort((a, b) => width(a) - width(b));
+  g2.sort((a, b) => Math.abs(day(a.s) - cs) + Math.abs(day(a.f) - cf) - (Math.abs(day(b.s) - cs) + Math.abs(day(b.f) - cf)));
+  g3.sort((a, b) => a.gap - b.gap);
+  return [
+    { label: "① 子を両端で含む", items: g1 },
+    { label: "② 子と重なる", items: g2 },
+    { label: "③ 端が近い順", items: g3 }
+  ];
+}
+function period(p) {
+  const a = p.s.replace(/-/g, "/"), b = p.f.replace(/-/g, "/");
+  return a + "〜" + (a.slice(0, 4) === b.slice(0, 4) ? b.slice(5) : b);
+}
+
+// ---- stage ----
+const stage = document.getElementById("stage");
+function say(msg, cls) {
+  const l = document.getElementById("log");
+  l.innerHTML = "";
+  const s = document.createElement("span");
+  if (cls) s.className = cls;
+  s.textContent = msg;
+  l.appendChild(s);
+}
+function renderReport() {
+  const tb = document.getElementById("report");
+  tb.innerHTML = "";
+  const rows = [["遅れが祖先へ上がらない", "受入テスト(UAT) の準備", null]];
+  children.filter(c => c.parent === null).forEach(c => rows.unshift(["親が決まらない", c.name, c]));
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    if (r[2]) { tr.className = "vo4" + (selectedChild === r[2] ? " sel" : ""); tr.style.cursor = "pointer"; }
+    const a = document.createElement("td"); a.textContent = r[0];
+    const b = document.createElement("td");
+    if (r[2]) { const btn = document.createElement("button"); btn.className = "linkish"; btn.textContent = r[1]; b.appendChild(btn); }
+    else b.textContent = r[1];
+    tr.appendChild(a); tr.appendChild(b);
+    if (r[2]) tr.addEventListener("click", e => {
+      // keep this row in the DOM: the list is placed against it
+      selectedChild = r[2];
+      tb.querySelectorAll("tr").forEach(x => x.classList.toggle("sel", x === tr));
+      renderProps();
+      openPicker(r[2], tr, "報告の「親が決まらない」の行");
+      e.stopPropagation();
+    });
+    tb.appendChild(tr);
+  });
+  if (!children.some(c => c.parent === null)) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td colspan='2' class='note'>「親が決まらない」の行は、もう無い。</td>";
+    tb.appendChild(tr);
+  }
+}
+function renderProps() {
+  const p = document.getElementById("props");
+  p.innerHTML = "";
+  if (!selectedChild) { p.innerHTML = "<p class='note'>報告の行かチャートの黄色いバーを押すと、そのタスクがここに出る。</p>"; return; }
+  const c = selectedChild;
+  const f1 = document.createElement("div"); f1.className = "field";
+  const l1 = document.createElement("span"); l1.className = "lab"; l1.textContent = "WBS の親";
+  const row = document.createElement("div"); row.className = "parent";
+  const link = document.createElement("button"); link.className = "linkish"; link.id = "parentLink";
+  const par = byUid(c.parent);
+  link.textContent = par ? "親: " + par.name : "親: 未定（候補 " + CANDS.length + "）";
+  link.title = link.textContent;
+  link.addEventListener("click", e => { openPicker(c, link, "プロパティパネルの親のリンク"); e.stopPropagation(); });
+  row.appendChild(link);
+  if (par) {
+    const x = document.createElement("button"); x.className = "x"; x.textContent = "×"; x.title = "親を外す（JDG-1137）";
+    x.addEventListener("click", () => { c.parent = null; say("親を外した（元に戻す 1 回）。", "ok"); render(); });
+    row.appendChild(x);
+  }
+  f1.appendChild(l1); f1.appendChild(row);
+  const f2 = document.createElement("div"); f2.className = "field";
+  f2.innerHTML = "<span class='lab'>名前</span>";
+  const n = document.createElement("div"); n.className = "tname"; n.textContent = c.name; f2.appendChild(n);
+  const f3 = document.createElement("div"); f3.className = "field";
+  f3.innerHTML = "<span class='lab'>開始 〜 終了</span>";
+  const d = document.createElement("div"); d.textContent = period(c); f3.appendChild(d);
+  p.appendChild(f1); p.appendChild(f2); p.appendChild(f3);
+}
+let hotUid = null;
+function renderChart() {
+  const ch = document.getElementById("chart");
+  ch.querySelectorAll(".lane").forEach(n => n.remove());
+  const t0 = day("2026-01-01"), t1 = day("2028-04-01"), w = ch.clientWidth || 700;
+  const x = d => (day(d) - t0) / (t1 - t0) * w;
+  const lanes = [[], [], [], []];
+  CANDS.forEach(p => { // stack the one-row-up bars into 4 visual lanes
+    for (const L of lanes) { if (!L.length || day(L[L.length - 1].f) < day(p.s)) { L.push(p); return; } }
+    lanes[3].push(p);
+  });
+  lanes.forEach((L, i) => {
+    const lane = document.createElement("div"); lane.className = "lane"; lane.style.top = (34 + i * 22) + "px";
+    L.forEach(p => {
+      const b = document.createElement("div"); b.className = "bar" + (p.uid === hotUid ? " hot" : "");
+      b.style.left = x(p.s) + "px"; b.style.width = Math.max(3, x(p.f) - x(p.s)) + "px"; b.textContent = p.name; b.title = p.name;
+      lane.appendChild(b);
+    });
+    ch.appendChild(lane);
+  });
+  const lane = document.createElement("div"); lane.className = "lane"; lane.style.top = (34 + 4 * 22) + "px";
+  children.forEach(c => {
+    const b = document.createElement("div"); b.className = "bar child"; b.style.cursor = "pointer";
+    b.style.left = x(c.s) + "px"; b.style.width = Math.max(3, x(c.f) - x(c.s)) + "px"; b.textContent = c.name; b.title = c.name;
+    b.addEventListener("click", e => { selectedChild = c; render(); e.stopPropagation(); });
+    lane.appendChild(b);
+  });
+  ch.appendChild(lane);
+}
+function render() { renderReport(); renderProps(); renderChart(); renderOut(); }
+
+// ---- the picker (all three shapes share the list) ----
+let pick = null; // { child, box, items, idx, chosen, input, shade }
+function closePicker(msg) {
+  if (!pick) return;
+  pick.box.remove();
+  if (pick.shade) pick.shade.remove();
+  if (pick.palette) pick.palette.remove();
+  const back = pick.from;
+  pick = null; hotUid = null;
+  renderChart();
+  if (msg) say(msg, "");
+  if (back && document.body.contains(back)) back.focus();
+}
+function commit(p) {
+  const c = pick.child;
+  c.parent = p.uid;
+  closePicker();
+  say("親を「" + p.name + "」にした —— 親を 1 回書いた（CM-18、元に戻す 1 回）。", "ok");
+  render();
+}
+function buildList(child) {
+  const wrap = document.createElement("div"); wrap.className = "pick" + (CLIP ? " clip" : ""); wrap.style.setProperty("--fs", FS + "px");
+  const fl = document.createElement("div"); fl.className = "filter";
+  const inp = document.createElement("input"); inp.type = "text"; inp.placeholder = "名で絞る"; inp.setAttribute("aria-label", "名で絞る");
+  const cnt = document.createElement("span"); cnt.className = "count";
+  fl.appendChild(inp); fl.appendChild(cnt);
+  const list = document.createElement("div"); list.className = "list"; list.setAttribute("role", "listbox");
+  const rowH = Math.round(FS * 1.7) + 6;
+  list.style.maxHeight = (ROWS * rowH + 22) + "px";
+  wrap.appendChild(fl); wrap.appendChild(list);
+  const st = { input: inp, list: list, items: [], idx: -1, chosen: null, cnt: cnt };
+  function fill() {
+    const q = norm(inp.value.trim());
+    list.innerHTML = ""; st.items = [];
+    ip4(child).forEach(g => {
+      const its = g.items.filter(p => !q || norm(p.name).indexOf(q) >= 0);
+      if (!its.length) return;
+      const h = document.createElement("div"); h.className = "grp"; h.textContent = g.label; list.appendChild(h);
+      its.forEach(p => {
+        const r = document.createElement("div"); r.className = "row"; r.setAttribute("role", "option");
+        const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = p.name; nm.title = p.name;
+        r.appendChild(nm);
+        if (child.parent === p.uid) { const c = document.createElement("span"); c.className = "cur"; c.textContent = "いまの親"; r.appendChild(c); }
+        const pd = document.createElement("span"); pd.className = "pd"; pd.textContent = period(p); r.appendChild(pd);
+        const k = st.items.length;
+        r.addEventListener("pointerdown", e => e.preventDefault()); // keep the focus in the box
+        r.addEventListener("mousemove", () => { if (st.idx !== k) setIdx(k, false); });
+        r.addEventListener("click", () => { setIdx(k, false); choose(k, false); });
+        r.addEventListener("dblclick", () => choose(k, true));
+        list.appendChild(r); st.items.push({ p: p, el: r });
+      });
+    });
+    cnt.textContent = st.items.length + " / " + CANDS.length + " 件";
+    if (!st.items.length) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "当てはまる候補が無い。"; list.appendChild(e); }
+    setIdx(st.items.length ? 0 : -1, true);
+  }
+  function setIdx(k, scroll) {
+    st.items.forEach((it, i) => it.el.setAttribute("aria-selected", i === k ? "true" : "false"));
+    st.idx = k;
+    hotUid = k >= 0 ? st.items[k].p.uid : null; renderChart();
+    if (scroll && k >= 0) st.items[k].el.scrollIntoView({ block: "nearest" });
+  }
+  function choose(k, force) {
+    if (k < 0) return;
+    if (shape === "B" && !force) { // B marks, then [Decide] writes
+      st.chosen = st.items[k].p;
+      st.items.forEach((it, i) => it.el.classList.toggle("chosen", i === k));
+      pick.ok.disabled = false;
+      return;
+    }
+    commit(st.items[k].p);
+  }
+  inp.addEventListener("input", fill);
+  inp.addEventListener("keydown", e => {
+    if (e.isComposing || e.keyCode === 229) return;
+    const n = st.items.length;
+    if (e.key === "ArrowDown" && n) { setIdx((st.idx + 1) % n, true); e.preventDefault(); }
+    else if (e.key === "ArrowUp" && n) { setIdx((st.idx - 1 + n) % n, true); e.preventDefault(); }
+    else if (e.key === "Enter") {
+      e.preventDefault();
+      if (shape === "B" && st.chosen && st.items[st.idx] && st.items[st.idx].p === st.chosen) commit(st.chosen);
+      else if (shape === "B") choose(st.idx, false);
+      else choose(st.idx, true);
+    }
+  });
+  st.fill = fill;
+  return { wrap: wrap, st: st };
+}
+function place(box, anchor) {
+  const sr = stage.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
+  let left = ar.left - sr.left, top = ar.bottom - sr.top + 4;
+  const bw = box.offsetWidth, bh = box.offsetHeight;
+  if (left + bw > sr.width - 6) left = Math.max(6, sr.width - bw - 6);
+  if (top + bh > sr.height - 6) { // no room below: above if it fits, else as low as it fits
+    const above = ar.top - sr.top - bh - 4;
+    top = above >= 6 ? above : Math.max(6, sr.height - bh - 6);
+  }
+  box.style.left = left + "px"; box.style.top = top + "px";
+}
+function openPicker(child, anchor, door) {
+  closePicker();
+  const built = buildList(child);
+  pick = { child: child, from: anchor, st: built.st };
+  if (shape === "A") {
+    const box = document.createElement("div"); box.className = "pickA"; box.style.width = W + "px";
+    const t = document.createElement("div"); t.className = "ttl"; t.textContent = "「" + child.name + "」の親"; t.title = t.textContent;
+    box.appendChild(t); box.appendChild(built.wrap);
+    const h = document.createElement("div"); h.className = "hint"; h.textContent = "↑↓ で動かし Enter か押すと決まる ・ Esc か外を押すと書かずに閉じる";
+    built.wrap.appendChild(h);
+    stage.appendChild(box); pick.box = box;
+    built.st.fill(); place(box, anchor);
+  } else if (shape === "B") {
+    const sh = document.createElement("div"); sh.className = "shade"; stage.appendChild(sh); pick.shade = sh;
+    const box = document.createElement("div"); box.className = "pickB"; box.setAttribute("role", "dialog"); box.style.width = W + "px";
+    const t = document.createElement("div"); t.className = "ptitle";
+    const ts = document.createElement("span"); ts.textContent = "「" + child.name + "」の親を選ぶ"; ts.title = ts.textContent;
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.title = "閉じる（Esc）";
+    x.addEventListener("click", () => closePicker("書かずに閉じた。"));
+    t.appendChild(ts); t.appendChild(x); box.appendChild(t);
+    box.appendChild(built.wrap);
+    const btns = document.createElement("div"); btns.className = "btns";
+    const no = document.createElement("button"); no.type = "button"; no.textContent = "やめる";
+    const ok = document.createElement("button"); ok.type = "button"; ok.textContent = "決める"; ok.disabled = true;
+    no.addEventListener("click", () => closePicker("書かずに閉じた。"));
+    ok.addEventListener("click", () => { if (built.st.chosen) commit(built.st.chosen); });
+    btns.appendChild(no); btns.appendChild(ok); box.appendChild(btns); pick.ok = ok;
+    stage.appendChild(box); pick.box = box;
+    built.st.fill();
+    const sr = stage.getBoundingClientRect();
+    box.style.left = Math.max(6, (sr.width - box.offsetWidth) / 2) + "px";
+    box.style.top = Math.max(6, (sr.height - box.offsetHeight) / 2) + "px";
+    dragBy(t, box);
+  } else {
+    const pal = document.createElement("div"); pal.className = "palette";
+    const icons = document.createElement("div"); icons.className = "icons";
+    ["戻", "進", "表", "親", "定", "揃", "検"].forEach((s, i) => { const d = document.createElement("div"); d.className = "ic" + (i === 4 ? " on" : ""); d.textContent = s; icons.appendChild(d); });
+    pal.appendChild(icons);
+    const t = document.createElement("div"); t.className = "ttl"; t.textContent = "「" + child.name + "」の親を選ぶ（親定義の構えのまま）";
+    built.wrap.insertBefore(t, built.wrap.firstChild);
+    const h = document.createElement("div"); h.className = "hint"; h.textContent = "↑↓ ・ Enter で決まる ・ Esc で閉じる";
+    built.wrap.appendChild(h);
+    built.wrap.style.width = W + "px";
+    pal.appendChild(built.wrap);
+    stage.appendChild(pal); pick.box = pal;
+    built.st.fill();
+  }
+  say("面を開いた —— 入口: " + door + "。まだ書いていない。", "");
+  built.st.input.focus();
+}
+function dragBy(handle, box) {
+  handle.addEventListener("pointerdown", e => {
+    if (e.target.tagName === "BUTTON") return;
+    const sx = e.clientX - box.offsetLeft, sy = e.clientY - box.offsetTop;
+    const mv = ev => { box.style.left = (ev.clientX - sx) + "px"; box.style.top = (ev.clientY - sy) + "px"; };
+    const up = () => { document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); };
+    document.addEventListener("pointermove", mv); document.addEventListener("pointerup", up);
+  });
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && pick) { e.preventDefault(); closePicker("書かずに閉じた（Esc）。"); }
+});
+document.addEventListener("pointerdown", e => {
+  if (!pick || shape === "B") return; // B is modal: outside does not close (JDG-1353)
+  if (pick.box.contains(e.target)) return;
+  closePicker("枠の外を押したので、書かずに閉じた。");
+});
+
+// ---- knobs ----
+function renderOut() {
+  const names = { A: "A 押した所の横に浮く一覧", B: "B 中央の窓 ＋［決める］", C: "C コマンドパレットで絞る" };
+  document.getElementById("out").textContent =
+    "形: " + names[shape] + "\n幅: " + W + "px\n見える行数: " + ROWS + "\n文字: " + FS + "px\n長い名: " + (CLIP ? "1 行で「…」" : "折り返す");
+}
+document.querySelectorAll('input[name="shape"]').forEach(r => r.addEventListener("change", () => { shape = r.value; closePicker(); renderOut(); }));
+document.getElementById("kW").addEventListener("change", e => { W = Number(e.target.value); closePicker(); renderOut(); });
+document.getElementById("kRows").addEventListener("change", e => { ROWS = Number(e.target.value); closePicker(); renderOut(); });
+document.getElementById("kClip").addEventListener("change", e => { CLIP = e.target.value === "clip"; closePicker(); renderOut(); });
+document.getElementById("kFont").addEventListener("click", e => {
+  const seq = [12, 14, 16, 20]; FS = seq[(seq.indexOf(FS) + 1) % seq.length];
+  e.target.textContent = "A " + FS + "px"; closePicker(); renderOut();
+});
+document.querySelectorAll('input[name="theme"]').forEach(r => r.addEventListener("change", () => {
+  if (r.value) document.documentElement.setAttribute("data-theme", r.value); else document.documentElement.removeAttribute("data-theme");
+}));
+function reset() {
+  closePicker();
+  children = CHILDREN0.map(c => Object.assign({}, c));
+  selectedChild = children[0];
+  say("報告の紫の行か、プロパティの青い「親: …」を押してみる。", "");
+  render();
+}
+document.getElementById("reset").addEventListener("click", reset);
+window.addEventListener("resize", renderChart);
+reset();
+</script>
+</body>
+</html>

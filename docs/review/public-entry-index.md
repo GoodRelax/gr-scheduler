@@ -174,9 +174,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HistoryLimits` | entry | interface | `src/entity/document-model/edit-history/edit-history.ts#HistoryLimits` | -- | interface HistoryLimits |
 | `HistoryMove` | entry | interface | `src/entity/document-model/edit-history/edit-history.ts#HistoryMove` | -- | interface HistoryMove<TStep> |
 | `historyWithStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#historyWithStep` | PI-4 | 1 段積む |
-| `nextStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#nextStep` | PI-4 | function nextStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> |
+| `nextStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#nextStep` | PI-4 | function nextStep<TStep>( history: EditHistory<TStep>, leftBehind: (step: TStep) => TStep, ): HistoryMove<TStep> |
 | `NOT_STORED_LIMITS` | entry | const | `src/entity/document-model/edit-history/edit-history.ts#NOT_STORED_LIMITS` | -- | const NOT_STORED_LIMITS: |
-| `previousStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#previousStep` | PI-4 | function previousStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> |
+| `previousStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#previousStep` | PI-4 | function previousStep<TStep>( history: EditHistory<TStep>, leftBehind: (step: TStep) => TStep, ): HistoryMove<TStep> |
 | `stepCount` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#stepCount` | -- | function stepCount<TStep>(history: EditHistory<TStep>): number |
 
 ## ScheduleLayout (PI-5, `src/entity/layout-engine/schedule-layout/schedule-layout.ts`)
@@ -186,7 +186,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗の札の右端を合わせる位置。 |
 | `dateAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#dateAtX` | PI-5 | 時間軸の対応。 |
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
-| `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | -- | function deadlineHeadHalfWidthOf(markerDiameter: number): number |
+| `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限の印の矢じりの半幅（表 T-206 の `S-365` に進捗マーカーの径を掛けた幅の半分）。 |
 | `dummyBandOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#dummyBandOf` | PI-5 | ダミーを描く帯。 |
 | `dummyInkWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf` | -- | function dummyInkWidthOf(markerDiameter: number): number |
 | `FitToScreen` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#FitToScreen` | -- | interface FitToScreen |
@@ -206,7 +206,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, rowControlsHeightPx?: numb... |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
-| `NOT_STORED_DUMMY_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/label-placement.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
@@ -221,7 +220,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `standsUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#standsUndecidedResume` | -- | function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
 | `TaskPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskPlacement` | -- | interface TaskPlacement |
 | `taskPlacement` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskPlacement` | PI-5 | どこに載るか |
-| `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | -- | function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | PI-5 | 線だけの形（`--->` と端点スパン `SH-4`）の端の印の縦幅の半分 —— 矢じりの縦幅、端点スパンでは両端の点の径（`S-307`）。 |
 | `tickStrideOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#tickStrideOf` | PI-5 | 目盛の間引き。 |
 | `TimeAxis` | entry | type | `src/entity/layout-engine/schedule-layout/time-axis.ts#TimeAxis` | -- | type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' \| 'originDay' \| 'originX'> |
 | `timeAxisOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#timeAxisOf` | PI-5 | 行を割り付けずに、時間軸の対応だけを求める。 |
@@ -321,12 +320,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `bottomOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#bottomOf` | -- | function bottomOf(box: ScreenRect): number |
 | `boxOfPath` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#boxOfPath` | -- | function boxOfPath(points: Path): ScreenRect \| null |
 | `BoxPart` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BoxPart` | -- | type BoxPart = \| { readonly kind: 'body' } \| { readonly kind: 'anchor' } \| { readonly kind: 'leader' } \| |
-| `ChosenItem` | entry | interface | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#ChosenItem` | -- | interface ChosenItem |
 | `DependencyEnd` | entry | interface | `src/entity/layout-engine/item-hit-area/dependency-end.ts#DependencyEnd` | -- | interface DependencyEnd |
 | `dependencyEndAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/dependency-end.ts#dependencyEndAtPointer` | PI-7 | `FR-009` の「左半分 / 右半分」を答える。 |
 | `dependencyItemOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#dependencyItemOf` | -- | function dependencyItemOf(line: DependencyGeometry): Item |
 | `dependencyStartOfHit` | entry | function | `src/entity/layout-engine/item-hit-area/dependency-end.ts#dependencyStartOfHit` | PI-7 | 押したときの当たり（`itemAtPointer` の答え）から、引き出す依存線の起点を答える。 |
-| `DrawnChoice` | entry | interface | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#DrawnChoice` | -- | interface DrawnChoice<T extends ChosenItem> |
 | `GrabArea` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#GrabArea` | PI-7 | 掴んだ所の型 —— `FR-104` の 表 T-266 と 表 T-023d の行 ID の集合。 |
 | `GrabSizes` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#GrabSizes` | -- | type GrabSizes = typeof NOT_STORED_SIZES |
 | `grabSizesOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#grabSizesOf` | PI-7 | `itemAtPointer` に渡す掴み代の大きさを、`_assets/tbl-settings.md` の 表 T-206 の掴み代の行（`01-04-requirements.md` の `FR-104` の 表 T-266 が読む `S-250` 〜 `S-290` と、`S-137` / `S-230`... |
@@ -340,7 +337,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `itemAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#itemAtPointer` | PI-7 | 対象は 表 T-023c の `SL-1`。 |
 | `itemsInMarquee` | entry | function | `src/entity/layout-engine/item-hit-area/marquee.ts#itemsInMarquee` | PI-7 | `SL-3`。 |
 | `merged` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#merged` | -- | function merged(a: ScreenRect \| null, b: ScreenRect \| null): ScreenRect \| null |
-| `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `PointerAnswers` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerAnswers` | PI-7 | 型。 |
 | `PointerResolution` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerResolution` | -- | type PointerResolution = 'press' \| 'doubleClick' \| 'hint' |
 | `PointerWalk` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#PointerWalk` | PI-7 | 型。 |
@@ -443,7 +439,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskShapeKind` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskShapeKind` | -- | type TaskShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `TreeStateEvent` | entry | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEvent` | PI-9 | 型。 |
 | `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換える行の `treeState` を求める。 |
-| `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'planVisible' \| 'actualVisible' \| 'assigneeVisible' \| 'percentCompleteVisible' \| 'dependencyVisible' \| 'progressMarkerVisible' \| 'pro... |
+| `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
 | `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number |
@@ -459,7 +455,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
 | `visualOf` | file only | function | `src/use-case/edit-document/edit-task.ts#visualOf` | -- | function visualOf(schedule: Schedule, taskUid: number): TaskVisual |
-| `wbsSubtreeOf` | file only | function | `src/use-case/edit-document/edit-task.ts#wbsSubtreeOf` | -- | function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
 | `withTask` | file only | function | `src/use-case/edit-document/edit-task.ts#withTask` | -- | function withTask(document: Document, next: Task): Document |
 | `PercentCompleteRecount` | file only | interface | `src/use-case/edit-document/percent-complete.ts#PercentCompleteRecount` | -- | interface PercentCompleteRecount |
@@ -488,10 +483,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pasteTaskSubtree` | file only | function | `src/use-case/edit-document/task-paste.ts#pasteTaskSubtree` | -- | function pasteTaskSubtree( document: Document, command: Extract<TaskCommand, { readonly kind: 'pasteTaskSubtree' }>, within: WorkingCalendar, ): EditResult |
 | `beginTaskActual` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#beginTaskActual` | -- | function beginTaskActual( document: Document, command: Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>, task: Task, within: WorkingCalendar, ): Ed... |
 | `cycleTaskPlanActualStateInDocument` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#cycleTaskPlanActualStateInDocument` | -- | function cycleTaskPlanActualStateInDocument( document: Document, command: Extract<TaskCommand, { readonly kind: 'cycleTaskPlanActualState' }>, task: Task, wi... |
+| `pastedCopyOf` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#pastedCopyOf` | -- | function pastedCopyOf(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `planDatesEdited` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#planDatesEdited` | -- | function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `setTaskPlanActualState` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanActualState` | -- | function setTaskPlanActualState( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanActualState' }>, task: Task, within: WorkingC... |
 | `setTaskPlanDates` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanDates` | -- | function setTaskPlanDates( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanDates' }>, task: Task, within: WorkingCalendar, ): ... |
-| `unstartedCopyOf` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#unstartedCopyOf` | -- | function unstartedCopyOf(task: Task): Task |
 
 ## ImportDocument (PI-10, `src/use-case/import-document/import-document.ts`)
 
@@ -536,9 +531,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `ImportCandidate` | entry | interface | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportCandidate` | -- | interface ImportCandidate |
-| `ImportRefusal` | entry | interface | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportRefusal` | -- | interface ImportRefusal |
-| `ImportVerdict` | entry | type | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportVerdict` | -- | type ImportVerdict = \| { readonly ok: true } \| { readonly ok: false; readonly refusals: readonly ImportRefusal[] } const BYTES_PER_MEGABYTE = 1024 * 1024 |
+| `ImportVerdict` | entry | type | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportVerdict` | -- | type ImportVerdict = \| { readonly ok: true } \| { readonly ok: false; readonly refusals: readonly ValidationRefusal[] } const BYTES_PER_MEGABYTE = 1024 * 1024 |
 | `validateImportedDocument` | entry | function | `src/use-case/validate-imported-document/validate-imported-document.ts#validateImportedDocument` | PI-13 | `FR-023` / `NFR-009` |
+| `ValidationRefusal` | entry | interface | `src/use-case/validate-imported-document/validate-imported-document.ts#ValidationRefusal` | -- | interface ValidationRefusal |
 
 ## ChooseStartupDocument (PI-14, `src/use-case/choose-startup-document/choose-startup-document.ts`)
 
@@ -763,7 +758,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
 | `NOT_STORED_DUAL_CURSOR_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUAL_CURSOR_SIZES` | -- | const NOT_STORED_DUAL_CURSOR_SIZES: |
-| `NOT_STORED_DUMMY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
 | `NOT_STORED_NAME_LABEL_WEIGHT` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_NAME_LABEL_WEIGHT` | -- | const NOT_STORED_NAME_LABEL_WEIGHT: |
 | `NOT_STORED_RULER_WEEKDAY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_RULER_WEEKDAY_SIZES` | -- | const NOT_STORED_RULER_WEEKDAY_SIZES: |
 | `NOT_STORED_SELECTION_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_SELECTION_SIZES` | -- | const NOT_STORED_SELECTION_SIZES: |
@@ -791,7 +785,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wbsParentParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#wbsParentParts` | -- | function wbsParentParts( geometry: ScheduleGeometry, settings: DrawnSettings, themed: (rowId: string) => string, drawsOperationState: boolean, ): readonly st... |
 | `BaselineOutlineParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#BaselineOutlineParts` | -- | interface BaselineOutlineParts |
 | `baselineOutlineParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#baselineOutlineParts` | -- | function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts |
-| `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg(id: string, length: number, colour: string): string |
+| `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg( id: string, settings: Pick<DrawnSettings, 'dependencyArrowLength' \| 'dependencyArrowWidth'>, colour: string, ): string |
 | `DependencyLinkParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinkParts` | -- | interface DependencyLinkParts |
 | `dependencyLinkParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyLinkParts` | -- | function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts |
 | `DependencyLinksInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinksInput` | -- | interface DependencyLinksInput |
@@ -878,7 +872,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `exportSvg` | entry | function | `src/adapter/image-exporter/image-exporter.ts#exportSvg` | PI-21 | 表 T-076 が「描く」とした UI パーツを組み立てて返す。 |
 | `ImageExport` | entry | type | `src/adapter/image-exporter/image-exporter.ts#ImageExport` | -- | type ImageExport = \| ({ readonly ok: true } & SvgPicture & { readonly png: Rastering }) \| { readonly ok: false; readonly fault: ImageExportFault } /** @purit... |
 | `ImageExportFault` | entry | interface | `src/adapter/image-exporter/image-exporter.ts#ImageExportFault` | -- | interface ImageExportFault |
-| `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/adapter/image-exporter/image-exporter.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
 | `RasterFault` | entry | interface | `src/adapter/image-exporter/rasterizer.ts#RasterFault` | -- | interface RasterFault |
 | `RasterFaultReason` | entry | type | `src/adapter/image-exporter/rasterizer.ts#RasterFaultReason` | -- | type RasterFaultReason = \| 'unsupported' \| 'tooLarge' \| 'rasterFailed' export interface RasterFault |
 | `Rastering` | entry | type | `src/adapter/image-exporter/rasterizer.ts#Rastering` | -- | type Rastering = \| { readonly ok: true; readonly pngBytes: Uint8Array } \| { readonly ok: false; readonly fault: RasterFault } export interface Rasterizer |
@@ -959,7 +952,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OPEN_ROUTE_FROM_CHOOSER` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_CHOOSER` | -- | const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser' |
 | `OPEN_ROUTE_FROM_DROP` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_DROP` | -- | const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop' |
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
-| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
+| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedDocument \| nul... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
@@ -1009,7 +1002,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MergeCandidateLine` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeCandidateLine` | -- | type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number] |
 | `MergeChoices` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeChoices` | -- | type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']> |
 | `MergeMapping` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeMapping` | -- | type MergeMapping = NonNullable<MergeChoices['mapping']> |
-| `NOT_STORED_PROPERTIES_PANEL_SIZES` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOT_STORED_PROPERTIES_PANEL_SIZES` | -- | const NOT_STORED_PROPERTIES_PANEL_SIZES: |
 | `NOT_STORED_SCROLLBAR_SIZES` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOT_STORED_SCROLLBAR_SIZES` | -- | const NOT_STORED_SCROLLBAR_SIZES: |
 | `NOTHING_TO_DO_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTHING_TO_DO_REASON` | -- | const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27' |
 | `NOTICE_REASON_OF_RASTER_FAULT` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTICE_REASON_OF_RASTER_FAULT` | -- | const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = |
@@ -1240,7 +1232,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
-| `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、表示言語と版で組む。 |
+| `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
@@ -1305,7 +1297,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `appHeaderItemsFromDocument` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#appHeaderItemsFromDocument` | -- | function appHeaderItemsFromDocument( schedule: Schedule, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): AppHeaderItems |
 | `displayScaleMessageText` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#displayScaleMessageText` | -- | function displayScaleMessageText( displayScale: number, end: 'max' \| 'min' \| null, language: DisplayLanguage, ): string |
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
-| `NOT_STORED_COMMAND_PALETTE_SIZES` | file only | const | `src/adapter/screen-renderer/command-palette.ts#NOT_STORED_COMMAND_PALETTE_SIZES` | -- | const NOT_STORED_COMMAND_PALETTE_SIZES: |
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, report: DelayDiagnosticsReport \| null, schedu... |
 | `DelayReportLine` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportLine` | -- | interface DelayReportLine |
@@ -1321,11 +1312,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, ): OpenModal \| null |
 | `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
-| `NOT_STORED_PROPERTY_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/properties-panel.ts#NOT_STORED_PROPERTY_CONTROL_SIZES` | -- | const NOT_STORED_PROPERTY_CONTROL_SIZES: |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
-| `NOT_STORED_ROW_CONTROL_SIZES` | file only | const | `src/adapter/screen-renderer/row-title-panel.ts#NOT_STORED_ROW_CONTROL_SIZES` | -- | const NOT_STORED_ROW_CONTROL_SIZES: |
 | `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
-| `NOT_STORED_PANEL_DIVIDER_SIZES` | file only | const | `src/adapter/screen-renderer/screen-frame.ts#NOT_STORED_PANEL_DIVIDER_SIZES` | -- | const NOT_STORED_PANEL_DIVIDER_SIZES: |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
 | `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#EntryRefusal` | -- | interface EntryRefusal |
@@ -1707,4 +1695,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 826 name(s) leave through a public entry (316 of them published by table T-064), 671 more are exported by a file and not by its entry.
+Totals: 820 name(s) leave through a public entry (318 of them published by table T-064), 665 more are exported by a file and not by its entry.

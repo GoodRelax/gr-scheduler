@@ -435,15 +435,14 @@ export function documentFileFlowOf(hands: DocumentFileFlowHands) {
     })
   }
 
-  // see OP-3, OP-4, OP-13, T-290
+  // see OP-3, OP-4, OP-13, FR-022, T-290
   // WHY: replace only once the discard is confirmed, null when discarded or closed; effects settle it.
+  // A handed document is asked the same way: the person answers, never the caller (JDG-130).
   /** @purity non-pure */
-  function askHowToOpen(discarded: Document, handedChoice: OpenChoice | null, incomingFile: IncomingFile) {
+  function askHowToOpen(discarded: Document, incomingFile: IncomingFile) {
     return new Promise<OpenChoice | null>((answer) => {
       settleOpenChoice = answer
       hands.sendFromFlow({ type: 'documentFileRead', question: discardQuestionOf(discarded), incomingFile })
-      // DEVIATION: spec says OP-3 is asked for a handed document too (JDG-130); here the hand-over answers merge (DFC-614)
-      if (handedChoice !== null) answerOpenChoice(hands, handedChoice, hands.readValues())
     })
   }
 
@@ -472,10 +471,12 @@ export function documentFileFlowOf(hands: DocumentFileFlowHands) {
   function beginWritingDocumentFile(writeForm: FileFlowWriteForm): void {
     const store = hands.files
     if (store === undefined) return hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED)
+    // WHY: taken here and passed in, so no await inside can swap the document asked for (CS-4).
+    const asked = hands.readHeld().document
     const writing =
       writeForm.kind === 'save'
-        ? saveHeldDocumentToFile(hands, flow, store)
-        : exportHeldDocumentToFile(hands, flow, store, writeForm.format as ExportFormatId)
+        ? saveHeldDocumentToFile(hands, flow, store, asked)
+        : exportHeldDocumentToFile(hands, flow, store, asked, writeForm.format as ExportFormatId)
     void writing.finally(() => hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
   }
 
@@ -570,7 +571,7 @@ function landReplacedDocument(
 export async function openDocumentIntoHold(
   hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
   route: OpenRoute,
-  handed: HandedImport | null = null,
+  handed: HandedDocument | null = null,
 ): Promise<boolean> {
   const current = hands.readHeld().document
 
@@ -651,7 +652,7 @@ export async function openDocumentIntoHold(
     return false
   }
 
-  const choice = await flow.askHowToOpen(current, handed?.choice ?? null, incomingFileOf(readIn, incoming))
+  const choice = await flow.askHowToOpen(current, incomingFileOf(readIn, incoming))
   if (choice === null) return false
   const isDiscardConfirmed = choice === 'replace'
 
@@ -738,6 +739,10 @@ function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, de
   if (decoded.duplicateLeaves > 0) hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
 }
 
+// see OP-3, FR-022
+// WHY: no open choice rides with a handed document; the person picks it on the chooser (JDG-130).
+type HandedDocument = Omit<HandedImport, 'choice'>
+
 // see FR-012, RS-52
 type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> & {
   readonly recountedCount?: number
@@ -765,7 +770,6 @@ export async function takeInHandedDocument(
       byteLength: new TextEncoder().encode(handedText).length,
       unreadColumns: firstReading?.unreadColumns ?? (reread.ok ? reread.unreadColumns : []),
       isNewerFormat: firstReading?.isNewerFormat ?? (reread.ok && reread.formatVersion === 'newerThanKnown'),
-      choice: 'merge',
     })
     // TRAP: the reread finds nothing to recount; the count is the first reading's.
     const recountedCount = firstReading?.recountedCount ?? 0
@@ -811,9 +815,8 @@ async function saveHeldDocumentToFile(
   hands: DocumentFileFlowHands,
   flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved' | 'hasSavedOpenedFile'>,
   store: FileStore,
+  saved: Document,
 ): Promise<void> {
-  // TRAP: read before the first await; a later read saves a document nobody asked to save (CS-4).
-  const saved = hands.readHeld().document
   const savedAt = readInstantOfWrite()
   const text = savedDocumentText(saved, savedAt)
   const project = saved.schedule.project
@@ -838,11 +841,11 @@ async function exportHeldDocumentToFile(
   hands: DocumentFileFlowHands,
   flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved'>,
   store: FileStore,
+  written: Document,
   format: ExportFormatId,
 ): Promise<void> {
   const form = saveFormOfExportFormat(format)
   if (form === null) return
-  const written = hands.readHeld().document
   const savedAt = readInstantOfWrite()
   const text = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
   // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.

@@ -22,7 +22,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { textOfDay, type Task } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
-import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import { settingNumber } from '../fixtures/setting-number'
 import type {
   BarGeometry,
   Point,
@@ -103,7 +103,7 @@ const dayPart = (value: string | null | undefined): string => {
   return value.slice(0, 10)
 }
 
-const S_91 = NOT_STORED_SIZES['S-257']
+const S_91 = settingNumber('S-257')
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {

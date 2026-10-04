@@ -141,8 +141,6 @@ ScheduleGeometry | Path
 ScheduleGeometry | Point
 ScheduleGeometry | TaskGeometry
 
-ScheduleLayout | deadlineHeadHalfWidthOf
-ScheduleLayout | thinEndHalfHeightOf
 ScheduleLayout | MilestoneGlyph
 ScheduleLayout | RowPlacement
 ScheduleLayout | ShapeKind

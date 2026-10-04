@@ -80,9 +80,6 @@ why: restates the out-direction IO rows of table T-024 (display-words.json / exp
 THEME_ROW_OF_FORM | keys | generated COLOUR_NAME_VALUES.*.* keys
 why: restates the colour forms of table T-236 through the hand union ColourForm; becomes compile-guarded once ColourForm is derived.
 
-MilestoneLayerRole | union | milestone-shapes.json $.shapes[].layers[].role
-why: restates the layer roles of docs/spec/_assets/fig-milestone-shapes.svg (CR-583); the JSON import widens role to string and no generated TS set of the roles exists yet -- held under JDG-778 (the user lets a lane raise for now), DFC-1227 closes it by generating the set
-
 WRITTEN_PROPERTIES | keys | mcp-tool-descriptions.json $.tools[].name
 why: restates the member names of table T-107 (mcp-tool-descriptions.json) as the MCP input-schema keys; the satisfies Record<keyof AgentApi> is the 1:1 compile guard CR-613 section 9 asks for, and tests/contract/cr-613-seam-2 holds the names and order against the table. Registered by the coordinator's leave, 2026-10-01.
 
@@ -97,5 +94,3 @@ why: coincidental: maps the colour columns to the form each is drawn in; the for
 KEY | values | help-roster.json $.entries[].keys~words
 why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.
 
-VisibleElement | union | generated VISIBLE_ELEMENT_BY_ENTRY union
-why: restates, held under JDG-778 (lane L4, CR-589, DFC-1289): the use case's own union of FR-049's boolean rows now also appears as the value union the generator prints from table T-109; print the generated map as Record<string, VisibleElement> (import the use-case type) or derive VisibleElement from T-202's boolean rows, then delete these two lines.

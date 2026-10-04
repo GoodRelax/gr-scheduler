@@ -6,10 +6,11 @@
 import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, subtreeOf, withSchedule } from './edit-task-group'
+import { depthOf, subtreeOf, wbsSubtreesOf, withSchedule } from './edit-task-group'
 
 // see HM-9
 // TRAP: schedule-invariants.ts and the input translator walk the row tree the same way; change all three.
@@ -180,5 +181,36 @@ export function moveTaskGroup(
     return place === undefined || place === one.order ? one : { ...one, order: place }
   })
   if (next.every((one, at) => one === groups[at])) return edited(document)
-  return edited(withWbsOrderFollowingTheRows(document, next))
+  return movedWithTheWbs(document, next, moved, parent)
+}
+
+// see HM-1, HM-4
+/** @purity pure */
+function movedWithTheWbs(
+  document: Document,
+  rows: readonly TaskGroup[],
+  moved: TaskGroup,
+  parent: TaskGroup | null | undefined,
+): EditResult {
+  const tasks = document.schedule.tasks
+  const wbsParentUid = wbsParentAfterTheMove(document.schedule, moved, parent ?? null)
+  const taskUid = moved.derivedFromTaskUid
+  if (wbsParentUid === undefined || taskUid === null) return edited(withWbsOrderFollowingTheRows(document, rows))
+  if (wbsSubtreesOf(tasks, [taskUid]).has(wbsParentUid)) {
+    return refused([reject('CM-73', 'HM-4', `Task ${wbsParentUid} sits inside the WBS subtree of Task ${taskUid}`)])
+  }
+  const reparented = tasks.map((one) => (one.uid === taskUid ? { ...one, wbsParentUid } : one))
+  return edited(withWbsOrderFollowingTheRows(withSchedule(document, { tasks: reparented }), rows))
+}
+
+// see HM-1, HM-7
+// WHY: undefined when the move reaches no WBS parent: a hand-made row carries no Task, and a reorder is no move.
+/** @purity pure */
+function wbsParentAfterTheMove(schedule: Schedule, moved: TaskGroup, parent: TaskGroup | null): number | undefined {
+  if (moved.derivedFromTaskUid === null || taskByUid(schedule, moved.derivedFromTaskUid) === null) return undefined
+  if ((parent?.id ?? null) === moved.parentId) return undefined
+  // STOP: spec does not decide the WBS parent of a derived row moved to the top or under a hand-made row.
+  // Looked in HM-1, HM-7, FR-005, JDG-561 (PND-773)
+  if (parent === null || parent.derivedFromTaskUid === null) return undefined
+  return taskByUid(schedule, parent.derivedFromTaskUid) === null ? undefined : parent.derivedFromTaskUid
 }

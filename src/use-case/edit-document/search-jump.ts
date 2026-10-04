@@ -93,8 +93,8 @@ function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpRe
   const held = document.documentSettings
   const row = place.groupId !== null && !held.pinnedGroupIds.includes(place.groupId) ? place.groupId : null
   const day = dayOf(place.date)
-  // DEVIATION: spec says the left end lands S-428 inside the view (SJ-6); here at the edge, S-428 is not generated (DFC-1770)
-  const left = day === null || reach.pxPerDay <= 0 ? null : serial(day) - reach.leftReachPx / reach.pxPerDay
+  const leftPx = reach.leftReachPx + NOT_STORED_SEARCH_JUMP_INSET['S-428']
+  const left = day === null || reach.pxPerDay <= 0 ? null : serial(day) - leftPx / reach.pxPerDay
   const leftDay = left === null ? null : Math.floor(left)
   const scrollDate = leftDay === null ? held.scrollDate : textOfDayStart(dayFromSerial(leftDay))
   const scrollDayOffset = left === null || leftDay === null ? held.scrollDayOffset : left - leftDay
@@ -130,3 +130,15 @@ export function searchJumpWrites(
 export function searchJumpCommands(plan: SearchJumpPlan): readonly DocumentCommand[] {
   return plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_SEARCH_JUMP_INSET: {
+  readonly 'S-428': number
+} = {
+  'S-428': 24,
+}
+// </generated>

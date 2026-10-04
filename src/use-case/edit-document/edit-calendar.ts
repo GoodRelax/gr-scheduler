@@ -139,6 +139,9 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
     changed = true
   }
 
+  if (!held.some((one) => one.dayType !== null && one.dayWorking)) {
+    throw new RangeError('CM-39 / FR-088: the document calendar would work no weekday at all')
+  }
   return changed ? { ...calendar, weekDays: held } : calendar
 }
 

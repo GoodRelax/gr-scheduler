@@ -16,26 +16,13 @@ export function isTaskDrawn(task: TaskGeometry): boolean {
   return task.plan !== null || task.actual !== null || task.dummies.length > 0
 }
 
-export interface DrawnChoice<T extends ChosenItem> {
-  readonly items: readonly T[]
-  readonly ordered: boolean
-}
-
-export interface ChosenItem {
-  readonly kind: string
-  readonly uid?: number
-}
-
 // see T-023c, SL-7b
 // TRAP: the same object when nothing leaves; the shell compares selections by identity.
 /** @purity pure */
-export function selectionWithinDrawn<T extends ChosenItem>(
-  selection: DrawnChoice<T>,
-  geometry: ScheduleGeometry,
-): DrawnChoice<T> {
+export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeometry): Selection {
   const chosenTaskUids = new Set<number>()
   for (const item of selection.items) {
-    if (item.kind === 'task' && item.uid !== undefined) chosenTaskUids.add(item.uid)
+    if (item.kind === 'task') chosenTaskUids.add(item.uid)
   }
   if (chosenTaskUids.size === 0) return selection
   const drawnTaskUids = new Set<number>()
@@ -43,9 +30,7 @@ export function selectionWithinDrawn<T extends ChosenItem>(
     if (chosenTaskUids.has(task.taskUid) && isTaskDrawn(task)) drawnTaskUids.add(task.taskUid)
   }
   if (drawnTaskUids.size === chosenTaskUids.size) return selection
-  const items = selection.items.filter(
-    (item) => item.kind !== 'task' || item.uid === undefined || drawnTaskUids.has(item.uid),
-  )
+  const items = selection.items.filter((item) => item.kind !== 'task' || drawnTaskUids.has(item.uid))
   return { items, ordered: selection.ordered }
 }
 

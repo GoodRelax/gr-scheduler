@@ -31,6 +31,7 @@ const BRANDING_LOGO = displayWords.branding.find((entry) => entry.part === 'logo
 
 const APP_HEADER = 'App Header'
 
+const OPEN_DOCUMENT_ENTRY: IconId = 'IC-1'
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 const UNDO_ENTRY: IconId = 'IC-5'
 const REDO_ENTRY: IconId = 'IC-6'
@@ -58,7 +59,7 @@ interface CommandState {
   readonly isPressed: boolean
 }
 
-// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here IC-1, IC-2, IC-12..IC-15 never are (DFC-567)
+// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here IC-12..IC-15 never are (DFC-567)
 const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
 
 // see FR-072, T-280
@@ -67,13 +68,30 @@ function isShowingSettings(session: ScreenSession): boolean {
   return session.screen.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
 }
 
+const FILE_FLOW_ASKING_STATES: ReadonlySet<string> = new Set(['awaitingOpenChoice', 'awaitingDiscardAnswer', 'awaitingMergeMapping'])
+
+/** @purity pure */
+function isFileFlowAskingTheAuthor(session: ScreenSession): boolean {
+  const flow = session.fileFlow
+  return FILE_FLOW_ASKING_STATES.has(flow.fileOperationState.kind) || flow.confirmationState.kind === 'questionAsked'
+}
+
+// see FR-029, FR-039
+/** @purity pure */
+function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandState | null {
+  const lowest = DISPLAY_SCALE_STEPS[0]
+  const highest = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]
+  const end = icon === DISPLAY_SCALE_DOWN_ENTRY ? lowest : icon === DISPLAY_SCALE_UP_ENTRY ? highest : null
+  return end === null ? null : { isEnabled: settings.displayScale !== end, isPressed: false }
+}
+
 // see FR-066, T-280
 /** @purity pure */
 function isDialogueFieldShown(session: ScreenSession): boolean {
   return session.screen.dialogueFieldDisplayState.kind === 'shown'
 }
 
-// see FR-029, T-109
+// see FR-029, T-109, OP-8, CS-4
 /** @purity pure */
 function commandStateOf(
   icon: IconId,
@@ -85,7 +103,12 @@ function commandStateOf(
     const key = VISIBLE_ELEMENT_BY_ENTRY[icon]
     if (key !== undefined) return { isEnabled: true, isPressed: settings[key] }
   }
+  const displayScaleState = displayScaleStateOf(icon, settings)
+  if (displayScaleState !== null) return displayScaleState
   switch (icon) {
+    case OPEN_DOCUMENT_ENTRY:
+      return { isEnabled: !isFileFlowAskingTheAuthor(session), isPressed: false }
+
     case COMMAND_PALETTE_ENTRY:
       return { isEnabled: true, isPressed: session.screen.paletteDisplayState.kind === 'shown' }
 
@@ -98,17 +121,6 @@ function commandStateOf(
 
     case FULL_SCREEN_ENTRY:
       return { isEnabled: true, isPressed: session.screen.fullScreenModeState.kind === 'full' }
-
-    // see FR-029, FR-039
-    case DISPLAY_SCALE_DOWN_ENTRY:
-      return { isEnabled: settings.displayScale !== DISPLAY_SCALE_STEPS[0], isPressed: false }
-
-    case DISPLAY_SCALE_UP_ENTRY:
-      return {
-        isEnabled:
-          settings.displayScale !== DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1],
-        isPressed: false,
-      }
 
     case DOCUMENT_SETTINGS_ENTRY:
       return { isEnabled: true, isPressed: isShowingSettings(session) }

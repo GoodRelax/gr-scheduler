@@ -114,6 +114,8 @@ def main():
         # cr-plan-2026-09-26.md is the fifteenth: the plan that orders the
         # pending change requests into waves and lanes (JDG-740), keyed by
         # change request rather than by a folder of units.
+        # backlog-plan-2026-10-04.md is the sixteenth: the plan that orders the
+        # open defect rows into waves and lanes, keyed by row id.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
@@ -123,7 +125,8 @@ def main():
             'refactor-stage3-gates-proposal-2026-09-15.md',
             'perf-pending.md',
             'test-inventory.md',
-            'cr-plan-2026-09-26.md'
+            'cr-plan-2026-09-26.md',
+            'backlog-plan-2026-10-04.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

@@ -34,8 +34,12 @@ const CV_9_THEME_ENTRY_IS_NULL = '押したらその欄の色をテーマ追随�
 // see FR-019
 const FR_019_NULL_ENTRIES =
   '色の欄の ② の入口は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— 語は既定の色）へ戻す。'
-// see PR-28
-const PR_28_NULLS = '`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）'
+// see PR-28, PR-45, PR-46
+const COMMENT_BOX_NULLS = [
+  ['PR-28', '`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）'],
+  ['PR-45', '`null` ＝ `FR-019` が名指す地の色（`_assets/tbl-settings.md` の 表 T-236 の `S-146`）'],
+  ['PR-46', '`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）'],
+] as const
 
 const CV_9 = unbroken(
   (specTable('T-017b').rows.find((one) => one.id === 'CV-9')?.cells ?? []).join(' '),
@@ -58,8 +62,8 @@ describe('CR-606 premise -- the clauses these cases quote still stand', () => {
     expect(REQUIREMENTS).toContain(FR_019_NULL_ENTRIES)
   })
 
-  it('T-016 PR-28 names the three comment box nulls in column order', () => {
-    expect(PROPERTY_ITEMS_TABLE).toContain(PR_28_NULLS)
+  it.each(COMMENT_BOX_NULLS)('T-016 %s names its comment box null', (_row, clause) => {
+    expect(PROPERTY_ITEMS_TABLE).toContain(clause)
   })
 })
 
@@ -162,7 +166,7 @@ const FIELDS: readonly (readonly [string, string, 'noFill' | 'noLine' | null])[]
   ['commentBox', 'textColor', null],
 ]
 
-// WHY: the T-236 row each box field's null draws, as FR-019 and T-016 PR-28 name them.
+// WHY: the T-236 row each box field's null draws, as FR-019 and T-016 PR-28, PR-45 and PR-46 name them.
 const NULL_ROWS: readonly (readonly [string, string, string])[] = [
   ['highlightBox', 'fillColor', 'S-155'],
   ['highlightBox', 'strokeColor', 'S-312'],

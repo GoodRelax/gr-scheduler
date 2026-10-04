@@ -1,6 +1,6 @@
 // Use-case test for UC-002 (build rows as a hierarchy), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, revealRow, rowSelector, savedFiles, settle, specMismatch } from './uc-harness'
+import { VIEWPORT, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, revealRow, rowSelector, savedFiles, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT })
 
@@ -25,7 +25,6 @@ const grabRowRight = async (page: Page, groupId: string, dx: number): Promise<vo
 
 test('UC-002 build rows as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 HR-4 HR-6, HF-15)', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-002 step 3 / T-015a HM-1: moving a derived row under another row leaves Task.wbsParentUid of its task unchanged')
   await launch(page)
   await enableAgentApi(page)
   await openByDrop(page, ERP, readSample(ERP))
@@ -49,7 +48,7 @@ test('UC-002 build rows as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 
     const named = (await readDocument(page)).schedule.taskGroups.find((g) => g.id === madeId)!
     expect(named.label).toBe('Review board')
     expect(named.color).toBe('green')
-    expect(named.height).toBe(60)
+    expect(named.minHeight).toBe(60)
     await expect(page.locator(rowSelector(madeId) + ' > span')).toHaveText('Review board')
   })
 

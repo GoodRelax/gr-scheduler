@@ -1191,15 +1191,14 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.document.documentSettings.scrollGroupId).not.toBeNull()
   })
 
-  it('puts the task at the corner of the Row Area -- the tripwire PND-61 asks for', () => {
-    // Nothing in FR-055, table T-203 or table T-107 states WHERE in the view a
-    // focused task should land. This case is what falls over when the pending
-    // decision is settled another way.
+  it('puts the task row at the top and its start inside the left edge -- SJ-9 runs SJ-5 and SJ-6', () => {
+    // WHY: PND-61 put the start AT the left edge; table T-332 SJ-6 now leaves S-428 before it (DFC-1770).
     const one = bench()
     accepted(one.api.focusTask(SECOND_UID))
 
-    expect(one.document.documentSettings.scrollDate).toBe(SECOND_START)
-    expect(one.document.documentSettings.scrollGroupId).toBe(SECOND_GROUP_ID)
+    const settings = one.document.documentSettings
+    expect(Date.parse(String(settings.scrollDate))).toBeLessThan(Date.parse(String(SECOND_START)))
+    expect(settings.scrollGroupId).toBe(SECOND_GROUP_ID)
   })
 
   it('names a TaskGroup id in S-78, not an integer (table T-203 says so in as many words)', () => {

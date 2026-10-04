@@ -89,9 +89,8 @@ export interface SettingsBound {
 // see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'pinnedGroupIds': { maxExpression: [{ num: 5 }] },
-  'rowTitlePanelWidth': { min: 80, minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
+  'rowTitlePanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
   'rulerFont': {
-    min: 12,
     minExpression: [{ num: 12 }],
     maxExpression: [{ key: 'rulerHeight' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
   },
@@ -99,18 +98,8 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     max: 150,
     minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
   },
-  'zoomX': {
-    min: 0.02,
-    max: 64,
-    minExpression: [{ num: 0.02 }],
-    maxExpression: [{ num: 64 }],
-  },
-  'zoomY': {
-    min: 0.02,
-    max: 64,
-    minExpression: [{ num: 0.02 }],
-    maxExpression: [{ num: 64 }],
-  },
+  'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
+  'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
 }
 
 // see FR-039
@@ -324,7 +313,7 @@ export const SETTINGS_CONSTANTS: {
   stackGap: 1,
   stackSafetyCap: 255,
   starInnerOfOuter: 0.45,
-  taskHintDelayMs: 500,
+  taskHintDelayMs: 1000,
   thinArrowHeadHeight: 5.6,
   thinArrowHeadLength: 5.6,
   thinFontScale: 0.85,

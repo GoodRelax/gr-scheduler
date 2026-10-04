@@ -846,10 +846,11 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   ])
 }
 
-// see FD-6
+// see FD-6, IV-12
 /** @purity pure */
 function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span: number): number {
-  const room = grab === 'GA-7' ? span : span - (task.fadeInDays ?? 0)
+  const other = grab === 'GA-7' ? task.fadeOutDays : task.fadeInDays
+  const room = span - (other ?? 0)
   return Math.min(Math.max(0, pulled), Math.max(0, room))
 }
 

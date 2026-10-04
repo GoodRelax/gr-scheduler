@@ -45,9 +45,7 @@ export const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', 
 export const STATE_MACHINES_SOURCE = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
 ) as { readonly regions: readonly Record<string, any>[] }
-export const SETTINGS_SOURCE = JSON.parse(
-  readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
-) as Record<string, unknown>
+export { SETTINGS_SOURCE, settingNumber, settingRow } from '../fixtures/setting-number'
 export const SPEC_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
@@ -100,34 +98,6 @@ export function partName(id: string): string {
 // see T-109
 export function surfaceOfEntrance(id: string): string {
   return bare(cellOf(specTable('T-109'), id, 0))
-}
-
-// see T-206
-export function settingRow(id: string): Record<string, any> {
-  let found: Record<string, any> | undefined
-  const walk = (node: unknown): void => {
-    if (found !== undefined) return
-    if (Array.isArray(node)) {
-      for (const one of node) walk(one)
-    } else if (node !== null && typeof node === 'object') {
-      const record = node as Record<string, any>
-      if (record['id'] === id) {
-        found = record
-        return
-      }
-      for (const value of Object.values(record)) walk(value)
-    }
-  }
-  walk(SETTINGS_SOURCE)
-  if (found === undefined) throw new Error(`settings.json has no row ${id}`)
-  return found
-}
-
-export function settingNumber(id: string): number {
-  const row = settingRow(id)
-  const value = Number(row['default']?.['num'] ?? row['value']?.['num'])
-  if (!Number.isFinite(value)) throw new Error(`settings row ${id} states no number`)
-  return value
 }
 
 // see T-233, FR-038

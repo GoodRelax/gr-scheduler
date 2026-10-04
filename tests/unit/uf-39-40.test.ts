@@ -171,23 +171,8 @@ const PI_21_MEMBERS = ((): readonly { name: string; isType: boolean }[] => {
 /** The names of `PI-21` that survive to run time: the two entries. */
 const PI_21_ENTRIES = PI_21_MEMBERS.filter((one) => !one.isType).map((one) => one.name)
 
-/**
- * ⛔ THE ONE RUNTIME NAME ON THIS ENTRY THAT TABLE T-064 DOES NOT GIVE IT.
- *
- * `NOT_STORED_DOCUMENT_TITLE_SIZES` is the constant rule 03 section 1 has
- * `npm run gen` print out of table T-206 (`S-225` / `S-226`) so that the value
- * is not re-typed. ⚠️ Table T-064 knows that species -- `PI-2` names
- * 「原稿を刷った 3 つの定数」 in its own cell -- so a generated constant is not
- * outside the roster by nature; this one is simply not in the row yet.
- * ⚠️ Measured 2026-09-07: the same gap stands on `PI-19`, whose entry
- * (`svg-renderer.ts`) publishes SEVEN such constants against a row that names
- * `svgFromSchedule` and `colourOf` only. ⇒ It is a gap between table T-064 and
- * `src/`, not this component's own, and it is reported rather than papered
- * over: neither docs/spec nor src/ was touched to make this file green.
- * ⛔ PINNED EXACTLY. A SECOND unnamed runtime name fails the case below, and so
- * does table T-064 finally naming this one -- at which point delete this list.
- */
-const PI_21_UNNAMED_RUNTIME_NAMES = ['NOT_STORED_DOCUMENT_TITLE_SIZES'] as const
+// WHY: JDG-139 stage 3 (DFC-619) took `export` off NOT_STORED_DOCUMENT_TITLE_SIZES, the one name T-064 did not give.
+const PI_21_UNNAMED_RUNTIME_NAMES: readonly string[] = []
 
 /**
  * The heading the settings tables give their default column.
@@ -531,6 +516,7 @@ const viewOf = (
       // NT-8 (MUST): the entrance a person puts this telling away by.
       dismissText: 'OK',
       dismissKey: 'NT-3a',
+      raisedNotices: [],
     },
   ],
   // NT-7 of table T-037: `null` while nothing is waiting to be answered.
@@ -1879,10 +1865,7 @@ describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', (
     expect(callable.sort()).toEqual([...PI_21_ENTRIES].sort())
   })
 
-  it('⛔ and publishes exactly one runtime name table T-064 does not give it', () => {
-    // ⛔ EXPECTED RED ON THE MANUSCRIPT, NOT ON THE CODE. See the note on
-    // PI_21_UNNAMED_RUNTIME_NAMES: this pins the gap so that a SECOND unnamed
-    // name, or the row finally naming this one, turns the case red.
+  it('and publishes no runtime name table T-064 does not give it', () => {
     const unnamed = Object.keys(imageExporter).filter(
       (name) => !PI_21_ENTRIES.includes(name) && !PI_21_MEMBERS.some((one) => one.name === name),
     )

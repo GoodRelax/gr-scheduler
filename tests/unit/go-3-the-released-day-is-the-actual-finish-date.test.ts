@@ -22,7 +22,7 @@ import {
   type CalendarDay,
   type Task,
 } from '../../src/entity/document-model/schedule/schedule'
-import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
+import { settingNumber } from '../fixtures/setting-number'
 import type {
   BarGeometry,
   Point,
@@ -95,7 +95,7 @@ const dayPart = (value: string | null | undefined): string => {
 }
 
 const S_129 = SETTINGS_CONSTANTS['actualInitialDuration'] as number
-const S_91 = NOT_STORED_SIZES['S-257']
+const S_91 = settingNumber('S-257')
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {

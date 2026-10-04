@@ -737,6 +737,42 @@ def ts_bound_expression(expression):
     return '[%s]' % ', '.join(spelled)
 
 
+BOUND_OPERATION = {
+    '+': lambda left, right: left + right,
+    '-': lambda left, right: left - right,
+    '*': lambda left, right: left * right,
+    '/': lambda left, right: left / right,
+}
+
+
+def folds_to_closed_bound(expression, closed, where):
+    """True when a postfix bound names no key and comes to the closed bound.
+
+    ⭐ DFC-1797 (CR-642 decision 3): a bound folded from constants alone states
+    the same number as the schema's closed bound, and printing both gives one
+    bound two forms. The expression is the form kept -- IV-16 reads only the
+    expressions, and clampedSettings applies either to the same result -- so
+    the caller drops the closed number. ⛔ A constant expression that comes to
+    a DIFFERENT number means the two readers of the manuscript disagree, and
+    is refused rather than printed.
+    """
+    stack = []
+    for kind, held in expression:
+        if kind == 'key':
+            return False
+        if kind == 'num':
+            stack.append(float(held))
+            continue
+        right = stack.pop()
+        stack.append(BOUND_OPERATION[held](stack.pop(), right))
+    value, want = stack[0], float(closed)
+    if abs(value - want) > 1e-9 * max(1.0, abs(want)):
+        raise SystemExit(
+            'generate_entity_types: %s folds its constants to %s but the '
+            'generated schema states %s' % (where, value, want))
+    return True
+
+
 def settings_manuscript():
     """Every row of settings.json that carries a machine value, by key.
 
@@ -1425,7 +1461,7 @@ NOT_STORED_TARGETS = {
     # the default widths of SQ-1 .. SQ-9 of table T-331. S-423 / S-424 / S-426
     # went to NOT_STORED_HELP_SIZES with the rest of table T-335 (CR-621).
     # S-427 still holds no value and S-428 is read by the use case that jumps
-    # (search-jump.ts), so neither is here.
+    # (search-jump.ts), so neither is here -- S-428 has its own constant below.
     # CR-639: S-475 .. S-481, the default widths of the Delay Diagnostics
     # Report's table columns DT-1 .. DT-7 (RW-9 of table T-346, SV-18 as for
     # the search panel). The window is drawn as the search panel's sibling
@@ -1434,6 +1470,10 @@ NOT_STORED_TARGETS = {
     # stand unread until the window is drawn, and noUnusedLocals refuses it.
     # @provisional PND-670 -- the seven values are placeholders until a
     # touchable sample decides them (JDG-1183).
+    # DFC-1770: S-428, the room SJ-6 of table T-332 leaves between the view's
+    # left edge and where a jump lands. One constant per consuming SUBJECT:
+    # the jump is decided by search-jump.ts, which reads it where it stands.
+    'NOT_STORED_SEARCH_JUMP_INSET': (['S-428'], READ_WHERE_IT_STANDS),
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
                                        'S-466', 'S-467', 'S-468', 'S-469',
                                        'S-470', 'S-471', 'S-472', 'S-473',
@@ -2620,6 +2660,7 @@ def settings_block(_erd):
                         'settings.json but %s in the generated schema'
                         % (path, checked['row'], edge, got, want))
         parts = []
+        closed_at = {}
         # ⛔ Only an exact key is read for what follows. The lookup above falls
         # back to the last piece of a dotted path, which is enough to notice a
         # disagreement but would attach one row's OPEN bound or expression to
@@ -2637,6 +2678,7 @@ def settings_block(_erd):
             if open_bound:
                 parts.append('%s: %s' % (opened, cell['num']))
             elif want is not None:
+                closed_at[edge] = (len(parts), want)
                 parts.append('%s: %s' % (closed, want))
         for edge, field in (('min', 'minExpression'), ('max', 'maxExpression')):
             cell = said[edge] if said is not None else None
@@ -2670,7 +2712,12 @@ def settings_block(_erd):
                     % (edge, path, said['row']))
             expression = [('num', folded[held]) if kind == 'key' and held in folded
                           else (kind, held) for kind, held in expression]
+            if edge in closed_at and folds_to_closed_bound(
+                    expression, closed_at[edge][1],
+                    '%s (%s) %s' % (path, said['row'], edge)):
+                parts[closed_at[edge][0]] = None
             parts.append('%s: %s' % (field, ts_bound_expression(expression)))
+        parts = [part for part in parts if part is not None]
         if not parts:
             continue
         one_line = "  '%s': { %s }," % (path, ', '.join(parts))
@@ -2808,6 +2855,28 @@ def entry_switch_block(path, names):
         lines.append('}')
         out.append('\n'.join(lines))
     return (NEWLINE * 2).join(out)
+
+
+def visible_element_block():
+    """The use case's union of FR-049's settings rows, from the same column.
+
+    ⭐ DFC-1289: `VisibleElement` was written by hand in
+    edit-document-settings.ts and held the same eleven keys this generator
+    prints as the value union of VISIBLE_ELEMENT_BY_ENTRY. It is printed from
+    the one column (table T-109's settings row, read by entry_switch_maps), so
+    a row added to or taken from FR-049 reaches the command type and the three
+    maps together. ⛔ Only boolean rows of table T-202 sit in that column; a
+    T-206 row such as watermarkVisible is not a document setting (FR-020) and
+    cannot arrive here.
+    """
+    pairs, requirement = entry_switch_maps()['VISIBLE_ELEMENT_BY_ENTRY']
+    values = []
+    for _entry, value in pairs:
+        if value not in values:
+            values.append(value)
+    lines = ['// see T-109, T-202, %s' % requirement, 'export type VisibleElement =']
+    lines.extend("  | '%s'" % value for value in values)
+    return '\n'.join(lines)
 
 
 def with_entry_switches(path, build, names):
@@ -3061,6 +3130,15 @@ TARGETS = [
          ENTRY_SWITCH_NAMES),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
       'docs/spec/_assets/tbl-glossary.md (table T-109)']),
+    # DFC-1289: the command's element union, from table T-109's settings rows.
+    (os.path.join(USECASE, 'edit-document', 'edit-document-settings.ts'),
+     lambda _erd: visible_element_block(),
+     ['docs/spec/_assets/tbl-glossary.md (table T-109)',
+      'docs/spec/_source/settings.json (table T-202)']),
+    # DFC-1770: the jump's inset stands in the unit that places the jump (SJ-6).
+    (os.path.join(USECASE, 'edit-document', 'search-jump.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
@@ -3115,14 +3193,11 @@ TARGETS = [
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
     # one unit that draws the picture SL-8 puts the frame on.
-    # ⭐ The dummy's drawn width joins them, in its own constant: FR-043's three
-    # grab handles are drawn by this unit and by no other, and S-180 is the only
-    # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
-    # and S-131 is the faintness).
-    # ⚠️ S-180 LANDS IN `task-figures.ts` AS WELL, for the reason that
-    # entry states: table T-023d's closing rule made the drawn rectangle a fact
-    # the hit test needs, so the geometry solves it once and this unit reads the
-    # answer off `DummyGeometry.ink` instead of the row.
+    # ⭐ The dummy's drawn width is NOT here (DFC-619): table T-023d's closing
+    # rule made the drawn rectangle a fact the hit test needs, so `task-figures.ts`
+    # solves S-180 once and this unit reads the answer off `DummyGeometry.ink`.
+    # The copy printed here was read by tests alone, and noUnusedLocals refuses
+    # it once it is not exported.
     # ⭐ The Dual Cursor's own line width joins them, in a constant of its own
     # for the reason the entry in NOT_STORED_TARGETS gives: CU-2's two lines
     # are drawn by this unit and by no other, and S-194 is the only row that
@@ -3134,7 +3209,6 @@ TARGETS = [
      # CR-602: the width a selected or landing dependency line and its end
      # outlines add (S-447), drawn only on the screen (EP-12).
      + not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
      # CR-588: the pre-change plan's outline dash (BL-3 of table T-339).
@@ -3278,9 +3352,10 @@ TARGETS = [
 #
 # Three stages, in the order the user ruled:
 #   1. (done) take `export` off every copy no file of src/ or tests/ reads;
-#   2. rewrite the tests that read the READ_BY_TESTS_ONLY copies so that they
-#      take the expected value from the settings table instead;
-#   3. empty READ_BY_TESTS_ONLY, and narrow check 30 to readers in src/.
+#   2. (done, DFC-619) rewrite the tests that read the READ_BY_TESTS_ONLY
+#      copies so that they take the expected value from the settings table;
+#   3. (done, DFC-619, except check 30) empty READ_BY_TESTS_ONLY; narrowing
+#      check 30 to readers in src/ is left to that check's owner.
 # Paths are relative to the repository root, with forward slashes.
 
 # Copies at least one OTHER file of src/ imports.
@@ -3358,40 +3433,12 @@ PUBLISHED_READ_BY_SRC = {
     ),
 }
 
-# Copies only tests/ reads. Stage 3 of JDG-139 empties this group.
-PUBLISHED_READ_BY_TESTS_ONLY = {
-    'src/adapter/image-exporter/image-exporter.ts': (
-        'NOT_STORED_DOCUMENT_TITLE_SIZES',
-    ),
-    'src/adapter/screen-renderer/command-palette.ts': (
-        'NOT_STORED_COMMAND_PALETTE_SIZES',
-    ),
-    'src/adapter/screen-renderer/properties-panel.ts': (
-        'NOT_STORED_PROPERTY_CONTROL_SIZES',
-    ),
-    'src/adapter/screen-renderer/row-title-panel.ts': (
-        'NOT_STORED_ROW_CONTROL_SIZES',
-    ),
-    'src/adapter/screen-renderer/screen-frame.ts': (
-        'NOT_STORED_PANEL_DIVIDER_SIZES',
-    ),
-    # CR-573 (rule R3 of table UO) removed the tests that read
-    # NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS and SCHEDULE_COLOURS; the renderer
-    # still reads both, so they are plain `const`s of this file.
-    'src/adapter/svg-renderer/svg-renderer.ts': (
-        'NOT_STORED_DUMMY_SIZES',
-    ),
-    # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
-    'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
-        'NOT_STORED_SIZES',
-    ),
-    'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
-        'NOT_STORED_DUMMY_SIZES',
-    ),
-    'src/framework/single-html-shell/frame-loop.ts': (
-        'NOT_STORED_PROPERTIES_PANEL_SIZES',
-    ),
-}
+# Copies only tests/ reads. ⭐ Empty since DFC-619 (stages 2 and 3 of JDG-139):
+# the tests that read these copies now take the expected value from the
+# settings table (tests/fixtures/setting-number.ts), and a test that checks
+# the generator itself reads the printed region as text. ⛔ Do not refill it:
+# a test that wants a value reads table T-206, not an export.
+PUBLISHED_READ_BY_TESTS_ONLY = {}
 
 EXPORTED_CONST = re.compile(r'^export const ([A-Za-z_][A-Za-z0-9_]*)', re.M)
 

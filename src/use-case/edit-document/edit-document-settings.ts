@@ -22,21 +22,6 @@ export interface SettingsLimits {
   readonly rowAreaWidthWithoutPanels: number
 }
 
-// see FR-049, T-202
-// TRAP: never add watermarkVisible; CM-58 would write a T-206 row into DocumentSettings (FR-020).
-export type VisibleElement =
-  | 'planVisible'
-  | 'actualVisible'
-  | 'assigneeVisible'
-  | 'percentCompleteVisible'
-  | 'dependencyVisible'
-  | 'progressMarkerVisible'
-  | 'progressLineVisible'
-  | 'dateGridLinesVisible'
-  | 'groupGridLinesVisible'
-  | 'baselineVisible'
-  | 'planDatesVisible'
-
 // see T-108
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly direction: 'up' | 'down' }
@@ -222,3 +207,23 @@ export function editDocumentSettings(
       return levelZeroTreeStateEdited(command, put)
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_assets/tbl-glossary.md (table T-109)
+//   docs/spec/_source/settings.json (table T-202)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-109, T-202, FR-049
+export type VisibleElement =
+  | 'baselineVisible'
+  | 'planVisible'
+  | 'actualVisible'
+  | 'progressLineVisible'
+  | 'progressMarkerVisible'
+  | 'dateGridLinesVisible'
+  | 'groupGridLinesVisible'
+  | 'assigneeVisible'
+  | 'percentCompleteVisible'
+  | 'dependencyVisible'
+  | 'planDatesVisible'
+// </generated>

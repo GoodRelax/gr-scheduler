@@ -74,7 +74,7 @@ export type SelectionValuesEvent =
   | { readonly type: 'selectionEscapePressed'; readonly rung: SelectionValuesEventCarried['rung'] }
   | { readonly type: 'selectionSettleKeyPressed' }
   | { readonly type: 'selectionCleared' }
-  | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects'] }
+  | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects']; readonly chosenRows: SelectionValuesEventCarried['chosenRows'] }
   | { readonly type: 'createdTaskSelected'; readonly createdTaskUid: SelectionValuesEventCarried['createdTaskUid'] }
   | { readonly type: 'rowsPicked'; readonly chosenRows: SelectionValuesEventCarried['chosenRows'] }
   | { readonly type: 'createdRowSelected'; readonly createdGroupId: SelectionValuesEventCarried['createdGroupId'] }

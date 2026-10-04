@@ -28,9 +28,10 @@ const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
 const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をその行にし、行の中のずれを 0 にする'
 const SJ_6_NO_ZOOM = '倍率を変えない。'
 const SJ_6_NO_DATE = '日付が空なら横は動かさない'
-const SJ_7_PINNED = '飛ぶ先の行がピン止めの行（`S-126`）なら、`SJ-5` を行わず、`SJ-6` だけを行う'
+const SJ_7_PINNED =
+  '飛ぶ先の行がピン止めの行（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
 const SJ_8_NO_ROOM =
-  'ピン止めの帯の下に残る `Row Area`（`U-50`）の高さが、飛ぶ先の行の描く高さより小さいときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
+  '飛ぶ先の行を画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
@@ -211,9 +212,10 @@ describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
   it('SJ-6: what the task reaches left of its date moves the view left by that much (CR-629)', () => {
     const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)) as Loose
     const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { pxPerDay: 10, leftReachPx: 25 })) as Loose
-    expect(atDate['scrollDayOffset']).toBe(0)
-    const daysBack = (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
-    expect([daysBack, reached['scrollDayOffset']]).toEqual([3, 0.5])
+    const daysBack =
+      (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
+      + Number(atDate['scrollDayOffset']) - Number(reached['scrollDayOffset'])
+    expect(daysBack).toBeCloseTo(2.5, 9)
   })
 
   it(`a comment box with no date moves the row only -- SJ-6: ${SJ_6_NO_DATE}`, () => {

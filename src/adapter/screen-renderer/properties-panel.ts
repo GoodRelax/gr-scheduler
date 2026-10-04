@@ -1291,7 +1291,7 @@ export function propertiesPanelFromSelection(
 //   docs/spec/_source/settings.json (tables T-206 and T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_PROPERTY_CONTROL_SIZES: {
+const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   readonly 'S-199': number
 } = {
   'S-199': 2.19,

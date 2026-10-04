@@ -521,6 +521,10 @@ async function sweep(page: Page): Promise<Measured> {
     return { tasksBefore: before.length, uidHeldBack, uidsInBoth, imports, awaiting }
   }, args)
 
+  // see OP-3, IC-72
+  await page.waitForTimeout(1_500)
+  await pressIfThere(page, rowOf(T109, 'IC-72').id)
+
   // ⚠️ THE SURFACE IS GIVEN TIME TO BE DRAWN, outside the evaluate. A frame is
   // painted between two visits and never during one.
   await page.waitForTimeout(1_500)
