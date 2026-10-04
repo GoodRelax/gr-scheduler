@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# PRUNED item-grab.ts::highlightBoxRangeWrite (held 82/31, now below the band) on 2026-10-04 (DFC-2030): the row span and the range normalisation moved to highlightRowSpanOf and highlightRangeWrite, which the Selection body drag shares. Totals left for the coordinator to lower.
 # PRUNED edit-project.ts::editProject (held 49/22, now below the band) on 2026-10-04 (CR-651): the CM-2 and CM-87 bodies moved to withProjectProfile and withParentProgressTolerance. Totals left for the coordinator to lower.
 # LOWERED frameLoop 1561 -> 1553, runFrame 145/12 -> 137/11 on 2026-10-03 (DFC-1820): the layout and the geometry calls moved out of runFrame into drawnPictureOf, which hands back the held picture while no input moved. Totals left for the coordinator to lower.
 # PRUNED mspdi-codec.ts::writtenProjectChildren (held 56/7, now below the band) on 2026-10-03 (CR-646 K-3): the Project columns it writes moved to writtenProjectColumns. Totals left for the coordinator to lower.
@@ -69,7 +70,6 @@ HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn 
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=154 branches=67
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=45 branches=22
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69
-HELD src/adapter/input-command-translator/item-grab.ts::highlightBoxRangeWrite lines=82 branches=31
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56 branches=7
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
 HELD src/adapter/input-command-translator/row-tree-entrances.ts::commandFromRowEntry lines=57 branches=14

@@ -483,8 +483,7 @@ function highlightBoxShiftWrite(
   const upper = rows[span.upperAt + crossed]
   const lower = rows[span.lowerAt + crossed]
   if (upper === undefined || lower === undefined) return null
-  const early = compareDay(start, end) <= 0 ? start : end
-  const late = compareDay(start, end) <= 0 ? end : start
+  const { early, late } = orderedDays(start, end)
   return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
 }
 
@@ -501,8 +500,8 @@ function commentBoxShiftWrite(
   if (box.anchorGroupId === null) return null
   const stood = dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
   if (stood === null) return null
-  const at = rows.findIndex((row) => row.groupId === box.anchorGroupId)
-  const landed = at < 0 ? undefined : rows[at + crossed]
+  const at = drawnRowIndexOf(rows, box.anchorGroupId)
+  const landed = at === null ? undefined : rows[at + crossed]
   const groupId = landed === undefined ? box.anchorGroupId : landed.groupId
   if (days === 0 && groupId === box.anchorGroupId) return null
   const date = heldOrWritten(box.anchorDate, dayShifted(stood, days), textOfDayStart)
@@ -520,10 +519,19 @@ function rowIndexOfTask(
   rows: readonly RowPlacement[],
   uid: number,
 ): number | null {
-  const groupId = rowOfTask(context, uid)
+  return drawnRowIndexOf(rows, rowOfTask(context, uid))
+}
+
+/** @purity pure */
+function drawnRowIndexOf(rows: readonly RowPlacement[], groupId: string | null): number | null {
   if (groupId === null) return null
   const at = rows.findIndex((one) => one.groupId === groupId)
   return at < 0 ? null : at
+}
+
+/** @purity pure */
+function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: CalendarDay; readonly late: CalendarDay } {
+  return compareDay(start, end) <= 0 ? { early: start, late: end } : { early: end, late: start }
 }
 
 // see PE-1, SL-7
@@ -547,8 +555,8 @@ function clampedRowShift(
     if (span !== null) held.push(span.upperAt, span.lowerAt)
   }
   for (const box of boxes.commentBoxes) {
-    const at = rows.findIndex((row) => row.groupId === box.anchorGroupId)
-    if (at >= 0) held.push(at)
+    const at = drawnRowIndexOf(rows, box.anchorGroupId)
+    if (at !== null) held.push(at)
   }
   return shiftWithinRows(rows, held, asked)
 }
@@ -710,8 +718,7 @@ function highlightBoxRangeWrite(
   if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
 
   const { upperAt, lowerAt } = span
-  const early = compareDay(start, end) <= 0 ? start : end
-  const late = compareDay(start, end) <= 0 ? end : start
+  const { early, late } = orderedDays(start, end)
 
   let upper: RowPlacement | undefined
   let lower: RowPlacement | undefined
@@ -735,7 +742,6 @@ function highlightBoxRangeWrite(
 }
 
 // see HB-3, FR-019
-// TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
 /** @purity pure */
 function highlightRowSpanOf(
   context: InputContext,
@@ -745,6 +751,7 @@ function highlightRowSpanOf(
   const firstRow = context.layout.rows[0]
   const lastRow = context.layout.rows[context.layout.rows.length - 1]
   if (firstRow === undefined || lastRow === undefined) return null
+  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
   const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
   const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }

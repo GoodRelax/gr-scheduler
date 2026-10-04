@@ -57,7 +57,7 @@ copy | taskGroupRankById :: schedule invariants ts holds the same walk under the
 twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
 why: private in Schedule (no T-064 row); InputCommandTranslator->Schedule is declared, so one row and an import fold it; third site src/use-case/edit-document/task-group-order.ts#rowTreeRankById.
 
-copy | highlightBoxRangeWrite.topAt :: fall back to the first and last layout rows exactly
+copy | highlightRowSpanOf.topAt :: fall back to the first and last layout rows exactly
 twin: src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry
 why: the row fallback inline in highlightGeometry, not published by ScheduleGeometry's entry (edge declared); this side compares by compareDay, the twin by compareDays (suspect divergence).
 
