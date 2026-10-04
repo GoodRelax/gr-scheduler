@@ -1160,7 +1160,7 @@ export function itemAtPointer(
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_SIZES: {
+const NOT_STORED_SIZES: {
   readonly 'S-250': number
   readonly 'S-251': number
   readonly 'S-252': number

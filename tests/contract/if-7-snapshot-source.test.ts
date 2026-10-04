@@ -45,6 +45,7 @@
 
 import { emptyChangeWatchers } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { describe, expect, it } from 'vitest'
+import { settingNumber } from '../fixtures/setting-number'
 
 import { bare, specTable } from './spec-table'
 import {
@@ -62,7 +63,6 @@ import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-do
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   frameLoop,
-  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
@@ -129,7 +129,7 @@ const documentOf = (): Document => structuredClone(startupTemplate) as unknown a
  * value `S-171` a shown panel starts at (CR-572). What the case claims is the
  * DIFFERENCE it makes, which FR-080 fixes.
  */
-const PROPERTY_PANEL_OPEN = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
+const PROPERTY_PANEL_OPEN = settingNumber('S-171')
 
 /** The Framework side, with the one surface it paints through recorded. */
 interface Shell {

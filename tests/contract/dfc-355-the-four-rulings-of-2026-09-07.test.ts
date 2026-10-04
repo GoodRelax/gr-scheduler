@@ -91,10 +91,10 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
+import { generatedConstantOf } from '../fixtures/setting-number'
 
 import {
   exportSvg,
-  NOT_STORED_DOCUMENT_TITLE_SIZES,
   type ExportScene,
   type SvgExport,
 } from '../../src/adapter/image-exporter/image-exporter'
@@ -618,8 +618,9 @@ describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () =
     // EP-1 (MUST NOT): an export-only constant is exactly a number that agrees
     // with the row today and is free to drift tomorrow. ⚠️ The generated pair
     // is asserted against the MANUSCRIPT here, not against itself.
-    expect(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225']).toBe(S_225_TITLE_FONT_PX)
-    expect(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']).toBe(S_226_TITLE_INSET_PX)
+    const printed = generatedConstantOf('src/adapter/image-exporter/image-exporter.ts', 'NOT_STORED_DOCUMENT_TITLE_SIZES')
+    expect(printed['S-225']).toBe(S_225_TITLE_FONT_PX)
+    expect(printed['S-226']).toBe(S_226_TITLE_INSET_PX)
   })
 
   it('⭐ the band keeps the height the screen handed over', () => {

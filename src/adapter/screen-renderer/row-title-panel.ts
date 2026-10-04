@@ -421,7 +421,7 @@ export function rowTitlePanelFromSchedule(
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_ROW_CONTROL_SIZES: {
+const NOT_STORED_ROW_CONTROL_SIZES: {
   readonly 'S-140': number
   readonly 'S-313': number
 } = {

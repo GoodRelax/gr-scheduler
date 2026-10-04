@@ -727,7 +727,7 @@ export function rowPlacesAtZoomY(
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_DUMMY_SIZES: {
+const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
   readonly 'S-247': number
 } = {

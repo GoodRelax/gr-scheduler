@@ -118,6 +118,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
+import { settingNumber } from '../fixtures/setting-number'
 
 import type {
   HumanInput,
@@ -137,7 +138,6 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
-  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
   type ScreenWiring,
@@ -197,7 +197,7 @@ const S_99G = rowOf('T-206', 'S-99g').cells.join(' ')
  * this constant equal to the cell -- so a width re-decided in table T-206 moves
  * this fixture with it.
  */
-const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
+const S_171 = settingNumber('S-171')
 
 /**
  * The room a panel that is not shown takes (`S-99h`): none.

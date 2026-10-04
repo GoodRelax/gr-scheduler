@@ -737,6 +737,42 @@ def ts_bound_expression(expression):
     return '[%s]' % ', '.join(spelled)
 
 
+BOUND_OPERATION = {
+    '+': lambda left, right: left + right,
+    '-': lambda left, right: left - right,
+    '*': lambda left, right: left * right,
+    '/': lambda left, right: left / right,
+}
+
+
+def folds_to_closed_bound(expression, closed, where):
+    """True when a postfix bound names no key and comes to the closed bound.
+
+    ⭐ DFC-1797 (CR-642 decision 3): a bound folded from constants alone states
+    the same number as the schema's closed bound, and printing both gives one
+    bound two forms. The expression is the form kept -- IV-16 reads only the
+    expressions, and clampedSettings applies either to the same result -- so
+    the caller drops the closed number. ⛔ A constant expression that comes to
+    a DIFFERENT number means the two readers of the manuscript disagree, and
+    is refused rather than printed.
+    """
+    stack = []
+    for kind, held in expression:
+        if kind == 'key':
+            return False
+        if kind == 'num':
+            stack.append(float(held))
+            continue
+        right = stack.pop()
+        stack.append(BOUND_OPERATION[held](stack.pop(), right))
+    value, want = stack[0], float(closed)
+    if abs(value - want) > 1e-9 * max(1.0, abs(want)):
+        raise SystemExit(
+            'generate_entity_types: %s folds its constants to %s but the '
+            'generated schema states %s' % (where, value, want))
+    return True
+
+
 def settings_manuscript():
     """Every row of settings.json that carries a machine value, by key.
 
@@ -2620,6 +2656,7 @@ def settings_block(_erd):
                         'settings.json but %s in the generated schema'
                         % (path, checked['row'], edge, got, want))
         parts = []
+        closed_at = {}
         # ⛔ Only an exact key is read for what follows. The lookup above falls
         # back to the last piece of a dotted path, which is enough to notice a
         # disagreement but would attach one row's OPEN bound or expression to
@@ -2637,6 +2674,7 @@ def settings_block(_erd):
             if open_bound:
                 parts.append('%s: %s' % (opened, cell['num']))
             elif want is not None:
+                closed_at[edge] = (len(parts), want)
                 parts.append('%s: %s' % (closed, want))
         for edge, field in (('min', 'minExpression'), ('max', 'maxExpression')):
             cell = said[edge] if said is not None else None
@@ -2670,7 +2708,12 @@ def settings_block(_erd):
                     % (edge, path, said['row']))
             expression = [('num', folded[held]) if kind == 'key' and held in folded
                           else (kind, held) for kind, held in expression]
+            if edge in closed_at and folds_to_closed_bound(
+                    expression, closed_at[edge][1],
+                    '%s (%s) %s' % (path, said['row'], edge)):
+                parts[closed_at[edge][0]] = None
             parts.append('%s: %s' % (field, ts_bound_expression(expression)))
+        parts = [part for part in parts if part is not None]
         if not parts:
             continue
         one_line = "  '%s': { %s }," % (path, ', '.join(parts))
@@ -3115,14 +3158,11 @@ TARGETS = [
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
     # one unit that draws the picture SL-8 puts the frame on.
-    # ⭐ The dummy's drawn width joins them, in its own constant: FR-043's three
-    # grab handles are drawn by this unit and by no other, and S-180 is the only
-    # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
-    # and S-131 is the faintness).
-    # ⚠️ S-180 LANDS IN `task-figures.ts` AS WELL, for the reason that
-    # entry states: table T-023d's closing rule made the drawn rectangle a fact
-    # the hit test needs, so the geometry solves it once and this unit reads the
-    # answer off `DummyGeometry.ink` instead of the row.
+    # ⭐ The dummy's drawn width is NOT here (DFC-619): table T-023d's closing
+    # rule made the drawn rectangle a fact the hit test needs, so `task-figures.ts`
+    # solves S-180 once and this unit reads the answer off `DummyGeometry.ink`.
+    # The copy printed here was read by tests alone, and noUnusedLocals refuses
+    # it once it is not exported.
     # ⭐ The Dual Cursor's own line width joins them, in a constant of its own
     # for the reason the entry in NOT_STORED_TARGETS gives: CU-2's two lines
     # are drawn by this unit and by no other, and S-194 is the only row that
@@ -3134,7 +3174,6 @@ TARGETS = [
      # CR-602: the width a selected or landing dependency line and its end
      # outlines add (S-447), drawn only on the screen (EP-12).
      + not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
      # CR-588: the pre-change plan's outline dash (BL-3 of table T-339).
@@ -3278,9 +3317,10 @@ TARGETS = [
 #
 # Three stages, in the order the user ruled:
 #   1. (done) take `export` off every copy no file of src/ or tests/ reads;
-#   2. rewrite the tests that read the READ_BY_TESTS_ONLY copies so that they
-#      take the expected value from the settings table instead;
-#   3. empty READ_BY_TESTS_ONLY, and narrow check 30 to readers in src/.
+#   2. (done, DFC-619) rewrite the tests that read the READ_BY_TESTS_ONLY
+#      copies so that they take the expected value from the settings table;
+#   3. (done, DFC-619, except check 30) empty READ_BY_TESTS_ONLY; narrowing
+#      check 30 to readers in src/ is left to that check's owner.
 # Paths are relative to the repository root, with forward slashes.
 
 # Copies at least one OTHER file of src/ imports.
@@ -3358,40 +3398,12 @@ PUBLISHED_READ_BY_SRC = {
     ),
 }
 
-# Copies only tests/ reads. Stage 3 of JDG-139 empties this group.
-PUBLISHED_READ_BY_TESTS_ONLY = {
-    'src/adapter/image-exporter/image-exporter.ts': (
-        'NOT_STORED_DOCUMENT_TITLE_SIZES',
-    ),
-    'src/adapter/screen-renderer/command-palette.ts': (
-        'NOT_STORED_COMMAND_PALETTE_SIZES',
-    ),
-    'src/adapter/screen-renderer/properties-panel.ts': (
-        'NOT_STORED_PROPERTY_CONTROL_SIZES',
-    ),
-    'src/adapter/screen-renderer/row-title-panel.ts': (
-        'NOT_STORED_ROW_CONTROL_SIZES',
-    ),
-    'src/adapter/screen-renderer/screen-frame.ts': (
-        'NOT_STORED_PANEL_DIVIDER_SIZES',
-    ),
-    # CR-573 (rule R3 of table UO) removed the tests that read
-    # NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS and SCHEDULE_COLOURS; the renderer
-    # still reads both, so they are plain `const`s of this file.
-    'src/adapter/svg-renderer/svg-renderer.ts': (
-        'NOT_STORED_DUMMY_SIZES',
-    ),
-    # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
-    'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
-        'NOT_STORED_SIZES',
-    ),
-    'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
-        'NOT_STORED_DUMMY_SIZES',
-    ),
-    'src/framework/single-html-shell/frame-loop.ts': (
-        'NOT_STORED_PROPERTIES_PANEL_SIZES',
-    ),
-}
+# Copies only tests/ reads. ⭐ Empty since DFC-619 (stages 2 and 3 of JDG-139):
+# the tests that read these copies now take the expected value from the
+# settings table (tests/fixtures/setting-number.ts), and a test that checks
+# the generator itself reads the printed region as text. ⛔ Do not refill it:
+# a test that wants a value reads table T-206, not an export.
+PUBLISHED_READ_BY_TESTS_ONLY = {}
 
 EXPORTED_CONST = re.compile(r'^export const ([A-Za-z_][A-Za-z0-9_]*)', re.M)
 
