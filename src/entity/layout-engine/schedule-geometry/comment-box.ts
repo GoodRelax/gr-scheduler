@@ -69,6 +69,16 @@ function wrappedLines(text: string, limit: number): readonly string[] {
   return out
 }
 
+// see FR-093, FR-097, T-215
+// WHY: an empty or null text estimates 0 units, so it takes T-215's font size as its floor, never one full-width
+// character: that one is scaled by S-30 and would move the floor with a document setting (FR-097).
+/** @purity pure */
+function textWidthOf(lines: readonly string[], fontSize: number, labelCoef: number): number {
+  let widest = 0
+  for (const line of lines) widest = Math.max(widest, labelUnits(line))
+  return widest === 0 ? fontSize : widest * fontSize * labelCoef
+}
+
 // see FR-019, FR-097
 /** @purity pure */
 export function commentGeometry(
@@ -84,14 +94,10 @@ export function commentGeometry(
     const anchor = day === null || box.anchorGroupId === null ? null : commentAnchorPointOf(layout, day, box.anchorGroupId)
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
-    let widest = 0
-    for (const line of lines) widest = Math.max(widest, labelUnits(line))
-    // DEVIATION: spec says the floor is T-215's font size, not one full-width char (FR-097); here it is (DFC-722)
-    if (widest === 0) widest = 2
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
     const fontSize = settings.fontScaleSizes[settings.fontScale]
     const pad = settings.commentBoxPad
-    const width = widest * fontSize * settings.labelCoef + 2 * pad
+    const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
     const height = lines.length * fontSize + 2 * pad
     out.push({
       id: box.id,

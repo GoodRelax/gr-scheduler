@@ -128,7 +128,7 @@ export function emphasisedWidthOf(own: number): number {
   return own + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
 }
 
-// see SL-8, DC-8
+// see DC-8
 /** @purity pure */
 export function selectedLineWidth(own: number, selected: boolean): number {
   return selected ? own * NOT_STORED_SELECTION_SIZES['S-178'] : own
@@ -599,7 +599,7 @@ export function svgFromSchedule(
   // TRAP: the head is a definition, not ink: inside ZO-11's group it would sit in a drawn layer.
   if (tentative !== null) {
     defsParts.push(
-      dependencyArrowSvg(tentativeArrowId, settings.dependencyArrowLength, themed('S-159')),
+      dependencyArrowSvg(tentativeArrowId, settings, themed('S-159')),
     )
   }
   const tentativeParts =

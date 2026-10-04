@@ -334,25 +334,22 @@ export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId:
   return `<svg viewBox="0 0 ${rounded(side)} ${rounded(side)}" width="1em" height="1em" aria-hidden="true">${drawn}</svg>`
 }
 
-// see FR-044, LF-13
-// STOP: spec does not decide how faint an undated resume icon is, nor its ink. Looked in FR-044, S-25, S-161, T-236
-// @provisional PND-476
+// see FR-044, LF-13, S-308, S-310
+// WHY: faint on the same condition the geometry shrinks it by S-25 (LF-13), so size and faintness never part.
 /** @purity pure */
 function resumeSvg(
-  arm: Path,
-  head: Path,
-  ink: string,
-  settings: DrawnSettings,
-  key: string,
+  resume: NonNullable<ScheduleGeometry['tasks'][number]['resume']>, ink: string, settings: DrawnSettings, key: string,
 ): string {
   const named = figureKey(key)
-  return (
-    `<polyline points="${pointsOf(arm)}" fill="none" stroke="${ink}"` +
+  const drawn =
+    `<polyline points="${pointsOf(resume.arm)}" fill="none" stroke="${ink}"` +
     ` stroke-width="${rounded(settings.markerStroke)}"` +
     ` stroke-dasharray="${rounded(settings.resumeDashOn)} ${rounded(settings.resumeDashOff)}"` +
     `${named}/>` +
-    `<polygon points="${pointsOf(head)}" fill="${ink}"${named}/>`
-  )
+    `<polygon points="${pointsOf(resume.head)}" fill="${ink}"${named}/>`
+  // TRAP: one group opacity, not one per shape: the arrow head overlaps the arm and would darken where they meet.
+  if (resume.valid && !resume.undecided) return drawn
+  return `<g opacity="${rounded(settings.resumeOpacityInvalid)}"${named}>${drawn}</g>`
 }
 
 // see FR-135, S-398, S-399, S-245
@@ -495,16 +492,23 @@ function barSvg(bar: BarGeometry, paint: Paint, innerInk: string, key: string): 
   return line + head + dots
 }
 
-// see GD-6
+// see GD-6, S-19, S-300
+// WHY: the height along the line is S-19 and the base across it is S-300, as the hit test's head is (DFC-2131).
 /** @purity pure */
-export function dependencyArrowSvg(id: string, length: number, colour: string): string {
-  const half = length / 2
+export function dependencyArrowSvg(
+  id: string,
+  settings: Pick<DrawnSettings, 'dependencyArrowLength' | 'dependencyArrowWidth'>,
+  colour: string,
+): string {
+  const length = settings.dependencyArrowLength
+  const base = settings.dependencyArrowWidth
+  const half = base / 2
   return (
-    `<defs><marker id="${id}" viewBox="0 0 ${rounded(length)} ${rounded(length)}"` +
+    `<defs><marker id="${id}" viewBox="0 0 ${rounded(length)} ${rounded(base)}"` +
     ` refX="${rounded(length)}" refY="${rounded(half)}"` +
-    ` markerWidth="${rounded(length)}" markerHeight="${rounded(length)}"` +
+    ` markerWidth="${rounded(length)}" markerHeight="${rounded(base)}"` +
     ` markerUnits="userSpaceOnUse" orient="auto">` +
-    `<path d="M0,0 L${rounded(length)},${rounded(half)} L0,${rounded(length)} Z"` +
+    `<path d="M0,0 L${rounded(length)},${rounded(half)} L0,${rounded(base)} Z"` +
     ` fill="${colour}"/></marker></defs>`
   )
 }
@@ -609,10 +613,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
         barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
       }
     }
-    // WHY: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
-    const dummy = task.dummies[0]
-    if (picture === 'screen' && dummy !== undefined && dummy.figure !== undefined) {
-      // TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
+    const dummy = drawnDummyOf(task, picture)
+    if (dummy !== null) {
       const ink = dummy.ink
       const marks = barSvg(dummy.figure, actual, plan.fill, `${taskKey}-dummies`)
       const faintness = handInside(
@@ -632,7 +634,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       }
     }
     if (selected.has(task.taskUid)) {
-      selectionParts.push(...aroundTaskSvg(task, themed('S-151'), `${taskKey}-frame`))
+      selectionParts.push(...aroundTaskSvg(task, picture, themed('S-151'), `${taskKey}-frame`))
 
       const half = settings.fadeHandleHalfPx
       for (const foundAt of task.fadeHandles) {
@@ -657,8 +659,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       )
       if (task.resume !== null) {
         ;(isPinnedTask ? markerPartsPinned : markerParts).push(
-          resumeSvg(task.resume.arm, task.resume.head, themed('S-161'), settings,
-                    `${taskKey}-resume`),
+          // WHY: S-310 is S-161: the resume icon goes in and out with the marker (S-63), one family of signs.
+          resumeSvg(task.resume, themed('S-161'), settings, `${taskKey}-resume`),
         )
       }
     }
@@ -754,7 +756,7 @@ export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [nu
 /** @purity pure */
 function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
   const { settings, themed, barMaskParts, arrowId } = input
-  const defs = [dependencyArrowSvg(arrowId, settings.dependencyArrowLength, themed('S-159'))]
+  const defs = [dependencyArrowSvg(arrowId, settings, themed('S-159'))]
   if (barMaskParts.length > 0) {
     defs.push(
       `<mask id="${input.dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
@@ -913,15 +915,32 @@ function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
   return out
 }
 
-// see SL-8
-// WHY: around the drawn plan and actual together, the box SL-8 names for the frame.
+// see SL-8, T-023c, T-240
+// WHY: around every drawn figure -- plan, actual and the actual's dummy -- the box SL-8 builds from the seen figures only.
 /** @purity pure */
-function aroundTaskSvg(task: ScheduleGeometry['tasks'][number], colour: string, key: string): readonly string[] {
+function aroundTaskSvg(
+  task: ScheduleGeometry['tasks'][number], picture: SchedulePicture, colour: string, key: string,
+): readonly string[] {
+  const dummy = drawnDummyOf(task, picture)
   const box = boxOfPoints([
     ...(task.plan === null ? [] : cornersOfBar(task.plan)),
     ...(task.actual === null ? [] : cornersOfBar(task.actual)),
+    ...(dummy === null ? [] : cornersOfBar(dummy.figure)),
   ])
   return box === null ? [] : [selectionFrameSvg(box, colour, key)]
+}
+
+// see T-240, PI-5, EP-14
+// WHY: the one test of whether a task's dummy is drawn, read by the drawing and by the frame around it (SL-8).
+// WHY: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
+// TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
+/** @purity pure */
+function drawnDummyOf(
+  task: ScheduleGeometry['tasks'][number], picture: SchedulePicture,
+): { readonly ink: ScreenRect; readonly figure: BarGeometry } | null {
+  const dummy = task.dummies[0]
+  if (picture !== 'screen' || dummy === undefined || dummy.figure === undefined) return null
+  return { ink: dummy.ink, figure: dummy.figure }
 }
 
 // see SL-8, EL-16, ZO-10
