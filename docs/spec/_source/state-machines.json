@@ -4205,6 +4205,16 @@
       "note": {
        "ja": "`droppedTaskNames` を空にする"
       }
+     },
+     "newDocumentLanded": {
+      "evidence": [
+       "FR-095",
+       "FR-101",
+       "RD-7"
+      ],
+      "note": {
+       "ja": "`openedFileName` を空にする（新しく始めた文書はどのファイルにも無い —— `FR-095`）"
+      }
      }
     }
    },

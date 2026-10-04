@@ -346,6 +346,8 @@ function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): L
         : { ...kept, openedFileName: name }
     case 'flowSurfaceClosed':
       return { ...kept, droppedTaskNames: [] }
+    case 'newDocumentLanded':
+      return { ...kept, openedFileName: null }
     default:
       throw new Error(`root cell for ${String(event['type'])} has no oracle`)
   }

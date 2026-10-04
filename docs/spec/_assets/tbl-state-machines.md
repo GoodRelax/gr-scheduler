@@ -763,7 +763,7 @@ stateDiagram-v2
 | `fileFlow/documentFileSaved` | 副作用の結果（`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である））: `FR-060` ・ `FR-101` ・ `SX-1` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/documentFileWriteEnded` | 副作用の結果（`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` ・ `SX-2` | — | `fileOperationStateMachine` |
 | `fileFlow/documentEditLanded` | 副作用の結果（画面か `Agent API` からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない）: `WS-6` ・ `RD-1` ・ `RD-2` ・ `FR-100` | — | `unsavedEditsStateMachine` |
-| `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | `unsavedEditsStateMachine` |
+| `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | 根 ・ `unsavedEditsStateMachine` |
 | `fileFlow/startupDocumentHeld` | 副作用の結果（起動時の文書の差し替えが受け入れられた）: `FR-062` ・ `RD-6` | — | `unsavedEditsStateMachine` |
 
 ### 根 `fileFlow` の値
@@ -776,6 +776,7 @@ stateDiagram-v2
 | `fileFlow/documentFileSaved` | → 自己（`openedFileName` を書き換える（名が運ばれたときだけ）） |
 | `fileFlow/documentOpenLanded` | → 自己 [`hasDroppedTasks`] / `raiseFlowSurface`（`U-62`）（`droppedTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ））<br>→ 自己 [not `hasDroppedTasks`]（`openedFileName` を書き換える（名が運ばれたときだけ）） |
 | `fileFlow/flowSurfaceClosed` | → 自己 [`isImportReportSurface`]（`droppedTaskNames` を空にする）<br>それ以外 → — |
+| `fileFlow/newDocumentLanded` | → 自己（`openedFileName` を空にする（新しく始めた文書はどのファイルにも無い —— `FR-095`）） |
 
 **図 F-036 — ファイル操作と問いの状態遷移**
 
