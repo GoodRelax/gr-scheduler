@@ -815,7 +815,7 @@ const SCHEDULE_COLOURS: {
   'S-158': { light: 'hsl(H 66% 22%)', dark: 'hsl(H 70% 80%)', followsHue: true },
   'S-159': { light: '#6f472a', dark: '#b38461', followsHue: false },
   'S-160': { light: '#d66400', dark: '#ff9933', followsHue: false },
-  'S-312': { light: '#b45309', dark: '#b45309', followsHue: false },
+  'S-312': { light: '#b45309', dark: '#df670c', followsHue: false },
   'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-163': { light: '#008a7c', dark: '#47d1bf', followsHue: false },
