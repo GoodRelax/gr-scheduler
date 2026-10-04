@@ -344,7 +344,6 @@ function screenPane(language: DisplayLanguage): ScreenPane {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null as ScreenPart | null,
   } as unknown as ScreenSurface
   return {

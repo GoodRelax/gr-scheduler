@@ -244,7 +244,6 @@ function screenPane(): ScreenWiring {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   return { surface, language: 'en' }

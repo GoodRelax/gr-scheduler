@@ -418,7 +418,6 @@ function screenPane(language: DisplayLanguage = 'ja') {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   return {

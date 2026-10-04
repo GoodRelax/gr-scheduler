@@ -244,7 +244,6 @@ function stage(settings: Readonly<Record<string, unknown>>): Stage {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const loop = frameLoop({ showSvg: (svg: string) => void pictures.push(svg) }, documentWith(settings), SCREEN, {

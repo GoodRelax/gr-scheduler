@@ -20,7 +20,7 @@ import {
   wiringOf,
   type Stage,
 } from '../fixtures/fake-browser'
-import { bare, specTable, unbroken } from '../contract/spec-table'
+import { bare, specTable, unbroken } from './spec-table'
 
 function rowOf(table: string, id: string) {
   const found = specTable(table).rows.find((one) => one.id === id)

@@ -102,7 +102,6 @@ function bench(document: Record<string, unknown>): Bench {
     showScreenView: (view: never) => drawn.showScreenView(view),
     readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
-    hasUnsettledTextEntry: () => drawn.hasUnsettledTextEntry(),
     readFieldEditNotices: () =>
       (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,

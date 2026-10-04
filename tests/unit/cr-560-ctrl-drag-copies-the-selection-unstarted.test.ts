@@ -317,7 +317,6 @@ function stage(): Stage {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y): ScreenPart | null =>
       insideBox(PALETTE_BOX, { x, y })
         ? {

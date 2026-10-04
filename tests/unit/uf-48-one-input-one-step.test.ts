@@ -100,7 +100,6 @@ function stage(): Stage {
     showScreenView: (view) => void views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   const loop = frameLoop(

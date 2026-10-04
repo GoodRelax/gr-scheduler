@@ -24,6 +24,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
+import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(
@@ -186,6 +187,6 @@ describe('IF-9 / AG-11 -- what the field hands back', () => {
   it('IF-9 対話欄は編集の始まりも終わりも知らせない -- typing in the field raises no unsettled-text state', () => {
     const { built, surface } = drawn(WITH_MESSAGES)
     type(built, entryOf(built), 'half a thou')
-    expect(surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(surface)).toBe(false)
   })
 })

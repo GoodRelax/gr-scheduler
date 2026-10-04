@@ -1047,12 +1047,12 @@
   {
    "rowId": "IC-127",
    "label": {
-    "ja": "文字の大きさ",
-    "en": "Text size"
+    "ja": "文字サイズ",
+    "en": "Font size"
    },
    "hint": {
-    "ja": "パネルの見出しと表と入力欄の文字の大きさを変える（9・10・12 px を順に巡る）",
-    "en": "Change the text size of the panel's heading, table and search box (cycles through 9, 10 and 12 px)"
+    "ja": "パネルの見出しと表と入力欄の文字サイズを変える（9・10・12 px を順に巡る）",
+    "en": "Change the font size of the panel's heading, table and search box (cycles through 9, 10 and 12 px)"
    }
   },
   {

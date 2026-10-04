@@ -132,7 +132,6 @@ async function stage(): Promise<Stage> {
     showScreenView: (view) => void shown.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const routes: OpenRoute[] = []

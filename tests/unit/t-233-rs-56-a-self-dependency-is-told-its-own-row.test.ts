@@ -240,7 +240,6 @@ function stage(): Stage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const wiring: ScreenWiring = { surface, language: 'ja' as DisplayLanguage }

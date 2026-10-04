@@ -363,7 +363,6 @@ function bench(document: Document): Bench {
     },
     readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
-    hasUnsettledTextEntry: () => real.hasUnsettledTextEntry(),
     readScreenPartAt: () => part,
   }
   const loop = frameLoop({ showSvg: () => undefined } as never, document, SCREEN, { surface, language: 'ja' })

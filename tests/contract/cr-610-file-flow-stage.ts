@@ -373,7 +373,6 @@ export async function shellStage(options: StageOptions = {}): Promise<ShellStage
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   } as ScreenSurface
   const written: WriteLog = []

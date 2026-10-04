@@ -21,6 +21,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
+import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 function rowOf(table: string, id: string) {
@@ -176,10 +177,10 @@ describe('IN-5a -- 文字入力を確定していない間 (the state the surfac
     const idle = stage({ 'App Header': 37 })
     const idleSurface = domScreenSurface(wiringOf(idle, THEME))
     idleSurface.showScreenView(VIEW)
-    expect(idleSurface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(idleSurface)).toBe(false)
 
     const { surface } = typing('Kick-off meeting')
-    expect(surface.hasUnsettledTextEntry()).toBe(true)
+    expect(textEntryStandsOpen(surface)).toBe(true)
   })
 
   it('AG-11 / IN-4 書きかけの文字 -- nothing is handed back while the text stands unsettled', () => {
@@ -195,7 +196,7 @@ describe('SK-19 -- その場の編集を確定する', () => {
     const commit = editing.surface.readFieldCommit()
     expect(commit?.row).toBe('PR-1')
     expect(commit?.text).toBe('Kick-off meeting')
-    expect(editing.surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(editing.surface)).toBe(false)
   })
 })
 
@@ -212,7 +213,7 @@ describe('IN-4 -- Esc cancels the edit in place', () => {
     const editing = typing('Half typed')
     raise(editing.built, editing.entry, 'keydown', { key: ESC_KEY })
     raise(editing.built, editing.entry, 'keyup', { key: ESC_KEY })
-    expect(editing.surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(editing.surface)).toBe(false)
     expect(editing.surface.readFieldCommit()).toBeNull()
     expect(editing.entry.value).toBe(STARTED_WITH)
   })
@@ -232,7 +233,7 @@ describe('IN-6 -- a press outside the field settles it', () => {
     const commit = editing.surface.readFieldCommit()
     expect(commit?.row).toBe('PR-1')
     expect(commit?.text).toBe('Kick-off meeting')
-    expect(editing.surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(editing.surface)).toBe(false)
   })
 
   it('IN-6 始めた値と同じ値を書いてはならない（MUST NOT） -- by a press outside', () => {

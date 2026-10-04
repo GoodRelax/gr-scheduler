@@ -515,12 +515,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isWatermarkUnlockTakenBack = false
   }
 
-  // see IN-5a, IF-9, WS-2
-  /** @purity semi-pure-b */
-  function hasUnsettledTextEntry(): boolean {
-    return heldTextControl !== null || isWatermarkUnlockHeld || documentTitleEntry !== null
-  }
-
   /** @purity semi-pure-b */
   function readFieldCommit(): FieldCommit | null {
     const held = fieldCommit
@@ -562,7 +556,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     focusPropertyField,
     readWatermarkUnlockAnswer,
     readFieldCommit,
-    hasUnsettledTextEntry,
     readFieldEditNotices,
   }
 }

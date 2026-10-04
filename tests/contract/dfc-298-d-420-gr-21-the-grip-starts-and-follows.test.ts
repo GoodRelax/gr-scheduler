@@ -308,7 +308,6 @@ function pane(): Pane {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y): ScreenPart | null => {
       const view = views[views.length - 1]
       if (view === undefined) return null

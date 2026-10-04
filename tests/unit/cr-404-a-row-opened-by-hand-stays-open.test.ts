@@ -328,7 +328,6 @@ function stage(document: Record<string, any>): Stage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const loop: any = frameLoop({ showSvg: () => undefined } as any, document as any, SCREEN, {

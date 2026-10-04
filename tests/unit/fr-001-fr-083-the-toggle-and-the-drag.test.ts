@@ -123,6 +123,7 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { FieldEditNotice } from '../../src/adapter/screen-renderer/screen-surface'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
@@ -844,8 +845,8 @@ interface ScreenPane {
   readonly wiring: ScreenWiring
   drawAt(part: ScreenPart | null): void
   /**
-   * Whether the surface is holding a field a person is typing into -- what
-   * `hasUnsettledTextEntry` (IF-9) answers.
+   * Whether the surface is holding a field a person is typing into -- told by
+   * IF-9's begin and end notices (`readFieldEditNotices`).
    *
    * ⭐⭐ WHY IT IS A SWITCH AND NOT A CONSTANT `false`. FR-091's clause is about
    * the `Enter` that settles the NAME OF A TASK JUST MADE, and by then the real
@@ -864,13 +865,15 @@ function screenPane(language: DisplayLanguage): ScreenPane {
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
   let textEntryStanding = false
+  // WHY: IF-9's notices raised since the shell last read them, in order.
+  const pending: FieldEditNotice[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
       views.push(view)
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => textEntryStanding,
+    readFieldEditNotices: () => pending.splice(0, pending.length),
     readScreenPartAt: () => part,
   }
   return {
@@ -879,7 +882,10 @@ function screenPane(language: DisplayLanguage): ScreenPane {
       part = next
     },
     holdTextEntry: (standing) => {
+      if (standing === textEntryStanding) return
       textEntryStanding = standing
+      // WHY: PR-1 is the row the name field names (table T-016).
+      pending.push({ kind: standing ? 'began' : 'ended', row: 'PR-1' })
     },
     last: () => {
       const view = views[views.length - 1]

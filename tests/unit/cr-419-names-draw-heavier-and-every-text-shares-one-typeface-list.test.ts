@@ -267,7 +267,6 @@ const domDrawn = (): { readonly mount: FakeElement; readonly svg: string } => {
     showScreenView: (view) => real.showScreenView(view),
     readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
-    hasUnsettledTextEntry: () => real.hasUnsettledTextEntry(),
     readScreenPartAt: () => part,
   }
   const document = {

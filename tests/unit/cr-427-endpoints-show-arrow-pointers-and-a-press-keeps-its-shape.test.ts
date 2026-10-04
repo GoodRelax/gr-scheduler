@@ -162,7 +162,6 @@ const benchAt = (displayScale: number): Bench => {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   const shown: unknown[] = []

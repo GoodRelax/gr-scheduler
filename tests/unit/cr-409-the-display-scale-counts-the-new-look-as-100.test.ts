@@ -143,7 +143,6 @@ const headerAt = (scale: number): ScreenView => {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const document = {

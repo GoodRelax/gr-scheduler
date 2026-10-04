@@ -338,7 +338,6 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
     },
     readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
-    hasUnsettledTextEntry: () => drawn.hasUnsettledTextEntry(),
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface

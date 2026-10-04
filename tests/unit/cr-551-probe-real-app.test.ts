@@ -65,7 +65,6 @@ function probeBench(
     showScreenView: (view: ScreenView) => views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => aimed,
     ...options.surface,
@@ -279,7 +278,6 @@ function panelBench(document: Record<string, unknown>): PanelBench {
     },
     readDialogueInput: () => drawn.readDialogueInput(),
     readFieldCommit: () => drawn.readFieldCommit(),
-    hasUnsettledTextEntry: () => drawn.hasUnsettledTextEntry(),
     readFieldEditNotices: () =>
       (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,

@@ -223,7 +223,6 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const wiring: ScreenWiring = {

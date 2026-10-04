@@ -79,7 +79,6 @@ function bench(document: Record<string, unknown>): Bench {
     showScreenView: (view: ScreenView) => views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => null,
   } as unknown as ScreenSurface

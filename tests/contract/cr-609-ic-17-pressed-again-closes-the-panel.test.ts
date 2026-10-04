@@ -139,7 +139,6 @@ function bench(): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => aimed,
   }
   const loop = frameLoop(

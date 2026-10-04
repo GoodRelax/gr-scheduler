@@ -172,7 +172,6 @@ function bench(): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y) => {
       if (aimed !== null) return aimed
       const view = views[views.length - 1]

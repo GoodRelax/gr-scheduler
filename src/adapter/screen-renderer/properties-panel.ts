@@ -981,9 +981,10 @@ const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 
 const THEME_HUE_SWATCH_ROW = 'S-151'
 
-// see FR-041, T-305, K-60
+// see FR-041, T-305, K-60, S-74
+// WHY: the swatches grey with the rest under monochrome (JDG-1244 6): the author picks by the grey each hue becomes.
 /** @purity pure */
-function themeHueField(hue: number, dark: boolean, language: DisplayLanguage): PropertyField {
+function themeHueField(hue: number, dark: boolean, monochrome: boolean, language: DisplayLanguage): PropertyField {
   const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
   const chosen = themeHueRoster.findIndex((one) => one.hue === hue)
   const text = String(hue)
@@ -999,7 +1000,7 @@ function themeHueField(hue: number, dark: boolean, language: DisplayLanguage): P
         text,
         choices: words,
         choiceValues: themeHueRoster.map((one) => String(one.hue)),
-        swatches: themeHueRoster.map((one) => colourOf(THEME_HUE_SWATCH_ROW, one.hue, dark, false)),
+        swatches: themeHueRoster.map((one) => colourOf(THEME_HUE_SWATCH_ROW, one.hue, dark, monochrome)),
         min: null,
         max: null,
         widthInFontSizes: widthOf(text, words, SETTINGS_CONSTANTS.labelCoef),
@@ -1051,7 +1052,7 @@ function settingsFields(
     controls: [],
   }))
   return [
-    themeHueField(schedule.project.themeHue, dark, language),
+    themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
     ...readOnly,
   ]

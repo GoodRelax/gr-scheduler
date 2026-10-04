@@ -104,7 +104,6 @@ function bench(document: Record<string, unknown>): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readFieldEditNotices: () => [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface

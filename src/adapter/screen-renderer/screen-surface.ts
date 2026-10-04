@@ -97,9 +97,6 @@ export interface ScreenSurface {
   /** @purity semi-pure-b */
   readScreenPartAt(x: number, y: number): ScreenPart | null
 
-  /** @purity semi-pure-b */
-  hasUnsettledTextEntry(): boolean
-
   // TRAP: reading takes the notices, in the order the host raised them; a surface without this
   // seam reports no edit, so the shell reads no field as being edited.
   /** @purity semi-pure-b */

@@ -452,7 +452,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     // drives one, so there is never a commit to take.
     readFieldCommit: () => null,
     // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y): ScreenPart | null => {
       if (!inside(PALETTE_BOX, { x, y })) return null
       return {

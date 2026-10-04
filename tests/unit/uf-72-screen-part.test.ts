@@ -1827,11 +1827,9 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
     const surface = surfaceOf(wire())
 
     expect(Object.keys(surface).sort()).toEqual([
-      'hasUnsettledTextEntry',
       'readDialogueInput',
       'readFieldCommit',
-      // WHY: IF-9's begin/end notices (CR-500 wave B); hasUnsettledTextEntry
-      // stays above while `screen-surface.ts` still declares it.
+      // WHY: IF-9's begin/end notices (CR-500 wave B) replaced the boolean member (DFC-1876).
       'readFieldEditNotices',
       'readScreenPartAt',
       'readSearchWord',

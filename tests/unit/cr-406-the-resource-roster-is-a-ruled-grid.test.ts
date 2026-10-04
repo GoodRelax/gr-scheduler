@@ -420,7 +420,6 @@ function loopStage(): LoopStage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => aimed,
   }
   const loop = frameLoop({ showSvg: () => undefined } as unknown as Parameters<typeof frameLoop>[0], documentWithResources(), SCREEN, { surface, language: 'en' })
