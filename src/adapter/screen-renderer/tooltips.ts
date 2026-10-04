@@ -201,8 +201,7 @@ function hintLineWord(row: string, language: DisplayLanguage): string {
   return HINT_LINE_WORDS.get(row)?.[language] ?? row
 }
 
-// see TL-7, TL-8
-// WHY: the two lines take the delay report's column words (DT-2, DT-3) and hold none of their own, as TL-9 takes PR-10's.
+// WHY: TL-7 and TL-8 take the delay report's column words (DT-2, DT-3) and hold none of their own, as TL-9 takes PR-10's.
 /** @purity pure */
 function columnWord(row: string, language: DisplayLanguage): string {
   return displayWords.delayReportColumns.find((entry) => entry.rowId === row)?.text[language] ?? row
@@ -214,7 +213,6 @@ function characterCount(text: string): number {
 }
 
 // see TL-7, S-513
-// WHY: whole names are kept from the head; only a first name longer than the cap is cut inside itself.
 /** @purity pure */
 function namesWithin(names: readonly string[], cap: number): string {
   const whole = names.join(NAME_SEPARATOR)
