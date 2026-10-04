@@ -788,7 +788,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rowTitlePanelWidth', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'exportSpanFinish', 'exportSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rowTitlePanelWidth', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualVisible: {
@@ -808,6 +808,12 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         displayScale: {
           enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
+        },
+        exportSpanFinish: {
+          type: ['string', 'null'],
+        },
+        exportSpanStart: {
+          type: ['string', 'null'],
         },
         fontScale: {
           enum: ['S', 'M', 'L'],

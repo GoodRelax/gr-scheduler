@@ -118,6 +118,8 @@
     "dateGridLinesVisible",
     "dependencyVisible",
     "displayScale",
+    "exportSpanFinish",
+    "exportSpanStart",
     "fontScale",
     "groupGridLinesVisible",
     "levelZeroTreeState",
@@ -175,6 +177,22 @@
       200
      ],
      "default": 100
+    },
+    "exportSpanFinish": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "default": null
+    },
+    "exportSpanStart": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+     "default": null
     },
     "fontScale": {
      "enum": [

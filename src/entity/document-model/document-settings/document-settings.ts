@@ -20,6 +20,8 @@ export interface DocumentSettings {
   readonly dateGridLinesVisible: boolean
   readonly dependencyVisible: boolean
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
+  readonly exportSpanFinish: string | null
+  readonly exportSpanStart: string | null
   readonly fontScale: 'S' | 'M' | 'L'
   readonly groupGridLinesVisible: boolean
   readonly levelZeroTreeState: 'auto' | 'collapsed'
@@ -49,6 +51,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dateGridLinesVisible': false,
   'dependencyVisible': true,
   'displayScale': 100,
+  'exportSpanFinish': null,
+  'exportSpanStart': null,
   'fontScale': 'M',
   'groupGridLinesVisible': true,
   'levelZeroTreeState': 'auto',

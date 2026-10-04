@@ -63,7 +63,7 @@
   },
   {
    "name": "exportSvg",
-   "description": "画面を縮めた絵を値で返す"
+   "description": "書き出す絵（`FR-080`、文書が書き出す期間を持つときは 表 T-241 の `IX-12`）を値で返す"
   },
   {
    "name": "exportPng",
