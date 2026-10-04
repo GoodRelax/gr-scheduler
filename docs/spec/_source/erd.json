@@ -3123,7 +3123,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである"
+      "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）"
      },
      "schemaNote": {
       "en": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change."

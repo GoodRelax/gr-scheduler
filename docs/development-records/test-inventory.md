@@ -319,7 +319,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-609-t-280-the-settings-entry-pressed-again-hides-the-panel.test.ts` | 9 | FR-072 | VT-2 | T-280, T-293 | - | - | - | - | - |
 | `tests/contract/cr-610-op-16-rs-68-the-size-read-and-the-copy-told.test.ts` | 4 | FR-025 | - | T-233 | HS-3, IC-3, NT-5, OP-16, RS-68, U-56 | - | - | - | - |
 | `tests/contract/cr-610-sx-1-sx-2-a-grs-json-write-is-a-save.test.ts` | 14 | FR-060, FR-096, FR-100, FR-101 | VT-2 | T-290, T-340 | DI-5, IC-2, IO-1, IO-2, IO-7, SK-11, SX-1, SX-2, U-58, U-59 | - | - | - | - |
-| `tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts` | 15 | FR-101 | - | T-206, T-341 | AT-140, HS-1, HS-2, HS-3, HS-4, HS-5, HS-6, HS-7, HS-10, IC-72, S-210, S-235, S-449, U-58 | - | - | - | - |
+| `tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts` | 15 | FR-101 | - | T-206, T-341 | AT-140, HS-1, HS-2, HS-3, HS-4, HS-5, HS-6, HS-7, HS-11, IC-72, S-210, S-235, S-449, U-58 | - | - | - | - |
 | `tests/contract/cr-611-sk-25-fr-095-n-starts-an-empty-document.test.ts` | 20 | FR-036, FR-068, FR-095 | - | T-036, T-202, T-203, T-229, T-342 | BK-1, BK-2, BK-3, BK-4, BK-5, BK-6, ED-1, IC-98, NT-7, QN-5, RD-7, S-71, S-73, S-106, S-107, S-108, SK-11, SK-25, WT-9 | - | - | - | - |
 | `tests/contract/cr-611-t-290-the-new-document-question-has-no-guard.test.ts` | 5 | FR-095 | VT-2 | T-290 | IC-98, QN-5, RS-27, SK-25 | - | - | - | - |
 | `tests/contract/cr-612-fr-027-mc-10-the-template-rides-in-its-own-container.test.ts` | 5 | FR-027 | - | T-025, T-226 | BT-1, MC-10, TP-5, TP-6 | - | - | - | - |
