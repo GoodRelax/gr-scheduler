@@ -13,7 +13,7 @@
 # matches the specification; when the app is fixed it turns green and its line must go.
 
 DFC-374 | tests/system/user-reported-fixes.test.ts | DFC-374: magnifying the row axis stops before one row fills the Row Area | - | - | the row-axis magnification has no ceiling
-DFC-1640 | tests/contract/display-words.contract.test.ts | every section is one this file can key and every entry is a place here or a stated omission | - | - | 28 entries of colourNames, colourField and themeHues (measured 2026-10-01) are neither a place here nor a stated omission
+DFC-1640 | tests/contract/display-words.contract.test.ts | every section is one this file can key and every entry is a place here or a stated omission | - | - | 33 entries of colourNames, colourField and themeHues (measured 2026-10-04: colourField grew 7 -> 12) are neither a place here nor a stated omission
 DFC-1011 | tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts | UC-002 | - | - | UC-002 step 3 / T-015a HM-1: moving a derived row leaves Task.wbsParentUid unchanged
 DFC-1013 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 4 / FR-047: no delay count in days is drawn
 DFC-1014 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 5 / FR-015: the overlaid pre-change plan loads but IC-4 draws nothing
