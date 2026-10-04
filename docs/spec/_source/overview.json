@@ -296,7 +296,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "candidates",
-   "description": "backed by 7 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument; SingleHtmlShell -> AdvanceScreenSession"
+   "description": "backed by 8 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> PostDialogueMessage; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument; SingleHtmlShell -> AdvanceScreenSession"
   },
   {
    "source": "layoutEngine",

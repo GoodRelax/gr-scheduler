@@ -3953,6 +3953,39 @@
    }
   },
   {
+   "rowId": "RS-71",
+   "text": {
+    "ja": "取り込んだファイルの値で、対応するタスクを上書きしました",
+    "en": "The matching tasks were overwritten with the values of the file you brought in"
+   },
+   "nextStep": {
+    "ja": "上書きしたくなかったときは、取り消しで合流する前へ戻せます",
+    "en": "If that was not wanted, undo to get back to before the merge"
+   }
+  },
+  {
+   "rowId": "RS-72",
+   "text": {
+    "ja": "取り込んだファイルに無かったタスクは、消さずに残しました",
+    "en": "Tasks the file did not carry were kept, not deleted"
+   },
+   "nextStep": {
+    "ja": "要らないものは、選んで削除してください",
+    "en": "Select and delete any you no longer need"
+   }
+  },
+  {
+   "rowId": "RS-73",
+   "text": {
+    "ja": "前回の取り込みでは届いていた下記のタスクが、今回は届きませんでした",
+    "en": "The tasks listed below came with the last import but not with this one"
+   },
+   "nextStep": {
+    "ja": "要らないものは、日程表で選んで削除してください。残せば、書き出したときに相手側にまた現れます",
+    "en": "Select and delete on the schedule any you no longer need; kept ones reappear on the other side when you export"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

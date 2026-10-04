@@ -105,7 +105,8 @@
 | dependency | PostDialogueMessage | DialogueLog | append one | appends one confirmed utterance |  |
 | dependency | NotifyChangeWatchers | DialogueLog | utterance order | picks utterances by their own order |  |
 | dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
-| dependency | ScreenRenderer | PostDialogueMessage | confirmed utterance | hands over the utterance a person confirmed in the dialogue field |  |
+| dependency | ScreenRenderer | PostDialogueMessage | utterance shape | shapes the input a person confirmed in the dialogue field as the utterance PostDialogueMessage takes |  |
+| dependency | SingleHtmlShell | PostDialogueMessage | confirmed utterance | posts the utterance a person confirmed in the dialogue field into the dialogue log the shell holds |  |
 | dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
 | dependency | AdvanceScreenSession | ScreenState | carried types | reads the remembered-actual and Esc-rung types the screen values carry |  |
 | dependency | AdvanceScreenSession | Selection | panel subject | reads the selection type, and the empty selection, a properties-panel subject is built from |  |
