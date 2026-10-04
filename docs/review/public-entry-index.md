@@ -119,6 +119,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
 | `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
+| `DelayReportWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWall` | -- | interface DelayReportWall |
 | `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
 | `Bottleneck` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#Bottleneck` | -- | interface Bottleneck extends DelayQuantities |
 | `DelayFinding` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayFinding` | -- | interface DelayFinding |
@@ -128,6 +129,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DerivedWbsParent` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DerivedWbsParent` | -- | interface DerivedWbsParent |
 | `FindingKind` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingKind` | -- | type FindingKind = 'contradiction' \| 'suspicion' \| 'omission' |
 | `FindingValue` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingValue` | -- | type FindingValue = string \| number \| boolean \| null \| readonly number[] |
+| `LateDays` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#LateDays` | -- | interface LateDays |
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
 | `rowPathOf` | file only | function | `src/entity/document-model/schedule/row-names.ts#rowPathOf` | -- | function rowPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
@@ -1691,4 +1693,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 820 name(s) leave through a public entry (312 of them published by table T-064), 661 more are exported by a file and not by its entry.
+Totals: 820 name(s) leave through a public entry (312 of them published by table T-064), 663 more are exported by a file and not by its entry.

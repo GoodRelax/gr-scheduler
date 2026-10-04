@@ -69,6 +69,9 @@ const STATUS_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.del
 const SUMMARY_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportSummary.map((entry) => [entry.part, entry.text]))
 const MARKDOWN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportMarkdown.map((entry) => [entry.part, entry.text]))
 const REASON_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportReasons.map((entry) => [entry.part, entry.text]))
+// see DT-7, T-310, T-311, T-316
+const ASPECT_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportAspects.map((entry) => [entry.rowId, entry.text]))
+const WALL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayReportWalls.map((entry) => [entry.rowId, entry.text]))
 
 // see T-347
 export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId)
@@ -90,7 +93,11 @@ const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column,
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
 const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
 
-const DATE_RANGE = '〜'
+// see DT-5, DT-6, TL-5
+const DATE_RANGE = ' - '
+
+// see DT-6
+const OPEN_DATE_RANGE = ' -'
 
 const WORD_JOIN = ', '
 
@@ -143,9 +150,10 @@ export interface DelayReportRowView extends SearchRowView {
 }
 
 // see RW-4
+// WHY: glyph null keeps a blank of the picture's width (a status with no picture); absent means no picture place.
 export interface DelayReportLine {
   readonly status: DelayReportStatus | null
-  readonly glyph: MarkGlyph | null
+  readonly glyph?: MarkGlyph | null
   readonly text: string
 }
 
@@ -165,6 +173,13 @@ interface ShownRow {
 /** @purity pure */
 function partWordOf(words: ReadonlyMap<string, LanguageWord>, part: string, language: DisplayLanguage): string {
   return wordOf(words.get(part), language)
+}
+
+// WHY: a row a table gained before its word was written prints its row ID, as the generator's banner says.
+/** @purity pure */
+function rowWordOf(words: ReadonlyMap<string, LanguageWord>, row: string, language: DisplayLanguage): string {
+  const held = words.get(row)
+  return held === undefined ? row : wordOf(held, language)
 }
 
 /** @purity pure */
@@ -224,8 +239,7 @@ function findingText(one: Extract<DelayReportReason, { kind: 'unreliable' }>['fi
   const proposal = one.proposedActualFinish === null ? '' : filled(word('proposal'), { date: dateText(one.proposedActualFinish) })
   if (one.row === MILESTONE_ACHIEVED_ROW) return `${word('milestoneAchieved')}${proposal}`
   if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) return `${filled(word('parentProgressOutside'), parentProgressSlotsOf(one.values))}${proposal}`
-  // DEVIATION: spec says DT-7 prints the aspect word of a T-310 / T-311 row; here its row ID (DFC-1940).
-  const aspect = one.kind === 'omission' ? word('missingActual') : one.row
+  const aspect = one.kind === 'omission' ? word('missingActual') : rowWordOf(ASPECT_WORDS, one.row, language)
   const values = Object.entries(one.values).map(([key, value]) => `${key}=${String(value)}`).join(' ')
   return `${values === '' ? aspect : filled(word('finding'), { aspect, values })}${proposal}`
 }
@@ -238,8 +252,7 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage): string {
   switch (reason.kind) {
     case 'unreliable': {
       const findings = reason.findings.map((one) => findingText(one, language))
-      // DEVIATION: spec says DT-7 prints the T-316 wall word; here its row ID (DFC-1940).
-      const walls = reason.walls.map((one) => filled(word('wall'), { wall: one.row, cause: row.name }))
+      const walls = reason.walls.map((one) => filled(word('wall'), { wall: rowWordOf(WALL_WORDS, one.row, language), cause: one.causeName }))
       return [...findings, ...walls].join(WORD_JOIN)
     }
     case 'bottleneck': {
@@ -253,7 +266,7 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage): string {
     case 'bottleneckPath':
       return filled(word('bottleneckPath'), { names: reason.bottleneckNames.join(WORD_JOIN) })
     case 'late':
-      return ''
+      return reason.days === null ? '' : filled(word('late'), { days: reason.days })
   }
 }
 
@@ -267,7 +280,7 @@ function cellsOf(row: DelayReportRow, language: DisplayLanguage): readonly strin
     'DT-3': percentText(row.percentComplete),
     'DT-4': row.name,
     'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish)),
-    'DT-6': isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${DATE_RANGE}`,
+    'DT-6': isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${OPEN_DATE_RANGE}`,
     'DT-7': reasonText(row, language),
   }
   return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
@@ -336,13 +349,13 @@ function summaryOf(
   const word = partWordsIn(SUMMARY_WORDS, language)
   const counts = DELAY_REPORT_STATUSES.map((status) => ({
     status,
-    glyph: isWindow ? STATUS_GLYPHS[status] : null,
+    ...(isWindow ? { glyph: STATUS_GLYPHS[status] } : {}),
     text: filled(word('count'), { status: statusTextIn(status, language, isWindow), count: rows.filter((row) => row.status === status).length }),
   }))
   return [
-    { status: null, glyph: null, text: filled(word('statusDate'), { date: dateText(report.statusDate) }) },
+    { status: null, text: filled(word('statusDate'), { date: dateText(report.statusDate) }) },
     ...counts,
-    { status: null, glyph: null, text: filled(word('unanalysed'), { count: report.unanalysedCount }) },
+    { status: null, text: filled(word('unanalysed'), { count: report.unanalysedCount }) },
   ]
 }
 

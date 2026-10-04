@@ -73,6 +73,7 @@ const REPORT: DelayDiagnosticsReport = {
   ],
   settledPushOuts: [{ uid: 5, name: 'Echo', ...QUANTITIES }],
   derivedWbsParents: [],
+  lateDays: [],
 }
 
 const SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
@@ -159,7 +160,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     const bravo = view?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 2)
     expect(bravo?.cells[REPORT_ORDER.indexOf('DT-3')]).toBe('40%')
     expect(bravo?.cells[REPORT_ORDER.indexOf('DT-5')]).toBe('2026/01/05')
-    expect(bravo?.cells[REPORT_ORDER.indexOf('DT-6')]).toBe('2026/01/05〜')
+    expect(bravo?.cells[REPORT_ORDER.indexOf('DT-6')]).toBe('2026/01/05 -')
   })
 
   it('RW-3: the word keeps the rows whose DT-1 .. DT-5 hold it', () => {

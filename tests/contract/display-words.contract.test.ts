@@ -401,6 +401,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   delayReportSummary: 'part',
   delayReportMarkdown: 'part',
   delayReportReasons: 'part',
+  // WHY: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
+  delayReportAspects: 'rowId',
+  delayReportWalls: 'rowId',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -2137,7 +2140,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
   })
 }
 
-for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons']) {
+for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons', 'delayReportAspects', 'delayReportWalls']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,

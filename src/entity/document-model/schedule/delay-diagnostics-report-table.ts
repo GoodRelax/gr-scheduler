@@ -19,12 +19,18 @@ export type DelayReportStatus = DelayMarkerRow | 'doubtful' | 'settled'
 // see DT-1
 export const DELAY_REPORT_STATUSES: readonly DelayReportStatus[] = ['DG-1', 'doubtful', 'DG-2', 'DG-3', 'DG-4', 'settled']
 
+// see DT-7, DX-6
+export interface DelayReportWall {
+  readonly row: AnalysisWall['row']
+  readonly causeName: string
+}
+
 // see DT-7
 export type DelayReportReason =
-  | { readonly kind: 'unreliable'; readonly findings: readonly DelayFinding[]; readonly walls: readonly AnalysisWall[] }
+  | { readonly kind: 'unreliable'; readonly findings: readonly DelayFinding[]; readonly walls: readonly DelayReportWall[] }
   | { readonly kind: 'bottleneck'; readonly quantities: DelayQuantities | null }
   | { readonly kind: 'bottleneckPath'; readonly bottleneckNames: readonly string[] }
-  | { readonly kind: 'late' }
+  | { readonly kind: 'late'; readonly days: number | null }
   | { readonly kind: 'settled'; readonly quantities: DelayQuantities | null }
 
 // see T-347
@@ -98,14 +104,16 @@ function delayReportStatusesOf(report: DelayDiagnosticsReport): ReadonlyMap<numb
 
 // see DT-7, DX-4
 /** @purity pure */
-function reasonOf(report: DelayDiagnosticsReport, uid: number, status: DelayReportStatus): DelayReportReason {
+function reasonOf(report: DelayDiagnosticsReport, uid: number, status: DelayReportStatus, taskNames: ReadonlyMap<number, string>): DelayReportReason {
   switch (status) {
     case 'DG-1':
     case 'doubtful':
       return {
         kind: 'unreliable',
         findings: report.findings.filter((one) => one.uid === uid),
-        walls: report.walls.filter((one) => one.causeUid === uid),
+        walls: report.walls
+          .filter((one) => one.stoppedUids.includes(uid))
+          .map((one) => ({ row: one.row, causeName: taskNames.get(one.causeUid) ?? '' })),
       }
     case 'DG-2':
       return { kind: 'bottleneck', quantities: report.bottlenecks.find((one) => one.uid === uid) ?? null }
@@ -114,26 +122,30 @@ function reasonOf(report: DelayDiagnosticsReport, uid: number, status: DelayRepo
       return { kind: 'bottleneckPath', bottleneckNames: below.map((one) => one.name ?? '') }
     }
     case 'DG-4':
-      // DEVIATION: DFC-1772 -- the report holds no DX-10, so the delay days of DT-7 are not carried.
-      return { kind: 'late' }
+      return { kind: 'late', days: report.lateDays.find((one) => one.uid === uid)?.days ?? null }
     case 'settled':
       return { kind: 'settled', quantities: report.settledPushOuts.find((one) => one.uid === uid) ?? null }
   }
 }
 
 /** @purity pure */
-function rowOf(task: Task, status: DelayReportStatus, report: DelayDiagnosticsReport, names: readonly string[]): DelayReportRow {
+function rowOf(
+  task: Task,
+  status: DelayReportStatus,
+  report: DelayDiagnosticsReport,
+  names: { readonly assignees: readonly string[]; readonly tasks: ReadonlyMap<number, string> },
+): DelayReportRow {
   return {
     taskUid: task.uid,
     status,
     name: task.name ?? '',
-    assigneeNames: names,
+    assigneeNames: names.assignees,
     percentComplete: task.percentComplete,
     plannedStart: task.start,
     plannedFinish: plannedFinishOf(task),
     actualStart: task.actualStart,
     actualFinish: task.actualFinish,
-    reason: reasonOf(report, task.uid, status),
+    reason: reasonOf(report, task.uid, status, names.tasks),
   }
 }
 
@@ -142,9 +154,10 @@ function rowOf(task: Task, status: DelayReportStatus, report: DelayDiagnosticsRe
 export function delayDiagnosticsReportRows(report: DelayDiagnosticsReport, schedule: Schedule): readonly DelayReportRow[] {
   const statuses = delayReportStatusesOf(report)
   const assignees = assigneeNamesByTaskUid(schedule)
+  const tasks = new Map(schedule.tasks.map((task) => [task.uid, task.name ?? '']))
   const rows = schedule.tasks.flatMap((task) => {
     const status = statuses.get(task.uid)
-    return status === undefined ? [] : [rowOf(task, status, report, assignees.get(task.uid) ?? [])]
+    return status === undefined ? [] : [rowOf(task, status, report, { assignees: assignees.get(task.uid) ?? [], tasks })]
   })
   return rows.sort(
     (a, b) =>

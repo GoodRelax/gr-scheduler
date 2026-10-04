@@ -82,6 +82,7 @@ const REPORT: DelayDiagnosticsReport = {
   ],
   settledPushOuts: [],
   derivedWbsParents: [],
+  lateDays: [],
 }
 
 const sessionIn = (language: 'ja' | 'en') => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession

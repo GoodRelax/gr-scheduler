@@ -417,7 +417,7 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
 /** @purity non-pure */
 function summaryItemElement(host: Document, one: NonNullable<TableWindowView['summary']>[number]): HTMLElement {
   const item = made(host, 'span', SUMMARY_ITEM_STYLE)
-  if (one.glyph === undefined || one.glyph === null) item.textContent = one.text
+  if (one.glyph === undefined) item.textContent = one.text
   else item.replaceChildren(glyphElement(host, one.glyph), one.text)
   return item
 }

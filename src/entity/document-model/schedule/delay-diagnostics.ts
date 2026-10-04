@@ -8,7 +8,7 @@ import { SETTINGS_CONSTANTS } from '../document-settings/document-settings'
 import { calendarDaysBetween, compareDays, dayOf, textOfDay, type CalendarDay } from './calendar-day'
 import { planActualState, progressPointDayOf } from './plan-actual-state'
 import type { Dependency, Schedule, Task } from './schedule-entities'
-import { isDelayed } from './task-delay'
+import { delayStart, delayWorkingDays, isDelayed } from './task-delay'
 import {
   actualLengthOf,
   dateFromWorkingDays,
@@ -59,6 +59,7 @@ export interface AnalysisWall {
   readonly row: 'DW-1' | 'DW-2' | 'DW-3'
   readonly causeUid: number
   readonly stoppedCount: number
+  readonly stoppedUids: readonly number[]
 }
 
 export interface DelayMarkerState {
@@ -69,6 +70,13 @@ export interface DelayMarkerState {
 export interface DerivedWbsParent {
   readonly uid: number
   readonly parentUid: number
+}
+
+// see DX-10, T-021b
+export interface LateDays {
+  readonly uid: number
+  readonly row: string
+  readonly days: number
 }
 
 // see T-317, FR-135
@@ -83,6 +91,7 @@ export interface DelayDiagnosticsReport {
   readonly markerStates: readonly DelayMarkerState[]
   readonly settledPushOuts: readonly DelayQuantities[]
   readonly derivedWbsParents: readonly DerivedWbsParent[]
+  readonly lateDays: readonly LateDays[]
 }
 
 // see T-018
@@ -796,7 +805,7 @@ function wallsOf(facts: Facts, contradictions: readonly DelayFinding[]): Walls {
   const mark = (row: AnalysisWall['row'], causeUid: number, reach: readonly number[]): void => {
     const range = [causeUid, ...reach]
     for (const uid of range) unreliable.add(uid)
-    walls.push({ row, causeUid, stoppedCount: range.length })
+    walls.push({ row, causeUid, stoppedCount: range.length, stoppedUids: range })
   }
   for (const causeUid of new Set(contradictions.map((finding) => finding.uid))) {
     const reach = downstreamOf(causeUid, facts.successorsOf)
@@ -1015,8 +1024,18 @@ function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5'): Read
 function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
   return {
     outcome: 'notDiagnosed', statusDate, findings: [], bottlenecks: [], terminalPushOuts: [], walls: [],
-    unanalysedCount: 0, markerStates: [], settledPushOuts: [], derivedWbsParents: [],
+    unanalysedCount: 0, markerStates: [], settledPushOuts: [], derivedWbsParents: [], lateDays: [],
   }
+}
+
+// see DX-10, PM-4, T-021b
+/** @purity pure */
+function lateDaysOf(facts: Facts): readonly LateDays[] {
+  return facts.tasks.flatMap((task): LateDays[] => {
+    const start = delayStart(task)
+    if (start === null || !isDelayed(task, facts.statusDate)) return []
+    return [{ uid: task.uid, row: start.row, days: delayWorkingDays(facts.calendar, task, facts.statusDate) }]
+  })
 }
 
 // see FR-130, FR-131, FR-132, FR-133, FR-134
@@ -1054,6 +1073,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     settledPushOuts: pushing.filter((one) => !isOpen(one.uid)),
     derivedWbsParents: [...facts.derivations]
       .flatMap(([uid, one]) => (one.parentUid === null ? [] : [{ uid, parentUid: one.parentUid }])),
+    lateDays: lateDaysOf(facts),
   }
 }
 
