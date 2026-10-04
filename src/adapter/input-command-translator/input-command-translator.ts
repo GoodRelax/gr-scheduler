@@ -751,7 +751,6 @@ export const ENTRY = {
   fontScale: 'IC-99',
   themeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
-  // DEVIATION: spec says EN-5 paints this entrance while shown; here it is not painted (DFC-724)
   watermark: 'IC-41',
   statusLine: 'IC-44',
   alignStart: 'IC-37',

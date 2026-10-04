@@ -400,10 +400,10 @@ function pointerShapeUnder(
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
   if (isArmedDependency) {
-    // WHY: an armed dependency applies no T-023d row (PTD-3), so nothing it hits may promise a move (IN-2).
+    // DEVIATION: spec says AR-4 shows the drawing cue over a hit too (IN-2); here the arrow JDG-114 asked for
+    // stays, as nothing an armed dependency hits may promise a move (PTD-3) (DFC-2129)
     if (hit !== null) return 'default'
-    // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
-    return null
+    return 'crosshair'
   }
   if (hit !== null) return null
   if (armed.kind === 'notArmed') return 'default'
