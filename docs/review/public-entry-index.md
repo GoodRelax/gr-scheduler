@@ -174,9 +174,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HistoryLimits` | entry | interface | `src/entity/document-model/edit-history/edit-history.ts#HistoryLimits` | -- | interface HistoryLimits |
 | `HistoryMove` | entry | interface | `src/entity/document-model/edit-history/edit-history.ts#HistoryMove` | -- | interface HistoryMove<TStep> |
 | `historyWithStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#historyWithStep` | PI-4 | 1 段積む |
-| `nextStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#nextStep` | PI-4 | function nextStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> |
+| `nextStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#nextStep` | PI-4 | function nextStep<TStep>( history: EditHistory<TStep>, leftBehind: (step: TStep) => TStep, ): HistoryMove<TStep> |
 | `NOT_STORED_LIMITS` | entry | const | `src/entity/document-model/edit-history/edit-history.ts#NOT_STORED_LIMITS` | -- | const NOT_STORED_LIMITS: |
-| `previousStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#previousStep` | PI-4 | function previousStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> |
+| `previousStep` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#previousStep` | PI-4 | function previousStep<TStep>( history: EditHistory<TStep>, leftBehind: (step: TStep) => TStep, ): HistoryMove<TStep> |
 | `stepCount` | entry | function | `src/entity/document-model/edit-history/edit-history.ts#stepCount` | -- | function stepCount<TStep>(history: EditHistory<TStep>): number |
 
 ## ScheduleLayout (PI-5, `src/entity/layout-engine/schedule-layout/schedule-layout.ts`)
@@ -459,7 +459,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
 | `visualOf` | file only | function | `src/use-case/edit-document/edit-task.ts#visualOf` | -- | function visualOf(schedule: Schedule, taskUid: number): TaskVisual |
-| `wbsSubtreeOf` | file only | function | `src/use-case/edit-document/edit-task.ts#wbsSubtreeOf` | -- | function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
 | `withTask` | file only | function | `src/use-case/edit-document/edit-task.ts#withTask` | -- | function withTask(document: Document, next: Task): Document |
 | `PercentCompleteRecount` | file only | interface | `src/use-case/edit-document/percent-complete.ts#PercentCompleteRecount` | -- | interface PercentCompleteRecount |
@@ -488,10 +487,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pasteTaskSubtree` | file only | function | `src/use-case/edit-document/task-paste.ts#pasteTaskSubtree` | -- | function pasteTaskSubtree( document: Document, command: Extract<TaskCommand, { readonly kind: 'pasteTaskSubtree' }>, within: WorkingCalendar, ): EditResult |
 | `beginTaskActual` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#beginTaskActual` | -- | function beginTaskActual( document: Document, command: Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>, task: Task, within: WorkingCalendar, ): Ed... |
 | `cycleTaskPlanActualStateInDocument` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#cycleTaskPlanActualStateInDocument` | -- | function cycleTaskPlanActualStateInDocument( document: Document, command: Extract<TaskCommand, { readonly kind: 'cycleTaskPlanActualState' }>, task: Task, wi... |
+| `pastedCopyOf` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#pastedCopyOf` | -- | function pastedCopyOf(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `planDatesEdited` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#planDatesEdited` | -- | function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `setTaskPlanActualState` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanActualState` | -- | function setTaskPlanActualState( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanActualState' }>, task: Task, within: WorkingC... |
 | `setTaskPlanDates` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanDates` | -- | function setTaskPlanDates( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanDates' }>, task: Task, within: WorkingCalendar, ): ... |
-| `unstartedCopyOf` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#unstartedCopyOf` | -- | function unstartedCopyOf(task: Task): Task |
 
 ## ImportDocument (PI-10, `src/use-case/import-document/import-document.ts`)
 
@@ -1707,4 +1706,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 826 name(s) leave through a public entry (316 of them published by table T-064), 671 more are exported by a file and not by its entry.
+Totals: 826 name(s) leave through a public entry (316 of them published by table T-064), 670 more are exported by a file and not by its entry.

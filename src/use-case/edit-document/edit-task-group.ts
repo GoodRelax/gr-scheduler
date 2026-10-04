@@ -13,14 +13,14 @@ import type {
   TaskGroupMember,
   TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
-import { taskByUid } from '../../entity/document-model/schedule/schedule'
+import { taskByUid, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from './task-group-look'
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
-import { unstartedCopyOf } from './task-plan-actual'
+import { pastedCopyOf } from './task-plan-actual'
 
 export { tasksRankedByTheRowTree } from './task-group-order'
 
@@ -117,7 +117,8 @@ export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree
   return { rows, height }
 }
 
-// see CD-1, DU-1
+// see CD-1, DU-1, IV-4
+// WHY: a sweep, not a recursion, because rows arrive in no parent-before-child order.
 /** @purity pure */
 export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
   const held = new Set<number>(seeds)
@@ -309,7 +310,7 @@ export function editTaskGroup(
       for (const task of schedule.tasks) {
         const fresh = uidOf.get(task.uid)
         if (fresh === undefined) continue
-        newTasks.push(unstartedCopyOf({
+        newTasks.push(pastedCopyOf({
           ...task,
           uid: fresh,
           wbsParentUid:
@@ -322,7 +323,7 @@ export function editTaskGroup(
               ...one,
               predecessorUid: uidOf.get(one.predecessorUid) ?? one.predecessorUid,
             })),
-        }))
+        }, schedule, workingCalendarOf(schedule)))
       }
 
       const newMembers: TaskGroupMember[] = []

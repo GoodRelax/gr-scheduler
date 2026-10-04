@@ -55,22 +55,37 @@ export interface HistoryMove<TStep> {
   readonly step: TStep | null
 }
 
+// see FR-031, PI-11
+// WHY: leftBehind rewrites the moved step as it crosses, so no caller has to find it again by position.
 /** @purity pure */
-export function previousStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> {
+export function previousStep<TStep>(
+  history: EditHistory<TStep>,
+  leftBehind: (step: TStep) => TStep,
+): HistoryMove<TStep> {
   const held = history.done[history.done.length - 1]
   if (held === undefined) return { history, step: null }
   return {
-    history: { done: history.done.slice(0, -1), undone: [held, ...history.undone] },
+    history: {
+      done: history.done.slice(0, -1),
+      undone: [{ ...held, step: leftBehind(held.step) }, ...history.undone],
+    },
     step: held.step,
   }
 }
 
+// see FR-031, PI-12
 /** @purity pure */
-export function nextStep<TStep>(history: EditHistory<TStep>): HistoryMove<TStep> {
+export function nextStep<TStep>(
+  history: EditHistory<TStep>,
+  leftBehind: (step: TStep) => TStep,
+): HistoryMove<TStep> {
   const held = history.undone[0]
   if (held === undefined) return { history, step: null }
   return {
-    history: { done: [...history.done, held], undone: history.undone.slice(1) },
+    history: {
+      done: [...history.done, { ...held, step: leftBehind(held.step) }],
+      undone: history.undone.slice(1),
+    },
     step: held.step,
   }
 }

@@ -17,8 +17,8 @@ what this reading does not see.
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 52 | 333 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 171 | 3849 | 1 | 1 | 2 | 0 |
-| `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 423 | 6742 | 11 | 18 | 10 | 1 |
+| `usecase` | TS-1 | VT-1 | 14 | 17 | 6 | 10 | 0 | 0 |
+| **all** | | | 423 | 6742 | 10 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -48,12 +48,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | --- | --- |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 
-## 5. Expected-to-fail cases (11)
+## 5. Expected-to-fail cases (10)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 1 of 11.
+named either way: 1 of 10.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
@@ -61,7 +61,6 @@ named either way: 1 of 11.
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
-| `tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts` | UC-002 step 3 / T-015a HM-1: moving a derived row under another row leaves Task.wbsPare... | DFC-1011 (via known-red) |
 | `tests/usecase/uc-006-find-delays.test.ts` | UC-006 step 4 / FR-047: no delay count in days is drawn; step 5 / FR-015: the overlaid... | DFC-1013, DFC-1014 (via known-red) |
 | `tests/usecase/uc-008-tell-by-annotations.test.ts` | UC-008 extension 4a / FR-019: hiding the bottom row of a highlight box makes its frame... | DFC-1015 (via known-red) |
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016, DFC-1017 (via known-red) |
@@ -664,7 +663,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/uf-8-9-replace-document.test.ts` | 41 | FR-023, FR-028, FR-031, FR-062, FR-063, FR-095 | - | T-004, T-024a, T-027, T-028, T-032a, T-034, T-035, T-058, T-062, T-064, T-067, T-075, T-108, T-214, T-218, T-220, T-230, T-342 | AG-2, AG-6, AG-9, AG-9a, AG-10, BT-4, CM-62, CP-8, CP-17, IN-1a, IV-6, LM-9, MG-12, MM-1, OP-3, OP-4, OP-5, OP-8, PI-8, PI-11, PI-15, RD-1, RD-2, RD-3, RD-4, RD-6, RD-7, TS-6, UF-8, UF-9, UN-6, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
 | `tests/unit/use-case.test.ts` | 24 | FR-016, FR-024, FR-031, FR-035, FR-039, FR-046, FR-052, FR-063, FR-080, FR-098 | - | T-050, T-067, T-201, T-202, T-224, T-286 | AG-2, AG-3, AG-6, CM-2, CM-67, CM-71, CM-72, CS-1, HF-8, PF-8, PF-9, PI-8, PI-9, RD-1, S-2, S-3, S-73, S-75, S-76, S-95, S-121, S-123, S-127, S-136, SC-3, UN-7, UN-8, UN-16, UN-17, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
 | `tests/usecase/uc-001-place-a-task-and-set-its-period.test.ts` | 1 | FR-001, FR-002, FR-003, FR-091, FR-109, UC-001 | VT-1 | T-012, T-334 | IC-23, LP-3, S-35, SH-1, ST-2, ST-3, ST-5, TC-6, TC-9, VT-1 | - | - | - | - |
-| `tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts` | 1 | FR-005, FR-024, FR-042, FR-085, UC-002 | VT-1 | T-015, T-015a, T-334 | GR-20, HF-15, HF-16, HF-17, HM-1, HM-2, HR-1a, HR-4, HR-6, IC-58, IC-59, IC-77, IO-2, VT-1 | - | DFC-1011 | 1: DFC-1011 | - |
+| `tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts` | 1 | FR-005, FR-024, FR-042, FR-085, UC-002 | VT-1 | T-015, T-334 | GR-20, HF-15, HF-16, HF-17, HM-1, HM-2, HR-1a, HR-4, HR-6, IC-58, IC-59, IC-77, IO-2, VT-1 | - | DFC-1011 | - | - |
 | `tests/usecase/uc-003-edit-task-attributes.test.ts` | 1 | FR-006, FR-007, FR-008, FR-038, FR-039, FR-049, FR-072, FR-083, FR-089, FR-090, FR-154, UC-003 | VT-1 | T-016, T-206, T-334, T-354 | AS-3, HW-5, HW-11, IC-16, IC-17, IC-42, MK-13, PR-3, PR-16, PR-39, PR-40, QN-13, S-60, S-61, S-72, SP-2, VT-1 | - | - | - | - |
 | `tests/usecase/uc-004-show-dependencies-between-tasks.test.ts` | 1 | FR-009, UC-004 | VT-1 | T-018, T-018a, T-023b, T-028, T-213, T-334 | AR-4, DP-1, DP-3, IC-61, IN-4, S-201, VT-1 | - | - | - | - |
 | `tests/usecase/uc-005-record-actuals.test.ts` | 2 | FR-011, FR-012, FR-013, FR-030, FR-043, UC-005 | VT-1 | T-019, T-021, T-021a, T-334 | PV-1, PV-2, PV-3, PV-4, VT-1 | - | - | - | - |
