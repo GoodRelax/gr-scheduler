@@ -25,7 +25,7 @@ export interface ImportCandidate {
   readonly emptyRowTaskUids: readonly number[]
 }
 
-export interface ImportRefusal {
+export interface ValidationRefusal {
   readonly rule: string
   readonly at: string
   readonly what: string
@@ -34,12 +34,12 @@ export interface ImportRefusal {
 
 export type ImportVerdict =
   | { readonly ok: true }
-  | { readonly ok: false; readonly refusals: readonly ImportRefusal[] }
+  | { readonly ok: false; readonly refusals: readonly ValidationRefusal[] }
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
 /** @purity pure */
-function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'): ImportRefusal {
+function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'): ValidationRefusal {
   return { rule, at, what, notice }
 }
 
@@ -48,7 +48,7 @@ interface AcceptedDays {
   readonly max: CalendarDay
 }
 
-const NO_REFUSALS: readonly ImportRefusal[] = []
+const NO_REFUSALS: readonly ValidationRefusal[] = []
 
 /** @purity pure */
 function sweepDateColumns<TRow extends object>(
@@ -56,8 +56,8 @@ function sweepDateColumns<TRow extends object>(
   columns: readonly (keyof TRow & string)[],
   at: string,
   accepted: AcceptedDays,
-): readonly ImportRefusal[] {
-  let found: ImportRefusal[] | null = null
+): readonly ValidationRefusal[] {
+  let found: ValidationRefusal[] | null = null
   for (const column of columns) {
     const value: unknown = row[column]
     if (typeof value !== 'string') continue
@@ -188,7 +188,7 @@ export function validateImportedDocument(
     }
   }
 
-  const found: ImportRefusal[] = []
+  const found: ValidationRefusal[] = []
 
   const wbs = wbsShapeOf(tasks)
   for (const ring of wbs.rings) {
@@ -306,7 +306,7 @@ export function validateImportedDocument(
 }
 
 /** @purity pure */
-function verdictOf(refusals: readonly ImportRefusal[]): ImportVerdict {
+function verdictOf(refusals: readonly ValidationRefusal[]): ImportVerdict {
   return refusals.length === 0 ? { ok: true } : { ok: false, refusals }
 }
 
@@ -315,7 +315,7 @@ const ONE_VISUAL_PER_TASK = 'IV-23'
 // see IV-23, NT-1
 // WHY: the row is judged where table T-220 holds it, so the read refuses exactly what the invariant names.
 /** @purity pure */
-function oneVisualRefusals(document: Document): readonly ImportRefusal[] {
+function oneVisualRefusals(document: Document): readonly ValidationRefusal[] {
   return scheduleViolations(document.schedule, document.documentSettings, [ONE_VISUAL_PER_TASK])
     .map((one) => refusal(one.row, one.at, one.what, 'NT-1'))
 }

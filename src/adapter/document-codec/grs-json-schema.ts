@@ -950,7 +950,8 @@ function jsonTypeOf(value: unknown): string {
 // see T-220, T-017b
 /** @purity pure */
 function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFault[]): void {
-  if (node.maxLength !== undefined && value.length > node.maxLength) {
+  // TRAP: count code points, as JSON Schema maxLength does; value.length counts UTF-16 units.
+  if (node.maxLength !== undefined && [...value].length > node.maxLength) {
     out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
   }
   if (node.pattern !== undefined && !new RegExp(node.pattern).test(value)) {
