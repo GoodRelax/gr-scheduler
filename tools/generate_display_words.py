@@ -306,12 +306,16 @@ ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
 # blank entry (SV-7) and the name of a nameless task (SQ-1) -- are HELD HERE,
 # the same move as COLOUR_FIELD_PARTS. KEYS, not words. CR-621 retired the
 # third (the label IC-121 carried while maximised): the window title row draws
-# IC-131 in its place instead (table T-335).
+# IC-131 in its place instead (table T-335). CR-661 added the two values of the
+# SQ-10 value list, the reason IC-143 is disabled (TV-5), the band U-67 (TV-11)
+# with its word entrance (no row of table T-109: a word, not an icon) and the
+# picture caption IX-11: no table holds them as rows either.
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
-SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch')
+SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'shownValue', 'notShownValue',
+                      'nothingChecked', 'showOnlyCheckedBar', 'showAll', 'showOnlyCheckedCaption')
 # CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
 # its file line and document-title line, and the word beside its cancel row,
 # are no table's rows, so they are HELD HERE, the same move as

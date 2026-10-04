@@ -195,7 +195,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
       'rowRevealAsked',
     ])
     expect(EVENTS.find((e) => e.key === 'rowRevealAsked')?.carries.map((c) => c.name)).toEqual(['revealedRowId'])
-    expect(specTable('T-329').rows.map((row) => row.id)).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7'])
+    expect(specTable('T-329').rows.map((row) => row.id)).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7', 'TD-8'])
   })
 
   it('FR-018 sends every write of a tree value to table T-328, and every drawing to table T-329', () => {

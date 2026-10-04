@@ -105,6 +105,29 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   },
 }
 
+// see SQ-10, SV-7, SV-8
+export const SHOWN_SEARCH_VALUE = 'shown'
+export const NOT_SHOWN_SEARCH_VALUE = 'notShown'
+const SHOW_COLUMN: SearchColumn = 'SQ-10'
+const SHOWN_RANKS: ReadonlyMap<string, number> = new Map([[SHOWN_SEARCH_VALUE, 0], [NOT_SHOWN_SEARCH_VALUE, 1]])
+const NOTHING_SHOWN: ReadonlySet<number> = new Set()
+
+// see SV-8
+/** @purity pure */
+function compareShownValues(a: string, b: string): number {
+  return (SHOWN_RANKS.get(a) ?? SHOWN_RANKS.size) - (SHOWN_RANKS.get(b) ?? SHOWN_RANKS.size)
+}
+
+// see SQ-10, TV-2
+/** @purity pure */
+function taskTableOf(shown: ReadonlySet<number>): TableColumns<TaskSearchRow> {
+  return {
+    ...TASK_TABLE,
+    values: { ...TASK_TABLE.values, [SHOW_COLUMN]: (row) => [shown.has(row.taskUid) ? SHOWN_SEARCH_VALUE : NOT_SHOWN_SEARCH_VALUE] },
+    orders: { ...TASK_TABLE.orders, [SHOW_COLUMN]: compareShownValues },
+  }
+}
+
 const COMMENT_BOX_TABLE: TableColumns<CommentBoxSearchRow> = {
   values: {
     'SQ-7': (row) => [searchBodyTextOf(row.text)],
@@ -212,9 +235,14 @@ export function filteredTableRows<Row>(
 
 // see SV-7, SV-8
 /** @purity pure */
-export function filteredSearchRows(rows: SearchRows, filters: SearchFilters, sort: SearchSort | null): SearchRows {
+export function filteredSearchRows(
+  rows: SearchRows,
+  filters: SearchFilters,
+  sort: SearchSort | null,
+  shown: ReadonlySet<number> = NOTHING_SHOWN,
+): SearchRows {
   return {
-    taskRows: filteredTableRows(rows.taskRows, TASK_TABLE, filters, sort),
+    taskRows: filteredTableRows(rows.taskRows, taskTableOf(shown), filters, sort),
     commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, filters, sort),
   }
 }
@@ -231,7 +259,8 @@ export function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns
 
 // see SV-7
 /** @purity pure */
-export function columnValuesOf(rows: SearchRows, column: SearchColumn): readonly string[] {
-  if (isColumnOf(TASK_TABLE, column)) return tableColumnValues(rows.taskRows, TASK_TABLE, column)
+export function columnValuesOf(rows: SearchRows, column: SearchColumn, shown: ReadonlySet<number> = NOTHING_SHOWN): readonly string[] {
+  const tasks = taskTableOf(shown)
+  if (isColumnOf(tasks, column)) return tableColumnValues(rows.taskRows, tasks, column)
   return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column)
 }

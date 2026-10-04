@@ -77,6 +77,9 @@ export interface SearchPanelSession {
   readonly size: { readonly width: number; readonly height: number } | null
   readonly textSizeStep: number
   readonly columnWidths: Readonly<Record<SearchColumn, number>>
+  // see S-494, S-495, TV-2, TV-8
+  readonly shownTaskUids: readonly number[]
+  readonly showOnlyChecked: boolean
 }
 
 export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
@@ -98,6 +101,8 @@ export const emptySearchPanelSession: SearchPanelSession = {
   size: null,
   textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
   columnWidths: {},
+  shownTaskUids: [],
+  showOnlyChecked: false,
 }
 
 export interface ScreenValuesStateCarried {

@@ -50,6 +50,7 @@ type CheckedProperties<T> = {
 const STRING_VALUE = { type: 'string' } as const
 const NUMBER_VALUE = { type: 'number' } as const
 const OBJECT_VALUE = { type: 'object' } as const
+const NUMBER_LIST_VALUE = { type: ['array', 'null'], items: NUMBER_VALUE } as const
 
 const WRITTEN_PROPERTIES = {
   agentApiVersion: {},
@@ -59,6 +60,7 @@ const WRITTEN_PROPERTIES = {
   readSelection: {},
   readDialogueMessages: {},
   readSearchRows: { word: STRING_VALUE },
+  readShownTasks: {},
   readDelayDiagnostics: {},
   applyCommands: { request: OBJECT_VALUE },
   importDocument: { source: OBJECT_VALUE },
@@ -70,6 +72,7 @@ const WRITTEN_PROPERTIES = {
   exportPng: {},
   exportEmbeddedHtml: {},
   focusTask: { taskUid: NUMBER_VALUE },
+  showOnlyTasks: { taskUids: NUMBER_LIST_VALUE },
   watchChanges: { waitMs: NUMBER_VALUE },
   postDialogueMessage: { text: STRING_VALUE },
 } satisfies Record<MemberName, Record<string, object>>

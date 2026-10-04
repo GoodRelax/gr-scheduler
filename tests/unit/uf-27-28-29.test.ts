@@ -122,6 +122,7 @@ const T_107 = [
   { row: 'AM-5', name: 'readSelection', isProperty: false },
   { row: 'AM-6', name: 'readDialogueMessages', isProperty: false },
   { row: 'AM-25', name: 'readSearchRows', isProperty: false },
+  { row: 'AM-26', name: 'readShownTasks', isProperty: false },
   { row: 'AM-19', name: 'readDelayDiagnostics', isProperty: false },
   { row: 'AM-7', name: 'applyCommands', isProperty: false },
   { row: 'AM-8', name: 'importDocument', isProperty: false },
@@ -133,6 +134,7 @@ const T_107 = [
   { row: 'AM-14', name: 'exportPng', isProperty: false },
   { row: 'AM-15', name: 'exportEmbeddedHtml', isProperty: false },
   { row: 'AM-16', name: 'focusTask', isProperty: false },
+  { row: 'AM-27', name: 'showOnlyTasks', isProperty: false },
   { row: 'AM-17', name: 'watchChanges', isProperty: false },
   { row: 'AM-18', name: 'postDialogueMessage', isProperty: false },
 ] as const
@@ -482,6 +484,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     // AM-14 and AM-15 answer `notAvailable`.
     rasterizer: undefined,
     takeInDocument: undefined,
+    shownTasks: undefined,
     appShell: undefined,
     writerName,
     schemaVersion,

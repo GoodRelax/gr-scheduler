@@ -99,6 +99,22 @@ export type AgentFocusOutcome =
   | (Extract<AgentWriteOutcome, { readonly accepted: true }> & { readonly isScrolled: boolean })
   | Extract<AgentWriteOutcome, { readonly accepted: false }>
 
+// see AM-26, TV-2, S-494, S-495
+export interface AgentShownTasks {
+  readonly taskUids: readonly number[]
+  readonly isShowOnlyChecked: boolean
+}
+
+// see AM-26, AM-27, SJ-0, TV-8
+// WHY: the checks are a screen value the shell holds (S-494, S-495), never the document; this is the one way to them.
+export interface ShownTasksHolder {
+  /** @purity semi-pure-b */
+  readShownTasks(): AgentShownTasks
+  // WHY: entering also shows a hidden Search Panel minimised, since the filter lives with the panel (TV-8, PND-712).
+  /** @purity non-pure */
+  holdShownTasks(shown: AgentShownTasks): void
+}
+
 // see AM-8, FR-022
 export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
 
@@ -132,6 +148,8 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readSearchRows(word: string): SearchRows
   /** @purity semi-pure-b */
+  readShownTasks(): AgentShownTasks
+  /** @purity semi-pure-b */
   readDelayDiagnostics(): DelayDiagnosticsReport
 
   /** @purity non-pure */
@@ -157,6 +175,8 @@ export interface AgentApi {
 
   /** @purity non-pure */
   focusTask(taskUid: number): AgentFocusOutcome
+  /** @purity non-pure */
+  showOnlyTasks(taskUids: readonly number[] | null): AgentWriteOutcome
 
   /** @purity non-pure */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
@@ -180,6 +200,8 @@ export interface AgentApiWiring {
   readonly takeInDocument:
     | ((incoming: Document, reading: HandedFormatReading) => Promise<ImportLanding>)
     | undefined
+  // see AM-26, AM-27
+  readonly shownTasks: ShownTasksHolder | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -248,6 +270,60 @@ function agentRefusal(
 /** @purity pure */
 function notAvailable(target: string, snapshot: AgentSnapshot, missing: string): AgentRefusal {
   return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
+}
+
+// see AM-26, TV-2
+// WHY: a page with no screen holds no checks; it answers none, and the filter off.
+const NO_SHOWN_TASKS: AgentShownTasks = { taskUids: [], isShowOnlyChecked: false }
+
+// see AM-27, TV-6, SJ-2
+const NO_JUMP_REACH = { pxPerDay: 0, leftReachPx: 0 } as const
+
+// see AM-27, TV-5, AG-5, FR-028
+// WHY: untyped caller input; an empty list would enter with nothing checked, which TV-5 keeps the entrance from doing.
+/** @purity pure */
+function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown): AgentRefusal | null {
+  if (!Array.isArray(taskUids) || taskUids.some((uid) => typeof uid !== 'number')) {
+    return agentRefusal('AM-27', 'malformedRequest', snapshot, 'taskUids is neither null nor a list of numbers', [])
+  }
+  if (taskUids.length === 0) return agentRefusal('AM-27', 'commandRefused', snapshot, 'TV-5: nothing is checked', [])
+  const known = new Set(snapshot.document.schedule.tasks.map((task) => task.uid))
+  const unknown = taskUids.filter((uid) => !known.has(uid))
+  if (unknown.length === 0) return null
+  return agentRefusal('AM-27', 'unknownTask', snapshot, `no task carries these uids: ${unknown.join(', ')}`, [])
+}
+
+// see AM-27, TV-5, TV-6, TV-8
+/** @purity non-pure */
+function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[] | null): AgentWriteOutcome {
+  const holder = wiring.shownTasks
+  if (holder === undefined) return { accepted: false, refusal: notAvailable('AM-27', snapshot, 'a screen holding the checks') }
+  const held = holder.readShownTasks()
+  if (taskUids === null) {
+    holder.holdShownTasks({ taskUids: held.taskUids, isShowOnlyChecked: false })
+    return { accepted: true, stamp: frozenCopy(snapshot.document.documentStamp), hasMovedSchedule: false }
+  }
+  const refusal = shownTasksRefusalOf(snapshot, taskUids)
+  if (refusal !== null) return { accepted: false, refusal }
+  const named = [...new Set(taskUids)]
+  const kept = new Set(held.isShowOnlyChecked ? held.taskUids : [])
+  const opened = named.filter((uid) => !kept.has(uid))
+  const commands = opened.length === 0
+    ? []
+    : searchJumpCommands(searchJumpWrites(snapshot.document, { kind: 'shownTasks', taskUids: opened }, true, NO_JUMP_REACH))
+  // WHY: WS-1 gets the stamp just read, as AM-16 does: the caller named tasks, not a document it read.
+  const written = writeThroughTheOnePath(wiring, snapshot, 'AM-27', snapshot.document.documentStamp, commands)
+  if (written.accepted) holder.holdShownTasks({ taskUids: named, isShowOnlyChecked: true })
+  return written
+}
+
+// see SJ-0, SJ-9
+// WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which only adds to the checks while the filter stands.
+/** @purity non-pure */
+function shownWithJumpTarget(holder: ShownTasksHolder | undefined, taskUid: number): void {
+  const held = holder?.readShownTasks()
+  if (holder === undefined || held === undefined || !held.isShowOnlyChecked || held.taskUids.includes(taskUid)) return
+  holder.holdShownTasks({ taskUids: [...held.taskUids, taskUid], isShowOnlyChecked: true })
 }
 
 // see FR-073
@@ -484,6 +560,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     readSearchRows(word: string): SearchRows {
       return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word, NO_SEARCH_BOTTLENECKS))
     },
+
+    /** @purity semi-pure-b */
+    readShownTasks: (): AgentShownTasks => frozenCopy(wiring.shownTasks?.readShownTasks() ?? NO_SHOWN_TASKS),
 
     // see AM-19, FR-134, AG-4
     // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
@@ -773,8 +852,12 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
       // so a concurrent edit does not refuse it.
       const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
+      if (written.accepted) shownWithJumpTarget(wiring.shownTasks, taskUid)
       return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
     },
+
+    /** @purity non-pure */
+    showOnlyTasks: (taskUids: readonly number[] | null): AgentWriteOutcome => showOnlyTasksThrough(wiring, source.readSnapshot(), taskUids),
 
     /** @purity non-pure */
     watchChanges(receive: AgentChangeReceiver): AgentWatch {

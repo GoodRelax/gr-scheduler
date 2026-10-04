@@ -359,9 +359,12 @@ function iconTooltipOf(
   const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
   const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
   const row = readings.iconRowUnderPointer ?? null
+  // see TV-5, FR-092
+  const refusal = shown.searchPanel?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
+  const hint = iconHint(icon, hintLanguage)
   return {
     anchor: { kind: 'icon', icon, ...(row === null ? {} : { groupId: row }) },
-    text: iconHint(icon, hintLanguage),
+    text: refusal === null ? hint : `${hint}${LINE_BREAK}${refusal}`,
     assignment: entryAssignment(icon, hintLanguage),
   }
 }

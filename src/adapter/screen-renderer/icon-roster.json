@@ -964,6 +964,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-143",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "表示の絞り込み（[表示] の列でチェックしたタスクだけを日程表に描くこと）に入り、同じ入口で終える（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`）",
+   "authority": "`FR-151` の 表 T-353",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-129",
    "surfaces": [
     "Help Modal",

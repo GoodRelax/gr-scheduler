@@ -9,19 +9,38 @@ import {
 } from '../../document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../document-model/schedule/schedule'
 
-// see LC-1, HR-2, T-329
+// see TD-8, TV-1
+// WHY: a row is kept when it or a descendant carries a shown task; its ancestors then stand as headings.
+/** @purity pure */
+function rowsCarryingShown(schedule: Schedule, shown: ReadonlySet<number>, byId: ReadonlyMap<string, TaskGroup>): ReadonlySet<string> {
+  const kept = new Set<string>()
+  for (const member of schedule.taskGroupMembers) {
+    if (!shown.has(member.taskUid)) continue
+    let foundAt: string | null = member.groupId
+    for (let guard = 0; foundAt !== null && !kept.has(foundAt) && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
+      kept.add(foundAt)
+      foundAt = byId.get(foundAt)?.parentId ?? null
+    }
+  }
+  return kept
+}
+
+// see LC-1, HR-2, T-329, TD-8
+// TRAP: TD-8 never writes treeState: the shown set only drops rows from this answer (MUST NOT of TD-8).
 /** @purity pure */
 export function drawnGroups(
   schedule: Schedule,
   settings: DocumentSettings,
+  shownTaskUids: ReadonlySet<number> | null = null,
 ): readonly (TaskGroup & { depth: number })[] {
   if (settings.levelZeroTreeState === 'collapsed') return []
   const byId = new Map(schedule.taskGroups.map((glyph) => [glyph.id, glyph]))
   const drawnRows: (TaskGroup & { depth: number })[] = []
+  const carrying = shownTaskUids === null ? null : rowsCarryingShown(schedule, shownTaskUids, byId)
 
   for (const group of schedule.taskGroups) {
     let depth = 1
-    let dropped = group.treeState === 'hidden'
+    let dropped = group.treeState === 'hidden' || (carrying !== null && !carrying.has(group.id))
     for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
       const parent = byId.get(foundAt)
       if (parent === undefined) break

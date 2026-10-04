@@ -66,6 +66,7 @@ const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
   readSelection: [],
   readDialogueMessages: [],
   readSearchRows: ['word'],
+  readShownTasks: [],
   readDelayDiagnostics: [],
   applyCommands: ['request'],
   importDocument: ['source'],
@@ -77,6 +78,7 @@ const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
   exportPng: [],
   exportEmbeddedHtml: [],
   focusTask: ['taskUid'],
+  showOnlyTasks: ['taskUids'],
   watchChanges: [],
   postDialogueMessage: ['text'],
 }

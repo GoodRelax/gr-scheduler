@@ -187,7 +187,17 @@ function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): s
     .join('')
 }
 
-// see FR-025, FR-080, IX-10
+// see IX-11, S-498
+/** @purity pure */
+function filterCaptionSvg(band: ScreenRect, caption: string | null | undefined, scene: ExportScene, ratio: number): string {
+  if (caption === null || caption === undefined || caption === '') return ''
+  const fontPx = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']
+  const x = (band.x + band.width - NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
+  const y = (band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  return textSvg(x, y, fontPx * ratio, caption, chromeInk(scene)).replace('<text ', '<text text-anchor="end" ')
+}
+
+// see FR-025, FR-080, IX-10, IX-11
 /** @purity pure */
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
@@ -210,6 +220,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const ink = chromeInk(scene)
   const drawnHere =
     appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, scene, ratio) +
+    filterCaptionSvg(regions.appHeader, screenView.showOnlyCheckedCaption, scene, ratio) +
     rectSvg(scaledRect(panel, ratio), chromeGround(scene)) +
     pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     titles.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
@@ -296,5 +307,14 @@ const NOT_STORED_TYPEFACES: {
   readonly 'S-246': string
 } = {
   'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
+}
+
+// see T-206
+const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+  readonly 'S-497': number
+  readonly 'S-498': number
+} = {
+  'S-497': 24,
+  'S-498': 12,
 }
 // </generated>

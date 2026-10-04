@@ -142,6 +142,7 @@ function bench(): Bench {
     },
     rasterizer: undefined,
     takeInDocument: undefined,
+    shownTasks: undefined,
     appShell: undefined,
     writerName: `agent under test ${benchCount}`,
     schemaVersion: TEMPLATE['schemaVersion'] as string,

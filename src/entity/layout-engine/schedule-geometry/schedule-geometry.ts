@@ -402,7 +402,8 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const groupId = reading.groupOfTask.get(task.uid)
   const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
   if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
-  if (reading.rowById.has(own.id)) return null
+  const drawnRow = reading.rowById.get(own.id)
+  if (drawnRow !== undefined) return filteredEndOf(task, own, drawnRow, reading)
   const climb = climbOf(own, reading)
   if (climb === null) return null
   const x = xFromDay(layout, start)
@@ -417,6 +418,19 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
   const depth = climb.row.depth + climb.step + 1
   return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
+}
+
+// see EL-20, TV-3
+/** @purity pure */
+function filteredEndOf(task: Task, own: TaskGroup, row: RowPlacement, reading: EndReading): SightedEnd | null {
+  const { layout, settings } = reading.inputs
+  const shown = layout.shownTaskUids
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  if (shown === undefined || shown === null || shown.has(task.uid) || start === null || finish === null) return null
+  const x = xFromDay(layout, start)
+  const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
+  return { end, far: farEndOf(end, own.id, null, null, reading) }
 }
 
 /** @purity pure */

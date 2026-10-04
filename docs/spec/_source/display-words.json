@@ -957,6 +957,17 @@
    }
   },
   {
+   "rowId": "IC-143",
+   "label": {
+    "ja": "チェックしたものだけ表示",
+    "en": "Show only checked"
+   },
+   "hint": {
+    "ja": "[表示] の列でチェックしたタスクだけを日程表に描く・すべて描くに戻す",
+    "en": "Draw only the tasks checked in the Show column, or draw all of them again"
+   }
+  },
+  {
    "rowId": "IC-129",
    "label": {
     "ja": "最小化",
@@ -4581,6 +4592,13 @@
  ],
  "searchColumns": [
   {
+   "rowId": "SQ-10",
+   "text": {
+    "ja": "表示",
+    "en": "Show"
+   }
+  },
+  {
    "rowId": "SQ-5",
    "text": {
     "ja": "ステータス",
@@ -4722,6 +4740,48 @@
    "text": {
     "ja": "検索",
     "en": "Search"
+   }
+  },
+  {
+   "part": "shownValue",
+   "text": {
+    "ja": "表示に入れた",
+    "en": "Shown"
+   }
+  },
+  {
+   "part": "notShownValue",
+   "text": {
+    "ja": "入れていない",
+    "en": "Not shown"
+   }
+  },
+  {
+   "part": "nothingChecked",
+   "text": {
+    "ja": "チェックが 0 件です",
+    "en": "Nothing is checked"
+   }
+  },
+  {
+   "part": "showOnlyCheckedBar",
+   "text": {
+    "ja": "チェックしたタスクだけを表示しています（{total} 件中 {shown} 件）",
+    "en": "Showing only the checked tasks ({shown} of {total})"
+   }
+  },
+  {
+   "part": "showAll",
+   "text": {
+    "ja": "すべて表示に戻す",
+    "en": "Show all"
+   }
+  },
+  {
+   "part": "showOnlyCheckedCaption",
+   "text": {
+    "ja": "チェックしたタスクだけを表示（{total} 件中 {shown} 件）",
+    "en": "Checked tasks only ({shown} of {total})"
    }
   }
  ],

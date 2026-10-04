@@ -20,6 +20,7 @@ export interface RelayedParams {
   readSelection: {}
   readDialogueMessages: {}
   readSearchRows: { word: string }
+  readShownTasks: {}
   readDelayDiagnostics: {}
   applyCommands: { request: AgentWriteRequest }
   importDocument: { source: AgentImportSource }
@@ -31,6 +32,7 @@ export interface RelayedParams {
   exportPng: {}
   exportEmbeddedHtml: {}
   focusTask: { taskUid: number }
+  showOnlyTasks: { taskUids: readonly number[] | null }
   // WHY: no waitMs here -- the relay does the waiting, the page only subscribes.
   watchChanges: {}
   postDialogueMessage: { text: string }
@@ -49,12 +51,13 @@ type ParameterisedMember = {
   [K in keyof AgentApi]: keyof RelayedParams[K] extends never ? never : K
 }[keyof AgentApi]
 
-// WHY: only members with arguments -- listing all twenty would restate table T-107 (check 69).
+// WHY: only members with arguments -- listing all of them would restate table T-107 (check 69).
 const MEMBER_PARAMETERS = {
   readSearchRows: ['word'],
   applyCommands: ['request'],
   importDocument: ['source'],
   focusTask: ['taskUid'],
+  showOnlyTasks: ['taskUids'],
   postDialogueMessage: ['text'],
 } as const satisfies { readonly [K in ParameterisedMember]: readonly (keyof RelayedParams[K])[] }
 

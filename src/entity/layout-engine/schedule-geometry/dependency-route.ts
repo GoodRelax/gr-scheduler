@@ -248,20 +248,38 @@ function shortLineOf(route: Path, isLevel: boolean, outward: number, run: number
   return [start, bend, point(bend.x, bend.y + rise * NOT_STORED_DEPENDENCY_SIZES['S-360'] * ratio)]
 }
 
-// see EL-9, EL-10, EL-11, EL-12
+// see EL-9
 /** @purity pure */
-function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
+function continuationDotsOf(line: Path, ratio: number): Pick<ContinuationGeometry, 'dots' | 'radius'> {
   const diameter = NOT_STORED_DEPENDENCY_SIZES['S-362'] * ratio
   const tip = line[line.length - 1]
   const along = headingOf(line)
   const dots: Point[] = []
-  const mark = { radius: diameter / 2, farUid: farEnd.end.taskUid, far: farEnd.far }
-  if (tip === undefined) return { dots, ...mark }
+  if (tip === undefined) return { dots, radius: diameter / 2 }
   for (let index = 0; index < CONTINUATION_DOT_COUNT; index += 1) {
     const reach = diameter + diameter / 2 + index * (diameter + diameter)
     dots.push(point(tip.x + along.x * reach, tip.y + along.y * reach))
   }
-  return { dots, ...mark }
+  return { dots, radius: diameter / 2 }
+}
+
+// see EL-9, EL-10, EL-11, EL-12
+/** @purity pure */
+function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
+  return { ...continuationDotsOf(line, ratio), farUid: farEnd.end.taskUid, far: farEnd.far }
+}
+
+// see FR-135, EL-7, EL-9, TV-3
+// WHY: the vertical short line of EL-8 (S-360) and the dots of EL-9, from a seen end toward an end the filter does not draw.
+/** @purity pure */
+export function unseenEndStubOf(from: Point, toward: number, settings: DrawnSettings): {
+  readonly line: Path
+  readonly dots: readonly Point[]
+  readonly radius: number
+} {
+  const ratio = displayRatioOf(settings)
+  const line: Path = [from, point(from.x, from.y + toward * NOT_STORED_DEPENDENCY_SIZES['S-360'] * ratio)]
+  return { line, ...continuationDotsOf(line, ratio) }
 }
 
 type ElidedParts = Pick<DependencyGeometry, 'drawnPoints' | 'continuation' | 'head'>
