@@ -1,4 +1,4 @@
-<!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The Japanese prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json and the prompt block of docs/guides/schedule-to-grs-json/prompt-ja.md. Rebuild: npm run gen -->
+<!-- SINGLE SOURCE OF TRUTH -- EDIT THIS FILE. The Japanese prompt of FR-068 (turn a schedule image into GRS JSON); this first line is not part of the prompt. Generated from it: src/adapter/screen-renderer/image-to-grs-json-prompt.json. Copied BY HAND, not generated (DFC-1796): the prompt block of docs/guides/schedule-to-grs-json/prompt-ja.md, which names the attached files grs-skeleton.json and grs-document.schema.json where this text names the appended json blocks -- carry every other change there too. Rebuild: npm run gen -->
 あなたは日程表の読み取りと変換の専門家です。添付した日程（画像・スライド・表）を読み、GRS というガントチャートのツールで開ける「GRS JSON」を 1 つ作ってください。日付だけでなく、色・グラデーション・形状・フェード・横並びも、できるだけ元の日程に合わせてください。
 
 # 添付
