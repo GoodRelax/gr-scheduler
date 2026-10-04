@@ -368,8 +368,8 @@ function listedFilterValues(layer: Element): readonly string[] | null {
 
 // see SV-7, IF-9
 /** @purity semi-pure-b */
-function withListedValues(answer: ScreenPart | null, layer: Element): ScreenPart | null {
-  if (answer === null || answer.entry === null || !LISTED_ENTRIES.includes(answer.entry)) return answer
+function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
+  if (answer.entry === null || !LISTED_ENTRIES.includes(answer.entry)) return answer
   return { ...answer, searchFilterListed: listedFilterValues(layer) }
 }
 
@@ -576,12 +576,13 @@ function filterColumnAbove(start: Element | null, layer: Element, wantsEntry: bo
   return null
 }
 
-// see IF-9, SV-7, IC-122
+// see IF-9, SV-7, IC-122, IC-125, IC-126
 /** @purity semi-pure-b */
-function withFilterColumn(answer: ScreenPart | null, first: Element | null, layer: Element): ScreenPart | null {
+function withPressedWindowFilter(answer: ScreenPart | null, first: Element | null, layer: Element): ScreenPart | null {
   if (answer === null || first === null || !layer.contains(first)) return answer
   const column = filterColumnAbove(first, layer, true)
-  return column === null ? answer : { ...answer, searchFilterColumn: column }
+  const listed = withListedValues(answer, layer)
+  return column === null ? listed : { ...listed, searchFilterColumn: column }
 }
 
 // see SV-7, IF-9
@@ -749,7 +750,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withListedValues(withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer), layer),
+      withPressedWindowFilter(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }
