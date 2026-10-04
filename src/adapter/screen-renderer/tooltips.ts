@@ -352,7 +352,7 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
   return x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 
-// see EZ-2, IN-3, S-124
+// see EZ-2, IN-3, S-124, TV-5, FR-092
 // WHY: the shell keeps the icon under the pointer while the pointer is on the icon's shown box,
 // and hintTargetDwellMs counts from entering the icon, so a move inside neither restarts nor hides it.
 /** @purity pure */
@@ -367,7 +367,6 @@ function iconTooltipOf(
   const help = readings.isPointerOnHelp === true ? (shown.helpModal ?? null) : null
   const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
   const row = readings.iconRowUnderPointer ?? null
-  // see TV-5, FR-092
   const refusal = shown.searchPanel?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
   const hint = iconHint(icon, hintLanguage)
   return {
