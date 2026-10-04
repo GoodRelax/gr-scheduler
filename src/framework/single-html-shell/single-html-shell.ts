@@ -21,7 +21,7 @@ import type {
   ScreenSurface,
   SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
-import { domInputSource } from '../dom-input-source/dom-input-source'
+import { domInputSource, escapeKeyLockOf, type EscapeKeyLock } from '../dom-input-source/dom-input-source'
 import {
   domScreenSurface,
   pageGroundStyle,
@@ -118,7 +118,10 @@ function isPageFullScreen(): boolean {
 // WHY: Space presses a button on the key's release, so its click and change arrive after the frame keydown asked.
 /** @purity non-pure */
 function watchPageHappenings(loopOf: () => FrameLoop | null): void {
-  document.addEventListener('fullscreenchange', () => loopOf()?.fullScreenChanged(isPageFullScreen()))
+  document.addEventListener('fullscreenchange', () => {
+    if (!isPageFullScreen()) pageEscapeKeyLock().unlock()
+    loopOf()?.fullScreenChanged(isPageFullScreen())
+  })
   window.addEventListener('keyup', () => loopOf()?.pressContinued())
   window.addEventListener('change', (event) => {
     if (isHostPickerValue(event.target)) loopOf()?.pressContinued()
@@ -154,6 +157,11 @@ function askFullScreenOf(call: (() => Promise<void> | undefined) | undefined): P
   }
 }
 
+/** @purity semi-pure-b */
+function pageEscapeKeyLock(): EscapeKeyLock {
+  return escapeKeyLockOf((navigator as { readonly keyboard?: unknown }).keyboard)
+}
+
 // see FR-071, UF-48
 /** @purity non-pure */
 function pageFullScreenHost(): FullScreenHost {
@@ -161,7 +169,15 @@ function pageFullScreenHost(): FullScreenHost {
   return {
     isFullScreen: isPageFullScreen,
     /** @purity non-pure */
-    requestFullScreen: () => askFullScreenOf(root.requestFullscreen?.bind(root)),
+    // TRAP: the lock is asked before requestFullscreen, which spends the press's user activation.
+    requestFullScreen: () => {
+      const escapeKey = pageEscapeKeyLock()
+      escapeKey.lock()
+      return askFullScreenOf(root.requestFullscreen?.bind(root)).catch((error: unknown) => {
+        escapeKey.unlock()
+        throw error
+      })
+    },
     /** @purity non-pure */
     exitFullScreen: () => askFullScreenOf(document.exitFullscreen?.bind(document)),
   }

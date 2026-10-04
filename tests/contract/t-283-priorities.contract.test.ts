@@ -19,7 +19,7 @@ const PUBLISHED = unbroken(
 )
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 const IN_4_QUESTION_THEN_SURFACE =
   '⭐ 開いている面の段では、問いが先、立っている面が後である —— 手前のものから閉じる（`FR-152` の 表 T-337）。'
 const IN_4_SEARCH_PANEL_RUNG =
@@ -98,10 +98,10 @@ const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
   .split(' → ')
 
 describe('table T-283 -- the manuscript and the printed table agree', () => {
-  it('the priorities block names table T-283 and holds RG-1..RG-14 and RG-16, RG-16 after RG-4 and RG-14 after RG-16', () => {
+  it('the priorities block names table T-283 and holds RG-1..RG-14, RG-16 and RG-17, RG-16 after RG-4, RG-14 after RG-16 and RG-17 after RG-8', () => {
     expect(MANUSCRIPT.priorities.table.id).toBe('T-283')
     expect(RUNGS.map((r) => r.id)).toEqual([
-      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
+      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-17', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
     ])
   })
 
@@ -127,7 +127,7 @@ describe('table T-283 -- the manuscript and the printed table agree', () => {
   })
 })
 
-describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-16) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
+describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
   it('the requirement still says it, word for word', () => {
     expect(REQUIREMENTS).toContain(IN_4_ORDER)
   })
@@ -135,7 +135,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-16) -- IN-4 (MUST): ${IN_4_
   it('the Esc rungs, top to bottom, are the IN-4 rungs one for one', () => {
     expect(rungsOf('Esc').map((r) => r.rung.ja)).toEqual(IN_4_WORDS)
     expect(rungsOf('Esc').map((r) => r.id)).toEqual([
-      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8',
+      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-16', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-17',
     ])
   })
 
@@ -279,6 +279,7 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isConfirmationStanding: false,
   isPropertiesPanelOpen: false,
   isTooltipStanding: false,
+  isFullScreen: false,
 }
 
 // see T-283, IN-4, RG-16
@@ -299,6 +300,7 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-6', 'selection', 'isSelectionStanding'],
   ['RG-7', 'dualCursorMode', 'dualCursorMode'],
   ['RG-8', 'tooltip', 'isTooltipStanding'],
+  ['RG-17', 'fullScreen', 'isFullScreen'],
 ]
 
 // WHY: a word of EscapeTarget with no row here fails to compile, so the ladder cannot skip one.
@@ -317,6 +319,7 @@ const EVERY_WORD: Record<EscapeTarget, true> = {
   selection: true,
   dualCursorMode: true,
   tooltip: true,
+  fullScreen: true,
 }
 
 const on = (...flags: readonly Flag[]): EscapeContext => {

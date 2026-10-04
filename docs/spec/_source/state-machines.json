@@ -248,6 +248,27 @@
     }
    },
    {
+    "id": "RG-17",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "全画面表示"
+    },
+    "states": [
+     {
+      "in": "fullScreenModeStateMachine.full"
+     }
+    ],
+    "evidence": [
+     "IN-4",
+     "FR-071"
+    ],
+    "note": {
+     "ja": "最後の段。全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。閲覧環境が Keyboard Lock を持たないときはブラウザが先に取る（`IN-4a`）。番号は最後の次を採り、並びは表の上下が持つ"
+    }
+   },
+   {
     "id": "RG-9",
     "keys": [
      "Enter"

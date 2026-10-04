@@ -154,7 +154,7 @@ const IN_3_UNTIL_THE_TRIGGER_GOES =
   '手立てがあること。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
-  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 
 /**
  * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ DFC-398 is the
@@ -180,7 +180,7 @@ const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォ�
 
 /** The reason IN-4 gives for putting it last, which is why the two rows travel together. */
 const IN_4_WHY_LAST =
-  '説明を最後に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'
+  '説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -201,6 +201,7 @@ const LADDER_AS_PRINTED = [
   '選択',
   '`Dual Cursor` モード',
   '出ている説明',
+  '全画面表示',
 ] as const
 
 // ===========================================================================
@@ -339,7 +340,7 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(IN_3_UNTIL_THE_TRIGGER_GOES)
   })
 
-  it('still puts 出ている説明 at the FOOT of the ladder, and still says why', () => {
+  it('still puts 出ている説明 at the FOOT of the ladder, above 全画面表示 alone, and still says why', () => {
     expect(REQUIREMENTS).toContain(IN_4_THE_LADDER)
     expect(REQUIREMENTS).toContain(IN_4_WHY_LAST)
     // ⭐ THE ORDER READ OUT OF THE ROW, not retyped from memory. A ladder whose
@@ -347,9 +348,10 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
     const at = LADDER_AS_PRINTED.map((rung) => IN_4_THE_LADDER.indexOf(rung))
     expect(at.every((where) => where >= 0), IN_4_THE_LADDER).toBe(true)
     expect([...at].sort((a, b) => a - b)).toEqual([...at])
-    expect(LADDER_AS_PRINTED[LADDER_AS_PRINTED.length - 1]).toBe('出ている説明')
+    expect(LADDER_AS_PRINTED[LADDER_AS_PRINTED.length - 2]).toBe('出ている説明')
+    expect(LADDER_AS_PRINTED[LADDER_AS_PRINTED.length - 1]).toBe('全画面表示')
     // 「`Dual Cursor` モード → 出ている説明」 -- the one adjacency DFC-307 turns on.
-    expect(IN_4_THE_LADDER).toContain('`Dual Cursor` モード → 出ている説明')
+    expect(IN_4_THE_LADDER).toContain('`Dual Cursor` モード → 出ている説明 → 全画面表示')
   })
 
   it('still puts 選択 between 構え and the Dual Cursor mode, and still forbids it above 構え', () => {
@@ -385,7 +387,7 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
   })
 
   it('is spent AFTER the Dual Cursor mode, which is the rung above it', () => {
-    // 「... → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）」
+    // 「... → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）」
     const both = contextOf({ dualCursorMode: true, isTooltipStanding: true })
     expect(escapeTarget(both)).toBe('dualCursorMode')
     // ⭐ AND THE MODE HAS TO BE REACHABLE THE OTHER WAY ROUND: with the mode

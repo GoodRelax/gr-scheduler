@@ -11,6 +11,13 @@ export const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFie
 
 const HOST_ESCAPE_KEY = 'Escape'
 
+// see IN-4
+/** @purity pure */
+function isFreshEscape(event: Event): boolean {
+  const key = event as { key?: unknown; repeat?: unknown }
+  return key.key === HOST_ESCAPE_KEY && key.repeat !== true
+}
+
 const HOST_KEY_RELEASE = 'keyup'
 
 const HOST_DELETE_KEY = 'Delete'
@@ -219,7 +226,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   propertiesPanel.addEventListener('keydown', (event: Event) => {
     const held = heldTextControl
     if (held === null) return
-    if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+    if (!isFreshEscape(event)) return
     if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
     if (isHeldTextTakenBack) {
       releaseTakenBackText(held)
@@ -408,7 +415,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     })
     field.addEventListener('keydown', (event: Event) => {
       if (!isStanding()) return
-      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      if (!isFreshEscape(event)) return
       if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
       if (isDocumentTitleTakenBack) {
         closeDocumentTitleField()
@@ -480,7 +487,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     surface.addEventListener('keydown', (event: Event) => {
       const held = watermarkUnlockEntry
       if (held === null || !isWatermarkUnlockHeld) return
-      if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
+      if (!isFreshEscape(event)) return
       if (isPressTakenByStandingNotice(HOST_ESCAPE_KEY)) return
       if (isWatermarkUnlockTakenBack) {
         releaseTakenBackWatermarkUnlock(held)

@@ -1984,6 +1984,23 @@
        "`InputSource` の実装 1 つを返す"
       ]
      }
+    },
+    {
+     "name": "escapeKeyLockOf",
+     "note": {
+      "ja": [
+       "閲覧環境の `navigator.keyboard` を受け、`Escape` の鍵をかける手と放す手を返す（`FR-071`）。",
+       "Keyboard Lock を持たない・断られたときは何もせず、告げない"
+      ]
+     }
+    },
+    {
+     "name": "EscapeKeyLock",
+     "note": {
+      "ja": [
+       "`escapeKeyLockOf` が返す 2 つの手（`lock` ／ `unlock`）"
+      ]
+     }
     }
    ]
   },

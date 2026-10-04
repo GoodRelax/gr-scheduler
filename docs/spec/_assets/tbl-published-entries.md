@@ -41,7 +41,7 @@
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）<br>／ `writeClipboard`<br>　　`non-pure`。<br>　　表 T-024 の `IO-6` と `FR-033` |
 | PI-25 | `Framework` | `SingleHtmlShell` | **他のコンポーネントから呼ばれるメンバを持たない**。<br>Vite の入口である。<br>`SnapshotSource` と `AppShellSource` の実装を、宣言したコンポーネントへ渡す |
 | PI-26 | `Framework` | `DomSvgSurface` | `domSvgSurface`（`SvgSurface` の実装 1 つを返す） |
-| PI-27 | `Framework` | `DomInputSource` | `domInputSource`（`InputSource` の実装 1 つを返す） |
+| PI-27 | `Framework` | `DomInputSource` | `domInputSource`（`InputSource` の実装 1 つを返す）<br>／ `escapeKeyLockOf`<br>　　閲覧環境の `navigator.keyboard` を受け、`Escape` の鍵をかける手と放す手を返す（`FR-071`）。<br>　　Keyboard Lock を持たない・断られたときは何もせず、告げない<br>／ `EscapeKeyLock`（`escapeKeyLockOf` が返す 2 つの手（`lock` ／ `unlock`）） |
 | PI-28 | `Framework` | `FileSystemAccessFileStore` | `fileSystemAccessFileStore`（`FileStore` の実装 1 つを返す） |
 | PI-30 | `Framework` | `BrowserClipboard` | `browserClipboard`（`Clipboard` の実装 1 つを返す） |
 | PI-31 | `Framework` | `CanvasRasterizer` | `canvasRasterizer`（`Rasterizer` の実装 1 つを返す） |

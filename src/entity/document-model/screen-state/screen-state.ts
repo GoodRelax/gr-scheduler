@@ -28,6 +28,7 @@ export type EscapeTarget =
   | 'selection'
   | 'dualCursorMode'
   | 'tooltip'
+  | 'fullScreen'
 
 export type DualCursorSide = 'date1' | 'date2'
 
@@ -56,6 +57,7 @@ export interface EscapeContext extends WindowStanding {
   readonly isConfirmationStanding?: boolean
   readonly isPropertiesPanelOpen?: boolean
   readonly isTooltipStanding?: boolean
+  readonly isFullScreen?: boolean
 }
 
 // see T-337, RW-5
@@ -107,6 +109,8 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isSelectionStanding === true) return 'selection'
   if (context.dualCursorMode) return 'dualCursorMode'
   if (context.isTooltipStanding === true) return 'tooltip'
+  // WHY: IN-4 -- full screen is left only when nothing else is left to cancel.
+  if (context.isFullScreen === true) return 'fullScreen'
   return null
 }
 

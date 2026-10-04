@@ -563,6 +563,9 @@ const ESCAPE_SEARCH_PANEL: ScreenValuesEvent = { type: 'escapePressed', rung: 's
 const ESCAPE_DIALOGUE_FIELD: ScreenValuesEvent = { type: 'escapePressed', rung: 'dialogueField' }
 const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
+// see IN-4, RG-17, FR-071
+// WHY: the last rung asks the browser the same as the IC-11 press.
+const ESCAPE_FULL_SCREEN: ScreenValuesEvent = { type: 'fullScreenEntryPressed' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
 const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
@@ -612,6 +615,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   selection: null,
   dualCursorMode: ESCAPE_DUAL_CURSOR,
   tooltip: ESCAPE_TOOLTIP,
+  fullScreen: ESCAPE_FULL_SCREEN,
 }
 
 // see T-335, RG-16
