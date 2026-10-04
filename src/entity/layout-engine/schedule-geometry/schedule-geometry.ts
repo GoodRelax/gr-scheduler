@@ -408,16 +408,25 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   if (climb === null) return null
   const x = xFromDay(layout, start)
   const width = planSpanWidthOf(layout, x, finish, settings)
-  if (climb.row === null) {
-    if (!climb.isFolded || settings.levelZeroTreeState === 'collapsed') return null
-    const end = standingEndOf(task.uid, x, width, unhiddenYOf(own, reading))
-    return { end, far: farEndOf(end, own.id, climb.step + 1, own.id, reading) }
-  }
+  if (climb.row === null) return unparentedEndOf(task, own, climb, x, width, reading)
   if (!climb.isFolded && reading.pinnedIds.has(own.id)) return null
   const end = standingEndOf(task.uid, x, width, standingYOf(climb.row, reading))
   // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
   const depth = climb.row.depth + climb.step + 1
   return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
+}
+
+// see EL-20, TV-3, LC-9
+// WHY: with no drawn ancestor, a folded end or a filtered end stands at the last drawn row before its own.
+/** @purity pure */
+function unparentedEndOf(task: Task, own: TaskGroup, climb: Climb, x: number, width: number,
+                         reading: EndReading): SightedEnd | null {
+  const shown = reading.inputs.layout.shownTaskUids
+  const isFiltered = shown !== undefined && shown !== null && !shown.has(task.uid)
+  if (!(climb.isFolded || isFiltered) || reading.inputs.settings.levelZeroTreeState === 'collapsed') return null
+  const end = standingEndOf(task.uid, x, width, unhiddenYOf(own, reading))
+  const foldedRowId = climb.isFolded ? own.id : null
+  return { end, far: farEndOf(end, own.id, climb.isFolded ? climb.step + 1 : null, foldedRowId, reading) }
 }
 
 // see EL-20, TV-3

@@ -1797,6 +1797,12 @@ function isNonWorkingDayQuestionStandingIn(session: ScreenSession): boolean {
   return confirmation.kind === 'questionAsked' && confirmation.question.question === NON_WORKING_DAY_QUESTION
 }
 
+// see AG-9, WS-2, FR-154
+/** @purity pure */
+function isWriteHeldBackIn(session: ScreenSession): boolean {
+  return isChangingDocumentIn(session) || isNonWorkingDayQuestionStandingIn(session)
+}
+
 /** @purity pure */
 function isAgentApiEnabledIn(session: ScreenSession): boolean {
   return session.agentApi.agentApiEnablingState.kind === 'enabled'
@@ -2734,7 +2740,7 @@ export function frameLoop(
         dialogue: dialogueLog,
         frame,
         exportScene: exportScene(),
-        isGestureInFlight: isChangingDocumentIn(session),
+        isGestureInFlight: isWriteHeldBackIn(session),
         isEditingInPlace: isEditingField(hands),
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
@@ -2869,7 +2875,7 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
-      gestureInFlight: isChangingDocumentIn(session) || isNonWorkingDayQuestionStandingIn(session),
+      gestureInFlight: isWriteHeldBackIn(session),
       editingInPlace: !isSettlingFieldCommit && isEditingField(hands),
       deliveringNotices: isDeliveringNoticesIn(session),
     }

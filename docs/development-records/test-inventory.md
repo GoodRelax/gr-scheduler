@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 180 | 2456 | 4 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 180 | 2456 | 3 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 52 | 333 | 1 | 1 | 0 | 0 |
+| `system` | TS-3 | - | 52 | 333 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 171 | 3849 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 423 | 6742 | 13 | 18 | 10 | 1 |
+| **all** | | | 423 | 6742 | 11 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -48,20 +48,18 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | --- | --- |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 
-## 5. Expected-to-fail cases (13)
+## 5. Expected-to-fail cases (11)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 3 of 13.
+named either way: 1 of 11.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
-| `tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts` | Charlie unchecked and row Q undrawn: ${EL_20_NOT_DROPPED} | none |
 | `tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_ROW} -- one Task from an editGroup row, ONE row chosen | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
-| `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | (title computed at run time) | none |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts` | UC-002 step 3 / T-015a HM-1: moving a derived row under another row leaves Task.wbsPare... | DFC-1011 (via known-red) |
 | `tests/usecase/uc-006-find-delays.test.ts` | UC-006 step 4 / FR-047: no delay count in days is drawn; step 5 / FR-015: the overlaid... | DFC-1013, DFC-1014 (via known-red) |
@@ -341,7 +339,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 9 | FR-042, FR-098 | - | T-041, T-076, T-202, T-216 | EP-3, S-68, U-18, U-22 | - | - | - | - |
 | `tests/contract/cr-659-the-export-leaves-the-mark-and-divider-blank.contract.test.ts` | 3 | - | - | T-236 | BR-2, BR-6, EP-1, S-81, S-226, S-235, S-462, S-490, S-492 | - | - | - | - |
 | `tests/contract/cr-660-the-two-tables-lead-with-status-and-filter-like-excel.contract.test.ts` | 32 | FR-134, FR-151 | - | T-206, T-330, T-331, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-123, IC-124, IC-125, IC-126, IF-9, PM-4, RW-4, RW-9, RW-10, SJ-1, SQ-1, SQ-5, SQ-7, SQ-11, SQ-12, SQ-13, SV-4, SV-6, SV-7, SV-18 | - | - | - | - |
-| `tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts` | 14 | FR-003, FR-135 | - | T-329 | EL-20, TD-8, TV-3 | - | - | 1: none | - |
+| `tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts` | 14 | FR-003, FR-135 | - | T-329 | EL-20, TD-8, TV-3 | - | - | - | - |
 | `tests/contract/cr-662-the-progress-line-in-front-of-the-labels.test.ts` | 7 | FR-110 | - | T-020 | S-63, S-64, ZO-3, ZO-5, ZO-8, ZO-9, ZO-13, ZO-16 | - | - | - | - |
 | `tests/contract/cr-663-the-tooltip-labels-assignee-and-progress.test.ts` | 15 | FR-059 | - | T-348 | DT-2, DT-3, S-439, S-513, TL-1, TL-7, TL-8 | - | - | - | - |
 | `tests/contract/cr-665-help-columns-and-the-moved-palette-block.contract.test.ts` | 10 | FR-036 | - | T-109, T-256 | HC-3, HC-4, IC-52, IC-53, IC-75 | - | - | - | - |
@@ -473,7 +471,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-665-help-fits-one-screen.test.ts` | 7 | FR-036, FR-069 | - | T-025, T-103, T-109, T-206, T-256 | MC-6, S-203 | - | - | - | - |
 | `tests/system/cr-666-escape-lock-and-held-esc.test.ts` | 5 | - | - | T-025, T-103, T-109 | - | - | - | - | - |
 | `tests/system/cr-667-panel-divider-in-the-rule-colour.test.ts` | 2 | - | - | T-025, T-236 | EP-9, S-149, S-165, U-18, U-24 | - | - | - | - |
-| `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | 7 | FR-031, FR-154 | - | - | AG-9, QN-13, TL-10, TL-11 | - | - | 1: none | - |
+| `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | 7 | FR-031, FR-154 | - | - | AG-9, QN-13, TL-10, TL-11 | - | - | - | - |
 | `tests/system/cr-669-the-help-maximises-to-the-schedule-canvas.test.ts` | 9 | FR-036 | - | T-103, T-109, T-335, T-336, T-337 | GR-24, GR-25, HN-6, IC-20, IC-54, S-203, U-32, UZ-9, WB-3, WB-8, WB-9 | - | - | - | - |
 | `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206 | PR-15, PR-16, PR-17, S-171, S-248, U-24, U-25 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
