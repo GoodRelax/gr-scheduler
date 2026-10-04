@@ -2857,6 +2857,28 @@ def entry_switch_block(path, names):
     return (NEWLINE * 2).join(out)
 
 
+def visible_element_block():
+    """The use case's union of FR-049's settings rows, from the same column.
+
+    ⭐ DFC-1289: `VisibleElement` was written by hand in
+    edit-document-settings.ts and held the same eleven keys this generator
+    prints as the value union of VISIBLE_ELEMENT_BY_ENTRY. It is printed from
+    the one column (table T-109's settings row, read by entry_switch_maps), so
+    a row added to or taken from FR-049 reaches the command type and the three
+    maps together. ⛔ Only boolean rows of table T-202 sit in that column; a
+    T-206 row such as watermarkVisible is not a document setting (FR-020) and
+    cannot arrive here.
+    """
+    pairs, requirement = entry_switch_maps()['VISIBLE_ELEMENT_BY_ENTRY']
+    values = []
+    for _entry, value in pairs:
+        if value not in values:
+            values.append(value)
+    lines = ['// see T-109, T-202, %s' % requirement, 'export type VisibleElement =']
+    lines.extend("  | '%s'" % value for value in values)
+    return '\n'.join(lines)
+
+
 def with_entry_switches(path, build, names):
     """A target's builder with the entry-switch maps appended to what it prints."""
     def built(erd):
@@ -3108,6 +3130,11 @@ TARGETS = [
          ENTRY_SWITCH_NAMES),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
       'docs/spec/_assets/tbl-glossary.md (table T-109)']),
+    # DFC-1289: the command's element union, from table T-109's settings rows.
+    (os.path.join(USECASE, 'edit-document', 'edit-document-settings.ts'),
+     lambda _erd: visible_element_block(),
+     ['docs/spec/_assets/tbl-glossary.md (table T-109)',
+      'docs/spec/_source/settings.json (table T-202)']),
     # DFC-1770: the jump's inset stands in the unit that places the jump (SJ-6).
     (os.path.join(USECASE, 'edit-document', 'search-jump.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET'),
