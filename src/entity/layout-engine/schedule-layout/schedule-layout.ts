@@ -408,6 +408,18 @@ function lastRowReserveOf(
 
 // see T-068
 /** @purity pure */
+function membersByGroupOf(schedule: Schedule): ReadonlyMap<string, readonly TaskGroupMember[]> {
+  const membersByGroup = new Map<string, TaskGroupMember[]>()
+  for (const member of schedule.taskGroupMembers) {
+    const groupMembers = membersByGroup.get(member.groupId)
+    if (groupMembers === undefined) membersByGroup.set(member.groupId, [member])
+    else groupMembers.push(member)
+  }
+  return membersByGroup
+}
+
+// see T-068
+/** @purity pure */
 export function layoutFromSchedule(
   schedule: Schedule,
   storedSettings: DocumentSettings,
@@ -430,12 +442,7 @@ export function layoutFromSchedule(
 
   const taskByUid = new Map(schedule.tasks.map((text) => [text.uid, text]))
   const visualByUid = new Map(schedule.taskVisuals.map((value) => [value.taskUid, value]))
-  const membersByGroup = new Map<string, TaskGroupMember[]>()
-  for (const member of schedule.taskGroupMembers) {
-    const groupMembers = membersByGroup.get(member.groupId)
-    if (groupMembers === undefined) membersByGroup.set(member.groupId, [member])
-    else groupMembers.push(member)
-  }
+  const membersByGroup = membersByGroupOf(schedule)
   const assigneeLabels = assigneeLabelsOf(schedule)
 
   const within = workingCalendarOf(schedule)

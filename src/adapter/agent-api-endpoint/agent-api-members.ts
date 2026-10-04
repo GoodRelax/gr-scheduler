@@ -326,6 +326,36 @@ function shownWithJumpTarget(holder: ShownTasksHolder | undefined, taskUid: numb
   holder.holdShownTasks({ taskUids: [...held.taskUids, taskUid], isShowOnlyChecked: true })
 }
 
+// see AM-16, SJ-0, SJ-2, SJ-6, SJ-9
+/** @purity non-pure */
+function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUid: number): AgentFocusOutcome {
+  const frame = snapshot.frame
+  if (frame === null) {
+    return {
+      accepted: false,
+      refusal: agentRefusal('AM-16', 'notDrawnYet', snapshot, 'BO-1: no frame yet', []),
+    }
+  }
+
+  const schedule = snapshot.document.schedule
+  if (!schedule.tasks.some((held) => held.uid === taskUid)) {
+    return {
+      accepted: false,
+      refusal: agentRefusal('AM-16', 'unknownTask', snapshot, 'no task carries this uid', []),
+    }
+  }
+
+  const member = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, member?.groupId ?? null)
+  const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom, searchJumpReachOf(frame.layout, { kind: 'task', taskUid }))
+  const commands = searchJumpCommands(plan)
+  // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
+  // so a concurrent edit does not refuse it.
+  const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
+  if (written.accepted) shownWithJumpTarget(wiring.shownTasks, taskUid)
+  return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
+}
+
 // see FR-073
 interface HandedFormatReading {
   readonly unreadColumns: readonly string[]
@@ -827,34 +857,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity non-pure */
-    focusTask(taskUid: number): AgentFocusOutcome {
-      const snapshot = source.readSnapshot()
-      const frame = snapshot.frame
-      if (frame === null) {
-        return {
-          accepted: false,
-          refusal: agentRefusal('AM-16', 'notDrawnYet', snapshot, 'BO-1: no frame yet', []),
-        }
-      }
-
-      const schedule = snapshot.document.schedule
-      if (!schedule.tasks.some((held) => held.uid === taskUid)) {
-        return {
-          accepted: false,
-          refusal: agentRefusal('AM-16', 'unknownTask', snapshot, 'no task carries this uid', []),
-        }
-      }
-
-      const member = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)
-      const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, member?.groupId ?? null)
-      const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom, searchJumpReachOf(frame.layout, { kind: 'task', taskUid }))
-      const commands = searchJumpCommands(plan)
-      // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
-      // so a concurrent edit does not refuse it.
-      const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
-      if (written.accepted) shownWithJumpTarget(wiring.shownTasks, taskUid)
-      return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
-    },
+    focusTask: (taskUid: number): AgentFocusOutcome => focusTaskThrough(wiring, source.readSnapshot(), taskUid),
 
     /** @purity non-pure */
     showOnlyTasks: (taskUids: readonly number[] | null): AgentWriteOutcome => showOnlyTasksThrough(wiring, source.readSnapshot(), taskUids),

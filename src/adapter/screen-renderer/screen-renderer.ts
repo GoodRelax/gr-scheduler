@@ -555,11 +555,10 @@ export interface ScreenView {
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
-  // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
+  // TRAP: optional so literals compile; absent draws no panel (FR-151) and no caption (IX-11), the same as null.
   readonly searchPanel?: SearchPanelView | null
-  readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
-  // TRAP: optional so literals compile; absent writes no caption (IX-11), the same as null.
   readonly showOnlyCheckedCaption?: string | null
+  readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.

@@ -1061,6 +1061,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `EffectRunners` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunners` | -- | type EffectRunners<E extends { readonly type: string }> = |
 | `runSessionEffects` | file only | function | `src/framework/single-html-shell/session-effects.ts#runSessionEffects` | -- | function runSessionEffects( effects: readonly SessionEffect[], runners: EffectRunners<SessionEffect>, frame: FrameValues \| null, ): void |
 | `unwiredEffect` | file only | function | `src/framework/single-html-shell/session-effects.ts#unwiredEffect` | -- | function unwiredEffect(effect: { readonly type: string }): never |
+| `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldSearchPanel) |
 | `HeldViewPlace` | file only | type | `src/framework/single-html-shell/view-place.ts#HeldViewPlace` | -- | type HeldViewPlace = ReturnType<typeof heldViewPlaceOf> |
 | `heldViewPlaceOf` | file only | function | `src/framework/single-html-shell/view-place.ts#heldViewPlaceOf` | -- | function heldViewPlaceOf( hands: ViewPlaceHands, startedFromTemplate: boolean \| undefined, ) |
 | `ViewPlaceHands` | file only | type | `src/framework/single-html-shell/view-place.ts#ViewPlaceHands` | -- | type ViewPlaceHands = Pick<FrameLoopHands, 'readEnvironment'> |
@@ -1705,4 +1706,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 825 name(s) leave through a public entry (315 of them published by table T-064), 670 more are exported by a file and not by its entry.
+Totals: 825 name(s) leave through a public entry (315 of them published by table T-064), 671 more are exported by a file and not by its entry.
