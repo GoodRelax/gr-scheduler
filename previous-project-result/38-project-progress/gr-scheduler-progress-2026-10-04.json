@@ -1,0 +1,2466 @@
+{
+ "schemaVersion": "2026-10-04",
+ "schedule": {
+  "project": {
+   "id": null,
+   "name": "gr-scheduler progress 2026-10-04",
+   "title": "GRS 開発の進捗 2026-10-04（実時間 15 分 = 1 日）",
+   "subject": "実時間 2026-10-04 06:00 をこの表の 2026-10-04 とし、実時間 15 分をこの表の 1 日に換算した。日付は実際の日付ではない。",
+   "category": "Software Development",
+   "company": "gr-scheduler",
+   "manager": "coordinator",
+   "author": "progress body",
+   "created": "2026-10-04T00:00:00",
+   "revision": 1,
+   "startDate": "2026-10-04T08:00:00",
+   "statusDate": "2026-10-21T17:00:00",
+   "minutesPerDay": null,
+   "minutesPerWeek": null,
+   "daysPerMonth": null,
+   "weekStartDay": 1,
+   "calendarUid": 1,
+   "themeHue": 214,
+   "parentProgressToleranceDays": 1,
+   "uidHighWaterMark": 2054,
+   "importSeq": 0,
+   "outlineBase": 1,
+   "carry": {},
+   "carryElements": [],
+   "defaultStartTime": null,
+   "defaultFinishTime": null,
+   "sourceFormat": "grs"
+  },
+  "calendars": [
+   {
+    "uid": 1,
+    "name": "Every day (15 real minutes = 1 day)",
+    "isBaseCalendar": true,
+    "baseCalendarUid": null,
+    "ordinal": 0,
+    "carry": {},
+    "carryElements": [],
+    "weekDays": [
+     {
+      "ordinal": 0,
+      "dayType": 1,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 1,
+      "dayType": 2,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 2,
+      "dayType": 3,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 3,
+      "dayType": 4,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 4,
+      "dayType": 5,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 5,
+      "dayType": 6,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 6,
+      "dayType": 7,
+      "dayWorking": true,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "exceptions": []
+   }
+  ],
+  "tasks": [
+   {
+    "uid": 1,
+    "wbsParentUid": null,
+    "wbsOrder": 0,
+    "name": "CR-655 暦年をまたぐ日付を 4 桁の年にし、検索の状態をボトルネックから並べる",
+    "start": "2026-10-05T08:00:00",
+    "finish": "2026-10-16T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 06:23〜09:01。段階: push 済み（目安 100%）。起草と仕様 de61d737 06:23、coord へ合流 131b51e2 06:52、push 79d9eaf8 09:01。予定は記録が無いので実績と同じ日にした。",
+    "calendarUid": null,
+    "actualStart": "2026-10-05T08:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-16T17:00:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 109,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2,
+    "wbsParentUid": null,
+    "wbsOrder": 1,
+    "name": "CR-656 Shift ドラッグは行だけ移し、Ctrl + Shift ドラッグは日付ごと写す",
+    "start": "2026-10-06T08:00:00",
+    "finish": "2026-10-16T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 06:30〜09:01。段階: push 済み（目安 100%）。起草と仕様 c8edbb21 06:30、合流 5456f72d 07:36、push 79d9eaf8 09:01。予定は記録が無いので実績と同じ日にした。",
+    "calendarUid": null,
+    "actualStart": "2026-10-06T08:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-16T17:00:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 110,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 3,
+    "wbsParentUid": null,
+    "wbsOrder": 2,
+    "name": "CR-657 グループの罫線を行の題の面にも引く",
+    "start": "2026-10-13T08:00:00",
+    "finish": "2026-10-16T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:22〜09:01。段階: push 済み（目安 100%）。仕様 6c7f5844 08:22、実装 f55dad15 08:23、門の直し 9a9dda3e 08:34、push 79d9eaf8 09:01。仕様だけの試験 f3991034 08:52。",
+    "calendarUid": null,
+    "actualStart": "2026-10-13T08:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-16T17:00:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 133,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 4,
+    "wbsParentUid": null,
+    "wbsOrder": 3,
+    "name": "CR-658 「WBS の親を設定」を「WBS の親を表示」の右に置く（パレットの並び）",
+    "start": "2026-10-14T08:00:00",
+    "finish": "2026-10-16T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:36〜09:01。段階: push 済み（目安 100%）。実装 d82a8b7c 08:36、合流 1d081d7e 08:45、push 79d9eaf8 09:01。",
+    "calendarUid": null,
+    "actualStart": "2026-10-14T08:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-16T17:00:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 150,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 5,
+    "wbsParentUid": null,
+    "wbsOrder": 4,
+    "name": "push 79d9eaf8（origin/refactor = origin/main）",
+    "start": "2026-10-16T08:00:00",
+    "finish": "2026-10-16T08:00:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "実時間 09:01〜09:01。git の日時 2026-10-04 09:01。CR-655〜658 と、CR-661・CR-665 の起草だけが載った。",
+    "calendarUid": null,
+    "actualStart": "2026-10-16T08:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-16T08:00:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 6,
+    "wbsParentUid": null,
+    "wbsOrder": 5,
+    "name": "CR-662 進捗線をタスクのラベルの手前、コメントボックスの奥に描く",
+    "start": "2026-10-18T08:00:00",
+    "finish": "2026-10-23T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 09:37〜10:45。段階: coord に合流済み・GT-2 の後に push（調整役の目安 80%）。実装 2d02fff0 09:37、合流 a8b29efa 09:58、ZO-16 を表 T-274 へ 20efb9fe 10:11。予定の終わり（次の push 10:45 ごろ）は推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-18T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 80,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 7,
+    "wbsParentUid": null,
+    "wbsOrder": 6,
+    "name": "CR-663 タスクのツールチップの担当者・進捗の行に見出しを付け、担当者を 1 行にする",
+    "start": "2026-10-18T08:00:00",
+    "finish": "2026-10-23T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 09:44〜10:45。段階: coord に合流済み・push 待ち（目安 80%）。実装 3dcbf7bd 09:44、コメントの量の直し 5506d0d5 09:47。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-18T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 80,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 8,
+    "wbsParentUid": null,
+    "wbsOrder": 7,
+    "name": "CR-664 プロパティパネルの色の行を、ほかの欄とそろえる",
+    "start": "2026-10-19T08:00:00",
+    "finish": "2026-10-23T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 09:51〜10:45。段階: coord に合流済み・push 待ち（目安 80%）。実装 dff8d3ee 09:51、合流 a8b29efa 09:58。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-19T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 75,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 9,
+    "wbsParentUid": null,
+    "wbsOrder": 8,
+    "name": "検査の基準線 4 本を実測まで下げる（JDG-520）",
+    "start": "2026-10-20T08:00:00",
+    "finish": "2026-10-23T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10:01〜10:45。段階: coord にコミット済み・push 待ち（目安 80%）。114fcf10 10:01。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-20T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 67,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 10,
+    "wbsParentUid": null,
+    "wbsOrder": 9,
+    "name": "CR-662〜664 の仕様だけの試験を書いて合流する",
+    "start": "2026-10-20T08:00:00",
+    "finish": "2026-10-22T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10:10〜10:30。段階: 試験は緑・合流待ち（目安 50%）。90bfb928 10:10。予定の終わり（合流 10:30 ごろ）は推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-20T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 11,
+    "wbsParentUid": null,
+    "wbsOrder": 10,
+    "name": "CR-660 検索と遅延診断の表: 状態・進捗・タスクを先頭に、表計算のように絞り込む（1-1〜1-8）",
+    "start": "2026-10-18T08:00:00",
+    "finish": "2026-10-24T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 09:36〜11:00。段階: 実装済み・合流待ち（目安 50%）。起草 708b40a0 09:36、仕様 72453d8a 09:41、実装 d1e0bbe2 10:06、台帳 751462e8 10:07、列の幅の表を生成 fd1db376 10:12。予定の終わり（合流 11:00 ごろ）は推測。",
+    "calendarUid": null,
+    "actualStart": "2026-10-18T08:00:00",
+    "stop": "2026-10-21T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 67,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 12,
+    "wbsParentUid": null,
+    "wbsOrder": 11,
+    "name": "次の push（GT-2 の後、CR-662〜664 と基準線）",
+    "start": "2026-10-23T08:00:00",
+    "finish": "2026-10-23T08:00:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "実時間 10:45〜10:45。予定の日（10:45 ごろ）は推測。GT-2 の結果しだいで動く。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 10,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 13,
+    "wbsParentUid": null,
+    "wbsOrder": 12,
+    "name": "CR-661 検索の面で、チェックしたタスクだけを表示する（CR-660 の後）",
+    "start": "2026-10-15T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:49〜12:00。段階: 起草だけ push 済み（目安 10%）。起草 a4a082c2 08:49。実装は CR-660 の合流の後。予定の終わり 12:00 ごろは推測。実績の点は起草の日で止まっている（以後の作業なし）。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T08:00:00",
+    "stop": "2026-10-15T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 8,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 11,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 14,
+    "wbsParentUid": null,
+    "wbsOrder": 13,
+    "name": "CR-665 150% 表示でヘルプを 1 画面に収める",
+    "start": "2026-10-15T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:52〜12:00。段階: 起草だけ push 済み（目安 10%）。起草 f3d84fa0 08:52。予定の終わり 12:00 ごろは推測。実績の点は起草の日で止まっている。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T08:00:00",
+    "stop": "2026-10-15T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 8,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 15,
+    "wbsParentUid": null,
+    "wbsOrder": 14,
+    "name": "CR-659 ヘッダーの間隔を直す（利用者の赤ペンの絵を待つ）",
+    "start": "2026-10-24T08:00:00",
+    "finish": "2026-11-01T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 11:00〜13:00。段階: 未起草（目安 0%）。git に CR-659 のコミットは見当たらない。利用者の赤ペンの絵が届くまで始められない。予定の日はすべて推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 16,
+    "wbsParentUid": null,
+    "wbsOrder": 15,
+    "name": "DFC-1990 Shift ドラッグでタスクを別の行へ移しても日付が変わらないかを実物で確かめる",
+    "start": "2026-10-06T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 06:30〜12:00。確かめる物は CR-656（c8edbb21 06:30）で入った。予定の終わりは推測（利用者の次の確認の時間は分からない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 17,
+    "wbsParentUid": null,
+    "wbsOrder": 16,
+    "name": "DFC-2036 暦年をまたぐ文書で、名称ラベルの予定日が 4 桁の年になるかを確かめる",
+    "start": "2026-10-05T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 06:23〜12:00。確かめる物は CR-655（de61d737 06:23）で入った。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 18,
+    "wbsParentUid": null,
+    "wbsOrder": 17,
+    "name": "CR-657 行の題の面にグループの罫線が引かれているかを確かめる",
+    "start": "2026-10-13T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:22〜12:00。CR-657 は 08:22 に着地。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 19,
+    "wbsParentUid": null,
+    "wbsOrder": 18,
+    "name": "CR-658 パレットで「WBS の親を設定」が「WBS の親を表示」の右に在るかを確かめる",
+    "start": "2026-10-14T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:36〜12:00。CR-658 は 08:36 に着地。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 20,
+    "wbsParentUid": null,
+    "wbsOrder": 19,
+    "name": "DFC-1858 書き出しの提案するファイル名に、空白・OS で使えない字・ASCII 以外の字が入らないかを確かめる",
+    "start": "2026-10-04T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 06:00〜12:00。確認の依頼の時刻は分からないので、この表の始まり（06:00）に置いた。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 21,
+    "wbsParentUid": null,
+    "wbsOrder": 20,
+    "name": "PND-713 表示の絞り込みの帯と絵の注の高さ・置き方・字の大きさを決める（任意）",
+    "start": "2026-10-15T08:00:00",
+    "finish": "2026-10-28T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 08:49〜12:00。CR-661 の起草（08:49）が仮置きした寸法。任意の確認。予定の終わりは推測。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 22,
+    "wbsParentUid": null,
+    "wbsOrder": 21,
+    "name": "DFC-1874 中断中のタスクの実績の線を、停止日で止めて矢じりを付けない",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 23,
+    "wbsParentUid": null,
+    "wbsOrder": 22,
+    "name": "DFC-1875 依存線のポインタの矢じりの幅（利用者の「半分に」）を仕様に書く",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 24,
+    "wbsParentUid": null,
+    "wbsOrder": 23,
+    "name": "DFC-1876 使われない旧の口 hasUnsettledTextEntry を消す",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 25,
+    "wbsParentUid": null,
+    "wbsOrder": 24,
+    "name": "DFC-1877 利用者の指摘の戻り止め 2 本を、単体試験の置き場から正しい置き場へ移す",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 26,
+    "wbsParentUid": null,
+    "wbsOrder": 25,
+    "name": "DFC-1879 モノクロのとき、テーマ色の見本もグレーで描く",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 27,
+    "wbsParentUid": null,
+    "wbsOrder": 26,
+    "name": "DFC-1880 ヘルプの最大化を、窓いっぱいではなく日程の領域いっぱいにする",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 28,
+    "wbsParentUid": null,
+    "wbsOrder": 27,
+    "name": "DFC-1881 窓の字の入口の名を「文字サイズ / Font size」にそろえる",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 29,
+    "wbsParentUid": null,
+    "wbsOrder": 28,
+    "name": "DFC-1882 レポートと検索の表の日付の範囲を「〜」から「 - 」にする",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 30,
+    "wbsParentUid": null,
+    "wbsOrder": 29,
+    "name": "DFC-1883 基準線を一時的に上げる許し（JDG-778）を規則に書く",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 31,
+    "wbsParentUid": null,
+    "wbsOrder": 30,
+    "name": "DFC-1940 遅延診断レポートの理由の欄に、行 ID ではなく語を出す",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 32,
+    "wbsParentUid": null,
+    "wbsOrder": 31,
+    "name": "DFC-1941 遅延診断レポートの窓に、記号の字ではなくマーカーの絵を出す",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 33,
+    "wbsParentUid": null,
+    "wbsOrder": 32,
+    "name": "DFC-1942 CR-648 が辞書に入れた語のうち、利用者が書いていない語を確かめる",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 34,
+    "wbsParentUid": null,
+    "wbsOrder": 33,
+    "name": "DFC-2025 Agent API の readSearchRows がボトルネックを返すかを仕様で決める",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 35,
+    "wbsParentUid": null,
+    "wbsOrder": 34,
+    "name": "DFC-2030 選択に混ざるハイライトボックス・コメントボックスも、タスクの本体と一緒に動かす",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 36,
+    "wbsParentUid": null,
+    "wbsOrder": 35,
+    "name": "DFC-1850 プロパティパネルの親の名をリンクにする変更要求を起こす",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 37,
+    "wbsParentUid": null,
+    "wbsOrder": 36,
+    "name": "DFC-2061 狭いプロパティパネルで、色の欄の「テーマに戻す」が右の縁を越えないようにする",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。CR-664 の作業（2026-10-04 午前）で見つかった行。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 38,
+    "wbsParentUid": null,
+    "wbsOrder": 37,
+    "name": "DFC-2062 WBS の親の欄が、既定の幅のプロパティパネルで右の縁を越えないようにする",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。CR-664 の作業（2026-10-04 午前）で見つかった行。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 39,
+    "wbsParentUid": null,
+    "wbsOrder": 38,
+    "name": "仮置き・STOP の印が付いた PND 14 行を決める",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。持ち越し。この表の始まり（2026-10-04 06:00）より前に台帳に入った行。予定の日は置き場所だけで、見積もりではない（推測ですらない）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 40,
+    "wbsParentUid": null,
+    "wbsOrder": 39,
+    "name": "性能を NFR-002 / NFR-003 まで戻す（DFC-1606・DFC-1695・DFC-1811、JDG-1064）",
+    "start": "2026-10-28T08:00:00",
+    "finish": "2026-11-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 12:00〜14:00。NFR-002 / 003 は未達。予定の日はすべて置き場所だけで、見積もりではない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   }
+  ],
+  "resources": [
+   {
+    "uid": 1001,
+    "name": "coordinator",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1002,
+    "name": "user",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 1003,
+    "name": "body",
+    "resourceKind": 1,
+    "isCostResource": false,
+    "calendarUid": null,
+    "carry": {},
+    "carryElements": []
+   }
+  ],
+  "assignments": [
+   {
+    "uid": 2001,
+    "taskUid": 1,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2002,
+    "taskUid": 1,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2003,
+    "taskUid": 2,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2004,
+    "taskUid": 2,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2005,
+    "taskUid": 3,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2006,
+    "taskUid": 3,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2007,
+    "taskUid": 4,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2008,
+    "taskUid": 4,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2009,
+    "taskUid": 5,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2010,
+    "taskUid": 6,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2011,
+    "taskUid": 6,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2012,
+    "taskUid": 7,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2013,
+    "taskUid": 7,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2014,
+    "taskUid": 8,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2015,
+    "taskUid": 8,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2016,
+    "taskUid": 9,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2017,
+    "taskUid": 10,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2018,
+    "taskUid": 11,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2019,
+    "taskUid": 11,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2020,
+    "taskUid": 12,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2021,
+    "taskUid": 13,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2022,
+    "taskUid": 13,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2023,
+    "taskUid": 14,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2024,
+    "taskUid": 14,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2025,
+    "taskUid": 15,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2026,
+    "taskUid": 15,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2027,
+    "taskUid": 16,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2028,
+    "taskUid": 17,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2029,
+    "taskUid": 18,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2030,
+    "taskUid": 19,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2031,
+    "taskUid": 20,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2032,
+    "taskUid": 21,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2033,
+    "taskUid": 22,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2034,
+    "taskUid": 23,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2035,
+    "taskUid": 24,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2036,
+    "taskUid": 25,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2037,
+    "taskUid": 26,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2038,
+    "taskUid": 27,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2039,
+    "taskUid": 28,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2040,
+    "taskUid": 29,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2041,
+    "taskUid": 30,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2042,
+    "taskUid": 31,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2043,
+    "taskUid": 32,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2044,
+    "taskUid": 33,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2045,
+    "taskUid": 33,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2046,
+    "taskUid": 34,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2047,
+    "taskUid": 35,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2048,
+    "taskUid": 36,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2049,
+    "taskUid": 37,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2050,
+    "taskUid": 38,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2051,
+    "taskUid": 39,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2052,
+    "taskUid": 39,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2053,
+    "taskUid": 40,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2054,
+    "taskUid": 40,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   }
+  ],
+  "taskGroups": [
+   {
+    "id": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "parentId": null,
+    "label": "1. push 済み（着地） / Pushed",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "f1bd3a9c-41d4-5573-994c-2dff14546ec0",
+    "parentId": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "label": "CR-655 暦年をまたぐ日付を 4 桁の年にし、検索の状態をボトルネックから並べる",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "588c2d73-1620-5d9c-92f6-029b92abcc5c",
+    "parentId": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "label": "CR-656 Shift ドラッグは行だけ移し、Ctrl + Shift ドラッグは日付ごと写す",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "d601087c-e6fc-59ac-94cf-03e150ef94f8",
+    "parentId": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "label": "CR-657 グループの罫線を行の題の面にも引く",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "47129884-06c6-57d4-bb17-cb1f6b1cbdf2",
+    "parentId": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "label": "CR-658 「WBS の親を設定」を「WBS の親を表示」の右に置く（パレットの並び）",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "ac17244e-fb89-5c29-b1c6-699709a3835e",
+    "parentId": "0dccfc16-1e16-5524-ab3e-0569a74be71e",
+    "label": "push 79d9eaf8（origin/refactor = origin/main）",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "parentId": null,
+    "label": "2. 統合（coord、push 待ち・合流待ち） / Integration",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "c18f0934-28f0-55ed-aaf1-7c174249dbe4",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "CR-662 進捗線をタスクのラベルの手前、コメントボックスの奥に描く",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "ed4efca0-ecf0-519c-a501-7c584c180baf",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "CR-663 タスクのツールチップの担当者・進捗の行に見出しを付け、担当者を 1 行にする",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "ad681337-8031-5e18-8103-ad96a983c43c",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "CR-664 プロパティパネルの色の行を、ほかの欄とそろえる",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "4a3314d3-b69c-58f4-967d-0a40a407395e",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "検査の基準線 4 本を実測まで下げる（JDG-520）",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "333d43c8-8111-519d-a0dc-c2a9fc97652b",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "CR-662〜664 の仕様だけの試験を書いて合流する",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "eac9d909-dd0f-5aa9-8a28-bfc8d5487f8e",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "CR-660 検索と遅延診断の表: 状態・進捗・タスクを先頭に、表計算のように絞り込む（1-1〜1-8）",
+    "derivedFromTaskUid": null,
+    "order": 5,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "3b69ad9d-fd8b-5c08-90e2-825701c91f7b",
+    "parentId": "ac86c55e-8c07-5b9f-b98c-6009d5a53777",
+    "label": "次の push（GT-2 の後、CR-662〜664 と基準線）",
+    "derivedFromTaskUid": null,
+    "order": 6,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "d98ca438-ee8f-5431-8012-59b3b8039341",
+    "parentId": null,
+    "label": "3. 次の CR / Next CRs",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "1fd00b8d-8d18-538d-b396-19403d8e9e12",
+    "parentId": "d98ca438-ee8f-5431-8012-59b3b8039341",
+    "label": "CR-661 検索の面で、チェックしたタスクだけを表示する（CR-660 の後）",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "9db90f7b-6a7f-503b-a9df-b7f919087ed7",
+    "parentId": "d98ca438-ee8f-5431-8012-59b3b8039341",
+    "label": "CR-665 150% 表示でヘルプを 1 画面に収める",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "d391c50d-2a39-5d78-b3e1-ee64ff49fc6d",
+    "parentId": "d98ca438-ee8f-5431-8012-59b3b8039341",
+    "label": "CR-659 ヘッダーの間隔を直す（利用者の赤ペンの絵を待つ）",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "parentId": null,
+    "label": "4. 利用者の実物の確認 / User checks",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "849244b5-f6c7-5eb2-9fda-41255c440cc6",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "DFC-1990 Shift ドラッグでタスクを別の行へ移しても日付が変わらないかを実物で確かめる",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "c82820c0-5333-5b55-91a3-9e280378f5fa",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "DFC-2036 暦年をまたぐ文書で、名称ラベルの予定日が 4 桁の年になるかを確かめる",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "304d079b-8b7d-53f1-8cc2-04a4f32ee25f",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "CR-657 行の題の面にグループの罫線が引かれているかを確かめる",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "4154f380-9883-5e6f-bac1-49226faaea28",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "CR-658 パレットで「WBS の親を設定」が「WBS の親を表示」の右に在るかを確かめる",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "32c9bbef-7df2-5a8c-8640-aeee6eed1c02",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "DFC-1858 書き出しの提案するファイル名に、空白・OS で使えない字・ASCII 以外の字が入らないかを確かめる",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "5ffc6643-c3aa-5616-af34-841842456348",
+    "parentId": "004b115f-7247-57af-aa2c-dfe41df4a9ba",
+    "label": "PND-713 表示の絞り込みの帯と絵の注の高さ・置き方・字の大きさを決める（任意）",
+    "derivedFromTaskUid": null,
+    "order": 5,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "parentId": null,
+    "label": "5. 持ち越し / Carried over",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "6aa33994-be07-5dc8-af17-767c23516e8a",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1874 中断中のタスクの実績の線を、停止日で止めて矢じりを付けない",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "5ce6a4e9-c331-506c-9a15-aa1455d12a47",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1875 依存線のポインタの矢じりの幅（利用者の「半分に」）を仕様に書く",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "91f604cf-93f7-58a3-9e44-650ca7998f21",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1876 使われない旧の口 hasUnsettledTextEntry を消す",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "984f7a50-d7b3-5538-a832-cff517751fa3",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1877 利用者の指摘の戻り止め 2 本を、単体試験の置き場から正しい置き場へ移す",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "07442042-494c-54ac-9cac-3975d74daf6a",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1879 モノクロのとき、テーマ色の見本もグレーで描く",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "89f363e8-f855-5ef9-83bb-81989b9dfac8",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1880 ヘルプの最大化を、窓いっぱいではなく日程の領域いっぱいにする",
+    "derivedFromTaskUid": null,
+    "order": 5,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "f63b7d4d-962d-5b9e-bf28-f5ebae4ba863",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1881 窓の字の入口の名を「文字サイズ / Font size」にそろえる",
+    "derivedFromTaskUid": null,
+    "order": 6,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "4d27b306-14d4-5c08-9d5e-187d9a216556",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1882 レポートと検索の表の日付の範囲を「〜」から「 - 」にする",
+    "derivedFromTaskUid": null,
+    "order": 7,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "2fa87a43-1b9e-59bc-8cdf-f92968205f86",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1883 基準線を一時的に上げる許し（JDG-778）を規則に書く",
+    "derivedFromTaskUid": null,
+    "order": 8,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "5444353f-7ea0-530b-8c9c-6a15c7fafac2",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1940 遅延診断レポートの理由の欄に、行 ID ではなく語を出す",
+    "derivedFromTaskUid": null,
+    "order": 9,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "97f2e2f8-c77b-5e1e-9f81-d9b494dc3d48",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1941 遅延診断レポートの窓に、記号の字ではなくマーカーの絵を出す",
+    "derivedFromTaskUid": null,
+    "order": 10,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "40e9bfb0-ebea-59d1-bf1c-de9fbc69bef4",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1942 CR-648 が辞書に入れた語のうち、利用者が書いていない語を確かめる",
+    "derivedFromTaskUid": null,
+    "order": 11,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "de4f324b-401f-5983-b9f4-c661fe8a1aa9",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-2025 Agent API の readSearchRows がボトルネックを返すかを仕様で決める",
+    "derivedFromTaskUid": null,
+    "order": 12,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "eb8f1ab7-5191-5b88-b433-ac62398b3e49",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-2030 選択に混ざるハイライトボックス・コメントボックスも、タスクの本体と一緒に動かす",
+    "derivedFromTaskUid": null,
+    "order": 13,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "42bd5685-93ce-55b2-944f-ef0f9c1eac7f",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-1850 プロパティパネルの親の名をリンクにする変更要求を起こす",
+    "derivedFromTaskUid": null,
+    "order": 14,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "e5436701-b0b5-5eff-a66e-708ae972a866",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-2061 狭いプロパティパネルで、色の欄の「テーマに戻す」が右の縁を越えないようにする",
+    "derivedFromTaskUid": null,
+    "order": 15,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "5ded133a-36b6-55ba-b18f-8ea1b4729493",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "DFC-2062 WBS の親の欄が、既定の幅のプロパティパネルで右の縁を越えないようにする",
+    "derivedFromTaskUid": null,
+    "order": 16,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "98d2cb26-e16b-57aa-95c7-1546aa315be5",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "仮置き・STOP の印が付いた PND 14 行を決める",
+    "derivedFromTaskUid": null,
+    "order": 17,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "cba12877-76b1-507e-af5a-21384d0dbb32",
+    "parentId": "f0e26345-a9b7-599f-8c54-7e9c69ad3259",
+    "label": "性能を NFR-002 / NFR-003 まで戻す（DFC-1606・DFC-1695・DFC-1811、JDG-1064）",
+    "derivedFromTaskUid": null,
+    "order": 18,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   }
+  ],
+  "taskGroupMembers": [
+   {
+    "taskUid": 1,
+    "groupId": "f1bd3a9c-41d4-5573-994c-2dff14546ec0"
+   },
+   {
+    "taskUid": 2,
+    "groupId": "588c2d73-1620-5d9c-92f6-029b92abcc5c"
+   },
+   {
+    "taskUid": 3,
+    "groupId": "d601087c-e6fc-59ac-94cf-03e150ef94f8"
+   },
+   {
+    "taskUid": 4,
+    "groupId": "47129884-06c6-57d4-bb17-cb1f6b1cbdf2"
+   },
+   {
+    "taskUid": 5,
+    "groupId": "ac17244e-fb89-5c29-b1c6-699709a3835e"
+   },
+   {
+    "taskUid": 6,
+    "groupId": "c18f0934-28f0-55ed-aaf1-7c174249dbe4"
+   },
+   {
+    "taskUid": 7,
+    "groupId": "ed4efca0-ecf0-519c-a501-7c584c180baf"
+   },
+   {
+    "taskUid": 8,
+    "groupId": "ad681337-8031-5e18-8103-ad96a983c43c"
+   },
+   {
+    "taskUid": 9,
+    "groupId": "4a3314d3-b69c-58f4-967d-0a40a407395e"
+   },
+   {
+    "taskUid": 10,
+    "groupId": "333d43c8-8111-519d-a0dc-c2a9fc97652b"
+   },
+   {
+    "taskUid": 11,
+    "groupId": "eac9d909-dd0f-5aa9-8a28-bfc8d5487f8e"
+   },
+   {
+    "taskUid": 12,
+    "groupId": "3b69ad9d-fd8b-5c08-90e2-825701c91f7b"
+   },
+   {
+    "taskUid": 13,
+    "groupId": "1fd00b8d-8d18-538d-b396-19403d8e9e12"
+   },
+   {
+    "taskUid": 14,
+    "groupId": "9db90f7b-6a7f-503b-a9df-b7f919087ed7"
+   },
+   {
+    "taskUid": 15,
+    "groupId": "d391c50d-2a39-5d78-b3e1-ee64ff49fc6d"
+   },
+   {
+    "taskUid": 16,
+    "groupId": "849244b5-f6c7-5eb2-9fda-41255c440cc6"
+   },
+   {
+    "taskUid": 17,
+    "groupId": "c82820c0-5333-5b55-91a3-9e280378f5fa"
+   },
+   {
+    "taskUid": 18,
+    "groupId": "304d079b-8b7d-53f1-8cc2-04a4f32ee25f"
+   },
+   {
+    "taskUid": 19,
+    "groupId": "4154f380-9883-5e6f-bac1-49226faaea28"
+   },
+   {
+    "taskUid": 20,
+    "groupId": "32c9bbef-7df2-5a8c-8640-aeee6eed1c02"
+   },
+   {
+    "taskUid": 21,
+    "groupId": "5ffc6643-c3aa-5616-af34-841842456348"
+   },
+   {
+    "taskUid": 22,
+    "groupId": "6aa33994-be07-5dc8-af17-767c23516e8a"
+   },
+   {
+    "taskUid": 23,
+    "groupId": "5ce6a4e9-c331-506c-9a15-aa1455d12a47"
+   },
+   {
+    "taskUid": 24,
+    "groupId": "91f604cf-93f7-58a3-9e44-650ca7998f21"
+   },
+   {
+    "taskUid": 25,
+    "groupId": "984f7a50-d7b3-5538-a832-cff517751fa3"
+   },
+   {
+    "taskUid": 26,
+    "groupId": "07442042-494c-54ac-9cac-3975d74daf6a"
+   },
+   {
+    "taskUid": 27,
+    "groupId": "89f363e8-f855-5ef9-83bb-81989b9dfac8"
+   },
+   {
+    "taskUid": 28,
+    "groupId": "f63b7d4d-962d-5b9e-bf28-f5ebae4ba863"
+   },
+   {
+    "taskUid": 29,
+    "groupId": "4d27b306-14d4-5c08-9d5e-187d9a216556"
+   },
+   {
+    "taskUid": 30,
+    "groupId": "2fa87a43-1b9e-59bc-8cdf-f92968205f86"
+   },
+   {
+    "taskUid": 31,
+    "groupId": "5444353f-7ea0-530b-8c9c-6a15c7fafac2"
+   },
+   {
+    "taskUid": 32,
+    "groupId": "97f2e2f8-c77b-5e1e-9f81-d9b494dc3d48"
+   },
+   {
+    "taskUid": 33,
+    "groupId": "40e9bfb0-ebea-59d1-bf1c-de9fbc69bef4"
+   },
+   {
+    "taskUid": 34,
+    "groupId": "de4f324b-401f-5983-b9f4-c661fe8a1aa9"
+   },
+   {
+    "taskUid": 35,
+    "groupId": "eb8f1ab7-5191-5b88-b433-ac62398b3e49"
+   },
+   {
+    "taskUid": 36,
+    "groupId": "42bd5685-93ce-55b2-944f-ef0f9c1eac7f"
+   },
+   {
+    "taskUid": 37,
+    "groupId": "e5436701-b0b5-5eff-a66e-708ae972a866"
+   },
+   {
+    "taskUid": 38,
+    "groupId": "5ded133a-36b6-55ba-b18f-8ea1b4729493"
+   },
+   {
+    "taskUid": 39,
+    "groupId": "98d2cb26-e16b-57aa-95c7-1546aa315be5"
+   },
+   {
+    "taskUid": 40,
+    "groupId": "cba12877-76b1-507e-af5a-21384d0dbb32"
+   }
+  ],
+  "taskVisuals": [
+   {
+    "taskUid": 1,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 2,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 3,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 4,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 5,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "diamond",
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 6,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 7,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 8,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 9,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 10,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 11,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 12,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "diamond",
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 13,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 14,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 15,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 16,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 17,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 18,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 19,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 20,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 21,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 22,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 23,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 24,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 25,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 26,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 27,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 28,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 29,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 30,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 31,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 32,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 33,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 34,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 35,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 36,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 37,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 38,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 39,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 40,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   }
+  ],
+  "commentBoxes": [],
+  "highlightBoxes": [],
+  "taskOrigins": [],
+  "baselineTasks": []
+ },
+ "documentSettings": {
+  "actualVisible": true,
+  "assigneeVisible": true,
+  "baselineVisible": false,
+  "dateGridLinesVisible": false,
+  "dependencyVisible": true,
+  "displayScale": 100,
+  "fontScale": "M",
+  "groupGridLinesVisible": true,
+  "levelZeroTreeState": "auto",
+  "percentCompleteVisible": true,
+  "pinnedGroupIds": [],
+  "planDatesVisible": false,
+  "planVisible": true,
+  "progressLineVisible": true,
+  "progressMarkerVisible": true,
+  "rowTitlePanelWidth": 170,
+  "rulerFont": 14,
+  "rulerHeight": 48,
+  "scrollDate": null,
+  "scrollDayOffset": 0,
+  "scrollGroupId": null,
+  "scrollGroupOffset": 0,
+  "stackDirection": "up",
+  "themeMonochrome": false,
+  "zoomX": 1,
+  "zoomY": 1
+ },
+ "documentStamp": {
+  "scheduleUpdatedUtc": "2026-10-04T01:22:23Z",
+  "lastEditedBy": "progress body",
+  "settingsUpdatedUtc": "2026-10-04T01:22:23Z",
+  "fileSavedUtc": null
+ },
+ "changeLog": []
+}

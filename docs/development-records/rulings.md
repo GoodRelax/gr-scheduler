@@ -1678,6 +1678,16 @@
 | JDG-1386 | **「日程全体を診て、全部載せる (Recommended)」**（2026-10-04。問い「モード中の遅延診断はどうしますか？ 例: 伊藤さんの分だけを出しているときに、佐藤さんの「基本設計」がボトルネックだったときです。」への答え。示した択は「日程全体を診て、全部載せる」「レポートも見える分だけ」） | ⭐ 遅延診断はモードに依らず全部のタスクで行い、レポートの表にも全部を載せる。日程の上の印は描くタスクにだけ描く | `docs/spec/01-04-requirements.md` の `FR-130`・`FR-134` —— `change-request/CR-661-the-search-panel-shows-only-the-checked-tasks.md` | 指示 —— change-request/CR-661-the-search-panel-shows-only-the-checked-tasks.md が当てる |
 | JDG-1387 | **「読めて、変えられる (Recommended)」**（2026-10-04。問い「AI から、このモードをどこまで扱えるようにしますか？ 例: 対話欄で「伊藤さんの分だけ見せて」と頼むときです。」への答え。先例として `AM-16`（`focusTask`）を示した。示した択は「読めて、変えられる」「読めるだけ」「触れない」） | ⭐ `Agent API` に、いまのチェックとモードの入切を読む入口と、それを置く入口を足す。置かれたら人の画面の帯で知らせる | `docs/spec/_assets/tbl-glossary.md` の 表 T-107（新しい行 2 つ）—— `change-request/CR-661-the-search-panel-shows-only-the-checked-tasks.md` | 指示 —— change-request/CR-661-the-search-panel-shows-only-the-checked-tasks.md が当てる |
 
+## 2026-10-04 —— 進捗を GRS JSON のガントにする（JDG-1415〜JDG-1417）
+
+⭐ 調整役（セッション「Take over as gr-scheduler coordinator (2026-10-04 evening)」）が立てた進捗の席で受けた言葉である。`JDG-1415` は調整役が受けて本席の指示に逐語で写した言葉、`JDG-1416`・`JDG-1417` は本席の作業中に利用者がチャットで直接書いた言葉である。番号の帯 `JDG-1415`〜`JDG-1419` は調整役が配った（使ったのは `JDG-1417` まで）。成果物は `previous-project-result/38-project-progress/` が持つ。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-1415 | **「進捗は？ 提案チップを出せ。 そいつにGRS JSONで出力させろ」**（2026-10-04。調整役が受け、本席の指示に逐語で写した言葉） | ⭐ いまの作業の進捗を、アプリ自身の形式（`GRS JSON`）の日程にして、GRS のガントで見られるようにする。流れ（push 済み・統合・次の CR・利用者の確認・持ち越し）ごとに `TaskGroup` を 1 つ置く | `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-04.json` | 適用済 |
+| JDG-1416 | **「お前の15分を人間の1日換算で出力しろ。 質問や意見があれば述べよ。」**（2026-10-04 午前。本席が git の日時を集めている最中に届いた 1 通） | ⭐ 日程の時間の軸を換算する —— 実時間の 15 分を、日程の 1 日とする。起点は実時間 2026-10-04 06:00 を日程の 2026-10-04 とした（本席の選び。`CR-655` の起草 06:23 の直前）。暦は毎日を稼働日にした（換算した日に週末は無い）。⚠️ 日程の日付は実際の日付ではない —— 文書の題と `subject` に書いた | `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-04.json` | 適用済 |
+| JDG-1417 | **「タスク名はCR-xxx のような記号だけじゃなくて、具体的な作業名を入れろ。」**（2026-10-04 午前。`JDG-1416` の後、本席が JSON を組んでいる最中に届いた 1 通） | ⭐ タスクの名に、番号に続けて具体的な作業の名を入れる（例「CR-660 検索と遅延診断の表: 状態・進捗・タスクを先頭に、表計算のように絞り込む（1-1〜1-8）」）。行の題（`TaskGroup` の `label`）も同じ名にした | `previous-project-result/38-project-progress/gr-scheduler-progress-2026-10-04.json` | 適用済 |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
