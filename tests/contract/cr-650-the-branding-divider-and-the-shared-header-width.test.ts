@@ -71,7 +71,7 @@ const huedAt = (written: string, hue: number): string => written.replace(/\bH\b/
 const HUE = 214
 
 // see BR-2, EP-1
-const TITLE_LEFT = (S_226 + S_490 * S_462 + 2 * S_491) * S_235 + S_492
+const TITLE_LEFT = (3 * S_226 + S_490 * S_462) * S_235 + S_492
 
 const px = (value: string | undefined): number => Number((value ?? '').replace('px', ''))
 
@@ -97,7 +97,7 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
     expect(S_210).toBeLessThanOrEqual(S_449)
   })
 
-  it('BR-2 EP-1: both rows give the title left edge as (S-226 + seat + 2 x S-491) x S-235 + S-492', () => {
+  it('BR-2 EP-1: both rows give the title left edge as (3 x S-226 + seat) x S-235 + S-492', () => {
     const br2 = rowOf('T-349', 'BR-2').cells.join(' ')
     const ep1 = rowOf('T-076', 'EP-1').cells.join(' ')
     const inOrder = (text: string, ids: readonly string[]): boolean => {
@@ -109,9 +109,10 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
       }
       return true
     }
-    expect(inOrder(br2, ['S-226', 'S-491', 'S-235', 'S-492']), 'BR-2 names the four rows of its sum in order').toBe(true)
+    expect(inOrder(br2, ['S-226', 'S-235', 'S-492']), 'BR-2 names the rows of its sum in order').toBe(true)
+    expect(br2.includes('`S-491`'), 'BR-2 no longer spaces the divider by S-491 (CR-659)').toBe(false)
     expect(inOrder(ep1, ['BR-2', 'BR-7']), 'EP-1 takes the left margin from BR-2 and the divider of BR-7').toBe(true)
-    expect(inOrder(ep1, ['S-490', 'S-462', 'S-491', 'S-492']), 'EP-1 names where the seat, gap and width come from').toBe(true)
+    expect(inOrder(ep1, ['S-490', 'S-462', 'S-226', 'S-492']), 'EP-1 names where the seat, gap and width come from').toBe(true)
   })
 
   it('T-236 S-493: the divider colour resolves to S-149 of the theme, in light and in dark', () => {
@@ -183,18 +184,21 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Document Title
     expect(style.get('background') ?? style.get('background-color')).toBe(PAINT.brandingDivider)
   })
 
-  it('BR-7 S-491: the gap on both sides of the divider is S-491 x S-235 and the divider adds no margin of its own', () => {
+  // WHY: CR-659 retired the S-491 gap here (JDG-1350); the divider's two sides are the inset left of the mark.
+  it('BR-7 S-226: the gap on both sides of the divider is S-226 x S-235, the same as the inset left of the seat', () => {
     const { header, byRole } = drawnHeader()
     const style = styleMap(header)
     expect(style.get('display')).toMatch(/flex/)
-    expect(px(style.get('column-gap') ?? style.get('gap'))).toBeCloseTo(S_491 * S_235, 2)
+    expect(style.get('column-gap') ?? style.get('gap'), 'no flex gap: each side is named by its own row').toBeUndefined()
+    expect(px(style.get('padding-left'))).toBeCloseTo(S_226 * S_235, 2)
     const divider = styleMap(byRole('Branding Divider'))
-    const shorthand = (divider.get('margin') ?? '0').trim().split(/\s+/)
-    // WHY: in the margin shorthand the right side is the 2nd value (or the 1st), the left the 4th (or the right).
-    const right = shorthand[1] ?? shorthand[0] ?? '0'
-    const left = shorthand[3] ?? right
-    const horizontal = [left, right, divider.get('margin-left') ?? '0', divider.get('margin-right') ?? '0']
-    expect(horizontal.map((one) => px(one)), `the divider margin is ${JSON.stringify(divider.get('margin'))}`).toEqual([0, 0, 0, 0])
+    expect(px(divider.get('margin-inline'))).toBeCloseTo(S_226 * S_235, 2)
+    expect(divider.get('margin'), 'the shorthand would override the sides').toBeUndefined()
+  })
+
+  it('HS-9 S-491: Header Commands stand S-491 x S-235 right of the title and file strip', () => {
+    const style = styleMap(drawnHeader().byRole('Header Commands'))
+    expect(px(style.get('margin-left'))).toBeCloseTo(S_491 * S_235, 2)
   })
 
   it('BR-2 BR-7: header order is Branding seat, divider, title and file strip, Header Commands', () => {
@@ -321,7 +325,7 @@ describe('CR-650 EP-1 / BR-6 -- the export picture leaves the seat and the divid
   })
 
   it.each(SCREENS)(
-    'EP-1 BR-2 S-226 S-490 S-462 S-491 S-492 S-235: the title x is the screen left margin times the picture ratio ($width x $height)',
+    'EP-1 BR-2 S-226 S-490 S-462 S-492 S-235: the title x is the screen left margin times the picture ratio ($width x $height)',
     (screen) => {
       const scene = sceneOn(screen)
       const svg = pictureOf(scene)

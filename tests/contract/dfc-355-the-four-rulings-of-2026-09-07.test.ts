@@ -483,7 +483,6 @@ const S_225_TITLE_FONT_PX = settingsRowValue('S-225')
 const S_226_TITLE_INSET_PX = settingsRowValue('S-226')
 const S_462_SEAT_OVER_GLYPH = settingsRowValue('S-462')
 const S_490_BRANDING_FONT_PX = settingsRowValue('S-490')
-const S_491_HEADER_GAP_PX = settingsRowValue('S-491')
 const S_492_DIVIDER_WIDTH_PX = settingsRowValue('S-492')
 const DIVIDER_SIDES = 2
 const S_235_TWO_THIRDS = settingsRowValue('S-235')
@@ -593,9 +592,9 @@ describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () =
     ).toBeCloseTo(S_225_TITLE_FONT_PX * S_235_TWO_THIRDS, 2)
     expect(
       drawn.x,
-      'EP-1 / BR-2 (MUST): the left inset is S-226, the Branding seat S-490 x S-462 and the divider gaps 2 x S-491 of table T-206 at that same S-235 two thirds, plus the divider S-492 -- the picture writes every length to two decimals',
+      'EP-1 / BR-2 (MUST): the left inset is S-226, the Branding seat S-490 x S-462 and the divider gaps 2 x S-226 (BR-7 since CR-659) of table T-206 at that same S-235 two thirds, plus the divider S-492 -- the picture writes every length to two decimals',
     ).toBeCloseTo(
-      (S_226_TITLE_INSET_PX + S_490_BRANDING_FONT_PX * S_462_SEAT_OVER_GLYPH + DIVIDER_SIDES * S_491_HEADER_GAP_PX) *
+      (S_226_TITLE_INSET_PX + S_490_BRANDING_FONT_PX * S_462_SEAT_OVER_GLYPH + DIVIDER_SIDES * S_226_TITLE_INSET_PX) *
         S_235_TWO_THIRDS +
         S_492_DIVIDER_WIDTH_PX,
       2,

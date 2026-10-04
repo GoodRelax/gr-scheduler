@@ -97,7 +97,8 @@ describe('BR-2 -- the seat, and the title at its right edge', () => {
     expect(style.get('flex-shrink')).toBe('0')
   })
 
-  it('the title starts after the seat, the divider and two S-491 gaps: (S-226 + S-490 x S-462 + 2 x S-491) x S-235 + S-492', () => {
+  // WHY: CR-659 retired the two S-491 gaps beside the divider; BR-7 now spaces it by S-226 on both sides.
+  it('the title starts after the seat, the divider and two S-226 gaps: (3 x S-226 + S-490 x S-462) x S-235 + S-492', () => {
     const { header, all, branding, title } = drawnHeader()
     const seat = branding.parentNode as FakeElement
     const divider = all.find((one) => one.getAttribute('data-role') === 'Branding Divider')
@@ -110,10 +111,11 @@ describe('BR-2 -- the seat, and the title at its right edge', () => {
       header.children.indexOf(strip),
     )
     expect(strip.children[0], 'the title leads its strip').toBe(title.parentNode)
-    const gap = px(styleMap(header).get('column-gap'))
+    expect(styleMap(header).get('column-gap'), 'no flex gap beside the divider').toBeUndefined()
+    const gap = px(styleMap(divider as FakeElement).get('margin-inline'))
     const left = px(styleMap(header).get('padding-left')) + px(styleMap(seat).get('width')) + gap +
       px(styleMap(divider as FakeElement).get('width')) + gap
-    const derived = chromeScaledPx(SIZES['S-226'] + SIZES['S-490'] * SIZES['S-462'] + 2 * SIZES['S-491']) + SIZES['S-492']
+    const derived = chromeScaledPx(3 * SIZES['S-226'] + SIZES['S-490'] * SIZES['S-462']) + SIZES['S-492']
     expect(left).toBeCloseTo(derived, 6)
   })
 })
