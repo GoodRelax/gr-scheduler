@@ -716,6 +716,18 @@ export function anchoredEntry(
   return entry
 }
 
+// see IN-3, DFC-1287
+// WHY: the renderer names only the help's surface (isPointerOnHelp); a plain key would catch other parts.
+/** @purity non-pure */
+function keyedBySurfaceOnly(anchors: Map<string, HTMLElement>, surface: string): void {
+  for (const [key, entry] of [...anchors]) {
+    const icon = entry.getAttribute('data-icon')
+    if (icon === null || key !== anchorKey({ kind: 'icon', icon })) continue
+    anchors.delete(key)
+    anchors.set(anchorKey({ kind: 'icon', icon, surface }), entry)
+  }
+}
+
 export interface ScreenSurfaceWiring {
   readonly host: Document
   readonly mount: Element
@@ -878,8 +890,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
   let langShown = ''
-  let headerHeightPx = 0
-  let isHeaderHeightSettled = false
+  let headerHeightPx: number | null = null
   let paletteBandPx = { width: 0, height: 0 }
   let paletteElementDrawn: HTMLElement | null = null
   let paletteBandDrawn: HTMLElement | null = null
@@ -889,13 +900,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   /** @purity non-pure */
   function reportHeaderHeight(): boolean {
     const measured = appHeader.getBoundingClientRect().height
-    if (isHeaderHeightSettled && measured === headerHeightPx) return false
-    isHeaderHeightSettled = true
+    if (measured === headerHeightPx) return false
     headerHeightPx = measured
     onAppHeaderHeightPx(measured)
     return true
   }
 
+  /** @purity non-pure */
+  function headerTopPx(): number {
+    return headerHeightPx ?? 0
+  }
   // see FR-053, JDG-660
   // WHY: measured on a palette or frame change only, not per frame; the drawn rectangles are the
   // truth, since content decides the palette's width (S-135a note).
@@ -942,7 +956,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       (titleEdge === null
         ? STYLE.hidden
         : STYLE.rowTitlePanel +
-            `left:0;top:${headerHeightPx}px;width:${titleEdge.x}px;bottom:0;`) + zIndexStyle('UZ-11'),
+            `left:0;top:${headerTopPx()}px;width:${titleEdge.x}px;bottom:0;`) + zIndexStyle('UZ-11'),
     )
     if (view.propertiesPanel === null) {
       propertiesPanel.setAttribute('style', STYLE.hidden + zIndexStyle('UZ-11'))
@@ -951,12 +965,19 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const propertiesEdge = panelEdge(view.frame, 'propertiesPanel')
     const place =
       propertiesEdge === null
-        ? `right:0;top:${headerHeightPx}px;bottom:0;width:max-content;`
+        ? `right:0;top:${headerTopPx()}px;bottom:0;width:max-content;`
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
-          `top:${headerHeightPx}px;right:0;bottom:0;`
+          `top:${headerTopPx()}px;right:0;bottom:0;`
     propertiesPanel.setAttribute('style', propertiesPanelStyle() + place + zIndexStyle('UZ-11'))
     // WHY: a new panel width re-wraps every text field, so each is grown again (FR-006).
     growWrappingFields(propertiesPanel)
+  }
+
+  /** @purity non-pure */
+  function drawHelp(helpModal: ScreenView['openModal'], isContentChanged: boolean): void {
+    const drawn: { anchors?: Map<string, HTMLElement> } = {}
+    help.draw(helpModal, isContentChanged, () => (drawn.anchors = anchorsOf('helpModal')))
+    if (drawn.anchors !== undefined) keyedBySurfaceOnly(drawn.anchors, HELP_MODAL_SURFACE)
   }
 
   // see IF-9
@@ -1010,11 +1031,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('rowTitlePanel')) {
       fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
-      reportRowControlsHeight(rowControlsMeasureKey(view, readTheme(), headerHeightPx))
+      reportRowControlsHeight(rowControlsMeasureKey(view, readTheme(), headerTopPx()))
       const rowsTop = rowsTopPx(view.rowTitlePanel)
       for (const corner of head) {
         if (rowsTop === null) corner.removeAttribute('data-corner-band')
-        else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
+        else corner.setAttribute('data-corner-band', String(rowsTop - headerTopPx()))
       }
       markHeadEntries(
         { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow },
@@ -1058,7 +1079,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
-    if (changed('helpModal') || changed('helpPlace')) help.draw(helpModal, changed('helpModal'), () => anchorsOf('helpModal'))
+    if (changed('helpModal') || changed('helpPlace')) drawHelp(helpModal, changed('helpModal'))
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
     if (changed('searchPanel')) layers.showOnlyCheckedBarLayer.replaceChildren(...showOnlyCheckedBarElements(host, view.searchPanel))
     report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
@@ -1077,7 +1098,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (isHeaderMoved || changed('frame') || changed('propertiesPanel')) placePanels(view)
     if (changed('dialogueField')) dialogue.draw(view.dialogueField ?? null, anchorsOf('dialogueField'), zIndexStyle('UZ-9'))
     if (isHeaderMoved || changed('notices')) {
-      noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;` + zIndexStyle('UZ-4'))
+      noticeLayer.setAttribute('style', STYLE.notices + `top:${headerTopPx()}px;` + zIndexStyle('UZ-4'))
     }
 
     if (changed('tooltips')) {

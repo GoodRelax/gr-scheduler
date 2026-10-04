@@ -45,6 +45,11 @@ const OPEN_CHOOSER = 'Open Chooser'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
+const ROSTER_CHOOSE_ALL_ENTRY: IconId = 'IC-63'
+const ROSTER_CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
+const ROSTER_CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
+const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
+
 // see FR-035, OP-16
 // WHY: single-html-shell.ts spells FR-035's tab heading too; one holder needs a T-064 member (DFC-1780).
 const UNTITLED_DOCUMENT_TITLE = 'Untitled'
@@ -246,7 +251,6 @@ function surfaceHeading(surface: string, language: DisplayLanguage): string {
   return word === '' ? NO_WORDS : word
 }
 
-// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here roster entries never are (DFC-567)
 /** @purity pure */
 function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
   return {
@@ -316,6 +320,20 @@ function rosterResourcesOf(
     isSelected: selectedUids.has(resource.uid),
     unassignedTaskNames: unassignedTaskNamesOf(tasksReached.get(resource.uid), tasksByUid),
   }))
+}
+
+// see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66
+// WHY: counted on the drawn roster (FR-029); IC-65 replaces the choice, so it is idle once the
+// choice already is exactly the unreferenced resources.
+// DEVIATION: spec says a faint entrance tells its reason when pressed (FR-029); here a faint IC-63..IC-65 tells none (DFC-567)
+/** @purity pure */
+function hasRosterTarget(icon: IconId, resources: readonly RosterResource[]): boolean {
+  const isChosenSome = resources.some((one) => one.isSelected)
+  if (icon === ROSTER_CHOOSE_ALL_ENTRY) return resources.some((one) => !one.isSelected)
+  if (icon === ROSTER_CLEAR_CHOSEN_ENTRY || icon === ROSTER_DELETE_ENTRY) return isChosenSome
+  if (icon !== ROSTER_CHOOSE_UNREFERENCED_ENTRY) return true
+  const hasUnreferenced = resources.some((one) => !one.isReferenced)
+  return hasUnreferenced && resources.some((one) => one.isSelected === one.isReferenced)
 }
 
 // see FR-069
@@ -407,12 +425,9 @@ export function openModalFromSession(
   const heading = surfaceHeading(surface, language)
 
   if (surface === RESOURCE_ROSTER) {
-    return {
-      surface: RESOURCE_ROSTER,
-      heading,
-      commands,
-      resources: rosterResourcesOf(schedule, readings),
-    }
+    const resources = rosterResourcesOf(schedule, readings)
+    const rosterCommands = commands.map((item) => ({ ...item, isEnabled: hasRosterTarget(item.icon, resources) }))
+    return { surface: RESOURCE_ROSTER, heading, commands: rosterCommands, resources }
   }
 
   if (surface === EXPORT_CHOOSER) {
