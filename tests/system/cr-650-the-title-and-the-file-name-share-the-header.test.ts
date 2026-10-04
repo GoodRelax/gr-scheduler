@@ -27,12 +27,16 @@ function settingOf(id: string): number {
 }
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
+const S_226 = settingOf('S-226')
 const S_235 = settingOf('S-235')
 const S_491 = settingOf('S-491')
 const S_492 = settingOf('S-492')
 
-// see HS-9, HS-10, BR-7
+// see HS-9, HS-10
 const GAP_PX = S_491 * S_235
+
+// see BR-7 -- CR-659 moved the divider's two sides from S-491 to S-226, the inset left of the mark
+const DIVIDER_GAP_PX = S_226 * S_235
 
 // WHY: half a pixel either way is subpixel layout, not a different gap.
 const SUBPIXEL = 0.75
@@ -228,7 +232,7 @@ test('CR-650 HS-8 HS-9 HS-10 BR-7: a long title and a long file name share the h
     expect(seen.divider.bottom, 'BR-7: the divider reaches the bottom of the band').toBeGreaterThanOrEqual(
       seen.header.bottom - seen.headerBorderBottom - SUBPIXEL,
     )
-    expect(seen.ground.left - seen.divider.right, 'BR-7: S-491 x S-235 right of the divider').toBeCloseTo(GAP_PX, 0)
+    expect(seen.ground.left - seen.divider.right, 'BR-7: S-226 x S-235 right of the divider').toBeCloseTo(DIVIDER_GAP_PX, 0)
 
     expect(seen.commands.left - seen.status.right, 'HS-9: S-491 x S-235 between the box and Header Commands').toBeCloseTo(
       GAP_PX,

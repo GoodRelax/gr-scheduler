@@ -304,7 +304,7 @@ export const STYLE = {
   documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
   brandingDivider:
-    `flex-shrink:0;align-self:stretch;margin:-${APP_HEADER_BLOCK_PADDING} 0;background:${PAINT.brandingDivider};`,
+    `flex-shrink:0;align-self:stretch;margin-block:-${APP_HEADER_BLOCK_PADDING};background:${PAINT.brandingDivider};`,
   // WHY: x-only clip lets file lines hang into the padding the title's border-block grounds; contain:inline-size: name adds no width.
   titleAndFileStrip:
     'display:flex;align-items:center;flex:1 1 0;min-width:0;align-self:stretch;overflow-x:clip;overflow-y:visible;',
@@ -1469,7 +1469,7 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   'S-225': 20,
   'S-226': 12,
   'S-461': 0.05,
-  'S-462': 2.5,
+  'S-462': 1.92,
   'S-463': 700,
   'S-490': 16.5,
   'S-491': 18,

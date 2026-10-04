@@ -145,7 +145,7 @@ function appHeaderSvg(
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
   // DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
   const seatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']
-  const dividerGapsPx = DIVIDER_SIDES * NOT_STORED_DOCUMENT_TITLE_SIZES['S-491']
+  const dividerGapsPx = DIVIDER_SIDES * NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']
   const scaledInsetPx = (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx + dividerGapsPx) * chrome
   const x = (band.x + scaledInsetPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']) * ratio
   const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
@@ -277,7 +277,7 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   'S-225': 20,
   'S-226': 12,
   'S-461': 0.05,
-  'S-462': 2.5,
+  'S-462': 1.92,
   'S-463': 700,
   'S-490': 16.5,
   'S-491': 18,

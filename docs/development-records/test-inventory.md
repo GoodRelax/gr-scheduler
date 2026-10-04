@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 171 | 2377 | 3 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 171 | 2378 | 3 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 44 | 288 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 172 | 3855 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 407 | 6624 | 11 | 18 | 10 | 1 |
+| **all** | | | 407 | 6625 | 11 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -140,7 +140,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-621-a-window-answers-its-title-band-and-edges.test.ts` | windowPartAt (semi-pure-b), windowPartOf (pure) | - | T-337 |
 | `tests/unit/cr-622-the-copyright-link.test.ts` | linkElement (non-pure) | - | FR-069, FR-073 |
 | `tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts` | anchorKey (pure), baselineHint (pure), deadlineHint (pure), guideCursorLabelOf (pure), keepTooltipsInside (non-pure), regionsFromScreen (pure), tooltipElement (non-pure), tooltipsFromScreenView (pure) | - | T-023d |
-| `tests/unit/cr-628-the-branding-seat.test.ts` | appHeaderStyle (pure), chromeScaledPx (pure), fillAppHeader (non-pure), themeStyle (pure) | - | 14 rows |
+| `tests/unit/cr-628-the-branding-seat.test.ts` | appHeaderStyle (pure), chromeScaledPx (pure), fillAppHeader (non-pure), themeStyle (pure) | - | 15 rows |
 | `tests/unit/cr-631-wbs-parent-hits-and-hands.test.ts` | advanceScreenSession (pure), armedByEntry (pure), commandFromInput (pure), emptySelection (pure), grabSizesOf (pure), isParentPickingCtrlClick (pure), itemAtPointer (untagged), itemsInMarquee (pure), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure), wbsParentResolutionsOf (pure) | - | FR-135, T-023a, T-023b, T-023c, T-023d, T-351 |
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | choiceStepOf (pure), commandPaletteFromSession (pure), confirmationFromSession (pure), drawnSettingsOf (pure), emptySelection (pure), grabSizesOf (pure), isMixedParentPick (pure), itemAtPointer (untagged), pointerImageOf (pure), pointerRowOf (pure), selectionOfAll (pure), selectionOfParentChoice (pure), wbsParentHoldOf (non-pure), wbsParentParts (pure) | - | FR-135, T-076, T-109, T-234, T-269, T-351 |
 | `tests/unit/cr-631-wbs-parent-resolutions-and-arrows.test.ts` | diagnoseDelay (pure), emptySelection (pure), selectionWith (pure), wbsParentResolutionsOf (pure), workingCalendarOf (pure) | yes | FR-135, T-318 |
@@ -336,7 +336,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-619-fr-060-every-chooser-opens-in-the-last-folder.test.ts` | 13 | FR-060 | - | T-024 | IF-3, OP-2, OP-9, S-452, SK-11 | - | - | - | - |
 | `tests/contract/cr-620-seam-4-help-footnote.contract.test.ts` | 9 | FR-036, FR-038, FR-073 | - | - | IC-20, IC-54, PI-37, S-202, S-350 | - | - | - | - |
 | `tests/contract/cr-633-delay-diagnostics-judges-by-the-link-ends.contract.test.ts` | 27 | FR-011, FR-135, FR-136 | - | T-310, T-311, T-312, T-313, T-315, T-316, T-318 | AT-46, BD-1, BD-2, DG-1, DG-2, DG-3, DG-4, DQ-2, DQ-3, DQ-4, DW-2, DX-4, DX-5, DX-7, PS-4, VC-11, VC-13, VO-1, VO-3, VO-4, VO-5, VS-2, VS-3 | - | - | - | - |
-| `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 17 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
+| `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 18 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
 | `tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts` | 4 | FR-021 | - | - | EX-1, EX-13, EX-14 | - | - | - | yes |
 | `tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 9 | FR-042, FR-098 | - | T-041, T-076, T-202, T-216 | EP-3, S-68, U-18, U-22 | - | - | - | - |
 | `tests/contract/cr-660-the-two-tables-lead-with-status-and-filter-like-excel.contract.test.ts` | 32 | FR-134, FR-151 | - | T-019a, T-206, T-330, T-331, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-123, IC-124, IC-125, IC-126, IF-9, PM-4, PS-1, PS-2, PS-3, PS-4, PS-5, RW-4, RW-9, RW-10, SJ-1, SQ-1, SQ-5, SQ-7, SQ-11, SQ-12, SQ-13, SV-4, SV-6, SV-7, SV-18 | - | - | - | - |
@@ -453,7 +453,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
 | `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
 | `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333, T-337, T-347 | DT-4, IC-127, S-429, SJ-1, SJ-3, SV-15, SV-16, U-66, UZ-5, UZ-6 | - | - | - | - |
-| `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
+| `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, S-226, S-491, U-55 | - | - | - | - |
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
 | `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18 | - | - | - | - |
@@ -538,7 +538,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-621-a-window-answers-its-title-band-and-edges.test.ts` | 9 | - | - | T-337 | GR-24, GR-25, S-423, S-424, WB-2, WB-3, WB-8, WB-9 | - | - | - | - |
 | `tests/unit/cr-622-the-copyright-link.test.ts` | 3 | FR-069, FR-073 | - | - | S-459 | - | - | - | - |
 | `tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts` | 10 | - | - | T-023d | CU-3, DC-9, EZ-6, GR-23, GR-26, GR-27, IN-3, S-148, S-439, TL-1, TL-2, TL-3 | - | - | - | - |
-| `tests/unit/cr-628-the-branding-seat.test.ts` | 6 | - | - | - | BR-1, BR-2, BR-3, BR-4, S-147, S-226, S-235, S-459, S-461, S-462, S-464, S-490, S-491, S-492 | - | - | - | - |
+| `tests/unit/cr-628-the-branding-seat.test.ts` | 6 | - | - | - | BR-1, BR-2, BR-3, BR-4, BR-7, S-147, S-226, S-235, S-459, S-461, S-462, S-464, S-490, S-491, S-492 | - | - | - | - |
 | `tests/unit/cr-631-wbs-parent-hits-and-hands.test.ts` | 26 | FR-135 | - | T-023a, T-023b, T-023c, T-023d, T-351 | AR-7, IC-142, IP-2, PTD-3, PTD-5, RS-69, RS-70, SK-3, SL-1, SL-4, WL-1, WL-2, WL-3, WL-4, WL-5, WL-6, WL-7, WL-8, WL-10, WL-11, WL-12 | - | - | - | - |
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | 28 | FR-135 | - | T-076, T-109, T-234, T-269, T-351 | AR-7, IC-81, IC-141, IC-142, PK-17, PK-18, QN-12, S-249, S-389, S-398, S-447, S-484, S-486, SL-8, VO-4, WL-13, WL-14 | - | - | - | - |
 | `tests/unit/cr-631-wbs-parent-resolutions-and-arrows.test.ts` | 22 | FR-135 | - | T-318 | IP-1, IP-2, IP-3, IP-4, IP-5, S-19, S-300, S-485, S-486, SL-8, VO-4 | - | - | - | - |

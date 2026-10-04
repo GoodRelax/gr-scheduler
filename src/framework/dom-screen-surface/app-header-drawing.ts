@@ -21,13 +21,18 @@ const DISPLAY_LANGUAGE_ENTRY = 'IC-21'
 
 const STROKE_SIDES = 2
 
-// see EP-1, FR-051, BR-7, HS-9
+// see EP-1, FR-051
 /** @purity pure */
 export function appHeaderStyle(): string {
-  const inset = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
-  return `${STYLE.appHeader}padding-left:${inset}px;column-gap:${appHeaderGapPx()}px;`
+  return `${STYLE.appHeader}padding-left:${appHeaderInsetPx()}px;`
 }
 
+// see EP-1, BR-2, BR-7
+// WHY: one row for the left inset and both sides of the divider, so the mark's two margins stay equal.
+/** @purity pure */
+const appHeaderInsetPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
+
+// see HS-9, HS-10
 /** @purity pure */
 const appHeaderGapPx = (): number => chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-491'])
 
@@ -113,7 +118,8 @@ export function fillAppHeader(
   const title = part(host, 'span', ROLE.documentTitle, documentTitleStyle())
   title.textContent = items.documentTitle
   const ruleWidth = NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']
-  const divider = part(host, 'span', ROLE.brandingDivider, `${STYLE.brandingDivider}width:${ruleWidth}px;`)
+  const dividerStyle = `${STYLE.brandingDivider}width:${ruleWidth}px;margin-inline:${appHeaderInsetPx()}px;`
+  const divider = part(host, 'span', ROLE.brandingDivider, dividerStyle)
   const groundStyle = `${STYLE.documentTitleGround}padding-right:${appHeaderGapPx()}px;`
   const titleGround = part(host, 'span', ROLE.documentTitleGround, groundStyle)
   titleGround.append(title)
@@ -127,7 +133,7 @@ export function fillAppHeader(
   const strip = part(host, 'span', ROLE.titleAndFileStrip, STYLE.titleAndFileStrip)
   strip.append(titleGround, fileStatus)
 
-  const commands = part(host, 'span', ROLE.headerCommands, STYLE.headerCommands)
+  const commands = part(host, 'span', ROLE.headerCommands, `${STYLE.headerCommands}margin-left:${appHeaderGapPx()}px;`)
   for (const item of items.commands) {
     const entry = commandEntry(host, item)
     // TRAP: after commandEntry, never before: fillEntry replaces the body and drops the code.
