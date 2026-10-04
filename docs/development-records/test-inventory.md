@@ -451,7 +451,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
 | `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
-| `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333 | IC-127, S-429, SJ-3, SV-15, SV-16, U-66 | - | - | - | - |
+| `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333, T-337, T-347 | DT-4, IC-127, S-429, SJ-1, SJ-3, SV-15, SV-16, U-66, UZ-5, UZ-6 | - | - | - | - |
 | `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |

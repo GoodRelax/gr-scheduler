@@ -11,7 +11,7 @@ const REPORT = `[data-role="${bare(rowOf(T_103, 'U-66').cells[0] ?? '')}"]`
 const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const MAXIMISE = rowOf(specTable('T-109'), 'IC-130').id
 const TEXT_SIZE = rowOf(specTable('T-109'), 'IC-127').id
-const NAME_CELL = `${REPORT} td[data-search-task]`
+const JUMP_COLUMN = rowOf(specTable('T-347'), 'DT-4').id
 const STEPS = specTable('T-333').rows.map((one) => Number(bare(one.by['値'] ?? '').replace(/\D+$/, '')))
 
 let browser: Browser | null = null
@@ -44,6 +44,28 @@ async function press(page: Page, selector: string): Promise<void> {
   await page.mouse.down()
   await page.mouse.up()
   await settle(page)
+}
+
+// see SJ-1, DT-4, T-337
+// WHY: since CR-660 moved DT-4 left, the first name cell can sit under the palette (UZ-5
+// in front of UZ-6); the case presses the first name cell whose centre is the cell.
+/** @purity non-pure */
+async function reachableNameCell(page: Page): Promise<{ readonly x: number; readonly y: number } | null> {
+  return page.evaluate(({ report, column }: { readonly report: string; readonly column: string }) => {
+    const window = document.querySelector(report)
+    const headings = [...(window?.querySelectorAll('thead th') ?? [])]
+    const at = headings.findIndex((one) => one.getAttribute('data-column') === column)
+    if (window === null || at < 0) return null
+    for (const line of window.querySelectorAll('tbody tr')) {
+      const cell = line.children[at]
+      const rect = cell?.getBoundingClientRect()
+      if (cell === undefined || rect === undefined || !cell.hasAttribute('data-search-task')) continue
+      const point = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+      const hit = document.elementFromPoint(point.x, point.y)
+      if (hit !== null && cell.contains(hit)) return point
+    }
+    return null
+  }, { report: REPORT, column: JUMP_COLUMN })
 }
 
 /** @purity non-pure */
@@ -95,7 +117,13 @@ test.describe('CR-648 -- the report window fixes on the shipped build', () => {
       await press(page, `${REPORT} [data-icon="${MAXIMISE}"]`)
       const maximised = await reportBox(page)
       expect(maximised.width, 'premise: IC-130 widened the window').toBeGreaterThan(normal.width)
-      await press(page, NAME_CELL)
+      const nameCell = await reachableNameCell(page)
+      expect(nameCell, 'premise: a task-name cell of the jump column (SJ-1, DT-4) can be pressed').not.toBeNull()
+      if (nameCell === null) return
+      await page.mouse.move(nameCell.x, nameCell.y)
+      await page.mouse.down()
+      await page.mouse.up()
+      await settle(page)
       const after = await reportBox(page)
       expect(after, 'SJ-3: the window is back at its normal size after the jump').toEqual(normal)
     } finally {
