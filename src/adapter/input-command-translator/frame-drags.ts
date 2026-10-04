@@ -100,7 +100,7 @@ export function scrollbarFollow(input: PointerInput, context: InputContext): Tra
   return panTo(context, by.dx, by.dy)
 }
 
-// see FR-052, CM-67
+// see FR-052, CM-67, FR-100, T-290
 /** @purity pure */
 export function commandFromPanelDivider(
   panel: NonNullable<ScreenPart['dividerPanel']>,
@@ -110,10 +110,9 @@ export function commandFromPanelDivider(
 ): TranslatedInput {
   if (panel !== 'rowTitlePanel') return CONSUMED_ELSEWHERE
   const settings = context.document.documentSettings
-  const travelled = release.x - press.at.x
-  return changed([
-    { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: rowTitlePanelWidthAfterDrag(settings, travelled) },
-  ])
+  const rowTitlePanelWidth = rowTitlePanelWidthAfterDrag(settings, release.x - press.at.x)
+  if (rowTitlePanelWidth === settings.rowTitlePanelWidth) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth }])
 }
 
 // see FR-052, GR-22, S-171, S-248, T-280

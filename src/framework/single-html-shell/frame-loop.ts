@@ -142,7 +142,6 @@ import {
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
   DEFAULT_ROW_NAME,
-  dismissKeyOf,
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
@@ -172,6 +171,7 @@ import {
   type RaisedNotice,
   type ScreenPart,
   type ScreenSurface,
+  type ScreenView,
   type ScreenViewReadings,
   type SearchFilterChange,
   type VerticalWhole,
@@ -1161,6 +1161,14 @@ export function standingNoticesIn(session: ScreenSession): readonly StandingNoti
   return onScreen.kind === 'shown' ? onScreen.standing : []
 }
 
+// see FR-099, CM-42
+/** @purity pure */
+function resourcePruningOf(session: ScreenSession, schedule: Document['schedule']): readonly SessionEvent[] {
+  const chosen = session.selection.chosenResources
+  const kept = chosen.filter((uid) => schedule.resources.some((one) => one.uid === uid))
+  return kept.length === chosen.length ? [] : [{ type: 'resourcesPicked', chosenResources: kept }]
+}
+
 // see WS-2, T-286
 /** @purity pure */
 function isDeliveringNoticesIn(session: ScreenSession): boolean {
@@ -1688,10 +1696,10 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
   return isTableWindow && (input.kind === 'wheel' || on.entry === null)
 }
 
-// see IN-5a, SV-5
+// see IN-5a, SV-5, IN-4
 /** @purity pure */
-function pickedObjectsOf(input: HumanInput, context: InputContext): Selection {
-  return isTypedIntoSearchWord(input, context) ? context.selection : selectionFromInput(input, context)
+function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: EscapeTarget | null): Selection {
+  return isTypedIntoSearchWord(input, context) ? context.selection : selectionFromInput(input, context, escapeLevel)
 }
 
 // see IN-1, IN-1a
@@ -2160,6 +2168,7 @@ export function frameLoop(
   let pointerWalk: PointerWalk | null = null
   let drawnPicture: DrawnPicture | null = null
   let isTooltipStanding = false
+  let shownNotices: ScreenView['notices'] = []
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
   const changeWatchers = emptyChangeWatchers()
@@ -2176,6 +2185,7 @@ export function frameLoop(
       }
       held = next
       pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), held.document.schedule))
+      for (const pruned of resourcePruningOf(session, held.document.schedule)) sendToSession(pruned, null)
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (isSizeSettled(environment)) ask()
     },
@@ -2416,6 +2426,7 @@ export function frameLoop(
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
+    shownNotices = screenView.notices
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
@@ -2576,12 +2587,12 @@ export function frameLoop(
     if (isSizeSettled(environment)) ask()
   }
 
-  // see NT-8, T-286
-  // WHY: the surface names the pressed telling by its dismiss key; the region takes the reason.
+  // see NT-4, NT-8, T-286
+  // WHY: the key names the drawn surface; a gathered one stands for every telling it holds.
   /** @purity non-pure */
   function dismissNoticeByKey(answered: string, frame: FrameValues): void {
-    const told = raisedNoticesOf(session).find((one) => dismissKeyOf(one) === answered)
-    if (told !== undefined) sendToSession({ type: 'noticeDismissPressed', reason: told.reason }, frame)
+    const tellings = shownNotices.find((one) => one.dismissKey === answered)?.raisedNotices ?? []
+    for (const told of tellings) sendToSession({ type: 'noticeDismissPressed', reason: told.reason }, frame)
   }
 
   // see NT-8, SK-19, T-283
@@ -3416,6 +3427,7 @@ export function frameLoop(
         beginPointerPress(pressed, partUnderPointer, frame)
       }
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
+        endPointerPress(false, frame)
         dismissNoticeByKey(partUnderPointer.noticeDismissKey, frame)
         ask()
         recordLine(hands, interactionRecorder, 'done', 'spent=noticeDismiss frame=yes')
@@ -3442,7 +3454,7 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context), context.selection, pointerAt)
+    const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context, escapeLevel), context.selection, pointerAt)
     const hasChoiceMoved = pickedObjects !== context.selection
     if (hasChoiceMoved) {
       sendToSession({ type: 'objectsPicked', pickedObjects }, frame)

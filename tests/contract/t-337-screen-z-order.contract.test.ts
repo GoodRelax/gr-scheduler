@@ -122,6 +122,7 @@ const NOTICE: Notice = {
   affectedCount: 3,
   dismissText: 'OK',
   dismissKey: 'notice-1',
+  raisedNotices: [],
 }
 
 const CONFIRMATION: Confirmation = {
