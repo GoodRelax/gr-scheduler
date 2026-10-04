@@ -210,7 +210,7 @@
 | W2-D5 | `open-modals-drawing.ts`・`dom-screen-surface.ts` | 保存の面の 1 行・`S-514`・幅の上限を外す（`DFC-1357`）。2 つの面の題の行を `WB-10` にし、帯で動かす（`DFC-1723`）。⚠️ `S-514` を src へ運ぶには `tools/generate_entity_types.py` の群に足す（`gen:check` はそれ無しでも緑） |
 | W2-D1 | `input-command-translator.ts` | `Document Title` の上のダブルクリックで `SK-9` と同じ欄を開く（`DFC-1721`） |
 
-- ⭐ **毎フレームの経路**: 本書（仕様）は触れない。W2-D5 の描き方は面を描く道に在る —— 同持ち場が perf-pending に行を足す。
+- ⭐ **毎フレームの経路**: 本書が動かすのは、画面が読む生成した名簿 `icon-roster.json` の注の字（`IC-7`・`IC-61`・`IC-103`）だけである —— 項目の数も順も変わらない。検査 66 のために perf-pending に 102 の行を足した（番号が重なれば調整役が振り直す）。W2-D5 の描き方は面を描く道に在る —— 同持ち場が別に行を足す。
 
 ---
 
