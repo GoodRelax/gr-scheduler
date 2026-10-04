@@ -1,12 +1,12 @@
-// 表 T-028 の `IN-3` と `IN-4` (docs/spec/01-04-requirements.md:4096-4098):
+// 表 T-028 の `IN-3` と `IN-4` (docs/spec/01-04-requirements.md):
 //
 //   IN-3 「ツールチップは、次の 2 つをすべて満たすこと（MUST）。**消せること**
 //        —— ポインタもフォーカスも動かさずに消す手立てがあること。」
-//   IN-4 「**消費する階層は 出ている通知 → 確定していないその場の編集 → 開いて
-//        いる面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor`
-//        モード → 出ている説明 の順とすること（MUST）** —— 説明を最後に置くのは、
-//        `IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからで
-//        ある。」
+//   IN-4 「消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 →
+//        進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル →
+//        構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とする
+//        こと（MUST） —— 説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」
+//        を果たす手立てがほかに 1 つも無いからである。」
 //
 //   IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）**」
 //
@@ -17,7 +17,7 @@
 // （MUST NOT）」 -- so the adjacency asserted below is the row's, not a choice.
 //
 // ⭐⭐ THE TWO ROWS ARE ONE RULE. IN-4's own reason says the explanation is put
-// last BECAUSE IN-3's 「消せること」 has no other way to be met -- so a build
+// just above full screen BECAUSE IN-3's 「消せること」 has no other way to be met -- so a build
 // where the rung exists but nothing spends it satisfies neither, and that is
 // precisely what ledger row DFC-307 measured on the shipped build (2026-09-05:
 // with an explanation standing over IC-7, `Esc` left it standing, twice).
@@ -69,7 +69,7 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   T-028 IN-3   the three a tooltip must satisfy, and the first of them
-//   T-028 IN-4   the ladder, and 出ている説明 at its foot
+//   T-028 IN-4   the ladder, and 出ている説明 just above 全画面表示, its last rung (CR-666)
 //   T-028 IN-4a  what happens when there is nothing to spend
 //   T-040 EZ-2   (FR-092) the raiser this file uses to put an explanation on
 //                the screen: a pointer that has rested on an icon longer than
@@ -178,7 +178,7 @@ const IN_4A_TO_THE_BROWSER =
 /** The half of IN-3 DFC-307 is about, quoted as the row writes it. */
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること'
 
-/** The reason IN-4 gives for putting it last, which is why the two rows travel together. */
+/** The reason IN-4 gives for putting it before full screen, which is why the two rows travel together. */
 const IN_4_WHY_LAST =
   '説明を全画面表示の前に置くのは、`IN-3` が求める「消せること」を果たす手立てがほかに 1 つも無いからである'
 
@@ -376,7 +376,7 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
 })
 
 // ===========================================================================
-// 5. IN-4 -- 出ている説明 is a rung, and it is the LAST one
+// 5. IN-4 -- 出ている説明 is a rung, the one just above 全画面表示
 // ===========================================================================
 
 describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladder', () => {

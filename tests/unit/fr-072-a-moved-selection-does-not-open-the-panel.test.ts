@@ -369,7 +369,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
       views.push(view)
     },
     readDialogueInput: () => null,
-    // Nothing here drives a field, so no value is ever committed.
     readFieldCommit: () => null,
     readFieldEditNotices: () => pending.splice(0, pending.length),
     readScreenPartAt: () => part,

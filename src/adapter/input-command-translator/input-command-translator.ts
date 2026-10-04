@@ -148,7 +148,6 @@ export interface PointerPress {
   // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: HorizontalWhole
-  // see GR-21, FR-051
   // TRAP: the vertical twin, held for the same reason: the last row scrolled to the top runs the view
   // past the content.
   readonly verticalWholeAtPress?: VerticalWhole
@@ -1079,7 +1078,7 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
   return panTo(context, -by.dx, -by.dy)
 }
 
-// see T-109, IN-1, FR-085
+// see T-109, IN-1, FR-085, OP-15
 /** @purity pure */
 function commandFromEntry(
   release: PointerInput,
@@ -1110,7 +1109,6 @@ function commandFromEntry(
     return UNASSIGNED
   }
   const entry = on.entry
-  // see OP-15
   if (entry === ENTRY.baselineVisible && context.document.schedule.baselineTasks.length === 0) {
     return acted({ kind: 'openDocumentFile', openRoute: 'baseline' })
   }

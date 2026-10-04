@@ -100,13 +100,6 @@ const FINISH_TO_START = 1
 const START_TO_FINISH = 2
 const START_TO_START = 3
 
-// see T-310, T-311
-const FINDING_LAYERS: Readonly<Record<string, number>> = {
-  'VC-1': 1, 'VC-2': 1, 'VC-3': 1, 'VC-4': 2, 'VC-5': 3, 'VC-6': 3, 'VC-7': 3, 'VC-8': 3,
-  'VC-9': 4, 'VC-10': 4, 'VC-11': 4, 'VC-12': 4, 'VC-13': 5, 'VC-14': 5, 'VC-15': 5,
-  'VS-1': 1, 'VS-2': 2, 'VS-3': 5, 'VS-4': 5, 'VS-5': 6, 'VS-6': 4,
-}
-
 type ScalarColumn = {
   [K in keyof Task]: Task[K] extends string | number | boolean | null ? K : never
 }[keyof Task]
@@ -1144,11 +1137,37 @@ export function wbsParentResolutionsOf(document: DiagnosedDocument): ReadonlyMap
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/01-04-requirements.md (tables T-310, T-311)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 const NOT_STORED_BOTTLENECK_THRESHOLD: {
   readonly 'S-397': number
 } = {
   'S-397': 1,
+}
+
+// see T-310, T-311, DX-3
+const FINDING_LAYERS: Readonly<Record<string, number>> = {
+  'VC-1': 1,
+  'VC-2': 1,
+  'VC-3': 1,
+  'VC-4': 2,
+  'VC-5': 3,
+  'VC-6': 3,
+  'VC-7': 3,
+  'VC-8': 3,
+  'VC-9': 4,
+  'VC-10': 4,
+  'VC-11': 4,
+  'VC-12': 4,
+  'VC-13': 5,
+  'VC-14': 5,
+  'VC-15': 5,
+  'VS-1': 1,
+  'VS-2': 2,
+  'VS-3': 5,
+  'VS-4': 5,
+  'VS-5': 6,
+  'VS-6': 4,
 }
 // </generated>

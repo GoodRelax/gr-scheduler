@@ -436,6 +436,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— 行と祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
+| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | 表示の絞り込みで新たにチェックされたタスクの行と祖先を開く書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TaskCommand` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskCommand` | -- | type TaskCommand = \| |
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
 | `TaskMilestoneGlyph` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskMilestoneGlyph` | -- | type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
@@ -1706,4 +1707,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 825 name(s) leave through a public entry (315 of them published by table T-064), 671 more are exported by a file and not by its entry.
+Totals: 826 name(s) leave through a public entry (316 of them published by table T-064), 671 more are exported by a file and not by its entry.

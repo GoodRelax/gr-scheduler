@@ -185,7 +185,6 @@ export function shell(
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    // WHY: still declared by IF-9's surface; the shell no longer reads it.
     readFieldEditNotices: () => pendingEdits.splice(0, pendingEdits.length),
     readScreenPartAt: () => part,
   } as ScreenSurface

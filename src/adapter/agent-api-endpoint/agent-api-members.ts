@@ -28,6 +28,7 @@ import {
   searchJumpReachOf,
   searchJumpWrites,
   searchJumpCommands,
+  shownTasksRevealWrites,
   type InvariantRefusal,
   type InvariantRow,
 } from '../../use-case/edit-document/edit-document'
@@ -113,6 +114,9 @@ export interface ShownTasksHolder {
   // WHY: entering also shows a hidden Search Panel minimised, since the filter lives with the panel (TV-8, PND-712).
   /** @purity non-pure */
   holdShownTasks(shown: AgentShownTasks): void
+  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which only adds to the checks while the filter stands.
+  /** @purity non-pure */
+  holdJumpTarget(taskUid: number): void
 }
 
 // see AM-8, FR-022
@@ -276,9 +280,6 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
 // WHY: a page with no screen holds no checks; it answers none, and the filter off.
 const NO_SHOWN_TASKS: AgentShownTasks = { taskUids: [], isShowOnlyChecked: false }
 
-// see AM-27, TV-6, SJ-2
-const NO_JUMP_REACH = { pxPerDay: 0, leftReachPx: 0 } as const
-
 // see AM-27, TV-5, AG-5, FR-028
 // WHY: untyped caller input; an empty list would enter with nothing checked, which TV-5 keeps the entrance from doing.
 /** @purity pure */
@@ -308,22 +309,11 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const named = [...new Set(taskUids)]
   const kept = new Set(held.isShowOnlyChecked ? held.taskUids : [])
   const opened = named.filter((uid) => !kept.has(uid))
-  const commands = opened.length === 0
-    ? []
-    : searchJumpCommands(searchJumpWrites(snapshot.document, { kind: 'shownTasks', taskUids: opened }, true, NO_JUMP_REACH))
+  const commands = shownTasksRevealWrites(snapshot.document, opened)
   // WHY: WS-1 gets the stamp just read, as AM-16 does: the caller named tasks, not a document it read.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-27', snapshot.document.documentStamp, commands)
   if (written.accepted) holder.holdShownTasks({ taskUids: named, isShowOnlyChecked: true })
   return written
-}
-
-// see SJ-0, SJ-9
-// WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which only adds to the checks while the filter stands.
-/** @purity non-pure */
-function shownWithJumpTarget(holder: ShownTasksHolder | undefined, taskUid: number): void {
-  const held = holder?.readShownTasks()
-  if (holder === undefined || held === undefined || !held.isShowOnlyChecked || held.taskUids.includes(taskUid)) return
-  holder.holdShownTasks({ taskUids: [...held.taskUids, taskUid], isShowOnlyChecked: true })
 }
 
 // see AM-16, SJ-0, SJ-2, SJ-6, SJ-9
@@ -352,7 +342,7 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
-  if (written.accepted) shownWithJumpTarget(wiring.shownTasks, taskUid)
+  if (written.accepted) wiring.shownTasks?.holdJumpTarget(taskUid)
   return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
 }
 
@@ -511,16 +501,16 @@ function planAndApply(
   )
 }
 
-// see AM-18, AG-11, T-233, WS-2
-// WHY: refused like a write -- a subscriber answering mid-delivery would
-// keep the round from ever finishing (Chapter 5.5).
-/** @purity non-pure */
 // see AM-11, DV-12
 /** @purity pure */
 function mspdiOfSnapshot(snapshot: AgentSnapshot): string {
   return mspdiFromDocument(snapshot.document, snapshot.localReadAt).text
 }
 
+// see AM-18, AG-11, T-233, WS-2
+// WHY: refused like a write -- a subscriber answering mid-delivery would
+// keep the round from ever finishing (Chapter 5.5).
+/** @purity non-pure */
 function postAgentUtterance(
   wiring: AgentApiWiring,
   snapshot: AgentSnapshot,

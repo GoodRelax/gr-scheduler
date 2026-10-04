@@ -39,7 +39,6 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   const ctrl = isCombo(modifiers, true, false, false)
   const ctrlShift = isCombo(modifiers, true, true, false)
 
-  // see IN-5a
   // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
   // after MK-13 or HF-14 reaches SK-14 or SK-18 instead of the name.
   if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {

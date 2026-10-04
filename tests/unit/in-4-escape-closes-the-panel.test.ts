@@ -39,12 +39,12 @@
 //   `S-99g`        表 T-206: 「「面」とは、画面の上に重ねて開き、`Esc` の段（表
 //                   T-028 の `IN-4`）の「開いている面」で閉じられるものをいう」.
 //                   ⚠️ Since Q20 (2026-09-22) the same row says the panel is NOT
-//                   a 面: IN-4 gives it a rung of its own, right after the drag.
-//   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん
-//                   消費し、無ければブラウザへ渡すこと。消費する階層は 出ている
-//                   通知 → 確定していないその場の編集 → 開いている面 → 進行中の
-//                   ドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 →
-//                   `Dual Cursor` モード → 出ている説明 の順とすること（MUST）」
+//                   a 面: IN-4 gives it a rung of its own, right after the open windows.
+//   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん消費し、
+//                   無ければブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していない
+//                   その場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いて
+//                   いるウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード
+//                   → 出ている説明 → 全画面表示 の順とすること（MUST）」
 //                   ⚠️⚠️ 「選択」 WAS PUT INTO THIS LADDER ON 2026-09-08, and the
 //                   row records what it was before: 「タスクを選ぶと `FR-006` に
 //                   よりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目
@@ -376,10 +376,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
       views.push(view)
     },
     readDialogueInput: () => null,
-    // IF-9 also returns what a properties-panel field settled at. Nothing here
-    // drives one, so there is never a commit to take.
     readFieldCommit: () => null,
-    // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
     readScreenPartAt: () => part,
   }
   return {
@@ -676,7 +673,7 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
   it('⛔ MUST: one press of `Esc` takes the panel off the screen', () => {
-    // IN-4: 「消費する階層は … 進行中のドラッグ・引きかけの矢印 → プロパティパネル
+    // IN-4: 「消費する階層は … 開いているウインドウ → プロパティパネル
     // → 構え …の順とすること（MUST）」 -- the panel has a rung of its own, so with
     // nothing above it standing, one press of `Esc` takes it.
     const built = withThePanelUp()

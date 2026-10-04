@@ -402,7 +402,6 @@ describe('CR-557 S-2 -- each swatch is S-151 solved at its row hue (table T-236)
       })
     })
 
-    // WHY: the monochrome exception retired with CR-673 (JDG-1244 6); its case goes with it.
   }
 
   it(`FR-041 "${CLAUSE_SWATCH_PAINT}" -- the paint does not follow the document hue`, () => {

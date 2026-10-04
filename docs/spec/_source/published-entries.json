@@ -1448,6 +1448,15 @@
        "`SingleHtmlShell` と `AgentApiEndpoint`（`AM-16`、`SJ-9`）が同じ値を `searchJumpWrites` へ渡すために使う"
       ]
      }
+    },
+    {
+     "name": "shownTasksRevealWrites",
+     "note": {
+      "ja": [
+       "表示の絞り込みで新たにチェックされたタスクの行と祖先を開く書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。",
+       "`SingleHtmlShell` と `Agent API` の `showOnlyTasks`（`AM-27`）が同じ 1 本を読む"
+      ]
+     }
     }
    ]
   },

@@ -338,8 +338,7 @@ export interface ScreenWiring {
   readonly language: DisplayLanguage
   // see FR-039, S-72
   readonly themePreference?: ScreenValues['themePreference']
-  // TRAP: optional, so a host that omits it leaves MK-13 half done with nothing
-  // to say so.
+  // TRAP: optional, so a host that omits it leaves MK-13 half done with nothing to say so.
   // WHY: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
   readonly focusPropertyField?: (row: string) => unknown
   readonly readWatermarkUnlockAnswer?: () => string
@@ -2543,7 +2542,7 @@ export function frameLoop(
     windows.notePress(on)
   }
 
-  // see IN-1, IN-1a, FR-053, T-289
+  // see IN-1, IN-1a, FR-053, T-289, JDG-660
   // TRAP: the press drops before the event; the restorePaletteCorner effect reads the corner still held here.
   /** @purity non-pure */
   function endPointerPress(isInterrupted: boolean, frame: FrameValues): void {
@@ -2552,7 +2551,6 @@ export function frameLoop(
     commandPaletteCornerAtPress = null
     rowGrabbedAt = null
     windows.endPress(isInterrupted)
-    // see FR-053, JDG-660
     // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
     if (commandPaletteDraggedTo !== null) {
