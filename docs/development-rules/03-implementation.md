@@ -46,6 +46,7 @@ COLUMN_SHAPES                        列の入力の形・選択肢・下限上�
 DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 ENTITY_ROWS                          実体の行（`erd.json`）
+FINDING_LAYERS                       遅延診断の矛盾と疑義の観点ごとの層（表 T-310・表 T-311 の「層」の欄、`DX-3`。`delay-diagnostics.ts` が読む）
 FIELD_ENTRY_VALUES_INITIAL_AXES      名前付けと入力欄の各状態機械の初期の種類（表 T-292 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 FILE_FLOW_VALUES_INITIAL_AXES        ファイル操作と問いの各状態機械の初期の種類（表 T-290 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）

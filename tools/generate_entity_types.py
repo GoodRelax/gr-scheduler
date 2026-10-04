@@ -2143,6 +2143,39 @@ def search_column_width_rows_block():
     return '\n'.join(out)
 
 
+import spec_tables  # noqa: E402  (tools/ is the script's own folder)
+
+REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
+FINDING_LAYER_TABLES = ('T-310', 'T-311')
+FINDING_LAYER_COLUMN = u'層'
+
+
+def finding_layers_block():
+    """Each aspect row of tables T-310 and T-311 -> its layer (DX-3).
+
+    The layer column orders the fixes (1 first). delay-diagnostics.ts held a
+    hand copy of it, which check 69 found once CR-670 generated the same rows
+    as the delayReportAspects dictionary keys; a row added to either table now
+    reaches the finding without an edit in src/.
+
+    @purity semi-pure-b
+    """
+    got = []
+    for table in FINDING_LAYER_TABLES:
+        for row in spec_tables.read(REL_REQUIREMENTS, table):
+            layer = row.cell(FINDING_LAYER_COLUMN).strip()
+            if not layer.isdigit():
+                raise SystemExit('table %s row %s holds no layer number: %r'
+                                 % (table, row.id, layer))
+            got.append((row.id, int(layer)))
+    out = ['// see T-310, T-311, DX-3',
+           'const FINDING_LAYERS: Readonly<Record<string, number>> = {']
+    for row_id, layer in got:
+        out.append("  '%s': %d," % (row_id, layer))
+    out.append('}')
+    return '\n'.join(out)
+
+
 def search_panel_font_sizes_block():
     """Every row of table T-333, by its row ID (CR-571, FR-151 SV-16).
 
@@ -2923,10 +2956,13 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The bottleneck threshold stands in the one unit that decides a
-    # bottleneck, delay-diagnostics.ts (CR-561, FR-132).
+    # bottleneck, delay-diagnostics.ts (CR-561, FR-132), and so does the
+    # layer of each finding (tables T-310 / T-311, DX-3).
     (os.path.join(MODEL, 'schedule', 'delay-diagnostics.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_BOTTLENECK_THRESHOLD'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     lambda _erd: not_stored_block('NOT_STORED_BOTTLENECK_THRESHOLD') + NEWLINE * 2
+     + finding_layers_block(),
+     ['docs/spec/_source/settings.json (table T-206)',
+      'docs/spec/01-04-requirements.md (tables T-310, T-311)']),
     # The fit's margin stands in the one unit that reads it, fit-zoom.ts
     # (CR-554 15.6.7).
     (os.path.join(LAYOUT, 'schedule-layout', 'fit-zoom.ts'),
