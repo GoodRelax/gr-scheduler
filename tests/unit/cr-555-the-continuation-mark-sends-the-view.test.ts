@@ -474,7 +474,12 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
   it(`(iv) pinned far end off to the right: sent across only -- ${EL_12_PINNED}`, () => {
     const scene = pinnedOffRight()
     expect(lineOf(scene, 1, 2).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
-    const writes = writesOf(clickOnce(scene, markOf(scene, 1, 2)).out)
+    // WHY: FR-098 cuts the mark of a scrolling end at the top of the area below the band, so only a dot left
+    // below that top is drawn and pressed (DFC-1222); the middle dot of this mark stands in the band.
+    const scrollTop = (scene.context as unknown as { readonly layout: { readonly scrollAreaY: number } }).layout.scrollAreaY
+    const drawnDot = lineOf(scene, 1, 2).continuation?.dots.find((one) => one.y >= scrollTop)
+    expect(drawnDot, 'premise: one dot of the mark is drawn below the band').toBeDefined()
+    const writes = writesOf(clickOnce(scene, drawnDot!).out)
     const scroll = onlyOf(writes, SET_SCROLL)
     expect(scroll, EL_11_SEND).toBeDefined()
     expect(scroll!['scrollGroupId'], EL_12_PINNED).toBe(scene.settings['scrollGroupId'])
