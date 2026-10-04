@@ -229,6 +229,7 @@ import {
   tentativeDependencyOf,
 } from './held-press-preview'
 import { wbsParentHoldOf } from './wbs-parent-hold'
+import { shownTasksHoldOf } from './shown-tasks-hold'
 import {
   interactionRecorderOf,
   isRecordingInteractionsIn,
@@ -547,8 +548,6 @@ function stackSafetyCapToldAfter(told: string | null, layout: ScheduleLayout): {
 }
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
-const SEARCH_PANEL_OPENED: ScreenValuesEvent = { type: 'searchEntryPressed' }
-const SEARCH_PANEL_MINIMISE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimiseToggled' }
 
 const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
 
@@ -1130,6 +1129,14 @@ function screenLanguageIn(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? 'en'
 }
 
+// see FR-051, TV-11, S-497
+/** @purity pure */
+function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWidth: number, isShowOnlyChecked: boolean): ScreenEnvironment {
+  const { width, height, appHeaderHeight, scrollbarThickness } = environment
+  const topBandHeight = isShowOnlyChecked ? NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497'] : 0
+  return { width, height, appHeaderHeight, scrollbarThickness, propertyPanelWidth, topBandHeight }
+}
+
 // see FR-052, FR-072, S-171, S-248
 /** @purity pure */
 function propertiesPanelWidthOf(session: ScreenSession, held: number | null): number {
@@ -1535,22 +1542,6 @@ function filterEndedWithClosedPanel(held: WindowPlaces, isShown: boolean): Windo
   return { ...held, searchPanel: { ...held.searchPanel, showOnlyChecked: false } }
 }
 
-// see TV-1, TV-3, TD-8, DFC-1820
-// WHY: one set per held list, so the picture inputs keep their identity while no box is ticked (DFC-1820).
-/** @purity non-pure */
-function shownSetKeeper(): (panel: SearchPanelSession) => ReadonlySet<number> | null {
-  let list: readonly number[] | null = null
-  let set: ReadonlySet<number> | null = null
-  return (panel) => {
-    if (!panel.showOnlyChecked) return null
-    if (panel.shownTaskUids !== list) {
-      list = panel.shownTaskUids
-      set = new Set(list)
-    }
-    return set
-  }
-}
-
 // see IN-4, SV-14, RG-16, RW-1
 // WHY: an open filter closes first (SV-14); the window alone closes after it, and the markers stay (RW-1).
 /** @purity pure */
@@ -1630,97 +1621,9 @@ function reportHeldOf(
 }
 
 interface ReportBeforeJump {
-  readonly windows: {
-    readonly report: () => DelayDiagnosticsReportWindow | null
-    readonly searchPanel: () => SearchPanelSession
-    readonly holdSearchPanel: (panel: SearchPanelSession) => void
-  }
+  readonly windows: { readonly report: () => DelayDiagnosticsReportWindow | null }
+  readonly holdJumpTarget: (taskUid: number) => void
   readonly answerReportEntry: (entry: IconId, filterColumn: string | null) => boolean
-}
-
-const SHOW_COLUMN = 'SQ-10'
-
-// see SJ-0, TV-6, TV-7
-/** @purity pure */
-function panelWithShownChange(session: ScreenSession, panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession {
-  if (taskUids.length === 0) return panel
-  return searchPanelAfterFilterChange(session, panel, { kind: 'shown', column: SHOW_COLUMN, taskUids, isShown }) ?? panel
-}
-
-// see SJ-0, SJ-9, EL-21
-/** @purity pure */
-function panelWithJumpTarget(session: ScreenSession, panel: SearchPanelSession, taskUid: number): SearchPanelSession {
-  if (!panel.showOnlyChecked || panel.shownTaskUids.includes(taskUid)) return panel
-  return panelWithShownChange(session, panel, [taskUid], true)
-}
-
-// see TV-6, SJ-2
-/** @purity pure */
-function shownTasksToOpen(before: SearchPanelSession, after: SearchPanelSession): readonly number[] {
-  if (!after.showOnlyChecked) return []
-  if (!before.showOnlyChecked) return after.shownTaskUids
-  if (after.shownTaskUids === before.shownTaskUids) return []
-  const held = new Set(before.shownTaskUids)
-  return after.shownTaskUids.filter((uid) => !held.has(uid))
-}
-
-const NO_JUMP_REACH = { pxPerDay: 0, leftReachPx: 0 } as const
-
-// see TV-6, SJ-2, FR-100
-/** @purity pure */
-function shownTasksOpenWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
-  if (taskUids.length === 0) return []
-  return searchJumpCommands(searchJumpWrites(document, { kind: 'shownTasks', taskUids }, true, NO_JUMP_REACH))
-}
-
-// see TV-7
-/** @purity pure */
-function panelWithCreatedTasks(
-  session: ScreenSession, panel: SearchPanelSession, before: Document['schedule'], after: Document['schedule'],
-): SearchPanelSession {
-  if (!panel.showOnlyChecked || before.tasks === after.tasks) return panel
-  const held = new Set(before.tasks.map((task) => task.uid))
-  return panelWithShownChange(session, panel, after.tasks.filter((task) => !held.has(task.uid)).map((task) => task.uid), true)
-}
-
-// see TV-6, FR-100
-/** @purity non-pure */
-function openShownTasks(hands: FrameLoopHands, after: SearchPanelSession, before: SearchPanelSession, frame: FrameValues): void {
-  const writes = shownTasksOpenWrites(hands.readHeld().document, shownTasksToOpen(before, after))
-  if (writes.length > 0) hands.writeDocument(writes, frame)
-}
-
-type HeldShownTasks = Pick<ReturnType<typeof heldWindowsOf>, 'searchPanel' | 'holdSearchPanel'>
-
-// see AM-26, AM-27, TV-8, PND-712
-/** @purity non-pure */
-function shownTasksHolderOf(hands: FrameLoopHands, windows: HeldShownTasks): NonNullable<AgentApiSeams['shownTasks']> {
-  return {
-    readShownTasks: () => ({ taskUids: windows.searchPanel().shownTaskUids, isShowOnlyChecked: windows.searchPanel().showOnlyChecked }),
-    holdShownTasks(shown): void {
-      windows.holdSearchPanel({ ...windows.searchPanel(), shownTaskUids: shown.taskUids, showOnlyChecked: shown.isShowOnlyChecked })
-      if (shown.isShowOnlyChecked && hands.readSession().screen.searchPanelDisplayState.kind === 'hidden') {
-        hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
-        hands.sendToSession(SEARCH_PANEL_MINIMISE_TOGGLED, hands.readValues())
-      }
-      if (isSizeSettled(hands.readEnvironment())) hands.ask()
-    },
-  }
-}
-
-// see TV-2
-/** @purity non-pure */
-function shownWithinScheduleKeeper(): (session: ScreenSession, panel: SearchPanelSession, schedule: Document['schedule']) => SearchPanelSession {
-  let readSchedule: Document['schedule'] | null = null
-  let readList: readonly number[] | null = null
-  return (session, panel, schedule) => {
-    if (panel.shownTaskUids.length === 0 || (schedule === readSchedule && panel.shownTaskUids === readList)) return panel
-    const present = new Set(schedule.tasks.map((task) => task.uid))
-    const kept = panelWithShownChange(session, panel, panel.shownTaskUids.filter((uid) => !present.has(uid)), false)
-    readSchedule = schedule
-    readList = kept.shownTaskUids
-    return kept
-  }
 }
 
 // see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
@@ -1728,8 +1631,7 @@ function shownWithinScheduleKeeper(): (session: ScreenSession, panel: SearchPane
 /** @purity non-pure */
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
-  const panel = report.windows.searchPanel()
-  if (cell.kind === 'task') report.windows.holdSearchPanel(panelWithJumpTarget(hands.readSession(), panel, cell.taskUid))
+  if (cell.kind === 'task') report.holdJumpTarget(cell.taskUid)
   if (report.windows.report()?.shown === 'maximised') report.answerReportEntry(REPORT_RESTORE_ENTRY, null)
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
@@ -2198,8 +2100,6 @@ export function frameLoop(
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   const windows = heldWindowsOf()
-  const shownSetOf = shownSetKeeper()
-  const shownWithinSchedule = shownWithinScheduleKeeper()
   let isSearchWordFocusOwed = false
   // see S-445, FR-130
   // WHY: diagnosed once per held document, never per frame (decision 17).
@@ -2296,6 +2196,7 @@ export function frameLoop(
     exportScene,
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
+  const shownTasks = shownTasksHoldOf(hands, windows)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } =
     heldViewPlaceOf(hands, startedFromTemplate)
@@ -2365,17 +2266,9 @@ export function frameLoop(
     const pointerRestedMs = readPointerRestedMs()
     const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
-    windows.holdSearchPanel(shownWithinSchedule(session, windows.searchPanel(), held.document.schedule))
-    const environmentForRegions: ScreenEnvironment = {
-      width: environment.width,
-      height: environment.height,
-      appHeaderHeight: environment.appHeaderHeight,
-      scrollbarThickness: environment.scrollbarThickness,
-      propertyPanelWidth: propertiesPanelWidthOf(session, heldPropertyPanelWidth),
-      // see TV-11, S-497
-      topBandHeight: windows.searchPanel().showOnlyChecked ? NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497'] : 0,
-    }
-    const regions = regionsFromScreen(environmentForRegions, stored)
+    shownTasks.keepWithinSchedule(held.document.schedule)
+    const panelWidth = propertiesPanelWidthOf(session, heldPropertyPanelWidth)
+    const regions = regionsFromScreen(environmentForRegionsOf(environment, panelWidth, windows.searchPanel().showOnlyChecked), stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
     const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
@@ -2392,7 +2285,7 @@ export function frameLoop(
       dualCursor: session.screen.dualCursor,
       delayDiagnostics: diagnostics?.drawing,
       wbsParentFamilies: wbsParents.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
-      shownTaskUids: shownSetOf(windows.searchPanel()),
+      shownTaskUids: shownTasks.drawnSet(),
     })
     const { layout, geometry } = drawnPicture
     const capTold = stackSafetyCapToldAfter(stackSafetyCapToldFor, layout)
@@ -2571,7 +2464,7 @@ export function frameLoop(
     if (values !== null) spendFieldCommit(hands, values)
     const panelBefore = windows.searchPanel()
     windows.takeTypedInput(session, screen)
-    if (values !== null) openShownTasks(hands, windows.searchPanel(), panelBefore, values)
+    if (values !== null) shownTasks.openNewlyShown(panelBefore, values)
     runFrame()
   }
 
@@ -2695,14 +2588,7 @@ export function frameLoop(
     if (!isSizeSettled(environment)) return null
     const document = held.document
     const stored = document.documentSettings
-    const environmentForRegions: ScreenEnvironment = {
-      width: environment.width,
-      height: environment.height,
-      appHeaderHeight: environment.appHeaderHeight,
-      scrollbarThickness: environment.scrollbarThickness,
-      propertyPanelWidth: 0,
-    }
-    const regions = regionsFromScreen(environmentForRegions, stored)
+    const regions = regionsFromScreen(environmentForRegionsOf(environment, 0, false), stored)
     // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
     // is not showing.
     const settings = viewSettingsOnce(document, stored, regions).settings
@@ -2712,7 +2598,7 @@ export function frameLoop(
       regions,
       undefined,
       environment.rowControlsHeightPx,
-      shownSetOf(windows.searchPanel()),
+      shownTasks.drawnSet(),
     )
     const nothingSelected = emptySelection()
     const geometry = geometryFromLayout(
@@ -2984,7 +2870,7 @@ export function frameLoop(
     )
     if (outcome.accepted) {
       sendToSession(DOCUMENT_EDIT_LANDED, frame)
-      windows.holdSearchPanel(panelWithCreatedTasks(session, windows.searchPanel(), scheduleBefore, held.document.schedule))
+      shownTasks.holdCreatedTasks(scheduleBefore, held.document.schedule)
       const recounted = outcome.report.recountedTaskUids.length
       if (recounted > 0) raiseNotice(RECOUNTED_PERCENT_COMPLETE_REASON, recounted)
       return
@@ -3020,8 +2906,7 @@ export function frameLoop(
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
         forgetFitForNoPlace()
         showDelayDiagnostics(false)
-        // see TV-9
-        windows.holdSearchPanel({ ...windows.searchPanel(), shownTaskUids: [], showOnlyChecked: false })
+        shownTasks.end()
       }
       if (isSizeSettled(environment)) ask()
       return true
@@ -3060,9 +2945,7 @@ export function frameLoop(
       windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids, listed,
     )
     if (panelAfter !== null) {
-      const panelBefore = windows.searchPanel()
-      windows.holdSearchPanel(panelAfter)
-      openShownTasks(hands, panelAfter, panelBefore, frame)
+      shownTasks.holdOpeningShown(panelAfter, frame)
       return true
     }
     if (entry === DELAY_DIAGNOSTICS_ENTRY) {
@@ -3539,7 +3422,7 @@ export function frameLoop(
     const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) {
       sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
-      windows.holdSearchPanel(panelWithJumpTarget(session, windows.searchPanel(), translated.landingMarked.landedTaskUid))
+      shownTasks.holdJumpTarget(translated.landingMarked.landedTaskUid)
     }
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     windows.spendEscapeRung(hands, escapeLevel, frame)
@@ -3551,7 +3434,7 @@ export function frameLoop(
     windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry })
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, holdJumpTarget: shownTasks.holdJumpTarget })
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
@@ -3696,7 +3579,7 @@ export function frameLoop(
       appShell,
       takeInDocument: (incoming, reading) => takeInHandedDocument(hands, documentFileFlow, incoming, reading),
       changeWatchers,
-      shownTasks: shownTasksHolderOf(hands, windows),
+      shownTasks: shownTasks.agentHolder(),
       ...dialogueSeams,
     }),
     /** @purity non-pure */

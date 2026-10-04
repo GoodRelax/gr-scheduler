@@ -1185,6 +1185,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-195 | `delay-diagnostics-report-window.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-197 | `wbs-parent-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-198 | `shown-tasks-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---
 
