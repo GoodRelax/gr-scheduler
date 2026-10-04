@@ -1426,6 +1426,7 @@ export function escapeContextOf(context: InputContext): EscapeContext {
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
     isSelectionStanding: context.selection.items.length > 0,
     dualCursorMode: context.dualCursorFollowing !== null,
+    isFullScreen: context.screen.fullScreenModeState.kind === 'full',
   }
 }
 

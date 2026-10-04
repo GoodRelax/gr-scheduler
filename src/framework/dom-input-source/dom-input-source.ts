@@ -104,6 +104,13 @@ function keyOf(event: { readonly key: string; readonly code: string }): string {
   return event.key
 }
 
+// see IN-4
+// WHY: an Esc held down spends one rung: only its first keydown is reported.
+/** @purity pure */
+function isHeldEscapeRepeat(event: { readonly key: string; readonly repeat: boolean }): boolean {
+  return event.key === HOST_ESCAPE && event.repeat
+}
+
 // TRAP: dom-screen-surface.ts ROLE.dialogueField must spell it the same; a misspelling
 // hands the typed letters to table T-036 again.
 const DIALOGUE_ENTRY = '[data-role="Dialogue Field"] input'
@@ -346,7 +353,7 @@ export function domInputSource(
   function onKeyDown(event: Event): void {
     if (watcher === null) return
     const key = event as KeyboardEvent
-    if (isTypedIntoDialogueEntry(key)) return
+    if (isHeldEscapeRepeat(key) || isTypedIntoDialogueEntry(key)) return
     deliver({ kind: 'key', key: keyOf(key), modifiers: modifiersOf(key) }, key)
   }
 
@@ -386,6 +393,44 @@ export function domInputSource(
       gesture = null
       previousPress = null
       if (held !== null && held.isHeld) releasePointer(held.pointerId)
+    },
+  }
+}
+
+// see FR-071, IN-4a
+interface KeyboardLock {
+  lock(keyCodes: readonly string[]): Promise<void>
+  unlock(): void
+}
+
+export interface EscapeKeyLock {
+  lock(): void
+  unlock(): void
+}
+
+// see FR-071, IN-4, IN-4a
+// WHY: without the lock the browser takes Esc before the page and leaves full screen ahead of every rung.
+// A refusal or an absent Keyboard Lock is not told (FR-071): the browser then leaves full screen as before.
+/** @purity pure */
+export function escapeKeyLockOf(keyboard: unknown): EscapeKeyLock {
+  const host = keyboard as Partial<KeyboardLock> | null | undefined
+  const usable = typeof host?.lock === 'function' && typeof host.unlock === 'function' ? (host as KeyboardLock) : null
+  return {
+    /** @purity non-pure */
+    lock(): void {
+      try {
+        void usable?.lock([HOST_ESCAPE]).catch(() => undefined)
+      } catch {
+        return
+      }
+    },
+    /** @purity non-pure */
+    unlock(): void {
+      try {
+        usable?.unlock()
+      } catch {
+        return
+      }
     },
   }
 }

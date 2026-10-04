@@ -41,7 +41,11 @@ const FR_071_F11_DEFAULT = '`SK-15` の `F11` について、ブラウザの既�
 const UF_48_INSIDE_THE_CALL =
   '全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST）'
 const IN_4A_REASON = '本ツールが何もしない `Esc` を止めると、ブラウザが `Esc` に持たせた働きを奪う'
-const IN_4A_BROWSER_LEAVES = '全画面表示を `Esc` で解くのはブラウザであり、本行が渡すかどうかに左右されない'
+const IN_4A_BROWSER_LEAVES =
+  '**閲覧環境が Keyboard Lock を持たないか断ったときは、ブラウザが `Esc` をページより先に取って全画面表示を解く**'
+const FR_071_ESCAPE_LOCKED =
+  '閲覧環境が Keyboard Lock（`navigator.keyboard`）を持つなら `Escape` の鍵をかけることを求め、全画面表示を出たことを受けたら鍵を放すこと（MUST）'
+const FR_071_LOCK_REFUSAL_UNTOLD = '鍵を断られたこと・閲覧環境が持たないことを通知してはならない（MUST NOT）'
 
 const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-071 (MUST) -- the Fullscreen API on document.documentElement', FR_071_FULLSCREEN_API],
@@ -53,7 +57,9 @@ const REQUIREMENT_CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-071 (MUST) -- a refusal or a missing feature carries RS-59', FR_071_RS_59],
   ['FR-071 (MUST) -- the default of F11 is stopped', FR_071_F11_DEFAULT],
   ['T-028 IN-4a -- the reason Esc with nothing to consume goes to the browser', IN_4A_REASON],
-  ['T-028 IN-4a -- leaving full screen by Esc is the browser, whatever the row hands on', IN_4A_BROWSER_LEAVES],
+  ['T-028 IN-4a -- without Keyboard Lock the browser leaves full screen before the page sees Esc', IN_4A_BROWSER_LEAVES],
+  ['FR-071 (MUST) -- the Escape key is locked on entering and unlocked on leaving (CR-666)', FR_071_ESCAPE_LOCKED],
+  ['FR-071 (MUST NOT) -- a refused or absent lock is not told (CR-666)', FR_071_LOCK_REFUSAL_UNTOLD],
 ]
 
 describe('CR-389 -- the manuscript these cases are driven by', () => {

@@ -1079,6 +1079,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `domInputSource` | entry | function | `src/framework/dom-input-source/dom-input-source.ts#domInputSource` | PI-27 | `InputSource` の実装 1 つを返す |
+| `EscapeKeyLock` | entry | interface | `src/framework/dom-input-source/dom-input-source.ts#EscapeKeyLock` | PI-27 | `escapeKeyLockOf` が返す 2 つの手（`lock` ／ `unlock`） |
+| `escapeKeyLockOf` | entry | function | `src/framework/dom-input-source/dom-input-source.ts#escapeKeyLockOf` | PI-27 | 閲覧環境の `navigator.keyboard` を受け、`Escape` の鍵をかける手と放す手を返す（`FR-071`）。 |
 | `InputHost` | entry | interface | `src/framework/dom-input-source/dom-input-source.ts#InputHost` | -- | interface InputHost |
 | `PointerCaptureTarget` | entry | interface | `src/framework/dom-input-source/dom-input-source.ts#PointerCaptureTarget` | -- | interface PointerCaptureTarget |
 
@@ -1689,4 +1691,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 818 name(s) leave through a public entry (310 of them published by table T-064), 661 more are exported by a file and not by its entry.
+Totals: 820 name(s) leave through a public entry (312 of them published by table T-064), 661 more are exported by a file and not by its entry.

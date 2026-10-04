@@ -750,10 +750,10 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
       .toBeNull()
   })
 
-  it('IN-4a: full screen changes neither answer -- 全画面表示を `Esc` で解くのはブラウザであり、本行が渡すかどうかに左右されない', () => {
+  it('IN-4a: in full screen the full-screen rung always stands, so nothing goes to the browser -- 全画面表示のあいだは、`IN-4` の全画面表示の段がいつも立つので、本行の「渡す」は起きない', () => {
     const full = stepped(EMPTY, { type: 'fullScreenChanged', isFullScreen: true })
     expect(rungOf(full, { ...quiet, isConfirmationStanding: true })).toBe('confirmation')
-    expect(rungOf(full, { ...quiet, isConfirmationStanding: false })).toBeNull()
+    expect(rungOf(full, { ...quiet, isConfirmationStanding: false })).toBe('fullScreen')
   })
 
   it('IN-4a: a caller that cannot see the question omits it, and absence is no level', () => {
