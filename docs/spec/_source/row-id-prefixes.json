@@ -887,6 +887,14 @@
    }
   },
   {
+   "prefix": "NG",
+   "words": "Not Grabbable",
+   "owner": "spec",
+   "means": {
+    "ja": "そのフレームで描いていない（または表示だけの）ために掴めず動かないもの"
+   }
+  },
+  {
    "prefix": "NR",
    "words": "",
    "owner": "spec",

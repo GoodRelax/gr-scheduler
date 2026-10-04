@@ -514,6 +514,14 @@ function resumeCursor() {
   const px = S.resumeCur;
   return 'url("data:image/svg+xml,' + encodeURIComponent(resumeGlyph(px)) + '") ' + Math.round(px * 6 / 24) + ' ' + Math.round(px * 11 / 24) + ', ew-resize';
 }
+// the parent-link pointer (table T-269 PK-17, CR-631): a parent bar on top, a child bar below and an upward
+// arrow between them, white inside the pointers' black rim, rounded corners. The path is the shipped one
+// (src/framework/single-html-shell/pointer-shape.ts PARENT_LINK_PATH); S.cur px across like the other arrows
+const PARENT_LINK_MARK = 'M3 2 H21 V6 H3 Z M7 18 H17 V22 H7 Z M11 18 V12 H8 L12 7 L16 12 H13 V18 Z';
+function parentLinkGlyph(px) {
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
+    rimmed('<path d="' + PARENT_LINK_MARK + '"/>', 'round').replace('RIM2', 2 * rimUnits(px)) + '</svg>';
+}
 function depCursor() {
   const px = S.cur;
   return 'url("data:image/svg+xml,' + encodeURIComponent(lineArrowGlyph(px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', pointer';
