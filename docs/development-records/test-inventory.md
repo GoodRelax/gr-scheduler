@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 176 | 2425 | 4 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 180 | 2456 | 4 | 6 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 50 | 328 | 1 | 1 | 0 | 0 |
+| `system` | TS-3 | - | 52 | 333 | 1 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 171 | 3849 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 7 | 10 | 0 | 0 |
-| **all** | | | 417 | 6706 | 13 | 18 | 10 | 1 |
+| **all** | | | 423 | 6742 | 13 | 18 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -339,6 +339,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-650-the-branding-divider-and-the-shared-header-width.test.ts` | 18 | - | - | T-076, T-206, T-236, T-341, T-349 | BR-1, BR-2, BR-6, BR-7, EP-1, HS-7, HS-9, HS-10, S-81, S-146, S-149, S-210, S-225, S-226, S-235, S-449, S-461, S-462, S-490, S-491, S-492, S-493 | - | - | - | - |
 | `tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts` | 4 | FR-021 | - | - | EX-1, EX-13, EX-14 | - | - | - | yes |
 | `tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 9 | FR-042, FR-098 | - | T-041, T-076, T-202, T-216 | EP-3, S-68, U-18, U-22 | - | - | - | - |
+| `tests/contract/cr-659-the-export-leaves-the-mark-and-divider-blank.contract.test.ts` | 3 | - | - | T-236 | BR-2, BR-6, EP-1, S-81, S-226, S-235, S-462, S-490, S-492 | - | - | - | - |
 | `tests/contract/cr-660-the-two-tables-lead-with-status-and-filter-like-excel.contract.test.ts` | 32 | FR-134, FR-151 | - | T-206, T-330, T-331, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-123, IC-124, IC-125, IC-126, IF-9, PM-4, RW-4, RW-9, RW-10, SJ-1, SQ-1, SQ-5, SQ-7, SQ-11, SQ-12, SQ-13, SV-4, SV-6, SV-7, SV-18 | - | - | - | - |
 | `tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts` | 14 | FR-003, FR-135 | - | T-329 | EL-20, TD-8, TV-3 | - | - | 1: none | - |
 | `tests/contract/cr-662-the-progress-line-in-front-of-the-labels.test.ts` | 7 | FR-110 | - | T-020 | S-63, S-64, ZO-3, ZO-5, ZO-8, ZO-9, ZO-13, ZO-16 | - | - | - | - |
@@ -346,6 +347,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-665-help-columns-and-the-moved-palette-block.contract.test.ts` | 10 | FR-036 | - | T-109, T-256 | HC-3, HC-4, IC-52, IC-53, IC-75 | - | - | - | - |
 | `tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts` | 5 | FR-011, FR-012 | - | T-236 | EP-9, OP-6, S-149, WY-2 | - | - | - | - |
 | `tests/contract/cr-668-a-non-working-end-day-asks-before-the-calendar-changes.contract.test.ts` | 12 | FR-031, FR-154 | - | T-354 | AT-81, AT-82, CM-39, HW-9, HW-10, WC-6 | - | - | - | - |
+| `tests/contract/cr-670-the-report-joins-dates-with-a-dash-and-speaks-reasons-in-words.contract.test.ts` | 11 | - | - | T-021b, T-310, T-311, T-316, T-347 | AT-46, DG-4, DL-2, DT-5, DT-6, DT-7, DX-6, DX-10, PM-4, RW-4, VS-6 | - | - | - | - |
+| `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
@@ -358,6 +361,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-152-in-6-the-same-value-writes-nothing.test.ts` | 13 | FR-031 | - | T-016, T-027, T-028, T-036, T-062, T-065, T-103, T-218 | CP-38, FT-1, IF-1, IF-9, IN-5a, IN-6, PR-1, PR-2, SK-19, TS-6, U-25, UF-8, UF-9, UF-71, UN-3 | - | - | - | - |
 | `tests/contract/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
 | `tests/contract/dfc-1722-jdg-1165-the-save-chooser-names-one-extension.test.ts` | 4 | FR-096 | - | T-024, T-346 | IO-2, RW-7 | - | - | - | - |
+| `tests/contract/dfc-2030-a-body-drag-moves-the-selected-boxes.contract.test.ts` | 7 | FR-031 | - | T-270 | CY-4, OP-10, SL-1, SL-7 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
@@ -462,6 +466,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
+| `tests/system/cr-659-the-header-mark-margins-on-the-shipped-build.test.ts` | 2 | - | - | T-025, T-206, T-349 | BR-2, BR-3, BR-7, HS-9, S-461, S-462 | - | - | - | - |
 | `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18 | - | - | - | - |
 | `tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts` | 10 | FR-134, FR-151 | - | T-109, T-206, T-332, T-353 | AM-26, EL-21, IC-143, IX-11, S-497, S-498, SJ-0, SQ-10, SV-4, TV-1, TV-3, TV-6, TV-8, TV-11 | - | - | - | - |
 | `tests/system/cr-664-the-colour-rows-line-up-with-the-other-fields.test.ts` | 2 | FR-006, FR-052 | - | T-016, T-025, T-206 | CV-9, S-248 | - | - | - | - |
@@ -470,6 +475,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-667-panel-divider-in-the-rule-colour.test.ts` | 2 | - | - | T-025, T-236 | EP-9, S-149, S-165, U-18, U-24 | - | - | - | - |
 | `tests/system/cr-668-a-plan-end-released-on-a-saturday.test.ts` | 7 | FR-031, FR-154 | - | - | AG-9, QN-13, TL-10, TL-11 | - | - | 1: none | - |
 | `tests/system/cr-669-the-help-maximises-to-the-schedule-canvas.test.ts` | 9 | FR-036 | - | T-103, T-109, T-335, T-336, T-337 | GR-24, GR-25, HN-6, IC-20, IC-54, S-203, U-32, UZ-9, WB-3, WB-8, WB-9 | - | - | - | - |
+| `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206 | PR-15, PR-16, PR-17, S-171, S-248, U-24, U-25 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
 | `tests/system/drawn-svg-normalization.sws.test.ts` | 4 | FR-020, SWS-7 | - | T-025, T-218, T-231 | NS-1, TS-3, WY-2 | - | - | - | - |
