@@ -531,6 +531,7 @@ const viewOf = (
       // NT-8 (MUST): the entrance a person puts this telling away by.
       dismissText: 'OK',
       dismissKey: 'NT-3a',
+      raisedNotices: [],
     },
   ],
   // NT-7 of table T-037: `null` while nothing is waiting to be answered.

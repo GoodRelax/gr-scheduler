@@ -3,7 +3,7 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { escapeTarget } from '../../entity/document-model/screen-state/screen-state'
+import { escapeTarget, type EscapeTarget } from '../../entity/document-model/screen-state/screen-state'
 import {
   taskByUid,
   type Schedule,
@@ -164,9 +164,21 @@ function caughtInMarquee(context: InputContext, rect: ScreenRect): readonly Item
   return itemsInMarquee(context.geometry, rect).flatMap((item) => itemRefOf(context.document.schedule, item) ?? [])
 }
 
+// see IN-4, T-283
+// WHY: a caller that also sees the question and the tooltip passes the rung it judged, so one press spends one rung.
+/** @purity pure */
+function isSelectionRung(context: InputContext, judgedRung: EscapeTarget | null | undefined): boolean {
+  const rung = judgedRung === undefined ? escapeTarget(escapeContextOf(context)) : judgedRung
+  return rung === 'selection'
+}
+
 // see T-023c
 /** @purity pure */
-export function selectionFromInput(input: HumanInput, context: InputContext): Selection {
+export function selectionFromInput(
+  input: HumanInput,
+  context: InputContext,
+  judgedRung?: EscapeTarget | null,
+): Selection {
   const held = context.selection
 
   if (input.kind === 'key') {
@@ -177,7 +189,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     if (
       isCombo(input.modifiers, false, false, false) &&
       input.key === KEY.escape &&
-      escapeTarget(escapeContextOf(context)) === 'selection'
+      isSelectionRung(context, judgedRung)
     ) {
       return emptySelection()
     }

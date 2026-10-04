@@ -1138,6 +1138,7 @@ const notice = (patch: Partial<Notice> & { manner: string; text: string }): Noti
   // hand over their own.
   dismissText: 'OK',
   dismissKey: patch.manner,
+  raisedNotices: [],
   ...patch,
 })
 

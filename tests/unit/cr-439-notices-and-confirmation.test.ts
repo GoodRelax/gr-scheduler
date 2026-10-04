@@ -66,6 +66,7 @@ const notice = (over: Partial<Notice> = {}): Notice => ({
   affectedCount: 3,
   dismissText: 'OK',
   dismissKey: 'notice-1',
+  raisedNotices: [],
   ...over,
 })
 

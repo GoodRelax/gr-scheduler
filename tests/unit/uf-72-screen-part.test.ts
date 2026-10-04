@@ -1591,6 +1591,7 @@ const NOTICE: Notice = {
   // and the key that names WHICH telling that press puts away.
   dismissText: 'DismissWordOne',
   dismissKey: 'NT-3|RE-1',
+  raisedNotices: [],
 }
 
 const DIALOGUE: DialogueField = {

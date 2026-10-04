@@ -209,6 +209,7 @@ function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
     affectedCount: raised.affectedCount,
     dismissText: dismissText(language),
     dismissKey: dismissKeyOf(raised),
+    raisedNotices: [raised],
   }
 }
 
@@ -232,6 +233,7 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
     affectedCount: null,
     dismissText: dismissText(language),
     dismissKey: pending.map((notice) => notice.dismissKey).join(DISMISS_KEY_NOTICE_SEPARATOR),
+    raisedNotices: pending.flatMap((notice) => notice.raisedNotices),
   }
 }
 

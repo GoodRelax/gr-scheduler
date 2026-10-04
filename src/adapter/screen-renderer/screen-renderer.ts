@@ -483,6 +483,7 @@ export interface Notice {
   readonly affectedCount: number | null
   readonly dismissText: string
   readonly dismissKey: string
+  readonly raisedNotices: readonly RaisedNotice[]
 }
 
 export interface RaisedConfirmation {
