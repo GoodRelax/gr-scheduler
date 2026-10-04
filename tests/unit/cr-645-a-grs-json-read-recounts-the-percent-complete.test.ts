@@ -100,11 +100,11 @@ const documentObject = (tasks: readonly Record<string, unknown>[]): Record<strin
   }
 }
 
-// WHY: Mon 5 Jan to Mon 12 Jan 2026 is a plan of 5 working days (FR-012: the difference, not the days held).
+// WHY: Mon 5 Jan to Mon 12 Jan 2026 is a plan of 6 working days (FR-012 since CR-667: both end days count).
 const UNSTARTED_WRITTEN_70 = taskRow(1, { percentComplete: 70 })
-// WHY: begun Mon 5, stopped Tue 6 = 2 working days held (FR-011 counts both end days), so round(2 / 5 x 100) = 40.
+// WHY: begun Mon 5, stopped Tue 6 = 2 working days held (FR-011 counts both end days), so round(2 / 6 x 100) = 33.
 const RUNNING_WRITTEN_0 = taskRow(2, { actualStart: stored(5), stop: stored(6), resumeValid: true })
-// WHY: a zero-length plan with actualFinish is 100 whatever was written (FR-012).
+// WHY: a one-day plan finished in its one day is 100 whatever was written (FR-012, CR-667).
 const POINT_FINISHED_WRITTEN_30 = taskRow(3, {
   start: stored(7),
   finish: stored(7),
@@ -168,11 +168,11 @@ describe('FR-012: documentFromJson recounts percentComplete from the dates', () 
     expect(taskOf(read.document, 1).percentComplete).toBe(0)
   })
 
-  it('a running Task written as 0 reads as its worked days over its plan, 40', () => {
-    expect(taskOf(read.document, 2).percentComplete).toBe(40)
+  it('a running Task written as 0 reads as its worked days over its plan, 33', () => {
+    expect(taskOf(read.document, 2).percentComplete).toBe(33)
   })
 
-  it('a finished zero-length Task written as 30 reads as 100', () => {
+  it('a finished one-day Task written as 30 reads as 100', () => {
     expect(taskOf(read.document, 3).percentComplete).toBe(100)
   })
 

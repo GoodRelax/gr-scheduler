@@ -227,11 +227,13 @@ const lengthOf = (one: Task): number => {
 }
 
 // see FR-012
+// WHY: the plan is counted by FR-011's rule, both end days included (CR-667).
 const planSpanOf = (one: Task): number => {
-  let count = 0
+  const start = dayPart(one.start)
   const finish = dayPart(one.finish)
-  for (let at = dayPart(one.start); at < finish; at = nextCalendarDay(at)) {
-    if (isWorkingDay(CALENDAR, dayValue(at))) count += 1
+  let count = 0
+  for (let at = start; at <= finish; at = nextCalendarDay(at)) {
+    if (at === start || at === finish || isWorkingDay(CALENDAR, dayValue(at))) count += 1
   }
   return count
 }

@@ -452,28 +452,25 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 // 2026-09-14 (Mon) with 3 worked days behind it, counted once by 表 T-209's
 // S-106 calendar (月〜金) and once by that calendar with Saturday added.
 //
-// ⛔⛔ THE LEDGER'S OWN ARITHMETIC FOR THIS EXAMPLE IS WRONG, AND THE
-// SPECIFICATION SAYS SO. DFC-353 records 「月〜金の暦では 6 稼働日で 50%、土曜を
-// 足すと 7 稼働日で 43%」, which counts 2026-09-14 as a worked day of the plan.
-// FR-012 forbids exactly that: 「期間は開始日と終了日の差とし、端を含む日数と取り
-// 違えないこと（MUST NOT）—— 含めると期間 0 が存在しなくなり、この規定が空振り
-// する」, and `workingDaysBetween` counts [from, to). ⇒ MEASURED 2026-09-07:
-// 月〜金 = 5 worked days = 60%, 土曜を足すと 6 worked days = 50%. ⭐ The example
-// still shows what it was written to show -- the stored figure moves although
-// no date moved -- and the two numbers below are the measured pair, not the
-// ledger's.
+// ⭐ THE LEDGER'S OWN ARITHMETIC FOR THIS EXAMPLE HOLDS SINCE CR-667. DFC-353
+// records 「月〜金の暦では 6 稼働日で 50%、土曜を足すと 7 稼働日で 43%」, which
+// counts 2026-09-14 as a worked day of the plan. Until 2026-10-04 FR-012 counted
+// the plan without its finish day (5 worked days = 60%, 6 = 50%); CR-667
+// (JDG-1430) has the plan count both end days, as the actual does (FR-011).
+// ⭐ The example still shows what it was written to show -- the stored figure
+// moves although no date moved.
 // ---------------------------------------------------------------------------
 
 const PLAN_START = '2026-09-07T00:00:00' // Monday
-const PLAN_FINISH = '2026-09-14T00:00:00' // the Monday after; a bound, not a worked day
+const PLAN_FINISH = '2026-09-14T00:00:00' // the Monday after; a worked day of the plan (CR-667)
 const WORKED_DAYS = 3
 const WORKED_LAST_DAY = '2026-09-09T00:00:00'
 
 /** What FR-012 stores while the calendar is 表 T-209's S-106 (月〜金). */
-const PERCENT_UNDER_MON_TO_FRI = 60
+const PERCENT_UNDER_MON_TO_FRI = 50
 /** What it stores once Saturday is worked. AT-73's first code is Sunday, so 7. */
 const SATURDAY = 7
-const PERCENT_WITH_SATURDAY = 50
+const PERCENT_WITH_SATURDAY = 43
 
 /** The document both FR-012 cases start from: one task that moves, one that does not. */
 const documentWithAPricedTask = (): Document =>
@@ -552,8 +549,8 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     // the case asserts it landed -- while this task's plan holds no Saturday,
     // so its span in worked days is the same before and after. 「値が変わった
     // `Task`」 is then nobody, and the count NT-3 asks for is 0.
-    // ⚠️ 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Thu] = 4 worked days
-    // under 表 T-209's S-106, and the same 4 with Saturday worked.
+    // ⚠️ 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Fri] = 5 worked days
+    // under 表 T-209's S-106 (both end days, CR-667), and the same 5 with Saturday worked.
     const document = documentOf({
       tasks: [
         taskOf({
@@ -562,7 +559,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
           finish: '2026-09-11T00:00:00',
           actualStart: '2026-09-07T00:00:00',
           stop: WORKED_LAST_DAY,
-          percentComplete: 75,
+          percentComplete: 60,
         }),
       ],
     })
@@ -573,7 +570,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(workingOf(result.document, 1)).toContain(SATURDAY)
-    expect(percentOf(result.document, 10)).toBe(75)
+    expect(percentOf(result.document, 10)).toBe(60)
     expect(result.report.recountedTaskUids).toEqual([])
   })
 
@@ -778,15 +775,15 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
         stop: WORKED_LAST_DAY,
           percentComplete: PERCENT_UNDER_MON_TO_FRI,
         }),
-        // 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Thu] = 4 worked days
-        // with or without Saturday, so this one's figure stands.
+        // 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Fri] = 5 worked days
+        // with or without Saturday (CR-667), so this one's figure stands.
         taskOf({
           uid: 11,
           start: '2026-09-07T00:00:00',
           finish: '2026-09-11T00:00:00',
           actualStart: '2026-09-07T00:00:00',
           stop: WORKED_LAST_DAY,
-          percentComplete: 75,
+          percentComplete: 60,
         }),
       ],
     })
@@ -798,6 +795,6 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
     if (!result.ok) return
     expect(result.report.recountedTaskUids).toEqual([10, 12])
     expect(result.report.recountedTaskUids).toHaveLength(2)
-    expect(percentOf(result.document, 11), 'the one that did not move').toBe(75)
+    expect(percentOf(result.document, 11), 'the one that did not move').toBe(60)
   })
 })

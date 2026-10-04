@@ -1313,8 +1313,20 @@ def duration_for(*parts):
     return weighed(DURATIONS, 'duration', *parts)
 
 
+def planned_days_of(task):
+    """FR-012's denominator: the plan's working days, both end days counted.
+
+    ⭐ The same count as DV-8 (CR-667): a task finished on its plan reads
+    100, and a one-day task is one day. ⚠️ A milestone holds no days, so
+    FR-012 stores 100 or 0 from the presence of a finish instead.
+
+    @purity pure
+    """
+    return 0 if task['milestone'] else task['finishAt'] - task['startAt'] + 1
+
+
 def percent_of(duration, span):
-    """FR-012's figure: `round(actualDuration / (finish - start) * 100)`.
+    """FR-012's figure: `round(actualDuration / plannedDays * 100)`.
 
     ⛔ Not clamped to 0..100 -- FR-012 says so twice, and FR-090 says the
     label prints what this stores without rounding it again. ⚠️ Half away from
@@ -2069,7 +2081,7 @@ class Builder(object):
 
         @purity non-pure
         """
-        span = task['finishAt'] - task['startAt']
+        span = planned_days_of(task)
         slip = weighed(START_SLIP, task['uid'], 'slip')
         began_at = min(len(WORKDAYS) - 1, max(0, task['startAt'] + slip))
         task['actualStartAt'] = began_at
@@ -2182,7 +2194,7 @@ class Builder(object):
         """
         if task['actualFinish'] is None or task['actualStart'] is None:
             return
-        span = task['finishAt'] - task['startAt']
+        span = planned_days_of(task)
         task['actualFinish'] = None
         task['resumeValid'] = True
         if span == 0:
@@ -2232,7 +2244,7 @@ class Builder(object):
                    and one['finishAt'] - one['startAt'] > 4]
         stalled.sort(key=lambda one: fraction(one['uid'], 'stall'))
         for turn, task in enumerate(stalled[:SUSPENSIONS]):
-            span = task['finishAt'] - task['startAt']
+            span = planned_days_of(task)
             task['actualLength'] = max(1, int(task['actualLength'] * 0.6))
             task['percentComplete'] = percent_of(task['actualLength'], span)
             if turn % 3 == 2:
@@ -2291,7 +2303,7 @@ class Builder(object):
             return                                        # PS-1, all null
         task['actualStartAt'] = min(one['actualStartAt'] for one in begun)
         task['actualStart'] = text_of_start_side(WORKDAYS[task['actualStartAt']])
-        span = task['finishAt'] - task['startAt']
+        span = planned_days_of(task)
         if all(one['actualFinish'] is not None for one in held):
             ended = max(index_of(date.fromisoformat(one['actualFinish'][:10]))
                         for one in held)
@@ -3303,7 +3315,7 @@ def check_progress(built, status_at):
     late, early, quick, over, running_late, unstarted_late, resume_late = (
         0, 0, 0, 0, 0, 0, 0)
     for task in built.tasks:
-        span = task['finishAt'] - task['startAt']
+        span = planned_days_of(task)
         state = plan_actual_state(task)
         if state == 'PS-1':
             insist(task['actualStart'] is None

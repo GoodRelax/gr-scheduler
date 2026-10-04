@@ -143,10 +143,10 @@ const FR_016_ROW_POSITION_MEMBER_IS_PI_5 =
 // -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
 
 const EP_9_SAME_LINE_MEANS_SAME_THICKNESS =
-  'es`（`U-18`）と同じ線を 1 本引くこと（MUST） —— 新しい確定名も新しい設定値のキーも作らない。⭐ **同じ線とは太さも同じであるということである（MUST）'
+  '境なので、区切りの線の色で描く。⭐ **太さが同じであること（MUST）'
 
 const EP_9_THICKNESS_NOT_ZERO =
-  '作らない。⭐ **同じ線とは太さも同じであるということである（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
+  '区切りの線の色で描く。⭐ **太さが同じであること（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）'
 
 /**
  * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-9's own dated
@@ -162,7 +162,7 @@ const EP_9_THICKNESS_NOT_ZERO =
  * characters check 39 reads back from the marker.
  */
 const EP_9_ONE_PLACE_READS_THE_THICKNESS =
-  '。⭐ **同じ線とは太さも同じであるということである（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
+  '。⭐ **太さが同じであること（MUST）**—— ⛔ **太さを 0 で描いてはならない（MUST NOT）。**⭐ 描く側は、罫の太さを 1 か所から読むこと（MUST）'
 
 /** ⚠️ RE-CUT 2026-09-11 for the same reason as the marker above it. */
 const EP_9_NO_SECOND_NUMBER =
@@ -176,7 +176,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-016 (MUST NOT) -- reaching the ceiling is not shown by a dead entrance', FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE],
   ['FR-016 (MUST NOT) -- a row position at a zoom is not arithmetic', FR_016_ROW_POSITION_NOT_BY_ARITHMETIC],
   ['FR-016 (MUST) -- the member that answers it is T-064 PI-5', FR_016_ROW_POSITION_MEMBER_IS_PI_5],
-  ['T-076 EP-9 (MUST) -- the same line means the same thickness', EP_9_SAME_LINE_MEANS_SAME_THICKNESS],
+  ['T-076 EP-9 (MUST) -- the line has the same thickness', EP_9_SAME_LINE_MEANS_SAME_THICKNESS],
   ['T-076 EP-9 (MUST NOT) -- the thickness is never drawn as zero', EP_9_THICKNESS_NOT_ZERO],
   ['T-076 EP-9 (MUST) -- the thickness is read from one place', EP_9_ONE_PLACE_READS_THE_THICKNESS],
   ['T-076 EP-9 (MUST NOT) -- no second number for it', EP_9_NO_SECOND_NUMBER],
@@ -275,7 +275,7 @@ describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」
   // published constant, not merely to nonzero.
 })
 
-describe('T-076 EP-9 (MUST) -- 「同じ線とは太さも同じであるということである」／「描く側は、罫の太さを 1 か所から読むこと」／「番号を 2 か所に置いてはならない」', () => {
+describe('T-076 EP-9 (MUST) -- 「太さが同じであること」／「描く側は、罫の太さを 1 か所から読むこと」／「番号を 2 か所に置いてはならない」', () => {
   it('every Panel Divider the screen frame builds has that one published width', () => {
     // FR-052's own order gives two dividers (rowTitlePanel, propertiesPanel);
     // EP-9 (MUST) asks that both read the SAME one place `Group Grid Lines`

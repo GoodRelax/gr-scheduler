@@ -8,26 +8,27 @@ import {
   actualLengthOf,
   dayOf,
   workingCalendarOf,
-  workingDaysBetween,
   type Schedule,
   type Task,
   type WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
 
-// see FR-012
+// see FR-012, FR-011
+// WHY: the plan is counted by the actual's own rule, both end days included (CR-667), so an on-plan finish
+// reads 100; a half-open plan read a two-day task finished on plan as 200. A milestone is a point: 0.
 /** @purity pure */
-function planSpanOf(within: WorkingCalendar, task: Task): number | null {
+function plannedLengthOf(within: WorkingCalendar, task: Task): number | null {
   const start = dayOf(task.start)
   const finish = dayOf(task.finish)
   if (start === null || finish === null) return null
-  return workingDaysBetween(within, start, finish)
+  if (task.milestone === true) return 0
+  return actualLengthOf(within, start, finish)
 }
-
 
 // see FR-012, FR-090, EX-5
 /** @purity pure */
 function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
-  const span = planSpanOf(within, task)
+  const span = plannedLengthOf(within, task)
   if (span === null) return task.percentComplete
   if (span === 0) return task.actualFinish !== null ? 100 : 0
   return Math.round((heldActualLength(within, task) / span) * 100)

@@ -224,7 +224,7 @@ export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
 
 // see DV-8, EX-12, S-128
 // WHY: both end days count (the partner's own example writes a Wednesday-to-Thursday task as PT16H0M0S);
-// FR-012's plan span is half-open and prices percent complete, so it is not this length.
+// FR-012 counts the plan by FR-011's rule instead, which also counts an end day off the calendar (CR-667).
 /** @purity pure */
 export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task, project: Project): number | null {
   const start = dayOf(task.start)
