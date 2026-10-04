@@ -259,7 +259,7 @@ function helpModal(language: DisplayLanguage): HelpModal {
     ...root,
     screen: { ...root.screen, helpDisplayState: { kind: 'shown', child: { kind: 'normal' } } },
   } as unknown as ScreenSession
-  const modal = helpModalFromSession(opened, { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 }, browserWindow: { x: 0, y: 0, width: 1280, height: 800 } })
+  const modal = helpModalFromSession(opened, { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } })
   if (modal === null) throw new Error('the help is open but nothing describes it')
   return modal
 }
