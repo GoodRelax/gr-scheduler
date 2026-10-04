@@ -1184,7 +1184,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     readDialogueInput: dialogue.readDialogueInput,
     readFieldCommit: fieldEditing.readFieldCommit,
     readScreenPartAt,
-    hasUnsettledTextEntry: fieldEditing.hasUnsettledTextEntry,
     readFieldEditNotices: fieldEditing.readFieldEditNotices,
     readSearchWord: searchPanel.readWord,
   }

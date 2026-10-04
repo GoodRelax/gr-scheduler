@@ -577,7 +577,6 @@ function idleLoop() {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   const loop = frameLoop({ showSvg: () => undefined } as unknown as Parameters<typeof frameLoop>[0], structuredClone(TEMPLATE), SCREEN, { surface, language: 'en' })

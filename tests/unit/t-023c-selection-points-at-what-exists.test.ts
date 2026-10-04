@@ -466,7 +466,6 @@ function screenPane(language: DisplayLanguage = 'ja') {
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   return {

@@ -249,7 +249,6 @@ function screenPane(): ScreenWiring {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   return { surface, language: 'en' }

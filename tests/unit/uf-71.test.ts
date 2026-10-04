@@ -1319,10 +1319,8 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   //   tell when editing began and ended        readFieldEditNotices
   //   answer what is drawn at a point          readScreenPartAt
   //
-  // ⚠️ hasUnsettledTextEntry still answers the older boolean and is still
-  // declared in `screen-surface.ts`; wave B of CR-500 wired the begin and end
-  // notices (readFieldEditNotices) and the shell reads only those now. The
-  // older member leaves this roster the day its declaration does.
+  // ⚠️ The older boolean member (hasUnsettledTextEntry) left the roster with
+  // its declaration (DFC-1876, CR-673); the begin and end notices replace it.
   //
   // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
   // would go green on a member swapped for another, and one that read the keys
@@ -1331,7 +1329,6 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   // read (rule 04 section 1) and which pairs each member with the clause of the
   // cell it serves -- so this stays red the day a supply is added or dropped.
   const IF_9_MEMBERS = [
-    'hasUnsettledTextEntry',
     'readDialogueInput',
     'readFieldCommit',
     'readFieldEditNotices',

@@ -168,7 +168,6 @@ function loopStage(): LoopStage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y) => {
       const view = views[views.length - 1]
       const divider = view?.frame.dividers.find(

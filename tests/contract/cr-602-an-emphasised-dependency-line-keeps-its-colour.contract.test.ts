@@ -619,7 +619,6 @@ describe(`DC-8 -- ${DC_8_WIDTH}`, () => {
       showScreenView: () => undefined,
       readDialogueInput: () => null,
       readFieldCommit: () => null,
-      hasUnsettledTextEntry: () => false,
       readScreenPartAt: (): ScreenPart | null => aimed,
     }
     const loop = frameLoop({ showSvg: (svg: string) => void (shown = svg) } as never, shellDocument(), SCREEN, {

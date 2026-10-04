@@ -220,7 +220,6 @@ const drawnAt = (displayScale: number): FakeElement => {
     showScreenView: (view) => real.showScreenView(view),
     readDialogueInput: () => real.readDialogueInput(),
     readFieldCommit: () => real.readFieldCommit(),
-    hasUnsettledTextEntry: () => real.hasUnsettledTextEntry(),
     readScreenPartAt: () => part,
   }
   const document = {

@@ -389,7 +389,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     showScreenView: (_view: ScreenView) => {},
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   return { surface, language }

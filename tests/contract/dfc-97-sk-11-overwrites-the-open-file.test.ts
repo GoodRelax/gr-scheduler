@@ -245,7 +245,6 @@ function bench(document: Document): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null as never,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null as ScreenPart | null,
   }
 

@@ -52,7 +52,6 @@ const CLAUSE_ROWS_IN_ORDER =
   'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
 const CLAUSE_SWATCH_PAINT =
   '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
-const CLAUSE_NO_MONOCHROME = '⛔ 見本にモノクロ（`S-74`）を効かせてはならない（MUST NOT）'
 const CLAUSE_NAME_AND_VALUE =
   '欄の名は `FR-038` の辞書が 表 T-104 の `K-60` に持つ語とし、欄の値は文書の `themeHue` と等しい 表 T-305 の行の語とすること（MUST）。'
 const CLAUSE_NO_ROW =
@@ -62,8 +61,6 @@ const CLAUSE_NO_ENTRANCES =
 const CLAUSE_READ_ONLY = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）。'
 const CLAUSE_EXCEPTION =
   '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
-const CLAUSE_MONOCHROME_EXCEPTION =
-  '⚠️ 例外は、上の段落のテーマ色の欄の見本だけである —— 見本は 表 T-305 の各行の色相で解いた `S-151` で塗り、モノクロを効かせない（上の段落の MUST NOT）。'
 
 const K_60 = 'K-60'
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
@@ -142,9 +139,6 @@ const expectedPaintOf = (hue: number, preference: Preference): Rgb => {
 
 const sameRgb = (left: Rgb, right: Rgb): boolean =>
   left.every((value, index) => Math.abs(value - (right[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE)
-
-const isGrey = (rgb: Rgb): boolean =>
-  Math.abs(rgb[0] - rgb[1]) <= CHANNEL_TOLERANCE && Math.abs(rgb[1] - rgb[2]) <= CHANNEL_TOLERANCE
 
 // WHY: seam S-2 names the swatch paint per row but not the member that carries it, so any
 // string list of the roster's length whose every entry is a colour is taken as the paint.
@@ -343,13 +337,11 @@ describe('CR-557 -- the manuscript still says what these cases read', () => {
     CLAUSE_FIRST_FIELD,
     CLAUSE_ROWS_IN_ORDER,
     CLAUSE_SWATCH_PAINT,
-    CLAUSE_NO_MONOCHROME,
     CLAUSE_NAME_AND_VALUE,
     CLAUSE_NO_ROW,
     CLAUSE_NO_ENTRANCES,
     CLAUSE_READ_ONLY,
     CLAUSE_EXCEPTION,
-    CLAUSE_MONOCHROME_EXCEPTION,
   ])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
@@ -410,16 +402,7 @@ describe('CR-557 S-2 -- each swatch is S-151 solved at its row hue (table T-236)
       })
     })
 
-    it(`FR-041 "${CLAUSE_NO_MONOCHROME}" -- S-74 on, ${preference}: the swatches keep their hue colours`, () => {
-      const paints = paintsOf(hueControl(settingsPanel({ preference, monochrome: true })))
-      ROSTER.forEach((row, index) => {
-        const drawn = rgbOfPaint(paints[index] ?? '')
-        expect(drawn, `${row.rowId}: ${paints[index]}`).not.toBeNull()
-        if (drawn === null) return
-        expect(isGrey(drawn), `${row.rowId} is grey under monochrome: ${paints[index]}`).toBe(false)
-        expect(sameRgb(drawn, expectedPaintOf(row.hue, preference)), `${row.rowId}: ${paints[index]}`).toBe(true)
-      })
-    })
+    // WHY: the monochrome exception retired with CR-673 (JDG-1244 6); its case goes with it.
   }
 
   it(`FR-041 "${CLAUSE_SWATCH_PAINT}" -- the paint does not follow the document hue`, () => {

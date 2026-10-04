@@ -1604,7 +1604,6 @@ const shellOf = (document: Document): Shell => {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const loop = frameLoop({ showSvg: (svg: string) => void (shown = svg) } as never, document, SCREEN, { surface, language: 'en' })

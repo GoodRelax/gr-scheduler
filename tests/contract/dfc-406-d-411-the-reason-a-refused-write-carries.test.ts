@@ -230,7 +230,6 @@ function loopWith(document: Document): Loop {
       held = null
       return one as never
     },
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null as ScreenPart | null,
   }
   const wiring: ScreenWiring = { surface, language: 'ja' as DisplayLanguage }

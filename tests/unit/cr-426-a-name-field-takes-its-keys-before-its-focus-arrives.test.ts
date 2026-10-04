@@ -184,7 +184,6 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
     showScreenView: (view) => void views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const asked: string[] = []

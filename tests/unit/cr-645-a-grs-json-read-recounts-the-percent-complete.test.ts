@@ -308,7 +308,6 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const wiring: ScreenWiring = { surface, language: 'ja' }

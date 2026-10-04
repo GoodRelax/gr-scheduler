@@ -272,7 +272,6 @@ async function stage(): Promise<Stage> {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   } as ScreenSurface
   const written: WriteLog = []

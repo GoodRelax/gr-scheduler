@@ -313,7 +313,6 @@ function bench(): Bench {
     showScreenView: (view) => void views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const answers: ((reading: FileReading) => void)[] = []

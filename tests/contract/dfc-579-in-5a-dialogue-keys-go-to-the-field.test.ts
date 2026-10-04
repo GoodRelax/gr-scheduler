@@ -21,6 +21,7 @@ import {
   wire,
   type FakeElement,
 } from '../fixtures/fake-browser'
+import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 import { bare, specTable, unbroken, type SpecRow } from './spec-table'
 
 function rowOf(table: string, id: string): SpecRow {
@@ -225,7 +226,7 @@ describe('control: a target outside the Dialogue Field keeps the ordinary MK-10 
   })
 })
 
-describe('IF-9 -- hasUnsettledTextEntry() does not count the focused Dialogue Field', () => {
+describe('IF-9 -- the focused Dialogue Field raises no begin notice', () => {
   const EMPTY_VIEW: ScreenView = {
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
@@ -259,6 +260,6 @@ describe('IF-9 -- hasUnsettledTextEntry() does not count the focused Dialogue Fi
     entry.focus()
     entry.value = 'half a thou'
 
-    expect(surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(surface)).toBe(false)
   })
 })

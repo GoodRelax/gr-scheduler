@@ -119,8 +119,8 @@ const POINTER_GRID = 24
 // WHY: the head's point and the shaft's far end sit inside the grid by more than the outline's half width.
 const BOX_ARROW_START_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
 
-// WHY: a thin shaft and a thin triangular head, traced as one outline so the edge runs all the way round.
-const LINE_ARROW_END_PATH = 'M2 11 H13 V6 L22 12 L13 18 V13 H2 Z'
+// WHY: a thin shaft and a head 6 units across (PK-4), traced as one outline so the edge runs all the way round.
+const LINE_ARROW_END_PATH = 'M2 11 H13 V9 L22 12 L13 15 V13 H2 Z'
 
 const RESUME_ARROW_PATH = 'M2 3 H6 V10 H15 V6 L22 12 L15 18 V14 H6 V21 H2 Z'
 

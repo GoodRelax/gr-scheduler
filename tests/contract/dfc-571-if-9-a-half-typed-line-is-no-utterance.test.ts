@@ -19,6 +19,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
+import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 import { bare, specTable, unbroken } from './spec-table'
 
 const rowOf = (table: string, id: string) => {
@@ -146,11 +147,11 @@ describe('DFC-571 -- IF-9 of 表 T-065 and AG-11 of 表 T-035', () => {
     expect(JSON.stringify(second ?? null)).not.toContain(HALF_LINE)
   })
 
-  // WHY: the surface still answers a boolean until it sends the begin and end notices (CR-500 wave B).
+  // WHY: read through IF-9's begin and end notices; the old boolean member is retired (DFC-1876).
   it('IF-9: 文字入力を受ける欄で編集が始まったこと -- an empty field has begun no edit, and hands back no utterance', () => {
     const { surface } = drawn()
 
-    expect(surface.hasUnsettledTextEntry()).toBe(false)
+    expect(textEntryStandsOpen(surface)).toBe(false)
     expect(surface.readDialogueInput()).toBeNull()
   })
 })

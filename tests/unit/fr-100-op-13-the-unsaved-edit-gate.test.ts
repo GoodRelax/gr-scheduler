@@ -240,7 +240,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
       commit = null
       return one as never
     },
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   return {

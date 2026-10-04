@@ -471,6 +471,16 @@ function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
   }
 }
 
+// see FR-109
+// WHY: a head or an end dot says "it ended here"; a suspended Task's actual line stops flat on the stop day.
+/** @purity pure */
+function stoppedWhileSuspended(task: Task, bar: BarGeometry): BarGeometry {
+  const state = planActualState(task)
+  if (bar.form !== 'line' || (state !== 'suspendedResumePlanned' && state !== 'suspendedResumeUnknown')) return bar
+  const end = bar.head?.[0] ?? bar.dots[bar.dots.length - 1]?.at ?? bar.to
+  return { ...bar, to: end, head: null, dots: bar.dots.slice(0, -1) }
+}
+
 // see T-012
 /** @purity pure */
 export function isThinShape(shapeKind: ShapeKind): boolean {
@@ -789,7 +799,7 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
       const top = placed.actualPlacement === 'inside'
         ? planTop + (placed.planHeight - actualHeight) / 2
         : planTop + placed.planHeight + settings.actualGap
-      actual = barOf(inputs, placed, x0, x0 + placed.actualWidth, top, actualHeight, true)
+      actual = stoppedWhileSuspended(task, barOf(inputs, placed, x0, x0 + placed.actualWidth, top, actualHeight, true))
     }
   }
 

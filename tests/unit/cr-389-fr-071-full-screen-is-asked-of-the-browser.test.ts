@@ -216,7 +216,6 @@ function stage(options: { readonly withHost?: boolean; readonly language?: Displ
     showScreenView: (view) => void views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const loop = (frameLoop as unknown as LoopWithHost)(

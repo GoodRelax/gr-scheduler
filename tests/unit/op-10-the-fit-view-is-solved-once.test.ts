@@ -286,7 +286,6 @@ function bench(document: Loose, env: FrameEnvironment = SCREEN, pen: Pump = pump
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const loop: Loose = frameLoop(

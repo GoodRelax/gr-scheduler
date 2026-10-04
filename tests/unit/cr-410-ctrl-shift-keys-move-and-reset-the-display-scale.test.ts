@@ -85,7 +85,6 @@ const stage = (settings: Record<string, unknown>): Stage => {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const document = {

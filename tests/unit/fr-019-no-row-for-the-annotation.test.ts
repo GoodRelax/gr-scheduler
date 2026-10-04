@@ -199,7 +199,6 @@ function screenPane(language: DisplayLanguage): ScreenPane {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   return {

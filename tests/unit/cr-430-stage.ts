@@ -210,7 +210,6 @@ export function stage(document: Document): Stage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const wiring: ScreenWiring = { surface, language: 'en' }

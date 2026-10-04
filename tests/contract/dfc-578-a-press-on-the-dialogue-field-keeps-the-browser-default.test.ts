@@ -119,7 +119,6 @@ function stage(): Stage {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => part,
   }
   const wiring: ScreenWiring = { surface, language: 'en' }

@@ -252,7 +252,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y): ScreenPart | null => {
       if (!inside(PALETTE_BOX, { x, y })) return null
       return {

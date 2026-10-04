@@ -627,7 +627,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
     readDialogueInput: () => null,
     readFieldCommit: () => null,
     // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   return { surface, language }
@@ -1598,7 +1597,6 @@ function laneStage(): LaneStage {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     // ⭐⭐ A REAL ANSWER, WHERE THE FIXTURE THIS BLOCK USED TO USE ANSWERED
     // `null` EVERYWHERE. `ScreenPart.scrollbarAxis` (`screen-surface.ts`) is
     // GR-21's road in, and the only true answer for a point on one of the two

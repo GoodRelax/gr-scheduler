@@ -350,7 +350,6 @@ async function bench(
       commit = null
       return one as never
     },
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   } as unknown as ScreenSurface
   const wiring = { surface, language } as unknown as ScreenWiring

@@ -371,9 +371,6 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     readDialogueInput: () => null,
     // Nothing here drives a field, so no value is ever committed.
     readFieldCommit: () => null,
-    // WHY: hasUnsettledTextEntry is still declared by IF-9's surface, but the
-    // shell no longer reads it.
-    hasUnsettledTextEntry: () => unsettled,
     readFieldEditNotices: () => pending.splice(0, pending.length),
     readScreenPartAt: () => part,
   }

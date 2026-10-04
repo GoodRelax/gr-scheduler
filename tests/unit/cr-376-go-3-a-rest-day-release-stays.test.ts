@@ -158,7 +158,6 @@ function stage(): { readonly loop: FrameLoop; send(input: HumanInput): void } {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const wiring: ScreenWiring = { surface, language: 'en' }

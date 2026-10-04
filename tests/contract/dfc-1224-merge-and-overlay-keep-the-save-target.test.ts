@@ -232,7 +232,6 @@ async function stage(saveTo: RecordingHandle, openFrom: RecordingHandle): Promis
     showScreenView: (view) => void views.push(view),
     readDialogueInput: () => null,
     readFieldCommit: () => null as never,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   }
   const host = browser(saveTo, openFrom)

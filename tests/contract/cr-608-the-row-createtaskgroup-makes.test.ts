@@ -187,7 +187,6 @@ function loopOf(document: Record<string, unknown>): { loop: FrameLoop; drain(): 
     showScreenView: () => undefined,
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => null,
   }
   const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, {

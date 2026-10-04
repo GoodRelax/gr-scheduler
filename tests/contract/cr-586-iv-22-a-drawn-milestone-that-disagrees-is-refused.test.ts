@@ -218,7 +218,6 @@ function bench(): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: () => part,
   } as ScreenSurface
   const wiring: ScreenWiring = { surface, language: 'ja' }

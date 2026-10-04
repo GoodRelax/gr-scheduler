@@ -415,7 +415,6 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenPane {
     // Nothing here drives one, so there is never a commit to take.
     readFieldCommit: () => null,
     // IF-9's fifth answer. This fake draws no field, so nothing is unsettled.
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y): ScreenPart | null => {
       const view = views[views.length - 1]
       if (view === undefined) return null

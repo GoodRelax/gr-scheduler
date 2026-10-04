@@ -105,6 +105,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
+import { textEntryStandsOpen } from '../fixtures/field-edit-notices'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at read time rather than copied (Chapter 1.9, :275)
@@ -365,7 +366,7 @@ interface Commit {
 const takeCommit = (built: Stage): Commit | null =>
   surfaceOf(built).readFieldCommit() as unknown as Commit | null
 
-const textStandsUnsettled = (built: Stage): boolean => surfaceOf(built).hasUnsettledTextEntry()
+const textStandsUnsettled = (built: Stage): boolean => textEntryStandsOpen(surfaceOf(built))
 
 // ===========================================================================
 // The manuscript still says what these cases read

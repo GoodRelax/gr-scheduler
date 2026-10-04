@@ -228,7 +228,6 @@ function bench(document: Document = templateDocument()): Bench {
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
-    hasUnsettledTextEntry: () => false,
     readScreenPartAt: (x, y) => {
       if (aimed !== null) return aimed
       const divider = views[views.length - 1]?.frame.dividers.find(
