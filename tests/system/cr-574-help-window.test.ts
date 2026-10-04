@@ -34,8 +34,8 @@ const FR_036_UNDER_THE_HEADER =
   'ヘルプは、閲覧環境の窓から `App Header` を除いた領域の中央に、その領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと（MUST）'
 const FR_036_NOT_SIDEWAYS_WHEN_OPENED =
   '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'
-const FR_069_TWO_LINES =
-  '⭐ ヘルプは、本文の領域の段の下に、著作権表示の 1 行と、ライセンスの名を言う 1 行の 2 行を常に見せ、その下に全文と帰属表示を畳んで置くこと（MUST）'
+const FR_069_ONE_LINE =
+  '⭐ ヘルプは、本文の領域の段の下に、著作権表示・ライセンスの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に畳んで置くこと（MUST）'
 const FR_036_NARROWED_SCROLLS_SIDEWAYS =
   '⭐ 利用者がヘルプを狭めて（表 T-335 の `WB-9`）段の並びが本文の領域の幅に入り切らないときは、本文の領域を横にもスクロールさせること（MUST）'
 const FR_036_COLUMNS_STAY = '⛔ 本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしてはならない（MUST NOT）'
@@ -66,7 +66,7 @@ const CLAUSES: readonly string[] = [
   FR_036_NOT_SIDEWAYS_WHEN_OPENED,
   FR_036_NARROWED_SCROLLS_SIDEWAYS,
   FR_036_COLUMNS_STAY,
-  FR_069_TWO_LINES,
+  FR_069_ONE_LINE,
   FR_069_FOLDED,
   FR_069_NEW_TAB,
 ]
@@ -125,6 +125,7 @@ const numberOf = (cell: string): number => {
 const S_436_EM = numberOf(rowOf(T_206, 'S-436').by['既定'] ?? '')
 const S_201_SHARE = numberOf(rowOf(T_206, 'S-201').by['既定'] ?? '')
 const S_459_ADDRESS = bare(rowOf(T_206, 'S-459').by['既定'] ?? '')
+const S_423_PX = numberOf(rowOf(T_206, 'S-423').by['既定'] ?? '')
 
 type Language = 'ja' | 'en'
 type Words = Readonly<Record<Language, string>>
@@ -952,7 +953,7 @@ async function readLicenceLines(page: Page) {
   }, HELP)
 }
 
-test.describe('CR-622 -- where the help opens, and the two licence lines (FR-036, FR-069)', () => {
+test.describe('CR-622 -- where the help opens, and the licence line (FR-036, FR-069)', () => {
   test('item 12: opened, the help stands centred in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
@@ -990,8 +991,8 @@ test.describe('CR-622 -- where the help opens, and the two licence lines (FR-036
       const lines = await readLicenceLines(page)
       expect(lines.href, FR_069_NEW_TAB).toBe(S_459_ADDRESS)
       expect(lines.rel, FR_069_NEW_TAB).toBe('noopener noreferrer')
-      expect(lines.linkText ?? '', FR_069_TWO_LINES).not.toBe('')
-      expect(lines.licensedUnder ?? '', FR_069_TWO_LINES).not.toBe('')
+      expect(lines.linkText ?? '', FR_069_ONE_LINE).not.toBe('')
+      expect(lines.licensedUnder ?? '', FR_069_ONE_LINE).not.toBe('')
       expect(lines.isFolded, FR_069_FOLDED).toBe(true)
     } finally {
       await stage.close()
@@ -1038,9 +1039,9 @@ test.describe('CR-621 -- the help moves and narrows like every window (T-335 WB-
       expect(Math.abs(moved.box.left - (opened.box.left - 40)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
       expect(Math.abs(moved.box.top - (opened.box.top - 30)), `WB-8: ${said(moved.box)} vs ${said(opened.box)}`).toBeLessThanOrEqual(EDGE)
 
-      // STEP: GR-25 -- the right edge, half way down
+      // STEP: GR-25 -- the right edge, half way down, past the S-423 floor: no S-202 columns at their S-458 floor fit there, whatever S-203 is
       const edge = { x: moved.box.right - 1, y: (moved.box.top + moved.box.bottom) / 2 }
-      await dragBy(page, edge, { x: -600, y: 0 })
+      await dragBy(page, edge, { x: S_423_PX - (moved.box.right - moved.box.left) - 40, y: 0 })
       const narrowed = await readHelp(page)
       expect(narrowed.box.right - narrowed.box.left, 'WB-9: the right edge narrows the help').toBeLessThan(moved.box.right - moved.box.left - 300)
       const columnsNarrowed = await readHelpColumns(page)
