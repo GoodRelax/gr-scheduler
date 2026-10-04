@@ -5,7 +5,9 @@
 #   /spec/           -> StrictDoc .sdoc sources (from docs/spec)
 #   /spec-html/      -> StrictDoc HTML render of docs/spec
 #   /api /dev /mock /security  -> the rest of docs/
-#   /download/       -> the MCP relay: grs-relay.mcpb, its .sha256, grs-relay.mjs
+#   /download/       -> the download page (S-350): index.html from docs/download/,
+#                       GRS.html (dist/index.html under the name the page offers),
+#                       and the MCP relay: grs-relay.mcpb, its .sha256, grs-relay.mjs
 #                       (FR-150; the bundle carries a build provenance attestation)
 #
 # No generated file is committed to the repo; this workflow assembles the site
@@ -93,8 +95,11 @@ jobs:
           rm -rf _site/spec-html
           mkdir -p _site/spec-html
           cp -r build/strictdoc/html/. _site/spec-html/
-          # 5) The MCP relay at /download/ (the latest-version page links here).
+          # 5) /download/: the page itself came with docs/ in 1); beside it go the app
+          #    as GRS.html (the page's button downloads that name) and the MCP relay.
           mkdir -p _site/download
+          test -f _site/download/index.html
+          cp dist/index.html _site/download/GRS.html
           cp dist-relay/grs-relay.mcpb dist-relay/grs-relay.mcpb.sha256 dist-relay/grs-relay.mjs _site/download/
           # 6) Disable Jekyll so underscore dirs (_static, _assets) are served.
           touch _site/.nojekyll
