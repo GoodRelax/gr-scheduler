@@ -103,6 +103,7 @@ NOT_STORED_DEPENDENCY_EMPHASIS_SIZES 選んだ依存線と着地の印の線・�
 NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白と太さ、`Branding` の縁と席（`S-225` / `S-226` / `S-461` 〜 `S-463`）
 NOT_STORED_SELECTION_SIZES           選択の枠の太さ・刻みと、追従しているカーソルの倍率（`S-174` / `S-175` / `S-178`）
 NOT_STORED_SIZES                     掴み代・当たり判定（表 T-266 の `S-250` 〜 `S-290` ／ `S-137` ／ `S-230` ／ `S-291` 〜 `S-293`）
+NOT_STORED_TASK_HINT_ASSIGNEE_CAP    タスクの説明の担当の行に書く名前の並びの字数の上限（`S-513`、表 T-348 の `TL-7`、`CR-663`）
 NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-214` / `S-215`）
 NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下限（`S-229`）
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
