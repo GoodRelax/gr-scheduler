@@ -23,7 +23,7 @@ const EZ_6_FROM_THE_STOP = '⚠️ 待ちを数え始めるのは、`EZ-2` と�
 const EZ_6_DATES =
   '予定の日は、マイルストーンなら `start` の日（`TL-10`）1 つ、ほかは `start` の日、半角空白 1 つ、`-`、半角空白 1 つ、`finish` の日 の順とすること（MUST）'
 const IN_3_CAN_BE_PUT_AWAY = '**消せること** —— ポインタもフォーカスも動かさずに消す手立てがあること。'
-const IN_4_LAST_RUNG = '`Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+const IN_4_EXPLANATION_RUNG = '`Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 const MACHINE_ROW_TARGET = '| `screen/hintTargetChanged` | — | → `allowed` |'
 
 const CLAUSES: readonly string[] = [
@@ -39,7 +39,7 @@ const CLAUSES: readonly string[] = [
   EZ_6_FROM_THE_STOP,
   EZ_6_DATES,
   IN_3_CAN_BE_PUT_AWAY,
-  IN_4_LAST_RUNG,
+  IN_4_EXPLANATION_RUNG,
 ]
 
 const MACHINE_TABLES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'))
@@ -456,7 +456,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
       const centre = centreOf(one.rect)
       await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
       await page.keyboard.press('Escape')
-      await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: `${IN_4_LAST_RUNG} (${one.icon})` }).toBe('')
+      await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: `${IN_4_EXPLANATION_RUNG} (${one.icon})` }).toBe('')
 
       // STEP: move on inside the same icon for well past S-124 -- the hint target has not changed
       const since = await nowOf(page)
@@ -477,7 +477,7 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
 
       // STEP: put it away again, then straight into another icon
       await page.keyboard.press('Escape')
-      await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: IN_4_LAST_RUNG }).toBe('')
+      await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: IN_4_EXPLANATION_RUNG }).toBe('')
       const other = await restUntilShown(page, centreOf(two.rect), `${MACHINE_ROW_TARGET} -- moving from ${one.icon} into ${two.icon}`)
       expect(isHintOf(two.icon, other.text), `the box shows the description of ${two.icon}: ${JSON.stringify(other.text)}`).toBe(true)
     } finally {
