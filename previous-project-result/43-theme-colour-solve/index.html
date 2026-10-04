@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>テーマ色の解き方の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* Page tokens; set by paintPage() from the same solve the picture uses. */
+  :root { --ground: #ffffff; --ink: #16181d; --quiet: #5b6068; --rule: #d9dee6; --panel: #f6f7fa; }
+  html, body { background: var(--ground); color: var(--ink); }
+  body { margin: 0; padding: 16px 24px 48px; font: 16px/1.7 system-ui, sans-serif; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 24px 0 6px; border-bottom: 1px solid var(--rule); }
+  p.note { color: var(--quiet); margin: 4px 0 8px; font-size: 0.9rem; }
+  code { font-size: 0.85em; }
+  .controls { position: sticky; top: 0; z-index: 2; background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 6px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center;
+    font-size: 0.9rem; }
+  .controls fieldset { border: 0; padding: 0; margin: 0; display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .controls legend { float: left; margin-right: 6px; color: var(--quiet); }
+  .controls label { white-space: nowrap; }
+  button, select, input { font: inherit; }
+  button { color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 3px; cursor: pointer; }
+  button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .layout { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 12px; }
+  .pic { flex: 1 1 560px; min-width: 0; overflow-x: auto; }
+  .read { flex: 1 1 360px; min-width: 0; }
+  table.r { border-collapse: collapse; font-size: 0.85rem; width: 100%; }
+  table.r td, table.r th { border-bottom: 1px solid var(--rule); padding: 2px 6px; text-align: left; }
+  table.r td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .bad { color: #c0392b; font-weight: normal; }
+  .ok { color: var(--quiet); }
+  pre.sum { background: var(--panel); border: 1px solid var(--rule); padding: 8px; font-size: 0.85rem;
+    white-space: pre-wrap; }
+  .sw { display: inline-block; width: 0.9em; height: 0.9em; border: 1px solid var(--quiet); vertical-align: middle; }
+</style>
+</head>
+<body>
+<h1>テーマ色の解き方の見本（CR-683）</h1>
+<p class="note">表 T-236 の色を、色相ごとの明度の寄せ（<code>DFC-865</code>）と地の彩度の解きで描く。
+注記の色の暗いテーマの値（<code>DFC-1220</code>）、フェードの掴み点の 2 色（<code>DFC-729</code>）、ツールチップの色（<code>DFC-1655</code>）も同じ絵に載せた。
+比は WCAG 2.1 のコントラスト比で、HSL を 8 ビットの sRGB へ丸めた値から求める。モノクロは HSL の明度を保ち彩度 0 にした値で測る。</p>
+
+<div class="controls">
+  <fieldset><legend>色相</legend><span id="thButtons"></span>
+    <label><input id="hue" type="range" min="0" max="359" value="214"> <span id="hueOut">214</span></label></fieldset>
+  <fieldset><legend>明暗</legend>
+    <button id="lightBtn" aria-pressed="true">ライト</button><button id="darkBtn" aria-pressed="false">ダーク</button></fieldset>
+  <fieldset><legend>モノクロ</legend><label><input id="mono" type="checkbox"> 入れる</label></fieldset>
+  <fieldset><legend>描き方</legend>
+    <select id="variant">
+      <option value="v0">V0 いまの出荷（寄せも解きも無い）</option>
+      <option value="v1" selected>V1 本 CR（寄せ ＋ 地の彩度を解く。地の明度と彩度の上限は S-146 の値）</option>
+      <option value="v2">V2 試作の数（寄せ ＋ 地の明度 97 / 10、彩度 0〜70）</option>
+    </select></fieldset>
+  <fieldset><legend>地の彩度の上限（V1 の上書き）</legend>
+    <label>暗 <input id="darkTop" type="number" min="0" max="70" step="1" value="12" style="width:4em">%</label></fieldset>
+  <fieldset><legend>注記の色（暗いテーマ）</legend>
+    <select id="note312"></select></fieldset>
+  <fieldset><legend>掴み点</legend>
+    <select id="handle"><option value="new" selected>面 S-146 ／ 縁 S-156（本 CR）</option><option value="old">白 ／ #374151（いまの固定色）</option></select></fieldset>
+</div>
+
+<div class="layout">
+  <div class="pic"><svg id="pic" width="640" height="420" xmlns="http://www.w3.org/2000/svg"></svg>
+    <p class="note">行は上から: 地の上の予定（テーマ色）・最上位の行の地 <code>S-166</code>・交互の行の地 <code>S-167</code>・行の帯 <code>S-164</code>。
+    2 本目以降のバーはパレット色（表 T-294）の赤・青・緑。選んだバーの両端に掴み点、右にコメントボックスとハイライトボックス（線は <code>S-312</code>）、下にツールチップ。</p>
+  </div>
+  <div class="read">
+    <h2>いまの解</h2>
+    <div id="solveOut"></div>
+    <h2>測った組（いまの色相）</h2>
+    <table class="r" id="pairs"></table>
+    <h2>360 の色相の数</h2>
+    <button id="sweep">いまの描き方で 360 色相を測る</button>
+    <pre class="sum" id="sweepOut"></pre>
+    <h2>貼り返す要約</h2>
+    <pre class="sum" id="summary"></pre>
+  </div>
+</div>
+
+<script>
+// ---- colour arithmetic (the same method as CR-683 section 7) --------------
+function hslRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360; s /= 100; l /= 100;
+  function hue2(p, q, t) { if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; }
+  var r, g, b;
+  if (s === 0) { r = g = b = l; } else {
+    var q = l <= 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+    r = hue2(p, q, h + 1 / 3); g = hue2(p, q, h); b = hue2(p, q, h - 1 / 3);
+  }
+  return [Math.floor(r * 255 + 0.5), Math.floor(g * 255 + 0.5), Math.floor(b * 255 + 0.5)];
+}
+function hexRgb(x) { x = x.replace('#', ''); return [0, 2, 4].map(function (i) { return parseInt(x.substr(i, 2), 16); }); }
+function rgbHex(c) { return '#' + c.map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join(''); }
+function mono(c) { var v = Math.floor((Math.max.apply(null, c) + Math.min.apply(null, c)) / 2 + 0.5); return [v, v, v]; }
+function lum(c) { var a = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2]; }
+function ratio(a, b) { var x = lum(a), y = lum(b); if (x < y) { var t = x; x = y; y = t; } return (x + 0.05) / (y + 0.05); }
+function clampPct(v) { return Math.max(0, Math.min(100, Math.round(v * 10) / 10)); }
+
+// ---- table T-236 rows the solve reads (saturation, lightness) ----------------
+var BASE = {
+  light: { 'S-155': [46, 80], 'S-156': [44, 46], 'S-157': [62, 34], 'S-151': [59, 32], 'S-150': [20, 97],
+           'S-149': [14, 87], 'S-164': [42, 96], 'S-166': [40, 97], 'S-167': [20, 99], 'S-158': [66, 22] },
+  dark:  { 'S-155': [32, 26], 'S-156': [46, 66], 'S-157': [62, 64], 'S-151': [62, 68], 'S-150': [14, 13],
+           'S-149': [12, 23], 'S-164': [18, 20], 'S-166': [20, 17], 'S-167': [14, 11], 'S-158': [70, 80] }
+};
+var GROUND = { light: [0, 100], dark: [12, 9] };   // S-146: #ffffff = hsl(H 0% 100%), dark hsl(H 12% 9%)
+var SHIFT = { 'S-155': 0.4, 'S-156': 1, 'S-157': 0.6, 'S-151': 1 };   // CR-683 S-516..S-519
+var STEP = 2, CAP = 44, ITER = 9;                                       // CR-683 S-514, S-515, S-520
+var FIXED = {
+  light: { 'S-147': ['#16181d', 4.5], 'S-148': ['#5b6068', 4.5], 'S-503': ['#214b82', 4.5], 'S-159': ['#6f472a', 3],
+           'S-160': ['#d66400', 3], 'S-163': ['#008a7c', 3], 'S-195': ['#f500f5', 3], 'S-312': ['#b45309', 3], 'S-364': ['#1f7a3d', 3] },
+  dark:  { 'S-147': ['#e8eaee', 4.5], 'S-148': ['#9aa1ab', 4.5], 'S-503': ['#7ba7e0', 4.5], 'S-159': ['#b38461', 3],
+           'S-160': ['#ff9933', 3], 'S-163': ['#47d1bf', 3], 'S-195': ['#ff40ff', 3], 'S-312': ['#b45309', 3], 'S-364': ['#6fc98d', 3] }
+};
+var PALETTE = {   // table T-294: fill, outline, actual (S-157 when absent), band
+  light: { red: ['#e3b9b5', '#a94c42', '#8c2c21', '#f9f1f1'], blue: ['#b5c9e3', '#426ea9', '#21508c', '#f1f4f9'],
+           green: ['#afe1bf', '#3c9a5b', '#1f8340', '#f1f9f3'], yellow: ['#dfd6a9', '#8c7d36', '#79691c', '#f9f8f1'],
+           purple: ['#d8b5e3', '#8f42a9', '#72218c', '#f7f1f9'], orange: ['#e3cab5', '#a97242', '#8c5321', '#f9f5f1'],
+           lightgray: ['#cccccc', '#757575', '#575757', '#f5f5f5'], dimgray: ['#575757', '#383838', null, '#e0e0e0'],
+           black: ['#000000', '#000000', null, null] },
+  dark:  { red: ['#58312d', '#d08880', '#dc766a', '#3c2c2a'], blue: ['#2d3f58', '#80a3d0', '#6a9cdc', '#2a323c'],
+           green: ['#2d583b', '#80d09b', '#6adc90', '#2a3c30'], yellow: ['#58502d', '#d0c380', '#dcc96a', '#3c392a'],
+           purple: ['#4d2d58', '#bc80d0', '#c06adc', '#382a3c'], orange: ['#58412d', '#d0a680', '#dc9f6a', '#3c322a'],
+           lightgray: ['#424242', '#a8a8a8', '#a3a3a3', '#333333'], dimgray: ['#a3a3a3', '#cccccc', null, '#474747'],
+           black: ['#ffffff', '#ffffff', null, null] }
+};
+var NOTE_DARK = [
+  ['#b45309', 'いまの値 #b45309（明るいテーマと同じ）'],
+  ['#c75d0a', '#c75d0a hsl(26 90% 41%)'],
+  ['#d9650b', '#d9650b hsl(26 90% 45%)'],
+  ['#df670c', '#df670c hsl(26 90% 46%)（推奨）'],
+  ['#e87a1f', '#e87a1f hsl(27 81% 52%)'],
+  ['#f0862e', '#f0862e hsl(27 87% 56%)']
+];
+var TH = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250];
+
+var state = { hue: 214, mode: 'light', mono: false, variant: 'v1', darkTop: 12, note: '#df670c', handle: 'new' };
+
+function fixedOf(mode, row) {
+  var hx = FIXED[mode][row][0];
+  if (row === 'S-312' && mode === 'dark') hx = state.note;
+  return hexRgb(hx);
+}
+
+/** The pairs a solve measures. withGround: also the rows drawn straight on the ground (CF-5). */
+function pairs(mode, g, rows, isMono, withGround) {
+  function m(c) { return isMono ? mono(c) : c; }
+  var out = [
+    ['CT-3 実績 S-157 ÷ 予定 S-155', ratio(rows['S-157'], rows['S-155']), 3],
+    ['CT-4 予定の線 S-156 ÷ 地', ratio(rows['S-156'], g), 3],
+    ['CT-5 予定の塗り S-155 ÷ 地', ratio(rows['S-155'], g), 1.3]
+  ];
+  if (!withGround) return out;
+  Object.keys(PALETTE[mode]).forEach(function (name) {
+    var p = PALETTE[mode][name];
+    out.push(['CV-8 ' + name + ' の縁 ÷ 地', ratio(m(hexRgb(p[1])), g), 3]);
+    out.push(['CV-8 ' + name + ' の塗り ÷ 地', ratio(m(hexRgb(p[0])), g), 1.3]);
+  });
+  Object.keys(FIXED[mode]).forEach(function (row) {
+    out.push([row + ' ÷ 地', ratio(m(fixedOf(mode, row)), g), FIXED[mode][row][1]]);
+  });
+  out.push(['S-151 強調 ÷ 地', ratio(rows['S-151'], g), 3]);
+  return out;
+}
+function failing(list) { return list.filter(function (p) { return p[1] < p[2]; }); }
+
+function themedRows(mode, hue, k, isMono) {
+  var d = mode === 'dark' ? 1 : -1, out = {};
+  Object.keys(BASE[mode]).forEach(function (row) {
+    var s = BASE[mode][row][0], l = BASE[mode][row][1];
+    if (SHIFT[row] !== undefined) l = clampPct(l + d * k * SHIFT[row]);
+    var c = hslRgb(hue, s, l);
+    out[row] = isMono ? mono(c) : c;
+  });
+  return out;
+}
+
+function groundSpec(variant, mode) {
+  if (variant === 'v2') return { top: 70, l: mode === 'dark' ? 10 : 97 };
+  if (mode === 'dark') return { top: variant === 'v1' ? state.darkTop : 12, l: 9 };
+  return { top: 0, l: 100 };
+}
+
+/** CF-2..CF-5 of CR-683: shift first, then the ground saturation. */
+function solve(variant, mode, hue, isMono) {
+  var gs = groundSpec(variant, mode);
+  if (variant === 'v0') {
+    var g0 = hslRgb(hue, GROUND[mode][0], GROUND[mode][1]);
+    return { k: 0, sat: GROUND[mode][0], ground: isMono ? mono(g0) : g0, rows: themedRows(mode, hue, 0, isMono) };
+  }
+  var gStart = hslRgb(hue, 0, gs.l); if (isMono) gStart = mono(gStart);
+  var k = CAP;
+  for (var kk = 0; kk <= CAP; kk += STEP) {
+    if (failing(pairs(mode, gStart, themedRows(mode, hue, kk, isMono), isMono, false)).length === 0) { k = kk; break; }
+  }
+  var rows = themedRows(mode, hue, k, isMono), sat = 0;
+  if (!isMono && failing(pairs(mode, hslRgb(hue, gs.top, gs.l), rows, false, true)).length === 0) {
+    sat = gs.top;   // the top passes: no search (CF-4)
+  } else if (!isMono) {
+    var lo = 0, hi = gs.top;
+    for (var i = 0; i < ITER; i++) {
+      var mid = (lo + hi) / 2;
+      if (failing(pairs(mode, hslRgb(hue, mid, gs.l), rows, false, true)).length) hi = mid; else lo = mid;
+    }
+    sat = Math.floor(lo * 10) / 10;
+  }
+  var g = hslRgb(hue, sat, gs.l);
+  return { k: k, sat: sat, ground: isMono ? mono(g) : g, rows: rows };
+}
+
+// ---- picture ---------------------------------------------------------------
+function svgRect(x, y, w, h, fill, stroke, sw, extra) {
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + fill + '"' +
+    (stroke ? ' stroke="' + stroke + '" stroke-width="' + (sw || 1) + '"' : '') + (extra || '') + '/>';
+}
+function draw() {
+  var mode = state.mode, isMono = state.mono, sol = solve(state.variant, mode, state.hue, isMono);
+  function m(c) { return isMono ? mono(c) : c; }
+  var G = rgbHex(sol.ground), R = sol.rows;
+  var ink = rgbHex(m(fixedOf(mode, 'S-147'))), quiet = rgbHex(m(fixedOf(mode, 'S-148')));
+  var noteC = rgbHex(m(fixedOf(mode, 'S-312')));
+  var grounds = [['地 S-146', G], ['最上位の行の地 S-166', rgbHex(R['S-166'])], ['交互の行の地 S-167', rgbHex(R['S-167'])],
+                 ['行の帯 S-164', rgbHex(R['S-164'])]];
+  var s = [svgRect(0, 0, 640, 420, G)];
+  var rowH = 72;
+  grounds.forEach(function (gr, i) {
+    var y = 10 + i * rowH;
+    s.push(svgRect(0, y, 640, rowH, gr[1]));
+    s.push('<line x1="0" x2="640" y1="' + (y + rowH) + '" y2="' + (y + rowH) + '" stroke="' + rgbHex(R['S-149']) + '"/>');
+    s.push('<text x="6" y="' + (y + 14) + '" font-size="12" fill="' + quiet + '">' + gr[0] + '</text>');
+    // theme bar
+    s.push(svgRect(20, y + 24, 150, 26, rgbHex(R['S-155']), rgbHex(R['S-156']), 1.5));
+    s.push(svgRect(20, y + 32, 80, 12, rgbHex(R['S-157'])));
+    // palette bars
+    ['red', 'blue', 'green'].forEach(function (name, j) {
+      var p = PALETTE[mode][name], x = 190 + j * 120;
+      s.push(svgRect(x, y + 24, 100, 26, rgbHex(m(hexRgb(p[0]))), rgbHex(m(hexRgb(p[1]))), 1.5));
+      s.push(svgRect(x, y + 32, 50, 12, rgbHex(m(hexRgb(p[2] || rgbHex(R['S-157']))))));
+    });
+  });
+  // selected bar's fade handles (row 0)
+  var hf = state.handle === 'new' ? G : '#ffffff', he = state.handle === 'new' ? rgbHex(R['S-156']) : rgbHex(m(hexRgb('#374151')));
+  [20, 170].forEach(function (x) { s.push(svgRect(x - 2.5 + (x === 20 ? 6 : -6), 10 + 24 + 13 - 2.5, 5, 5, hf, he, 1)); });
+  s.push(svgRect(18, 10 + 22, 154, 30, 'none', rgbHex(R['S-151']), 1, ' stroke-dasharray="3 2"'));
+  // comment box and highlight box in S-312
+  s.push(svgRect(560, 92, 72, 40, G, noteC, 1.5));
+  s.push('<text x="566" y="116" font-size="12" fill="' + ink + '">コメント</text>');
+  s.push('<line x1="560" y1="112" x2="535" y2="130" stroke="' + noteC + '" stroke-width="1.5"/>');
+  s.push(svgRect(182, 160, 260, 60, 'none', noteC, 2));
+  // tooltip (DFC-1655): ground S-146, ink S-147, rim S-149
+  s.push(svgRect(20, 312, 230, 48, G, rgbHex(R['S-149']), 1));
+  s.push('<text x="28" y="332" font-size="12" fill="' + ink + '">ツールチップ: 地 S-146 ／ 字 S-147</text>');
+  s.push('<text x="28" y="350" font-size="12" fill="' + quiet + '">変更前の予定の説明は字 S-148（TL-3）</text>');
+  document.getElementById('pic').innerHTML = s.join('');
+  paintPage(sol, mode, isMono);
+  readOut(sol, mode, isMono);
+}
+function paintPage(sol, mode, isMono) {
+  var r = document.documentElement.style;
+  r.setProperty('--ground', rgbHex(sol.ground));
+  r.setProperty('--ink', rgbHex(isMono ? mono(hexRgb(FIXED[mode]['S-147'][0])) : hexRgb(FIXED[mode]['S-147'][0])));
+  r.setProperty('--quiet', rgbHex(isMono ? mono(hexRgb(FIXED[mode]['S-148'][0])) : hexRgb(FIXED[mode]['S-148'][0])));
+  r.setProperty('--rule', rgbHex(sol.rows['S-149']));
+  r.setProperty('--panel', rgbHex(sol.rows['S-150']));
+  document.documentElement.style.colorScheme = mode;
+}
+function readOut(sol, mode, isMono) {
+  var gs = groundSpec(state.variant, mode);
+  document.getElementById('solveOut').innerHTML =
+    '<p>寄せ k = <b>' + sol.k + '</b>（刻み ' + STEP + '、上限 ' + CAP + '）／ 地 <span class="sw" style="background:' + rgbHex(sol.ground) +
+    '"></span> <code>' + rgbHex(sol.ground) + '</code> ＝ hsl(' + state.hue + ' ' + sol.sat + '% ' + gs.l + '%)' +
+    '（彩度の上限 ' + gs.top + '%）</p><p>予定の塗り <code>' + rgbHex(sol.rows['S-155']) + '</code> ／ 予定の線 <code>' + rgbHex(sol.rows['S-156']) +
+    '</code> ／ 実績の塗り <code>' + rgbHex(sol.rows['S-157']) + '</code> ／ 強調 <code>' + rgbHex(sol.rows['S-151']) + '</code></p>';
+  var list = pairs(mode, sol.ground, sol.rows, isMono, true);
+  // DFC-728: the plan fill over the row grounds is a known limit (LM-21), shown but not solved for.
+  ['S-166', 'S-167', 'S-164'].forEach(function (row) { list.push(['（限界 LM-21）予定の塗り ÷ ' + row, ratio(sol.rows['S-155'], sol.rows[row]), 1.3]); });
+  ['S-166', 'S-167', 'S-150'].forEach(function (row) {
+    var c = fixedOf(mode, 'S-312'); if (isMono) c = mono(c);
+    list.push(['（参考）注記 S-312 ÷ ' + row, ratio(c, sol.rows[row]), 3]); });
+  document.getElementById('pairs').innerHTML = '<tr><th>組</th><th>比</th><th>床</th></tr>' + list.map(function (p) {
+    var bad = p[1] < p[2];
+    return '<tr><td>' + p[0] + '</td><td class="n ' + (bad ? 'bad' : 'ok') + '">' + p[1].toFixed(2) + (bad ? ' ✗' : '') + '</td><td class="n">' + p[2] + '</td></tr>';
+  }).join('');
+  document.getElementById('summary').textContent =
+    '描き方 ' + state.variant + ' / 色相 ' + state.hue + ' / ' + mode + (isMono ? ' / モノクロ' : '') +
+    '\n暗いテーマの地の彩度の上限 ' + state.darkTop + '%\n注記の色（暗いテーマ）' + state.note +
+    '\n掴み点 ' + (state.handle === 'new' ? '面 S-146 / 縁 S-156' : '白 / #374151');
+}
+function sweep() {
+  var lines = [];
+  ['light', 'dark'].forEach(function (mode) {
+    [false, true].forEach(function (isMono) {
+      var kMax = 0, kHues = 0, fails = {}, satMin = 999, satMax = -1;
+      for (var h = 0; h < 360; h++) {
+        var sol = solve(state.variant, mode, h, isMono);
+        kMax = Math.max(kMax, sol.k); if (sol.k > 0) kHues++;
+        satMin = Math.min(satMin, sol.sat); satMax = Math.max(satMax, sol.sat);
+        failing(pairs(mode, sol.ground, sol.rows, isMono, true)).forEach(function (p) {
+          var f = fails[p[0]] || (fails[p[0]] = { n: 0, worst: 99, hue: 0 });
+          f.n++; if (p[1] < f.worst) { f.worst = p[1]; f.hue = h; }
+        });
+      }
+      lines.push(mode + (isMono ? ' モノクロ' : '') + ': k の最大 ' + kMax + '（k > 0 の色相 ' + kHues + '）、地の彩度 ' + satMin + '〜' + satMax + '%');
+      Object.keys(fails).forEach(function (n) {
+        lines.push('  割る: ' + n + ' ' + fails[n].n + ' 色相、最悪 ' + fails[n].worst.toFixed(2) + '（色相 ' + fails[n].hue + '）');
+      });
+    });
+  });
+  document.getElementById('sweepOut').textContent = lines.join('\n');
+}
+
+// ---- controls --------------------------------------------------------------
+document.getElementById('thButtons').innerHTML = TH.map(function (h, i) {
+  return '<button data-h="' + h + '">TH-' + (i + 1) + '</button>'; }).join('');
+document.getElementById('thButtons').addEventListener('click', function (e) {
+  var h = e.target.getAttribute('data-h'); if (h === null) return;
+  state.hue = Number(h); document.getElementById('hue').value = h; document.getElementById('hueOut').textContent = h; draw(); });
+document.getElementById('hue').addEventListener('input', function () {
+  state.hue = Number(this.value); document.getElementById('hueOut').textContent = this.value; draw(); });
+function setMode(m) { state.mode = m;
+  document.getElementById('lightBtn').setAttribute('aria-pressed', String(m === 'light'));
+  document.getElementById('darkBtn').setAttribute('aria-pressed', String(m === 'dark')); draw(); }
+document.getElementById('lightBtn').addEventListener('click', function () { setMode('light'); });
+document.getElementById('darkBtn').addEventListener('click', function () { setMode('dark'); });
+document.getElementById('mono').addEventListener('change', function () { state.mono = this.checked; draw(); });
+document.getElementById('variant').addEventListener('change', function () { state.variant = this.value; draw(); });
+document.getElementById('darkTop').addEventListener('input', function () { state.darkTop = Math.max(0, Math.min(70, Number(this.value) || 0)); draw(); });
+document.getElementById('note312').innerHTML = NOTE_DARK.map(function (n) {
+  return '<option value="' + n[0] + '"' + (n[0] === state.note ? ' selected' : '') + '>' + n[1] + '</option>'; }).join('');
+document.getElementById('note312').addEventListener('change', function () { state.note = this.value; draw(); });
+document.getElementById('handle').addEventListener('change', function () { state.handle = this.value; draw(); });
+document.getElementById('sweep').addEventListener('click', sweep);
+draw();
+</script>
+</body>
+</html>
