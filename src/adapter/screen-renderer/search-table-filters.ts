@@ -11,6 +11,7 @@ import {
   type TaskSearchRow,
 } from '../../entity/document-model/schedule/schedule'
 import type { SearchPanelSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import displayWords from './display-words.json'
 
 type SearchFilters = SearchPanelSession['filters']
 
@@ -20,9 +21,12 @@ export type SearchColumn = SearchColumnFilter['column']
 
 export type SearchSort = NonNullable<SearchPanelSession['sort']>
 
-export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6']
-
 export const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9']
+
+// see T-331
+export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns
+  .map((entry) => entry.rowId)
+  .filter((column) => !COMMENT_BOX_SEARCH_COLUMNS.includes(column))
 
 export const ASSIGNEE_SEPARATOR = ', '
 
@@ -42,8 +46,6 @@ export type SearchTaskState = TaskSearchRow['planActualState'] | typeof BOTTLENE
 
 /** @purity pure */
 export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
-  // STOP: spec does not decide whether this column follows DT-1, where a doubt outranks the bottleneck. Looked in SQ-5, SV-8, DT-1
-  // @provisional PND-710
   return row.isBottleneck ? BOTTLENECK_STATE : row.planActualState
 }
 
@@ -64,6 +66,20 @@ export interface TableColumns<Row> {
   readonly orders?: { readonly [column: SearchColumn]: (a: string, b: string) => number }
 }
 
+const PERCENT = '%'
+
+// see SQ-11, DT-3
+/** @purity pure */
+export function percentText(percent: number | null): string {
+  return percent === null ? BLANK_SEARCH_VALUE : `${Math.round(percent)}${PERCENT}`
+}
+
+// see SQ-11, DT-3, SV-8
+/** @purity pure */
+export function comparePercentTexts(a: string, b: string): number {
+  return Number.parseFloat(a) - Number.parseFloat(b)
+}
+
 // see SQ-7, SV-17
 /** @purity pure */
 export function searchBodyTextOf(text: string): string {
@@ -75,11 +91,17 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
     'SQ-1': (row) => [row.name],
     'SQ-2': (row) => (row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : row.assigneeNames),
     'SQ-5': (row) => [searchTaskStateOf(row)],
+    'SQ-11': (row) => [percentText(row.percentComplete)],
     'SQ-6': (row) => [row.rowPath.join(ROW_PATH_SEPARATOR)],
   },
   dates: {
     'SQ-3': (row) => row.plannedStart,
     'SQ-4': (row) => row.plannedFinish,
+    'SQ-12': (row) => row.actualStart,
+    'SQ-13': (row) => row.actualFinish,
+  },
+  orders: {
+    'SQ-11': comparePercentTexts,
   },
 }
 

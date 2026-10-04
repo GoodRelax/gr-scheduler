@@ -1770,6 +1770,15 @@
      }
     },
     {
+     "name": "markerGlyphSvg",
+     "note": {
+      "ja": [
+       "進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。",
+       "`FR-151` の 表 T-331 の `SQ-5` と `FR-134` の 表 T-347 の `DT-1` が、表の値の頭に日程表と同じ絵を描けと定めるので、形を写さずに描く当の本人から問う"
+      ]
+     }
+    },
+    {
      "name": "ViewerValues",
      "note": {
       "ja": [
@@ -2627,6 +2636,42 @@
       "ja": [
        "ウインドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。",
        "`DomScreenSurface` が使う"
+      ]
+     }
+    },
+    {
+     "name": "statusGlyphSvg",
+     "note": {
+      "ja": [
+       "表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。",
+       "色は `MARK_COLOUR_ROWS` の行ごとの CSS の変数で塗る —— `DomScreenSurface` がテーマに合わせて変数を置く"
+      ]
+     }
+    },
+    {
+     "name": "MARK_COLOUR_ROWS",
+     "note": {
+      "ja": [
+       "`statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。",
+       "`DomScreenSurface` が行ごとに変数を置く"
+      ]
+     }
+    },
+    {
+     "name": "markColourVariableOf",
+     "note": {
+      "ja": [
+       "表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。",
+       "描く側と置く側が同じ名を使う"
+      ]
+     }
+    },
+    {
+     "name": "isFilterValueListed",
+     "note": {
+      "ja": [
+       "列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。",
+       "`DomScreenSurface` が打つたびに一覧を絞る（`05-07-design.md` の 表 T-065 の `IF-9`）"
       ]
      }
     },

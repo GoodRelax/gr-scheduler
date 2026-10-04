@@ -17,10 +17,20 @@ export type TaskSearchRow = {
   readonly assigneeNames: readonly string[]
   readonly plannedStart: string | null
   readonly plannedFinish: string | null
+  // see SQ-11, SQ-12, SQ-13
+  readonly percentComplete: number | null
+  readonly actualStart: string | null
+  readonly actualFinish: string | null
   readonly planActualState: PlanActualState
   readonly isBottleneck: boolean
   readonly rowPath: readonly string[]
   readonly groupId: string | null
+}
+
+// see SQ-11, SQ-12, SQ-13
+/** @purity pure */
+function progressOf(task: Task): Pick<TaskSearchRow, 'percentComplete' | 'actualStart' | 'actualFinish'> {
+  return { percentComplete: task.percentComplete, actualStart: task.actualStart, actualFinish: task.actualFinish }
 }
 
 // see T-331
@@ -135,6 +145,7 @@ export function searchRowsOf(
       assigneeNames: names,
       plannedStart: task.start,
       plannedFinish: plannedFinishOf(task),
+      ...progressOf(task),
       planActualState: planActualState(task),
       isBottleneck: bottleneckUids.has(task.uid),
       rowPath: pathOf(groupId),

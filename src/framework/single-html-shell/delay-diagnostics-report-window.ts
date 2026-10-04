@@ -78,13 +78,14 @@ export function answerDelayDiagnosticsReportEntry(
   filterColumn: string | null,
   held: ReportHeld | null,
   outlets: ReportOutlets,
+  listed?: readonly string[] | null,
 ): boolean {
   if (held === null) return false
   if (entry === COPY_ENTRY || entry === EXPORT_ENTRY) {
     handOutMarkdown(entry, held, outlets)
     return true
   }
-  const answer = delayDiagnosticsReportAfterEntry(held.window, entry, filterColumn, held)
+  const answer = delayDiagnosticsReportAfterEntry(held.window, entry, filterColumn, held, listed)
   if (answer === null) return false
   outlets.holdWindow(answer.window)
   return true

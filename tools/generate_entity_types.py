@@ -1430,7 +1430,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
                                        'S-466', 'S-467', 'S-468', 'S-469',
                                        'S-470', 'S-471', 'S-472', 'S-473',
-                                       'S-474',
+                                       'S-474', 'S-500', 'S-501', 'S-502',
                                        'S-475', 'S-476', 'S-477', 'S-478',
                                        'S-479', 'S-480', 'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
@@ -1854,7 +1854,10 @@ COLOUR_TARGETS = {
     # here. ONE row read by two units, like S-151 above.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
-                       'S-336', 'S-337', 'S-464', 'S-493', 'S-165'],
+                       'S-336', 'S-337', 'S-464', 'S-493', 'S-165',
+                       'S-503', 'S-161', 'S-162', 'S-326', 'S-327',
+                       'S-385', 'S-386', 'S-387', 'S-388', 'S-389',
+                       'S-390'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
@@ -2096,6 +2099,41 @@ def annotation_cell(cell):
     if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
         return (cell['lit'], 'string')
     return not_stored_cell(cell)
+
+
+def search_column_width_rows_block():
+    """Each search / report table column -> the row of table T-206 that holds
+    its default width (CR-660, SV-18 and RW-9).
+
+    The rows S-466 .. S-481 and S-500 .. S-502 each name their column in their
+    value cell (`SQ-n` of table T-331 or `DT-n` of table T-347, the last such
+    name in the cell). The columns are not in the rows' order (SQ-11 .. SQ-13
+    came later), so the surface reads this map instead of counting places, and
+    a hand-kept copy of it would restate the manuscript.
+    """
+    names = NOT_STORED_TARGETS['NOT_STORED_SEARCH_PANEL_SIZES'][0]
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    by_id = {}
+    for block in doc['blocks']:
+        for row in block.get('rows', []):
+            if row.get('id') in names:
+                by_id[row['id']] = row
+    got = []
+    for row_id in names:
+        value = by_id.get(row_id, {}).get('value', {})
+        text = value.get('ja', '') if isinstance(value, dict) else ''
+        found = re.findall(r'`((?:SQ|DT)-\d+)`', text)
+        if found:
+            got.append((found[-1], row_id))
+    columns = [column for column, _row in got]
+    if len(set(columns)) != len(columns):
+        raise SystemExit('two rows of table T-206 name the same column: %s' % columns)
+    out = ['// see SV-18, RW-9, T-206', 'export const SEARCH_COLUMN_WIDTH_ROWS: {',
+           "  readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES", '} = {']
+    for column, row_id in got:
+        out.append("  '%s': '%s'," % (column, row_id))
+    out.append('}')
+    return '\n'.join(out)
 
 
 def search_panel_font_sizes_block():
@@ -3015,6 +3053,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
      # CR-571: the search panel's default size and its four text sizes.
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
+     # CR-660: which T-206 row holds each column's default width.
+     + search_column_width_rows_block() + NEWLINE * 2
      + search_panel_font_sizes_block() + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_ROW_CAP') + NEWLINE * 2
@@ -3258,6 +3298,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
         'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',
+        'SEARCH_COLUMN_WIDTH_ROWS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_SCROLLBAR_SIZES',

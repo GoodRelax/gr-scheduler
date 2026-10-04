@@ -4,6 +4,8 @@
 // @purity    non-pure
 
 import {
+  isFilterValueListed,
+  statusGlyphSvg,
   windowBoxOf,
   windowNormalBoxOf,
   type CommandItem,
@@ -17,6 +19,7 @@ import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   NOT_STORED_SEARCH_PANEL_SIZES,
   PAINT,
+  SEARCH_COLUMN_WIDTH_ROWS,
   anchoredEntry,
   boxStyle,
   commandEntry,
@@ -43,8 +46,7 @@ type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['
 // see T-330, T-346, RW-3, RW-4
 export type TableWindowView = Omit<SearchPanelView, 'table'> & {
   readonly toolEntries?: readonly CommandItem[]
-  readonly summary?: readonly { readonly text: string }[]
-  readonly jumpAt?: number
+  readonly summary?: readonly { readonly text: string; readonly glyph?: SearchRowView['glyph'] }[]
 }
 
 // see T-337, RW-5
@@ -53,11 +55,12 @@ export interface TableWindowIdentity {
   readonly role: string
 }
 
-// see SV-6, SV-17, SV-18, RW-9
+// see SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
 export interface DrawnTable {
   readonly columns: readonly SearchColumnView[]
   readonly rows: readonly SearchRowView[]
   readonly jumpAt?: number
+  readonly glyphAt?: number | null
 }
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
@@ -86,6 +89,12 @@ export const SEARCH_FILTER_VALUE_ATTRIBUTE = 'data-search-filter-value'
 
 export const SEARCH_FILTER_BOUND_ATTRIBUTE = 'data-search-filter-bound'
 
+export const SEARCH_FILTER_SEARCH_ATTRIBUTE = 'data-search-filter-search'
+
+const FILTER_LABEL_ATTRIBUTE = 'data-search-filter-label'
+
+const FILTER_LIST_ATTRIBUTE = 'data-search-filter-list'
+
 export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
 export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
@@ -98,11 +107,7 @@ const FILTER_MENU_ATTRIBUTE = 'data-search-filter-menu'
 
 const FILTER_ENTRY = 'IC-122'
 
-type SearchPanelSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
-
-// see SV-18, RW-9
-// WHY: S-466 .. S-474 hold SQ-1 .. SQ-9 and S-475 .. S-481 hold DT-1 .. DT-7, each in its table's row order.
-const FIRST_DEFAULT_WIDTH_ROW: { readonly [table: string]: SearchPanelSizeRow } = { SQ: 'S-466', DT: 'S-475' }
+const LISTED_ENTRIES: readonly string[] = ['IC-125', 'IC-126']
 
 // TRAP: PAINT is read at a call, never at load; dom-screen-surface.ts imports this file, so it is not set yet then.
 /** @purity pure */
@@ -123,15 +128,25 @@ const HEADING_WORD_STYLE = 'flex:1 1 auto;min-width:0;overflow:hidden;text-overf
 
 const HEADING_LINE_STYLE = 'display:flex;align-items:center;'
 
+// see SV-7
 /** @purity pure */
 function filterMenuStyle(): string {
   return (
-    'position:absolute;z-index:4;box-sizing:border-box;overflow:auto;display:flex;flex-direction:column;' +
+    'position:absolute;z-index:4;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;' +
     `background:${PAINT.ground};border:1px solid ${PAINT.rule};box-shadow:0 0.25em 0.75em ${PAINT.shadow};`
   )
 }
 
 const FILTER_LINE_STYLE = 'display:flex;align-items:center;white-space:nowrap;'
+
+const FILTER_CONTROLS_STYLE = 'flex:none;display:flex;flex-direction:column;'
+
+const FILTER_LIST_STYLE = 'flex:1 1 auto;min-height:0;overflow:auto;'
+
+const FILTER_SEARCH_STYLE = 'box-sizing:border-box;width:100%;'
+
+// see SQ-5, DT-1, RW-4
+const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
 /** @purity pure */
 function cellStyle(): string {
@@ -162,7 +177,11 @@ function headerCellStyle(isFixed: boolean): string {
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
 
-const JUMP_CELL_STYLE = 'cursor:pointer;'
+// see SQ-1, DT-4, SJ-1, S-503
+/** @purity pure */
+function jumpCellStyle(): string {
+  return `cursor:pointer;color:${PAINT.link};text-decoration:underline;`
+}
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
@@ -170,12 +189,19 @@ type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView): number {
   if (column.width !== null) return column.width
-  const [table = '', place = ''] = column.column.split('-')
-  const rows = Object.keys(NOT_STORED_SEARCH_PANEL_SIZES) as readonly SearchPanelSizeRow[]
-  const first = FIRST_DEFAULT_WIDTH_ROW[table]
-  const row = first === undefined ? undefined : rows[rows.indexOf(first) + Number(place) - 1]
+  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column]
   if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
+}
+
+// see SQ-5, DT-1, RW-4, FR-133
+// TRAP: innerHTML only for statusGlyphSvg's markup, which carries numbers and row ids, never a document's text.
+/** @purity non-pure */
+function glyphElement(host: Document, glyph: SearchRowView['glyph']): HTMLElement {
+  const box = made(host, 'span', GLYPH_STYLE)
+  box.setAttribute('aria-hidden', 'true')
+  if (glyph !== null) box.innerHTML = statusGlyphSvg(glyph)
+  return box
 }
 
 type SizeRatio = { readonly width: number; readonly height: number }
@@ -255,6 +281,7 @@ function filterControl(host: Document, type: string, fontPx: number): HTMLInputE
 /** @purity non-pure */
 function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: number): HTMLElement {
   const line = made(host, 'label', FILTER_LINE_STYLE + `font-size:${fontPx}px;`)
+  line.setAttribute(FILTER_LABEL_ATTRIBUTE, shown.label)
   const mark = filterControl(host, 'checkbox', fontPx)
   mark.setAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE, shown.value)
   mark.checked = shown.isShown
@@ -297,24 +324,66 @@ export function searchFilterMenuElement(
   box.setAttribute(FILTER_MENU_ATTRIBUTE, 'true')
   const entries = made(host, 'div', FILTER_LINE_STYLE)
   entries.replaceChildren(...menu.entries.map((item: CommandItem) => anchoredEntry(host, item, anchors)))
-  const choices =
-    menu.kind === 'dates'
-      ? [filterDateFields(host, menu, fontPx)]
-      : menu.values.map((shown) => filterValueLine(host, shown, fontPx))
-  box.replaceChildren(...choices, entries)
+  const controls = made(host, 'div', FILTER_CONTROLS_STYLE)
+  const list = made(host, 'div', FILTER_LIST_STYLE)
+  list.setAttribute(FILTER_LIST_ATTRIBUTE, 'true')
+  if (menu.kind === 'dates') {
+    controls.replaceChildren(entries)
+    list.replaceChildren(filterDateFields(host, menu, fontPx))
+  } else {
+    controls.replaceChildren(filterSearchField(host, menu.searchHint, fontPx), entries)
+    list.replaceChildren(...menu.values.map((shown) => filterValueLine(host, shown, fontPx)))
+  }
+  box.replaceChildren(controls, list)
   return box
 }
 
-// see SJ-1, SV-17
+// see SV-7
 /** @purity non-pure */
-function bodyRowElement(host: Document, row: SearchRowView, columns: readonly SearchColumnView[], jumpAt: number): HTMLElement {
+function filterSearchField(host: Document, hint: string, fontPx: number): HTMLElement {
+  const field = made(host, 'input', FILTER_SEARCH_STYLE + `font-size:${fontPx}px;`) as HTMLInputElement
+  field.setAttribute('type', 'search')
+  field.setAttribute('placeholder', hint)
+  field.setAttribute(SEARCH_FILTER_SEARCH_ATTRIBUTE, 'true')
+  field.setAttribute(FIELD_ROW_ATTRIBUTE, SEARCH_FILTER_ROW)
+  return field
+}
+
+// see SV-7
+/** @purity non-pure */
+function narrowFilterList(layer: Element, typed: string): void {
+  for (const line of layer.querySelectorAll<HTMLElement>(`[${FILTER_LABEL_ATTRIBUTE}]`)) {
+    line.style.display = isFilterValueListed(line.getAttribute(FILTER_LABEL_ATTRIBUTE) ?? '', typed) ? '' : 'none'
+  }
+}
+
+// see SV-7, IF-9, IC-125, IC-126
+/** @purity semi-pure-b */
+function listedFilterValues(layer: Element): readonly string[] | null {
+  const field = layer.querySelector<HTMLInputElement>(`[${SEARCH_FILTER_SEARCH_ATTRIBUTE}]`)
+  if (field === null || field.value === '') return null
+  const marks = [...layer.querySelectorAll<HTMLInputElement>(`[${SEARCH_FILTER_VALUE_ATTRIBUTE}]`)]
+  return marks.filter((mark) => mark.parentElement?.style.display !== 'none').map((mark) => mark.getAttribute(SEARCH_FILTER_VALUE_ATTRIBUTE) ?? '')
+}
+
+// see SV-7, IF-9
+/** @purity semi-pure-b */
+function withListedValues(answer: ScreenPart | null, layer: Element): ScreenPart | null {
+  if (answer === null || answer.entry === null || !LISTED_ENTRIES.includes(answer.entry)) return answer
+  return { ...answer, searchFilterListed: listedFilterValues(layer) }
+}
+
+// see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
+/** @purity non-pure */
+function bodyRowElement(host: Document, row: SearchRowView, columns: readonly SearchColumnView[], places: { readonly jumpAt: number; readonly glyphAt: number | null }): HTMLElement {
   const line = made(host, 'tr', '')
   row.cells.forEach((text, at) => {
-    const isJump = at === jumpAt
+    const isJump = at === places.jumpAt
     const isFixed = columns[at]?.isFixed === true
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
-    const cell = made(host, 'td', cellStyle() + fixed + (isJump ? JUMP_CELL_STYLE : ''))
-    cell.textContent = text
+    const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
+    if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph), text)
+    else cell.textContent = text
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
     if (isJump && row.target.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
     if (isJump && row.target.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
@@ -337,10 +406,20 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   headings.replaceChildren(...view.columns.map((column) => headerCellElement(host, column)))
   head.append(headings)
   const body = made(host, 'tbody', '')
-  body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns, view.jumpAt ?? 0)))
+  const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null }
+  body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns, places)))
   table.replaceChildren(columns, head, body)
   box.append(table)
   return box
+}
+
+// see RW-4
+/** @purity non-pure */
+function summaryItemElement(host: Document, one: NonNullable<TableWindowView['summary']>[number]): HTMLElement {
+  const item = made(host, 'span', SUMMARY_ITEM_STYLE)
+  if (one.glyph === undefined || one.glyph === null) item.textContent = one.text
+  else item.replaceChildren(glyphElement(host, one.glyph), one.text)
+  return item
 }
 
 // see RW-3, RW-4
@@ -352,7 +431,7 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   line.replaceChildren(...tools, word)
   if (view.summary === undefined) return [tools.length === 0 ? word : line]
   const summary = made(host, 'div', SUMMARY_LINE_STYLE + `font-size:${fontPx}px;`)
-  summary.replaceChildren(...view.summary.map((one) => Object.assign(made(host, 'span', SUMMARY_ITEM_STYLE), { textContent: one.text })))
+  summary.replaceChildren(...view.summary.map((one) => summaryItemElement(host, one)))
   return [line, summary]
 }
 
@@ -539,6 +618,7 @@ export function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { 
 
 const FOCUS_MARKS: readonly string[] = [
   SEARCH_WORD_FIELD_ATTRIBUTE,
+  SEARCH_FILTER_SEARCH_ATTRIBUTE,
   SEARCH_FILTER_VALUE_ATTRIBUTE,
   SEARCH_FILTER_BOUND_ATTRIBUTE,
   ENTRY_ICON_ATTRIBUTE,
@@ -571,6 +651,28 @@ function drawnKeepingFocus(host: Document, layer: Element, drawIt: () => void): 
   const mark = (layer.firstElementChild ?? null) === null ? null : focusMarkIn(host, layer)
   drawIt()
   focusKeptIn(host, layer, mark)
+}
+
+// see SV-7, IF-9
+/** @purity non-pure */
+function filterSearchKeeper(layer: HTMLElement): (menu: TableWindowView['filterMenu']) => void {
+  let held: { readonly column: string; readonly text: string } | null = null
+  layer.addEventListener('input', (event: Event) => {
+    const field = event.target as HTMLInputElement | null
+    if (field === null || typeof field.getAttribute !== 'function' || field.getAttribute(SEARCH_FILTER_SEARCH_ATTRIBUTE) === null) return
+    const column = layer.querySelector(`[${FILTER_MENU_ATTRIBUTE}]`)?.getAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE) ?? null
+    held = column === null ? null : { column, text: field.value }
+    narrowFilterList(layer, field.value)
+  })
+  return (menu) => {
+    if (menu === null || menu.kind !== 'values' || held?.column !== menu.column) {
+      held = null
+      return
+    }
+    const field = layer.querySelector<HTMLInputElement>(`[${SEARCH_FILTER_SEARCH_ATTRIBUTE}]`)
+    if (field !== null) field.value = held.text
+    narrowFilterList(layer, held.text)
+  }
 }
 
 // see SV-2, SV-5, IF-9
@@ -607,6 +709,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   let placed: PlacedWindow | null = null
   const typedWord = typedWordWatch(layer, onWordTyped)
   const filterChanges = filterChangeWatch(layer, onWordTyped)
+  const keepFilterSearch = filterSearchKeeper(layer)
 
   /** @purity non-pure */
   function draw(panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
@@ -637,6 +740,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     layer.replaceChildren(drawn)
     const tableBox = drawn.lastElementChild ?? null
     if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
+    keepFilterSearch(panel.filterMenu)
     placeFilterMenu(drawn)
   }
 
@@ -645,7 +749,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer),
+      withListedValues(withFilterColumn(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer), layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }

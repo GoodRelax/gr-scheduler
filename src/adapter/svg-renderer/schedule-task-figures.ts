@@ -3,7 +3,7 @@
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, type DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ItemRef } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
@@ -37,6 +37,8 @@ import {
 } from './svg-renderer'
 
 type Placed = ScheduleLayout['placements'][number]
+
+type MarkerStroke = Pick<DrawnSettings, 'markerStroke'>
 type PinnedGroupId = ScheduleLayout['rows'][number]['groupId']
 type BaselineOutline = ScheduleGeometry['baselineOutlines'][number]
 type DeadlineGeometry = NonNullable<ScheduleGeometry['tasks'][number]['deadline']>
@@ -226,7 +228,7 @@ function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: strin
 
 // see FR-013, S-328, S-329, S-341
 /** @purity pure */
-function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   return (
     `<line x1="${rounded(x)}" y1="${rounded(marker.centre.y - r)}` +
@@ -238,7 +240,7 @@ function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: Drawn
 
 // see T-315, S-328, S-392, S-393, S-394
 /** @purity pure */
-function questionSvg(marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+function questionSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { centre, radius } = marker
   const top = centre.y - radius
   const hookY = top + radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-392']
@@ -266,7 +268,7 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
 
 // see ZO-3, T-021, T-315, FR-013
 /** @purity pure */
-function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: DrawnSettings, named: string): string {
+function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const { centre, radius } = marker
   const stroke = rounded(settings.markerStroke)
   const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
@@ -307,7 +309,7 @@ function markerSvg(
   marker: MarkerGeometry,
   themed: (rowId: string) => string,
   faintness: number,
-  settings: DrawnSettings,
+  settings: MarkerStroke,
   key: string,
 ): string {
   const { centre, radius } = marker
@@ -320,6 +322,16 @@ function markerSvg(
   // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
   if (marker.symbol !== 'PM-1a') return drawn
   return `<g opacity="${rounded(faintness)}"${named}>${drawn}</g>`
+}
+
+// see FR-133, T-021, T-315, SQ-5, DT-1, RW-4
+/** @purity pure */
+export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId: string) => string): string {
+  const side = SETTINGS_CONSTANTS.markerSize
+  const stroke = SETTINGS_CONSTANTS.markerStroke
+  const marker = { symbol, centre: { x: side / 2, y: side / 2 }, radius: (side - stroke) / 2 }
+  const drawn = markerSvg(marker, themed, SETTINGS_CONSTANTS.dummyOpacity, { markerStroke: stroke }, `glyph-${symbol}`)
+  return `<svg viewBox="0 0 ${rounded(side)} ${rounded(side)}" width="1em" height="1em" aria-hidden="true">${drawn}</svg>`
 }
 
 // see FR-044, LF-13

@@ -37,6 +37,9 @@ import {
 
 export type { SvgSurface } from './svg-surface'
 
+// see FR-133, SQ-5, DT-1
+export { markerGlyphSvg } from './schedule-task-figures'
+
 export type SchedulePicture = 'screen' | 'export'
 
 export type { ViewerValues }

@@ -23,7 +23,15 @@ import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import { exportNameBodyOf } from './open-modals'
 import type { SearchPanelView, SearchRowView } from './search-panel'
-import { ASSIGNEE_SEPARATOR, BLANK_SEARCH_VALUE, filteredTableRows, tableColumnValues, type TableColumns } from './search-table-filters'
+import {
+  ASSIGNEE_SEPARATOR,
+  BLANK_SEARCH_VALUE,
+  comparePercentTexts,
+  filteredTableRows,
+  percentText,
+  tableColumnValues,
+  type TableColumns,
+} from './search-table-filters'
 import {
   dateText,
   entryOf,
@@ -38,6 +46,7 @@ import {
   windowShownAfterEntry,
   windowTitleEntriesOf,
   wordOf,
+  type MarkGlyph,
   type SearchFilterChange,
   type TableWindowSession,
   type WindowTable,
@@ -64,6 +73,8 @@ const REASON_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.del
 // see T-347
 export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId)
 
+const STATUS_COLUMN = 'DT-1'
+
 // see DT-4, SJ-1
 const JUMP_COLUMN_AT = DELAY_REPORT_COLUMNS.indexOf('DT-4')
 
@@ -71,13 +82,13 @@ const JUMP_COLUMN_AT = DELAY_REPORT_COLUMNS.indexOf('DT-4')
 const LAST_FIXED_COLUMN = 'DT-4'
 
 // see RW-3
-const WORD_COLUMNS_AT: readonly number[] = [0, 1, 2, 3, 4]
+const UNSEARCHED_COLUMNS: readonly string[] = ['DT-6', 'DT-7']
+
+const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column, at) => (UNSEARCHED_COLUMNS.includes(column) ? [] : [at]))
 
 // see VO-5, VS-6
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
 const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
-
-const PERCENT = '%'
 
 const DATE_RANGE = '〜'
 
@@ -94,7 +105,6 @@ const MARKDOWN_EXTENSION = '.md'
 const COLUMNS_ONLY_LANGUAGE: DisplayLanguage = 'en'
 
 // see T-315, RW-6
-// DEVIATION: spec says DT-1 draws the FR-133 marker picture in the window; here the RW-6 symbols (DFC-1941).
 const STATUS_SYMBOLS: Readonly<Record<DelayReportStatus, string>> = {
   'DG-1': '?',
   doubtful: '',
@@ -102,6 +112,16 @@ const STATUS_SYMBOLS: Readonly<Record<DelayReportStatus, string>> = {
   'DG-3': '!!',
   'DG-4': '!',
   settled: '',
+}
+
+// see DT-1, RW-4, FR-133, T-315
+const STATUS_GLYPHS: Readonly<Record<DelayReportStatus, MarkGlyph | null>> = {
+  'DG-1': 'DG-1',
+  doubtful: null,
+  'DG-2': 'DG-2',
+  'DG-3': 'DG-3',
+  'DG-4': 'PM-4',
+  settled: null,
 }
 
 // see RW-1, RW-5, RW-8, S-451, WB-6
@@ -125,6 +145,7 @@ export interface DelayReportRowView extends SearchRowView {
 // see RW-4
 export interface DelayReportLine {
   readonly status: DelayReportStatus | null
+  readonly glyph: MarkGlyph | null
   readonly text: string
 }
 
@@ -163,10 +184,17 @@ function statusWordOf(status: DelayReportStatus, language: DisplayLanguage): str
   return partWordOf(STATUS_WORDS, row, language)
 }
 
+// see RW-6
 /** @purity pure */
 function statusText(status: DelayReportStatus, language: DisplayLanguage): string {
   const symbol = STATUS_SYMBOLS[status]
   return symbol === '' ? statusWordOf(status, language) : `${symbol} ${statusWordOf(status, language)}`
+}
+
+// see DT-1, RW-4, RW-6
+/** @purity pure */
+function statusTextIn(status: DelayReportStatus, language: DisplayLanguage, isWindow: boolean): string {
+  return isWindow ? statusWordOf(status, language) : statusText(status, language)
 }
 
 /** @purity pure */
@@ -233,15 +261,21 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage): string {
 /** @purity pure */
 function cellsOf(row: DelayReportRow, language: DisplayLanguage): readonly string[] {
   const isFinished = row.actualFinish !== null
-  return [
-    statusText(row.status, language),
-    row.assigneeNames.join(ASSIGNEE_SEPARATOR),
-    row.percentComplete === null ? '' : `${Math.round(row.percentComplete)}${PERCENT}`,
-    row.name,
-    datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish)),
-    isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${DATE_RANGE}`,
-    reasonText(row, language),
-  ]
+  const cells: Readonly<Record<string, string>> = {
+    'DT-1': statusWordOf(row.status, language),
+    'DT-2': row.assigneeNames.join(ASSIGNEE_SEPARATOR),
+    'DT-3': percentText(row.percentComplete),
+    'DT-4': row.name,
+    'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish)),
+    'DT-6': isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${DATE_RANGE}`,
+    'DT-7': reasonText(row, language),
+  }
+  return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
+}
+
+/** @purity pure */
+function cellOf(shown: ShownRow, column: string): string {
+  return shown.cells[DELAY_REPORT_COLUMNS.indexOf(column)] ?? BLANK_SEARCH_VALUE
 }
 
 // see DT-1, DT-3, T-347
@@ -249,9 +283,9 @@ const REPORT_TABLE: TableColumns<ShownRow> = {
   values: {
     'DT-1': (shown) => [shown.row.status],
     'DT-2': (shown) => (shown.row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : shown.row.assigneeNames),
-    'DT-3': (shown) => [shown.cells[2] ?? BLANK_SEARCH_VALUE],
+    'DT-3': (shown) => [cellOf(shown, 'DT-3')],
     'DT-4': (shown) => [shown.row.name],
-    'DT-7': (shown) => [shown.cells[6] ?? BLANK_SEARCH_VALUE],
+    'DT-7': (shown) => [cellOf(shown, 'DT-7')],
   },
   dates: {
     'DT-5': (shown) => shown.row.plannedStart,
@@ -259,7 +293,7 @@ const REPORT_TABLE: TableColumns<ShownRow> = {
   },
   orders: {
     'DT-1': (a, b) => DELAY_REPORT_STATUSES.indexOf(a as DelayReportStatus) - DELAY_REPORT_STATUSES.indexOf(b as DelayReportStatus),
-    'DT-3': (a, b) => Number.parseFloat(a) - Number.parseFloat(b),
+    'DT-3': comparePercentTexts,
   },
 }
 
@@ -287,22 +321,28 @@ function reportTableOf(found: () => readonly ShownRow[], language: DisplayLangua
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
     valuesOf: (column) => tableColumnValues(found(), REPORT_TABLE, column),
-    labelOf: (column, value) => (column === 'DT-1' ? statusWordOf(value as DelayReportStatus, language) : value),
+    labelOf: (column, value) => (column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value),
   }
 }
 
 // see RW-4, DX-2, DX-7
 /** @purity pure */
-function summaryOf(report: DelayDiagnosticsReport, rows: readonly DelayReportRow[], language: DisplayLanguage): readonly DelayReportLine[] {
+function summaryOf(
+  report: DelayDiagnosticsReport,
+  rows: readonly DelayReportRow[],
+  language: DisplayLanguage,
+  isWindow: boolean,
+): readonly DelayReportLine[] {
   const word = partWordsIn(SUMMARY_WORDS, language)
   const counts = DELAY_REPORT_STATUSES.map((status) => ({
     status,
-    text: filled(word('count'), { status: statusText(status, language), count: rows.filter((row) => row.status === status).length }),
+    glyph: isWindow ? STATUS_GLYPHS[status] : null,
+    text: filled(word('count'), { status: statusTextIn(status, language, isWindow), count: rows.filter((row) => row.status === status).length }),
   }))
   return [
-    { status: null, text: filled(word('statusDate'), { date: dateText(report.statusDate) }) },
+    { status: null, glyph: null, text: filled(word('statusDate'), { date: dateText(report.statusDate) }) },
     ...counts,
-    { status: null, text: filled(word('unanalysed'), { count: report.unanalysedCount }) },
+    { status: null, glyph: null, text: filled(word('unanalysed'), { count: report.unanalysedCount }) },
   ]
 }
 
@@ -341,11 +381,17 @@ export function delayDiagnosticsReportFromWindow(
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
     toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
     word: window.panel.word,
-    summary: isOpen ? summaryOf(report, all, language) : [],
+    summary: isOpen ? summaryOf(report, all, language, true) : [],
     columns: tableColumnsOf(window.panel, table, language),
     filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
-    rows: found.map((shown) => ({ cells: shown.cells, status: shown.row.status, target: { kind: 'task', taskUid: shown.row.taskUid } })),
+    rows: found.map((shown) => ({
+      cells: shown.cells,
+      glyph: STATUS_GLYPHS[shown.row.status],
+      status: shown.row.status,
+      target: { kind: 'task', taskUid: shown.row.taskUid },
+    })),
     jumpAt: JUMP_COLUMN_AT,
+    glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
   }
 }
 
@@ -357,6 +403,7 @@ export function delayDiagnosticsReportAfterEntry(
   entry: IconId,
   filterColumn: string | null,
   rows: { readonly report: DelayDiagnosticsReport; readonly schedule: Schedule; readonly language: DisplayLanguage },
+  listed?: readonly string[] | null,
 ): { readonly window: DelayDiagnosticsReportWindow | null } | null {
   const shown = windowShownAfterEntry(window.shown, entry)
   if (shown === null) return { window: null }
@@ -367,7 +414,7 @@ export function delayDiagnosticsReportAfterEntry(
   const panel =
     entry === FILTER_ENTRY
       ? filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
-      : tableAfterFilterEntry(window.panel, window.shown, entry, table)
+      : tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
   return panel === null ? null : { window: { ...window, panel } }
 }
 
@@ -430,9 +477,9 @@ export function delayDiagnosticsReportMarkdownOf(
   const rows = shownRowsOf(window, all, language).map((shown) => ({ status: shown.row.status, cells: shown.cells }))
   const columns = window.panel.filters.columns.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
-    condition: one.hiddenValues.length > 0 ? `-(${one.hiddenValues.map((value) => (one.column === 'DT-1' ? statusText(value as DelayReportStatus, language) : value)).join(WORD_JOIN)})` : `${dateText(one.from)}${DATE_RANGE}${dateText(one.to)}`,
+    condition: one.hiddenValues.length > 0 ? `-(${one.hiddenValues.map((value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)).join(WORD_JOIN)})` : `${dateText(one.from)}${DATE_RANGE}${dateText(one.to)}`,
   }))
-  const summary = summaryOf(report, all, language)
+  const summary = summaryOf(report, all, language, false)
   const dates = {
     documentName: stamp.documentName,
     statusDateLine: summary[0]?.text ?? '',

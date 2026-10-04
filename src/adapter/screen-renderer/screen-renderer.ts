@@ -57,6 +57,8 @@ export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export { exportFileNameOf } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
+export { MARK_COLOUR_ROWS, isFilterValueListed, markColourVariableOf, statusGlyphSvg } from './table-window'
+export type { MarkGlyph } from './table-window'
 export {
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   delayDiagnosticsReportAfterEntry,

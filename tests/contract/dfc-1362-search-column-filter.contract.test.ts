@@ -54,10 +54,10 @@ const FR_151_NOT_SEARCHED =
 
 const SV_7_ENTRY = 'どの列の見出しにも `IC-122` を置き、押すと絞り込みを開く。'
 const SV_7_CONTENTS =
-  '中身は、値の一覧を絞る入力欄・値ごとの表示の印（宿主のチェックボックス）・`IC-125`（すべて入れる）・`IC-126`（すべて外す）・`IC-123`（昇順）・`IC-124`（降順）。'
+  '操作の段は、値の一覧を絞る入力欄と、`IC-125`（すべて入れる）・`IC-126`（すべて外す）・`IC-123`（昇順）・`IC-124`（降順）の行である。'
 const SV_7_ITEMS =
   '値の一覧は、担当者名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
-const SV_7_DATES = '日付の 2 列は、値の一覧の代わりに「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
+const SV_7_DATES = '日付の列は、値の一覧と絞る入力欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
 const SV_7_ALL = '列の絞り込みどうし、語と絞り込みは、すべてを満たす行だけを残す。'
 const SV_7_ASSIGNEES = '担当者名の列は、担当者のうち 1 人でも表示に入れた値なら残す。'
 const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置くと、その日付の空の行は外す。'
@@ -118,7 +118,7 @@ const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === '
 const COMMENT_COLUMNS = specTable('T-331')
   .rows.filter((row) => row.by['表'] === 'コメントボックス')
   .map((row) => row.id)
-const DATE_COLUMNS = ['SQ-3', 'SQ-4', 'SQ-9']
+const DATE_COLUMNS = ['SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9']
 
 
 type Loose = Record<string, unknown>
@@ -340,8 +340,8 @@ const COMMENT_KEYS = new Map<string, string>(Object.entries(COMMENT_TEXT).map(([
 
 const uidsOf = (panel: SearchPanelSession): readonly number[] =>
   viewOf(panel).rows.map((line) => {
-    const name = line.cells[0] ?? ''
-    const key = name === NO_NAME_JA ? `${name}@${line.cells[2] ?? ''}` : name
+    const name = line.cells[TASK_COLUMNS.indexOf('SQ-1')] ?? ''
+    const key = name === NO_NAME_JA ? `${name}@${line.cells[TASK_COLUMNS.indexOf('SQ-3')] ?? ''}` : name
     return found(TASK_KEYS.get(key), `a fixture task for the row ${JSON.stringify(line.cells)}`)
   })
 
@@ -389,7 +389,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, '絞り込み')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(TASK_COLUMNS).toEqual(['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6'])
+    expect(TASK_COLUMNS).toEqual(['SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })
 })

@@ -308,7 +308,7 @@ SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
-SEARCH_PANEL_PARTS = ('blank', 'noName')
+SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch')
 # CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
 # its file line and document-title line, and the word beside its cancel row,
 # are no table's rows, so they are HELD HERE, the same move as

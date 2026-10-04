@@ -5,7 +5,9 @@
 // @publishes table T-064 row PI-38
 
 import {
+  MARK_COLOUR_ROWS,
   achromatic,
+  markColourVariableOf,
   type CommandItem,
   type ScreenFrame,
   type ScreenPart,
@@ -115,6 +117,7 @@ const PAINT_ROW = {
   brandingRim: 'S-464',
   brandingDivider: 'S-493',
   groupGridLine: 'S-165',
+  link: 'S-503',
 } as const
 
 /** @purity pure */
@@ -142,6 +145,7 @@ export const PAINT = {
   brandingRim: painted('brandingRim'),
   brandingDivider: painted('brandingDivider'),
   groupGridLine: painted('groupGridLine'),
+  link: painted('link'),
 } as const
 
 /** @purity pure */
@@ -462,6 +466,13 @@ export function themeStyle(theme: ScreenTheme): string {
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
     written += `--gr-${name}:${hued(chosen, row.followsHue, theme)};`
+  }
+  // see FR-133, SQ-5, DT-1
+  for (const rowId of MARK_COLOUR_ROWS) {
+    const row = SCREEN_COLOURS[rowId]
+    if (row === undefined) continue
+    const chosen = theme.preference === 'dark' ? row.dark : row.light
+    written += `${markColourVariableOf(rowId)}:${hued(chosen, row.followsHue, theme)};`
   }
   return written
 }
@@ -1309,6 +1320,9 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-472': number
   readonly 'S-473': number
   readonly 'S-474': number
+  readonly 'S-500': number
+  readonly 'S-501': number
+  readonly 'S-502': number
   readonly 'S-475': number
   readonly 'S-476': number
   readonly 'S-477': number
@@ -1323,20 +1337,48 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-465': 6,
   'S-466': 250,
   'S-467': 190,
-  'S-468': 110,
-  'S-469': 110,
-  'S-470': 150,
+  'S-468': 99,
+  'S-469': 105,
+  'S-470': 152,
   'S-471': 380,
   'S-472': 300,
   'S-473': 240,
-  'S-474': 110,
-  'S-475': 150,
+  'S-474': 70,
+  'S-500': 73,
+  'S-501': 89,
+  'S-502': 95,
+  'S-475': 138,
   'S-476': 190,
-  'S-477': 110,
+  'S-477': 73,
   'S-478': 250,
-  'S-479': 220,
-  'S-480': 220,
+  'S-479': 143,
+  'S-480': 143,
   'S-481': 380,
+}
+
+// see SV-18, RW-9, T-206
+export const SEARCH_COLUMN_WIDTH_ROWS: {
+  readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES
+} = {
+  'SQ-1': 'S-466',
+  'SQ-2': 'S-467',
+  'SQ-3': 'S-468',
+  'SQ-4': 'S-469',
+  'SQ-5': 'S-470',
+  'SQ-6': 'S-471',
+  'SQ-7': 'S-472',
+  'SQ-8': 'S-473',
+  'SQ-9': 'S-474',
+  'SQ-11': 'S-500',
+  'SQ-12': 'S-501',
+  'SQ-13': 'S-502',
+  'DT-1': 'S-475',
+  'DT-2': 'S-476',
+  'DT-3': 'S-477',
+  'DT-4': 'S-478',
+  'DT-5': 'S-479',
+  'DT-6': 'S-480',
+  'DT-7': 'S-481',
 }
 
 // see T-333, FR-151
@@ -1473,5 +1515,16 @@ export const SCREEN_COLOURS: {
   'S-464': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-493': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
+  'S-503': { light: '#214b82', dark: '#7ba7e0', followsHue: false },
+  'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
+  'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
+  'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-385': { light: '#feda76', dark: '#e6d947', followsHue: false },
+  'S-386': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-387': { light: '#ff8f8f', dark: '#f34949', followsHue: false },
+  'S-388': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-389': { light: '#9673d3', dark: '#b697ed', followsHue: false },
+  'S-390': { light: '#16181d', dark: '#16181d', followsHue: false },
 }
 // </generated>

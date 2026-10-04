@@ -30,6 +30,7 @@ import {
   columnValuesOf,
   filteredSearchRows,
   isDateSearchColumn,
+  percentText,
   searchBodyTextOf,
   searchTaskStateOf,
   type SearchTaskState,
@@ -47,6 +48,7 @@ import {
   tableWithFilterOpened,
   windowTitleEntriesOf,
   wordOf,
+  type MarkGlyph,
   type SearchColumnView,
   type SearchFilterChange,
   type SearchFilterMenuView,
@@ -77,10 +79,21 @@ const TABLE_COLUMNS: { readonly [T in SearchTable]: readonly SearchColumn[] } = 
   commentBoxes: COMMENT_BOX_SEARCH_COLUMNS,
 }
 
-// see SV-6
-const LAST_FIXED_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
-  tasks: 'SQ-2',
+// see SJ-1, SV-6
+// WHY: the jump column is also the last fixed one: SV-6 fixes each table up to the cell SJ-1 jumps from.
+const JUMP_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
+  tasks: 'SQ-1',
   commentBoxes: 'SQ-7',
+}
+
+// see SQ-5, T-021, T-315
+const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
+  notStarted: 'PM-1a',
+  inProgress: 'PM-1',
+  finished: 'PM-2',
+  suspendedResumePlanned: 'PM-3',
+  suspendedResumeUnknown: 'PM-3',
+  [BOTTLENECK_STATE]: 'DG-2',
 }
 
 // see T-019a
@@ -102,9 +115,10 @@ const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARC
 
 export type SearchPanelShown = WindowShown
 
-// see SJ-1
+// see SJ-1, SQ-5, DT-1
 export interface SearchRowView {
   readonly cells: readonly string[]
+  readonly glyph: MarkGlyph | null
   readonly target:
     | { readonly kind: 'task'; readonly taskUid: TaskSearchRow['taskUid'] }
     | { readonly kind: 'commentBox'; readonly commentBoxId: CommentBoxSearchRow['commentBoxId'] }
@@ -124,6 +138,9 @@ export interface SearchPanelView {
   readonly columns: readonly SearchColumnView[]
   readonly filterMenu: SearchFilterMenuView | null
   readonly rows: readonly SearchRowView[]
+  // see SJ-1, SQ-5
+  readonly jumpAt?: number
+  readonly glyphAt?: number | null
 }
 
 // see SQ-5, T-019a, T-315
@@ -138,11 +155,14 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
 function taskCells(row: TaskSearchRow, language: DisplayLanguage): readonly string[] {
   const name = row.name === '' ? wordOf(PANEL_WORDS.get('noName')?.text, language) : row.name
   return [
+    stateWordOf(searchTaskStateOf(row), language),
+    percentText(row.percentComplete),
     name,
     row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     dateText(row.plannedStart),
     dateText(row.plannedFinish),
-    stateWordOf(searchTaskStateOf(row), language),
+    dateText(row.actualStart),
+    dateText(row.actualFinish),
     row.rowPath.join(ROW_PATH_SEPARATOR),
   ]
 }
@@ -159,11 +179,13 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayL
   if (panel.table === 'tasks') {
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language),
+      glyph: STATE_GLYPHS[searchTaskStateOf(row)],
       target: { kind: 'task', taskUid: row.taskUid },
     }))
   }
   return found.commentBoxRows.map((row) => ({
     cells: commentBoxCells(row),
+    glyph: null,
     target: { kind: 'commentBox', commentBoxId: row.commentBoxId },
   }))
 }
@@ -183,7 +205,7 @@ function searchTableOf(session: ScreenSession, panel: SearchPanelSession, found:
   const columns = TABLE_COLUMNS[panel.table]
   return {
     columns,
-    fixedCount: columns.indexOf(LAST_FIXED_COLUMN[panel.table]) + 1,
+    fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
     valuesOf: (column) => columnValuesOf(found(), column),
@@ -228,6 +250,8 @@ export function searchPanelFromSession(
     columns: tableColumnsOf(panel, table, language),
     filterMenu: open === null || found === null ? null : tableFilterMenuOf(panel, open, table, language),
     rows: found === null ? [] : rowsOf(filteredSearchRows(found, panel.filters, panel.sort), panel, language),
+    jumpAt: TABLE_COLUMNS[panel.table].indexOf(JUMP_COLUMN[panel.table]),
+    glyphAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(STATUS_COLUMN) : null,
   }
 }
 
@@ -251,9 +275,10 @@ export function searchPanelAfterFilterEntry(
   entry: IconId,
   schedule: Schedule,
   bottleneckUids?: ReadonlySet<number>,
+  listed?: readonly string[] | null,
 ): SearchPanelSession | null {
   const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
-  return tableAfterFilterEntry(panel, shownIn(session), entry, table)
+  return tableAfterFilterEntry(panel, shownIn(session), entry, table, listed)
 }
 
 // see SV-7, IC-122

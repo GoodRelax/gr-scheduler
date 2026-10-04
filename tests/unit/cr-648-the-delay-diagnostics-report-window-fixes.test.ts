@@ -197,8 +197,10 @@ describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, 
     expect(viewIn('ja')).not.toHaveProperty('legend')
   })
 
-  it('RW-10: DT-1 .. DT-4 are fixed and DT-5 .. DT-7 scroll under them', () => {
-    expect(viewIn('ja')?.columns.map((one) => one.isFixed)).toEqual([true, true, true, true, false, false, false])
+  it('RW-10: DT-1, DT-3 and DT-4 are fixed and DT-2, DT-5 .. DT-7 scroll under them', () => {
+    const columns = viewIn('ja')?.columns ?? []
+    expect(columns.filter((one) => one.isFixed).map((one) => one.column)).toEqual(['DT-1', 'DT-3', 'DT-4'])
+    expect(columns.filter((one) => !one.isFixed).map((one) => one.column)).toEqual(['DT-2', 'DT-5', 'DT-6', 'DT-7'])
   })
 })
 
