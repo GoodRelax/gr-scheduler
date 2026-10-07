@@ -27,6 +27,12 @@ const actualLength = (fromIso: string, lastIso: string): number => {
 const markerShape = (page: Page, uid: number): Promise<string> =>
   page.evaluate((uid) => [...document.querySelectorAll('[data-figure="task-' + uid + '-marker"]')].map((e) => e.tagName).join('|'), uid)
 
+// see FR-154, HW-1, QN-13
+// WHY: the released day follows the run date, and a weekend one asks QN-13; No still places the end.
+const answerNonWorkingDayQuestion = async (page: Page): Promise<void> => {
+  if (await page.locator('[data-role="Confirmation"]').isVisible()) await answerConfirmation(page, 'cancel')
+}
+
 const pressMarker = async (page: Page, uid: number): Promise<void> => {
   const marker = (await figureBox(page, 'task-' + uid + '-marker'))!
   await page.mouse.click(marker.x + marker.w * 0.85, marker.y + marker.h / 2)
@@ -52,10 +58,12 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     expect((await task()).actualStart).toBeNull()
     const dummy = (await figureBox(page, 'task-' + uid + '-dummies'))!
     await drag(page, { x: dummy.x + dummy.w - 1, y: dummy.y + dummy.h / 2 }, { x: dummy.x + dummy.w + 99, y: dummy.y + dummy.h / 2 })
+    await answerNonWorkingDayQuestion(page)
     const first = await task()
     expect(first.actualStart).not.toBeNull()
     const actual = (await figureBox(page, 'task-' + uid + '-actual'))!
     await drag(page, { x: actual.x + actual.w - 1, y: actual.y + actual.h / 2 }, { x: actual.x + actual.w + 79, y: actual.y + actual.h / 2 })
+    await answerNonWorkingDayQuestion(page)
     expect(Date.parse((await task()).stop)).toBeGreaterThan(Date.parse(first.stop))
   })
 
@@ -63,7 +71,8 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
     const now = await task()
     expect(now.actualStart).toBe(now.start)
     expect(now.actualFinish).toBeNull()
-    const expected = Math.round((actualLength(now.actualStart, now.stop) / weekdaysBetween(now.start, now.finish, false)) * 100)
+    // WHY: FR-012 counts the plan by FR-011's rule too, so a plan start on a rest day is one day.
+    const expected = Math.round((actualLength(now.actualStart, now.stop) / actualLength(now.start, now.finish)) * 100)
     expect(Math.abs(now.percentComplete - expected)).toBeLessThanOrEqual(1)
     const actual = (await figureBox(page, 'task-' + uid + '-actual'))!
     const plan = (await figureBox(page, 'task-' + uid + '-plan'))!
