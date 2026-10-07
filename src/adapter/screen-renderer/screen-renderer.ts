@@ -413,6 +413,7 @@ export interface ExportFormatChoice {
 export interface ExportChooser extends OpenSurface {
   readonly surface: 'Export Chooser'
   readonly formats: readonly ExportFormatChoice[]
+  readonly exportSpanLine: string | null
 }
 
 // STOP: spec does not decide what each open surface carries, nor two of their names. Looked in T-103, FR-074, FR-088
@@ -719,7 +720,7 @@ export function screenViewFromRegions(
       // TRAP: never omit schedule, or the palette counts tasks no row draws.
       schedule,
     ),
-    openModal: openModalFromSession(session, schedule, readings),
+    openModal: openModalFromSession(session, schedule, readings, settings),
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings, schedule),

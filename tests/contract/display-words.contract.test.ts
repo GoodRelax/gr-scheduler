@@ -336,6 +336,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
   exportFormats: 'rowId',
+  // WHY: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
+  exportChooser: 'part',
   // WHY: CR-623 keys the Open Chooser's words by the part they fill.
   openChooser: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
@@ -1917,6 +1919,36 @@ for (const entry of GENERATED['openChooser'] ?? []) {
   })
 }
 
+// see FR-096, IX-12, ND-4
+// WHY: the line stands only while the document holds an export span (S-518 / S-519), so this frame
+// stores one; its two days are put back as {start} and {finish} to hold the line to the written word.
+const EXPORT_CHOOSER_WITH_SPAN = frameWith({
+  root: rootWithSurface('Export Chooser'),
+  settings: { ...SETTINGS, exportSpanStart: '2026-11-02T00:00:00', exportSpanFinish: '2026-12-25T23:59:00' },
+})
+const SPAN_DAY = /(\d{4}\/)?\d{1,2}\/\d{1,2}/
+const exportSpanWordOf = (line: string): string => line.replace(SPAN_DAY, '{start}').replace(SPAN_DAY, '{finish}')
+for (const entry of GENERATED['exportChooser'] ?? []) {
+  const part = keyOf('exportChooser', entry)
+  if (part !== 'exportSpan') {
+    drop('exportChooser', part, 'FR-096 names no line of the Export Chooser for this part')
+    continue
+  }
+  place({
+    section: 'exportChooser',
+    key: part,
+    field: 'text',
+    unit: 'UF-66',
+    what: "the Export Chooser's export span line",
+    frame: EXPORT_CHOOSER_WITH_SPAN,
+    read: (view) => {
+      const chooser = view.openModal
+      if (chooser === null || !('formats' in chooser) || chooser.exportSpanLine === null) return undefined
+      return exportSpanWordOf(chooser.exportSpanLine)
+    },
+  })
+}
+
 // see FR-039, SE-2
 for (const entry of GENERATED['scaleEcho'] ?? []) {
   const end = keyOf('scaleEcho', entry)
@@ -2387,6 +2419,18 @@ const dualCursorReadoutFramesShowing = (
       (line, index) => readoutWordOf(line, index) === word,
     ),
   )
+
+// see FR-096, IX-12, FR-038
+// WHY: the span line fills {start} and {finish} with the two days (ND-4), so they are put back before matching.
+const exportSpanFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) => {
+    const chooser = viewOf(screenViewFromRegions, one.frame, language).openModal
+    if (chooser === null || !('formats' in chooser) || chooser.exportSpanLine === null) return false
+    return exportSpanWordOf(chooser.exportSpanLine) === word
+  })
 
 // see TL-5, TL-6, FR-038
 const hintLineFramesShowing = (
@@ -2974,6 +3018,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
+              : cell.section === 'exportChooser'
+              ? exportSpanFramesShowing(cell.word, cell.language)
               : cell.section === 'hintLines'
               ? hintLineFramesShowing(cell.word, cell.language)
               : cell.section === 'rowMinHeightField'
