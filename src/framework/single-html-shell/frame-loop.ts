@@ -2184,7 +2184,6 @@ export function frameLoop(
   let drawnPicture: DrawnPicture | null = null
   let isTooltipStanding = false
   let shownNotices: ScreenView['notices'] = []
-  // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
   const changeWatchers = emptyChangeWatchers()
 

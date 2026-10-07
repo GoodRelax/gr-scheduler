@@ -88,6 +88,25 @@ interface FadeReading {
   readonly carryElements: readonly CarryElement[]
 }
 
+// see EX-16
+// WHY: the place of a read value, without the value: the days live in the column alone.
+/** @purity pure */
+function fadeMarkOf(element: CarryElement): CarryElement {
+  return { ordinal: element.ordinal, name: element.name, fields: { FieldID: element.fields['FieldID'] ?? '' }, children: [] }
+}
+
+const ROSTER_FIELD_IDS: ReadonlySet<number> = new Set(CUSTOM_FIELD_FRAMES.map((frame) => frame.fieldId))
+
+// see EX-16
+/** @purity pure */
+function isFadeMark(element: CarryElement): boolean {
+  if (element.name !== 'ExtendedAttribute' || element.children.length > 0) return false
+  const keys = Object.keys(element.fields)
+  const fieldId = wholeNumberOf(element.fields['FieldID'])
+  return keys.length === 1 && fieldId !== null && ROSTER_FIELD_IDS.has(fieldId)
+}
+
+// see EX-6, EX-16
 /** @purity pure */
 export function fadeOfCarried(
   carried: readonly CarryElement[],
@@ -102,11 +121,12 @@ export function fadeOfCarried(
       : null
     const column = fieldId === null ? undefined : fadeColumns.get(fieldId)
     const days = column === undefined ? null : wholeNumberOf(one.fields['Value'])
-    // TRAP: a claimed value must leave the carried list, or the writer writes it twice.
+    // TRAP: a claimed value must leave the carried list, or the writer writes it twice; its mark stays (EX-16).
     if (days === null) {
       rest.push(one)
       continue
     }
+    rest.push(fadeMarkOf(one))
     if (column === 'fadeInDays') fadeInDays = days
     else fadeOutDays = days
   }
@@ -242,9 +262,43 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
   }
 }
 
-// DEVIATION: spec says an unedited file writes back equal (FR-021); here fade values go after carried ones (DFC-563)
+export interface WrittenFadeValues {
+  readonly carried: readonly CarryElement[]
+  readonly appended: readonly PlacedChild[]
+}
+
+// see EX-16, FR-021
+// WHY: a mark of a frame no longer claimed, or of an emptied column, is a place with nothing to hold.
 /** @purity pure */
-export function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
+function valueAtMark(task: Task, mark: CarryElement, frames: readonly ClaimedFrame[]): CarryElement | null {
+  const fieldId = wholeNumberOf(mark.fields['FieldID'])
+  const claimed = frames.find((frame) => frame.fieldId === fieldId)
+  const days = claimed === undefined ? null : task[claimed.column]
+  if (days === null) return null
+  return { ...mark, fields: { ...mark.fields, Value: String(days) } }
+}
+
+// see EX-16, EX-10
+// WHY: a value with no mark (set after the import, or never imported) follows the carried ones of its name.
+/** @purity pure */
+export function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): WrittenFadeValues {
+  const carried: CarryElement[] = []
+  const marked = new Set<string>()
+  for (const one of task.carryElements) {
+    if (!isFadeMark(one)) {
+      carried.push(one)
+      continue
+    }
+    const value = valueAtMark(task, one, frames)
+    if (value === null) continue
+    marked.add(value.fields['FieldID'] ?? '')
+    carried.push(value)
+  }
+  return { carried, appended: appendedFadeValues(task, frames.filter((claimed) => !marked.has(String(claimed.fieldId)))) }
+}
+
+/** @purity pure */
+function appendedFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
   const placed: PlacedChild[] = []
   for (const claimed of frames) {
     const days = task[claimed.column]
