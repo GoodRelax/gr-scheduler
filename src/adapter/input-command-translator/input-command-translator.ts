@@ -160,8 +160,9 @@ export interface InputContext {
   readonly regions: ScreenRegions
   readonly screen: ScreenValues
   readonly selection: Selection
-  // see FR-085, IN-4
+  // see FR-085, FR-099, IN-4
   readonly chosenRows?: readonly string[]
+  readonly chosenResources?: readonly number[]
   readonly zoomStep: number
   readonly zoomMin: number
   readonly zoomMax: number
@@ -1216,10 +1217,7 @@ function commandFromEntry(
     case ENTRY.rosterChooseAll:
     case ENTRY.rosterClearChosen:
     case ENTRY.rosterChooseUnreferenced:
-      return acted({
-        kind: 'chooseResources',
-        uids: rosterChoiceOfEntry(entry, context.document.schedule),
-      })
+      return rosterChoiceCommand(entry, context)
     case ENTRY.rosterChosen:
     case ENTRY.rosterUnchosen: {
       if (on.resourceUid === null) return CONSUMED_ELSEWHERE
@@ -1238,7 +1236,19 @@ function commandFromVisibleElement(element: VisibleElement, context: InputContex
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
 }
 
-// see IC-63, IC-64, IC-65
+// see FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
+// WHY: a press that leaves the choice as it is, or finds no assignee to choose, changes nothing (FR-029).
+/** @purity pure */
+function rosterChoiceCommand(entry: string, context: InputContext): TranslatedInput {
+  const schedule = context.document.schedule
+  const uids = rosterChoiceOfEntry(entry, schedule)
+  const listed = new Set(schedule.resources.map((one) => one.uid))
+  const chosen = new Set((context.chosenResources ?? []).filter((uid) => listed.has(uid)))
+  const isSameChoice = uids.length === chosen.size && uids.every((uid) => chosen.has(uid))
+  const isIdle = entry === ENTRY.rosterClearChosen ? chosen.size === 0 : uids.length === 0 || isSameChoice
+  return isIdle ? nothingToDo(null) : acted({ kind: 'chooseResources', uids })
+}
+
 /** @purity pure */
 function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
   if (entry === ENTRY.rosterClearChosen) return []

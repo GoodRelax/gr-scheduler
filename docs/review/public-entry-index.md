@@ -991,7 +991,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dualCursorFollowingIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#dualCursorFollowingIn` | -- | function dualCursorFollowingIn(session: ScreenSession): DualCursorSide \| null |
 | `EDITED_BY_SCREEN` | file only | const | `src/framework/single-html-shell/frame-loop.ts#EDITED_BY_SCREEN` | -- | const EDITED_BY_SCREEN = 'user' |
 | `ENTRY_REPEAT_TIME_ELAPSED` | file only | const | `src/framework/single-html-shell/frame-loop.ts#ENTRY_REPEAT_TIME_ELAPSED` | -- | const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' } |
-| `EXPORT_CHOOSER_SURFACE` | file only | const | `src/framework/single-html-shell/frame-loop.ts#EXPORT_CHOOSER_SURFACE` | -- | const EXPORT_CHOOSER_SURFACE = 'Export Chooser' |
+| `EXPORT_CHOOSER_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#EXPORT_CHOOSER_ROW` | -- | const EXPORT_CHOOSER_ROW = 'U-54' |
 | `FIELD_FOCUS_WITHDRAWING_KEYS` | file only | const | `src/framework/single-html-shell/frame-loop.ts#FIELD_FOCUS_WITHDRAWING_KEYS` | -- | const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab']) |
 | `FIELD_FOCUS_WITHDRAWN` | file only | const | `src/framework/single-html-shell/frame-loop.ts#FIELD_FOCUS_WITHDRAWN` | -- | const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' } |
 | `FOCUS_ON_DOCUMENT_BODY` | file only | const | `src/framework/single-html-shell/interaction-record.ts#FOCUS_ON_DOCUMENT_BODY` | -- | const FOCUS_ON_DOCUMENT_BODY = 'body' |
@@ -1017,7 +1017,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOTICE_REASON_OF_RASTER_FAULT` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTICE_REASON_OF_RASTER_FAULT` | -- | const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = |
 | `NoticeReason` | file only | type | `src/framework/single-html-shell/frame-loop.ts#NoticeReason` | -- | type NoticeReason = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `noWorkingWeekdayReason` | file only | function | `src/framework/single-html-shell/frame-loop.ts#noWorkingWeekdayReason` | -- | function noWorkingWeekdayReason(document: Document): StartupNoticeReason \| null |
-| `OPEN_CHOOSER_SURFACE` | file only | const | `src/framework/single-html-shell/frame-loop.ts#OPEN_CHOOSER_SURFACE` | -- | const OPEN_CHOOSER_SURFACE = 'Open Chooser' |
+| `OPEN_CHOOSER_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#OPEN_CHOOSER_ROW` | -- | const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56' |
 | `openSurfaceNameIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#openSurfaceNameIn` | -- | function openSurfaceNameIn(session: ScreenSession): string \| null |
 | `paletteCornerInWindow` | file only | function | `src/framework/single-html-shell/frame-loop.ts#paletteCornerInWindow` | -- | function paletteCornerInWindow( corner: { readonly x: number; readonly y: number }, bandSize: { readonly width: number; readonly height: number }, windowSize... |
 | `panelShowingIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#panelShowingIn` | -- | function panelShowingIn(session: ScreenSession): PanelShowing |

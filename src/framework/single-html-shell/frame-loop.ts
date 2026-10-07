@@ -557,9 +557,8 @@ const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// TRAP: also spelled in screen-state-input.ts and open-modals.ts; a misspelling raises a surface
-// nothing describes.
-export const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
+// see U-54, T-280
+export const EXPORT_CHOOSER_ROW = 'U-54'
 
 // see U-60, T-280
 export const WATERMARK_UNLOCK_ROW = 'U-60'
@@ -929,9 +928,8 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
   return violated ? NO_WORKING_WEEKDAY_REASON : null
 }
 
-// TRAP: ScreenState.surface, icon-roster.json and readScreenPartAt must spell it
-// the same; a misspelling raises a surface nothing describes.
-export const OPEN_CHOOSER_SURFACE = 'Open Chooser'
+// see U-56, T-280
+export const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56'
 
 // TRAP: dom-screen-surface.ts's ROLE.dialogueField must spell it the same; a mismatch
 // silently leaves the Dialogue Field's press stopped like any other rowArea press.
@@ -943,17 +941,11 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
   'IC-73': 'baseline',
 }
 
-// TRAP: also spelled in icon-roster.json, open-modals.ts and screen-renderer.ts; a
-// misspelling raises a surface nothing describes.
-const DIFFERENCE_REVIEW_SURFACE = 'Difference Review'
+// see U-61, T-280
+const DIFFERENCE_REVIEW_ROW: FileFlowSurfaceName = 'U-61'
 
-const IMPORT_REPORT_SURFACE = 'Import Report'
-
-const SURFACE_NAME_OF_FLOW: Readonly<Record<FileFlowSurfaceName, string>> = {
-  'U-56': OPEN_CHOOSER_SURFACE,
-  'U-61': DIFFERENCE_REVIEW_SURFACE,
-  'U-62': IMPORT_REPORT_SURFACE,
-}
+// WHY: the screen and the file flow name a surface by the same U row (T-290, S-99g); never translate it.
+const FLOW_SURFACE_ROWS: ReadonlySet<string> = new Set<FileFlowSurfaceName>([OPEN_CHOOSER_ROW, DIFFERENCE_REVIEW_ROW, 'U-62'])
 
 const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-95': { kind: 'allSame' },
@@ -2003,9 +1995,8 @@ function mergeReviewIn(session: ScreenSession): Pick<ScreenViewReadingsTaken, 'm
 }
 
 /** @purity pure */
-function flowSurfaceOf(surfaceName: string): FileFlowSurfaceName | null {
-  const names = Object.keys(SURFACE_NAME_OF_FLOW) as readonly FileFlowSurfaceName[]
-  return names.find((flow) => SURFACE_NAME_OF_FLOW[flow] === surfaceName) ?? null
+function isFlowSurface(surfaceName: string): surfaceName is FileFlowSurfaceName {
+  return FLOW_SURFACE_ROWS.has(surfaceName)
 }
 
 // see FR-153, QN-11
@@ -2375,11 +2366,9 @@ export function frameLoop(
     restorePaletteCorner: () => {
       if (commandPaletteCornerAtPress !== null) commandPaletteDraggedTo = commandPaletteCornerAtPress
     },
-    raiseFlowSurface: (surfaceName) =>
-      sendToSession({ type: 'surfaceRaisedByFlow', surfaceName: SURFACE_NAME_OF_FLOW[surfaceName] }, values),
+    raiseFlowSurface: (surfaceName) => sendToSession({ type: 'surfaceRaisedByFlow', surfaceName }, values),
     tellFlowSurfaceClosed: (surfaceName, frame) => {
-      const flow = flowSurfaceOf(surfaceName)
-      if (flow !== null) sendToSession({ type: 'flowSurfaceClosed', surfaceName: flow }, frame)
+      if (isFlowSurface(surfaceName)) sendToSession({ type: 'flowSurfaceClosed', surfaceName }, frame)
     },
     writeProgressStep: (writes, frame) => {
       if (frame !== null) carryOutAction({ kind: 'changeDocument', writes: [writes] }, frame)
@@ -2951,6 +2940,7 @@ export function frameLoop(
       screen: session.screen,
       selection: selectedObjectsIn(session),
       chosenRows: session.selection.chosenRows,
+      chosenResources: session.selection.chosenResources,
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
@@ -3163,7 +3153,7 @@ export function frameLoop(
     const mergeMapping = MERGE_MAPPING_OF_ENTRY[entry]
     if (mergeMapping !== undefined) {
       if (fileOperationKindIn(session) !== 'awaitingMergeMapping') return false
-      sendToSession({ type: 'flowSurfaceAnswered', surfaceName: DIFFERENCE_REVIEW_SURFACE }, frame)
+      sendToSession({ type: 'flowSurfaceAnswered', surfaceName: DIFFERENCE_REVIEW_ROW }, frame)
       sendToSession({ type: 'mergeMappingAnswered', mergeMapping }, frame)
       return true
     }

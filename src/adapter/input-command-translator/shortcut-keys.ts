@@ -85,9 +85,8 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   if (plain && key === KEY.n) return acted({ kind: 'startNewDocument' })
 
   if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
-  if (plain && (key === KEY.f1 || key === KEY.p)) return CONSUMED_ELSEWHERE
-  // see FR-071, SK-15
-  if (plain && key === KEY.f11) return acted({ kind: 'toggleFullScreen' })
+  // WHY: screenEventFromInput sends F1, P and F11 (T-280, PI-18); acting here as well asks twice.
+  if (plain && (key === KEY.f1 || key === KEY.p || key === KEY.f11)) return CONSUMED_ELSEWHERE
 
   if (isTimeZoomKey(input)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
