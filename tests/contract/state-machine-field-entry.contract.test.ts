@@ -152,7 +152,6 @@ function guardHolds(guard: RawGuard, entry: Loose, event: Loose): boolean {
   switch (guard.name) {
     case 'isCreatedTask':
       return (event['created'] as Loose | undefined)?.['kind'] === 'task'
-    // see FR-091, PR-1
     case 'isNameField':
       return event['fieldRow'] === TASK_FIELD
     case 'isEditedField': {
@@ -168,9 +167,8 @@ function pick(cell: RawCell | undefined, entry: Loose, event: Loose): RawBranch 
   return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, entry, event) !== (g.not === true)))
 }
 
-// WHY: the T-292 notes say which carried value a cell writes; FR-091 names the created
-// task, HF-14 the added row, so a creation asks for PR-1 or AT-53. Only a creation writes a
-// new createdTaskUid; an edit that ends or begins again carries the one already held.
+// WHY: the T-292 notes say which carried value a cell writes; only a creation writes a new
+// createdTaskUid (FR-091), and a creation asks for PR-1 or AT-53 (HF-14).
 function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   const created = event['created'] as Loose | undefined
   const isCreation = event['type'] === 'creationLanded'

@@ -159,8 +159,6 @@ export function isEditingField(hands: FieldEntryHands): boolean {
   return isEditingFieldIn(hands.readSession())
 }
 
-// see FR-091, T-292, RG-10, T-280
-// TRAP: drained first; the name field's end may still wait in the surface when its Enter arrives.
 /** @purity non-pure */
 export function isCreatedNameEnded(hands: FieldEntryHands): boolean {
   drainFieldEditNotices(hands, hands.readValues())

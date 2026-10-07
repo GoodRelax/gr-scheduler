@@ -68,7 +68,6 @@ const IMPORT_REPORT = 'Import Report'
 
 const IMPORT_REPORT_REASON = 'RS-50'
 
-// see MG-14, U-62
 const MISSING_TASKS_REASON = 'RS-73'
 
 const NEWER_FORMAT_VERSION_REASON = 'RS-48'

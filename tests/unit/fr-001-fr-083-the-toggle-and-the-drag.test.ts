@@ -858,13 +858,6 @@ interface ScreenPane {
    * write made while an entry stands, and the creation itself is such a write.
    */
   holdTextEntry(standing: boolean): void
-  /**
-   * What the real surface does with an `Enter` pressed in a held field: its own
-   * keydown listener lets the field go before the shell reads the key, so the
-   * end notice of IF-9 is waiting when the key arrives (field-editing.ts). Table
-   * T-292 reads that end of `PR-1` as `createdNameEnded`, and only then is the
-   * `Enter` the one that settles the name (FR-091, CR-688 E-04).
-   */
   endHeldEntryOnEnter(which: string): void
   last(): ScreenView
 }
@@ -1349,8 +1342,6 @@ describe('FR-091: the created name is settled by ONE press', () => {
     // ⭐ THE SELECTION IS READ THROUGH WHAT IT LETS A PERSON DO, because table
     // T-023c's value does not leave the loop. `SK-3` of table T-036 deletes what
     // is chosen, so a Delete that removes nothing is a selection that is gone.
-    // ⭐ THE NAME FIELD IS HELD, as on the real surface once PR-1 takes the focus
-    // (IN-5a): table T-292 settles the name only on the Enter that ends PR-1.
     const built = drawnTask()
     built.holdTextEntry(true)
     built.pressKey('Enter')

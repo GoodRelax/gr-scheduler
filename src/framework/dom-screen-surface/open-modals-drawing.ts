@@ -737,7 +737,6 @@ function openChooserLine(host: Document, entry: HTMLElement, words: string): HTM
 
 type ImportReport = Extract<OpenModal, { readonly droppedTaskNames: readonly (string | null)[] }>
 
-// see U-62, FR-023, MG-14
 /** @purity non-pure */
 function reasonLines(host: Document, text: string, nextStep: string, taskNames: readonly (string | null)[]): HTMLElement[] {
   const said = made(host, 'div', '')

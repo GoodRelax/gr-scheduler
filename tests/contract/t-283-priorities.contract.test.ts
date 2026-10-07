@@ -226,7 +226,6 @@ describe(`table T-283, Enter (RG-9..RG-12) -- SK-19 (MUST): ${SK_19_SELECTION}`,
     expect(RUNGS.find((r) => r.id === 'RG-12')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
 
-  // see CR-688 E-04: the name is settled by the Enter after the name field's edit ended (FR-091).
   it('RG-10 settles either an unsettled field edit or the name of a task just made', () => {
     expect(RUNGS.find((r) => r.id === 'RG-10')?.states).toEqual([
       { in: 'fieldEditStateMachine.editingField' },

@@ -452,7 +452,6 @@ export type OpenModal =
       readonly text: string
       readonly nextStep: string
       readonly dismissText: string
-      // see MG-14, RS-73: the second reason U-62 lists names under
       readonly missingTaskNames: readonly (string | null)[]
       readonly missingText: string
       readonly missingNextStep: string

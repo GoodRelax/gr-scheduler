@@ -16,13 +16,9 @@ import type {
   FileFlowQuestion,
   FileFlowWriteForm,
   FileOperationState,
+  SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import {
-  importDocument,
-  type ImportReport,
-  type ImportRequest,
-  type OpenChoice,
-} from '../../use-case/import-document/import-document'
+import { importDocument, type ImportRequest, type OpenChoice } from '../../use-case/import-document/import-document'
 import { validateImportedDocument } from '../../use-case/validate-imported-document/validate-imported-document'
 import {
   documentFromEmbeddedHtml,
@@ -119,8 +115,6 @@ const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
 const MERGE_OVERWROTE_REASON: NoticeReason = 'RS-71'
 
 const MERGE_KEPT_REASON: NoticeReason = 'RS-72'
-
-const NO_TASK_NAMES: readonly (string | null)[] = Object.freeze([])
 
 const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
 
@@ -557,10 +551,12 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
 }
 
 // see T-290, FR-023, MG-14
-interface ReportedTaskNames {
-  readonly droppedTaskNames: readonly (string | null)[]
-  readonly missingTaskNames: readonly (string | null)[]
-}
+type ReportedTaskNames = Pick<
+  Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>,
+  'droppedTaskNames' | 'missingTaskNames'
+>
+
+type ImportReport = Extract<ReturnType<typeof importDocument>, { readonly ok: true }>['report']
 
 /** @purity non-pure */
 function landOpenedDocument(
@@ -576,8 +572,8 @@ function landOpenedDocument(
 
 // see MG-11, MG-14, RS-73
 /** @purity pure */
-function missingTaskNamesOf(current: Document, report: ImportReport | null): readonly (string | null)[] {
-  if (report === null) return NO_TASK_NAMES
+function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedTaskNames['missingTaskNames'] {
+  if (report === null) return []
   const missing = new Set(report.taskUidsMissingSinceLastImport)
   return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
 }
@@ -625,7 +621,7 @@ function landReplacedDocument(
 ): void {
   store?.adoptFileReadToOpen()
   flow.noteFileOpened(incoming.documentStamp.fileSavedUtc, readIn.byteLength)
-  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames: NO_TASK_NAMES }, 'replace', newer, readIn.fileName)
+  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames: [] }, 'replace', newer, readIn.fileName)
 }
 
 // see OP-2, OP-5, OP-12, T-230

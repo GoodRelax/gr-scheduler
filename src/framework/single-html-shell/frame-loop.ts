@@ -1006,7 +1006,7 @@ interface ScreenViewReadingsTaken {
   readonly mergeCandidates: readonly MergeCandidateLine[]
   readonly unreadColumns: readonly string[]
   readonly droppedTaskNames: readonly (string | null)[]
-  readonly missingTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: ScreenSession['fileFlow']['missingTaskNames']
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean

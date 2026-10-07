@@ -136,7 +136,6 @@ function isEditedField(edit: FieldEditState, fieldRow: string): boolean {
   return edit.kind === 'editingField' && edit.fieldRow === fieldRow
 }
 
-// see T-292, FR-091
 /** @purity pure */
 function isNameField(fieldRow: string): boolean {
   return fieldRow === TASK_NAME_FIELD_ROW
@@ -194,7 +193,6 @@ function onFieldEditBegan(values: FieldEntryValues, event: EventOf<'fieldEditBeg
   return combined(values, nameReopened(values.createdTaskNamingState), edit, NO_EFFECTS)
 }
 
-// see T-292, IF-9, FR-091
 /** @purity pure */
 function onFieldEditEnded(values: FieldEntryValues, event: EventOf<'fieldEditEnded'>): FieldEntryStep {
   const naming = nameEnded(values.createdTaskNamingState, event.fieldRow)

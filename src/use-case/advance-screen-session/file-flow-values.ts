@@ -74,7 +74,6 @@ export interface FileFlowValuesStateCarried {
   readonly incomingFile: FileFlowIncomingFile
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
-  // see MG-11, RS-73
   readonly missingTaskNames: readonly (string | null)[]
   readonly openRoute: FileFlowOpenRoute
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
@@ -95,7 +94,7 @@ export interface FileFlowValuesEventCarried {
   readonly incomingFile: FileFlowIncomingFile
   readonly surfaceName: string
   readonly droppedTaskNames: readonly (string | null)[]
-  readonly missingTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: FileFlowValuesStateCarried['missingTaskNames']
   readonly openedFileName: string | null
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
@@ -255,7 +254,6 @@ function hasTasksToReport(names: Pick<FileFlowValues, 'droppedTaskNames' | 'miss
   return names.droppedTaskNames.length > 0 || names.missingTaskNames.length > 0
 }
 
-// WHY: an empty list keeps its reference, so a closing with nothing to clear changes nothing (SF-3).
 /** @purity pure */
 function emptied(names: readonly (string | null)[]): readonly (string | null)[] {
   return names.length === 0 ? names : NO_TASK_NAMES
