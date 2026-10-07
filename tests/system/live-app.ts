@@ -51,6 +51,45 @@ export async function readDrawnSvg(page: Page): Promise<string | null> {
   )
 }
 
+// see MK-13, T-266, RV-6
+// WHY: MK-13 opens the panel only from a Task's own body, label or actual; a marker, resume icon, dependency
+// or status line over the bar answers first in T-266 (RV-6 moved one bar middle onto a resume icon).
+/** @purity semi-pure-b */
+export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: number; y: number } | null> {
+  return page.evaluate(
+    /** @purity semi-pure-b */
+    (selector: string) => {
+      const drawing = document.querySelector(selector)
+      const figures = Array.from(drawing?.querySelectorAll('[data-figure]') ?? [])
+      const isGround = (name: string): boolean =>
+        /^(row-|ruler-)/.test(name) || name === 'non-working-days' || name.endsWith('-mask')
+      const along = [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]
+      for (const plan of Array.from(drawing?.querySelectorAll('[data-figure$="-plan"]') ?? [])) {
+        const uid = /^task-(\d+)-plan$/.exec(plan.getAttribute('data-figure') ?? '')?.[1]
+        const box = plan.getBoundingClientRect()
+        // WHY: wide and tall enough that a press inside it is not on an end grab.
+        if (uid === undefined || box.width < 30 || box.height < 6) continue
+        const own = new Set([`task-${uid}-plan`, `task-${uid}-actual`, `task-${uid}-label`])
+        const others = figures
+          .filter((one) => {
+            const name = one.getAttribute('data-figure') ?? ''
+            return !own.has(name) && !isGround(name)
+          })
+          .map((one) => one.getBoundingClientRect())
+        const y = box.top + box.height / 2
+        for (const share of along) {
+          const x = box.left + box.width * share
+          const covered = others.some((one) => x >= one.left && x <= one.right && y >= one.top && y <= one.bottom)
+          if (covered || document.elementFromPoint(x, y) !== plan) continue
+          return { uid, x, y }
+        }
+      }
+      return null
+    },
+    DRAWN_SVG,
+  )
+}
+
 // WHY: the shell may legitimately draw twice while the screen size
 // settles, so this waits for two identical readings, not a fixed delay.
 /** @purity semi-pure-b */

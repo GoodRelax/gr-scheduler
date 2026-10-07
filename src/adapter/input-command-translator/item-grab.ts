@@ -826,7 +826,7 @@ function commentBoxMoveWrite(
   ])
 }
 
-// see FR-016, FD-5
+// see FR-016, FD-5, RV-6
 // WHY: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
 // stood on stays unset instead of turning into an explicit 0, which draws flat.
 /** @purity pure */
@@ -837,7 +837,7 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   const atPointer = pointerDaySerial(context.layout, release.x)
   if (task === null || start === null || finish === null || atPointer === null) return CONSUMED_ELSEWHERE
   const pulled =
-    grab === 'GA-7' ? Math.round(atPointer - serialOfDay(start)) : Math.round(serialOfDay(finish) - atPointer)
+    grab === 'GA-7' ? Math.round(atPointer - serialOfDay(start)) : Math.round(serialOfDay(finish) + 1 - atPointer)
   const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
   const stood = (grab === 'GA-7' ? task.fadeInDays : task.fadeOutDays) ?? 0
   if (days === stood) return CONSUMED_ELSEWHERE

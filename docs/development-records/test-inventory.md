@@ -263,7 +263,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-429-the-two-schemas.test.ts` | 11 | - | - | - | CN-7, EX-1, EX-10 | - | - | - | yes |
 | `tests/contract/cr-430-ga-1-to-22-grab-areas.test.ts` | 50 | FR-075 | - | T-206, T-240, T-266, T-268, T-303 | EL-4, EL-9, GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-10, GA-14, GA-15, GA-16, GA-17, GA-18, GA-19, GA-20, GA-21, GA-22, GA-24, LP-7, S-63, S-250, S-251, S-253, S-254, S-256, S-257, S-258, S-268, S-269, S-278, S-284, S-285, S-363, TY-2, TY-6, TY-8 | - | - | - | - |
 | `tests/contract/cr-430-ga-pointer-column.test.ts` | 11 | - | - | T-266, T-269 | PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10, PK-11, PK-15, PK-17 | - | - | - | - |
-| `tests/contract/cr-430-ht-1-to-4-hit-order.test.ts` | 21 | FR-110 | - | T-023d, T-266, T-267, T-268, T-273 | GA-1, HT-1, HT-2, HT-3, HT-4, LP-2, S-63, TY-7, TY-9 | - | - | - | - |
+| `tests/contract/cr-430-ht-1-to-4-hit-order.test.ts` | 21 | FR-110 | - | T-023d, T-266, T-267, T-268, T-273 | GA-1, HT-1, HT-2, HT-3, HT-4, LP-2, RV-6, S-63, TY-7, TY-9 | - | - | - | - |
 | `tests/contract/cr-430-t-020-the-order-things-are-drawn.test.ts` | 11 | FR-019, FR-110 | - | T-020 | S-63, S-64, S-370, ZO-1, ZO-2, ZO-4, ZO-13, ZO-14, ZO-15, ZO-16 | - | - | - | - |
 | `tests/contract/cr-430-t-273-where-the-labels-stand.test.ts` | 18 | FR-109 | - | T-273 | LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-31, S-32, S-63, S-301, S-303 | - | - | - | - |
 | `tests/contract/cr-430-table-pe-press-and-drag-effects.test.ts` | 29 | FR-107 | - | T-021a, T-270 | PE-0, PE-1, PE-3, PE-6, PE-7, PE-8, PE-10, PE-11, PE-12, PE-13, S-63 | - | - | - | - |

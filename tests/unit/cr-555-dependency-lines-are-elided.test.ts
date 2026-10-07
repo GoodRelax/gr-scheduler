@@ -463,7 +463,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 20, 5, [1]), 'b'],
       ],
-      settings: { scrollDate: iso(5) },
+      settings: { scrollDate: iso(6) },
     })
     const shape = placementOf(scene, 1)
     expect(shape.x + shape.width, 'premise: the plan ends exactly on the Row Area left edge').toBeCloseTo(scene.regions.rowArea.x, 9)
@@ -477,7 +477,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 20, 5, [1]), 'b'],
       ],
-      settings: { scrollDate: iso(4) },
+      settings: { scrollDate: iso(5) },
     })
     const shape = placementOf(scene, 1)
     expect(shape.x + shape.width, 'premise: the plan reaches into the Row Area').toBeGreaterThan(scene.regions.rowArea.x)
@@ -491,7 +491,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
         [taskOf(1, 0, 5, [], { name: 'a rather long name that reaches into the chart' }), 'a'],
         [taskOf(2, 20, 5, [1]), 'b'],
       ],
-      settings: { scrollDate: iso(6) },
+      settings: { scrollDate: iso(7) },
     })
     const rowArea = scene.regions.rowArea
     const shape = placementOf(scene, 1)

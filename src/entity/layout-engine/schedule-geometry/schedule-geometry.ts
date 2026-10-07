@@ -307,7 +307,7 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
 
 /** @purity pure */
 function planSpanWidthOf(layout: ScheduleLayout, x: number, finish: CalendarDay, settings: DrawnSettings): number {
-  return Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
+  return Math.max(xFromDay(layout, finish) + layout.pxPerDay - x, settings.minShapeWidth)
 }
 
 /** @purity pure */
