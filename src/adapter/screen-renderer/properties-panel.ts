@@ -1075,6 +1075,34 @@ function parentProgressToleranceField(workingDays: number, language: DisplayLang
   }
 }
 
+const EXPORT_SPAN_COLUMNS = ['exportSpanStart', 'exportSpanFinish'] as const
+
+// see IX-17, K-141, CM-88, CM-89, FR-046
+// WHY: one line, two date entrances; the read-only rows leave these two keys out (settingsFields).
+/** @purity pure */
+function exportSpanField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
+  const [startColumn] = EXPORT_SPAN_COLUMNS
+  const texts = EXPORT_SPAN_COLUMNS.map((column) => textOfDateColumn(settings[column]))
+  return {
+    row: settingsWordOf(startColumn)?.rowId ?? startColumn,
+    name: settingsName(startColumn, language),
+    text: texts.filter((one) => one !== '').join(PART_SEPARATOR),
+    isEditable: true,
+    controls: EXPORT_SPAN_COLUMNS.map((column, at) => {
+      const text = texts[at] ?? ''
+      return {
+        key: { holder: 'documentSettings', column },
+        kind: 'date',
+        text,
+        choices: null,
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef),
+      }
+    }),
+  }
+}
+
 const STATUS_DATE_KEY = { holder: 'project', column: 'statusDate' } as const
 
 const STATUS_DATE_ENTRY: IconId = 'IC-44'
@@ -1145,7 +1173,7 @@ function settingsFields(
   dark: boolean,
   language: DisplayLanguage,
 ): readonly PropertyField[] {
-  const fielded: readonly string[] = Object.keys(SETTING_STEPS)
+  const fielded: readonly string[] = [...Object.keys(SETTING_STEPS), ...EXPORT_SPAN_COLUMNS]
   const readOnly = Object.keys(SETTINGS_DEFAULTS).filter((key) => !fielded.includes(key)).map((key) => ({
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
@@ -1156,6 +1184,7 @@ function settingsFields(
   return [
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
+    exportSpanField(settings, language),
     statusDateField(schedule.project.statusDate, language),
     steppedSettingField(settings, 'displayScale', language),
     steppedSettingField(settings, 'fontScale', language),
@@ -1314,6 +1343,7 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
       ...(transparentPart === undefined || !names.includes(TRANSPARENT)
         ? {}
         : { transparentWord: colourWord(transparentPart, look.language) }),
+      transparentName: TRANSPARENT,
     },
   }
 }

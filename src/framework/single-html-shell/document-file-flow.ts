@@ -73,6 +73,7 @@ import {
   type MergeMapping,
   type NoticeReason,
 } from './frame-loop'
+import type { HeldViewPlace } from './view-place'
 import startupTemplateManifest from './startup-template-manifest.json'
 
 // see BT-1, FR-067
@@ -431,7 +432,10 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
 }
 
 /** @purity non-pure */
-export function documentFileFlowOf(hands: DocumentFileFlowHands) {
+export function documentFileFlowOf(
+  hands: DocumentFileFlowHands,
+  viewPlace: Pick<HeldViewPlace, 'documentToWrite'>,
+) {
   // WHY: continuations, not states: the machine's effects settle them (CR-460 decision 5).
   let settleOpenChoice: ((choice: OpenChoice | null) => void) | null = null
   // TRAP: kept apart from settleOpenChoice; one shared holder settles whichever was waiting.
@@ -485,7 +489,8 @@ export function documentFileFlowOf(hands: DocumentFileFlowHands) {
     const store = hands.files
     if (store === undefined) return hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED)
     // WHY: taken here and passed in, so no await inside can swap the document asked for (CS-4).
-    const asked = hands.readHeld().document
+    // OP-10 gives the written copy the startup template's place; the held document keeps its own.
+    const asked = viewPlace.documentToWrite(hands.readHeld().document)
     const writing =
       writeForm.kind === 'save'
         ? saveHeldDocumentToFile(hands, flow, store, asked)

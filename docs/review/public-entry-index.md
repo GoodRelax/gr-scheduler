@@ -954,7 +954,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `askToOpenDroppedFile` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#askToOpenDroppedFile` | -- | function askToOpenDroppedFile(hands: DocumentFileFlowHands): void |
 | `DocumentFileFlow` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlow` | -- | type DocumentFileFlow = ReturnType<typeof documentFileFlowOf> |
 | `DocumentFileFlowHands` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlowHands` | -- | type DocumentFileFlowHands = Pick< |
-| `documentFileFlowOf` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentFileFlowOf` | -- | function documentFileFlowOf(hands: DocumentFileFlowHands) |
+| `documentFileFlowOf` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentFileFlowOf` | -- | function documentFileFlowOf( hands: DocumentFileFlowHands, viewPlace: Pick<HeldViewPlace, 'documentToWrite'>, ) |
 | `EMBEDDED_DOCUMENT_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#EMBEDDED_DOCUMENT_ELEMENT_ID` | -- | const EMBEDDED_DOCUMENT_ELEMENT_ID = 'embedded-document' |
 | `FileSavedReading` | file only | interface | `src/framework/single-html-shell/document-file-flow.ts#FileSavedReading` | -- | interface FileSavedReading |
 | `NO_FILE_SAVED` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#NO_FILE_SAVED` | -- | const NO_FILE_SAVED: FileSavedReading = { fileSavedAt: null, fileSavedByteLength: null } |

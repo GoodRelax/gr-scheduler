@@ -44,9 +44,9 @@ const Q08B = '⛔ 本要求がそうした欄を数え上げてはならない�
 const THEME_HUE_FIELD = 'K-60'
 // WHY: FR-131 (CR-651) places a second field there, the parent progress tolerance, named by K-140.
 const PARENT_PROGRESS_TOLERANCE_FIELD = 'K-140'
-// WHY: CR-677 places three more there, in this order: the status date (FR-046, named by IC-44), the display
-// scale and the font size (FR-039, K-125 and K-85). The export span field (IX-17) waits for CM-88.
-const LATER_PLACED_FIELDS = ['IC-44', 'K-125', 'K-85']
+// WHY: CR-677 places four more there, in this order: the export span (IX-17, K-141, under K-140), the status
+// date (FR-046, named by IC-44), the display scale and the font size (FR-039, K-125 and K-85).
+const LATER_PLACED_FIELDS = ['K-141', 'IC-44', 'K-125', 'K-85']
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'

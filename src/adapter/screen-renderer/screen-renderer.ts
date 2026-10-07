@@ -227,6 +227,8 @@ export interface ColourField {
   // WHY: optional for the same reason; the entrance back to the theme is drawn either way.
   readonly theme?: ColourThemeEntry
   readonly transparentWord?: string
+  // see PI-37, PI-1
+  readonly transparentName: string
 }
 
 // see CV-9, CV-5

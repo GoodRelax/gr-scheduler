@@ -21,8 +21,7 @@ type ViewPlace = Pick<
   'zoomX' | 'zoomY' | 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'
 >
 
-// TRAP: input-command-translator.ts names the same half of OP-10's condition in
-// namesAPlace; change both together.
+// TRAP: input-command-translator.ts names the same half of OP-10's condition in namesAPlace; change both together.
 // see OP-10
 /** @purity pure */
 function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
@@ -43,6 +42,40 @@ function viewPlaceOf(settings: DocumentSettings): ViewPlace {
   }
 }
 
+/** @purity pure */
+function firstCoveredDayOf(held: Document): string | null {
+  const covered = held.schedule.tasks
+    .flatMap((one) => [one.start, one.actualStart])
+    .filter((one): one is string => one !== null)
+    .sort()
+  return covered[0] ?? null
+}
+
+/** @purity pure */
+function firstRowIdOf(held: Document): string | null {
+  const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
+  return firstRow === undefined ? null : firstRow.id
+}
+
+type ScrollPlace = Pick<ViewPlace, 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'>
+
+// see OP-10, FR-024
+/** @purity pure */
+function startupTemplatePlaceOf(held: Document): ScrollPlace | null {
+  const firstDay = firstCoveredDayOf(held)
+  const firstRowId = firstRowIdOf(held)
+  if (firstDay === null || firstRowId === null) return null
+  return { scrollDate: firstDay, scrollGroupId: firstRowId, scrollDayOffset: 0, scrollGroupOffset: 0 }
+}
+
+// WHY: OP-10 puts the place on the written document alone; the open one keeps its null place.
+/** @purity pure */
+function writtenDocumentOf(document: Document, fromTemplate: boolean): Document {
+  if (!fromTemplate || storedNamesAPlace(document, document.documentSettings)) return document
+  const place = startupTemplatePlaceOf(document)
+  return place === null ? document : { ...document, documentSettings: { ...document.documentSettings, ...place } }
+}
+
 // see OP-10, FR-055
 /** @purity pure */
 function viewSettings(
@@ -55,24 +88,14 @@ function viewSettings(
 ): ViewSettings {
   if (storedNamesAPlace(held, stored)) return { settings: stored, isAtStoredZoom: true }
 
-  const covered = held.schedule.tasks
-    .flatMap((one) => [one.start, one.actualStart])
-    .filter((one): one is string => one !== null)
-    .sort()
-  const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
+  const templatePlace = fromTemplate ? startupTemplatePlaceOf(held) : null
+  if (templatePlace !== null) return { settings: { ...stored, ...templatePlace }, isAtStoredZoom: true }
+
   const pinned: DocumentSettings = {
     ...stored,
-    // TRAP: never null; dateAtX answers null without an origin day and OP-10 would
-    // ask again forever.
-    scrollDate: covered[0] ?? stored.scrollDate ?? runDay,
-    scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
-  }
-
-  if (fromTemplate && covered.length > 0) {
-    return {
-      settings: { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 },
-      isAtStoredZoom: true,
-    }
+    // TRAP: never null; dateAtX answers null without an origin day and OP-10 would ask again forever.
+    scrollDate: firstCoveredDayOf(held) ?? stored.scrollDate ?? runDay,
+    scrollGroupId: firstRowIdOf(held) ?? stored.scrollGroupId,
   }
 
   const fitted = fitZoom(
@@ -164,7 +187,8 @@ export function heldViewPlaceOf(
     fromStartupTemplate = false
   }
 
-  return { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate }
+  const documentToWrite = (document: Document): Document => writtenDocumentOf(document, fromStartupTemplate)
+  return { viewSettingsOnce, documentToWrite, forgetFitForNoPlace, leaveStartupTemplate }
 }
 
 export type HeldViewPlace = ReturnType<typeof heldViewPlaceOf>
