@@ -4,7 +4,15 @@
 // @purity    pure
 
 import type { ScheduleGeometry } from '../schedule-geometry/schedule-geometry'
-import { isInsideRect, isOnTheDrawnShape, shapeOf, type Hit, type TaskShape } from './item-hit-area'
+import {
+  isCutAway,
+  isInsideRect,
+  isOnTheDrawnShape,
+  isScrolling,
+  shapeOf,
+  type Hit,
+  type TaskShape,
+} from './item-hit-area'
 
 export interface DependencyEnd {
   readonly taskUid: number
@@ -23,7 +31,7 @@ function isOnTheTask(shape: TaskShape, x: number, y: number): boolean {
     (assignee !== null && isInsideRect(x, y, assignee))
 }
 
-// see FR-009, PTD-3
+// see FR-009, PTD-3, FR-098, EL-1
 // TRAP: a given uid tests no containment: the press may have reached the Task through ink outside its bar.
 /** @purity pure */
 export function dependencyEndAtPointer(
@@ -32,8 +40,11 @@ export function dependencyEndAtPointer(
   y: number,
   onTaskUid: number | null,
 ): DependencyEnd | null {
+  const cut = geometry.pinnedBand ?? null
   for (const task of geometry.tasks) {
     if (onTaskUid !== null && task.taskUid !== onTaskUid) continue
+    // WHY: above the pinned band's foot a scrolling row shows nothing, so the point reaches none of it (DFC-1222).
+    if (onTaskUid === null && isCutAway(cut, isScrolling(cut, task.taskUid), y)) continue
     if (task.hasPlanDates === false) continue
     const shape = shapeOf(task)
     // TRAP: never `?? shape.actualBand` here: FR-009 (MUST NOT) forbids a

@@ -35,7 +35,7 @@ export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
-import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
+import { drawnRowBoxesOf, rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 import { searchPanelFromSession, shownCountWordOf, type SearchPanelView } from './search-panel'
 import {
   delayDiagnosticsReportFromWindow,
@@ -70,7 +70,7 @@ export {
 } from './delay-diagnostics-report'
 export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
 
-export { rowTitleFontPxOf }
+export { drawnRowBoxesOf, rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
@@ -321,6 +321,7 @@ export interface CommandPalette {
   // TRAP: the surface must draw the band inside the palette part, or the palette fades while grabbed.
   readonly grabBandHeight: number
   readonly minimise: CommandItem
+  readonly bandRecord?: CommandItem | null
   readonly isMinimised: boolean
   readonly groups: readonly PaletteGroup[]
   readonly armedText: string | null
@@ -552,6 +553,8 @@ export interface ScreenView {
   readonly propertiesPanel: PropertiesPanel | null
   readonly commandPalette: CommandPalette | null
   readonly openModal: OpenModal | null
+  // see WB-10
+  readonly openModalAt?: { readonly x: number; readonly y: number } | null
   readonly helpModal?: HelpModal | null
   readonly notices: readonly Notice[]
   readonly confirmation: Confirmation | null
@@ -629,7 +632,11 @@ export interface ScreenViewReadings {
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
   // see WB-6, S-455, S-456
-  readonly windowPlaces?: { readonly helpModal: WindowPlace; readonly dialogueField: WindowPlace }
+  readonly windowPlaces?: {
+    readonly helpModal: WindowPlace
+    readonly dialogueField: WindowPlace
+    readonly closeOnlyTitledSurface?: { readonly x: number; readonly y: number } | null
+  }
   readonly isDelayDiagnosticsShown?: boolean
   readonly isWbsParentLinksShown?: boolean
   readonly wbsParentChoice?: WbsParentChoice | null
@@ -692,6 +699,17 @@ function pointerWordsOf(
   }
 }
 
+// see WB-10
+/** @purity pure */
+function openModalPlaced(
+  session: ScreenSession,
+  schedule: Schedule,
+  readings: ScreenViewReadings,
+): Pick<ScreenView, 'openModal' | 'openModalAt'> {
+  const openModal = openModalFromSession(session, schedule, readings)
+  return { openModal, openModalAt: readings.windowPlaces?.closeOnlyTitledSurface ?? null }
+}
+
 // see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
@@ -719,7 +737,7 @@ export function screenViewFromRegions(
       // TRAP: never omit schedule, or the palette counts tasks no row draws.
       schedule,
     ),
-    openModal: openModalFromSession(session, schedule, readings),
+    ...openModalPlaced(session, schedule, readings),
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings, schedule),

@@ -17,11 +17,15 @@ import type {
 import type { SearchRowView } from './search-panel'
 import type { WindowFloor, WindowGrabRegion } from './window-box'
 
+// see WB-10, GR-24
+// WHY: the save and open surfaces move by their title band but are no window of table T-335 (WindowName).
+export type GrabbedWindowName = WindowName | 'closeOnlyTitledSurface'
+
 // see IF-9, GR-24, GR-25, GR-28
 // WHY: the box, range and floor ride on the answer: only the surface reads the drawn box and the generated sizes.
 export type WindowGrab =
   | {
-      readonly window: WindowName
+      readonly window: GrabbedWindowName
       readonly region: WindowGrabRegion
       readonly windowBox: ScreenRect
       readonly range: ScreenRect

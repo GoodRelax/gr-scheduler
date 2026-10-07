@@ -280,10 +280,10 @@ function armedWord(
 }
 
 /** @purity pure */
-function minimiseRow(): IconRosterRow {
-  const row = iconRoster.icons.find((one) => one.rowId === MINIMISE_ROW)
+function bandRowOf(rowId: IconId): IconRosterRow {
+  const row = iconRoster.icons.find((one) => one.rowId === rowId)
   if (row === undefined) {
-    throw new Error(`table T-109 no longer holds ${MINIMISE_ROW}, which FR-053 requires`)
+    throw new Error(`table T-109 no longer holds ${rowId}, which FR-053 requires`)
   }
   return row
 }
@@ -310,19 +310,16 @@ export function commandPaletteFromSession(
   const armed = session.screen.armModeState
   const isMinimised = palette.child.kind === 'minimised'
   const facts = entranceFactsOf(settings, session, schedule, readings)
+  const isRecording = isRecordingInteractions(readings)
+  const bandItem = (rowId: IconId): CommandItem =>
+    commandItemFor(bandRowOf(rowId), selection, drawnTasks, language, armedEntry(armed), isRecording, facts)
 
   return {
     at: readings.commandPaletteAt,
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
-    minimise: commandItemFor(
-      minimiseRow(),
-      selection,
-      drawnTasks,
-      language,
-      armedEntry(armed),
-      isRecordingInteractions(readings),
-      facts,
-    ),
+    minimise: bandItem(MINIMISE_ROW),
+    // see FR-053, FR-102, S-206
+    bandRecord: isMinimised && isRecording ? bandItem(INTERACTION_RECORD_ROW) : null,
     isMinimised,
     groups: isMinimised
       ? []
@@ -332,7 +329,7 @@ export function commandPaletteFromSession(
           language,
           session.screen.milestoneListDisplayState.kind === 'open',
           armedEntry(armed),
-          isRecordingInteractions(readings),
+          isRecording,
           facts,
         ),
     armedText: isMinimised ? null : armedWord(armed, language),

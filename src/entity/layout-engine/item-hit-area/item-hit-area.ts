@@ -777,24 +777,24 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
 
 // see FR-098, S-78, HT-1
 // WHY: what a scrolling row draws is cut at the top of the area below the band, so no point in the band reaches it.
-type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
+export type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
 
 /** @purity pure */
-function isScrolling(cut: BandCut, taskUid: number): boolean {
+export function isScrolling(cut: BandCut, taskUid: number): boolean {
   return cut !== null && !cut.pinnedTaskUids.has(taskUid)
 }
 
 // see FR-098, T-303, EL-4, EL-5
 // WHY: a line stays in the band only with both ends pinned; a short line and its mark go with their visible end.
 /** @purity pure */
-function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean {
+export function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean {
   if (line.elision === 'EL-4') return isScrolling(cut, line.predecessorUid)
   if (line.elision === 'EL-5') return isScrolling(cut, line.successorUid)
   return isScrolling(cut, line.predecessorUid) || isScrolling(cut, line.successorUid)
 }
 
 /** @purity pure */
-function isCutAway(cut: BandCut, isCut: boolean, y: number): boolean {
+export function isCutAway(cut: BandCut, isCut: boolean, y: number): boolean {
   return cut !== null && isCut && y < cut.scrollTop
 }
 
@@ -809,7 +809,7 @@ function cutCovers<T extends { readonly covers: (x: number, y: number) => boolea
 }
 
 /** @purity pure */
-function cutRect(box: ScreenRect | null, cut: BandCut, isCut: boolean): ScreenRect | null {
+export function cutRect(box: ScreenRect | null, cut: BandCut, isCut: boolean): ScreenRect | null {
   if (box === null || cut === null || !isCut) return box
   return rectOfSpans(acrossOf(box), { from: Math.max(box.y, cut.scrollTop), to: bottomOf(box) })
 }

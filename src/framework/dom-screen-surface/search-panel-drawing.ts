@@ -179,7 +179,7 @@ function fixedColumnStyle(): string {
 function headerCellStyle(isFixed: boolean): string {
   const fixed = isFixed ? fixedColumnStyle() : ''
   const stack = stackStyle(isFixed ? 'fixedHeaderCell' : 'headerCell')
-  return `${cellStyle()}${fixed}position:sticky;top:0;background:${PAINT.panel};${stack}`
+  return `${cellStyle()}${fixed}font-weight:normal;position:sticky;top:0;background:${PAINT.panel};${stack}`
 }
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
