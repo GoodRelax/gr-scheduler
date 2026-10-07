@@ -1,21 +1,40 @@
 // Use-case test for UC-008 (tell by annotations), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, bandAt, dayAxis, dayNumber, drag, enableAgentApi, figureBox, launch, press, pressRowControl, readDocument, settle, specMismatch } from './uc-harness'
+import { VIEWPORT, bandAt, dayAxis, dayNumber, drag, enableAgentApi, figureBox, launch, press, pressRowControl, readDocument, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const ANCHOR = { x: 1300, y: 300 }
-const RANGE_FROM = { x: 1400, y: 500 }
+const ANCHOR_NEAR = { x: 1300, y: 300 }
+const RANGE_FROM_NEAR = { x: 1400, y: 500 }
 const RANGE_TO = { x: 1600, y: 650 }
 const OFFSET = { dx: 60, dy: -40 }
+
+// WHY: AR-5 and AR-6 act only where the press hits nothing; on a drawn bar the existing item wins
+// (T-023b), so a fixed point breaks whenever the sample moves a bar under it (DFC-2132).
+const bareSpotNear = (page: Page, near: { x: number; y: number }): Promise<{ x: number; y: number }> =>
+  page.evaluate(({ x, y }) => {
+    // WHY: the row under the point is tried first; a bar can fill a whole row, so nearby rows follow.
+    for (let row = 0; row < 30; row++) {
+      for (const dy of [row * 10, -row * 10]) {
+        for (let step = 0; step < 60; step++) {
+          for (const dx of [step * 10, -step * 10]) {
+            const hit = document.elementFromPoint(x + dx, y + dy)?.getAttribute('data-figure') ?? ''
+            if (/^row-.*-band$/.test(hit)) return { x: x + dx, y: y + dy }
+          }
+        }
+      }
+    }
+    throw new Error('no bare spot near ' + x + ',' + y)
+  }, near)
 
 const cornerRadius = async (page: Page, id: string): Promise<number> => Number(await page.locator('[data-figure="box-' + id + '"]').getAttribute('rx'))
 
 test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217, FR-016)', async ({ page }) => {
-  specMismatch('UC-008 extension 4a / FR-019: hiding the bottom row of a highlight box makes its frame grow far below the range instead of shrinking to the rows still shown')
   await launch(page)
   await enableAgentApi(page)
   let commentId = ''
+  const ANCHOR = await bareSpotNear(page, ANCHOR_NEAR)
+  const RANGE_FROM = await bareSpotNear(page, RANGE_FROM_NEAR)
   let anchorRow: string | null = null
 
   await test.step('UC-008 step 1: place a comment box and decide what it points at (IC-35, AR-5)', async () => {
@@ -91,6 +110,18 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(await cornerRadius(page, highlightId)).toBe(box.cornerRadiusPx)
   })
 
+  // WHY: measured while the box is drawn; extension 2a later hides the pointed row, which in the
+  // template is an ancestor of the range rows, so the box is no longer drawn after it (DFC-2132).
+  await test.step('UC-008 step 4 over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
+    const radius = (await readDocument(page)).schedule.highlightBoxes[0]!.cornerRadiusPx
+    await press(page, 'IC-13')
+    await press(page, 'IC-15')
+    await expect(page.locator('[data-figure="box-' + highlightId + '"]')).toHaveCount(1)
+    expect(await cornerRadius(page, highlightId)).toBe(radius)
+    await press(page, 'IC-14')
+    await press(page, 'IC-12')
+  })
+
   await test.step('UC-008 extension 4a: when a row inside the range is hidden, only the rows still shown are surrounded (FR-019)', async () => {
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     const before = (await figureBox(page, 'box-' + highlightId))!
@@ -103,13 +134,5 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(1)
     await pressRowControl(page, anchorRow!, 'IC-59')
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(0)
-  })
-
-  await test.step('UC-008 step 4 over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
-    const radius = (await readDocument(page)).schedule.highlightBoxes[0]!.cornerRadiusPx
-    await press(page, 'IC-13')
-    await press(page, 'IC-15')
-    await expect(page.locator('[data-figure="box-' + highlightId + '"]')).toHaveCount(1)
-    expect(await cornerRadius(page, highlightId)).toBe(radius)
   })
 })
