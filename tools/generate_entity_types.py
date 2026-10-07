@@ -1599,6 +1599,13 @@ NOT_STORED_TARGETS = {
     # subject is that derivation and not any other svg-renderer.ts drawing.
     'NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS': (['S-415', 'S-416'],
                                            DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-683: the numbers table T-366 (FR-041) solves the theme colours with --
+    # the shift step and cap (S-520, S-521), the four rows' ratios (S-522 ..
+    # S-525) and the ground search's halvings (S-526). Read by the one solve in
+    # svg-renderer.ts that colourOf reads, so the screen and the export agree.
+    'NOT_STORED_THEME_SOLVE': (['S-520', 'S-521', 'S-522', 'S-523', 'S-524',
+                                'S-525', 'S-526'],
+                               DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
     # unit that assembles an exported picture. ⛔ NOT FOLDED INTO ANY LINE
     # ABOVE -- every one of them is read by a unit that draws the schedule,
@@ -1951,7 +1958,10 @@ COLOUR_TARGETS = {
                          # CR-602: S-448 left; a selected or landing dependency line keeps S-159.
                          'S-443',
                          # CR-605: the non-working day shade (OD-5 of table T-343, FR-054).
-                         'S-450'],
+                         'S-450',
+                         # CR-683: the link ink, measured on the ground by CF-5 of table
+                         # T-366, and the fade grab point's face and rim (FR-075).
+                         'S-503', 'S-527', 'S-528'],
 }
 
 COLOUR_NOTE = [
@@ -2005,6 +2015,37 @@ def colour_block(name):
         out.append("  '%s': { light: '%s', dark: '%s', followsHue: %s },"
                    % (row_id, cells['light'], cells['dark'],
                       'true' if follows else 'false'))
+    out.append('}')
+    return NEWLINE.join(out)
+
+
+def colour_sources_block(name):
+    """The rows of one colour constant whose cell names another row (CR-683).
+
+    colour_block prints the colour a sameAs chain ends at, so the name is lost;
+    table T-366 shifts S-146, S-151 and S-155 .. S-157 per hue, and a row that
+    names one of them (S-527 names S-146, S-528 names S-156) must be drawn with
+    the shifted value, so the renderer needs the row the chain ends at.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-236']
+    by_id = {r['id']: r for r in block[0]['rows']}
+    out = ['// see T-236, T-366',
+           'export const %s_SOURCES: {' % name,
+           '  readonly [rowId: string]: { readonly light: string; readonly dark: string }',
+           '} = {']
+    for row_id in COLOUR_TARGETS[name]:
+        ends = {}
+        for side in ('light', 'dark'):
+            cell = by_id[row_id].get(side)
+            end = row_id
+            while isinstance(cell, dict) and 'sameAs' in cell:
+                end = cell['sameAs']
+                cell = by_id[end].get(side)
+            ends[side] = end
+        if ends['light'] == row_id and ends['dark'] == row_id:
+            continue
+        out.append("  '%s': { light: '%s', dark: '%s' }," % (row_id, ends['light'], ends['dark']))
     out.append('}')
     return NEWLINE.join(out)
 
@@ -3234,12 +3275,15 @@ TARGETS = [
      # ⭐ CR-564: CV-10's lightness floor and ceiling, beside the rest of this
      # unit's not-stored rows.
      + not_stored_block('NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS') + NEWLINE * 2
+     # CR-683: table T-366's numbers, and the rows whose cell names a row it shifts.
+     + not_stored_block('NOT_STORED_THEME_SOLVE') + NEWLINE * 2
      # ⭐ CR-419: every <text> this unit writes carries S-246's list, and the
      # shape's name label alone carries S-245's weight -- see both entries in
      # NOT_STORED_TARGETS.
      + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_NAME_LABEL_WEIGHT') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS') + NEWLINE * 2
+     + colour_sources_block('SCHEDULE_COLOURS') + NEWLINE * 2
      # ⭐ CR-548: the palette colours' drawn values, beside the theme's own.
      + palette_block()
      # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The

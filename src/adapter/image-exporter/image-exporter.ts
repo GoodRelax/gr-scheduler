@@ -142,9 +142,14 @@ function appHeaderSvg(
   // see FR-051, EP-1
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_CHROME_SCALE['S-235']
   const x = (band.x + (items.documentTitleLeftPx ?? 0)) * ratio
-  const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  const y = bandBaselineYOf(band, titlePx) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
+}
+
+/** @purity pure */
+function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
+  return band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline
 }
 
 // see EP-3
@@ -187,7 +192,7 @@ function filterCaptionSvg(band: ScreenRect, caption: string | null | undefined, 
   if (caption === null || caption === undefined || caption === '') return ''
   const fontPx = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']
   const x = (band.x + band.width - NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
-  const y = (band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  const y = bandBaselineYOf(band, fontPx) * ratio
   return textSvg(x, y, fontPx * ratio, caption, chromeInk(scene)).replace('<text ', '<text text-anchor="end" ')
 }
 

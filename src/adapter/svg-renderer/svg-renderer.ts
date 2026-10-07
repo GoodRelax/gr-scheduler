@@ -148,14 +148,216 @@ export function achromatic(colour: string): string {
   return `hsl(0 0% ${rounded(lightness * 100)}%)`
 }
 
-// see T-236, FR-041
+// see T-236, FR-041, CF-1
+// WHY: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
 export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
-  const row = SCHEDULE_COLOURS[rowId]
+  const named = SCHEDULE_COLOURS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
+  const drawnRow = named !== undefined && SCHEDULE_COLOURS[named] !== undefined ? named : rowId
+  const row = SCHEDULE_COLOURS[drawnRow]
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
-  const written = dark ? row.dark : row.light
+  const written = solvedCellOf(drawnRow, dark ? row.dark : row.light, themeSolveOf(hue, dark, monochrome), dark)
   const coloured = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
   return monochrome ? achromatic(coloured) : coloured
+}
+
+interface ThemeSolve {
+  readonly shift: number
+  readonly groundSaturation: number | null
+}
+
+// see T-366, CF-2, CF-4
+const SHIFT_RATIO_ROW_OF: Readonly<Record<string, 'S-522' | 'S-523' | 'S-524' | 'S-525'>> = {
+  'S-155': 'S-522',
+  'S-156': 'S-523',
+  'S-157': 'S-524',
+  'S-151': 'S-525',
+}
+
+const GROUND_ROW = 'S-146'
+
+const CT_FLOOR = { 'CT-3': 3, 'CT-4': 3, 'CT-5': 1.3 } as const
+
+// see CF-5, NFR-007
+const TEXT_ON_GROUND_FLOOR = 4.5
+const TEXT_ROWS_ON_GROUND = ['S-147', 'S-148', 'S-503'] as const
+const LINE_ROWS_ON_GROUND = ['S-159', 'S-160', 'S-163', 'S-195', 'S-312', 'S-364'] as const
+
+// WHY: white is the ground's own colour (S-314), so CV-8 leaves it out; transparent has no string cell.
+const PALETTE_ROWS_OFF_THE_GROUND: readonly string[] = ['S-314']
+
+const TENTHS = 10
+
+const HUES_IN_A_TURN = 360
+
+/** @purity pure */
+function tenthOf(value: number): number {
+  return Math.round(value * TENTHS) / TENTHS
+}
+
+/** @purity pure */
+function shiftedCellOf(written: string, delta: number): string {
+  const cell = HSL_CELL.exec(written)
+  if (cell === null) return written
+  return `hsl(H ${cell[1] as string}% ${rounded(tenthOf(clampedPercent(Number(cell[2]) + delta)))}%)`
+}
+
+/** @purity pure */
+function shiftDeltaOf(rowId: string, shift: number, dark: boolean): number | null {
+  const ratioRow = SHIFT_RATIO_ROW_OF[rowId]
+  if (ratioRow === undefined) return null
+  return (dark ? 1 : -1) * shift * NOT_STORED_THEME_SOLVE[ratioRow]
+}
+
+// see CF-2, CF-4
+/** @purity pure */
+function solvedCellOf(rowId: string, written: string, solve: ThemeSolve, dark: boolean): string {
+  const delta = shiftDeltaOf(rowId, solve.shift, dark)
+  if (delta !== null) return delta === 0 ? written : shiftedCellOf(written, delta)
+  if (rowId === GROUND_ROW && solve.groundSaturation !== null) return withSaturation(written, solve.groundSaturation)
+  return written
+}
+
+/** @purity pure */
+function withSaturation(written: string, saturation: number): string {
+  const cell = HSL_CELL.exec(written)
+  const lightness = cell === null ? hexToHsl(written).l : Number(cell[2])
+  return `hsl(H ${rounded(saturation)}% ${rounded(lightness)}%)`
+}
+
+// see CF-6, CV-7
+/** @purity pure */
+function measuredCellOf(written: string, hue: number, monochrome: boolean): readonly [number, number, number] {
+  const cell = HSL_CELL.exec(written)
+  const rgb = cell === null ? hexChannelsOf(written) : hslToRgbChannels(hue, Number(cell[1]), Number(cell[2]))
+  return monochrome ? greyChannelsOf(rgb) : rgb
+}
+
+/** @purity pure */
+function hexChannelsOf(hex: string): readonly [number, number, number] {
+  const [red = 0, green = 0, blue = 0] = [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16))
+  return [red, green, blue]
+}
+
+/** @purity pure */
+function themeCellOf(rowId: string, dark: boolean): string {
+  const row = SCHEDULE_COLOURS[rowId]
+  if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
+  return dark ? row.dark : row.light
+}
+
+/** @purity pure */
+function shiftedThemeCellOf(rowId: string, shift: number, dark: boolean): string {
+  return solvedCellOf(rowId, themeCellOf(rowId, dark), { shift, groundSaturation: null }, dark)
+}
+
+// see CF-3, CT-3, CT-4, CT-5
+/** @purity pure */
+function meetsShiftFloors(hue: number, dark: boolean, monochrome: boolean, shift: number): boolean {
+  const ground = measuredCellOf(withSaturation(themeCellOf(GROUND_ROW, dark), 0), hue, monochrome)
+  const measured = (rowId: string): readonly [number, number, number] =>
+    measuredCellOf(shiftedThemeCellOf(rowId, shift, dark), hue, monochrome)
+  const plan = measured('S-155')
+  return (
+    contrastRatioOf(measured('S-157'), plan) >= CT_FLOOR['CT-3'] &&
+    contrastRatioOf(measured('S-156'), ground) >= CT_FLOOR['CT-4'] &&
+    contrastRatioOf(plan, ground) >= CT_FLOOR['CT-5']
+  )
+}
+
+/** @purity pure */
+function shiftOf(hue: number, dark: boolean, monochrome: boolean): number {
+  const cap = NOT_STORED_THEME_SOLVE['S-521']
+  for (let shift = 0; shift <= cap; shift += NOT_STORED_THEME_SOLVE['S-520']) {
+    if (meetsShiftFloors(hue, dark, monochrome, shift)) return shift
+  }
+  return cap
+}
+
+// see CF-5, CV-8, T-294
+/** @purity pure */
+function shiftedGroundPairsOf(hue: number, dark: boolean, shift: number): readonly GroundPair[] {
+  const pairs: readonly (readonly [string, number])[] = [
+    [shiftedThemeCellOf('S-156', shift, dark), CT_FLOOR['CT-4']],
+    [shiftedThemeCellOf('S-155', shift, dark), CT_FLOOR['CT-5']],
+    [shiftedThemeCellOf('S-151', shift, dark), CT_FLOOR['CT-4']],
+  ]
+  return pairs.map(([cell, floor]) => [relativeLuminance(measuredCellOf(cell, hue, false)), floor] as const)
+}
+
+// see CF-5, CV-8, T-294
+// WHY: these inks do not follow the hue, so they are measured once per light/dark, not once per hue.
+/** @purity pure */
+function fixedGroundPairsOf(dark: boolean): readonly GroundPair[] {
+  const pairs: (readonly [string, number])[] = [
+    ...TEXT_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), TEXT_ON_GROUND_FLOOR] as const),
+    ...LINE_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), CT_FLOOR['CT-4']] as const),
+  ]
+  for (const named of Object.values(COLOUR_NAME_VALUES)) {
+    if (PALETTE_ROWS_OFF_THE_GROUND.includes(named.rowId)) continue
+    const forms = dark ? named.dark : named.light
+    if (typeof forms.outline === 'string') pairs.push([forms.outline, CT_FLOOR['CT-4']])
+    if (typeof forms.fill === 'string') pairs.push([forms.fill, CT_FLOOR['CT-5']])
+  }
+  return pairs.map(([cell, floor]) => [relativeLuminance(hexChannelsOf(cell)), floor] as const)
+}
+
+type GroundPair = readonly [number, number]
+
+/** @purity pure */
+function groundPasses(hue: number, dark: boolean, pairs: readonly GroundPair[], saturation: number): boolean {
+  const ground = measuredCellOf(withSaturation(themeCellOf(GROUND_ROW, dark), saturation), hue, false)
+  const groundLuminance = relativeLuminance(ground)
+  return pairs.every(([ink, floor]) =>
+    (Math.max(ink, groundLuminance) + LUMINANCE_OFFSET) / (Math.min(ink, groundLuminance) + LUMINANCE_OFFSET) >= floor)
+}
+
+// see CF-4, S-526
+/** @purity pure */
+function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: readonly GroundPair[]): number | null {
+  const pairs = [...shiftedGroundPairsOf(hue, dark, shift), ...fixed]
+  const written = HSL_CELL.exec(themeCellOf(GROUND_ROW, dark))
+  const top = written === null ? hexToHsl(themeCellOf(GROUND_ROW, dark)).s : Number(written[1])
+  if (groundPasses(hue, dark, pairs, top)) return null
+  let low = 0
+  let high = top
+  for (let halving = 0; halving < NOT_STORED_THEME_SOLVE['S-526']; halving += 1) {
+    const middle = (low + high) / 2
+    if (groundPasses(hue, dark, pairs, middle)) low = middle
+    else high = middle
+  }
+  const found = Math.floor(low * TENTHS) / TENTHS
+  return found >= top ? null : found
+}
+
+// WHY: monochrome draws S-146 grey whatever its saturation, so CF-4's 0 is the table's own cell greyed.
+/** @purity pure */
+function solvedThemeOf(hue: number, dark: boolean, monochrome: boolean, fixed: readonly GroundPair[]): ThemeSolve {
+  const shift = shiftOf(hue, dark, monochrome)
+  return { shift, groundSaturation: monochrome ? null : groundSaturationOf(hue, dark, shift, fixed) }
+}
+
+/** @purity pure */
+function themeVariantOf(dark: boolean, monochrome: boolean): number {
+  return (dark ? 2 : 0) + (monochrome ? 1 : 0)
+}
+
+// WHY: every hue the document can hold (0..359) reads the table solved at load; any other number is solved here.
+/** @purity pure */
+function themeSolveOf(hue: number, dark: boolean, monochrome: boolean): ThemeSolve {
+  if (!Number.isFinite(hue)) return { shift: 0, groundSaturation: null }
+  const solved = Number.isInteger(hue) ? SOLVED_THEMES[themeVariantOf(dark, monochrome)]?.[hue] : undefined
+  return solved ?? solvedThemeOf(hue, dark, monochrome, fixedGroundPairsOf(dark))
+}
+
+/** @purity pure */
+function solvedThemeTableOf(): readonly (readonly ThemeSolve[])[] {
+  return [false, true].flatMap((dark) => {
+    const fixed = fixedGroundPairsOf(dark)
+    return [false, true].map((monochrome) =>
+      Array.from({ length: HUES_IN_A_TURN }, (_, hue) => solvedThemeOf(hue, dark, monochrome, fixed)),
+    )
+  })
 }
 
 // see T-236, FR-041, CV-9
@@ -251,6 +453,7 @@ function measuredRgbOf(hsl: Hsl, monochrome: boolean): readonly [number, number,
 }
 
 const LUMINANCE_THRESHOLD = 0.03928
+const LUMINANCE_OFFSET = 0.05
 const LUMINANCE_WEIGHTS: readonly [number, number, number] = [0.2126, 0.7152, 0.0722]
 
 // see CV-10
@@ -268,7 +471,7 @@ function relativeLuminance(rgb: readonly [number, number, number]): number {
 function contrastRatioOf(a: readonly [number, number, number], b: readonly [number, number, number]): number {
   const lumA = relativeLuminance(a)
   const lumB = relativeLuminance(b)
-  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05)
+  return (Math.max(lumA, lumB) + LUMINANCE_OFFSET) / (Math.min(lumA, lumB) + LUMINANCE_OFFSET)
 }
 
 const ACTUAL_TO_PICK_CONTRAST_TARGET = 3 // see CT-3
@@ -773,6 +976,25 @@ const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
 }
 
 // see T-206
+const NOT_STORED_THEME_SOLVE: {
+  readonly 'S-520': number
+  readonly 'S-521': number
+  readonly 'S-522': number
+  readonly 'S-523': number
+  readonly 'S-524': number
+  readonly 'S-525': number
+  readonly 'S-526': number
+} = {
+  'S-520': 2,
+  'S-521': 44,
+  'S-522': 0.4,
+  'S-523': 1,
+  'S-524': 0.6,
+  'S-525': 1,
+  'S-526': 9,
+}
+
+// see T-206
 const NOT_STORED_TYPEFACES: {
   readonly 'S-246': string
 } = {
@@ -830,6 +1052,24 @@ const SCHEDULE_COLOURS: {
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-450': { light: 'rgba(0,0,0,0.06)', dark: 'rgba(0,0,0,0.25)', followsHue: false },
+  'S-503': { light: '#214b82', dark: '#7ba7e0', followsHue: false },
+  'S-527': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
+  'S-528': { light: 'hsl(H 44% 46%)', dark: 'hsl(H 46% 66%)', followsHue: true },
+}
+
+// see T-236, T-366
+const SCHEDULE_COLOURS_SOURCES: {
+  readonly [rowId: string]: { readonly light: string; readonly dark: string }
+} = {
+  'S-162': { light: 'S-146', dark: 'S-146' },
+  'S-169': { light: 'S-146', dark: 'S-146' },
+  'S-223': { light: 'S-148', dark: 'S-148' },
+  'S-386': { light: 'S-327', dark: 'S-327' },
+  'S-388': { light: 'S-327', dark: 'S-327' },
+  'S-390': { light: 'S-327', dark: 'S-327' },
+  'S-443': { light: 'S-148', dark: 'S-148' },
+  'S-527': { light: 'S-146', dark: 'S-146' },
+  'S-528': { light: 'S-156', dark: 'S-156' },
 }
 
 // see T-294, T-017b
@@ -917,3 +1157,7 @@ export const WATERMARK_MARKS: {
   'S-102': '0.06',
 }
 // </generated>
+
+// see CF-1
+// WHY: solved once per hue, light/dark and monochrome when the module loads, never per frame; colourOf reads it.
+const SOLVED_THEMES = solvedThemeTableOf()
