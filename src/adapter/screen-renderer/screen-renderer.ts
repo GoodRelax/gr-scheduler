@@ -512,7 +512,6 @@ export interface RaisedConfirmation {
   readonly manner: string
   readonly question: string
   readonly items: readonly ConfirmationItem[]
-  readonly days?: readonly string[]
 }
 
 export interface Confirmation extends RaisedConfirmation {
@@ -761,7 +760,7 @@ export function screenViewFromRegions(
     ...openModalPlaced(session, schedule, readings, settings),
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
     notices: noticesFromSession(session, readings),
-    confirmation: confirmationFromSession(session, readings, schedule),
+    confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
     searchPanel: searchPanelFromSession(
       session,

@@ -393,9 +393,6 @@ export function stage(document: Document, emptyDocument?: Document): Stage {
       send(pointer('move', (fromX + toX) / 2, (fromY + toY) / 2))
       send(pointer('move', toX, toY))
       send(pointer('up', toX, toY))
-      // WHY: a drag onto a rest day asks QN-13 (FR-154); these cases assert the No path of HW-11 (JDG-67).
-      if (views[views.length - 1]?.confirmation?.question !== 'QN-13') return
-      send({ kind: 'key', key: 'N', modifiers: { ...NO_MODIFIERS } })
     },
     click: (x, y) => {
       part = null

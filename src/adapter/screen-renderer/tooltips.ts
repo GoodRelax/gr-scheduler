@@ -131,14 +131,6 @@ function hintDayText(day: CalendarDay, isYearWritten: boolean, language: Display
   return withWeekday(planDateText(day, isYearWritten), day, language)
 }
 
-// see QN-13, TL-10, TL-11
-/** @purity pure */
-export function questionDayText(text: string, schedule: Schedule | null, language: DisplayLanguage): string {
-  const day = dayOf(text)
-  if (day === null) return text
-  return hintDayText(day, schedule !== null && isYearWrittenIn(schedule), language)
-}
-
 interface HintContext {
   readonly assigneeNames: readonly string[]
   readonly isYearWritten: boolean

@@ -4395,18 +4395,16 @@
       "rows": [
        "FR-032",
        "FR-099",
-       "FR-154",
        "QN-1",
        "QN-2",
        "QN-3",
        "QN-10",
-       "QN-13",
        "IC-66",
        "IC-106",
        "HF-20"
       ],
       "note": {
-       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除・すべての行の削除・非稼働日に置いた端）、担当者の削除"
+       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除・すべての行の削除）、担当者の削除"
       }
      },
      "carries": [
@@ -4416,8 +4414,7 @@
         "QN-1",
         "QN-2",
         "QN-3",
-        "QN-10",
-        "QN-13"
+        "QN-10"
        ]
       },
       {
@@ -5310,8 +5307,7 @@
           "QN-4",
           "QN-5",
           "QN-10",
-          "QN-11",
-          "QN-13"
+          "QN-11"
          ]
         },
         {
@@ -5330,8 +5326,7 @@
         "QN-4",
         "QN-5",
         "QN-10",
-        "QN-11",
-        "QN-13"
+        "QN-11"
        ]
       }
      ],
@@ -5505,27 +5500,6 @@
          "guard": [
           {
            "name": "isProceeding",
-           "not": true
-          },
-          {
-           "name": "hasDeclinedWrites"
-          }
-         ],
-         "effect": "carryOutOwedAction",
-         "evidence": [
-          "NT-7",
-          "FR-154"
-         ]
-        },
-        {
-         "to": "notAsked",
-         "guard": [
-          {
-           "name": "isProceeding",
-           "not": true
-          },
-          {
-           "name": "hasDeclinedWrites",
            "not": true
           }
          ],

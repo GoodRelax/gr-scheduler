@@ -1,4 +1,4 @@
-// CR-668 on the shipped build: a plan end released on a Saturday asks QN-13; Yes works the day in one undo step, No and Esc keep the shade.
+// CR-701 on the shipped build: a plan end released on a Saturday asks nothing; the end stays on the Saturday and the calendar and its shade do not change.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -12,28 +12,14 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_154_ONE_STEP =
-  '`Yes` と答えたときは、例外日を足す書き込み（`_assets/tbl-glossary.md` の 表 T-108 の `CM-39`）と端を置く書き込みを 1 つの束とし、取り消しを 1 段とすること（MUST）'
-const FR_154_NOT_SILENTLY =
-  'その日を文書の暦の稼働日にすれば、どの数え方も同じ日数を数える。⛔ 暦を黙って変えてはならない（MUST NOT）'
-const FR_154_NO_SNAP = '⇒ 変えるかどうかは、端を置いた人がその場で選ぶ。⛔ 端を稼働日へ寄せてはならない（MUST NOT）'
+const FR_031_ONLY_THESE = '確認ダイアログを増やす代わりにこれが要る。例外は、取り消しで取り戻せないものを失う場面に限る（MUST）'
 const FR_031_NO_OTHER = 'それ以外の場面で確認を求めてはならない（MUST NOT）'
-const HW_11 = '`Yes`（`y`）・`No`（`n`）。<br>`Esc` は `No` と同じ'
-const QN_13_DAYS = '挙げない —— 日付を挙げる。<br>日の書き方は 表 T-348 の `TL-10` と `TL-11`（曜日を添える）'
-const AG_9 = '人が画面で文書を変えるドラッグをしている間は、書き込みを拒否すること（MUST）'
-const FR_154_AG_9 = '⚠️ 問いが立っているあいだは、人のドラッグが続いているものとし、`Agent API` の書き込みを拒む（表 T-035 の `AG-9`）'
+const FR_103_NO_SNAP = '⛔ **掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）'
 
-const RAW = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-
-test.describe('CR-668 the manuscript these cases are driven by', () => {
-  for (const clause of [FR_154_ONE_STEP, FR_154_NOT_SILENTLY, FR_154_NO_SNAP, FR_031_NO_OTHER, AG_9, FR_154_AG_9]) {
+test.describe('CR-701 the manuscript these cases are driven by', () => {
+  for (const clause of [FR_031_ONLY_THESE, FR_031_NO_OTHER, FR_103_NO_SNAP]) {
     test(`01-04 still says: ${clause.slice(-40)}`, () => {
       expect(REQUIREMENTS).toContain(clause)
-    })
-  }
-  for (const cell of [HW_11, QN_13_DAYS]) {
-    test(`the table cell still says: ${cell.slice(0, 30)}`, () => {
-      expect(RAW).toContain(cell)
     })
   }
 })
@@ -205,7 +191,7 @@ test.afterAll(async () => {
 async function stage(): Promise<{ stage: Stage; days: Days; before: Held }> {
   if (browser === null) throw new Error('no browser')
   const opened = await openStage(browser)
-  await openDocument(opened.page, 'cr-668.json', fixture())
+  await openDocument(opened.page, 'cr-701.json', fixture())
   const days = await daysFrom(opened.page, await planBox(opened.page))
   const before = await readHeld(opened.page)
   expect(before.finish).toBe('2026-01-07')
@@ -214,7 +200,7 @@ async function stage(): Promise<{ stage: Stage; days: Days; before: Held }> {
   return { stage: opened, days, before }
 }
 
-test.describe('FR-154 / QN-13 on the shipped build', () => {
+test.describe('FR-031 / FR-103 on the shipped build: a rest-day release is not asked', () => {
   test.setTimeout(180_000)
 
   test(`FR-031 (MUST NOT): ${FR_031_NO_OTHER} -- a plan end released on a Friday asks nothing`, async () => {
@@ -228,81 +214,33 @@ test.describe('FR-154 / QN-13 on the shipped build', () => {
     }
   })
 
-  test(`FR-154 (MUST NOT): ${FR_154_NOT_SILENTLY.slice(-24)} -- the Saturday release asks QN-13 with the day and changes nothing yet`, async () => {
+  test(`FR-031 (MUST): ${FR_031_ONLY_THESE.slice(-30)} -- a plan end released on a Saturday loses nothing, so it asks nothing`, async () => {
     const { stage: opened, days, before } = await stage()
     try {
       await dragPlanEndBy(opened.page, days, 3)
-      const said = await questionText(opened.page)
-      expect(said, 'QN-13 stands on the confirmation surface').not.toBeNull()
-      // see TL-10, TL-11
-      expect(said ?? '').toMatch(/1\/10 \((土|Sat)\)/)
-      const held = await readHeld(opened.page)
-      expect(held.exceptions, 'no calendar row before the answer').toBe(before.exceptions)
-      expect(held.finish, 'no end either: the question belongs to the drag').toBe('2026-01-07')
-      await opened.page.keyboard.press('n')
-      await settle(opened.page)
+      expect(await questionText(opened.page), 'no question stands after the release').toBeNull()
+      const placed = await readHeld(opened.page)
+      expect(placed.finish, 'the end is written at the release').toBe('2026-01-10')
+      expect(placed.exceptions, 'the calendar is not changed').toBe(before.exceptions)
     } finally {
       await opened.close()
     }
   })
 
-  test(`AG-9 (MUST): ${AG_9.slice(-30)} -- an agent write is refused while QN-13 stands`, async () => {
-    const { stage: opened, days } = await stage()
-    try {
-      await dragPlanEndBy(opened.page, days, 3)
-      expect(await questionText(opened.page)).not.toBeNull()
-      const held = await readHeld(opened.page)
-      const outcome = await opened.page.evaluate((stamp: unknown) => {
-        const api = (window as unknown as { grSchedulerAgentApi: { applyCommands(request: unknown): { accepted: boolean } } }).grSchedulerAgentApi
-        return api.applyCommands({ readStamp: stamp, commands: [{ kind: 'setTaskName', uid: 1, name: 'Agent' }] }).accepted
-      }, held.stamp)
-      expect(outcome, FR_154_AG_9).toBe(false)
-      await opened.page.keyboard.press('n')
-      await settle(opened.page)
-    } finally {
-      await opened.close()
-    }
-  })
-
-  test(`FR-154 (MUST): ${FR_154_ONE_STEP.slice(-40)} -- Yes works the Saturday, one Ctrl+Z restores both`, async () => {
+  test(`FR-103 (MUST NOT): ${FR_103_NO_SNAP.slice(-22)} -- the end stays on the Saturday and the Saturday keeps its shade`, async () => {
     const { stage: opened, days, before } = await stage()
     try {
       await dragPlanEndBy(opened.page, days, 3)
-      expect(await questionText(opened.page)).not.toBeNull()
-      await opened.page.keyboard.press('y')
-      await settle(opened.page)
-      expect(await questionText(opened.page)).toBeNull()
-      const accepted = await readHeld(opened.page)
-      expect(accepted.finish).toBe('2026-01-10')
-      expect(accepted.exceptions).not.toBe(before.exceptions)
-      expect(await isShadedAt(opened.page, days.saturday), 'the grey shade leaves the Saturday').toBe(false)
+      const placed = await readHeld(opened.page)
+      expect(placed.finish, 'not Friday, not Monday').toBe('2026-01-10')
+      expect(await isShadedAt(opened.page, days.saturday), 'the Saturday keeps its shade').toBe(true)
       await opened.page.keyboard.press('Control+z')
       await settle(opened.page)
       const undone = await readHeld(opened.page)
       expect(undone.finish, 'one undo puts the end back').toBe('2026-01-07')
-      expect(undone.exceptions, 'the same undo takes the calendar row back').toBe(before.exceptions)
-      expect(await isShadedAt(opened.page, days.saturday), 'the shade is back').toBe(true)
+      expect(undone.exceptions, 'and there is no calendar change to undo').toBe(before.exceptions)
     } finally {
       await opened.close()
     }
   })
-
-  for (const [answer, key] of [['No', 'n'], ['Esc', 'Escape']] as const) {
-    test(`FR-154 (MUST NOT): ${FR_154_NO_SNAP.slice(-22)} -- ${answer} places the end on the Saturday and keeps the shade`, async () => {
-      const { stage: opened, days, before } = await stage()
-      try {
-        await dragPlanEndBy(opened.page, days, 3)
-        expect(await questionText(opened.page)).not.toBeNull()
-        await opened.page.keyboard.press(key)
-        await settle(opened.page)
-        expect(await questionText(opened.page)).toBeNull()
-        const declined = await readHeld(opened.page)
-        expect(declined.finish, 'the end stays on the day it was released on').toBe('2026-01-10')
-        expect(declined.exceptions, 'the calendar is not changed').toBe(before.exceptions)
-        expect(await isShadedAt(opened.page, days.saturday), 'the Saturday keeps its shade').toBe(true)
-      } finally {
-        await opened.close()
-      }
-    })
-  }
 })
