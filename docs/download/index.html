@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-aDFqcQ532sWjv/c972udGCgfARRxC4gXpDTX51u2VjE='; script-src 'sha256-WV669eWoz6z/x3UJ/lhVRRwXxFeGZssG2T5dhKyapw0='; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-/xgrYovxrZNtAgMptz1j5f0uGfRhhitTRnwy2pYU30k='; script-src 'sha256-WV669eWoz6z/x3UJ/lhVRRwXxFeGZssG2T5dhKyapw0='; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Download GoodRelax Scheduler</title>
 <style>
@@ -109,6 +109,9 @@ p, ul, ol { margin: 8px 0; }
 .get:focus-visible { outline: 3px solid var(--note-line); outline-offset: 2px; }
 .get svg { width: 24px; height: 24px; flex: none; }
 .small { font-size: 14px; color: var(--muted); }
+.features { padding-left: 22px; margin: 12px 0 16px; }
+.features li { margin: 2px 0; }
+.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
 .steps { list-style: none; padding: 0; counter-reset: step; }
 .steps > li {
   counter-increment: step;
@@ -198,10 +201,18 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <!-- ===================== English ===================== -->
 <div data-lang="en" lang="en" data-title="Download GoodRelax Scheduler">
 
-<h1>Get GoodRelax Scheduler (GRS)</h1>
-<p class="lead">GRS is one HTML file. Save it anywhere and open it in a Chromium-based browser such as Google Chrome or Microsoft Edge. Nothing to install, and it works offline.</p>
-<p><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>Download GRS.html</a></p>
-<p class="small">To update, download it again here and use the new file instead of the old one. Your schedule files are separate files and are not changed.</p>
+<h1>GoodRelax Scheduler</h1>
+<p class="lead">Schedules you can manage as data, as easy as drawing a slide.</p>
+<ul class="features">
+  <li>Multiple tasks on one row. The whole plan on one page.</li>
+  <li>Light and snappy. No manual needed.</li>
+  <li>A single HTML file. Works offline. Nothing to install.</li>
+  <li>Finds the bottlenecks causing delays.</li>
+  <li>Imports and exports MS Project .xml.</li>
+  <li>Works with Claude (coming soon).</li>
+</ul>
+<p class="cta"><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>Download GRS.html</a> <a href="https://github.com/GoodRelax/gr-scheduler" rel="noreferrer noopener" target="_blank">Learn more on GitHub &rarr;</a></p>
+<p class="small">Open the downloaded GRS.html in Google Chrome or Microsoft Edge. To update, download it again here and use the new file instead of the old one; your schedule files are not changed.</p>
 
 <h2 id="ai">Use GRS from an AI app (AI integration)</h2>
 <div class="note"><b>Use the Chat tab of the Claude desktop app.</b> GRS relay does not work in Claude on the web (claude.ai in a browser) or on a phone. To use it from Claude Code, see &ldquo;Other ways and checks&rdquo; at the bottom.</div>
@@ -245,7 +256,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <li><b>Save as usual</b> with <span class="menu">Save to File</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> in that tab. The relay saves nothing for you.</li>
 </ol>
 
-<div class="note"><b>Each time Claude Desktop starts again, the address changes.</b> Ask Claude for the address again (step 4), open it, open your file, and press <span class="menu">Agent API</span> again (steps 5 to 7). Save your work before you quit Claude Desktop.</div>
+<div class="note"><b>Each time Claude Desktop starts the relay again (for example when the app restarts), the address changes and the tab disconnects.</b> Ask Claude for the address again (step 4), open it, open your file, and press <span class="menu">Agent API</span> again (steps 5 to 7). Save your work before you quit Claude Desktop.</div>
 
 <h2>What the AI can and cannot do</h2>
 <div class="two">
@@ -306,7 +317,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <p>With Node.js 18 or later, save grs-relay.mjs as above and run, in a terminal:</p>
   <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
   <p>Replace <code>FOLDER</code> with the folder where you saved the file, then check with <code>/mcp</code> in Claude Code that grs-relay is connected. From step 4 on, ask Claude Code instead of the Chat tab.</p>
-  <p>The <span class="menu">Code</span> tab of the Claude desktop app also gets GRS relay once it is installed in <span class="menu">Settings › Extensions</span>. The Chat tab and the Code tab each start their own relay, so each has its own address: ask for the address in the tab you are using.</p>
+  <p>The <span class="menu">Code</span> tab of the Claude desktop app also gets GRS relay once it is installed in <span class="menu">Settings › Extensions</span>. The Chat tab and the Code tab share one relay, so the address is the same in both.</p>
   <h3>Check the download</h3>
   <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> holds the SHA-256 of grs-relay.mcpb. The bundle is not signed; the build records which source it was made from (a build provenance attestation).</p>
 </details>
@@ -317,10 +328,18 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <!-- ===================== Japanese ===================== -->
 <div data-lang="ja" lang="ja" data-title="GoodRelax Scheduler のダウンロード" hidden>
 
-<h1>GoodRelax Scheduler（GRS）を入手する</h1>
-<p class="lead">GRS は 1 つの HTML ファイルです。好きな場所に保存し、Google Chrome や Microsoft Edge など Chromium 系のブラウザで開いてください。インストールは不要で、オフラインでも動きます。</p>
-<p><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>GRS.html をダウンロード</a></p>
-<p class="small">新しい版にするときは、ここでもう一度ダウンロードし、古いファイルの代わりに使ってください。日程のファイルは別のファイルなので、変わりません。</p>
+<h1>GoodRelax Scheduler</h1>
+<p class="lead">データで管理できる日程をパワポ並みの手軽さで。</p>
+<ul class="features">
+  <li>1 行に複数のタスク。全体日程をペライチで。</li>
+  <li>ぬるサク。マニュアル不要。</li>
+  <li>単体HTMLファイル。オフラインでも動作。インストール不要。</li>
+  <li>遅延のボトルネックを解析可能。</li>
+  <li>MS Project の.xml をインポート/エクスポート可能。</li>
+  <li>Claude連携可能 (となる予定)</li>
+</ul>
+<p class="cta"><a class="get" href="GRS.html" download="GRS.html"><svg aria-hidden="true"><use href="#ic-download"/></svg>GRS.html をダウンロード</a> <a href="https://github.com/GoodRelax/gr-scheduler" rel="noreferrer noopener" target="_blank">詳しくは GitHub へ &rarr;</a></p>
+<p class="small">ダウンロードした GRS.html は、Google Chrome か Microsoft Edge で開いてください。新しい版にするときは、ここでもう一度ダウンロードし、古いファイルの代わりに使ってください。日程のファイルは変わりません。</p>
 
 <h2 id="ai-ja">AI のアプリから GRS を使う（AI 連携）</h2>
 <div class="note"><b>Claude のデスクトップアプリの Chat（チャット）タブで使います。</b>ブラウザで開く claude.ai や、スマートフォンの Claude では使えません。Claude Code から使うときは、いちばん下の「ほかの使い方と確かめ方」を見てください。</div>
@@ -364,7 +383,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <li><b>いつもどおり保存します。</b>そのタブの <span class="menu">書き出して保存</span> <svg class="ic" aria-hidden="true"><use href="#ic-save"/></svg> を使ってください。取次は何も保存しません。</li>
 </ol>
 
-<div class="note"><b>Claude Desktop を起動し直すたびに、アドレスが変わります。</b>もう一度 Claude にアドレスを聞き（手順 4）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 5〜7）。Claude Desktop を終える前に、作業を保存してください。</div>
+<div class="note"><b>Claude Desktop が取次を起動し直すたびに（アプリを起動し直したときなど）、アドレスが変わり、タブは切れます。</b>もう一度 Claude にアドレスを聞き（手順 4）、開き、ファイルを開き、<span class="menu">Agent API</span> を押し直してください（手順 5〜7）。Claude Desktop を終える前に、作業を保存してください。</div>
 
 <h2>AI にできること・できないこと</h2>
 <div class="two">
@@ -425,7 +444,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   <p>Node.js 18 以降があれば、上のとおり grs-relay.mjs を保存し、ターミナルで次を実行します。</p>
   <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
   <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。Claude Code で <code>/mcp</code> を打ち、grs-relay がつながっていることを確かめます。手順 4 からは、Chat タブの代わりに Claude Code に頼みます。</p>
-  <p>Claude のデスクトップアプリの <span class="menu">Code</span> タブにも、<span class="menu">Settings › Extensions</span> で入れた GRS relay が出ます。Chat タブと Code タブはそれぞれ自分の取次を起動するので、アドレスも別です。使っているタブでアドレスを聞いてください。</p>
+  <p>Claude のデスクトップアプリの <span class="menu">Code</span> タブにも、<span class="menu">Settings › Extensions</span> で入れた GRS relay が出ます。Chat タブと Code タブは 1 つの取次を共有するので、アドレスも同じです。</p>
   <h3>ダウンロードしたものを確かめる</h3>
   <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> は grs-relay.mcpb の SHA-256 を持ちます。束に署名はありません。どのソースから作ったかは、組み立てが記録しています（ビルドの来歴の証明）。</p>
 </details>
