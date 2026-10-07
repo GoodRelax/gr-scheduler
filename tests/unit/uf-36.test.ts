@@ -591,10 +591,7 @@ function everyNodeName(node: XmlNode): readonly string[] {
   return [node.name, ...node.children.flatMap(everyNodeName)]
 }
 
-/**
- * The document after the person edited every task's actual: the T-019 note drops the carried
- * `ActualDuration` original on that edit, and FR-011 then writes the `Stop` the source did not have.
- */
+// WHY: an actual edit drops the carried ActualDuration (T-019 note), so FR-011 then writes the Stop.
 function actualsEdited(document: Document): Document {
   const tasks = document.schedule.tasks.map((task) => ({
     ...task,
@@ -1615,7 +1612,6 @@ describe('table T-033 -- writing', () => {
   it('EX-7, WT-4: the one date GRS decides itself is written at the document default finish time', () => {
     // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141) and EX-7 gives it
     // the finish-side time of WT-4, the DefaultFinishTime the file brought (AT-155).
-    // FR-011 writes that Stop only once the person has edited the actual.
     const suspended = mspdi(
       [
         projectHeadXml(),
@@ -1680,7 +1676,6 @@ function planActualTasksText(): string {
 
 describe('table T-019 -- the last column, which state writes a Stop', () => {
   it('writes a Stop for exactly the three started, unfinished states (one case, every row)', () => {
-    // WHY: the fixture brings no Stop, so FR-011 writes one only after the actual is edited.
     const document = actualsEdited(accepted(planActualTasksText()))
     const root = written(document)
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
@@ -3085,8 +3080,7 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   })
 
   it('GIVEN a rounded amount WHEN the written file is read again THEN it is rounded from the same original, once (FR-054, FR-011)', () => {
-    // WHY: FR-011 writes no Stop the source did not have while the actual is unedited, so the file
-    // read again carries the same ActualDuration and tells the same rounding, never a compounded one.
+    // WHY: FR-011 writes no Stop the source lacked, so a re-read rounds the same original again.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const again = mspdiFromDocument(accepted(text), LAST_SAVED_AT).text
     expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[5])
