@@ -169,13 +169,15 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
       }
       const choosers: Chooser[] = []
       for (const row of rows) {
-        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select`)
+        // WHY: PR-15 is a link since CR-676 (WL-15); the Task it jumps to is its value.
+        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="link"]`)
         for (const one of Array.from(found)) {
+          const link = one.getAttribute('data-field-kind') === 'link' ? (one as HTMLElement) : null
           const element = one as HTMLSelectElement | HTMLInputElement
           const box = element.getBoundingClientRect()
           const style = getComputedStyle(element)
           const isSelect = element instanceof HTMLSelectElement
-          const shown = isSelect ? (element.selectedOptions[0]?.textContent ?? '') : element.value
+          const shown = link !== null ? (link.textContent ?? '') : isSelect ? (element.selectedOptions[0]?.textContent ?? '') : element.value
           const options = isSelect ? Array.from(element.options).map((option) => option.textContent ?? '') : [shown]
           const padding = (Number.parseFloat(style.paddingLeft) || 0) + (Number.parseFloat(style.paddingRight) || 0)
           choosers.push({
@@ -183,7 +185,7 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
             right: box.right,
             width: box.width,
             textOverflow: style.textOverflow,
-            value: element.value,
+            value: link !== null ? (link.getAttribute('data-link-task-uid') ?? '') : element.value,
             shownText: shown,
             shownTextWidth: textWidth(shown, element),
             longestOptionWidth: Math.max(0, ...options.map((text) => textWidth(text, element))),
@@ -203,7 +205,7 @@ test('CR-671 the manuscript this file is driven by: FR-006 still reads this way'
   for (const clause of [FR_006_FITS, FR_006_NO_OVERFLOW, FR_006_ELLIPSIS, FR_006_VALUE_KEPT, FR_006_FLOOR]) {
     expect(REQUIREMENTS, clause).toContain(clause)
   }
-  // WHY: CR-676 made PR-15 a link (table T-351 WL-15 to WL-17); its live cases below follow when the panel draws the link.
+  // WHY: CR-676 made PR-15 a link (table T-351 WL-15 to WL-17); WL-15 cuts its name as FR-006's chooser does.
   for (const row of ['PR-16', 'PR-17']) {
     expect(bare(specTable('T-016').rows.find((one) => one.id === row)?.by['入力の型'] ?? ''), `${row} is a choice`).toBe('選択')
   }
@@ -245,7 +247,7 @@ for (const { theme, locale } of CASES) {
         }
         const parent = read.choosers.find((one) => one.row === 'PR-15')
         expect(parent?.value, `PR-15 at ${where}: ${FR_006_VALUE_KEPT}`).toBe(String(SUBJECT.parentUid))
-        expect(parent?.shownText, 'PR-15: the chosen option keeps the whole name').toBe(SUBJECT.parentName)
+        expect(parent?.shownText, 'PR-15: the link keeps the whole name').toBe(SUBJECT.parentName)
         const assignee = read.choosers.find((one) => one.row === 'PR-16')
         expect(assignee?.shownText, 'PR-16: the chosen option keeps the whole name').toBe(SUBJECT.assigneeName)
         if (where === 'S-248') {

@@ -33,6 +33,7 @@ import {
   propertiesPanelKeyOf,
   propertiesPanelStyle,
   rewritePanelReadouts,
+  withPropertyLinkJump,
 } from './properties-panel-drawing'
 import {
   ADD_CHILD_ROW_ENTRY,
@@ -1215,7 +1216,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
     const [back, front] = isReportInFront ? [searchPanel, report] : [report, searchPanel]
     const tableWindows = front.answerAt({ ...asked, walked: back.answerAt(asked) })
-    return dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: tableWindows }) })
+    return withPropertyLinkJump(dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: tableWindows }) }), asked.first)
   }
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not

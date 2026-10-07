@@ -44,6 +44,9 @@ const Q08B = '⛔ 本要求がそうした欄を数え上げてはならない�
 const THEME_HUE_FIELD = 'K-60'
 // WHY: FR-131 (CR-651) places a second field there, the parent progress tolerance, named by K-140.
 const PARENT_PROGRESS_TOLERANCE_FIELD = 'K-140'
+// WHY: CR-677 places three more there, in this order: the status date (FR-046, named by IC-44), the display
+// scale and the font size (FR-039, K-125 and K-85). The export span field (IX-17) waits for CM-88.
+const LATER_PLACED_FIELDS = ['IC-44', 'K-125', 'K-85']
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
@@ -139,15 +142,15 @@ describe('FR-072 -- the document settings are read only in the panel, but for th
     expect(described?.showing, 'premise: the panel shows the document settings').toBe('documentSettings')
     expect(described!.fields.length, 'premise: it shows some settings').toBeGreaterThan(0)
     const editable = described!.fields.filter((one) => one.isEditable).map((one) => one.row)
-    expect(editable, 'no field is editable but the fields FR-041 and FR-131 place')
-      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD])
+    expect(editable, 'no field is editable but the fields FR-041, FR-131, FR-046 and FR-039 place')
+      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD, ...LATER_PLACED_FIELDS])
   })
 
   it(Q08, () => {
     const described = panel()
     const withControls = described!.fields.filter((one) => one.controls.length > 0).map((one) => one.row)
-    expect(withControls, 'no field offers a control to change it but the fields FR-041 and FR-131 place')
-      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD])
+    expect(withControls, 'no field offers a control to change it but the fields FR-041, FR-131, FR-046 and FR-039 place')
+      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD, ...LATER_PLACED_FIELDS])
   })
 
   it(Q08A, () => {

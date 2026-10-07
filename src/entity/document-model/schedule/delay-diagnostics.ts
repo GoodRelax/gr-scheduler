@@ -1181,16 +1181,18 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
 export type WbsParentResolution =
   | { readonly kind: 'stated'; readonly parentUid: number }
   | { readonly kind: 'derived'; readonly parentUid: number }
-  | { readonly kind: 'undecided'; readonly candidates: readonly number[] }
+  // WHY: enclosing is the IP-1 count (0 or 2 and up), the reason no parent is decided; candidates is IP-4's whole order.
+  | { readonly kind: 'undecided'; readonly candidates: readonly number[]; readonly enclosing: number }
   | { readonly kind: 'root' }
 
 // see FR-135, IP-2, IP-4, IP-5, VO-4
 // WHY: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
+// WHY: onlyTaskUid answers one Task (WL-15), so a panel showing one child does not order every undecided child's candidates.
 /** @purity pure */
-export function wbsParentResolutionsOf(document: DiagnosedDocument): ReadonlyMap<number, WbsParentResolution> {
+export function wbsParentResolutionsOf(document: DiagnosedDocument, onlyTaskUid?: number): ReadonlyMap<number, WbsParentResolution> {
   const { tasks, byUid, rowDepthOf, derivations } = structureOf(document.schedule)
   const resolutions = new Map<number, WbsParentResolution>()
-  for (const task of tasks) {
+  for (const task of onlyTaskUid === undefined ? tasks : tasks.filter((one) => one.uid === onlyTaskUid)) {
     // WHY: FR-135 reads a stated milestone parent as no parent, so that child falls through to the derivation.
     const statedUid = statedParentUidOf(task, byUid)
     if (statedUid !== null) {
@@ -1203,7 +1205,7 @@ export function wbsParentResolutionsOf(document: DiagnosedDocument): ReadonlyMap
       continue
     }
     resolutions.set(task.uid, derivation.parentUid === null
-      ? { kind: 'undecided', candidates: parentCandidatesOf(document, task.uid) }
+      ? { kind: 'undecided', candidates: parentCandidatesOf(document, task.uid), enclosing: derivation.candidates.length }
       : { kind: 'derived', parentUid: derivation.parentUid })
   }
   return resolutions

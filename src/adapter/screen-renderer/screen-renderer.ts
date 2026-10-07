@@ -199,6 +199,7 @@ export type PropertyControlKind =
   | 'boolean'
   | 'choice'
   | 'color'
+  | 'link'
 
 // see CV-9, CV-7
 export interface ColourSide {
@@ -271,6 +272,13 @@ export interface PropertyControl {
   readonly widthInFontSizes: number
   readonly isFocusTarget?: true
   readonly placeholder?: string
+  readonly link?: PropertyLink
+}
+
+// see WL-15, WL-16, WL-17
+export interface PropertyLink {
+  readonly taskUid: number
+  readonly canUnlink: boolean
 }
 
 export type PropertyFieldKey =
@@ -314,6 +322,10 @@ export type PropertyFieldKey =
       readonly taskUid: number
       readonly resourceUid: number | null
       readonly column: 'resourceUid'
+    }
+  | {
+      readonly holder: 'documentSettings'
+      readonly column: keyof DocumentSettings & string
     }
 
 export interface CommandPalette {

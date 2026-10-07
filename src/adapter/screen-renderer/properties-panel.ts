@@ -4,6 +4,7 @@
 // @purity    pure
 
 import {
+  DISPLAY_SCALE_STEPS,
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -23,6 +24,7 @@ import {
   TRANSPARENT,
   taskByUid,
   textOfDay,
+  wbsParentResolutionsOf,
   workingCalendarOf,
   type Dependency,
   type Project,
@@ -57,6 +59,7 @@ import type {
   PropertyControlKind,
   PropertyField,
   PropertyFieldKey,
+  PropertyLink,
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -403,17 +406,14 @@ function assigneeChoices(schedule: Schedule): readonly Assignee[] {
 
 const MULTILINE_COLUMNS: readonly string[] = ['notes', 'text']
 
-const CHOICE_OVER_DOCUMENT_COLUMNS: readonly string[] = ['wbsParentUid']
-
 type ShapedEntity = keyof typeof COLUMN_SHAPES
 
 // see T-016
 /** @purity pure */
 function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKind {
-  // TRAP: keep these first: notes and dates are strings, and wbsParentUid is an integer to the shape.
+  // TRAP: keep these first: notes and dates are strings.
   if (COLUMN_SHAPES[entity][column]?.kind === 'color') return 'color'
   if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
-  if (CHOICE_OVER_DOCUMENT_COLUMNS.includes(column)) return 'choice'
   // WHY: PR-5 has no column shape to read since AT-35 retired, and table T-016 still takes a number.
   if (entity === 'Task' && column === ACTUAL_LENGTH_ITEM) return 'number'
   const dateRoster: Partial<Record<ShapedEntity, readonly string[]>> = DATE_COLUMNS
@@ -434,68 +434,90 @@ function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKin
   }
 }
 
-interface Candidates {
-  readonly words: readonly string[]
-  readonly values: readonly string[] | null
-  // WHY: names gathered from the document have no length bound, so FR-006 lets their field fit the panel.
-  readonly areDocumentNames: boolean
-}
-
-// see PR-15, AT-25
-/** @purity pure */
-function parentCandidates(schedule: Schedule, subjectUid: number): Candidates {
-  const words: string[] = ['']
-  const values: string[] = ['']
-
-  for (const one of schedule.tasks) {
-    if (one.uid === subjectUid) continue
-    words.push(one.name ?? String(one.uid))
-    values.push(String(one.uid))
-  }
-
-  return { words, values, areDocumentNames: true }
-}
-
-/** @purity pure */
-function candidatesOf(
-  schedule: Schedule,
-  entity: ShapedEntity,
-  column: string,
-  subjectUid: number | null,
-): Candidates | null {
-  if (entity === 'Task' && column === 'wbsParentUid' && subjectUid !== null) {
-    return parentCandidates(schedule, subjectUid)
-  }
-  const choices = COLUMN_SHAPES[entity][column]?.choices ?? null
-  return choices === null ? null : { words: choices, values: null, areDocumentNames: false }
-}
-
 /** @purity pure */
 function controlOf(
-  schedule: Schedule,
   key: PropertyFieldKey,
   entity: ShapedEntity,
   column: string,
   text: string,
-  subjectUid: number | null,
   labelCoef: number,
 ): PropertyControl {
   const kind = controlKindOf(entity, column)
   const shape = COLUMN_SHAPES[entity][column]
-  const candidates = kind === 'choice' ? candidatesOf(schedule, entity, column, subjectUid) : null
-  const values = candidates === null ? null : candidates.values
+  const choices = kind === 'choice' ? (shape?.choices ?? null) : null
   return {
     key,
     kind,
     text,
-    choices: candidates === null ? null : candidates.words,
-    ...(values === null ? {} : { choiceValues: values }),
+    choices,
     min: kind === 'number' ? (shape?.min ?? annotationBoundsOf(entity, column)?.min ?? null) : null,
     max: kind === 'number' ? (shape?.max ?? annotationBoundsOf(entity, column)?.max ?? null) : null,
-    widthInFontSizes:
-      candidates?.areDocumentNames === true
-        ? NO_ROOM_FLOOR
-        : widthOf(measuredTextOf(kind, text), candidates === null ? null : candidates.words, labelCoef),
+    widthInFontSizes: widthOf(measuredTextOf(kind, text), choices, labelCoef),
+  }
+}
+
+const PARENT_COLUMN: keyof Task & string = 'wbsParentUid'
+
+const COUNT_SLOT = '{n}'
+
+// see WL-15, FR-038
+// STOP: spec does not give the words of WL-15 2-4 (derived mark, undecided with n, none) a dictionary row.
+// Looked in FR-038, T-351 WL-15, display-words.json propertyField. @provisional PND-800
+const PARENT_WORD_PARTS = { derived: 'derivedParent', undecided: 'undecidedParent', none: 'noParent' } as const
+
+interface ParentShown {
+  readonly text: string
+  readonly link: PropertyLink | null
+}
+
+// see WL-15, SQ-1
+// WHY: an empty name would draw a link with nothing to press, so the uid stands in for it.
+/** @purity pure */
+function linkedNameOf(task: Task): string {
+  return task.name === null || task.name === '' ? String(task.uid) : task.name
+}
+
+// see WL-15, VS-2, IP-1, IP-2, IP-5, VO-4
+// WHY: the stated value is read first, so a stated milestone parent still shows (WL-15 1) though IP-2 reads past it.
+/** @purity pure */
+function parentShownOf(schedule: Schedule, task: Task, language: DisplayLanguage): ParentShown {
+  const stated = task.wbsParentUid === null ? null : taskByUid(schedule, task.wbsParentUid)
+  if (stated !== null) return { text: linkedNameOf(stated), link: { taskUid: stated.uid, canUnlink: true } }
+  const resolution = wbsParentResolutionsOf({ schedule }, task.uid).get(task.uid)
+  const word = (part: string): string | null => PROPERTY_FIELD_WORDS.get(part)?.[language] ?? null
+  const derived = resolution?.kind === 'derived' ? taskByUid(schedule, resolution.parentUid) : null
+  if (derived !== null) {
+    const name = linkedNameOf(derived)
+    const text = (word(PARENT_WORD_PARTS.derived) ?? NAME_SLOT).replace(NAME_SLOT, () => name)
+    return { text, link: { taskUid: derived.uid, canUnlink: false } }
+  }
+  if (resolution?.kind === 'undecided') {
+    return { text: (word(PARENT_WORD_PARTS.undecided) ?? '').replace(COUNT_SLOT, String(resolution.enclosing)), link: null }
+  }
+  return { text: word(PARENT_WORD_PARTS.none) ?? '', link: null }
+}
+
+// see WL-15, WL-16, WL-17, PR-15, FR-006
+// WHY: plain words carry no control, so they draw as text and never as a link that does nothing (WL-15).
+/** @purity pure */
+function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, language: DisplayLanguage): PropertyField {
+  const shown = parentShownOf(schedule, task, language)
+  const key: PropertyFieldKey = { holder: 'task', uid: task.uid, column: PARENT_COLUMN }
+  const control: PropertyControl = {
+    key,
+    kind: 'link',
+    text: shown.text,
+    choices: null,
+    min: null,
+    max: null,
+    widthInFontSizes: NO_ROOM_FLOOR,
+  }
+  return {
+    row: item.row,
+    name: itemName(item.row, language),
+    text: shown.text,
+    isEditable: shown.link?.canUnlink === true,
+    controls: shown.link === null ? [] : [{ ...control, link: shown.link }],
   }
 }
 
@@ -630,7 +652,7 @@ function controlsOfItem(
         : visual === null
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
-    return controlOf(schedule, key, entity, column, text, task.uid, labelCoef)
+    return controlOf(key, entity, column, text, labelCoef)
   })
 }
 
@@ -666,7 +688,7 @@ function taskFields(
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
   const isMilestone = task.milestone === true
-  return TASK_ITEMS.filter((item) => isShownFor(item, task)).map((item) => ({
+  return TASK_ITEMS.filter((item) => isShownFor(item, task)).map((item) => item.columns[0] === PARENT_COLUMN ? parentField(schedule, task, item, language) : ({
     row: item.row,
     name: itemName(item.row, language, isMilestone),
     text: textOfItem(schedule, task, visual, item, language),
@@ -777,7 +799,7 @@ function dependencyFields(
       name: itemName(item.row, language),
       text,
       isEditable,
-      controls: isEditable ? [controlOf(schedule, key, 'Dependency', column, text, successorUid, labelCoef)] : [],
+      controls: isEditable ? [controlOf(key, 'Dependency', column, text, labelCoef)] : [],
     }
   })
 }
@@ -808,10 +830,10 @@ function fieldsOfItem(
       return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language)
     }
     case 'commentBox':
-      return fieldsOfFound(schedule, schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
+      return fieldsOfFound(schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
     case 'highlightBox': {
       const box = schedule.highlightBoxes.find(withId(subject.id))
-      return fieldsOfFound(schedule, box, highlightBoxRows, labelCoef, language)
+      return fieldsOfFound(box, highlightBoxRows, labelCoef, language)
     }
     case 'statusLine':
     case 'wbsParentLink':
@@ -826,13 +848,12 @@ function withId(id: string): (one: { readonly id: string }) => boolean {
 
 /** @purity pure */
 function fieldsOfFound<Held>(
-  schedule: Schedule,
   found: Held | undefined,
   rowsOf: (held: Held) => ObjectRows<Held>,
   labelCoef: number,
   language: DisplayLanguage,
 ): readonly PropertyField[] | null {
-  return found === undefined ? null : objectFields(schedule, rowsOf(found), labelCoef, language)
+  return found === undefined ? null : objectFields(rowsOf(found), labelCoef, language)
 }
 
 /** @purity pure */
@@ -867,7 +888,6 @@ interface ObjectRows<Held> {
 // see T-016, MK-13, FR-019
 /** @purity pure */
 function objectFields<Held>(
-  schedule: Schedule,
   rows: ObjectRows<Held>,
   labelCoef: number,
   language: DisplayLanguage,
@@ -881,7 +901,7 @@ function objectFields<Held>(
     controls: READ_ONLY_ROWS.includes(item.row)
       ? []
       : item.columns.map((column) =>
-          controlOf(schedule, keyOf(column), entity, column, textOfValue(held[column]), null, labelCoef),
+          controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef),
         ),
   }))
 }
@@ -937,7 +957,6 @@ function withMinHeightReadout(
 // see FR-042
 /** @purity pure */
 function groupFields(
-  schedule: Schedule,
   group: TaskGroup,
   labelCoef: number,
   language: DisplayLanguage,
@@ -949,7 +968,7 @@ function groupFields(
     column,
   })
   const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
-  return objectFields(schedule, rows, labelCoef, language).map((field) =>
+  return objectFields(rows, labelCoef, language).map((field) =>
     withMinHeightReadout(field, group.id, placedRows, language),
   )
 }
@@ -980,7 +999,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(schedule, group, labelCoef, language, placedRows)]
+  return [...itemFields, ...groupFields(group, labelCoef, language, placedRows)]
 }
 
 // TRAP: repeats the private reach() walk of clampedSettings; change both together.
@@ -1056,7 +1075,69 @@ function parentProgressToleranceField(workingDays: number, language: DisplayLang
   }
 }
 
-// see IC-17, T-104, FR-072, FR-131
+const STATUS_DATE_KEY = { holder: 'project', column: 'statusDate' } as const
+
+const STATUS_DATE_ENTRY: IconId = 'IC-44'
+
+// see FR-046, IC-44, CM-3, CM-4
+// WHY: named by IC-44's own words (FR-046), so the field and the palette entry say the same thing.
+/** @purity pure */
+function statusDateField(statusDate: string | null, language: DisplayLanguage): PropertyField {
+  const text = textOfDateColumn(statusDate)
+  return {
+    row: STATUS_DATE_ENTRY,
+    name: entryLabel(STATUS_DATE_ENTRY, language),
+    text,
+    isEditable: true,
+    controls: [
+      {
+        key: STATUS_DATE_KEY,
+        kind: 'date',
+        text,
+        choices: null,
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef),
+      },
+    ],
+  }
+}
+
+type SteppedSetting = 'displayScale' | 'fontScale'
+
+// see FR-039, S-234, S-70, K-125, K-85
+// WHY: the steps are the type column's own order (S-234, S-70), so the field lists them as the palette entries step through them.
+const SETTING_STEPS: Readonly<Record<SteppedSetting, readonly string[]>> = {
+  displayScale: DISPLAY_SCALE_STEPS.map(String),
+  fontScale: Object.keys(SETTINGS_CONSTANTS.fontScaleSizes),
+}
+
+// see FR-039, CM-74, CM-62
+/** @purity pure */
+function steppedSettingField(settings: DocumentSettings, column: SteppedSetting, language: DisplayLanguage): PropertyField {
+  const text = textOfValue(settings[column])
+  const steps = SETTING_STEPS[column]
+  return {
+    row: settingsWordOf(column)?.rowId ?? column,
+    name: settingsName(column, language),
+    text,
+    isEditable: true,
+    controls: [
+      {
+        key: { holder: 'documentSettings', column },
+        kind: 'choice',
+        text,
+        choices: steps,
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(text, steps, SETTINGS_CONSTANTS.labelCoef),
+      },
+    ],
+  }
+}
+
+// see IC-17, T-104, FR-072, FR-131, FR-046, FR-039
+// WHY: a value with its own field is not repeated as a read-only row below it.
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
@@ -1064,7 +1145,8 @@ function settingsFields(
   dark: boolean,
   language: DisplayLanguage,
 ): readonly PropertyField[] {
-  const readOnly = Object.keys(SETTINGS_DEFAULTS).map((key) => ({
+  const fielded: readonly string[] = Object.keys(SETTING_STEPS)
+  const readOnly = Object.keys(SETTINGS_DEFAULTS).filter((key) => !fielded.includes(key)).map((key) => ({
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
@@ -1074,6 +1156,9 @@ function settingsFields(
   return [
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
+    statusDateField(schedule.project.statusDate, language),
+    steppedSettingField(settings, 'displayScale', language),
+    steppedSettingField(settings, 'fontScale', language),
     ...readOnly,
   ]
 }
