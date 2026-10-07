@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 197 | 2532 | 3 | 5 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 203 | 2561 | 3 | 5 | 8 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 57 | 380 | 0 | 2 | 0 | 0 |
+| `system` | TS-3 | - | 59 | 391 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 172 | 3852 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 6 | 9 | 0 | 0 |
-| **all** | | | 446 | 6868 | 10 | 17 | 10 | 1 |
+| **all** | | | 454 | 6908 | 10 | 17 | 10 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -42,11 +42,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
 
-## 4. Test files tied to no spec row (1)
+## 4. Test files tied to no spec row (2)
 
 | file | ledger rows it names instead |
 | --- | --- |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
+| `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
 ## 5. Expected-to-fail cases (10)
 
@@ -451,6 +452,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/w3-t4-closing-the-unlock-surface-keeps-the-watermark.test.ts` | 2 | FR-020 | - | T-242 | IC-41, WM-9 | - | - | - | - |
 | `tests/contract/w3-t4-the-halo-spares-each-drawn-shape-with-its-ink.test.ts` | 2 | FR-009 | - | - | AT-46, HT-1, NS-3 | - | - | - | - |
 | `tests/contract/w3-t4-the-theme-colours-are-solved-per-hue.test.ts` | 4 | FR-041 | - | T-206, T-236, T-366 | CF-2, CF-3, CF-6, CT-3, CT-4, CT-5, PI-19, S-151, S-155, S-156, S-157, S-520, S-521, S-522, S-523, S-524, S-525 | - | - | - | - |
+| `tests/contract/w3-t5-ex-15-the-root-namespace-of-an-imported-document.contract.test.ts` | 4 | - | - | T-033 | BT-4, EX-15 | - | - | - | - |
+| `tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts` | 5 | FR-029, FR-039, FR-052 | - | - | HF-4, S-79 | - | - | - | - |
+| `tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts` | 8 | FR-085 | VT-2 | T-283, T-293 | IN-4, RG-6 | - | - | - | - |
+| `tests/contract/w3-t5-t-270-press-or-drag-is-s-208.contract.test.ts` | 3 | - | - | T-206, T-270 | S-208 | - | - | - | - |
+| `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | 3 | - | - | - | - | - | - | - | - |
+| `tests/contract/w3-t5-ws-2-four-moments-and-the-un-8-judgement.contract.test.ts` | 6 | - | - | T-067, T-108, T-233 | CM-9, CM-65, PI-8, RS-74, UN-8, UN-13, WS-2 | - | - | - | - |
 | `tests/integration/cr-572-an-old-file-opens-and-the-constants-win.test.ts` | 10 | - | - | T-024a, T-040 | EZ-2, OP-6, S-124 | - | - | - | - |
 | `tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts` | 28 | FR-039, FR-041, FR-048, FR-052, FR-063, FR-080, FR-100 | - | T-027, T-108, T-206, T-215 | CM-64, DC-6, DC-7, IC-16, IC-47, IC-99, IC-100, S-2, S-3, S-66, S-171, UN-13, WY-1 | - | - | - | - |
 | `tests/integration/schedule-drawing.sws.test.ts` | 32 | FR-001, FR-003, FR-009, FR-013, FR-014, FR-017, FR-021, FR-029, FR-039, FR-043, FR-048, FR-054, FR-080, FR-089, FR-093, FR-094, FR-097, FR-098, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6 | - | T-018, T-023d, T-051, T-061, T-064, T-077, T-205, T-206, T-209, T-218, T-219, T-221, T-222, T-240, T-252, T-273 | AT-17, BO-1, DS-1, DS-7, EP-14, GA-20, HF-1, HF-19, IV-17, LF-1, LF-2, LF-3, LF-5, LF-6, LF-7, LF-8, LF-9, LF-10, LF-11, LF-12, LF-13, LF-14, LF-15, LF-16, LF-17, LF-18, LP-1, LR-2, LR-5, OC-10, PI-5, PI-6, PI-19, PI-20, PI-35, PM-1a, RP-1, RP-2, RP-4, RP-8, S-1, S-8, S-10, S-17, S-19, S-31, S-39, S-54, S-55, S-58, S-63, S-67, S-77, S-85, S-108, S-135, S-260, SH-3, ST-5, TS-2, TW-2, U-50, VG-2, VG-5, XS-6, XS-10 | - | - | - | - |
@@ -514,6 +521,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/w3-t2-screen-clauses.test.ts` | 15 | FR-016, FR-036, FR-039, FR-046, FR-052, FR-096, FR-100 | - | T-012a, T-023, T-028, T-051, T-236, T-252, T-294, T-335, T-366 | CF-1, CF-2, CF-3, CM-62, CV-6, DA-7, GA-7, GA-8, GR-25, HF-10, IN-6, IN-7, MK-1, MK-3, MK-13, RV-6, S-155, S-321, S-514, S-515, S-516, S-522, TH-3, UN-13, WB-10 | - | - | - | - |
 | `tests/system/w3-t3-the-row-title-panel-head-row.test.ts` | 3 | - | - | T-025, T-103, T-109, T-206 | HF-10, MC-6, S-313 | - | - | - | - |
 | `tests/system/w3-t4-the-file-surfaces-and-the-title-on-the-built-page.test.ts` | 7 | FR-096 | - | T-103, T-330, T-335 | MK-13, SV-7, WB-10, WM-9 | - | - | - | - |
+| `tests/system/w3-t5-fr-039-the-panel-floor-compared-unrounded.test.ts` | 2 | FR-029, FR-039 | - | - | HF-4 | - | - | - | - |
+| `tests/system/w3-t5-header-palette-chooser-and-open-rules.test.ts` | 9 | FR-053, FR-055, FR-095, FR-096 | - | T-109, T-203 | HF-10, IC-10, OP-10, S-75, S-77, S-78 | - | - | - | - |
 | `tests/unit/cr-376-exchange-carries-the-last-day.test.ts` | 12 | FR-011, FR-073 | - | T-058 | AT-141, DV-11, S-106, S-128 | - | - | - | - |
 | `tests/unit/cr-376-go-3-a-rest-day-release-stays.test.ts` | 4 | FR-154 | - | T-245 | GA-4, GO-3, HW-11, QN-13, S-1, S-75 | - | - | - | - |
 | `tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts` | 10 | - | - | T-006a, T-024, T-060, T-061, T-062, T-064, T-074, T-247, T-248 | EG-1, EG-2, EG-3, EG-4, EG-8, HF-14, JF-1, JF-3, JF-4, LR-1, LR-2, LR-3, LR-4, PI-9, PI-37, SU-1, W-11 | - | - | - | - |
