@@ -1220,19 +1220,20 @@ function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): bool
   return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
 }
 
-// see T-280, WS-2, GA-18
-// WHY: the progress step is sent once the press drops; its effect writes, and WS-2 refuses a write mid-gesture.
+// WHY: the progress step (T-280) waits for the press to drop; its effect writes, and WS-2 refuses a write mid-gesture.
 /** @purity pure */
 function isSentBeforePressDrops(event: ScreenValuesEvent, frame: FrameValues): boolean {
   return event.type !== 'progressMarkerPressed' && !isRefusedPanelWidth(event, frame)
 }
 
-// see FR-100, T-290
-// WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument.
+// WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
 /** @purity pure */
 function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHolder {
   return {
-    read: () => holder.read(),
+    /** @purity semi-pure-b */
+    read(): HeldDocument {
+      return holder.read()
+    },
     /** @purity non-pure */
     replace(next: HeldDocument): void {
       holder.replace(next)
@@ -1242,7 +1243,6 @@ function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHold
 }
 
 // see FR-085
-// WHY: the same reference when every chosen row is still in the document, so nothing is sent.
 /** @purity pure */
 function rowsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
   const chosenRows = session.selection.chosenRows
@@ -1704,7 +1704,6 @@ function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: 
 }
 
 // see IN-4, SK-19, FR-085, T-293
-// WHY: the Esc and Enter that empty the objects are the machine's own events, which empty the chosen rows too.
 /** @purity pure */
 function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEvent {
   if (input.kind === 'key' && pickedObjects.items.length === 0) {
@@ -2842,7 +2841,6 @@ export function frameLoop(
     return answersAtPointer(pointerWalk, x, y)
   }
 
-  // see FR-085, T-293
   /** @purity non-pure */
   function pruneChoiceTo(remainingObjects: Selection, chosenRows = session.selection.chosenRows): Selection {
     if (remainingObjects !== selectedObjectsIn(session) || chosenRows !== session.selection.chosenRows) {
@@ -3275,7 +3273,6 @@ export function frameLoop(
     sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
   }
 
-  // see FR-072, T-280
   /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)

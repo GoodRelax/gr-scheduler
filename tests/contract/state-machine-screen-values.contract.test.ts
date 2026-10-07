@@ -226,7 +226,6 @@ const RUNGS = [
   'tooltip',
 ] as const
 
-// see T-280: the three words surfaceCloseAsked's target carries.
 const TARGETS = ['surface', 'panel', 'helpModal'] as const
 
 const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
@@ -331,13 +330,11 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       const surface = screen['openSurfaceState'] as Loose
       return surface['kind'] === 'open' && surface['surfaceName'] === UNLOCK_SURFACE
     }
-    // see S-99g: watermarkEntryPressed opens U-60, the other two carry the surface they open.
     case 'isAnotherSurface': {
       const surface = screen['openSurfaceState'] as Loose
       const opening = event['type'] === 'watermarkEntryPressed' ? UNLOCK_SURFACE : event['surfaceName']
       return surface['kind'] === 'open' && surface['surfaceName'] !== opening
     }
-    // see T-280: the surfaces flowSurfaceAnswered answers (U-56, U-61).
     case 'isFlowAwaitingAnswer': {
       const surface = screen['openSurfaceState'] as Loose
       return surface['kind'] === 'open' && ['U-56', 'U-61'].includes(String(surface['surfaceName']))
@@ -361,7 +358,6 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['target'] === 'surface'
     case 'isPanelTarget':
       return event['target'] === 'panel'
-    // see T-280 surfaceCloseAsked: the target words are surface, panel and helpModal.
     case 'isHelpTarget':
       return event['target'] === 'helpModal'
     // WHY: req:4194 sends the closing hand to a standing surface, not the panel

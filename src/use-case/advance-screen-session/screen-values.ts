@@ -455,8 +455,7 @@ type EventOf<T extends ScreenValuesEvent['type']> = Extract<ScreenValuesEvent, {
 
 const WATERMARK_UNLOCK_SURFACE = 'U-60'
 
-// see T-280, OP-3, U-56, U-61
-// WHY: the two surfaces flowSurfaceAnswered answers; the open road stands still until one is answered.
+// WHY: the two surfaces flowSurfaceAnswered answers (T-280); the open road stands still until one is answered.
 const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
 
 const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = Object.freeze({})
@@ -527,13 +526,11 @@ function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenCha
   return moved(values, { fullScreenModeState: { kind: event.isFullScreen ? 'full' : 'normal' } })
 }
 
-// see T-280, S-99g
 /** @purity pure */
 function isAnotherSurface(values: ScreenValues, surfaceName: string): boolean {
   return values.openSurfaceState.kind === 'open' && values.openSurfaceState.surfaceName !== surfaceName
 }
 
-// see T-280, OP-3
 /** @purity pure */
 function isFlowAwaitingAnswer(values: ScreenValues): boolean {
   const surface = values.openSurfaceState

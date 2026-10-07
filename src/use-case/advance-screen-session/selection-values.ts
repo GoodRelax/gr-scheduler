@@ -188,7 +188,6 @@ function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'
   return hasRemainingObjects(event) ? selected(values, event.remainingObjects) : deselected(values)
 }
 
-// see FR-085
 /** @purity pure */
 function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
   return withRowsAlso(objectsPruned(values, event), event.chosenRows)

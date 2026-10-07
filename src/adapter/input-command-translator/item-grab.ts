@@ -136,9 +136,9 @@ export function commandFromGrab(
   const uid = item.taskUid
   const grab = grabRowOf(hit)
   switch (grab) {
-    // see T-280: a press without a drag is progressMarkerPressed, whose effect writes the step.
     case 'GA-18':
-      return hasDraggedPastThreshold(press, release) ? markerPullWrite(context, release, uid) : CONSUMED_ELSEWHERE
+      if (hasDraggedPastThreshold(press, release)) return markerPullWrite(context, release, uid)
+      return CONSUMED_ELSEWHERE
     case 'GA-7':
     case 'GA-8':
       return fadeEndWrite(context, release, uid, grab)
