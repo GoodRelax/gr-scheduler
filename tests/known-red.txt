@@ -30,4 +30,3 @@ DFC-1024 | tests/contract/display-words.contract.test.ts | FR-032 (MUST) shows i
 DFC-922 | tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts | the GRS JSON open path refuses IV-22 and a bandless row colour | - | - | the GRS JSON open path does not refuse a document breaking IV-22 yet; CR-586 question 2 chose B (wait for DFC-922 / DFC-586, JDG-78)
 DFC-2204 | tests/system/w3-t2-screen-clauses.test.ts | CF-1: | - | - | the exported picture paints S-155 with k = 4 on TH-3 while the screen paints k = 2
 DFC-2205 | tests/system/w3-t2-file-and-picture-clauses.test.ts | IX-15: | - | - | the export-span picture is 18 px taller than the stacked sections (3921 vs 3903)
-DFC-2190 | tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts | a document read with only the start dated is opened with both ends on that day | - | - | IX-17: a document read with S-518 alone dated keeps S-519 null; nothing copies the day (W3 tester 4, 2026-10-07)
