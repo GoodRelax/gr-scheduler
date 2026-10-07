@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 186 | 2489 | 3 | 7 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 186 | 2489 | 3 | 5 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 54 | 350 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 172 | 3852 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 6 | 9 | 0 | 0 |
-| **all** | | | 432 | 6795 | 10 | 18 | 10 | 1 |
+| **all** | | | 432 | 6795 | 10 | 16 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -438,7 +438,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/w3-t3-enter-and-the-two-selections.test.ts` | 4 | FR-085, FR-091 | - | T-103, T-108, T-266 | SK-19 | - | - | - | - |
 | `tests/contract/w3-t3-export-span-picture-and-chooser-line.test.ts` | 11 | FR-025, FR-080, FR-096 | - | T-204 | IX-5, IX-12, IX-13, IX-16, IX-17, ND-4, ND-5, S-81, S-217 | - | - | - | - |
 | `tests/contract/w3-t3-nothing-is-written-while-a-grab-is-held.test.ts` | 2 | FR-154 | - | T-023d, T-266 | QN-13 | - | - | - | - |
-| `tests/contract/w3-t3-settings-panel-span-status-date-and-scale-fields.test.ts` | 10 | FR-025, FR-039, FR-046, FR-131 | - | T-104, T-108, T-202 | IX-17, S-234 | - | DFC-2193, DFC-2193 | - | - |
+| `tests/contract/w3-t3-settings-panel-span-status-date-and-scale-fields.test.ts` | 10 | FR-025, FR-039, FR-046, FR-131 | - | T-104, T-108, T-202 | IX-17, S-234 | - | - | - | - |
 | `tests/contract/w3-t3-the-image-prompt-follows-the-screen-language.test.ts` | 3 | FR-068 | - | - | - | - | - | - | - |
 | `tests/integration/cr-572-an-old-file-opens-and-the-constants-win.test.ts` | 10 | - | - | T-024a, T-040 | EZ-2, OP-6, S-124 | - | - | - | - |
 | `tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts` | 28 | FR-039, FR-041, FR-048, FR-052, FR-063, FR-080, FR-100 | - | T-027, T-108, T-206, T-215 | CM-64, DC-6, DC-7, IC-16, IC-47, IC-99, IC-100, S-2, S-3, S-66, S-171, UN-13, WY-1 | - | - | - | - |
