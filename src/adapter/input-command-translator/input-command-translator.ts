@@ -316,6 +316,8 @@ export const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopp
 
 export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
+const DOCUMENT_TITLE_PART = 'Document Title'
+
 // see T-266
 export type GrabRow = GrabArea
 
@@ -1105,6 +1107,9 @@ function commandFromEntry(
         groupId: on.rowGroupId,
         isExtending: press.at.modifiers.shift,
       })
+    }
+    if (on.part === DOCUMENT_TITLE_PART && press.at.clickCount >= 2) {
+      return acted({ kind: 'editInPlace', target: { kind: 'documentTitle' } })
     }
     // TRAP: consuming this breaks caret placement in FR-035's name field, settled on pointerup.
     return UNASSIGNED

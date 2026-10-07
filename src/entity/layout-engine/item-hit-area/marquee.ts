@@ -5,7 +5,19 @@
 
 import type { ScheduleGeometry } from '../schedule-geometry/schedule-geometry'
 import type { ScreenRect } from '../screen-regions/screen-regions'
-import { bottomOf, boxOfPath, dependencyItemOf, grown, merged, rightOf, shapeOf, type Item } from './item-hit-area'
+import {
+  bottomOf,
+  boxOfPath,
+  cutRect,
+  dependencyItemOf,
+  grown,
+  isLineScrolling,
+  isScrolling,
+  merged,
+  rightOf,
+  shapeOf,
+  type Item,
+} from './item-hit-area'
 
 /** @purity pure */
 function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boolean {
@@ -27,13 +39,16 @@ function wbsParentLinksIn(geometry: ScheduleGeometry, marquee: ScreenRect): read
     .map((arrow) => ({ kind: 'wbsParentLink', childUid: arrow.childUid, isStated: true }))
 }
 
-// see SL-3, SL-7b, EL-14
+// see SL-3, SL-7b, EL-14, FR-098, EL-1
+// WHY: a scrolling row's shape is judged by what shows below the pinned band, as the press is (DFC-1222).
 /** @purity pure */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
+  const cut = geometry.pinnedBand ?? null
   const out: Item[] = []
   for (const task of geometry.tasks) {
     const shape = shapeOf(task)
-    if (isEnclosedInclusive(merged(shape.planBand, shape.actualBand) ?? shape.dummyInk, marquee)) {
+    const box = merged(shape.planBand, shape.actualBand) ?? shape.dummyInk
+    if (isEnclosedInclusive(cutRect(box, cut, isScrolling(cut, task.taskUid)), marquee)) {
       out.push({ kind: 'task', taskUid: task.taskUid })
     }
   }
@@ -42,7 +57,8 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
     const mark = line.continuation
     const dotsBox = mark === null ? null : boxOfPath(mark.dots)
     const dots = mark === null || dotsBox === null ? null : grown(dotsBox, mark.radius, mark.radius)
-    if (isEnclosedInclusive(merged(boxOfPath(line.drawnPoints), dots), marquee)) {
+    const box = merged(boxOfPath(line.drawnPoints), dots)
+    if (isEnclosedInclusive(cutRect(box, cut, isLineScrolling(cut, line)), marquee)) {
       out.push(dependencyItemOf(line))
     }
   }

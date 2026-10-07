@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { CommandItem, CommandPalette } from '../../adapter/screen-renderer/screen-renderer'
+import type { CommandPalette } from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOT_STORED_ARMED_LABEL_SIZES,
   NOT_STORED_PALETTE_GROUP_RULE_SIZES,
@@ -60,14 +60,16 @@ function cornerStyle(at: { readonly x: number; readonly y: number }): string {
 /** @purity non-pure */
 function grabBandElement(
   host: Document,
-  heightPx: number,
-  minimise: CommandItem,
-  isMinimised: boolean,
+  palette: CommandPalette,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
+  const { grabBandHeight: heightPx, minimise, isMinimised } = palette
   const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
   band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
   fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
+  // see FR-053, FR-102
+  const record = palette.bandRecord ?? null
+  if (record !== null) band.prepend(anchoredEntry(host, record, anchors))
 
   const toggle = commandEntry(host, minimise)
   toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimise)
@@ -108,13 +110,7 @@ export function paletteElement(
 
   // TRAP: the band is a child of the palette part, never a sibling: PALETTE_FAINT_CSS uses
   // :hover, which a sibling band would not keep matching while held.
-  const band = grabBandElement(
-    host,
-    palette.grabBandHeight,
-    palette.minimise,
-    palette.isMinimised,
-    anchors,
-  )
+  const band = grabBandElement(host, palette, anchors)
   anchors.set(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY }), band)
 
   if (palette.isMinimised) {

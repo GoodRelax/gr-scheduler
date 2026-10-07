@@ -51,7 +51,7 @@ import {
 import { dialogueFieldPainter } from './dialogue-field-drawing'
 import { ROSTER_SCROLLER, helpWindowPainter, keepRosterScroll, modalElement } from './open-modals-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
-import type { PointAsked } from './window-frame-drawing'
+import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
 const UNIT_ROW = 'UF-71'
 
@@ -617,6 +617,35 @@ export function anchorKey(anchor: TooltipAnchor): string {
   return `${anchor.kind} ${anchor.taskUid}`
 }
 
+// see GR-24, WB-10, IF-9
+// WHY: the range keeps the band inside the browser window; the body may hang below it (WB-10).
+/** @purity semi-pure-b */
+function closeOnlyTitledGrabOf(modalLayer: Element, first: Element | null, walked: ScreenPart | null): ScreenPart | null {
+  const band = first?.closest(`[${WINDOW_GRAB_ATTRIBUTE}]`) ?? null
+  const modal = modalLayer.firstElementChild
+  if (walked === null || walked.entry !== null || band === null || modal === null || !modal.contains(band)) return walked
+  const { x, y, width, height } = modal.getBoundingClientRect()
+  const view = modalLayer.getBoundingClientRect()
+  const range = { x: view.x, y: view.y, width: view.width, height: view.height - band.getBoundingClientRect().height + height }
+  const windowBox = { x, y, width, height }
+  return { ...walked, windowGrab: { window: 'closeOnlyTitledSurface', region: 'titleBand', windowBox, range, floor: { width, height } } }
+}
+
+/** @purity non-pure */
+function placeOpenModal(modalLayer: Element, view: ScreenView, changed: (name: string) => boolean): void {
+  const modal = modalLayer.firstElementChild as HTMLElement | null
+  const at = view.openModalAt ?? null
+  if (!(changed('openModal') || changed('openModalAt')) || at === null || modal === null) return
+  modal.style.left = `${at.x}px`
+  modal.style.top = `${at.y}px`
+  modal.style.transform = 'none'
+}
+
+/** @purity pure */
+function outerPartOf(inner: string | null, role: string | null): string | null {
+  return role === null || inner === ROLE.documentTitle ? inner : role
+}
+
 /** @purity pure */
 function described(part: unknown): string {
   return JSON.stringify(part) ?? ''
@@ -997,6 +1026,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(surfaceModal),
+      openModalAt: described(view.openModalAt),
       ...helpKeysOf(helpModal),
       notices: described(view.notices),
       confirmation: described(view.confirmation),
@@ -1081,6 +1111,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
+    placeOpenModal(modalLayer, view, changed)
     if (changed('helpModal') || changed('helpPlace')) drawHelp(helpModal, changed('helpModal'))
     searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
     if (changed('searchPanel')) layers.showOnlyCheckedBarLayer.replaceChildren(...showOnlyCheckedBarElements(host, view.searchPanel))
@@ -1138,8 +1169,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     let onImportReportDismiss = false
     let onGrabStrip = false
     let axis: string | null = null
-    // WHY: the innermost carrier wins for each key but the outermost data-role for the part: an
-    // entry sits inside its part, and table T-109 names the containing surface.
+    // WHY: innermost carrier per key, outermost data-role for the part (T-109), but U-27 for MK-13.
     while (node !== null && node !== root) {
       const icon = node.getAttribute('data-icon')
       if (icon !== null && entry === null) entry = icon
@@ -1162,11 +1192,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         onImportReportDismiss = true
       }
       const role = node.getAttribute('data-role')
-      if (role !== null) part = role
+      part = outerPartOf(part, role)
       node = node.parentElement
     }
     if (node !== root || part === null) return windowsAnswerAt({ x, y, first, walked: null })
-    return windowsAnswerAt({ x, y, first, walked: {
+    return windowsAnswerAt({ x, y, first, walked: closeOnlyTitledGrabOf(modalLayer, first, {
       part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
       entry,
       format,
@@ -1178,7 +1208,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeDismissKey: dismissKey,
       ...(answer === null ? {} : { confirmationAnswer: answer }),
       ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
-    } })
+    }) })
   }
 
   /** @purity semi-pure-b */

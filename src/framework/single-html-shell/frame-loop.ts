@@ -153,6 +153,7 @@ import {
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   type DelayDiagnosticsReportWindow,
+  drawnRowBoxesOf,
   windowBoxAfterGrab,
   windowPlaceOf,
   DEFAULT_WINDOW_PLACE,
@@ -1334,31 +1335,6 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
   }
 }
 
-// see SC-1, FR-098
-/** @purity pure */
-function drawnRowBoxesOf(
-  layout: ScheduleLayout,
-  regions: ScreenRegions,
-): readonly { readonly groupId: string; readonly box: ScreenRect }[] {
-  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
-  return layout.rows.flatMap((row) => {
-    const top = Math.max(row.y, row.isPinned === true ? regions.rowArea.y : scrollTop)
-    const bottom = Math.min(row.y + row.height, regions.rowArea.y + regions.rowArea.height)
-    if (bottom <= top) return []
-    return [
-      {
-        groupId: row.groupId,
-        box: {
-          x: regions.rowTitlePanel.x,
-          y: top,
-          width: regions.rowTitlePanel.width,
-          height: bottom - top,
-        },
-      },
-    ]
-  })
-}
-
 // TRAP: a FrameEnvironment member left out here wakes no frame when only that member changes.
 /** @purity pure */
 export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
@@ -1476,6 +1452,7 @@ interface WindowPlaces {
   readonly helpModal: WindowPlace
   readonly dialogueField: WindowPlace
   readonly delayDiagnosticsReport: DelayDiagnosticsReportWindow | null
+  readonly closeOnlyTitledSurface: { readonly x: number; readonly y: number } | null
 }
 
 const STARTING_WINDOW_PLACES: WindowPlaces = {
@@ -1483,6 +1460,7 @@ const STARTING_WINDOW_PLACES: WindowPlaces = {
   helpModal: DEFAULT_WINDOW_PLACE,
   dialogueField: DEFAULT_WINDOW_PLACE,
   delayDiagnosticsReport: null,
+  closeOnlyTitledSurface: null,
 }
 
 type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
@@ -1492,6 +1470,7 @@ type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsRepo
 function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: ScreenRect): WindowPlaces {
   const place = windowPlaceOf(box)
   const report = held.delayDiagnosticsReport
+  if (grab.window === 'closeOnlyTitledSurface') return { ...held, closeOnlyTitledSurface: { x: box.x, y: box.y } }
   if (grab.window === 'searchPanel') return { ...held, searchPanel: { ...held.searchPanel, ...place } }
   if (grab.window !== 'delayDiagnosticsReport') return { ...held, [grab.window]: place }
   return report === null ? held : { ...held, delayDiagnosticsReport: { ...report, panel: { ...report.panel, ...place } } }
@@ -1530,7 +1509,7 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
   const report = diagnostics?.report ?? null
   return {
     searchPanel: held.searchPanel,
-    windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField },
+    windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report },
     bottleneckUids: diagnostics?.bottleneckUids,
   }
@@ -1551,6 +1530,26 @@ function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isSho
 function filterEndedWithClosedPanel(held: WindowPlaces, isShown: boolean): WindowPlaces {
   if (isShown || !held.searchPanel.showOnlyChecked) return held
   return { ...held, searchPanel: { ...held.searchPanel, showOnlyChecked: false } }
+}
+
+// see WB-6, WB-10
+/** @purity pure */
+function windowPlacesAfterClosing(held: WindowPlaces, session: ScreenSession): WindowPlaces {
+  const isHelpHidden = session.screen.helpDisplayState.kind === 'hidden'
+  const isSurfaceClosed = session.screen.openSurfaceState.kind === 'closed'
+  if (!isHelpHidden && !isSurfaceClosed) return held
+  return {
+    ...held,
+    helpModal: isHelpHidden ? DEFAULT_WINDOW_PLACE : held.helpModal,
+    closeOnlyTitledSurface: isSurfaceClosed ? null : held.closeOnlyTitledSurface,
+  }
+}
+
+/** @purity pure */
+function grabbedShown(session: ScreenSession, held: WindowPlaces, window: WindowGrab['window']): WindowShown | null {
+  if (window === 'closeOnlyTitledSurface') return 'normal'
+  if (window === 'delayDiagnosticsReport') return held.delayDiagnosticsReport?.shown ?? null
+  return windowShownIn(session, window)
 }
 
 // see IN-4, SV-14, RG-16, RW-1
@@ -1598,13 +1597,12 @@ function heldWindowsOf() {
     // see IN-1, WB-6
     /** @purity non-pure */
     followGrab(session: ScreenSession, input: HumanInput, press: PointerPress | null): void {
-      if (session.screen.helpDisplayState.kind === 'hidden') held = { ...held, helpModal: DEFAULT_WINDOW_PLACE }
+      held = windowPlacesAfterClosing(held, session)
       const grab = press?.on?.windowGrab
       if (input.kind !== 'pointer' || input.phase === 'down' || press == null || grab === undefined) return
       const travel = { dx: input.x - press.at.x, dy: input.y - press.at.y }
       if (grab.region === 'columnBorder') return void (held = windowPlacesAfterColumnDrag(held, grab, travel.dx))
-      const shown = grab.window === 'delayDiagnosticsReport' ? (held.delayDiagnosticsReport?.shown ?? null) : windowShownIn(session, grab.window)
-      const box = grabbedWindowBox(grab, shown, travel)
+      const box = grabbedWindowBox(grab, grabbedShown(session, held, grab.window), travel)
       if (box !== null) held = windowPlacesAfterGrab(held, grab, box)
     },
     // see IN-4, SV-14, RG-16

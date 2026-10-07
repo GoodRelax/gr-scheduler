@@ -319,9 +319,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `answersAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#answersAtPointer` | PI-7 | `PointerWalk` と点から、押したときの当たりと、説明の持ち主（表 T-040 の `EZ-6`）を 1 度の歩きで答える。 |
+| `BandCut` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BandCut` | -- | type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> \| null |
 | `bottomOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#bottomOf` | -- | function bottomOf(box: ScreenRect): number |
 | `boxOfPath` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#boxOfPath` | -- | function boxOfPath(points: Path): ScreenRect \| null |
 | `BoxPart` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BoxPart` | -- | type BoxPart = \| { readonly kind: 'body' } \| { readonly kind: 'anchor' } \| { readonly kind: 'leader' } \| |
+| `cutRect` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#cutRect` | -- | function cutRect(box: ScreenRect \| null, cut: BandCut, isCut: boolean): ScreenRect \| null |
 | `DependencyEnd` | entry | interface | `src/entity/layout-engine/item-hit-area/dependency-end.ts#DependencyEnd` | -- | interface DependencyEnd |
 | `dependencyEndAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/dependency-end.ts#dependencyEndAtPointer` | PI-7 | `FR-009` の「左半分 / 右半分」を答える。 |
 | `dependencyItemOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#dependencyItemOf` | -- | function dependencyItemOf(line: DependencyGeometry): Item |
@@ -332,8 +334,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `grown` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#grown` | -- | function grown(box: ScreenRect, across: number, down: number): ScreenRect |
 | `HintHolder` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#HintHolder` | -- | interface HintHolder |
 | `Hit` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#Hit` | -- | interface Hit |
+| `isCutAway` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isCutAway` | -- | function isCutAway(cut: BandCut, isCut: boolean, y: number): boolean |
 | `isInsideRect` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isInsideRect` | PI-7 | 点が矩形の中（縁を含む）にあるかを答える。 |
+| `isLineScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isLineScrolling` | -- | function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean |
 | `isOnTheDrawnShape` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isOnTheDrawnShape` | -- | function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean |
+| `isScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isScrolling` | -- | function isScrolling(cut: BandCut, taskUid: number): boolean |
 | `isTaskDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#isTaskDrawn` | PI-7 | 1 つのタスクの幾何が、表 T-023c の結びの「描かれている」に当たるかを答える —— 予定・実績・実績のダミー（表 T-240）のどれかが在れば真とする。 |
 | `Item` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#Item` | -- | type Item = \| { readonly kind: 'task'; readonly taskUid: number } \| { readonly kind: 'dependency'; readonly predecessorUid: number; readonly successorUid: nu... |
 | `itemAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#itemAtPointer` | PI-7 | 対象は 表 T-023c の `SL-1`。 |
@@ -1219,6 +1224,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dismissKeyOf` | entry | function | `src/adapter/screen-renderer/notices.ts#dismissKeyOf` | PI-37 | 表 T-037 の `NT-8` で人が消した告げを名指す鍵 |
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
 | `displayLanguageOf` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#displayLanguageOf` | -- | function displayLanguageOf(session: ScreenSession): DisplayLanguage |
+| `drawnRowBoxesOf` | entry | function | `src/adapter/screen-renderer/row-title-panel.ts#drawnRowBoxesOf` | PI-37 | 描いた行ごとの `Row Title Panel` の行見出しの矩形を、配置と各部の矩形から測る（`SC-1`・`FR-098`）。 |
 | `DualCursorReadout` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DualCursorReadout` | -- | interface DualCursorReadout |
 | `ExportChooser` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ExportChooser` | -- | interface ExportChooser extends OpenSurface |
 | `exportFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#exportFileNameOf` | PI-37 | 文書名を 表 T-352 で整え、拡張子を付けた提案の名を作る（`FR-096`）。 |
@@ -1320,6 +1326,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
 | `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
+| `GrabbedWindowName` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#GrabbedWindowName` | -- | type GrabbedWindowName = WindowName \| 'closeOnlyTitledSurface' |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
 | `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#EntryRefusal` | -- | interface EntryRefusal |
 | `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchColumnView` | -- | interface SearchColumnView |
@@ -1702,4 +1709,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 827 name(s) leave through a public entry (323 of them published by table T-064), 665 more are exported by a file and not by its entry.
+Totals: 833 name(s) leave through a public entry (324 of them published by table T-064), 666 more are exported by a file and not by its entry.

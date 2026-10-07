@@ -12,8 +12,13 @@ import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   drawnSettingsOf,
   type ScreenRect,
+  type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { groupDepthLimit, keptInViewByTreeState } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  groupDepthLimit,
+  keptInViewByTreeState,
+  type ScheduleLayout,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenViewReadings } from './screen-renderer'
@@ -445,3 +450,28 @@ const NOT_STORED_CHROME_SCALE: {
   'S-235': 0.6667,
 }
 // </generated>
+
+// see SC-1, FR-098
+/** @purity pure */
+export function drawnRowBoxesOf(
+  layout: ScheduleLayout,
+  regions: ScreenRegions,
+): readonly { readonly groupId: string; readonly box: ScreenRect }[] {
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  return layout.rows.flatMap((row) => {
+    const top = Math.max(row.y, row.isPinned === true ? regions.rowArea.y : scrollTop)
+    const bottom = Math.min(row.y + row.height, regions.rowArea.y + regions.rowArea.height)
+    if (bottom <= top) return []
+    return [
+      {
+        groupId: row.groupId,
+        box: {
+          x: regions.rowTitlePanel.x,
+          y: top,
+          width: regions.rowTitlePanel.width,
+          height: bottom - top,
+        },
+      },
+    ]
+  })
+}
