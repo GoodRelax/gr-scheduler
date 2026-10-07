@@ -579,7 +579,11 @@ describe('表 T-206 -- the two rows FR-031 says the bounds are', () => {
 //    段数と合計メモリに上限を持ち」
 // ===========================================================================
 
-describe('FR-031 / S-94 / S-95 -- the bound the REAL shell holds the REAL startup document to', () => {
+// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// alone; an explicit ceiling, not a retry (JDG-642).
+const LOADED_MACHINE_TIMEOUT_MS = 60_000
+
+describe('FR-031 / S-94 / S-95 -- the bound the REAL shell holds the REAL startup document to', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   it('GIVEN the real shell holding the startup document WHEN S-94 changes are written THEN S-94 undos each walk one 段 back', () => {
     // ⛔ THE CASE THE MISSING CONVERSION FAILS. With S-95 handed over as the
     // bare number the row prints, one step of this document is already past the

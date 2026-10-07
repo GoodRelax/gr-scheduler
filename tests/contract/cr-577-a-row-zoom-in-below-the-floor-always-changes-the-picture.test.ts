@@ -564,7 +564,11 @@ describe('the scenes stand where the manuscript puts them', () => {
   )
 })
 
-describe('T1 / T2 -- sample-large-erp-program.ja.xml opened at the FR-055 fit', () => {
+// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// alone; an explicit ceiling, not a retry (JDG-642).
+const LOADED_MACHINE_TIMEOUT_MS = 60_000
+
+describe('T1 / T2 -- sample-large-erp-program.ja.xml opened at the FR-055 fit', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   const erp = sceneNamed('sample-large-erp-program.ja.xml')
   // WHY: the fit OP-10 opens at is not in the stored zoomY; IC-10 is the same FR-055 fit and writes it,
   // so the case knows the zoomY the press starts from.
@@ -611,7 +615,7 @@ describe('T3 -- a document of depth-1 rows at zoomY 0.3', () => {
 
 const T4_STARTS: readonly number[] = [S_54, 0.2, 0.291, 0.3, thresholdOf(2), thresholdOf(3), thresholdOf(4), 0.9]
 
-describe('T4 -- every press below the floor changes the picture', () => {
+describe('T4 -- every press below the floor changes the picture', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   const cases = SCENES.flatMap((scene) =>
     T4_STARTS.filter((start) => isOnTheFloor(start)).map((start) => [scene.name, start, scene] as const),
   )
@@ -647,7 +651,7 @@ describe('T5 -- a threshold that changes no drawn row is not counted', () => {
   })
 })
 
-describe('T6 -- the FR-016 ceiling below the ZE-6 target', () => {
+describe('T6 -- the FR-016 ceiling below the ZE-6 target', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   const stackedBelowTarget = (): { readonly stacked: number; readonly ceiling: number } => {
     for (let stacked = 0; stacked <= 60; stacked += 1) {
       const probe = bench(documentOf(SHALLOW, JUST_OFF_THE_FLOOR, stacked))

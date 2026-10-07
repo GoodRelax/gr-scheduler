@@ -424,7 +424,11 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
   })
 })
 
-describe('FR-106 -- what the product writes under the pointer', () => {
+// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// alone; an explicit ceiling, not a retry (JDG-642).
+const LOADED_MACHINE_TIMEOUT_MS = 60_000
+
+describe('FR-106 -- what the product writes under the pointer', { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   it('the image a hover over GA-2 writes is the PK row table T-266 names, facing the way it names', async () => {
     const one = built()
     const atEnd = cursorOf(hover(one, planEndPoint(one)))
