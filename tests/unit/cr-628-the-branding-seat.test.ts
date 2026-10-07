@@ -2,6 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
 import type { AppHeaderItems } from '../../src/adapter/screen-renderer/screen-renderer'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import { appHeaderStyle, fillAppHeader } from '../../src/framework/dom-screen-surface/app-header-drawing'
@@ -19,6 +20,8 @@ const LOGO = displayWords.branding.find((one) => one.part === 'logo')?.text.ja ?
 
 const ITEMS: AppHeaderItems = {
   brandingText: LOGO,
+  // see BR-2, EP-1
+  ...brandingPlaceOf(),
   documentTitle: 'a document',
   openedFileName: null,
   fileSavedAt: null,

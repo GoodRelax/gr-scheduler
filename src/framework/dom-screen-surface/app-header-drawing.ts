@@ -43,12 +43,11 @@ function documentTitleStyle(): string {
 }
 
 // see U-35, BR-1, BR-2, BR-3, BR-4
-// DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
 /** @purity non-pure */
-function brandingElement(host: Document, text: string): HTMLElement {
+function brandingElement(host: Document, text: string, seatPx: number): HTMLElement {
   const glyph = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'])
   const rim = glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-461']
-  const seat = made(host, 'span', `${STYLE.brandingSeat}width:${glyph * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']}px;`)
+  const seat = made(host, 'span', `${STYLE.brandingSeat}width:${seatPx}px;`)
   const link = linkElement(host, NOT_STORED_HELP_SIZES['S-459'], text)
   link.setAttribute('data-role', ROLE.branding)
   link.setAttribute('style', `${STYLE.branding}font-size:${glyph}px;-webkit-text-stroke-width:${STROKE_SIDES * rim}px;padding-left:${rim}px;`)
@@ -142,7 +141,8 @@ export function fillAppHeader(
     commands.append(entry)
   }
 
-  header.replaceChildren(brandingElement(host, items.brandingText ?? ''), divider, strip, commands)
+  // TRAP: inset, seat, two divider gaps and the divider add up to documentTitleLeftPx, the export's title x (BR-2).
+  header.replaceChildren(brandingElement(host, items.brandingText ?? '', items.brandingSeatPx ?? 0), divider, strip, commands)
   return title
 }
 

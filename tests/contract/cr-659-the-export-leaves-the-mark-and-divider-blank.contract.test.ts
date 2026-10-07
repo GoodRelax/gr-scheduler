@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
+import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
 import type { AppHeaderItems, RowTitlePanel, ScreenFrame, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import { SETTINGS_DEFAULTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -57,6 +58,8 @@ const TITLE = 'Plan of record'
 
 const ITEMS: AppHeaderItems = {
   brandingText: LOGO,
+  // see BR-2, EP-1
+  ...brandingPlaceOf(),
   documentTitle: TITLE,
   openedFileName: 'plan.json',
   fileSavedAt: '2026-05-04T03:02:01Z',

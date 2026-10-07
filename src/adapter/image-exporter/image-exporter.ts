@@ -14,7 +14,7 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { rowTitleFontPxOf, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
+import { rowTitleFontPxOf, type AppHeaderItems, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
 import { colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
@@ -128,26 +128,20 @@ function textSvg(
   )
 }
 
-const DIVIDER_SIDES = 2
-
 // see EP-1, BR-2, BR-6, BR-7
 /** @purity pure */
 function appHeaderSvg(
   band: ScreenRect,
-  documentTitle: string | null,
+  items: AppHeaderItems,
   scene: ExportScene,
   ratio: number,
 ): string {
   const ground = rectSvg(scaledRect(band, ratio), chromeGround(scene))
+  const documentTitle = items.documentTitle
   if (documentTitle === null || documentTitle === '') return ground
   // see FR-051, EP-1
-  const chrome = NOT_STORED_CHROME_SCALE['S-235']
-  const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
-  // DEVIATION: spec says one function places the title for screen and export; here each side reads the T-206 rows (DFC-1786)
-  const seatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462']
-  const dividerGapsPx = DIVIDER_SIDES * NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']
-  const scaledInsetPx = (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx + dividerGapsPx) * chrome
-  const x = (band.x + scaledInsetPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']) * ratio
+  const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * NOT_STORED_CHROME_SCALE['S-235']
+  const x = (band.x + (items.documentTitleLeftPx ?? 0)) * ratio
   const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
@@ -219,7 +213,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const drawn = drawnSettingsOf(settings)
   const ink = chromeInk(scene)
   const drawnHere =
-    appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, scene, ratio) +
+    appHeaderSvg(regions.appHeader, screenView.appHeaderItems, scene, ratio) +
     filterCaptionSvg(regions.appHeader, screenView.showOnlyCheckedCaption, scene, ratio) +
     rectSvg(scaledRect(panel, ratio), chromeGround(scene)) +
     pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +

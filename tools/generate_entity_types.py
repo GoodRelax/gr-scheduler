@@ -3088,12 +3088,17 @@ TARGETS = [
       'docs/spec/_assets/tbl-glossary.md (table T-109)']),
     # CR-589: the header paints EN-2 for the entries whose settings row it
     # reads, from the map printed here rather than from arms of its own.
+    # DFC-1786: the Branding seat and the Document Title's left end (BR-2)
+    # are worked out here, once, and carried on AppHeaderItems; the screen
+    # and the export read that answer (EP-1) instead of each composing it.
     (os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
      with_entry_switches(
          os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
-         None, ('VISIBLE_ELEMENT_BY_ENTRY',)),
+         lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_CHROME_SCALE'),
+         ('VISIBLE_ELEMENT_BY_ENTRY',)),
      ['docs/spec/_assets/tbl-glossary.md (table T-109)',
-      'docs/spec/_source/settings.json (table T-202)']),
+      'docs/spec/_source/settings.json (tables T-202 and T-206)']),
     # ⭐ HF-5's room, resolved on the side that can resolve it. S-140 is the
     # room the row controls keep, and what it is subtracted from is the row's
     # own name width, which only this side knows -- `DocumentSettings` does not

@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
+import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
 import type { AppHeaderItems, ScreenFrame, ScreenView, RowTitlePanel } from '../../src/adapter/screen-renderer/screen-renderer'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import {
@@ -137,6 +138,8 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
 
 const ITEMS: AppHeaderItems = {
   brandingText: LOGO,
+  // see BR-2, EP-1
+  ...brandingPlaceOf(),
   documentTitle: 'a document',
   openedFileName: 'a-file-name-that-goes-on-and-on.json',
   fileSavedAt: '2026-05-04T03:02:01Z',
