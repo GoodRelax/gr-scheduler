@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Continuation mark at the edge</title>
+<style>
+  :root { --ground:#ffffff; --head:#e8edf3; --ink:#1d2733; --muted:#5b6673; --bar:#9cc3ea; --barline:#2f6fb0; --link:#3d4652; --hit:#e0007a; --rowline:#d9dee5; }
+  body { margin:0; padding:16px; font:16px/1.7 system-ui, sans-serif; color:var(--ink); background:#f6f7f9; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  p { margin:4px 0 12px; max-width:62em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap:16px; }
+  .card { background:#fff; border:1px solid #d5dbe2; border-radius:8px; padding:12px; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .card .what { font-size:14px; color:var(--muted); min-height:3.4em; }
+  svg { display:block; width:100%; height:auto; background:var(--ground); border:1px solid #ccd3db; cursor:default; }
+  .status { font-size:14px; margin-top:6px; min-height:1.7em; }
+  .sel { color:#b0005a; font-weight:bold; }
+  label { font-size:14px; }
+</style>
+</head>
+<body>
+<h1>問 5 の見本: 依存線の「続きの印」が描ける範囲の外に出るとき</h1>
+<p>場面: いちばん上に描かれている行「設計」のタスクから、隠した行のタスク「仕様の確認」へ FS の依存線が出ている。隠した行の端は Row Area の上端に立つので、短い線は<b>上へ</b>折れ、3 つの点はさらに上へ並ぶ。上の灰色の帯は時間軸（Row Area の外）。表示の倍率 100 の寸法を拡大して描いた。</p>
+<p>どの絵も、<b>点（または点が在るはずの所）を押すと線が選ばれる</b>（太くなる）。白い所を押すと選択が外れる。
+<label><input type="checkbox" id="showHit"> 押して当たる範囲を桃色の破線で見せる</label></p>
+<div class="grid" id="grid"></div>
+
+<script>
+// Geometry in zoom-100 px (S-298 lead-out 6, S-360 short line 6, S-362 dot 2, S-361 horizontal 12).
+var HEAD = 20, ROW_H = 24, ROWS = 3, W = 150;
+var LEAD = 6, SHORT = 6, DOT = 2, SIDE = 12;
+var TOP = HEAD;                       // Row Area top edge
+var BAR = { x: 30, y: TOP + 6, w: 50, h: 12 };
+var EXIT = { x: BAR.x + BAR.w, y: BAR.y + BAR.h / 2 };
+
+var variants = [
+  { key: 'now', title: '今: 2 点が切れる',
+    what: '短い線は上へ 6、点は線の先からさらに上へ 3 つ。上の 2 つは時間軸の側に出るので描かれず、押しても当たらない。見えている 1 点だけが押せる。',
+    shape: 'up', clip: true, hitOutside: false },
+  { key: 'widen', title: '案 A: 押せる範囲だけ広げる',
+    what: '描き方は「今」と同じ（2 点は見えないまま）。ただ、点が在るはずの所 —— 時間軸の帯の下の端 —— を押しても線が選ばれる。見えない所に押せる所ができる。',
+    shape: 'up', clip: true, hitOutside: true },
+  { key: 'side', title: '案 B: 横へ折り返す',
+    what: '上へ曲がる場所が無いときだけ、短い線を「先行・後続が同じ高さのとき」の形（右へ 12 伸ばし、点を横に 3 つ）にする。3 点とも見えて押せるが、「上へ続く」という向きは消える。',
+    shape: 'side', clip: true, hitOutside: false },
+  { key: 'squeeze', title: '案 C: 上向きのまま縮める',
+    what: '向きは上のまま、上へ進む短い線を描ける所まで縮め（ここでは 0）、3 点を Row Area の上端の内側に収める。3 点とも見えて押せる。行が低くなる（縦のズームを小さくする）と収まらない場合が残る。',
+    shape: 'squeeze', clip: true, hitOutside: false }
+];
+
+function pathAndDots(shape) {
+  var cornerX = EXIT.x + LEAD;
+  var pts = [], dots = [];
+  if (shape === 'up' || shape === 'squeeze') {
+    var room = EXIT.y - TOP;                        // space above the exit
+    var need = SHORT + 6 * DOT;                     // line + 3 gaps + 3 dots
+    var shortLen = shape === 'up' ? SHORT : Math.max(0, Math.min(SHORT, room - 6 * DOT - 0.5));
+    var endY = EXIT.y - shortLen;
+    pts = [[EXIT.x, EXIT.y], [cornerX, EXIT.y], [cornerX, endY]];
+    for (var i = 0; i < 3; i++) dots.push([cornerX, endY - DOT - DOT / 2 - i * 2 * DOT]);
+  } else {
+    var endX = EXIT.x + SIDE;
+    pts = [[EXIT.x, EXIT.y], [endX, EXIT.y]];
+    for (var j = 0; j < 3; j++) dots.push([endX + DOT + DOT / 2 + j * 2 * DOT, EXIT.y]);
+  }
+  return { pts: pts, dots: dots };
+}
+
+function build(v, idx) {
+  var NS = 'http://www.w3.org/2000/svg';
+  var H = HEAD + ROWS * ROW_H;
+  var card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = '<h2>' + v.title + '</h2><div class="what">' + v.what + '</div>';
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e); return e;
+  }
+  var clipId = 'rowArea' + idx;
+  var defs = el('defs', {});
+  var cp = el('clipPath', { id: clipId }, defs);
+  el('rect', { x: 0, y: TOP, width: W, height: ROWS * ROW_H }, cp);
+  // time axis
+  el('rect', { x: 0, y: 0, width: W, height: HEAD, fill: '#e8edf3' });
+  for (var d = 0; d < 8; d++) {
+    var t = el('text', { x: 6 + d * 18, y: 13, 'font-size': 7, fill: '#5b6673' });
+    t.textContent = (10 + d) + '';
+  }
+  // rows
+  var names = ['設計', '実装', '試験'];
+  for (var r = 0; r < ROWS; r++) {
+    el('line', { x1: 0, x2: W, y1: TOP + (r + 1) * ROW_H, y2: TOP + (r + 1) * ROW_H, stroke: '#d9dee5', 'stroke-width': 0.5 });
+  }
+  var layer = el('g', { 'clip-path': 'url(#' + clipId + ')' });
+  el('rect', { x: BAR.x, y: BAR.y, width: BAR.w, height: BAR.h, fill: '#9cc3ea', stroke: '#2f6fb0', 'stroke-width': 0.8 }, layer);
+  var nm = el('text', { x: BAR.x + 3, y: BAR.y + 8.5, 'font-size': 7, fill: '#1d2733' }, layer); nm.textContent = names[0];
+  el('rect', { x: 40, y: TOP + ROW_H + 6, width: 40, height: 12, fill: '#9cc3ea', stroke: '#2f6fb0', 'stroke-width': 0.8 }, layer);
+  el('rect', { x: 85, y: TOP + 2 * ROW_H + 6, width: 35, height: 12, fill: '#9cc3ea', stroke: '#2f6fb0', 'stroke-width': 0.8 }, layer);
+
+  var g = pathAndDots(v.shape);
+  var lineGroup = el('g', {}, v.clip ? layer : svg);
+  var poly = el('polyline', { points: g.pts.map(function (p) { return p.join(','); }).join(' '), fill: 'none', stroke: '#3d4652', 'stroke-width': 1 }, lineGroup);
+  var dotEls = g.dots.map(function (p) { return el('circle', { cx: p[0], cy: p[1], r: DOT / 2, fill: '#3d4652' }, lineGroup); });
+
+  // hit areas: one square per dot, 3x dot size, only inside Row Area unless hitOutside
+  var hitLayer = el('g', {});
+  var hits = g.dots.map(function (p) {
+    var s = DOT * 3;
+    var inside = p[1] >= TOP;
+    if (!inside && !v.hitOutside) return null;
+    return el('rect', { x: p[0] - s / 2, y: p[1] - s / 2, width: s, height: s, fill: 'transparent', stroke: 'none', 'stroke-dasharray': '1 1', 'stroke-width': 0.5, 'data-hit': '1', style: 'cursor:pointer' }, hitLayer);
+  }).filter(Boolean);
+
+  var status = document.createElement('div'); status.className = 'status'; status.textContent = '（未選択）';
+  function select(on) {
+    poly.setAttribute('stroke-width', on ? 2.2 : 1);
+    status.innerHTML = on ? '<span class="sel">線を選んだ（「設計」→ 隠した行の「仕様の確認」）</span>' : '（未選択）';
+  }
+  svg.addEventListener('click', function (e) { select(e.target.getAttribute('data-hit') === '1'); });
+  card._hits = hits;
+  card.appendChild(svg); card.appendChild(status);
+  return card;
+}
+
+var grid = document.getElementById('grid');
+var cards = variants.map(build);
+cards.forEach(function (c) { grid.appendChild(c); });
+document.getElementById('showHit').addEventListener('change', function (e) {
+  cards.forEach(function (c) { c._hits.forEach(function (h) { h.setAttribute('stroke', e.target.checked ? '#e0007a' : 'none'); }); });
+});
+</script>
+</body>
+</html>
