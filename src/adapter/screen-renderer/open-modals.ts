@@ -30,7 +30,7 @@ import type {
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
-import { iconHint } from './tooltips'
+import { iconHint, iconLabel } from './tooltips'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -155,15 +155,7 @@ function exportSpanLineOf(
     .replace('{finish}', planDateText(finish, withYear))
 }
 
-const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
-
-/** @purity pure */
-function entryLabel(icon: IconId, language: DisplayLanguage): string {
-  const word = WORDS_BY_ROW.get(icon)?.label[language]
-  if (word === undefined) return NO_WORDS
-  return word === '' ? NO_WORDS : word
-}
 
 // see FN-1
 const FILE_NAME_REPLACED = /[\s\\/:*?"<>|\x00-\x1f\x7f]/g
@@ -245,7 +237,7 @@ function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
   if (entry.kind === 'heading') {
     return HELP_HEADINGS_BY_BLOCK.get(entry.row)?.text[language] ?? NO_WORDS
   }
-  if (entry.table === ICON_TABLE) return withNote(entryLabel(entry.row, language), entry.note, language)
+  if (entry.table === ICON_TABLE) return withNote(iconLabel(entry.row, language), entry.note, language)
   if (entry.table === ASSIGNMENT_TABLE) {
     return MOUSE_PRESS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
   }
@@ -302,7 +294,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
     isPressed: false,
     isArmed: false,
     isChosen: false,
-    label: entryLabel(icon, language),
+    label: iconLabel(icon, language),
   }
 }
 

@@ -64,6 +64,7 @@ import type {
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import dependencyKinds from './dependency-kinds.json'
+import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
@@ -77,8 +78,6 @@ const DAY_TIME_SEPARATOR = 'T'
 
 const PROPERTIES_PANEL = 'Properties Panel'
 
-const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
-
 const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
 
 // see FR-009, T-018
@@ -91,14 +90,6 @@ const SETTINGS_WORDS_BY_KEY = new Map(
 )
 
 const NO_ENTRY_WORDS = ''
-
-// see FR-038
-/** @purity pure */
-function entryLabel(icon: IconId, language: DisplayLanguage): string {
-  const word = ENTRY_WORDS_BY_ROW.get(icon)?.label[language]
-  if (word === undefined) return NO_ENTRY_WORDS
-  return word === '' ? NO_ENTRY_WORDS : word
-}
 
 // see FR-006, FR-038, PR-1
 // WHY: a milestone's name row reads the row's own milestone word, any other row its label.
@@ -136,7 +127,7 @@ const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, 
 
 /** @purity pure */
 function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
-  return { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: entryLabel(icon, language) }
+  return { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: iconLabel(icon, language) }
 }
 
 // see T-109, FR-029
@@ -1086,7 +1077,7 @@ function statusDateField(statusDate: string | null, language: DisplayLanguage): 
   const text = textOfDateColumn(statusDate)
   return {
     row: STATUS_DATE_ENTRY,
-    name: entryLabel(STATUS_DATE_ENTRY, language),
+    name: iconLabel(STATUS_DATE_ENTRY, language),
     text,
     isEditable: true,
     controls: [

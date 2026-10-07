@@ -13,10 +13,11 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type {
-  Path,
-  Point,
-  ScheduleGeometry,
+import {
+  selectedLinksOf,
+  type Path,
+  type Point,
+  type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -31,7 +32,6 @@ import {
   dependencyArrowSvg,
   dependencyLinkParts,
   landingLinkOf,
-  selectedLinksOfMarks,
   taskFigureParts,
 } from './schedule-task-figures'
 
@@ -702,7 +702,7 @@ export function svgFromSchedule(
     marks.filter((one) => one.kind === 'commentBox').map((one) => one.id),
   )
   const selectedStatusLine = marks.some((one) => one.kind === 'statusLine')
-  const selectedLinks = selectedLinksOfMarks(schedule, marks)
+  const selectedLinks: ReadonlySet<string> = drawsOperationState ? selectedLinksOf(schedule, selection) : new Set()
   const landingLink = drawsOperationState ? landingLinkOf(viewer) : null
 
   const area = regions.rowArea

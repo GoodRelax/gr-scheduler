@@ -258,6 +258,14 @@ function boundSides<T>(linkType: number, predecessor: { readonly start: T; reado
   }
 }
 
+// see VC-15, BD-2
+// WHY: a side whose value names no time leaves no pair, so the link compares as days.
+/** @purity pure */
+function boundTimesOf(linkType: number, clocks: LinkClocks | null): readonly [number, number] | null {
+  const times = clocks === null ? null : boundSides(linkType, clocks.predecessor, clocks.successor)
+  return times === null || times[0] === null || times[1] === null ? null : [times[0], times[1]]
+}
+
 /** @purity pure */
 function extremeText(texts: readonly (string | null)[], latest: boolean): string | null {
   let best: string | null = null
@@ -490,8 +498,8 @@ function linkHolds(facts: Facts, dependency: Dependency, predecessor: Ends, succ
   const lagWorkingDays = wholeLagWorkingDays(dependency, facts.minutesPerDay)
   if (days === null || days[0] === null || days[1] === null || lagWorkingDays === null) return null
   const gap = calendarDaysBetween(laggedDay(facts.calendar, days[1], lagWorkingDays), days[0])
-  const times = clocks === null ? null : boundSides(dependency.linkType, clocks.predecessor, clocks.successor)
-  if (gap !== 0 || times === null || times[0] === null || times[1] === null) return gap >= 0
+  const times = boundTimesOf(dependency.linkType, clocks)
+  if (gap !== 0 || times === null) return gap >= 0
   return times[0] >= times[1]
 }
 
@@ -911,8 +919,8 @@ function imposedClocksOf(predecessor: Task, task: Task): LinkClocks {
 // working day is imposed; a document that does not read time, or a value with no time, imposes the day.
 /** @purity pure */
 function imposedDay(facts: Facts, linkType: number, clocks: LinkClocks, day: CalendarDay): CalendarDay {
-  const times = facts.readsTime ? boundSides(linkType, clocks.predecessor, clocks.successor) : null
-  if (times === null || times[0] === null || times[1] === null || times[1] <= times[0]) return day
+  const times = facts.readsTime ? boundTimesOf(linkType, clocks) : null
+  if (times === null || times[1] <= times[0]) return day
   return nextWorkingDay(facts.calendar, day)
 }
 

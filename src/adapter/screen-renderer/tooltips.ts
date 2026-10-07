@@ -89,6 +89,12 @@ export function iconHint(icon: IconId, language: DisplayLanguage): string {
   return held.label[language] === '' ? icon : held.label[language]
 }
 
+// see FR-038
+/** @purity pure */
+export function iconLabel(icon: IconId, language: DisplayLanguage): string {
+  return HINTS_BY_ROW.get(icon)?.label[language] ?? ''
+}
+
 const DAYS_PER_WEEK = 7
 
 const WEEKDAY_OF_SERIAL_ZERO = 4

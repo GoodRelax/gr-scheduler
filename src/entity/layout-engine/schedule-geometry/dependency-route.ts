@@ -211,7 +211,7 @@ function headingOf(points: Path): Point {
 }
 
 /** @purity pure */
-function arrowHeadOf(points: Path, length: number, base: number): Path {
+export function arrowHeadOf(points: Path, length: number, base: number): Path {
   const tip = points[points.length - 1]
   if (tip === undefined) return []
   const along = headingOf(points)

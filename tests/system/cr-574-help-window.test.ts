@@ -959,7 +959,6 @@ async function readLicenceLines(page: Page) {
 }
 
 test.describe('CR-622 -- where the help opens, and the licence line (FR-036, FR-069)', () => {
-  // @provisional PND-745
   test('item 12: opened, the help stands centred in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
