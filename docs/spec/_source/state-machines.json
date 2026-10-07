@@ -303,7 +303,7 @@
       "in": "fieldEditStateMachine.editingField"
      },
      {
-      "in": "createdTaskNamingStateMachine.namingCreatedTask"
+      "in": "createdTaskNamingStateMachine.createdNameEnded"
      }
     ],
     "evidence": [
@@ -798,10 +798,11 @@
      "source": {
       "kind": "input",
       "rows": [
-       "FR-091"
+       "FR-091",
+       "SK-19"
       ],
       "note": {
-       "ja": "作った直後の名前の `Enter`"
+       "ja": "作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない"
       }
      },
      "carries": []
@@ -4142,6 +4143,14 @@
        "U-62",
        "RS-50"
       ]
+     },
+     {
+      "name": "missingTaskNames",
+      "rows": [
+       "U-62",
+       "RS-73",
+       "MG-11"
+      ]
      }
     ],
     "evidence": [
@@ -4162,25 +4171,27 @@
       {
        "guard": [
         {
-         "name": "hasDroppedTasks"
+         "name": "hasTasksToReport"
         }
        ],
        "effect": "raiseFlowSurface",
        "effectArgument": "U-62",
        "evidence": [
         "FR-023",
+        "MG-14",
         "U-62",
         "RS-50",
+        "RS-73",
         "FR-101"
        ],
        "note": {
-        "ja": "`droppedTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ）"
+        "ja": "`droppedTaskNames` と `missingTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ）"
        }
       },
       {
        "guard": [
         {
-         "name": "hasDroppedTasks",
+         "name": "hasTasksToReport",
          "not": true
         }
        ],
@@ -4203,7 +4214,7 @@
        "IC-52"
       ],
       "note": {
-       "ja": "`droppedTaskNames` を空にする"
+       "ja": "`droppedTaskNames` と `missingTaskNames` を空にする"
       }
      },
      "newDocumentLanded": {
@@ -4586,6 +4597,16 @@
        "rows": [
         "RS-50"
        ]
+      },
+      {
+       "name": "missingTaskNames",
+       "rows": [
+        "RS-73",
+        "MG-11"
+       ],
+       "note": {
+        "ja": "合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空"
+       }
       },
       {
        "name": "openedFileName",
@@ -5772,7 +5793,8 @@
        "IF-9",
        "SK-19",
        "IN-4",
-       "IN-6"
+       "IN-6",
+       "FR-091"
       ],
       "note": {
        "ja": "宿主が知らせる: その欄の編集が終わった（確定・取り消し・欄が消えた —— どれでも）"
@@ -5842,6 +5864,23 @@
         "TC-9",
         "FR-001"
        ]
+      },
+      {
+       "key": "createdNameEnded",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "createdTaskUid",
+         "rows": [
+          "TC-9"
+         ]
+        }
+       ],
+       "evidence": [
+        "FR-091",
+        "SK-19"
+       ]
       }
      ],
      "transitions": {
@@ -5872,10 +5911,61 @@
         "note": {
          "ja": "`createdTaskUid` を書き換える"
         }
+       },
+       "createdNameEnded": {
+        "to": "namingCreatedTask",
+        "guard": [
+         {
+          "name": "isCreatedTask"
+         }
+        ],
+        "evidence": [
+         "FR-091",
+         "TC-9"
+        ],
+        "note": {
+         "ja": "`createdTaskUid` を書き換える（次に作ったタスクの名前付けが始まる）"
+        }
+       }
+      },
+      "fieldEditEnded": {
+       "namingCreatedTask": {
+        "to": "createdNameEnded",
+        "guard": [
+         {
+          "name": "isNameField"
+         }
+        ],
+        "evidence": [
+         "FR-091",
+         "IF-9"
+        ],
+        "note": {
+         "ja": "終わった欄が名前の欄（`PR-1`）。確定でも取り消しでも同じ —— 次の `Enter` が名前を確定する押下である"
+        }
+       }
+      },
+      "fieldEditBegan": {
+       "createdNameEnded": {
+        "to": "namingCreatedTask",
+        "evidence": [
+         "FR-091",
+         "IF-9"
+        ],
+        "note": {
+         "ja": "欄の編集がまた始まった —— 名前の編集の終わりは最後の出来事ではなくなる"
+        }
        }
       },
       "choiceMoved": {
        "namingCreatedTask": {
+        "to": "idle",
+        "evidence": [
+         "FR-091",
+         "FR-072"
+        ]
+       },
+       "createdNameEnded": {
         "to": "idle",
         "evidence": [
          "FR-091",

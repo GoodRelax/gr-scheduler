@@ -48,6 +48,7 @@ export type FieldEntryValuesKey =
   | 'fieldEntry'
   | 'createdTaskNamingStateMachine.idle'
   | 'createdTaskNamingStateMachine.namingCreatedTask'
+  | 'createdTaskNamingStateMachine.createdNameEnded'
   | 'fieldEditStateMachine.idle'
   | 'fieldEditStateMachine.fieldFocusWanted'
   | 'fieldEditStateMachine.editingField'
@@ -55,6 +56,7 @@ export type FieldEntryValuesKey =
 export type CreatedTaskNamingState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'namingCreatedTask'; readonly createdTaskUid: FieldEntryValuesStateCarried['createdTaskUid'] }
+  | { readonly kind: 'createdNameEnded'; readonly createdTaskUid: FieldEntryValuesStateCarried['createdTaskUid'] }
 
 export type FieldEditState =
   | { readonly kind: 'idle' }

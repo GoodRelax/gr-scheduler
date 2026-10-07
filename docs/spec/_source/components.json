@@ -641,8 +641,15 @@
    "source": "ScreenRenderer",
    "target": "PostDialogueMessage",
    "arrow": "dependency",
+   "label": "utterance shape",
+   "description": "shapes the input a person confirmed in the dialogue field as the utterance PostDialogueMessage takes"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "PostDialogueMessage",
+   "arrow": "dependency",
    "label": "confirmed utterance",
-   "description": "hands over the utterance a person confirmed in the dialogue field"
+   "description": "posts the utterance a person confirmed in the dialogue field into the dialogue log the shell holds"
   },
   {
    "source": "PostDialogueMessage",

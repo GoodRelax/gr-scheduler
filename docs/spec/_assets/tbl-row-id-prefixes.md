@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1535 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1537 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -99,7 +99,7 @@
 | `EN` | — | 入口を塗って示す状態 | 仕様書 | `T-237` | 7 |
 | `EP` | Export Part | 書き出す絵に描く UI パーツと、描かない UI パーツ | 仕様書 | `T-076` | 23 |
 | `ET` | Entity | エンティティ 1 つ | 仕様書 | `T-056` | 18 |
-| `EX` | Export | 書き出しの規約の条 | 仕様書 | `T-033` | 15 |
+| `EX` | Export | 書き出しの規約の条 | 仕様書 | `T-033` | 16 |
 | `EZ` | Easy | マニュアルを読まずに使えるようにする手立て | 仕様書 | `T-040` | 12 |
 | `FD` | Fade | フェードの形の場合分け | 仕様書 | `T-012a` | 9 |
 | `FN` | File Name | 書き出しの提案する名の整え方の段 | 仕様書 | `T-352` | 5 |
@@ -140,7 +140,7 @@
 | `LR` | Layer Rule | 層と層のあいだの依存の規則 | 仕様書 | `T-061` | 6 |
 | `LY` | Layer | 設計上の層 1 つ | 仕様書 | `T-060` | 5 |
 | `MC` | Measurement Condition | 性能を測る環境の条件 | 仕様書（台帳にも 4 行。写しとして申告済み） | `T-025` | 10 |
-| `MG` | Merge | 取り込んだ文書を合流させるときの規則の条 | 仕様書 | `T-032` | 15 |
+| `MG` | Merge | 取り込んだ文書を合流させるときの規則の条 | 仕様書 | `T-032` | 16 |
 | `MH` | Min Height | 行の最小の高さの欄の規則（表 T-338） | 仕様書 | `T-338` | 6 |
 | `MK` | — | ポインタとキーボードの割当 1 つ | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-023` | 16 |
 | `MM` | — | 合流のときに示す対応付けの選択肢 | 仕様書 | `T-032a` | 4 |
@@ -188,7 +188,7 @@
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |
 | `RP` | — | 依存線の経路の分岐 | 仕様書 | `T-222` | 8 |
 | `RR` | Resource Roster | 担当者の一覧の字の大きさ・スクロール・罫線・閉じる入口 | 仕様書 | `T-257` | 6 |
-| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 65 |
+| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 68 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 6 |
 | `RW` | — | 遅延診断レポートの窓が検索パネルと違う所 | 仕様書 | `T-346` | 10 |

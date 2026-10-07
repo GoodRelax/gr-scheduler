@@ -153,12 +153,13 @@ export type UnsavedEditsState =
 export interface FileFlowValues {
   readonly openedFileName: FileFlowValuesStateCarried['openedFileName']
   readonly droppedTaskNames: FileFlowValuesStateCarried['droppedTaskNames']
+  readonly missingTaskNames: FileFlowValuesStateCarried['missingTaskNames']
   readonly fileOperationState: FileOperationState
   readonly confirmationState: ConfirmationState
   readonly unsavedEditsState: UnsavedEditsState
 }
 
-export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppedTaskNames'>
+export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppedTaskNames' | 'missingTaskNames'>
 
 export type FileFlowValuesEvent =
   | { readonly type: 'documentOpenAsked'; readonly openRoute: FileFlowValuesEventCarried['openRoute'] }
@@ -174,7 +175,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question']; readonly incomingFile: FileFlowValuesEventCarried['incomingFile'] }
   | { readonly type: 'documentOpenFailed' }
   | { readonly type: 'mergeMappingAsked'; readonly mergeCandidates: FileFlowValuesEventCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesEventCarried['unreadColumns'] }
-  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
+  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly missingTaskNames: FileFlowValuesEventCarried['missingTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
   | { readonly type: 'overwriteQuestionRaised'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentFileSaved'; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
   | { readonly type: 'documentFileWriteEnded' }
