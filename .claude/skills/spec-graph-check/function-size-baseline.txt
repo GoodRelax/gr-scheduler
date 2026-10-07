@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# PRUNED mspdi-xml.ts::readStartTag (held 49/27, now below the band) on 2026-10-04 (DFC-1017, EX-15): the attribute reading moved to readAttribute and afterSpace, so the root's namespace declaration can be kept. readXml also fell 105/27 -> 87/26 (end tag moved to readEndTag). Totals left for the coordinator to lower.
 # PRUNED item-grab.ts::highlightBoxRangeWrite (held 82/31, now below the band) on 2026-10-04 (DFC-2030): the row span and the range normalisation moved to highlightRowSpanOf and highlightRangeWrite, which the Selection body drag shares. Totals left for the coordinator to lower.
 # PRUNED edit-project.ts::editProject (held 49/22, now below the band) on 2026-10-04 (CR-651): the CM-2 and CM-87 bodies moved to withProjectProfile and withParentProgressTolerance. Totals left for the coordinator to lower.
 # LOWERED frameLoop 1561 -> 1553, runFrame 145/12 -> 137/11 on 2026-10-03 (DFC-1820): the layout and the geometry calls moved out of runFrame into drawnPictureOf, which hands back the held picture while no input moved. Totals left for the coordinator to lower.
@@ -62,7 +63,6 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 bra
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
-HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
 HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
 HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn lines=47 branches=20

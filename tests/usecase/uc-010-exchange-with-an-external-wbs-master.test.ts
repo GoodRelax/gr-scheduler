@@ -62,7 +62,7 @@ const exportMspdiByUi = async (page: Page): Promise<string> => {
 
 test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-021 T-228, T-053)', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is dropped silently, with no notice of where it failed; step 6 / FR-021 T-228 NR-3: the written file moves every element to the namespace http://schemas.microsoft.com/project/2007 while the input used http://schemas.microsoft.com/project, and a Stop element is added to tasks that had none')
+  specMismatch('UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is dropped silently, with no notice of where it failed')
   await launch(page)
   await enableAgentApi(page)
   const original = readSample(ERP)

@@ -72,8 +72,18 @@ export interface MspdiEncoding {
   readonly notices: readonly MspdiNotice[]
 }
 
-// WHY: the XSD's namespace, not the one in the element reference examples; reading matches local names in any namespace.
+// see EX-15
+// WHY: the XSD's namespace, written for a document not imported; reading matches local names in any namespace.
 export const MSPDI_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
+
+// see EX-15
+// WHY: XML reserves names that begin with xml, so the key never meets a carried leaf of the Project.
+const CARRIED_NAMESPACE = 'xmlns'
+
+// see FR-011, T-019
+// WHY: '#' is in no XML name, so the key never meets a carried leaf; its value is the ActualDuration the
+// stop was counted from, and the stop stays unwritten only while that original is still carried unchanged.
+const STOP_COUNTED_FROM = '#StopCountedFrom'
 
 // WHY: element paths, not names; the table keys by path because one name changes shape with its parent.
 export const PATHS = {
@@ -331,7 +341,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
   }
 
   const run: ImportRun = { notices: [], roundedActualDurationCount: 0 }
-  const schedule = scheduleFromRoot(root, current, run)
+  const schedule = withSourceNamespace(scheduleFromRoot(root, current, run), reading.rootNamespace)
   return {
     ok: true,
     notices: run.notices,
@@ -344,6 +354,15 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
       changeLog: current.changeLog,
     },
   }
+}
+
+// see EX-15
+// WHY: a root that declares no namespace keeps nothing, and is then written with the XSD's namespace.
+/** @purity pure */
+function withSourceNamespace(schedule: Schedule, namespace: string | null): Schedule {
+  if (namespace === null) return schedule
+  const project = schedule.project
+  return { ...schedule, project: { ...project, carry: { ...project.carry, [CARRIED_NAMESPACE]: namespace } } }
 }
 
 export const BYTE_ORDER_MARK = '\uFEFF'
@@ -670,7 +689,8 @@ function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run:
     if (days === null) return task
     try {
       const lastDay = lastDayForLength(within, start, days)
-      return { ...task, stop: textOfFinishSide(lastDay, schedule.project, task.milestone === true) }
+      const stop = textOfFinishSide(lastDay, schedule.project, task.milestone === true)
+      return { ...task, stop, carry: { ...task.carry, [STOP_COUNTED_FROM]: task.carry['ActualDuration'] ?? '' } }
     } catch (why) {
       run.notices.push(notice(`${at}/Stop`,
         `could not be counted: ${why instanceof Error ? why.message : String(why)}`))
@@ -923,7 +943,7 @@ export function mspdiFromDocument(document: Document, lastSaved: string): MspdiE
     text: '',
     children: writtenProjectChildren(schedule, lastSaved, run),
   }
-  return { text: writtenXml(root, MSPDI_NAMESPACE), notices: run.notices }
+  return { text: writtenXml(root, schedule.project.carry[CARRIED_NAMESPACE] ?? MSPDI_NAMESPACE), notices: run.notices }
 }
 
 // see FR-021, DV-12
@@ -988,7 +1008,7 @@ function writtenProjectChildren(schedule: Schedule, lastSaved: string, run: Expo
   return writtenChildren(
     PATHS.project,
     named,
-    definitions.carry,
+    withoutLeaves(definitions.carry, [CARRIED_NAMESPACE]),
     // TRAP: collection rows are written inside their collection; writing them here too duplicates them.
     definitions.carried.filter((one) => !isCarriedRow(one)),
   )
@@ -1179,15 +1199,14 @@ function writtenTask(
     ...optionalLeaf('Deadline', task.deadline),
     ...optionalLeaf('Notes', task.notes),
     ...writtenActualDuration(task, schedule, minutesPerDay, run),
-    // TRAP: a document read before AT-141 may still carry Stop; writing both puts two Stop elements in one Task.
-    ...(task.carry['Stop'] === undefined ? optionalLeaf('Stop', task.stop) : []),
+    ...writtenStop(task),
     ...task.dependencies.map(writtenDependency),
     ...writtenFadeValues(task, frames),
     ...writtenConstraintOfGrs(task, schedule, run),
   ]
   const carry = schedule.project.sourceFormat === 'grs'
-    ? withoutLeaves(task.carry, CONSTRAINT_LEAVES)
-    : task.carry
+    ? withoutLeaves(task.carry, [...CONSTRAINT_LEAVES, STOP_COUNTED_FROM])
+    : withoutLeaves(task.carry, [STOP_COUNTED_FROM])
   return {
     name: 'Task',
     text: '',
@@ -1233,6 +1252,16 @@ function withoutLeaves(
   names: readonly string[],
 ): Readonly<Record<string, string>> {
   return Object.fromEntries(Object.entries(leaves).filter(([name]) => !names.includes(name)))
+}
+
+// see FR-011, AT-141
+// TRAP: a document read before AT-141 may still carry Stop; writing both puts two Stop elements in one Task.
+/** @purity pure */
+function writtenStop(task: Task): PlacedChild[] {
+  if (task.carry['Stop'] !== undefined) return []
+  const countedFrom = task.carry[STOP_COUNTED_FROM]
+  if (countedFrom !== undefined && countedFrom === task.carry['ActualDuration']) return []
+  return optionalLeaf('Stop', task.stop)
 }
 
 // see DV-11, T-019
