@@ -592,7 +592,7 @@ export function statusLineWrites(context: InputContext): readonly DocumentComman
 // see FR-046, OP-10
 // WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom is written with the place so it stays.
 /** @purity pure */
-function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] {
+export function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] {
   const day = dayOf(date)
   if (day === null) return []
   const settings = context.document.documentSettings

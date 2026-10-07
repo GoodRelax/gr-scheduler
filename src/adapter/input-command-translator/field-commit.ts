@@ -17,6 +17,11 @@ import {
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
+import {
+  DISPLAY_SCALE_STEPS,
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import type { FieldCommit } from '../screen-renderer/screen-renderer'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
@@ -26,6 +31,7 @@ import {
   type InputContext,
   type PlacedPlanActual,
 } from './input-command-translator'
+import { statusLineCentred } from './zoom-and-fit'
 
 /** @purity pure */
 function settledText(text: string): string | null {
@@ -383,14 +389,38 @@ function commandFromParentProgressTolerance(text: string): readonly DocumentComm
   return [{ kind: 'setParentProgressTolerance', workingDays }]
 }
 
-// see FR-035, CM-1, FR-041, FR-131
+// see FR-046, CM-3, CM-4, WT-4
 /** @purity pure */
-function commandFromProjectColumn(column: string, text: string): readonly DocumentCommand[] {
+function commandsFromStatusDate(text: string, context: InputContext): readonly DocumentCommand[] {
+  const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project, false))
+  if (date === undefined) return []
+  if (date === null) return [{ kind: 'clearStatusDate' }]
+  return [{ kind: 'setStatusDate', date }, ...statusLineCentred(context, date)]
+}
+
+// see FR-035, CM-1, FR-041, FR-131, FR-046
+/** @purity pure */
+function commandFromProjectColumn(column: string, text: string, context: InputContext): readonly DocumentCommand[] {
   if (column === 'themeHue') return commandFromThemeHue(text)
   if (column === 'parentProgressToleranceDays') return commandFromParentProgressTolerance(text)
+  if (column === 'statusDate') return commandsFromStatusDate(text, context)
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
 }
+
+// see FR-039, CM-74, CM-62, S-234, S-70
+/** @purity pure */
+function commandFromDocumentSettingsColumn(column: string, text: string): readonly DocumentCommand[] {
+  if (column === 'displayScale') {
+    const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
+    return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
+  }
+  if (column !== 'fontScale') return []
+  const scale = FONT_SCALE_STEPS.find((step) => step === text)
+  return scale === undefined ? [] : [{ kind: 'setFontScale', scale }]
+}
+
+const FONT_SCALE_STEPS = Object.keys(SETTINGS_CONSTANTS.fontScaleSizes) as readonly DocumentSettings['fontScale'][]
 
 const UNASSIGN_TOKEN = '-'
 
@@ -459,6 +489,15 @@ function commandsFromAssigneeField(
   ]
 }
 
+// see T-016, PR-3
+/** @purity pure */
+function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Task, text: string): readonly DocumentCommand[] {
+  const task = taskByUid(schedule, uid)
+  if (task === null) return []
+  const milestoneDay = task.milestone === true ? commandFromMilestoneDay(task, column, text, schedule.project) : null
+  return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text)
+}
+
 // see PI-18, T-016
 /** @purity pure */
 export function commandFromFieldCommit(
@@ -473,13 +512,8 @@ export function commandFromFieldCommit(
   const key = commit.key
 
   switch (key.holder) {
-    case 'task': {
-      const task = taskByUid(schedule, key.uid)
-      if (task === null) return []
-      const milestoneDay =
-        task.milestone === true ? commandFromMilestoneDay(task, key.column, commit.text, schedule.project) : null
-      return milestoneDay ?? commandFromTaskColumn(schedule, task, key.column, commit.text)
-    }
+    case 'task':
+      return commandFromTaskField(schedule, key.uid, key.column, commit.text)
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
         ? []
@@ -503,7 +537,9 @@ export function commandFromFieldCommit(
       )
     }
     case 'project':
-      return commandFromProjectColumn(key.column, commit.text)
+      return commandFromProjectColumn(key.column, commit.text, context)
+    case 'documentSettings':
+      return commandFromDocumentSettingsColumn(key.column, commit.text)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []

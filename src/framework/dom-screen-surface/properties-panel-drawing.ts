@@ -8,6 +8,7 @@ import type {
   PropertyControl,
   PropertyControlKind,
   PropertyField,
+  ScreenPart,
 } from '../../adapter/screen-renderer/screen-renderer'
 import {
   HOST_ENTER,
@@ -142,6 +143,7 @@ const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
   boolean: 'input',
   choice: 'select',
   color: 'select',
+  link: 'span',
 }
 
 const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> = {
@@ -152,6 +154,7 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   boolean: 'checkbox',
   choice: null,
   color: null,
+  link: null,
 }
 
 // TRAP: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
@@ -165,6 +168,7 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
   boolean: false,
   choice: false,
   color: false,
+  link: false,
 }
 
 // see FR-006
@@ -176,6 +180,7 @@ const IS_KIND_WRAPPING: Readonly<Record<PropertyControlKind, boolean>> = {
   boolean: false,
   choice: false,
   color: false,
+  link: false,
 }
 
 const WRAPPING_FIELD_ATTRIBUTE = 'data-field-wraps'
@@ -870,6 +875,53 @@ function assigneeComboElements(
   return [box, list]
 }
 
+const LINK_TASK_ATTRIBUTE = 'data-link-task-uid'
+
+const UNLINKED_VALUE = ''
+
+const UNLINK_GLYPH = '\u00d7'
+
+/** @purity pure */
+function propertyLinkStyle(): string {
+  return (
+    'flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
+    `cursor:pointer;color:${PAINT.link};text-decoration:underline;`
+  )
+}
+
+/** @purity pure */
+function propertyUnlinkStyle(): string {
+  return `font:inherit;flex:none;cursor:pointer;background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
+}
+
+// see WL-15, WL-16, WL-17, CM-18, SQ-1, S-503, FR-006
+/** @purity non-pure */
+function linkFieldElements(host: Document, row: string, control: PropertyControl, link: NonNullable<PropertyControl['link']>): readonly HTMLElement[] {
+  const name = made(host, 'span', propertyLinkStyle())
+  name.textContent = control.text
+  name.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  name.setAttribute('data-field-kind', control.kind)
+  name.setAttribute(LINK_TASK_ATTRIBUTE, String(link.taskUid))
+  if (!link.canUnlink) return [name]
+  const unlink = made(host, 'button', propertyUnlinkStyle())
+  unlink.setAttribute('type', 'button')
+  ;(unlink as HTMLButtonElement).value = UNLINKED_VALUE
+  unlink.textContent = UNLINK_GLYPH
+  unlink.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  CONTROL_KEYS.set(unlink, { row, key: control.key })
+  commitOnPress(unlink)
+  return [name, unlink]
+}
+
+// see WL-16, SJ-1, T-332
+/** @purity semi-pure-b */
+export function withPropertyLinkJump(answer: ScreenPart | null, first: Element | null): ScreenPart | null {
+  if (answer === null || first === null || typeof first.getAttribute !== 'function') return answer
+  const uid = first.getAttribute(LINK_TASK_ATTRIBUTE)
+  if (uid === null || answer.searchJumpTarget != null) return answer
+  return { ...answer, searchJumpTarget: { kind: 'task', taskUid: Number(uid) } }
+}
+
 const READOUT_ATTRIBUTE = 'data-field-readout'
 
 const READOUT_MEMBER: keyof PropertyField = 'readout'
@@ -915,6 +967,23 @@ export function rewritePanelReadouts(panel: HTMLElement, description: Properties
   }
 }
 
+// see T-016, FR-006, CV-9, AS-5, WL-15
+/** @purity non-pure */
+function controlElementsOf(
+  host: Document,
+  field: PropertyField,
+  control: PropertyControl,
+  typedByRow: Map<string, TextEntryControl> | null,
+): readonly HTMLElement[] {
+  if (control.colour !== undefined) return colourFieldElements(host, field.row, control, typedByRow)
+  if (control.swatches !== undefined) return swatchFieldElements(host, field, control, typedByRow)
+  if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
+  if (control.link !== undefined) return linkFieldElements(host, field.row, control, control.link)
+  const drawn = controlElement(host, field.row, control, typedByRow)
+  if (control.placeholder !== undefined) drawn.setAttribute('placeholder', control.placeholder)
+  return [drawn]
+}
+
 // see T-016, T-058, T-104
 /** @purity non-pure */
 export function fieldElement(
@@ -946,23 +1015,7 @@ export function fieldElement(
     shown.textContent = field.text
     controls.append(shown)
   }
-  for (const control of field.controls) {
-    if (control.colour !== undefined) {
-      controls.append(...colourFieldElements(host, field.row, control, typedByRow))
-      continue
-    }
-    if (control.swatches !== undefined) {
-      controls.append(...swatchFieldElements(host, field, control, typedByRow))
-      continue
-    }
-    if (control.assignee !== undefined) {
-      controls.append(...assigneeComboElements(host, field.row, control, control.assignee, typedByRow))
-      continue
-    }
-    const drawn = controlElement(host, field.row, control, typedByRow)
-    if (control.placeholder !== undefined) drawn.setAttribute('placeholder', control.placeholder)
-    controls.append(drawn)
-  }
+  for (const control of field.controls) controls.append(...controlElementsOf(host, field, control, typedByRow))
   if (field.readout !== undefined) controls.append(readoutElement(host, field, field.readout))
   line.append(name, controls)
   return line
