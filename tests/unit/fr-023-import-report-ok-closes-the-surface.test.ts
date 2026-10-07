@@ -251,7 +251,7 @@ const stateOn = (surface: string | null): ScreenSession => rootOn(surface)
 
 /** U-62 as UF-66 describes it, with the case failed where S-99g holds nothing. */
 function describedOn(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromSession(rootOn(U_62, language), SCHEDULE, readingsOf())
+  const modal = openModalFromSession(rootOn(U_62, language), SCHEDULE, readingsOf(), SETTINGS)
   expect(modal, `S-99g holds ${U_62}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }

@@ -698,7 +698,7 @@ const rootOn = (surface: string, language: DisplayLanguage): ScreenSession => ({
 })
 
 function unlockSurface(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromSession(rootOn(U_60, language), EMPTY_SCHEDULE, READINGS)
+  const modal = openModalFromSession(rootOn(U_60, language), EMPTY_SCHEDULE, READINGS, SETTINGS)
   if (modal === null) throw new Error(`S-99g holds ${U_60}, so a surface is described`)
   return modal
 }

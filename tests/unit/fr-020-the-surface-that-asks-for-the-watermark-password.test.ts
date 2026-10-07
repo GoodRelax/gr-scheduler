@@ -44,6 +44,10 @@ import {
   type ScreenSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
+import {
+  SETTINGS_DEFAULTS,
+  type DocumentSettings,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import type { AppHeaderItems, ScreenFrame, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   domScreenSurface,
@@ -156,7 +160,12 @@ const rootOn = (language: DisplayLanguage, surface: string | null): ScreenSessio
 
 /** The surface as UF-66 describes it, with the case failed where none is. */
 function describedOn(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromSession(rootOn(language, U_60), EMPTY_DOCUMENT, readingsOf())
+  const modal = openModalFromSession(
+    rootOn(language, U_60),
+    EMPTY_DOCUMENT,
+    readingsOf(),
+    SETTINGS_DEFAULTS as unknown as DocumentSettings,
+  )
   expect(modal, `S-99g holds ${U_60}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }

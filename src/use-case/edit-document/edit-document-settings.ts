@@ -9,7 +9,12 @@ import {
   SETTINGS_DERIVED,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import { dayOf } from '../../entity/document-model/schedule/schedule'
+import {
+  compareDays,
+  dayOf,
+  textOfDayEnd,
+  textOfDayStart,
+} from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
@@ -53,6 +58,13 @@ export type DocumentSettingsCommand =
       readonly kind: 'setLevelZeroTreeState'
       readonly levelZeroTreeState: DocumentSettings['levelZeroTreeState']
     }
+  // see CM-88, CM-89, IX-17
+  | {
+      readonly kind: 'setExportSpan'
+      readonly exportSpanStart: string | null
+      readonly exportSpanFinish: string | null
+    }
+  | { readonly kind: 'clearExportSpan' }
 
 // WHY: a Record over the type, so a value added to S-418 fails to compile here.
 const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
@@ -103,6 +115,64 @@ function levelZeroTreeStateEdited(
   return put({ levelZeroTreeState: command.levelZeroTreeState })
 }
 
+// see CM-62, FR-039, S-70
+/** @purity pure */
+function fontScaleEdited(
+  settings: DocumentSettings,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setFontScale' }>,
+  put: SettingsPut,
+): EditResult {
+  const ruler = SETTINGS_DERIVED.rulerFont
+  const rulerFont = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
+  const band = SETTINGS_DERIVED.rulerHeight
+  const padded = { ...settings, rulerFont }
+  return put({
+    fontScale: command.scale,
+    rulerFont,
+    rulerHeight:
+      padded[band.from] * band.times +
+      band.plus +
+      SETTINGS_CONSTANTS[band.plusFrom] * band.plusTimes,
+  })
+}
+
+// see CM-68, FR-098
+/** @purity pure */
+function pinEdited(
+  settings: DocumentSettings,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'pinTaskGroup' }>,
+  put: SettingsPut,
+): EditResult {
+  const held = settings.pinnedGroupIds
+  if (held.includes(command.groupId)) return put({ pinnedGroupIds: held })
+  if (held.length >= SETTINGS_CONSTANTS.pinnedRowMax) {
+    return refused([
+      reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedRowMax} pinned rows`),
+    ])
+  }
+  return put({ pinnedGroupIds: [...held, command.groupId] })
+}
+
+// see CM-88, IX-17, RS-58, WT-6, WT-7
+/** @purity pure */
+function exportSpanEdited(
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setExportSpan' }>,
+  put: SettingsPut,
+): EditResult {
+  const startText = command.exportSpanStart ?? command.exportSpanFinish
+  const finishText = command.exportSpanFinish ?? command.exportSpanStart
+  const start = dayOf(startText)
+  const finish = dayOf(finishText)
+  if (start === null || finish === null) {
+    return refused([reject('CM-88', 'S-518', `not a pair of dates: ${startText} / ${finishText}`)])
+  }
+  // TRAP: refused, never pulled to the start; only a document read is settled that way (IX-17).
+  if (compareDays(finish, start) < 0) {
+    return refused([reject('CM-88', 'IX-17', 'the export span finishes before it starts')])
+  }
+  return put({ exportSpanStart: textOfDayStart(start), exportSpanFinish: textOfDayEnd(finish) })
+}
+
 // see T-108, FR-063
 /** @purity pure */
 export function editDocumentSettings(
@@ -126,20 +196,8 @@ export function editDocumentSettings(
     case 'setElementVisible':
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
 
-    case 'setFontScale': {
-      const ruler = SETTINGS_DERIVED.rulerFont
-      const rulerFont = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
-      const band = SETTINGS_DERIVED.rulerHeight
-      const padded = { ...settings, rulerFont }
-      return put({
-        fontScale: command.scale,
-        rulerFont,
-        rulerHeight:
-          padded[band.from] * band.times +
-          band.plus +
-          SETTINGS_CONSTANTS[band.plusFrom] * band.plusTimes,
-      })
-    }
+    case 'setFontScale':
+      return fontScaleEdited(settings, command, put)
 
     // see CM-74, FR-039
     case 'setDisplayScale':
@@ -171,16 +229,8 @@ export function editDocumentSettings(
     case 'setRowTitlePanelWidth':
       return rowTitlePanelWidthEdited(settings, command, limits, put)
 
-    case 'pinTaskGroup': {
-      const held = settings.pinnedGroupIds
-      if (held.includes(command.groupId)) return edited(document)
-      if (held.length >= SETTINGS_CONSTANTS.pinnedRowMax) {
-        return refused([
-          reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedRowMax} pinned rows`),
-        ])
-      }
-      return put({ pinnedGroupIds: [...held, command.groupId] })
-    }
+    case 'pinTaskGroup':
+      return pinEdited(settings, command, put)
 
     case 'unpinTaskGroup': {
       const held = settings.pinnedGroupIds
@@ -205,6 +255,12 @@ export function editDocumentSettings(
 
     case 'setLevelZeroTreeState':
       return levelZeroTreeStateEdited(command, put)
+
+    case 'setExportSpan':
+      return exportSpanEdited(command, put)
+
+    case 'clearExportSpan':
+      return put({ exportSpanStart: null, exportSpanFinish: null })
   }
 }
 

@@ -510,7 +510,7 @@ export function modalElement(
     if (helpColumns !== null) body.push(helpColumns.body)
   }
 
-  if ('formats' in modal) body.push(exportFormatChoicesElement(host, modal))
+  if ('formats' in modal) body.push(...exportChooserBodyElements(host, modal))
 
   if ('resources' in modal) {
     const scroller = rosterGridElement(host, modal.resources)
@@ -698,6 +698,16 @@ function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLE
     choices.append(choice)
   }
   return choices
+}
+
+// see FR-096, IX-12
+/** @purity non-pure */
+function exportChooserBodyElements(host: Document, modal: ExportChooser): readonly HTMLElement[] {
+  const choices = exportFormatChoicesElement(host, modal)
+  if (modal.exportSpanLine === null) return [choices]
+  const line = made(host, 'div', STYLE.field)
+  line.textContent = modal.exportSpanLine
+  return [choices, line]
 }
 
 // see OP-16, AM-8, HS-3

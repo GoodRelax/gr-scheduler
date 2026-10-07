@@ -5,6 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
@@ -21,6 +22,8 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
+  calendarDaysBetween,
+  dayOf,
   diagnoseDelay,
   scheduleViolations,
   textOfDay,
@@ -49,6 +52,7 @@ import {
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  drawnSettingsOf,
   regionAtPointer,
   regionsFromScreen,
   type ScreenEnvironment,
@@ -817,6 +821,7 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   { reason: 'RS-57', command: null, rule: 'IV-1' },
   { reason: 'RS-58', command: 'CM-6', rule: 'FR-012' },
   { reason: 'RS-58', command: 'CM-11', rule: 'FR-012' },
+  { reason: 'RS-58', command: 'CM-88', rule: 'IX-17' },
 ]
 
 // see T-233
@@ -1263,6 +1268,79 @@ function subjectOfChoice(selection: Selection, groupIds: readonly string[]): Pro
 }
 
 type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
+
+// see FR-025, IX-12, T-068
+interface ExportView {
+  readonly regions: ScreenRegions
+  readonly settings: DocumentSettings
+  readonly layout: ScheduleLayout
+  // see IX-16
+  readonly dualCursor: ScreenSession['screen']['dualCursor']
+}
+
+// see FR-080, IX-4, T-068
+/** @purity pure */
+function screenExportViewOf(
+  document: Document,
+  environment: FrameEnvironment,
+  heldSettingsAt: (regions: ScreenRegions) => DocumentSettings,
+  shownTaskUids: ReadonlySet<number> | null,
+  dualCursor: ScreenSession['screen']['dualCursor'],
+): ExportView {
+  const regions = regionsFromScreen(environmentForRegionsOf(environment, 0, false), document.documentSettings)
+  const settings = heldSettingsAt(regions)
+  const layout = layoutFromSchedule(
+    document.schedule,
+    settings,
+    regions,
+    undefined,
+    environment.rowControlsHeightPx,
+    shownTaskUids,
+  )
+  return { regions, settings, layout, dualCursor }
+}
+
+// see IX-13, IX-14, IX-15, IX-17
+// WHY: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
+// laid against the S-217 height so no pinned row is cut, then the canvas is closed under the last row.
+/** @purity pure */
+function spanExportViewOf(
+  document: Document,
+  environment: FrameEnvironment,
+  shownTaskUids: ReadonlySet<number> | null,
+): ExportView | null {
+  const stored = document.documentSettings
+  const start = dayOf(stored.exportSpanStart)
+  const finish = dayOf(stored.exportSpanFinish)
+  const days = start === null || finish === null ? 0 : calendarDaysBetween(start, finish) + 1
+  if (days < 1) return null
+  const regionsAt = (height: number): ScreenRegions =>
+    regionsFromScreen(
+      environmentForRegionsOf({ ...environment, width: SETTINGS_CONSTANTS.exportCanvas.width, height }, 0, false),
+      stored,
+    )
+  const reach = regionsAt(SETTINGS_CONSTANTS.exportCanvasHeightCap)
+  const settings: DocumentSettings = {
+    ...stored,
+    zoomX: reach.rowArea.width / days / drawnSettingsOf(stored).pxPerDayAt1x,
+    zoomY: 1,
+    scrollDate: stored.exportSpanStart,
+    scrollDayOffset: 0,
+    scrollGroupId: null,
+    scrollGroupOffset: 0,
+  }
+  const layout = layoutFromSchedule(
+    document.schedule,
+    settings,
+    reach,
+    undefined,
+    environment.rowControlsHeightPx,
+    shownTaskUids,
+  )
+  const lastRowBottom = layout.rows.reduce((bottom, row) => Math.max(bottom, row.y + row.height), reach.rowArea.y)
+  const belowRowArea = reach.scheduleCanvas.y + reach.scheduleCanvas.height - (reach.rowArea.y + reach.rowArea.height)
+  return { regions: regionsAt(lastRowBottom + belowRowArea), settings, layout, dualCursor: null }
+}
 
 // see HF-15, SF-5
 type GrabbedRowPlace = Omit<NonNullable<ScreenViewReadingsTaken['rowGrabbedAt']>, 'axis'>
@@ -2646,25 +2724,24 @@ export function frameLoop(
     raiseNotice(reason, null)
   }
 
-  // see FR-080, EP-11, EP-12, ST-7
+  // see FR-025, IX-12
+  /** @purity non-pure */
+  function exportViewNow(document: Document): ExportView {
+    const framed = spanExportViewOf(document, environment, shownTasks.drawnSet())
+    // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
+    // is not showing.
+    const heldSettingsAt = (regions: ScreenRegions): DocumentSettings =>
+      viewSettingsOnce(document, document.documentSettings, regions).settings
+    return framed ?? screenExportViewOf(document, environment, heldSettingsAt, shownTasks.drawnSet(), session.screen.dualCursor)
+  }
+
+  // see FR-080, IX-12, EP-11, EP-12, ST-7
   // WHY: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
   /** @purity semi-pure-b */
   function exportScene(): ExportSceneWithCapStop | null {
     if (!isSizeSettled(environment)) return null
     const document = held.document
-    const stored = document.documentSettings
-    const regions = regionsFromScreen(environmentForRegionsOf(environment, 0, false), stored)
-    // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
-    // is not showing.
-    const settings = viewSettingsOnce(document, stored, regions).settings
-    const layout = layoutFromSchedule(
-      document.schedule,
-      settings,
-      regions,
-      undefined,
-      environment.rowControlsHeightPx,
-      shownTasks.drawnSet(),
-    )
+    const { regions, settings, layout, dualCursor } = exportViewNow(document)
     const nothingSelected = emptySelection()
     const geometry = geometryFromLayout(
       document.schedule,
@@ -2672,7 +2749,7 @@ export function frameLoop(
       layout,
       regions,
       nothingSelected,
-      session.screen.dualCursor,
+      dualCursor,
     )
     return {
       svg: svgFromSchedule(
