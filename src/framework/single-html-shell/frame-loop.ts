@@ -2350,8 +2350,8 @@ export function frameLoop(
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const shownTasks = shownTasksHoldOf(hands, windows)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
-  const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } =
-    heldViewPlaceOf(hands, startedFromTemplate)
+  const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
+  const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } = heldViewPlace
   const {
     beginPointerRest, beginHintTargetDwell, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat,
     readPointerRestedMs, readHintTargetDwellMs,
@@ -2360,7 +2360,7 @@ export function frameLoop(
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
   const { wantFieldFocused, focusWantedField, resetFieldFocusRetries } = fieldFocusRetries
-  const documentFileFlow = documentFileFlowOf(hands)
+  const documentFileFlow = documentFileFlowOf(hands, heldViewPlace)
   const {
     beginReadingDocumentFile,
     beginWritingDocumentFile,

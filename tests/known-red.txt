@@ -18,7 +18,7 @@ DFC-1014 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 st
 DFC-1015 | tests/usecase/uc-008-tell-by-annotations.test.ts | UC-008 | - | - | UC-008 extension 4a / FR-019: hiding the bottom row of a highlight box grows its frame
 DFC-1016 | tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 extension 2a / FR-023 OP-5: a truncated MSPDI file is dropped with no notice
 DFC-1017 | tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 step 6 / FR-021 T-228 NR-3: the namespace is rewritten and a Stop is added
-DFC-1018 | tests/usecase/uc-011-save-and-hand-out-the-document.test.ts | UC-011 | - | - | UC-011 step 2 / FR-024 OP-10: the template is drawn unfitted, its saved JSON fitted
+DFC-2201 | tests/usecase/uc-011-save-and-hand-out-the-document.test.ts | UC-011 | - | - | UC-011 step 1b: New -> Yes opens the template where FR-095 says an empty document (the old DFC-1018 cause was fixed by CR-694)
 DFC-1019 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 2 / FR-066 AG-11: a sent Dialogue Field line is not returned by readDialogueMessages
 DFC-1020 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 4 / FR-066 DR-4: no change reason reaches changeLog
 DFC-1021 | tests/usecase/uc-014-merge-schedules-into-one.test.ts | UC-014 | - | - | UC-014 step 5 / FR-022: no notice tells what a merge overwrote, kept or dropped

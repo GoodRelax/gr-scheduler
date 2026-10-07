@@ -22,7 +22,7 @@ const normalisedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').repla
 
 test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095)', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-011 step 2 / FR-024, OP-10: the starting template is drawn unfitted with a null view position, and reopening its saved JSON fits it, so the same JSON draws a different picture')
+  specMismatch('UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-095 replaces the document with the empty document of table T-342')
 
   await test.step('UC-011 extension 1a: with nothing of one\'s own yet, one starting template is shown (FR-027, BT-4)', async () => {
     await launch(page)
@@ -45,7 +45,12 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     await openByDrop(page, saved.name, saved.text)
     const documentAfter = await readDocument(page)
     expect(documentAfter.schedule).toEqual(documentBefore.schedule)
-    expect(documentAfter.documentSettings).toEqual(documentBefore.documentSettings)
+    // WHY: OP-10 puts the drawn place on the saved copy of the startup template; the open one keeps null.
+    const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollGroupId: null, scrollDayOffset: 0, scrollGroupOffset: 0 })
+    expect(documentBefore.documentSettings.scrollDate).toBeNull()
+    expect(documentAfter.documentSettings.scrollDate).not.toBeNull()
+    expect(documentAfter.documentSettings.scrollGroupId).not.toBeNull()
+    expect(placeless(documentAfter.documentSettings)).toEqual(placeless(documentBefore.documentSettings))
     expect.soft(normalisedSvg(await exportSvg(page)) === pictureBefore).toBe(true)
     await press(page, 'IC-13')
     const viewSet = normalisedSvg(await exportSvg(page))

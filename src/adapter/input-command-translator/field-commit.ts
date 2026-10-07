@@ -408,9 +408,29 @@ function commandFromProjectColumn(column: string, text: string, context: InputCo
   return [{ kind: 'setProjectTitle', title: text }]
 }
 
+// see IX-17, CM-88, CM-89, FR-046
+// WHY: an emptied entrance clears the span (DFC-2200); copying the other end back would leave CM-89 unreachable.
+/** @purity pure */
+function commandsFromExportSpan(
+  column: 'exportSpanStart' | 'exportSpanFinish',
+  text: string,
+  settings: DocumentSettings,
+): readonly DocumentCommand[] {
+  const typed = settledText(text)
+  if (typed === null) return [{ kind: 'clearExportSpan' }]
+  if (dayOf(typed) === null) return []
+  const span = { exportSpanStart: settings.exportSpanStart, exportSpanFinish: settings.exportSpanFinish }
+  return [{ kind: 'setExportSpan', ...span, [column]: typed }]
+}
+
 // see FR-039, CM-74, CM-62, S-234, S-70
 /** @purity pure */
-function commandFromDocumentSettingsColumn(column: string, text: string): readonly DocumentCommand[] {
+function commandFromDocumentSettingsColumn(
+  column: string,
+  text: string,
+  settings: DocumentSettings,
+): readonly DocumentCommand[] {
+  if (column === 'exportSpanStart' || column === 'exportSpanFinish') return commandsFromExportSpan(column, text, settings)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
@@ -539,7 +559,7 @@ export function commandFromFieldCommit(
     case 'project':
       return commandFromProjectColumn(key.column, commit.text, context)
     case 'documentSettings':
-      return commandFromDocumentSettingsColumn(key.column, commit.text)
+      return commandFromDocumentSettingsColumn(key.column, commit.text, context.document.documentSettings)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []

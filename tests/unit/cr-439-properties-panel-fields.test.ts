@@ -91,6 +91,7 @@ const FIELDS: PropertyField[] = [
         customValue: '',
         light: { word: 'Light', paint: '#a94c42', note: '' },
         dark: { word: 'Dark', paint: '#d08880', note: '' },
+        transparentName: 'transparent',
       },
     },
   ]),

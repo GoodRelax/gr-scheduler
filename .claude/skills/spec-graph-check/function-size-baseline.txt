@@ -114,7 +114,6 @@ HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyO
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=219 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
-HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentReplacement lines=80 branches=13
 HELD src/use-case/edit-document/edit-annotation.ts::editAnnotation lines=154 branches=39

@@ -347,8 +347,6 @@ function checkerColour(row: 'S-336' | 'S-337'): string {
 }
 
 // see T-294, CV-9
-// DEVIATION: spec says the colour field reads TRANSPARENT of T-064 PI-1; DomScreenSurface has no edge to Schedule (components.json), so the spelling is written here (DFC-1067)
-const TRANSPARENT_NAME = 'transparent'
 const UNSET_COLOUR_VALUE = ''
 // TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.
 const TRANSPARENT_PAINT = 'none'
@@ -436,7 +434,8 @@ function sideValueText(control: PropertyControl, side: ColourSide): string {
   if (side.mark !== undefined) return side.mark
   if (isSideUndefined(control, side)) return ''
   if (paletteNamesOf(control).includes(control.text)) return wordOfName(control, control.text)
-  if (side.paint === TRANSPARENT_PAINT) return wordOfName(control, TRANSPARENT_NAME)
+  const transparentName = control.colour?.transparentName
+  if (side.paint === TRANSPARENT_PAINT && transparentName !== undefined) return wordOfName(control, transparentName)
   return (side.value ?? side.paint).toUpperCase()
 }
 
@@ -551,8 +550,8 @@ function paletteOrderOf(control: PropertyControl, colour: ColourField): readonly
 
 /** @purity pure */
 function transparentOf(control: PropertyControl, colour: ColourField): ColourName {
-  const listed = paletteOrderOf(control, colour).find((one) => one.name === TRANSPARENT_NAME)
-  return listed ?? { name: TRANSPARENT_NAME, isOffered: false }
+  const listed = paletteOrderOf(control, colour).find((one) => one.name === colour.transparentName)
+  return listed ?? { name: colour.transparentName, isOffered: false }
 }
 
 // see CV-9
@@ -646,12 +645,12 @@ function transparentEntryElement(host: Document, row: string, control: PropertyC
   }
   const entry = made(host, 'button', style)
   entry.setAttribute('type', 'button')
-  entry.setAttribute('value', TRANSPARENT_NAME)
-  ;(entry as HTMLButtonElement).value = TRANSPARENT_NAME
-  entry.setAttribute(COLOUR_CHOICE_ATTRIBUTE, TRANSPARENT_NAME)
+  entry.setAttribute('value', colour.transparentName)
+  ;(entry as HTMLButtonElement).value = colour.transparentName
+  entry.setAttribute(COLOUR_CHOICE_ATTRIBUTE, colour.transparentName)
   entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
   entry.setAttribute('aria-label', word)
-  if (control.text === TRANSPARENT_NAME) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
+  if (control.text === colour.transparentName) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
   entry.append(
     made(host, 'span', swatchBox(sideSwatchSide()) + swatchPaint(TRANSPARENT_PAINT, sideSwatchSide()) + SET_SWATCH_BORDER),
     wordSpan(host, `${VALUE_GAP}${word}`),
@@ -685,7 +684,7 @@ function colourFieldElements(
   const colour = control.colour
   if (colour === undefined) return []
   const grid = made(host, 'div', colourGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-338']))
-  const named = paletteOrderOf(control, colour).filter((one) => one.name !== TRANSPARENT_NAME)
+  const named = paletteOrderOf(control, colour).filter((one) => one.name !== colour.transparentName)
   const slots = named.map((one) => colourSlotElement(host, row, control, one))
   grid.append(...slots)
   const slot = made(host, 'span', '')
