@@ -210,6 +210,7 @@ import {
   answerSettledFormat,
   askToOpenDroppedFile,
   documentFileFlowOf,
+  documentStampedAt,
   NO_FILE_SAVED,
   takeInHandedDocument,
   OPEN_ROUTE_FROM_CHOOSER,
@@ -2856,6 +2857,7 @@ export function frameLoop(
       const frame = values
       return {
         document: held.document,
+        documentAsWritten: documentStampedAt(held.document, readFileSaved().fileSavedAt),
         selection: selectedObjectsIn(session),
         dialogue: dialogueLog,
         frame,

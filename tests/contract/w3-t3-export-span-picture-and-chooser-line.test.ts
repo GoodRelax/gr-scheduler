@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { DisplayLanguage, OpenModal, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
@@ -167,7 +167,14 @@ describe('FR-025 IX-16 -- the span picture never draws the Dual Cursor', () => {
   })
 
   it(`"${CLAUSE_NO_DUAL_CURSOR}" -- with a span, the picture is the same with the Dual Cursor out`, async () => {
-    expect(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN, true)).toBe(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN, false))
+    // WHY: the picture carries the edit time; two renders a second apart under load differ by it alone.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
+    try {
+      expect(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN, true)).toBe(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN, false))
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 

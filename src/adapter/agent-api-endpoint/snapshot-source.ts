@@ -24,6 +24,9 @@ export interface FrameSnapshot {
 
 export interface AgentSnapshot {
   readonly document: Document
+  // see HS-11, AM-15
+  // WHY: the document as bytes written now carry it -- AT-140 is the time the lower line shows, never the held one's.
+  readonly documentAsWritten: Document
   readonly selection: Selection
   readonly dialogue: DialogueLog
   readonly frame: FrameSnapshot | null

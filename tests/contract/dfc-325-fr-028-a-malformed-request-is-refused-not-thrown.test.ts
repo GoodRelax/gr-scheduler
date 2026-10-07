@@ -105,6 +105,7 @@ function bench(): Bench {
   const readSnapshot = (): AgentSnapshot => ({
     defaultRowName: DEFAULT_ROW_NAME,
     document: state.document,
+    documentAsWritten: state.document,
     selection: emptySelection(),
     dialogue: state.dialogue,
     frame: null,

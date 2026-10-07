@@ -1,6 +1,6 @@
 // Use-case test for UC-014 (merge several schedules into one), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, dropFile, enableAgentApi, figureBox, icon, launch, openByDrop, press, readDocument, readSample, settle, specMismatch } from './uc-harness'
+import { VIEWPORT, dropFile, enableAgentApi, figureBox, icon, launch, openByDrop, press, readDocument, readSample, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -8,7 +8,20 @@ const ERP = 'sample-large-erp-program.ja.xml'
 const EDITED_UID = 2
 const REVIEW = '[data-role="Difference Review"]'
 
+const NOTICES = '[data-role="Notification Area"] > *'
+
+// see UZ-4, NT-8
+// WHY: a notice stands in front of Difference Review; the ones a merge told are cleared before the next drop.
+const clearNotices = async (page: Page): Promise<void> => {
+  for (let i = 0; i < 20 && (await page.locator(NOTICES).count()) > 0; i++) {
+    await page.keyboard.press('Escape')
+    await settle(page)
+  }
+  await expect(page.locator(NOTICES)).toHaveCount(0)
+}
+
 const mergeByDrop = async (page: Page): Promise<void> => {
+  await clearNotices(page)
   await dropFile(page, ERP, readSample(ERP))
   await page.click(icon('IC-72', '[data-role="Open Chooser"]'))
   await settle(page)
@@ -21,7 +34,6 @@ const answerReview = async (page: Page, id: 'IC-95' | 'IC-96' | 'IC-97'): Promis
 
 test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-056, OP-3 IC-72, U-61)', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was overwritten, kept or did not arrive')
   await launch(page)
   await enableAgentApi(page)
   await openByDrop(page, ERP, readSample(ERP))

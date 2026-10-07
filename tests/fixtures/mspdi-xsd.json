@@ -18,6 +18,7 @@
     "tests/contract/cr-429-the-two-schemas.test.ts",
     "tests/contract/cr-654-ex-1-ex-13-ex-14-the-startup-sample-exports-in-the-reader-shape.contract.test.ts",
     "tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts",
+    "tests/contract/w3-t2-mspdi-write-back.contract.test.ts",
     "tests/unit/cr-429-rs-60-the-notice-is-raised.test.ts",
     "tests/unit/uf-36.test.ts"
   ]
