@@ -334,7 +334,7 @@ function withStopsFromOlderLengths(
     const length = lengthByTaskIndex.get(index)
     if (task.actualFinish !== null || start === null || typeof length !== 'number') return task
     const lastDay = lastDayForLength(within, start, length)
-    return { ...task, stop: textOfFinishSide(lastDay, document.schedule.project, task.milestone === true) }
+    return { ...task, stop: textOfFinishSide(lastDay, document.schedule.project) }
   })
   return { ...document, schedule: { ...document.schedule, tasks } }
 }

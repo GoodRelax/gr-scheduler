@@ -292,14 +292,14 @@ export function defaultFinishTimeOf(project: Project): string {
 }
 
 /** @purity pure */
-export function textOfStartSide(day: CalendarDay, project: Project): string {
-  const time = defaultStartTimeOf(project)
+export function textOfStartSide(day: CalendarDay, project: Project, milestone: boolean): string {
+  const time = milestone ? defaultFinishTimeOf(project) : defaultStartTimeOf(project)
   return textOfDayAt(day, time)
 }
 
 /** @purity pure */
-export function textOfFinishSide(day: CalendarDay, project: Project, milestone: boolean): string {
-  const time = milestone ? defaultStartTimeOf(project) : defaultFinishTimeOf(project)
+export function textOfFinishSide(day: CalendarDay, project: Project): string {
+  const time = defaultFinishTimeOf(project)
   return textOfDayAt(day, time)
 }
 

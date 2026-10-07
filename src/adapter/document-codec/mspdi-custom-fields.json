@@ -13,13 +13,13 @@
    "name": "pjCustomTaskNumber1",
    "fieldId": 188743767,
    "prefers": "fadeInDays",
-   "alias": ""
+   "alias": "fadeInDays"
   },
   {
    "name": "pjCustomTaskNumber2",
    "fieldId": 188743768,
    "prefers": "fadeOutDays",
-   "alias": ""
+   "alias": "fadeOutDays"
   }
  ]
 }

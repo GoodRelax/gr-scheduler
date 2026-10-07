@@ -1331,8 +1331,8 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
     commands.push({
       kind: 'setTaskPlanDates',
       uid: one.uid,
-      start: textOfStartSide(dayShifted(start, shift), project),
-      finish: textOfFinishSide(dayShifted(finish, shift), project, task.milestone === true),
+      start: textOfStartSide(dayShifted(start, shift), project, task.milestone === true),
+      finish: textOfFinishSide(dayShifted(finish, shift), project),
     })
   }
   return commands
