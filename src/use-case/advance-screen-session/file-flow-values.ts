@@ -179,7 +179,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'overwriteQuestionRaised'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentFileSaved'; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
   | { readonly type: 'documentFileWriteEnded' }
-  | { readonly type: 'documentEditLanded' }
+  | { readonly type: 'documentEditLanded'; readonly isBackToSavedDocument: FileFlowValuesEventCarried['isBackToSavedDocument'] }
   | { readonly type: 'newDocumentLanded' }
   | { readonly type: 'startupDocumentHeld' }
 
