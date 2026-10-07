@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 203 | 2561 | 3 | 5 | 8 | 2 |
+| `contract` | TS-5 | VT-2 | 204 | 2569 | 3 | 5 | 8 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 59 | 391 | 0 | 2 | 0 | 0 |
+| `system` | TS-3 | - | 66 | 427 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 172 | 3852 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 6 | 9 | 0 | 0 |
-| **all** | | | 454 | 6908 | 10 | 17 | 10 | 2 |
+| **all** | | | 462 | 6952 | 10 | 17 | 10 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -435,6 +435,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/t-337-screen-z-order.contract.test.ts` | 12 | FR-152 | - | T-103, T-337 | S-99g, UZ-5, UZ-6, UZ-7, UZ-8, UZ-13 | - | - | - | - |
 | `tests/contract/tree-state-machine.contract.test.ts` | 9 | FR-018, FR-031 | VT-2 | T-250, T-328, T-329, T-332 | AT-153, HF-8, SD-3, SJ-2, ZE-2 | - | - | - | - |
 | `tests/contract/units.contract.test.ts` | 5 | - | - | T-062, T-074, T-075 | SU-1, SU-3 | - | - | - | - |
+| `tests/contract/w3-t1-theme-colours-are-solved-per-hue.contract.test.ts` | 8 | FR-041 | - | T-206, T-236, T-366 | CF-1, CF-2, CF-3, CF-4, CF-5, CF-6, CT-3, CT-4, CT-5, PI-19, S-151, S-155, S-156, S-157 | - | - | - | - |
 | `tests/contract/w3-t2-mspdi-write-back.contract.test.ts` | 5 | FR-021 | - | T-033 | DF-2, EX-6, EX-15, EX-16, PI-20 | - | - | - | - |
 | `tests/contract/w3-t3-a-row-title-width-saved-unchanged-is-no-edit.test.ts` | 3 | FR-039 | - | - | S-79 | - | - | - | - |
 | `tests/contract/w3-t3-enter-and-the-two-selections.test.ts` | 4 | FR-085, FR-091 | - | T-103, T-108, T-266 | SK-19 | - | - | - | - |
@@ -517,6 +518,13 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/step-safety-valve-and-its-telling.test.ts` | 7 | - | - | T-025, T-103, T-201, T-205 | IO-6, NT-3a, NT-8, RS-24, ST-7 | - | - | - | - |
 | `tests/system/three-rows-read-from-the-spec-alone.test.ts` | 6 | FR-018, FR-019, FR-020, FR-029, FR-032, FR-065, FR-085, NFR-004 | - | T-023a, T-023b, T-023c, T-025, T-028, T-036, T-037, T-051, T-077, T-107, T-109, T-206, T-217, T-219, T-328, T-329 | AM-3, AR-5, AR-6, BO-1, CN-1, HF-1, HF-10, IC-20, IC-35, IC-36, IC-74, IN-2, IN-4, MC-6, NT-7, NT-8, PTD-5, RS-31, S-99g, S-132, S-208, SK-2, SK-3, SK-13, SL-1, TW-2, U-55 | - | - | - | - |
 | `tests/system/user-reported-fixes.test.ts` | 12 | FR-016, FR-029, FR-032, FR-039, FR-077, FR-094 | - | T-025, T-109, T-201, T-202, T-206, T-212, T-252 | DS-1, DS-7, HF-10, HF-19, HF-20, MC-6, S-4, S-5, S-7, S-13, S-36, S-38, S-66, S-229, S-235, S-237, S-243, TL-1, TL-4, TL-5 | - | DFC-374 | - | - |
+| `tests/system/w3-t1-a-landed-merge-tells-its-rows.test.ts` | 3 | FR-022 | - | - | MG-14, RS-71, RS-72, RS-73 | - | - | - | - |
+| `tests/system/w3-t1-a-standing-question-holds-the-document.test.ts` | 5 | FR-076 | - | T-037, T-103, T-234 | AG-9, NT-7, QN-13, RS-27, U-60 | - | - | - | - |
+| `tests/system/w3-t1-pinned-rows-that-do-not-fit.test.ts` | 2 | FR-098 | - | - | - | - | - | - | - |
+| `tests/system/w3-t1-the-export-span-picture.test.ts` | 11 | FR-025, FR-077, FR-096 | - | T-109, T-204, T-206 | EP-1, EP-3, EP-5, EP-11, IN-4, IX-12, IX-13, IX-14, IX-15, IX-16, S-217, S-517, WB-10 | - | - | - | - |
+| `tests/system/w3-t1-the-ground-is-painted-and-nothing-solved-is-saved.test.ts` | 3 | FR-041 | - | T-109 | CF-1, S-146 | - | - | - | - |
+| `tests/system/w3-t1-the-wbs-parent-and-the-panel-rows.test.ts` | 8 | FR-006, FR-075, FR-135 | - | T-016, T-109, T-236, T-351 | AG-9, IX-17, K-141, RS-69, S-503, S-527, S-528, SJ-2, WL-1, WL-5, WL-8, WL-15, WL-16, WL-17 | - | - | - | - |
+| `tests/system/w3-t1-the-written-bytes-carry-the-shown-time.test.ts` | 4 | FR-101 | - | - | AM-15, AT-140, HS-2, HS-11, IO-7, SX-1 | - | - | - | - |
 | `tests/system/w3-t2-file-and-picture-clauses.test.ts` | 8 | FR-135 | - | T-024a, T-076, T-241, T-318, T-337 | AG-1, EP-3, HS-5, HS-11, IC-141, IX-12, IX-13, IX-14, IX-15, OP-9, S-81 | - | DFC-2205 | - | - |
 | `tests/system/w3-t2-screen-clauses.test.ts` | 15 | FR-016, FR-036, FR-039, FR-046, FR-052, FR-096, FR-100 | - | T-012a, T-023, T-028, T-051, T-236, T-252, T-294, T-335, T-366 | CF-1, CF-2, CF-3, CM-62, CV-6, DA-7, GA-7, GA-8, GR-25, HF-10, IN-6, IN-7, MK-1, MK-3, MK-13, RV-6, S-155, S-321, S-514, S-515, S-516, S-522, TH-3, UN-13, WB-10 | - | - | - | - |
 | `tests/system/w3-t3-the-row-title-panel-head-row.test.ts` | 3 | - | - | T-025, T-103, T-109, T-206 | HF-10, MC-6, S-313 | - | - | - | - |
