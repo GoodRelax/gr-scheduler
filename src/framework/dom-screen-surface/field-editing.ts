@@ -103,6 +103,9 @@ function fieldCommitOf(target: unknown): FieldCommit | null {
 
 const FIELD_ROW_SELECTOR = '[data-field-row]'
 
+// WHY: only a row IX-17 makes one command settles as one; a date and its time (PR-3) do not.
+export const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one'
+
 // see IX-17
 /** @purity semi-pure-b */
 function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
@@ -110,6 +113,7 @@ function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   const named = control === null ? undefined : CONTROL_KEYS.get(target as Element)
   const line = (target as Partial<Element>).parentElement?.closest?.(FIELD_ROW_SELECTOR)
   if (named === undefined || line === null || line === undefined) return []
+  if (line.getAttribute(SETTLED_AS_ONE_ATTRIBUTE) !== 'true') return []
   const drawn = [...line.querySelectorAll(FIELD_ROW_SELECTOR)].filter((one) => CONTROL_KEYS.get(one)?.row === named.row)
   const entrances = drawn.map(textEntryControlOf).filter((one): one is TextEntryControl => one !== null)
   return entrances.length > 1 ? entrances : []

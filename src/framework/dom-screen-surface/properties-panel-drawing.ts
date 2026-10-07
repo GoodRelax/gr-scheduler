@@ -21,7 +21,7 @@ import {
   made,
 } from './dom-screen-surface'
 import type { TextEntryControl } from './field-editing'
-import { CONTROL_KEYS, CONTROL_PICKS, TYPED_CONTROLS } from './field-editing'
+import { CONTROL_KEYS, CONTROL_PICKS, SETTLED_AS_ONE_ATTRIBUTE, TYPED_CONTROLS } from './field-editing'
 
 // see FR-006
 /** @purity pure */
@@ -993,6 +993,7 @@ export function fieldElement(
   const line = made(host, 'div', propertyFieldStyle() + (field.isNameAbove === true ? 'flex-wrap:wrap;' : ''))
   line.setAttribute('data-field-row', field.row)
   line.setAttribute('data-editable', String(field.isEditable))
+  if (field.isSettledAsOne === true) line.setAttribute(SETTLED_AS_ONE_ATTRIBUTE, 'true')
   const name = made(host, 'span', field.isNameAbove === true ? propertyFieldNameAboveStyle() : propertyFieldNameStyle())
   name.textContent = field.name
 

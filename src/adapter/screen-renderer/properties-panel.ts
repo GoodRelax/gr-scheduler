@@ -1079,6 +1079,7 @@ function exportSpanField(settings: DocumentSettings, language: DisplayLanguage):
     name: settingsName(startColumn, language),
     text: texts.filter((one) => one !== '').join(PART_SEPARATOR),
     isEditable: true,
+    isSettledAsOne: true,
     controls: EXPORT_SPAN_COLUMNS.map((column, at) => {
       const text = texts[at] ?? ''
       return {

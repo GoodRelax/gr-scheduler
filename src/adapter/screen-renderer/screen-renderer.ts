@@ -189,6 +189,7 @@ export interface PropertyField {
   readonly unit?: string
   readonly readout?: string
   readonly isNameAbove?: true
+  readonly isSettledAsOne?: true
 }
 
 export type PropertyControlKind =
