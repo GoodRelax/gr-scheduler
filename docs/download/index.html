@@ -204,12 +204,13 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <p class="small">To update, download it again here and use the new file instead of the old one. Your schedule files are separate files and are not changed.</p>
 
 <h2 id="ai">Use GRS from an AI app (AI integration)</h2>
+<div class="note"><b>Use the Chat tab of the Claude desktop app.</b> GRS relay does not work in Claude on the web (claude.ai in a browser) or on a phone. To use it from Claude Code, see &ldquo;Other ways and checks&rdquo; at the bottom.</div>
 <p>With the AI integration, the AI app on your PC can read and edit the schedule you have open in GRS &mdash; for example &ldquo;Which tasks are late?&rdquo; or &ldquo;Move the review one week later.&rdquo; You keep working in GRS as usual; the AI works on the same screen. Everything you need is on this page.</p>
 
 <div class="card">
   <h3>What you need</h3>
   <ul>
-    <li><b>Claude Desktop</b> &mdash; the Claude app for Windows or macOS, signed in. If you do not have it yet, get it from <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a>.</li>
+    <li><b>The Claude desktop app (Claude Desktop)</b> &mdash; for Windows or macOS, signed in. It is the app you install, not claude.ai in a browser. If you do not have it yet, get it from <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a>.</li>
     <li>A Chromium-based browser (Google Chrome or Microsoft Edge).</li>
   </ul>
   <p>You do <b>not</b> need to install Node.js or anything else: Claude Desktop runs the relay by itself.</p>
@@ -220,17 +221,17 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <h3>Steps</h3>
 <ol class="steps">
   <li><b>Download grs-relay.mcpb</b> with the button above.</li>
-  <li><b>Install it in Claude Desktop.</b> Do one of these:
+  <li><b>Install it in Claude Desktop.</b> Open <span class="menu">Settings › Extensions</span> in Claude Desktop. Then do one of these:
     <ul>
-      <li>Double-click the downloaded <code>grs-relay.mcpb</code>, or</li>
-      <li>drag it onto the Claude Desktop window, or</li>
-      <li>in Claude Desktop, open <span class="menu">Settings › Extensions › Advanced settings</span>, and in the <span class="menu">Extension Developer</span> section click <span class="menu">Install Extension…</span>, then choose the file.</li>
+      <li>drag <code>grs-relay.mcpb</code> onto that page, where it says <span class="menu">Drag .MCPB or .DXT files here to install</span>, or</li>
+      <li>click <span class="menu">Advanced settings</span>, and in the <span class="menu">Extension Developer</span> section click <span class="menu">Install Extension…</span>, then choose the file.</li>
     </ul>
-    An install screen for <b>GRS relay</b> opens. Check it and finish the installation.
-    <div class="note">GRS relay is not from Claude&rsquo;s extension directory and is not signed, so Claude Desktop may ask you to confirm. It comes from this page.</div>
+    A screen for <b>GRS relay</b> opens. Click <span class="menu">Install</span>.
+    <div class="note">Do not drop the file into the chat box: that only attaches it to a message and installs nothing. Double-clicking the file does not install it either.</div>
+    <div class="note">Claude Desktop shows a red warning that the extension gets access to everything on your computer and that its developer is not verified by Anthropic. It says this for every extension that is not from its directory. GRS relay comes from this page; all it does is serve the GRS page on <code>127.0.0.1</code> and carry the AI&rsquo;s calls to it. It does not read or change your files.</div>
   </li>
-  <li><b>Check that it is on.</b> In <span class="menu">Settings › Extensions</span>, <b>GRS relay</b> is listed and enabled.</li>
-  <li><b>Ask Claude for the address of the GRS page.</b> Start a new chat in Claude Desktop and send:
+  <li><b>Check that it is on.</b> In <span class="menu">Settings › Extensions</span>, open <b>GRS relay</b>: the <span class="menu">Enabled</span> switch is on.</li>
+  <li><b>Ask Claude for the address of the GRS page.</b> Open the <span class="menu">Chat</span> tab of Claude Desktop (not <span class="menu">Code</span>), start a new chat and send:
     <span class="say">Use GRS relay and tell me the address to open the GRS page.</span>
     If Claude asks whether it may use a tool of GRS relay, allow it. Claude answers with an address that starts with <code>http://127.0.0.1:</code> and has a long part after <code>#</code>.</li>
   <li><b>Open that address in your browser.</b> Copy the <b>whole</b> address, including the part after <code>#</code>, and open it in a new tab. GRS opens.</li>
@@ -254,7 +255,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
       <li>Read the schedule open in the tab: tasks, dates, what you have selected, search results and the delay diagnostics report.</li>
       <li>Edit it. Every change goes through the same checks as your own edits, shows on screen at once, and can be undone.</li>
       <li>Bring in another document&rsquo;s contents, and hand back the schedule as GRS JSON, MS Project XML, an image or one HTML file.</li>
-      <li>Show or jump to tasks, wait for your edits, and write messages in the Dialogue Field.</li>
+      <li>Show or jump to tasks, and wait for your edits.</li>
     </ul>
   </div>
   <div class="card">
@@ -280,7 +281,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <h2>Turn it off or remove it</h2>
 <ul>
   <li>To stop for now, press <span class="menu">Agent API</span> again in the GRS tab. What the AI has already read cannot be taken back.</li>
-  <li>To turn the relay off or remove it, use <span class="menu">Settings › Extensions</span> in Claude Desktop.</li>
+  <li>To turn the relay off, open <b>GRS relay</b> in <span class="menu">Settings › Extensions</span> of Claude Desktop and switch <span class="menu">Enabled</span> off. To remove it, click <span class="menu">Uninstall</span> there.</li>
 </ul>
 
 <h2>If something does not work</h2>
@@ -301,6 +302,11 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   }
 }</pre>
   <p>Replace <code>FOLDER</code> with the folder where you saved the file. The relay also writes the address to open to its error output.</p>
+  <h3>Use it from Claude Code</h3>
+  <p>With Node.js 18 or later, save grs-relay.mjs as above and run, in a terminal:</p>
+  <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
+  <p>Replace <code>FOLDER</code> with the folder where you saved the file, then check with <code>/mcp</code> in Claude Code that grs-relay is connected. From step 4 on, ask Claude Code instead of the Chat tab.</p>
+  <p>The <span class="menu">Code</span> tab of the Claude desktop app also gets GRS relay once it is installed in <span class="menu">Settings › Extensions</span>. The Chat tab and the Code tab each start their own relay, so each has its own address: ask for the address in the tab you are using.</p>
   <h3>Check the download</h3>
   <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> holds the SHA-256 of grs-relay.mcpb. The bundle is not signed; the build records which source it was made from (a build provenance attestation).</p>
 </details>
@@ -317,12 +323,13 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <p class="small">新しい版にするときは、ここでもう一度ダウンロードし、古いファイルの代わりに使ってください。日程のファイルは別のファイルなので、変わりません。</p>
 
 <h2 id="ai-ja">AI のアプリから GRS を使う（AI 連携）</h2>
+<div class="note"><b>Claude のデスクトップアプリの Chat（チャット）タブで使います。</b>ブラウザで開く claude.ai や、スマートフォンの Claude では使えません。Claude Code から使うときは、いちばん下の「ほかの使い方と確かめ方」を見てください。</div>
 <p>AI 連携を入れると、PC の AI のアプリが、GRS で開いている日程を読んだり直したりできます —— たとえば「遅れているタスクはどれ？」「レビューを 1 週間後ろへ動かして」。GRS はいつもどおり使えて、AI は同じ画面の上で作業します。必要なことは、すべてこのページに書いてあります。</p>
 
 <div class="card">
   <h3>必要なもの</h3>
   <ul>
-    <li><b>Claude Desktop</b> —— Windows または macOS 用の Claude のアプリ（サインイン済み）。まだ無ければ <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a> から入手してください。</li>
+    <li><b>Claude のデスクトップアプリ（Claude Desktop）</b> —— Windows または macOS 用で、サインイン済みのもの。ブラウザで開く claude.ai ではありません。まだ無ければ <a href="https://claude.com/download" rel="noreferrer noopener" target="_blank">claude.com/download</a> から入手してください。</li>
     <li>Chromium 系のブラウザ（Google Chrome または Microsoft Edge）。</li>
   </ul>
   <p>Node.js などを入れる必要は<b>ありません</b>。取次（relay）は Claude Desktop が自分で動かします。</p>
@@ -333,17 +340,17 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <h3>手順</h3>
 <ol class="steps">
   <li>上のボタンで <b>grs-relay.mcpb をダウンロード</b>します。</li>
-  <li><b>Claude Desktop に入れます。</b>次のどれか 1 つを行ってください。
+  <li><b>Claude Desktop に入れます。</b>Claude Desktop で <span class="menu">Settings › Extensions</span> を開き、次のどちらかを行ってください（日本語の表示では、同じ場所にある対応する項目です）。
     <ul>
-      <li>ダウンロードした <code>grs-relay.mcpb</code> をダブルクリックする。</li>
-      <li>Claude Desktop の窓へドラッグして落とす。</li>
-      <li>Claude Desktop で <span class="menu">Settings › Extensions › Advanced settings</span> を開き、<span class="menu">Extension Developer</span> の欄の <span class="menu">Install Extension…</span> を押して、ファイルを選ぶ（日本語の表示では、同じ場所にある対応する項目です）。</li>
+      <li>そのページの <span class="menu">Drag .MCPB or .DXT files here to install</span> と書かれた所へ、<code>grs-relay.mcpb</code> をドラッグして落とす。</li>
+      <li><span class="menu">Advanced settings</span> を押し、<span class="menu">Extension Developer</span> の欄の <span class="menu">Install Extension…</span> を押して、ファイルを選ぶ。</li>
     </ul>
-    <b>GRS relay</b> を入れる画面が開きます。中身を確かめて、最後まで進めてください。
-    <div class="note">GRS relay は Claude の拡張機能の一覧に載っておらず、署名もありません。そのため Claude Desktop が確認を求めることがあります。出どころはこのページです。</div>
+    <b>GRS relay</b> の画面が開きます。<span class="menu">Install</span> を押してください。
+    <div class="note">チャットの入力欄へ落とさないでください。メッセージに添付されるだけで、入りません。ファイルをダブルクリックしても入りません。</div>
+    <div class="note">Claude Desktop は「この拡張はコンピューターのすべてに触れられる」「作り手を Anthropic は確かめていない」という赤い警告を出します。一覧に載っていない拡張には、いつもこの警告が出ます。GRS relay の出どころはこのページで、することは、GRS のページを <code>127.0.0.1</code> で配り、AI の呼び出しをそこへ運ぶことだけです。あなたのファイルを読んだり変えたりはしません。</div>
   </li>
-  <li><b>有効になっているか確かめます。</b><span class="menu">Settings › Extensions</span> に <b>GRS relay</b> があり、有効になっていれば大丈夫です。</li>
-  <li><b>GRS のページのアドレスを Claude に聞きます。</b>Claude Desktop で新しいチャットを始め、次のように送ってください。
+  <li><b>有効になっているか確かめます。</b><span class="menu">Settings › Extensions</span> で <b>GRS relay</b> を開き、<span class="menu">Enabled</span> のスイッチが入っていれば大丈夫です。</li>
+  <li><b>GRS のページのアドレスを Claude に聞きます。</b>Claude Desktop の <span class="menu">Chat</span> タブ（<span class="menu">Code</span> タブではなく）で新しいチャットを始め、次のように送ってください。
     <span class="say">GRS relay を使って、GRS のページを開くアドレスを教えて。</span>
     GRS relay の道具を使ってよいかを Claude が尋ねたら、許可してください。Claude は <code>http://127.0.0.1:</code> で始まり、<code>#</code> の後ろに長い文字列が続くアドレスを答えます。</li>
   <li><b>そのアドレスをブラウザで開きます。</b><code>#</code> の後ろまで含めて、アドレスを<b>まるごと</b>写し、新しいタブで開いてください。GRS が開きます。</li>
@@ -367,7 +374,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
       <li>タブで開いている日程を読む —— タスク、日付、選んでいるもの、検索の結果、遅延診断のレポート。</li>
       <li>日程を直す。どの変更も自分の編集と同じ検査を通り、すぐ画面に出て、取り消せます。</li>
       <li>別の文書の中身を取り込む。日程を GRS JSON・MS Project の XML・画像・1 つの HTML ファイルとして受け取る。</li>
-      <li>タスクを表示したり、そこへ移ったりする。あなたの編集を待つ。対話欄にメッセージを書く。</li>
+      <li>タスクを表示したり、そこへ移ったりする。あなたの編集を待つ。</li>
     </ul>
   </div>
   <div class="card">
@@ -393,7 +400,7 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
 <h2>止める・取り除く</h2>
 <ul>
   <li>いったん止めるときは、GRS のタブで <span class="menu">Agent API</span> をもう一度押します。AI が既に読んだものは取り戻せません。</li>
-  <li>取次を無効にする・取り除くときは、Claude Desktop の <span class="menu">Settings › Extensions</span> で行います。</li>
+  <li>取次を無効にするときは、Claude Desktop の <span class="menu">Settings › Extensions</span> で <b>GRS relay</b> を開き、<span class="menu">Enabled</span> のスイッチを切ります。取り除くときは、同じ所の <span class="menu">Uninstall</span> を押します。</li>
 </ul>
 
 <h2>うまくいかないとき</h2>
@@ -414,6 +421,11 @@ footer { margin-top: 48px; padding-top: 12px; border-top: 1px solid var(--line);
   }
 }</pre>
   <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。取次は、開くアドレスをエラー出力にも書きます。</p>
+  <h3>Claude Code から使う</h3>
+  <p>Node.js 18 以降があれば、上のとおり grs-relay.mjs を保存し、ターミナルで次を実行します。</p>
+  <pre>claude mcp add --transport stdio grs-relay -- node FOLDER/grs-relay.mjs</pre>
+  <p><code>FOLDER</code> は、ファイルを保存したフォルダに置き換えてください。Claude Code で <code>/mcp</code> を打ち、grs-relay がつながっていることを確かめます。手順 4 からは、Chat タブの代わりに Claude Code に頼みます。</p>
+  <p>Claude のデスクトップアプリの <span class="menu">Code</span> タブにも、<span class="menu">Settings › Extensions</span> で入れた GRS relay が出ます。Chat タブと Code タブはそれぞれ自分の取次を起動するので、アドレスも別です。使っているタブでアドレスを聞いてください。</p>
   <h3>ダウンロードしたものを確かめる</h3>
   <p><a href="grs-relay.mcpb.sha256" download="grs-relay.mcpb.sha256">grs-relay.mcpb.sha256</a> は grs-relay.mcpb の SHA-256 を持ちます。束に署名はありません。どのソースから作ったかは、組み立てが記録しています（ビルドの来歴の証明）。</p>
 </details>
