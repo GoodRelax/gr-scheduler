@@ -179,9 +179,10 @@ describe('X-7 FR-021 / AT-154 / AT-155: the two default times round-trip at thei
 
   it('WT-1 / AT-154: a date the person edits in that document is written at its default start time', () => {
     const document = read(sourceText(TIMES))
-    const day = (published('textOfStartSide') as (d: unknown, p: unknown) => string)(
+    const day = (published('textOfStartSide') as (d: unknown, p: unknown, milestone: boolean) => string)(
       dayOf('2026-04-08'),
       document.schedule.project,
+      false,
     )
     expect(day).toBe('2026-04-08T09:00:00')
   })

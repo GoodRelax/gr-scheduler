@@ -164,20 +164,20 @@ describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes t
     expect([timeOf(task.start), timeOf(task.finish)]).toEqual(['09:00:00', '18:00:00'])
   })
 
-  it('GO-11 / WT-5: a milestone moved writes both ends at the start time', () => {
+  it('GO-11 / WT-5: a milestone moved writes both ends at the finish time', () => {
     const built = stage(grsDocument())
     grabAndRelease(built, MILESTONE, 'GA-15', 16)
     const task = taskOf(built.loop.document(), MILESTONE)
     expect(task.start?.slice(0, 10), 'premise: the milestone moved').not.toBe('2026-04-13')
-    expect([timeOf(task.start), timeOf(task.finish)]).toEqual([S_482, S_482])
+    expect([timeOf(task.start), timeOf(task.finish)]).toEqual([S_483, S_483])
   })
 
-  it('GO-11 / WT-5 / AT-154: a milestone moved writes both ends at the project default start time', () => {
+  it('GO-11 / WT-5 / AT-155: a milestone moved writes both ends at the project default finish time', () => {
     const built = stage(grsDocument(ownTimes))
     grabAndRelease(built, MILESTONE, 'GA-15', 16)
     const task = taskOf(built.loop.document(), MILESTONE)
     expect(task.start?.slice(0, 10), 'premise: the milestone moved').not.toBe('2026-04-13')
-    expect([timeOf(task.start), timeOf(task.finish)]).toEqual(['09:00:00', '09:00:00'])
+    expect([timeOf(task.start), timeOf(task.finish)]).toEqual(['18:00:00', '18:00:00'])
   })
 })
 
@@ -216,12 +216,12 @@ describe('X-1 WT-3 / WT-4 / WT-5: actuals placed by their grab areas take the si
     expect(timeOf(task.resume)).toBe(S_482)
   })
 
-  it('GO-8 / WT-5: a milestone dummy released writes its last actual day at the start time', () => {
+  it('GO-8 / WT-5: a milestone dummy released writes its actual start and last day at the finish time', () => {
     const built = stage(grsDocument())
     grabAndRelease(built, FRESH_MILESTONE, 'GA-17', 16)
     const task = taskOf(built.loop.document(), FRESH_MILESTONE)
     expect(task.actualStart?.slice(0, 10), 'premise: the milestone actual was placed').toBe('2026-04-16')
-    expect([timeOf(task.actualStart), timeOf(task.actualFinish ?? task.stop)]).toEqual([S_482, S_482])
+    expect([timeOf(task.actualStart), timeOf(task.actualFinish ?? task.stop)]).toEqual([S_483, S_483])
   })
 })
 

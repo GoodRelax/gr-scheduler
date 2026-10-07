@@ -93,34 +93,34 @@ describe('WT-1..WT-5 with AT-154 / AT-155 and the fallback S-482 / S-483', () =>
   })
 
   it('WT-1 / WT-3: textOfStartSide writes S-482 when the column is empty', () => {
-    expect(published('textOfStartSide')(TUESDAY, EMPTY_DEFAULTS)).toBe(`2026-04-07T${S_482}`)
+    expect(published('textOfStartSide')(TUESDAY, EMPTY_DEFAULTS, false)).toBe(`2026-04-07T${S_482}`)
   })
 
   it('WT-1 / AT-154: textOfStartSide writes the project default start time', () => {
-    expect(published('textOfStartSide')(TUESDAY, OWN_DEFAULTS)).toBe('2026-04-07T09:00:00')
+    expect(published('textOfStartSide')(TUESDAY, OWN_DEFAULTS, false)).toBe('2026-04-07T09:00:00')
   })
 
   it('WT-2 / WT-4: textOfFinishSide writes S-483 when the column is empty', () => {
-    expect(published('textOfFinishSide')(TUESDAY, EMPTY_DEFAULTS, false)).toBe(`2026-04-07T${S_483}`)
+    expect(published('textOfFinishSide')(TUESDAY, EMPTY_DEFAULTS)).toBe(`2026-04-07T${S_483}`)
   })
 
   it('WT-2 / AT-155: textOfFinishSide writes the project default finish time', () => {
-    expect(published('textOfFinishSide')(TUESDAY, OWN_DEFAULTS, false)).toBe('2026-04-07T18:30:00')
+    expect(published('textOfFinishSide')(TUESDAY, OWN_DEFAULTS)).toBe('2026-04-07T18:30:00')
   })
 
-  it('WT-5: a milestone finish takes the start time (S-482 when empty)', () => {
-    expect(published('textOfFinishSide')(TUESDAY, EMPTY_DEFAULTS, true)).toBe(`2026-04-07T${S_482}`)
+  it('WT-5: a milestone start takes the finish time (S-483 when empty)', () => {
+    expect(published('textOfStartSide')(TUESDAY, EMPTY_DEFAULTS, true)).toBe(`2026-04-07T${S_483}`)
   })
 
-  it('WT-5: a milestone finish takes the project default start time', () => {
-    expect(published('textOfFinishSide')(TUESDAY, OWN_DEFAULTS, true)).toBe('2026-04-07T09:00:00')
+  it('WT-5: a milestone start takes the project default finish time', () => {
+    expect(published('textOfStartSide')(TUESDAY, OWN_DEFAULTS, true)).toBe('2026-04-07T18:30:00')
   })
 
   it('EX-7: every side writer spells a date-time with no zone, to the second', () => {
     const written = [
-      published('textOfStartSide')(TUESDAY, EMPTY_DEFAULTS),
-      published('textOfFinishSide')(TUESDAY, EMPTY_DEFAULTS, false),
-      published('textOfFinishSide')(TUESDAY, OWN_DEFAULTS, true),
+      published('textOfStartSide')(TUESDAY, EMPTY_DEFAULTS, false),
+      published('textOfStartSide')(TUESDAY, OWN_DEFAULTS, true),
+      published('textOfFinishSide')(TUESDAY, EMPTY_DEFAULTS),
       published('textOfDayStart')(TUESDAY),
       published('textOfDayEnd')(TUESDAY),
     ]

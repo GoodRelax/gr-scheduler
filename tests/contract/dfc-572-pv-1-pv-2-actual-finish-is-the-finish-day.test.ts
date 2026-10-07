@@ -277,7 +277,7 @@ describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor
       documentWith(taskOf({ name: 'Ship', start: stored(ymd(9)), finish: stored(ymd(9)), milestone: true }), 'milestone'),
     )
     expect(task.stop, 'PV-1: stop stays empty').toBeNull()
-    expect(task.actualStart).toBe(startSide(ymd(9)))
+    expect(task.actualStart, 'T-350 WT-5: a milestone start side takes the finish time').toBe(finishSide(ymd(9)))
     expect(task.actualFinish, 'FR-011: a milestone finishes on its actualStart').toBe(task.actualStart)
     expect(planActualState(task)).toBe('finished')
   })

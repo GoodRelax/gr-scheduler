@@ -109,8 +109,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDay` | PI-1 | 日を日付の字面に戻す。 |
 | `textOfDayEnd` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayEnd` | PI-1 | 丸 1 日の範囲の終わりの字（表 T-350 の `WT-7`） |
 | `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
-| `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字。 |
-| `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字（表 T-350 の `WT-1`・`WT-3`） |
+| `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
+| `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `WbsParentResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#WbsParentResolution` | PI-1 | 型。 |
 | `wbsParentResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#wbsParentResolutionsOf` | PI-1 | どの `Task` の WBS の親も、明記・導いた親（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |

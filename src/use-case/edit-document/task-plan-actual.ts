@@ -356,7 +356,7 @@ export function setTaskPlanActualState(
     ])
   }
   const lastDay = compareDays(settled.lastDay, asked) === 0
-    ? askedText : textOfFinishSide(settled.lastDay, document.schedule.project, milestone)
+    ? askedText : textOfFinishSide(settled.lastDay, document.schedule.project)
 
   let placed: Task
   switch (place.row) {
@@ -441,16 +441,16 @@ export function beginTaskActual(
     }
     const pulled: Task = {
       ...task,
-      actualStart: textOfStartSide(pinned, project),
-      stop: textOfFinishSide(settled.lastDay, project, milestone),
+      actualStart: textOfStartSide(pinned, project, milestone),
+      stop: textOfFinishSide(settled.lastDay, project),
       resumeValid: true,
     }
     return edited(withTask(document, repriced(within, actualsEdited(pulled))))
   }
   const begun: Task = {
     ...task,
-    actualStart: textOfStartSide(dropped.day, project),
-    stop: textOfFinishSide(floorDayOf(within, dropped.day, milestone), project, milestone),
+    actualStart: textOfStartSide(dropped.day, project, milestone),
+    stop: textOfFinishSide(floorDayOf(within, dropped.day, milestone), project),
     resumeValid: true,
   }
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -474,8 +474,8 @@ export function cycleTaskPlanActualStateInDocument(
     return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
   }
   const project = document.schedule.project
-  const startSide = from === null ? null : textOfStartSide(from, project)
-  const floorDay = from === null ? null : textOfFinishSide(floorDayOf(within, from, milestone), project, milestone)
+  const startSide = from === null ? null : textOfStartSide(from, project, milestone)
+  const floorDay = from === null ? null : textOfFinishSide(floorDayOf(within, from, milestone), project)
   const turned = cycleTaskPlanActualState(task, command.remembered, { startSide, floorDay, milestone })
   return edited(withTask(document, repriced(within, turned.task)))
 }

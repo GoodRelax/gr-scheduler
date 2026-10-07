@@ -33,8 +33,8 @@ function shiftedPlan(task: Task, landing: PasteLanding | undefined, project: Pro
   const days = landing.dayShift
   return {
     ...task,
-    start: textOfStartSide(dayShiftedBy(start, days), project),
-    finish: textOfFinishSide(dayShiftedBy(finish, days), project, task.milestone === true),
+    start: textOfStartSide(dayShiftedBy(start, days), project, task.milestone === true),
+    finish: textOfFinishSide(dayShiftedBy(finish, days), project),
   }
 }
 

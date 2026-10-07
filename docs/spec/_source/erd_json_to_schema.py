@@ -232,7 +232,7 @@ ROOT_DESCRIPTION = (
     'them, so that they round-trip unchanged. GRS uses only their day for now; '
     'when it writes one it uses the project\'s default start time on a start-side '
     'column and its default finish time on a finish-side column (a milestone '
-    'takes the start time at both ends), and 00:00:00..23:59:00 for a whole-day '
+    'takes the finish time at both ends), and 00:00:00..23:59:00 for a whole-day '
     'range (00:00:00 for a single day such as a comment\'s anchor), because that '
     'is what MS Project does with a date entered without a time, so the value '
     'already means the right instant when times are used. A last day (finish, '

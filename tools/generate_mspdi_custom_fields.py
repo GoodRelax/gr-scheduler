@@ -14,11 +14,11 @@ place they are written down.
 value rather than copy it: a number typed a second time goes stale in silence
 when the manuscript moves. This script is the only way they reach src/.
 
-⛔ NO VALUE IS INVENTED HERE. The alias of each frame is empty until the user
-fills it, exactly as display-words.json leaves its words empty -- an alias is
+⛔ NO VALUE IS INVENTED HERE. The alias of each frame is the manuscript's,
+and EX-6 makes it the name of the column the frame carries -- an alias is
 written into the partner's file, shows as a column heading in the partner's
 tool, and is the key EX-6 uses to tell a frame GRS wrote from one the import
-source wrote. A machine-written alias would settle all three at once.
+source wrote. This script refuses an alias that is not its frame's column.
 
 ⭐ WHAT IS HELD AGAINST WHAT. The manuscript is validated against its
 hand-written contract (_source/mspdi-custom-fields.schema.json) before a byte is
@@ -135,6 +135,14 @@ def build():
                 "(%s) allows %d -- writing it would break EX-1"
                 % (frame['name'], len(frame['alias']),
                    source['aliasMaxLength']['source'], limit))
+    # ⛔ EX-6: the alias is the name of the column its frame carries. Any other
+    # word -- an empty one included -- leaves GRS unable to tell its own frame
+    # on the way back in, and shows the partner a heading GRS does not use.
+    for frame in source['frames']:
+        if frame['alias'] != frame['prefers']:
+            problems.append(
+                "frame %s has the alias %r, but EX-6 names the column it "
+                "carries (%r)" % (frame['name'], frame['alias'], frame['prefers']))
     if problems:
         return None, problems
 

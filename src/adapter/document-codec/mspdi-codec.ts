@@ -689,7 +689,7 @@ function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run:
     if (days === null) return task
     try {
       const lastDay = lastDayForLength(within, start, days)
-      const stop = textOfFinishSide(lastDay, schedule.project, task.milestone === true)
+      const stop = textOfFinishSide(lastDay, schedule.project)
       return { ...task, stop, carry: { ...task.carry, [STOP_COUNTED_FROM]: task.carry['ActualDuration'] ?? '' } }
     } catch (why) {
       run.notices.push(notice(`${at}/Stop`,

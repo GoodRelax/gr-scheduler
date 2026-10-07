@@ -1238,23 +1238,23 @@ def text_at(day, time):
     return '%sT%s' % (day.isoformat(), time)
 
 
-def text_of_start_side(day):
+def text_of_start_side(day, milestone):
     """`start`, `actualStart`, `resume`, `Project.startDate` (WT-1, WT-3).
 
+    ⭐ WT-5: a milestone's start side takes the finish time, so its two ends
+    are one moment, at the end of that day's work.
+
     @purity pure
     """
-    return text_at(day, START_TIME)
+    return text_at(day, FINISH_TIME if milestone else START_TIME)
 
 
-def text_of_finish_side(day, milestone):
+def text_of_finish_side(day):
     """`finish`, `actualFinish`, `stop`, `statusDate` (WT-2, WT-4).
 
-    ⭐ WT-5: a milestone's finish side takes the start time, so its two ends
-    are one moment.
-
     @purity pure
     """
-    return text_at(day, START_TIME if milestone else FINISH_TIME)
+    return text_at(day, FINISH_TIME)
 
 
 def text_of_day_start(day):
@@ -1615,8 +1615,8 @@ class Builder(object):
             'wbsParentUid': parent_uid,
             'wbsOrder': 0,
             'name': name,
-            'start': text_of_start_side(WORKDAYS[start_at]),
-            'finish': text_of_finish_side(WORKDAYS[finish_at], milestone),
+            'start': text_of_start_side(WORKDAYS[start_at], milestone),
+            'finish': text_of_finish_side(WORKDAYS[finish_at]),
             'milestone': milestone,
             'deadline': None,
             'notes': None,
@@ -2062,8 +2062,7 @@ class Builder(object):
             return
         reach = 0 if task['milestone'] else max(0, task['actualLength'] - 1)
         task['stop'] = text_of_finish_side(
-            WORKDAYS[min(len(WORKDAYS) - 1, task['actualStartAt'] + reach)],
-            task['milestone'])
+            WORKDAYS[min(len(WORKDAYS) - 1, task['actualStartAt'] + reach)])
 
     def is_band(self, task):
         """Whether this task is a band of the first tree rather than work.
@@ -2096,7 +2095,7 @@ class Builder(object):
             return                                        # PS-1, all null
         if began_at > status_at:
             return                                        # PS-1, all null
-        task['actualStart'] = text_of_start_side(WORKDAYS[began_at])
+        task['actualStart'] = text_of_start_side(WORKDAYS[began_at], task['milestone'])
         if span == 0:
             # FR-011 (CR-376): an actual whose start and last day are one day
             # is ONE day long, never zero. The length is not stored; it is
@@ -2104,8 +2103,7 @@ class Builder(object):
             # own note of it and never reaches the template.
             # No division at span zero (FR-012): a recorded finish reads 100.
             task['actualLength'] = 1
-            task['actualFinish'] = text_of_finish_side(WORKDAYS[began_at],
-                                                       task['milestone'])
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[began_at])
             task['resumeValid'] = False
             task['percentComplete'] = 100
             return
@@ -2124,8 +2122,7 @@ class Builder(object):
         if ended_at <= status_at and not stuck:           # PS-2, finished
             # FR-011: the last day of finished work IS `actualFinish`.
             task['actualLength'] = worked
-            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended_at],
-                                                       task['milestone'])
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended_at])
             task['resumeValid'] = False
         else:                                             # PS-5, running
             # NOT the elapsed days. The length is how far the work has got,
@@ -2257,7 +2254,7 @@ class Builder(object):
             # that `DL-3` has something to be read against.
             away = 18 if turn % 3 == 0 else -12
             task['resume'] = text_of_start_side(
-                WORKDAYS[min(len(WORKDAYS) - 1, max(0, status_at + away))])
+                WORKDAYS[min(len(WORKDAYS) - 1, max(0, status_at + away))], task['milestone'])
             task['resumeValid'] = True
 
     def derive_actuals(self, status_at):
@@ -2302,13 +2299,12 @@ class Builder(object):
         if not begun:
             return                                        # PS-1, all null
         task['actualStartAt'] = min(one['actualStartAt'] for one in begun)
-        task['actualStart'] = text_of_start_side(WORKDAYS[task['actualStartAt']])
+        task['actualStart'] = text_of_start_side(WORKDAYS[task['actualStartAt']], task['milestone'])
         span = planned_days_of(task)
         if all(one['actualFinish'] is not None for one in held):
             ended = max(index_of(date.fromisoformat(one['actualFinish'][:10]))
                         for one in held)
-            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended],
-                                                       task['milestone'])
+            task['actualFinish'] = text_of_finish_side(WORKDAYS[ended])
             task['actualLength'] = max(1, ended - task['actualStartAt'] + 1)
             task['resumeValid'] = False
             task['percentComplete'] = (100 if span == 0
@@ -2679,8 +2675,8 @@ class Builder(object):
             # WT-9: the moment the sample was made, which is the day it names.
             'created': text_of_day_start(PROJECT_CREATED),  # PF-9
             'revision': PROJECT_REVISION,             # PF-7
-            'startDate': text_of_start_side(PROJECT_START),
-            'statusDate': text_of_finish_side(WORKDAYS[status_at], False),
+            'startDate': text_of_start_side(PROJECT_START, False),
+            'statusDate': text_of_finish_side(WORKDAYS[status_at]),
             'minutesPerDay': None,
             'minutesPerWeek': None,
             'daysPerMonth': None,
@@ -3068,9 +3064,9 @@ def check_overview(built):
     @purity semi-pure-b
     """
     bar = built.by_uid[built.overview_uid]
-    insist(bar['start'] == text_of_start_side(PROJECT_START),
+    insist(bar['start'] == text_of_start_side(PROJECT_START, False),
            'A11: the overview bar starts %s and Project.startDate is %s'
-           % (bar['start'], text_of_start_side(PROJECT_START)))
+           % (bar['start'], text_of_start_side(PROJECT_START, False)))
     insist(bar['finishAt'] == index_of(PROJECT_FINISH),
            'A11: the overview bar ends %s, not at the end of the project'
            % bar['finish'])

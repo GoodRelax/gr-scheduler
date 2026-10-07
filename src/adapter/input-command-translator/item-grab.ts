@@ -108,7 +108,7 @@ export function commandFromGrab(
     const project = context.document.schedule.project
     return day === null
       ? CONSUMED_ELSEWHERE
-      : changed([{ kind: 'setStatusDate', date: textOfFinishSide(day, project, false) }])
+      : changed([{ kind: 'setStatusDate', date: textOfFinishSide(day, project) }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -157,8 +157,8 @@ export function commandFromGrab(
         {
           kind: 'setTaskPlanDates',
           uid,
-          start: isStartHeld ? textOfStartSide(day, project) : task.start,
-          finish: isStartHeld ? task.finish : textOfFinishSide(day, project, task.milestone === true),
+          start: isStartHeld ? textOfStartSide(day, project, task.milestone === true) : task.start,
+          finish: isStartHeld ? task.finish : textOfFinishSide(day, project),
         },
       ])
     }
@@ -203,8 +203,8 @@ export function commandFromGrab(
           place: {
             row: 'PA-3',
             actualStart: task.actualStart,
-            stop: textOfFinishSide(lastDay, project, task.milestone === true),
-            resume: textOfStartSide(resume, project),
+            stop: textOfFinishSide(lastDay, project),
+            resume: textOfStartSide(resume, project, task.milestone === true),
           },
         },
       ])
@@ -415,8 +415,8 @@ function bodyMoveWrites(
       commands.push({
         kind: 'setTaskPlanDates',
         uid: each,
-        start: textOfStartSide(dayShifted(start, shift), project),
-        finish: textOfFinishSide(dayShifted(finish, shift), project, task.milestone === true),
+        start: textOfStartSide(dayShifted(start, shift), project, task.milestone === true),
+        finish: textOfFinishSide(dayShifted(finish, shift), project),
       })
     }
     const at = rowIndexOfTask(context, rows, each)
@@ -860,9 +860,9 @@ function actualEndPlacement(
   if (dayOf(heldText) === null || heldText === null) return null
   const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
   // WHY: an actual start not moved keeps its text as it stands (T-350 WT-10).
-  const actualStart = isStartHeld || grab === 'GA-16' ? textOfStartSide(dropped, project) : heldText
+  const actualStart = isStartHeld || grab === 'GA-16' ? textOfStartSide(dropped, project, task.milestone === true) : heldText
   // WHY: GO-5 keeps the last day; the end holds put the released day itself, not a working day (GO-3).
-  const lastDay = isStartHeld ? null : textOfFinishSide(dropped, project, task.milestone === true)
+  const lastDay = isStartHeld ? null : textOfFinishSide(dropped, project)
   const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
   const moved: Task = lastDay === null
     ? { ...task, actualStart }

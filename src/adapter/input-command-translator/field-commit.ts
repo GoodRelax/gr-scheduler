@@ -56,8 +56,8 @@ const START_SIDE_COLUMNS: readonly string[] = ['start', 'actualStart', 'resume']
 /** @purity pure */
 function sideTextOf(project: Project, task: Task, column: string): SideText {
   return START_SIDE_COLUMNS.includes(column)
-    ? (day) => textOfStartSide(day, project)
-    : (day) => textOfFinishSide(day, project, task.milestone === true)
+    ? (day) => textOfStartSide(day, project, task.milestone === true)
+    : (day) => textOfFinishSide(day, project)
 }
 
 /** @purity pure */
@@ -392,7 +392,7 @@ function commandFromParentProgressTolerance(text: string): readonly DocumentComm
 // see FR-046, CM-3, CM-4, WT-4
 /** @purity pure */
 function commandsFromStatusDate(text: string, context: InputContext): readonly DocumentCommand[] {
-  const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project, false))
+  const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project))
   if (date === undefined) return []
   if (date === null) return [{ kind: 'clearStatusDate' }]
   return [{ kind: 'setStatusDate', date }, ...statusLineCentred(context, date)]

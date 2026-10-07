@@ -147,8 +147,8 @@ export function commandFromArmed(
       {
         kind: 'createTask',
         shapeKind,
-        start: textOfStartSide(start, context.document.schedule.project),
-        finish: textOfFinishSide(finish, context.document.schedule.project, isMilestone),
+        start: textOfStartSide(start, context.document.schedule.project, isMilestone),
+        finish: textOfFinishSide(finish, context.document.schedule.project),
         groupId,
       },
     ]
