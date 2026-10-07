@@ -3,7 +3,7 @@
 // WHY: the shell is driven through its public frame loop and the Agent API (PI-17); the picture is read from
 // exportSvg (PI-21). Every number asserted comes from docs/spec; the document is built here.
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { installAgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
@@ -213,6 +213,10 @@ describe('FR-025 / FR-096 -- the manuscript these cases are driven by', () => {
 
 describe(`IX-12 -- ${IX_12}`, () => {
   it('the span picture is the same after the window is resized, both zooms move and both panels open', async () => {
+    // WHY: the picture carries the edit time; the zoom write lands a second later under load and differs by it alone.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
+    try {
     const { built, api } = await spannedStage()
     const first = pictureOf(built).svg
 
@@ -230,6 +234,9 @@ describe(`IX-12 -- ${IX_12}`, () => {
     await built.key(keyOfRow('SK-14'))
     await built.repaint()
     expect(pictureOf(built).svg, `${IX_12}: with the Properties Panel and the Command Palette toggled`).toBe(first)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })
 
