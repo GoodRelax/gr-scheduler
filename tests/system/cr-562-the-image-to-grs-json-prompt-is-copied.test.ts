@@ -23,9 +23,11 @@ import { rowOf } from './sws-case'
 const ROOT = process.cwd()
 
 const FR_068_ORDER =
-  '⭐ 写すプロンプトは、(1) 表示言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) `GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）、(4) 土台の文書、の 4 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。'
+  '⭐ 写すプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) `GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）、(4) 土台の文書、の 4 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。'
 const FR_068_ONE_LINE = '(3) と (4) は空白を除いた 1 行の JSON とし、それぞれ `json` の囲みに入れる。'
-const FR_068_LANGUAGE = '⭐ プロンプトは、写した瞬間の表示言語（`FR-038`）の原稿から作ること（MUST）。'
+// WHY: CR-687 named the language the prompt follows the screen language (S-99), not the help's.
+const FR_068_LANGUAGE =
+  '⭐ プロンプトは、写した瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から作ること（MUST）'
 const FR_068_BASE =
   '⭐ 土台の文書は、初期テンプレートと同じ版と同じ `documentSettings` を持ち、タスクを 1 つも持たない `GRS JSON` とし、初期テンプレートと同じ生成器が同じ回に起こすこと（MUST）'
 const FR_068_OPENED_BY_OP_2 = '返った文書は 表 T-024a の `OP-2` の「開く」1 つから入る。'

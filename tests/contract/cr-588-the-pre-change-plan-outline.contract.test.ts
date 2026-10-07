@@ -56,7 +56,10 @@ const BL_3_NOT_SAME_DASH =
 const BL_4 = '表 T-038 の占有に数えないこと（MUST）'
 const BL_4_WHY = '数えると `S-69` を切り替えるたびに現在の日程の形の置き場が動く'
 const FR_015_ONE_SIDE = '片側にしか存在しない `Task` は描いてはならない（MUST NOT）。'
-const FR_108_THE_OVERLAY = '変更前の予定の重ね（`FR-015`）'
+// WHY: CR-684 moved FR-108's list into table T-355; the outline is row NG-10, decided by FR-015.
+const FR_108_THE_OVERLAY = '変更前の予定の輪郭'
+const NG_10_ALWAYS = 'いつも —— 輪郭は表示だけであり、編集対象ではない'
+const NG_10_OWNER = '`FR-015`'
 const FR_108_NO_GRAB = 'を、掴めないようにし、ほかの操作で動かさないこと（MUST）'
 const VG_5_SCALED = '枠線（その形の枠線の太さの列 `AT-104` の値、`null` のときは `S-39` に、描く比を掛けた太さ）'
 const S_444_NOT_SCALED = '表示の倍率を掛けない —— `S-104` と `S-175` と同じく、表 T-252 に行を持たない'
@@ -330,7 +333,7 @@ const PLAIN = taskOf({ uid: 1, start: day(4), finish: day(10) })
 const SHIFTED: BaselineWish = { uid: 1, start: day(6), finish: day(14) }
 
 describe('CR-588 -- the clauses these cases quote still stand', () => {
-  it('FR-015 T-339 BL-1 .. BL-4, FR-108, T-259 VG-5, T-206 S-444', () => {
+  it('FR-015 T-339 BL-1 .. BL-4, FR-108 T-355 NG-10, T-259 VG-5, T-206 S-444', () => {
     expect(blText('BL-1')).toContain(BL_1_ONLY)
     expect(blText('BL-1')).toContain(BL_1_ROW)
     expect(blText('BL-1')).toContain(BL_1_FOLDED)
@@ -348,7 +351,9 @@ describe('CR-588 -- the clauses these cases quote still stand', () => {
     expect(blText('BL-4')).toContain(BL_4)
     expect(blText('BL-4')).toContain(BL_4_WHY)
     expect(REQUIREMENTS).toContain(FR_015_ONE_SIDE)
-    expect(REQUIREMENTS).toContain(FR_108_THE_OVERLAY)
+    expect(anyRowText('T-355', 'NG-10')).toContain(FR_108_THE_OVERLAY)
+    expect(anyRowText('T-355', 'NG-10')).toContain(NG_10_ALWAYS)
+    expect(anyRowText('T-355', 'NG-10')).toContain(NG_10_OWNER)
     expect(REQUIREMENTS).toContain(FR_108_NO_GRAB)
     expect(anyRowText('T-259', 'VG-5')).toContain(VG_5_SCALED)
     expect(anyRowText('T-206', 'S-444')).toContain(S_444_NOT_SCALED)

@@ -2046,6 +2046,86 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
   })
 }
 
+// see FR-041, T-305, DFC-1640
+// WHY: the hue field of the settings face lists table T-305's rows in that table's order.
+const T305_ROWS: readonly string[] = specTable('T-305').rows.map((row) => row.id)
+const themeHueControlOf = (view: ScreenView) =>
+  view.propertiesPanel?.fields
+    .flatMap((field) => field.controls)
+    .find((control) => control.key.holder === 'project' && control.key.column === 'themeHue')
+for (const entry of GENERATED['themeHues'] ?? []) {
+  const rowId = keyOf('themeHues', entry)
+  place({
+    section: 'themeHues',
+    key: rowId,
+    field: 'text',
+    unit: 'UF-64',
+    what: `the choice ${rowId} of table T-305 on the settings face's theme colour field`,
+    frame: PANEL_STATES['documentSettings'] as Frame,
+    read: (view) => themeHueControlOf(view)?.choices?.[T305_ROWS.indexOf(rowId)],
+  })
+}
+
+// see CV-9, T-294, FR-019, DFC-1640
+// WHY: CV-9 bans neither black nor transparent on a highlight box; its fill's null follows the
+// theme (S-155) and its frame's is the fixed S-312, so one box prints both forms of entrance 2.
+const colourControlOf = (view: ScreenView, holder: string, column: string) =>
+  view.propertiesPanel?.fields
+    .flatMap((field) => field.controls)
+    .find((control) => control.key.holder === holder && control.key.column === column)
+const BOX_FILL = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'fillColor')
+const BOX_FRAME = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'strokeColor')
+// WHY: SCHEDULE's task holds a custom fill with only its light side and a custom line with only its
+// dark side (CR-548), so CV-9's undefined-side note is printed on each.
+const TASK_FILL = (view: ScreenView) => colourControlOf(view, 'taskVisual', 'fillColor')
+const TASK_LINE = (view: ScreenView) => colourControlOf(view, 'taskVisual', 'strokeColor')
+for (const entry of GENERATED['colourNames'] ?? []) {
+  const spelling = keyOf('colourNames', entry)
+  place({
+    section: 'colourNames',
+    key: spelling,
+    field: 'text',
+    unit: 'UF-67',
+    what: `the name ${spelling} of table T-294 on the highlight box's fill field`,
+    frame: HIGHLIGHT_BOX_PICKED,
+    read: (view) => {
+      const control = BOX_FILL(view)
+      const at = control?.choiceValues?.indexOf(spelling) ?? -1
+      return at < 0 ? undefined : control?.choices?.[at]
+    },
+  })
+}
+const COLOUR_FIELD_READS: Readonly<
+  Record<string, { readonly frame: Frame; readonly read: (view: ScreenView) => string | undefined }>
+> = {
+  custom: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.customWord },
+  light: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.light.word },
+  dark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.dark.word },
+  sameAsLight: { frame: BASE, read: (view) => TASK_FILL(view)?.colour?.dark.note },
+  sameAsDark: { frame: BASE, read: (view) => TASK_LINE(view)?.colour?.light.note },
+  theme: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme?.word },
+  themeHint: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme?.hint },
+  noFill: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.transparentWord },
+  noLine: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.transparentWord },
+  themeMark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.light.mark },
+  defaultMark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.light.mark },
+  defaultColour: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.theme?.word },
+}
+for (const entry of GENERATED['colourField'] ?? []) {
+  const part = keyOf('colourField', entry)
+  const at = COLOUR_FIELD_READS[part]
+  if (at === undefined) continue
+  place({
+    section: 'colourField',
+    key: part,
+    field: 'text',
+    unit: 'UF-67',
+    what: `the ${part} word CV-9 of table T-017b has a colour field show`,
+    frame: at.frame,
+    read: at.read,
+  })
+}
+
 // see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
 // WHY: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
 // in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the

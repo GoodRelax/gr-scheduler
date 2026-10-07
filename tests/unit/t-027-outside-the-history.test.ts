@@ -299,9 +299,10 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
 
   it('UN-7 covers exactly the 真偽 rows of 表 T-202, and the other rows are left to UN-13', () => {
     // WHY: CR-572 moved S-65 and S-66 to table T-206 and the ruler rows S-2 and S-3 in beside S-70.
+    // WHY: CR-677 added the export span S-518 / S-519 (dates); UN-13 names it (FR-025, IX-17).
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
-    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-2', 'S-234', 'S-3', 'S-58', 'S-70'])
+    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-2', 'S-234', 'S-3', 'S-518', 'S-519', 'S-58', 'S-70'])
   })
 })
 
