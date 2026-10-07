@@ -1867,6 +1867,15 @@
      }
     },
     {
+     "name": "isScheduleColourRow",
+     "note": {
+      "ja": [
+       "表 T-236 の行 ID が、`colourOf` の答えられる行（日程の図も塗る行）かを返す。",
+       "`FR-041` の 表 T-366 の `CF-1` が、画面と書き出す絵に同じ解を使えと定めるので、画面の枠（`DomScreenSurface`）は日程の図も塗る行だけを `colourOf` から読み、ほかの行は自分の表の値を描く —— 行の名簿を写さずに見分けるために問う"
+      ]
+     }
+    },
+    {
      "name": "swatchOf",
      "note": {
       "ja": [
@@ -1881,6 +1890,15 @@
       "ja": [
        "色を、明度を保ったまま無彩色にした色。",
        "`FR-041` のモノクロの段落が、画面の枠と日程の図と書き出しとで同じ行を同じ値で塗れと定めるので、画面の側（`DomScreenSurface`）も描く側と同じ 1 本で灰にする"
+      ]
+     }
+    },
+    {
+     "name": "bandBaselineYOf",
+     "note": {
+      "ja": [
+       "帯の箱と字の大きさから、字のベースラインの縦の位置を返す —— 帯の縦の中点から、字の大きさに 表 T-201 の `S-33` を掛けた長さだけ下である。",
+       "表 T-076 の `EP-1` が書き出す `Document Title` のベースラインをこの位置に置けと定め、日程の図のラベルも同じ式で置くので、`ImageExporter` が写さずに同じ 1 本を問う（`R2.21`）"
       ]
      }
     },
@@ -2904,6 +2922,24 @@
       "ja": [
        "`SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。",
        "`DomScreenSurface` から `SvgRenderer` への辺は無いので、画面の主題を灰にする 1 本はこの入口を通る"
+      ]
+     }
+    },
+    {
+     "name": "colourOf",
+     "note": {
+      "ja": [
+       "`SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。",
+       "`FR-041` の 表 T-366 の `CF-1` が、画面と書き出す絵に同じ解を使えと定めるので、画面の主題の色（表 T-236）のうち日程の図も塗る行は、この 1 本から読む —— `DomScreenSurface` から `SvgRenderer` への辺は無い"
+      ]
+     }
+    },
+    {
+     "name": "isScheduleColourRow",
+     "note": {
+      "ja": [
+       "`SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。",
+       "`colourOf` に問える行かを、画面の側が行の名簿を写さずに知るため"
       ]
      }
     },

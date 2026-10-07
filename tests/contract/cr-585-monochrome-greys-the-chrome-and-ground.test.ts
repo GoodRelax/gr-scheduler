@@ -303,7 +303,11 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
           const rowId = NAME_TO_ROW[name] ?? ''
           const written = propertyOf(theme(preference, hue, false), name)
           const wanted = writtenOf(t236(rowId), preference, hue)
-          expect(samePaint(mustPaint(written, name), mustPaint(wanted, rowId)), `${name} (${rowId}): ${written} vs ${wanted}`).toBe(true)
+          // WHY: since CR-693 the frame reads the picture's T-366 value (CF-1), so a shifted row moves like the export's.
+          const keeps = T366_SHIFTED_ROWS.includes(rowId)
+            ? isShiftOf(written, wanted, preference)
+            : samePaint(mustPaint(written, name), mustPaint(wanted, rowId))
+          expect(keeps, `${name} (${rowId}): ${written} vs ${wanted}`).toBe(true)
         }
       })
     }

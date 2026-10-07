@@ -23,6 +23,7 @@ import {
   NOT_STORED_DELAY_MARK_SIZES,
   NOT_STORED_DEPENDENCY_SIZES,
   NOT_STORED_NAME_LABEL_WEIGHT,
+  bandBaselineYOf,
   boxOfPoints,
   emphasisedWidthOf,
   escaped,
@@ -381,7 +382,7 @@ function labelSvg(
 ): string {
   // TRAP: box.x is already the first glyph's x (T-273 adds S-31 or S-32 there); adding a pad here doubles it.
   const x = anchor === 'end' ? box.x + box.width : box.x
-  const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
+  const y = bandBaselineYOf(box, fontSize)
   const haloWidth = fontSize * settings.labelHaloOfFont
   const datesSize = rounded(fontSize * NOT_STORED_LABEL_SIZES['S-325'])
   const datesSpan =

@@ -4,7 +4,7 @@
 // @purity    pure
 // @publishes table T-064 row PI-19
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, type DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
   customColourOf,
@@ -132,6 +132,18 @@ export function emphasisedWidthOf(own: number): number {
 /** @purity pure */
 export function selectedLineWidth(own: number, selected: boolean): number {
   return selected ? own * NOT_STORED_SELECTION_SIZES['S-178'] : own
+}
+
+// see EP-1, ZO-5
+/** @purity pure */
+export function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
+  return band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline
+}
+
+// see CF-1
+/** @purity pure */
+export function isScheduleColourRow(rowId: string): boolean {
+  return SCHEDULE_COLOURS[rowId] !== undefined
 }
 
 // see FR-041

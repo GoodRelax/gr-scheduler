@@ -753,6 +753,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-19 | 色を、明度を保ったまま無彩色にした色。 |
 | `actualOfCustom` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#actualOfCustom` | -- | function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string |
+| `bandBaselineYOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#bandBaselineYOf` | PI-19 | 帯の箱と字の大きさから、字のベースラインの縦の位置を返す —— 帯の縦の中点から、字の大きさに 表 T-201 の `S-33` を掛けた長さだけ下である。 |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
 | `ChosenColour` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColour` | -- | type ChosenColour = (stored: string \| null, form: ColourForm) => string \| null |
 | `ColourForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColourForm` | -- | type ColourForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
@@ -762,6 +763,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
+| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-19 | 表 T-236 の行 ID が、`colourOf` の答えられる行（日程の図も塗る行）かを返す。 |
 | `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
@@ -1203,6 +1205,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AssigneeCombo` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCombo` | -- | interface AssigneeCombo |
 | `ColourField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourField` | -- | interface ColourField |
 | `ColourName` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourName` | -- | interface ColourName |
+| `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-37 | `SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
 | `ColourSide` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourSide` | -- | interface ColourSide |
 | `ColourThemeEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourThemeEntry` | -- | interface ColourThemeEntry |
 | `CommandItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#CommandItem` | -- | interface CommandItem |
@@ -1244,6 +1247,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
+| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
 | `markColourVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColourVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |
@@ -1713,4 +1717,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 834 name(s) leave through a public entry (324 of them published by table T-064), 669 more are exported by a file and not by its entry.
+Totals: 838 name(s) leave through a public entry (328 of them published by table T-064), 669 more are exported by a file and not by its entry.
