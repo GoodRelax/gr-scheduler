@@ -101,6 +101,54 @@ function fieldCommitOf(target: unknown): FieldCommit | null {
   return pick === undefined ? { row: named.row, key: named.key, text } : { row: named.row, key: named.key, text, pick }
 }
 
+const FIELD_ROW_SELECTOR = '[data-field-row]'
+
+// see IX-17
+/** @purity semi-pure-b */
+function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
+  const control = textEntryControlOf(target)
+  const named = control === null ? undefined : CONTROL_KEYS.get(target as Element)
+  const line = (target as Partial<Element>).parentElement?.closest?.(FIELD_ROW_SELECTOR)
+  if (named === undefined || line === null || line === undefined) return []
+  const drawn = [...line.querySelectorAll(FIELD_ROW_SELECTOR)].filter((one) => CONTROL_KEYS.get(one)?.row === named.row)
+  const entrances = drawn.map(textEntryControlOf).filter((one): one is TextEntryControl => one !== null)
+  return entrances.length > 1 ? entrances : []
+}
+
+// see IX-17, IN-6, UN-13
+// WHY: a row of several entrances settles once, on Enter or when the focus leaves the row: a
+// commit on each entrance's change made one settle two commands and two undo steps (DFC-2223).
+/** @purity non-pure */
+function jointRowOf() {
+  let entrances: readonly TextEntryControl[] = []
+  let textsAtStart: readonly string[] = []
+  const holds = (target: unknown): boolean => entrances.includes(target as TextEntryControl)
+  return {
+    holds,
+    enter: (target: unknown): void => {
+      if (holds(target)) return
+      entrances = rowEntrancesOf(target)
+      textsAtStart = entrances.map((one) => one.value)
+    },
+    restore: (): void => entrances.forEach((one, at) => (one.value = textsAtStart[at] ?? '')),
+    settle: (): FieldCommit | null => {
+      const settled = entrances
+      const isMoved = settled.some((one, at) => one.value !== textsAtStart[at])
+      entrances = []
+      textsAtStart = []
+      const commits = settled.map(fieldCommitOf).filter((one): one is FieldCommit => one !== null)
+      const [first] = commits
+      if (!isMoved || first === undefined) return null
+      return { ...first, entrances: commits.map(({ key, text }) => ({ key, text })) }
+    },
+  }
+}
+
+/** @purity semi-pure-b */
+function activeElementOf(host: Document): unknown {
+  return (host as { readonly activeElement?: unknown }).activeElement
+}
+
 const PANEL_KEY_SEPARATOR = '#'
 
 /** @purity non-pure */
@@ -120,13 +168,14 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   /** @purity non-pure */
   function onFieldChange(event: Event): void {
     const commit = fieldCommitOf(event.target)
-    if (commit === null) return
+    if (commit === null || jointRow.holds(event.target)) return
     const target: unknown = event.target
     if (target === (heldTextControl as unknown) && commit.text === heldTextValueAtFocus) return
     fieldCommit = commit
   }
 
   propertiesPanel.addEventListener('change', onFieldChange)
+  const jointRow = jointRowOf()
 
   const typedControlsByRow = new Map<string, TextEntryControl>()
 
@@ -141,7 +190,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     // WHY: a held control that takes no text stops the panel redraw, so the fields drawn may be
     // the last choice's; let it go, and the next frame draws the field this choice asks for.
     if (isFieldHeld && heldTextControl === null) {
-      const active: unknown = activeElementOfHost()
+      const active: unknown = activeElementOf(host)
       if (propertiesPanel.contains(active as Node)) (active as HTMLElement).blur()
       isFieldHeld = false
       return false
@@ -161,13 +210,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // WHY: a host with no activeElement cannot say where the focus is, so it is read as in.
   /** @purity semi-pure-b */
   function isFocusOn(control: TextEntryControl): boolean {
-    const active = activeElementOfHost()
+    const active = activeElementOf(host)
     return active === undefined || active === control
-  }
-
-  /** @purity semi-pure-b */
-  function activeElementOfHost(): unknown {
-    return (host as { readonly activeElement?: unknown }).activeElement
   }
 
   let isFieldHeld = false
@@ -205,6 +249,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // TRAP: not a new edit: the date entry raises focusin again when a script sets its value.
   propertiesPanel.addEventListener('focusin', (event: Event) => {
     isFieldHeld = true
+    jointRow.enter(event.target)
     const control = textEntryControlOf(event.target)
     const isSameEdit = control !== null && control === heldTextControl
     if (isSameEdit) return
@@ -212,7 +257,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     heldTextValueAtFocus = heldTextControl === null ? '' : heldTextControl.value
     isHeldTextTakenBack = false
   })
-  propertiesPanel.addEventListener('focusout', () => {
+  propertiesPanel.addEventListener('focusout', (event: Event) => {
+    if (!jointRow.holds((event as FocusEvent).relatedTarget)) fieldCommit = jointRow.settle() ?? fieldCommit
     isFieldHeld = false
     holdText(null)
     heldTextValueAtFocus = ''
@@ -235,6 +281,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     // TRAP: do not let go of the control on this press: this listener runs before the shell's,
     // so the ladder would spend a second level on one press.
     held.value = heldTextValueAtFocus
+    jointRow.restore()
     isHeldTextTakenBack = true
   })
 
@@ -272,7 +319,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     if (isPressTakenByStandingNotice(HOST_ENTER)) return
     const commit = fieldCommitOf(event.target)
     if (commit === null) return
-    if (commit.text !== heldTextValueAtFocus) fieldCommit = commit
+    if (jointRow.holds(held)) fieldCommit = jointRow.settle() ?? fieldCommit
+    else if (commit.text !== heldTextValueAtFocus) fieldCommit = commit
     heldTextValueAtFocus = commit.text
     // TRAP: blur before clearing heldTextControl: onFieldChange drops the repeated change only
     // while heldTextControl names the control, or one value is written twice.
@@ -308,10 +356,11 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     const held = heldTextControl
     if (held === null) return
     const pressedOn: unknown = (event as { target?: unknown }).target
-    if (pressedOn === (held as unknown)) return
+    if (pressedOn === (held as unknown) || jointRow.holds(pressedOn)) return
 
     const commit = fieldCommitOf(held)
-    if (commit !== null && commit.text !== heldTextValueAtFocus) {
+    if (jointRow.holds(held)) fieldCommit = jointRow.settle() ?? fieldCommit
+    else if (commit !== null && commit.text !== heldTextValueAtFocus) {
       fieldCommit = commit
       heldTextValueAtFocus = commit.text
     }

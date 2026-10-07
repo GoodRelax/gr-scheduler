@@ -77,6 +77,9 @@ export interface FieldCommit {
   // WHY: how the assignee field was settled: a candidate chosen (text is its uid), the add item
   // chosen (text is the name to create), or absent for a commit with nothing highlighted.
   readonly pick?: 'candidate' | 'add'
+  // see IX-17, UN-13
+  // WHY: a row of several entrances settles once, with every entrance's key and text in drawn order.
+  readonly entrances?: readonly { readonly key: PropertyFieldKey; readonly text: string }[]
 }
 
 // see IF-9

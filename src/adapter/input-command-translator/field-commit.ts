@@ -408,29 +408,36 @@ function commandFromProjectColumn(column: string, text: string, context: InputCo
   return [{ kind: 'setProjectTitle', title: text }]
 }
 
-// see IX-17, CM-88, CM-89, FR-046
-// WHY: an emptied entrance clears the span (DFC-2200); copying the other end back would leave CM-89 unreachable.
+type ExportSpanColumn = 'exportSpanStart' | 'exportSpanFinish'
+
 /** @purity pure */
-function commandsFromExportSpan(
-  column: 'exportSpanStart' | 'exportSpanFinish',
-  text: string,
-  settings: DocumentSettings,
-): readonly DocumentCommand[] {
-  const typed = settledText(text)
-  if (typed === null) return [{ kind: 'clearExportSpan' }]
-  if (dayOf(typed) === null) return []
-  const span = { exportSpanStart: settings.exportSpanStart, exportSpanFinish: settings.exportSpanFinish }
-  return [{ kind: 'setExportSpan', ...span, [column]: typed }]
+function exportSpanTextOf(commit: FieldCommit, side: ExportSpanColumn, settings: DocumentSettings): string {
+  const isSide = (key: FieldCommit['key']): boolean => key.holder === 'documentSettings' && key.column === side
+  const entrance = commit.entrances?.find((one) => isSide(one.key))
+  if (entrance !== undefined) return entrance.text
+  return isSide(commit.key) ? commit.text : (settings[side] ?? '')
+}
+
+// see IX-17, CM-88, CM-89, UN-13
+// WHY: one settle of the row is one command (DFC-2223); one emptied end takes the other's day.
+/** @purity pure */
+function commandsFromExportSpan(commit: FieldCommit, settings: DocumentSettings): readonly DocumentCommand[] {
+  const start = settledText(exportSpanTextOf(commit, 'exportSpanStart', settings))
+  const finish = settledText(exportSpanTextOf(commit, 'exportSpanFinish', settings))
+  if (start === null && finish === null) return [{ kind: 'clearExportSpan' }]
+  if ([start, finish].some((one) => one !== null && dayOf(one) === null)) return []
+  return [{ kind: 'setExportSpan', exportSpanStart: start, exportSpanFinish: finish }]
 }
 
 // see FR-039, CM-74, CM-62, S-234, S-70
 /** @purity pure */
 function commandFromDocumentSettingsColumn(
   column: string,
-  text: string,
+  commit: FieldCommit,
   settings: DocumentSettings,
 ): readonly DocumentCommand[] {
-  if (column === 'exportSpanStart' || column === 'exportSpanFinish') return commandsFromExportSpan(column, text, settings)
+  const text = commit.text
+  if (column === 'exportSpanStart' || column === 'exportSpanFinish') return commandsFromExportSpan(commit, settings)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
@@ -559,7 +566,7 @@ export function commandFromFieldCommit(
     case 'project':
       return commandFromProjectColumn(key.column, commit.text, context)
     case 'documentSettings':
-      return commandFromDocumentSettingsColumn(key.column, commit.text, context.document.documentSettings)
+      return commandFromDocumentSettingsColumn(key.column, commit, context.document.documentSettings)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []
