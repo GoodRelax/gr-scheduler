@@ -151,6 +151,8 @@ const FILTER_LIST_STYLE = 'flex:1 1 auto;min-height:0;overflow:auto;'
 
 const FILTER_SEARCH_STYLE = 'box-sizing:border-box;width:100%;'
 
+const FILTER_BOUND_WORD_STYLE = 'margin-right:0.25em;'
+
 const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
 /** @purity pure */
@@ -328,22 +330,27 @@ function filterValueLine(host: Document, shown: SearchFilterValueView, fontPx: n
 }
 
 // see SV-7
+// WHY: one line per bound, the word on its left, so which input starts the range reads at a glance.
 /** @purity non-pure */
 function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { kind: 'dates' }>, fontPx: number): HTMLElement {
-  const line = made(host, 'div', FILTER_LINE_STYLE)
+  const lines = made(host, 'div', '')
   const bounds = [
-    ['since', menu.from],
-    ['until', menu.to],
+    ['since', menu.from, menu.fromWord],
+    ['until', menu.to, menu.toWord],
   ] as const
-  line.replaceChildren(
-    ...bounds.map(([bound, day]) => {
+  lines.replaceChildren(
+    ...bounds.map(([bound, day, word]) => {
+      const line = made(host, 'label', FILTER_LINE_STYLE + `font-size:${fontPx}px;`)
+      const label = made(host, 'span', FILTER_BOUND_WORD_STYLE)
+      label.textContent = word
       const field = filterControl(host, 'date', fontPx)
       field.setAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE, bound)
       field.value = day ?? ''
-      return field
+      line.replaceChildren(label, field)
+      return line
     }),
   )
-  return line
+  return lines
 }
 
 // see SV-7

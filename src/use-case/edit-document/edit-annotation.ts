@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf, isSameDay, isStoredColour } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isSameDay, isStoredColour, TRANSPARENT } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -71,8 +71,6 @@ export type AnnotationCommand =
       readonly id: string
       readonly fillTransparencyPercent: number | null
     }
-
-const TRANSPARENT = 'transparent'
 
 // see FR-019, CV-1
 // WHY: the outline takes transparent (no line); the pair with the fill is IV-9's, checked on the result.

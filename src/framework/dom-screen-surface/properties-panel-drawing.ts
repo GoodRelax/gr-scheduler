@@ -342,6 +342,7 @@ function checkerColour(row: 'S-336' | 'S-337'): string {
 }
 
 // see T-294, CV-9
+// DEVIATION: spec says the colour field reads TRANSPARENT of T-064 PI-1; DomScreenSurface has no edge to Schedule (components.json), so the spelling is written here (DFC-1067)
 const TRANSPARENT_NAME = 'transparent'
 const UNSET_COLOUR_VALUE = ''
 // TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.

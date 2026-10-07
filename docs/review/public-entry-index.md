@@ -111,6 +111,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字。 |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字（表 T-350 の `WT-1`・`WT-3`） |
+| `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `WbsParentResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#WbsParentResolution` | PI-1 | 型。 |
 | `wbsParentResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#wbsParentResolutionsOf` | PI-1 | どの `Task` の WBS の親も、明記・導いた親（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
@@ -137,7 +138,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
 | `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
-| `TRANSPARENT` | file only | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | -- | const TRANSPARENT = 'transparent' |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
 
@@ -210,6 +210,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/label-placement.ts#NOT_STORED_SIZES` | -- | const NOT_STORED_SIZES: |
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
 | `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へ札を並べ始める位置。 |
+| `planDatesSpanYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
+| `planDateText` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDateText` | PI-5 | 予定の 1 つの日を `ND-4`・`ND-5` の形で書く |
 | `RowPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RowPlacement` | -- | interface RowPlacement |
 | `rowPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#rowPlacesAtZoomY` | PI-5 | その倍率での行の位置。 |
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' |
@@ -231,7 +233,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `labelWidth` | file only | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelWidth` | -- | function labelWidth(text: string, fontSize: number, settings: DrawnSettings): number |
 | `nameLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelOf` | -- | function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean \| null, settings: DrawnSettings): NameLabel |
 | `nameLabelWidthOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelWidthOf` | -- | function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DrawnSettings): number |
-| `planDatesSpanYears` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | -- | function planDatesSpanYears(schedule: Schedule, reader: DayReader): boolean |
 | `outsideLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#outsideLabelOf` | -- | function outsideLabelOf(assignee: string, percent: string): string |
 | `percentLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#percentLabelOf` | -- | function percentLabelOf(task: Task): string |
 | `liftedRows` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#liftedRows` | -- | function liftedRows( rowPlacements: readonly RowPlacement[], band: |
@@ -1695,4 +1696,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 820 name(s) leave through a public entry (318 of them published by table T-064), 665 more are exported by a file and not by its entry.
+Totals: 823 name(s) leave through a public entry (321 of them published by table T-064), 663 more are exported by a file and not by its entry.

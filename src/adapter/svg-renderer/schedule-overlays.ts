@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import { TRANSPARENT, type Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   leaderOf,
   type CommentGeometry,
@@ -17,9 +17,10 @@ import {
   xFromDay,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type {
-  ScreenRect,
-  ScreenRegions,
+import {
+  regionAtPointer,
+  type ScreenRect,
+  type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   NOT_STORED_DUAL_CURSOR_SIZES,
@@ -173,8 +174,6 @@ export function watermarkSvg(
     '</g></g>'
   )
 }
-
-const TRANSPARENT = 'transparent'
 
 // see FR-019, HB-8, HB-9, HB-10, HB-11
 // WHY: the drawn points must be the ones that answer, so the midpoints follow the geometry's hasSideHandles.
@@ -374,12 +373,9 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   if (drawsOperationState && guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
-    const inside =
-      pointer.x >= area.x &&
-      pointer.x <= area.x + area.width &&
-      pointer.y >= area.y &&
-      pointer.y <= area.y + area.height
-    if (inside) {
+    // see CU-2, DC-3
+    // WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
+    if (regionAtPointer(regions, pointer.x, pointer.y) === 'rowArea') {
       const guideColour = themed('S-195')
       const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
       const vertical = (x: number): string =>

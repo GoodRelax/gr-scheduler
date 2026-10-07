@@ -6,7 +6,11 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import { dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
-import { taskPlacement, type ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  taskPlacement,
+  type RowPlacement,
+  type ScheduleLayout,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { DocumentCommand } from './edit-document'
 import type { TreeStateEvent } from './task-group-folding'
 import { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
@@ -25,6 +29,7 @@ export type SearchJumpPlan = {
 export interface SearchJumpReach {
   readonly pxPerDay: number
   readonly leftReachPx: number
+  readonly drawnRows: readonly Pick<RowPlacement, 'groupId' | 'isPinned'>[]
 }
 
 interface JumpPlace {
@@ -78,13 +83,29 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
   return [...writes.values()]
 }
 
-// see SJ-6, T-038
+// see SJ-6, T-038, SJ-7
 /** @purity pure */
 export function searchJumpReachOf(layout: ScheduleLayout, target: SearchJumpTarget): SearchJumpReach {
   const placed = target.kind === 'task' ? taskPlacement(layout, target.taskUid) : null
-  if (placed === null) return { pxPerDay: layout.pxPerDay, leftReachPx: 0 }
+  if (placed === null) return { pxPerDay: layout.pxPerDay, leftReachPx: 0, drawnRows: layout.rows }
   const dateX = placed.shapeKind === 'milestone' ? placed.x + placed.width / 2 : placed.x
-  return { pxPerDay: layout.pxPerDay, leftReachPx: Math.max(0, dateX - placed.occupiedX0) }
+  return { pxPerDay: layout.pxPerDay, leftReachPx: Math.max(0, dateX - placed.occupiedX0), drawnRows: layout.rows }
+}
+
+// see SJ-7, SJ-8, FR-098
+// WHY: a pinned row the reveal opens is not in the last picture, so the room below the pins decides, as for any undrawn row.
+/** @purity pure */
+function isShownAfterJump(
+  document: Document,
+  place: JumpPlace,
+  reveals: readonly DocumentCommand[],
+  hasRoomBelowPins: boolean,
+  reach: SearchJumpReach,
+): boolean {
+  const row = place.groupId
+  if (row === null || !document.documentSettings.pinnedGroupIds.includes(row)) return hasRoomBelowPins
+  if (reach.drawnRows.some((one) => one.groupId === row && one.isPinned === true)) return true
+  return reveals.length > 0 && hasRoomBelowPins
 }
 
 // see SJ-5, SJ-6, SJ-7
@@ -122,7 +143,9 @@ export function searchJumpWrites(
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
   const treeStateWrites = revealWrites(document, place.groupId)
-  if (!hasRoomBelowPins) return { treeStateWrites, scrollWrite: null, isBlockedByPinnedRows: true }
+  if (!isShownAfterJump(document, place, treeStateWrites, hasRoomBelowPins, reach)) {
+    return { treeStateWrites, scrollWrite: null, isBlockedByPinnedRows: true }
+  }
   return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedRows: false }
 }
 

@@ -99,6 +99,7 @@ export {
   customColourOf,
   customSideOf,
   isStoredColour,
+  TRANSPARENT,
 } from './stored-colour'
 export type { CustomColour } from './stored-colour'
 export { scheduleViolations } from './schedule-invariants'
