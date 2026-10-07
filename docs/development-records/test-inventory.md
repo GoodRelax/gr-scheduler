@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 197 | 2532 | 3 | 6 | 8 | 1 |
+| `contract` | TS-5 | VT-2 | 197 | 2532 | 3 | 5 | 8 | 1 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 57 | 380 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 172 | 3852 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 6 | 9 | 0 | 0 |
-| **all** | | | 446 | 6868 | 10 | 18 | 10 | 1 |
+| **all** | | | 446 | 6868 | 10 | 17 | 10 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -446,7 +446,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/w3-t4-a-merge-tells-no-reason-with-a-zero-count.test.ts` | 3 | FR-056 | - | T-032, T-233 | MG-14, NT-9, RS-71, RS-72, RS-73 | - | - | - | - |
 | `tests/contract/w3-t4-a-same-day-finish-to-start-is-no-contradiction.test.ts` | 3 | FR-131 | - | T-310 | AM-19, AT-46, ND-3, PI-1, VC-15 | - | - | - | - |
 | `tests/contract/w3-t4-a-save-stamps-the-bytes-not-the-open-document.test.ts` | 2 | FR-101 | - | T-341 | AT-140, HS-11 | - | - | - | - |
-| `tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts` | 11 | FR-025, FR-096 | - | T-108, T-241 | CM-65, CM-88, IF-9, IX-4, IX-10, IX-12, IX-13, IX-17, K-141, PI-17, PI-21, RS-58, S-81, S-217, S-518, S-519 | - | DFC-2190 | - | - |
+| `tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts` | 11 | FR-025, FR-096 | - | T-108, T-241 | CM-65, CM-88, IF-9, IX-4, IX-10, IX-12, IX-13, IX-17, K-141, PI-17, PI-21, RS-58, S-81, S-217, S-518, S-519 | - | - | - | - |
 | `tests/contract/w3-t4-a-standing-question-takes-no-write.test.ts` | 4 | FR-076 | - | T-037, T-108 | CM-1, NT-7, RS-27 | - | - | - | - |
 | `tests/contract/w3-t4-closing-the-unlock-surface-keeps-the-watermark.test.ts` | 2 | FR-020 | - | T-242 | IC-41, WM-9 | - | - | - | - |
 | `tests/contract/w3-t4-the-halo-spares-each-drawn-shape-with-its-ink.test.ts` | 2 | FR-009 | - | - | AT-46, HT-1, NS-3 | - | - | - | - |

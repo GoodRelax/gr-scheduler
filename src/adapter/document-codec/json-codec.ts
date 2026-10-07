@@ -7,10 +7,14 @@ import type { Document } from '../../entity/document-model/document/document'
 import {
   SETTINGS_DEFAULTS,
   clampedSettings,
+  type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
+  compareDays,
   dayOf,
   lastDayForLength,
+  textOfDayEnd,
+  textOfDayStart,
   textOfFinishSide,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
@@ -378,6 +382,25 @@ export function documentFromJson(
   return settledReading(read, formatVersion, unreadColumns)
 }
 
+// see IX-17, S-518, S-519
+// WHY: a read never refuses a presentation value (T-220 preamble), so one dated end is copied to the
+// other and a finish before its start is pulled to the start's day; neither counts toward RS-51.
+/** @purity pure */
+function pairedExportSpan(settings: DocumentSettings): DocumentSettings {
+  const start = dayOf(settings.exportSpanStart)
+  const finish = dayOf(settings.exportSpanFinish)
+  const startDay = start ?? finish
+  const finishDay = finish ?? start
+  if (startDay === null || finishDay === null) return settings
+  if (start !== null && finish !== null && compareDays(finish, start) >= 0) return settings
+  const pulled = compareDays(finishDay, startDay) < 0 ? startDay : finishDay
+  return {
+    ...settings,
+    exportSpanStart: start === null ? textOfDayStart(startDay) : settings.exportSpanStart,
+    exportSpanFinish: pulled === finish ? settings.exportSpanFinish : textOfDayEnd(pulled),
+  }
+}
+
 // see FR-012, OP-6, RS-51, RS-52
 /** @purity pure */
 function settledReading(
@@ -389,9 +412,11 @@ function settledReading(
   const recounted = recount.schedule === read.schedule ? read : { ...read, schedule: recount.schedule }
   const recountedCount = recount.movedTaskUids.length
 
-  const clamp = clampedSettings(recounted.documentSettings)
+  const paired = pairedExportSpan(recounted.documentSettings)
+  const clamp = clampedSettings(paired)
   if (clamp.clamped.length === 0) {
-    return { ok: true, document: recounted, clampedCount: 0, recountedCount, formatVersion, unreadColumns }
+    const settled = paired === recounted.documentSettings ? recounted : { ...recounted, documentSettings: paired }
+    return { ok: true, document: settled, clampedCount: 0, recountedCount, formatVersion, unreadColumns }
   }
   // WHY: rowGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
   // it, but it is left out of the count RS-51 tells.
