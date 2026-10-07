@@ -92,7 +92,11 @@ const NAMED_UID = 5
 const EDITED_ROWS = ['PR-1', 'AT-53', 'U-27', 'U-60'] as const
 
 const STATE_VALUES: Readonly<Record<string, Readonly<Record<string, readonly Loose[]>>>> = {
-  createdTaskNamingStateMachine: { idle: [{}], namingCreatedTask: [{ createdTaskUid: NAMED_UID }] },
+  createdTaskNamingStateMachine: {
+    idle: [{}],
+    namingCreatedTask: [{ createdTaskUid: NAMED_UID }],
+    createdNameEnded: [{ createdTaskUid: NAMED_UID }],
+  },
   fieldEditStateMachine: {
     idle: [{}],
     fieldFocusWanted: FIELD_ROWS.map((fieldRow) => ({ fieldRow })),
@@ -148,6 +152,8 @@ function guardHolds(guard: RawGuard, entry: Loose, event: Loose): boolean {
   switch (guard.name) {
     case 'isCreatedTask':
       return (event['created'] as Loose | undefined)?.['kind'] === 'task'
+    case 'isNameField':
+      return event['fieldRow'] === TASK_FIELD
     case 'isEditedField': {
       const edit = entry['fieldEditState'] as Loose
       return edit['kind'] === 'editingField' && edit['fieldRow'] === event['fieldRow']
@@ -161,11 +167,13 @@ function pick(cell: RawCell | undefined, entry: Loose, event: Loose): RawBranch 
   return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, entry, event) !== (g.not === true)))
 }
 
-// WHY: the T-292 notes say which carried value a cell writes; FR-091 names the created
-// task, HF-14 the added row, so a creation asks for PR-1 or AT-53.
-function expectedCarried(target: string, event: Loose): Loose {
+// WHY: the T-292 notes say which carried value a cell writes; only a creation writes a new
+// createdTaskUid (FR-091), and a creation asks for PR-1 or AT-53 (HF-14).
+function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   const created = event['created'] as Loose | undefined
-  if (target === 'namingCreatedTask') return { createdTaskUid: created?.['uid'] }
+  const isCreation = event['type'] === 'creationLanded'
+  if (target === 'namingCreatedTask' && isCreation) return { createdTaskUid: created?.['uid'] }
+  if (target === 'namingCreatedTask' || target === 'createdNameEnded') return { createdTaskUid: before['createdTaskUid'] }
   if (target === 'editingField') return { fieldRow: event['fieldRow'] }
   if (target !== 'fieldFocusWanted') return {}
   if (event['type'] === 'fieldFocusAsked') return { fieldRow: event['fieldRow'] }
@@ -194,7 +202,7 @@ function expectEntryStep(session: ScreenSession, event: Loose): void {
   const changes = fired.filter((f) => {
     const now = before[fieldOf(f.machine.name)] as Loose
     if (kindOf(now) !== f.branch.to) return true
-    return Object.entries(expectedCarried(String(f.branch.to), event)).some(([k, v]) => now[k] !== v)
+    return Object.entries(expectedCarried(String(f.branch.to), now, event)).some(([k, v]) => now[k] !== v)
   })
 
   const result = step(session, event)
@@ -217,7 +225,7 @@ function expectEntryStep(session: ScreenSession, event: Loose): void {
     }
     const value = after[field] as Loose
     expect(kindOf(value), `${m.name} lands on ${String(f.branch.to)}`).toBe(f.branch.to)
-    for (const [k, v] of Object.entries(expectedCarried(String(f.branch.to), event))) {
+    for (const [k, v] of Object.entries(expectedCarried(String(f.branch.to), before[field] as Loose, event))) {
       expect(value[k], `${m.name}.${k}`).toEqual(v)
     }
   }
@@ -272,6 +280,7 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
     mergeCandidates: [],
     unreadColumns: [],
     droppedTaskNames: [],
+    missingTaskNames: [],
     openedFileName: null,
     pickedObjects: { items: [{ kind: 'task', uid: 1 }], ordered: true },
     remainingObjects: { items: [], ordered: true },

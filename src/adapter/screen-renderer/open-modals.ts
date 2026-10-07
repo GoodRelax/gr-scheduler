@@ -68,6 +68,8 @@ const IMPORT_REPORT = 'Import Report'
 
 const IMPORT_REPORT_REASON = 'RS-50'
 
+const MISSING_TASKS_REASON = 'RS-73'
+
 const NEWER_FORMAT_VERSION_REASON = 'RS-48'
 
 // see FR-073
@@ -87,6 +89,20 @@ function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
     unreadNextStep: said.nextStep,
     ...(link === null ? {} : { unreadNextStepLink: link }),
   }
+}
+
+// see MG-14, U-62, RS-73
+// WHY: a reason with no names has no words on the surface (MG-14 tells no zero count).
+/** @purity pure */
+function missingWords(readings: ScreenViewReadings, language: DisplayLanguage): {
+  readonly missingTaskNames: readonly (string | null)[]
+  readonly missingText: string
+  readonly missingNextStep: string
+} {
+  const missingTaskNames = readings.missingTaskNames ?? []
+  if (missingTaskNames.length === 0) return { missingTaskNames, missingText: '', missingNextStep: '' }
+  const said = reasonSurfaceWords(MISSING_TASKS_REASON, language)
+  return { missingTaskNames, missingText: said.text, missingNextStep: said.nextStep }
 }
 
 const WATERMARK_UNLOCK_QUESTION = 'QN-9'
@@ -468,6 +484,7 @@ export function openModalFromSession(
       commands,
       droppedTaskNames: readings.droppedTaskNames ?? [],
       ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
+      ...missingWords(readings, language),
     }
   }
 

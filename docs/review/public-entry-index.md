@@ -863,7 +863,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fadeColumnsByFieldId` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#fadeColumnsByFieldId` | -- | function fadeColumnsByFieldId(root: XmlElement): ReadonlyMap<number, FadeColumn> |
 | `fadeOfCarried` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#fadeOfCarried` | -- | function fadeOfCarried( carried: readonly CarryElement[], fadeColumns: ReadonlyMap<number, FadeColumn>, ): FadeReading |
 | `writtenFadeDefinitions` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#writtenFadeDefinitions` | -- | function writtenFadeDefinitions( frames: readonly ClaimedFrame[], carried: readonly CarryElement[], carry: Readonly<Record<string, string>>, ): FadeDefinitions |
-| `writtenFadeValues` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#writtenFadeValues` | -- | function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] |
+| `WrittenFadeValues` | file only | interface | `src/adapter/document-codec/mspdi-fade-frames.ts#WrittenFadeValues` | -- | interface WrittenFadeValues |
+| `writtenFadeValues` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#writtenFadeValues` | -- | function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): WrittenFadeValues |
 | `rowsFromTasks` | file only | function | `src/adapter/document-codec/mspdi-imported-rows.ts#rowsFromTasks` | -- | function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedRows |
 | `fault` | file only | function | `src/adapter/document-codec/mspdi-xml.ts#fault` | -- | function fault(at: string, what: string): MspdiFault |
 | `readXml` | file only | function | `src/adapter/document-codec/mspdi-xml.ts#readXml` | -- | function readXml(text: string): XmlReading |
@@ -959,7 +960,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OPEN_ROUTE_FROM_CHOOSER` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_CHOOSER` | -- | const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser' |
 | `OPEN_ROUTE_FROM_DROP` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_DROP` | -- | const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop' |
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
-| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedDocument \| nul... |
+| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
@@ -967,9 +968,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
 | `FieldFocusRetries` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldFocusRetries` | -- | type FieldFocusRetries = ReturnType<typeof fieldFocusRetriesOf> |
 | `fieldFocusRetriesOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#fieldFocusRetriesOf` | -- | function fieldFocusRetriesOf(hands: FieldEntryHands) |
+| `isCreatedNameEnded` | file only | function | `src/framework/single-html-shell/field-entry.ts#isCreatedNameEnded` | -- | function isCreatedNameEnded(hands: FieldEntryHands): boolean |
 | `isEditingField` | file only | function | `src/framework/single-html-shell/field-entry.ts#isEditingField` | -- | function isEditingField(hands: FieldEntryHands): boolean |
 | `isFieldFocusWanted` | file only | function | `src/framework/single-html-shell/field-entry.ts#isFieldFocusWanted` | -- | function isFieldFocusWanted(hands: FieldEntryHands): boolean |
-| `isNamingCreatedTaskIn` | file only | function | `src/framework/single-html-shell/field-entry.ts#isNamingCreatedTaskIn` | -- | function isNamingCreatedTaskIn(session: ScreenSession): boolean |
 | `noteChoiceMoved` | file only | function | `src/framework/single-html-shell/field-entry.ts#noteChoiceMoved` | -- | function noteChoiceMoved(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `spendFieldCommit` | file only | function | `src/framework/single-html-shell/field-entry.ts#spendFieldCommit` | -- | function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): boolean |
 | `tryWantedFieldBeforeInput` | file only | function | `src/framework/single-html-shell/field-entry.ts#tryWantedFieldBeforeInput` | -- | function tryWantedFieldBeforeInput( hands: FieldEntryHands, fieldFocusRetries: Pick<FieldFocusRetries, 'focusWantedField'>, input: HumanInput, ): void |
@@ -1709,4 +1710,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 833 name(s) leave through a public entry (324 of them published by table T-064), 666 more are exported by a file and not by its entry.
+Totals: 833 name(s) leave through a public entry (324 of them published by table T-064), 667 more are exported by a file and not by its entry.

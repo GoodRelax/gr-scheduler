@@ -1179,9 +1179,10 @@ function writtenTask(
   frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): XmlElement {
+  const fade = writtenFadeValues(task, frames)
   const named: PlacedChild[] = [
     leaf('UID', String(task.uid)),
-    // DEVIATION: spec says unedited tasks keep their values (EX-2); here ID and outline columns are rebuilt (DFC-564)
+    // WHY: ID, OutlineNumber, OutlineLevel and Summary are values of the order and the tree, not of the task (EX-2).
     leaf('ID', String(index + base)),
     ...optionalLeaf('Name', task.name),
     ...optionalLeaf('OutlineNumber', numbers.get(task.uid) ?? null),
@@ -1201,7 +1202,7 @@ function writtenTask(
     ...writtenActualDuration(task, schedule, minutesPerDay, run),
     ...writtenStop(task),
     ...task.dependencies.map(writtenDependency),
-    ...writtenFadeValues(task, frames),
+    ...fade.appended,
     ...writtenConstraintOfGrs(task, schedule, run),
   ]
   const carry = schedule.project.sourceFormat === 'grs'
@@ -1210,7 +1211,7 @@ function writtenTask(
   return {
     name: 'Task',
     text: '',
-    children: writtenChildren(PATHS.task, named, carry, task.carryElements),
+    children: writtenChildren(PATHS.task, named, carry, fade.carried),
   }
 }
 

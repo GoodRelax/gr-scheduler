@@ -16,8 +16,9 @@ import type {
   FileFlowQuestion,
   FileFlowWriteForm,
   FileOperationState,
+  SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { importDocument, type OpenChoice } from '../../use-case/import-document/import-document'
+import { importDocument, type ImportRequest, type OpenChoice } from '../../use-case/import-document/import-document'
 import { validateImportedDocument } from '../../use-case/validate-imported-document/validate-imported-document'
 import {
   documentFromEmbeddedHtml,
@@ -109,6 +110,11 @@ const PERCENT_COMPLETE_RECOUNTED_REASON: NoticeReason = 'RS-52'
 const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
+
+// see MG-14
+const MERGE_OVERWROTE_REASON: NoticeReason = 'RS-71'
+
+const MERGE_KEPT_REASON: NoticeReason = 'RS-72'
 
 const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
 
@@ -544,16 +550,61 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
   hands.sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(hands.readHeld().document) }, frame)
 }
 
+// see T-290, FR-023, MG-14
+type ReportedTaskNames = Pick<
+  Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>,
+  'droppedTaskNames' | 'missingTaskNames'
+>
+
+type ImportReport = Extract<ReturnType<typeof importDocument>, { readonly ok: true }>['report']
+
 /** @purity non-pure */
 function landOpenedDocument(
   hands: DocumentFileFlowHands,
-  droppedTaskNames: readonly (string | null)[],
+  names: ReportedTaskNames,
   openChoice: OpenChoice,
   newer: NewerFormatReading,
   openedFileName: string | null = null,
 ): void {
-  hands.sendFromFlow({ type: 'documentOpenLanded', droppedTaskNames, openedFileName, openChoice })
+  hands.sendFromFlow({ type: 'documentOpenLanded', ...names, openedFileName, openChoice })
   tellNewerFormat(hands, newer)
+}
+
+// see MG-11, MG-14, RS-73
+/** @purity pure */
+function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedTaskNames['missingTaskNames'] {
+  if (report === null) return []
+  const missing = new Set(report.taskUidsMissingSinceLastImport)
+  return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
+}
+
+// see MG-14, RS-71, RS-72, OP-15, RS-16
+// WHY: a zero count tells nothing (MG-14); an overlay or a replacement is no merge.
+/** @purity non-pure */
+function tellImportReport(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, report: ImportReport): void {
+  const notDrawn = report.baselineTaskUidsNotDrawn.length
+  if (report.choice === 'baseline' && notDrawn > 0) hands.raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
+  if (report.choice !== 'merge') return
+  const overwritten = report.overwrittenTaskUids.length
+  if (overwritten > 0) hands.raiseNotice(MERGE_OVERWROTE_REASON, overwritten)
+  const kept = report.taskUidsOnlyInCurrent.length
+  if (kept > 0) hands.raiseNotice(MERGE_KEPT_REASON, kept)
+}
+
+// see MG-14, OP-15, T-290
+// WHY: asked a second time because ReplaceOutcome carries no ImportReport.
+/** @purity non-pure */
+function landImportedDocument(
+  hands: DocumentFileFlowHands,
+  request: ImportRequest,
+  droppedTaskNames: readonly (string | null)[],
+  newer: NewerFormatReading,
+): void {
+  const outcome = importDocument(request)
+  const report = outcome.ok ? outcome.report : null
+  const missingTaskNames = missingTaskNamesOf(request.current, report)
+  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames }, request.choice, newer)
+  if (report !== null) tellImportReport(hands, report)
 }
 
 // see FR-060, FR-101, HS-6, T-290
@@ -570,7 +621,7 @@ function landReplacedDocument(
 ): void {
   store?.adoptFileReadToOpen()
   flow.noteFileOpened(incoming.documentStamp.fileSavedUtc, readIn.byteLength)
-  landOpenedDocument(hands, droppedTaskNames, 'replace', newer, readIn.fileName)
+  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames: [] }, 'replace', newer, readIn.fileName)
 }
 
 // see OP-2, OP-5, OP-12, T-230
@@ -578,7 +629,7 @@ function landReplacedDocument(
 export async function openDocumentIntoHold(
   hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
   route: OpenRoute,
-  handed: HandedDocument | null = null,
+  handed: HandedImport | null = null,
 ): Promise<boolean> {
   const current = hands.readHeld().document
 
@@ -708,21 +759,9 @@ export async function openDocumentIntoHold(
     updatedUtc: readInstantOfWrite(),
   })
 
-  if (landed) landOpenedDocument(hands, droppedNames, choice, { ...newer, isUnreadAsked: mergeAnswers !== null })
-
-  if (!landed || choice !== 'baseline') return landed
-
-  // WHY: asked a second time because ReplaceOutcome carries no ImportReport.
-  const overlaid = importDocument({
-    ...importing,
-    choice,
-    merge: mergeAnswers,
-    current: importedAgainst,
-  })
-  if (!overlaid.ok) return landed
-
-  const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
-  if (notDrawn > 0) hands.raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
+  if (!landed) return false
+  const request = { ...importing, choice, merge: mergeAnswers, current: importedAgainst }
+  landImportedDocument(hands, request, droppedNames, { ...newer, isUnreadAsked: mergeAnswers !== null })
   return landed
 }
 
@@ -745,10 +784,6 @@ function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, de
   if (decoded.recountedCount > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, decoded.recountedCount)
   if (decoded.duplicateLeaves > 0) hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
 }
-
-// see OP-3, FR-022
-// WHY: no open choice rides with a handed document; the person picks it on the chooser (JDG-130).
-type HandedDocument = Omit<HandedImport, 'choice'>
 
 // see FR-012, RS-52
 type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> & {

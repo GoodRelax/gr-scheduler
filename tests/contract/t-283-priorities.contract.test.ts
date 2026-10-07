@@ -229,7 +229,7 @@ describe(`table T-283, Enter (RG-9..RG-12) -- SK-19 (MUST): ${SK_19_SELECTION}`,
   it('RG-10 settles either an unsettled field edit or the name of a task just made', () => {
     expect(RUNGS.find((r) => r.id === 'RG-10')?.states).toEqual([
       { in: 'fieldEditStateMachine.editingField' },
-      { in: 'createdTaskNamingStateMachine.namingCreatedTask' },
+      { in: 'createdTaskNamingStateMachine.createdNameEnded' },
     ])
   })
 })

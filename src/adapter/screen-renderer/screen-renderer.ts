@@ -453,6 +453,9 @@ export type OpenModal =
       readonly text: string
       readonly nextStep: string
       readonly dismissText: string
+      readonly missingTaskNames: readonly (string | null)[]
+      readonly missingText: string
+      readonly missingNextStep: string
     })
   // TRAP: this string member never narrows and lets a misspelled name compile; narrow by a carried member.
   | (OpenSurface & { readonly surface: string })
@@ -620,6 +623,7 @@ export interface ScreenViewReadings {
   readonly mergeCandidates?: readonly MergeCandidateLine[]
   readonly unreadColumns?: readonly string[]
   readonly droppedTaskNames?: readonly (string | null)[]
+  readonly missingTaskNames?: readonly (string | null)[]
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]

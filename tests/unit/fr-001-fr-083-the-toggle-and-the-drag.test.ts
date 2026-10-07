@@ -858,6 +858,7 @@ interface ScreenPane {
    * write made while an entry stands, and the creation itself is such a write.
    */
   holdTextEntry(standing: boolean): void
+  endHeldEntryOnEnter(which: string): void
   last(): ScreenView
 }
 
@@ -886,6 +887,11 @@ function screenPane(language: DisplayLanguage): ScreenPane {
       textEntryStanding = standing
       // WHY: PR-1 is the row the name field names (table T-016).
       pending.push({ kind: standing ? 'began' : 'ended', row: 'PR-1' })
+    },
+    endHeldEntryOnEnter(which) {
+      if (which !== 'Enter' || !textEntryStanding) return
+      textEntryStanding = false
+      pending.push({ kind: 'ended', row: 'PR-1' })
     },
     last: () => {
       const view = views[views.length - 1]
@@ -998,8 +1004,10 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     },
     movePointer: (at) => send(pointer('move', at.x, at.y)),
     letGo: (at) => send(pointer('up', at.x, at.y)),
-    pressKey: (which) =>
-      send({ kind: 'key', key: which, modifiers: { ...NO_MODIFIERS } } as HumanInput),
+    pressKey: (which) => {
+      screen.endHeldEntryOnEnter(which)
+      send({ kind: 'key', key: which, modifiers: { ...NO_MODIFIERS } } as HumanInput)
+    },
     picture: () => loop.current() as any,
     panel: () => screen.last().propertiesPanel,
     holdTextEntry: (standing) => screen.holdTextEntry(standing),
@@ -1335,6 +1343,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
     // T-023c's value does not leave the loop. `SK-3` of table T-036 deletes what
     // is chosen, so a Delete that removes nothing is a selection that is gone.
     const built = drawnTask()
+    built.holdTextEntry(true)
     built.pressKey('Enter')
     built.pressKey('Delete')
     expect((built.loop.document().schedule as any).tasks.length).toBe(1)

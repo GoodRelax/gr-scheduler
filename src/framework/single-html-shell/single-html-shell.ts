@@ -18,10 +18,12 @@ import {
 } from '../../adapter/document-codec/document-codec'
 import {
   UNTITLED_DOCUMENT_TITLE,
+  dialogueMessageFromInput,
   type DisplayLanguage,
   type ScreenSurface,
   type SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
+import { postDialogueMessage } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import { domInputSource, escapeKeyLockOf, type EscapeKeyLock } from '../dom-input-source/dom-input-source'
 import {
   domScreenSurface,
@@ -441,6 +443,17 @@ function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string):
   })
 }
 
+// see SF-10, AG-11, FR-066
+// TRAP: read before the view is shown: showing it forgets the settled utterance (dom-screen-surface.ts).
+/** @purity non-pure */
+function postSettledUtterance(surface: ScreenSurface, running: FrameLoop | null): void {
+  const input = surface.readDialogueInput()
+  const utterance = input === null ? null : dialogueMessageFromInput(input)
+  if (utterance === null || running === null) return
+  const seams = running.agentApiSeams()
+  postDialogueMessage(utterance, seams.dialogueHolder, seams.dialogueAudience)
+}
+
 /** @purity non-pure */
 function boot(): void {
   // TRAP: must stay the first statement; the lines below write the screen into the page IF-8 hands out.
@@ -580,6 +593,7 @@ function boot(): void {
       paintPageGround()
       nameDocumentLanguage(view.language)
       nameBrowserTab(view.appHeaderItems.documentTitle)
+      postSettledUtterance(screenSurface, loop)
       screenSurface.showScreenView(view)
     },
   }

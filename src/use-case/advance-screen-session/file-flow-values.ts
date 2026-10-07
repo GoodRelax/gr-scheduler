@@ -74,6 +74,7 @@ export interface FileFlowValuesStateCarried {
   readonly incomingFile: FileFlowIncomingFile
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: readonly (string | null)[]
   readonly openRoute: FileFlowOpenRoute
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
@@ -93,6 +94,7 @@ export interface FileFlowValuesEventCarried {
   readonly incomingFile: FileFlowIncomingFile
   readonly surfaceName: string
   readonly droppedTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: FileFlowValuesStateCarried['missingTaskNames']
   readonly openedFileName: string | null
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
@@ -206,7 +208,7 @@ type EventOf<T extends FileFlowValuesEvent['type']> = Extract<FileFlowValuesEven
 
 type Effects = readonly FileFlowValuesEffect[]
 
-const NO_DROPPED_TASK_NAMES: readonly (string | null)[] = Object.freeze([])
+const NO_TASK_NAMES: readonly (string | null)[] = Object.freeze([])
 
 const IDLE = FILE_FLOW_VALUES_INITIAL_AXES.fileOperationState
 
@@ -220,7 +222,8 @@ const EDITS_UNSAVED: UnsavedEditsState = { kind: 'editsUnsaved' }
 export const emptyFileFlowValues: FileFlowValues = {
   ...FILE_FLOW_VALUES_INITIAL_AXES,
   openedFileName: null,
-  droppedTaskNames: NO_DROPPED_TASK_NAMES,
+  droppedTaskNames: NO_TASK_NAMES,
+  missingTaskNames: NO_TASK_NAMES,
 }
 
 /** @purity pure */
@@ -245,9 +248,15 @@ function isOverwriteQuestion(values: FileFlowValues): boolean {
   return confirmation.kind === 'questionAsked' && confirmation.question.question === 'QN-4'
 }
 
+// see U-62, FR-023, MG-14
 /** @purity pure */
-function hasDroppedTasks(names: readonly (string | null)[]): boolean {
-  return names.length > 0
+function hasTasksToReport(names: Pick<FileFlowValues, 'droppedTaskNames' | 'missingTaskNames'>): boolean {
+  return names.droppedTaskNames.length > 0 || names.missingTaskNames.length > 0
+}
+
+/** @purity pure */
+function emptied(names: readonly (string | null)[]): readonly (string | null)[] {
+  return names.length === 0 ? names : NO_TASK_NAMES
 }
 
 /** @purity pure */
@@ -411,11 +420,12 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
   const kind = values.fileOperationState.kind
   const isChooser = kind === 'awaitingOpenChoice' && event.surfaceName === 'U-56'
   const isReview = kind === 'awaitingMergeMapping' && event.surfaceName === 'U-61'
-  const droppedTaskNames = event.surfaceName === 'U-62' && hasDroppedTasks(values.droppedTaskNames)
-    ? NO_DROPPED_TASK_NAMES
-    : values.droppedTaskNames
-  if (!isChooser && !isReview) return combined(values, { droppedTaskNames }, NO_EFFECTS)
-  return combined(values, { droppedTaskNames, fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
+  const isReport = event.surfaceName === 'U-62'
+  const droppedTaskNames = isReport ? emptied(values.droppedTaskNames) : values.droppedTaskNames
+  const missingTaskNames = isReport ? emptied(values.missingTaskNames) : values.missingTaskNames
+  const names = { droppedTaskNames, missingTaskNames }
+  if (!isChooser && !isReview) return combined(values, names, NO_EFFECTS)
+  return combined(values, { ...names, fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
 }
 
 // WHY: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
@@ -427,10 +437,11 @@ function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOp
   const fileOperationState = values.fileOperationState.kind === 'importingDocument' ? IDLE : values.fileOperationState
   const landed = isReplaceChoice(event.openChoice) ? NOTHING_UNSAVED : EDITS_UNSAVED
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, landed)
-  if (!hasDroppedTasks(event.droppedTaskNames)) {
+  if (!hasTasksToReport(event)) {
     return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
   }
-  const moves = { openedFileName, fileOperationState, unsavedEditsState, droppedTaskNames: event.droppedTaskNames }
+  const names = { droppedTaskNames: event.droppedTaskNames, missingTaskNames: event.missingTaskNames }
+  const moves = { openedFileName, fileOperationState, unsavedEditsState, ...names }
   return combined(values, moves, [{ type: 'raiseFlowSurface', surfaceName: 'U-62' }])
 }
 

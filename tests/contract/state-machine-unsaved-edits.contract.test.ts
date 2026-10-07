@@ -89,8 +89,8 @@ const CONFIRMATIONS: readonly Loose[] = [
 ]
 
 const ROOTS: readonly Loose[] = [
-  { openedFileName: null, droppedTaskNames: [] },
-  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B'] },
+  { openedFileName: null, droppedTaskNames: [], missingTaskNames: [] },
+  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B'], missingTaskNames: [] },
 ]
 
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
@@ -108,10 +108,10 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
-    { droppedTaskNames: [], openedFileName: 'next.xml', openChoice: 'replace' },
-    { droppedTaskNames: ['Task C'], openedFileName: null, openChoice: 'replace' },
-    { droppedTaskNames: [], openedFileName: null, openChoice: 'merge' },
-    { droppedTaskNames: ['Task C'], openedFileName: 'next.xml', openChoice: 'baseline' },
+    { droppedTaskNames: [], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'replace' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: [], openedFileName: null, openChoice: 'replace' },
+    { droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
@@ -236,7 +236,7 @@ describe('SD-3 (T-290): every unsavedEditsStateMachine state x every fileFlow ev
 })
 
 describe('OP-3: the choice is read from the landing, both ways of the guarded pair', () => {
-  const landed = (openChoice: string): Loose => ({ type: 'documentOpenLanded', droppedTaskNames: [], openedFileName: null, openChoice })
+  const landed = (openChoice: string): Loose => ({ type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice })
   const importing = (kind: string): ScreenSession =>
     withFlow({ fileOperationState: { kind: 'importingDocument' }, unsavedEditsState: { kind } })
 
@@ -312,7 +312,7 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
     const after = flowOf(result.state)
     // see T-290, FR-095
     const rootMoves = type === 'newDocumentLanded' && before['openedFileName'] !== null
-    for (const key of ['fileOperationState', 'confirmationState', 'openedFileName', 'droppedTaskNames']) {
+    for (const key of ['fileOperationState', 'confirmationState', 'openedFileName', 'droppedTaskNames', 'missingTaskNames']) {
       if (key === 'openedFileName' && type === 'newDocumentLanded') expect(after[key], key).toBeNull()
       else expect(after[key], key).toBe(before[key])
     }
@@ -322,8 +322,8 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
 
   it('a — cell of this machine on a shared event with nothing else moving returns the same session and NO_EFFECTS', () => {
     const cases: [string, Loose][] = [
-      ['nothingUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], openedFileName: null, openChoice: 'replace' }],
-      ['editsUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], openedFileName: null, openChoice: 'merge' }],
+      ['nothingUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'replace' }],
+      ['editsUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'merge' }],
       ['nothingUnsaved', { type: 'documentFileSaved', openedFileName: null }],
     ]
     for (const [kind, event] of cases) {

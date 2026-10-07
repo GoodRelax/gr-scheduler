@@ -215,8 +215,8 @@ import {
   drainFieldEditNotices,
   fieldFocusRetriesOf,
   isEditingField,
+  isCreatedNameEnded,
   isFieldFocusWanted,
-  isNamingCreatedTaskIn,
   noteChoiceMoved,
   spendFieldCommit,
   tryWantedFieldBeforeInput,
@@ -713,6 +713,8 @@ export type NoticeReason =
   | 'RS-68'
   | 'RS-69'
   | 'RS-70'
+  | 'RS-71'
+  | 'RS-72'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -775,6 +777,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-68': 'NT-5',
   'RS-69': 'NT-1',
   'RS-70': 'NT-1',
+  'RS-71': 'NT-3',
+  'RS-72': 'NT-5',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -1003,6 +1007,7 @@ interface ScreenViewReadingsTaken {
   readonly mergeCandidates: readonly MergeCandidateLine[]
   readonly unreadColumns: readonly string[]
   readonly droppedTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: ScreenSession['fileFlow']['missingTaskNames']
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
@@ -2178,7 +2183,6 @@ export function frameLoop(
   let drawnPicture: DrawnPicture | null = null
   let isTooltipStanding = false
   let shownNotices: ScreenView['notices'] = []
-  // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
   const changeWatchers = emptyChangeWatchers()
 
@@ -2431,6 +2435,7 @@ export function frameLoop(
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
           droppedTaskNames: session.fileFlow.droppedTaskNames,
+          missingTaskNames: session.fileFlow.missingTaskNames,
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
@@ -2714,6 +2719,7 @@ export function frameLoop(
           mergeCandidates: [],
           unreadColumns: [],
           droppedTaskNames: [],
+          missingTaskNames: [],
           notices: [],
           searchPanel: windows.searchPanel(),
         // TRAP: canUndo and canRedo stay absent; false would draw a faint undo entrance.
@@ -3264,11 +3270,11 @@ export function frameLoop(
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
     if (isAnySurfaceStanding(session)) return
-    const isNaming = isNamingCreatedTaskIn(session)
+    const isNameEnded = isCreatedNameEnded(hands)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
-    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))
+    const hasNoUnsettledEntry = isNameEnded || !(didSettleFieldEntry || isEditingField(hands))
     const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
-    sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
+    sendToSession(isNameEnded ? { type: 'createdNameSettled' } : settleKey, frame)
   }
 
   /** @purity non-pure */
