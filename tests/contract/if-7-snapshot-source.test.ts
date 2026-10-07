@@ -193,6 +193,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
     const snapshot: AgentSnapshot = {
       defaultRowName: DEFAULT_ROW_NAME,
       document,
+      documentAsWritten: document,
       selection: emptySelection(),
       dialogue,
       frame: frame === null ? null : { ...frame },

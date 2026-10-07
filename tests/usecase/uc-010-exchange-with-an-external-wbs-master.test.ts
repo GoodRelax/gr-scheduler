@@ -12,7 +12,13 @@ const EDITED_NAME = 'Renamed in GRS'
 const mspdiDifferences = (page: Page, left: string, right: string, namespaceBlind = false): Promise<string[]> =>
   page.evaluate(
     ({ left, right, namespaceBlind }) => {
-      const parse = (text: string) => new DOMParser().parseFromString(text, 'application/xml').documentElement
+      // see NR-7, DV-12
+      // WHY: Project/LastSaved is made at every write, so it is dropped from both sides first.
+      const parse = (text: string) => {
+        const root = new DOMParser().parseFromString(text, 'application/xml').documentElement
+        for (const made of [...root.children].filter((k) => k.localName === 'LastSaved' && k.namespaceURI === root.namespaceURI)) made.remove()
+        return root
+      }
       const duration = /^-?P(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/
       const leafValue = (text: string): string => {
         const d = text.match(duration)

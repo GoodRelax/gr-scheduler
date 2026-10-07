@@ -832,7 +832,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
           refusal: notAvailable('AM-15', snapshot, 'the wiring carries no AppShellSource (IF-8)'),
         }
       }
-      const made = await DocumentCodec.exportEmbeddedHtml(seam, snapshot.document)
+      const made = await DocumentCodec.exportEmbeddedHtml(seam, snapshot.documentAsWritten)
       if (!made.ok) {
         return {
           ok: false,

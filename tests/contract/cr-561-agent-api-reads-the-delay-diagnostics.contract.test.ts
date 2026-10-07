@@ -124,6 +124,7 @@ function bench(statusDate: string | null): Bench {
   const snapshotOf = (): AgentSnapshot => ({
     defaultRowName: DEFAULT_ROW_NAME,
     document: state.document,
+    documentAsWritten: state.document,
     selection: state.selection,
     dialogue: state.dialogue,
     frame: frameOf(state.document),

@@ -206,7 +206,7 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
 // see AT-140, HS-11
 // WHY: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
 /** @purity pure */
-function documentStampedAt(document: Document, savedAt: string | null): Document {
+export function documentStampedAt(document: Document, savedAt: string | null): Document {
   return { ...document, documentStamp: { ...document.documentStamp, fileSavedUtc: savedAt } }
 }
 
