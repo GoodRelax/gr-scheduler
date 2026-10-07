@@ -70,7 +70,7 @@ describe('the clauses are the specification words', () => {
 describe('EX-15: a document GRS made writes the pj12 namespace', () => {
   it(EX_15_GRS_MADE, () => {
     const document = templateDocument()
-    expect(document.schedule.project.sourceFormat === 'mspdi', 'precondition: the template is not an MSPDI import').toBe(false)
+    expect(document.schedule.project.sourceFormat, 'precondition: the template is not an MSPDI import').toBe('grs')
     expect(written(document).uri).toBe(PJ12_NAMESPACE)
   })
 })
