@@ -1466,6 +1466,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CONTROL_KEYS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_KEYS` | -- | const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>() |
 | `CONTROL_PICKS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#CONTROL_PICKS` | -- | const CONTROL_PICKS = new WeakMap<Element, NonNullable<FieldCommit['pick']>>() |
 | `fieldEditingOf` | file only | function | `src/framework/dom-screen-surface/field-editing.ts#fieldEditingOf` | -- | function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) |
+| `SETTLED_AS_ONE_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#SETTLED_AS_ONE_ATTRIBUTE` | -- | const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one' |
 | `TextEntryControl` | file only | interface | `src/framework/dom-screen-surface/field-editing.ts#TextEntryControl` | -- | interface TextEntryControl |
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
@@ -1719,4 +1720,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 840 name(s) leave through a public entry (330 of them published by table T-064), 669 more are exported by a file and not by its entry.
+Totals: 840 name(s) leave through a public entry (330 of them published by table T-064), 670 more are exported by a file and not by its entry.
