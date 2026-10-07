@@ -1399,6 +1399,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ARMED_LABEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ARMED_LABEL_SIZES` | -- | const NOT_STORED_ARMED_LABEL_SIZES: |
 | `NOT_STORED_CONFIRMATION_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_CONFIRMATION_RULE_SIZES` | -- | const NOT_STORED_CONFIRMATION_RULE_SIZES: |
 | `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
+| `NOT_STORED_EXPORT_CHOOSER_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_EXPORT_CHOOSER_SIZES` | -- | const NOT_STORED_EXPORT_CHOOSER_SIZES: |
 | `NOT_STORED_HELP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_HELP_SIZES` | -- | const NOT_STORED_HELP_SIZES: |
 | `NOT_STORED_ICON_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ICON_SIZES` | -- | const NOT_STORED_ICON_SIZES: |
 | `NOT_STORED_PALETTE_GROUP_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_GROUP_RULE_SIZES` | -- | const NOT_STORED_PALETTE_GROUP_RULE_SIZES: |
@@ -1410,6 +1411,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ROW_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_GRAB_STRIP_SIZES` | -- | const NOT_STORED_ROW_GRAB_STRIP_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
+| `NOT_STORED_WHEEL_UNITS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_WHEEL_UNITS` | -- | const NOT_STORED_WHEEL_UNITS: |
 | `NOTICE_DISMISS_KEY_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_DISMISS_KEY_ATTRIBUTE` | -- | const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice' |
 | `pageGroundStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#pageGroundStyle` | PI-38 | 地の色の宣言 |
 | `PAINT` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#PAINT` | -- | const PAINT = |
@@ -1695,4 +1697,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 820 name(s) leave through a public entry (318 of them published by table T-064), 665 more are exported by a file and not by its entry.
+Totals: 822 name(s) leave through a public entry (318 of them published by table T-064), 665 more are exported by a file and not by its entry.

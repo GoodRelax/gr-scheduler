@@ -55,10 +55,6 @@ const SIGN_BY_CODE: Readonly<Record<string, string>> = {
 const DOUBLE_CLICK_WITHIN_MS = 500
 const DOUBLE_CLICK_WITHIN_PX = 4
 
-const PIXELS_PER_LINE = 40
-const PIXELS_PER_NOTCH = 100
-const LINES_PER_NOTCH = 3
-
 const HOVER_BUTTON: PointerButton = 'left'
 const HOVER_CLICK_COUNT = 0
 
@@ -142,18 +138,19 @@ function isTypedIntoDialogueEntry(event: {
   return event.key.length === 1 || event.key === HOST_DELETE || event.key === HOST_BACKSPACE
 }
 
+// see T-023, S-514, S-515, S-516
 /** @purity pure */
 function pixelsPerUnit(deltaMode: number, pageSize: number): number {
-  if (deltaMode === DELTA_IN_LINES) return PIXELS_PER_LINE
+  if (deltaMode === DELTA_IN_LINES) return NOT_STORED_WHEEL_UNITS['S-514']
   if (deltaMode === DELTA_IN_PAGES) return pageSize
   return 1
 }
 
 /** @purity pure */
 function unitsPerNotch(deltaMode: number): number {
-  if (deltaMode === DELTA_IN_LINES) return LINES_PER_NOTCH
+  if (deltaMode === DELTA_IN_LINES) return NOT_STORED_WHEEL_UNITS['S-516']
   if (deltaMode === DELTA_IN_PAGES) return 1
-  return PIXELS_PER_NOTCH
+  return NOT_STORED_WHEEL_UNITS['S-515']
 }
 
 /** @purity pure */
@@ -434,3 +431,19 @@ export function escapeKeyLockOf(keyboard: unknown): EscapeKeyLock {
     },
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_WHEEL_UNITS: {
+  readonly 'S-514': number
+  readonly 'S-515': number
+  readonly 'S-516': number
+} = {
+  'S-514': 40,
+  'S-515': 100,
+  'S-516': 3,
+}
+// </generated>

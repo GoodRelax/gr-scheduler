@@ -299,8 +299,8 @@ export const STYLE = {
     `align-items:center;padding:${APP_HEADER_BLOCK_PADDING} 0.75em;line-height:1.5;` +
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
-  // see FR-039
-  // TRAP: every text here stays at the normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
+  // see FR-039, S-529
+  // TRAP: every text here stays at S-529's normal weight, the h2 heading included; the bold are S-245 (OC-1 labels),
   // S-463 (the Document Title, documentTitleStyle in app-header-drawing.ts) and NT-7's answer initial.
   documentTitle: 'min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   brandingSeat: 'display:inline-flex;align-items:center;flex-shrink:0;',
@@ -388,7 +388,7 @@ export const STYLE = {
   helpLegal: '',
   helpLegalSummary: 'cursor:pointer;',
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
-  formatChoices: 'display:flex;flex-wrap:wrap;gap:0.25em;margin-top:0.5em;',
+  formatChoices: 'display:grid;grid-auto-flow:column;grid-auto-columns:1fr;',
   // TRAP: `left:50%` with a transform, or a `max-width`, shrinks or wraps the telling (NT-9).
   notices:
     'position:absolute;left:0;right:0;pointer-events:none;' +
@@ -847,7 +847,7 @@ function showOnlyCheckedBarElements(host: Document, panel: SearchPanelView | nul
   const band = made(host, 'div',
     `position:absolute;left:${panel.canvas.x}px;top:${panel.canvas.y - height}px;width:${panel.canvas.width}px;height:${height}px;` +
     `box-sizing:border-box;display:flex;align-items:center;gap:1em;padding:0 0.5em;pointer-events:auto;` +
-    `font-size:${NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']}px;font-weight:bold;white-space:nowrap;overflow:hidden;` +
+    `font-size:${NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']}px;font-weight:normal;white-space:nowrap;overflow:hidden;` +
     `background:${PAINT.ground};color:${PAINT.ink};border-bottom:1px solid ${PAINT.rule};`)
   band.setAttribute('data-role', SHOW_ONLY_CHECKED_BAR_ROLE)
   const text = made(host, 'span', '')
@@ -874,7 +874,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
     headEntryElements(host)
   const headFoldedRows = foldedRowCountElement(host, 0, headFoldedRowCountRight())
-  const head = [openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow]
+  // see HF-10
+  // WHY: the order they are added is the Tab order, so it follows the drawn run from left to right.
+  const head = [collapseEveryRow, openLevelZero, openEveryRow, addTopRow, deleteEveryRow]
   rowTitlePanel.append(...head, headFoldedRows)
 
   root.append(...Object.values(layers))
@@ -1354,6 +1356,24 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 } = {
   'S-240': 0.75,
   'S-241': 1,
+}
+
+// see T-206
+export const NOT_STORED_WHEEL_UNITS: {
+  readonly 'S-514': number
+  readonly 'S-515': number
+  readonly 'S-516': number
+} = {
+  'S-514': 40,
+  'S-515': 100,
+  'S-516': 3,
+}
+
+// see T-206
+export const NOT_STORED_EXPORT_CHOOSER_SIZES: {
+  readonly 'S-517': number
+} = {
+  'S-517': 1.75,
 }
 
 // see T-206

@@ -81,6 +81,8 @@ NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所�
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198` / `S-335` / `S-338`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線の太さ（`S-240` / `S-241`）
+NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッチの画素・行数（`S-514` 〜 `S-516`、表 T-023 の結び、`CR-681`）。写しは 2 つ —— 日程を送る `DomInputSource` と、名簿を送る `DomScreenSurface`
+NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
