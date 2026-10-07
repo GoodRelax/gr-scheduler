@@ -160,7 +160,10 @@ const REPORT: OpenModal = {
   droppedTaskNames: [HOSTILE_NAME, 'Plain dropped task'],
   text: 'Some tasks were dropped',
   nextStep: 'Fix the dates and read again',
-  dismissText: 'OK',
+  dismissText: 'OK',  // see MG-14: no merge names in this report
+  missingTaskNames: [],
+  missingText: '',
+  missingNextStep: '',
 }
 
 const CHOOSER: OpenModal = {

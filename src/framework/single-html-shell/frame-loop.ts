@@ -1006,6 +1006,7 @@ interface ScreenViewReadingsTaken {
   readonly mergeCandidates: readonly MergeCandidateLine[]
   readonly unreadColumns: readonly string[]
   readonly droppedTaskNames: readonly (string | null)[]
+  readonly missingTaskNames: readonly (string | null)[]
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
@@ -2436,6 +2437,7 @@ export function frameLoop(
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
           droppedTaskNames: session.fileFlow.droppedTaskNames,
+          missingTaskNames: session.fileFlow.missingTaskNames,
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
@@ -2719,6 +2721,7 @@ export function frameLoop(
           mergeCandidates: [],
           unreadColumns: [],
           droppedTaskNames: [],
+          missingTaskNames: [],
           notices: [],
           searchPanel: windows.searchPanel(),
         // TRAP: canUndo and canRedo stay absent; false would draw a faint undo entrance.

@@ -737,23 +737,36 @@ function openChooserLine(host: Document, entry: HTMLElement, words: string): HTM
 
 type ImportReport = Extract<OpenModal, { readonly droppedTaskNames: readonly (string | null)[] }>
 
-// see U-62, FR-023
+// see U-62, FR-023, MG-14
 /** @purity non-pure */
-function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
+function reasonLines(host: Document, text: string, nextStep: string, taskNames: readonly (string | null)[]): HTMLElement[] {
   const said = made(host, 'div', '')
-  said.textContent = modal.text
+  said.textContent = text
   const lines: HTMLElement[] = [said]
-  if (modal.nextStep !== '') {
+  if (nextStep !== '') {
     const step = made(host, 'div', STYLE.noticeNextStep)
-    step.textContent = modal.nextStep
+    step.textContent = nextStep
     lines.push(step)
   }
-  for (const name of modal.droppedTaskNames) {
+  for (const name of taskNames) {
     const line = made(host, 'div', STYLE.confirmationItem)
     line.setAttribute('data-unnamed', String(name === null))
     line.textContent = name ?? ''
     lines.push(line)
   }
+  return lines
+}
+
+// see U-62, FR-023, MG-14
+// WHY: each reason that has names gets its words with its names under them (U-62); RS-50 stays when neither has.
+/** @purity non-pure */
+function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
+  const hasMissing = modal.missingTaskNames.length > 0
+  const lines: HTMLElement[] = []
+  if (modal.droppedTaskNames.length > 0 || !hasMissing) {
+    lines.push(...reasonLines(host, modal.text, modal.nextStep, modal.droppedTaskNames))
+  }
+  if (hasMissing) lines.push(...reasonLines(host, modal.missingText, modal.missingNextStep, modal.missingTaskNames))
   const names = made(host, 'div', STYLE.confirmationNames)
   names.replaceChildren(...lines)
 
