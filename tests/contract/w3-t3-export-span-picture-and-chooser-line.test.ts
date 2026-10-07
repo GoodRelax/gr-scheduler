@@ -151,7 +151,14 @@ describe('FR-080 -- a document with an export span exports the IX-12 to IX-17 pi
   })
 
   it(`"${CLAUSE_SPAN_PICTURE}" -- with a span the window size does not change the picture (IX-12)`, async () => {
-    expect(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN)).toBe(await exportedSvg(SMALL_SPANNED, LARGE_SCREEN))
+    // WHY: the picture carries the edit time; two renders a second apart under load differ by it alone.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-04-01T09:00:00Z'))
+    try {
+      expect(await exportedSvg(SMALL_SPANNED, SMALL_SCREEN)).toBe(await exportedSvg(SMALL_SPANNED, LARGE_SCREEN))
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it(`"${CLAUSE_SPAN_PICTURE}" -- the span picture is drawn at the S-81 width, not shrunk (IX-13)`, async () => {
