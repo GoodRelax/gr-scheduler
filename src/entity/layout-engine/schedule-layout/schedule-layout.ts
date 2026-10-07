@@ -78,6 +78,7 @@ export {
 export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
 export { hasRoomBelowPinsIn } from './pinned-band'
+export { planDatesSpanYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
 // see L-1

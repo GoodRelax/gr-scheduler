@@ -10,6 +10,7 @@ import {
   calendarDaysBetween,
   dayOf,
   isStoredColour,
+  TRANSPARENT,
   type Task,
   type TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
@@ -23,8 +24,6 @@ import {
   withTask,
   type TaskCommand,
 } from './edit-task'
-
-const TRANSPARENT = 'transparent'
 
 /** @purity pure */
 function withVisual(document: Document, next: TaskVisual): Document {

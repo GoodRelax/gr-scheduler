@@ -20,6 +20,7 @@ import {
   lagWorkingDaysOf,
   minutesPerWorkingDayOf,
   TENTHS_OF_A_MINUTE,
+  TRANSPARENT,
   taskByUid,
   textOfDay,
   workingCalendarOf,
@@ -494,7 +495,7 @@ function controlOf(
     widthInFontSizes:
       candidates?.areDocumentNames === true
         ? NO_ROOM_FLOOR
-        : widthOf(text, candidates === null ? null : candidates.words, labelCoef),
+        : widthOf(measuredTextOf(kind, text), candidates === null ? null : candidates.words, labelCoef),
   }
 }
 
@@ -510,6 +511,16 @@ function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly mi
 // WHY: a chooser of names gathered from the document takes no floor: it fits the panel and the
 // drawing side cuts a name too long for it (FR-006), so the longest name cannot push it past the edge.
 const NO_ROOM_FLOOR = 0
+
+// see FR-006, S-199
+// WHY: an empty date input still shows the host's date format, so that is what must fit, not the empty value (JDG-1491).
+const EMPTY_DATE_SHAPE = 'yyyy/mm/dd'
+
+// see FR-006, S-199
+/** @purity pure */
+function measuredTextOf(kind: PropertyControlKind, text: string): string {
+  return kind === 'date' && text === '' ? EMPTY_DATE_SHAPE : text
+}
 
 // see FR-006, FR-093, S-199
 /** @purity pure */
@@ -1215,14 +1226,12 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
         hint: colourWord(isThemeNull ? 'themeHint' : 'defaultColour', look.language),
         ...(nullRow === undefined ? {} : { paint: colourOf(nullRow, look.hue, look.dark, look.monochrome) }),
       },
-      ...(transparentPart === undefined || !names.includes(TRANSPARENT_NAME)
+      ...(transparentPart === undefined || !names.includes(TRANSPARENT)
         ? {}
         : { transparentWord: colourWord(transparentPart, look.language) }),
     },
   }
 }
-
-const TRANSPARENT_NAME = 'transparent'
 
 // see CV-9, FR-006
 // WHY: a colour row also carries its name above the field (E-30).

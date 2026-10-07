@@ -21,11 +21,14 @@ import {
 import {
   dateAtX,
   labelledAssigneeUidOf,
+  planDatesSpanYears,
+  planDateText,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type {
-  ScreenRect,
-  ScreenRegions,
+import {
+  regionAtPointer,
+  type ScreenRect,
+  type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
@@ -116,16 +119,10 @@ export function cursorDateText(day: CalendarDay, language: DisplayLanguage): str
   return withWeekday(`${year}/${month}/${date}`, day, language)
 }
 
-const HINT_YEAR_DIGITS = 4
-
 // see TL-10, ND-4, ND-5
-// DEVIATION: spec says TL-10 writes a day as ND-4 / ND-5 do; the writer is name-label.ts planDateText, file only, so this is a copy (DFC-1785)
 /** @purity pure */
 function hintDayText(day: CalendarDay, isYearWritten: boolean, language: DisplayLanguage): string {
-  const monthDay = `${day.month}/${day.day}`
-  if (!isYearWritten) return withWeekday(monthDay, day, language)
-  const year = String(day.year).padStart(HINT_YEAR_DIGITS, '0')
-  return withWeekday(`${year}/${monthDay}`, day, language)
+  return withWeekday(planDateText(day, isYearWritten), day, language)
 }
 
 // see QN-13, TL-10, TL-11
@@ -143,18 +140,10 @@ interface HintContext {
 
 const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false }
 
-// see ND-5
-// DEVIATION: spec says TL-10 judges the year as ND-5 does; the judgement is name-label.ts planDatesSpanYears, file only, so this is a copy (DFC-1785)
+// see TL-10, ND-5
 /** @purity pure */
 function isYearWrittenIn(schedule: Schedule): boolean {
-  const years = new Set<number>()
-  for (const task of schedule.tasks) {
-    for (const text of [task.start, task.finish]) {
-      const day = dayOf(text)
-      if (day !== null) years.add(day.year)
-    }
-  }
-  return years.size > 1
+  return planDatesSpanYears(schedule, { day: dayOf })
 }
 
 // see TL-7, FR-059
@@ -511,10 +500,8 @@ export function dualCursorReadoutOf(
 ): DualCursorReadout | null {
   const pointer = readings.pointer
   if (pointer === null || !isDualCursorOn(session)) return null
-  const isOverChart =
-    rectHoldsPoint(regions.rowArea, pointer.x, pointer.y) ||
-    rectHoldsPoint(regions.timeRuler, pointer.x, pointer.y)
-  if (!isOverChart) return null
+  const region = regionAtPointer(regions, pointer.x, pointer.y)
+  if (region !== 'rowArea' && region !== 'timeRuler') return null
   const language = displayLanguageOf(session)
   const { date1, date2 } = readoutDays(regions, settings, session, pointer.x)
   const { left, right } = inDateOrder(date1, date2)
@@ -542,7 +529,7 @@ export function guideCursorLabelOf(
 ): GuideCursorLabel | null {
   const pointer = readings.pointer
   if (pointer === null || session.screen.guideCursorMode === GUIDE_CURSOR_NONE) return null
-  if (isDualCursorOn(session) || !rectHoldsPoint(regions.rowArea, pointer.x, pointer.y)) return null
+  if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'rowArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
   const day = dateAtX(timeAxisOf(settings, regions), pointer.x)
   if (day === null) return null

@@ -33,8 +33,9 @@ function truncate(text: string, limit: number): string {
 
 // see ND-5
 // TRAP: every Task of the document, never the drawn range or today: a scroll would reflow the lanes (FR-002).
+// WHY: only day() is read, so TL-10 asks with dayOf and no working calendar (R2.22).
 /** @purity pure */
-export function planDatesSpanYears(schedule: Schedule, reader: DayReader): boolean {
+export function planDatesSpanYears(schedule: Schedule, reader: Pick<DayReader, 'day'>): boolean {
   let year: number | null = null
   for (const task of schedule.tasks) {
     for (const text of [task.start, task.finish]) {
@@ -52,7 +53,7 @@ const YEAR_DIGITS = 4
 
 // see ND-4, ND-5
 /** @purity pure */
-function planDateText(day: CalendarDay, withYear: boolean): string {
+export function planDateText(day: CalendarDay, withYear: boolean): string {
   if (!withYear) return `${day.month}/${day.day}`
   const year = String(day.year).padStart(YEAR_DIGITS, '0')
   return `${year}/${day.month}/${day.day}`

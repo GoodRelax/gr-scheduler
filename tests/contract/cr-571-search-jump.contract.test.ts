@@ -35,7 +35,9 @@ const SJ_8_NO_ROOM =
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
-const NO_REACH = { pxPerDay: 10, leftReachPx: 0 }
+// No row stands in the pinned band unless a case says so (SJ-7).
+const NO_REACH = { pxPerDay: 10, leftReachPx: 0, drawnRows: [] as readonly { groupId: string; isPinned?: boolean }[] }
+const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnRows: [{ groupId: row, isPinned: true }] })
 const RS_66_SCENE = '**ピン止めした行が多く、検索パネルから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
@@ -211,7 +213,7 @@ describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
 
   it('SJ-6: what the task reaches left of its date moves the view left by that much (CR-629)', () => {
     const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)) as Loose
-    const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { pxPerDay: 10, leftReachPx: 25 })) as Loose
+    const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { ...NO_REACH, leftReachPx: 25 })) as Loose
     const daysBack =
       (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
       + Number(atDate['scrollDayOffset']) - Number(reached['scrollDayOffset'])
@@ -241,10 +243,10 @@ describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
 })
 
 describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
-  it('leaves the row anchor where it was when the task\'s row is pinned, and still writes the SJ-6 move', () => {
+  it('leaves the row anchor where it was when the task\'s row is pinned and drawn in the band, and still writes the SJ-6 move', () => {
     // WHY: the view starts two months before the task, so SJ-6 has to write; its date is not
     // asserted because S-428 is still undecided.
-    const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true, NO_REACH)
+    const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true, IN_BAND(R11))
     expect(plan.isBlockedByPinnedRows).toBe(false)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
@@ -254,7 +256,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
   })
 
   it('an undated comment box on a pinned row moves nothing at all', () => {
-    const scroll = scrollOf(searchJumpWrites(documentOf({ pinned: [R12] }), TO_UNDATED_BOX, true, NO_REACH))
+    const scroll = scrollOf(searchJumpWrites(documentOf({ pinned: [R12] }), TO_UNDATED_BOX, true, IN_BAND(R12)))
     if (scroll !== null) expect(scroll).toMatchObject({ kind: 'setScrollPosition', ...START_SCROLL })
   })
 })

@@ -36,6 +36,9 @@ const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
+// see SV-7
+const DATE_FROM_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateFrom')?.text
+const DATE_TO_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateTo')?.text
 
 export type MarkGlyph = Parameters<typeof markerGlyphSvg>[0]
 
@@ -90,6 +93,8 @@ export type SearchFilterMenuView =
       readonly column: SearchColumn
       readonly from: string | null
       readonly to: string | null
+      readonly fromWord: string
+      readonly toWord: string
       readonly entries: readonly CommandItem[]
     }
 
@@ -188,7 +193,10 @@ export function tableFilterMenuOf(
 ): SearchFilterMenuView {
   const filter = columnFilterOf(panel, column)
   const sorts = [entryOf(SORT_ASCENDING_ENTRY, language), entryOf(SORT_DESCENDING_ENTRY, language)]
-  if (table.isDateColumn(column)) return { kind: 'dates', column, from: filter.from, to: filter.to, entries: sorts }
+  if (table.isDateColumn(column)) {
+    const words = { fromWord: wordOf(DATE_FROM_WORD, language), toWord: wordOf(DATE_TO_WORD, language) }
+    return { kind: 'dates', column, from: filter.from, to: filter.to, ...words, entries: sorts }
+  }
   const hidden = new Set(filter.hiddenValues)
   const values = table.valuesOf(column).map((value) => ({
     value,
