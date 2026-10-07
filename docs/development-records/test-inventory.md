@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 205 | 2573 | 3 | 5 | 9 | 2 |
+| `contract` | TS-5 | VT-2 | 213 | 2627 | 3 | 5 | 9 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 427 | 0 | 2 | 0 | 0 |
-| `unit` | TS-6 | - | 172 | 3852 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 173 | 3858 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 5 | 7 | 0 | 0 |
-| **all** | | | 463 | 6956 | 9 | 15 | 11 | 2 |
+| **all** | | | 472 | 7016 | 9 | 15 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -68,12 +68,12 @@ named either way: 1 of 9.
 | `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-0... | DFC-2201 |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 
-## 6. The unit files kept for now (172) -- listing only
+## 6. The unit files kept for now (173) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 21 of 172.
+`semi-pure-a` (rule 04 table UO, row UO-1): 22 of 173.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -158,6 +158,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | commandFromInput (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure) | - | FR-036, T-023, T-206, T-266, T-270 |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | searchTableElement (non-pure) | - | FR-151, T-330 |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | domInputSource (non-pure), escapeKeyLockOf (pure), escapeTarget (pure) | - | FR-071, T-283 |
+| `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/document-model.test.ts` | DaySpanTooWide (class), NoWorkingDayReached (class), advanceScreenSession (pure), advancedStamp (pure), clampedSettings (pure), compareDays (pure), dateFromWorkingDays (pure), dayOf (pure), delayWorkingDays (pure), documentViolations (pure), emptyDialogueLog (pure), emptyHistory (pure), emptySelection (pure), escapeContextOf (pure), escapeTarget (pure), historyWithStep (pure), isDelayed (pure), isSelected (pure), isStampMatched (pure), isWorkingDay (pure), lastPicked (pure), latestSequence (pure), logWithMessage (pure), messagesSince (pure), nextStep (pure), planActualState (pure), previousStep (pure), selectionOfAll (pure), selectionWith (pure), selectionWithout (pure), stepCount (pure), textOfDay (pure), workingCalendarOf (pure), workingDaysBetween (pure) | - | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101, T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 |
 | `tests/unit/edit-calendar.test.ts` | editCalendar (pure), planDocumentChange (pure), undoEdit (pure) | yes | FR-011, FR-012, FR-054, FR-063, FR-088, T-027, T-033, T-037, T-058, T-067, T-108, T-209, T-218, T-220 |
@@ -343,7 +344,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-662-the-progress-line-in-front-of-the-labels.test.ts` | 7 | FR-110 | - | T-020 | S-63, S-64, ZO-3, ZO-5, ZO-8, ZO-9, ZO-13, ZO-16 | - | - | - | - |
 | `tests/contract/cr-663-the-tooltip-labels-assignee-and-progress.test.ts` | 15 | FR-059 | - | T-348 | DT-2, DT-3, S-439, S-513, TL-1, TL-7, TL-8 | - | - | - | - |
 | `tests/contract/cr-665-help-columns-and-the-moved-palette-block.contract.test.ts` | 10 | FR-036 | - | T-109, T-256 | HC-3, HC-4, IC-52, IC-53, IC-75 | - | - | - | - |
-| `tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts` | 5 | FR-011, FR-012 | - | T-236 | EP-9, OP-6, S-149, WY-2 | - | - | - | - |
+| `tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts` | 6 | FR-011, FR-012 | - | T-236 | EP-9, OP-6, S-149, WY-2 | - | - | - | - |
 | `tests/contract/cr-668-a-non-working-end-day-asks-before-the-calendar-changes.contract.test.ts` | 12 | FR-031, FR-154 | - | T-354 | AT-81, AT-82, CM-39, HW-9, HW-10, WC-6 | - | - | - | - |
 | `tests/contract/cr-670-the-report-joins-dates-with-a-dash-and-speaks-reasons-in-words.contract.test.ts` | 11 | - | - | T-021b, T-310, T-311, T-316, T-347 | AT-46, DG-4, DL-2, DT-5, DT-6, DT-7, DX-6, DX-10, PM-4, RW-4, VS-6 | - | - | - | - |
 | `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-236, T-294, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
@@ -352,13 +353,20 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
 | `tests/contract/dfc-1224-merge-and-overlay-keep-the-save-target.test.ts` | 8 | FR-060, FR-096 | VT-2 | T-036, T-103, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
 | `tests/contract/dfc-1230-the-continuation-send-moves-an-unplaced-view.contract.test.ts` | 10 | - | - | T-024a, T-203, T-270, T-303 | EL-11, EL-12, EL-16, MK-13, OP-10, PE-12, S-77, S-78, S-176 | - | - | - | - |
+| `tests/contract/dfc-1287-each-close-entrance-gets-its-own-explanation.test.ts` | 6 | - | - | - | EZ-2, IC-52, IN-3, UZ-7, UZ-13 | - | - | - | - |
 | `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts` | 8 | FR-006 | - | T-016, T-034, T-036, T-062, T-065, T-067, T-078, T-103, T-218 | BT-4, CP-25, CP-38, FT-1, IF-1, IF-9, PR-1, PR-2, PR-9, PR-12, SK-19, TS-6, U-25, UF-48, UF-71, WS-1, WS-3, WS-6, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1361-the-search-table-header-stays-on-top.contract.test.ts` | 8 | FR-041, FR-151 | - | T-206, T-330, T-331, T-333 | RR-4, S-146, S-150, SV-6 | - | - | - | - |
 | `tests/contract/dfc-1362-search-column-filter.contract.test.ts` | 62 | FR-151 | - | T-019a, T-028, T-109, T-330, T-331 | IC-122, IC-123, IC-124, IC-125, IC-126, IN-4, PS-1, PS-2, PS-3, PS-4, PS-5, SQ-1, SQ-3, SQ-6, SQ-7, SQ-8, SV-3, SV-4, SV-7, SV-8, SV-12, SV-14 | - | - | - | - |
 | `tests/contract/dfc-1363-the-task-hint-wakes-at-its-own-wait.contract.test.ts` | 7 | FR-092 | - | T-212 | EZ-2, EZ-6, S-124, S-439 | - | - | - | - |
 | `tests/contract/dfc-152-in-6-the-same-value-writes-nothing.test.ts` | 13 | FR-031 | - | T-016, T-027, T-028, T-036, T-062, T-065, T-103, T-218 | CP-38, FT-1, IF-1, IF-9, IN-5a, IN-6, PR-1, PR-2, SK-19, TS-6, U-25, UF-8, UF-9, UF-71, UN-3 | - | - | - | - |
+| `tests/contract/dfc-1653-the-entrances-stand-in-the-order-table-t-109-gives.contract.test.ts` | 7 | FR-078 | - | T-109 | IC-7 | - | - | - | - |
 | `tests/contract/dfc-1720-a-row-control-tip-sits-under-its-row.test.ts` | 2 | - | - | - | IN-3, UF-112 | - | - | - | - |
+| `tests/contract/dfc-1721-a-double-click-on-the-document-title-opens-its-field.test.ts` | 8 | - | - | T-103 | IF-9, MK-13, SK-9, U-27 | - | - | - | - |
 | `tests/contract/dfc-1722-jdg-1165-the-save-chooser-names-one-extension.test.ts` | 4 | FR-096 | - | T-024, T-346 | IO-2, RW-7 | - | - | - | - |
+| `tests/contract/dfc-1723-the-save-and-open-faces-still-close-on-esc-and-keep-one-close.test.ts` | 6 | - | - | - | IC-52, IC-129, IC-131, IN-4, U-54, U-56, WB-10 | - | - | - | - |
+| `tests/contract/dfc-1780-untitled-is-spelled-once-and-read-by-both-surfaces.test.ts` | 6 | FR-035 | - | T-064 | OP-16, PI-37 | - | - | - | - |
+| `tests/contract/dfc-1786-the-screen-and-the-export-read-one-title-left.contract.test.ts` | 5 | - | - | - | BR-2, BR-7, EP-1, S-226, S-235, S-462, S-490, S-492 | - | - | - | - |
+| `tests/contract/dfc-1793-the-published-schema-says-the-date-time-shape.contract.test.ts` | 9 | FR-023, FR-024 | - | T-058 | S-77, S-518, S-519 | - | - | - | - |
 | `tests/contract/dfc-2030-a-body-drag-moves-the-selected-boxes.contract.test.ts` | 7 | FR-031 | - | T-270 | CY-4, OP-10, SL-1, SL-7 | - | - | - | - |
 | `tests/contract/dfc-2228-a-document-without-the-export-span-opens.contract.test.ts` | 4 | - | - | - | IX-17, OP-3, OP-6, S-518, S-519 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
@@ -394,6 +402,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts` | 8 | FR-036, FR-060, FR-063, FR-096, FR-101, NFR-010 | - | T-024a, T-034, T-036, T-062, T-066, T-067, T-075, T-077, T-078, T-103, T-218 | BO-1, BT-4, CP-25, CS-4, FT-1, IF-3, OP-2, SK-11, TS-6, U-58, U-59, UF-48, UF-62, UF-71 | - | - | - | - |
 | `tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts` | 3 | FR-023 | - | - | CM-8, EX-12 | - | - | - | yes |
 | `tests/contract/dfc-806-double-clicking-a-highlight-box-focuses-its-frame-colour.test.ts` | 12 | FR-072, FR-097 | - | T-016, T-023, T-103 | CV-9, GA-3, GA-4, GR-14, IN-5a, MK-13, PR-21, PR-22, U-25 | - | - | - | - |
+| `tests/contract/dfc-920-every-colour-the-image-prompt-allows-opens-as-grs-json.test.ts` | 6 | FR-068 | - | - | AT-58, AT-102, IC-115 | - | - | - | - |
 | `tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts` | 8 | FR-024, FR-036, FR-060, FR-096, FR-101, NFR-010 | - | T-024, T-034, T-036, T-062, T-066, T-075, T-077, T-218, T-227 | BO-1, BT-4, CP-25, CS-4, DI-4, DI-5, IC-2, IF-3, IO-2, SK-11, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/display-words.contract.test.ts` | 18 | FR-006, FR-017, FR-019, FR-029, FR-032, FR-036, FR-037, FR-038, FR-039, FR-041, FR-042, FR-052, FR-053, FR-069, FR-072, FR-073, FR-076, FR-085, FR-088, FR-096, FR-101, FR-134, FR-151 | - | T-006a, T-012, T-015a, T-016, T-019a, T-023, T-023a, T-023b, T-023c, T-023d, T-024, T-026, T-028, T-031, T-036, T-037, T-040, T-050, T-052, T-058, T-064, T-075, T-103, T-104, T-109, T-206, T-218, T-220, T-233, T-234, T-255, T-256, T-263, T-294, T-305, T-310, T-311, T-316, T-330, T-331, T-335, T-347, T-348, T-349 | AR-1, AR-2, AR-3, AR-5, AR-6, AS-5, AT-17, AT-53, AT-144, BR-1, CV-9, DC-3, DR-3, DR-5, DT-1, DT-7, ET-3, EZ-2, GR-21, HM-10, IC-1, IC-17, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-75, IC-130, IC-131, IN-4, IO-1, IO-7, IR-1, IX-11, IX-12, K-87, K-103, K-105, MH-3, MH-4, MH-5, MH-6, MK-1, MK-5, MK-13, ND-4, NT-3, NT-7, NT-8, OP-3, OP-16, PI-36, PI-37, PR-14, PR-16, PR-18, PR-21, PR-33, PR-37, PR-38, PR-43, PR-44, PS-1, QN-12, RC-13, S-72, S-73, S-99e, S-99g, S-124, S-142, S-155, S-171, S-216, S-312, S-350, S-518, S-519, SC-4, SE-2, SH-1, SL-1, SQ-1, SQ-5, SQ-10, SV-7, SV-13, TL-1, TL-5, TL-6, TS-5, TV-11, U-55, UF-32, UF-59, UF-60, UF-63, UF-64, UF-65, UF-66, UF-67, UF-69, UF-71, WB-3, WB-4, WL-13 | - | DFC-1024 (flaky) | - | - |
 | `tests/contract/document-invariants.contract.test.ts` | 8 | FR-019, FR-054, FR-088 | - | T-050, T-052, T-053, T-058, T-064, T-209, T-214, T-218, T-220 | AT-19, AT-46, AT-51, AT-72, AT-123, DF-4, DR-1, DR-4, IV-1, IV-2, IV-3, IV-4, IV-5, IV-6, IV-7, IV-8, IV-9, IV-12, IV-14, IV-15, IV-16, IV-17, IV-18, IV-19, IV-20, IV-21, P-19, PI-1, RL-12, RL-13, RL-15, S-3, S-73, S-119, S-125, S-126, TS-2, TS-3, TS-5, TS-6, W-7, W-9 | - | - | - | - |
@@ -612,6 +621,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | 36 | FR-036 | - | T-023, T-206, T-266, T-270 | CY-1, CY-2, CY-5, CY-7, CY-11, GA-9, GA-14, GA-15, MK-7, MK-12, MK-15, MK-16, PE-1, PE-6, PTD-1, PTD-3, PTD-7, S-208, SL-4, SL-7a | - | - | - | - |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | 5 | FR-151 | - | T-330 | SV-6, SV-17, SV-18 | - | - | - | - |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | 14 | FR-071 | - | T-283 | IN-4, IN-4a, RG-8, RG-17 | - | - | - | - |
+| `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 6 | - | - | T-313 | BD-2, BD-4 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/document-model.test.ts` | 62 | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101 | - | T-019a, T-021b, T-052, T-202, T-209, T-214, T-280 | AG-2, AG-6, AG-11, AT-73, AT-140, DR-1, DR-4, DR-5, EX-7, IN-4, IN-4a, PI-1, PI-2, PI-3, PI-4, PI-13, PI-18, PI-32, PI-33, PI-34, PI-36, S-2, S-54, S-55, S-75, S-99e, S-99g, S-106, S-129, SL-7b, U-55 | - | - | - | - |
 | `tests/unit/edit-calendar.test.ts` | 22 | FR-011, FR-012, FR-054, FR-063, FR-088 | - | T-027, T-033, T-037, T-058, T-067, T-108, T-209, T-218, T-220 | AG-9a, AT-17, AT-18, AT-73, AT-82, AT-83, CM-39, EX-5, IV-17, NT-3, S-106, S-107, S-108, TS-6, UF-16, UN-13, WS-1, WS-3, WS-5, WS-7 | - | - | - | - |

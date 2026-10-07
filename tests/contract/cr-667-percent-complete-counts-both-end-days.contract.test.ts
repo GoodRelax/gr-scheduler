@@ -301,3 +301,47 @@ describe(`EP-9 (MUST): ${EP_9_S_149}`, () => {
     }
   })
 })
+
+// see FR-012, DFC-682
+// WHY: the Nth weekday counting from Monday 2026-01-05, so a "40 working day" plan needs no calendar arithmetic in the cases.
+const weekday = (nth: number): string => {
+  const date = new Date(Date.UTC(2026, 0, 5))
+  let counted = 1
+  while (counted < nth) {
+    date.setUTCDate(date.getUTCDate() + 1)
+    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) counted += 1
+  }
+  return date.toISOString().slice(0, 19)
+}
+
+const roundingCase = (uid: number, name: string, planDays: number, actualDays: number, expected: number): Case => ({
+  name,
+  row: taskRow(uid, {
+    start: weekday(1),
+    finish: weekday(planDays),
+    actualStart: weekday(1),
+    actualFinish: weekday(actualDays),
+    resumeValid: false,
+  }),
+  expected,
+})
+
+// WHY: FR-012 names `round`, not floor or ceil: a ratio of exactly .5 goes up, and a ratio near but off .5 goes the near way.
+const ROUNDING_CASES: readonly Case[] = [
+  // WHY: 23 / 40 is 57.5 exactly; the float product (23 / 40) * 100 is 57.49999999999999 and once read as 57.
+  roundingCase(11, '23 of 40 working days (57.5) reads 58', 40, 23, 58),
+  roundingCase(12, '3 of 40 working days (7.5) reads 8', 40, 3, 8),
+  roundingCase(13, '7 of 40 working days (17.5) reads 18', 40, 7, 18),
+  roundingCase(14, '15 of 40 working days (37.5) reads 38', 40, 15, 38),
+  // WHY: floor reads the first as 66 and ceil reads the second as 34; round gives 67 and 33.
+  roundingCase(15, '20 of 30 working days (66.67) reads 67', 30, 20, 67),
+  roundingCase(16, '10 of 30 working days (33.33) reads 33', 30, 10, 33),
+]
+
+describe('FR-012 (MUST): the percent complete is round(actual / plan x 100), neither floor nor ceil (DFC-682)', () => {
+  const read = documentFromJson(documentText(ROUNDING_CASES.map((one) => one.row)), TEMPLATE['schemaVersion'] as string)
+  if (!read.ok) throw new Error(`the fixture was refused: ${JSON.stringify(read.faults).slice(0, 400)}`)
+  it.each(ROUNDING_CASES)('$name', ({ row, expected }) => {
+    expect(read.document.schedule.tasks.find((one) => one.uid === row['uid'])?.percentComplete).toBe(expected)
+  })
+})
