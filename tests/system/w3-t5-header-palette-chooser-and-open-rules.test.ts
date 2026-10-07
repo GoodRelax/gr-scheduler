@@ -17,10 +17,10 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 const HF_10_COUNT_PLACE =
   '⭐ `HF-12` の畳み込んだ行の数は、並びのいちばん左の操作子（すべて畳む）のすぐ左に置き、数の右端をその操作子の外形の左端に接すること（MUST）'
 // see FR-096
-const FR_096_ONE_ROW = '⭐ 選択面は、形式を上の順で 1 行に並べ、折り返さないこと（MUST） —— 利用者が、すべて 1 行に入れると定めた。'
+const FR_096_ONE_COLUMN = '⭐ 選択面は、形式を上の順で上から下へ 1 段に 1 つずつ並べること（MUST）'
 const FR_096_SAME_SIZE = '⭐ 形式のボタンは、幅も高さもすべて揃えること（MUST）'
 const FR_096_WIDTH_FROM_THE_ROW =
-  '⭐ 選択面の幅は、1 行に並べた形式が決めること（MUST） —— 閲覧環境の窓の幅の割合で抑えてはならない（MUST NOT）'
+  '⭐ 選択面の幅は、縦に並べた形式と見出しの段が決めること（MUST） —— 閲覧環境の窓の幅の割合で抑えてはならない（MUST NOT）'
 // see FR-053
 const FR_053_RECORDING_ON_THE_BAND =
   '⭐ ただし操作と描画を記録しているあいだ（表 T-206 の `S-206`）は、記録の入口（表 T-109 の `IC-76`）も押下状態のまま帯の `IC-53` の左に載せること（MUST）'
@@ -175,7 +175,7 @@ async function drawnOrderOn(page: Page, role: string): Promise<readonly string[]
 
 test.describe('W3-T5 -- the manuscript these cases are driven by', () => {
   test('01-04 still says each clause, word for word', () => {
-    for (const clause of [HF_10_COUNT_PLACE, FR_096_ONE_ROW, FR_096_SAME_SIZE, FR_096_WIDTH_FROM_THE_ROW, FR_053_RECORDING_ON_THE_BAND, FR_095_BOTH_TIERS_BACK, OP_10_EITHER_NULL]) {
+    for (const clause of [HF_10_COUNT_PLACE, FR_096_ONE_COLUMN, FR_096_SAME_SIZE, FR_096_WIDTH_FROM_THE_ROW, FR_053_RECORDING_ON_THE_BAND, FR_095_BOTH_TIERS_BACK, OP_10_EITHER_NULL]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
   })
@@ -196,7 +196,7 @@ test(`HF-10: "${HF_10_COUNT_PLACE}"`, async ({ page }) => {
   expect(count?.left ?? 0, 'the number stands to the left, outside the row of controls').toBeLessThan(control?.left ?? 0)
 })
 
-test(`FR-096: "${FR_096_ONE_ROW}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_FROM_THE_ROW}"`, async ({ page }) => {
+test(`FR-096: "${FR_096_ONE_COLUMN}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_FROM_THE_ROW}"`, async ({ page }) => {
   await launch(page)
   const measure = async (): Promise<{ chooser: Rect; buttons: Rect[] }> => {
     await press(page, 'IC-2')
@@ -215,24 +215,26 @@ test(`FR-096: "${FR_096_ONE_ROW}" / "${FR_096_SAME_SIZE}" / "${FR_096_WIDTH_FROM
   const wide = await measure()
   expect(wide.buttons.length, 'premise: the chooser shows more than one format').toBeGreaterThan(1)
   const first = wide.buttons[0] as Rect
-  for (const button of wide.buttons) {
+  for (const [index, button] of wide.buttons.entries()) {
     expect(Math.abs(button.width - first.width), FR_096_SAME_SIZE).toBeLessThanOrEqual(SUBPIXEL)
     expect(Math.abs(button.height - first.height), FR_096_SAME_SIZE).toBeLessThanOrEqual(SUBPIXEL)
-    expect(Math.abs(button.top - first.top), FR_096_ONE_ROW).toBeLessThanOrEqual(SUBPIXEL)
+    expect(Math.abs(button.left - first.left), FR_096_ONE_COLUMN).toBeLessThanOrEqual(SUBPIXEL)
+    const above = wide.buttons[index - 1]
+    if (above !== undefined) expect(button.top, `${FR_096_ONE_COLUMN} -- format ${index} stands below format ${index - 1}`).toBeGreaterThanOrEqual(above.bottom - SUBPIXEL)
   }
-  const rowSpan = (wide.buttons[wide.buttons.length - 1] as Rect).right - first.left
 
-  // WHY: a window narrower than the one row; a width held to a share of the window would wrap or shrink here.
-  await page.setViewportSize({ width: Math.floor(rowSpan * 0.8), height: VIEWPORT.height })
+  // WHY: a window 1.5 times the chooser; a width held to half the window or less would wrap or shrink the buttons here.
+  await page.setViewportSize({ width: Math.floor(wide.chooser.width * 1.5), height: VIEWPORT.height })
   await settle(page)
   const narrow = await measure()
   expect(narrow.buttons.length).toBe(wide.buttons.length)
   for (const button of narrow.buttons) {
-    expect(Math.abs(button.top - (narrow.buttons[0] as Rect).top), FR_096_ONE_ROW).toBeLessThanOrEqual(SUBPIXEL)
+    expect(Math.abs(button.left - (narrow.buttons[0] as Rect).left), FR_096_ONE_COLUMN).toBeLessThanOrEqual(SUBPIXEL)
     expect(Math.abs(button.width - first.width), FR_096_WIDTH_FROM_THE_ROW).toBeLessThanOrEqual(SUBPIXEL)
+    expect(Math.abs(button.height - first.height), FR_096_WIDTH_FROM_THE_ROW).toBeLessThanOrEqual(SUBPIXEL)
   }
   expect(Math.abs(narrow.chooser.width - wide.chooser.width), FR_096_WIDTH_FROM_THE_ROW).toBeLessThanOrEqual(SUBPIXEL)
-  expect(narrow.chooser.width, FR_096_WIDTH_FROM_THE_ROW).toBeGreaterThanOrEqual(rowSpan)
+  expect(narrow.chooser.width, FR_096_WIDTH_FROM_THE_ROW).toBeGreaterThanOrEqual(first.width)
 })
 
 test(`FR-053: "${FR_053_RECORDING_ON_THE_BAND}"`, async ({ page }) => {

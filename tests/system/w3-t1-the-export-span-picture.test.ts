@@ -21,7 +21,7 @@ const FR_096_SPAN = '行の語は `FR-038` の辞書の `exportChooser` の `exp
 const EP_3_NO_DOM = '画面は名前を箱の上端に寄せて置き、書き出しは字をベースラインで置くので、測らずに同じ高さへ揃えるには上端からの補正が要る —— `EP-1` の `Document Title` と同じ考え方である。⛔ DOM を測って揃えてはならない（MUST NOT）'
 const WB_10_MOVE = '題の行の帯（表 T-023d の `GR-24`）で動かす —— 追従と、位置が決まる時点と、中断は `WB-8` と同じとすること（MUST）'
 const FR_077_NO_FLOOR = '期間を持つときは縮めない（`FR-025` の 表 T-241 の `IX-13`）。⚠️ **画像の側に下限を課してはならない（MUST NOT）'
-const FR_096_GAP = '⭐ 隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）。⭐ 選択面の幅は、1 行に並べた形式が決めること（MUST）'
+const FR_096_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）。⭐ 選択面の幅は、縦に並べた形式と見出しの段が決めること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly exportChooser: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
@@ -275,7 +275,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
   })
 
   for (const width of [1920, 640]) {
-    test(`FR-096 (MUST): ${FR_096_GAP.slice(-30)} -- at a ${width}px window the formats stand in one row, one size, S-517 apart`, async () => {
+    test(`FR-096 (MUST): ${FR_096_GAP.slice(-30)} -- at a ${width}px window the formats stand one a row, one size, S-517 apart`, async () => {
       const opened = await stageWith(4, {})
       try {
         await opened.page.setViewportSize({ width, height: 720 })
@@ -285,11 +285,12 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
         expect(shown.buttons.length, 'premise: the chooser holds its formats').toBeGreaterThan(2)
         const first = shown.buttons[0] as { x: number; y: number; w: number; h: number }
         for (const [index, one] of shown.buttons.entries()) {
-          expect(one.y, `format ${index} stands on the first one's row`).toBeCloseTo(first.y, 1)
+          expect(one.x, `format ${index} stands in the first one's column`).toBeCloseTo(first.x, 1)
           expect(one.w, `format ${index} has the first one's width`).toBeCloseTo(first.w, 1)
           expect(one.h, `format ${index} has the first one's height`).toBeCloseTo(first.h, 1)
+          expect(one.x + one.w, `format ${index} stands inside the ${width}px window`).toBeLessThanOrEqual(width)
           const next = shown.buttons[index + 1]
-          if (next !== undefined) expect(next.x - (one.x + one.w), `the gap after format ${index}`).toBeCloseTo(S_517_EM * shown.em, 1)
+          if (next !== undefined) expect(next.y - (one.y + one.h), `the gap below format ${index}`).toBeCloseTo(S_517_EM * shown.em, 1)
         }
       } finally {
         await opened.close()
