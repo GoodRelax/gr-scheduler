@@ -33,6 +33,7 @@ const BRANDING_LOGO = displayWords.branding.find((entry) => entry.part === 'logo
 const APP_HEADER = 'App Header'
 
 const OPEN_DOCUMENT_ENTRY: IconId = 'IC-1'
+const EXPORT_CHOOSER_ENTRY: IconId = 'IC-2'
 const COMMAND_PALETTE_ENTRY: IconId = 'IC-7'
 const UNDO_ENTRY: IconId = 'IC-5'
 const REDO_ENTRY: IconId = 'IC-6'
@@ -68,6 +69,16 @@ function isFileFlowAskingTheAuthor(session: ScreenSession): boolean {
   return FILE_FLOW_ASKING_STATES.has(flow.fileOperationState.kind) || flow.confirmationState.kind === 'questionAsked'
 }
 
+const FLOW_SURFACE_AWAITING_STATES: ReadonlySet<string> = new Set(['awaitingOpenChoice', 'awaitingMergeMapping'])
+
+// see FR-029, OP-8, CS-4, T-280, RS-27
+/** @purity pure */
+function fileEntryStateOf(icon: IconId, session: ScreenSession): CommandState | null {
+  if (icon === OPEN_DOCUMENT_ENTRY) return { isEnabled: !isFileFlowAskingTheAuthor(session), isPressed: false }
+  if (icon !== EXPORT_CHOOSER_ENTRY) return null
+  return { isEnabled: !FLOW_SURFACE_AWAITING_STATES.has(session.fileFlow.fileOperationState.kind), isPressed: false }
+}
+
 // see FR-029, FR-039
 /** @purity pure */
 function displayScaleStateOf(icon: IconId, settings: DocumentSettings): CommandState | null {
@@ -95,12 +106,9 @@ function commandStateOf(
     const key = VISIBLE_ELEMENT_BY_ENTRY[icon]
     if (key !== undefined) return { isEnabled: true, isPressed: settings[key] }
   }
-  const displayScaleState = displayScaleStateOf(icon, settings)
-  if (displayScaleState !== null) return displayScaleState
+  const scaleOrFileState = displayScaleStateOf(icon, settings) ?? fileEntryStateOf(icon, session)
+  if (scaleOrFileState !== null) return scaleOrFileState
   switch (icon) {
-    case OPEN_DOCUMENT_ENTRY:
-      return { isEnabled: !isFileFlowAskingTheAuthor(session), isPressed: false }
-
     case COMMAND_PALETTE_ENTRY:
       return { isEnabled: true, isPressed: session.screen.paletteDisplayState.kind === 'shown' }
 
