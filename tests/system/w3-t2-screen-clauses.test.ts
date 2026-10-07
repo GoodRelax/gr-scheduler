@@ -273,7 +273,7 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
     ;(window as any).__w3Fills = seen
     const record = (element: Element): void => {
       const figure = element.getAttribute('data-figure') ?? ''
-      if (/^task-\d+-plan$/.test(figure)) seen.push(element.getAttribute('fill') ?? getComputedStyle(element).fill)
+      if (/^task-\d+-plan$/.test(figure)) seen.push(`${figure} ${element.getAttribute('fill') ?? getComputedStyle(element).fill}`)
     }
     new MutationObserver((changes) => {
       for (const change of changes) {
@@ -288,14 +288,23 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
   })
   await page.click(`[data-colour-choice="${TH_3}"]`)
   await settle(page)
-  expect((await readDocument(page)).schedule.project['themeHue'], 'precondition: the swatch set the hue').toBe(TH_3)
-  const drawn: string[] = await page.evaluate(() => (window as any).__w3Fills)
+  const afterSwatch = await readDocument(page)
+  expect(afterSwatch.schedule.project['themeHue'], 'precondition: the swatch set the hue').toBe(TH_3)
+  // WHY: only a task with no stored fill draws S-155; a stored one draws its T-294 cell (CV-6), and
+  // S-321 green sits within the on-hue filter of TH-3 without being solved (DFC-2204).
+  const storedFill = new Set(afterSwatch.schedule.taskVisuals.filter((one) => one['fillColor'] !== null).map((one) => `task-${one['taskUid']}-plan`))
+  const ofThemeRow = (figureAndFill: readonly [string, string][]): string[] =>
+    figureAndFill.filter(([figure]) => !storedFill.has(figure)).map(([, fill]) => fill)
+  const recorded: string[] = await page.evaluate(() => (window as any).__w3Fills)
+  const drawn = ofThemeRow(recorded.map((one) => [one.slice(0, one.indexOf(' ')), one.slice(one.indexOf(' ') + 1)] as [string, string]))
   const onHue = drawn.map((fill) => rgbOfPaint(fill)).filter((rgb) => farthestChannel(rgb, unsolved) < 4 || farthestChannel(rgb, solved) < 4)
   expect(onHue.length, 'precondition: plan bars were drawn in the new hue').toBeGreaterThan(0)
   for (const rgb of onHue) expect(farthestChannel(rgb, solved), `a frame drew S-155 as ${rgb.join(',')} instead of the solved colour`).toBeLessThanOrEqual(0.75)
   // STEP: CF-1 -- the exported picture uses the same solve
   const svg: string = await page.evaluate(() => (window as any).grSchedulerAgentApi.exportSvg().value)
-  const exported = [...svg.matchAll(/<[a-z]+ [^>]*data-figure="task-\d+-plan"[^>]*>/g)].map((m) => /fill="([^"]+)"/.exec(m[0])?.[1] ?? '').filter((fill) => fill.startsWith('hsl') || fill.startsWith('#'))
+  const exported = ofThemeRow(
+    [...svg.matchAll(/<[a-z]+ [^>]*data-figure="(task-\d+-plan)"[^>]*>/g)].map((m) => [m[1] ?? '', /fill="([^"]+)"/.exec(m[0])?.[1] ?? ''] as [string, string]),
+  ).filter((fill) => fill.startsWith('hsl') || fill.startsWith('#'))
   const exportedOnHue = exported.map((fill) => rgbOfPaint(fill)).filter((rgb) => farthestChannel(rgb, unsolved) < 4 || farthestChannel(rgb, solved) < 4)
   expect(exportedOnHue.length).toBeGreaterThan(0)
   for (const rgb of exportedOnHue) {
