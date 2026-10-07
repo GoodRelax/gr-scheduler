@@ -1284,6 +1284,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
+| `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
 | `WbsParentChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#WbsParentChoice` | -- | interface WbsParentChoice |
@@ -1296,6 +1297,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `windowPlaceOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowPlaceOf` | PI-37 | 掴みを離した箱を、覚える位置と大きさにする（表 T-335 の `WB-8`・`WB-9`）。 |
 | `WindowShown` | entry | type | `src/adapter/screen-renderer/window-box.ts#WindowShown` | PI-37 | 型。 |
 | `appHeaderItemsFromDocument` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#appHeaderItemsFromDocument` | -- | function appHeaderItemsFromDocument( schedule: Schedule, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): AppHeaderItems |
+| `BrandingPlace` | file only | interface | `src/adapter/screen-renderer/app-header-items.ts#BrandingPlace` | -- | interface BrandingPlace |
+| `brandingPlaceOf` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#brandingPlaceOf` | -- | function brandingPlaceOf(): BrandingPlace |
 | `displayScaleMessageText` | file only | function | `src/adapter/screen-renderer/app-header-items.ts#displayScaleMessageText` | -- | function displayScaleMessageText( displayScale: number, end: 'max' \| 'min' \| null, language: DisplayLanguage, ): string |
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
@@ -1698,4 +1701,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 825 name(s) leave through a public entry (321 of them published by table T-064), 663 more are exported by a file and not by its entry.
+Totals: 826 name(s) leave through a public entry (322 of them published by table T-064), 665 more are exported by a file and not by its entry.

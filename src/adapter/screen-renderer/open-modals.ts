@@ -50,9 +50,8 @@ const ROSTER_CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
 const ROSTER_CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
 const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 
-// see FR-035, OP-16
-// WHY: single-html-shell.ts spells FR-035's tab heading too; one holder needs a T-064 member (DFC-1780).
-const UNTITLED_DOCUMENT_TITLE = 'Untitled'
+// see FR-035, OP-16, PI-37
+export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
 
 const OPEN_CHOOSER_WORDS_BY_PART = new Map(displayWords.openChooser.map((entry) => [entry.part, entry]))
 

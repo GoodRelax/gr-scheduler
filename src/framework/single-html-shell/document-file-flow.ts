@@ -196,10 +196,17 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
   return exportFileNameOf(project.title ?? '', extensionOfForm(form))
 }
 
-// see AT-140, FR-101
+// see AT-140, HS-11
+// WHY: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
+/** @purity pure */
+function documentStampedAt(document: Document, savedAt: string | null): Document {
+  return { ...document, documentStamp: { ...document.documentStamp, fileSavedUtc: savedAt } }
+}
+
+// see AT-140, FR-101, HS-11
 /** @purity pure */
 function savedDocumentText(document: Document, savedAt: string): string {
-  return jsonFromDocument({ ...document, documentStamp: { ...document.documentStamp, fileSavedUtc: savedAt } })
+  return jsonFromDocument(documentStampedAt(document, savedAt))
 }
 
 interface WriteMoment {
@@ -839,7 +846,7 @@ async function saveHeldDocumentToFile(
 /** @purity non-pure */
 async function exportHeldDocumentToFile(
   hands: DocumentFileFlowHands,
-  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved'>,
+  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved' | 'readFileSaved'>,
   store: FileStore,
   written: Document,
   format: ExportFormatId,
@@ -850,7 +857,9 @@ async function exportHeldDocumentToFile(
   const text = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
   // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
   const picture =
-    text === null ? await exportPictureContent(hands, form, written) : { content: { text }, capStopGroupId: null }
+    text === null
+      ? await exportPictureContent(hands, form, documentStampedAt(written, flow.readFileSaved().fileSavedAt))
+      : { content: { text }, capStopGroupId: null }
   if (picture === null) return
 
   const saving = await saveDocumentFile(

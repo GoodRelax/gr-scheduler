@@ -16,10 +16,11 @@ import {
   documentFromJson,
   type AppShellSource,
 } from '../../adapter/document-codec/document-codec'
-import type {
-  DisplayLanguage,
-  ScreenSurface,
-  SearchFilterChange,
+import {
+  UNTITLED_DOCUMENT_TITLE,
+  type DisplayLanguage,
+  type ScreenSurface,
+  type SearchFilterChange,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { domInputSource, escapeKeyLockOf, type EscapeKeyLock } from '../dom-input-source/dom-input-source'
 import {
@@ -504,15 +505,13 @@ function boot(): void {
     document.documentElement.setAttribute('lang', language)
   }
 
-  const UNTITLED_TAB_HEADING = 'Untitled'
-
   // TRAP: null, not '': a sentinel that could be a heading leaves that document with the build's own tab heading.
   let browserTabHeadingWritten: string | null = null
 
   // WHY: here, not in the renderer, whose redraw stops during an in-place edit, when the name is typed.
   /** @purity non-pure */
   function nameBrowserTab(documentTitle: string | null): void {
-    const heading = documentTitle ?? UNTITLED_TAB_HEADING
+    const heading = documentTitle ?? UNTITLED_DOCUMENT_TITLE
     if (heading === browserTabHeadingWritten) return
     browserTabHeadingWritten = heading
     document.title = heading

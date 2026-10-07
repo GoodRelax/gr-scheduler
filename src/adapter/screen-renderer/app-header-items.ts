@@ -161,15 +161,44 @@ function commandItemFor(
   }
 }
 
+// see T-109, BR-5
+/** @purity pure */
+function inGroupBlocks<Row extends { readonly group: string | null }>(rows: readonly Row[]): readonly Row[] {
+  // WHY: a row with no group is a block of its own, so it keeps its place.
+  const blocks = new Map<string | Row, Row[]>()
+  for (const row of rows) {
+    const key = row.group ?? row
+    const block = blocks.get(key)
+    if (block === undefined) blocks.set(key, [row])
+    else block.push(row)
+  }
+  return [...blocks.values()].flat()
+}
+
 /** @purity pure */
 function headerCommands(
   settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): readonly CommandItem[] {
-  return iconRoster.icons
-    .filter((row) => row.surfaces.includes(APP_HEADER))
+  return inGroupBlocks(iconRoster.icons.filter((row) => row.surfaces.includes(APP_HEADER)))
     .map((row) => commandItemFor(row.rowId, settings, session, readings))
+}
+
+const DIVIDER_SIDES = 2
+
+export interface BrandingPlace {
+  readonly brandingSeatPx: number
+  readonly documentTitleLeftPx: number
+}
+
+// see BR-2, BR-7, EP-1, FR-051
+/** @purity pure */
+export function brandingPlaceOf(): BrandingPlace {
+  const chrome = NOT_STORED_CHROME_SCALE['S-235']
+  const brandingSeatPx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-490'] * NOT_STORED_DOCUMENT_TITLE_SIZES['S-462'] * chrome
+  const insetsPx = (1 + DIVIDER_SIDES) * NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome
+  return { brandingSeatPx, documentTitleLeftPx: insetsPx + brandingSeatPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492'] }
 }
 
 // see U-31, FR-101, FR-038
@@ -182,6 +211,7 @@ export function appHeaderItemsFromDocument(
 ): AppHeaderItems {
   return {
     brandingText: BRANDING_LOGO?.text[displayLanguageOf(session)] ?? NO_WORDS,
+    ...brandingPlaceOf(),
     documentTitle: schedule.project.title,
 
     openedFileName: readings.openedFileName,
@@ -229,8 +259,36 @@ export function imageToJsonPromptText(language: DisplayLanguage, schemaVersion: 
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_assets/tbl-glossary.md (table T-109)
-//   docs/spec/_source/settings.json (table T-202)
+//   docs/spec/_source/settings.json (tables T-202 and T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_DOCUMENT_TITLE_SIZES: {
+  readonly 'S-225': number
+  readonly 'S-226': number
+  readonly 'S-461': number
+  readonly 'S-462': number
+  readonly 'S-463': number
+  readonly 'S-490': number
+  readonly 'S-491': number
+  readonly 'S-492': number
+} = {
+  'S-225': 20,
+  'S-226': 12,
+  'S-461': 0.05,
+  'S-462': 1.92,
+  'S-463': 700,
+  'S-490': 16.5,
+  'S-491': 18,
+  'S-492': 1,
+}
+
+// see T-206
+const NOT_STORED_CHROME_SCALE: {
+  readonly 'S-235': number
+} = {
+  'S-235': 0.6667,
+}
+
 // see T-109, FR-049
 const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
   'IC-4': 'baselineVisible',

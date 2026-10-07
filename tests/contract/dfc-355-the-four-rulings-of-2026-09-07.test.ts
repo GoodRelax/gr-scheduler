@@ -98,6 +98,7 @@ import {
   type ExportScene,
   type SvgExport,
 } from '../../src/adapter/image-exporter/image-exporter'
+import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
 import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import type {
@@ -537,6 +538,8 @@ const VIEW_WITH_TITLE: ScreenView = {
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] } as ScreenFrame,
   appHeaderItems: {
+    // see BR-2, EP-1
+    ...brandingPlaceOf(),
     documentTitle: TITLE,
     openedFileName: null,
     fileSavedAt: null,

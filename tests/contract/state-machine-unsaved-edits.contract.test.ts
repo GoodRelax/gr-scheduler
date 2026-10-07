@@ -310,11 +310,14 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
     const result = step(session, { type })
     const before = flowOf(session)
     const after = flowOf(result.state)
+    // see T-290, FR-095
+    const rootMoves = type === 'newDocumentLanded' && before['openedFileName'] !== null
     for (const key of ['fileOperationState', 'confirmationState', 'openedFileName', 'droppedTaskNames']) {
-      expect(after[key], key).toBe(before[key])
+      if (key === 'openedFileName' && type === 'newDocumentLanded') expect(after[key], key).toBeNull()
+      else expect(after[key], key).toBe(before[key])
     }
     expect(result.effects).toBe(NO_EFFECTS)
-    if (expectedKind(kind, { type }) === undefined) expect(result.state, 'SF-3: the same session reference').toBe(session)
+    if (expectedKind(kind, { type }) === undefined && !rootMoves) expect(result.state, 'SF-3: the same session reference').toBe(session)
   })
 
   it('a — cell of this machine on a shared event with nothing else moving returns the same session and NO_EFFECTS', () => {
