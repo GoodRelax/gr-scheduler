@@ -382,13 +382,23 @@ export function documentFromJson(
   return settledReading(read, formatVersion, unreadColumns)
 }
 
+// see OP-6, S-518, S-519
+// WHY: restoredSettings fills a missing key only at the replace (OP-6), after this reading,
+// so a missing export span end reads as its default null here (DFC-2228).
+/** @purity pure */
+function spanTextOf(settings: DocumentSettings, key: 'exportSpanStart' | 'exportSpanFinish'): string | null {
+  const read = settings as unknown as Readonly<Record<string, unknown>>
+  const value = read[key]
+  return typeof value === 'string' ? value : null
+}
+
 // see IX-17, S-518, S-519
 // WHY: a read never refuses a presentation value (T-220 preamble), so one dated end is copied to the
 // other and a finish before its start is pulled to the start's day; neither counts toward RS-51.
 /** @purity pure */
 function pairedExportSpan(settings: DocumentSettings): DocumentSettings {
-  const start = dayOf(settings.exportSpanStart)
-  const finish = dayOf(settings.exportSpanFinish)
+  const start = dayOf(spanTextOf(settings, 'exportSpanStart'))
+  const finish = dayOf(spanTextOf(settings, 'exportSpanFinish'))
   const startDay = start ?? finish
   const finishDay = finish ?? start
   if (startDay === null || finishDay === null) return settings
