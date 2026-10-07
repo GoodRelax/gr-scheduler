@@ -14,9 +14,7 @@ import type {
   WbsParentChoice,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import { questionDayText } from './tooltips'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
@@ -60,10 +58,6 @@ const DISMISS_KEY_NOTICE_SEPARATOR = '+'
 const NO_WORDS = ''
 
 const DOWNLOAD_ADDRESS_SLOT = '{downloadUrl}'
-
-const DAYS_SLOT = '{days}'
-
-const DAY_SEPARATOR_BY_LANGUAGE: Readonly<Record<DisplayLanguage, string>> = { ja: '、', en: ', ' }
 
 /** @purity pure */
 function answerText(answer: string, language: DisplayLanguage): string {
@@ -282,20 +276,11 @@ function wbsParentChoiceOf(choice: WbsParentChoice, language: DisplayLanguage): 
   }
 }
 
-// see QN-13, TL-10, TL-11
-/** @purity pure */
-function withDays(text: string, days: readonly string[] | undefined, schedule: Schedule | null, language: DisplayLanguage): string {
-  if (days === undefined) return text
-  const written = days.map((one) => questionDayText(one, schedule, language)).join(DAY_SEPARATOR_BY_LANGUAGE[language])
-  return text.replace(DAYS_SLOT, written)
-}
-
 // see NT-7
 /** @purity pure */
 export function confirmationFromSession(
   session: ScreenSession,
   readings: ScreenViewReadings,
-  schedule: Schedule | null = null,
 ): Confirmation | null {
   const raised = readings.confirmation
   const language = displayLanguageOf(session)
@@ -304,7 +289,7 @@ export function confirmationFromSession(
   return {
     ...raised,
     mannerText: mannerText(raised.manner, language),
-    text: withDays(questionText(raised.question, language), raised.days, schedule, language),
+    text: questionText(raised.question, language),
     answers: confirmationAnswers(language),
     shownOnAnotherRowMark: shownOnAnotherRowMark(language),
   }

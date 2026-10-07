@@ -75,7 +75,6 @@ import {
 import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
-  nonWorkingDayQuestionOwedBy,
   searchJumpReachOf,
   searchJumpWrites,
   searchJumpCommands,
@@ -672,8 +671,6 @@ const PERCENT_PER_WHOLE = 100
 export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
 export type ConfirmationQuestion = FileFlowQuestion['question']
-
-const NON_WORKING_DAY_QUESTION: ConfirmationQuestion = 'QN-13'
 
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 
@@ -1894,25 +1891,16 @@ function isChangingDocumentIn(session: ScreenSession): boolean {
   return session.gesture.pointerPressState.kind === 'changingDocument'
 }
 
-// see FR-032, FR-099, FR-154, T-354, QN-13
-// WHY: a copy drag (CY-5) is not asked QN-13; its picked copies (CY-8) would wait on the answer.
+// see FR-032, FR-099
 /** @purity pure */
 function changeQuestionRaisedBy(
   action: Extract<InputAction, { readonly kind: 'changeDocument' }>,
   document: Document,
 ): Extract<SessionEvent, { readonly type: 'changeQuestionRaised' }> | null {
-  const created = action.created ?? null
   const deletion = confirmationOwedBy(action.writes.flat(), document, action.question)
-  if (deletion !== null) {
-    const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }
-    return { type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...deletion }, owedAction }
-  }
-  const owed = action.picked === undefined ? nonWorkingDayQuestionOwedBy(action.writes.flat(), document) : null
-  if (owed === null) return null
-  const question = { manner: CONFIRMATION_MANNER, question: NON_WORKING_DAY_QUESTION, items: [], days: owed.days }
-  const madeWorking: readonly DocumentCommand[] = [owed.madeWorking, ...action.writes.flat()]
-  const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: [madeWorking], created, declinedWrites: action.writes }
-  return { type: 'changeQuestionRaised', question, owedAction }
+  if (deletion === null) return null
+  const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created: action.created ?? null }
+  return { type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...deletion }, owedAction }
 }
 
 /** @purity pure */

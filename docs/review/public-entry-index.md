@@ -76,7 +76,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
 | `isStoredColour` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#isStoredColour` | PI-1 | 色の列が取る綴りか。 |
-| `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`）。 |
+| `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`） |
 | `lagOfWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagOfWorkingDays` | PI-1 | 稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`） |
 | `lagWorkingDaysOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagWorkingDaysOf` | PI-1 | ラグを稼働日で読む。 |
 | `lastDayForLength` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lastDayForLength` | PI-1 | `actualStart` と長さから実績の最後の日を置く。 |
@@ -421,8 +421,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `InvariantRefusal` | entry | interface | `src/use-case/edit-document/edit-document.ts#InvariantRefusal` | PI-9 | 型。 |
 | `InvariantRow` | entry | type | `src/use-case/edit-document/edit-document.ts#InvariantRow` | PI-9 | 型。 |
 | `levelZeroWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#levelZeroWritesFor` | PI-9 | 同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める |
-| `NonWorkingDayQuestion` | entry | interface | `src/use-case/edit-document/edit-calendar.ts#NonWorkingDayQuestion` | PI-9 | 型。 |
-| `nonWorkingDayQuestionOwedBy` | entry | function | `src/use-case/edit-document/edit-calendar.ts#nonWorkingDayQuestionOwedBy` | PI-9 | 書き込みの束が、人の置いた端の日を文書の暦の非稼働日に置くかを決め、置くなら `QN-13` の問いを返す —— `FR-154` の 表 T-354。 |
 | `NOT_STORED_ZOOM_BOUNDS` | entry | const | `src/use-case/edit-document/edit-document.ts#NOT_STORED_ZOOM_BOUNDS` | -- | const NOT_STORED_ZOOM_BOUNDS: |
 | `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | 写し元の `UID` から、`CM-8` がその写しに払い出す `UID` への対応 —— `FR-033`。 |
 | `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string } \| |
@@ -1322,7 +1320,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayReportRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportRowView` | -- | interface DelayReportRowView extends SearchRowView |
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
-| `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, schedule: Schedule \| null = null, |
+| `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
 | `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, ): readonly Notice[] |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
@@ -1387,7 +1385,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
 | `iconHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconHint` | -- | function iconHint(icon: IconId, language: DisplayLanguage): string |
 | `iconLabel` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconLabel` | -- | function iconLabel(icon: IconId, language: DisplayLanguage): string |
-| `questionDayText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#questionDayText` | -- | function questionDayText(text: string, schedule: Schedule \| null, language: DisplayLanguage): string |
 | `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sche... |
 | `WindowEdge` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowEdge` | -- | type WindowEdge = 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' |
 | `WindowFloor` | file only | interface | `src/adapter/screen-renderer/window-box.ts#WindowFloor` | -- | interface WindowFloor |
@@ -1720,4 +1717,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 840 name(s) leave through a public entry (330 of them published by table T-064), 670 more are exported by a file and not by its entry.
+Totals: 838 name(s) leave through a public entry (328 of them published by table T-064), 669 more are exported by a file and not by its entry.

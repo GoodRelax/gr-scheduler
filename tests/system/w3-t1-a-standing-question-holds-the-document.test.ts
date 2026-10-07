@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
-import { openDocument, openStage, reasonWords, settle, type Stage } from './cr-570-tree-state-stage'
+import { openDocument, openStage, pressEntrance, reasonWords, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -92,7 +92,7 @@ function fixture(): string {
 
 interface Held {
   readonly name: string
-  readonly finish: string
+  readonly tasks: number
   readonly stamp: unknown
 }
 
@@ -101,7 +101,7 @@ async function readHeld(page: Page): Promise<Held> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): any; readStamp(): unknown } }).grSchedulerAgentApi
     const held = api.readDocument()
-    return { name: String(held.schedule.tasks[0].name), finish: String(held.schedule.tasks[0].finish).slice(0, 10), stamp: api.readStamp() }
+    return { name: String(held.schedule.tasks[0].name), tasks: Number(held.schedule.tasks.length), stamp: api.readStamp() }
   })
 }
 
@@ -122,26 +122,11 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
   }, selector)
 }
 
-// WHY: the shade path runs "M x0 top H x1 ..."; the weekend run ending at the Monday bar is two day columns wide.
+// see FR-032, QN-10, IC-106
+// WHY: deleting every row owes a write bundle, so the question it raises holds the document as NT-7 says.
 /** @purity non-pure */
-async function dragTheEndOntoSaturday(page: Page): Promise<void> {
-  const geometry = await page.evaluate(() => {
-    const left = document.querySelector('[data-role="Schedule Canvas"] svg')?.getBoundingClientRect().x ?? 0
-    const d = document.querySelector('[data-figure="non-working-days"]')?.getAttribute('d') ?? ''
-    const runs = Array.from(d.matchAll(/M(-?[\d.]+) [-\d.]+ H(-?[\d.]+)/g)).map((one) => [Number(one[1]) + left, Number(one[2]) + left])
-    const r = document.querySelector('[data-figure="task-1-plan"]')?.getBoundingClientRect()
-    return r === undefined ? null : { runs, x: r.x, y: r.y, width: r.width, height: r.height }
-  })
-  if (geometry === null) throw new Error('the plan bar of task 1 is not drawn')
-  const weekend = geometry.runs.find((run) => Math.abs((run[1] ?? NaN) - geometry.x) < 1)
-  if (weekend === undefined) throw new Error('no shaded weekend ends at the bar start')
-  const perDay = ((weekend[1] ?? NaN) - (weekend[0] ?? NaN)) / 2
-  const y = geometry.y + geometry.height / 2
-  const from = geometry.x + geometry.width - 2
-  await page.mouse.move(from, y)
-  await page.mouse.down()
-  await page.mouse.move(from + 3 * perDay, y, { steps: 8 })
-  await page.mouse.up()
+async function askToDeleteEveryRow(page: Page): Promise<void> {
+  expect(await pressEntrance(page, 'IC-106'), 'IC-106 is on the screen').toBe(true)
   await settle(page)
 }
 
@@ -163,8 +148,8 @@ async function askedStage(): Promise<Stage> {
   await openDocument(opened.page, 'w3-t1-question.json', fixture())
   expect((await rename(opened.page, 'Renamed')).accepted, 'premise: one undoable edit stands in the history').toBe(true)
   await settle(opened.page)
-  await dragTheEndOntoSaturday(opened.page)
-  expect(await textOf(opened.page, CONFIRMATION), 'premise: QN-13 stands').not.toBeNull()
+  await askToDeleteEveryRow(opened.page)
+  expect(await textOf(opened.page, CONFIRMATION), 'premise: QN-10 stands').not.toBeNull()
   return opened
 }
 
@@ -186,7 +171,7 @@ test.describe(`NT-7 (MUST): ${NT_7_YES_NO.slice(-30)}`, () => {
     }
   })
 
-  test('on the shipped build, the QN-13 question on the screen ends its asking sentence with a question mark', async () => {
+  test('on the shipped build, the QN-10 question on the screen ends its asking sentence with a question mark', async () => {
     const opened = await askedStage()
     try {
       const said = (await textOf(opened.page, CONFIRMATION)) ?? ''
@@ -202,7 +187,7 @@ test.describe(`NT-7 (MUST): ${NT_7_YES_NO.slice(-30)}`, () => {
 test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
-  test('a screen undo while QN-13 stands is told by RS-27 and writes nothing', async () => {
+  test('a screen undo while QN-10 stands is told by RS-27 and writes nothing', async () => {
     const opened = await askedStage()
     try {
       const before = await readHeld(opened.page)
@@ -210,7 +195,7 @@ test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
       await settle(opened.page)
       const after = await readHeld(opened.page)
       expect(after.name, 'the undo is thrown away: the name stays').toBe('Renamed')
-      expect(after.finish, 'the drag end is not written either').toBe(before.finish)
+      expect(after.tasks, 'the rows are not deleted either').toBe(before.tasks)
       const told = (await textOf(opened.page, NOTIFICATION_AREA)) ?? ''
       expect(reasonWords('RS-27').some((words) => told.includes(words)), `RS-27 is told; the area said: ${told}`).toBe(true)
       expect(await textOf(opened.page, CONFIRMATION), 'the question still stands').not.toBeNull()
@@ -221,7 +206,7 @@ test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
     }
   })
 
-  test('an Agent API write while QN-13 stands is refused and writes nothing', async () => {
+  test('an Agent API write while QN-10 stands is refused and writes nothing', async () => {
     const opened = await askedStage()
     try {
       const answer = await rename(opened.page, 'Agent')

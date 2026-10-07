@@ -635,14 +635,6 @@
    }
   },
   {
-   "prefix": "HW",
-   "words": "Holiday Work",
-   "owner": "spec",
-   "means": {
-    "ja": "非稼働日に置いた端の日を稼働日にするか問う場面"
-   }
-  },
-  {
    "prefix": "IC",
    "words": "Icon",
    "owner": "spec",

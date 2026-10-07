@@ -20,7 +20,7 @@ const CLAUSE_NO_WRITE_WHILE_HELD =
   '⛔ 日程の形（`GR-23`）・`GR-14`・`GR-16` を掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）'
 
 const HIGHLIGHT = 'highlight-one'
-// WHY: two whole weeks, so a moved plan lands on working days and the release asks no QN-13 question (FR-154).
+// WHY: two whole weeks, so a moved plan lands on the same weekdays it left.
 const MOVE_DAYS = 14
 
 // WHY: a long plan, so the body centre stands clear of the progress marker and dummy that answer first (T-266).

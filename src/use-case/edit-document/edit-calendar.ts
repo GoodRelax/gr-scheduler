@@ -4,15 +4,8 @@
 // @purity    pure
 
 import {
-  actualLastDay,
-  DAILY_RECURRENCE_KIND,
-  dayFromSerial,
   dayOf,
-  isNonRecurringException,
   isSameDay,
-  isWorkingDay,
-  serial,
-  textOfDay,
   textOfDayEnd,
   textOfDayStart,
   workingCalendarOf,
@@ -23,12 +16,10 @@ import type {
   Exception,
   Project,
   Schedule,
-  Task,
   WeekDay,
-  WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentCommand, EditReport, EditResult, Refusal } from './edit-document'
+import type { EditReport, EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { recountedPercentComplete } from './percent-complete'
 
@@ -216,124 +207,3 @@ function isDayType(value: number): boolean {
   return Number.isInteger(value) && value >= 1 && value <= 7
 }
 
-// see FR-154, T-354, QN-13
-// WHY: a Yes puts madeWorking in front of the same bundle, so one write lands both (one undo step).
-export interface NonWorkingDayQuestion {
-  readonly days: readonly string[]
-  readonly madeWorking: CalendarCommand
-}
-
-// see FR-154, T-354, HW-1, HW-4, HW-5, HW-8, HW-9
-// WHY: only the days a person placed are asked; a day GRS fills in (HW-2) or a resume day (HW-3) is not.
-/** @purity pure */
-export function nonWorkingDayQuestionOwedBy(
-  commands: readonly DocumentCommand[],
-  held: Document,
-): NonWorkingDayQuestion | null {
-  const within = workingCalendarOf(held.schedule)
-  const bySerial = new Map<number, CalendarDay>()
-  for (const day of placedDaysOf(commands, held.schedule)) {
-    if (!isWorkingDay(within, day)) bySerial.set(serial(day), day)
-  }
-  if (bySerial.size === 0) return null
-  const days = [...bySerial.keys()].sort((a, b) => a - b).map((key) => bySerial.get(key) as CalendarDay)
-  return {
-    days: days.map(textOfDay),
-    madeWorking: { kind: 'setCalendar', exceptions: exceptionsWorkingOn(within, days) },
-  }
-}
-
-// see HW-1, HW-4, HW-5, HW-9
-/** @purity pure */
-function placedDaysOf(commands: readonly DocumentCommand[], schedule: Schedule): CalendarDay[] {
-  const placed: CalendarDay[] = []
-  for (const command of commands) {
-    const task = 'uid' in command ? schedule.tasks.find((one) => one.uid === command.uid) : undefined
-    if (task === undefined) continue
-    if (command.kind === 'setTaskPlanDates') {
-      placed.push(...movedDays([[task.start, command.start], [task.finish, command.finish]]))
-    } else if (command.kind === 'setTaskPlanActualState' && command.place.row !== 'PA-1') {
-      placed.push(...movedActualDays(task, command.place))
-    } else if (command.kind === 'beginTaskActual') {
-      placed.push(...movedDays([[null, command.droppedDay]]))
-    }
-  }
-  return placed
-}
-
-// see HW-3
-// WHY: the resume day of PA-3 is left out; it enters no length count, so no count disagrees.
-/** @purity pure */
-function movedActualDays(
-  task: Task,
-  place: { readonly actualStart: string; readonly stop?: string; readonly actualFinish?: string },
-): CalendarDay[] {
-  const lastDay = actualLastDay(task)
-  const heldLast = lastDay === null ? null : textOfDay(lastDay)
-  const placedLast = place.actualFinish ?? place.stop ?? null
-  return movedDays([[task.actualStart, place.actualStart], [heldLast, placedLast]])
-}
-
-// see HW-9
-/** @purity pure */
-function movedDays(pairs: readonly (readonly [string | null, string | null])[]): CalendarDay[] {
-  const moved: CalendarDay[] = []
-  for (const [before, after] of pairs) {
-    const day = dayOf(after)
-    if (day !== null && !isSameDay(before, after)) moved.push(day)
-  }
-  return moved
-}
-
-// see HW-10, WC-6, EX-13
-// WHY: a holiday row that covers the day loses it (split in two when the day is inside), and a working
-// row is added only when the day is still not working -- overlapping rows have no order the spec names.
-/** @purity pure */
-function exceptionsWorkingOn(within: WorkingCalendar, days: readonly CalendarDay[]): Exception[] {
-  let rows: Exception[] = [...within.exceptions]
-  let nextOrdinal = rows.reduce((high, one) => Math.max(high, one.ordinal), -1) + 1
-  for (const day of days) {
-    const at = serial(day)
-    rows = rows.flatMap((row) => {
-      const parts = holidayWithout(row, at, nextOrdinal)
-      if (parts.length === 2) nextOrdinal += 1
-      return parts
-    })
-    if (isWorkingDay({ ...within, exceptions: rows }, day)) continue
-    rows.push(workingRowOn(day, nextOrdinal))
-    nextOrdinal += 1
-  }
-  return rows
-}
-
-// see HW-10
-/** @purity pure */
-function holidayWithout(row: Exception, at: number, spareOrdinal: number): Exception[] {
-  if (row.dayWorking === true || !isNonRecurringException(row)) return [row]
-  const from = dayOf(row.fromDate)
-  if (from === null) return [row]
-  const to = dayOf(row.toDate) ?? from
-  if (at < serial(from) || at > serial(to)) return [row]
-  const parts: Exception[] = []
-  if (serial(from) < at) parts.push({ ...row, toDate: textOfDayEnd(dayFromSerial(at - 1)) })
-  if (at < serial(to)) {
-    const ordinal = parts.length === 0 ? row.ordinal : spareOrdinal
-    parts.push({ ...row, ordinal, fromDate: textOfDayStart(dayFromSerial(at + 1)) })
-  }
-  return parts
-}
-
-// see WC-6, AT-81, AT-82
-/** @purity pure */
-function workingRowOn(day: CalendarDay, ordinal: number): Exception {
-  return {
-    ordinal,
-    name: null,
-    fromDate: textOfDayStart(day),
-    toDate: textOfDayEnd(day),
-    dayWorking: true,
-    recurrenceKind: DAILY_RECURRENCE_KIND,
-    carry: {},
-    carryElements: [],
-  }
-}

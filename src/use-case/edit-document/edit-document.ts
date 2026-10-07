@@ -31,8 +31,7 @@ export type { DeletionQuestion } from './deletion-confirmations'
 export type { DependencyCommand, DependencyEdge } from './edit-dependency'
 export type { AnnotationCommand, AnnotationAnchor, HighlightRange } from './edit-annotation'
 export type { ResourceCommand } from './edit-resource'
-export type { CalendarCommand, NonWorkingDayQuestion } from './edit-calendar'
-export { nonWorkingDayQuestionOwedBy } from './edit-calendar'
+export type { CalendarCommand } from './edit-calendar'
 export type { ProjectCommand, ProjectProfileFields } from './edit-project'
 export type {
   DocumentSettingsCommand,

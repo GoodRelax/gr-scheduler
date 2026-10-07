@@ -330,4 +330,15 @@ RETIRED = {'FR-050', 'T-030',
            # fourth step, 20 px) left it. CR-571, CR-617 and the changelog
            # name it, so the seat stays burnt.
            'S-433',
+           # CR-701 (2026-10-08, rulings JDG-1610 / JDG-1611): FR-154 (ask
+           # whether to make a non-working day a working day when a task end is
+           # placed on it), its table T-354 (rows HW-1 .. HW-12) and the
+           # question QN-13 of table T-234 left. The user abolished the
+           # question: an end is placed on a non-working day as it is and the
+           # document calendar is not changed; the export drift this leaves is
+           # LM-22. CR-668 (which added them), CR-682, CR-689, CR-701, the
+           # changelog and rulings.md name them, so the seats stay burnt.
+           'FR-154', 'T-354', 'QN-13',
+           'HW-1', 'HW-2', 'HW-3', 'HW-4', 'HW-5', 'HW-6', 'HW-7', 'HW-8',
+           'HW-9', 'HW-10', 'HW-11', 'HW-12',
            'T-006'}
