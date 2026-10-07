@@ -391,7 +391,7 @@ export const STYLE = {
   helpLegal: '',
   helpLegalSummary: 'cursor:pointer;',
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
-  formatChoices: 'display:grid;grid-auto-flow:column;grid-auto-columns:1fr;',
+  formatChoices: 'display:grid;grid-template-columns:max-content;grid-auto-rows:1fr;',
   // TRAP: `left:50%` with a transform, or a `max-width`, shrinks or wraps the telling (NT-9).
   notices:
     'position:absolute;left:0;right:0;pointer-events:none;' +

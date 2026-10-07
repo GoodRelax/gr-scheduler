@@ -16,9 +16,11 @@ const TEMPLATE_TEXT = readFileSync(join(process.cwd(), 'src', 'framework', 'sing
 
 const MK_13_ONE_PRESS =
   '（`FR-035`）を開くこと（MUST） —— 利用者が、ヘッダーの文書名をダブルクリックして編集できるようにすると定めた。⛔ 1 回の押下で開いてはならない（MUST NOT）'
-const FR_096_ONE_LINE = '式を上の順で 1 行に並べ、折り返さないこと（MUST）'
+const FR_096_ONE_COLUMN = '式を上の順で上から下へ 1 段に 1 つずつ並べること（MUST）'
+const FR_096_NOT_SIDEWAYS =
+  '⛔ 形式を横に並べてはならない（MUST NOT） —— 横に並べると選択面の幅が形式の数だけ広がり、それより狭い閲覧環境の窓では端の形式が窓の外へ出て押せない'
 const FR_096_HEADING =
-  ' 1 行より狭いときは、選択面が窓からはみ出す —— 1 行を先に立てる。⭐ 見出しの段は、`FR-036` の 表 T-335 の `WB-10` の題の行とすること（MUST）'
+  'ボタンの大きさが揃わなくなる。⭐ 見出しの段は、`FR-036` の 表 T-335 の `WB-10` の題の行とすること（MUST）'
 const WB_10_NO_RESIZE =
   'してはならない（MUST NOT） —— 掴めない位置へ置けば二度と動かせない（表 T-023d の `GR-19` と同じ理由）。⛔ 大きさを変えてはならない（MUST NOT）'
 const WB_10_TITLE_ROW = '題の行は `WB-7` と同じ形とし、左端に題（面の見出しの語）を、右端に `IC-52` だけを置く —— `IC-129` 〜 `IC-131` を置かない'
@@ -99,9 +101,13 @@ async function openExportChooser(page: Page): Promise<void> {
 }
 
 /** @purity semi-pure-b */
-async function formatTops(page: Page): Promise<readonly number[]> {
+async function formatBoxes(page: Page): Promise<readonly { left: number; right: number; top: number; bottom: number }[]> {
   return page.evaluate(
-    (chooser: string) => Array.from(document.querySelectorAll(`${chooser} [data-format]`)).map((one) => one.getBoundingClientRect().top),
+    (chooser: string) =>
+      Array.from(document.querySelectorAll(`${chooser} [data-format]`)).map((one) => {
+        const box = one.getBoundingClientRect()
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom }
+      }),
     EXPORT_CHOOSER,
   )
 }
@@ -120,7 +126,7 @@ async function dragEdge(page: Page, box: Rect, dx: number, dy: number): Promise<
 
 test.describe('the manuscript these cases are driven by', () => {
   test('01-04 still says every clause quoted here', () => {
-    for (const clause of [MK_13_ONE_PRESS, FR_096_ONE_LINE, FR_096_HEADING, WB_10_NO_RESIZE, WB_10_TITLE_ROW, WM_9_ESC, SV_7_LABELS]) {
+    for (const clause of [MK_13_ONE_PRESS, FR_096_ONE_COLUMN, FR_096_NOT_SIDEWAYS, FR_096_HEADING, WB_10_NO_RESIZE, WB_10_TITLE_ROW, WM_9_ESC, SV_7_LABELS]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
   })
@@ -142,20 +148,31 @@ test.describe(`T-023 MK-13 -- ${MK_13_ONE_PRESS}`, () => {
   })
 })
 
-test.describe(`FR-096 -- ${FR_096_ONE_LINE}`, () => {
-  test('the formats stand on one line, on the reference screen and on a window narrower than the line', async ({ page }) => {
+test.describe(`FR-096 -- ${FR_096_ONE_COLUMN}`, () => {
+  function expectOneColumn(boxes: readonly { left: number; top: number; bottom: number }[], where: string): void {
+    expect(boxes.length, 'premise: the chooser offers the formats of table T-024').toBeGreaterThan(1)
+    const lefts = boxes.map((one) => one.left)
+    expect(Math.max(...lefts) - Math.min(...lefts), `${FR_096_ONE_COLUMN} -- ${where}`).toBeLessThanOrEqual(1)
+    for (let index = 1; index < boxes.length; index += 1) {
+      expect(boxes[index]!.top, `${FR_096_ONE_COLUMN} -- ${where}, format ${index}`).toBeGreaterThanOrEqual(boxes[index - 1]!.bottom - 1)
+    }
+  }
+
+  test('the formats stand one a row, on the reference screen and on a 480 px window, every one inside the window', async ({ page }) => {
     await launch(page)
     await openExportChooser(page)
-    const wide = await formatTops(page)
-    expect(wide.length, 'premise: the chooser offers the formats of table T-024').toBeGreaterThan(1)
-    expect(Math.max(...wide) - Math.min(...wide), FR_096_ONE_LINE).toBeLessThanOrEqual(1)
+    expectOneColumn(await formatBoxes(page), 'the reference screen')
     await page.keyboard.press('Escape')
     await settle(page)
     await page.setViewportSize({ width: 480, height: 900 })
     await settle(page)
     await openExportChooser(page)
-    const narrow = await formatTops(page)
-    expect(Math.max(...narrow) - Math.min(...narrow), `${FR_096_ONE_LINE} -- a 480 px window`).toBeLessThanOrEqual(1)
+    const narrow = await formatBoxes(page)
+    expectOneColumn(narrow, 'a 480 px window')
+    for (const [index, one] of narrow.entries()) {
+      expect(one.left, `${FR_096_NOT_SIDEWAYS} -- format ${index}, a 480 px window`).toBeGreaterThanOrEqual(0)
+      expect(one.right, `${FR_096_NOT_SIDEWAYS} -- format ${index}, a 480 px window`).toBeLessThanOrEqual(480)
+    }
   })
 })
 

@@ -16,7 +16,7 @@ const OTHER_TEXT_WEIGHT =
   '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title` のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
 
 // see FR-096
-const FORMAT_BUTTON_GAP = '⭐ 隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）'
+const FORMAT_BUTTON_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）'
 
 // see FR-052
 const HELD_WIDTH_IS_RELEASED_WIDTH =
@@ -193,15 +193,15 @@ test(`FR-096: ${FORMAT_BUTTON_GAP}`, async ({ page }) => {
     const buttons = [...document.querySelectorAll('[data-role="Export Chooser"] [data-format]')] as HTMLElement[]
     return buttons.map((one) => {
       const r = one.getBoundingClientRect()
-      return { left: r.left, right: r.right, top: r.top, em: Number.parseFloat(getComputedStyle(one.parentElement as Element).fontSize) }
+      return { left: r.left, top: r.top, bottom: r.bottom, em: Number.parseFloat(getComputedStyle(one.parentElement as Element).fontSize) }
     })
   })
   expect(measured.length, 'precondition: the chooser shows two formats or more').toBeGreaterThan(1)
   for (let i = 1; i < measured.length; i++) {
     const prev = measured[i - 1]!
     const next = measured[i]!
-    expect(Math.abs(next.top - prev.top), 'precondition: the formats sit on one line').toBeLessThan(0.5)
-    expect(next.left - prev.right).toBeCloseTo(S_517_EM * prev.em, 1)
+    expect(Math.abs(next.left - prev.left), 'precondition: the formats stand one above the other').toBeLessThan(0.5)
+    expect(next.top - prev.bottom).toBeCloseTo(S_517_EM * prev.em, 1)
   }
 })
 

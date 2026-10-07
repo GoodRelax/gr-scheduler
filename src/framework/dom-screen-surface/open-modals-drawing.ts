@@ -434,7 +434,7 @@ function closeOnlyTitleRow(host: Document, modal: ExportChooser | OpenChooser, a
 }
 
 // see WB-10, FR-096, OP-16
-// WHY: content sets the size, so a format row is never cut by a share of the window (FR-096); only that row may overhang it.
+// WHY: content sets the size, so a format's words are never wrapped by a share of the window (FR-096).
 /** @purity pure */
 function closeOnlyTitledFrameStyle(modal: ExportChooser | OpenChooser): string {
   const cap = 'formats' in modal ? 'max-width:none;' : ''
@@ -676,10 +676,10 @@ function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   return { body, columns }
 }
 
-// see FR-096, S-517
+// see FR-096, S-517, OP-16
 /** @purity pure */
 function formatChoicesStyle(): string {
-  return `${STYLE.formatChoices}column-gap:${NOT_STORED_EXPORT_CHOOSER_SIZES['S-517']}em;`
+  return `${STYLE.formatChoices}row-gap:${NOT_STORED_EXPORT_CHOOSER_SIZES['S-517']}em;`
 }
 
 // see FR-096
