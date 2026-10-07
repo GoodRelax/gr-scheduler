@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>プロパティパネルを詰める見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --ground: #ffffff; --ink: #16181d; --quiet: #5b6068; --rule: #d9dee6; --panel: #f6f7fa;
+    --accent: #2f6fb5; --k: 1.5;
+  }
+  :root[data-theme="dark"] {
+    --ground: #14161a; --ink: #e8eaee; --quiet: #9aa1ab; --rule: #33393f; --panel: #1d2126; --accent: #7fb0e6;
+  }
+  html, body { background: var(--ground); color: var(--ink); }
+  body { margin: 0; padding: 16px 24px 48px; font: 16px/1.7 system-ui, sans-serif; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 28px 0 6px; border-bottom: 1px solid var(--rule); }
+  h3 { font-size: 1rem; margin: 0 0 4px; }
+  p.note { color: var(--quiet); margin: 4px 0 8px; font-size: 0.9rem; }
+  code { font-size: 0.85em; }
+  .controls { position: sticky; top: 0; z-index: 2; background: var(--panel);
+    border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px;
+    display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; font-size: 0.9rem; }
+  .controls label { white-space: nowrap; }
+  .cards { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; margin-top: 12px; }
+  .card { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+  .measure { font-size: 0.9rem; color: var(--quiet); margin: 4px 0; }
+  .measure b { color: var(--ink); }
+
+  /* Panel mock. App sizes (panel 280px, text 11.9px, swatch 17px) times --k so nothing is below 12px here. */
+  .panel { box-sizing: border-box; width: calc(280px * var(--k)); max-width: 100%;
+    background: var(--panel); color: var(--ink); border: 1px solid var(--rule);
+    padding: calc(6px * var(--k)) calc(8px * var(--k));
+    font-size: calc(11.9px * var(--k)); line-height: 1.6; }
+  .field { display: flex; align-items: center; gap: calc(6px * var(--k));
+    padding: calc(2px * var(--k)) 0; border-top: 1px dotted var(--rule); }
+  .field.top { align-items: flex-start; }
+  .field.stack { flex-direction: column; align-items: stretch; }
+  .fname { flex: 0 0 42%; text-align: right; color: var(--quiet); font-size: 0.9em; }
+  .fbody { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start;
+    gap: calc(2px * var(--k)); }
+  .fbody > input[type=text], .fbody > textarea, .fbody > select, .fbody > .line { align-self: stretch; }
+  .stackBody { padding-left: calc(42% + 6px * var(--k)); display: flex; flex-direction: column;
+    gap: calc(2px * var(--k)); }
+  .line { display: flex; flex-wrap: wrap; align-items: center; gap: calc(4px * var(--k)); }
+  .fbody input[type=text], .fbody input[type=number], .fbody input[type=date], .fbody textarea, .fbody select {
+    font: inherit; box-sizing: border-box; background: var(--ground); color: var(--ink);
+    border: 1px solid var(--rule); border-radius: 2px; padding: 0 0.3em; }
+  .fbody input[type=text], .fbody textarea { width: 100%; }
+  .fbody input.num { width: 4.2em; text-align: right; }
+  .fbody input.date { width: 8.4em; color-scheme: light dark; }
+  .span input.date { width: calc(10ch + 0.4em); padding: 0 0.1em; }
+  .span { flex-wrap: nowrap; gap: 2px; }
+  .fbody input:disabled { opacity: 0.5; }
+  .ro { color: var(--quiet); }
+  .deps { display: flex; flex-direction: column; gap: 0; }
+  .tag { font-size: 0.75em; line-height: 1.3; padding: 0 0.35em; border: 1px solid var(--quiet);
+    border-radius: 3px; color: var(--quiet); cursor: help; }
+  .link { color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .headEntry { padding-bottom: calc(4px * var(--k)); }
+
+  button { font: inherit; color: var(--ink); background: var(--ground); cursor: pointer;
+    border: 1px solid var(--rule); border-radius: 3px; padding: 0 0.35em; }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .chip { box-sizing: border-box; width: calc(17px * var(--k)); height: calc(17px * var(--k));
+    padding: 0; flex: none; border: 1px solid var(--rule); border-radius: 2px;
+    font-size: 0.75em; font-weight: 700; line-height: 1; }
+  .chip.sel { outline: 3px solid var(--ink); outline-offset: 1px; }
+  .chip.empty { border: 1px dashed var(--quiet); background: transparent; cursor: default; }
+  .chip.checker { background-image:
+      conic-gradient(#c0c0c0 25%, #ffffff 0 50%, #c0c0c0 0 75%, #ffffff 0);
+    background-size: 50% 50%; }
+  .grid5 { display: grid; grid-template-columns: repeat(5, calc(17px * var(--k))); gap: calc(4px * var(--k)); }
+  .sw { display: inline-block; width: 0.75em; height: 0.75em; border: 1px solid var(--quiet); vertical-align: middle; }
+  .wide { display: inline-flex; align-items: center; gap: 0.3em; min-height: calc(17px * var(--k)); }
+  input[type=color].hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+
+  table.t { border-collapse: collapse; font-size: 0.85rem; margin-top: 6px; }
+  table.t th, table.t td { border: 1px solid var(--rule); padding: 2px 6px; text-align: left; vertical-align: top; }
+  .scroll { overflow-x: auto; max-width: 100%; }
+  ul.q { margin: 4px 0; padding-left: 1.4em; }
+  ul.q li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>プロパティパネルを詰める見本（7 版、2026-10-08）</h1>
+<p class="note">2026-10-07〜08 の指示を当てた見本です。プロパティパネルに出る 3 つの場面を並べました。
+① タスクを選んだとき（左が今のアプリ、右が提案）、② タスクグループを選んだとき（提案）、③ ヘッダーの［三］で開く文書の設定（提案）。
+3 版での変更: タスクを選んだときにタスクグループの欄を出さない（タスクグループを選んだときだけ出す）、日付は「yyyy/mm/dd - yyyy/mm/dd」、
+文書の設定に「全体表示時の期間」と「行見出しパネルの幅」を足した。色の見本・チェック・ボタンは押して試せます（値はどこにも保存しません）。</p>
+
+<div class="controls">
+  <label><input type="radio" name="theme" value="light" checked> ライト</label>
+  <label><input type="radio" name="theme" value="dark"> ダーク</label>
+  <label>見本の倍率
+    <select id="scale"><option value="1.25" selected>1.25</option><option value="1.5">1.5</option><option value="2">2</option></select></label>
+</div>
+
+<h2>① タスクを選んだとき</h2>
+<p class="note">今のアプリは、タスクの欄の後ろに、そのタスクが載るタスクグループの欄（名称・最小高さ・編集権限・色）を続けて出します。
+提案ではタスクの欄だけを、2026-10-08 に利用者が示した順（タスク名・UID・担当者・予定開始日・予定終了日・実績開始日・実績終了日・実績期間・完了率・再開予定日・再開日確定・期限・フェード日数・親タスク・先行タスク・後続タスク・備考）で出し、色の 3 行（枠線幅 → 枠線色 → 塗潰し色）を一番下にまとめます。日付は今と同じくカレンダーで入れられます。実績期間の欄は日付の欄と同じ幅にしました。備考は色の前（2026-10-08 の答え）。</p>
+<p class="note"><b>依存の種類の出し方</b>（右の提案の上で切り替え）: <b>案 A（推奨）</b> 先行タスク・後続タスクの 2 欄だけ。FS（完了 → 開始）は今どおり名だけを出し、それ以外の種類（SS・FF・SF）にだけ小さな札で略号を添える。札にポインタを置くと「SS（開始 → 開始）」のように読める。ずらし（ラグ）が 0 でないときだけ「+2日」を添える。FS しか使わない人には今と同じ見え方で、まれに使う人も向きと種類が読める。<b>案 B</b> 同時開始タスク・同時終了タスクの欄を足した 4 欄。SS・FF はそこへ移すが、SF の置き場が無く、FS しか使わない人にも空の欄が 2 つ出る。見本のデータ: 先行は 要件定義（FS）と 設計資料の整理（SS）、後続は 実装（FS）と 試験計画（FF、ずらし +2 日）。</p>
+<div class="cards">
+  <div class="card">
+    <h3>今</h3>
+    <div class="measure" id="mNow"></div>
+    <div class="panel" id="now"></div>
+  </div>
+  <div class="card">
+    <h3>提案
+      <select id="depForm" style="font-size:0.85rem;margin-left:8px">
+        <option value="tags" selected>依存: 案 A 先行・後続に種類の札（推奨）</option>
+        <option value="four">依存: 案 B 同時開始・同時終了の欄を足す</option>
+      </select></h3>
+    <div class="measure" id="mTask"></div>
+    <div class="panel" id="task"></div>
+  </div>
+</div>
+
+<h2>② タスクグループを選んだとき（行見出しパネルでタスクグループを押したとき）</h2>
+<p class="note">タスクグループの欄は、タスクグループを選んだときだけ出します。主語はタスクグループと決まっているので、
+欄名は「タスク名」「開始日」と同じく主語を付けない短い名にしました（右の切り替えで「タスクグループの…」を付けた長い名と比べられます）。</p>
+<div class="cards">
+  <div class="card">
+    <h3>提案
+      <select id="groupWords" style="font-size:0.85rem;margin-left:8px">
+        <option value="short" selected>欄名は短く（最小高さ・現在の高さ・色）</option>
+        <option value="long">欄名に「タスクグループの」を付ける</option>
+      </select></h3>
+    <div class="measure" id="mGroup"></div>
+    <div class="panel" id="group"></div>
+  </div>
+</div>
+
+<h2>③ ヘッダーの［三］で開く文書の設定</h2>
+<p class="note">2026-10-08 の指示の順と名: テーマ色（タスクと同じパレットの形、表 T-305 の 10 色相を 5 つずつ 2 段）→ 表示の倍率 → 文字サイズ → タスクグループパネルの幅を固定する → タスクグループパネルの幅 → 現在のタスクグループパネルの幅 → 基準日 → 全体表示時の期間を固定する → 全体表示時の期間 → 現在表示中の期間と［全体表示時の期間に設定］（2 つの間に線を引かない）→ 遅延診断時に親子の進捗の疑義を許す日数。指示の「遅延解析」は、正式の語「遅延診断」にそろえた。
+2026-10-04 に決めた「書き出す期間」は「全体表示時の期間」にまとめたので、欄としては無くなります。
+全体表示時の期間は、全体表示（Fit）を押したときと PNG/SVG に保存するときにだけ効き、画面はマウスで期間の外も動かせます。</p>
+<div class="cards">
+  <div class="card">
+    <h3>提案</h3>
+    <div class="panel" id="settings"></div>
+  </div>
+</div>
+
+<h2>決まったこと（2026-10-07〜08）</h2>
+<ul class="q">
+  <li>タスクを選んだときはタスクの欄だけ、タスクグループの欄はタスクグループを選んだときだけ出す。タスクグループの欄名は短い名。</li>
+  <li>色の欄は 1 欄 2 段（10 色＋[T]・市松・[O]）、選んだものは太枠、順は 枠線幅 → 枠線色 → 塗潰し色。テーマ色も同じパレットの形（10 色相）。</li>
+  <li>依存は案 A（先行タスク・後続タスクに、FS 以外だけ略号の札、ずらしは 0 でないときだけ）。依存線を選んだときのプロパティは今のまま。</li>
+  <li>「再開可否」は「再開日確定」にし、再開予定日の直後に置く。</li>
+  <li>「親タスク」「予定開始日」などの語の統一と「行 → タスクグループ」の改名は、同じ時期にまとめて別の CR で行う（調整役に相談）。</li>
+  <li>［O］で選んだ色は［O］の地をその色で塗り、ツールチップに値を出す（未確認の推奨）。</li>
+</ul>
+
+<script>
+'use strict';
+
+// Table T-294 (S-314..S-323): [name, word, lightFill, lightEdge, darkFill, darkEdge].
+const PALETTE = [
+  ['white', '白', '#ffffff', '#ffffff', '#14161a', '#14161a'],
+  ['black', '黒', '#000000', '#000000', '#ffffff', '#ffffff'],
+  ['dimgray', '濃い灰色', '#575757', '#383838', '#a3a3a3', '#cccccc'],
+  ['lightgray', '薄い灰色', '#cccccc', '#757575', '#424242', '#a8a8a8'],
+  ['red', '赤', '#e3b9b5', '#a94c42', '#58312d', '#d08880'],
+  ['blue', '青', '#b5c9e3', '#426ea9', '#2d3f58', '#80a3d0'],
+  ['yellow', '黄', '#dfd6a9', '#8c7d36', '#58502d', '#d0c380'],
+  ['green', '緑', '#afe1bf', '#3c9a5b', '#2d583b', '#80d09b'],
+  ['orange', 'オレンジ', '#e3cab5', '#a97242', '#58412d', '#d0a680'],
+  ['purple', '紫', '#d8b5e3', '#8f42a9', '#4d2d58', '#bc80d0'],
+];
+const PER_ROW = 5; // S-338
+const THEME_FILL = { light: '#c3d3e9', dark: '#2e3a4a' };
+// Display words of table TH (themeHues), first five shown.
+const HUES = ['青', '青緑', '緑', '黄緑', '黄', 'オレンジ', '赤', '赤紫', '紫', '藍'];
+
+const state = {
+  dark: false, groupWords: 'short', depForm: 'tags', hue: 0,
+  // null = theme, 'none' = no fill / no line, a palette name, or { custom: '#rrggbb' }
+  colours: { fill: null, stroke: 'blue', row: null },
+  width: 1, minHeightOn: true, minHeight: 40,
+  fitOn: true, fitStart: '2026/11/02', fitFinish: '2026/12/25',
+  shownStart: '2026/10/26', shownFinish: '2026/12/04',
+  panelWidthOn: false, panelWidth: 300,
+};
+
+function el(tag, attrs, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'style') node.setAttribute('style', v);
+    else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
+    else if (v === true) node.setAttribute(k, '');
+    else if (v !== false && v !== null && v !== undefined) node.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid !== null && kid !== undefined) node.append(kid);
+  return node;
+}
+const side = () => (state.dark ? 1 : 0);
+function paletteHex(name, form) {
+  const row = PALETTE.find((p) => p[0] === name);
+  return row[2 + side() * 2 + (form === 'edge' ? 1 : 0)];
+}
+function valueHex(v, form, dark = state.dark) {
+  if (v === null) return dark ? THEME_FILL.dark : THEME_FILL.light;
+  if (v === 'none') return null;
+  if (typeof v === 'object') return v.custom;
+  const row = PALETTE.find((p) => p[0] === v);
+  return row[2 + (dark ? 2 : 0) + (form === 'edge' ? 1 : 0)];
+}
+function valueWord(v) {
+  if (v === null) return '(テーマ)';
+  if (v === 'none') return '透明';
+  if (typeof v === 'object') return v.custom;
+  return PALETTE.find((p) => p[0] === v)[1];
+}
+
+function field(name, body, opts = {}) {
+  return el('div', { class: 'field' + (opts.top ? ' top' : '') },
+    el('div', { class: 'fname' }, name), el('div', { class: 'fbody' }, body));
+}
+function textField(name, value) { return field(name, el('input', { type: 'text', value })); }
+// WHY: type=date keeps the browser's calendar, as the app's date fields do today.
+function dateField(name, value) {
+  return field(name, el('input', { type: 'date', class: 'date', value: value.replaceAll('/', '-') }));
+}
+
+// ---- The colour field today: name line, light/dark readout, theme button, 5x2, none/custom ----
+function colourNow(name, key, form, noneWord, emptyBlack) {
+  const v = state.colours[key];
+  const sw = (hex) => el('span', { class: 'sw', style: hex ? `background:${hex}` : 'background:transparent' });
+  const grid = el('div', { class: 'grid5' }, PALETTE.map(([pname, word]) =>
+    emptyBlack && pname === 'black'
+      ? el('span', { class: 'chip empty' })
+      : el('button', { class: 'chip', title: word, style: `background:${paletteHex(pname, form)}`,
+        onclick: () => { state.colours[key] = pname; render(); } })));
+  return el('div', { class: 'field stack' },
+    el('div', { class: 'fname', style: 'flex:none;width:42%' }, name),
+    el('div', { class: 'stackBody' },
+      el('div', { class: 'line' }, 'ライト:', sw(valueHex(v, form, false)), valueWord(v), '/',
+        'ダーク:', sw(valueHex(v, form, true)), valueWord(v)),
+      el('div', { class: 'line' }, el('button', { class: 'wide', onclick: () => { state.colours[key] = null; render(); } },
+        el('span', { class: 'sw', style: `background:${valueHex(null, form)}` }), 'プロジェクトテーマ色')),
+      grid,
+      el('div', { class: 'line' },
+        el('button', { onclick: () => { state.colours[key] = 'none'; render(); } }, noneWord),
+        el('button', { onclick: () => pickCustom(key) }, 'その他の色'))));
+}
+
+// ---- The colour field proposed: two rows; [T] ends row 1, checker + [O] end row 2 -------------
+function colourNew(name, key, form, noneTip, emptyBlack) {
+  const v = state.colours[key];
+  const chipFor = ([pname, word]) => (emptyBlack && pname === 'black')
+    ? el('span', { class: 'chip empty', title: '（この欄には黒を置かない）' })
+    : el('button', { class: 'chip' + (v === pname ? ' sel' : ''), title: word,
+      style: `background:${paletteHex(pname, form)}`,
+      onclick: () => { state.colours[key] = pname; render(); } });
+  const isCustom = v !== null && typeof v === 'object';
+  const t = el('button', { class: 'chip' + (v === null ? ' sel' : ''), title: 'プロジェクトテーマ色に従う',
+    style: `background:${valueHex(null, form)};color:#16181d`,
+    onclick: () => { state.colours[key] = null; render(); } }, 'T');
+  const none = el('button', { class: 'chip checker' + (v === 'none' ? ' sel' : ''), title: noneTip,
+    onclick: () => { state.colours[key] = 'none'; render(); } });
+  const o = el('button', { class: 'chip' + (isCustom ? ' sel' : ''),
+    title: isCustom ? `その他の色（いまの値 ${v.custom}）` : 'その他の色',
+    style: isCustom ? `background:${v.custom};color:#ffffff;text-shadow:0 0 2px #000` : '',
+    onclick: () => pickCustom(key) }, 'O');
+  return el('div', { class: 'field top' },
+    el('div', { class: 'fname' }, name),
+    el('div', { class: 'fbody' },
+      el('div', { class: 'line' }, PALETTE.slice(0, PER_ROW).map(chipFor), t),
+      el('div', { class: 'line' }, PALETTE.slice(PER_ROW).map(chipFor), none, o)));
+}
+
+const picker = el('input', { type: 'color', class: 'hidden' });
+document.body.append(picker);
+let pickingKey = null;
+picker.addEventListener('input', () => { if (pickingKey) { state.colours[pickingKey] = { custom: picker.value }; render(); } });
+function pickCustom(key) {
+  pickingKey = key;
+  const v = state.colours[key];
+  picker.value = (v && typeof v === 'object') ? v.custom : '#8844cc';
+  picker.click();
+}
+
+function widthField(name) {
+  return field(name, el('input', { type: 'number', class: 'num', min: 1, max: 10, value: state.width,
+    oninput: (e) => { state.width = Number(e.target.value); } }));
+}
+
+function taskFieldsNow() {
+  return [
+    textField('タスク名', '設計レビュー'),
+    field('UID', el('span', { class: 'ro' }, '12')),
+    field('開始日 / 終了日', el('div', { class: 'line' }, el('input', { type: 'date', class: 'date', value: '2026-11-02' }),
+      el('input', { type: 'date', class: 'date', value: '2026-11-13' }))),
+    textField('担当者', '設計チーム'),
+    dateField('実績開始日', ''), textField('実績期間', ''), dateField('実績終了日', ''),
+    field('完了率', el('span', { class: 'ro' }, '0%')),
+    dateField('期限', ''),
+    field('備考', el('textarea', { rows: 1 })),
+    dateField('再開予定日', ''),
+    field('再開可否', el('input', { type: 'checkbox' })),
+    field('フェード日数 前/後', el('div', { class: 'line' }, el('input', { type: 'number', class: 'num', value: 0 }),
+      el('input', { type: 'number', class: 'num', value: 0 }))),
+    field('WBS の親', el('span', { class: 'link' }, '設計')),
+    field('先行', el('span', { class: 'ro' }, '要件定義')),
+    field('後続', el('span', { class: 'ro' }, '実装')),
+  ];
+}
+
+// Dependencies of the sample task: [task, linkType abbreviation (table T-024 DP rows), lag days].
+const PREDECESSORS = [['要件定義', 'FS', 0], ['設計資料の整理', 'SS', 0]];
+const SUCCESSORS = [['実装', 'FS', 0], ['試験計画', 'FF', 2]];
+const LINK_WORDS = { FS: 'FS（完了 → 開始）', SF: 'SF（開始 → 完了）', FF: 'FF（完了 → 完了）', SS: 'SS（開始 → 開始）' };
+
+// One line per link: the name as a link, then a type tag only when not FS, then the lag only when not 0.
+function dependencyList(entries) {
+  return el('div', { class: 'deps' }, entries.map(([name, type, lag]) => el('div', { class: 'line' },
+    el('span', { class: 'link' }, name),
+    type === 'FS' ? null : el('span', { class: 'tag', title: LINK_WORDS[type] }, type),
+    lag === 0 ? null : el('span', { class: 'ro' }, (lag > 0 ? '+' : '') + lag + '日'))));
+}
+
+function dependencyFields() {
+  if (state.depForm === 'tags') {
+    return [field('先行タスク', dependencyList(PREDECESSORS), { top: true }),
+      field('後続タスク', dependencyList(SUCCESSORS), { top: true })];
+  }
+  const only = (list, type) => list.filter((e) => e[1] === type).map((e) => [e[0], 'FS', e[2]]);
+  const both = (type) => only(PREDECESSORS, type).concat(only(SUCCESSORS, type));
+  return [field('先行タスク', dependencyList(only(PREDECESSORS, 'FS')), { top: true }),
+    field('後続タスク', dependencyList(only(SUCCESSORS, 'FS')), { top: true }),
+    field('同時開始タスク', dependencyList(both('SS')), { top: true }),
+    field('同時終了タスク', dependencyList(both('FF')), { top: true })];
+}
+
+// Order given by the user on 2026-10-08.
+function taskFieldsProposal() {
+  const link = (name) => el('span', { class: 'link' }, name);
+  const links = (...names) => el('div', { class: 'line' }, names.map(link));
+  return [
+    textField('タスク名', '設計レビュー'),
+    field('UID', el('span', { class: 'ro' }, '12')),
+    textField('担当者', '設計チーム'),
+    dateField('予定開始日', '2026-11-02'),
+    dateField('予定終了日', '2026-11-13'),
+    dateField('実績開始日', '2026-11-04'),
+    dateField('実績終了日', ''),
+    field('実績期間', el('div', { class: 'line' },
+      el('input', { type: 'number', class: 'date', value: 3, style: 'text-align:right' }), '日')),
+    field('完了率', el('span', { class: 'ro' }, '30%')),
+    dateField('再開予定日', ''),
+    field('再開日確定', el('input', { type: 'checkbox', title: '再開予定日が決まっている。外すと再開日が未定の中断' })),
+    dateField('期限', '2026-11-20'),
+    field('フェード日数 前/後', el('div', { class: 'line' }, el('input', { type: 'number', class: 'num', value: 0 }),
+      el('input', { type: 'number', class: 'num', value: 0 }))),
+    field('親タスク', link('設計')),
+    ...dependencyFields(),
+    field('備考', el('textarea', { rows: 1 })),
+  ];
+}
+
+const CURRENT_HEIGHT = () => (state.minHeightOn ? Math.max(24, state.minHeight) : 24);
+
+function renderNow() {
+  document.getElementById('now').replaceChildren(
+    ...taskFieldsNow(),
+    colourNow('塗潰し色', 'fill', 'fill', '塗潰しなし', false),
+    colourNow('枠線色', 'stroke', 'edge', '線なし', false),
+    widthField('枠線幅（px）'),
+    textField('名称', ''),
+    field('最小高さ（ズーム 100% 時）', el('div', { class: 'line' },
+      el('input', { type: 'number', class: 'num', value: state.minHeight }), 'px ｜ 現在の高さ ' + CURRENT_HEIGHT() + 'px')),
+    textField('編集権限', ''),
+    colourNow('色', 'row', 'fill', '塗潰しなし', true),
+  );
+}
+
+function renderTask() {
+  document.getElementById('task').replaceChildren(
+    ...taskFieldsProposal(),
+    field('枠線幅', el('div', { class: 'line' }, el('input', { type: 'number', class: 'num', min: 1, max: 10,
+      value: state.width, oninput: (e) => { state.width = Number(e.target.value); } }), '（px）')),
+    colourNew('枠線色', 'stroke', 'edge', '線なし', false),
+    colourNew('塗潰し色', 'fill', 'fill', '塗りつぶしなし', false),
+  );
+}
+
+function renderGroup() {
+  const long = state.groupWords === 'long';
+  const minOn = el('input', { type: 'checkbox', checked: state.minHeightOn,
+    onchange: (e) => { state.minHeightOn = e.target.checked; render(); } });
+  document.getElementById('group').replaceChildren(
+    textField('タスクグループ名', '設計'),
+    field(long ? 'タスクグループの最小高さを設定する' : '最小高さを設定する', minOn),
+    field(long ? 'タスクグループの最小高さ' : '最小高さ', el('div', { class: 'line' },
+      el('input', { type: 'number', class: 'num', value: state.minHeight, disabled: !state.minHeightOn,
+        title: '表示の倍率 100% のときの高さ。縦のズームでは縮まない',
+        onchange: (e) => { state.minHeight = Number(e.target.value); render(); } }), 'px')),
+    field(long ? '現在のタスクグループの高さ' : '現在の高さ', el('span', { class: 'ro' }, CURRENT_HEIGHT() + ' px')),
+    textField('編集権限', ''),
+    colourNew(long ? 'タスクグループの色' : '色', 'row', 'fill', '塗りつぶしなし', true),
+  );
+}
+
+// Table T-305: the ten theme hues (TH-1 is S-73's default, 214), five to a row like the colour fields.
+const THEME_HUES = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250];
+
+function hueChips() {
+  const chip = (h, i) => el('button', { class: 'chip' + (state.hue === i ? ' sel' : ''), title: HUES[i],
+    style: `background:hsl(${THEME_HUES[i]} 46% ${state.dark ? 34 : 62}%)`,
+    onclick: () => { state.hue = i; render(); } });
+  return el('div', { class: 'fbody' },
+    el('div', { class: 'line' }, THEME_HUES.slice(0, PER_ROW).map((h, i) => chip(h, i))),
+    el('div', { class: 'line' }, THEME_HUES.slice(PER_ROW).map((h, i) => chip(h, i + PER_ROW))));
+}
+
+function renderSettings() {
+  const fitOn = el('input', { type: 'checkbox', checked: state.fitOn,
+    onchange: (e) => { state.fitOn = e.target.checked; render(); } });
+  // WHY: two calendar inputs do not fit one line of the value column, so the finish goes below.
+  const span = (startKey, finishKey, disabled) => el('div', { class: 'line' },
+    el('input', { type: 'date', class: 'date', value: state[startKey].replaceAll('/', '-'), disabled,
+      onchange: (e) => { state[startKey] = e.target.value.replaceAll('-', '/'); } }), '-',
+    el('input', { type: 'date', class: 'date', value: state[finishKey].replaceAll('/', '-'), disabled,
+      onchange: (e) => { state[finishKey] = e.target.value.replaceAll('-', '/'); } }));
+  const copy = el('button', { disabled: !state.fitOn,
+    onclick: () => { state.fitStart = state.shownStart; state.fitFinish = state.shownFinish; render(); } },
+    '全体表示時の期間に設定');
+  const widthOn = el('input', { type: 'checkbox', checked: state.panelWidthOn,
+    onchange: (e) => { state.panelWidthOn = e.target.checked; render(); } });
+  // The current shown span and its copy button read as one pair: no rule between them.
+  const shownAndCopy = el('div', { class: 'field top' },
+    el('div', { class: 'fname' }, '現在表示中の期間'),
+    el('div', { class: 'fbody' },
+      el('span', { class: 'ro' }, state.shownStart + ' - ' + state.shownFinish), copy));
+  document.getElementById('settings').replaceChildren(
+    el('div', { class: 'headEntry' }, el('button', {}, 'GRS リセット')),
+    el('div', { class: 'field top' }, el('div', { class: 'fname' }, 'テーマ色'), hueChips()),
+    field('表示の倍率', el('div', { class: 'line' }, el('input', { type: 'number', class: 'num', value: 100 }), '%')),
+    field('文字サイズ', el('select', {}, ['S', 'M', 'L'].map((v) => el('option', { selected: v === 'M' }, v)))),
+    field('タスクグループパネルの幅を固定する', widthOn),
+    field('タスクグループパネルの幅', el('div', { class: 'line' },
+      el('input', { type: 'number', class: 'num', value: state.panelWidth, disabled: !state.panelWidthOn,
+        onchange: (e) => { state.panelWidth = Number(e.target.value); } }), 'px')),
+    field('現在のタスクグループパネルの幅', el('span', { class: 'ro' }, (state.panelWidthOn ? state.panelWidth : 300) + ' px')),
+    dateField('基準日', '2026-11-09'),
+    field('全体表示時の期間を固定する', fitOn),
+    field('全体表示時の期間', span('fitStart', 'fitFinish', !state.fitOn)),
+    shownAndCopy,
+    field('遅延診断時に親子の進捗の疑義を許す日数（稼働日）', el('input', { type: 'number', class: 'num', value: 3 })),
+  );
+}
+
+function measure(id, out) {
+  const panel = document.getElementById(id);
+  const lineH = parseFloat(getComputedStyle(panel).fontSize) * 1.6;
+  const all = Math.round(panel.getBoundingClientRect().height / lineH);
+  const fields = [...panel.querySelectorAll('.field')];
+  const colourH = fields.filter((f) => f.querySelector('.chip') || f.querySelector('input.num[max="10"]'))
+    .reduce((s, f) => s + f.getBoundingClientRect().height, 0);
+  document.getElementById(out).innerHTML =
+    `パネルの高さ およそ <b>${all}</b> 行分 ／ そのうち色と枠線幅 およそ <b>${Math.round(colourH / lineH)}</b> 行分`;
+}
+const remeasure = () => { measure('now', 'mNow'); measure('task', 'mTask'); measure('group', 'mGroup'); };
+
+function render() {
+  document.documentElement.dataset.theme = state.dark ? 'dark' : 'light';
+  renderNow(); renderTask(); renderGroup(); renderSettings();
+  setTimeout(remeasure, 0);
+}
+
+document.querySelectorAll('input[name=theme]').forEach((r) => r.addEventListener('change', (e) => {
+  state.dark = e.target.value === 'dark'; render(); }));
+document.getElementById('depForm').addEventListener('change', (e) => { state.depForm = e.target.value; render(); });
+document.getElementById('groupWords').addEventListener('change', (e) => { state.groupWords = e.target.value; render(); });
+document.getElementById('scale').addEventListener('change', (e) => {
+  document.documentElement.style.setProperty('--k', e.target.value); render(); });
+// WHY: a pane can open at 0 x 0 and wrap every word; measure again once it has a size.
+window.addEventListener('resize', remeasure);
+window.addEventListener('load', remeasure);
+document.documentElement.style.setProperty('--k', '1.25');
+render();
+</script>
+</body>
+</html>
