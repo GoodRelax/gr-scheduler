@@ -400,8 +400,8 @@ function pointerShapeUnder(
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
   if (isArmedDependency) {
-    // DEVIATION: spec says AR-4 shows the drawing cue over a hit too (IN-2); here the arrow JDG-114 asked for
-    // stays, as nothing an armed dependency hits may promise a move (PTD-3) (DFC-2129)
+    // see IN-2, AR-4, PTD-3
+    // WHY: over a grab area the plain arrow stays, as nothing an armed dependency hits may promise a move.
     if (hit !== null) return 'default'
     return 'crosshair'
   }

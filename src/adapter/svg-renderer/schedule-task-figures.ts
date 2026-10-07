@@ -613,10 +613,11 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       )
     }
     const dummy = drawnDummyOf(task, picture)
+    // see FR-009
+    // WHY: the halo is laid over the faint dummy marks: cutting them out measured no faster (CR-704).
     barMaskParts.push(
       ...haloCutOf(task.plan, outlineWidth, `${taskKey}-plan-mask`),
       ...haloCutOf(task.actual, outlineWidth, `${taskKey}-actual-mask`),
-      ...haloCutOf(dummy?.figure ?? null, outlineWidth, `${taskKey}-dummies-mask`),
     )
     if (dummy !== null) {
       const ink = dummy.ink

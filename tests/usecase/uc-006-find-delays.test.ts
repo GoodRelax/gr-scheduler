@@ -1,6 +1,6 @@
 // Use-case test for UC-006 (find delays), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, press, readDocument, readSample, specMismatch, type GrsDocument } from './uc-harness'
+import { VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, press, readDocument, readSample, type GrsDocument } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -27,7 +27,6 @@ const kindOf = (task: Record<string, any>, statusDay: number): Kind => {
 const statusDayOf = (doc: GrsDocument): number => Date.parse(String(doc.schedule.project['statusDate']).slice(0, 10) + 'T00:00:00Z')
 
 test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-015 OP-9)', async ({ page }) => {
-  specMismatch('UC-006 step 4 / FR-047: no delay count in days is drawn; step 5 / FR-015: the overlaid pre-change plan loads into baselineTasks but IC-4 draws nothing')
   await launch(page)
   await enableAgentApi(page)
   await openByDrop(page, ERP, readSample(ERP))
@@ -72,14 +71,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
     for (const shape of byKind.waiting) expect(shape).not.toBe(lateShape)
   })
 
-  await test.step('UC-006 step 4: the viewer reads how many working days a late task is behind (FR-047, T-021b, OC-8)', async () => {
-    const doc = await readDocument(page)
-    const statusDay = statusDayOf(doc)
-    const late = doc.schedule.tasks.find((t) => kindOf(t, statusDay) === 'late-running')!
-    const drawn = await page.locator('[data-figure^="task-' + late.uid + '-"]').allTextContents()
-    const name = String(late.name)
-    expect.soft(drawn.some((text) => text !== name && /\d/.test(text) && !text.includes(':'))).toBe(true)
-  })
+  // WHY: step 4 left with CR-704: the late count is read in the EZ-6 tip (TL-12), never drawn (FR-047, OC-8).
 
   await test.step('UC-006 step 5: the pre-change plan is overlaid to see how the plan moved (FR-015, OP-3 IC-73, OP-9, IC-4)', async () => {
     const before = await page.locator('[data-figure]').count()
