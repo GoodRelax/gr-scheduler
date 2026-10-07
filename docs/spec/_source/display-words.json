@@ -1496,7 +1496,7 @@
    "rowId": "PR-15",
    "label": {
     "ja": "WBS の親",
-    "en": "wbsParentUid"
+    "en": "WBS parent"
    }
   },
   {
@@ -3455,6 +3455,17 @@
    "nextStep": {
     "ja": "要らないものは、日程表で選んで削除してください。残せば、書き出したときに相手側にまた現れます",
     "en": "Select and delete on the schedule any you no longer need; kept ones reappear on the other side when you export"
+   }
+  },
+  {
+   "rowId": "RS-74",
+   "text": {
+    "ja": "確認の問いが答えを待っている最中なので、この変更は適用できません",
+    "en": "A question is waiting for its answer, so this change was not applied"
+   },
+   "nextStep": {
+    "ja": "画面の問いに答えが出てから、もう一度行ってください",
+    "en": "Once the question on the screen has been answered, try once more"
    }
   },
   {

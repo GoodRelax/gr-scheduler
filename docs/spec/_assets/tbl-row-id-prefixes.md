@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1538 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1539 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -188,7 +188,7 @@
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |
 | `RP` | — | 依存線の経路の分岐 | 仕様書 | `T-222` | 8 |
 | `RR` | Resource Roster | 担当者の一覧の字の大きさ・スクロール・罫線・閉じる入口 | 仕様書 | `T-257` | 6 |
-| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 68 |
+| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 69 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 6 |
 | `RW` | — | 遅延診断レポートの窓が検索パネルと違う所 | 仕様書 | `T-346` | 10 |
