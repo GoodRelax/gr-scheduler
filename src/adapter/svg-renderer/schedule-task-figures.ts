@@ -96,8 +96,6 @@ export interface DependencyLinksInput {
   readonly themed: (rowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
-  readonly placedOf: ReadonlyMap<number, Placed>
-  readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
   readonly barMaskParts: readonly string[]
   readonly arrowId: string
   readonly dependencyHaloMaskId: string
@@ -122,9 +120,6 @@ interface Paint {
   readonly strokeWidth: number
 }
 
-const FADE_HANDLE_FILL_COLOUR = '#ffffff'
-const FADE_HANDLE_STROKE_COLOUR = '#374151'
-
 /** @purity pure */
 function cornersOfBar(bar: BarGeometry): Path {
   if (bar.form === 'outline') return bar.points
@@ -134,6 +129,16 @@ function cornersOfBar(bar: BarGeometry): Path {
     out.push({ x: dot.at.x + dot.radius, y: dot.at.y + dot.radius })
   }
   return out
+}
+
+// see FR-009, HT-1
+// WHY: the ink, not the corners: the outline's or the line's stroke reaches half its width past them (CR-684 X-2).
+/** @purity pure */
+function haloCutOf(bar: BarGeometry | null, outlineWidth: number, key: string): readonly string[] {
+  const box = bar === null ? null : boxOfPoints(cornersOfBar(bar))
+  if (bar === null || box === null) return []
+  const half = (bar.form === 'outline' ? outlineWidth : bar.strokeWidth) / 2
+  return [barMaskRectSvg({ x: box.x - half, y: box.y - half, width: box.width + half * 2, height: box.height + half * 2 }, key)]
 }
 
 // see FR-009
@@ -591,10 +596,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       ;(isPinnedTask ? planPartsPinned : planParts).push(
         barSvg(task.plan, plan, plan.stroke, `${taskKey}-plan`),
       )
-      const planBarBox = boxOfPoints(cornersOfBar(task.plan))
-      if (planBarBox !== null) {
-        barMaskParts.push(barMaskRectSvg(planBarBox, `${taskKey}-plan-mask`))
-      }
     }
     for (const guide of task.guides) {
       ;(isPinnedTask ? guidePartsPinned : guideParts).push(
@@ -608,12 +609,13 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       ;(isPinnedTask ? actualPartsPinned : actualParts).push(
         barSvg(task.actual, actual, plan.fill, `${taskKey}-actual`),
       )
-      const actualBarBox = boxOfPoints(cornersOfBar(task.actual))
-      if (actualBarBox !== null) {
-        barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
-      }
     }
     const dummy = drawnDummyOf(task, picture)
+    barMaskParts.push(
+      ...haloCutOf(task.plan, outlineWidth, `${taskKey}-plan-mask`),
+      ...haloCutOf(task.actual, outlineWidth, `${taskKey}-actual-mask`),
+      ...haloCutOf(dummy?.figure ?? null, outlineWidth, `${taskKey}-dummies-mask`),
+    )
     if (dummy !== null) {
       const ink = dummy.ink
       const marks = barSvg(dummy.figure, actual, plan.fill, `${taskKey}-dummies`)
@@ -641,7 +643,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
         handleParts.push(
           `<rect x="${rounded(foundAt.x - half)}" y="${rounded(foundAt.y - half)}"` +
             ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
-            ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
+            ` fill="${themed('S-527')}" stroke="${themed('S-528')}"` +
             ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"` +
             `${figureKey(`${taskKey}-fade-handle`)}/>`,
         )
@@ -795,7 +797,7 @@ function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): L
 // see GD-6, FR-009, EL-19
 /** @purity pure */
 export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
-  const { geometry, settings, themed, placedOf, pinnedGroupIds, barMaskParts } = input
+  const { geometry, settings, themed, barMaskParts } = input
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
   if (!settings.dependencyVisible || geometry.dependencies.length === 0) {
@@ -804,18 +806,13 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
   const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
   const haloMask = barMaskParts.length > 0 ? ` mask="url(#${input.dependencyHaloMaskId})"` : ''
   const halo = `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`
-  /** @purity pure */
-  const isPinned = (uid: number): boolean => {
-    const placed = placedOf.get(uid)
-    return placed !== undefined && pinnedGroupIds.has(placed.groupId)
-  }
   const ranked = geometry.dependencies.map((link) => ({ link, emphasis: emphasisOf(link, input) }))
   ranked.sort((a, b) => EMPHASIS_DRAW_RANK[a.emphasis] - EMPHASIS_DRAW_RANK[b.emphasis])
   for (const { link, emphasis } of ranked) {
     const ink = inkOf(input, emphasis, halo)
     const drawnBox = boxOfPoints(ink.isWholeRoute ? link.points : link.drawnPoints)
     if (drawnBox === null || isCulled(drawnBox, input)) continue
-    ;(isInTheBand(link, ink.isWholeRoute, isPinned) ? depLinkPartsPinned : depLinkParts).push(
+    ;(geometry.pinnedBand?.holdsLink(link, ink.isWholeRoute) === true ? depLinkPartsPinned : depLinkParts).push(
       dependencyLinkSvg(link, ink),
     )
   }
@@ -830,15 +827,6 @@ interface LinkInk {
   readonly width: number
   readonly arrowId: string
   readonly isWholeRoute: boolean
-}
-
-// see FR-098, T-303, EL-19
-/** @purity pure */
-function isInTheBand(link: DependencyLink, isWholeRoute: boolean, isPinned: (uid: number) => boolean): boolean {
-  const elision = isWholeRoute ? 'EL-3' : link.elision
-  if (elision === 'EL-4') return isPinned(link.predecessorUid)
-  if (elision === 'EL-5') return isPinned(link.successorUid)
-  return isPinned(link.predecessorUid) && isPinned(link.successorUid)
 }
 
 // see GD-6, EL-9, EL-19

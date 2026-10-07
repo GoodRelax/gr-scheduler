@@ -95,6 +95,7 @@ NOT_STORED_ANNOTATION_SIZES          注記の見せ方の既定（表 T-217 の
 NOT_STORED_HIGHLIGHT_HANDLE_SIZES    ハイライトボックスの辺が中点の掴み点を持つ長さの下限（表 T-206 の `S-373`、`CR-558`）
 NOT_STORED_ANNOTATION_BOUNDS         その数値の行の下限・上限と鍵（表 T-217。`FR-006` ・ `FR-019`、`CR-558` ・ `CR-559`）
 NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの明度の下限・上限（`S-415` / `S-416`）
+NOT_STORED_THEME_SOLVE               テーマ色を色相ごとに解く数 —— 寄せの刻み・上限・4 行の比・地の彩度を割る回数（`S-520` 〜 `S-526`、表 T-366、`CR-683`）
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
 NOT_STORED_WBS_PARENT_ARROW_SIZES    WBS の親子の矢印の当たりの太さと、導いた親への矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
@@ -113,6 +114,7 @@ NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`�
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
+SCHEDULE_COLOURS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）

@@ -18,6 +18,7 @@ import {
 import { taskUidsIn, type Selection } from '../../document-model/selection/selection'
 import {
   inTreeOrder,
+  isDroppedByTreeState,
   thinEndHalfHeightOf,
   xFromDay,
   type RowPlacement,
@@ -238,6 +239,8 @@ interface BaselineOutline {
   readonly isPinned: boolean
 }
 
+type BandLink = Pick<DependencyGeometry, 'predecessorUid' | 'successorUid' | 'elision'>
+
 export interface ScheduleGeometry {
   readonly tasks: readonly TaskGeometry[]
   readonly baselineOutlines: readonly BaselineOutline[]
@@ -252,6 +255,7 @@ export interface ScheduleGeometry {
   readonly pinnedBand?: {
     readonly scrollTop: number
     readonly pinnedTaskUids: ReadonlySet<number>
+    readonly holdsLink: (link: BandLink, isWholeRoute: boolean) => boolean
   }
 }
 
@@ -385,13 +389,12 @@ interface Climb {
 /** @purity pure */
 function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
   const { settings } = reading.inputs
-  let isFolded = own.treeState === 'hidden' || settings.levelZeroTreeState === 'collapsed'
+  const isFolded = isDroppedByTreeState(own, reading.groupById, settings)
   let group: TaskGroup = own
   for (let step = 0; step < settings.maxGroupDepth; step += 1) {
     const parent: TaskGroup | undefined =
       group.parentId === null ? undefined : reading.groupById.get(group.parentId)
     if (parent === undefined) return { row: null, step, isFolded }
-    isFolded = isFolded || parent.treeState === 'hidden' || parent.treeState === 'collapsed'
     const row = reading.rowById.get(parent.id)
     if (row !== undefined) return { row, step, isFolded }
     group = parent
@@ -599,5 +602,15 @@ function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<Sche
   const pinnedTaskUids = new Set(
     layout.placements.filter((one) => pinnedIds.has(one.groupId)).map((one) => one.taskUid),
   )
-  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids } }
+  const holdsLink = (link: BandLink, isWholeRoute: boolean): boolean => isLinkInBand(pinnedTaskUids, link, isWholeRoute)
+  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids, holdsLink } }
+}
+
+// see FR-098, T-303, EL-4, EL-5, EL-19
+/** @purity pure */
+function isLinkInBand(pinnedTaskUids: ReadonlySet<number>, link: BandLink, isWholeRoute: boolean): boolean {
+  const elision = isWholeRoute ? 'EL-3' : link.elision
+  if (elision === 'EL-4') return pinnedTaskUids.has(link.predecessorUid)
+  if (elision === 'EL-5') return pinnedTaskUids.has(link.successorUid)
+  return pinnedTaskUids.has(link.predecessorUid) && pinnedTaskUids.has(link.successorUid)
 }

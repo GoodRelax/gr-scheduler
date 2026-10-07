@@ -148,9 +148,14 @@ function appHeaderSvg(
   const dividerGapsPx = DIVIDER_SIDES * NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']
   const scaledInsetPx = (NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] + seatPx + dividerGapsPx) * chrome
   const x = (band.x + scaledInsetPx + NOT_STORED_DOCUMENT_TITLE_SIZES['S-492']) * ratio
-  const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  const y = bandBaselineYOf(band, titlePx) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
+}
+
+/** @purity pure */
+function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
+  return band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline
 }
 
 // see EP-3
@@ -193,7 +198,7 @@ function filterCaptionSvg(band: ScreenRect, caption: string | null | undefined, 
   if (caption === null || caption === undefined || caption === '') return ''
   const fontPx = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']
   const x = (band.x + band.width - NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
-  const y = (band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  const y = bandBaselineYOf(band, fontPx) * ratio
   return textSvg(x, y, fontPx * ratio, caption, chromeInk(scene)).replace('<text ', '<text text-anchor="end" ')
 }
 

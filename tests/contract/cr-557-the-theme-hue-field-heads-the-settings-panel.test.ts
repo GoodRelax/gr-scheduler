@@ -132,9 +132,16 @@ function rgbOfPaint(paint: string): Rgb | null {
   return null
 }
 
-const expectedPaintOf = (hue: number, preference: Preference): Rgb => {
+// see CF-2, CF-3, S-525
+// WHY: since CR-683 "solved" includes table T-366: CF-3's measured line puts k = 2 on TH-3..TH-5 (light) and TH-10 (dark).
+const SHIFTED_ROWS: Readonly<Record<Preference, readonly string[]>> = { light: ['TH-3', 'TH-4', 'TH-5'], dark: ['TH-10'] }
+const MEASURED_SHIFT = 2
+const S_525_RATIO = 1
+
+const expectedPaintOf = (hue: number, preference: Preference, rowId: string): Rgb => {
   const { s, l } = s151Formula(preference)
-  return rgbOfHsl(hue, s, l)
+  const shift = SHIFTED_ROWS[preference].includes(rowId) ? MEASURED_SHIFT * S_525_RATIO : 0
+  return rgbOfHsl(hue, s, l + (preference === 'dark' ? shift : -shift))
 }
 
 const sameRgb = (left: Rgb, right: Rgb): boolean =>
@@ -397,7 +404,7 @@ describe('CR-557 S-2 -- each swatch is S-151 solved at its row hue (table T-236)
       const paints = paintsOf(hueControl(settingsPanel({ preference })))
       ROSTER.forEach((row, index) => {
         const drawn = rgbOfPaint(paints[index] ?? '')
-        const wanted = expectedPaintOf(row.hue, preference)
+        const wanted = expectedPaintOf(row.hue, preference, row.rowId)
         expect(drawn !== null && sameRgb(drawn, wanted), `${row.rowId} (${preference}): ${paints[index]} vs rgb(${wanted.map(Math.round).join(',')})`).toBe(true)
       })
     })

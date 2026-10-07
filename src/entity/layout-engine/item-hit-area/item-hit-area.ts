@@ -784,13 +784,11 @@ function isScrolling(cut: BandCut, taskUid: number): boolean {
   return cut !== null && !cut.pinnedTaskUids.has(taskUid)
 }
 
-// see FR-098, T-303, EL-4, EL-5
-// WHY: a line stays in the band only with both ends pinned; a short line and its mark go with their visible end.
+// see FR-098, T-303
+// WHY: the band's own rule (pinnedBand.holdsLink), the one the drawing reads; a line and its mark go together.
 /** @purity pure */
 function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean {
-  if (line.elision === 'EL-4') return isScrolling(cut, line.predecessorUid)
-  if (line.elision === 'EL-5') return isScrolling(cut, line.successorUid)
-  return isScrolling(cut, line.predecessorUid) || isScrolling(cut, line.successorUid)
+  return cut !== null && !cut.holdsLink(line, false)
 }
 
 /** @purity pure */

@@ -195,6 +195,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | その段を描くのに要る倍率。 |
 | `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | 行の領域の中で、固定した行の帯の下に、その行を描く余地が残るか。 |
 | `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#inTreeOrder` | PI-5 | 行を木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
+| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#isDroppedByTreeState` | PI-5 | その行が、人が畳んだ行か隠した行のために描かれないか —— 行そのものが隠されている、祖先が畳まれているか隠されている、段 0 が畳まれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせる行。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
@@ -1695,4 +1696,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 820 name(s) leave through a public entry (318 of them published by table T-064), 665 more are exported by a file and not by its entry.
+Totals: 821 name(s) leave through a public entry (319 of them published by table T-064), 665 more are exported by a file and not by its entry.

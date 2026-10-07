@@ -33,24 +33,45 @@ export function drawnGroups(
   settings: DocumentSettings,
   shownTaskUids: ReadonlySet<number> | null = null,
 ): readonly (TaskGroup & { depth: number })[] {
-  if (settings.levelZeroTreeState === 'collapsed') return []
   const byId = new Map(schedule.taskGroups.map((glyph) => [glyph.id, glyph]))
   const drawnRows: (TaskGroup & { depth: number })[] = []
   const carrying = shownTaskUids === null ? null : rowsCarryingShown(schedule, shownTaskUids, byId)
 
   for (const group of schedule.taskGroups) {
-    let depth = 1
-    let dropped = group.treeState === 'hidden' || (carrying !== null && !carrying.has(group.id))
-    for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
-      const parent = byId.get(foundAt)
-      if (parent === undefined) break
-      depth += 1
-      if (parent.treeState === 'hidden' || parent.treeState === 'collapsed') dropped = true
-      foundAt = parent.parentId
-    }
-    if (!dropped) drawnRows.push({ ...group, depth })
+    const dropped = isDroppedByTreeState(group, byId, settings) || (carrying !== null && !carrying.has(group.id))
+    if (!dropped) drawnRows.push({ ...group, depth: depthOf(group, byId) })
   }
   return inTreeOrder(drawnRows, byId)
+}
+
+// WHY: nearest first, stopping at a missing parent or past the deepest level, so a broken chain cannot loop.
+/** @purity pure */
+function ancestorsOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): readonly TaskGroup[] {
+  const out: TaskGroup[] = []
+  for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
+    const parent = byId.get(foundAt)
+    if (parent === undefined) break
+    out.push(parent)
+    foundAt = parent.parentId
+  }
+  return out
+}
+
+/** @purity pure */
+function depthOf(group: TaskGroup, byId: ReadonlyMap<string, TaskGroup>): number {
+  return 1 + ancestorsOf(group, byId).length
+}
+
+// see TD-1, TD-2, TD-3, LC-1, EL-20
+// WHY: the one reading of a person's fold and hide: the drawn rows and the dependency ends both ask it (DFC-1221).
+/** @purity pure */
+export function isDroppedByTreeState(
+  group: TaskGroup,
+  byId: ReadonlyMap<string, TaskGroup>,
+  settings: Pick<DocumentSettings, 'levelZeroTreeState'>,
+): boolean {
+  if (settings.levelZeroTreeState === 'collapsed' || group.treeState === 'hidden') return true
+  return ancestorsOf(group, byId).some((parent) => parent.treeState === 'hidden' || parent.treeState === 'collapsed')
 }
 
 // see LC-9, AT-55, EL-20

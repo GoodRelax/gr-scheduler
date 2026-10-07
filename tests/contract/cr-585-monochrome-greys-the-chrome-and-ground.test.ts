@@ -168,6 +168,19 @@ const samePaint = (left: Paint, right: Paint): boolean =>
   left.rgb.every((value, index) => Math.abs(value - (right.rgb[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE) &&
   Math.abs(left.alpha - right.alpha) < 1e-6
 
+// see CF-2
+// WHY: since CR-683 table T-366 moves these rows' lightness per hue, toward the theme's side, and nothing else.
+const T366_SHIFTED_ROWS: readonly string[] = ['S-151', 'S-155', 'S-156', 'S-157']
+const HSL_TEXT = /^hsl\((\S+) ([\d.]+)% ([\d.]+)%\)$/
+
+const isShiftOf = (drawn: string, written: string, preference: Preference): boolean => {
+  const d = HSL_TEXT.exec(drawn)
+  const w = HSL_TEXT.exec(written)
+  if (d === null || w === null) return false
+  const moved = Number(d[3]) - Number(w[3])
+  return d[1] === w[1] && d[2] === w[2] && (preference === 'dark' ? moved >= 0 : moved <= 0)
+}
+
 const isGrey = (paint: Paint): boolean =>
   Math.abs(paint.rgb[0] - paint.rgb[1]) <= CHANNEL_TOLERANCE &&
   Math.abs(paint.rgb[1] - paint.rgb[2]) <= CHANNEL_TOLERANCE
@@ -367,7 +380,10 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
             const drawn = mustPaint(on, `export ${row.id}`)
             expect(isGrey(drawn), `${row.id} is not grey: ${on}`).toBe(true)
             expect(samePaint(drawn, greyOf(coloured)), `${row.id}: ${on}`).toBe(true)
-            expect(samePaint(mustPaint(off, row.id), coloured), `${row.id} off: ${off}`).toBe(true)
+            const keeps = T366_SHIFTED_ROWS.includes(row.id)
+              ? isShiftOf(off, writtenOf(spec, preference, hue), preference)
+              : samePaint(mustPaint(off, row.id), coloured)
+            expect(keeps, `${row.id} off: ${off}`).toBe(true)
           }
         }
         expect(drawnRows, 'premise: the export draws T-236 rows').toBeGreaterThan(0)
