@@ -273,7 +273,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts` | 11 | FR-104 | - | T-020, T-269, T-274 | GA-24, PK-10, PK-11, PK-15, PK-16, PK-17, PK-18, PP-6, PP-7, ZO-13, ZO-14, ZO-15, ZO-16 | - | - | - | - |
 | `tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts` | 10 | FR-016, FR-029 | - | - | IN-4, IN-5a, MK-1, SE-1, SE-5, SK-2 | - | - | - | - |
 | `tests/contract/cr-557-a-pressed-hue-swatch-is-one-undoable-step.test.ts` | 9 | FR-031, FR-041 | - | T-027, T-103, T-108, T-216, T-305 | CM-5, S-3, S-4, S-73, U-25, UN-13 | - | - | - | - |
-| `tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts` | 14 | FR-041, FR-072, FR-131 | - | T-103, T-104, T-206, T-216, T-236, T-305 | K-60, K-140, S-2, S-4, S-73, S-151, S-368, U-25 | - | - | - | - |
+| `tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts` | 14 | FR-041, FR-072, FR-131 | - | T-103, T-104, T-206, T-216, T-236, T-305, T-366 | CF-2, CF-3, K-60, K-140, S-2, S-4, S-73, S-151, S-368, S-525, TH-3, TH-5, TH-10, U-25 | - | - | - | - |
 | `tests/contract/cr-557-the-theme-hue-roster-is-table-t-305.test.ts` | 7 | FR-041 | - | T-216, T-305 | S-1, S-73, TH-1 | - | - | - | - |
 | `tests/contract/cr-561-agent-api-reads-the-delay-diagnostics.contract.test.ts` | 8 | FR-130 | - | T-035, T-107 | AM-19, DX-1, PI-17, S-6, S-63 | - | - | - | - |
 | `tests/contract/cr-561-the-delay-diagnostics-marks.contract.test.ts` | 21 | FR-013, FR-133 | - | T-021, T-315 | DG-1, DG-2, DG-3, DG-4, PM-1a, PM-4, S-24, S-326, S-327, S-328, S-330, S-331, S-341, S-386, S-388, S-390, S-391, S-392, S-393, S-394, S-395, S-396 | - | - | - | - |
@@ -291,7 +291,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts` | 18 | FR-042 | - | T-016, T-036, T-103, T-236, T-338 | IC-10, MH-1, MH-2, MH-3, MH-4, MH-5, MH-6, MK-4, MK-13, PR-20, S-87, S-149, S-440, S-441, U-25 | - | - | - | - |
 | `tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts` | 27 | - | - | T-012, T-221 | AT-101, DM-4, DM-8, DM-9, DM-12, GA-15, HT-1, LF-10, LF-18, S-5, S-17, S-280, SH-5 | - | - | - | - |
 | `tests/contract/cr-584-the-picture-is-painted-on-the-ground-colour.test.ts` | 8 | FR-017, FR-093 | - | T-076, T-201, T-204, T-205, T-206, T-236, T-238 | DS-1, EP-1, IX-10, S-8, S-30, S-33, S-73, S-81, S-83, S-84, S-135, S-146, S-225, S-235, TM-1, TM-2, TM-3 | - | - | - | - |
-| `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
+| `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294, T-366 | CF-2, S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
 | `tests/contract/cr-586-a-merge-and-the-readers-follow-task-milestone.test.ts` | 11 | FR-002, FR-009 | - | T-018, T-032, T-251, T-294 | DP-1, DP-3, MG-8, ND-1, ND-2, S-3, S-232 | - | - | - | - |
 | `tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts` | 10 | FR-002, FR-076 | - | T-017b, T-024a, T-036, T-103, T-220, T-233, T-251, T-294 | CV-9, IC-71, IO-2, IV-22, NT-1, OP-3, OP-4, OP-5, S-1, S-5, SK-10 | - | DFC-922 | - | - |
 | `tests/contract/cr-586-the-row-colour-list-is-one-and-black-is-refused.test.ts` | 12 | - | - | T-017b, T-233, T-294 | CM-30, CV-2, CV-9, RS-25, S-4, S-5, S-315 | - | - | - | - |
