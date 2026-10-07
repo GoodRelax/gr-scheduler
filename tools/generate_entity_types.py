@@ -1452,6 +1452,15 @@ NOT_STORED_TARGETS = {
     # three are 1px: the row's own note forbids sharing them.
     'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-681 decision 6: how a wheel turn is counted -- one line (S-514), one
+    # notch in pixels (S-515), one notch in lines (S-516). Table T-023's
+    # closing rule (MUST NOT) forbids each surface its own line, so one name
+    # is printed into both units that count a turn: the input source (the
+    # schedule) and the surface (the Resource Roster, RR-3). Neither may
+    # import the other's, as NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES.
+    'NOT_STORED_WHEEL_UNITS': (['S-514', 'S-515', 'S-516'], READ_WHERE_IT_STANDS),
+    # CR-685: the gap between two format buttons of the Export Chooser (FR-096).
+    'NOT_STORED_EXPORT_CHOOSER_SIZES': (['S-517'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-571: the search panel's default width and height as ratios of the
     # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
     # the roster's, its sibling floating surface. `dom-screen-surface.ts` reads
@@ -3172,6 +3181,9 @@ TARGETS = [
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
+     # CR-681 / CR-685: the roster's wheel line and the Export Chooser's gap.
+     + not_stored_block('NOT_STORED_WHEEL_UNITS') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
      # CR-571: the search panel's default size and its four text sizes.
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
      # CR-660: which T-206 row holds each column's default width.
@@ -3285,6 +3297,11 @@ TARGETS = [
     # pictures, pointer-shape.ts (CR-554 15.6.7).
     (os.path.join(FRAMEWORK, 'single-html-shell', 'pointer-shape.ts'),
      lambda _erd: not_stored_block('NOT_STORED_END_POINTER_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-681: the wheel's line and notches stand in the unit that turns a host
+    # wheel event into a turn of the schedule (table T-023's closing rule).
+    (os.path.join(FRAMEWORK, 'dom-input-source', 'dom-input-source.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_WHEEL_UNITS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ FR-020's digest, in the one unit that compares against it: the answer
     # is read off a field this layer drew and hashed with the browser's own
@@ -3407,6 +3424,7 @@ PUBLISHED_READ_BY_SRC = {
     'src/framework/dom-screen-surface/dom-screen-surface.ts': (
         'NOT_STORED_CONFIRMATION_RULE_SIZES',
         'NOT_STORED_DOCUMENT_TITLE_SIZES',
+        'NOT_STORED_EXPORT_CHOOSER_SIZES',
         'NOT_STORED_HELP_SIZES',
         'NOT_STORED_ICON_SIZES',
         'NOT_STORED_PALETTE_GROUP_RULE_SIZES',
@@ -3421,6 +3439,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',
         'SEARCH_COLUMN_WIDTH_ROWS',
+        'NOT_STORED_WHEEL_UNITS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_SCROLLBAR_SIZES',

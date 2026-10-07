@@ -15,9 +15,11 @@ import {
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   IMPORT_REPORT_DISMISS_ATTRIBUTE,
+  NOT_STORED_EXPORT_CHOOSER_SIZES,
   NOT_STORED_HELP_SIZES,
   NOT_STORED_ICON_SIZES,
   NOT_STORED_RESOURCE_ROSTER_SIZES,
+  NOT_STORED_WHEEL_UNITS,
   PAINT,
   STYLE,
   anchorKey,
@@ -341,10 +343,8 @@ function rosterSidewaysWheel(scroller: HTMLElement): (event: WheelEvent) => void
 /** @purity semi-pure-b */
 function wheelUnitPx(event: WheelEvent, scroller: HTMLElement): number {
   if (event.deltaMode === event.DOM_DELTA_PAGE) return scroller.clientWidth
-  if (event.deltaMode !== event.DOM_DELTA_LINE) return 1
-  const view = scroller.ownerDocument.defaultView
-  const lineHeight = view === null ? Number.NaN : Number.parseFloat(view.getComputedStyle(scroller).fontSize)
-  return Number.isFinite(lineHeight) ? lineHeight : 1
+  if (event.deltaMode === event.DOM_DELTA_LINE) return NOT_STORED_WHEEL_UNITS['S-514']
+  return 1
 }
 
 // see FR-036, FR-053, T-256
@@ -423,7 +423,25 @@ function helpTitleRow(host: Document, modal: HelpModal, anchors: Map<string, HTM
   return row
 }
 
-// see FR-029, RR-6, FR-096, OP-16
+/** @purity pure */
+function isCloseOnlyTitled(modal: OpenModal): modal is ExportChooser | OpenChooser {
+  return 'formats' in modal || 'choices' in modal
+}
+
+/** @purity non-pure */
+function closeOnlyTitleRow(host: Document, modal: ExportChooser | OpenChooser, anchors: Map<string, HTMLElement>): HTMLElement {
+  return windowTitleRowElement(host, modal.heading, { before: [], titled: closeEntriesOf(modal) }, anchors, modal.surface)
+}
+
+// see WB-10, FR-096, OP-16
+// WHY: content sets the size, so a format row is never cut by a share of the window (FR-096); only that row may overhang it.
+/** @purity pure */
+function closeOnlyTitledFrameStyle(modal: ExportChooser | OpenChooser): string {
+  const cap = 'formats' in modal ? 'max-width:none;' : ''
+  return `${STYLE.modal}display:flex;flex-direction:column;overflow:hidden;padding:0;width:max-content;${cap}`
+}
+
+// see FR-029, RR-6
 /** @purity non-pure */
 function modalTitleRow(
   host: Document,
@@ -431,13 +449,13 @@ function modalTitleRow(
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
   if ('entries' in modal) return helpTitleRow(host, modal, anchors)
+  if (isCloseOnlyTitled(modal)) return closeOnlyTitleRow(host, modal, anchors)
   const header = made(host, 'div', STYLE.surfaceHeader)
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
-  const isCloseAtTheRightEnd = 'resources' in modal || 'formats' in modal || 'choices' in modal
-  const inHeadingRow = 'choices' in modal ? modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY) : headingRowCommands(modal)
-  for (const item of inHeadingRow) {
+  const isCloseAtTheRightEnd = 'resources' in modal
+  for (const item of headingRowCommands(modal)) {
     const entry = anchoredEntry(host, item, anchors)
     if (isCloseAtTheRightEnd && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
     header.append(entry)
@@ -449,11 +467,15 @@ function modalTitleRow(
 // WHY: the close entrance last, so it stands at the right end of the heading row on every surface.
 /** @purity pure */
 function headingRowCommands(modal: OpenModal): readonly CommandItem[] {
-  const close = modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY)
-  return [...modal.commands.filter((item) => item.icon !== CLOSE_SURFACE_ENTRY), ...close]
+  return [...modal.commands.filter((item) => item.icon !== CLOSE_SURFACE_ENTRY), ...closeEntriesOf(modal)]
 }
 
-// see RR-6, FR-096
+/** @purity pure */
+function closeEntriesOf(modal: OpenModal): readonly CommandItem[] {
+  return modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY)
+}
+
+// see RR-6
 /** @purity non-pure */
 function pushToTheRightEnd(entry: HTMLElement): void {
   entry.setAttribute('style', `${entry.getAttribute('style') ?? ''}margin-left:auto;`)
@@ -469,7 +491,7 @@ export function modalElement(
     host,
     'div',
     modal.surface,
-    ('entries' in modal ? helpWindowStyle(helpPlacedOf(modal)) : STYLE.modal) +
+    modalFrameStyle(modal) +
       ('resources' in modal ? rosterBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
@@ -591,8 +613,21 @@ export function modalElement(
     body.push(question, answerEntry, answers)
   }
 
-  drawn.replaceChildren(header, ...body)
+  drawn.replaceChildren(header, ...(isCloseOnlyTitled(modal) ? [closeOnlyTitledBody(host, body)] : body))
   return { element: drawn, watermarkUnlockEntry, helpColumns }
+}
+
+/** @purity pure */
+function modalFrameStyle(modal: OpenModal): string {
+  if ('entries' in modal) return helpWindowStyle(helpPlacedOf(modal))
+  return isCloseOnlyTitled(modal) ? closeOnlyTitledFrameStyle(modal) : STYLE.modal
+}
+
+/** @purity non-pure */
+function closeOnlyTitledBody(host: Document, body: readonly HTMLElement[]): HTMLElement {
+  const box = made(host, 'div', 'flex:1 1 auto;min-height:0;overflow:auto;padding:1em;')
+  box.replaceChildren(...body)
+  return box
 }
 
 // see FR-069, FR-036, S-437, S-149, S-457
@@ -641,11 +676,16 @@ function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   return { body, columns }
 }
 
+// see FR-096, S-517
+/** @purity pure */
+function formatChoicesStyle(): string {
+  return `${STYLE.formatChoices}column-gap:${NOT_STORED_EXPORT_CHOOSER_SIZES['S-517']}em;`
+}
+
 // see FR-096
 /** @purity non-pure */
 function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLElement {
-  // DEVIATION: spec says a two-row grid (FR-096); here one wrapping row, as JDG-1162 overturns it (DFC-1357)
-  const choices = made(host, 'div', STYLE.formatChoices)
+  const choices = made(host, 'div', formatChoicesStyle())
   for (const format of modal.formats) {
     const choice = made(host, 'button', entryStyle())
     choice.setAttribute('type', 'button')
