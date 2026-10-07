@@ -342,9 +342,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   openChooser: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
-  // manuscript -- 「名簿は 表 T-109・表 T-037・表 T-233・表 T-234・表 T-023・
-  // 表 T-023b と `FR-072` が既に持っており、**生成器が毎回そこから起こして原稿と
-  // 突き合わせる。**」 -- and FR-072 now names no state of the panel for a word to
+  // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
+  // and 「⛔ ここへ表を並べ直してはならない（MUST NOT）」 (DFC-481: the chapter
+  // no longer lists the tables) -- and FR-072 now names no state of the panel for a word to
   // be printed in: 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」.
   // ⭐ So the section has nowhere to be raised from, and the case below says so
   // by name rather than leaving it to be noticed here.
@@ -3170,7 +3170,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   // read that does not finish in time. ⭐ The budget is four times the
   // measured solo cost now, which is room for a loaded machine rather than
   // a wish that the machine will be idle (re-measured 2026-09-25: 18s solo).
-  80_000,
+  // DFC-1024: re-measured 2026-10-08 at 34s solo, and 80s timed out under load.
+  300_000,
   )
 })
 

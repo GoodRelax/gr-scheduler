@@ -78,7 +78,11 @@ describe('FR-016 / FR-106 -- the manuscript these cases are driven by', () => {
   })
 })
 
-describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, () => {
+// WHY: DFC-1024 -- the default timeout reds these cases on a loaded machine though they pass
+// alone; an explicit ceiling, not a retry (JDG-642).
+const LOADED_MACHINE_TIMEOUT_MS = 60_000
+
+describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, { timeout: LOADED_MACHINE_TIMEOUT_MS }, () => {
   const CASES = [
     { what: 'right of an actual', uid: BAR_UID },
     { what: 'right of a dummy', uid: FRESH_UID },
