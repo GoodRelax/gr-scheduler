@@ -202,6 +202,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
       exportScene: withholdScene ? null : over.loop.exportScene(),
       isGestureInFlight: false,
       isEditingInPlace: false,
+      isQuestionAsked: false,
       isDeliveringNotices: false,
       historyLimits: {
         maxSteps: NOT_STORED_LIMITS['S-94'],

@@ -166,6 +166,7 @@ function bench(parentState: string, childState: string): Bench {
     history: { done: [], undone: [] } as EditHistory<ChangeStep>,
     dialogue: emptyDialogueLog(),
     selection: emptySelection(),
+    isQuestionAsked: false,
     isDeliveringNotices: false,
   }
   const snapshotOf = (): AgentSnapshot => ({
@@ -177,6 +178,7 @@ function bench(parentState: string, childState: string): Bench {
     exportScene: null,
     isGestureInFlight: false,
     isEditingInPlace: false,
+    isQuestionAsked: false,
     isDeliveringNotices: state.isDeliveringNotices,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,

@@ -111,6 +111,7 @@ function bench(): Bench {
     exportScene: null,
     isGestureInFlight: false,
     isEditingInPlace: false,
+    isQuestionAsked: false,
     isDeliveringNotices: false,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,

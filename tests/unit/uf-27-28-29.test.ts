@@ -407,6 +407,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     isEditingInPlace: false,
     // WHY: changeDeliveryStateMachine.delivering, open only while WS-7 tells
     // the watchers (CR-440 section 5); the shell holds it, and so does this bench.
+    isQuestionAsked: false,
     isDeliveringNotices: false,
     historyLimits: { ...HISTORY_LIMITS },
     readAt: READ_AT,
@@ -429,6 +430,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       exportScene: state.frame === null ? null : exportSceneOf(state.document),
       isGestureInFlight: state.isGestureInFlight,
       isEditingInPlace: state.isEditingInPlace,
+      isQuestionAsked: false,
       isDeliveringNotices: state.isDeliveringNotices,
       historyLimits: state.historyLimits,
       settingsLimits: SETTINGS_LIMITS,
@@ -552,7 +554,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
           defaultRowName: DEFAULT_ROW_NAME,
           readStamp: state.document.documentStamp,
           commands,
-          moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
+          moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: state.historyLimits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy,

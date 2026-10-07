@@ -119,7 +119,7 @@ const ROOMY_LIMITS: HistoryLimits = {
   maxTotalSizeBytes: STEP_BYTES * (NOT_STORED_LIMITS['S-94'] + 2),
 }
 
-const CALM = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const CALM = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 
 interface Bench {
   readonly held: HeldDocument

@@ -427,7 +427,7 @@ const ROOMY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
   maxTotalSizeBytes: STEP_BYTES * (NOT_STORED_LIMITS['S-94'] + 4),
 }
-const CALM = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const CALM = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 
 function replacedBy(from: HeldDocument, call: ReplacementCall): HeldDocument {
   let held = from

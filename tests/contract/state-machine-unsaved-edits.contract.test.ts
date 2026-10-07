@@ -116,7 +116,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
   documentFileWriteEnded: [{}],
-  documentEditLanded: [{}],
+  documentEditLanded: [{ isBackToSavedDocument: false }, { isBackToSavedDocument: true }],
   newDocumentLanded: [{}],
   startupDocumentHeld: [{}],
 }
@@ -138,6 +138,7 @@ function describeEvent(event: Loose): string {
 
 function guardHolds(guard: RawGuard, event: Loose): boolean {
   if (guard.name === 'isReplaceChoice') return event['openChoice'] === 'replace'
+  if (guard.name === 'isBackToSavedDocument') return event['isBackToSavedDocument'] === true
   throw new Error(`guard ${JSON.stringify(guard)} is named by the manuscript but not by this file's oracle`)
 }
 
@@ -195,7 +196,7 @@ describe('T-290 manuscript: unsavedEditsStateMachine holds the two states and fi
       )
     }
     expect(Object.keys(MACHINE.transitions).sort()).toEqual([...SHARED, ...UNSAVED_ONLY].sort())
-    expect(table['documentEditLanded']).toEqual({ nothingUnsaved: 'editsUnsaved', editsUnsaved: '—' })
+    expect(table['documentEditLanded']).toEqual({ nothingUnsaved: 'editsUnsaved', editsUnsaved: '—|nothingUnsaved' })
     expect(table['documentOpenLanded']).toEqual({
       nothingUnsaved: '—|editsUnsaved',
       editsUnsaved: 'nothingUnsaved|—',
@@ -264,12 +265,12 @@ describe('FR-100: the machine is what says whether unsaved edits exist', () => {
   it('`GRS` は、**離れる前に宿主の警告が出るようにすること（MUST）', () => {
     expect(
       run([
-        { type: 'documentEditLanded' },
-        { type: 'documentEditLanded' },
+        { type: 'documentEditLanded', isBackToSavedDocument: false },
+        { type: 'documentEditLanded', isBackToSavedDocument: false },
         { type: 'documentFileSaved', openedFileName: 'a.xml' },
-        { type: 'documentEditLanded' },
+        { type: 'documentEditLanded', isBackToSavedDocument: false },
         { type: 'newDocumentLanded' },
-        { type: 'documentEditLanded' },
+        { type: 'documentEditLanded', isBackToSavedDocument: false },
         { type: 'startupDocumentHeld' },
       ]),
     ).toEqual(['editsUnsaved', 'editsUnsaved', 'nothingUnsaved', 'editsUnsaved', 'nothingUnsaved', 'editsUnsaved', 'nothingUnsaved'])

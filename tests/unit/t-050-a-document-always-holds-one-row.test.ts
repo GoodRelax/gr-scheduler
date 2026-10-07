@@ -217,7 +217,7 @@ const ONE_ROW = documentOf({
   taskGroupMembers: [memberOf(1, 'g1')],
 })
 
-const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const LIMITS = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
