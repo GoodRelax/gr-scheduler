@@ -7,6 +7,8 @@
 import {
   MARK_COLOUR_ROWS,
   achromatic,
+  colourOf,
+  isScheduleColourRow,
   markColourVariableOf,
   type CommandItem,
   type ScreenFrame,
@@ -450,10 +452,14 @@ export interface ScreenTheme {
   readonly monochrome?: boolean
 }
 
-// see FR-041, S-74
+// see FR-041, S-74, CF-1
 // TRAP: every H, not the first (DFC-754); and the one greying of SvgRenderer, so screen and export agree.
+// WHY: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
 /** @purity pure */
-function hued(written: string, followsHue: boolean, theme: ScreenTheme): string {
+function hued(rowId: string, written: string, followsHue: boolean, theme: ScreenTheme): string {
+  if (isScheduleColourRow(rowId)) {
+    return colourOf(rowId, theme.hue, theme.preference === 'dark', theme.monochrome === true)
+  }
   const coloured = followsHue ? written.replace(/\bH\b/g, String(theme.hue)) : written
   return theme.monochrome === true ? achromatic(coloured) : coloured
 }
@@ -466,14 +472,14 @@ export function themeStyle(theme: ScreenTheme): string {
     const row = SCREEN_COLOURS[rowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `--gr-${name}:${hued(chosen, row.followsHue, theme)};`
+    written += `--gr-${name}:${hued(rowId, chosen, row.followsHue, theme)};`
   }
   // see FR-133, SQ-5, DT-1
   for (const rowId of MARK_COLOUR_ROWS) {
     const row = SCREEN_COLOURS[rowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `${markColourVariableOf(rowId)}:${hued(chosen, row.followsHue, theme)};`
+    written += `${markColourVariableOf(rowId)}:${hued(rowId, chosen, row.followsHue, theme)};`
   }
   return written
 }
@@ -494,7 +500,7 @@ export function pageGroundStyle(theme: ScreenTheme): string {
   const chosen = theme.preference === 'dark' ? ground.dark : ground.light
   return (
     `color-scheme:${theme.preference};` +
-    `background:${hued(chosen, ground.followsHue, theme)};`
+    `background:${hued(PAINT_ROW.ground, chosen, ground.followsHue, theme)};`
   )
 }
 

@@ -15,7 +15,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { rowTitleFontPxOf, type AppHeaderItems, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
-import { colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
+import { bandBaselineYOf, colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
 export type {
@@ -145,11 +145,6 @@ function appHeaderSvg(
   const y = bandBaselineYOf(band, titlePx) * ratio
   const weight = NOT_STORED_DOCUMENT_TITLE_SIZES['S-463']
   return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene), weight)
-}
-
-/** @purity pure */
-function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
-  return band.y + band.height / 2 + fontPx * SETTINGS_CONSTANTS.labelBaseline
 }
 
 // see EP-3

@@ -175,6 +175,14 @@ const greyOf = (coloured: Paint): Paint => ({ rgb: rgbOfHsl(0, 0, lightnessOf(co
 
 const squash = (name: string): string => name.replace(/-/g, '').toLowerCase()
 
+// see CF-2
+// WHY: since CR-683 table T-366 moves these rows' lightness per hue, so their colour is not the T-236 cell.
+const T366_SHIFTED_ROWS: readonly string[] = ['S-151', 'S-155', 'S-156', 'S-157']
+
+const ROW_OF_PROPERTY: ReadonlyMap<string, string> = new Map(
+  Object.entries(NAME_TO_ROW).map(([name, rowId]) => [squash(name), rowId]),
+)
+
 function customProperties(style: string): ReadonlyMap<string, string> {
   const found = new Map<string, string>()
   for (const match of style.matchAll(/--gr-([A-Za-z0-9-]+)\s*:\s*([^;]+);/g)) {
@@ -279,7 +287,12 @@ describe(`CR-592 (2) FR-041 "${CLAUSE_EVERY_ROW}" / T-294 "${CLAUSE_KEEP_LIGHTNE
         expect(on.size).toBeGreaterThanOrEqual(new Set(Object.keys(NAME_TO_ROW).map(squash)).size)
         for (const [name, written] of on) {
           const drawn = mustPaint(written, `--gr-${name}`)
-          const coloured = mustPaint(off.get(name) ?? '', `--gr-${name} (colour)`)
+          // WHY: a T-366 row's colour is moved per hue (CF-2); monochrome keeps the T-236 lightness (T-294, CR-693).
+          const rowId = ROW_OF_PROPERTY.get(name)
+          const shifted = rowId !== undefined && T366_SHIFTED_ROWS.includes(rowId)
+          const coloured = shifted
+            ? mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
+            : mustPaint(off.get(name) ?? '', `--gr-${name} (colour)`)
           expect(isGrey(drawn), `--gr-${name} is not grey: ${written}`).toBe(true)
           expect(samePaint(drawn, greyOf(coloured)), `--gr-${name}: ${written} vs ${off.get(name)}`).toBe(true)
         }
