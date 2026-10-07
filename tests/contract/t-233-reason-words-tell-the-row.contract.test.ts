@@ -510,6 +510,18 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-69': '28e3c4fa360f7b04',
   // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (WL-12).
   'RS-70': 'e99b94d159d09037',
+  // WHY: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
+  // undo is the road back; the count NT-3 asks for is the notice's own, not a word of the row.
+  'RS-71': 'f14b2594cbfd088c',
+  // WHY: read 2026-10-07; tasks the file did not carry were kept (MG-7 only says it keeps them),
+  // an NT-5 notice that is accepted, and deleting by hand is the road.
+  'RS-72': '355974dcc63a9ab3',
+  // WHY: read 2026-10-07; the tasks that came last time and not now are listed by name below
+  // (MG-11), and the step warns a kept one comes back on the other side at the next export.
+  'RS-73': '6b104b07df319bff',
+  // WHY: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
+  // to try again once that question has been answered (WS-2).
+  'RS-74': '2fbc93458a8c6c70',
 }
 
 const fingerprintOf = (rowId: string): string => {

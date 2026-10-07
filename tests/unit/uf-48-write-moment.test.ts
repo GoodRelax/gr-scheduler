@@ -1349,7 +1349,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
-  it('table T-202 gives exactly eleven of its sixteen rows a boolean type (CR-394 added S-234 displayScale, 多値)', () => {
+  it('table T-202 gives exactly eleven of its eighteen rows a boolean type (CR-394 added S-234 displayScale, 多値; CR-677 the dates S-518 / S-519)', () => {
     // FR-049 (MUST): the set the requirement names is this one, so a row added
     // or retyped upstream has to reach this file. `S-144` (`watermarkVisible`)
     // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
@@ -1362,8 +1362,9 @@ describe('the tables these ten entrances are driven by', () => {
     // A BOOLEAN: its type cell spells six percentages, so FR-049's MUST does not
     // reach it and no entrance may treat it as a toggle. It takes the table
     // 15 -> 16 and leaves the booleans at eleven.
+    // WHY: CR-677 added exportSpanStart / exportSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(16)
+    expect(T_202_KEYS.length).toBe(18)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {
