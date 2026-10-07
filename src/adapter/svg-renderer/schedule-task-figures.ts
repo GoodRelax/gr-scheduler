@@ -5,14 +5,14 @@
 
 import { SETTINGS_CONSTANTS, type DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import type { ItemRef } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type {
-  BarGeometry,
-  MarkerGeometry,
-  Path,
-  Point,
-  ScheduleGeometry,
+import {
+  arrowHeadOf,
+  type BarGeometry,
+  type MarkerGeometry,
+  type Path,
+  type Point,
+  type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   NOT_STORED_LABEL_SIZES,
@@ -498,8 +498,8 @@ function barSvg(bar: BarGeometry, paint: Paint, innerInk: string, key: string): 
   return line + head + dots
 }
 
-// see GD-6, S-19, S-300
-// WHY: the height along the line is S-19 and the base across it is S-300, as the hit test's head is (DFC-2131).
+// see GD-6, S-19, S-300, PI-6
+// WHY: the triangle is arrowHeadOf's, the hit test's own head, laid on a rightward line through the marker's box.
 /** @purity pure */
 export function dependencyArrowSvg(
   id: string,
@@ -509,12 +509,13 @@ export function dependencyArrowSvg(
   const length = settings.dependencyArrowLength
   const base = settings.dependencyArrowWidth
   const half = base / 2
+  const corners = arrowHeadOf([{ x: 0, y: half }, { x: length, y: half }], length, base)
   return (
     `<defs><marker id="${id}" viewBox="0 0 ${rounded(length)} ${rounded(base)}"` +
     ` refX="${rounded(length)}" refY="${rounded(half)}"` +
     ` markerWidth="${rounded(length)}" markerHeight="${rounded(base)}"` +
     ` markerUnits="userSpaceOnUse" orient="auto">` +
-    `<path d="M0,0 L${rounded(length)},${rounded(half)} L0,${rounded(base)} Z"` +
+    `<path d="${corners.map((one, index) => `${index === 0 ? 'M' : 'L'}${rounded(one.x)},${rounded(one.y)}`).join(' ')} Z"` +
     ` fill="${colour}"/></marker></defs>`
   )
 }
@@ -855,21 +856,6 @@ function dependencyLinkSvg(link: DependencyLink, ink: LinkInk): string {
 /** @purity pure */
 export function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string {
   return `${link.predecessorUid}>${link.successorUid}`
-}
-
-// see SL-8, FR-009
-// TRAP: the ordinal is not the index in geometry.dependencies: RT-4a drops undrawn links.
-/** @purity pure */
-export function selectedLinksOfMarks(schedule: Schedule, marks: readonly ItemRef[]): ReadonlySet<string> {
-  const out = new Set<string>()
-  let linksOfTask: ReadonlyMap<number, Schedule['tasks'][number]['dependencies']> | null = null
-  for (const item of marks) {
-    if (item.kind !== 'dependency') continue
-    linksOfTask ??= new Map(schedule.tasks.map((one) => [one.uid, one.dependencies]))
-    const link = linksOfTask.get(item.successorUid)?.[item.ordinal]
-    if (link !== undefined) out.add(linkKeyOf({ predecessorUid: link.predecessorUid, successorUid: item.successorUid }))
-  }
-  return out
 }
 
 // see EL-16, EL-17, EP-12, T-280

@@ -260,6 +260,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `arrowHeadOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#arrowHeadOf` | PI-6 | 描いた依存線の矢じりの 3 点 —— 先端と、底辺の両端（高さは 表 T-201 の `S-19`、底辺は `S-300`）。 |
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
 | `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、行の帯の中央）。 |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
@@ -285,6 +286,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
 | `ResumeGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ResumeGeometry` | -- | interface ResumeGeometry |
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
+| `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `WbsParentFamilies` | entry | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentFamilies` | PI-6 | 型。 |
@@ -295,7 +297,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `placedEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#placedEndOf` | -- | function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
 | `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd, linkType: number, elision: Elision): DependencyGeometry |
-| `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
 | `SightedEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#SightedEnd` | -- | interface SightedEnd |
 | `standingEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#standingEndOf` | -- | function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd |
 | `unseenEndStubOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#unseenEndStubOf` | -- | function unseenEndStubOf(from: Point, toward: number, settings: DrawnSettings): |
@@ -801,7 +802,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyLinksInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinksInput` | -- | interface DependencyLinksInput |
 | `landingLinkOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#landingLinkOf` | -- | function landingLinkOf(viewer: ViewerValues): string \| null |
 | `linkKeyOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#linkKeyOf` | -- | function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string |
-| `selectedLinksOfMarks` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#selectedLinksOfMarks` | -- | function selectedLinksOfMarks(schedule: Schedule, marks: readonly ItemRef[]): ReadonlySet<string> |
 | `TaskFigureParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFigureParts` | -- | interface TaskFigureParts |
 | `taskFigureParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#taskFigureParts` | -- | function taskFigureParts(input: TaskFiguresInput): TaskFigureParts |
 | `TaskFiguresInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFiguresInput` | -- | interface TaskFiguresInput |
@@ -1385,6 +1385,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
 | `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
 | `iconHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconHint` | -- | function iconHint(icon: IconId, language: DisplayLanguage): string |
+| `iconLabel` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconLabel` | -- | function iconLabel(icon: IconId, language: DisplayLanguage): string |
 | `questionDayText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#questionDayText` | -- | function questionDayText(text: string, schedule: Schedule \| null, language: DisplayLanguage): string |
 | `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sche... |
 | `WindowEdge` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowEdge` | -- | type WindowEdge = 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' |
@@ -1717,4 +1718,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 838 name(s) leave through a public entry (328 of them published by table T-064), 669 more are exported by a file and not by its entry.
+Totals: 840 name(s) leave through a public entry (330 of them published by table T-064), 668 more are exported by a file and not by its entry.

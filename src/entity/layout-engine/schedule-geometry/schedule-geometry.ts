@@ -44,6 +44,7 @@ import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 import { wbsParentGeometryOf, type WbsParentFamilies, type WbsParentGeometry } from './wbs-parent-arrows'
 
 export { commentAnchorPointOf, leaderOf } from './comment-box'
+export { arrowHeadOf, selectedLinksOf } from './dependency-route'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 export type { WbsParentFamilies } from './wbs-parent-arrows'
 

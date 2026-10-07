@@ -19,6 +19,7 @@ import type {
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
 import imageToJsonPrompt from './image-to-grs-json-prompt.json'
 
@@ -44,15 +45,6 @@ const AGENT_API_ENTRY: IconId = 'IC-20'
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
 
 const NO_WORDS = ''
-
-const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
-
-/** @purity pure */
-function entryLabel(icon: IconId, language: DisplayLanguage): string {
-  const word = WORDS_BY_ROW.get(icon)?.label[language]
-  if (word === undefined) return NO_WORDS
-  return word === '' ? NO_WORDS : word
-}
 
 interface CommandState {
   readonly isEnabled: boolean
@@ -157,7 +149,7 @@ function commandItemFor(
     isPressed: commandState.isPressed,
     isArmed: false,
     isChosen: false,
-    label: entryLabel(icon, displayLanguageOf(session)),
+    label: iconLabel(icon, displayLanguageOf(session)),
   }
 }
 

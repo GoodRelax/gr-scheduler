@@ -22,6 +22,7 @@ import type {
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import iconRoster from './icon-roster.json'
+import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
 
 type IconRosterRow = (typeof iconRoster.icons)[number]
@@ -42,20 +43,11 @@ const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
 
 const NO_WORDS = ''
 
-const WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const GROUP_NAMES_BY_FIRST_ROW = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
 
 const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, entry]))
-
-// see FR-038
-/** @purity pure */
-function entryLabel(icon: IconId, language: DisplayLanguage): string {
-  const word = WORDS_BY_ROW.get(icon)?.label[language]
-  if (word === undefined) return NO_WORDS
-  return word === '' ? NO_WORDS : word
-}
 
 // see FR-036, FR-038
 /** @purity pure */
@@ -176,7 +168,7 @@ function commandItemFor(
     isPressed: (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isEntryOn(row, facts),
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     isChosen: isExclusiveChoiceChosen(row, facts),
-    label: entryLabel(row.rowId, language),
+    label: iconLabel(row.rowId, language),
   }
 }
 
