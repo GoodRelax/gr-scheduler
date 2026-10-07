@@ -55,7 +55,7 @@ export {
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
-export { exportFileNameOf } from './open-modals'
+export { exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView, ShowOnlyCheckedBarView } from './search-panel'
 export { MARK_COLOUR_ROWS, isFilterValueListed, markColourVariableOf, statusGlyphSvg } from './table-window'
 export type { MarkGlyph } from './table-window'
@@ -126,6 +126,8 @@ export interface ScrollExtent {
 
 export interface AppHeaderItems {
   readonly brandingText?: string
+  readonly brandingSeatPx?: number
+  readonly documentTitleLeftPx?: number
   readonly documentTitle: string | null
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null

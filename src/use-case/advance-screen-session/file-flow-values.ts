@@ -453,6 +453,13 @@ function onDocumentHeldAfresh(values: FileFlowValues): FileFlowStep {
   return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED) }, NO_EFFECTS)
 }
 
+// see T-290, FR-095, FR-101
+/** @purity pure */
+function onNewDocumentLanded(values: FileFlowValues): FileFlowStep {
+  const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED)
+  return combined(values, { openedFileName: null, unsavedEditsState }, NO_EFFECTS)
+}
+
 /** @purity pure */
 function onDocumentFileWriteEnded(values: FileFlowValues): FileFlowStep {
   if (values.fileOperationState.kind !== 'writingDocumentFile') return unchanged(values)
@@ -506,7 +513,7 @@ const HANDLERS: {
   documentFileSaved: onDocumentFileSaved,
   documentFileWriteEnded: onDocumentFileWriteEnded,
   documentEditLanded: onDocumentEditLanded,
-  newDocumentLanded: onDocumentHeldAfresh,
+  newDocumentLanded: onNewDocumentLanded,
   startupDocumentHeld: onDocumentHeldAfresh,
 }
 
