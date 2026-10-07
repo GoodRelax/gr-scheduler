@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Row copy with a child elsewhere</title>
+<style>
+  body { margin:0; padding:16px; font:16px/1.7 system-ui, sans-serif; color:#1d2733; background:#f6f7f9; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  p { margin:4px 0 12px; max-width:64em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap:16px; }
+  .card { background:#fff; border:1px solid #d5dbe2; border-radius:8px; padding:12px; }
+  .card h2 { font-size:17px; margin:0 0 4px; }
+  .what { font-size:14px; color:#4a5562; margin-bottom:8px; }
+  svg { display:block; width:100%; height:auto; border:1px solid #ccd3db; background:#fff; }
+  .legend { font-size:14px; color:#4a5562; }
+  .new { color:#b0005a; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>台帳 DFC-1240 の見本: 行を写して貼る —— その行のタスクの WBS の子が別の行に居るとき</h1>
+<p><b>場面</b>: 「1 回目の工程」を行ごと写して、「2 回目の工程」を作りたい。1 回目の行「1 回目」にはタスク「1 回目 まとめ」が載り、その <b>WBS の子</b>「資料作成」は別の行「資料」に載っている（行と WBS は別の軸なので、子が別の行に居ることはふつうに起きる）。</p>
+<p class="legend">絵の読み方: 左が行見出し、右がバー。点線の矢印は WBS の親 → 子。<span class="new">桃色の枠</span>が貼り付けで新しくできたタスク（新しい UID。写しなので変更前の予定の灰色は描かない）。写しは見分けやすいよう右へずらして描いた（日付の扱いはこの問いと関係しない）。</p>
+<div class="grid" id="grid"></div>
+<script>
+// Each scene: rows top to bottom; each row has bars {name, x, w, isNew}; links: [fromName, toName] (WBS parent -> child).
+var scenes = [
+  { title: '写す前', what: '行「1 回目」を選んで写す（Ctrl+C）。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }] }
+    ], links: [['1 回目 まとめ', '資料作成']] },
+  { title: 'いま: 断る', what: '貼る（Ctrl+V）と「子の写しをどの行に置くかが決まっていない」として何も起きない。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }] },
+      { head: '（貼れない）', bars: [], refused: true }
+    ], links: [['1 回目 まとめ', '資料作成']] },
+  { title: '案 1（推奨）: 子の写しも、貼った行に一緒に置く', what: '新しい行「1 回目」の写しに、まとめの写しと資料作成の写しが並ぶ。写していない行「資料」は変わらない。2 回目の工程が 1 行にまとまる。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }] },
+      { head: '1 回目（写し）', bars: [{ name: '1 回目 まとめ', x: 200, w: 120, isNew: true }, { name: '資料作成', x: 230, w: 80, isNew: true, stack: 1 }] }
+    ], links: [['1 回目 まとめ', '資料作成'], ['1 回目 まとめ#n', '資料作成#n']] },
+  { title: '案 2: 子の写しは、子の元の行「資料」に置く', what: '並び方は元と同じ形。ただし写していない行「資料」にも、資料作成の写しが増える。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }, { name: '資料作成', x: 200, w: 80, isNew: true }] },
+      { head: '1 回目（写し）', bars: [{ name: '1 回目 まとめ', x: 200, w: 120, isNew: true }] }
+    ], links: [['1 回目 まとめ', '資料作成'], ['1 回目 まとめ#n', '資料作成#n']] },
+  { title: '案 3: 別の行に居る子は写さない', what: '写しの「1 回目 まとめ」だけができ、WBS の子を持たない。資料作成の 2 回目は手で作る。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }] },
+      { head: '1 回目（写し）', bars: [{ name: '1 回目 まとめ', x: 200, w: 120, isNew: true }] }
+    ], links: [['1 回目 まとめ', '資料作成']] },
+  { title: '参考: 「UID で紐づける」をそのまま行うと', what: '写しの「1 回目 まとめ」が、元の「資料作成」（同じ UID）を子に取ろうとする。WBS の親は 1 つだけなので、元の「1 回目 まとめ」から子を奪うことになる —— 写しが元を壊すので採れない。',
+    rows: [
+      { head: '1 回目', bars: [{ name: '1 回目 まとめ', x: 40, w: 120 }] },
+      { head: '資料', bars: [{ name: '資料作成', x: 40, w: 80 }] },
+      { head: '1 回目（写し）', bars: [{ name: '1 回目 まとめ', x: 200, w: 120, isNew: true }] }
+    ], links: [['1 回目 まとめ#n', '資料作成', 'bad']] }
+];
+
+var NS = 'http://www.w3.org/2000/svg', HEAD_W = 110, ROW_H = 46, W = 360;
+function el(parent, name, attrs, text) {
+  var e = document.createElementNS(NS, name);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (text) e.textContent = text;
+  parent.appendChild(e); return e;
+}
+function draw(scene) {
+  var card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = '<h2>' + scene.title + '</h2><div class="what">' + scene.what + '</div>';
+  var heights = scene.rows.map(function (r) { return r.bars.some(function (b) { return b.stack; }) ? ROW_H * 1.6 : ROW_H; });
+  var H = heights.reduce(function (a, b) { return a + b; }, 0) + 8;
+  var svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 ' + (HEAD_W + W) + ' ' + H);
+  var defs = el(svg, 'defs', {});
+  var m = el(defs, 'marker', { id: 'a' + scene.title.length, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto' });
+  el(m, 'path', { d: 'M0,0 L10,5 L0,10 z', fill: '#6a7480' });
+  var pos = {}, y = 4;
+  scene.rows.forEach(function (r, i) {
+    var h = heights[i];
+    el(svg, 'rect', { x: 0, y: y, width: HEAD_W, height: h, fill: '#eef2f6', stroke: '#d5dbe2' });
+    el(svg, 'text', { x: 8, y: y + 26, 'font-size': 13, fill: r.refused ? '#b0005a' : '#1d2733' }, r.head);
+    el(svg, 'line', { x1: HEAD_W, x2: HEAD_W + W, y1: y + h, y2: y + h, stroke: '#e1e6ec' });
+    r.bars.forEach(function (b) {
+      var by = y + 12 + (b.stack ? 28 : 0);
+      el(svg, 'rect', { x: HEAD_W + b.x, y: by, width: b.w, height: 20, rx: 2, fill: '#9cc3ea', stroke: b.isNew ? '#e0007a' : '#2f6fb0', 'stroke-width': b.isNew ? 2.5 : 1 });
+      el(svg, 'text', { x: HEAD_W + b.x + 5, y: by + 14, 'font-size': 12, fill: '#1d2733' }, b.name);
+      pos[b.name + (b.isNew ? '#n' : '')] = { x: HEAD_W + b.x, y: by, w: b.w };
+    });
+    y += h;
+  });
+  scene.links.forEach(function (l) {
+    var p = pos[l[0]], c = pos[l[1]]; if (!p || !c) return;
+    var x1 = p.x + 10, y1 = p.y + 20, x2 = c.x + 4, y2 = c.y + (c.y > p.y ? 0 : 20);
+    el(svg, 'path', { d: 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + (y1 + y2) / 2 + ' ' + x2 + ',' + (y1 + y2) / 2 + ' ' + x2 + ',' + y2,
+      fill: 'none', stroke: l[2] === 'bad' ? '#d0021b' : '#6a7480', 'stroke-width': 1.4, 'stroke-dasharray': '4 3', 'marker-end': 'url(#a' + scene.title.length + ')' });
+    if (l[2] === 'bad') el(svg, 'text', { x: (x1 + x2) / 2 + 6, y: (y1 + y2) / 2, 'font-size': 12, fill: '#d0021b' }, '× 元の子を奪う');
+  });
+  card.appendChild(svg);
+  return card;
+}
+var grid = document.getElementById('grid');
+scenes.forEach(function (s) { grid.appendChild(draw(s)); });
+</script>
+</body>
+</html>
