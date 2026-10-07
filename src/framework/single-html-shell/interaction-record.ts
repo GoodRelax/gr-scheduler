@@ -4,10 +4,7 @@
 // @purity    non-pure
 
 import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type {
-  ScreenSession,
-  ScreenValuesEvent,
-} from '../../use-case/advance-screen-session/advance-screen-session'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { HumanInput } from '../../adapter/input-command-translator/input-command-translator'
 import { writeClipboard } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import {
@@ -29,10 +26,12 @@ const PANEL_NOT_SHOWN_IN_RECORD = 'none'
 // TRAP: single-html-shell.ts answers this when the focus is on no field and no entrance.
 export const FOCUS_ON_DOCUMENT_BODY = 'body'
 
+// see T-280
+// WHY: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimised.
 /** @purity pure */
-function paletteMinimisedForRecordOf(session: ScreenSession, whileHidden: boolean): boolean {
+function paletteMinimisedForRecordOf(session: ScreenSession): boolean {
   const palette = session.screen.paletteDisplayState
-  return palette.kind === 'hidden' ? whileHidden : palette.child.kind === 'minimised'
+  return palette.kind === 'shown' && palette.child.kind === 'minimised'
 }
 
 /** @purity pure */
@@ -46,14 +45,10 @@ export interface InteractionRecorder {
   appendRecordedLine(what: string, detail: string): void
   beginInteractionRecord(): void
   handInteractionRecordToClipboard(): void
-  notePaletteEvent(event: ScreenValuesEvent): void
-  isPaletteMinimisedWhileHidden(): boolean
 }
 
 /** @purity non-pure */
 export function interactionRecorderOf(hands: InteractionRecordHands): InteractionRecorder {
-  // DEVIATION: spec says a hidden palette has no minimise state (T-280); here the record keeps it (DFC-707)
-  let paletteMinimisedWhileHidden = false
   const recordedLines: string[] = []
   let interactionRecordDropped = 0
   let interactionRecordBeganAt = 0
@@ -104,25 +99,10 @@ export function interactionRecorderOf(hands: InteractionRecordHands): Interactio
     void writeClipboard(seam, { kind: 'record', text })
   }
 
-  /** @purity non-pure */
-  function notePaletteEvent(event: ScreenValuesEvent): void {
-    if (event.type === 'paletteToggled') {
-      paletteMinimisedWhileHidden = paletteMinimisedForRecordOf(hands.readSession(), paletteMinimisedWhileHidden)
-    }
-    if (event.type === 'paletteMinimiseToggled') paletteMinimisedWhileHidden = !paletteMinimisedWhileHidden
-  }
-
-  /** @purity semi-pure-b */
-  function isPaletteMinimisedWhileHidden(): boolean {
-    return paletteMinimisedWhileHidden
-  }
-
   const recorder: InteractionRecorder = {
     appendRecordedLine,
     beginInteractionRecord,
     handInteractionRecordToClipboard,
-    notePaletteEvent,
-    isPaletteMinimisedWhileHidden,
   }
   return recorder
 }
@@ -184,7 +164,7 @@ export function recordHappening(
 /** @purity non-pure */
 export function recordFrame(
   hands: InteractionRecordHands,
-  recorder: Pick<InteractionRecorder, 'appendRecordedLine' | 'isPaletteMinimisedWhileHidden'>,
+  recorder: Pick<InteractionRecorder, 'appendRecordedLine'>,
   svg: string,
   drawnLayout: ScheduleLayout,
 ): void {
@@ -204,7 +184,7 @@ export function recordFrame(
     `w=${hands.readEnvironment().width} h=${hands.readEnvironment().height} ` +
       `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
       `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
-      `minimised=${paletteMinimisedForRecordOf(session, recorder.isPaletteMinimisedWhileHidden())} ` +
+      `minimised=${paletteMinimisedForRecordOf(session)} ` +
       `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
       `notices=${standingNoticesIn(session).length} asking=${isQuestionAskedIn(session)} ` +
       `focus=${hands.screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +

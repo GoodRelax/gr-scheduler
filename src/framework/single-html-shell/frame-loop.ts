@@ -281,7 +281,6 @@ export interface HandedImport {
   readonly incoming: Document
   readonly format: ExchangeFormat
   readonly byteLength: number
-  readonly choice: OpenChoice
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
 }
@@ -570,7 +569,6 @@ const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'toolti
 // see IN-4, RG-17, FR-071
 // WHY: the last rung asks the browser the same as the IC-11 press.
 const ESCAPE_FULL_SCREEN: ScreenValuesEvent = { type: 'fullScreenEntryPressed' }
-const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
 const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
@@ -583,6 +581,8 @@ const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
 export const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
 export const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
+const SELECTION_ESCAPE_PRESSED: SessionEvent = { type: 'selectionEscapePressed', rung: 'selection' }
+const SELECTION_SETTLE_KEY_PRESSED: SessionEvent = { type: 'selectionSettleKeyPressed' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
 const ENABLING_ASKED_BY_DIALOGUE_FIELD: SessionEvent = { type: 'enablingAskedByDialogueField' }
@@ -1213,25 +1213,6 @@ function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof command
   return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTaskUid }
 }
 
-/** @purity pure */
-function surfaceOpenedBy(event: ScreenValuesEvent, screen: ScreenValues): string | null {
-  if (event.type === 'surfaceEntryPressed' || event.type === 'surfaceRaisedByFlow') return event.surfaceName
-  if (event.type !== 'watermarkEntryPressed') return null
-  return screen.watermarkDisplayState.kind === 'shown' ? WATERMARK_UNLOCK_ROW : null
-}
-
-// DEVIATION: spec says an open surface takes no other (T-280); here the new one replaces it (DFC-705)
-/** @purity pure */
-function withSurfaceReplaced(
-  event: ScreenValuesEvent,
-  screen: ScreenValues,
-): readonly ScreenValuesEvent[] {
-  const opened = surfaceOpenedBy(event, screen)
-  const open = screen.openSurfaceState
-  const isReplacing = opened !== null && open.kind === 'open' && open.surfaceName !== opened
-  return isReplacing ? [SURFACE_CLOSE_ASKED, event] : [event]
-}
-
 // see FR-052, U-50
 // WHY: a width that leaves the Row Area at 0 or less is not taken (MUST NOT); the screen keeps its width.
 /** @purity pure */
@@ -1239,14 +1220,34 @@ function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): bool
   return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
 }
 
-// see FR-072, T-280
-// DEVIATION: spec says a moved choice leaves the settings shown (T-280); here the choice is shown (DFC-706)
+// WHY: the progress step (T-280) waits for the press to drop; its effect writes, and WS-2 refuses a write mid-gesture.
 /** @purity pure */
-function choiceFollowedOf(session: ScreenSession, subject: PropertiesSubject): ScreenValuesEvent | null {
-  const showing = panelShowingIn(session)
-  if (showing === null) return null
-  if (showing === 'selection') return { type: 'selectionMoved', subject }
-  return { type: 'propertiesOfChoiceAsked', subject }
+function isSentBeforePressDrops(event: ScreenValuesEvent, frame: FrameValues): boolean {
+  return event.type !== 'progressMarkerPressed' && !isRefusedPanelWidth(event, frame)
+}
+
+// WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
+/** @purity pure */
+function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHolder {
+  return {
+    /** @purity semi-pure-b */
+    read(): HeldDocument {
+      return holder.read()
+    },
+    /** @purity non-pure */
+    replace(next: HeldDocument): void {
+      holder.replace(next)
+      landed()
+    },
+  }
+}
+
+// see FR-085
+/** @purity pure */
+function rowsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
+  const chosenRows = session.selection.chosenRows
+  const kept = chosenRows.filter((groupId) => schedule.taskGroups.some((one) => one.id === groupId))
+  return kept.length === chosenRows.length ? chosenRows : kept
 }
 
 /** @purity pure */
@@ -1272,6 +1273,7 @@ interface ScreenEffectHands {
   readonly restorePaletteCorner: () => void
   readonly raiseFlowSurface: (surfaceName: FileFlowSurfaceName) => void
   readonly tellFlowSurfaceClosed: (surfaceName: string, frame: FrameValues | null) => void
+  readonly writeProgressStep: (writes: readonly DocumentCommand[], frame: FrameValues | null) => void
   readonly readDocumentFile: (openRoute: FileFlowOpenRoute) => void
   readonly writeDocumentFile: (writeForm: FileFlowWriteForm) => void
   readonly importIncomingDocument: (answer: FileFlowImportAnswer) => void
@@ -1303,8 +1305,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     storeClearedDualCursor: () => undefined,
     seedHelpLanguage: () => undefined,
     focusSearchWord: () => hands.focusSearchWord(),
-    // DEVIATION: spec says this effect writes the step (T-280); here GA-18's action does, after the press drops (DFC-708)
-    writeProgressStep: () => undefined,
+    writeProgressStep: (effect, frame) => hands.writeProgressStep(effect.writes, frame),
     askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
     tellFlowSurfaceClosed: (effect, frame) => hands.tellFlowSurfaceClosed(effect.surfaceName, frame),
     matchWatermarkUnlock: () => hands.matchWatermarkUnlock(),
@@ -1700,6 +1701,16 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
 /** @purity pure */
 function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: EscapeTarget | null): Selection {
   return isTypedIntoSearchWord(input, context) ? context.selection : selectionFromInput(input, context, escapeLevel)
+}
+
+// see IN-4, SK-19, FR-085, T-293
+/** @purity pure */
+function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEvent {
+  if (input.kind === 'key' && pickedObjects.items.length === 0) {
+    if (input.key === ESCAPE_KEY) return SELECTION_ESCAPE_PRESSED
+    if (input.key === ENTER_KEY) return SELECTION_SETTLE_KEY_PRESSED
+  }
+  return { type: 'objectsPicked', pickedObjects }
 }
 
 // see IN-1, IN-1a
@@ -2184,7 +2195,8 @@ export function frameLoop(
         watermarkStampedAt = readInstantOfWrite()
       }
       held = next
-      pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), held.document.schedule))
+      const schedule = held.document.schedule
+      pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), schedule), rowsWithinSchedule(session, schedule))
       for (const pruned of resourcePruningOf(session, held.document.schedule)) sendToSession(pruned, null)
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (isSizeSettled(environment)) ask()
@@ -2282,10 +2294,13 @@ export function frameLoop(
       if (commandPaletteCornerAtPress !== null) commandPaletteDraggedTo = commandPaletteCornerAtPress
     },
     raiseFlowSurface: (surfaceName) =>
-      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: SURFACE_NAME_OF_FLOW[surfaceName] }, values),
+      sendToSession({ type: 'surfaceRaisedByFlow', surfaceName: SURFACE_NAME_OF_FLOW[surfaceName] }, values),
     tellFlowSurfaceClosed: (surfaceName, frame) => {
       const flow = flowSurfaceOf(surfaceName)
       if (flow !== null) sendToSession({ type: 'flowSurfaceClosed', surfaceName: flow }, frame)
+    },
+    writeProgressStep: (writes, frame) => {
+      if (frame !== null) carryOutAction({ kind: 'changeDocument', writes: [writes] }, frame)
     },
     readDocumentFile: beginReadingDocumentFile,
     writeDocumentFile: beginWritingDocumentFile,
@@ -2827,9 +2842,9 @@ export function frameLoop(
   }
 
   /** @purity non-pure */
-  function pruneChoiceTo(remainingObjects: Selection): Selection {
-    if (remainingObjects !== selectedObjectsIn(session)) {
-      sendToSession({ type: 'selectionPruned', remainingObjects }, null)
+  function pruneChoiceTo(remainingObjects: Selection, chosenRows = session.selection.chosenRows): Selection {
+    if (remainingObjects !== selectedObjectsIn(session) || chosenRows !== session.selection.chosenRows) {
+      sendToSession({ type: 'selectionPruned', remainingObjects, chosenRows }, null)
       noteChoiceMoved(hands, null)
     }
     return selectedObjectsIn(session)
@@ -2850,6 +2865,7 @@ export function frameLoop(
       regions: frame.regions,
       screen: session.screen,
       selection: selectedObjectsIn(session),
+      chosenRows: session.selection.chosenRows,
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
@@ -3017,7 +3033,7 @@ export function frameLoop(
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
-      sendScreenEvent({ type: 'paletteMinimiseToggled' }, frame)
+      sendToSession({ type: 'paletteMinimiseToggled' }, frame)
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
@@ -3258,17 +3274,9 @@ export function frameLoop(
   }
 
   /** @purity non-pure */
-  function sendScreenEvent(event: ScreenValuesEvent, frame: FrameValues | null): void {
-    interactionRecorder.notePaletteEvent(event)
-    for (const one of withSurfaceReplaced(event, session.screen)) sendToSession(one, frame)
-  }
-
-  /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
     const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
-    const followed = subject === null ? null : choiceFollowedOf(session, subject)
-    if (followed === null) return
-    sendToSession(followed, frame)
+    if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
   // see FR-066, IC-18, T-280, T-296
@@ -3457,11 +3465,11 @@ export function frameLoop(
     const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context, escapeLevel), context.selection, pointerAt)
     const hasChoiceMoved = pickedObjects !== context.selection
     if (hasChoiceMoved) {
-      sendToSession({ type: 'objectsPicked', pickedObjects }, frame)
+      sendToSession(choiceEventOf(input, pickedObjects), frame)
       noteChoiceMoved(hands, frame)
     }
     const screenEvent = screenEventFromInput(input, context)
-    if (screenEvent !== null && !isRefusedPanelWidth(screenEvent, frame)) sendScreenEvent(screenEvent, frame)
+    if (screenEvent !== null && isSentBeforePressDrops(screenEvent, frame)) sendToSession(screenEvent, frame)
     const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) {
       sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
@@ -3476,6 +3484,7 @@ export function frameLoop(
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
     windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
+    if (screenEvent?.type === 'progressMarkerPressed') sendToSession(screenEvent, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
     jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, holdJumpTarget: shownTasks.holdJumpTarget })
 
@@ -3616,7 +3625,7 @@ export function frameLoop(
     /** @purity semi-pure-b */
     agentApiSeams: () => ({
       source: snapshotSource,
-      holder,
+      holder: agentHolderOf(holder, () => sendToSession(DOCUMENT_EDIT_LANDED, null)),
       audience,
       rasterizer,
       appShell,

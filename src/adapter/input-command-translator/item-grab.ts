@@ -69,7 +69,6 @@ import {
   scrolledAnchor,
   serialOfDay,
   taskGroupRankById,
-  rememberedActualIn,
   type ActualEndHold,
   type InPlaceTarget,
   type InputContext,
@@ -138,15 +137,8 @@ export function commandFromGrab(
   const grab = grabRowOf(hit)
   switch (grab) {
     case 'GA-18':
-      return hasDraggedPastThreshold(press, release)
-        ? markerPullWrite(context, release, uid)
-        : changed([
-            {
-              kind: 'cycleTaskPlanActualState',
-              uid,
-              remembered: rememberedActualIn(context, uid),
-            },
-          ])
+      if (hasDraggedPastThreshold(press, release)) return markerPullWrite(context, release, uid)
+      return CONSUMED_ELSEWHERE
     case 'GA-7':
     case 'GA-8':
       return fadeEndWrite(context, release, uid, grab)

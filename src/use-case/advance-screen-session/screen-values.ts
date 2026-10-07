@@ -127,7 +127,6 @@ export interface ScreenValuesStateCarried {
 export interface ScreenValuesEventCarried {
   readonly isFullScreen: boolean
   readonly surfaceName: string
-  // WHY: DFC-1280 -- no clause names this word; named after the surface
   readonly target: 'surface' | 'panel' | 'helpModal'
   readonly rung: EscapeTarget
   readonly armKind: ArmKind
@@ -162,7 +161,7 @@ interface ScreenValuesEffectPayloads {
   readonly askBrowserForFullScreen: NoPayload
   readonly tellFlowSurfaceClosed: { readonly surfaceName: string }
   readonly matchWatermarkUnlock: NoPayload
-  readonly raiseNotice: { readonly reason: 'RS-41' }
+  readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-27' }
   readonly clearSelection: NoPayload
   readonly storePlacedDualCursorClearingGuide: { readonly date: string }
   readonly storeFixedDate1: { readonly date: string }
@@ -456,6 +455,9 @@ type EventOf<T extends ScreenValuesEvent['type']> = Extract<ScreenValuesEvent, {
 
 const WATERMARK_UNLOCK_SURFACE = 'U-60'
 
+// WHY: the two surfaces flowSurfaceAnswered answers (T-280); the open road stands still until one is answered.
+const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
+
 const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = Object.freeze({})
 
 // see T-280, T-206, S-72
@@ -524,14 +526,39 @@ function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenCha
   return moved(values, { fullScreenModeState: { kind: event.isFullScreen ? 'full' : 'normal' } })
 }
 
+/** @purity pure */
+function isAnotherSurface(values: ScreenValues, surfaceName: string): boolean {
+  return values.openSurfaceState.kind === 'open' && values.openSurfaceState.surfaceName !== surfaceName
+}
+
+/** @purity pure */
+function isFlowAwaitingAnswer(values: ScreenValues): boolean {
+  const surface = values.openSurfaceState
+  return surface.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(surface.surfaceName)
+}
+
+// see T-280, S-99g, RS-27
+// WHY: an entrance pressed over a surface awaiting its answer is told; one raised by the flow is not.
+/** @purity pure */
+function surfaceOpenedOver(values: ScreenValues, surfaceName: string, isPressed: boolean): ScreenStep {
+  const surface = values.openSurfaceState
+  if (surface.kind === 'closed') return moved(values, { openSurfaceState: { kind: 'open', surfaceName } })
+  if (!isAnotherSurface(values, surfaceName)) return unchanged(values)
+  if (isFlowAwaitingAnswer(values)) {
+    return isPressed ? stayed(values, [{ type: 'raiseNotice', reason: 'RS-27' }]) : unchanged(values)
+  }
+  return moved(values, { openSurfaceState: { kind: 'open', surfaceName } }, [
+    { type: 'tellFlowSurfaceClosed', surfaceName: surface.surfaceName },
+  ])
+}
+
 // see T-280
 /** @purity pure */
 function onSurfaceOpened(
   values: ScreenValues,
   event: EventOf<'surfaceEntryPressed'> | EventOf<'surfaceRaisedByFlow'>,
 ): ScreenStep {
-  if (values.openSurfaceState.kind === 'open') return unchanged(values)
-  return moved(values, { openSurfaceState: { kind: 'open', surfaceName: event.surfaceName } })
+  return surfaceOpenedOver(values, event.surfaceName, event.type === 'surfaceEntryPressed')
 }
 
 // WHY: no tellFlowSurfaceClosed; the answer already reached the file-flow region (OP-3, FR-022).
@@ -672,8 +699,7 @@ function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed
 /** @purity pure */
 function onWatermarkEntryPressed(values: ScreenValues): ScreenStep {
   if (values.watermarkDisplayState.kind === 'hidden') return moved(values, { watermarkDisplayState: { kind: 'shown' } })
-  if (values.openSurfaceState.kind === 'open') return unchanged(values)
-  return moved(values, { openSurfaceState: { kind: 'open', surfaceName: WATERMARK_UNLOCK_SURFACE } })
+  return surfaceOpenedOver(values, WATERMARK_UNLOCK_SURFACE, true)
 }
 
 /** @purity pure */
@@ -730,7 +756,7 @@ function onPropertiesOfChoiceAsked(
 // see T-280
 /** @purity pure */
 function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>): ScreenStep {
-  if (values.propertiesPanelContentState.kind !== 'selectionDisplayed') return unchanged(values)
+  if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   const subject = event.subject
   const hasChoice = subject.selection.items.length > 0 || subject.groupIds.length > 0
   if (!hasChoice) return unchanged(values)
