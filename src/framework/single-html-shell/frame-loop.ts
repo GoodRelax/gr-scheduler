@@ -582,7 +582,9 @@ const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
-const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
+// WHY: a write is never back at the saved document; only an undo or a redo can be (T-290).
+const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: false }
+const DOCUMENT_BACK_TO_SAVED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: true }
 export const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
 export const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
@@ -600,6 +602,27 @@ const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], Sessio
   'RD-4': null,
   'RD-6': { type: 'startupDocumentHeld' },
   'RD-7': { type: 'newDocumentLanded' },
+}
+
+/** @purity pure */
+function landingOfReplacement(row: ReplacementCall['row'], isBackToSavedDocument: boolean): SessionEvent | null {
+  const landing = LANDING_OF_REPLACEMENT_ROW[row]
+  return landing === DOCUMENT_EDIT_LANDED && isBackToSavedDocument ? DOCUMENT_BACK_TO_SAVED : landing
+}
+
+// WHY: saved, replaced, started afresh, started up -- the landings after which the held document is the saved one (T-290).
+const UNSAVED_MARK_DROPPING_EVENTS: ReadonlySet<SessionEvent['type']> = new Set([
+  'documentFileSaved',
+  'documentOpenLanded',
+  'newDocumentLanded',
+  'startupDocumentHeld',
+])
+
+// see T-290, FR-100
+/** @purity pure */
+function documentAtUnsavedMarkDrop(event: SessionEvent, after: ScreenSession, held: Document, kept: Document): Document {
+  if (!UNSAVED_MARK_DROPPING_EVENTS.has(event.type)) return kept
+  return after.fileFlow.unsavedEditsState.kind === 'nothingUnsaved' ? held : kept
 }
 export const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
 export const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
@@ -802,6 +825,8 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   staleStamp: 'RS-6',
   gestureInFlight: 'RS-7',
   editingInPlace: 'RS-8',
+  // WHY: the screen tells a write refused for a standing question as NT-7 does (RS-27); RS-74 is the Agent API's reason.
+  questionAsked: 'RS-27',
   deliveringNotices: 'RS-9',
   refused: 'RS-10',
   importRefused: null,
@@ -1889,20 +1914,6 @@ function changeQuestionRaisedBy(
   return { type: 'changeQuestionRaised', question, owedAction }
 }
 
-// see FR-154, AG-9
-// WHY: the bundle a Yes or a No writes was built at the release; another writer must not age it meanwhile.
-/** @purity pure */
-function isNonWorkingDayQuestionStandingIn(session: ScreenSession): boolean {
-  const confirmation = session.fileFlow.confirmationState
-  return confirmation.kind === 'questionAsked' && confirmation.question.question === NON_WORKING_DAY_QUESTION
-}
-
-// see AG-9, WS-2, FR-154
-/** @purity pure */
-function isWriteHeldBackIn(session: ScreenSession): boolean {
-  return isChangingDocumentIn(session) || isNonWorkingDayQuestionStandingIn(session)
-}
-
 /** @purity pure */
 function isAgentApiEnabledIn(session: ScreenSession): boolean {
   return session.agentApi.agentApiEnablingState.kind === 'enabled'
@@ -2211,6 +2222,7 @@ export function frameLoop(
   pageReload?: () => void,
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
+  let savedDocument = first
   let environment = env
   let session: ScreenSession = startingSession(
     screen?.language ?? startupDisplayLanguage(),
@@ -2305,6 +2317,7 @@ export function frameLoop(
   function sendToSession(event: SessionEvent, frame: FrameValues | null): void {
     const step = advanceScreenSession(session, event)
     session = step.state
+    savedDocument = documentAtUnsavedMarkDrop(event, session, held.document, savedDocument)
     runSessionEffects(step.effects, effectRunners, frame)
   }
 
@@ -2847,8 +2860,9 @@ export function frameLoop(
         dialogue: dialogueLog,
         frame,
         exportScene: exportScene(),
-        isGestureInFlight: isWriteHeldBackIn(session),
+        isGestureInFlight: isChangingDocumentIn(session),
         isEditingInPlace: isEditingField(hands),
+        isQuestionAsked: isQuestionAskedIn(session),
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
@@ -2983,8 +2997,9 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
-      gestureInFlight: isWriteHeldBackIn(session),
+      gestureInFlight: isChangingDocumentIn(session),
       editingInPlace: !isSettlingFieldCommit && isEditingField(hands),
+      questionAsked: isQuestionAskedIn(session),
       deliveringNotices: isDeliveringNoticesIn(session),
     }
   }
@@ -3041,7 +3056,7 @@ export function frameLoop(
       // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
       previewDocument = null
       heldPropertyPanelWidth = null
-      const landing = LANDING_OF_REPLACEMENT_ROW[call.row]
+      const landing = landingOfReplacement(call.row, held.document === savedDocument)
       if (landing !== null) sendToSession(landing, values)
       if (call.row === 'RD-4' || call.row === 'RD-7') leaveStartupTemplate()
       if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
@@ -3134,10 +3149,6 @@ export function frameLoop(
       return true
     }
     if (entry === ROSTER_DELETE_ENTRY) {
-      if (isQuestionAskedIn(session)) {
-        raiseNotice(NOTHING_TO_DO_REASON, null)
-        return true
-      }
       const chosen = session.selection.chosenResources
       if (chosen.length === 0) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
@@ -3145,7 +3156,7 @@ export function frameLoop(
       }
       const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
       const owedQuestion = confirmationOwedByResourceDeletion(chosen, held.document)
-      if (owedQuestion === null) {
+      if (owedQuestion === null || isQuestionAskedIn(session)) {
         writeDocument(writes, frame)
         return true
       }
@@ -3175,8 +3186,8 @@ export function frameLoop(
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument': {
-        if (isQuestionAskedIn(session)) return
-        const raised = changeQuestionRaisedBy(action, held.document)
+        // WHY: a standing question is WS-2's to refuse (UN-8 passes); a second question is never raised.
+        const raised = isQuestionAskedIn(session) ? null : changeQuestionRaisedBy(action, held.document)
         if (raised !== null) return sendToSession(raised, frame)
         if (action.picked !== undefined) return landCopyDrag(hands, action.writes.flat(), action.picked, frame)
         for (const bundle of action.writes) writeDocument(bundle, frame)

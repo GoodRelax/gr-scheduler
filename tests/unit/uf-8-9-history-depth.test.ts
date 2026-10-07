@@ -162,7 +162,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
           defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
-          moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
+          moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: limits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: WRITER,

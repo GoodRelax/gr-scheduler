@@ -90,6 +90,7 @@ export interface FileFlowValuesEventCarried {
   readonly question: FileFlowQuestion
   readonly mergeMapping: FileFlowMergeMapping
   readonly isProceeding: boolean
+  readonly isBackToSavedDocument: boolean
   readonly owedAction: FileFlowOwedAction
   readonly incomingFile: FileFlowIncomingFile
   readonly surfaceName: string
@@ -455,8 +456,12 @@ function onDocumentFileSaved(values: FileFlowValues, event: EventOf<'documentFil
 
 // see T-290, FR-100, ZE-4
 /** @purity pure */
-function onDocumentEditLanded(values: FileFlowValues): FileFlowStep {
-  return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, EDITS_UNSAVED) }, NO_EFFECTS)
+function onDocumentEditLanded(values: FileFlowValues, event: EventOf<'documentEditLanded'>): FileFlowStep {
+  if (values.unsavedEditsState.kind === 'editsUnsaved') {
+    if (!event.isBackToSavedDocument) return unchanged(values)
+    return combined(values, { unsavedEditsState: NOTHING_UNSAVED }, NO_EFFECTS)
+  }
+  return combined(values, { unsavedEditsState: EDITS_UNSAVED }, NO_EFFECTS)
 }
 
 // see T-290, FR-095, RD-6, RD-7

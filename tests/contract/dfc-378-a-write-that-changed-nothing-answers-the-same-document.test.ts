@@ -91,7 +91,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
   }) as unknown as Document
 
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
-const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 

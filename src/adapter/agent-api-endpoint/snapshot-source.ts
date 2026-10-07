@@ -30,6 +30,8 @@ export interface AgentSnapshot {
   readonly exportScene: ExportArguments[0] | null
   readonly isGestureInFlight: boolean
   readonly isEditingInPlace: boolean
+  // see WS-2, NT-7, RS-74
+  readonly isQuestionAsked: boolean
   // see WS-2, T-286
   readonly isDeliveringNotices: boolean
   readonly historyLimits: PlanInput['historyLimits']

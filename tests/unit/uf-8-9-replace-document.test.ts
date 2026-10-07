@@ -411,6 +411,7 @@ const heldWithOneSettingsStep = (): HeldDocument => ({
 const CALM: WriteMoment = {
   gestureInFlight: false,
   editingInPlace: false,
+  questionAsked: false,
   deliveringNotices: false,
 }
 

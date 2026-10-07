@@ -28,10 +28,11 @@ import { importDocument, type ImportRefusal, type ImportRequest } from '../impor
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
 
-// see AG-9
+// see AG-9, WS-2, NT-7
 export interface WriteMoment {
   readonly gestureInFlight: boolean
   readonly editingInPlace: boolean
+  readonly questionAsked: boolean
   readonly deliveringNotices: boolean
 }
 
@@ -52,7 +53,7 @@ export type StampRefusal = { readonly step: 'WS-1'; readonly reason: 'staleStamp
 
 export type MomentRefusal = {
   readonly step: 'WS-2'
-  readonly reason: 'gestureInFlight' | 'editingInPlace' | 'deliveringNotices'
+  readonly reason: 'gestureInFlight' | 'editingInPlace' | 'questionAsked' | 'deliveringNotices'
 }
 
 export type PlanRefusal =
@@ -119,15 +120,19 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
   }
 }
 
+// see T-290, FR-100
+// WHY: the very restored document when no column outside the history moved, so the shell can tell
+// by reference that an undo or a redo is back at the saved document (isBackToSavedDocument).
 /** @purity pure */
 function keepingColumnsOutsideHistory(restored: HeldDocument, leaving: Document): HeldDocument {
+  const kept = columnsOutsideHistory(leaving.documentSettings)
+  const settings: Partial<DocumentSettings> = restored.document.documentSettings
+  const keys = Object.keys(kept) as (keyof DocumentSettings)[]
+  if (keys.every((key) => Object.is(settings[key], kept[key]))) return restored
   return {
     document: {
       ...restored.document,
-      documentSettings: {
-        ...restored.document.documentSettings,
-        ...columnsOutsideHistory(leaving.documentSettings),
-      },
+      documentSettings: { ...restored.document.documentSettings, ...kept },
     },
     history: restored.history,
   }
@@ -206,11 +211,13 @@ function isViewOnly(commands: readonly DocumentCommand[]): boolean {
   return commands.length > 0 && commands.every((command) => VIEW_ONLY_KINDS.includes(command.kind))
 }
 
-// see AG-9, WS-2
+// see AG-9, WS-2, NT-7, RS-74
 /** @purity pure */
 function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand[] = []): MomentRefusal | null {
   if (moment.gestureInFlight) return { step: 'WS-2', reason: 'gestureInFlight' }
-  if (moment.editingInPlace && !isViewOnly(commands)) return { step: 'WS-2', reason: 'editingInPlace' }
+  const isViewOnlyWrite = isViewOnly(commands)
+  if (moment.editingInPlace && !isViewOnlyWrite) return { step: 'WS-2', reason: 'editingInPlace' }
+  if (moment.questionAsked && !isViewOnlyWrite) return { step: 'WS-2', reason: 'questionAsked' }
   if (moment.deliveringNotices) return { step: 'WS-2', reason: 'deliveringNotices' }
   return null
 }

@@ -271,7 +271,7 @@ const documentOf = (taskGroups: readonly TaskGroup[]): Document =>
 const EMPTY_OF_ROWS = documentOf([])
 const ONE_ROW = documentOf([groupOf('g1', 'auto')])
 
-const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const ROW_WORD = (() => {
   const found = displayWords.defaultNames.find((one) => one.use === 'row')

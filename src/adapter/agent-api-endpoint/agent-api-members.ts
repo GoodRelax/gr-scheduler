@@ -50,6 +50,7 @@ export type AgentRefusalReason =
   | 'staleStamp'
   | 'gestureInFlight'
   | 'editingInPlace'
+  | 'questionAsked'
   | 'deliveringNotices'
   | 'commandRefused'
   | 'unknownTask'
@@ -488,6 +489,7 @@ function planAndApply(
       moment: {
         gestureInFlight: snapshot.isGestureInFlight,
         editingInPlace: snapshot.isEditingInPlace,
+        questionAsked: snapshot.isQuestionAsked,
         deliveringNotices: snapshot.isDeliveringNotices,
       },
       historyLimits: snapshot.historyLimits,
