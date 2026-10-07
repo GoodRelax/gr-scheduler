@@ -47,10 +47,6 @@ export const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>>
 // the next; 10 bounds the frames asked for, and IN-5b keeps trying on later frames and keys.
 const FIELD_FOCUS_RETRY_FRAMES = 10
 
-/** @purity pure */
-export function isNamingCreatedTaskIn(session: ScreenSession): boolean {
-  return session.fieldEntry.createdTaskNamingState.kind === 'namingCreatedTask'
-}
 
 /** @purity pure */
 function fieldFocusWantedIn(session: ScreenSession): string | null {
@@ -161,6 +157,14 @@ export function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues
 export function isEditingField(hands: FieldEntryHands): boolean {
   drainFieldEditNotices(hands, hands.readValues())
   return isEditingFieldIn(hands.readSession())
+}
+
+// see FR-091, T-292, RG-10, T-280
+// TRAP: drained first; the name field's end may still wait in the surface when its Enter arrives.
+/** @purity non-pure */
+export function isCreatedNameEnded(hands: FieldEntryHands): boolean {
+  drainFieldEditNotices(hands, hands.readValues())
+  return hands.readSession().fieldEntry.createdTaskNamingState.kind === 'createdNameEnded'
 }
 
 // see IN-5a

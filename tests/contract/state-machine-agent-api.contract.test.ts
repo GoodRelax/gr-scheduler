@@ -123,6 +123,7 @@ const SAMPLE: Record<string, unknown> = {
   mergeCandidates: [],
   unreadColumns: [],
   droppedTaskNames: [],
+  missingTaskNames: [],
   openedFileName: null,
   fieldRow: 'PR-1',
   created: { kind: 'task', uid: 3 },

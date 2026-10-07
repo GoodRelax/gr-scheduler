@@ -214,8 +214,8 @@ import {
   drainFieldEditNotices,
   fieldFocusRetriesOf,
   isEditingField,
+  isCreatedNameEnded,
   isFieldFocusWanted,
-  isNamingCreatedTaskIn,
   noteChoiceMoved,
   spendFieldCommit,
   tryWantedFieldBeforeInput,
@@ -712,6 +712,8 @@ export type NoticeReason =
   | 'RS-68'
   | 'RS-69'
   | 'RS-70'
+  | 'RS-71'
+  | 'RS-72'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -774,6 +776,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-68': 'NT-5',
   'RS-69': 'NT-1',
   'RS-70': 'NT-1',
+  'RS-71': 'NT-3',
+  'RS-72': 'NT-5',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -3266,11 +3270,11 @@ export function frameLoop(
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
     if (isAnySurfaceStanding(session)) return
-    const isNaming = isNamingCreatedTaskIn(session)
+    const isNameEnded = isCreatedNameEnded(hands)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
-    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))
+    const hasNoUnsettledEntry = isNameEnded || !(didSettleFieldEntry || isEditingField(hands))
     const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
-    sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
+    sendToSession(isNameEnded ? { type: 'createdNameSettled' } : settleKey, frame)
   }
 
   /** @purity non-pure */

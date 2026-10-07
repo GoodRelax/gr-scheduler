@@ -117,9 +117,11 @@ const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   ],
 }
 
+// see MG-11, MG-14, RS-73
 const ROOT_VALUES: readonly Loose[] = [
-  { openedFileName: null, droppedTaskNames: [] },
-  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B', null] },
+  { openedFileName: null, droppedTaskNames: [], missingTaskNames: [] },
+  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B', null], missingTaskNames: [] },
+  { openedFileName: 'plan.xml', droppedTaskNames: [], missingTaskNames: ['Task M'] },
 ]
 
 function machine(name: string): RawMachine {
@@ -179,10 +181,11 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
-    { droppedTaskNames: ['Task C', null], openedFileName: 'next.xml', openChoice: 'replace' },
-    { droppedTaskNames: ['Task C'], openedFileName: null, openChoice: 'merge' },
-    { droppedTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
-    { droppedTaskNames: [], openedFileName: null, openChoice: 'replace' },
+    { droppedTaskNames: ['Task C', null], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'replace' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: ['Task M'], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: [], missingTaskNames: ['Task M', null], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: [], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
+    { droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'replace' },
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
@@ -211,7 +214,7 @@ function describeEvent(event: Loose): string {
   return `${String(event['type'])}${parts.length === 0 ? '' : `(${parts.join(', ')})`}`
 }
 
-// see OP-4, DI-4, QN-4, MM-4, MG-6, U-56, U-61, U-62, RS-50, FR-095, OP-13
+// see OP-4, DI-4, QN-4, MM-4, MG-6, MG-14, U-56, U-61, U-62, RS-50, RS-73, FR-095, OP-13
 function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
   if (guard.in !== undefined) {
     const [machineName, state] = guard.in.split('.')
@@ -248,8 +251,11 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
       return event['surfaceName'] === 'U-61'
     case 'isImportReportSurface':
       return event['surfaceName'] === 'U-62'
-    case 'hasDroppedTasks':
-      return (event['droppedTaskNames'] as readonly unknown[]).length > 0
+    case 'hasTasksToReport':
+      return (
+        (event['droppedTaskNames'] as readonly unknown[]).length > 0 ||
+        (event['missingTaskNames'] as readonly unknown[]).length > 0
+      )
     default:
       throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
   }
@@ -333,7 +339,11 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
 }
 
 function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): Loose {
-  const kept = { openedFileName: flow['openedFileName'], droppedTaskNames: flow['droppedTaskNames'] }
+  const kept = {
+    openedFileName: flow['openedFileName'],
+    droppedTaskNames: flow['droppedTaskNames'],
+    missingTaskNames: flow['missingTaskNames'],
+  }
   if (root === undefined) return kept
   const carriedName = event['openedFileName']
   const name = typeof carriedName === 'string' ? carriedName : kept.openedFileName
@@ -342,10 +352,10 @@ function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): L
       return { ...kept, openedFileName: name }
     case 'documentOpenLanded':
       return root.effect === 'raiseFlowSurface'
-        ? { openedFileName: name, droppedTaskNames: event['droppedTaskNames'] }
+        ? { openedFileName: name, droppedTaskNames: event['droppedTaskNames'], missingTaskNames: event['missingTaskNames'] }
         : { ...kept, openedFileName: name }
     case 'flowSurfaceClosed':
-      return { ...kept, droppedTaskNames: [] }
+      return { ...kept, droppedTaskNames: [], missingTaskNames: [] }
     case 'newDocumentLanded':
       return { ...kept, openedFileName: null }
     default:
@@ -366,7 +376,8 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
   const rootAfter = expectedRoot(root, before, event)
   const rootChanges =
     rootAfter['openedFileName'] !== before['openedFileName'] ||
-    JSON.stringify(rootAfter['droppedTaskNames']) !== JSON.stringify(before['droppedTaskNames'])
+    JSON.stringify(rootAfter['droppedTaskNames']) !== JSON.stringify(before['droppedTaskNames']) ||
+    JSON.stringify(rootAfter['missingTaskNames']) !== JSON.stringify(before['missingTaskNames'])
   const effectful = machines.some((f) => f.branch.effect !== undefined) || root?.effect !== undefined
   const moves = machines.some((f) => f.branch.to !== kindOf(before[fieldOf(f.machine.name)]) || f.branch.to === undefined)
   const carriesNew = machines.some((f) => {
@@ -396,6 +407,7 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
 
   expect(after['openedFileName'], 'openedFileName').toEqual(rootAfter['openedFileName'])
   expect(after['droppedTaskNames'], 'droppedTaskNames').toEqual(rootAfter['droppedTaskNames'])
+  expect(after['missingTaskNames'], 'missingTaskNames').toEqual(rootAfter['missingTaskNames'])
 
   const cells = [...machines.map((f) => f.branch), ...(root === undefined ? [] : [root])]
   const expected = cells.filter((b) => b.effect !== undefined).map((b) => expectedEffect(b, before, event))
@@ -408,9 +420,10 @@ describe('T-290 initial kinds: emptyScreenSession holds each fileFlow machine in
     expect(kindOf(flowOf(emptyScreenSession)[fieldOf(m.name)])).toBe(m.states.find((s) => s.initial)?.key)
   })
 
-  it('the root starts with no opened file name and no dropped task names', () => {
+  it('the root starts with no opened file name, no dropped and no missing task names', () => {
     expect(flowOf(emptyScreenSession)['openedFileName']).toBeNull()
     expect(flowOf(emptyScreenSession)['droppedTaskNames']).toEqual([])
+    expect(flowOf(emptyScreenSession)['missingTaskNames']).toEqual([])
   })
 })
 
@@ -448,6 +461,7 @@ describe('SS-5: screen, notices and gesture events leave the fileFlow region at 
   const busy = withFlow({
     openedFileName: 'plan.xml',
     droppedTaskNames: ['Task B'],
+    missingTaskNames: ['Task M'],
     fileOperationState: { kind: 'awaitingOpenChoice' },
     confirmationState: { kind: 'questionAsked', question: question('QN-5'), owedAction: null },
   })

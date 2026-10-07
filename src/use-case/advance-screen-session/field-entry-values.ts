@@ -136,6 +136,26 @@ function isEditedField(edit: FieldEditState, fieldRow: string): boolean {
   return edit.kind === 'editingField' && edit.fieldRow === fieldRow
 }
 
+// see T-292, FR-091
+/** @purity pure */
+function isNameField(fieldRow: string): boolean {
+  return fieldRow === TASK_NAME_FIELD_ROW
+}
+
+// WHY: an end of the name field, committed or cancelled, makes the next Enter the one that settles the name (FR-091).
+/** @purity pure */
+function nameEnded(naming: CreatedTaskNamingState, fieldRow: string): CreatedTaskNamingState {
+  if (naming.kind !== 'namingCreatedTask' || !isNameField(fieldRow)) return naming
+  return { kind: 'createdNameEnded', createdTaskUid: naming.createdTaskUid }
+}
+
+// WHY: an edit begun again means the end of the name is no longer the last thing that happened (T-292).
+/** @purity pure */
+function nameReopened(naming: CreatedTaskNamingState): CreatedTaskNamingState {
+  if (naming.kind !== 'createdNameEnded') return naming
+  return { kind: 'namingCreatedTask', createdTaskUid: naming.createdTaskUid }
+}
+
 /** @purity pure */
 function named(naming: CreatedTaskNamingState, createdTaskUid: number): CreatedTaskNamingState {
   if (naming.kind === 'namingCreatedTask' && naming.createdTaskUid === createdTaskUid) return naming
@@ -171,14 +191,16 @@ function onFieldFocusWithdrawn(values: FieldEntryValues): FieldEntryStep {
 /** @purity pure */
 function onFieldEditBegan(values: FieldEntryValues, event: EventOf<'fieldEditBegan'>): FieldEntryStep {
   const edit = editing(values.fieldEditState, event.fieldRow)
-  return combined(values, values.createdTaskNamingState, edit, NO_EFFECTS)
+  return combined(values, nameReopened(values.createdTaskNamingState), edit, NO_EFFECTS)
 }
 
+// see T-292, IF-9, FR-091
 /** @purity pure */
 function onFieldEditEnded(values: FieldEntryValues, event: EventOf<'fieldEditEnded'>): FieldEntryStep {
-  if (!isEditedField(values.fieldEditState, event.fieldRow)) return unchanged(values)
-  const idle = FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState
-  return combined(values, values.createdTaskNamingState, idle, NO_EFFECTS)
+  const naming = nameEnded(values.createdTaskNamingState, event.fieldRow)
+  const isEdited = isEditedField(values.fieldEditState, event.fieldRow)
+  const edit = isEdited ? FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState : values.fieldEditState
+  return combined(values, naming, edit, NO_EFFECTS)
 }
 
 /** @purity pure */

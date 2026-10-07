@@ -146,6 +146,7 @@ const sessionWith = (extent: {
   notices: [],
   mergeCandidates: [],
   droppedTaskNames: [],
+  missingTaskNames: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: extent,
