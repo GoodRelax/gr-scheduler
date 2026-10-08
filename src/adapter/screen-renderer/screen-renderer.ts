@@ -7,7 +7,7 @@
 import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { DelayDiagnosticsReport, Exception, Schedule, WeekDay } from '../../entity/document-model/schedule/schedule'
+import type { DelayDiagnosticsReport, Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   ScreenRect,
@@ -434,24 +434,13 @@ export interface ExportChooser extends OpenSurface {
   readonly fitSpanLine: string | null
 }
 
-// STOP: spec does not decide what each open surface carries, nor two of their names. Looked in T-103, FR-074, FR-088
+// STOP: spec does not decide what each open surface carries. Looked in T-103, T-280
 // @provisional PND-140
 export type OpenModal =
   | HelpModal
   | ResourceRoster
   | ExportChooser
   | OpenChooser
-  | (OpenSurface & {
-      readonly surface: 'FR-074'
-      readonly fields: readonly PropertyField[]
-    })
-  | (OpenSurface & {
-      readonly surface: 'FR-088'
-      // TRAP: not renumbered: dayType counts Sunday as 1, weekStartDay counts it as 0.
-      readonly weekDays: readonly WeekDay[]
-      readonly exceptions: readonly Exception[]
-      readonly weekStartDay: number | null
-    })
   | (OpenSurface & {
       readonly surface: 'Watermark Unlock'
       readonly question: string

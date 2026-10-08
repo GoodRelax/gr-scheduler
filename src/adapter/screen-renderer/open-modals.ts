@@ -414,12 +414,11 @@ function openChooserOf(session: ScreenSession, heading: string, commands: readon
 
 // see T-280, S-99g, T-103
 // WHY: the session names a surface by its U row; the drawing names it by the glossary word of that row.
-// DEVIATION: spec says S-99g holds U rows only (T-280); here any other value is drawn as it stands (DFC-2280)
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
   if (open.kind === 'closed') return null
-  return SURFACE_OF_ROW.get(open.surfaceName) ?? open.surfaceName
+  return SURFACE_OF_ROW.get(open.surfaceName) ?? null
 }
 
 // see FR-036, FR-038, T-335, HN-4
@@ -511,8 +510,7 @@ export function openModalFromSession(
     }
   }
 
-  // STOP: spec does not decide what the two unnamed surfaces carry. Looked in T-103, FR-074, FR-088
+  // STOP: spec does not decide where Holiday Settings holds its T-344 draft (DFC-1671). Looked in S-99g, FR-088, T-344
   // @provisional PND-140
-
   return { surface, heading, commands }
 }

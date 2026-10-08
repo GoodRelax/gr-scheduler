@@ -38,7 +38,6 @@ import { confirmationAnswerElement, linkElement, nextStepElement } from './notic
 import { windowPartAt, windowPartOf, windowTitleRowElement, type PlacedWindow, type PointAsked } from './window-frame-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
-import { fieldElement } from './properties-panel-drawing'
 
 const ROSTER_CHOSEN_ENTRY = 'IC-67'
 const CLOSE_SURFACE_ENTRY = 'IC-52'
@@ -563,36 +562,6 @@ export function modalElement(
   if ('droppedTaskNames' in modal) body.push(...importReportElements(host, modal))
 
   if ('choices' in modal) body.push(...openChooserRows(host, modal, anchors))
-
-  if ('fields' in modal) {
-    // TRAP: null, not a map: modal controls must not answer focusPropertyField for panel rows.
-    for (const field of modal.fields) body.push(fieldElement(host, field, null))
-  }
-
-  if ('weekDays' in modal) {
-    // TRAP: not renumbered: WeekDay.dayType (AT-73) counts Sunday as 1 and
-    // Project.weekStartDay (AT-17) as 0.
-    drawn.setAttribute('data-week-start-day', String(modal.weekStartDay))
-    for (const day of modal.weekDays) {
-      const line = made(host, 'div', STYLE.field)
-      line.setAttribute('data-ordinal', String(day.ordinal))
-      line.setAttribute('data-day-type', String(day.dayType))
-      line.setAttribute('data-day-working', String(day.dayWorking))
-      body.push(line)
-    }
-    for (const exception of modal.exceptions) {
-      const line = made(host, 'div', STYLE.field)
-      line.setAttribute('data-ordinal', String(exception.ordinal))
-      line.setAttribute('data-day-working', String(exception.dayWorking))
-      line.setAttribute('data-recurrence-kind', String(exception.recurrenceKind))
-      const name = made(host, 'span', STYLE.fieldName)
-      name.textContent = exception.name
-      const span = made(host, 'span', '')
-      span.textContent = `${exception.fromDate ?? ''} ${exception.toDate ?? ''}`
-      line.append(name, span)
-      body.push(line)
-    }
-  }
 
   if ('question' in modal) {
     const question = made(host, 'div', '')
