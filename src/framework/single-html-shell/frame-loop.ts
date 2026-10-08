@@ -645,7 +645,6 @@ const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
-// WHY: a write is never back at the saved document; only an undo or a redo can be (T-290).
 const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: false }
 const DOCUMENT_BACK_TO_SAVED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: true }
 export const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
@@ -673,7 +672,6 @@ function landingOfReplacement(row: ReplacementCall['row'], isBackToSavedDocument
   return landing === DOCUMENT_EDIT_LANDED && isBackToSavedDocument ? DOCUMENT_BACK_TO_SAVED : landing
 }
 
-// WHY: saved, replaced, started afresh, started up -- the landings after which the held document is the saved one (T-290).
 const UNSAVED_MARK_DROPPING_EVENTS: ReadonlySet<SessionEvent['type']> = new Set([
   'documentFileSaved',
   'documentOpenLanded',
@@ -693,8 +691,6 @@ export const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWrit
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 
 // see IN-4, T-283
-// WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
-// by the surface (IF-9), gesture below the translators, selection by selectionFromInput, the report window by the shell.
 const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
   notice: null,
   textEntry: null,
@@ -714,7 +710,6 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
 }
 
 // see T-335, RG-16
-// WHY: the report window has no state machine; the shell holds its state (RW-1, S-451).
 const WINDOW_DISPLAY_KEYS: { readonly [W in WindowName]: Parameters<typeof isWindowStandingIn>[1] | null } = {
   searchPanel: 'searchPanelDisplayState',
   helpModal: 'helpDisplayState',
@@ -758,7 +753,6 @@ const NOTICE_REASON_OF_WRITE_REFUSAL: Readonly<
   staleStamp: 'RS-6',
   gestureInFlight: 'RS-7',
   editingInPlace: 'RS-8',
-  // WHY: the screen tells a write refused for a standing question as NT-7 does (RS-27); RS-74 is the Agent API's reason.
   questionAsked: 'RS-27',
   deliveringNotices: 'RS-9',
   refused: 'RS-10',
@@ -881,7 +875,6 @@ const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
 // see U-61, T-280
 const DIFFERENCE_REVIEW_ROW: FileFlowSurfaceName = 'U-61'
 
-// WHY: the screen and the file flow name a surface by the same U row (T-290, S-99g); never translate it.
 const FLOW_SURFACE_ROWS: ReadonlySet<string> = new Set<FileFlowSurfaceName>([OPEN_CHOOSER_ROW, DIFFERENCE_REVIEW_ROW, 'U-62'])
 
 const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
@@ -1152,7 +1145,6 @@ function isDeliveringNoticesIn(session: ScreenSession): boolean {
 }
 
 // see FR-076, T-233, T-286
-// WHY: the region carries no manner; the renderer's RaisedNotice takes it from the reason.
 /** @purity pure */
 function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
   return standingNoticesIn(session).map((one) => ({
@@ -1163,7 +1155,6 @@ function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
 }
 
 // see NT-8, IN-4, SK-19, T-283
-// WHY: the keys whose first rung is a standing notice: Esc (RG-1) and a plain Enter (T-036).
 /** @purity pure */
 function isNoticeDismissKey(input: HumanInput): boolean {
   if (input.kind !== 'key') return false
@@ -1599,7 +1590,6 @@ function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isSho
 }
 
 // see TV-8, SV-14, S-495
-// WHY: a minimised panel keeps the filter; only a closed one ends it, and the checks stay (TV-8).
 /** @purity pure */
 function filterEndedWithClosedPanel(held: WindowPlaces, isShown: boolean): WindowPlaces {
   if (isShown || !held.searchPanel.showOnlyChecked) return held
@@ -1627,7 +1617,6 @@ function grabbedShown(session: ScreenSession, held: WindowPlaces, window: Window
 }
 
 // see IN-4, SV-14, RG-16, RW-1
-// WHY: an open filter closes first (SV-14); the window alone closes after it, and the markers stay (RW-1).
 /** @purity pure */
 function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, level: EscapeTarget | null): WindowPlaces | null {
   const report = held.delayDiagnosticsReport
@@ -1640,7 +1629,6 @@ function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, lev
 }
 
 // see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
-// WHY: frame values like the palette's corner; nothing of a window is saved (FR-151, FR-066, FR-134, WB-6).
 /** @purity non-pure */
 function heldWindowsOf() {
   let held: WindowPlaces = STARTING_WINDOW_PLACES
@@ -1710,7 +1698,6 @@ interface ReportBeforeJump {
 }
 
 // see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
-// WHY: no propertiesOfChoiceAsked: a hidden panel stays hidden, a shown one follows selectionMoved (SJ-4).
 /** @purity non-pure */
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
@@ -1770,7 +1757,6 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
 }
 
 // see T-023, SV-15, MK-1, U-25
-// WHY: only the plain wheel over the panel: the zoom wheels (MK-2 to MK-5) stay assigned there.
 /** @purity semi-pure-b */
 function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (isOnTableWindowBody(input, surface)) return true
@@ -2671,7 +2657,6 @@ export function frameLoop(
   }
 
   // see FR-076, NT-3, T-233, T-286
-  // WHY: gathering a repeated reason (NT-3) lives in noticeDisplayStateMachine; the shell only sends.
   /** @purity non-pure */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
     sendToSession({ type: 'noticeRaised', reason, affectedCount }, null)
