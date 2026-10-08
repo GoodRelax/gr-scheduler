@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 246 | 2805 | 3 | 5 | 9 | 2 |
+| `contract` | TS-5 | VT-2 | 246 | 2805 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 514 | 7245 | 6 | 11 | 11 | 2 |
+| **all** | | | 514 | 7245 | 6 | 11 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -359,7 +359,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1051-a-fade-grab-is-never-refused-by-iv-12.test.ts` | 4 | - | - | - | FD-6, GA-7, GA-8, IV-12 | - | - | - | - |
 | `tests/contract/dfc-1053-cu-2-dc-3-one-point-one-region-for-the-guide-and-the-readout.test.ts` | 3 | - | - | T-064 | CU-2, DC-3 | - | - | - | - |
-| `tests/contract/dfc-1054-a-pasted-row-copy-writes-no-slack.test.ts` | 6 | - | - | - | EX-12 | - | - | - | - |
+| `tests/contract/dfc-1054-a-pasted-row-copy-writes-no-slack.test.ts` | 6 | - | - | - | EX-12 | - | - | - | yes |
 | `tests/contract/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/contract/dfc-1172-ep-3-the-exported-row-name-baseline-is-one-font-below-the-box-top.test.ts` | 3 | FR-039 | - | T-201 | EP-3, S-36, S-38 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
