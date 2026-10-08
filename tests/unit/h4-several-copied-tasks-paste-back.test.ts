@@ -21,12 +21,12 @@ import {
 
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
-// WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once, and a copy's WBS
-// parent is its source parent's copy when that parent is copied too, else the source parent.
+// WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
+// WBS parent its source parent's copy when that parent is copied too, else the parent read off the landing row.
 const ONLY_CHOSEN_COPIED =
   '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの WBS の親は、表 T-223 の `DU-1` に従うこと（MUST）'
-const ROOT_IS_A_SIBLING =
-  'コピー元の親もコピーするときはそのコピーとし、コピーしないときはコピー元と同じ親とすること（MUST）'
+const PARENT_FROM_THE_ROW =
+  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの WBS の親を、コピーを載せた行から推定すること（MUST）'
 const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const CM_8_ROW =
@@ -42,7 +42,7 @@ const STATE_MACHINES = unbroken(readText('docs', 'spec', '_assets', 'tbl-state-m
 const CR_541 = readText('change-request', 'CR-541-land-the-2026-09-22-rulings-in-the-specification.md')
 
 describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stand', () => {
-  it.each([MANY_TASKS_ALL_COPIED, ONLY_CHOSEN_COPIED, ROOT_IS_A_SIBLING, SAME_ROW, NO_SAME_UID])(
+  it.each([MANY_TASKS_ALL_COPIED, ONLY_CHOSEN_COPIED, PARENT_FROM_THE_ROW, SAME_ROW, NO_SAME_UID])(
     'FR-033: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -214,10 +214,10 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
     expect(stage.rowOfTask(byName.get('B').uid), 'SAME_ROW for B').toBe('row-1')
   })
 
-  it('FR-033 ROOT_IS_A_SIBLING: each copy root sits under its source WBS parent', () => {
+  it('FR-033 PARENT_FROM_THE_ROW: no row here derives from a Task, so each copy whose parent is not copied is a root', () => {
     const { byName } = copyThenPaste([A1, B])
-    expect(byName.get('A1')?.wbsParentUid, 'A1 copy is a sibling of A1, under A').toBe(A)
-    expect(byName.get('B')?.wbsParentUid, 'B copy is a sibling of B, at the top').toBeNull()
+    expect(byName.get('A1')?.wbsParentUid, 'A1 copy does not carry the link to A').toBeNull()
+    expect(byName.get('B')?.wbsParentUid, 'B copy is at the top').toBeNull()
   })
 
   it('FR-033 NO_SAME_UID: no copy wears a source UID', () => {
@@ -232,7 +232,7 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
   it('FR-033 ONLY_CHOSEN_COPIED: descendant picked FIRST, then its ancestor -> the subtree once', () => {
     const { made, byName } = copyThenPaste([A1, A])
     expect(made.map((one) => one.name).sort()).toEqual(['A', 'A1'])
-    expect(byName.get('A')?.wbsParentUid, 'the copy root stays under P').toBe(P)
+    expect(byName.get('A')?.wbsParentUid, 'P is not copied and row-2 derives from no Task: the root').toBeNull()
     expect(byName.get('A1')?.wbsParentUid, 'inside the subtree the parent is the copy').toBe(byName.get('A')?.uid)
   })
 

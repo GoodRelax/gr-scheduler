@@ -10,7 +10,6 @@ import type {
   Schedule,
   Task,
   TaskGroup,
-  TaskGroupMember,
   TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
 import { taskByUid, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
@@ -21,6 +20,7 @@ import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from '.
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
 import { pastedCopyOf } from './task-plan-actual'
+import { copiedTask, withInferredCopyParents } from './task-paste'
 
 export { tasksRankedByTheRowTree } from './task-group-order'
 
@@ -141,6 +141,127 @@ function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] 
   return state === 'expanded' || state === 'temporarilyExpanded' ? 'auto' : state
 }
 
+// see CD-1, DU-2, AT-54
+/** @purity pure */
+function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup {
+  const source = row.derivedFromTaskUid === null ? null : taskByUid(schedule, row.derivedFromTaskUid)
+  return { ...row, label: row.label ?? source?.name ?? defaultRowName, derivedFromTaskUid: null }
+}
+
+type PastePlan =
+  | { readonly ok: false; readonly refusals: readonly Refusal[] }
+  | { readonly ok: true; readonly copied: Subtree; readonly idOf: ReadonlyMap<string, string> }
+
+// see CM-28, FR-033, FR-004, AT-51, IV-1
+/** @purity pure */
+function pastePlanOf(
+  command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
+  byId: ReadonlyMap<string, TaskGroup>,
+  groups: readonly TaskGroup[],
+): PastePlan {
+  const copied = subtreeOf(groups, command.sourceGroupId)
+  if (copied === null) {
+    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such row: ${command.sourceGroupId}`)] }
+  }
+  const target = command.targetGroupId === null ? null : byId.get(command.targetGroupId)
+  if (target === undefined) {
+    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such row to paste under: ${command.targetGroupId}`)] }
+  }
+  const refusals: Refusal[] = []
+  const under = target === null ? 0 : depthOf(byId, target)
+  if (under + copied.height > SETTINGS_CONSTANTS.maxGroupDepth) {
+    const reached = `the copy would reach depth ${under + copied.height}`
+    refusals.push(reject('CM-28', 'FR-033', `${reached}, past S-125's ${SETTINGS_CONSTANTS.maxGroupDepth}`))
+  }
+  const idOf = new Map<string, string>()
+  const taken = new Set<string>()
+  for (const row of copied.rows) {
+    const fresh = command.newGroupIds[row.id]
+    if (fresh === undefined) {
+      refusals.push(reject('CM-28', 'AT-51', `no new id was given for the copy of ${row.id}`))
+    } else if (byId.has(fresh) || taken.has(fresh)) {
+      refusals.push(reject('CM-28', 'IV-1', `the id ${fresh} is already in use`))
+    } else {
+      taken.add(fresh)
+      idOf.set(row.id, fresh)
+    }
+  }
+  return refusals.length > 0 ? { ok: false, refusals } : { ok: true, copied, idOf }
+}
+
+// see DU-2, HM-12
+// WHY: the copied row follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
+/** @purity pure */
+function copiedRowOf(
+  schedule: Schedule,
+  row: TaskGroup,
+  command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
+  idOf: ReadonlyMap<string, string>,
+  uidOf: ReadonlyMap<number, number>,
+  defaultRowName: string,
+): TaskGroup {
+  const parentId =
+    row.id === command.sourceGroupId
+      ? command.targetGroupId
+      : row.parentId === null
+        ? null
+        : (idOf.get(row.parentId) ?? row.parentId)
+  const pasted = { ...row, id: idOf.get(row.id) as string, parentId, treeState: pastedTreeState(row.treeState) }
+  if (row.derivedFromTaskUid === null) return pasted
+  const copy = uidOf.get(row.derivedFromTaskUid)
+  return copy === undefined ? settledRow(schedule, pasted, defaultRowName) : { ...pasted, derivedFromTaskUid: copy }
+}
+
+// see CM-28, FR-033, DU-1, DU-2
+// WHY: only the Tasks on the copied rows; a WBS descendant on another row is not copied, and no paste is refused.
+/** @purity pure */
+function pasteTaskGroupSubtree(
+  document: Document,
+  command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
+  byId: ReadonlyMap<string, TaskGroup>,
+  defaultRowName: string,
+): EditResult {
+  const schedule = document.schedule
+  const plan = pastePlanOf(command, byId, schedule.taskGroups)
+  if (!plan.ok) return refused([...plan.refusals])
+  const copiedRows = new Set(plan.copied.rows.map((one) => one.id))
+  const riders = schedule.taskGroupMembers.filter((member) => copiedRows.has(member.groupId))
+
+  let mark = schedule.project.uidHighWaterMark
+  const uidOf = new Map<number, number>()
+  // TRAP: sorted, so the same paste mints the same uids.
+  for (const uid of [...new Set(riders.map((one) => one.taskUid))].sort((a, b) => a - b)) uidOf.set(uid, ++mark)
+
+  const sources = schedule.tasks.filter((one) => uidOf.has(one.uid))
+  const chosen = new Set(uidOf.keys())
+  const paired = sources.map((one) => pastedCopyOf(copiedTask(one, chosen, uidOf), schedule, workingCalendarOf(schedule)))
+  const after: Schedule = {
+    ...schedule,
+    taskGroups: [...schedule.taskGroups, ...plan.copied.rows.map((row) =>
+      copiedRowOf(schedule, row, command, plan.idOf, uidOf, defaultRowName))],
+    tasks: [...schedule.tasks, ...paired],
+    taskGroupMembers: [...schedule.taskGroupMembers, ...riders.map((one) =>
+      ({ ...one, taskUid: uidOf.get(one.taskUid) as number, groupId: plan.idOf.get(one.groupId) as string }))],
+  }
+  const newVisuals: TaskVisual[] = schedule.taskVisuals.flatMap((one) => {
+    const fresh = uidOf.get(one.taskUid)
+    return fresh === undefined ? [] : [{ ...one, taskUid: fresh }]
+  })
+  const newAssignments: Assignment[] = []
+  for (const one of schedule.assignments) {
+    const fresh = one.taskUid === null ? undefined : uidOf.get(one.taskUid)
+    if (fresh !== undefined) newAssignments.push({ ...one, uid: ++mark, taskUid: fresh })
+  }
+  return edited(withSchedule(document, {
+    project: { ...schedule.project, uidHighWaterMark: mark },
+    taskGroups: after.taskGroups,
+    tasks: [...schedule.tasks, ...withInferredCopyParents(after, sources, paired, uidOf)],
+    taskGroupMembers: after.taskGroupMembers,
+    taskVisuals: [...schedule.taskVisuals, ...newVisuals],
+    assignments: [...schedule.assignments, ...newAssignments],
+  }))
+}
+
 // see CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85
 // TRAP: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
@@ -178,9 +299,7 @@ export function editTaskGroup(
           continue
         }
         // WHY: settles a name rather than refusing, which would block deleting a nameless Task.
-        const settled =
-          row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? defaultRowName
-        kept.push({ ...row, label: settled, derivedFromTaskUid: null })
+        kept.push(settledRow(schedule, row, defaultRowName))
       }
 
       const survivors = schedule.tasks
@@ -228,126 +347,8 @@ export function editTaskGroup(
       })
     }
 
-    case 'pasteTaskGroupSubtree': {
-      const copied = subtreeOf(groups, command.sourceGroupId)
-      if (copied === null) {
-        return refused([reject('CM-28', 'FR-033', `no such row: ${command.sourceGroupId}`)])
-      }
-      const target = command.targetGroupId === null ? null : byId.get(command.targetGroupId)
-      if (command.targetGroupId !== null && target === undefined) {
-        return refused([
-          reject('CM-28', 'FR-033', `no such row to paste under: ${command.targetGroupId}`),
-        ])
-      }
-      const refusals: Refusal[] = []
-
-      const under = target === undefined || target === null ? 0 : depthOf(byId, target)
-      if (under + copied.height > SETTINGS_CONSTANTS.maxGroupDepth) {
-        refusals.push(
-          reject(
-            'CM-28',
-            'FR-033',
-            `the copy would reach depth ${under + copied.height}, past S-125's ${SETTINGS_CONSTANTS.maxGroupDepth}`,
-          ),
-        )
-      }
-
-      const idOf = new Map<string, string>()
-      const taken = new Set<string>()
-      for (const row of copied.rows) {
-        const fresh = command.newGroupIds[row.id]
-        if (fresh === undefined) {
-          refusals.push(reject('CM-28', 'AT-51', `no new id was given for the copy of ${row.id}`))
-        } else if (byId.has(fresh) || taken.has(fresh)) {
-          refusals.push(reject('CM-28', 'IV-1', `the id ${fresh} is already in use`))
-        } else {
-          taken.add(fresh)
-          idOf.set(row.id, fresh)
-        }
-      }
-
-      if (refusals.length > 0) return refused(refusals)
-
-      // see DU-1, DU-2
-      // WHY: only the Tasks on the copied rows; a WBS descendant on another row is not copied, and no paste is refused.
-      const copiedRows = new Set(copied.rows.map((one) => one.id))
-      const copiedTasks = new Set(
-        schedule.taskGroupMembers
-          .filter((member) => copiedRows.has(member.groupId))
-          .map((member) => member.taskUid),
-      )
-
-      let mark = schedule.project.uidHighWaterMark
-      const uidOf = new Map<number, number>()
-      // TRAP: sorted, so the same paste mints the same uids.
-      for (const uid of [...copiedTasks].sort((a, b) => a - b)) uidOf.set(uid, ++mark)
-
-      const newRows: TaskGroup[] = []
-      for (const row of copied.rows) {
-        const fresh = idOf.get(row.id)
-        if (fresh === undefined) continue
-        const parentId =
-          row.id === command.sourceGroupId
-            ? command.targetGroupId
-            : row.parentId === null
-              ? null
-              : (idOf.get(row.parentId) ?? row.parentId)
-        newRows.push({ ...row, id: fresh, parentId, treeState: pastedTreeState(row.treeState) })
-      }
-
-      const newTasks: Task[] = []
-      for (const task of schedule.tasks) {
-        const fresh = uidOf.get(task.uid)
-        if (fresh === undefined) continue
-        newTasks.push(pastedCopyOf({
-          ...task,
-          uid: fresh,
-          wbsParentUid:
-            task.wbsParentUid === null
-              ? null
-              : (uidOf.get(task.wbsParentUid) ?? task.wbsParentUid),
-          dependencies: task.dependencies
-            .filter((one) => uidOf.has(one.predecessorUid))
-            .map((one) => ({
-              ...one,
-              predecessorUid: uidOf.get(one.predecessorUid) ?? one.predecessorUid,
-            })),
-        }, schedule, workingCalendarOf(schedule)))
-      }
-
-      const newMembers: TaskGroupMember[] = []
-      for (const member of schedule.taskGroupMembers) {
-        const freshUid = uidOf.get(member.taskUid)
-        const freshRow = idOf.get(member.groupId)
-        if (freshUid === undefined || freshRow === undefined) continue
-        newMembers.push({ ...member, taskUid: freshUid, groupId: freshRow })
-      }
-
-      const newVisuals: TaskVisual[] = []
-      for (const visual of schedule.taskVisuals) {
-        const fresh = uidOf.get(visual.taskUid)
-        if (fresh !== undefined) newVisuals.push({ ...visual, taskUid: fresh })
-      }
-
-      const newAssignments: Assignment[] = []
-      for (const assignment of schedule.assignments) {
-        if (assignment.taskUid === null) continue
-        const fresh = uidOf.get(assignment.taskUid)
-        if (fresh === undefined) continue
-        newAssignments.push({ ...assignment, uid: ++mark, taskUid: fresh })
-      }
-
-      return edited(
-        withSchedule(document, {
-          project: { ...schedule.project, uidHighWaterMark: mark },
-          taskGroups: [...groups, ...newRows],
-          tasks: [...schedule.tasks, ...newTasks],
-          taskGroupMembers: [...schedule.taskGroupMembers, ...newMembers],
-          taskVisuals: [...schedule.taskVisuals, ...newVisuals],
-          assignments: [...schedule.assignments, ...newAssignments],
-        }),
-      )
-    }
+    case 'pasteTaskGroupSubtree':
+      return pasteTaskGroupSubtree(document, command, byId, defaultRowName)
 
     case 'setTaskGroupLabel':
       return setTaskGroupLabel(document, command, byId)
