@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-17` で描くこと（MUST）'
 const IX_14_ALL_ROWS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描く行のすべてを、上から下まで並べること（MUST）'
-const IX_14_ZOOM_ONE = '行の高さは、`FR-039` の 表 T-252 の `DS-8` と `DS-13` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）'
+const IX_14_ZOOM_ONE = '行の高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
 const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとおりとする。⛔ 収めるために、行の高さ・1 日の幅・字の大きさを変えてはならない（MUST NOT）'
 const IX_16 = '| IX-16 | 期間の絵に描く UI パーツ | 表 T-076 に従うこと（MUST）'
 const FR_096_SPAN = '行の語は `FR-038` の辞書の `exportChooser` の `exportSpan` の語とし、その中の 2 つの日を 表 T-251 の `ND-4`・`ND-5` の形で書くこと（MUST）'
