@@ -180,8 +180,7 @@ function rowTitleOf(
     canOpenOneLevel: index.groupIdsWithAChildToOpen.has(group.id),
     canAddChildRow: depth < settings.maxGroupDepth,
     isPinned,
-    // STOP: spec does not decide where the panel's chosen rows are held. Looked in SL-1, FR-085
-    // @provisional PND-142
+    // see FR-085, T-293
     isSelected: chosenGroupIds.has(group.id),
     foldedRowCount: index.foldedRowCountByGroupId.get(group.id) ?? 0,
     heldOnAxis: held === null ? null : held.axis,

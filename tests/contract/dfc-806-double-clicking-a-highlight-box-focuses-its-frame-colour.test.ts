@@ -304,12 +304,10 @@ const inPanel = (built: Bench, element: FakeElement | null): boolean => {
   return panel !== undefined && element !== null && selfAndDescendants(panel).includes(element)
 }
 
-const swatchesOf = (built: Bench, row: string): FakeElement[] => {
+const customEntranceOf = (built: Bench, row: string): FakeElement | undefined => {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
-  if (panel === undefined) return []
-  return selfAndDescendants(panel).filter(
-    (one) => fieldRowOf(one) === row && (one.getAttribute('data-colour-choice') ?? '') !== '',
-  )
+  if (panel === undefined) return undefined
+  return selfAndDescendants(panel).find((one) => fieldRowOf(one) === row && one.getAttribute('data-colour-custom-entry') !== null)
 }
 const pressedIn = (built: Bench, row: string): FakeElement[] => {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
@@ -332,14 +330,15 @@ describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame 
     expect(pressed, 'the focused control is the pressed one').toContain(active)
   })
 
-  it('a custom stroke colour: the focus lands on the first swatch of the PR-22 field', () => {
-    // see MK-13, PR-22, CV-9
+  it('a custom stroke colour: the focus lands on the custom entrance, the swatch CV-9 now outlines for the value', () => {
+    // see MK-13, PR-22, CV-9, CR-689
     const built = bench({ realFocus: true, strokeColor: CUSTOM_STROKE })
     built.doubleClick(onTheHighlightFrame(built))
     const active = built.built.world.activeElement
     expect(fieldRowOf(active), 'the focused element belongs to PR-22').toBe(FRAME_ROW)
     expect(inPanel(built, active), 'and stands in the panel').toBe(true)
-    expect(active, 'the first swatch').toBe(swatchesOf(built, FRAME_ROW)[0])
+    expect(pressedIn(built, FRAME_ROW), 'the custom entrance is the one pressed').toEqual([customEntranceOf(built, FRAME_ROW)])
+    expect(active, 'the custom entrance').toBe(customEntranceOf(built, FRAME_ROW))
   })
 
   it('control: a double click on a comment box puts the focus on the PR-21 text control', () => {

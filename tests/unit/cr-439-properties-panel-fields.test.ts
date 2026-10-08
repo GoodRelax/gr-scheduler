@@ -78,8 +78,8 @@ const FIELDS: PropertyField[] = [
   // WHY: the renderer gives a read-only row no control, so this description gives none either.
   { row: 'PR-9', name: 'Percent label', text: '50', isEditable: false, controls: [] },
   field('PR-17', 'Glyph label', true, [controlOf('milestoneGlyph', 'choice', 'circle', ['circle', 'diamond', 'star'])]),
-  // WHY: the colour control as the renderer describes it after CR-548 (CV-9): a blank for the
-  // theme, the palette names, a swatch per choice and the two theme sides.
+  // WHY: the colour control as the renderer describes it after CR-689 (CV-9): a blank for the
+  // theme, the palette names, a swatch per choice and the theme and custom entrances.
   field('PR-12', 'Stroke label', true, [
     {
       ...controlOf('strokeColor', 'color', 'red', ['', ...CL_1_COLOURS]),
@@ -89,8 +89,8 @@ const FIELDS: PropertyField[] = [
         inks: ['', ...CL_1_COLOURS.map(() => '#ffffff')],
         customWord: 'Custom',
         customValue: '',
-        light: { word: 'Light', paint: '#a94c42', note: '' },
-        dark: { word: 'Dark', paint: '#d08880', note: '' },
+        theme: { glyph: 'T', hint: 'Theme', paint: '#a94c42', ink: '#ffffff' },
+        custom: { glyph: 'O', hint: 'Custom', paint: null, ink: '' },
         transparentName: 'transparent',
       },
     },

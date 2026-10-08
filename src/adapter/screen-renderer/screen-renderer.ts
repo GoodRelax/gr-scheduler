@@ -188,7 +188,6 @@ export interface PropertyField {
   readonly controls: readonly PropertyControl[]
   readonly unit?: string
   readonly readout?: string
-  readonly isNameAbove?: true
   readonly isSettledAsOne?: true
 }
 
@@ -200,18 +199,7 @@ export type PropertyControlKind =
   | 'boolean'
   | 'choice'
   | 'color'
-  | 'link'
-
-// see CV-9, CV-7
-export interface ColourSide {
-  readonly word: string
-  readonly paint: string
-  readonly note: string
-  // WHY: paint is greyed while monochrome is on, but the side's value still names the chosen colour.
-  // Optional, so a description written before it still draws; absent, the value is read from paint.
-  readonly value?: string
-  readonly mark?: string
-}
+  | 'taskReference'
 
 // see CV-9
 // WHY: swatches run beside choiceValues; the custom entrance commits one #rrggbb (CV-4).
@@ -220,23 +208,27 @@ export interface ColourField {
   readonly inks: readonly string[]
   readonly customWord: string
   readonly customValue: string
-  readonly light: ColourSide
-  readonly dark: ColourSide
   // WHY: optional, so a description written before it still draws; absent, only the offered names show.
   readonly names?: readonly ColourName[]
-  // see CV-9, CV-5, FR-007
-  // WHY: optional for the same reason; the entrance back to the theme is drawn either way.
-  readonly theme?: ColourThemeEntry
+  readonly theme: ColourEntrance
+  readonly custom: ColourEntrance
   readonly transparentWord?: string
   // see PI-37, PI-1
   readonly transparentName: string
 }
 
-// see CV-9, CV-5
-export interface ColourThemeEntry {
-  readonly word: string
+// see CV-9, CV-5, CV-7
+export interface ColourEntrance {
+  readonly glyph: string
   readonly hint: string
-  readonly paint?: string
+  readonly paint: string | null
+  readonly ink: string
+}
+
+// see PR-37, PR-38, T-018
+export interface PropertyBadge {
+  readonly text: string
+  readonly hint: string
 }
 
 // see AS-5, AS-6, IC-123, IC-124
@@ -274,8 +266,12 @@ export interface PropertyControl {
   readonly max: number | null
   readonly widthInFontSizes: number
   readonly isFocusTarget?: true
-  readonly placeholder?: string
+  readonly isDisabled?: true
+  readonly isSizedAsDate?: true
+  readonly hint?: string
   readonly link?: PropertyLink
+  readonly badge?: PropertyBadge
+  readonly lag?: string
 }
 
 // see WL-15, WL-16, WL-17
@@ -629,8 +625,7 @@ export interface ScreenViewReadings {
     readonly resistedPx: number
     readonly atY: number | null
   } | null
-  // STOP: spec does not decide where the selected rows are held. Looked in FR-085, FR-042, SL-1, T-203, T-206
-  // @provisional PND-142
+  // see FR-085, T-293
   readonly selectedGroupIds: readonly string[]
   // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1, T-203, T-206
   // @provisional PND-143

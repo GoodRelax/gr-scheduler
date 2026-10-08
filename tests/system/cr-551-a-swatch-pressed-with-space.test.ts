@@ -79,15 +79,13 @@ test('FT-1: Space on a focused swatch shows its colour in the field and on the s
     await swatch.focus()
     await page.keyboard.press('Space')
     await page.waitForTimeout(SETTLE_MS)
+    // WHY: CV-9 (CR-689) shows the value by outlining its swatch, named by its tooltip; no sides line remains.
     const words = WORDS.colourNames.find((one) => one.spelling === name)?.text
-    const readout = await page.evaluate(
-      ({ panel, row }: { panel: string; row: string }) =>
-        Array.from(document.querySelectorAll(`${panel} [data-field-row="${row}"] [data-colour-sides]`))
-          .map((one) => one.textContent ?? '')
-          .join(' | '),
-      { panel: PROPERTIES_PANEL, row: LINE_ROW },
-    )
-    expect([words?.ja, words?.en].some((one) => one !== undefined && readout.includes(one)), `the field readout: ${readout}`).toBe(true)
+    const chosen = page.locator(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"][data-colour-chosen="true"]`)
+    await expect(chosen, 'CV-9: one swatch is outlined as the value').toHaveCount(1)
+    expect(await chosen.getAttribute('data-colour-choice'), 'CV-9: the outlined swatch is the pressed name').toBe(name)
+    const tip = (await chosen.getAttribute('title')) ?? ''
+    expect([words?.ja, words?.en], `the chosen swatch tooltip: ${tip}`).toContain(tip)
     const stroke = await page.evaluate(
       ({ selector, uid }: { selector: string; uid: string }) =>
         document.querySelector(`${selector} [data-figure="task-${uid}-plan"]`)?.getAttribute('stroke') ?? '',

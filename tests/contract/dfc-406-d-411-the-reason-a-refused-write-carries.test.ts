@@ -38,8 +38,8 @@
 //                the row every other write refusal keeps
 //   T-067 WS-3   「操作を検証し、新しい文書を組み立てる。1 つでも拒まれたら全部を
 //                捨てる」 -- why one bundle carries one telling
-//   T-016 PR-3   `start` / `finish`, and PR-15 `wbsParentUid` -- the two panel
-//                items these cases settle a value in
+//   T-016 PR-47  `finish` (split from PR-3 by CR-689), and PR-15 `wbsParentUid` --
+//                the two panel items these cases settle a value in
 //   T-065 IF-9   the seam a value settled in a field of the `Properties Panel`
 //                arrives on, carrying the row it names
 //
@@ -115,7 +115,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
  * Every `GRS JSON` column one row of table T-016 names.
  *
  * ⚠️ `bareAll` AND NOT `bare`, because one panel item can edit two columns at
- * once: `PR-3` prints 「`start` / `finish`」 and taking the first would drop the
+ * once: `PR-35` prints 「`start` / `finish`」 and taking the first would drop the
  * second in silence (DFC-351).
  */
 const columnsOf = (id: string): readonly string[] => bareAll(rowOf(T_016, id).by['列（`GRS JSON`）'] ?? '')
@@ -303,7 +303,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
   })
 
   it('⭐ table T-016 still edits the two items these cases settle a value in', () => {
-    expect(columnsOf('PR-3')).toEqual(['start', 'finish'])
+    expect(columnsOf('PR-47')).toEqual(['finish'])
     expect(columnsOf('PR-15')).toEqual(['wbsParentUid'])
   })
 })
@@ -342,7 +342,7 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
     const one = loopWith(document)
 
     one.settle({
-      row: 'PR-3',
+      row: 'PR-47',
       key: { holder: 'task', uid: task.uid, column: 'finish' },
       text: aYearBefore(task.start as string),
     })
@@ -362,7 +362,7 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
     const one = loopWith(document)
 
     one.settle({
-      row: 'PR-3',
+      row: 'PR-47',
       key: { holder: 'task', uid: task.uid, column: 'finish' },
       text: task.finish as string,
     })

@@ -28,13 +28,37 @@
    "oneInput": false
   },
   {
+   "rowId": "PR-16",
+   "columns": [
+    "assignee"
+   ],
+   "inputKinds": [
+    "選択"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task",
+   "shownFor": "both",
+   "oneInput": false
+  },
+  {
    "rowId": "PR-3",
    "columns": [
-    "start",
+    "start"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task",
+   "shownFor": "task",
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-47",
+   "columns": [
     "finish"
    ],
    "inputKinds": [
-    "日付",
     "日付"
    ],
    "isReadOnly": false,
@@ -57,38 +81,12 @@
    "oneInput": true
   },
   {
-   "rowId": "PR-16",
-   "columns": [
-    "assignee"
-   ],
-   "inputKinds": [
-    "選択"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task",
-   "shownFor": "both",
-   "oneInput": false
-  },
-  {
    "rowId": "PR-4",
    "columns": [
     "actualStart"
    ],
    "inputKinds": [
     "日付"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task",
-   "shownFor": "task",
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-5",
-   "columns": [
-    "actualDuration"
-   ],
-   "inputKinds": [
-    "数値"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -123,6 +121,19 @@
    "oneInput": true
   },
   {
+   "rowId": "PR-5",
+   "columns": [
+    "actualDuration"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task",
+   "shownFor": "task",
+   "oneInput": false
+  },
+  {
    "rowId": "PR-9",
    "columns": [
     "percentComplete"
@@ -133,32 +144,6 @@
    "isReadOnly": true,
    "appliesTo": "Task",
    "shownFor": "task",
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-10",
-   "columns": [
-    "deadline"
-   ],
-   "inputKinds": [
-    "日付"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task",
-   "shownFor": "both",
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-2",
-   "columns": [
-    "notes"
-   ],
-   "inputKinds": [
-    "複数行"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task",
-   "shownFor": "both",
    "oneInput": false
   },
   {
@@ -185,6 +170,19 @@
    "isReadOnly": false,
    "appliesTo": "Task",
    "shownFor": "task",
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-10",
+   "columns": [
+    "deadline"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task",
+   "shownFor": "both",
    "oneInput": false
   },
   {
@@ -221,7 +219,7 @@
     "wbsParentUid"
    ],
    "inputKinds": [
-    "リンク"
+    "タスクの参照"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -234,7 +232,7 @@
     "predecessors"
    ],
    "inputKinds": [
-    "文字"
+    "タスクの参照"
    ],
    "isReadOnly": true,
    "appliesTo": "Task",
@@ -247,7 +245,7 @@
     "successors"
    ],
    "inputKinds": [
-    "文字"
+    "タスクの参照"
    ],
    "isReadOnly": true,
    "appliesTo": "Task",
@@ -255,12 +253,25 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-12",
+   "rowId": "PR-2",
    "columns": [
-    "fillColor"
+    "notes"
    ],
    "inputKinds": [
-    "色"
+    "複数行"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task",
+   "shownFor": "both",
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-40",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -281,12 +292,12 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-40",
+   "rowId": "PR-12",
    "columns": [
-    "strokeWidthPx"
+    "fillColor"
    ],
    "inputKinds": [
-    "数値"
+    "色"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -359,6 +370,32 @@
    "oneInput": false
   },
   {
+   "rowId": "PR-26",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-28",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
    "rowId": "PR-45",
    "columns": [
     "fillColor"
@@ -385,32 +422,6 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-28",
-   "columns": [
-    "strokeColor"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "CommentBox",
-   "shownFor": null,
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-26",
-   "columns": [
-    "strokeWidthPx"
-   ],
-   "inputKinds": [
-    "数値"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "CommentBox",
-   "shownFor": null,
-   "oneInput": false
-  },
-  {
    "rowId": "PR-46",
    "columns": [
     "textColor"
@@ -424,22 +435,9 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-25",
+   "rowId": "PR-23",
    "columns": [
-    "fillColor"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "HighlightBox",
-   "shownFor": null,
-   "oneInput": false
-  },
-  {
-   "rowId": "PR-24",
-   "columns": [
-    "fillTransparencyPercent"
+    "strokeWidthPx"
    ],
    "inputKinds": [
     "数値"
@@ -463,9 +461,22 @@
    "oneInput": false
   },
   {
-   "rowId": "PR-23",
+   "rowId": "PR-25",
    "columns": [
-    "strokeWidthPx"
+    "fillColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-24",
+   "columns": [
+    "fillTransparencyPercent"
    ],
    "inputKinds": [
     "数値"

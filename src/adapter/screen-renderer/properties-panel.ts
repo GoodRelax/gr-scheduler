@@ -46,11 +46,11 @@ import type {
   PropertiesSubject,
   ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { colourOf, swatchOf } from '../svg-renderer/svg-renderer'
+import { colourOf, inkOn, swatchOf } from '../svg-renderer/svg-renderer'
 import type {
   AssigneeCandidate,
   AssigneeCombo,
-  ColourSide,
+  ColourEntrance,
   CommandItem,
   DisplayLanguage,
   IconId,
@@ -58,6 +58,7 @@ import type {
   PropertyControl,
   PropertyControlKind,
   PropertyField,
+  PropertyBadge,
   PropertyFieldKey,
   PropertyLink,
   ScreenViewReadings,
@@ -201,6 +202,7 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-38': 'derived',
   'PR-39': 'taskVisual',
   'PR-40': 'taskVisual',
+  'PR-47': 'task',
 }
 
 /** @purity pure */
@@ -452,8 +454,6 @@ const PARENT_COLUMN: keyof Task & string = 'wbsParentUid'
 const COUNT_SLOT = '{n}'
 
 // see WL-15, FR-038
-// STOP: spec does not give the words of WL-15 2-4 (derived mark, undecided with n, none) a dictionary row.
-// Looked in FR-038, T-351 WL-15, display-words.json propertyField. @provisional PND-800
 const PARENT_WORD_PARTS = { derived: 'derivedParent', undecided: 'undecidedParent', none: 'noParent' } as const
 
 interface ParentShown {
@@ -496,7 +496,7 @@ function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, lan
   const key: PropertyFieldKey = { holder: 'task', uid: task.uid, column: PARENT_COLUMN }
   const control: PropertyControl = {
     key,
-    kind: 'link',
+    kind: 'taskReference',
     text: shown.text,
     choices: null,
     min: null,
@@ -684,8 +684,84 @@ function taskFields(
     name: itemName(item.row, language, isMilestone),
     text: textOfItem(schedule, task, visual, item, language),
     isEditable: !READ_ONLY_ROWS.includes(item.row) && item.heldBy !== 'derived',
-    controls: controlsOfItem(schedule, task, item, labelCoef, language),
+    controls: item.heldBy === 'derived'
+      ? linkedEndControls(schedule, task, item.columns[0] ?? '', language)
+      : controlsOfItem(schedule, task, item, labelCoef, language),
   }))
+}
+
+interface LinkedEnd {
+  readonly uid: number
+  readonly dependency: Dependency
+}
+
+const PREDECESSORS_COLUMN = 'predecessors'
+
+const DEPENDENCIES_KEY_COLUMN: keyof Task & string = 'dependencies'
+
+const ABBREVIATION_SLOT = '{abbreviation}'
+
+const LAG_SLOT = '{lag}'
+
+const LINK_HINT_PART_PREFIX = 'linkHint'
+
+// see PR-37, PR-38
+/** @purity pure */
+function linkedEndsOf(schedule: Schedule, task: Task, column: string): readonly LinkedEnd[] {
+  const ends =
+    column === PREDECESSORS_COLUMN
+      ? task.dependencies.map((dependency) => ({ uid: dependency.predecessorUid, dependency }))
+      : schedule.tasks.flatMap((one) =>
+          one.dependencies.filter((link) => link.predecessorUid === task.uid).map((dependency) => ({ uid: one.uid, dependency })),
+        )
+  return [...ends].sort((a, b) => a.uid - b.uid)
+}
+
+// see PR-37, PR-38, T-018, DP-1, FR-009
+// WHY: FS carries no badge, so a document of FS links shows names only and a rarer kind stands out.
+/** @purity pure */
+function badgeOf(dependency: Dependency, language: DisplayLanguage): PropertyBadge | null {
+  const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
+  if (kind === undefined || kind.rowId === FINISH_TO_START_ROW) return null
+  const hint = PROPERTY_FIELD_WORDS.get(`${LINK_HINT_PART_PREFIX}${kind.abbreviation}`)?.[language] ?? ''
+  return { text: kind.abbreviation, hint: hint.replace(ABBREVIATION_SLOT, () => kind.abbreviation) }
+}
+
+const FINISH_TO_START_ROW = 'DP-1'
+
+const PLUS_SIGN = '+'
+
+// see PR-37, PR-38, AT-47, FR-009, S-118
+// WHY: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
+/** @purity pure */
+function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage): string {
+  if (dependency.lag === null || dependency.lag === 0) return ''
+  const minutesPerDay = minutesPerWorkingDayOf(project)
+  const days = lagWorkingDaysOf(dependency, minutesPerDay) ?? dependency.lag / TENTHS_OF_A_MINUTE / minutesPerDay
+  const signed = `${days > 0 ? PLUS_SIGN : ''}${shownLagNumber(days)}`
+  return (PROPERTY_FIELD_WORDS.get('lagDays')?.[language] ?? '').replace(LAG_SLOT, () => signed)
+}
+
+// see PR-37, PR-38, WL-16
+/** @purity pure */
+function linkedEndControls(schedule: Schedule, task: Task, column: string, language: DisplayLanguage): readonly PropertyControl[] {
+  return linkedEndsOf(schedule, task, column).map((end) => {
+    const linked = taskByUid(schedule, end.uid)
+    const badge = badgeOf(end.dependency, language)
+    const lag = lagWordOf(schedule.project, end.dependency, language)
+    return {
+      key: { holder: 'task', uid: task.uid, column: DEPENDENCIES_KEY_COLUMN },
+      kind: 'taskReference',
+      text: linked === null ? String(end.uid) : linkedNameOf(linked),
+      choices: null,
+      min: null,
+      max: null,
+      widthInFontSizes: NO_ROOM_FLOOR,
+      link: { taskUid: end.uid, canUnlink: false },
+      ...(badge === null ? {} : { badge }),
+      ...(lag === '' ? {} : { lag }),
+    }
+  })
 }
 
 // WHY: the elapsed units are fixed by their name; the working ones follow the Project columns (FR-009).
@@ -925,25 +1001,33 @@ function rowMinHeightWord(part: string, language: DisplayLanguage): string {
 function minHeightReadoutOf(groupId: string, placedRows: readonly RowPlacement[], language: DisplayLanguage): string {
   const placed = placedRows.find((row) => row.groupId === groupId)
   if (placed === undefined) return rowMinHeightWord('currentlyHidden', language)
-  return rowMinHeightWord('current', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
+  return rowMinHeightWord('currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
 }
 
-// see T-338
+// see T-338, MH-1, MH-2, MH-3, FR-006
+// WHY: the readout row's own text stays empty: the panel key leaves out readout alone (MH-4), so a zoom step rebuilds nothing.
 /** @purity pure */
-function withMinHeightReadout(
+function minHeightFields(
   field: PropertyField,
   groupId: string,
   placedRows: readonly RowPlacement[],
   language: DisplayLanguage,
-): PropertyField {
-  if (!field.controls.some((control) => control.key.column === MIN_HEIGHT_COLUMN)) return field
-  return {
-    ...field,
-    unit: rowMinHeightWord('unit', language),
-    readout: minHeightReadoutOf(groupId, placedRows, language),
-    controls: field.controls.map((control) => ({ ...control, placeholder: rowMinHeightWord('none', language) })),
-  }
+): readonly PropertyField[] {
+  const value = field.controls.find((control) => control.key.column === MIN_HEIGHT_COLUMN)
+  if (value === undefined) return [field]
+  const isSet = value.text !== ''
+  const check: PropertyControl = { ...value, kind: 'boolean', text: String(isSet), choices: null, min: null, max: null, widthInFontSizes: NO_ROOM_FLOOR }
+  const hint = rowMinHeightWord('basisHint', language)
+  return [
+    { row: MIN_HEIGHT_CHECK_ROW, name: rowMinHeightWord('enable', language), text: String(isSet), isEditable: field.isEditable, controls: [check] },
+    { ...field, unit: rowMinHeightWord('unit', language), controls: [{ ...value, hint, ...(isSet ? {} : { isDisabled: true as const }) }] },
+    { row: MIN_HEIGHT_READOUT_ROW, name: rowMinHeightWord('currentName', language), text: '', isEditable: false, controls: [], readout: minHeightReadoutOf(groupId, placedRows, language) },
+  ]
 }
+
+const MIN_HEIGHT_CHECK_ROW = 'MH-2'
+
+const MIN_HEIGHT_READOUT_ROW = 'MH-3'
 
 // see FR-042
 /** @purity pure */
@@ -959,8 +1043,8 @@ function groupFields(
     column,
   })
   const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
-  return objectFields(rows, labelCoef, language).map((field) =>
-    withMinHeightReadout(field, group.id, placedRows, language),
+  return objectFields(rows, labelCoef, language).flatMap((field) =>
+    minHeightFields(field, group.id, placedRows, language),
   )
 }
 
@@ -971,8 +1055,8 @@ function onlyGroupId(groupIds: readonly string[]): string | null {
   return null
 }
 
-// STOP: spec does not decide where picked rows are held, nor their fields' place after the item's. Looked in FR-085, FR-042, SL-1, FR-072
-// @provisional PND-142
+// see FR-006, FR-042, FR-072, FR-085
+// WHY: one subject's fields only (FR-006 MUST NOT): a picked item's, else the one picked row's.
 /** @purity pure */
 function fieldsOfSubject(
   schedule: Schedule,
@@ -982,15 +1066,14 @@ function fieldsOfSubject(
   placedRows: readonly RowPlacement[],
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
-  const itemFields = item === null ? [] : fieldsOfItem(schedule, item, labelCoef, language)
-  if (itemFields === null) return null
+  if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language)
 
   const groupId = onlyGroupId(subject.groupIds)
-  if (groupId === null) return itemFields
+  if (groupId === null) return []
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return [...itemFields, ...groupFields(group, labelCoef, language, placedRows)]
+  return groupFields(group, labelCoef, language, placedRows)
 }
 
 // TRAP: repeats the private reach() walk of clampedSettings; change both together.
@@ -1262,33 +1345,35 @@ function colourWord(part: string, language: DisplayLanguage): string {
   return COLOUR_FIELD_WORDS.get(part)?.[language] ?? ''
 }
 
-// see CV-9, CV-3, CV-7
+const VALUE_SLOT = '{value}'
+
+// see CV-9, CV-5, CV-7
 /** @purity pure */
-function colourSide(
-  stored: string | null,
-  form: ColourForm,
-  look: ColourLook,
-  dark: boolean,
-  nullRow: string | undefined,
-): ColourSide {
-  const word = colourWord(dark ? 'dark' : 'light', look.language)
-  if (stored === null && nullRow !== undefined) {
-    return {
-      word,
-      paint: colourOf(nullRow, look.hue, dark, look.monochrome),
-      note: '',
-      mark: colourWord(followsThemeHue(nullRow) ? 'themeMark' : 'defaultMark', look.language),
-    }
-  }
-  const custom = stored === null ? null : customColourOf(stored)
-  const isUndefinedSide = custom !== null && (dark ? custom.dark : custom.light) === null
-  const notePart = dark ? 'sameAsLight' : 'sameAsDark'
+function themeEntranceOf(form: ColourForm, nullRow: string | undefined, look: ColourLook): ColourEntrance {
+  const isThemeNull = nullRow === undefined || followsThemeHue(nullRow)
+  const paint =
+    nullRow === undefined
+      ? swatchOf(null, form, look.hue, look.dark, look.monochrome).paint
+      : colourOf(nullRow, look.hue, look.dark, look.monochrome)
   return {
-    word,
-    paint: swatchOf(stored, form, look.hue, dark, look.monochrome).paint,
-    value: swatchOf(stored, form, look.hue, dark, false).paint,
-    note: isUndefinedSide ? colourWord(notePart, look.language) : '',
+    glyph: colourWord('themeGlyph', look.language),
+    hint: colourWord(isThemeNull ? 'themeHint' : 'defaultColour', look.language),
+    paint,
+    ink: inkOn(paint),
   }
+}
+
+// see CV-9, CV-3, CV-7
+// WHY: the tooltip names the value drawn now, not the greyed paint, so monochrome still reads the chosen colour.
+/** @purity pure */
+function customEntranceOf(stored: string | null, form: ColourForm, look: ColourLook): ColourEntrance {
+  const glyph = colourWord('customGlyph', look.language)
+  if (stored === null || customColourOf(stored) === null) {
+    return { glyph, hint: colourWord('custom', look.language), paint: null, ink: '' }
+  }
+  const paint = swatchOf(stored, form, look.hue, look.dark, look.monochrome).paint
+  const value = swatchOf(stored, form, look.hue, look.dark, false).paint.toUpperCase()
+  return { glyph, hint: colourWord('customValue', look.language).replace(VALUE_SLOT, () => value), paint, ink: inkOn(paint) }
 }
 
 // see CV-9, CV-4, CV-5, CV-7
@@ -1304,7 +1389,6 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   const names = order.filter((name) => offered.includes(name))
   const customWord = colourWord('custom', look.language)
   const nullRow = NULL_ROW_OF_FIELD[`${control.key.holder}.${control.key.column}`]
-  const isThemeNull = nullRow === undefined || followsThemeHue(nullRow)
   const transparentPart = TRANSPARENT_WORD_OF_COLUMN[control.key.column]
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps
@@ -1324,14 +1408,9 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
       inks: swatches.map((one) => one.ink),
       customWord,
       customValue: custom !== null ? customSideOf(custom, look.dark) : HEX_PAINT.test(drawn) ? drawn : '',
-      light: colourSide(stored, form, look, false, nullRow),
-      dark: colourSide(stored, form, look, true, nullRow),
       names: order.map((name) => ({ name, isOffered: names.includes(name) })),
-      theme: {
-        word: colourWord(isThemeNull ? 'theme' : 'defaultColour', look.language),
-        hint: colourWord(isThemeNull ? 'themeHint' : 'defaultColour', look.language),
-        ...(nullRow === undefined ? {} : { paint: colourOf(nullRow, look.hue, look.dark, look.monochrome) }),
-      },
+      theme: themeEntranceOf(form, nullRow, look),
+      custom: customEntranceOf(stored, form, look),
       ...(transparentPart === undefined || !names.includes(TRANSPARENT)
         ? {}
         : { transparentWord: colourWord(transparentPart, look.language) }),
@@ -1341,14 +1420,38 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
 }
 
 // see CV-9, FR-006
-// WHY: a colour row also carries its name above the field (E-30).
 /** @purity pure */
 function withColourFields(fields: readonly PropertyField[], look: ColourLook): readonly PropertyField[] {
   return fields.map((field) =>
     field.controls.some((one) => one.kind === 'color')
-      ? { ...field, isNameAbove: true, controls: field.controls.map((one) => withColourField(one, look)) }
+      ? { ...field, controls: field.controls.map((one) => withColourField(one, look)) }
       : field,
   )
+}
+
+// see FR-006, PR-5, PR-40, PR-26, PR-23, PR-8
+// WHY: keyed by column, so a box's outline width takes the same unit as a task's (CR-689 decision 11).
+const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = { strokeWidthPx: 'pxUnit', actualDuration: 'daysUnit' }
+const HINT_PART_OF_COLUMN: Readonly<Record<string, string>> = { resumeValid: 'resumeValidHint' }
+
+/** @purity pure */
+function withFieldWords(fields: readonly PropertyField[], language: DisplayLanguage): readonly PropertyField[] {
+  return fields.map((field) => {
+    const column: string = field.controls[0]?.key.column ?? ''
+    const unitPart = UNIT_PART_OF_COLUMN[column]
+    const hintPart = HINT_PART_OF_COLUMN[column]
+    if (unitPart === undefined && hintPart === undefined) return field
+    const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
+    const sized =
+      column === ACTUAL_LENGTH_ITEM
+        ? { isSizedAsDate: true as const, widthInFontSizes: widthOf(EMPTY_DATE_SHAPE, null, SETTINGS_CONSTANTS.labelCoef) }
+        : {}
+    return {
+      ...field,
+      ...(unitPart === undefined ? {} : { unit: PROPERTY_FIELD_WORDS.get(unitPart)?.[language] ?? '' }),
+      controls: field.controls.map((control) => ({ ...control, ...hint, ...sized })),
+    }
+  })
 }
 
 // see FR-072, U-25
@@ -1378,9 +1481,11 @@ export function propertiesPanelFromSelection(
   }
 
   const isNothingPicked = selection.items.length === 0 && readings.selectedGroupIds.length === 0
+  // WHY: a held subject naming rows alone was a row pick (FR-072), so the items still selected stay off the panel.
+  const isRowPick = content.subject.selection.items.length === 0 && content.subject.groupIds.length > 0
   const subject = isNothingPicked
     ? content.subject
-    : { selection, groupIds: readings.selectedGroupIds }
+    : { selection: isRowPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
   // WHY: readings with no layout place no row, so the row reads as not drawn (MH-6), never as 0 px.
   const placedRows = readings.placedRows ?? []
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedRows)
@@ -1390,7 +1495,7 @@ export function propertiesPanelFromSelection(
     monochrome: settings.themeMonochrome,
     language,
   }
-  const fields = described === null ? null : withColourFields(described, look)
+  const fields = described === null ? null : withFieldWords(withColourFields(described, look), language)
 
   const isSubjectGone = isNothingPicked || fields === null
 

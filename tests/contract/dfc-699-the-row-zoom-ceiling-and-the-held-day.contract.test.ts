@@ -8,10 +8,8 @@ import type { FrameValues } from '../../src/framework/single-html-shell/frame-lo
 import {
   keyOf,
   NO_MODS,
-  numberIn,
   REQUIREMENTS,
   rowDocument,
-  rowOf,
   shell,
   type ShellBench,
 } from '../unit/cr-541-stage'
@@ -19,20 +17,16 @@ import {
 // see FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
   '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Row Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+// see T-253, BC-3, FR-042, CR-689
+const BC_3_FIRST_ALREADY = '最初の倍率で既に達していれば、帯の側の上限はその倍率とし、`BC-4` と `BC-5` を行わない。'
+const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
 // see FR-016
 const FR_016_POINTER_HOLDS = 'ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと（MUST）。'
 // see FR-016
 const FR_016_NO_POINTER_USES_THE_MIDDLE =
   'ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、`Row Area` の中心をズームの中心とすること（MUST）'
 
-const S_4 = numberIn(rowOf('T-201', 'S-4').by['既定値'] ?? '')
-const S_5 = numberIn(rowOf('T-201', 'S-5').by['既定値'] ?? '')
-const S_6 = numberIn(rowOf('T-201', 'S-6').by['既定値'] ?? '')
-const S_239 = numberIn(rowOf('T-206', 'S-239').by['既定'] ?? '')
 const PERCENT = 100
-
-// see FR-094, ZE-1
-const PLAN_FLOOR_ZOOM_Y = S_6 / S_5 / S_4
 
 const START_ZOOM_Y = 0.05
 const PRESS_LIMIT = 200
@@ -83,41 +77,38 @@ const rowZoomToItsEnd = (built: ShellBench): number => {
   return zoomYOf(built)
 }
 
+// WHY: DS-13 scales the floored row by the display scale alone (CR-689), so its band is one number at every zoomY.
 const ceilingCase = (minHeight: number) => {
   const built = flooredRowBench(minHeight)
   const height = frameOf(built).regions.rowArea.height
   const scale = Number(built.loop.document().documentSettings.displayScale) / PERCENT
-  // WHY: DS-13 grows the floored row with zoomY and every other band stays short of it,
-  // so the tallest band first fills the Row Area at this zoomY.
-  const firstFill = height / (minHeight * scale)
+  const floorBand = minHeight * scale
   const reached = rowZoomToItsEnd(built)
-  const tallest = Math.max(...frameOf(built).layout.rows.map((row) => row.height))
-  return { firstFill, reached, tallest, height }
+  const floored = frameOf(built).layout.rows.find((row) => row.groupId === 'row-1')?.height ?? Number.NaN
+  return { floorBand, reached, floored, height }
 }
 
 describe('DFC-699 / FR-016 -- the manuscript still holds the rules these cases press', () => {
-  it.each([FR_016_FIRST_BAND_THAT_FILLS, FR_016_POINTER_HOLDS, FR_016_NO_POINTER_USES_THE_MIDDLE])('%s', (clause) => {
+  it.each([FR_016_FIRST_BAND_THAT_FILLS, BC_3_FIRST_ALREADY, FR_042_NOT_ZOOM_Y, FR_016_POINTER_HOLDS, FR_016_NO_POINTER_USES_THE_MIDDLE])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
 
 describe('DFC-699 / FR-016, T-253, DS-13 -- the row zoom stops where the tallest band first fills the Row Area', () => {
-  it(`a row floor (AT-59) that fills it above the plan floor -- ${FR_016_FIRST_BAND_THAT_FILLS}`, () => {
-    const { firstFill, reached, tallest, height } = ceilingCase(MIN_HEIGHT_ABOVE_THE_FLOOR)
-    expect(firstFill, 'premise: the band fills above the FR-094 plan floor').toBeGreaterThan(PLAN_FLOOR_ZOOM_Y)
-    expect(tallest, 'BC-2: at the answer the band has reached').toBeGreaterThanOrEqual(height)
-    expect(reached - firstFill, 'BC-5: the answer is the first fill, to S-239').toBeGreaterThanOrEqual(0)
-    expect(reached - firstFill).toBeLessThanOrEqual(S_239)
+  it(`${FR_042_NOT_ZOOM_Y} -- a row floor (AT-59) short of the Row Area never sets the ceiling: the zoom passes where the old zoomY-scaled floor stopped it`, () => {
+    const { floorBand, reached, floored, height } = ceilingCase(MIN_HEIGHT_ABOVE_THE_FLOOR)
+    expect(floorBand, 'premise: the floor alone is short of the Row Area').toBeLessThan(height)
+    expect(floored, 'DS-13: the floored band is the floor, whatever zoomY is').toBeCloseTo(floorBand, 6)
+    expect(reached, 'the ceiling lies above the zoomY a zoomY-scaled floor would fill at').toBeGreaterThan(height / floorBand)
   })
 
-  it.fails.each(MIN_HEIGHTS_BELOW_THE_FLOOR)(
-    `DFC-699 product defect: a row floor (AT-59) %d that fills it below the plan floor -- ${FR_016_FIRST_BAND_THAT_FILLS}`,
+  it.each(MIN_HEIGHTS_BELOW_THE_FLOOR)(
+    `${BC_3_FIRST_ALREADY} -- a row floor (AT-59) %d that fills the Row Area at every zoomY: the row zoom does not rise`,
     (minHeight) => {
-      const { firstFill, reached, tallest, height } = ceilingCase(minHeight)
-      expect(firstFill, 'premise: the band fills below the FR-094 plan floor').toBeLessThan(PLAN_FLOOR_ZOOM_Y)
-      expect(firstFill, 'premise: the press walk starts short of the fill').toBeGreaterThan(START_ZOOM_Y)
-      expect(tallest, 'BC-2: at the answer the band has reached').toBeGreaterThanOrEqual(height)
-      expect(reached - firstFill, 'BC-5: the answer is the first fill, to S-239').toBeLessThanOrEqual(S_239)
+      const { floorBand, reached, floored, height } = ceilingCase(minHeight)
+      expect(floorBand, 'premise: the floor alone fills the Row Area').toBeGreaterThanOrEqual(height)
+      expect(floored, 'BC-2: the band has reached').toBeGreaterThanOrEqual(height)
+      expect(reached, 'the band-side ceiling is the first candidate, so pressing in never raises zoomY').toBeLessThanOrEqual(START_ZOOM_Y)
     },
   )
 })

@@ -170,7 +170,7 @@ function editingDate(row: string, column: string): Editing {
 
 const DATE_ITEMS = [
   ['PR-3', 'start'],
-  ['PR-3', 'finish'],
+  ['PR-47', 'finish'],
   ['PR-4', 'actualStart'],
   ['PR-6', 'actualFinish'],
   ['PR-7', 'resume'],
@@ -362,10 +362,10 @@ describe('the manuscript the emptied commit answers to', () => {
 
 describe('an emptied date -- what the commit writes', () => {
   it.each([
-    ['start', '2026-04-06'],
-    ['finish', '2026-04-24'],
-  ])('PR-3 %s emptied writes nothing: the plan date stays (JDG-366)', (column, kept) => {
-    const settled = emptied(PLANNED, 'PR-3', column)
+    ['PR-3', 'start', '2026-04-06'],
+    ['PR-47', 'finish', '2026-04-24'],
+  ])('%s %s emptied writes nothing: the plan date stays (JDG-366)', (row, column, kept) => {
+    const settled = emptied(PLANNED, row, column)
     expect(settled.accepted, JDG_366_NO_DATELESS_TASK).toBe(0)
     expect(settled.task[column], JDG_366_NO_DATELESS_TASK).toBe(kept)
     expect(settled.task['start']).toBe('2026-04-06')

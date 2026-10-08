@@ -594,23 +594,6 @@ function colourPropertyRows(): readonly string[] {
 }
 
 /**
- * The custom-colour entrance's word of table T-017b row CV-9, in every language
- * the dictionary spells it in, as one whole-text pattern.
- *
- * @purity semi-pure-b
- */
-function customColourWords(): RegExp {
-  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
-    colourField?: Array<{ part?: string; text?: Record<string, string> }>
-  }
-  const found = (held.colourField ?? []).find((one) => one.part === 'custom')
-  const words = Object.values(found?.text ?? {}).filter((one) => typeof one === 'string' && one !== '')
-  if (words.length === 0) throw new Error(`${DICTIONARY} spells no custom-colour entrance`)
-  const escaped = words.map((one) => one.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-  return new RegExp(`^\\s*(?:${escaped.join('|')})\\s*$`)
-}
-
-/**
  * The one row of table T-109 with this text in the column given.
  *
  * ⭐ Used so that no case here spells an `IC-nn` of its own: an entrance is
@@ -1127,21 +1110,19 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
 /**
  * The two dates the Properties Panel is showing, and the name beside them.
  *
- * ⭐ `PR-3` of table T-016 is 「`start` / `finish`」 in one row, and the panel
- * draws the row with two date controls in that order. Found by asking for the
- * row that HOLDS TWO -- the manuscript's own shape -- rather than by position.
+ * ⭐ Table T-016 holds the planned start in `PR-3` and the planned finish in
+ * `PR-47` since CR-689, one date control each.
  *
  * @purity semi-pure-b
  */
 async function panelDates(page: Page): Promise<{ start: string; finish: string; name: string } | null> {
   return page.evaluate(() => {
-    const row = Array.from(document.querySelectorAll('[data-field-row="PR-3"]')).find(
-      (one) => one.querySelectorAll('input[type="date"]').length === 2,
-    )
-    if (row === undefined) return null
-    const both = Array.from(row.querySelectorAll('input[type="date"]')).map(
-      (one) => (one as HTMLInputElement).value,
-    )
+    const dateIn = (row: string): HTMLInputElement | null =>
+      document.querySelector(`[data-field-row="${row}"] input[type="date"], input[type="date"][data-field-row="${row}"]`)
+    const start = dateIn('PR-3')
+    const finish = dateIn('PR-47')
+    if (start === null || finish === null) return null
+    const both = [start.value, finish.value]
     // WHY: textarea, not input: CR-408 made the name field of PR-1 a textarea.
     const named = document.querySelector('[data-field-row="PR-1"] textarea') as HTMLTextAreaElement | null
     return { start: both[0] ?? '', finish: both[1] ?? '', name: named?.value ?? '' }
@@ -1744,22 +1725,20 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
 // Table T-017b row CV-9 (MUST) brings the host input up only on that press
 // (JDG-397), so the case presses it first.
 //
-// WHY: the per-side swatches CV-9 (MUST) asks for are left out, and so is
-// anything merely beside the input: whether a swatch next to the input breaks
-// FR-006 is a question the specification does not settle yet (DFC-979), and
-// this case takes neither side of it.
+// WHY: anything merely beside the input is left out, the custom entrance CV-9 paints with the
+// value among them (CR-689): whether a swatch next to the input breaks FR-006 is a question the
+// specification does not settle yet (DFC-979), and this case takes neither side of it.
 test('DFC-82: nothing drawn over a colour control shows the colour it holds', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
-  const customWords = customColourWords()
   const colourRows = colourPropertyRows()
   const judged: Array<{ row: string; value: string; over: string[] }> = []
   let pressed = 0
   for (const rowId of colourRows) {
     const row = page.locator(`${PANEL} div[data-field-row="${rowId}"]`).first()
     if ((await row.count()) === 0) continue
-    const entrances = row.locator('button').filter({ hasText: customWords })
+    const entrances = row.locator('button[data-colour-custom-entry]')
     const count = await entrances.count()
     for (let index = 0; index < count; index += 1) {
       await entrances.nth(index).click()
@@ -1788,7 +1767,6 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
             const panel = rowElement.closest(asked.panel) ?? rowElement
             for (const node of Array.from(panel.querySelectorAll('*'))) {
               if (node === control || node.contains(control) || control.contains(node)) continue
-              if (node.closest('[data-colour-sides]') !== null) continue
               const its = node.getBoundingClientRect()
               if (its.width === 0 || its.height === 0) continue
               const overlaps =

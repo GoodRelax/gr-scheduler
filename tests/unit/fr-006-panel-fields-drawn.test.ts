@@ -49,8 +49,8 @@
 //               （MUST）。綴りは交換相手の型（`xsd:dateTime`）に合わせる。」 ⭐ The
 //               ONE spelling of a date the manuscript settles anywhere; its date
 //               part is ten characters, which is what the fixture below carries.
-//   T-016 PR-3  `start` / `finish`, 入力の型 日付 / 日付 -- ONE row carrying TWO
-//               columns, which is why this field draws two controls.
+//   T-016 PR-3  `start`, and PR-47 `finish`, 入力の型 日付 -- one row per date
+//               since CR-689, so each date field draws one control.
 //   T-016 PR-16 `assignee`, 入力の型 選択, no read-only mark -- 「編集できる。入口
 //               と選び方は `FR-008` の表 T-225 が持つ」.
 //   T-225 AS-5  ⛔ 「編集できること（MUST）。名簿から選ばせる形とし、ドロップダウン
@@ -216,7 +216,7 @@ const ITEM_NAME_COLUMN = '列（`GRS JSON`）'
 /** Table T-016's own heading for the column FR-006's paragraph makes a MUST. */
 const INPUT_KIND_COLUMN = '入力の型'
 
-/** Every code span in a cell, so PR-3's two column names both come back. */
+/** Every code span in a cell, so every column name of a row comes back. */
 function namesIn(cell: string): readonly string[] {
   return [...cell.matchAll(/`([^`]+)`/g)].map((one) => one[1] as string)
 }
@@ -227,8 +227,9 @@ function rowOf(id: string): Readonly<Record<string, string>> {
   return row.by
 }
 
-/** PR-3's two column names, in the table's own order. */
+/** PR-3's and PR-47's column names (CR-689: one date per row). */
 const PR_3_NAMES = namesIn(rowOf('PR-3')[ITEM_NAME_COLUMN] ?? '')
+const PR_47_NAMES = namesIn(rowOf('PR-47')[ITEM_NAME_COLUMN] ?? '')
 
 /** PR-16's one column name. */
 const PR_16_NAME = namesIn(rowOf('PR-16')[ITEM_NAME_COLUMN] ?? '')[0] ?? ''
@@ -872,7 +873,7 @@ interface Room {
  * The room the control has for its value at a host base of `basePx`.
  *
  * ⭐ THE NEAREST BOX THAT STATES ONE WINS, walking from the control up to but
- * NOT INCLUDING the panel. A room stated on a box that holds BOTH of PR-3's
+ * NOT INCLUDING the panel. A room stated on a box that holds BOTH date
  * controls is credited to each of them, which OVER-states rather than
  * under-states it -- deliberate, so that a panel which did give the room is
  * never failed for where it said so. ⛔ THE PANEL ITSELF IS EXCLUDED: its own
@@ -1013,25 +1014,25 @@ const controlOf = (
 const START_TEXT = '2026-08-27'
 const FINISH_TEXT = '2026-12-31'
 
-/** PR-3 -- ONE row of table T-016 carrying TWO columns, so ONE field with two controls. */
+/** PR-3 and PR-47 -- one row of table T-016 per date, so one field with one control each. */
 const DATE_FIELD: PropertyField = {
   row: 'PR-3',
   name: PR_3_NAMES.join(' / '),
-  text: `${START_TEXT} / ${FINISH_TEXT}`,
+  text: START_TEXT,
   isEditable: true,
-  controls: [
-    controlOf({
-      key: { holder: 'task', uid: 1, column: 'start' },
-      kind: 'date',
-      text: START_TEXT,
-    }),
-    controlOf({
-      key: { holder: 'task', uid: 1, column: 'finish' },
-      kind: 'date',
-      text: FINISH_TEXT,
-    }),
-  ],
+  controls: [controlOf({ key: { holder: 'task', uid: 1, column: 'start' }, kind: 'date', text: START_TEXT })],
 }
+const DATE_FIELDS: readonly PropertyField[] = [
+  DATE_FIELD,
+  {
+    row: 'PR-47',
+    name: PR_47_NAMES.join(' / '),
+    text: FINISH_TEXT,
+    isEditable: true,
+    controls: [controlOf({ key: { holder: 'task', uid: 1, column: 'finish' }, kind: 'date', text: FINISH_TEXT })],
+  },
+]
+const DATE_CONTROLS = DATE_FIELDS.flatMap((one) => one.controls)
 
 /**
  * The roster PR-16's chooser offers.
@@ -1123,8 +1124,9 @@ describe('the manuscript still says what these cases read', () => {
     expect(S_189_CELL).not.toContain('px')
   })
 
-  it('PR-3 is one row carrying two columns, and PR-16 is a 選択', () => {
-    expect(PR_3_NAMES, 'table T-016 PR-3 still writes two column names in one cell').toHaveLength(2)
+  it('PR-3 and PR-47 are one row per date (CR-689), and PR-16 is a 選択', () => {
+    expect(PR_3_NAMES, 'table T-016 PR-3 writes the start alone').toEqual(['start'])
+    expect(PR_47_NAMES, 'table T-016 PR-47 writes the finish alone').toEqual(['finish'])
     expect(PR_16_INPUT_KIND, 'table T-016 PR-16 入力の型').toContain(CHOICE_WORD)
     expect(PR_16_NAME.length).toBeGreaterThan(0)
   })
@@ -1137,13 +1139,12 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-describe('FR-006 / FR-093 -- PR-3 gives each date the room its digits need', () => {
+describe('FR-006 / FR-093 -- PR-3 and PR-47 give each date the room its digits need', () => {
   it('draws one control per column of the row', () => {
-    // 表 T-016's PR-3 is ONE item with TWO columns, and the paragraph under the
-    // table makes 「入力の形は同表の「入力の型」の欄に従うこと（MUST）」 -- 日付 /
-    // 日付, so two controls. ⚠️ Nothing here says whether they share a line.
-    const { panel } = drawPanel([DATE_FIELD])
-    expect(controlsIn(panel)).toHaveLength(DATE_FIELD.controls.length)
+    // 表 T-016's PR-3 and PR-47 are one item with one column each, and the paragraph under the
+    // table makes 「入力の形は同表の「入力の型」の欄に従うこと（MUST）」 -- 日付, so one control each.
+    const { panel } = drawPanel(DATE_FIELDS)
+    expect(controlsIn(panel)).toHaveLength(DATE_CONTROLS.length)
   })
 
   it('⛔ MUST give each control at least the room FR-093 estimates for its text', () => {
@@ -1159,14 +1160,14 @@ describe('FR-006 / FR-093 -- PR-3 gives each date the room its digits need', () 
     // ⚠️ S-186's note states the same failure on the other axis in as many words:
     // 「固定の高さは文字を切り落とす」. Nothing in the manuscript says a width may
     // do what a height may not.
-    const { panel } = drawPanel([DATE_FIELD])
+    const { panel } = drawPanel(DATE_FIELDS)
     const controls = controlsIn(panel)
     expect(controls.length, 'the panel drew controls at all').toBeGreaterThan(0)
 
     for (const base of BASES) {
       for (let index = 0; index < controls.length; index += 1) {
         const control = controls[index] as FakeElement
-        const shown = DATE_FIELD.controls[index]?.text ?? ''
+        const shown = DATE_CONTROLS[index]?.text ?? ''
         const needed = unitsOf(shown) * (S_197 * base) * S_30
         const room = roomOf(control, panel, base)
         expect(
@@ -1190,7 +1191,7 @@ describe('FR-006 / FR-093 -- PR-3 gives each date the room its digits need', () 
     // `FR-039`）. ⭐ A room that does not double when the base doubles is a
     // constant however it was written, and the digits it held at 16px are cut
     // off at 32px.
-    const { panel } = drawPanel([DATE_FIELD])
+    const { panel } = drawPanel(DATE_FIELDS)
 
     for (const control of controlsIn(panel)) {
       const small = roomOf(control, panel, 16)
@@ -1315,8 +1316,7 @@ describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', 
     //
     // ⭐ CONTAINMENT EITHER WAY, NEVER EQUALITY: the claim is about ORDER, which
     // FR-006 fixes (「項目名は値の欄の左に置き」), and never about spelling. No
-    // row settles whether a colon follows an item name, and PR-3's name carries
-    // the table's own ' / ' between its two columns, which the unit may draw as
+    // row settles whether a colon follows an item name, which the unit may draw as
     // one string or as parts. ⛔ A heading is neither part of the name nor made
     // of it, so it fails here whichever of those the unit does.
     const { panel } = drawPanel([DATE_FIELD])

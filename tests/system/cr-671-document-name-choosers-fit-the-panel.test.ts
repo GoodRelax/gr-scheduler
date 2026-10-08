@@ -169,10 +169,10 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
       }
       const choosers: Chooser[] = []
       for (const row of rows) {
-        // WHY: PR-15 is a link since CR-676 (WL-15); the Task it jumps to is its value.
-        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="link"]`)
+        // WHY: PR-15 is a task reference since CR-676 (WL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
+        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="taskReference"]`)
         for (const one of Array.from(found)) {
-          const link = one.getAttribute('data-field-kind') === 'link' ? (one as HTMLElement) : null
+          const link = one.getAttribute('data-field-kind') === 'taskReference' ? (one as HTMLElement) : null
           const element = one as HTMLSelectElement | HTMLInputElement
           const box = element.getBoundingClientRect()
           const style = getComputedStyle(element)
@@ -209,7 +209,7 @@ test('CR-671 the manuscript this file is driven by: FR-006 still reads this way'
   for (const row of ['PR-16', 'PR-17']) {
     expect(bare(specTable('T-016').rows.find((one) => one.id === row)?.by['入力の型'] ?? ''), `${row} is a choice`).toBe('選択')
   }
-  expect(bare(specTable('T-016').rows.find((one) => one.id === 'PR-15')?.by['入力の型'] ?? ''), 'PR-15 is a link').toBe('リンク')
+  expect(bare(specTable('T-016').rows.find((one) => one.id === 'PR-15')?.by['入力の型'] ?? ''), 'PR-15 is a task reference (JDG-1613)').toBe('タスクの参照')
 })
 
 const CASES = [

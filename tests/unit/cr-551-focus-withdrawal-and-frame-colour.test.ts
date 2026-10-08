@@ -40,7 +40,9 @@ const IN_5A_WITHDRAWN =
 const IN_5A_NOT_IN_PANEL = '求めた欄がパネルに無いこと（例: 行を 2 つ選ぶと行名の欄は描かれない）も取り下げに数える'
 const CV_9_FRAME = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる —— 線が透明でも枠は掴める（`FR-016` の 表 T-246 の `HB-12`）。'
 const CV_9_ENTRANCE_WORD =
-  '② の入口の語は、その欄の `null` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色を言う語、— なら既定の色を言う語とすること（MUST）'
+  'テーマに戻す入口は、その欄の `null` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色に従うことを言う語、— なら既定の色に従うことを言う語'
+const CV_9_ORDER =
+  '② 2 段目 —— 残りの名を同じ順に並べ、その後ろに透明の入口、カスタムカラーの入口をこの順に置く。'
 const PR_22_NULL = '`null` ＝ 注記の色 `S-312`'
 
 // see SK-14
@@ -53,12 +55,11 @@ const FRAME_WORD = WORDS.properties.find((one) => one.rowId === FRAME_ROW)?.labe
 const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
 const BLUE = bare(rowIn('T-294', 'S-319').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
-const CUSTOM_WORD = wordOf('custom')
 const NO_LINE_WORD = wordOf('noLine')
 // see CV-9, PR-22, T-236
 // WHY: the frame's null draws S-312; its hue column says theme or default.
 const S_312_FOLLOWS_HUE = bare(rowIn('T-236', 'S-312').by['色相追随'] ?? '') === '○'
-const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'theme' : 'defaultColour')
+const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'themeHint' : 'defaultColour')
 const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -334,32 +335,22 @@ const frameGrid = (built: Bench): FakeElement => {
   return found
 }
 const choiceOf = (node: FakeElement): string => node.getAttribute('data-colour-choice') ?? ''
-
-// WHY: the line of CV-9 (4), element by element: the transparent entrance (or its empty slot), then Custom.
-function lastLine(built: Bench): string[] {
-  const custom = frameField(built).find((one) => one.getAttribute('data-colour-custom-entry') !== null)
-  if (custom === undefined) throw new Error('the frame colour field draws no Custom entrance')
-  const line = (custom.parentNode as FakeElement).children
-  return line.flatMap((one): string[] => {
-    if (one === custom) return ['custom']
-    if (choiceOf(one) !== '') return [choiceOf(one)]
-    if (one.getAttribute('data-colour-transparent-slot') !== null) return ['empty']
-    return []
-  })
-}
-const themeEntrance = (built: Bench): FakeElement => {
-  const found = frameField(built).find((one) => one.getAttribute('data-colour-theme-entry') !== null)
-  if (found === undefined) throw new Error('the frame colour field draws no theme entrance')
-  return found
+// WHY: CV-9 (CR-689) holds the names and every entrance in one grid of two rows.
+const cellOf = (node: FakeElement): string => {
+  if (node.getAttribute('data-colour-theme-entry') !== null) return 'theme'
+  if (node.getAttribute('data-colour-custom-entry') !== null) return 'custom'
+  if (node.getAttribute('data-colour-transparent-slot') !== null) return 'empty'
+  return choiceOf(node)
 }
 
 describe('PR-22 / CV-9 -- the highlight box frame colour field', () => {
-  it('PR-22 / CV-9 still say: HighlightBox strokeColor, null = S-312 / 枠の欄にも透明（線なし）を並べる / ② の入口の語', () => {
+  it('PR-22 / CV-9 still say: HighlightBox strokeColor, null = S-312 / 枠の欄にも透明（線なし）を並べる / テーマに戻す入口の語', () => {
     expect(bare(PR_22.by['対象'] ?? '')).toBe('HighlightBox')
     expect(PR_22.by['列（`GRS JSON`）'] ?? '').toContain('`strokeColor`')
     expect(PR_22.by['備考'] ?? '').toContain(PR_22_NULL)
     expect(REQUIREMENTS).toContain(CV_9_FRAME)
     expect(REQUIREMENTS).toContain(CV_9_ENTRANCE_WORD)
+    expect(REQUIREMENTS).toContain(CV_9_ORDER)
     expect(FRAME_WORD).not.toBe('')
     expect([NO_LINE_WORD, ENTRANCE_WORD].every((one) => one !== '')).toBe(true)
   })
@@ -372,18 +363,16 @@ describe('PR-22 / CV-9 -- the highlight box frame colour field', () => {
     expect(field?.name).toBe(FRAME_WORD)
   })
 
-  it('CV-9: the frame field offers the theme entrance (default word), the names, then transparent (no line) and Custom', () => {
+  it('CV-9: the frame field offers the names, the theme entrance (default tooltip), then transparent (no line) and Custom', () => {
     // see CV-9, FR-019, PR-22
     const built = panelOnHighlight()
-    const drawn = frameField(built)
-    expect(frameGrid(built).children.map(choiceOf)).toEqual(NAMED)
-    expect(lastLine(built), CV_9_FRAME).toEqual([TRANSPARENT, 'custom'])
-    const transparent = drawn.find((one) => choiceOf(one) === TRANSPARENT) as FakeElement
-    expect((transparent.textContent ?? '').trim(), 'the transparent entrance says no line').toBe(NO_LINE_WORD)
-    expect(drawn.some((one) => one.getAttribute('data-colour-custom-entry') !== null && one.textContent === CUSTOM_WORD)).toBe(true)
-    const theme = themeEntrance(built)
-    expect(drawn.indexOf(theme), 'CV-9 (2) stands above (3)').toBeLessThan(drawn.indexOf(frameGrid(built)))
-    expect((theme.textContent ?? '').trim(), CV_9_ENTRANCE_WORD).toBe(ENTRANCE_WORD)
+    const cells = frameGrid(built).children
+    expect(cells.map(choiceOf).filter((one) => one !== '' && one !== TRANSPARENT)).toEqual(NAMED)
+    expect(cells.slice(-2).map(cellOf), `${CV_9_FRAME} ${CV_9_ORDER}`).toEqual([TRANSPARENT, 'custom'])
+    const transparent = cells.find((one) => choiceOf(one) === TRANSPARENT) as FakeElement
+    expect(transparent.getAttribute('title'), 'the transparent entrance says no line').toBe(NO_LINE_WORD)
+    const theme = cells.find((one) => cellOf(one) === 'theme')
+    expect(theme?.getAttribute('title'), CV_9_ENTRANCE_WORD).toBe(ENTRANCE_WORD)
   })
 
   it('PR-22 / CM-55: a choice writes the box strokeColor, and one undo takes it back', () => {

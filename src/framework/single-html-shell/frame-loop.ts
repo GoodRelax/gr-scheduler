@@ -1039,9 +1039,8 @@ interface ScreenViewReadingsTaken {
 }
 
 // see PI-37, SF-5, SF-10
-// STOP: spec does not decide where the chosen rows and assignees are held,
-// since SL-1 admits neither. Looked in FR-085, FR-099, SL-1
-// @provisional PND-142
+// STOP: spec does not decide where the chosen assignees are held. Looked in FR-099, SL-1
+// @provisional PND-143
 /** @purity pure */
 function screenViewReadingsOf(
   held: Document,
@@ -1276,10 +1275,15 @@ function rowsWithinSchedule(session: ScreenSession, schedule: Document['schedule
   return kept.length === chosenRows.length ? chosenRows : kept
 }
 
+// see FR-072, FR-006, FR-085
+// WHY: both selections stand at once (SK-19); a choice that moved the rows alone was a row pick, so the panel shows the row.
 /** @purity pure */
-function subjectOfChoice(selection: Selection, groupIds: readonly string[]): PropertiesSubject | null {
+function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession): PropertiesSubject | null {
   if (selection.items.length === 0 && groupIds.length === 0) return null
-  return { selection, groupIds }
+  const content = session.screen.propertiesPanelContentState
+  const heldRows = content.kind === 'selectionDisplayed' ? content.subject.groupIds : []
+  const isRowPick = groupIds.length > 0 && (heldRows.length !== groupIds.length || heldRows.some((one, at) => one !== groupIds[at]))
+  return { selection: isRowPick ? NO_OBJECTS_SELECTED : selection, groupIds }
 }
 
 type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
@@ -1793,6 +1797,15 @@ function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefin
   return isTableWindow && (input.kind === 'wheel' || on.entry === null)
 }
 
+// see T-023, SV-15, MK-1, U-25
+// WHY: only the plain wheel over the panel: the zoom wheels (MK-2 to MK-5) stay assigned there.
+/** @purity semi-pure-b */
+function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+  if (isOnTableWindowBody(input, surface)) return true
+  if (input.kind !== 'wheel' || surface === undefined || !isCombo(input.modifiers, false, false, false)) return false
+  return surface.readScreenPartAt(input.x, input.y)?.part === PROPERTIES_PANEL_SURFACE
+}
+
 // see IN-5a, SV-5, IN-4
 /** @purity pure */
 function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: EscapeTarget | null): Selection {
@@ -2236,8 +2249,6 @@ export function frameLoop(
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   const wbsParents = wbsParentHoldOf()
   let rowGrabbedAt: GrabbedRowPlace | null = null
-  // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
-  // @provisional PND-142
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
@@ -3293,8 +3304,6 @@ export function frameLoop(
         // TRAP: read the held set, not the drawn row; FR-048 may skip a paint, so a picture can be older.
         const chosenRows = rowsChosenWith(session.selection.chosenRows, action.groupId, action.isExtending)
         sendToSession({ type: 'rowsPicked', chosenRows }, frame)
-        // STOP: spec does not decide where the chosen rows are held. Looked in FR-085, FR-042, SL-1
-        // @provisional PND-142
         showPropertiesOfChoice()
         sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
         return
@@ -3347,7 +3356,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows, session)
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
@@ -3393,7 +3402,7 @@ export function frameLoop(
   // see FR-072
   /** @purity non-pure */
   function showPropertiesOfChoice(): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows, session)
     if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
@@ -3478,8 +3487,8 @@ export function frameLoop(
     const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
     const didSettleFieldEntry = spendFieldCommit(hands, frame)
-    // WHY: the wheel scrolls the panel's table and leaves the chart still (SV-15).
-    if (input.kind === 'wheel' && isOnTableWindowBody(input, screen?.surface)) {
+    // WHY: the wheel scrolls the window's table or the Properties Panel and leaves the chart still (SV-15, T-023).
+    if (input.kind === 'wheel' && isLeftToTheHost(input, screen?.surface)) {
       recordLine(hands, interactionRecorder, 'done', 'spent=tableWindowWheel')
       return
     }
@@ -3656,7 +3665,7 @@ export function frameLoop(
         return false
       }
       if (isWindowGrabPress(input, screen?.surface)) return true
-      if (isOnTableWindowBody(input, screen?.surface)) return false
+      if (isLeftToTheHost(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },

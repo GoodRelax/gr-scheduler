@@ -77,14 +77,12 @@ test('FT-1 / CV-9: a colour chosen in the picker shows on the bar and in the fie
       { selector: DRAWN_SVG, uid: target.uid },
     )
     expect(stroke.toLowerCase(), 'CV-6: the bar draws the chosen value').toBe(PICKED)
-    const readout = await page.evaluate(
-      (selector: string) =>
-        Array.from(document.querySelectorAll(`${selector} [data-colour-sides]`))
-          .map((one) => one.textContent ?? '')
-          .join(' | '),
-      field,
+    // WHY: CV-9 (CR-689) has no sides line; the custom entrance names the value in its tooltip and is outlined.
+    const custom = page.locator(`${field} [data-colour-custom-entry]`).first()
+    expect(await custom.getAttribute('title'), 'CV-9: the custom entrance tooltip shows the uppercase hex').toContain(
+      PICKED.toUpperCase(),
     )
-    expect(readout, 'CV-9: the field shows the uppercase hex').toContain(PICKED.toUpperCase())
+    expect(await custom.getAttribute('data-colour-chosen'), 'CV-9: the custom entrance is the chosen swatch').toBe('true')
   } finally {
     await context.close()
   }

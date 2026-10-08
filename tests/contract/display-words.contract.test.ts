@@ -1200,16 +1200,19 @@ const SCHEDULE_WITH_A_ROW = {
   ],
 } as unknown as Schedule
 
+// WHY: no task picked beside the row: FR-006 shows one subject's fields, so a picked task would hide the row's (JDG-1650).
 const ROW_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_ROW,
+  selection: emptySelection(),
   readings: sessionWith({ selectedGroupIds: [THE_ROW] }),
 })
 
 // see CR-582, MH-3
-// WHY: placedRows makes the panel show `current`, not `currentlyHidden`; kept
+// WHY: placedRows makes the panel show `currentValue`, not `currentlyHidden`; kept
 // off ROW_PICKED so every other `properties` place() reads that one unchanged.
 const ROW_PLACED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_ROW,
+  selection: emptySelection(),
   readings: sessionWith({
     selectedGroupIds: [THE_ROW],
     placedRows: [{ groupId: THE_ROW, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
@@ -2009,21 +2012,27 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
   })
 }
 
-// see CR-582, MH-3, MH-4, MH-5, MH-6, FR-042
+// see CR-582, MH-3, MH-4, MH-6, FR-042
 // WHY: keyed by which control the field is, not by a row -- no row of table
 // T-016 names it, the same reason `defaultNames` is keyed by `use`.
 const ROW_MIN_HEIGHT_PX_SLOT = '{px}'
-const minHeightFieldOf = (view: ScreenView) =>
-  view.propertiesPanel?.fields.find((field) =>
-    field.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'minHeight'),
-  )
-const minHeightControlOf = (view: ScreenView) =>
-  minHeightFieldOf(view)?.controls.find(
-    (control) => control.key.holder === 'taskGroup' && control.key.column === 'minHeight',
-  )
-// WHY: MH-3's `current` fills the `{px}` slot with the real height, so this
+// see T-338, MH-2, PR-20, MH-3, CR-689
+const minHeightRowOf = (view: ScreenView, row: string) =>
+  view.propertiesPanel?.fields.find((field) => field.row === row)
+// WHY: MH-3's `currentValue` fills the `{px}` slot with the real height, so this
 // puts the digits back to see the literal word (as `readoutWordOf` does for DC-3).
 const minHeightWordOf = (text: string): string => text.replace(/\d+/, ROW_MIN_HEIGHT_PX_SLOT)
+const ROW_MIN_HEIGHT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  enable: (view) => minHeightRowOf(view, 'MH-2')?.name,
+  unit: (view) => minHeightRowOf(view, 'PR-20')?.unit,
+  basisHint: (view) => minHeightRowOf(view, 'PR-20')?.controls[0]?.hint,
+  currentName: (view) => minHeightRowOf(view, 'MH-3')?.name,
+  currentValue: (view) => {
+    const readout = minHeightRowOf(view, 'MH-3')?.readout
+    return readout === undefined ? undefined : minHeightWordOf(readout)
+  },
+  currentlyHidden: (view) => minHeightRowOf(view, 'MH-3')?.readout,
+}
 for (const entry of GENERATED['rowMinHeightField'] ?? []) {
   const part = keyOf('rowMinHeightField', entry)
   place({
@@ -2031,18 +2040,11 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-67',
-    what: `the ${part} word MH-3..MH-6 of table T-338 have the Row Title Panel's min-height field show`,
-    // WHY: MH-6 withholds the number while the row is not drawn (ROW_PICKED's
-    // state, no placedRows entry) -- `current` needs ROW_PLACED instead.
-    frame: part === 'current' ? ROW_PLACED : ROW_PICKED,
-    read: (view) => {
-      if (part === 'unit') return minHeightFieldOf(view)?.unit
-      if (part === 'none') return minHeightControlOf(view)?.placeholder
-      // WHY: `current` and `currentlyHidden` are the same field's `readout`,
-      // told apart by which frame reads it (see `frame` above).
-      const readout = minHeightFieldOf(view)?.readout
-      return readout === undefined ? undefined : minHeightWordOf(readout)
-    },
+    what: `the ${part} word MH-2..MH-3 of table T-338 have the Row Title Panel's min-height rows show`,
+    // WHY: MH-3 withholds the number while the row is not drawn (ROW_PICKED's
+    // state, no placedRows entry) -- `currentValue` needs ROW_PLACED instead.
+    frame: part === 'currentValue' ? ROW_PLACED : ROW_PICKED,
+    read: (view) => ROW_MIN_HEIGHT_READS[part]?.(view),
   })
 }
 
@@ -2075,10 +2077,9 @@ const colourControlOf = (view: ScreenView, holder: string, column: string) =>
     .find((control) => control.key.holder === holder && control.key.column === column)
 const BOX_FILL = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'fillColor')
 const BOX_FRAME = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'strokeColor')
-// WHY: SCHEDULE's task holds a custom fill with only its light side and a custom line with only its
-// dark side (CR-548), so CV-9's undefined-side note is printed on each.
+// WHY: SCHEDULE's task holds a custom fill (CR-548), so the custom entrance's tooltip names its value (CV-9).
 const TASK_FILL = (view: ScreenView) => colourControlOf(view, 'taskVisual', 'fillColor')
-const TASK_LINE = (view: ScreenView) => colourControlOf(view, 'taskVisual', 'strokeColor')
+const CUSTOM_VALUE_SLOT = '{value}'
 for (const entry of GENERATED['colourNames'] ?? []) {
   const spelling = keyOf('colourNames', entry)
   place({
@@ -2098,18 +2099,17 @@ for (const entry of GENERATED['colourNames'] ?? []) {
 const COLOUR_FIELD_READS: Readonly<
   Record<string, { readonly frame: Frame; readonly read: (view: ScreenView) => string | undefined }>
 > = {
-  custom: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.customWord },
-  light: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.light.word },
-  dark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.dark.word },
-  sameAsLight: { frame: BASE, read: (view) => TASK_FILL(view)?.colour?.dark.note },
-  sameAsDark: { frame: BASE, read: (view) => TASK_LINE(view)?.colour?.light.note },
-  theme: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme?.word },
-  themeHint: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme?.hint },
+  custom: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.custom.hint },
+  themeHint: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme.hint },
   noFill: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.transparentWord },
   noLine: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.transparentWord },
-  themeMark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.light.mark },
-  defaultMark: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.light.mark },
-  defaultColour: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.theme?.word },
+  defaultColour: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.theme.hint },
+  themeGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme.glyph },
+  customGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.custom.glyph },
+  customValue: {
+    frame: BASE,
+    read: (view) => TASK_FILL(view)?.colour?.custom.hint.replace(/#[0-9A-F]{6}/, CUSTOM_VALUE_SLOT),
+  },
 }
 for (const entry of GENERATED['colourField'] ?? []) {
   const part = keyOf('colourField', entry)
@@ -2554,6 +2554,18 @@ const rowMinHeightFieldFramesShowing = (
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(ROW_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
+  return FRAMES.filter((one) =>
+    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+  )
+}
+
+// see CV-9, FR-038, CR-689
+// WHY: `customValue` fills `{value}` with the stored custom colour, so its slot is matched open.
+const customValueFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(`^${word.split(CUSTOM_VALUE_SLOT).map(escapeForRegExp).join('#[0-9A-F]{6}')}$`)
   return FRAMES.filter((one) =>
     stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
@@ -3106,6 +3118,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'
                 ? propertyFieldFramesShowing(cell.word, cell.language)
+                : cell.section === 'colourField' && cell.key === 'customValue'
+                ? customValueFramesShowing(cell.word, cell.language)
                 : cell.section === 'searchPanel' && COUNT_SLOTTED_SEARCH_PANEL_PARTS.has(cell.key)
                 ? countSlottedFramesShowing(cell.word, cell.language)
                 : framesShowing(printed, cell.language)

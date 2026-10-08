@@ -1,4 +1,4 @@
-// CR-582 spec-only cases: the row min height field of the property panel (FR-042, table T-338 MH-1 .. MH-6).
+// CR-582 / CR-689 spec-only cases: the row min height rows of the property panel (FR-042, table T-338).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -21,13 +21,10 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { propertiesPanelStyle } from '../../src/framework/dom-screen-surface/properties-panel-drawing'
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import {
   byRole,
-  matches,
   selfAndDescendants,
-  styleMap,
   surfaceOf,
   wire,
   FakeText,
@@ -42,11 +39,17 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 const FR_042_BY_T_338 = '欄は 表 T-338 に従って出すこと（MUST）。'
 const FR_042_WORDS = '欄の名・単位・現在の高さ・空の欄・行が描かれていないときの語は `FR-038` の辞書が持つ。'
-const MH_1_UNIT = '値の入力の右に単位の語を置き、欄の名に基準のズームを含めること（MUST）'
-const MH_2_EMPTY = '値が `null` のときは入力を空にし、下限の無いことを示す語を入力の中に薄く示すこと（MUST）。'
-const MH_2_NOT_ZERO = '⛔ `0` と示してはならない（MUST NOT）'
-const MH_2_NULL = '空にして確定したら `null` を書くこと（MUST）'
-const MH_3_SHOW = '単位の右に、その行のいまの帯高を単位を添えて示すこと（MUST）。'
+const MH_1_UNIT = '値の入力の右に単位の語を置くこと（MUST）。'
+const MH_1_HINT =
+  '⭐ 欄の名は 1 行に収まる短い語とし、基準（表示の倍率が 100 のときの px であること）は値の入力のツールチップ（表 T-028 の `IN-3`）で示すこと（MUST）'
+const MH_2_CHECK = '値の入力の上の行に、最小の高さを設定するかのチェックを置くこと（MUST）。'
+const MH_2_EMPTY = 'チェックが外れていることを `null`（下限なし）とすること（MUST）。'
+const MH_2_CLEAR = '外したら `null` を書き、値の入力を空にして打てなくすること（MUST）。'
+const MH_2_TICK =
+  '⭐ チェックを入れたら、その行のいまの帯高（`MH-3` が示す数）を表示の倍率が 100 のときの px の整数へ直して（`MH-1`）書き、値の入力に示すこと（MUST）'
+const MH_2_NOT_ZERO = '⛔ 下限の無いことを語（「なし」・`null` など）や `0` で示してはならない（MUST NOT）'
+const MH_2_NULL = 'チェックが入ったまま値を空にして確定したら、チェックを外したのと同じく `null` を書き、チェックを外すこと（MUST）'
+const MH_3_SHOW = '値の入力の下の行に、読み取り専用の 1 行として、その行のいまの帯高を単位を添えて示すこと（MUST）。'
 const MH_3_BAND = '示す値は行の帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）であり、行と行のあいだ（`rowGap`）を含めない。'
 const MH_3_ROUND = 'px の整数へ四捨五入して示すこと（MUST）。'
 const MH_3_ALWAYS = '欄が空のときも、帯高が指定より高いときも示すこと（MUST）'
@@ -54,22 +57,23 @@ const MH_4_FOLLOW =
   '縦のズーム・表示の倍率・行の中身のどれかで帯高が変わったら、次に描く絵で現在の高さを書き換えること（MUST）。'
 const MH_4_WHILE_EDITING = '欄を編集しているあいだも書き換えること（MUST）。'
 const MH_4_KEEP_INPUT = '⛔ 編集している入力の字と焦点を動かしてはならない（MUST NOT）'
-const MH_5_RULE = '単位と現在の高さのあいだを縦の罫 1 本で隔てること（MUST）。'
-const MH_5_SIZES =
-  '罫の太さは `_assets/tbl-settings.md` の 表 T-206 の `S-440`、罫の両脇の隔たりは同表の `S-441`、色は同書の 表 T-236 の `S-149` とする。'
-const MH_5_NO_CHARACTER = '⛔ 区切りを字（縦棒など）で書いてはならない（MUST NOT）'
 const MH_6_WORD_ONLY =
-  '選んだ行が、いまの倍率で描かれていないとき（`FR-018` のグループ LOD で絵から外れたとき）は、現在の高さの語と数の代わりに、描かれていないことを示す語だけを示すこと（MUST）。'
+  '選んだ行が、いまの倍率で描かれていないとき（`FR-018` のグループ LOD で絵から外れたとき）は、現在の高さの行の数の代わりに、描かれていないことを示す語だけを示すこと（MUST）。'
 const MH_6_NO_NUMBER = '⛔ 数を示してはならない（MUST NOT）'
 const MH_6_BACK = '欄の形と位置は変えず、行がまた描かれたら、次に描く絵で現在の高さに戻すこと（MUST）'
-const FR_042_HELD_AS_PX = 'のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、縦のズームと表示の倍率に比例して伸縮させること（MUST）'
+const FR_042_HELD_AS_PX = 'のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること（MUST）'
+const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
 
 describe('CR-582 -- the manuscript these cases are driven by', () => {
   it.each([
     FR_042_BY_T_338,
     FR_042_WORDS,
     MH_1_UNIT,
+    MH_1_HINT,
+    MH_2_CHECK,
     MH_2_EMPTY,
+    MH_2_CLEAR,
+    MH_2_TICK,
     MH_2_NOT_ZERO,
     MH_2_NULL,
     MH_3_SHOW,
@@ -79,19 +83,17 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
     MH_4_FOLLOW,
     MH_4_WHILE_EDITING,
     MH_4_KEEP_INPUT,
-    MH_5_RULE,
-    MH_5_SIZES,
-    MH_5_NO_CHARACTER,
     MH_6_WORD_ONLY,
     MH_6_NO_NUMBER,
     MH_6_BACK,
     FR_042_HELD_AS_PX,
+    FR_042_NOT_ZOOM_Y,
   ])('still says it, word for word: %s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-338 holds MH-1 .. MH-6, and table T-016 PR-20 is the minHeight of a TaskGroup', () => {
-    expect(specTable('T-338').rows.map((row) => row.id)).toEqual(['MH-1', 'MH-2', 'MH-3', 'MH-4', 'MH-5', 'MH-6'])
+  it('table T-338 holds MH-1 .. MH-4 and MH-6 (CR-689 left the fifth row out), and table T-016 PR-20 is the minHeight of a TaskGroup', () => {
+    expect(specTable('T-338').rows.map((row) => row.id)).toEqual(['MH-1', 'MH-2', 'MH-3', 'MH-4', 'MH-6'])
     const pr20 = specTable('T-016').rows.find((row) => row.id === 'PR-20')
     expect(pr20?.cells.map(bare)).toEqual(expect.arrayContaining(['minHeight', 'TaskGroup']))
   })
@@ -109,6 +111,8 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 const PR_20 = 'PR-20'
+const MH_2 = 'MH-2'
+const MH_3 = 'MH-3'
 const PX_SLOT = '{px}'
 
 const partWord = (part: string, language: DisplayLanguage): string => {
@@ -119,10 +123,10 @@ const partWord = (part: string, language: DisplayLanguage): string => {
 const labelOf = (language: DisplayLanguage): string =>
   WORDS.properties.find((one) => one.rowId === PR_20)?.label[language] ?? `(no dictionary label for ${PR_20})`
 const readoutOf = (heightPx: number, language: DisplayLanguage): string =>
-  partWord('current', language).replace(PX_SLOT, String(Math.floor(heightPx + 1 / 2)))
+  partWord('currentValue', language).replace(PX_SLOT, String(Math.floor(heightPx + 1 / 2)))
 const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const anyReadout = (language: DisplayLanguage): RegExp =>
-  new RegExp(escaped(partWord('current', language)).replace(escaped(PX_SLOT), '\\d+'))
+  new RegExp(escaped(partWord('currentValue', language)).replace(escaped(PX_SLOT), '\\d+'))
 
 interface SettingRow {
   readonly id: string
@@ -141,8 +145,6 @@ function setting(id: string): number {
 
 const S_53 = setting('S-53')
 const S_87 = setting('S-87')
-const S_440 = setting('S-440')
-const S_441 = setting('S-441')
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -404,29 +406,29 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
 const IN = -1
 const OUT = 1
 
-function describedField(built: Bench): PropertyField {
-  const field = built.view().propertiesPanel?.fields.find((one) => one.row === PR_20)
+function describedField(built: Bench, row = PR_20): PropertyField {
+  const field = built.view().propertiesPanel?.fields.find((one) => one.row === row)
   if (field === undefined) {
     const rows = built.view().propertiesPanel?.fields.map((one) => one.row).join(' ')
-    throw new Error(`the row panel describes no ${PR_20} field; fields: ${rows}`)
+    throw new Error(`the row panel describes no ${row} field; fields: ${rows}`)
   }
   return field
 }
 
-function drawnLine(built: Bench): FakeElement {
+function drawnLine(built: Bench, row = PR_20): FakeElement {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
   if (panel === undefined) throw new Error('the property panel is not drawn')
   const lines = selfAndDescendants(panel).filter(
-    (one) => one.getAttribute('data-field-row') === PR_20 && one.parentNode?.getAttribute('data-field-row') !== PR_20,
+    (one) => one.getAttribute('data-field-row') === row && one.parentNode?.getAttribute('data-field-row') !== row,
   )
   const top = lines.filter((one) => !lines.some((other) => other !== one && selfAndDescendants(other).includes(one)))
-  if (top.length !== 1) throw new Error(`the panel drew ${top.length} ${PR_20} fields`)
+  if (top.length !== 1) throw new Error(`the panel drew ${top.length} ${row} fields`)
   return top[0]!
 }
 
-function inputOf(built: Bench): FakeElement {
-  const inputs = selfAndDescendants(drawnLine(built)).filter((one) => one.tagName === 'INPUT')
-  if (inputs.length !== 1) throw new Error(`the ${PR_20} field drew ${inputs.length} inputs`)
+function inputOf(built: Bench, row = PR_20): FakeElement {
+  const inputs = selfAndDescendants(drawnLine(built, row)).filter((one) => one.tagName === 'INPUT')
+  if (inputs.length !== 1) throw new Error(`the ${row} field drew ${inputs.length} inputs`)
   return inputs[0]!
 }
 
@@ -448,7 +450,7 @@ function textsOf(line: FakeElement): readonly TextAt[] {
   return out
 }
 
-const drawnTexts = (built: Bench): readonly string[] => textsOf(drawnLine(built)).map((one) => one.text)
+const drawnTexts = (built: Bench, row = PR_20): readonly string[] => textsOf(drawnLine(built, row)).map((one) => one.text)
 
 const placeholderOf = (input: FakeElement): string | null =>
   input.getAttribute('placeholder') ?? (input as unknown as { placeholder?: string }).placeholder ?? null
@@ -466,6 +468,15 @@ function settle(built: Bench, text: string): void {
   const input = typeInto(built, text)
   raise(built.built, input, 'keydown', { key: SK_19.key })
   built.send(SK_19)
+}
+
+// see MH-2
+// WHY: a browser reflects `type` and flips `checked`, then fires change; the next frame reads the commit (IF-9).
+function tick(built: Bench, checked: boolean): void {
+  const box = inputOf(built, MH_2)
+  Object.assign(box, { type: box.getAttribute('type'), checked })
+  raise(built.built, box, 'change')
+  built.send({ kind: 'pointer', phase: 'move', button: 'left', x: 5, y: SCREEN.height - 20, modifiers: MODS(), clickCount: 0 } as PointerInput)
 }
 
 const minHeightIn = (document: Document, groupId: string): unknown =>
@@ -490,68 +501,65 @@ describe(`T-338 MH-3 -- "${MH_3_SHOW}"`, () => {
   ] as const)(`"${MH_3_ALWAYS}" "${MH_3_ROUND}" -- %s`, (_name, minHeight) => {
     const built = openedOn({ minHeightOf: { [A]: minHeight } })
     const expected = readoutOf(bandNow(built), 'ja')
-    expect(describedField(built).readout, MH_3_BAND).toBe(expected)
-    expect(drawnTexts(built), MH_3_SHOW).toContain(expected)
+    expect(describedField(built, MH_3).readout, MH_3_BAND).toBe(expected)
+    expect(drawnTexts(built, MH_3), MH_3_SHOW).toContain(expected)
   })
 
   it(`"${MH_3_BAND}" -- a minimum above the content reads as the band it draws`, () => {
     const probe = openedOn({})
     const typed = Math.ceil(bandNow(probe)) * 3
     const built = openedOn({ minHeightOf: { [A]: typed } })
-    expect(bandNow(built), 'premise: DS-13 at display scale 100, zoomY 1').toBeCloseTo(typed, 9)
-    expect(describedField(built).readout).toBe(readoutOf(typed, 'ja'))
-    expect(drawnTexts(built)).toContain(readoutOf(typed, 'ja'))
+    expect(bandNow(built), 'premise: DS-13 at display scale 100').toBeCloseTo(typed, 9)
+    expect(describedField(built, MH_3).readout).toBe(readoutOf(typed, 'ja'))
+    expect(drawnTexts(built, MH_3)).toContain(readoutOf(typed, 'ja'))
   })
 
-  it(`"${MH_1_UNIT}" "${MH_3_SHOW}" -- the input, then the unit, then the readout`, () => {
+  it(`"${MH_2_CHECK}" "${MH_1_UNIT}" "${MH_3_SHOW}" -- the check line, the value line (input, then unit), the read-only line`, () => {
     const built = openedOn({})
+    const rows = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
+    const at = rows.indexOf(MH_2)
+    expect(rows.slice(at, at + 3), 'three rows in this order').toEqual([MH_2, PR_20, MH_3])
+    expect(inputOf(built, MH_2).getAttribute('type'), MH_2_CHECK).toBe('checkbox')
+    expect(describedField(built, MH_3).controls, `${MH_3_SHOW} -- read-only`).toEqual([])
     const line = drawnLine(built)
     const order = selfAndDescendants(line)
-    const input = inputOf(built)
     const unitText = textsOf(line).find((one) => one.text === partWord('unit', 'ja'))
-    const readoutText = textsOf(line).find((one) => one.text === readoutOf(bandNow(built), 'ja'))
     expect(unitText, 'the unit word is drawn').toBeDefined()
-    expect(readoutText, 'the readout is drawn').toBeDefined()
     const holderOf = (path: string): FakeElement => {
       let at = line
       for (const step of path.split('/').filter((one) => one !== '').slice(0, -1)) at = at.childNodes[Number(step)] as FakeElement
       return at
     }
-    const unitAt = order.indexOf(holderOf(unitText!.path))
-    const readoutAt = order.indexOf(holderOf(readoutText!.path))
-    expect(order.indexOf(input), 'the input stands before the unit').toBeLessThan(unitAt)
-    expect(unitAt, 'the unit stands before the readout').toBeLessThan(readoutAt)
+    expect(order.indexOf(inputOf(built)), 'the input stands before the unit').toBeLessThan(order.indexOf(holderOf(unitText!.path)))
     expect(describedField(built).unit).toBe(partWord('unit', 'ja'))
   })
 })
 
 describe(`T-338 MH-4 -- "${MH_4_FOLLOW}"`, () => {
-  const TALL = (): number => Math.ceil(bandNow(openedOn({}))) * 3
-
   it.each([
     ['Alt + wheel, lowering', OUT],
     ['Alt + wheel, raising', IN],
   ] as const)('%s: the readout is rewritten without reopening the panel', (_name, notches) => {
-    const built = openedOn({ minHeightOf: { [A]: TALL() } })
-    const before = describedField(built).readout
+    const built = openedOn({ zoomY: S_53 * S_53 })
+    const before = describedField(built, MH_3).readout
     const zoomBefore = built.zoomY()
     built.wheel(notches)
     expect(built.zoomY(), 'premise: MK-4 moved zoomY').not.toBe(zoomBefore)
     const expected = readoutOf(bandNow(built), 'ja')
-    expect(expected, 'premise: the band changed').not.toBe(before)
-    expect(describedField(built).readout, MH_4_FOLLOW).toBe(expected)
-    expect(drawnTexts(built), MH_4_FOLLOW).toContain(expected)
+    expect(expected, 'premise: the content band changed').not.toBe(before)
+    expect(describedField(built, MH_3).readout, MH_4_FOLLOW).toBe(expected)
+    expect(drawnTexts(built, MH_3), MH_4_FOLLOW).toContain(expected)
   })
 
   it(`"${MH_4_WHILE_EDITING}" "${MH_4_KEEP_INPUT}" -- a half-typed number stays, keeps the focus and the node`, () => {
-    const built = openedOn({ minHeightOf: { [A]: TALL() } })
-    const typed = String(TALL() + 1)
+    const built = openedOn({ minHeightOf: { [A]: 1 } })
+    const typed = String(Math.ceil(bandNow(built)) * 3)
     const input = typeInto(built, typed)
     const zoomBefore = built.zoomY()
     built.wheel(OUT)
     expect(built.zoomY(), 'premise: MK-4 moved zoomY while the field was held').not.toBe(zoomBefore)
     const expected = readoutOf(bandNow(built), 'ja')
-    expect(drawnTexts(built), MH_4_WHILE_EDITING).toContain(expected)
+    expect(drawnTexts(built, MH_3), MH_4_WHILE_EDITING).toContain(expected)
     expect(inputOf(built), `${MH_4_KEEP_INPUT} -- the same input node`).toBe(input)
     expect(input.isConnected).toBe(true)
     expect(input.value, MH_4_KEEP_INPUT).toBe(typed)
@@ -560,21 +568,42 @@ describe(`T-338 MH-4 -- "${MH_4_FOLLOW}"`, () => {
 })
 
 describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
-  it.each(LANGUAGES)(`"${MH_2_EMPTY}" "${MH_2_NOT_ZERO}" -- %s`, (language) => {
+  it.each(LANGUAGES)(`"${MH_2_EMPTY}" "${MH_2_CLEAR}" "${MH_2_NOT_ZERO}" -- %s`, (language) => {
     const built = openedOn({}, A, language)
+    expect(describedField(built, MH_2).controls[0]?.text, MH_2_EMPTY).toBe('false')
+    expect((inputOf(built, MH_2) as unknown as { checked: boolean }).checked, MH_2_EMPTY).toBe(false)
     const input = inputOf(built)
-    expect(input.value, MH_2_EMPTY).toBe('')
-    expect(placeholderOf(input), MH_2_EMPTY).toBe(partWord('none', language))
+    expect(input.value, MH_2_CLEAR).toBe('')
+    expect(input.getAttribute('disabled'), `${MH_2_CLEAR} -- 打てなくする`).not.toBeNull()
+    expect(placeholderOf(input) ?? '', MH_2_NOT_ZERO).toBe('')
     const control = describedField(built).controls.find((one) => one.key.column === 'minHeight')
-    expect(control?.placeholder).toBe(partWord('none', language))
+    expect(control?.isDisabled, MH_2_CLEAR).toBe(true)
     expect(control?.text ?? '', MH_2_NOT_ZERO).not.toBe('0')
     expect(drawnTexts(built).filter((one) => /^0\b/.test(one)), MH_2_NOT_ZERO).toEqual([])
+  })
+
+  it(`"${MH_2_TICK}" -- ticking writes the band now, as an integer at display scale 100, and the band does not move`, () => {
+    const built = openedOn({})
+    const band = bandNow(built)
+    tick(built, true)
+    expect(minHeightIn(built.loop.document(), A), MH_2_TICK).toBe(Math.round(band))
+    expect(Math.abs(bandNow(built) - band), 'the band moves by no more than the rounding to an integer').toBeLessThanOrEqual(0.5)
+    expect(inputOf(built).value, MH_2_TICK).toBe(String(Math.round(band)))
+    expect(inputOf(built).getAttribute('disabled'), 'the input can be typed into').toBeNull()
+  })
+
+  it(`"${MH_2_CLEAR}" -- unticking writes null and empties the input`, () => {
+    const built = openedOn({ minHeightOf: { [A]: Math.ceil(bandNow(openedOn({}))) * 2 } })
+    tick(built, false)
+    expect(minHeightIn(built.loop.document(), A), MH_2_CLEAR).toBeNull()
+    expect(inputOf(built).value, MH_2_CLEAR).toBe('')
   })
 
   it(`"${MH_2_NULL}" -- the exported GRS JSON carries minHeight null and no height key`, () => {
     const built = openedOn({ minHeightOf: { [A]: Math.ceil(bandNow(openedOn({}))) * 2 } })
     settle(built, '')
     expect(minHeightIn(built.loop.document(), A), MH_2_NULL).toBeNull()
+    expect(describedField(built, MH_2).controls[0]?.text, `${MH_2_NULL} -- チェックを外す`).toBe('false')
     const written = (JSON.parse(jsonFromDocument(built.loop.document())) as { schedule: { taskGroups: Record<string, unknown>[] } })
       .schedule.taskGroups
     const row = written.find((one) => one['id'] === A)
@@ -582,9 +611,9 @@ describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
     expect(written.filter((one) => Object.hasOwn(one, 'height'))).toEqual([])
   })
 
-  it(`FR-042 "${FR_042_HELD_AS_PX}" -- a number typed at another zoom and scale is written as typed`, () => {
+  it(`FR-042 "${FR_042_HELD_AS_PX}" -- a number typed at another zoom is written as typed`, () => {
     const zoomY = S_53 * S_53
-    const built = openedOn({ zoomY })
+    const built = openedOn({ zoomY, minHeightOf: { [A]: 1 } })
     const typed = Math.ceil(bandNow(built)) * 2
     settle(built, String(typed))
     expect(minHeightIn(built.loop.document(), A)).toBe(typed)
@@ -592,162 +621,37 @@ describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
   })
 })
 
-// see T-236
-function s149Rgb(): readonly [number, number, number] {
-  const cell = bare(specTable('T-236').rows.find((one) => one.id === 'S-149')?.by['明るいテーマ'] ?? '')
-  const found = /^hsl\(H\s+([\d.]+)%\s+([\d.]+)%\)$/.exec(cell)
-  if (found === null) throw new Error(`table T-236 S-149 is not an hsl(H s% l%) formula: ${cell}`)
-  return rgbOfHsl(THEME_HUE, Number(found[1]), Number(found[2]))
-}
-
-function rgbOfHsl(hue: number, saturationPercent: number, lightnessPercent: number): readonly [number, number, number] {
-  const s = saturationPercent / 100
-  const l = lightnessPercent / 100
-  const a = s * Math.min(l, 1 - l)
-  const channel = (n: number): number => {
-    const k = (n + hue / 30) % 12
-    return (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * 255
-  }
-  return [channel(0), channel(8), channel(4)]
-}
-
-function rgbOfPaint(paint: string): readonly [number, number, number] | null {
-  const text = paint.trim().toLowerCase()
-  const hex = /^#([0-9a-f]{6})$/.exec(text)
-  if (hex !== null) {
-    const value = Number.parseInt(hex[1] ?? '', 16)
-    return [(value >> 16) & 255, (value >> 8) & 255, value & 255]
-  }
-  const hsl = /^hsl\(\s*(-?[\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%\s*\)$/.exec(text)
-  if (hsl !== null) return rgbOfHsl(((Number(hsl[1]) % 360) + 360) % 360, Number(hsl[2]), Number(hsl[3]))
-  const rgb = /^rgb\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*\)$/.exec(text)
-  if (rgb !== null) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])]
-  return null
-}
-
-// WHY: a declaration may be inline or in the panel's style sheet; both are read the way cr-557 reads them.
-function declared(element: FakeElement, property: string): string | undefined {
-  const inline = styleMap(element).get(property)
-  if (inline !== undefined) return inline
-  let found: string | undefined
-  for (const rule of propertiesPanelStyle().split('}')) {
-    const [selectors, body] = rule.split('{')
-    if (selectors === undefined || body === undefined) continue
-    const value = new RegExp(`(?:^|[;\\s])${escaped(property)}\\s*:\\s*([^;]+)`).exec(body)
-    if (value === null) continue
-    const selected = selectors.split(',').some((one) => {
-      const last = one.trim().split(/\s+/).pop() ?? ''
-      const parts = last.match(/\[[^\]]+\]|\.[\w-]+|^[a-z]+/gi) ?? []
-      return parts.length > 0 && parts.every((part) => matches(element, part))
-    })
-    if (selected) found = value[1]?.trim()
-  }
-  return found
-}
-
-interface Rule {
-  readonly element: FakeElement
-  readonly thickness: number
-  readonly colour: string
-}
-
-const pxIn = (text: string | undefined): number | null => {
-  const found = /(-?\d*\.?\d+)px/.exec(text ?? '')
-  return found === null ? null : Number(found[1])
-}
-
-// WHY: the fixture's resolver drops the spaces an hsl() colour needs to be read back.
-function paintOf(built: Bench, written: string): string {
-  const named = /^var\((--[a-z0-9-]+)\)$/.exec(written.trim().toLowerCase())
-  if (named === null) return written.trim()
-  return styleMap(built.built.root()).get(named[1]!) ?? `(the root declares no ${named[1]})`
-}
-
-function rulesIn(built: Bench, line: FakeElement): readonly Rule[] {
-  const out: Rule[] = []
-  for (const element of selfAndDescendants(line)) {
-    for (const side of ['border-left', 'border-right', 'border-inline-start', 'border-inline-end']) {
-      const value = declared(element, side)
-      const thickness = pxIn(value)
-      if (value === undefined || thickness === null) continue
-      const colour = value.replace(/-?\d*\.?\d+px/, '').replace(/\b(solid|dashed|dotted)\b/, '').trim()
-      out.push({ element, thickness, colour: paintOf(built, colour) })
-    }
-    const thickness = pxIn(declared(element, 'width') ?? declared(element, 'inline-size'))
-    const ground = declared(element, 'background-color') ?? declared(element, 'background')
-    if (thickness !== null && ground !== undefined) out.push({ element, thickness, colour: paintOf(built, ground) })
-  }
-  return out
-}
-
-function sideGapsOf(element: FakeElement): readonly [number | null, number | null] {
-  let left = pxIn(declared(element, 'margin-left') ?? declared(element, 'margin-inline-start'))
-  let right = pxIn(declared(element, 'margin-right') ?? declared(element, 'margin-inline-end'))
-  const inline = declared(element, 'margin-inline')?.split(/\s+/)
-  if (inline !== undefined) {
-    left ??= pxIn(inline[0])
-    right ??= pxIn(inline[1] ?? inline[0])
-  }
-  const margin = declared(element, 'margin')?.split(/\s+/)
-  if (margin !== undefined) {
-    left ??= pxIn(margin[3] ?? margin[1] ?? margin[0])
-    right ??= pxIn(margin[1] ?? margin[0])
-  }
-  if (left === null && right === null && element.parentNode !== null) {
-    const gap = (declared(element.parentNode, 'column-gap') ?? declared(element.parentNode, 'gap'))?.split(/\s+/)
-    if (gap !== undefined) {
-      left = pxIn(gap[1] ?? gap[0])
-      right = left
-    }
-  }
-  return [left, right]
-}
-
-const sameRgb = (left: readonly number[], right: readonly number[]): boolean =>
-  left.every((value, index) => Math.abs(value - (right[index] ?? Number.NaN)) <= 1)
-
-describe(`T-338 MH-5 -- "${MH_5_RULE}"`, () => {
-  it(`"${MH_5_NO_CHARACTER}" -- the field draws the name, the unit and the readout, and no other character`, () => {
-    const built = openedOn({})
-    const allowed = new Set([labelOf('ja'), partWord('unit', 'ja'), readoutOf(bandNow(built), 'ja')])
-    expect(drawnTexts(built).filter((one) => !allowed.has(one)), MH_5_NO_CHARACTER).toEqual([])
+describe(`T-338 MH-1 -- "${MH_1_HINT}"`, () => {
+  it.each(LANGUAGES)('the basis is the value input tooltip, and the value line draws only its name and unit, %s', (language) => {
+    const built = openedOn({}, A, language)
+    expect(describedField(built).controls[0]?.hint).toBe(partWord('basisHint', language))
+    expect(inputOf(built).getAttribute('title'), MH_1_HINT).toBe(partWord('basisHint', language))
+    expect(drawnTexts(built)).toEqual([labelOf(language), partWord('unit', language)])
   })
 
-  it(`"${MH_5_SIZES}" -- one rule of S-440 px in S-149, with S-441 px on both sides`, () => {
-    const built = openedOn({})
-    const rules = rulesIn(built, drawnLine(built)).filter((one) => one.thickness === S_440)
-    const painted = rules.filter((one) => {
-      const rgb = rgbOfPaint(one.colour)
-      return rgb !== null && sameRgb(rgb, s149Rgb())
-    })
-    expect(painted.length, `${MH_5_RULE} rules found: ${JSON.stringify(rules.map((one) => [one.thickness, one.colour]))}`).toBe(1)
-    expect(sideGapsOf(painted[0]!.element), MH_5_SIZES).toEqual([S_441, S_441])
-  })
-
-  it('JDG-716 -- the field carries no explanation: no title attribute and no hint word', () => {
-    const built = openedOn({})
-    expect(selfAndDescendants(drawnLine(built)).filter((one) => one.getAttribute('title') !== null)).toEqual([])
+  it(`"${FR_042_WORDS}" -- the dictionary holds exactly the words the three rows show`, () => {
     expect(WORDS.rowMinHeightField.map((one) => one.part).sort(), FR_042_WORDS).toEqual(
-      ['current', 'currentlyHidden', 'none', 'unit'],
+      ['basisHint', 'currentName', 'currentValue', 'currentlyHidden', 'enable', 'unit'],
     )
   })
 })
 
 describe(`FR-042 "${FR_042_WORDS}"`, () => {
-  it('premise: the current word carries the {px} slot in every language', () => {
-    for (const language of LANGUAGES) expect(partWord('current', language)).toContain(PX_SLOT)
+  it('premise: the currentValue word carries the {px} slot in every language', () => {
+    for (const language of LANGUAGES) expect(partWord('currentValue', language)).toContain(PX_SLOT)
   })
 
-  it.each(LANGUAGES)(`"${MH_1_UNIT}" -- the name, the unit and the readout, %s`, (language) => {
+  it.each(LANGUAGES)(`"${MH_1_UNIT}" -- the three names, the unit and the readout, %s`, (language) => {
     const built = openedOn({}, A, language)
-    const field = describedField(built)
-    expect(field.name).toBe(labelOf(language))
-    expect(field.unit).toBe(partWord('unit', language))
-    expect(field.readout).toBe(readoutOf(bandNow(built), language))
-    const texts = drawnTexts(built)
-    expect(texts).toContain(labelOf(language))
-    expect(texts).toContain(partWord('unit', language))
-    expect(texts).toContain(readoutOf(bandNow(built), language))
+    expect(describedField(built, MH_2).name).toBe(partWord('enable', language))
+    expect(describedField(built).name).toBe(labelOf(language))
+    expect(describedField(built).unit).toBe(partWord('unit', language))
+    expect(describedField(built, MH_3).name).toBe(partWord('currentName', language))
+    expect(describedField(built, MH_3).readout).toBe(readoutOf(bandNow(built), language))
+    expect(drawnTexts(built, MH_2)).toContain(partWord('enable', language))
+    expect(drawnTexts(built)).toContain(labelOf(language))
+    expect(drawnTexts(built)).toContain(partWord('unit', language))
+    expect(drawnTexts(built, MH_3)).toEqual([partWord('currentName', language), readoutOf(bandNow(built), language)])
   })
 })
 
@@ -757,7 +661,7 @@ function zoomUntil(built: Bench, notches: number, placed: boolean): void {
 }
 
 const readoutPathOf = (built: Bench, text: string): string | undefined =>
-  textsOf(drawnLine(built)).find((one) => one.text === text)?.path
+  textsOf(drawnLine(built, MH_3)).find((one) => one.text === text)?.path
 
 describe(`T-338 MH-6 -- "${MH_6_WORD_ONLY}"`, () => {
   it.each(LANGUAGES)(`"${MH_6_NO_NUMBER}" "${MH_6_BACK}" -- depth-2 row B, lowered past S-87, %s`, (language) => {
@@ -769,42 +673,32 @@ describe(`T-338 MH-6 -- "${MH_6_WORD_ONLY}"`, () => {
     zoomUntil(built, OUT, false)
     expect(built.zoomY(), 'premise: FR-018 took B out below the depth-2 threshold').toBeLessThan(S_87)
     const hidden = partWord('currentlyHidden', language)
-    expect(describedField(built).readout, MH_6_WORD_ONLY).toBe(hidden)
-    const texts = drawnTexts(built)
+    expect(describedField(built, MH_3).readout, MH_6_WORD_ONLY).toBe(hidden)
+    const texts = drawnTexts(built, MH_3)
     expect(texts, MH_6_WORD_ONLY).toContain(hidden)
     expect(texts.filter((one) => anyReadout(language).test(one)), MH_6_WORD_ONLY).toEqual([])
-    expect(texts.filter((one) => one !== labelOf(language) && /\d/.test(one)), MH_6_NO_NUMBER).toEqual([])
+    expect(texts.filter((one) => /\d/.test(one)), MH_6_NO_NUMBER).toEqual([])
     expect(readoutPathOf(built, hidden), MH_6_BACK).toBe(numberAt)
     expect(inputOf(built).isConnected, MH_6_BACK).toBe(true)
-    expect(texts, MH_6_BACK).toContain(partWord('unit', language))
+    expect(drawnTexts(built), MH_6_BACK).toContain(partWord('unit', language))
 
     zoomUntil(built, IN, true)
     const back = readoutOf(bandNow(built, B), language)
-    expect(describedField(built).readout, MH_6_BACK).toBe(back)
+    expect(describedField(built, MH_3).readout, MH_6_BACK).toBe(back)
     expect(readoutPathOf(built, back), MH_6_BACK).toBe(numberAt)
-    expect(drawnTexts(built)).not.toContain(hidden)
+    expect(drawnTexts(built, MH_3)).not.toContain(hidden)
   })
 })
 
-describe(`FR-042 "${FR_042_HELD_AS_PX}" -- through the shell`, () => {
-  it('Alt + wheel draws the floored band anew and leaves the stored minHeight as typed', () => {
+describe(`FR-042 "${FR_042_NOT_ZOOM_Y}" -- through the shell`, () => {
+  it('Alt + wheel keeps the floored band and the stored minHeight as typed', () => {
     const typed = Math.ceil(bandNow(openedOn({}))) * 3
     const built = bench(sceneOf({ minHeightOf: { [A]: typed } }))
     const before = bandNow(built)
+    const zoomBefore = built.zoomY()
     built.wheel(OUT)
-    expect(bandNow(built)).toBeCloseTo(before / S_53, 6)
+    expect(built.zoomY(), 'premise: MK-4 lowered zoomY').toBeLessThan(zoomBefore)
+    expect(bandNow(built), FR_042_NOT_ZOOM_Y).toBeCloseTo(before, 6)
     expect(minHeightIn(built.loop.document(), A)).toBe(typed)
-  })
-
-  it('IC-10 fits the view, and lowering the row zoom afterwards shrinks the tall row too', () => {
-    const tall = Math.ceil(bandNow(openedOn({}))) * 12
-    const built = bench(sceneOf({ minHeightOf: { [A]: tall } }))
-    built.pressEntrance('IC-10')
-    const fitted = built.zoomY()
-    const before = bandNow(built)
-    built.wheel(OUT)
-    expect(built.zoomY(), 'premise: MK-4 lowered zoomY after the fit').toBeLessThan(fitted)
-    expect(bandNow(built), 'the tall row shrank').toBeLessThan(before)
-    expect(minHeightIn(built.loop.document(), A)).toBe(tall)
   })
 })

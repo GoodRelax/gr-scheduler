@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1578 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1579 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -140,7 +140,7 @@
 | `LY` | Layer | 設計上の層 1 つ | 仕様書 | `T-060` | 5 |
 | `MC` | Measurement Condition | 性能を測る環境の条件 | 仕様書（台帳にも 4 行。写しとして申告済み） | `T-025` | 10 |
 | `MG` | Merge | 取り込んだ文書を合流させるときの規則の条 | 仕様書 | `T-032` | 16 |
-| `MH` | Min Height | 行の最小の高さの欄の規則（表 T-338） | 仕様書 | `T-338` | 6 |
+| `MH` | Min Height | 行の最小の高さの欄の規則（表 T-338） | 仕様書 | `T-338` | 5 |
 | `MK` | — | ポインタとキーボードの割当 1 つ | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-023` | 16 |
 | `MM` | — | 合流のときに示す対応付けの選択肢 | 仕様書 | `T-032a` | 4 |
 | `MN` | Minimum | 最小構成に対して増やしたものと、その理由 | 仕様書 | `T-070` | 9 |
@@ -172,7 +172,7 @@
 | `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 328 |
 | `PO` | Policy | 単一 HTML の内容セキュリティ方針の指令 | 仕様書 | `T-232` | 7 |
 | `PP` | — | 直接操作の原則（なぜその振る舞いなのかの理由） | 仕様書 | `T-274` | 7 |
-| `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 40 |
+| `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 41 |
 | `PS` | — | 予実の状態を判別する順の段 | 仕様書 | `T-019a` | 5 |
 | `PTD` | Pointer Down | ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない） | 仕様書 | `T-023a` | 7 |
 | `PV` | — | 印を押して状態を確定したときに置く値 | 仕様書 | `T-021a` | 5 |

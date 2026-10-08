@@ -32,9 +32,10 @@ const FR_006_NOT_BY_SHAPE = '⛔ 絞る鍵を図形の列に取ってはなら�
 const FR_006_ONLY_SAME_TARGET = '⛔ いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）。'
 const FR_006_PR_1_BY_KIND =
   '名が何の名かを言う行（同表の `PR-1`）は、`FR-038` の辞書がマイルストーンのときの名も同じ行 ID で持ち、選んでいるものの種類の名で出すこと（MUST）'
-const FR_006_COLOUR_NAME_ABOVE = '⭐ ただし、色の行（入力の型が `色` の行）は、項目名を欄の上の 1 行に置くこと（MUST）'
-const FR_006_STROKE_WIDTH_LAST =
-  '⭐ 見た目の行どうしは、どの対象でも 塗りの色 → 塗りの透過率 → 枠線の色 → 枠線の幅 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
+const FR_006_COLOUR_NAME_LEFT =
+  '⭐ 色の行（入力の型が `色` の行）も同じであり、項目名は色の欄の 1 段目の左に置き、色の欄の 2 つの段は値の欄の左端から始めること（MUST）'
+const FR_006_VISUAL_ORDER =
+  '⭐ 見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
 // see FR-009
 const FR_009_ROWS =
   '依存線を選んだときにプロパティパネルへ出す項目は、表 T-016 の `対象` が `Dependency` の行（種別・ラグ・両端）とすること（MUST）'
@@ -56,8 +57,8 @@ describe('CR-606 premise -- the clauses these cases quote still stand', () => {
     ['FR-006 not by shape', FR_006_NOT_BY_SHAPE],
     ['FR-006 only the same target', FR_006_ONLY_SAME_TARGET],
     ['FR-006 PR-1 by kind', FR_006_PR_1_BY_KIND],
-    ['FR-006 colour name above', FR_006_COLOUR_NAME_ABOVE],
-    ['FR-006 stroke width last', FR_006_STROKE_WIDTH_LAST],
+    ['FR-006 colour name left', FR_006_COLOUR_NAME_LEFT],
+    ['FR-006 visual order', FR_006_VISUAL_ORDER],
     ['FR-009 rows', FR_009_ROWS],
     ['FR-009 lag only', FR_009_LAG_ONLY],
     ['FR-009 abbreviation and ends', FR_009_ABBREVIATION_AND_ENDS],
@@ -146,11 +147,11 @@ describe(`FR-006 -- ${FR_006_SHOWN_FOR}`, () => {
     }
   })
 
-  it(`${FR_006_STROKE_WIDTH_LAST} -- PR-40 (strokeWidthPx) is the last row on both kinds`, () => {
-    expect(itemOf('PR-40').columns).toEqual(['strokeWidthPx'])
+  it(`${FR_006_VISUAL_ORDER} -- a task ends with outline width, outline colour, fill colour on both kinds`, () => {
     for (const uid of [PLAIN, MILESTONE]) {
       const shown = rowsOf(panelOf(KINDS, taskItem(uid)))
-      expect(shown[shown.length - 1], `task ${uid}`).toBe('PR-40')
+      const lastThree = shown.slice(-3).map((row) => itemOf(row).columns)
+      expect(lastThree, `task ${uid}`).toEqual([['strokeWidthPx'], ['strokeColor'], ['fillColor']])
     }
   })
 })
@@ -176,17 +177,16 @@ describe(`FR-006 -- ${FR_006_PR_1_BY_KIND}`, () => {
   })
 })
 
-describe(`FR-006 -- ${FR_006_COLOUR_NAME_ABOVE}`, () => {
+describe(`FR-006 -- ${FR_006_COLOUR_NAME_LEFT}`, () => {
   it.each([
     ['task', PLAIN],
     ['milestone', MILESTONE],
-  ] as const)('on a %s: every colour row of T-016 carries isNameAbove, and no other row does', (_kind, uid) => {
+  ] as const)('on a %s: a colour row carries no name-above flag, like every other row (CR-689)', (_kind, uid) => {
     const panel = panelOf(KINDS, taskItem(uid))
     let colourRows = 0
     for (const field of panel.fields) {
-      const isColour = itemOf(field.row).inputKinds.includes(COLOUR_KIND)
-      if (isColour) colourRows += 1
-      expect(field.isNameAbove === true, `${field.row}`).toBe(isColour)
+      if (itemOf(field.row).inputKinds.includes(COLOUR_KIND)) colourRows += 1
+      expect(Object.keys(field), `${field.row}`).not.toContain('isNameAbove')
     }
     expect(colourRows, 'premise: the panel has colour rows').toBeGreaterThan(0)
   })

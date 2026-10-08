@@ -1395,10 +1395,24 @@
    }
   },
   {
+   "rowId": "PR-16",
+   "label": {
+    "ja": "担当者",
+    "en": "assignee"
+   }
+  },
+  {
    "rowId": "PR-3",
    "label": {
-    "ja": "開始日 / 終了日",
-    "en": "start / finish"
+    "ja": "予定開始日",
+    "en": "planned start"
+   }
+  },
+  {
+   "rowId": "PR-47",
+   "label": {
+    "ja": "予定終了日",
+    "en": "planned finish"
    }
   },
   {
@@ -1409,31 +1423,17 @@
    }
   },
   {
-   "rowId": "PR-16",
-   "label": {
-    "ja": "担当者",
-    "en": "assignee"
-   }
-  },
-  {
    "rowId": "PR-4",
    "label": {
     "ja": "実績開始日",
-    "en": "actualStart"
-   }
-  },
-  {
-   "rowId": "PR-5",
-   "label": {
-    "ja": "実績期間",
-    "en": "actualDuration"
+    "en": "actual start"
    }
   },
   {
    "rowId": "PR-6",
    "label": {
     "ja": "実績終了日",
-    "en": "actualFinish"
+    "en": "actual finish"
    }
   },
   {
@@ -1444,24 +1444,17 @@
    }
   },
   {
+   "rowId": "PR-5",
+   "label": {
+    "ja": "実績期間",
+    "en": "actual duration"
+   }
+  },
+  {
    "rowId": "PR-9",
    "label": {
     "ja": "完了率",
-    "en": "percentComplete"
-   }
-  },
-  {
-   "rowId": "PR-10",
-   "label": {
-    "ja": "期限",
-    "en": "deadline"
-   }
-  },
-  {
-   "rowId": "PR-2",
-   "label": {
-    "ja": "備考",
-    "en": "notes"
+    "en": "% complete"
    }
   },
   {
@@ -1474,15 +1467,22 @@
   {
    "rowId": "PR-8",
    "label": {
-    "ja": "再開可否",
-    "en": "resumeValid"
+    "ja": "再開日確定",
+    "en": "resume date confirmed"
+   }
+  },
+  {
+   "rowId": "PR-10",
+   "label": {
+    "ja": "期限",
+    "en": "deadline"
    }
   },
   {
    "rowId": "PR-17",
    "label": {
     "ja": "マイルストーン形状",
-    "en": "milestoneGlyph"
+    "en": "milestone shape"
    }
   },
   {
@@ -1502,22 +1502,29 @@
   {
    "rowId": "PR-37",
    "label": {
-    "ja": "先行",
-    "en": "predecessors"
+    "ja": "先行タスク",
+    "en": "predecessor tasks"
    }
   },
   {
    "rowId": "PR-38",
    "label": {
-    "ja": "後続",
-    "en": "successors"
+    "ja": "後続タスク",
+    "en": "successor tasks"
    }
   },
   {
-   "rowId": "PR-12",
+   "rowId": "PR-2",
    "label": {
-    "ja": "塗潰し色",
-    "en": "fill colour"
+    "ja": "備考",
+    "en": "notes"
+   }
+  },
+  {
+   "rowId": "PR-40",
+   "label": {
+    "ja": "枠線幅",
+    "en": "outline width"
    }
   },
   {
@@ -1528,31 +1535,31 @@
    }
   },
   {
-   "rowId": "PR-40",
+   "rowId": "PR-12",
    "label": {
-    "ja": "枠線幅（px）",
-    "en": "outline width (px)"
+    "ja": "塗潰し色",
+    "en": "fill colour"
    }
   },
   {
    "rowId": "PR-18",
    "label": {
-    "ja": "名称",
-    "en": "label"
+    "ja": "タスクグループ名",
+    "en": "task group name"
    }
   },
   {
    "rowId": "PR-20",
    "label": {
-    "ja": "最小高さ（ズーム 100% 時）",
-    "en": "min height (at 100% zoom)"
+    "ja": "最小高さ",
+    "en": "min height"
    }
   },
   {
    "rowId": "PR-33",
    "label": {
     "ja": "編集権限",
-    "en": "Edit permission"
+    "en": "edit permission"
    }
   },
   {
@@ -1570,6 +1577,20 @@
    }
   },
   {
+   "rowId": "PR-26",
+   "label": {
+    "ja": "枠線幅",
+    "en": "outline width"
+   }
+  },
+  {
+   "rowId": "PR-28",
+   "label": {
+    "ja": "枠線色",
+    "en": "outline colour"
+   }
+  },
+  {
    "rowId": "PR-45",
    "label": {
     "ja": "塗潰し色",
@@ -1584,24 +1605,24 @@
    }
   },
   {
-   "rowId": "PR-28",
-   "label": {
-    "ja": "枠線色",
-    "en": "outline colour"
-   }
-  },
-  {
-   "rowId": "PR-26",
-   "label": {
-    "ja": "枠線幅（px）",
-    "en": "outline width (px)"
-   }
-  },
-  {
    "rowId": "PR-46",
    "label": {
     "ja": "文字色",
     "en": "text colour"
+   }
+  },
+  {
+   "rowId": "PR-23",
+   "label": {
+    "ja": "枠線幅",
+    "en": "outline width"
+   }
+  },
+  {
+   "rowId": "PR-22",
+   "label": {
+    "ja": "枠線色",
+    "en": "outline colour"
    }
   },
   {
@@ -1616,20 +1637,6 @@
    "label": {
     "ja": "塗りの透過率（%）",
     "en": "fill transparency (%)"
-   }
-  },
-  {
-   "rowId": "PR-22",
-   "label": {
-    "ja": "枠線色",
-    "en": "outline colour"
-   }
-  },
-  {
-   "rowId": "PR-23",
-   "label": {
-    "ja": "枠線幅（px）",
-    "en": "outline width (px)"
    }
   },
   {
@@ -4472,55 +4479,20 @@
    "part": "custom",
    "text": {
     "ja": "その他の色",
-    "en": "Custom"
-   }
-  },
-  {
-   "part": "light",
-   "text": {
-    "ja": "ライト",
-    "en": "Light"
-   }
-  },
-  {
-   "part": "dark",
-   "text": {
-    "ja": "ダーク",
-    "en": "Dark"
-   }
-  },
-  {
-   "part": "sameAsLight",
-   "text": {
-    "ja": "（ライトと同じ）",
-    "en": " (same as light)"
-   }
-  },
-  {
-   "part": "sameAsDark",
-   "text": {
-    "ja": "（ダークと同じ）",
-    "en": " (same as dark)"
-   }
-  },
-  {
-   "part": "theme",
-   "text": {
-    "ja": "プロジェクトテーマ色",
-    "en": "Project theme colour"
+    "en": "Custom colour"
    }
   },
   {
    "part": "themeHint",
    "text": {
-    "ja": "プロジェクトのテーマの色に従う",
-    "en": "Follow the project theme"
+    "ja": "プロジェクトテーマ色に従う",
+    "en": "Follow the project theme colour"
    }
   },
   {
    "part": "noFill",
    "text": {
-    "ja": "塗潰しなし",
+    "ja": "塗りつぶしなし",
     "en": "No fill"
    }
   },
@@ -4532,24 +4504,31 @@
    }
   },
   {
-   "part": "themeMark",
-   "text": {
-    "ja": "(テーマ)",
-    "en": "(theme)"
-   }
-  },
-  {
-   "part": "defaultMark",
-   "text": {
-    "ja": "(既定)",
-    "en": "(default)"
-   }
-  },
-  {
    "part": "defaultColour",
    "text": {
-    "ja": "既定の色",
-    "en": "Default colour"
+    "ja": "既定の色に従う",
+    "en": "Follow the default colour"
+   }
+  },
+  {
+   "part": "themeGlyph",
+   "text": {
+    "ja": "T",
+    "en": "T"
+   }
+  },
+  {
+   "part": "customGlyph",
+   "text": {
+    "ja": "O",
+    "en": "O"
+   }
+  },
+  {
+   "part": "customValue",
+   "text": {
+    "ja": "その他の色（いまの値 {value}）",
+    "en": "Custom colour (now {value})"
    }
   }
  ],
@@ -4567,9 +4546,93 @@
     "ja": "“{name}” を追加",
     "en": "Add “{name}”"
    }
+  },
+  {
+   "part": "derivedParent",
+   "text": {
+    "ja": "{name}（導出）",
+    "en": "{name} (derived)"
+   }
+  },
+  {
+   "part": "undecidedParent",
+   "text": {
+    "ja": "未定（候補 {n}）",
+    "en": "undecided ({n} candidates)"
+   }
+  },
+  {
+   "part": "noParent",
+   "text": {
+    "ja": "なし",
+    "en": "none"
+   }
+  },
+  {
+   "part": "pxUnit",
+   "text": {
+    "ja": "（px）",
+    "en": "(px)"
+   }
+  },
+  {
+   "part": "daysUnit",
+   "text": {
+    "ja": "日",
+    "en": "days"
+   }
+  },
+  {
+   "part": "lagDays",
+   "text": {
+    "ja": "{lag}日",
+    "en": "{lag} d"
+   }
+  },
+  {
+   "part": "linkHintFS",
+   "text": {
+    "ja": "{abbreviation}（完了 → 開始）",
+    "en": "{abbreviation} (finish to start)"
+   }
+  },
+  {
+   "part": "linkHintSF",
+   "text": {
+    "ja": "{abbreviation}（開始 → 完了）",
+    "en": "{abbreviation} (start to finish)"
+   }
+  },
+  {
+   "part": "linkHintFF",
+   "text": {
+    "ja": "{abbreviation}（完了 → 完了）",
+    "en": "{abbreviation} (finish to finish)"
+   }
+  },
+  {
+   "part": "linkHintSS",
+   "text": {
+    "ja": "{abbreviation}（開始 → 開始）",
+    "en": "{abbreviation} (start to start)"
+   }
+  },
+  {
+   "part": "resumeValidHint",
+   "text": {
+    "ja": "再開予定日が決まっている。外すと再開日が未定の中断",
+    "en": "The resume date is decided. Clear it for an interruption with no resume date."
+   }
   }
  ],
  "rowMinHeightField": [
+  {
+   "part": "enable",
+   "text": {
+    "ja": "最小高さを設定する",
+    "en": "set a min height"
+   }
+  },
   {
    "part": "unit",
    "text": {
@@ -4578,17 +4641,24 @@
    }
   },
   {
-   "part": "current",
+   "part": "basisHint",
    "text": {
-    "ja": "現在の高さ {px}px",
-    "en": "current: {px} px"
+    "ja": "表示の倍率 100% のときの高さ。縦のズームでは縮まない",
+    "en": "Height at 100% display scale. Vertical zoom does not shrink it."
    }
   },
   {
-   "part": "none",
+   "part": "currentName",
    "text": {
-    "ja": "なし",
-    "en": "none"
+    "ja": "現在の高さ",
+    "en": "current height"
+   }
+  },
+  {
+   "part": "currentValue",
+   "text": {
+    "ja": "{px} px",
+    "en": "{px} px"
    }
   },
   {
