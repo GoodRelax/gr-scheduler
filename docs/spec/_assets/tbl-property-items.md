@@ -24,8 +24,8 @@
 ⛔ **画面に出す名は画面の言語に従う（`FR-038`）。**  
 ⭐ **交換形式の列名は本表の `列` の欄が持つ** —— **往復の手がかりはそこに在り、画面に出す名が担うものではない。**
 
-⛔ **選択の候補・数値の下限と上限・日付である列を本表へ写してはならない（MUST NOT）** —— `_source/grs-document.schema.json` と `DATE_COLUMNS` が既に持つ。  
-写すと正が 2 か所になる。
+⛔ **選択の候補・数値の下限と上限・日付である列を本表へコピーしてはならない（MUST NOT）** —— `_source/grs-document.schema.json` と `DATE_COLUMNS` が既に持つ。  
+コピーすると正が 2 か所になる。
 
 **表 T-016 — プロパティ項目**
 
@@ -66,7 +66,7 @@
 | PR-46 | `textColor` | 色 | `CommentBox` | — | 本文の字の色。<br>`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）。<br>並びは `FR-006` の見た目の行の順 | 無い（`GRS JSON` のみ） |
 | PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | — | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
 | PR-22 | `strokeColor` | 色 | `HighlightBox` | — | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。<br>透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
-| PR-25 | `fillColor` | 色 | `HighlightBox` | — | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
+| PR-25 | `fillColor` | 色 | `HighlightBox` | — | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）をコピーする。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
 | PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | — | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371` | 無い（`GRS JSON` のみ） |
 | PR-41 | `linkType` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。<br>`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。<br>種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`） | `PredecessorLink/Type` |
 | PR-42 | `lag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118`（稼働日）であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |

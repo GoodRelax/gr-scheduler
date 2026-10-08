@@ -437,7 +437,7 @@ const DELETE_SELECTION = (): HumanInput => key(deleteSpelling())
 /**
  * The first spelling SK-3's 割当 column offers, taken from the manuscript.
  *
- * ⭐ NOT TYPED: 「割当の綴りも入口の説明も写してはならない（MUST NOT）—— 綴りの家
+ * ⭐ NOT TYPED: 「割当の綴りも入口の説明もコピーしてはならない（MUST NOT）—— 綴りの家
  * は 1 つである（`R3.4`）」 is stated of table T-036's 入口 column, and a case that
  * typed `Delete` here would be a second home for the same spelling.
  */

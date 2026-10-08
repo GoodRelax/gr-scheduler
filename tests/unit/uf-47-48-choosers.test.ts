@@ -2668,7 +2668,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
   it('table T-036 prints the assignment second, and OP-2 keeps opening to one row', () => {
     // ⚠️ FOUR, NOT THREE, SINCE 入口 WAS APPENDED AFTER 割当: 「⭐ **`入口` の欄
     //   は、その割当が動かす 表 T-109 の行を名指すこと（MUST）。行 ID で書き、割
-    //   当の綴りも入口の説明も写してはならない（MUST NOT）**」 -- appended, so the
+    //   当の綴りも入口の説明もコピーしてはならない（MUST NOT）**」 -- appended, so the
     // position read below did not move.
     expect(T_036.headings.length).toBe(4)
     // ⛔ THE COUNT ALONE IS NOT THE GUARD, the same way table T-109 is pinned

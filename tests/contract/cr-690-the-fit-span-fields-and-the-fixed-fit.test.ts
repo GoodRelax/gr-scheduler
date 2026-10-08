@@ -33,7 +33,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 const FX_1_SAVED =
   '⭐ 期間（`_assets/tbl-settings.md` の 表 T-202 の `S-518` / `S-519`）と固定（同書の 表 T-203 の `S-532`）を文書に保存すること（MUST）'
 const FX_1_EMPTIED =
-  '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日を写す。⭐ 欄で片方を空にして確定したら、期間を消すこと（MUST）'
+  '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日をコピーする。⭐ 欄で片方を空にして確定したら、期間を消すこと（MUST）'
 const FX_1_FIX_NEEDS_DAYS =
   '（`05-07-design.md` の 表 T-220 の前文）。⭐ `S-532` が真のときは、期間が日付を持つこと（MUST）'
 const FX_2_ONLY_TWO =
@@ -46,7 +46,7 @@ const FX_3_CLAMP =
 const FX_3_VERTICAL = '⭐ 縦は本要求の上の規則（グループ LOD の深さを選んで合わせる）のままとすること（MUST）'
 const FX_4_CHECK =
   '入口は 1 つのチェックボックスとし、名を `FR-038` の辞書が 表 T-104 の `K-142` に持つ語とし、押されたら 表 T-108 の `CM-90` を 1 回発行すること（MUST）'
-const FX_4_COPY = '⭐ 期間が `null` のまま固定へ入れたときは、同じ 1 回の命令で、期間に `FX-6` の 2 つの日を写すこと（MUST）'
+const FX_4_COPY = '⭐ 期間が `null` のまま固定へ入れたときは、同じ 1 回の命令で、期間に `FX-6` の 2 つの日をコピーすること（MUST）'
 const FX_5_FIELD =
   '名を辞書が 表 T-104 の `K-141` に持つ語とし、開始日と終了日の 2 つを、宿主の日付の入力（`FR-151` の 表 T-330 の `SV-7` と同じ、カレンダーで選べる入力）で、`-` を挟んで並べること（MUST）'
 const FX_5_ONE_COMMIT =

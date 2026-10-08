@@ -30,7 +30,7 @@ const AT_153_MADE =
   '`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`'
 const AT_153_DEFAULT =
   '既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。'
-const AT_153_DU_2 = '貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う'
+const AT_153_DU_2 = '貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う'
 const DU_2_VALUE =
   '複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'
 const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'

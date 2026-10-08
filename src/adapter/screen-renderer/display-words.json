@@ -1075,7 +1075,7 @@
     "en": "Copy"
    },
    "hint": {
-    "ja": "遅延診断レポートを Markdown でクリップボードへ写す",
+    "ja": "遅延診断レポートを Markdown でクリップボードへコピーする",
     "en": "Copy this report to the clipboard as Markdown"
    }
   },
@@ -3693,7 +3693,7 @@
     "en": "Something went wrong and the cause is not known"
    },
    "nextStep": {
-    "ja": "記録を始めてから、もう一度お試しください。記録は止めると写されます",
+    "ja": "記録を始めてから、もう一度お試しください。記録は止めるとコピーされます",
     "en": "Start the recording, try once more, and stop it to copy the record"
    }
   },
@@ -4688,7 +4688,7 @@
   {
    "rowId": "MK-15",
    "text": {
-    "ja": "選んでいるものを写して、離した所に置く（Shift を併せると日付を変えない）",
+    "ja": "選んでいるものをコピーして、離した所に置く（Shift を併せると日付を変えない）",
     "en": "Copy the Selection and put the copy where you release; hold Shift too to keep the dates"
    },
    "press": {

@@ -35,7 +35,7 @@ const TL_7_CUT_INSIDE =
 const TL_7_CODE_POINTS = '字数は、文字（Unicode の符号位置）1 つを 1 と数える。'
 const TL_7_NONE = '対象が 1 人もいなければ行を出さない。'
 const TL_7_NO_COUNT_FORM =
-  '⛔ 担当ラベルの `-`（表 T-225 の `AS-2`）も、先頭 1 名と残りの人数の形も写してはならない（MUST NOT）'
+  '⛔ 担当ラベルの `-`（表 T-225 の `AS-2`）も、先頭 1 名と残りの人数の形もコピーしてはならない（MUST NOT）'
 const TL_8_LINE = '進捗の語、`:`、半角空白 1 つ、`percentComplete` の順に書くこと（MUST）'
 const TL_8_THE_WORD =
   '進捗の語は、`FR-038` の辞書の `delayReportColumns` の `DT-3` の語とすること（MUST）'
