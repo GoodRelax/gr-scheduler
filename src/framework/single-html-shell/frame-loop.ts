@@ -500,12 +500,16 @@ interface DrawnPicture {
 }
 
 /** @purity pure */
-function isSameRecord(a: object, b: object, isSame: (x: unknown, y: unknown) => boolean = Object.is): boolean {
+function isSameRecord(
+  a: object,
+  b: object,
+  isSame: (x: unknown, y: unknown, key: string) => boolean = Object.is,
+): boolean {
   if (a === b) return true
   const right = b as Readonly<Record<string, unknown>>
   const fields = Object.entries(a)
   if (fields.length !== Object.keys(right).length) return false
-  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key]))
+  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key], key))
 }
 
 // TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
@@ -543,20 +547,52 @@ type ZoomEntranceEnds = ReturnType<typeof zoomEntranceEndsOf>
 interface HeldZoomEnds {
   readonly document: Document
   readonly layout: ScheduleLayout
+  readonly regions: ScreenRegions
+  readonly rowControlsHeightPx: number | undefined
   readonly isPictureAtStoredZoom: boolean
   readonly ends: ZoomEntranceEnds
 }
 
-// see FR-029, DFC-567, PI-18
-// WHY: the ends lay the rows out again; read every frame, they are asked only when the picture moved.
+// see OP-10, OP-10a
+// WHY: the view place only shifts rows and days; it changes no row's height, order or the stored zoom.
+const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
+  'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
+])
+
+/** @purity pure */
+function isSameApartFromViewPlace(a: DocumentSettings, b: DocumentSettings): boolean {
+  return isSameRecord(a, b, (x, y, key) => VIEW_PLACE_FIELDS.has(key) || Object.is(x, y))
+}
+
+// TRAP: away from the stored zoom the drawn zoom is a fit read off the drawn layout, so only then is the layout a key.
+/** @purity pure */
+function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'>): boolean {
+  if (held.isPictureAtStoredZoom !== now.isPictureAtStoredZoom) return false
+  if (!now.isPictureAtStoredZoom) return held.document === now.document && held.layout === now.layout
+  return (
+    held.document.schedule === now.document.schedule &&
+    held.rowControlsHeightPx === now.rowControlsHeightPx &&
+    isSameApartFromViewPlace(held.document.documentSettings, now.document.documentSettings) &&
+    isSameRecord(held.regions, now.regions, (x, y) => isSameRecord(x as object, y as object))
+  )
+}
+
+// see FR-029, DFC-567, PI-18, DFC-2301
+// WHY: the ends lay the rows out again; a pan moves the layout every frame but none of what they read.
 /** @purity non-pure */
 function zoomEntranceEndsHoldOf() {
   let held: HeldZoomEnds | null = null
-  return (frame: FrameValues, document: Document, contextOf: (frame: FrameValues) => InputContext): ZoomEntranceEnds => {
-    const { layout, isPictureAtStoredZoom } = frame
-    if (held?.document === document && held.layout === layout && held.isPictureAtStoredZoom === isPictureAtStoredZoom) return held.ends
+  return (
+    frame: FrameValues,
+    document: Document,
+    rowControlsHeightPx: number | undefined,
+    contextOf: (frame: FrameValues) => InputContext,
+  ): ZoomEntranceEnds => {
+    const { layout, regions, isPictureAtStoredZoom } = frame
+    const now = { document, layout, regions, rowControlsHeightPx, isPictureAtStoredZoom }
+    if (held !== null && isSameZoomEndsInputs(held, now)) return held.ends
     const ends = zoomEntranceEndsOf(contextOf(frame))
-    held = { document, layout, isPictureAtStoredZoom, ends }
+    held = { ...now, ends }
     return ends
   }
 }
@@ -2598,7 +2634,7 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
-          zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, collectInputContext),
+          zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.rowControlsHeightPx, collectInputContext),
           ...windows.readings(session, delayDiagnosticsNow()),
           ...wbsParents.readings(session, delayDiagnosticsShown),
         }),

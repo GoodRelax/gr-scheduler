@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 266 | 2950 | 4 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 267 | 2953 | 4 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 68 | 429 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3911 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 536 | 7394 | 7 | 9 | 12 | 2 |
+| **all** | | | 537 | 7397 | 7 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -401,6 +401,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2160-a-row-under-the-pinned-band-is-not-picked.test.ts` | 6 | FR-098 | - | T-023c, T-303 | EL-1, SL-3 | - | - | - | - |
 | `tests/contract/dfc-2228-a-document-without-the-export-span-opens.contract.test.ts` | 4 | - | - | - | FX-1, OP-3, OP-6, S-518, S-519 | - | - | - | - |
 | `tests/contract/dfc-2260-fr-029-the-palette-entrances-fade-while-an-open-road-surface-awaits.test.ts` | 9 | FR-029 | VT-2 | T-280 | IC-41, IC-62, IC-95, RS-27, U-54, U-56, U-61 | - | - | - | - |
+| `tests/contract/dfc-2301-a-pan-keeps-the-zoom-ends-without-laying-the-rows-out.test.ts` | 3 | FR-029 | - | - | IC-12, IC-15, OP-10, PTD-1, S-96, S-97 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
