@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>疑義を持つ親の印（CR-716 の見本）</title>
+<style>
+  :root {
+    --page: #f6f7f9; --ink: #1d2330; --muted: #5a6273; --card: #ffffff; --rule: #d5dae3;
+    --accent: #214b82; --pressed: #e3ecf8;
+    /* chart colours copied from the shipped build (light theme) and tbl-settings.md */
+    --s389: #9673d3;  /* S-389 DG-1 ground (purple) */
+    --s390: #16181d;  /* S-390 = S-327 symbol colour */
+    --s160: #d66400;  /* S-160 lightning line */
+    --status: #008a7c;
+  }
+  html, body { margin: 0; background: var(--page); color: var(--ink); }
+  body { font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", "Hiragino Sans", sans-serif; font-size: 16px; line-height: 1.7; }
+  main { padding: 16px 16px 48px; }
+  .prose { max-width: 62em; }
+  h1 { font-size: 22px; line-height: 1.4; margin: 8px 0 4px; }
+  h2 { font-size: 18px; margin: 24px 0 6px; }
+  p { margin: 6px 0; }
+  code { font-size: 14px; background: #eef1f5; padding: 0 4px; border-radius: 3px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; margin: 12px 0; }
+  .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .group > span { color: var(--muted); font-size: 14px; margin-right: 4px; }
+  button { font: inherit; font-size: 15px; line-height: 1.4; padding: 4px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--pressed); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .chart-box { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; overflow-x: auto; }
+  .chart-box svg { display: block; }
+  .note { font-size: 14px; color: var(--muted); }
+  .variant-card { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 14px; margin-top: 12px; max-width: 62em; }
+  .variant-card h3 { margin: 0 0 4px; font-size: 17px; }
+  .variant-card ul { margin: 4px 0; padding-left: 1.3em; }
+  .rec { color: #1b6e3a; font-weight: 700; }
+  #tip { position: fixed; pointer-events: none; background: #ffffff; color: #16181d; border: 1px solid #8a93a3; border-radius: 4px; padding: 6px 10px; font-size: 13px; line-height: 1.55; max-width: 34em; box-shadow: 0 2px 8px rgba(0,0,0,.18); display: none; z-index: 10; white-space: normal; }
+  #tip .doubt { border-top: 1px solid #d5dae3; margin-top: 4px; padding-top: 4px; }
+  .report { font-size: 14px; border-collapse: collapse; margin-top: 6px; }
+  .report td, .report th { border: 1px solid var(--rule); padding: 2px 8px; text-align: left; }
+  .report th { background: #eef1f5; font-weight: 600; }
+  .report td:nth-child(-n+3), .report th:nth-child(-n+3) { white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+<div class="prose">
+  <h1>遅延診断: 疑義を持つ親の印（<code>CR-716</code> の見本）</h1>
+  <p>見本の ERP 計画（<code>sample-schedule/sample-large-erp-program.ja.xml</code>、基準日 2026/12/09）の、タスクグループ「9. 組織変革・教育」の部分を、出荷ビルド <code>acadb8f3</code> の画面から写した。イナズマ線（橙）のいちばん深い凹みは、いちばん下の段の親のバー（2026/09/02）に立つ。この親は <code>VS-6</code> の疑義（親の進み具合の点が、配下の作業の点 2026/11/25 - 2026/12/09 から 55 稼働日外れる）を持つが、いまの画面には印が無い（<code>DFC-2216</code>）。</p>
+  <p>下のボタンで、遅延診断の表示と、印の置き場の案を切り替える。印の上か親のバーの上にポインタを 1 秒止めると、説明（表 T-348）を出す。</p>
+</div>
+
+<div class="controls" role="toolbar">
+  <div class="group" data-group="diag"><span>遅延診断</span>
+    <button data-value="on" aria-pressed="true">出す</button>
+    <button data-value="off" aria-pressed="false">出さない</button>
+  </div>
+  <div class="group" data-group="variant"><span>印の置き場</span>
+    <button data-value="none" aria-pressed="false">いま（印なし）</button>
+    <button data-value="A" aria-pressed="true">A マーカー（推奨）</button>
+    <button data-value="B" aria-pressed="false">B 凹みの頂点</button>
+    <button data-value="C" aria-pressed="false">C タスクグループ見出し</button>
+    <button data-value="D" aria-pressed="false">D 親のバーを破線で囲む</button>
+  </div>
+  <div class="group" data-group="glyph"><span>記号</span>
+    <button data-value="ne" aria-pressed="true">≠（新しい状態）</button>
+    <button data-value="q" aria-pressed="false">?（DG-1 と同じ形）</button>
+  </div>
+  <div class="group" data-group="scale"><span>大きさ</span>
+    <button data-value="1" aria-pressed="false">100%</button>
+    <button data-value="1.35" aria-pressed="true">135%</button>
+    <button data-value="1.7" aria-pressed="false">170%</button>
+  </div>
+</div>
+
+<div class="chart-box" id="chartBox"></div>
+<p class="note">画面の写し: 時間の軸 1 日 3.75px、段の高さ 21.625px、マーカーの半径 7px、縁 0.81px（出荷ビルドを 2000 × 1000 の窓で開き <code>focusTask(208)</code> した値）。100% が画面と同じ寸法である。名称ラベルの字（9px）は画面のままなので、読みにくければ 135% 以上で見る。</p>
+
+<div id="variantText"></div>
+
+<div class="prose">
+  <h2>レポートの表の 1 行（表 T-347 の <code>DT-1</code>）</h2>
+  <table class="report" aria-label="遅延診断レポートの 1 行">
+    <thead><tr><th>ステータス</th><th>進捗</th><th>タスク</th><th>理由</th></tr></thead>
+    <tbody><tr><td id="reportStatus"></td><td>46%</td><td>9. 組織変革・教育</td><td id="reportReason"></td></tr></tbody>
+  </table>
+  <p class="note">いまは「疑義・記載漏れ」の行に絵が無い（<code>DT-1</code>）。新しい状態を足すと、その状態を持つ行にだけマーカーと同じ絵が付く（<code>CR-716</code> の E-04）。</p>
+</div>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+'use strict'
+const DATA = {"status":1207.99,"line":[[1207.99,80.88],[1181.74,102.5],[1155.49,124.13],[1155.49,145.75],[1155.49,167.38],[1207.99,189],[840.49,210.63],[1207.99,232.25],[1207.99,253.88]],"tasks":[{"uid":208,"shapes":[{"tag":"polygon","points":"236.74,219.69 1556.74,219.69 1556.74,202.19 236.74,202.19","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"236.74,215.94 840.49,215.94 840.49,205.94 236.74,205.94","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":243.74,"cy":210.94,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81}],"label":{"x":256.74,"y":214.09,"text":"9. 組織変革・教育"}},{"uid":209,"shapes":[{"tag":"polygon","points":"521.74,198.06 626.74,198.06 626.74,180.56 521.74,180.56","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"521.74,194.31 626.74,194.31 626.74,184.31 521.74,184.31","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":633.74,"cy":189.31,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"630.24,189.31 633.04,191.76 637.24,186.86","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":646.74,"y":192.46,"text":"変革インパクト分析"}},{"uid":210,"shapes":[{"tag":"polygon","points":"236.74,198.06 289.24,198.06 289.24,180.56 236.74,180.56","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"236.74,194.31 289.24,194.31 289.24,184.31 236.74,184.31","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":296.24,"cy":189.31,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"292.74,189.31 295.54,191.76 299.74,186.86","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":309.24,"y":192.46,"text":"ステークホルダー分析"}},{"uid":211,"shapes":[{"tag":"polygon","points":"289.24,176.44 341.74,176.44 341.74,158.94 289.24,158.94","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"289.24,172.69 341.74,172.69 341.74,162.69 289.24,162.69","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":348.74,"cy":167.69,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"345.24,167.69 348.04,170.14 352.24,165.24","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":361.74,"y":170.84,"text":"コミュニケーション計画"}},{"uid":212,"shapes":[{"tag":"polygon","points":"341.74,154.81 469.24,154.81 469.24,137.31 341.74,137.31","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"341.74,151.06 469.24,151.06 469.24,141.06 341.74,141.06","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":476.24,"cy":146.06,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"472.74,146.06 475.54,148.51 479.74,143.61","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":489.24,"y":149.21,"text":"変革コミュニケーション実施 - 2026 年度 上期"}},{"uid":213,"shapes":[{"tag":"polygon","points":"682.99,154.81 799.24,154.81 799.24,137.31 682.99,137.31","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"682.99,151.06 799.24,151.06 799.24,141.06 682.99,141.06","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":806.24,"cy":146.06,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"802.74,146.06 805.54,148.51 809.74,143.61","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":819.24,"y":149.21,"text":"変革コミュニケーション実施 - 2026 年度 下期"}},{"uid":214,"shapes":[{"tag":"polygon","points":"1027.99,198.06 1136.74,198.06 1136.74,180.56 1027.99,180.56","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1027.99,194.31 1136.74,194.31 1136.74,184.31 1027.99,184.31","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":1143.74,"cy":189.31,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"1140.24,189.31 1143.04,191.76 1147.24,186.86","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":1156.74,"y":192.46,"text":"変革コミュニケーション実施 - 2027 年度 上期"}},{"uid":215,"shapes":[{"tag":"polygon","points":"1384.24,198.06 1492.99,198.06 1492.99,180.56 1384.24,180.56","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1384.24,194.31 1391.24,194.31 1391.24,184.31 1384.24,184.31","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1398.24,"cy":189.31,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1398.24,"cy":189.31,"r":1.26,"fill":"#16181d"}],"label":{"x":1411.24,"y":192.46,"text":"変革コミュニケーション実施 - 2027 年度 下期"}},{"uid":216,"shapes":[{"tag":"polygon","points":"626.74,176.44 690.49,176.44 690.49,158.94 626.74,158.94","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"626.74,172.69 690.49,172.69 690.49,162.69 626.74,162.69","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"actual"}],"marker":[{"tag":"circle","cx":697.49,"cy":167.69,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"polyline","points":"693.99,167.69 696.79,170.14 700.99,165.24","fill":"none","stroke":"#16181d","stroke-width":0.81}],"label":{"x":710.49,"y":170.84,"text":"教育方針・カリキュラム策定"}},{"uid":217,"shapes":[{"tag":"polygon","points":"1181.74,111.56 1260.49,111.56 1260.49,94.06 1181.74,94.06","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1181.74,107.81 1188.74,107.81 1188.74,97.81 1181.74,97.81","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1195.74,"cy":102.81,"r":7,"fill":"#ffd400","stroke":"#16181d","stroke-width":0.81},{"tag":"line","x1":1195.74,"y1":99.31,"x2":1195.74,"y2":103.34,"stroke":"#16181d","stroke-width":1.38},{"tag":"circle","cx":1195.74,"cy":105.61,"r":0.98,"fill":"#16181d"}],"label":{"x":1208.74,"y":105.96,"text":"研修教材 作成 - 財務・管理会計"}},{"uid":218,"shapes":[{"tag":"polygon","points":"1155.49,176.44 1234.24,176.44 1234.24,158.94 1155.49,158.94","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1155.49,172.69 1162.49,172.69 1162.49,162.69 1155.49,162.69","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1169.49,"cy":167.69,"r":7,"fill":"#ffd400","stroke":"#16181d","stroke-width":0.81},{"tag":"line","x1":1169.49,"y1":164.19,"x2":1169.49,"y2":168.21,"stroke":"#16181d","stroke-width":1.38},{"tag":"circle","cx":1169.49,"cy":170.49,"r":0.98,"fill":"#16181d"}],"label":{"x":1182.49,"y":170.84,"text":"研修教材 作成 - 購買・在庫管理"}},{"uid":219,"shapes":[{"tag":"polygon","points":"1155.49,154.81 1234.24,154.81 1234.24,137.31 1155.49,137.31","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1155.49,151.06 1162.49,151.06 1162.49,141.06 1155.49,141.06","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1169.49,"cy":146.06,"r":7,"fill":"#ffd400","stroke":"#16181d","stroke-width":0.81},{"tag":"line","x1":1169.49,"y1":142.56,"x2":1169.49,"y2":146.59,"stroke":"#16181d","stroke-width":1.38},{"tag":"circle","cx":1169.49,"cy":148.86,"r":0.98,"fill":"#16181d"}],"label":{"x":1182.49,"y":149.21,"text":"研修教材 作成 - 生産管理"}},{"uid":220,"shapes":[{"tag":"polygon","points":"1155.49,133.19 1234.24,133.19 1234.24,115.69 1155.49,115.69","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1155.49,129.44 1162.49,129.44 1162.49,119.44 1155.49,119.44","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1169.49,"cy":124.44,"r":7,"fill":"#ffd400","stroke":"#16181d","stroke-width":0.81},{"tag":"line","x1":1169.49,"y1":120.94,"x2":1169.49,"y2":124.96,"stroke":"#16181d","stroke-width":1.38},{"tag":"circle","cx":1169.49,"cy":127.24,"r":0.98,"fill":"#16181d"}],"label":{"x":1182.49,"y":127.59,"text":"研修教材 作成 - 販売・物流"}},{"uid":221,"shapes":[{"tag":"polygon","points":"1260.49,89.94 1346.74,89.94 1346.74,72.44 1260.49,72.44","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1260.49,86.19 1267.49,86.19 1267.49,76.19 1260.49,76.19","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1274.49,"cy":81.19,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1274.49,"cy":81.19,"r":1.26,"fill":"#16181d"}],"label":{"x":1287.49,"y":84.34,"text":"トレーナー育成"}},{"uid":222,"shapes":[{"tag":"polygon","points":"1346.74,176.44 1399.24,176.44 1399.24,158.94 1346.74,158.94","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1346.74,172.69 1353.74,172.69 1353.74,162.69 1346.74,162.69","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1360.74,"cy":167.69,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1360.74,"cy":167.69,"r":1.26,"fill":"#16181d"}],"label":{"x":1373.74,"y":170.84,"text":"エンドユーザー研修 - 本社"}},{"uid":223,"shapes":[{"tag":"polygon","points":"1399.24,154.81 1455.49,154.81 1455.49,137.31 1399.24,137.31","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1399.24,151.06 1406.24,151.06 1406.24,141.06 1399.24,141.06","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1413.24,"cy":146.06,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1413.24,"cy":146.06,"r":1.26,"fill":"#16181d"}],"label":{"x":1426.24,"y":149.21,"text":"エンドユーザー研修 - 関東工場"}},{"uid":224,"shapes":[{"tag":"polygon","points":"1462.99,133.19 1519.24,133.19 1519.24,115.69 1462.99,115.69","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1462.99,129.44 1469.99,129.44 1469.99,119.44 1462.99,119.44","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1476.99,"cy":124.44,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1476.99,"cy":124.44,"r":1.26,"fill":"#16181d"}],"label":{"x":1489.99,"y":127.59,"text":"エンドユーザー研修 - 関西工場"}},{"uid":225,"shapes":[{"tag":"polygon","points":"1519.24,176.44 1556.74,176.44 1556.74,158.94 1519.24,158.94","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1519.24,172.69 1526.24,172.69 1526.24,162.69 1519.24,162.69","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1533.24,"cy":167.69,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1533.24,"cy":167.69,"r":1.26,"fill":"#16181d"}],"label":{"x":1546.24,"y":170.84,"text":"教育効果 測定・フォロー"}},{"uid":226,"shapes":[{"tag":"polygon","points":"1552.99,94.06 1561.74,102.81 1552.99,111.56 1544.24,102.81","fill":"hsl(214 46% 80%)","stroke":"hsl(214 44% 46%)","stroke-width":0.63,"part":"plan"},{"tag":"polygon","points":"1552.99,97.81 1558,102.81 1552.99,107.81 1547.99,102.81","fill":"hsl(214 62% 34%)","stroke":"hsl(214 66% 22%)","stroke-width":0.63,"part":"dummies"}],"marker":[{"tag":"circle","cx":1565,"cy":102.81,"r":7,"fill":"#ffffff","stroke":"#16181d","stroke-width":0.81},{"tag":"circle","cx":1565,"cy":102.81,"r":1.26,"fill":"#16181d"}],"label":{"x":1578,"y":105.96,"text":"組織受入 準備完了"}}],"deps":[{"from":51,"to":209,"points":"511.74,183.31 511.74,189.31 521.74,189.31"},{"from":51,"to":209,"dot":[511.74,180.31,1]},{"from":51,"to":209,"dot":[511.74,176.31,1]},{"from":51,"to":209,"dot":[511.74,172.31,1]},{"from":72,"to":209,"points":"511.74,183.31 511.74,189.31 521.74,189.31"},{"from":27,"to":210,"points":"226.74,183.31 226.74,189.31 236.74,189.31"},{"from":27,"to":210,"dot":[226.74,180.31,1]},{"from":27,"to":210,"dot":[226.74,176.31,1]},{"from":27,"to":210,"dot":[226.74,172.31,1]},{"from":210,"to":211,"points":"289.24,189.31 295.24,189.31 295.24,178.5 279.24,178.5 279.24,167.69 289.24,167.69"},{"from":211,"to":212,"points":"341.74,167.69 347.74,167.69 347.74,156.88 331.74,156.88 331.74,146.06 341.74,146.06"},{"from":212,"to":213,"points":"469.24,146.06 682.99,146.06"},{"from":213,"to":214,"points":"799.24,146.06 913.62,146.06 913.62,189.31 1027.99,189.31"},{"from":214,"to":215,"points":"1136.74,189.31 1384.24,189.31"},{"from":209,"to":216,"points":"626.74,189.31 632.74,189.31 632.74,178.5 616.74,178.5 616.74,167.69 626.74,167.69"},{"from":216,"to":217,"points":"690.49,167.69 936.12,167.69 936.12,102.81 1181.74,102.81"},{"from":87,"to":217,"points":"1171.74,96.81 1171.74,102.81 1181.74,102.81"},{"from":87,"to":217,"dot":[1171.74,93.81,1]},{"from":87,"to":217,"dot":[1171.74,89.81,1]},{"from":87,"to":217,"dot":[1171.74,85.81,1]},{"from":216,"to":218,"points":"690.49,167.69 1155.49,167.69"},{"from":98,"to":218,"points":"1145.49,161.69 1145.49,167.69 1155.49,167.69"},{"from":98,"to":218,"dot":[1145.49,158.69,1]},{"from":98,"to":218,"dot":[1145.49,154.69,1]},{"from":98,"to":218,"dot":[1145.49,150.69,1]},{"from":216,"to":219,"points":"690.49,167.69 922.99,167.69 922.99,146.06 1155.49,146.06"},{"from":109,"to":219,"points":"1145.49,140.06 1145.49,146.06 1155.49,146.06"},{"from":109,"to":219,"dot":[1145.49,137.06,1]},{"from":109,"to":219,"dot":[1145.49,133.06,1]},{"from":109,"to":219,"dot":[1145.49,129.06,1]},{"from":216,"to":220,"points":"690.49,167.69 922.99,167.69 922.99,124.44 1155.49,124.44"},{"from":120,"to":220,"points":"1145.49,118.44 1145.49,124.44 1155.49,124.44"},{"from":120,"to":220,"dot":[1145.49,115.44,1]},{"from":120,"to":220,"dot":[1145.49,111.44,1]},{"from":120,"to":220,"dot":[1145.49,107.44,1]},{"from":217,"to":221,"points":"1260.49,102.81 1266.49,102.81 1266.49,92 1250.49,92 1250.49,81.19 1260.49,81.19"},{"from":218,"to":221,"points":"1234.24,167.69 1247.37,167.69 1247.37,81.19 1260.49,81.19"},{"from":219,"to":221,"points":"1234.24,146.06 1247.37,146.06 1247.37,81.19 1260.49,81.19"},{"from":220,"to":221,"points":"1234.24,124.44 1247.37,124.44 1247.37,81.19 1260.49,81.19"},{"from":221,"to":222,"points":"1346.74,81.19 1352.74,81.19 1352.74,124.44 1336.74,124.44 1336.74,167.69 1346.74,167.69"},{"from":222,"to":223,"points":"1399.24,167.69 1405.24,167.69 1405.24,156.88 1389.24,156.88 1389.24,146.06 1399.24,146.06"},{"from":223,"to":224,"points":"1455.49,146.06 1461.49,146.06 1461.49,135.25 1452.99,135.25 1452.99,124.44 1462.99,124.44"},{"from":224,"to":225,"points":"1519.24,124.44 1525.24,124.44 1525.24,146.06 1509.24,146.06 1509.24,167.69 1519.24,167.69"},{"from":225,"to":226,"points":"1556.74,167.69 1562.74,167.69 1562.74,135.25 1534.24,135.25 1534.24,102.81 1544.24,102.81"},{"from":226,"to":231,"points":"1561.74,102.81 1567.74,102.81 1567.74,108.81"},{"from":226,"to":231,"dot":[1567.74,111.81,1]},{"from":226,"to":231,"dot":[1567.74,115.81,1]},{"from":226,"to":231,"dot":[1567.74,119.81,1]}]}
+
+// ---- Constants: every value names its settings row (docs/spec/_assets/tbl-settings.md) or the measured build ----
+const SVG_NS = 'http://www.w3.org/2000/svg'
+const PX_PER_DAY = 3.75            // measured: vertices 11-25 / 12-09 are 52.5px apart in the shipped build
+const STATUS_DAY = Date.UTC(2026, 11, 9) // Project.statusDate of the sample (12/09)
+const MARKER_RADIUS = 7            // measured: circle r of every progress marker at this zoom
+const MARKER_EDGE = 0.81           // measured: S-24 as drawn at this zoom
+const S_328 = 1.7                  // symbol stroke = edge x S-328
+const S_341 = 0.5                  // symbol half-height / radius
+const S_330 = 0.8                  // dot centre below the centre, x half-height
+const S_331 = 0.14                 // dot radius / radius
+const S_392 = 0.36                 // '?' hook centre from the top / diameter
+const S_393 = 0.18                 // '?' hook radius / diameter
+const S_394 = 0.62                 // '?' stem bottom from the top / diameter
+const S_486 = [5, 4]               // dash of derived parent arrows (borrowed by variant D)
+// Proposed new rows for the doubt symbol (CR-716 X-2..X-4; ratios to the diameter like S-391..S-396; not measured)
+const X_2_NE_HALF_GAP = 0.12       // half the distance between the centres of the two bars of '≠' / diameter
+const X_3_NE_SLASH_DX = 0.15       // half the horizontal extent of the slash / diameter
+const X_4_NE_SLASH_DY = 0.30       // half the vertical extent of the slash / diameter
+const S_439_MS = 1000              // task hint delay
+const CHART = { x0: 0, x1: 1600, y0: 30, y1: 262, titleWidth: 187.5, rowTop: 72.13, rowBottom: 223.5 }
+const PARENT_UID = 208
+const DIP = DATA.line.find((p) => p[0] < DATA.status - 100)
+const COLOURS = { s389: '#9673d3', s390: '#16181d', s160: '#d66400', status: '#008a7c', band: 'hsl(214 40% 97%)', bandRule: 'hsl(214 34% 88%)', dep: '#6f472a', rulerInk: '#2b3240', rulerRule: '#c8ced8' }
+
+const state = { diag: 'on', variant: 'A', glyph: 'ne', scale: '1.35' }
+
+const el = (tag, attrs = {}, parent) => {
+  const node = document.createElementNS(SVG_NS, tag)
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, String(v))
+  if (parent) parent.appendChild(node)
+  return node
+}
+const xOfDay = (utcMs) => DATA.status + PX_PER_DAY * (utcMs - STATUS_DAY) / 86400000
+const dayOfX = (x) => STATUS_DAY + Math.round((x - DATA.status) / PX_PER_DAY) * 86400000
+
+// ---- the doubt marker: ground S-389, edge and symbol S-390 ----
+function drawDoubtMarker(parent, cx, cy, glyph, extra = {}) {
+  const g = el('g', { 'data-doubt': 'mark', ...extra }, parent)
+  const r = MARKER_RADIUS
+  const stroke = MARKER_EDGE * S_328
+  el('circle', { cx, cy, r, fill: COLOURS.s389, stroke: COLOURS.s390, 'stroke-width': MARKER_EDGE }, g)
+  if (glyph === 'ne') {
+    const d = 2 * r
+    const half = r * S_341
+    const gap = d * X_2_NE_HALF_GAP
+    for (const dy of [-gap, gap]) el('line', { x1: cx - half, y1: cy + dy, x2: cx + half, y2: cy + dy, stroke: COLOURS.s390, 'stroke-width': stroke, 'stroke-linecap': 'butt' }, g)
+    el('line', { x1: cx - d * X_3_NE_SLASH_DX, y1: cy + d * X_4_NE_SLASH_DY, x2: cx + d * X_3_NE_SLASH_DX, y2: cy - d * X_4_NE_SLASH_DY, stroke: COLOURS.s390, 'stroke-width': stroke, 'stroke-linecap': 'butt' }, g)
+  } else {
+    const d = 2 * r
+    const top = cy - r
+    const rho = d * S_393
+    const hy = top + d * S_392
+    const stemBottom = top + d * S_394
+    el('path', { d: `M ${cx - rho} ${hy} A ${rho} ${rho} 0 1 1 ${cx} ${hy + rho} L ${cx} ${stemBottom}`, fill: 'none', stroke: COLOURS.s390, 'stroke-width': stroke }, g)
+    el('circle', { cx, cy: cy + r * S_341 * S_330, r: r * S_331, fill: COLOURS.s390 }, g)
+  }
+  return g
+}
+
+function drawRuler(svg) {
+  el('rect', { x: CHART.titleWidth, y: CHART.y0, width: CHART.x1 - CHART.titleWidth, height: CHART.rowTop - CHART.y0, fill: '#ffffff' }, svg)
+  el('line', { x1: CHART.titleWidth, y1: 51, x2: CHART.x1, y2: 51, stroke: COLOURS.rulerRule, 'stroke-width': 1 }, svg)
+  el('line', { x1: CHART.titleWidth, y1: CHART.rowTop, x2: CHART.x1, y2: CHART.rowTop, stroke: COLOURS.rulerRule, 'stroke-width': 1 }, svg)
+  const first = dayOfX(CHART.titleWidth)
+  const last = dayOfX(CHART.x1)
+  for (let t = first; t <= last; t += 86400000) {
+    const d = new Date(t)
+    const x = xOfDay(t)
+    if (d.getUTCDate() === 1) {
+      el('line', { x1: x, y1: CHART.y0, x2: x, y2: CHART.rowTop, stroke: COLOURS.rulerRule, 'stroke-width': 1 }, svg)
+      const label = el('text', { x: x + 3, y: 45, 'font-size': 12, fill: COLOURS.rulerInk }, svg)
+      label.textContent = d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0')
+    }
+    if (d.getUTCDay() === 1) {
+      el('line', { x1: x, y1: 60, x2: x, y2: CHART.rowTop, stroke: COLOURS.rulerRule, 'stroke-width': 1 }, svg)
+      const label = el('text', { x: x + 2, y: 67, 'font-size': 11, fill: COLOURS.rulerInk }, svg)
+      label.textContent = String(d.getUTCDate())
+    }
+  }
+}
+
+function drawTitlePanel(svg) {
+  el('rect', { x: 0, y: CHART.y0, width: CHART.titleWidth, height: CHART.y1 - CHART.y0, fill: '#ffffff' }, svg)
+  el('line', { x1: CHART.titleWidth, y1: CHART.y0, x2: CHART.titleWidth, y2: CHART.y1, stroke: COLOURS.bandRule, 'stroke-width': 1 }, svg)
+  const heading = el('text', { x: 30, y: CHART.rowTop + 17, 'font-size': 15, fill: '#16181d', 'data-heading': PARENT_UID }, svg)
+  heading.textContent = '9. 組織変革・教育'
+  const next = el('text', { x: 30, y: CHART.rowBottom + 17, 'font-size': 15, fill: '#16181d' }, svg)
+  next.textContent = '10. 移行・稼働 第 ...'
+  el('line', { x1: 0, y1: CHART.rowBottom, x2: CHART.titleWidth, y2: CHART.rowBottom, stroke: COLOURS.bandRule, 'stroke-width': 1 }, svg)
+  return heading
+}
+
+function drawChart() {
+  const box = document.getElementById('chartBox')
+  box.textContent = ''
+  const scale = Number(state.scale)
+  const w = CHART.x1 - CHART.x0
+  const h = CHART.y1 - CHART.y0
+  const svg = el('svg', { width: w * scale, height: h * scale, viewBox: `${CHART.x0} ${CHART.y0} ${w} ${h}`, role: 'img', 'aria-label': '9. 組織変革・教育 のタスクグループとイナズマ線' })
+  box.appendChild(svg)
+  const defs = el('defs', {}, svg)
+  const clip = el('clipPath', { id: 'rowClip' }, defs)
+  el('rect', { x: CHART.titleWidth, y: CHART.rowTop, width: w, height: CHART.rowBottom - CHART.rowTop }, clip)
+  const arrow = el('marker', { id: 'arrow', viewBox: '0 0 6 5', refX: 6, refY: 2.5, markerWidth: 6, markerHeight: 5, markerUnits: 'userSpaceOnUse', orient: 'auto' }, defs)
+  el('path', { d: 'M0 0 L6 2.5 L0 5 Z', fill: COLOURS.dep }, arrow)
+
+  el('rect', { x: CHART.titleWidth, y: CHART.rowTop, width: w, height: CHART.rowBottom - CHART.rowTop, fill: COLOURS.band }, svg)
+  el('rect', { x: CHART.titleWidth, y: CHART.rowBottom, width: w, height: CHART.y1 - CHART.rowBottom, fill: COLOURS.band }, svg)
+  el('line', { x1: CHART.titleWidth, y1: CHART.rowBottom, x2: CHART.x1, y2: CHART.rowBottom, stroke: COLOURS.bandRule, 'stroke-width': 1 }, svg)
+  drawRuler(svg)
+
+  const deps = el('g', { 'clip-path': 'url(#rowClip)' }, svg)
+  for (const d of DATA.deps) {
+    if (d.dot) el('circle', { cx: d.dot[0], cy: d.dot[1], r: d.dot[2], fill: COLOURS.dep }, deps)
+    else el('polyline', { points: d.points, fill: 'none', stroke: COLOURS.dep, 'stroke-width': 1.5, 'marker-end': 'url(#arrow)' }, deps)
+  }
+
+  const bars = el('g', {}, svg)
+  let parentMarker = null
+  for (const t of DATA.tasks) {
+    const g = el('g', { 'data-uid': t.uid }, bars)
+    for (const s of t.shapes) { const { tag, part, ...a } = s; el(tag, a, g) }
+    const m = el('g', { 'data-marker': t.uid }, g)
+    for (const s of t.marker) { const { tag, ...a } = s; el(tag, a, m) }
+    if (t.uid === PARENT_UID) parentMarker = { node: m, cx: t.marker[0].cx, cy: t.marker[0].cy }
+    if (t.label) {
+      const label = el('text', { x: t.label.x, y: t.label.y, 'font-size': 9, 'font-weight': 600, fill: '#000000', stroke: '#ffffff', 'stroke-width': 2.7, 'stroke-linejoin': 'round', 'paint-order': 'stroke' }, g)
+      label.textContent = t.label.text
+    }
+  }
+
+  el('line', { x1: DATA.status, y1: CHART.rowTop, x2: DATA.status, y2: CHART.y1, stroke: COLOURS.status, 'stroke-width': 2 }, svg)
+  const linePoints = [[DATA.status, CHART.rowTop], ...DATA.line, [DATA.status, CHART.y1]]
+  el('polyline', { points: linePoints.map((p) => p.join(',')).join(' '), fill: 'none', stroke: COLOURS.s160, 'stroke-width': 1.25 }, svg)
+
+  const heading = drawTitlePanel(svg)
+  const parent = DATA.tasks.find((t) => t.uid === PARENT_UID)
+  const plan = parent.shapes.find((s) => s.part === 'plan').points.split(' ').map((p) => p.split(',').map(Number))
+  const hoverTargets = [parentMarker.node, ...[...bars.querySelectorAll(`[data-uid="${PARENT_UID}"] polygon`)]]
+
+  if (state.diag === 'on' && state.variant !== 'none') {
+    if (state.variant === 'A') {
+      parentMarker.node.setAttribute('display', 'none')
+      hoverTargets.push(drawDoubtMarker(svg, parentMarker.cx, parentMarker.cy, state.glyph))
+    } else if (state.variant === 'B') {
+      hoverTargets.push(drawDoubtMarker(svg, DIP[0], DIP[1], state.glyph))
+    } else if (state.variant === 'C') {
+      const after = heading.getComputedTextLength()
+      hoverTargets.push(drawDoubtMarker(svg, 30 + after + 6 + MARKER_RADIUS, CHART.rowTop + 12, state.glyph))
+    } else if (state.variant === 'D') {
+      const xs = plan.map((p) => p[0]); const ys = plan.map((p) => p[1])
+      const pad = 2
+      hoverTargets.push(el('rect', { x: Math.min(...xs) - pad, y: Math.min(...ys) - pad, width: Math.max(...xs) - Math.min(...xs) + 2 * pad, height: Math.max(...ys) - Math.min(...ys) + 2 * pad, fill: 'none', stroke: COLOURS.s389, 'stroke-width': MARKER_EDGE * S_328, 'stroke-dasharray': S_486.join(' '), 'pointer-events': 'stroke' }, svg))
+    }
+  }
+  for (const target of hoverTargets) wireHint(target)
+}
+
+// ---- the hint (table T-348): TL-1 lines, then the proposed doubt line ----
+const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土']
+const dayText = (y, m, d) => `${y}/${m}/${d} (${WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]})`
+const DOUBT_WORDS = '親の進み具合（2026/9/2）が、配下の作業の進み具合（2026/11/25 - 2026/12/9）から 55 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは 1 稼働日）はプロパティパネルの文書の設定で変えられる'
+function hintHtml() {
+  const lines = ['9. 組織変革・教育', '予定: ' + dayText(2026, 3, 25) + ' - ' + dayText(2027, 3, 11), '実績: ' + dayText(2026, 3, 25) + ' -', '進捗: 46%']
+  let html = lines.map((l) => `<div>${l}</div>`).join('')
+  if (state.diag === 'on' && state.variant !== 'none') html += `<div class="doubt">${DOUBT_WORDS}</div>`
+  return html
+}
+let hintTimer = 0
+function wireHint(node) {
+  const tip = document.getElementById('tip')
+  node.style.cursor = 'default'
+  node.addEventListener('pointermove', (e) => {
+    tip.style.display = 'none'
+    clearTimeout(hintTimer)
+    hintTimer = setTimeout(() => {
+      tip.innerHTML = hintHtml()
+      tip.style.display = 'block'
+      const pad = 14
+      const x = Math.min(e.clientX + pad, window.innerWidth - tip.offsetWidth - 8)
+      const y = Math.min(e.clientY + pad, window.innerHeight - tip.offsetHeight - 8)
+      tip.style.left = Math.max(8, x) + 'px'
+      tip.style.top = Math.max(8, y) + 'px'
+    }, S_439_MS)
+  })
+  node.addEventListener('pointerleave', () => { clearTimeout(hintTimer); tip.style.display = 'none' })
+}
+
+// ---- variant notes ----
+const VARIANTS = {
+  none: { title: 'いま（印なし）', body: ['凹みは親のバーの実績の右端に立つが、どこにも疑義の印が無い。利用者はこれを 3 か月の遅れと読んだ（<code>DFC-2216</code>）。'] },
+  A: { title: 'A マーカー —— 親の進捗マーカーを新しい状態で描く', rec: true, body: [
+    '裁定（<code>JDG-1739</code>）の字のとおり: 表 T-315 に状態を 1 つ足し、マーカーの優先順で描く。1 つのタスクに印は 1 つのまま（<code>FR-133</code>）。',
+    'マーカーは名前の札の頭（表 T-273 の <code>LP-1</code>、基準の開始）に在る。凹みは同じバーの濃い実績の右端なので、目はバーを左へ辿って印に着く。',
+    'レポートの絵（<code>DT-1</code>）・説明（表 T-348）・当たり判定（<code>GR-23</code>）がマーカーのものをそのまま使う。新しい置き場の規則が要らない。',
+    '弱み: この倍率では印と凹みが約 600px 離れる。離れすぎと感じたら、B を足すか選べる（<code>CR-716</code> の問 2）。'] },
+  B: { title: 'B 凹みの頂点 —— イナズマ線の頂点に印を重ねる', body: [
+    '凹みそのものに印が乗るので、読み手が最初に見る所で疑義が分かる。<code>VS-6</code> は親が頂点を打つときだけ立つので、印の場所はいつも定まる。',
+    '弱み: マーカーとは別の 2 つ目の印になる。イナズマ線（<code>JDG-1253</code> が触れないと決めた）の上に物を置き、その印の当たり判定と説明の置き場を新しく決める必要がある（<code>EZ-6</code> は「別の当たり判定を起こさない」）。'] },
+  C: { title: 'C タスクグループ見出し —— 見出しの名の後ろに印', body: [
+    '行を畳んでも見える。左の見出しを縦に眺めるだけで、疑義のある親を拾える。',
+    '弱み: 見出しはタスクグループ（<code>TaskGroup</code>）のもので、親の <code>Task</code> のものではない。<code>S-125</code> より深い親は祖先の行に載るので、1 つの見出しが複数の親を抱えうる。凹みからいちばん遠い。'] },
+  D: { title: 'D 親のバーを破線で囲む', body: [
+    '親のバー全体が浮き上がり、遠目にも分かる。',
+    '弱み: 紫の破線の枠は、親子判別（<code>FR-135</code>）で「親の候補」の印にすでに使っている。同じ見た目で別の意味になる。枠は選択の印（<code>SL-8</code>）とも重なる。'] },
+}
+function drawVariantText() {
+  const v = VARIANTS[state.variant]
+  const box = document.getElementById('variantText')
+  box.innerHTML = `<div class="variant-card"><h3>${v.title}${v.rec ? ' <span class="rec">推奨</span>' : ''}</h3><ul>${v.body.map((b) => `<li>${b}</li>`).join('')}</ul>${state.diag === 'off' ? '<p class="note">遅延診断を出していないので、どの案でも印は出ない（表 T-315 の新しい状態は、<code>DG-1</code> 〜 <code>DG-3</code> と同じく診断を出しているあいだだけ描く）。</p>' : ''}</div>`
+}
+function drawReport() {
+  const cell = document.getElementById('reportStatus')
+  cell.textContent = ''
+  if (state.diag === 'on' && state.variant === 'A') {
+    const s = document.createElementNS(SVG_NS, 'svg')
+    s.setAttribute('width', 16); s.setAttribute('height', 16); s.setAttribute('viewBox', '-8 -8 16 16')
+    s.style.verticalAlign = '-3px'; s.style.marginRight = '4px'
+    drawDoubtMarker(s, 0, 0, state.glyph)
+    cell.appendChild(s)
+  } else {
+    const blank = document.createElement('span'); blank.style.display = 'inline-block'; blank.style.width = '20px'; cell.appendChild(blank)
+  }
+  cell.appendChild(document.createTextNode(state.diag === 'on' ? '疑義・記載漏れ' : '（診断を出していない）'))
+  document.getElementById('reportReason').textContent = state.diag === 'on' ? DOUBT_WORDS : ''
+}
+
+function render() { drawChart(); drawVariantText(); drawReport() }
+for (const group of document.querySelectorAll('[data-group]')) {
+  group.addEventListener('click', (e) => {
+    const b = e.target.closest('button')
+    if (!b) return
+    state[group.dataset.group] = b.dataset.value
+    for (const other of group.querySelectorAll('button')) other.setAttribute('aria-pressed', String(other === b))
+    render()
+  })
+}
+render()
+</script>
+</body>
+</html>
