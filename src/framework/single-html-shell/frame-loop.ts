@@ -1021,6 +1021,7 @@ interface ScreenViewReadingsTaken {
   readonly hintTargetDwellMs: number
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
+  readonly isPointerOnSearchPanel?: boolean
   readonly hintHolderUnderPointer: HintHolder | null
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: ScreenViewReadings['commandPaletteAt']
@@ -2556,6 +2557,7 @@ export function frameLoop(
           hintTargetDwellMs,
           iconUnderPointer: hintEntryOf(partUnderPointer?.entry ?? null, hintReleasedEntry),
           isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
+          isPointerOnSearchPanel: partUnderPointer?.part === SEARCH_PANEL_SURFACE,
           hintHolderUnderPointer: hintWalk?.holder ?? null,
           iconRowUnderPointer: iconRowOf(partUnderPointer),
           commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions, environment),
