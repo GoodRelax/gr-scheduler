@@ -180,13 +180,13 @@ NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称�
 ⚠️ **実例**: `NOT_STORED_ROW_CONTROL_OUTER_SIZES` は `CR-397` で床の式が `screen-regions.ts` へ移ったあと、自分のファイルを含めて誰にも読まれないまま刷られ続けていた。
 第 1 段で生成をやめた。
 
-⭐ **3 段で進める。いまは第 1 段が済んだところである。**
+⭐ **3 段で進める。いまは第 2 段までが済み、第 3 段の残りは 1 写しである。**
 
 | 段 | すること | 検査 30 が数える「ほかのファイル」 |
 |---|---|---|
 | 1（済） | どのファイルからも読まれない写しの `export` を外す | `src/` と `tests/` |
-| 2 | 試験だけが読む写しを読む試験を、期待値を設定表から読む形に直す | `src/` と `tests/` |
-| 3 | `PUBLISHED_READ_BY_TESTS_ONLY` を空にする | `src/` だけ（検査 30 の `READERS_THAT_PUBLISH`） |
+| 2（済） | 試験だけが読む写しを読む試験を、期待値を設定表から読む形に直す（2026-10-04、`tests/fixtures/setting-number.ts` の `settingNumber`・`generatedConstantOf`） | `src/` と `tests/` |
+| 3（残り 1 写し） | `PUBLISHED_READ_BY_TESTS_ONLY` を空にする（済）。<br>⚠️ `tools/generate_state_machine_types.py` の `TRANSITIONS_READ` が `export` で刷る `TREE_STATE_TRANSITIONS`（`src/use-case/edit-document/task-group-folding.ts`）を、`tests/contract/tree-state-machine.contract.test.ts` だけが import している —— その試験が刷った文字列を読む形になるまで、検査 30 は `src/` と `tests/` を数える | `src/` だけ（検査 30 の `READERS_THAT_PUBLISH`） |
 
 ⭐ **いまの数は検査 30 が毎回刷る**（`python .claude/skills/spec-graph-check/check-generated-constants.py` の `OK` の行）。
 ⚠️ 第 1 段を当てた日（2026-09-16）の実測: 48 名・56 写し。

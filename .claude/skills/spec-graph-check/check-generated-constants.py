@@ -56,7 +56,10 @@ import sys
 RULES = 'docs/development-rules/03-implementation.md'
 GENERATOR = os.path.join('tools', 'generate_entity_types.py')
 
-# Stage 1 of JDG-139. Stage 3 sets this to ('src',).
+# Stages 1 and 2 of JDG-139 are done. Stage 3 sets this to ('src',) once the
+# last exported copy that only a test imports is gone (DFC-619: measured
+# 2026-10-08, TREE_STATE_TRANSITIONS of task-group-folding.ts, imported by
+# tests/contract/tree-state-machine.contract.test.ts alone).
 READERS_THAT_PUBLISH = ('src', 'tests')
 # Where a read of a copy is looked for, whatever the stage: a read that the
 # stage no longer publishes for is still a read, and rule 2b still holds.

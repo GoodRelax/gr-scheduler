@@ -3621,7 +3621,28 @@ def refuse_non_ascii_comments(rel, body):
                    ascii(line)))
 
 
-def region(text, body):
+OPEN_LINE = re.compile(r'^' + re.escape(OPEN) + r'\r?$', re.M)
+
+
+def refuse_quoted_open_marker(rel, text):
+    """Stop unless the open marker stands once, on a line of its own (DFC-549).
+
+    The region is cut at the FIRST occurrence of the marker. A comment that
+    quotes the marker above the region would move the cut there, and the
+    next run would overwrite the hand-written code between the quote and the
+    close marker -- silently, with --check green afterwards.
+    """
+    quoted = text.count(OPEN)
+    alone = len(OPEN_LINE.findall(text))
+    if quoted == alone and alone <= 1:
+        return
+    raise SystemExit(
+        'generate_entity_types: %s holds the open marker %d time(s), %d of them '
+        'as a line of its own; a unit holds exactly one, alone on its line.\n'
+        '  Reword the comment that quotes:\n    %s' % (rel, quoted, alone, OPEN))
+
+
+def region(text, body, rel='the unit'):
     """Replace the marked region, leaving everything around it untouched.
 
     Only what sits between the two markers belongs to this generator. What a
@@ -3629,6 +3650,7 @@ def region(text, body):
     normalised rather than eaten -- otherwise --check would call a filled-in
     unit "drifted" for a newline nobody typed.
     """
+    refuse_quoted_open_marker(rel, text)
     block = '%s\n%s\n%s\n' % (OPEN, body, CLOSE)
     if OPEN in text:
         head, rest = text.split(OPEN, 1)
@@ -3675,7 +3697,7 @@ def main():
             continue
         body = publish_only_listed(rel, provenance(sources) + printed)
         refuse_non_ascii_comments(rel, body)
-        wanted = region(current, body)
+        wanted = region(current, body, rel)
         if checking:
             if current != wanted:
                 say('DRIFTED  %s no longer matches erd.json -- rerun '
