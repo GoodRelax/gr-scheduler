@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 247 | 2814 | 3 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 248 | 2829 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 515 | 7254 | 6 | 11 | 12 | 2 |
+| **all** | | | 516 | 7269 | 6 | 11 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -355,6 +355,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-236, T-294, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
 | `tests/contract/cr-690-the-fit-span-fields-and-the-fixed-fit.test.ts` | 25 | FR-025, FR-055, FR-096 | - | T-108, T-206, T-241, T-367 | FX-1, FX-2, FX-3, FX-4, FX-5, FX-6, FX-7, FX-8, IX-8, S-75 | - | - | - | - |
 | `tests/contract/cr-690-the-row-title-width-fields-and-the-settings-face.test.ts` | 18 | FR-041, FR-052, FR-072 | - | T-103, T-108, T-206, T-368, T-369 | FO-12, S-79, S-530, S-531, U-25, WF-1, WF-2, WF-3, WF-4 | - | - | - | - |
+| `tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts` | 15 | FR-027, FR-073 | - | T-052, T-206 | DR-4, RS-25, S-540, S-541 | - | - | - | - |
 | `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-row-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |

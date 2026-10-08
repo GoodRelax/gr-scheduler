@@ -35,7 +35,7 @@
   - 自由: 上の 11 語に加えて "#rrggbb/" の形の色も使ってよい（明るいテーマの色だけを書き、/ の後ろは空ける）。原本に近くなるが、GRS の色の選び肢には無い色になる
 
 # 作り方
-1. grs-skeleton.json を丸ごと写し、次の所だけを書き換える。それ以外の値（documentSettings・calendars・schemaVersion など）は変えない。
+1. grs-skeleton.json を丸ごと写し、次の所だけを書き換える。それ以外の値（"$schema"・documentSettings・calendars・schemaVersion など）は変えず、"$schema" を先頭の鍵のまま残す。"$schema" の無い文書を GRS は開かない。
    - schedule.project の name / title / startDate / statusDate / themeHue / uidHighWaterMark
    - schedule.tasks / taskGroups / taskGroupMembers / taskVisuals
    - 担当者が読み取れたときだけ schedule.resources / assignments

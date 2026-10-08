@@ -35,7 +35,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
   - free: "#rrggbb/" colours are allowed as well as the 11 names (write the light-theme colour only and leave the part after / empty). Closer to the original, but the colour is not one of GRS's choices
 
 # How to build it
-1. Copy grs-skeleton.json whole and change only the following. Leave every other value (documentSettings, calendars, schemaVersion and so on) unchanged.
+1. Copy grs-skeleton.json whole and change only the following. Leave every other value ("$schema", documentSettings, calendars, schemaVersion and so on) unchanged, and keep "$schema" as the first key: GRS refuses a document without it.
    - schedule.project: name / title / startDate / statusDate / themeHue / uidHighWaterMark
    - schedule.tasks / taskGroups / taskGroupMembers / taskVisuals
    - schedule.resources / assignments, only when people can be read from the original
