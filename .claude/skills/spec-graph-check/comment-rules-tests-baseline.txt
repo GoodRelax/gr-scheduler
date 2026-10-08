@@ -38,7 +38,7 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1741 -> 1720 bp) under JDG-520: the CR-631 tests added 86 cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the merge of CR-648 (8573378a) into coord, whose tests added cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
-tree-density-basis-points 1639
+tree-density-basis-points 1578
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -72,7 +72,7 @@ tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts 95
 tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 344
 tests/system/global-warm-dev-server.ts 0
 tests/system/live-app.ts 0
-tests/system/measured-sweep.test.ts 1593
+tests/system/measured-sweep.test.ts 1586
 tests/system/mspdi-normalization.sws.test.ts 0
 tests/system/nfr-004-file-scheme-sweep.sws.test.ts 235
 tests/system/open-defect-pins.test.ts 0
@@ -128,7 +128,7 @@ tests/unit/document-model.test.ts 96
 tests/unit/edit-calendar.test.ts 295
 tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
 tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
-tests/unit/fr-006-panel-fields-drawn.test.ts 519
+tests/unit/fr-006-panel-fields-drawn.test.ts 516
 tests/unit/fr-006-panel-typography.test.ts 460
 tests/unit/fr-019-no-row-for-the-annotation.test.ts 118
 tests/unit/fr-020-both-ways-ic-41.test.ts 120
@@ -190,10 +190,10 @@ tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts 376
 tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts 142
 tests/unit/uf-24-25.test.ts 0
 tests/unit/uf-26.test.ts 0
-tests/unit/uf-27-28-29.test.ts 362
+tests/unit/uf-27-28-29.test.ts 359
 tests/unit/uf-36.test.ts 502
 tests/unit/uf-37-38.test.ts 1
-tests/unit/uf-39-40.test.ts 790
+tests/unit/uf-39-40.test.ts 764
 tests/unit/uf-41-42.test.ts 0
 tests/unit/uf-45-46.test.ts 0
 tests/unit/uf-47-48-choosers.test.ts 1402

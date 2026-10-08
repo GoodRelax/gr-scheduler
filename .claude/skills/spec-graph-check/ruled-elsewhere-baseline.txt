@@ -1,4 +1,4 @@
-12
+11
 # LOWERED 13 -> 12 on 2026-10-04: measured 12 before and after the DFC-1873 ledger sweep (the debt had already fallen).
 #
 # Check 40 -- rows of defects.md that still read as un-ruled while a pending

@@ -1,4 +1,4 @@
-12
+9
 # LOWERED 17 -> 12 on 2026-10-04: JDG-85, JDG-102, JDG-128, JDG-138 and JDG-151 found landed (DFC-1873 ledger sweep).
 # LOWERED 18 -> 17 on 2026-09-22: JDG-283 landed at FR-052 / GR-22 (CR-436 wave B1).
 #
