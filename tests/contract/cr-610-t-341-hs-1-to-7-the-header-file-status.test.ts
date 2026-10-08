@@ -72,9 +72,9 @@ const openedWithStamp = (stamp: string | null): unknown => {
 }
 
 describe('T-341 / FR-101 / T-206 -- the manuscript still says it', () => {
-  it('T-341 holds HS-1 to HS-11 and FR-101 hands the two lines to it', () => {
+  it('T-341 holds HS-1 to HS-12 and FR-101 hands the two lines to it', () => {
     expect(T_341.rows.map((one) => one.id)).toEqual(
-      ['HS-1', 'HS-2', 'HS-3', 'HS-4', 'HS-5', 'HS-6', 'HS-7', 'HS-8', 'HS-9', 'HS-10', 'HS-11'],
+      ['HS-1', 'HS-2', 'HS-3', 'HS-4', 'HS-5', 'HS-6', 'HS-7', 'HS-8', 'HS-9', 'HS-10', 'HS-11', 'HS-12'],
     )
     expect(REQUIREMENTS).toContain(TO_THE_TABLE)
   })

@@ -739,6 +739,8 @@ export type NoticeReason =
   | 'RS-70'
   | 'RS-71'
   | 'RS-72'
+  | 'RS-75'
+  | 'RS-76'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -803,6 +805,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-70': 'NT-1',
   'RS-71': 'NT-3',
   'RS-72': 'NT-5',
+  'RS-75': 'NT-3a',
+  'RS-76': 'NT-3a',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -2309,7 +2313,9 @@ export function frameLoop(
     deliver(document: Document, hasMovedSchedule: boolean): void {
       sendToSession(DOCUMENT_REPLACED, null)
       try {
-        const outcome = notifyChangeWatchers(changeWatchers, { document, hasMovedSchedule, dialogue: dialogueLog })
+        // WHY: HS-12 -- the notice hands the AI the lower line's AT-140, never the held one's.
+        const handed = documentStampedAt(document, readFileSaved().fileSavedAt)
+        const outcome = notifyChangeWatchers(changeWatchers, { document: handed, hasMovedSchedule, dialogue: dialogueLog })
         sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
       } catch (fault) {
         // TRAP: the window must close on a throw too, or WS-2 refuses every later write.

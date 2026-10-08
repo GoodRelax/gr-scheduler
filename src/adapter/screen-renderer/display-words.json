@@ -4015,6 +4015,28 @@
    }
   },
   {
+   "rowId": "RS-75",
+   "text": {
+    "ja": "ファイルを開く途中で、思いがけない理由で失敗しました",
+    "en": "Opening the file failed partway for an unexpected reason"
+   },
+   "nextStep": {
+    "ja": "もう一度開いてください。続くときは、直前の操作を控えてください",
+    "en": "Open it once more; if it keeps happening, note what you did"
+   }
+  },
+  {
+   "rowId": "RS-76",
+   "text": {
+    "ja": "ファイルへ書く途中で、思いがけない理由で失敗しました。ファイルに書けていないかもしれません",
+    "en": "Writing to the file failed partway for an unexpected reason; the file may not hold it"
+   },
+   "nextStep": {
+    "ja": "別の保存先を選んで、もう一度書き出してください",
+    "en": "Choose another destination and write it out once more"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

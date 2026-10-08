@@ -623,7 +623,7 @@ src/
 | --- | --- | --- | --- | --- |
 | IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる |
 | IF-2 | `InputSource` | `InputCommandTranslator`（`CP-18`） | `DomInputSource`（`CP-27`） | ポインタとキーの出来事 |
-| IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書き。<br>ハンドルは実装が保持する（`FR-060`） —— 上書きする先と、選ばせる面に渡す最後に読み書きしたファイルの 2 つであり、どちらも同じ起動のあいだだけ持つ |
+| IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書き。<br>ハンドルは実装が保持する（`FR-060`） —— 上書きする先と、選ばせる面に渡す最後に読み書きしたファイルの 2 つであり、どちらも同じ起動のあいだだけ持つ。<br>⭐ 読み書きの道が思いがけず失敗したとき（`Promise` の拒否）は、呼ぶ側がその道の終わりで、読む道は `01-04-requirements.md` の 表 T-233 の `RS-75`、書く道は同表の `RS-76` として告げること（MUST） —— どの操作が失敗したかを告げ、黙って捨てない |
 | IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |
 | IF-6 | `Rasterizer` | `ImageExporter`（`CP-21`） | `CanvasRasterizer`（`CP-31`） | SVG から画像へ（`IO-4`） |
 | IF-7 | `SnapshotSource` | `AgentApiEndpoint`（`CP-17`） | `SingleHtmlShell`（`CP-25`） | 凍結された現在値（表 T-035 の `AG-4`）と、**どの身振りの最中か**（`AG-9`。<br>表 T-023a の行 ID を運び、最中でなければ「無し」を運ぶ） |

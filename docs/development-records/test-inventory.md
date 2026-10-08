@@ -17,8 +17,8 @@ what this reading does not see.
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
-| `usecase` | TS-1 | VT-1 | 14 | 17 | 3 | 4 | 0 | 0 |
-| **all** | | | 509 | 7182 | 7 | 12 | 11 | 2 |
+| `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
+| **all** | | | 509 | 7182 | 6 | 11 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,12 +49,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (7)
+## 5. Expected-to-fail cases (6)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 1 of 7.
+named either way: 1 of 6.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
@@ -63,7 +63,6 @@ named either way: 1 of 7.
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
-| `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-0... | DFC-2201 |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 
 ## 6. The unit files kept for now (182) -- listing only
@@ -327,7 +326,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-609-t-280-the-settings-entry-pressed-again-hides-the-panel.test.ts` | 9 | FR-072 | VT-2 | T-280, T-293 | - | - | - | - | - |
 | `tests/contract/cr-610-op-16-rs-68-the-size-read-and-the-copy-told.test.ts` | 4 | FR-025 | - | T-233 | HS-3, IC-3, NT-5, OP-16, RS-68, U-56 | - | - | - | - |
 | `tests/contract/cr-610-sx-1-sx-2-a-grs-json-write-is-a-save.test.ts` | 14 | FR-060, FR-096, FR-100, FR-101 | VT-2 | T-290, T-340 | DI-5, IC-2, IO-1, IO-2, IO-7, SK-11, SX-1, SX-2, U-58, U-59 | - | - | - | - |
-| `tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts` | 15 | FR-101 | - | T-206, T-341 | AT-140, HS-1, HS-2, HS-3, HS-4, HS-5, HS-6, HS-7, HS-11, IC-72, S-210, S-235, S-449, U-58 | - | - | - | - |
+| `tests/contract/cr-610-t-341-hs-1-to-7-the-header-file-status.test.ts` | 15 | FR-101 | - | T-206, T-341 | AT-140, HS-1, HS-2, HS-3, HS-4, HS-5, HS-6, HS-7, HS-12, IC-72, S-210, S-235, S-449, U-58 | - | - | - | - |
 | `tests/contract/cr-611-sk-25-fr-095-n-starts-an-empty-document.test.ts` | 20 | FR-036, FR-068, FR-095 | - | T-036, T-202, T-203, T-229, T-342 | BK-1, BK-2, BK-3, BK-4, BK-5, BK-6, ED-1, IC-98, NT-7, QN-5, RD-7, S-71, S-73, S-106, S-107, S-108, SK-11, SK-25, WT-9 | - | - | - | - |
 | `tests/contract/cr-611-t-290-the-new-document-question-has-no-guard.test.ts` | 5 | FR-095 | VT-2 | T-290 | IC-98, QN-5, RS-27, SK-25 | - | - | - | - |
 | `tests/contract/cr-612-fr-027-mc-10-the-template-rides-in-its-own-container.test.ts` | 5 | FR-027 | - | T-025, T-226 | BT-1, MC-10, TP-5, TP-6 | - | - | - | - |
@@ -472,7 +471,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/state-machine-unsaved-edits.contract.test.ts` | 12 | FR-095, FR-100 | VT-2 | T-290 | OP-3, SD-3, SD-5, SS-5 | - | - | - | - |
 | `tests/contract/t-012-sh-5-glyph-binding.test.ts` | 11 | - | - | T-012, T-109 | AR-3, SH-5 | - | - | - | - |
 | `tests/contract/t-020-zo-layer-membership.test.ts` | 5 | FR-019 | - | T-020, T-023c, T-029 | CM-52, CU-2, S-370, SL-3, ZO-1, ZO-2, ZO-3, ZO-5, ZO-6, ZO-8, ZO-9, ZO-12, ZO-14 | - | - | - | - |
-| `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` | 7 | FR-001, FR-008, FR-009, FR-012, FR-023, FR-038, FR-068, FR-073, FR-083, FR-085, FR-086, FR-111 | - | T-015a, T-037, T-218, T-220, T-233 | AG-9a, AR-7, HM-4, IC-90, IV-1, IV-10, MG-7, MG-11, MG-14, NT-1, NT-3, NT-3a, NT-5, NT-7, PR-33, RS-10, RS-19, RS-21, RS-25, RS-26, RS-27, RS-30, RS-36, RS-38, RS-39, RS-46, RS-48, RS-49, RS-50, RS-53, RS-54, RS-55, RS-56, RS-57, RS-58, RS-63, RS-64, SK-11, SP-1, TS-5, WL-8, WL-12, WS-2 | - | - | - | - |
+| `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` | 7 | FR-001, FR-008, FR-009, FR-012, FR-023, FR-038, FR-068, FR-073, FR-083, FR-085, FR-086, FR-111 | - | T-015a, T-037, T-218, T-220, T-233 | AG-9a, AR-7, HM-4, IC-90, IF-3, IV-1, IV-10, MG-7, MG-11, MG-14, NT-1, NT-3, NT-3a, NT-5, NT-7, PR-33, RS-3, RS-10, RS-19, RS-21, RS-25, RS-26, RS-27, RS-30, RS-36, RS-38, RS-39, RS-46, RS-48, RS-49, RS-50, RS-53, RS-54, RS-55, RS-56, RS-57, RS-58, RS-63, RS-64, SK-11, SP-1, TS-5, WL-8, WL-12, WS-2 | - | - | - | - |
 | `tests/contract/t-273-name-glyph-start.test.ts` | 7 | FR-002 | - | T-273 | LP-1, LP-2, LP-3, LP-4, LP-7, LP-8, S-31, S-32, S-63, S-301, S-303 | - | - | - | - |
 | `tests/contract/t-283-priorities.contract.test.ts` | 38 | - | - | T-036, T-283, T-337 | IN-4, NT-7, NT-8, PI-36, RG-1, RG-3, RG-4, RG-8, RG-9, RG-10, RG-12, RG-13, RG-14, RG-16, RG-17, RW-5, SK-19, SV-14, UZ-6, UZ-7, UZ-9 | - | - | - | - |
 | `tests/contract/t-284-the-shared-step.contract.test.ts` | 16 | - | - | T-063, T-075, T-284, T-285 | RA-1, RA-2, RA-3, RA-4, RA-5, RA-6, RA-8, SD-5, SS-1, SS-2, SS-3, SS-4, SS-5, SS-6, UT-11 | - | - | - | - |
@@ -767,7 +766,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/usecase/uc-008-tell-by-annotations.test.ts` | 2 | FR-016, FR-019, FR-097, UC-008 | VT-1 | T-023b, T-023d, T-217, T-334 | AR-5, AR-6, IC-35, IC-36, MK-13, PR-21, VT-1 | - | - | - | - |
 | `tests/usecase/uc-009-show-a-confidential-schedule-on-screen.test.ts` | 1 | FR-020, FR-087, UC-009 | VT-1 | T-242, T-334 | IC-41, RS-41, S-99a, S-100, S-102, S-220, U-60, VT-1, WM-6, WM-8, WM-10, WM-13, WM-14 | - | - | - | - |
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | 1 | FR-021, FR-023, FR-057, FR-087, UC-010 | VT-1 | T-053, T-228, T-334 | DV-12, IC-71, IC-72, MK-13, NR-7, OP-2, OP-3, OP-5, PR-1, VT-1 | - | DFC-1016 | 1: DFC-1016 | - |
-| `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | 1 | FR-024, FR-025, FR-027, FR-080, FR-095, FR-096, UC-011 | VT-1 | T-204, T-231, T-334, T-342 | BT-4, IC-2, IO-2, IO-3, IO-4, NS-5, OP-4, OP-6, OP-10, S-70, S-81, VT-1 | - | DFC-2201 | 1: DFC-2201 | - |
+| `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | 1 | FR-024, FR-025, FR-027, FR-080, FR-095, FR-096, UC-011 | VT-1 | T-204, T-231, T-334, T-342 | BK-1, BK-2, BT-4, IC-2, IO-2, IO-3, IO-4, NS-5, OP-4, OP-6, OP-10, S-70, S-81, VT-1 | - | - | - | - |
 | `tests/usecase/uc-012-let-an-ai-agent-edit.test.ts` | 2 | FR-028, FR-064, FR-065, UC-012 | VT-1 | T-035, T-334 | AG-1, AG-2, AG-3, AG-4, AG-9a, AM-1, AM-3, AM-4, AM-7, IC-20, VT-1 | - | - | - | - |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | 1 | FR-031, FR-066, UC-013 | VT-1 | T-334 | AG-11, AM-3, AM-6, AM-7, AM-18, AT-132, DR-4, IC-5, IC-18, IC-20, SK-19, VT-1 | - | DFC-1019, DFC-1020 | 1: DFC-1019, DFC-1020 | - |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | 1 | FR-022, FR-056, UC-014 | VT-1 | T-032, T-032a, T-334 | IC-72, IC-95, IC-96, IC-97, MM-1, MM-2, MM-4, NT-8, OP-3, U-61, UZ-4, VT-1 | - | - | - | - |
