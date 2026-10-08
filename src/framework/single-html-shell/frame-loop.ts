@@ -3417,9 +3417,6 @@ export function frameLoop(
       case 'copyImageToJsonPrompt':
         copyImageToJsonPrompt()
         return
-      case 'toggleFullScreen':
-        sendToSession({ type: 'fullScreenEntryPressed' }, frame)
-        return
     }
   }
 

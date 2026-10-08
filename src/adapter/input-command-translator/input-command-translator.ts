@@ -290,7 +290,6 @@ export type InputAction =
   | { readonly kind: 'toggleMilestoneList' }
   | { readonly kind: 'togglePaletteMinimised' }
   | { readonly kind: 'toggleInteractionRecord' }
-  | { readonly kind: 'toggleFullScreen' }
 
 export interface TranslatedInput {
   readonly action: InputAction | null
@@ -1173,8 +1172,6 @@ function commandFromEntry(
       return acted({ kind: 'togglePaletteMinimised' })
     case ENTRY.interactionRecord:
       return acted({ kind: 'toggleInteractionRecord' })
-    case ENTRY.fullScreen:
-      return acted({ kind: 'toggleFullScreen' })
     case ENTRY.milestoneList:
       return acted({ kind: 'toggleMilestoneList' })
     case ENTRY.paletteGrabBand:

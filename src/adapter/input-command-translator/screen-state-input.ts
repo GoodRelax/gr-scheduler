@@ -89,6 +89,8 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       return PALETTE_TOGGLED
     case ENTRY.help:
       return HELP_ENTRY_PRESSED
+    case ENTRY.fullScreen:
+      return FULL_SCREEN_ENTRY_PRESSED
     case ENTRY.resourceRoster:
       return surfaceEntered(RESOURCE_ROSTER_ROW)
     case ENTRY.dualCursor: {
