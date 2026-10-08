@@ -1312,6 +1312,13 @@ function isLandingMarkClearedBy(
   return !isLandingMarkKeptBy(input, press, regions)
 }
 
+// see EL-16, EL-19, FR-098
+/** @purity pure */
+function landedLinkIn(session: ScreenSession): Parameters<typeof pointerWalkOf>[2] {
+  const mark = session.screen.landingMarkDisplayState
+  return mark.kind === 'shown' ? mark.landedLink : null
+}
+
 // see EL-16, T-280
 /** @purity pure */
 function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof commandFromInput>['landingMarked']>): ScreenValuesEvent {
@@ -3038,7 +3045,10 @@ export function frameLoop(
     if (on !== null) return NO_POINTER_ANSWERS
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return NO_POINTER_ANSWERS
     if (dualCursorFollowingIn(session) !== null) return NO_POINTER_ANSWERS
-    if (pointerWalk?.geometry !== frame.geometry) pointerWalk = pointerWalkOf(frame.geometry, grabSizesOf())
+    const landed = landedLinkIn(session)
+    if (pointerWalk?.geometry !== frame.geometry || pointerWalk.landed !== landed) {
+      pointerWalk = pointerWalkOf(frame.geometry, grabSizesOf(), landed)
+    }
     return answersAtPointer(pointerWalk, x, y)
   }
 

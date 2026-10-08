@@ -58,7 +58,8 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
     const dotsBox = mark === null ? null : boxOfPath(mark.dots)
     const dots = mark === null || dotsBox === null ? null : grown(dotsBox, mark.radius, mark.radius)
     const box = merged(boxOfPath(line.drawnPoints), dots)
-    if (isEnclosedInclusive(cutRect(box, cut, isLineScrolling(cut, line)), marquee)) {
+    // WHY: false: the press that opens a marquee hides the landing mark (EL-17), so no line is drawn whole (EL-19).
+    if (isEnclosedInclusive(cutRect(box, cut, isLineScrolling(cut, line, false)), marquee)) {
       out.push(dependencyItemOf(line))
     }
   }

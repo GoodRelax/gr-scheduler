@@ -7,6 +7,7 @@
 // TRAP: never quote the region's opening marker in a comment; the generator injects the block at the first one.
 
 import {
+  isLinkInBand,
   leaderOf,
   type BarGeometry,
   type CommentGeometry,
@@ -784,11 +785,20 @@ export function isScrolling(cut: BandCut, taskUid: number): boolean {
   return cut !== null && !cut.pinnedTaskUids.has(taskUid)
 }
 
-// see FR-098, T-303
-// WHY: the band's own rule (pinnedBand.holdsLink), the one the drawing reads; a line and its mark go together.
+// see FR-098, T-303, EL-19
+// WHY: the band's own rule (isLinkInBand, PI-6), the one the drawing reads; a line and its mark go together.
 /** @purity pure */
-export function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean {
-  return cut !== null && !cut.holdsLink(line, false)
+export function isLineScrolling(cut: BandCut, line: DependencyGeometry, isWholeRoute: boolean): boolean {
+  return cut !== null && !isLinkInBand(cut, line, isWholeRoute)
+}
+
+// see EL-16, EL-19
+// WHY: the line the landing mark is on, while it shows; the drawing draws it whole, so the band cuts it as a whole line.
+type LandedLink = { readonly predecessorUid: number; readonly successorUid: number } | null
+
+/** @purity pure */
+function isLanded(landed: LandedLink, line: DependencyGeometry): boolean {
+  return landed !== null && landed.predecessorUid === line.predecessorUid && landed.successorUid === line.successorUid
 }
 
 /** @purity pure */
@@ -836,6 +846,7 @@ type DeadlineBox = { readonly taskUid: number; readonly box: ScreenRect }
 // WHY: no region depends on the point; built once per drawn geometry, not once per input (a walk of every Task).
 export interface PointerWalk {
   readonly geometry: ScheduleGeometry
+  readonly landed: LandedLink
   readonly sizes: GrabSizes
   readonly shapes: readonly TaskShape[]
   readonly taskRegions: readonly Region[]
@@ -845,12 +856,12 @@ export interface PointerWalk {
 }
 
 /** @purity pure */
-function linesOf(geometry: ScheduleGeometry, sizes: GrabSizes, onShape: boolean): readonly LineRegions[] {
+function linesOf(geometry: ScheduleGeometry, sizes: GrabSizes, onShape: boolean, landed: LandedLink): readonly LineRegions[] {
   const cut = geometry.pinnedBand ?? null
   return geometry.dependencies.map((line, index) => {
     const region = dependencyRegionOf(line, sizes, onShape)
     const mark = continuationRegionOf(line, sizes, onShape)
-    const isCut = isLineScrolling(cut, line)
+    const isCut = isLineScrolling(cut, line, isLanded(landed, line))
     return {
       line,
       index,
@@ -873,19 +884,20 @@ function deadlineBoxesOf(geometry: ScheduleGeometry): readonly DeadlineBox[] {
 }
 
 /** @purity pure */
-export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes): PointerWalk {
+export function pointerWalkOf(geometry: ScheduleGeometry, sizes: GrabSizes, landed: LandedLink = null): PointerWalk {
   const cut = geometry.pinnedBand ?? null
   const shapes = geometry.tasks.map(shapeOf)
   return {
     geometry,
+    landed,
     sizes,
     shapes: shapes.map((shape) => cutShape(shape, cut)),
     taskRegions: shapes.flatMap((shape) =>
       regionsOfTask(shape, sizes)
         .filter((one): one is Region => one !== null)
         .map((one) => cutCovers(one, cut, isScrolling(cut, shape.task.taskUid)))),
-    linesOnShape: linesOf(geometry, sizes, true),
-    linesOffShape: linesOf(geometry, sizes, false),
+    linesOnShape: linesOf(geometry, sizes, true, landed),
+    linesOffShape: linesOf(geometry, sizes, false, landed),
     deadlineBoxes: deadlineBoxesOf(geometry),
   }
 }
