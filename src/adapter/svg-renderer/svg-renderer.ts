@@ -708,10 +708,7 @@ export function svgFromSchedule(
   const area = regions.rowArea
   const areaBottom = area.y + area.height
   const scrollTop = layout.scrollAreaY ?? area.y
-  const pinnedGroupIds = new Set(
-    layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId),
-  )
-  const hasPinnedRows = pinnedGroupIds.size > 0
+  const hasPinnedRows = geometry.pinnedBand !== undefined
   const skipsOffScreen = picture === 'screen'
   const drawnFrom = area.y - area.height
   const drawnTo = areaBottom + area.height
@@ -737,7 +734,6 @@ export function svgFromSchedule(
     colourOfGroup,
     visualOf,
     placedOf,
-    pinnedGroupIds,
     strokeOfBox,
     selected,
     selectedBoxes,
@@ -790,7 +786,6 @@ export function svgFromSchedule(
   defsParts.push(...links.defsParts)
   const overlays = overlayParts(drawing)
 
-  // WHY: the scrolling half of a layer is clipped to the scroll area so it cannot run over a pinned row.
   /** @purity pure */
   const scrolling = (drawn: readonly string[]): string => {
     const inner = drawn.join('')

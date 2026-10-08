@@ -41,7 +41,6 @@ import {
 type Placed = ScheduleLayout['placements'][number]
 
 type MarkerStroke = Pick<DrawnSettings, 'markerStroke'>
-type PinnedGroupId = ScheduleLayout['rows'][number]['groupId']
 type BaselineOutline = ScheduleGeometry['baselineOutlines'][number]
 type DeadlineGeometry = NonNullable<ScheduleGeometry['tasks'][number]['deadline']>
 type MilestoneLayer = NonNullable<Extract<BarGeometry, { readonly form: 'outline' }>['layers']>[number]
@@ -55,7 +54,6 @@ export interface TaskFiguresInput {
   readonly chosen: ChosenColour
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly visualOf: ReadonlyMap<number, Schedule['taskVisuals'][number]>
-  readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
   readonly selected: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
@@ -521,7 +519,7 @@ export function dependencyArrowSvg(
   )
 }
 
-// see FR-013, FR-075
+// see FR-013, FR-075, FR-098
 /** @purity pure */
 export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   const {
@@ -532,7 +530,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     chosen,
     placedOf,
     visualOf,
-    pinnedGroupIds,
     selected,
     hover,
     hand,
@@ -570,7 +567,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
     const placed = placedOf.get(task.taskUid)
-    const isPinnedTask = placed !== undefined && pinnedGroupIds.has(placed.groupId)
+    const isPinnedTask = geometry.pinnedBand?.pinnedTaskUids.has(task.taskUid) === true
     const taskKey = `task-${task.taskUid}`
     const deadline = task.deadline ?? null
     // TRAP: before the bar's cull, and culled by its own box: a far deadline stays on screen when its bar leaves (DA-7).

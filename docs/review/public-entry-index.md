@@ -452,6 +452,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
 | `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number |
+| `settledRow` | file only | function | `src/use-case/edit-document/edit-task-group.ts#settledRow` | -- | function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup |
 | `Subtree` | file only | interface | `src/use-case/edit-document/edit-task-group.ts#Subtree` | -- | interface Subtree |
 | `subtreeOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#subtreeOf` | -- | function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree \| null |
 | `TaskGroupCommandOf` | file only | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommandOf` | -- | type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract< |
@@ -1726,4 +1727,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 844 name(s) leave through a public entry (334 of them published by table T-064), 672 more are exported by a file and not by its entry.
+Totals: 844 name(s) leave through a public entry (334 of them published by table T-064), 673 more are exported by a file and not by its entry.

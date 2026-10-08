@@ -143,7 +143,7 @@ function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] 
 
 // see CD-1, DU-2, AT-54
 /** @purity pure */
-function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup {
+export function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup {
   const source = row.derivedFromTaskUid === null ? null : taskByUid(schedule, row.derivedFromTaskUid)
   return { ...row, label: row.label ?? source?.name ?? defaultRowName, derivedFromTaskUid: null }
 }
