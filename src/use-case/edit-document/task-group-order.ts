@@ -181,19 +181,21 @@ export function moveTaskGroup(
     return place === undefined || place === one.order ? one : { ...one, order: place }
   })
   if (next.every((one, at) => one === groups[at])) return edited(document)
-  return movedWithTheWbs(document, next, moved, parent)
+  return movedWithTheWbs(document, next, byId, moved, parent)
 }
 
 // see HM-1, HM-4
+// WHY: byId is the pre-move row index moveTaskGroup already holds; the WBS walk reads the rows as they stood.
 /** @purity pure */
 function movedWithTheWbs(
   document: Document,
   rows: readonly TaskGroup[],
+  byId: ReadonlyMap<string, TaskGroup>,
   moved: TaskGroup,
   parent: TaskGroup | null | undefined,
 ): EditResult {
   const tasks = document.schedule.tasks
-  const wbsParentUid = wbsParentAfterTheMove(document.schedule, moved, parent ?? null)
+  const wbsParentUid = wbsParentAfterTheMove(document.schedule, byId, moved, parent ?? null)
   const taskUid = moved.derivedFromTaskUid
   if (wbsParentUid === undefined || taskUid === null) return edited(withWbsOrderFollowingTheRows(document, rows))
   if (wbsParentUid !== null && wbsSubtreesOf(tasks, [taskUid]).has(wbsParentUid)) {
@@ -207,17 +209,25 @@ function movedWithTheWbs(
 // WHY: undefined when the move reaches no WBS parent: a hand-made row carries no Task, and a reorder is no move;
 // null is the root.
 /** @purity pure */
-function wbsParentAfterTheMove(schedule: Schedule, moved: TaskGroup, parent: TaskGroup | null): number | null | undefined {
+function wbsParentAfterTheMove(
+  schedule: Schedule,
+  byId: ReadonlyMap<string, TaskGroup>,
+  moved: TaskGroup,
+  parent: TaskGroup | null,
+): number | null | undefined {
   if (moved.derivedFromTaskUid === null || taskByUid(schedule, moved.derivedFromTaskUid) === null) return undefined
   if ((parent?.id ?? null) === moved.parentId) return undefined
-  return nearestDerivedTaskUid(schedule, parent)
+  return nearestDerivedTaskUid(schedule, byId, parent)
 }
 
 // see HM-12
 // WHY: walks up from the landing row; a row whose source Task is gone derives nothing, and no derived row is the root.
 /** @purity pure */
-function nearestDerivedTaskUid(schedule: Schedule, landing: TaskGroup | null): number | null {
-  const byId = new Map(schedule.taskGroups.map((one) => [one.id, one]))
+function nearestDerivedTaskUid(
+  schedule: Schedule,
+  byId: ReadonlyMap<string, TaskGroup>,
+  landing: TaskGroup | null,
+): number | null {
   let row = landing
   for (let guard = 0; row !== null && guard <= byId.size; guard++) {
     const uid = row.derivedFromTaskUid
