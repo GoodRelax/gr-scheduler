@@ -276,6 +276,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `geometryFromLayout` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#geometryFromLayout` | PI-6 | function geometryFromLayout( schedule: Schedule, storedSettings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, selection: Selection, dual... |
 | `GeometryInputs` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#GeometryInputs` | -- | interface GeometryInputs |
 | `HighlightGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#HighlightGeometry` | PI-6 | 型。 |
+| `isLinkInBand` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#isLinkInBand` | PI-6 | 依存線を、ピン止めの帯（`01-04-requirements.md` の `FR-098`）の中に描くかを答える —— 帯に留めた `Task` の集合と、線の省き方（同書の 表 T-303 の `EL-4` ／ `EL-5`）から決める。 |
 | `leaderOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#leaderOf` | PI-6 | そのコメントボックスの引出し線。 |
 | `MarkerGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MarkerGeometry` | -- | interface MarkerGeometry |
 | `MilestoneLayer` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayer` | -- | interface MilestoneLayer |
@@ -339,7 +340,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Hit` | entry | interface | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#Hit` | -- | interface Hit |
 | `isCutAway` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isCutAway` | -- | function isCutAway(cut: BandCut, isCut: boolean, y: number): boolean |
 | `isInsideRect` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isInsideRect` | PI-7 | 点が矩形の中（縁を含む）にあるかを答える。 |
-| `isLineScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isLineScrolling` | -- | function isLineScrolling(cut: BandCut, line: DependencyGeometry): boolean |
+| `isLineScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isLineScrolling` | -- | function isLineScrolling(cut: BandCut, line: DependencyGeometry, isWholeRoute: boolean): boolean |
 | `isOnTheDrawnShape` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isOnTheDrawnShape` | -- | function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean |
 | `isScrolling` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#isScrolling` | -- | function isScrolling(cut: BandCut, taskUid: number): boolean |
 | `isTaskDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#isTaskDrawn` | PI-7 | 1 つのタスクの幾何が、表 T-023c の結びの「描かれている」に当たるかを答える —— 予定・実績・実績のダミー（表 T-240）のどれかが在れば真とする。 |
@@ -1725,4 +1726,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 843 name(s) leave through a public entry (333 of them published by table T-064), 672 more are exported by a file and not by its entry.
+Totals: 844 name(s) leave through a public entry (334 of them published by table T-064), 672 more are exported by a file and not by its entry.

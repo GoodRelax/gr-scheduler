@@ -8,6 +8,7 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
   arrowHeadOf,
+  isLinkInBand,
   type BarGeometry,
   type MarkerGeometry,
   type Path,
@@ -815,7 +816,7 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
     const ink = inkOf(input, emphasis, halo)
     const drawnBox = boxOfPoints(ink.isWholeRoute ? link.points : link.drawnPoints)
     if (drawnBox === null || isCulled(drawnBox, input)) continue
-    ;(geometry.pinnedBand?.holdsLink(link, ink.isWholeRoute) === true ? depLinkPartsPinned : depLinkParts).push(
+    ;(isLinkInBand(geometry.pinnedBand, link, ink.isWholeRoute) ? depLinkPartsPinned : depLinkParts).push(
       dependencyLinkSvg(link, ink),
     )
   }

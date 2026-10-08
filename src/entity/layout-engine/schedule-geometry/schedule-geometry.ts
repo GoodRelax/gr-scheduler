@@ -256,7 +256,6 @@ export interface ScheduleGeometry {
   readonly pinnedBand?: {
     readonly scrollTop: number
     readonly pinnedTaskUids: ReadonlySet<number>
-    readonly holdsLink: (link: BandLink, isWholeRoute: boolean) => boolean
   }
 }
 
@@ -603,13 +602,18 @@ function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<Sche
   const pinnedTaskUids = new Set(
     layout.placements.filter((one) => pinnedIds.has(one.groupId)).map((one) => one.taskUid),
   )
-  const holdsLink = (link: BandLink, isWholeRoute: boolean): boolean => isLinkInBand(pinnedTaskUids, link, isWholeRoute)
-  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids, holdsLink } }
+  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids } }
 }
 
-// see FR-098, T-303, EL-4, EL-5, EL-19
+// see FR-098, T-303, EL-4, EL-5, EL-19, PI-6
 /** @purity pure */
-function isLinkInBand(pinnedTaskUids: ReadonlySet<number>, link: BandLink, isWholeRoute: boolean): boolean {
+export function isLinkInBand(
+  band: Pick<NonNullable<ScheduleGeometry['pinnedBand']>, 'pinnedTaskUids'> | null | undefined,
+  link: BandLink,
+  isWholeRoute: boolean,
+): boolean {
+  if (band === null || band === undefined) return false
+  const pinnedTaskUids = band.pinnedTaskUids
   const elision = isWholeRoute ? 'EL-3' : link.elision
   if (elision === 'EL-4') return pinnedTaskUids.has(link.predecessorUid)
   if (elision === 'EL-5') return pinnedTaskUids.has(link.successorUid)
