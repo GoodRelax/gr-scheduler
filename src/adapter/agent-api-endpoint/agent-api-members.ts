@@ -229,6 +229,13 @@ function frozenCopy<TValue>(value: TValue): TValue {
   return value
 }
 
+// see HS-12, AT-140, AG-4
+// WHY: the held document keeps the AT-140 it was opened with (HS-11); every stamp handed out carries the lower line's time.
+/** @purity pure */
+function stampHandedOut(stamp: DocumentStamp, snapshot: AgentSnapshot): DocumentStamp {
+  return frozenCopy({ ...stamp, fileSavedUtc: snapshot.documentAsWritten.documentStamp.fileSavedUtc })
+}
+
 /** @purity pure */
 function reasonOfPlanRefusal(refusal: PlanRefusal): AgentRefusalReason {
   switch (refusal.step) {
@@ -261,12 +268,12 @@ function agentRefusal(
   what: string,
   refusals: readonly Refusal[],
 ): AgentRefusal {
-  const stamp = snapshot.document.documentStamp
+  const handed = snapshot.documentAsWritten
   return {
     target,
     reason,
-    stamp: frozenCopy(stamp),
-    document: reason === 'staleStamp' ? frozenCopy(snapshot.document) : null,
+    stamp: frozenCopy(handed.documentStamp),
+    document: reason === 'staleStamp' ? frozenCopy(handed) : null,
     refusals,
     what,
   }
@@ -303,7 +310,7 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const held = holder.readShownTasks()
   if (taskUids === null) {
     holder.holdShownTasks({ taskUids: held.taskUids, isShowOnlyChecked: false })
-    return { accepted: true, stamp: frozenCopy(snapshot.document.documentStamp), hasMovedSchedule: false }
+    return { accepted: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids)
   if (refusal !== null) return { accepted: false, refusal }
@@ -465,7 +472,7 @@ function writeThroughTheOnePath(
 
   return {
     accepted: true,
-    stamp: frozenCopy(outcome.document.documentStamp),
+    stamp: stampHandedOut(outcome.document.documentStamp, snapshot),
     hasMovedSchedule: outcome.hasMovedSchedule,
   }
 }
@@ -560,12 +567,12 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     readDocument(): Document {
-      return frozenCopy(source.readSnapshot().document)
+      return frozenCopy(source.readSnapshot().documentAsWritten)
     },
 
     /** @purity semi-pure-b */
     readStamp(): DocumentStamp {
-      return frozenCopy(source.readSnapshot().document.documentStamp)
+      return frozenCopy(source.readSnapshot().documentAsWritten.documentStamp)
     },
 
     /** @purity semi-pure-b */
@@ -676,7 +683,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       }
       return {
         accepted: true,
-        stamp: frozenCopy(after.document.documentStamp),
+        stamp: frozenCopy(after.documentAsWritten.documentStamp),
         hasMovedSchedule: true,
       }
     },
@@ -707,7 +714,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
 
     /** @purity semi-pure-b */
     exportJson(): AgentExport<string> {
-      return { ok: true, value: jsonFromDocument(source.readSnapshot().document) }
+      return { ok: true, value: jsonFromDocument(source.readSnapshot().documentAsWritten) }
     },
 
     /** @purity semi-pure-b */

@@ -1,7 +1,7 @@
 // Use-case test for UC-011 (save the document and hand it out), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { VIEWPORT, answerConfirmation, drag, enableAgentApi, launch, openByDrop, press, readDocument, savedFiles, settle, specMismatch } from './uc-harness'
+import { VIEWPORT, answerConfirmation, drag, enableAgentApi, launch, openByDrop, press, readDocument, savedFiles, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -22,7 +22,6 @@ const normalisedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').repla
 
 test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095)', async ({ page }) => {
   test.setTimeout(120000)
-  specMismatch('UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-095 replaces the document with the empty document of table T-342')
 
   await test.step('UC-011 extension 1a: with nothing of one\'s own yet, one starting template is shown (FR-027, BT-4)', async () => {
     await launch(page)
@@ -82,7 +81,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(reopened.documentSettings.fontScale).toBe(settings.fontScale)
   })
 
-  await test.step('UC-011 extension 1b: starting anew with unsaved edits asks first, then shows the template (FR-095, OP-4)', async () => {
+  await test.step('UC-011 extension 1b: starting anew asks first, then shows the empty document (FR-095, OP-4, T-342 BK-1 BK-2)', async () => {
     await press(page, 'IC-23')
     await drag(page, { x: 1500, y: 1000 }, { x: 1700, y: 1000 })
     await page.keyboard.type('Unsaved work')
@@ -95,6 +94,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     await settle(page)
     const doc = await readDocument(page)
     expect(doc.schedule.tasks.some((t) => t.name === 'Unsaved work')).toBe(false)
-    expect(doc.schedule.tasks.length).toBeGreaterThan(0)
+    expect(doc.schedule.tasks.length).toBe(0)
+    expect(doc.schedule.taskGroups.length).toBe(1)
   })
 })

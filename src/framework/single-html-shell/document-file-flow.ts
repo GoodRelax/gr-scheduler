@@ -121,6 +121,12 @@ const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
 
 const NEWER_FORMAT_OPENED_REASON: NoticeReason = 'RS-63'
 
+// see IF-3
+const READING_BROKE_REASON: NoticeReason = 'RS-75'
+
+// see IF-3
+const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
+
 const NEWER_FORMAT_REFUSED_REASON: Extract<NoticeReason, JsonRefusalReason> = 'RS-64'
 
 type EmbeddedHtmlFaultReason = Exclude<
@@ -481,7 +487,9 @@ export function documentFileFlowOf(
     if (openRoute === 'handed') return
     if (store === undefined) return hands.endFileOperation(DOCUMENT_OPEN_FAILED)
     const opening = openRoute === 'reopen' ? reopenDocumentIntoHold(hands, flow, store) : openDocumentIntoHold(hands, flow, store, openRoute)
-    void opening.finally(() => hands.endFileOperation(DOCUMENT_OPEN_FAILED))
+    void opening
+      .catch(() => hands.raiseNotice(READING_BROKE_REASON, null))
+      .finally(() => hands.endFileOperation(DOCUMENT_OPEN_FAILED))
   }
 
   /** @purity non-pure */
@@ -495,7 +503,9 @@ export function documentFileFlowOf(
       writeForm.kind === 'save'
         ? saveHeldDocumentToFile(hands, flow, store, asked)
         : exportHeldDocumentToFile(hands, flow, store, asked, writeForm.format as ExportFormatId)
-    void writing.finally(() => hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
+    void writing
+      .catch(() => hands.raiseNotice(WRITING_BROKE_REASON, null))
+      .finally(() => hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
   }
 
   /** @purity non-pure */
