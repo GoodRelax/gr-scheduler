@@ -12,6 +12,11 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
+const NOTICE_ROSTER = unbroken(readFileSync(
+  join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'),
+  'utf8',
+))
+
 const FR_020_LAYS_IT_ON =
   '開いた者の名前と実行時の日時を、`Row Area`（`_assets/tbl-glossary.md` の `U-50`）へ斜めに繰り返し薄く重ねること'
 const FR_020_ISO_8601 =
@@ -119,7 +124,7 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
   it('RS-19 must not be told while there is no road to set the name', () => {
     // WHY: quoted long enough for check 39 to count this as a held clause
     // under tests/, not just a paraphrase.
-    expect(REQUIREMENTS).toContain(
+    expect(NOTICE_ROSTER).toContain(
       '名前が、まだ設定されていない⛔ **いまは告げてはならない（MUST NOT）',
     )
   })

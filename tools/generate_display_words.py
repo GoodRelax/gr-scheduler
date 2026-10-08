@@ -72,8 +72,6 @@ def path_of(rel):
 ICON_ROW = re.compile(r'^\| (IC-\d+[a-z]?) \|')
 NOTICE_ROW = re.compile(r'^\| (NT-\d+[a-z]?) \|')
 ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
-REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
-QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
 THEME_HUE_ROW = re.compile(r'^\| (TH-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
@@ -171,10 +169,14 @@ EXPORT_FORMAT_TABLE = 'T-024'
 # come out as a file, so it has no name to propose. FR-025 carries IO-6 on
 # IC-3 instead.
 EXPORT_FORMATS_NOT_OFFERED = ('IO-5', 'IO-6')
-REASON_TABLE = 'T-233'
-# ⛔ The sentence a question shows. Table T-234 is the whole count of the
-# places NT-7 lets GRS ask, so a question with no row here cannot be raised.
-QUESTION_TABLE = 'T-234'
+# ⭐ The reasons a telling can carry (table T-233) and the sentences a question
+# shows (table T-234: the whole count of the places NT-7 lets GRS ask, so a
+# question with no row there cannot be raised) are read from the notice
+# roster's manuscript, not from a printed table (CR-712, JDG-1751). The two
+# tables are printed from that manuscript, so the rows and their order are the
+# same; reading the manuscript keeps this generator independent of the order
+# `npm run gen` prints them in.
+REL_NOTICE_REASONS = 'docs/spec/_source/notice-reasons.json'
 # The theme hues the document settings surface offers (FR-041, CR-557). The
 # rows hold a hue and no word, so the word is this dictionary's, keyed by the
 # row id exactly as a reason is.
@@ -485,6 +487,20 @@ def table_rows(rel, row_pattern, table):
     return found
 
 
+def notice_roster(key):
+    """The row ids of one list of the notice roster, in its printed order.
+
+    `reasons` is table T-233 and `questions` is table T-234 (CR-712).
+
+    @purity semi-pure-b
+    """
+    with io.open(path_of(REL_NOTICE_REASONS), encoding='utf-8') as handle:
+        found = [one['id'] for one in json.load(handle)[key]]
+    if not found:
+        raise SystemExit('%s: the list %s has no rows' % (REL_NOTICE_REASONS, key))
+    return found
+
+
 def settings_keys():
     """Which settings keys each row of table T-104 names, in the table's order.
 
@@ -686,14 +702,11 @@ def roster():
         # the code's is copied into the manuscript. ⚠️ RS-15 is the row a reason
         # with no row of its own falls to -- without it NT-1 (MUST) and NT-3a
         # (MUST) cannot be kept for a reason nobody has written down yet.
-        'reasons': [row[0] for row in
-                    table_rows(REL_REQUIREMENTS, REASON_ROW, REASON_TABLE)],
+        'reasons': notice_roster('reasons'),
         # ⛔ The same move for the question a confirmation shows. ⚠️ No
         # nextStep: what to do next is NT-3a's clause, and a question already
         # offers the two answers table T-037's NT-7 settles.
-        'questions': [row[0] for row in
-                      table_rows(REL_REQUIREMENTS, QUESTION_ROW,
-                                 QUESTION_TABLE)],
+        'questions': notice_roster('questions'),
         'themeHues': [row[0] for row in
                       table_rows(REL_REQUIREMENTS, THEME_HUE_ROW,
                                  THEME_HUE_TABLE)],

@@ -13,6 +13,7 @@ import { rowDocument, shell, taskOf, TEMPLATE, type ShellBench } from './cr-541-
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const NOTICE_ROSTER = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8'))
 
 const AG_9A_REASON =
   '取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'
@@ -61,7 +62,7 @@ describe('AM-8 -- importDocument checks the document whatever shape it comes in'
   it('AG-9a / RS-25 / CV-1 / AM-8 still say: 表 T-220 の行の行 ID / 1 つの値へ潰さない / 決められた形に合わない / 描いた値を保存しない', () => {
     expect(REQUIREMENTS).toContain(AG_9A_REASON)
     expect(REQUIREMENTS).toContain(AG_9A_NOT_ONE)
-    expect(REQUIREMENTS).toContain(RS_25)
+    expect(NOTICE_ROSTER).toContain(RS_25)
     expect(REQUIREMENTS).toContain(CV_1)
     expect(GLOSSARY).toContain(AM_8)
   })

@@ -75,7 +75,12 @@ import state_machines_json_to_md as manuscript  # noqa: E402
 
 OPEN = '// <generated -- do not edit by hand>'
 CLOSE = '// </generated>'
-REGION = re.compile(re.escape(OPEN) + r'\n.*?' + re.escape(CLOSE), re.S)
+# ⚠️ The region is the fence followed by the line naming this manuscript: a
+# unit may hold a second generated region from another manuscript
+# (notice-values.ts holds the notice roster, tools/generate_notice_reasons.py,
+# CR-712), and a bare fence would match that one too.
+REGION = re.compile(re.escape(OPEN) + r'\n// From docs/spec/_source/state-machines\.json.*?'
+                    + re.escape(CLOSE), re.S)
 
 
 # ---- JDG-139: which transition tables are printed, and which leave their file

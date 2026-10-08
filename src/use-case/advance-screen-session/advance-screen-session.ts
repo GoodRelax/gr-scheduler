@@ -88,7 +88,8 @@ export type {
   FileOperationState,
 } from './file-flow-values'
 export type { GrabbedRowAxis, PressedOn } from './gesture-values'
-export type { StandingNotice } from './notice-values'
+export type { NoticeReason, StandingNotice } from './notice-values'
+export { NOTICE_MANNER_OF_REASON } from './notice-values'
 
 // see SF-8, PI-39
 export interface ScreenSession {

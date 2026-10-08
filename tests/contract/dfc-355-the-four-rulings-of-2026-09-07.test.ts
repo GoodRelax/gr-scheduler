@@ -144,6 +144,11 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
+const NOTICE_ROSTER = unbroken(readFileSync(
+  join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'),
+  'utf8',
+))
+
 // -- FR-012, the percent complete a calendar edit moves --------------------
 
 const FR_012_RECOUNT_ON_CALENDAR_EDIT =
@@ -264,7 +269,7 @@ describe('DFC-355 -- the manuscript these cases are driven by', () => {
     // ⛔ THE ONLY THING THAT KEEPS THE COPIES ABOVE HONEST. A clause reworded
     // in the manuscript takes this case red, which is what tells the next round
     // that the copy -- and whatever case below presses it -- has to move too.
-    expect(REQUIREMENTS).toContain(clause)
+    expect(`${REQUIREMENTS}\n${NOTICE_ROSTER}`).toContain(clause)
   })
 
   it('holds one clause per marker, and no clause twice', () => {

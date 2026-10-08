@@ -116,6 +116,7 @@ NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-2
 NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下限（`S-229`）
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
+NOTICE_MANNER_OF_REASON              通知の理由ごとの作法（表 T-233 の作法の欄と、取り込みの拒否が運ぶ 表 T-220 の行。`_source/notice-reasons.json` から `tools/generate_notice_reasons.py` が刷る。`CR-712`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLOURS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）

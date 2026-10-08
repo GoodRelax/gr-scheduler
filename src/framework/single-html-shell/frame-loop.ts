@@ -84,6 +84,7 @@ import {
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
 import {
+  NOTICE_MANNER_OF_REASON,
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
@@ -97,6 +98,7 @@ import {
   type FileFlowWriteForm,
   type FileOperationState,
   type GrabbedRowAxis,
+  type NoticeReason,
   type PressedOn,
   type PropertiesSubject,
   type ScreenSession,
@@ -738,138 +740,6 @@ const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 // see FR-153, IC-139, QN-11
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const GRS_RESET_QUESTION: ConfirmationQuestion = 'QN-11'
-
-export type NoticeReason =
-  | 'RS-1'
-  | 'RS-2'
-  | 'RS-3'
-  | 'RS-4'
-  | 'RS-5'
-  | 'RS-6'
-  | 'RS-7'
-  | 'RS-8'
-  | 'RS-9'
-  | 'RS-10'
-  | 'RS-11'
-  | 'RS-12'
-  | 'RS-13'
-  | 'RS-14'
-  | 'RS-15'
-  | 'RS-16'
-  | 'RS-20'
-  | 'RS-21'
-  | 'RS-23'
-  | 'RS-24'
-  | 'RS-25'
-  | 'RS-26'
-  | 'RS-27'
-  | 'RS-28'
-  | 'RS-29'
-  | 'RS-30'
-  | 'RS-31'
-  | 'RS-32'
-  | 'RS-33'
-  | 'RS-34'
-  | 'RS-36'
-  | 'RS-37'
-  | 'RS-38'
-  | 'RS-39'
-  | 'RS-40'
-  | 'RS-41'
-  | 'RS-42'
-  | 'RS-43'
-  | 'RS-44'
-  | 'RS-46'
-  | 'RS-48'
-  | 'RS-51'
-  | 'RS-52'
-  | 'RS-53'
-  | 'RS-54'
-  | 'RS-55'
-  | 'RS-56'
-  | 'RS-57'
-  | 'RS-58'
-  | 'RS-59'
-  | 'RS-60'
-  | 'RS-63'
-  | 'RS-64'
-  | 'RS-65'
-  | 'RS-66'
-  | 'RS-67'
-  | 'RS-68'
-  | 'RS-69'
-  | 'RS-70'
-  | 'RS-71'
-  | 'RS-72'
-  | 'RS-75'
-  | 'RS-76'
-
-// TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
-const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
-  'RS-1': 'NT-3a',
-  'RS-2': 'NT-3a',
-  'RS-3': 'NT-3a',
-  'RS-4': 'NT-1',
-  'RS-5': 'NT-1',
-  'RS-6': 'NT-1',
-  'RS-7': 'NT-1',
-  'RS-8': 'NT-1',
-  'RS-9': 'NT-1',
-  'RS-10': 'NT-1',
-  'RS-11': 'NT-1',
-  'RS-12': 'NT-1',
-  'RS-13': 'NT-1',
-  'RS-14': 'NT-5',
-  'RS-15': 'NT-3a',
-  'RS-16': 'NT-5',
-  'RS-20': 'NT-5',
-  'RS-21': 'NT-1',
-  'RS-23': 'NT-3a',
-  'RS-24': 'NT-3a',
-  'RS-25': 'NT-1',
-  'RS-26': 'NT-1',
-  'RS-27': 'NT-1',
-  'RS-28': 'NT-1',
-  'RS-29': 'NT-1',
-  'RS-30': 'NT-1',
-  'RS-31': 'NT-1',
-  'RS-32': 'NT-1',
-  'RS-33': 'NT-1',
-  'RS-34': 'NT-1',
-  'RS-36': 'NT-1',
-  'RS-37': 'NT-1',
-  'RS-38': 'NT-1',
-  'RS-39': 'NT-1',
-  'RS-40': 'NT-3a',
-  'RS-41': 'NT-3a',
-  'RS-42': 'NT-3a',
-  'RS-43': 'NT-3a',
-  'RS-44': 'NT-1',
-  'RS-46': 'NT-3a',
-  'RS-48': 'NT-1',
-  'RS-51': 'NT-5',
-  'RS-52': 'NT-3',
-  'RS-53': 'NT-1',
-  'RS-54': 'NT-1',
-  'RS-55': 'NT-1',
-  'RS-56': 'NT-1',
-  'RS-57': 'NT-1',
-  'RS-58': 'NT-1',
-  'RS-59': 'NT-3a',
-  'RS-60': 'NT-5',
-  'RS-63': 'NT-5',
-  'RS-64': 'NT-1',
-  'RS-65': 'NT-5',
-  'RS-66': 'NT-3a',
-  'RS-67': 'NT-1',
-  'RS-68': 'NT-5',
-  'RS-69': 'NT-1',
-  'RS-70': 'NT-1',
-  'RS-71': 'NT-3',
-  'RS-72': 'NT-5',
-  'RS-75': 'NT-3a',
-  'RS-76': 'NT-3a',
-}
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
   Record<DocumentFileFaultReason, NoticeReason | null>

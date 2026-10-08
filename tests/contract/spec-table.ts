@@ -50,6 +50,7 @@ const FILES = [
   // for: one place says where a table may live.
   join('_assets', 'tbl-property-items.md'),
   join('_assets', 'tbl-published-entries.md'),
+  join('_assets', 'tbl-notice-reasons.md'),
   join('_assets', 'fig-erd-detail.md'),
   join('_assets', 'fig-erd-overview.md'),
   join('_assets', 'tbl-state-machines.md'),

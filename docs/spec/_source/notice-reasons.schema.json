@@ -1,0 +1,231 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/notice-reasons.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/notice-reasons.json, which is the single source of truth for tables T-233 and T-234 of FR-076 (CR-712).",
+  "Same role as _source/settings.schema.json and _source/published-entries.schema.json.",
+  "The schema sees the SHAPE. What JSON Schema cannot say -- a row id written twice, a wordsOf that names no row, or a row of another manner or display, an invariantRefusals.wordsOf key that is no row of table T-220 -- is refused by notice_reasons_json_to_md.py."
+ ],
+ "title": "The notice roster manuscript",
+ "description": "Tables T-233 and T-234: per reason and per question, its scene, manner, source and how it is displayed.",
+ "type": "object",
+ "required": [
+  "reasonTable",
+  "questionTable",
+  "reasons",
+  "questions",
+  "invariantRefusals"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "prose": {
+   "description": "One printed cell, one string per language (check 23). The string is the Markdown the table prints, byte for byte.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "columns": {
+   "description": "The printed column headings, one list per language.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "en": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  },
+  "table": {
+   "description": "The id, caption and column headings a printed table carries.",
+   "type": "object",
+   "required": [
+    "id",
+    "caption",
+    "columns"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^T-[0-9]+[a-z]?$"
+    },
+    "caption": {
+     "$ref": "#/$defs/prose"
+    },
+    "columns": {
+     "$ref": "#/$defs/columns"
+    }
+   }
+  },
+  "manner": {
+   "description": "A row id of table T-037 (the manner of telling).",
+   "type": "string",
+   "pattern": "^NT-[0-9]+[a-z]?$"
+  },
+  "reasonDisplay": {
+   "description": "How a reason reaches the screen: show (stands until NT-8 dismisses it), autoDismiss (leaves by itself, NT-2), hide (never on the screen), report (a line of the Import Report inside one reading).",
+   "enum": [
+    "show",
+    "autoDismiss",
+    "hide",
+    "report"
+   ]
+  },
+  "reasonRow": {
+   "description": "A row id of table T-233.",
+   "type": "string",
+   "pattern": "^RS-[0-9]+$"
+  }
+ },
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "reasonTable": {
+   "$ref": "#/$defs/table"
+  },
+  "questionTable": {
+   "$ref": "#/$defs/table"
+  },
+  "reasons": {
+   "description": "Table T-233, in its printed order.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "scene",
+     "manner",
+     "source",
+     "display"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "$ref": "#/$defs/reasonRow"
+     },
+     "scene": {
+      "$ref": "#/$defs/prose"
+     },
+     "manner": {
+      "$ref": "#/$defs/manner"
+     },
+     "source": {
+      "$ref": "#/$defs/prose"
+     },
+     "display": {
+      "$ref": "#/$defs/reasonDisplay"
+     },
+     "wordsOf": {
+      "description": "The row whose words the screen prints for this one. Omitted when the row has words of its own.",
+      "$ref": "#/$defs/reasonRow"
+     }
+    }
+   }
+  },
+  "questions": {
+   "description": "Table T-234, in its printed order.",
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "scene",
+     "names",
+     "source",
+     "display"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^QN-[0-9]+$"
+     },
+     "scene": {
+      "$ref": "#/$defs/prose"
+     },
+     "names": {
+      "$ref": "#/$defs/prose"
+     },
+     "source": {
+      "$ref": "#/$defs/prose"
+     },
+     "display": {
+      "description": "ask, or ask only while the document holds an unsaved edit.",
+      "enum": [
+       "ask",
+       "askOnlyWithUnsavedEdits"
+      ]
+     }
+    }
+   }
+  },
+  "invariantRefusals": {
+   "description": "The rows of table T-220 an import refusal carries, held as one family rather than row by row (the table already gives each one its id).",
+   "type": "object",
+   "required": [
+    "table",
+    "manner",
+    "display"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "table": {
+     "const": "T-220"
+    },
+    "manner": {
+     "$ref": "#/$defs/manner"
+    },
+    "display": {
+     "$ref": "#/$defs/reasonDisplay"
+    },
+    "wordsOf": {
+     "description": "Per row of table T-220, the row of table T-233 whose words the screen prints instead.",
+     "type": "object",
+     "propertyNames": {
+      "pattern": "^IV-[0-9]+$"
+     },
+     "additionalProperties": {
+      "$ref": "#/$defs/reasonRow"
+     }
+    }
+   }
+  }
+ }
+}

@@ -166,11 +166,6 @@ coupling | FIELD_FOCUS_WITHDRAWING_KEYS :: spelled as dom input source ts delive
 twin: the key names src/framework/dom-input-source/dom-input-source.ts delivers
 why: key names spelled as the input source delivers them; SingleHtmlShell->DomInputSource is declared, and no key constant is published.
 
-spec-copy | NOTICE_MANNER_OF_REASON :: not generated a manner moved in table t 233 must
-twin: table T-233 (docs/spec)
-why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
-
-
 coupling | DIALOGUE_FIELD_SURFACE :: dom screen surface ts s role dialoguefield must spell it
 twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
 why: ROLE is published by DomScreenSurface's entry and SingleHtmlShell->DomScreenSurface is declared; nothing stops reading ROLE.dialogueField.

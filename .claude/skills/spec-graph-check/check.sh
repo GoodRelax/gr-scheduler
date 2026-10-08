@@ -517,8 +517,8 @@ echo ""
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the twenty below plus those five are the twenty-five `gen:check` runs.
-section "27  the twenty other generated artifacts still match their manuscripts"
+# -- so the twenty-two below plus those five are the twenty-seven `gen:check` runs.
+section "27  the twenty-two other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
@@ -537,6 +537,10 @@ PYTHONIOENCODING=utf-8 python docs/spec/_source/state_machines_json_to_md.py --c
 # Tables T-334 and T-218 of Chapter 7, one manuscript (CR-573, JDG-607).
 PYTHONIOENCODING=utf-8 python docs/spec/_source/verification_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_state_machine_types.py --check || failed
+# The notice roster (CR-712): tables T-233 / T-234 and the region of
+# notice-values.ts that holds NoticeReason and its manners, one manuscript.
+PYTHONIOENCODING=utf-8 python docs/spec/_source/notice_reasons_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_notice_reasons.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/build.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_comment_rules_card.py --check || failed

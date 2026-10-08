@@ -52,6 +52,12 @@ ARTIFACTS = [
     # the manuscript, so a hand edit here is the one way to publish a name
     # that the next `npm run gen` silently takes back.
     ('docs/spec/_assets/tbl-published-entries.md', 'published-entries.json'),
+    # Tables T-233 and T-234 of FR-076 (CR-712). The roster used to be typed
+    # twice -- the table and the shell's hand copy -- and the second region of
+    # notice-values.ts below is where the hand copy went.
+    ('docs/spec/_assets/tbl-notice-reasons.md', 'notice-reasons.json'),
+    ('src/use-case/advance-screen-session/notice-values.ts',
+     'notice-reasons.json'),
     ('src/use-case/advance-screen-session/screen-values.ts',
      'state-machines.json'),
     ('src/use-case/advance-screen-session/notice-values.ts',
