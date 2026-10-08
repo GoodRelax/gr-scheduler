@@ -16,6 +16,7 @@ import type {
   FileFlowQuestion,
   FileFlowWriteForm,
   FileOperationState,
+  NoticeReason,
   SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { importDocument, type ImportRequest, type OpenChoice } from '../../use-case/import-document/import-document'
@@ -71,7 +72,6 @@ import {
   type MergeCandidateLine,
   type MergeChoices,
   type MergeMapping,
-  type NoticeReason,
 } from './frame-loop'
 import type { HeldViewPlace } from './view-place'
 import startupTemplateManifest from './startup-template-manifest.json'

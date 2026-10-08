@@ -21,6 +21,7 @@ import {
 import { rowOf } from './sws-case'
 
 const ROOT = process.cwd()
+const NOTICE_ROSTER = readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'tbl-notice-reasons.md'), 'utf8')
 
 const FR_068_ORDER =
   '⭐ コピーするプロンプトは、(1) 画面の言語の原稿、(2) 版の 1 行（`schemaVersion:` と 1 字の空白に、初期テンプレート（`FR-027`）の `schemaVersion` の値を続けたもの）、(3) `GRS JSON` のスキーマ（`05-07-design.md` の 6.2 が起こす `_source/grs-document.schema.json`）、(4) 土台の文書、の 4 つをこの順に空行で区切って連ねた 1 つの文字列とすること（MUST）。'
@@ -52,7 +53,6 @@ const CLAUSES: readonly string[] = [
   FR_066_NO_REVERSE,
   FR_066_NOT_FAINT,
   FR_065_REMEMBERED,
-  RS_15_ROW,
 ]
 
 const T_103 = specTable('T-103')
@@ -259,6 +259,7 @@ async function agentApiPublished(page: Page): Promise<boolean> {
 test.describe('CR-562 -- the clauses and the generated seam these cases are driven by', () => {
   test('FR-068, FR-066, FR-065 and RS-15 still read this way', () => {
     for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
+    expect(NOTICE_ROSTER, RS_15_ROW).toContain(RS_15_ROW)
   })
 
   test(`表 T-109 puts exactly three entrances in the App Header's group AI, IC-115 and IC-18 among them, and has no IC-19`, () => {

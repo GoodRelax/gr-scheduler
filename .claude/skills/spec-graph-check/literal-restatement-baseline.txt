@@ -59,12 +59,6 @@ why: restates the PR rows whose appliesTo is Task in docs/spec/_source/property-
 MEDIA_TYPE_OF_EXTENSION | keys | exchange-formats.json $.formats[].extension
 why: restates the extension column of table T-024 (exchange-formats.json); the media types are not in the table, the extensions are.
 
-NOTICE_MANNER_OF_REASON | keys | display-words.json $.reasons[].rowId
-why: restates the RS rows of table T-233 (docs/spec/_source/display-words.json) and their manners; its own TRAP comment says it is copied by hand.
-
-NoticeReason | union | display-words.json $.reasons[].rowId
-why: restates 54 of the 59 RS rows of table T-233 (docs/spec/_source/display-words.json); a row added to the table is not a reason the shell can raise.
-
 ROOT_KEYS | array | generated GRS_DOCUMENT_SCHEMA.properties keys
 why: restates the root properties of docs/spec/_source/grs-document.schema.json, printed as GRS_DOCUMENT_SCHEMA in grs-json-schema.ts; renamed, not raised, on 2026-10-03 (CR-611): the generated empty document carries the same five keys and wins the name tie-break.
 

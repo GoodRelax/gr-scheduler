@@ -1,0 +1,961 @@
+{
+ "$schema": "./notice-reasons.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The notice roster (CR-712, JDG-1751): every reason a telling can carry (table T-233) and every question a confirmation can show (table T-234) -- row id, scene, manner, source and how it is displayed. It holds NO WORDS: the words stay in _source/display-words.json, keyed by the same row id.",
+  "Generated FROM this file: _assets/tbl-notice-reasons.md (notice_reasons_json_to_md.py), the generated region of src/use-case/advance-screen-session/notice-values.ts (tools/generate_notice_reasons.py), and the reason and question rosters tools/generate_display_words.py holds the dictionary against.",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/notice-reasons.schema.json. notice_reasons_json_to_md.py also refuses a row id written twice, a row id of the wrong prefix, a `wordsOf` that names no row of this file, names a row that itself shares words, or names a row of another manner or display, and an `invariantRefusals.wordsOf` key that is no row of table T-220.",
+  "Cells are the Markdown the tables print, byte for byte: `scene`, `source` and `names` are language dictionaries (Chapter 6.2) and the generator puts nothing into them. `manner` is a row id of table T-037 and is printed in a code span.",
+  "`display` says how a reason reaches the screen: show (a notice that stands until NT-8 dismisses it), autoDismiss (a notice that leaves by itself after a time, NT-2), hide (raised and carried, never put on the screen), report (inside one reading, a line of the Import Report U-62 instead of a notice). A question is ask, or askOnlyWithUnsavedEdits. The printed tables do not carry this column yet.",
+  "Rows are in the order the tables print them, which is not the numeric order."
+ ],
+ "reasonTable": {
+  "id": "T-233",
+  "caption": {
+   "ja": "通知が運ぶ理由"
+  },
+  "columns": {
+   "ja": [
+    "行 ID",
+    "場面",
+    "作法",
+    "正"
+   ]
+  }
+ },
+ "questionTable": {
+  "id": "T-234",
+  "caption": {
+   "ja": "問いが示す文"
+  },
+  "columns": {
+   "ja": [
+    "行 ID",
+    "場面",
+    "名前を挙げるか",
+    "正"
+   ]
+  }
+ },
+ "reasons": [
+  {
+   "id": "RS-1",
+   "scene": {
+    "ja": "覚えているファイルへ、いま書き込む権限が無い"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-060`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-2",
+   "scene": {
+    "ja": "開いているファイルが無いので、上書きする先が無い"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-060`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-3",
+   "scene": {
+    "ja": "書き込みを試みたが、この環境では行えなかった"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "表 T-004 の `LM-14`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-4",
+   "scene": {
+    "ja": "バイト列が UTF-8 でないので、文字として読めない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-003 の `CN-5`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-5",
+   "scene": {
+    "ja": "書出だけの形式で、開いたファイルへ上書きしようとした"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-096`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-6",
+   "scene": {
+    "ja": "読んだ刻印が現在のものでない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-1`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-7",
+   "scene": {
+    "ja": "文書を変える身振りの最中である"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-2`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-8",
+   "scene": {
+    "ja": "その場の編集がまだ確定していない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-2`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-9",
+   "scene": {
+    "ja": "通知を配っている最中である"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-2`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-10",
+   "scene": {
+    "ja": "命令が拒否されたので、束ごと落とした"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-3`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-11",
+   "scene": {
+    "ja": "拡張子が 表 T-024 のどの行にも当たらない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-024a の `OP-12`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-12",
+   "scene": {
+    "ja": "先頭の非空白の文字が 表 T-024 のどの行にも当たらない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-024a の `OP-12`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-13",
+   "scene": {
+    "ja": "拡張子と先頭の文字が、同じ 1 行を指さない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-024a の `OP-12`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-14",
+   "scene": {
+    "ja": "一度に複数のファイルが渡され、先頭だけを受け付けた"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-024a の `OP-11`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-16",
+   "scene": {
+    "ja": "重ねる側のタスクに、`UID` の一致する現在のタスクが無い"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-015`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-19",
+   "scene": {
+    "ja": "透かしに出す名前が、まだ設定されていない⛔ **いまは告げてはならない（MUST NOT）**—— 設定する道が作られていないので、「設定されていません」と告げても読む人には何もできることが無い。<br>黙っているより悪い。<br>⭐ **語は残す** —— `FR-086` の入口をあとで作るときに、そのまま使う。<br>消すと書き直すことになる。<br>"
+   },
+   "manner": "NT-4",
+   "source": {
+    "ja": "`FR-086`"
+   },
+   "display": "hide"
+  },
+  {
+   "id": "RS-20",
+   "scene": {
+    "ja": "`Agent API` を無効にしても、既に渡した参照は取り消せない"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-065`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-21",
+   "scene": {
+    "ja": "稼働する曜日を 1 つも持たない暦なので、文書の暦にできない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-088`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-22",
+   "scene": {
+    "ja": "収まらないので描かなかった `TaskGroup` と `Task` がある。<br>⛔ **この理由を上げる者はいない** —— `FR-025` が「収まらないときは書き出さない」と定め、一部だけ描く場面が無い。<br>⚠️ **行は消さずに残す** —— 席番号を別の場面に再び使わせないためである。<br>⛔ **新しい場面に流用してはならない（MUST NOT）**"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-025`"
+   },
+   "display": "hide"
+  },
+  {
+   "id": "RS-23",
+   "scene": {
+    "ja": "監視の配り先が答えを返さなかった"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "表 T-035 の `AG-6`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-24",
+   "scene": {
+    "ja": "1 つの `TaskGroup` の段数が安全弁に達したので、これ以上積めない"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "表 T-014 の `ST-7`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-25",
+   "scene": {
+    "ja": "読んだ `GRS JSON` の列が、決められた形に合わない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の前文"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-26",
+   "scene": {
+    "ja": "起動時に渡された文書が読めなかった"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-024a の `OP-14`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-27",
+   "scene": {
+    "ja": "押した入口が、いま行えることを持たない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-029`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-28",
+   "scene": {
+    "ja": "配下に、開ける行が 1 つも無い"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-2`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-29",
+   "scene": {
+    "ja": "その行は、描かれている子を 1 つも持たない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-11`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-30",
+   "scene": {
+    "ja": "直下に、画面へ戻せる子が 1 つも無い"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-13`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-31",
+   "scene": {
+    "ja": "描かれていない行が 1 つも無い"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-10`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-32",
+   "scene": {
+    "ja": "開いている行が 1 つも無い"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-12`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-33",
+   "scene": {
+    "ja": "予定と実績のうち、いま出ているのが一方だけである"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-049`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-34",
+   "scene": {
+    "ja": "揃える相手の `Task` が選ばれていない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-034`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-36",
+   "scene": {
+    "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-15`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-37",
+   "scene": {
+    "ja": "いちばん浅い段に居るので、これ以上浅い段へは動かせない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-15`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-38",
+   "scene": {
+    "ja": "深さの上限に達しているので、これ以上深い段へは動かせない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-085`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-39",
+   "scene": {
+    "ja": "その向きに置ける場所が無いので、これ以上動かせない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-051 の `HF-15`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-40",
+   "scene": {
+    "ja": "**この形式は、このビルドではまだ書けない**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "表 T-024"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-41",
+   "scene": {
+    "ja": "**透かし解除パスワードが合わない**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-020`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-42",
+   "scene": {
+    "ja": "**原因の分からない失敗**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-102`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-43",
+   "scene": {
+    "ja": "**伸ばしても描ける大きさを超えた**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-025`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-44",
+   "scene": {
+    "ja": "**注記を置こうとした所に、指す行が無い**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-019`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-46",
+   "scene": {
+    "ja": "**これ以上深い段には行を足せない**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-085`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-48",
+   "scene": {
+    "ja": "文書の形式の版が、この造りが知る最大の版より新しく、読めなかった項目がある"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-073`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-63",
+   "scene": {
+    "ja": "新しい形式の文書を開き、読めない項目は 1 つも無かった"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-073`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-64",
+   "scene": {
+    "ja": "文書の形式の版が、この造りが知る最大の版より新しく、日程データの群がこの造りのスキーマに合わない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-073`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-49",
+   "scene": {
+    "ja": "**担当者の名前が変わり、その担当者が付いているタスクの表示が変わった**—— **件数の示し方は `NT-3` が持つ。<br>**⭐ **本行を置く根拠は `NT-3` 自身である** —— 同行は件数を添える例として「担当者名の波及」を名指ししており、名指しされたものに行が無いほうが穴である。<br>⭐ **数えるのは「その担当者が付いているタスク」である** —— **数を綴るのは `FR-008` であり、本行はそれを言い直さない。<br>**⚠️ **割当の数ではない** —— 同要求は同じ `Task` と同じ `Resource` の組の割当を 2 つ作ることを禁じているので、1 人を改名する限りでは 2 つの数は一致するが、綴りは要求のものに従う。<br>⚠️ **いま本行を上げる者はいない** —— 表 T-225 の `AS-1` が定める担当ラベルのその場編集がまだ作られておらず、改名の入口そのものが無い。<br>⛔ **行を先に置くのは、入口ができた日に告げる語を探しに戻らないためである。<br>**"
+   },
+   "manner": "NT-3",
+   "source": {
+    "ja": "`FR-008`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-50",
+   "scene": {
+    "ja": "**文書が使えない日付を持つ `Task` を落として、残りを取り込んだ**—— ⭐ **本行は拒否ではないので本表に入る** —— **すぐ下の締めが除いているのは取り込みの**拒否**であり、これは受け入れたうえでの知らせである。<br>**⛔ **通知の欄に立ててはならない（MUST NOT）** —— **落とした名前を並べるので、表 T-103 の `U-62` が運ぶ**"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-023`"
+   },
+   "display": "report"
+  },
+  {
+   "id": "RS-51",
+   "scene": {
+    "ja": "**読み込んだ文書の設定値が範囲の外だったので、範囲に収めた**—— ⭐ **件数を添えること** —— **収めた鍵の数である。<br>**⛔ **収めずに受け付けてはならない（MUST NOT）** —— **下限を割る値は図形を消し、掴めない大きさを作る。<br>**⚠️ **黙って収めてもならない（MUST NOT）** —— 告げなければ、往復して保存したときに元の値が消えたことに人が気づけない。<br>⭐ **告げる先は通知の欄でよい** —— **運ぶのは件数だけであり、`NT-9` の 1 行に収まる。<br>**⚠️ `_assets/tbl-settings.md` の 表 T-201 の `S-12`（`rowGap`）は本行の対象に数えないこと（MUST） —— 下限と上限がともに 0 の固定の値であり、文書が持つ値を黙って 0 として読む（同行の範囲の理由）。<br>件数にも入れない。<br>"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-024a の `OP-6`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-52",
+   "scene": {
+    "ja": "**格納済みの完了率を日付から数え直した** —— 稼働日の暦が変わったときと、`GRS JSON` を読んだとき（`FR-012`）である。<br>⭐ **件数を添えること** —— **値が変わった `Task` の数である。<br>**⛔ **黙って数え直してはならない（MUST NOT）** —— 人が触っていない `Task` の値が動くので、告げなければ何が変わったのか読めない。<br>⚠️ **`RS-21`（稼働する曜日を 1 つも持たない暦）とは別である** —— **あちらは暦そのものを拒む理由であり、本行は受け入れた暦と読んだ日付の帰結である。<br>**"
+   },
+   "manner": "NT-3",
+   "source": {
+    "ja": "`FR-012`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-53",
+   "scene": {
+    "ja": "**バーの形状を構えたまま、引かずに離した**—— ⭐ **引くことを求める文を持つこと** —— `RS-27`（押した入口が、いま行えることを持たない）では、何をすればよいかが読めない。<br>⚠️ **マイルストーンはこの行を上げない** —— **点なので、引かずに離した押下が正しい置き方である。<br>**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-001`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-54",
+   "scene": {
+    "ja": "**構えた形状が、選んでいるものに当てられない**—— ⭐ **構えは立ったままである** —— **構えを残す規則は正の側が持つ。<br>**⛔ **ここに書き写してはならない（MUST NOT）** —— **同じ MUST を 2 か所に置くと、片方だけが直されて食い違う。<br>**⛔ **`RS-10` を当ててはならない（MUST NOT）** —— あちらの次の一手は「拒まれた変更を取り除いて、もう一度」であり、この道に取り除ける操作は存在しない。<br>"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-083`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-55",
+   "scene": {
+    "ja": "**動かす先が、その行自身か、その行の子孫である**（輪になる）。<br>⭐ **行の入れ子と WBS の親の両方に当たる** —— どちらも同じ 1 つの禁止から来ており、理由も 1 つ（輪になると深さが確定しない）である"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-015a の `HM-4`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-56",
+   "scene": {
+    "ja": "**同じ `Task` を、依存の先行と後続の両方にしようとした**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-009` の 表 T-018b の `DN-1`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-57",
+   "scene": {
+    "ja": "**同じ id を持つものが、この文書に既に在る**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-1`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-58",
+   "scene": {
+    "ja": "**終了が開始より前である**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-10` ／ `FR-055` の 表 T-367 の `FX-1`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-59",
+   "scene": {
+    "ja": "**ブラウザが全画面表示を認めなかった**（求めを拒んだか、全画面表示の機能を持たない）"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-071`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-60",
+   "scene": {
+    "ja": "**1 つしか置けない要素が 2 つ以上あったので、最初のものを採った** —— ⭐ 件数を添えること —— 採らなかった要素の数である"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-265 の `MR-3`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-61",
+   "scene": {
+    "ja": "**別の編集グループの行なので、書き換えを受け付けない**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-111`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-62",
+   "scene": {
+    "ja": "**編集グループは人だけが変えられるので、`Agent API` からの書き換えを受け付けない**"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-111`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-66",
+   "scene": {
+    "ja": "**ピン止めした行が多く、検索パネルから飛ぶ先を画面に出せない**"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`FR-151` の 表 T-332 の `SJ-8`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-65",
+   "scene": {
+    "ja": "日程の画像をデータ化するプロンプトをクリップボードへコピーした"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-068`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-67",
+   "scene": {
+    "ja": "`GRS` で開ける `.html` ではない（利用者の文書の容れ物も見本の容れ物も無い、または文書の容れ物が 2 つ以上）"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-067`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-68",
+   "scene": {
+    "ja": "日程の画像（表 T-024 の `IO-6`）をクリップボードへコピーした"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "`FR-025`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-69",
+   "scene": {
+    "ja": "**マイルストーンは開始ー終了の期間を持たないため、親タスクとして定義できない**（WBS の親を結ぶ構えで、マイルストーンの上で離した）。<br>⭐ 子の数によらず 1 つである"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-135` の 表 T-351 の `WL-8`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-70",
+   "scene": {
+    "ja": "**期間から推定された仮の親子関係（破線の矢印）は、選ぶことも消すこともできない** —— ⭐ 確定する道を添えること —— 子から親へ引いて結ぶ（表 T-023b の `AR-7`）"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-135` の 表 T-351 の `WL-12`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-71",
+   "scene": {
+    "ja": "**取り込んだファイルの値で、対応するタスクを上書きした** —— ⭐ 件数を添えること —— 上書きした `Task` の数である"
+   },
+   "manner": "NT-3",
+   "source": {
+    "ja": "表 T-032 の `MG-14`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-72",
+   "scene": {
+    "ja": "**取り込んだファイルに無かったタスクを、消さずに残した** —— ⭐ 消さなかった `Task` を数えて添える（`MG-7` は消さないことを告げるだけで、どれかは問わない）"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-032 の `MG-14`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-73",
+   "scene": {
+    "ja": "**前回の取り込みでは届いていたタスクが、今回は届かなかった** —— ⛔ 通知の欄には立てず、`RS-50` と同じ面に名前で並べる（`MG-11` の一覧）"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-032 の `MG-14`"
+   },
+   "display": "report"
+  },
+  {
+   "id": "RS-74",
+   "scene": {
+    "ja": "確認の問い（表 T-037 の `NT-7`）が立っている —— ⚠️ 書き込みの拒否の値（表 T-035 の `AG-9a`）が運ぶ理由である。<br>画面からの書き込みは `NT-7` のとおり `RS-27` で告げる"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "表 T-067 の `WS-2`"
+   },
+   "display": "hide"
+  },
+  {
+   "id": "RS-75",
+   "scene": {
+    "ja": "**ファイルを読む操作（開く・開き直す）が、思いがけない理由で途中で失敗した** —— ⭐ 本行と `RS-76` は、既に行を持つ理由（`RS-1`〜`RS-4` など）に当たらない失敗の落ち先である。<br>どの操作が失敗したかを、読む操作と書く操作で分けて告げる"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`05-07-design.md` の 表 T-065 の `IF-3`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-76",
+   "scene": {
+    "ja": "**ファイルへ書く操作（保存・書き出し）が、思いがけない理由で途中で失敗した** —— ⭐ 書けていないかもしれないことを告げる —— 告げなければ、人は保存できたと思い込む（`FR-101`）"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "`05-07-design.md` の 表 T-065 の `IF-3`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-15",
+   "scene": {
+    "ja": "この理由にまだ行が無い"
+   },
+   "manner": "NT-3a",
+   "source": {
+    "ja": "本表"
+   },
+   "display": "show"
+  }
+ ],
+ "questions": [
+  {
+   "id": "QN-1",
+   "scene": {
+    "ja": "行を削除する前"
+   },
+   "names": {
+    "ja": "挙げる —— 消える `Task` の名前。<br>別の行に表示されているものには、その旨と、表示されている行の名前を添える"
+   },
+   "source": {
+    "ja": "`FR-032`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-2",
+   "scene": {
+    "ja": "WBS の子孫を持つ `Task` を削除する前"
+   },
+   "names": {
+    "ja": "挙げる —— 一緒に消えるものは 表 T-050 の `CD-1` が持つ。<br>別の行に表示されているものへの添え書きは `QN-1` と同じ"
+   },
+   "source": {
+    "ja": "`FR-032`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-3",
+   "scene": {
+    "ja": "担当者を消すことで解かれる割当があるとき"
+   },
+   "names": {
+    "ja": "挙げる —— 解かれる割当のタスクの名前。<br>連鎖は 表 T-050 の `CD-5` が持つ"
+   },
+   "source": {
+    "ja": "`FR-099`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-4",
+   "scene": {
+    "ja": "同じとみなせない相手へ書き出そうとするとき"
+   },
+   "names": {
+    "ja": "挙げない —— 正の行が自らそう定めている"
+   },
+   "source": {
+    "ja": "表 T-227 の `DI-4`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-5",
+   "scene": {
+    "ja": "いまの文書を捨てて置き換えるとき（`FR-095` の新しく始めることを含む）。<br>未保存の編集の有無によらず立つ"
+   },
+   "names": {
+    "ja": "挙げる —— 捨てる文書の名前"
+   },
+   "source": {
+    "ja": "表 T-024a の `OP-4`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-9",
+   "scene": {
+    "ja": "**透かしを消す前**"
+   },
+   "names": {
+    "ja": "挙げない —— 消えるものは無い"
+   },
+   "source": {
+    "ja": "`FR-020`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-10",
+   "scene": {
+    "ja": "すべての行を削除する前（行見出しパネルの頭の削除、`HF-20`）"
+   },
+   "names": {
+    "ja": "挙げる —— 消える `Task` の名前（`QN-1` と同じ）"
+   },
+   "source": {
+    "ja": "`FR-032`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-11",
+   "scene": {
+    "ja": "GRS をリセットする前（`FR-153`）"
+   },
+   "names": {
+    "ja": "挙げる —— 保存していない編集があるときだけ、捨てる文書の名前（`QN-5` と同じ）。<br>⚠️ ブラウザから消える値の名前は挙げない —— 文書の値ではなく、どれが消えるかは `FR-153` の 表 T-345 が持ち、問いの文が一括して言う"
+   },
+   "source": {
+    "ja": "`FR-153`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-12",
+   "scene": {
+    "ja": "選択に `Task` と WBS の親子の矢印が混ざったとき（`FR-135` の 表 T-351 の `WL-13`）。<br>⚠️ `NT-7` の問いではない —— 答えは辞書の `wbsParentChoice` の 2 つの語の択であり、`Yes` / `No` ではない。<br>1 つ目の択は、`AR-7` を構えていれば「親子関係を定義するため子タスクを選択」、構えていなければ「タスクを選択」と短くする。<br>面はポインタの近くに立ち、`Esc` か面の外を押せば選ばずに閉じる（`WL-14`）"
+   },
+   "names": {
+    "ja": "挙げない"
+   },
+   "source": {
+    "ja": "`FR-135`"
+   },
+   "display": "ask"
+  },
+  {
+   "id": "QN-8",
+   "scene": {
+    "ja": "この問いにまだ行が無い"
+   },
+   "names": {
+    "ja": "挙げない"
+   },
+   "source": {
+    "ja": "本表"
+   },
+   "display": "ask"
+  }
+ ],
+ "invariantRefusals": {
+  "table": "T-220",
+  "manner": "NT-1",
+  "display": "show"
+ }
+}

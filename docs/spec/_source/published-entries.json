@@ -3220,6 +3220,24 @@
      }
     },
     {
+     "name": "NoticeReason",
+     "note": {
+      "ja": [
+       "型。",
+       "通知が運ぶ理由 —— 表 T-233 の行と、取り込みの拒否が運ぶ 表 T-220 の行の和（`_source/notice-reasons.json` から生成）"
+      ]
+     }
+    },
+    {
+     "name": "NOTICE_MANNER_OF_REASON",
+     "note": {
+      "ja": [
+       "理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。",
+       "殻が描く告げに作法を添えるのに読む"
+      ]
+     }
+    },
+    {
      "name": "SearchPanelSession",
      "note": {
       "ja": [

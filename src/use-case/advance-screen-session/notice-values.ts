@@ -3,6 +3,7 @@
 // @component AdvanceScreenSession, layer UseCase (table T-062)
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
+// Generated region after it: the notice roster from docs/spec/_source/notice-reasons.json (tables T-233, T-234). Do not edit by hand; npm run gen.
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
@@ -69,6 +70,218 @@ export type NoticeValuesEffectName =
 const NOTICE_VALUES_INITIAL_AXES: NoticeValuesAxes = {
   noticeDisplayState: { kind: 'hidden' },
   changeDeliveryState: { kind: 'idle' },
+}
+// </generated>
+
+// <generated -- do not edit by hand>
+// From docs/spec/_source/notice-reasons.json (tables T-233 and T-234) and the rows of table T-220.
+// Rebuild: npm run gen (tools/generate_notice_reasons.py).
+
+// see T-233
+export type ReasonRow =
+  | 'RS-1'
+  | 'RS-2'
+  | 'RS-3'
+  | 'RS-4'
+  | 'RS-5'
+  | 'RS-6'
+  | 'RS-7'
+  | 'RS-8'
+  | 'RS-9'
+  | 'RS-10'
+  | 'RS-11'
+  | 'RS-12'
+  | 'RS-13'
+  | 'RS-14'
+  | 'RS-16'
+  | 'RS-19'
+  | 'RS-20'
+  | 'RS-21'
+  | 'RS-22'
+  | 'RS-23'
+  | 'RS-24'
+  | 'RS-25'
+  | 'RS-26'
+  | 'RS-27'
+  | 'RS-28'
+  | 'RS-29'
+  | 'RS-30'
+  | 'RS-31'
+  | 'RS-32'
+  | 'RS-33'
+  | 'RS-34'
+  | 'RS-36'
+  | 'RS-37'
+  | 'RS-38'
+  | 'RS-39'
+  | 'RS-40'
+  | 'RS-41'
+  | 'RS-42'
+  | 'RS-43'
+  | 'RS-44'
+  | 'RS-46'
+  | 'RS-48'
+  | 'RS-63'
+  | 'RS-64'
+  | 'RS-49'
+  | 'RS-50'
+  | 'RS-51'
+  | 'RS-52'
+  | 'RS-53'
+  | 'RS-54'
+  | 'RS-55'
+  | 'RS-56'
+  | 'RS-57'
+  | 'RS-58'
+  | 'RS-59'
+  | 'RS-60'
+  | 'RS-61'
+  | 'RS-62'
+  | 'RS-66'
+  | 'RS-65'
+  | 'RS-67'
+  | 'RS-68'
+  | 'RS-69'
+  | 'RS-70'
+  | 'RS-71'
+  | 'RS-72'
+  | 'RS-73'
+  | 'RS-74'
+  | 'RS-75'
+  | 'RS-76'
+  | 'RS-15'
+
+// see T-220
+export type InvariantRow =
+  | 'IV-1'
+  | 'IV-2'
+  | 'IV-3'
+  | 'IV-4'
+  | 'IV-5'
+  | 'IV-6'
+  | 'IV-23'
+  | 'IV-7'
+  | 'IV-17'
+  | 'IV-8'
+  | 'IV-9'
+  | 'IV-10'
+  | 'IV-11'
+  | 'IV-12'
+  | 'IV-14'
+  | 'IV-15'
+  | 'IV-16'
+  | 'IV-19'
+  | 'IV-18'
+  | 'IV-20'
+  | 'IV-21'
+  | 'IV-22'
+
+// see FR-076
+export type NoticeReason = ReasonRow | InvariantRow
+
+// see T-037
+export type NoticeManner =
+  | 'NT-1'
+  | 'NT-3'
+  | 'NT-3a'
+  | 'NT-4'
+  | 'NT-5'
+
+// see T-233, T-037
+export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner>> = {
+  'RS-1': 'NT-3a',
+  'RS-2': 'NT-3a',
+  'RS-3': 'NT-3a',
+  'RS-4': 'NT-1',
+  'RS-5': 'NT-1',
+  'RS-6': 'NT-1',
+  'RS-7': 'NT-1',
+  'RS-8': 'NT-1',
+  'RS-9': 'NT-1',
+  'RS-10': 'NT-1',
+  'RS-11': 'NT-1',
+  'RS-12': 'NT-1',
+  'RS-13': 'NT-1',
+  'RS-14': 'NT-5',
+  'RS-16': 'NT-5',
+  'RS-19': 'NT-4',
+  'RS-20': 'NT-5',
+  'RS-21': 'NT-1',
+  'RS-22': 'NT-5',
+  'RS-23': 'NT-3a',
+  'RS-24': 'NT-3a',
+  'RS-25': 'NT-1',
+  'RS-26': 'NT-1',
+  'RS-27': 'NT-1',
+  'RS-28': 'NT-1',
+  'RS-29': 'NT-1',
+  'RS-30': 'NT-1',
+  'RS-31': 'NT-1',
+  'RS-32': 'NT-1',
+  'RS-33': 'NT-1',
+  'RS-34': 'NT-1',
+  'RS-36': 'NT-1',
+  'RS-37': 'NT-1',
+  'RS-38': 'NT-1',
+  'RS-39': 'NT-1',
+  'RS-40': 'NT-3a',
+  'RS-41': 'NT-3a',
+  'RS-42': 'NT-3a',
+  'RS-43': 'NT-3a',
+  'RS-44': 'NT-1',
+  'RS-46': 'NT-3a',
+  'RS-48': 'NT-1',
+  'RS-63': 'NT-5',
+  'RS-64': 'NT-1',
+  'RS-49': 'NT-3',
+  'RS-50': 'NT-5',
+  'RS-51': 'NT-5',
+  'RS-52': 'NT-3',
+  'RS-53': 'NT-1',
+  'RS-54': 'NT-1',
+  'RS-55': 'NT-1',
+  'RS-56': 'NT-1',
+  'RS-57': 'NT-1',
+  'RS-58': 'NT-1',
+  'RS-59': 'NT-3a',
+  'RS-60': 'NT-5',
+  'RS-61': 'NT-1',
+  'RS-62': 'NT-1',
+  'RS-66': 'NT-3a',
+  'RS-65': 'NT-5',
+  'RS-67': 'NT-1',
+  'RS-68': 'NT-5',
+  'RS-69': 'NT-1',
+  'RS-70': 'NT-1',
+  'RS-71': 'NT-3',
+  'RS-72': 'NT-5',
+  'RS-73': 'NT-5',
+  'RS-74': 'NT-1',
+  'RS-75': 'NT-3a',
+  'RS-76': 'NT-3a',
+  'RS-15': 'NT-3a',
+  'IV-1': 'NT-1',
+  'IV-2': 'NT-1',
+  'IV-3': 'NT-1',
+  'IV-4': 'NT-1',
+  'IV-5': 'NT-1',
+  'IV-6': 'NT-1',
+  'IV-23': 'NT-1',
+  'IV-7': 'NT-1',
+  'IV-17': 'NT-1',
+  'IV-8': 'NT-1',
+  'IV-9': 'NT-1',
+  'IV-10': 'NT-1',
+  'IV-11': 'NT-1',
+  'IV-12': 'NT-1',
+  'IV-14': 'NT-1',
+  'IV-15': 'NT-1',
+  'IV-16': 'NT-1',
+  'IV-19': 'NT-1',
+  'IV-18': 'NT-1',
+  'IV-20': 'NT-1',
+  'IV-21': 'NT-1',
+  'IV-22': 'NT-1',
 }
 // </generated>
 

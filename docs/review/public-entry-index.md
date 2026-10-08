@@ -1024,7 +1024,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SCROLLBAR_SIZES` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOT_STORED_SCROLLBAR_SIZES` | -- | const NOT_STORED_SCROLLBAR_SIZES: |
 | `NOTHING_TO_DO_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTHING_TO_DO_REASON` | -- | const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27' |
 | `NOTICE_REASON_OF_RASTER_FAULT` | file only | const | `src/framework/single-html-shell/frame-loop.ts#NOTICE_REASON_OF_RASTER_FAULT` | -- | const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = |
-| `NoticeReason` | file only | type | `src/framework/single-html-shell/frame-loop.ts#NoticeReason` | -- | type NoticeReason = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `noWorkingWeekdayReason` | file only | function | `src/framework/single-html-shell/frame-loop.ts#noWorkingWeekdayReason` | -- | function noWorkingWeekdayReason(document: Document): StartupNoticeReason \| null |
 | `OPEN_CHOOSER_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#OPEN_CHOOSER_ROW` | -- | const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56' |
 | `openSurfaceNameIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#openSurfaceNameIn` | -- | function openSurfaceNameIn(session: ScreenSession): string \| null |
@@ -1567,6 +1566,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
+| `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
+| `NoticeReason` | entry | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeReason` | PI-39 | 型。 |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
@@ -1650,7 +1651,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `stepInteractionRecordValues` | file only | function | `src/use-case/advance-screen-session/interaction-record-values.ts#stepInteractionRecordValues` | -- | function stepInteractionRecordValues( values: InteractionRecordValues, event: InteractionRecordValuesEvent, ): InteractionRecordStep |
 | `ChangeDeliveryState` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ChangeDeliveryState` | -- | type ChangeDeliveryState = \| { readonly kind: 'idle' } \| { readonly kind: 'delivering' } export interface NoticeValues |
 | `emptyNoticeValues` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#emptyNoticeValues` | -- | const emptyNoticeValues: NoticeValues = { ...NOTICE_VALUES_INITIAL_AXES } |
+| `InvariantRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#InvariantRow` | -- | type InvariantRow = \| 'IV-1' \| 'IV-2' \| 'IV-3' \| 'IV-4' \| 'IV-5' \| 'IV-6' \| 'IV-23' \| 'IV-7' \| 'IV-17' \| 'IV-8' \| 'IV-9' |
 | `NoticeDisplayState` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeDisplayState` | -- | type NoticeDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly standing: NoticeValuesStateCarried['standing'] } export type Cha... |
+| `NoticeManner` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeManner` | -- | type NoticeManner = \| 'NT-1' \| 'NT-3' \| 'NT-3a' \| 'NT-4' \| 'NT-5' // see T-233, T-037 export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, Not... |
 | `NoticeValues` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValues` | -- | interface NoticeValues |
 | `NoticeValuesAxes` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesAxes` | -- | type NoticeValuesAxes = Omit<NoticeValues, never> |
 | `NoticeValuesEffect` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffect` | -- | type NoticeValuesEffect = |
@@ -1659,6 +1662,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NoticeValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEventCarried` | -- | interface NoticeValuesEventCarried |
 | `NoticeValuesKey` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesKey` | -- | type NoticeValuesKey = \| 'notices' \| 'noticeDisplayStateMachine.hidden' \| 'noticeDisplayStateMachine.shown' \| 'changeDeliveryStateMachine.idle' \| 'changeDeli... |
 | `NoticeValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesStateCarried` | -- | interface NoticeValuesStateCarried |
+| `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
 | `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type DualCursorM... |
@@ -1727,4 +1731,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 844 name(s) leave through a public entry (334 of them published by table T-064), 673 more are exported by a file and not by its entry.
+Totals: 846 name(s) leave through a public entry (336 of them published by table T-064), 675 more are exported by a file and not by its entry.
