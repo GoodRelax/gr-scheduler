@@ -277,6 +277,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
     },
   ]
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

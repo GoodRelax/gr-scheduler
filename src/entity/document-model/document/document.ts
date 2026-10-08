@@ -16,7 +16,9 @@ export interface Document {
   readonly changeLog: readonly ChangeLogEntry[]
 }
 
+// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.
 export const ROOT_KEYS = [
+  '$schema',
   'schemaVersion',
   'schedule',
   'documentSettings',

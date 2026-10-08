@@ -7,7 +7,7 @@ import { validateDocument } from '../fixtures/grs-document'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
-) as { schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
+) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 export interface RowsDocument {
   readonly rows: number
@@ -30,6 +30,7 @@ export function rowsDocument(asked: RowsDocument): string {
   const indexes = Array.from({ length: asked.rows }, (_one, index) => index)
   const milestones = new Set(asked.milestoneUids ?? [])
   const built = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       ...TEMPLATE.schedule,

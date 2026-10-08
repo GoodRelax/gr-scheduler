@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterEach, expect } from 'vitest'
 
 import type { Clipboard } from '../../src/adapter/clipboard-gateway/clipboard'
-import { documentFromJson, type AppShellSource } from '../../src/adapter/document-codec/document-codec'
+import { documentFromJson, jsonFromDocument, type AppShellSource } from '../../src/adapter/document-codec/document-codec'
 import {
   EMBEDDED_DOCUMENT_ELEMENT_ID,
   STARTUP_TEMPLATE_ELEMENT_ID,
@@ -144,7 +144,7 @@ export function oneRowDocument(title: string, rowId: string, uid: number): Docum
   draft.schedule.taskGroupMembers[0].taskUid = uid
   draft.schedule.taskVisuals[0].taskUid = uid
   draft.documentSettings.scrollGroupId = null
-  const read = documentFromJson(JSON.stringify(draft))
+  const read = documentFromJson(jsonFromDocument((draft) as never))
   if (!read.ok) throw new Error(`the bench document is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }
@@ -155,7 +155,7 @@ export const here = (): Document => oneRowDocument('Here', HERE_ROW, 1)
 export const there = (): Document => oneRowDocument('There', THERE_ROW, 11)
 
 export const UTF8 = new TextEncoder()
-export const jsonBytes = (document: unknown): Uint8Array => UTF8.encode(JSON.stringify(document))
+export const jsonBytes = (document: unknown): Uint8Array => UTF8.encode(jsonFromDocument(document as never))
 
 const bufferOf = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new ArrayBuffer(bytes.byteLength)

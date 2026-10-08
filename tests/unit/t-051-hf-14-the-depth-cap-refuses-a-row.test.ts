@@ -229,6 +229,7 @@ const ONE_ABOVE_THE_CAP = linkAt(MAX_GROUP_DEPTH - 1)
 function chainDocument(): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

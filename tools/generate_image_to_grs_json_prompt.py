@@ -162,6 +162,7 @@ def empty_document():
     settings = startup.settings_defaults()
     startup.assert_settings_complete(settings)
     document = {
+        '$schema': startup.SCHEMA_ADDRESS,
         'schemaVersion': startup.SCHEMA_VERSION,
         'schedule': {
             'project': empty_project(),

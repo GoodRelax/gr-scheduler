@@ -289,9 +289,10 @@ const EMPTY_SCHEDULE: Loose = {
   taskGroupMembers: [],
 }
 
+// WHY: the document a read hands over holds no "$schema"; the writer adds it (DR-4, CR-699).
 const startingDocument = (): Document =>
   ({
-    ...TEMPLATE,
+    ...Object.fromEntries(Object.entries(TEMPLATE).filter(([key]) => key !== '$schema')),
     schedule: SMALL_SCHEDULE,
     documentStamp: { ...STARTING_STAMP },
     changeLog: [],

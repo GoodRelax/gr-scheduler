@@ -239,6 +239,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
   const schedule = template['schedule'] as Record<string, unknown>
   const withTasks = fixture.withTasks === true
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...(schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100 },

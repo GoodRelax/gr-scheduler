@@ -1,0 +1,12 @@
+{
+ "$schema": "./grs-json-changes.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The change ledger of the GRS JSON format (FR-073, Chapter 6.2 of 05-07-design.md): one element per changed column, oldest first, appended only -- an earlier element is never rewritten.",
+  "EMPTY UNTIL OFFICIAL USE IS DECLARED: while S-541 of table T-206 is null, nothing may be added here; a format change before then refuses an older document instead (FR-073). Check 76 holds both directions.",
+  "Generated FROM this file: the root annotation x-grsChanges of docs/spec/_source/grs-document.schema.json (docs/spec/_source/erd_json_to_schema.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/grs-json-changes.schema.json (check 76)."
+ ],
+ "changes": []
+}

@@ -202,6 +202,7 @@ interface GroupSpec {
 function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

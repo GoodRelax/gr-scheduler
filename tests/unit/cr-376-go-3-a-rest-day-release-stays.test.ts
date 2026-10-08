@@ -86,6 +86,7 @@ const group = (id: string, order: number, label: string): unknown => ({
 function fixtureDocument(): Document {
   const template = structuredClone(TEMPLATE)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, uidHighWaterMark: 100, statusDate: null },

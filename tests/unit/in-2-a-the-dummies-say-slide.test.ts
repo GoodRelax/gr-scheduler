@@ -63,6 +63,7 @@ const TEMPLATE_PATH = join(
 )
 
 interface Template {
+  readonly $schema: unknown
   readonly schemaVersion: unknown
   readonly schedule: { readonly project: object; readonly calendars: unknown }
   readonly documentSettings: object
@@ -143,6 +144,7 @@ const rowOfSchedule = (id: string, order: number) => ({
 function fixtureDocument(): Document {
   const template = structuredClone(TEMPLATE)
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

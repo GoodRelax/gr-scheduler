@@ -78,8 +78,15 @@ ERD = os.path.join(HERE, 'erd.json')
 SETTINGS = os.path.join(ASSETS, 'tbl-settings.md')
 OUT = os.path.join(HERE, 'grs-document.schema.json')
 
-SCHEMA_ID = ('https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/'
-             'grs-document.schema.json')
+# CR-699 (DFC-2230): the address of the latest schema is S-540 of table T-206,
+# read through the one reader of not-stored strings -- never typed here. The
+# same value is the first key, "$schema", of every document GRS writes (DR-4).
+SCHEMA_ID = settings_reader.not_stored_string('S-540')
+# ⭐ The change ledger's one source (Chapter 6.2), printed as the root
+# annotation x-grsChanges. Empty until S-541 is set (FR-073, check 76).
+CHANGES = os.path.join(HERE, 'grs-json-changes.json')
+CHANGES_KEY = 'x-grsChanges'
+ADDRESS_KEY = '$schema'
 
 # Which group each settings table belongs to, and the marker in the document
 # that says so.  A table missing from this map stops the build: a new table
@@ -221,7 +228,10 @@ VERSION_KEY = 'schemaVersion'
 # to no language (Chapter 6.2). A summary and the reason only; no
 # specification ID, which a reader holding only the schema cannot look up.
 ROOT_DESCRIPTION = (
-    'A GRS schedule document. `schedule` is the data; `documentSettings` is how '
+    'A GRS schedule document. `$schema` is where the latest version of this '
+    "schema lives (the same as this schema's $id), written first so that whoever holds only "
+    'the document can reach it; a reader never refuses a document over its value. '
+    '`schedule` is the data; `documentSettings` is how '
     'it is drawn when opened; `documentStamp` and `changeLog` record when, by whom '
     'and why it changed. Every key is written, null included, so that "the source '
     'had no value" and "the value is 0" are never confused. What comes from MS '
@@ -256,9 +266,35 @@ CARRY_DESCRIPTION = ('Values of an imported MS Project element that GRS does not
 PROVENANCE = (
     'Generated from docs/spec/_source/erd.json (the schedule group) and '
     'docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the '
-    'presentation group). Never edit by hand. Rebuild: npm run gen -- npm run '
+    'presentation group); x-grsChanges from docs/spec/_source/grs-json-changes.json. '
+    'Never edit by hand. Rebuild: npm run gen -- npm run '
     'gen:check fails on drift. The generator is '
     'docs/spec/_source/erd_json_to_schema.py.')
+
+# CR-699: what the root's `$schema` property says to a writer.
+ADDRESS_DESCRIPTION = (
+    'The address of the latest version of this schema, the same as its $id. '
+    'Written as the first key of the document; any string is read.')
+
+# CR-699: the ledger, said once in the banner for a reader holding only the
+# schema. No specification ID (Chapter 6.2).
+LEDGER_NOTE = (
+    'x-grsChanges is the change ledger of this format: one element per changed '
+    'column, oldest first, each with version, kind (added, removed, renamed, '
+    'converted, refused), entity and column, plus default (added), to (renamed) '
+    'or rule (converted). It tells how the latest GRS reads a document of an '
+    'older version. It stays empty until GRS goes into official use.')
+
+
+def change_ledger():
+    """The ledger's elements, read from its one manuscript (CR-699)."""
+    ledger = json.load(io.open(CHANGES, encoding='utf-8'),
+                       object_pairs_hook=collections.OrderedDict)
+    changes = ledger.get('changes')
+    if not isinstance(changes, list):
+        raise SystemExit('%s holds no "changes" array' % CHANGES)
+    return changes
+
 
 NOT_STORED_MARK = '⛔'          # the stop sign the sources put on a key
 UNSOURCED_MARK = '\U0001f50e'       # the magnifier marking a default with no origin
@@ -858,7 +894,15 @@ def build():
     root_box = [b for b in erd['container']['boxes'] if b['id'] == 'Document'][0]
     order = [key for _shape, key, _note in root_box['rows']]
 
+    # CR-699 (JDG-1693): the address rides first. It is not a row of the
+    # figure's root box -- a mermaid attribute name cannot hold "$" -- so it is
+    # placed here, typed as a string only and never a const: a document whose
+    # address moved is still read (the format version decides, FR-073).
+    order = [ADDRESS_KEY] + order
     props = collections.OrderedDict()
+    props[ADDRESS_KEY] = collections.OrderedDict([
+        ('type', 'string'),
+        ('description', ADDRESS_DESCRIPTION)])
     for shape, key, _note in root_box['rows']:
         if key == 'schedule':
             props[key] = schedule
@@ -909,9 +953,11 @@ def build():
     if unplaced:
         note.append('Entities the container does not place anywhere, so no property '
                     'points at their definition: %s.' % ', '.join(unplaced))
+    note.append(LEDGER_NOTE)
     schema['$comment'] = ' '.join(note)
     schema['title'] = 'GRS JSON document'
     schema['description'] = ROOT_DESCRIPTION
+    schema[CHANGES_KEY] = change_ledger()
     schema['type'] = 'object'
     schema['required'] = order
     schema['additionalProperties'] = False

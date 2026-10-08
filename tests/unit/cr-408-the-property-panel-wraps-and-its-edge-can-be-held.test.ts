@@ -99,12 +99,14 @@ const TASK_UID = 1
 
 function oneTaskDocument(): Document {
   const template = structuredClone(TEMPLATE) as {
+    $schema: unknown
     schemaVersion: unknown
     schedule: Record<string, unknown>
     documentSettings: Record<string, unknown>
     documentStamp: unknown
   }
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       ...template.schedule,

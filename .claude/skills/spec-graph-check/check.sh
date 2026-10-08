@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 72 mechanical checks for the gr-scheduler specification.
+# All 73 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 55. (Recounted 2026-10-03 at check 75
+# The ranges today are 1 + 4 + 8 + 4 + 56. (Recounted 2026-10-08 at check 76
+# (the GRS JSON version, change ledger and address, CR-699): 55 + 1. Recounted 2026-10-03 at check 75
 # (the schedule-to-grs-json guide, DFC-1790): 54 + 1. Recounted 2026-10-01 at the
 # merge of check 74 (conflict markers, DFC-1461): 53 + 1. Recounted
 # 2026-09-26 at the
@@ -343,6 +344,13 @@
 #          Project / TaskGroup key the schema lacks and leaves out no key
 #          TaskVisual / TaskGroup require. Nothing generates the guide, so
 #          gen:check never saw it drift (DFC-1790). No baseline: 0
+#   76     check-grs-json-ledger.py : the format version is an RFC 3339 UTC
+#          instant, the change ledger docs/spec/_source/grs-json-changes.json
+#          passes its contract and stays empty while S-541 is null (a row for
+#          every later version once it is set), and S-540 -- the schema's
+#          $id and the first key of every written document -- is the
+#          generated schema on the published site (DFC-2230: the old $id
+#          was a 404). CR-699. No baseline: 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -968,6 +976,19 @@ section "75  the schedule-to-grs-json guide still yields a document the schema a
 # all three are reported and a clean pair reports none.
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" || failed
+
+section "76  the GRS JSON version is an instant, its ledger obeys S-541, its address resolves"
+# CR-699 (JDG-1677, JDG-1678, JDG-1693, DFC-2230). FR-073 makes the format
+# version an RFC 3339 UTC instant and keeps the change ledger empty until the
+# user declares official use (S-541); after that, a version bump without a
+# ledger row is the defect this check exists for. S-540 is written into every
+# document and the schema's $id, so an address that does not resolve
+# (DFC-2230 MEASURED a 404 for the old $id on 2026-10-08) misleads every
+# reader -- the check maps it onto docs/ the way the Pages workflow does,
+# offline. --self-test feeds a version without seconds, a row before
+# declaration, a missing row after it and an address outside docs/.
+PYTHONIOENCODING=utf-8 python "$HERE/check-grs-json-ledger.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-grs-json-ledger.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

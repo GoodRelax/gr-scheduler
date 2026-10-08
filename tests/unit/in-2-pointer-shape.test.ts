@@ -314,6 +314,7 @@ const rowOfSchedule = (id: string, order: number) => ({
 function fixtureDocument(): Document {
   const template = structuredClone(TEMPLATE) as any
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

@@ -58,8 +58,11 @@ const S_487_KEY = (settingRow('S-487').key ?? '').replace(/`/g, '')
 const CM_87_NAME = bare(cellOf('T-108', 'CM-87', '確定名')).replace(/`/g, '')
 
 // see FR-073
-// WHY: CR-651 E-11 raises the version to the day the change lands.
-const SCHEMA_VERSION = '2026-10-04'
+// WHY: CR-651 E-11 raised the version; CR-699 raised it again, so the bundled documents follow the manifest.
+const SCHEMA_VERSION = (JSON.parse(readFileSync(
+  join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template-manifest.json'),
+  'utf8',
+)) as { schemaVersion: string }).schemaVersion
 
 const TEMPLATE_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -519,7 +522,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
   it.each([
     ['startup-template.json', TEMPLATE_TEXT],
     ['empty-document.json', EMPTY_DOCUMENT_TEXT],
-  ] as const)('AT-156 FR-073 %s: schemaVersion 2026-10-04 and project.parentProgressToleranceDays = S-487', (_file, text) => {
+  ] as const)('AT-156 FR-073 %s: schemaVersion is the manifest version and project.parentProgressToleranceDays = S-487', (_file, text) => {
     const raw = JSON.parse(text) as { schemaVersion: string; schedule: { project: Loose } }
     expect(raw.schemaVersion).toBe(SCHEMA_VERSION)
     expect(raw.schedule.project[S_487_KEY]).toBe(S_487_DEFAULT)

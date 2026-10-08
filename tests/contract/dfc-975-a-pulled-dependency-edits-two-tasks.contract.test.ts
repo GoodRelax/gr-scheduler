@@ -73,6 +73,7 @@ const fixtureDocument = (): Document => {
     ),
   ]
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, uidHighWaterMark: 100, statusDate: null },

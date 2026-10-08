@@ -374,6 +374,7 @@ function suspendedDocument(): Document {
   const tasks = SHAPES.flatMap((shape) => STATES.map((state) => taskFor(shape, state)))
   const groupIdOf = (uid: number): string => `67300000-0000-4000-8000-${String(uid).padStart(12, '0')}`
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...(schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100, statusDate: null },

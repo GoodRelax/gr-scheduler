@@ -318,6 +318,7 @@ function documentWithRoster(): Document {
     carryElements: [],
   })
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

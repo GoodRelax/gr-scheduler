@@ -300,6 +300,7 @@ const shellTask = (uid: number, start: string, finish: string, links: readonly n
 
 const shellDocument = (rows: readonly string[], tasks: readonly (readonly [Loose, string])[]): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 1000, statusDate: null },

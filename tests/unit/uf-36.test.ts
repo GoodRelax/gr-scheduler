@@ -66,7 +66,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   MSPDI_NAMESPACE,
@@ -806,7 +806,7 @@ describe('the rosters these cases walk', () => {
   })
 
   it('reads a bundled template that stands in for what MSPDI cannot carry', () => {
-    expect(validateDocument(CURRENT).errors).toEqual([])
+    expect(validateDocument(JSON.parse(jsonFromDocument(CURRENT))).errors).toEqual([])
   })
 })
 
@@ -955,7 +955,7 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
 describe('the ordinary case -- one MSPDI in', () => {
   it('gives back a document the generated GRS JSON schema accepts', () => {
     const document = accepted(BASE_TEXT)
-    expect(validateDocument(document).errors).toEqual([])
+    expect(validateDocument(JSON.parse(jsonFromDocument(document))).errors).toEqual([])
   })
 
   it('takes from `current` only what MSPDI cannot carry (DR-3, DR-4, DR-5)', () => {
@@ -1007,7 +1007,7 @@ describe('the ordinary case -- one MSPDI in', () => {
     expect(document.schedule.tasks).toEqual([])
     expect(document.schedule.taskGroups).toEqual([])
     expect(document.schedule.taskGroupMembers).toEqual([])
-    expect(validateDocument(document).errors).toEqual([])
+    expect(validateDocument(JSON.parse(jsonFromDocument(document))).errors).toEqual([])
   })
 
   it('carries the uid high-water mark past every uid it read (AT-20)', () => {

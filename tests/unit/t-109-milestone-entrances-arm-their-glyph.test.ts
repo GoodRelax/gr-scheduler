@@ -265,6 +265,7 @@ const STANDING_UID = 1
 function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

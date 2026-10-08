@@ -508,6 +508,7 @@ function documentWith(
 ): Document {
   const template = structuredClone(TEMPLATE) as any
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

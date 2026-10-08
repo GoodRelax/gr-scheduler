@@ -41,6 +41,7 @@ const T_034 = [
 
 // see T-052
 const T_052_ROOT = [
+  '$schema',
   'schemaVersion',
   'schedule',
   'documentSettings',
@@ -65,7 +66,8 @@ const T_052_DR2 = [
 ] as const
 
 // see FR-073
-const FR_073_FORMAT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/
+// WHY: CR-699 (JDG-1677) made the format version an RFC 3339 UTC instant.
+const FR_073_FORMAT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
 
 // WHY: FR-067 keeps the embedded content out of the body and CN-8 gives
 // the artifact a policy, so the container's type must never be one of these.
@@ -150,7 +152,7 @@ function rootWithProjectName(base: Root, name: string): Root {
 }
 
 function documentOf(root: Root): Document {
-  const read = documentFromJson(JSON.stringify(root))
+  const read = documentFromJson(jsonFromDocument((root) as never))
   if (!read.ok) {
     throw new Error(`the fixture is not a GRS JSON document: ${JSON.stringify(read.faults)}`)
   }
@@ -267,9 +269,9 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   it('carries the row counts of table T-024, table T-034 and table T-052', () => {
     expect(T_024).toHaveLength(7)
     expect(T_034).toHaveLength(3)
-    expect(T_052_ROOT).toHaveLength(5)
+    expect(T_052_ROOT).toHaveLength(6)
     expect(T_052_DR2).toHaveLength(12)
-    expect(new Set(T_052_ROOT).size).toBe(5)
+    expect(new Set(T_052_ROOT).size).toBe(6)
     expect(new Set(T_052_DR2).size).toBe(12)
   })
 
@@ -388,7 +390,7 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
     expect(readers).toEqual(['documentFromEmbeddedHtml'])
   })
 
-  it('writes table T-052 whole -- one case walks all five root keys (FR-024)', async () => {
+  it('writes table T-052 whole -- one case walks all six root keys, the address first (FR-024, DR-4)', async () => {
     const payload = parsedPayload(await exported(PLAIN_SHELL, ID, SMALL), ID)
     expect(Object.keys(payload).sort()).toEqual([...T_052_ROOT].sort())
     for (const key of T_052_ROOT) expect(payload, key).toHaveProperty(key)

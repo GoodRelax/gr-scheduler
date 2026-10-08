@@ -322,6 +322,7 @@ function documentOfOverlaps(howMany: number): Document {
   const template = structuredClone(TEMPLATE) as any
   const uids = Array.from({ length: howMany }, (_, index) => index + 1)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

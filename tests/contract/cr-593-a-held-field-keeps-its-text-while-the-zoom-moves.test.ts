@@ -79,6 +79,7 @@ function taskOf(uid: number): Record<string, unknown> {
 function sceneOf(): Document {
   const rows = [A, B]
   const text = JSON.stringify({
+    $schema: TEMPLATE['$schema'],
     schemaVersion: BUILT_VERSION,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },

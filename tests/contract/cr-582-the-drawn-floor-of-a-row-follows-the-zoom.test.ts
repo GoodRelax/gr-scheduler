@@ -110,6 +110,7 @@ function taskOf(uid: number): Record<string, unknown> {
 function documentText(minHeight: number | null): string {
   const rows = [FLOORED, OTHER]
   return JSON.stringify({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },

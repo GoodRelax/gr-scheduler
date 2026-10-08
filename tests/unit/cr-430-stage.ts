@@ -124,6 +124,7 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
   const tasks = benchTasks()
   const rows = tasks.map((one) => `5a000000-0000-4000-8000-${String(one.uid).padStart(12, '0')}`)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...structuredClone(template['schedule'].project), uidHighWaterMark: 100, statusDate: null },

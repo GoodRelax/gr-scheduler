@@ -307,6 +307,7 @@ function documentWith(part: Fixture = {}): Document {
       carryElements: [],
     }) as unknown as Task
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

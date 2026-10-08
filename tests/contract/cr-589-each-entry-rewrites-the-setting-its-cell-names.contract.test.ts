@@ -144,6 +144,7 @@ const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25', finish: '2026
 function documentWith(settings: Readonly<Record<string, unknown>>): Document {
   const template = structuredClone(TEMPLATE)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, uidHighWaterMark: 100, statusDate: null },

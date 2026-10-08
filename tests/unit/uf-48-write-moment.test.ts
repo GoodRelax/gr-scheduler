@@ -234,6 +234,7 @@ function twoRowDocument(): Document {
     minHeight: null,
   })
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

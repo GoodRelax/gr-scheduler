@@ -1,11 +1,13 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
- "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json",
- "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group). Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py.",
+ "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+ "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group); x-grsChanges from docs/spec/_source/grs-json-changes.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py. x-grsChanges is the change ledger of this format: one element per changed column, oldest first, each with version, kind (added, removed, renamed, converted, refused), entity and column, plus default (added), to (renamed) or rule (converted). It tells how the latest GRS reads a document of an older version. It stays empty until GRS goes into official use.",
  "title": "GRS JSON document",
- "description": "A GRS schedule document. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, comment and highlight boxes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column (a milestone takes the finish time at both ends), and 00:00:00..23:59:00 for a whole-day range (00:00:00 for a single day such as a comment's anchor), because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. A last day (finish, actualFinish, stop, endDate) is included. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time. A null colour or width follows the theme. A custom colour gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark colour cannot be derived from a light one.",
+ "description": "A GRS schedule document. `$schema` is where the latest version of this schema lives (the same as this schema's $id), written first so that whoever holds only the document can reach it; a reader never refuses a document over its value. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, comment and highlight boxes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column (a milestone takes the finish time at both ends), and 00:00:00..23:59:00 for a whole-day range (00:00:00 for a single day such as a comment's anchor), because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. A last day (finish, actualFinish, stop, endDate) is included. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time. A null colour or width follows the theme. A custom colour gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark colour cannot be derived from a light one.",
+ "x-grsChanges": [],
  "type": "object",
  "required": [
+  "$schema",
   "schemaVersion",
   "schedule",
   "documentSettings",
@@ -14,9 +16,13 @@
  ],
  "additionalProperties": false,
  "properties": {
+  "$schema": {
+   "type": "string",
+   "description": "The address of the latest version of this schema, the same as its $id. Written as the first key of the document; any string is read."
+  },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-04"
+   "const": "2026-10-08T03:13:21Z"
   },
   "schedule": {
    "type": "object",

@@ -144,6 +144,7 @@ const ROW_GROUP = '5c000000-0000-4000-8000-000000000667'
 
 const documentText = (tasks: readonly Record<string, unknown>[]): string =>
   JSON.stringify({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE['schemaVersion'],
     schedule: {
       project: { ...TEMPLATE['schedule']['project'], uidHighWaterMark: 100, statusDate: null },

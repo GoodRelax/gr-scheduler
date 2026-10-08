@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { documentFromEmbeddedHtml } from '../../src/adapter/document-codec/embedded-html-codec'
-import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
+import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/json-codec'
 import { documentFromMspdi, mspdiFromDocument } from '../../src/adapter/document-codec/mspdi-codec'
 import type { ChosenFileWrite, FileReading, FileStore } from '../../src/adapter/file-gateway/file-gateway'
 import type { InputModifiers, KeyInput, PointerInput, PointerPhase } from '../../src/adapter/input-command-translator/input-command-translator'
@@ -77,6 +77,7 @@ const ROW = '5c000000-0000-4000-8000-000000000645'
 const documentObject = (tasks: readonly Record<string, unknown>[]): Record<string, any> => {
   const template = structuredClone(TEMPLATE)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, uidHighWaterMark: 100, statusDate: null },
@@ -130,7 +131,7 @@ const greatest = (): string => TEMPLATE['schemaVersion'] as string
 function currentDocument(): Document {
   const parsed = structuredClone(TEMPLATE) as { schedule: { project: Record<string, unknown> } }
   parsed.schedule.project['sourceFormat'] ??= 'grs'
-  const read = documentFromJson(JSON.stringify(parsed), greatest())
+  const read = documentFromJson(jsonFromDocument((parsed) as never), greatest())
   if (!read.ok) throw new Error('the bundled template was refused')
   return read.document
 }
@@ -182,7 +183,7 @@ describe('FR-012: documentFromJson recounts percentComplete from the dates', () 
   })
 
   it('a document whose values agree with its dates reads with nothing recounted', () => {
-    const again = documentFromJson(JSON.stringify(read.document), greatest())
+    const again = documentFromJson(jsonFromDocument((read.document) as never), greatest())
     if (!again.ok) throw new Error('the recounted document was refused')
     expect(again.recountedCount).toBe(0)
   })

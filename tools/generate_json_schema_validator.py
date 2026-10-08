@@ -101,6 +101,9 @@ DROPPED = {
     # CR-643: json-codec.ts judges the version with formatVersionReading
     # (FR-073) before the walker runs, and rewrites it to this build's own.
     'const': 'the format version is judged by formatVersionReading',
+    # CR-699: the change ledger is an annotation for a reader of the schema
+    # (Chapter 6.2); JSON Schema passes an unknown keyword, and so does this.
+    'x-grsChanges': 'the change ledger, an annotation that judges no value',
 }
 
 # ⛔ The one date-time definition the date columns point at. Its `pattern` is
