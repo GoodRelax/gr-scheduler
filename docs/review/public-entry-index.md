@@ -476,7 +476,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `createTask` | file only | function | `src/use-case/edit-document/task-create.ts#createTask` | -- | function createTask( document: Document, command: Extract<TaskCommand, { readonly kind: 'createTask' }>, within: WorkingCalendar, ): EditResult |
 | `resetTaskGroupTreeStates` | file only | function | `src/use-case/edit-document/task-group-folding.ts#resetTaskGroupTreeStates` | -- | function resetTaskGroupTreeStates(document: Document): EditResult |
 | `setTaskGroupTreeState` | file only | function | `src/use-case/edit-document/task-group-folding.ts#setTaskGroupTreeState` | -- | function setTaskGroupTreeState( document: Document, command: TaskGroupCommandOf<'setTaskGroupTreeState'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
-| `TREE_STATE_TRANSITIONS` | file only | const | `src/use-case/edit-document/task-group-folding.ts#TREE_STATE_TRANSITIONS` | -- | const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [ |
 | `TreeStateEffectName` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEffectName` | -- | type TreeStateEffectName = \| 'writeLevelZeroCollapsed' \| 'writeLevelZeroAuto' export interface TreeStateTransition |
 | `TreeStateEventCarried` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateEventCarried` | -- | interface TreeStateEventCarried |
 | `TreeStateKey` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateKey` | -- | type TreeStateKey = \| 'rowTree' \| 'treeStateMachine.auto' \| 'treeStateMachine.collapsed' \| 'treeStateMachine.expanded' \| 'treeStateMachine.temporarilyExpande... |
@@ -705,7 +704,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TranslatedInput` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TranslatedInput` | -- | interface TranslatedInput |
 | `UNASSIGNED` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#UNASSIGNED` | -- | const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false } |
 | `WheelInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#WheelInput` | -- | interface WheelInput |
-| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | -- | function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds |
+| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | PI-18 | 倍率の 4 つの入口（`IC-12`〜`IC-15`）のそれぞれについて、いま押しても倍率が 1 段も動かない端に在るかを答える（時間の軸は `_assets/tbl-settings.md` の `S-75` の範囲と `S-229`、行の軸は 表 T-262 の `ZE-1`・`ZE-3`）。 |
 | `zoomYCeiling` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#zoomYCeiling` | -- | function zoomYCeiling(context: InputContext): number \| null |
 | `commandFromArmed` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmed` | -- | function commandFromArmed( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
@@ -1723,4 +1722,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 843 name(s) leave through a public entry (332 of them published by table T-064), 670 more are exported by a file and not by its entry.
+Totals: 843 name(s) leave through a public entry (333 of them published by table T-064), 669 more are exported by a file and not by its entry.

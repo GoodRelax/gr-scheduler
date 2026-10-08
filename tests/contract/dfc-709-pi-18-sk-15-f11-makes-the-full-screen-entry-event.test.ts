@@ -95,7 +95,7 @@ describe('DFC-709 -- PI-18 screenEventFromInput on the full-screen entrance', ()
   })
 
   // see DFC-709, T-280
-  it.fails('DFC-709: IC-11 (T-280 names it beside SK-15): a press released on the entrance makes the same event', () => {
+  it('DFC-709: IC-11 (T-280 names it beside SK-15): a press released on the entrance makes the same event', () => {
     const pressed = { ...context, pressed: entryPress(FULL_SCREEN_ENTRANCE) }
     expect(screenEventFromInput(pointerUp, pressed)).toEqual({ type: 'fullScreenEntryPressed' })
   })

@@ -241,7 +241,7 @@ export interface TreeStateTransition {
   readonly effectArgument: string | null
 }
 
-export const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
+const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'rowTree',
     event: 'everyRowFoldPressed',
