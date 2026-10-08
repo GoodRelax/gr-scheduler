@@ -1920,11 +1920,11 @@ const ROSTER = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as Roster
 
 /**
  * EX-6 tells GRS's own frame from the import source's by the DEFINITION's
- * `Alias`. The manuscript ships both aliases empty on purpose and says why:
- * until the user fills one, GRS cannot recognise its own frame and must not
- * claim one. So while they are empty there is no frame GRS may claim, and the
- * cases below expect the "nowhere to go" arm of EX-6. Filling an alias in the
- * manuscript moves these expectations, which is the point of reading it here.
+ * `Alias`. Since CR-702 the manuscript names both aliases after the column
+ * (`fadeInDays` / `fadeOutDays`), so GRS recognises its own frame. The empty
+ * case (no frame GRS may claim, the "nowhere to go" arm of EX-6) stays
+ * covered below, guarded by ROSTER_ALIASES_ARE_USABLE: emptying an alias in
+ * the manuscript moves these expectations, which is the point of reading it.
  */
 const ROSTER_ALIASES_ARE_USABLE = ROSTER.frames.every((each) => each.alias.trim().length > 0)
 
@@ -2567,10 +2567,10 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   })
 
   it('GIVEN an empty alias in the manuscript WHEN a file offers that frame THEN nothing is claimed on either side (CR-199 section 7)', () => {
-    // The manuscript ships both aliases EMPTY on purpose -- the user has not
-    // chosen the two words -- and says that until one is filled GRS cannot
-    // recognise its own frame and must not claim one. So while an alias is
-    // empty: import reads the column null, and export writes no fade day.
+    // Since CR-702 both aliases are filled, so the first branch below runs.
+    // The second keeps the old rule: while an alias is empty GRS cannot
+    // recognise its own frame and must not claim one, so import reads the
+    // column null, and export writes no fade day.
     const frame = rosterFrame('fadeInDays')
     const offered = fadeFileText(
       [definitionXml(frame.fieldId, frame.name, frame.alias)],
