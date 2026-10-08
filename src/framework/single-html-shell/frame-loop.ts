@@ -1338,6 +1338,21 @@ function screenExportViewOf(
   return { regions, settings, layout, dualCursor }
 }
 
+// see IX-15
+// WHY: the picture is the four stacked sections only (JDG-1627): the screen's bottom padding (S-56)
+// and scrollbar strip under the Row Area are cut, as the bar's thickness differs per machine.
+/** @purity pure */
+function regionsClosedUnderRowArea(regions: ScreenRegions): ScreenRegions {
+  const rowAreaBottom = regions.rowArea.y + regions.rowArea.height
+  const closed = (rect: ScreenRect): ScreenRect => ({ ...rect, height: rowAreaBottom - rect.y })
+  return {
+    ...regions,
+    scheduleCanvas: closed(regions.scheduleCanvas),
+    rowTitlePanel: closed(regions.rowTitlePanel),
+    propertiesPanel: closed(regions.propertiesPanel),
+  }
+}
+
 // see IX-13, IX-14, IX-15, FX-1, FX-2
 // WHY: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
 // laid against the S-217 height so no pinned row is cut, then the canvas is closed under the last row.
@@ -1376,7 +1391,7 @@ function spanExportViewOf(
   )
   const lastRowBottom = layout.rows.reduce((bottom, row) => Math.max(bottom, row.y + row.height), reach.rowArea.y)
   const belowRowArea = reach.scheduleCanvas.y + reach.scheduleCanvas.height - (reach.rowArea.y + reach.rowArea.height)
-  return { regions: regionsAt(lastRowBottom + belowRowArea), settings, layout, dualCursor: null }
+  return { regions: regionsClosedUnderRowArea(regionsAt(lastRowBottom + belowRowArea)), settings, layout, dualCursor: null }
 }
 
 // see HF-15, SF-5
