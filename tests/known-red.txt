@@ -12,7 +12,6 @@
 # A tests/usecase case marked with specMismatch() (test.fail) is red by design until the app
 # matches the specification; when the app is fixed it turns green and its line must go.
 
-DFC-374 | tests/system/user-reported-fixes.test.ts | DFC-374: magnifying the row axis stops before one row fills the Row Area | - | - | the row-axis magnification has no ceiling
 DFC-1016 | tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 extension 2a / FR-023 OP-5: a truncated MSPDI file is dropped with no notice
 DFC-1019 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 2 / FR-066 AG-11: a sent Dialogue Field line is not returned by readDialogueMessages
 DFC-1020 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 4 / FR-066 DR-4: no change reason reaches changeLog
