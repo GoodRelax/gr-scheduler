@@ -220,18 +220,20 @@ function wbsParentAfterTheMove(
   return nearestDerivedTaskUid(schedule, byId, parent)
 }
 
-// see HM-12
+// see HM-12, DU-1
 // WHY: walks up from the landing row; a row whose source Task is gone derives nothing, and no derived row is the root.
+// A copy's walk passes the rows that derive from its own WBS descendants (DU-1), so no loop forms.
 /** @purity pure */
-function nearestDerivedTaskUid(
+export function nearestDerivedTaskUid(
   schedule: Schedule,
   byId: ReadonlyMap<string, TaskGroup>,
   landing: TaskGroup | null,
+  passes: (uid: number) => boolean = () => false,
 ): number | null {
   let row = landing
   for (let guard = 0; row !== null && guard <= byId.size; guard++) {
     const uid = row.derivedFromTaskUid
-    if (uid !== null && taskByUid(schedule, uid) !== null) return uid
+    if (uid !== null && !passes(uid) && taskByUid(schedule, uid) !== null) return uid
     row = row.parentId === null ? null : (byId.get(row.parentId) ?? null)
   }
   return null

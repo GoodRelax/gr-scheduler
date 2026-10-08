@@ -23,8 +23,9 @@ const EDIT_GROUP_LANDS_ON_CHOSEN_ROW =
   '⛐ **ただ 1 つの例外は、複製元の行が `editGroup` を名乗っているときである** —— そのときに限り、**選んでいる自分の行に載せること（MUST）**'
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
-const ROOT_IS_A_SIBLING =
-  'コピー元の親もコピーするときはそのコピーとし、コピーしないときはコピー元と同じ親とすること（MUST）'
+// WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing row.
+const PARENT_FROM_THE_ROW =
+  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの WBS の親を、コピーを載せた行から推定すること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const REASON_IS_A_T233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
 
@@ -35,7 +36,7 @@ describe('FR-033 / T-233 -- the clauses this file is driven by still stand', () 
     SAME_ROW,
     EDIT_GROUP_LANDS_ON_CHOSEN_ROW,
     MANY_TASKS_ALL_COPIED,
-    ROOT_IS_A_SIBLING,
+    PARENT_FROM_THE_ROW,
     NO_SAME_UID,
     REASON_IS_A_T233_ROW,
   ])('%s', (clause) => {
@@ -55,7 +56,7 @@ const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { rowId: string;
   .filter((one) => T233_IDS.has(one.rowId))
   .map((one) => one.text.ja)
 
-// WHY: one Task per row, all at the WBS top, so ROOT_IS_A_SIBLING and "nothing chosen -> top"
+// WHY: one Task per row, all at the WBS top, so PARENT_FROM_THE_ROW and "nothing chosen -> top"
 // agree on where a copy root goes.
 const threeRows = (editGroupOnRowOne: boolean): Record<string, any> => {
   const document = rowDocument([
@@ -187,14 +188,14 @@ describe('controls -- one row or no row chosen, the Task paste goes through', ()
     expect(made.map((one) => one.name).sort()).toEqual(['T1', 'T2'])
   })
 
-  it(`${ROOT_IS_A_SIBLING} / ${NO_SAME_UID} -- one copied Task, NO row chosen`, () => {
+  it(`${PARENT_FROM_THE_ROW} / ${NO_SAME_UID} -- one copied Task, NO row chosen`, () => {
     const stage = stageOf(threeRows(false), 'ctrl')
     copyTasks(stage, [1])
     expect(stage.pickedRows(), 'premise: no row is chosen').toEqual([])
     const made = newTasks(stage, () => stage.bench.send(PASTE))
     expect(made.map((one) => one.name)).toEqual(['T1'])
     expect(made[0].uid, 'NO_SAME_UID').not.toBe(1)
-    expect(made[0].wbsParentUid, 'the copy root is a sibling at the WBS top').toBeNull()
+    expect(made[0].wbsParentUid, 'row-1 derives from no Task, so the inferred parent is the root').toBeNull()
     expect(stage.rowOfTask(made[0].uid), 'SAME_ROW').toBe('row-1')
   })
 })
