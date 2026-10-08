@@ -1780,6 +1780,11 @@ NOT_STORED_TARGETS = {
     # ⛔ S-238 IS NOT S-53 / S-96 although both default to 1.1: the row's own
     # note forbids the two to be shared (S-53 is how fast one notch moves).
     'NOT_STORED_ROW_BAND_CEILING_SEARCH': (['S-238', 'S-239'], DERIVED_WHERE_IT_STANDS),
+    # CR-707: S-534 (OP-10's margin at the startup template's left edge) holds
+    # no number of its own: its value is S-134 / 2 + S-268 / 2. Both ends of
+    # that derivation stand in view-place.ts, the one unit that seats the
+    # startup place, and the row's note forbids typing the sum into src/.
+    'NOT_STORED_STARTUP_MARGIN_TERMS': (['S-134', 'S-268'], DERIVED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
     # ⭐ THE ONE TYPEFACE LIST EVERY TEXT IS DRAWN IN (CR-419). FR-039 (MUST)
     # draws every text of the screen AND of the exported picture in S-246's
@@ -3193,6 +3198,11 @@ TARGETS = [
      lambda _erd: visible_element_block(),
      ['docs/spec/_assets/tbl-glossary.md (table T-109)',
       'docs/spec/_source/settings.json (table T-202)']),
+    # CR-707: the two terms of S-534 stand in the unit that seats OP-10's
+    # startup place and writes it into a saved copy.
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'view-place.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_STARTUP_MARGIN_TERMS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     # DFC-1770: the jump's inset stands in the unit that places the jump (SJ-6).
     (os.path.join(USECASE, 'edit-document', 'search-jump.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET'),
