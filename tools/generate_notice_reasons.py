@@ -26,10 +26,15 @@ to run unless exactly one such region is in the file.
 
 ⛔ NO VALUE IS INVENTED HERE. Every row id and manner is the manuscript's.
 
-⚠️ WAVE 1 OF CR-712 PRINTS WHAT src/ READS TODAY: the row unions,
-`NoticeReason` and `NOTICE_MANNER_OF_REASON`. The `display` and `wordsOf`
-of the manuscript are not printed yet -- check 30 (JDG-139) refuses a
-generated constant exported for no reader, and wave 2 adds the reader.
+⭐ WHAT IS PRINTED (CR-712 wave 2): the row unions (`ReasonRow`,
+`InvariantRow`, `NoticeReason`, `QuestionRow`), `NoticeManner`, and per row
+its manner (`NOTICE_MANNER_OF_REASON`), its display
+(`NOTICE_DISPLAY_OF_REASON`), the row whose words the screen prints
+(`NOTICE_WORDS_ROW_OF_REASON`, itself when it shares none) and the display
+of a question (`QUESTION_DISPLAY_OF_ROW`). A row of table T-220 takes the
+family's manner and display and its `invariantRefusals.wordsOf` entry.
+⛔ Each needs a reader in src/: check 30 (JDG-139) refuses a generated
+constant exported for no reader.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -58,6 +63,10 @@ INVARIANT_ROW = re.compile(r'^\| (IV-\d+) \|')
 CAPTION = u'**表 '
 
 MANNER = re.compile(r'^NT-(\d+)([a-z]?)$')
+
+# The value types of the two display records, spelled as notice-reasons.schema.json enumerates them.
+REASON_DISPLAY = "'show' | 'hide' | 'autoDismiss' | 'report'"
+QUESTION_DISPLAY = "'ask' | 'askOnlyWithUnsavedEdits'"
 
 
 def path_of(rel):
@@ -122,18 +131,29 @@ def block(doc, invariants):
     reason_ids = [one['id'] for one in reasons]
     manners = sorted(set([one['manner'] for one in reasons] + [family['manner']]),
                      key=manner_order)
-    # WHY: CR-712 wave 1 prints only what src/ reads today (JDG-139 refuses
-    # an exported generated constant nobody imports); the display of a
-    # reason, the row whose words it shares and the display of a question
-    # join with the wave that reads them.
+    shared = family.get('wordsOf', {})
+    # WHY: every name printed here has a reader in src/ (JDG-139 refuses an
+    # exported generated constant nobody imports): the shell reads the manner,
+    # the session's notices region, the clock and the file flow read the
+    # display, the region and the renderer read the words row, and the file
+    # flow region reads the display of a question (CR-712 wave 2).
     sections = [
         union('ReasonRow', reason_ids, 'T-233'),
         union('InvariantRow', invariants, 'T-220'),
         ['// see FR-076', 'export type NoticeReason = ReasonRow | InvariantRow'],
+        union('QuestionRow', [one['id'] for one in doc['questions']], 'T-234'),
         union('NoticeManner', manners, 'T-037'),
         record('NOTICE_MANNER_OF_REASON', 'NoticeReason', 'NoticeManner',
                [(one['id'], one['manner']) for one in reasons]
                + [(row, family['manner']) for row in invariants], 'T-233, T-037'),
+        record('NOTICE_DISPLAY_OF_REASON', 'NoticeReason', REASON_DISPLAY,
+               [(one['id'], one['display']) for one in reasons]
+               + [(row, family['display']) for row in invariants], 'T-233, FR-076'),
+        record('NOTICE_WORDS_ROW_OF_REASON', 'NoticeReason', 'NoticeReason',
+               [(one['id'], one.get('wordsOf', one['id'])) for one in reasons]
+               + [(row, shared.get(row, row)) for row in invariants], 'T-233, FR-076'),
+        record('QUESTION_DISPLAY_OF_ROW', 'QuestionRow', QUESTION_DISPLAY,
+               [(one['id'], one['display']) for one in doc['questions']], 'T-234, FR-076'),
     ]
     out = [OPEN, HEADER, '// Rebuild: npm run gen (%s).' % REL_SELF]
     for section in sections:

@@ -355,6 +355,10 @@ SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', '
 # are no table's rows, so they are HELD HERE, the same move as
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
+# CR-712: the note the Difference Review (U-61) always shows while it offers
+# "take in as a separate task" (MG-10 of table T-032). No table holds it as a
+# row, so it is HELD HERE, the same move as OPEN_CHOOSER_PARTS. KEYS, not words.
+DIFFERENCE_REVIEW_PARTS = ('separateNote',)
 # CR-677: the one line the Export Chooser (U-54, FR-096) shows under its
 # format grid while the document fixes its fit span (S-532, CR-690). No
 # table holds it as a row, so it is HELD HERE, the same move as
@@ -492,13 +496,28 @@ def notice_roster(key):
 
     `reasons` is table T-233 and `questions` is table T-234 (CR-712).
 
+    ⛔ A row that shares the words of another (`wordsOf`, CR-712 X-2) has NO
+    entry: the screen prints the row it names, and an entry of its own would
+    be a word nothing prints (FR-076).
+
     @purity semi-pure-b
     """
     with io.open(path_of(REL_NOTICE_REASONS), encoding='utf-8') as handle:
-        found = [one['id'] for one in json.load(handle)[key]]
+        found = [one['id'] for one in json.load(handle)[key]
+                 if 'wordsOf' not in one]
     if not found:
         raise SystemExit('%s: the list %s has no rows' % (REL_NOTICE_REASONS, key))
     return found
+
+
+def invariants_sharing_words():
+    """The rows of table T-220 whose words are a reason's (CR-712).
+
+    @purity semi-pure-b
+    """
+    with io.open(path_of(REL_NOTICE_REASONS), encoding='utf-8') as handle:
+        found = json.load(handle)['invariantRefusals'].get('wordsOf', {})
+    return set(found)
 
 
 def settings_keys():
@@ -632,8 +651,11 @@ def roster():
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
                                         BROWSER_FUNCTION_TABLE)],
+        # ⛔ The same move for a row of table T-220 that shares the words of a
+        # reason (`invariantRefusals.wordsOf` of the notice roster, CR-712).
         'invariants': [row[0] for row in
-                       table_rows(REL_DESIGN, INVARIANT_ROW, INVARIANT_TABLE)],
+                       table_rows(REL_DESIGN, INVARIANT_ROW, INVARIANT_TABLE)
+                       if row[0] not in invariants_sharing_words()],
         'exportFormats': [row[0] for row in
                           table_rows(REL_REQUIREMENTS, EXPORT_FORMAT_ROW,
                                      EXPORT_FORMAT_TABLE)
@@ -686,6 +708,7 @@ def roster():
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
+        'differenceReview': list(DIFFERENCE_REVIEW_PARTS),
         'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
         'hintLines': hint_lines(),
         'assignments': [row[0] for row in
@@ -765,6 +788,7 @@ SHAPE = {
     'fitSpanField': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
+    'differenceReview': ('part', ('text',)),
     'wbsParentChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
 }
@@ -865,6 +889,7 @@ def build(doc, keys_by_row):
                     'confirmationMarks', 'fileStatus', 'branding',
                     'defaultNames',
                     'exportFormats', 'fitSpanField', 'exportChooser', 'openChooser',
+                    'differenceReview',
                     'assignments', 'arms',
                     'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'propertyField',

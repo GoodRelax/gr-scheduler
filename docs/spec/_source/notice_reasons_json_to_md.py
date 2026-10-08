@@ -16,9 +16,11 @@ Markdown the hand-written tables held, byte for byte; `manner` is printed in a
 code span. That is what let the move out of 01-04-requirements.md be proved by
 a byte comparison of the rows, the proof Chapter 6.2 asks of every move.
 
-⚠️ THE `display` COLUMN IS NOT PRINTED YET. Wave 1 of CR-712 moved the rows
-without changing what the tables say; the column joins the tables with the
-change that applies the decisions to it.
+⭐ THE `display` COLUMN IS PRINTED THROUGH THE TABLE'S OWN LABELS. A reason's
+display and a question's display are enum values; the cell the table prints
+for each is the table's `displayLabels`, and a reason that shares the words of
+another prints the table's `wordsOfLabel` with {row} filled (CR-712 wave 2).
+The labels are the manuscript's, so no Japanese is held here.
 
 ⛔ REFUSED BEFORE A BYTE IS WRITTEN:
 
@@ -28,6 +30,8 @@ change that applies the decisions to it.
       shares words, or naming a reason of another manner or display
     an `invariantRefusals.wordsOf` key that is no row of table T-220, or a
       value that is no reason of this file
+    a display value the table has no label for, or a reason table without
+      `wordsOfLabel` and `ownWordsLabel`
     whatever notice-reasons.schema.json refuses (when jsonschema is installed)
 
 ⛔ NO RULE IS PRINTED HERE. The MUST clauses about these tables stand in FR-076
@@ -136,10 +140,25 @@ def words_problems(doc, invariants):
     return found
 
 
+def label_problems(doc):
+    found = []
+    for key, table_key in (('reasons', 'reasonTable'), ('questions', 'questionTable')):
+        labels = doc[table_key].get('displayLabels', {})
+        for one in doc[key]:
+            if one['display'] not in labels:
+                found.append('%s has display %s, which %s.displayLabels does not '
+                             'name' % (one['id'], one['display'], table_key))
+    for name in ('wordsOfLabel', 'ownWordsLabel'):
+        if name not in doc['reasonTable']:
+            found.append('reasonTable has no %s' % name)
+    return found
+
+
 def problems(doc, invariants):
     found = schema_problems(doc)
     if found:
         return found
+    found = label_problems(doc)
     if not invariants:
         found.append('table T-220 has no rows in 05-07-design.md -- the '
                      'caption or the row shape moved')
@@ -171,14 +190,18 @@ def table_lines(table, rows):
     return out
 
 
-def reason_cells(one):
+def reason_cells(table, one):
+    shared = one.get('wordsOf')
+    sharing = (table['ownWordsLabel'][LANG] if shared is None
+               else table['wordsOfLabel'][LANG].replace('{row}', shared))
     return [one['id'], one['scene'][LANG], u'`%s`' % one['manner'],
+            table['displayLabels'][one['display']][LANG], sharing,
             one['source'][LANG]]
 
 
-def question_cells(one):
+def question_cells(table, one):
     return [one['id'], one['scene'][LANG], one['names'][LANG],
-            one['source'][LANG]]
+            table['displayLabels'][one['display']][LANG], one['source'][LANG]]
 
 
 def build(doc):
@@ -202,10 +225,12 @@ def build(doc):
         % (reason_table['id'], question_table['id']),
         '',
     ]
-    out += table_lines(reason_table, [reason_cells(one) for one in doc['reasons']])
+    out += table_lines(reason_table,
+                       [reason_cells(reason_table, one) for one in doc['reasons']])
     out.append('')
     out += table_lines(question_table,
-                       [question_cells(one) for one in doc['questions']])
+                       [question_cells(question_table, one)
+                        for one in doc['questions']])
     return u'\n'.join(out) + u'\n'
 
 

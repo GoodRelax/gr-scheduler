@@ -59,6 +59,7 @@ export type NoticeValuesAxes = Omit<NoticeValues, never>
 
 export type NoticeValuesEvent =
   | { readonly type: 'noticeRaised'; readonly reason: NoticeValuesEventCarried['reason']; readonly affectedCount: NoticeValuesEventCarried['affectedCount'] }
+  | { readonly type: 'noticeTimeElapsed'; readonly reason: NoticeValuesEventCarried['reason'] }
   | { readonly type: 'newestNoticeDismissAsked' }
   | { readonly type: 'noticeDismissPressed'; readonly reason: NoticeValuesEventCarried['reason'] }
   | { readonly type: 'documentReplaced' }
@@ -149,6 +150,7 @@ export type ReasonRow =
   | 'RS-74'
   | 'RS-75'
   | 'RS-76'
+  | 'RS-77'
   | 'RS-15'
 
 // see T-220
@@ -178,6 +180,19 @@ export type InvariantRow =
 
 // see FR-076
 export type NoticeReason = ReasonRow | InvariantRow
+
+// see T-234
+export type QuestionRow =
+  | 'QN-1'
+  | 'QN-2'
+  | 'QN-3'
+  | 'QN-4'
+  | 'QN-5'
+  | 'QN-9'
+  | 'QN-10'
+  | 'QN-11'
+  | 'QN-12'
+  | 'QN-8'
 
 // see T-037
 export type NoticeManner =
@@ -259,6 +274,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-74': 'NT-1',
   'RS-75': 'NT-3a',
   'RS-76': 'NT-3a',
+  'RS-77': 'NT-5',
   'RS-15': 'NT-3a',
   'IV-1': 'NT-1',
   'IV-2': 'NT-1',
@@ -282,6 +298,216 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'IV-20': 'NT-1',
   'IV-21': 'NT-1',
   'IV-22': 'NT-1',
+}
+
+// see T-233, FR-076
+export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'hide' | 'autoDismiss' | 'report'>> = {
+  'RS-1': 'show',
+  'RS-2': 'show',
+  'RS-3': 'show',
+  'RS-4': 'show',
+  'RS-5': 'show',
+  'RS-6': 'show',
+  'RS-7': 'show',
+  'RS-8': 'show',
+  'RS-9': 'show',
+  'RS-10': 'show',
+  'RS-11': 'show',
+  'RS-12': 'show',
+  'RS-13': 'show',
+  'RS-14': 'report',
+  'RS-16': 'report',
+  'RS-19': 'hide',
+  'RS-20': 'show',
+  'RS-21': 'show',
+  'RS-22': 'hide',
+  'RS-23': 'autoDismiss',
+  'RS-24': 'show',
+  'RS-25': 'show',
+  'RS-26': 'show',
+  'RS-27': 'hide',
+  'RS-28': 'hide',
+  'RS-29': 'hide',
+  'RS-30': 'hide',
+  'RS-31': 'hide',
+  'RS-32': 'hide',
+  'RS-33': 'autoDismiss',
+  'RS-34': 'hide',
+  'RS-36': 'hide',
+  'RS-37': 'hide',
+  'RS-38': 'hide',
+  'RS-39': 'hide',
+  'RS-40': 'hide',
+  'RS-41': 'show',
+  'RS-42': 'show',
+  'RS-43': 'show',
+  'RS-44': 'hide',
+  'RS-46': 'hide',
+  'RS-48': 'show',
+  'RS-63': 'autoDismiss',
+  'RS-64': 'show',
+  'RS-49': 'hide',
+  'RS-50': 'report',
+  'RS-51': 'report',
+  'RS-52': 'report',
+  'RS-53': 'hide',
+  'RS-54': 'autoDismiss',
+  'RS-55': 'hide',
+  'RS-56': 'autoDismiss',
+  'RS-57': 'show',
+  'RS-58': 'autoDismiss',
+  'RS-59': 'autoDismiss',
+  'RS-60': 'report',
+  'RS-61': 'autoDismiss',
+  'RS-62': 'hide',
+  'RS-66': 'autoDismiss',
+  'RS-65': 'autoDismiss',
+  'RS-67': 'show',
+  'RS-68': 'autoDismiss',
+  'RS-69': 'autoDismiss',
+  'RS-70': 'autoDismiss',
+  'RS-71': 'report',
+  'RS-72': 'report',
+  'RS-73': 'report',
+  'RS-74': 'hide',
+  'RS-75': 'show',
+  'RS-76': 'show',
+  'RS-77': 'autoDismiss',
+  'RS-15': 'show',
+  'IV-1': 'show',
+  'IV-2': 'show',
+  'IV-3': 'show',
+  'IV-4': 'show',
+  'IV-5': 'show',
+  'IV-6': 'show',
+  'IV-23': 'show',
+  'IV-7': 'show',
+  'IV-17': 'show',
+  'IV-8': 'show',
+  'IV-9': 'show',
+  'IV-10': 'show',
+  'IV-11': 'show',
+  'IV-12': 'show',
+  'IV-14': 'show',
+  'IV-15': 'show',
+  'IV-16': 'show',
+  'IV-19': 'show',
+  'IV-18': 'show',
+  'IV-20': 'show',
+  'IV-21': 'show',
+  'IV-22': 'show',
+}
+
+// see T-233, FR-076
+export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeReason>> = {
+  'RS-1': 'RS-1',
+  'RS-2': 'RS-2',
+  'RS-3': 'RS-3',
+  'RS-4': 'RS-4',
+  'RS-5': 'RS-5',
+  'RS-6': 'RS-6',
+  'RS-7': 'RS-6',
+  'RS-8': 'RS-8',
+  'RS-9': 'RS-6',
+  'RS-10': 'RS-10',
+  'RS-11': 'RS-11',
+  'RS-12': 'RS-11',
+  'RS-13': 'RS-11',
+  'RS-14': 'RS-14',
+  'RS-16': 'RS-16',
+  'RS-19': 'RS-19',
+  'RS-20': 'RS-20',
+  'RS-21': 'RS-21',
+  'RS-22': 'RS-22',
+  'RS-23': 'RS-23',
+  'RS-24': 'RS-24',
+  'RS-25': 'RS-25',
+  'RS-26': 'RS-26',
+  'RS-27': 'RS-27',
+  'RS-28': 'RS-28',
+  'RS-29': 'RS-29',
+  'RS-30': 'RS-30',
+  'RS-31': 'RS-31',
+  'RS-32': 'RS-32',
+  'RS-33': 'RS-33',
+  'RS-34': 'RS-34',
+  'RS-36': 'RS-36',
+  'RS-37': 'RS-37',
+  'RS-38': 'RS-38',
+  'RS-39': 'RS-39',
+  'RS-40': 'RS-40',
+  'RS-41': 'RS-41',
+  'RS-42': 'RS-15',
+  'RS-43': 'RS-43',
+  'RS-44': 'RS-44',
+  'RS-46': 'RS-46',
+  'RS-48': 'RS-48',
+  'RS-63': 'RS-63',
+  'RS-64': 'RS-64',
+  'RS-49': 'RS-49',
+  'RS-50': 'RS-50',
+  'RS-51': 'RS-51',
+  'RS-52': 'RS-52',
+  'RS-53': 'RS-53',
+  'RS-54': 'RS-54',
+  'RS-55': 'RS-55',
+  'RS-56': 'RS-56',
+  'RS-57': 'RS-57',
+  'RS-58': 'RS-58',
+  'RS-59': 'RS-59',
+  'RS-60': 'RS-60',
+  'RS-61': 'RS-61',
+  'RS-62': 'RS-62',
+  'RS-66': 'RS-66',
+  'RS-65': 'RS-65',
+  'RS-67': 'RS-67',
+  'RS-68': 'RS-68',
+  'RS-69': 'RS-69',
+  'RS-70': 'RS-70',
+  'RS-71': 'RS-71',
+  'RS-72': 'RS-72',
+  'RS-73': 'RS-73',
+  'RS-74': 'RS-74',
+  'RS-75': 'RS-75',
+  'RS-76': 'RS-76',
+  'RS-77': 'RS-77',
+  'RS-15': 'RS-15',
+  'IV-1': 'IV-1',
+  'IV-2': 'IV-2',
+  'IV-3': 'IV-3',
+  'IV-4': 'IV-4',
+  'IV-5': 'IV-5',
+  'IV-6': 'IV-6',
+  'IV-23': 'IV-23',
+  'IV-7': 'IV-7',
+  'IV-17': 'RS-21',
+  'IV-8': 'IV-8',
+  'IV-9': 'IV-9',
+  'IV-10': 'IV-10',
+  'IV-11': 'IV-11',
+  'IV-12': 'IV-12',
+  'IV-14': 'IV-14',
+  'IV-15': 'IV-15',
+  'IV-16': 'IV-16',
+  'IV-19': 'IV-19',
+  'IV-18': 'IV-18',
+  'IV-20': 'IV-20',
+  'IV-21': 'IV-21',
+  'IV-22': 'IV-22',
+}
+
+// see T-234, FR-076
+export const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' | 'askOnlyWithUnsavedEdits'>> = {
+  'QN-1': 'ask',
+  'QN-2': 'ask',
+  'QN-3': 'ask',
+  'QN-4': 'ask',
+  'QN-5': 'askOnlyWithUnsavedEdits',
+  'QN-9': 'ask',
+  'QN-10': 'ask',
+  'QN-11': 'ask',
+  'QN-12': 'ask',
+  'QN-8': 'ask',
 }
 // </generated>
 
@@ -308,12 +534,31 @@ function withDelivery(
   return { state: { ...values, changeDeliveryState: delivery }, effects }
 }
 
-// see T-286, NT-3
+/** @purity pure */
+function displayOf(reason: string): (typeof NOTICE_DISPLAY_OF_REASON)[NoticeReason] | null {
+  return Object.hasOwn(NOTICE_DISPLAY_OF_REASON, reason) ? NOTICE_DISPLAY_OF_REASON[reason as NoticeReason] : null
+}
+
+// see FR-076, T-233
+/** @purity pure */
+function wordsRowOf(reason: string): string {
+  return Object.hasOwn(NOTICE_WORDS_ROW_OF_REASON, reason) ? NOTICE_WORDS_ROW_OF_REASON[reason as NoticeReason] : reason
+}
+
+// see NT-3, T-233
+// WHY: reasons that share one row's words are one reason to the person reading them (CR-712 X-2).
+/** @purity pure */
+function isSameReason(a: string, b: string): boolean {
+  return wordsRowOf(a) === wordsRowOf(b)
+}
+
+// see T-286, NT-3, FR-076
 /** @purity pure */
 function onNoticeRaised(values: NoticeValues, event: EventOf<'noticeRaised'>): NoticeStep {
+  if (displayOf(event.reason) === 'hide') return unchanged(values)
   const raised = { reason: event.reason, affectedCount: event.affectedCount }
   const standing = values.noticeDisplayState.kind === 'shown' ? values.noticeDisplayState.standing : []
-  const same = standing.find((one) => one.reason === event.reason)
+  const same = standing.find((one) => isSameReason(one.reason, event.reason))
   if (same === undefined) return withStanding(values, [...standing, raised])
   // WHY: the gathered notice moves to the end, so newest-first dismissal (NT-8) meets it first.
   const gathered = { reason: same.reason, affectedCount: (same.affectedCount ?? 1) + (event.affectedCount ?? 1) }
@@ -331,6 +576,16 @@ function onNewestNoticeDismissAsked(values: NoticeValues): NoticeStep {
 /** @purity pure */
 function onNoticeDismissPressed(values: NoticeValues, event: EventOf<'noticeDismissPressed'>): NoticeStep {
   if (values.noticeDisplayState.kind === 'hidden') return unchanged(values)
+  const standing = values.noticeDisplayState.standing
+  const kept = standing.filter((one) => one.reason !== event.reason)
+  if (kept.length === standing.length) return unchanged(values)
+  return withStanding(values, kept)
+}
+
+// see T-286, NT-2
+/** @purity pure */
+function onNoticeTimeElapsed(values: NoticeValues, event: EventOf<'noticeTimeElapsed'>): NoticeStep {
+  if (values.noticeDisplayState.kind === 'hidden' || displayOf(event.reason) !== 'autoDismiss') return unchanged(values)
   const standing = values.noticeDisplayState.standing
   const kept = standing.filter((one) => one.reason !== event.reason)
   if (kept.length === standing.length) return unchanged(values)
@@ -358,6 +613,7 @@ const HANDLERS: {
   readonly [T in NoticeValuesEvent['type']]: (values: NoticeValues, event: EventOf<T>) => NoticeStep
 } = {
   noticeRaised: onNoticeRaised,
+  noticeTimeElapsed: onNoticeTimeElapsed,
   newestNoticeDismissAsked: onNewestNoticeDismissAsked,
   noticeDismissPressed: onNoticeDismissPressed,
   documentReplaced: onDocumentReplaced,

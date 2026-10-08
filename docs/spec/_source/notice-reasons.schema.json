@@ -82,6 +82,22 @@
     },
     "columns": {
      "$ref": "#/$defs/columns"
+    },
+    "displayLabels": {
+     "description": "Per display value, the cell the table prints in its display column.",
+     "type": "object",
+     "minProperties": 1,
+     "additionalProperties": {
+      "$ref": "#/$defs/prose"
+     }
+    },
+    "wordsOfLabel": {
+     "description": "The cell printed for a row that shares the words of another; {row} stands for that row.",
+     "$ref": "#/$defs/prose"
+    },
+    "ownWordsLabel": {
+     "description": "The cell printed for a row with words of its own.",
+     "$ref": "#/$defs/prose"
     }
    }
   },

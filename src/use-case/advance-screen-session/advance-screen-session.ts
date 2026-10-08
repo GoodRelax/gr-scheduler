@@ -89,7 +89,7 @@ export type {
 } from './file-flow-values'
 export type { GrabbedRowAxis, PressedOn } from './gesture-values'
 export type { NoticeReason, StandingNotice } from './notice-values'
-export { NOTICE_MANNER_OF_REASON } from './notice-values'
+export { NOTICE_DISPLAY_OF_REASON, NOTICE_MANNER_OF_REASON, NOTICE_WORDS_ROW_OF_REASON } from './notice-values'
 
 // see SF-8, PI-39
 export interface ScreenSession {
@@ -139,6 +139,7 @@ export const emptyScreenSession: ScreenSession = {
 // WHY: a Record per region fails to compile on a missing event; the rest are screen events.
 const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
   noticeRaised: true,
+  noticeTimeElapsed: true,
   newestNoticeDismissAsked: true,
   noticeDismissPressed: true,
   documentReplaced: true,

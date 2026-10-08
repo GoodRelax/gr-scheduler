@@ -1723,6 +1723,12 @@ NOT_STORED_TARGETS = {
     # the clock in frame-loop.ts: one constant per consuming SUBJECT, and those
     # two are how long a held entrance waits (CR-411).
     'NOT_STORED_SCALE_MESSAGE_TIMES': (['S-244'], TIMED_WHERE_IT_STANDS),
+    # ⭐ How long NT-2 of table T-037 keeps a notice whose display is
+    # autoDismiss (table T-233, CR-712). ⚠️ Not folded into
+    # NOT_STORED_SCALE_MESSAGE_TIMES though both are counted off the clock in
+    # frame-clock-wakes.ts: SE-5 says the scale message is no notice, so the
+    # two are different SUBJECTS.
+    'NOT_STORED_NOTICE_TIMES': (['S-542'], TIMED_WHERE_IT_STANDS),
     # ⛔ A COUNT OF ENTRIES AND NOT A LENGTH OF TIME. FR-102 (MUST) drops the
     # record from the oldest end once S-207 is reached and writes at its head
     # how many were dropped, so what the row bounds is how many happenings the
@@ -3380,7 +3386,8 @@ TARGETS = [
     # unit that counts them (CR-554 15.6.7).
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-clock-wakes.ts'),
      lambda _erd: not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES'),
+     + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_NOTICE_TIMES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The record's cap stands in the one unit that keeps the record,
     # interaction-record.ts (CR-554 15.6.7).

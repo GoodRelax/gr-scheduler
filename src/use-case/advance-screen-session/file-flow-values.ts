@@ -5,6 +5,7 @@
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
 import type { DocumentCommand } from '../edit-document/edit-document'
+import { QUESTION_DISPLAY_OF_ROW } from './notice-values'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
@@ -72,6 +73,8 @@ export interface FileFlowValuesStateCarried {
   readonly openedFileName: string | null
   readonly droppedTaskNames: readonly (string | null)[]
   readonly missingTaskNames: readonly (string | null)[]
+  // see FR-076, U-62
+  readonly reportedCounts: readonly { readonly reason: string; readonly count: number }[]
   readonly openRoute: FileFlowOpenRoute
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
@@ -93,6 +96,7 @@ export interface FileFlowValuesEventCarried {
   readonly surfaceName: string
   readonly droppedTaskNames: readonly (string | null)[]
   readonly missingTaskNames: FileFlowValuesStateCarried['missingTaskNames']
+  readonly reportedCounts: FileFlowValuesStateCarried['reportedCounts']
   readonly openedFileName: string | null
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
@@ -154,12 +158,13 @@ export interface FileFlowValues {
   readonly openedFileName: FileFlowValuesStateCarried['openedFileName']
   readonly droppedTaskNames: FileFlowValuesStateCarried['droppedTaskNames']
   readonly missingTaskNames: FileFlowValuesStateCarried['missingTaskNames']
+  readonly reportedCounts: FileFlowValuesStateCarried['reportedCounts']
   readonly fileOperationState: FileOperationState
   readonly confirmationState: ConfirmationState
   readonly unsavedEditsState: UnsavedEditsState
 }
 
-export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppedTaskNames' | 'missingTaskNames'>
+export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppedTaskNames' | 'missingTaskNames' | 'reportedCounts'>
 
 export type FileFlowValuesEvent =
   | { readonly type: 'documentOpenAsked'; readonly openRoute: FileFlowValuesEventCarried['openRoute'] }
@@ -175,7 +180,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question']; readonly incomingFile: FileFlowValuesEventCarried['incomingFile'] }
   | { readonly type: 'documentOpenFailed' }
   | { readonly type: 'mergeMappingAsked'; readonly mergeCandidates: FileFlowValuesEventCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesEventCarried['unreadColumns'] }
-  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly missingTaskNames: FileFlowValuesEventCarried['missingTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
+  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly missingTaskNames: FileFlowValuesEventCarried['missingTaskNames']; readonly reportedCounts: FileFlowValuesEventCarried['reportedCounts']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
   | { readonly type: 'overwriteQuestionRaised'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentFileSaved'; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
   | { readonly type: 'documentFileWriteEnded' }
@@ -208,6 +213,8 @@ type Effects = readonly FileFlowValuesEffect[]
 
 const NO_TASK_NAMES: readonly (string | null)[] = Object.freeze([])
 
+const NO_REPORTED_COUNTS: FileFlowValuesStateCarried['reportedCounts'] = Object.freeze([])
+
 const IDLE = FILE_FLOW_VALUES_INITIAL_AXES.fileOperationState
 
 const NOT_ASKED = FILE_FLOW_VALUES_INITIAL_AXES.confirmationState
@@ -222,6 +229,7 @@ export const emptyFileFlowValues: FileFlowValues = {
   openedFileName: null,
   droppedTaskNames: NO_TASK_NAMES,
   missingTaskNames: NO_TASK_NAMES,
+  reportedCounts: NO_REPORTED_COUNTS,
 }
 
 /** @purity pure */
@@ -246,15 +254,31 @@ function isOverwriteQuestion(values: FileFlowValues): boolean {
   return confirmation.kind === 'questionAsked' && confirmation.question.question === 'QN-4'
 }
 
-// see U-62, FR-023, MG-14
+type ReportedLines = Pick<FileFlowValues, 'droppedTaskNames' | 'missingTaskNames' | 'reportedCounts'>
+
+// see U-62, FR-023, FR-076, MG-14
 /** @purity pure */
-function hasTasksToReport(names: Pick<FileFlowValues, 'droppedTaskNames' | 'missingTaskNames'>): boolean {
-  return names.droppedTaskNames.length > 0 || names.missingTaskNames.length > 0
+function hasAnythingToReport(lines: ReportedLines): boolean {
+  return lines.droppedTaskNames.length > 0 || lines.missingTaskNames.length > 0 || lines.reportedCounts.length > 0
 }
 
 /** @purity pure */
 function emptied(names: readonly (string | null)[]): readonly (string | null)[] {
   return names.length === 0 ? names : NO_TASK_NAMES
+}
+
+// see FR-095, QN-5, T-234
+/** @purity pure */
+function isAskedNow(values: FileFlowValues, question: FileFlowQuestion): boolean {
+  return QUESTION_DISPLAY_OF_ROW[question.question] === 'ask' || values.unsavedEditsState.kind === 'editsUnsaved'
+}
+
+// see OP-4, QN-5, RD-4
+/** @purity pure */
+function replacedUnasked(values: FileFlowValues): FileFlowStep {
+  const importing: FileOperationState = { kind: 'importingDocument' }
+  const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'replace' }
+  return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
 }
 
 /** @purity pure */
@@ -322,7 +346,9 @@ function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'docume
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
-  if (isReopenRoute(operation)) return discardAsked(values, event.question)
+  if (isReopenRoute(operation)) {
+    return isAskedNow(values, event.question) ? discardAsked(values, event.question) : replacedUnasked(values)
+  }
   if (isBaselineRoute(operation)) {
     const importing: FileOperationState = { kind: 'importingDocument' }
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
@@ -343,7 +369,9 @@ function onDocumentOpenFailed(values: FileFlowValues): FileFlowStep {
 /** @purity pure */
 function onOpenChoiceAnswered(values: FileFlowValues, event: EventOf<'openChoiceAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingOpenChoice') return unchanged(values)
-  if (event.openChoice === 'replace') return discardAsked(values, event.question)
+  if (event.openChoice === 'replace') {
+    return isAskedNow(values, event.question) ? discardAsked(values, event.question) : replacedUnasked(values)
+  }
   const importing: FileOperationState = { kind: 'importingDocument' }
   const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: event.openChoice }
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
@@ -411,24 +439,27 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
   const isReport = event.surfaceName === 'U-62'
   const droppedTaskNames = isReport ? emptied(values.droppedTaskNames) : values.droppedTaskNames
   const missingTaskNames = isReport ? emptied(values.missingTaskNames) : values.missingTaskNames
-  const names = { droppedTaskNames, missingTaskNames }
+  const reportedCounts = isReport && values.reportedCounts.length > 0 ? NO_REPORTED_COUNTS : values.reportedCounts
+  const names = { droppedTaskNames, missingTaskNames, reportedCounts }
   if (!isChooser && !isReview) return combined(values, names, NO_EFFECTS)
   return combined(values, { ...names, fileOperationState: IDLE }, [{ type: 'discardIncomingDocument' }])
 }
 
 // WHY: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
 /** @purity pure */
-// WHY: a replacement is the opened file itself; a merge or a baseline is a document no file holds (FR-100).
-/** @purity pure */
 function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOpenLanded'>): FileFlowStep {
   const openedFileName = event.openedFileName ?? values.openedFileName
   const fileOperationState = values.fileOperationState.kind === 'importingDocument' ? IDLE : values.fileOperationState
   const landed = isReplaceChoice(event.openChoice) ? NOTHING_UNSAVED : EDITS_UNSAVED
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, landed)
-  if (!hasTasksToReport(event)) {
+  if (!hasAnythingToReport(event)) {
     return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
   }
-  const names = { droppedTaskNames: event.droppedTaskNames, missingTaskNames: event.missingTaskNames }
+  const names = {
+    droppedTaskNames: event.droppedTaskNames,
+    missingTaskNames: event.missingTaskNames,
+    reportedCounts: event.reportedCounts,
+  }
   const moves = { openedFileName, fileOperationState, unsavedEditsState, ...names }
   return combined(values, moves, [{ type: 'raiseFlowSurface', surfaceName: 'U-62' }])
 }
@@ -480,7 +511,9 @@ function onChangeQuestionRaised(values: FileFlowValues, event: EventOf<'changeQu
 /** @purity pure */
 function onNewDocumentEntryPressed(values: FileFlowValues, event: EventOf<'newDocumentEntryPressed'>): FileFlowStep {
   if (isQuestionAsked(values)) return refused(values)
-  return combined(values, { confirmationState: asked(event.question, { kind: 'startNewDocument' }) }, NO_EFFECTS)
+  const owedAction: FileFlowOwedAction = { kind: 'startNewDocument' }
+  if (!isAskedNow(values, event.question)) return { state: values, effects: [{ type: 'carryOutOwedAction', owedAction }] }
+  return combined(values, { confirmationState: asked(event.question, owedAction) }, NO_EFFECTS)
 }
 
 // see FR-153, QN-11, T-290

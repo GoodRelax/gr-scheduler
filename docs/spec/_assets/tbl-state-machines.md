@@ -571,6 +571,7 @@ stateDiagram-v2
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
 | `notices/noticeRaised` | 副作用の結果（副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す）: `FR-076` ・ `NT-3` | `reason`（表 T-233 の `RS-` の行、または 表 T-220 の行） ／ `affectedCount`（無いこともある） | `noticeDisplayStateMachine` |
+| `notices/noticeTimeElapsed` | 副作用の結果（シェルが数えた `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経った。ポインタが箱の上にある間の止めと、離れたときの数え直しはシェルの時計の仕事であり、本機械は期限が来たことだけを受ける）: `NT-2` ・ `FT-4` | `reason`（期限が来た 1 枚の理由） | `noticeDisplayStateMachine` |
 | `notices/newestNoticeDismissAsked` | 入力（`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める）: `NT-8` ・ `IN-4` ・ `SK-19` | — | `noticeDisplayStateMachine` |
 | `notices/noticeDismissPressed` | 入力（1 つの通知の `OK` の入口を押して離した）: `NT-8` | `reason`（押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める） | `noticeDisplayStateMachine` |
 | `notices/documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — | `changeDeliveryStateMachine` |
@@ -598,14 +599,16 @@ stateDiagram-v2
     [*] --> noticeDisplayStateMachine_hidden
     noticeDisplayStateMachine_hidden : hidden
     noticeDisplayStateMachine_shown : shown
+    noticeDisplayStateMachine_hidden --> noticeDisplayStateMachine_hidden : noticeRaised
     noticeDisplayStateMachine_hidden --> noticeDisplayStateMachine_shown : noticeRaised
-    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_shown : noticeRaised, newestNoticeDismissAsked, noticeDismissPressed
-    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_hidden : newestNoticeDismissAsked, noticeDismissPressed
+    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_shown : noticeRaised, noticeTimeElapsed, newestNoticeDismissAsked, noticeDismissPressed
+    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_hidden : noticeTimeElapsed, newestNoticeDismissAsked, noticeDismissPressed
 ```
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
-| `notices/noticeRaised` | → `shown`（1 枚） | → 自己 [`isSameReasonStanding`]（その 1 枚の件数を増やし、いちばん新しい位置へ動かす）<br>→ 自己 [not `isSameReasonStanding`]（いちばん新しいものとして足す。枚数に上限を置かない） |
+| `notices/noticeRaised` | → 自己 [`isHiddenReason`]（立てない（表 T-233 の表示の仕方が「出さない」））<br>→ `shown` [not `isHiddenReason`]（1 枚） | → 自己 [`isHiddenReason`]（変えない）<br>→ 自己 [not `isHiddenReason` & `isSameReasonStanding`]（その 1 枚の件数を増やし、いちばん新しい位置へ動かす。相乗りする理由どうし（表 T-233 のまとめ方）は同じ理由と数える）<br>→ 自己 [not `isHiddenReason` & not `isSameReasonStanding`]（いちばん新しいものとして足す。枚数に上限を置かない） |
+| `notices/noticeTimeElapsed` | — | → `hidden` [`isTimedCard` & `isOnlyOneStanding`]<br>→ 自己 [`isTimedCard` & not `isOnlyOneStanding`]（その 1 枚を除く）<br>それ以外 → — |
 | `notices/newestNoticeDismissAsked` | — | → `hidden` [`isOnlyOneStanding`]<br>→ 自己 [not `isOnlyOneStanding`]（いちばん新しいものを除く） |
 | `notices/noticeDismissPressed` | — | → `hidden` [`isLeavingNone`]<br>→ 自己 [`isLeavingSome`]（押されたものを除く）<br>それ以外 → — |
 
@@ -758,7 +761,7 @@ stateDiagram-v2
 | `fileFlow/documentFileRead` | 副作用の結果（`readDocumentFile` が読み、形式を判じ、検証を通した）: `OP-5` ・ `OP-12` ・ `FR-023` | `question`（`QN-5`。読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める） ／ `incomingFile`（`OP-16`。読んだファイルの名前（ファイルを持たずに渡された文書では無い）と、読んだ中身のバイト数と、読んだ文書の文書名（`AT-3`。無いこともある）。`Open Chooser` が出す。副作用の実行が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/documentOpenFailed` | 副作用の結果（読めない・選ばなかった・検証が拒んだ・読み直す相手が無い・着地を拒まれた（告げるのは副作用の中身））: `OP-5` ・ `OP-13` ・ `FR-023` | — | `fileOperationStateMachine` |
 | `fileFlow/mergeMappingAsked` | 副作用の結果（`importIncomingDocument` が対応付けを問うことになった）: `FR-022` ・ `U-61` ・ `FR-073` | `mergeCandidates`（`U-61`） ／ `unreadColumns`（`FR-073`） | `fileOperationStateMachine` |
-| `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` | `droppedTaskNames`（`RS-50`） ／ `missingTaskNames`（`RS-73` ・ `MG-11`。合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
+| `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した。起動時に渡された文書を読み終えたとき（`OP-14`）も、`reportedCounts` を運ぶために送る）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` ・ `OP-14` | `droppedTaskNames`（`RS-50`） ／ `missingTaskNames`（`RS-73` ・ `MG-11`。合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空） ／ `reportedCounts`（`FR-076` ・ `U-62`。読込の中で上がった、表 T-233 の表示の仕方が「`U-62` に並べる」の理由と件数 —— `reason`（表 T-233 の行）と `count`（件数）の組の列。相乗りする理由は同じ理由に数える。着地しなかった読込の件数は運ばない） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/overwriteQuestionRaised` | 副作用の結果（`writeDocumentFile` の途中で、同じとみなせない相手を見つけた）: `DI-4` ・ `QN-4` | `question`（`QN-4`） | `confirmationStateMachine` |
 | `fileFlow/documentFileSaved` | 副作用の結果（`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である））: `FR-060` ・ `FR-101` ・ `SX-1` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/documentFileWriteEnded` | 副作用の結果（`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` ・ `SX-2` | — | `fileOperationStateMachine` |
@@ -768,14 +771,14 @@ stateDiagram-v2
 
 ### 根 `fileFlow` の値
 
-運ぶ値: `openedFileName`（`U-58` ・ `FR-101`） ／ `droppedTaskNames`（`U-62` ・ `RS-50`） ／ `missingTaskNames`（`U-62` ・ `RS-73` ・ `MG-11`）。  
+運ぶ値: `openedFileName`（`U-58` ・ `FR-101`） ／ `droppedTaskNames`（`U-62` ・ `RS-50`） ／ `missingTaskNames`（`U-62` ・ `RS-73` ・ `MG-11`） ／ `reportedCounts`（`U-62` ・ `FR-076`）。  
 根拠: `OP-8` ・ `CS-4`。
 
 | 出来事 | `fileFlow` |
 | --- | --- |
 | `fileFlow/documentFileSaved` | → 自己（`openedFileName` を書き換える（名が運ばれたときだけ）） |
-| `fileFlow/documentOpenLanded` | → 自己 [`hasTasksToReport`] / `raiseFlowSurface`（`U-62`）（`droppedTaskNames` と `missingTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ））<br>→ 自己 [not `hasTasksToReport`]（`openedFileName` を書き換える（名が運ばれたときだけ）） |
-| `fileFlow/flowSurfaceClosed` | → 自己 [`isImportReportSurface`]（`droppedTaskNames` と `missingTaskNames` を空にする）<br>それ以外 → — |
+| `fileFlow/documentOpenLanded` | → 自己 [`hasAnythingToReport`] / `raiseFlowSurface`（`U-62`）（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` と `openedFileName` を書き換える（名は運ばれたときだけ））<br>→ 自己 [not `hasAnythingToReport`]（`openedFileName` を書き換える（名が運ばれたときだけ）） |
+| `fileFlow/flowSurfaceClosed` | → 自己 [`isImportReportSurface`]（`droppedTaskNames` と `missingTaskNames` と `reportedCounts` を空にする）<br>それ以外 → — |
 | `fileFlow/newDocumentLanded` | → 自己（`openedFileName` を空にする（新しく始めた文書はどのファイルにも無い —— `FR-095`）） |
 
 **図 F-036 — ファイル操作と問いの状態遷移**
@@ -828,9 +831,9 @@ stateDiagram-v2
 | `fileFlow/documentOpenAsked` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/agentDocumentHanded` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`（`openRoute` は `handed`）<br>それ以外 → — | — | — | — | — | — | — |
 | `fileFlow/documentFileWriteAsked` | → `writingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `writeDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute`]<br>→ `importingDocument` [`isBaselineRoute`] / `importIncomingDocument`<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
+| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReopenRoute` & `unsavedEditsStateMachine.nothingUnsaved` にいる] / `importIncomingDocument`（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [`isBaselineRoute`] / `importIncomingDocument`<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
 | `fileFlow/documentOpenFailed` | — | → `idle` | — | — | → `idle` | — | — |
-| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice`]<br>→ `importingDocument` [not `isReplaceChoice`] / `importIncomingDocument` | — | — | — | — |
+| `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice` & `unsavedEditsStateMachine.nothingUnsaved` にいる] / `importIncomingDocument`（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`] / `importIncomingDocument` | — | — | — | — |
 | `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`] / `importIncomingDocument`<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
 | `fileFlow/mergeMappingAsked` | — | — | — | — | → `awaitingMergeMapping` / `raiseFlowSurface`（`U-61`） | — | — |
 | `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCancelled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCancelled`] / `importIncomingDocument` | — |
@@ -858,6 +861,7 @@ stateDiagram-v2
     confirmationStateMachine_notAsked : notAsked
     confirmationStateMachine_questionAsked : questionAsked
     confirmationStateMachine_notAsked --> confirmationStateMachine_questionAsked : changeQuestionRaised, newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
+    confirmationStateMachine_notAsked --> confirmationStateMachine_notAsked : newDocumentEntryPressed
     confirmationStateMachine_questionAsked --> confirmationStateMachine_questionAsked : newDocumentEntryPressed, grsResetEntryPressed, openChoiceAnswered, documentFileRead, overwriteQuestionRaised
     confirmationStateMachine_questionAsked --> confirmationStateMachine_notAsked : confirmationAnswered
 ```
@@ -865,10 +869,10 @@ stateDiagram-v2
 | 出来事 | `notAsked` | `questionAsked` |
 | --- | --- | --- |
 | `fileFlow/changeQuestionRaised` | → `questionAsked` | — |
-| `fileFlow/newDocumentEntryPressed` | → `questionAsked` | → 自己 / `raiseNotice`（`RS-27`） |
+| `fileFlow/newDocumentEntryPressed` | → `questionAsked` [`unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ 自己 [`unsavedEditsStateMachine.nothingUnsaved` にいる] / `carryOutOwedAction`（保存していない編集が無いので問わずに新しく始める（表 T-234 の `QN-5` の問うか）） | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/grsResetEntryPressed` | → `questionAsked` | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/openChoiceAnswered` | → `questionAsked` [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる]<br>それ以外 → — | → 自己 [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる]<br>それ以外 → — |
-| `fileFlow/documentFileRead` | → `questionAsked` [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる]<br>それ以外 → — | → 自己 [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる]<br>それ以外 → — |
+| `fileFlow/openChoiceAnswered` | → `questionAsked` [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReplaceChoice` & `fileOperationStateMachine.awaitingOpenChoice` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
+| `fileFlow/documentFileRead` | → `questionAsked` [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — | → 自己 [`isReopenRoute` & `fileOperationStateMachine.readingDocumentFile` にいる & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>それ以外 → — |
 | `fileFlow/overwriteQuestionRaised` | → `questionAsked` | → 自己 |
 | `fileFlow/confirmationAnswered` | — | → `notAsked` [`isProceeding` & not `isFileOperationQuestion`] / `carryOutOwedAction`<br>→ `notAsked` [`isProceeding` & `isFileOperationQuestion`]<br>→ `notAsked` [not `isProceeding`] |
 

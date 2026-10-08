@@ -3324,6 +3324,27 @@
      ]
     },
     {
+     "key": "noticeTimeElapsed",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "NT-2",
+       "FT-4"
+      ],
+      "note": {
+       "ja": "シェルが数えた `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経った。ポインタが箱の上にある間の止めと、離れたときの数え直しはシェルの時計の仕事であり、本機械は期限が来たことだけを受ける"
+      }
+     },
+     "carries": [
+      {
+       "name": "reason",
+       "note": {
+        "ja": "期限が来た 1 枚の理由"
+       }
+      }
+     ]
+    },
+    {
      "key": "newestNoticeDismissAsked",
      "source": {
       "kind": "input",
@@ -3432,20 +3453,60 @@
      ],
      "transitions": {
       "noticeRaised": {
-       "hidden": {
-        "to": "shown",
-        "evidence": [
-         "FR-076",
-         "NT-8"
-        ],
-        "note": {
-         "ja": "1 枚"
+       "hidden": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isHiddenReason"
+          }
+         ],
+         "evidence": [
+          "FR-076"
+         ],
+         "note": {
+          "ja": "立てない（表 T-233 の表示の仕方が「出さない」）"
+         }
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isHiddenReason",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-076",
+          "NT-8"
+         ],
+         "note": {
+          "ja": "1 枚"
+         }
         }
-       },
+       ],
        "shown": [
         {
          "to": "shown",
          "guard": [
+          {
+           "name": "isHiddenReason"
+          }
+         ],
+         "evidence": [
+          "FR-076"
+         ],
+         "note": {
+          "ja": "変えない"
+         }
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isHiddenReason",
+           "not": true
+          },
           {
            "name": "isSameReasonStanding"
           }
@@ -3454,12 +3515,16 @@
           "NT-3"
          ],
          "note": {
-          "ja": "その 1 枚の件数を増やし、いちばん新しい位置へ動かす"
+          "ja": "その 1 枚の件数を増やし、いちばん新しい位置へ動かす。相乗りする理由どうし（表 T-233 のまとめ方）は同じ理由と数える"
          }
         },
         {
          "to": "shown",
          "guard": [
+          {
+           "name": "isHiddenReason",
+           "not": true
+          },
           {
            "name": "isSameReasonStanding",
            "not": true
@@ -3471,6 +3536,42 @@
          ],
          "note": {
           "ja": "いちばん新しいものとして足す。枚数に上限を置かない"
+         }
+        }
+       ]
+      },
+      "noticeTimeElapsed": {
+       "shown": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isTimedCard"
+          },
+          {
+           "name": "isOnlyOneStanding"
+          }
+         ],
+         "evidence": [
+          "NT-2"
+         ]
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isTimedCard"
+          },
+          {
+           "name": "isOnlyOneStanding",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "NT-2"
+         ],
+         "note": {
+          "ja": "その 1 枚を除く"
          }
         }
        ]
@@ -4151,6 +4252,13 @@
        "RS-73",
        "MG-11"
       ]
+     },
+     {
+      "name": "reportedCounts",
+      "rows": [
+       "U-62",
+       "FR-076"
+      ]
      }
     ],
     "evidence": [
@@ -4171,7 +4279,7 @@
       {
        "guard": [
         {
-         "name": "hasTasksToReport"
+         "name": "hasAnythingToReport"
         }
        ],
        "effect": "raiseFlowSurface",
@@ -4182,16 +4290,17 @@
         "U-62",
         "RS-50",
         "RS-73",
-        "FR-101"
+        "FR-101",
+        "FR-076"
        ],
        "note": {
-        "ja": "`droppedTaskNames` と `missingTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ）"
+        "ja": "`droppedTaskNames` と `missingTaskNames` と `reportedCounts` と `openedFileName` を書き換える（名は運ばれたときだけ）"
        }
       },
       {
        "guard": [
         {
-         "name": "hasTasksToReport",
+         "name": "hasAnythingToReport",
          "not": true
         }
        ],
@@ -4214,7 +4323,7 @@
        "IC-52"
       ],
       "note": {
-       "ja": "`droppedTaskNames` と `missingTaskNames` を空にする"
+       "ja": "`droppedTaskNames` と `missingTaskNames` と `reportedCounts` を空にする"
       }
      },
      "newDocumentLanded": {
@@ -4582,10 +4691,11 @@
        "RD-3",
        "RD-4",
        "FR-023",
-       "FR-101"
+       "FR-101",
+       "OP-14"
       ],
       "note": {
-       "ja": "取り込みが着地した"
+       "ja": "取り込みが着地した。起動時に渡された文書を読み終えたとき（`OP-14`）も、`reportedCounts` を運ぶために送る"
       }
      },
      "carries": [
@@ -4603,6 +4713,16 @@
        ],
        "note": {
         "ja": "合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空"
+       }
+      },
+      {
+       "name": "reportedCounts",
+       "rows": [
+        "FR-076",
+        "U-62"
+       ],
+       "note": {
+        "ja": "読込の中で上がった、表 T-233 の表示の仕方が「`U-62` に並べる」の理由と件数 —— `reason`（表 T-233 の行）と `count`（件数）の組の列。相乗りする理由は同じ理由に数える。着地しなかった読込の件数は運ばない"
        }
       },
       {
@@ -5047,12 +5167,35 @@
          "guard": [
           {
            "name": "isReopenRoute"
+          },
+          {
+           "in": "unsavedEditsStateMachine.editsUnsaved"
           }
          ],
          "evidence": [
           "OP-13",
           "OP-4"
          ]
+        },
+        {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isReopenRoute"
+          },
+          {
+           "in": "unsavedEditsStateMachine.nothingUnsaved"
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "OP-13",
+          "QN-5",
+          "RD-4"
+         ],
+         "note": {
+          "ja": "保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか）"
+         }
         },
         {
          "to": "importingDocument",
@@ -5111,12 +5254,35 @@
          "guard": [
           {
            "name": "isReplaceChoice"
+          },
+          {
+           "in": "unsavedEditsStateMachine.editsUnsaved"
           }
          ],
          "evidence": [
           "OP-3",
           "OP-4"
          ]
+        },
+        {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isReplaceChoice"
+          },
+          {
+           "in": "unsavedEditsStateMachine.nothingUnsaved"
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "OP-4",
+          "QN-5",
+          "RD-4"
+         ],
+         "note": {
+          "ja": "保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか）"
+         }
         },
         {
          "to": "importingDocument",
@@ -5345,13 +5511,36 @@
        }
       },
       "newDocumentEntryPressed": {
-       "notAsked": {
-        "to": "questionAsked",
-        "evidence": [
-         "FR-095",
-         "QN-5"
-        ]
-       },
+       "notAsked": [
+        {
+         "to": "questionAsked",
+         "guard": [
+          {
+           "in": "unsavedEditsStateMachine.editsUnsaved"
+          }
+         ],
+         "evidence": [
+          "FR-095",
+          "QN-5"
+         ]
+        },
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "in": "unsavedEditsStateMachine.nothingUnsaved"
+          }
+         ],
+         "effect": "carryOutOwedAction",
+         "evidence": [
+          "FR-095",
+          "QN-5"
+         ],
+         "note": {
+          "ja": "保存していない編集が無いので問わずに新しく始める（表 T-234 の `QN-5` の問うか）"
+         }
+        }
+       ],
        "questionAsked": {
         "to": "questionAsked",
         "effect": "raiseNotice",
@@ -5387,6 +5576,9 @@
          },
          {
           "in": "fileOperationStateMachine.awaitingOpenChoice"
+         },
+         {
+          "in": "unsavedEditsStateMachine.editsUnsaved"
          }
         ],
         "evidence": [
@@ -5402,6 +5594,9 @@
          },
          {
           "in": "fileOperationStateMachine.awaitingOpenChoice"
+         },
+         {
+          "in": "unsavedEditsStateMachine.editsUnsaved"
          }
         ],
         "evidence": [
@@ -5419,6 +5614,9 @@
          },
          {
           "in": "fileOperationStateMachine.readingDocumentFile"
+         },
+         {
+          "in": "unsavedEditsStateMachine.editsUnsaved"
          }
         ],
         "evidence": [
@@ -5434,6 +5632,9 @@
          },
          {
           "in": "fileOperationStateMachine.readingDocumentFile"
+         },
+         {
+          "in": "unsavedEditsStateMachine.editsUnsaved"
          }
         ],
         "evidence": [

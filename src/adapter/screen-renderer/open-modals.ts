@@ -9,7 +9,10 @@ import {
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  NOTICE_DISPLAY_OF_REASON,
+  type ScreenSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
   DisplayLanguage,
@@ -19,6 +22,7 @@ import type {
   HelpWindowArea,
   ExportFormatChoice,
   IconId,
+  ImportReportLine,
   LinkedWords,
   OpenChooser,
   OpenModal,
@@ -61,6 +65,10 @@ const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
 
 const OPEN_CHOOSER_WORDS_BY_PART = new Map(displayWords.openChooser.map((entry) => [entry.part, entry]))
+
+const DIFFERENCE_REVIEW_WORDS_BY_PART = new Map(displayWords.differenceReview.map((entry) => [entry.part, entry]))
+
+const SEPARATE_NOTE_PART = 'separateNote'
 
 const HELP_LEGAL_WORDS_BY_PART = new Map(displayWords.helpLegal.map((entry) => [entry.part, entry]))
 
@@ -120,6 +128,29 @@ function missingWords(readings: ScreenViewReadings, language: DisplayLanguage): 
   if (missingTaskNames.length === 0) return { missingTaskNames, missingText: '', missingNextStep: '' }
   const said = reasonSurfaceWords(MISSING_TASKS_REASON, language)
   return { missingTaskNames, missingText: said.text, missingNextStep: said.nextStep }
+}
+
+// see T-233
+const PRINTED_REASON_ORDER: readonly string[] = Object.keys(NOTICE_DISPLAY_OF_REASON)
+
+type ReportedReason = Pick<ImportReportLine, 'reason' | 'count' | 'names'>
+
+// see U-62, FR-076, MG-14
+// WHY: every reason of one reading in table T-233's printed order; names under RS-50 and RS-73,
+// a count beside the others, and no line for a zero (MG-14).
+/** @purity pure */
+function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage): readonly ImportReportLine[] {
+  const named: readonly ReportedReason[] = [
+    { reason: IMPORT_REPORT_REASON, count: null, names: readings.droppedTaskNames ?? [] },
+    { reason: MISSING_TASKS_REASON, count: null, names: readings.missingTaskNames ?? [] },
+  ]
+  const counted: readonly ReportedReason[] = (readings.reportedCounts ?? []).map((one) => ({ ...one, names: [] }))
+  return [...named.filter((one) => one.names.length > 0), ...counted.filter((one) => (one.count ?? 0) > 0)]
+    .sort((a, b) => PRINTED_REASON_ORDER.indexOf(a.reason) - PRINTED_REASON_ORDER.indexOf(b.reason))
+    .map((one) => {
+      const said = reasonSurfaceWords(one.reason, language)
+      return { ...one, text: said.text, nextStep: said.nextStep }
+    })
 }
 
 const WATERMARK_UNLOCK_QUESTION = 'QN-9'
@@ -379,6 +410,14 @@ function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
   }
 }
 
+// see MG-10, U-61
+// WHY: the note stands whenever the review offers its candidates, before anything is chosen.
+/** @purity pure */
+function separateNoteOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
+  if ((readings.mergeCandidates ?? []).length === 0) return NO_WORDS
+  return DIFFERENCE_REVIEW_WORDS_BY_PART.get(SEPARATE_NOTE_PART)?.text[language] ?? NO_WORDS
+}
+
 // see OP-16
 /** @purity pure */
 function openChooserWord(part: string, language: DisplayLanguage): string {
@@ -496,6 +535,7 @@ export function openModalFromSession(
       candidates: readings.mergeCandidates ?? [],
       unreadColumns: readings.unreadColumns ?? [],
       ...unreadWords(readings, language),
+      separateNote: separateNoteOf(readings, language),
     }
   }
 
@@ -507,6 +547,7 @@ export function openModalFromSession(
       droppedTaskNames: readings.droppedTaskNames ?? [],
       ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
       ...missingWords(readings, language),
+      reportLines: reportLinesOf(readings, language),
     }
   }
 

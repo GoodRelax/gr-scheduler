@@ -3238,6 +3238,24 @@
      }
     },
     {
+     "name": "NOTICE_DISPLAY_OF_REASON",
+     "note": {
+      "ja": [
+       "理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。",
+       "殻が、時間で消す通知の期限（表 T-037 の `NT-2`）を数えるのと、読込の中で上がった理由を `U-62` へ回すのと、起動時の読込の件数を運ぶのに読む"
+      ]
+     }
+    },
+    {
+     "name": "NOTICE_WORDS_ROW_OF_REASON",
+     "note": {
+      "ja": [
+       "理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身。`_source/notice-reasons.json` から生成）。",
+       "`ScreenRenderer` が告げの語を引くのと、殻が読込の件数を同じ理由に数えるのに読む"
+      ]
+     }
+    },
+    {
      "name": "SearchPanelSession",
      "note": {
       "ja": [

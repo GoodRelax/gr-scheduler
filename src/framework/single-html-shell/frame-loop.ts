@@ -84,6 +84,7 @@ import {
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
 import {
+  NOTICE_DISPLAY_OF_REASON,
   NOTICE_MANNER_OF_REASON,
   advanceScreenSession,
   emptyScreenSession,
@@ -231,7 +232,7 @@ import {
   tryWantedFieldBeforeInput,
   FIELD_ROW_OF_IN_PLACE_TARGET,
 } from './field-entry'
-import { frameClockWakesOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
+import { frameClockWakesOf, noticeTimersOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
 import {
   heldPropertyPanelWidthOf,
   leavesRowArea,
@@ -293,6 +294,8 @@ export interface HandedImport {
   readonly byteLength: number
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
+  // see FR-012, RS-52
+  readonly recountedCount?: number
 }
 
 export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
@@ -687,6 +690,14 @@ function documentAtUnsavedMarkDrop(event: SessionEvent, after: ScreenSession, he
 }
 export const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
 export const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
+
+// see FR-076, U-62, OP-14, T-290
+// WHY: the start-up reading lands with what it counted, as an opened file does; no name, no choice of its own.
+/** @purity pure */
+function startupReadingLanded(reason: NoticeReason, count: number | null): SessionEvent {
+  const reportedCounts = [{ reason, count: count ?? 1 }]
+  return { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], reportedCounts, openedFileName: null, openChoice: 'replace' }
+}
 export const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 
@@ -963,6 +974,7 @@ interface ScreenViewReadingsTaken {
   readonly unreadColumns: readonly string[]
   readonly droppedTaskNames: readonly (string | null)[]
   readonly missingTaskNames: ScreenSession['fileFlow']['missingTaskNames']
+  readonly reportedCounts?: ScreenSession['fileFlow']['reportedCounts']
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
@@ -1833,7 +1845,7 @@ function windowFocusContextOf(
 /** @purity pure */
 function isSameScreenPart(a: ScreenPart | null, b: ScreenPart | null): boolean {
   if (a === null || b === null) return a === b
-  return a.part === b.part && a.entry === b.entry
+  return a.part === b.part && a.entry === b.entry && a.noticeBoxReasons?.join() === b.noticeBoxReasons?.join()
 }
 
 /** @purity pure */
@@ -2324,6 +2336,7 @@ export function frameLoop(
     beginPointerRest, beginHintTargetDwell, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat,
     readPointerRestedMs, readHintTargetDwellMs,
   } = frameClockWakesOf(hands)
+  const { followTimedNotices } = noticeTimersOf(hands)
   const interactionRecorder = interactionRecorderOf(hands)
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
@@ -2494,6 +2507,7 @@ export function frameLoop(
           ...mergeReviewIn(session),
           droppedTaskNames: session.fileFlow.droppedTaskNames,
           missingTaskNames: session.fileFlow.missingTaskNames,
+          reportedCounts: session.fileFlow.reportedCounts,
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
@@ -2504,6 +2518,7 @@ export function frameLoop(
       )
     isTooltipStanding = screenView.tooltips.length > 0
     shownNotices = screenView.notices
+    followTimedNotices(standingNoticesIn(session), partUnderPointer?.noticeBoxReasons ?? [])
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
@@ -3701,7 +3716,8 @@ export function frameLoop(
     },
     /** @purity non-pure */
     raiseStartupNotice(reason: StartupNoticeReason, affectedCount: number | null = null): void {
-      raiseNotice(reason, affectedCount)
+      if (NOTICE_DISPLAY_OF_REASON[reason] !== 'report') return raiseNotice(reason, affectedCount)
+      sendFromFlow(startupReadingLanded(reason, affectedCount))
     },
     // see FT-6, FR-071, S-99f
     /** @purity non-pure */

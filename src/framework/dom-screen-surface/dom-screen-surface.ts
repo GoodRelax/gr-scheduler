@@ -102,6 +102,24 @@ export const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
 export const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
 
+// see U-62
+export const REPORT_REASON_ATTRIBUTE = 'data-report-reason'
+
+// see MG-10, U-61
+export const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note'
+
+// see NT-2
+export const NOTICE_BOX_ATTRIBUTE = 'data-notice-box'
+
+export const NOTICE_BOX_REASON_SEPARATOR = ' '
+
+// see NT-2, IF-9
+/** @purity semi-pure-b */
+function noticeBoxOf(first: Element | null): Pick<ScreenPart, 'noticeBoxReasons'> {
+  const box = first?.closest(`[${NOTICE_BOX_ATTRIBUTE}]`)?.getAttribute(NOTICE_BOX_ATTRIBUTE)
+  return box === undefined || box === null ? {} : { noticeBoxReasons: box.split(NOTICE_BOX_REASON_SEPARATOR) }
+}
+
 // WHY: members that share a row stay apart; each follows its own rule and may be recoloured alone.
 const PAINT_ROW = {
   ground: 'S-146',
@@ -411,6 +429,7 @@ export const STYLE = {
   confirmationHeaderAnswers: 'flex:none;display:flex;align-items:center;gap:0.5em;',
   confirmationNames: 'flex:1 1 auto;min-height:0;overflow:auto;',
   confirmationItem: 'display:block;line-height:1.6;',
+  reportCountLine: 'display:flex;flex-wrap:wrap;gap:0.5em;line-height:1.6;',
   confirmationMark: 'margin-left:0.5em;',
   confirmationAnswers:
     'flex:0 0 auto;display:flex;align-items:center;gap:0.5em;margin-top:0.5em;',
@@ -1227,6 +1246,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeDismissKey: dismissKey,
       ...(answer === null ? {} : { confirmationAnswer: answer }),
       ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
+      ...noticeBoxOf(first),
     }) })
   }
 

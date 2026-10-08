@@ -14,7 +14,11 @@ import type {
   WbsParentChoice,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  NOTICE_WORDS_ROW_OF_REASON,
+  type NoticeReason,
+  type ScreenSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
@@ -110,12 +114,20 @@ export function reasonNextStepLink(reason: string, language: DisplayLanguage): L
   return linkedWordsOf(unfilledReasonWord(reason, 'nextStep', language))
 }
 
+// see FR-076, T-233
+// WHY: a row that shares another row's words prints that row's (CR-712 X-3); an unknown row is itself.
+/** @purity pure */
+function wordsRowOf(reason: string): string {
+  return Object.hasOwn(NOTICE_WORDS_ROW_OF_REASON, reason) ? NOTICE_WORDS_ROW_OF_REASON[reason as NoticeReason] : reason
+}
+
 /** @purity pure */
 function unfilledReasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
-  const invariant = INVARIANTS_BY_ROW.get(reason)
+  const row = wordsRowOf(reason)
+  const invariant = INVARIANTS_BY_ROW.get(row)
   // TRAP: never fall back to RS-15 for a row of table T-220, even while its word is empty.
   if (invariant !== undefined) return invariant[cell][language]
-  const word = reasonCell(reason, cell, language)
+  const word = reasonCell(row, cell, language)
   if (word !== undefined) return word
   const unlisted = reasonCell(UNLISTED_REASON_ROW, cell, language)
   if (unlisted !== undefined) return unlisted

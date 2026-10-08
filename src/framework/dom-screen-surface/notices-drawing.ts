@@ -6,6 +6,8 @@
 import type { Confirmation, Notice } from '../../adapter/screen-renderer/screen-renderer'
 import {
   CONFIRMATION_ANSWER_ATTRIBUTE,
+  NOTICE_BOX_ATTRIBUTE,
+  NOTICE_BOX_REASON_SEPARATOR,
   NOTICE_DISMISS_KEY_ATTRIBUTE,
   NOT_STORED_CONFIRMATION_RULE_SIZES,
   PAINT,
@@ -65,6 +67,7 @@ export function noticeElement(host: Document, notice: Notice): HTMLElement {
   const drawn = made(host, 'div', STYLE.notice)
   drawn.setAttribute('data-manner', notice.manner)
   drawn.setAttribute('role', 'status')
+  drawn.setAttribute(NOTICE_BOX_ATTRIBUTE, notice.raisedNotices.map((one) => one.reason).join(NOTICE_BOX_REASON_SEPARATOR))
   const text = made(host, 'div', '')
   text.textContent = notice.text
   drawn.append(text)

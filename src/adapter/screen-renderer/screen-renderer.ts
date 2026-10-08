@@ -453,6 +453,8 @@ export type OpenModal =
       readonly unreadText: string
       readonly unreadNextStep: string
       readonly unreadNextStepLink?: LinkedWords
+      // see MG-10, U-61
+      readonly separateNote: string
     })
   | (OpenSurface & {
       readonly surface: 'Import Report'
@@ -463,9 +465,20 @@ export type OpenModal =
       readonly missingTaskNames: readonly (string | null)[]
       readonly missingText: string
       readonly missingNextStep: string
+      readonly reportLines: readonly ImportReportLine[]
     })
   // TRAP: this string member never narrows and lets a misspelled name compile; narrow by a carried member.
   | (OpenSurface & { readonly surface: string })
+
+// see U-62, FR-076
+// WHY: one reason of a reading: a count beside the words, or the names under them (RS-50, RS-73).
+export interface ImportReportLine {
+  readonly reason: string
+  readonly text: string
+  readonly nextStep: string
+  readonly count: number | null
+  readonly names: readonly (string | null)[]
+}
 
 export interface MergeCandidateLine {
   readonly currentUid: number
@@ -630,6 +643,8 @@ export interface ScreenViewReadings {
   readonly unreadColumns?: readonly string[]
   readonly droppedTaskNames?: readonly (string | null)[]
   readonly missingTaskNames?: readonly (string | null)[]
+  // see FR-076, U-62, T-290
+  readonly reportedCounts?: readonly { readonly reason: string; readonly count: number }[]
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]

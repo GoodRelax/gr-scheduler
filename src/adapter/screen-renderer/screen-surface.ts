@@ -51,6 +51,9 @@ export interface ScreenPart {
   readonly noticeDismissKey: string | null
   readonly confirmationAnswer?: string
   readonly isImportReportDismiss?: boolean
+  // see NT-2
+  // WHY: the reasons of the notice box under the pointer, whose timed waits stand still while it is there.
+  readonly noticeBoxReasons?: readonly string[]
   readonly scrollbarAxis?: Scrollbar['axis']
   // see IF-9, SJ-1
   readonly searchJumpTarget?: SearchRowView['target'] | null

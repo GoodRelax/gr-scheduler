@@ -19,6 +19,10 @@ import type {
   NoticeReason,
   SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  NOTICE_DISPLAY_OF_REASON,
+  NOTICE_WORDS_ROW_OF_REASON,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import { importDocument, type ImportRequest, type OpenChoice } from '../../use-case/import-document/import-document'
 import { validateImportedDocument } from '../../use-case/validate-imported-document/validate-imported-document'
 import {
@@ -129,6 +133,15 @@ const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
 
 const NEWER_FORMAT_REFUSED_REASON: Extract<NoticeReason, JsonRefusalReason> = 'RS-64'
 
+// see EX-3
+const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
+
+// see EX-3
+const WORK_COLUMN = 'Work'
+
+// see FR-076
+const UNLISTED_REASON: NoticeReason = 'RS-15'
+
 type EmbeddedHtmlFaultReason = Exclude<
   Awaited<ReturnType<typeof exportEmbeddedHtml>>,
   { readonly ok: true }
@@ -234,7 +247,7 @@ function exportedText(form: SaveFileForm, document: Document, moment: WriteMomen
     case 'grsJson':
       return savedDocumentText(document, moment.savedAt)
     case 'mspdi':
-      // DEVIATION: spec says export notices are told (EX-3, EX-6); here they are dropped (DFC-557)
+      // DEVIATION: spec says export notices are told (EX-6); here they are dropped (DFC-557)
       return mspdiFromDocument(document, moment.savedLocalAt).text
     case 'svg':
     case 'png':
@@ -565,18 +578,59 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
   hands.sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(hands.readHeld().document) }, frame)
 }
 
-// see T-290, FR-023, MG-14
-type ReportedTaskNames = Pick<
+// see T-290, FR-023, FR-076, MG-14
+type ReportedLines = Pick<
   Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>,
-  'droppedTaskNames' | 'missingTaskNames'
+  'droppedTaskNames' | 'missingTaskNames' | 'reportedCounts'
 >
+
+interface ReadingTally {
+  readonly hands: DocumentFileFlowHands
+  readonly counted: () => ReportedLines['reportedCounts']
+}
+
+// see FR-076, U-62, T-233, T-290
+// WHY: a reading holds back the reasons table T-233 lines up on U-62 until it lands; one that does
+// not land drops them with the tally, since nothing it read was taken in.
+/** @purity non-pure */
+function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
+  const counts = new Map<string, number>()
+  const raiseNotice = (reason: NoticeReason, affectedCount: number | null): void => {
+    if (NOTICE_DISPLAY_OF_REASON[reason] !== 'report') return outer.raiseNotice(reason, affectedCount)
+    const row = NOTICE_WORDS_ROW_OF_REASON[reason]
+    counts.set(row, (counts.get(row) ?? 0) + (affectedCount ?? 1))
+  }
+  return { hands: { ...outer, raiseNotice }, counted: () => [...counts].map(([reason, count]) => ({ reason, count })) }
+}
+
+// see FR-076, T-220, NT-3, NT-1
+// WHY: one telling per broken row with how often it broke; a rule that is no row of table T-220 has no
+// words of its own and falls to RS-15, as a reason with no row does.
+/** @purity non-pure */
+function tellImportRefusals(
+  hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
+  refusals: readonly { readonly rule: string }[],
+): void {
+  const counts = new Map<NoticeReason, number>()
+  for (const one of refusals) {
+    const row = Object.hasOwn(NOTICE_DISPLAY_OF_REASON, one.rule) ? (one.rule as NoticeReason) : UNLISTED_REASON
+    counts.set(row, (counts.get(row) ?? 0) + 1)
+  }
+  for (const [row, count] of counts) hands.raiseNotice(row, count > 1 ? count : null)
+}
+
+// see EX-3
+/** @purity pure */
+function holdsWorkValues(document: Document): boolean {
+  return document.schedule.tasks.some((task) => task.carry[WORK_COLUMN] !== undefined)
+}
 
 type ImportReport = Extract<ReturnType<typeof importDocument>, { readonly ok: true }>['report']
 
 /** @purity non-pure */
 function landOpenedDocument(
   hands: DocumentFileFlowHands,
-  names: ReportedTaskNames,
+  names: ReportedLines,
   openChoice: OpenChoice,
   newer: NewerFormatReading,
   openedFileName: string | null = null,
@@ -587,7 +641,7 @@ function landOpenedDocument(
 
 // see MG-11, MG-14, RS-73
 /** @purity pure */
-function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedTaskNames['missingTaskNames'] {
+function missingTaskNamesOf(current: Document, report: ImportReport | null): ReportedLines['missingTaskNames'] {
   if (report === null) return []
   const missing = new Set(report.taskUidsMissingSinceLastImport)
   return current.schedule.tasks.filter((task) => missing.has(task.uid)).map((task) => task.name)
@@ -610,23 +664,24 @@ function tellImportReport(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, rep
 // WHY: asked a second time because ReplaceOutcome carries no ImportReport.
 /** @purity non-pure */
 function landImportedDocument(
-  hands: DocumentFileFlowHands,
+  reading: ReadingTally,
   request: ImportRequest,
   droppedTaskNames: readonly (string | null)[],
   newer: NewerFormatReading,
 ): void {
   const outcome = importDocument(request)
   const report = outcome.ok ? outcome.report : null
+  if (report !== null) tellImportReport(reading.hands, report)
   const missingTaskNames = missingTaskNamesOf(request.current, report)
-  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames }, request.choice, newer)
-  if (report !== null) tellImportReport(hands, report)
+  const lines = { droppedTaskNames, missingTaskNames, reportedCounts: reading.counted() }
+  landOpenedDocument(reading.hands, lines, request.choice, newer)
 }
 
 // see FR-060, FR-101, HS-6, T-290
 // WHY: only a replace makes the file read the save target; a merge or an overlay makes a document no file holds.
 /** @purity non-pure */
 function landReplacedDocument(
-  hands: DocumentFileFlowHands,
+  reading: ReadingTally,
   flow: Pick<OpeningFlow, 'noteFileOpened'>,
   store: FileStore | null,
   droppedTaskNames: readonly (string | null)[],
@@ -636,16 +691,19 @@ function landReplacedDocument(
 ): void {
   store?.adoptFileReadToOpen()
   flow.noteFileOpened(incoming.documentStamp.fileSavedUtc, readIn.byteLength)
-  landOpenedDocument(hands, { droppedTaskNames, missingTaskNames: [] }, 'replace', newer, readIn.fileName)
+  const lines = { droppedTaskNames, missingTaskNames: [], reportedCounts: reading.counted() }
+  landOpenedDocument(reading.hands, lines, 'replace', newer, readIn.fileName)
 }
 
 // see OP-2, OP-5, OP-12, T-230
 /** @purity non-pure */
 export async function openDocumentIntoHold(
-  hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
+  outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
   route: OpenRoute,
   handed: HandedImport | null = null,
 ): Promise<boolean> {
+  const reading = readingTallyOf(outer)
+  const hands = reading.hands
   const current = hands.readHeld().document
 
   let handedIn: ReadInFile | null = null
@@ -655,6 +713,7 @@ export async function openDocumentIntoHold(
     handedIn = { format: importedFormatOf(handed.format), byteLength: handed.byteLength, fileName: null }
     incoming = handed.incoming
     newer = { ...NOT_NEWER, isNewerFormat: handed.isNewerFormat, couldNotBeRead: handed.unreadColumns }
+    if ((handed.recountedCount ?? 0) > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, handed.recountedCount ?? null)
   } else if (store === null) {
     return false
   } else {
@@ -715,6 +774,7 @@ export async function openDocumentIntoHold(
           { document: incoming, byteLength: readIn.byteLength, emptyRowTaskUids: [] },
         )
   if (!afterDropping.ok) {
+    tellImportRefusals(outer, afterDropping.refusals)
     return false
   }
 
@@ -742,7 +802,7 @@ export async function openDocumentIntoHold(
 
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-    if (replaced) landReplacedDocument(hands, flow, store, droppedNames, newer, readIn, incoming)
+    if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -776,7 +836,7 @@ export async function openDocumentIntoHold(
 
   if (!landed) return false
   const request = { ...importing, choice, merge: mergeAnswers, current: importedAgainst }
-  landImportedDocument(hands, request, droppedNames, { ...newer, isUnreadAsked: mergeAnswers !== null })
+  landImportedDocument(reading, request, droppedNames, { ...newer, isUnreadAsked: mergeAnswers !== null })
   return landed
 }
 
@@ -827,10 +887,9 @@ export async function takeInHandedDocument(
       byteLength: new TextEncoder().encode(handedText).length,
       unreadColumns: firstReading?.unreadColumns ?? (reread.ok ? reread.unreadColumns : []),
       isNewerFormat: firstReading?.isNewerFormat ?? (reread.ok && reread.formatVersion === 'newerThanKnown'),
+      // TRAP: the reread finds nothing to recount; the count is the first reading's.
+      recountedCount: firstReading?.recountedCount ?? 0,
     })
-    // TRAP: the reread finds nothing to recount; the count is the first reading's.
-    const recountedCount = firstReading?.recountedCount ?? 0
-    if (landed && recountedCount > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, recountedCount)
     return landed
   } finally {
     hands.endFileOperation(DOCUMENT_OPEN_FAILED)
@@ -920,6 +979,7 @@ async function exportHeldDocumentToFile(
     if (form === SAVE_FORM && text !== null) return landSavedDocument(hands, flow, saving, byteLengthOfText(text), savedAt)
     // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
     if (picture.capStopGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
+    if (form === 'mspdi' && holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
     return
   }
   hands.raiseFileFault(saving.fault)

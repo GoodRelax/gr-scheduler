@@ -21,6 +21,8 @@ import {
   NOT_STORED_RESOURCE_ROSTER_SIZES,
   NOT_STORED_WHEEL_UNITS,
   PAINT,
+  REPORT_REASON_ATTRIBUTE,
+  SEPARATE_NOTE_ATTRIBUTE,
   STYLE,
   anchorKey,
   anchoredEntry,
@@ -538,6 +540,7 @@ export function modalElement(
       line.append(uid, current, incoming)
       body.push(line)
     }
+    if (modal.separateNote !== '') body.push(separateNoteElement(host, modal.separateNote))
   }
 
   if ('unreadColumns' in modal) {
@@ -735,16 +738,38 @@ function reasonLines(host: Document, text: string, nextStep: string, taskNames: 
   return lines
 }
 
-// see U-62, FR-023, MG-14
-// WHY: each reason that has names gets its words with its names under them (U-62); RS-50 stays when neither has.
+// see MG-10, U-61
+/** @purity non-pure */
+function separateNoteElement(host: Document, note: string): HTMLElement {
+  const said = made(host, 'div', STYLE.noticeNextStep)
+  said.setAttribute(SEPARATE_NOTE_ATTRIBUTE, 'true')
+  said.textContent = note
+  return said
+}
+
+// see U-62, FR-076
+// WHY: a counted reason is one line -- its words, its count and its next step side by side (U-62).
+/** @purity non-pure */
+function reportLineElements(host: Document, line: ImportReport['reportLines'][number]): HTMLElement[] {
+  if (line.count === null) return reasonLines(host, line.text, line.nextStep, line.names)
+  const row = made(host, 'div', STYLE.reportCountLine)
+  row.setAttribute(REPORT_REASON_ATTRIBUTE, line.reason)
+  const parts = [line.text, String(line.count), line.nextStep].filter((part) => part !== '')
+  row.replaceChildren(...parts.map((part) => {
+    const span = made(host, 'span', '')
+    span.textContent = part
+    return span
+  }))
+  return [row]
+}
+
+// see U-62, FR-023, FR-076, MG-14
+// WHY: each reason of the reading in table T-233's order (U-62); RS-50 stays when the reading reported nothing.
 /** @purity non-pure */
 function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
-  const hasMissing = modal.missingTaskNames.length > 0
-  const lines: HTMLElement[] = []
-  if (modal.droppedTaskNames.length > 0 || !hasMissing) {
-    lines.push(...reasonLines(host, modal.text, modal.nextStep, modal.droppedTaskNames))
-  }
-  if (hasMissing) lines.push(...reasonLines(host, modal.missingText, modal.missingNextStep, modal.missingTaskNames))
+  const lines: HTMLElement[] = modal.reportLines.length === 0
+    ? reasonLines(host, modal.text, modal.nextStep, [])
+    : modal.reportLines.flatMap((one) => reportLineElements(host, one))
   const names = made(host, 'div', STYLE.confirmationNames)
   names.replaceChildren(...lines)
 

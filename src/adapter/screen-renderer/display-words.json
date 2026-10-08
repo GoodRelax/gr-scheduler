@@ -3337,45 +3337,23 @@
   {
    "rowId": "RS-6",
    "text": {
-    "ja": "文書が別の場所で変わったので、この変更は適用できません",
-    "en": "The document changed elsewhere, so this change was not applied"
+    "ja": "いまは変更を受け付けられなかったので、行っていません",
+    "en": "The change could not be accepted just now, so it was not made"
    },
    "nextStep": {
-    "ja": "いまの文書を読み直してから、もう一度行ってください",
-    "en": "Read the current document again, then try once more"
-   }
-  },
-  {
-   "rowId": "RS-7",
-   "text": {
-    "ja": "ドラッグの最中なので、この変更は適用できません",
-    "en": "A drag is in progress, so this change was not applied"
-   },
-   "nextStep": {
-    "ja": "ドラッグを終えてから、もう一度行ってください",
-    "en": "Finish the drag, then try once more"
+    "ja": "もう一度行ってください",
+    "en": "Try once more"
    }
   },
   {
    "rowId": "RS-8",
    "text": {
-    "ja": "その場の編集が確定していないので、この変更は適用できません",
-    "en": "An in-place edit has not been committed, so this change was not applied"
+    "ja": "いまは変更を受け付けられなかったので、行っていません",
+    "en": "The change could not be accepted just now, so it was not made"
    },
    "nextStep": {
-    "ja": "編集を確定するか取りやめてから、もう一度行ってください",
-    "en": "Commit or cancel the edit, then try once more"
-   }
-  },
-  {
-   "rowId": "RS-9",
-   "text": {
-    "ja": "通知を配っている最中なので、この変更は適用できません",
-    "en": "Notices are being delivered, so this change was not applied"
-   },
-   "nextStep": {
-    "ja": "少し待ってから、もう一度行ってください",
-    "en": "Wait a moment, then try once more"
+    "ja": "先に [Enter] で編集を確定するか、[Esc] で取りやめてください",
+    "en": "First press Enter to commit the edit, or Esc to cancel it"
    }
   },
   {
@@ -3392,34 +3370,12 @@
   {
    "rowId": "RS-11",
    "text": {
-    "ja": "拡張子が、読み取れる形式のどれにも当てはまりません",
-    "en": "The file name extension matches no format that can be read"
+    "ja": "このファイルは GRS が読める形式（GRS JSON・MSPDI XML・GRS の .html）ではありません",
+    "en": "This file is not in a format GRS can read (GRS JSON, MSPDI XML or a GRS .html)"
    },
    "nextStep": {
-    "ja": "読み取れる形式のファイルを選んでください",
-    "en": "Choose a file in a format that can be read"
-   }
-  },
-  {
-   "rowId": "RS-12",
-   "text": {
-    "ja": "ファイルの中身が、読み取れる形式のどれにも当てはまりません",
-    "en": "The contents match no format that can be read"
-   },
-   "nextStep": {
-    "ja": "ファイルが壊れていないかを確かめてください",
-    "en": "Check whether the file is intact"
-   }
-  },
-  {
-   "rowId": "RS-13",
-   "text": {
-    "ja": "拡張子と中身が別の形式を指しているので、どちらとしても読めません",
-    "en": "The extension and the contents name different formats, so neither can be read"
-   },
-   "nextStep": {
-    "ja": "ファイル名と中身のどちらが正しいかを確かめてください",
-    "en": "Check which of the name and the contents is right"
+    "ja": "形式とファイルが壊れていないかを確かめてください",
+    "en": "Check the format, and whether the file is intact"
    }
   },
   {
@@ -3684,17 +3640,6 @@
    "nextStep": {
     "ja": "もう一度入れてください",
     "en": "Try entering it again"
-   }
-  },
-  {
-   "rowId": "RS-42",
-   "text": {
-    "ja": "原因の分からない誤りが起きました",
-    "en": "Something went wrong and the cause is not known"
-   },
-   "nextStep": {
-    "ja": "記録を始めてから、もう一度お試しください。記録は止めるとコピーされます",
-    "en": "Start the recording, try once more, and stop it to copy the record"
    }
   },
   {
@@ -3964,8 +3909,8 @@
   {
    "rowId": "RS-69",
    "text": {
-    "ja": "マイルストーンは開始ー終了の期間を持たないため親タスクとして定義できません",
-    "en": "A milestone has no start-to-finish span, so it cannot be a parent task"
+    "ja": "マイルストーンは期間を持たないので、親タスクにはできません",
+    "en": "A milestone has no span, so it cannot be a parent task"
    },
    "nextStep": {
     "ja": "期間を持つタスクへ引いてください",
@@ -4050,6 +3995,17 @@
    }
   },
   {
+   "rowId": "RS-77",
+   "text": {
+    "ja": "工数は書き換えていません",
+    "en": "The work values were not rewritten"
+   },
+   "nextStep": {
+    "ja": "相手側のアプリで工数を更新してください",
+    "en": "Update the work in the other application"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -4065,243 +4021,232 @@
   {
    "rowId": "IV-1",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "同じ ID のものが 2 つ以上あるので、このファイルは開けません",
+    "en": "Two or more items share one ID, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルの ID の重なりを直してから開いてください",
+    "en": "Fix the repeated IDs in the original file, then open it"
    }
   },
   {
    "rowId": "IV-2",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "存在しないものを指している参照があるので、このファイルは開けません",
+    "en": "A reference points at something that does not exist, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-3",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "ピン止めの記録が存在しないタスクグループを指しているので、このファイルは開けません",
+    "en": "A pin record points at a task group that does not exist, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-4",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "タスクの親子が輪になっているので、このファイルは開けません",
+    "en": "The parents and children of the tasks form a loop, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルで親子の輪を解いてから開いてください",
+    "en": "Break the loop in the original file, then open it"
    }
   },
   {
    "rowId": "IV-5",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "タスクグループの入れ子が段の上限より深いので、このファイルは開けません",
+    "en": "Task groups are nested deeper than the level limit, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルで入れ子を浅くしてから開いてください",
+    "en": "Make the nesting shallower in the original file, then open it"
    }
   },
   {
    "rowId": "IV-6",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "どのタスクグループにも載っていない（または 2 つ以上に載っている）タスクがあるので、このファイルは開けません",
+    "en": "A task sits on no task group (or on more than one), so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-23",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "タスクの見た目の記録が欠けているか重なっているので、このファイルは開けません",
+    "en": "A task's appearance record is missing or repeated, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-7",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "暦が 1 つも無いので、このファイルは開けません",
+    "en": "The file has no calendar, so it cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
-   }
-  },
-  {
-   "rowId": "IV-17",
-   "text": {
-    "ja": "",
-    "en": ""
-   },
-   "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-8",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "名前の無いタスクグループがあるので、このファイルは開けません",
+    "en": "A task group has no name, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-9",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "塗りと線の両方が透明なものがあるので、このファイルは開けません",
+    "en": "Something has both its fill and its line transparent, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "どちらかに色を付けてください",
+    "en": "Give one of them a colour"
    }
   },
   {
    "rowId": "IV-10",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "終了の日が、開始の日より前になっているタスクがあるので、このファイルは開けません",
+    "en": "A task finishes before it starts, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルでそのタスクの日付を直してから開いてください",
+    "en": "Fix that task's dates in the original file, then open it"
    }
   },
   {
    "rowId": "IV-11",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "フェードが付いているのに終了日の無いタスクがあるので、このファイルは開けません",
+    "en": "A task has a fade but no finish date, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルで終了日を入れるかフェードを外してから開いてください",
+    "en": "In the original file, enter a finish date or remove the fade, then open it"
    }
   },
   {
    "rowId": "IV-12",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "フェードの日数の和がタスクの期間より長いタスクがあるので、このファイルは開けません",
+    "en": "A task's fade days add up to more than its span, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルでフェードを短くするか期間を延ばしてから開いてください",
+    "en": "In the original file, shorten the fades or lengthen the span, then open it"
    }
   },
   {
    "rowId": "IV-14",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "日付として読めない値か、扱える範囲の外の日付です",
+    "en": "The value is not a date, or the date is outside the range that can be handled"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "正しい日付を入れてください",
+    "en": "Enter a valid date"
    }
   },
   {
    "rowId": "IV-15",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "ファイルの中の取り込みの記録が食い違っているので、このファイルは開けません",
+    "en": "The import records in the file disagree, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-16",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "設定値の上限と下限が逆になっているので、このファイルは開けません",
+    "en": "A setting's upper and lower limits are the wrong way round, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルの設定値を直してから開いてください",
+    "en": "Fix the settings in the original file, then open it"
    }
   },
   {
    "rowId": "IV-19",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "始まりと終わり（または上と下）が逆のハイライトボックスがあるので、このファイルは開けません",
+    "en": "A highlight box has its start and end (or top and bottom) the wrong way round, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルでハイライトボックスの向きを直してから開いてください",
+    "en": "Put the highlight box the right way round in the original file, then open it"
    }
   },
   {
    "rowId": "IV-18",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "タスクグループの親子が輪になっているので、このファイルは開けません",
+    "en": "The parents and children of the task groups form a loop, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-20",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "タスクグループが 1 つも無いので、このファイルは開けません",
+    "en": "The file has no task group, so it cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "書き出したときのファイルをそのまま開いてください",
+    "en": "Open the file exactly as it was exported"
    }
   },
   {
    "rowId": "IV-21",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "実績の終了が実績の開始より前のタスクがあるので、このファイルは開けません",
+    "en": "A task's actual finish is before its actual start, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルで実績の日付を直してから開いてください",
+    "en": "Fix the actual dates in the original file, then open it"
    }
   },
   {
    "rowId": "IV-22",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "マイルストーンの形なのにマイルストーンでない（またはその逆の）タスクがあるので、このファイルは開けません",
+    "en": "A task drawn as a milestone is not a milestone (or the other way round), so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "",
-    "en": ""
+    "ja": "元のファイルでそのタスクの形とマイルストーンの印を揃えてから開いてください",
+    "en": "In the original file, make that task's shape and its milestone flag agree, then open it"
    }
   }
  ],
@@ -4527,6 +4472,15 @@
    "text": {
     "ja": "キャンセル",
     "en": "Cancel"
+   }
+  }
+ ],
+ "differenceReview": [
+  {
+   "part": "separateNote",
+   "text": {
+    "ja": "別のものとして取り込むと、このタスクは元の WBS の台帳とつながらなくなり、相手側へ戻せなくなります",
+    "en": "Taken in as a separate task, it loses its link to the original WBS ledger and cannot be written back to the other side"
    }
   }
  ],
@@ -5695,8 +5649,8 @@
   {
    "part": "milestoneAchieved",
    "text": {
-    "ja": "このマイルストーンは達成してるのでは？",
-    "en": "Isn't this milestone already achieved?"
+    "ja": "先行がすべて完了しているので、このマイルストーンは達成済みかもしれない",
+    "en": "Every predecessor is complete, so this milestone may already be achieved"
    }
   },
   {

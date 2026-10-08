@@ -86,6 +86,7 @@ NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線�
 NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッチの画素・行数（`S-514` 〜 `S-516`、表 T-023 の結び、`CR-681`）。写しは 2 つ —— 日程を送る `DomInputSource` と、名簿を送る `DomScreenSurface`
 NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
+NOT_STORED_NOTICE_TIMES              時間で消す通知を出しておく時間（`S-542`、表 T-037 の `NT-2`。`CR-712`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさと右端からの隔たり（`S-140` / `S-313`）
@@ -117,7 +118,10 @@ NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下�
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 NOTICE_MANNER_OF_REASON              通知の理由ごとの作法（表 T-233 の作法の欄と、取り込みの拒否が運ぶ 表 T-220 の行。`_source/notice-reasons.json` から `tools/generate_notice_reasons.py` が刷る。`CR-712`）
+NOTICE_DISPLAY_OF_REASON             通知の理由ごとの表示の仕方（表 T-233 の表示の仕方の欄と、表 T-220 の行の家族の値。同じ生成器。`CR-712`）
+NOTICE_WORDS_ROW_OF_REASON           通知の理由ごとに語を刷る行（表 T-233 のまとめ方の欄。相乗りしない行は自身。同じ生成器。`CR-712`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+QUESTION_DISPLAY_OF_ROW              問いごとの問うか（表 T-234 の問うかの欄。同じ生成器。`CR-712`）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLOURS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）

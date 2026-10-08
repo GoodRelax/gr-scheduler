@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1587 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1588 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -189,11 +189,11 @@
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |
 | `RP` | — | 依存線の経路の分岐 | 仕様書 | `T-222` | 8 |
 | `RR` | Resource Roster | 担当者の一覧の字の大きさ・スクロール・罫線・閉じる入口 | 仕様書 | `T-257` | 6 |
-| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 71 |
+| `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 72 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 6 |
 | `RW` | — | 遅延診断レポートの窓が検索パネルと違う所 | 仕様書 | `T-346` | 10 |
-| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-333` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 466 |
+| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-333` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 467 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 5 |
 | `SE` | Scale Echo | 表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方 | 仕様書 | `T-260` | 5 |

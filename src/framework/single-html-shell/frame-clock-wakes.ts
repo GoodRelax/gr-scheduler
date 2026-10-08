@@ -5,6 +5,11 @@
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
+  NOTICE_DISPLAY_OF_REASON,
+  type NoticeReason,
+  type StandingNotice,
+} from '../../use-case/advance-screen-session/advance-screen-session'
+import {
   ENTRY_REPEAT_TIME_ELAPSED,
   isSizeSettled,
   readMonotonicMs,
@@ -127,6 +132,58 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
 
 export type FrameClockWakes = ReturnType<typeof frameClockWakesOf>
 
+interface NoticeWait {
+  readonly held: StandingNotice
+  readonly callOff: (() => void) | null
+}
+
+// see NT-2, T-233
+/** @purity pure */
+function isTimedNotice(notice: StandingNotice): boolean {
+  return NOTICE_DISPLAY_OF_REASON[notice.reason as NoticeReason] === 'autoDismiss'
+}
+
+// see NT-2, NT-3, S-542, T-286
+// WHY: one wait per standing timed notice: called off while the pointer is over its box, and started
+// afresh when the pointer leaves or the notice is gathered again (a new standing value), as SE-4 restarts.
+/** @purity non-pure */
+export function noticeTimersOf(hands: Pick<FrameLoopHands, 'readEnvironment' | 'sendToSession' | 'ask'>) {
+  const waits = new Map<string, NoticeWait>()
+
+  /** @purity non-pure */
+  function startWait(notice: StandingNotice): () => void {
+    const wake = setTimeout(() => {
+      waits.delete(notice.reason)
+      hands.sendToSession({ type: 'noticeTimeElapsed', reason: notice.reason }, null)
+      if (isSizeSettled(hands.readEnvironment())) hands.ask()
+    }, NOT_STORED_NOTICE_TIMES['S-542'])
+    return () => clearTimeout(wake)
+  }
+
+  /** @purity non-pure */
+  function followTimedNotices(standing: readonly StandingNotice[], hovered: readonly string[]): void {
+    const timed = standing.filter(isTimedNotice)
+    for (const [reason, wait] of waits) {
+      if (timed.some((one) => one.reason === reason)) continue
+      wait.callOff?.()
+      waits.delete(reason)
+    }
+    for (const notice of timed) {
+      const wait = waits.get(notice.reason)
+      if (hovered.includes(notice.reason)) {
+        wait?.callOff?.()
+        waits.set(notice.reason, { held: notice, callOff: null })
+        continue
+      }
+      if (wait !== undefined && wait.callOff !== null && wait.held === notice) continue
+      wait?.callOff?.()
+      waits.set(notice.reason, { held: notice, callOff: startWait(notice) })
+    }
+  }
+
+  return { followTimedNotices }
+}
+
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
@@ -145,5 +202,12 @@ const NOT_STORED_SCALE_MESSAGE_TIMES: {
   readonly 'S-244': number
 } = {
   'S-244': 1500,
+}
+
+// see T-206
+const NOT_STORED_NOTICE_TIMES: {
+  readonly 'S-542': number
+} = {
+  'S-542': 3000,
 }
 // </generated>

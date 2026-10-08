@@ -7,7 +7,8 @@
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/notice-reasons.schema.json. notice_reasons_json_to_md.py also refuses a row id written twice, a row id of the wrong prefix, a `wordsOf` that names no row of this file, names a row that itself shares words, or names a row of another manner or display, and an `invariantRefusals.wordsOf` key that is no row of table T-220.",
   "Cells are the Markdown the tables print, byte for byte: `scene`, `source` and `names` are language dictionaries (Chapter 6.2) and the generator puts nothing into them. `manner` is a row id of table T-037 and is printed in a code span.",
-  "`display` says how a reason reaches the screen: show (a notice that stands until NT-8 dismisses it), autoDismiss (a notice that leaves by itself after a time, NT-2), hide (raised and carried, never put on the screen), report (inside one reading, a line of the Import Report U-62 instead of a notice). A question is ask, or askOnlyWithUnsavedEdits. The printed tables do not carry this column yet.",
+  "`display` says how a reason reaches the screen: show (a notice that stands until NT-8 dismisses it), autoDismiss (a notice that leaves by itself after a time, NT-2), hide (raised and carried, never put on the screen), report (inside one reading, a line of the Import Report U-62 instead of a notice). A question is ask, or askOnlyWithUnsavedEdits. The printed tables carry it as the column the table's `displayLabels` name.",
+  "`wordsOf` names the row whose words the screen prints for this one (CR-712 X-2); the row stays a row, and the Agent API refusal still carries it. `invariantRefusals.wordsOf` does the same for a row of table T-220.",
   "Rows are in the order the tables print them, which is not the numeric order."
  ],
  "reasonTable": {
@@ -20,8 +21,30 @@
     "行 ID",
     "場面",
     "作法",
+    "表示の仕方",
+    "まとめ方",
     "正"
    ]
+  },
+  "displayLabels": {
+   "show": {
+    "ja": "出す"
+   },
+   "autoDismiss": {
+    "ja": "時間で消す"
+   },
+   "hide": {
+    "ja": "出さない"
+   },
+   "report": {
+    "ja": "`U-62` に並べる"
+   }
+  },
+  "wordsOfLabel": {
+   "ja": "語は `{row}`"
+  },
+  "ownWordsLabel": {
+   "ja": "—"
   }
  },
  "questionTable": {
@@ -34,8 +57,17 @@
     "行 ID",
     "場面",
     "名前を挙げるか",
+    "問うか",
     "正"
    ]
+  },
+  "displayLabels": {
+   "ask": {
+    "ja": "問う"
+   },
+   "askOnlyWithUnsavedEdits": {
+    "ja": "保存していない編集があるときだけ問う"
+   }
   }
  },
  "reasons": [
@@ -114,7 +146,8 @@
    "source": {
     "ja": "表 T-067 の `WS-2`"
    },
-   "display": "show"
+   "display": "show",
+   "wordsOf": "RS-6"
   },
   {
    "id": "RS-8",
@@ -136,7 +169,8 @@
    "source": {
     "ja": "表 T-067 の `WS-2`"
    },
-   "display": "show"
+   "display": "show",
+   "wordsOf": "RS-6"
   },
   {
    "id": "RS-10",
@@ -169,7 +203,8 @@
    "source": {
     "ja": "表 T-024a の `OP-12`"
    },
-   "display": "show"
+   "display": "show",
+   "wordsOf": "RS-11"
   },
   {
    "id": "RS-13",
@@ -180,7 +215,8 @@
    "source": {
     "ja": "表 T-024a の `OP-12`"
    },
-   "display": "show"
+   "display": "show",
+   "wordsOf": "RS-11"
   },
   {
    "id": "RS-14",
@@ -191,7 +227,7 @@
    "source": {
     "ja": "表 T-024a の `OP-11`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-16",
@@ -202,12 +238,12 @@
    "source": {
     "ja": "`FR-015`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-19",
    "scene": {
-    "ja": "透かしに出す名前が、まだ設定されていない⛔ **いまは告げてはならない（MUST NOT）**—— 設定する道が作られていないので、「設定されていません」と告げても読む人には何もできることが無い。<br>黙っているより悪い。<br>⭐ **語は残す** —— `FR-086` の入口をあとで作るときに、そのまま使う。<br>消すと書き直すことになる。<br>"
+    "ja": "透かしに出す名前が、まだ設定されていない⚠️ **表示の仕方は「出さない」である** —— 設定する道が作られていないので、「設定されていません」と告げても読む人には何もできることが無い。<br>黙っているより悪い。<br>⭐ **語は残す** —— `FR-086` の入口をあとで作るときに、そのまま使う。<br>消すと書き直すことになる。<br>"
    },
    "manner": "NT-4",
    "source": {
@@ -257,7 +293,7 @@
    "source": {
     "ja": "表 T-035 の `AG-6`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-24",
@@ -301,7 +337,7 @@
    "source": {
     "ja": "`FR-029`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-28",
@@ -312,7 +348,7 @@
    "source": {
     "ja": "表 T-051 の `HF-2`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-29",
@@ -323,7 +359,7 @@
    "source": {
     "ja": "表 T-051 の `HF-11`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-30",
@@ -334,7 +370,7 @@
    "source": {
     "ja": "表 T-051 の `HF-13`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-31",
@@ -345,7 +381,7 @@
    "source": {
     "ja": "表 T-051 の `HF-10`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-32",
@@ -356,7 +392,7 @@
    "source": {
     "ja": "表 T-051 の `HF-12`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-33",
@@ -367,7 +403,7 @@
    "source": {
     "ja": "`FR-049`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-34",
@@ -378,7 +414,7 @@
    "source": {
     "ja": "`FR-034`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-36",
@@ -389,7 +425,7 @@
    "source": {
     "ja": "表 T-051 の `HF-15`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-37",
@@ -400,7 +436,7 @@
    "source": {
     "ja": "表 T-051 の `HF-15`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-38",
@@ -411,7 +447,7 @@
    "source": {
     "ja": "`FR-085`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-39",
@@ -422,7 +458,7 @@
    "source": {
     "ja": "表 T-051 の `HF-15`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-40",
@@ -433,7 +469,7 @@
    "source": {
     "ja": "表 T-024"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-41",
@@ -455,7 +491,8 @@
    "source": {
     "ja": "`FR-102`"
    },
-   "display": "show"
+   "display": "show",
+   "wordsOf": "RS-15"
   },
   {
    "id": "RS-43",
@@ -477,7 +514,7 @@
    "source": {
     "ja": "`FR-019`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-46",
@@ -488,7 +525,7 @@
    "source": {
     "ja": "`FR-085`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-48",
@@ -510,7 +547,7 @@
    "source": {
     "ja": "`FR-073`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-64",
@@ -526,13 +563,13 @@
   {
    "id": "RS-49",
    "scene": {
-    "ja": "**担当者の名前が変わり、その担当者が付いているタスクの表示が変わった**—— **件数の示し方は `NT-3` が持つ。<br>**⭐ **本行を置く根拠は `NT-3` 自身である** —— 同行は件数を添える例として「担当者名の波及」を名指ししており、名指しされたものに行が無いほうが穴である。<br>⭐ **数えるのは「その担当者が付いているタスク」である** —— **数を綴るのは `FR-008` であり、本行はそれを言い直さない。<br>**⚠️ **割当の数ではない** —— 同要求は同じ `Task` と同じ `Resource` の組の割当を 2 つ作ることを禁じているので、1 人を改名する限りでは 2 つの数は一致するが、綴りは要求のものに従う。<br>⚠️ **いま本行を上げる者はいない** —— 表 T-225 の `AS-1` が定める担当ラベルのその場編集がまだ作られておらず、改名の入口そのものが無い。<br>⛔ **行を先に置くのは、入口ができた日に告げる語を探しに戻らないためである。<br>**"
+    "ja": "**担当者の名前が変わり、その担当者が付いているタスクの表示が変わった**—— **件数の示し方は `NT-3` が持つ。<br>**⚠️ **表示の仕方は「出さない」である** —— 名前の変化はタスクの表示で見え、取り消しで戻せる。<br>⭐ **数えるのは「その担当者が付いているタスク」である** —— **数を綴るのは `FR-008` であり、本行はそれを言い直さない。<br>**⚠️ **割当の数ではない** —— 同要求は同じ `Task` と同じ `Resource` の組の割当を 2 つ作ることを禁じているので、1 人を改名する限りでは 2 つの数は一致するが、綴りは要求のものに従う。<br>⚠️ **いま本行を上げる者はいない** —— 表 T-225 の `AS-1` が定める担当ラベルのその場編集がまだ作られておらず、改名の入口そのものが無い。<br>⛔ **行を先に置くのは、入口ができた日に告げる語を探しに戻らないためである。<br>**"
    },
    "manner": "NT-3",
    "source": {
     "ja": "`FR-008`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-50",
@@ -548,13 +585,13 @@
   {
    "id": "RS-51",
    "scene": {
-    "ja": "**読み込んだ文書の設定値が範囲の外だったので、範囲に収めた**—— ⭐ **件数を添えること** —— **収めた鍵の数である。<br>**⛔ **収めずに受け付けてはならない（MUST NOT）** —— **下限を割る値は図形を消し、掴めない大きさを作る。<br>**⚠️ **黙って収めてもならない（MUST NOT）** —— 告げなければ、往復して保存したときに元の値が消えたことに人が気づけない。<br>⭐ **告げる先は通知の欄でよい** —— **運ぶのは件数だけであり、`NT-9` の 1 行に収まる。<br>**⚠️ `_assets/tbl-settings.md` の 表 T-201 の `S-12`（`rowGap`）は本行の対象に数えないこと（MUST） —— 下限と上限がともに 0 の固定の値であり、文書が持つ値を黙って 0 として読む（同行の範囲の理由）。<br>件数にも入れない。<br>"
+    "ja": "**読み込んだ文書の設定値が範囲の外だったので、範囲に収めた**—— ⭐ **件数を添えること** —— **収めた鍵の数である。<br>**⛔ **収めずに受け付けてはならない（MUST NOT）** —— **下限を割る値は図形を消し、掴めない大きさを作る。<br>**⚠️ **黙って収めてもならない（MUST NOT）** —— 告げなければ、往復して保存したときに元の値が消えたことに人が気づけない。<br>⭐ **告げる先は `U-62` の 1 行である**（表示の仕方）。<br>⚠️ `_assets/tbl-settings.md` の 表 T-201 の `S-12`（`rowGap`）は本行の対象に数えないこと（MUST） —— 下限と上限がともに 0 の固定の値であり、文書が持つ値を黙って 0 として読む（同行の範囲の理由）。<br>件数にも入れない。<br>"
    },
    "manner": "NT-5",
    "source": {
     "ja": "表 T-024a の `OP-6`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-52",
@@ -565,18 +602,18 @@
    "source": {
     "ja": "`FR-012`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-53",
    "scene": {
-    "ja": "**バーの形状を構えたまま、引かずに離した**—— ⭐ **引くことを求める文を持つこと** —— `RS-27`（押した入口が、いま行えることを持たない）では、何をすればよいかが読めない。<br>⚠️ **マイルストーンはこの行を上げない** —— **点なので、引かずに離した押下が正しい置き方である。<br>**"
+    "ja": "**バーの形状を構えたまま、引かずに離した**—— ⚠️ **表示の仕方は「出さない」である**。<br>⚠️ **マイルストーンはこの行を上げない** —— **点なので、引かずに離した押下が正しい置き方である。<br>**"
    },
    "manner": "NT-1",
    "source": {
     "ja": "`FR-001`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-54",
@@ -587,7 +624,7 @@
    "source": {
     "ja": "`FR-083`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-55",
@@ -598,7 +635,7 @@
    "source": {
     "ja": "表 T-015a の `HM-4`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-56",
@@ -609,7 +646,7 @@
    "source": {
     "ja": "`FR-009` の 表 T-018b の `DN-1`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-57",
@@ -631,7 +668,7 @@
    "source": {
     "ja": "Chapter 6.1 の 表 T-220 の `IV-10` ／ `FR-055` の 表 T-367 の `FX-1`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-59",
@@ -642,7 +679,7 @@
    "source": {
     "ja": "`FR-071`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-60",
@@ -653,7 +690,7 @@
    "source": {
     "ja": "表 T-265 の `MR-3`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-61",
@@ -664,7 +701,7 @@
    "source": {
     "ja": "`FR-111`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-62",
@@ -675,7 +712,7 @@
    "source": {
     "ja": "`FR-111`"
    },
-   "display": "show"
+   "display": "hide"
   },
   {
    "id": "RS-66",
@@ -686,7 +723,7 @@
    "source": {
     "ja": "`FR-151` の 表 T-332 の `SJ-8`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-65",
@@ -697,7 +734,7 @@
    "source": {
     "ja": "`FR-068`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-67",
@@ -719,18 +756,18 @@
    "source": {
     "ja": "`FR-025`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-69",
    "scene": {
-    "ja": "**マイルストーンは開始ー終了の期間を持たないため、親タスクとして定義できない**（WBS の親を結ぶ構えで、マイルストーンの上で離した）。<br>⭐ 子の数によらず 1 つである"
+    "ja": "**マイルストーンは期間を持たないので、親タスクにはできない**（WBS の親を結ぶ構えで、マイルストーンの上で離した）。<br>⭐ 子の数によらず 1 つである"
    },
    "manner": "NT-1",
    "source": {
     "ja": "`FR-135` の 表 T-351 の `WL-8`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-70",
@@ -741,7 +778,7 @@
    "source": {
     "ja": "`FR-135` の 表 T-351 の `WL-12`"
    },
-   "display": "show"
+   "display": "autoDismiss"
   },
   {
    "id": "RS-71",
@@ -752,7 +789,7 @@
    "source": {
     "ja": "表 T-032 の `MG-14`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-72",
@@ -763,7 +800,7 @@
    "source": {
     "ja": "表 T-032 の `MG-14`"
    },
-   "display": "show"
+   "display": "report"
   },
   {
    "id": "RS-73",
@@ -808,6 +845,17 @@
     "ja": "`05-07-design.md` の 表 T-065 の `IF-3`"
    },
    "display": "show"
+  },
+  {
+   "id": "RS-77",
+   "scene": {
+    "ja": "**工数を持つ文書を `MSPDI` へ書き出し、工数を書き換えなかった**（表 T-033 の `EX-3`）"
+   },
+   "manner": "NT-5",
+   "source": {
+    "ja": "表 T-033 の `EX-3`"
+   },
+   "display": "autoDismiss"
   },
   {
    "id": "RS-15",
@@ -877,7 +925,7 @@
   {
    "id": "QN-5",
    "scene": {
-    "ja": "いまの文書を捨てて置き換えるとき（`FR-095` の新しく始めることを含む）。<br>未保存の編集の有無によらず立つ"
+    "ja": "いまの文書を捨てて置き換えるとき（`FR-095` の新しく始めることを含む）。<br>保存していない編集があるときだけ立つ"
    },
    "names": {
     "ja": "挙げる —— 捨てる文書の名前"
@@ -885,7 +933,7 @@
    "source": {
     "ja": "表 T-024a の `OP-4`"
    },
-   "display": "ask"
+   "display": "askOnlyWithUnsavedEdits"
   },
   {
    "id": "QN-9",
@@ -956,6 +1004,9 @@
  "invariantRefusals": {
   "table": "T-220",
   "manner": "NT-1",
-  "display": "show"
+  "display": "show",
+  "wordsOf": {
+   "IV-17": "RS-21"
+  }
  }
 }

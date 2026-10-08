@@ -971,7 +971,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OPEN_ROUTE_FROM_CHOOSER` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_CHOOSER` | -- | const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser' |
 | `OPEN_ROUTE_FROM_DROP` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_FROM_DROP` | -- | const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop' |
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
-| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( hands: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
+| `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
@@ -988,6 +988,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FrameClockWakes` | file only | type | `src/framework/single-html-shell/frame-clock-wakes.ts#FrameClockWakes` | -- | type FrameClockWakes = ReturnType<typeof frameClockWakesOf> |
 | `FrameClockWakesHands` | file only | type | `src/framework/single-html-shell/frame-clock-wakes.ts#FrameClockWakesHands` | -- | type FrameClockWakesHands = Pick< |
 | `frameClockWakesOf` | file only | function | `src/framework/single-html-shell/frame-clock-wakes.ts#frameClockWakesOf` | -- | function frameClockWakesOf(hands: FrameClockWakesHands) |
+| `noticeTimersOf` | file only | function | `src/framework/single-html-shell/frame-clock-wakes.ts#noticeTimersOf` | -- | function noticeTimersOf(hands: Pick<FrameLoopHands, 'readEnvironment' \| 'sendToSession' \| 'ask'>) |
 | `repeatTimesOfHeldEntry` | file only | function | `src/framework/single-html-shell/frame-clock-wakes.ts#repeatTimesOfHeldEntry` | -- | function repeatTimesOfHeldEntry(): RepeatTimes |
 | `AGENT_DOCUMENT_HANDED` | file only | const | `src/framework/single-html-shell/frame-loop.ts#AGENT_DOCUMENT_HANDED` | -- | const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' } |
 | `AgentApiSeams` | file only | type | `src/framework/single-html-shell/frame-loop.ts#AgentApiSeams` | -- | type AgentApiSeams = Omit<AgentApiWiring, 'writerName' \| 'schemaVersion'> |
@@ -1253,6 +1254,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
+| `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
@@ -1439,10 +1441,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOT_STORED_WHEEL_UNITS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_WHEEL_UNITS` | -- | const NOT_STORED_WHEEL_UNITS: |
+| `NOTICE_BOX_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_BOX_ATTRIBUTE` | -- | const NOTICE_BOX_ATTRIBUTE = 'data-notice-box' |
+| `NOTICE_BOX_REASON_SEPARATOR` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_BOX_REASON_SEPARATOR` | -- | const NOTICE_BOX_REASON_SEPARATOR = ' ' |
 | `NOTICE_DISMISS_KEY_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_DISMISS_KEY_ATTRIBUTE` | -- | const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice' |
 | `pageGroundStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#pageGroundStyle` | PI-38 | 地の色の宣言 |
 | `PAINT` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#PAINT` | -- | const PAINT = |
 | `part` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#part` | -- | function part(host: Document, tag: string, role: string, style: string): HTMLElement |
+| `REPORT_REASON_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#REPORT_REASON_ATTRIBUTE` | -- | const REPORT_REASON_ATTRIBUTE = 'data-report-reason' |
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
 | `ROW_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROW_GRAB_STRIP_MARK` | -- | const ROW_GRAB_STRIP_MARK = 'data-row-grab' |
 | `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
@@ -1452,6 +1457,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenTheme` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenTheme` | PI-38 | 型 |
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
 | `SEARCH_COLUMN_WIDTH_ROWS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEARCH_COLUMN_WIDTH_ROWS` | -- | const SEARCH_COLUMN_WIDTH_ROWS: |
+| `SEPARATE_NOTE_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEPARATE_NOTE_ATTRIBUTE` | -- | const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note' |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthRow: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
@@ -1566,7 +1572,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
+| `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
+| `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身。 |
 | `NoticeReason` | entry | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeReason` | PI-39 | 型。 |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
@@ -1618,7 +1626,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
 | `FileFlowOpenChoice` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenChoice` | -- | type FileFlowOpenChoice = 'replace' \| 'merge' \| 'baseline' |
 | `FileFlowValues` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValues` | -- | interface FileFlowValues |
-| `FileFlowValuesAxes` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesAxes` | -- | type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' \| 'droppedTaskNames' \| 'missingTaskNames'> |
+| `FileFlowValuesAxes` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesAxes` | -- | type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' \| 'droppedTaskNames' \| 'missingTaskNames' \| 'reportedCounts'> |
 | `FileFlowValuesEffect` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEffect` | -- | type FileFlowValuesEffect = |
 | `FileFlowValuesEffectName` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEffectName` | -- | type FileFlowValuesEffectName = \| 'raiseFlowSurface' \| 'readDocumentFile' \| 'raiseNotice' \| 'writeDocumentFile' \| 'importIncomingDocument' \| 'discardIncoming... |
 | `FileFlowValuesEvent` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowValuesEvent` | -- | type FileFlowValuesEvent = \| { readonly type: 'documentOpenAsked'; readonly openRoute: FileFlowValuesEventCarried['openRoute'] } \| { readonly type: 'agentDoc... |
@@ -1662,6 +1670,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NoticeValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEventCarried` | -- | interface NoticeValuesEventCarried |
 | `NoticeValuesKey` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesKey` | -- | type NoticeValuesKey = \| 'notices' \| 'noticeDisplayStateMachine.hidden' \| 'noticeDisplayStateMachine.shown' \| 'changeDeliveryStateMachine.idle' \| 'changeDeli... |
 | `NoticeValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesStateCarried` | -- | interface NoticeValuesStateCarried |
+| `QUESTION_DISPLAY_OF_ROW` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#QUESTION_DISPLAY_OF_ROW` | -- | const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' \| 'askOnlyWithUnsavedEdits'>> = |
+| `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-8' |
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
@@ -1731,4 +1741,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 846 name(s) leave through a public entry (336 of them published by table T-064), 675 more are exported by a file and not by its entry.
+Totals: 853 name(s) leave through a public entry (338 of them published by table T-064), 678 more are exported by a file and not by its entry.
