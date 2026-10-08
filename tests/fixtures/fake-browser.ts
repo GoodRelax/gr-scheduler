@@ -240,6 +240,12 @@ export class FakeElement {
     }
   }
 
+  prepend(...nodes: (FakeNode | string)[]): void {
+    const adopted = nodes.map((one) => this.adopt(one))
+    for (const node of adopted) node.parentNode = this
+    this.childNodes.unshift(...adopted)
+  }
+
   appendChild(node: FakeNode): FakeNode {
     this.append(node)
     return node

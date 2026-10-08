@@ -1495,6 +1495,19 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
   })
 })
 
+describe('table T-023d GA-18 / table T-280 progressMarkerPressed (DFC-708): the step is written once the press has ended', () => {
+  it('a press that is released on the marker writes the next state as a landed edit', () => {
+    const built = stage()
+    const before = structuredClone(drawnTask(built.loop, SUSPENDED_UID))
+    const marker = markerOf(built.loop, SUSPENDED_UID)
+    const pressX = marker.centre.x + marker.radius / 2
+    built.send(pointer('down', pressX, marker.centre.y))
+    built.send(pointer('up', pressX, marker.centre.y))
+    expect(built.loop.hasUnsavedEdits(), 'GA-18 cycles the state on release: the write landed (WS-2 did not refuse it)').toBe(true)
+    expect(structuredClone(drawnTask(built.loop, SUSPENDED_UID)), 'the Task is drawn in its next state').not.toEqual(before)
+  })
+})
+
 // ===========================================================================
 // (e) GR-21 -- the tenth row of the closing rule, DRIVEN through its own surface
 // ===========================================================================

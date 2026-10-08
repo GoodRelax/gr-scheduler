@@ -720,6 +720,17 @@ describe('FR-072 (MUST NOT) -- one press chooses, and does not put the panel up'
 
     expect(built.panelIsUp()).toBe(false)
   })
+
+  it('DFC-541 3, MUST NOT: a panel put away stays away when a later press moves the selection', () => {
+    const built = stage()
+    doubleClickTask(built, THE_TASK)
+    built.send(ESCAPE())
+    expect(built.panelIsUp(), 'premise: Esc put the panel away').toBe(false)
+
+    pressTask(built, THE_OTHER_TASK)
+
+    expect(built.panelIsUp(), 'FR-072: only a press a requirement named may bring the panel back').toBe(false)
+  })
 })
 
 // ===========================================================================
@@ -770,6 +781,19 @@ describe('table T-023 MK-13 and table T-109 IC-17 -- two roads that do put it up
 
     expect(built.panelIsUp(), 'the panel was up, and a press does not take it away').toBe(true)
     expect(subjectUidsOf(built.panel() as PropertiesPanel)).toEqual([THE_OTHER_TASK])
+  })
+})
+
+describe('FR-072 (DFC-706) -- the document settings give way to a moved selection', () => {
+  it('while IC-17 shows the settings, a press that chooses a Task moves the panel to that Task', () => {
+    const built = stage()
+    pressIc17(built)
+    expect(built.panel()?.showing, 'premise: the settings are shown').toBe('documentSettings')
+
+    pressTask(built, THE_TASK)
+
+    expect(built.panel()?.showing, 'FR-072: 選択が動けば中身は選んだものへ移る').toBe('selection')
+    expect(subjectUidsOf(built.panel() as PropertiesPanel)).toEqual([THE_TASK])
   })
 })
 

@@ -531,3 +531,28 @@ describe('FR-053 (MUST) -- minimising moves neither mark', () => {
     ).toBe(true)
   })
 })
+
+describe('FR-053 / FR-102 (DFC-785 MUST) -- a recording palette shows IC-76 pressed on its minimised band', () => {
+  const RECORDING = paletteWith({
+    isMinimised: true,
+    groups: [],
+    armedText: null,
+    bandRecord: command({ icon: 'IC-76', isPressed: true }),
+  })
+
+  it('IC-76 stands once on the band, ahead of IC-75, and reads as pressed', () => {
+    const { palette } = drawn(RECORDING)
+
+    const band = bandHolding(palette, markOf(palette, IC_GRAB_MARKER))
+    const order = orderIn(band)
+    const record = markOf(band, 'IC-76')
+
+    expect(order.indexOf(record), `the band reads ${howItWasLaidOut(band)}`).toBeLessThan(order.indexOf(markOf(band, IC_MINIMISE)))
+    expect(record.getAttribute('aria-pressed') ?? '', 'IC-76 is pressed while the record runs').toBe('true')
+  })
+
+  it('the same palette without a record to show carries no IC-76', () => {
+    const { palette } = drawn(paletteWith({ isMinimised: true, groups: [], armedText: null }))
+    expect(marksIn(palette).some((one) => one.getAttribute('data-icon') === 'IC-76')).toBe(false)
+  })
+})
