@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS } from '../fixtures/download-address'
+import { DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS, SCHEMA_ADDRESS } from '../fixtures/download-address'
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const DIST_DIR = join(REPO_ROOT, 'dist')
@@ -28,7 +28,10 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
   'http://schemas.microsoft.com/project/2007',
   'https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd',
   'https://json-schema.org/draft/2020-12/schema',
-  'https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json',
+  // see S-540, DR-4, CN-6
+  // WHY: a written GRS JSON carries this as its "$schema"; the app never fetches it,
+  // WHY: and it is read from the manuscript because S-540 forbids copying it into code.
+  SCHEMA_ADDRESS,
 ]
 
 // see CN-6, FR-073, FR-069, BR-4
@@ -214,6 +217,10 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
       `CN-6: ${address} may sit as a link target only, never as the argument of a fetch/open/import call`,
     ).toBe(false)
   }
+  expect(
+    loaderCallsAddress(deliverable, SCHEMA_ADDRESS),
+    `CN-6: ${SCHEMA_ADDRESS} (S-540) is written into documents, never the argument of a fetch/open/import call`,
+  ).toBe(false)
 })
 
 test('NFR-004 (judged from file://) / CN-6: given the deliverable opened as file://, when it has finished loading, then no request left the file and none failed', async ({ page }) => {

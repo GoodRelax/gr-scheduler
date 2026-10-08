@@ -744,25 +744,21 @@ function taken(): Measured {
 // The format version this build states -- and the fixture rests on it
 // ---------------------------------------------------------------------------
 
-test('FR-073 -- the format version is a date, to the minute at finest, with no seconds', () => {
-  // 書式は
-  // `YYYY-MM-DD` とし、同じ日に 2 度改めるときだけ `YYYY-MM-DDTHH:MM` を許す（MUST）
-  // 2 度改めるときだけ `YYYY-MM-DDTHH:MM` を許す（MUST）。秒を書いてはならない（MUST NOT）
+test('FR-073 -- the format version is a UTC instant to the second, in one fixed shape', () => {
+  // 書式は RFC 3339 の UTC の `YYYY-MM-DDTHH:MM:SSZ` とすること（MUST）
+  // 小数秒と、`Z` 以外の帯を書いてはならない（MUST NOT）
   //   -- `FR-073` (docs/spec/01-04-requirements.md), the paragraph under its
-  //   RATIONALE, read here off `AM-2` of table T-107.
+  //   RATIONALE (CR-699), read here off `AM-2` of table T-107.
   //
-  // ⭐ WHAT WOULD MAKE THIS RED: the build stating a version that is neither
-  // shape, or one carrying seconds -- at which point the string comparison the
-  // same requirement relies on stops ordering versions by time.
+  // ⭐ WHAT WOULD MAKE THIS RED: the build stating a version of any other
+  // shape -- a fractional second or an offset other than `Z` -- at which point
+  // the string comparison the same requirement relies on stops ordering
+  // versions by time.
   const seen = taken().buildVersion
   expect(
-    /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(seen),
-    `AM-2 states the format version as ${JSON.stringify(seen)}, which is neither ` +
-      'YYYY-MM-DD nor YYYY-MM-DDTHH:MM',
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(seen),
+    `AM-2 states the format version as ${JSON.stringify(seen)}, which is not YYYY-MM-DDTHH:MM:SSZ`,
   ).toBe(true)
-  expect(seen.split(':').length, `the version ${JSON.stringify(seen)} writes seconds`).toBeLessThan(
-    3,
-  )
 })
 
 // ---------------------------------------------------------------------------

@@ -1,12 +1,20 @@
 // CR-553 in the running app: a shown control group stays its row's (HF-6, JDG-394), and the last row keeps room for it (LF-16).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
 const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
+
+// see DR-4, S-540
+// WHY: the Agent API's read holds no "$schema" (it stands in the written text only), so the template gives it.
+const TEMPLATE = JSON.parse(
+  readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
+) as { $schema: string }
 
 // see T-109, HF-13
 const OPEN_ONE_TIER = ((): string => {
@@ -71,7 +79,7 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
     if (at === null) throw new Error(`the entrance ${AGENT_API_ENTRANCE} is not drawn`)
     await pressAt(page, at)
     await page.waitForTimeout(600)
-    return await page.evaluate((asked: { count: number; offset: number }) => {
+    return await page.evaluate((asked: { count: number; offset: number; schemaAddress: string }) => {
       type Bag = Record<string, unknown>
       const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }).grSchedulerAgentApi
       if (api === undefined) throw new Error('the Agent API did not open')
@@ -97,6 +105,7 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
         }
       }
       return JSON.stringify({
+        '$schema': asked.schemaAddress,
         ...held,
         schedule: {
           ...held.schedule,
@@ -109,7 +118,7 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
           scrollGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDayOffset: 0,
         },
       })
-    }, { count: roots, offset })
+    }, { count: roots, offset, schemaAddress: TEMPLATE['$schema'] })
   } finally {
     await context.close()
   }
