@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 271 | 2983 | 3 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 276 | 3046 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 68 | 429 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 70 | 443 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3911 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 541 | 7427 | 6 | 9 | 12 | 2 |
+| **all** | | | 548 | 7504 | 6 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -358,7 +358,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts` | 15 | FR-027, FR-073 | - | T-052, T-206 | DR-4, RS-25, S-540, S-541 | - | - | - | - |
 | `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-row-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/cr-709-the-line-shapes-and-the-record-stop-line.contract.test.ts` | 9 | FR-007, FR-102 | - | T-012, T-017a, T-294 | CT-4, CV-6, SH-1, SH-3, SH-4 | - | - | - | - |
+| `tests/contract/cr-712-nt-2-a-timed-notice-leaves-by-itself.contract.test.ts` | 15 | FR-076 | VT-2 | T-037, T-078, T-206, T-233, T-286 | MG-10, NT-2, NT-3, NT-5, RS-27, RS-65, RS-77, S-542 | - | - | - | - |
+| `tests/contract/cr-712-qn-5-asks-only-with-unsaved-edits.contract.test.ts` | 8 | FR-095 | VT-2 | T-234, T-290 | OP-3, OP-4, OP-13, QN-5 | - | - | - | - |
+| `tests/contract/cr-712-report-rows-reach-the-import-report.contract.test.ts` | 11 | FR-076 | VT-2 | T-290 | EP-22, MG-14, RS-51, RS-71, RS-72, U-62 | - | - | - | - |
+| `tests/contract/cr-712-the-display-manner-of-every-row.contract.test.ts` | 16 | FR-076 | - | T-033, T-220, T-233, T-234 | EX-3, IV-17, NT-1, NT-5, PI-39, QN-5, RS-21, RS-69, RS-77 | - | - | - | - |
 | `tests/contract/cr-712-the-notice-roster-is-printed-from-its-manuscript.contract.test.ts` | 6 | FR-076 | - | T-220, T-233, T-234 | - | - | - | - | - |
+| `tests/contract/cr-712-the-words-and-the-hidden-rows.contract.test.ts` | 13 | FR-016, FR-019, FR-029 | - | T-032, T-233 | HB-3, HF-14, IV-17, MG-10, NT-7, RS-21, RS-27, RS-44, RS-46, RS-55, WL-9 | - | - | - | - |
 | `tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts` | 11 | FR-058 | - | T-223 | DU-1, DU-2 | - | - | - | - |
 | `tests/contract/cr-715-the-schedule-canvas-range-starts-below-the-app-header.contract.test.ts` | 3 | FR-036 | - | - | U-32 | - | - | - | - |
 | `tests/contract/cr-717-one-band-rule-for-the-drawing-and-the-hit-test.test.ts` | 8 | FR-098 | - | T-303 | EL-4, EL-19, PI-6 | - | - | - | - |
@@ -574,6 +579,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-675-the-download-page.test.ts` | 14 | - | - | - | IC-1, IC-2, IC-20, S-350 | - | - | - | - |
 | `tests/system/cr-701-a-plan-end-released-on-a-saturday-asks-nothing.test.ts` | 4 | FR-031, FR-103 | - | - | - | - | - | - | - |
 | `tests/system/cr-709-the-written-html-starts-with-its-doctype.test.ts` | 2 | - | - | T-024 | IC-2, IO-7 | - | - | - | - |
+| `tests/system/cr-712-a-timed-notice-leaves-by-itself.test.ts` | 6 | FR-068 | - | T-206 | IC-115, NT-2, RS-15, RS-65, S-542 | - | - | - | - |
+| `tests/system/cr-712-reports-refusals-and-the-discard-question.test.ts` | 8 | FR-067, FR-076, FR-095 | - | T-220, T-233 | IC-1, IC-2, IC-98, IO-7, IV-4, MG-10, OP-2, QN-5, RS-10, RS-27, RS-51, U-61, U-62 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
