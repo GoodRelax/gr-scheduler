@@ -34,7 +34,7 @@ function reader(): DocumentFromEmbeddedHtml {
 }
 
 const container = (id: string, document: unknown): string =>
-  `<script type="application/json" id="${id}">${JSON.stringify(document).replace(/</g, '\\u003c')}</script>`
+  `<script type="application/json" id="${id}">${codec.jsonFromDocument(document as never).replace(/</g, '\\u003c')}</script>`
 
 const page = (...containers: string[]): string =>
   PLAIN_SHELL.replace('<script type="module">', `${containers.join('')}<script type="module">`)
@@ -107,7 +107,7 @@ describe('PI-20 documentFromEmbeddedHtml -- one container, by the ids in the ord
     const read = reader()
     const hostile = JSON.parse(JSON.stringify(here())) as { schedule: { project: { title: string } } }
     hostile.schedule.project.title = 'a </script> <!-- & "q" \\u003c'
-    const document = codec.documentFromJson(JSON.stringify(hostile))
+    const document = codec.documentFromJson(codec.jsonFromDocument(hostile as never))
     if (!document.ok) throw new Error('precondition: the hostile document is not GRS JSON')
     const made = await codec.exportEmbeddedHtml(shellSource(PLAIN_SHELL), document.document)
     if (!made.ok) throw new Error('precondition: IO-7 refused to write')

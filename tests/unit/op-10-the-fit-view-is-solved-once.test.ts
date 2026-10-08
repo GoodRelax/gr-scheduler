@@ -153,6 +153,7 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
     carryElements: [],
   })
   return {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: {

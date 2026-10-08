@@ -67,6 +67,7 @@ const TASK_UID = 1
 
 function oneTaskDocument(): Document {
   return {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       ...structuredClone(TEMPLATE.schedule),

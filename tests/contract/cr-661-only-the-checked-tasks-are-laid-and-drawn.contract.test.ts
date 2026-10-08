@@ -110,6 +110,7 @@ function readDocument(parentState: string): Document {
     taskRow(CHARLIE, 'Charlie', 12, 14, { dependencies: [FS] }),
   ]
   const text = JSON.stringify({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE['schemaVersion'],
     schedule: {
       project: { ...TEMPLATE['schedule']['project'], uidHighWaterMark: 100, statusDate: null },

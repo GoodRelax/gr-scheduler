@@ -34,7 +34,7 @@ const NOT_ON_THE_CONFIRMATION = new Set([
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
-) as { schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
+) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 // WHY: January 2026 runs Mon 5 .. Fri 9, Sat 10; the template calendar works Mon-Fri and has no January exception.
 const day = (dayOfMonth: number, time = '08:00:00'): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T${time}`
@@ -43,6 +43,7 @@ const ROW = '5c000000-0000-4000-8000-000000072021'
 /** @purity pure */
 function fixture(): string {
   const built = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       ...TEMPLATE.schedule,

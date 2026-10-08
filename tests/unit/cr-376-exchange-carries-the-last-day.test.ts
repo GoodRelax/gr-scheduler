@@ -86,6 +86,7 @@ const ROW = '5c000000-0000-4000-8000-000000000376'
 const documentObject = (tasks: readonly Record<string, unknown>[], minutesPerDay: number | null): Record<string, any> => {
   const template = structuredClone(TEMPLATE)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, minutesPerDay, uidHighWaterMark: 100, statusDate: null },

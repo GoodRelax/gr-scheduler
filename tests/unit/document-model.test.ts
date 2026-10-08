@@ -784,6 +784,7 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
 
 describe('Document (PI-34) -- table T-052', () => {
   const sound = {
+    $schema: 'any string',
     schemaVersion: '1',
     schedule: {},
     documentSettings: {},
@@ -791,8 +792,10 @@ describe('Document (PI-34) -- table T-052', () => {
     changeLog: [],
   }
 
-  it('holds the five keys DR-1 to DR-4 name', () => {
+  // WHY: CR-699 (JDG-1693) put the schema's address at the head of the root (DR-4).
+  it('holds the six keys DR-1 to DR-4 name, the address first', () => {
     expect([...ROOT_KEYS]).toEqual([
+      '$schema',
       'schemaVersion',
       'schedule',
       'documentSettings',

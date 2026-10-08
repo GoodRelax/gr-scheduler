@@ -57,6 +57,7 @@ NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`�
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
 NOT_STORED_DOWNLOAD_ADDRESS          最新版を入手する所の URL（`S-350`。版が新しい文書の案内の `{downloadUrl}`）
+NOT_STORED_SCHEMA_ADDRESS            刊行する GRS JSON のスキーマの所（`S-540`。書き出す文書の先頭の `"$schema"`、`DR-4`、`CR-699`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルと基準日線の線の太さ（`S-194` / `S-333`）
 NOT_STORED_DELAY_MARK_SIZES          遅れの記号 `(!)` の縦棒と点の寸法（`S-328` 〜 `S-331`）
 NOT_STORED_BOTTLENECK_THRESHOLD      ボトルネックとする押し出し日数の下限（`S-397`、`CR-561`。`delay-diagnostics.ts` が読む）

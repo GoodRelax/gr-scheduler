@@ -236,6 +236,7 @@ function row(id: string, label: string): Record<string, unknown> {
 function documentWith(rowId: string, rowLabel: string, tasks: readonly Task[]): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...structuredClone(template.schedule.project), title: rowLabel, uidHighWaterMark: 100 },

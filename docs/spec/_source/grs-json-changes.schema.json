@@ -1,0 +1,76 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/grs-json-changes.json, which is the single source of truth of the GRS JSON change ledger (Chapter 6.2 of 05-07-design.md). It is not generated from anything and nothing is generated from it: check 76 validates the manuscript against it, and docs/spec/_source/erd_json_to_schema.py prints the manuscript's changes into the published schema as x-grsChanges.",
+  "It is where the fields of one ledger element are said (Chapter 6.2 points here): version, kind, entity, column, and per kind default (added), to (renamed) or rule (converted)."
+ ],
+ "type": "object",
+ "required": ["$schema", "$comment", "changes"],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": { "type": "string" },
+  "$comment": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+  "changes": {
+   "type": "array",
+   "description": "Oldest first; an element is appended, never rewritten. Empty while S-541 of table T-206 is null.",
+   "items": { "$ref": "#/$defs/change" }
+  }
+ },
+ "$defs": {
+  "change": {
+   "type": "object",
+   "required": ["version", "kind", "entity", "column"],
+   "additionalProperties": false,
+   "properties": {
+    "version": {
+     "type": "string",
+     "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+     "description": "The format version that landed the change (FR-073: RFC 3339 UTC, seconds, no fraction)."
+    },
+    "kind": {
+     "enum": ["added", "removed", "renamed", "converted", "refused"],
+     "description": "How the latest GRS reads an older document: added -> fill default; removed -> drop silently (as table T-297); renamed -> move to `to`; converted -> read by the named `rule`; refused -> refuse the whole document (RS-25)."
+    },
+    "entity": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "The entity of the changed column (an entity name of table T-058); a presentation key names documentSettings."
+    },
+    "column": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "The changed column, under its name before that version."
+    },
+    "default": { "description": "added only: the value an older document is read with." },
+    "to": {
+     "type": "string",
+     "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+     "description": "renamed only: the new name."
+    },
+    "rule": {
+     "type": "string",
+     "minLength": 1,
+     "description": "converted only: the name of the rule the reading path applies."
+    }
+   },
+   "allOf": [
+    {
+     "if": { "properties": { "kind": { "const": "added" } } },
+     "then": { "required": ["default"] },
+     "else": { "not": { "required": ["default"] } }
+    },
+    {
+     "if": { "properties": { "kind": { "const": "renamed" } } },
+     "then": { "required": ["to"] },
+     "else": { "not": { "required": ["to"] } }
+    },
+    {
+     "if": { "properties": { "kind": { "const": "converted" } } },
+     "then": { "required": ["rule"] },
+     "else": { "not": { "required": ["rule"] } }
+    }
+   ]
+  }
+ }
+}

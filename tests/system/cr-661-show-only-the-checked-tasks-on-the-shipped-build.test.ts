@@ -64,7 +64,7 @@ const CAPTION_PX = settingPx('S-498')
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
-) as { schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
+) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
 // WHY: January 2026; Sato carries Alpha (row C under the folded row P) and Charlie (row Q); Tanaka carries Bravo and
 // Delta; Alpha -> Delta is a link whose far end the narrowing hides while its row Q stays drawn for Charlie.
@@ -112,6 +112,7 @@ function fixture(): string {
   const link = { predecessorUid: ALPHA, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }
   const tasks = [taskRow(ALPHA, 5, 9), taskRow(BRAVO, 6, 8), taskRow(CHARLIE, 12, 14), taskRow(DELTA, 13, 16, [link])]
   const built = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       ...TEMPLATE.schedule,

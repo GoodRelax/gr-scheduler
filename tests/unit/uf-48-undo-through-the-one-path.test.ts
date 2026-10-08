@@ -243,6 +243,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     minHeight: null,
   })
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

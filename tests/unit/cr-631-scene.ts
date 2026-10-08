@@ -184,6 +184,7 @@ export const sceneOf = (
   const drawn = families === null ? null : familiesOf(schedule, families)
   const geometry = geometryFromLayout(schedule, settings as unknown as Settings, layout, regions, selection, null, undefined, drawn)
   const document = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule,
     documentSettings: settings,

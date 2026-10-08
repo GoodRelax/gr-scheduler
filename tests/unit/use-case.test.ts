@@ -538,6 +538,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       installAgentApi({
         ...built.loop.agentApiSeams(),
         writerName,
+        '$schema': TEMPLATE['$schema'],
         schemaVersion: TEMPLATE.schemaVersion,
       } as never)
     const outside = apiFor('use-case WS-2 writer')

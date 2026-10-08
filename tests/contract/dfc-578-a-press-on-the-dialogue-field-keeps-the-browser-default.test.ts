@@ -64,6 +64,7 @@ function fixtureDocument(): Document {
   const template = structuredClone(TEMPLATE)
   const schedule = template['schedule'] as Record<string, unknown>
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...(schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100 },

@@ -41,6 +41,8 @@ const NEWER_SCHEMA_REFUSAL_REASON: JsonRefusalReason = 'RS-64'
 
 const SETTINGS_GROUP = 'documentSettings'
 
+const SCHEMA_ADDRESS_KEY = '$schema'
+
 export type JsonDecoding =
   | {
       readonly ok: true
@@ -339,6 +341,18 @@ function withStopsFromOlderLengths(
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
+// see DR-4, S-540
+/** @purity pure */
+function withOwnAddress(parsed: unknown): unknown {
+  if (!isObject(parsed) || !Object.hasOwn(parsed, SCHEMA_ADDRESS_KEY)) return parsed
+  return { ...parsed, [SCHEMA_ADDRESS_KEY]: NOT_STORED_SCHEMA_ADDRESS['S-540'] }
+}
+
+/** @purity pure */
+function documentWithoutAddress(shaped: unknown): Document {
+  return withoutKeyAt(shaped, [SCHEMA_ADDRESS_KEY]) as unknown as Document
+}
+
 // see FR-023, FR-073, OP-7, FR-012
 /** @purity pure */
 export function documentFromJson(
@@ -359,7 +373,7 @@ export function documentFromJson(
   const formatVersion = formatVersionReading(declared, greatestKnownSchemaVersion)
 
   const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(withAnnotationLookColumns(
-    withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(parsed, greatestKnownSchemaVersion)),
+    withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(withOwnAddress(parsed), greatestKnownSchemaVersion)),
   )))
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectSchemaFaults(older.shaped, faults)
@@ -371,7 +385,7 @@ export function documentFromJson(
   let read: Document
   try {
     // TRAP: a reader before OP-6 may find documentSettings keys missing despite this cast.
-    read = withStopsFromOlderLengths(shaped as unknown as Document, older.lengthByTaskIndex)
+    read = withStopsFromOlderLengths(documentWithoutAddress(shaped), older.lengthByTaskIndex)
   } catch (why) {
     return refusal([
       fault('/schedule/tasks', `an actual length could not be placed as a day: ${
@@ -442,8 +456,24 @@ function settledReading(
   }
 }
 
-// see FR-024
+// see FR-024, DR-4, S-540
 /** @purity pure */
 export function jsonFromDocument(document: Document): string {
-  return JSON.stringify(document, null, 1) + '\n'
+  const addressed = Object.fromEntries([
+    [SCHEMA_ADDRESS_KEY, NOT_STORED_SCHEMA_ADDRESS['S-540']],
+    ...Object.entries(document).filter(([key]) => key !== SCHEMA_ADDRESS_KEY),
+  ])
+  return JSON.stringify(addressed, null, 1) + '\n'
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_SCHEMA_ADDRESS: {
+  readonly 'S-540': string
+} = {
+  'S-540': 'https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json',
+}
+// </generated>

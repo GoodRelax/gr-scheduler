@@ -103,6 +103,7 @@ export function rowDocument(
   schedule: Record<string, unknown> = {},
 ): Record<string, any> {
   return {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },

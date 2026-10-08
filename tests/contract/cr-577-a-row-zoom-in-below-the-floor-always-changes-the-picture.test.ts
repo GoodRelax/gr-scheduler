@@ -240,6 +240,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
   const members = rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id }))
   const extra = Array.from({ length: stacked }, (_unused, index) => rows.length + index + 1)
   return {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 1000, statusDate: null },

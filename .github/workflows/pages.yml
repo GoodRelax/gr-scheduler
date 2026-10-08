@@ -86,6 +86,10 @@ jobs:
           rm -rf _site
           mkdir -p _site
           # 1) Publish everything under docs/ (spec sources, api, dev, mock, security).
+          #    This also serves the GRS JSON schema at
+          #    /spec/_source/grs-document.schema.json, the address S-540 writes into
+          #    the schema's $id and every document's "$schema" (CR-699); check 76
+          #    goes red if this line changes.
           cp -r docs/. _site/
           # 2) Drop Python bytecode caches so they are never served.
           find _site -type d -name __pycache__ -prune -exec rm -rf {} +

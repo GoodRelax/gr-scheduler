@@ -90,6 +90,7 @@ const THERE_ROW = '22222222-2222-4222-8222-222222222222'
 function documentWith(title: string, rowId: string, uids: readonly number[]): Document {
   const template = structuredClone(TEMPLATE) as Record<string, any>
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...structuredClone(template['schedule'].project), title, uidHighWaterMark: 100 },

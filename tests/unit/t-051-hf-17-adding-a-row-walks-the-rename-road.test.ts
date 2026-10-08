@@ -250,6 +250,7 @@ function threeRowDocument(): Document {
     order,
   })
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

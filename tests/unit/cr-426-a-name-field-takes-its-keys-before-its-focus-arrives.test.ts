@@ -76,6 +76,7 @@ const TASK_UID = 1
 
 const oneTaskDocument = (): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },

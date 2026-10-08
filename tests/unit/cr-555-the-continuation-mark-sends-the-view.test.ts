@@ -209,6 +209,7 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}): Scene => {
   const layout = layoutFromSchedule(schedule, settings as unknown as Settings, regions)
   const geometry = geometryFromLayout(schedule, settings as unknown as Settings, layout, regions, emptySelection(), null)
   const document = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule,
     documentSettings: settings,

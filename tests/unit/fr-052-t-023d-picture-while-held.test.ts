@@ -292,6 +292,7 @@ function fixtureDocument(): Document {
     carryElements: [],
   })
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

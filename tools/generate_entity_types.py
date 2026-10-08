@@ -1683,6 +1683,12 @@ NOT_STORED_TARGETS = {
     # {downloadUrl} and notices.ts, which fills every reason word, puts this
     # row there. not_stored_cell reads the whole-cell code span as the value.
     'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS),
+    # CR-699 (JDG-1693): the address of the latest published GRS JSON schema.
+    # DR-4 makes the writer put it as the first key of every written document,
+    # so it stands in the one unit that writes GRS JSON text (json-codec.ts).
+    # The schema's $id and the startup documents read the same row through
+    # not_stored_string, so the address is typed nowhere else.
+    'NOT_STORED_SCHEMA_ADDRESS': (['S-540'], READ_WHERE_IT_STANDS),
     # CR-663: the cap on the names TL-7 of table T-348 writes on the task
     # tooltip's one assignee line. Only tooltips.ts builds that line.
     'NOT_STORED_TASK_HINT_ASSIGNEE_CAP': (['S-513'], READ_WHERE_IT_STANDS),
@@ -1850,6 +1856,28 @@ def not_stored_cell(cell):
         if span:
             return ("'%s'" % span.group(1), 'string')
     return None
+
+
+def not_stored_string(row_id):
+    """The value of one table T-206 row written as a whole-cell code span.
+
+    CR-699: S-540, the address of the latest published GRS JSON schema, is
+    read by three generators -- the schema's $id (erd_json_to_schema.py), the
+    startup documents' first key (generate_startup_template.py) and src/
+    through NOT_STORED_SCHEMA_ADDRESS. All three go through not_stored_cell, so
+    the address has one reading as well as one place.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-206']
+    if not block:
+        raise SystemExit('settings.json holds no table T-206')
+    by_id = {r['id']: r for r in block[0]['rows']}
+    if row_id not in by_id:
+        raise SystemExit('table T-206 has no row %s' % row_id)
+    cell = not_stored_cell(by_id[row_id].get('default'))
+    if cell is None or cell[1] != 'string' or not cell[0].startswith("'"):
+        raise SystemExit('table T-206 row %s holds no string value' % row_id)
+    return cell[0][1:-1]
 
 
 def pointed_row(cell, everywhere):
@@ -3094,6 +3122,10 @@ TARGETS = [
     # reason words' {downloadUrl} (CR-565, FR-073).
     (os.path.join(ADAPTER, 'screen-renderer', 'notices.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOWNLOAD_ADDRESS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-699: the schema's address stands in the unit that writes GRS JSON (DR-4).
+    (os.path.join(ADAPTER, 'document-codec', 'json-codec.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_SCHEMA_ADDRESS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # CR-663: the assignee line's cap stands in the unit that writes the line (TL-7).
     (os.path.join(ADAPTER, 'screen-renderer', 'tooltips.ts'),

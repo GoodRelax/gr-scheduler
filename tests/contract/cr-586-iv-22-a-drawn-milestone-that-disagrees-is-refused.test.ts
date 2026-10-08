@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
 import type { ChosenFileWrite, FileReading, FileStore } from '../../src/adapter/file-gateway/file-gateway'
 import type {
   InputModifiers,
@@ -86,7 +86,7 @@ type Json = Record<string, any>
 const templateJson = (): Json => JSON.parse(TEMPLATE_TEXT) as Json
 
 function decoded(json: Json): Document {
-  const read = documentFromJson(JSON.stringify(json))
+  const read = documentFromJson(jsonFromDocument((json) as never))
   if (!read.ok) throw new Error(`premise: the scene is GRS JSON, was ${JSON.stringify(read.faults).slice(0, 400)}`)
   return read.document
 }

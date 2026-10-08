@@ -37,7 +37,7 @@ const CREATED = '2025-12-01T09:15:00'
 
 /** @purity pure */
 function textOf(document: Record<string, any>): string {
-  return JSON.stringify(document)
+  return jsonFromDocument(document as never)
 }
 
 /** @purity pure */
@@ -53,16 +53,17 @@ function twoTasks(project: Record<string, unknown> = {}): Record<string, any> {
 }
 
 describe('CR-646 the manuscript as these cases read it', () => {
-  it('FR-073: a shape change raises the version once, to the day it is applied, and is not read across', () => {
-    expect(REQUIREMENTS).toContain('形式の版を、その変更を当てる日の日付へ上げること（MUST）')
+  // WHY: CR-699 (JDG-1677) raises the version to the instant a change lands, not the day.
+  it('FR-073: a shape change raises the version once, to the instant it is applied, and is not read across', () => {
+    expect(REQUIREMENTS).toContain('形式の版を、その変更を当てる時刻へ上げること（MUST）')
     expect(REQUIREMENTS).toContain('1 つの変更要求の中で版を上げるのは 1 度だけとする')
-    expect(REQUIREMENTS).toContain('⚠️ 版を上げても、古い形の文書を読み替えない')
+    expect(REQUIREMENTS).toContain('は、版を上げても古い形の文書を読み替えない')
   })
 
-  // WHY: CR-651 raised the version again on 2026-10-04, when it added Project.parentProgressToleranceDays.
-  it('FR-073 / JDG-1209: the schema const is the manifest version, and it is the day the last shape change was applied', () => {
+  // WHY: CR-699 (JDG-1677) made the version an RFC 3339 UTC instant; check 76 holds the same shape.
+  it('FR-073 / JDG-1677: the schema const is the manifest version, and it is an instant in YYYY-MM-DDTHH:MM:SSZ', () => {
     expect(SCHEMA['properties'].schemaVersion.const).toBe(MANIFEST['schemaVersion'])
-    expect(SCHEMA['properties'].schemaVersion.const).toBe('2026-10-04')
+    expect(SCHEMA['properties'].schemaVersion.const).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/)
   })
 
   it('$defs/Time: the two default-time columns point at one time definition with the xsd:time pattern', () => {

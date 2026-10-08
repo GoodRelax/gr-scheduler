@@ -420,6 +420,7 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = e
   const layout = layoutFromSchedule(schedule, settings as unknown as Settings, regions)
   const geometry = geometryFromLayout(schedule, settings as unknown as Settings, layout, regions, selection, null)
   const document = {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule,
     documentSettings: settings,
@@ -1501,6 +1502,7 @@ const shellTask = (uid: number, start: string, finish: string, links: readonly n
 
 const shellDocument = (rows: readonly ShellRow[], tasks: readonly (readonly [Loose, string])[]): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 1000, statusDate: null },

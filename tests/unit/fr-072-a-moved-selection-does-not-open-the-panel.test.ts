@@ -271,6 +271,7 @@ function twoTaskDocument(): Document {
     minHeight: null,
   })
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

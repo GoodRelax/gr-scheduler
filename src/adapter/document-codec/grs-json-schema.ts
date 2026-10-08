@@ -704,9 +704,12 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
 // see T-220, OP-6, PI-2
 const GRS_DOCUMENT_SCHEMA: SchemaNode = {
   type: ['object'],
-  required: ['schemaVersion', 'schedule', 'documentSettings', 'documentStamp', 'changeLog'],
+  required: ['$schema', 'schemaVersion', 'schedule', 'documentSettings', 'documentStamp', 'changeLog'],
   closed: true,
   properties: {
+    $schema: {
+      type: ['string'],
+    },
     schemaVersion: {
       type: ['string'],
     },

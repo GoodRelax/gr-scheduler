@@ -28,6 +28,7 @@ const ROW_ID = '11111111-1111-4111-8111-111111111111'
 const documentWith = (progressMarkerVisible: boolean): Document => {
   const settings = { ...structuredClone(TEMPLATE.documentSettings), progressMarkerVisible }
   return {
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       ...structuredClone(TEMPLATE.schedule),

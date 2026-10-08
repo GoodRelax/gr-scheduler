@@ -560,6 +560,7 @@ const pointerAt = (phase: PointerInput['phase'], x: number, y: number): PointerI
 
 const shellDocument = (): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 1000, statusDate: null },

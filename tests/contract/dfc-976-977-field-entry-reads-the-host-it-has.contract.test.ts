@@ -39,6 +39,7 @@ const PALETTE_KEY = 'P'
 
 const oneTaskDocument = (): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },

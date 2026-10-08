@@ -112,6 +112,8 @@ import sys
 import uuid
 from datetime import date, timedelta
 
+import generate_entity_types as settings_reader  # tools/ is the script's own folder
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SETTINGS_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
@@ -136,13 +138,18 @@ ERD_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
 # export can take the template out without touching the embedded document.
 STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 
-# FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
-# with the rewrite of the document's contents, because a reader that keeps
-# documents from several versions tells them apart by nothing else.
-# CR-646 (JDG-1209): the shape changed (no stackOrder, no Project.lastSaved,
-# Project.defaultStartTime / defaultFinishTime), so the version is the day the
-# change was applied.
-SCHEMA_VERSION = '2026-10-04'
+# FR-073: the format version is the instant the change landed, RFC 3339 UTC
+# with seconds and no fraction (YYYY-MM-DDTHH:MM:SSZ, 20 characters), compared
+# as a plain string. ⭐ Bumped with the rewrite of the document's contents,
+# because a reader that keeps documents from several versions tells them apart
+# by nothing else.
+# CR-699 (JDG-1677, JDG-1693): the shape changed -- every written document
+# carries "$schema" first -- and the version became an instant; check 76
+# holds the format.
+SCHEMA_VERSION = '2026-10-08T03:13:21Z'
+# CR-699 (DR-4): the first key of every document this file writes. S-540 of
+# table T-206 holds it; read through the one reader of not-stored strings.
+SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -4213,7 +4220,7 @@ def declared_strings(settings):
     said.update(name for name, _first, _last in CALENDAR_EXCEPTIONS)
     said.update((PROJECT_TITLE, PROJECT_NAME, PROJECT_SUBJECT,
                  PROJECT_CATEGORY, PROJECT_COMPANY, PROJECT_MANAGER,
-                 PROJECT_AUTHOR, STAMP_AUTHOR, SCHEMA_VERSION,
+                 PROJECT_AUTHOR, STAMP_AUTHOR, SCHEMA_VERSION, SCHEMA_ADDRESS,
                  PROJECT_SOURCE_FORMAT))
     said.update(GLYPHS)
     said.update(SHAPE_KINDS)
@@ -4300,8 +4307,9 @@ SCHEMA_READ = frozenset((
 # Words a subschema may carry that say nothing about whether a value is valid.
 # ⚠️ `$defs` is among them because it holds subschemas nothing is measured
 # against directly -- every one of them is reached through a `$ref`.
+# CR-699: `x-grsChanges` is the change ledger, an annotation (Chapter 6.2).
 SCHEMA_PROSE = frozenset(('$schema', '$id', '$comment', '$defs', 'title',
-                          'description', 'default', 'examples'))
+                          'description', 'default', 'examples', 'x-grsChanges'))
 
 SCHEMA_TYPES = {
     'object': dict, 'array': list, 'string': str, 'boolean': bool,
@@ -4524,6 +4532,7 @@ def build():
     # to pass. The back-pointer lives in this generator and in
     # `npm run gen:check`, which fails the moment the artifact drifts.
     document = {
+        '$schema': SCHEMA_ADDRESS,
         'schemaVersion': SCHEMA_VERSION,
         'schedule': {
             'project': built.project(status_at, hue),
@@ -4605,6 +4614,7 @@ def empty_document():
     # BK-3: the working days of S-106 and the exceptions of S-107.
     calendar['exceptions'] = list(CALENDAR_VALUES['S-107'])
     document = {
+        '$schema': SCHEMA_ADDRESS,
         'schemaVersion': SCHEMA_VERSION,
         'schedule': {
             'project': project,

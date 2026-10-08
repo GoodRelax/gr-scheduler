@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
 import {
   MSPDI_NAMESPACE,
   documentFromMspdi,
@@ -256,7 +256,7 @@ describe('CR-569 -- MR-4 on an MS Project file built in the test', () => {
 
   it('leaves no assignment or dependency pointing at a Task the document lacks (IV-2)', () => {
     expect(danglingReferences(document)).toEqual([])
-    expect(validateDocument(document).errors).toEqual([])
+    expect(validateDocument(JSON.parse(jsonFromDocument(document))).errors).toEqual([])
   })
 
   it('counts the outline base from the file`s own tasks, not the summary task (AT-139)', () => {

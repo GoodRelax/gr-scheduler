@@ -300,6 +300,7 @@ const group = (id: string, order: number, label: string): unknown => ({
 function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
   const draft = {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...structuredClone(template.schedule.project), uidHighWaterMark: 100 },

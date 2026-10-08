@@ -274,6 +274,7 @@ function documentOfTwoRows(fillers = 0): Document {
   const settings = { ...structuredClone(template.documentSettings) }
   const filled = Array.from({ length: fillers }, (_, index) => FIRST_FILLER + index)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: {

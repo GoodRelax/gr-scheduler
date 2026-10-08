@@ -44,6 +44,7 @@ function apiOn(): { api: AgentApi; bench: ShellBench } {
   const api = installAgentApi({
     ...bench.loop.agentApiSeams(),
     writerName: 'cr-551 import',
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
   } as never)
   return { api, bench }

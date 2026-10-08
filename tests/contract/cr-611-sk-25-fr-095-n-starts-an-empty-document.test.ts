@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { settingDefaultOf } from '../fixtures/setting-default'
 import {
@@ -64,7 +64,7 @@ function livedIn(): Document {
   draft['documentSettings']['themeMonochrome'] = true
   draft['documentStamp']['fileSavedUtc'] = '2026-05-04T03:02:01Z'
   draft['schedule']['project']['themeHue'] = 30
-  const read = documentFromJson(JSON.stringify(draft))
+  const read = documentFromJson(jsonFromDocument((draft) as never))
   if (!read.ok) throw new Error(`the lived-in document is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document
 }

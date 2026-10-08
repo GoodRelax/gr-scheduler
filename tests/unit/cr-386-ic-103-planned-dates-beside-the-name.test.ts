@@ -174,6 +174,7 @@ const rowIdOf = (uid: number): string => `0000000${uid}-0000-4000-8000-000000000
 function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<string, unknown>>): Document {
   const template = structuredClone(TEMPLATE)
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...template.schedule.project, uidHighWaterMark: 100, statusDate: null },

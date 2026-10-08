@@ -187,6 +187,7 @@ function task(uid: number, name: string): Task {
 function documentWith(): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
+    '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
       project: { ...structuredClone(template.schedule.project), uidHighWaterMark: 100 },

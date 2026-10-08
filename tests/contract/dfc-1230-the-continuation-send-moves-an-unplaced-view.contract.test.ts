@@ -199,6 +199,7 @@ const SCHEDULE = {
 
 const documentOf = (settings: Loose): Document =>
   ({
+    '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: SCHEDULE,
     documentSettings: settings,

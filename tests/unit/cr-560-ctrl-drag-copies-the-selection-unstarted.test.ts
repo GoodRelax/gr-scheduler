@@ -186,6 +186,7 @@ function fixtureDocument(): Document {
   const schedule = template['schedule'] as Record<string, unknown>
   const inProgress = { actualStart: '2026-04-06', stop: '2026-04-07', resumeValid: true, percentComplete: 20 }
   return {
+    '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
     schedule: {
       project: { ...(schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100, statusDate: null },
