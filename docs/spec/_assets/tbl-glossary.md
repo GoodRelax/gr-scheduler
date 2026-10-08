@@ -425,7 +425,7 @@
 | CM-87 | `Project` | `setParentProgressTolerance` | — | 親子の進捗の疑義が許す日数を変える | `FR-131` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
-| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ）。<br>`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
+| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫は写さない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
 | CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
 | CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
 | CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |

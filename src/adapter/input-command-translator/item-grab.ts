@@ -37,7 +37,6 @@ import {
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   pastedUidsOf,
-  wbsSubtreesOf,
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
@@ -569,16 +568,15 @@ function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[],
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
-// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
-// WHY: one CM-8 carrying where the copies land, so one drag is one undo step (FR-031); the rows are counted on
-// the copies alone -- the boxes CY-4 leaves behind do not hold the drag at an edge.
+// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1
+// WHY: one CM-8 with the landing is one undo step (FR-031); rows count the chosen Tasks' copies, not CY-4's boxes.
 /** @purity pure */
 export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
   if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
   const schedule = context.document.schedule
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
-  const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
+  const copied = [...new Set(sources)]
   const rows = drawnRowsOf(layoutAtPressOf(context, press))
   const dayCount = draggedDayCount(context, press, release)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])

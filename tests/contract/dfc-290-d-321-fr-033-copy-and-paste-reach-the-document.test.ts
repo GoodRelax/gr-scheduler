@@ -11,7 +11,7 @@
 // ---------------------------------------------------------------------------
 //
 //   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ば
-//    れた `Task` とその WBS の子孫を部分木ごと**複製すること。行見出しパネルでは、
+//    れた `Task` だけを**複製すること。行見出しパネルでは、
 //    選ばれた `TaskGroup` を**部分木ごと**複製すること。」
 //   「複製した `Task` は、複製元と同じ行に載せること（MUST）」
 //   「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知
@@ -125,7 +125,7 @@ const REQUIREMENTS = unbroken(readFileSync(
  * clauses. ⭐ Each ends at its own marker's closing parenthesis.
  */
 const FR_033_STATEMENT =
-  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` とその WBS の子孫を部分木ごと**複製すること。行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
+  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` だけを**複製すること。行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
 
 const FR_033_SAME_ROW = '複製した `Task` は、複製元と同じ行に載せること（MUST）'
 
@@ -217,7 +217,7 @@ const TEMPLATE = JSON.parse(
 const PARENT_ROW = 'aaaaaaaa-0000-4000-8000-000000000001'
 const CHILD_ROW = 'aaaaaaaa-0000-4000-8000-000000000002'
 
-/** The `Task` a case presses, and the WBS child that has to travel with it. */
+/** The `Task` a case presses, and its WBS child, which is not copied unless it is chosen too (DU-1, CR-706). */
 const PARENT_TASK = 1
 const CHILD_TASK = 2
 /** The first uid of the Tasks that only stand on the parent row to bring it near the valve. */
@@ -264,8 +264,8 @@ function group(id: string, parentId: string | null, order: number): Record<strin
 /**
  * Two rows, parent and child, carrying one WBS pair of Tasks.
  *
- * ⭐ THE SHAPE IS WHAT THE STATEMENT ASKS ABOUT: 「選ばれた `Task` とその WBS の
- * 子孫を部分木ごと」 needs a Task WITH a descendant, and 「選ばれた `TaskGroup` を
+ * ⭐ THE SHAPE IS WHAT THE STATEMENT ASKS ABOUT: 「選ばれた `Task` だけを」
+ * needs a Task WITH a descendant that stays behind, and 「選ばれた `TaskGroup` を
  * 部分木ごと」 needs a row WITH a row under it.
  */
 // WHY: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
@@ -482,8 +482,8 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
     expect(REQUIREMENTS).toContain(FR_033_REFUSE_AT_THE_VALVE)
   })
 
-  it('表 T-223 still cascades a Task to its WBS descendants and a row to the rows below it', () => {
-    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('WBS の子孫')
+  it('表 T-223 still copies no WBS descendant that was not chosen, and cascades a row to the rows below it', () => {
+    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('選ばれていない WBS の子孫を複製してはならない')
     expect(rowOf(T_223, 'DU-2').cells.join(' ')).toContain('配下の行')
   })
 
@@ -501,11 +501,11 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
 // 5. DFC-321 / DFC-290 -- the two keys reach the document
 // ===========================================================================
 
-describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates its subtree', () => {
-  it('⭐⭐ the pair of keys leaves two more Tasks in the document', () => {
+describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', () => {
+  it('⭐⭐ the pair of keys leaves one more Task in the document', () => {
     // ⛔ DFC-321's measurement on the shipped build: 「押しても文書も絵も動かない」.
-    // The STATEMENT: 「選ばれた `Task` とその WBS の子孫を部分木ごと複製すること」,
-    // and 表 T-223 の `DU-1` names 「その `Task` の WBS の子孫」 as what travels.
+    // The STATEMENT: 「選ばれた `Task` だけを複製すること」,
+    // and 表 T-223 の `DU-1` copies no WBS descendant that was not chosen (CR-706).
     const built = stage(documentOfTwoRows())
     built.pressTask(PARENT_TASK)
 
@@ -514,9 +514,9 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates its subtree', () 
 
     expect(
       built.taskUids().length,
-      'SK-4 then SK-5 on a chosen Task left the document exactly as it was -- FR-033’s STATEMENT ' +
-        'asks for the Task and its WBS descendants to be duplicated 部分木ごと',
-    ).toBe(4)
+      'SK-4 then SK-5 on a chosen Task did not add exactly its one copy -- FR-033’s STATEMENT ' +
+        'asks for the chosen Task alone to be duplicated',
+    ).toBe(3)
   })
 
   it('and the copies wear UIDs of their own (MUST NOT)', () => {
@@ -540,12 +540,9 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates its subtree', () 
     built.send(PASTE)
 
     const copies = built.taskUids().filter((uid) => uid !== PARENT_TASK && uid !== CHILD_TASK)
-    expect(copies.length).toBe(2)
+    expect(copies.length).toBe(1)
     const rows = copies.map((uid) => built.rowOfTask(uid))
-    expect(
-      rows.every((one) => one === PARENT_ROW || one === CHILD_ROW),
-      'a copy landed on a row neither of its originals is on',
-    ).toBe(true)
+    expect(rows, 'the copy landed on a row its original is not on').toEqual([PARENT_ROW])
   })
 
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
@@ -579,7 +576,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
   })
 
   it('and the Tasks on the copied rows come with them (DU-2)', () => {
-    // 「その行に載っているすべての `Task`（`DU-1` が各 `Task` に連鎖する）」 and
+    // 「その行に載っているすべての `Task`」 and
     // 「⚠️ **複製した `Task` は複製した行に載せる。**」
     const built = stage(documentOfTwoRows())
     built.pressRow(PARENT_ROW)
@@ -658,7 +655,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
 
   it('⭐⭐ the paste that would make a third stack on one row is not taken', async () => {
     // The document's parent row holds one Task under the cap; two pastes of that
-    // Task's subtree would put one Task past it. ⛔ The FIRST paste is lawful and
+    // Task would put one Task past it. ⛔ The FIRST paste is lawful and
     // is asserted so, precisely so that a loop which refuses every paste cannot
     // pass this case.
     const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
@@ -670,7 +667,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     expect(
       afterTheLawfulOne,
       'the first paste, which stacks exactly TO the cap, was refused -- ST-7 allows it',
-    ).toBe(2 + AT_THE_CAP + 2)
+    ).toBe(2 + AT_THE_CAP + 1)
 
     built.send(PASTE)
 

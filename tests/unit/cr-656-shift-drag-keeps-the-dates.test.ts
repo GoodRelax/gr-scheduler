@@ -645,7 +645,8 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     const before = built.tasks()
     drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), CTRL_SHIFT)
     const after = built.tasks()
-    expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Child', 'Root'])
+    // WHY: the WBS child was not chosen, so T-223 DU-1 does not copy it (CR-706).
+    expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Root'])
     const rootCopy = copyNamed(before, after, 'Root')
     const source = before.find((one) => one.uid === ROOT) as Task
     expect(datesOf(rootCopy), 'CY-5: the copy has the same dates as its source').toEqual(datesOf(source))

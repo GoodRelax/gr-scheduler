@@ -230,11 +230,10 @@ function rowMoves(document: Document, bar: { readonly uid: number; readonly toRo
     .slice()
     .sort((a, b) => a.order - b.order)
     .map((each) => each.id)
-  const deeper = document.schedule.taskGroups.find((each) => each.parentId !== null)
-  if (deeper === undefined) throw new Error('the fixture has no nested row')
+  // WHY: moving a nested row to the top is no longer here -- T-015a HM-12 gives its Task the root as WBS parent
+  // (CR-706), so that move changes more than the sibling order.
   return [
     ['reorderTaskGroupSiblings', groupEdited(document, { kind: 'reorderTaskGroupSiblings', parentId: null, orderedIds: [...rootRows].reverse() })],
-    ['moveTaskGroup', groupEdited(document, { kind: 'moveTaskGroup', groupId: deeper.id, parentId: null, order: 0 })],
     ['moveTaskToTaskGroup', taskEdited(document, { kind: 'moveTaskToTaskGroup', uid: bar.uid, groupId: rowIdMadeFrom(document, bar.toRowOf) })],
   ]
 }

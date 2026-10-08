@@ -24,7 +24,7 @@ const EDIT_GROUP_LANDS_ON_CHOSEN_ROW =
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
 const ROOT_IS_A_SIBLING =
-  '⭐ 複製の根（選ばれた `Task` の複製）は、複製元と同じ WBS の親の下に兄弟として置き、部分木の内側の親子は複製どうしへ付け替えること（MUST）'
+  '写し元の親も写すときはその写しとし、写さないときは写し元と同じ親とすること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const REASON_IS_A_T233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
 
