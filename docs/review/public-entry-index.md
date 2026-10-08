@@ -705,6 +705,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TranslatedInput` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TranslatedInput` | -- | interface TranslatedInput |
 | `UNASSIGNED` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#UNASSIGNED` | -- | const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false } |
 | `WheelInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#WheelInput` | -- | interface WheelInput |
+| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | -- | function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds |
 | `zoomYCeiling` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#zoomYCeiling` | -- | function zoomYCeiling(context: InputContext): number \| null |
 | `commandFromArmed` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmed` | -- | function commandFromArmed( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
@@ -743,6 +744,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `statusLineCentred` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentred` | -- | function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
 | `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( rows: readonly RowPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `ZoomEntranceEnds` | file only | interface | `src/adapter/input-command-translator/zoom-and-fit.ts#ZoomEntranceEnds` | -- | interface ZoomEntranceEnds |
 | `zoomOnScreen` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomOnScreen` | -- | function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } |
 | `zoomStepAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomStepAnswer` | -- | function zoomStepAnswer( context: InputContext, factor: number, zoom: readonly DocumentCommand[], ): TranslatedInput |
 | `zoomTimes` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomTimes` | -- | function zoomTimes(context: InputContext, factor: number, axis: 'x' \| 'y'): number |
@@ -1721,4 +1723,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 842 name(s) leave through a public entry (332 of them published by table T-064), 669 more are exported by a file and not by its entry.
+Totals: 843 name(s) leave through a public entry (332 of them published by table T-064), 670 more are exported by a file and not by its entry.

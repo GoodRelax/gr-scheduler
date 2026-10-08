@@ -106,6 +106,7 @@ InputCommandTranslator | NOT_STORED_ZOOM_STEP
 InputCommandTranslator | PointerButton
 InputCommandTranslator | PointerInput
 InputCommandTranslator | PointerPress
+InputCommandTranslator | zoomEntranceEndsOf
 
 ItemHitArea | Hit
 ItemHitArea | Item
@@ -184,3 +185,4 @@ UndoEdit | HeldDocument
 
 
 # 2026-09-27 lane L1 (JDG-778, DFC-1226): ScheduleLayout.deadlineHeadHalfWidthOf (CR-556, S-365 read once for layout and figure) and ScheduleLayout.thinEndHalfHeightOf (CR-588, the baseline outline's vertical extent) are read by ScheduleGeometry; table T-064 needs a row for each.
+# 2026-10-08 wave WP-P4 (DFC-567 part 3): InputCommandTranslator.zoomEntranceEndsOf is read by SingleHtmlShell to draw IC-12..IC-15 faint at their zoom ends; table T-064 PI-18 needs a member row (next small CR).

@@ -86,8 +86,7 @@ export function keyZoomFactor(context: InputContext, isIn: boolean): number {
 /** @purity pure */
 function zoomXCeiling(context: InputContext): number | null {
   const width = context.regions.rowArea.width
-  const drawnAt = zoomOnScreen(context).x
-  const pxPerDayAt1x = context.layout.pxPerDay / drawnAt
+  const pxPerDayAt1x = drawnSettingsOf(context.document.documentSettings).pxPerDayAt1x
   const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
   if (!Number.isFinite(ceiling) || ceiling <= 0) return null
   return ceiling
@@ -186,15 +185,50 @@ export function rowZoomAnswer(
     const ended = rowShrinkWrites(context, [])
     return { ...ended, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
   }
-  const wanted =
-    factor > 1
-      ? zoomYWithinCeiling(context, on.x, nextRowPictureZoomYOf(context, on, drawnZoomY * factor))
-      : zoomTimes(context, factor, 'y')
-  const stepped = zoomWithinBounds(context, wanted)
+  const stepped = rowZoomStepOf(context, on, factor)
   if (factor > 1 && stepped === drawnZoomY) {
     return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
   }
   return zoomStepAnswer(context, factor, zoomWrites(context, null, stepped, pointerX, pointerY))
+}
+
+// see FR-016, ZE-3, ZE-6, S-76
+/** @purity pure */
+function rowZoomStepOf(
+  context: InputContext,
+  on: { readonly x: number; readonly y: number },
+  factor: number,
+): number {
+  const wanted =
+    factor > 1
+      ? zoomYWithinCeiling(context, on.x, nextRowPictureZoomYOf(context, on, on.y * factor))
+      : zoomTimes(context, factor, 'y')
+  return zoomWithinBounds(context, wanted)
+}
+
+/** @purity pure */
+function timeZoomStepOf(context: InputContext, factor: number): number {
+  return zoomWithinBounds(context, zoomTimes(context, factor, 'x'))
+}
+
+export interface ZoomEntranceEnds {
+  readonly timeOut: boolean
+  readonly timeIn: boolean
+  readonly rowOut: boolean
+  readonly rowIn: boolean
+}
+
+// see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
+// WHY: the steps the presses take (setZoom clamps zoomX alike), so faint and press never disagree.
+/** @purity pure */
+export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
+  const on = zoomOnScreen(context)
+  return {
+    timeOut: timeZoomStepOf(context, keyZoomFactor(context, false)) === on.x,
+    timeIn: timeZoomStepOf(context, keyZoomFactor(context, true)) === on.x,
+    rowOut: isRowZoomAtLowerEnd(context),
+    rowIn: rowZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
+  }
 }
 
 // see ST-7

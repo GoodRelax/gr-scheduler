@@ -643,6 +643,13 @@ export interface ScreenViewReadings {
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  // see FR-029, IC-12, IC-13, IC-14, IC-15
+  readonly zoomEntranceEnds?: {
+    readonly timeOut: boolean
+    readonly timeIn: boolean
+    readonly rowOut: boolean
+    readonly rowIn: boolean
+  }
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
   // see WB-6, S-455, S-456
