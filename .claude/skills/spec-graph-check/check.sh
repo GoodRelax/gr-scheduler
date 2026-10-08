@@ -55,7 +55,7 @@
 #   30     the generated `const` of src/, exported or not, against the list
 #          that names them in docs/development-rules/03-implementation.md;
 #          and JDG-139 copy by copy: an exported copy no other file of src/
-#          or tests/ imports, a read copy that is not exported, and the
+#          imports (stage 3, DFC-619), a read copy that is not exported, and the
 #          generator's PUBLISHED_READ_BY_* list out of step with either
 #   31     check-stale-blocked.py : a defects.md row whose 対応方針・決定仕様
 #          cell still contains 未定 / 利用者の裁定が要る / 裁定を待つ /

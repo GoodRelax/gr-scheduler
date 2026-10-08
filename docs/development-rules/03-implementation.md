@@ -169,7 +169,7 @@ NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称�
 
 | 何が | 規則 | 誰が落とすか |
 |---|---|---|
-| `export` の付いた写し | ほかのファイルが少なくとも 1 つ import している | 検査 30 |
+| `export` の付いた写し | `src/` のほかのファイルが少なくとも 1 つ import している（試験の import は数えない —— 第 3 段） | 検査 30 |
 | `export` の無い写し | ほかのファイルが読んでいない | 名前での import は `tsc`。<br>名前空間を文字列の鍵で読む形（`(ns as Record<string, unknown>)['NAME']`）は `tsc` を素通りし、実行時に黙って `undefined` になるので、検査 30 |
 | どの写しに `export` を付けるか | `tools/generate_entity_types.py` の一覧に書く。<br>`PUBLISHED_READ_BY_SRC` は `src/` が読む写し、`PUBLISHED_READ_BY_TESTS_ONLY` は試験だけが読む写しである。<br>一覧に無い写しは `export` の無い `const` として刷られる | 一覧が、生成器の刷らない定数を名指せば生成器が止まる。<br>一覧と木の食い違いと、2 つの群の取り違えは検査 30 |
 | 自分のファイルの中でも読まれない写し | 生成しない。<br>`export` を外せば `noUnusedLocals` で落ち、公開のまま残せば消費者の無い公開名になる | `tsc` |
@@ -180,13 +180,13 @@ NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称�
 ⚠️ **実例**: `NOT_STORED_ROW_CONTROL_OUTER_SIZES` は `CR-397` で床の式が `screen-regions.ts` へ移ったあと、自分のファイルを含めて誰にも読まれないまま刷られ続けていた。
 第 1 段で生成をやめた。
 
-⭐ **3 段で進める。いまは第 2 段までが済み、第 3 段の残りは 1 写しである。**
+⭐ **3 段で進めた。3 段とも済んでいる（第 3 段は 2026-10-08、`DFC-619`）。**
 
 | 段 | すること | 検査 30 が数える「ほかのファイル」 |
 |---|---|---|
 | 1（済） | どのファイルからも読まれない写しの `export` を外す | `src/` と `tests/` |
 | 2（済） | 試験だけが読む写しを読む試験を、期待値を設定表から読む形に直す（2026-10-04、`tests/fixtures/setting-number.ts` の `settingNumber`・`generatedConstantOf`） | `src/` と `tests/` |
-| 3（残り 1 写し） | `PUBLISHED_READ_BY_TESTS_ONLY` を空にする（済）。<br>⚠️ `tools/generate_state_machine_types.py` の `TRANSITIONS_READ` が `export` で刷る `TREE_STATE_TRANSITIONS`（`src/use-case/edit-document/task-group-folding.ts`）を、`tests/contract/tree-state-machine.contract.test.ts` だけが import している —— その試験が刷った文字列を読む形になるまで、検査 30 は `src/` と `tests/` を数える | `src/` だけ（検査 30 の `READERS_THAT_PUBLISH`） |
+| 3（済） | `PUBLISHED_READ_BY_TESTS_ONLY` を空にする。<br>最後の 1 写し —— `tools/generate_state_machine_types.py` の `TRANSITIONS_READ` が刷る `TREE_STATE_TRANSITIONS`（`src/use-case/edit-document/task-group-folding.ts`）—— は、`tests/contract/tree-state-machine.contract.test.ts` が刷った文字列を読む形にし、`export` の無い `const` で刷る（2026-10-08、`DFC-619`） | `src/` だけ（検査 30 の `READERS_THAT_PUBLISH`） |
 
 ⭐ **いまの数は検査 30 が毎回刷る**（`python .claude/skills/spec-graph-check/check-generated-constants.py` の `OK` の行）。
 ⚠️ 第 1 段を当てた日（2026-09-16）の実測: 48 名・56 写し。

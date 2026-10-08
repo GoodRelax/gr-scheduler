@@ -19,8 +19,9 @@ its manuscript).
    a (file, constant) pair -- because one row of a settings table is printed
    into every unit that consumes it, and each copy has its own readers:
    a. an exported copy that no OTHER file of READERS_THAT_PUBLISH imports is
-      red. Stage 1 of the ruling counts src/ and tests/; stage 3 narrows it to
-      src/ once the tests that read constants read the settings table instead;
+      red. Stage 1 of the ruling counted src/ and tests/; stage 3 (done
+      2026-10-08, DFC-619) narrows it to src/ -- a test reads the settings
+      table or the printed text instead;
    b. a copy that another file of src/ or tests/ reads, and that is not
       exported, is red. tsc refuses a named import of it, but NOT a namespace
       read by a string key -- `(ns as Record<string, unknown>)['NAME']` is
@@ -56,11 +57,11 @@ import sys
 RULES = 'docs/development-rules/03-implementation.md'
 GENERATOR = os.path.join('tools', 'generate_entity_types.py')
 
-# Stages 1 and 2 of JDG-139 are done. Stage 3 sets this to ('src',) once the
-# last exported copy that only a test imports is gone (DFC-619: measured
-# 2026-10-08, TREE_STATE_TRANSITIONS of task-group-folding.ts, imported by
-# tests/contract/tree-state-machine.contract.test.ts alone).
-READERS_THAT_PUBLISH = ('src', 'tests')
+# All three stages of JDG-139 are done: only a reader in src/ earns a copy its
+# export. Stage 3 landed 2026-10-08 (DFC-619) once the last exported copy only
+# a test imported -- TREE_STATE_TRANSITIONS of task-group-folding.ts -- was read
+# by tests/contract/tree-state-machine.contract.test.ts as printed text.
+READERS_THAT_PUBLISH = ('src',)
 # Where a read of a copy is looked for, whatever the stage: a read that the
 # stage no longer publishes for is still a read, and rule 2b still holds.
 READERS_SEEN = ('src', 'tests')
@@ -458,7 +459,7 @@ def main(argv):
     fails, summary = verdict(files, listed, by_src, by_tests_only, written)
     if not fails:
         say('OK       %s; the list in %s names the same set, and every exported '
-            'copy is imported by another file of %s (JDG-139 stage 1)'
+            'copy is imported by another file of %s (JDG-139 stage 3)'
             % (summary, RULES, ' or '.join('%s/' % top
                                           for top in READERS_THAT_PUBLISH)))
         return 0

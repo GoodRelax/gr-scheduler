@@ -6,11 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import type { Schedule, TaskGroup } from '../../src/entity/document-model/schedule/schedule-entities'
-import {
-  TREE_STATE_TRANSITIONS,
-  treeStateWritesFor,
-  type TreeStateEvent,
-} from '../../src/use-case/edit-document/task-group-folding'
+import { treeStateWritesFor, type TreeStateEvent } from '../../src/use-case/edit-document/task-group-folding'
 import { specTable, unbroken } from './spec-table'
 
 type TreeState = TaskGroup['treeState']
@@ -39,6 +35,25 @@ if (MACHINE === undefined) throw new Error('region rowTree has no treeStateMachi
 
 const STATES = MACHINE.states.map((s) => s.key as TreeState)
 const EVENTS = REGION.events
+
+// WHY: JDG-139 stage 3 -- the generated table is read as the printed text, so the unit keeps it unexported.
+const FOLDING_UNIT = readFileSync(
+  join(process.cwd(), 'src', 'use-case', 'edit-document', 'task-group-folding.ts'),
+  'utf8',
+).replace(/\r\n/g, '\n')
+const PRINTED_TABLE = /^const TREE_STATE_TRANSITIONS: readonly TreeStateTransition\[\] = \[\n([\s\S]*?)^\]$/m
+const PRINTED_ROW = /^ {4}state: '([^']*)',\n {4}event: '([^']*)',\n {4}guard: [^\n]*\n {4}to: '([^']*)',$/gm
+
+// see T-328
+const printedTransitions = (): readonly { readonly state: string; readonly event: string; readonly to: string }[] => {
+  const table = PRINTED_TABLE.exec(FOLDING_UNIT)?.[1]
+  if (table === undefined) throw new Error('task-group-folding.ts prints no unexported TREE_STATE_TRANSITIONS')
+  return [...table.matchAll(PRINTED_ROW)].map(([, state, event, to]) => ({
+    state: state ?? '',
+    event: event ?? '',
+    to: to ?? '',
+  }))
+}
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -209,7 +224,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
       (sum, row) => sum + Object.values(row).reduce((inner, cell) => inner + branchesOf(cell).length, 0),
       0,
     )
-    const machineRows = TREE_STATE_TRANSITIONS.filter((row) => row.state.startsWith('treeStateMachine.'))
+    const machineRows = printedTransitions().filter((row) => row.state.startsWith('treeStateMachine.'))
     expect(machineRows).toHaveLength(branchCount)
     for (const row of machineRows) {
       const from = row.state.split('.')[1] as TreeState

@@ -95,14 +95,15 @@ REGION = re.compile(re.escape(OPEN) + r'\n.*?' + re.escape(CLOSE), re.S)
 # type <Stem>Transition.
 #
 # Per unit, with the path relative to the repository root:
-#   'export'  another file of src/ or tests/ reads the table
+#   'export'  another file of src/ reads the table (a test reads the text)
 #   'const'   only the unit itself reads it
 # Check 30 (.claude/skills/spec-graph-check/check-generated-constants.py)
 # refuses an exported copy nobody imports and a read copy that is not
 # exported; this generator refuses an entry that names no region's unit.
 TRANSITIONS_READ = {
-    # task-group-folding.ts looks its cells up; the contract test counts rows.
-    'src/use-case/edit-document/task-group-folding.ts': 'export',
+    # task-group-folding.ts looks its cells up; the contract test counts rows
+    # in the printed text (JDG-139 stage 3), so no other file imports it.
+    'src/use-case/edit-document/task-group-folding.ts': 'const',
 }
 
 
