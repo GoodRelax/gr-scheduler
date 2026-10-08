@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1578 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1579 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -115,7 +115,7 @@
 | `HB` | Highlight box | ハイライトボックスの掴み点と枠の場所・掴み代・ポインタと、離したときに置く値の行 | 仕様書 | `T-246` | 12 |
 | `HC` | Help Column | ヘルプの段と、段に置く塊の並び | 仕様書 | `T-256` | 4 |
 | `HF` | — | 行ごとの折り畳みと隠しの操作面の条 | 仕様書 | `T-051` | 20 |
-| `HM` | Hierarchy Move | 階層の移動の規則の条 | 仕様書 | `T-015a` | 12 |
+| `HM` | Hierarchy Move | 階層の移動の規則の条 | 仕様書 | `T-015a` | 13 |
 | `HN` | Help miNimised | 最小化したヘルプと、ほかの入力 | 仕様書 | `T-336` | 7 |
 | `HR` | Hierarchy | 階層の操作（展開・畳み・隠し）の種別 | 仕様書 | `T-015` | 9 |
 | `HS` | Header Status | ヘッダーのファイルの状態（名前・書けた時刻・大きさ）の見せ方の項目 | 仕様書 | `T-341` | 11 |

@@ -430,7 +430,7 @@ src/
 | UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルと `deletion-confirmations.ts` を束ねて公開する | `FR-007`（`OW-3`）・`FR-032`（`OW-3`） |
 | UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | — |
 | UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`） |
-| UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクを WBS の部分木ごと写す | `FR-033`（`OW-2`） |
+| UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクだけを写し、選ばれていない WBS の子孫は写さない | `FR-033`（`OW-2`） |
 | UF-74 | `EditDocument` | `task-plan-actual.ts` | `pure` | 予定と実績の日付を、表 T-245・表 T-019・表 T-021a に従って置く | `FR-011`（`OW-2`）・`FR-044`（`OW-2`）・`FR-103`（`OW-2`） |
 | UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す。<br>文書の全 `Task` を数え直して、値が変わった `Task` を答える —— 暦の編集（`UF-16`）と `GRS JSON` の読み（`UF-35`）が同じ式を呼ぶ | `FR-012`（`OW-2`） |
 | UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`） |

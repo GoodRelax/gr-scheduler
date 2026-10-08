@@ -266,27 +266,16 @@ export function editTaskGroup(
         }
       }
 
-      const copiedRows = new Set(copied.rows.map((one) => one.id))
-      const rowOf = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
-      const seeds = schedule.taskGroupMembers
-        .filter((member) => copiedRows.has(member.groupId))
-        .map((member) => member.taskUid)
-      const copiedTasks = wbsSubtreesOf(schedule.tasks, seeds)
-      const homeless = [...copiedTasks].filter((uid) => {
-        const row = rowOf.get(uid)
-        return row === undefined || !copiedRows.has(row)
-      })
-      // STOP: spec does not decide the row a WBS descendant outside the copied rows lands on. Looked in DU-1, DU-2, FR-033 (PND-495)
-      if (homeless.length > 0) {
-        refusals.push(
-          reject(
-            'CM-28',
-            'DU-2',
-            `DU-1 pulls in Tasks ${homeless.join(', ')}, which sit on no copied row, and DU-2 does not say which row their copies land on`,
-          ),
-        )
-      }
       if (refusals.length > 0) return refused(refusals)
+
+      // see DU-1, DU-2
+      // WHY: only the Tasks on the copied rows; a WBS descendant on another row is not copied, and no paste is refused.
+      const copiedRows = new Set(copied.rows.map((one) => one.id))
+      const copiedTasks = new Set(
+        schedule.taskGroupMembers
+          .filter((member) => copiedRows.has(member.groupId))
+          .map((member) => member.taskUid),
+      )
 
       let mark = schedule.project.uidHighWaterMark
       const uidOf = new Map<number, number>()

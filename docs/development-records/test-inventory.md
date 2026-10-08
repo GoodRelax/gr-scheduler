@@ -129,7 +129,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | documentFromJson (pure), editAnnotation (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), leaderOf (pure), pointerImageOf (pure), pointerRowOf (pure) | - | FR-019, FR-097, FR-106, T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 |
 | `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | commandFromInput (pure), editDocument (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pastedUidsOf (pure), pointerImageOf (pure), pressRowOf (pure) | - | FR-036, FR-111, T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-024, FR-073, T-036, T-103, T-220, T-233 |
-| `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editTask (pure), editTaskGroup (pure) | yes | FR-058 |
+| `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editTask (pure), editTaskGroup (pure) | yes | FR-058, T-015a |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021 |
 | `tests/unit/cr-604-the-pause-bar-and-markers-shown-by-default.test.ts` | - | - | FR-013, FR-046, FR-094, T-019, T-019a, T-021, T-021b |
 | `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | applyDocumentChange (non-pure), editDocument (pure), undoEdit (pure) | - | FR-031, FR-054, FR-088, T-108, T-209, T-344 |
@@ -156,7 +156,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | armedLabelStyle (pure), paletteColumnsOf (pure), paletteColumnsStyle (pure), paletteElement (non-pure) | - | FR-053, T-109, T-201, T-206 |
 | `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | documentFromMspdi (pure), isNonRecurringException (pure), isWorkingDay (pure), mspdiFromDocument (pure), workingCalendarOf (pure) | yes | FR-054, T-033, T-058, T-344 |
 | `tests/unit/cr-655-nd-5-tl-10-sq-5-sv-8-the-four-digit-year-and-the-bottleneck-state.test.ts` | advanceScreenSession (pure), columnValuesOf (pure), dayOf (pure), deadlineHint (pure), documentFromJson (pure), filteredSearchRows (pure), nameLabelOf (pure), planDatesSpanYears (pure), searchPanelAfterFilterEntry (pure), searchPanelFromSession (pure), searchPanelWithFilterOpened (pure) | yes | T-019a, T-251, T-315, T-330, T-331, T-348 |
-| `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | commandFromInput (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure) | - | FR-036, T-023, T-206, T-266, T-270 |
+| `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | commandFromInput (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure) | - | FR-036, T-023, T-206, T-223, T-266, T-270 |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | searchTableElement (non-pure) | - | FR-151, T-330 |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | domInputSource (non-pure), escapeKeyLockOf (pure), escapeTarget (pure) | - | FR-071, T-283 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313 |
@@ -203,7 +203,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts` | dateAtX (pure), dayOf (pure), frameLoop (non-pure), isWorkingDay (pure), textOfDay (pure), workingCalendarOf (pure) | - | FR-011, FR-103, T-019, T-245 |
 | `tests/unit/h10-one-assignee-per-line.test.ts` | commandFromFieldCommit (pure), domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), propertiesPanelFromSelection (pure), regionsFromScreen (pure), selectionWith (pure) | - | FR-059, T-016, T-027, T-216, T-225 |
 | `tests/unit/h3-a-file-drop-wakes-a-frame.test.ts` | frameLoop (non-pure) | - | FR-022, NFR-010, T-024a, T-066, T-078, T-103 |
-| `tests/unit/h4-several-copied-tasks-paste-back.test.ts` | copiedForPasteOf (pure) | yes | FR-033, T-293 |
+| `tests/unit/h4-several-copied-tasks-paste-back.test.ts` | copiedForPasteOf (pure) | yes | FR-033, T-223, T-293 |
 | `tests/unit/in-2-a-the-dummies-say-slide.test.ts` | frameLoop (non-pure) | - | FR-043, T-023d, T-028, T-266, T-269 |
 | `tests/unit/in-2-b-armed-dependency-shows-the-arrow.test.ts` | frameLoop (non-pure) | - | FR-043, T-023d, T-028, T-109, T-269 |
 | `tests/unit/in-2-pointer-shape.test.ts` | frameLoop (non-pure) | - | FR-027, FR-043, FR-053, FR-075, FR-106, NFR-010, T-012, T-023a, T-023b, T-023d, T-028, T-034, T-036, T-060, T-062, T-077, T-078, T-109, T-206, T-218, T-266, T-269, T-273 |
@@ -629,7 +629,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | 50 | FR-019, FR-097, FR-106 | - | T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 | AT-110, AT-148, AT-152, CM-51, CM-80, CM-81, CM-82, CM-83, CM-84, CV-1, CV-3, CV-6, LF-15, LF-17, PK-11, S-208, S-292, S-374, S-375, S-376 | - | - | - | - |
 | `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | 42 | FR-036, FR-111 | - | T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 | CM-8, CM-28, CY-1, CY-2, CY-3, CY-5, CY-6, CY-7, CY-8, CY-9, CY-10, CY-11, DU-1, DU-2, GA-2, GA-9, IN-2, MK-7, MK-15, PK-16, PTD-1, PTD-7, S-1, S-75, S-208, SK-4, SK-5 | - | - | - | - |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | 19 | FR-024, FR-073 | - | T-036, T-103, T-220, T-233 | AM-2, OP-6, RS-25, RS-63, RS-64, S-81, S-350 | - | - | - | - |
-| `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | 19 | FR-058 | - | - | HM-9, IV-6, MR-4, S-125, ST-2 | - | - | - | - |
+| `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | 19 | FR-058 | - | T-015a | HM-9, HM-12, IV-6, MR-4, S-125, ST-2 | - | - | - | - |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | 19 | FR-021 | - | - | AT-93, AT-139, EX-5, IV-2, MR-4 | - | - | - | - |
 | `tests/unit/cr-604-the-pause-bar-and-markers-shown-by-default.test.ts` | 14 | FR-013, FR-046, FR-094 | - | T-019, T-019a, T-021, T-021b | DL-2, DL-3, PA-2, PA-4, PM-1, PM-3, PM-4, PS-3, PS-4, S-24, S-63, S-328, S-341 | - | - | - | - |
 | `tests/unit/cr-605-cm-39-carries-exceptions-and-makes-a-calendar.test.ts` | 19 | FR-031, FR-054, FR-088 | - | T-108, T-209, T-344 | AT-20, AT-67, AT-73, CM-39, S-106, S-107, UN-13, WC-7, WT-6, WT-7 | - | - | - | - |
@@ -656,7 +656,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-652-palette-rows-and-armed-label.test.ts` | 17 | FR-053 | - | T-109, T-201, T-206 | IC-54, S-8, S-143, S-216, S-234, S-235, S-488, S-489 | - | - | - | - |
 | `tests/unit/cr-654-at-82-fr-054-ex-13-ex-14-the-one-off-exception-and-assignment-units.test.ts` | 15 | FR-054 | - | T-033, T-058, T-344 | AT-82, EX-13, EX-14, WC-6 | - | - | - | - |
 | `tests/unit/cr-655-nd-5-tl-10-sq-5-sv-8-the-four-digit-year-and-the-bottleneck-state.test.ts` | 11 | - | - | T-019a, T-251, T-315, T-330, T-331, T-348 | DG-2, IC-126, ND-5, SQ-5, SV-7, SV-8, TL-10 | - | - | - | - |
-| `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | 36 | FR-036 | - | T-023, T-206, T-266, T-270 | CY-1, CY-2, CY-5, CY-7, CY-11, GA-9, GA-14, GA-15, MK-7, MK-12, MK-15, MK-16, PE-1, PE-6, PTD-1, PTD-3, PTD-7, S-208, SL-4, SL-7a | - | - | - | - |
+| `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | 36 | FR-036 | - | T-023, T-206, T-223, T-266, T-270 | CY-1, CY-2, CY-5, CY-7, CY-11, DU-1, GA-9, GA-14, GA-15, MK-7, MK-12, MK-15, MK-16, PE-1, PE-6, PTD-1, PTD-3, PTD-7, S-208, SL-4, SL-7a | - | - | - | - |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | 5 | FR-151 | - | T-330 | SV-6, SV-17, SV-18 | - | - | - | - |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | 14 | FR-071 | - | T-283 | IN-4, IN-4a, RG-8, RG-17 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 6 | - | - | T-313 | BD-2, BD-4 | - | - | - | - |
@@ -703,7 +703,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts` | 8 | FR-011, FR-103 | - | T-019, T-245 | GA-4, GO-3, S-1, S-75 | - | - | - | - |
 | `tests/unit/h10-one-assignee-per-line.test.ts` | 39 | FR-059 | - | T-016, T-027, T-216, T-225 | AG-3, AS-1, AS-3, AS-5, AS-7, AS-9, AS-10, AS-12, CM-45, PR-16, S-1, S-3, S-5, S-6, SK-3 | - | - | - | - |
 | `tests/unit/h3-a-file-drop-wakes-a-frame.test.ts` | 11 | FR-022, NFR-010 | - | T-024a, T-066, T-078, T-103 | CS-4, FT-1, IF-3, OP-2, OP-3, U-56, UF-48 | - | - | - | - |
-| `tests/unit/h4-several-copied-tasks-paste-back.test.ts` | 23 | FR-033 | - | T-293 | CM-8, RS-27, SL-2, SL-4, SL-7b | - | - | - | - |
+| `tests/unit/h4-several-copied-tasks-paste-back.test.ts` | 23 | FR-033 | - | T-223, T-293 | CM-8, DU-1, RS-27, SL-2, SL-4, SL-7b | - | - | - | - |
 | `tests/unit/in-2-a-the-dummies-say-slide.test.ts` | 19 | FR-043 | - | T-023d, T-028, T-266, T-269 | BT-4, DM-1, GA-1, GA-3, GA-4, GA-5, GA-6, GA-9, GA-16, GA-17, IF-9, IN-2, PK-1, PTD-5, S-1, S-75, S-257, S-260, SH-5 | - | - | - | - |
 | `tests/unit/in-2-b-armed-dependency-shows-the-arrow.test.ts` | 13 | FR-043 | - | T-023d, T-028, T-109, T-269 | AR-4, GA-1, GA-4, GA-5, GA-6, GA-16, GA-17, IN-2, PK-5, S-1, S-75, SK-1 | - | - | - | - |
 | `tests/unit/in-2-pointer-shape.test.ts` | 43 | FR-027, FR-043, FR-053, FR-075, FR-106, NFR-010 | - | T-012, T-023a, T-023b, T-023d, T-028, T-034, T-036, T-060, T-062, T-077, T-078, T-109, T-206, T-218, T-266, T-269, T-273 | AR-1, AR-2, AR-4, AR-6, BO-1, BT-4, CP-25, FT-1, FT-3, GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-16, GA-17, GR-10, GR-11, IF-9, IN-1, IN-2, LY-5, PK-5, PTD-1, PTD-2, PTD-3, PTD-4, PTD-4a, PTD-5, S-1, S-75, S-250, S-253, S-257, S-260, SH-1, SH-2, SH-3, SH-4, SH-5, SK-1, TS-6, UF-48 | - | - | - | - |

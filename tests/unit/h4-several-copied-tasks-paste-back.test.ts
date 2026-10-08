@@ -21,14 +21,16 @@ import {
 
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
-const DESCENDANT_COPIED_ONCE =
-  '⭐ 選ばれた `Task` のうち、ほかの選ばれた `Task` の WBS の子孫であるものは、その祖先の部分木として 1 度だけ複製すること（MUST）'
+// WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once, and a copy's WBS
+// parent is its source parent's copy when that parent is copied too, else the source parent.
+const ONLY_CHOSEN_COPIED =
+  '⭐ 選ばれていない `Task` を複製するかどうかと、写しの WBS の親は、表 T-223 の `DU-1` に従うこと（MUST）'
 const ROOT_IS_A_SIBLING =
-  '⭐ 複製の根（選ばれた `Task` の複製）は、複製元と同じ WBS の親の下に兄弟として置き、部分木の内側の親子は複製どうしへ付け替えること（MUST）'
+  '写し元の親も写すときはその写しとし、写さないときは写し元と同じ親とすること（MUST）'
 const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const CM_8_ROW =
-  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ）。`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
+  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫は写さない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
 const COPY_TAKEN_ROW =
   '| `selection/copyTaken` | 入力（写せる選び方のときだけ呼び手が送る。写せないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'
@@ -40,7 +42,7 @@ const STATE_MACHINES = unbroken(readText('docs', 'spec', '_assets', 'tbl-state-m
 const CR_541 = readText('change-request', 'CR-541-land-the-2026-09-22-rulings-in-the-specification.md')
 
 describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stand', () => {
-  it.each([MANY_TASKS_ALL_COPIED, DESCENDANT_COPIED_ONCE, ROOT_IS_A_SIBLING, SAME_ROW, NO_SAME_UID])(
+  it.each([MANY_TASKS_ALL_COPIED, ONLY_CHOSEN_COPIED, ROOT_IS_A_SIBLING, SAME_ROW, NO_SAME_UID])(
     'FR-033: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -227,14 +229,14 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
     for (const one of made) expect([P, A, A1, B]).not.toContain(one.uid)
   })
 
-  it('FR-033 DESCENDANT_COPIED_ONCE: descendant picked FIRST, then its ancestor -> the subtree once', () => {
+  it('FR-033 ONLY_CHOSEN_COPIED: descendant picked FIRST, then its ancestor -> the subtree once', () => {
     const { made, byName } = copyThenPaste([A1, A])
     expect(made.map((one) => one.name).sort()).toEqual(['A', 'A1'])
     expect(byName.get('A')?.wbsParentUid, 'the copy root stays under P').toBe(P)
     expect(byName.get('A1')?.wbsParentUid, 'inside the subtree the parent is the copy').toBe(byName.get('A')?.uid)
   })
 
-  it('FR-033 MANY_TASKS_ALL_COPIED + DESCENDANT_COPIED_ONCE: A, A1 and B picked -> A, A1, B once each', () => {
+  it('FR-033 MANY_TASKS_ALL_COPIED + ONLY_CHOSEN_COPIED: A, A1 and B picked -> A, A1, B once each', () => {
     const { made } = copyThenPaste([B, A1, A])
     expect(made.map((one) => one.name).sort()).toEqual(['A', 'A1', 'B'])
   })

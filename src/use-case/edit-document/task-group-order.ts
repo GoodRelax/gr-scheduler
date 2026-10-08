@@ -196,21 +196,33 @@ function movedWithTheWbs(
   const wbsParentUid = wbsParentAfterTheMove(document.schedule, moved, parent ?? null)
   const taskUid = moved.derivedFromTaskUid
   if (wbsParentUid === undefined || taskUid === null) return edited(withWbsOrderFollowingTheRows(document, rows))
-  if (wbsSubtreesOf(tasks, [taskUid]).has(wbsParentUid)) {
+  if (wbsParentUid !== null && wbsSubtreesOf(tasks, [taskUid]).has(wbsParentUid)) {
     return refused([reject('CM-73', 'HM-4', `Task ${wbsParentUid} sits inside the WBS subtree of Task ${taskUid}`)])
   }
   const reparented = tasks.map((one) => (one.uid === taskUid ? { ...one, wbsParentUid } : one))
   return edited(withWbsOrderFollowingTheRows(withSchedule(document, { tasks: reparented }), rows))
 }
 
-// see HM-1, HM-7
-// WHY: undefined when the move reaches no WBS parent: a hand-made row carries no Task, and a reorder is no move.
+// see HM-1, HM-7, HM-12
+// WHY: undefined when the move reaches no WBS parent: a hand-made row carries no Task, and a reorder is no move;
+// null is the root.
 /** @purity pure */
-function wbsParentAfterTheMove(schedule: Schedule, moved: TaskGroup, parent: TaskGroup | null): number | undefined {
+function wbsParentAfterTheMove(schedule: Schedule, moved: TaskGroup, parent: TaskGroup | null): number | null | undefined {
   if (moved.derivedFromTaskUid === null || taskByUid(schedule, moved.derivedFromTaskUid) === null) return undefined
   if ((parent?.id ?? null) === moved.parentId) return undefined
-  // STOP: spec does not decide the WBS parent of a derived row moved to the top or under a hand-made row.
-  // Looked in HM-1, HM-7, FR-005, JDG-561 (PND-773)
-  if (parent === null || parent.derivedFromTaskUid === null) return undefined
-  return taskByUid(schedule, parent.derivedFromTaskUid) === null ? undefined : parent.derivedFromTaskUid
+  return nearestDerivedTaskUid(schedule, parent)
+}
+
+// see HM-12
+// WHY: walks up from the landing row; a row whose source Task is gone derives nothing, and no derived row is the root.
+/** @purity pure */
+function nearestDerivedTaskUid(schedule: Schedule, landing: TaskGroup | null): number | null {
+  const byId = new Map(schedule.taskGroups.map((one) => [one.id, one]))
+  let row = landing
+  for (let guard = 0; row !== null && guard <= byId.size; guard++) {
+    const uid = row.derivedFromTaskUid
+    if (uid !== null && taskByUid(schedule, uid) !== null) return uid
+    row = row.parentId === null ? null : (byId.get(row.parentId) ?? null)
+  }
+  return null
 }

@@ -1,4 +1,4 @@
-// Pastes a copy of each chosen Task together with its WBS subtree.
+// Pastes a copy of each chosen Task, and of no Task that was not chosen.
 // @unit      UF-73   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -9,17 +9,17 @@ import { dayFromSerial, dayOf, serial, taskByUid, textOfFinishSide, textOfStartS
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
-import { wbsSubtreesOf } from './edit-task-group'
 import { pastedCopyOf } from './task-plan-actual'
 
-// see CM-8, FR-033
-// WHY: the one owner of the copies' UIDs, so the shell can pick the copies (T-308 CY-8) without a second count.
+// see CM-8, FR-033, DU-1
+// WHY: the one owner of the copies' UIDs, so the shell can pick the copies (T-308 CY-8) without a second count;
+// only the chosen Tasks are copied, never a WBS descendant that was not chosen.
 /** @purity pure */
 export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]): ReadonlyMap<number, number> {
-  const subtree = wbsSubtreesOf(schedule.tasks, sourceUids)
+  const chosen = new Set(sourceUids)
   let mark = schedule.project.uidHighWaterMark
   const remap = new Map<number, number>()
-  for (const one of schedule.tasks) if (subtree.has(one.uid)) remap.set(one.uid, ++mark)
+  for (const one of schedule.tasks) if (chosen.has(one.uid)) remap.set(one.uid, ++mark)
   return remap
 }
 
@@ -44,15 +44,16 @@ function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
 }
 
 // see CM-8, DU-1
-// WHY: the copy keeps the plan and the links closed inside the subtree; pastedCopyOf makes it unstarted.
+// WHY: the copy keeps the plan and the links closed among the copies; a copy whose WBS parent is not copied keeps
+// that parent; pastedCopyOf makes it unstarted.
 /** @purity pure */
-function copiedTask(one: Task, subtree: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
+function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
   return {
     ...one,
     uid: remap.get(one.uid) as number,
     wbsParentUid: one.wbsParentUid === null ? null : (remap.get(one.wbsParentUid) ?? one.wbsParentUid),
     dependencies: one.dependencies
-      .filter((link) => subtree.has(link.predecessorUid))
+      .filter((link) => chosen.has(link.predecessorUid))
       .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
   }
 }
@@ -70,29 +71,29 @@ export function pasteTaskSubtree(
     return refused([reject('CM-8', 'IV-2', `no Task with uid ${missing.join(', ') || '(none given)'}`)])
   }
   // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038, T-067 (PND-179)
-  const subtree = wbsSubtreesOf(schedule.tasks, command.sourceUids)
+  const chosen: ReadonlySet<number> = new Set(command.sourceUids)
 
   const remap = pastedUidsOf(schedule, command.sourceUids)
   let mark = schedule.project.uidHighWaterMark + remap.size
   const landing = command.landing
 
   const copies = schedule.tasks
-    .filter((one) => subtree.has(one.uid))
+    .filter((one) => chosen.has(one.uid))
     .map((one) =>
-      pastedCopyOf(shiftedPlan(copiedTask(one, subtree, remap), landing, schedule.project), schedule, within))
+      pastedCopyOf(shiftedPlan(copiedTask(one, chosen, remap), landing, schedule.project), schedule, within))
 
   const visualCopies = schedule.taskVisuals
-    .filter((one) => subtree.has(one.taskUid))
+    .filter((one) => chosen.has(one.taskUid))
     .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
   const memberCopies = schedule.taskGroupMembers
-    .filter((one) => subtree.has(one.taskUid))
+    .filter((one) => chosen.has(one.taskUid))
     .map((one) => ({
       ...one,
       taskUid: remap.get(one.taskUid) as number,
       groupId: landing?.groupIdOf[one.taskUid] ?? one.groupId,
     }))
   const assignmentCopies: Assignment[] = schedule.assignments
-    .filter((one) => one.taskUid !== null && subtree.has(one.taskUid))
+    .filter((one) => one.taskUid !== null && chosen.has(one.taskUid))
     .map((one) => ({ ...one, uid: ++mark, taskUid: remap.get(one.taskUid as number) as number }))
 
   return edited(
