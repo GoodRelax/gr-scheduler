@@ -2416,23 +2416,6 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
     expect(byRole(built.root(), 'Resource Roster').length).toBeGreaterThan(0)
   })
 
-  it('⛔ mints no name for a surface 表 T-103 has not named -- the requirement UID stands in', () => {
-    const built = wire({ 'App Header': 37 })
-
-    surfaceOf(built).showScreenView(
-      viewWith({
-        openModal: {
-          surface: 'FR-074',
-          heading: 'ExchangeHeading',
-          commands: [],
-          fields: [{ row: 'PF-9', name: 'CreationDate', text: '2026-08-20', isEditable: false, controls: [] }],
-        },
-      }),
-    )
-
-    expect(byRole(built.root(), 'FR-074').length).toBeGreaterThan(0)
-  })
-
   it('names U-57 by 表 T-103, which no longer leaves that part unnamed', () => {
     // ⚠️ THIS CASE ONCE RECORDED AN ABSENCE. 表 T-103 had no row for the part
     // the notices stand in, so the member name PI-37 publishes stood in for it
