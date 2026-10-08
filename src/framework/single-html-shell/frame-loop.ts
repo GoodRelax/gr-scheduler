@@ -1822,6 +1822,22 @@ function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEven
   return { type: 'objectsPicked', pickedObjects }
 }
 
+// see IN-4, SK-19, FR-085, T-293
+// WHY: emptySelection() is one shared value, so with only rows chosen the picked objects stay the held
+// ones; the spent rung tells instead -- Esc on the selection rung, Enter the translator left to the choice.
+/** @purity pure */
+function isRowChoiceSpentBy(
+  input: HumanInput,
+  context: InputContext,
+  escapeLevel: EscapeTarget | null,
+  translated: ReturnType<typeof commandFromInput>,
+): boolean {
+  if (input.kind !== 'key' || (context.chosenRows?.length ?? 0) === 0) return false
+  if (input.key === ESCAPE_KEY) return escapeLevel === 'selection'
+  if (input.key !== ENTER_KEY || !isCombo(input.modifiers, false, false, false)) return false
+  return translated.action === null && translated.isBrowserDefaultStopped
+}
+
 // see IN-1, IN-1a
 /** @purity pure */
 function hasEndedGesture(input: HumanInput): boolean {
@@ -3544,14 +3560,15 @@ export function frameLoop(
       isTooltipStanding,
     )
     const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context, escapeLevel), context.selection, pointerAt)
-    const hasChoiceMoved = pickedObjects !== context.selection
+    const translated = commandFromInput(input, context)
+    const hasChoiceMoved =
+      pickedObjects !== context.selection || isRowChoiceSpentBy(input, context, escapeLevel, translated)
     if (hasChoiceMoved) {
       sendToSession(choiceEventOf(input, pickedObjects), frame)
       noteChoiceMoved(hands, frame)
     }
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null && isSentBeforePressDrops(screenEvent, frame)) sendToSession(screenEvent, frame)
-    const translated = commandFromInput(input, context)
     if (translated.landingMarked !== undefined) {
       sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
       shownTasks.holdJumpTarget(translated.landingMarked.landedTaskUid)

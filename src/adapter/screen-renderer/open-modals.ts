@@ -71,6 +71,8 @@ const DIFFERENCE_REVIEW = 'Difference Review'
 
 const IMPORT_REPORT = 'Import Report'
 
+const HOLIDAY_SETTINGS = 'Holiday Settings'
+
 // see T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
   ['U-49', RESOURCE_ROSTER],
@@ -79,6 +81,7 @@ const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
   ['U-60', WATERMARK_UNLOCK],
   ['U-61', DIFFERENCE_REVIEW],
   ['U-62', IMPORT_REPORT],
+  ['U-65', HOLIDAY_SETTINGS],
 ])
 
 const IMPORT_REPORT_REASON = 'RS-50'
@@ -421,6 +424,7 @@ function openChooserOf(session: ScreenSession, heading: string, commands: readon
 
 // see T-280, S-99g, T-103
 // WHY: the session names a surface by its U row; the drawing names it by the glossary word of that row.
+// DEVIATION: spec says S-99g holds U rows only (T-280); here any other value is drawn as it stands (DFC-2280)
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
