@@ -500,12 +500,16 @@ interface DrawnPicture {
 }
 
 /** @purity pure */
-function isSameRecord(a: object, b: object, isSame: (x: unknown, y: unknown) => boolean = Object.is): boolean {
+function isSameRecord(
+  a: object,
+  b: object,
+  isSame: (x: unknown, y: unknown, key: string) => boolean = Object.is,
+): boolean {
   if (a === b) return true
   const right = b as Readonly<Record<string, unknown>>
   const fields = Object.entries(a)
   if (fields.length !== Object.keys(right).length) return false
-  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key]))
+  return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key], key))
 }
 
 // TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
@@ -557,11 +561,7 @@ const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
 
 /** @purity pure */
 function isSameApartFromViewPlace(a: DocumentSettings, b: DocumentSettings): boolean {
-  if (a === b) return true
-  const right = b as unknown as Readonly<Record<string, unknown>>
-  const fields = Object.entries(a)
-  if (fields.length !== Object.keys(right).length) return false
-  return fields.every(([key, value]) => VIEW_PLACE_FIELDS.has(key) || (Object.hasOwn(right, key) && Object.is(value, right[key])))
+  return isSameRecord(a, b, (x, y, key) => VIEW_PLACE_FIELDS.has(key) || Object.is(x, y))
 }
 
 // TRAP: away from the stored zoom the drawn zoom is a fit read off the drawn layout, so only then is the layout a key.

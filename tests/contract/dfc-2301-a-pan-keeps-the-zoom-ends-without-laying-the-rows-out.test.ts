@@ -2,7 +2,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { HumanInput } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  NOT_STORED_ZOOM_STEP,
+  type HumanInput,
+} from '../../src/adapter/input-command-translator/input-command-translator'
+import type { Document } from '../../src/entity/document-model/document/document'
+import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
+import { here } from './cr-610-file-flow-stage'
 import { pointerOf } from '../unit/cr-541-stage'
 import { paletteStage, surfaceOfEntrance, type PaletteStage } from './wp-p1-palette-stage'
 
@@ -44,6 +50,15 @@ async function pan(built: PaletteStage): Promise<void> {
   await send(built, pointerOf('up', PAN_FROM.x - PAN_STEPS * PAN_STEP_PX, PAN_FROM.y - PAN_STEPS * PAN_STEP_PX, CTRL))
 }
 
+// see S-96, S-97, OP-10
+// WHY: a stored place and zoom one IC-12 step above the floor, so one press reaches the end.
+const oneStepAboveTheTimeFloor = (): Document => {
+  const document = here()
+  const groupId = document.schedule.taskGroups[0]?.id ?? null
+  const zoomX = NOT_STORED_ZOOM_BOUNDS['S-97'] * NOT_STORED_ZOOM_STEP['S-96']
+  return { ...document, documentSettings: { ...document.documentSettings, scrollGroupId: groupId, zoomX } }
+}
+
 const isEnabled = (built: PaletteStage, icon: string): boolean => {
   const found = built.last().appHeaderItems.commands.filter((one) => one.icon === icon)
   if (found.length !== 1) throw new Error(`the App Header carries ${found.length} items for ${icon}`)
@@ -76,11 +91,10 @@ describe('DFC-2301 -- a pan keeps the IC-12..IC-15 ends without asking them agai
   })
 
   it('a zoom to the time-axis end still turns IC-12 faint, and a pan afterwards keeps it faint', async () => {
-    const built = await paletteStage()
-    for (let press = 0; press < 80 && isEnabled(built, TIME_OUT); press += 1) {
-      await built.press(surfaceOfEntrance(TIME_OUT), TIME_OUT)
-    }
-    expect(isEnabled(built, TIME_OUT), 'IC-12 never reached its end').toBe(false)
+    const built = await paletteStage({ document: oneStepAboveTheTimeFloor() })
+    expect(isEnabled(built, TIME_OUT), 'precondition: IC-12 is pressable one step above S-97').toBe(true)
+    await built.press(surfaceOfEntrance(TIME_OUT), TIME_OUT)
+    expect(isEnabled(built, TIME_OUT), 'IC-12 did not reach its end').toBe(false)
     await pan(built)
     expect(isEnabled(built, TIME_OUT)).toBe(false)
     await built.press(surfaceOfEntrance(TIME_IN), TIME_IN)
