@@ -11,6 +11,7 @@ import {
   REQUIREMENTS,
   rowDocument,
   shell,
+  taskOf,
   type ShellBench,
 } from '../unit/cr-541-stage'
 
@@ -78,6 +79,27 @@ const rowZoomToItsEnd = (built: ShellBench): number => {
 }
 
 // WHY: DS-13 scales the floored row by the display scale alone (CR-689), so its band is one number at every zoomY.
+const STACKED_TASKS = 24
+
+const stackedRowBench = (): ShellBench => {
+  const tasks = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
+  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, groupId: 'row-1' }))
+  const rows = [{ id: 'row-1', parentId: null }]
+  return keep(shell(rowDocument(rows, { zoomY: START_ZOOM_Y }, { tasks, taskGroupMembers: members, taskVisuals: [] })))
+}
+
+const tallestBandOf = (built: ShellBench): number => Math.max(...frameOf(built).layout.rows.map((row) => row.height))
+
+const bandsUpToTheEnd = (built: ShellBench): number[] => {
+  const bands = [tallestBandOf(built)]
+  for (let press = 0, previous = Number.NaN; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {
+    previous = zoomYOf(built)
+    built.send(keyOf('+', { alt: true }))
+    if (zoomYOf(built) !== previous) bands.push(tallestBandOf(built))
+  }
+  return bands
+}
+
 const ceilingCase = (minHeight: number) => {
   const built = flooredRowBench(minHeight)
   const height = frameOf(built).regions.rowArea.height
@@ -111,6 +133,18 @@ describe('DFC-699 / FR-016, T-253, DS-13 -- the row zoom stops where the tallest
       expect(reached, 'the band-side ceiling is the first candidate, so pressing in never raises zoomY').toBeLessThanOrEqual(START_ZOOM_Y)
     },
   )
+})
+
+describe('DFC-699 / FR-016, T-253 -- rows with no floor: the band ceiling follows zoomY', () => {
+  it(`${FR_016_FIRST_BAND_THAT_FILLS} -- the zoom stops at the first band that fills the Row Area, not past it`, () => {
+    const built = stackedRowBench()
+    const height = frameOf(built).regions.rowArea.height
+    const bands = bandsUpToTheEnd(built)
+    expect(built.loop.document().schedule.taskGroups[0]?.minHeight, 'premise: the row has no floor').toBeNull()
+    expect(bands[0], 'premise: the band starts short of the Row Area').toBeLessThan(height)
+    expect(bands[bands.length - 1], 'the last zoom fills the Row Area').toBeGreaterThanOrEqual(height - 1)
+    expect(bands[bands.length - 2], 'the zoom before it did not').toBeLessThan(height)
+  })
 })
 
 /** @purity pure */

@@ -38,7 +38,7 @@ const IX_4_CAP =
   'い —— 行を足して埋めない規則は `IX-10` が持つ。固定しているときの高さは `IX-15` が持つ。⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）'
 const IX_10 =
   'りの空白 | 絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）'
-const IX_10_NO_ROWS = '行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
+const IX_10_NO_ROWS = '余りを空白のままとすること（MUST）。行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
 // WHY: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
 const IX_17_BOTH = '⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
 const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日を写す。'

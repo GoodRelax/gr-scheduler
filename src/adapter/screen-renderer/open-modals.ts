@@ -147,7 +147,6 @@ const NO_WORDS = ''
 const FIT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'fitSpan')
 
 // see FR-096, IX-12, FX-1, FX-8
-// WHY: the year is always written (FX-8): a pasted picture's span must read which year it is.
 /** @purity pure */
 function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): string | null {
   if (fixedFitSpanOf(settings) === null || FIT_SPAN_WORD === undefined) return null
