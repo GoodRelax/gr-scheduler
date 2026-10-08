@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 247 | 2814 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
+| `system` | TS-3 | - | 66 | 424 | 0 | 1 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 515 | 7254 | 6 | 11 | 12 | 2 |
+| **all** | | | 515 | 7254 | 6 | 10 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -574,7 +574,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/w3-t1-the-ground-is-painted-and-nothing-solved-is-saved.test.ts` | 3 | FR-041 | - | T-109 | CF-1, S-146 | - | - | - | - |
 | `tests/system/w3-t1-the-wbs-parent-and-the-panel-rows.test.ts` | 8 | FR-006, FR-075, FR-135 | - | T-016, T-109, T-236, T-351, T-367 | AG-9, FX-4, FX-5, K-141, K-142, RS-69, S-503, S-527, S-528, SJ-2, WL-1, WL-5, WL-8, WL-15, WL-16, WL-17 | - | - | - | - |
 | `tests/system/w3-t1-the-written-bytes-carry-the-shown-time.test.ts` | 4 | FR-101 | - | - | AM-15, AT-140, HS-2, HS-11, IO-7, SX-1 | - | - | - | - |
-| `tests/system/w3-t2-file-and-picture-clauses.test.ts` | 8 | FR-135 | - | T-024a, T-076, T-241, T-318, T-337 | AG-1, CM-90, EP-3, FX-2, HS-5, HS-11, IC-141, IX-12, IX-13, IX-14, IX-15, OP-9, S-81 | - | DFC-2205 | - | - |
+| `tests/system/w3-t2-file-and-picture-clauses.test.ts` | 8 | FR-135 | - | T-024a, T-076, T-241, T-318, T-337 | AG-1, CM-90, EP-3, FX-2, HS-5, HS-11, IC-141, IX-12, IX-13, IX-14, IX-15, OP-9, S-81 | - | - | - | - |
 | `tests/system/w3-t2-screen-clauses.test.ts` | 15 | FR-016, FR-036, FR-039, FR-046, FR-052, FR-096, FR-100 | - | T-012a, T-023, T-028, T-051, T-236, T-252, T-294, T-335, T-366, T-369 | CF-1, CF-2, CF-3, CM-62, CV-6, DA-7, FO-3, FO-4, GA-7, GA-8, GR-25, HF-10, IN-6, IN-7, MK-1, MK-3, MK-13, RV-6, S-155, S-321, S-514, S-515, S-516, S-522, TH-3, UN-13, WB-10 | - | - | - | - |
 | `tests/system/w3-t3-the-row-title-panel-head-row.test.ts` | 3 | - | - | T-025, T-103, T-109, T-206 | HF-10, MC-6, S-313 | - | - | - | - |
 | `tests/system/w3-t4-the-file-surfaces-and-the-title-on-the-built-page.test.ts` | 7 | FR-096 | - | T-103, T-330, T-335 | MK-13, SV-7, WB-10, WM-9 | - | - | - | - |
