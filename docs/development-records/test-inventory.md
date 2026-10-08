@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 266 | 2950 | 5 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 266 | 2950 | 4 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 68 | 429 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3911 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 536 | 7394 | 8 | 9 | 12 | 2 |
+| **all** | | | 536 | 7394 | 7 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,16 +49,15 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (8)
+## 5. Expected-to-fail cases (7)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 1 of 8.
+named either way: 1 of 7.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
-| `tests/contract/dfc-709-pi-18-sk-15-f11-makes-the-full-screen-entry-event.test.ts` | DFC-709: IC-11 (T-280 names it beside SK-15): a press released on the entrance makes th... | DFC-709 |
 | `tests/contract/dfc-732-ir-3-the-record-names-the-t-220-row-of-a-refused-import.test.ts` | DFC-732: a refused import leaves an NT-1 notice standing whose reason is the T-220 row,... | DFC-732 |
 | `tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_ROW} -- one Task from an editGroup row, ONE row chosen | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
@@ -446,7 +445,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts` | 6 | FR-016, FR-042 | - | T-253 | AT-59, BC-3, DS-13, MK-3, SK-16 | - | - | - | - |
 | `tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts` | 10 | - | VT-2 | T-103, T-109, T-280 | IC-2, IC-52, IC-62, PI-18, RS-27, SK-12, U-49, U-54, U-56, U-60, U-61, U-62, U-65 | - | - | - | - |
 | `tests/contract/dfc-707-fr-102-a-hidden-palette-is-never-recorded-as-minimised.test.ts` | 4 | FR-102 | VT-2 | T-280 | IC-75, IC-76, SK-14 | - | - | - | - |
-| `tests/contract/dfc-709-pi-18-sk-15-f11-makes-the-full-screen-entry-event.test.ts` | 10 | FR-071 | VT-2 | T-036, T-280 | IC-11, MK-10, PI-18, SK-15 | - | - | 1: DFC-709 | - |
+| `tests/contract/dfc-709-pi-18-sk-15-f11-makes-the-full-screen-entry-event.test.ts` | 10 | FR-071 | VT-2 | T-036, T-280 | IC-11, MK-10, PI-18, SK-15 | - | - | - | - |
 | `tests/contract/dfc-722-fr-097-an-empty-comment-box-keeps-the-font-size-floor.test.ts` | 3 | FR-097 | - | T-215 | S-30 | - | - | - | - |
 | `tests/contract/dfc-724-en-5-the-watermark-entrance-is-filled-while-the-watermark-shows.test.ts` | 6 | FR-029 | - | T-109, T-206, T-237 | EN-5, IC-41, S-144, S-183 | - | - | - | - |
 | `tests/contract/dfc-725-lf-13-the-undated-resume-icon-is-faint-by-s-308.test.ts` | 4 | FR-044 | - | T-236 | LF-13, S-161, S-308, S-310 | - | - | - | - |
