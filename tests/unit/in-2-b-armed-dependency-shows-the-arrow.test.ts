@@ -39,7 +39,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 // see IN-2
 
 const IN_2_DEPENDENCY_ARROW_MUST =
-  '依存線を構えているあいだ（表 T-023b の `AR-4`）は 表 T-269 の形を当てず、作図の合図とすること（MUST）'
+  '掴み代の上は既定の矢印（閲覧環境の `default`）とし、何にも当たらない場所は作図の合図とすること（MUST）'
 
 const IN_2_ARMED_EMPTY_MUST = '構えているときは作図の合図'
 

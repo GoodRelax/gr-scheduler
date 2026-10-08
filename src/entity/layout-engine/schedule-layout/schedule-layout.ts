@@ -559,7 +559,7 @@ export function layoutFromSchedule(
       )
       const deadlineX = deadlineXOf(task, kind, reader, originSerial, pxPerDay, originX)
       const labelled = { x0: assigneeAnchor - outsideWidth, x1: labelledX1 }
-      // WHY: OC-8 is not counted yet: its mark is not drawn (MS-4).
+      // WHY: OC-8 is never counted: the late count is shown only in the EZ-6 tip (TL-12), never drawn.
       const occupied = occupiedSpanOf(labelled, spread, deadlineX, markerDiameter)
       return { task, kind, glyph, oneDay, outline, x, width, named, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,

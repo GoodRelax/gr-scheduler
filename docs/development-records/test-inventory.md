@@ -17,8 +17,8 @@ what this reading does not see.
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 174 | 3861 | 1 | 1 | 2 | 0 |
-| `usecase` | TS-1 | VT-1 | 14 | 17 | 4 | 6 | 0 | 0 |
-| **all** | | | 499 | 7121 | 9 | 14 | 11 | 2 |
+| `usecase` | TS-1 | VT-1 | 14 | 17 | 3 | 4 | 0 | 0 |
+| **all** | | | 499 | 7121 | 8 | 12 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,12 +49,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (9)
+## 5. Expected-to-fail cases (8)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 1 of 9.
+named either way: 1 of 8.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
@@ -63,7 +63,6 @@ named either way: 1 of 9.
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
-| `tests/usecase/uc-006-find-delays.test.ts` | UC-006 step 4 / FR-047: no delay count in days is drawn; step 5 / FR-015: the overlaid... | DFC-1013, DFC-1014 (via known-red) |
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 | `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-0... | DFC-2201 |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
@@ -746,7 +745,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/usecase/uc-003-edit-task-attributes.test.ts` | 1 | FR-006, FR-007, FR-008, FR-031, FR-038, FR-039, FR-049, FR-072, FR-083, FR-089, FR-090, FR-103, UC-003 | VT-1 | T-016, T-206, T-334 | AS-3, IC-16, IC-17, IC-42, MK-13, PR-3, PR-16, PR-39, PR-40, S-60, S-61, S-72, SP-2, VT-1 | - | - | - | - |
 | `tests/usecase/uc-004-show-dependencies-between-tasks.test.ts` | 1 | FR-009, UC-004 | VT-1 | T-018, T-018a, T-023b, T-028, T-213, T-334 | AR-4, DP-1, DP-3, IC-61, IN-4, S-201, VT-1 | - | - | - | - |
 | `tests/usecase/uc-005-record-actuals.test.ts` | 2 | FR-011, FR-012, FR-013, FR-030, FR-043, UC-005 | VT-1 | T-019, T-021, T-021a, T-334 | PV-1, PV-2, PV-3, PV-4, VT-1 | - | - | - | - |
-| `tests/usecase/uc-006-find-delays.test.ts` | 1 | FR-013, FR-014, FR-015, FR-046, FR-047, UC-006 | VT-1 | T-021b, T-022, T-334 | DL-1, DL-2, GR-16, IC-4, IC-73, OC-8, OP-3, OP-9, PM-4, VT-1 | - | DFC-1013, DFC-1014 | 1: DFC-1013, DFC-1014 | - |
+| `tests/usecase/uc-006-find-delays.test.ts` | 1 | FR-013, FR-014, FR-015, FR-046, FR-047, UC-006 | VT-1 | T-021b, T-022, T-334 | DL-1, DL-2, EZ-6, GR-16, IC-4, IC-73, OC-8, OP-3, OP-9, PM-4, TL-12, VT-1 | - | - | - | - |
 | `tests/usecase/uc-007-bring-the-range-into-view.test.ts` | 1 | FR-016, FR-017, FR-018, FR-098, UC-007 | VT-1 | T-005a, T-205, T-334 | IC-60, MK-1, MK-2, MK-4, MK-7, PTD-1, PTD-5, S-8, S-83, S-84, S-85, VT-1, ZO-6 | - | - | - | - |
 | `tests/usecase/uc-008-tell-by-annotations.test.ts` | 2 | FR-016, FR-019, FR-097, UC-008 | VT-1 | T-023b, T-023d, T-217, T-334 | AR-5, AR-6, IC-35, IC-36, MK-13, PR-21, VT-1 | - | - | - | - |
 | `tests/usecase/uc-009-show-a-confidential-schedule-on-screen.test.ts` | 1 | FR-020, FR-087, UC-009 | VT-1 | T-242, T-334 | IC-41, RS-41, S-99a, S-100, S-102, S-220, U-60, VT-1, WM-6, WM-8, WM-10, WM-13, WM-14 | - | - | - | - |

@@ -1,4 +1,4 @@
-// W3 tester 4: FR-009 dependency lines -- the ground-coloured halo is not laid over the box of a plan, actual or dummy shape, ink included.
+// W3 tester 4: FR-009 dependency lines -- the ground-coloured halo is not laid over the box of a plan or actual shape, ink included.
 
 // WHY: the drawn picture is read from the frame loop's export scene (the same SVG the screen draws); every box is measured
 // from the figure's own coordinates and stroke width, never from a number written here.
@@ -11,7 +11,7 @@ import { rowDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS, shellStage } from './cr-610-file-flow-stage'
 
 const HALO_SPARES =
-  '`HT-1` が形ごとに読む描いた形のうち、予定・実績・ダミーの形（マイルストーンの図形を含む）のそれぞれを囲む矩形とし、輪郭と線の太さ・矢じり・点のインクを含めること（MUST）'
+  '`HT-1` が形ごとに読む描いた形のうち、予定と実績の形（マイルストーンの図形を含む）のそれぞれを囲む矩形とし、輪郭と線の太さ・矢じり・点のインクを含めること（MUST）'
 const HALO_NOT_ON_SHAPES = '⛔ **`Task` の形に重なる区間では、縁を敷いてはならない（MUST NOT）**'
 const HALO_IS_GROUND = '手当ては、手前の線に地の色（`S-146`）の縁を敷くこととする（MUST）'
 

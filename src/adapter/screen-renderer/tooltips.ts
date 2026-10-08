@@ -11,8 +11,11 @@ import {
   calendarSpanOf,
   compareDays,
   dayOf,
+  delayWorkingDays,
+  isDelayed,
   serial,
   taskByUid,
+  workingCalendarOf,
   type BaselineTask,
   type CalendarDay,
   type Schedule,
@@ -292,9 +295,24 @@ function deadlineDayText(task: Task, context: HintContext, language: DisplayLang
   return `${deadlineWord(language)} ${hintDayText(day, context.isYearWritten, language)}`
 }
 
+const LATE_REASON_PART = 'late'
+const LATE_WORDS = displayWords.delayReportReasons.find((entry) => entry.part === LATE_REASON_PART)?.text
+const DAYS_SLOT = '{days}'
+
+// see TL-12, FR-047, DX-10, DT-7
+// WHY: DX-10's count in DG-4's reason words, so the tip and the report never differ on one delay.
+/** @purity pure */
+function lateLine(task: Task, schedule: Schedule, language: DisplayLanguage): string | null {
+  // TRAP: read through ?. and ??: views built from a partial schedule carry no project or no statusDate (FR-046: no line).
+  const statusDate = dayOf(schedule.project?.statusDate ?? null)
+  if (!isDelayed(task, statusDate)) return null
+  const days = delayWorkingDays(workingCalendarOf(schedule), task, statusDate)
+  return (LATE_WORDS?.[language] ?? LATE_REASON_PART).replace(DAYS_SLOT, String(days))
+}
+
 // see TL-1
 /** @purity pure */
-function taskHint(task: Task, context: HintContext, language: DisplayLanguage): string {
+function taskHint(task: Task, context: HintContext, language: DisplayLanguage, late: string | null): string {
   const name = task.name ?? ''
   const lines = [
     name === '' ? null : name,
@@ -303,6 +321,7 @@ function taskHint(task: Task, context: HintContext, language: DisplayLanguage): 
     assigneeLine(context.assigneeNames, language),
     percentLine(task, language),
     deadlineDayText(task, context, language),
+    late,
   ]
   return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
 }
@@ -368,7 +387,7 @@ function iconTooltipOf(
 
 type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
 
-// see TL-1, TL-2, TL-3
+// see TL-1, TL-2, TL-3, TL-12
 /** @purity pure */
 function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage): string | null {
   if (holder.kind === 'baseline') {
@@ -378,7 +397,7 @@ function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLan
   const task = taskByUid(schedule, holder.taskUid)
   if (task === null) return null
   if (holder.kind === 'deadline') return deadlineHint(task, schedule, language)
-  return taskHint(task, hintContextOf(schedule, task.uid), language)
+  return taskHint(task, hintContextOf(schedule, task.uid), language, lateLine(task, schedule, language))
 }
 
 // see EZ-6, DC-3, S-439, T-023d
