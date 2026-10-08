@@ -330,7 +330,7 @@ UI の名前とデータの名前が食い違ったら、**UI の名前を変え
 | W-1 | 型・クラス | PascalCase | `TaskGroup` |
 | W-2 | 関数・変数・JSON プロパティ | camelCase | `groupId` |
 | W-3 | 定数 | SCREAMING_SNAKE_CASE | `MAX_GROUP_DEPTH` |
-| W-4 | 文字列判別値・`data-role`・CSS クラス | kebab-case。<br>⚠️ ただし UI パーツの確定名を運ぶ `data-role` は `W-6` の形とする —— 表 T-103 の名をそのまま書く。<br>訳すと同じものに 2 つ目の綴りができる | `toggle-plan` ／ `Schedule Canvas` |
+| W-4 | 文字列判別値・`data-role`・CSS クラス | kebab-case。<br>⚠️ ただし UI パーツの確定名を運ぶ `data-role` は `W-6` の形とする —— 表 T-103 の名をそのまま書く。<br>訳すと同じものに 2 つ目の綴りができる。<br>⚠️ 名を運ぶ要素の箱は、その UI パーツの範囲と同じとは限らない —— `Schedule Canvas` の要素はウインドウ全体を覆う描画の層であり、範囲は `App Header` の下の縁から始まる（`_assets/tbl-glossary.md` の `U-32`） | `toggle-plan` ／ `Schedule Canvas` |
 | W-5 | i18n キー | snake_case | `group_id` |
 | W-6 | UI パーツ（散文で指すとき） | PascalCase の複合語（空白あり） | `Row Title Panel` |
 | W-7 | データの属性（散文で指すとき） | `Entity.field` 形式 | `TaskGroupMember.groupId` |
@@ -4976,10 +4976,10 @@ h は矩形の予定の縦幅（`_assets/tbl-settings.md` の 表 T-201 の `S-4
 | UZ-13 | 7 | 開いている面（`_assets/tbl-settings.md` の `S-99g`）のうち `Help Modal` を除くもの —— `Resource Roster`（`U-49`）・`Export Chooser`（`U-54`）・`Open Chooser`（`U-56`）・`Watermark Unlock`（`U-60`）・`Difference Review`（`U-61`）・`Import Report`（`U-62`）・`Holiday Settings`（`U-65`） | 押した直後に 1 度だけ答えて閉じるもの —— いま行った操作への答えなので、開いたまま読むヘルプより手前。<br>`App Header` より手前でなければ、窓が低いとき面の閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）がヘッダーに隠れる。<br>面は一度に 1 つしか開かないので、面どうしの前後を持たない |
 | UZ-7 | 8 | `Help Modal`（`U-30`）—— 最小化して題の行だけになったものを含む | 作業の横で開いたまま読むもの。<br>ほかの面を開いても閉じないので、ほかの面より奥に置き、答えを求める面を覆わない。<br>`App Header` より手前に置く —— 理由は `UZ-13` と同じ |
 | UZ-8 | 9 | `App Header`（`U-31`） | 動かせず、キーでも片づかない。<br>浮く UI パーツより奥に置けば、それをヘッダーの上まで運んでも掴む所が残る |
-| UZ-9 | 10 | `Dialogue Field`（`U-44`）。<br>題の行の帯（表 T-023d の `GR-24`）と縁（同表の `GR-25`）を含む | 動かせるが、動かせる範囲は `Schedule Canvas` の中（`FR-066`）なので、`App Header` と重ならない —— ヘッダーより奥に置いても掴む所を失わない。<br>浮く UI パーツや面が覆っても、覆った側か欄を動かすか閉じれば戻る |
+| UZ-9 | 10 | `Dialogue Field`（`U-44`）。<br>題の行の帯（表 T-023d の `GR-24`）と縁（同表の `GR-25`）を含む | 動かせるが、動かせる範囲は `Schedule Canvas` の中（`FR-066`）なので、`App Header` と重ならない（`Schedule Canvas` の範囲は `App Header` の下の縁から始まる —— `_assets/tbl-glossary.md` の `U-32`） —— ヘッダーより奥に置いても掴む所を失わない。<br>浮く UI パーツや面が覆っても、覆った側か欄を動かすか閉じれば戻る |
 | UZ-10 | 11 | `Panel Divider` の掴み帯（表 T-023d の `GR-22`） | パネルと `Scrollbars` の帯の境目に重ねて敷くので、その 2 つより手前（`GR-22`） |
 | UZ-11 | 12 | `Row Title Panel`（`U-22`）・`Properties Panel`（`U-25`） | 隣り合い、重ならない。<br>中の前後は各要求が持つ（行の操作子の群は 表 T-051 の `HF-1`） |
-| UZ-12 | 13（最背面） | `Schedule Canvas`（`U-32`）—— `Time Ruler`・`Row Area`・`Scrollbars`・`Canvas Overlays`・`Watermark` を含む | 中の前後は `FR-110` の 表 T-020 に従うこと（MUST）（目盛の帯は行より手前 —— 同表の注） |
+| UZ-12 | 13（最背面） | `Schedule Canvas`（`U-32`）—— `Time Ruler`・`Row Area`・`Scrollbars`・`Canvas Overlays`・`Watermark` を含む | 中の前後は `FR-110` の 表 T-020 に従うこと（MUST）（目盛の帯は行より手前 —— 同表の注）。<br>⚠️ `data-role` に `Schedule Canvas` を持つ描画の層はウインドウ全体を覆い、`App Header` の帯の奥にも敷かれる —— 最背面なので、その帯では `App Header`（`UZ-8`）が手前に在る。<br>利用者が見て押す範囲は `_assets/tbl-glossary.md` の `U-32` のとおり `App Header` の下の縁から始まる |
 
 ⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。  
 ⛔ UI パーツは、自分の外の押下を止めてはならない（MUST NOT） —— 手前に描かれていても押せないものは、掴めない位置に置かれた帯と同じく戻せない。  
@@ -8289,7 +8289,7 @@ ASF はリンクで代えてよいとは言わない（`docs/review/apache-licen
 | --- | --- | --- | --- | --- |
 | WB-1 | 通常 | 題の行と本文 | ウインドウごとの既定（ヘルプは `S-201` の割合で `App Header` を除いた領域の中央（`FR-036`）、検索パネルは 表 T-330 の `SV-9`、遅延診断レポートの窓は 表 T-346 の `RW-5`、対話欄は `FR-066`）。<br>`WB-6` が位置と大きさを覚えているあいだは、覚えた箱 | 開いたときはこの状態から始める。<br>`IC-129` で `WB-2` へ、`IC-130` で `WB-3` へ |
 | WB-2 | 最小化 | 題の行だけ。<br>本文は描かない | 題の行を中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角） | `IC-129` で `WB-1` へ戻す。<br>`IC-130` で `WB-3` へ |
-| WB-3 | 最大化 | 題の行と本文 | ウインドウごとに定める範囲いっぱい（ヘルプ・検索パネル・遅延診断レポートの窓・対話欄のどれも `Schedule Canvas`（`U-32`）の全体） | `IC-131` で `WB-1` へ戻す。<br>`IC-129` で `WB-2` へ |
+| WB-3 | 最大化 | 題の行と本文 | ウインドウごとに定める範囲いっぱい（ヘルプ・検索パネル・遅延診断レポートの窓・対話欄のどれも `Schedule Canvas`（`U-32`）の全体 —— `App Header` の下の縁からウインドウの下の端まで。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ描画の層の箱ではない） | `IC-131` で `WB-1` へ戻す。<br>`IC-129` で `WB-2` へ |
 | WB-4 | 入口の描き方 | `IC-129` は 1 つの入口で最小化と戻しの両方向を担い、同じ場所に在る（`IC-75` と同じ）。<br>最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く（`IC-67`・`IC-68` と同じ組み） | — | — |
 | WB-5 | 戻す先 | `WB-2` から `IC-129` で戻す先は、最小化の前が `WB-3` でも `WB-1` とする | — | — |
 | WB-6 | 寿命 | 状態を文書にも閲覧環境の保管庫にも保存しない。<br>位置と大きさも同じである。<br>状態は閉じたら捨て、開くたびに `WB-1` から始める。<br>位置と大きさは、ヘルプは閉じたら捨て、検索パネル・遅延診断レポートの窓・対話欄は同じ画面のあいだ覚えて、開き直したときに戻す（検索パネルは 表 T-330 の `SV-14`、遅延診断レポートの窓は 表 T-346 が当てる同じ `SV-14`） | — | — |

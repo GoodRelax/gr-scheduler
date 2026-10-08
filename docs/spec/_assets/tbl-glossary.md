@@ -110,7 +110,7 @@
 | U-27 | `Document Title` | 文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-30 | `Help Modal` | ヘルプ |
 | U-31 | `App Header` | ヘッダー |
-| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない） |
+| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウインドウの下の端までの、ウインドウの全幅とする —— 表示の絞り込みの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-337 の `UZ-9`、表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウインドウの左上の角 (0, 0) からウインドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |

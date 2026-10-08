@@ -52,11 +52,13 @@ const GR_25_WHERE = '縁の内側と外側に、同じ `_assets/tbl-settings.md`
 const RG_16_ROW = '| RG-16 | `Esc` | 開いているウインドウ |'
 const AM_25_SAME_ROWS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 const IN_1_ESC = '中断は `Esc` で行い'
+const U_32_NOT_THE_BOX =
+  '⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT）'
 
 const T_103 = specTable('T-103')
 const roleOf = (id: string): string => `[data-role="${bare(rowOf(T_103, id).cells[0] ?? '')}"]`
 const SEARCH_PANEL = roleOf('U-64')
-const SCHEDULE_CANVAS = roleOf('U-32')
+const APP_HEADER = roleOf('U-31')
 const PROPERTIES_PANEL = roleOf('U-25')
 const SEARCH_WORD = '[data-field-row="SV-2"]'
 const COMMENT_BOX_TABLE = rowOf(specTable('T-109'), 'IC-119').id
@@ -209,6 +211,17 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
       ? null
       : { x: box.x, y: box.y, right: box.right, bottom: box.bottom, width: box.width, height: box.height }
   }, selector)
+}
+
+// WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
+// see U-32, UZ-9
+/** @purity semi-pure-b */
+async function scheduleCanvasRange(page: Page): Promise<Box> {
+  const header = await boxOf(page, APP_HEADER)
+  const view = page.viewportSize()
+  if (header === null || view === null) throw new Error(`${U_32_NOT_THE_BOX} -- ${APP_HEADER} is not on the screen`)
+  const height = view.height - header.bottom
+  return { x: 0, y: header.bottom, right: view.width, bottom: view.height, width: view.width, height }
 }
 
 /** @purity semi-pure-b */
@@ -543,8 +556,7 @@ test.describe(`SV-10 -- ${SV_10_FOLLOW}`, () => {
     try {
       await one.page.keyboard.press(OPEN_SEARCH)
       await settle(one.page)
-      const canvas = await boxOf(one.page, SCHEDULE_CANVAS)
-      if (canvas === null) throw new Error('the Schedule Canvas is not on the screen')
+      const canvas = await scheduleCanvasRange(one.page)
       const far = canvas.width + canvas.height
       for (const [dx, dy] of [[far, far], [-far, -far], [far, -far], [-far, far]] as const) {
         await grabAndHold(one.page, await headingBandSpot(one.page), dx, dy)

@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 267 | 2953 | 4 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 268 | 2956 | 4 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 68 | 429 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3911 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 537 | 7397 | 7 | 9 | 12 | 2 |
+| **all** | | | 538 | 7400 | 7 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -359,6 +359,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts` | 15 | FR-027, FR-073 | - | T-052, T-206 | DR-4, RS-25, S-540, S-541 | - | - | - | - |
 | `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-row-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/cr-709-the-line-shapes-and-the-record-stop-line.contract.test.ts` | 9 | FR-007, FR-102 | - | T-012, T-017a, T-294 | CT-4, CV-6, SH-1, SH-3, SH-4 | - | - | - | - |
+| `tests/contract/cr-715-the-schedule-canvas-range-starts-below-the-app-header.contract.test.ts` | 3 | FR-036 | - | - | U-32 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-row.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -551,7 +552,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-574-help-window.test.ts` | 17 | FR-036, FR-038, FR-069 | - | T-036, T-103, T-109, T-206, T-335, T-336, T-337 | GR-24, GR-25, HN-1, HN-2, HN-4, HN-5, IC-2, IC-22, IC-52, IC-62, IC-128, IC-129, IC-130, IC-131, IN-4, OP-3, S-201, S-202, S-203, S-350, S-423, S-434, S-436, S-458, S-459, SK-12, UZ-5, UZ-7, UZ-13, WB-2, WB-3, WB-4, WB-5, WB-6, WB-8, WB-9 | - | - | - | - |
 | `tests/system/cr-575-the-palette-stays-grabbable-over-the-header.test.ts` | 7 | FR-053, FR-152 | - | T-103, T-109, T-212, T-337 | GR-19, IC-22, IC-75, IN-3, OP-3, S-124, UZ-5, UZ-7, UZ-8 | - | - | - | - |
 | `tests/system/cr-576-icon-and-task-hints-wait-on-their-own-clocks.test.ts` | 7 | FR-038 | - | T-023d, T-109, T-212 | EZ-2, EZ-6, IC-20, IN-3, IN-4, OP-3, S-124, S-439, TL-5, TL-10, TL-11, U-31, U-53, UZ-2 | - | - | - | - |
-| `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-16, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, WS-2 | - | - | - | - |
+| `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-16, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, U-32, UZ-9, WS-2 | - | - | - | - |
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
 | `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
@@ -560,7 +561,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-row-title-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
 | `tests/system/cr-659-the-header-mark-margins-on-the-shipped-build.test.ts` | 2 | - | - | T-025, T-206, T-349 | BR-2, BR-3, BR-7, HS-9, S-461, S-462 | - | - | - | - |
-| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18 | - | - | - | - |
+| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18, U-32, UZ-9 | - | - | - | - |
 | `tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts` | 10 | FR-134, FR-151 | - | T-109, T-206, T-332, T-353 | AM-26, EL-21, IC-143, IX-11, S-497, S-498, SJ-0, SQ-10, SV-4, TV-1, TV-3, TV-6, TV-8, TV-11 | - | - | - | - |
 | `tests/system/cr-664-the-colour-rows-line-up-with-the-other-fields.test.ts` | 2 | FR-006, FR-052 | - | T-016, T-025, T-206 | CV-9, S-248 | - | - | - | - |
 | `tests/system/cr-665-help-fits-one-screen.test.ts` | 7 | FR-036, FR-069 | - | T-025, T-103, T-109, T-206, T-256 | MC-6, S-203 | - | - | - | - |
