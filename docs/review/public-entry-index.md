@@ -705,7 +705,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TranslatedInput` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TranslatedInput` | -- | interface TranslatedInput |
 | `UNASSIGNED` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#UNASSIGNED` | -- | const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false } |
 | `WheelInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#WheelInput` | -- | interface WheelInput |
-| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | -- | function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds |
+| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | PI-18 | 倍率の 4 つの入口（`IC-12`〜`IC-15`）のそれぞれについて、いま押しても倍率が 1 段も動かない端に在るかを答える（時間の軸は `_assets/tbl-settings.md` の `S-75` の範囲と `S-229`、行の軸は 表 T-262 の `ZE-1`・`ZE-3`）。 |
 | `zoomYCeiling` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#zoomYCeiling` | -- | function zoomYCeiling(context: InputContext): number \| null |
 | `commandFromArmed` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmed` | -- | function commandFromArmed( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
@@ -1723,4 +1723,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 843 name(s) leave through a public entry (332 of them published by table T-064), 670 more are exported by a file and not by its entry.
+Totals: 843 name(s) leave through a public entry (333 of them published by table T-064), 670 more are exported by a file and not by its entry.

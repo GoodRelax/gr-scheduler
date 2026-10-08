@@ -184,6 +184,10 @@ THEME_HUE_TABLE = 'T-305'
 # surfaces table T-103 has settled a name for -- CR-191 and CR-193 both added a
 # name to that one cell, which is what makes it the roster rather than a list.
 CLOSE_SURFACE_ROW = 'IC-52'
+# ⛔ A SURFACE ON THAT ROSTER THAT PRINTS NO HEADING HOLDS NO HEADING WORD.
+# FR-072 (MUST NOT) puts no heading row at the head of the properties panel, so
+# a word kept for it would be a word no screen prints (CR-711).
+SURFACES_WITHOUT_HEADING = ('Properties Panel',)
 
 # Table T-109 writes an em dash in the 群 column for a row that belongs to no
 # group, the same convention tools/generate_icon_roster.py reads.
@@ -624,7 +628,8 @@ def roster():
         # key moves if the rows are re-ordered -- which this function recomputes
         # every run, so the manuscript is told rather than left wrong.
         'paletteGroups': [first for _group, first in groups],
-        'surfaces': surfaces,
+        'surfaces': [name for name in surfaces
+                     if name not in SURFACES_WITHOUT_HEADING],
         'notices': [row[0] for row in
                     table_rows(REL_REQUIREMENTS, NOTICE_ROW, NOTICE_TABLE)],
         'confirmation': list(CONFIRMATION_ANSWERS),

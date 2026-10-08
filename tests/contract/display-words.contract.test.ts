@@ -1160,6 +1160,7 @@ interface Dropped {
 
 const PLACES: Place[] = []
 const DROPPED: Dropped[] = []
+const HEADINGLESS_SURFACES_HELD: string[] = []
 
 const place = (part: Place): void => {
   PLACES.push(part)
@@ -1290,8 +1291,9 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     continue
   }
   const heading = sceneOf(name).heading
+  // WHY: CR-711 -- a surface that prints no heading holds no heading word; the FR-072 case below fails on one.
   if (heading === null) {
-    drop('surfaces', name, 'FR-072 (MUST NOT) puts no heading row at the head of the properties panel, so no member carries this word')
+    HEADINGLESS_SURFACES_HELD.push(name)
     continue
   }
   place({
@@ -3075,6 +3077,11 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       Object.keys(MANUSCRIPT),
       'the manuscript still holds panelHeadings; FR-072 raises no roster for it',
     ).not.toContain('panelHeadings')
+    expect(
+      HEADINGLESS_SURFACES_HELD,
+      'FR-072 (MUST NOT): a surface that prints no heading still holds a heading word in surfaces (CR-711)',
+    ).toEqual([])
+    expect(MANUSCRIPT['surfaces']?.map((entry) => keyOf('surfaces', entry))).not.toContain('Properties Panel')
   })
 
   it('FR-036 lists only keys and icons -> both files are read -> no section for tables T-023a, T-023c or T-023d is left, shortcuts is the key rows with no entrance, and invariants is table T-220', () => {
