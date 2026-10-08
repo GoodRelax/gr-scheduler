@@ -189,7 +189,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
-import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
+import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   emptySelection,
   selectionWith,
@@ -204,11 +204,11 @@ import {
   screenViewFromRegions,
   type CommandItem,
   type HelpEntry,
-  type OpenModal,
   type DisplayLanguage,
   type ScreenViewReadings,
   type ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { OPENED_DELAY_DIAGNOSTICS_REPORT } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
 import {
   emptyScreenSession,
   emptySearchPanelSession,
@@ -779,7 +779,8 @@ const SURFACE_ROWS_OF_T_280: ReadonlySet<string> = new Set(
 
 const surfaceRowOf = (surface: string): string => {
   const row = T103.rows.find((one) => bareAll(one.cells[0] ?? '').includes(surface))
-  return row !== undefined && SURFACE_ROWS_OF_T_280.has(row.id) ? row.id : surface
+  if (row === undefined || !SURFACE_ROWS_OF_T_280.has(row.id)) throw new Error(`${surface} is no U row T-280 lets S-99g carry`)
+  return row.id
 }
 
 const rootWithSurface = (surface: string | null): ScreenSession =>
@@ -838,6 +839,105 @@ const PALETTE_SHOWN = frameWith({
   root: rootWith({ milestoneListDisplayState: { kind: 'open' } }),
 })
 
+// -- panelHeadings: ⛔ a section with nowhere left to be printed (CR-272)
+
+/**
+ * The states FR-072 leaves the properties panel in.
+ *
+ * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
+ * say which of the two was showing and used to make a cleared selection say so;
+ * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
+ * one MUST NOT -- 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」
+ * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
+ * whole of what tells a reader anything. ⭐ The frames are kept because the two
+ * cases below still ask what the panel IS in each of them.
+ */
+const PANEL_STATES: Readonly<Record<string, Frame>> = {
+  selection: frameWith({
+    root: rootWith({
+      propertiesPanelContentState: {
+        kind: 'selectionDisplayed',
+        subject: { selection: emptySelection(), groupIds: [] },
+      },
+    }),
+  }),
+  documentSettings: frameWith({
+    root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
+  }),
+  noSelection: frameWith({
+    selection: emptySelection(),
+    root: rootWith({
+      propertiesPanelContentState: {
+        kind: 'selectionDisplayed',
+        subject: { selection: emptySelection(), groupIds: [] },
+      },
+    }),
+  }),
+}
+
+// see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
+// WHY: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
+// in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the
+// assignee filter offers the blank item (SV-7).
+const SEARCH_STARTED = '2026-01-05T08:00:00'
+const SEARCH_TASK_BY_STATE: Readonly<
+  Record<string, { readonly uid: number; readonly name: string; readonly actuals: object }>
+> = {
+  'PS-1': { uid: 1, name: '', actuals: {} },
+  'PS-2': { uid: 2, name: 'a finished task', actuals: { actualStart: SEARCH_STARTED, actualFinish: '2026-01-09T17:00:00' } },
+  'PS-3': { uid: 3, name: 'a task paused with no resume date', actuals: { actualStart: SEARCH_STARTED, resumeValid: false } },
+  'PS-4': {
+    uid: 4,
+    name: 'a task paused with a resume date',
+    actuals: { actualStart: SEARCH_STARTED, resume: '2026-02-02T08:00:00', resumeValid: true },
+  },
+  'PS-5': { uid: 5, name: 'a task in progress', actuals: { actualStart: SEARCH_STARTED } },
+}
+
+const SEARCH_TEMPLATE_TASK = (SCHEDULE.tasks as readonly object[])[0] as object
+
+const SCHEDULE_TO_SEARCH = {
+  ...SCHEDULE,
+  tasks: Object.values(SEARCH_TASK_BY_STATE).map((one) => ({
+    ...SEARCH_TEMPLATE_TASK,
+    uid: one.uid,
+    name: one.name,
+    ...one.actuals,
+  })),
+  taskVisuals: [],
+} as unknown as Schedule
+
+const searchFrame = (shown: 'normal' | 'maximised' | 'minimised', panel: Partial<SearchPanelSession>): Frame =>
+  frameWith({
+    schedule: SCHEDULE_TO_SEARCH,
+    selection: emptySelection(),
+    root: rootWith({ searchPanelDisplayState: { kind: 'shown', child: { kind: shown } } }),
+    readings: sessionWith({ searchPanel: { ...emptySearchPanelSession, ...panel } }),
+  })
+
+const ASSIGNEE_COLUMN = 'SQ-2'
+const STATE_COLUMN = 'SQ-5'
+const NAME_COLUMN = 'SQ-1'
+const MAXIMISE_ENTRY = 'IC-121'
+const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
+
+const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
+// see SQ-10, TV-11, IX-11
+const SHOW_COLUMN = 'SQ-10'
+const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, shownTaskUids: [2, 3] })
+const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
+const SEARCH_SHOWING_ONLY_CHECKED = searchFrame('minimised', { shownTaskUids: SHOWN_SEARCH_UIDS, showOnlyChecked: true })
+// WHY: TV-11 and IX-11 fill {total} and {shown} with the counts, so the digits are put back to see the literal word
+// (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
+const countSlotsOf = (text: string | null | undefined): string | undefined =>
+  text === null || text === undefined
+    ? undefined
+    : text
+        .replace(new RegExp(`(?<![0-9])${Object.keys(SEARCH_TASK_BY_STATE).length}(?![0-9])`), '{total}')
+        .replace(new RegExp(`(?<![0-9])${SHOWN_SEARCH_UIDS.length}(?![0-9])`), '{shown}')
+const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
+const SEARCH_MAXIMISED = searchFrame('maximised', {})
+
 /** S-99g says which surface is open (IN-4 of table T-028). */
 const surfaceOpen = (surface: string): Frame => frameWith({ root: rootWithSurface(surface) })
 
@@ -851,13 +951,128 @@ const HELP_SHOWN = helpShown('normal')
 // WHY: T-335 WB-4 draws IC-131 only while the help is maximised (WB-3), in the place of IC-130.
 const HELP_MAXIMISED = helpShown('maximised')
 
-const surfaceFrame = (surface: string, rowId: string | null = null): Frame => {
-  if (surface !== HELP_SURFACE) return surfaceOpen(surface)
-  return rowId === 'IC-131' ? HELP_MAXIMISED : HELP_SHOWN
+// see T-335, WB-3, WB-4
+const RESTORE_ENTRY = 'IC-131'
+
+// WHY: IC-143 refuses while nothing is checked (TV-5), and its hint would then carry the reason too.
+const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN }, shownTaskUids: SHOWN_SEARCH_UIDS })
+
+// see S-451, RW-1
+// WHY: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
+const NO_DELAY_FOUND: DelayDiagnosticsReport = {
+  outcome: 'diagnosed',
+  statusDate: null,
+  findings: [],
+  bottlenecks: [],
+  terminalPushOuts: [],
+  walls: [],
+  unanalysedCount: 0,
+  markerStates: [],
+  settledPushOuts: [],
+  derivedWbsParents: [],
+  lateDays: [],
 }
 
-const surfaceIn = (view: ScreenView, surface: string): OpenModal | null =>
-  surface === HELP_SURFACE ? (view.helpModal ?? null) : view.openModal
+const delayReportShown = (shown: 'normal' | 'maximised'): Frame =>
+  frameWith({
+    readings: sessionWith({ delayDiagnosticsReport: { window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown }, report: NO_DELAY_FOUND } }),
+  })
+
+// see FR-066, S-99i
+const dialogueFieldShown = (shown: 'normal' | 'maximised'): Frame =>
+  frameWith({
+    root: rootWith({ dialogueFieldDisplayState: { kind: 'shown', child: { kind: shown } } }),
+    readings: sessionWith({ isAgentApiEnabled: true }),
+  })
+
+type TableWindowView = NonNullable<ScreenView['searchPanel']> | NonNullable<ScreenView['delayDiagnosticsReport']>
+
+// see FR-151, FR-134, T-335, SV-7
+const tableWindowEntries = (window: TableWindowView | null | undefined): readonly CommandItem[] | undefined =>
+  window === null || window === undefined
+    ? undefined
+    : [
+        ...window.titleEntries,
+        ...window.tableEntries,
+        ...('toolEntries' in window ? window.toolEntries : []),
+        ...window.columns.map((column) => column.filterEntry),
+        ...(window.filterMenu?.entries ?? []),
+      ]
+
+// see FR-072, FR-153, AS-5
+const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly CommandItem[] | undefined =>
+  panel === null
+    ? undefined
+    : [
+        ...panel.commands,
+        ...(panel.headEntry === undefined ? [] : [panel.headEntry]),
+        ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.sortEntries ?? [])),
+      ]
+
+// see IC-52, T-109
+interface SurfaceScene {
+  readonly frame: (rowId: string | null) => Frame
+  readonly heading: ((view: ScreenView) => string | undefined) | null
+  readonly entries: (view: ScreenView) => readonly CommandItem[] | undefined
+}
+
+// see T-280, S-99g, IC-52
+// WHY: S-99g holds U rows only (DFC-2280), so the help, the panel and the windows are raised by their own scenes.
+const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
+  [
+    HELP_SURFACE,
+    {
+      frame: (rowId) => (rowId === RESTORE_ENTRY ? HELP_MAXIMISED : HELP_SHOWN),
+      heading: (view) => view.helpModal?.heading,
+      entries: (view) => view.helpModal?.commands,
+    },
+  ],
+  [
+    'Search Panel',
+    {
+      frame: (rowId) => (rowId === RESTORE_ENTRY ? SEARCH_MAXIMISED : SEARCH_TASKS_CHECKED),
+      heading: (view) => view.searchPanel?.heading,
+      entries: (view) => tableWindowEntries(view.searchPanel),
+    },
+  ],
+  [
+    'Delay Diagnostics Report',
+    {
+      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal'),
+      heading: (view) => view.delayDiagnosticsReport?.heading,
+      entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
+    },
+  ],
+  [
+    'Dialogue Field',
+    {
+      frame: (rowId) => dialogueFieldShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal'),
+      heading: (view) => view.dialogueField?.heading,
+      entries: (view) => view.dialogueField?.titleEntries,
+    },
+  ],
+  [
+    'Properties Panel',
+    {
+      // WHY: IC-139 stands at the head of the document-settings face only (FR-153).
+      frame: (rowId) => (PANEL_STATES[rowId === 'IC-139' ? 'documentSettings' : 'selection'] as Frame),
+      // WHY: FR-072 puts no heading row at the panel's head, so no member carries this word.
+      heading: null,
+      entries: (view) => propertiesPanelEntries(view.propertiesPanel),
+    },
+  ],
+])
+
+// see T-280, S-99g
+const openSurfaceScene = (surface: string): SurfaceScene => ({
+  frame: () => surfaceOpen(surface),
+  heading: (view) => view.openModal?.heading,
+  entries: (view) => view.openModal?.commands,
+})
+
+const sceneOf = (surface: string): SurfaceScene => SCENE_OF_WINDOW.get(surface) ?? openSurfaceScene(surface)
+
+const surfaceFrame = (surface: string, rowId: string | null = null): Frame => sceneOf(surface).frame(rowId)
 
 // ---------------------------------------------------------------------------
 // Reading the answer through the published entry (table T-064, PI-37).
@@ -1017,7 +1232,7 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
     on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centreOf(REGIONS.scheduleCanvas), (view) =>
-      labelIn(surfaceIn(view, surface)?.commands, rowId),
+      labelIn(sceneOf(surface).entries(view), rowId),
     )
   }
 
@@ -1074,6 +1289,11 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     drop('surfaces', name, 'IC-52 of table T-109 does not name that surface')
     continue
   }
+  const heading = sceneOf(name).heading
+  if (heading === null) {
+    drop('surfaces', name, 'FR-072 (MUST NOT) puts no heading row at the head of the properties panel, so no member carries this word')
+    continue
+  }
   place({
     section: 'surfaces',
     key: name,
@@ -1081,44 +1301,8 @@ for (const entry of GENERATED['surfaces'] ?? []) {
     unit: 'UF-66',
     what: `the heading of ${name}`,
     frame: surfaceFrame(name),
-    read: (view) => surfaceIn(view, name)?.heading,
+    read: heading,
   })
-}
-
-// -- panelHeadings: ⛔ a section with nowhere left to be printed (CR-272)
-
-/**
- * The states FR-072 leaves the properties panel in.
- *
- * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
- * say which of the two was showing and used to make a cleared selection say so;
- * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
- * one MUST NOT -- 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」
- * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
- * whole of what tells a reader anything. ⭐ The frames are kept because the two
- * cases below still ask what the panel IS in each of them.
- */
-const PANEL_STATES: Readonly<Record<string, Frame>> = {
-  selection: frameWith({
-    root: rootWith({
-      propertiesPanelContentState: {
-        kind: 'selectionDisplayed',
-        subject: { selection: emptySelection(), groupIds: [] },
-      },
-    }),
-  }),
-  documentSettings: frameWith({
-    root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
-  }),
-  noSelection: frameWith({
-    selection: emptySelection(),
-    root: rootWith({
-      propertiesPanelContentState: {
-        kind: 'selectionDisplayed',
-        subject: { selection: emptySelection(), groupIds: [] },
-      },
-    }),
-  }),
 }
 
 // -- properties: the name each row of table T-016 shows on the panel (UF-67)
@@ -2196,69 +2380,6 @@ for (const entry of GENERATED['colourField'] ?? []) {
   })
 }
 
-// see CR-571, FR-151, T-330, T-331, T-019a, DFC-1470
-// WHY: one task per row of table T-019a, keyed by the row, so each state word has a cell to be printed
-// in (SQ-5); the PS-1 task has no name (SQ-1's no-name word) and no task has an assignee, so the
-// assignee filter offers the blank item (SV-7).
-const SEARCH_STARTED = '2026-01-05T08:00:00'
-const SEARCH_TASK_BY_STATE: Readonly<
-  Record<string, { readonly uid: number; readonly name: string; readonly actuals: object }>
-> = {
-  'PS-1': { uid: 1, name: '', actuals: {} },
-  'PS-2': { uid: 2, name: 'a finished task', actuals: { actualStart: SEARCH_STARTED, actualFinish: '2026-01-09T17:00:00' } },
-  'PS-3': { uid: 3, name: 'a task paused with no resume date', actuals: { actualStart: SEARCH_STARTED, resumeValid: false } },
-  'PS-4': {
-    uid: 4,
-    name: 'a task paused with a resume date',
-    actuals: { actualStart: SEARCH_STARTED, resume: '2026-02-02T08:00:00', resumeValid: true },
-  },
-  'PS-5': { uid: 5, name: 'a task in progress', actuals: { actualStart: SEARCH_STARTED } },
-}
-
-const SEARCH_TEMPLATE_TASK = (SCHEDULE.tasks as readonly object[])[0] as object
-
-const SCHEDULE_TO_SEARCH = {
-  ...SCHEDULE,
-  tasks: Object.values(SEARCH_TASK_BY_STATE).map((one) => ({
-    ...SEARCH_TEMPLATE_TASK,
-    uid: one.uid,
-    name: one.name,
-    ...one.actuals,
-  })),
-  taskVisuals: [],
-} as unknown as Schedule
-
-const searchFrame = (shown: 'normal' | 'maximised' | 'minimised', panel: Partial<SearchPanelSession>): Frame =>
-  frameWith({
-    schedule: SCHEDULE_TO_SEARCH,
-    selection: emptySelection(),
-    root: rootWith({ searchPanelDisplayState: { kind: 'shown', child: { kind: shown } } }),
-    readings: sessionWith({ searchPanel: { ...emptySearchPanelSession, ...panel } }),
-  })
-
-const ASSIGNEE_COLUMN = 'SQ-2'
-const STATE_COLUMN = 'SQ-5'
-const NAME_COLUMN = 'SQ-1'
-const MAXIMISE_ENTRY = 'IC-121'
-const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
-
-const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
-// see SQ-10, TV-11, IX-11
-const SHOW_COLUMN = 'SQ-10'
-const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, shownTaskUids: [2, 3] })
-const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
-const SEARCH_SHOWING_ONLY_CHECKED = searchFrame('minimised', { shownTaskUids: SHOWN_SEARCH_UIDS, showOnlyChecked: true })
-// WHY: TV-11 and IX-11 fill {total} and {shown} with the counts, so the digits are put back to see the literal word
-// (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
-const countSlotsOf = (text: string | null | undefined): string | undefined =>
-  text === null || text === undefined
-    ? undefined
-    : text
-        .replace(new RegExp(`(?<![0-9])${Object.keys(SEARCH_TASK_BY_STATE).length}(?![0-9])`), '{total}')
-        .replace(new RegExp(`(?<![0-9])${SHOWN_SEARCH_UIDS.length}(?![0-9])`), '{shown}')
-const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
-const SEARCH_MAXIMISED = searchFrame('maximised', {})
-
 // see SQ-1, SQ-5
 const searchCellOf = (view: ScreenView, taskUid: number, column: string): string | undefined => {
   const panel = view.searchPanel
@@ -2370,7 +2491,7 @@ for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReport
     drop(
       section,
       keyOf(section, entry),
-      'the report window is held by the shell and never by the session (S-451), so no frame this file builds shows it; tests/unit/cr-648-the-delay-diagnostics-report-window-fixes.test.ts reads these words off the report view',
+      'the report window is held by the shell and never by the session (S-451); this file raises it only for its heading and its entries (IC-52), and tests/unit/cr-648-the-delay-diagnostics-report-window-fixes.test.ts reads these words off the report view',
     )
   }
 }
