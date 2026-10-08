@@ -1253,6 +1253,11 @@ const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_ONE
 
 const NAME_PX_TOLERANCE = 0.02
 
+// see FR-016, S-236
+// WHY: measured 2026-10-08 at S-236 0.625 -- the text ceiling is the smaller one at 400px (the names settle at
+// WHY: 15.84px, the text ceiling), and the band ceiling is the smaller one from about 360px down.
+const LOW_WINDOW_HEIGHT = 340
+
 /** @purity semi-pure-b */
 async function nameLabelFontsNow(page: Page): Promise<Readonly<Record<string, number>>> {
   return page.evaluate((selector: string) => {
@@ -1404,12 +1409,14 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
 
     // WHY: the text ceiling does not read the window, so only a window short
     // WHY: enough for the band ceiling to be the smaller one can show the band
-    // WHY: ceiling at work; 400px was measured to be one, 300px zooms not at all.
+    // WHY: ceiling at work; the band ceiling follows the display ratio (FR-016, DS-1) and the text
+    // WHY: ceiling does not, so which one is smaller depends on S-236 and the window height, and the
+    // WHY: height is measured again whenever S-236 moves (LOW_WINDOW_HEIGHT).
     // see FR-016, T-025, MC-6
-    await app.page.setViewportSize({ width: 1920, height: 400 })
+    await app.page.setViewportSize({ width: 1920, height: LOW_WINDOW_HEIGHT })
     await readSettledDrawnSvg(app.page)
     const lowBox = await canvasBoxNow(app.page)
-    expect(lowBox, 'the Schedule Canvas is not on the 400px window').not.toBeNull()
+    expect(lowBox, 'the Schedule Canvas is not on the low window').not.toBeNull()
     if (lowBox === null) return
     await app.page.mouse.move(
       Math.round(lowBox.x + lowBox.width / 2),
@@ -1419,11 +1426,11 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     await wheelAway(45)
     const low = await rowBandsNow(app.page)
     const lowFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
-    expect(lowFonts.length, 'no rectangle drawn at the opening is drawn on the 400px window')
+    expect(lowFonts.length, 'no rectangle drawn at the opening is drawn on the low window')
       .toBeGreaterThan(0)
     expect(
       Math.min(...lowFonts),
-      `the 400px window settled with rectangle names of ${lowFonts.map((f) => f.toFixed(2)).join(', ')}px, ` +
+      `the low window settled with rectangle names of ${lowFonts.map((f) => f.toFixed(2)).join(', ')}px, ` +
         `no larger than the ${DRAWN_RECTANGLE_NAME_PX_AT_ONE.toFixed(2)}px of zoomY 1, so nothing ` +
         'was zoomed and which ceiling stopped it cannot be read',
     ).toBeGreaterThan(DRAWN_RECTANGLE_NAME_PX_AT_ONE + NAME_PX_TOLERANCE)
@@ -1431,7 +1438,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
       Math.max(...lowFonts),
       `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」; ` +
         `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
-        `「画面の高さから導く。」 On a 400px window the rectangle names settle at ` +
+        `「画面の高さから導く。」 On the low window the rectangle names settle at ` +
         `${lowFonts.map((f) => f.toFixed(2)).join(', ')}px against the ` +
         `${expectedAtTextCeiling.toFixed(2)}px of the text ceiling -- the band ceiling read off ` +
         'this screen is the smaller one here; a build with the text ceiling alone, or with no ' +
@@ -1439,7 +1446,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     ).toBeLessThan(expectedAtTextCeiling - NAME_PX_TOLERANCE)
     expect(
       tallestBandOf(low),
-      `FR-016 (MUST): on the 400px window the tallest band reads ${tallestBandOf(low).toFixed(2)}px ` +
+      `FR-016 (MUST): on the low window the tallest band reads ${tallestBandOf(low).toFixed(2)}px ` +
         `against a ${rowAreaSpanOf(low).toFixed(2)}px Row Area`,
     ).toBeLessThan(rowAreaSpanOf(low))
     const lowByKey = await nameLabelFontsNow(app.page)
@@ -1453,7 +1460,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
       .toBeGreaterThan(0)
     expect(
       Math.max(...heldKeys.map((key) => Math.abs((furtherByKey[key] ?? 0) - (lowByKey[key] ?? 0)))),
-      `ten more notches on the 400px window took the rectangle names from ` +
+      `ten more notches on the low window took the rectangle names from ` +
         `${lowFonts.map((f) => f.toFixed(2)).join(', ')}px to ` +
         `${lowFurther.map((f) => f.toFixed(2)).join(', ')}px, so the band ceiling does not hold`,
     ).toBeLessThan(NAME_PX_TOLERANCE)
