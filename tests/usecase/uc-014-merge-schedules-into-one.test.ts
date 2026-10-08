@@ -71,7 +71,7 @@ test('UC-014 merge several schedules into one (FR-022 T-032a MM-1 MM-2 MM-4, FR-
     expect(doc.schedule.tasks.find((t) => t.uid === EDITED_UID)!.name).toBe(originalName)
     const origins = doc.schedule['taskOrigins'] as Array<Record<string, unknown>>
     expect(origins.find((o) => o['taskUid'] === EDITED_UID)?.['sourceUid']).toBe(EDITED_UID)
-    await expect.soft(page.locator('[data-role="Notification Area"]')).not.toHaveText('')
+    await expect.soft(page.locator('[data-role="Import Report"]')).not.toHaveText('')
   })
 
   await test.step('UC-014 extension 4a: stopping the import leaves the document exactly as before (IC-97, MM-4)', async () => {

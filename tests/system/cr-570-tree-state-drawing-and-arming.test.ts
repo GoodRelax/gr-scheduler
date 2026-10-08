@@ -126,18 +126,18 @@ test.describe('claim 12: table T-329, row by row', () => {
   }
 })
 
-test.describe('claim 13: when an entrance is armed (CR-570 14.6), and the reason a faint press tells', () => {
+test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint press that T-233 hides', () => {
   test.describe.configure({ timeout: 180_000 })
 
   // WHY: red if the head [vv] stays armed with every row drawn, or a faint press changes the file.
-  test('HF-10 / RS-31: every row drawn and nothing folded -- the head [vv] is faint and tells RS-31', async () => {
+  test('HF-10 / RS-31: every row drawn and nothing folded -- the head [vv] is faint and RS-31 is hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
       const { page } = stage
       const before = JSON.stringify(await readTree(page))
       expect(await isArmed(page, HEAD_OPEN_EVERY_ROW), HF_10_FAINT_WHEN).toBe(false)
       await pressEntrance(page, HEAD_OPEN_EVERY_ROW)
-      expect(await toldReason(page, 'RS-31'), 'FR-029: the faint press tells RS-31').toBe(true)
+      expect(await toldReason(page, 'RS-31'), 'T-233: RS-31 is hidden, the faint press tells nothing').toBe(false)
       expect(JSON.stringify(await readTree(page)), 'FR-029: the faint press changes nothing').toBe(before)
     } finally {
       await stage.close()
@@ -155,29 +155,29 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and the reason
   })
 
   // WHY: red if [^^] is armed on a row whose children are all undrawn.
-  test('HF-11 / RS-29: a row with no drawn child -- [^^] is faint and tells RS-29', async () => {
+  test('HF-11 / RS-29: a row with no drawn child -- [^^] is faint and RS-29 is hidden', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
       const { page } = stage
       expect(await isRowEntranceArmed(page, 'T1', ROW_FOLD_ALL_BELOW), 'RS-29: T1 draws no child').toBe(false)
       await pressRowEntrance(page, 'T1', ROW_FOLD_ALL_BELOW)
-      expect(await toldReason(page, 'RS-29')).toBe(true)
+      expect(await toldReason(page, 'RS-29')).toBe(false)
     } finally {
       await stage.close()
     }
   })
 
   // WHY: red if [v] is armed when the zoom already draws every child, or [vv] on a leaf.
-  test('HF-13 / RS-30 and HF-2 / RS-28: nothing to bring back -- [v] and [vv] are faint and tell their reasons', async () => {
+  test('HF-13 / RS-30 and HF-2 / RS-28: nothing to bring back -- [v] and [vv] are faint and their reasons are hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
       const { page } = stage
       expect(await isRowEntranceArmed(page, 'T2', ROW_OPEN_ONE_LEVEL), 'RS-30: T2a is drawn by the zoom').toBe(false)
       await pressRowEntrance(page, 'T2', ROW_OPEN_ONE_LEVEL)
-      expect(await toldReason(page, 'RS-30')).toBe(true)
+      expect(await toldReason(page, 'RS-30')).toBe(false)
       expect(await isRowEntranceArmed(page, 'T3', ROW_OPEN_ALL_BELOW), 'RS-28: T3 has nothing below').toBe(false)
       await pressRowEntrance(page, 'T3', ROW_OPEN_ALL_BELOW)
-      expect(await toldReason(page, 'RS-28')).toBe(true)
+      expect(await toldReason(page, 'RS-28')).toBe(false)
     } finally {
       await stage.close()
     }
@@ -195,13 +195,13 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and the reason
   })
 
   // WHY: red if the head [^^] is armed with level zero already folded.
-  test('HF-12 / RS-32: level zero folded -- the head [^^] is faint and tells RS-32', async () => {
+  test('HF-12 / RS-32: level zero folded -- the head [^^] is faint and RS-32 is hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM, levelZero: 'collapsed' })
     try {
       const { page } = stage
       expect(await isArmed(page, HEAD_FOLD_EVERY_ROW), 'RS-32').toBe(false)
       await pressEntrance(page, HEAD_FOLD_EVERY_ROW)
-      expect(await toldReason(page, 'RS-32')).toBe(true)
+      expect(await toldReason(page, 'RS-32')).toBe(false)
       expect(await isArmed(page, HEAD_OPEN_EVERY_ROW), 'HF-10: a folded level zero leaves rows undrawn').toBe(true)
     } finally {
       await stage.close()

@@ -225,7 +225,7 @@ const T109_SOURCE = 3
 const T109_STANCE = 5
 
 /** Columns of table T-233 after the row ID: the situation, the manner, the source. */
-const T233_COLUMNS = 3
+const T233_COLUMNS = 5
 const T233_SITUATION = 0
 
 /**
@@ -322,6 +322,23 @@ const HINT_DELAY_MS = numberIn(cellOf(T212, 'S-124', T212_VALUE, T212_COLUMNS), 
 
 /** The manuscript `FR-038` (MUST) makes the one home of every word the screen prints. */
 const DICTIONARY = join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json')
+
+/** @purity non-pure */
+async function dropText(page: Page, name: string, text: string | readonly number[]): Promise<void> {
+  await page.evaluate(
+    (file: { name: string; text: string | number[] }) => {
+      Object.defineProperty(DataTransferItem.prototype, 'getAsFileSystemHandle', { value: undefined, configurable: true })
+      const transfer = new DataTransfer()
+      const body = typeof file.text === 'string' ? file.text : new Uint8Array(file.text)
+      transfer.items.add(new File([body], file.name))
+      const target = document.querySelector('[data-role="Schedule Canvas"]') as Element
+      for (const type of ['dragenter', 'dragover', 'drop']) {
+        target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: transfer }))
+      }
+    },
+    { name, text: typeof text === 'string' ? text : [...text] },
+  )
+}
 
 /** One reason of table T-233 as the dictionary holds it. */
 interface ReasonWords {
@@ -2114,7 +2131,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
 // reason of the forty-two the dictionary holds is what the screen said, and that
 // it is `RS-30`. ⚠️ A machine check will not catch this: it asks whether a row's
 // word reached the screen, never whether that word is true of the row.
-test('DFC-166: pressing the open-one-level entrance with nothing to bring back tells RS-30', async () => {
+test('DFC-166: pressing the open-one-level entrance with nothing to bring back says nothing (T-233 hides RS-30)', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
@@ -2162,17 +2179,10 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back t
   await page.waitForTimeout(900)
 
   const said = (await readNotices(page)).join(' ')
-  expect(said, `pressing ${oneLevel} on a row with nothing to bring back said nothing at all`).not.toBe('')
-
-  const reasons = reasonWordsOfDictionary()
-  const carried = reasons.filter(
-    (one) => (one.ja !== '' && said.includes(one.ja)) || (one.en !== '' && said.includes(one.en)),
-  )
   expect(
-    carried.map((one) => one.rowId),
-    `the notice reads ${JSON.stringify(said)}, and table T-233 row RS-30 is the reason its ` +
-      `situation names: ${JSON.stringify(situation)}`,
-  ).toEqual(['RS-30'])
+    said,
+    `table T-233 shows RS-30 (${JSON.stringify(situation)}) as hidden, yet pressing ${oneLevel} raised a notice`,
+  ).toBe('')
 
   await page.keyboard.press('Escape')
   await page.waitForTimeout(500)
@@ -2910,10 +2920,10 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
         .filter((box) => Math.abs((box[0] ?? 0) - near) <= 40 && (box[3] ?? 0) > 8)
     }
 
-    // ① THE CLICK, which is also how free ground is found. ⭐ A press that hit
-    // an item is not PTD-4 and raises no telling, so the telling itself is the
-    // reading that says the ground was clear.
+    // ① THE CLICK, then ② THE DRAG at the same height. T-233 hides RS-53, so a click
+    // that made nothing is silent; the first height where the drag makes a bar is clear ground.
     let ground: number | null = null
+    let drew: number[] | undefined
     for (const y of [700, 660, 620, 560, 500, 440, 380, 320, 260, 740, 800, 860, 900, 940]) {
       expect(await armEntrance(page, rectangle), `${rectangle} would not arm`).toBe(true)
       const before = await drawnShapes(page)
@@ -2921,52 +2931,32 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
       await page.mouse.down()
       await page.mouse.up()
       await page.waitForTimeout(900)
-      const standing = await standingNotices(page)
-      if (standing.sheets === 0) continue
-      const after = await drawnShapes(page)
-      // ⛔⛔ NOTHING WAS CREATED (MUST NOT, 利用者の裁定 2026-09-07): FR-001's
-      // 「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」.
+      const clicked = await drawnShapes(page)
+      expect(await armEntrance(page, rectangle), `${rectangle} would not arm`).toBe(true)
+      const beforeDrag = await drawnShapes(page)
+      await page.mouse.move(startX, y)
+      await page.mouse.down()
+      await page.mouse.move(startX + dragPx, y, { steps: 8 })
+      await page.mouse.up()
+      await page.waitForTimeout(900)
+      const made = madeNear(beforeDrag, await drawnShapes(page), startX).sort(
+        (one, two) => (two[2] ?? 0) - (one[2] ?? 0),
+      )[0]
+      if (made === undefined) continue
       expect(
-        after.length,
+        clicked.length,
         'a bar shape was armed and pressed without a drag, and the drawing changed',
       ).toBe(before.length)
-      // ⛔ AND IT WAS TOLD (MUST): 「作らなかったことを告げること（MUST）」 --
-      // 「押しても何も起きない入口と見分けがつかなくなる。」
-      expect(
-        reasonsCarriedBy(standing.text),
-        `the notice says ${JSON.stringify(standing.text)} and carries no reason of table T-233`,
-      ).not.toEqual([])
       ground = y
+      drew = made
       break
     }
     expect(
       ground,
-      'no height on the screen answered a bar press with the telling FR-001 (MUST) owes it, so ' +
-        'either no height was clear ground or the press was answered in silence',
+      `no height on the screen let a ${dragPx}px drag from x=${startX} draw a bar, and FR-001 (MUST) ` +
+        'has a drag on clear ground make the span that was drawn',
     ).not.toBeNull()
-    if (ground === null) return
-    // NT-8 of table T-037: the person clears the notice, and `Enter` is one of
-    // the two keys that does it.
-    await page.keyboard.press('Enter')
-    await page.waitForTimeout(400)
-
-    // ② THE DRAG, at the very point the click made nothing at.
-    expect(await armEntrance(page, rectangle), `${rectangle} would not arm`).toBe(true)
-    const beforeDrag = await drawnShapes(page)
-    await page.mouse.move(startX, ground)
-    await page.mouse.down()
-    await page.mouse.move(startX + dragPx, ground, { steps: 8 })
-    await page.mouse.up()
-    await page.waitForTimeout(900)
-    const drew = madeNear(beforeDrag, await drawnShapes(page), startX).sort(
-      (one, two) => (two[2] ?? 0) - (one[2] ?? 0),
-    )[0]
-    expect(
-      drew,
-      `a ${dragPx}px drag from x=${startX} drew no bar there, and FR-001 (MUST) has it make the ` +
-        'span that was drawn',
-    ).not.toBeUndefined()
-    if (drew === undefined) return
+    if (ground === null || drew === undefined) return
     // ⭐ THE SPAN IS THE ONE THAT WAS DRAWN. The bar snaps to whole day columns,
     // so the width is held to a band around the drag rather than to the pixel --
     // which is still far from the single day column the retired road made, and
@@ -3003,48 +2993,30 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // CM-20 refuses across 表 T-012's SH-1..SH-4 / SH-5 line -- and FR-083 (MUST)
     // still stands the arm up. The notices are cleared rather than read.
     // WHY: the point is found, not computed -- FR-001 places what is armed only where
-    // WHY: the press hits no item, and measured here, x=800..1300 is all taken.
-    // WHY: swept outward from the bar the drag just made -- at this height the
-    // WHY: clear ground is sparse, so a handful of guessed x finds none of it.
+    // WHY: the press hits no item; swept outward from the bar the drag just made.
     const milestoneTries: number[] = []
     for (let x = startX + dragPx + 80; x <= 1840; x += 80) milestoneTries.push(x)
     for (let x = startX - 80; x >= 280; x -= 80) milestoneTries.push(x)
     let milestoneX: number | null = null
     for (const x of milestoneTries) {
-      if (!(await armEntrance(page, rectangle))) continue
-      const was = await drawnShapes(page)
+      if (!(await armEntrance(page, diamond))) continue
+      await page.keyboard.press('Enter')
+      await page.waitForTimeout(400)
+      const beforeMilestone = await drawnShapes(page)
       await page.mouse.move(x, ground)
       await page.mouse.down()
       await page.mouse.up()
       await page.waitForTimeout(900)
-      const told = (await standingNotices(page)).sheets > 0
-      const now = await drawnShapes(page)
-      await page.keyboard.press('Enter')
-      await page.waitForTimeout(400)
-      if (told && now.length === was.length) {
+      if (madeNear(beforeMilestone, await drawnShapes(page), x).length > 0) {
         milestoneX = x
         break
       }
     }
     expect(
       milestoneX,
-      'no x at this height answered a bar press with the telling that says the ground is clear, ' +
-        'so this case has nowhere to put the milestone that FR-001 (MUST) places by a press',
-    ).not.toBeNull()
-    if (milestoneX === null) return
-    expect(await armEntrance(page, diamond), `${diamond} would not arm`).toBe(true)
-    await page.keyboard.press('Enter')
-    await page.waitForTimeout(400)
-    const beforeMilestone = await drawnShapes(page)
-    await page.mouse.move(milestoneX, ground)
-    await page.mouse.down()
-    await page.mouse.up()
-    await page.waitForTimeout(900)
-    expect(
-      madeNear(beforeMilestone, await drawnShapes(page), milestoneX).length,
-      'a milestone armed and pressed put nothing where the press was, and FR-001 (MUST) has the ' +
+      'a milestone armed and pressed put nothing at any x of this height, and FR-001 (MUST) has the ' +
         'press alone place it',
-    ).toBeGreaterThan(0)
+    ).not.toBeNull()
   } finally {
     await opened.close()
   }
@@ -4124,84 +4096,65 @@ test('DFC-235: changing the display language changes the language the document n
 // ⚠️ THE PRESSES ARE SPACED. Table T-023 row `MK-13` gives a double click its
 // own meaning, and two presses of one entrance inside the interval a browser
 // calls a double click are not two presses of it.
-test('DFC-236: pressing one dead entrance again counts on the standing notice instead of stacking', async () => {
+test('DFC-236: the same reason raised again counts on the standing notice instead of stacking', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
     const page = opened.page
     const spacing = 1600
+    const unreadable = { name: 'notes.txt', text: 'not a schedule' }
 
-    const faint = await page.evaluate(() =>
-      Array.from(document.querySelectorAll('[data-icon][data-enabled="false"]')).map(
-        (one) => one.getAttribute('data-icon') ?? '',
-      ),
-    )
-    expect(
-      faint.length,
-      'no entrance is drawn faint, so nothing on this page can be pressed to no effect and the ' +
-        'case has no notice to raise',
-    ).toBeGreaterThan(0)
-    const dead = faint[0] ?? ''
-
-    expect(await pressEntrance(page, dead), `${dead} is not on the screen`).toBe(true)
+    await dropText(page, unreadable.name, unreadable.text)
     await page.waitForTimeout(spacing)
     const once = await standingNotices(page)
-    expect(once.sheets, `pressing the faint entrance ${dead} raised no notice at all`).toBe(1)
+    expect(once.sheets, `dropping ${unreadable.name} raised no notice at all`).toBe(1)
 
     const reasons = reasonsCarriedBy(once.text)
     expect(
       reasons,
-      `the notice ${dead} raised reads ${JSON.stringify(once.text)}, and table T-233 is where ` +
+      `the notice ${unreadable.name} raised reads ${JSON.stringify(once.text)}, and table T-233 is where ` +
         'every reason a notice may carry lives',
     ).toHaveLength(1)
     const carried = reasonWordsOfDictionary().find((one) => one.rowId === reasons[0])
     if (carried === undefined) return
     const word = once.text.includes(carried.ja) ? carried.ja : carried.en
 
-    expect(await pressEntrance(page, dead), `${dead} left the screen between two presses`).toBe(true)
+    await dropText(page, unreadable.name, unreadable.text)
     await page.waitForTimeout(spacing)
     const twice = await standingNotices(page)
     expect(
       timesCarried(twice.text, word),
-      `pressing ${dead} a second time put the same reason (${carried.rowId}) up ` +
+      `dropping ${unreadable.name} a second time put the same reason (${carried.rowId}) up ` +
         `${timesCarried(twice.text, word)} times; NT-3 (MUST) has the standing sheet counted up ` +
         'instead of a second one being stacked',
     ).toBe(1)
-    expect(twice.sheets, `${dead} pressed twice leaves more than one sheet standing`).toBe(1)
+    expect(twice.sheets, `${unreadable.name} dropped twice leaves more than one sheet standing`).toBe(1)
     expect(
       twice.text,
-      `the standing notice reads exactly what it read after one press, so nothing was counted; ` +
+      `the standing notice reads exactly what it read after one drop, so nothing was counted; ` +
         'NT-3 (MUST) has its 件数 grow',
     ).not.toBe(once.text)
 
-    expect(await pressEntrance(page, dead), `${dead} left the screen between two presses`).toBe(true)
+    await dropText(page, unreadable.name, unreadable.text)
     await page.waitForTimeout(spacing)
     const thrice = await standingNotices(page)
-    expect(thrice.sheets, `${dead} pressed three times leaves more than one sheet standing`).toBe(1)
+    expect(thrice.sheets, `${unreadable.name} dropped three times leaves more than one sheet standing`).toBe(1)
     expect(
       thrice.text,
-      'the standing notice reads exactly what it read after two presses, so the third press was ' +
+      'the standing notice reads exactly what it read after two drops, so the third was ' +
         'counted nowhere',
     ).not.toBe(twice.text)
 
-    // ⭐ A SECOND REASON, WHICH IS WHERE THE CEILING WOULD SHOW. The other faint
-    // entrances are pressed until one of them raises a reason the first did not.
-    let second: Standing | null = null
-    for (const other of faint.slice(1)) {
-      if (!(await pressEntrance(page, other))) continue
-      await page.waitForTimeout(spacing)
-      const seen = await standingNotices(page)
-      if (reasonsCarriedBy(seen.text).length > 1) {
-        second = seen
-        break
-      }
-    }
+    // ⭐ A SECOND REASON, WHICH IS WHERE THE CEILING WOULD SHOW: a file that is not UTF-8.
+    await dropText(page, 'bytes.json', [0xff, 0xfe, 0xfd, 0x7b])
+    await page.waitForTimeout(spacing)
+    const second = await standingNotices(page)
     expect(
-      second,
-      'none of the faint entrances on this page raises a reason different from the one already ' +
-        'standing, so this half of NT-3 (MUST NOT: 枚数に上限を置いてはならない) cannot be judged here',
-    ).not.toBeNull()
-    if (second === null) return
+      reasonsCarriedBy(second.text).length,
+      'dropping a file that is not UTF-8 raised no reason different from the one already ' +
+        `standing (${JSON.stringify(second.text)}, ${second.sheets} sheet(s)), so this half of NT-3 ` +
+        '(MUST NOT: 枚数に上限を置いてはならない) cannot be judged here',
+    ).toBeGreaterThan(1)
     expect(
       second.sheets,
       `two different reasons are standing and the screen is showing ${second.sheets} sheet(s); ` +

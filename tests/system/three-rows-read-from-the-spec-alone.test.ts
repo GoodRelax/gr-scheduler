@@ -902,7 +902,7 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
 //
 // see HF-10, IC-74, RS-31, FR-029, T-328, T-329
 // WHY: HF-10 is dim only while no row is undrawn (the zoom counts too), so one press
-// first draws every row (T-328 everyRowOpenPressed); the press under test must then tell RS-31.
+// first draws every row (T-328 everyRowOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {
   test.setTimeout(180_000)
   expect(
@@ -928,16 +928,19 @@ test('IN-4: with a notice up and a holding armed, one Esc clears the notice only
     ).toBe(0)
 
     await arm(page, COMMENT_BOX_ENTRANCE)
-    expect(
-      await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
-      `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,
-    ).toBe(true)
+    await page.evaluate(() => {
+      Object.defineProperty(DataTransferItem.prototype, 'getAsFileSystemHandle', { value: undefined, configurable: true })
+      const transfer = new DataTransfer()
+      transfer.items.add(new File(['not a schedule'], 'notes.txt'))
+      const target = document.querySelector('[data-role="Schedule Canvas"]') as Element
+      for (const type of ['dragenter', 'dragover', 'drop']) {
+        target.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: transfer }))
+      }
+    })
+    await page.waitForTimeout(900)
     const notices = await readNotices(page)
 
-    expect(
-      notices.length,
-      `FR-029 / RS-31: ${UNFOLD_ALL_ENTRANCE} with every row already drawn told no reason`,
-    ).toBeGreaterThan(0)
+    expect(notices.length, 'FR-076 / RS-11: dropping notes.txt told no reason').toBeGreaterThan(0)
     expect(
       await armingOf(page, COMMENT_BOX_ENTRANCE),
       'the holding survived a press on an entrance that does not arm, so both tiers stand',

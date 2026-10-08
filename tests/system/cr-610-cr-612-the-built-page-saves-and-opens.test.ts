@@ -87,13 +87,13 @@ test('HS-8: the two lines do not count toward the App Header height and stay ins
   expect(measured.inside, 'HS-8: a line is clipped by the App Header at the default ground').toBe(true)
 })
 
-test('SK-25 / FR-095 / T-342: N asks, and proceeding leaves the empty document', async ({ page }) => {
+test('SK-25 / FR-095 / T-342: N with nothing unsaved asks nothing and leaves the empty document', async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   await page.mouse.move(VIEWPORT.width / 2, VIEWPORT.height / 2)
   await page.keyboard.press('n')
-  await expect(page.locator('[data-role="Confirmation"]'), 'SK-25: N raised no question').toHaveCount(1)
-  await answerConfirmation(page, 'proceed')
+  await settle(page)
+  await expect(page.locator('[data-role="Confirmation"]'), 'FR-095: N asked with nothing unsaved').toHaveCount(0)
   const document = await readDocument(page)
   expect(document.schedule.tasks).toEqual([])
   expect(document.schedule.taskGroups).toHaveLength(1)

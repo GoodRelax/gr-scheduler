@@ -28,6 +28,13 @@ function cellOf(table: SpecTable, id: string, column: number, columns: number): 
 }
 
 const DICTIONARY = join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json')
+const ROSTER = join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json')
+
+/** @purity non-pure */
+function wordsRowOf(id: string): string {
+  const rows = (JSON.parse(readFileSync(ROSTER, 'utf8')) as { reasons?: { id?: string; wordsOf?: string }[] }).reasons ?? []
+  return rows.find((one) => one.id === id)?.wordsOf ?? id
+}
 
 interface Wording {
   readonly at: string
@@ -304,7 +311,7 @@ test('DFC-340: the question IC-66 raises is QN-3, asked of the whole selection',
 }) => {
   test.setTimeout(180_000)
 
-  const T234_COLUMNS = 3
+  const T234_COLUMNS = 4
   expect(
     cellOf(T234, 'QN-3', 0, T234_COLUMNS).length,
     'table T-234 row QN-3 states no scene',
@@ -396,7 +403,7 @@ test('DFC-341: no reason the product can carry is missing from table T-233', () 
     ) ?? [],
   )
   expect(
-    [...new Set(quoted.map((one) => one.id))].filter((id) => !words.has(id)),
+    [...new Set(quoted.map((one) => one.id))].filter((id) => !words.has(wordsRowOf(id))),
     'a reason the product can carry has no word in the dictionary, so the notice would be raised ' +
       'with nothing to say -- table T-037 (MUST) has a row and its word added together',
   ).toEqual([])

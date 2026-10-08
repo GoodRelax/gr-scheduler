@@ -188,7 +188,7 @@ test.describe(`NT-7 (MUST): ${NT_7_YES_NO.slice(-30)}`, () => {
 test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
-  test('a screen undo while QN-10 stands is told by RS-27 and writes nothing', async () => {
+  test('a screen undo while QN-10 stands writes nothing, and RS-27 stays hidden (T-233)', async () => {
     const opened = await askedStage()
     try {
       const before = await readHeld(opened.page)
@@ -198,7 +198,7 @@ test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
       expect(after.name, 'the undo is thrown away: the name stays').toBe('Renamed')
       expect(after.tasks, 'the rows are not deleted either').toBe(before.tasks)
       const told = (await textOf(opened.page, NOTIFICATION_AREA)) ?? ''
-      expect(reasonWords('RS-27').some((words) => told.includes(words)), `RS-27 is told; the area said: ${told}`).toBe(true)
+      expect(reasonWords('RS-27').some((words) => told.includes(words)), `T-233 hides RS-27; the area said: ${told}`).toBe(false)
       expect(await textOf(opened.page, CONFIRMATION), 'the question still stands').not.toBeNull()
       await opened.page.keyboard.press('n')
       await settle(opened.page)
