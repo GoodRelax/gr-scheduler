@@ -121,11 +121,11 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
     expect(REQUIREMENTS).toContain('GL-007')
   })
 
-  it('RS-19 must not be told while there is no road to set the name', () => {
+  it('RS-19 is not shown while there is no road to set the name (表示の仕方, CR-712)', () => {
     // WHY: quoted long enough for check 39 to count this as a held clause
     // under tests/, not just a paraphrase.
     expect(NOTICE_ROSTER).toContain(
-      '名前が、まだ設定されていない⛔ **いまは告げてはならない（MUST NOT）',
+      '名前が、まだ設定されていない⚠️ **表示の仕方は「出さない」である** —— 設定する道が作られていない',
     )
   })
 

@@ -124,7 +124,7 @@ const columnsOf = (id: string): readonly string[] => bareAll(rowOf(T_016, id).by
 const mannerOf = (rowId: string): string => bare(rowOf(T_233, rowId).cells[1] ?? '')
 
 /** The 正 column table T-233 gives one reason, as printed. */
-const authorityOf = (rowId: string): string => rowOf(T_233, rowId).cells[2] ?? ''
+const authorityOf = (rowId: string): string => rowOf(T_233, rowId).by['正'] ?? ''
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
 const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } => {
@@ -313,7 +313,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
 // ===========================================================================
 
 describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-10', () => {
-  it('⭐⭐ RS-55: a WBS parent that is the task itself is told HM-4s own row', () => {
+  it('⭐⭐ RS-55: a WBS parent that is the task itself carries HM-4s own row, which table T-233 does not show (CR-712), and never RS-10', () => {
     // ⛔⛔ THE DEFECT. Table T-233 gained `RS-55` and the dictionary gained its
     // words, and the reader was still told `RS-10` -- 「命令が拒否されたので、束
     // ごと落とした」, whose next step is 「拒まれた変更を取り除いて、もう一度」.
@@ -328,11 +328,10 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
       text: String(task.uid),
     })
 
-    const told = one.notices()
-    expect(told.length, 'FR-076 (MUST): the refusal is told').toBe(1)
-    expect(told[0]?.text).toBe(wordsOf(RS_55).ja)
-    expect(told[0]?.text).not.toBe(wordsOf(RS_10).ja)
-    expect(told[0]?.manner).toBe(mannerOf(RS_55))
+    const told = one.notices().map((notice) => notice.text)
+    expect(told, 'DFC-411: the refusal fell back to RS-10').not.toContain(wordsOf(RS_10).ja)
+    expect(told, 'RS-55 is hidden (表 T-233 の表示の仕方)').toEqual([])
+    expect(mannerOf(RS_55)).toBe('NT-1')
   })
 
   it('⭐⭐ RS-58: a finish before the start is told IV-10s own row', () => {

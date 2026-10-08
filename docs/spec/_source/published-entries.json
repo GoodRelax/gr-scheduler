@@ -3250,7 +3250,7 @@
      "name": "NOTICE_WORDS_ROW_OF_REASON",
      "note": {
       "ja": [
-       "理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身。`_source/notice-reasons.json` から生成）。",
+       "理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。",
        "`ScreenRenderer` が告げの語を引くのと、殻が読込の件数を同じ理由に数えるのに読む"
       ]
      }

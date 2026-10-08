@@ -38,7 +38,7 @@ const ONE_BUNDLE =
 const ANCHOR_STEPS_BY_HALVES =
   '⚠️ 線先は日の列の中央と行の帯の中央に立つので、線先の動く量は、引いた量から日の列と行の帯の半分まで離れることがある —— 本文の箱は引いた量のとおりに動く。'
 const BODY_NO_ROW =
-  'ずらした点の下に描かれた行が無いときは、どちらも動かさず、表 T-233 の `RS-44` を告げる —— 表 T-246 の `HB-3` と同じ扱いである。'
+  'ずらした点の下に描かれた行が無いときは、どちらも動かさず、表 T-233 の `RS-44` を運ぶ —— 表 T-246 の `HB-3` と同じ扱いである。'
 const ANCHOR_MOVES_ALONE =
   '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
 const ONE_UNDO = '⭐ どちらも 1 つの束なので、1 度の取り消し（`FR-031`）で 2 つとも戻る。'
@@ -603,7 +603,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     const by = Math.round(bottom - note.anchor.y + 2 * S_292)
     drag(built, centreOf(note.body), 0, by)
     expect(storedNote(built.loop), 'a pull with no row under the moved anchor moved something').toEqual(stored)
-    expect(built.noticeTexts(), 'RS-44 was not told').toContain(RS_44_WORDS)
+    expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233, CR-712)').not.toContain(RS_44_WORDS)
   })
 
   // WHY: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.

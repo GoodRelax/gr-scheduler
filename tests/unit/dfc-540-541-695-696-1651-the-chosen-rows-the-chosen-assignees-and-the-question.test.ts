@@ -63,7 +63,7 @@ const rosterOf = (built: ShellBench): readonly any[] => {
 }
 
 describe('FR-099 (DFC-541 1) -- the roster\'s chosen assignees follow the document', () => {
-  it('after the chosen assignee is deleted, a second press of IC-66 finds nobody chosen and tells RS-27, not a refusal naming a gone assignee', () => {
+  it('after the chosen assignee is deleted, a second press of IC-66 finds nobody chosen and carries RS-27 unseen (CR-712), not a refusal naming a gone assignee', () => {
     const built = benchOf({ resources: [person(41, 'Anna'), person(42, 'Boris')] })
     take(built, 'Command Palette', 'IC-62')
     take(built, ROSTER, ASSIGNEE_CHOOSE, null, 41)
@@ -73,7 +73,7 @@ describe('FR-099 (DFC-541 1) -- the roster\'s chosen assignees follow the docume
     take(built, ROSTER, ASSIGNEE_DELETE)
     expect(rosterOf(built).every((one) => !one.isSelected), 'nobody is chosen any more').toBe(true)
     const keys = built.last().notices.map((one: any) => one.dismissKey as string)
-    expect(keys, 'FR-029: a press with nobody chosen tells RS-27').toEqual([expect.stringContaining('RS-27')])
+    expect(keys, 'FR-029: a press with nobody chosen carries RS-27, which is not shown').toEqual([])
     expect(rosterOf(built).map((one) => one.uid), 'the other assignee is untouched').toEqual([42])
   })
 })

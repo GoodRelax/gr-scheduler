@@ -716,19 +716,14 @@ describe('FR-029 / 表 T-233 RS-27 -- IC-66 with nobody chosen', () => {
     expect(built.view().confirmation, 'a question was asked about nothing').toBeNull()
   })
 
-  it('and tells the reason, which is 表 T-233 の RS-27', () => {
+  it('and carries the reason RS-27, which table T-233 does not show (CR-712)', () => {
     const built = rosterWith([])
 
     built.take('IC-66')
 
-    const told = built.view().notices
-    expect(
-      told.length,
-      'the press returned in silence -- FR-029 (MUST): 「押されたときに限り、行えない理由を通知' +
-        'すること」',
-    ).toBe(1)
-    expect(told[0]?.text).toBe(reasonWords(RS_27))
-    expect(told[0]?.manner).toBe(bare(rowOf(T_233, RS_27).by['作法'] ?? ''))
+    const told = built.view().notices.map((one) => one.text)
+    expect(told).not.toContain(reasonWords(RS_27))
+    expect(bare(rowOf(T_233, RS_27).by['表示の仕方'] ?? '')).toBe('出さない')
   })
 
   it('⭐ the control: with somebody chosen the same press is not answered with a telling', () => {

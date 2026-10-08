@@ -13,7 +13,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const NT_7_NO_WRITE =
-  '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` で告げて捨て、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
+  '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
 const NT_7_YES_NO = '（`05-07-design.md` の 表 T-067 の `WS-2` と同じ例外である）。⚠️ **問いの文は、`y` / `n` で答えられる形にすること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {

@@ -118,7 +118,8 @@ export function reasonNextStepLink(reason: string, language: DisplayLanguage): L
 // WHY: a row that shares another row's words prints that row's (CR-712 X-3); an unknown row is itself.
 /** @purity pure */
 function wordsRowOf(reason: string): string {
-  return Object.hasOwn(NOTICE_WORDS_ROW_OF_REASON, reason) ? NOTICE_WORDS_ROW_OF_REASON[reason as NoticeReason] : reason
+  const shared: Readonly<Partial<Record<string, NoticeReason>>> = NOTICE_WORDS_ROW_OF_REASON
+  return shared[reason] ?? reason
 }
 
 /** @purity pure */

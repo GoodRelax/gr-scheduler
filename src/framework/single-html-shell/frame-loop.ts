@@ -1156,6 +1156,13 @@ function isDeliveringNoticesIn(session: ScreenSession): boolean {
   return session.notices.changeDeliveryState.kind === 'delivering'
 }
 
+// see U-62, FR-023, FR-076, T-290
+/** @purity pure */
+function importReportLinesIn(session: ScreenSession) {
+  const { droppedTaskNames, missingTaskNames, reportedCounts } = session.fileFlow
+  return { droppedTaskNames, missingTaskNames, reportedCounts }
+}
+
 // see FR-076, T-233, T-286
 /** @purity pure */
 function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
@@ -1200,7 +1207,6 @@ function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof command
 }
 
 // see FR-052, U-50
-// WHY: a width that leaves the Row Area at 0 or less is not taken (MUST NOT); the screen keeps its width.
 /** @purity pure */
 function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): boolean {
   return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
@@ -2505,9 +2511,7 @@ export function frameLoop(
           selectedResourceUids: session.selection.chosenResources,
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
-          droppedTaskNames: session.fileFlow.droppedTaskNames,
-          missingTaskNames: session.fileFlow.missingTaskNames,
-          reportedCounts: session.fileFlow.reportedCounts,
+          ...importReportLinesIn(session),
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,

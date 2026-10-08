@@ -4,7 +4,7 @@
 > 状態（追記）: **波 1（移すだけ）を当てた** —— `a4d3ec29`（2026-10-09、体）。波 2（決定を当てる）はまだ当てていない。
 > 測った木: `572da133`（前の席が台帳に書いた未コミットの直しを含む作業木。仕様・`src`・生成器は `572da133` のまま）。本書の数はすべてこの木で測った（13 節）。
 > ID の帯: 番号 `CR-712`。裁定 `JDG-1746`〜`JDG-1764`（本席が `docs/development-records/rulings.md` に書いた。`JDG-1753`〜`JDG-1764` は 11 節の問いへの利用者の答え）。新しい `PND` は使わない（`PND-830`〜`PND-839` の予約は返す）。
-> 仕様の新しい識別子は**仮の名**で書く —— 表 T-233 の `RS-NEW-1`、表 T-206 の `S-NEW-1`、表 T-286 の出来事 `notices/noticeTimeElapsed`、表 T-290 の運ぶ値 `reportedCounts` とガード `hasAnythingToReport`。⛔ 当てる体が、当てる直前に木の最大 ＋ 1 で本番の番号を採り、測った日付と sha を添える（`docs/development-rules/02-changing-the-spec.md` の 2.5）。`572da133` で `RS-` の最大は `RS-76`、`S-` の最大は `S-541`。⭐ 新しい表と新しい行の頭字は作らない（`JDG-1757` で束の表が要らなくなった —— X-2）。
+> 仕様の新しい識別子は初稿では仮の名で書いた。⭐ 波 2 の体が 2026-10-09 に `be901ebe` で測った最大 ＋ 1 で本番の番号に替えた —— 仮の名 `RS-NEW-1` → `RS-77`（`RS-` の最大は `RS-76`）、仮の名 `S-NEW-1` → `S-542`（`S-` の最大は `S-541`）。初稿の束の表 `T-NEW-1` は作らない（`JDG-1757`）。ほかの新しい名は次のとおり —— 表 T-286 の出来事 `notices/noticeTimeElapsed`、表 T-290 の運ぶ値 `reportedCounts` とガード `hasAnythingToReport`。⛔ 当てる体が、当てる直前に木の最大 ＋ 1 で本番の番号を採り、測った日付と sha を添える（`docs/development-rules/02-changing-the-spec.md` の 2.5）。`572da133` で `RS-` の最大は `RS-76`、`S-` の最大は `S-541`。⭐ 新しい表と新しい行の頭字は作らない（`JDG-1757` で束の表が要らなくなった —— X-2）。
 > 当てる裁定: `JDG-1746`〜`JDG-1764`。一部を覆す裁定は 0.2 節（`JDG-509`・`JDG-617`・`JDG-858`・`JDG-921`・`JDG-1118`・`JDG-1159`。印は `JDG-1754` で付いた）。
 > 閉じるもの: `DFC-2166`、`PND-787`（裁定済の行の着地）、検査 69 の基準線の 2 行（`NOTICE_MANNER_OF_REASON`・`NoticeReason`）。
 
@@ -26,7 +26,7 @@
 | `JDG-1752` | 移設・表示の仕方の欄・138 行・時間で消える知らせを 1 本の `CR-712` にする | 本書の切り方 |
 | `JDG-1753` | 問い方についての利用者の指示（本書の中身ではない） | 記録だけ |
 | `JDG-1754` | 0.2 節の 6 つの裁定に「覆された（一部）」の印を付けてよい | 0.2 節（印は rulings.md に付いた） |
-| `JDG-1755` | 時間で消す通知の期限は **3 秒**、定数で持つ（後で使ってみて変える） | X-6・E-04（`S-NEW-1` = 3000 ms） |
+| `JDG-1755` | 時間で消す通知の期限は **3 秒**、定数で持つ（後で使ってみて変える） | X-6・E-04（`S-542` = 3000 ms） |
 | `JDG-1756` | 時間で消える 1 枚にも `OK` の入口を残す | X-8 |
 | `JDG-1757` | 読込の結果の行（`RS-14`・`RS-16`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`）は通知の欄でなく `U-62`（`Import Report`）に並べる | X-1・X-2・X-5・E-05 |
 | `JDG-1758` | `RS-8` の次の一手は「先に [Enter] で編集を確定するか、[Esc] で取りやめてください」 | X-2・E-08 |
@@ -41,7 +41,7 @@
 
 | 裁定 | 何を決めたか | 本書との関係 |
 |---|---|---|
-| `JDG-153` | 倍率のメッセージは 1.5 秒で自動で消してよい。今の通知とは別の種類にする | **保つ**。`S-244` は通知ではない（`FR-039` の 表 T-260 の `SE-5`）。時間で消す通知の期限 `S-NEW-1` は別の行として置く（X-6） |
+| `JDG-153` | 倍率のメッセージは 1.5 秒で自動で消してよい。今の通知とは別の種類にする | **保つ**。`S-244` は通知ではない（`FR-039` の 表 T-260 の `SE-5`）。時間で消す通知の期限 `S-542` は別の行として置く（X-6） |
 | `JDG-509` | プロンプトを写した後に「…AI に渡してください。…」を **[OK] 付きで**出す（`RS-65`） | ⚠️ **一部覆された**（`JDG-1748`）—— 文は保ち、OK を待たずに時間で消す |
 | `JDG-617` | ピン止めが多くて飛べないときに「…ピン止めを減らしてください **[OK]**」を出す（`RS-66`） | ⚠️ **一部覆された**（`JDG-1749`）—— 文は保ち、時間で消す |
 | `JDG-858` | 絵を写したら「…コピーしました **[OK]**」を出す（`RS-68`） | ⚠️ **一部覆された**（`JDG-1748`）—— 文は保ち、時間で消す |
@@ -75,12 +75,12 @@
 | X-3 | **語の相乗りは行を潰さない** —— `RS-7`〜`RS-9`・`RS-12`・`RS-13`・`RS-42` の行は残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はこれまでどおり本当の理由の行を運ぶ。画面に刷る語だけが相乗り先の語になる | 表 T-233 の結びの「⛔ 拒否の理由を 1 つの行へ潰してはならない（MUST NOT）」は、画面に出る語が理由の別を捨てることを禁じている。行を残し、`AI` に返る理由も残すので、その禁止には触れない（`CR-692` が `RS-74` を分けたのも `AI` に本当の理由を返すためである） | 相乗りした 6 行の語は辞書から消える（3.1 節） |
 | X-4 | **出さない行の語は辞書に残す**（`JDG-1759`） | 表示の仕方は 1 つの欄の値であり、戻すときにその欄だけを直せば済むようにする。⚠️ 辞書の項は利用者が書くもので体は作れない（`display-words.json` の `$comment`）ので、消すと戻すときに利用者へ書き直しを求めることになる。`RS-19`・`RS-49` は自分の欄で「語を残す」と既に定めている | `CR-711` の「刷らない語は持たない」とは向きが違う。あちらは `FR-072` が刷ることを禁じた語で、こちらは欄 1 つで刷れる語である |
 | X-5 | **読込の結果は、読込が着地したときに 1 度だけ `U-62` を立てて並べる** —— 読込の途中で上がった `report` の理由は件数を足して運び（表 T-290 の新しい運ぶ値 `reportedCounts`）、`fileFlow/documentOpenLanded` で 1 つでもあれば `U-62` を立てる（ガード `hasTasksToReport` を `hasAnythingToReport` へ広げて改名する —— 名が指すものを言う）。⭐ 読込が着地しなかったとき（取りやめ・拒否）は運んだ行を捨てる —— 何も取り込んでいないので、収めた・数え直した・採ったという報告が偽になる。⭐ 相乗りする理由どうしは、`NT-3` の「同じ理由」の判じ方で同じ理由として数える | `RS-14`・`RS-51`・`RS-52`・`RS-60` は形を判じて読んだ直後、`RS-16`・`RS-71`・`RS-72` は取り込みが着地した後に上がる（`src/framework/single-html-shell/document-file-flow.ts` の `tellDecodedIntake` と `tellImportReport`）。面を 2 度立てないには、着地まで運ぶしかない。`droppedTaskNames`・`missingTaskNames` が同じ形で既に運ばれている | 拒まれた読込の `RS-14`（先頭だけ開いた）は告げない —— 拒否の通知が先頭のファイルを読めなかったことを告げる |
-| X-6 | **時間で消す期限は `S-NEW-1` の 1 つの値とし、3000 ms とする**（`JDG-1755`、利用者の値）。⭐ 利用者の言うとおり定数で持つ —— 原稿 `settings.json` の 表 T-206 の行とし、`npm run gen` で `src` の生成した定数へ刷る。後で使ってみて変える見込みが高い値なので、直す所を 1 か所にする | 利用者が「後で使ってみて変える可能性が高い」と言った値であり、導き方を持たない。⚠️ 長い文（`RS-63` の 60 字ほか）は 3 秒で読み終えられないことがある —— ポインタを乗せれば止まる（X-7）ので、読み終える前に消えない道は残る | 無い |
-| X-7 | **`NT-2` の「止める・延ばす」の中身** —— ポインタが箱の上にある間は期限を数えない（止める）。箱から離れたら `S-NEW-1` を始めから数え直す（延ばす）。同じ理由（相乗りを含む）が上がって `NT-3` で束ねたときも数え直す。⭐ 「読み終える前に消えない」の枝は、表示の仕方が `show` の行が今のまま満たす | `NT-2` は選言であり、どちらかの枝を行ごとに当てればよい（`05-07-design.md` の 表 T-078 の下の文）。止める手段を押す場所に置かず、読むときに自然に起きる動き（ポインタを乗せる）に置く。`SE-4` の「最後の押しから数え直す」と同じ数え直しの形 | 「無効にする」入口は作らない（選言のうち 2 つで足りる） |
+| X-6 | **時間で消す期限は `S-542` の 1 つの値とし、3000 ms とする**（`JDG-1755`、利用者の値）。⭐ 利用者の言うとおり定数で持つ —— 原稿 `settings.json` の 表 T-206 の行とし、`npm run gen` で `src` の生成した定数へ刷る。後で使ってみて変える見込みが高い値なので、直す所を 1 か所にする | 利用者が「後で使ってみて変える可能性が高い」と言った値であり、導き方を持たない。⚠️ 長い文（`RS-63` の 60 字ほか）は 3 秒で読み終えられないことがある —— ポインタを乗せれば止まる（X-7）ので、読み終える前に消えない道は残る | 無い |
+| X-7 | **`NT-2` の「止める・延ばす」の中身** —— ポインタが箱の上にある間は期限を数えない（止める）。箱から離れたら `S-542` を始めから数え直す（延ばす）。同じ理由（相乗りを含む）が上がって `NT-3` で束ねたときも数え直す。⭐ 「読み終える前に消えない」の枝は、表示の仕方が `show` の行が今のまま満たす | `NT-2` は選言であり、どちらかの枝を行ごとに当てればよい（`05-07-design.md` の 表 T-078 の下の文）。止める手段を押す場所に置かず、読むときに自然に起きる動き（ポインタを乗せる）に置く。`SE-4` の「最後の押しから数え直す」と同じ数え直しの形 | 「無効にする」入口は作らない（選言のうち 2 つで足りる） |
 | X-8 | **時間で消す 1 枚にも `OK` の入口と `Enter`・`Esc` を残す**（`JDG-1756`） | `NT-8` の「人がその場で消せること（MUST）」と「`NT-2` と併存する」は、時間で消える通知にも当たる | OK の入口は見え続ける |
 | X-9 | **出さない理由は、上げる側では今のまま上げ、表示の仕方を当てる所を 1 か所にする** —— 通知の状態機械（表 T-286 の `notices/noticeRaised`）が、`hide` の理由を受けても 1 枚を立てない | 上げる所は `src` に 20 か所以上あり（シートの `RS-27` の行）、状態機械の升も `RS-27` を 15 か所で名指す（`_source/state-machines.json`）。上げる側を 1 つずつ直すと、表示の仕方の欄が唯一の正でなくなる | 出さない理由も出来事としては流れる |
 | X-10 | **表 T-220 の行は `notice-reasons.json` に行ごとには持たせず、1 つの家族として持たせる**（作法 `NT-1`・表示の仕方 `show`・相乗り `IV-17` → `RS-21` の 1 件だけ） | 表 T-220 は不変条件の全数の表で、`scheduleViolations`（表 T-064 の `PI-1`）を駆動する。表 T-233 の結びは「同じものに 2 つ目の鍵を作らない」と定めている。22 行を JSON に写すと、行の名簿を 2 か所に持つ | 22 行に別々の表示の仕方を与えたくなったら、本書の外で原稿の形を変える |
-| X-11 | **知らせの名簿に入れないもの** —— `MG-10`（通知をやめ、`U-61` の面に常に出る注記にする —— 決定の案のとおり）、`FR-100`（ブラウザが文を決め、`GRS` は語を持たない）、遅延診断の 26 行・倍率の印・ファイルの状態・検索パネルの語・`shownOnAnotherRow`（通知でも問いでもない。表示する語の表がそれぞれ別に名簿を持つ）。`EX-3` は通知として残るので、表 T-233 の新しい行 `RS-NEW-1` になる | 表 T-037 の結びは「通知が運ぶ理由は 表 T-233 の行とすること（MUST）」と定める。行を持たない `EX-3` は通知できない（今は `DFC-557` の DEVIATION で捨てている） | 無い |
+| X-11 | **知らせの名簿に入れないもの** —— `MG-10`（通知をやめ、`U-61` の面に常に出る注記にする —— 決定の案のとおり）、`FR-100`（ブラウザが文を決め、`GRS` は語を持たない）、遅延診断の 26 行・倍率の印・ファイルの状態・検索パネルの語・`shownOnAnotherRow`（通知でも問いでもない。表示する語の表がそれぞれ別に名簿を持つ）。`EX-3` は通知として残るので、表 T-233 の新しい行 `RS-77` になる | 表 T-037 の結びは「通知が運ぶ理由は 表 T-233 の行とすること（MUST）」と定める。行を持たない `EX-3` は通知できない（今は `DFC-557` の DEVIATION で捨てている） | 無い |
 | X-12 | **表 T-233・表 T-234 を、新しい生成物 `docs/spec/_assets/tbl-notice-reasons.md` に刷る**。表の番号は変えない。`FR-076` の本文と結びの規則は `01-04-requirements.md` に残り、表は生成物を指す | 生成物は 1 ファイルが自ら生成物であることを名乗る形（`_assets/tbl-settings.md`・`_assets/tbl-state-machines.md`）しか前例が無い。手書きの文書の中に生成した区画を置く前例は無い | 表 T-233 / 表 T-234 を `01-04-requirements.md` から読んでいる試験と検査を付け替える（5 節・9 節） |
 
 ---
@@ -92,15 +92,15 @@
 | 知らせの名簿の原稿 | 新しい `docs/spec/_source/notice-reasons.json` と `docs/spec/_source/notice-reasons.schema.json`、新しい `docs/spec/_source/notice_reasons_json_to_md.py`、生成物 `docs/spec/_assets/tbl-notice-reasons.md`、`05-07-design.md` の Chapter 6.2 | E-01 |
 | 表示の仕方の値（138 行） | `notice-reasons.json` の `display`・`wordsOf` の欄 | E-02 |
 | 出さない行が破る「告げる」の文 | `01-04-requirements.md` の `FR-029`・`FR-019`・`FR-016`・表 T-051 の `HF-10`・`HF-13`・`HF-14`・表 T-351 の `WL-9`・表 T-246 の `HB-3`・表 T-037 の `NT-3`・`NT-7`・表 T-233 の 4 行の欄 | E-03 |
-| 時間で消す通知 | 表 T-037 の `NT-2`・`NT-5`・`NT-8` の結び、`FR-076` の本文、`_assets/tbl-settings.md` の 表 T-206（`S-NEW-1`、原稿は `settings.json`）、`05-07-design.md` の 表 T-078 の下の文、`_source/state-machines.json` の 表 T-286 | E-04 |
+| 時間で消す通知 | 表 T-037 の `NT-2`・`NT-5`・`NT-8` の結び、`FR-076` の本文、`_assets/tbl-settings.md` の 表 T-206（`S-542`、原稿は `settings.json`）、`05-07-design.md` の 表 T-078 の下の文、`_source/state-machines.json` の 表 T-286 | E-04 |
 | 読込の結果を `U-62` にまとめる | `_assets/tbl-glossary.md` の `U-62`、表 T-032 の `MG-14`、表 T-233 の `RS-51` の欄、`FR-080` の 表 T-076 の `EP-22`、`_source/state-machines.json` の 表 T-290 の `fileFlow/documentOpenLanded` | E-05 |
 | 相乗り | `notice-reasons.json` の `wordsOf`、表 T-037 の結び（「行を足すときは辞書の原稿にも項を足すこと」の例外） | E-06 |
 | `QN-5` | 表 T-234 の `QN-5`、`FR-095` の本文と RATIONALE、`_source/state-machines.json` の `fileFlow/newDocumentEntryPressed`・`fileFlow/openChoiceAnswered`・`fileFlow/documentFileRead` | E-07 |
-| 直す語 | `docs/spec/_source/display-words.json` の `reasons`（`RS-6`・`RS-11`・`RS-69`・`RS-NEW-1`）・`delayReportReasons` の `milestoneAchieved`・新しい節 `differenceReview`、表 T-032 の `MG-10`、表 T-033 の `EX-3` | E-08 |
+| 直す語 | `docs/spec/_source/display-words.json` の `reasons`（`RS-6`・`RS-11`・`RS-69`・`RS-77`）・`delayReportReasons` の `milestoneAchieved`・新しい節 `differenceReview`、表 T-032 の `MG-10`、表 T-033 の `EX-3` | E-08 |
 | 取り込みの拒否を告げる | `display-words.json` の `invariants` の 21 項、`src` の取り込みの道（5 節） | E-09 |
 | 変更履歴 | `docs/development-records/changelog.md` に 1 行 | E-10 |
 
-数（予測。7 節に内訳）: 要求 ±0。表 ±0。表の場所の移動 2（表 T-233・表 T-234 → 生成物）。表 T-233 の行 ＋1（71 → 72）。表 T-234 の行 ±0（10）。設定値 ＋1（`S-NEW-1`）。表 T-286 の出来事 ＋1。表 T-290 の運ぶ値 ＋1。行の頭字 ±0。辞書の項 −5（`reasons` 71 → 67）・−1（`invariants` 22 → 21）・＋1（`differenceReview`）。語の升（ja）の新設・書き換え 53、en 53。図 0。
+数（予測。7 節に内訳）: 要求 ±0。表 ±0。表の場所の移動 2（表 T-233・表 T-234 → 生成物）。表 T-233 の行 ＋1（71 → 72）。表 T-234 の行 ±0（10）。設定値 ＋1（`S-542`）。表 T-286 の出来事 ＋1。表 T-290 の運ぶ値 ＋1。行の頭字 ±0。辞書の項 −5（`reasons` 71 → 67）・−1（`invariants` 22 → 21）・＋1（`differenceReview`）。語の升（ja）の新設・書き換え 53、en 53。図 0。
 
 ---
 
@@ -108,8 +108,8 @@
 
 | 仮の名 | 何か | `572da133` で測った根拠 |
 |---|---|---|
-| `RS-NEW-1` | 表 T-233 の行。`EX-3` の書き出しの知らせ（`NT-5`、`autoDismiss`） | `RS-` の最大は `RS-76`。`git grep -c "RS-NEW-1"` は 0 件 |
-| `S-NEW-1` | 表 T-206 の行。時間で消す通知の期限（3000 ms、`JDG-1755`） | `S-` の最大は `S-541` |
+| `RS-77` | 表 T-233 の行。`EX-3` の書き出しの知らせ（`NT-5`、`autoDismiss`）。⭐ 原稿の並びでは `RS-76` の次、`RS-15` の前に置く（`RS-15` が最後 —— E-01） | `RS-` の最大は `RS-76`。`git grep -c "RS-77"` は 0 件 |
+| `S-542` | 表 T-206 の行。時間で消す通知の期限（3000 ms、`JDG-1755`） | `S-` の最大は `S-541` |
 | `notices/noticeTimeElapsed` | 表 T-286 の出来事（期限が来た 1 枚の理由を運ぶ） | 表 T-286 に同じ名の出来事は 0 件 |
 | ガード `isHiddenReason`・`isTimedCard` | 表 T-286 の升 | `state-machines.json` に 0 件 |
 | 運ぶ値 `reportedCounts`・ガード `hasAnythingToReport` | 表 T-290 の `fileFlow/documentOpenLanded`（`hasAnythingToReport` は今の `hasTasksToReport` を広げて改名する） | `git grep` で 0 件 |
@@ -151,7 +151,7 @@
 | `05-07-design.md` の 表 T-078 の下の「コードの `frame-clock-wakes.ts` の `setTimeout` は 4 つ…通知の期限を持たないのは下の選言の前の枝を選んだからである」 | 5 つ。表示の仕方が `autoDismiss` の行にだけ後の枝を当てる（E-04） |
 | `src/framework/single-html-shell/document-file-flow.ts` の `afterDropping` が `!ok` で黙って `return false` | 破れた 表 T-220 の行を告げて `false`（E-09・5 節） |
 | `frame-loop.ts` の `NOTICE_REASON_OF_WRITE_REFUSAL` の `importRefused: null` | 拒んだ 表 T-220 の行（5 節） |
-| `document-file-flow.ts` の `exportedText` の `// DEVIATION: … (EX-3, EX-6) … dropped (DFC-557)` のうち `EX-3` | `RS-NEW-1` を上げる。`EX-6` は本書の外（10 節） |
+| `document-file-flow.ts` の `exportedText` の `// DEVIATION: … (EX-3, EX-6) … dropped (DFC-557)` のうち `EX-3` | `RS-77` を上げる。`EX-6` は本書の外（10 節） |
 
 ### 3.2 138 行の対応表（シート『記入』の N 列。`docs/review/message-review-2026-10-08.xlsx`）
 
@@ -215,7 +215,7 @@
 | `RS-68` | `NT-5` | 絵を写した（`JDG-858` を一部覆す） |
 | `RS-70` | `NT-1` | 推定の親子は選べない |
 | `RS-69`（文を直す） | `NT-1` | `JDG-1750`（3.2.5 節） |
-| `RS-NEW-1`（`EX-3`、文を直す） | `NT-5` | 新しい行（3.2.5 節） |
+| `RS-77`（`EX-3`、文を直す） | `NT-5` | 新しい行（3.2.5 節） |
 
 #### 3.2.4 1 枚にまとめる —— 15 行
 
@@ -237,7 +237,7 @@
 |---|---|---|
 | `RS-69` | 4.8 節 | `reasons`、`autoDismiss`（`JDG-1750`） |
 | `MG-10` | 4.8 節 | 新しい節 `differenceReview` の `separateNote`。通知ではなく `U-61` の面に常に出る注記（OK 無し） |
-| `EX-3` | 4.8 節 | 表 T-233 の新しい行 `RS-NEW-1`、`autoDismiss` |
+| `EX-3` | 4.8 節 | 表 T-233 の新しい行 `RS-77`、`autoDismiss` |
 | `delayReportReasons.milestoneAchieved` | 4.8 節 | `delayReportReasons`（名簿の外。語だけ） |
 | `IV-1`〜`IV-12`・`IV-14`〜`IV-23`（22 行） | 4.9 節 | `invariants`（`IV-17` は `RS-21` に相乗り） |
 
@@ -354,8 +354,8 @@ C-9・C-10 は E-07。⚠️ 初稿の C-13（`NT-9` の 1 行の規則と束の
 ```
 読み終える前に消えないようにするか、止める・延ばす・無効にする手段を持つこと（MUST）。
 ⭐ 時間で消すのは、表 T-233 の表示の仕方が「時間で消す」の理由の通知だけとする（MUST） —— ほかの通知は、`NT-8` で消されるまで立つことで前の枝を満たす。
-⭐ その通知は、立ってから `_assets/tbl-settings.md` の 表 T-206 の `S-NEW-1` が経ったら、人の操作を待たずに消すこと（MUST）。
-⭐ ポインタがその通知の箱の上にある間は数えないこと（MUST） —— 止める手段である。箱から離れたら `S-NEW-1` を始めから数え直すこと（MUST） —— 延ばす手段である。
+⭐ その通知は、立ってから `_assets/tbl-settings.md` の 表 T-206 の `S-542` が経ったら、人の操作を待たずに消すこと（MUST）。
+⭐ ポインタがその通知の箱の上にある間は数えないこと（MUST） —— 止める手段である。箱から離れたら `S-542` を始めから数え直すこと（MUST） —— 延ばす手段である。
 ⭐ 同じ理由が上がって `NT-3` で束ねたときも、始めから数え直すこと（MUST）。
 ⚠️ `NT-8` の消し方（`OK`・`Enter`・`Esc`）はそのまま当たる —— 先に人が消してよい。
 ⚠️ `U-62` に並べる理由（表 T-233 の表示の仕方）は通知ではないので、本行に当たらない —— `U-62` は `OK` で閉じるまで立つ。
@@ -364,10 +364,10 @@ C-9・C-10 は E-07。⚠️ 初稿の C-13（`NT-9` の 1 行の規則と束の
 表 T-206 の新しい行（原稿 `settings.json` の `T-206` の塊）:
 
 ```
-| S-NEW-1 | 時間で消す通知を出しておく時間（表 T-037 の `NT-2`） | 3000ms | ⭐ 利用者が「3秒」と指定し、定数で持てと言った値である（`JDG-1755`）。⚠️ 後で使ってみて変える見込みが高い —— 直すのは本行の既定だけで、`src` は `npm run gen` で追随する。⚠️ 長い文は 3 秒で読み終えられないことがある —— ポインタを乗せている間は数えないので（`NT-2`）、読み終える前に消えない道は残る。⛔ `S-244`（倍率のメッセージ）とは別の値である —— あちらは通知ではない（`SE-5`）。保存しないのは、画面の道具の時間であって文書の内容ではないからである |
+| S-542 | 時間で消す通知を出しておく時間（表 T-037 の `NT-2`） | 3000ms | ⭐ 利用者が「3秒」と指定し、定数で持てと言った値である（`JDG-1755`）。⚠️ 後で使ってみて変える見込みが高い —— 直すのは本行の既定だけで、`src` は `npm run gen` で追随する。⚠️ 長い文は 3 秒で読み終えられないことがある —— ポインタを乗せている間は数えないので（`NT-2`）、読み終える前に消えない道は残る。⛔ `S-244`（倍率のメッセージ）とは別の値である —— あちらは通知ではない（`SE-5`）。保存しないのは、画面の道具の時間であって文書の内容ではないからである |
 ```
 
-⛔ 生成器 `tools/generate_entity_types.py` の群に `'NOT_STORED_NOTICE_TIMES': (['S-NEW-1'], TIMED_WHERE_IT_STANDS)` を足し、`frame-clock-wakes.ts` に刷る（`S-244` の `NOT_STORED_SCALE_MESSAGE_TIMES` と同じ形）。足さないと `gen:check` が緑のまま行が `src` に届かない（`02-changing-the-spec.md` の 3.5 節、`CR-551`）。
+⛔ 生成器 `tools/generate_entity_types.py` の群に `'NOT_STORED_NOTICE_TIMES': (['S-542'], TIMED_WHERE_IT_STANDS)` を足し、`frame-clock-wakes.ts` に刷る（`S-244` の `NOT_STORED_SCALE_MESSAGE_TIMES` と同じ形）。足さないと `gen:check` が緑のまま行が `src` に届かない（`02-changing-the-spec.md` の 3.5 節、`CR-551`）。
 
 `NT-5` の升の「⚠️ **`NT-2` の対象とする** —— 読み終える前に消えてはならない」は保ち、対象の例から「表 T-032 の `MG-10`」を除く。
 
@@ -387,7 +387,7 @@ C-9・C-10 は E-07。⚠️ 初稿の C-13（`NT-9` の 1 行の規則と束の
 | `notices/noticeRaised` | → 自己 [`isHiddenReason`]<br>→ `shown`（1 枚）[not `isHiddenReason`] | → 自己 [`isHiddenReason`]（変えない）<br>→ 自己 [`isSameReasonStanding`]（今のまま。相乗りする理由どうしは同じ理由と数える）<br>→ 自己 [それ以外]（今のまま） |
 | `notices/noticeTimeElapsed`（新） | — | → `hidden` [`isTimedCard` & `isOnlyOneStanding`]<br>→ 自己 [`isTimedCard` & not `isOnlyOneStanding`]（その 1 枚を除く）<br>それ以外 → — |
 
-出来事の定義: 「`notices/noticeTimeElapsed` —— 副作用の結果（シェルが数えた `S-NEW-1` が経った）: `NT-2` ・ `FT-4` —— 運ぶ値 `reason`（期限が来た 1 枚の理由）」。⚠️ ポインタが乗っている間の止めと数え直しはシェルの時計の仕事で（`SE-4` と同じ）、状態機械は期限が来たことだけを受ける。
+出来事の定義: 「`notices/noticeTimeElapsed` —— 副作用の結果（シェルが数えた `S-542` が経った）: `NT-2` ・ `FT-4` —— 運ぶ値 `reason`（期限が来た 1 枚の理由）」。⚠️ ポインタが乗っている間の止めと数え直しはシェルの時計の仕事で（`SE-4` と同じ）、状態機械は期限が来たことだけを受ける。
 
 ### E-05 —— 読込の結果を `U-62` にまとめる（`JDG-1757`）
 
@@ -433,13 +433,13 @@ C-9・C-10 は E-07。⚠️ 初稿の C-13（`NT-9` の 1 行の規則と束の
 | 同 | `nextStep` | 形式とファイルが壊れていないかを確かめてください | Check the format, and whether the file is intact |
 | `reasons` の `RS-69` | `text` | マイルストーンは期間を持たないので、親タスクにはできません | A milestone has no span, so it cannot be a parent task |
 | 同 | `nextStep` | （今のまま）期間を持つタスクへ引いてください | （今のまま）Drag to a task that has a span |
-| `reasons` の `RS-NEW-1` | `text` | 工数は書き換えていません | The work values were not rewritten |
+| `reasons` の `RS-77` | `text` | 工数は書き換えていません | The work values were not rewritten |
 | 同 | `nextStep` | 相手側のアプリで工数を更新してください | Update the work in the other application |
 | `delayReportReasons` の `milestoneAchieved` | `text` | 先行がすべて完了しているので、このマイルストーンは達成済みかもしれない | Every predecessor is complete, so this milestone may already be achieved |
 | `differenceReview` の `separateNote`（新しい節） | `text` | 別のものとして取り込むと、このタスクは元の WBS の台帳とつながらなくなり、相手側へ戻せなくなります | Taken in as a separate task, it loses its link to the original WBS ledger and cannot be written back to the other side |
 
 - 表 T-233 の `RS-69` の場面の升は「**マイルストーンは期間を持たないので、親タスクにはできない**（WBS の親を結ぶ構えで、マイルストーンの上で離した）」にする —— 語と場面を一緒に直す（表 T-233 の結びの「行の言うことを書き換えたときは、辞書の項もその行の言うことに合わせること（MUST）」の逆向きも同じ）。「開始ー終了」の長音符の誤記も消える。
-- `RS-NEW-1` の場面: 「**工数を持つ文書を `MSPDI` へ書き出し、工数を書き換えなかった**（表 T-033 の `EX-3`）」、作法 `NT-5`、正 表 T-033 の `EX-3`、表示の仕方 時間で消す。表 T-033 の `EX-3` の升の「通知すること」に「（表 T-233 の `RS-NEW-1`。書き出しの後に 1 回）」を足す。
+- `RS-77` の場面: 「**工数を持つ文書を `MSPDI` へ書き出し、工数を書き換えなかった**（表 T-033 の `EX-3`）」、作法 `NT-5`、正 表 T-033 の `EX-3`、表示の仕方 時間で消す。表 T-033 の `EX-3` の升の「通知すること」に「（表 T-233 の `RS-77`。書き出しの後に 1 回）」を足す。
 - 表 T-032 の `MG-10` の升: 「**「別のものとして取り込む」を選ばせる面（`_assets/tbl-glossary.md` の `U-61`）に、そのタスクが元の外部 WBS マスタへ戻せなくなることを、選ぶ前から常に示すこと（MUST）。** 通知にしない —— 選ぶ人が選ぶ前に読むものであり、`OK` を押させるものではない」。`tools/generate_display_words.py` に部分の名簿 `DIFFERENCE_REVIEW_PARTS = ('separateNote',)` を足す（`OPEN_CHOOSER_PARTS` と同じ形）。
 - ⚠️ `RS-8` の次の一手は `JDG-1758` の利用者の文（「先に「Enter]で編集を確定するか[ESC]で取りやめてください。」）を、調整役が括弧とキーの綴りを揃えた形（[Enter]・[Esc]）である。語の綴りは 表 T-036 のキーの綴りに合わせ、文末の「。」は辞書のほかの語に合わせて落とした。
 
@@ -488,12 +488,12 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 
 | 所 | 何をするか |
 |---|---|
-| 新しい生成器 `tools/generate_notice_reasons.py`（`npm run noticereasons` と `:check`、`gen` / `gen:check` の列に足す） | `notice-reasons.json` と 表 T-220 の行から、`src/use-case/advance-screen-session/notice-values.ts` の生成した区画に刷る: `type ReasonRow`（表 T-233 の全行）・`type InvariantRow`（表 T-220 の全行）・`type NoticeReason = ReasonRow \| InvariantRow`・`NOTICE_MANNER_OF_REASON`・`NOTICE_DISPLAY_OF_REASON`・`NOTICE_WORDS_ROW_OF_REASON`（相乗り先。無ければ自身）・`NOTICE_BUNDLE_OF_REASON`・`DISCARD_QUESTION_DISPLAY`。⭐ 置き場が use-case なのは、表示の仕方を当てる状態機械（X-9）がそこに在り、`frame-loop.ts`（framework）はそこから import できるが逆はできないからである |
+| 新しい生成器 `tools/generate_notice_reasons.py`（`npm run noticereasons` と `:check`、`gen` / `gen:check` の列に足す） | `notice-reasons.json` と 表 T-220 の行から、`src/use-case/advance-screen-session/notice-values.ts` の生成した区画に刷る: `type ReasonRow`（表 T-233 の全行）・`type InvariantRow`（表 T-220 の全行）・`type NoticeReason = ReasonRow \| InvariantRow`・`NOTICE_MANNER_OF_REASON`・`NOTICE_DISPLAY_OF_REASON`・`NOTICE_WORDS_ROW_OF_REASON`（相乗り先。無ければ自身）・`type QuestionRow`（表 T-234 の全行）・`QUESTION_DISPLAY_OF_ROW`（表 T-234 の行 → `ask` ／ `askOnlyWithUnsavedEdits`）。⚠️ 初稿の `NOTICE_BUNDLE_OF_REASON` は `JDG-1757` で束の表が無くなったので作らない。初稿の `DISCARD_QUESTION_DISPLAY` は継ぎ目の名 `QUESTION_DISPLAY_OF_ROW` に替えた（調整役の継ぎ目の文、2026-10-09）。⭐ 置き場が use-case なのは、表示の仕方を当てる状態機械（X-9）がそこに在り、`frame-loop.ts`（framework）はそこから import できるが逆はできないからである |
 | `frame-loop.ts` | 手写しの `NoticeReason` と `NOTICE_MANNER_OF_REASON` を消し、生成した名を import する。`NOTICE_REASON_OF_WRITE_REFUSAL` の `importRefused` を、拒んだ 表 T-220 の行を運ぶ形にする（拒否の値が行を持たないなら、`document-file-flow.ts` の側で告げる） |
 | `notice-values.ts` の `onNoticeRaised` | `hide` の理由は立てない。相乗り先で同じ理由を判じる。新しい出来事 `noticeTimeElapsed` の手を足す（表 T-286、E-04） |
-| `frame-clock-wakes.ts` | 時間で消す 1 枚ごとの期限（`NOT_STORED_NOTICE_TIMES['S-NEW-1']`）。ポインタが箱の上にある間は止め、離れたら数え直す（`startScaleMessageTimer` と同じ形） |
+| `frame-clock-wakes.ts` | 時間で消す 1 枚ごとの期限（`NOT_STORED_NOTICE_TIMES['S-542']`）。ポインタが箱の上にある間は止め、離れたら数え直す（`startScaleMessageTimer` と同じ形） |
 | `src/adapter/screen-renderer/notices.ts` | 相乗り先の語を刷る。⚠️ `NT-4` の束ねは変えない |
-| `document-file-flow.ts` | `afterDropping` の拒否で 表 T-220 の行を告げる（E-09）。`exportedText` の `mspdi` で `EX-3` の知らせを捨てず、`RS-NEW-1` を 1 回上げる |
+| `document-file-flow.ts` | `afterDropping` の拒否で 表 T-220 の行を告げる（E-09）。`exportedText` の `mspdi` で `EX-3` の知らせを捨てず、`RS-77` を 1 回上げる |
 | `document-file-flow.ts` の読込の道（`tellDecodedIntake`・`tellImportReport`・`IGNORED_FILES_REASON` を上げる所） | `report` の理由を通知として上げず、件数を数えて着地の出来事（`documentOpenLanded` の `reportedCounts`）に載せる。着地しなかった読込では捨てる（X-5、E-05） |
 | `src/use-case/advance-screen-session/file-flow-values.ts` の `hasTasksToReport` | `hasAnythingToReport` へ広げて改名し、`reportedCounts` を運ぶ（表 T-290） |
 | `U-62` を描く所（`src/adapter/screen-renderer/open-modals.ts`・`src/framework/dom-screen-surface/open-modals-drawing.ts`） | 件数の行（理由の語・件数・次の一手を 1 行）を、名前の一覧とともに 表 T-233 の刷り順で組む |
@@ -536,7 +536,7 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 
 | 数 | 前（`572da133`） | 後 | 測り方 |
 |---|---|---|---|
-| 表 T-233 の行 | 71 | 72（`RS-NEW-1`） | `impact.py T-233` の「行」 |
+| 表 T-233 の行 | 71 | 72（`RS-77`） | `impact.py T-233` の「行」 |
 | 表 T-234 の行 | 10 | 10 | `impact.py T-234` |
 | 表の数 | — | ±0（初稿の `T-NEW-1` は `JDG-1757` で要らなくなった） | `npm run gen` の出力 |
 | `01-04-requirements.md` が持つ表 | — | −2（移動） | 生成物の検査 16 |
@@ -546,13 +546,13 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 | 辞書の `reasons` の項 | 71 | 67（−5 ＋1） | `npm run words` の出力 |
 | 辞書の `invariants` の項 | 22（語は 0） | 21（語は 21 項すべて ja を持つ） | 同上 |
 | 辞書の新しい節 | — | ＋1（`differenceReview`、1 項） | 同上 |
-| 語の升（ja）の新設・書き換え | — | 53（`RS-6` 2・`RS-8` 2・`RS-11` 2・`RS-69` 1・`RS-NEW-1` 2・`milestoneAchieved` 1・`separateNote` 1・`invariants` 42 —— `text` 21 ＋ `nextStep` 21） | 原稿の差分の升を数える |
+| 語の升（ja）の新設・書き換え | — | 53（`RS-6` 2・`RS-8` 2・`RS-11` 2・`RS-69` 1・`RS-77` 2・`milestoneAchieved` 1・`separateNote` 1・`invariants` 42 —— `text` 21 ＋ `nextStep` 21） | 原稿の差分の升を数える |
 | en の語 | — | 53（`JDG-1763`） | 同上 |
 | `src` の和 `NoticeReason` の員数 | 63 | 94（表 T-233 の 72 ＋ 表 T-220 の 22。生成） | 生成した区画 |
 | 検査 69 の基準線 | — | −2 | `check-literal-restatement.py` |
 | 要求 | — | ±0 | `check.sh` |
 
-⚠️ 表示の仕方の値の内訳（表 T-233 の 72 行）: `show` 28（うち相乗り 5）、`autoDismiss` 14（12 ＋ `RS-69` ＋ `RS-NEW-1`）、`hide` 21、`report` 9（`RS-14`・`RS-16`・`RS-50`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`・`RS-73`） —— 計 72。表 T-234 の 10 行: `ask` 9、`askOnlyWithUnsavedEdits` 1。⛔ この内訳は当てる体が原稿を数えて突き合わせる（外れたら数え落とし）。
+⚠️ 表示の仕方の値の内訳（表 T-233 の 72 行）: `show` 28（うち相乗り 5）、`autoDismiss` 14（12 ＋ `RS-69` ＋ `RS-77`）、`hide` 21、`report` 9（`RS-14`・`RS-16`・`RS-50`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`・`RS-73`） —— 計 72。表 T-234 の 10 行: `ask` 9、`askOnlyWithUnsavedEdits` 1。⛔ この内訳は当てる体が原稿を数えて突き合わせる（外れたら数え落とし）。
 
 ---
 
@@ -562,7 +562,7 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 |---|---|---|
 | 0（調整役） | `CR-708` との順を決める（10 節）。仮の名の本番の番号を採る | 当てる日の `git grep` |
 | 1（移すだけ —— 振る舞いは変えない） | `notice-reasons.json`・スキーマ・`notice_reasons_json_to_md.py`・生成物、`FR-076` が生成物を指す、Chapter 6.2 の段落、`generate_display_words.py` が名簿を原稿から読む、`tools/generate_notice_reasons.py` と `notice-values.ts` の区画、`frame-loop.ts` の手写しを消す、検査 37・69 と表を読む試験の付け替え。表示の仕方は今の仕様が言う値で入れる（仕様が出さないと定める `RS-19`・`RS-22`・`RS-74` は `hide`、`RS-50`・`RS-73` は `report`、ほかは `show`。`QN-5` は `ask`）。生成した表は表示の仕方の列をまだ刷らない | 生成した 表 T-233・表 T-234 の行が今の行とバイト一致。`npm run gen:check`・`guard:spec`・vitest が波の前と同じ数で緑 |
-| 2（決定を当てる —— 仕様と `src` を 1 つの波で） | E-02〜E-09、`S-NEW-1` と生成器の群、`state-machines.json`、`src` の 5 節の残り。⭐ 仕様だけを読む試験の体を別に立てる（記憶 `spec-driven-tests-by-another-agent`）—— 継ぎ目の名（`NOTICE_DISPLAY_OF_REASON`・`noticeTimeElapsed`・`S-NEW-1`）を両方の依頼文に逐語で書く | `check.sh`・`npm run guard:gen`。7 節の予測と実測の突き合わせ |
+| 2（決定を当てる —— 仕様と `src` を 1 つの波で） | E-02〜E-09、`S-542` と生成器の群、`state-machines.json`、`src` の 5 節の残り。⭐ 仕様だけを読む試験の体を別に立てる（記憶 `spec-driven-tests-by-another-agent`）—— 継ぎ目の名（`NOTICE_DISPLAY_OF_REASON`・`noticeTimeElapsed`・`S-542`）を両方の依頼文に逐語で書く | `check.sh`・`npm run guard:gen`。7 節の予測と実測の突き合わせ |
 | 3（利用者の試し） | 調整役が 1 枚の手順にまとめて利用者に頼む（記憶 `user-tests-go-through-coordinator`・`user-tests-after-all-fixed`） | 利用者の答え |
 
 ⚠️ 波 1 と波 2 を分けるのは、移し替えの証明（バイト一致）を決定の当てと混ぜないためである。波 2 の中で仕様と `src` を分けないのは、`02-changing-the-spec.md` の 3.5 節（原稿の行と読む側を同じ巡で）のため。
@@ -597,7 +597,7 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 | # | 問い | 答え | 裁定 |
 |---|---|---|---|
 | 1 | 英語の語（4.8・4.9 節の en）を本書の案のまま採るか | 採る（`JDG-1758`・`JDG-1761`・`JDG-1762` で書き足した升の en も本書の案） | `JDG-1763` |
-| 2 | 時間で消す通知の期限 `S-NEW-1` | 「3秒 ただし、定数で持てよ。 後で使ってみて変える可能性が高いし。」—— 3000 ms、表 T-206 の行（X-6） | `JDG-1755` |
+| 2 | 時間で消す通知の期限 `S-542` | 「3秒 ただし、定数で持てよ。 後で使ってみて変える可能性が高いし。」—— 3000 ms、表 T-206 の行（X-6） | `JDG-1755` |
 | 3 | 「表示しない」21 行の語を辞書に残すか | 残す（X-4） | `JDG-1759` |
 | 4 | `IV-11`・`IV-12`・`IV-14`・`IV-21` の編集の形の文 | `IV-11`・`IV-12`・`IV-21` を取り込みの形に直す。`IV-14` は案のまま（E-09） | `JDG-1761` |
 | 5 | 次の一手の無い `IV-10`・`IV-19`・`IV-20`・`IV-22` | 足す（E-09） | `JDG-1762` |
@@ -621,7 +621,7 @@ ja は決定の案（『推奨の理由』の欄）をそのまま写した。`I
 
 | 行 | 本書での扱い |
 |---|---|
-| `JDG-1746`〜`JDG-1752`・`JDG-1755`〜`JDG-1764` | 状態は「指示 —— `CR-712` が当てる」（本席が書いた）。当てた日に「適用済」とし、着地先に 表 T-233（`_assets/tbl-notice-reasons.md`）・表 T-234・表 T-037 の `NT-2`・表 T-206 の `S-NEW-1`・`_assets/tbl-glossary.md` の `U-62`・`_source/notice-reasons.json`・`_source/display-words.json` ほかの仕様の ID とパスを書く（検査 43 は `CR-` だけの着地先を赤にする） |
+| `JDG-1746`〜`JDG-1752`・`JDG-1755`〜`JDG-1764` | 状態は「指示 —— `CR-712` が当てる」（本席が書いた）。当てた日に「適用済」とし、着地先に 表 T-233（`_assets/tbl-notice-reasons.md`）・表 T-234・表 T-037 の `NT-2`・表 T-206 の `S-542`・`_assets/tbl-glossary.md` の `U-62`・`_source/notice-reasons.json`・`_source/display-words.json` ほかの仕様の ID とパスを書く（検査 43 は `CR-` だけの着地先を赤にする） |
 | `JDG-1753` | 問い方の指示。本書の着地先は無い |
 | `JDG-1754` | 0.2 節の 6 つの印は調整役が付けた。本書は何もしない |
 | `JDG-509`・`JDG-617`・`JDG-858`・`JDG-921`・`JDG-1118`・`JDG-1159` | 「覆された（一部）」の印は付いた（`JDG-1754`）。当てた日に、覆した先として `CR-712` の着地先を書き足す |
@@ -641,12 +641,12 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py T-233 T-
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py FR-029 FR-095 FR-019 FR-016 FR-004 FR-135 FR-076 NT-2 NT-5 QN-5 RS-27
 bash .claude/skills/spec-graph-check/check.sh && PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-076 FR-029 FR-095 FR-019 FR-016 FR-004 FR-135 T-233 T-234 T-037 T-220 T-206
 git grep -l "01-04-requirements" HEAD -- tests tools .claude/skills | xargs git grep -l "T-233\|T-234" HEAD --   # readers to re-point
-git grep -n "RS-NEW-1\|S-NEW-1\|reportedCounts\|hasAnythingToReport" HEAD   # 0 before applying
+git grep -n "RS-77\|S-542\|reportedCounts\|hasAnythingToReport" HEAD   # 0 before applying
 grep -n "NoticeReason\|NOTICE_MANNER_OF_REASON\|importRefused" src/framework/single-html-shell/frame-loop.ts
 grep -n "afterDropping\|DEVIATION" src/framework/single-html-shell/document-file-flow.ts
 grep -n "tellDecodedIntake\|tellImportReport\|IGNORED_FILES_REASON\|raiseStartupNotice" src/framework/single-html-shell/document-file-flow.ts src/framework/single-html-shell/single-html-shell.ts
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-identifier-reservation.py   # OK on this draft
 # the 138 decisions: sheet 記入, column N of docs/review/message-review-2026-10-08.xlsx
 #   counted with openpyxl: 表示する 63 / 表示しない 22 / 自然に消える 12 / 1 枚にまとめる 15 / 文面を直す 26
-# S-NEW-1 = 3000 ms is the user's value (JDG-1755); no derivation is claimed
+# S-542 = 3000 ms is the user's value (JDG-1755); no derivation is claimed
 ```

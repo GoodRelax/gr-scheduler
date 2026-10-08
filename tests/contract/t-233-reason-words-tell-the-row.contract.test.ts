@@ -31,8 +31,8 @@
 //
 //   「⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運んで
 //    はならない（MUST NOT）—— 理由の語は `FR-038` の辞書が持ち、辞書は行 ID で
-//    引く。⛔ **行を足すときは、辞書の原稿にも項を足すこと（MUST）** —— 生成器が
-//    本表から名簿を起こすので、片方だけを書けば黙らずに落ちる。」
+//    引く。⛔ **相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）**
+//    —— 生成器が原稿から名簿を起こすので、片方だけを書けば黙らずに落ちる。」
 //
 // ⛔ THAT IS AN OBLIGATION ABOUT ADDING A ROW, NOT ABOUT REWRITING ONE, and
 // ledger row DFC-166 says as much: 「足すときは守られたが、書き換えるときのことは
@@ -169,7 +169,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-14': '8a3b1693d6bc54e1',
   'RS-16': 'd17dd51b976cadca',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
-  // 「いまは告げてはならない（MUST NOT）」 when the ruling of that day left
+  // a MUST NOT against telling it (now the display 出さない, CR-712) when the ruling of that day left
   // the watermark's default name standing and put the road to set one off
   // until later. ⚠️ The words are NOT changed with it: the next step it
   // offers -- set a name and the watermark prints it -- is undoable today,
@@ -353,9 +353,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   the drag and points at the milestone for a point. ⛔ The words themselves
   //   are not spelled here -- they are the dictionary's (FR-038, MUST NOT).
   // ⭐ THE NEXT STEP NAMES THE ROAD, WHICH IS THE WHOLE POINT OF THE ROW. FR-001
-  //   grants it with the reason spelled into the row itself -- 「`RS-27`（押した
-  //   入口が、いま行えることを持たない）では、何をすればよいかが読めない。」 -- so a
-  //   word that only said "nothing happened" would fail the row it belongs to.
+  //   granted it with the reason once spelled into the row itself (RS-27 could not
+  //   say what to do instead); CR-712 made the row hidden, and its words stay for
+  //   the day it is shown again.
   // ⭐ IT NAMES THE MILESTONE, AND THAT IS NOT A SECOND SCENE. FR-001 keeps
   //   「マイルストーンは押すだけで置くこと（MUST）」 and RS-53's own note says a
   //   point never raises this row, so telling the reader where the press they

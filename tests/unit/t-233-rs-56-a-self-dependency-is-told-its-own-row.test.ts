@@ -101,7 +101,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 const mannerOf = (rowId: string): string => bare(rowOf(T_233, rowId).cells[1] ?? '')
 
 /** The 正 column table T-233 gives one reason, as printed. */
-const authorityOf = (rowId: string): string => rowOf(T_233, rowId).cells[2] ?? ''
+const authorityOf = (rowId: string): string => rowOf(T_233, rowId).by['正'] ?? ''
 
 /** The words FR-038's one dictionary holds for one row of table T-233. */
 const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } => {

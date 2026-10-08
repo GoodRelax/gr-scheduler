@@ -1574,7 +1574,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
-| `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身。 |
+| `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |
 | `NoticeReason` | entry | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeReason` | PI-39 | 型。 |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |

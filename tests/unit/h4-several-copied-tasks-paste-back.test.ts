@@ -277,7 +277,7 @@ describe('two rows chosen at copy time -- the brief contract, NOT a spec clause'
     expect(built, 'premise: some modifier picks two rows (FR-085)').not.toBeNull()
     const before = JSON.stringify(built!.loop.document())
     built!.send(COPY)
-    expect(built!.notices(), 'the copy is told RS-27').toContain(RS_27_WORDS)
+    expect(built!.notices(), 'the copy carries RS-27, which is not shown (CR-712)').not.toContain(RS_27_WORDS)
     expect(JSON.stringify(built!.loop.document()), 'a copy is not an edit').toBe(before)
     pickRow!('row-3', false)
     built!.send(PASTE)

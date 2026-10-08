@@ -118,9 +118,6 @@ const sentenceOf = (language: DisplayLanguage): string => {
   return held
 }
 
-const reasonOf = (row: string, language: DisplayLanguage): string =>
-  WORDS.reasons.find((one) => one.rowId === row)?.text?.[language] ?? `(no words for ${row})`
-
 const answerKeyOf = (spelled: string): string => {
   const held = WORDS.confirmation.find((one) => one.text.en === spelled)
   if (held === undefined) throw new Error(`the confirmation section holds no answer spelled ${spelled}`)

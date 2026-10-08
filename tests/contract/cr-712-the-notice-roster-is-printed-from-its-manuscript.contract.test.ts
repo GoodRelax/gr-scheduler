@@ -21,6 +21,8 @@ interface ReasonEntry {
   readonly scene: { readonly ja: string }
   readonly manner: string
   readonly source: { readonly ja: string }
+  readonly display: string
+  readonly wordsOf?: string
 }
 
 interface QuestionEntry {
@@ -28,12 +30,21 @@ interface QuestionEntry {
   readonly scene: { readonly ja: string }
   readonly names: { readonly ja: string }
   readonly source: { readonly ja: string }
+  readonly display: string
+}
+
+interface PrintedTable {
+  readonly displayLabels: Readonly<Record<string, { readonly ja: string }>>
+  readonly wordsOfLabel?: { readonly ja: string }
+  readonly ownWordsLabel?: { readonly ja: string }
 }
 
 interface NoticeRoster {
   readonly reasons: readonly ReasonEntry[]
   readonly questions: readonly QuestionEntry[]
   readonly invariantRefusals: { readonly manner: string }
+  readonly reasonTable: PrintedTable
+  readonly questionTable: PrintedTable
 }
 
 const ROSTER = JSON.parse(
@@ -94,15 +105,26 @@ describe('Chapter 6.2: the notice roster is a manuscript and the two tables are 
   })
 
   it('table T-233 prints every reason of the manuscript, cell for cell, in its order', () => {
+    const table = ROSTER.reasonTable
+    const sharing = (one: ReasonEntry): string =>
+      one.wordsOf === undefined ? (table.ownWordsLabel?.ja ?? '') : (table.wordsOfLabel?.ja ?? '').replace('{row}', one.wordsOf)
     const wanted = ROSTER.reasons.map((one) =>
-      STANDING_IN_ROW([one.id, one.scene.ja, `\`${one.manner}\``, one.source.ja]),
+      STANDING_IN_ROW([
+        one.id,
+        one.scene.ja,
+        `\`${one.manner}\``,
+        table.displayLabels[one.display]?.ja ?? '',
+        sharing(one),
+        one.source.ja,
+      ]),
     )
     expect(printedRows('**表 T-233 —')).toEqual(wanted)
   })
 
   it('table T-234 prints every question of the manuscript, cell for cell, in its order', () => {
+    const labels = ROSTER.questionTable.displayLabels
     const wanted = ROSTER.questions.map((one) =>
-      STANDING_IN_ROW([one.id, one.scene.ja, one.names.ja, one.source.ja]),
+      STANDING_IN_ROW([one.id, one.scene.ja, one.names.ja, labels[one.display]?.ja ?? '', one.source.ja]),
     )
     expect(printedRows('**表 T-234 —')).toEqual(wanted)
   })

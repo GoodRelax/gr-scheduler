@@ -577,10 +577,7 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
 }
 
 // see T-290, FR-023, FR-076, MG-14
-type ReportedLines = Pick<
-  Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>,
-  'droppedTaskNames' | 'missingTaskNames' | 'reportedCounts'
->
+type ReportedLines = Omit<Extract<SessionEvent, { readonly type: 'documentOpenLanded' }>, 'type' | 'openedFileName' | 'openChoice'>
 
 interface ReadingTally {
   readonly hands: DocumentFileFlowHands
@@ -613,6 +610,18 @@ function tellImportRefusals(
     counts.set(row, (counts.get(row) ?? 0) + 1)
   }
   for (const [row, count] of counts) hands.raiseNotice(row, count > 1 ? count : null)
+}
+
+// see AM-8, FR-012, RS-52
+/** @purity non-pure */
+function handedReadingOf(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, handed: HandedImport) {
+  const recounted = handed.recountedCount ?? 0
+  if (recounted > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, recounted)
+  return {
+    readIn: { format: importedFormatOf(handed.format), byteLength: handed.byteLength, fileName: null } as ReadInFile,
+    incoming: handed.incoming,
+    newer: { ...NOT_NEWER, isNewerFormat: handed.isNewerFormat, couldNotBeRead: handed.unreadColumns },
+  }
 }
 
 // see EX-3
@@ -706,10 +715,8 @@ export async function openDocumentIntoHold(
   let incoming: Document
   let newer = NOT_NEWER
   if (handed !== null) {
-    handedIn = { format: importedFormatOf(handed.format), byteLength: handed.byteLength, fileName: null }
-    incoming = handed.incoming
-    newer = { ...NOT_NEWER, isNewerFormat: handed.isNewerFormat, couldNotBeRead: handed.unreadColumns }
-    if ((handed.recountedCount ?? 0) > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, handed.recountedCount ?? null)
+    const read = handedReadingOf(hands, handed)
+    ;({ readIn: handedIn, incoming, newer } = read)
   } else if (store === null) {
     return false
   } else {

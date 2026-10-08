@@ -73,11 +73,11 @@ describe('DFC-1000 -- HF-10 with every row drawn the head entrance has nothing t
     expect(built.last().rowTitlePanel.canOpenEveryRow).toBe(false)
   })
 
-  it('pressing IC-74 tells RS-31 and writes nothing', async () => {
+  it('pressing IC-74 carries RS-31 unseen (CR-712) and writes nothing', async () => {
     const built = await paletteStage({ document: documentWith('auto') as never })
     const before = JSON.stringify(built.loop.document().schedule.taskGroups)
     await built.press(ROW_TITLE_PANEL, HEAD_OPEN_ALL)
-    expect(toldReasons(built.last())).toContain(NOTHING_TO_OPEN)
+    expect(toldReasons(built.last())).not.toContain(NOTHING_TO_OPEN)
     expect(JSON.stringify(built.loop.document().schedule.taskGroups)).toBe(before)
   })
 })

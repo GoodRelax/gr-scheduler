@@ -33,7 +33,8 @@ describe('NT-3a -- the manuscript these cases are driven by', () => {
 
 describe(`NT-3a -- ${NT_3A}`, () => {
   it.each(FAILURE_ROWS.map((row) => [row]))('%s: the dictionary gives a next step in both languages', (row) => {
-    const found = WORDS.find((one) => one.rowId === row)
+    const shared = /`(RS-\d+)`/.exec(T_233.rows.find((one) => one.id === row)?.by['まとめ方'] ?? '')?.[1]
+    const found = WORDS.find((one) => one.rowId === (shared ?? row))
     expect(found?.nextStep?.ja ?? '', `${row}: ${NT_3A_NOT_BARE}`).not.toBe('')
     expect(found?.nextStep?.en ?? '', `${row}: ${NT_3A_NOT_BARE}`).not.toBe('')
   })

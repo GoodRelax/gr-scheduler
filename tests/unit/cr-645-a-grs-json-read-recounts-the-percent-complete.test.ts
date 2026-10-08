@@ -296,6 +296,7 @@ const pointer = (phase: PointerPhase): PointerInput => ({
 interface Opened {
   readonly loop: FrameLoop
   readonly notices: () => readonly Notice[]
+  readonly reportLines: () => readonly { readonly reason: string; readonly count: number | null; readonly text: string }[]
 }
 
 // see OP-3, OP-4
@@ -360,17 +361,21 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
       if (view === undefined) throw new Error('the surface was given no description')
       return view.notices
     },
+    reportLines: () => {
+      const view = views[views.length - 1] as { openModal?: { reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null } | undefined
+      return view?.openModal?.reportLines ?? []
+    },
   }
 }
 
-describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells the recount', () => {
-  it('the notice carries the number of Tasks whose value moved, and the opened document holds the recount', async () => {
-    const { loop, notices } = await openedByReplacing(disagreeingText(), 'incoming.json')
+describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells the recount on the Import Report (CR-712)', () => {
+  it('the Import Report line carries the number of Tasks whose value moved, and the opened document holds the recount', async () => {
+    const { loop, notices, reportLines } = await openedByReplacing(disagreeingText(), 'incoming.json')
     expect(taskOf(loop.document(), 1).percentComplete).toBe(0)
-    const told = notices().find((one) => one.text === reasonTextOf('RS-52'))
-    expect(told).toBeDefined()
-    expect(told?.manner).toBe('NT-3')
-    expect(told?.affectedCount).toBe(3)
+    expect(notices().find((one) => one.text === reasonTextOf('RS-52'))).toBeUndefined()
+    const told = reportLines().find((one) => one.reason === 'RS-52')
+    expect(told?.text).toBe(reasonTextOf('RS-52'))
+    expect(told?.count).toBe(3)
   })
 
   it('FR-012 / FR-100: a recount alone leaves no unsaved edits after a replacing open', async () => {
@@ -380,8 +385,9 @@ describe('RS-52 (NT-3): opening a GRS JSON that disagrees with its dates tells t
 
   it('FR-012 / FR-021: opening an MSPDI with the same value tells no recount and keeps 70', async () => {
     const source = documentObject([UNSTARTED_WRITTEN_70, AGREEING]) as unknown as Document
-    const { loop, notices } = await openedByReplacing(mspdiFromDocument(source, LAST_SAVED_AT).text, 'incoming.xml')
+    const { loop, notices, reportLines } = await openedByReplacing(mspdiFromDocument(source, LAST_SAVED_AT).text, 'incoming.xml')
     expect(taskOf(loop.document(), 1).percentComplete).toBe(70)
     expect(notices().find((one) => one.text === reasonTextOf('RS-52'))).toBeUndefined()
+    expect(reportLines().find((one) => one.reason === 'RS-52')).toBeUndefined()
   })
 })

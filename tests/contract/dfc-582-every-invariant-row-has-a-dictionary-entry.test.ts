@@ -27,6 +27,14 @@ const IV_ROWS: readonly string[] = specTable('T-220')
   .rows.map((one) => one.id)
   .filter((id) => id.startsWith('IV-'))
 
+const SHARING: Readonly<Record<string, string>> = (
+  JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+    readonly invariantRefusals: { readonly wordsOf?: Record<string, string> }
+  }
+).invariantRefusals.wordsOf ?? {}
+
+const IV_ROWS_WITH_OWN_WORDS: readonly string[] = IV_ROWS.filter((id) => !(id in SHARING))
+
 describe('DFC-582 premise -- table T-220 is read', () => {
   it('table T-220 has IV- rows, including IV-21', () => {
     expect(IV_ROWS.length).toBeGreaterThan(0)
@@ -39,14 +47,15 @@ describe.each([
   { which: 'the manuscript', path: MANUSCRIPT_PATH },
   { which: 'the generated copy the screen reads', path: GENERATED_PATH },
 ])('DFC-582 / T-233 closing -- $which holds one invariants entry per T-220 row', ({ path }) => {
-  it('has exactly the IV- rows of table T-220, each once', () => {
+  it('has exactly the IV- rows of table T-220 that share no reason words (FR-076, CR-712), each once', () => {
     const ids = invariantsOf(path).map((one) => one.rowId)
-    expect([...ids].sort()).toEqual([...IV_ROWS].sort())
+    expect([...ids].sort()).toEqual([...IV_ROWS_WITH_OWN_WORDS].sort())
+    expect(SHARING['IV-17']).toBe('RS-21')
   })
 
   it('gives every entry words and a next step in ja and en, possibly empty', () => {
     const entries = invariantsOf(path)
-    expect(entries.length).toBe(IV_ROWS.length)
+    expect(entries.length).toBe(IV_ROWS_WITH_OWN_WORDS.length)
     for (const one of entries) {
       for (const part of [one.text, one.nextStep]) {
         expect(typeof part?.ja, JSON.stringify(one)).toBe('string')

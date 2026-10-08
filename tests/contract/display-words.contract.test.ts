@@ -342,6 +342,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   exportChooser: 'part',
   // WHY: CR-623 keys the Open Chooser's words by the part they fill.
   openChooser: 'part',
+  differenceReview: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
   // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
@@ -482,6 +483,7 @@ const T023 = specTable('T-023')
 const T233 = specTable('T-233').rows.map((row) => ({
   row: row.id,
   manner: bare(row.by['作法'] ?? ''),
+  sharesWords: (row.by['まとめ方'] ?? '').startsWith('語は'),
 }))
 
 /**
@@ -500,6 +502,12 @@ const T234 = specTable('T-234').rows.map((row) => ({
 }))
 
 const T220 = specTable('T-220').rows.map((row) => row.id)
+
+const T220_SHARING: Readonly<Record<string, string>> = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+    readonly invariantRefusals: { readonly wordsOf?: Record<string, string> }
+  }
+).invariantRefusals.wordsOf ?? {}
 
 // see FR-076
 const IMPORT_REFUSAL_MANNER = ((): string => {
@@ -2111,6 +2119,14 @@ const OPEN_CHOOSER_WORD: Readonly<Record<string, 'fileWord' | 'documentTitleWord
   documentTitle: 'documentTitleWord',
   cancel: 'cancelWord',
 }
+for (const entry of GENERATED['differenceReview'] ?? []) {
+  drop(
+    'differenceReview',
+    keyOf('differenceReview', entry),
+    'its place is the separate-task note of the Difference Review (MG-10, U-61), which needs merge candidates no frame here builds',
+  )
+}
+
 for (const entry of GENERATED['openChooser'] ?? []) {
   const part = keyOf('openChooser', entry)
   const member = OPEN_CHOOSER_WORD[part]
@@ -3109,7 +3125,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     )
     expect(T220.length).toBeGreaterThan(0)
     expect((MANUSCRIPT['invariants'] ?? []).map((entry) => keyOf('invariants', entry)).sort()).toEqual(
-      [...T220].sort(),
+      T220.filter((row) => !(row in T220_SHARING)).sort(),
     )
   })
 
@@ -3297,7 +3313,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     expect(
       new Set(owed.filter((cell) => cell.section === 'reasons').map((cell) => cell.key)),
       'FR-076 (MUST): every row of table T-233 owes NT-1 s words and NT-3a s next step',
-    ).toEqual(new Set(T233.map((entry) => entry.row)))
+    ).toEqual(new Set(T233.filter((entry) => !entry.sharesWords).map((entry) => entry.row)))
     expect(
       new Set(owed.filter((cell) => cell.section === 'questions').map((cell) => cell.key)),
       'FR-076 (MUST): every row of table T-234 owes NT-7 s sentence -- what is about to happen, in words',

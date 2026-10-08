@@ -1015,9 +1015,9 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-describe('FR-029 / table T-233: the telling carries RS-53 and not the fallback', () => {
+describe('FR-029 / table T-233: the press carries RS-53, which table T-233 does not show (CR-712)', () => {
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐ a bar shape released without travelling is told RS-53's own words in ${language}`, () => {
+    it(`⭐ a bar shape released without travelling shows neither RS-53's nor RS-27's words in ${language}`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR. With no row for the situation
       // the dictionary answers with its fallback and the reader is told RS-27
       // -- 「押した入口が、いま行えることを持たない」 -- which is untrue here and
@@ -1026,18 +1026,18 @@ describe('FR-029 / table T-233: the telling carries RS-53 and not the fallback',
       const built = stage(language)
       built.pressEntry(RECTANGLE)
       built.pressGround(GROUND.x, GROUND.y)
-      const told = built.notices()
-      expect(told.length, 'FR-001 (MUST): the press is told it made nothing').toBe(1)
-      expect(told[0]?.text).toBe(wordsOf(RS_53)[language])
-      expect(told[0]?.text).not.toBe(wordsOf(RS_27)[language])
+      const told = built.notices().map((one) => one.text)
+      expect(told).not.toContain(wordsOf(RS_53)[language])
+      expect(told).not.toContain(wordsOf(RS_27)[language])
     })
   }
 
-  it('⭐ and it is told in NT-1s manner, which is the manner table T-233 writes it against', () => {
+  it('⭐ and RS-53 keeps NT-1 in table T-233 while the press puts no notice up', () => {
     const built = stage()
     built.pressEntry(RECTANGLE)
     built.pressGround(GROUND.x, GROUND.y)
-    expect(built.notices()[0]?.manner).toBe(mannerOf(RS_53))
+    expect(built.notices()).toEqual([])
+    expect(mannerOf(RS_53)).toBe('NT-1')
   })
 
   it('⛔ and nothing reached the document', () => {

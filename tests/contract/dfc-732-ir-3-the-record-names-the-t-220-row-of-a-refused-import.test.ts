@@ -266,8 +266,7 @@ describe(`T-233 closing / T-263 IR-3 -- ${IR_3_READABLE}`, () => {
   })
 
   // see DFC-732, T-233
-  // WHY: red until a refused import raises an NT-1 notice carrying its T-220 row; the shell raises none, so no frame line can name the row.
-  it.fails('DFC-732: a refused import leaves an NT-1 notice standing whose reason is the T-220 row, and the record names it', async () => {
+  it('DFC-732: a refused import leaves an NT-1 notice standing whose reason is the T-220 row, and the record names it', async () => {
     const one = bench()
     one.pressRecordEntrance()
     one.frames()

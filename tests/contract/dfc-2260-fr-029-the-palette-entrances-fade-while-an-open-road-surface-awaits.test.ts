@@ -99,25 +99,25 @@ describe('DFC-2260 -- FR-029 the palette entrances beside a surface that awaits 
   it('the answer ends the wait: after IC-95 closes U-61, IC-62 and IC-41 are pressable again', async () => {
     const built = await withDifferenceReview()
     await built.press(DIFFERENCE_REVIEW, KEEP_THE_FILE_VALUE)
-    expect(built.surfaceName(), 'precondition: the answer left a surface standing').toBeNull()
+    expect([null, 'Import Report'], 'precondition: the answer left a surface awaiting an answer').toContain(built.surfaceName())
     expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(true)
     expect(built.item(WATERMARK_ENTRANCE).isEnabled).toBe(true)
   })
 })
 
 describe('DFC-2260 -- T-280 pressing a faint entrance', () => {
-  it('IC-62 while U-56 awaits: RS-27 is told and U-56 stays', async () => {
+  it('IC-62 while U-56 awaits: RS-27 is carried unseen (CR-712) and U-56 stays', async () => {
     const built = await withOpenChooser()
     await built.press(surfaceOfEntrance(ROSTER_ENTRANCE), ROSTER_ENTRANCE)
-    expect(toldReasons(built.last())).toContain(REFUSAL)
+    expect(toldReasons(built.last())).not.toContain(REFUSAL)
     expect(built.surfaceName()).toBe(OPEN_CHOOSER())
     expect(reasonWords(REFUSAL).text.ja.length).toBeGreaterThan(0)
   })
 
-  it('IC-41 while U-56 awaits and the watermark shows: RS-27 is told and U-56 stays', async () => {
+  it('IC-41 while U-56 awaits and the watermark shows: RS-27 is carried unseen (CR-712) and U-56 stays', async () => {
     const built = await withOpenChooser()
     await built.press(surfaceOfEntrance(WATERMARK_ENTRANCE), WATERMARK_ENTRANCE)
-    expect(toldReasons(built.last())).toContain(REFUSAL)
+    expect(toldReasons(built.last())).not.toContain(REFUSAL)
     expect(built.surfaceName()).toBe(OPEN_CHOOSER())
   })
 })

@@ -110,7 +110,9 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 const FR_019_REFUSES_AND_SAYS_WHY =
-  '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らずに理由を告げること（MUST）'
+  '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
+
+const RS_44_DISPLAY = bare(specTable('T-233').rows.find((one) => one.id === 'RS-44')?.by['表示の仕方'] ?? '')
 
 // ---------------------------------------------------------------------------
 // The document these cases drive -- one with no row at all, so that every
@@ -329,7 +331,7 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
   })
 
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐ tells RS-44's own words in ${language}, and NOT RS-15's`, () => {
+    it(`⭐ carries RS-44, which table T-233 does not show, so neither RS-44's nor RS-15's words appear (${language}, CR-712)`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR. With no entry for the
       // situation, the row read out is `undefined`, the dictionary answers with
       // its fallback, and the reader is told RS-15 -- DFC-186 「操作を終えられませんで
@@ -341,14 +343,14 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
       const built = stage(language)
       built.pressEntry(ARMING_ENTRY.surface, ARMING_ENTRY.row)
       built.pressGround(GROUND.x, GROUND.y)
-      const told = built.notices()
-      expect(told.length, 'FR-029 (MUST): the press is told a reason').toBe(1)
-      expect(told[0]?.text).toBe(wordsOf(RS_44)[language])
-      expect(told[0]?.text).not.toBe(wordsOf(RS_15)[language])
+      const told = built.notices().map((one) => one.text)
+      expect(told).not.toContain(wordsOf(RS_44)[language])
+      expect(told).not.toContain(wordsOf(RS_15)[language])
+      expect(RS_44_DISPLAY).toBe('出さない')
     })
   }
 
-  it('⭐ tells it in NT-1s manner, which is the manner table T-233 writes it against', () => {
+  it('⭐ RS-44 keeps NT-1 in table T-233, and the press puts no notice up (CR-712)', () => {
     // ⛔ NT-3a WOULD SAY SOMETHING UNTRUE: that manner is the failure of an
     // operation, and nothing here failed -- the place was not one an annotation
     // can stand on.
@@ -357,7 +359,8 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
     const built = stage()
     built.pressEntry(ARMING_ENTRY.surface, ARMING_ENTRY.row)
     built.pressGround(GROUND.x, GROUND.y)
-    expect(built.notices()[0]?.manner).toBe('NT-1')
+    expect(built.notices()).toEqual([])
+    expect(RS_44_MANNER).toBe('NT-1')
   })
 
   it('⛔ creates nothing -- 行を 1 つ作って載せてはならない (MUST NOT)', () => {

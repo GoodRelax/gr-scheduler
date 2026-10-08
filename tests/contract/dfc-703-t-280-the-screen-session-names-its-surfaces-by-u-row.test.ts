@@ -135,18 +135,18 @@ describe('DFC-703 -- T-280 surfaceEntryPressed x open: the road surface that awa
     expect(built.surfaceName()).toBe('Export Chooser')
   })
 
-  it('U-56 awaits: IC-2 tells RS-27 and U-56 stays', async () => {
+  it('U-56 awaits: IC-2 carries RS-27 unseen (CR-712) and U-56 stays', async () => {
     const built = await withOpenChooser()
     await built.press(surfaceOfEntrance(EXPORT_ENTRANCE), EXPORT_ENTRANCE)
-    expect(toldReasons(built.last())).toContain(REFUSAL)
+    expect(toldReasons(built.last())).not.toContain(REFUSAL)
     expect(reasonWords(REFUSAL).text.ja.length).toBeGreaterThan(0)
     expect(built.surfaceName()).toBe(OPEN_CHOOSER())
   })
 
-  it('U-61 awaits: IC-2 tells RS-27 and U-61 stays', async () => {
+  it('U-61 awaits: IC-2 carries RS-27 unseen (CR-712) and U-61 stays', async () => {
     const built = await withDifferenceReview()
     await built.press(surfaceOfEntrance(EXPORT_ENTRANCE), EXPORT_ENTRANCE)
-    expect(toldReasons(built.last())).toContain(REFUSAL)
+    expect(toldReasons(built.last())).not.toContain(REFUSAL)
     expect(built.surfaceName()).toBe('Difference Review')
   })
 

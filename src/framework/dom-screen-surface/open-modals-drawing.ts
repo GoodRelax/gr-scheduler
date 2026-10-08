@@ -540,7 +540,7 @@ export function modalElement(
       line.append(uid, current, incoming)
       body.push(line)
     }
-    if (modal.separateNote !== '') body.push(separateNoteElement(host, modal.separateNote))
+    body.push(...separateNoteElements(host, modal.separateNote))
   }
 
   if ('unreadColumns' in modal) {
@@ -740,11 +740,12 @@ function reasonLines(host: Document, text: string, nextStep: string, taskNames: 
 
 // see MG-10, U-61
 /** @purity non-pure */
-function separateNoteElement(host: Document, note: string): HTMLElement {
+function separateNoteElements(host: Document, note: string): HTMLElement[] {
+  if (note === '') return []
   const said = made(host, 'div', STYLE.noticeNextStep)
   said.setAttribute(SEPARATE_NOTE_ATTRIBUTE, 'true')
   said.textContent = note
-  return said
+  return [said]
 }
 
 // see U-62, FR-076

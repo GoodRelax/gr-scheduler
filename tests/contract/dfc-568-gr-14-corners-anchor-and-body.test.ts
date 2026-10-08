@@ -79,12 +79,12 @@ const INSIDE_PASSES_THROUGH =
   '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
 const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの掴み点と枠の場所・掴み代・ポインタの形と、離したときに置く値は 表 T-246 が持つ。**'
 const T_246_NO_NEW_REFUSAL =
-  '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、告げる作法は `FR-029` に従う。'
+  '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、運ぶ作法は `FR-029` に従う。'
 const ANCHOR_READ =
   '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれた行を `anchorGroupId` に置く。'
 const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付と行の識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
 const ANCHOR_NO_ROW =
-  '離した点の下に描かれた行が無いときは動かさず、表 T-233 の `RS-44` を告げる —— 置くときに行が無ければ作らずに告げる `FR-019` と同じである。'
+  '離した点の下に描かれた行が無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときに行が無ければ作らない `FR-019` と同じである。'
 const ANCHOR_NOT_NEAREST =
   '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、線先は日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
 const ANCHOR_HORIZONTAL =
@@ -108,9 +108,9 @@ const HB_2_ROW =
 const HB_2 = '`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。'
 const HB_2_TREE = '上下は `FR-019` の「行の木における順位で判ずる」規則で判ずる'
 const HB_3_ROW =
-  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれた行が無いときは動かさず、`RS-44` を告げる |'
+  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれた行が無いときは動かさず、`RS-44` を運ぶ |'
 const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。'
-const HB_3_NO_ROW = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を告げる'
+const HB_3_NO_ROW = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を運ぶ'
 const HB_3_FOLDED =
   '⚠️ 畳んだ行やピン留めした行（`FR-098`）をまたぐと、保存される範囲が文書の行の数で伸び縮みする'
 const HB_4_HEAD = '| HB-4 | 四隅を横に動かす |'
@@ -807,12 +807,12 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
     expectNoRs44(built, 'HB-3 to the last row')
   })
 
-  it(`${HB_3_NO_ROW} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is told`, () => {
+  it(`${HB_3_NO_ROW} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is carried unseen (CR-712)`, () => {
     const built = stage()
     const before = storedRange(built.loop)
     dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
     expect(storedRange(built.loop), 'HB-3: the box moved').toEqual(before)
-    expect(built.noticeTexts(), 'HB-3: RS-44 was not told').toContain(RS_44_WORDS)
+    expect(built.noticeTexts(), 'HB-3: RS-44 is hidden (表 T-233)').not.toContain(RS_44_WORDS)
   })
 })
 
@@ -1251,12 +1251,12 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
   })
 })
 
-describe('DFC-568 JDG-72: no drawn row under the release writes nothing and tells RS-44', () => {
+describe('DFC-568 JDG-72: no drawn row under the release writes nothing and carries RS-44 unseen', () => {
   it(`${ANCHOR_NO_ROW} -- released below every drawn band`, () => {
     const built = stage()
     const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
     expect(moved.after, 'the release below the rows moved the anchor').toEqual(moved.before)
-    expect(built.noticeTexts(), 'RS-44 was not told').toContain(RS_44_WORDS)
+    expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233)').not.toContain(RS_44_WORDS)
   })
 })
 

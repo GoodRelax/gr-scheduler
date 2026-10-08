@@ -249,13 +249,6 @@ function aYearBefore(day: string): string {
   return `${String(year - 1)}${day.slice(4)}`
 }
 
-/** `PR-15` of table T-016 -- a WBS parent that is the task itself (`RS-55`). */
-const wbsParentOfItself = (uid: number) => ({
-  row: 'PR-15',
-  key: { holder: 'task', uid, column: 'wbsParentUid' },
-  text: String(uid),
-})
-
 /** `PR-3` of table T-016 -- a finish before the start (`RS-58`). */
 const finishBeforeStart = (uid: number, start: string) => ({
   row: 'PR-3',
@@ -298,9 +291,9 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
     const task = firstTask(document)
     const one = loopWith(document)
 
-    one.settle(wbsParentOfItself(task.uid), SETTLE_KEY)
+    one.settle(finishBeforeStart(task.uid, task.start as string), SETTLE_KEY)
 
-    expect(one.told(), 'FR-076 with NT-1 (MUST): the refusal is told').toEqual([wordsOf(RS_55)])
+    expect(one.told(), 'FR-076 with NT-1 (MUST): the refusal is told').toEqual([wordsOf(RS_58)])
   })
 
   it('⛔ THE CONTRAST: the same value spent on a pointer move told the same thing', () => {
@@ -310,9 +303,9 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
     const task = firstTask(document)
     const one = loopWith(document)
 
-    one.settle(wbsParentOfItself(task.uid), POINTER_MOVE)
+    one.settle(finishBeforeStart(task.uid, task.start as string), POINTER_MOVE)
 
-    expect(one.told()).toEqual([wordsOf(RS_55)])
+    expect(one.told()).toEqual([wordsOf(RS_58)])
   })
 
   it('⭐⭐ A telling that WAS standing is the one put away, not the one just raised', () => {
@@ -327,8 +320,8 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
     expect(task.start, 'the bundled template gives its first Task a start').not.toBeNull()
     const one = loopWith(document)
 
-    one.settle(wbsParentOfItself(task.uid), POINTER_MOVE)
-    expect(one.told()).toEqual([wordsOf(RS_55)])
+    one.settle(finishBeforeStart(task.uid, task.start as string), POINTER_MOVE)
+    expect(one.told()).toEqual([wordsOf(RS_58)])
 
     one.settle(finishBeforeStart(task.uid, task.start as string), SETTLE_KEY)
 
@@ -342,8 +335,8 @@ describe('NT-8 / SK-19: the dismissal is reckoned at the moment the key arrived'
     const task = firstTask(document)
     const one = loopWith(document)
 
-    one.settle(wbsParentOfItself(task.uid), POINTER_MOVE)
-    expect(one.told()).toEqual([wordsOf(RS_55)])
+    one.settle(finishBeforeStart(task.uid, task.start as string), POINTER_MOVE)
+    expect(one.told()).toEqual([wordsOf(RS_58)])
 
     one.send(SETTLE_KEY)
 

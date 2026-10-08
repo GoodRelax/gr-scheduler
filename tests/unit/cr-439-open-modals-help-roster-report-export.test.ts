@@ -53,7 +53,7 @@ const englishNames = (id: string): string[] =>
 const FR_036 = '利用者がヘルプを開いたとき、`GRS` は、ショートカットキーとアイコンの一覧を画面上で示すこと。'
 const FR_099 = '作成者が担当者名簿を求めたとき、`GRS` は、文書が持つ担当者の一覧を出し、そこから担当者を消せるようにすること。'
 const FR_023 = '`innerHTML` への直挿しを行ってはならない（MUST NOT）。'
-const U_62 = '取り込みが落とした `Task` の名前と、合流で前回は届いていて今回届かなかった `Task` の名前を、理由ごとに並べて告げる面'
+const U_62 = '1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面'
 const IF_9_FORMAT = '書き出しの選択面では 表 T-024 のどの形式の上かを答える'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
 
@@ -163,6 +163,15 @@ const REPORT: OpenModal = {
   dismissText: 'OK',  missingTaskNames: [],
   missingText: '',
   missingNextStep: '',
+  reportLines: [
+    {
+      reason: 'RS-50',
+      text: 'Some tasks were dropped',
+      nextStep: 'Fix the dates and read again',
+      count: null,
+      names: [HOSTILE_NAME, 'Plain dropped task'],
+    },
+  ],
 }
 
 const CHOOSER: OpenModal = {

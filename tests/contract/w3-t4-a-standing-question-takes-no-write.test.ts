@@ -21,7 +21,7 @@ import { bare, specTable } from './spec-table'
 const NT_7_NO_WRITE =
   ' の `IN-4` と 表 T-036 の `SK-19` の階層より先とする（MUST）。⛔ **問いが立っているあいだは、文書への書き込みを受けてはならない（MUST NOT）'
 const NT_7_HOW =
-  '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` で告げて捨て、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）。'
+  '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）。'
 const AG_9_QUESTION = '確認の問い（表 T-037 の `NT-7`）が立っている間も同じく拒否する'
 
 const BUILT_VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
@@ -80,7 +80,7 @@ describe(`NT-7 -- ${NT_7_NO_WRITE}`, () => {
     expect(built.last().confirmation, 'the question still stands after the refused write').not.toBeNull()
   })
 
-  it('an undo pressed on the screen is told RS-27 and dropped while the question stands', async () => {
+  it('an undo pressed on the screen is dropped as RS-27, unseen (CR-712), while the question stands', async () => {
     const { built } = await questionStanding()
     const before = JSON.stringify(built.loop.document())
     const titleBefore = titleOf(built.loop.document())
@@ -88,7 +88,7 @@ describe(`NT-7 -- ${NT_7_NO_WRITE}`, () => {
     expect(titleOf(built.loop.document()), `${NT_7_NO_WRITE}: the undo did not take the title back`).toBe(titleBefore)
     expect(JSON.stringify(built.loop.document()), NT_7_HOW).toBe(before)
     const told = built.last().notices.map((one) => (one as { text?: string }).text)
-    expect(told, `${NT_7_HOW}: the undo is told RS-27`).toContain(reasonWords('RS-27').text.ja)
+    expect(told, `${NT_7_HOW}: RS-27 is not shown`).not.toContain(reasonWords('RS-27').text.ja)
   })
 
   it('the control: once the question is answered with cancel, the same Agent API write is taken', async () => {

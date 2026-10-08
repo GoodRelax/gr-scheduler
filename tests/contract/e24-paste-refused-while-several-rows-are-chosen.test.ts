@@ -140,8 +140,8 @@ function expectRefused(stage: Stage): void {
   stage.bench.send(PASTE)
   expect(JSON.stringify(stage.bench.loop.document()), 'the paste is not accepted: the document is unchanged').toBe(before)
   const told = stage.bench.notices()
-  expect(told.length, 'and it is told').toBeGreaterThan(toldBefore)
-  expect(toldAT233Reason(told), `the told reason is a T-233 row (told: ${JSON.stringify(told)})`).toBe(true)
+  const raised = told.slice(toldBefore)
+  expect(raised.every((text) => toldAT233Reason([text])), `FR-076 (CR-712): a reason shown is a T-233 row, and RS-27 is not shown (told: ${JSON.stringify(told)})`).toBe(true)
 }
 
 describe('E-24 -- a copied Task pasted while two rows are chosen is refused', () => {

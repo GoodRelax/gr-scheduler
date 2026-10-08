@@ -303,6 +303,11 @@ function rs60NoticeIn(notices: readonly Notice[]): Notice | undefined {
   return notices.find((one) => one.text === reasonWordsOf(RS_60).text.ja)
 }
 
+function rs60LineIn(view: unknown): { readonly count: number | null; readonly text: string } | undefined {
+  const report = (view as { openModal?: { reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null }).openModal
+  return report?.reportLines?.find((one) => one.reason === RS_60)
+}
+
 describe('RS-60 (T-233, MR-3, NT-5): the app raises the notice when an MSPDI import repeats a leaf', () => {
   it('MR-3: table T-265 still takes the first of a repeated leaf and tells RS-60', () => {
     const cells = rowOf(T_265, 'MR-3').cells.join(' | ')
@@ -322,10 +327,10 @@ describe('RS-60 (T-233, MR-3, NT-5): the app raises the notice when an MSPDI imp
     const task = loop.document().schedule.tasks.find((each) => each.uid === 2)
     expect(task?.name).toBe('Piers')
 
-    const notice = rs60NoticeIn(screen.last().notices)
-    expect(notice).toBeDefined()
-    expect(notice?.manner).toBe(mannerOfRs60())
-    expect(notice?.affectedCount).toBe(1)
+    expect(rs60NoticeIn(screen.last().notices), 'CR-712: RS-60 is an Import Report line').toBeUndefined()
+    const line = rs60LineIn(screen.last())
+    expect(line?.text).toBe(reasonWordsOf(RS_60).text.ja)
+    expect(line?.count).toBe(1)
   })
 
   it('RS-60: an MSPDI file with no repeated leaf raises no RS-60 notice', async () => {
@@ -333,13 +338,12 @@ describe('RS-60 (T-233, MR-3, NT-5): the app raises the notice when an MSPDI imp
 
     const notice = rs60NoticeIn(screen.last().notices)
     expect(notice).toBeUndefined()
+    expect(rs60LineIn(screen.last())).toBeUndefined()
   })
 
   it('RS-60: three copies of one leaf raise the notice with count 2', async () => {
     const { screen } = await replacedWithMspdi(TWO_REPEATS_TEXT)
 
-    const notice = rs60NoticeIn(screen.last().notices)
-    expect(notice).toBeDefined()
-    expect(notice?.affectedCount).toBe(2)
+    expect(rs60LineIn(screen.last())?.count).toBe(2)
   })
 })

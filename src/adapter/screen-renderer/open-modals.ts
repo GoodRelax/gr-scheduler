@@ -151,6 +151,17 @@ function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage):
     })
 }
 
+// see U-62, FR-023, MG-14
+/** @purity pure */
+function importReportWords(readings: ScreenViewReadings, language: DisplayLanguage) {
+  return {
+    droppedTaskNames: readings.droppedTaskNames ?? [],
+    ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
+    ...missingWords(readings, language),
+    reportLines: reportLinesOf(readings, language),
+  }
+}
+
 const WATERMARK_UNLOCK_QUESTION = 'QN-9'
 
 const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
@@ -541,10 +552,7 @@ export function openModalFromSession(
       surface: IMPORT_REPORT,
       heading,
       commands,
-      droppedTaskNames: readings.droppedTaskNames ?? [],
-      ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
-      ...missingWords(readings, language),
-      reportLines: reportLinesOf(readings, language),
+      ...importReportWords(readings, language),
     }
   }
 

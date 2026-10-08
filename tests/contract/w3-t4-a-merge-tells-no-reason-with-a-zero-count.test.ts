@@ -8,10 +8,10 @@ import {
   OPEN_CHOOSER,
   REQUIREMENTS,
   jsonBytes,
-  mergeSomething,
   oneRowDocument,
   reasonWords,
   shellStage,
+  there,
 } from './cr-610-file-flow-stage'
 
 const MG_14_NO_ZERO =
@@ -33,6 +33,9 @@ function toldReasons(view: ScreenView): readonly string[] {
 
 /** @purity pure */
 function countOf(view: ScreenView, reason: string): number | null {
+  const report = view.openModal as { readonly reportLines?: readonly { reason: string; count: number | null }[] } | null
+  const line = report?.reportLines?.find((one) => one.reason === reason)
+  if (line !== undefined) return line.count
   for (const one of view.notices) {
     const found = one.raisedNotices.find((two) => two.reason === reason)
     if (found !== undefined) return found.affectedCount
@@ -49,7 +52,8 @@ describe('MG-14 -- the manuscript these cases are driven by', () => {
 describe(`MG-14 -- ${MG_14_NO_ZERO}`, () => {
   it('a merge that only keeps one Task the file did not carry tells RS-72 with 1, and neither RS-71 nor RS-73', async () => {
     const built = await shellStage()
-    await mergeSomething(built)
+    await built.open(built.file('theirs.json', jsonBytes(there())))
+    await built.press(OPEN_CHOOSER(), 'IC-72')
     const view = built.last()
     expect(toldReasons(view), `${MG_14_TELL} / ${MG_14_NO_ZERO}`).toEqual(['RS-72'])
     expect(countOf(view, 'RS-72'), MG_14_TELL).toBe(1)

@@ -582,18 +582,18 @@ describe('HF-13 -- [v] is drawn armed exactly when pressing it does something', 
     expect(control.drawn()).not.toContain(C1)
   })
 
-  it('all direct children drawn by the depth rule and none hidden -> thin, RS-30, no write', () => {
+  it('all direct children drawn by the depth rule and none hidden -> thin, RS-30 carried unseen (CR-712), no write', () => {
     const built = stage(smallDocument({ zoomY: 1.2 }))
     expect(built.drawn()).toEqual(expect.arrayContaining([C1, C2]))
     expect(built.title(R).canOpenOneLevel).toBe(false)
     const before = JSON.stringify(built.groups())
     built.press(OPEN_ONE_LEVEL, R)
-    expect(built.notices()).toEqual([wordsOf('RS-30')])
+    expect(built.notices()).toEqual([])
     expect(JSON.stringify(built.groups())).toBe(before)
     expect(built.stateOf(R)).toBe('auto')
   })
 
-  it(`${HF_13_WEIGHT_AGREES} -- swept: every drawn title arms [v] exactly when its press writes, and a spent press answers RS-30`, () => {
+  it(`${HF_13_WEIGHT_AGREES} -- swept: every drawn title arms [v] exactly when its press writes, and a spent press carries RS-30 unseen (CR-712)`, () => {
     const disagree: string[] = []
     for (const fixture of [
       { zoomY: 1.2 },
@@ -614,7 +614,7 @@ describe('HF-13 -- [v] is drawn armed exactly when pressing it does something', 
         built.press(OPEN_ONE_LEVEL, id)
         const acted = JSON.stringify(built.groups()) !== before
         const told = built.notices().includes(wordsOf('RS-30'))
-        if (armed !== acted || acted === told) {
+        if (armed !== acted || told) {
           disagree.push(`${JSON.stringify(fixture)} ${NAMES[id]}: armed=${armed} acted=${acted} RS-30=${told}`)
         }
       }
@@ -892,14 +892,14 @@ describe('FR-029 -- a thin press writes nothing', () => {
     const built = stage(smallDocument({ zoomY: 1.2 }))
     const before = JSON.stringify(built.groups())
     built.press(OPEN_ALL_BELOW, R)
-    expect(built.notices()).toEqual([wordsOf('RS-28')])
+    expect(built.notices()).toEqual([])
     expect(JSON.stringify(built.groups())).toBe(before)
   })
 
   it('HF-13: a thin [v] on a leaf writes nothing', () => {
     const built = stage(smallDocument({ zoomY: 1.2 }))
     built.press(OPEN_ONE_LEVEL, C2)
-    expect(built.notices()).toEqual([wordsOf('RS-30')])
+    expect(built.notices()).toEqual([])
     expect(built.withState('expanded')).toEqual([])
     expect(built.stateOf(C2)).toBe('auto')
   })

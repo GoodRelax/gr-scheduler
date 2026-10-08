@@ -254,11 +254,9 @@ function isOverwriteQuestion(values: FileFlowValues): boolean {
   return confirmation.kind === 'questionAsked' && confirmation.question.question === 'QN-4'
 }
 
-type ReportedLines = Pick<FileFlowValues, 'droppedTaskNames' | 'missingTaskNames' | 'reportedCounts'>
-
 // see U-62, FR-023, FR-076, MG-14
 /** @purity pure */
-function hasAnythingToReport(lines: ReportedLines): boolean {
+function hasAnythingToReport(lines: EventOf<'documentOpenLanded'>): boolean {
   return lines.droppedTaskNames.length > 0 || lines.missingTaskNames.length > 0 || lines.reportedCounts.length > 0
 }
 
@@ -275,7 +273,8 @@ function isAskedNow(values: FileFlowValues, question: FileFlowQuestion): boolean
 
 // see OP-4, QN-5, RD-4
 /** @purity pure */
-function replacedUnasked(values: FileFlowValues): FileFlowStep {
+function discardAskedWhenUnsaved(values: FileFlowValues, question: FileFlowQuestion): FileFlowStep {
+  if (isAskedNow(values, question)) return discardAsked(values, question)
   const importing: FileOperationState = { kind: 'importingDocument' }
   const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'replace' }
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
@@ -346,9 +345,7 @@ function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'docume
 function onDocumentFileRead(values: FileFlowValues, event: EventOf<'documentFileRead'>): FileFlowStep {
   const operation = values.fileOperationState
   if (operation.kind !== 'readingDocumentFile') return unchanged(values)
-  if (isReopenRoute(operation)) {
-    return isAskedNow(values, event.question) ? discardAsked(values, event.question) : replacedUnasked(values)
-  }
+  if (isReopenRoute(operation)) return discardAskedWhenUnsaved(values, event.question)
   if (isBaselineRoute(operation)) {
     const importing: FileOperationState = { kind: 'importingDocument' }
     const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: 'baseline' }
@@ -369,9 +366,7 @@ function onDocumentOpenFailed(values: FileFlowValues): FileFlowStep {
 /** @purity pure */
 function onOpenChoiceAnswered(values: FileFlowValues, event: EventOf<'openChoiceAnswered'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'awaitingOpenChoice') return unchanged(values)
-  if (event.openChoice === 'replace') {
-    return isAskedNow(values, event.question) ? discardAsked(values, event.question) : replacedUnasked(values)
-  }
+  if (event.openChoice === 'replace') return discardAskedWhenUnsaved(values, event.question)
   const importing: FileOperationState = { kind: 'importingDocument' }
   const answer: FileFlowImportAnswer = { kind: 'openChoice', openChoice: event.openChoice }
   return combined(values, { fileOperationState: importing }, [{ type: 'importIncomingDocument', answer }])
