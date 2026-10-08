@@ -34,9 +34,9 @@ import {
 
 const HELP_MODAL = 'Help Modal'
 
-// DEVIATION: spec says a surface is named by its U row (T-280); here by its glossary name (DFC-703)
-const RESOURCE_ROSTER = 'Resource Roster'
-const EXPORT_CHOOSER = 'Export Chooser'
+// see T-280, S-99g, U-49, U-54
+const RESOURCE_ROSTER_ROW = 'U-49'
+const EXPORT_CHOOSER_ROW = 'U-54'
 
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
 const PROPERTIES_PANEL = 'Properties Panel'
@@ -72,6 +72,8 @@ const HELP_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target:
 
 const HELP_ENTRY_PRESSED: ScreenValuesEvent = { type: 'helpEntryPressed' }
 
+const FULL_SCREEN_ENTRY_PRESSED: ScreenValuesEvent = { type: 'fullScreenEntryPressed' }
+
 const ARM_DROPPED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 
 /** @purity pure */
@@ -88,7 +90,7 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
     case ENTRY.help:
       return HELP_ENTRY_PRESSED
     case ENTRY.resourceRoster:
-      return surfaceEntered(RESOURCE_ROSTER)
+      return surfaceEntered(RESOURCE_ROSTER_ROW)
     case ENTRY.dualCursor: {
       const entered = screenEventFromDualCursorEntry(context)
       const isPlacingNothing = entered.type === 'dualCursorEntryPressed' && !entered.hasDaysToPlace
@@ -100,7 +102,7 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
     case ENTRY.watermark:
       return WATERMARK_ENTRY_PRESSED
     case ENTRY.exportChooser:
-      return surfaceEntered(EXPORT_CHOOSER)
+      return surfaceEntered(EXPORT_CHOOSER_ROW)
     case ENTRY.closeSurface:
       return surfaceCloseOf(context.pressed?.on?.part ?? null)
     default:
@@ -185,11 +187,11 @@ function screenEventAfterMarkerPress(
   }
 }
 
-// see SK-12, SK-24, IN-5a, T-280
+// see SK-12, SK-15, SK-24, IN-5a, T-280, PI-18
 /** @purity pure */
 function screenEventFromKey(input: KeyInput, context: InputContext): ScreenValuesEvent | null {
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
-    return surfaceEntered(EXPORT_CHOOSER)
+    return surfaceEntered(EXPORT_CHOOSER_ROW)
   }
   const isCtrlOnly = isCombo(input.modifiers, true, false, false)
   if (isCtrlOnly && input.key === KEY.f) return SEARCH_ENTRY_PRESSED
@@ -197,6 +199,7 @@ function screenEventFromKey(input: KeyInput, context: InputContext): ScreenValue
   const isFieldTaking = context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true
   if (isFieldTaking && isSingleCharacterKey(input.key)) return null
   if (input.key === KEY.f1) return HELP_ENTRY_PRESSED
+  if (input.key === KEY.f11) return FULL_SCREEN_ENTRY_PRESSED
   if (input.key === KEY.p) return PALETTE_TOGGLED
   return null
 }

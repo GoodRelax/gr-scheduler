@@ -104,6 +104,11 @@ const WBS_PARENT_LINKS_ROW: IconId = 'IC-141'
 
 const WATERMARK_ROW: IconId = 'IC-41'
 
+const RESOURCE_ROSTER_ROW: IconId = 'IC-62'
+
+// see T-280, U-56, U-61
+const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
+
 // see FR-029, T-237
 interface EntranceFacts {
   readonly settings: DocumentSettings
@@ -112,6 +117,7 @@ interface EntranceFacts {
   readonly isStatusDateDrawn: boolean
   readonly isWbsParentLinksShown: boolean
   readonly isWatermarkShown: boolean
+  readonly isFlowAwaitingAnswer: boolean
 }
 
 // see FR-048, T-237, DC-9
@@ -148,7 +154,22 @@ function entranceFactsOf(
     isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
     isWbsParentLinksShown: readings.isWbsParentLinksShown === true,
     isWatermarkShown: session.screen.watermarkDisplayState.kind === 'shown',
+    isFlowAwaitingAnswer: isFlowSurfaceOpen(session.screen.openSurfaceState),
   }
+}
+
+/** @purity pure */
+function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
+  return open.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(open.surfaceName)
+}
+
+// see FR-029, T-280, RS-27, IC-41, IC-62
+// WHY: T-280 refuses a surface entry over U-56 / U-61 with RS-27; IC-41 opens one only while shown.
+/** @purity pure */
+function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
+  if (!facts.isFlowAwaitingAnswer) return false
+  if (row.rowId === RESOURCE_ROSTER_ROW) return true
+  return row.rowId === WATERMARK_ROW && facts.isWatermarkShown
 }
 
 // see FR-049, FR-053, FR-102
@@ -164,7 +185,7 @@ function commandItemFor(
 ): CommandItem {
   return {
     icon: row.rowId,
-    isEnabled: isEntryUsable(row, selection, drawnTasks),
+    isEnabled: isEntryUsable(row, selection, drawnTasks) && !isSurfaceEntryRefused(row, facts),
     isPressed: (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isEntryOn(row, facts),
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     isChosen: isExclusiveChoiceChosen(row, facts),

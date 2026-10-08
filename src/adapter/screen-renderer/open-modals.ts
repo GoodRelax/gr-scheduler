@@ -67,12 +67,19 @@ const HELP_LEGAL_WORDS_BY_PART = new Map(displayWords.helpLegal.map((entry) => [
 
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
-// see U-60, T-280
-const WATERMARK_UNLOCK_ROW = 'U-60'
-
 const DIFFERENCE_REVIEW = 'Difference Review'
 
 const IMPORT_REPORT = 'Import Report'
+
+// see T-103, T-280
+const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
+  ['U-49', RESOURCE_ROSTER],
+  ['U-54', EXPORT_CHOOSER],
+  ['U-56', OPEN_CHOOSER],
+  ['U-60', WATERMARK_UNLOCK],
+  ['U-61', DIFFERENCE_REVIEW],
+  ['U-62', IMPORT_REPORT],
+])
 
 const IMPORT_REPORT_REASON = 'RS-50'
 
@@ -360,7 +367,6 @@ function rosterResourcesOf(
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66
 // WHY: counted on the drawn roster (FR-029); IC-65 replaces the choice, so it is idle once the
 // choice already is exactly the unreferenced resources.
-// DEVIATION: spec says a faint entrance tells its reason when pressed (FR-029); here a faint IC-63..IC-65 tells none (DFC-567)
 /** @purity pure */
 function hasRosterTarget(icon: IconId, resources: readonly RosterResource[]): boolean {
   const isChosenSome = resources.some((one) => one.isSelected)
@@ -413,12 +419,13 @@ function openChooserOf(session: ScreenSession, heading: string, commands: readon
   }
 }
 
-// DEVIATION: spec says a surface is named by its U row (T-280); here only U-60 is, by the state machine (DFC-703)
+// see T-280, S-99g, T-103
+// WHY: the session names a surface by its U row; the drawing names it by the glossary word of that row.
 /** @purity pure */
 function openSurfaceNameOf(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
   if (open.kind === 'closed') return null
-  return open.surfaceName === WATERMARK_UNLOCK_ROW ? WATERMARK_UNLOCK : open.surfaceName
+  return SURFACE_OF_ROW.get(open.surfaceName) ?? open.surfaceName
 }
 
 // see FR-036, FR-038, T-335, HN-4

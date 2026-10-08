@@ -51,12 +51,12 @@ import {
   DOCUMENT_FILE_WRITE_ENDED,
   DOCUMENT_OPEN_FAILED,
   EDITED_BY_SCREEN,
-  EXPORT_CHOOSER_SURFACE,
+  EXPORT_CHOOSER_ROW,
   GREATEST_KNOWN_SCHEMA_VERSION,
   HEIGHT_CEILING_REASON,
   HISTORY_LIMITS,
   NOTICE_REASON_OF_RASTER_FAULT,
-  OPEN_CHOOSER_SURFACE,
+  OPEN_CHOOSER_ROW,
   SEAM_ABSENT_REASON,
   STACK_SAFETY_CAP_REASON,
   discardQuestionOf,
@@ -551,7 +551,7 @@ function incomingFileOf(readIn: ReadInFile, incoming: Document): IncomingFile {
 
 /** @purity non-pure */
 export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues | null): void {
-  hands.sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_SURFACE }, frame)
+  hands.sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_ROW }, frame)
   hands.sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(hands.readHeld().document) }, frame)
 }
 
@@ -1021,7 +1021,7 @@ function chosenFileSave(
 export function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean {
   // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
   // closes the chooser with nothing written and nothing said (FR-029).
-  hands.sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_SURFACE }, hands.readValues())
+  hands.sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_ROW }, hands.readValues())
   const store = hands.files
   if (store === undefined) {
     hands.raiseNotice(SEAM_ABSENT_REASON, null)

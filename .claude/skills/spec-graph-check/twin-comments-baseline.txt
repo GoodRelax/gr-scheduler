@@ -161,9 +161,6 @@ spec-copy | EDITED_BY_SCREEN :: not generated a change to ed 1 of table t
 twin: table T-229, row ED-1 (docs/spec)
 why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
 
-coupling | EXPORT_CHOOSER_SURFACE :: also spelled in screen state input ts and open modals
-twin: the 'Export Chooser' literal in src/adapter/input-command-translator/screen-state-input.ts and src/adapter/screen-renderer/open-modals.ts
-why: a surface name restated in three components; SingleHtmlShell->InputCommandTranslator and ->ScreenRenderer are declared, so one published constant folds it.
 
 coupling | FIELD_FOCUS_WITHDRAWING_KEYS :: spelled as dom input source ts delivers them tab moves
 twin: the key names src/framework/dom-input-source/dom-input-source.ts delivers
@@ -173,17 +170,11 @@ spec-copy | NOTICE_MANNER_OF_REASON :: not generated a manner moved in table t 2
 twin: table T-233 (docs/spec)
 why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
 
-coupling | OPEN_CHOOSER_SURFACE :: screenstate surface icon roster json and readscreenpartat must spell it
-twin: the 'Open Chooser' literal in src/adapter/screen-renderer/icon-roster.json
-why: today only icon-roster.json and display-words.json spell it; ScreenState.surface and readScreenPartAt, also named, hold no literal (the comment is partly outdated).
 
 coupling | DIALOGUE_FIELD_SURFACE :: dom screen surface ts s role dialoguefield must spell it
 twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
 why: ROLE is published by DomScreenSurface's entry and SingleHtmlShell->DomScreenSurface is declared; nothing stops reading ROLE.dialogueField.
 
-coupling | DIFFERENCE_REVIEW_SURFACE :: also spelled in icon roster json open modals ts and
-twin: the 'Difference Review' literal in src/adapter/screen-renderer/icon-roster.json, open-modals.ts and screen-renderer.ts
-why: a surface name restated in two components; SingleHtmlShell->ScreenRenderer is declared, so one published constant folds it.
 
 copy | frameLoop.isBrowserDefaultStopped.level :: keep in step with receiveinput which spends presses commandfrominput cannot
 twin: src/framework/single-html-shell/frame-loop.ts#receiveInput
