@@ -453,7 +453,6 @@ export type OpenModal =
       readonly unreadText: string
       readonly unreadNextStep: string
       readonly unreadNextStepLink?: LinkedWords
-      // see MG-10, U-61
       readonly separateNote: string
     })
   | (OpenSurface & {
@@ -471,7 +470,6 @@ export type OpenModal =
   | (OpenSurface & { readonly surface: string })
 
 // see U-62, FR-076
-// WHY: one reason of a reading: a count beside the words, or the names under them (RS-50, RS-73).
 export interface ImportReportLine {
   readonly reason: string
   readonly text: string
@@ -643,7 +641,6 @@ export interface ScreenViewReadings {
   readonly unreadColumns?: readonly string[]
   readonly droppedTaskNames?: readonly (string | null)[]
   readonly missingTaskNames?: readonly (string | null)[]
-  // see FR-076, U-62, T-290
   readonly reportedCounts?: readonly { readonly reason: string; readonly count: number }[]
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null

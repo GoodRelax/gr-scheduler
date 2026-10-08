@@ -166,6 +166,14 @@ const T_036_ASSIGNMENT = 1
 const T_036_ENTRANCE = 2
 /** Table T-233 prints the situation first, then the row of table T-037 that is its manner. */
 const T_233_MANNER = 1
+
+const T_233_SHARING = 3
+
+const SHARED_WORDS = /語は `(RS-\d+)`/
+
+function wordsRowOf(rowId: string): string {
+  return SHARED_WORDS.exec(cellOf(T_233, rowId, T_233_SHARING))?.[1] ?? rowId
+}
 // see NT-3a
 const NEXT_STEP_MANNER = 'NT-3a'
 
@@ -361,7 +369,7 @@ const CANCEL_ANSWER = 'cancel'
  * @purity pure
  */
 function wordsFor(rowId: string): ReasonWords {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
+  const found = REASON_WORDS.find((one) => one.rowId === wordsRowOf(rowId))
   if (found === undefined) {
     throw new Error(
       `FR-076 (MUST): table T-233 row ${rowId} has no entry in FR-038's dictionary, so a notice ` +
@@ -842,6 +850,13 @@ function answerQuestion(loop: FrameLoop, screen: ScreenPane, answer: string): vo
  *
  * @purity non-pure
  */
+async function editSomething(loop: FrameLoop, screen: ScreenPane, pane: Host): Promise<void> {
+  takeEntry(loop, screen, partNameOf('U-31'), 'IC-13')
+  await settle()
+  pane.runAnimationFrames()
+  expect(loop.hasUnsavedEdits(), 'precondition: IC-13 left no unsaved edit').toBe(true)
+}
+
 async function openAFile(
   loop: FrameLoop,
   pane: Host,
@@ -1140,19 +1155,10 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
     await settle()
     pane.runAnimationFrames()
 
-    const notices = screen.last().notices
-    expect(
-      notices.length,
-      'FR-015 (MUST): two tasks of the read file matched nothing and nobody was told',
-    ).toBeGreaterThan(0)
-    // ⛔ THE MANNER IS NOT ASSERTED. Which row of table T-037 this telling
-    // follows is not stated anywhere: it is neither a refusal (the open was
-    // accepted) nor a failure, and table T-233 has no situation for it. What
-    // every row of that table does share is that the person is told IN WORDS,
-    // so that much is driven and no more.
-    for (const notice of notices) {
-      expect(notice.text, 'NT-1 (MUST): the notice says nothing in words').not.toBe('')
-    }
+    const report = screen.last().openModal as { readonly reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null
+    const line = report?.reportLines?.find((one) => one.reason === 'RS-16')
+    expect(line?.count, 'FR-015 (MUST): two tasks of the read file matched nothing and nobody was told').toBe(2)
+    expect(line?.text, 'NT-1 (MUST): the line says nothing in words').toBe(wordsFor('RS-16').text.ja)
   })
 
   it('the question is no longer standing once it has been answered', async () => {
@@ -1204,6 +1210,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
 
+    await editSomething(loop, screen, pane)
     await openAFile(loop, pane, files)
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
@@ -1231,6 +1238,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
 
+    await editSomething(loop, screen, pane)
     await openAFile(loop, pane, files)
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
@@ -1260,6 +1268,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
     const files = fileStore()
     const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
 
+    await editSomething(loop, screen, pane)
     await openAFile(loop, pane, files)
     takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
     await settle()
@@ -1389,6 +1398,7 @@ async function standAtTheQuestion(): Promise<{
   const files = fileStore()
   const loop = frameLoop(pane.surface, here(), SCREEN, screen.wiring, files.store)
 
+  await editSomething(loop, screen, pane)
   await openAFile(loop, pane, files)
   takeEntry(loop, screen, OPEN_CHOOSER, 'IC-71')
   await settle()
@@ -2398,16 +2408,19 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     await settle()
     pane.runAnimationFrames()
 
-    const notices = screen.last().notices
-    expect(notices.length, 'OP-11 (MUST): two files were left behind and nobody was told').toBe(1)
-    expect(notices[0]?.manner, 'the manner table T-233 gives RS-14').toBe(mannerFor('RS-14'))
-    expect(notices[0]?.text).toBe(words.text.ja)
+    expect(screen.last().notices, 'RS-14 is not a notice while the reading is under way').toEqual([])
     // 「受け付けなかったことにしてはならない（MUST NOT）」 -- the file that WAS
-    // accepted is open, so OP-3's question stands beside the caution.
     expect(
       screen.last().openModal?.surface,
       'OP-11 (MUST NOT): the caution was raised and the accepted file was not opened',
     ).toBe(OPEN_CHOOSER)
+    takeEntry(loop, screen, OPEN_CHOOSER, 'IC-72')
+    await settle()
+    pane.runAnimationFrames()
+    const report = screen.last().openModal as { readonly reportLines?: readonly { reason: string; count: number | null; text: string }[] } | null
+    const line = report?.reportLines?.find((one) => one.reason === 'RS-14')
+    expect(line?.count, 'OP-11 (MUST): two files were left behind and nobody was told').toBe(2)
+    expect(line?.text).toBe(words.text.ja)
   })
 
   it('⛔ no caution where none is owed: an ordinary open leaves the notices empty', async () => {
@@ -2615,8 +2628,8 @@ describe('the tables are read by position, so the positions are pinned', () => {
     //   から名簿を起こすので、片方だけを書けば黙らずに落ちる。」 ⭐ This is that
     // failure made loud: a row without an entry cannot be told, and NT-1's
     // 「文字で示すこと（MUST）」 is unkeepable for it.
-    expect(T_233.headings.length).toBe(4)
-    expect(T_233.rows.length).toBe(REASON_WORDS.length)
+    expect(T_233.headings.length).toBe(6)
+    expect(T_233.rows.filter((row) => wordsRowOf(row.id) === row.id).length).toBe(REASON_WORDS.length)
     const manners = new Set(T_037.rows.map((row) => row.id))
     for (const row of T_233.rows) {
       const words = wordsFor(row.id)
@@ -2859,9 +2872,11 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
         expect(written, `${reason}: nothing may be written when the canvas refused`).toHaveLength(0)
         const texts = view.notices.map((notice) => notice.text)
         expect(texts, `${reason} is owed table T-233 row ${rowId}`).toContain(words.text[language])
-        expect(texts, 'FR-076 (MUST NOT): RS-15 is for a reason with no row').not.toContain(
-          wordsFor('RS-15').text[language],
-        )
+        if (wordsRowOf(rowId) !== 'RS-15') {
+          expect(texts, 'FR-076 (MUST NOT): RS-15 is for a reason with no row').not.toContain(
+            wordsFor('RS-15').text[language],
+          )
+        }
         for (const notice of view.notices) {
           if (notice.text !== words.text[language]) continue
           expect(notice.manner).toBe(mannerFor(rowId))

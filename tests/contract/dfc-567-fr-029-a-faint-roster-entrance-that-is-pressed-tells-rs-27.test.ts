@@ -10,7 +10,7 @@ import { paletteStage, surfaceOfEntrance, type PaletteStage } from './wp-p1-pale
 
 const FR_029_FAINT =
   'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知すること（MUST）'
+const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
 const FR_029_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
 
 const ROSTER_ENTRANCE = 'IC-62'
@@ -72,11 +72,11 @@ describe('DFC-567 -- FR-029 a roster with nobody in it', () => {
     expect(entranceOf(built, icon)?.isEnabled).toBe(false)
   })
 
-  it.each([SELECT_ALL, CLEAR_ALL, SELECT_UNREFERENCED])('a press on %s tells RS-27 and chooses nothing', async (icon) => {
+  it.each([SELECT_ALL, CLEAR_ALL, SELECT_UNREFERENCED])('a press on %s carries RS-27 unseen and chooses nothing', async (icon) => {
     const built = await rosterWith(noResources())
     const before = refusals(built.last())
     await built.press(ROSTER, icon)
-    expect(refusals(built.last())).toBe(before + 1)
+    expect(refusals(built.last())).toBe(before)
     expect(chosenUids(built)).toEqual([])
   })
 })
@@ -96,22 +96,22 @@ describe('DFC-567 -- FR-029 a roster whose choice already is what the entrance w
     expect(refusals(built.last())).toBe(0)
   })
 
-  it('everybody chosen: IC-63 is faint and a press tells RS-27', async () => {
+  it('everybody chosen: IC-63 is faint and a press carries RS-27 unseen', async () => {
     const built = await rosterWith(adaAndBob())
     await built.press(ROSTER, SELECT_ALL)
     expect(entranceOf(built, SELECT_ALL)?.isEnabled).toBe(false)
     await built.press(ROSTER, SELECT_ALL)
-    expect(refusals(built.last())).toBe(1)
+    expect(refusals(built.last())).toBe(0)
     expect([...chosenUids(built)].sort()).toEqual([ADA, BOB])
   })
 
-  it('only the unreferenced person chosen: IC-65 is faint and a press tells RS-27', async () => {
+  it('only the unreferenced person chosen: IC-65 is faint and a press carries RS-27 unseen', async () => {
     const built = await rosterWith(adaAndBob())
     await built.press(ROSTER, SELECT_UNREFERENCED)
     expect(chosenUids(built)).toEqual([BOB])
     expect(entranceOf(built, SELECT_UNREFERENCED)?.isEnabled).toBe(false)
     await built.press(ROSTER, SELECT_UNREFERENCED)
-    expect(refusals(built.last())).toBe(1)
+    expect(refusals(built.last())).toBe(0)
     expect(chosenUids(built)).toEqual([BOB])
   })
 

@@ -290,7 +290,7 @@ async function stage(): Promise<Stage> {
     if (view === undefined) throw new Error('the surface was given no description')
     return view
   }
-  const press = async (surfaceName: string, entry: string | null, answer?: string): Promise<void> => {
+  const press = async (surfaceName: string, entry: string | null, answer?: string, isReportOk = false): Promise<void> => {
     part = {
       part: surfaceName,
       entry,
@@ -300,6 +300,7 @@ async function stage(): Promise<Stage> {
       dividerPanel: null,
       noticeDismissKey: null,
       ...(answer === undefined ? {} : { confirmationAnswer: answer }),
+      ...(isReportOk ? { isImportReportDismiss: true } : {}),
     } as unknown as ScreenPart
     loop.receiveInput(pointerOf('down', 500, 300))
     frames()
@@ -324,7 +325,10 @@ async function stage(): Promise<Stage> {
       loop.fileDropped()
       await turn()
     },
-    take: (surfaceName, entry) => press(surfaceName, entry),
+    take: async (surfaceName, entry) => {
+      await press(surfaceName, entry)
+      if (last().openModal?.surface === 'Import Report') await press('Import Report', null, undefined, true)
+    },
     replace: async () => {
       await press(OPEN_CHOOSER, 'IC-71')
       const question = last().confirmation

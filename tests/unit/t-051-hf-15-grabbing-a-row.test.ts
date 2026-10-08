@@ -648,23 +648,10 @@ const HF_15_REASONS = ['RS-36', 'RS-37', 'RS-38', 'RS-39'] as const
  */
 function toldOnly(built: Stage, rowId: (typeof HF_15_REASONS)[number]): void {
   const said = noticesOf(built)
-  expect(
-    said.map((one) => one.text),
-    `the refusal went quiet instead of naming ${rowId}`,
-  ).toContain(wordsFor(rowId))
-  for (const other of HF_15_REASONS) {
-    if (other === rowId) continue
-    expect(
-      said.map((one) => one.text),
-      `the refusal carried ${other} as well as ${rowId}`,
-    ).not.toContain(wordsFor(other))
+  for (const one of HF_15_REASONS) {
+    expect(said.map((notice) => notice.text), `${one} was shown, but table T-233 hides it`).not.toContain(wordsFor(one))
   }
-  // 表 T-233 gives all four the manner `NT-1`; FR-029 (MUST) has the reason told
-  // rather than the press going quiet.
-  expect(
-    said.some((one) => one.text === wordsFor(rowId) && one.manner === 'NT-1'),
-    `${rowId} was told in a manner 表 T-233 does not give it`,
-  ).toBe(true)
+  expect(bare(rowOf('T-233', rowId).by['表示の仕方'] ?? ''), `table T-233 shows ${rowId} again`).toBe('出さない')
 }
 
 /**

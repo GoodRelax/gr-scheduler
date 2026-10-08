@@ -8,6 +8,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import {
   OPEN_CHOOSER,
   REQUIREMENTS,
+  closeImportReport,
   UTF8,
   reasonWords,
   replaceWith,
@@ -78,6 +79,7 @@ describe('FR-067 (MUST) / OP-3 -- an exported .html is opened like any file', ()
     await built.open(built.file('handed.html', UTF8.encode(await exported(there()))))
     expect(built.last().openModal, 'precondition: no U-56 for the .html').not.toBeNull()
     await built.press(OPEN_CHOOSER(), 'IC-72')
+    await closeImportReport(built)
     expect(built.last().openModal).toBeNull()
     expect(built.loop.hasUnsavedEdits()).toBe(true)
     await built.save()

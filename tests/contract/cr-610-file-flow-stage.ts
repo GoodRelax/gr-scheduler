@@ -457,12 +457,18 @@ export async function stageWithTarget(options: StageOptions = {}): Promise<{ bui
   return { built, mine }
 }
 
+export async function closeImportReport(built: ShellStage): Promise<void> {
+  if (built.last().openModal?.surface !== partName('U-62')) return
+  await built.press(partName('U-62'), null, { isImportReportDismiss: true })
+}
+
 // see IC-72, T-290
 export async function mergeSomething(built: ShellStage): Promise<void> {
   const theirs = built.file('theirs.json', jsonBytes(there()))
   await built.open(theirs)
   expect(built.last().openModal, 'precondition: SK-10 raised no U-56').not.toBeNull()
   await built.press(OPEN_CHOOSER(), 'IC-72')
+  await closeImportReport(built)
   expect(built.last().openModal, 'precondition: IC-72 did not land').toBeNull()
   expect(built.loop.hasUnsavedEdits(), 'precondition: a merge left nothing unsaved').toBe(true)
   built.written.length = 0

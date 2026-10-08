@@ -157,6 +157,10 @@ const rowOf = (table: string, id: string) => {
 /** The manner 表 T-037 gives one row of 表 T-233. */
 const mannerOf = (reason: string): string => bare(rowOf('T-233', reason).by['作法'] ?? '')
 
+const displayOf = (reason: string): string => bare(rowOf('T-233', reason).by['表示の仕方'] ?? '')
+
+const HIDDEN = '出さない'
+
 /**
  * The rule a row of 表 T-233 or of 表 T-109 says it comes from.
  *
@@ -194,7 +198,7 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知すること（MUST）'
+const FR_029_ONLY_WHEN_PRESSED = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
 const FR_029_THE_MATCHING_ROW =
   '運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
 const FR_029_NOT_THE_FALLBACK = '当たる行があるのに落ち先を運んではならない（MUST NOT）'
@@ -715,30 +719,17 @@ describe('the manuscript still says what these cases read', () => {
 // ===========================================================================
 
 describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matches it', () => {
-  it('⛔ MUST: every one of them raises exactly one telling', () => {
-    // 「押されたときに限り、行えない理由を通知すること（MUST）」
-    const silent: string[] = []
+  it('⛔ MUST: every one of them carries a row table T-233 does not show, so no notice stands', () => {
+    const shown: string[] = []
     for (const one of SPENT) {
-      if (pressed(one).notices().length !== 1) silent.push(`${one.icon} (${one.because})`)
+      if (pressed(one).notices().length !== 0) shown.push(`${one.icon} (${one.because})`)
     }
-    expect(
-      silent,
-      'FR-029 (MUST): 押されたときに限り、行えない理由を通知すること -- these said nothing',
-    ).toEqual([])
+    expect(shown, 'FR-076: a hidden reason put a notice up').toEqual([])
   })
 
-  it('⛔ MUST: it follows NT-1 and carries the words FR-038 holds for THAT row', () => {
-    // 「作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に
-    //   当たる同要求の 表 T-233 の行とすること（MUST）」
-    const wrong: string[] = []
-    for (const one of SPENT) {
-      const told = pressed(one).notices()[0]
-      const want = wordsFor(one.reason)
-      if (told?.manner !== mannerOf(one.reason) || told?.text !== want.text.ja) {
-        wrong.push(`${one.icon}: wanted ${one.reason} (${one.because}), got ${told?.text ?? 'nothing'}`)
-      }
-    }
-    expect(wrong, 'FR-029 (MUST): 運ぶ理由は、押された入口の場面に当たる行とすること').toEqual([])
+  it('⛔ MUST: the row each carries follows NT-1 and is 「出さない」', () => {
+    const wrong = SPENT.filter((one) => mannerOf(one.reason) !== 'NT-1' || displayOf(one.reason) !== HIDDEN)
+    expect(wrong.map((one) => one.reason), 'table T-233 moved one of these rows').toEqual([])
   })
 
   it('⛔ MUST NOT: not one of them falls back to RS-27', () => {
@@ -754,29 +745,10 @@ describe('FR-029 (MUST) -- a press on a spent entrance carries the row that matc
     expect(fell, 'FR-029 (MUST NOT): 当たる行があるのに落ち先を運んではならない').toEqual([])
   })
 
-  it('⭐ the words come from the dictionary and not from this loop', () => {
-    // FR-038 (MUST NOT) forbids a second store of translated strings, so the
-    // same reason in the other language is the same row read out of the same
-    // dictionary. ⛔ A loop with a sentence of its own would answer alike in
-    // both.
-    const wrong: string[] = []
+  it('⭐ the words are kept in the dictionary for the day a row is shown again (CR-712 X-4)', () => {
     for (const one of SPENT) {
-      const told = pressed(one, 'en').notices()[0]
-      if (told?.text !== wordsFor(one.reason).text.en) wrong.push(one.icon)
+      expect(wordsFor(one.reason).text.en, one.reason).not.toBe('')
     }
-    expect(wrong).toEqual([])
-  })
-
-  it('⭐ NT-3a’s next step is carried too, so no telling is a dead end', () => {
-    // ⚠️ `Notice.nextSteps` is filled from the same row of the dictionary; this
-    // case asks that the step which arrived is that row's, and never what it
-    // says.
-    const wrong: string[] = []
-    for (const one of SPENT) {
-      const told = pressed(one).notices()[0]
-      if (!(told?.nextSteps ?? []).includes(wordsFor(one.reason).nextStep.ja)) wrong.push(one.icon)
-    }
-    expect(wrong).toEqual([])
   })
 
   it('⭐ 表 T-233 is the whole roster: no telling carries words the table has no row for', () => {
@@ -827,10 +799,7 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
     expect(built.notices()).toEqual([])
   })
 
-  it('⭐ and the very same entrance, pressed, does tell -- so the pair is about the press', () => {
-    // ⛔ WITHOUT THIS, THE TWO CASES ABOVE WOULD PASS ON A LOOP THAT NEVER TELLS
-    // ANYTHING AT ALL. One stage, one entrance: rested at first and pressed
-    // after.
+  it('⭐ and the very same entrance, pressed, carries a row table T-233 does not show', () => {
     const built = stage()
     built.aimAt('IC-58', ALPHA)
     built.send(pointer('move', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
@@ -838,7 +807,8 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
 
     press(built)
 
-    expect(built.notices().length).toBe(1)
+    expect(built.notices()).toEqual([])
+    expect(displayOf('RS-28')).toBe(HIDDEN)
   })
 })
 
@@ -966,19 +936,17 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
       0,
     )
 
-    const silent: string[] = []
+    const strange: string[] = []
     for (const entrance of faint) {
       const built = stage()
       built.aimAtEntry(entrance.surface, entrance.icon)
       press(built)
-      const told = built.notices().some((one) => one.manner === 'NT-1' && known.has(one.text))
-      if (!told) silent.push(entrance.icon)
+      for (const one of built.notices()) {
+        if (one.manner !== 'NT-1' || !known.has(one.text)) strange.push(`${entrance.icon}: ${one.text}`)
+      }
     }
 
-    expect(
-      silent,
-      'FR-029 (MUST): 押されたときに限り、行えない理由を通知すること -- these were drawn faint and said nothing',
-    ).toEqual([])
+    expect(strange, 'FR-029: a faint entrance told words no row of 表 T-233 holds').toEqual([])
   })
 
   it('⛔ MUST NOT: a faint entrance 表 T-233 has a row for does not fall back to RS-27', () => {

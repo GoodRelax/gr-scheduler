@@ -7,6 +7,7 @@ import type { FakeElement } from '../fixtures/fake-browser'
 import { oneByRole, styleMap } from '../fixtures/fake-browser'
 import {
   OPEN_CHOOSER,
+  closeImportReport,
   REQUIREMENTS,
   jsonBytes,
   partName,
@@ -172,6 +173,7 @@ describe('HS-6 -- after a replace-open, before any write to that file', () => {
     const lower = lowerText(built)
     await built.open(built.file('theirs.json', jsonBytes(openedWithStamp(OPENED_STAMP))))
     await built.press(OPEN_CHOOSER(), 'IC-72')
+    await closeImportReport(built)
     expect(built.last().openModal, 'precondition: IC-72 did not land').toBeNull()
     await built.repaint()
     expect(upperText(built)).toBe(upper)

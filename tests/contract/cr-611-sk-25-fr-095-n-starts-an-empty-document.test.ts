@@ -14,6 +14,7 @@ import {
   TEMPLATE_TEXT,
   jsonBytes,
   keyOfRow,
+  mergeSomething,
   replaceWith,
   settingNumber,
   settingRow,
@@ -44,7 +45,8 @@ const GENERATED_WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
 ) as Record<string, any>
 
-const ASKS_ALWAYS = '捨てる前に、未保存の編集の有無によらず、表 T-024a の `OP-4` と同じ確認を求めること（MUST）'
+const ASKS_WITH_UNSAVED = '捨てる前に、保存していない編集があるときは、表 T-024a の `OP-4` と同じ確認を求めること（MUST）'
+const GOES_ON_UNASKED = '保存していない編集が無いときは問わずに進めること（MUST）'
 const NO_TARGET_AFTER = '新しく始めた後は、上書きする先を持たないこと（MUST）'
 
 type Loose = Record<string, any>
@@ -53,8 +55,7 @@ const documentOf = (built: ShellStage): Loose => JSON.parse(JSON.stringify(built
 
 async function startAnew(built: ShellStage): Promise<void> {
   await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
-  expect(built.last().confirmation?.question, 'precondition: IC-98 raised no QN-5').toBe('QN-5')
-  await built.answer('proceed')
+  if (built.last().confirmation?.question === 'QN-5') await built.answer('proceed')
   expect(built.last().confirmation, 'precondition: the answer did not take QN-5 down').toBeNull()
 }
 
@@ -105,8 +106,9 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
     expect(bare(specTable('T-036').rows.find((one) => one.id === 'SK-25')?.cells[2] ?? '')).toBe('IC-98')
   })
 
-  it('FR-095 asks whatever is unsaved and leaves no save target; T-342 holds BK-1 to BK-6', () => {
-    expect(REQUIREMENTS).toContain(ASKS_ALWAYS)
+  it('FR-095 asks only while an edit is unsaved and leaves no save target; T-342 holds BK-1 to BK-6', () => {
+    expect(REQUIREMENTS).toContain(ASKS_WITH_UNSAVED)
+    expect(REQUIREMENTS).toContain(GOES_ON_UNASKED)
     expect(REQUIREMENTS).toContain(NO_TARGET_AFTER)
     expect(T_342.rows.map((one) => one.id)).toEqual(['BK-1', 'BK-2', 'BK-3', 'BK-4', 'BK-5', 'BK-6'])
   })
@@ -122,16 +124,25 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
   })
 })
 
-describe('FR-095 (MUST) / SK-25 -- N asks first, always', () => {
-  it('SK-25 / FR-095: N with nothing unsaved raises QN-5', async () => {
+describe('FR-095 (MUST) / SK-25 -- N asks first while an edit is unsaved', () => {
+  it('SK-25 / FR-095: N with nothing unsaved starts anew without asking (retired: it used to raise QN-5)', async () => {
     const built = await shellStage()
     expect(built.loop.hasUnsavedEdits(), 'precondition: the bench starts with unsaved edits').toBe(false)
+    await built.key(SK_25)
+    expect(built.last().confirmation, 'FR-095: N asked with nothing unsaved').toBeNull()
+    expect(documentOf(built)['schedule']['tasks'], 'FR-095: N did not start anew').toEqual([])
+  })
+
+  it('SK-25 / FR-095: N with an unsaved edit raises QN-5', async () => {
+    const built = await shellStage()
+    await mergeSomething(built)
     await built.key(SK_25)
     expect(built.last().confirmation?.question, 'FR-095: N did not ask before discarding').toBe('QN-5')
   })
 
   it('SK-25 / NT-7: N pressed again while QN-5 stands closes it and discards nothing', async () => {
     const built = await shellStage()
+    await mergeSomething(built)
     const before = documentOf(built)
     await built.key(SK_25)
     expect(built.last().confirmation?.question, 'precondition: N raised no QN-5').toBe('QN-5')
@@ -142,14 +153,14 @@ describe('FR-095 (MUST) / SK-25 -- N asks first, always', () => {
 
   it('FR-095 / IC-98: the header entrance asks the same question', async () => {
     const built = await shellStage()
+    await mergeSomething(built)
     await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
     expect(built.last().confirmation?.question).toBe('QN-5')
   })
 
   it('FR-095 / IC-98: proceeding from the header entrance lands the same empty document as N', async () => {
     const built = await shellStage()
-    await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
-    await built.answer('proceed')
+    await startAnew(built)
     const after = documentOf(built)
     expect(after['schedule']['tasks'], 'BK-1: IC-98 did not start an empty document').toEqual([])
     expect(after['schedule']['taskGroups']).toHaveLength(1)

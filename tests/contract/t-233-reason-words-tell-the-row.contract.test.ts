@@ -101,8 +101,15 @@ const DELIVERED = reasonsIn(GENERATED_PATH)
 
 const T233 = specTable('T-233')
 
+const SHARED_WORDS = /語は `(RS-\d+)`/
+const wordsRowOf = (rowId: string): string => {
+  const row = T233.rows.find((one) => one.id === rowId)
+  const shared = SHARED_WORDS.exec(row?.by['まとめ方'] ?? '')
+  return shared?.[1] ?? rowId
+}
+
 const entryOf = (rowId: string): ReasonEntry => {
-  const found = DELIVERED.find((one) => one.rowId === rowId)
+  const found = DELIVERED.find((one) => one.rowId === wordsRowOf(rowId))
   if (found === undefined) throw new Error(`the dictionary holds no reason ${rowId}`)
   return found
 }
@@ -123,6 +130,8 @@ const mannerOf = (rowId: string): string => {
 }
 
 const ROW_IDS: readonly string[] = T233.rows.map((row) => row.id)
+
+const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((rowId) => wordsRowOf(rowId) === rowId)
 
 // ---------------------------------------------------------------------------
 // The pairing, as it was last read
@@ -149,14 +158,14 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-3': '4e786edf4413b782',
   'RS-4': 'b81c82b10e0ecda4',
   'RS-5': 'bcf057c1289a01d5',
-  'RS-6': '67b42c21137821d8',
-  'RS-7': '2ebb3d4c4213e9d5',
-  'RS-8': '8b4b13cddc90d42c',
-  'RS-9': '93e0539d0eae329f',
+  'RS-6': '8ef378ef0fa10b86',
+  'RS-7': 'e038b841e64009b9',
+  'RS-8': 'd4f4a0b55b5cd4ec',
+  'RS-9': 'bef80d88fdb54f6b',
   'RS-10': '8fb99682d5b75c9b',
-  'RS-11': 'ffb3da814dfe975b',
-  'RS-12': 'aeacff9cd2248a51',
-  'RS-13': 'cbeb9438978a562a',
+  'RS-11': '8396435d00eeec28',
+  'RS-12': 'dd5bcc6c420308b1',
+  'RS-13': '866e28e2dd0f412d',
   'RS-14': '8a3b1693d6bc54e1',
   'RS-16': 'd17dd51b976cadca',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
@@ -189,7 +198,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // the scene are unchanged from HEAD; only the removed record moved. Read
   // against the dictionary again: both languages and the next step still
   // match the shortened scene, so only the fingerprint is re-keyed.
-  'RS-19': '42ed48865a498a1e',
+  'RS-19': '70fb69236ad4afd7',
   'RS-20': '9660f89d7f3c1a5b',
   'RS-21': '320caa7b7c536e85',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
@@ -220,7 +229,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-41': '5f77c22a1e6ab2c0',
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  'RS-42': '4c37d2ab07ec6f66',
+  'RS-42': '935fc971ed4c12fc',
   'RS-43': '1033e6a435341a3e',
   'RS-44': '5aeba9325454b1ad',
   // ---------------------------------------------------------------------
@@ -270,7 +279,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-49': 'f09e16b4dee232fe',
+  'RS-49': '4b2aa495b2edbc27',
   // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
   // tells). Read together before anything was recorded, the way this file
   // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
@@ -331,7 +340,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
   //
-  'RS-51': 'b4304cf3e39eaeee',
+  'RS-51': '5848599d03fa733f',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
   // above): the scene's rule text is unchanged from HEAD, only its origin
   // record was folded out. Read against the dictionary again -- both
@@ -360,7 +369,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-53': '62786ce5287aab47',
+  'RS-53': '0e86c8daafe7af5c',
   'RS-15': 'c85a8bb4ca6b676b',
   // RS-54 -- 「構えた形状が、選んでいるものに当てられない」, 作法 `NT-1`, 正
   //   `FR-083` (利用者の裁定 2026-09-08). Read against the words before the
@@ -513,7 +522,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-68': '6f2ade59f54dfe34',
   // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (WL-8).
-  'RS-69': '28e3c4fa360f7b04',
+  'RS-69': '6644963590cd5dee',
   // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (WL-12).
   'RS-70': 'e99b94d159d09037',
   // WHY: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
@@ -534,6 +543,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-10-08 (CR-705); saving or writing out broke for no row's reason (IF-3), the file
   // may not hold it, and the road is another destination, as RS-3's.
   'RS-76': 'ec9c53b8e6e11451',
+  'RS-77': '4582796b6be4b330',
 }
 
 const fingerprintOf = (rowId: string): string => {
@@ -558,7 +568,7 @@ describe('table T-233 -- every row has its word, and no word has no row', () => 
     // 同表に無い理由を運んではならない（MUST NOT）」 and 「行を足すときは、辞書
     // の原稿にも項を足すこと（MUST）」. Both directions, so neither side can
     // grow alone.
-    expect([...DELIVERED.map((one) => one.rowId)].sort()).toEqual([...ROW_IDS].sort())
+    expect([...DELIVERED.map((one) => one.rowId)].sort()).toEqual([...ROWS_WITH_OWN_WORDS].sort())
   })
 
   it('the words that reach src/ are the words the manuscript holds (Chapter 6.2, MUST)', () => {

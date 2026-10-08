@@ -102,13 +102,10 @@ export const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
 export const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
 
-// see U-62
 export const REPORT_REASON_ATTRIBUTE = 'data-report-reason'
 
-// see MG-10, U-61
 export const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note'
 
-// see NT-2
 export const NOTICE_BOX_ATTRIBUTE = 'data-notice-box'
 
 export const NOTICE_BOX_REASON_SEPARATOR = ' '

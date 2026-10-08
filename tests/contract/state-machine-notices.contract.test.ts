@@ -146,16 +146,34 @@ function step(session: ScreenSession, event: Loose): ReturnType<typeof advanceSc
   return advanceScreenSession(session, event as unknown as SessionEvent)
 }
 
+const ROSTER = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'notice-reasons.json'), 'utf8')) as {
+    readonly reasons: readonly { readonly id: string; readonly display: string; readonly wordsOf?: string }[]
+  }
+).reasons
+
+function displayOf(reason: unknown): string {
+  return ROSTER.find((one) => one.id === reason)?.display ?? 'show'
+}
+
+function wordsRowOf(reason: unknown): unknown {
+  return ROSTER.find((one) => one.id === reason)?.wordsOf ?? reason
+}
+
 // see NT-3, T-233
 const OLDEST: Notice = { reason: 'RS-41', affectedCount: 3 }
 const NEWEST: Notice = { reason: 'RS-35', affectedCount: null }
 const ABSENT_REASON = 'RS-9'
+const TIMED: Notice = { reason: 'RS-65', affectedCount: null }
+const HIDDEN_REASON = 'RS-27'
 
 const ON_SCREEN_VARIANTS: Record<string, readonly { label: string; value: Loose }[]> = {
   hidden: [{ label: 'hidden', value: { kind: 'hidden' } }],
   shown: [
     { label: 'shown[RS-41]', value: { kind: 'shown', standing: [OLDEST] } },
     { label: 'shown[RS-41, RS-35]', value: { kind: 'shown', standing: [OLDEST, NEWEST] } },
+    { label: 'shown[RS-65]', value: { kind: 'shown', standing: [TIMED] } },
+    { label: 'shown[RS-41, RS-65]', value: { kind: 'shown', standing: [OLDEST, TIMED] } },
   ],
 }
 
@@ -194,7 +212,10 @@ const NOTICE_EVENT_VARIANTS: Record<string, readonly Loose[]> = {
     { reason: OLDEST.reason, affectedCount: null },
     { reason: ABSENT_REASON, affectedCount: 4 },
     { reason: ABSENT_REASON, affectedCount: null },
+    { reason: 'RS-6', affectedCount: null },
+    { reason: HIDDEN_REASON, affectedCount: null },
   ],
+  noticeTimeElapsed: [{ reason: TIMED.reason }, { reason: OLDEST.reason }, { reason: ABSENT_REASON }],
   newestNoticeDismissAsked: [{}],
   noticeDismissPressed: [{ reason: OLDEST.reason }, { reason: NEWEST.reason }, { reason: ABSENT_REASON }],
   documentReplaced: [{}],
@@ -227,7 +248,11 @@ function guardHolds(name: string, notices: Loose, event: Loose): boolean {
   const reasonStands = standing.some((n) => n.reason === event['reason'])
   switch (name) {
     case 'isSameReasonStanding':
-      return reasonStands
+      return standing.some((n) => wordsRowOf(n.reason) === wordsRowOf(event['reason']))
+    case 'isHiddenReason':
+      return displayOf(event['reason']) === 'hide'
+    case 'isTimedCard':
+      return reasonStands && displayOf(event['reason']) === 'autoDismiss'
     case 'isOnlyOneStanding':
       return standing.length === 1
     case 'isLeavingNone':
@@ -261,10 +286,14 @@ function firingRows(notices: Loose, event: Loose): TnRow[] {
 function expectedStanding(row: TnRow, before: readonly Notice[], event: Loose): readonly Notice[] | undefined {
   const reason = event['reason'] as string
   switch (row.id) {
-    case 'noticeDisplayStateMachine.hidden x notices/noticeRaised':
+    case 'noticeDisplayStateMachine.hidden x notices/noticeRaised [not isHiddenReason]':
       return [{ reason, affectedCount: event['affectedCount'] as number | null }]
-    case 'noticeDisplayStateMachine.shown x notices/noticeRaised [not isSameReasonStanding]':
+    case 'noticeDisplayStateMachine.shown x notices/noticeRaised [not isHiddenReason & not isSameReasonStanding]':
       return [...before, { reason, affectedCount: event['affectedCount'] as number | null }]
+    case 'noticeDisplayStateMachine.shown x notices/noticeRaised [isHiddenReason]':
+      return before
+    case 'noticeDisplayStateMachine.shown x notices/noticeTimeElapsed [isTimedCard & not isOnlyOneStanding]':
+      return before.filter((n) => n.reason !== reason)
     case 'noticeDisplayStateMachine.shown x notices/newestNoticeDismissAsked [not isOnlyOneStanding]':
       return before.slice(0, -1)
     case 'noticeDisplayStateMachine.shown x notices/noticeDismissPressed [isLeavingSome]':
@@ -359,7 +388,7 @@ describe('isSameReasonStanding (NT-3): a notice with a reason already standing i
 
   it('not isSameReasonStanding (NT-3 MUST NOT): the count of standing notices has no ceiling', () => {
     let s = withNotices({})
-    for (let i = 1; i <= 50; i += 1) s = step(s, { type: 'noticeRaised', reason: `RS-${i}`, affectedCount: null }).state
+    for (let i = 1; i <= 50; i += 1) s = step(s, { type: 'noticeRaised', reason: `RS-${100 + i}`, affectedCount: null }).state
     expect(standingOf(noticesOf(s))).toHaveLength(50)
   })
 })

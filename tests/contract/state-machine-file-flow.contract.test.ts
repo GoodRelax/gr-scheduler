@@ -116,9 +116,9 @@ const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
 
 // see MG-11, MG-14, RS-73
 const ROOT_VALUES: readonly Loose[] = [
-  { openedFileName: null, droppedTaskNames: [], missingTaskNames: [] },
-  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B', null], missingTaskNames: [] },
-  { openedFileName: 'plan.xml', droppedTaskNames: [], missingTaskNames: ['Task M'] },
+  { openedFileName: null, droppedTaskNames: [], missingTaskNames: [], reportedCounts: [] },
+  { openedFileName: 'plan.xml', droppedTaskNames: ['Task B', null], missingTaskNames: [], reportedCounts: [] },
+  { openedFileName: 'plan.xml', droppedTaskNames: [], missingTaskNames: ['Task M'], reportedCounts: [{ reason: 'RS-14', count: 3 }] },
 ]
 
 function machine(name: string): RawMachine {
@@ -178,11 +178,12 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
-    { droppedTaskNames: ['Task C', null], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'replace' },
-    { droppedTaskNames: ['Task C'], missingTaskNames: ['Task M'], openedFileName: null, openChoice: 'merge' },
-    { droppedTaskNames: [], missingTaskNames: ['Task M', null], openedFileName: null, openChoice: 'merge' },
-    { droppedTaskNames: [], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
-    { droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'replace' },
+    { droppedTaskNames: ['Task C', null], missingTaskNames: [], reportedCounts: [], openedFileName: 'next.xml', openChoice: 'replace' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: ['Task M'], reportedCounts: [], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: [], missingTaskNames: ['Task M', null], reportedCounts: [], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: 'next.xml', openChoice: 'baseline' },
+    { droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice: 'replace' },
+    { droppedTaskNames: [], missingTaskNames: [], reportedCounts: [{ reason: 'RS-51', count: 2 }], openedFileName: null, openChoice: 'merge' },
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
@@ -245,10 +246,11 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
       return event['surfaceName'] === 'U-61'
     case 'isImportReportSurface':
       return event['surfaceName'] === 'U-62'
-    case 'hasTasksToReport':
+    case 'hasAnythingToReport':
       return (
         (event['droppedTaskNames'] as readonly unknown[]).length > 0 ||
-        (event['missingTaskNames'] as readonly unknown[]).length > 0
+        (event['missingTaskNames'] as readonly unknown[]).length > 0 ||
+        (event['reportedCounts'] as readonly unknown[]).length > 0
       )
     default:
       throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
@@ -291,7 +293,7 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
       }
       // WHY: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
-      if (event['type'] === 'documentFileRead') {
+      if (event['type'] === 'documentFileRead' && (flow['fileOperationState'] as Loose)['openRoute'] !== 'reopen') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }
       return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'replace' } }
@@ -300,7 +302,7 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
     case 'answerOverwriteQuestion':
       return { type: 'answerOverwriteQuestion', isProceeding: event['isProceeding'] }
     case 'carryOutOwedAction':
-      return { type: 'carryOutOwedAction', owedAction: confirmation['owedAction'] }
+      return { type: 'carryOutOwedAction', owedAction: event['type'] === 'newDocumentEntryPressed' ? START_NEW : confirmation['owedAction'] }
     default:
       throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
   }
@@ -333,6 +335,7 @@ function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): L
     openedFileName: flow['openedFileName'],
     droppedTaskNames: flow['droppedTaskNames'],
     missingTaskNames: flow['missingTaskNames'],
+    reportedCounts: flow['reportedCounts'],
   }
   if (root === undefined) return kept
   const carriedName = event['openedFileName']
@@ -342,10 +345,10 @@ function expectedRoot(root: RawBranch | undefined, flow: Loose, event: Loose): L
       return { ...kept, openedFileName: name }
     case 'documentOpenLanded':
       return root.effect === 'raiseFlowSurface'
-        ? { openedFileName: name, droppedTaskNames: event['droppedTaskNames'], missingTaskNames: event['missingTaskNames'] }
+        ? { openedFileName: name, droppedTaskNames: event['droppedTaskNames'], missingTaskNames: event['missingTaskNames'], reportedCounts: event['reportedCounts'] }
         : { ...kept, openedFileName: name }
     case 'flowSurfaceClosed':
-      return { ...kept, droppedTaskNames: [], missingTaskNames: [] }
+      return { ...kept, droppedTaskNames: [], missingTaskNames: [], reportedCounts: [] }
     case 'newDocumentLanded':
       return { ...kept, openedFileName: null }
     default:
@@ -367,7 +370,8 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
   const rootChanges =
     rootAfter['openedFileName'] !== before['openedFileName'] ||
     JSON.stringify(rootAfter['droppedTaskNames']) !== JSON.stringify(before['droppedTaskNames']) ||
-    JSON.stringify(rootAfter['missingTaskNames']) !== JSON.stringify(before['missingTaskNames'])
+    JSON.stringify(rootAfter['missingTaskNames']) !== JSON.stringify(before['missingTaskNames']) ||
+    JSON.stringify(rootAfter['reportedCounts']) !== JSON.stringify(before['reportedCounts'])
   const effectful = machines.some((f) => f.branch.effect !== undefined) || root?.effect !== undefined
   const moves = machines.some((f) => f.branch.to !== kindOf(before[fieldOf(f.machine.name)]) || f.branch.to === undefined)
   const carriesNew = machines.some((f) => {
@@ -398,6 +402,7 @@ function expectFlowStep(session: ScreenSession, event: Loose): void {
   expect(after['openedFileName'], 'openedFileName').toEqual(rootAfter['openedFileName'])
   expect(after['droppedTaskNames'], 'droppedTaskNames').toEqual(rootAfter['droppedTaskNames'])
   expect(after['missingTaskNames'], 'missingTaskNames').toEqual(rootAfter['missingTaskNames'])
+  expect(after['reportedCounts'], 'reportedCounts').toEqual(rootAfter['reportedCounts'])
 
   const cells = [...machines.map((f) => f.branch), ...(root === undefined ? [] : [root])]
   const expected = cells.filter((b) => b.effect !== undefined).map((b) => expectedEffect(b, before, event))

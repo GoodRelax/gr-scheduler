@@ -393,8 +393,9 @@ describe('fileFlow (control) -- the chooser and reopen routes keep OP-3 and OP-4
     expect(effectsOf(result)).toEqual([{ type: 'raiseFlowSurface', surfaceName: 'U-56' }])
   })
 
-  it('OP-13 「OP-4 の確認は掛かること（MUST）」: documentFileRead on the reopen route asks QN-5', () => {
-    const result = step(readingWith('reopen'), FILE_READ)
+  it('OP-13 「OP-4 の確認は掛かること（MUST）」: documentFileRead on the reopen route asks QN-5 while an edit is unsaved', () => {
+    const unsaved = withFlow({ ...flowOf(readingWith('reopen')), unsavedEditsState: { kind: 'editsUnsaved' } })
+    const result = step(unsaved, FILE_READ)
     expect(kindOf(flowOf(result.state)['fileOperationState'])).toBe('awaitingDiscardAnswer')
     expect(kindOf(flowOf(result.state)['confirmationState'])).toBe('questionAsked')
   })

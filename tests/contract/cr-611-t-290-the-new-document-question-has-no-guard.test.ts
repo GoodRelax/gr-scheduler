@@ -34,17 +34,25 @@ describe('T-290 / SK-25 -- the manuscript still says it', () => {
     expect((EVENT['carries'] as Loose[]).map((one) => one['name'])).toEqual(['question'])
   })
 
-  it('FR-095: confirmationStateMachine goes notAsked -> questionAsked with no guard', () => {
-    const cell = CONFIRMATION['transitions']['newDocumentEntryPressed']['notAsked'] as Loose
-    expect(Array.isArray(cell)).toBe(false)
-    expect(cell['to']).toBe('questionAsked')
-    expect(cell['guard']).toBeUndefined()
+  it('FR-095: confirmationStateMachine goes notAsked -> questionAsked only in editsUnsaved, and carries the start out otherwise', () => {
+    const cell = CONFIRMATION['transitions']['newDocumentEntryPressed']['notAsked'] as Loose[]
+    expect(cell.map((one) => [one['to'], one['guard'], one['effect']])).toEqual([
+      ['questionAsked', [{ in: 'unsavedEditsStateMachine.editsUnsaved' }], undefined],
+      ['notAsked', [{ in: 'unsavedEditsStateMachine.nothingUnsaved' }], 'carryOutOwedAction'],
+    ])
   })
 })
 
-describe('FR-095 (MUST) / QN-5 -- the question stands whatever else is true', () => {
-  it('FR-095: newDocumentEntryPressed with no hasStartupTemplate raises QN-5 and owes startNewDocument', () => {
+describe('FR-095 (MUST) / QN-5 -- the question stands while an edit is unsaved', () => {
+  it('FR-095: with nothing unsaved the press raises no question and carries out startNewDocument', () => {
     const result = step(emptyScreenSession, { type: 'newDocumentEntryPressed', question: QUESTION })
+    expect((flowOf(result.state)['confirmationState'] as Loose)['kind']).toBe('notAsked')
+    expect(result.effects).toEqual([{ type: 'carryOutOwedAction', owedAction: { kind: 'startNewDocument' } }])
+  })
+
+  it('FR-095: newDocumentEntryPressed with an unsaved edit raises QN-5 and owes startNewDocument', () => {
+    const unsaved = withFlow({ unsavedEditsState: { kind: 'editsUnsaved' } })
+    const result = step(unsaved, { type: 'newDocumentEntryPressed', question: QUESTION })
     const confirmation = flowOf(result.state)['confirmationState'] as Loose
     expect(confirmation['kind'], 'FR-095: the press did not raise the question').toBe('questionAsked')
     expect(confirmation['question']).toEqual(QUESTION)

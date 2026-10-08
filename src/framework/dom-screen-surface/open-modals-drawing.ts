@@ -748,7 +748,6 @@ function separateNoteElement(host: Document, note: string): HTMLElement {
 }
 
 // see U-62, FR-076
-// WHY: a counted reason is one line -- its words, its count and its next step side by side (U-62).
 /** @purity non-pure */
 function reportLineElements(host: Document, line: ImportReport['reportLines'][number]): HTMLElement[] {
   if (line.count === null) return reasonLines(host, line.text, line.nextStep, line.names)
@@ -764,7 +763,7 @@ function reportLineElements(host: Document, line: ImportReport['reportLines'][nu
 }
 
 // see U-62, FR-023, FR-076, MG-14
-// WHY: each reason of the reading in table T-233's order (U-62); RS-50 stays when the reading reported nothing.
+// WHY: RS-50 stays when the reading reported nothing, as before the count lines.
 /** @purity non-pure */
 function importReportElements(host: Document, modal: ImportReport): readonly HTMLElement[] {
   const lines: HTMLElement[] = modal.reportLines.length === 0

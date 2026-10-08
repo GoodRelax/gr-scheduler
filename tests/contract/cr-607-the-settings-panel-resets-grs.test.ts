@@ -665,14 +665,12 @@ describe(`FR-153 "${FR_153_QUESTION}"`, () => {
     expect(asked?.items).toEqual(expected)
   })
 
-  it('a second press while the question stands raises RS-27 and leaves QN-11 standing', async () => {
+  it('a second press while the question stands carries RS-27 (not shown) and leaves QN-11 standing', async () => {
     const built = await askedBench('ja')
     expect(built.last().notices, 'premise: the first press raised no notice').toEqual([])
     await pressReset(built)
-    const notices = built.last().notices
-    expect(notices).toHaveLength(1)
-    expect(notices[0]?.text).toBe(reasonOf(RS_27, 'ja'))
-    expect(notices[0]?.manner).toBe(bare(rowOf(T_233, RS_27).by['作法'] ?? ''))
+    expect(built.last().notices, 'RS-27 is a hidden reason (表示の仕方「出さない」)').toEqual([])
+    expect(bare(rowOf(T_233, RS_27).by['表示の仕方'] ?? '')).toBe('出さない')
     expect(built.last().confirmation?.question).toBe(QN_11)
   })
 

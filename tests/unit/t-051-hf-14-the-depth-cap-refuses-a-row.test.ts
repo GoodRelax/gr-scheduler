@@ -448,7 +448,7 @@ describe('the manuscript still says what these cases read', () => {
       'その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は 表 T-233 の `RS-46` とすること（MUST）',
+      '薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）。運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）',
     )
     // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the row
     // count and the panel rather than the reason alone: raising the row and
@@ -493,7 +493,7 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ FR-029 still ties the faint drawing and the telling into one rule', () => {
-    expect(REQUIREMENTS).toContain('押されたときに限り、行えない理由を通知すること（MUST）')
+    expect(REQUIREMENTS).toContain('押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）')
     expect(REQUIREMENTS).toContain('当たる行があるのに落ち先を運んではならない（MUST NOT）')
   })
 })
@@ -522,7 +522,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
   })
 
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐ a press at the cap is told RS-46's own words, and NOT RS-38's or RS-15's (${language})`, () => {
+    it(`⭐ a press at the cap shows none of RS-46's, RS-38's or RS-15's words (${language})`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and still
       // written into HF-14: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
       // 薄いまま押せ、押した先は開き、確定しても行は増えず通知も出なかった。**」
@@ -532,7 +532,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
       built.press(ADD_CHILD_ROW, AT_THE_CAP)
 
       const texts = built.notices().map((one) => one.text)
-      expect(texts, 'FR-029 (MUST): the press is told a reason').toContain(
+      expect(texts, 'RS-46 is hidden (表 T-233 の表示の仕方)').not.toContain(
         wordsFor(RS_46).text[language],
       )
       // ⛔ 「当たる行があるのに落ち先を運んではならない（MUST NOT）」 -- FR-029.
@@ -545,18 +545,12 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
     })
   }
 
-  it('⭐ and it is told in NT-3as manner, with the next step that manner requires', () => {
-    // 表 T-037 `NT-3a`: 「次に取れる手段を添えること（MUST）—— … 失敗したことだけを
-    // 伝えて手段を示さない通知を出してはならない（MUST NOT）」. The manner is read off
-    // 表 T-233's 作法 column, never typed.
+  it('⭐ RS-46 keeps its NT-3a manner and its words, and table T-233 does not show it (CR-712)', () => {
     const built = stage()
     built.press(ADD_CHILD_ROW, AT_THE_CAP)
-    const told = built.notices().filter((one) => one.text === wordsFor(RS_46).text.ja)
-    expect(told.length, 'nothing carrying RS-46 arrived').toBeGreaterThan(0)
-    for (const notice of told) {
-      expect(notice.manner).toBe(mannerOf(RS_46))
-      expect(notice.nextSteps).toContain(wordsFor(RS_46).nextStep?.ja)
-    }
+    expect(built.notices(), 'a hidden reason put a notice up').toEqual([])
+    expect(mannerOf(RS_46)).toBe('NT-3a')
+    expect(bare(rowOf('T-233', RS_46).by['表示の仕方'] ?? '')).toBe('出さない')
   })
 
   it('⛔ the refused press leaves the document exactly as it was', () => {

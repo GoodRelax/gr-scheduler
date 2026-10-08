@@ -136,8 +136,6 @@ const PRINTED_REASON_ORDER: readonly string[] = Object.keys(NOTICE_DISPLAY_OF_RE
 type ReportedReason = Pick<ImportReportLine, 'reason' | 'count' | 'names'>
 
 // see U-62, FR-076, MG-14
-// WHY: every reason of one reading in table T-233's printed order; names under RS-50 and RS-73,
-// a count beside the others, and no line for a zero (MG-14).
 /** @purity pure */
 function reportLinesOf(readings: ScreenViewReadings, language: DisplayLanguage): readonly ImportReportLine[] {
   const named: readonly ReportedReason[] = [
@@ -411,7 +409,6 @@ function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
 }
 
 // see MG-10, U-61
-// WHY: the note stands whenever the review offers its candidates, before anything is chosen.
 /** @purity pure */
 function separateNoteOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
   if ((readings.mergeCandidates ?? []).length === 0) return NO_WORDS

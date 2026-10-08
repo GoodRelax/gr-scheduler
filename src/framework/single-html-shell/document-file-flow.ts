@@ -136,10 +136,8 @@ const NEWER_FORMAT_REFUSED_REASON: Extract<NoticeReason, JsonRefusalReason> = 'R
 // see EX-3
 const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
 
-// see EX-3
 const WORK_COLUMN = 'Work'
 
-// see FR-076
 const UNLISTED_REASON: NoticeReason = 'RS-15'
 
 type EmbeddedHtmlFaultReason = Exclude<
@@ -590,8 +588,7 @@ interface ReadingTally {
 }
 
 // see FR-076, U-62, T-233, T-290
-// WHY: a reading holds back the reasons table T-233 lines up on U-62 until it lands; one that does
-// not land drops them with the tally, since nothing it read was taken in.
+// WHY: held until the reading lands, and dropped with the tally when it does not (nothing was taken in).
 /** @purity non-pure */
 function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
   const counts = new Map<string, number>()
@@ -604,8 +601,7 @@ function readingTallyOf(outer: DocumentFileFlowHands): ReadingTally {
 }
 
 // see FR-076, T-220, NT-3, NT-1
-// WHY: one telling per broken row with how often it broke; a rule that is no row of table T-220 has no
-// words of its own and falls to RS-15, as a reason with no row does.
+// WHY: a rule that is no row of table T-220 has no words of its own, so it falls to RS-15.
 /** @purity non-pure */
 function tellImportRefusals(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,

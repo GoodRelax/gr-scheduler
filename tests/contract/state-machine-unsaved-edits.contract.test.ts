@@ -108,10 +108,10 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
-    { droppedTaskNames: [], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'replace' },
-    { droppedTaskNames: ['Task C'], missingTaskNames: [], openedFileName: null, openChoice: 'replace' },
-    { droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'merge' },
-    { droppedTaskNames: ['Task C'], missingTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
+    { droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: 'next.xml', openChoice: 'replace' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice: 'replace' },
+    { droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: ['Task C'], missingTaskNames: [], reportedCounts: [], openedFileName: 'next.xml', openChoice: 'baseline' },
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
@@ -237,7 +237,7 @@ describe('SD-3 (T-290): every unsavedEditsStateMachine state x every fileFlow ev
 })
 
 describe('OP-3: the choice is read from the landing, both ways of the guarded pair', () => {
-  const landed = (openChoice: string): Loose => ({ type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice })
+  const landed = (openChoice: string): Loose => ({ type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice })
   const importing = (kind: string): ScreenSession =>
     withFlow({ fileOperationState: { kind: 'importingDocument' }, unsavedEditsState: { kind } })
 
@@ -284,10 +284,22 @@ describe('FR-100: the machine is what says whether unsaved edits exist', () => {
   })
 })
 
+const READ_BY_OTHER_MACHINES: ReadonlySet<string> = new Set(
+  FLOW.machines
+    .filter((m) => m.name !== 'unsavedEditsStateMachine')
+    .flatMap((m) => Object.entries(m.transitions))
+    .filter(([, row]) => JSON.stringify(row).includes('"unsavedEditsStateMachine.'))
+    .map(([event]) => event),
+)
+
 describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow machines do not read each other', () => {
+  it('only the QN-5 events read this machine (FR-095)', () => {
+    expect([...READ_BY_OTHER_MACHINES].sort()).toEqual(['documentFileRead', 'newDocumentEntryPressed', 'openChoiceAnswered'])
+  })
+
   const pairs = MACHINE.states.flatMap((s) =>
     contexts().flatMap((c) =>
-      flowEvents().map((event) => [`${s.key} vs ${other(s.key)} & ${c.name} x ${describeEvent(event)}`, s.key, c.fields, event] as const),
+      flowEvents().filter((e) => !READ_BY_OTHER_MACHINES.has(String(e['type']))).map((event) => [`${s.key} vs ${other(s.key)} & ${c.name} x ${describeEvent(event)}`, s.key, c.fields, event] as const),
     ),
   )
 
@@ -323,8 +335,8 @@ describe('orthogonality: unsavedEditsStateMachine and the other two fileFlow mac
 
   it('a — cell of this machine on a shared event with nothing else moving returns the same session and NO_EFFECTS', () => {
     const cases: [string, Loose][] = [
-      ['nothingUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'replace' }],
-      ['editsUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], openedFileName: null, openChoice: 'merge' }],
+      ['nothingUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice: 'replace' }],
+      ['editsUnsaved', { type: 'documentOpenLanded', droppedTaskNames: [], missingTaskNames: [], reportedCounts: [], openedFileName: null, openChoice: 'merge' }],
       ['nothingUnsaved', { type: 'documentFileSaved', openedFileName: null }],
     ]
     for (const [kind, event] of cases) {

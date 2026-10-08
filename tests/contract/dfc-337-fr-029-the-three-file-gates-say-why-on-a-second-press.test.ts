@@ -150,7 +150,7 @@ const REQUIREMENTS = unbroken(readFileSync(
  * would hold nothing at all.
  */
 const FR_029_TELL_ON_A_PRESS =
-  '金が消える。 押されたときに限り、行えない理由を通知すること（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
+  '金が消える。 押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）。作法は `FR-076` の 表 T-037 の `NT-1` に従い、運ぶ理由は、押された入口の場面に当たる同要求の 表 T-233 の行とすること（MUST）'
 
 /** ⭐ The closing rule of 表 T-233, which is what makes `RS-27` a row and not a sentence. */
 const T_233_ONLY_ITS_OWN_ROWS =
@@ -497,46 +497,23 @@ describe('FR-029 -- the first press is answered by doing the work, not by a tell
 // 7. ⭐⭐ THE SECOND PRESS -- 「押した入口が、いま行えることを持たない」
 // ===========================================================================
 
-describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27', () => {
+describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27, which is not shown', () => {
   for (const gate of GATES) {
-    it(`${gate.key} (${gate.what}): the second press raises exactly one telling`, async () => {
+    it(`${gate.key} (${gate.what}): the second press starts nothing and puts no notice up`, async () => {
       const built = stage(openedFor(gate))
 
       await built.press(keyOf(gate.key))
       expect(built.notices(), 'the first press was not silent').toEqual([])
+      const pending = built.files.pending()
       await built.press(keyOf(gate.key))
 
-      expect(
-        built.notices().length,
-        `${gate.key} returned in silence while a file operation was in flight -- FR-029 (MUST): ` +
-          '「押されたときに限り、行えない理由を通知すること」',
-      ).toBe(1)
-    })
-
-    it(`${gate.key} (${gate.what}): and the telling it carries is 表 T-233 の RS-27`, async () => {
-      const built = stage(openedFor(gate))
-
-      await built.press(keyOf(gate.key))
-      await built.press(keyOf(gate.key))
-      const told = built.notices()[0]
-
-      expect(told?.text, `${gate.key} carried a reason that is not RS-27`).toBe(
-        wordsFor(RS_27).text.ja,
-      )
-      expect(told?.manner, '表 T-233 gives RS-27 the manner NT-1').toBe(mannerOf(RS_27))
+      expect(built.notices(), `${gate.key}: RS-27 is a hidden reason (表 T-233 の表示の仕方)`).toEqual([])
+      expect(built.files.pending(), `${gate.key}: the second press started a second operation`).toBe(pending)
     })
   }
 
-  it('⭐ the words follow the display language, so the row and not a sentence is what travelled', async () => {
-    // ⛔ WITHOUT THIS, A LOOP THAT WROTE THE JAPANESE SENTENCE ITSELF WOULD PASS
-    // every case above. FR-038 (MUST NOT) keeps the words in one dictionary and
-    // the row id is the join.
-    const built = stage(NO_FILE_IS_OPEN, 'en')
-
-    await built.press(keyOf('SK-10'))
-    await built.press(keyOf('SK-10'))
-
-    expect(built.notices()[0]?.text).toBe(wordsFor(RS_27).text.en)
+  it('⭐ the row it carries is RS-27, and table T-233 does not show it', () => {
+    expect(bare(T_233.rows.find((one) => one.id === RS_27)?.by['表示の仕方'] ?? '')).toBe('出さない')
   })
 
   it('⭐⭐ the control: the same key on a loop with no store raises no RS-27 for THIS reason', async () => {
@@ -562,12 +539,10 @@ describe('FR-029 (MUST) -- a second press while a write is pending carries RS-27
 
     await built.press(keyOf('SK-10'))
     expect(built.notices(), 'the opening press was not silent').toEqual([])
+    const pending = built.files.pending()
     await built.press(keyOf('SK-11'))
 
-    expect(
-      built.notices().length,
-      'a save pressed while an open was in flight returned in silence',
-    ).toBe(1)
-    expect(built.notices()[0]?.text).toBe(wordsFor(RS_27).text.ja)
+    expect(built.files.pending(), 'a save pressed while an open was in flight started a write').toBe(pending)
+    expect(built.notices(), 'RS-27 is not shown (CR-712)').toEqual([])
   })
 })
