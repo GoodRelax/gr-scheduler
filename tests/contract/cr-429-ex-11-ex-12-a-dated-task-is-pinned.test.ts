@@ -50,7 +50,7 @@ const EX_12_NO_SLACK = '余裕日数（`FreeSlack` / `TotalSlack` / `StartSlack`
 const EX_12_GRS_TASKS = '`GRS` が作ったタスクにも `Duration` を `DV-8` のとおり書くこと（MUST）'
 
 const EX_12_PASTED =
-  '貼り付けで足した写しは、日付を編集したタスクと同じに扱うこと（MUST）—— 部分木の外へ出ていた依存は写しに写らない（`FR-033`）ので、元の余裕日数は写しについての事実ではない。'
+  '貼り付けで足したコピーは、日付を編集したタスクと同じに扱うこと（MUST）—— 部分木の外へ出ていた依存はコピーに含まれない（`FR-033`）ので、元の余裕日数はコピーについての事実ではない。'
 
 const SO_10_PEOPLE_DECIDE = '日付は人が決める'
 

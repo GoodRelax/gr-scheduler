@@ -218,7 +218,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-39': '4cfb50398940e901',
   'RS-40': 'fa7ae27664d8d2ee',
   'RS-41': '5f77c22a1e6ab2c0',
-  'RS-42': 'e814cb5729c9deef',
+  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
+  'RS-42': '4c37d2ab07ec6f66',
   'RS-43': '1033e6a435341a3e',
   'RS-44': '5aeba9325454b1ad',
   // ---------------------------------------------------------------------
@@ -500,12 +502,16 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-09-30; the words name editGroup by its PR-33 label and point to the person who may set it.
   'RS-62': 'db4d5372ac8ceaf9',
   // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
-  'RS-65': 'ba9b222d3251dc96',
+  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
+  'RS-65': 'ce737a4edd9097c6',
   // WHY: read 2026-09-30; too many pinned rows to show the jump target, and unpinning is the road.
   'RS-66': '03f75c78c0234c09',
   'RS-67': '3ce77e4ce9aa953e',
   // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
-  'RS-68': 'de02bc0ee9928819',
+  // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
+  // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
+  'RS-68': '6f2ade59f54dfe34',
   // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (WL-8).
   'RS-69': '28e3c4fa360f7b04',
   // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (WL-12).

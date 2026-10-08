@@ -119,7 +119,7 @@ const MINIMISE = ((): { readonly row: string; readonly surface: string } => {
 /**
  * The key SK-14 of table T-036 assigns, read out of the row.
  *
- * ⭐ NOT TYPED: 「割当の綴りも入口の説明も写してはならない（MUST NOT）」 is stated
+ * ⭐ NOT TYPED: 「割当の綴りも入口の説明もコピーしてはならない（MUST NOT）」 is stated
  * of that table's 入口 column, so the spelling has one home.
  */
 const PALETTE_KEY = ((): string => {

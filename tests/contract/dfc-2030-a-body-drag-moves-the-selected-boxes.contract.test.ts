@@ -39,7 +39,7 @@ const T_270_SHIFT =
   '⭐ `Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST）'
 const SL_7 = '| SL-7 | まとめて動かす | 選択に含まれる対象の本体をドラッグしたとき、選択されている全部を動かすこと（MUST）'
 const SL_1_TARGETS = 'タスク・依存線・ハイライトボックス・コメントボックス・基準日線。'
-const CY_4_TASKS_ONLY = 'これらが選択に混ざっていても、写すのはタスクだけである'
+const CY_4_TASKS_ONLY = 'これらが選択に混ざっていても、コピーするのはタスクだけである'
 
 describe('DFC-2030 -- the clauses these cases are driven by', () => {
   it('T-270, SL-1, SL-7 and CY-4 still read this way', () => {

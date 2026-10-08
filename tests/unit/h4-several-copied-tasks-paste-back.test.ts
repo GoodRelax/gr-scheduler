@@ -24,15 +24,15 @@ const MANY_TASKS_ALL_COPIED =
 // WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once, and a copy's WBS
 // parent is its source parent's copy when that parent is copied too, else the source parent.
 const ONLY_CHOSEN_COPIED =
-  '⭐ 選ばれていない `Task` を複製するかどうかと、写しの WBS の親は、表 T-223 の `DU-1` に従うこと（MUST）'
+  '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの WBS の親は、表 T-223 の `DU-1` に従うこと（MUST）'
 const ROOT_IS_A_SIBLING =
-  '写し元の親も写すときはその写しとし、写さないときは写し元と同じ親とすること（MUST）'
+  'コピー元の親もコピーするときはそのコピーとし、コピーしないときはコピー元と同じ親とすること（MUST）'
 const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const CM_8_ROW =
-  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫は写さない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
+  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫はコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
 const COPY_TAKEN_ROW =
-  '| `selection/copyTaken` | 入力（写せる選び方のときだけ呼び手が送る。写せないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
+  '| `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'
 
 const readText = (...parts: string[]): string =>

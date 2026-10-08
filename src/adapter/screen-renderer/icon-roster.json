@@ -257,7 +257,7 @@
     "App Header"
    ],
    "group": "AI",
-   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへ写す",
+   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへコピーする",
    "authority": "`FR-068`",
    "arms": null,
    "armsShape": null
@@ -1091,7 +1091,7 @@
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` の写しと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
+   "entryTo": "`.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7`",
    "authority": "`FR-134`",
    "arms": null,
    "armsShape": null

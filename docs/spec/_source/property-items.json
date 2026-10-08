@@ -590,7 +590,7 @@
    ],
    "appliesTo": "HighlightBox",
    "note": {
-    "ja": "塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）を写す。規則は `FR-019`"
+    "ja": "塗りの色。`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。置くときは同書の `S-370`（透明 ＝ 塗らない）をコピーする。規則は `FR-019`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

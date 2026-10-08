@@ -64,7 +64,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(rowText('T-023', 'MK-7')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴うドラッグ')
     const mk15 = rowText('T-023', 'MK-15')
     expect(mk15).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴う左ドラッグ')
-    expect(mk15).toContain('`Shift` を伴えば日付を変えずに写す')
+    expect(mk15).toContain('`Shift` を伴えば日付を変えずにコピーする')
   })
 
   it('MK-12: only Alt + drag is unassigned; Ctrl + Shift + drag is assigned (MK-7, MK-15)', () => {
@@ -104,8 +104,8 @@ describe('CR-656 -- the rows these cases are driven by', () => {
   it('CY-1 / CY-2 / CY-5 / CY-7 / CY-11: Ctrl + Shift copies with 0 days, unstarted, judged at the press', () => {
     expect(rowText('T-308', 'CY-1')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴って押した、選択に含まれるタスク（マイルストーンを含む）の本体')
     expect(rowText('T-308', 'CY-2')).toContain('表 T-023a の `PTD-1` のパンである')
-    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したときは日数を 0 とし、写しの予定を写し元と同じ日付とすること（MUST）')
-    expect(rowText('T-308', 'CY-7')).toContain('写しは実績を持たない')
+    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したときは日数を 0 とし、コピーの予定をコピー元と同じ日付とすること（MUST）')
+    expect(rowText('T-308', 'CY-7')).toContain('コピーは実績を持たない')
     expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
   })
 

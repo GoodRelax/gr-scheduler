@@ -424,7 +424,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `InvariantRow` | entry | type | `src/use-case/edit-document/edit-document.ts#InvariantRow` | PI-9 | 型。 |
 | `levelZeroWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#levelZeroWritesFor` | PI-9 | 同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める |
 | `NOT_STORED_ZOOM_BOUNDS` | entry | const | `src/use-case/edit-document/edit-document.ts#NOT_STORED_ZOOM_BOUNDS` | -- | const NOT_STORED_ZOOM_BOUNDS: |
-| `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | 写し元の `UID` から、`CM-8` がその写しに払い出す `UID` への対応 —— `FR-033`。 |
+| `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | コピー元の `UID` から、`CM-8` がそのコピーに払い出す `UID` への対応 —— `FR-033`。 |
 | `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string } \| |
 | `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: string \| null } \| { readonly kind: 'setProjectProfile'; readonly fields: ProjectP... |
 | `ProjectProfileFields` | entry | interface | `src/use-case/edit-document/edit-project.ts#ProjectProfileFields` | -- | interface ProjectProfileFields |
@@ -1202,14 +1202,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
-| `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-37 | `SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
+| `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-37 | `SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `AppHeaderItems` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AppHeaderItems` | -- | interface AppHeaderItems |
 | `AssigneeCandidate` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCandidate` | -- | interface AssigneeCandidate |
 | `AssigneeCombo` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCombo` | -- | interface AssigneeCombo |
 | `ColourEntrance` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourEntrance` | -- | interface ColourEntrance |
 | `ColourField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourField` | -- | interface ColourField |
 | `ColourName` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourName` | -- | interface ColourName |
-| `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-37 | `SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
+| `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-37 | `SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `CommandItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#CommandItem` | -- | interface CommandItem |
 | `CommandPalette` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#CommandPalette` | -- | interface CommandPalette |
 | `Confirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Confirmation` | -- | interface Confirmation extends RaisedConfirmation |
@@ -1220,7 +1220,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列の絞り込みの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
-| `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えと絞り込みで、写しと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
+| `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えと絞り込みで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
 | `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'> |
 | `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・絞り込み・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
@@ -1239,7 +1239,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ExportFormatId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#ExportFormatId` | -- | type ExportFormatId = string |
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
-| `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書の設定の面の、現在表示中の期間を写す入口が確定する語。 |
+| `FIT_SPAN_COPY_TEXT` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#FIT_SPAN_COPY_TEXT` | PI-37 | 文書の設定の面の、現在表示中の期間をコピーする入口が確定する語。 |
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
 | `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
@@ -1248,9 +1248,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
-| `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` が写す、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
+| `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列の絞り込みの値の一覧を絞る語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
-| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
+| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
 | `markColourVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColourVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |

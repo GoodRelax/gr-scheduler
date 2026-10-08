@@ -486,7 +486,7 @@ async function buildPointerShapesFigure(page) {
     'PK-13': '上下の辺（環境の ns-resize）',
     'PK-14': '左上と右下の隅（環境の nwse-resize）',
     'PK-15': '右上と左下の隅（環境の nesw-resize）',
-    'PK-16': '写し（環境の copy）',
+    'PK-16': 'コピー（環境の copy）',
     'PK-18': '禁止（環境の not-allowed）',
   }
 

@@ -47,7 +47,7 @@ const FR_106_HIGHLIGHT =
 const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
 const NULL_FILL_IS_THE_THEME =
   '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
-const PLACED_UNFILLED = '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）を写すこと（MUST）'
+const PLACED_UNFILLED = '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST）'
 const OPACITY = '不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST）'
 const TRANSPARENT_IS_NOT_FILLED = '塗りの色が透明の箱は塗らない —— 後ろが見える。'
 const FILL_AT_ZO_14 = '⭐ 塗りは `FR-110` の 表 T-020 の `ZO-14` に描くこと（MUST）'

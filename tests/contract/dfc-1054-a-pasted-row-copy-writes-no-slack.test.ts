@@ -9,7 +9,7 @@ import { accepted, edited, pj12Fixture, writtenTask } from '../unit/cr-429-mspdi
 import { mspdiText, type XmlNode } from '../unit/cr-429-mspdi-schema'
 
 // WHY: the constants end exactly at their markers, cut from the manuscript as check 39 reads it.
-const EX_12_COPY_IS_EDITED = '貼り付けで足した写しは、日付を編集したタスクと同じに扱うこと（MUST）'
+const EX_12_COPY_IS_EDITED = '貼り付けで足したコピーは、日付を編集したタスクと同じに扱うこと（MUST）'
 const EX_12_NO_SLACK =
   '余裕日数（`FreeSlack` / `TotalSlack` / `StartSlack` / `FinishSlack`）は書いてはならない（MUST NOT）'
 

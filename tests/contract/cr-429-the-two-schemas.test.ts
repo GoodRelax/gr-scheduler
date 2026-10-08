@@ -26,7 +26,7 @@ const SECTION_6_2_NO_FOREIGN_LINES = 'ハッシュが A.1 と合わない複製�
 
 const EX_10_ORDER_WRAPS = 'pj15 の順は pj12 の順を包むので、pj15 だけの要素を含まなければ pj12 の順になる。'
 
-const EX_10_NO_TYPES = '⛔ 型・説明・列挙値を写してはならない（MUST NOT）'
+const EX_10_NO_TYPES = '⛔ 型・説明・列挙値をコピーしてはならない（MUST NOT）'
 
 const CN_7_TABLE_EXCEPTION =
   '例外 —— 交換相手のスキーマの、要素の道筋ごとの子の名と順の表（表 T-033 の `EX-10`）は、スキーマから道具で作って同梱してよい。'

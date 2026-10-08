@@ -45,7 +45,7 @@ const FR_019_NULL_FILL =
   '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
 const FR_019_NULL_DEFAULTS = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
 const FR_019_PLACED_UNFILLED =
-  '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）を写すこと（MUST）'
+  '⭐ 置くとき（表 T-108 の `CM-52`）は、塗りの色の列に 表 T-217 の `S-370`（透明）をコピーすること（MUST）'
 const HB_12_SAME_BAND = '⭐ 枠の線が透明（線なし）でも、掴み代は同じ所に同じ幅で置くこと（MUST）'
 const IV_9_BOTH_ENTITIES = '`TaskVisual` と `HighlightBox` のそれぞれで、`fillColor` と `strokeColor` が同時に透明でないこと'
 

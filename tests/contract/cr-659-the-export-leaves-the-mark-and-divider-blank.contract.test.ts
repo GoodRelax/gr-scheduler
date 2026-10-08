@@ -17,7 +17,7 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const BR_6 = '| BR-6 | 書き出し | 書き出す絵とクリップボードへ写す絵での扱いは、表 T-076 の `EP-1` に従うこと（MUST）'
+const BR_6 = '| BR-6 | 書き出し | 書き出す絵とクリップボードへコピーする絵での扱いは、表 T-076 の `EP-1` に従うこと（MUST）'
 const BR_6_BLANK = '`Branding` も `BR-7` の縦線も描かず、席と縦線の分を空白のまま残し、`Document Title` を画面と同じ位置に置く。'
 const EP_1_SAME_ROWS = '席の幅は同書の 表 T-206 の `S-490` と `S-462` から、隔たりは `S-226` から、太さは `S-492` から決まり、画面も書き出しも同じ行を読む。'
 const EP_1_NO_DIVIDER = '⭐ 縦線（表 T-349 の `BR-7`）も描かず、その分も空白のまま残す'

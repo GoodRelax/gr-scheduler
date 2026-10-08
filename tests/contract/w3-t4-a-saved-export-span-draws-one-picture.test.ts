@@ -41,7 +41,7 @@ const IX_10 =
 const IX_10_NO_ROWS = '余りを空白のままとすること（MUST）。行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
 // WHY: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
 const IX_17_BOTH = '⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
-const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日を写す。'
+const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日をコピーする。'
 const IX_17_REFUSE = '⭐ 欄と命令は、`S-519` が `S-518` より前の値を拒み、表 T-233 の `RS-58` を告げること（MUST）'
 const IX_17_FIELD =
   '名を辞書が 表 T-104 の `K-141` に持つ語とし、開始日と終了日の 2 つを、宿主の日付の入力'

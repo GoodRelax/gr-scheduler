@@ -16,7 +16,7 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'),
 )
 
-const CLAUSE_SCREEN_LANGUAGE = '⭐ プロンプトは、写した瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から作ること（MUST）'
+const CLAUSE_SCREEN_LANGUAGE = '⭐ プロンプトは、コピーした瞬間の画面の言語（`FR-038` の `S-99`、`screenLanguage`）の原稿から作ること（MUST）'
 
 const COPY_PROMPT = 'IC-115'
 const CHOOSE_SCREEN_LANGUAGE = 'IC-21'
