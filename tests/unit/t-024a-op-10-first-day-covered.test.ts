@@ -120,7 +120,9 @@ import {
   frameLoop,
   type FrameEnvironment,
 } from '../../src/framework/single-html-shell/frame-loop'
+import { dateAtX } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { specTable } from '../contract/spec-table'
+import { settingNumber } from '../fixtures/setting-number'
 import { displayRatioAt } from '../fixtures/display-scale'
 import { validateDocument } from '../fixtures/grs-document'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
@@ -366,12 +368,15 @@ afterEach(() => {
   else (globalThis as any).requestAnimationFrame = realRaf
 })
 
+const STARTUP_MARGIN_PX = settingNumber('S-134') / 2 + settingNumber('S-268') / 2
+
 /** What one boot drew: the zoom and the place, which is what OP-10 decides. */
 interface DrawnPlace {
   /** S-1 times `zoomX` -- the width of one day, and so the zoom in force. */
   readonly pxPerDay: number
   /** S-77's half of the place, as a day. */
   readonly origin: string | null
+  readonly startupDay: string | null
   /** S-78's half: the row the frame drew first. */
   readonly topRow: string | null
 }
@@ -401,7 +406,9 @@ function frameOfBoot(document: Document, fromTemplate: boolean): DrawnPlace {
   const values = loop.current()
   if (values === null) throw new Error('BO-1 settled no size, so no frame was drawn')
   const origin = values.layout.originDay
+  const startupDay = dateAtX(values.layout, values.regions.rowArea.x + STARTUP_MARGIN_PX)
   return {
+    startupDay: startupDay === null ? null : dayPart(textOfDay(startupDay)),
     pxPerDay: values.layout.pxPerDay,
     // `textOfDay` answers the stored spelling, which carries a time part the
     // schedule never interprets (FR-054, MUST NOT). The day is what is compared.
@@ -411,7 +418,7 @@ function frameOfBoot(document: Document, fromTemplate: boolean): DrawnPlace {
 }
 
 /** The day a BT-4 boot drew from. */
-const originOfBoot = (document: Document): string | null => frameOfBoot(document, true).origin
+const originOfBoot = (document: Document): string | null => frameOfBoot(document, true).startupDay
 
 // ===========================================================================
 // The premises every case below stands on
@@ -715,7 +722,7 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     // other side of a midnight. ⭐ Two samples make that disagreement impossible
     // without widening what the case accepts by a single further day.
     const before = runDayOf(new Date())
-    const origin = originOfBoot(nothingDrawn())
+    const origin = frameOfBoot(nothingDrawn(), true).origin
     const after = runDayOf(new Date())
     expect(
       origin === null || origin === before || origin === after,

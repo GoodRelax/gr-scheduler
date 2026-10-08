@@ -68,6 +68,7 @@ NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の�
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
 NOT_STORED_LABEL_SIZES               ラベルの幅の係数と予定日の字の係数（`S-196` / `S-233` / `S-325`）
 NOT_STORED_FIT_MARGIN                全体表示で横に残す余白の比（`S-332`）
+NOT_STORED_STARTUP_MARGIN_TERMS      起動テンプレートの日程の左端の余白（`S-534`）の 2 つの項（`S-134` / `S-268`、`CR-707`。`view-place.ts` が読む）
 NOT_STORED_FILE_STATUS_SIZES         ヘッダーのファイルの状態の 2 段の字の係数（`S-449` / `S-210`、表 T-341 の `HS-7`、`CR-610`）
 NOT_STORED_FILE_CHOOSER_ID           ファイルを選ばせる面に渡す `id`（`S-452`、`FR-060`、`CR-619`）
 NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）

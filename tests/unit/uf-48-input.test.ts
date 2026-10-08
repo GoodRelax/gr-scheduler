@@ -1000,13 +1000,13 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
 
     aimAtTheBand(screen)
     loop.receiveInput(pointer('down', 500, 320))
-    loop.receiveInput(pointer('move', 560, 360))
-    loop.receiveInput(pointer('up', 560, 360))
+    loop.receiveInput(pointer('move', 440, 360))
+    loop.receiveInput(pointer('up', 440, 360))
     pane.runAnimationFrames()
 
     // ⛔ THE PLACE AND NOT THE ACTION. That an action was answered proves the
     // press was read; only the corner proves the palette moved.
-    expect(paletteCorner(screen)).toEqual({ x: before.x + 60, y: before.y + 40 })
+    expect(paletteCorner(screen)).toEqual({ x: before.x - 60, y: before.y + 40 })
   })
 
   it('FR-053: a second drag moves it again, by ITS travel and not to its pointer', () => {
@@ -1020,8 +1020,8 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
 
     aimAtTheBand(screen)
     loop.receiveInput(pointer('down', 500, 320))
-    loop.receiveInput(pointer('move', 560, 360))
-    loop.receiveInput(pointer('up', 560, 360))
+    loop.receiveInput(pointer('move', 440, 360))
+    loop.receiveInput(pointer('up', 440, 360))
     pane.runAnimationFrames()
 
     aimAtTheBand(screen)
@@ -1030,7 +1030,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     loop.receiveInput(pointer('up', 175, 135))
     pane.runAnimationFrames()
 
-    expect(paletteCorner(screen)).toEqual({ x: before.x + 60 - 25, y: before.y + 40 + 15 })
+    expect(paletteCorner(screen)).toEqual({ x: before.x - 60 - 25, y: before.y + 40 + 15 })
   })
 
   it('IN-1a (MUST): a pointer lost outside the window leaves the palette where it was', () => {

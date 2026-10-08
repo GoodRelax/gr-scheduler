@@ -960,13 +960,17 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-97': { kind: 'cancelImport' },
 }
 
-// see FR-053
+// see FR-053, S-535
 /** @purity pure */
 function paletteCornerOf(
   draggedTo: { readonly x: number; readonly y: number } | null,
   regions: ScreenRegions,
+  env: FrameEnvironment,
 ): { readonly x: number; readonly y: number } {
-  return draggedTo ?? { x: regions.rowArea.x, y: regions.rowArea.y }
+  if (draggedTo !== null) return draggedTo
+  const band = bandSizeOf(env)
+  const corner = { x: regions.rowArea.x + regions.rowArea.width - band.width, y: regions.rowArea.y }
+  return paletteCornerInWindow(corner, band, windowSizeOf(env))
 }
 
 // see FR-053, GR-19, JDG-660
@@ -1019,7 +1023,7 @@ interface ScreenViewReadingsTaken {
   readonly isPointerOnHelp?: boolean
   readonly hintHolderUnderPointer: HintHolder | null
   readonly iconRowUnderPointer?: string | null
-  readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
+  readonly commandPaletteAt: ScreenViewReadings['commandPaletteAt']
   readonly rowGrabbedAt: {
     readonly groupId: string
     readonly depth: number
@@ -1056,10 +1060,9 @@ function screenViewReadingsOf(
   heldWhole: HeldWholes | null,
   taken: ScreenViewReadingsTaken,
 ): ScreenViewReadings {
-  const { commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
+  const { canUndo, canRedo, ...carried } = taken
   return {
     ...carried,
-    commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
     placedRowGroupIds: layout.rows.map((row) => row.groupId),
@@ -2540,7 +2543,7 @@ export function frameLoop(
           isPointerOnHelp: partUnderPointer?.part === HELP_MODAL_SURFACE,
           hintHolderUnderPointer: hintWalk?.holder ?? null,
           iconRowUnderPointer: iconRowOf(partUnderPointer),
-          commandPaletteDraggedTo,
+          commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions, environment),
           rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
           selectedGroupIds: session.selection.chosenRows,
@@ -2822,7 +2825,7 @@ export function frameLoop(
           hintTargetDwellMs: 0,
           iconUnderPointer: null,
           hintHolderUnderPointer: null,
-          commandPaletteDraggedTo: null,
+          commandPaletteAt: paletteCornerOf(null, regions, environment),
           rowGrabbedAt: null,
           isRecordingInteractions: false,
           selectedGroupIds: [],
@@ -3306,7 +3309,7 @@ export function frameLoop(
         return
       case 'moveCommandPalette': {
         // TRAP: each travel is an increment on the last corner; measuring from the press overshoots.
-        const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions)
+        const from = paletteCornerOf(commandPaletteDraggedTo, frame.regions, environment)
         commandPaletteDraggedTo = paletteCornerInWindow(
           { x: from.x + action.by.dx, y: from.y + action.by.dy },
           bandSizeOf(environment),
@@ -3544,7 +3547,7 @@ export function frameLoop(
         pressed = collectPress(input, frame, partUnderPointer)
         commandPaletteCornerAtPress =
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
-            ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
+            ? paletteCornerOf(commandPaletteDraggedTo, frame.regions, environment)
             : null
         beginPointerPress(pressed, partUnderPointer, frame)
       }

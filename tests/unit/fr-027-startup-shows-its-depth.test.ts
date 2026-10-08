@@ -86,6 +86,7 @@ import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geom
 import {
   groupDepthLimit,
   layoutFromSchedule,
+  xFromDay,
   type ScheduleLayout,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -105,6 +106,7 @@ import {
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { displayRatioAt } from '../fixtures/display-scale'
+import { settingNumber } from '../fixtures/setting-number'
 
 // ---------------------------------------------------------------------------
 // The artifact. FR-027 (MUST): 「テンプレートはバンドル済みの `GRS JSON` として
@@ -507,7 +509,12 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // one day is still S-1 `pxPerDayAt1x` times S-75 `zoomX`.
     // ⛔ A fit would have replaced BOTH, which is what `uf-47-48.test.ts`
     // measures on the branch where OP-10 does run.
-    expect(bootFrame.values.layout.originDay).toEqual(dayOf(firstDayCovered()))
+    const first = dayOf(firstDayCovered())
+    expect(first, 'the template covers a day').not.toBeNull()
+    expect(xFromDay(bootFrame.values.layout, first!)).toBeCloseTo(
+      bootFrame.values.regions.rowArea.x + settingNumber('S-134') / 2 + settingNumber('S-268') / 2,
+      6,
+    )
     expect(
       bootFrame.values.layout.pxPerDay,
       'FR-039 の 表 T-252 の DS-4: S-1 x S-75 に、その文書の表示の倍率の描く比を掛けた幅',

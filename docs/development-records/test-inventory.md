@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 244 | 2761 | 3 | 5 | 9 | 2 |
+| `contract` | TS-5 | VT-2 | 245 | 2770 | 3 | 5 | 9 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 512 | 7201 | 6 | 11 | 11 | 2 |
+| **all** | | | 513 | 7210 | 6 | 11 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -179,7 +179,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts` | blankTaskVisual (pure), frameLoop (non-pure) | - | FR-023, FR-036, T-036, T-050, T-060, T-062, T-075, T-103, T-214, T-218, T-220 |
 | `tests/unit/fr-023-import-report-ok-closes-the-surface.test.ts` | advanceScreenSession (pure), domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), layoutFromSchedule (pure), openModalFromSession (pure), pressRowOf (pure), regionsFromScreen (pure), screenEventFromInput (pure) | - | FR-023, FR-038, T-037, T-065, T-103, T-206, T-218, T-233 |
 | `tests/unit/fr-025-no-png-scale-and-retained-key.test.ts` | documentFromJson (pure), exportPng (semi-pure-b), jsonFromDocument (pure) | - | FR-025, T-216 |
-| `tests/unit/fr-027-startup-shows-its-depth.test.ts` | commandFromInput (pure), dayOf (pure), drawnSettingsOf (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), groupDepthLimit (pure), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-018, FR-027, FR-051, FR-055, FR-094, T-015, T-024a, T-025, T-034, T-036, T-051, T-068, T-077, T-201, T-203, T-206, T-218, T-226 |
+| `tests/unit/fr-027-startup-shows-its-depth.test.ts` | commandFromInput (pure), dayOf (pure), drawnSettingsOf (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), groupDepthLimit (pure), layoutFromSchedule (pure), regionsFromScreen (pure), xFromDay (pure) | - | FR-018, FR-027, FR-051, FR-055, FR-094, T-015, T-024a, T-025, T-034, T-036, T-051, T-068, T-077, T-201, T-203, T-206, T-218, T-226 |
 | `tests/unit/fr-029-palette-grab-marker.test.ts` | domScreenSurface (non-pure) | - | FR-023, FR-029, FR-038, FR-053, T-023b, T-023d, T-062, T-075, T-103, T-109, T-206, T-216, T-218 |
 | `tests/unit/fr-029-the-reason-a-press-carries.test.ts` | frameLoop (non-pure) | - | FR-029, FR-034, FR-038, FR-049, FR-066, FR-076, FR-092, T-015, T-037, T-051, T-060, T-062, T-075, T-103, T-109, T-218, T-233 |
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | applyDocumentChange (non-pure), documentFromJson (pure), emptyHistory (pure), stepCount (pure), undoEdit (pure) | - | FR-031, FR-052, FR-063, T-027, T-060, T-108, T-206 |
@@ -217,7 +217,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/t-023d-follows-the-pointer.test.ts` | frameLoop (non-pure) | - | FR-011, FR-013, FR-016, FR-019, FR-027, FR-031, FR-044, FR-046, FR-051, FR-052, FR-053, FR-055, NFR-010, T-012, T-015a, T-019a, T-023a, T-023d, T-027, T-028, T-031, T-034, T-035, T-060, T-062, T-077, T-078, T-108, T-203, T-206, T-218, T-266, T-270, T-280 |
 | `tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts` | compareDays (pure), dateAtX (pure), dayOf (pure), frameLoop (non-pure), isWorkingDay (pure), textOfDay (pure), workingCalendarOf (pure) | - | FR-011, FR-012, T-019, T-245 |
 | `tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts` | frameLoop (non-pure) | - | FR-017, FR-055, T-024a, T-034, T-036, T-051, T-060, T-062, T-077, T-078, T-109, T-201, T-203, T-218, T-219 |
-| `tests/unit/t-024a-op-10-first-day-covered.test.ts` | frameLoop (non-pure), textOfDay (pure) | - | FR-011, FR-027, FR-046, FR-051, FR-054, FR-055, T-019a, T-024a, T-034, T-038, T-058, T-060, T-062, T-077, T-203, T-218, T-220, T-230 |
+| `tests/unit/t-024a-op-10-first-day-covered.test.ts` | dateAtX (pure), frameLoop (non-pure), textOfDay (pure) | - | FR-011, FR-027, FR-046, FR-051, FR-054, FR-055, T-019a, T-024a, T-034, T-038, T-058, T-060, T-062, T-077, T-203, T-218, T-220, T-230 |
 | `tests/unit/t-024a-op-14-a-handed-document-that-cannot-be-read.test.ts` | chooseStartupDocument (pure), frameLoop (non-pure) | - | FR-038, FR-062, FR-087, T-008, T-024a, T-034, T-037, T-218, T-233 |
 | `tests/unit/t-027-outside-the-history.test.ts` | applyDocumentChange (non-pure), documentFromJson (pure), emptyHistory (pure), replaceDocument (non-pure), stepCount (pure), undoEdit (pure) | - | FR-031, FR-055, FR-153, T-027, T-067, T-108, T-202, T-206 |
 | `tests/unit/t-050-a-document-always-holds-one-row.test.ts` | planDocumentChange (pure), planDocumentReplacement (pure), undoEdit (pure) | yes | FR-004, FR-032, FR-038, FR-058, T-050, T-058, T-067, T-218, T-234 |
@@ -353,6 +353,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts` | 6 | FR-011, FR-012 | - | T-236 | EP-9, OP-6, S-149, WY-2 | - | - | - | - |
 | `tests/contract/cr-670-the-report-joins-dates-with-a-dash-and-speaks-reasons-in-words.contract.test.ts` | 11 | - | - | T-021b, T-310, T-311, T-316, T-347 | AT-46, DG-4, DL-2, DT-5, DT-6, DT-7, DX-6, DX-10, PM-4, RW-4, VS-6 | - | - | - | - |
 | `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-236, T-294, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
+| `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-row-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-1051-a-fade-grab-is-never-refused-by-iv-12.test.ts` | 4 | - | - | - | FD-6, GA-7, GA-8, IV-12 | - | - | - | - |

@@ -20,12 +20,13 @@ import {
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { grabSizesOf, itemAtPointer } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { dateAtX, layoutFromSchedule, timeAxisOf } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { FrameEnvironment } from '../../src/framework/single-html-shell/frame-loop'
 import { heldViewPlaceOf } from '../../src/framework/single-html-shell/view-place'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from './spec-table'
+import { settingNumber } from '../fixtures/setting-number'
 
 const rowCells = (table: string, id: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)
@@ -402,7 +403,10 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
   it(`premise: the template, opened, is drawn from the first day covered and the head row (${OP_10_TEMPLATE_PLACE})`, () => {
     const shell = bootShell()
     const view = shell.viewSettingsOnce(documentOf(TEMPLATE_SETTINGS), TEMPLATE_SETTINGS as unknown as DocumentSettings, REGIONS)
-    expect(dayOf(view.settings.scrollDate), OP_10_FIRST_DAY).toBe(FIRST_DAY)
+    const margin = settingNumber('S-134') / 2 + settingNumber('S-268') / 2
+    const drawnFirst = dateAtX(timeAxisOf(view.settings, REGIONS), REGIONS.rowArea.x + margin)
+    const drawnText = drawnFirst === null ? null : new Date(Date.UTC(drawnFirst.year, drawnFirst.month - 1, drawnFirst.day)).toISOString()
+    expect(dayOf(drawnText), OP_10_FIRST_DAY).toBe(FIRST_DAY)
     expect(view.settings.scrollGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_ROW)
   })
 
