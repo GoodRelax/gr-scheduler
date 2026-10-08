@@ -29,6 +29,8 @@ const DT_1_NO_GLYPH = '疑義・記載漏れと確定はマーカーを持たな
 const RW_4_GLYPHS = '`DT-1` の窓の絵と同じ —— 疑義・記載漏れと確定は絵の幅だけ空ける'
 const SQ_1_LINK = '字を `_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で描き、下線を引く'
 const DT_4_LINK = '`SQ-1` と同じ（`S-503` の色と下線を含む）。'
+const U_32_NOT_THE_BOX =
+  '⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT）'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(specTable(table), id).by[heading] ?? '')
@@ -37,7 +39,7 @@ const T_103 = specTable('T-103')
 const roleOf = (id: string): string => `[data-role="${bare(rowOf(T_103, id).cells[0] ?? '')}"]`
 const PANEL = roleOf('U-64')
 const REPORT = roleOf('U-66')
-const CANVAS = roleOf('U-32')
+const APP_HEADER = roleOf('U-31')
 const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const TEXT_SIZE = rowOf(specTable('T-109'), 'IC-127').id
 const OPEN_SEARCH = keyOf('SK-24')
@@ -146,6 +148,17 @@ async function boxOf(page: Page, selector: string): Promise<Box | null> {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
     return box === undefined ? null : { x: box.x, y: box.y, right: box.right, bottom: box.bottom, width: box.width, height: box.height }
   }, selector)
+}
+
+// WHY: the range starts at the App Header's lower edge; the element with the role spans the window.
+// see U-32, UZ-9
+/** @purity semi-pure-b */
+async function scheduleCanvasRange(page: Page): Promise<Box> {
+  const header = await boxOf(page, APP_HEADER)
+  const view = page.viewportSize()
+  if (header === null || view === null) throw new Error(`${U_32_NOT_THE_BOX} -- ${APP_HEADER} is not on the screen`)
+  const height = view.height - header.bottom
+  return { x: 0, y: header.bottom, right: view.width, bottom: view.height, width: view.width, height }
 }
 
 /** @purity non-pure */
@@ -541,10 +554,9 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
     try {
       const page = stage.page
       await openFilter(page, PANEL, 'SQ-2')
-      const canvas = await boxOf(page, CANVAS)
+      const canvas = await scheduleCanvasRange(page)
       const panel = await boxOf(page, PANEL)
-      expect(canvas).not.toBeNull()
-      if (canvas === null || panel === null) return
+      if (panel === null) throw new Error('premise: the panel is on the screen')
       // STEP: press the schedule outside the panel, above its top edge
       await pressAt(page, canvas.right - 60, Math.max(canvas.y + 30, panel.y - 30))
       expect(await menuCount(page, PANEL), SV_7_NOT_OUTSIDE).toBe(1)
@@ -563,9 +575,9 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
       const page = stage.page
       await openFilter(page, REPORT, 'DT-3')
       expect(await menuCount(page, REPORT)).toBe(1)
-      const canvas = await boxOf(page, CANVAS)
+      const canvas = await scheduleCanvasRange(page)
       const report = await boxOf(page, REPORT)
-      if (canvas === null || report === null) throw new Error('premise: the canvas and the report are on the screen')
+      if (report === null) throw new Error('premise: the report is on the screen')
       await pressAt(page, canvas.right - 60, Math.max(canvas.y + 30, report.y - 30))
       expect(await menuCount(page, REPORT), SV_7_NOT_OUTSIDE).toBe(1)
       await openFilter(page, REPORT, 'DT-3')
