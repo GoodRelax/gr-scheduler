@@ -360,6 +360,15 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
 
 const HELP_ANCHOR = { surface: 'Help Modal' } as const
 
+const SEARCH_PANEL_ANCHOR = { surface: 'Search Panel' } as const
+
+/** @purity pure */
+function surfaceAnchorOf(readings: ScreenViewReadings): { readonly surface?: string } {
+  if (readings.isPointerOnHelp === true) return HELP_ANCHOR
+  if (readings.isPointerOnSearchPanel === true) return SEARCH_PANEL_ANCHOR
+  return {}
+}
+
 // see EZ-2, IN-3, S-124, TV-5, FR-092
 // WHY: the shell keeps the icon under the pointer while the pointer is on the icon's shown box,
 // and hintTargetDwellMs counts from entering the icon, so a move inside neither restarts nor hides it.
@@ -379,7 +388,7 @@ function iconTooltipOf(
   const refusal = shown.searchPanel?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
   const hint = iconHint(icon, hintLanguage)
   return {
-    anchor: { kind: 'icon', icon, ...(isOnHelp ? HELP_ANCHOR : {}), ...(row === null ? {} : { groupId: row }) },
+    anchor: { kind: 'icon', icon, ...surfaceAnchorOf(readings), ...(row === null ? {} : { groupId: row }) },
     text: refusal === null ? hint : `${hint}${LINE_BREAK}${refusal}`,
     assignment: entryAssignment(icon, hintLanguage),
   }

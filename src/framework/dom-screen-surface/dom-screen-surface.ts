@@ -61,6 +61,8 @@ const UNIT_ROW = 'UF-71'
 // see T-337
 const HELP_MODAL_SURFACE = 'Help Modal'
 
+const SEARCH_PANEL_SURFACE = 'Search Panel'
+
 // see U-66, RW-5
 const REPORT_IDENTITY = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report' } as const
 
@@ -753,7 +755,7 @@ export function anchoredEntry(
 }
 
 // see IN-3, DFC-1287
-// WHY: the renderer names only the help's surface (isPointerOnHelp); a plain key would catch other parts.
+// WHY: the renderer names the help's and the search panel's surface; a plain key would catch other parts.
 /** @purity non-pure */
 function keyedBySurfaceOnly(anchors: Map<string, HTMLElement>, surface: string): void {
   for (const [key, entry] of [...anchors]) {
@@ -762,6 +764,17 @@ function keyedBySurfaceOnly(anchors: Map<string, HTMLElement>, surface: string):
     anchors.delete(key)
     anchors.set(anchorKey({ kind: 'icon', icon, surface }), entry)
   }
+}
+
+/** @purity non-pure */
+function drawnKeyedBySurface(
+  anchorsOfPart: () => Map<string, HTMLElement>,
+  surface: string,
+  drawIt: (anchorsOf: () => Map<string, HTMLElement>) => void,
+): void {
+  const drawn: { anchors?: Map<string, HTMLElement> } = {}
+  drawIt(() => (drawn.anchors = anchorsOfPart()))
+  if (drawn.anchors !== undefined) keyedBySurfaceOnly(drawn.anchors, surface)
 }
 
 export interface ScreenSurfaceWiring {
@@ -1013,9 +1026,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   /** @purity non-pure */
   function drawHelp(helpModal: ScreenView['openModal'], isContentChanged: boolean): void {
-    const drawn: { anchors?: Map<string, HTMLElement> } = {}
-    help.draw(helpModal, isContentChanged, () => (drawn.anchors = anchorsOf('helpModal')))
-    if (drawn.anchors !== undefined) keyedBySurfaceOnly(drawn.anchors, HELP_MODAL_SURFACE)
+    drawnKeyedBySurface(() => anchorsOf('helpModal'), HELP_MODAL_SURFACE, (anchors) => help.draw(helpModal, isContentChanged, anchors))
   }
 
   // see IF-9
@@ -1120,7 +1131,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     placeOpenModal(modalLayer, view, changed)
     if (changed('helpModal') || changed('helpPlace')) drawHelp(helpModal, changed('helpModal'))
-    searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
+    const searchAnchors = (): Map<string, HTMLElement> => anchorsOf('searchPanel')
+    drawnKeyedBySurface(searchAnchors, SEARCH_PANEL_SURFACE, (anchors) => searchPanel.draw(view.searchPanel, changed('searchPanel'), anchors))
     if (changed('searchPanel')) layers.showOnlyCheckedBarLayer.replaceChildren(...showOnlyCheckedBarElements(host, view.searchPanel))
     report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
     orderTableWindows(view)

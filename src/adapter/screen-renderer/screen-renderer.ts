@@ -618,6 +618,7 @@ export interface ScreenViewReadings {
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
+  readonly isPointerOnSearchPanel?: boolean
   readonly hintHolderUnderPointer?: Extract<TooltipAnchor, { readonly taskUid: number }> | null
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
