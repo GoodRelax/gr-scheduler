@@ -69,18 +69,17 @@ function scrollbarIn(
   }
 }
 
-// see FR-052, GR-22, S-99h
-// WHY: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar.
+// see FR-052, GR-22, S-99h, WF-4
+// WHY: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar;
+// a fixed row title width lays no band there, so nothing grabs it and the pointer keeps its shape.
 /** @purity pure */
-function dividersOf(regions: ScreenRegions, session: ScreenSession): readonly PanelDivider[] {
-  const rowTitle = dividerAt(
-    'rowTitlePanel',
-    regions.rowTitlePanel,
-    regions.rowTitlePanel.x + regions.rowTitlePanel.width,
-  )
-  if (session.screen.propertiesPanelContentState.kind === 'hidden') return [rowTitle]
+function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession): readonly PanelDivider[] {
+  const rowTitle = settings.rowTitlePanelWidthFixed
+    ? []
+    : [dividerAt('rowTitlePanel', regions.rowTitlePanel, regions.rowTitlePanel.x + regions.rowTitlePanel.width)]
+  if (session.screen.propertiesPanelContentState.kind === 'hidden') return rowTitle
   const properties = dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x)
-  return [rowTitle, properties]
+  return [...rowTitle, properties]
 }
 
 // see FR-051
@@ -100,7 +99,7 @@ function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRec
 /** @purity pure */
 export function screenFrameFromRegions(
   regions: ScreenRegions,
-  _settings: DocumentSettings,
+  settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): ScreenFrame {
@@ -120,7 +119,7 @@ export function screenFrameFromRegions(
 
   return {
     isFullScreen: session.screen.fullScreenModeState.kind === 'full',
-    dividers: dividersOf(regions, session),
+    dividers: dividersOf(regions, settings, session),
     scrollbars: [
       scrollbarIn(
         'horizontal',

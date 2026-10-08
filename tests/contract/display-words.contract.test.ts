@@ -336,6 +336,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
   exportFormats: 'rowId',
+  // WHY: CR-690 keys the settings face's fit span field's words by the part they fill (T-367).
+  fitSpanField: 'part',
   // WHY: CR-677 (E-36) keys the Export Chooser's span line by the part it fills; FR-096 holds no table row for it.
   exportChooser: 'part',
   // WHY: CR-623 keys the Open Chooser's words by the part they fill.
@@ -381,6 +383,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   propertyField: 'part',
   // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
   rowMinHeightField: 'part',
+  // WHY: CR-690 keys the settings face's width field's words the same way (T-368).
+  rowTitleWidthField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
@@ -1922,18 +1926,18 @@ for (const entry of GENERATED['openChooser'] ?? []) {
   })
 }
 
-// see FR-096, IX-12, ND-4
-// WHY: the line stands only while the document holds an export span (S-518 / S-519), so this frame
+// see FR-096, IX-12, FX-1, FX-8
+// WHY: the line stands only while the document fixes its fit span (S-532), so this frame
 // stores one; its two days are put back as {start} and {finish} to hold the line to the written word.
 const EXPORT_CHOOSER_WITH_SPAN = frameWith({
   root: rootWithSurface('Export Chooser'),
-  settings: { ...SETTINGS, exportSpanStart: '2026-11-02T00:00:00', exportSpanFinish: '2026-12-25T23:59:00' },
+  settings: { ...SETTINGS, fitSpanFixed: true, fitSpanStart: '2026-11-02T00:00:00', fitSpanFinish: '2026-12-25T23:59:00' },
 })
 const SPAN_DAY = /(\d{4}\/)?\d{1,2}\/\d{1,2}/
 const exportSpanWordOf = (line: string): string => line.replace(SPAN_DAY, '{start}').replace(SPAN_DAY, '{finish}')
 for (const entry of GENERATED['exportChooser'] ?? []) {
   const part = keyOf('exportChooser', entry)
-  if (part !== 'exportSpan') {
+  if (part !== 'fitSpan') {
     drop('exportChooser', part, 'FR-096 names no line of the Export Chooser for this part')
     continue
   }
@@ -1946,8 +1950,8 @@ for (const entry of GENERATED['exportChooser'] ?? []) {
     frame: EXPORT_CHOOSER_WITH_SPAN,
     read: (view) => {
       const chooser = view.openModal
-      if (chooser === null || !('formats' in chooser) || chooser.exportSpanLine === null) return undefined
-      return exportSpanWordOf(chooser.exportSpanLine)
+      if (chooser === null || !('formats' in chooser) || chooser.fitSpanLine === null) return undefined
+      return exportSpanWordOf(chooser.fitSpanLine)
     },
   })
 }
@@ -2046,6 +2050,52 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
     frame: part === 'currentValue' ? ROW_PLACED : ROW_PICKED,
     read: (view) => ROW_MIN_HEIGHT_READS[part]?.(view),
   })
+}
+
+// see CR-690, FX-6, FX-7, WF-2, WF-3
+// WHY: the two read-outs come from the readings (the shown span, the drawn width), so this frame
+// carries both; their dates and digits are put back as the slots to hold them to the written word.
+const SETTINGS_WITH_READOUTS = frameWith({
+  root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
+  readings: sessionWith({
+    shownSpan: { start: '2026-11-02T00:00:00', finish: '2026-12-25T23:59:00' },
+    rowTitlePanelDrawnWidth: 300,
+  }),
+})
+const SHOWN_DAY = /\d{4}\/\d{2}\/\d{2}/
+const shownSpanWordOf = (text: string): string => text.replace(SHOWN_DAY, '{start}').replace(SHOWN_DAY, '{finish}')
+const settingsRowOf = (view: ScreenView, row: string) => view.propertiesPanel?.fields.find((field) => field.row === row)
+const SETTINGS_FIELD_READS: Readonly<Record<string, Readonly<Record<string, (view: ScreenView) => string | undefined>>>> = {
+  fitSpanField: {
+    currentName: (view) => settingsRowOf(view, 'FX-6')?.name,
+    currentValue: (view) => {
+      const readout = settingsRowOf(view, 'FX-6')?.readout
+      return readout === undefined ? undefined : shownSpanWordOf(readout)
+    },
+    copyCurrent: (view) => settingsRowOf(view, 'FX-6')?.controls[0]?.press,
+  },
+  rowTitleWidthField: {
+    unit: (view) => settingsRowOf(view, 'K-71')?.unit,
+    currentName: (view) => settingsRowOf(view, 'WF-3')?.name,
+    currentValue: (view) => {
+      const readout = settingsRowOf(view, 'WF-3')?.readout
+      return readout === undefined ? undefined : minHeightWordOf(readout)
+    },
+  },
+}
+for (const section of ['fitSpanField', 'rowTitleWidthField'] as const) {
+  for (const entry of GENERATED[section] ?? []) {
+    const part = keyOf(section, entry)
+    place({
+      section,
+      key: part,
+      field: 'text',
+      unit: 'UF-64',
+      what: `the ${part} word table T-367 / T-368 have the settings face show`,
+      frame: SETTINGS_WITH_READOUTS,
+      read: (view) => SETTINGS_FIELD_READS[section]?.[part]?.(view),
+    })
+  }
 }
 
 // see FR-041, T-305, DFC-1640
@@ -2508,8 +2558,8 @@ const exportSpanFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) => {
     const chooser = viewOf(screenViewFromRegions, one.frame, language).openModal
-    if (chooser === null || !('formats' in chooser) || chooser.exportSpanLine === null) return false
-    return exportSpanWordOf(chooser.exportSpanLine) === word
+    if (chooser === null || !('formats' in chooser) || chooser.fitSpanLine === null) return false
+    return exportSpanWordOf(chooser.fitSpanLine) === word
   })
 
 // see TL-5, TL-6, FR-038
@@ -2554,6 +2604,18 @@ const rowMinHeightFieldFramesShowing = (
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(ROW_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
+  return FRAMES.filter((one) =>
+    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+  )
+}
+
+// see CR-690, FX-6, FX-8
+// WHY: `currentValue` fills `{start}` and `{finish}` with the shown days, so its slots are matched open.
+const shownSpanFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(`^${word.split(/\{start\}|\{finish\}/).map(escapeForRegExp).join('\\d{4}/\\d{2}/\\d{2}')}$`)
   return FRAMES.filter((one) =>
     stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
@@ -3114,8 +3176,10 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
               ? exportSpanFramesShowing(cell.word, cell.language)
               : cell.section === 'hintLines'
               ? hintLineFramesShowing(cell.word, cell.language)
-              : cell.section === 'rowMinHeightField'
+              : cell.section === 'rowMinHeightField' || cell.section === 'rowTitleWidthField'
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
+                : cell.section === 'fitSpanField'
+                ? shownSpanFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'
                 ? propertyFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'colourField' && cell.key === 'customValue'

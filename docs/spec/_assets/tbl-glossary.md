@@ -260,7 +260,8 @@
 | K-68 | 画面の状態 | `zoomY` | 縦のズーム倍率 |
 | K-69 | 画面の状態 | `scrollDate` | 表示の左端が指す日付 |
 | K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指す行 |
-| K-71 | 画面の状態 | `rowTitlePanelWidth` | `Row Title Panel` の幅 |
+| K-71 | 画面の状態 | `rowTitlePanelWidth` | タスクグループパネルの幅 |
+| K-143 | 画面の状態 | `rowTitlePanelWidthFixed` | タスクグループパネルの幅を固定する |
 | K-72 | 画面の状態 | `propertyPanelWidth` ⛔ | `Properties Panel` の幅 |
 | K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
 | K-111 | 画面の状態 | `pinnedRowMax` | ピン止めの件数の上限 |
@@ -282,7 +283,8 @@
 | K-125 | 表示の切り替え | `displayScale` | 表示の倍率 |
 | K-86 | 表示の切り替え | `importSeq` | 取込の連番 |
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
-| K-141 | 出力 | `exportSpanStart` / `exportSpanFinish` | 書き出す期間（開始日 / 終了日） |
+| K-141 | 表示の切り替え | `fitSpanStart` / `fitSpanFinish` | 全体表示時の期間（開始日 / 終了日） |
+| K-142 | 画面の状態 | `fitSpanFixed` | 全体表示時の期間を固定する |
 | K-91 | 予実の補助線 | `planActualGuideWeight` | 補助線の太さ |
 | K-92 | 予実の補助線 | `planActualGuidePattern` | 補助線の破線の刻み |
 | K-93 | 予実の補助線 | `planActualGuideColor` | 補助線の色 |
@@ -308,7 +310,7 @@
 | K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指す行のどこにあるか |
 | K-121 | 画面の状態 | `scrollDayOffset` | 表示の左端が指す日のどこにあるか |
 | K-138 | 画面の状態 | `levelZeroTreeState` | 段 0 の木の状態 |
-| K-140 | 遅延診断 | `parentProgressToleranceDays` | 親子の進捗の疑義が許す日数（稼働日） |
+| K-140 | 遅延診断 | `parentProgressToleranceDays` | 遅延診断時に親子の進捗の疑義を許す日数（稼働日） |
 | K-90 | 保存しないもの（別枠） | `screenLanguage` ⛔ | 画面の言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99` |
 | K-139 | 保存しないもの | `helpLanguage` ⛔ | ヘルプの言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-434` |
 
@@ -385,7 +387,7 @@
 | AM-10 | 履歴 | `redoEdit` | 動詞＋目的語・`non-pure` | 履歴を進める | `FR-031` |
 | AM-11 | 出す | `exportJson` | 動詞＋目的語・`semi-pure-b` | `GRS JSON` を値で返す | 表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7` |
 | AM-12 | 出す | `exportMspdi` | 動詞＋目的語・`semi-pure-b` | 交換形式を値で返す | 表 T-024 の `IO-1` ／ `FR-021` |
-| AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 書き出す絵（`FR-080`、文書が書き出す期間を持つときは 表 T-241 の `IX-12`）を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
+| AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
 | AM-14 | 出す | `exportPng` | 動詞＋目的語・`semi-pure-b` | 画像を値で返す。<br>失敗も値で返す | 表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8` |
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
 | AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | 指定したタスクが載る行と祖先を開き、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
@@ -491,8 +493,10 @@
 | CM-72 | `TaskGroup` | `resetTaskGroupTreeStates` | ⭐ | 隠した行を除くすべての行の木の状態を `auto` へ戻す | `FR-055`（表 T-051 の `HF-8`、`_assets/tbl-state-machines.md` の 表 T-328）|
 | CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | 行の親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|
 | CM-74 | 見せ方の群 | `setDisplayScale` | — | 表示の倍率の段を変える | `FR-039` |
-| CM-88 | 見せ方の群 | `setExportSpan` | ⭐ | 書き出す期間を置く・動かす（開始日と終了日を 1 度に） | `FR-025` |
-| CM-89 | 見せ方の群 | `clearExportSpan` | — | 書き出す期間を消す | `FR-025` |
+| CM-88 | 見せ方の群 | `setFitSpan` | ⭐ | 全体表示時の期間を置く・動かす（開始日と終了日を 1 度に） | `FR-055` |
+| CM-89 | 見せ方の群 | `clearFitSpan` | ⭐ | 全体表示時の期間を消す（固定していれば固定も外す —— 表 T-367 の `FX-5`） | `FR-055` |
+| CM-90 | 見せ方の群 | `setFitSpanFixed` | ⭐ | 全体表示時の期間を固定する・外す（期間が空なら現在表示中の期間を写す —— 表 T-367 の `FX-4`） | `FR-055` |
+| CM-91 | 見せ方の群 | `setRowTitlePanelWidthFixed` | — | 行見出しパネルの幅を固定する・外す | `FR-052` |
 | CM-85 | `TaskGroup` | `setTaskGroupTreeState` | — | 行の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）|
 | CM-76 | `TaskGroup` | `setTaskGroupEditGroup` | — | 行の編集グループを入れる・消す。<br>人だけが使う（表 T-275 の `GP-1`） | `FR-111` |
 | CM-86 | 見せ方の群 | `setLevelZeroTreeState` | — | 段 0 の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328 の根の升）|

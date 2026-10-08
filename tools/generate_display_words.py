@@ -318,6 +318,13 @@ PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
 # word stands for null (MH-2), the check does.
 ROW_MIN_HEIGHT_FIELD_PARTS = ('enable', 'unit', 'basisHint', 'currentName',
                               'currentValue', 'currentlyHidden')
+# CR-690: the document settings panel's row title panel width field (table
+# T-368: the unit WF-2, the read-only current width WF-3) and fit span field
+# (table T-367: the read-only shown span FX-6, the copy entrance FX-7). No
+# table holds these words as rows, so they are HELD HERE, the same move as
+# ROW_MIN_HEIGHT_FIELD_PARTS. KEYS, not words.
+ROW_TITLE_WIDTH_FIELD_PARTS = ('unit', 'currentName', 'currentValue')
+FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
@@ -343,10 +350,10 @@ SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', '
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
 # CR-677: the one line the Export Chooser (U-54, FR-096) shows under its
-# format grid while the document holds an export span (S-518 / S-519). No
+# format grid while the document fixes its fit span (S-532, CR-690). No
 # table holds it as a row, so it is HELD HERE, the same move as
 # OPEN_CHOOSER_PARTS. KEYS, not words.
-EXPORT_CHOOSER_PARTS = ('exportSpan',)
+EXPORT_CHOOSER_PARTS = ('fitSpan',)
 # CR-631: the two choices QN-12 of table T-234 offers when a selection mixes
 # tasks and WBS parent arrows (WL-13 of table T-351): the first in its armed
 # and its unarmed wording (JDG-1142), then the arrows. Not NT-7's Yes / No, and
@@ -631,6 +638,7 @@ def roster():
         'colourField': list(COLOUR_FIELD_PARTS),
         'propertyField': list(PROPERTY_FIELD_PARTS),
         'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
+        'rowTitleWidthField': list(ROW_TITLE_WIDTH_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'searchColumns': [row[0] for row in
@@ -654,6 +662,7 @@ def roster():
         'delayReportWalls': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, DELAY_WALL_ROW,
                                         DELAY_WALL_TABLE)],
+        'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
@@ -721,6 +730,7 @@ SHAPE = {
     'colourField': ('part', ('text',)),
     'propertyField': ('part', ('text',)),
     'rowMinHeightField': ('part', ('text',)),
+    'rowTitleWidthField': ('part', ('text',)),
     'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
@@ -734,6 +744,7 @@ SHAPE = {
     'delayReportReasons': ('part', ('text',)),
     'delayReportAspects': ('rowId', ('text',)),
     'delayReportWalls': ('rowId', ('text',)),
+    'fitSpanField': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'wbsParentChoice': ('part', ('text',)),
@@ -835,11 +846,11 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'branding',
                     'defaultNames',
-                    'exportFormats', 'exportChooser', 'openChooser',
+                    'exportFormats', 'fitSpanField', 'exportChooser', 'openChooser',
                     'assignments', 'arms',
                     'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'propertyField',
-                    'rowMinHeightField',
+                    'rowMinHeightField', 'rowTitleWidthField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'wbsParentChoice',

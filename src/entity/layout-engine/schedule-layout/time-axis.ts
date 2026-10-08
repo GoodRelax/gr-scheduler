@@ -7,7 +7,11 @@ import {
   SETTINGS_CONSTANTS,
   type DocumentSettings,
 } from '../../document-model/document-settings/document-settings'
-import { dayOf, type CalendarDay } from '../../document-model/schedule/schedule'
+import {
+  calendarDaysBetween,
+  dayOf,
+  type CalendarDay,
+} from '../../document-model/schedule/schedule'
 import { drawnSettingsOf, type ScreenRegions } from '../screen-regions/screen-regions'
 import type { RulerTier, ScheduleLayout } from './schedule-layout'
 
@@ -62,6 +66,32 @@ export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
   const days = Math.abs(span - whole) < 1e-9 ? whole : Math.floor(span)
   const foundAt = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
   return { year: foundAt.getUTCFullYear(), month: foundAt.getUTCMonth() + 1, day: foundAt.getUTCDate() }
+}
+
+// see FX-1, FX-2, S-532
+// WHY: the one reading of whether the span reaches the screen: fixed, both ends dated, the finish not before the start.
+/** @purity pure */
+export function fixedFitSpanOf(
+  settings: DocumentSettings,
+): { readonly start: CalendarDay; readonly finish: CalendarDay; readonly days: number } | null {
+  if (!settings.fitSpanFixed) return null
+  const start = dayOf(settings.fitSpanStart)
+  const finish = dayOf(settings.fitSpanFinish)
+  if (start === null || finish === null) return null
+  const days = calendarDaysBetween(start, finish) + 1
+  return days < 1 ? null : { start, finish, days }
+}
+
+// see FX-6, FX-7
+// WHY: the right end is read 1 px short of the edge; the edge itself is the next day's column.
+/** @purity pure */
+export function shownSpanOf(
+  axis: TimeAxis,
+  rowArea: ScreenRegions['rowArea'],
+): { readonly start: CalendarDay; readonly finish: CalendarDay } | null {
+  const start = dateAtX(axis, rowArea.x)
+  const finish = dateAtX(axis, rowArea.x + Math.max(0, rowArea.width - 1))
+  return start === null || finish === null ? null : { start, finish }
 }
 
 /** @purity pure */

@@ -103,10 +103,10 @@ function fieldCommitOf(target: unknown): FieldCommit | null {
 
 const FIELD_ROW_SELECTOR = '[data-field-row]'
 
-// WHY: only a row IX-17 makes one command settles as one; a date and its time (PR-3) do not.
+// WHY: only a row FX-5 makes one command settles as one; a date and its time (PR-3) do not.
 export const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one'
 
-// see IX-17
+// see FX-5
 /** @purity semi-pure-b */
 function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   const control = textEntryControlOf(target)
@@ -119,7 +119,7 @@ function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   return entrances.length > 1 ? entrances : []
 }
 
-// see IX-17, IN-6, UN-13
+// see FX-5, IN-6, UN-13
 // WHY: a row of several entrances settles once, on Enter or when the focus leaves the row: a
 // commit on each entrance's change made one settle two commands and two undo steps (DFC-2223).
 /** @purity non-pure */

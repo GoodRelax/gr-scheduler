@@ -118,8 +118,9 @@
     "dateGridLinesVisible",
     "dependencyVisible",
     "displayScale",
-    "exportSpanFinish",
-    "exportSpanStart",
+    "fitSpanFinish",
+    "fitSpanFixed",
+    "fitSpanStart",
     "fontScale",
     "groupGridLinesVisible",
     "levelZeroTreeState",
@@ -130,6 +131,7 @@
     "progressLineVisible",
     "progressMarkerVisible",
     "rowTitlePanelWidth",
+    "rowTitlePanelWidthFixed",
     "rulerFont",
     "rulerHeight",
     "scrollDate",
@@ -178,7 +180,7 @@
      ],
      "default": 100
     },
-    "exportSpanFinish": {
+    "fitSpanFinish": {
      "type": [
       "string",
       "null"
@@ -186,7 +188,11 @@
      "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
      "default": null
     },
-    "exportSpanStart": {
+    "fitSpanFixed": {
+     "type": "boolean",
+     "default": false
+    },
+    "fitSpanStart": {
      "type": [
       "string",
       "null"
@@ -245,6 +251,10 @@
      "type": "number",
      "default": 300,
      "minimum": 80
+    },
+    "rowTitlePanelWidthFixed": {
+     "type": "boolean",
+     "default": false
     },
     "rulerFont": {
      "type": "number",

@@ -33,6 +33,9 @@ export { dismissKeyOf }
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
+
+// WHY: FX-7's copy entrance commits this; no date reads this way, so the span row's commits never meet it.
+export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { drawnRowBoxesOf, rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
@@ -269,6 +272,9 @@ export interface PropertyControl {
   readonly isDisabled?: true
   readonly isSizedAsDate?: true
   readonly hint?: string
+  // see FX-7
+  // WHY: a word entrance committing `text` when pressed; it holds no value of its own.
+  readonly press?: string
   readonly link?: PropertyLink
   readonly badge?: PropertyBadge
   readonly lag?: string
@@ -425,7 +431,7 @@ export interface ExportFormatChoice {
 export interface ExportChooser extends OpenSurface {
   readonly surface: 'Export Chooser'
   readonly formats: readonly ExportFormatChoice[]
-  readonly exportSpanLine: string | null
+  readonly fitSpanLine: string | null
 }
 
 // STOP: spec does not decide what each open surface carries, nor two of their names. Looked in T-103, FR-074, FR-088
@@ -639,6 +645,10 @@ export interface ScreenViewReadings {
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
   readonly placedRowGroupIds?: readonly string[]
   readonly placedRows?: readonly RowPlacement[]
+  // see FX-6, WF-3
+  // WHY: screen values the settings panel reads out; absent, the read-outs stay empty.
+  readonly shownSpan?: { readonly start: string; readonly finish: string } | null
+  readonly rowTitlePanelDrawnWidth?: number
   // TRAP: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean

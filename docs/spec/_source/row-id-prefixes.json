@@ -499,6 +499,14 @@
    }
   },
   {
+   "prefix": "FO",
+   "words": "Field Order",
+   "owner": "spec",
+   "means": {
+    "ja": "文書の設定の面の欄の並び（表 T-369）"
+   }
+  },
+  {
    "prefix": "FT",
    "words": "Frame Trigger",
    "owner": "spec",
@@ -512,6 +520,14 @@
    "owner": "spec",
    "means": {
     "ja": "いま作らないが、後から足せるようにしておくもの"
+   }
+  },
+  {
+   "prefix": "FX",
+   "words": "Fit span fiXed",
+   "owner": "spec",
+   "means": {
+    "ja": "全体表示時の期間の値・当てる時・欄の規則（表 T-367）"
    }
   },
   {
@@ -1581,6 +1597,14 @@
    "owner": "spec",
    "means": {
     "ja": "休日の設定の欄と入口（表 T-344）"
+   }
+  },
+  {
+   "prefix": "WF",
+   "words": "Width Field",
+   "owner": "spec",
+   "means": {
+    "ja": "行見出しパネルの幅の欄と、固定のあいだの境界の規則（表 T-368）"
    }
   },
   {

@@ -18,7 +18,7 @@ const TEMPLATE_TEXT = readFileSync(
 )
 const SAMPLE_TEXT = readFileSync(join(process.cwd(), 'sample-schedule', 'Three-Year Product Plan.json'), 'utf8')
 const KNOWN_VERSION = (JSON.parse(TEMPLATE_TEXT) as Loose)['schemaVersion'] as string
-const SPAN_KEYS = ['exportSpanStart', 'exportSpanFinish'] as const
+const SPAN_KEYS = ['fitSpanStart', 'fitSpanFinish'] as const
 
 const TEMPLATE = ((): Document => {
   const read = documentFromJson(TEMPLATE_TEXT, KNOWN_VERSION)
@@ -65,9 +65,9 @@ describe('DFC-2228: OP-6 fills a missing export span key with its default null (
     expect(spanOf(replacedBy(read.document).documentSettings)).toEqual([null, null])
   })
 
-  it('a document with only the start dated reads the missing finish as null and pairs it (IX-17)', () => {
+  it('a document with only the start dated reads the missing finish as null and pairs it (FX-1)', () => {
     const root = JSON.parse(withoutSpanKeys(TEMPLATE_TEXT)) as Loose
-    const settings = { ...(root['documentSettings'] as Loose), exportSpanStart: '2026-03-02T00:00:00' }
+    const settings = { ...(root['documentSettings'] as Loose), fitSpanStart: '2026-03-02T00:00:00' }
     const read = documentFromJson(JSON.stringify({ ...root, documentSettings: settings }), KNOWN_VERSION)
     expect(read.ok).toBe(true)
     if (!read.ok) return

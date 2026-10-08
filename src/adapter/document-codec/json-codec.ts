@@ -383,31 +383,32 @@ export function documentFromJson(
 }
 
 // see OP-6, S-518, S-519
-// WHY: restoredSettings fills a missing key only at the replace (OP-6), after this reading,
-// so a missing export span end reads as its default null here (DFC-2228).
+// WHY: restoredSettings fills a missing key only at the replace (OP-6), so a missing end reads null here.
 /** @purity pure */
-function spanTextOf(settings: DocumentSettings, key: 'exportSpanStart' | 'exportSpanFinish'): string | null {
+function spanTextOf(settings: DocumentSettings, key: 'fitSpanStart' | 'fitSpanFinish'): string | null {
   const read = settings as unknown as Readonly<Record<string, unknown>>
   const value = read[key]
   return typeof value === 'string' ? value : null
 }
 
-// see IX-17, S-518, S-519
-// WHY: a read never refuses a presentation value (T-220 preamble), so one dated end is copied to the
-// other and a finish before its start is pulled to the start's day; neither counts toward RS-51.
+// see FX-1, S-518, S-519, S-532
+// WHY: a read never refuses a presentation value (T-220 preamble): one dated end is copied, a reversed
+// finish is pulled to the start, a fix over no span reads unfixed; none counts toward RS-51.
 /** @purity pure */
-function pairedExportSpan(settings: DocumentSettings): DocumentSettings {
-  const start = dayOf(spanTextOf(settings, 'exportSpanStart'))
-  const finish = dayOf(spanTextOf(settings, 'exportSpanFinish'))
+function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
+  const start = dayOf(spanTextOf(settings, 'fitSpanStart'))
+  const finish = dayOf(spanTextOf(settings, 'fitSpanFinish'))
   const startDay = start ?? finish
   const finishDay = finish ?? start
-  if (startDay === null || finishDay === null) return settings
+  if (startDay === null || finishDay === null) {
+    return settings.fitSpanFixed === true ? { ...settings, fitSpanFixed: false } : settings
+  }
   if (start !== null && finish !== null && compareDays(finish, start) >= 0) return settings
   const pulled = compareDays(finishDay, startDay) < 0 ? startDay : finishDay
   return {
     ...settings,
-    exportSpanStart: start === null ? textOfDayStart(startDay) : settings.exportSpanStart,
-    exportSpanFinish: pulled === finish ? settings.exportSpanFinish : textOfDayEnd(pulled),
+    fitSpanStart: start === null ? textOfDayStart(startDay) : settings.fitSpanStart,
+    fitSpanFinish: pulled === finish ? settings.fitSpanFinish : textOfDayEnd(pulled),
   }
 }
 
@@ -422,7 +423,7 @@ function settledReading(
   const recounted = recount.schedule === read.schedule ? read : { ...read, schedule: recount.schedule }
   const recountedCount = recount.movedTaskUids.length
 
-  const paired = pairedExportSpan(recounted.documentSettings)
+  const paired = pairedFitSpan(recounted.documentSettings)
   const clamp = clampedSettings(paired)
   if (clamp.clamped.length === 0) {
     const settled = paired === recounted.documentSettings ? recounted : { ...recounted, documentSettings: paired }

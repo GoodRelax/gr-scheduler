@@ -11,7 +11,8 @@ test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // see FR-039
-const FONT_SCALE_FIELD = '文字サイズを選ぶ欄をその下に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
+// WHY: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
+const FONT_SCALE_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
 const OTHER_TEXT_WEIGHT =
   '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title` のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
 

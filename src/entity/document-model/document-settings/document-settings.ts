@@ -20,8 +20,9 @@ export interface DocumentSettings {
   readonly dateGridLinesVisible: boolean
   readonly dependencyVisible: boolean
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
-  readonly exportSpanFinish: string | null
-  readonly exportSpanStart: string | null
+  readonly fitSpanFinish: string | null
+  readonly fitSpanFixed: boolean
+  readonly fitSpanStart: string | null
   readonly fontScale: 'S' | 'M' | 'L'
   readonly groupGridLinesVisible: boolean
   readonly levelZeroTreeState: 'auto' | 'collapsed'
@@ -32,6 +33,7 @@ export interface DocumentSettings {
   readonly progressLineVisible: boolean
   readonly progressMarkerVisible: boolean
   readonly rowTitlePanelWidth: number
+  readonly rowTitlePanelWidthFixed: boolean
   readonly rulerFont: number
   readonly rulerHeight: number
   readonly scrollDate: string | null
@@ -51,8 +53,9 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dateGridLinesVisible': false,
   'dependencyVisible': true,
   'displayScale': 100,
-  'exportSpanFinish': null,
-  'exportSpanStart': null,
+  'fitSpanFinish': null,
+  'fitSpanFixed': false,
+  'fitSpanStart': null,
   'fontScale': 'M',
   'groupGridLinesVisible': true,
   'levelZeroTreeState': 'auto',
@@ -63,6 +66,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'progressLineVisible': false,
   'progressMarkerVisible': true,
   'rowTitlePanelWidth': 300,
+  'rowTitlePanelWidthFixed': false,
   'rulerFont': 21,
   'rulerHeight': 69,
   'scrollDate': null,

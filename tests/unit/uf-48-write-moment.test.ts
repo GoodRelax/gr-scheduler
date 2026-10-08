@@ -1362,7 +1362,7 @@ describe('the tables these ten entrances are driven by', () => {
     // A BOOLEAN: its type cell spells six percentages, so FR-049's MUST does not
     // reach it and no entrance may treat it as a toggle. It takes the table
     // 15 -> 16 and leaves the booleans at eleven.
-    // WHY: CR-677 added exportSpanStart / exportSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
+    // WHY: CR-677 added fitSpanStart / fitSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
     expect(T_202_KEYS.length).toBe(18)
   })

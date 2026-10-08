@@ -51,6 +51,17 @@ const NOTHING_OF_THE_VIEW_PLACE = [
   'FR-055',
 ] as const
 
+// see CR-690, T-368, T-369
+// WHY: the settings face's two tables name the fields the face lists (FR-055's span, the display
+// scale of FR-039), not the view place or the zoom; cut them, and the display scale's own name.
+const SETTINGS_FACE_TABLES = ['**表 T-368', '**表 T-369'] as const
+const DISPLAY_SCALE_NAME = '表示の倍率'
+const withoutSettingsFaceTables = (section: string): string => {
+  const cuts = SETTINGS_FACE_TABLES.map((head) => section.indexOf(head)).filter((at) => at >= 0)
+  const kept = cuts.length === 0 ? section : section.slice(0, Math.min(...cuts))
+  return kept.split(DISPLAY_SCALE_NAME).join('')
+}
+
 const HISTORY_COLUMN = '履歴'
 const SURFACE_COLUMN = '面'
 const DEFAULT_COLUMN = '既定'
@@ -391,7 +402,7 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     expect(REQUIREMENTS).toContain(FR_052_JUDGES_ON_THE_ROW_AREA)
     for (const uid of ['FR-091', 'FR-072', 'FR-052']) {
       for (const word of NOTHING_OF_THE_VIEW_PLACE) {
-        expect(sectionOf(uid), `${uid} が ${word} を持つ`).not.toContain(word)
+        expect(withoutSettingsFaceTables(sectionOf(uid)), `${uid} が ${word} を持つ`).not.toContain(word)
       }
     }
   })

@@ -1,4 +1,4 @@
-// W3 spec-only cases on the shipped build: T-351 WBS parent hands and field, FR-075 grab colours, trailing look rows, the IX-17 field.
+// W3 spec-only cases on the shipped build: T-351 WBS parent hands and field, FR-075 grab colours, trailing look rows, the FX-5 field.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -18,8 +18,9 @@ const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのま
 const FR_075_COLOURS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
 const FR_006_LOOK_LAST =
   '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
+// WHY: CR-690 -- the old span row retired; the field rule is FX-5 of table T-367 (one settle, written only while fixed).
 const IX_17_FIELD =
-  '欄は、`FR-038` の辞書が 表 T-104 の `K-141` に持つ語を名として 1 行に開始日と終了日の 2 つの日付の入口を並べ、確定した値で 表 T-108 の `CM-88` を、2 つとも空にして確定したら同表の `CM-89` を、1 回発行すること（MUST）'
+  '⭐ 2 つの入力は 1 つの欄として確定し、確定した値で 表 T-108 の `CM-88` を、片方か 2 つともを空にして確定したら同表の `CM-89` を、1 回発行すること（MUST）'
 
 const PROPERTIES = `[data-role="${bare(rowOf(specTable('T-103'), 'U-25').cells[0] ?? '')}"]`
 const NOTIFICATION_AREA = `[data-role="${bare(rowOf(specTable('T-103'), 'U-57').cells[0] ?? '')}"]`
@@ -119,7 +120,7 @@ async function inkOf(page: Page, colour: string): Promise<string> {
 }
 
 test.describe('W3-T1 the manuscript these cases are driven by', () => {
-  test('FR-135, FR-075, the look rows and IX-17 still read this way', () => {
+  test('FR-135, FR-075, the look rows and FX-5 still read this way', () => {
     for (const clause of [FR_135_FIELD, FR_135_HANDS, FR_075_COLOURS, FR_006_LOOK_LAST, IX_17_FIELD]) expect(REQUIREMENTS, clause).toContain(clause)
     expect(LOOK_ROWS_OF_A_TASK, 'premise: T-016 names the look rows of a Task, in the CR-689 order').toEqual(['PR-40', 'PR-39', 'PR-12'])
     expect(SPAN_LABELS.length, 'premise: the dictionary holds the K-141 word').toBe(2)
@@ -280,16 +281,16 @@ test.describe(`FR-006 (MUST): ${FR_006_LOOK_LAST.slice(-40)}`, () => {
   })
 })
 
-test.describe(`IX-17 (MUST): ${IX_17_FIELD.slice(-40)}`, () => {
+test.describe(`FX-5 (MUST): ${IX_17_FIELD.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
-  test('one K-141 row holds two date inputs; entering both writes the span once, emptying both clears it', async () => {
+  test('one K-141 row holds two date inputs; with the span fixed, entering both writes the span once', async () => {
     const opened = await stage()
     try {
       expect(await pressEntrance(opened.page, DOCUMENT_SETTINGS), 'IC-17 opens the document settings').toBe(true)
       const field = await opened.page.evaluate(
         ({ selector, labels }: { selector: string; labels: readonly string[] }) => {
-          const rows = [...(document.querySelector(selector)?.children ?? [])].filter((one) =>
+          const rows = [...(document.querySelector(selector)?.querySelectorAll('[data-field-row="K-141"]') ?? [])].filter((one) =>
             labels.some((label) => ((one as HTMLElement).innerText ?? '').trim().startsWith(label)),
           )
           return rows.map((one) => ({ dates: one.querySelectorAll('input[type="date"]').length, editable: one.getAttribute('data-editable') }))
@@ -300,16 +301,20 @@ test.describe(`IX-17 (MUST): ${IX_17_FIELD.slice(-40)}`, () => {
       const inputs = opened.page.locator(`${PROPERTIES} input[type="date"]`).filter({ hasNot: opened.page.locator('[data-field-row="IC-44"]') })
       const spanInputs = opened.page.locator(`${PROPERTIES} [data-field-row="K-141"] input[type="date"]`)
       expect(await inputs.count()).toBeGreaterThan(0)
+      // WHY: FX-5 lets the two inputs be written only while the span is fixed; FX-4 fixes it in one step (K-142).
+      await opened.page.locator(`${PROPERTIES} [data-field-row="K-142"] input[type="checkbox"]`).check()
+      await settle(opened.page)
+      const fixed = (await readDocumentOf(opened.page)).documentSettings
       await spanInputs.nth(0).fill('2026-03-02')
       await spanInputs.nth(1).fill('2026-03-29')
       await spanInputs.nth(1).press('Enter')
       await settle(opened.page)
       const set = (await readDocumentOf(opened.page)).documentSettings
-      expect([String(set.exportSpanStart).slice(0, 10), String(set.exportSpanFinish).slice(0, 10)]).toEqual(['2026-03-02', '2026-03-29'])
+      expect([String(set.fitSpanStart).slice(0, 10), String(set.fitSpanFinish).slice(0, 10)]).toEqual(['2026-03-02', '2026-03-29'])
       await opened.page.keyboard.press('Control+z')
       await settle(opened.page)
       const undone = (await readDocumentOf(opened.page)).documentSettings
-      expect([undone.exportSpanStart, undone.exportSpanFinish], 'one undo: the span was one CM-88').toEqual([null, null])
+      expect([undone.fitSpanStart, undone.fitSpanFinish], 'one undo: the span was one CM-88').toEqual([fixed.fitSpanStart, fixed.fitSpanFinish])
     } finally {
       await opened.close()
     }

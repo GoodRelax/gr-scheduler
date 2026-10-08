@@ -31,13 +31,17 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
 }
 
-const CLAUSE_SPAN_FIELD_PLACE =
-  '⭐ 書き出す期間の欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、親子の進捗の疑義が許す日数の欄（`FR-131`）の下に置くこと（MUST）'
+// WHY: CR-690 -- table T-369 holds the face's order; the fit span (K-141) stands under its fix (K-142, FO-9).
+const CLAUSE_SPAN_FIELD_PLACE = '| FO-10 | 全体表示時の期間 | 表 T-104 の `K-141` | 同表の `FX-5` |'
 const CLAUSE_STATUS_DATE_FIELD =
-  '⭐ 基準日を打つ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、書き出す期間の欄（`FR-025` の 表 T-241 の `IX-17`）の下に置き、日付を確定したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を 1 回発行すること（MUST）'
+  '⭐ 基準日を打つ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-8` の場所に置き、日付を確定したら 表 T-108 の `CM-3` を、空にして確定したら同表の `CM-4` を 1 回発行すること（MUST）'
 const CLAUSE_STATUS_DATE_NAME = '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST）'
 const CLAUSE_SCALE_FIELD =
-  '⭐ 表示の倍率を選ぶ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、基準日の欄（`FR-046`）の下に置き、`S-234` の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）'
+  '⭐ 表示の倍率を選ぶ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-3` の場所に置き、`S-234` の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）'
+// WHY: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme colour stand right above these three.
+const K_SPAN_FIX = 'K-142'
+const DRAWN_WIDTH_READOUT = 'WF-3'
+const K_THEME = 'K-60'
 
 // see T-104
 const keyRowOf = (key: string): string => {
@@ -46,7 +50,7 @@ const keyRowOf = (key: string): string => {
   return row.id
 }
 const K_TOLERANCE = keyRowOf('parentProgressToleranceDays')
-const K_SPAN = keyRowOf('exportSpanStart')
+const K_SPAN = keyRowOf('fitSpanStart')
 const K_SCALE = keyRowOf('displayScale')
 const IC_44 = 'IC-44'
 
@@ -140,17 +144,17 @@ describe('W3-T3 -- the manuscript still says what these cases read', () => {
   })
 })
 
-describe('FR-025 IX-17 -- the export span field stands right below the FR-131 field', () => {
+describe('FR-072 T-369 FO-10 -- the fit span field stands right below its fix (FO-9)', () => {
   it(`"${CLAUSE_SPAN_FIELD_PLACE}"`, () => {
     const panel = settingsPanel()
-    expect(placeOf(panel, K_SPAN)).toBe(placeOf(panel, K_TOLERANCE) + 1)
+    expect(placeOf(panel, K_SPAN)).toBe(placeOf(panel, K_SPAN_FIX) + 1)
   })
 })
 
 describe('FR-046 -- the status date field', () => {
-  it(`"${CLAUSE_STATUS_DATE_FIELD}" -- it stands right below the export span field`, () => {
+  it(`"${CLAUSE_STATUS_DATE_FIELD}" -- it stands right below FO-7's current width`, () => {
     const panel = settingsPanel()
-    expect(placeOf(panel, IC_44)).toBe(placeOf(panel, K_SPAN) + 1)
+    expect(placeOf(panel, IC_44)).toBe(placeOf(panel, DRAWN_WIDTH_READOUT) + 1)
   })
 
   it(`"${CLAUSE_STATUS_DATE_FIELD}" -- a committed date issues ${CM_3} once`, () => {
@@ -174,9 +178,9 @@ describe('FR-046 -- the status date field', () => {
 })
 
 describe('FR-039 -- the display scale field', () => {
-  it(`"${CLAUSE_SCALE_FIELD}" -- it stands right below the status date field`, () => {
+  it(`"${CLAUSE_SCALE_FIELD}" -- it stands right below FO-2's theme colour field`, () => {
     const panel = settingsPanel()
-    expect(placeOf(panel, K_SCALE)).toBe(placeOf(panel, IC_44) + 1)
+    expect(placeOf(panel, K_SCALE)).toBe(placeOf(panel, K_THEME) + 1)
   })
 
   it(`"${CLAUSE_SCALE_FIELD}" -- its choices are the S-234 steps in the type cell's order`, () => {

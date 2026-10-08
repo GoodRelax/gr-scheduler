@@ -63,7 +63,8 @@ import type {
   PropertyLink,
   ScreenViewReadings,
 } from './screen-renderer'
-import { displayLanguageOf } from './screen-renderer'
+import { FIT_SPAN_COPY_TEXT, displayLanguageOf } from './screen-renderer'
+import { dateText } from './table-window'
 import dependencyKinds from './dependency-kinds.json'
 import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
@@ -1135,46 +1136,145 @@ function parentProgressToleranceField(workingDays: number, language: DisplayLang
     name: settingsName(column, language),
     text,
     isEditable: true,
-    controls: [
-      {
-        key: PARENT_PROGRESS_TOLERANCE_KEY,
-        kind: 'number',
-        text,
-        choices: null,
-        min: null,
-        max: null,
-        widthInFontSizes: widthOf(text, null, SETTINGS_CONSTANTS.labelCoef),
-      },
-    ],
+    controls: [settingsControl(PARENT_PROGRESS_TOLERANCE_KEY, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef))],
   }
 }
 
-const EXPORT_SPAN_COLUMNS = ['exportSpanStart', 'exportSpanFinish'] as const
+const FIT_SPAN_COLUMNS = ['fitSpanStart', 'fitSpanFinish'] as const
 
-// see IX-17, K-141, CM-88, CM-89, FR-046
-// WHY: one line, two date entrances; the read-only rows leave these two keys out (settingsFields).
+const DISABLED_UNLESS_FIXED = { isDisabled: true } as const
+
+// see T-369, FR-072
+// WHY: the settings face's controls take no choices and no bounds (a bound lives once, in its command).
 /** @purity pure */
-function exportSpanField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
-  const [startColumn] = EXPORT_SPAN_COLUMNS
-  const texts = EXPORT_SPAN_COLUMNS.map((column) => textOfDateColumn(settings[column]))
+function settingsControl(
+  key: PropertyFieldKey,
+  kind: PropertyControl['kind'],
+  text: string,
+  widthInFontSizes: number,
+): PropertyControl {
+  return { key, kind, text, choices: null, min: null, max: null, widthInFontSizes }
+}
+
+// see FX-5, K-141, CM-88, CM-89
+// WHY: one line, two date entrances, written only while the span is fixed; the read-only rows leave these keys out.
+/** @purity pure */
+function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
+  const [startColumn] = FIT_SPAN_COLUMNS
+  const texts = FIT_SPAN_COLUMNS.map((column) => textOfDateColumn(settings[column]))
   return {
     row: settingsWordOf(startColumn)?.rowId ?? startColumn,
     name: settingsName(startColumn, language),
     text: texts.filter((one) => one !== '').join(PART_SEPARATOR),
     isEditable: true,
     isSettledAsOne: true,
-    controls: EXPORT_SPAN_COLUMNS.map((column, at) => {
+    controls: FIT_SPAN_COLUMNS.map((column, at) => {
       const text = texts[at] ?? ''
+      const width = widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef)
       return {
-        key: { holder: 'documentSettings', column },
-        kind: 'date',
-        text,
-        choices: null,
-        min: null,
-        max: null,
-        widthInFontSizes: widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef),
+        ...settingsControl({ holder: 'documentSettings', column }, 'date', text, width),
+        ...(settings.fitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
       }
     }),
+  }
+}
+
+type FixColumn = 'fitSpanFixed' | 'rowTitlePanelWidthFixed'
+
+// see FX-4, WF-1, K-142, K-143, CM-90, CM-91
+/** @purity pure */
+function fixCheckField(settings: DocumentSettings, column: FixColumn, language: DisplayLanguage): PropertyField {
+  const text = String(settings[column])
+  return {
+    row: settingsWordOf(column)?.rowId ?? column,
+    name: settingsName(column, language),
+    text,
+    isEditable: true,
+    controls: [settingsControl({ holder: 'documentSettings', column }, 'boolean', text, NO_ROOM_FLOOR)],
+  }
+}
+
+const FIT_SPAN_WORDS = new Map(displayWords.fitSpanField.map((entry) => [entry.part, entry.text]))
+
+const ROW_TITLE_WIDTH_WORDS = new Map(displayWords.rowTitleWidthField.map((entry) => [entry.part, entry.text]))
+
+const SHOWN_SPAN_ROW = 'FX-6'
+
+const DRAWN_WIDTH_ROW = 'WF-3'
+
+const SPAN_SLOTS = { start: '{start}', finish: '{finish}' } as const
+
+/** @purity pure */
+function fieldWord(words: ReadonlyMap<string, { readonly ja: string; readonly en: string }>, part: string, language: DisplayLanguage): string {
+  return words.get(part)?.[language] ?? NO_ENTRY_WORDS
+}
+
+// see FX-6, FX-8
+/** @purity pure */
+function shownSpanReadoutOf(readings: ScreenViewReadings, language: DisplayLanguage): string {
+  const shown = readings.shownSpan ?? null
+  if (shown === null) return ''
+  return fieldWord(FIT_SPAN_WORDS, 'currentValue', language)
+    .replace(SPAN_SLOTS.start, dateText(shown.start))
+    .replace(SPAN_SLOTS.finish, dateText(shown.finish))
+}
+
+// see FX-6, FX-7
+// WHY: one field holds the read-out and the copy entrance under it (FX-7: no rule between them).
+/** @purity pure */
+function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
+  const word = fieldWord(FIT_SPAN_WORDS, 'copyCurrent', language)
+  return {
+    row: SHOWN_SPAN_ROW,
+    name: fieldWord(FIT_SPAN_WORDS, 'currentName', language),
+    text: '',
+    isEditable: false,
+    readout: shownSpanReadoutOf(readings, language),
+    controls: [
+      {
+        ...settingsControl({ holder: 'documentSettings', column: 'fitSpanStart' }, 'text', FIT_SPAN_COPY_TEXT, widthOf(word, null, SETTINGS_CONSTANTS.labelCoef)),
+        press: word,
+        ...(settings.fitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
+      },
+    ],
+  }
+}
+
+// see WF-2, K-71, CM-67, S-79
+/** @purity pure */
+function rowTitleWidthField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
+  const column = 'rowTitlePanelWidth'
+  const text = String(Math.round(settings.rowTitlePanelWidth))
+  return {
+    row: settingsWordOf(column)?.rowId ?? column,
+    name: settingsName(column, language),
+    text,
+    isEditable: true,
+    unit: fieldWord(ROW_TITLE_WIDTH_WORDS, 'unit', language),
+    controls: [
+      {
+        ...settingsControl({ holder: 'documentSettings', column }, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)),
+        ...(settings.rowTitlePanelWidthFixed ? {} : DISABLED_UNLESS_FIXED),
+      },
+    ],
+  }
+}
+
+// see WF-3
+/** @purity pure */
+function drawnWidthField(readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
+  const drawn = readings.rowTitlePanelDrawnWidth
+  const readout =
+    drawn === undefined
+      ? ''
+      : fieldWord(ROW_TITLE_WIDTH_WORDS, 'currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(drawn)))
+  return {
+    row: DRAWN_WIDTH_ROW,
+    name: fieldWord(ROW_TITLE_WIDTH_WORDS, 'currentName', language),
+    text: '',
+    isEditable: false,
+    controls: [],
+    readout,
   }
 }
 
@@ -1192,17 +1292,7 @@ function statusDateField(statusDate: string | null, language: DisplayLanguage): 
     name: iconLabel(STATUS_DATE_ENTRY, language),
     text,
     isEditable: true,
-    controls: [
-      {
-        key: STATUS_DATE_KEY,
-        kind: 'date',
-        text,
-        choices: null,
-        min: null,
-        max: null,
-        widthInFontSizes: widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef),
-      },
-    ],
+    controls: [settingsControl(STATUS_DATE_KEY, 'date', text, widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef))],
   }
 }
 
@@ -1239,17 +1329,26 @@ function steppedSettingField(settings: DocumentSettings, column: SteppedSetting,
   }
 }
 
-// see IC-17, T-104, FR-072, FR-131, FR-046, FR-039
+// see IC-17, T-104, FR-072, T-369
 // WHY: a value with its own field is not repeated as a read-only row below it.
+const FIELDED_SETTINGS: readonly string[] = [
+  ...Object.keys(SETTING_STEPS),
+  ...FIT_SPAN_COLUMNS,
+  'fitSpanFixed',
+  'rowTitlePanelWidth',
+  'rowTitlePanelWidthFixed',
+]
+
+// see IC-17, T-104, FR-072, T-369, FO-1, FO-12
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
   schedule: Schedule,
   dark: boolean,
   language: DisplayLanguage,
+  readings: ScreenViewReadings,
 ): readonly PropertyField[] {
-  const fielded: readonly string[] = [...Object.keys(SETTING_STEPS), ...EXPORT_SPAN_COLUMNS]
-  const readOnly = Object.keys(SETTINGS_DEFAULTS).filter((key) => !fielded.includes(key)).map((key) => ({
+  const readOnly = Object.keys(SETTINGS_DEFAULTS).filter((key) => !FIELDED_SETTINGS.includes(key)).map((key) => ({
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
@@ -1258,11 +1357,16 @@ function settingsFields(
   }))
   return [
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
-    parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
-    exportSpanField(settings, language),
-    statusDateField(schedule.project.statusDate, language),
     steppedSettingField(settings, 'displayScale', language),
     steppedSettingField(settings, 'fontScale', language),
+    fixCheckField(settings, 'rowTitlePanelWidthFixed', language),
+    rowTitleWidthField(settings, language),
+    drawnWidthField(readings, language),
+    statusDateField(schedule.project.statusDate, language),
+    fixCheckField(settings, 'fitSpanFixed', language),
+    fitSpanField(settings, language),
+    shownSpanField(settings, readings, language),
+    parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
     ...readOnly,
   ]
 }
@@ -1474,7 +1578,7 @@ export function propertiesPanelFromSelection(
     return {
       showing: 'documentSettings',
       isSubjectGone: false,
-      fields: settingsFields(settings, schedule, dark, language),
+      fields: settingsFields(settings, schedule, dark, language, readings),
       commands: panelCommands(language),
       headEntry: commandItemOf(GRS_RESET_ENTRY, language),
     }

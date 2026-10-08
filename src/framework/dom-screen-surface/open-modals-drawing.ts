@@ -704,9 +704,9 @@ function exportFormatChoicesElement(host: Document, modal: ExportChooser): HTMLE
 /** @purity non-pure */
 function exportChooserBodyElements(host: Document, modal: ExportChooser): readonly HTMLElement[] {
   const choices = exportFormatChoicesElement(host, modal)
-  if (modal.exportSpanLine === null) return [choices]
+  if (modal.fitSpanLine === null) return [choices]
   const line = made(host, 'div', STYLE.field)
-  line.textContent = modal.exportSpanLine
+  line.textContent = modal.fitSpanLine
   return [choices, line]
 }
 

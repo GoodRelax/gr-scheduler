@@ -55,9 +55,10 @@ export function templateDocument(): Document {
   return read.document
 }
 
+// WHY: CR-690 -- a span reaches the picture only while it is fixed (FX-1, S-532), so a span set here is fixed too.
 export const withSpan = (document: Document, start: string | null, finish: string | null): Document => ({
   ...document,
-  documentSettings: { ...document.documentSettings, exportSpanStart: start, exportSpanFinish: finish },
+  documentSettings: { ...document.documentSettings, fitSpanStart: start, fitSpanFinish: finish, fitSpanFixed: start !== null },
 })
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }

@@ -5,13 +5,10 @@
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
-  compareDays,
-  dayOf,
   type Assignment,
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
-import { planDatesSpanYears, planDateText } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
@@ -31,6 +28,8 @@ import type {
 import { displayLanguageOf } from './screen-renderer'
 import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
 import { iconHint, iconLabel } from './tooltips'
+import { dateText } from './table-window'
+import { fixedFitSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -142,24 +141,16 @@ function exportFormatChoices(
 
 const NO_WORDS = ''
 
-const EXPORT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'exportSpan')
+const FIT_SPAN_WORD = displayWords.exportChooser.find((entry) => entry.part === 'fitSpan')
 
-// see FR-096, IX-12, ND-4, ND-5
-// WHY: written the way a name label writes its dates, so the year shows only when the tasks span years.
+// see FR-096, IX-12, FX-1, FX-8
+// WHY: the year is always written (FX-8): a pasted picture's span must read which year it is.
 /** @purity pure */
-function exportSpanLineOf(
-  schedule: Schedule,
-  settings: DocumentSettings,
-  language: DisplayLanguage,
-): string | null {
-  const start = dayOf(settings.exportSpanStart)
-  const finish = dayOf(settings.exportSpanFinish)
-  if (start === null || finish === null || compareDays(finish, start) < 0) return null
-  if (EXPORT_SPAN_WORD === undefined) return null
-  const withYear = planDatesSpanYears(schedule, { day: dayOf })
-  return EXPORT_SPAN_WORD.text[language]
-    .replace('{start}', planDateText(start, withYear))
-    .replace('{finish}', planDateText(finish, withYear))
+function fitSpanLineOf(settings: DocumentSettings, language: DisplayLanguage): string | null {
+  if (fixedFitSpanOf(settings) === null || FIT_SPAN_WORD === undefined) return null
+  return FIT_SPAN_WORD.text[language]
+    .replace('{start}', dateText(settings.fitSpanStart))
+    .replace('{finish}', dateText(settings.fitSpanFinish))
 }
 
 const HEADINGS_BY_SURFACE = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
@@ -479,7 +470,7 @@ export function openModalFromSession(
       heading,
       commands,
       formats: exportFormatChoices(language),
-      exportSpanLine: exportSpanLineOf(schedule, settings, language),
+      fitSpanLine: fitSpanLineOf(settings, language),
     }
   }
 
