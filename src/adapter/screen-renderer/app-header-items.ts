@@ -52,8 +52,24 @@ interface CommandState {
   readonly isPressed: boolean
 }
 
-// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here IC-12..IC-15 never are (DFC-567)
 const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
+
+type ZoomEntranceEnds = NonNullable<ScreenViewReadings['zoomEntranceEnds']>
+
+const ZOOM_END_BY_ENTRY: Readonly<Record<string, keyof ZoomEntranceEnds>> = {
+  'IC-12': 'timeOut',
+  'IC-13': 'timeIn',
+  'IC-14': 'rowOut',
+  'IC-15': 'rowIn',
+}
+
+// see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3
+/** @purity pure */
+function zoomEntryStateOf(icon: IconId, readings: ScreenViewReadings): CommandState | null {
+  const end = ZOOM_END_BY_ENTRY[icon]
+  if (end === undefined) return null
+  return { isEnabled: readings.zoomEntranceEnds?.[end] !== true, isPressed: false }
+}
 
 // see FR-072, T-280
 /** @purity pure */
@@ -106,7 +122,8 @@ function commandStateOf(
     const key = VISIBLE_ELEMENT_BY_ENTRY[icon]
     if (key !== undefined) return { isEnabled: true, isPressed: settings[key] }
   }
-  const scaleOrFileState = displayScaleStateOf(icon, settings) ?? fileEntryStateOf(icon, session)
+  const scaleOrFileState =
+    displayScaleStateOf(icon, settings) ?? fileEntryStateOf(icon, session) ?? zoomEntryStateOf(icon, readings)
   if (scaleOrFileState !== null) return scaleOrFileState
   switch (icon) {
     case COMMAND_PALETTE_ENTRY:

@@ -137,6 +137,7 @@ import {
   pressRowOf,
   screenEventFromInput,
   selectionFromInput,
+  zoomEntranceEndsOf,
   NOT_STORED_ZOOM_STEP,
   type HumanInput,
   type InputAction,
@@ -535,6 +536,29 @@ function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): Drawn
     inputs.wbsParentFamilies,
   )
   return { inputs, layout, geometry }
+}
+
+type ZoomEntranceEnds = ReturnType<typeof zoomEntranceEndsOf>
+
+interface HeldZoomEnds {
+  readonly document: Document
+  readonly layout: ScheduleLayout
+  readonly isPictureAtStoredZoom: boolean
+  readonly ends: ZoomEntranceEnds
+}
+
+// see FR-029, DFC-567, PI-18
+// WHY: the ends lay the rows out again; read every frame, they are asked only when the picture moved.
+/** @purity non-pure */
+function zoomEntranceEndsHoldOf() {
+  let held: HeldZoomEnds | null = null
+  return (frame: FrameValues, document: Document, contextOf: (frame: FrameValues) => InputContext): ZoomEntranceEnds => {
+    const { layout, isPictureAtStoredZoom } = frame
+    if (held?.document === document && held.layout === layout && held.isPictureAtStoredZoom === isPictureAtStoredZoom) return held.ends
+    const ends = zoomEntranceEndsOf(contextOf(frame))
+    held = { document, layout, isPictureAtStoredZoom, ends }
+    return ends
+  }
 }
 
 // see PTD-1
@@ -1043,6 +1067,7 @@ interface ScreenViewReadingsTaken {
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  readonly zoomEntranceEnds?: ZoomEntranceEnds
   readonly searchPanel?: SearchPanelSession
   readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
@@ -2393,6 +2418,7 @@ export function frameLoop(
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const shownTasks = shownTasksHoldOf(hands, windows)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
+  const zoomEntranceEndsAt = zoomEntranceEndsHoldOf()
   const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } = heldViewPlace
   const {
@@ -2572,6 +2598,7 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
+          zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, collectInputContext),
           ...windows.readings(session, delayDiagnosticsNow()),
           ...wbsParents.readings(session, delayDiagnosticsShown),
         }),

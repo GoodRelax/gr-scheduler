@@ -118,7 +118,7 @@ export type {
 export { commandFromFieldCommit } from './field-commit'
 export { screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
-export { rowBandCeilingOf } from './zoom-and-fit'
+export { rowBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
 
 
 export type PressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
