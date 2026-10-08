@@ -602,6 +602,48 @@ async function driveSegment(
   await page.waitForTimeout(500)
 }
 
+// see MK-6, PTD-5, DFC-2301
+// WHY: the old fixed point sat on the Command Palette before CR-707, so MK-6 timed a palette press.
+const BARE_SPOT_STEP_PX = 12
+const BARE_SPOT_CLEARANCE_PX = 8
+
+// WHY: a row's own ground on every side, read just before the press, wherever the palette stands.
+/** @purity semi-pure-b */
+async function bareCanvasPoint(
+  page: Page,
+  near: { readonly x: number; readonly y: number },
+): Promise<{ readonly x: number; readonly y: number } | null> {
+  return page.evaluate(
+    ([selector, at, step, clearance]: [string, { x: number; y: number }, number, number]) => {
+      const drawing = document.querySelector(selector)
+      if (drawing === null) return null
+      const box = drawing.getBoundingClientRect()
+      const palette = document.querySelector('[data-role="Command Palette"]')?.getBoundingClientRect() ?? null
+      const isGround = (x: number, y: number): boolean => {
+        if (palette !== null && x >= palette.left && x <= palette.right && y >= palette.top && y <= palette.bottom) {
+          return false
+        }
+        const hit = document.elementFromPoint(x, y)
+        if (hit === null || !drawing.contains(hit) || hit === drawing) return false
+        if (hit.closest('[data-role]')?.getAttribute('data-role') !== 'Schedule Canvas') return false
+        const name = hit.closest('[data-figure]')?.getAttribute('data-figure') ?? ''
+        return name.startsWith('row-') || name === 'non-working-days'
+      }
+      const around = [[0, 0], [clearance, 0], [-clearance, 0], [0, clearance], [0, -clearance]]
+      const spots: { x: number; y: number; far: number }[] = []
+      for (let y = box.top + clearance; y <= box.bottom - clearance; y += step) {
+        for (let x = box.left + clearance; x <= box.right - clearance; x += step) {
+          spots.push({ x, y, far: Math.hypot(x - at.x, y - at.y) })
+        }
+      }
+      spots.sort((a, b) => a.far - b.far)
+      const found = spots.find((one) => around.every(([dx, dy]) => isGround(one.x + (dx ?? 0), one.y + (dy ?? 0))))
+      return found === undefined ? null : { x: found.x, y: found.y }
+    },
+    [DRAWN_SVG, near, BARE_SPOT_STEP_PX, BARE_SPOT_CLEARANCE_PX] as [string, { x: number; y: number }, number, number],
+  )
+}
+
 // ---------------------------------------------------------------------------
 // The sweep
 // ---------------------------------------------------------------------------
@@ -720,7 +762,8 @@ async function sweep(
     { type: 'mouseReleased', x: centre.x, y: centre.y, button: 'left', buttons: 0, clickCount: 1 },
   ])
 
-  const from = { x: centre.x - centre.w / 3, y: centre.y - centre.h / 3 }
+  const from = await bareCanvasPoint(page, { x: centre.x - centre.w / 3, y: centre.y - centre.h / 3 })
+  if (from === null) throw new Error('MK-6 found no spot in the drawing that hits nothing to press on')
   await burst(cdp, [
     { type: 'mouseMoved', x: from.x, y: from.y },
     { type: 'mousePressed', x: from.x, y: from.y, button: 'left', buttons: 1, clickCount: 1 },
@@ -733,9 +776,14 @@ async function sweep(
     },
     DRAG_ROUNDS,
   )
+  const isMarqueeDrawn = await page.evaluate(
+    (selector: string) => document.querySelector(`${selector} [data-figure="marquee"]`) !== null,
+    DRAWN_SVG,
+  )
   await burst(cdp, [
     { type: 'mouseReleased', x: centre.x, y: centre.y, button: 'left', buttons: 0, clickCount: 1 },
   ])
+  if (!isMarqueeDrawn) throw new Error(`MK-6 pressed at ${from.x},${from.y} but drew no range-select frame`)
   await page.waitForTimeout(300)
 
   const raw = await page.evaluate(() => {
