@@ -833,15 +833,72 @@ async function openAgentApi(page: Page): Promise<void> {
 
 // WHY: the figure key is `task-<uid>-...` (svg-renderer.ts), so the uid of the
 // WHY: bar under a point is read off whatever part of it the point lands on.
+// WHY: every layer under the point is read, not the top one alone -- a link or label drawn
+// WHY: over a bar after MK-16 moved it would otherwise hide the bar the geometry measured.
 async function taskUidAt(page: Page, at: Spot): Promise<number> {
-  const uid = await page.evaluate((point: Spot) => {
-    const top = document.elementFromPoint(point.x, point.y)
-    const key = top?.closest('[data-figure]')?.getAttribute('data-figure') ?? ''
-    const found = /^task-(\d+)-/.exec(key)
-    return found === null ? null : Number(found[1])
+  const found = await page.evaluate((point: Spot) => {
+    const keys = document.elementsFromPoint(point.x, point.y)
+      .map((e) => e.closest('[data-figure]')?.getAttribute('data-figure') ?? '')
+      .filter((key) => key !== '')
+    for (const key of keys) {
+      const task = /^task-(\d+)-/.exec(key)
+      if (task !== null) return { uid: Number(task[1]), keys }
+    }
+    return { uid: null, keys }
   }, at)
-  if (uid === null) throw new Error(`no task figure lies under (${String(at.x)}, ${String(at.y)})`)
-  return uid
+  if (found.uid === null) {
+    throw new Error(`no task figure lies under (${String(at.x)}, ${String(at.y)}); drawn there: ${found.keys.join(' ') || 'nothing'}`)
+  }
+  return found.uid
+}
+
+// WHY: the renderer keys each drawn row's ground `row-<groupId>-band`, so the row a
+// WHY: point lies in is read off the drawing rather than off a fixed row height.
+const ROW_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="row-"][data-figure$="-band"]')]
+  .map((e) => {
+    const r = e.getBoundingClientRect()
+    return { row: e.getAttribute('data-figure') || '', top: r.top, bottom: r.bottom }
+  })
+  .filter((one) => one.bottom > one.top)
+  .sort((a, b) => a.top - b.top))()`
+
+interface RowBand {
+  readonly row: string
+  readonly top: number
+  readonly bottom: number
+}
+
+// WHY: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the row's top.
+const CANVAS_FOOT_CLEARANCE = 40
+const REACH_INTO_ROW = 12
+
+// see MK-16, T-270
+async function nextRowY(page: Page, at: Spot): Promise<number> {
+  const bands = (await page.evaluate(ROW_BANDS_SCRIPT)) as readonly RowBand[]
+  const lowest = await page.evaluate(() => {
+    const canvas = document.querySelector('[data-role="Schedule Canvas"]')
+    return canvas === null ? 0 : canvas.getBoundingClientRect().bottom
+  }) - CANVAS_FOOT_CLEARANCE
+  const index = bands.findIndex((one) => at.y >= one.top && at.y < one.bottom)
+  const below = bands[index + 1]
+  const above = bands[index - 1]
+  const into = below !== undefined && below.top + REACH_INTO_ROW < lowest ? below : above
+  if (index < 0 || into === undefined) throw new Error(`MK-16: no drawn row lies next to the one under (${String(at.x)}, ${String(at.y)})`)
+  return Math.round(into.top + Math.min((into.bottom - into.top) / 2, REACH_INTO_ROW))
+}
+
+// see MK-16, T-270
+async function planRowOf(page: Page, uid: number): Promise<{ readonly row: string; readonly left: number }> {
+  const box = await page.evaluate((key: string) => {
+    const drawn = document.querySelector(`[data-figure="${key}"]`)
+    if (drawn === null) return null
+    const r = drawn.getBoundingClientRect()
+    return { left: r.left, y: r.top + r.height / 2 }
+  }, `task-${String(uid)}-plan`)
+  if (box === null) throw new Error(`MK-16: task ${String(uid)} has no plan bar drawn`)
+  const bands = (await page.evaluate(ROW_BANDS_SCRIPT)) as readonly RowBand[]
+  const band = bands.find((one) => box.y >= one.top && box.y < one.bottom)
+  return { row: band === undefined ? 'none' : band.row, left: Math.round(box.left) }
 }
 
 const DAY_MS = 86_400_000
@@ -1638,14 +1695,26 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // see MK-16, T-270
+    // WHY: T-270 moves by the drawn row tops crossed and a row can be taller than any fixed reach
+    // WHY: (DFC-2300), so the release is aimed into the next drawn row and the act judges for itself.
     rows: ['MK-16'],
     expect: 'answers',
     setUp: selectBar,
     act: async (p, g) => {
+      const uid = await taskUidAt(p, g.barBody)
+      const before = await planRowOf(p, uid)
+      const intoY = await nextRowY(p, g.barBody)
       await p.keyboard.down('Shift')
-      const held = await dragFrom(p, g.barBody, 120, 60)
+      const held = await dragFrom(p, g.barBody, 120, intoY - g.barBody.y)
       await p.keyboard.up('Shift')
+      await settled(p)
+      const after = await planRowOf(p, uid)
+      if (after.row === before.row || Math.abs(after.left - before.left) >= 1) {
+        throw new Error(
+          `MK-16: task ${String(uid)} dragged with Shift into the next row went from row ${before.row} ` +
+            `x ${String(before.left)} to row ${after.row} x ${String(after.left)} (T-270: rows move, dates do not)`,
+        )
+      }
       return held
     },
   },
