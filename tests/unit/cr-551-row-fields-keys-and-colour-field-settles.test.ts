@@ -22,17 +22,12 @@ import { pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  colourNames: { spelling: string; text: { ja: string } }[]
-  colourField: { part: string; text: { ja: string } }[]
-}
 
 const rowIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
-const wordOf = (part: string): string => WORDS.colourField.find((one) => one.part === part)?.text.ja ?? ''
 
 // see T-016
 const T_016 = specTable('T-016')
@@ -48,8 +43,6 @@ const t016RowOf = (subject: string, column: string): string => {
 const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
 const BLUE = bare(rowIn('T-294', 'S-319').cells[1] ?? '')
 
-const CUSTOM_WORD = wordOf('custom')
-const THEME_WORD = wordOf('theme')
 
 const IR_1 =
   '欄なら 表 T-016 の行 ID、入口なら `_assets/tbl-glossary.md` の 表 T-109 の行 ID、プロパティパネルの行の名前の欄なら `_assets/fig-erd-detail.md` の `AT-53`、どれでもなければ文書の本体。'
@@ -220,39 +213,21 @@ const linePalette = (built: Bench): FakeElement => {
   if (grids[0] === undefined) throw new Error('the line colour field lays out no palette')
   return grids[0]
 }
-const lastLine = (grid: FakeElement): FakeElement[] => {
-  const palette = grid.parentNode as FakeElement
-  return palette.children.slice(palette.children.indexOf(grid) + 1).flatMap((one) => selfAndDescendants(one))
-}
-const entryWith = (grid: FakeElement, word: string): FakeElement => {
-  const found = lastLine(grid).find((one) => one.children.length === 0 && one.textContent === word)
-  if (found === undefined) throw new Error(`the palette draws no entrance ${word}`)
+// see CV-9, CR-689
+// WHY: every entrance is a cell of the one grid of two rows, beside the names.
+const cellWith = (grid: FakeElement, attribute: string, value: string | null = null): FakeElement => {
+  const found = grid.children.find((one) =>
+    value === null ? one.getAttribute(attribute) !== null : one.getAttribute(attribute) === value,
+  )
+  if (found === undefined) throw new Error(`the palette draws no cell ${attribute}${value === null ? '' : `=${value}`}`)
   return found
 }
-// see CV-9
-// WHY: the theme entrance stands above the grid of names and speaks the theme word for a Task line.
-const themeEntryOf = (grid: FakeElement): FakeElement => {
-  const palette = grid.parentNode as FakeElement
-  const found = palette.children
-    .slice(0, palette.children.indexOf(grid))
-    .flatMap((one) => selfAndDescendants(one))
-    .find((one) => one.getAttribute('data-colour-theme-entry') !== null && (one.textContent ?? '').trim() === THEME_WORD)
-  if (found === undefined) throw new Error(`the palette draws no entrance ${THEME_WORD} above the names`)
-  return found
-}
-const transparentOf = (grid: FakeElement): FakeElement => {
-  const found = lastLine(grid).find((one) => one.getAttribute('data-colour-choice') === TRANSPARENT)
-  if (found === undefined) throw new Error('the palette draws no transparent entrance')
-  return found
-}
-const swatchOf = (grid: FakeElement, name: string): FakeElement => {
-  const found = grid.children.find((one) => one.getAttribute('data-colour-choice') === name)
-  if (found === undefined) throw new Error(`the palette draws no ${name}`)
-  return found
-}
+const themeEntryOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-colour-theme-entry')
+const transparentOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-colour-choice', TRANSPARENT)
+const swatchOf = (grid: FakeElement, name: string): FakeElement => cellWith(grid, 'data-colour-choice', name)
 
 function openCustom(built: Bench): FakeElement {
-  pointerPress(built, entryWith(linePalette(built), CUSTOM_WORD))
+  pointerPress(built, cellWith(linePalette(built), 'data-colour-custom-entry'))
   const input = hostInputs(built, LINE_ROW)[0]
   if (input === undefined) throw new Error('pressing Custom drew no host colour input')
   return input
@@ -263,17 +238,22 @@ describe('IR-1 -- the row fields carry their T-016 row IDs', () => {
     expect(REQUIREMENTS).toContain(IR_1)
   })
 
-  it('IR-1: the row colour field is the T-016 color row, the height field the T-016 height row, the name field AT-53', () => {
-    // see IR-1, T-016, AT-53
+  it('IR-1: the row colour field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
+    // see IR-1, T-016, AT-53, MH-2
     const built = bench(documentWith())
     const box = built.view().rowTitlePanel.titles[0]?.box
     if (box === undefined) throw new Error('the row title is not drawn')
     built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Row Title Panel', null, 'g1'))
     const fields = built.view().propertiesPanel?.fields ?? []
-    const rowOf = (column: string): string | undefined =>
-      fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === column))?.row
+    const rowOf = (column: string, kind: string | null = null): string | undefined =>
+      fields.find((one) =>
+        one.controls.some(
+          (control) => control.key.holder === 'taskGroup' && control.key.column === column && (kind === null || control.kind === kind),
+        ),
+      )?.row
     expect(rowOf('color')).toBe(t016RowOf('TaskGroup', 'color'))
-    expect(rowOf('minHeight')).toBe(t016RowOf('TaskGroup', 'minHeight'))
+    expect(rowOf('minHeight', 'number')).toBe(t016RowOf('TaskGroup', 'minHeight'))
+    expect(rowOf('minHeight', 'boolean')).toBe('MH-2')
     expect(rowOf('label')).toBe('AT-53')
     for (const row of [t016RowOf('TaskGroup', 'color'), t016RowOf('TaskGroup', 'minHeight'), 'AT-53']) {
       expect(fieldNodes(built, row).length, `the drawn field carries ${row}`).toBeGreaterThan(0)

@@ -394,9 +394,10 @@ function bandFloorOf(depth: number, drawn: DrawnSettings): number {
 }
 
 // see DS-13, FR-042
+// WHY: no vertical zoom: the floor the author typed is never drawn lower than typed.
 /** @purity pure */
 function drawnMinHeightPxOf(minHeight: number | null, drawn: DrawnSettings): number {
-  return (minHeight ?? 0) * displayScaleFractionOf(drawn) * drawn.zoomY
+  return (minHeight ?? 0) * displayScaleFractionOf(drawn)
 }
 
 // see LF-2, VG-2

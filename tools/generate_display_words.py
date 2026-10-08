@@ -281,16 +281,29 @@ DUAL_CURSOR_READOUT_LINES = ('left', 'right', 'span', 'days', 'oneDay')
 # noFill on a fill field and noLine on a line field; the null marks themeMark /
 # defaultMark stand where the value would; defaultColour is the word of the
 # entrance back to a null that does not follow the theme hue (S-312, S-147).
-COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
-                      'theme', 'themeHint', 'noFill', 'noLine', 'themeMark',
-                      'defaultMark', 'defaultColour')
+#
+# CR-689 (JDG-1556, JDG-1656): the field is two rows of swatches only. The
+# light/dark side rows, their notes and the null marks left; the entrances are
+# swatches carrying a glyph (themeGlyph, customGlyph) and say what they are in
+# their tooltips; customValue is the custom entrance's tooltip with the value.
+COLOUR_FIELD_PARTS = ('custom', 'themeHint', 'noFill', 'noLine', 'defaultColour',
+                      'themeGlyph', 'customGlyph', 'customValue')
 
 # CR-606 E-28: the words of the properties panel's rows that no table holds as
 # rows -- how one end of a dependency is written ({name} and {uid} slots, the
 # read-only rows PR-37/PR-38/PR-43/PR-44) and the item that adds a resource
 # (AS-5, {name} slot). HELD HERE, the same move as COLOUR_FIELD_PARTS. KEYS,
 # not words.
-PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource')
+#
+# CR-689: the three words of the WBS parent field (WL-15 2-4, JDG-1133 /
+# JDG-1467), the unit words beside the outline width and the actual length
+# (FR-006), the lag and the kind tooltips of a dependency line in PR-37 / PR-38
+# ({lag} and {abbreviation} slots, JDG-1653), and the tooltip of PR-8
+# (JDG-1654).
+PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
+                        'undecidedParent', 'noParent', 'pxUnit', 'daysUnit',
+                        'lagDays', 'linkHintFS', 'linkHintSF', 'linkHintFF',
+                        'linkHintSS', 'resumeValidHint')
 
 # CR-582: the parts of a row's min height field (table T-338): the unit beside
 # the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
@@ -298,7 +311,13 @@ PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource')
 # the row is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
 # table T-338 states them in prose and no table holds them as rows. KEYS, not
 # words.
-ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
+#
+# CR-689 (JDG-1559, JDG-1569, JDG-1656): the field is three lines -- the check
+# (MH-2, enable), the value with its unit and the basis tooltip (MH-1), and the
+# read-only current height (MH-3, currentName / currentValue). `none` left: no
+# word stands for null (MH-2), the check does.
+ROW_MIN_HEIGHT_FIELD_PARTS = ('enable', 'unit', 'basisHint', 'currentName',
+                              'currentValue', 'currentlyHidden')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with

@@ -1,4 +1,5 @@
 excess-lines=6216 excess-branches=621
+# PRUNED properties-panel-drawing.ts::controlElement (held 57/18, now below the band) on 2026-10-08 (CR-689, FR-006): the style choice moved to controlStyleOf and the hint / disabled marks to markControl. Totals left for the coordinator to lower.
 # PRUNED mspdi-xml.ts::readStartTag (held 49/27, now below the band) on 2026-10-04 (DFC-1017, EX-15): the attribute reading moved to readAttribute and afterSpace, so the root's namespace declaration can be kept. readXml also fell 105/27 -> 87/26 (end tag moved to readEndTag). Totals left for the coordinator to lower.
 # PRUNED item-grab.ts::highlightBoxRangeWrite (held 82/31, now below the band) on 2026-10-04 (DFC-2030): the row span and the range normalisation moved to highlightRowSpanOf and highlightRangeWrite, which the Selection body drag shares. Totals left for the coordinator to lower.
 # PRUNED edit-project.ts::editProject (held 49/22, now below the band) on 2026-10-04 (CR-651): the CM-2 and CM-87 bodies moved to withProjectProfile and withParentProgressTolerance. Totals left for the coordinator to lower.
@@ -98,7 +99,6 @@ HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt li
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=140 branches=45
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
-HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
 HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=258 branches=0
 HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf lines=107 branches=0

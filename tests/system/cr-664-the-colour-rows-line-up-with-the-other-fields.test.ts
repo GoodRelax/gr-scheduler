@@ -1,4 +1,4 @@
-// CR-664 (FR-006): the colour rows of the properties panel share the other rows' name edge and value edge, swept live.
+// CR-664 / CR-689 (FR-006, CV-9): the colour rows of the properties panel share the other rows' name edge and value edge, swept live.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -11,10 +11,9 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_006_RIGHT_ALIGNED = '⛔ **項目名は値の欄の左に置き、右詰めにすること（MUST）'
-const FR_006_NAME_ABOVE = '⭐ ただし、色の行（入力の型が `色` の行）は、項目名を欄の上の 1 行に置くこと（MUST）'
 const FR_006_SAME_EDGES =
-  'その 1 行でも項目名はほかの行と同じ項目名の欄に右詰めで置き、色の欄の中身は値の欄の左端から始めること（MUST）'
-const FR_006_WRAP = '同じ行に並ぶ操作子をすべてその幅で並べられないときは、その行を折り返すこと（MUST）'
+  '⭐ 色の行（入力の型が `色` の行）も同じであり、項目名は色の欄の 1 段目の左に置き、色の欄の 2 つの段は値の欄の左端から始めること（MUST）'
+const CV_9_TWO_ROWS = '⭐ 欄は見本の 2 段だけとし、項目名は 1 段目の左に置くこと（MUST）（`FR-006`）'
 
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`
@@ -147,7 +146,9 @@ function expectTheColourRowsLineUp(fields: readonly Field[], where: string): voi
     const field = fields.find((one) => one.row === row)
     expect(field, `premise (${where}): the panel draws the colour row ${row}`).toBeDefined()
     if (field === undefined) continue
-    expect(field.nameBottom, `${row} (${where}): ${FR_006_NAME_ABOVE}`).toBeLessThanOrEqual(field.valueTop + SAME_EDGE_PX)
+    expect(field.nameBottom, `${row} (${where}): ${FR_006_SAME_EDGES} -- the name stands beside the first row, not above`).toBeGreaterThan(
+      field.valueTop + SAME_EDGE_PX,
+    )
     expect(
       Math.abs(field.nameRight - nameEdge),
       `${row} (${where}): ${FR_006_SAME_EDGES} -- name ends at ${field.nameRight}, the other rows at ${nameEdge}`,
@@ -160,33 +161,25 @@ function expectTheColourRowsLineUp(fields: readonly Field[], where: string): voi
   }
 }
 
-interface LastLine {
+interface SwatchRows {
   readonly row: string
-  readonly width: number
-  readonly needed: number
   readonly tops: number
 }
 
-// WHY: the last colour line is the one holding the transparent entry (CV-9).
+// WHY: the grid is the element holding the transparent entry (CV-9, CR-689); its cells' tops count its rows.
 /** @purity semi-pure-b */
-async function lastLinesOf(page: Page): Promise<LastLine[]> {
+async function swatchRowsOf(page: Page): Promise<SwatchRows[]> {
   return page.evaluate(
     ({ panel, rows }: { panel: string; rows: readonly string[] }) => {
-      const out: LastLine[] = []
+      const out: SwatchRows[] = []
       for (const row of rows) {
         const entry = document.querySelector(`${panel} [data-field-row="${row}"][data-colour-choice="transparent"]`)
-        const line = entry?.parentElement
-        if (line === null || line === undefined) continue
-        const kids = Array.from(line.children)
+        const grid = entry?.parentElement
+        if (grid === null || grid === undefined) continue
+        const kids = Array.from(grid.children)
           .map((one) => one.getBoundingClientRect())
           .filter((one) => one.width > 0 && one.height > 0)
-        const gap = Number.parseFloat(window.getComputedStyle(line).columnGap) || 0
-        out.push({
-          row,
-          width: line.getBoundingClientRect().width,
-          needed: kids.reduce((sum, one) => sum + one.width, 0) + gap * Math.max(0, kids.length - 1),
-          tops: new Set(kids.map((one) => Math.round(one.top))).size,
-        })
+        out.push({ row, tops: new Set(kids.map((one) => Math.round(one.top))).size })
       }
       return out
     },
@@ -195,7 +188,7 @@ async function lastLinesOf(page: Page): Promise<LastLine[]> {
 }
 
 test('FR-006 still says what the cases press', () => {
-  for (const said of [FR_006_RIGHT_ALIGNED, FR_006_NAME_ABOVE, FR_006_SAME_EDGES, FR_006_WRAP]) {
+  for (const said of [FR_006_RIGHT_ALIGNED, FR_006_SAME_EDGES, CV_9_TWO_ROWS]) {
     expect(REQUIREMENTS, said).toContain(unbroken(said))
   }
   expect(COLOUR_ROWS.length, 'premise: table T-016 holds colour rows for a Task').toBeGreaterThan(0)
@@ -218,12 +211,9 @@ for (const scheme of ['light', 'dark'] as const) {
       expect(Math.abs(width - S_248), `premise: the drag stopped at S-248 (${S_248}px); the panel is ${width}px`).toBeLessThanOrEqual(2)
       expectTheColourRowsLineUp(await fieldsOf(page), `${scheme}, S-248 width ${width}px`)
 
-      const lines = await lastLinesOf(page)
-      expect(lines.length, 'premise: every colour row draws its last line').toBe(COLOUR_ROWS.length)
-      for (const line of lines) {
-        expect(line.needed, `premise (${line.row}): at S-248 the last line cannot stand on one line`).toBeGreaterThan(line.width)
-        expect(line.tops, `${line.row}: ${FR_006_WRAP} -- ${JSON.stringify(line)}`).toBeGreaterThan(1)
-      }
+      const grids = await swatchRowsOf(page)
+      expect(grids.length, 'premise: every colour row draws its grid').toBe(COLOUR_ROWS.length)
+      for (const grid of grids) expect(grid.tops, `${grid.row}: ${CV_9_TWO_ROWS} -- ${JSON.stringify(grid)}`).toBe(2)
     } finally {
       await context.close()
     }

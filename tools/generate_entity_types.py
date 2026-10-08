@@ -1644,8 +1644,11 @@ NOT_STORED_TARGETS = {
         # CR-582: S-440 and S-441 are the rule between the unit and the
         # current height of the min height field (MH-5 of table T-338), drawn
         # by the same unit; their own notes forbid sharing S-190 / S-241.
+        # CR-689 retired S-440 / S-441 with MH-5 (the field became three
+        # lines) and added S-530 / S-531, the outline round the swatch that
+        # holds the colour field's value (CV-9).
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-440', 'S-441'],
+         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-530', 'S-531'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per

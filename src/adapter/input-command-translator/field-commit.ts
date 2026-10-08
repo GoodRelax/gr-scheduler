@@ -22,6 +22,7 @@ import {
   SETTINGS_CONSTANTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
+import { displayScaleFractionOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { FieldCommit } from '../screen-renderer/screen-renderer'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
@@ -273,6 +274,20 @@ function commandFromGroupColumn(
     default:
       return []
   }
+}
+
+const MIN_HEIGHT_COLUMN = 'minHeight'
+
+const CHECK_TEXTS: readonly string[] = [String(true), String(false)]
+
+// see MH-2, MH-1, MH-3, DS-13
+/** @purity pure */
+function minHeightTextOf(text: string, groupId: string, context: InputContext): string | null {
+  if (!CHECK_TEXTS.includes(text)) return text
+  if (text === String(false)) return ''
+  const placed = context.layout.rows.find((row) => row.groupId === groupId)
+  if (placed === undefined) return null
+  return String(Math.round(placed.height / displayScaleFractionOf(context.document.documentSettings)))
 }
 
 type HighlightBox = Schedule['highlightBoxes'][number]
@@ -547,7 +562,8 @@ export function commandFromFieldCommit(
         : commandFromVisualColumn(schedule, key.uid, key.column, commit.text, dark)
     case 'taskGroup': {
       const group = schedule.taskGroups.find((held) => held.id === key.groupId)
-      return group === undefined ? [] : commandFromGroupColumn(group, key.column, commit.text, dark)
+      const text = key.column === MIN_HEIGHT_COLUMN ? minHeightTextOf(commit.text, key.groupId, context) : commit.text
+      return group === undefined || text === null ? [] : commandFromGroupColumn(group, key.column, text, dark)
     }
     case 'commentBox':
     case 'highlightBox':

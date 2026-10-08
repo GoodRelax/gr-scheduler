@@ -591,7 +591,7 @@ const INK_ON_DARK = '#ffffff'
 const INK_TURNS_AT_LIGHTNESS = 50
 
 /** @purity pure */
-function inkOn(paint: string): string {
+export function inkOn(paint: string): string {
   const lightness = GREY_LIGHTNESS.exec(achromatic(paint))
   if (lightness === null) return ''
   return Number(lightness[1]) < INK_TURNS_AT_LIGHTNESS ? INK_ON_DARK : INK_ON_LIGHT

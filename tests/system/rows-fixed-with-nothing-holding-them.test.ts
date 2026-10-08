@@ -551,6 +551,9 @@ test('DFC-133: confirming the height field moves the panel and the row together'
     const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
     expect(shownBefore, `the panel shows ${ROW_HEIGHT_FIELD} blank to begin with`).toBe('')
 
+    // WHY: T-338 MH-2 (CR-689): the value input opens only once its check is ticked.
+    await opened.page.locator(`${PROPERTIES} input[type="checkbox"][data-field-row="MH-2"]`).check()
+    await opened.page.waitForTimeout(900)
     const wanted = before.height + 56
     await commitField(opened.page, 'number', String(wanted))
 

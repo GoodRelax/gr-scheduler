@@ -32,8 +32,8 @@ const rowIn = (table: string, id: string) => {
 }
 
 const CV_9_MONO =
-  '`FR-041` のモノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、名の見本と側ごとの見本を、同じ色を `CV-7` で無彩色にした値で塗ること（MUST）'
-const CV_9_KEPT = '透明の市松と未定義の破線はそのまま'
+  '`FR-041` のモノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、名の見本と、テーマに戻す入口・カスタムカラーの入口の見本を、同じ色を `CV-7` で無彩色にした値で塗ること（MUST）'
+const CV_9_KEPT = '（透明の市松はそのまま）'
 const CV_7 = '`FR-041` のモノクロは、`CV-6` で決まった値を無彩色にして描くこと（MUST）'
 
 // see S-74
@@ -202,13 +202,14 @@ const panelNodes = (built: Bench, row: string): FakeElement[] => {
 const palettes = (built: Bench, row: string): FakeElement[] =>
   panelNodes(built, row).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
 const groundOf = (node: FakeElement): string => styleMap(node).get('background-color') ?? styleMap(node).get('background') ?? ''
-const sideSwatches = (built: Bench, row: string): FakeElement[] =>
-  panelNodes(built, row).filter((one) => one.getAttribute('data-colour-swatch') !== null)
-const sidesText = (built: Bench, row: string): string =>
-  panelNodes(built, row)
-    .filter((one) => one.getAttribute('data-colour-sides') !== null)
-    .map((one) => selfAndDescendants(one).map((node) => (node.children.length === 0 ? node.textContent ?? '' : '')).join(''))
-    .join(' | ')
+// see CV-9, CR-689
+const cellOf = (built: Bench, row: string, attribute: string, value: string | null = null): FakeElement => {
+  const found = (palettes(built, row)[0]?.children ?? []).find((one) =>
+    value === null ? one.getAttribute(attribute) !== null : one.getAttribute(attribute) === value,
+  )
+  if (found === undefined) throw new Error(`the ${row} palette draws no cell ${attribute}`)
+  return found
+}
 
 function namesPaintedAsDrawn(built: Bench): string[] {
   const [line] = palettes(built, LINE_ROW)
@@ -236,7 +237,7 @@ const isGrey = (written: string): boolean => {
 }
 
 describe('CV-9 E-48 -- the colour field in monochrome', () => {
-  it('CV-9 / CV-7 still say: 名の見本と側ごとの見本を、同じ色を CV-7 で無彩色にした値で塗る / 透明の市松と未定義の破線はそのまま', () => {
+  it('CV-9 / CV-7 still say: 名の見本と、テーマに戻す入口・カスタムカラーの入口の見本を、CV-7 で無彩色にした値で塗る / 透明の市松はそのまま', () => {
     expect(REQUIREMENTS).toContain(CV_9_MONO)
     expect(REQUIREMENTS).toContain(CV_9_KEPT)
     expect(REQUIREMENTS).toContain(CV_7)
@@ -250,23 +251,29 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })
 
-  it('CV-9 / CV-7: with S-74 on, both side swatches are the drawing monochrome value of that side, and the words stay the stored name', () => {
-    // see CV-9, CV-7, S-74
-    const light = panelOnTask(documentOf(true), 'light')
-    const dark = bench(documentOf(true), 'dark')
-    const [lightSide, darkSide] = sideSwatches(light, FILL_ROW).slice(0, 2)
-    expect(sameColour(groundOf(lightSide as FakeElement), drawnPaint(light, 1, 'fill')), 'the light side').toBe(true)
-    expect(sameColour(groundOf(darkSide as FakeElement), drawnPaint(dark, 1, 'fill')), 'the dark side').toBe(true)
-    expect(sidesText(light, FILL_ROW)).toContain(colourWord(NAMED[0] as string))
+  for (const side of ['light', 'dark'] as const) {
+    it(`CV-9 / CV-7: with S-74 on, the theme entrance of an unset fill is the drawing's monochrome value (${side})`, () => {
+      // see CV-9, CV-7, S-74
+      const built = panelOnTask(documentOf(true, { fillColor: null }), side)
+      const theme = groundOf(cellOf(built, FILL_ROW, 'data-colour-theme-entry'))
+      expect(isGrey(theme), theme).toBe(true)
+      expect(sameColour(theme, drawnPaint(built, 1, 'fill')), `${theme} vs ${drawnPaint(built, 1, 'fill')}`).toBe(true)
+    })
+  }
+
+  it('CV-9 / CV-7: with S-74 on, a name swatch keeps its word as its tooltip', () => {
+    const built = panelOnTask(documentOf(true), 'light')
+    const name = NAMED[0] as string
+    expect(cellOf(built, FILL_ROW, 'data-colour-choice', name).getAttribute('title')).toBe(colourWord(name))
   })
 
-  it('CV-9: with S-74 on, a custom colour keeps its uppercase hex in the words while its swatch turns grey', () => {
+  it('CV-9: with S-74 on, a custom colour keeps its uppercase hex in the custom entrance tooltip while its swatch turns grey', () => {
     // see CV-9, CV-7
     const built = panelOnTask(documentOf(true, { fillColor: '#c0504d/' }), 'light')
-    expect(sidesText(built, FILL_ROW)).toContain('#C0504D')
-    const fillLight = sideSwatches(built, FILL_ROW)[0] as FakeElement
-    expect(isGrey(groundOf(fillLight)), groundOf(fillLight)).toBe(true)
-    expect(sameColour(groundOf(fillLight), drawnPaint(built, 1, 'fill'))).toBe(true)
+    const custom = cellOf(built, FILL_ROW, 'data-colour-custom-entry')
+    expect(custom.getAttribute('title') ?? '').toContain('#C0504D')
+    expect(isGrey(groundOf(custom)), groundOf(custom)).toBe(true)
+    expect(sameColour(groundOf(custom), drawnPaint(built, 1, 'fill'))).toBe(true)
   })
 
   it('CV-9: turning S-74 off (IC-100) restores the colours the drawing paints', () => {
@@ -278,22 +285,14 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })
 
-  it('CV-9: 透明の市松と未定義の破線はそのまま -- the same with S-74 on as off', () => {
+  it(`CV-9: ${CV_9_KEPT} -- the transparent entrance is the same checkerboard with S-74 on as off`, () => {
     // see CV-9
     const style = (mono: boolean): string[] => {
-      const built = panelOnTask(documentOf(mono, { fillColor: '#c0504d/', strokeColor: TRANSPARENT }), 'light')
-      return [...sideSwatches(built, LINE_ROW), ...sideSwatches(built, FILL_ROW)].map((one) => {
-        const held = styleMap(one)
-        return `${held.get('background') ?? ''}|${held.get('border') ?? ''}`
-      })
+      const built = panelOnTask(documentOf(mono, { strokeColor: TRANSPARENT }), 'light')
+      return [LINE_ROW, FILL_ROW].map((row) => styleMap(cellOf(built, row, 'data-colour-choice', TRANSPARENT)).get('background') ?? '')
     }
     const off = style(false)
-    const on = style(true)
-    const checker = (all: string[]): string[] => all.filter((one) => /gradient\(/.test(one))
-    const dashed = (all: string[]): string[] => all.filter((one) => /dashed/.test(one))
-    expect(checker(off).length, 'premise: the transparent line shows a checkerboard').toBeGreaterThan(0)
-    expect(dashed(off).length, 'premise: the unset dark side shows a dashed edge').toBeGreaterThan(0)
-    expect(checker(on)).toEqual(checker(off))
-    expect(dashed(on)).toEqual(dashed(off))
+    expect(off.every((one) => /gradient\(/.test(one)), 'premise: the transparent entrance shows a checkerboard').toBe(true)
+    expect(style(true)).toEqual(off)
   })
 })

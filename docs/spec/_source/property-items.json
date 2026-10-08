@@ -44,21 +44,51 @@
    }
   },
   {
-   "id": "PR-3",
+   "id": "PR-16",
    "columns": [
-    "start",
-    "finish"
+    "assignee"
    ],
    "inputKinds": [
-    "日付",
+    "選択"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。 ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する"
+   },
+   "mspdi": {
+    "ja": "`Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。名は `Resource/Name`"
+   }
+  },
+  {
+   "id": "PR-3",
+   "columns": [
+    "start"
+   ],
+   "inputKinds": [
     "日付"
    ],
    "shownFor": "task",
    "note": {
-    "ja": "**予定**の日付"
+    "ja": "**予定**の開始日"
    },
    "mspdi": {
-    "ja": "`Task/Start` `Task/Finish`"
+    "ja": "`Task/Start`"
+   }
+  },
+  {
+   "id": "PR-47",
+   "columns": [
+    "finish"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "shownFor": "task",
+   "note": {
+    "ja": "**予定**の終了日。⭐ 開始日と別の行にする —— 1 行に 2 つの日付を並べると、名が 2 つの値を兼ね、狭いパネルで折り返す"
+   },
+   "mspdi": {
+    "ja": "`Task/Finish`"
    }
   },
   {
@@ -80,22 +110,6 @@
    }
   },
   {
-   "id": "PR-16",
-   "columns": [
-    "assignee"
-   ],
-   "inputKinds": [
-    "選択"
-   ],
-   "shownFor": "both",
-   "note": {
-    "ja": "編集できる。入口と選び方は `FR-008` の表 T-225 が持つ。 ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する"
-   },
-   "mspdi": {
-    "ja": "`Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。名は `Resource/Name`"
-   }
-  },
-  {
    "id": "PR-4",
    "columns": [
     "actualStart"
@@ -109,22 +123,6 @@
    },
    "mspdi": {
     "ja": "`Task/ActualStart`"
-   }
-  },
-  {
-   "id": "PR-5",
-   "columns": [
-    "actualDuration"
-   ],
-   "inputKinds": [
-    "数値"
-   ],
-   "shownFor": "task",
-   "note": {
-    "ja": "文書の列ではない —— `FR-011` が日付から数えた実績の長さ（両端の日は非稼働日でも数える）。入れると、`actualStart` の後に来る稼働日を入れた数 − 1 個数えた日を実績の最後の日（完了していれば `actualFinish`、それ以外は `stop`）に置く"
-   },
-   "mspdi": {
-    "ja": "`Task/ActualDuration`"
    }
   },
   {
@@ -162,6 +160,22 @@
    }
   },
   {
+   "id": "PR-5",
+   "columns": [
+    "actualDuration"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "shownFor": "task",
+   "note": {
+    "ja": "文書の列ではない —— `FR-011` が日付から数えた実績の長さ（両端の日は非稼働日でも数える）。入れると、`actualStart` の後に来る稼働日を入れた数 − 1 個数えた日を実績の最後の日（完了していれば `actualFinish`、それ以外は `stop`）に置く。欄の入力は日付の欄と同じ幅で、右に単位の語（`FR-006`）"
+   },
+   "mspdi": {
+    "ja": "`Task/ActualDuration`"
+   }
+  },
+  {
    "id": "PR-9",
    "columns": [
     "percentComplete"
@@ -176,38 +190,6 @@
    },
    "mspdi": {
     "ja": "`Task/PercentComplete`"
-   }
-  },
-  {
-   "id": "PR-10",
-   "columns": [
-    "deadline"
-   ],
-   "inputKinds": [
-    "日付"
-   ],
-   "shownFor": "both",
-   "note": {
-    "ja": "終了日とは別の独立マーカー"
-   },
-   "mspdi": {
-    "ja": "`Task/Deadline`"
-   }
-  },
-  {
-   "id": "PR-2",
-   "columns": [
-    "notes"
-   ],
-   "inputKinds": [
-    "複数行"
-   ],
-   "shownFor": "both",
-   "note": {
-    "ja": ""
-   },
-   "mspdi": {
-    "ja": "`Task/Notes`"
    }
   },
   {
@@ -240,6 +222,22 @@
    },
    "mspdi": {
     "ja": "`Task/ResumeValid`"
+   }
+  },
+  {
+   "id": "PR-10",
+   "columns": [
+    "deadline"
+   ],
+   "inputKinds": [
+    "日付"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "終了日とは別の独立マーカー"
+   },
+   "mspdi": {
+    "ja": "`Task/Deadline`"
    }
   },
   {
@@ -282,7 +280,7 @@
     "wbsParentUid"
    ],
    "inputKinds": [
-    "リンク"
+    "タスクの参照"
    ],
    "shownFor": "both",
    "note": {
@@ -298,12 +296,12 @@
     "predecessors"
    ],
    "inputKinds": [
-    "文字"
+    "タスクの参照"
    ],
    "isReadOnly": true,
    "shownFor": "both",
    "note": {
-    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは先行の `uid` の昇順。依存が無いときは空の欄とする"
+    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を後続に持つ依存（`Dependency`）の先行タスクを、1 本につき 1 行で示す。並びは先行の `uid` の昇順。依存が無いときは空の欄とする。⭐ 1 行は、先行タスクの名をリンクで出し（押したら 表 T-351 の `WL-16` と同じく、そのタスクへ `FR-151` の 表 T-332 の飛び方で飛び、選ぶ）、種別が FS（表 T-018 の `DP-1`）でないときだけその右に種別の略号の札を、ラグ（`AT-47`）が 0 でないときだけその右にラグを置く。札のツールチップ（表 T-028 の `IN-3`）は種別の向きを言う語とし、略号は 表 T-018 から、語は `FR-038` の辞書から取る。⭐ FS だけを使う文書では、名だけが並ぶ —— 種別の札を毎行に出すと、まれな種別が埋もれる。⚠️ 依存のパネル（`PR-43`・`PR-44`）の名と `uid` の形とは別である"
    },
    "mspdi": {
     "ja": "`Task/PredecessorLink/PredecessorUID`"
@@ -315,28 +313,44 @@
     "successors"
    ],
    "inputKinds": [
-    "文字"
+    "タスクの参照"
    ],
    "isReadOnly": true,
    "shownFor": "both",
    "note": {
-    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行、`FR-038` の辞書の形（名と `uid`）で示す。並びは後続の `uid` の昇順。依存が無いときは空の欄とする"
+    "ja": "**読み取り専用。** 文書の列ではない —— この `Task` を先行に持つ依存の後続タスクを、1 本につき 1 行で示す。並びは後続の `uid` の昇順。依存が無いときは空の欄とする。⭐ 1 行は、後続タスクの名をリンクで出し（押したら 表 T-351 の `WL-16` と同じく、そのタスクへ `FR-151` の 表 T-332 の飛び方で飛び、選ぶ）、種別が FS（表 T-018 の `DP-1`）でないときだけその右に種別の略号の札を、ラグ（`AT-47`）が 0 でないときだけその右にラグを置く。札のツールチップ（表 T-028 の `IN-3`）は種別の向きを言う語とし、略号は 表 T-018 から、語は `FR-038` の辞書から取る。⭐ FS だけを使う文書では、名だけが並ぶ —— 種別の札を毎行に出すと、まれな種別が埋もれる。⚠️ 依存のパネル（`PR-43`・`PR-44`）の名と `uid` の形とは別である"
    },
    "mspdi": {
     "ja": "無い（後続のタスクの `PredecessorLink` から導く）"
    }
   },
   {
-   "id": "PR-12",
+   "id": "PR-2",
    "columns": [
-    "fillColor"
+    "notes"
    ],
    "inputKinds": [
-    "色"
+    "複数行"
    ],
    "shownFor": "both",
    "note": {
-    "ja": "塗りの色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`"
+    "ja": ""
+   },
+   "mspdi": {
+    "ja": "`Task/Notes`"
+   }
+  },
+  {
+   "id": "PR-40",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "shownFor": "both",
+   "note": {
+    "ja": "枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。`_assets/fig-erd-detail.md` の `AT-104`）。空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。範囲は `AT-104` が持つ"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -359,16 +373,16 @@
    }
   },
   {
-   "id": "PR-40",
+   "id": "PR-12",
    "columns": [
-    "strokeWidthPx"
+    "fillColor"
    ],
    "inputKinds": [
-    "数値"
+    "色"
    ],
    "shownFor": "both",
    "note": {
-    "ja": "枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。`_assets/fig-erd-detail.md` の `AT-104`）。空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。範囲は `AT-104` が持つ"
+    "ja": "塗りの色（`FR-007`）。欄の並べ方は 表 T-017b の `CV-9`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -400,7 +414,7 @@
    ],
    "appliesTo": "TaskGroup",
    "note": {
-    "ja": "行の最小の高さ（縦のズーム 100% のときの画面の px）。`null` ＝ 下限なし。欄の出し方は `FR-042` の 表 T-338 が持つ"
+    "ja": "行の最小の高さ（表示の倍率 100 のときの画面の px。縦のズームでは伸び縮みしない）。`null` ＝ 下限なし（欄ではチェックを外した状態 —— `FR-042` の 表 T-338 の `MH-2`）。欄の出し方は同表が持つ"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -455,6 +469,38 @@
    }
   },
   {
+   "id": "PR-26",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の枠と引出し線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-28",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の枠と引出し線の色。`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）。並びは `FR-006` の見た目の行の順"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-45",
    "columns": [
     "fillColor"
@@ -487,38 +533,6 @@
    }
   },
   {
-   "id": "PR-28",
-   "columns": [
-    "strokeColor"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "appliesTo": "CommentBox",
-   "note": {
-    "ja": "本文の箱の枠と引出し線の色。`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）。並びは `FR-006` の見た目の行の順"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-26",
-   "columns": [
-    "strokeWidthPx"
-   ],
-   "inputKinds": [
-    "数値"
-   ],
-   "appliesTo": "CommentBox",
-   "note": {
-    "ja": "本文の箱の枠と引出し線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
    "id": "PR-46",
    "columns": [
     "textColor"
@@ -529,6 +543,38 @@
    "appliesTo": "CommentBox",
    "note": {
     "ja": "本文の字の色。`null` ＝ `FR-019` が名指す文字の色（`_assets/tbl-settings.md` の 表 T-236 の `S-147`）。並びは `FR-006` の見た目の行の順"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-23",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "枠の線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-22",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "ハイライトボックスの枠の色（`CM-55`）。`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`）"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -561,38 +607,6 @@
    "appliesTo": "HighlightBox",
    "note": {
     "ja": "塗りの透過率。0 は不透明、100 は透明。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-22",
-   "columns": [
-    "strokeColor"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "appliesTo": "HighlightBox",
-   "note": {
-    "ja": "ハイライトボックスの枠の色（`CM-55`）。`null` ＝ 注記の色 `S-312`（テーマ色に従わない —— 色の欄の語は既定の色）。透明（線なし）も取るが、塗りと同時には取らない（`FR-019`、表 T-017b の `CV-9`）"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-23",
-   "columns": [
-    "strokeWidthPx"
-   ],
-   "inputKinds": [
-    "数値"
-   ],
-   "appliesTo": "HighlightBox",
-   "note": {
-    "ja": "枠の線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

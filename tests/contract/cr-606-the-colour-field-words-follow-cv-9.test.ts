@@ -22,18 +22,19 @@ import { bare, specTable, unbroken } from './spec-table'
 
 // see CV-9
 const CV_9_TRANSPARENT_WORD =
-  '⭐ 透明の入口の語は、塗りの欄（`fillColor` と `TaskGroup.color`）では塗りの無いことを、線の欄（`strokeColor`）では線の無いことを言う語とすること（MUST）'
+  '透明の入口は、塗りの欄（`fillColor` と `TaskGroup.color`）では塗りの無いことを、線の欄（`strokeColor`）では線の無いことを言う語'
 const CV_9_THEME_OR_DEFAULT =
-  '⭐ ② の入口の語は、その欄の `null` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色を言う語、— なら既定の色を言う語とすること（MUST）'
-const CV_9_NULL_MARK =
-  '⭐ 欄の値が `null`（② を選んでいる）ときは、側ごとの見本を、その欄の `null` がいま描いている色（テーマの色か既定の色）で塗り、値の代わりに、テーマなら「(テーマ)」、既定なら「(既定)」の印を添えること（MUST）'
-const CV_9_MARK_ONLY_ON_NULL = '印は `null` のときにだけ出す。'
+  'テーマに戻す入口は、その欄の `null` が描く色の 表 T-236 の行の色相の欄が ○ ならテーマの色に従うことを言う語、— なら既定の色に従うことを言う語'
+const CV_9_THEME_PAINT = 'テーマに戻す入口の見本は、その欄の `null` がいま描いている色（テーマの色か既定の色）で塗る。'
+const CV_9_GLYPHS = 'テーマに戻す入口の見本には字「T」を、カスタムカラーの入口の見本には字「O」を置き'
+const CV_9_CUSTOM_VALUE =
+  '⭐ 欄の値がカスタムカラーのときは、カスタムカラーの入口の見本を、`CV-3` で決まった、いま描いている明暗の値で塗り、そのツールチップに値を添えること（MUST）'
 const CV_9_FRAME_NO_LINE = 'ハイライトボックスの枠の欄にも透明（線なし）を並べる'
 const CV_9_COMMENT_NO_TRANSPARENT = 'コメントボックスの線の欄と字の欄には透明を並べない（`FR-019`）。'
 const CV_9_THEME_ENTRY_IS_NULL = '押したらその欄の色をテーマ追随（`null`）へ戻すこと（MUST）'
 // see FR-019
 const FR_019_NULL_ENTRIES =
-  '色の欄の ② の入口は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— 語は既定の色）へ戻す。'
+  '色の欄のテーマに戻す入口（表 T-017b の `CV-9`）は、塗りを `null`（テーマの色 `S-155` で塗る）へ、枠の線を `null`（注記の色 `S-312` で描く —— ツールチップの語は既定の色）へ戻す。'
 // see PR-28, PR-45, PR-46
 const COMMENT_BOX_NULLS = [
   ['PR-28', '`null` ＝ `FR-019` が名指す注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）'],
@@ -49,8 +50,9 @@ describe('CR-606 premise -- the clauses these cases quote still stand', () => {
   it.each([
     ['transparent word', CV_9_TRANSPARENT_WORD],
     ['theme or default', CV_9_THEME_OR_DEFAULT],
-    ['null mark', CV_9_NULL_MARK],
-    ['mark only on null', CV_9_MARK_ONLY_ON_NULL],
+    ['theme entrance paint', CV_9_THEME_PAINT],
+    ['entrance glyphs', CV_9_GLYPHS],
+    ['custom value on its entrance', CV_9_CUSTOM_VALUE],
     ['frame offers no line', CV_9_FRAME_NO_LINE],
     ['comment line and text offer no transparent', CV_9_COMMENT_NO_TRANSPARENT],
     ['theme entry is null', CV_9_THEME_ENTRY_IS_NULL],
@@ -70,7 +72,6 @@ describe('CR-606 premise -- the clauses these cases quote still stand', () => {
 const T_236 = specTable('T-236')
 const HUE_COLUMN = '色相追随'
 const LIGHT_COLUMN = '明るいテーマ'
-const DARK_COLUMN = '暗いテーマ'
 const FOLLOWS = '○'
 
 const t236Row = (id: string) => {
@@ -116,12 +117,18 @@ const sameColour = (drawn: string | undefined, expected: string): boolean => {
 
 const PLAIN = 1
 const FILLED = 2
+const CUSTOM = 3
+const CUSTOM_LIGHT = '#c0504d'
 const BOX = 'h1'
 const NOTE = 'c1'
 
 const DOCUMENT = documentOf({
-  tasks: [taskOf(PLAIN), taskOf(FILLED)],
-  visuals: [visualOf(PLAIN, { shapeKind: 'rectangle' }), visualOf(FILLED, { shapeKind: 'rectangle', fillColor: 'red' })],
+  tasks: [taskOf(PLAIN), taskOf(FILLED), taskOf(CUSTOM)],
+  visuals: [
+    visualOf(PLAIN, { shapeKind: 'rectangle' }),
+    visualOf(FILLED, { shapeKind: 'rectangle', fillColor: 'red' }),
+    visualOf(CUSTOM, { shapeKind: 'rectangle', fillColor: `${CUSTOM_LIGHT}/#3a5f8a` }),
+  ],
   highlightBoxes: [highlightBoxOf(BOX)],
   commentBoxes: [commentBoxOf(NOTE)],
 })
@@ -197,9 +204,9 @@ describe(`CV-9 (4) -- ${CV_9_TRANSPARENT_WORD}`, () => {
 })
 
 describe(`CV-9 (2) -- ${CV_9_THEME_OR_DEFAULT}`, () => {
-  it.each(NULL_ROWS)('%s.%s: null draws %s, so the entry reads by its hue column', (holder, column, row) => {
-    const expected = followsHue(row) ? colourWordOf('theme') : colourWordOf('defaultColour')
-    expect(colourOf(colourControlOf(holder, column)).theme?.word).toBe(expected)
+  it.each(NULL_ROWS)('%s.%s: null draws %s, so the entrance tooltip reads by its hue column', (holder, column, row) => {
+    const expected = followsHue(row) ? colourWordOf('themeHint') : colourWordOf('defaultColour')
+    expect(colourOf(colourControlOf(holder, column)).theme.hint).toBe(expected)
   })
 
   it('premise: the five rows split both ways (S-155 and S-146 follow the hue; S-312 and S-147 do not)', () => {
@@ -213,46 +220,42 @@ describe(`CV-9 (2) -- ${CV_9_THEME_OR_DEFAULT}`, () => {
     ['taskVisual', 'fillColor'],
     ['taskVisual', 'strokeColor'],
     ['taskGroup', 'color'],
-  ] as const)(`${CV_9_THEME_ENTRY_IS_NULL} -- %s.%s follows the theme, so the entry reads colourField.theme`, (holder, column) => {
-    expect(colourOf(colourControlOf(holder, column)).theme?.word).toBe(colourWordOf('theme'))
+  ] as const)(`${CV_9_THEME_ENTRY_IS_NULL} -- %s.%s follows the theme, so the tooltip reads colourField.themeHint`, (holder, column) => {
+    expect(colourOf(colourControlOf(holder, column)).theme.hint).toBe(colourWordOf('themeHint'))
   })
 
-  it.each(NULL_ROWS)('%s.%s: the entry is painted with what its null draws now (%s, light)', (holder, column, row) => {
-    const paint = colourOf(colourControlOf(holder, column)).theme?.paint
+  it.each(NULL_ROWS)(`${CV_9_THEME_PAINT} -- %s.%s: the entrance is painted with %s (light)`, (holder, column, row) => {
+    const paint = colourOf(colourControlOf(holder, column)).theme.paint ?? undefined
     const expected = t236Colour(row, LIGHT_COLUMN)
     expect(sameColour(paint, expected), `${String(paint)} vs ${expected}`).toBe(true)
   })
 })
 
-describe(`CV-9 -- ${CV_9_NULL_MARK}`, () => {
-  it.each(NULL_ROWS)('%s.%s is null: each side carries the mark and is painted with %s', (holder, column, row) => {
+describe(`CV-9 -- ${CV_9_GLYPHS}`, () => {
+  it.each(FIELDS)('%s.%s: the theme entrance carries colourField.themeGlyph and the custom one customGlyph', (holder, column) => {
     const field = colourOf(colourControlOf(holder, column))
-    const mark = followsHue(row) ? colourWordOf('themeMark') : colourWordOf('defaultMark')
-    expect(field.light.mark).toBe(mark)
-    expect(field.dark.mark).toBe(mark)
-    const light = t236Colour(row, LIGHT_COLUMN)
-    const dark = t236Colour(row, DARK_COLUMN)
-    expect(sameColour(field.light.paint, light), `light ${field.light.paint} vs ${light}`).toBe(true)
-    expect(sameColour(field.dark.paint, dark), `dark ${field.dark.paint} vs ${dark}`).toBe(true)
+    expect(field.theme.glyph).toBe(colourWordOf('themeGlyph'))
+    expect(field.custom.glyph).toBe(colourWordOf('customGlyph'))
+  })
+
+  it('premise: the dictionary spells the two glyphs T and O', () => {
+    expect([colourWordOf('themeGlyph'), colourWordOf('customGlyph')]).toEqual(['T', 'O'])
+  })
+})
+
+describe(`CV-9 -- ${CV_9_CUSTOM_VALUE}`, () => {
+  it('a task filled with a custom colour: the custom entrance is painted with it and its tooltip names it', () => {
+    const custom = colourOf(colourControlOf('taskVisual', 'fillColor', taskItem(CUSTOM))).custom
+    expect(sameColour(custom.paint ?? undefined, CUSTOM_LIGHT), `${String(custom.paint)} vs ${CUSTOM_LIGHT}`).toBe(true)
+    expect(custom.hint).toBe(colourWordOf('customValue').replace('{value}', CUSTOM_LIGHT.toUpperCase()))
   })
 
   it.each([
-    ['taskVisual', 'fillColor'],
-    ['taskVisual', 'strokeColor'],
-    ['taskGroup', 'color'],
-  ] as const)('%s.%s is null and follows the theme: each side carries colourField.themeMark', (holder, column) => {
-    const field = colourOf(colourControlOf(holder, column))
-    expect(field.light.mark).toBe(colourWordOf('themeMark'))
-    expect(field.dark.mark).toBe(colourWordOf('themeMark'))
-  })
-
-  it(`${CV_9_MARK_ONLY_ON_NULL} -- a task filled red carries no mark on either side`, () => {
-    const field = colourOf(colourControlOf('taskVisual', 'fillColor', taskItem(FILLED)))
-    expect(field.light.mark).toBeUndefined()
-    expect(field.dark.mark).toBeUndefined()
-  })
-
-  it('control: the two marks differ', () => {
-    expect(colourWordOf('themeMark')).not.toBe(colourWordOf('defaultMark'))
+    ['a palette name', FILLED],
+    ['null', PLAIN],
+  ] as const)('a task whose fill is %s: the custom entrance is unpainted and names only the entrance', (_what, uid) => {
+    const custom = colourOf(colourControlOf('taskVisual', 'fillColor', taskItem(uid))).custom
+    expect(custom.paint).toBeNull()
+    expect(custom.hint).toBe(colourWordOf('custom'))
   })
 })

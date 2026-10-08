@@ -121,7 +121,7 @@ async function inkOf(page: Page, colour: string): Promise<string> {
 test.describe('W3-T1 the manuscript these cases are driven by', () => {
   test('FR-135, FR-075, the look rows and IX-17 still read this way', () => {
     for (const clause of [FR_135_FIELD, FR_135_HANDS, FR_075_COLOURS, FR_006_LOOK_LAST, IX_17_FIELD]) expect(REQUIREMENTS, clause).toContain(clause)
-    expect(LOOK_ROWS_OF_A_TASK, 'premise: T-016 names the look rows of a Task').toEqual(['PR-12', 'PR-39', 'PR-40'])
+    expect(LOOK_ROWS_OF_A_TASK, 'premise: T-016 names the look rows of a Task, in the CR-689 order').toEqual(['PR-40', 'PR-39', 'PR-12'])
     expect(SPAN_LABELS.length, 'premise: the dictionary holds the K-141 word').toBe(2)
   })
 })
@@ -267,7 +267,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLOURS.slice(-40)}`, () => {
 test.describe(`FR-006 (MUST): ${FR_006_LOOK_LAST.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
-  test('a task panel ends with its look rows, fill colour before outline colour before outline width', async () => {
+  test('a task panel ends with its look rows, outline width before outline colour before fill colour', async () => {
     const opened = await stage()
     try {
       await openPanelOf(opened.page, 2)

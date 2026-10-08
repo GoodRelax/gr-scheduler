@@ -88,33 +88,17 @@ function propertyFieldNameStyle(): string {
   )
 }
 
-// see FR-006, CV-9
-// WHY: alone on its line (the field wraps under it), padded back to the name column of S-189.
-/** @purity pure */
-function propertyFieldNameAboveStyle(): string {
-  const size = fieldSizes()
-  return (
-    `color:${PAINT.quiet};flex:0 0 100%;box-sizing:border-box;padding-right:${100 - size.namePercent}%;` +
-    `text-align:right;font-size:${size.nameTextScale}em;`
-  )
-}
-
-// see FR-006, CV-9
-// WHY: the wrapped field starts where every other row's value starts: the name column and S-190.
-/** @purity pure */
-function propertyControlsBelowNameStyle(): string {
-  const size = fieldSizes()
-  return `${propertyControlsStyle()}margin-left:calc(${size.namePercent}% + ${size.nameGap}px);`
-}
-
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
+// see FR-006, PR-5
+// WHY: a date and the actual length keep the width a date needs, so the three actual rows line up.
 /** @purity pure */
-function propertyControlStyle(widthInFontSizes: number): string {
+function propertyControlStyle(widthInFontSizes: number, isSizedAsDate = false): string {
+  const flex = isSizedAsDate ? `flex:0 1 auto;width:${widthInFontSizes}em;` : 'flex:1;'
   return (
-    `font:inherit;box-sizing:border-box;flex:1;min-width:${widthInFontSizes}em;text-overflow:ellipsis;` +
+    `font:inherit;box-sizing:border-box;${flex}min-width:${widthInFontSizes}em;text-overflow:ellipsis;` +
     `min-height:${fieldSizes().controlMinHeight}px;` +
     `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
   )
@@ -129,9 +113,26 @@ function propertyColorStyle(): string {
   )
 }
 
+// see FR-006
 /** @purity pure */
 function propertyCheckStyle(): string {
-  return 'font:inherit;'
+  return 'font:inherit;flex:none;margin:0;'
+}
+
+// see FR-006, CV-9
+/** @purity pure */
+function controlStyleOf(control: PropertyControl, isWrapping: boolean): string {
+  if (control.kind === 'color') return propertyColorStyle()
+  if (control.kind === 'boolean') return propertyCheckStyle()
+  if (isWrapping) return propertyWrappingStyle()
+  return propertyControlStyle(control.widthInFontSizes, control.isSizedAsDate === true || control.kind === 'date')
+}
+
+// see MH-1, MH-2, PR-8, IN-3
+/** @purity non-pure */
+function markControl(drawn: HTMLElement, control: PropertyControl): void {
+  if (control.hint !== undefined) drawn.setAttribute('title', control.hint)
+  if (control.isDisabled === true) drawn.setAttribute('disabled', 'true')
 }
 
 // WHY: `text` is a textarea as well: an input cannot wrap, and FR-006 wraps a long name downwards.
@@ -143,7 +144,7 @@ const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
   boolean: 'input',
   choice: 'select',
   color: 'select',
-  link: 'span',
+  taskReference: 'span',
 }
 
 const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> = {
@@ -154,7 +155,7 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   boolean: 'checkbox',
   choice: null,
   color: null,
-  link: null,
+  taskReference: null,
 }
 
 // TRAP: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
@@ -168,7 +169,7 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
   boolean: false,
   choice: false,
   color: false,
-  link: false,
+  taskReference: false,
 }
 
 // see FR-006
@@ -180,7 +181,7 @@ const IS_KIND_WRAPPING: Readonly<Record<PropertyControlKind, boolean>> = {
   boolean: false,
   choice: false,
   color: false,
-  link: false,
+  taskReference: false,
 }
 
 const WRAPPING_FIELD_ATTRIBUTE = 'data-field-wraps'
@@ -261,15 +262,8 @@ function controlElement(
   const tag = CONTROL_TAG[control.kind]
   const drawn = host.createElement(tag)
   const isWrapping = IS_KIND_WRAPPING[control.kind]
-  const style =
-    control.kind === 'color'
-      ? propertyColorStyle()
-      : control.kind === 'boolean'
-        ? propertyCheckStyle()
-        : isWrapping
-          ? propertyWrappingStyle()
-          : propertyControlStyle(control.widthInFontSizes)
-  drawn.setAttribute('style', style)
+  drawn.setAttribute('style', controlStyleOf(control, isWrapping))
+  markControl(drawn, control)
   if (isWrapping) {
     drawn.setAttribute(WRAPPING_FIELD_ATTRIBUTE, 'true')
     watchWrappingField(drawn, control.kind === 'text')
@@ -290,16 +284,9 @@ function controlElement(
     ;(drawn as HTMLSelectElement).value = control.text
   } else if (control.kind === 'boolean') {
     ;(drawn as HTMLInputElement).checked = control.text === TRUE_TEXT
+    letGoOnChange(drawn)
   } else {
-    if (control.kind === 'multiline') {
-      drawn.setAttribute('rows', String(fieldSizes().multilineRows))
-    }
-    if (control.kind === 'text') drawn.setAttribute('rows', String(SINGLE_LINE_ROWS))
-    if (control.kind === 'number') {
-      if (control.min !== null) drawn.setAttribute('min', String(control.min))
-      if (control.max !== null) drawn.setAttribute('max', String(control.max))
-    }
-    ;(drawn as HTMLInputElement).value = control.text
+    fillTypedValue(drawn, control)
   }
 
   CONTROL_KEYS.set(drawn, { row, key: control.key })
@@ -308,6 +295,18 @@ function controlElement(
     holdTypedEntry(typedByRow, row, control, drawn)
   }
   return drawn as HTMLElement
+}
+
+// see T-016, FR-006
+/** @purity non-pure */
+function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
+  if (control.kind === 'multiline') drawn.setAttribute('rows', String(fieldSizes().multilineRows))
+  if (control.kind === 'text') drawn.setAttribute('rows', String(SINGLE_LINE_ROWS))
+  if (control.kind === 'number') {
+    if (control.min !== null) drawn.setAttribute('min', String(control.min))
+    if (control.max !== null) drawn.setAttribute('max', String(control.max))
+  }
+  ;(drawn as HTMLInputElement).value = control.text
 }
 
 // see AS-1, AS-5
@@ -337,7 +336,7 @@ type ColourField = NonNullable<PropertyControl['colour']>
 
 type ColourName = NonNullable<ColourField['names']>[number]
 
-type ColourSide = ColourField['light']
+type ColourEntrance = ColourField['theme']
 
 // TRAP: the light side only: S-336 and S-337 hold one colour for both themes, and a row that
 // split them would need the theme passed down to this side.
@@ -351,19 +350,14 @@ const UNSET_COLOUR_VALUE = ''
 // TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.
 const TRANSPARENT_PAINT = 'none'
 const CHECKER_TILE_SPAN = 2
-const SIDE_SWATCH_SIDE_EM = 0.75
 const SWATCH_BORDER_PX = 1
-const UNSET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px dashed currentColor;`
-const SET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px solid transparent;`
-const SIDE_SEPARATOR = ' / '
-const SIDE_WORD_END = ': '
-const VALUE_GAP = ' '
 const COLOUR_CHOICE_ATTRIBUTE = 'data-colour-choice'
 const HOST_CHANGE = 'change'
 const HOST_CLICK = 'click'
 const PRESSED_ATTRIBUTE = 'aria-pressed'
 const PRESSED_VALUE = 'true'
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
+const CHOSEN_ATTRIBUTE = 'data-colour-chosen'
 
 // see CV-9, S-335, S-336, S-337
 /** @purity pure */
@@ -398,18 +392,19 @@ function choiceSide(): string {
   return `${fieldSizes().controlMinHeight}px`
 }
 
+// see CV-9, S-530, S-531, S-147
 /** @purity pure */
-function sideSwatchSide(): string {
-  return `${SIDE_SWATCH_SIDE_EM}em`
+function chosenOutline(isChosen: boolean): string {
+  if (!isChosen) return ''
+  const sizes = NOT_STORED_PROPERTY_FIELD_SIZES
+  return `outline:${sizes['S-530']}px solid ${PAINT.ink};outline-offset:${sizes['S-531']}px;`
 }
 
-// see CV-9, CV-3
-// WHY: a side is undefined when the adapter names its twin, or when an unset field carries no
-// null mark (a description built without one); a null with its mark is painted (CV-9).
-/** @purity pure */
-function isSideUndefined(control: PropertyControl, side: ColourSide): boolean {
-  if (side.mark !== undefined) return false
-  return control.text === UNSET_COLOUR_VALUE || side.note !== ''
+/** @purity non-pure */
+function markChosen(entry: HTMLElement, isChosen: boolean): void {
+  if (!isChosen) return
+  entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
+  entry.setAttribute(CHOSEN_ATTRIBUTE, 'true')
 }
 
 // see CV-9, T-294
@@ -420,56 +415,6 @@ function paletteNamesOf(control: PropertyControl): readonly string[] {
   return (control.choiceValues ?? []).filter(
     (value, at) => value !== UNSET_COLOUR_VALUE && words[at] !== customWord,
   )
-}
-
-// see CV-9
-/** @purity pure */
-function wordOfName(control: PropertyControl, name: string): string {
-  const at = (control.choiceValues ?? []).indexOf(name)
-  return at < 0 ? '' : (control.choices?.[at] ?? '')
-}
-
-/** @purity pure */
-function sideValueText(control: PropertyControl, side: ColourSide): string {
-  if (side.mark !== undefined) return side.mark
-  if (isSideUndefined(control, side)) return ''
-  if (paletteNamesOf(control).includes(control.text)) return wordOfName(control, control.text)
-  const transparentName = control.colour?.transparentName
-  if (side.paint === TRANSPARENT_PAINT && transparentName !== undefined) return wordOfName(control, transparentName)
-  return (side.value ?? side.paint).toUpperCase()
-}
-
-/** @purity pure */
-function sideSwatchStyle(control: PropertyControl, side: ColourSide): string {
-  const box = swatchBox(sideSwatchSide())
-  if (isSideUndefined(control, side)) return box + UNSET_SWATCH_BORDER
-  return box + swatchPaint(side.paint, sideSwatchSide()) + SET_SWATCH_BORDER
-}
-
-// WHY: one side kept on one line; the two sides may break onto two lines (CV-9, FR-006).
-/** @purity non-pure */
-function sideElement(host: Document, control: PropertyControl, side: ColourSide, tail: string): HTMLElement {
-  const group = made(host, 'span', 'white-space:nowrap;')
-  const word = made(host, 'span', '')
-  word.textContent = `${side.word}${SIDE_WORD_END}`
-  const mark = made(host, 'span', sideSwatchStyle(control, side))
-  mark.setAttribute('data-colour-swatch', side.paint)
-  const value = made(host, 'span', '')
-  value.textContent = `${VALUE_GAP}${sideValueText(control, side)}${side.note}${tail}`
-  group.append(word, mark, value)
-  return group
-}
-
-// see CV-9
-/** @purity non-pure */
-function colourSidesElement(host: Document, control: PropertyControl, colour: ColourField): HTMLElement {
-  const readout = made(host, 'span', 'flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;')
-  readout.setAttribute('data-colour-sides', 'true')
-  readout.append(
-    sideElement(host, control, colour.light, SIDE_SEPARATOR),
-    sideElement(host, control, colour.dark, ''),
-  )
-  return readout
 }
 
 // WHY: the one field whose host colour input stands; only a press on the custom entrance opens it.
@@ -496,7 +441,7 @@ function hostColourInput(host: Document, row: string, control: PropertyControl, 
   return custom
 }
 
-// WHY: the host input keeps the focus after its change; held, it stops the readout's redraw (CV-9).
+// WHY: a host input or check keeps the focus after its change; held, it stops the panel's redraw (CV-9, MH-2).
 /** @purity non-pure */
 function letGoOnChange(entry: HTMLElement): void {
   if (typeof entry.addEventListener !== 'function') return
@@ -507,7 +452,7 @@ function letGoOnChange(entry: HTMLElement): void {
 
 // see CV-9, IF-9
 // WHY: a press reaches the panel's change listener as a choice from the list did, then lets the
-// focus go, which would otherwise hold the panel and leave the readout stale.
+// focus go, which would otherwise hold the panel and leave it stale.
 /** @purity non-pure */
 function commitOnPress(entry: HTMLElement): void {
   if (typeof entry.addEventListener !== 'function') return
@@ -520,23 +465,29 @@ function commitOnPress(entry: HTMLElement): void {
   })
 }
 
+/** @purity non-pure */
+function swatchButton(host: Document, row: string, style: string, hint: string): HTMLElement {
+  const entry = made(host, 'button', style)
+  entry.setAttribute('type', 'button')
+  entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  entry.setAttribute('title', hint)
+  entry.setAttribute('aria-label', hint)
+  return entry
+}
+
 // see CV-9, T-294
 /** @purity non-pure */
 function colourChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
   const at = (control.choiceValues ?? []).indexOf(name)
   if (at < 0) return made(host, 'span', swatchBox(choiceSide()))
   const paint = (control.colour?.swatches ?? control.swatches)?.[at] ?? ''
-  const word = control.choices?.[at] ?? name
-  const style = swatchBox(choiceSide()) + swatchPaint(paint, choiceSide()) + choiceSwatchBorder()
-  const choice = made(host, 'button', style)
-  choice.setAttribute('type', 'button')
+  const isChosen = control.text === name
+  const style = swatchBox(choiceSide()) + swatchPaint(paint, choiceSide()) + choiceSwatchBorder() + chosenOutline(isChosen)
+  const choice = swatchButton(host, row, style, control.choices?.[at] ?? name)
   choice.setAttribute('value', name)
   ;(choice as HTMLButtonElement).value = name
   choice.setAttribute(COLOUR_CHOICE_ATTRIBUTE, name)
-  choice.setAttribute(FIELD_ROW_ATTRIBUTE, row)
-  choice.setAttribute('title', word)
-  choice.setAttribute('aria-label', word)
-  if (control.text === name) choice.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
+  markChosen(choice, isChosen)
   CONTROL_KEYS.set(choice, { row, key: control.key })
   commitOnPress(choice)
   return choice
@@ -571,13 +522,14 @@ function colourGridStyle(perLine: number): string {
   )
 }
 
-// see FR-006
-// WHY: the field starts at the value column (CV-9), so a narrow panel wraps the entries, never narrows them.
+// see CV-9
 /** @purity pure */
-function colourLastLineStyle(): string {
+function glyphSwatchStyle(entrance: ColourEntrance, isChosen: boolean): string {
+  const ground = entrance.paint === null ? `background:${PAINT.ground};` : swatchPaint(entrance.paint, choiceSide())
+  const ink = entrance.ink === '' ? PAINT.ink : entrance.ink
   return (
-    `display:flex;flex-wrap:wrap;align-items:center;gap:${fieldSizes().rowGap}px;` +
-    `margin-top:${fieldSizes().rowGap}px;`
+    swatchBox(choiceSide()) + ground + choiceSwatchBorder() + chosenOutline(isChosen) +
+    `display:inline-flex;align-items:center;justify-content:center;padding:0;font:inherit;line-height:1;color:${ink};`
   )
 }
 
@@ -589,10 +541,12 @@ function customEntryElement(
   colour: ColourField,
   slot: HTMLElement,
 ): HTMLElement {
-  const entry = made(host, 'button', `font:inherit;flex:none;min-height:${choiceSide()};`)
-  entry.setAttribute('type', 'button')
+  const isChosen = control.text !== UNSET_COLOUR_VALUE && !paletteNamesOf(control).includes(control.text) &&
+    control.text !== colour.transparentName
+  const entry = swatchButton(host, row, glyphSwatchStyle(colour.custom, isChosen), colour.custom.hint)
   entry.setAttribute('data-colour-custom-entry', 'true')
-  entry.textContent = colour.customWord
+  entry.textContent = colour.custom.glyph
+  markChosen(entry, isChosen)
   if (typeof entry.addEventListener !== 'function') return entry
   entry.addEventListener(HOST_CLICK, () => {
     openCustomColour.identity = colourFieldIdentity(row, control)
@@ -605,56 +559,35 @@ function customEntryElement(
 // see CV-9, CV-5, FR-007
 /** @purity non-pure */
 function themeEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
-  const entry = made(host, 'button', `font:inherit;flex:none;min-height:${choiceSide()};`)
-  const hint = colour.theme?.hint ?? ''
-  entry.setAttribute('type', 'button')
+  const isChosen = control.text === UNSET_COLOUR_VALUE
+  const entry = swatchButton(host, row, glyphSwatchStyle(colour.theme, isChosen), colour.theme.hint)
   entry.setAttribute('value', UNSET_COLOUR_VALUE)
   ;(entry as HTMLButtonElement).value = UNSET_COLOUR_VALUE
   entry.setAttribute('data-colour-theme-entry', 'true')
-  entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
-  entry.setAttribute('title', hint)
-  entry.setAttribute('aria-label', hint)
-  if (control.text === UNSET_COLOUR_VALUE) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
-  const paint = colour.theme?.paint
-  if (paint !== undefined) {
-    entry.append(made(host, 'span', swatchBox(sideSwatchSide()) + swatchPaint(paint, sideSwatchSide()) + SET_SWATCH_BORDER))
-  }
-  entry.append(wordSpan(host, `${paint === undefined ? '' : VALUE_GAP}${colour.theme?.word ?? ''}`))
+  entry.textContent = colour.theme.glyph
+  markChosen(entry, isChosen)
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
   return entry
 }
 
-/** @purity non-pure */
-function wordSpan(host: Document, text: string): HTMLElement {
-  const word = made(host, 'span', '')
-  word.textContent = text
-  return word
-}
-
 // see CV-9
-// WHY: an entrance with its word (no fill / no line); a field that refuses transparent keeps the slot empty.
+// WHY: a field that refuses transparent keeps the slot empty, so the custom entrance stays in its place.
 /** @purity non-pure */
 function transparentEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
-  const style = `font:inherit;flex:none;min-height:${choiceSide()};`
   const word = colour.transparentWord
   if (word === undefined || !transparentOf(control, colour).isOffered) {
-    const slot = made(host, 'span', style + 'visibility:hidden;')
+    const slot = made(host, 'span', swatchBox(choiceSide()))
     slot.setAttribute('data-colour-transparent-slot', 'true')
     return slot
   }
-  const entry = made(host, 'button', style)
-  entry.setAttribute('type', 'button')
+  const isChosen = control.text === colour.transparentName
+  const style = swatchBox(choiceSide()) + swatchPaint(TRANSPARENT_PAINT, choiceSide()) + choiceSwatchBorder() + chosenOutline(isChosen)
+  const entry = swatchButton(host, row, style, word)
   entry.setAttribute('value', colour.transparentName)
   ;(entry as HTMLButtonElement).value = colour.transparentName
   entry.setAttribute(COLOUR_CHOICE_ATTRIBUTE, colour.transparentName)
-  entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
-  entry.setAttribute('aria-label', word)
-  if (control.text === colour.transparentName) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
-  entry.append(
-    made(host, 'span', swatchBox(sideSwatchSide()) + swatchPaint(TRANSPARENT_PAINT, sideSwatchSide()) + SET_SWATCH_BORDER),
-    wordSpan(host, `${VALUE_GAP}${word}`),
-  )
+  markChosen(entry, isChosen)
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
   return entry
@@ -683,26 +616,24 @@ function colourFieldElements(
 ): readonly HTMLElement[] {
   const colour = control.colour
   if (colour === undefined) return []
-  const grid = made(host, 'div', colourGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-338']))
+  const perLine = NOT_STORED_PROPERTY_FIELD_SIZES['S-338']
   const named = paletteOrderOf(control, colour).filter((one) => one.name !== colour.transparentName)
   const slots = named.map((one) => colourSlotElement(host, row, control, one))
-  grid.append(...slots)
-  const slot = made(host, 'span', '')
+  const slot = made(host, 'span', 'flex:1 1 100%;')
   if (openCustomColour.identity === colourFieldIdentity(row, control)) {
     slot.append(hostColourInput(host, row, control, colour))
   }
-  const lastLine = made(host, 'div', colourLastLineStyle())
-  const transparent = transparentEntryElement(host, row, control, colour)
   const theme = themeEntryElement(host, row, control, colour)
-  lastLine.append(transparent, customEntryElement(host, row, control, colour, slot), slot)
-  holdColourFocusTarget(focusByRow, row, [...slots, transparent, theme])
-  const themeLine = made(host, 'div', colourLastLineStyle())
-  themeLine.append(theme)
-  const palette = made(host, 'div', 'flex:1 1 100%;')
+  const transparent = transparentEntryElement(host, row, control, colour)
+  const custom = customEntryElement(host, row, control, colour, slot)
+  const grid = made(host, 'div', colourGridStyle(perLine + 2))
+  grid.append(...slots.slice(0, perLine), theme, made(host, 'span', ''), ...slots.slice(perLine), transparent, custom)
+  holdColourFocusTarget(focusByRow, row, [...slots, theme, transparent, custom])
+  const palette = made(host, 'div', 'flex:1 1 100%;display:flex;flex-wrap:wrap;')
   palette.setAttribute('data-colour-palette', row)
   palette.setAttribute('data-field-kind', control.kind)
-  palette.append(themeLine, grid, lastLine)
-  return [colourSidesElement(host, control, colour), palette]
+  palette.append(grid, slot)
+  return [palette]
 }
 
 // see FR-041, S-368
@@ -878,12 +809,12 @@ const LINK_TASK_ATTRIBUTE = 'data-link-task-uid'
 
 const UNLINKED_VALUE = ''
 
-const UNLINK_GLYPH = '\u00d7'
+const UNLINK_GLYPH = '×'
 
 /** @purity pure */
 function propertyLinkStyle(): string {
   return (
-    'flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
+    'flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
     `cursor:pointer;color:${PAINT.link};text-decoration:underline;`
   )
 }
@@ -893,7 +824,32 @@ function propertyUnlinkStyle(): string {
   return `font:inherit;flex:none;cursor:pointer;background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
 }
 
-// see WL-15, WL-16, WL-17, CM-18, SQ-1, S-503, FR-006
+/** @purity pure */
+function propertyBadgeStyle(): string {
+  return `flex:none;padding:0 0.25em;border:1px solid ${PAINT.rule};color:${PAINT.quiet};font-size:0.85em;line-height:1.4;`
+}
+
+// see PR-37, PR-38, T-018, IN-3
+/** @purity non-pure */
+function linkTailElements(host: Document, control: PropertyControl): readonly HTMLElement[] {
+  const tail: HTMLElement[] = []
+  if (control.badge !== undefined) {
+    const badge = made(host, 'span', propertyBadgeStyle())
+    badge.textContent = control.badge.text
+    badge.setAttribute('title', control.badge.hint)
+    badge.setAttribute('data-link-kind', control.badge.text)
+    tail.push(badge)
+  }
+  if (control.lag !== undefined) {
+    const lag = made(host, 'span', `flex:none;color:${PAINT.quiet};`)
+    lag.textContent = control.lag
+    lag.setAttribute('data-link-lag', 'true')
+    tail.push(lag)
+  }
+  return tail
+}
+
+// see WL-15, WL-16, WL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
 /** @purity non-pure */
 function linkFieldElements(host: Document, row: string, control: PropertyControl, link: NonNullable<PropertyControl['link']>): readonly HTMLElement[] {
   const name = made(host, 'span', propertyLinkStyle())
@@ -901,7 +857,11 @@ function linkFieldElements(host: Document, row: string, control: PropertyControl
   name.setAttribute(FIELD_ROW_ATTRIBUTE, row)
   name.setAttribute('data-field-kind', control.kind)
   name.setAttribute(LINK_TASK_ATTRIBUTE, String(link.taskUid))
-  if (!link.canUnlink) return [name]
+  if (!link.canUnlink) {
+    const line = made(host, 'span', `flex:1 1 100%;display:flex;align-items:center;gap:${fieldSizes().nameGap}px;min-width:0;`)
+    line.append(name, ...linkTailElements(host, control))
+    return [line]
+  }
   const unlink = made(host, 'button', propertyUnlinkStyle())
   unlink.setAttribute('type', 'button')
   ;(unlink as HTMLButtonElement).value = UNLINKED_VALUE
@@ -925,25 +885,12 @@ const READOUT_ATTRIBUTE = 'data-field-readout'
 
 const READOUT_MEMBER: keyof PropertyField = 'readout'
 
-// see MH-5
-/** @purity pure */
-function readoutRuleStyle(): string {
-  const width = NOT_STORED_PROPERTY_FIELD_SIZES['S-440']
-  const gap = NOT_STORED_PROPERTY_FIELD_SIZES['S-441']
-  return `flex:none;align-self:stretch;width:${width}px;margin:0 ${gap}px;background:${PAINT.rule};`
-}
-
-// see MH-1, MH-3, MH-5
+// see FR-006, MH-1, PR-5, PR-40
 /** @purity non-pure */
-function readoutElement(host: Document, field: PropertyField, readout: string): HTMLElement {
-  const beside = made(host, 'span', 'display:flex;align-items:center;flex:none;white-space:nowrap;')
-  const unit = made(host, 'span', '')
-  unit.textContent = field.unit ?? ''
-  const current = made(host, 'span', '')
-  current.setAttribute(READOUT_ATTRIBUTE, field.row)
-  current.textContent = readout
-  beside.append(unit, made(host, 'span', readoutRuleStyle()), current)
-  return beside
+function unitElement(host: Document, unit: string): HTMLElement {
+  const shown = made(host, 'span', 'flex:none;align-self:center;white-space:nowrap;')
+  shown.textContent = unit
+  return shown
 }
 
 // see MH-4
@@ -978,9 +925,21 @@ function controlElementsOf(
   if (control.swatches !== undefined) return swatchFieldElements(host, field, control, typedByRow)
   if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
   if (control.link !== undefined) return linkFieldElements(host, field.row, control, control.link)
-  const drawn = controlElement(host, field.row, control, typedByRow)
-  if (control.placeholder !== undefined) drawn.setAttribute('placeholder', control.placeholder)
-  return [drawn]
+  return [controlElement(host, field.row, control, typedByRow)]
+}
+
+// see T-016, MH-3, PR-37, PR-38
+// WHY: pre-line, so a read-only row of one line per dependency shows its lines; a readout is rewritten in place (MH-4).
+/** @purity non-pure */
+function valueElement(host: Document, field: PropertyField): HTMLElement {
+  const value = made(host, 'span', 'white-space:pre-line;')
+  if (field.readout === undefined) {
+    value.textContent = field.text
+    return value
+  }
+  value.setAttribute(READOUT_ATTRIBUTE, field.row)
+  value.textContent = field.readout
+  return value
 }
 
 // see T-016, T-058, T-104
@@ -990,33 +949,26 @@ export function fieldElement(
   field: PropertyField,
   typedByRow: Map<string, TextEntryControl> | null,
 ): HTMLElement {
-  const line = made(host, 'div', propertyFieldStyle() + (field.isNameAbove === true ? 'flex-wrap:wrap;' : ''))
+  const line = made(host, 'div', propertyFieldStyle())
   line.setAttribute('data-field-row', field.row)
   line.setAttribute('data-editable', String(field.isEditable))
   if (field.isSettledAsOne === true) line.setAttribute(SETTLED_AS_ONE_ATTRIBUTE, 'true')
-  const name = made(host, 'span', field.isNameAbove === true ? propertyFieldNameAboveStyle() : propertyFieldNameStyle())
+  const name = made(host, 'span', propertyFieldNameStyle())
   name.textContent = field.name
 
   if (field.controls.length === 0) {
-    // WHY: pre-line, so a read-only row of one line per dependency shows its lines (PR-37, PR-38).
-    const value = made(host, 'span', 'white-space:pre-line;')
-    value.textContent = field.text
-    line.append(name, value)
+    line.append(name, valueElement(host, field))
     return line
   }
 
-  const controls = made(
-    host,
-    'div',
-    field.isNameAbove === true ? propertyControlsBelowNameStyle() : propertyControlsStyle(),
-  )
+  const controls = made(host, 'div', propertyControlsStyle())
   if (field.text !== '' && field.controls.every((one) => one.text === '')) {
     const shown = made(host, 'span', '')
     shown.textContent = field.text
     controls.append(shown)
   }
   for (const control of field.controls) controls.append(...controlElementsOf(host, field, control, typedByRow))
-  if (field.readout !== undefined) controls.append(readoutElement(host, field, field.readout))
+  if (field.unit !== undefined) controls.append(unitElement(host, field.unit))
   line.append(name, controls)
   return line
 }

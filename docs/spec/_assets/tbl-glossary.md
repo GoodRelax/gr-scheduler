@@ -55,7 +55,7 @@
 | P-4 | `actualStart` / `stop` / `actualFinish` | 実績開始日 / 実績最終日 / 実績終了日 |
 | P-5 | `actualDuration` | 実績期間 |
 | P-6 | `resume` | 再開予定日 |
-| P-7 | `resumeValid` | 再開可否 |
+| P-7 | `resumeValid` | 再開日確定 |
 | P-8 | `percentComplete` | 完了率 |
 | P-9 | `deadline` | 期限 |
 | P-10 | `shapeKind` | タスク形状（5 値。<br>`'milestone'` のときだけ `milestoneGlyph` を見る） |

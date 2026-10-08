@@ -1,4 +1,4 @@
-// CR-582 spec-only cases: a row's min height is drawn scaled by S-234 / 100 and zoomY, never by S-236.
+// CR-582 / CR-689 spec-only cases: a row's min height is drawn scaled by S-234 / 100, never by zoomY or S-236.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -18,11 +18,11 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const FR_042_FLOOR = '指定した最小の高さは下限として扱うこと（MUST）。'
 const FR_042_WIDEN = '段数がそれより高い帯を要するときは、指定を超えて広げること（MUST）。'
 const FR_042_HELD_AS_PX =
-  '指定した最小の高さは、縦のズームが 100%（`_assets/tbl-settings.md` の 表 T-203 の `S-76` が 1）で表示の倍率（表 T-202 の `S-234`）が 100 のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、縦のズームと表示の倍率に比例して伸縮させること（MUST）'
-const DS_13_MULTIPLY =
-  '`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割った値と、縦のズーム（同書の 表 T-203 の `S-76`）を掛ける。'
-const DS_13_NOT_S_236 = '⛔ 同書の 表 T-206 の `S-236` を掛けてはならない（MUST NOT）'
-const MH_1_VALUE = '欄の値は、縦のズームが 100% で表示の倍率が 100 のときの画面の px の整数とすること（MUST）。'
+  '指定した最小の高さは、表示の倍率（`_assets/tbl-settings.md` の 表 T-202 の `S-234`）が 100 のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、表示の倍率に比例して伸縮させること（MUST）'
+const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
+const DS_13_MULTIPLY = '`_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割った値を掛ける。'
+const DS_13_NOT_S_236 = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）と、同書の 表 T-206 の `S-236` を掛けてはならない（MUST NOT）'
+const MH_1_VALUE = '欄の値は、表示の倍率が 100 のときの画面の px の整数とすること（MUST）。'
 const DS_8_KEEP = '保存する倍率を書き換えず、描く縦の寸法に両方を掛ける'
 
 describe('CR-582 -- the manuscript these cases are driven by', () => {
@@ -30,13 +30,14 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
     ['FR-042 (MUST) -- a lower bound', FR_042_FLOOR],
     ['FR-042 (MUST) -- widened past it', FR_042_WIDEN],
     ['FR-042 (MUST) -- held as screen px, drawn scaled', FR_042_HELD_AS_PX],
+    ['FR-042 (MUST NOT) -- never shrunk by the vertical zoom', FR_042_NOT_ZOOM_Y],
     ['T-338 MH-1 (MUST) -- the value', MH_1_VALUE],
     ['T-252 DS-8', DS_8_KEEP],
   ])('still says it, word for word: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-252 row DS-13 multiplies S-234 / 100 and zoomY, and forbids S-236', () => {
+  it('table T-252 row DS-13 multiplies S-234 / 100, and forbids zoomY and S-236', () => {
     const row = specTable('T-252').rows.find((one) => one.id === 'DS-13')
     expect(row, 'table T-252 holds DS-13').toBeDefined()
     const cell = row?.cells.join(' ') ?? ''
@@ -68,8 +69,7 @@ const S_76_DEFAULT = setting('S-76')
 const scaleOf = (displayScale: number): number => displayRatioAt(displayScale) / S_236
 
 // see DS-13
-const drawnFloor = (minHeight: number, displayScale: number, zoomY: number): number =>
-  minHeight * scaleOf(displayScale) * zoomY
+const drawnFloor = (minHeight: number, displayScale: number): number => minHeight * scaleOf(displayScale)
 
 // WHY: the zooms are S-53 notches around S-76's default, the steps FR-016 moves zoomY by.
 const ZOOMS: readonly number[] = [-2, -1, 0, 1, 2].map((notch) => S_76_DEFAULT * S_53 ** notch)
@@ -171,7 +171,7 @@ const contentBand = (displayScale: number, zoomY: number): number => bandOf(EMPT
 
 const GRID = DISPLAY_SCALE_STEPS.flatMap((scale) => ZOOMS.map((zoomY) => [scale, zoomY] as const))
 
-describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100) x zoomY', () => {
+describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever zoomY is', () => {
   it('premise: S-236 is not 1, so a floor multiplied by it is told apart', () => {
     expect(S_236).not.toBe(1)
     expect(DISPLAY_SCALE_STEPS).toContain(DEFAULT_DISPLAY_SCALE)
@@ -187,19 +187,23 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100) x zoomY', 
     `"${DS_13_MULTIPLY}" "${DS_13_NOT_S_236}" -- a floor above the content, display scale %d, zoomY %d`,
     (displayScale, zoomY) => {
       const content = contentBand(displayScale, zoomY)
-      const typed = Math.ceil((2 * content) / (scaleOf(displayScale) * zoomY)) + 1
-      const expected = Math.max(content, drawnFloor(typed, displayScale, zoomY))
-      const withS236 = Math.max(content, drawnFloor(typed, displayScale, zoomY) * S_236)
+      const typed = Math.ceil((2 * content) / scaleOf(displayScale)) + 1
+      const expected = Math.max(content, drawnFloor(typed, displayScale))
+      const withS236 = Math.max(content, drawnFloor(typed, displayScale) * S_236)
+      const withZoomY = Math.max(content, drawnFloor(typed, displayScale) * zoomY)
       expect(expected, 'premise: the floor governs the band').toBeGreaterThan(content)
       expect(Math.abs(expected - withS236), 'premise: S-236 would draw another band').toBeGreaterThan(1)
+      if (zoomY !== S_76_DEFAULT) {
+        expect(Math.abs(expected - withZoomY), 'premise: zoomY would draw another band').toBeGreaterThan(1)
+      }
       expect(bandOf(documentOf(typed), displayScale, zoomY), `${FR_042_HELD_AS_PX}`).toBeCloseTo(expected, 6)
     },
   )
 
   it.each(GRID)(`FR-042 "${FR_042_FLOOR}" "${FR_042_WIDEN}" -- a floor below the content, display scale %d, zoomY %d`, (displayScale, zoomY) => {
     const content = contentBand(displayScale, zoomY)
-    const typed = Math.max(1, Math.floor(content / (2 * scaleOf(displayScale) * zoomY)))
-    expect(drawnFloor(typed, displayScale, zoomY), 'premise: the floor is below the content').toBeLessThan(content)
+    const typed = Math.max(1, Math.floor(content / (2 * scaleOf(displayScale))))
+    expect(drawnFloor(typed, displayScale), 'premise: the floor is below the content').toBeLessThan(content)
     expect(bandOf(documentOf(typed), displayScale, zoomY)).toBeCloseTo(content, 6)
   })
 
@@ -213,14 +217,15 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100) x zoomY', 
     )
   })
 
-  it(`FR-042 "${FR_042_HELD_AS_PX}" -- a tall floored row shrinks with every notch the zoom goes down`, () => {
+  it(`FR-042 "${FR_042_NOT_ZOOM_Y}" -- a tall floored row keeps its typed band at every notch the zoom goes down`, () => {
     const content = contentBand(DEFAULT_DISPLAY_SCALE, ZOOMS[ZOOMS.length - 1]!)
-    const typed = Math.ceil(content / Math.min(...ZOOMS)) * 4
+    const typed = Math.ceil(content) * 4
     const floored = documentOf(typed)
-    const bands = [...ZOOMS].reverse().map((zoomY) => bandOf(floored, DEFAULT_DISPLAY_SCALE, zoomY))
-    for (let at = 1; at < bands.length; at += 1) {
-      expect(bands[at], `the band at notch ${at} below the top`).toBeLessThan(bands[at - 1]!)
-      expect(bands[at]! / bands[at - 1]!, 'the band follows zoomY in proportion').toBeCloseTo(1 / S_53, 9)
+    for (const zoomY of [...ZOOMS].reverse()) {
+      expect(bandOf(floored, DEFAULT_DISPLAY_SCALE, zoomY), `the band at zoomY ${zoomY}`).toBeCloseTo(
+        drawnFloor(typed, DEFAULT_DISPLAY_SCALE),
+        9,
+      )
     }
   })
 })

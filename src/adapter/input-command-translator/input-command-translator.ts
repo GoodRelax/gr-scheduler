@@ -269,8 +269,7 @@ export type InputAction =
       readonly atY: number | null
       readonly resistedPx: number
     }
-  // STOP: spec does not decide where the chosen rows are held. Looked in FR-085, SL-1, SL-4
-  // @provisional PND-142
+  // see FR-085, T-293
   | {
       readonly kind: 'chooseRow'
       readonly groupId: string

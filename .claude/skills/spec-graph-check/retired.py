@@ -341,4 +341,10 @@ RETIRED = {'FR-050', 'T-030',
            'FR-154', 'T-354', 'QN-13',
            'HW-1', 'HW-2', 'HW-3', 'HW-4', 'HW-5', 'HW-6', 'HW-7', 'HW-8',
            'HW-9', 'HW-10', 'HW-11', 'HW-12',
+           # CR-689 (2026-10-08, rulings JDG-1559 / JDG-1569): the min height
+           # field of table T-338 became three lines (check, value, current
+           # height), so the rule between the unit and the current height (MH-5)
+           # and its thickness and gap (S-440, S-441) left. CR-582, CR-689, the
+           # changelog and rulings.md name them, so the seats stay burnt.
+           'MH-5', 'S-440', 'S-441',
            'T-006'}
