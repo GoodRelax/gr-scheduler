@@ -706,6 +706,12 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
     expect(rungOf(armedOnly, everything)).toBe('confirmation')
   })
 
+  it('IN-4 (DFC-540 6): over an open surface a standing question is spent first, the surface only on the next press', () => {
+    expect(rungOf(loaded, { ...everything, gestureInFlight: false, dualCursorMode: false })).toBe('confirmation')
+    expect(rungOf(loaded, { ...quiet, isConfirmationStanding: true })).toBe('confirmation')
+    expect(rungOf(loaded, { ...quiet, isConfirmationStanding: false })).toBe('surface')
+  })
+
   it('IN-4: one press spends exactly ONE level, in the order the row states', () => {
     // IN-4 spends one level per press, never two. Walking the ladder press by
     // press is what catches a press that skips a level: each step below removes

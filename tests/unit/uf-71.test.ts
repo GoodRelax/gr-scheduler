@@ -1808,6 +1808,20 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     expect(oneByRole(built.root(), partName('U-23')).contains(active as FakeElement)).toBe(false)
   })
 
+  it('DFC-805 IF-9 (MUST): the face answers a focus ask with false only when the field is drawn and the focus did not enter', () => {
+    const built = wire({ 'App Header': 37 })
+    surfaceOf(built).showScreenView({ ...RICH_VIEW, notices: [], propertiesPanel: panelWithName() })
+    const ask = built.focusField as unknown as (row: string) => unknown
+    expect(ask(NAME_ROW), 'the focus entered the drawn field').toBe(true)
+    expect(ask('no-such-row'), 'no such field in the panel drawn: the ask is answered as withdrawn').toBe(true)
+    const field = controlsIn(oneByRole(built.root(), partName('U-25')))[0] as FakeElement
+    field.focus = (): void => undefined
+    // WHY: the fake host names no activeElement, and a host that cannot say where the focus is reads as "in".
+    Object.defineProperty(built.host, 'activeElement', { get: () => built.world.activeElement, configurable: true })
+    built.world.activeElement = oneByRole(built.root(), partName('U-23'))
+    expect(ask(NAME_ROW), 'the field is drawn but the focus did not enter: ask again').toBe(false)
+  })
+
   it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the name field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
     // 「⛔⛔ **この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）**」
     // ——「**階層は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持ち、どちらも本行を

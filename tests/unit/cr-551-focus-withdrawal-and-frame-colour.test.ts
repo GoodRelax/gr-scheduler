@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { InputModifiers } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, unbroken } from '../contract/spec-table'
+import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import {
   byRole,
   selfAndDescendants,
@@ -250,6 +250,23 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     const second = titleBox(built, 'g3')
     built.click(second.x + second.width / 2, second.y + second.height / 2, rowPart('g3'))
     const before = paletteShown(built)
+    built.key(PALETTE_KEY)
+    expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
+  })
+
+  it('DFC-541 2, IN-5a: 選択が変わったとき -- a row just added by HF-14 is being named; a press on another row ends it', () => {
+    // see HF-14, T-109
+    const addChild = specTable('T-109').rows.find(
+      (one) => bareAll(one.by['面'] ?? '').includes('Row Title Panel') && /(^|[^0-9A-Za-z-])HF-14([^0-9-]|$)/.test(one.by['正'] ?? ''),
+    )
+    expect(addChild, 'table T-109 gives HF-14 an entrance on the Row Title Panel').toBeDefined()
+    const built = bench(documentOf())
+    built.click(10, 10, partOn('Row Title Panel', addChild?.id ?? null, 'g1'))
+    const before = paletteShown(built)
+    built.key(PALETTE_KEY)
+    expect(paletteShown(built), 'premise: the added row is being named, so the key is held for the field').toBe(before)
+    const other = titleBox(built, 'g3')
+    built.click(other.x + other.width / 2, other.y + other.height / 2, rowPart('g3'))
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
   })

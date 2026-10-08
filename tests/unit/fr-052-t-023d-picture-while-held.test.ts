@@ -1211,6 +1211,40 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     expect(drawnPanelWidth(built.loop)).toBeCloseTo(was, 6)
   })
 
+  it('DFC-639 1, 2, 4, MUST: the width drawn while held is the width drawn once released at that pointer position', () => {
+    for (const travel of [-300, -30, -1, 0, 1, 15, 40, 120]) {
+      const built = stage()
+      const at = boundaryOf(built, 'rowTitlePanel')
+      built.send(pointer('down', at.x, at.y))
+      built.send(pointer('move', at.x + travel, at.y))
+      const held = drawnPanelWidth(built.loop)
+      built.send(pointer('up', at.x + travel, at.y))
+      expect(drawnPanelWidth(built.loop), `FR-052: held at travel ${travel}, released at the same place`).toBeCloseTo(held, 6)
+    }
+  })
+
+  it('DFC-638 / DFC-639 3, MUST NOT: a release that leaves the stored width as it was is no unsaved edit and no undo step', () => {
+    const released = (travel: number) => {
+      const built = stage()
+      const at = boundaryOf(built, 'rowTitlePanel')
+      const stored = storedPanelWidth(built.loop)
+      built.send(pointer('down', at.x, at.y))
+      if (travel !== 0) built.send(pointer('move', at.x + travel, at.y))
+      built.send(pointer('up', at.x + travel, at.y))
+      return { built, stored }
+    }
+    for (const travel of [0, -30]) {
+      const { built, stored } = released(travel)
+      expect(storedPanelWidth(built.loop), `travel ${travel}: the stored width is as it was`).toBeCloseTo(stored, 6)
+      expect(
+        built.loop.hasUnsavedEdits(),
+        `travel ${travel}. FR-100: no unsaved edit when the write changed nothing; T-252: the same value is not written`,
+      ).toBe(false)
+    }
+    const { built } = released(40)
+    expect(built.loop.hasUnsavedEdits(), 'control: a release that did move the stored width is an unsaved edit').toBe(true)
+  })
+
   it('settles it once: later moves with no button change nothing', () => {
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
