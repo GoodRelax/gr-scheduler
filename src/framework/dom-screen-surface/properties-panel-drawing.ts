@@ -13,6 +13,7 @@ import type {
 import {
   HOST_ENTER,
   NOT_STORED_PROPERTY_FIELD_SIZES,
+  NOT_STORED_WHEEL_UNITS,
   PAINT,
   SCREEN_COLOURS,
   STYLE,
@@ -305,8 +306,49 @@ function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
   if (control.kind === 'number') {
     if (control.min !== null) drawn.setAttribute('min', String(control.min))
     if (control.max !== null) drawn.setAttribute('max', String(control.max))
+    scrollInsteadOfStepping(drawn)
   }
   ;(drawn as HTMLInputElement).value = control.text
+}
+
+const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
+
+// see MH-4, UN-8, T-023
+// WHY: the host steps a focused number entry under a plain wheel (DFC-2178); scroll the panel instead.
+/** @purity non-pure */
+function scrollInsteadOfStepping(field: HTMLElement): void {
+  if (typeof field.addEventListener !== 'function') return
+  field.addEventListener(
+    'wheel',
+    (event: Event) => {
+      const wheel = event as WheelEvent
+      if (wheel.ctrlKey || wheel.altKey || wheel.shiftKey || wheel.metaKey) return
+      if (field.ownerDocument.activeElement !== field) return
+      wheel.preventDefault()
+      const scroller = scrollingAncestorOf(field)
+      if (scroller !== null) scroller.scrollTop += wheel.deltaY * wheelLinePx(wheel, scroller)
+    },
+    WHEEL_MAY_STOP_DEFAULT,
+  )
+}
+
+const SCROLLING_OVERFLOWS: ReadonlySet<string> = new Set(['auto', 'scroll'])
+
+/** @purity semi-pure-b */
+function scrollingAncestorOf(field: Element): HTMLElement | null {
+  const view = field.ownerDocument.defaultView
+  for (let at = field.parentElement; at !== null; at = at.parentElement) {
+    const overflow = view?.getComputedStyle(at).overflowY ?? ''
+    if (SCROLLING_OVERFLOWS.has(overflow) && at.scrollHeight > at.clientHeight) return at
+  }
+  return null
+}
+
+/** @purity semi-pure-b */
+function wheelLinePx(wheel: WheelEvent, scroller: HTMLElement): number {
+  if (wheel.deltaMode === wheel.DOM_DELTA_PAGE) return scroller.clientHeight
+  if (wheel.deltaMode === wheel.DOM_DELTA_LINE) return NOT_STORED_WHEEL_UNITS['S-514']
+  return 1
 }
 
 // see AS-1, AS-5
