@@ -12,21 +12,22 @@ import { applyCommandsOf, exportSvgOf, rowsDocument } from './w3-t1-stage'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-17` で描くこと（MUST）'
+// WHY: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
+const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-16` で描くこと（MUST）'
 const IX_14_ALL_ROWS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描く行のすべてを、上から下まで並べること（MUST）'
 const IX_14_ZOOM_ONE = '行の高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
 const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとおりとする。⛔ 収めるために、行の高さ・1 日の幅・字の大きさを変えてはならない（MUST NOT）'
 const IX_16 = '| IX-16 | 期間の絵に描く UI パーツ | 表 T-076 に従うこと（MUST）'
-const FR_096_SPAN = '行の語は `FR-038` の辞書の `exportChooser` の `exportSpan` の語とし、その中の 2 つの日を 表 T-251 の `ND-4`・`ND-5` の形で書くこと（MUST）'
+const FR_096_SPAN = '行の語は `FR-038` の辞書の `exportChooser` の `fitSpan` の語とし、その中の 2 つの日を `FR-055` の 表 T-367 の `FX-8` の形で書くこと（MUST）'
 const EP_3_NO_DOM = '画面は名前を箱の上端に寄せて置き、書き出しは字をベースラインで置くので、測らずに同じ高さへ揃えるには上端からの補正が要る —— `EP-1` の `Document Title` と同じ考え方である。⛔ DOM を測って揃えてはならない（MUST NOT）'
 const WB_10_MOVE = '題の行の帯（表 T-023d の `GR-24`）で動かす —— 追従と、位置が決まる時点と、中断は `WB-8` と同じとすること（MUST）'
-const FR_077_NO_FLOOR = '期間を持つときは縮めない（`FR-025` の 表 T-241 の `IX-13`）。⚠️ **画像の側に下限を課してはならない（MUST NOT）'
+const FR_077_NO_FLOOR = '固定しているときは縮めない（`FR-025` の 表 T-241 の `IX-13`）。⚠️ **画像の側に下限を課してはならない（MUST NOT）'
 const FR_096_GAP = '⭐ 上下に隣り合う 2 つの形式のボタンのあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-517` の隔たりとすること（MUST）。⭐ 選択面の幅は、縦に並べた形式と見出しの段が決めること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
   readonly exportChooser: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
 }
-const SPAN_WORDS = WORDS.exportChooser.find((one) => one.part === 'exportSpan')?.text ?? { ja: '', en: '' }
+const SPAN_WORDS = WORDS.exportChooser.find((one) => one.part === 'fitSpan')?.text ?? { ja: '', en: '' }
 
 // see S-517
 const S_517_EM = Number(/[\d.]+/.exec(bare(rowOf(specTable('T-206'), 'S-517').cells[1] ?? ''))?.[0] ?? NaN)
@@ -36,8 +37,10 @@ const EXPORT_CHOOSER = `[data-role="${bare(rowOf(specTable('T-103'), 'U-54').cel
 const PALETTE_COMMANDS = `[data-role="${bare(rowOf(specTable('T-103'), 'U-26').cells[0] ?? '')}"]`
 const OPEN_EXPORT_CHOOSER = rowOf(specTable('T-109'), 'IC-2').id
 
-const SPAN_28 = { exportSpanStart: '2026-03-02T00:00:00', exportSpanFinish: '2026-03-29T00:00:00' }
-const SPAN_14 = { exportSpanStart: '2026-03-02T00:00:00', exportSpanFinish: '2026-03-15T00:00:00' }
+const SPAN_28 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-29T00:00:00' }
+const SPAN_14 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-15T00:00:00' }
+// WHY: CM-90 fixes the span; it reaches the picture only while fixed (FX-2).
+const FIX = { kind: 'setFitSpanFixed', fitSpanFixed: true, shownStart: null, shownFinish: null }
 
 let browser: Browser | null = null
 
@@ -117,7 +120,7 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
     for (const clause of [IX_12, IX_14_ALL_ROWS, IX_14_ZOOM_ONE, IX_15_NO_FIT, IX_16, FR_096_SPAN, FR_096_GAP, EP_3_NO_DOM, WB_10_MOVE, FR_077_NO_FLOOR]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
-    expect(SPAN_WORDS.en, 'premise: the dictionary holds the exportSpan word').toContain('{start}')
+    expect(SPAN_WORDS.en, 'premise: the dictionary holds the fitSpan word').toContain('{start}')
     expect(S_517_EM, 'premise: S-517 is a number of em').toBeGreaterThan(0)
   })
 })
@@ -130,7 +133,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
     try {
       const without = await pictureOf(opened.page)
       expect(textYOf(without, 'Row 80'), 'premise: with no span, a row below the screen is not in the picture (IX-4)').toBeNull()
-      await applyCommandsOf(opened.page, [{ kind: 'setExportSpan', ...SPAN_28 }])
+      await applyCommandsOf(opened.page, [{ kind: 'setFitSpan', ...SPAN_28 }, FIX])
       await settle(opened.page)
       const withSpan = await pictureOf(opened.page)
       const missing = Array.from({ length: 80 }, (_one, index) => `Row ${String(index + 1).padStart(2, '0')}`).filter(
@@ -145,7 +148,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-14 (MUST): ${IX_14_ZOOM_ONE.slice(-40)} -- the screen zoomed to 2 leaves the picture's row pitch at the zoom-1 pitch`, async () => {
-    const opened = await stageWith(30, SPAN_28)
+    const opened = await stageWith(30, { ...SPAN_28, fitSpanFixed: true })
     try {
       const pitchAtOne = await screenRowPitch(opened.page)
       const first = await pictureOf(opened.page)
@@ -164,7 +167,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Row Area over the span's days, whatever the window`, async () => {
-    const opened = await stageWith(12, SPAN_28)
+    const opened = await stageWith(12, { ...SPAN_28, fitSpanFixed: true })
     try {
       const at28 = await pictureOf(opened.page)
       const bar28 = planOf(at28, 1)
@@ -174,7 +177,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       await opened.page.setViewportSize({ width: 1280, height: 720 })
       await settle(opened.page)
       expect(sameness(await pictureOf(opened.page)), 'IX-12: the window size does not move the picture').toBe(sameness(at28))
-      await applyCommandsOf(opened.page, [{ kind: 'setExportSpan', ...SPAN_14 }])
+      await applyCommandsOf(opened.page, [{ kind: 'setFitSpan', ...SPAN_14 }, FIX])
       await settle(opened.page)
       const at14 = await pictureOf(opened.page)
       const bar14 = planOf(at14, 1)
@@ -187,14 +190,14 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-15 (MUST NOT): ${IX_15_NO_FIT.slice(-40)} -- more rows grow the height, never shrink the rows, days or type`, async () => {
-    const few = await stageWith(20, SPAN_28)
+    const few = await stageWith(20, { ...SPAN_28, fitSpanFixed: true })
     let fewPicture = ''
     try {
       fewPicture = await pictureOf(few.page)
     } finally {
       await few.close()
     }
-    const many = await stageWith(80, SPAN_28)
+    const many = await stageWith(80, { ...SPAN_28, fitSpanFixed: true })
     try {
       const manyPicture = await pictureOf(many.page)
       expect(heightOf(manyPicture), 'premise: the 80-row picture is taller').toBeGreaterThan(heightOf(fewPicture))
@@ -208,7 +211,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       await many.close()
     }
     const rowsPastTheCap = Math.ceil(S_217 / 10)
-    const tall = await stageWith(rowsPastTheCap, SPAN_28)
+    const tall = await stageWith(rowsPastTheCap, { ...SPAN_28, fitSpanFixed: true })
     try {
       const answer = await exportSvgOf(tall.page)
       expect(answer.ok, `IX-5: ${rowsPastTheCap} rows do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
@@ -218,7 +221,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-16 (MUST): ${IX_16.slice(-30)} -- the span picture draws what EP-1 / EP-3 / EP-5 draw and leaves EP-11 out`, async () => {
-    const opened = await stageWith(12, SPAN_28)
+    const opened = await stageWith(12, { ...SPAN_28, fitSpanFixed: true })
     try {
       const paletteWords = await opened.page.evaluate((selector: string) => {
         const found = document.querySelector(selector)
@@ -256,16 +259,16 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
     }, EXPORT_CHOOSER)
   }
 
-  test(`FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 3/2 - 3/29 and is gone with the span`, async () => {
-    const opened = await stageWith(4, SPAN_28)
+  test(`FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 2026/03/02 - 2026/03/29 and is gone with the span`, async () => {
+    const opened = await stageWith(4, { ...SPAN_28, fitSpanFixed: true })
     try {
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER), 'IC-2 opens the Export Chooser').toBe(true)
       const shown = await chooserOf(opened.page)
-      const said = [SPAN_WORDS.ja, SPAN_WORDS.en].map((words) => words.replace('{start}', '3/2').replace('{finish}', '3/29'))
-      expect(said, 'ND-4 without a year: the tasks all sit in 2026 (ND-5)').toContain(shown.line)
+      const said = [SPAN_WORDS.ja, SPAN_WORDS.en].map((words) => words.replace('{start}', '2026/03/02').replace('{finish}', '2026/03/29'))
+      expect(said, 'FX-8: the year, the month and the day, zero-filled').toContain(shown.line)
       await opened.page.keyboard.press('Escape')
       await settle(opened.page)
-      await applyCommandsOf(opened.page, [{ kind: 'clearExportSpan' }])
+      await applyCommandsOf(opened.page, [{ kind: 'clearFitSpan' }])
       await settle(opened.page)
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER)).toBe(true)
       expect((await chooserOf(opened.page)).line, 'no span, no line').toBeNull()

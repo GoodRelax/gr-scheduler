@@ -15,8 +15,9 @@ const ONLY_A_PERSON_WRITES_THE_PARENT =
   '`wbsParentUid` は、人が親定義のドラッグ（表 T-351）で結んだとき、または矢印の `Delete`（`WL-11`）かパネルの ×（`WL-17`）で外したときだけ書くこと（MUST）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
 
 // see IX-12, T-241
+// WHY: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.
 const SPAN_DOES_NOT_MOVE_THE_SCREEN =
-  '—— 同じ文書から毎回同じ絵を出すことが、期間を保存する目的である。⛔ 期間で画面を動かしてはならない（MUST NOT）'
+  '⛔ ほかの時に、画面を期間へ動かしてはならない（MUST NOT） —— 固定していても、パン・ズーム・スクロールは今どおり期間の外を見せる。期間を変えたとき・固定に入れたときも画面は動かさず、次に全体表示を押したときに当たる。'
 
 // see IX-13, T-241
 const SPAN_DAY_WIDTH =
@@ -73,10 +74,11 @@ const callApi = <T>(page: Page, body: string, arg?: unknown): Promise<T> =>
 const setSpan = async (page: Page, start: string | null, finish: string | null): Promise<void> => {
   const outcome = await callApi<{ accepted: boolean }>(
     page,
-    'return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: "setExportSpan", exportSpanStart: arg[0], exportSpanFinish: arg[1] }] })',
+    // WHY: a span reaches the picture only while it is fixed (CR-690, FX-2), so the same one write fixes it (CM-90).
+    'return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: "setFitSpan", fitSpanStart: arg[0], fitSpanFinish: arg[1] }, { kind: "setFitSpanFixed", fitSpanFixed: true, shownStart: null, shownFinish: null }] })',
     [start === null ? null : start + 'T00:00:00', finish === null ? null : finish + 'T00:00:00'],
   )
-  expect(outcome.accepted, 'precondition: CM-88 was accepted').toBe(true)
+  expect(outcome.accepted, 'precondition: CM-88 and CM-90 were accepted').toBe(true)
   await settle(page)
 }
 
@@ -141,7 +143,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   expect(cleared.map((uid) => writtenTasks.find((one) => one['uid'] === uid)?.['wbsParentUid'])).toEqual(cleared.map(() => null))
 })
 
-test(`IX-12: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
+test(`FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const screen = async (): Promise<{ view: Record<string, unknown>; figures: string[] }> => {
@@ -157,7 +159,7 @@ test(`IX-12: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
   }
   const before = await screen()
   await setSpan(page, SPAN_START, SPAN_FINISH)
-  expect((await readDocument(page)).documentSettings['exportSpanStart'], 'precondition: the span is set').not.toBeNull()
+  expect((await readDocument(page)).documentSettings['fitSpanStart'], 'precondition: the span is set').not.toBeNull()
   expect(await screen()).toEqual(before)
 })
 

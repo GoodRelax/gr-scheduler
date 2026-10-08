@@ -29,13 +29,14 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly exportFormats: readonly { readonly rowId: string; readonly name?: Record<DisplayLanguage, string> }[]
 }
 
+// WHY: CR-690 -- the condition is the fix (FX-1, S-532), the old span row retired, and the days carry the year (FX-8).
 const CLAUSE_SPAN_PICTURE =
-  '⭐ 文書が書き出す期間（`_assets/tbl-settings.md` の 表 T-202 の `S-518` / `S-519`）を持つときは、本要求の縮めた絵ではなく、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-17` が定める絵を出すこと（MUST）'
+  '⭐ 文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）は、本要求の縮めた絵ではなく、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-16` が定める絵を出すこと（MUST）'
 const CLAUSE_NO_DUAL_CURSOR = '表 T-076 に従うこと（MUST）。⛔ ただし `EP-6` の `Dual Cursor` を描いてはならない（MUST NOT）'
 const CLAUSE_SPAN_LINE =
-  '⭐ 文書が書き出す期間（`_assets/tbl-settings.md` の 表 T-202 の `S-518` / `S-519`）を持つときは、選択面の形式の格子の下に、その期間を 1 行で示すこと（MUST）'
+  '⭐ 文書が全体表示時の期間を固定しているとき（`FR-055` の 表 T-367 の `FX-1`）は、選択面の形式の格子の下に、その期間を 1 行で示すこと（MUST）'
 const CLAUSE_SPAN_LINE_WORDS =
-  '行の語は `FR-038` の辞書の `exportChooser` の `exportSpan` の語とし、その中の 2 つの日を 表 T-251 の `ND-4`・`ND-5` の形で書くこと（MUST） —— 名称ラベルと同じ日の書き方で読ませる。期間が空のときは、行を出さず、場所も空けないこと（MUST）'
+  '行の語は `FR-038` の辞書の `exportChooser` の `fitSpan` の語とし、その中の 2 つの日を `FR-055` の 表 T-367 の `FX-8` の形で書くこと（MUST） —— 文書の設定の面と同じ日の書き方で、年まで読ませる。固定していないときは、行を出さず、場所も空けないこと（MUST）'
 
 const IC_2 = 'IC-2'
 const IC_45 = 'IC-45'
@@ -76,30 +77,26 @@ const svgSizeOf = (svg: string): { readonly width: number; readonly height: numb
   }
 }
 
-// see ND-4, ND-5
-function dayWordOf(day: string, document: Document): string {
-  const years = new Set(
-    document.schedule.tasks.flatMap((one) => [one.start, one.finish]).filter((one): one is string => typeof one === 'string').map((one) => one.slice(0, 4)),
-  )
-  const [year, month, date] = day.split('-')
-  const monthDay = `${Number(month)}/${Number(date)}`
-  return years.size > 1 ? `${year}/${monthDay}` : monthDay
+// see FX-8
+// WHY: the year, the month and the day, zero-filled to 4, 2 and 2 digits, whatever years the tasks span.
+function dayWordOf(day: string, _document: Document): string {
+  return day.split('-').join('/')
 }
 
 const spanWordOf = (language: DisplayLanguage): string =>
-  WORDS.exportChooser.find((one) => one.part === 'exportSpan')?.text[language] ?? '(no exportSpan word)'
+  WORDS.exportChooser.find((one) => one.part === 'fitSpan')?.text[language] ?? '(no fitSpan word)'
 
 const expectedLineOf = (document: Document, start: string, finish: string, language: DisplayLanguage): string =>
   spanWordOf(language).replace('{start}', dayWordOf(start, document)).replace('{finish}', dayWordOf(finish, document))
 
-async function chooserOf(document: Document, language: DisplayLanguage = 'ja'): Promise<OpenModal & { readonly exportSpanLine?: string | null }> {
+async function chooserOf(document: Document, language: DisplayLanguage = 'ja'): Promise<OpenModal & { readonly fitSpanLine?: string | null }> {
   const stage = exportStage(document, SMALL_SCREEN, language)
   await stage.take(IC_2)
   const modal = stage.lastView().openModal
   if (modal === null || modal === undefined || modal.surface !== EXPORT_CHOOSER) {
     throw new Error(`premise: ${IC_2} opens ${EXPORT_CHOOSER}, got ${JSON.stringify(modal?.surface)}`)
   }
-  return modal as OpenModal & { readonly exportSpanLine?: string | null }
+  return modal as OpenModal & { readonly fitSpanLine?: string | null }
 }
 
 const EMPTY_VIEW = {
@@ -145,7 +142,7 @@ describe('W3-T3 -- the manuscript still says what these cases read', () => {
   })
 })
 
-describe('FR-080 -- a document with an export span exports the IX-12 to IX-17 picture', () => {
+describe('FR-080 -- a document with an export span exports the IX-12 to IX-16 picture', () => {
   it(`"${CLAUSE_SPAN_PICTURE}" -- control: without a span the picture follows the window`, async () => {
     expect(await exportedSvg(SMALL, SMALL_SCREEN)).not.toBe(await exportedSvg(SMALL, LARGE_SCREEN))
   })
@@ -188,17 +185,16 @@ describe('FR-025 IX-16 -- the span picture never draws the Dual Cursor', () => {
 describe('FR-096 -- the export chooser names a saved span in one line', () => {
   const ONE_YEAR = documentOf({ tasks: [taskOf(1), taskOf(2)] })
 
-  it.each(['ja', 'en'] as const)(`"${CLAUSE_SPAN_LINE_WORDS}" -- years shown when the tasks span years, %s`, async (language) => {
+  it.each(['ja', 'en'] as const)(`"${CLAUSE_SPAN_LINE_WORDS}" -- the year is shown, %s`, async (language) => {
     const modal = await chooserOf(SPANNED, language)
-    expect(modal.exportSpanLine).toBe(expectedLineOf(SPANNED, SPAN_START, SPAN_FINISH, language))
+    expect(modal.fitSpanLine).toBe(expectedLineOf(SPANNED, SPAN_START, SPAN_FINISH, language))
   })
 
-  it(`"${CLAUSE_SPAN_LINE_WORDS}" -- no year when every task sits in one year`, async () => {
+  it(`"${CLAUSE_SPAN_LINE_WORDS}" -- the year is shown even when every task sits in one year`, async () => {
     const spanned = withSpan(ONE_YEAR, '2026-04-01', '2026-04-30')
     const modal = await chooserOf(spanned)
-    expect(modal.exportSpanLine).toBe(expectedLineOf(spanned, '2026-04-01', '2026-04-30', 'ja'))
-    expect(modal.exportSpanLine).toContain('4/1')
-    expect(modal.exportSpanLine).not.toContain('2026')
+    expect(modal.fitSpanLine).toBe(expectedLineOf(spanned, '2026-04-01', '2026-04-30', 'ja'))
+    expect(modal.fitSpanLine).toContain('2026/04/01 - 2026/04/30')
   })
 
   it(`"${CLAUSE_SPAN_LINE}" -- the line is drawn below the format grid`, async () => {
@@ -217,7 +213,7 @@ describe('FR-096 -- the export chooser names a saved span in one line', () => {
 
   it(`"${CLAUSE_SPAN_LINE_WORDS}" -- with no span there is no line and no room kept for one`, async () => {
     const empty = await chooserOf(TEMPLATE)
-    expect(empty.exportSpanLine ?? null).toBeNull()
+    expect(empty.fitSpanLine ?? null).toBeNull()
     const spanned = await chooserOf(SPANNED)
     const withLine = drawnChooser(spanned)
     const without = drawnChooser(empty)

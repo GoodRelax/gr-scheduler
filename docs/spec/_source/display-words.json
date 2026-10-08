@@ -2197,8 +2197,15 @@
   {
    "rowId": "K-71",
    "label": {
-    "ja": "Row Title Panel の幅",
+    "ja": "タスクグループパネルの幅",
     "en": "rowTitlePanelWidth"
+   }
+  },
+  {
+   "rowId": "K-143",
+   "label": {
+    "ja": "タスクグループパネルの幅を固定する",
+    "en": "Fix the task group panel width"
    }
   },
   {
@@ -2351,8 +2358,15 @@
   {
    "rowId": "K-141",
    "label": {
-    "ja": "書き出す期間",
-    "en": "Export span"
+    "ja": "全体表示時の期間",
+    "en": "Fit span"
+   }
+  },
+  {
+   "rowId": "K-142",
+   "label": {
+    "ja": "全体表示時の期間を固定する",
+    "en": "Fix the fit span"
    }
   },
   {
@@ -2533,7 +2547,7 @@
   {
    "rowId": "K-140",
    "label": {
-    "ja": "親子の進捗の疑義が許す日数（稼働日）",
+    "ja": "遅延診断時に親子の進捗の疑義を許す日数（稼働日）",
     "en": "parentProgressToleranceDays"
    }
   },
@@ -3923,12 +3937,35 @@
    }
   }
  ],
+ "fitSpanField": [
+  {
+   "part": "currentName",
+   "text": {
+    "ja": "現在表示中の期間",
+    "en": "Shown now"
+   }
+  },
+  {
+   "part": "currentValue",
+   "text": {
+    "ja": "{start} - {finish}",
+    "en": "{start} - {finish}"
+   }
+  },
+  {
+   "part": "copyCurrent",
+   "text": {
+    "ja": "全体表示時の期間に設定",
+    "en": "Use as fit span"
+   }
+  }
+ ],
  "exportChooser": [
   {
-   "part": "exportSpan",
+   "part": "fitSpan",
    "text": {
-    "ja": "書き出す期間 {start} - {finish}",
-    "en": "Export span {start} - {finish}"
+    "ja": "全体表示時の期間 {start} - {finish}",
+    "en": "Fit span {start} - {finish}"
    }
   }
  ],
@@ -4691,17 +4728,100 @@
    }
   }
  ],
+ "rowTitleWidthField": [
+  {
+   "part": "unit",
+   "text": {
+    "ja": "px",
+    "en": "px"
+   }
+  },
+  {
+   "part": "currentName",
+   "text": {
+    "ja": "現在のタスクグループパネルの幅",
+    "en": "current"
+   }
+  },
+  {
+   "part": "currentValue",
+   "text": {
+    "ja": "{px} px",
+    "en": "{px} px"
+   }
+  }
+ ],
  "themeHues": [
-  {"rowId": "TH-1", "text": {"ja": "青", "en": "Blue"}},
-  {"rowId": "TH-2", "text": {"ja": "青緑", "en": "Blue-green"}},
-  {"rowId": "TH-3", "text": {"ja": "緑", "en": "Green"}},
-  {"rowId": "TH-4", "text": {"ja": "黄緑", "en": "Yellow-green"}},
-  {"rowId": "TH-5", "text": {"ja": "黄", "en": "Yellow"}},
-  {"rowId": "TH-6", "text": {"ja": "オレンジ", "en": "Orange"}},
-  {"rowId": "TH-7", "text": {"ja": "赤", "en": "Red"}},
-  {"rowId": "TH-8", "text": {"ja": "赤紫", "en": "Red-purple"}},
-  {"rowId": "TH-9", "text": {"ja": "紫", "en": "Purple"}},
-  {"rowId": "TH-10", "text": {"ja": "藍", "en": "Indigo"}}
+  {
+   "rowId": "TH-1",
+   "text": {
+    "ja": "青",
+    "en": "Blue"
+   }
+  },
+  {
+   "rowId": "TH-2",
+   "text": {
+    "ja": "青緑",
+    "en": "Blue-green"
+   }
+  },
+  {
+   "rowId": "TH-3",
+   "text": {
+    "ja": "緑",
+    "en": "Green"
+   }
+  },
+  {
+   "rowId": "TH-4",
+   "text": {
+    "ja": "黄緑",
+    "en": "Yellow-green"
+   }
+  },
+  {
+   "rowId": "TH-5",
+   "text": {
+    "ja": "黄",
+    "en": "Yellow"
+   }
+  },
+  {
+   "rowId": "TH-6",
+   "text": {
+    "ja": "オレンジ",
+    "en": "Orange"
+   }
+  },
+  {
+   "rowId": "TH-7",
+   "text": {
+    "ja": "赤",
+    "en": "Red"
+   }
+  },
+  {
+   "rowId": "TH-8",
+   "text": {
+    "ja": "赤紫",
+    "en": "Red-purple"
+   }
+  },
+  {
+   "rowId": "TH-9",
+   "text": {
+    "ja": "紫",
+    "en": "Purple"
+   }
+  },
+  {
+   "rowId": "TH-10",
+   "text": {
+    "ja": "藍",
+    "en": "Indigo"
+   }
+  }
  ],
  "scaleEcho": [
   {

@@ -43,7 +43,7 @@ const DATE_TIME_COLUMNS = specTable('T-058')
   .map((one) => ({ id: one.id, entity: (one.by['エンティティ'] ?? '').replace(/`/g, '').trim(), column: (one.by['列'] ?? '').replace(/`/g, '').trim() }))
 
 // WHY: the table also types its three setting keys as a date; S-77, S-518 and S-519 are the ones FR-024 names beside the columns.
-const SETTING_KEYS = ['scrollDate', 'exportSpanStart', 'exportSpanFinish']
+const SETTING_KEYS = ['scrollDate', 'fitSpanStart', 'fitSpanFinish']
 
 const DATE_TIME_REF = '#/$defs/DateTime'
 const PATTERN = new RegExp((DEFINITIONS['DateTime'] as Loose)['pattern'] as string)

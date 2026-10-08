@@ -40,13 +40,14 @@ import { REQUIREMENTS, rowDocument, rowOf, taskOf } from './cr-541-stage'
 const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
 const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
 const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマ色の欄がこれである。'
-const Q08B = '⛔ 本要求がそうした欄を数え上げてはならない（MUST NOT）'
+// WHY: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
+const Q08B = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
 const THEME_HUE_FIELD = 'K-60'
-// WHY: FR-131 (CR-651) places a second field there, the parent progress tolerance, named by K-140.
-const PARENT_PROGRESS_TOLERANCE_FIELD = 'K-140'
-// WHY: CR-677 places four more there, in this order: the export span (IX-17, K-141, under K-140), the status
-// date (FR-046, named by IC-44), the display scale and the font size (FR-039, K-125 and K-85).
-const LATER_PLACED_FIELDS = ['K-141', 'IC-44', 'K-125', 'K-85']
+// WHY: table T-369 (CR-690) places under K-60: display scale, font size, the width's fix and width (T-368),
+// the status date, the fit span's fix and span (T-367), then the parent progress tolerance (FR-131).
+const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140']
+// WHY: FO-11's read-out holds the copy entrance (FX-7), a control on a field that is itself read only.
+const SHOWN_SPAN_FIELD = 'FX-6'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
@@ -142,15 +143,16 @@ describe('FR-072 -- the document settings are read only in the panel, but for th
     expect(described?.showing, 'premise: the panel shows the document settings').toBe('documentSettings')
     expect(described!.fields.length, 'premise: it shows some settings').toBeGreaterThan(0)
     const editable = described!.fields.filter((one) => one.isEditable).map((one) => one.row)
-    expect(editable, 'no field is editable but the fields FR-041, FR-131, FR-046 and FR-039 place')
-      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD, ...LATER_PLACED_FIELDS])
+    expect(editable, 'no field is editable but the fields table T-369 places')
+      .toEqual([THEME_HUE_FIELD, ...LATER_PLACED_FIELDS])
   })
 
   it(Q08, () => {
     const described = panel()
     const withControls = described!.fields.filter((one) => one.controls.length > 0).map((one) => one.row)
-    expect(withControls, 'no field offers a control to change it but the fields FR-041, FR-131, FR-046 and FR-039 place')
-      .toEqual([THEME_HUE_FIELD, PARENT_PROGRESS_TOLERANCE_FIELD, ...LATER_PLACED_FIELDS])
+    const placedWithControls = [THEME_HUE_FIELD, ...LATER_PLACED_FIELDS.slice(0, -1), SHOWN_SPAN_FIELD, ...LATER_PLACED_FIELDS.slice(-1)]
+    expect(withControls, 'no field offers a control to change it but the fields table T-369 places')
+      .toEqual(placedWithControls)
   })
 
   it(Q08A, () => {

@@ -2416,8 +2416,18 @@
     "rowTitlePanelWidth"
    ],
    "label": {
-    "ja": "Row Title Panel の幅",
+    "ja": "タスクグループパネルの幅",
     "en": "rowTitlePanelWidth"
+   }
+  },
+  {
+   "rowId": "K-143",
+   "keys": [
+    "rowTitlePanelWidthFixed"
+   ],
+   "label": {
+    "ja": "タスクグループパネルの幅を固定する",
+    "en": "Fix the task group panel width"
    }
   },
   {
@@ -2633,12 +2643,22 @@
   {
    "rowId": "K-141",
    "keys": [
-    "exportSpanStart",
-    "exportSpanFinish"
+    "fitSpanStart",
+    "fitSpanFinish"
    ],
    "label": {
-    "ja": "書き出す期間",
-    "en": "Export span"
+    "ja": "全体表示時の期間",
+    "en": "Fit span"
+   }
+  },
+  {
+   "rowId": "K-142",
+   "keys": [
+    "fitSpanFixed"
+   ],
+   "label": {
+    "ja": "全体表示時の期間を固定する",
+    "en": "Fix the fit span"
    }
   },
   {
@@ -2900,7 +2920,7 @@
     "parentProgressToleranceDays"
    ],
    "label": {
-    "ja": "親子の進捗の疑義が許す日数（稼働日）",
+    "ja": "遅延診断時に親子の進捗の疑義を許す日数（稼働日）",
     "en": "parentProgressToleranceDays"
    }
   },
@@ -4462,12 +4482,35 @@
    }
   }
  ],
+ "fitSpanField": [
+  {
+   "part": "currentName",
+   "text": {
+    "ja": "現在表示中の期間",
+    "en": "Shown now"
+   }
+  },
+  {
+   "part": "currentValue",
+   "text": {
+    "ja": "{start} - {finish}",
+    "en": "{start} - {finish}"
+   }
+  },
+  {
+   "part": "copyCurrent",
+   "text": {
+    "ja": "全体表示時の期間に設定",
+    "en": "Use as fit span"
+   }
+  }
+ ],
  "exportChooser": [
   {
-   "part": "exportSpan",
+   "part": "fitSpan",
    "text": {
-    "ja": "書き出す期間 {start} - {finish}",
-    "en": "Export span {start} - {finish}"
+    "ja": "全体表示時の期間 {start} - {finish}",
+    "en": "Fit span {start} - {finish}"
    }
   }
  ],
@@ -5061,6 +5104,29 @@
    "text": {
     "ja": "現在非表示",
     "en": "currently hidden"
+   }
+  }
+ ],
+ "rowTitleWidthField": [
+  {
+   "part": "unit",
+   "text": {
+    "ja": "px",
+    "en": "px"
+   }
+  },
+  {
+   "part": "currentName",
+   "text": {
+    "ja": "現在のタスクグループパネルの幅",
+    "en": "current"
+   }
+  },
+  {
+   "part": "currentValue",
+   "text": {
+    "ja": "{px} px",
+    "en": "{px} px"
    }
   }
  ],

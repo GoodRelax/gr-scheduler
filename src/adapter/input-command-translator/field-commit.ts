@@ -9,6 +9,8 @@ import {
   lastDayForLength,
   planActualState,
   taskByUid,
+  textOfDayEnd,
+  textOfDayStart,
   textOfFinishSide,
   textOfStartSide,
   workingCalendarOf,
@@ -23,7 +25,8 @@ import {
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import { displayScaleFractionOf } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { FieldCommit } from '../screen-renderer/screen-renderer'
+import { shownSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { FIT_SPAN_COPY_TEXT, type FieldCommit } from '../screen-renderer/screen-renderer'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
   milestoneGlyphOf,
@@ -423,36 +426,74 @@ function commandFromProjectColumn(column: string, text: string, context: InputCo
   return [{ kind: 'setProjectTitle', title: text }]
 }
 
-type ExportSpanColumn = 'exportSpanStart' | 'exportSpanFinish'
+type FitSpanColumn = 'fitSpanStart' | 'fitSpanFinish'
 
 /** @purity pure */
-function exportSpanTextOf(commit: FieldCommit, side: ExportSpanColumn, settings: DocumentSettings): string {
+function fitSpanTextOf(commit: FieldCommit, side: FitSpanColumn, settings: DocumentSettings): string {
   const isSide = (key: FieldCommit['key']): boolean => key.holder === 'documentSettings' && key.column === side
   const entrance = commit.entrances?.find((one) => isSide(one.key))
   if (entrance !== undefined) return entrance.text
   return isSide(commit.key) ? commit.text : (settings[side] ?? '')
 }
 
-// see IX-17, CM-88, CM-89, UN-13
-// WHY: one settle of the row is one command (DFC-2223); one emptied end takes the other's day.
+// see FX-1, FX-5, CM-88, CM-89, UN-13
+// WHY: one settle of the row is one command (DFC-2223); an emptied end clears the span (JDG-1626).
 /** @purity pure */
-function commandsFromExportSpan(commit: FieldCommit, settings: DocumentSettings): readonly DocumentCommand[] {
-  const start = settledText(exportSpanTextOf(commit, 'exportSpanStart', settings))
-  const finish = settledText(exportSpanTextOf(commit, 'exportSpanFinish', settings))
-  if (start === null && finish === null) return [{ kind: 'clearExportSpan' }]
-  if ([start, finish].some((one) => one !== null && dayOf(one) === null)) return []
-  return [{ kind: 'setExportSpan', exportSpanStart: start, exportSpanFinish: finish }]
+function commandsFromFitSpan(commit: FieldCommit, settings: DocumentSettings): readonly DocumentCommand[] {
+  const start = settledText(fitSpanTextOf(commit, 'fitSpanStart', settings))
+  const finish = settledText(fitSpanTextOf(commit, 'fitSpanFinish', settings))
+  if (start === null || finish === null) return [{ kind: 'clearFitSpan' }]
+  if ([start, finish].some((one) => dayOf(one) === null)) return []
+  return [{ kind: 'setFitSpan', fitSpanStart: start, fitSpanFinish: finish }]
 }
 
-// see FR-039, CM-74, CM-62, S-234, S-70
+/** @purity pure */
+function shownSpanTextsOf(context: InputContext): { readonly start: string | null; readonly finish: string | null } {
+  const shown = shownSpanOf(context.layout, context.regions.rowArea)
+  if (shown === null) return { start: null, finish: null }
+  return { start: textOfDayStart(shown.start), finish: textOfDayEnd(shown.finish) }
+}
+
+// see CM-90, FX-4
+/** @purity pure */
+function commandsFromFitSpanFixed(text: string, context: InputContext): readonly DocumentCommand[] {
+  const shown = shownSpanTextsOf(context)
+  return [{ kind: 'setFitSpanFixed', fitSpanFixed: settledTruth(text), shownStart: shown.start, shownFinish: shown.finish }]
+}
+
+// see CM-88, FX-7
+/** @purity pure */
+function commandsFromShownSpanCopy(context: InputContext): readonly DocumentCommand[] {
+  const shown = shownSpanTextsOf(context)
+  if (shown.start === null || shown.finish === null) return []
+  return [{ kind: 'setFitSpan', fitSpanStart: shown.start, fitSpanFinish: shown.finish }]
+}
+
+const ROW_TITLE_WIDTH_FLOOR = SETTINGS_CONSTANTS.rowTitleIndent * SETTINGS_CONSTANTS.maxGroupDepth
+
+// see WF-2, CM-67
+// WHY: a value below S-79's floor or not whole writes nothing, so the field goes back to the stored width.
+/** @purity pure */
+function commandsFromRowTitleWidth(text: string): readonly DocumentCommand[] {
+  const width = settledNumber(text)
+  if (width === undefined || width === null || !Number.isInteger(width) || width < ROW_TITLE_WIDTH_FLOOR) return []
+  return [{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: width }]
+}
+
+// see FR-039, CM-74, CM-62, S-234, S-70, T-369
 /** @purity pure */
 function commandFromDocumentSettingsColumn(
   column: string,
   commit: FieldCommit,
-  settings: DocumentSettings,
+  context: InputContext,
 ): readonly DocumentCommand[] {
   const text = commit.text
-  if (column === 'exportSpanStart' || column === 'exportSpanFinish') return commandsFromExportSpan(commit, settings)
+  const settings = context.document.documentSettings
+  if (column === 'fitSpanStart' && text === FIT_SPAN_COPY_TEXT) return commandsFromShownSpanCopy(context)
+  if (column === 'fitSpanStart' || column === 'fitSpanFinish') return commandsFromFitSpan(commit, settings)
+  if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
+  if (column === 'rowTitlePanelWidthFixed') return [{ kind: 'setRowTitlePanelWidthFixed', rowTitlePanelWidthFixed: settledTruth(text) }]
+  if (column === 'rowTitlePanelWidth') return commandsFromRowTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
@@ -582,7 +623,7 @@ export function commandFromFieldCommit(
     case 'project':
       return commandFromProjectColumn(key.column, commit.text, context)
     case 'documentSettings':
-      return commandFromDocumentSettingsColumn(key.column, commit, context.document.documentSettings)
+      return commandFromDocumentSettingsColumn(key.column, commit, context)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []

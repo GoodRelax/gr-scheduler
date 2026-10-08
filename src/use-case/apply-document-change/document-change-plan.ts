@@ -80,6 +80,7 @@ function isUndoable(command: DocumentCommand): boolean {
     case 'setElementVisible':
       return false
     case 'setRowTitlePanelWidth':
+    case 'setRowTitlePanelWidthFixed':
       return false
     // TRAP: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
     // them makes an undo rewind the zoom against UN-8.
@@ -110,6 +111,7 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     planDatesVisible: current.planDatesVisible,
 
     rowTitlePanelWidth: current.rowTitlePanelWidth,
+    rowTitlePanelWidthFixed: current.rowTitlePanelWidthFixed,
 
     zoomX: current.zoomX,
     zoomY: current.zoomY,

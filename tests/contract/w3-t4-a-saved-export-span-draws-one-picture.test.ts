@@ -1,4 +1,4 @@
-// W3 tester 4: FR-025 table T-241 IX-4, IX-10, IX-12, IX-13, IX-17 and the export chooser's span line -- a saved export span.
+// W3 tester 4: FR-025 table T-241 IX-4 .. IX-13, FX-1 / FX-5 and the export chooser's span line -- a fixed fit span.
 
 // WHY: the shell is driven through its public frame loop and the Agent API (PI-17); the picture is read from
 // exportSvg (PI-21). Every number asserted comes from docs/spec; the document is built here.
@@ -35,18 +35,18 @@ const IX_13 =
 const IX_13_DAY =
   '1 日の幅を、`Row Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 const IX_4_CAP =
-  'い —— 行を足して埋めない規則は `IX-10` が持つ。期間を持つときの高さは `IX-15` が持つ。⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）'
+  'い —— 行を足して埋めない規則は `IX-10` が持つ。固定しているときの高さは `IX-15` が持つ。⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）'
 const IX_10 =
-  'りの空白 | 絵の高さ（書き出す期間が空なら縮めた絵の高さ、期間を持つなら `IX-15` の高さ）が `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）'
+  'りの空白 | 絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）'
 const IX_10_NO_ROWS = '行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
-const IX_17_BOTH = '期間の値と欄 | ⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
-const IX_17_COPY = '片方だけが日付を持つときは、もう片方に同じ日を写す —— 欄で打ったときも、読んだ文書でも同じである。'
-const IX_17_REFUSE =
-  '—— 欄で打ったときも、読んだ文書でも同じである。⭐ 欄と命令は、`S-519` が `S-518` より前の値を拒み、表 T-233 の `RS-58` を告げること（MUST）'
+// WHY: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
+const IX_17_BOTH = '⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
+const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日を写す。'
+const IX_17_REFUSE = '⭐ 欄と命令は、`S-519` が `S-518` より前の値を拒み、表 T-233 の `RS-58` を告げること（MUST）'
 const IX_17_FIELD =
-  '欄は、`FR-038` の辞書が 表 T-104 の `K-141` に持つ語を名として 1 行に開始日と終了日の 2 つの日付の入口を並べ、'
+  '名を辞書が 表 T-104 の `K-141` に持つ語とし、開始日と終了日の 2 つを、宿主の日付の入力'
 const FR_096_NO_NOTICE =
-  '同じ日の書き方で読ませる。期間が空のときは、行を出さず、場所も空けないこと（MUST）。⛔ 期間を持つ書き出しのたびに、そのことを告げる知らせを立ててはならない（MUST NOT）'
+  '同じ日の書き方で、年まで読ませる。固定していないときは、行を出さず、場所も空けないこと（MUST）。⛔ 期間を固定した書き出しのたびに、そのことを告げる知らせを立ててはならない（MUST NOT）'
 
 const BUILT_VERSION = (JSON.parse(TEMPLATE_TEXT) as { schemaVersion: string }).schemaVersion
 
@@ -97,23 +97,31 @@ const apply = (api: Api, commands: readonly Record<string, unknown>[]) =>
 // see CM-88
 const spanCommand = (start: string | null, finish: string | null): Record<string, unknown> => ({
   kind: kindOf('CM-88'),
-  exportSpanStart: start,
-  exportSpanFinish: finish,
+  fitSpanStart: start,
+  fitSpanFinish: finish,
+})
+
+// see CM-90, FX-4
+const fixCommand = (): Record<string, unknown> => ({
+  kind: kindOf('CM-90'),
+  fitSpanFixed: true,
+  shownStart: null,
+  shownFinish: null,
 })
 
 const dayOf = (value: unknown): string | null => (typeof value === 'string' ? value.slice(0, 10) : null)
 
 const spanOf = (document: Document): [string | null, string | null] => [
-  dayOf(document.documentSettings.exportSpanStart),
-  dayOf(document.documentSettings.exportSpanFinish),
+  dayOf(document.documentSettings.fitSpanStart),
+  dayOf(document.documentSettings.fitSpanFinish),
 ]
 
 /** @purity non-pure */
 async function spannedStage(document: Document = documentOf(twoRowDraft())): Promise<{ built: ShellStage; api: Api }> {
   const built = await shellStage({ document })
   const api = agentOf(built)
-  const outcome = apply(api, [spanCommand(SPAN_START_DAY, SPAN_FINISH_DAY)])
-  expect(outcome.accepted, `premise: CM-88 sets a span -- ${JSON.stringify(outcome)}`).toBe(true)
+  const outcome = apply(api, [spanCommand(SPAN_START_DAY, SPAN_FINISH_DAY), fixCommand()])
+  expect(outcome.accepted, `premise: CM-88 sets a span and CM-90 fixes it -- ${JSON.stringify(outcome)}`).toBe(true)
   await built.repaint()
   return { built, api }
 }
@@ -290,7 +298,7 @@ describe(`IX-4 -- ${IX_4_CAP}`, () => {
   })
 })
 
-describe(`IX-17 -- ${IX_17_BOTH}`, () => {
+describe(`FX-1 -- ${IX_17_BOTH}`, () => {
   it('a CM-88 that names only the start leaves both ends dated, on the same day', async () => {
     const { built, api } = await spannedStage()
     const outcome = apply(api, [spanCommand('2026-04-15', null)])
@@ -302,14 +310,14 @@ describe(`IX-17 -- ${IX_17_BOTH}`, () => {
   it('a document read with only the start dated is opened with both ends on that day', async () => {
     const built = await shellStage({ document: documentOf(twoRowDraft()) })
     const oneSided = twoRowDraft()
-    oneSided['documentSettings'].exportSpanStart = `${SPAN_START_DAY}T00:00:00`
-    oneSided['documentSettings'].exportSpanFinish = null
+    oneSided['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
+    oneSided['documentSettings'].fitSpanFinish = null
     await replaceWith(built, built.file('one-sided.json', jsonBytes(oneSided)))
     expect(spanOf(built.loop.document()), `${IX_17_BOTH} -- ${IX_17_COPY}`).toEqual([SPAN_START_DAY, SPAN_START_DAY])
   })
 })
 
-describe(`IX-17 -- ${IX_17_REFUSE}`, () => {
+describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
   it('the command: a CM-88 whose finish is before its start is refused and the span stays', async () => {
     const { built, api } = await spannedStage()
     const outcome = apply(api, [spanCommand('2026-04-20', '2026-04-13')])
@@ -319,8 +327,10 @@ describe(`IX-17 -- ${IX_17_REFUSE}`, () => {
 
   it('the field: K-141 offers two date entrances, and a finish settled before the start is told RS-58', () => {
     const draft = twoRowDraft()
-    draft['documentSettings'].exportSpanStart = `${SPAN_START_DAY}T00:00:00`
-    draft['documentSettings'].exportSpanFinish = `${SPAN_FINISH_DAY}T23:59:00`
+    draft['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
+    draft['documentSettings'].fitSpanFinish = `${SPAN_FINISH_DAY}T23:59:00`
+    // WHY: FX-5 lets the two entrances be written only while the span is fixed.
+    draft['documentSettings'].fitSpanFixed = true
     const rig = fieldRig(documentOf(draft))
     rig.press(surfaceOfEntrance('IC-17'), 'IC-17')
     const fields = ((rig.last().propertiesPanel as { fields?: any[] } | null)?.fields ?? []).filter((one) => one.row === 'K-141')

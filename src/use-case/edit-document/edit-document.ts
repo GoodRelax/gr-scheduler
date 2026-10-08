@@ -249,8 +249,10 @@ const SETTINGS_KINDS = [
   'unpinTaskGroup',
   'fitScheduleToScreen',
   'setLevelZeroTreeState',
-  'setExportSpan',
-  'clearExportSpan',
+  'setFitSpan',
+  'clearFitSpan',
+  'setFitSpanFixed',
+  'setRowTitlePanelWidthFixed',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {

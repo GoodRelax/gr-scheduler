@@ -58,13 +58,22 @@ export type DocumentSettingsCommand =
       readonly kind: 'setLevelZeroTreeState'
       readonly levelZeroTreeState: DocumentSettings['levelZeroTreeState']
     }
-  // see CM-88, CM-89, IX-17
+  // see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
   | {
-      readonly kind: 'setExportSpan'
-      readonly exportSpanStart: string | null
-      readonly exportSpanFinish: string | null
+      readonly kind: 'setFitSpan'
+      readonly fitSpanStart: string | null
+      readonly fitSpanFinish: string | null
     }
-  | { readonly kind: 'clearExportSpan' }
+  | { readonly kind: 'clearFitSpan' }
+  // WHY: carries the shown span, so a fix entered over an empty span copies it in the same one step (FX-4).
+  | {
+      readonly kind: 'setFitSpanFixed'
+      readonly fitSpanFixed: boolean
+      readonly shownStart: string | null
+      readonly shownFinish: string | null
+    }
+  // see CM-91, WF-1
+  | { readonly kind: 'setRowTitlePanelWidthFixed'; readonly rowTitlePanelWidthFixed: boolean }
 
 // WHY: a Record over the type, so a value added to S-418 fails to compile here.
 const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
@@ -153,24 +162,67 @@ function pinEdited(
   return put({ pinnedGroupIds: [...held, command.groupId] })
 }
 
-// see CM-88, IX-17, RS-58, WT-6, WT-7
+type FitSpanPair = { readonly span: Partial<DocumentSettings> } | { readonly refusal: EditResult }
+
+// see FX-1, RS-58, WT-6, WT-7
 /** @purity pure */
-function exportSpanEdited(
-  command: Extract<DocumentSettingsCommand, { readonly kind: 'setExportSpan' }>,
-  put: SettingsPut,
-): EditResult {
-  const startText = command.exportSpanStart ?? command.exportSpanFinish
-  const finishText = command.exportSpanFinish ?? command.exportSpanStart
+function fitSpanPairOf(command: 'CM-88' | 'CM-90', startIn: string | null, finishIn: string | null): FitSpanPair {
+  const startText = startIn ?? finishIn
+  const finishText = finishIn ?? startIn
   const start = dayOf(startText)
   const finish = dayOf(finishText)
   if (start === null || finish === null) {
-    return refused([reject('CM-88', 'S-518', `not a pair of dates: ${startText} / ${finishText}`)])
+    return { refusal: refused([reject(command, 'S-518', `not a pair of dates: ${startText} / ${finishText}`)]) }
   }
-  // TRAP: refused, never pulled to the start; only a document read is settled that way (IX-17).
+  // TRAP: refused, never pulled to the start; only a document read is settled that way (FX-1).
   if (compareDays(finish, start) < 0) {
-    return refused([reject('CM-88', 'IX-17', 'the export span finishes before it starts')])
+    return { refusal: refused([reject(command, 'FX-1', 'the fit span finishes before it starts')]) }
   }
-  return put({ exportSpanStart: textOfDayStart(start), exportSpanFinish: textOfDayEnd(finish) })
+  return { span: { fitSpanStart: textOfDayStart(start), fitSpanFinish: textOfDayEnd(finish) } }
+}
+
+/** @purity pure */
+function fitSpanEdited(
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpan' }>,
+  put: SettingsPut,
+): EditResult {
+  const pair = fitSpanPairOf('CM-88', command.fitSpanStart, command.fitSpanFinish)
+  return 'refusal' in pair ? pair.refusal : put(pair.span)
+}
+
+// see CM-90, FX-1, FX-4
+/** @purity pure */
+function fitSpanFixedEdited(
+  settings: DocumentSettings,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpanFixed' }>,
+  put: SettingsPut,
+): EditResult {
+  const hasSpan = dayOf(settings.fitSpanStart) !== null && dayOf(settings.fitSpanFinish) !== null
+  if (!command.fitSpanFixed || hasSpan) return put({ fitSpanFixed: command.fitSpanFixed })
+  const pair = fitSpanPairOf('CM-90', command.shownStart, command.shownFinish)
+  return 'refusal' in pair ? pair.refusal : put({ ...pair.span, fitSpanFixed: true })
+}
+
+type FitSpanCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpan' | 'clearFitSpan' | 'setFitSpanFixed' }>
+
+const FIT_SPAN_KINDS: Readonly<Record<FitSpanCommand['kind'], true>> = {
+  setFitSpan: true,
+  clearFitSpan: true,
+  setFitSpanFixed: true,
+}
+
+/** @purity pure */
+function isFitSpanCommand(command: DocumentSettingsCommand): command is FitSpanCommand {
+  return Object.prototype.hasOwnProperty.call(FIT_SPAN_KINDS, command.kind)
+}
+
+// see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
+/** @purity pure */
+function fitSpanCommandEdited(settings: DocumentSettings, command: FitSpanCommand, put: SettingsPut): EditResult {
+  if (command.kind === 'setFitSpan') return fitSpanEdited(command, put)
+  if (command.kind === 'setFitSpanFixed') return fitSpanFixedEdited(settings, command, put)
+  // WHY: a cleared span takes its fix with it in the same one step (FX-5).
+  return put({ fitSpanStart: null, fitSpanFinish: null, fitSpanFixed: false })
 }
 
 // see T-108, FR-063
@@ -188,6 +240,7 @@ export function editDocumentSettings(
   }
   const clamp = (value: number): number =>
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
+  if (isFitSpanCommand(command)) return fitSpanCommandEdited(settings, command, put)
 
   switch (command.kind) {
     case 'setStackDirection':
@@ -256,11 +309,8 @@ export function editDocumentSettings(
     case 'setLevelZeroTreeState':
       return levelZeroTreeStateEdited(command, put)
 
-    case 'setExportSpan':
-      return exportSpanEdited(command, put)
-
-    case 'clearExportSpan':
-      return put({ exportSpanStart: null, exportSpanFinish: null })
+    case 'setRowTitlePanelWidthFixed':
+      return put({ rowTitlePanelWidthFixed: command.rowTitlePanelWidthFixed })
   }
 }
 

@@ -652,9 +652,26 @@ function swatchFieldElements(
   palette.setAttribute('data-colour-palette', field.row)
   palette.setAttribute('data-field-kind', control.kind)
   palette.append(grid)
+  if ((control.choiceValues ?? []).includes(control.text)) return [palette]
   const shown = made(host, 'span', 'flex:1 1 100%;')
   shown.textContent = field.text
   return [palette, shown]
+}
+
+// see FX-7
+/** @purity non-pure */
+function pressElement(host: Document, row: string, control: PropertyControl, word: string): HTMLElement {
+  const entry = made(host, 'button', 'font:inherit;flex:none;')
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('data-field-row', row)
+  entry.setAttribute('data-field-kind', control.kind)
+  entry.textContent = word
+  entry.setAttribute('value', control.text)
+  ;(entry as HTMLButtonElement).value = control.text
+  markControl(entry, control)
+  CONTROL_KEYS.set(entry, { row, key: control.key })
+  commitOnPress(entry)
+  return entry
 }
 
 // WHY: a field no longer described closes its host colour input, so it stands only after a press.
@@ -923,6 +940,7 @@ function controlElementsOf(
 ): readonly HTMLElement[] {
   if (control.colour !== undefined) return colourFieldElements(host, field.row, control, typedByRow)
   if (control.swatches !== undefined) return swatchFieldElements(host, field, control, typedByRow)
+  if (control.press !== undefined) return [pressElement(host, field.row, control, control.press)]
   if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
   if (control.link !== undefined) return linkFieldElements(host, field.row, control, control.link)
   return [controlElement(host, field.row, control, typedByRow)]
@@ -962,6 +980,12 @@ export function fieldElement(
   }
 
   const controls = made(host, 'div', propertyControlsStyle())
+  // WHY: a read-out with an entrance under it is one field (FX-6, FX-7): the read-out takes the first line.
+  if (field.readout !== undefined) {
+    const readout = valueElement(host, field)
+    readout.style.flex = '1 1 100%'
+    controls.append(readout)
+  }
   if (field.text !== '' && field.controls.every((one) => one.text === '')) {
     const shown = made(host, 'span', '')
     shown.textContent = field.text

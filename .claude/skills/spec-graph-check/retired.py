@@ -347,4 +347,10 @@ RETIRED = {'FR-050', 'T-030',
            # and its thickness and gap (S-440, S-441) left. CR-582, CR-689, the
            # changelog and rulings.md name them, so the seats stay burnt.
            'MH-5', 'S-440', 'S-441',
+           # CR-690 (2026-10-08, rulings JDG-1560 / JDG-1626): the export span is
+           # no longer an export-only value, so its value and field rules moved to
+           # table T-367 of FR-055 and its place to table T-369 of FR-072; IX-17
+           # left table T-241. CR-677, CR-694, the changelog and rulings.md name
+           # it, so the seat stays burnt.
+           'IX-17',
            'T-006'}

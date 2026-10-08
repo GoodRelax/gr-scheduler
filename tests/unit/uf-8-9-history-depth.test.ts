@@ -197,6 +197,8 @@ function writeNames(one: Bench, nth: number): void {
 // that changed nothing could not hide behind table T-027 for a different reason.
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
   setRowTitlePanelWidth: { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 200 },
+  // see CM-91, WF-1
+  setRowTitlePanelWidthFixed: { kind: 'setRowTitlePanelWidthFixed', rowTitlePanelWidthFixed: true },
   pinTaskGroup: { kind: 'pinTaskGroup', groupId: FIRST_GROUP_ID },
   unpinTaskGroup: { kind: 'unpinTaskGroup', groupId: FIRST_GROUP_ID },
 }
@@ -310,9 +312,10 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     expect(one.depth()).toBe(1)
   })
 
-  it('UN-16 names one requirement, and table T-108 gives it one command', () => {
+  // WHY: CR-690 -- UN-16 also names the width's fix (table T-368), which CM-91 writes.
+  it('UN-16 names one requirement, and table T-108 gives it the width and its fix', () => {
     expect(UN_16_REQUIREMENTS.sort()).toEqual(['FR-052'])
-    expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67'])
+    expect(UN_16_COMMANDS.map((oneCell) => oneCell.commandRow)).toEqual(['CM-67', 'CM-91'])
   })
 
   describe('UN-16 対象外 -- 見る場所の割り付け', () => {

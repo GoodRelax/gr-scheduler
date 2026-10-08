@@ -3,9 +3,10 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { dayOf, type Schedule } from '../../entity/document-model/schedule/schedule'
+import { dayOf, textOfDayStart, type Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   fitZoom,
+  fixedFitSpanOf,
   groupDepthLimit,
   groupDepthThresholdOf,
   rowPlacesAtZoomY,
@@ -622,13 +623,24 @@ function fitCommand(context: InputContext): DocumentCommand {
     !namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
       ? fitted
       : at
+  const fixed = fixedSpanAcrossOf(context)
   return {
     kind: 'fitScheduleToScreen',
-    zoomX: fitted.zoomX,
+    zoomX: fixed?.zoomX ?? fitted.zoomX,
     zoomY: fitted.zoomY,
-    scrollDate: place.scrollDate,
+    scrollDate: fixed?.scrollDate ?? place.scrollDate,
     scrollGroupId: place.scrollGroupId,
-    scrollDayOffset: place.scrollDayOffset,
+    scrollDayOffset: fixed === null ? place.scrollDayOffset : 0,
     scrollGroupOffset: 0,
   }
+}
+
+// see FX-3, FX-1, S-75
+/** @purity pure */
+function fixedSpanAcrossOf(context: InputContext): { readonly zoomX: number; readonly scrollDate: string } | null {
+  const settings = context.document.documentSettings
+  const span = fixedFitSpanOf(settings)
+  if (span === null) return null
+  const zoomX = context.regions.rowArea.width / span.days / drawnSettingsOf(settings).pxPerDayAt1x
+  return { zoomX: Math.max(context.zoomMin, Math.min(context.zoomMax, zoomX)), scrollDate: textOfDayStart(span.start) }
 }

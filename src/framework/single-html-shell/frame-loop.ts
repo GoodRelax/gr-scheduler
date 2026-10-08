@@ -22,11 +22,11 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
-  calendarDaysBetween,
-  dayOf,
   diagnoseDelay,
   scheduleViolations,
   textOfDay,
+  textOfDayEnd,
+  textOfDayStart,
   workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
@@ -47,8 +47,10 @@ import {
   type WbsParentFamilies,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
+  fixedFitSpanOf,
   hasRoomBelowPinsIn,
   layoutFromSchedule,
+  shownSpanOf,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -847,7 +849,8 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   { reason: 'RS-57', command: null, rule: 'IV-1' },
   { reason: 'RS-58', command: 'CM-6', rule: 'FR-012' },
   { reason: 'RS-58', command: 'CM-11', rule: 'FR-012' },
-  { reason: 'RS-58', command: 'CM-88', rule: 'IX-17' },
+  { reason: 'RS-58', command: 'CM-88', rule: 'FX-1' },
+  { reason: 'RS-58', command: 'CM-90', rule: 'FX-1' },
 ]
 
 // see T-233
@@ -1061,6 +1064,8 @@ function screenViewReadingsOf(
     rowBoxes: drawnRowBoxesOf(layout, regions),
     placedRowGroupIds: layout.rows.map((row) => row.groupId),
     placedRows: layout.rows,
+    shownSpan: shownSpanTextsOf(layout, regions),
+    rowTitlePanelDrawnWidth: regions.rowTitlePanel.width,
     scrollExtent: scrollExtentOf(layout, regions, {
       horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
       vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
@@ -1068,6 +1073,13 @@ function screenViewReadingsOf(
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
   }
+}
+
+// see FX-6
+/** @purity pure */
+function shownSpanTextsOf(layout: ScheduleLayout, regions: ScreenRegions): NonNullable<ScreenViewReadings['shownSpan']> | null {
+  const shown = shownSpanOf(layout, regions.rowArea)
+  return shown === null ? null : { start: textOfDayStart(shown.start), finish: textOfDayEnd(shown.finish) }
 }
 
 interface HeldWholes {
@@ -1323,7 +1335,7 @@ function screenExportViewOf(
   return { regions, settings, layout, dualCursor }
 }
 
-// see IX-13, IX-14, IX-15, IX-17
+// see IX-13, IX-14, IX-15, FX-1, FX-2
 // WHY: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
 // laid against the S-217 height so no pinned row is cut, then the canvas is closed under the last row.
 /** @purity pure */
@@ -1333,10 +1345,9 @@ function spanExportViewOf(
   shownTaskUids: ReadonlySet<number> | null,
 ): ExportView | null {
   const stored = document.documentSettings
-  const start = dayOf(stored.exportSpanStart)
-  const finish = dayOf(stored.exportSpanFinish)
-  const days = start === null || finish === null ? 0 : calendarDaysBetween(start, finish) + 1
-  if (days < 1) return null
+  const span = fixedFitSpanOf(stored)
+  if (span === null) return null
+  const days = span.days
   const regionsAt = (height: number): ScreenRegions =>
     regionsFromScreen(
       environmentForRegionsOf({ ...environment, width: SETTINGS_CONSTANTS.exportCanvas.width, height }, 0, false),
@@ -1347,7 +1358,7 @@ function spanExportViewOf(
     ...stored,
     zoomX: reach.rowArea.width / days / drawnSettingsOf(stored).pxPerDayAt1x,
     zoomY: 1,
-    scrollDate: stored.exportSpanStart,
+    scrollDate: stored.fitSpanStart,
     scrollDayOffset: 0,
     scrollGroupId: null,
     scrollGroupOffset: 0,

@@ -46,16 +46,18 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly colourField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 }
 
+// WHY: CR-690 -- the place moved to table T-369 (FO-2, the first field under the GRS reset entrance FO-1).
 const CLAUSE_FIRST_FIELD =
-  '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の先頭の欄とすること（MUST）'
+  '⭐ テーマ色を選ぶ入口は、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の欄とし、置き場は `FR-072` の 表 T-369 の `FO-2` とすること（MUST）'
 const CLAUSE_ROWS_IN_ORDER =
   'その欄には 表 T-305 の行を同表の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-368` 個ずつ並べ、押された行の色相で 表 T-108 の `CM-5` を 1 回発行すること（MUST）。'
 const CLAUSE_SWATCH_PAINT =
   '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
-const CLAUSE_NAME_AND_VALUE =
-  '欄の名は `FR-038` の辞書が 表 T-104 の `K-60` に持つ語とし、欄の値は文書の `themeHue` と等しい 表 T-305 の行の語とすること（MUST）。'
+// WHY: CR-690 -- the field is the swatch rows alone; the chosen swatch is ringed and each swatch's tooltip is its word.
+const CLAUSE_NAME_AND_VALUE = '⭐ 欄の名は `FR-038` の辞書が 表 T-104 の `K-60` に持つ語とし、欄は見本の段だけとして、見本の外に行の語を書かないこと（MUST）'
+const CLAUSE_TOOLTIP = '各見本のツールチップは、辞書の `themeHues` のその行の語とすること（MUST）。'
 const CLAUSE_NO_ROW =
-  '⚠️ 等しい行が無いとき（`Agent API` やファイルが置いた値）は、値を数で示し、どの行も選んでいるとは示さない。'
+  '⚠️ 等しい行が無いとき（`Agent API` やファイルが置いた値）は、どの見本も囲まず、見本の段の下に値を数で示す。'
 const CLAUSE_NO_ENTRANCES =
   '⛔ この欄に、カスタムカラーの入口・透明・テーマ追随へ戻す入口（表 T-017b の `CV-9` と `FR-007` の「戻す入口」）を並べてはならない（MUST NOT）'
 const CLAUSE_READ_ONLY = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）。'
@@ -345,6 +347,7 @@ describe('CR-557 -- the manuscript still says what these cases read', () => {
     CLAUSE_ROWS_IN_ORDER,
     CLAUSE_SWATCH_PAINT,
     CLAUSE_NAME_AND_VALUE,
+    CLAUSE_TOOLTIP,
     CLAUSE_NO_ROW,
     CLAUSE_NO_ENTRANCES,
     CLAUSE_READ_ONLY,
@@ -371,15 +374,17 @@ describe('CR-557 S-2 -- the first field of the document settings panel is K-60',
   it.each(LANGUAGES)(`FR-041 "${CLAUSE_NAME_AND_VALUE}" -- %s`, (language) => {
     const field = hueField(settingsPanel({ language }))
     expect(field.name).toBe(fieldNameOf(language))
-    expect(field.text).toBe(hueWordOf('TH-1', language))
     expect(field.isEditable).toBe(true)
   })
 
   it.each(ROSTER.map((one) => [one.rowId, one.hue] as const))(
-    `FR-041 "${CLAUSE_NAME_AND_VALUE}" -- the value names %s when themeHue is %s`,
+    `FR-041 "${CLAUSE_TOOLTIP}" -- the swatch holding themeHue %s's value carries its word when themeHue is %s`,
     (rowId, hue) => {
       for (const language of LANGUAGES) {
-        expect(hueField(settingsPanel({ hue, language })).text).toBe(hueWordOf(rowId, language))
+        const control = hueControl(settingsPanel({ hue, language }))
+        const at = (control.choiceValues ?? []).indexOf(control.text)
+        expect(at, 'the stored hue is one swatch value').toBeGreaterThanOrEqual(0)
+        expect(control.choices?.[at]).toBe(hueWordOf(rowId, language))
       }
     },
   )
@@ -428,13 +433,14 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
   })
 
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
-    // WHY: FR-131 (CR-651) places K-140 under this one, IX-17 (CR-677) the export span K-141 under that, then
-    // FR-046 and FR-039 (CR-677) place IC-44, K-125 and K-85 in that order; every other setting stays read only.
-    const placed = ['K-140', 'K-141', 'IC-44', 'K-125', 'K-85']
+    // WHY: table T-369 (CR-690) orders the fields under this one: FO-3 K-125, FO-4 K-85, FO-5 K-143, FO-6 K-71,
+    // FO-7 (read-out), FO-8 IC-44, FO-9 K-142, FO-10 K-141, FO-11 (read-out and its copy entrance), FO-12 K-140.
+    const placed = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140']
+    const withControls = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'FX-6', 'K-140']
     const rest = settingsPanel().fields.slice(1)
     expect(rest.length, 'premise: the panel shows other settings too').toBeGreaterThan(0)
     expect(rest.filter((one) => one.isEditable).map((one) => one.row)).toEqual(placed)
-    expect(rest.filter((one) => one.controls.length > 0).map((one) => one.row)).toEqual(placed)
+    expect(rest.filter((one) => one.controls.length > 0).map((one) => one.row)).toEqual(withControls)
   })
 })
 
