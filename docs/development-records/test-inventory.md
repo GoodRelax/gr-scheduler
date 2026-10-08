@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 241 | 2742 | 3 | 5 | 9 | 2 |
+| `contract` | TS-5 | VT-2 | 244 | 2761 | 3 | 5 | 9 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 509 | 7182 | 6 | 11 | 11 | 2 |
+| **all** | | | 512 | 7201 | 6 | 11 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -355,7 +355,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-673-monochrome-swatches-font-size-stopped-line-arrow-head-and-field-notices.contract.test.ts` | 10 | FR-041, FR-109 | - | T-016, T-019a, T-216, T-236, T-294, T-305 | IC-99, IC-127, IF-9, K-60, PK-4, PS-3, PS-4, S-74, S-151, U-25 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
+| `tests/contract/dfc-1051-a-fade-grab-is-never-refused-by-iv-12.test.ts` | 4 | - | - | - | FD-6, GA-7, GA-8, IV-12 | - | - | - | - |
 | `tests/contract/dfc-1053-cu-2-dc-3-one-point-one-region-for-the-guide-and-the-readout.test.ts` | 3 | - | - | T-064 | CU-2, DC-3 | - | - | - | - |
+| `tests/contract/dfc-1054-a-pasted-row-copy-writes-no-slack.test.ts` | 6 | - | - | - | EX-12 | - | - | - | - |
 | `tests/contract/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/contract/dfc-1172-ep-3-the-exported-row-name-baseline-is-one-font-below-the-box-top.test.ts` | 3 | FR-039 | - | T-201 | EP-3, S-36, S-38 | - | - | - | - |
 | `tests/contract/dfc-1224-fr-060-only-a-replace-moves-the-save-target.test.ts` | 12 | FR-060, FR-096 | VT-2 | T-036, T-103, T-109, T-290 | IC-52, IC-71, IC-72, IC-73, OP-5, SK-11, U-56 | - | - | - | - |
@@ -404,6 +406,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` | 6 | - | - | T-206 | GR-21, S-205 | - | - | - | - |
 | `tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts` | 8 | FR-009, FR-027, FR-038, FR-076 | - | T-015a, T-016, T-034, T-035, T-037, T-062, T-065, T-067, T-218, T-220, T-233 | AG-9a, BT-4, CM-36, CP-25, HM-4, IF-9, IV-1, IV-2, IV-10, NT-1, NT-3a, NT-8, PR-3, PR-15, PR-35, PR-47, RS-10, RS-55, RS-56, RS-57, RS-58, SK-19, TS-6, UF-48, WS-3 | - | - | - | - |
 | `tests/contract/dfc-407-417-418-the-three-fixes-of-2026-09-09.test.ts` | 6 | FR-039, FR-043, FR-054, FR-078, FR-094 | - | T-012, T-068, T-077, T-108, T-201, T-218, T-231, T-252 | AG-5, AT-101, BO-1, NS-3, PI-19, S-24, S-63, S-64, SH-5, TS-6 | - | - | - | - |
+| `tests/contract/dfc-459-1701-hs-12-the-ai-reads-the-save-time-the-header-shows.test.ts` | 9 | FR-101 | - | T-341 | AG-9a, AM-3, AM-4, AM-11, AT-140, HS-5, HS-6, HS-11, HS-12 | - | - | - | - |
 | `tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts` | 4 | FR-029, FR-039, FR-085, FR-093 | - | T-252 | S-30, S-36, S-37, S-38, S-79, S-125, S-126, S-138, S-140, S-218 | - | - | - | - |
 | `tests/contract/dfc-507-go-3-go-4-a-finished-actual-finish-follows-the-grab.test.ts` | 14 | FR-006, FR-011, FR-103 | - | T-016, T-019, T-021a, T-245 | GA-3, GA-4, GA-16, GO-3, GO-4, PA-5, PR-6, PV-2, S-1, S-75 | - | - | - | - |
 | `tests/contract/dfc-545-a-held-choice-or-checkbox-is-no-text-entry.contract.test.ts` | 5 | - | - | - | IF-9, IN-5a, IN-6, PR-1, SK-3, SK-19, WS-2 | - | - | - | - |
