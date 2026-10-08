@@ -179,7 +179,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { bare, specTable } from './spec-table'
+import { bare, bareAll, specTable } from './spec-table'
 import { DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 import { withDownloadAddress } from '../fixtures/download-address'
 
@@ -760,8 +760,28 @@ const withScreen = (root: ScreenSession, part: Partial<ScreenSession['screen']>)
   screen: { ...root.screen, ...part },
 })
 
-const rootWithSurface = (surfaceName: string | null): ScreenSession =>
-  rootWith({ openSurfaceState: surfaceName === null ? { kind: 'closed' } : { kind: 'open', surfaceName } })
+const openSurfaceRowsIn = (node: unknown): readonly string[] => {
+  if (Array.isArray(node)) return node.flatMap(openSurfaceRowsIn)
+  if (node === null || typeof node !== 'object') return []
+  const one = node as Record<string, unknown>
+  const carries = one['key'] === 'open' ? one['carries'] : undefined
+  if (!Array.isArray(carries)) return Object.values(one).flatMap(openSurfaceRowsIn)
+  return (carries as { name: string; rows?: string[] }[]).filter((carried) => carried.name === 'surfaceName').flatMap((carried) => carried.rows ?? [])
+}
+
+const SURFACE_ROWS_OF_T_280: ReadonlySet<string> = new Set(
+  openSurfaceRowsIn(JSON.parse(readFileSync(join(ROOT, 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'))),
+)
+
+const surfaceRowOf = (surface: string): string => {
+  const row = T103.rows.find((one) => bareAll(one.cells[0] ?? '').includes(surface))
+  return row !== undefined && SURFACE_ROWS_OF_T_280.has(row.id) ? row.id : surface
+}
+
+const rootWithSurface = (surface: string | null): ScreenSession =>
+  rootWith({
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surfaceRowOf(surface) },
+  })
 
 /** The whole argument list of `screenViewFromRegions` (PI-37), in its declared order. */
 interface Frame {

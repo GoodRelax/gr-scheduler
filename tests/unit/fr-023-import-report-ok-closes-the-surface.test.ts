@@ -123,6 +123,8 @@ const U_62 = (() => {
   return bare(row.cells[0] ?? '')
 })()
 
+const U_62_ROW = 'U-62'
+
 /** RS-50 of table T-233 -- FR-023 (MUST) sends U-62's sentence to this row. */
 const RS_50 = specTable('T-233').rows.find((one) => one.id === 'RS-50')
 
@@ -251,8 +253,8 @@ const stateOn = (surface: string | null): ScreenSession => rootOn(surface)
 
 /** U-62 as UF-66 describes it, with the case failed where S-99g holds nothing. */
 function describedOn(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromSession(rootOn(U_62, language), SCHEDULE, readingsOf(), SETTINGS)
-  expect(modal, `S-99g holds ${U_62}, so UF-66 describes a surface`).not.toBeNull()
+  const modal = openModalFromSession(rootOn(U_62_ROW, language), SCHEDULE, readingsOf(), SETTINGS)
+  expect(modal, `S-99g holds ${U_62_ROW}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }
 
@@ -383,7 +385,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       layout: LAYOUT,
       geometry: GEOMETRY,
       regions: REGIONS,
-      screen: stateOn(U_62).screen,
+      screen: stateOn(U_62_ROW).screen,
       selection: emptySelection(),
       zoomStep: 3,
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -438,6 +440,6 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       ...baseContext,
       pressed: pressedElsewhere,
     })
-    expect(eventElsewhere, `S-99g still holds ${U_62}: no close event off the entrance`).toBeNull()
+    expect(eventElsewhere, `S-99g still holds ${U_62_ROW}: no close event off the entrance`).toBeNull()
   })
 })

@@ -650,6 +650,8 @@ const U_60 = (() => {
   return bare(row.cells[0] ?? '')
 })()
 
+const U_60_ROW = 'U-60'
+
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
 const EMPTY_SCHEDULE = {
@@ -698,8 +700,8 @@ const rootOn = (surface: string, language: DisplayLanguage): ScreenSession => ({
 })
 
 function unlockSurface(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromSession(rootOn(U_60, language), EMPTY_SCHEDULE, READINGS, SETTINGS)
-  if (modal === null) throw new Error(`S-99g holds ${U_60}, so a surface is described`)
+  const modal = openModalFromSession(rootOn(U_60_ROW, language), EMPTY_SCHEDULE, READINGS, SETTINGS)
+  if (modal === null) throw new Error(`S-99g holds ${U_60_ROW}, so a surface is described`)
   return modal
 }
 

@@ -121,8 +121,8 @@ describe('IN-4 (DFC-1651) -- one Esc answers a standing question and leaves the 
 })
 
 describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen row is a selection Esc and Enter spend', () => {
-  // WHY: red on 2e16d0c4 -- the second Esc is taken (isBrowserDefaultStopped is true) yet the row stays chosen, and Enter does nothing.
-  it.fails('DFC-695: with only a row chosen and its panel put away, Esc is taken and the row is no longer chosen', () => {
+  // WHY: red on 2e16d0c4 (the second Esc was taken yet the row stayed chosen, and Enter did nothing); green since DFC-695 was fixed.
+  it('DFC-695: with only a row chosen and its panel put away, Esc is taken and the row is no longer chosen', () => {
     const built = benchOf()
     take(built, ROW_TITLE_PANEL, null, 'g1')
     expect(chosenRows(built), 'premise').toEqual(['g1'])
@@ -134,7 +134,7 @@ describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen row is a selection Esc and
     expect(built.loop.isBrowserDefaultStopped(keyOf('Esc')), 'IN-4a: nothing left, the key goes to the browser').toBe(false)
   })
 
-  it.fails('DFC-695: with only a row chosen and no panel up, Enter clears the choice', () => {
+  it('DFC-695: with only a row chosen and no panel up, Enter clears the choice', () => {
     const built = benchOf()
     take(built, ROW_TITLE_PANEL, null, 'g2')
     built.send(keyOf('Esc'))

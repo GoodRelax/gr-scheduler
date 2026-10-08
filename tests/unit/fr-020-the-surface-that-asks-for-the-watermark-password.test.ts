@@ -72,6 +72,8 @@ const U_60 = (() => {
   return bare(row.cells[0] ?? '')
 })()
 
+const U_60_ROW = 'U-60'
+
 /** QN-9 of table T-234 -- the row FR-020 names as this surface's question. */
 const QN_9 = 'QN-9'
 
@@ -161,12 +163,12 @@ const rootOn = (language: DisplayLanguage, surface: string | null): ScreenSessio
 /** The surface as UF-66 describes it, with the case failed where none is. */
 function describedOn(language: DisplayLanguage): OpenModal {
   const modal = openModalFromSession(
-    rootOn(language, U_60),
+    rootOn(language, U_60_ROW),
     EMPTY_DOCUMENT,
     readingsOf(),
     SETTINGS_DEFAULTS as unknown as DocumentSettings,
   )
-  expect(modal, `S-99g holds ${U_60}, so UF-66 describes a surface`).not.toBeNull()
+  expect(modal, `S-99g holds ${U_60_ROW}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }
 
@@ -182,12 +184,12 @@ function questionWord(row: string, language: DisplayLanguage): string {
 // ---------------------------------------------------------------------------
 
 describe('FR-020 -- U-60 `Watermark Unlock` as UF-66 describes it', () => {
-  it('is described at all while S-99g holds its name', () => {
+  it('is described at all while S-99g holds its row', () => {
     // FR-020 (MUST): the press raises this surface, and S-99g is where the name
     // of an open surface stands -- so a name there has to come back described,
     // or the press raises something nothing draws.
     for (const language of LANGUAGES) {
-      expect(describedOn(language).surface, `S-99g holds ${U_60}`).toBe(U_60)
+      expect(describedOn(language).surface, `S-99g holds ${U_60_ROW}`).toBe(U_60)
     }
   })
 

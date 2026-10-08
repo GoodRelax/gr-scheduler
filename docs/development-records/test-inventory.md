@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 66 | 424 | 0 | 2 | 0 | 0 |
-| `unit` | TS-6 | - | 182 | 3912 | 3 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 182 | 3912 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 3 | 4 | 0 | 0 |
-| **all** | | | 509 | 7182 | 9 | 12 | 11 | 2 |
+| **all** | | | 509 | 7182 | 7 | 12 | 11 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,12 +49,12 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (9)
+## 5. Expected-to-fail cases (7)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 1 of 9.
+named either way: 1 of 7.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
@@ -62,8 +62,6 @@ named either way: 1 of 9.
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |
-| `tests/unit/dfc-540-541-695-696-1651-the-chosen-rows-the-chosen-assignees-and-the-question.test.ts` | DFC-695: with only a row chosen and its panel put away, Esc is taken and the row is no... | DFC-695 |
-| `tests/unit/dfc-540-541-695-696-1651-the-chosen-rows-the-chosen-assignees-and-the-question.test.ts` | DFC-695: with only a row chosen and no panel up, Enter clears the choice | DFC-695 |
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 | `tests/usecase/uc-011-save-and-hand-out-the-document.test.ts` | UC-011 extension 1b / FR-095 (DFC-2201): extension 1b shows the starting template, FR-0... | DFC-2201 |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
@@ -660,7 +658,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | 14 | FR-071 | - | T-283 | IN-4, IN-4a, RG-8, RG-17 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 6 | - | - | T-313 | BD-2, BD-4 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
-| `tests/unit/dfc-540-541-695-696-1651-the-chosen-rows-the-chosen-assignees-and-the-question.test.ts` | 7 | FR-085, FR-099 | - | - | CD-5, IC-66, IN-4, QN-10, RS-27, SK-19 | - | - | 2: DFC-695, DFC-695 | - |
+| `tests/unit/dfc-540-541-695-696-1651-the-chosen-rows-the-chosen-assignees-and-the-question.test.ts` | 7 | FR-085, FR-099 | - | - | CD-5, IC-66, IN-4, QN-10, RS-27, SK-19 | - | - | - | - |
 | `tests/unit/dfc-540-551-686-781-the-shell-orders-notices-and-edit-marks.test.ts` | 10 | FR-100 | - | - | BO-1, IN-1, IN-4a, NT-3, NT-8, WS-2 | - | - | - | - |
 | `tests/unit/dfc-540-the-write-path-guards-the-notes-used-to-hold.test.ts` | 8 | FR-020, FR-063 | - | - | CM-11, CM-38, CM-41, CM-42, CM-43, IV-12 | - | - | - | - |
 | `tests/unit/dfc-551-the-watermark-time-moves-only-when-the-document-does.test.ts` | 3 | FR-020 | - | - | - | - | - | - | - |
