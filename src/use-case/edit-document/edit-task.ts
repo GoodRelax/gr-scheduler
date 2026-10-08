@@ -20,7 +20,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
-import { tasksRankedByTheRowTree, wbsSubtreesOf } from './edit-task-group'
+import { settledRow, tasksRankedByTheRowTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
 import { pasteTaskSubtree } from './task-paste'
 import {
@@ -221,9 +221,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           continue
         }
         // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
-        const source = taskByUid(schedule, group.derivedFromTaskUid)
-        const settled = group.label ?? source?.name ?? defaultRowName
-        taskGroups.push({ ...group, label: settled, derivedFromTaskUid: null })
+        taskGroups.push(settledRow(schedule, group, defaultRowName))
       }
 
       const tasks = schedule.tasks
