@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>46 分単位の時間軸の見本</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1f2328; --muted: #656d76; --line: #d0d7de;
+  --grid-day: #b8c0c8; --grid-hour: #d5dbe1; --grid-half: #c3cad1;
+  --off-day: #eceff2; --off-hour: #f4f6f8;
+  --plan: #4a7fd4; --plan-edge: #2f5fa8; --warn: #cf222e; --accent: #0969da;
+  --ruler: #f6f8fa;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif; color: var(--fg); background: var(--bg); }
+header { display: flex; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 18px; margin: 0; flex: 1; }
+header .base { font-size: 14px; color: var(--muted); }
+#menuBtn { font-size: 20px; line-height: 1; padding: 4px 10px; border: 1px solid var(--line); background: #fff; border-radius: 6px; cursor: pointer; }
+#menuBtn[aria-pressed="true"] { background: #ddf4ff; border-color: var(--accent); }
+main { display: flex; align-items: flex-start; }
+#left { flex: 1; min-width: 0; padding: 8px 16px 24px; }
+#settings { width: 360px; flex: none; border-left: 1px solid var(--line); padding: 8px 16px 24px; font-size: 14px; }
+#settings[hidden] { display: none; }
+#settings h2 { font-size: 15px; margin: 14px 0 4px; }
+#settings .note { color: var(--muted); font-size: 13px; }
+#settings label { display: block; }
+#settings select, #settings input[type=number] { font-size: 14px; }
+#settings button { font-size: 14px; margin-top: 4px; }
+#zoomBar { display: flex; align-items: center; gap: 8px; font-size: 14px; flex-wrap: wrap; }
+#zoom { width: 260px; }
+#status { font-size: 13px; color: var(--muted); margin: 4px 0; }
+#chartBox { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; user-select: none; touch-action: none; }
+svg { display: block; }
+svg text { font-size: 12px; fill: var(--fg); }
+svg .muted { fill: var(--muted); }
+svg .zoneLabel { font-size: 12px; font-weight: 600; }
+table { border-collapse: collapse; font-size: 14px; margin-top: 12px; }
+th, td { border: 1px solid var(--line); padding: 2px 8px; text-align: left; white-space: nowrap; }
+th { background: var(--ruler); }
+td.warn { color: var(--warn); }
+#log { font-size: 14px; margin-top: 8px; min-height: 1.7em; }
+.tableBox { overflow-x: auto; max-width: 100%; }
+.help { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>46 分単位の時間軸の見本</h1>
+  <span class="base" id="baseLabel"></span>
+  <button id="menuBtn" type="button" aria-pressed="true" title="設定">&#9776;</button>
+</header>
+<main>
+  <div id="left">
+    <div id="zoomBar">
+      <span>ズーム（1 時間の幅）</span>
+      <input id="zoom" type="range" min="0" max="1000" step="1">
+      <button id="zoomOut" type="button">&minus;</button>
+      <button id="zoomIn" type="button">+</button>
+      <button id="fit" type="button">全体</button>
+    </div>
+    <div id="status"></div>
+    <div id="chartBox"><svg id="chart"></svg></div>
+    <p class="help">ホイール = 左右へ送る ／ Ctrl + ホイール = ズーム ／ 空き地を引く = 送る ／ 棒の中ほどを引く = 動かす ／ 棒の両端を引く = 開始・終了を変える ／ Alt を押しながら引く = 1 分刻み</p>
+    <div id="log"></div>
+    <div class="tableBox"><table id="table"></table></div>
+  </div>
+  <aside id="settings">
+    <h2>表示</h2>
+    <label><input type="checkbox" id="showTime"> 時刻を表示する</label>
+    <div class="note">オフ: ズームしても日の列だけ（今の GRS と同じ見た目・寄せは日）。オン: ズームすると「時」の段、30 分の点線と毎正時の実線を出す。日時はどちらでも時刻まで読む。</div>
+
+    <h2>基準のタイムゾーン</h2>
+    <div id="baseNow"></div>
+    <label>新しい基準 <select id="newBase"></select></label>
+    <label><input type="radio" name="baseMode" value="keepInstant" checked> 瞬間を保つ（日時の数字を書き換える）</label>
+    <label style="margin-left:20px"><input type="checkbox" id="moveCalendar"> 暦の稼働時間も同じ瞬間へ移す</label>
+    <label><input type="radio" name="baseMode" value="keepNumbers"> 数字を保つ（瞬間が動く）</label>
+    <button id="applyBase" type="button">基準を変える</button>
+
+    <h2>時刻を一斉にずらす（タイムシフト）</h2>
+    <label><input type="number" id="shiftHours" value="-16" step="0.5" style="width:80px"> 時間 <button id="applyShift" type="button">ずらす</button></label>
+    <div class="note">すべてのタスクの日時を同じ時間だけ動かす。暦は動かさない。PDT → JST を「瞬間を保つ」で変えたあと -16 時間ずらすと、「数字を保つ」で変えたのと同じ数字に戻る（夏時間の間。11/1 以降の PST は -17 時間）。</div>
+
+    <h2>表示するタイムゾーン（最大 4）</h2>
+    <div id="displayZones"></div>
+    <div class="note">時刻を表示するときだけ、目盛りの下に段を足す。</div>
+
+    <h2>暦（文書に 1 つ）</h2>
+    <div id="calendarNow"></div>
+
+    <h2>見本だけのしきい値</h2>
+    <label>「時」の段を出す: 1 時間 &ge; <input type="number" id="thHour" value="12" min="1" step="1" style="width:64px"> px</label>
+    <label>30 分の点線を出す: 30 分 &ge; <input type="number" id="thHalf" value="6" min="1" step="1" style="width:64px"> px</label>
+    <p><button id="reset" type="button">最初に戻す</button></p>
+  </aside>
+</main>
+<script>
+'use strict';
+
+// ---------- constants ----------
+const MINUTE = 60e3;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+const LABEL_W = 170;
+const ROW_H = 34;
+const RULER_ROW_H = 22;
+const MIN_PX_PER_HOUR = 0.5 / 24;   // 0.5 px per day, the narrowest zoom in GRS today
+const MAX_PX_PER_HOUR = 120;
+const GRS_TODAY_MAX_PX_PER_HOUR = 384 / 24;  // S-1 6 px/day x S-54 64
+const MINUTES_PER_DAY = 480;         // S-128
+const DEFAULT_START = 8 * 60;        // S-482 08:00
+const DEFAULT_FINISH = 17 * 60;      // S-483 17:00
+const WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
+// The 28 choices of JDG-1712: the label shows the standard UTC offset and a representative place,
+// the value is the region name, so daylight saving time follows the region's own rule.
+const ZONE_CHOICES = [
+  ['Etc/GMT+12', '(UTC-12:00) 日付変更線の西'],
+  ['Pacific/Pago_Pago', '(UTC-11:00) サモア（米領）'],
+  ['Pacific/Honolulu', '(UTC-10:00) ハワイ'],
+  ['America/Anchorage', '(UTC-09:00) アラスカ'],
+  ['America/Los_Angeles', '(UTC-08:00) 太平洋時間（米国・カナダ）'],
+  ['America/Denver', '(UTC-07:00) 山岳部時間（米国・カナダ）'],
+  ['America/Chicago', '(UTC-06:00) 中部時間（米国・カナダ）'],
+  ['America/New_York', '(UTC-05:00) 東部時間（米国・カナダ）'],
+  ['America/Halifax', '(UTC-04:00) 大西洋時間（カナダ）'],
+  ['America/Sao_Paulo', '(UTC-03:00) サンパウロ'],
+  ['Atlantic/South_Georgia', '(UTC-02:00) 南ジョージア'],
+  ['Atlantic/Azores', '(UTC-01:00) アゾレス'],
+  ['UTC', '(UTC) 協定世界時'],
+  ['Europe/London', '(UTC+00:00) ロンドン'],
+  ['Europe/Berlin', '(UTC+01:00) 中央ヨーロッパ（ベルリン・パリ）'],
+  ['Europe/Helsinki', '(UTC+02:00) 東ヨーロッパ（ヘルシンキ）'],
+  ['Europe/Moscow', '(UTC+03:00) モスクワ'],
+  ['Asia/Dubai', '(UTC+04:00) ドバイ'],
+  ['Asia/Karachi', '(UTC+05:00) カラチ'],
+  ['Asia/Kolkata', '(UTC+05:30) インド'],
+  ['Asia/Dhaka', '(UTC+06:00) ダッカ'],
+  ['Asia/Bangkok', '(UTC+07:00) バンコク'],
+  ['Asia/Singapore', '(UTC+08:00) シンガポール・北京'],
+  ['Asia/Tokyo', '(UTC+09:00) 東京'],
+  ['Australia/Sydney', '(UTC+10:00) シドニー'],
+  ['Pacific/Noumea', '(UTC+11:00) ヌメア'],
+  ['Pacific/Auckland', '(UTC+12:00) オークランド'],
+  ['Pacific/Tongatapu', '(UTC+13:00) トンガ'],
+];
+const ZONE_LABELS = new Map(ZONE_CHOICES);
+function zoneLabel(zone) { return ZONE_LABELS.get(zone) || zone; }
+const SHORT_NAMES = { 'Asia/Tokyo': 'JST', 'Asia/Kolkata': 'IST', 'UTC': 'UTC' };
+
+function initialDocument() {
+  return {
+    baseZone: 'America/Los_Angeles',
+    showTime: true,
+    displayZones: ['Asia/Tokyo', 'America/New_York', 'UTC', 'Asia/Kolkata'],
+    calendar: { zone: 'America/Los_Angeles', workingWeekdays: [1, 2, 3, 4, 5], periods: [[8 * 60, 12 * 60], [13 * 60, 17 * 60]] },
+    tasks: [
+      { name: '打合せ', start: '2026-10-28T10:00:00', finish: '2026-10-28T12:00:00' },
+      { name: '作業A', start: '2026-10-28T13:00:00', finish: '2026-10-29T12:00:00' },
+      { name: '確認', start: '2026-10-29T13:00:00', finish: '2026-10-29T15:30:00' },
+      { name: '節目', start: '2026-10-30T17:00:00', finish: '2026-10-30T17:00:00' },
+      { name: '作業B', start: '2026-10-30T08:00:00', finish: '2026-11-02T17:00:00' },
+      { name: '作業C', start: '2026-11-03T09:30:00', finish: '2026-11-03T11:00:00' },
+    ],
+  };
+}
+
+let doc = initialDocument();
+const view = { start: 0, pxPerMs: 0 };
+const thresholds = { hourPx: 12, halfPx: 6 };
+
+// ---------- time zone arithmetic ----------
+// A "wall" value is the local clock of a zone encoded as if it were UTC milliseconds.
+const formatters = new Map();
+function partsFormatter(zone) {
+  if (!formatters.has(zone)) {
+    formatters.set(zone, new Intl.DateTimeFormat('en-US', {
+      timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    }));
+  }
+  return formatters.get(zone);
+}
+const offsetCache = new Map();
+function offsetOf(zone, ms) {
+  const key = zone + '|' + Math.floor(ms / (15 * MINUTE));
+  if (offsetCache.has(key)) return offsetCache.get(key);
+  const p = {};
+  for (const part of partsFormatter(zone).formatToParts(new Date(ms))) p[part.type] = part.value;
+  const wall = Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute, +p.second);
+  const offset = wall - Math.floor(ms / 1000) * 1000;
+  offsetCache.set(key, offset);
+  return offset;
+}
+function wallOf(zone, ms) { return ms + offsetOf(zone, ms); }
+function instantOf(zone, wall) {
+  const guess = wall - offsetOf(zone, wall);
+  return wall - offsetOf(zone, guess);
+}
+function wallOfText(text) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(text);
+  return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+}
+function textOfWall(wall) {
+  return new Date(wall).toISOString().slice(0, 19);
+}
+function shortZoneName(zone, ms) {
+  if (SHORT_NAMES[zone]) return SHORT_NAMES[zone];
+  const part = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'short' })
+    .formatToParts(new Date(ms)).find((p) => p.type === 'timeZoneName');
+  return part ? part.value : zone;
+}
+function offsetText(zone, ms) {
+  const minutes = Math.round(offsetOf(zone, ms) / MINUTE);
+  const sign = minutes < 0 ? '-' : '+';
+  const abs = Math.abs(minutes);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  return 'UTC' + sign + h + (m ? ':' + String(m).padStart(2, '0') : '');
+}
+function dayStartWall(wall) { return Math.floor(wall / DAY) * DAY; }
+function weekdayOfWall(wall) { return new Date(wall).getUTCDay(); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function dateTextOfWall(wall, withTime) {
+  const d = new Date(wall);
+  const date = (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '(' + WEEKDAY_JA[d.getUTCDay()] + ')';
+  return withTime ? date + ' ' + pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes()) : date;
+}
+
+// ---------- task and calendar reading ----------
+function taskStartMs(task) { return instantOf(doc.baseZone, wallOfText(task.start)); }
+function taskFinishMs(task) { return instantOf(doc.baseZone, wallOfText(task.finish)); }
+function isMilestone(task) { return task.start === task.finish; }
+
+// Working periods of the one document calendar, as instants, for the days around [fromMs, toMs).
+function workingPeriods(fromMs, toMs) {
+  const cal = doc.calendar;
+  const periods = [];
+  let day = dayStartWall(wallOf(cal.zone, fromMs)) - DAY;
+  const lastDay = dayStartWall(wallOf(cal.zone, toMs)) + DAY;
+  for (; day <= lastDay; day += DAY) {
+    if (!cal.workingWeekdays.includes(weekdayOfWall(day))) continue;
+    for (const [from, to] of cal.periods) {
+      periods.push([instantOf(cal.zone, day + from * MINUTE), instantOf(cal.zone, day + to * MINUTE)]);
+    }
+  }
+  return periods;
+}
+function workingMinutesBetween(fromMs, toMs) {
+  if (toMs <= fromMs) return 0;
+  let total = 0;
+  for (const [a, b] of workingPeriods(fromMs, toMs)) {
+    const lo = Math.max(a, fromMs);
+    const hi = Math.min(b, toMs);
+    if (hi > lo) total += hi - lo;
+  }
+  return Math.round(total / MINUTE);
+}
+function isInsideWorkingTime(ms) {
+  return workingPeriods(ms, ms).some(([a, b]) => ms >= a && ms <= b);
+}
+function isOutsideWorkingTime(task) {
+  return !isInsideWorkingTime(taskStartMs(task)) || !isInsideWorkingTime(taskFinishMs(task));
+}
+function durationText(minutes) {
+  if (minutes === 0) return '0h';
+  const d = Math.floor(minutes / MINUTES_PER_DAY);
+  const rest = minutes - d * MINUTES_PER_DAY;
+  const h = Math.floor(rest / 60);
+  const m = rest % 60;
+  const parts = [];
+  if (d) parts.push(d + 'd');
+  if (h) parts.push(h + 'h');
+  if (m) parts.push(m + 'm');
+  return parts.join(' ');
+}
+
+// ---------- view ----------
+const svg = document.getElementById('chart');
+const box = document.getElementById('chartBox');
+function plotWidth() { return Math.max(200, box.clientWidth - LABEL_W); }
+function xOf(ms) { return LABEL_W + (ms - view.start) * view.pxPerMs; }
+function msOfX(x) { return view.start + (x - LABEL_W) / view.pxPerMs; }
+function pxPerHour() { return view.pxPerMs * HOUR; }
+function hourTierShown() { return doc.showTime && pxPerHour() >= thresholds.hourPx; }
+function halfGridShown() { return hourTierShown() && pxPerHour() / 2 >= thresholds.halfPx; }
+function shownDisplayZones() { return doc.showTime ? doc.displayZones.filter(Boolean) : []; }
+function snapUnitMinutes() {
+  if (!doc.showTime) return 'day';
+  if (halfGridShown()) return 30;
+  if (hourTierShown()) return 60;
+  return 'day';
+}
+function fitAll() {
+  const starts = doc.tasks.map(taskStartMs);
+  const finishes = doc.tasks.map(taskFinishMs);
+  const from = Math.min(...starts) - 12 * HOUR;
+  const to = Math.max(...finishes) + 12 * HOUR;
+  view.pxPerMs = plotWidth() / (to - from);
+  view.start = from;
+}
+function setPxPerHour(value, anchorX) {
+  const clamped = Math.min(MAX_PX_PER_HOUR, Math.max(MIN_PX_PER_HOUR, value));
+  const anchorMs = msOfX(anchorX);
+  view.pxPerMs = clamped / HOUR;
+  view.start = anchorMs - (anchorX - LABEL_W) / view.pxPerMs;
+}
+const zoomInput = document.getElementById('zoom');
+function sliderOf(pxh) { return Math.round(1000 * Math.log(pxh / MIN_PX_PER_HOUR) / Math.log(MAX_PX_PER_HOUR / MIN_PX_PER_HOUR)); }
+function pxhOfSlider(v) { return MIN_PX_PER_HOUR * Math.pow(MAX_PX_PER_HOUR / MIN_PX_PER_HOUR, v / 1000); }
+
+// ---------- drawing ----------
+function el(name, attrs, text) {
+  const parts = ['<' + name];
+  for (const [k, v] of Object.entries(attrs)) parts.push(' ' + k + '="' + String(v).replace(/"/g, '&quot;') + '"');
+  if (text === undefined) return parts.join('') + '/>';
+  return parts.join('') + '>' + String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</' + name + '>';
+}
+
+function render() {
+  const plotW = plotWidth();
+  const width = LABEL_W + plotW;
+  const t0 = view.start;
+  const t1 = msOfX(width);
+  const zones = shownDisplayZones();
+  const hourTier = hourTierShown();
+  const rulerRows = 2 + (hourTier ? 1 : 0) + zones.length;
+  const rulerH = rulerRows * RULER_ROW_H;
+  const height = rulerH + doc.tasks.length * ROW_H + 8;
+  const out = [];
+  const base = doc.baseZone;
+  const pxh = pxPerHour();
+  const pxDay = pxh * 24;
+
+  out.push(el('rect', { x: 0, y: 0, width, height: rulerH, fill: 'var(--ruler)' }));
+
+  // non-working shading of the document calendar
+  const cal = doc.calendar;
+  let day = dayStartWall(wallOf(cal.zone, t0)) - DAY;
+  const lastDay = dayStartWall(wallOf(cal.zone, t1)) + DAY;
+  for (; day <= lastDay; day += DAY) {
+    const dayFrom = instantOf(cal.zone, day);
+    const dayTo = instantOf(cal.zone, day + DAY);
+    if (!cal.workingWeekdays.includes(weekdayOfWall(day))) {
+      out.push(el('rect', { x: xOf(dayFrom), y: rulerH, width: (dayTo - dayFrom) * view.pxPerMs, height: height - rulerH, fill: 'var(--off-day)' }));
+      continue;
+    }
+    if (!hourTier) continue;
+    let cursor = 0;
+    for (const [from, to] of cal.periods.concat([[24 * 60, 24 * 60]])) {
+      if (from > cursor) {
+        const a = instantOf(cal.zone, day + cursor * MINUTE);
+        const b = instantOf(cal.zone, day + from * MINUTE);
+        out.push(el('rect', { x: xOf(a), y: rulerH, width: (b - a) * view.pxPerMs, height: height - rulerH, fill: 'var(--off-hour)' }));
+      }
+      cursor = Math.max(cursor, to);
+    }
+  }
+
+  // grid of the base zone: half hours dotted, hours solid, days darker
+  if (hourTier) {
+    const step = halfGridShown() ? 30 * MINUTE : HOUR;
+    let w = Math.floor(wallOf(base, t0) / step) * step;
+    const wEnd = wallOf(base, t1) + step;
+    for (; w <= wEnd; w += step) {
+      const ms = instantOf(base, w);
+      const x = xOf(ms);
+      if (x < LABEL_W || x > width) continue;
+      const minuteOfHour = Math.round((w % HOUR) / MINUTE);
+      const isHalf = minuteOfHour === 30;
+      out.push(el('line', {
+        x1: x, x2: x, y1: rulerH - (isHalf ? 0 : 0), y2: height,
+        stroke: isHalf ? 'var(--grid-half)' : 'var(--grid-hour)', 'stroke-width': 1,
+        'stroke-dasharray': isHalf ? '2 3' : 'none',
+      }));
+    }
+  }
+  {
+    let w = dayStartWall(wallOf(base, t0));
+    const wEnd = wallOf(base, t1) + DAY;
+    for (; w <= wEnd; w += DAY) {
+      const x = xOf(instantOf(base, w));
+      if (x < LABEL_W || x > width) continue;
+      if (pxDay >= 4 || weekdayOfWall(w) === 1) {
+        out.push(el('line', { x1: x, x2: x, y1: RULER_ROW_H, y2: height, stroke: 'var(--grid-day)', 'stroke-width': 1 }));
+      }
+    }
+  }
+
+  // ruler row 1: months of the base zone
+  {
+    const y = 0;
+    let w = Date.UTC(new Date(wallOf(base, t0)).getUTCFullYear(), new Date(wallOf(base, t0)).getUTCMonth(), 1);
+    const wEnd = wallOf(base, t1);
+    while (w <= wEnd) {
+      const d = new Date(w);
+      const next = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
+      const x = Math.max(LABEL_W, xOf(instantOf(base, w)));
+      out.push(el('line', { x1: xOf(instantOf(base, w)), x2: xOf(instantOf(base, w)), y1: y, y2: y + RULER_ROW_H, stroke: 'var(--grid-day)' }));
+      out.push(el('text', { x: x + 4, y: y + 16 }, d.getUTCFullYear() + '年' + (d.getUTCMonth() + 1) + '月'));
+      w = next;
+    }
+  }
+  // ruler row 2: days of the base zone
+  {
+    const y = RULER_ROW_H;
+    let w = dayStartWall(wallOf(base, t0));
+    const wEnd = wallOf(base, t1);
+    for (; w <= wEnd; w += DAY) {
+      const ms = instantOf(base, w);
+      const x = xOf(ms);
+      const d = new Date(w);
+      let label = '';
+      if (pxDay >= 44) label = d.getUTCDate() + ' ' + WEEKDAY_JA[d.getUTCDay()];
+      else if (pxDay >= 18) label = String(d.getUTCDate());
+      else if (weekdayOfWall(w) === 1 && pxDay >= 3) label = String(d.getUTCDate());
+      if (label && x + 4 >= LABEL_W) out.push(el('text', { x: x + 4, y: y + 16 }, label));
+    }
+  }
+  // ruler rows: hours of the base zone, then each display zone
+  const hourRows = hourTier ? [base] : [];
+  const rowsOfZones = hourRows.concat(zones);
+  rowsOfZones.forEach((zone, i) => {
+    const y = 2 * RULER_ROW_H + i * RULER_ROW_H;
+    const isBase = hourTier && i === 0;
+    const mid = msOfX(LABEL_W + plotW / 2);
+    out.push(el('line', { x1: 0, x2: width, y1: y, y2: y, stroke: 'var(--line)' }));
+    out.push(el('text', { x: 6, y: y + 16, class: 'zoneLabel' }, (isBase ? '基準 ' : '') + shortZoneName(zone, mid) + ' ' + offsetText(zone, mid)));
+    if (hourTier) {
+      const labelStep = [1, 2, 3, 6, 12].find((s) => s * pxh >= 26) || 24;
+      let w = Math.floor(wallOf(zone, t0) / HOUR) * HOUR;
+      const wEnd = wallOf(zone, t1) + HOUR;
+      for (; w <= wEnd; w += HOUR) {
+        const hourOfDay = Math.round((w % DAY) / HOUR);
+        if (hourOfDay % labelStep !== 0) continue;
+        const x = xOf(instantOf(zone, w));
+        if (x < LABEL_W || x > width) continue;
+        const isMidnight = hourOfDay === 0;
+        out.push(el('line', { x1: x, x2: x, y1: y + (isMidnight ? 0 : 14), y2: y + RULER_ROW_H, stroke: isMidnight ? 'var(--fg)' : 'var(--grid-day)' }));
+        const d = new Date(w);
+        const text = isMidnight ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate() : String(hourOfDay);
+        out.push(el('text', { x: x + 2, y: y + 13, 'font-weight': isMidnight ? 700 : 400 }, text));
+      }
+    } else {
+      let w = dayStartWall(wallOf(zone, t0));
+      const wEnd = wallOf(zone, t1) + DAY;
+      for (; w <= wEnd; w += DAY) {
+        const x = xOf(instantOf(zone, w));
+        if (x < LABEL_W || x > width) continue;
+        out.push(el('line', { x1: x, x2: x, y1: y, y2: y + RULER_ROW_H, stroke: 'var(--fg)' }));
+        if (pxDay >= 30) out.push(el('text', { x: x + 2, y: y + 15 }, (new Date(w).getUTCMonth() + 1) + '/' + new Date(w).getUTCDate()));
+      }
+    }
+  });
+  out.push(el('line', { x1: 0, x2: width, y1: rulerH, y2: rulerH, stroke: 'var(--line)' }));
+  out.push(el('line', { x1: LABEL_W, x2: LABEL_W, y1: 0, y2: height, stroke: 'var(--line)' }));
+  out.push(el('text', { x: 6, y: 16, class: 'muted' }, '月'));
+  out.push(el('text', { x: 6, y: RULER_ROW_H + 16, class: 'muted' }, '日（基準）'));
+
+  // task rows
+  doc.tasks.forEach((task, i) => {
+    const y = rulerH + i * ROW_H;
+    const s = taskStartMs(task);
+    const f = taskFinishMs(task);
+    const minutes = isMilestone(task) ? 0 : workingMinutesBetween(s, f);
+    const outside = isOutsideWorkingTime(task);
+    out.push(el('text', { x: 8, y: y + 21 }, task.name));
+    let left;
+    let right;
+    if (doc.showTime) {
+      left = xOf(s);
+      right = xOf(f);
+    } else {
+      // day display: the bar covers whole day columns, as GRS draws today
+      left = xOf(instantOf(base, dayStartWall(wallOfText(task.start))));
+      right = xOf(instantOf(base, dayStartWall(wallOfText(task.finish)) + DAY));
+    }
+    const label = task.name + '  ' + durationText(minutes) + (outside ? '  稼働時間の外' : '');
+    if (isMilestone(task)) {
+      const cx = doc.showTime ? left : left;
+      const cy = y + ROW_H / 2;
+      const r = 8;
+      out.push(el('path', {
+        d: 'M' + cx + ' ' + (cy - r) + 'L' + (cx + r) + ' ' + cy + 'L' + cx + ' ' + (cy + r) + 'L' + (cx - r) + ' ' + cy + 'Z',
+        fill: 'var(--fg)', stroke: outside ? 'var(--warn)' : 'none', 'stroke-width': 2,
+        'data-task': i, 'data-part': 'body', style: 'cursor:grab',
+      }));
+      out.push(el('text', { x: cx + 12, y: y + 21, fill: outside ? 'var(--warn)' : 'var(--fg)' }, label));
+    } else {
+      const w = Math.max(3, right - left);
+      out.push(el('rect', {
+        x: left, y: y + 8, width: w, height: ROW_H - 16, rx: 2,
+        fill: 'var(--plan)', stroke: outside ? 'var(--warn)' : 'var(--plan-edge)',
+        'stroke-width': outside ? 2 : 1, 'stroke-dasharray': outside ? '4 2' : 'none',
+        'data-task': i, 'data-part': 'body', style: 'cursor:grab',
+      }));
+      out.push(el('rect', { x: left - 4, y: y + 6, width: 8, height: ROW_H - 12, fill: 'transparent', 'data-task': i, 'data-part': 'start', style: 'cursor:ew-resize' }));
+      out.push(el('rect', { x: left + w - 4, y: y + 6, width: 8, height: ROW_H - 12, fill: 'transparent', 'data-task': i, 'data-part': 'finish', style: 'cursor:ew-resize' }));
+      out.push(el('text', { x: left + w + 6, y: y + 21, fill: outside ? 'var(--warn)' : 'var(--fg)' }, label));
+    }
+  });
+
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+  svg.innerHTML = out.join('');
+  renderStatus();
+  renderTable();
+  renderSettings();
+}
+
+function renderStatus() {
+  const pxh = pxPerHour();
+  const tiers = ['年', '月', '日'].concat(hourTierShown() ? ['時'] : []);
+  const unit = snapUnitMinutes();
+  const grid = halfGridShown() ? '30 分点線＋毎正時の実線' : hourTierShown() ? '毎正時の実線' : '日の線';
+  document.getElementById('status').textContent =
+    '1 時間 = ' + pxh.toFixed(pxh < 1 ? 2 : 1) + ' px ／ 1 日 = ' + (pxh * 24).toFixed(1) + ' px' +
+    '（いまの GRS の最大は 1 日 = 384 px = 1 時間 16 px）' +
+    ' ／ 目盛り: ' + tiers.join('・') + ' ／ グリッド: ' + grid +
+    ' ／ 寄せ: ' + (unit === 'day' ? '日' : unit + ' 分') + '（Alt で 1 分）';
+  zoomInput.value = sliderOf(pxh);
+  const mid = msOfX(LABEL_W + plotWidth() / 2);
+  document.getElementById('baseLabel').textContent = '基準: ' + zoneLabel(doc.baseZone) + '（' + shortZoneName(doc.baseZone, mid) + '）';
+}
+
+function renderTable() {
+  const zones = shownDisplayZones();
+  const withTime = doc.showTime;
+  const head = ['名前', '開始（基準 ' + shortZoneName(doc.baseZone, view.start) + '）', '終了', '所要（稼働時間）', 'MSPDI の Duration']
+    .concat(zones.map(zoneLabel));
+  const rows = doc.tasks.map((task) => {
+    const s = taskStartMs(task);
+    const f = taskFinishMs(task);
+    const minutes = isMilestone(task) ? 0 : workingMinutesBetween(s, f);
+    const outside = isOutsideWorkingTime(task);
+    const cells = [
+      task.name,
+      dateTextOfWall(wallOfText(task.start), withTime),
+      dateTextOfWall(wallOfText(task.finish), withTime),
+      durationText(minutes) + (outside ? '（稼働時間の外）' : ''),
+      'PT' + Math.floor(minutes / 60) + 'H' + (minutes % 60) + 'M0S',
+    ];
+    for (const z of zones) {
+      cells.push(dateTextOfWall(wallOf(z, s), true) + ' – ' + dateTextOfWall(wallOf(z, f), true) + ' ' + shortZoneName(z, s));
+    }
+    return { cells, outside };
+  });
+  const html = ['<tr>' + head.map((h) => '<th>' + h + '</th>').join('') + '</tr>'];
+  for (const r of rows) {
+    html.push('<tr>' + r.cells.map((c, i) => '<td' + (i === 3 && r.outside ? ' class="warn"' : '') + '>' + c + '</td>').join('') + '</tr>');
+  }
+  document.getElementById('table').innerHTML = html.join('');
+}
+
+function zoneOptions(selected, withNone) {
+  const list = (withNone ? [''] : []).concat(ZONE_CHOICES.map(([id]) => id));
+  return list.map((z) => '<option value="' + z + '"' + (z === selected ? ' selected' : '') + '>' + (z ? ZONE_LABELS.get(z) : '（なし）') + '</option>').join('');
+}
+function renderSettings() {
+  document.getElementById('showTime').checked = doc.showTime;
+  const mid = msOfX(LABEL_W + plotWidth() / 2);
+  document.getElementById('baseNow').textContent = 'いま: ' + zoneLabel(doc.baseZone) + '（' + shortZoneName(doc.baseZone, mid) + ' ' + offsetText(doc.baseZone, mid) + '）';
+  const cal = doc.calendar;
+  const periods = cal.periods.map(([a, b]) => pad2(Math.floor(a / 60)) + ':' + pad2(a % 60) + '-' + pad2(Math.floor(b / 60)) + ':' + pad2(b % 60)).join(', ');
+  let text = '月〜金 ' + periods + '（' + cal.zone + ' の時刻）';
+  if (cal.zone !== doc.baseZone) {
+    text += ' ⚠ 基準と違う地域の時刻のまま。実物では、基準の時刻に書き直すと曜日の境をまたぐ時間帯を曜日ごとに切り直すことになる。';
+  }
+  document.getElementById('calendarNow').textContent = text;
+  const holder = document.getElementById('displayZones');
+  if (!holder.dataset.built) {
+    holder.innerHTML = [0, 1, 2, 3].map((i) => '<label>' + (i + 1) + ' <select data-zone-index="' + i + '"></select></label>').join('');
+    holder.dataset.built = '1';
+    holder.addEventListener('change', (e) => {
+      const i = +e.target.dataset.zoneIndex;
+      doc.displayZones[i] = e.target.value;
+      render();
+    });
+  }
+  holder.querySelectorAll('select').forEach((s, i) => {
+    s.innerHTML = zoneOptions(doc.displayZones[i] || '', true);
+    s.disabled = !doc.showTime;
+  });
+  const nb = document.getElementById('newBase');
+  if (!nb.dataset.built) { nb.innerHTML = zoneOptions('Asia/Tokyo', false); nb.dataset.built = '1'; }
+}
+
+// ---------- operations ----------
+const logBox = document.getElementById('log');
+function outsideCount() { return doc.tasks.filter(isOutsideWorkingTime).length; }
+
+document.getElementById('applyBase').addEventListener('click', () => {
+  const next = document.getElementById('newBase').value;
+  const mode = document.querySelector('input[name=baseMode]:checked').value;
+  const before = doc.baseZone;
+  if (next === before) { logBox.textContent = '同じ基準です。'; return; }
+  if (mode === 'keepInstant') {
+    for (const t of doc.tasks) {
+      const s = taskStartMs(t);
+      const f = taskFinishMs(t);
+      t.start = textOfWall(wallOf(next, s));
+      t.finish = textOfWall(wallOf(next, f));
+    }
+    const moveCalendar = document.getElementById('moveCalendar').checked;
+    doc.baseZone = next;
+    if (!moveCalendar) doc.calendar.zone = next;
+    logBox.textContent = '基準を ' + zoneLabel(before) + ' → ' + zoneLabel(next) + '（瞬間を保つ' + (moveCalendar ? '・暦も同じ瞬間へ' : '・暦は新しい基準の時刻で読む') + '）。稼働時間の外: ' + outsideCount() + ' 件。';
+  } else {
+    doc.baseZone = next;
+    doc.calendar.zone = next;
+    logBox.textContent = '基準を ' + zoneLabel(before) + ' → ' + zoneLabel(next) + '（数字を保つ — 瞬間が動いた）。稼働時間の外: ' + outsideCount() + ' 件。';
+  }
+  render();
+});
+
+document.getElementById('applyShift').addEventListener('click', () => {
+  const hours = parseFloat(document.getElementById('shiftHours').value);
+  if (!isFinite(hours) || hours === 0) return;
+  const delta = Math.round(hours * 60) * MINUTE;
+  for (const t of doc.tasks) {
+    t.start = textOfWall(wallOfText(t.start) + delta);
+    t.finish = textOfWall(wallOfText(t.finish) + delta);
+  }
+  view.start += delta;
+  logBox.textContent = 'すべての日時を ' + (hours > 0 ? '+' : '') + hours + ' 時間ずらした（暦は動かさない）。稼働時間の外: ' + outsideCount() + ' 件。';
+  render();
+});
+
+document.getElementById('showTime').addEventListener('change', (e) => { doc.showTime = e.target.checked; render(); });
+document.getElementById('thHour').addEventListener('input', (e) => { thresholds.hourPx = Math.max(1, +e.target.value || 1); render(); });
+document.getElementById('thHalf').addEventListener('input', (e) => { thresholds.halfPx = Math.max(1, +e.target.value || 1); render(); });
+document.getElementById('reset').addEventListener('click', () => {
+  doc = initialDocument();
+  logBox.textContent = '';
+  fitAll();
+  render();
+});
+document.getElementById('menuBtn').addEventListener('click', (e) => {
+  const panel = document.getElementById('settings');
+  panel.hidden = !panel.hidden;
+  e.currentTarget.setAttribute('aria-pressed', String(!panel.hidden));
+  render();
+});
+
+// ---------- zoom and pan ----------
+zoomInput.addEventListener('input', () => { setPxPerHour(pxhOfSlider(+zoomInput.value), LABEL_W + plotWidth() / 2); render(); });
+document.getElementById('zoomIn').addEventListener('click', () => { setPxPerHour(pxPerHour() * 1.25, LABEL_W + plotWidth() / 2); render(); });
+document.getElementById('zoomOut').addEventListener('click', () => { setPxPerHour(pxPerHour() / 1.25, LABEL_W + plotWidth() / 2); render(); });
+document.getElementById('fit').addEventListener('click', () => { fitAll(); render(); });
+box.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = svg.getBoundingClientRect();
+  if (e.ctrlKey) {
+    setPxPerHour(pxPerHour() * (e.deltaY < 0 ? 1.1 : 1 / 1.1), Math.max(LABEL_W, e.clientX - rect.left));
+  } else {
+    view.start += (e.deltaY + e.deltaX) / view.pxPerMs;
+  }
+  render();
+}, { passive: false });
+
+// ---------- drag ----------
+let drag = null;
+function snapWall(wall, unit, fine) {
+  if (fine) return Math.round(wall / MINUTE) * MINUTE;
+  const step = unit * MINUTE;
+  return Math.round(wall / step) * step;
+}
+box.addEventListener('pointerdown', (e) => {
+  const target = e.target.closest('[data-task]');
+  box.setPointerCapture(e.pointerId);
+  if (!target) {
+    drag = { kind: 'pan', x0: e.clientX, start0: view.start };
+    return;
+  }
+  const i = +target.dataset.task;
+  const t = doc.tasks[i];
+  drag = { kind: target.dataset.part, i, x0: e.clientX, start0: wallOfText(t.start), finish0: wallOfText(t.finish) };
+});
+box.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x0;
+  if (drag.kind === 'pan') {
+    view.start = drag.start0 - dx / view.pxPerMs;
+    render();
+    return;
+  }
+  const t = doc.tasks[drag.i];
+  const delta = dx / view.pxPerMs;
+  const unit = snapUnitMinutes();
+  const fine = e.altKey;
+  let s = drag.start0;
+  let f = drag.finish0;
+  if (unit === 'day' && !fine) {
+    const days = Math.round(delta / DAY);
+    if (drag.kind === 'body') { s += days * DAY; f += days * DAY; }
+    if (drag.kind === 'start') s = dayStartWall(s + days * DAY) + DEFAULT_START * MINUTE;
+    if (drag.kind === 'finish') f = dayStartWall(f + days * DAY) + DEFAULT_FINISH * MINUTE;
+  } else {
+    if (drag.kind === 'body') { const ns = snapWall(s + delta, unit, fine); f += ns - s; s = ns; }
+    if (drag.kind === 'start') s = snapWall(s + delta, unit, fine);
+    if (drag.kind === 'finish') f = snapWall(f + delta, unit, fine);
+  }
+  if (f < s) { if (drag.kind === 'start') s = f; else f = s; }
+  t.start = textOfWall(s);
+  t.finish = textOfWall(f);
+  render();
+});
+function endDrag() { drag = null; }
+box.addEventListener('pointerup', endDrag);
+box.addEventListener('pointercancel', endDrag);
+window.addEventListener('resize', render);
+
+// ---------- start ----------
+fitAll();
+setPxPerHour(18, LABEL_W);
+view.start = instantOf(doc.baseZone, Date.UTC(2026, 9, 28, 0, 0, 0));
+render();
+</script>
+</body>
+</html>
