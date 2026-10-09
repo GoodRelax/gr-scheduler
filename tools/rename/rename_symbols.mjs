@@ -473,7 +473,38 @@ async function main() {
     .map((r) => [typeKey(r), r.decision]));
   console.log('generic identifiers still undecided after the decision files: ' +
     typeRows.filter((r) => !decided.has(typeKey(r))).length);
+  // A generic identifier the checker types by a local shape -- a cast of the
+  // layout to `{ rows: ... }` -- gets the verdict keep and is no type row, yet
+  // it reads ScheduleLayout.rows at run time. A decision file may still name
+  // it by path, line, name and nth (reconcile item 10); it must be a code
+  // identifier the walk of pass 1 met.
+  const typeRowKeys = new Set(typeRows.map(typeKey));
+  const genericAt = new Set(generic.map((g) => g.rel + ':' + g.start));
+  const forced = [];
+  const forcedMissing = [];
+  for (const r of decisionFiles('types').flatMap(readTsv)) {
+    if (r.decision !== 'task-group' || typeRowKeys.has(typeKey(r)) || !GENERIC.has(r.name)) continue;
+    const src = sources.get(r.path);
+    let start = -1;
+    if (src) {
+      let lineStart = 0;
+      for (let i = 1; i < Number(r.line); i += 1) lineStart = src.text.indexOf('\n', lineStart) + 1;
+      const lineEnd = src.text.indexOf('\n', lineStart);
+      const lineText = src.text.slice(lineStart, lineEnd < 0 ? undefined : lineEnd);
+      const word = new RegExp('(?<![A-Za-z0-9_$])' + r.name + '(?![A-Za-z0-9_$])', 'g');
+      const hit = [...lineText.matchAll(word)][Number(r.nth)];
+      if (hit) start = lineStart + hit.index;
+    }
+    if (start >= 0 && genericAt.has(r.path + ':' + start)) forced.push({ rel: r.path, start, name: r.name });
+    else forcedMissing.push(typeKey(r));
+  }
+  console.log(`generic identifiers named by a decision file outside the type rows: ${forced.length}` +
+    ` (not found as a code identifier: ${forcedMissing.length}${forcedMissing.length ? ' -- ' +
+      forcedMissing.slice(0, 5).join(', ') : ''})`);
+  // (a decision keyed on the tree before an earlier stage's edit of the same
+  // line -- nth counts words in strings too -- is listed above and skipped)
   if (MODE !== 'apply') return 0;
+  for (const f of forced) addEdit(f.rel, f.start, f.start + f.name.length, GENERIC.get(f.name), 'forced');
   // --leave-tests-undecided (stage 2): what only tests/ holds may stay open;
   // it is left untouched, and stage 3 runs this script again once decided
   const leaveTests = args.includes('--leave-tests-undecided');

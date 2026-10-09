@@ -836,9 +836,9 @@ docs/spec/_assets/tbl-glossary.md	602	114	親子	rewrite	親子を結ぶ	親タ�
 docs/development-rules/02-changing-the-spec.md	68	32	rows	keep			
 docs/development-rules/03-implementation.md	16	61	Row	keep			
 docs/development-rules/09-tools.md	111	155	ROW	keep			
-docs/development-rules/09-tools.md	137	130	rows	task-group			uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
-docs/development-rules/09-tools.md	206	202	rows	task-group			uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
-docs/development-rules/09-tools.md	214	95	rows	task-group			uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
+docs/development-rules/09-tools.md	137	130	rows	keep			reconcile: item 11: names the rows() reader of tools/parity and tools/probe, which S2-TL keeps; was task-group uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
+docs/development-rules/09-tools.md	206	202	rows	keep			reconcile: item 11: names the rows() reader of tools/parity and tools/probe, which S2-TL keeps; was task-group uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
+docs/development-rules/09-tools.md	214	95	rows	keep			reconcile: item 11: names the rows() reader of tools/parity and tools/probe, which S2-TL keeps; was task-group uncertain: names the rows() reading of tools/parity and tools/probe; follows S2-TL if it renames that function
 docs/development-rules/09-tools.md	238	114	Row	keep			
 docs/spec/05-07-design.md	54	56	Rows	rewrite	`Rows`	`Task Groups`	U-1 UI name (CR-708 2.1)
 docs/spec/05-07-design.md	114	58	Rows	rewrite	`Rows`	`Task Groups`	U-1 UI name (CR-708 2.1)

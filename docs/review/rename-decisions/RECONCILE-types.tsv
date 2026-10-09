@@ -1,0 +1,11 @@
+path	line	col	nth	name	decision	note
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	450		0	rows	task-group	reconcile item 10: the layout cast to a local shape reads ScheduleLayout.rows (renamed taskGroups)
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	456		1	rows	task-group	reconcile item 10: typedLayout.rows reads ScheduleLayout.rows; the Scene key before it stays
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	167		0	rows	task-group	reconcile item 10: Scene.layout is the layout cast to a local shape (line 206)
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	233		0	rows	task-group	reconcile item 10: scene.layout.rows reads ScheduleLayout.rows
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	634		0	rows	task-group	reconcile item 10: scene.layout.rows reads ScheduleLayout.rows
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	650		0	rows	task-group	reconcile item 10: scene.layout.rows reads ScheduleLayout.rows
+tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320		0	rows	task-group	reconcile item 10: the layout cast to a local shape
+tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320		1	rows	task-group	reconcile item 10: reads ScheduleLayout.rows through the cast
+tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts	62		1	rows	task-group	reconcile item 10: the layout cast to a local shape
+tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts	62		2	rows	task-group	reconcile item 10: reads ScheduleLayout.rows through the cast; the local const before it stays

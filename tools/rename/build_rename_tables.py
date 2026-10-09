@@ -80,6 +80,12 @@ SPEC_WORDS = (
     ('parent-child progress doubt', 'parent-task progress doubt', 'JDG-1659'),
 )
 WL_ID = re.compile(r'\bWL-([0-9]+)\b')
+# A name the tree also spells folded to lower case, where no part rule can see
+# the row in it: check 70's self-test expects the key of a comment naming
+# rowAnchorIn (class a, S2-UA) as 'rowanchorin' (reconcile item 12).
+FOLDED_NAMES = {
+    'rowanchorin': ('taskgroupanchorin', 'reconcile item 12 (follows rowAnchorIn, class a)'),
+}
 
 
 def lines_key(row):
@@ -464,6 +470,17 @@ def build_map(names, spec_words, wl, keys, stems, files):
             'decided-by': 'JDG-1731', 'lanes': ','.join(sorted(e['lanes'])),
             'generated_count': e['gen'], 'collision': '', 'note': '',
         })
+    for old, (new, why) in sorted(FOLDED_NAMES.items()):
+        found = folded_files(files, old)
+        if not found:
+            continue
+        rows.append({
+            'old': old, 'new': new, 'kind': 'identifier', 'class': 'a', 'rule': '2.5',
+            'files': len(found), 'count': len(found), 'decided-by': why,
+            'lanes': ','.join(sorted(set(rc.lane_of(p, 1) for p in found))),
+            'home_lane': rc.lane_of(found[0], 1), 'generated_count': 0, 'collision': '',
+            'note': 'a lowercased spelling no part rule sees',
+        })
     rows.append({
         'old': 'WL', 'new': 'PTL', 'kind': 'row-id-prefix', 'class': 'a', 'rule': '2.7',
         'files': 1, 'count': 1, 'decided-by': 'JDG-1731',
@@ -489,6 +506,20 @@ def build_map(names, spec_words, wl, keys, stems, files):
             'note': 'git mv; import paths follow (rename_symbols.mjs)',
         })
     return rows
+
+
+def folded_files(files, token):
+    """The live, hand-edited files that hold `token` as a whole word."""
+    word = re.compile(r'(?<![A-Za-z0-9_$])' + re.escape(token) + r'(?![A-Za-z0-9_$])')
+    found = []
+    for path in files:
+        try:
+            text, _ = rc.read_text(path)
+        except (UnicodeDecodeError, OSError):
+            continue
+        if word.search(text) and not rc.is_generated(path, text):
+            found.append(path)
+    return found
 
 
 _present = {}
