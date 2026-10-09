@@ -227,7 +227,7 @@ const partOf = (part: string, entry: string | null, extra: Loose = {}): ScreenPa
     part,
     entry,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,
@@ -262,14 +262,14 @@ afterEach(() => {
 })
 
 const uuid = (n: number): string => `dddddddd-0000-4000-8000-${String(n).padStart(12, '0')}`
-const ROW_A = uuid(1)
-const ROW_B = uuid(2)
-const ROW_C = uuid(3)
-const ROW_Z = uuid(9)
+const TASK_GROUP_A = uuid(1)
+const TASK_GROUP_B = uuid(2)
+const TASK_GROUP_C = uuid(3)
+const TASK_GROUP_Z = uuid(9)
 
 const shellTask = (uid: number, start: string, finish: string, links: readonly number[] = []): Loose => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `Task${uid}`,
   start: `${start}T08:00:00`,
@@ -344,31 +344,31 @@ const shellDocument = (rows: readonly string[], tasks: readonly (readonly [Loose
 // see EL-4
 const PLAIN = (): Document =>
   shellDocument(
-    [ROW_A, ROW_B, ROW_Z],
+    [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_Z],
     [
-      [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-      [shellTask(2, '2027-06-01', '2027-06-03', [1]), ROW_B],
+      [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+      [shellTask(2, '2027-06-01', '2027-06-03', [1]), TASK_GROUP_B],
     ],
   )
 
 // WHY: rows enough below the two ends that the vertical grip has somewhere to go.
 const TALL = (): Document =>
   shellDocument(
-    [ROW_A, ROW_B, ...Array.from({ length: 40 }, (_unused, at) => uuid(100 + at))],
+    [TASK_GROUP_A, TASK_GROUP_B, ...Array.from({ length: 40 }, (_unused, at) => uuid(100 + at))],
     [
-      [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-      [shellTask(2, '2027-06-01', '2027-06-03', [1]), ROW_B],
+      [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+      [shellTask(2, '2027-06-01', '2027-06-03', [1]), TASK_GROUP_B],
     ],
   )
 
 // WHY: the second line leaves the first landing's far end for a far end of its own, so its mark stands beside the landing.
 const CHAIN = (): Document =>
   shellDocument(
-    [ROW_A, ROW_B, ROW_C, ROW_Z],
+    [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_Z],
     [
-      [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-      [shellTask(2, '2027-06-01', '2027-06-03', [1]), ROW_B],
-      [shellTask(3, '2029-01-01', '2029-01-03', [2]), ROW_C],
+      [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+      [shellTask(2, '2027-06-01', '2027-06-03', [1]), TASK_GROUP_B],
+      [shellTask(3, '2029-01-01', '2029-01-03', [2]), TASK_GROUP_C],
     ],
   )
 
@@ -379,7 +379,7 @@ interface Shell {
   svg(): string
   view(): ScreenView
   lines(): readonly Line[]
-  rowArea(): Rect
+  taskGroupArea(): Rect
 }
 
 const shellOf = (document: Document): Shell => {
@@ -423,7 +423,7 @@ const shellOf = (document: Document): Shell => {
       return last
     },
     lines: () => frame().geometry.dependencies as unknown as readonly Line[],
-    rowArea: () => frame().regions.rowArea as unknown as Rect,
+    taskGroupArea: () => frame().regions.taskGroupArea as unknown as Rect,
   }
 }
 
@@ -451,7 +451,7 @@ const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().do
 const isLandingShown = (shell: Shell): boolean => emphasisedLines(shell.svg(), displayScaleOf(shell)).length > 0
 
 const emptyPlace = (shell: Shell): Pt => {
-  const area = shell.rowArea()
+  const area = shell.taskGroupArea()
   return { x: area.x + area.width - 30, y: area.y + area.height - 30 }
 }
 
@@ -493,8 +493,8 @@ const pressEntry = (shell: Shell, part: ScreenPart): void => {
   shell.aim(null)
 }
 
-const isInRowArea = (shell: Shell, uid: number): boolean => {
-  const area = shell.rowArea()
+const isInTaskGroupArea = (shell: Shell, uid: number): boolean => {
+  const area = shell.taskGroupArea()
   return (shell.loop.current()?.layout.placements ?? []).some(
     (one) =>
       one.taskUid === uid &&
@@ -505,10 +505,10 @@ const isInRowArea = (shell: Shell, uid: number): boolean => {
   )
 }
 
-// WHY: an end the view has moved off is not outlined, so the outline is asked of an end inside the Row Area only.
+// WHY: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Area only.
 const keepsIt = (shell: Shell, clause: string): void => {
   expect(isLandingShown(shell), `${clause} (the emphasised line stays)`).toBe(true)
-  if (isInRowArea(shell, 1) || isInRowArea(shell, 2)) {
+  if (isInTaskGroupArea(shell, 1) || isInTaskGroupArea(shell, 2)) {
     expect(outlinesOf(shell.svg()).length, `${clause} (the end outline stays)`).toBeGreaterThan(0)
   }
 }
@@ -516,13 +516,13 @@ const keepsIt = (shell: Shell, clause: string): void => {
 describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
   it.each(WHEEL_ROWS)(`${EL_17_WHEEL} -- a %s wheel keeps it`, (row) => {
     const shell = landedShell()
-    shell.send(wheelAt(middleOf(shell.rowArea()), wheelModifiersOf(row)))
+    shell.send(wheelAt(middleOf(shell.taskGroupArea()), wheelModifiersOf(row)))
     keepsIt(shell, EL_17_WHEEL)
   })
 
   it(`${EL_17_WHEEL} -- a wheel with Alt and Ctrl together (no row of T-023) keeps it`, () => {
     const shell = landedShell()
-    shell.send(wheelAt(middleOf(shell.rowArea()), { ...MODS, ctrl: true, alt: true }))
+    shell.send(wheelAt(middleOf(shell.taskGroupArea()), { ...MODS, ctrl: true, alt: true }))
     keepsIt(shell, EL_17_WHEEL)
   })
 
@@ -533,12 +533,12 @@ describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
     clickAt(shell, markOf(shell, 1, 2))
     expect(isLandingShown(shell), 'premise: the landing is shown with the panel open').toBe(true)
     shell.aim(partOf('Search Panel', null))
-    shell.send(wheelAt(middleOf(shell.rowArea()), MODS))
+    shell.send(wheelAt(middleOf(shell.taskGroupArea()), MODS))
     shell.aim(null)
     keepsIt(shell, EL_17_WHEEL)
   })
 
-  it(`${EL_17_PAN} -- a middle press and drag on the Row Area keeps it`, () => {
+  it(`${EL_17_PAN} -- a middle press and drag on the Task Group Area keeps it`, () => {
     const shell = landedShell()
     const before = viewOf(shell)
     dragFrom(shell, emptyPlace(shell), { x: -120, y: 0 }, 'middle')
@@ -546,7 +546,7 @@ describe(`(a) the shell -- EL-17: ${EL_17_VIEW_ONLY}`, () => {
     keepsIt(shell, EL_17_PAN)
   })
 
-  it(`${EL_17_PAN} -- a Ctrl+left press and drag on an empty place of the Row Area keeps it`, () => {
+  it(`${EL_17_PAN} -- a Ctrl+left press and drag on an empty place of the Task Group Area keeps it`, () => {
     const shell = landedShell()
     const before = viewOf(shell)
     dragFrom(shell, emptyPlace(shell), { x: -120, y: 0 }, 'left', { ctrl: true })
@@ -611,7 +611,7 @@ describe(`(b) the shell -- EL-17: ${EL_17_CLEAR}`, () => {
 
   it(`${EL_17_CLEAR} -- a press on a row's fold entry (IC-77) clears it`, () => {
     const shell = landedShell()
-    pressEntry(shell, partOf('Row Title Panel', 'IC-77', { rowGroupId: ROW_A }))
+    pressEntry(shell, partOf('Task Group Panel', 'IC-77', { taskGroupId: TASK_GROUP_A }))
     expect(isLandingShown(shell), EL_17_CLEAR).toBe(false)
   })
 
@@ -655,8 +655,8 @@ describe(`(c) the shell -- ${EL_17_STAR}`, () => {
     const shell = landedShell(CHAIN())
     const before = viewOf(shell)
     // STEP: scroll sideways and zoom both axes with the mark kept
-    shell.send(wheelAt(middleOf(shell.rowArea()), wheelModifiersOf('MK-5')))
-    shell.send(wheelAt(middleOf(shell.rowArea()), wheelModifiersOf('MK-2')))
+    shell.send(wheelAt(middleOf(shell.taskGroupArea()), wheelModifiersOf('MK-5')))
+    shell.send(wheelAt(middleOf(shell.taskGroupArea()), wheelModifiersOf('MK-2')))
     expect(viewOf(shell), 'premise: the view moved').not.toBe(before)
     keepsIt(shell, EL_17_VIEW_ONLY)
     expect(
@@ -676,18 +676,18 @@ const REGIONS = regionsFromScreen(
   ENVIRONMENT as unknown as Parameters<typeof regionsFromScreen>[0],
   SETTINGS_DEFAULTS as unknown as Parameters<typeof regionsFromScreen>[1],
 ) as ScreenRegions
-const IN_ROW_AREA = middleOf((REGIONS as unknown as { readonly rowArea: Rect }).rowArea)
+const IN_TASK_GROUP_AREA = middleOf((REGIONS as unknown as { readonly taskGroupArea: Rect }).taskGroupArea)
 
 type Press = Pick<PointerPress, 'on' | 'pressRow'>
 const pressOf = (on: ScreenPart | null, pressRow: string): Press => ({ on, pressRow }) as unknown as Press
 const down = (button: PointerInput['button'] = 'left', held: Partial<InputModifiers> = {}): HumanInput =>
-  pointerAt('down', IN_ROW_AREA, button, held)
+  pointerAt('down', IN_TASK_GROUP_AREA, button, held)
 
 const kept = (input: HumanInput, press: Press | null = null): boolean => isLandingMarkKeptBy(input, press, REGIONS)
 
 describe('(d) the translator seam -- isLandingMarkKeptBy', () => {
   it.each(WHEEL_ROWS)(`${EL_17_WHEEL} -- the %s wheel is kept`, (row) => {
-    expect(kept(wheelAt(IN_ROW_AREA, wheelModifiersOf(row))), EL_17_WHEEL).toBe(true)
+    expect(kept(wheelAt(IN_TASK_GROUP_AREA, wheelModifiersOf(row))), EL_17_WHEEL).toBe(true)
   })
 
   it.each(MODIFIER_KEYS)(`${EL_17_MODIFIERS} -- %s alone is kept`, (key, held) => {
@@ -738,7 +738,7 @@ describe('(d) the translator seam -- isLandingMarkKeptBy', () => {
     ['a plain left press on an empty place', down(), pressOf(null, 'PTD-5')],
     ['a right press', down('right'), pressOf(null, 'PTD-5')],
     ['a press on IC-10', down(), pressOf(partOf('App Header', 'IC-10'), 'PTD-5')],
-    ['a press on a row\'s fold entry (IC-77)', down(), pressOf(partOf('Row Title Panel', 'IC-77', { rowGroupId: ROW_A }), 'PTD-5')],
+    ['a press on a row\'s fold entry (IC-77)', down(), pressOf(partOf('Task Group Panel', 'IC-77', { taskGroupId: TASK_GROUP_A }), 'PTD-5')],
   ] as const)(`${EL_17_CLEAR} -- %s is not kept`, (_name, input, press) => {
     expect(kept(input, press), EL_17_CLEAR).toBe(false)
   })

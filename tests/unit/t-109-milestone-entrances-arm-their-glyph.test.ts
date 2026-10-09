@@ -315,7 +315,7 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
 
 const milestoneTask = (uid: number, day: string): unknown => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: null,
   start: `${day}T00:00:00`,
@@ -356,7 +356,7 @@ const unchosenVisual = (uid: number): unknown => ({
 })
 
 /** ⛔ NOTHING SELECTED and no Task at all -- SP-1's premise (FR-083). */
-const emptyRowDocument = (): Document => documentWith([], [])
+const emptyTaskGroupDocument = (): Document => documentWith([], [])
 
 /** One milestone standing on the row, its figure unchosen -- SP-2's premise. */
 const oneMilestoneDocument = (): Document =>
@@ -503,7 +503,7 @@ function stage(document: Document): Stage {
       part: COMMAND_PALETTE,
       entry,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -525,12 +525,12 @@ function stage(document: Document): Stage {
   }
   const clickEmptyCanvas = (): void => {
     // ⛔ `drawAt(null)` is the premise: 「どのアイテムにも当たらない場所」. The
-    // point is taken from the loop's own answer for where the Row Area is, so
+    // point is taken from the loop's own answer for where the Task Group Area is, so
     // no rectangle is computed twice.
     pane.drawAt(null)
     const values = loop.current()
     if (values === null) throw new Error('the loop has run no frame')
-    const area = values.regions.rowArea
+    const area = values.regions.taskGroupArea
     click(Math.round(area.x + area.width / 2), Math.round(area.y + 8))
   }
   return { loop, pane, send, take, clickOnTask, clickEmptyCanvas }
@@ -596,7 +596,7 @@ describe('表 T-109 IC-50 -- the list a person opens the figures with', () => {
     // ⛔ AN ENTRANCE THAT IS NOT DRAWN CANNOT BE PRESSED, and FR-029 (MUST) makes
     // 表 T-109 the whole of the icons. ⚠️ This is HALF of what went wrong with the
     // seven: they were drawn, and inert. The other half is below.
-    const app = stage(emptyRowDocument())
+    const app = stage(emptyTaskGroupDocument())
     app.take(GLYPH_LIST_TOGGLE)
     const drawn = paletteEntries(app.pane).map((entry) => entry.icon)
     const missing = ENTRANCES.filter((one) => !drawn.includes(one.row))
@@ -668,7 +668,7 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
     // a selection standing.
     const first = ENTRANCES[0] as Entrance
     for (const selected of [false, true]) {
-      const app = stage(selected ? oneMilestoneDocument() : emptyRowDocument())
+      const app = stage(selected ? oneMilestoneDocument() : emptyTaskGroupDocument())
       app.take(GLYPH_LIST_TOGGLE)
       if (selected) app.clickOnTask(STANDING_UID)
       app.take(first.row)
@@ -689,7 +689,7 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
     // IC-83 .. IC-89 did until 2026-08-29) fails here.
     const wrong: string[] = []
     for (const entrance of ENTRANCES) {
-      const app = stage(emptyRowDocument())
+      const app = stage(emptyTaskGroupDocument())
       app.take(GLYPH_LIST_TOGGLE)
       app.take(entrance.row)
       const armed = armedEntrances(app.pane)
@@ -712,7 +712,7 @@ describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () 
     // それ以外の形状のときは偽として作ること」, and CR-338 「ドラッグせずにクリックしたとき
     // ……は、開始日と終了日が同じタスクを作ること」.
     const first = ENTRANCES[0] as Entrance
-    const app = stage(emptyRowDocument())
+    const app = stage(emptyTaskGroupDocument())
     app.take(GLYPH_LIST_TOGGLE)
     app.take(first.row)
     app.clickEmptyCanvas()
@@ -727,7 +727,7 @@ describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () 
     // （既定）」 and MK-11 of 表 T-023 makes a click on empty canvas clear the
     // selection rather than place anything. Without it, a road that placed a
     // milestone whatever was armed would look like a road that honoured the arm.
-    const app = stage(emptyRowDocument())
+    const app = stage(emptyTaskGroupDocument())
     app.clickEmptyCanvas()
     expect(scheduleOf(app.loop).tasks).toHaveLength(0)
   })
@@ -759,7 +759,7 @@ describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () 
     // and it is green.
     const wrong: string[] = []
     for (const entrance of ENTRANCES) {
-      const app = stage(emptyRowDocument())
+      const app = stage(emptyTaskGroupDocument())
       app.take(GLYPH_LIST_TOGGLE)
       app.take(entrance.row)
       app.clickEmptyCanvas()

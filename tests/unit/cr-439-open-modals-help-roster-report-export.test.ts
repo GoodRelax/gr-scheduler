@@ -86,7 +86,7 @@ function viewWith(openModal: OpenModal): ScreenView {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal,

@@ -281,7 +281,7 @@ function pressPart(one: Bench, part: Record<string, unknown>): void {
     part: null,
     entry: null,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,

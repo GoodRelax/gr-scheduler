@@ -18,15 +18,15 @@ export interface SelectionCopiedTask {
   readonly uids: readonly number[]
 }
 
-export interface SelectionCopiedRow {
+export interface SelectionCopiedTaskGroup {
   readonly kind: 'row'
   readonly groupId: string
 }
 
-export type SelectionCopied = SelectionCopiedTask | SelectionCopiedRow
+export type SelectionCopied = SelectionCopiedTask | SelectionCopiedTaskGroup
 
 export interface SelectionValuesStateCarried {
-  readonly chosenRows: readonly string[]
+  readonly chosenTaskGroups: readonly string[]
   readonly chosenResources: readonly number[]
   // WHY: null is nothing copied yet; a paste then refuses (RS-27).
   readonly copiedForPaste: SelectionCopied | null
@@ -38,7 +38,7 @@ export interface SelectionValuesEventCarried {
   readonly rung: EscapeTarget
   readonly remainingObjects: Selection
   readonly createdTaskUid: number
-  readonly chosenRows: readonly string[]
+  readonly chosenTaskGroups: readonly string[]
   readonly createdGroupId: string
   readonly chosenResources: readonly number[]
   readonly copiedForPaste: SelectionCopied
@@ -60,13 +60,13 @@ export type SelectionState =
   | { readonly kind: 'objectsSelected'; readonly selectedObjects: SelectionValuesStateCarried['selectedObjects'] }
 
 export interface SelectionValues {
-  readonly chosenRows: SelectionValuesStateCarried['chosenRows']
+  readonly chosenTaskGroups: SelectionValuesStateCarried['chosenTaskGroups']
   readonly chosenResources: SelectionValuesStateCarried['chosenResources']
   readonly copiedForPaste: SelectionValuesStateCarried['copiedForPaste']
   readonly selectionState: SelectionState
 }
 
-export type SelectionValuesAxes = Omit<SelectionValues, 'chosenRows' | 'chosenResources' | 'copiedForPaste'>
+export type SelectionValuesAxes = Omit<SelectionValues, 'chosenTaskGroups' | 'chosenResources' | 'copiedForPaste'>
 
 export type SelectionValuesEvent =
   | { readonly type: 'objectsPicked'; readonly pickedObjects: SelectionValuesEventCarried['pickedObjects'] }
@@ -74,10 +74,10 @@ export type SelectionValuesEvent =
   | { readonly type: 'selectionEscapePressed'; readonly rung: SelectionValuesEventCarried['rung'] }
   | { readonly type: 'selectionSettleKeyPressed' }
   | { readonly type: 'selectionCleared' }
-  | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects']; readonly chosenRows: SelectionValuesEventCarried['chosenRows'] }
+  | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects']; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
   | { readonly type: 'createdTaskSelected'; readonly createdTaskUid: SelectionValuesEventCarried['createdTaskUid'] }
-  | { readonly type: 'rowsPicked'; readonly chosenRows: SelectionValuesEventCarried['chosenRows'] }
-  | { readonly type: 'createdRowSelected'; readonly createdGroupId: SelectionValuesEventCarried['createdGroupId'] }
+  | { readonly type: 'taskGroupsPicked'; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
+  | { readonly type: 'createdTaskGroupSelected'; readonly createdGroupId: SelectionValuesEventCarried['createdGroupId'] }
   | { readonly type: 'resourcesPicked'; readonly chosenResources: SelectionValuesEventCarried['chosenResources'] }
   | { readonly type: 'copyTaken'; readonly copiedForPaste: SelectionValuesEventCarried['copiedForPaste'] }
 
@@ -94,13 +94,13 @@ type EventOf<T extends SelectionValuesEvent['type']> = Extract<SelectionValuesEv
 
 const NOTHING_SELECTED = SELECTION_VALUES_INITIAL_AXES.selectionState
 
-const NO_CHOSEN_ROWS: readonly string[] = []
+const NO_CHOSEN_TASK_GROUPS: readonly string[] = []
 
 const NO_CHOSEN_RESOURCES: readonly number[] = []
 
 export const emptySelectionValues: SelectionValues = {
   ...SELECTION_VALUES_INITIAL_AXES,
-  chosenRows: NO_CHOSEN_ROWS,
+  chosenTaskGroups: NO_CHOSEN_TASK_GROUPS,
   chosenResources: NO_CHOSEN_RESOURCES,
   copiedForPaste: null,
 }
@@ -132,7 +132,7 @@ function isSameList<T>(a: readonly T[], b: readonly T[]): boolean {
 function isSameCopy(a: SelectionCopied | null, b: SelectionCopied): boolean {
   if (a === null || a.kind !== b.kind) return false
   if (a.kind === 'task') return isSameList(a.uids, (b as SelectionCopiedTask).uids)
-  return a.groupId === (b as SelectionCopiedRow).groupId
+  return a.groupId === (b as SelectionCopiedTaskGroup).groupId
 }
 
 // WHY: rewriting a carried value with the one it already holds changes nothing (SF-3, SD-3).
@@ -174,11 +174,11 @@ function onObjectsPicked(values: SelectionValues, event: EventOf<'objectsPicked'
 }
 
 // see FR-085, T-293
-// WHY: the root's chosenRows moves in the same step as the machine; neither moving keeps the reference (SF-3).
+// WHY: the root's chosenTaskGroups moves in the same step as the machine; neither moving keeps the reference (SF-3).
 /** @purity pure */
-function withRowsAlso(step: SelectionStep, chosenRows: readonly string[]): SelectionStep {
-  if (isSameList(step.state.chosenRows, chosenRows)) return step
-  return { state: { ...step.state, chosenRows }, effects: step.effects }
+function withTaskGroupsAlso(step: SelectionStep, chosenTaskGroups: readonly string[]): SelectionStep {
+  if (isSameList(step.state.chosenTaskGroups, chosenTaskGroups)) return step
+  return { state: { ...step.state, chosenTaskGroups }, effects: step.effects }
 }
 
 // WHY: pruning only narrows what stands; it never selects from nothing (T-293).
@@ -190,19 +190,19 @@ function objectsPruned(values: SelectionValues, event: EventOf<'selectionPruned'
 
 /** @purity pure */
 function onSelectionPruned(values: SelectionValues, event: EventOf<'selectionPruned'>): SelectionStep {
-  return withRowsAlso(objectsPruned(values, event), event.chosenRows)
+  return withTaskGroupsAlso(objectsPruned(values, event), event.chosenTaskGroups)
 }
 
 // see IN-4, FR-085
 /** @purity pure */
 function onSelectionEscapePressed(values: SelectionValues, event: EventOf<'selectionEscapePressed'>): SelectionStep {
-  return isRungSelection(event) ? withRowsAlso(deselected(values), NO_CHOSEN_ROWS) : unchanged(values)
+  return isRungSelection(event) ? withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS) : unchanged(values)
 }
 
 // see SK-19, FR-085
 /** @purity pure */
 function onSelectionSettleKeyPressed(values: SelectionValues): SelectionStep {
-  return withRowsAlso(deselected(values), NO_CHOSEN_ROWS)
+  return withTaskGroupsAlso(deselected(values), NO_CHOSEN_TASK_GROUPS)
 }
 
 // see FR-001, FR-091, TC-9
@@ -212,19 +212,19 @@ function onCreatedTaskSelected(values: SelectionValues, event: EventOf<'createdT
 }
 
 /** @purity pure */
-function withRows(values: SelectionValues, chosenRows: readonly string[]): SelectionStep {
-  if (isSameList(values.chosenRows, chosenRows)) return unchanged(values)
-  return { state: { ...values, chosenRows }, effects: NO_EFFECTS }
+function withTaskGroups(values: SelectionValues, chosenTaskGroups: readonly string[]): SelectionStep {
+  if (isSameList(values.chosenTaskGroups, chosenTaskGroups)) return unchanged(values)
+  return { state: { ...values, chosenTaskGroups }, effects: NO_EFFECTS }
 }
 
 /** @purity pure */
-function onRowsPicked(values: SelectionValues, event: EventOf<'rowsPicked'>): SelectionStep {
-  return withRows(values, event.chosenRows)
+function onTaskGroupsPicked(values: SelectionValues, event: EventOf<'taskGroupsPicked'>): SelectionStep {
+  return withTaskGroups(values, event.chosenTaskGroups)
 }
 
 /** @purity pure */
-function onCreatedRowSelected(values: SelectionValues, event: EventOf<'createdRowSelected'>): SelectionStep {
-  return withRows(values, [event.createdGroupId])
+function onCreatedTaskGroupSelected(values: SelectionValues, event: EventOf<'createdTaskGroupSelected'>): SelectionStep {
+  return withTaskGroups(values, [event.createdGroupId])
 }
 
 /** @purity pure */
@@ -252,8 +252,8 @@ const HANDLERS: {
   selectionCleared: deselected,
   selectionPruned: onSelectionPruned,
   createdTaskSelected: onCreatedTaskSelected,
-  rowsPicked: onRowsPicked,
-  createdRowSelected: onCreatedRowSelected,
+  taskGroupsPicked: onTaskGroupsPicked,
+  createdTaskGroupSelected: onCreatedTaskGroupSelected,
   resourcesPicked: onResourcesPicked,
   copyTaken: onCopyTaken,
 }

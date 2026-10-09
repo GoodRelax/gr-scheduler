@@ -166,7 +166,7 @@ const WATERMARK_UNLOCK_QUESTION = 'QN-9'
 
 const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
 
-const FORMAT_NAME_BY_ROW = new Map(
+const FORMAT_NAME_BY_TASK_GROUP = new Map(
   displayWords.exportFormats.map((entry) => [entry.rowId, entry]),
 )
 
@@ -177,7 +177,7 @@ function exportFormatChoices(
 ): readonly ExportFormatChoice[] {
   return exportFormats.formats.map((one) => ({
     row: one.rowId,
-    name: FORMAT_NAME_BY_ROW.get(one.rowId)?.name[language] ?? NO_WORDS,
+    name: FORMAT_NAME_BY_TASK_GROUP.get(one.rowId)?.name[language] ?? NO_WORDS,
     extension: one.extension,
   }))
 }

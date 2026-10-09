@@ -26,7 +26,7 @@ import {
   BOTTLENECK_STATE,
   COMMENT_BOX_SEARCH_COLUMNS,
   NOT_SHOWN_SEARCH_VALUE,
-  ROW_PATH_SEPARATOR,
+  TASK_GROUP_PATH_SEPARATOR,
   SHOWN_SEARCH_VALUE,
   TASK_SEARCH_COLUMNS,
   columnValuesOf,
@@ -191,14 +191,14 @@ function taskCells(row: TaskSearchRow, language: DisplayLanguage): readonly stri
     dateText(row.plannedFinish),
     dateText(row.actualStart),
     dateText(row.actualFinish),
-    row.rowPath.join(ROW_PATH_SEPARATOR),
+    row.rowPath.join(TASK_GROUP_PATH_SEPARATOR),
   ]
 }
 
 // see SQ-7, SQ-8, SQ-9, SV-17
 /** @purity pure */
 function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
-  return [searchBodyTextOf(row.text), row.rowName, dateText(row.anchorDate)]
+  return [searchBodyTextOf(row.text), row.taskGroupName, dateText(row.anchorDate)]
 }
 
 // see SV-4, SV-7, SV-8, SJ-1

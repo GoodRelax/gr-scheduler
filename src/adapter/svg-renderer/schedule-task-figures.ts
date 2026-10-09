@@ -360,7 +360,7 @@ function resumeSvg(
 // see FR-135, S-398, S-399, S-245
 /** @purity pure */
 function nameLabelInkOf(input: TaskFiguresInput, taskUid: number): { readonly ink: string; readonly weight: number } {
-  const isParentShown = input.picture === 'screen' && input.geometry.wbsParents?.highlightedParentUid === taskUid
+  const isParentShown = input.picture === 'screen' && input.geometry.parentTasks?.highlightedParentUid === taskUid
   if (isParentShown) return { ink: 'S-398', weight: NOT_STORED_DELAY_MARK_SIZES['S-399'] }
   return { ink: 'S-168', weight: NOT_STORED_NAME_LABEL_WEIGHT['S-245'] }
 }

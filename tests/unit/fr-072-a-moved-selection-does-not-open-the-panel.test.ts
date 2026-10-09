@@ -239,7 +239,7 @@ function twoTaskDocument(): Document {
   const task = (uid: number, start: string, finish: string, name: string): Task =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name,
       start,
@@ -492,7 +492,7 @@ function stage(): Stage {
         part,
         entry: entry as any,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -527,8 +527,8 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  // WHY: only the part the Row Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
-  const area = values.regions.rowArea
+  // WHY: only the part the Task Group Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
+  const area = values.regions.taskGroupArea
   const right = Math.min(Math.max(...xs), area.x + area.width - 1)
   const marker = drawn.marker
   const left =

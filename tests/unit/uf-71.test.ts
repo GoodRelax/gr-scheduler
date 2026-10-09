@@ -107,12 +107,12 @@
 //   - which CSS property carries a place (PND-151 records the choice as display
 //     only); the cases below assert that the numbers the description carries
 //     REACH the drawn node, never which property spells them
-//   - what the `Row Title Tree` draws for a row whose `label` is `null`
+//   - what the `Task Group Title Tree` draws for a row whose `label` is `null`
 //     (FR-058 forbids the document to hold one, and no requirement says what to
 //     draw when one arrives anyway)
 //   - whether the entry keeps what was typed across a frame in which the field
 //     is down; FR-066 settles only that the field is not up
-//   - what the `Row Title Panel` draws when the frame lists no `Panel Divider`
+//   - what the `Task Group Panel` draws when the frame lists no `Panel Divider`
 //     for it. PND-155's fallback (the window's edge and the contents' width) is
 //     a provisional decision, and SC-3 of 表 T-031 speaks of the panel not
 //     scrolling away rather than of a background, so nothing here decides it
@@ -132,7 +132,7 @@ import {
   type Notice,
   type PropertiesPanel,
   type PropertyField,
-  type RowTitle,
+  type TaskGroupTitle,
   type ScreenFrame,
   type ScreenSurface,
   type ScreenView,
@@ -151,7 +151,7 @@ import {
 // takes the copy from the .md at read time, which is what keeps the two rosters
 // below from falling behind a row.
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { rowNameFont } from '../fixtures/row-name-font'
+import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 import { S_235 } from '../fixtures/display-scale'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
@@ -174,8 +174,8 @@ const LINK_GUARDS: readonly string[] = ['pointerdown', 'pointerup', 'keydown']
  */
 const T_103_PARTS = [
   { row: 'U-21', name: 'Scrollbars' },
-  { row: 'U-22', name: 'Row Title Panel' },
-  { row: 'U-23', name: 'Row Title Tree' },
+  { row: 'U-22', name: 'Task Group Panel' },
+  { row: 'U-23', name: 'Task Group Title Tree' },
   { row: 'U-24', name: 'Panel Divider' },
   { row: 'U-25', name: 'Properties Panel' },
   { row: 'U-26', name: 'Command Palette' },
@@ -188,9 +188,9 @@ const T_103_PARTS = [
   { row: 'U-34', name: 'Palette Commands' },
   { row: 'U-35', name: 'Header Commands' },
   { row: 'U-44', name: 'Dialogue Field' },
-  { row: 'U-46', name: 'Pinned Row' },
-  { row: 'U-47', name: 'Row Expander' },
-  { row: 'U-48', name: 'Row Pin' },
+  { row: 'U-46', name: 'Pinned Task Group' },
+  { row: 'U-47', name: 'Task Group Expander' },
+  { row: 'U-48', name: 'Task Group Pin' },
   { row: 'U-49', name: 'Resource Roster' },
   { row: 'U-53', name: 'Tooltip' },
   { row: 'U-57', name: 'Notification Area' },
@@ -1077,7 +1077,7 @@ const EMPTY_VIEW: ScreenView = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -1101,23 +1101,23 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   ...patch,
 })
 
-const ROW_TITLE_INDENT = SETTINGS_CONSTANTS['rowTitleIndent'] as number
+const TASK_GROUP_TITLE_INDENT = SETTINGS_CONSTANTS['taskGroupTitleIndent'] as number
 
-const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
+const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): TaskGroupTitle => ({
   depth: patch.depth ?? 1,
-  // `FR-085` takes 「その行の深さぶんのインデント（`rowTitleIndent`。
+  // `FR-085` takes 「その行の深さぶんのインデント（`taskGroupTitleIndent`。
   // 表 T-201 の `S-37`）」 off the usable width, so a row at depth n carries n
   // of them. ⭐ The description carries the number; this unit invents none.
-  indentPx: (patch.depth ?? 1) * ROW_TITLE_INDENT,
-  ...rowNameFont(patch.depth ?? 1),
+  indentPx: (patch.depth ?? 1) * TASK_GROUP_TITLE_INDENT,
+  ...taskGroupNameFont(patch.depth ?? 1),
   box: rect(0, 0, 170, 24),
   label: patch.groupId,
-  // Nothing is cut here, and the `RowTitle` contract fixes that case as
+  // Nothing is cut here, and the `TaskGroupTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: patch.groupId,
   isLabelTruncated: false,
   // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
-  // read `null` until 2026-08-30, when `RowTitle.expander` stopped being
+  // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
   // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
   // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
   // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
@@ -1235,7 +1235,7 @@ const RICH_VIEW: ScreenView = viewWith({
   frame: {
     isFullScreen: false,
     dividers: [
-      { panel: 'rowTitlePanel', band: rect(170, 40, 6, 700), line: rect(172, 40, 1, 700) },
+      { panel: 'taskGroupPanel', band: rect(170, 40, 6, 700), line: rect(172, 40, 1, 700) },
       { panel: 'propertiesPanel', band: rect(800, 40, 6, 700), line: rect(802, 40, 1, 700) },
     ],
     scrollbars: [
@@ -1257,12 +1257,12 @@ const RICH_VIEW: ScreenView = viewWith({
     // FR-038: the same language the view carries.
     language: 'ja',
   },
-  rowTitlePanel: {
-    pinnedTitles: [rowTitle({ groupId: 'g-pinned', label: 'PinnedRowOne', isPinned: true })],
+  taskGroupPanel: {
+    pinnedTitles: [taskGroupTitle({ groupId: 'g-pinned', label: 'PinnedTaskGroupOne', isPinned: true })],
     titles: [
-      rowTitle({
+      taskGroupTitle({
         groupId: 'g-1',
-        label: 'RowOne',
+        label: 'TaskGroupOne',
         depth: 1,
         box: rect(0, 40, 170, 24),
         expander: { canOpen: true, canClose: false, canCloseBelow: false },
@@ -1509,7 +1509,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // ⭐⭐ A THIRD PART JOINED THE TWO ON 2026-08-30 AND LEFT AGAIN ON 2026-09-04,
     // AND BOTH TIMES THE MANUSCRIPT DECIDED IT. HF-14 of 表 T-051 (MUST) used to
     // read CR-348 「名前は空で立て、その場で打たせること（MUST）」, and 「その場」 is
-    // among the rows -- so a third field took characters, inside the `Row Title
+    // among the rows -- so a third field took characters, inside the `Task Group Name
     // Tree`, and a listener serving it was not this unit widening its supply.
     // ⛔ ALL THREE OF THAT ROW'S MUSTS WERE WITHDRAWN (利用者の裁定 2026-09-04,
     // quoted in the row itself). It now reads 「押された瞬間に、既定の名前で行を
@@ -1641,7 +1641,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //     WRITE. This unit holds no document and makes no command; a `ScreenView`
 //     reaches it with the row already in it.
 //   - 「既定の名前は表示語として持つこと」 is the naming side's. The word travels
-//     into this unit inside `RowTitle.label`, so a case here could assert only
+//     into this unit inside `TaskGroupTitle.label`, so a case here could assert only
 //     what the fixture typed. ⭐ What CAN be held from here is that the word has
 //     a home and that the specification does not spell it -- the last case reads
 //     the pointer the manuscript does state and then asks FR-038's dictionary.
@@ -1677,15 +1677,15 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
    * the row id has a home already, and a cell that stopped naming one fails here
    * in one line rather than leaving every case below asking about nothing.
    */
-  const NAME_ROW = ((): string => {
+  const NAME_TASK_GROUP = ((): string => {
     const mk13 = specTable('T-023').rows.find((one) => one.id === 'MK-13')
     const found = /行見出し（行の名前）[^`]*`[^`]*`[^`]*`(AT-\d+)`/.exec(mk13?.cells.join(' ') ?? '')
-    if (found === null) throw new Error('表 T-023 MK-13 no longer names the row-name field')
+    if (found === null) throw new Error('表 T-023 MK-13 no longer names the task-group-name field')
     return found[1] as string
   })()
 
   /** The row the description below is about -- the first the rich view draws. */
-  const GROUP_ID = RICH_VIEW.rowTitlePanel.titles[0]?.groupId ?? ''
+  const GROUP_ID = RICH_VIEW.taskGroupPanel.titles[0]?.groupId ?? ''
 
   /**
    * The name standing in that field.
@@ -1695,7 +1695,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
    * description; what a case here needs is a value it can tell apart from every
    * other word on the screen.
    */
-  const THE_NAME_STANDING_THERE = 'RowNameStandingHere'
+  const THE_NAME_STANDING_THERE = 'TaskGroupNameStandingHere'
 
   /** The `Properties Panel` of a row, with the one field HF-14 sends a person to. */
   const panelWithName = (): PropertiesPanel =>
@@ -1704,7 +1704,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
       isSubjectGone: false,
       fields: [
         {
-          row: NAME_ROW,
+          row: NAME_TASK_GROUP,
           name: 'label',
           text: THE_NAME_STANDING_THERE,
           isEditable: true,
@@ -1768,7 +1768,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     // ⛔ THIS IS THE CASE THE WITHDRAWN MUSTS TURNED INSIDE OUT. Until 2026-09-04
     // the row asked for a field 「その場」, among the rows; it now forbids one,
     // because a second place to type a name IS a second road. ⚠️ 表 T-103's
-    // `U-23` is where the rows stand (「**`Row Title Panel` の中身**」), so that
+    // `U-23` is where the rows stand (「**`Task Group Panel` の中身**」), so that
     // is the part read.
     const built = drawn()
     const tree = oneByRole(built.root(), partName('U-23'))
@@ -1795,7 +1795,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     // ⭐ The premise without which 「it took the focus」 says nothing.
     expect(built.world.activeElement).toBeNull()
 
-    built.focusField?.(NAME_ROW)
+    built.focusField?.(NAME_TASK_GROUP)
 
     const panel = oneByRole(built.root(), partName('U-25'))
     const active = built.world.activeElement
@@ -1812,14 +1812,14 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView({ ...RICH_VIEW, notices: [], propertiesPanel: panelWithName() })
     const ask = built.focusField as unknown as (row: string) => unknown
-    expect(ask(NAME_ROW), 'the focus entered the drawn field').toBe(true)
+    expect(ask(NAME_TASK_GROUP), 'the focus entered the drawn field').toBe(true)
     expect(ask('no-such-row'), 'no such field in the panel drawn: the ask is answered as withdrawn').toBe(true)
     const field = controlsIn(oneByRole(built.root(), partName('U-25')))[0] as FakeElement
     field.focus = (): void => undefined
     // WHY: the fake host names no activeElement, and a host that cannot say where the focus is reads as "in".
     Object.defineProperty(built.host, 'activeElement', { get: () => built.world.activeElement, configurable: true })
     built.world.activeElement = oneByRole(built.root(), partName('U-23'))
-    expect(ask(NAME_ROW), 'the field is drawn but the focus did not enter: ask again').toBe(false)
+    expect(ask(NAME_TASK_GROUP), 'the field is drawn but the focus did not enter: ask again').toBe(false)
   })
 
   it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the name field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
@@ -1845,7 +1845,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     const field = control as FakeElement
     field.focus()
     keyPress(field, '', { type: 'focusin' })
-    field.value = 'RowNamedWhileATellingStood'
+    field.value = 'TaskGroupNamedWhileATellingStood'
     keyPress(field, '', { type: 'input' })
     keyPress(field, 'Enter')
 
@@ -2475,26 +2475,26 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     expect(drawn).toContain('800')
   })
 
-  it('SC-1: a row title is placed by the box the description carries, not by a measurement', () => {
+  it('SC-1: a task group title is placed by the box the description carries, not by a measurement', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
-        rowTitlePanel: {
+        taskGroupPanel: {
           pinnedTitles: [],
-          titles: [rowTitle({ groupId: 'g-1', label: 'RowAlpha', box: rect(0, 137, 170, 29) })],
+          titles: [taskGroupTitle({ groupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) })],
         },
       }),
     )
 
-    const tree = oneByRole(built.root(), 'Row Title Tree')
-    const label = theOneWithText(tree, 'RowAlpha')
+    const tree = oneByRole(built.root(), 'Task Group Title Tree')
+    const label = theOneWithText(tree, 'TaskGroupAlpha')
     const placed = chainUpTo(label, tree).map(styleOf).join(' ')
     expect(placed).toContain('137')
     expect(placed).toContain('29')
   })
 
   it('sets a row in by the `indentPx` its description carries, and by no measure of its own', () => {
-    // ⭐ PND-152 is closed (CR-287): `RowTitle` carries `indentPx`, so the screen,
+    // ⭐ PND-152 is closed (CR-287): `TaskGroupTitle` carries `indentPx`, so the screen,
     // the export and `FR-085`'s truncation all read ONE number. ⛛ The `1em` per
     // level this unit used to invent is gone -- an em is the reader's font size
     // and `S-37` is px, so the two drifted apart at every font size but one.
@@ -2503,26 +2503,26 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
-        rowTitlePanel: {
+        taskGroupPanel: {
           pinnedTitles: [],
           titles: [
-            rowTitle({ groupId: 'g-2', label: 'RowAtTwo', depth: 2, box: rect(0, 41, 171, 29) }),
-            rowTitle({ groupId: 'g-3', label: 'RowAtThree', depth: 3, box: rect(0, 70, 171, 29) }),
+            taskGroupTitle({ groupId: 'g-2', label: 'TaskGroupAtTwo', depth: 2, box: rect(0, 41, 171, 29) }),
+            taskGroupTitle({ groupId: 'g-3', label: 'TaskGroupAtThree', depth: 3, box: rect(0, 70, 171, 29) }),
           ],
         },
       }),
     )
 
-    const tree = oneByRole(built.root(), 'Row Title Tree')
-    const two = chainUpTo(theOneWithText(tree, 'RowAtTwo'), tree).map(styleOf).join(' ')
-    const three = chainUpTo(theOneWithText(tree, 'RowAtThree'), tree).map(styleOf).join(' ')
+    const tree = oneByRole(built.root(), 'Task Group Title Tree')
+    const two = chainUpTo(theOneWithText(tree, 'TaskGroupAtTwo'), tree).map(styleOf).join(' ')
+    const three = chainUpTo(theOneWithText(tree, 'TaskGroupAtThree'), tree).map(styleOf).join(' ')
 
     // `FR-085`: 「その行の深さぶんのインデント」 -- two of `S-37` at depth 2,
     // three of it at depth 3.
-    expect(two).toContain(`${2 * ROW_TITLE_INDENT}px`)
-    expect(three).toContain(`${3 * ROW_TITLE_INDENT}px`)
-    expect(two).not.toContain(`${3 * ROW_TITLE_INDENT}px`)
-    expect(three).not.toContain(`${2 * ROW_TITLE_INDENT}px`)
+    expect(two).toContain(`${2 * TASK_GROUP_TITLE_INDENT}px`)
+    expect(three).toContain(`${3 * TASK_GROUP_TITLE_INDENT}px`)
+    expect(two).not.toContain(`${3 * TASK_GROUP_TITLE_INDENT}px`)
+    expect(three).not.toContain(`${2 * TASK_GROUP_TITLE_INDENT}px`)
     // ⛛ Nothing sized in ems decides the indent any more.
     expect(two).not.toContain('1em')
     expect(three).not.toContain('2em')
@@ -2543,7 +2543,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   //     確保する場所は 0 だからである（`S-140`）」, and ⛔「**描かないあいだも、
   //     確保する場所を変えてはならない（MUST NOT）** —— 規則と理由は `FR-085` が
   //     持つ」
-  //   `FR-085`         「使える幅は、`rowTitlePanelWidth` から、その行の深さぶん
+  //   `FR-085`         「使える幅は、`taskGroupPanelWidth` から、その行の深さぶん
   //     のインデント（`S-37`）と、行の操作子…に確保した場所と、**行の掴み代
   //     （表 T-023d の `GR-20`）に確保した場所（`S-138`）とその隔たり（`S-218`）**
   //     を引いた残りとすること（MUST）」
@@ -2578,12 +2578,12 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   }
 
   /** The one row the panel drew, and its direct children. */
-  const drawnRow = (title: RowTitle): { row: FakeElement; children: FakeElement[] } => {
+  const drawnTaskGroup = (title: TaskGroupTitle): { row: FakeElement; children: FakeElement[] } => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
-      viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
+      viewWith({ taskGroupPanel: { pinnedTitles: [], titles: [title] } }),
     )
-    const tree = oneByRole(built.root(), 'Row Title Tree')
+    const tree = oneByRole(built.root(), 'Task Group Title Tree')
     const row = tree.children[0]
     if (row === undefined) throw new Error('the panel drew no row')
     return { row, children: [...row.children] }
@@ -2601,10 +2601,10 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // 48px of a 170px panel away from the name on 2026-08-30.
     expect(s140(), '表 T-206 の `S-140`: 行の操作子に確保する場所').toBe(0)
 
-    const { children } = drawnRow(
-      rowTitle({
+    const { children } = drawnTaskGroup(
+      taskGroupTitle({
         groupId: 'g-1',
-        label: 'RowAlpha',
+        label: 'TaskGroupAlpha',
         box: rect(0, 137, 170, 29),
         expander: { canOpen: true, canClose: true, canCloseBelow: true },
       }),
@@ -2628,17 +2628,17 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // GOES RED IF: the strip stops being `S-138` wide, the gap stops being
     // `S-218`, or the indent stops being the `indentPx` the description carries.
     const depth = 3
-    const { row, children } = drawnRow(
-      rowTitle({ groupId: 'g-3', label: 'RowAtThree', depth, box: rect(0, 70, 170, 29) }),
+    const { row, children } = drawnTaskGroup(
+      taskGroupTitle({ groupId: 'g-3', label: 'TaskGroupAtThree', depth, box: rect(0, 70, 170, 29) }),
     )
     // ⚠️ THE RAW STYLE, not `styleOf`: that helper strips every space, and the
     // padding this case reads is a four-value shorthand whose spaces are what
     // says WHICH side the indent is on.
     const style = inlineStyle(row)
 
-    // 「その行の深さぶんのインデント」 -- and `RowTitle.indentPx` is that product.
+    // 「その行の深さぶんのインデント」 -- and `TaskGroupTitle.indentPx` is that product.
     expect(style, 'FR-085: the row is set in by its own `indentPx`').toContain(
-      `padding:0 0 0 ${depth * ROW_TITLE_INDENT}px`,
+      `padding:0 0 0 ${depth * TASK_GROUP_TITLE_INDENT}px`,
     )
     // 「その隔たり（`S-218`）」 -- the space between the strip and the name.
     expect(style, 'FR-085: `S-218` stands between the grab strip and the name').toContain(
@@ -2665,15 +2665,15 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // the state of the controls.
     // GOES RED IF: the row reserves room per control, or the name's flex share
     // is written from the control count.
-    const shape = { groupId: 'g-1', label: 'RowAlpha', box: rect(0, 137, 170, 29) } as const
-    const quiet = drawnRow(
-      rowTitle({ ...shape, expander: { canOpen: false, canClose: false, canCloseBelow: false } }),
+    const shape = { groupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) } as const
+    const quiet = drawnTaskGroup(
+      taskGroupTitle({ ...shape, expander: { canOpen: false, canClose: false, canCloseBelow: false } }),
     )
     // ⚠️ `isPinned` IS HELD EQUAL ON BOTH SIDES. `FR-098` gives a pinned row a
     // ground of its own, which is a colour and not room; letting it vary here
     // would make this case about that instead.
-    const busy = drawnRow(
-      rowTitle({ ...shape, expander: { canOpen: true, canClose: true, canCloseBelow: true } }),
+    const busy = drawnTaskGroup(
+      taskGroupTitle({ ...shape, expander: { canOpen: true, canClose: true, canCloseBelow: true } }),
     )
 
     expect(styleOf(busy.row), 'FR-085 (MUST NOT): the row itself changed size').toBe(
@@ -2969,7 +2969,7 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
     surfaceOf(built).showScreenView(
       viewWith({
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE },
-        rowTitlePanel: { pinnedTitles: [], titles: [rowTitle({ groupId: 'g-1', label: HOSTILE })] },
+        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId: 'g-1', label: HOSTILE })] },
       }),
     )
 
@@ -2990,8 +2990,8 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
     surfaceOf(built).showScreenView(
       viewWith({
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE },
-        rowTitlePanel: { pinnedTitles: [], titles: [rowTitle({ groupId: HOSTILE, label: HOSTILE })] },
-        tooltips: [{ anchor: { kind: 'rowTitle', groupId: HOSTILE }, text: HOSTILE, assignment: null }],
+        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId: HOSTILE, label: HOSTILE })] },
+        tooltips: [{ anchor: { kind: 'taskGroupTitle', groupId: HOSTILE }, text: HOSTILE, assignment: null }],
       }),
     )
 
@@ -3126,15 +3126,15 @@ describe('boundaries', () => {
         openModal: null,
         dialogueField: null,
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: null },
-        rowTitlePanel: {
+        taskGroupPanel: {
           pinnedTitles: [],
           // ⚠️ `expander` LEFT THIS LIST ON 2026-08-30 AND IS NOT AN OMISSION:
-          // `RowTitle.expander` stopped being nullable when 表 T-051 の `HF-1`
+          // `TaskGroupTitle.expander` stopped being nullable when 表 T-051 の `HF-1`
           // 「各行に… 1 つずつ置く」 was read into the type, so it is no longer
           // one of the description's optional parts. ⭐ `label` still is -- `FR-058`
           // and `AT-54` make a row's own name genuinely absent -- and that is what
           // this row is here to carry.
-          titles: [rowTitle({ groupId: 'g-1', label: null })],
+          titles: [taskGroupTitle({ groupId: 'g-1', label: null })],
         },
       }),
     )
@@ -3275,9 +3275,9 @@ const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（M
  * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
  *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
- *   | IC-58 | `Row Title Panel`  | ... | 行の配下をすべて開く |
- *   | IC-59 | `Row Title Panel`  | ... | その行自身を畳む |
- *   | IC-60 | `Row Title Panel`  | ... | 行をピン止めし、同じ入口で外す |
+ *   | IC-58 | `Task Group Panel`  | ... | 行の配下をすべて開く |
+ *   | IC-59 | `Task Group Panel`  | ... | その行自身を畳む |
+ *   | IC-60 | `Task Group Panel`  | ... | 行をピン止めし、同じ入口で外す |
  *   | IC-61 | `Command Palette`  | ... | 依存線を構える |
  * ⛔ Four different 面 on purpose: the header, the floating palette, a surface
  * opened OVER the screen, and the controls on a row. That is the whole of what
@@ -3287,9 +3287,9 @@ const T_109_ONE_PER_SURFACE = [
   { row: 'IC-20', surface: 'App Header' },
   { row: 'IC-61', surface: 'Command Palette' },
   { row: 'IC-52', surface: 'Help Modal' },
-  { row: 'IC-58', surface: 'Row Title Panel' },
-  { row: 'IC-59', surface: 'Row Title Panel' },
-  { row: 'IC-60', surface: 'Row Title Panel' },
+  { row: 'IC-58', surface: 'Task Group Panel' },
+  { row: 'IC-59', surface: 'Task Group Panel' },
+  { row: 'IC-60', surface: 'Task Group Panel' },
 ] as const
 
 /** A description that puts an entry on each of the four surfaces above at once. */
@@ -3300,12 +3300,12 @@ const EVERY_SURFACE_VIEW: ScreenView = viewWith({
   },
   commandPalette: PALETTE,
   helpModal: HELP_MODAL,
-  rowTitlePanel: {
+  taskGroupPanel: {
     pinnedTitles: [],
     titles: [
-      rowTitle({
+      taskGroupTitle({
         groupId: 'g-1',
-        label: 'RowOne',
+        label: 'TaskGroupOne',
         expander: { canOpen: true, canClose: true, canCloseBelow: false },
       }),
     ],
@@ -3603,7 +3603,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
   })
 
   it('⭐ GIVEN two rows at different depths WHEN their controls are read THEN the box is the same on both, and neither is set down (表 T-051 HF-5 MUST: 行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
-    // ⚠️ WHAT THIS UNIT CAN BE ASKED. `RowTitle` carries no text size -- the
+    // ⚠️ WHAT THIS UNIT CAN BE ASKED. `TaskGroupTitle` carries no text size -- the
     // name's size follows the depth through S-36 and S-38, which live on the far
     // side of IF-9 -- so the only thing about the name's size that reaches here
     // is the DEPTH. If that moved the box, HF-5's first MUST would be broken on
@@ -3618,19 +3618,19 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
-        rowTitlePanel: {
+        taskGroupPanel: {
           pinnedTitles: [],
           titles: [
-            rowTitle({
+            taskGroupTitle({
               groupId: 'g-shallow',
-              label: 'ShallowRow',
+              label: 'ShallowTaskGroup',
               depth: 1,
               box: rect(0, 40, 170, 40),
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
-            rowTitle({
+            taskGroupTitle({
               groupId: 'g-deep',
-              label: 'DeepRow',
+              label: 'DeepTaskGroup',
               depth: 5,
               box: rect(0, 80, 170, 18),
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -3685,10 +3685,10 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
-        rowTitlePanel: {
+        taskGroupPanel: {
           pinnedTitles: [],
           titles: [
-            rowTitle({
+            taskGroupTitle({
               groupId: 'g-tall',
               label: 'A row whose name is drawn much larger than the controls beside it',
               depth: 1,

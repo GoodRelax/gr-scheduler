@@ -58,14 +58,14 @@ const TEMPLATE = JSON.parse(
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 
-const TOP = 'row-top'
+const TOP = 'task-group-top'
 const TASK_COUNT = 8
 const COMMENT_COUNT = 5
 
 const task = (uid: number): Loose => ({
   ...firstOf('tasks'),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `task ${uid}`,
   start: `2026-01-${String(uid).padStart(2, '0')}T00:00:00`,

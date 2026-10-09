@@ -20,7 +20,7 @@ const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
 
 // TRAP: renaming this attribute breaks silently unless
 // tests/system/rows-fixed-with-nothing-holding-them.test.ts is updated too.
-const DRAWN_ROW = '[data-depth]'
+const DRAWN_TASK_GROUP = '[data-depth]'
 
 interface Frame {
   readonly at: number
@@ -32,7 +32,7 @@ interface Recorded {
   readonly frames: readonly Frame[]
 }
 
-interface DrawnRow {
+interface DrawnTaskGroup {
   readonly depth: string
   readonly top: number
   readonly height: number
@@ -82,8 +82,8 @@ async function watchUntilQuiet(page: Page): Promise<Recorded> {
 }
 
 /** @purity pure */
-function rowsOf(frame: Frame): readonly DrawnRow[] {
-  return JSON.parse(frame.tree) as DrawnRow[]
+function rowsOf(frame: Frame): readonly DrawnTaskGroup[] {
+  return JSON.parse(frame.tree) as DrawnTaskGroup[]
 }
 
 /** @purity pure */
@@ -147,7 +147,7 @@ test('DFC-230: the first tree the shipped build draws is the tree it settles on'
       }
       requestAnimationFrame(tick)
     },
-    { name: RECORDER, row: DRAWN_ROW },
+    { name: RECORDER, row: DRAWN_TASK_GROUP },
   )
   const page = await context.newPage()
   try {

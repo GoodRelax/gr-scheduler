@@ -123,8 +123,8 @@ const TEMPLATE = JSON.parse(
 ) as { readonly schedule: Loose }
 const firstOf = (key: string): Loose => ((TEMPLATE.schedule[key] as readonly Loose[])[0] ?? {}) as Loose
 
-const TOP = 'row-top'
-const INNER = 'row-inner'
+const TOP = 'task-group-top'
+const INNER = 'task-group-inner'
 const TOP_NAME = 'Program'
 const INNER_NAME = 'Steering'
 const NAMED_UID = 101
@@ -137,7 +137,7 @@ const COMMENT_LINES = ['first line', 'second line'] as const
 const task = (uid: number, name: string, start: string, finish: string): Loose => ({
   ...firstOf('tasks'),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name,
   start,
@@ -558,7 +558,7 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     expect(taskCells('ja', NAMED_UID)[5]).toBe(`${TOP_NAME} → ${INNER_NAME}`)
   })
 
-  it('SQ-7 turns each line break into one space; SQ-8 is the row name; SQ-9 the date with its year', () => {
+  it('SQ-7 turns each line break into one space; SQ-8 is the task group name; SQ-9 the date with its year', () => {
     const { panel } = drawn(viewOf(sessionIn('ja'), { table: 'commentBoxes' }))
     const rows = byTag(panel, 'TR').filter((one) => byTag(one, 'TD').length > 0)
     expect(rows).toHaveLength(1)
@@ -572,19 +572,19 @@ describe(`T-330 SV-6 -- ${SV_6_FIXED}`, () => {
     return style.get('position') === 'sticky' && (style.get('left') ?? '') !== ''
   }
 
-  const stuckInEveryRow = (panel: FakeElement): readonly (readonly boolean[])[] =>
+  const stuckInEveryTaskGroup = (panel: FakeElement): readonly (readonly boolean[])[] =>
     byTag(panel, 'TR').map((line) => [...byTag(line, 'TH'), ...byTag(line, 'TD')].map(stuckLeft))
 
   it('the tasks table holds the columns up to SQ-1 (SQ-5, SQ-11, SQ-1) at the left, and no other column, in every row', () => {
     const { panel } = drawn(viewOf(sessionIn('ja')))
-    const rows = stuckInEveryRow(panel)
+    const rows = stuckInEveryTaskGroup(panel)
     expect(rows.length).toBeGreaterThan(1)
     for (const line of rows) expect(line).toEqual(TASK_COLUMNS.map((_column, at) => at <= TASK_COLUMNS.indexOf('SQ-1')))
   })
 
   it('the comment box table holds SQ-7 at the left, and no other column, in every row', () => {
     const { panel } = drawn(viewOf(sessionIn('ja'), { table: 'commentBoxes' }))
-    const rows = stuckInEveryRow(panel)
+    const rows = stuckInEveryTaskGroup(panel)
     expect(rows.length).toBeGreaterThan(1)
     for (const line of rows) expect(line).toEqual(COMMENT_COLUMNS.map((_column, at) => at < 1))
   })

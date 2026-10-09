@@ -252,7 +252,7 @@ function stage(options: { readonly withHost?: boolean; readonly language?: Displ
               part: APP_HEADER,
               entry,
               format: null,
-              rowGroupId: null,
+              taskGroupId: null,
               resourceUid: null,
               dividerPanel: null,
               noticeDismissKey: null,

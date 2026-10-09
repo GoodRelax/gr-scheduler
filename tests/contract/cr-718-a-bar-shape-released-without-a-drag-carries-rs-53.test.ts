@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { bare, specTable, unbroken } from './spec-table'
-import { DISPLAY_WORDS, pointerOf, rowDocument, shell, type ShellBench } from '../unit/cr-541-stage'
+import { DISPLAY_WORDS, pointerOf, taskGroupDocument, shell, type ShellBench } from '../unit/cr-541-stage'
 
 // WHY: the shell sends every event to the session through advanceScreenSession (notices/noticeRaised, T-290); a hidden
 // reason is raised and stands no card, so the raise is only visible on this seam.
@@ -86,7 +86,7 @@ afterEach(() => {
 
 /** @purity non-pure */
 function emptyShell(): ShellBench {
-  const bench = shell(rowDocument([]))
+  const bench = shell(taskGroupDocument([]))
   benches.push(bench)
   seen.raised.length = 0
   return bench

@@ -12,7 +12,7 @@ import {
   DISPLAY_WORDS,
   keyOf,
   REQUIREMENTS,
-  rowDocument,
+  taskGroupDocument,
   rowOf,
   shell,
   taskOf,
@@ -22,15 +22,15 @@ import {
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
 // WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
-// WBS parent its source parent's copy when that parent is copied too, else the parent read off the landing row.
+// parent task its source parent's copy when that parent is copied too, else the parent read off the landing row.
 const ONLY_CHOSEN_COPIED =
   '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの WBS の親は、表 T-223 の `DU-1` に従うこと（MUST）'
-const PARENT_FROM_THE_ROW =
+const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの WBS の親を、コピーを載せた行から推定すること（MUST）'
-const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
+const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const CM_8_ROW =
-  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫はコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
+  '| CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫はコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
 const COPY_TAKEN_ROW =
   '| `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'
@@ -42,7 +42,7 @@ const STATE_MACHINES = unbroken(readText('docs', 'spec', '_assets', 'tbl-state-m
 const CR_541 = readText('change-request', 'CR-541-land-the-2026-09-22-rulings-in-the-specification.md')
 
 describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stand', () => {
-  it.each([MANY_TASKS_ALL_COPIED, ONLY_CHOSEN_COPIED, PARENT_FROM_THE_ROW, SAME_ROW, NO_SAME_UID])(
+  it.each([MANY_TASKS_ALL_COPIED, ONLY_CHOSEN_COPIED, PARENT_FROM_THE_TASK_GROUP, SAME_TASK_GROUP, NO_SAME_UID])(
     'FR-033: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -101,11 +101,11 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
   })
 
   it('CR-541 section 11 row 8: one row and two Tasks chosen -> the row is copied', () => {
-    expect(copiedForPasteOf(['row-a'], picked(task(1), task(2)))).toEqual({ kind: 'row', groupId: 'row-a' })
+    expect(copiedForPasteOf(['task-group-a'], picked(task(1), task(2)))).toEqual({ kind: 'row', groupId: 'task-group-a' })
   })
 
   it('FR-033 (row half) control: one row and no Task -> the row is copied', () => {
-    expect(copiedForPasteOf(['row-b'], NOTHING)).toEqual({ kind: 'row', groupId: 'row-b' })
+    expect(copiedForPasteOf(['task-group-b'], NOTHING)).toEqual({ kind: 'row', groupId: 'task-group-b' })
   })
 })
 
@@ -117,8 +117,8 @@ describe('copiedForPasteOf -- the brief contract, NOT a spec clause', () => {
   })
 
   it('brief: two rows chosen at copy time -> null, whatever Tasks are chosen', () => {
-    expect(copiedForPasteOf(['row-a', 'row-b'], NOTHING)).toBeNull()
-    expect(copiedForPasteOf(['row-a', 'row-b'], picked(task(1)))).toBeNull()
+    expect(copiedForPasteOf(['task-group-a', 'task-group-b'], NOTHING)).toBeNull()
+    expect(copiedForPasteOf(['task-group-a', 'task-group-b'], picked(task(1)))).toBeNull()
   })
 })
 
@@ -128,33 +128,33 @@ const A1 = 3
 const B = 4
 const COPY = keyOf('C', { ctrl: true })
 const PASTE = keyOf('V', { ctrl: true })
-const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
+const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 const RS_27_WORDS: string = (DISPLAY_WORDS.reasons as { rowId: string; text: { ja: string } }[]).find(
   (one) => one.rowId === 'RS-27',
 )!.text.ja
 
-// WHY: P on row-1 holds A (row-2), A holds A1 (row-3); B is a root on row-1. Dates differ
+// WHY: P on task-group-1 holds A (task-group-2), A holds A1 (task-group-3); B is a root on task-group-1. Dates differ
 // so no two bars overlap and every bar has its own body to press.
 const wbsDocument = (): Record<string, unknown> =>
-  rowDocument(
+  taskGroupDocument(
     [
-      { id: 'row-1', parentId: null },
-      { id: 'row-2', parentId: null },
-      { id: 'row-3', parentId: null },
+      { id: 'task-group-1', parentId: null },
+      { id: 'task-group-2', parentId: null },
+      { id: 'task-group-3', parentId: null },
     ],
     {},
     {
       tasks: [
         taskOf(P, { name: 'P', start: '2026-04-06T08:00:00', finish: '2026-04-10T17:00:00' }),
-        taskOf(A, { name: 'A', wbsParentUid: P, start: '2026-04-13T08:00:00', finish: '2026-04-17T17:00:00' }),
-        taskOf(A1, { name: 'A1', wbsParentUid: A, start: '2026-04-20T08:00:00', finish: '2026-04-24T17:00:00' }),
+        taskOf(A, { name: 'A', parentTaskUid: P, start: '2026-04-13T08:00:00', finish: '2026-04-17T17:00:00' }),
+        taskOf(A1, { name: 'A1', parentTaskUid: A, start: '2026-04-20T08:00:00', finish: '2026-04-24T17:00:00' }),
         taskOf(B, { name: 'B', start: '2026-04-27T08:00:00', finish: '2026-05-01T17:00:00' }),
       ],
       taskGroupMembers: [
-        { taskUid: P, groupId: 'row-1' },
-        { taskUid: A, groupId: 'row-2' },
-        { taskUid: A1, groupId: 'row-3' },
-        { taskUid: B, groupId: 'row-1' },
+        { taskUid: P, groupId: 'task-group-1' },
+        { taskUid: A, groupId: 'task-group-2' },
+        { taskUid: A1, groupId: 'task-group-3' },
+        { taskUid: B, groupId: 'task-group-1' },
       ],
     },
   )
@@ -168,7 +168,7 @@ interface Staged {
   readonly bench: ShellBench
   pickTasks(uids: readonly number[]): void
   tasks(): any[]
-  rowOfTask(uid: number): string | undefined
+  taskGroupOfTask(uid: number): string | undefined
 }
 
 function staged(): Staged {
@@ -192,7 +192,7 @@ function staged(): Staged {
       })
     },
     tasks: () => schedule().tasks,
-    rowOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
+    taskGroupOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
   }
 }
 
@@ -210,14 +210,14 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
   it('FR-033 MANY_TASKS_ALL_COPIED: two leaf Tasks picked -> two copies, each on its source row', () => {
     const { stage, made, byName } = copyThenPaste([A1, B])
     expect(made.map((one) => one.name).sort()).toEqual(['A1', 'B'])
-    expect(stage.rowOfTask(byName.get('A1').uid), 'SAME_ROW for A1').toBe('row-3')
-    expect(stage.rowOfTask(byName.get('B').uid), 'SAME_ROW for B').toBe('row-1')
+    expect(stage.taskGroupOfTask(byName.get('A1').uid), 'SAME_TASK_GROUP for A1').toBe('task-group-3')
+    expect(stage.taskGroupOfTask(byName.get('B').uid), 'SAME_TASK_GROUP for B').toBe('task-group-1')
   })
 
-  it('FR-033 PARENT_FROM_THE_ROW: no row here derives from a Task, so each copy whose parent is not copied is a root', () => {
+  it('FR-033 PARENT_FROM_THE_TASK_GROUP: no row here derives from a Task, so each copy whose parent is not copied is a root', () => {
     const { byName } = copyThenPaste([A1, B])
-    expect(byName.get('A1')?.wbsParentUid, 'A1 copy does not carry the link to A').toBeNull()
-    expect(byName.get('B')?.wbsParentUid, 'B copy is at the top').toBeNull()
+    expect(byName.get('A1')?.parentTaskUid, 'A1 copy does not carry the link to A').toBeNull()
+    expect(byName.get('B')?.parentTaskUid, 'B copy is at the top').toBeNull()
   })
 
   it('FR-033 NO_SAME_UID: no copy wears a source UID', () => {
@@ -232,8 +232,8 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
   it('FR-033 ONLY_CHOSEN_COPIED: descendant picked FIRST, then its ancestor -> the subtree once', () => {
     const { made, byName } = copyThenPaste([A1, A])
     expect(made.map((one) => one.name).sort()).toEqual(['A', 'A1'])
-    expect(byName.get('A')?.wbsParentUid, 'P is not copied and row-2 derives from no Task: the root').toBeNull()
-    expect(byName.get('A1')?.wbsParentUid, 'inside the subtree the parent is the copy').toBe(byName.get('A')?.uid)
+    expect(byName.get('A')?.parentTaskUid, 'P is not copied and task-group-2 derives from no Task: the root').toBeNull()
+    expect(byName.get('A1')?.parentTaskUid, 'inside the subtree the parent is the copy').toBe(byName.get('A')?.uid)
   })
 
   it('FR-033 MANY_TASKS_ALL_COPIED + ONLY_CHOSEN_COPIED: A, A1 and B picked -> A, A1, B once each', () => {
@@ -257,20 +257,20 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
 describe('two rows chosen at copy time -- the brief contract, NOT a spec clause', () => {
   it('brief + copyTaken RS-27: Ctrl+C with two rows chosen is told RS-27 and holds nothing to paste', () => {
     let built: ShellBench | null = null
-    let pickRow: ((groupId: string, adding: boolean) => void) | null = null
+    let pickTaskGroup: ((groupId: string, adding: boolean) => void) | null = null
     for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
       const trial = shell(wbsDocument())
       benches.push(trial)
       const pick = (groupId: string, adding: boolean): void => {
-        trial.aim({ part: ROW_TITLE_PANEL, entry: null, format: null, rowGroupId: groupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
+        trial.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: groupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
         trial.click(60, 120, adding ? { [modifier]: true } : {})
         trial.aim(null)
       }
-      pick('row-1', false)
-      pick('row-2', true)
-      if (trial.last().rowTitlePanel.titles.filter((one) => one.isSelected).length === 2) {
+      pick('task-group-1', false)
+      pick('task-group-2', true)
+      if (trial.last().taskGroupPanel.titles.filter((one) => one.isSelected).length === 2) {
         built = trial
-        pickRow = pick
+        pickTaskGroup = pick
         break
       }
     }
@@ -279,7 +279,7 @@ describe('two rows chosen at copy time -- the brief contract, NOT a spec clause'
     built!.send(COPY)
     expect(built!.notices(), 'the copy carries RS-27, which is not shown (CR-712)').not.toContain(RS_27_WORDS)
     expect(JSON.stringify(built!.loop.document()), 'a copy is not an edit').toBe(before)
-    pickRow!('row-3', false)
+    pickTaskGroup!('task-group-3', false)
     built!.send(PASTE)
     expect(JSON.stringify(built!.loop.document()), 'nothing was held, so the paste adds nothing').toBe(before)
   })
@@ -287,7 +287,7 @@ describe('two rows chosen at copy time -- the brief contract, NOT a spec clause'
   it('control: Ctrl+C with one row chosen, then Ctrl+V -> the document changes', () => {
     const trial = shell(wbsDocument())
     benches.push(trial)
-    trial.aim({ part: ROW_TITLE_PANEL, entry: null, format: null, rowGroupId: 'row-3', resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
+    trial.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: 'task-group-3', resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
     trial.click(60, 120)
     trial.aim(null)
     const before = JSON.stringify(trial.loop.document())

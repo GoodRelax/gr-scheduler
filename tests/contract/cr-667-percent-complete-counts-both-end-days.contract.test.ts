@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
-import type { AppHeaderItems, RowTitlePanel, ScreenFrame, ScreenView, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { AppHeaderItems, TaskGroupPanel, ScreenFrame, ScreenView, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   SETTINGS_CONSTANTS,
@@ -66,7 +66,7 @@ const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padSta
 
 const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `T${uid}`,
   start: day(5),
@@ -140,7 +140,7 @@ const CASES: readonly Case[] = [
   },
 ]
 
-const ROW_GROUP = '5c000000-0000-4000-8000-000000000667'
+const TASK_GROUP = '5c000000-0000-4000-8000-000000000667'
 
 const documentText = (tasks: readonly Record<string, unknown>[]): string =>
   JSON.stringify({
@@ -153,9 +153,9 @@ const documentText = (tasks: readonly Record<string, unknown>[]): string =>
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_GROUP, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeight: null },
+        { id: TASK_GROUP, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeight: null },
       ],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW_GROUP })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: TASK_GROUP })),
       taskVisuals: tasks.map((one) => blankTaskVisual(one['uid'] as number)),
       commentBoxes: [],
       highlightBoxes: [],
@@ -223,7 +223,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -232,7 +232,7 @@ const frame = (): ScreenFrame => screenFrameFromRegions(REGIONS, SETTINGS, ROOT,
 const VIEW = {
   language: 'ja',
   appHeaderItems: { documentTitle: null, commands: [], language: 'ja' } as unknown as AppHeaderItems,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -273,8 +273,8 @@ function dividerRectsExported(themePreference: 'light' | 'dark', themeHue: numbe
 }
 
 describe(`EP-9 (MUST): ${EP_9_S_149}`, () => {
-  it('the frame carries at least the row title panel divider', () => {
-    expect(frame().dividers.map((one) => one.panel)).toContain('rowTitlePanel')
+  it('the frame carries at least the task group panel divider', () => {
+    expect(frame().dividers.map((one) => one.panel)).toContain('taskGroupPanel')
   })
 
   it.each([

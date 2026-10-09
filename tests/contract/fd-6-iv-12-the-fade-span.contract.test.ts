@@ -182,7 +182,7 @@ const GROUP_ID = '00000000-0000-4000-8000-000000000001'
 const taskWith = (fadeIn: number, fadeOut: number): Task =>
   ({
     uid: 1,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: 1,
     name: 'alpha',
     start: START,

@@ -66,7 +66,7 @@ function withFlow(fields: Loose): ScreenSession {
 }
 
 function question(row: string): Loose {
-  return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherRow: false }] }
+  return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] }
 }
 
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]

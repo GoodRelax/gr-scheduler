@@ -72,10 +72,10 @@ interface Template {
 
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Template
 
-const BAR_ROW = '11111111-1111-4111-8111-111111111111'
-const STONE_ROW = '22222222-2222-4222-8222-222222222222'
-const STARTED_STONE_ROW = '33333333-3333-4333-8333-333333333333'
-const STARTED_BAR_ROW = '44444444-4444-4444-8444-444444444444'
+const BAR_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
+const STONE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
+const STARTED_STONE_TASK_GROUP = '33333333-3333-4333-8333-333333333333'
+const STARTED_BAR_TASK_GROUP = '44444444-4444-4444-8444-444444444444'
 
 const BAR_UID = 1
 const BAR_START = '2026-04-06'
@@ -97,7 +97,7 @@ const PX_PER_DAY_AT_1X = 20
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -131,7 +131,7 @@ const milestoneVisual = (taskUid: number): TaskVisual =>
     strokeWidthPx: null,
   }) as unknown as TaskVisual
 
-const rowOfSchedule = (id: string, order: number) => ({
+const taskGroupOfSchedule = (id: string, order: number) => ({
   id,
   parentId: null,
   label: `row ${order}`,
@@ -175,16 +175,16 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        rowOfSchedule(BAR_ROW, 0),
-        rowOfSchedule(STONE_ROW, 1),
-        rowOfSchedule(STARTED_STONE_ROW, 2),
-        rowOfSchedule(STARTED_BAR_ROW, 3),
+        taskGroupOfSchedule(BAR_TASK_GROUP, 0),
+        taskGroupOfSchedule(STONE_TASK_GROUP, 1),
+        taskGroupOfSchedule(STARTED_STONE_TASK_GROUP, 2),
+        taskGroupOfSchedule(STARTED_BAR_TASK_GROUP, 3),
       ],
       taskGroupMembers: [
-        { taskUid: BAR_UID, groupId: BAR_ROW },
-        { taskUid: STONE_UID, groupId: STONE_ROW },
-        { taskUid: STARTED_STONE_UID, groupId: STARTED_STONE_ROW },
-        { taskUid: STARTED_BAR_UID, groupId: STARTED_BAR_ROW },
+        { taskUid: BAR_UID, groupId: BAR_TASK_GROUP },
+        { taskUid: STONE_UID, groupId: STONE_TASK_GROUP },
+        { taskUid: STARTED_STONE_UID, groupId: STARTED_STONE_TASK_GROUP },
+        { taskUid: STARTED_BAR_UID, groupId: STARTED_BAR_TASK_GROUP },
       ],
       taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(STARTED_STONE_UID)],
       commentBoxes: [],
@@ -395,7 +395,7 @@ function startedMilestoneFigure(loop: FrameLoop): Point {
 
 // see PTD-5
 function emptyCanvas(loop: FrameLoop): Point {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 

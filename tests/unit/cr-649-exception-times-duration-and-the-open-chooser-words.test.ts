@@ -29,7 +29,7 @@ import {
   timeOf,
 } from './cr-646-stage'
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const A_MOMENT = '2026-10-04T09:00:00'
 
 // see FR-057, CM-39
@@ -76,7 +76,7 @@ function exceptionRow(part: Partial<Exception> & { ordinal: number }): Exception
 }
 
 // WHY: an imported row whose times are none of WT-6 / WT-7, so a kept spelling and a stamped one differ.
-const IMPORTED_ROW = exceptionRow({
+const IMPORTED_TASK_GROUP = exceptionRow({
   ordinal: 0,
   name: 'imported',
   fromDate: '2026-05-04T08:00:00',
@@ -133,44 +133,44 @@ describe('CR-649 the manuscript as these cases read it', () => {
 describe('CM-39 / WT-6 / WT-7: the calendar edit stamps the times of the exception days it writes', () => {
   it('CM-39 + WT-6 / WT-7: an added row gets 00:00:00 on fromDate and 23:59:00 on toDate', () => {
     const added = exceptionRow({ ordinal: 1, fromDate: april(20, '09:30:00'), toDate: april(21) })
-    const [, written] = exceptionsAfter(documentHolding([IMPORTED_ROW]), [IMPORTED_ROW, added])
+    const [, written] = exceptionsAfter(documentHolding([IMPORTED_TASK_GROUP]), [IMPORTED_TASK_GROUP, added])
     expect(written?.fromDate).toBe(april(20, DAY_START))
     expect(written?.toDate).toBe(april(21, DAY_END))
   })
 
   it('CM-39 + WT-6 / WT-7: a row carried by a date only (no time) is written with both times', () => {
     const added = exceptionRow({ ordinal: 1, fromDate: '2026-04-20', toDate: '2026-04-22' })
-    const [, written] = exceptionsAfter(documentHolding([]), [IMPORTED_ROW, added])
+    const [, written] = exceptionsAfter(documentHolding([]), [IMPORTED_TASK_GROUP, added])
     expect([written?.fromDate, written?.toDate]).toEqual([april(20, DAY_START), april(22, DAY_END)])
   })
 
   it('CM-39 + WT-7: a moved toDate is re-stamped at 23:59:00', () => {
-    const moved = { ...IMPORTED_ROW, toDate: '2026-05-07T00:00:00' }
-    const [written] = exceptionsAfter(documentHolding([IMPORTED_ROW]), [moved])
+    const moved = { ...IMPORTED_TASK_GROUP, toDate: '2026-05-07T00:00:00' }
+    const [written] = exceptionsAfter(documentHolding([IMPORTED_TASK_GROUP]), [moved])
     expect(written?.toDate).toBe(`2026-05-07T${DAY_END}`)
   })
 
   it('CM-39 + WT-10: the fromDate of that row did not move by day, so it keeps its imported T08:00:00', () => {
-    const moved = { ...IMPORTED_ROW, fromDate: '2026-05-04T00:00:00', toDate: '2026-05-07T00:00:00' }
-    const [written] = exceptionsAfter(documentHolding([IMPORTED_ROW]), [moved])
-    expect(written?.fromDate).toBe(IMPORTED_ROW.fromDate)
+    const moved = { ...IMPORTED_TASK_GROUP, fromDate: '2026-05-04T00:00:00', toDate: '2026-05-07T00:00:00' }
+    const [written] = exceptionsAfter(documentHolding([IMPORTED_TASK_GROUP]), [moved])
+    expect(written?.fromDate).toBe(IMPORTED_TASK_GROUP.fromDate)
   })
 
   it('CM-39 + WT-10: a row unchanged by day keeps both imported spellings while another row is added', () => {
     const added = exceptionRow({ ordinal: 1 })
-    const [kept] = exceptionsAfter(documentHolding([IMPORTED_ROW]), [IMPORTED_ROW, added])
+    const [kept] = exceptionsAfter(documentHolding([IMPORTED_TASK_GROUP]), [IMPORTED_TASK_GROUP, added])
     expect([timeOf(kept?.fromDate), timeOf(kept?.toDate)]).toEqual(['08:00:00', '17:00:00'])
   })
 
   it('CM-39 + WT-6: a row whose ordinal is new is an added row even when an old row held the same day', () => {
-    const renumbered = { ...IMPORTED_ROW, ordinal: 7 }
-    const [written] = exceptionsAfter(documentHolding([IMPORTED_ROW]), [renumbered])
+    const renumbered = { ...IMPORTED_TASK_GROUP, ordinal: 7 }
+    const [written] = exceptionsAfter(documentHolding([IMPORTED_TASK_GROUP]), [renumbered])
     expect(timeOf(written?.fromDate)).toBe(DAY_START)
   })
 
   it('control -- CM-39: a list equal by day to the held one changes nothing (the same document comes back)', () => {
-    const document = documentHolding([IMPORTED_ROW])
-    const sameDays = { ...IMPORTED_ROW, fromDate: '2026-05-04T00:00:00', toDate: '2026-05-05T23:59:00' }
+    const document = documentHolding([IMPORTED_TASK_GROUP])
+    const sameDays = { ...IMPORTED_TASK_GROUP, fromDate: '2026-05-04T00:00:00', toDate: '2026-05-05T23:59:00' }
     const result = editDocument(document, { kind: 'setCalendar', exceptions: [sameDays] }, LIMITS, 'Row')
     if (!result.ok) throw new Error('premise: CM-39 was refused')
     expect(result.document).toBe(document)

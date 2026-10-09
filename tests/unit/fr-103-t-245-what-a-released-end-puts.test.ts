@@ -84,9 +84,9 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-const ROW_A = '5a000000-0000-4000-8000-000000000001'
-const ROW_B = '5a000000-0000-4000-8000-000000000002'
-const ROW_C = '5a000000-0000-4000-8000-000000000003'
+const TASK_GROUP_A = '5a000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '5a000000-0000-4000-8000-000000000002'
+const TASK_GROUP_C = '5a000000-0000-4000-8000-000000000003'
 
 const PLAIN_UID = 1
 const MILESTONE_UID = 2
@@ -108,7 +108,7 @@ const PX_PER_DAY_AT_1X = 20
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -219,7 +219,7 @@ const aprilDocument = (): Document =>
         fadeOutDays: 5,
       }),
     ],
-    [ROW_A, ROW_B, ROW_C],
+    [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C],
     day(1),
   )
 
@@ -234,7 +234,7 @@ const edgeDocument = (): Document =>
         finish: '2200-12-26T00:00:00',
       }),
     ],
-    [ROW_A],
+    [TASK_GROUP_A],
     '2200-12-01T00:00:00',
   )
 

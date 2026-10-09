@@ -122,12 +122,12 @@ export function confirmationElement(host: Document, confirmation: Confirmation):
   const items = confirmation.items.map((item) => {
     const line = made(host, 'div', STYLE.confirmationItem)
     line.setAttribute('data-unnamed', String(item.name === null))
-    line.setAttribute('data-shown-on-another-row', String(item.isShownOnAnotherRow))
+    line.setAttribute('data-shown-on-another-task-group', String(item.isShownOnAnotherTaskGroup))
     // TRAP: set the text before appending the mark; the textContent setter replaces every child.
     line.textContent = item.name
-    if (item.isShownOnAnotherRow) {
+    if (item.isShownOnAnotherTaskGroup) {
       const mark = made(host, 'span', STYLE.confirmationMark)
-      mark.textContent = confirmation.shownOnAnotherRowMark
+      mark.textContent = confirmation.shownOnAnotherTaskGroupMark
       line.append(mark)
     }
     return line

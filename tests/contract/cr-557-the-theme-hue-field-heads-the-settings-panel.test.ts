@@ -223,7 +223,7 @@ function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
     propertiesShowing: 'documentSettings',
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   } as unknown as ScreenViewReadings
   const panel = propertiesPanelFromSelection(schedule, settings as never, emptySelection(), session, readings)
@@ -262,7 +262,7 @@ const EMPTY_VIEW = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

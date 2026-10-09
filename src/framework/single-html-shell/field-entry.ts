@@ -22,7 +22,7 @@ import {
 
 const TASK_NAME_FIELD_ROW = 'PR-1'
 
-const ROW_NAME_FIELD_ROW = 'AT-53'
+const TASK_GROUP_NAME_FIELD_TASK_GROUP = 'AT-53'
 
 const ASSIGNEE_FIELD_ROW = 'PR-16'
 
@@ -38,7 +38,7 @@ export const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>>
   documentTitle: DOCUMENT_TITLE_FIELD_ROW,
   taskName: TASK_NAME_FIELD_ROW,
   assignee: ASSIGNEE_FIELD_ROW,
-  rowName: ROW_NAME_FIELD_ROW,
+  taskGroupName: TASK_GROUP_NAME_FIELD_TASK_GROUP,
   commentBoxText: COMMENT_BOX_TEXT_FIELD_ROW,
   highlightBoxStroke: HIGHLIGHT_BOX_STROKE_FIELD_ROW,
 }

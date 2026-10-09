@@ -17,7 +17,7 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import { grabSizesOf, itemAtPointer, type Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import type { BarGeometry, Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { RowPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import type { TaskGroupPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from './spec-table'
 
@@ -71,7 +71,7 @@ const TEMPLATE = JSON.parse(
 const task = (uid: number, name: string, start: string, finish: string): Task =>
   ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -94,8 +94,8 @@ const task = (uid: number, name: string, start: string, finish: string): Task =>
   }) as unknown as Task
 
 interface Layout {
-  readonly highlightRows: readonly [number, number]
-  readonly commentRow: number
+  readonly highlightTaskGroups: readonly [number, number]
+  readonly commentTaskGroup: number
 }
 
 // WHY: SEL on row 1 and OUT on row 4 start on a Monday; OUT runs long so the opening Fit (OP-10) keeps the boxes in view.
@@ -134,7 +134,7 @@ function fixtureDocument(at: Layout): Document {
           leaderShapeKind: null,
           text: 'a note',
           anchorDate: '2026-05-04',
-          anchorGroupId: rowId(at.commentRow),
+          anchorGroupId: rowId(at.commentTaskGroup),
           bodyOffsetPx: null,
           strokeColor: null,
           strokeWidthPx: null,
@@ -148,8 +148,8 @@ function fixtureDocument(at: Layout): Document {
           id: HIGHLIGHT_ID,
           startDate: '2026-04-20T08:00:00',
           endDate: '2026-04-24T17:00:00',
-          topGroupId: rowId(at.highlightRows[0]),
-          bottomGroupId: rowId(at.highlightRows[1]),
+          topGroupId: rowId(at.highlightTaskGroups[0]),
+          bottomGroupId: rowId(at.highlightTaskGroups[1]),
           strokeColor: null,
           cornerRadiusPx: null,
           strokeWidthPx: null,
@@ -240,7 +240,7 @@ function bodyOf(loop: FrameLoop, uid: number): Point {
 
 // WHY: the place a box answers a press is the unit's own answer, so it is found by asking, not computed here.
 function pointOnBox(loop: FrameLoop, kind: 'highlightBox' | 'commentBox'): Point {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   for (let y = area.y + 1; y < area.y + area.height; y += 2) {
     for (let x = area.x + 1; x < area.x + area.width; x += 2) {
       const hit = hitAt(loop, { x, y })
@@ -250,15 +250,15 @@ function pointOnBox(loop: FrameLoop, kind: 'highlightBox' | 'commentBox'): Point
   throw new Error(`no point of the canvas answers a ${kind}`)
 }
 
-const drawnRow = (loop: FrameLoop, groupId: string): RowPlacement => {
-  const found = frameOf(loop).layout.rows.find((one) => one.groupId === groupId)
+const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
   return found
 }
 
 const travel = (loop: FrameLoop, days: number, rows: number): Point => ({
   x: days * frameOf(loop).layout.pxPerDay,
-  y: drawnRow(loop, rowId(1 + rows)).y - drawnRow(loop, rowId(1)).y,
+  y: drawnTaskGroup(loop, rowId(1 + rows)).y - drawnTaskGroup(loop, rowId(1)).y,
 })
 
 const click = (built: Bench, at: Point, modifiers: Partial<InputModifiers> = {}): void => {
@@ -279,9 +279,9 @@ const undo = (built: Bench): void => built.send({ kind: 'key', key: 'Z', modifie
 
 interface Seen {
   readonly selStart: string
-  readonly selRow: number
+  readonly selTaskGroup: number
   readonly outStart: string
-  readonly outRow: number
+  readonly outTaskGroup: number
   readonly highlight: { readonly start: string; readonly end: string; readonly top: number; readonly bottom: number }
   readonly comment: { readonly date: string; readonly row: number }
   readonly taskCount: number
@@ -303,9 +303,9 @@ function seen(built: Bench): Seen {
   const note = schedule.commentBoxes.find((one) => one.id === COMMENT_ID)
   return {
     selStart: day(taskOf(SEL).start),
-    selRow: rowOf(SEL),
+    selTaskGroup: rowOf(SEL),
     outStart: day(taskOf(OUT).start),
-    outRow: rowOf(OUT),
+    outTaskGroup: rowOf(OUT),
     highlight: {
       start: day(box?.startDate),
       end: day(box?.endDate),
@@ -340,7 +340,7 @@ function selectAll(built: Bench): void {
 // WHY: a whole week, so every moved end stays on a working day and no CR-668 question stops the release.
 const WEEK = 7
 
-const SPREAD: Layout = { highlightRows: [0, 1], commentRow: 2 }
+const SPREAD: Layout = { highlightTaskGroups: [0, 1], commentTaskGroup: 2 }
 
 const shifted = (date: string, days: number): string => {
   const at = new Date(`${date}T00:00:00Z`)
@@ -356,7 +356,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     drag(built, bodyOf(built.loop, SEL), travel(built.loop, WEEK, 1))
     const after = seen(built)
     expect(after.selStart).toBe(shifted(before.selStart, WEEK))
-    expect(after.selRow).toBe(before.selRow + 1)
+    expect(after.selTaskGroup).toBe(before.selTaskGroup + 1)
     expect(after.highlight).toEqual({
       start: shifted(before.highlight.start, WEEK),
       end: shifted(before.highlight.end, WEEK),
@@ -384,25 +384,25 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     drag(built, bodyOf(built.loop, SEL), travel(built.loop, WEEK, 1), { shift: true })
     const after = seen(built)
     expect(after.selStart).toBe(before.selStart)
-    expect(after.selRow).toBe(before.selRow + 1)
+    expect(after.selTaskGroup).toBe(before.selTaskGroup + 1)
     expect(after.highlight).toEqual({ ...before.highlight, top: before.highlight.top + 1, bottom: before.highlight.bottom + 1 })
     expect(after.comment).toEqual({ ...before.comment, row: before.comment.row + 1 })
   })
 
   it.each([
-    ['the highlight box bottom', { highlightRows: [0, 3], commentRow: 2 } as Layout, 2],
-    ['the comment box anchor', { highlightRows: [0, 1], commentRow: 4 } as Layout, 1],
+    ['the highlight box bottom', { highlightTaskGroups: [0, 3], commentTaskGroup: 2 } as Layout, 2],
+    ['the comment box anchor', { highlightTaskGroups: [0, 1], commentTaskGroup: 4 } as Layout, 1],
   ] as const)(`${T_270_STOP} -- %s reaching the last row stops the whole Selection`, (_name, layout, allowed) => {
     const built = bench(layout)
     const before = seen(built)
     selectAll(built)
     drag(built, bodyOf(built.loop, SEL), travel(built.loop, 0, 4))
     const after = seen(built)
-    expect(after.selRow, 'the task stops with the box').toBe(before.selRow + allowed)
+    expect(after.selTaskGroup, 'the task stops with the box').toBe(before.selTaskGroup + allowed)
     expect(after.highlight.top - before.highlight.top).toBe(allowed)
     expect(after.highlight.bottom - before.highlight.bottom).toBe(allowed)
     expect(after.comment.row - before.comment.row).toBe(allowed)
-    expect(Math.max(after.highlight.bottom, after.comment.row, after.selRow), 'nothing leaves the last row').toBe(ROWS.length - 1)
+    expect(Math.max(after.highlight.bottom, after.comment.row, after.selTaskGroup), 'nothing leaves the last row').toBe(ROWS.length - 1)
   })
 
   it(`CY-4 "${CY_4_TASKS_ONLY}" -- Ctrl + Shift copies the task only; the boxes are neither copied nor moved`, () => {
@@ -416,7 +416,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     expect(after.highlight).toEqual(before.highlight)
     expect(after.comment).toEqual(before.comment)
     expect(after.selStart).toBe(before.selStart)
-    expect(after.selRow).toBe(before.selRow)
+    expect(after.selTaskGroup).toBe(before.selTaskGroup)
   })
 
   it('a plain drag of a task the Selection does not hold moves that task and leaves the boxes', () => {
@@ -426,10 +426,10 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     drag(built, bodyOf(built.loop, OUT), travel(built.loop, WEEK, -1))
     const after = seen(built)
     expect(after.outStart).toBe(shifted(before.outStart, WEEK))
-    expect(after.outRow).toBe(before.outRow - 1)
+    expect(after.outTaskGroup).toBe(before.outTaskGroup - 1)
     expect(after.highlight).toEqual(before.highlight)
     expect(after.comment).toEqual(before.comment)
     expect(after.selStart).toBe(before.selStart)
-    expect(after.selRow).toBe(before.selRow)
+    expect(after.selTaskGroup).toBe(before.selTaskGroup)
   })
 })

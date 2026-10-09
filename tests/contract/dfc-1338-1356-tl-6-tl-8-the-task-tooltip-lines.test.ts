@@ -34,7 +34,7 @@ const readingsOn = (taskUid: number): ScreenViewReadings =>
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   }) as unknown as ScreenViewReadings
 

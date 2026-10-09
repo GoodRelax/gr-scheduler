@@ -110,9 +110,9 @@ import {
   unwatchChanges,
   watchChanges,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-import { rowDocument, shell, type ShellBench } from './cr-541-stage'
+import { taskGroupDocument, shell, type ShellBench } from './cr-541-stage'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // ---------------------------------------------------------------------------
 // 1. The manuscript, read at load time rather than copied.
@@ -196,7 +196,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
 })
 
 const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: null,
   start: null,
@@ -241,7 +241,7 @@ const SETTINGS_BASE = {
   scrollDate: '2026-01-05',
   scrollGroupId: 'g1',
   pinnedGroupIds: [] as readonly string[],
-  rowGap: 6,
+  taskGroupGap: 6,
   stackDirection: 'up',
   fontScale: 'M',
   fontScaleSizes: { S: 12, M: 14, L: 16 },
@@ -513,8 +513,8 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
     run: (call, part = {}) =>
       replaceDocument(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
-          newGroupId: 'fresh-row',
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
+          newGroupId: 'fresh-task-group',
           readStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,
@@ -867,10 +867,10 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
   const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
   const LONG_AGO = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
   const shellDocument = (rows: number): Document =>
-    rowDocument(
+    taskGroupDocument(
       Array.from({ length: rows }, (_one, index) => ({ id: `row-${index + 1}`, parentId: null })),
     ) as unknown as Document
-  const rowsHeld = (bench: ShellBench): number => bench.loop.document().schedule.taskGroups.length
+  const taskGroupsHeld = (bench: ShellBench): number => bench.loop.document().schedule.taskGroups.length
 
   it('GIVEN a subscriber inside WS-7 WHEN it writes back THEN it is refused -- 通知を配っているあいだの書き込みは拒否する', () => {
     // 「通知を配っているあいだの書き込みは拒否すること（MUST）」 —— 購読者が
@@ -888,7 +888,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
           told += 1
           if (told > 1) return
           built.loop.holdDocument({ row: 'RD-6', document: shellDocument(3) })
-          heldInside = rowsHeld(built)
+          heldInside = taskGroupsHeld(built)
         },
       })
 
@@ -898,7 +898,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       // WHY: the write from inside reached neither WS-6 nor WS-7: the document
       // held while it was refused, and afterwards, is the outer one.
       expect(heldInside).toBe(2)
-      expect(rowsHeld(built)).toBe(2)
+      expect(taskGroupsHeld(built)).toBe(2)
       // Exactly one delivery: the outer one. 待ち行列は作らない (FR-028).
       expect(told).toBe(1)
     } finally {
@@ -924,10 +924,10 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       })
       built.loop.holdDocument({ row: 'RD-6', document: shellDocument(2) })
       expect(told, 'premise: the outer replacement reached WS-7').toBeGreaterThan(0)
-      expect(rowsHeld(built), 'premise: the write from inside was refused').toBe(2)
+      expect(taskGroupsHeld(built), 'premise: the write from inside was refused').toBe(2)
 
       built.loop.holdDocument({ row: 'RD-6', document: shellDocument(4) })
-      expect(rowsHeld(built)).toBe(4)
+      expect(taskGroupsHeld(built)).toBe(4)
     } finally {
       unwatchChanges(built.loop.agentApiSeams().changeWatchers, SHELL_WATCHER)
       built.restore()

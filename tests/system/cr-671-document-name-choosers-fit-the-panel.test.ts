@@ -42,11 +42,11 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { readonly schedule: { readonly tasks: readonly Loose[]; readonly assignments: readonly Loose[]; readonly resources: readonly Loose[] } }
 
-// WHY: the first Task of the startup document with both a WBS parent and an assignee.
+// WHY: the first Task of the startup document with both a parent task and an assignee.
 const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assigneeName: string } => {
   const { tasks, assignments, resources } = TEMPLATE.schedule
   for (const task of tasks) {
-    const parentUid = task['wbsParentUid']
+    const parentUid = task['parentTaskUid']
     const assignment = assignments.find((one) => one['taskUid'] === task['uid'])
     if (typeof parentUid !== 'number' || assignment === undefined || task['milestone'] === true) continue
     const parent = tasks.find((one) => one['uid'] === parentUid)
@@ -169,7 +169,7 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
       }
       const choosers: Chooser[] = []
       for (const row of rows) {
-        // WHY: PR-15 is a task reference since CR-676 (WL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
+        // WHY: PR-15 is a task reference since CR-676 (PTL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
         const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="taskReference"]`)
         for (const one of Array.from(found)) {
           const link = one.getAttribute('data-field-kind') === 'taskReference' ? (one as HTMLElement) : null
@@ -199,13 +199,13 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
   )
 }
 
-const DOCUMENT_NAME_ROWS = ['PR-15', 'PR-16'] as const
+const DOCUMENT_NAME_TASK_GROUPS = ['PR-15', 'PR-16'] as const
 
 test('CR-671 the manuscript this file is driven by: FR-006 still reads this way', () => {
   for (const clause of [FR_006_FITS, FR_006_NO_OVERFLOW, FR_006_ELLIPSIS, FR_006_VALUE_KEPT, FR_006_FLOOR]) {
     expect(REQUIREMENTS, clause).toContain(clause)
   }
-  // WHY: CR-676 made PR-15 a link (table T-351 WL-15 to WL-17); WL-15 cuts its name as FR-006's chooser does.
+  // WHY: CR-676 made PR-15 a link (table T-351 PTL-15 to PTL-17); PTL-15 cuts its name as FR-006's chooser does.
   for (const row of ['PR-16', 'PR-17']) {
     expect(bare(specTable('T-016').rows.find((one) => one.id === row)?.by['入力の型'] ?? ''), `${row} is a choice`).toBe('選択')
   }
@@ -231,12 +231,12 @@ for (const { theme, locale } of CASES) {
       await openOn(page, [SUBJECT.uid])
       for (const where of ['S-171', 'S-248'] as const) {
         if (where === 'S-248') await narrowToTheFloor(page)
-        const read = await readPanel(page, DOCUMENT_NAME_ROWS)
+        const read = await readPanel(page, DOCUMENT_NAME_TASK_GROUPS)
         expect(
           Math.abs(read.panelWidth - (where === 'S-171' ? S_171 : S_248)),
           `premise: the panel is ${where} wide (its divider line aside)`,
         ).toBeLessThanOrEqual(PANEL_EDGE_PX)
-        for (const row of DOCUMENT_NAME_ROWS) {
+        for (const row of DOCUMENT_NAME_TASK_GROUPS) {
           const found = read.choosers.filter((one) => one.row === row)
           expect(found.length, `premise (${where}): ${row} draws a chooser`).toBeGreaterThan(0)
         }

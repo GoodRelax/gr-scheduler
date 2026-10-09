@@ -269,7 +269,7 @@ function shippedDocuments(): ShippedDocuments {
 // see T-050, RD-6
 // WHY: the empty document carries no row; this replacement lands it with the one row every document holds.
 /** @purity non-pure */
-function holdWithItsRow(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
+function holdWithItsTaskGroup(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
   if (chosen === shipped.startingAfresh) running.holdDocument({ row: 'RD-6', document: chosen })
 }
 
@@ -408,7 +408,7 @@ function fileSystemAccessEnvironment(): FileSystemAccessEnvironment {
 function environmentOf(
   appHeaderHeight: number,
   scrollbarThickness: number,
-  rowControlsHeightPx: number,
+  taskGroupControlsHeightPx: number,
   commandPaletteBandPx: { readonly width: number; readonly height: number },
 ): FrameEnvironment {
   return {
@@ -416,7 +416,7 @@ function environmentOf(
     height: window.innerHeight,
     appHeaderHeight,
     scrollbarThickness,
-    rowControlsHeightPx,
+    taskGroupControlsHeightPx,
     commandPaletteBandPx,
   }
 }
@@ -467,7 +467,7 @@ function boot(): void {
 
   const scrollbarThickness = measuredScrollbarThickness()
   let appHeaderHeightPx = 0
-  let rowControlsHeightPx = 0
+  let taskGroupControlsHeightPx = 0
   let commandPaletteBandPx = { width: 0, height: 0 }
   let loop: FrameLoop | null = null
   // WHY: the reset's question (QN-11) named what is lost; a host prompt would keep the old page (FR-153).
@@ -478,7 +478,7 @@ function boot(): void {
     window.location.reload()
   }
   const nowEnvironment = (): FrameEnvironment =>
-    environmentOf(appHeaderHeightPx, scrollbarThickness, rowControlsHeightPx, commandPaletteBandPx)
+    environmentOf(appHeaderHeightPx, scrollbarThickness, taskGroupControlsHeightPx, commandPaletteBandPx)
 
   const shipped = shippedDocuments()
   const template = shipped.template
@@ -556,8 +556,8 @@ function boot(): void {
     /** @purity non-pure */
     onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
-    onRowControlsHeightPx: (heightPx) => {
-      rowControlsHeightPx = heightPx
+    onTaskGroupControlsHeightPx: (heightPx) => {
+      taskGroupControlsHeightPx = heightPx
       loop?.resize(nowEnvironment())
     },
     /** @purity non-pure */
@@ -633,7 +633,7 @@ function boot(): void {
     reloadAfterReset,
   )
   loop = running
-  holdWithItsRow(running, chosen.document, shipped)
+  holdWithItsTaskGroup(running, chosen.document, shipped)
   running.fullScreenChanged(isPageFullScreen())
 
   // TRAP: run the frame, not resize(): a scheduled animation frame lands late and draws against the unmeasured header.

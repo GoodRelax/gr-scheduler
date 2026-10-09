@@ -283,8 +283,8 @@ describe('CR-378 table T-248: where a `.json` under src/ sits, read against src/
   })
 })
 
-describe('CR-378 section 5.3: DEFAULT_ROW_NAME is published by ScreenRenderer', () => {
-  const manuscriptRowWord = ((): string => {
+describe('CR-378 section 5.3: DEFAULT_TASK_GROUP_NAME is published by ScreenRenderer', () => {
+  const manuscriptTaskGroupWord = ((): string => {
     const words = JSON.parse(
       readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as { defaultNames?: readonly { use: string; text: Record<string, string> }[] }
@@ -293,12 +293,12 @@ describe('CR-378 section 5.3: DEFAULT_ROW_NAME is published by ScreenRenderer', 
     return found.text['en'] ?? ''
   })()
 
-  it('PI-37: ScreenRenderer publishes DEFAULT_ROW_NAME, the dictionary word for a row (HF-14)', () => {
-    expect(manuscriptRowWord).not.toBe('')
-    expect((screenRenderer as Record<string, unknown>)['DEFAULT_ROW_NAME']).toBe(manuscriptRowWord)
+  it('PI-37: ScreenRenderer publishes DEFAULT_TASK_GROUP_NAME, the dictionary word for a row (HF-14)', () => {
+    expect(manuscriptTaskGroupWord).not.toBe('')
+    expect((screenRenderer as Record<string, unknown>)['DEFAULT_TASK_GROUP_NAME']).toBe(manuscriptTaskGroupWord)
   })
 
-  it('PI-9: EditDocument no longer publishes DEFAULT_ROW_NAME', () => {
-    expect(Object.keys(editDocument)).not.toContain('DEFAULT_ROW_NAME')
+  it('PI-9: EditDocument no longer publishes DEFAULT_TASK_GROUP_NAME', () => {
+    expect(Object.keys(editDocument)).not.toContain('DEFAULT_TASK_GROUP_NAME')
   })
 })

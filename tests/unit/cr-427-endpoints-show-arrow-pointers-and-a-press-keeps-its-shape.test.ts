@@ -61,7 +61,7 @@ const BAR_UID = 1
 const barTask = (): Task =>
   ({
     uid: BAR_UID,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: 1,
     name: null,
     start: '2026-04-06',

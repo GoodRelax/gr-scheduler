@@ -53,7 +53,7 @@ describe('DFC-577 premise -- the clauses this test is built from', () => {
 })
 
 const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: null,
   start: null,

@@ -1,4 +1,4 @@
-// CR-665 spec-only tests: table T-256 places the help blocks, the palette's align group moves under the Row Title Panel, and the open details leave the help.
+// CR-665 spec-only tests: table T-256 places the help blocks, the palette's align group moves under the Task Group Panel, and the open details leave the help.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,7 +25,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_256_SPLIT =
-  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Row Title Panel` の塊の下の塊へ移すこと（MUST）'
+  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
 const T_256_CONTINUED_HEADING =
   '段目を行見出しパネルの下の枠へ移すと定めた。群は名で名指す —— 群の中の行は 表 T-109 の `群` の欄が決めるので、行が群を移っても本表は書き換えない。⭐ 移した塊の見出しは、パレットの続きであることを言う語とすること（MUST）'
 const FR_036_LEFT_OFF =
@@ -33,7 +33,7 @@ const FR_036_LEFT_OFF =
 const T_256_USER_WORDS = '（利用者が「コマンドパレット（続き）」と定めた）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['T-256 (MUST) the align group moves under the Row Title Panel', T_256_SPLIT],
+  ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],
   ['T-256 (MUST) the moved block says it continues the palette', T_256_CONTINUED_HEADING],
   ['FR-036 (MUST NOT) the surfaces left off the help', FR_036_LEFT_OFF],
   ['T-256 the user named the heading', T_256_USER_WORDS],
@@ -63,24 +63,24 @@ const LEFT_OFF_ROWS: readonly string[] = T_109.rows
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({ x, y, width, height })
 
-const SETTINGS = { ...SETTINGS_DEFAULTS, rowTitlePanelWidth: 400 } as unknown as DocumentSettings
+const SETTINGS = { ...SETTINGS_DEFAULTS, taskGroupPanelWidth: 400 } as unknown as DocumentSettings
 
 const REGIONS: ScreenRegions = (() => {
   const width = 1280
   const height = 627
   const headerHeight = 56
   const rulerHeight = 48
-  const titleWidth = SETTINGS.rowTitlePanelWidth
+  const titleWidth = SETTINGS.taskGroupPanelWidth
   const padding = SETTINGS_CONSTANTS.canvasPadding
   const canvas = rect(0, headerHeight, width, height - headerHeight)
-  const rowAreaWidth = canvas.width - padding - titleWidth - 8
+  const taskGroupAreaWidth = canvas.width - padding - titleWidth - 8
   return {
     appHeader: rect(0, 0, width, headerHeight),
     scheduleCanvas: canvas,
-    rowTitlePanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
-    timeRuler: rect(canvas.x + titleWidth, canvas.y, rowAreaWidth, rulerHeight),
+    taskGroupPanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
+    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeight),
     propertiesPanel: rect(canvas.x + canvas.width, canvas.y, 0, canvas.height),
-    rowArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, rowAreaWidth, canvas.height - rulerHeight - padding - 8),
+    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, taskGroupAreaWidth, canvas.height - rulerHeight - padding - 8),
   }
 })()
 
@@ -115,7 +115,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -168,13 +168,13 @@ describe(`T-256 (MUST): ${T_256_SPLIT}`, () => {
     expect(PALETTE_ALIGN_ROWS.length).toBeGreaterThan(0)
   })
 
-  it.each(LANGUAGES)('%s: HC-4 holds the Row Title Panel block, then one block more, and nothing else', (language) => {
+  it.each(LANGUAGES)('%s: HC-4 holds the Task Group Panel block, then one block more, and nothing else', (language) => {
     const blocks = blocksIn(helpOf(language).entries, 'HC-4')
     expect(blocks).toHaveLength(2)
-    expect(blocks[0]).toBe('Row Title Panel')
+    expect(blocks[0]).toBe('Task Group Panel')
   })
 
-  it.each(LANGUAGES)('%s: the block under the Row Title Panel holds exactly the align group of the palette', (language) => {
+  it.each(LANGUAGES)('%s: the block under the Task Group Panel holds exactly the align group of the palette', (language) => {
     const entries = helpOf(language).entries
     const moved = blocksIn(entries, 'HC-4')[1] ?? ''
     expect([...itemRowsOf(entries, moved)].sort()).toEqual([...PALETTE_ALIGN_ROWS].sort())

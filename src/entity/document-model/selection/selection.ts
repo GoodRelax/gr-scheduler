@@ -13,7 +13,7 @@ export type SelectableKind =
   | 'highlightBox'
   | 'commentBox'
   | 'statusLine'
-  | 'wbsParentLink'
+  | 'parentTaskLink'
 
 export type ItemRef =
   | { readonly kind: 'task'; readonly uid: number }
@@ -21,7 +21,7 @@ export type ItemRef =
   | { readonly kind: 'highlightBox'; readonly id: string }
   | { readonly kind: 'commentBox'; readonly id: string }
   | { readonly kind: 'statusLine' }
-  | { readonly kind: 'wbsParentLink'; readonly childUid: number }
+  | { readonly kind: 'parentTaskLink'; readonly childUid: number }
 
 export interface Selection {
   readonly items: readonly ItemRef[]
@@ -50,8 +50,8 @@ export function isSameItem(a: ItemRef, b: ItemRef): boolean {
       return a.id === (b as Extract<ItemRef, { kind: 'highlightBox' | 'commentBox' }>).id
     case 'statusLine':
       return true
-    case 'wbsParentLink':
-      return a.childUid === (b as Extract<ItemRef, { kind: 'wbsParentLink' }>).childUid
+    case 'parentTaskLink':
+      return a.childUid === (b as Extract<ItemRef, { kind: 'parentTaskLink' }>).childUid
   }
 }
 
@@ -107,8 +107,8 @@ function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
       return schedule.commentBoxes.some((box) => box.id === item.id)
     case 'statusLine':
       return schedule.project.statusDate !== null
-    case 'wbsParentLink':
-      return (taskByUid(schedule, item.childUid)?.wbsParentUid ?? null) !== null
+    case 'parentTaskLink':
+      return (taskByUid(schedule, item.childUid)?.parentTaskUid ?? null) !== null
   }
 }
 

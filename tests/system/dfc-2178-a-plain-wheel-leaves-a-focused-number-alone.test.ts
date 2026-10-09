@@ -16,7 +16,7 @@ const MK_1_SCROLL = '| MK-1 | ホイール（修飾なし） | **縦スクロー
 const roleOf = (id: string): string =>
   `[data-role="${bare(specTable('T-103').rows.find((one) => one.id === id)?.by['確定名（英）'] ?? '')}"]`
 const PROPERTIES_PANEL = roleOf('U-25')
-const ROW_TITLE_TREE = roleOf('U-23')
+const TASK_GROUP_TITLE_TREE = roleOf('U-23')
 
 const MIN_HEIGHT_NUMBER = `${PROPERTIES_PANEL} [data-field-row="PR-20"] input[type="number"]`
 const MIN_HEIGHT_CHECK = `${PROPERTIES_PANEL} [data-field-row="MH-2"] input[type="checkbox"]`
@@ -100,8 +100,8 @@ test(`MH-4 「${MH_4_KEEP_TEXT}」: a plain wheel over the min height number bei
   test.setTimeout(180_000)
   const page = await openedOn(SCREEN, baseURL)
   try {
-    const row = await page.locator(`${ROW_TITLE_TREE} [data-group-id]`).first().boundingBox()
-    expect(row, 'premise: a row title is drawn').not.toBeNull()
+    const row = await page.locator(`${TASK_GROUP_TITLE_TREE} [data-group-id]`).first().boundingBox()
+    expect(row, 'premise: a task group title is drawn').not.toBeNull()
     if (row === null) return
     await page.mouse.click(row.x + row.width / 2, row.y + Math.min(row.height / 2, 8))
     await page.locator(MIN_HEIGHT_CHECK).click()

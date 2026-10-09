@@ -43,7 +43,7 @@ const H_DEFAULT = String.fromCodePoint(0x65e2, 0x5b9a)
 
 const T_109 = specTable('T-109')
 
-const rowsPlacedOn = (surface: string): readonly string[] =>
+const taskGroupsPlacedOn = (surface: string): readonly string[] =>
   T_109.rows.filter((row) => bareAll(row.by[H_SURFACE] ?? '').includes(surface)).map((row) => row.id)
 
 const onlyRowOf = (id: string): Readonly<Record<string, string>> => {
@@ -60,7 +60,7 @@ const MAXIMISE_ROW = 'IC-130'
 const RESTORE_ROW = 'IC-131'
 const HELP_SURFACE = bare(onlyRowOf(LEGEND_ROW)[H_SURFACE] ?? '')
 const PANEL_SURFACE = 'Properties Panel'
-const PANEL_ROWS = rowsPlacedOn(PANEL_SURFACE)
+const PANEL_TASK_GROUPS = taskGroupsPlacedOn(PANEL_SURFACE)
 
 const THEME_HUE = Number(bare(specTable('T-216').rows.find((row) => row.id === 'S-73')?.by[H_DEFAULT] ?? ''))
 const THEME: ScreenTheme = { preference: 'light', hue: THEME_HUE }
@@ -90,7 +90,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -131,7 +131,7 @@ const ONE_TASK = {
   calendars: [],
   tasks: [
     {
-      uid: THE_TASK, wbsParentUid: null, wbsOrder: null, name: 'a task', start: null, finish: null,
+      uid: THE_TASK, parentTaskUid: null, wbsOrder: null, name: 'a task', start: null, finish: null,
       milestone: null, deadline: null, notes: null, calendarUid: null, actualStart: null,
       actualDuration: null, actualFinish: null, resume: null, resumeValid: null,
       percentComplete: null, fadeInDays: null, fadeOutDays: null, dependencies: [],
@@ -179,7 +179,7 @@ const EMPTY_VIEW: ScreenView = {
     documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null,
     fileNeverSavedText: '', commands: [], language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -237,9 +237,9 @@ describe('DFC-587 premises read from the manuscript', () => {
   it('T-109 places the legend on the help and at least the close entrance on the panel', () => {
     expect(HELP_SURFACE).toBe('Help Modal')
     for (const row of [CLOSE_ROW, HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, RESTORE_ROW]) {
-      expect(rowsPlacedOn(HELP_SURFACE), row).toContain(row)
+      expect(taskGroupsPlacedOn(HELP_SURFACE), row).toContain(row)
     }
-    expect(PANEL_ROWS).toContain(CLOSE_ROW)
+    expect(PANEL_TASK_GROUPS).toContain(CLOSE_ROW)
     for (const language of LANGUAGES) expect(legendWord(language), language).not.toBe('')
   })
 })
@@ -285,7 +285,7 @@ const NOT_ON_THE_FACE: Readonly<Record<'selection' | 'documentSettings', readonl
 
 /** @purity pure */
 function rowsOnTheFace(showing: 'selection' | 'documentSettings'): readonly string[] {
-  return PANEL_ROWS.filter((row) => !NOT_ON_THE_FACE[showing].includes(row))
+  return PANEL_TASK_GROUPS.filter((row) => !NOT_ON_THE_FACE[showing].includes(row))
 }
 
 describe('DFC-587 Properties Panel: the entrances drawn on it', () => {
@@ -308,7 +308,7 @@ describe('DFC-587 Properties Panel: the entrances drawn on it', () => {
   })
 
   it('FR-153: IC-139 is placed on the panel, drawn once on the settings face and not on the selection face', () => {
-    expect(PANEL_ROWS).toContain('IC-139')
+    expect(PANEL_TASK_GROUPS).toContain('IC-139')
     const settings = drawnPanel('documentSettings')
     expect(entrancesIn(settings).filter((one) => one === 'IC-139'), whatWasDrawn(settings)).toEqual(['IC-139'])
     const selection = drawnPanel('selection')

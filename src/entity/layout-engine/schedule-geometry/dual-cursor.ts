@@ -28,7 +28,7 @@ export function dualCursorGeometry(
   return {
     date1X: xFromDay(layout, first),
     date2X: xFromDay(layout, second),
-    top: regions.rowArea.y,
-    bottom: regions.rowArea.y + regions.rowArea.height,
+    top: regions.taskGroupArea.y,
+    bottom: regions.taskGroupArea.y + regions.taskGroupArea.height,
   }
 }

@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { exportSvg, type ExportScene, type SvgExport } from '../../src/adapter/image-exporter/image-exporter'
 import type {
   AppHeaderItems,
-  RowTitlePanel,
+  TaskGroupPanel,
   ScreenFrame,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -198,7 +198,7 @@ const VIEW: ScreenView = {
     commands: [],
     language: 'en',
   } as AppHeaderItems,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

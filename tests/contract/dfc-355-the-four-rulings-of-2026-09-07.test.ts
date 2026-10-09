@@ -105,7 +105,7 @@ import type {
   AppHeaderItems,
   DisplayLanguage,
   OpenModal,
-  RowTitlePanel,
+  TaskGroupPanel,
   ScreenFrame,
   ScreenViewReadings,
   ScreenView,
@@ -512,16 +512,16 @@ function regionsOf(appHeaderHeight: number): ScreenRegions {
   return {
     appHeader: header,
     scheduleCanvas: canvas,
-    rowTitlePanel: {
+    taskGroupPanel: {
       x: canvas.x,
       y: canvas.y,
-      width: SETTINGS.rowTitlePanelWidth,
+      width: SETTINGS.taskGroupPanelWidth,
       height: canvas.height,
     },
     timeRuler: {
-      x: canvas.x + SETTINGS.rowTitlePanelWidth,
+      x: canvas.x + SETTINGS.taskGroupPanelWidth,
       y: canvas.y,
-      width: canvas.width - SETTINGS.rowTitlePanelWidth,
+      width: canvas.width - SETTINGS.taskGroupPanelWidth,
       height: SETTINGS.rulerHeight,
     },
     propertiesPanel: {
@@ -530,10 +530,10 @@ function regionsOf(appHeaderHeight: number): ScreenRegions {
       width: panelWidth,
       height: canvas.height,
     },
-    rowArea: {
-      x: canvas.x + SETTINGS.rowTitlePanelWidth,
+    taskGroupArea: {
+      x: canvas.x + SETTINGS.taskGroupPanelWidth,
       y: canvas.y + SETTINGS.rulerHeight,
-      width: canvas.width - SETTINGS.rowTitlePanelWidth - panelWidth,
+      width: canvas.width - SETTINGS.taskGroupPanelWidth - panelWidth,
       height: canvas.height - SETTINGS.rulerHeight,
     },
   } as ScreenRegions
@@ -553,7 +553,7 @@ const VIEW_WITH_TITLE: ScreenView = {
     commands: [],
     language: 'ja',
   } as AppHeaderItems,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -690,7 +690,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 

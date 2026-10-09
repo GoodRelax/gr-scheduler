@@ -10,13 +10,13 @@ import type { ScreenSurface, ScreenView } from '../../src/adapter/screen-rendere
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -34,19 +34,19 @@ const hexOf = (cell: string): string => {
 }
 
 // see S-325
-const S_325 = numberOf(rowIn('T-206', 'S-325').by['既定'] ?? '')
+const S_325 = numberOf(verticalIn('T-206', 'S-325').by['既定'] ?? '')
 // see S-30, LC-5
-const LABEL_COEF = numberOf(rowIn('T-201', 'S-30').by['既定値'] ?? '')
+const LABEL_COEF = numberOf(verticalIn('T-201', 'S-30').by['既定値'] ?? '')
 // see S-24
-const S_24 = numberOf(rowIn('T-201', 'S-24').by['既定値'] ?? '')
+const S_24 = numberOf(verticalIn('T-201', 'S-24').by['既定値'] ?? '')
 // see S-326, S-327
-const S_326_LIGHT = hexOf(rowIn('T-236', 'S-326').by['明るいテーマ'] ?? '')
-const S_327_LIGHT = hexOf(rowIn('T-236', 'S-327').by['明るいテーマ'] ?? '')
+const S_326_LIGHT = hexOf(verticalIn('T-236', 'S-326').by['明るいテーマ'] ?? '')
+const S_327_LIGHT = hexOf(verticalIn('T-236', 'S-327').by['明るいテーマ'] ?? '')
 // see S-328, S-329, S-330, S-331
-const S_328 = numberOf(rowIn('T-206', 'S-328').by['既定'] ?? '')
-const S_329 = numberOf(rowIn('T-206', 'S-329').by['既定'] ?? '')
-const S_330 = numberOf(rowIn('T-206', 'S-330').by['既定'] ?? '')
-const S_331 = numberOf(rowIn('T-206', 'S-331').by['既定'] ?? '')
+const S_328 = numberOf(verticalIn('T-206', 'S-328').by['既定'] ?? '')
+const S_329 = numberOf(verticalIn('T-206', 'S-329').by['既定'] ?? '')
+const S_330 = numberOf(verticalIn('T-206', 'S-330').by['既定'] ?? '')
+const S_331 = numberOf(verticalIn('T-206', 'S-331').by['既定'] ?? '')
 
 // see FR-093
 const units = (text: string): number => [...text].length
@@ -103,7 +103,7 @@ interface Seed {
 
 function documentOf(seeds: readonly Seed[], settings: Record<string, unknown> = {}, schedule: Record<string, unknown> = {}) {
   const rows = seeds.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = rowDocument(rows, { progressMarkerVisible: false, ...settings }, schedule)
+  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings }, schedule)
   document.schedule.tasks = seeds.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00`, ...one.part }),
   )
@@ -389,7 +389,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
 describe('S-63 -- progressMarkerVisible defaults to true', () => {
   it('S-63: 既定 `true` -- the table, the settings defaults and the startup template agree', () => {
     // see S-63
-    const row = rowIn('T-202', 'S-63')
+    const row = verticalIn('T-202', 'S-63')
     const key = bare(row.by['キー'] ?? '')
     expect(key).toBe('progressMarkerVisible')
     expect(bare(row.by['既定'] ?? '')).toBe('true')

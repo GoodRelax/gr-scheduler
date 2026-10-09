@@ -443,8 +443,8 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-const HERE_ROW = '11111111-1111-4111-8111-111111111111'
-const THERE_ROW = '22222222-2222-4222-8222-222222222222'
+const HERE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
+const THERE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
 
 /**
  * One Task with every column table T-058 gives it named, so that nothing rides
@@ -459,7 +459,7 @@ const THERE_ROW = '22222222-2222-4222-8222-222222222222'
 function task(uid: number, start: string, finish: string, name: string): Task {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -485,7 +485,7 @@ function task(uid: number, start: string, finish: string, name: string): Task {
 /**
  * @purity pure
  */
-function row(id: string, label: string): Record<string, unknown> {
+function taskGroup(id: string, label: string): Record<string, unknown> {
   return {
     id,
     parentId: null,
@@ -511,7 +511,7 @@ function row(id: string, label: string): Record<string, unknown> {
 function documentWith(
   title: string | null,
   rowId: string,
-  rowLabel: string,
+  taskGroupLabel: string,
   uids: readonly number[],
 ): Document {
   const template = structuredClone(TEMPLATE) as any
@@ -528,7 +528,7 @@ function documentWith(
       tasks: uids.map((uid) => task(uid, '2026-04-01T00:00:00', '2026-04-10T00:00:00', `Task ${uid}`)),
       resources: [],
       assignments: [],
-      taskGroups: [row(rowId, rowLabel)],
+      taskGroups: [taskGroup(rowId, taskGroupLabel)],
       taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId })),
       taskVisuals: uids.map(blankTaskVisual),
       commentBoxes: [],
@@ -545,10 +545,10 @@ function documentWith(
 
 /** What is already open when a case starts. */
 const here = (title: string | null = 'Here'): Document =>
-  documentWith(title, HERE_ROW, 'Here', [1, 2])
+  documentWith(title, HERE_TASK_GROUP, 'Here', [1, 2])
 
 /** What the file hands over. ⚠️ No uid it carries is one the current document has. */
-const there = (): Document => documentWith('There', THERE_ROW, 'There', [11, 12])
+const there = (): Document => documentWith('There', THERE_TASK_GROUP, 'There', [11, 12])
 
 /**
  * The same file, with ONE `UID` the current document also has.
@@ -561,7 +561,7 @@ const there = (): Document => documentWith('There', THERE_ROW, 'There', [11, 12]
  */
 const HERE_AND_THERE = 1
 const overlapping = (): Document =>
-  documentWith('There', THERE_ROW, 'There', [HERE_AND_THERE, 12])
+  documentWith('There', THERE_TASK_GROUP, 'There', [HERE_AND_THERE, 12])
 
 const uidsOf = (document: Document): number[] =>
   (document as any).schedule.tasks.map((one: Task) => one.uid).sort((a: number, b: number) => a - b)
@@ -803,7 +803,7 @@ const pointer = (phase: PointerPhase, x: number, y: number): PointerInput => ({
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: string): void {
-  screen.drawAt({ part: surface, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+  screen.drawAt({ part: surface, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
@@ -820,7 +820,7 @@ function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: 
  * @purity non-pure
  */
 function takeFormat(loop: FrameLoop, screen: ScreenPane, format: string): void {
-  screen.drawAt({ part: EXPORT_CHOOSER, entry: null, format, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+  screen.drawAt({ part: EXPORT_CHOOSER, entry: null, format, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)
@@ -839,7 +839,7 @@ function takeFormat(loop: FrameLoop, screen: ScreenPane, format: string): void {
  * @purity non-pure
  */
 function answerQuestion(loop: FrameLoop, screen: ScreenPane, answer: string): void {
-  screen.drawAt({ part: CONFIRMATION, entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, confirmationAnswer: answer })
+  screen.drawAt({ part: CONFIRMATION, entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, confirmationAnswer: answer })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   screen.drawAt(null)

@@ -138,7 +138,7 @@ type AggregateEdit = (
   document: Document,
   command: DocumentCommand,
   limits: SettingsLimits,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
 ) => EditResult
 
 /** @purity pure */
@@ -156,7 +156,7 @@ function routes<K extends readonly string[]>(
 const TASK_KINDS = [
   'createTask',
   'deleteTask',
-  'pasteTaskSubtree',
+  'pasteTasks',
   'setTaskName',
   'setTaskNotes',
   'setTaskPlanDates',
@@ -166,7 +166,7 @@ const TASK_KINDS = [
   'cycleTaskPlanActualState',
   'setTaskFadeInDays',
   'setTaskFadeOutDays',
-  'setTaskWbsParent',
+  'setTaskParentTask',
   'moveTaskToTaskGroup',
   'setTaskVisualShapeKind',
   'setTaskVisualMilestoneGlyph',
@@ -244,7 +244,7 @@ const SETTINGS_KINDS = [
   'setThemeMonochrome',
   'setZoom',
   'setScrollPosition',
-  'setRowTitlePanelWidth',
+  'setTaskGroupPanelWidth',
   'pinTaskGroup',
   'unpinTaskGroup',
   'fitScheduleToScreen',
@@ -252,15 +252,15 @@ const SETTINGS_KINDS = [
   'setFitSpan',
   'clearFitSpan',
   'setFitSpanFixed',
-  'setRowTitlePanelWidthFixed',
+  'setTaskGroupPanelWidthFixed',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
-  ...routes(TASK_KINDS, (document, command, _limits, defaultRowName) =>
-    editTask(document, command as TaskCommand, defaultRowName),
+  ...routes(TASK_KINDS, (document, command, _limits, defaultTaskGroupName) =>
+    editTask(document, command as TaskCommand, defaultTaskGroupName),
   ),
-  ...routes(TASK_GROUP_KINDS, (document, command, _limits, defaultRowName) =>
-    editTaskGroup(document, command as TaskGroupCommand, defaultRowName),
+  ...routes(TASK_GROUP_KINDS, (document, command, _limits, defaultTaskGroupName) =>
+    editTaskGroup(document, command as TaskGroupCommand, defaultTaskGroupName),
   ),
   ...routes(DEPENDENCY_KINDS, (document, command) =>
     editDependency(document, command as DependencyCommand),
@@ -288,7 +288,7 @@ export function editDocument(
   document: Document,
   command: DocumentCommand,
   limits: SettingsLimits,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
 ): EditResult {
   const run = ROUTES.get(command.kind)
   if (run === undefined) {
@@ -300,7 +300,7 @@ export function editDocument(
       },
     ])
   }
-  return run(document, command, limits, defaultRowName)
+  return run(document, command, limits, defaultTaskGroupName)
 }
 
 // <generated -- do not edit by hand>

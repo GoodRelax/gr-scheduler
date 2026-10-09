@@ -396,7 +396,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   was re-keyed because the 場面 moved, NOT because a word did. What moved:
   //   the row used to quote FR-083's clause where it says the arm stays up, and
   //   check 11 (duplicate detection) caught that quotation as the same MUST
-  //   written in two places; rule 02 has a row name its 正 rather than copy it,
+  //   written in two places; rule 02 has a task group name its 正 rather than copy it,
   //   so the row now points at FR-083 instead of transcribing it and adds a
   //   MUST NOT against transcribing it again. ⛔ THE SCENE ITSELF DID NOT
   //   CHANGE: 「構えた形状が、選んでいるものに当てられない」 and 「構えは立った
@@ -437,7 +437,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   A word that named only the descendant case would leave the self case
   //   with no word, and the row states the two together.
   // ⭐ THE WORDS DO NOT NARROW THE ROW TO ONE OF ITS TWO USES. The row says
-  //   it covers the nesting of rows AND the WBS parent, from one prohibition;
+  //   it covers the nesting of rows AND the parent task, from one prohibition;
   //   the words speak of moving a row under another and name neither, so
   //   neither use is shut out.
   // ⭐ THE NEXT STEP IS A ROAD `HM-4` ACTUALLY LEAVES OPEN: only a descendant
@@ -521,9 +521,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-68': '6f2ade59f54dfe34',
-  // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (WL-8).
+  // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (PTL-8).
   'RS-69': '6644963590cd5dee',
-  // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (WL-12).
+  // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (PTL-12).
   'RS-70': 'e99b94d159d09037',
   // WHY: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
   // undo is the road back; the count NT-3 asks for is the notice's own, not a word of the row.

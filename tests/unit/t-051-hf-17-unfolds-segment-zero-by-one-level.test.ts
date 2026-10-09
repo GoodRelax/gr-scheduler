@@ -30,14 +30,14 @@
 // development-rules/04-verification.md §1: only the head, published types and
 // signatures). The host, screen fake and press helper are copied in shape from
 // tests/unit/t-015-t-051-the-four-folding-controls.test.ts and tests/unit/
-// t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts, which drive this same
+// t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts, which drive this same
 // unit through the same seams.
 //
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //  1. THE NAME FIELD / RENAME-ROAD HALF OF HF-17 (DFC-243). tests/unit/
-//     t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts already asks that;
+//     t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts already asks that;
 //     this file's one question is the fold, S-418 alone.
 //  2. HF-14's OWN "open the pressed ancestor" MUST. That is a different fold
 //     (a single named parent), not 段 0, and it is not this row's to restate.
@@ -102,12 +102,12 @@ describe('the manuscript this file is driven by', () => {
 })
 
 /** 表 T-103's settled English name for U-22 -- the 面 these entrances sit on. */
-const ROW_TITLE_PANEL = bare(
+const TASK_GROUP_PANEL = bare(
   specTable('T-103').rows.find((one) => one.id === 'U-22')?.by['確定名（英）'] ?? '',
 )
 
 const T_109_ON_THE_PANEL = specTable('T-109').rows.filter(
-  (one) => bareAll(one.by['面'] ?? '').includes(ROW_TITLE_PANEL),
+  (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
 )
 
 /** The entrance 表 T-109 gives one row of 表 T-051, by that table's own join. */
@@ -123,9 +123,9 @@ function entranceFor(rule: string): string {
 }
 
 /** HR-2 at 段 0 -- folds every row AND 段 0 itself. */
-const HEAD_FOLD_EVERY_ROW = entranceFor('HF-12')
+const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
 /** HF-17's own entrance -- adds a row at 段 0, the panel's own head. */
-const HEAD_ADD_ROW = entranceFor('HF-17')
+const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 
 // ===========================================================================
 // 2. The document: two roots, one of them a parent of a parent, so a fold at
@@ -161,7 +161,7 @@ const nameOf = (groupId: string): string => ROWS.find((one) => one.id === groupI
 function task(uid: number, name: string): Task {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start: '2026-04-01',
@@ -319,10 +319,10 @@ function stage(): Stage {
     screen,
     press: (entry, groupId) => {
       screen.drawAt({
-        part: ROW_TITLE_PANEL,
+        part: TASK_GROUP_PANEL,
         entry: entry as any,
         format: null,
-        rowGroupId: groupId,
+        taskGroupId: groupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -335,14 +335,14 @@ function stage(): Stage {
 }
 
 /** The rows the panel drew, by name, in the order it drew them. */
-function drawnRows(built: Stage): readonly string[] {
-  const panel = built.screen.last().rowTitlePanel
+function drawnTaskGroups(built: Stage): readonly string[] {
+  const panel = built.screen.last().taskGroupPanel
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
 }
 
 /** HF-16's own arming, as the panel drew it. */
 const canOpenLevelZero = (built: Stage): boolean | undefined =>
-  (built.screen.last().rowTitlePanel as any).canOpenLevelZero
+  (built.screen.last().taskGroupPanel as any).canOpenLevelZero
 
 /** `S-418`, read from the document that holds it. */
 const levelZeroOf = (built: Stage): string =>
@@ -352,19 +352,19 @@ const levelZeroOf = (built: Stage): string =>
 // 4. The premise: HR-2 at 段 0 folds every row away, including the roots
 // ===========================================================================
 
-describe('premise -- HEAD_FOLD_EVERY_ROW (HR-2) folds 段 0 itself', () => {
+describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () => {
   it('before folding, every row is drawn', () => {
     const built = stage()
-    expect(drawnRows(built)).toEqual(['Alpha', 'Beta', 'Gamma', 'Zeta'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Beta', 'Gamma', 'Zeta'])
   })
 
-  it('⭐⭐ after HEAD_FOLD_EVERY_ROW, 段 0 is folded and nothing is drawn (HR-2, MUST)', () => {
+  it('⭐⭐ after HEAD_FOLD_EVERY_TASK_GROUP, 段 0 is folded and nothing is drawn (HR-2, MUST)', () => {
     const built = stage()
 
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
 
     expect(
-      drawnRows(built),
+      drawnTaskGroups(built),
       'HR-2 (MUST): 最も浅い段の行も畳むこと -- the roots should have gone with everything else',
     ).toEqual([])
     expect(canOpenLevelZero(built), 'HF-16 should now be armed to open the fold this made').toBe(
@@ -381,12 +381,12 @@ describe('premise -- HEAD_FOLD_EVERY_ROW (HR-2) folds 段 0 itself', () => {
 describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one level', () => {
   it('⭐⭐ the roots reappear, the new row among them, once 段 0 is folded and HF-17 is pressed', () => {
     const built = stage()
-    built.press(HEAD_FOLD_EVERY_ROW, null)
-    expect(drawnRows(built)).toEqual([]) // the premise, restated
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
+    expect(drawnTaskGroups(built)).toEqual([]) // the premise, restated
 
-    built.press(HEAD_ADD_ROW, null)
+    built.press(HEAD_ADD_TASK_GROUP, null)
 
-    const after = drawnRows(built)
+    const after = drawnTaskGroups(built)
     expect(
       after,
       'HF-17 (MUST): 段 0 が畳まれていれば 1 階層だけ開くこと -- pressing the ' +
@@ -404,11 +404,11 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
     // (its treeState, collapsed by HF-12) is untouched by HF-17 -- only 段 0's S-418
     // is -- so Beta (Alpha's child) must stay hidden.
     const built = stage()
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
 
-    built.press(HEAD_ADD_ROW, null)
+    built.press(HEAD_ADD_TASK_GROUP, null)
 
-    const after = drawnRows(built)
+    const after = drawnTaskGroups(built)
     expect(
       after,
       'HF-17 (MUST NOT): すべて開いてはならない -- Beta reappeared, which is HF-10’s ' +
@@ -419,10 +419,10 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
 
   it('⭐ S-418 itself is cleared: HF-16 is no longer armed once HF-17 opened it', () => {
     const built = stage()
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     expect(canOpenLevelZero(built)).toBe(true)
 
-    built.press(HEAD_ADD_ROW, null)
+    built.press(HEAD_ADD_TASK_GROUP, null)
 
     expect(
       canOpenLevelZero(built),
@@ -436,9 +436,9 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
     expect(canOpenLevelZero(built)).not.toBe(true)
     expect(levelZeroOf(built)).toBe('auto')
 
-    built.press(HEAD_ADD_ROW, null)
+    built.press(HEAD_ADD_TASK_GROUP, null)
 
-    const after = drawnRows(built)
+    const after = drawnTaskGroups(built)
     expect(after).toEqual(expect.arrayContaining(['Alpha', 'Beta', 'Gamma', 'Zeta']))
     expect(after.length).toBe(5)
     expect(levelZeroOf(built)).toBe('auto')

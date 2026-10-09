@@ -57,7 +57,7 @@
 //   T-023d GA-5 / GA-6 / GA-17   where the three dummies sit
 //   T-076 EP-14  「`Actual Operation Dummy`（`U-52`）| 描かない | 文書に無い
 //             値を描く操作子である。⚠️ 場所は空けない」
-//   T-076 EP-5   the `Row Area`'s contents, `Progress Marker`（`U-5`）among
+//   T-076 EP-5   the `Task Group Area`'s contents, `Progress Marker`（`U-5`）among
 //             them, ARE drawn in the export
 //   T-041 WY-3   「画面上の外接矩形に `exportCanvas` の幅 ÷ 画面の幅 の比を
 //             掛けた値と、…… 書き出した SVG / PNG の中の同じ UI パーツの外接
@@ -274,7 +274,7 @@ const EVERY_DAY_WORKED = {
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: null,
@@ -420,7 +420,7 @@ interface Drawn {
 
 /** One pass of table T-068's chain, then PI-19. */
 const draw = (schedule: Schedule, zoomX: number): Drawn => {
-  // scrollDate (S-77) pins the left edge of the Row Area, so the axis is fixed
+  // scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is fixed
   // and the two documents a case compares are drawn on the same one.
   const settings = settingsOf({
     zoomX,

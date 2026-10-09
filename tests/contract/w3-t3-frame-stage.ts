@@ -73,12 +73,12 @@ const pointer = (phase: PointerPhase, x: number, y: number, clickCount = 1): Poi
   clickCount,
 })
 
-const partOf = (part: string, entry: string | null, format: string | null, rowGroupId: string | null = null): ScreenPart =>
+const partOf = (part: string, entry: string | null, format: string | null, taskGroupId: string | null = null): ScreenPart =>
   ({
     part,
     entry,
     format,
-    rowGroupId,
+    taskGroupId,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,

@@ -33,10 +33,10 @@ import type {
 import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
-  rowPlacesAtZoomY,
+  taskGroupPlacesAtZoomY,
   xFromDay,
   zoomYAtRectangleLabelFont,
-  type RowPlacement,
+  type TaskGroupPlacement,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -46,7 +46,7 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
-  rowTitleFontPxOf,
+  taskGroupTitleFontPxOf,
   type HorizontalWhole,
   type ScreenPart,
   type VerticalWhole,
@@ -69,8 +69,8 @@ import {
   commandFromArmed,
   commandFromArmingEntry,
   commandFromDependencyDrag,
-  commandFromWbsParentDrag,
-  commandFromWbsParentLinkRelease,
+  commandFromParentTaskDrag,
+  commandFromParentTaskLinkRelease,
 } from './armed-placement'
 import { displayScaleStep } from './display-scale-steps'
 import {
@@ -82,23 +82,23 @@ import {
 import { commandFromGrab, copyDragWrite } from './item-grab'
 import {
   commandFromRowGrab,
-  grabbedRowGroupId,
-  rowGrabFollow,
-} from './row-grab'
+  grabbedTaskGroupId,
+  taskGroupGrabFollow,
+} from './task-group-grab'
 import {
   commandFromRowEntry,
   commandFromRowExpanderCloseAll,
   commandFromRowExpanderOpenAll,
   commandFromRowExpanderOpenLevelZero,
-  everyRowDeleted,
-  rowStoodUp,
-} from './row-tree-entrances'
+  everyTaskGroupDeleted,
+  taskGroupStoodUp,
+} from './task-group-tree-entrances'
 import { commandFromKey, isViewScaleKey } from './shortcut-keys'
 import { commandFromWheel } from './wheel-input'
 import {
   fitWrites,
   keyZoomFactor,
-  rowZoomAnswer,
+  verticalZoomAnswer,
   statusLineWrites,
   zoomTimes,
   zoomWrites,
@@ -118,14 +118,14 @@ export type {
 export { commandFromFieldCommit } from './field-commit'
 export { screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
-export { rowBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
+export { taskGroupBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
 
 
 export type PressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
 export type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
-export type RowGrabAxis = 'position' | 'depth'
+export type TaskGroupGrabAxis = 'position' | 'depth'
 
 export interface PointerPress {
   readonly at: PointerInput
@@ -135,7 +135,7 @@ export interface PointerPress {
   readonly pressRow: PressRow
   readonly followedTo?: { readonly x: number; readonly y: number }
   // TRAP: never default an absent axis to 'position'; a still click would stop choosing the row.
-  readonly rowGrabAxis?: RowGrabAxis | null
+  readonly taskGroupGrabAxis?: TaskGroupGrabAxis | null
   // see FR-052
   // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
@@ -161,17 +161,17 @@ export interface InputContext {
   readonly screen: ScreenValues
   readonly selection: Selection
   // see FR-085, FR-099, IN-4
-  readonly chosenRows?: readonly string[]
+  readonly chosenTaskGroups?: readonly string[]
   readonly chosenResources?: readonly number[]
   readonly zoomStep: number
   readonly zoomMin: number
   readonly zoomMax: number
   readonly isPictureAtStoredZoom?: boolean
-  readonly rowControlsHeightPx?: number
+  readonly taskGroupControlsHeightPx?: number
   // see FR-016
-  // TRAP: the caller's remembered rowBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
+  // TRAP: the caller's remembered taskGroupBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
   // once upTo grows past what it holds; absent, every notch walks T-253 again (DFC-610).
-  readonly rowBandCeiling?: (drawnZoomX: number, upTo: number, enough?: number) => number
+  readonly taskGroupBandCeiling?: (drawnZoomX: number, upTo: number, enough?: number) => number
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
@@ -195,8 +195,8 @@ export interface InputContext {
   readonly newHighlightBoxId: string
   readonly isPropertiesPanelShowing?: boolean
   readonly isNoticeStanding?: boolean
-  readonly drawnRowGroupIds?: readonly string[]
-  readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  readonly drawnTaskGroupIds?: readonly string[]
+  readonly drawnTaskGroupBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
 }
 
 
@@ -204,24 +204,24 @@ export type InPlaceTarget =
   | { readonly kind: 'documentTitle' }
   | { readonly kind: 'taskName'; readonly uid: number }
   | { readonly kind: 'assignee'; readonly uid: number }
-  | { readonly kind: 'rowName'; readonly groupId: string }
+  | { readonly kind: 'taskGroupName'; readonly groupId: string }
   | { readonly kind: 'commentBoxText'; readonly id: string }
   | { readonly kind: 'highlightBoxStroke'; readonly id: string }
 
 export type SpentEntranceSituation =
-  | 'noFoldedRowBelow'
-  | 'noUnfoldedRowBelow'
-  | 'rowIsOpenWithNoHiddenChild'
-  | 'noFoldedRowAtAll'
-  | 'noUnfoldedRowAtAll'
+  | 'noFoldedTaskGroupBelow'
+  | 'noUnfoldedTaskGroupBelow'
+  | 'taskGroupIsOpenWithNoHiddenChild'
+  | 'noFoldedTaskGroupAtAll'
+  | 'noUnfoldedTaskGroupAtAll'
   | 'onlyOneOfPlanAndActualShown'
   | 'noTaskChosenToAlignWith'
   | 'noSiblingAboveToNestUnder'
-  | 'rowIsAtTheShallowestLevel'
+  | 'taskGroupIsAtTheShallowestLevel'
   | 'groupDepthLimitReached'
   | 'noPlaceLeftInThatDirection'
-  | 'noRowToPutTheAnnotationOn'
-  | 'rowIsAtTheDeepestLevel'
+  | 'noTaskGroupToPutTheAnnotationOn'
+  | 'taskGroupIsAtTheDeepestLevel'
   | 'barShapeReleasedWithoutADrag'
   | 'milestoneCannotBeAParent'
   | 'derivedParentCannotBePicked'
@@ -262,16 +262,16 @@ export type InputAction =
       readonly by: { readonly dx: number; readonly dy: number }
     }
   | {
-      readonly kind: 'followRowGrab'
+      readonly kind: 'followTaskGroupGrab'
       readonly groupId: string
-      readonly axis: RowGrabAxis
+      readonly axis: TaskGroupGrabAxis
       readonly atDepth: number
       readonly atY: number | null
       readonly resistedPx: number
     }
   // see FR-085, T-293
   | {
-      readonly kind: 'chooseRow'
+      readonly kind: 'chooseTaskGroup'
       readonly groupId: string
       readonly isExtending: boolean
     }
@@ -299,9 +299,9 @@ export interface TranslatedInput {
   // step after the press is an end one, on the press that arrives there as well.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
   // see ZE-2, ZE-3, ZE-5
-  // TRAP: present only on a row-axis input that wrote no zoom at an end; zoomY is the one drawn.
+  // TRAP: present only on a vertical-axis input that wrote no zoom at an end; zoomY is the one drawn.
   // At the shrinking end (ZE-2) the action may still end temporarilyExpanded (FR-031).
-  readonly rowZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
+  readonly verticalZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
   // see PE-12, EL-13, EL-16
   // TRAP: present on every still single release on GA-24, even when the send writes nothing.
   readonly landingMarked?: {
@@ -318,13 +318,13 @@ export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefa
 const DOCUMENT_TITLE_PART = 'Document Title'
 
 // see T-266
-export type GrabRow = GrabArea
+export type GrabTaskGroup = GrabArea
 
 // TRAP: the one place the hit's row is read as a T-266 row; widening it anywhere else would
 // let a retired T-023d row through a branch that reads it as a grab margin of the new table.
 /** @purity pure */
-export function grabRowOf(hit: Hit): GrabRow {
-  return hit.grab as GrabRow
+export function grabTaskGroupOf(hit: Hit): GrabTaskGroup {
+  return hit.grab as GrabTaskGroup
 }
 
 /** @purity pure */
@@ -471,10 +471,10 @@ export function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
 }
 
-// TRAP: keep this per axis as rowGrabAxisAt reads it; a diagonal gives one hand two answers.
+// TRAP: keep this per axis as taskGroupGrabAxisAt reads it; a diagonal gives one hand two answers.
 /** @purity pure */
 export function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
-  const threshold = NOT_STORED_ROW_GRAB_SIZES['S-208']
+  const threshold = NOT_STORED_TASK_GROUP_GRAB_SIZES['S-208']
   return Math.abs(at.x - press.at.x) > threshold || Math.abs(at.y - press.at.y) > threshold
 }
 
@@ -487,7 +487,7 @@ export function isParentPickingCtrlClick(
   if (press.at.button !== 'left' || !isCombo(press.at.modifiers, true, false, false)) return false
   if (press.hit === null || hasDraggedPastThreshold(press, release)) return false
   const kind = press.hit.item.kind
-  return kind === 'wbsParentLink' || (kind === 'task' && context.screen.armModeState.kind === 'wbsParentArmed')
+  return kind === 'parentTaskLink' || (kind === 'task' && context.screen.armModeState.kind === 'parentTaskArmed')
 }
 
 /** @purity pure */
@@ -496,19 +496,19 @@ export function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
 }
 
 /** @purity pure */
-export function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
-  return layout.rows.filter((row) => row.isPinned !== true)
+export function scrollingTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] {
+  return layout.taskGroups.filter((taskGroup) => taskGroup.isPinned !== true)
 }
 
 /** @purity pure */
 export function scrollAreaTopOf(context: InputContext): number {
-  return context.layout.scrollAreaY ?? context.regions.rowArea.y
+  return context.layout.scrollAreaY ?? context.regions.taskGroupArea.y
 }
 
 /** @purity pure */
-export function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
-  for (const row of layout.rows) {
-    if (y >= row.y && y < row.y + row.height) return row
+export function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement | null {
+  for (const taskGroup of layout.taskGroups) {
+    if (y >= taskGroup.y && y < taskGroup.y + taskGroup.height) return taskGroup
   }
   return null
 }
@@ -523,19 +523,19 @@ export function commentAnchorAt(
 ): { readonly date: string; readonly groupId: string } | TranslatedInput {
   const day = dayAtX(layout, x)
   if (day === null) return CONSUMED_ELSEWHERE
-  const row = rowAtY(layout, y)
-  if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
-  return { date: textOfDayStart(day), groupId: row.groupId }
+  const taskGroup = taskGroupAtY(layout, y)
+  if (taskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
+  return { date: textOfDayStart(day), groupId: taskGroup.groupId }
 }
 
 /** @purity pure */
-export function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | null {
-  for (let at = 0; at < rows.length; at++) {
-    const row = rows[at]
-    if (row === undefined) continue
-    const next = rows[at + 1]
-    const end = next === undefined ? row.y + row.height : next.y
-    if (y >= row.y && y < end) return at
+export function taskGroupIndexAtTopEdge(taskGroups: readonly TaskGroupPlacement[], y: number): number | null {
+  for (let at = 0; at < taskGroups.length; at++) {
+    const taskGroup = taskGroups[at]
+    if (taskGroup === undefined) continue
+    const next = taskGroups[at + 1]
+    const end = next === undefined ? taskGroup.y + taskGroup.height : next.y
+    if (y >= taskGroup.y && y < end) return at
   }
   return null
 }
@@ -582,36 +582,36 @@ export function dayAnchorAt(
 }
 
 /** @purity pure */
-function rowAnchorAt(
+function taskGroupAnchorAt(
   context: InputContext,
   y: number,
 ): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
   const settings = context.document.documentSettings
-  return rowAnchorIn(scrollingRowsOf(context.layout), y, {
+  return taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), y, {
     scrollGroupId: settings.scrollGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
   })
 }
 
 /** @purity pure */
-export function rowAnchorIn(
-  rows: readonly RowPlacement[],
+export function taskGroupAnchorIn(
+  taskGroups: readonly TaskGroupPlacement[],
   y: number,
   held: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
 ): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
-  const at = rowIndexAtTopEdge(rows, y)
+  const at = taskGroupIndexAtTopEdge(taskGroups, y)
   if (at === null) return held
-  const row = rows[at]
-  const below = rows[at + 1]
-  if (row === undefined) return held
-  // TRAP: scrollOffsetOf (row-scroll.ts) inverts this; both must divide by the slab.
-  const slab = below === undefined ? row.height : below.y - row.y
+  const taskGroup = taskGroups[at]
+  const below = taskGroups[at + 1]
+  if (taskGroup === undefined) return held
+  // TRAP: scrollOffsetOf (task-group-scroll.ts) inverts this; both must divide by the slab.
+  const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
   if (slab <= 0) return held
-  const into = y - row.y
+  const into = y - taskGroup.y
   if (into >= slab && below !== undefined) {
     return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
   }
-  return { scrollGroupId: row.groupId, scrollGroupOffset: unitFraction(into / slab) }
+  return { scrollGroupId: taskGroup.groupId, scrollGroupOffset: unitFraction(into / slab) }
 }
 
 /** @purity pure */
@@ -630,10 +630,10 @@ export function panTo(context: InputContext, dx: number, dy: number): Translated
 
 /** @purity pure */
 export function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   return {
     ...dayAnchorAt(context, area.x + dx),
-    ...rowAnchorAt(context, area.y + dy),
+    ...taskGroupAnchorAt(context, area.y + dy),
   }
 }
 
@@ -644,8 +644,8 @@ export function rememberedActualIn(context: InputContext, taskUid: number): Reme
 }
 
 /** @purity pure */
-export function isOnRowArea(context: InputContext, x: number, y: number): boolean {
-  return regionAtPointer(context.regions, x, y) === 'rowArea'
+export function isOnTaskGroupArea(context: InputContext, x: number, y: number): boolean {
+  return regionAtPointer(context.regions, x, y) === 'taskGroupArea'
 }
 
 // see PTD-7, CY-1, CY-2
@@ -676,7 +676,7 @@ export function pressRowOf(
   if (press.hit !== null) return 'PTD-3'
   const armed = context.screen.armModeState
   if (armed.kind === 'dependencyArmed') return 'PTD-4a'
-  if (armed.kind === 'wbsParentArmed') return 'PTD-5'
+  if (armed.kind === 'parentTaskArmed') return 'PTD-5'
   if (armed.kind !== 'notArmed') return 'PTD-4'
   return 'PTD-5'
 }
@@ -741,8 +741,8 @@ export const ENTRY = {
   fullScreen: 'IC-11',
   zoomTimeOut: 'IC-12',
   zoomTimeIn: 'IC-13',
-  zoomRowOut: 'IC-14',
-  zoomRowIn: 'IC-15',
+  zoomVerticalOut: 'IC-14',
+  zoomVerticalIn: 'IC-15',
   displayScaleDown: 'IC-104',
   displayScaleUp: 'IC-105',
   themePreference: 'IC-16',
@@ -764,18 +764,18 @@ export const ENTRY = {
   interactionRecord: 'IC-76',
   closeSurface: 'IC-52',
   paletteGrabBand: 'IC-53',
-  rowExpanderOpen: 'IC-58',
-  rowExpanderClose: 'IC-59',
-  rowExpanderCloseBelow: 'IC-77',
-  rowExpanderOpenOneLevel: 'IC-90',
-  rowAddChild: 'IC-91',
-  rowExpanderOpenAll: 'IC-74',
-  rowExpanderCloseAll: 'IC-78',
-  rowExpanderOpenLevelZero: 'IC-92',
-  rowAddTopRow: 'IC-93',
-  rowPin: 'IC-60',
-  rowDelete: 'IC-82',
-  rowDeleteAll: 'IC-106',
+  taskGroupExpanderOpen: 'IC-58',
+  taskGroupExpanderClose: 'IC-59',
+  taskGroupExpanderCloseBelow: 'IC-77',
+  taskGroupExpanderOpenOneLevel: 'IC-90',
+  taskGroupAddChild: 'IC-91',
+  taskGroupExpanderOpenAll: 'IC-74',
+  taskGroupExpanderCloseAll: 'IC-78',
+  taskGroupExpanderOpenLevelZero: 'IC-92',
+  taskGroupAddTopTaskGroup: 'IC-93',
+  taskGroupPin: 'IC-60',
+  taskGroupDelete: 'IC-82',
+  taskGroupDeleteAll: 'IC-106',
   resourceRoster: 'IC-62',
   rosterChooseAll: 'IC-63',
   rosterClearChosen: 'IC-64',
@@ -840,7 +840,7 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-35': { kind: 'commentBoxArmed' },
   'IC-36': { kind: 'highlightBoxArmed' },
   'IC-61': { kind: 'dependencyArmed' },
-  'IC-142': { kind: 'wbsParentArmed' },
+  'IC-142': { kind: 'parentTaskArmed' },
 }
 
 /** @purity pure */
@@ -949,7 +949,7 @@ function isOnTheChart(context: InputContext, input: PointerInput): boolean {
   // not what PE-0 asks for -- the row that names text selection, not the browser's own menus.
   if (at.button === 'right') return false
   const region = regionAtPointer(context.regions, at.x, at.y)
-  return region === 'rowArea' || region === 'timeRuler'
+  return region === 'taskGroupArea' || region === 'timeRuler'
 }
 
 // see PE-0
@@ -967,9 +967,9 @@ function panOnRelease(release: PointerInput, press: PointerPress, context: Input
 
 /** @purity pure */
 function commandFromItemPress(release: PointerInput, press: PointerPress, context: InputContext): TranslatedInput {
-  if (press.hit?.item.kind === 'wbsParentLink') return commandFromWbsParentLinkRelease(release, press)
+  if (press.hit?.item.kind === 'parentTaskLink') return commandFromParentTaskLinkRelease(release, press)
   const armed = context.screen.armModeState.kind
-  if (armed === 'wbsParentArmed') return commandFromWbsParentDrag(release, press, context)
+  if (armed === 'parentTaskArmed') return commandFromParentTaskDrag(release, press, context)
   if (armed === 'dependencyArmed') return commandFromDependencyDrag(release, press, context)
   return commandFromGrab(release, press, context)
 }
@@ -981,7 +981,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     if (input.button === 'right') return UNASSIGNED
     const press = context.pressed
     if (press !== null && press.on !== null) return CONSUMED_ELSEWHERE
-    return isOnRowArea(context, input.x, input.y) ? CONSUMED_ELSEWHERE : UNASSIGNED
+    return isOnTaskGroupArea(context, input.x, input.y) ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
   if (input.phase === 'move') {
     const panning = panFollow(input, context)
@@ -989,7 +989,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     const scrolling = scrollbarFollow(input, context)
     if (scrolling !== UNASSIGNED) return scrolling
     const palette = paletteFollow(input, context)
-    return palette === UNASSIGNED ? rowGrabFollow(input, context) : palette
+    return palette === UNASSIGNED ? taskGroupGrabFollow(input, context) : palette
   }
   // TRAP: consumed so the shell drops the press; one left standing makes AG-9 refuse later writes.
   if (input.phase === 'lost') return CONSUMED_ELSEWHERE
@@ -999,7 +999,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   if (press.on !== null) return commandFromEntry(input, press, context)
   // TRAP: judge the region only for a press with no hit; judged by coordinates, AS-1's double
   // click on an assignee label is lost.
-  if (press.hit === null && !isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
+  if (press.hit === null && !isOnTaskGroupArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
   switch (pressRowOf(press, context)) {
     case 'PTD-7': return copyDragWrite(context, press, input)
@@ -1023,8 +1023,8 @@ const MODIFIER_ONLY_KEYS: readonly string[] = [KEY.control, KEY.shift, KEY.alt, 
 const VIEW_SCALE_ENTRIES: readonly string[] = [
   ENTRY.zoomTimeOut,
   ENTRY.zoomTimeIn,
-  ENTRY.zoomRowOut,
-  ENTRY.zoomRowIn,
+  ENTRY.zoomVerticalOut,
+  ENTRY.zoomVerticalIn,
   ENTRY.displayScaleDown,
   ENTRY.displayScaleUp,
 ]
@@ -1043,8 +1043,8 @@ export function isLandingMarkKeptBy(
   if (input.phase !== 'down' || input.clickCount >= 2) return true
   if (press === null) return false
   const on = press.on
-  // TRAP: the Row Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
-  if (on === null) return press.pressRow === 'PTD-1' && regionAtPointer(regions, input.x, input.y) === 'rowArea'
+  // TRAP: the Task Group Area test matches pointerAssignment; a PTD-1 press elsewhere pans nothing.
+  if (on === null) return press.pressRow === 'PTD-1' && regionAtPointer(regions, input.x, input.y) === 'taskGroupArea'
   if (on.scrollbarAxis !== undefined) return true
   return on.entry !== null && VIEW_SCALE_ENTRIES.includes(on.entry)
 }
@@ -1094,16 +1094,16 @@ function commandFromEntry(
   if (on.scrollbarAxis !== undefined) {
     return commandFromScrollbar(on.scrollbarAxis, release, press, context)
   }
-  const grabbed = grabbedRowGroupId(press)
+  const grabbed = grabbedTaskGroupId(press)
   if (grabbed !== null) return commandFromRowGrab(release, press, context, grabbed)
   if (on.entry === null) {
-    if (on.rowGroupId !== null) {
+    if (on.taskGroupId !== null) {
       if (press.at.clickCount >= 2) {
-        return acted({ kind: 'editInPlace', target: { kind: 'rowName', groupId: on.rowGroupId } })
+        return acted({ kind: 'editInPlace', target: { kind: 'taskGroupName', groupId: on.taskGroupId } })
       }
       return acted({
-        kind: 'chooseRow',
-        groupId: on.rowGroupId,
+        kind: 'chooseTaskGroup',
+        groupId: on.taskGroupId,
         isExtending: press.at.modifiers.shift,
       })
     }
@@ -1141,9 +1141,9 @@ function commandFromEntry(
     }
     // see ZE-2, ZE-3, ZE-5, SE-5
     // TRAP: at an end the message alone tells it; an FR-029 notice beside it is forbidden.
-    case ENTRY.zoomRowIn:
-    case ENTRY.zoomRowOut:
-      return rowZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomRowIn), null, null)
+    case ENTRY.zoomVerticalIn:
+    case ENTRY.zoomVerticalOut:
+      return verticalZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomVerticalIn), null, null)
     // see FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
@@ -1176,15 +1176,15 @@ function commandFromEntry(
       return acted({ kind: 'toggleMilestoneList' })
     case ENTRY.paletteGrabBand:
       return acted({ kind: 'moveCommandPalette', by: followingTravel(release, press) })
-    case ENTRY.rowExpanderOpen:
-    case ENTRY.rowExpanderClose:
-    case ENTRY.rowExpanderCloseBelow:
-    case ENTRY.rowExpanderOpenOneLevel:
-    case ENTRY.rowAddChild:
-    case ENTRY.rowPin:
-    case ENTRY.rowDelete:
-      return commandFromRowEntry(entry, on.rowGroupId, context)
-    case ENTRY.rowExpanderOpenAll:
+    case ENTRY.taskGroupExpanderOpen:
+    case ENTRY.taskGroupExpanderClose:
+    case ENTRY.taskGroupExpanderCloseBelow:
+    case ENTRY.taskGroupExpanderOpenOneLevel:
+    case ENTRY.taskGroupAddChild:
+    case ENTRY.taskGroupPin:
+    case ENTRY.taskGroupDelete:
+      return commandFromRowEntry(entry, on.taskGroupId, context)
+    case ENTRY.taskGroupExpanderOpenAll:
       return commandFromRowExpanderOpenAll(context)
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
@@ -1194,14 +1194,14 @@ function commandFromEntry(
         return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')
-    case ENTRY.rowExpanderCloseAll:
+    case ENTRY.taskGroupExpanderCloseAll:
       return commandFromRowExpanderCloseAll(context)
-    case ENTRY.rowExpanderOpenLevelZero:
+    case ENTRY.taskGroupExpanderOpenLevelZero:
       return commandFromRowExpanderOpenLevelZero(context)
-    case ENTRY.rowAddTopRow:
-      return rowStoodUp(context, null)
-    case ENTRY.rowDeleteAll:
-      return everyRowDeleted(context)
+    case ENTRY.taskGroupAddTopTaskGroup:
+      return taskGroupStoodUp(context, null)
+    case ENTRY.taskGroupDeleteAll:
+      return everyTaskGroupDeleted(context)
     case ENTRY.documentSettingsProperties:
       return acted({ kind: 'toggleDocumentSettingsProperties' })
     case ENTRY.agentApi:
@@ -1257,9 +1257,9 @@ function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number
 }
 
 /** @purity pure */
-export function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
+export function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number {
   let depth = 1
-  let foundAt = row.parentId
+  let foundAt = taskGroup.parentId
   for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
     const parent = byId.get(foundAt)
     if (parent === undefined) break
@@ -1270,11 +1270,11 @@ export function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGr
 }
 
 /** @purity pure */
-export function rowDepthOfGroup(context: InputContext, groupId: string): number {
-  const rows = context.document.schedule.taskGroups
-  const byId = new Map(rows.map((one) => [one.id, one]))
+export function taskGroupDepthOfGroup(context: InputContext, groupId: string): number {
+  const taskGroups = context.document.schedule.taskGroups
+  const byId = new Map(taskGroups.map((one) => [one.id, one]))
   const found = byId.get(groupId)
-  return found === undefined ? 1 : rowGrabDepthOf(byId, found)
+  return found === undefined ? 1 : taskGroupGrabDepthOf(byId, found)
 }
 
 // see GR-14
@@ -1286,15 +1286,15 @@ export function boxById<Box extends { readonly id: string }>(boxes: readonly Box
 // see HB-3, GA-9
 // TRAP: sort by y, not layout order: FR-098 lifts pinned rows, so layout order is not what is drawn.
 /** @purity pure */
-export function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
-  return [...layout.rows].sort((a, b) => a.y - b.y)
+export function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] {
+  return [...layout.taskGroups].sort((a, b) => a.y - b.y)
 }
 
 // see HB-3
 // WHY: counts the row tops crossed, so a press on a box's edge and one inside the row move by the same rows.
 /** @purity pure */
-export function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number {
-  const topsAtOrAbove = (y: number): number => rows.filter((row) => row.y <= y).length
+export function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number {
+  const topsAtOrAbove = (y: number): number => taskGroups.filter((taskGroup) => taskGroup.y <= y).length
   return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
 }
 
@@ -1302,7 +1302,7 @@ export function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, t
 /** @purity pure */
 function chosenDrawnTaskCount(context: InputContext): number {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
-  const drawnIds = context.drawnRowGroupIds
+  const drawnIds = context.drawnTaskGroupIds
   // TRAP: absent means no picture was handed over (keep the wider count); an empty array is honoured.
   if (drawnIds === undefined) return chosen.length
   const drawn = new Set(drawnIds)
@@ -1388,30 +1388,30 @@ export function compareDay(a: CalendarDay, b: CalendarDay): number {
   return serialOfDay(a) - serialOfDay(b)
 }
 
-const TOP_ROW_DEPTH = 1
+const TOP_TASK_GROUP_DEPTH = 1
 
 // see FR-016, S-36, S-38, S-13
 /** @purity pure */
 export function zoomYCeiling(context: InputContext): number | null {
   const settings = context.document.documentSettings
-  const ceiling = zoomYAtRectangleLabelFont(rowTitleFontPxOf(TOP_ROW_DEPTH, settings), settings)
+  const ceiling = zoomYAtRectangleLabelFont(taskGroupTitleFontPxOf(TOP_TASK_GROUP_DEPTH, settings), settings)
   if (!Number.isFinite(ceiling) || ceiling <= 0) return null
   return ceiling
 }
 
 // see FR-016, ZE-1, PI-5
 /** @purity pure */
-export function rowsAtZoomY(
+export function taskGroupsAtZoomY(
   context: InputContext,
   measuredWith: DocumentSettings,
   zoomY: number,
-): readonly RowPlacement[] {
-  return rowPlacesAtZoomY(
+): readonly TaskGroupPlacement[] {
+  return taskGroupPlacesAtZoomY(
     context.document.schedule,
     measuredWith,
     context.regions,
     zoomY,
-    context.rowControlsHeightPx,
+    context.taskGroupControlsHeightPx,
   )
 }
 
@@ -1434,7 +1434,7 @@ export function escapeContextOf(context: InputContext): EscapeContext {
     isFocusInPropertiesPanel: context.isFocusInPropertiesPanel === true,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
-    isSelectionStanding: context.selection.items.length > 0 || (context.chosenRows?.length ?? 0) > 0,
+    isSelectionStanding: context.selection.items.length > 0 || (context.chosenTaskGroups?.length ?? 0) > 0,
     dualCursorMode: context.dualCursorFollowing !== null,
     isFullScreen: context.screen.fullScreenModeState.kind === 'full',
   }
@@ -1453,7 +1453,7 @@ export const NOT_STORED_ZOOM_STEP: {
 }
 
 // see T-206
-export const NOT_STORED_ROW_GRAB_SIZES: {
+export const NOT_STORED_TASK_GROUP_GRAB_SIZES: {
   readonly 'S-208': number
   readonly 'S-212': number
 } = {

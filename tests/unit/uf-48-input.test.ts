@@ -249,11 +249,11 @@ const BETA = '22222222-2222-4222-8222-222222222222'
  * `validateDocument` keeps the shape honest, and PS-1 of table T-019a (a Task
  * nobody has started) is what these cases mean by a Task.
  */
-function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
+function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
   const task = (uid: number, start: string, finish: string, name: string): Task => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -562,7 +562,7 @@ const dayText = (value: string | null): CalendarDay | null => dayOf(value)
 
 describe('the document these cases drive', () => {
   it('is a valid GRS JSON document', () => {
-    const report = validateDocument(twoRowDocument())
+    const report = validateDocument(twoTaskGroupDocument())
     expect(report.errors).toEqual([])
     expect(report.valid).toBe(true)
   })
@@ -572,7 +572,7 @@ describe('the document these cases drive', () => {
     // today, and SK-20 chooses between showing and hiding by whether
     // `statusDate` holds anything. CU-1 of table T-029: 「`statusDate` が
     // `null` のときは描かない」.
-    expect(projectOf(twoRowDocument()).statusDate).toBeNull()
+    expect(projectOf(twoTaskGroupDocument()).statusDate).toBeNull()
   })
 })
 
@@ -583,7 +583,7 @@ describe('BO-1 of table T-077 -- nothing goes up until the size is settled', () 
     // 「寸法が確定する前の 1 フレームで 0×0 の窓が出ること」.
     const pane = host()
 
-    frameLoop(pane.surface, twoRowDocument(), UNSETTLED_SCREEN)
+    frameLoop(pane.surface, twoTaskGroupDocument(), UNSETTLED_SCREEN)
     pane.runAnimationFrames()
 
     expect(pane.frames()).toBe(0)
@@ -595,7 +595,7 @@ describe('BO-1 of table T-077 -- nothing goes up until the size is settled', () 
     // forbids the picture that would go up: 「内容が欠けたまま出る画面も出さない
     // こと（MUST NOT）」.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), UNSETTLED_SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), UNSETTLED_SCREEN)
 
     loop.receiveInput(key('P'))
     pane.runAnimationFrames()
@@ -605,7 +605,7 @@ describe('BO-1 of table T-077 -- nothing goes up until the size is settled', () 
 
   it('NFR-011: once the size is settled the first frame goes up, and it goes up whole', () => {
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), UNSETTLED_SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), UNSETTLED_SCREEN)
 
     loop.receiveInput(key('P'))
     loop.resize(SCREEN)
@@ -623,7 +623,7 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
     // の `IF-2` で渡す」. CA-2 of table T-071 makes it ONE frame: the three
     // values are rebuilt at the head of a frame and not again inside it.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     loop.receiveInput(key('P'))
@@ -638,7 +638,7 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
     // the same of it: asked BEFORE the watcher hears the happening, so it must
     // change nothing.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     for (let turn = 0; turn < 5; turn += 1) {
@@ -665,7 +665,7 @@ describe("FT-1 of table T-078 -- a person's input is what owes a frame", () => {
     // ポインタ操作を持たない（MUST NOT）」. ⚠️ No `ScreenWiring` is given here,
     // so no UI part outside the schedule is drawn either.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const ruler = loop.current()!.regions.timeRuler
     const before = pane.frames()
 
@@ -683,7 +683,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     // 全体で止めること（MUST）」. ⚠️ True says ASSIGNED, not "something
     // happened": SK-2's whole effect is a selection and it is still assigned.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     for (const row of T_036_DRIVEN) {
       expect(
@@ -697,7 +697,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     // 「割り当てていない組合せを止めてはならない（MUST NOT）」 —— 「`Ctrl+P`
     // （印刷）まで奪うと、ブラウザの機能が使えなくなる」.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     for (const one of NOT_ASSIGNED) {
       expect(loop.isBrowserDefaultStopped(one.input()), one.why).toBe(false)
@@ -709,7 +709,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     // -- the browser keeps whatever it gives Esc.
     // Nothing is open, nothing is armed, no drag.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(false)
   })
@@ -721,7 +721,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     // second would answer false.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     loop.receiveInput(key('F1'))
 
@@ -739,7 +739,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // value it answered with.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     loop.receiveInput(key('F1'))
     pane.runAnimationFrames()
@@ -751,7 +751,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // WHY: IN-4 spends one rung per press, and the drag stands above the open-window rung where the help is.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(key('F1'))
@@ -777,7 +777,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // says WHICH level was not consumed rather than only that one was not.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     loop.receiveInput(key('F1'))
     loop.receiveInput(key('Esc'))
@@ -791,7 +791,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // current value only the Framework holds (LY-5), which is why
     // `EscapeContext` exists at all. So the dropping of the press is UF-48's.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -808,7 +808,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
   it('IN-4a (MUST): with the surface and the drag both consumed the next Esc goes to the browser', () => {
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(key('F1'))
@@ -825,7 +825,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // carries the palette as `null` while S-99e says it is hidden.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     expect(screen.last().commandPalette).not.toBeNull()
 
@@ -849,10 +849,10 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     // the surface answers a frame later is not what the gesture is about.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     // IC-7 -- the entry FR-053 gives S-99e, which SK-14 shares.
-    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
     loop.receiveInput(pointer('down', 500, 20))
     // The surface is redrawn and no longer has that entry under the pointer.
     screen.drawAt(null)
@@ -869,11 +869,11 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
   it('CS-2: a press the surface answered nothing for stays that way, though it draws one later', () => {
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     screen.drawAt(null)
     loop.receiveInput(pointer('down', 500, 20))
-    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+    screen.drawAt({ part: 'App Header', entry: 'IC-7', format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
     loop.receiveInput(pointer('move', 520, 24))
     loop.receiveInput(pointer('up', 520, 24))
     pane.runAnimationFrames()
@@ -890,7 +890,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     // a loop that resolved the hit at the release would have nothing to move.
     // ⚠️ Only the direction is asserted: no row fixes how a partial day rounds.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
     const width = planWidth(loop, 1)
     const before = loop.document()
@@ -918,7 +918,7 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // writes nothing here. WS-6 replaces one reference, so an untouched
     // document is the same value.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
     const width = planWidth(loop, 1)
     const before = loop.document()
@@ -938,7 +938,7 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // IN-4's second level is 「進行中のドラッグ」, so an Esc that still finds
     // one to consume is a drag that never ended.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -958,7 +958,7 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // 操作である. A `move` far outside the window keeps the gesture, which is
     // IN-4's second level answering.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -990,13 +990,13 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
 
   /** Aim the next press at GR-19's band. CS-2 freezes it at the press. */
   const aimAtTheBand = (screen: ScreenPane): void => {
-    screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+    screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   }
 
   it('FR-053 (MUST): the palette ends up the distance the pointer travelled away', () => {
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = paletteCorner(screen)
 
     aimAtTheBand(screen)
@@ -1016,7 +1016,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     // finger let go would answer the pointer's own coordinates here.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = paletteCorner(screen)
 
     aimAtTheBand(screen)
@@ -1040,7 +1040,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     // operation only on the release -- so the palette stays put.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = paletteCorner(screen)
 
     aimAtTheBand(screen)
@@ -1058,7 +1058,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     // the gesture the release would have belonged to is already gone.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = paletteCorner(screen)
 
     aimAtTheBand(screen)
@@ -1080,7 +1080,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     // told about the band only after the button is already down.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = paletteCorner(screen)
 
     screen.drawAt(null)
@@ -1125,7 +1125,7 @@ describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calen
       expect(new Date().getUTCDate()).toBe(machine.utcDay.day)
 
       const pane = host()
-      const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+      const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
       loop.receiveInput(key('D', { ctrl: true, shift: true }))
       pane.runAnimationFrames()
@@ -1138,7 +1138,7 @@ describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calen
     // 「基準日線を消す操作は `statusDate` を `null` にすることとすること
     // （MUST）」 and 「表示状態を別に持ってはならない（MUST NOT）」.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(key('D', { ctrl: true, shift: true }))
     expect(projectOf(loop.document()).statusDate).not.toBeNull()
@@ -1165,7 +1165,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // 「画面を操作する人」. ⭐ The word is read out of the manuscript, so
     // re-deciding that row fails here instead of leaving a stale literal.
     const pane = frozen()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(key('D', { ctrl: true, shift: true }))
 
@@ -1176,7 +1176,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // 「刻はいずれも `ISO 8601`・UTC・秒までとすること（MUST）」. AT-129 repeats
     // it: 「**秒までとする**（透かしと精度を揃える）」.
     const pane = frozen()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(key('D', { ctrl: true, shift: true }))
 
@@ -1194,7 +1194,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // WS-5: 「日程データの群の刻を動かすのは、その群を変えたときだけ」.
     // `Project.statusDate` is in the schedule-data group (DR-2 of table T-052).
     const pane = frozen()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = stampOf(loop.document()).scheduleUpdatedUtc
 
     loop.receiveInput(key('D', { ctrl: true, shift: true }))
@@ -1208,7 +1208,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // （MUST NOT）」. SK-16 zooms the time axis, which UN-8 of table T-027 puts
     // outside the undo record and table T-052 puts in the presentation group.
     const pane = frozen()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = stampOf(loop.document())
 
     loop.receiveInput(key('+', { shift: true }))
@@ -1222,7 +1222,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // ときも更新すること（MUST）」 —— 日程データの群の刻だけでは見せ方の群の
     // 衝突を検出できず、AG-2 の楽観ロックが人の直前の操作を黙って消す.
     const pane = frozen()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = stampOf(loop.document())
 
     loop.receiveInput(key('+', { shift: true }))

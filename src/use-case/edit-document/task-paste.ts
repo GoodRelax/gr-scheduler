@@ -50,7 +50,7 @@ export function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: Readon
   return {
     ...one,
     uid: remap.get(one.uid) as number,
-    wbsParentUid: one.wbsParentUid === null ? null : (remap.get(one.wbsParentUid) ?? null),
+    parentTaskUid: one.parentTaskUid === null ? null : (remap.get(one.parentTaskUid) ?? null),
     dependencies: one.dependencies
       .filter((link) => chosen.has(link.predecessorUid))
       .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
@@ -71,7 +71,7 @@ export function withInferredCopyParents(
   const copyUids = new Set(copies.map((one) => one.uid))
   const settled = [...copies]
   sources.forEach((source, at) => {
-    if (source.wbsParentUid !== null && remap.has(source.wbsParentUid)) return
+    if (source.parentTaskUid !== null && remap.has(source.parentTaskUid)) return
     const copy = settled[at] as Task
     const landedOn = landingOf.get(copy.uid)
     const landing = landedOn === undefined ? null : (byId.get(landedOn) ?? null)
@@ -79,16 +79,16 @@ export function withInferredCopyParents(
     const above = landing === null || landing.parentId === null ? null : (byId.get(landing.parentId) ?? null)
     const start = own ? above : landing
     const below = (uid: number): boolean => copyUids.has(uid) && wbsSubtreesOf(settled, [copy.uid]).has(uid)
-    settled[at] = { ...copy, wbsParentUid: nearestDerivedTaskUid(after, byId, start, below) }
+    settled[at] = { ...copy, parentTaskUid: nearestDerivedTaskUid(after, byId, start, below) }
   })
   return settled
 }
 
 // see CM-8, FR-033
 /** @purity pure */
-export function pasteTaskSubtree(
+export function pasteTasks(
   document: Document,
-  command: Extract<TaskCommand, { readonly kind: 'pasteTaskSubtree' }>,
+  command: Extract<TaskCommand, { readonly kind: 'pasteTasks' }>,
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule

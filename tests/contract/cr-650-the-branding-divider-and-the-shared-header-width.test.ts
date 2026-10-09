@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
 import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
-import type { AppHeaderItems, ScreenFrame, ScreenView, RowTitlePanel } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { AppHeaderItems, ScreenFrame, ScreenView, TaskGroupPanel } from '../../src/adapter/screen-renderer/screen-renderer'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import {
   SETTINGS_DEFAULTS,
@@ -260,7 +260,7 @@ const VIEW: ScreenView = {
   language: 'en',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] } as unknown as ScreenFrame,
   appHeaderItems: { ...ITEMS, documentTitle: TITLE, language: 'en' },
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

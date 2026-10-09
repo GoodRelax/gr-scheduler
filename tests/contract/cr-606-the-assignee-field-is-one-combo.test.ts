@@ -153,7 +153,7 @@ describe(`AS-5 -- ${AS_5_NOT_TWO_INPUTS}`, () => {
       language: 'ja',
       frame: { isFullScreen: false, dividers: [], scrollbars: [] },
       appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileNeverSavedText: '', commands: [], language: 'ja' },
-      rowTitlePanel: { pinnedTitles: [], titles: [] },
+      taskGroupPanel: { pinnedTitles: [], titles: [] },
       propertiesPanel: panel,
       commandPalette: null,
       openModal: null,

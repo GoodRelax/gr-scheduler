@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { cellOf, grabRow, grabRows, pointerIdsIn, rowsOf } from '../unit/cr-430-scene'
+import { cellOf, grabTaskGroup, grabTaskGroups, pointerIdsIn, rowsOf } from '../unit/cr-430-scene'
 
 const FR_106_TELLS_WHAT = 'どの掴み代でどの形かは表 T-266 のポインタの欄、形そのものは表 T-269 に従うこと。'
 const FR_106_MARKER_IS_A_FINGER =
@@ -57,13 +57,13 @@ describe('table T-269 -- the manuscript shape of the nine pointers', () => {
 
 describe(`the pointer column of table T-266: ${FR_106_TELLS_WHAT}`, () => {
   it.each(EXPECTED_ROW_IDS)('%s names exactly one row of table T-269', (id) => {
-    const named = pointerIdsIn(grabRow(id).pointer)
+    const named = pointerIdsIn(grabTaskGroup(id).pointer)
     expect(named, `${id}: ${FR_106_TELLS_WHAT}`).toHaveLength(1)
     expect(EXPECTED_POINTER_IDS, `${id}: ${FR_106_TELLS_WHAT}`).toContain(named[0])
   })
 
   it(`gives the progress marker the finger: ${FR_106_MARKER_IS_A_FINGER}`, () => {
-    expect(pointerIdsIn(grabRow('GA-18').pointer), FR_106_MARKER_IS_A_FINGER).toEqual(['PK-7'])
+    expect(pointerIdsIn(grabTaskGroup('GA-18').pointer), FR_106_MARKER_IS_A_FINGER).toEqual(['PK-7'])
     expect(cellOf('T-269', 'PK-7', '名前'), FR_106_MARKER_IS_A_FINGER).toContain('指')
   })
 
@@ -71,14 +71,14 @@ describe(`the pointer column of table T-266: ${FR_106_TELLS_WHAT}`, () => {
     const white = ['GA-1', 'GA-2', 'GA-10', 'GA-11']
     const black = ['GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-12', 'GA-13', 'GA-21', 'GA-22']
     for (const id of [...white, ...black]) {
-      expect(pointerIdsIn(grabRow(id).pointer), `${id}: ${T_269_WHITE_IS_PLAN}`).toEqual(['PK-1'])
+      expect(pointerIdsIn(grabTaskGroup(id).pointer), `${id}: ${T_269_WHITE_IS_PLAN}`).toEqual(['PK-1'])
     }
-    for (const id of white) expect(grabRow(id).pointer, `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('白')
-    for (const id of black) expect(grabRow(id).pointer, `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('黒')
+    for (const id of white) expect(grabTaskGroup(id).pointer, `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('白')
+    for (const id of black) expect(grabTaskGroup(id).pointer, `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('黒')
   })
 
   it('uses every one of the nine pointers at least once across the 22 rows', () => {
-    const used = new Set(grabRows().flatMap((row) => pointerIdsIn(row.pointer)))
+    const used = new Set(grabTaskGroups().flatMap((row) => pointerIdsIn(row.pointer)))
     expect([...used].sort(), FR_106_TELLS_WHAT).toEqual(
       EXPECTED_POINTER_IDS.filter((id) => used.has(id)).sort(),
     )
@@ -89,7 +89,7 @@ describe(`the pointer column of table T-266: ${FR_106_TELLS_WHAT}`, () => {
 describe(`pointerRowOf and pointerImageOf -- the seam that carries the pointer column`, () => {
   it.each(EXPECTED_ROW_IDS)('answers %s with the table T-269 row its pointer column names', async (id) => {
     const pointerRowOf = await seam('pointerRowOf')
-    expect(pointerRowOf({ grab: id }, false), `${id}: ${FR_106_TELLS_WHAT}`).toBe(pointerIdsIn(grabRow(id).pointer)[0])
+    expect(pointerRowOf({ grab: id }, false), `${id}: ${FR_106_TELLS_WHAT}`).toBe(pointerIdsIn(grabTaskGroup(id).pointer)[0])
   })
 
   it(`draws an image for every row of table T-269: ${FR_106_TELLS_WHAT}`, async () => {

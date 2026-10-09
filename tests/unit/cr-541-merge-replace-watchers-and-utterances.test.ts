@@ -15,7 +15,7 @@ import {
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { emptyDialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { DESIGN, REQUIREMENTS, rowDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { DESIGN, REQUIREMENTS, taskGroupDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
@@ -47,10 +47,10 @@ const DEFAULTS: Record<string, unknown> = (() => {
 })()
 
 const documentWith = (label: string, note: string, settings: Record<string, unknown> = {}): Document =>
-  rowDocument([{ id: 'shared-row', parentId: null }], { ...settings }, {
+  taskGroupDocument([{ id: 'shared-task-group', parentId: null }], { ...settings }, {
     taskGroups: [
       {
-        id: 'shared-row',
+        id: 'shared-task-group',
         parentId: null,
         label,
         derivedFromTaskUid: null,
@@ -61,7 +61,7 @@ const documentWith = (label: string, note: string, settings: Record<string, unkn
       },
     ],
     commentBoxes: [
-      { id: 'shared-note', leaderShapeKind: null, text: note, anchorDate: '2026-04-08', anchorGroupId: 'shared-row', bodyOffsetPx: null },
+      { id: 'shared-note', leaderShapeKind: null, text: note, anchorDate: '2026-04-08', anchorGroupId: 'shared-task-group', bodyOffsetPx: null },
     ],
   }) as unknown as Document
 
@@ -83,8 +83,8 @@ describe('MG-12 -- a merge keeps the current content of a shared id', () => {
   it(Q29, () => {
     const outcome = importDocument(requestOf({}))
     if (!outcome.ok) throw new Error(`premise: the merge is accepted, was ${JSON.stringify(outcome.refusal)}`)
-    const rows = outcome.document.schedule.taskGroups.filter((one) => one.id === 'shared-row')
-    expect(rows.map((one) => one.label), 'the row of the shared id keeps the current label').toEqual(['current label'])
+    const taskGroups = outcome.document.schedule.taskGroups.filter((one) => one.id === 'shared-task-group')
+    expect(taskGroups.map((one) => one.label), 'the row of the shared id keeps the current label').toEqual(['current label'])
     const notes = outcome.document.schedule.commentBoxes.filter((one) => one.id === 'shared-note')
     expect(notes.map((one) => one.text), 'the note of the shared id keeps the current text').toEqual(['current note'])
   })
@@ -116,7 +116,7 @@ afterEach(() => {
 
 describe('AG-6 -- the same name subscribed twice', () => {
   it(`${Q31} / ${Q32}`, () => {
-    const document = rowDocument([{ id: 'row-1', parentId: null }]) as unknown as Document
+    const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }]) as unknown as Document
     const since = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
     const first: ChangeNotice[] = []
     const second: ChangeNotice[] = []
@@ -141,7 +141,7 @@ afterEach(() => {
 
 describe('AG-11 -- no utterance while notices are being delivered', () => {
   it(`${Q33} / ${Q41}`, () => {
-    const built = shell(rowDocument([{ id: 'row-1', parentId: null }]))
+    const built = shell(taskGroupDocument([{ id: 'task-group-1', parentId: null }]))
     benches.push(built)
     const apiFor = (writerName: string): AgentApi =>
       installAgentApi({ ...built.loop.agentApiSeams(), writerName, schemaVersion: TEMPLATE.schemaVersion } as never)

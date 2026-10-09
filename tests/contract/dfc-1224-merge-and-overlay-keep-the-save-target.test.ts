@@ -84,8 +84,8 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-const HERE_ROW = '11111111-1111-4111-8111-111111111111'
-const THERE_ROW = '22222222-2222-4222-8222-222222222222'
+const HERE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
+const THERE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
 
 function documentWith(title: string, rowId: string, uids: readonly number[]): Document {
   const template = structuredClone(TEMPLATE) as Record<string, any>
@@ -96,7 +96,7 @@ function documentWith(title: string, rowId: string, uids: readonly number[]): Do
       project: { ...structuredClone(template['schedule'].project), title, uidHighWaterMark: 100 },
       calendars: structuredClone(template['schedule'].calendars),
       tasks: uids.map((uid) => ({
-        uid, wbsParentUid: null, wbsOrder: uid, name: `Task ${uid}`,
+        uid, parentTaskUid: null, wbsOrder: uid, name: `Task ${uid}`,
         start: '2026-04-01', finish: '2026-04-10', milestone: false, deadline: null,
         notes: null, calendarUid: null, actualStart: null, stop: null, actualFinish: null,
         resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
@@ -123,9 +123,9 @@ function documentWith(title: string, rowId: string, uids: readonly number[]): Do
   } as unknown as Document
 }
 
-const here = (): Document => documentWith('Here', HERE_ROW, [1, 2])
-const there = (): Document => documentWith('There', THERE_ROW, [11, 12])
-const overlapping = (): Document => documentWith('There', THERE_ROW, [1, 12])
+const here = (): Document => documentWith('Here', HERE_TASK_GROUP, [1, 2])
+const there = (): Document => documentWith('There', THERE_TASK_GROUP, [11, 12])
+const overlapping = (): Document => documentWith('There', THERE_TASK_GROUP, [1, 12])
 
 const SAVED_FILE_NAME = 'plan-of-record.json'
 const CHOSEN_FILE_NAME = 'there.json'
@@ -255,7 +255,7 @@ async function stage(saveTo: RecordingHandle, openFrom: RecordingHandle): Promis
     },
     take: async (at, entry, answer) => {
       part = {
-        part: at, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null,
+        part: at, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null,
         noticeDismissKey: null, ...(answer === undefined ? {} : { confirmationAnswer: answer }),
       } as unknown as ScreenPart
       loop.receiveInput(pointer('down'))

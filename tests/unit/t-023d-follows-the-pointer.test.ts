@@ -28,7 +28,7 @@
 //   schedule-geometry.ts `Point`, `BarGeometry`, `MarkerGeometry`,
 //                        `ResumeGeometry`, `TaskGeometry`, `CommentGeometry`,
 //                        `ScheduleGeometry`
-//   schedule-layout.ts   `RowPlacement`, `ScheduleLayout` (`pxPerDay`, `rows`)
+//   schedule-layout.ts   `TaskGroupPlacement`, `ScheduleLayout` (`pxPerDay`, `rows`)
 //   screen-regions.ts    `ScreenRect`
 //   screen-renderer.ts   `ScreenView`, `ScreenFrame` and `Scrollbar` (`axis`,
 //                        `track`, `thumb`) -- read for GR-21 alone, because the
@@ -345,11 +345,11 @@ const TEMPLATE_PATH = join(
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 /** One row of the schedule. The ids are UUIDs because AT-51 is one. */
-const ROW_A = '2a000000-0000-4000-8000-000000000001'
-const ROW_B = '2a000000-0000-4000-8000-000000000002'
-const ROW_C = '2a000000-0000-4000-8000-000000000003'
-const ROW_D = '2a000000-0000-4000-8000-000000000004'
-const ROW_E = '2a000000-0000-4000-8000-000000000005'
+const TASK_GROUP_A = '2a000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '2a000000-0000-4000-8000-000000000002'
+const TASK_GROUP_C = '2a000000-0000-4000-8000-000000000003'
+const TASK_GROUP_D = '2a000000-0000-4000-8000-000000000004'
+const TASK_GROUP_E = '2a000000-0000-4000-8000-000000000005'
 
 /** The Task the plan and actual rows are grabbed on. */
 const PLAIN_UID = 1
@@ -393,7 +393,7 @@ const PX_PER_DAY_AT_1X = 20
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -487,22 +487,22 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        group(ROW_A, 0, 'A'),
+        group(TASK_GROUP_A, 0, 'A'),
         // ⭐ EMPTY ON PURPOSE: GA-9's vertical half needs a row to be carried
         // ONTO, and an empty one keeps the case's release readable -- the
         // membership that changes is the only membership in it.
-        group(ROW_B, 1, 'B'),
-        group(ROW_C, 2, 'C'),
-        group(ROW_D, 3, 'D'),
+        group(TASK_GROUP_B, 1, 'B'),
+        group(TASK_GROUP_C, 2, 'C'),
+        group(TASK_GROUP_D, 3, 'D'),
         // ⭐ ALSO EMPTY: the comment box GR-14 grabs and the point GR-16's line
         // is pressed at both live here, so that no Task's bar can outrank
         // either of them (「上の行ほど優先すること（MUST）」).
-        group(ROW_E, 4, 'E'),
+        group(TASK_GROUP_E, 4, 'E'),
       ],
       taskGroupMembers: [
-        { taskUid: PLAIN_UID, groupId: ROW_A },
-        { taskUid: MILESTONE_UID, groupId: ROW_C },
-        { taskUid: SUSPENDED_UID, groupId: ROW_D },
+        { taskUid: PLAIN_UID, groupId: TASK_GROUP_A },
+        { taskUid: MILESTONE_UID, groupId: TASK_GROUP_C },
+        { taskUid: SUSPENDED_UID, groupId: TASK_GROUP_D },
       ],
       taskVisuals: [],
       commentBoxes: [
@@ -511,7 +511,7 @@ function fixtureDocument(): Document {
           leaderShapeKind: 'polyline',
           text: 'Note',
           anchorDate: BOX_ANCHOR,
-          anchorGroupId: ROW_E,
+          anchorGroupId: TASK_GROUP_E,
           bodyOffsetPx: null,
         },
       ],
@@ -688,7 +688,7 @@ const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPe
 
 /** Where one row's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).rows.find((one: any) => one.groupId === groupId)
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
@@ -860,12 +860,12 @@ const FOLLOWERS: readonly Follower[] = [
   {
     row: 'GR-16',
     area: '基準日線 -- 線の上',
-    // ⭐ PRESSED ON THE EMPTY ROW. The line runs the height of the `Row Area`
+    // ⭐ PRESSED ON THE EMPTY ROW. The line runs the height of the `Task Group Area`
     // and this row is the last of the table, so a point where it crosses a bar
     // belongs to GA-9; row E holds no Task, and the comment box stands far to
     // the left of the status date.
     press: (loop) => {
-      const band = bandOf(loop, ROW_E)
+      const band = bandOf(loop, TASK_GROUP_E)
       return { x: statusLineOf(loop).x, y: band.y + band.height / 2 }
     },
     reads: (loop) => statusLineOf(loop).x,
@@ -1037,7 +1037,7 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
 
   it('puts the empty row GR-16 is pressed on inside the line it presses', () => {
     const built = stage()
-    const band = bandOf(built.loop, ROW_E)
+    const band = bandOf(built.loop, TASK_GROUP_E)
     const line = statusLineOf(built.loop)
     const at = band.y + band.height / 2
     expect(at).toBeGreaterThanOrEqual(line.top)
@@ -1154,14 +1154,14 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
   })
 
   /** How far down row B stands from row A, as the frame placed the two bands. */
-  const downToRowB = (loop: FrameLoop): number => bandOf(loop, ROW_B).y - bandOf(loop, ROW_A).y
+  const downToTaskGroupB = (loop: FrameLoop): number => bandOf(loop, TASK_GROUP_B).y - bandOf(loop, TASK_GROUP_A).y
 
   it('carries the drawn bar down with the pointer (MUST)', () => {
     const built = stage()
     const at = grabPoint(built.loop)
     built.send(pointer('down', at.x, at.y))
     const held = midY(planBox(built.loop, PLAIN_UID))
-    const down = downToRowB(built.loop)
+    const down = downToTaskGroupB(built.loop)
     expect(down, 'row B stands below row A').toBeGreaterThan(0)
     built.send(pointer('move', at.x, at.y + down))
     expect(
@@ -1175,7 +1175,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     const at = grabPoint(built.loop)
     built.send(pointer('down', at.x, at.y))
     const held = midY(planBox(built.loop, PLAIN_UID))
-    const down = downToRowB(built.loop)
+    const down = downToTaskGroupB(built.loop)
     built.send(pointer('move', at.x, at.y + down))
     expect(midY(planBox(built.loop, PLAIN_UID))).toBeGreaterThan(held)
     built.send(pointer('move', at.x, at.y))
@@ -1190,7 +1190,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     const at = grabPoint(built.loop)
     const before = memberGroupOf(built.loop, PLAIN_UID)
     built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + downToRowB(built.loop)))
+    built.send(pointer('move', at.x, at.y + downToTaskGroupB(built.loop)))
     expect(
       memberGroupOf(built.loop, PLAIN_UID),
       'table T-023d: 掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）',
@@ -1279,7 +1279,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
   it('GR-16 settles `Project.statusDate` on the release', () => {
     const built = stage()
     const before = dayOf(statusDateOf(built.loop))
-    const band = bandOf(built.loop, ROW_E)
+    const band = bandOf(built.loop, TASK_GROUP_E)
     dragRight(built, { x: statusLineOf(built.loop).x, y: band.y + band.height / 2 })
     expect(
       dayOf(statusDateOf(built.loop)) > before,
@@ -1308,7 +1308,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     )
   })
 
-  it('GA-9 settles the row on a downward release, and moves no date and no WBS parent', () => {
+  it('GA-9 settles the row on a downward release, and moves no date and no parent task', () => {
     // FR-011: 「行をまたぐ移動では予定も実績も新しい行へ移るが、どちらの日付も
     // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別の行へ
     // 移す操作では WBS を変えてはならない（MUST NOT）—— 行の移動と階層の移動は
@@ -1319,14 +1319,14 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
       x: planBox(built.loop, PLAIN_UID).x1 - 4 * pxPerDay(built.loop),
       y: midY(planBox(built.loop, PLAIN_UID)),
     }
-    const down = bandOf(built.loop, ROW_B).y - bandOf(built.loop, ROW_A).y
+    const down = bandOf(built.loop, TASK_GROUP_B).y - bandOf(built.loop, TASK_GROUP_A).y
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x, at.y + down))
     built.send(pointer('up', at.x, at.y + down))
     expect(
       memberGroupOf(built.loop, PLAIN_UID),
       'table T-023d GA-9: 縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）',
-    ).toBe(ROW_B)
+    ).toBe(TASK_GROUP_B)
     const after = taskOf(built.loop, PLAIN_UID)
     expect(after.start, 'FR-011: どちらの日付も変わらない（MUST NOT）').toBe(before.start)
     expect(after.finish, 'FR-011: どちらの日付も変わらない（MUST NOT）').toBe(before.finish)
@@ -1334,9 +1334,9 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
       before.actualStart,
     )
     expect(
-      after.wbsParentUid,
+      after.parentTaskUid,
       'T-015a HM-3: タスクバーを別の行へ移す操作では WBS を変えてはならない（MUST NOT）',
-    ).toBe(before.wbsParentUid)
+    ).toBe(before.parentTaskUid)
   })
 
   it('settles once: moves that come after the release change nothing', () => {
@@ -1516,7 +1516,7 @@ describe('table T-023d GA-18 / table T-280 progressMarkerPressed (DFC-708): the 
 /**
  * A lane thick enough to press. ⚠️ `SCREEN` gives the scrollbars no thickness
  * at all, which is why the nine `FOLLOWERS` above never meet one: their figures
- * are all drawn inside the `Row Area`, and GR-21's is drawn inside the lane.
+ * are all drawn inside the `Task Group Area`, and GR-21's is drawn inside the lane.
  * ⭐ The number is this fixture's own environment and nothing the manuscript
  * fixes -- `FR-051` settles the thickness from the host, and `S-205` gives only
  * its floor -- so it is stated where it is used and nothing is asserted of it.
@@ -1539,12 +1539,12 @@ const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String
  * ⚠️ A WIDE SPAN ALONE DOES NOT OVERFLOW EITHER, and that is measured too:
  * `viewSettings` (`frame-loop.ts`) opens any document whose `scrollDate` is
  * unplaced by running FR-055's fit (`fitZoom`, PI-5), which picks a `zoomX`
- * that makes the content's width MATCH the `Row Area` almost exactly -- a
+ * that makes the content's width MATCH the `Task Group Area` almost exactly -- a
  * two-year span came back `pxPerDay=1.34, contentWidth=976.4` against a
- * `Row Area` 976px wide. ⭐ THE FLOOR IS WHAT MAKES A GRIP POSSIBLE: `S-97`
+ * `Task Group Area` 976px wide. ⭐ THE FLOOR IS WHAT MAKES A GRIP POSSIBLE: `S-97`
  * (`NOT_STORED_ZOOM_BOUNDS`, `edit-document.ts`) stops that fit at
  * `zoomX = 0.02`, so a span wide enough to ask for less than that -- more than
- * `rowArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
+ * `taskGroupArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
  * sixty years -- is fit at the FLOOR instead and spills over the lane for
  * real. ⛔ The forty extra rows need no such floor: they are flat, so nothing
  * about the fit can collapse them away, and `contentHeight` simply outgrows
@@ -1569,7 +1569,7 @@ function wideFixtureDocument(): Document {
       uid: OVERFLOW_UID,
       name: 'Overflow',
       start: '2026-04-01T00:00:00',
-      // WHY: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Row Area at the S-97 floor.
+      // WHY: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Task Group Area at the S-97 floor.
       finish: '2086-04-01T00:00:00',
     }),
   )
@@ -1591,7 +1591,7 @@ interface LaneStage {
  * the two lanes are -- because `Scrollbars` is UF-61's `ScreenFrame` and not
  * `FrameValues`, so `current()` cannot answer where the thumb is drawn, and
  * because the surface is the side that DREW them (SC-4 of table T-031), the
- * same bargain `dividerPanel` and `isRowGrabStrip` keep for the two bands this
+ * same bargain `dividerPanel` and `isTaskGroupGrabStrip` keep for the two bands this
  * file does not press.
  */
 function laneStage(): LaneStage {
@@ -1624,7 +1624,7 @@ function laneStage(): LaneStage {
         part: 'Schedule Canvas',
         entry: null,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -1716,14 +1716,14 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
     ).not.toContain(MEASURED_NOT_DRIVEN)
   })
 
-  it('is drawn on both axes, over a document that genuinely overflows the Row Area', () => {
+  it('is drawn on both axes, over a document that genuinely overflows the Task Group Area', () => {
     // 「`U-21` `Scrollbars`」 of table T-031, SC-4 (MUST): both of them, always.
     // ⛔ A PREMISE, NOT A DECORATION. `scrollGearing` answers zero wherever the
-    // `Row Area` is not shorter than the content it shows (`input-command-
+    // `Task Group Area` is not shorter than the content it shows (`input-command-
     // translator.ts`), so without a document that overflows BOTH axes the two
     // cases below would press a grip with nowhere to carry the picture to and
     // could not tell a working grab from a dead one -- which is exactly the
-    // shape `fixtureDocument` has (measured 2026-09-07: content and `Row Area`
+    // shape `fixtureDocument` has (measured 2026-09-07: content and `Task Group Area`
     // the same size on both axes).
     const built = laneStage()
     expect(built.view().frame.scrollbars.map((one) => one.axis)).toEqual([
@@ -1736,14 +1736,14 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       expect(bar.thumb[length], `${axis}: the thumb has no length to press`).toBeGreaterThan(0)
     }
     const frame = frameOf(built.loop)
-    const area = (built.loop.current() as any).regions.rowArea as { width: number; height: number }
+    const area = (built.loop.current() as any).regions.taskGroupArea as { width: number; height: number }
     expect(
       (frame.layout as any).contentWidth,
-      'wideFixtureDocument: the horizontal content must overflow the Row Area',
+      'wideFixtureDocument: the horizontal content must overflow the Task Group Area',
     ).toBeGreaterThan(area.width)
     expect(
       (frame.layout as any).contentHeight,
-      'wideFixtureDocument: the vertical content must overflow the Row Area',
+      'wideFixtureDocument: the vertical content must overflow the Task Group Area',
     ).toBeGreaterThan(area.height)
   })
 
@@ -1765,7 +1765,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       // its entry is simply absent from `geometry.tasks` at this scale, where
       // `OVERFLOW_UID`'s bar (spanning the whole thirty years) always is.
       const heldReading = (): number =>
-        axis === 'vertical' ? bandOf(built.loop, ROW_A).y : planBox(built.loop, OVERFLOW_UID).x0
+        axis === 'vertical' ? bandOf(built.loop, TASK_GROUP_A).y : planBox(built.loop, OVERFLOW_UID).x0
       built.send(pointer('down', at.x, at.y))
       const held = heldReading()
       built.send(pointer('move', at.x + (axis === 'vertical' ? 0 : 120), at.y + (axis === 'vertical' ? 120 : 0)))

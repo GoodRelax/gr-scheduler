@@ -191,20 +191,20 @@ export const bandAt = (page: Page, y: number): Promise<string | null> =>
     return null
   }, y)
 
-export const rowSelector = (groupId: string): string => '[data-role="Row Title Tree"] [data-group-id="' + groupId + '"]'
+export const taskGroupSelector = (groupId: string): string => '[data-role="Task Group Title Tree"] [data-group-id="' + groupId + '"]'
 
-export const groupIdOfRowNamed = (page: Page, name: string): Promise<string | null> =>
+export const groupIdOfTaskGroupNamed = (page: Page, name: string): Promise<string | null> =>
   page.evaluate((name) => {
-    for (const row of document.querySelectorAll('[data-role="Row Title Tree"] [data-group-id]')) {
+    for (const row of document.querySelectorAll('[data-role="Task Group Title Tree"] [data-group-id]')) {
       const span = row.querySelector(':scope > span')
       if (span && span.textContent === name) return row.getAttribute('data-group-id')
     }
     return null
   }, name)
 
-// TRAP: row controls are drawn only while the pointer is over the row name (HF-6).
-export const revealRow = async (page: Page, groupId: string): Promise<void> => {
-  const row = page.locator(rowSelector(groupId))
+// TRAP: row controls are drawn only while the pointer is over the task group name (HF-6).
+export const revealTaskGroup = async (page: Page, groupId: string): Promise<void> => {
+  const row = page.locator(taskGroupSelector(groupId))
   for (const direction of [1, -1]) {
     for (let i = 0; i < 25 && (await row.count()) === 0; i++) {
       await page.mouse.move(VIEWPORT.width / 2, VIEWPORT.height / 2)
@@ -221,8 +221,8 @@ export const revealRow = async (page: Page, groupId: string): Promise<void> => {
 }
 
 export const pressRowControl = async (page: Page, groupId: string, id: string): Promise<void> => {
-  await revealRow(page, groupId)
-  const row = page.locator(rowSelector(groupId))
+  await revealTaskGroup(page, groupId)
+  const row = page.locator(taskGroupSelector(groupId))
   await row.locator(':scope > span').first().hover()
   await row.locator(icon(id)).click()
   await settle(page)

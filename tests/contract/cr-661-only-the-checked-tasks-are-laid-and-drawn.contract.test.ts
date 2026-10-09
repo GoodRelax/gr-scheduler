@@ -11,8 +11,8 @@ import type { DocumentSettings } from '../../src/entity/document-model/document-
 import { blankTaskVisual } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout, type ScheduleGeometry } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { WbsParentFamilies } from '../../src/entity/layout-engine/schedule-geometry/wbs-parent-arrows'
-import { drawnGroups } from '../../src/entity/layout-engine/schedule-layout/drawn-rows'
+import type { ParentTaskFamilies } from '../../src/entity/layout-engine/schedule-geometry/parent-task-arrows'
+import { drawnGroups } from '../../src/entity/layout-engine/schedule-layout/drawn-task-groups'
 import { layoutFromSchedule, type ScheduleLayout } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen, type ScreenEnvironment } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 
@@ -27,7 +27,7 @@ const TD_8_ANCESTORS = '⭐ 祖先は、子孫にチェックしたタスクが�
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_20_FILTERED_END =
   '⭐ 端の `Task` が表示の絞り込み（`FR-151` の 表 T-353 の `TV-3`）で描かれないときも、その端は見えていない端とすること（MUST）'
-const EL_20_ROW_DRAWN = '載る行が描かれていても同じである'
+const EL_20_TASK_GROUP_DRAWN = '載る行が描かれていても同じである'
 const EL_20_NOT_DROPPED = '⛔ 立つ所が無いとして線を落としてはならない（MUST NOT）'
 const FR_135_FILTERED_END =
   '家族の矢印の片方の端のタスクが表示の絞り込み（`FR-151` の 表 T-353 の `TV-3`）で描かれないときは、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きの印を描くこと（MUST）'
@@ -39,7 +39,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['TD-8 ancestors stand as headings', TD_8_ANCESTORS],
   ['TV-3 (MUST NOT) not drawn faint', TV_3_NOT_FAINT],
   ['EL-20 (MUST) a filtered end is an unseen end', EL_20_FILTERED_END],
-  ['EL-20 even on a drawn row', EL_20_ROW_DRAWN],
+  ['EL-20 even on a drawn row', EL_20_TASK_GROUP_DRAWN],
   ['EL-20 (MUST NOT) the line is not dropped', EL_20_NOT_DROPPED],
   ['FR-135 (MUST) a family arrow with a filtered end', FR_135_FILTERED_END],
   ['FR-135 one manner for both lines', FR_135_ONE_MANNER],
@@ -58,16 +58,16 @@ const TEMPLATE = JSON.parse(
 // WHY: January 2026; Alpha and Bravo overlap in row C so the row stacks two lanes, Charlie sits alone in row Q.
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 
-const ROW_P = '5c000000-0000-4000-8000-000000006610'
-const ROW_C = '5c000000-0000-4000-8000-000000006611'
-const ROW_Q = '5c000000-0000-4000-8000-000000006612'
+const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006610'
+const TASK_GROUP_C = '5c000000-0000-4000-8000-000000006611'
+const TASK_GROUP_Q = '5c000000-0000-4000-8000-000000006612'
 const ALPHA = 1
 const BRAVO = 2
 const CHARLIE = 3
 
 const taskRow = (uid: number, name: string, from: number, to: number, part: Record<string, unknown> = {}): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name,
   start: day(from),
@@ -90,7 +90,7 @@ const taskRow = (uid: number, name: string, from: number, to: number, part: Reco
   ...part,
 })
 
-const row = (id: string, parentId: string | null, label: string, order: number, treeState: string): Record<string, unknown> => ({
+const taskGroup = (id: string, parentId: string | null, label: string, order: number, treeState: string): Record<string, unknown> => ({
   id,
   parentId,
   label,
@@ -106,7 +106,7 @@ const FS = { predecessorUid: ALPHA, linkType: 1, lag: 0, lagFormat: 7, carry: {}
 function readDocument(parentState: string): Document {
   const tasks = [
     taskRow(ALPHA, 'Alpha', 5, 9),
-    taskRow(BRAVO, 'Bravo', 6, 8, { wbsParentUid: ALPHA }),
+    taskRow(BRAVO, 'Bravo', 6, 8, { parentTaskUid: ALPHA }),
     taskRow(CHARLIE, 'Charlie', 12, 14, { dependencies: [FS] }),
   ]
   const text = JSON.stringify({
@@ -118,11 +118,11 @@ function readDocument(parentState: string): Document {
       tasks,
       resources: [],
       assignments: [],
-      taskGroups: [row(ROW_P, null, 'P', 0, parentState), row(ROW_C, ROW_P, 'C', 1, 'auto'), row(ROW_Q, null, 'Q', 2, 'auto')],
+      taskGroups: [taskGroup(TASK_GROUP_P, null, 'P', 0, parentState), taskGroup(TASK_GROUP_C, TASK_GROUP_P, 'C', 1, 'auto'), taskGroup(TASK_GROUP_Q, null, 'Q', 2, 'auto')],
       taskGroupMembers: [
-        { taskUid: ALPHA, groupId: ROW_C },
-        { taskUid: BRAVO, groupId: ROW_C },
-        { taskUid: CHARLIE, groupId: ROW_Q },
+        { taskUid: ALPHA, groupId: TASK_GROUP_C },
+        { taskUid: BRAVO, groupId: TASK_GROUP_C },
+        { taskUid: CHARLIE, groupId: TASK_GROUP_Q },
       ],
       taskVisuals: tasks.map((one) => blankTaskVisual(one['uid'] as number)),
       commentBoxes: [],
@@ -152,8 +152,8 @@ const layoutOf = (document: Document, shown: readonly number[] | null): Schedule
   return layoutFromSchedule(document.schedule, settings, regions, undefined, undefined, shown === null ? null : new Set(shown))
 }
 
-// WHY: Bravo states Alpha as its WBS parent; the family is drawn for Bravo as its owner (FR-135).
-const FAMILIES: WbsParentFamilies = {
+// WHY: Bravo states Alpha as its parent task; the family is drawn for Bravo as its owner (FR-135).
+const FAMILIES: ParentTaskFamilies = {
   resolutions: new Map([[BRAVO, { kind: 'stated', parentUid: ALPHA }]]),
   ownerUids: [BRAVO],
   pointedUid: null,
@@ -167,16 +167,16 @@ const geometryOf = (document: Document, shown: readonly number[] | null): Schedu
   return geometryFromLayout(document.schedule, settings, layout, regions, emptySelection(), null, undefined, FAMILIES)
 }
 
-const rowOf = (layout: ScheduleLayout, id: string) => layout.rows.find((one) => one.groupId === id)
+const rowOf = (layout: ScheduleLayout, id: string) => layout.taskGroups.find((one) => one.groupId === id)
 
 describe(`FR-003 (MUST): ${FR_003_LANES}`, () => {
   it('unfiltered, the overlapping Alpha and Bravo stack two lanes in row C', () => {
-    expect(rowOf(layoutOf(OPEN, null), ROW_C)?.stackCount).toBe(2)
+    expect(rowOf(layoutOf(OPEN, null), TASK_GROUP_C)?.stackCount).toBe(2)
   })
 
   it('with only Alpha checked, row C stacks one lane and its height follows that count', () => {
-    const whole = rowOf(layoutOf(OPEN, null), ROW_C)
-    const narrowed = rowOf(layoutOf(OPEN, [ALPHA, CHARLIE]), ROW_C)
+    const whole = rowOf(layoutOf(OPEN, null), TASK_GROUP_C)
+    const narrowed = rowOf(layoutOf(OPEN, [ALPHA, CHARLIE]), TASK_GROUP_C)
     expect(narrowed?.stackCount).toBe(1)
     expect(narrowed?.height ?? 0).toBeLessThan(whole?.height ?? 0)
   })
@@ -191,8 +191,8 @@ describe(`TD-8 (MUST NOT): ${TD_8_KEEPS_TREE_STATE}`, () => {
   it('a row with no checked task at or below it is not drawn; the ancestor of a checked task is', () => {
     const ids = (shown: readonly number[]): string[] =>
       drawnGroups(OPEN.schedule, OPEN.documentSettings, new Set(shown)).map((one) => one.id)
-    expect(ids([CHARLIE])).toEqual([ROW_Q])
-    expect(ids([BRAVO])).toEqual([ROW_P, ROW_C])
+    expect(ids([CHARLIE])).toEqual([TASK_GROUP_Q])
+    expect(ids([BRAVO])).toEqual([TASK_GROUP_P, TASK_GROUP_C])
   })
 
   it('narrowing writes no treeState: the document is byte for byte what it was', () => {
@@ -205,8 +205,8 @@ describe(`TD-8 (MUST NOT): ${TD_8_KEEPS_TREE_STATE}`, () => {
 
   it('a folded ancestor is not opened by the narrowing itself: the other rows of T-329 still apply', () => {
     const ids = drawnGroups(FOLDED.schedule, FOLDED.documentSettings, new Set([ALPHA])).map((one) => one.id)
-    expect(ids).toContain(ROW_P)
-    expect(ids).not.toContain(ROW_C)
+    expect(ids).toContain(TASK_GROUP_P)
+    expect(ids).not.toContain(TASK_GROUP_C)
     expect(FOLDED.schedule.taskGroups[0]?.treeState).toBe('collapsed')
   })
 })
@@ -234,7 +234,7 @@ describe(`EL-20 (MUST): ${EL_20_FILTERED_END}`, () => {
     expect(link?.continuation?.dots.length ?? 0).toBeGreaterThan(0)
   })
 
-  it(`Alpha unchecked while its row C is drawn for Bravo: ${EL_20_ROW_DRAWN}`, () => {
+  it(`Alpha unchecked while its row C is drawn for Bravo: ${EL_20_TASK_GROUP_DRAWN}`, () => {
     const geometry = geometryOf(OPEN, [BRAVO, CHARLIE])
     expect(geometry.tasks.map((one) => one.taskUid)).not.toContain(ALPHA)
     const link = linkOf(geometry)
@@ -244,7 +244,7 @@ describe(`EL-20 (MUST): ${EL_20_FILTERED_END}`, () => {
 })
 
 describe(`FR-135 (MUST): ${FR_135_FILTERED_END}`, () => {
-  const arrowOf = (geometry: ScheduleGeometry) => geometry.wbsParents?.arrows.find((one) => one.childUid === BRAVO)
+  const arrowOf = (geometry: ScheduleGeometry) => geometry.parentTasks?.arrows.find((one) => one.childUid === BRAVO)
 
   it('both ends drawn: the family arrow carries no continuation mark', () => {
     expect(arrowOf(geometryOf(OPEN, null))?.continuationDots ?? []).toEqual([])

@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const TC_8_CARRIES_THE_REASON = '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
 const TC_8_WHY_IT_IS_CARRIED =
   '⭐ 運ぶのは、出し分けを同表の欄の値 1 つで変えられるようにするためである —— 運ばなければ、欄を変えても何も出ない。'
-const FR_033_SEVERAL_ROWS_ARE_REFUSED =
+const FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED =
   '⛔ 貼り付け先として行が 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST） —— どの行の子とするかが決まらない。'
 const FR_033_THE_REASON_IS_RS_27 = '⚠️ この場面に当たる 表 T-233 の行は無いので、運ぶ理由は同要求の落ち先の `RS-27` である。'
 const FR_008_A_RENAME_CARRIES_RS_49 =
@@ -46,7 +46,7 @@ describe('the clauses CR-718 wrote still read word for word', () => {
   it.each([
     ['FR-001 TC-8 (MUST) -- the reason nothing was made is carried', TC_8_CARRIES_THE_REASON],
     ['FR-001 TC-8 -- why it is carried', TC_8_WHY_IT_IS_CARRIED],
-    ['FR-033 (MUST) -- several chosen rows refuse the paste', FR_033_SEVERAL_ROWS_ARE_REFUSED],
+    ['FR-033 (MUST) -- several chosen rows refuse the paste', FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED],
     ['FR-033 -- the reason is RS-27', FR_033_THE_REASON_IS_RS_27],
     ['FR-008 (MUST) -- a rename carries RS-49', FR_008_A_RENAME_CARRIES_RS_49],
     ['FR-076 (MUST) -- the display column decides', FR_076_THE_COLUMN_DECIDES],

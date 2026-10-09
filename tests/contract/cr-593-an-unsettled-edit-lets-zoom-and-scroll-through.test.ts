@@ -67,7 +67,7 @@ function documentOf(): Document {
 }
 
 const DOCUMENT = documentOf()
-const FIRST_ROW = DOCUMENT.schedule.taskGroups[0]?.id ?? null
+const FIRST_TASK_GROUP = DOCUMENT.schedule.taskGroups[0]?.id ?? null
 
 // see CM-65, UN-8
 const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as DocumentCommand
@@ -75,7 +75,7 @@ const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as Documen
 const SCROLL = {
   kind: kindOf('CM-66'),
   scrollDate: '2026-03-02',
-  scrollGroupId: FIRST_ROW,
+  scrollGroupId: FIRST_TASK_GROUP,
   scrollDayOffset: 0,
   scrollGroupOffset: 0,
 } as unknown as DocumentCommand
@@ -85,7 +85,7 @@ const FIT = {
   zoomX: 2,
   zoomY: 2,
   scrollDate: '2026-03-02',
-  scrollGroupId: FIRST_ROW,
+  scrollGroupId: FIRST_TASK_GROUP,
   scrollDayOffset: 0,
   scrollGroupOffset: 0,
 } as unknown as DocumentCommand
@@ -100,7 +100,7 @@ const NOT_UN_8: readonly (readonly [string, DocumentCommand])[] = [
   ['CM-1 (UN-13, the document name)', { kind: kindOf('CM-1'), title: 'CR-593 another title' } as unknown as DocumentCommand],
 ]
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
@@ -111,7 +111,7 @@ const DELIVERING: WriteMoment = { ...CALM, deliveringNotices: true }
 
 const planOf = (commands: readonly DocumentCommand[], moment: WriteMoment) =>
   planDocumentChange({
-    defaultRowName: 'cr-593 default row name',
+    defaultTaskGroupName: 'cr-593 default task group name',
     document: DOCUMENT,
     readStamp: DOCUMENT.documentStamp,
     commands,

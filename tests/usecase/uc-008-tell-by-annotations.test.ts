@@ -35,11 +35,11 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   let commentId = ''
   const ANCHOR = await bareSpotNear(page, ANCHOR_NEAR)
   const RANGE_FROM = await bareSpotNear(page, RANGE_FROM_NEAR)
-  let anchorRow: string | null = null
+  let anchorTaskGroup: string | null = null
 
   await test.step('UC-008 step 1: place a comment box and decide what it points at (IC-35, AR-5)', async () => {
-    anchorRow = await bandAt(page, ANCHOR.y)
-    expect(anchorRow).not.toBeNull()
+    anchorTaskGroup = await bandAt(page, ANCHOR.y)
+    expect(anchorTaskGroup).not.toBeNull()
     const axis = await dayAxis(page)
     await press(page, 'IC-35')
     await page.mouse.click(ANCHOR.x, ANCHOR.y)
@@ -55,21 +55,21 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   await test.step('UC-008 step 2: the anchor is a date and a row id, only the body offset is in screen pixels, and the body carries the anchor (FR-019, T-023d)', async () => {
     const before = (await readDocument(page)).schedule.commentBoxes[0]!
     const body = (await figureBox(page, 'comment-' + commentId))!
-    const band = (await figureBox(page, 'row-' + anchorRow + '-band'))!
+    const band = (await figureBox(page, 'row-' + anchorTaskGroup + '-band'))!
     const axis = await dayAxis(page)
-    const rowUnderTheMovedAnchor = await bandAt(page, band.y + band.h / 2 + OFFSET.dy)
+    const taskGroupUnderTheMovedAnchor = await bandAt(page, band.y + band.h / 2 + OFFSET.dy)
     await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy })
     const box = (await readDocument(page)).schedule.commentBoxes[0]!
     const moved = (await figureBox(page, 'comment-' + commentId))!
     expect(Math.abs(moved.x - body.x - OFFSET.dx)).toBeLessThanOrEqual(1)
     expect(Math.abs(moved.y - body.y - OFFSET.dy)).toBeLessThanOrEqual(1)
     expect(Math.abs(dayNumber(box.anchorDate) - axis.dayOf(axis.xOf(dayNumber(before.anchorDate)) + OFFSET.dx))).toBeLessThanOrEqual(1)
-    expect(box.anchorGroupId).toBe(rowUnderTheMovedAnchor)
+    expect(box.anchorGroupId).toBe(taskGroupUnderTheMovedAnchor)
     expect(Number.isFinite(box.bodyOffsetPx.dx) && Number.isFinite(box.bodyOffsetPx.dy)).toBe(true)
     await press(page, 'IC-13')
     expect((await readDocument(page)).schedule.commentBoxes[0]!.bodyOffsetPx).toEqual(box.bodyOffsetPx)
     await press(page, 'IC-12')
-    anchorRow = box.anchorGroupId
+    anchorTaskGroup = box.anchorGroupId
   })
 
   await test.step('UC-008 extension 1a: the body text is typed and drawn inside the box (FR-097, MK-13, PR-21)', async () => {
@@ -132,7 +132,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
 
   await test.step('UC-008 extension 2a: when the pointed row is hidden, the comment box is hidden with it (FR-019)', async () => {
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(1)
-    await pressRowControl(page, anchorRow!, 'IC-59')
+    await pressRowControl(page, anchorTaskGroup!, 'IC-59')
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(0)
   })
 })

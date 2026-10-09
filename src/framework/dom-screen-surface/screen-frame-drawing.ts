@@ -28,7 +28,7 @@ function boxStyleWithin(box: ScreenRect, container: ScreenRect): string {
 /** @purity pure */
 export function panelEdge(
   frame: ScreenFrame,
-  panel: 'rowTitlePanel' | 'propertiesPanel',
+  panel: 'taskGroupPanel' | 'propertiesPanel',
 ): ScreenRect | null {
   const divider = frame.dividers.find((one) => one.panel === panel)
   return divider === undefined ? null : divider.line

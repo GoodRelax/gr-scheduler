@@ -22,11 +22,11 @@ import {
 import {
   displayScaleFractionOf,
   drawnSettingsOf,
-  rowControlLatticeHeightPx,
+  taskGroupControlLatticeHeightPx,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
 import { assigneeLabelsOf } from './assignee-label'
-import { drawnGroups } from './drawn-rows'
+import { drawnGroups } from './drawn-task-groups'
 import { groupDepthLimit, keptInViewByTreeState } from './group-level-of-detail'
 import {
   assigneeAnchorOf,
@@ -38,8 +38,8 @@ import {
 import { labelWidth } from './label-width'
 import { nameLabelOf, nameLabelWidthOf, planDatesSpanYears } from './name-label'
 import { outsideLabelOf, percentLabelOf } from './percent-label'
-import { liftedRows, pinnedBandOf, shiftedPlacements } from './pinned-band'
-import { scrollOffsetOf, scrolledPlacements, scrolledRows } from './row-scroll'
+import { liftedTaskGroups, pinnedBandOf, shiftedPlacements } from './pinned-band'
+import { scrollOffsetOf, scrolledPlacements, scrolledTaskGroups } from './task-group-scroll'
 import {
   actualPlacementOf,
   actualReachOf,
@@ -65,7 +65,7 @@ export {
   zoomYAtRectangleLabelFont,
 } from './shape-cross-sections'
 export { groupDepthLimit, groupDepthThresholdOf, keptInViewByTreeState } from './group-level-of-detail'
-export { inTreeOrder, isDroppedByTreeState } from './drawn-rows'
+export { inTreeOrder, isDroppedByTreeState } from './drawn-task-groups'
 export {
   NOT_STORED_SIZES,
   assigneeAnchorOf,
@@ -137,7 +137,7 @@ export interface TaskPlacement {
   readonly outlineWidth?: number
 }
 
-export interface RowPlacement {
+export interface TaskGroupPlacement {
   readonly groupId: string
   readonly depth: number
   readonly y: number
@@ -152,10 +152,10 @@ export interface ScheduleLayout {
   readonly pxPerDay: number
   readonly tier: RulerTier
   readonly originDay: CalendarDay | null
-  // TRAP: axis readers start here, not at the Row Area edge: S-177 puts that edge inside the day.
+  // TRAP: axis readers start here, not at the Task Group Area edge: S-177 puts that edge inside the day.
   readonly originX: number
   readonly rectangleHeight: number
-  readonly rows: readonly RowPlacement[]
+  readonly taskGroups: readonly TaskGroupPlacement[]
   readonly placements: readonly TaskPlacement[]
   readonly contentWidth: number
   readonly contentHeight: number
@@ -385,12 +385,12 @@ function dummyReachOf(
 }
 
 // see LF-3, HF-19, FR-085
-// WHY: the row name's box is a floor too, or a zoomed-down row loses the name that tells it apart.
+// WHY: the task group name's box is a floor too, or a zoomed-down row loses the name that tells it apart.
 // TRAP: never add the row controls' lattice here: it floors no band (HF-19); LF-16 reserves it.
 // TRAP: takes the DRAWN settings; the stored ones would miss the display ratio (FR-039).
 /** @purity pure */
 function bandFloorOf(depth: number, drawn: DrawnSettings): number {
-  return depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
+  return depth === 1 ? drawn.taskGroupTitleFont * drawn.taskGroupTitleTopScale : drawn.taskGroupTitleFont
 }
 
 // see DS-13, FR-042
@@ -411,13 +411,13 @@ function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGa
 // see LF-16, HF-19
 // TRAP: the pinned band gets none: LF-16 reserves only below the last scrolling row.
 /** @purity pure */
-function lastRowReserveOf(
-  scrollingRows: readonly RowPlacement[],
-  rowControlsHeightPx: number | undefined,
+function lastTaskGroupReserveOf(
+  scrollingTaskGroups: readonly TaskGroupPlacement[],
+  taskGroupControlsHeightPx: number | undefined,
 ): number {
-  const last = scrollingRows[scrollingRows.length - 1]
+  const last = scrollingTaskGroups[scrollingTaskGroups.length - 1]
   if (last === undefined) return 0
-  const lattice = Math.max(rowControlLatticeHeightPx(), rowControlsHeightPx ?? 0)
+  const lattice = Math.max(taskGroupControlLatticeHeightPx(), taskGroupControlsHeightPx ?? 0)
   return Math.max(0, lattice - last.height)
 }
 
@@ -440,7 +440,7 @@ export function layoutFromSchedule(
   storedSettings: DocumentSettings,
   regions: ScreenRegions,
   groupDepthCap?: number,
-  rowControlsHeightPx?: number,
+  taskGroupControlsHeightPx?: number,
   shownTaskUids: ReadonlySet<number> | null = null,
 ): ScheduleLayout {
   const settings = drawnSettingsOf(storedSettings)
@@ -449,9 +449,9 @@ export function layoutFromSchedule(
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const pinnedIds = new Set(settings.pinnedGroupIds)
-  const unfoldedRows = drawnGroups(schedule, settings, shownTaskUids)
-  const keptOpenIds = keptInViewByTreeState(unfoldedRows, 'expandedAndTemporary')
-  const rows = unfoldedRows.filter(
+  const unfoldedTaskGroups = drawnGroups(schedule, settings, shownTaskUids)
+  const keptOpenIds = keptInViewByTreeState(unfoldedTaskGroups, 'expandedAndTemporary')
+  const rows = unfoldedTaskGroups.filter(
     (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id) || keptOpenIds.has(glyph.id),
   )
 
@@ -465,9 +465,9 @@ export function layoutFromSchedule(
   // TRAP: S-232 alone decides; never tie it to planVisible (S-227), or hiding the plan moves the name (FR-049).
   const datesWithYear = settings.planDatesVisible ? planDatesSpanYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
-  const rowPlacements: RowPlacement[] = []
+  const taskGroupPlacements: TaskGroupPlacement[] = []
 
-  let y = regions.rowArea.y
+  let y = regions.taskGroupArea.y
   // TRAP: infinite seeds, not 0: 0 stretches the width to x = 0 when all content sits left of the origin.
   let widest = Number.NEGATIVE_INFINITY
   let leftmost = Number.POSITIVE_INFINITY
@@ -659,7 +659,7 @@ export function layoutFromSchedule(
       leftmost = Math.min(leftmost, item.occupiedX0)
     })
 
-    rowPlacements.push({
+    taskGroupPlacements.push({
       groupId: row.id,
       depth: row.depth,
       y,
@@ -667,17 +667,17 @@ export function layoutFromSchedule(
       stackCount: lanes.length,
       stackTops: tops.length === 0 ? [y] : tops,
     })
-    y += height + settings.rowGap
+    y += height + settings.taskGroupGap
   }
 
-  const band = pinnedBandOf(rowPlacements, settings, regions)
-  const lifted = liftedRows(rowPlacements, band)
+  const band = pinnedBandOf(taskGroupPlacements, settings, regions)
+  const lifted = liftedTaskGroups(taskGroupPlacements, band)
   const shifted = shiftedPlacements(placements, band.shiftByGroupId, band.droppedPinnedIds)
 
-  const scrollingRows = lifted.filter((row) => row.isPinned !== true)
-  const scrollOffsetY = scrollOffsetOf(scrollingRows, settings, band.scrollAreaY)
+  const scrollingTaskGroups = lifted.filter((taskGroup) => taskGroup.isPinned !== true)
+  const scrollOffsetY = scrollOffsetOf(scrollingTaskGroups, settings, band.scrollAreaY)
   const contentHeight =
-    Math.max(0, band.scrollingContentHeight) + lastRowReserveOf(scrollingRows, rowControlsHeightPx)
+    Math.max(0, band.scrollingContentHeight) + lastTaskGroupReserveOf(scrollingTaskGroups, taskGroupControlsHeightPx)
   const nothingPlaced = leftmost === Number.POSITIVE_INFINITY
   const contentWidth = nothingPlaced ? 0 : Math.max(0, widest - leftmost)
   const contentX0 = nothingPlaced ? null : leftmost
@@ -689,7 +689,7 @@ export function layoutFromSchedule(
     originDay,
     originX,
     rectangleHeight: planHeightOf('rectangle', settings),
-    rows: scrolledRows(lifted, scrollOffsetY),
+    taskGroups: scrolledTaskGroups(lifted, scrollOffsetY),
     placements: scrolledPlacements(shifted, scrollOffsetY, band.pinnedIdsPlaced),
     contentWidth,
     contentHeight,
@@ -708,20 +708,20 @@ export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlac
 
 // see FR-016, T-068
 /** @purity pure */
-export function rowPlacesAtZoomY(
+export function taskGroupPlacesAtZoomY(
   schedule: Schedule,
   settings: DocumentSettings,
   regions: ScreenRegions,
   zoomY: number,
-  rowControlsHeightPx?: number,
-): readonly RowPlacement[] {
+  taskGroupControlsHeightPx?: number,
+): readonly TaskGroupPlacement[] {
   return layoutFromSchedule(
     schedule,
     { ...settings, zoomY },
     regions,
     undefined,
-    rowControlsHeightPx,
-  ).rows
+    taskGroupControlsHeightPx,
+  ).taskGroups
 }
 
 // <generated -- do not edit by hand>

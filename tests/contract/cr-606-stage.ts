@@ -30,7 +30,7 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { rowDocument, taskOf as seedTaskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf as seedTaskOf } from '../unit/cr-541-stage'
 import { unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
@@ -166,7 +166,7 @@ export const commentBoxOf = (id: string, part: Record<string, unknown> = {}): Re
 })
 
 export function documentOf(seed: Seed): Document {
-  const built = rowDocument([{ id: GROUP_ID, parentId: null }], {}, {
+  const built = taskGroupDocument([{ id: GROUP_ID, parentId: null }], {}, {
     tasks: seed.tasks,
     taskGroupMembers: seed.tasks.map((one) => ({ taskUid: one['uid'], groupId: GROUP_ID })),
     taskVisuals: seed.visuals ?? [],
@@ -195,7 +195,7 @@ const readingsOf = (schedule: Schedule, groupIds: readonly string[]): ScreenView
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   }) as ScreenViewReadings
 
@@ -260,7 +260,7 @@ export function contextOf(document: Document): InputContext {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }

@@ -38,7 +38,7 @@
 //                the row every other write refusal keeps
 //   T-067 WS-3   「操作を検証し、新しい文書を組み立てる。1 つでも拒まれたら全部を
 //                捨てる」 -- why one bundle carries one telling
-//   T-016 PR-47  `finish` (split from PR-3 by CR-689), and PR-15 `wbsParentUid` --
+//   T-016 PR-47  `finish` (split from PR-3 by CR-689), and PR-15 `parentTaskUid` --
 //                the two panel items these cases settle a value in
 //   T-065 IF-9   the seam a value settled in a field of the `Properties Panel`
 //                arrives on, carrying the row it names
@@ -304,7 +304,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
 
   it('⭐ table T-016 still edits the two items these cases settle a value in', () => {
     expect(columnsOf('PR-47')).toEqual(['finish'])
-    expect(columnsOf('PR-15')).toEqual(['wbsParentUid'])
+    expect(columnsOf('PR-15')).toEqual(['parentTaskUid'])
   })
 })
 
@@ -313,7 +313,7 @@ describe('the rows these cases are driven by are still in the manuscript', () =>
 // ===========================================================================
 
 describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-10', () => {
-  it('⭐⭐ RS-55: a WBS parent that is the task itself carries HM-4s own row, which table T-233 does not show (CR-712), and never RS-10', () => {
+  it('⭐⭐ RS-55: a parent task that is the task itself carries HM-4s own row, which table T-233 does not show (CR-712), and never RS-10', () => {
     // ⛔⛔ THE DEFECT. Table T-233 gained `RS-55` and the dictionary gained its
     // words, and the reader was still told `RS-10` -- 「命令が拒否されたので、束
     // ごと落とした」, whose next step is 「拒まれた変更を取り除いて、もう一度」.
@@ -324,7 +324,7 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
 
     one.settle({
       row: 'PR-15',
-      key: { holder: 'task', uid: task.uid, column: 'wbsParentUid' },
+      key: { holder: 'task', uid: task.uid, column: 'parentTaskUid' },
       text: String(task.uid),
     })
 
@@ -375,7 +375,7 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
 // ===========================================================================
 
 describe('DFC-406 / table T-233: a refusal the table names no row for keeps RS-10', () => {
-  it('⭐⭐ a WBS parent naming a uid the document does not hold is told RS-10', () => {
+  it('⭐⭐ a parent task naming a uid the document does not hold is told RS-10', () => {
     // ⛔⛔ THE HALF THAT WAS UNGUARDED (measured 2026-09-08). Widening the
     // shell's test until `RS-10` became unreachable took ZERO cases red, so
     // nothing held the routing in the other direction: a build that answered
@@ -391,7 +391,7 @@ describe('DFC-406 / table T-233: a refusal the table names no row for keeps RS-1
 
     one.settle({
       row: 'PR-15',
-      key: { holder: 'task', uid: task.uid, column: 'wbsParentUid' },
+      key: { holder: 'task', uid: task.uid, column: 'parentTaskUid' },
       text: String(absent),
     })
 

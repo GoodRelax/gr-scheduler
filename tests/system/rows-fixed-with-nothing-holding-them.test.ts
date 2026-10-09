@@ -53,9 +53,9 @@ function columnRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
-// WHY: IR-1 marks a field by its table T-016 row; the row-name field alone
+// WHY: IR-1 marks a field by its table T-016 row; the task-group-name field alone
 // keeps the ERD column (AT-53), so only the name is read from table T-058.
-const ROW_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
+const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
 
 /** @purity pure */
 function propertyRowOf(entity: string, column: string): string {
@@ -154,7 +154,7 @@ interface Opened {
 // row fixes how a part is marked in the page.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
-const ROW_PANEL = '[data-role="Row Title Panel"]'
+const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const PROPERTIES = '[data-role="Properties Panel"]'
 const SCROLLBARS = '[data-role="Scrollbars"]'
 const DIVIDER = '[data-role="Panel Divider"]'
@@ -177,7 +177,7 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-interface DrawnRow {
+interface DrawnTaskGroup {
   readonly depth: number
   readonly height: number
   readonly label: string
@@ -187,7 +187,7 @@ interface DrawnRow {
 }
 
 /** @purity semi-pure-b */
-async function drawnRows(page: Page): Promise<DrawnRow[]> {
+async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => ({
       depth: Number(row.getAttribute('data-depth')),
@@ -297,7 +297,7 @@ const REACH_PX = 160
 // WHY: ground below the last row does not do -- FR-019 (MUST) holds an
 // annotation's position by a row identifier, which that ground has none of.
 /** @purity non-pure */
-async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
+async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     (asked: { panel: string; reach: number }) => {
       const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
@@ -314,7 +314,7 @@ async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } |
         middles,
       }
     },
-    { panel: ROW_PANEL, reach: REACH_PX },
+    { panel: TASK_GROUP_PANEL_BOX, reach: REACH_PX },
   )
   if (ground === null) return null
   for (const y of ground.middles) {
@@ -340,16 +340,16 @@ async function panelFields(page: Page): Promise<Record<string, string>> {
 }
 
 /** @purity semi-pure-b */
-async function rowPanelWidth(page: Page): Promise<number> {
+async function taskGroupPanelBoxWidth(page: Page): Promise<number> {
   return page.evaluate(
     (panel: string) =>
       Math.round(document.querySelector(panel)?.getBoundingClientRect().width ?? -1),
-    ROW_PANEL,
+    TASK_GROUP_PANEL_BOX,
   )
 }
 
 /** @purity non-pure */
-async function openPanelOnRow(page: Page, index: number): Promise<void> {
+async function openPanelOnTaskGroup(page: Page, index: number): Promise<void> {
   const spot = await nameSpotOf(page, index)
   expect(spot, `row ${index} draws a name a pointer can reach`).not.toBeNull()
   await pressTwice(page, spot as { x: number; y: number })
@@ -480,7 +480,7 @@ test('DFC-215: FR-100 -- the host warning is asked for only once the document is
 
     expect(await wouldWarn(), 'FR-100 (MUST NOT): a document with no edit warns nobody').toBe(false)
 
-    await openPanelOnRow(opened.page, 0)
+    await openPanelOnTaskGroup(opened.page, 0)
     await commitField(opened.page, 'text', 'a name this case typed')
 
     expect(await wouldWarn(), 'FR-100 (MUST): an unsaved edit makes the host warn').toBe(true)
@@ -491,17 +491,17 @@ test('DFC-215: FR-100 -- the host warning is asked for only once the document is
 
 // WHY: the field is found by the column table T-058 gives it, so this case
 // follows a renumbering of the manuscript rather than naming AT-53 itself.
-test('DFC-180: pressing a row name twice opens the panel with the name field focused and all of it selected', async ({
+test('DFC-180: pressing a task group name twice opens the panel with the name field focused and all of it selected', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
   try {
-    const before = await drawnRows(opened.page)
+    const before = await drawnTaskGroups(opened.page)
     expect(before.length, 'the startup document draws rows to press').toBeGreaterThan(0)
-    const name = (before[0] as DrawnRow).label
+    const name = (before[0] as DrawnTaskGroup).label
     expect(name, 'the row this case presses has a name').not.toBe('')
 
-    await openPanelOnRow(opened.page, 0)
+    await openPanelOnTaskGroup(opened.page, 0)
 
     const state = await opened.page.evaluate(
       (asked: { panel: string; column: string }) => {
@@ -521,13 +521,13 @@ test('DFC-180: pressing a row name twice opens the panel with the name field foc
               0) > 0,
         }
       },
-      { panel: PROPERTIES, column: ROW_NAME_COLUMN },
+      { panel: PROPERTIES, column: TASK_GROUP_NAME_COLUMN },
     )
 
     expect(state.panelWidth, 'MK-13: the panel is put up').toBeGreaterThan(0)
-    expect(state.hasNameField, `MK-13: the panel carries the ${ROW_NAME_COLUMN} field`).toBe(true)
-    expect(state.focusedRow, `MK-13: the focus is on ${ROW_NAME_COLUMN}`).toBe(ROW_NAME_COLUMN)
-    expect(state.selection?.value, 'MK-13: the field holds the row name').toBe(name)
+    expect(state.hasNameField, `MK-13: the panel carries the ${TASK_GROUP_NAME_COLUMN} field`).toBe(true)
+    expect(state.focusedRow, `MK-13: the focus is on ${TASK_GROUP_NAME_COLUMN}`).toBe(TASK_GROUP_NAME_COLUMN)
+    expect(state.selection?.value, 'MK-13: the field holds the task group name').toBe(name)
     expect(
       { start: state.selection?.start, end: state.selection?.end },
       'MK-13 (MUST): every character already there is selected',
@@ -546,8 +546,8 @@ test('DFC-133: confirming the height field moves the panel and the row together'
   try {
     // WHY: DFC-1086: the template carries no stated row height, so this case
     // starts from the blank field on row 0, the first drawn row.
-    await openPanelOnRow(opened.page, 0)
-    const before = (await drawnRows(opened.page))[0] as DrawnRow
+    await openPanelOnTaskGroup(opened.page, 0)
+    const before = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
     expect(shownBefore, `the panel shows ${ROW_HEIGHT_FIELD} blank to begin with`).toBe('')
 
@@ -557,7 +557,7 @@ test('DFC-133: confirming the height field moves the panel and the row together'
     const wanted = before.height + 56
     await commitField(opened.page, 'number', String(wanted))
 
-    const after = (await drawnRows(opened.page))[0] as DrawnRow
+    const after = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     expect(after.height, 'FR-006: the row takes the confirmed height').toBe(wanted)
     expect(
       Number((await panelFields(opened.page))[ROW_HEIGHT_FIELD]),
@@ -573,17 +573,17 @@ test('DFC-133: confirming the name field moves the panel and the row heading tog
 }) => {
   const opened = await openTheApp(baseURL)
   try {
-    await openPanelOnRow(opened.page, 0)
-    const before = (await drawnRows(opened.page))[0] as DrawnRow
+    await openPanelOnTaskGroup(opened.page, 0)
+    const before = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     expect(before.label, 'the row starts under another name').not.toBe(SHORT_NAME)
 
     await commitField(opened.page, 'text', SHORT_NAME)
 
-    const after = (await drawnRows(opened.page))[0] as DrawnRow
+    const after = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     expect(after.isCut, 'FR-085 had no reason to cut a name this short').toBe(false)
     expect(after.label, 'FR-006: the row heading takes the name').toBe(SHORT_NAME)
     expect(
-      (await panelFields(opened.page))[ROW_NAME_COLUMN],
+      (await panelFields(opened.page))[TASK_GROUP_NAME_COLUMN],
       'FR-006 (MUST): the panel shows the name it just wrote',
     ).toBe(SHORT_NAME)
   } finally {
@@ -608,38 +608,38 @@ test('DFC-27: an undo of an unrelated edit leaves the panel width where the read
     expect(boundary, 'FR-052 draws a boundary to drag').not.toBeNull()
     const grab = boundary as { x: number; y: number }
 
-    const started = await rowPanelWidth(page)
+    const started = await taskGroupPanelBoxWidth(page)
     await page.mouse.move(grab.x, grab.y)
     await page.mouse.down()
     await page.mouse.move(grab.x + WIDEN_BY_PX, grab.y, { steps: 10 })
     await page.mouse.up()
     await page.waitForTimeout(700)
-    const widened = await rowPanelWidth(page)
+    const widened = await taskGroupPanelBoxWidth(page)
     expect(widened, 'FR-052: dragging the boundary widened the panel').toBeGreaterThan(started)
 
-    await openPanelOnRow(page, 0)
-    const named = (await drawnRows(page))[0] as DrawnRow
+    await openPanelOnTaskGroup(page, 0)
+    const named = (await drawnTaskGroups(page))[0] as DrawnTaskGroup
     expect(named.label, 'the row starts under another name').not.toBe(SHORT_NAME)
     await commitField(page, 'text', SHORT_NAME)
-    expect((await drawnRows(page))[0]?.label, 'the unrelated edit landed').toBe(SHORT_NAME)
+    expect((await drawnTaskGroups(page))[0]?.label, 'the unrelated edit landed').toBe(SHORT_NAME)
 
     await page.mouse.move(BASE_SCREEN.width / 2, BASE_SCREEN.height / 2)
     await page.keyboard.press('Control+z')
     await page.waitForTimeout(900)
 
-    expect((await drawnRows(page))[0]?.label, 'UN-14: the undo reached the document').toBe(
+    expect((await drawnTaskGroups(page))[0]?.label, 'UN-14: the undo reached the document').toBe(
       named.label,
     )
-    expect(await rowPanelWidth(page), 'UN-16 (MUST NOT): the width did not come back').toBe(widened)
+    expect(await taskGroupPanelBoxWidth(page), 'UN-16 (MUST NOT): the width did not come back').toBe(widened)
   } finally {
     await opened.close()
   }
 })
 
 /** @purity pure */
-function drawnUnder(rows: readonly DrawnRow[], index: number): DrawnRow[] {
-  const parent = rows[index] as DrawnRow
-  const under: DrawnRow[] = []
+function drawnUnder(rows: readonly DrawnTaskGroup[], index: number): DrawnTaskGroup[] {
+  const parent = rows[index] as DrawnTaskGroup
+  const under: DrawnTaskGroup[] = []
   for (const row of rows.slice(index + 1)) {
     if (row.depth <= parent.depth) break
     under.push(row)
@@ -648,9 +648,9 @@ function drawnUnder(rows: readonly DrawnRow[], index: number): DrawnRow[] {
 }
 
 /** @purity pure */
-function rowWithAGrandchild(rows: readonly DrawnRow[]): number {
+function taskGroupWithAGrandchild(rows: readonly DrawnTaskGroup[]): number {
   for (let index = 0; index < rows.length; index += 1) {
-    const parent = rows[index] as DrawnRow
+    const parent = rows[index] as DrawnTaskGroup
     const under = drawnUnder(rows, index)
     if (under.some((row) => row.depth >= parent.depth + 2)) return index
   }
@@ -665,19 +665,19 @@ test('DFC-157: a folded row hides every tier below it, and opens exactly one bac
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const before = await drawnRows(page)
-    const index = rowWithAGrandchild(before)
+    const before = await drawnTaskGroups(page)
+    const index = taskGroupWithAGrandchild(before)
     expect(index, 'the startup document draws a row with two tiers under it').toBeGreaterThanOrEqual(
       0,
     )
-    const parent = before[index] as DrawnRow
+    const parent = before[index] as DrawnTaskGroup
 
     expect(
       await pressEntranceInRow(page, index, FOLD_BELOW_ENTRANCE),
       `the row draws the ${FOLD_BELOW_ENTRANCE} entrance`,
     ).toBe(true)
 
-    const folded = await drawnRows(page)
+    const folded = await drawnTaskGroups(page)
     const stillThere = folded.findIndex((row) => row.label === parent.label)
     expect(stillThere, 'HR-4 (MUST NOT): the row itself is not hidden').toBeGreaterThanOrEqual(0)
     expect(
@@ -690,7 +690,7 @@ test('DFC-157: a folded row hides every tier below it, and opens exactly one bac
       `the row draws the ${OPEN_ONE_TIER_ENTRANCE} entrance`,
     ).toBe(true)
 
-    const openedOnce = await drawnRows(page)
+    const openedOnce = await drawnTaskGroups(page)
     const nowAt = openedOnce.findIndex((row) => row.label === parent.label)
     const under = drawnUnder(openedOnce, nowAt)
     expect(under.length, 'HR-7: the tier below came back').toBeGreaterThan(0)
@@ -711,7 +711,7 @@ test('control for DFC-209: with the highlight box armed, a drag on empty ground 
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const spot = await groundOnADrawnRow(page)
+    const spot = await groundOnADrawnTaskGroup(page)
     expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
     const at = spot as { x: number; y: number }
 
@@ -746,7 +746,7 @@ test('DFC-209: with the highlight box armed, a press that does not travel places
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const spot = await groundOnADrawnRow(page)
+    const spot = await groundOnADrawnTaskGroup(page)
     expect(spot, 'a drawn row covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 
@@ -773,7 +773,7 @@ test('DFC-209: the comment box is outside that MUST NOT -- one press still place
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const spot = await groundOnADrawnRow(page)
+    const spot = await groundOnADrawnTaskGroup(page)
     expect(spot, 'a drawn row covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 

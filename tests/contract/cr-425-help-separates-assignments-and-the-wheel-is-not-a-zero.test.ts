@@ -68,11 +68,11 @@ const keyCellsOfTable = (table: typeof T_036): readonly { readonly row: string; 
 
 describe(`FR-036 (MUST) -- the roster carries each key cell as the manuscript spells it: ${FR_036_THE_KEY_SPELLING}`, () => {
   it.each(keyCellsOfTable(T_036).map((one) => [one.row, one] as const))('T-036 %s', (_row, one) => {
-    const byRow = ROSTER.entries.find((entry) => entry.kind === 'item' && entry.table === 'T-036' && entry.row === one.row)
+    const byTaskGroup = ROSTER.entries.find((entry) => entry.kind === 'item' && entry.table === 'T-036' && entry.row === one.row)
     const icon = /IC-\d+/.exec(one.entrance)?.[0]
     const byIcon =
       icon === undefined ? undefined : ROSTER.entries.find((entry) => entry.kind === 'item' && entry.row === icon && entry.keys !== null)
-    const entry = byRow ?? byIcon
+    const entry = byTaskGroup ?? byIcon
     if (entry === undefined) return
     expect(entry.keys, `${one.row}: ${FR_036_THE_CELL_SEPARATOR}`).toBe(spelledOnScreen(one.cell))
   })

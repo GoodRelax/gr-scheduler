@@ -165,7 +165,7 @@ export interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table
   readonly jumpAt: number
 }
 
-interface ShownRow {
+interface ShownTaskGroup {
   readonly row: DelayReportRow
   readonly cells: readonly string[]
 }
@@ -287,12 +287,12 @@ function cellsOf(row: DelayReportRow, language: DisplayLanguage): readonly strin
 }
 
 /** @purity pure */
-function cellOf(shown: ShownRow, column: string): string {
+function cellOf(shown: ShownTaskGroup, column: string): string {
   return shown.cells[DELAY_REPORT_COLUMNS.indexOf(column)] ?? BLANK_SEARCH_VALUE
 }
 
 // see DT-1, DT-3, T-347
-const REPORT_TABLE: TableColumns<ShownRow> = {
+const REPORT_TABLE: TableColumns<ShownTaskGroup> = {
   values: {
     'DT-1': (shown) => [shown.row.status],
     'DT-2': (shown) => (shown.row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : shown.row.assigneeNames),
@@ -312,13 +312,13 @@ const REPORT_TABLE: TableColumns<ShownRow> = {
 
 // see RW-3, SV-4
 /** @purity pure */
-function isWordFound(shown: ShownRow, word: string): boolean {
+function isWordFound(shown: ShownTaskGroup, word: string): boolean {
   return word === '' || WORD_COLUMNS_AT.some((at) => isSearchWordFound(shown.cells[at] ?? '', word))
 }
 
 // see RW-3, RW-8, SV-7, SV-8
 /** @purity pure */
-function shownRowsOf(window: DelayDiagnosticsReportWindow, rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownRow[] {
+function shownTaskGroupsOf(window: DelayDiagnosticsReportWindow, rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownTaskGroup[] {
   const found = rows
     .map((row) => ({ row, cells: cellsOf(row, language) }))
     .filter((shown) => isWordFound(shown, window.panel.word))
@@ -327,7 +327,7 @@ function shownRowsOf(window: DelayDiagnosticsReportWindow, rows: readonly DelayR
 
 // see T-347, SV-7, RW-10
 /** @purity pure */
-function reportTableOf(found: () => readonly ShownRow[], language: DisplayLanguage): WindowTable {
+function reportTableOf(found: () => readonly ShownTaskGroup[], language: DisplayLanguage): WindowTable {
   return {
     columns: DELAY_REPORT_COLUMNS,
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
@@ -380,7 +380,7 @@ export function delayDiagnosticsReportFromWindow(
   const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimised'
   const all = isOpen ? delayDiagnosticsReportRows(report, schedule) : []
-  const found = shownRowsOf(window, all, language)
+  const found = shownTaskGroupsOf(window, all, language)
   const table = reportTableOf(() => found, language)
   const open = openFilterIn(window.panel, window.shown, table)
   return {
@@ -423,7 +423,7 @@ export function delayDiagnosticsReportAfterEntry(
   if (shown !== undefined) return { window: { ...window, shown } }
   const unfiltered = { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } }
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
-  const table = reportTableOf(() => shownRowsOf(unfiltered, all, rows.language), rows.language)
+  const table = reportTableOf(() => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language)
   const panel =
     entry === FILTER_ENTRY
       ? filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
@@ -487,7 +487,7 @@ export function delayDiagnosticsReportMarkdownOf(
   stamp: { readonly documentName: string; readonly madeAt: string },
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
-  const rows = shownRowsOf(window, all, language).map((shown) => ({ status: shown.row.status, cells: shown.cells }))
+  const rows = shownTaskGroupsOf(window, all, language).map((shown) => ({ status: shown.row.status, cells: shown.cells }))
   const columns = window.panel.filters.columns.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
     condition: one.hiddenValues.length > 0 ? `-(${one.hiddenValues.map((value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)).join(WORD_JOIN)})` : `${dateText(one.from)}${DATE_RANGE}${dateText(one.to)}`,

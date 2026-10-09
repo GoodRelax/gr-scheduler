@@ -31,7 +31,7 @@ function fieldSizes(): {
   readonly colorMinHeight: number
   readonly namePercent: number
   readonly nameGap: number
-  readonly rowGap: number
+  readonly taskGroupGap: number
   readonly panelPadY: number
   readonly panelPadX: number
   readonly multilineRows: number
@@ -44,7 +44,7 @@ function fieldSizes(): {
     colorMinHeight: NOT_STORED_PROPERTY_FIELD_SIZES['S-187'],
     namePercent: NOT_STORED_PROPERTY_FIELD_SIZES['S-189'],
     nameGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-190'],
-    rowGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-191'],
+    taskGroupGap: NOT_STORED_PROPERTY_FIELD_SIZES['S-191'],
     panelPadY,
     panelPadX,
     multilineRows: NOT_STORED_PROPERTY_FIELD_SIZES['S-193'],
@@ -76,7 +76,7 @@ function propertyFieldStyle(): string {
   const size = fieldSizes()
   return (
     `display:flex;align-items:flex-start;gap:${size.nameGap}px;` +
-    `margin-bottom:${size.rowGap}px;line-height:1.6;`
+    `margin-bottom:${size.taskGroupGap}px;line-height:1.6;`
   )
 }
 
@@ -560,7 +560,7 @@ function colourSlotElement(host: Document, row: string, control: PropertyControl
 function colourGridStyle(perLine: number): string {
   return (
     `display:grid;grid-template-columns:repeat(${perLine},max-content);` +
-    `gap:${fieldSizes().rowGap}px;`
+    `gap:${fieldSizes().taskGroupGap}px;`
   )
 }
 
@@ -908,7 +908,7 @@ function linkTailElements(host: Document, control: PropertyControl): readonly HT
   return tail
 }
 
-// see WL-15, WL-16, WL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
+// see PTL-15, PTL-16, PTL-17, PR-37, PR-38, CM-18, SQ-1, S-503, FR-006
 /** @purity non-pure */
 function linkFieldElements(host: Document, row: string, control: PropertyControl, link: NonNullable<PropertyControl['link']>): readonly HTMLElement[] {
   const name = made(host, 'span', propertyLinkStyle())
@@ -931,7 +931,7 @@ function linkFieldElements(host: Document, row: string, control: PropertyControl
   return [name, unlink]
 }
 
-// see WL-16, SJ-1, T-332
+// see PTL-16, SJ-1, T-332
 /** @purity semi-pure-b */
 export function withPropertyLinkJump(answer: ScreenPart | null, first: Element | null): ScreenPart | null {
   if (answer === null || first === null || typeof first.getAttribute !== 'function') return answer
@@ -972,7 +972,7 @@ export function rewritePanelReadouts(panel: HTMLElement, description: Properties
   }
 }
 
-// see T-016, FR-006, CV-9, AS-5, WL-15
+// see T-016, FR-006, CV-9, AS-5, PTL-15
 /** @purity non-pure */
 function controlElementsOf(
   host: Document,

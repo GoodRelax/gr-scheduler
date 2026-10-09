@@ -83,7 +83,7 @@ function withFlow(fields: Loose): ScreenSession {
 
 // see QN-1, QN-4, QN-5, QN-11, NT-7
 function question(row: string): Loose {
-  return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherRow: false }] }
+  return { manner: 'NT-7', question: row, items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] }
 }
 
 const CHANGE_WRITES: Loose = { kind: 'changeDocument', writes: [[{ kind: 'CM-35' }]], created: null }

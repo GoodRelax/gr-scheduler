@@ -71,9 +71,9 @@ const TEMPLATE = JSON.parse(
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 // WHY: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bars lie clear of it.
 const CLEAR_OF_THE_PALETTE = '2025-12-20T00:00:00'
-const ROW_P = '5c000000-0000-4000-8000-000000006620'
-const ROW_C = '5c000000-0000-4000-8000-000000006621'
-const ROW_Q = '5c000000-0000-4000-8000-000000006622'
+const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006620'
+const TASK_GROUP_C = '5c000000-0000-4000-8000-000000006621'
+const TASK_GROUP_Q = '5c000000-0000-4000-8000-000000006622'
 const SATO = 'Sato Hanako'
 const ALPHA = 1
 const BRAVO = 2
@@ -83,7 +83,7 @@ const NAMES: Readonly<Record<number, string>> = { [ALPHA]: 'Alpha', [BRAVO]: 'Br
 
 const taskRow = (uid: number, from: number, to: number, dependencies: readonly unknown[] = []): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: NAMES[uid],
   start: day(from),
@@ -129,15 +129,15 @@ function fixture(): string {
         { uid: 2104, taskUid: DELTA, resourceUid: 2002, carry: {}, carryElements: [] },
       ],
       taskGroups: [
-        { ...group, id: ROW_P, parentId: null, label: 'Row P', order: 0, treeState: 'collapsed', minHeight: null },
-        { ...group, id: ROW_C, parentId: ROW_P, label: 'Row C', order: 1, treeState: 'auto', minHeight: null },
-        { ...group, id: ROW_Q, parentId: null, label: 'Row Q', order: 2, treeState: 'auto', minHeight: null },
+        { ...group, id: TASK_GROUP_P, parentId: null, label: 'Row P', order: 0, treeState: 'collapsed', minHeight: null },
+        { ...group, id: TASK_GROUP_C, parentId: TASK_GROUP_P, label: 'Row C', order: 1, treeState: 'auto', minHeight: null },
+        { ...group, id: TASK_GROUP_Q, parentId: null, label: 'Row Q', order: 2, treeState: 'auto', minHeight: null },
       ],
       taskGroupMembers: [
-        { taskUid: ALPHA, groupId: ROW_C },
-        { taskUid: BRAVO, groupId: ROW_C },
-        { taskUid: CHARLIE, groupId: ROW_Q },
-        { taskUid: DELTA, groupId: ROW_Q },
+        { taskUid: ALPHA, groupId: TASK_GROUP_C },
+        { taskUid: BRAVO, groupId: TASK_GROUP_C },
+        { taskUid: CHARLIE, groupId: TASK_GROUP_Q },
+        { taskUid: DELTA, groupId: TASK_GROUP_Q },
       ],
       taskVisuals: tasks.map((one) => ({ taskUid: one['uid'], shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null })),
       commentBoxes: [],
@@ -145,7 +145,7 @@ function fixture(): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollGroupId: ROW_P, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollGroupId: TASK_GROUP_P, scrollGroupOffset: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -260,7 +260,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
       expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: true })
       // see TV-6
-      expect(stateOf(await readTree(page), ROW_P), 'entering opens the folded row above Alpha').toBe('expanded')
+      expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering opens the folded row above Alpha').toBe('expanded')
       // see TV-1, TV-3
       expect(await drawnTaskUids(page)).toEqual([ALPHA, CHARLIE])
       // see TV-11
@@ -298,10 +298,10 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       const { page } = stage
       const savedBefore = JSON.parse(await saveDocument(page)) as Record<string, unknown>
       await enter(page)
-      expect(stateOf(await readTree(page), ROW_P)).toBe('expanded')
+      expect(stateOf(await readTree(page), TASK_GROUP_P)).toBe('expanded')
       await page.keyboard.press('Control+z')
       await settle(page)
-      expect(stateOf(await readTree(page), ROW_P), 'the one undo step is the opening').toBe('collapsed')
+      expect(stateOf(await readTree(page), TASK_GROUP_P), 'the one undo step is the opening').toBe('collapsed')
       expect(await readShown(page), `${FR_151_NOT_UNDONE}: the checks and the narrowing stay`).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: true })
       expect(await bandText(page)).not.toBeNull()
       const savedDuring = JSON.parse(await saveDocument(page)) as Record<string, unknown>

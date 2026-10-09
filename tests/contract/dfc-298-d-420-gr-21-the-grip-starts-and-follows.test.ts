@@ -108,22 +108,22 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 })
 
 /**
- * Regions whose `Row Area` leaves a lane of `thickness` on its right, which is
- * FR-052's arithmetic read backwards -- the gap between the `Row Area` and the
+ * Regions whose `Task Group Area` leaves a lane of `thickness` on its right, which is
+ * FR-052's arithmetic read backwards -- the gap between the `Task Group Area` and the
  * `Properties Panel` is the lane plus `canvasPadding`.
  */
 const LANE_THICKNESS = 10
 const CANVAS_PADDING = 4
-const ROW_AREA = rect(200, 100, 800, 400)
+const TASK_GROUP_AREA = rect(200, 100, 800, 400)
 
 const REGIONS: ScreenRegions = {
   appHeader: rect(0, 0, 1400, 40),
-  rowTitlePanel: rect(20, 100, 180, 400),
+  taskGroupPanel: rect(20, 100, 180, 400),
   timeRuler: rect(200, 60, 800, 40),
-  rowArea: ROW_AREA,
+  taskGroupArea: TASK_GROUP_AREA,
   scheduleCanvas: rect(20, 60, 1180, 440),
   propertiesPanel: rect(
-    ROW_AREA.x + ROW_AREA.width + LANE_THICKNESS + CANVAS_PADDING,
+    TASK_GROUP_AREA.x + TASK_GROUP_AREA.width + LANE_THICKNESS + CANVAS_PADDING,
     100,
     186,
     400,
@@ -148,7 +148,7 @@ const sessionWith = (extent: {
   droppedTaskNames: [],
   missingTaskNames: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: extent,
 })
 
@@ -163,15 +163,15 @@ const barOf = (readings: any, axis: 'horizontal' | 'vertical') => {
 describe('DFC-298 -- GR-21 is 帯の中の、いま見えている範囲を表す区間, so it has a start', () => {
   // Four times the lane, so a quarter of the lane is on screen and three
   // quarters of the travel is available to be somewhere in.
-  const WHOLE_WIDTH = ROW_AREA.width * 4
-  const WHOLE_HEIGHT = ROW_AREA.height * 4
+  const WHOLE_WIDTH = TASK_GROUP_AREA.width * 4
+  const WHOLE_HEIGHT = TASK_GROUP_AREA.height * 4
 
   it('lays the grip at the lane 1 corner while nothing has been scrolled', () => {
     const bar = barOf(
       sessionWith({
         contentWidth: WHOLE_WIDTH,
         contentHeight: WHOLE_HEIGHT,
-        visibleHeight: ROW_AREA.height,
+        visibleHeight: TASK_GROUP_AREA.height,
         offsetX: 0,
         offsetY: 0,
       }),
@@ -188,7 +188,7 @@ describe('DFC-298 -- GR-21 is 帯の中の、いま見えている範囲を表�
     const session = sessionWith({
       contentWidth: WHOLE_WIDTH,
       contentHeight: WHOLE_HEIGHT,
-      visibleHeight: ROW_AREA.height,
+      visibleHeight: TASK_GROUP_AREA.height,
       offsetX,
       offsetY,
     })
@@ -203,9 +203,9 @@ describe('DFC-298 -- GR-21 is 帯の中の、いま見えている範囲を表�
     const session = sessionWith({
       contentWidth: WHOLE_WIDTH,
       contentHeight: WHOLE_HEIGHT,
-      visibleHeight: ROW_AREA.height,
-      offsetX: WHOLE_WIDTH - ROW_AREA.width,
-      offsetY: WHOLE_HEIGHT - ROW_AREA.height,
+      visibleHeight: TASK_GROUP_AREA.height,
+      offsetX: WHOLE_WIDTH - TASK_GROUP_AREA.width,
+      offsetY: WHOLE_HEIGHT - TASK_GROUP_AREA.height,
     })
     const sideways = barOf(session, 'horizontal')
     const downwards = barOf(session, 'vertical')
@@ -227,7 +227,7 @@ describe('DFC-298 -- GR-21 is 帯の中の、いま見えている範囲を表�
       sessionWith({
         contentWidth: WHOLE_WIDTH,
         contentHeight: WHOLE_HEIGHT,
-        visibleHeight: ROW_AREA.height,
+        visibleHeight: TASK_GROUP_AREA.height,
       }),
       'horizontal',
     )
@@ -255,7 +255,7 @@ const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
   appHeaderHeight: 40,
-  // ⚠️ NOT ZERO. FR-051 (MUST) has the bar take its place from the `Row Area`,
+  // ⚠️ NOT ZERO. FR-051 (MUST) has the bar take its place from the `Task Group Area`,
   // and a lane of no thickness is one no press could land on.
   scrollbarThickness: 12,
 }
@@ -321,7 +321,7 @@ function pane(): Pane {
             part: 'Scrollbars',
             entry: null,
             format: null,
-            rowGroupId: null,
+            taskGroupId: null,
             resourceUid: null,
             dividerPanel: null,
             noticeDismissKey: null,

@@ -337,7 +337,7 @@ function bench(): Bench {
   const loop = frameLoop({ showSvg: () => undefined }, templateCopy() as unknown as Document, { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }, { surface, language: 'ja' }, store)
   frames()
   const pressOn = async (at: Partial<ScreenPart> & { part: string }): Promise<void> => {
-    part = { entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, ...at } as ScreenPart
+    part = { entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, ...at } as ScreenPart
     loop.receiveInput(pointer('down'))
     loop.receiveInput(pointer('up'))
     part = null

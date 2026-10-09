@@ -216,7 +216,7 @@
   {
    "rowId": "PR-15",
    "columns": [
-    "wbsParentUid"
+    "parentTaskUid"
    ],
    "inputKinds": [
     "タスクの参照"

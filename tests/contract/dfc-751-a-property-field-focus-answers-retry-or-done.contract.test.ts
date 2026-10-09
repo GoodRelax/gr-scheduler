@@ -16,17 +16,17 @@ const rowOf = (table: string, id: string) => {
 const THEME: ScreenTheme = { preference: 'light', hue: Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? '')) }
 const HEADER_PX = 37
 const FIELD_WIDTH_EM = 8
-const NAME_ROW = 'PR-1'
-const ROW_NAME_ROW = 'AT-53'
+const NAME_TASK_GROUP = 'PR-1'
+const TASK_GROUP_NAME_TASK_GROUP = 'AT-53'
 const FIELD_TAGS = ['INPUT', 'TEXTAREA', 'SELECT']
-const column = bare(rowOf('T-016', NAME_ROW).by['列（`GRS JSON`）'] ?? '')
+const column = bare(rowOf('T-016', NAME_TASK_GROUP).by['列（`GRS JSON`）'] ?? '')
 
 const PANEL = {
   showing: 'selection',
   isSubjectGone: false,
   fields: [
     {
-      row: NAME_ROW,
+      row: NAME_TASK_GROUP,
       name: column,
       text: 'a name',
       isEditable: true,
@@ -58,7 +58,7 @@ const VIEW = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: PANEL,
   commandPalette: null,
   openModal: null,
@@ -107,26 +107,26 @@ function controlOf(built: Stage, row: string): FakeElement {
 describe('DFC-751 / IF-9, IN-5b, MK-13 -- the focus request answers retry or done', () => {
   it('IF-9, MK-13: a drawn field the focus enters answers true, with the focus on that field', () => {
     const { built, focusField } = wired()
-    expect(focusField(NAME_ROW)).toBe(true)
-    expect(built.world.activeElement).toBe(controlOf(built, NAME_ROW))
+    expect(focusField(NAME_TASK_GROUP)).toBe(true)
+    expect(built.world.activeElement).toBe(controlOf(built, NAME_TASK_GROUP))
   })
 
   it('IF-9, IN-5b: a drawn field the focus does not enter answers false, and true once a later ask lands', () => {
     const { built, focusField } = wired()
-    const control = controlOf(built, NAME_ROW)
+    const control = controlOf(built, NAME_TASK_GROUP)
     const lands = control.focus.bind(control)
     // STEP: the host refuses the focus on this frame
     control.focus = (): void => {}
-    expect(focusField(NAME_ROW)).toBe(false)
+    expect(focusField(NAME_TASK_GROUP)).toBe(false)
     expect(built.world.activeElement).toBeNull()
     // STEP: the next frame asks again and the host lets the focus in
     control.focus = lands
-    expect(focusField(NAME_ROW)).toBe(true)
+    expect(focusField(NAME_TASK_GROUP)).toBe(true)
   })
 
   it('IF-9, IN-5a: a row whose field the drawn panel lacks answers true, so the request is withdrawn', () => {
     const { built, focusField } = wired()
-    expect(descendants(built.root()).some((one) => one.getAttribute('data-field-row') === ROW_NAME_ROW)).toBe(false)
-    expect(focusField(ROW_NAME_ROW)).toBe(true)
+    expect(descendants(built.root()).some((one) => one.getAttribute('data-field-row') === TASK_GROUP_NAME_TASK_GROUP)).toBe(false)
+    expect(focusField(TASK_GROUP_NAME_TASK_GROUP)).toBe(true)
   })
 })

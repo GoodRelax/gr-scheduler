@@ -46,7 +46,7 @@ import { validateDocument } from '../fixtures/grs-document'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -88,9 +88,9 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-const ROW_A = '5b000000-0000-4000-8000-000000000001'
-const ROW_B = '5b000000-0000-4000-8000-000000000002'
-const ROW_C = '5b000000-0000-4000-8000-000000000003'
+const TASK_GROUP_A = '5b000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '5b000000-0000-4000-8000-000000000002'
+const TASK_GROUP_C = '5b000000-0000-4000-8000-000000000003'
 
 const FINISHED_UID = 1
 const FINISHED_MILESTONE_UID = 2
@@ -107,7 +107,7 @@ const S_91 = settingNumber('S-257')
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -185,11 +185,11 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [group(ROW_A, 0, 'A'), group(ROW_B, 1, 'B'), group(ROW_C, 2, 'C')],
+      taskGroups: [group(TASK_GROUP_A, 0, 'A'), group(TASK_GROUP_B, 1, 'B'), group(TASK_GROUP_C, 2, 'C')],
       taskGroupMembers: [
-        { taskUid: FINISHED_UID, groupId: ROW_A },
-        { taskUid: FINISHED_MILESTONE_UID, groupId: ROW_B },
-        { taskUid: RUNNING_UID, groupId: ROW_C },
+        { taskUid: FINISHED_UID, groupId: TASK_GROUP_A },
+        { taskUid: FINISHED_MILESTONE_UID, groupId: TASK_GROUP_B },
+        { taskUid: RUNNING_UID, groupId: TASK_GROUP_C },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -202,7 +202,7 @@ function fixtureDocument(): Document {
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
-      scrollGroupId: ROW_A,
+      scrollGroupId: TASK_GROUP_A,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },
@@ -487,7 +487,7 @@ describe('FR-006 / PR-6 -- a finished Task whose actual finish is typed in the p
       isSurfaceStanding: false,
       dualCursorFollowing: null,
       today: '2026-04-30T00:00:00',
-      newGroupId: 'row-minted-outside',
+      newGroupId: 'task-group-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
       newHighlightBoxId: 'highlight-box-minted-outside',
     } as unknown as InputContext
@@ -505,7 +505,7 @@ describe('FR-006 / PR-6 -- a finished Task whose actual finish is typed in the p
     expect(commands.length, 'premise: the settled value became a command').toBeGreaterThan(0)
     let after = document
     for (const command of commands) {
-      const result = editTask(after, command as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
+      const result = editTask(after, command as TaskCommand, DEFAULT_TASK_GROUP_NAME_FIXTURE)
       if (!result.ok) throw new Error(`the typed value was refused: ${JSON.stringify(result.refusals)}`)
       after = result.document
     }

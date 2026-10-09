@@ -78,8 +78,8 @@ export {
 } from './working-calendar'
 export type { WorkingCalendar } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
-export { diagnoseDelay, parentCandidatesOf, wbsParentResolutionsOf } from './delay-diagnostics'
-export type { DelayDiagnosticsReport, WbsParentResolution } from './delay-diagnostics'
+export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
+export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'
 export {
   DELAY_REPORT_STATUSES,
   delayDiagnosticsReportMarkdown,
@@ -104,7 +104,7 @@ export {
 export type { CustomColour } from './stored-colour'
 export { scheduleViolations } from './schedule-invariants'
 export type { InvariantKind, ScheduleViolation } from './schedule-invariants'
-export { rowNameOf } from './row-names'
+export { taskGroupNameOf } from './task-group-names'
 export { isSearchWordFound, searchRowsOf } from './schedule-search'
 export type { CommentBoxSearchRow, SearchRows, TaskSearchRow } from './schedule-search'
 

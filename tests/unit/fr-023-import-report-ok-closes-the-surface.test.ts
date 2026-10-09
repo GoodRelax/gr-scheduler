@@ -245,7 +245,7 @@ const readingsOf = (): ScreenViewReadings =>
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     droppedTaskNames: DROPPED_TASK_NAMES,
   }) as unknown as ScreenViewReadings
 
@@ -288,7 +288,7 @@ function drawnImportReport(): {
     language: 'ja',
     frame: FRAME,
     appHeaderItems: HEADER,
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: describedOn('ja'),
@@ -394,7 +394,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       isSurfaceStanding: true,
       dualCursorFollowing: null,
       today: '2026-02-15T00:00:00',
-      newGroupId: 'row-minted-outside',
+      newGroupId: 'task-group-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
       newHighlightBoxId: 'highlight-box-minted-outside',
     }
@@ -403,7 +403,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       part: U_62,
       entry: null,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

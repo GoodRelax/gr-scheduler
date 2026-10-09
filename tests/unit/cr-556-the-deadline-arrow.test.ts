@@ -69,7 +69,7 @@ const DA_5_SAME_BAND = '箱はマーカーと同じ帯に収まる'
 const DA_6_NO_HIT = '⛔ 印を押しの当たり判定の対象にしてはならない（MUST NOT）'
 const DA_6_SAME_ANSWER = '⇒ 印の上でポインタを押したときは、印が無いときと同じものが応える'
 const DA_6_OWN_HINT = '⭐ 印の上でポインタを止めたときは、印そのものの説明を出すこと（MUST）'
-const DA_7_CUT = '`Row Area` の外に立つ印は、ほかの形と同じく `Row Area` の縁で切って描くこと（MUST）'
+const DA_7_CUT = '`Task Group Area` の外に立つ印は、ほかの形と同じく `Task Group Area` の縁で切って描くこと（MUST）'
 const OC_9_WIDTH = '数える幅は、印の軸を中心とした矢じりの幅（表 T-304 の `DA-2`）とすること（MUST）'
 const OC_9_ONE_OCCUPATION = '形状から離れて立つ印も、形状とのあいだを含めて 1 つの占有として数えること（MUST）'
 const ZO_13_PLACE = '形と依存線より手前、線の道具（`ZO-8`）・進捗マーカー（`ZO-3`）・札（`ZO-5`）・イナズマ線（`ZO-16`）より奥とする'
@@ -160,7 +160,7 @@ interface Stage2 {
   readonly schedule: Schedule
   readonly settings: DocumentSettings
   readonly layout: { readonly pxPerDay: number }
-  readonly regions: { readonly rowArea: { x: number; y: number; width: number; height: number } }
+  readonly regions: { readonly taskGroupArea: { x: number; y: number; width: number; height: number } }
   readonly geometry: { readonly tasks: readonly MarkedTask[] }
   readonly whole: unknown
   readonly placed: (uid: number) => MarkedPlacement | null
@@ -318,7 +318,7 @@ const PLAIN = { uid: 1, name: null, start: day(2), finish: day(8) }
 const oneTask = (over: Readonly<Record<string, unknown>>, settings: Readonly<Record<string, unknown>> = {}, shapeKind = 'rectangle'): Stage2 =>
   sceneOf({ tasks: [taskOf({ ...PLAIN, ...over })], shapeKind, settings })
 
-const withTwoRows = (hiddenState: 'hidden' | 'collapsedParent'): Stage2 => {
+const withTwoTaskGroups = (hiddenState: 'hidden' | 'collapsedParent'): Stage2 => {
   const base = scheduleOf({
     tasks: [
       taskOf({ ...PLAIN, uid: 1, deadline: day(6) }),
@@ -430,7 +430,7 @@ describe('DA-1 -- when the mark is drawn', () => {
 
   for (const state of ['hidden', 'collapsedParent'] as const) {
     it(`DA-1 「${DA_1_FOLDED}」: a Task in a ${state} row has no mark, the Task in the drawn row has one`, () => {
-      const scene = withTwoRows(state)
+      const scene = withTwoTaskGroups(state)
       const drawnTwo = scene.drawn(2)
       expect(scene.placed(2) === null || drawnTwo === undefined, `premise: task 2 sits in a ${state} row`).toBe(true)
       expect(drawnTwo?.deadline ?? null).toBeNull()
@@ -659,7 +659,7 @@ describe('DA-6 -- the mark takes no press, and a rest on it tells its own hint',
   })
 })
 
-describe('DA-7 -- cut at the Row Area as the other shapes are', () => {
+describe('DA-7 -- cut at the Task Group Area as the other shapes are', () => {
   it(`DA-7 「${DA_7_CUT}」: the mark sits under the same clips as the Task's plan bar`, () => {
     const scene = oneTask({ deadline: day(12) })
     const svg = scene.svg()
@@ -786,7 +786,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -817,7 +817,7 @@ const restingOn = (task: Task): ScreenViewReadings => ({
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }) as unknown as ScreenViewReadings
 

@@ -15,7 +15,7 @@ import { depthOf, subtreeOf, wbsSubtreesOf, withSchedule } from './edit-task-gro
 // see HM-9
 // TRAP: schedule-invariants.ts and the input translator walk the row tree the same way; change all three.
 /** @purity pure */
-function rowTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+function taskGroupTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
   const holds = new Set(groups.map((one) => one.id))
   for (const one of groups) {
@@ -53,26 +53,26 @@ function compareByStackOrder(left: Task, right: Task): number {
 
 // see HM-9
 /** @purity pure */
-export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
+export function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task[] {
   if (schedule.tasks.length === 0) return schedule.tasks
-  const rankById = rowTreeRankById(schedule.taskGroups)
-  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const rankById = taskGroupTreeRankById(schedule.taskGroups)
+  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
   const rankOf = (task: Task): number => {
-    const row = rowOfTask.get(task.uid)
+    const row = taskGroupOfTask.get(task.uid)
     const rank = row === undefined ? undefined : rankById.get(row)
     return rank === undefined ? rankById.size : rank
   }
   const family = new Map<number | null, Task[]>()
   for (const task of schedule.tasks) {
-    const kin = family.get(task.wbsParentUid)
-    if (kin === undefined) family.set(task.wbsParentUid, [task])
+    const kin = family.get(task.parentTaskUid)
+    if (kin === undefined) family.set(task.parentTaskUid, [task])
     else kin.push(task)
   }
   const placeOf = new Map<number, number>()
   for (const kin of family.values()) {
     const ordered = [...kin].sort((a, b) => {
-      const byRow = rankOf(a) - rankOf(b)
-      return byRow !== 0 ? byRow : compareByStackOrder(a, b)
+      const byTaskGroup = rankOf(a) - rankOf(b)
+      return byTaskGroup !== 0 ? byTaskGroup : compareByStackOrder(a, b)
     })
     ordered.forEach((task, at) => placeOf.set(task.uid, at))
   }
@@ -83,9 +83,9 @@ export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
 }
 
 /** @purity pure */
-function withWbsOrderFollowingTheRows(document: Document, rows: readonly TaskGroup[]): Document {
-  const moved = withSchedule(document, { taskGroups: rows })
-  return withSchedule(moved, { tasks: tasksRankedByTheRowTree(moved.schedule) })
+function withWbsOrderFollowingTheTaskGroups(document: Document, taskGroups: readonly TaskGroup[]): Document {
+  const moved = withSchedule(document, { taskGroups: taskGroups })
+  return withSchedule(moved, { tasks: tasksRankedByTheTaskGroupTree(moved.schedule) })
 }
 
 // see CM-35, FR-005
@@ -118,7 +118,7 @@ export function reorderTaskGroupSiblings(
     return place === undefined || place === one.order ? one : { ...one, order: place }
   })
   if (ordered.every((one, at) => one === groups[at])) return edited(document)
-  return edited(withWbsOrderFollowingTheRows(document, ordered))
+  return edited(withWbsOrderFollowingTheTaskGroups(document, ordered))
 }
 
 // see CM-73, FR-005
@@ -142,7 +142,7 @@ export function moveTaskGroup(
   if (carried === null) {
     return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
   }
-  if (command.parentId !== null && carried.rows.some((one) => one.id === command.parentId)) {
+  if (command.parentId !== null && carried.taskGroups.some((one) => one.id === command.parentId)) {
     refusals.push(
       reject('CM-73', 'HM-4', 'a row may not be moved under itself or its own descendant'),
     )
@@ -189,27 +189,27 @@ export function moveTaskGroup(
 /** @purity pure */
 function movedWithTheWbs(
   document: Document,
-  rows: readonly TaskGroup[],
+  taskGroups: readonly TaskGroup[],
   byId: ReadonlyMap<string, TaskGroup>,
   moved: TaskGroup,
   parent: TaskGroup | null | undefined,
 ): EditResult {
   const tasks = document.schedule.tasks
-  const wbsParentUid = wbsParentAfterTheMove(document.schedule, byId, moved, parent ?? null)
+  const parentTaskUid = parentTaskAfterTheMove(document.schedule, byId, moved, parent ?? null)
   const taskUid = moved.derivedFromTaskUid
-  if (wbsParentUid === undefined || taskUid === null) return edited(withWbsOrderFollowingTheRows(document, rows))
-  if (wbsParentUid !== null && wbsSubtreesOf(tasks, [taskUid]).has(wbsParentUid)) {
-    return refused([reject('CM-73', 'HM-4', `Task ${wbsParentUid} sits inside the WBS subtree of Task ${taskUid}`)])
+  if (parentTaskUid === undefined || taskUid === null) return edited(withWbsOrderFollowingTheTaskGroups(document, taskGroups))
+  if (parentTaskUid !== null && wbsSubtreesOf(tasks, [taskUid]).has(parentTaskUid)) {
+    return refused([reject('CM-73', 'HM-4', `Task ${parentTaskUid} sits inside the WBS subtree of Task ${taskUid}`)])
   }
-  const reparented = tasks.map((one) => (one.uid === taskUid ? { ...one, wbsParentUid } : one))
-  return edited(withWbsOrderFollowingTheRows(withSchedule(document, { tasks: reparented }), rows))
+  const reparented = tasks.map((one) => (one.uid === taskUid ? { ...one, parentTaskUid } : one))
+  return edited(withWbsOrderFollowingTheTaskGroups(withSchedule(document, { tasks: reparented }), taskGroups))
 }
 
 // see HM-1, HM-7, HM-12
-// WHY: undefined when the move reaches no WBS parent: a hand-made row carries no Task, and a reorder is no move;
+// WHY: undefined when the move reaches no parent task: a hand-made row carries no Task, and a reorder is no move;
 // null is the root.
 /** @purity pure */
-function wbsParentAfterTheMove(
+function parentTaskAfterTheMove(
   schedule: Schedule,
   byId: ReadonlyMap<string, TaskGroup>,
   moved: TaskGroup,
@@ -230,11 +230,11 @@ export function nearestDerivedTaskUid(
   landing: TaskGroup | null,
   passes: (uid: number) => boolean = () => false,
 ): number | null {
-  let row = landing
-  for (let guard = 0; row !== null && guard <= byId.size; guard++) {
-    const uid = row.derivedFromTaskUid
+  let taskGroup = landing
+  for (let guard = 0; taskGroup !== null && guard <= byId.size; guard++) {
+    const uid = taskGroup.derivedFromTaskUid
     if (uid !== null && !passes(uid) && taskByUid(schedule, uid) !== null) return uid
-    row = row.parentId === null ? null : (byId.get(row.parentId) ?? null)
+    taskGroup = taskGroup.parentId === null ? null : (byId.get(taskGroup.parentId) ?? null)
   }
   return null
 }

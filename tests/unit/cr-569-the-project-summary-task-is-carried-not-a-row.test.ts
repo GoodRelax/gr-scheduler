@@ -177,7 +177,7 @@ function carriedNamed(elements: readonly CarryLike[], name: string, field: strin
   )
 }
 
-function topRows(document: Document) {
+function topTaskGroups(document: Document) {
   return document.schedule.taskGroups
     .filter((each) => each.parentId === null)
     .slice()
@@ -238,12 +238,12 @@ describe('CR-569 -- MR-4 on an MS Project file built in the test', () => {
 
   it(CHILDREN_ARE_ROOTS, () => {
     for (const uid of [1, 4]) {
-      expect(document.schedule.tasks.find((each) => each.uid === uid)?.wbsParentUid, `task ${uid}`).toBeNull()
+      expect(document.schedule.tasks.find((each) => each.uid === uid)?.parentTaskUid, `task ${uid}`).toBeNull()
     }
     for (const uid of [2, 3]) {
-      expect(document.schedule.tasks.find((each) => each.uid === uid)?.wbsParentUid, `task ${uid}`).toBe(1)
+      expect(document.schedule.tasks.find((each) => each.uid === uid)?.parentTaskUid, `task ${uid}`).toBe(1)
     }
-    expect(topRows(document).map((each) => each.derivedFromTaskUid), 'FR-058: each is a top row').toEqual([1, 4])
+    expect(topTaskGroups(document).map((each) => each.derivedFromTaskUid), 'FR-058: each is a top row').toEqual([1, 4])
   })
 
   it(REFERENCES_CARRIED, () => {
@@ -310,7 +310,7 @@ describe('CR-569 -- EX-5 and JDG-582 on the way back out', () => {
   it('reads its own output back to the same tasks, rows and carried summary', () => {
     const again = accepted(out)
     expect(again.schedule.tasks.map((each) => each.uid)).toEqual(document.schedule.tasks.map((each) => each.uid))
-    expect(topRows(again).map((each) => each.derivedFromTaskUid)).toEqual([1, 4])
+    expect(topTaskGroups(again).map((each) => each.derivedFromTaskUid)).toEqual([1, 4])
     expect(carriedNamed(again.schedule.project.carryElements, 'Task', 'UID', '0')).toHaveLength(1)
   })
 })
@@ -337,9 +337,9 @@ describe('CR-569 -- JDG-580 on sample-schedule/sample-large-erp-program.ja.xml',
   const document = accepted(text)
 
   it('opens with 12 top rows, the first of them 1. プログラム管理', () => {
-    const rows = topRows(document)
-    expect(rows).toHaveLength(12)
-    const names = rows.map((row) => document.schedule.tasks.find((each) => each.uid === row.derivedFromTaskUid)?.name)
+    const taskGroups = topTaskGroups(document)
+    expect(taskGroups).toHaveLength(12)
+    const names = taskGroups.map((taskGroup) => document.schedule.tasks.find((each) => each.uid === taskGroup.derivedFromTaskUid)?.name)
     expect(names[0]).toBe('1. プログラム管理')
     const levelOne = taskBlocks(text)
       .filter((each) => fieldOf(each, 'OutlineLevel') === '1')

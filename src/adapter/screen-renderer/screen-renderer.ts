@@ -13,7 +13,7 @@ import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import type { TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import {
   emptySearchPanelSession,
@@ -30,15 +30,15 @@ export { dismissKeyOf }
 
 // see HF-14
 // WHY: the en cell, not the display language; the row label is document data (FR-038).
-const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
-export const DEFAULT_ROW_NAME: string =
-  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
+const DEFAULT_TASK_GROUP_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
+export const DEFAULT_TASK_GROUP_NAME: string =
+  DEFAULT_TASK_GROUP_NAME_ENTRY === undefined ? '' : DEFAULT_TASK_GROUP_NAME_ENTRY.text.en
 
 // WHY: FX-7's copy entrance commits this; no date reads this way, so the span row's commits never meet it.
 export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
-import { drawnRowBoxesOf, rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
+import { drawnTaskGroupBoxesOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
 import { searchPanelFromSession, shownCountWordOf, type SearchPanelView } from './search-panel'
 import {
   delayDiagnosticsReportFromWindow,
@@ -73,7 +73,7 @@ export {
 } from './delay-diagnostics-report'
 export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
 
-export { drawnRowBoxesOf, rowTitleFontPxOf }
+export { drawnTaskGroupBoxesOf, taskGroupTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
@@ -108,7 +108,7 @@ export interface ScreenFrame {
 }
 
 export interface PanelDivider {
-  readonly panel: 'rowTitlePanel' | 'propertiesPanel'
+  readonly panel: 'taskGroupPanel' | 'propertiesPanel'
   readonly band: ScreenRect
   readonly line: ScreenRect
 }
@@ -140,18 +140,18 @@ export interface AppHeaderItems {
   readonly language: DisplayLanguage
 }
 
-export interface RowTitlePanel {
-  readonly pinnedTitles: readonly RowTitle[]
-  readonly titles: readonly RowTitle[]
+export interface TaskGroupPanel {
+  readonly pinnedTitles: readonly TaskGroupTitle[]
+  readonly titles: readonly TaskGroupTitle[]
   // TRAP: optional so literals compile; a builder that forgets it leaves the entrance drawn usable, silently.
-  readonly canOpenEveryRow?: boolean
-  readonly canCloseEveryRow?: boolean
+  readonly canOpenEveryTaskGroup?: boolean
+  readonly canCloseEveryTaskGroup?: boolean
   readonly canOpenLevelZero?: boolean
-  readonly foldedRowCount?: number
+  readonly foldedTaskGroupCount?: number
   readonly groupGridLines?: readonly ScreenRect[]
 }
 
-export interface RowTitle {
+export interface TaskGroupTitle {
   readonly groupId: string
   readonly depth: number
   readonly box: ScreenRect
@@ -160,16 +160,16 @@ export interface RowTitle {
   readonly label: string | null
   readonly wholeLabel: string | null
   readonly isLabelTruncated: boolean
-  readonly expander: RowExpander
+  readonly expander: TaskGroupExpander
   readonly canOpenOneLevel?: boolean
-  readonly canAddChildRow?: boolean
-  readonly foldedRowCount?: number
+  readonly canAddChildTaskGroup?: boolean
+  readonly foldedTaskGroupCount?: number
   readonly heldOnAxis?: 'position' | 'depth' | null
   readonly isPinned: boolean
   readonly isSelected: boolean
 }
 
-export interface RowExpander {
+export interface TaskGroupExpander {
   readonly canOpen: boolean
   readonly canClose: boolean
   readonly canCloseBelow: boolean
@@ -280,7 +280,7 @@ export interface PropertyControl {
   readonly lag?: string
 }
 
-// see WL-15, WL-16, WL-17
+// see PTL-15, PTL-16, PTL-17
 export interface PropertyLink {
   readonly taskUid: number
   readonly canUnlink: boolean
@@ -520,19 +520,19 @@ export interface Confirmation extends RaisedConfirmation {
   readonly mannerText: string
   readonly text: string
   readonly answers: readonly ConfirmationAnswer[]
-  readonly shownOnAnotherRowMark: string
+  readonly shownOnAnotherTaskGroupMark: string
   readonly at?: { readonly x: number; readonly y: number }
 }
 
-// see QN-12, WL-13, JDG-1142
-export interface WbsParentChoice {
+// see QN-12, PTL-13, JDG-1142
+export interface ParentTaskChoice {
   readonly at: { readonly x: number; readonly y: number }
   readonly isArmed: boolean
 }
 
 export interface ConfirmationItem {
   readonly name: string | null
-  readonly isShownOnAnotherRow: boolean
+  readonly isShownOnAnotherTaskGroup: boolean
 }
 
 export interface ConfirmationAnswer {
@@ -562,14 +562,14 @@ export type TooltipAnchor =
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'deadline'; readonly taskUid: number }
   | { readonly kind: 'baseline'; readonly taskUid: number }
-  | { readonly kind: 'rowTitle'; readonly groupId: string }
+  | { readonly kind: 'taskGroupTitle'; readonly groupId: string }
   | { readonly kind: 'scrollbar'; readonly axis: 'horizontal' | 'vertical' }
 
 export interface ScreenView {
   readonly language: DisplayLanguage
   readonly frame: ScreenFrame
   readonly appHeaderItems: AppHeaderItems
-  readonly rowTitlePanel: RowTitlePanel
+  readonly taskGroupPanel: TaskGroupPanel
   readonly propertiesPanel: PropertiesPanel | null
   readonly commandPalette: CommandPalette | null
   readonly openModal: OpenModal | null
@@ -625,7 +625,7 @@ export interface ScreenViewReadings {
   readonly themePreference: 'light' | 'dark'
   readonly themeHue: number
   readonly isRecordingInteractions?: boolean
-  readonly rowGrabbedAt?: {
+  readonly taskGroupGrabbedAt?: {
     readonly groupId: string
     readonly depth: number
     readonly axis: 'position' | 'depth'
@@ -644,13 +644,13 @@ export interface ScreenViewReadings {
   readonly reportedCounts?: readonly { readonly reason: string; readonly count: number }[]
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
-  readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
-  readonly placedRowGroupIds?: readonly string[]
-  readonly placedRows?: readonly RowPlacement[]
+  readonly taskGroupBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  readonly placedTaskGroupIds?: readonly string[]
+  readonly placedTaskGroups?: readonly TaskGroupPlacement[]
   // see FX-6, WF-3
   // WHY: screen values the settings panel reads out; absent, the read-outs stay empty.
   readonly shownSpan?: { readonly start: string; readonly finish: string } | null
-  readonly rowTitlePanelDrawnWidth?: number
+  readonly taskGroupPanelDrawnWidth?: number
   // TRAP: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
@@ -659,8 +659,8 @@ export interface ScreenViewReadings {
   readonly zoomEntranceEnds?: {
     readonly timeOut: boolean
     readonly timeIn: boolean
-    readonly rowOut: boolean
-    readonly rowIn: boolean
+    readonly verticalOut: boolean
+    readonly verticalIn: boolean
   }
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession
@@ -671,8 +671,8 @@ export interface ScreenViewReadings {
     readonly closeOnlyTitledSurface?: { readonly x: number; readonly y: number } | null
   }
   readonly isDelayDiagnosticsShown?: boolean
-  readonly isWbsParentLinksShown?: boolean
-  readonly wbsParentChoice?: WbsParentChoice | null
+  readonly isParentTaskLinksShown?: boolean
+  readonly parentTaskChoice?: ParentTaskChoice | null
   // see RW-1, S-451
   readonly delayDiagnosticsReport?: {
     readonly window: DelayDiagnosticsReportWindow
@@ -761,7 +761,7 @@ export function screenViewFromRegions(
     language,
     frame: screenFrameFromRegions(regions, settings, session, readings),
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, session, readings),
-    rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session, readings),
+    taskGroupPanel: taskGroupPanelFromSchedule(schedule, settings, selection, session, readings),
     propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session, readings),
     commandPalette: commandPaletteFromSession(
       session,

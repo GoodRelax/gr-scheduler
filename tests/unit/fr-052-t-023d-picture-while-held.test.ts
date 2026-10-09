@@ -33,7 +33,7 @@
 //             「⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）」
 //             （CR-400: the reason changed from citing `FR-031` to pointing at
 //             表 T-028 の `IN-1`; see the describe below）, 「⚠️ 確定は 表 T-028 の
-//             `IN-1` に従う（離した時点）」, 「判定は `Row Area` の幅が 0 より
+//             `IN-1` に従う（離した時点）」, 「判定は `Task Group Area` の幅が 0 より
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
 //             受け付けてはならない（MUST NOT）」 and 「行見出しパネルの幅を 0 に
 //             できてはならない（MUST NOT）」.
@@ -91,15 +91,15 @@
 //             ⛔ ONE CASE IS LEFT RED ON PURPOSE ON THIS ROW -- see the describe
 //             that names it, which also says which half of it is disputed and
 //             why the case is not judged on that half.
-//   S-79      `rowTitlePanelWidth`, 下限 `rowTitleIndent` × `maxGroupDepth`,
-//             上限 「`Row Area` の幅 > 0 に従う」.
+//   S-79      `taskGroupPanelWidth`, 下限 `taskGroupTitleIndent` × `maxGroupDepth`,
+//             上限 「`Task Group Area` の幅 > 0 に従う」.
 //   S-171     `propertyPanelWidth`, the screen value the panel starts at (CR-572).
 //   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
 //             band is ON the boundary, which is why every divider case below
 //             presses its CENTRE (see `boundaryOf`).
 //   T-031 SC-3   行見出しパネルは拡大しても常に表示されている -- the reason
 //             FR-052 forbids a width of 0.
-//   U-50 / FR-052's own formula: `Row Area` の幅 = `Schedule Canvas` の幅 −
+//   U-50 / FR-052's own formula: `Task Group Area` の幅 = `Schedule Canvas` の幅 −
 //             `canvasPadding` − 2 つの幅 − 縦のスクロールバーの太さ.
 //
 // ---------------------------------------------------------------------------
@@ -171,11 +171,11 @@ const rowOf = (table: string, id: string) => {
  * a named point, so a case that hard-coded 4 and 2 would go on passing if the
  * cells moved again.
  */
-function pointNamedBy(grabRow: string): number {
-  const cell = rowOf('T-266', grabRow).by['基準点'] ?? ''
+function pointNamedBy(grabTaskGroup: string): number {
+  const cell = rowOf('T-266', grabTaskGroup).by['基準点'] ?? ''
   const found = /点\s*(\d+)/.exec(cell)
   if (found === null) {
-    throw new Error(`table T-266 row ${grabRow} names no numbered point of table T-012a: ${cell}`)
+    throw new Error(`table T-266 row ${grabTaskGroup} names no numbered point of table T-012a: ${cell}`)
   }
   return Number(found[1])
 }
@@ -256,7 +256,7 @@ const firstNumberIn = (cell: string): number => {
 // see T-203, S-79, T-252
 // WHY: S-37 x S-125 x ratio is the first term of the T-252 floor, so this S-79 stands on the floor at every
 // step; the default S-79 (300 x 0.625 = 187.5) stands above the floor 114.0032 and would break the premises.
-const ROW_TITLE_PANEL_WIDTH_ON_THE_FLOOR =
+const TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR =
   firstNumberIn(rowOf('T-201', 'S-37').by['既定値'] ?? '') * firstNumberIn(rowOf('T-211', 'S-125').by['値'] ?? '')
 
 function fixtureDocument(): Document {
@@ -270,7 +270,7 @@ function fixtureDocument(): Document {
     fadeOutDays: number | null,
   ): Task => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -326,7 +326,7 @@ function fixtureDocument(): Document {
       ...structuredClone(template.documentSettings),
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      rowTitlePanelWidth: ROW_TITLE_PANEL_WIDTH_ON_THE_FLOOR,
+      taskGroupPanelWidth: TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -425,7 +425,7 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenPane {
             part: 'Panel Divider',
             entry: null,
             format: null,
-            rowGroupId: null,
+            taskGroupId: null,
             resourceUid: null,
             dividerPanel: divider.panel,
             noticeDismissKey: null,
@@ -625,7 +625,7 @@ function withFadeHandles(): Stage {
 // ---------------------------------------------------------------------------
 
 /** The band drawn for one boundary, as the surface was told to draw it. */
-function bandOf(built: Stage, panel: 'rowTitlePanel' | 'propertiesPanel') {
+function bandOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel') {
   const found = built.pane.last().frame.dividers.find((one) => one.panel === panel)
   if (found === undefined) throw new Error(`no Panel Divider was drawn for the ${panel}`)
   return found.band
@@ -642,13 +642,13 @@ function bandOf(built: Stage, panel: 'rowTitlePanel' | 'propertiesPanel') {
  * anywhere else would be judged on a difference the specification does not fix.
  * A premise below pins that the centre really is the panel's edge.
  */
-function boundaryOf(built: Stage, panel: 'rowTitlePanel' | 'propertiesPanel'): Point {
+function boundaryOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel'): Point {
   const band = bandOf(built, panel)
   return { x: band.x + band.width / 2, y: band.y + band.height / 2 }
 }
 
-const drawnPanelWidth = (loop: FrameLoop): number => frameOf(loop).regions.rowTitlePanel.width
-const storedPanelWidth = (loop: FrameLoop): number => settingsOf(loop).rowTitlePanelWidth
+const drawnPanelWidth = (loop: FrameLoop): number => frameOf(loop).regions.taskGroupPanel.width
+const storedPanelWidth = (loop: FrameLoop): number => settingsOf(loop).taskGroupPanelWidth
 
 // ===========================================================================
 // The premises every case below stands on
@@ -1099,11 +1099,11 @@ describe('table T-028 IN-1 / IN-4: Esc interrupts the fade drag', () => {
 // ===========================================================================
 
 describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTEN', () => {
-  it('draws a grab band on the row title panel\'s boundary (S-134)', () => {
+  it('draws a grab band on the task group panel\'s boundary (S-134)', () => {
     const built = stage()
-    const band = bandOf(built, 'rowTitlePanel')
-    const boundary = boundaryOf(built, 'rowTitlePanel')
-    const panel = frameOf(built.loop).regions.rowTitlePanel
+    const band = bandOf(built, 'taskGroupPanel')
+    const boundary = boundaryOf(built, 'taskGroupPanel')
+    const panel = frameOf(built.loop).regions.taskGroupPanel
     expect(band.width, 'S-134: 境界に重なる 8px').toBeGreaterThan(0)
     // The premise every divider case rests on: the band's centre IS the
     // boundary, so the width the pointer stands at and the width the press began
@@ -1113,7 +1113,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('moves the drawn width with the pointer (MUST)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
@@ -1125,7 +1125,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('follows every move, not only the last one (MUST)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     for (const travel of [10, 25, 60, 35]) {
@@ -1136,7 +1136,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('leaves the stored width untouched while the button is down (MUST NOT)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const stored = storedPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     for (const travel of [10, 25, 60]) {
@@ -1150,7 +1150,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('stops the drawn width at the floor while the pointer is left of it (MUST)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     expect(was, 'premise: at rest the panel stands on its floor, above S-79 x the drawn ratio').toBeGreaterThan(
       storedPanelWidth(built.loop) * DEFAULT_DISPLAY_RATIO,
@@ -1165,19 +1165,19 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('measures the frame with the picture\'s widths, not the stored ones', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     expect(
-      (frameOf(built.loop).settingsMeasuredWith as any).rowTitlePanelWidth,
+      (frameOf(built.loop).settingsMeasuredWith as any).taskGroupPanelWidth,
       'the settings this frame was measured with are the ones it DREW: the drawn width over the drawn ratio (T-252)',
     ).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('settles the width on the release (IN-1)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     const stored = storedPanelWidth(built.loop)
     expect(was, 'premise: the press starts on the floor, so S-79 + travel / ratio is not the answer').toBeGreaterThan(
@@ -1195,7 +1195,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('keeps the stored width when released left of the floor, being under floor / ratio (T-252, MUST)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     const stored = storedPanelWidth(built.loop)
     expect(
@@ -1215,7 +1215,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
   it('DFC-639 1, 2, 4, MUST: the width drawn while held is the width drawn once released at that pointer position', () => {
     for (const travel of [-300, -30, -1, 0, 1, 15, 40, 120]) {
       const built = stage()
-      const at = boundaryOf(built, 'rowTitlePanel')
+      const at = boundaryOf(built, 'taskGroupPanel')
       built.send(pointer('down', at.x, at.y))
       built.send(pointer('move', at.x + travel, at.y))
       const held = drawnPanelWidth(built.loop)
@@ -1227,7 +1227,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
   it('DFC-638 / DFC-639 3, MUST NOT: a release that leaves the stored width as it was is no unsaved edit and no undo step', () => {
     const released = (travel: number) => {
       const built = stage()
-      const at = boundaryOf(built, 'rowTitlePanel')
+      const at = boundaryOf(built, 'taskGroupPanel')
       const stored = storedPanelWidth(built.loop)
       built.send(pointer('down', at.x, at.y))
       if (travel !== 0) built.send(pointer('move', at.x + travel, at.y))
@@ -1248,7 +1248,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('settles it once: later moves with no button change nothing', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
@@ -1284,7 +1284,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('abandons the drag when the pointer is lost (IN-1a)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const stored = storedPanelWidth(built.loop)
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
@@ -1302,7 +1302,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
 
   it('abandons the drag on Esc (IN-1 / IN-4)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const stored = storedPanelWidth(built.loop)
     const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
@@ -1336,7 +1336,7 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
     built.send(pointer('up', from.x + 3 * scale, from.y))
     expect(taskOf(built.loop, FADED_UID).fadeInDays).toBe(FADE_IN_DAYS + 3)
 
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const settled = (drawnPanelWidth(built.loop) + 40) / DEFAULT_DISPLAY_RATIO
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
@@ -1422,24 +1422,24 @@ describe('FD-6 and IV-12: the fade a release writes is cut to the Task', () => {
   })
 })
 
-describe('FR-052: the pair a release writes keeps the `Row Area` above zero', () => {
-  it('refuses a pair that would leave no `Row Area` (MUST NOT)', () => {
+describe('FR-052: the pair a release writes keeps the `Task Group Area` above zero', () => {
+  it('refuses a pair that would leave no `Task Group Area` (MUST NOT)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const canvas = frameOf(built.loop).regions.scheduleCanvas
     const far = canvas.x + canvas.width + 400
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', far, at.y))
     built.send(pointer('up', far, at.y))
     expect(
-      frameOf(built.loop).regions.rowArea.width,
-      'FR-052: 判定は `Row Area` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
+      frameOf(built.loop).regions.taskGroupArea.width,
+      'FR-052: 判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）……これが 0 以下になる組を受け付けてはならない（MUST NOT）',
     ).toBeGreaterThan(0)
   })
 
-  it('never writes a row title panel width of 0 (MUST NOT)', () => {
+  it('never writes a task group panel width of 0 (MUST NOT)', () => {
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', -600, at.y))
     built.send(pointer('up', -600, at.y))
@@ -1449,16 +1449,16 @@ describe('FR-052: the pair a release writes keeps the `Row Area` above zero', ()
     ).toBeGreaterThan(0)
   })
 
-  it('keeps the `Row Area` above zero in the PICTURE too, while the pointer is out there', () => {
+  it('keeps the `Task Group Area` above zero in the PICTURE too, while the pointer is out there', () => {
     // ⚠️ THE HALF THE SPECIFICATION DOES NOT SETTLE IS NOT THIS. What is not
     // settled is which width to DRAW when the pointer names a refused pair; what
-    // IS settled is that a `Row Area` of 0 or less is a thing this tool does not
-    // accept, and a frame whose own `Row Area` has collapsed has drawn one.
+    // IS settled is that a `Task Group Area` of 0 or less is a thing this tool does not
+    // accept, and a frame whose own `Task Group Area` has collapsed has drawn one.
     const built = stage()
-    const at = boundaryOf(built, 'rowTitlePanel')
+    const at = boundaryOf(built, 'taskGroupPanel')
     const canvas = frameOf(built.loop).regions.scheduleCanvas
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', canvas.x + canvas.width + 400, at.y))
-    expect(frameOf(built.loop).regions.rowArea.width).toBeGreaterThan(0)
+    expect(frameOf(built.loop).regions.taskGroupArea.width).toBeGreaterThan(0)
   })
 })

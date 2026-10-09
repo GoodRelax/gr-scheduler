@@ -30,18 +30,18 @@ export interface ScreenEnvironment {
 export interface ScreenRegions {
   readonly appHeader: ScreenRect
   readonly scheduleCanvas: ScreenRect
-  readonly rowTitlePanel: ScreenRect
+  readonly taskGroupPanel: ScreenRect
   readonly timeRuler: ScreenRect
   readonly propertiesPanel: ScreenRect
-  readonly rowArea: ScreenRect
+  readonly taskGroupArea: ScreenRect
 }
 
 export type RegionName = keyof ScreenRegions | null
 
 const INNER_FIRST = [
-  'rowArea',
+  'taskGroupArea',
   'timeRuler',
-  'rowTitlePanel',
+  'taskGroupPanel',
   'propertiesPanel',
   'appHeader',
   'scheduleCanvas',
@@ -80,17 +80,17 @@ export function displayScaleFractionOf(settings: DocumentSettings): number {
 const SCALED_BY_THE_DISPLAY: readonly (keyof DrawnSettings)[] = [
   'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
-  'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
+  'taskGroupGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
   'dependencyLeadIn', 'dependencyArrowWidth', 'markerSize',
   'markerStroke', 'resumeDashOn', 'resumeDashOff', 'resumeDashWidth', 'labelPad', 'labelGap',
   'milestoneNameMarkerGap', 'assigneeLabelGap',
-  'rowTitleFont', 'rowTitleIndent', 'planStroke', 'thinStrokeWidth',
+  'taskGroupTitleFont', 'taskGroupTitleIndent', 'planStroke', 'thinStrokeWidth',
   'thinArrowHeadLength', 'thinArrowHeadHeight', 'spanDotSize',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',
-  'rowTitlePanelWidth',
+  'taskGroupPanelWidth',
 ]
 
-// TRAP: S-243, not S-141: every entrance composed here sits on the Row Title Panel.
+// TRAP: S-243, not S-141: every entrance composed here sits on the Task Group Panel.
 /** @purity pure */
 function entranceOuterHeightPx(): number {
   return NOT_STORED_ENTRANCE_SIZES['S-138'] + NOT_STORED_ENTRANCE_SIZES['S-243'] * 2
@@ -104,22 +104,22 @@ function entranceOuterWidthPx(): number {
 // see HF-4
 const ROW_CONTROL_COLUMNS = 4
 
-const ROW_CONTROL_LATTICE_RANKS = 2
+const TASK_GROUP_CONTROL_LATTICE_RANKS = 2
 
 // see LF-16, HF-19, FR-029
 /** @purity pure */
-export function rowControlLatticeHeightPx(): number {
-  return entranceOuterHeightPx() * NOT_STORED_CHROME_SCALE['S-235'] * ROW_CONTROL_LATTICE_RANKS
+export function taskGroupControlLatticeHeightPx(): number {
+  return entranceOuterHeightPx() * NOT_STORED_CHROME_SCALE['S-235'] * TASK_GROUP_CONTROL_LATTICE_RANKS
 }
 
 // see FR-039, T-252
 /** @purity pure */
-function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): number {
-  const indents = SETTINGS_CONSTANTS.rowTitleIndent * ratio * SETTINGS_CONSTANTS.maxGroupDepth
+function drawnTaskGroupPanelWidthPx(settings: DocumentSettings, ratio: number): number {
+  const indents = SETTINGS_CONSTANTS.taskGroupTitleIndent * ratio * SETTINGS_CONSTANTS.maxGroupDepth
   const grabStrip = NOT_STORED_ENTRANCE_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235']
-  const rowControls =
+  const taskGroupControls =
     ROW_CONTROL_COLUMNS * entranceOuterWidthPx() * NOT_STORED_CHROME_SCALE['S-235']
-  return Math.max(settings.rowTitlePanelWidth * ratio, indents + grabStrip + rowControls)
+  return Math.max(settings.taskGroupPanelWidth * ratio, indents + grabStrip + taskGroupControls)
 }
 
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
@@ -139,7 +139,7 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
         if (typeof value === 'number') merged[key] = value * ratio
       }
     }
-    merged['rowTitlePanelWidth'] = drawnRowTitlePanelWidthPx(settings, ratio)
+    merged['taskGroupPanelWidth'] = drawnTaskGroupPanelWidthPx(settings, ratio)
   }
   Object.defineProperty(merged, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
   return merged as unknown as DrawnSettings
@@ -157,12 +157,12 @@ export function regionsFromScreen(
   const canvasTop = headerHeight + (env.topBandHeight ?? 0)
   const canvas = rect(0, canvasTop, env.width, env.height - canvasTop)
 
-  const titleWidth = drawn.rowTitlePanelWidth
+  const titleWidth = drawn.taskGroupPanelWidth
   const propsWidth = env.propertyPanelWidth
   const bandHeight = drawn.rulerHeight
   const bar = env.scrollbarThickness
 
-  const rowTitlePanel = rect(canvas.x, canvas.y, titleWidth, canvas.height)
+  const taskGroupPanel = rect(canvas.x, canvas.y, titleWidth, canvas.height)
   const propertiesPanel = rect(
     canvas.x + canvas.width - propsWidth,
     canvas.y,
@@ -170,18 +170,18 @@ export function regionsFromScreen(
     canvas.height,
   )
 
-  const rowAreaX = canvas.x + titleWidth
-  const rowAreaY = canvas.y + bandHeight
-  const rowAreaWidth = canvas.width - drawn.canvasPadding - titleWidth - propsWidth - bar
-  const rowAreaHeight = canvas.height - bandHeight - drawn.canvasPadding - bar
+  const taskGroupAreaX = canvas.x + titleWidth
+  const taskGroupAreaY = canvas.y + bandHeight
+  const taskGroupAreaWidth = canvas.width - drawn.canvasPadding - titleWidth - propsWidth - bar
+  const taskGroupAreaHeight = canvas.height - bandHeight - drawn.canvasPadding - bar
 
   return {
     appHeader,
     scheduleCanvas: canvas,
-    rowTitlePanel,
-    timeRuler: rect(rowAreaX, canvas.y, rowAreaWidth, bandHeight),
+    taskGroupPanel,
+    timeRuler: rect(taskGroupAreaX, canvas.y, taskGroupAreaWidth, bandHeight),
     propertiesPanel,
-    rowArea: rect(rowAreaX, rowAreaY, rowAreaWidth, rowAreaHeight),
+    taskGroupArea: rect(taskGroupAreaX, taskGroupAreaY, taskGroupAreaWidth, taskGroupAreaHeight),
   }
 }
 
@@ -199,7 +199,7 @@ export function regionsAtDisplayScale(
     height: canvas.y + canvas.height,
     appHeaderHeight: regions.appHeader.height,
     scrollbarThickness:
-      canvas.height - drawn.rulerHeight - drawn.canvasPadding - regions.rowArea.height,
+      canvas.height - drawn.rulerHeight - drawn.canvasPadding - regions.taskGroupArea.height,
     propertyPanelWidth: regions.propertiesPanel.width,
     topBandHeight: canvas.y - regions.appHeader.height,
   }

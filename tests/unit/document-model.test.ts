@@ -236,7 +236,7 @@ describe('DocumentStamp (PI-3)', () => {
 // case names, so a failure points at one line of the specification.
 const emptyTask: Task = {
   uid: 1,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: null,
   start: null,

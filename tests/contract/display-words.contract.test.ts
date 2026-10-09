@@ -107,7 +107,7 @@
 //      is carried by a member of UF-67's that this file may not name, and the
 //      whole-view reading could only reach the three manners table T-233 writes
 //      a row against. `tests/unit/uf-67.test.ts` is where that member is held.
-//   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Row Title
+//   3. IC-58 / IC-59 / IC-60. Table T-109 stands them on the `Task Group Name
 //      Panel`, which is UF-63's -- not one of the five either. ⚠️ IC-53 and
 //      IC-54 are left out for a different reason: table T-109 marks each of
 //      them 「ボタンではない」 in as many words, so no `CommandItem` carries
@@ -331,7 +331,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // a section and not a literal in a unit.
   // ⚠️ KEYED BY WHAT THE DEFAULT IS FOR (`use`), because no table numbers it:
   // FR-032 names one use -- the row -- and Chapter 6.2 (MUST NOT) forbids
-  // raising a table whose rows state no rule, which a one-row table of default
+  // raising a table whose rows state no rule, which a one-task-group table of default
   // names would be. ⛔ THIS IS THE ONE SECTION WHOSE WORD IS NOT PRINTED BY A
   // FRAME; see omission 7 of the head comment and the `drop` below it.
   defaultNames: 'use',
@@ -385,7 +385,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // WHY: CR-582 keys the min-height field's words by the part of the field they fill.
   rowMinHeightField: 'part',
   // WHY: CR-690 keys the settings face's width field's words the same way (T-368).
-  rowTitleWidthField: 'part',
+  taskGroupPanelWidthField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
@@ -398,9 +398,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
-  // WHY: CR-631 keys QN-12's two choices by the part they fill (WL-13): the armed and the unarmed
+  // WHY: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
-  wbsParentChoice: 'part',
+  parentTaskChoice: 'part',
   // WHY: CR-648 keys the report's headings by T-347 row, its statuses by the DG / DX row each is
   // made of (DT-1), and its summary, Markdown and DT-7 words by the part they fill (FR-134).
   delayReportColumns: 'rowId',
@@ -626,7 +626,7 @@ const centreOf = (region: ScreenRect): { readonly x: number; readonly y: number 
  */
 const SETTINGS = {
   ...SETTINGS_DEFAULTS,
-  rowTitlePanelWidth: 400,
+  taskGroupPanelWidth: 400,
 } as unknown as DocumentSettings
 
 const PROPERTIES_PANEL_WIDTH = 300
@@ -639,20 +639,20 @@ const REGIONS: ScreenRegions = (() => {
   const rulerHeight = 48
   // ⛔ Read off the settings above rather than re-typed: the cut and the
   // settings the same frame carries have to be the same screen.
-  const titleWidth = SETTINGS.rowTitlePanelWidth
+  const titleWidth = SETTINGS.taskGroupPanelWidth
   const propertiesWidth = PROPERTIES_PANEL_WIDTH
   const padding = SETTINGS_CONSTANTS.canvasPadding
   const barThickness = 8
   const canvas = rect(0, headerHeight, width, height - headerHeight)
-  const rowAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
-  const rowAreaHeight = canvas.height - rulerHeight - padding - barThickness
+  const taskGroupAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
+  const taskGroupAreaHeight = canvas.height - rulerHeight - padding - barThickness
   return {
     appHeader: rect(0, 0, width, headerHeight),
     scheduleCanvas: canvas,
-    rowTitlePanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
-    timeRuler: rect(canvas.x + titleWidth, canvas.y, rowAreaWidth, rulerHeight),
+    taskGroupPanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
+    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeight),
     propertiesPanel: rect(canvas.x + canvas.width - propertiesWidth, canvas.y, propertiesWidth, canvas.height),
-    rowArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, rowAreaWidth, rowAreaHeight),
+    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, taskGroupAreaWidth, taskGroupAreaHeight),
   }
 })()
 
@@ -664,7 +664,7 @@ const SCHEDULE = {
   tasks: [
     {
       uid: THE_TASK,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: null,
       name: 'a task',
       start: null,
@@ -741,7 +741,7 @@ const SESSION: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   // GR-21 of table T-023d divides these to get the scrollbar grip's
   // length, and this file asks nothing of it. ⭐ A whole of zero is
   // "everything fits", which is the lane-long grip SC-4 of table T-031
@@ -977,7 +977,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
   unanalysedCount: 0,
   markerStates: [],
   settledPushOuts: [],
-  derivedWbsParents: [],
+  derivedParentTasks: [],
   lateDays: [],
 }
 
@@ -1344,7 +1344,7 @@ const T016 = specTable('T-016')
 const APPLIES_TO_COLUMN = '対象'
 const GRS_COLUMN = '列（`GRS JSON`）'
 const ON_A_TASK = 'Task'
-const ON_A_ROW = 'TaskGroup'
+const ON_A_TASK_GROUP = 'TaskGroup'
 /**
  * The third value that column carries, from 2026-09-06 (CR-368).
  *
@@ -1379,35 +1379,35 @@ const NAME_FIELD_CLAUSE = /プロパティパネルの行の名前の欄なら `
 const NAME_FIELD_ROW = ((): string => {
   const how = specTable('T-263').rows.find((row) => row.id === 'IR-1')?.by['書き方'] ?? ''
   const found = NAME_FIELD_CLAUSE.exec(how)?.[1]
-  if (found === undefined) throw new Error('IR-1 of table T-263 no longer names the row-name field by an AT row')
+  if (found === undefined) throw new Error('IR-1 of table T-263 no longer names the task-group-name field by an AT row')
   return found
 })()
 
 const declaredRowOf = (rowId: string): string => {
   const item = T016.rows.find((row) => row.id === rowId)
   if (item === undefined) return rowId
-  if (bare(item.by[APPLIES_TO_COLUMN] ?? '') !== ON_A_ROW) return rowId
+  if (bare(item.by[APPLIES_TO_COLUMN] ?? '') !== ON_A_TASK_GROUP) return rowId
   const column = bare(item.by[GRS_COLUMN] ?? '')
   const attribute = T058.rows.find(
-    (row) => bare(row.by[ENTITY_COLUMN] ?? '') === ON_A_ROW && bare(row.by[COLUMN_COLUMN] ?? '') === column,
+    (row) => bare(row.by[ENTITY_COLUMN] ?? '') === ON_A_TASK_GROUP && bare(row.by[COLUMN_COLUMN] ?? '') === column,
   )
   if (attribute === undefined) {
-    throw new Error(`table T-058 has no row for ${ON_A_ROW}.${column}, which table T-016 ${rowId} edits`)
+    throw new Error(`table T-058 has no row for ${ON_A_TASK_GROUP}.${column}, which table T-016 ${rowId} edits`)
   }
   return attribute.id === NAME_FIELD_ROW ? attribute.id : rowId
 }
 
 /**
- * A row picked in the `Row Title Panel`, which is what FR-042 (MUST) and FR-006's
+ * A row picked in the `Task Group Panel`, which is what FR-042 (MUST) and FR-006's
  * 対象 rule put table T-016's `TaskGroup` rows on the panel for.
  */
-const THE_ROW = '11111111-1111-4111-8111-111111111111'
+const THE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
 
-const SCHEDULE_WITH_A_ROW = {
+const SCHEDULE_WITH_A_TASK_GROUP = {
   ...SCHEDULE,
   taskGroups: [
     {
-      id: THE_ROW,
+      id: THE_TASK_GROUP,
       parentId: null,
       label: 'a row',
       derivedFromTaskUid: null,
@@ -1419,21 +1419,21 @@ const SCHEDULE_WITH_A_ROW = {
 } as unknown as Schedule
 
 // WHY: no task picked beside the row: FR-006 shows one subject's fields, so a picked task would hide the row's (JDG-1650).
-const ROW_PICKED: Frame = frameWith({
-  schedule: SCHEDULE_WITH_A_ROW,
+const TASK_GROUP_PICKED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
-  readings: sessionWith({ selectedGroupIds: [THE_ROW] }),
+  readings: sessionWith({ selectedGroupIds: [THE_TASK_GROUP] }),
 })
 
 // see CR-582, MH-3
-// WHY: placedRows makes the panel show `currentValue`, not `currentlyHidden`; kept
-// off ROW_PICKED so every other `properties` place() reads that one unchanged.
-const ROW_PLACED: Frame = frameWith({
-  schedule: SCHEDULE_WITH_A_ROW,
+// WHY: placedTaskGroups makes the panel show `currentValue`, not `currentlyHidden`; kept
+// off TASK_GROUP_PICKED so every other `properties` place() reads that one unchanged.
+const TASK_GROUP_PLACED: Frame = frameWith({
+  schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
   readings: sessionWith({
-    selectedGroupIds: [THE_ROW],
-    placedRows: [{ groupId: THE_ROW, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
+    selectedGroupIds: [THE_TASK_GROUP],
+    placedTaskGroups: [{ groupId: THE_TASK_GROUP, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
   }),
 })
 
@@ -1442,7 +1442,7 @@ const ROW_PLACED: Frame = frameWith({
  * PR-21 carries (CR-368).
  *
  * ⚠️ THE PICK IS IN THE SELECTION AND NOT IN THE SESSION, which is what parts it
- * from `ROW_PICKED`: a row of the `Row Title Panel` is held by
+ * from `TASK_GROUP_PICKED`: a row of the `Task Group Panel` is held by
  * `ScreenSession.selectedGroupIds` (FR-085) while everything table T-023c admits
  * is held by `Selection` (SL-1).
  */
@@ -1536,7 +1536,7 @@ const frameFor = (rowId: string): Frame => {
     const shownFor = bare(T016.rows.find((row) => row.id === rowId)?.by[SHOWN_FOR_COLUMN] ?? '')
     return shownFor === FOR_A_MILESTONE ? MILESTONE_PICKED : (PANEL_STATES['selection'] as Frame)
   }
-  if (appliesTo === ON_A_ROW) return ROW_PICKED
+  if (appliesTo === ON_A_TASK_GROUP) return TASK_GROUP_PICKED
   if (appliesTo === ON_A_COMMENT_BOX) return BOX_PICKED
   if (appliesTo === ON_A_HIGHLIGHT_BOX) return HIGHLIGHT_BOX_PICKED
   if (appliesTo === ON_A_DEPENDENCY) return DEPENDENCY_PICKED
@@ -1912,7 +1912,7 @@ for (const entry of GENERATED['arms'] ?? []) {
 
 // -- the sections whose place is not one of the five units this file may read
 
-for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks', 'wbsParentChoice']) {
+for (const section of ['notices', 'reasons', 'questions', 'confirmation', 'noticeDismiss', 'confirmationMarks', 'parentTaskChoice']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,
@@ -2060,7 +2060,7 @@ const RESTING_ON_A_STARTED_TASK = frameWith({
     })),
   },
   readings: sessionWith({
-    pointer: { x: REGIONS.rowArea.x + REGIONS.rowArea.width / 2, y: REGIONS.rowArea.y + REGIONS.rowArea.height / 2 },
+    pointer: { x: REGIONS.taskGroupArea.x + REGIONS.taskGroupArea.width / 2, y: REGIONS.taskGroupArea.y + REGIONS.taskGroupArea.height / 2 },
     pointerRestedMs: SETTINGS_CONSTANTS.taskHintDelayMs,
     hintHolderUnderPointer: { kind: 'task', taskUid: THE_TASK },
   }),
@@ -2197,7 +2197,7 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
 }
 
 // see DC-3
-// WHY: the mode is on and the pointer stands on the Row Area, the one frame DC-3 shows the readout in.
+// WHY: the mode is on and the pointer stands on the Task Group Area, the one frame DC-3 shows the readout in.
 const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { left: 0, right: 1, span: 2 }
 // WHY: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
 // holds {date} or {span}; the mark is put back so the line can be held to the written word.
@@ -2226,8 +2226,8 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
       root: rootWith({ dualCursorModeState: { kind: 'on', child: { kind: 'placingDate1' } } }),
       readings: sessionWith({
         pointer: {
-          x: REGIONS.rowArea.x + REGIONS.rowArea.width / 2,
-          y: REGIONS.rowArea.y + REGIONS.rowArea.height / 2,
+          x: REGIONS.taskGroupArea.x + REGIONS.taskGroupArea.width / 2,
+          y: REGIONS.taskGroupArea.y + REGIONS.taskGroupArea.height / 2,
         },
       }),
     }),
@@ -2241,23 +2241,23 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
 // see CR-582, MH-3, MH-4, MH-6, FR-042
 // WHY: keyed by which control the field is, not by a row -- no row of table
 // T-016 names it, the same reason `defaultNames` is keyed by `use`.
-const ROW_MIN_HEIGHT_PX_SLOT = '{px}'
+const TASK_GROUP_MIN_HEIGHT_PX_SLOT = '{px}'
 // see T-338, MH-2, PR-20, MH-3, CR-689
-const minHeightRowOf = (view: ScreenView, row: string) =>
+const minHeightTaskGroupOf = (view: ScreenView, row: string) =>
   view.propertiesPanel?.fields.find((field) => field.row === row)
 // WHY: MH-3's `currentValue` fills the `{px}` slot with the real height, so this
 // puts the digits back to see the literal word (as `readoutWordOf` does for DC-3).
-const minHeightWordOf = (text: string): string => text.replace(/\d+/, ROW_MIN_HEIGHT_PX_SLOT)
-const ROW_MIN_HEIGHT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
-  enable: (view) => minHeightRowOf(view, 'MH-2')?.name,
-  unit: (view) => minHeightRowOf(view, 'PR-20')?.unit,
-  basisHint: (view) => minHeightRowOf(view, 'PR-20')?.controls[0]?.hint,
-  currentName: (view) => minHeightRowOf(view, 'MH-3')?.name,
+const minHeightWordOf = (text: string): string => text.replace(/\d+/, TASK_GROUP_MIN_HEIGHT_PX_SLOT)
+const TASK_GROUP_MIN_HEIGHT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  enable: (view) => minHeightTaskGroupOf(view, 'MH-2')?.name,
+  unit: (view) => minHeightTaskGroupOf(view, 'PR-20')?.unit,
+  basisHint: (view) => minHeightTaskGroupOf(view, 'PR-20')?.controls[0]?.hint,
+  currentName: (view) => minHeightTaskGroupOf(view, 'MH-3')?.name,
   currentValue: (view) => {
-    const readout = minHeightRowOf(view, 'MH-3')?.readout
+    const readout = minHeightTaskGroupOf(view, 'MH-3')?.readout
     return readout === undefined ? undefined : minHeightWordOf(readout)
   },
-  currentlyHidden: (view) => minHeightRowOf(view, 'MH-3')?.readout,
+  currentlyHidden: (view) => minHeightTaskGroupOf(view, 'MH-3')?.readout,
 }
 for (const entry of GENERATED['rowMinHeightField'] ?? []) {
   const part = keyOf('rowMinHeightField', entry)
@@ -2266,11 +2266,11 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-67',
-    what: `the ${part} word MH-2..MH-3 of table T-338 have the Row Title Panel's min-height rows show`,
-    // WHY: MH-3 withholds the number while the row is not drawn (ROW_PICKED's
-    // state, no placedRows entry) -- `currentValue` needs ROW_PLACED instead.
-    frame: part === 'currentValue' ? ROW_PLACED : ROW_PICKED,
-    read: (view) => ROW_MIN_HEIGHT_READS[part]?.(view),
+    what: `the ${part} word MH-2..MH-3 of table T-338 have the Task Group Panel's min-height rows show`,
+    // WHY: MH-3 withholds the number while the row is not drawn (TASK_GROUP_PICKED's
+    // state, no placedTaskGroups entry) -- `currentValue` needs TASK_GROUP_PLACED instead.
+    frame: part === 'currentValue' ? TASK_GROUP_PLACED : TASK_GROUP_PICKED,
+    read: (view) => TASK_GROUP_MIN_HEIGHT_READS[part]?.(view),
   })
 }
 
@@ -2281,7 +2281,7 @@ const SETTINGS_WITH_READOUTS = frameWith({
   root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed' } }),
   readings: sessionWith({
     shownSpan: { start: '2026-11-02T00:00:00', finish: '2026-12-25T23:59:00' },
-    rowTitlePanelDrawnWidth: 300,
+    taskGroupPanelDrawnWidth: 300,
   }),
 })
 const SHOWN_DAY = /\d{4}\/\d{2}\/\d{2}/
@@ -2296,7 +2296,7 @@ const SETTINGS_FIELD_READS: Readonly<Record<string, Readonly<Record<string, (vie
     },
     copyCurrent: (view) => settingsRowOf(view, 'FX-6')?.controls[0]?.press,
   },
-  rowTitleWidthField: {
+  taskGroupPanelWidthField: {
     unit: (view) => settingsRowOf(view, 'K-71')?.unit,
     currentName: (view) => settingsRowOf(view, 'WF-3')?.name,
     currentValue: (view) => {
@@ -2305,7 +2305,7 @@ const SETTINGS_FIELD_READS: Readonly<Record<string, Readonly<Record<string, (vie
     },
   },
 }
-for (const section of ['fitSpanField', 'rowTitleWidthField'] as const) {
+for (const section of ['fitSpanField', 'taskGroupPanelWidthField'] as const) {
   for (const entry of GENERATED[section] ?? []) {
     const part = keyOf(section, entry)
     place({
@@ -2591,7 +2591,7 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
       confirmation: {
         manner: 'the manner NT-7 asks for',
         question,
-        items: namesWhatGoes ? [{ name: 'a task', isShownOnAnotherRow: true }] : [],
+        items: namesWhatGoes ? [{ name: 'a task', isShownOnAnotherTaskGroup: true }] : [],
       },
     }),
   })
@@ -2611,9 +2611,9 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
  * ⚠️ NOTHING HERE IS ASSERTED and no member of it is read back. The shape is
  * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
  */
-// see QN-12, WL-13
-const WBS_PARENT_CHOICE = (isArmed: boolean): Frame =>
-  frameWith({ readings: sessionWith({ wbsParentChoice: { at: { x: 40, y: 40 }, isArmed } }) })
+// see QN-12, PTL-13
+const PARENT_TASK_CHOICE = (isArmed: boolean): Frame =>
+  frameWith({ readings: sessionWith({ parentTaskChoice: { at: { x: 40, y: 40 }, isArmed } }) })
 
 const TELLING = (manner: string, reason: string): Frame =>
   frameWith({ readings: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
@@ -2648,9 +2648,9 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
       frame: TELLING(IMPORT_REFUSAL_MANNER, row),
     })),
     // see CR-582, MH-3
-    { what: 'a picked row that is placed (MH-3 of table T-338)', frame: ROW_PLACED },
-    { what: 'the QN-12 chooser while WBS parents are armed', frame: WBS_PARENT_CHOICE(true) },
-    { what: 'the QN-12 chooser while nothing is armed', frame: WBS_PARENT_CHOICE(false) },
+    { what: 'a picked row that is placed (MH-3 of table T-338)', frame: TASK_GROUP_PLACED },
+    { what: 'the QN-12 chooser while parent tasks are armed', frame: PARENT_TASK_CHOICE(true) },
+    { what: 'the QN-12 chooser while nothing is armed', frame: PARENT_TASK_CHOICE(false) },
   ]) {
     if (seen.has(one.frame)) continue
     seen.add(one.frame)
@@ -2762,7 +2762,7 @@ const rowMinHeightFieldFramesShowing = (
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
-  const pattern = new RegExp(`^${word.split(ROW_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
+  const pattern = new RegExp(`^${word.split(TASK_GROUP_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
   return FRAMES.filter((one) =>
     stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
@@ -3340,7 +3340,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
               ? exportSpanFramesShowing(cell.word, cell.language)
               : cell.section === 'hintLines'
               ? hintLineFramesShowing(cell.word, cell.language)
-              : cell.section === 'rowMinHeightField' || cell.section === 'rowTitleWidthField'
+              : cell.section === 'rowMinHeightField' || cell.section === 'taskGroupPanelWidthField'
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'fitSpanField'
                 ? shownSpanFramesShowing(cell.word, cell.language)

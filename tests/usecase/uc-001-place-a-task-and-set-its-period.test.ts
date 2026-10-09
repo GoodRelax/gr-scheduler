@@ -4,7 +4,7 @@ import { VIEWPORT, answerConfirmation, dayAxis, dayNumber, drag, enableAgentApi,
 
 test.use({ viewport: VIEWPORT })
 
-const ROW_Y = 83
+const TASK_GROUP_Y = 83
 const typeName = async (page: Page, name: string): Promise<void> => {
   await page.keyboard.type(name)
   await page.keyboard.press('Enter')
@@ -16,12 +16,12 @@ test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, 
   await enableAgentApi(page)
   await press(page, 'IC-106')
   await answerConfirmation(page, 'proceed')
-  const onlyRow = (await readDocument(page)).schedule.taskGroups
-  expect(onlyRow).toHaveLength(1)
+  const onlyTaskGroup = (await readDocument(page)).schedule.taskGroups
+  expect(onlyTaskGroup).toHaveLength(1)
 
   const axis = await dayAxis(page)
-  const from = { x: 700, y: ROW_Y }
-  const to = { x: 900, y: ROW_Y }
+  const from = { x: 700, y: TASK_GROUP_Y }
+  const to = { x: 900, y: TASK_GROUP_Y }
 
   await test.step('UC-001 step 1: arm the rectangle shape (IC-23) and drag over empty ground', async () => {
     await press(page, 'IC-23')
@@ -39,7 +39,7 @@ test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, 
     expect(Math.abs(dayNumber(task.start) - axis.dayOf(from.x))).toBeLessThanOrEqual(1)
     expect(Math.abs(dayNumber(task.finish) - axis.dayOf(to.x))).toBeLessThanOrEqual(1)
     expect(doc.schedule.taskVisuals.find((v) => v.taskUid === firstUid)?.shapeKind).toBe('rectangle')
-    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === firstUid)?.groupId).toBe(onlyRow[0]!.id)
+    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === firstUid)?.groupId).toBe(onlyTaskGroup[0]!.id)
     const plan = await figureBox(page, 'task-' + firstUid + '-plan')
     expect(plan).not.toBeNull()
     expect(Math.abs(plan!.x - from.x)).toBeLessThan(6)
@@ -65,13 +65,13 @@ test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, 
 
   await test.step('UC-001 step 5: a second task overlapping in time is stacked in the fixed order (FR-003 ST-2, ST-3, ST-5)', async () => {
     await expect(page.locator(icon('IC-23'))).toHaveAttribute('data-armed', 'true')
-    await drag(page, { x: 550, y: ROW_Y }, { x: 800, y: ROW_Y })
+    await drag(page, { x: 550, y: TASK_GROUP_Y }, { x: 800, y: TASK_GROUP_Y })
     await typeName(page, 'Beta task')
     const doc = await readDocument(page)
     expect(doc.schedule.tasks).toHaveLength(2)
     const earlier = doc.schedule.tasks.find((t) => t.uid !== firstUid)!
     expect(dayNumber(earlier.start)).toBeLessThan(dayNumber(doc.schedule.tasks.find((t) => t.uid === firstUid)!.start))
-    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === earlier.uid)?.groupId).toBe(onlyRow[0]!.id)
+    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === earlier.uid)?.groupId).toBe(onlyTaskGroup[0]!.id)
     const shallow = (await figureBox(page, 'task-' + earlier.uid + '-plan'))!
     const deep = (await figureBox(page, 'task-' + firstUid + '-plan'))!
     expect(Math.abs(shallow.y - deep.y)).toBeGreaterThanOrEqual(Math.min(shallow.h, deep.h))

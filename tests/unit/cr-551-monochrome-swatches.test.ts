@@ -17,7 +17,7 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -25,7 +25,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   colourNames: { spelling: string; text: { ja: string } }[]
 }
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -37,11 +37,11 @@ const CV_9_KEPT = '（透明の市松はそのまま）'
 const CV_7 = '`FR-041` のモノクロは、`CV-6` で決まった値を無彩色にして描くこと（MUST）'
 
 // see S-74
-const MONO_KEY = bare(rowIn('T-203', 'S-74').by['キー'] ?? '')
+const MONO_KEY = bare(verticalIn('T-203', 'S-74').by['キー'] ?? '')
 // see T-294
-const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
+const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
-const RED = bare(rowIn('T-294', 'S-318').cells[1] ?? '')
+const RED = bare(verticalIn('T-294', 'S-318').cells[1] ?? '')
 const colourWord = (spelling: string): string => WORDS.colourNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 // see T-016
 // WHY: the Task line and fill colours are two rows, found by the column each edits.
@@ -51,7 +51,7 @@ const taskRowOf = (column: string): string =>
   )?.id ?? ''
 const LINE_ROW = taskRowOf('strokeColor')
 const FILL_ROW = taskRowOf('fillColor')
-const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
+const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
 const realRaf = GLOBAL['requestAnimationFrame']
@@ -113,7 +113,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
       send({ ...pointerOf('up', x, y), clickCount: 2 } as never)
     },
     press: (part, entry) => {
-      aimed = { part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointerOf('down', 80, 120))
       send(pointerOf('up', 80, 120))
       aimed = null
@@ -127,7 +127,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
 // says what each name is painted as; task 1 carries the colour the field shows.
 function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
   const rows = NAMED.map((_name, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = rowDocument(rows, { progressMarkerVisible: false, [MONO_KEY]: mono })
+  const document = taskGroupDocument(rows, { progressMarkerVisible: false, [MONO_KEY]: mono })
   document.schedule.tasks = NAMED.map((_name, index) =>
     taskOf(index + 1, { name: `T${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )

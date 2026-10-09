@@ -81,8 +81,8 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-const ROW_A = '5c000000-0000-4000-8000-000000000001'
-const ROW_B = '5c000000-0000-4000-8000-000000000002'
+const TASK_GROUP_A = '5c000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '5c000000-0000-4000-8000-000000000002'
 
 const RUNNING_UID = 1
 const FINISHED_UID = 2
@@ -99,7 +99,7 @@ const S_91 = settingNumber('S-257')
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -166,10 +166,10 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [group(ROW_A, 0, 'A'), group(ROW_B, 1, 'B')],
+      taskGroups: [group(TASK_GROUP_A, 0, 'A'), group(TASK_GROUP_B, 1, 'B')],
       taskGroupMembers: [
-        { taskUid: RUNNING_UID, groupId: ROW_A },
-        { taskUid: FINISHED_UID, groupId: ROW_B },
+        { taskUid: RUNNING_UID, groupId: TASK_GROUP_A },
+        { taskUid: FINISHED_UID, groupId: TASK_GROUP_B },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -182,7 +182,7 @@ function fixtureDocument(): Document {
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
-      scrollGroupId: ROW_A,
+      scrollGroupId: TASK_GROUP_A,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },

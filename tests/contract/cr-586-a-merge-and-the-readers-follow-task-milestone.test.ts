@@ -16,7 +16,7 @@ import { taskPlacement } from '../../src/entity/layout-engine/schedule-layout/sc
 import { editDocument, type DependencyCommand } from '../../src/use-case/edit-document/edit-document'
 import type { SettingsLimits } from '../../src/use-case/edit-document/edit-document-settings'
 import { importDocument, type ImportRequest } from '../../src/use-case/import-document/import-document'
-import { rowDocument, shell } from '../unit/cr-541-stage'
+import { taskGroupDocument, shell } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
@@ -194,7 +194,7 @@ interface LabelScene {
 
 // see FR-002, T-251, S-232
 function labelDatesOf(scene: LabelScene): string {
-  const document = rowDocument([{ id: 'r1', parentId: null }], { planDatesVisible: true }, {
+  const document = taskGroupDocument([{ id: 'r1', parentId: null }], { planDatesVisible: true }, {
     taskVisuals: [
       {
         taskUid: 1,
@@ -238,14 +238,14 @@ describe('T-251 ND-1 / ND-2 read Task.milestone only (FR-002, CR-586 E-01)', () 
   })
 })
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 // see T-018
 const linkTypeOf = (id: string): number => Number(bare(rowOf(T_018, id).by['`linkType`'] ?? ''))
 
 // see FR-009, T-018
 function createdLinkType(milestone: boolean, shapeKind: TaskVisual['shapeKind']): number | string {
-  const json = rowDocument([
+  const json = taskGroupDocument([
     { id: 'r1', parentId: null },
     { id: 'r2', parentId: null },
   ], {}, {

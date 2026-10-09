@@ -176,7 +176,7 @@ const T_280_CLICKED = '| `screen/continuationMarkClicked` | → `shown` | → �
 const T_280_CLEARED = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_OTHERS = '表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。'
 const T_280_HIDDEN_FIRST = '`landingMarkDisplayStateMachine.hidden` —— 初期。'
-const T_328_HIDDEN_OPENS = 'treeStateMachine_hidden --> treeStateMachine_expanded : rowRevealAsked'
+const T_328_HIDDEN_OPENS = 'treeStateMachine_hidden --> treeStateMachine_expanded : taskGroupRevealAsked'
 
 describe('CR-596 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -323,7 +323,7 @@ const FAR = 400
 
 const taskOf = (uid: number, start: number, days: number, links: readonly number[] = []): Loose => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: `t${uid}`,
   start: iso(start),
@@ -363,7 +363,7 @@ interface Scene {
   readonly spec: SceneSpec
   readonly settings: Loose
   readonly schedule: Schedule
-  readonly rowArea: Rect
+  readonly taskGroupArea: Rect
   readonly rows: readonly Row[]
   readonly placements: readonly Placement[]
   readonly lines: readonly Line[]
@@ -443,17 +443,17 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = e
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
-  const typedLayout = layout as unknown as { readonly rows: readonly Row[]; readonly placements: readonly Placement[] }
+  const typedLayout = layout as unknown as { readonly taskGroups: readonly Row[]; readonly placements: readonly Placement[] }
   return {
     spec,
     settings,
     schedule,
-    rowArea: (regions as unknown as { readonly rowArea: Rect }).rowArea,
-    rows: typedLayout.rows,
+    taskGroupArea: (regions as unknown as { readonly taskGroupArea: Rect }).taskGroupArea,
+    rows: typedLayout.taskGroups,
     placements: typedLayout.placements,
     lines: geometry.dependencies as unknown as readonly Line[],
     selection,
@@ -634,7 +634,7 @@ const HIDDEN_AT_THE_TOP: SceneSpec = {
   ],
 }
 
-// WHY: the seen end sits in the second drawn row, so the upward mark stays inside the Row Area.
+// WHY: the seen end sits in the second drawn row, so the upward mark stays inside the Task Group Area.
 const HIDDEN_FIRST_AT_THE_TOP: SceneSpec = {
   groups: [['b', null, 'hidden'], ['y', null], ['a', null], ['z', null]],
   tasks: [
@@ -694,13 +694,13 @@ describe(`(a) PE-12 -- one still click on the mark: ${PE_12_SEND}`, () => {
     expect(release(scene, markOf(scene, 1, 2)).press.hit?.grab).toBe('GA-24')
   })
 
-  it(`EL-11: the first release already sends the far end to the Row Area middle (${MK_13_MARK})`, () => {
+  it(`EL-11: the first release already sends the far end to the Task Group Area middle (${MK_13_MARK})`, () => {
     const scene = offRight()
     const writes = writesOf(release(scene, markOf(scene, 1, 2)).out)
     expect(onlyOf(writes, SET_SCROLL), MK_13_MARK).toBeDefined()
     const moved = placementOf(sceneAfter(scene, writes), 2)
     expect(moved, 'the far end is laid out after the send').toBeDefined()
-    expect(moved!.x + moved!.width / 2, MK_13_MARK).toBeCloseTo(scene.rowArea.x + scene.rowArea.width / 2, 2)
+    expect(moved!.x + moved!.width / 2, MK_13_MARK).toBeCloseTo(scene.taskGroupArea.x + scene.taskGroupArea.width / 2, 2)
   })
 
   it(`EL-16: the release carries the landing mark on the line and its far end -- ${EL_16_MARK}`, () => {
@@ -813,7 +813,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
     ['a hidden first row at the shallowest level (CR-598)', HIDDEN_FIRST_AT_THE_TOP, 'b', { b: 'expanded' }],
   ] as const
 
-  for (const [name, spec, ownRow, opened] of cases) {
+  for (const [name, spec, ownTaskGroup, opened] of cases) {
     it(`${name}: premise -- Task 2 is not drawn, and the line carries a mark leading to it (${EL_20_NOT_SEEN})`, () => {
       const scene = sceneOf(spec)
       expect(placementOf(scene, 2), 'premise: Task 2 is not drawn').toBeUndefined()
@@ -846,7 +846,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
       expect(onlyOf(writes, SET_ZOOM), EL_21_NO_ZOOM).toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_OPENED).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78 = the far Task's own row)`).toBe(ownRow)
+      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78 = the far Task's own row)`).toBe(ownTaskGroup)
       expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(scroll!['scrollDate']), 'EL-11: Task 2 lies inside across, so the day stays').toBe(dayOf(scene.settings['scrollDate']))
     })
@@ -949,7 +949,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
 
   it(`${EL_20_NO_ANCESTOR} -- row b sorts first: the end stands on the top of the rows under the band`, () => {
     const scene = sceneOf(HIDDEN_FIRST_AT_THE_TOP)
-    expect(lineOf(scene, 1, 2).points.at(-1)!.y, EL_20_NO_ANCESTOR).toBeCloseTo(scene.rowArea.y, 9)
+    expect(lineOf(scene, 1, 2).points.at(-1)!.y, EL_20_NO_ANCESTOR).toBeCloseTo(scene.taskGroupArea.y, 9)
   })
 
   it(`${EL_20_NO_ANCESTOR} -- row b sits between a and c: the end stands on the foot of a, not of c`, () => {
@@ -1458,12 +1458,12 @@ const keyOf = (id: string): KeyInput => {
 const UNDO = keyOf('SK-6')
 
 const uuid = (n: number): string => `cccccccc-0000-4000-8000-${String(n).padStart(12, '0')}`
-const ROW_A = uuid(1)
-const ROW_B = uuid(2)
-const ROW_C = uuid(3)
-const ROW_Z = uuid(9)
+const TASK_GROUP_A = uuid(1)
+const TASK_GROUP_B = uuid(2)
+const TASK_GROUP_C = uuid(3)
+const TASK_GROUP_Z = uuid(9)
 
-interface ShellRow {
+interface ShellTaskGroup {
   readonly id: string
   readonly parentId: string | null
   readonly treeState?: TreeState
@@ -1471,7 +1471,7 @@ interface ShellRow {
 
 const shellTask = (uid: number, start: string, finish: string, links: readonly number[] = []): Loose => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `Task${uid}`,
   start: `${start}T08:00:00`,
@@ -1500,7 +1500,7 @@ const shellTask = (uid: number, start: string, finish: string, links: readonly n
   carryElements: [],
 })
 
-const shellDocument = (rows: readonly ShellRow[], tasks: readonly (readonly [Loose, string])[]): Document =>
+const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonly [Loose, string])[]): Document =>
   ({
     '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
@@ -1547,40 +1547,40 @@ const shellDocument = (rows: readonly ShellRow[], tasks: readonly (readonly [Loo
 const SHELL_PLAIN = (): Document =>
   shellDocument(
     [
-      { id: ROW_A, parentId: null },
-      { id: ROW_B, parentId: null },
-      { id: ROW_Z, parentId: null },
+      { id: TASK_GROUP_A, parentId: null },
+      { id: TASK_GROUP_B, parentId: null },
+      { id: TASK_GROUP_Z, parentId: null },
     ],
     [
-      [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-      [shellTask(2, '2027-06-01', '2027-06-03', [1]), ROW_B],
+      [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+      [shellTask(2, '2027-06-01', '2027-06-03', [1]), TASK_GROUP_B],
     ],
   )
 
 // see EL-20
-const SHELL_FOLDED_ROWS: readonly ShellRow[] = [
-  { id: ROW_A, parentId: null },
-  { id: ROW_B, parentId: ROW_A, treeState: 'collapsed' },
-  { id: ROW_C, parentId: ROW_B },
-  { id: ROW_Z, parentId: null },
+const SHELL_FOLDED_TASK_GROUPS: readonly ShellTaskGroup[] = [
+  { id: TASK_GROUP_A, parentId: null },
+  { id: TASK_GROUP_B, parentId: TASK_GROUP_A, treeState: 'collapsed' },
+  { id: TASK_GROUP_C, parentId: TASK_GROUP_B },
+  { id: TASK_GROUP_Z, parentId: null },
 ]
 const SHELL_FOLDED = (): Document =>
-  shellDocument(SHELL_FOLDED_ROWS, [
-    [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-    [shellTask(2, '2026-04-10', '2026-04-14', [1]), ROW_C],
+  shellDocument(SHELL_FOLDED_TASK_GROUPS, [
+    [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+    [shellTask(2, '2026-04-10', '2026-04-14', [1]), TASK_GROUP_C],
   ])
 
 // see EL-20
 const SHELL_HIDDEN_AT_THE_TOP = (): Document =>
   shellDocument(
     [
-      { id: ROW_A, parentId: null },
-      { id: ROW_B, parentId: null, treeState: 'hidden' },
-      { id: ROW_Z, parentId: null },
+      { id: TASK_GROUP_A, parentId: null },
+      { id: TASK_GROUP_B, parentId: null, treeState: 'hidden' },
+      { id: TASK_GROUP_Z, parentId: null },
     ],
     [
-      [shellTask(1, '2026-04-01', '2026-04-03'), ROW_A],
-      [shellTask(2, '2026-04-10', '2026-04-14', [1]), ROW_B],
+      [shellTask(1, '2026-04-01', '2026-04-03'), TASK_GROUP_A],
+      [shellTask(2, '2026-04-10', '2026-04-14', [1]), TASK_GROUP_B],
     ],
   )
 
@@ -1589,7 +1589,7 @@ interface Shell {
   send(input: HumanInput): void
   svg(): string
   lines(): readonly Line[]
-  rowArea(): Rect
+  taskGroupArea(): Rect
 }
 
 const shellOf = (document: Document): Shell => {
@@ -1623,7 +1623,7 @@ const shellOf = (document: Document): Shell => {
     },
     svg: () => shown,
     lines: () => frame().geometry.dependencies as unknown as readonly Line[],
-    rowArea: () => frame().regions.rowArea as unknown as Rect,
+    taskGroupArea: () => frame().regions.taskGroupArea as unknown as Rect,
   }
 }
 
@@ -1644,7 +1644,7 @@ const isLandingShown = (shell: Shell): boolean => emphasisedLines(shell.svg(), '
 const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().documentSettings.displayScale ?? 100)
 
 const emptyPlace = (shell: Shell): Pt => {
-  const area = shell.rowArea()
+  const area = shell.taskGroupArea()
   return { x: area.x + area.width - 30, y: area.y + area.height - 30 }
 }
 
@@ -1736,10 +1736,10 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
     ).toBe(false)
     clickAt(shell, shellMark(shell))
     const states = treeStatesOf(shell)
-    expect([states[ROW_A], states[ROW_B], states[ROW_C]], EL_21_OPEN).toEqual(['expanded', 'expanded', 'expanded'])
-    expect(states[ROW_Z], 'no other row is touched').toBe('auto')
+    expect([states[TASK_GROUP_A], states[TASK_GROUP_B], states[TASK_GROUP_C]], EL_21_OPEN).toEqual(['expanded', 'expanded', 'expanded'])
+    expect(states[TASK_GROUP_Z], 'no other row is touched').toBe('auto')
     expect(shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2), EL_21_SEND).toBe(true)
-    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(ROW_C)
+    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(TASK_GROUP_C)
     expect(isLandingShown(shell), EL_16_MARK).toBe(true)
     expect(shell.loop.hasUnsavedEdits(), 'EL-21: the open is an unsaved edit (FR-100)').toBe(true)
   })
@@ -1751,12 +1751,12 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
       'premise: Task 2 is not drawn',
     ).toBe(false)
     clickAt(shell, shellMark(shell))
-    expect(treeStatesOf(shell)[ROW_B], EL_21_OPEN).toBe('expanded')
+    expect(treeStatesOf(shell)[TASK_GROUP_B], EL_21_OPEN).toBe('expanded')
     expect(shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2), EL_21_SEND).toBe(true)
-    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(ROW_B)
+    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(TASK_GROUP_B)
     expect(isLandingShown(shell), EL_16_MARK).toBe(true)
     shell.send(UNDO)
-    expect(treeStatesOf(shell)[ROW_B], UN_14_ONE_STEP).toBe('hidden')
+    expect(treeStatesOf(shell)[TASK_GROUP_B], UN_14_ONE_STEP).toBe('hidden')
   })
 
   it(`one undo folds every row back at once (${UN_14_ONE_STEP})`, () => {

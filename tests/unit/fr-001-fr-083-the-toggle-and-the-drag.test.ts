@@ -76,7 +76,7 @@
 //   input-command-translator.ts -- `PressRow`, `PointerPress`, `InputContext`,
 //     `SpentEntranceSituation`, `CreatedSubject`, `InputAction`,
 //     `TranslatedInput`, `pressRowOf`, `commandFromInput`,
-//     `screenStateFromInput`, `NOT_STORED_ROW_GRAB_SIZES`
+//     `screenStateFromInput`, `NOT_STORED_TASK_GROUP_GRAB_SIZES`
 //   input-source.ts -- `PointerButton`, `PointerPhase`, `PointerInput`,
 //     `InputModifiers`, `HumanInput`
 //   screen-state.ts -- `Armed`, `ScreenState`, `emptyScreenState`
@@ -94,7 +94,7 @@
 // manuscript table, or a row of the generated dictionary, read at run time.
 //
 // ⭐ THE HOST FAKE, THE EMPTY DOCUMENT AND THE `stage` HELPER of section 4 are
-// copied from tests/unit/fr-019-no-row-for-the-annotation.test.ts, which drives
+// copied from tests/unit/fr-019-no-task-group-for-the-annotation.test.ts, which drives
 // UF-48 through the same seams for the neighbouring ruling.
 
 import { readFileSync } from 'node:fs'
@@ -105,7 +105,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   commandFromInput,
   pressRowOf,
-  NOT_STORED_ROW_GRAB_SIZES,
+  NOT_STORED_TASK_GROUP_GRAB_SIZES,
   type HumanInput,
   type InputAction,
   type InputContext,
@@ -182,7 +182,7 @@ const T_023B_THE_REPRESS_MEANS_THE_SAME =
   '`、またはパレットの同じ入口の再押下とすること（MUST）**（入口はトグルとし、解く手を人が選べるようにする） —— ⛔ 選んでいるものの有無で、この再押下の意味を変えてはならない（MUST NOT）'
 
 /** ⚠️ HELD AT 28 CHARACTERS, for the reason `SP_4_DOES_NOT_TURN_ON_THE_SELECTION` gives. */
-const EVERY_ROW_ARMS_THE_PRESSED_SHAPE = '**どの行でも、押した入口の形状を構えること（MUST）'
+const EVERY_TASK_GROUP_ARMS_THE_PRESSED_SHAPE = '**どの行でも、押した入口の形状を構えること（MUST）'
 
 // RE-CUT: CR-375 dropped the dated citation this window used to open on;
 // re-cut short, right after the MUST that precedes it.
@@ -266,7 +266,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-083 SP-4 (MUST) -- the re-press does not turn on the selection', SP_4_DOES_NOT_TURN_ON_THE_SELECTION],
   ['FR-083 SP-4 (MUST NOT) -- the disarm is not refused for a selection', SP_4_DISARM_IS_NOT_REFUSED_FOR_A_SELECTION],
   ['T-023b (MUST NOT) -- a re-press means the same thing either way', T_023B_THE_REPRESS_MEANS_THE_SAME],
-  ['FR-083 (MUST) -- every row of the table arms the pressed shape', EVERY_ROW_ARMS_THE_PRESSED_SHAPE],
+  ['FR-083 (MUST) -- every row of the table arms the pressed shape', EVERY_TASK_GROUP_ARMS_THE_PRESSED_SHAPE],
   ['FR-083 (MUST NOT) -- arming is not refused for a selection', ARMING_IS_NOT_REFUSED_FOR_A_SELECTION],
   ['FR-083 (MUST) -- the arming stands even when the shape change is refused', FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL],
   ['FR-001 (MUST) -- a bar shape dragged makes a task of the span drawn', BAR_SHAPE_DRAG_MAKES_THE_SPAN],
@@ -385,7 +385,7 @@ const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } =>
 }
 
 /** `S-208` of table T-206 -- the travel that separates a drag from a click. */
-const DRAG_THRESHOLD = NOT_STORED_ROW_GRAB_SIZES['S-208']
+const DRAG_THRESHOLD = NOT_STORED_TASK_GROUP_GRAB_SIZES['S-208']
 
 describe('the rows these cases are driven by are still in the manuscript', () => {
   it('⭐ table T-109 arms SH-1, SH-2 and SH-5 from the Command Palette', () => {
@@ -502,7 +502,7 @@ const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
 const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection(), null)
 
-const NEW_GROUP_ID = 'row-minted-outside'
+const NEW_GROUP_ID = 'task-group-minted-outside'
 
 const BASE: InputContext = {
   document: DOCUMENT,
@@ -544,7 +544,7 @@ const partOf = (entrance: Entrance): ScreenPart =>
     part: entrance.surface,
     entry: entrance.row,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,
@@ -623,7 +623,7 @@ function pressEntrance(
   }).screen
 }
 
-/** A point of the `Row Area` with nothing drawn over it and nothing under it. */
+/** A point of the `Task Group Area` with nothing drawn over it and nothing under it. */
 const GROUND = { x: 700, y: 400 }
 
 /** The one `Task` a selection can be made of without any of it being drawn. */
@@ -808,7 +808,7 @@ describe('FR-001: the milestone is exempt from the ruling, in both directions', 
 //
 // ⭐ UF-30 names the SITUATION it measured and UF-48 maps it to the row, so the
 // two cases below drive the whole shell. Everything in this section but the
-// presses is copied from tests/unit/fr-019-no-row-for-the-annotation.test.ts.
+// presses is copied from tests/unit/fr-019-no-task-group-for-the-annotation.test.ts.
 
 const SCREEN: FrameEnvironment = {
   width: 1400,

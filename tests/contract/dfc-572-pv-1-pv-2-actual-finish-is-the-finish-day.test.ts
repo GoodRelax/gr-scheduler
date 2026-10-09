@@ -23,7 +23,7 @@ import {
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from './spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -120,7 +120,7 @@ const settingsOf = (): DocumentSettings => {
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
     uid: 1,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: 'Design',
     start: null,
@@ -208,7 +208,7 @@ const accepted = (result: EditResult): Document => {
 }
 
 const pressed = (document: Document): Task => {
-  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null }, DEFAULT_ROW_NAME_FIXTURE))
+  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null }, DEFAULT_TASK_GROUP_NAME_FIXTURE))
   const found = next.schedule.tasks.find((one) => one.uid === 1)
   if (found === undefined) throw new Error('Task 1 left the document')
   return found

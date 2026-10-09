@@ -177,7 +177,7 @@ const SK2_KEY = ((): string => {
 
 /**
  * `IC-74` -- the one entrance of table T-109 whose rule is table T-051 row
- * `HF-10`, the one at the head of the Row Title Panel that unfolds every row.
+ * `HF-10`, the one at the head of the Task Group Panel that unfolds every row.
  *
  * ⚠️ Anchored so that `HF-1` cannot be found by asking for `HF-10`.
  */
@@ -270,7 +270,7 @@ const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
  * Matched by code point, and paired with `TaskGroup` so that the clause is
  * found rather than the word for a row on its own.
  */
-const ROW_IS_NOT_A_TARGET = (() => {
+const TASK_GROUP_IS_NOT_A_TARGET = (() => {
   const said = rowOf(T023C, 'SL-1').cells.join(' ')
   const opening = String.fromCharCode(0x884c, 0xff08)
   return said.includes(opening) && said.includes('TaskGroup')
@@ -327,7 +327,7 @@ const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
  */
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
-const ROW_PANEL = '[data-role="Row Title Panel"]'
+const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const HELP = '[data-role="Help Modal"]'
 
 let browser: Browser | null = null
@@ -443,7 +443,7 @@ const REACH_PX = 160
  *
  * @purity non-pure
  */
-async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
+async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     (asked: { panel: string; reach: number }) => {
       const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
@@ -460,7 +460,7 @@ async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } |
         middles,
       }
     },
-    { panel: ROW_PANEL, reach: REACH_PX },
+    { panel: TASK_GROUP_PANEL_BOX, reach: REACH_PX },
   )
   if (ground === null) return null
   for (const y of ground.middles) {
@@ -545,7 +545,7 @@ function describe(some: readonly Drawn[]): string {
  * The identifier of every row (`TaskGroup`) THE DOCUMENT holds, in its order.
  *
  * ⛔⛔ THE DOCUMENT, NOT THE DRAWING, and that is the whole point of this
- * helper. `[data-depth]` marks the rows the Row Title Panel has DRAWN, and
+ * helper. `[data-depth]` marks the rows the Task Group Panel has DRAWN, and
  * `FR-018` (MUST) takes rows out of the drawing as the level of detail falls --
  * so a count taken from the page answers "how many fit on the screen", which is
  * not the question `SL-1` raises. Measured on the shipped build, 2026-09-07:
@@ -559,7 +559,7 @@ function describe(some: readonly Drawn[]): string {
  *
  * @purity semi-pure-b
  */
-async function readDocumentRowIds(page: Page): Promise<string[]> {
+async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
   return page.evaluate(() => {
     const api = (
       window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }
@@ -571,9 +571,9 @@ async function readDocumentRowIds(page: Page): Promise<string[]> {
 }
 
 /**
- * The name of every row the Row Title Panel is DRAWING, in its own order.
+ * The name of every row the Task Group Panel is DRAWING, in its own order.
  *
- * ⚠️ THE WINDOW, NOT THE DOCUMENT -- see `readDocumentRowIds` above. What this
+ * ⚠️ THE WINDOW, NOT THE DOCUMENT -- see `readDocumentTaskGroupIds` above. What this
  * is for is saying in a failure message what the panel had on it at the time.
  *
  * ⚠️ Names come back CUT: `FR-085` ends a name that does not fit with an
@@ -582,7 +582,7 @@ async function readDocumentRowIds(page: Page): Promise<string[]> {
  *
  * @purity semi-pure-b
  */
-async function readDrawnRowNames(page: Page): Promise<string[]> {
+async function readDrawnTaskGroupNames(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map(
       (row) => `${row.getAttribute('data-depth')}:${(row.querySelector('span')?.textContent ?? '').trim()}`,
@@ -639,7 +639,7 @@ async function arm(page: Page, entrance: string): Promise<void> {
 
 /** Place a highlight box by dragging along a row, and give back what it drew. @purity non-pure */
 async function placeAHighlightBox(page: Page): Promise<Drawn[]> {
-  const spot = await groundOnADrawnRow(page)
+  const spot = await groundOnADrawnTaskGroup(page)
   expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
   const at = spot as { x: number; y: number }
 
@@ -754,7 +754,7 @@ for (const key of SK3_KEYS) {
 // ⛔⛔ THE ROWS ARE COUNTED IN THE DOCUMENT AND NOT IN THE PANEL, and until
 // 2026-09-07 they were not: this case counted `[data-depth]`, which is the
 // window `FR-018` (MUST) narrows as the level of detail falls, and it went red
-// because emptying the tasks let the panel draw one row fewer. `readDocumentRowIds`
+// because emptying the tasks let the panel draw one row fewer. `readDocumentTaskGroupIds`
 // carries that measurement. ⭐ `SL-1` is a statement about the document, so the
 // document is what is read -- through `AM-3` of table T-107, which the build
 // publishes once the entrance `FR-065` gives has been pressed.
@@ -764,7 +764,7 @@ for (const key of SK3_KEYS) {
 test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () => {
   test.setTimeout(180_000)
   expect(
-    ROW_IS_NOT_A_TARGET,
+    TASK_GROUP_IS_NOT_A_TARGET,
     'table T-023c row SL-1 still says a row (TaskGroup) is not among what can be selected',
   ).toBe(true)
 
@@ -782,17 +782,17 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
       `pressing ${AGENT_API_ENTRANCE} publishes the Agent API, which is how the document is read`,
     ).toBe('object')
 
-    const rowsBefore = await readDocumentRowIds(page)
-    const drawnBefore = await readDrawnRowNames(page)
-    expect(rowsBefore.length, 'the build opens with rows in the document').toBeGreaterThan(0)
+    const taskGroupsBefore = await readDocumentTaskGroupIds(page)
+    const drawnBefore = await readDrawnTaskGroupNames(page)
+    expect(taskGroupsBefore.length, 'the build opens with rows in the document').toBeGreaterThan(0)
 
     await page.mouse.move(BASE_SCREEN.width / 2, BASE_SCREEN.height / 2)
     await page.keyboard.press(SK2_KEY)
     await page.waitForTimeout(400)
     expect(
-      await readDocumentRowIds(page),
+      await readDocumentTaskGroupIds(page),
       'SK-2 selected but deleted nothing, so the rows still stand at this point',
-    ).toEqual(rowsBefore)
+    ).toEqual(taskGroupsBefore)
 
     await page.keyboard.press(SK3_KEYS[0] as string)
     await page.waitForTimeout(700)
@@ -805,15 +805,15 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
     // document held is still there, and it is the same row. ⚠️ The NAMES are not
     // compared -- `FR-032` (MUST) has a row whose name came from a task settle
     // that name before the task goes, so a name may legitimately change here.
-    const rowsAfter = await readDocumentRowIds(page)
-    const drawnAfter = await readDrawnRowNames(page)
+    const taskGroupsAfter = await readDocumentTaskGroupIds(page)
+    const drawnAfter = await readDrawnTaskGroupNames(page)
     expect(
-      rowsAfter,
+      taskGroupsAfter,
       'SL-1: a row is not among what can be selected, so none of them was deleted; ' +
-        `the document held ${String(rowsBefore.length)} rows and now holds ` +
-        `${String(rowsAfter.length)}; the panel drew [${drawnBefore.join(' | ')}] and now draws ` +
+        `the document held ${String(taskGroupsBefore.length)} rows and now holds ` +
+        `${String(taskGroupsAfter.length)}; the panel drew [${drawnBefore.join(' | ')}] and now draws ` +
         `[${drawnAfter.join(' | ')}]; the confirmation said [${asked.join(' // ')}]`,
-    ).toEqual(rowsBefore)
+    ).toEqual(taskGroupsBefore)
   } finally {
     await opened.close()
   }
@@ -902,7 +902,7 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
 //
 // see HF-10, IC-74, RS-31, FR-029, T-328, T-329
 // WHY: HF-10 is dim only while no row is undrawn (the zoom counts too), so one press
-// first draws every row (T-328 everyRowOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
+// first draws every row (T-328 everyTaskGroupOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {
   test.setTimeout(180_000)
   expect(

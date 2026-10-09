@@ -259,7 +259,7 @@ const EVERY_DAY_WORKED: Calendar = {
 }
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task => ({
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: null,
   start: null,
@@ -372,8 +372,8 @@ const LIGHT_VIEWER = { themePreference: 'light', guideCursorMode: 'none' } as co
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
 /** The x the left edge of a bar starting on `d` gets, from the axis FR-017 fixes. */
-const xOfDay = (d: number, regions: { rowArea: { x: number } }, pxPerDay: number): number =>
-  regions.rowArea.x + (d - 1) * pxPerDay
+const xOfDay = (d: number, regions: { taskGroupArea: { x: number } }, pxPerDay: number): number =>
+  regions.taskGroupArea.x + (d - 1) * pxPerDay
 
 interface Drawn {
   readonly schedule: Schedule
@@ -406,7 +406,7 @@ const draw = (
     groupId: groupIds[i] ?? ids[0] ?? 'g1',
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
-  // scrollDate (S-77) pins the left edge of the Row Area, so the axis is fixed
+  // scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is fixed
   // and a case can state the x it expects. stackDirection is pinned per case.
   const settings = settingsOf({
     zoomX: 10,
@@ -427,8 +427,8 @@ const placementOf = (drawn: Drawn, uid: number) => {
   return found
 }
 
-const rowByIdOf = (drawn: Drawn, groupId: string) => {
-  const found = drawn.layout.rows.find((r) => r.groupId === groupId)
+const taskGroupByIdOf = (drawn: Drawn, groupId: string) => {
+  const found = drawn.layout.taskGroups.find((r) => r.groupId === groupId)
   if (found === undefined) throw new Error(`this zoom drew no row ${groupId}`)
   return found
 }
@@ -644,7 +644,7 @@ const ONE_TASK_SCHEDULE = scheduleOf(
   null,
 )
 
-/** A row carrying nothing: then a vertical line in the Row Area can only be a grid line. */
+/** A row carrying nothing: then a vertical line in the Task Group Area can only be a grid line. */
 const NO_TASK_SCHEDULE = scheduleOf([], [taskGroup('g1', 0)], [], [], null)
 
 /** The same document, told which day its weeks start on (AT-17, 0 is Sunday). */
@@ -656,7 +656,7 @@ const withWeekStart = (weekStartDay: number | null): Schedule => ({
 interface RulerFrame {
   readonly svg: string
   readonly band: ScreenRect
-  readonly rowArea: ScreenRect
+  readonly taskGroupArea: ScreenRect
   readonly layout: ScheduleLayout
   readonly settings: DocumentSettings
 }
@@ -690,7 +690,7 @@ const rulerAt = (
     LIGHT_VIEWER,
   )
   expect(layout.pxPerDay, 'the sample missed the day width it names').toBeCloseTo(pxPerDay, 9)
-  return { svg, band: regions.timeRuler, rowArea: regions.rowArea, layout, settings }
+  return { svg, band: regions.timeRuler, taskGroupArea: regions.taskGroupArea, layout, settings }
 }
 
 /**
@@ -792,7 +792,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       covers: ['LF-1'],
       given: 'date grid lines turned on at the week step and at the day step',
       when: 'svgFromSchedule draws the frame',
-      then: 'the lines in the Row Area stand exactly where the finest row ticks',
+      then: 'the lines in the Task Group Area stand exactly where the finest row ticks',
     }),
     () => {
       // FINDING (left failing). SWS-1's own RATIONALE: "⭐ that the grid lines
@@ -805,9 +805,9 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       // show cannot be read as any date at all".
       //
       // ⛔ NOTHING DRAWS THEM. `S-67` (`dateGridLinesVisible`) is turned on
-      // here and the Row Area comes back with no vertical line in it at all,
+      // here and the Task Group Area comes back with no vertical line in it at all,
       // so the case fails on the count. ⚠️ The document carries no Task on
-      // purpose: with an empty row, a vertical line inside the Row Area can
+      // purpose: with an empty row, a vertical line inside the Task Group Area can
       // only be one of FR-089's.
       const steps: ReadonlyArray<readonly [RulerTier, number]> = [
         ['yearMonthWeek', TIER_WEEK_PX * 1.001],
@@ -816,7 +816,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       for (const [tier, pxPerDay] of steps) {
         const frame = rulerAt(pxPerDay, { dateGridLinesVisible: true }, NO_TASK_SCHEDULE)
         expect(frame.layout.tier).toBe(tier)
-        const area = frame.rowArea
+        const area = frame.taskGroupArea
         const grid = xsOf(
           linesOf(frame.svg).filter(
             (line) =>
@@ -892,12 +892,12 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       mentions(T051, 'HF-19', '行の帯高の下限にしてはならない（MUST NOT）')
       let belowTheLattice = 0
       for (const [name, drawn] of bandDocuments()) {
-        for (const row of drawn.layout.rows) {
-          const lanes = Math.max(row.stackCount, 1)
+        for (const taskGroup of drawn.layout.taskGroups) {
+          const lanes = Math.max(taskGroup.stackCount, 1)
           let sum = 0
           for (let lane = 0; lane < lanes; lane += 1) {
             const onLane = drawn.layout.placements.filter(
-              (p) => p.groupId === row.groupId && p.stack === lane,
+              (p) => p.groupId === taskGroup.groupId && p.stack === lane,
             )
             // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
@@ -907,7 +907,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
           const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
           const lf2 = sum + gap * lanes
           if (lf2 < CONTROL_LATTICE) belowTheLattice += 1
-          expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(lf2, 6)
+          expect(taskGroup.height, `${name}: row ${taskGroup.groupId}`).toBeCloseTo(lf2, 6)
         }
       }
       expect(
@@ -936,12 +936,12 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         null,
         ['g1', 'g2', 'g3'],
       )
-      const empty = rowByIdOf(drawn, 'g2')
+      const empty = taskGroupByIdOf(drawn, 'g2')
       expect(empty.stackCount).toBe(0)
       const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
       const oneLane = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO + gap
       expect(empty.height, 'LF-2: an empty lane is the rectangle, plus one VG-2 gap').toBeCloseTo(oneLane, 6)
-      expect(empty.height, 'the same band as the one-lane row above it').toBeCloseTo(rowByIdOf(drawn, 'g1').height, 6)
+      expect(empty.height, 'the same band as the one-lane row above it').toBeCloseTo(taskGroupByIdOf(drawn, 'g1').height, 6)
       expect(empty.height, 'HF-19 (MUST NOT): the lattice is not its floor').toBeLessThan(CONTROL_LATTICE)
       // and the rectangle's own height is FR-094's chain, not a number of its own
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
@@ -961,25 +961,25 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       covers: ['LF-3'],
       given: 'several rows of different band heights',
       when: 'layoutFromSchedule places them',
-      then: 'each top is the one above plus that band and rowGap',
+      then: 'each top is the one above plus that band and taskGroupGap',
     }),
     () => {
       // LF-3: "the top of a row is the top of the row before it, plus that
-      // row's band and rowGap."
-      mentions(T221, 'LF-3', 'rowGap')
+      // row's band and taskGroupGap."
+      mentions(T221, 'LF-3', 'taskGroupGap')
       for (const [name, drawn] of bandDocuments()) {
-        const rows = drawn.layout.rows
-        expect(rows.length, name).toBeGreaterThan(0)
-        expect(rows[0]?.y, `${name}: the first row starts at the Row Area`).toBeCloseTo(
-          drawn.regions.rowArea.y,
+        const taskGroups = drawn.layout.taskGroups
+        expect(taskGroups.length, name).toBeGreaterThan(0)
+        expect(taskGroups[0]?.y, `${name}: the first row starts at the Task Group Area`).toBeCloseTo(
+          drawn.regions.taskGroupArea.y,
           6,
         )
-        for (let i = 1; i < rows.length; i += 1) {
-          const above = rows[i - 1]
-          const here = rows[i]
+        for (let i = 1; i < taskGroups.length; i += 1) {
+          const above = taskGroups[i - 1]
+          const here = taskGroups[i]
           if (above === undefined || here === undefined) throw new Error('unreachable')
           expect(here.y, `${name}: row ${here.groupId}`).toBeCloseTo(
-            above.y + above.height + SETTINGS_CONSTANTS.rowGap,
+            above.y + above.height + SETTINGS_CONSTANTS.taskGroupGap,
             6,
           )
         }
@@ -1010,12 +1010,12 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       // STEP: LF-3's rectangle height reaches VG-5's drawn edge -- the border's outer rim, half a stroke each side.
       const rectangleTall = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
       // STEP: LF-2's own sum for the arrow's one lane: its lifted name (OC-10) and line, then one VG-2 gap.
-      const row = rowByIdOf(drawn, 'g1')
+      const taskGroup = taskGroupByIdOf(drawn, 'g1')
       const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
-      const lf2 = placed.y - row.y + placed.height + gap
+      const lf2 = placed.y - taskGroup.y + placed.height + gap
       expect(lf2, 'the premise: the arrow lane sums below the rectangle floor').toBeLessThan(rectangleTall)
-      expect(row.height).toBeCloseTo(Math.max(lf2, rectangleTall), 6)
-      expect(row.height, 'HF-19 (MUST NOT): the controls are no floor').toBeLessThan(CONTROL_LATTICE)
+      expect(taskGroup.height).toBeCloseTo(Math.max(lf2, rectangleTall), 6)
+      expect(taskGroup.height, 'HF-19 (MUST NOT): the controls are no floor').toBeLessThan(CONTROL_LATTICE)
     },
   )
 
@@ -1032,13 +1032,13 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       mentions(T221, 'LF-16', 'S-138', 'S-243', 'S-235', '0 とする')
       const long = (uid: number, from: number, to: number) =>
         task({ uid, name: `t${uid}`, start: day(from), finish: day(to) })
-      const bandsOf = (drawn: Drawn): number => drawn.layout.rows.reduce((sum, row) => sum + row.height, 0)
+      const bandsOf = (drawn: Drawn): number => drawn.layout.taskGroups.reduce((sum, taskGroup) => sum + taskGroup.height, 0)
       const lowLast = draw(
         [long(1, 2, 20), long(2, 3, 21), long(3, 2, 20)],
         ['g1', 'g1', 'g2'],
         [taskVisual(1), taskVisual(2), taskVisual(3)],
       )
-      const last = rowByIdOf(lowLast, 'g2')
+      const last = taskGroupByIdOf(lowLast, 'g2')
       expect(last.height, 'the premise: the last band is lower than the lattice').toBeLessThan(CONTROL_LATTICE)
       expect(lowLast.layout.contentHeight).toBeCloseTo(bandsOf(lowLast) + CONTROL_LATTICE - last.height, 6)
       const tallLast = draw(
@@ -1046,7 +1046,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         ['g1', 'g2', 'g2'],
         [taskVisual(1), taskVisual(2), taskVisual(3)],
       )
-      expect(rowByIdOf(tallLast, 'g2').height, 'the premise: two lanes clear the lattice').toBeGreaterThan(CONTROL_LATTICE)
+      expect(taskGroupByIdOf(tallLast, 'g2').height, 'the premise: two lanes clear the lattice').toBeGreaterThan(CONTROL_LATTICE)
       expect(tallLast.layout.contentHeight).toBeCloseTo(bandsOf(tallLast), 6)
     },
   )
@@ -1074,16 +1074,16 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       covers: ['LF-14'],
       given: 'four rows, the third of them pinned (S-126 of table T-203)',
       when: 'layoutFromSchedule places them',
-      then: 'the pinned row stands at the top of the Row Area and the rest close up one band and one rowGap below it',
+      then: 'the pinned row stands at the top of the Task Group Area and the rest close up one band and one taskGroupGap below it',
     }),
     () => {
       // LF-14: 「帯の高さは、帯に置く行の帯高（`LF-2`）を合計し、行と行のあいだに
-      //   `rowGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げた行は
+      //   `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げた行は
       //   `LF-3` の連なりから除き、抜けた場所は詰める。スクロールする行が並ぶのは、
-      //   `Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残りとする」,
-      // with FR-098: 「本要求でいう「画面の上端」とは … `U-50`（`Row Area`）の
+      //   `Task Group Area` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする」,
+      // with FR-098: 「本要求でいう「画面の上端」とは … `U-50`（`Task Group Area`）の
       //   上端をいう（MUST）」.
-      mentions(T221, 'LF-14', 'rowGap', 'LF-2', 'LF-3', 'Row Area')
+      mentions(T221, 'LF-14', 'taskGroupGap', 'LF-2', 'LF-3', 'Task Group Area')
       const rows = ['g1', 'g2', 'g3', 'g4']
       const drawn = draw(
         rows.map((_id, index) =>
@@ -1094,26 +1094,26 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         { pinnedGroupIds: ['g3'] },
       )
 
-      const pinned = rowByIdOf(drawn, 'g3')
-      expect(pinned.y, 'FR-098: the band stands at the top of the Row Area').toBeCloseTo(
-        drawn.regions.rowArea.y,
+      const pinned = taskGroupByIdOf(drawn, 'g3')
+      expect(pinned.y, 'FR-098: the band stands at the top of the Task Group Area').toBeCloseTo(
+        drawn.regions.taskGroupArea.y,
         6,
       )
 
-      // One row in the band, so LF-14's sum has no `rowGap` in it yet.
+      // One row in the band, so LF-14's sum has no `taskGroupGap` in it yet.
       const band = pinned.height
-      const scrolling = ['g1', 'g2', 'g4'].map((groupId) => rowByIdOf(drawn, groupId))
+      const scrolling = ['g1', 'g2', 'g4'].map((groupId) => taskGroupByIdOf(drawn, groupId))
       expect(
         scrolling[0]?.y,
-        'LF-14: the remainder begins below the band by one rowGap',
-      ).toBeCloseTo(drawn.regions.rowArea.y + band + SETTINGS_CONSTANTS.rowGap, 6)
+        'LF-14: the remainder begins below the band by one taskGroupGap',
+      ).toBeCloseTo(drawn.regions.taskGroupArea.y + band + SETTINGS_CONSTANTS.taskGroupGap, 6)
 
       for (let index = 1; index < scrolling.length; index += 1) {
         const above = scrolling[index - 1]
         const here = scrolling[index]
         if (above === undefined || here === undefined) throw new Error('unreachable')
         expect(here.y, `LF-14: the hole g3 left is closed up at ${here.groupId}`).toBeCloseTo(
-          above.y + above.height + SETTINGS_CONSTANTS.rowGap,
+          above.y + above.height + SETTINGS_CONSTANTS.taskGroupGap,
           6,
         )
       }
@@ -1901,7 +1901,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // four layers, so this is the minimal case that ties the geometry to the
       // rule rather than to one glyph's numbers -- the deep colour / order /
       // curve claims of LF-18 are tests/contract/cr-583-milestone-figures-
-      // sit-on-the-row-centre.contract.test.ts's, read at svgFromSchedule's end
+      // sit-on-the-task-group-centre.contract.test.ts's, read at svgFromSchedule's end
       // of the same chain.
       mentions(T221, 'LF-18', '外形は塗り', '塗りに穴を開けずに', '顔の目は点で塗る')
       const drawn = draw(
@@ -1978,7 +1978,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       // their vertices at different heights.
       const drawn = progressDocument()
       const half = drawn.layout.rectangleHeight / 2
-      const lanes = drawn.layout.rows.flatMap((row) => row.stackTops.map((top) => top + half))
+      const lanes = drawn.layout.taskGroups.flatMap((taskGroup) => taskGroup.stackTops.map((top) => top + half))
       const inner = drawn.geometry.progressLine.slice(1, -1)
       expect(inner.length, 'one vertex per lane').toBe(lanes.length)
       expect([...inner.map((p) => p.y)].sort((a, b) => a - b)).toEqual(
@@ -1994,13 +1994,13 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         { progressLineVisible: true },
         day(10),
       )
-      const row = rowByIdOf(withMilestone, 'g1')
-      expect(row.height, 'the milestone made the band taller than a rectangle').toBeGreaterThan(
+      const taskGroup = taskGroupByIdOf(withMilestone, 'g1')
+      expect(taskGroup.height, 'the milestone made the band taller than a rectangle').toBeGreaterThan(
         withMilestone.layout.rectangleHeight,
       )
       const vertex = withMilestone.geometry.progressLine[1]
       if (vertex === undefined) throw new Error('the line has no vertex')
-      expect(vertex.y).toBeCloseTo(row.y + withMilestone.layout.rectangleHeight / 2, 6)
+      expect(vertex.y).toBeCloseTo(taskGroup.y + withMilestone.layout.rectangleHeight / 2, 6)
     },
   )
 
@@ -2024,9 +2024,9 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         const line = drawn.geometry.progressLine
         const top = line[0]
         const bottom = line[line.length - 1]
-        const rows = drawn.layout.rows
-        const first = rows[0]
-        const last = rows[rows.length - 1]
+        const taskGroups = drawn.layout.taskGroups
+        const first = taskGroups[0]
+        const last = taskGroups[taskGroups.length - 1]
         if (top === undefined || bottom === undefined || first === undefined || last === undefined) {
           throw new Error('the line or the rows came out empty')
         }
@@ -2071,7 +2071,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       // S-58 states. LF-12 calls the two ends of the line its top and its
       // bottom, and FR-014 asks for one unbroken polyline from the top down to
       // the bottom. ST-5 lets stackDirection put lane 0 at the BOTTOM of the
-      // band, and RowPlacement.stackTops then descends in y -- its own comment
+      // band, and TaskGroupPlacement.stackTops then descends in y -- its own comment
       // says so, and warns that a caller drawing through the lanes must visit
       // them by increasing y and not by index.
       //
@@ -2136,10 +2136,10 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
         const drawn = { ...bare, schedule, layout, geometry }
         const anchor = geometry.commentBoxes.find((one) => one.id === 'c1')?.anchor
         if (anchor === undefined) throw new Error(`pinned ${pinned.length}: the geometry placed no comment box`)
-        const row = rowByIdOf(drawn, 'g2')
+        const taskGroup = taskGroupByIdOf(drawn, 'g2')
         const columnCentre = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
         expect(anchor.x, `pinned ${pinned.length}: not the centre of the day 5 column`).toBeCloseTo(columnCentre, 6)
-        expect(anchor.y, `pinned ${pinned.length}: not the centre of the row band`).toBeCloseTo(row.y + row.height / 2, 6)
+        expect(anchor.y, `pinned ${pinned.length}: not the centre of the row band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
       }
     },
   )

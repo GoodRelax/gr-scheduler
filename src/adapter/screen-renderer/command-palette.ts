@@ -39,11 +39,11 @@ const INTERACTION_RECORD_ROW: IconId = 'IC-76'
 
 const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 
-const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
+const MILESTONE_LIST_CONTROL_TASK_GROUPS: readonly string[] = ['IC-50']
 
 const NO_WORDS = ''
 
-const GROUP_NAMES_BY_FIRST_ROW = new Map(
+const GROUP_NAMES_BY_FIRST_TASK_GROUP = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
 
@@ -52,7 +52,7 @@ const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, 
 // see FR-036, FR-038
 /** @purity pure */
 function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
-  const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
+  const word = GROUP_NAMES_BY_FIRST_TASK_GROUP.get(firstRow)?.name[language]
   if (word === undefined) return groupCell
   return word === '' ? groupCell : word
 }
@@ -80,7 +80,7 @@ function drawnTaskUids(
   readings: ScreenViewReadings,
 ): ReadonlySet<number> | null {
   if (schedule === undefined) return null
-  const drawnGroupIds = new Set(readings.rowBoxes.map((placed) => placed.groupId))
+  const drawnGroupIds = new Set(readings.taskGroupBoxes.map((placed) => placed.groupId))
   const uids = new Set<number>()
   for (const member of schedule.taskGroupMembers) {
     if (drawnGroupIds.has(member.groupId)) uids.add(member.taskUid)
@@ -100,7 +100,7 @@ const DUAL_CURSOR_ROW: IconId = 'IC-45'
 
 const STATUS_DATE_ROW: IconId = 'IC-44'
 
-const WBS_PARENT_LINKS_ROW: IconId = 'IC-141'
+const PARENT_TASK_LINKS_TASK_GROUP: IconId = 'IC-141'
 
 const WATERMARK_ROW: IconId = 'IC-41'
 
@@ -115,7 +115,7 @@ interface EntranceFacts {
   readonly guideCursorMode: ScreenValues['guideCursorMode']
   readonly isDualCursorOn: boolean
   readonly isStatusDateDrawn: boolean
-  readonly isWbsParentLinksShown: boolean
+  readonly isParentTaskLinksShown: boolean
   readonly isWatermarkShown: boolean
   readonly isFlowAwaitingAnswer: boolean
 }
@@ -134,7 +134,7 @@ function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): bool
 /** @purity pure */
 function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
-  if (row.rowId === WBS_PARENT_LINKS_ROW) return facts.isWbsParentLinksShown
+  if (row.rowId === PARENT_TASK_LINKS_TASK_GROUP) return facts.isParentTaskLinksShown
   if (row.rowId === WATERMARK_ROW) return facts.isWatermarkShown
   return isSettingsToggleOn(row, facts.settings)
 }
@@ -152,7 +152,7 @@ function entranceFactsOf(
     guideCursorMode: session.screen.guideCursorMode,
     isDualCursorOn: session.screen.dualCursorModeState.kind !== 'off',
     isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
-    isWbsParentLinksShown: readings.isWbsParentLinksShown === true,
+    isParentTaskLinksShown: readings.isParentTaskLinksShown === true,
     isWatermarkShown: session.screen.watermarkDisplayState.kind === 'shown',
     isFlowAwaitingAnswer: isFlowSurfaceOpen(session.screen.openSurfaceState),
   }
@@ -196,7 +196,7 @@ function commandItemFor(
 /** @purity pure */
 function isMilestoneGlyphEntry(row: IconRosterRow): boolean {
   if (!row.authority.includes(MILESTONE_GLYPH_REQUIREMENT)) return false
-  return !MILESTONE_LIST_CONTROL_ROWS.includes(row.rowId)
+  return !MILESTONE_LIST_CONTROL_TASK_GROUPS.includes(row.rowId)
 }
 
 /** @purity pure */
@@ -274,7 +274,7 @@ function armedEntry(armed: ScreenSession['screen']['armModeState']): ArmedEntry 
       return { row: 'AR-5', shape: null }
     case 'highlightBoxArmed':
       return { row: 'AR-6', shape: null }
-    case 'wbsParentArmed':
+    case 'parentTaskArmed':
       return { row: 'AR-7', shape: null }
   }
 }
@@ -293,7 +293,7 @@ function armedWord(
 }
 
 /** @purity pure */
-function bandRowOf(rowId: IconId): IconRosterRow {
+function bandTaskGroupOf(rowId: IconId): IconRosterRow {
   const row = iconRoster.icons.find((one) => one.rowId === rowId)
   if (row === undefined) {
     throw new Error(`table T-109 no longer holds ${rowId}, which FR-053 requires`)
@@ -325,7 +325,7 @@ export function commandPaletteFromSession(
   const facts = entranceFactsOf(settings, session, schedule, readings)
   const isRecording = isRecordingInteractions(readings)
   const bandItem = (rowId: IconId): CommandItem =>
-    commandItemFor(bandRowOf(rowId), selection, drawnTasks, language, armedEntry(armed), isRecording, facts)
+    commandItemFor(bandTaskGroupOf(rowId), selection, drawnTasks, language, armedEntry(armed), isRecording, facts)
 
   return {
     at: readings.commandPaletteAt,

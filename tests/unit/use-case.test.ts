@@ -28,7 +28,7 @@ import {
   type AgentWriteOutcome,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { unwatchChanges } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
-import { rowDocument, shell, TEMPLATE } from './cr-541-stage'
+import { taskGroupDocument, shell, TEMPLATE } from './cr-541-stage'
 
 // see S-3, T-202, CR-418
 const RULER_FONT_FACTOR = ((): number => {
@@ -38,7 +38,7 @@ const RULER_FONT_FACTOR = ((): number => {
   return Number(found[1])
 })()
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // WHY: read from SETTINGS_DEFAULTS, not a hand-typed list -- a hand-typed
 // list once missed a new key (CR-200) and could not catch the break it caused.
@@ -84,9 +84,9 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     changeLog: [],
   }) as unknown as Document
 
-// WHY: rowAreaWidthWithoutPanels is what the caller reads off the frame's
+// WHY: taskGroupAreaWidthWithoutPanels is what the caller reads off the frame's
 // ScreenRegions (CS-1) and hands over; the arithmetic is layoutEngine's.
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
@@ -97,7 +97,7 @@ const planOf = (
   part: Record<string, unknown> = {},
 ) =>
   planDocumentChange({
-    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,
@@ -198,29 +198,29 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     expect(settingsOf(result.document).zoomY).toBe(0.02)
   })
 
-  it('FR-052 refuses a row title panel width that leaves the Row Area at or below zero', () => {
+  it('FR-052 refuses a task group panel width that leaves the Task Group Area at or below zero', () => {
     const ok = editDocumentSettings(
       documentOf(),
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 170 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 170 },
       LIMITS,
     )
     expect(ok.ok).toBe(true)
-    // WHY: CM-67 writes the row title panel width alone; 982 drawn px wide leaves the Row Area at zero.
+    // WHY: CM-67 writes the task group panel width alone; 982 drawn px wide leaves the Task Group Area at zero.
     const tooWide = editDocumentSettings(
       documentOf(),
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 982 / DEFAULT_DISPLAY_RATIO },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 982 / DEFAULT_DISPLAY_RATIO },
       LIMITS,
     )
     expect(tooWide.ok).toBe(false)
     if (!tooWide.ok) expect(tooWide.refusals[0]!.rule).toBe('FR-052')
   })
 
-  it('FR-052 refuses a row title panel of zero, which SC-3 forbids', () => {
+  it('FR-052 refuses a task group panel of zero, which SC-3 forbids', () => {
     // WHY: width 0 breaks SC-3's "showing at every zoom" (MUST NOT), so it
-    // is refused even though the Row Area would be at its widest.
+    // is refused even though the Task Group Area would be at its widest.
     const flat = editDocumentSettings(
       documentOf(),
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 0 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 0 },
       LIMITS,
     )
     expect(flat.ok).toBe(false)
@@ -229,7 +229,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
 
   it('FR-098 refuses a pin at the cap and leaves the ones already placed alone', () => {
     // WHY: S-127 is a constant (CR-572); the document holds as many pins as it allows.
-    const held = Array.from({ length: SETTINGS_CONSTANTS.pinnedRowMax }, (_, at) => `g${at}`)
+    const held = Array.from({ length: SETTINGS_CONSTANTS.pinnedTaskGroupMax }, (_, at) => `g${at}`)
     const full = documentOf({ documentSettings: { pinnedGroupIds: held } })
     const result = editDocumentSettings(full, { kind: 'pinTaskGroup', groupId: 'f' }, LIMITS)
     expect(result.ok).toBe(false)
@@ -310,7 +310,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     for (const command of [
       { kind: 'setElementVisible', element: 'dependencyVisible', visible: false },
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 210 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 210 },
       { kind: 'setZoom', zoomX: 2, zoomY: 2 },
     ] as const) {
       const plan = planOf(document, [command as DocumentCommand])
@@ -489,7 +489,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
     const outcome = applyDocumentChange(
       {
-        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+        defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
         readStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
@@ -514,7 +514,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
     const outcome = applyDocumentChange(
       {
-        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+        defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
         readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
@@ -533,7 +533,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   it('WS-2 refuses a write made from inside the delivery, and swaps only once -- through the shell', () => {
     // WHY: the window is changeDeliveryStateMachine.delivering (CR-440 section
     // 5); the UseCase alone cannot show it, so the write goes through the shell.
-    const built = shell(rowDocument([{ id: 'row-1', parentId: null }]))
+    const built = shell(taskGroupDocument([{ id: 'task-group-1', parentId: null }]))
     const apiFor = (writerName: string): AgentApi =>
       installAgentApi({
         ...built.loop.agentApiSeams(),
@@ -594,7 +594,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const writeOf = (title: string, audience: ChangeAudience) =>
       applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands: [{ kind: 'setProjectTitle', title }],
           moment: CALM,

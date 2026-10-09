@@ -26,7 +26,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
-import { overlayParts, watermarkSvg, wbsParentParts, type ViewerValues } from './schedule-overlays'
+import { overlayParts, watermarkSvg, parentTaskParts, type ViewerValues } from './schedule-overlays'
 import {
   baselineOutlineParts,
   dependencyArrowSvg,
@@ -165,10 +165,10 @@ export function achromatic(colour: string): string {
 /** @purity pure */
 export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
   const named = SCHEDULE_COLOURS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
-  const drawnRow = named !== undefined && SCHEDULE_COLOURS[named] !== undefined ? named : rowId
-  const row = SCHEDULE_COLOURS[drawnRow]
+  const drawnTaskGroup = named !== undefined && SCHEDULE_COLOURS[named] !== undefined ? named : rowId
+  const row = SCHEDULE_COLOURS[drawnTaskGroup]
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
-  const written = solvedCellOf(drawnRow, dark ? row.dark : row.light, themeSolveOf(hue, dark, monochrome), dark)
+  const written = solvedCellOf(drawnTaskGroup, dark ? row.dark : row.light, themeSolveOf(hue, dark, monochrome), dark)
   const coloured = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
   return monochrome ? achromatic(coloured) : coloured
 }
@@ -705,10 +705,10 @@ export function svgFromSchedule(
   const selectedLinks: ReadonlySet<string> = drawsOperationState ? selectedLinksOf(schedule, selection) : new Set()
   const landingLink = drawsOperationState ? landingLinkOf(viewer) : null
 
-  const area = regions.rowArea
+  const area = regions.taskGroupArea
   const areaBottom = area.y + area.height
   const scrollTop = layout.scrollAreaY ?? area.y
-  const hasPinnedRows = geometry.pinnedBand !== undefined
+  const hasPinnedTaskGroups = geometry.pinnedBand !== undefined
   const skipsOffScreen = picture === 'screen'
   const drawnFrom = area.y - area.height
   const drawnTo = areaBottom + area.height
@@ -768,7 +768,7 @@ export function svgFromSchedule(
       areaBottom - scrollTop,
     )}`,
   )}`
-  if (hasPinnedRows) {
+  if (hasPinnedTaskGroups) {
     defsParts.push(
       `<clipPath id="${scrollClipId}"><rect x="${rounded(area.x)}" y="${rounded(scrollTop)}"` +
         ` width="${rounded(area.width)}" height="${rounded(areaBottom - scrollTop)}"/></clipPath>`,
@@ -789,7 +789,7 @@ export function svgFromSchedule(
   /** @purity pure */
   const scrolling = (drawn: readonly string[]): string => {
     const inner = drawn.join('')
-    if (inner === '' || !hasPinnedRows) return inner
+    if (inner === '' || !hasPinnedTaskGroups) return inner
     return `<g clip-path="url(#${scrollClipId})">${inner}</g>`
   }
   const watermarkClipId = `grs-watermark-clip-${pictureId(
@@ -834,7 +834,7 @@ export function svgFromSchedule(
       ...zoLayer('ZO-15', [...baselines.baselinePartsPinned, scrolling(baselines.baselineParts)]),
       ...zoLayer('ZO-4', [
         ...links.depLinkPartsPinned, scrolling(links.depLinkParts),
-        ...wbsParentParts(geometry, settings, themed, drawsOperationState),
+        ...parentTaskParts(geometry, settings, themed, drawsOperationState),
       ]),
       ...zoLayer('ZO-13', [...figures.deadlinePartsPinned, scrolling(figures.deadlineParts)]),
       ...zoLayer('ZO-8', overlays.linkParts),

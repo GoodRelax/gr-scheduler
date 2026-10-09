@@ -5,11 +5,11 @@ import { describe, expect, it } from 'vitest'
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
 const FR_135_NO_DESCENDANT =
-  'M-18`（`setTaskWbsParent`）で行い、取り消しの 1 段とし、未保存の編集を立てること（MUST）。番号の枠を付ける候補から、その子の子孫を除くこと（MUST）'
+  'M-18`（`setTaskParentTask`）で行い、取り消しの 1 段とし、未保存の編集を立てること（MUST）。番号の枠を付ける候補から、その子の子孫を除くこと（MUST）'
 const IP_4_NO_DESCENDANT = '⛔ 子の子孫を並べない —— 子孫を親に選ぶと WBS の輪になる'
 
 // WHY: two bars above that both enclose the child leave its parent undecided (IP-3), so the frames are numbered.
@@ -32,7 +32,7 @@ function candidatesOf(document: Document, taskUid: number): readonly number[] {
 // see IP-1, IP-4
 /** @purity pure */
 function familyDocument(descendantsAbove: boolean): Document {
-  const draft = rowDocument([
+  const draft = taskGroupDocument([
     { id: 'top', parentId: null },
     { id: 'below', parentId: 'top' },
   ])
@@ -43,8 +43,8 @@ function familyDocument(descendantsAbove: boolean): Document {
     taskOf(ABOVE_ONE, wide),
     taskOf(CHILD, { start: '2026-04-06T08:00:00', finish: '2026-04-10T17:00:00' }),
     taskOf(ABOVE_TWO, wide),
-    taskOf(GRANDCHILD, { ...wide, wbsParentUid: CHILD }),
-    taskOf(GREAT_GRANDCHILD, { start: '2026-04-07T08:00:00', finish: '2026-04-08T17:00:00', wbsParentUid: GRANDCHILD }),
+    taskOf(GRANDCHILD, { ...wide, parentTaskUid: CHILD }),
+    taskOf(GREAT_GRANDCHILD, { start: '2026-04-07T08:00:00', finish: '2026-04-08T17:00:00', parentTaskUid: GRANDCHILD }),
   ]
   const above = new Set(descendantsAbove ? [ABOVE_ONE, ABOVE_TWO, GRANDCHILD, GREAT_GRANDCHILD] : [ABOVE_ONE, ABOVE_TWO])
   const rowOf = (uid: number): string => (above.has(uid) ? 'top' : 'below')

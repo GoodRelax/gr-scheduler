@@ -177,7 +177,7 @@ const ruleOf = (table: string, id: string): string => {
 }
 
 /** U-22 of 表 T-103 -- the surface a row's controls are answered as. */
-const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
+const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
 /**
  * The 面 表 T-109 puts one entrance on, as that table spells it.
@@ -204,7 +204,7 @@ const FR_029_THE_MATCHING_ROW =
 const FR_029_NOT_THE_FALLBACK = '当たる行があるのに落ち先を運んではならない（MUST NOT）'
 const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
 const FR_029_NOT_ON_HOVER = 'ポインタが乗っただけで理由を出してはならない（MUST NOT）'
-const T_051_ONLY_DRAWN_ROWS =
+const T_051_ONLY_DRAWN_TASK_GROUPS =
   '描かれていない行の畳みを数えてはならない（MUST NOT）'
 const T_051_NO_CHANGE_MEANS_SPENT =
   'その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）'
@@ -287,7 +287,7 @@ function documentWith(part: Fixture = {}): Document {
   const task = (uid: number, start: string, finish: string, name: string): Task =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name,
       start,
@@ -475,12 +475,12 @@ function stage(part: Fixture = {}, language: DisplayLanguage = 'ja'): Stage {
   const screen = screenPane(language)
   const loop = frameLoop(pen.surface, documentWith(part), SCREEN, screen.wiring)
   pen.runAnimationFrames()
-  const at = (surface: string, entry: string, rowGroupId: string | null) => {
+  const at = (surface: string, entry: string, taskGroupId: string | null) => {
     screen.drawAt({
       part: surface,
       entry: entry as any,
       format: null,
-      rowGroupId,
+      taskGroupId,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -494,7 +494,7 @@ function stage(part: Fixture = {}, language: DisplayLanguage = 'ja'): Stage {
       pen.runAnimationFrames()
     },
     aimAtEntry: (surface, entry) => at(surface, entry, null),
-    aimAt: (entry, groupId) => at(ROW_TITLE_PANEL, entry, groupId),
+    aimAt: (entry, groupId) => at(TASK_GROUP_PANEL, entry, groupId),
     aimAtNothing: () => screen.drawAt(null),
     notices: () => screen.last().notices,
   }
@@ -521,7 +521,7 @@ interface Spent {
   /** The document the press happens in. */
   readonly fixture: Fixture
   /** The row the control belongs to, or `null` for a control the surface owns. */
-  readonly onRow: string | null
+  readonly onTaskGroup: string | null
   /** The 場面 of that row of 表 T-233, in this fixture's own terms. */
   readonly because: string
   /**
@@ -532,7 +532,7 @@ interface Spent {
    * setting and not a row column) is reached here through the entrance that
    * writes it, exactly as a person reaches it.
    */
-  readonly primedBy?: readonly { readonly entry: string; readonly onRow: string | null }[]
+  readonly primedBy?: readonly { readonly entry: string; readonly onTaskGroup: string | null }[]
 }
 
 const SPENT: readonly Spent[] = [
@@ -540,7 +540,7 @@ const SPENT: readonly Spent[] = [
     icon: 'IC-58',
     reason: 'RS-28',
     fixture: {},
-    onRow: ALPHA,
+    onTaskGroup: ALPHA,
     because: 'nothing under ALPHA is folded, so HF-2 has no row to open',
   },
   {
@@ -553,7 +553,7 @@ const SPENT: readonly Spent[] = [
     // is now 表 T-015 の `HR-4`, 「**選択した `TaskGroup` を畳むこと（MUST）**」 ⇒
     // 「**その直下の子から下が描かれなくなる**」, so a press on BETA takes GAMMA
     // off the screen and ACTS. ⭐ The leaf is what is left spent.
-    onRow: GAMMA,
+    onTaskGroup: GAMMA,
     because: 'GAMMA is a drawn leaf, so folding it takes no drawn row away',
   },
   {
@@ -575,21 +575,21 @@ const SPENT: readonly Spent[] = [
     icon: 'IC-90',
     reason: 'RS-30',
     fixture: {},
-    onRow: ALPHA,
+    onTaskGroup: ALPHA,
     because: 'every direct child of ALPHA is drawn, so HR-7 has nothing to put back',
   },
   {
     icon: 'IC-74',
     reason: 'RS-31',
     fixture: {},
-    onRow: null,
+    onTaskGroup: null,
     because: 'every row is drawn, so HF-10 has nothing to open',
   },
   {
     icon: 'IC-78',
     reason: 'RS-32',
     fixture: {},
-    onRow: null,
+    onTaskGroup: null,
     // ⛔⛔ ONE FOLD OF EVERY ROW IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
     // 表 T-015's `HR-2` IS WHY: 「**最も浅い段の行も畳むこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
     // すなわち段 0 として扱う」, and
@@ -597,40 +597,40 @@ const SPENT: readonly Spent[] = [
     // fold, and the press acts. ⭐ The 場面 「開いている行が 1 つも無い」 is
     // reached only once 段 0 itself is down, which is the state a first press
     // on this same entrance leaves behind.
-    primedBy: [{ entry: 'IC-78', onRow: null }],
+    primedBy: [{ entry: 'IC-78', onTaskGroup: null }],
     because: 'a first press folded 段 0 itself, so no drawn row and no level is left open',
   },
   {
     icon: 'IC-37',
     reason: 'RS-34',
     fixture: {},
-    onRow: null,
+    onTaskGroup: null,
     because: 'no Task is chosen, so FR-034 has nothing to align',
   },
   {
     icon: 'IC-38',
     reason: 'RS-34',
     fixture: {},
-    onRow: null,
+    onTaskGroup: null,
     because: 'no Task is chosen, so FR-034 has nothing to align',
   },
   // WHY: IC-18 left with RS-35 (CR-562); FR-066 keeps IC-18 un-faint, so its press has work.
 ]
 
 /** Aim one entrance of one row -- or of a surface, where the row is null. */
-function aim(built: Stage, entry: string, onRow: string | null): void {
-  if (onRow === null) built.aimAtEntry(surfaceOf(entry), entry)
-  else built.aimAt(entry, onRow)
+function aim(built: Stage, entry: string, onTaskGroup: string | null): void {
+  if (onTaskGroup === null) built.aimAtEntry(surfaceOf(entry), entry)
+  else built.aimAt(entry, onTaskGroup)
 }
 
 /** Aim one of those situations and press it. */
 function pressed(one: Spent, language: DisplayLanguage = 'ja'): Stage {
   const built = stage(one.fixture, language)
   for (const first of one.primedBy ?? []) {
-    aim(built, first.entry, first.onRow)
+    aim(built, first.entry, first.onTaskGroup)
     press(built)
   }
-  aim(built, one.icon, one.onRow)
+  aim(built, one.icon, one.onTaskGroup)
   press(built)
   return built
 }
@@ -643,7 +643,7 @@ describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
     // AGREE WITH ANYTHING -- rule 04 section 2.
-    expect(ROW_TITLE_PANEL).toBe('Row Title Panel')
+    expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(mannerOf(FALLBACK), '表 T-233 still gives RS-27 its manner').toBe('NT-1')
     expect(ruleOf('T-233', FALLBACK)).toBe('FR-029')
   })
@@ -662,7 +662,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⭐ THE RULE EVERY FIXTURE ABOVE RESTS ON. Without it, `IC-77` on a row
     // whose only child is a leaf would still be armed and the RS-29 case would
     // be asserting the opposite of the manuscript.
-    expect(REQUIREMENTS).toContain(T_051_ONLY_DRAWN_ROWS)
+    expect(REQUIREMENTS).toContain(T_051_ONLY_DRAWN_TASK_GROUPS)
     expect(REQUIREMENTS).toContain(T_051_NO_CHANGE_MEANS_SPENT)
   })
 
@@ -818,48 +818,48 @@ describe('FR-029 (MUST NOT) -- resting a pointer on it is not a press', () => {
 
 describe('FR-029 -- the telling belongs to an entrance that is spent, and to no other', () => {
   /** Every situation above, turned into the one where the same control has work. */
-  const ARMED: readonly { readonly icon: string; readonly fixture: Fixture; readonly onRow: string | null; readonly because: string }[] =
+  const ARMED: readonly { readonly icon: string; readonly fixture: Fixture; readonly onTaskGroup: string | null; readonly because: string }[] =
     [
       {
         icon: 'IC-58',
         fixture: { folded: [BETA] },
-        onRow: ALPHA,
+        onTaskGroup: ALPHA,
         because: 'BETA is folded under ALPHA, so opening 配下 draws GAMMA again',
       },
       {
         icon: 'IC-77',
         fixture: {},
-        onRow: ALPHA,
+        onTaskGroup: ALPHA,
         because: 'folding 配下 of ALPHA folds BETA, which takes GAMMA off the picture',
       },
       {
         icon: 'IC-59',
         fixture: {},
-        onRow: ALPHA,
+        onTaskGroup: ALPHA,
         because: 'ALPHA is open and folding it takes BETA and GAMMA off the picture',
       },
       {
         icon: 'IC-74',
         fixture: { folded: [BETA] },
-        onRow: null,
+        onTaskGroup: null,
         because: 'BETA is folded, so opening every row draws GAMMA again',
       },
       {
         icon: 'IC-78',
         fixture: {},
-        onRow: null,
+        onTaskGroup: null,
         because: 'ALPHA and BETA are open, so folding every row takes rows off the picture',
       },
       {
         icon: 'IC-8',
         fixture: { planActual: { planVisible: true, actualVisible: true } },
-        onRow: null,
+        onTaskGroup: null,
         because: 'the plan is showing, so hiding it changes the picture',
       },
       {
         icon: 'IC-9',
         fixture: { planActual: { planVisible: false, actualVisible: true } },
-        onRow: null,
+        onTaskGroup: null,
         because:
           'the actual is showing, so hiding it changes the picture -- and the plan'
           + ' being hidden already does not stand in the way (FR-049)',
@@ -878,8 +878,8 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
     const reasons = new Set(REASON_WORDS.map((one) => one.text.ja))
     for (const one of ARMED) {
       const built = stage(one.fixture)
-      if (one.onRow === null) built.aimAtEntry(surfaceOf(one.icon), one.icon)
-      else built.aimAt(one.icon, one.onRow)
+      if (one.onTaskGroup === null) built.aimAtEntry(surfaceOf(one.icon), one.icon)
+      else built.aimAt(one.icon, one.onTaskGroup)
       press(built)
       for (const notice of built.notices()) {
         if (reasons.has(notice.text)) told.push(`${one.icon}: ${one.because} -- ${notice.text}`)
@@ -955,7 +955,7 @@ describe('FR-029 -- every entrance the screen drew faint answers a press with a 
     //   chose. ⚠️ An entrance no row covers is left alone -- `RS-27` is its
     //   landing place, which is all FR-029 keeps that row for.
     const fallback = wordsFor(FALLBACK).text.ja
-    const wanted = new Map(SPENT.filter((one) => one.onRow === null).map((one) => [one.icon, one]))
+    const wanted = new Map(SPENT.filter((one) => one.onTaskGroup === null).map((one) => [one.icon, one]))
     const drawn = stage()
     const view = drawn.screen.last()
 

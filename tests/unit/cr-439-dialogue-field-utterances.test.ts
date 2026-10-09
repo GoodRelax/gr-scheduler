@@ -71,7 +71,7 @@ function viewWith(dialogueField: DialogueField | null): ScreenView {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

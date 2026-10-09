@@ -121,10 +121,10 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
   })
 
   it('DFC-1720: an icon on a row carries that row in its anchor; one off a row carries none', () => {
-    const onRow = tipsFor(restingOn({ iconUnderPointer: 'IC-58', iconRowUnderPointer: 'g2', hintTargetDwellMs: 1e6 }))
-    const offRow = tipsFor(restingOn({ iconUnderPointer: 'IC-5', iconRowUnderPointer: null, hintTargetDwellMs: 1e6 }))
-    expect(onRow.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-58', groupId: 'g2' })
-    expect(offRow.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-5' })
+    const onTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-58', iconRowUnderPointer: 'g2', hintTargetDwellMs: 1e6 }))
+    const offTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-5', iconRowUnderPointer: null, hintTargetDwellMs: 1e6 }))
+    expect(onTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-58', groupId: 'g2' })
+    expect(offTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-5' })
   })
 })
 
@@ -170,7 +170,7 @@ describe('CU-3 / DC-9 -- the guide label stands down in the frame an EZ-6 tip sh
       { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 },
       settings,
     )
-    const middle = { x: regions.rowArea.x + regions.rowArea.width / 2, y: regions.rowArea.y + regions.rowArea.height / 2 }
+    const middle = { x: regions.taskGroupArea.x + regions.taskGroupArea.width / 2, y: regions.taskGroupArea.y + regions.taskGroupArea.height / 2 }
     const session = sessionIn('ja', 'single-vertical')
     const resting = restingOn({ pointer: middle, hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid } })
     const moving = restingOn({ pointer: middle, hintHolderUnderPointer: { kind: 'task', taskUid: TASK.uid }, pointerRestedMs: 0 })

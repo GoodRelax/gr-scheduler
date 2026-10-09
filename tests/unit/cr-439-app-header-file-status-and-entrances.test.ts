@@ -105,7 +105,7 @@ function viewWith(items: AppHeaderItems): ScreenView {
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
     appHeaderItems: items,
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

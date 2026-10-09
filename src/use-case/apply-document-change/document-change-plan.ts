@@ -44,7 +44,7 @@ export interface PlanInput {
   readonly history: EditHistory<ChangeStep>
   readonly historyLimits: HistoryLimits
   readonly settingsLimits: SettingsLimits
-  readonly defaultRowName: string
+  readonly defaultTaskGroupName: string
   readonly editedBy: string
   readonly updatedUtc: string
 }
@@ -79,8 +79,8 @@ function isUndoable(command: DocumentCommand): boolean {
   switch (command.kind) {
     case 'setElementVisible':
       return false
-    case 'setRowTitlePanelWidth':
-    case 'setRowTitlePanelWidthFixed':
+    case 'setTaskGroupPanelWidth':
+    case 'setTaskGroupPanelWidthFixed':
       return false
     // TRAP: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
     // them makes an undo rewind the zoom against UN-8.
@@ -110,8 +110,8 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     baselineVisible: current.baselineVisible,
     planDatesVisible: current.planDatesVisible,
 
-    rowTitlePanelWidth: current.rowTitlePanelWidth,
-    rowTitlePanelWidthFixed: current.rowTitlePanelWidthFixed,
+    taskGroupPanelWidth: current.taskGroupPanelWidth,
+    taskGroupPanelWidthFixed: current.taskGroupPanelWidthFixed,
 
     zoomX: current.zoomX,
     zoomY: current.zoomY,
@@ -169,16 +169,16 @@ function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
 // see T-050, FR-004
 // TRAP: a non-empty document must come back as the same reference; WS-6 replaces one reference.
 /** @purity pure */
-function documentHoldingOneRow(
+function documentHoldingOneTaskGroup(
   document: Document,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
   freshRowId: string | null,
 ): Document {
   if (document.schedule.taskGroups.length > 0 || freshRowId === null) return document
-  const row: TaskGroup = {
+  const taskGroup: TaskGroup = {
     id: freshRowId,
     parentId: null,
-    label: defaultRowName,
+    label: defaultTaskGroupName,
     derivedFromTaskUid: null,
     order: 0,
     // WHY: the one row T-050 leaves stands open whatever emptied the rows, as a CM-26 row does (AT-153).
@@ -187,7 +187,7 @@ function documentHoldingOneRow(
     color: null,
     minHeight: null,
   }
-  return { ...document, schedule: { ...document.schedule, taskGroups: [row] } }
+  return { ...document, schedule: { ...document.schedule, taskGroups: [taskGroup] } }
 }
 
 // see FR-063
@@ -237,7 +237,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   const refusals: Refusal[] = []
   const recountedTaskUids = new Set<number>()
   for (const command of input.commands) {
-    const result = editDocument(held, command, input.settingsLimits, input.defaultRowName)
+    const result = editDocument(held, command, input.settingsLimits, input.defaultTaskGroupName)
     if (!result.ok) {
       refusals.push(...result.refusals)
       continue
@@ -249,7 +249,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }
 
-  const settled = documentHoldingOneRow(held, input.defaultRowName, freshRowIdOf(input.commands))
+  const settled = documentHoldingOneTaskGroup(held, input.defaultTaskGroupName, freshRowIdOf(input.commands))
 
   // TRAP: identity means nothing moved only while every edit-document arm returns the document it got.
   const recorded = input.commands.filter(isUndoable)
@@ -319,7 +319,7 @@ export interface ReplacementInput {
   readonly readStamp: DocumentStamp | null
   readonly moment: WriteMoment
   readonly call: ReplacementCall
-  readonly defaultRowName: string
+  readonly defaultTaskGroupName: string
   readonly newGroupId: string
 }
 
@@ -353,7 +353,7 @@ function replacementSettled(
   next: HeldDocument,
   input: ReplacementInput,
 ): ReplacementPlan {
-  const settled = documentHoldingOneRow(next.document, input.defaultRowName, input.newGroupId)
+  const settled = documentHoldingOneTaskGroup(next.document, input.defaultTaskGroupName, input.newGroupId)
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
   return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }

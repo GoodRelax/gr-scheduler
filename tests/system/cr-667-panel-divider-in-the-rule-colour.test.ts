@@ -64,7 +64,7 @@ async function readDivider(page: Page, theme: Theme): Promise<DividerReading> {
         probe.remove()
         return out
       }
-      const band = document.querySelector(`${asked.divider}[data-panel="rowTitlePanel"]`)
+      const band = document.querySelector(`${asked.divider}[data-panel="taskGroupPanel"]`)
       if (band === null) return { lines: [], s149: painted(asked.s149), s165: painted(asked.s165), ruleWidthsPx: [] }
       const around = band.getBoundingClientRect()
       const lines = [...document.querySelectorAll('div')]
@@ -105,7 +105,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.goto(pathToFileURL(SHIPPED_BUILD).href)
       await readSettledDrawnSvg(page)
       const read = await readDivider(page, theme)
-      expect(read.lines, 'one divider line is drawn along the row title panel band').toHaveLength(1)
+      expect(read.lines, 'one divider line is drawn along the task group panel band').toHaveLength(1)
       const line = read.lines[0]
       if (line === undefined) throw new Error('no divider line')
       expect(line.colour, 'the line is S-149').toBe(read.s149)

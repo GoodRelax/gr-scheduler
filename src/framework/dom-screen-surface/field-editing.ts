@@ -181,12 +181,12 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   propertiesPanel.addEventListener('change', onFieldChange)
   const jointRow = jointRowOf()
 
-  const typedControlsByRow = new Map<string, TextEntryControl>()
+  const typedControlsByTaskGroup = new Map<string, TextEntryControl>()
 
   // see MK-13
   /** @purity non-pure */
   function focusPropertyField(row: string): boolean {
-    if (row === DOCUMENT_TITLE_ROW) {
+    if (row === DOCUMENT_TITLE_TASK_GROUP) {
       openDocumentTitleField()
       const entry = documentTitleEntry
       return entry === null || isFocusOn(entry) || focusAndChoose(entry)
@@ -199,7 +199,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
       isFieldHeld = false
       return false
     }
-    const control = typedControlsByRow.get(row)
+    const control = typedControlsByTaskGroup.get(row)
     return control === undefined || focusAndChoose(control)
   }
 
@@ -384,7 +384,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let documentTitleValueAtFocus = ''
   let isDocumentTitleTakenBack = false
 
-  const DOCUMENT_TITLE_ROW = 'U-27'
+  const DOCUMENT_TITLE_TASK_GROUP = 'U-27'
   const WATERMARK_UNLOCK_ROW = 'U-60'
   const DOCUMENT_TITLE_KEY: PropertyFieldKey = { holder: 'project', column: 'title' }
 
@@ -395,15 +395,15 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     if (box === null || documentTitleEntry !== null) return
     const drawn = made(host, 'input', STYLE.documentTitleEntry)
     drawn.setAttribute('type', 'text')
-    drawn.setAttribute('data-field-row', DOCUMENT_TITLE_ROW)
+    drawn.setAttribute('data-field-row', DOCUMENT_TITLE_TASK_GROUP)
     const entry = drawn as unknown as TextEntryControl
     entry.value = documentTitleShown
-    CONTROL_KEYS.set(drawn, { row: DOCUMENT_TITLE_ROW, key: DOCUMENT_TITLE_KEY })
+    CONTROL_KEYS.set(drawn, { row: DOCUMENT_TITLE_TASK_GROUP, key: DOCUMENT_TITLE_KEY })
     TYPED_CONTROLS.add(drawn)
     // TRAP: the field goes inside the box, not in its place, or a point on the name answers no part.
     box.replaceChildren(drawn)
     documentTitleEntry = entry
-    noteFieldEdit('began', DOCUMENT_TITLE_ROW)
+    noteFieldEdit('began', DOCUMENT_TITLE_TASK_GROUP)
     documentTitleValueAtFocus = documentTitleShown
     isDocumentTitleTakenBack = false
     // TRAP: watch before focusing: the host may raise focusin or focusout on the focus below.
@@ -416,7 +416,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   function closeDocumentTitleField(): void {
     if (documentTitleEntry === null) return
     documentTitleEntry = null
-    noteFieldEdit('ended', DOCUMENT_TITLE_ROW)
+    noteFieldEdit('ended', DOCUMENT_TITLE_TASK_GROUP)
     documentTitleValueAtFocus = ''
     isDocumentTitleTakenBack = false
     // TRAP: clear the entry before rewriting the box: a focusout on the removed field must find nothing.
@@ -583,7 +583,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   }
 
   return {
-    typedControlsByRow,
+    typedControlsByTaskGroup,
     isFieldHeld: (): boolean => isFieldHeld,
     panelKeyAfterCommits: (described: string): string =>
       `${described}${PANEL_KEY_SEPARATOR}${commitsHandedOut}`,

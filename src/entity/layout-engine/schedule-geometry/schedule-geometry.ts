@@ -21,7 +21,7 @@ import {
   isDroppedByTreeState,
   thinEndHalfHeightOf,
   xFromDay,
-  type RowPlacement,
+  type TaskGroupPlacement,
   type ScheduleLayout,
   type TaskPlacement,
 } from '../schedule-layout/schedule-layout'
@@ -41,12 +41,12 @@ import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
 import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
-import { wbsParentGeometryOf, type WbsParentFamilies, type WbsParentGeometry } from './wbs-parent-arrows'
+import { parentTaskGeometryOf, type ParentTaskFamilies, type ParentTaskGeometry } from './parent-task-arrows'
 
 export { commentAnchorPointOf, leaderOf } from './comment-box'
 export { arrowHeadOf, selectedLinksOf } from './dependency-route'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
-export type { WbsParentFamilies } from './wbs-parent-arrows'
+export type { ParentTaskFamilies } from './parent-task-arrows'
 
 export interface Point {
   readonly x: number
@@ -162,11 +162,11 @@ export interface TaskGeometry {
 // see EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
 // WHY: decided here once, where EL-1, EL-2 and EL-20 are judged, so the click (EL-10 .. EL-12) never judges them again.
 export interface FarEndGeometry {
-  readonly isAcrossInRowArea: boolean
-  readonly isDownInRowPlace: boolean
+  readonly isAcrossInTaskGroupArea: boolean
+  readonly isDownInTaskGroupPlace: boolean
   readonly groupId: string
   readonly middleX: number
-  readonly undrawnRowDepth: number | null
+  readonly undrawnTaskGroupDepth: number | null
   readonly foldedRowId: string | null
 }
 
@@ -252,7 +252,7 @@ export interface ScheduleGeometry {
   readonly highlightBoxes: readonly HighlightGeometry[]
   readonly commentBoxes: readonly CommentGeometry[]
   // WHY: optional, read as none when absent: a hand-built geometry draws no family.
-  readonly wbsParents?: WbsParentGeometry
+  readonly parentTasks?: ParentTaskGeometry
   readonly pinnedBand?: {
     readonly scrollTop: number
     readonly pinnedTaskUids: ReadonlySet<number>
@@ -287,7 +287,7 @@ interface EndReading {
   readonly inputs: GeometryInputs
   readonly regions: ScreenRegions
   readonly placedByUid: ReadonlyMap<number, TaskPlacement>
-  readonly rowById: ReadonlyMap<string, RowPlacement>
+  readonly taskGroupById: ReadonlyMap<string, TaskGroupPlacement>
   readonly groupById: ReadonlyMap<string, TaskGroup>
   readonly groupOfTask: ReadonlyMap<number, string>
   readonly pinnedIds: ReadonlySet<string>
@@ -306,7 +306,7 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
     inputs,
     regions,
     placedByUid: new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one])),
-    rowById: new Map(inputs.layout.rows.map((row) => [row.groupId, row])),
+    taskGroupById: new Map(inputs.layout.taskGroups.map((taskGroup) => [taskGroup.groupId, taskGroup])),
     groupById,
     groupOfTask,
     pinnedIds: new Set(inputs.settings.pinnedGroupIds),
@@ -330,19 +330,19 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
 // see EL-1, EL-2, FR-098, LF-14
 // WHY: an EL-2 end stands on a zero-height line, so it is never inside its row's place down.
 /** @purity pure */
-function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null, foldedRowId: string | null,
+function farEndOf(end: LinkEnd, groupId: string, undrawnTaskGroupDepth: number | null, foldedRowId: string | null,
                   reading: EndReading): FarEndGeometry {
-  const area = reading.regions.rowArea
+  const area = reading.regions.taskGroupArea
   const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
-  const isPinned = reading.rowById.get(groupId)?.isPinned === true
+  const isPinned = reading.taskGroupById.get(groupId)?.isPinned === true
   const top = isPinned ? area.y : bandFloor
   const bottom = isPinned ? bandFloor : area.y + area.height
   return {
-    isAcrossInRowArea: overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0,
-    isDownInRowPlace: overlapOf(end.top, end.bottom, top, bottom) > 0,
+    isAcrossInTaskGroupArea: overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0,
+    isDownInTaskGroupPlace: overlapOf(end.top, end.bottom, top, bottom) > 0,
     groupId,
     middleX: (end.x + (end.x + end.width)) / 2,
-    undrawnRowDepth,
+    undrawnTaskGroupDepth,
     foldedRowId,
   }
 }
@@ -350,14 +350,14 @@ function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null,
 // see EL-1
 /** @purity pure */
 function isSeen(far: FarEndGeometry): boolean {
-  return far.isAcrossInRowArea && far.isDownInRowPlace
+  return far.isAcrossInTaskGroupArea && far.isDownInTaskGroupPlace
 }
 
 // see EL-2, EL-20
 /** @purity pure */
-function scrollingFloorOf(reading: EndReading, counts: (row: RowPlacement, at: number) => boolean): number {
-  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.rowArea.y
-  reading.inputs.layout.rows.forEach((one, at) => {
+function scrollingFloorOf(reading: EndReading, counts: (taskGroup: TaskGroupPlacement, at: number) => boolean): number {
+  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.taskGroupArea.y
+  reading.inputs.layout.taskGroups.forEach((one, at) => {
     if (one.isPinned !== true && counts(one, at)) floor = one.y + one.height
   })
   return floor
@@ -365,9 +365,9 @@ function scrollingFloorOf(reading: EndReading, counts: (row: RowPlacement, at: n
 
 // see EL-2
 /** @purity pure */
-function standingYOf(row: RowPlacement, reading: EndReading): number {
-  if (row.isPinned !== true) return row.y + row.height
-  const stop = reading.inputs.layout.rows.findIndex((one) => one.groupId === row.groupId)
+function standingYOf(taskGroup: TaskGroupPlacement, reading: EndReading): number {
+  if (taskGroup.isPinned !== true) return taskGroup.y + taskGroup.height
+  const stop = reading.inputs.layout.taskGroups.findIndex((one) => one.groupId === taskGroup.groupId)
   return scrollingFloorOf(reading, (_one, at) => stop < 0 || at < stop)
 }
 
@@ -380,7 +380,7 @@ function unhiddenYOf(own: TaskGroup, reading: EndReading): number {
 }
 
 interface Climb {
-  readonly row: RowPlacement | null
+  readonly taskGroup: TaskGroupPlacement | null
   readonly step: number
   readonly isFolded: boolean
 }
@@ -394,9 +394,9 @@ function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
   for (let step = 0; step < settings.maxGroupDepth; step += 1) {
     const parent: TaskGroup | undefined =
       group.parentId === null ? undefined : reading.groupById.get(group.parentId)
-    if (parent === undefined) return { row: null, step, isFolded }
-    const row = reading.rowById.get(parent.id)
-    if (row !== undefined) return { row, step, isFolded }
+    if (parent === undefined) return { taskGroup: null, step, isFolded }
+    const taskGroup = reading.taskGroupById.get(parent.id)
+    if (taskGroup !== undefined) return { taskGroup, step, isFolded }
     group = parent
   }
   return null
@@ -413,17 +413,17 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const groupId = reading.groupOfTask.get(task.uid)
   const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
   if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
-  const drawnRow = reading.rowById.get(own.id)
-  if (drawnRow !== undefined) return filteredEndOf(task, own, drawnRow, reading)
+  const drawnTaskGroup = reading.taskGroupById.get(own.id)
+  if (drawnTaskGroup !== undefined) return filteredEndOf(task, own, drawnTaskGroup, reading)
   const climb = climbOf(own, reading)
   if (climb === null) return null
   const x = xFromDay(layout, start)
   const width = planSpanWidthOf(layout, x, finish, settings)
-  if (climb.row === null) return unparentedEndOf(task, own, climb, x, width, reading)
+  if (climb.taskGroup === null) return unparentedEndOf(task, own, climb, x, width, reading)
   if (!climb.isFolded && reading.pinnedIds.has(own.id)) return null
-  const end = standingEndOf(task.uid, x, width, standingYOf(climb.row, reading))
+  const end = standingEndOf(task.uid, x, width, standingYOf(climb.taskGroup, reading))
   // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
-  const depth = climb.row.depth + climb.step + 1
+  const depth = climb.taskGroup.depth + climb.step + 1
   return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
 }
 
@@ -442,14 +442,14 @@ function unparentedEndOf(task: Task, own: TaskGroup, climb: Climb, x: number, wi
 
 // see EL-20, TV-3
 /** @purity pure */
-function filteredEndOf(task: Task, own: TaskGroup, row: RowPlacement, reading: EndReading): SightedEnd | null {
+function filteredEndOf(task: Task, own: TaskGroup, taskGroup: TaskGroupPlacement, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
   const shown = layout.shownTaskUids
   const start = dayOf(task.start)
   const finish = dayOf(task.finish)
   if (shown === undefined || shown === null || shown.has(task.uid) || start === null || finish === null) return null
   const x = xFromDay(layout, start)
-  const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
+  const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(taskGroup, reading))
   return { end, far: farEndOf(end, own.id, null, null, reading) }
 }
 
@@ -525,8 +525,8 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
     if (!placedByUid.has(placed.taskUid)) placedByUid.set(placed.taskUid, placed)
   }
   const pinnedIds = new Set<string>()
-  for (const row of inputs.layout.rows) {
-    if (row.isPinned === true) pinnedIds.add(row.groupId)
+  for (const taskGroup of inputs.layout.taskGroups) {
+    if (taskGroup.isPinned === true) pinnedIds.add(taskGroup.groupId)
   }
   const out: BaselineOutline[] = []
   for (const baseline of schedule.baselineTasks) {
@@ -541,7 +541,7 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
 /** @purity pure */
 function statusLineOf(inputs: GeometryInputs, regions: ScreenRegions): ScheduleGeometry['statusLine'] {
   if (inputs.statusDate === null) return null
-  const area = regions.rowArea
+  const area = regions.taskGroupArea
   return { x: xFromDay(inputs.layout, inputs.statusDate), top: area.y, bottom: area.y + area.height }
 }
 
@@ -555,7 +555,7 @@ export function geometryFromLayout(
   selection: Selection,
   dualCursor: DualCursorDates | null,
   delayDiagnostics?: GeometryInputs['delayDiagnostics'],
-  wbsParentFamilies: WbsParentFamilies | null = null,
+  parentTaskFamilies: ParentTaskFamilies | null = null,
 ): ScheduleGeometry {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
@@ -589,7 +589,7 @@ export function geometryFromLayout(
     dualCursor: dualCursorGeometry(dualCursor, layout, regions),
     highlightBoxes: highlightGeometry(schedule, layout),
     commentBoxes: commentGeometry(schedule, settings, layout),
-    wbsParents: wbsParentGeometryOf(inputs, wbsParentFamilies),
+    parentTasks: parentTaskGeometryOf(inputs, parentTaskFamilies),
     ...pinnedBandOf(layout, regions),
   }
 }
@@ -597,12 +597,12 @@ export function geometryFromLayout(
 // see FR-098, S-78
 /** @purity pure */
 function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<ScheduleGeometry, 'pinnedBand'> {
-  const pinnedIds = new Set(layout.rows.filter((row) => row.isPinned === true).map((row) => row.groupId))
+  const pinnedIds = new Set(layout.taskGroups.filter((taskGroup) => taskGroup.isPinned === true).map((taskGroup) => taskGroup.groupId))
   if (pinnedIds.size === 0) return {}
   const pinnedTaskUids = new Set(
     layout.placements.filter((one) => pinnedIds.has(one.groupId)).map((one) => one.taskUid),
   )
-  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.rowArea.y, pinnedTaskUids } }
+  return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.taskGroupArea.y, pinnedTaskUids } }
 }
 
 // see FR-098, T-303, EL-4, EL-5, EL-19, PI-6

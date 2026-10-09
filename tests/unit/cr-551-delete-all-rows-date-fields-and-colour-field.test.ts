@@ -18,7 +18,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
-import { NO_MODS, pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { NO_MODS, pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -29,7 +29,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   colourField: { part: string; text: { ja: string } }[]
 }
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -45,15 +45,15 @@ const wordOf = (part: string): string => WORDS.colourField.find((one) => one.par
 const colourWord = (spelling: string): string => WORDS.colourNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 
 // see S-335, S-336, S-337, S-338
-const S_335 = numberOf(rowIn('T-206', 'S-335').by['既定'] ?? '')
-const S_336 = hexIn(rowIn('T-236', 'S-336').by['明るいテーマ'] ?? '')
-const S_337 = hexIn(rowIn('T-236', 'S-337').by['明るいテーマ'] ?? '')
-const S_338 = numberOf(rowIn('T-206', 'S-338').by['既定'] ?? '')
+const S_335 = numberOf(verticalIn('T-206', 'S-335').by['既定'] ?? '')
+const S_336 = hexIn(verticalIn('T-236', 'S-336').by['明るいテーマ'] ?? '')
+const S_337 = hexIn(verticalIn('T-236', 'S-337').by['明るいテーマ'] ?? '')
+const S_338 = numberOf(verticalIn('T-206', 'S-338').by['既定'] ?? '')
 
 // see T-294
 const T_294 = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? ''))
-const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
-const BLACK = bare(rowIn('T-294', 'S-315').cells[1] ?? '')
+const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
+const BLACK = bare(verticalIn('T-294', 'S-315').cells[1] ?? '')
 const NAMED = T_294.filter((one) => one !== TRANSPARENT)
 
 
@@ -64,13 +64,13 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const partOn = (part: string, entry: string | null, rowGroupId: string | null = null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
+  ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 interface Bench {
   readonly loop: FrameLoop
   readonly built: Stage
-  press(part: string, entry: string | null, rowGroupId?: string | null): void
+  press(part: string, entry: string | null, taskGroupId?: string | null): void
   doubleClickAt(x: number, y: number, part?: ScreenPart | null): void
   key(key: string): void
   frame(): void
@@ -106,8 +106,8 @@ function bench(document: Record<string, unknown>): Bench {
   return {
     loop,
     built,
-    press: (part, entry, rowGroupId = null) => {
-      aimed = partOn(part, entry, rowGroupId)
+    press: (part, entry, taskGroupId = null) => {
+      aimed = partOn(part, entry, taskGroupId)
       send(pointerOf('down', 80, 120))
       send(pointerOf('up', 80, 120))
       aimed = null
@@ -159,15 +159,15 @@ function raise(built: Stage, node: FakeElement, type: string, extra: Record<stri
   return event
 }
 
-const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
+const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
-interface RowSeed {
+interface TaskGroupSeed {
   readonly id: string
   readonly parentId: string | null
 }
 
-function documentWith(rows: readonly RowSeed[], names: readonly string[], visual: Record<string, unknown> | null = null) {
-  const document = rowDocument(rows, { progressMarkerVisible: false })
+function documentWith(rows: readonly TaskGroupSeed[], names: readonly string[], visual: Record<string, unknown> | null = null) {
+  const document = taskGroupDocument(rows, { progressMarkerVisible: false })
   document.schedule.tasks = rows.map((_one, index) =>
     taskOf(index + 1, { name: names[index] ?? null, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
@@ -195,13 +195,13 @@ const inField = (built: Bench, row: string): FakeElement[] =>
 
 
 const HF_20 = '`HF-10` の操作子の並びに、すべての行を消す操作子を 1 つ置くこと（MUST）'
-const CD_6_ONE_ROW = '行が 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` の行が 1 つ作られる（取り消し 1 回で戻る）'
+const CD_6_ONE_TASK_GROUP = '行が 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` の行が 1 つ作られる（取り消し 1 回で戻る）'
 const E_36_HEAD = '頭が持つ入口が 5 つ、行が持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）'
 
 const QN_10 = WORDS.questions.find((one) => one.rowId === 'QN-10')?.text.ja ?? ''
 const YES = (WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.ja ?? '').slice(0, 1).toUpperCase()
 
-const ROWS: readonly RowSeed[] = [
+const ROWS: readonly TaskGroupSeed[] = [
   { id: 'g1', parentId: null },
   { id: 'g2', parentId: 'g1' },
   { id: 'g3', parentId: null },
@@ -210,21 +210,21 @@ const NAMES = ['Alpha', 'Beta', 'Gamma']
 
 // see T-109, HF-10, HF-12, HF-16, HF-17, HF-20
 const HEAD_ENTRANCES = ['IC-74', 'IC-78', 'IC-92', 'IC-93', 'IC-106']
-const ROW_ONLY_ENTRANCES = ['IC-59', 'IC-60']
+const TASK_GROUP_ONLY_ENTRANCES = ['IC-59', 'IC-60']
 
 describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
   it('HF-20 / CD-6 / E-36 still say: すべての行を消す操作子 / 深さ L1 の行が 1 つ作られる / 頭が持つ入口が 5 つ', () => {
     expect(REQUIREMENTS).toContain(HF_20)
-    expect(REQUIREMENTS).toContain(CD_6_ONE_ROW)
+    expect(REQUIREMENTS).toContain(CD_6_ONE_TASK_GROUP)
     expect(REQUIREMENTS).toContain(E_36_HEAD)
     expect(QN_10).not.toBe('')
-    for (const icon of HEAD_ENTRANCES) expect(bare(rowIn('T-109', icon).cells[0] ?? '')).toBe('Row Title Panel')
+    for (const icon of HEAD_ENTRANCES) expect(bare(verticalIn('T-109', icon).cells[0] ?? '')).toBe('Task Group Panel')
   })
 
   it('E-36: 頭が持つ入口が 5 つ -- the head carries IC-106 and none of the hide / pin entrances', () => {
     // see HF-20, E-36, IC-106
     const built = bench(documentWith(ROWS, NAMES))
-    const panel = byRole(built.built.root(), 'Row Title Panel')[0] as FakeElement
+    const panel = byRole(built.built.root(), 'Task Group Panel')[0] as FakeElement
     const inRow = (node: FakeElement): boolean => {
       for (let at = node.parentNode; at !== null; at = at.parentNode) if (at.getAttribute('data-group-id') !== null) return true
       return false
@@ -233,14 +233,14 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
       .filter((one) => one.getAttribute('data-icon') !== null && !inRow(one))
       .map((one) => one.getAttribute('data-icon') as string)
     expect([...new Set(head)].sort()).toEqual([...HEAD_ENTRANCES].sort())
-    for (const icon of ROW_ONLY_ENTRANCES) expect(head).not.toContain(icon)
+    for (const icon of TASK_GROUP_ONLY_ENTRANCES) expect(head).not.toContain(icon)
   })
 
   it('QN-10 / NT-7: pressing IC-106 asks QN-10 and lists the task names before anything is deleted', () => {
     // see HF-20, QN-10, NT-7
     const built = bench(documentWith(ROWS, NAMES))
     const before = built.loop.document()
-    built.press('Row Title Panel', 'IC-106')
+    built.press('Task Group Panel', 'IC-106')
     const asked = built.view().confirmation
     // WHY: the confirmation carries the T-234 row as its question and the dictionary words as its text.
     expect(asked?.question).toBe('QN-10')
@@ -252,11 +252,11 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
   it('CD-6: 深さ L1 のすべての行に CD-2 を当てた和 -- every row and every task goes, and one L1 row is made', () => {
     // see CD-6, CD-2
     const built = bench(documentWith(ROWS, NAMES))
-    built.press('Row Title Panel', 'IC-106')
+    built.press('Task Group Panel', 'IC-106')
     built.key(YES)
     const schedule = built.loop.document().schedule
     expect(schedule.tasks).toEqual([])
-    expect(schedule.taskGroups.length, CD_6_ONE_ROW).toBe(1)
+    expect(schedule.taskGroups.length, CD_6_ONE_TASK_GROUP).toBe(1)
     expect(schedule.taskGroups[0]?.parentId, 'the made row is at depth L1').toBeNull()
     for (const id of ROWS.map((one) => one.id)) {
       expect(schedule.taskGroups.map((one) => one.id)).not.toContain(id)
@@ -267,7 +267,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
     // see CD-6, SK-6
     const built = bench(documentWith(ROWS, NAMES))
     const before = built.loop.document().schedule
-    built.press('Row Title Panel', 'IC-106')
+    built.press('Task Group Panel', 'IC-106')
     built.key(YES)
     expect(built.loop.document().schedule.tasks, 'premise: the answer deleted every task').toEqual([])
     built.press('App Header', 'IC-5')
@@ -421,8 +421,8 @@ const CUSTOM_GLYPH = wordOf('customGlyph')
 const THEME_HINT = wordOf('themeHint')
 const NO_FILL_WORD = wordOf('noFill')
 const NO_LINE_WORD = wordOf('noLine')
-const S_530 = numberOf(rowIn('T-206', 'S-530').by['既定'] ?? '')
-const S_531 = numberOf(rowIn('T-206', 'S-531').by['既定'] ?? '')
+const S_530 = numberOf(verticalIn('T-206', 'S-530').by['既定'] ?? '')
+const S_531 = numberOf(verticalIn('T-206', 'S-531').by['既定'] ?? '')
 
 // see T-016
 // WHY: the Task colour rows are found by the column they edit, whatever row id they carry.
@@ -461,7 +461,7 @@ const chosenOf = (built: Bench, row: string): string[] =>
   gridOf(built, row).children.filter((one) => one.getAttribute('data-colour-chosen') === 'true').map(cellOf)
 
 // WHY: CV-9's two rows, read in order: S-338 names and the theme entrance, then the rest, transparent, custom.
-const twoRows = (): string[] => {
+const twoTaskGroups = (): string[] => {
   const first = [...NAMED.slice(0, S_338), 'theme']
   const second = [...NAMED.slice(S_338), TRANSPARENT, 'custom']
   const width = Math.max(first.length, second.length)
@@ -475,10 +475,10 @@ function pressEntry(built: Bench, node: FakeElement): void {
   raise(built.built, node, 'change')
 }
 
-function rowPanel(built: Bench): string {
-  const box = built.view().rowTitlePanel.titles[0]?.box
-  if (box === undefined) throw new Error('the row title is not drawn')
-  built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Row Title Panel', null, 'g1'))
+function taskGroupPanelBox(built: Bench): string {
+  const box = built.view().taskGroupPanel.titles[0]?.box
+  if (box === undefined) throw new Error('the task group title is not drawn')
+  built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Task Group Panel', null, 'g1'))
   const fields = built.view().propertiesPanel?.fields ?? []
   const found = fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'color'))
   if (found === undefined) throw new Error('the row panel shows no row colour')
@@ -508,7 +508,7 @@ describe('CV-9 -- the colour field', () => {
   it(`${CV_9_ORDER} -- the task fill field is two rows of one grid`, () => {
     // see CV-9, S-338, T-294
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    const cells = twoRows()
+    const cells = twoTaskGroups()
     expect((styleMap(gridOf(built, TASK_FILL)).get('grid-template-columns') ?? '').replace(/\s/g, '')).toMatch(
       new RegExp(`^repeat\\(${cells.length / 2},`),
     )
@@ -529,7 +529,7 @@ describe('CV-9 -- the colour field', () => {
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const row of [TASK_FILL, TASK_LINE]) expect(cellsOf(task, row).slice(-2), row).toEqual([TRANSPARENT, 'custom'])
     const row = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    expect(cellsOf(row, rowPanel(row)).slice(-2)).toEqual([TRANSPARENT, 'custom'])
+    expect(cellsOf(row, taskGroupPanelBox(row)).slice(-2)).toEqual([TRANSPARENT, 'custom'])
   })
 
   it(`${CV_9_NO_WORD} -- ${CV_9_TRANSPARENT_WORD}: no fill on fillColor and TaskGroup.color, no line on strokeColor`, () => {
@@ -544,7 +544,7 @@ describe('CV-9 -- the colour field', () => {
       expect((entrance.textContent ?? '').trim(), `${row}: no word beside the swatch`).toBe('')
     }
     const row = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    expect(tipOf(entranceOf(row, rowPanel(row), TRANSPARENT)), 'TaskGroup.color').toBe(NO_FILL_WORD)
+    expect(tipOf(entranceOf(row, taskGroupPanelBox(row), TRANSPARENT)), 'TaskGroup.color').toBe(NO_FILL_WORD)
   })
 
   it('CV-9: the theme entrance carries the glyph T and the themeHint tooltip; the custom one the glyph O', () => {
@@ -603,11 +603,11 @@ describe('CV-9 -- the colour field', () => {
   it(`${CV_9_EMPTY_SLOT} -- the row colour field keeps black's place empty and every later cell in its place`, () => {
     // see CV-9, S-315
     const built = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    const rowColour = rowPanel(built)
+    const rowColour = taskGroupPanelBox(built)
     const fields = built.view().propertiesPanel?.fields ?? []
     expect(fields[fields.length - 1]?.row, 'FR-006: the colour row is last for a TaskGroup too').toBe(rowColour)
-    const expected = twoRows().map((cell) => (cell === BLACK ? '' : cell))
-    expect(expected, 'premise: black is one of the names').not.toEqual(twoRows())
+    const expected = twoTaskGroups().map((cell) => (cell === BLACK ? '' : cell))
+    expect(expected, 'premise: black is one of the names').not.toEqual(twoTaskGroups())
     expect(cellsOf(built, rowColour), CV_9_EMPTY_SLOT).toEqual(expected)
   })
 

@@ -280,7 +280,7 @@ function documentWithRoster(): Document {
   const task = (uid: number, start: string, finish: string) =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name: TASK_NAMES[uid],
       start,
@@ -475,7 +475,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
         part: surfaceOf(icon),
         entry: icon as any,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: options.resourceUid ?? null,
         dividerPanel: null,
         noticeDismissKey: null,

@@ -21,7 +21,7 @@
 // `InputModifiers`, `PointerButton`, `PointerPhase`) and of
 // `document-settings.ts` (`SETTINGS_DEFAULTS`). ⛔ NO FUNCTION BODY WAS READ.
 //
-// ⭐ THE SHAPE IS COPIED, NOT INVENTED. `host` / `screenPane` / `twoRowDocument`
+// ⭐ THE SHAPE IS COPIED, NOT INVENTED. `host` / `screenPane` / `twoTaskGroupDocument`
 // / `key` / `pointer` / `planCentre` are tests/unit/uf-48-input.test.ts's, which
 // drives this same unit through the same seams.
 //
@@ -83,7 +83,7 @@
 //   `S-99h`        表 T-206: whether the panel is shown is held apart from its
 //                   width -- a panel that is not shown takes no room.
 //   `FR-052`       「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの
-//                   幅と縦のスクロールバーの太さを引いた残りが `Row Area` の幅であ
+//                   幅と縦のスクロールバーの太さを引いた残りが `Task Group Area` の幅であ
 //                   り（`U-50`）」 -- the arithmetic the last describe reads.
 //
 // ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
   const task = (uid: number, start: string, finish: string, name: string): Task =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name,
       start,
@@ -316,9 +316,9 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
  *
  * ⚠️ WIDER THAN THE NEIGHBOUR'S, on purpose: the fixture's document opens with
  * the panel taking `S-171` from the `Schedule Canvas`, and these cases press on
- * a bar that has to be inside the `Row Area` for FR-006 to be reached at all.
+ * a bar that has to be inside the `Task Group Area` for FR-006 to be reached at all.
  * ⭐ It decides nothing -- FR-051 keeps the window out of the settings, and a
- * premise below measures that the `Row Area` really is wider than zero.
+ * premise below measures that the `Task Group Area` really is wider than zero.
  */
 const SCREEN: FrameEnvironment = {
   width: 1400,
@@ -445,8 +445,8 @@ interface Stage {
   aimAt(part: string, entry: string): void
   /** The width FR-052's arithmetic gave the panel in the last frame. */
   panelWidth(): number
-  /** The width FR-052's arithmetic left the `Row Area` in the last frame. */
-  rowAreaWidth(): number
+  /** The width FR-052's arithmetic left the `Task Group Area` in the last frame. */
+  taskGroupAreaWidth(): number
 }
 
 function stage(): Stage {
@@ -477,14 +477,14 @@ function stage(): Stage {
         part,
         entry: entry as never,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
       } as ScreenPart)
     },
     panelWidth: () => regions().propertiesPanel.width,
-    rowAreaWidth: () => regions().rowArea.width,
+    taskGroupAreaWidth: () => regions().taskGroupArea.width,
   }
 }
 
@@ -630,11 +630,11 @@ describe('the manuscript still says what these cases read', () => {
     expect((made as any).documentSettings).not.toHaveProperty('propertyPanelWidth')
   })
 
-  it('FR-052: the width chosen leaves the `Row Area` wider than zero', () => {
-    // 「判定は `Row Area` の幅が 0 より大きいことをもって行うこと（MUST）」 -- so
+  it('FR-052: the width chosen leaves the `Task Group Area` wider than zero', () => {
+    // 「判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）」 -- so
     // a fixture that failed this would be an unlawful document rather than a
     // case about `Esc`.
-    expect(stage().rowAreaWidth()).toBeGreaterThan(0)
+    expect(stage().taskGroupAreaWidth()).toBeGreaterThan(0)
   })
 
   it('MK-13: a double click on a Task puts the panel on the screen', () => {
@@ -821,7 +821,7 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
 })
 
 // ===========================================================================
-// (c) FR-052 -- the closed panel gives its width back to the `Row Area`
+// (c) FR-052 -- the closed panel gives its width back to the `Task Group Area`
 // ===========================================================================
 
 describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', () => {
@@ -838,16 +838,16 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
     expect(built.panelWidth()).toBe(CLOSED_WIDTH)
   })
 
-  it('the `Row Area` grows by exactly what the panel had', () => {
+  it('the `Task Group Area` grows by exactly what the panel had', () => {
     // FR-052: 「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの幅と
-    // 縦のスクロールバーの太さを引いた残りが `Row Area` の幅であり（`U-50`）」.
+    // 縦のスクロールバーの太さを引いた残りが `Task Group Area` の幅であり（`U-50`）」.
     // ⭐ So the two widths move together by arithmetic, and this case is what
     // says the closing really reached the width rather than only the drawing.
     const built = withThePanelUp()
-    const before = built.rowAreaWidth()
+    const before = built.taskGroupAreaWidth()
 
     built.send(ESCAPE())
 
-    expect(built.rowAreaWidth() - before, 'FR-052: the残り is what the Row Area gets').toBe(S_171)
+    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Area gets').toBe(S_171)
   })
 })

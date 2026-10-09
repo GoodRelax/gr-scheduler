@@ -5,11 +5,11 @@ import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, la
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
-const ROW_Y = 83
+const TASK_GROUP_Y = 83
 const PANEL = '[data-role="Properties Panel"] '
 
 const makeTask = async (page: Page, x1: number, x2: number, name: string): Promise<void> => {
-  await drag(page, { x: x1, y: ROW_Y }, { x: x2, y: ROW_Y })
+  await drag(page, { x: x1, y: TASK_GROUP_Y }, { x: x2, y: TASK_GROUP_Y })
   await page.keyboard.type(name)
   await page.keyboard.press('Enter')
   await settle(page)

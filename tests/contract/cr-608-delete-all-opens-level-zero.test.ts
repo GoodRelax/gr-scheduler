@@ -22,7 +22,7 @@ import {
 } from '../../src/use-case/apply-document-change/document-change-plan'
 import type { ChangeStep } from '../../src/use-case/apply-document-change/apply-document-change'
 import { surfaceOf, wire } from '../fixtures/fake-browser'
-import { NO_MODS, pointerOf, rowDocument, SCREEN, type RowSeed } from '../unit/cr-541-stage'
+import { NO_MODS, pointerOf, taskGroupDocument, SCREEN, type TaskGroupSeed } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
@@ -45,8 +45,8 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
-const DELETE_EVERY_ROW = rowOf('T-109', 'IC-106').id
+const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
+const DELETE_EVERY_TASK_GROUP = rowOf('T-109', 'IC-106').id
 const UNDO = rowOf('T-109', 'IC-5').id
 const REDO = rowOf('T-109', 'IC-6').id
 const FIT = rowOf('T-109', 'IC-10').id
@@ -62,9 +62,9 @@ describe('CR-608 -- the manuscript these cases are driven by', () => {
     },
   )
 
-  it('the entrances are IC-106 on the Row Title Panel and IC-5 / IC-6 / IC-10 in the App Header', () => {
-    expect(ROW_TITLE_PANEL).toBe('Row Title Panel')
-    expect([DELETE_EVERY_ROW, UNDO, REDO, FIT, APP_HEADER]).toEqual(['IC-106', 'IC-5', 'IC-6', 'IC-10', 'App Header'])
+  it('the entrances are IC-106 on the Task Group Panel and IC-5 / IC-6 / IC-10 in the App Header', () => {
+    expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
+    expect([DELETE_EVERY_TASK_GROUP, UNDO, REDO, FIT, APP_HEADER]).toEqual(['IC-106', 'IC-5', 'IC-6', 'IC-10', 'App Header'])
     expect(YES).not.toBe('')
   })
 })
@@ -77,7 +77,7 @@ afterEach(() => {
 })
 
 const partOn = (part: string, entry: string | null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+  ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 interface Bench {
   readonly loop: FrameLoop
@@ -123,17 +123,17 @@ function bench(document: Record<string, unknown>): Bench {
     key: (key) => send({ kind: 'key', key, modifiers: { ...NO_MODS } }),
     groups: () => loop.document().schedule.taskGroups as TaskGroup[],
     levelZero: () => (loop.document().documentSettings as unknown as Record<string, unknown>)['levelZeroTreeState'],
-    drawn: () => (loop.current()?.layout.rows ?? []).map((one) => one.groupId),
+    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one) => one.groupId),
     frame: () => loop.current(),
   }
 }
 
-function deleteEveryRow(built: Bench): void {
-  built.press(ROW_TITLE_PANEL, DELETE_EVERY_ROW)
+function deleteEveryTaskGroup(built: Bench): void {
+  built.press(TASK_GROUP_PANEL, DELETE_EVERY_TASK_GROUP)
   built.key(YES)
 }
 
-const ROWS: readonly RowSeed[] = [
+const ROWS: readonly TaskGroupSeed[] = [
   { id: 'd6080000-0000-4000-8000-000000000001', parentId: null, treeState: 'expanded' },
   { id: 'd6080000-0000-4000-8000-000000000002', parentId: 'd6080000-0000-4000-8000-000000000001', treeState: 'collapsed' },
   { id: 'd6080000-0000-4000-8000-000000000003', parentId: null },
@@ -143,18 +143,18 @@ const statesOf = (groups: readonly TaskGroup[]) => groups.map((one) => ({ id: on
 
 describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
   it('level zero opens, the one row stands temporarilyExpanded and is drawn; one undo gives back the rows and the fold', () => {
-    const built = bench(rowDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
+    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
     const before = statesOf(built.groups())
     expect(built.drawn(), 'premise: TD-1 draws no row under a folded level zero').toEqual([])
 
-    deleteEveryRow(built)
+    deleteEveryTaskGroup(built)
 
     expect(built.loop.document().schedule.tasks, 'premise: the answer deleted every task').toEqual([])
     expect(built.levelZero(), HF_20_OPENS).toBe('auto')
-    const rows = built.groups()
-    expect(rows, 'table T-050: one row is made').toHaveLength(1)
-    expect(rows[0]?.treeState, FR_032_VALUE).toBe('temporarilyExpanded')
-    expect(built.drawn(), 'the row left behind can be read').toEqual([rows[0]?.id])
+    const taskGroups = built.groups()
+    expect(taskGroups, 'table T-050: one row is made').toHaveLength(1)
+    expect(taskGroups[0]?.treeState, FR_032_VALUE).toBe('temporarilyExpanded')
+    expect(built.drawn(), 'the row left behind can be read').toEqual([taskGroups[0]?.id])
 
     built.press(APP_HEADER, UNDO)
 
@@ -163,15 +163,15 @@ describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
   })
 
   it('control: with level zero open, delete-all leaves it open and still makes the one row temporarilyExpanded', () => {
-    const built = bench(rowDocument(ROWS, { levelZeroTreeState: 'auto' }))
-    deleteEveryRow(built)
+    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'auto' }))
+    deleteEveryTaskGroup(built)
     expect(built.levelZero()).toBe('auto')
     expect(built.groups().map((one) => one.treeState), FR_032_VALUE).toEqual(['temporarilyExpanded'])
   })
 
   it(`redo after the undo lands on the same step -- ${FR_032_ANY_ROAD}`, () => {
-    const built = bench(rowDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
-    deleteEveryRow(built)
+    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
+    deleteEveryTaskGroup(built)
     built.press(APP_HEADER, UNDO)
     expect(built.groups().length, 'premise: the undo gave the rows back').toBe(ROWS.length)
     built.press(APP_HEADER, REDO)
@@ -185,20 +185,20 @@ function pictureOf(frame: FrameValues | null) {
   return {
     pxPerDay: frame.layout.pxPerDay,
     originX: frame.layout.originX,
-    rows: frame.layout.rows.map((one) => ({ groupId: one.groupId, y: one.y, height: one.height })),
+    rows: frame.layout.taskGroups.map((one) => ({ groupId: one.groupId, y: one.y, height: one.height })),
   }
 }
 
 describe(`CR-608 test 9 (regression) -- ${CD_2_NULL}; OP-10: ${OP_10_FIT}`, () => {
   it('the picture after delete-all is the picture IC-10 (fit) gives the same document, and delete-all writes no zoom', () => {
-    const control = bench(rowDocument(ROWS, { zoomY: 1, zoomX: 3 }))
+    const control = bench(taskGroupDocument(ROWS, { zoomY: 1, zoomX: 3 }))
     const stored = pictureOf(control.frame())
     control.press(APP_HEADER, FIT)
     expect(pictureOf(control.frame()), 'premise: the stored view is not the fit view').not.toEqual(stored)
 
-    const built = bench(rowDocument(ROWS, { zoomY: 1, zoomX: 3 }))
+    const built = bench(taskGroupDocument(ROWS, { zoomY: 1, zoomX: 3 }))
     const zoomBefore = built.loop.document().documentSettings.zoomY
-    deleteEveryRow(built)
+    deleteEveryTaskGroup(built)
     expect(built.loop.document().documentSettings.zoomY, HF_20_NO_VIEW_WRITE).toBe(zoomBefore)
     const afterDelete = pictureOf(built.frame())
     expect(afterDelete.rows.map((one) => one.groupId), 'the one row is the top of the tree').toEqual(
@@ -268,31 +268,31 @@ const documentOf = (taskGroups: readonly TaskGroup[]): Document =>
     changeLog: [],
   }) as unknown as Document
 
-const EMPTY_OF_ROWS = documentOf([])
-const ONE_ROW = documentOf([groupOf('g1', 'auto')])
+const EMPTY_OF_TASK_GROUPS = documentOf([])
+const ONE_TASK_GROUP = documentOf([groupOf('g1', 'auto')])
 
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
-const ROW_WORD = (() => {
+const TASK_GROUP_WORD = (() => {
   const found = displayWords.defaultNames.find((one) => one.use === 'row')
   if (found === undefined) throw new Error('the dictionary has no defaultNames entry for row')
   return found.text.en
 })()
 
-const theOneRow = (document: Document): TaskGroup => {
-  const rows = document.schedule.taskGroups
-  expect(rows, 'table T-050: one row').toHaveLength(1)
-  const row = rows[0]
-  if (row === undefined) throw new Error('unreachable')
-  expect(row.id, 'premise: the row is the one the road made').toBe('fresh-row')
-  return row
+const theOneTaskGroup = (document: Document): TaskGroup => {
+  const taskGroups = document.schedule.taskGroups
+  expect(taskGroups, 'table T-050: one row').toHaveLength(1)
+  const taskGroup = taskGroups[0]
+  if (taskGroup === undefined) throw new Error('unreachable')
+  expect(taskGroup.id, 'premise: the row is the one the road made').toBe('fresh-task-group')
+  return taskGroup
 }
 
 function replaced(call: ReplacementCall, history: EditHistory<ChangeStep> = EMPTY_HISTORY): Document {
   const plan = planDocumentReplacement({
-    defaultRowName: ROW_WORD,
-    newGroupId: 'fresh-row',
-    held: { document: ONE_ROW, history },
+    defaultTaskGroupName: TASK_GROUP_WORD,
+    newGroupId: 'fresh-task-group',
+    held: { document: ONE_TASK_GROUP, history },
     readStamp: null,
     moment: CALM,
     call,
@@ -302,42 +302,42 @@ function replaced(call: ReplacementCall, history: EditHistory<ChangeStep> = EMPT
   return plan.next.document
 }
 
-const EMPTY_STEP = [{ step: { document: EMPTY_OF_ROWS, commands: ['setProjectTitle'] }, sizeBytes: 1 }] as never
+const EMPTY_STEP = [{ step: { document: EMPTY_OF_TASK_GROUPS, commands: ['setProjectTitle'] }, sizeBytes: 1 }] as never
 
 describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
   it('deleting the last row (CD-2) makes the one row temporarilyExpanded', () => {
     const plan = planDocumentChange({
-      defaultRowName: ROW_WORD,
-      document: ONE_ROW,
-      readStamp: ONE_ROW.documentStamp,
-      commands: [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }],
+      defaultTaskGroupName: TASK_GROUP_WORD,
+      document: ONE_TASK_GROUP,
+      readStamp: ONE_TASK_GROUP.documentStamp,
+      commands: [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 },
-      settingsLimits: { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 },
+      settingsLimits: { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 },
       editedBy: 'user',
       updatedUtc: '2026-10-01T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(theOneRow(plan.document).treeState, FR_032_VALUE).toBe('temporarilyExpanded')
+    expect(theOneTaskGroup(plan.document).treeState, FR_032_VALUE).toBe('temporarilyExpanded')
   })
 
   it('RD-2: a redo that lands on a document with no row', () => {
     const document = replaced({ row: 'RD-2' }, { done: [], undone: EMPTY_STEP })
-    expect(theOneRow(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
+    expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
   it('RD-1: an undo that lands on a document with no row', () => {
     const document = replaced({ row: 'RD-1' }, { done: EMPTY_STEP, undone: [] })
-    expect(theOneRow(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
+    expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
   it('RD-4: replacing the document with one that holds no row (OP-3)', () => {
     const document = replaced({
       row: 'RD-4',
       importing: {
-        incoming: EMPTY_OF_ROWS,
+        incoming: EMPTY_OF_TASK_GROUPS,
         format: 'grsJson',
         choice: 'replace',
         validationPassed: true,
@@ -348,15 +348,15 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
         importSessionId: 'cr-608-import',
       },
     })
-    expect(theOneRow(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
+    expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
   it.each(['RD-6', 'RD-7'] as const)('%s: a document brought with no row', (row) => {
     const document = replaced(
       row === 'RD-6'
-        ? { row, document: EMPTY_OF_ROWS }
-        : { row, document: EMPTY_OF_ROWS, editedBy: 'user', updatedUtc: '2026-10-03T00:00:00Z' },
+        ? { row, document: EMPTY_OF_TASK_GROUPS }
+        : { row, document: EMPTY_OF_TASK_GROUPS, editedBy: 'user', updatedUtc: '2026-10-03T00:00:00Z' },
     )
-    expect(theOneRow(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
+    expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 })

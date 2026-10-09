@@ -11,7 +11,7 @@ import type {
   Notice,
   RaisedNotice,
   ScreenViewReadings,
-  WbsParentChoice,
+  ParentTaskChoice,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import {
@@ -35,11 +35,11 @@ const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.ro
 
 const INVARIANTS_BY_ROW = new Map(displayWords.invariants.map((entry) => [entry.rowId, entry]))
 
-const CHOICES_BY_PART = new Map(displayWords.wbsParentChoice.map((entry) => [entry.part, entry]))
+const CHOICES_BY_PART = new Map(displayWords.parentTaskChoice.map((entry) => [entry.part, entry]))
 
-const WBS_PARENT_CHOICE_QUESTION = 'QN-12'
+const PARENT_TASK_CHOICE_QUESTION = 'QN-12'
 
-const WBS_PARENT_CHOICE_LINKS = 'links'
+const PARENT_TASK_CHOICE_LINKS = 'links'
 
 type ReasonCell = 'text' | 'nextStep'
 
@@ -47,7 +47,7 @@ const UNLISTED_REASON_ROW = 'RS-15'
 
 const UNLISTED_QUESTION_ROW = 'QN-8'
 
-const SHOWN_ON_ANOTHER_ROW = 'shownOnAnotherRow'
+const SHOWN_ON_ANOTHER_TASK_GROUP = 'shownOnAnotherTaskGroup'
 
 const MARKS_BY_KEY = new Map(displayWords.confirmationMarks.map((entry) => [entry.mark, entry]))
 
@@ -152,8 +152,8 @@ function questionText(question: string, language: DisplayLanguage): string {
 }
 
 /** @purity pure */
-function shownOnAnotherRowMark(language: DisplayLanguage): string {
-  const word = MARKS_BY_KEY.get(SHOWN_ON_ANOTHER_ROW)?.text[language]
+function shownOnAnotherTaskGroupMark(language: DisplayLanguage): string {
+  const word = MARKS_BY_KEY.get(SHOWN_ON_ANOTHER_TASK_GROUP)?.text[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
 }
@@ -273,18 +273,18 @@ export function noticesFromSession(
   return shown
 }
 
-// see QN-12, WL-13, JDG-1142
+// see QN-12, PTL-13, JDG-1142
 /** @purity pure */
-function wbsParentChoiceOf(choice: WbsParentChoice, language: DisplayLanguage): Confirmation {
-  const parts = [choice.isArmed ? 'childTasks' : 'tasks', WBS_PARENT_CHOICE_LINKS]
+function parentTaskChoiceOf(choice: ParentTaskChoice, language: DisplayLanguage): Confirmation {
+  const parts = [choice.isArmed ? 'childTasks' : 'tasks', PARENT_TASK_CHOICE_LINKS]
   return {
-    manner: WBS_PARENT_CHOICE_QUESTION,
-    question: WBS_PARENT_CHOICE_QUESTION,
+    manner: PARENT_TASK_CHOICE_QUESTION,
+    question: PARENT_TASK_CHOICE_QUESTION,
     items: [],
     mannerText: NO_WORDS,
-    text: questionText(WBS_PARENT_CHOICE_QUESTION, language),
+    text: questionText(PARENT_TASK_CHOICE_QUESTION, language),
     answers: parts.map((part) => ({ answer: part, text: CHOICES_BY_PART.get(part)?.text[language] ?? NO_WORDS })),
-    shownOnAnotherRowMark: NO_WORDS,
+    shownOnAnotherTaskGroupMark: NO_WORDS,
     at: choice.at,
   }
 }
@@ -297,14 +297,14 @@ export function confirmationFromSession(
 ): Confirmation | null {
   const raised = readings.confirmation
   const language = displayLanguageOf(session)
-  const choice = readings.wbsParentChoice ?? null
-  if (raised === null) return choice === null ? null : wbsParentChoiceOf(choice, language)
+  const choice = readings.parentTaskChoice ?? null
+  if (raised === null) return choice === null ? null : parentTaskChoiceOf(choice, language)
   return {
     ...raised,
     mannerText: mannerText(raised.manner, language),
     text: questionText(raised.question, language),
     answers: confirmationAnswers(language),
-    shownOnAnotherRowMark: shownOnAnotherRowMark(language),
+    shownOnAnotherTaskGroupMark: shownOnAnotherTaskGroupMark(language),
   }
 }
 

@@ -80,7 +80,7 @@ import type {
 import type {
   AppHeaderItems,
   DisplayLanguage,
-  RowTitle,
+  TaskGroupTitle,
   ScreenFrame,
   ScreenPart,
   ScreenSurface,
@@ -107,7 +107,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
-import { rowNameFont } from '../fixtures/row-name-font'
+import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -132,8 +132,8 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** 表 T-103's settled English names, which W-4 of 表 T-006a puts into `data-role`. */
 const partName = (row: string): string => bare(rowOf('T-103', row).by['確定名（英）'] ?? '')
-const ROW_TITLE_PANEL = partName('U-22')
-const ROW_TITLE_TREE = partName('U-23')
+const TASK_GROUP_PANEL = partName('U-22')
+const TASK_GROUP_TITLE_TREE = partName('U-23')
 
 const T_109 = specTable('T-109')
 const T_051 = specTable('T-051')
@@ -166,15 +166,15 @@ const isHeadRule = (authority: string): boolean =>
 const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
   isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
-/** Every entrance 表 T-109 stands on the `Row Title Panel`, head and rows alike. */
+/** Every entrance 表 T-109 stands on the `Task Group Panel`, head and rows alike. */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
-  (one) => bareAll(one.by['面'] ?? '').includes(ROW_TITLE_PANEL),
+  (one) => bareAll(one.by['面'] ?? '').includes(TASK_GROUP_PANEL),
 )
 
 /** Those of them the panel's HEAD carries, and those each ROW carries. */
 const AT_THE_HEAD: readonly string[] = T_109_ON_THE_PANEL.filter(namesHeadRule).map((one) => one.id)
 
-const ON_A_ROW: readonly string[] = T_109_ON_THE_PANEL.filter((one) => !namesHeadRule(one)).map((one) => one.id)
+const ON_A_TASK_GROUP: readonly string[] = T_109_ON_THE_PANEL.filter((one) => !namesHeadRule(one)).map((one) => one.id)
 
 /**
  * The entrance 表 T-109 gives one row of 表 T-051 or one requirement.
@@ -184,7 +184,7 @@ const ON_A_ROW: readonly string[] = T_109_ON_THE_PANEL.filter((one) => !namesHea
  * which icon that is, instead of typing `IC-90` and going quiet the day the
  * roster is renumbered.
  */
-function entranceFor(rule: string, among: readonly string[] = [...AT_THE_HEAD, ...ON_A_ROW]): string {
+function entranceFor(rule: string, among: readonly string[] = [...AT_THE_HEAD, ...ON_A_TASK_GROUP]): string {
   const found = T_109_ON_THE_PANEL.filter(
     (one) =>
       among.includes(one.id) && new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
@@ -204,15 +204,15 @@ const OPEN_ALL_BELOW = entranceFor('HF-2') // HR-3 -- open everything below
 
 /** The five the head carries, each of them one of a row's entrances done at 段 0. */
 const HEAD_OPEN_ONE_LEVEL = entranceFor('HF-16')
-const HEAD_FOLD_EVERY_ROW = entranceFor('HF-12')
-const HEAD_OPEN_EVERY_ROW = entranceFor('HF-10')
-const HEAD_ADD_ROW = entranceFor('HF-17')
+const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
+const HEAD_OPEN_EVERY_TASK_GROUP = entranceFor('HF-10')
+const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 // see HF-20
-const HEAD_DELETE_EVERY_ROW = entranceFor('FR-032', AT_THE_HEAD)
-const DELETE_THIS_ROW = entranceFor('FR-032', ON_A_ROW)
+const HEAD_DELETE_EVERY_TASK_GROUP = entranceFor('FR-032', AT_THE_HEAD)
+const DELETE_THIS_TASK_GROUP = entranceFor('FR-032', ON_A_TASK_GROUP)
 
 /** The two a row carries and the head must not (closing paragraph). */
-const ADD_CHILD_ROW = entranceFor('HF-14')
+const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
 // ===========================================================================
 // (A) The frame loop. Fixture and harness copied from
@@ -264,7 +264,7 @@ const ROWS: readonly { readonly id: string; readonly parentId: string | null; re
   ]
 
 /** Every row, in the order the panel draws them when nothing is folded. */
-const EVERY_ROW = ROWS.map((one) => one.name)
+const EVERY_TASK_GROUP = ROWS.map((one) => one.name)
 
 const nameOf = (groupId: string): string =>
   ROWS.find((one) => one.id === groupId)?.name ?? groupId
@@ -285,7 +285,7 @@ function documentWith(part: Fixture = {}): Document {
   const task = (uid: number, start: string, finish: string, name: string): Task =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name,
       start,
@@ -455,10 +455,10 @@ function stage(part: Fixture = {}): Stage {
   }
   const aim = (entry: string, groupId: string | null): void => {
     screen.drawAt({
-      part: ROW_TITLE_PANEL,
+      part: TASK_GROUP_PANEL,
       entry: entry as any,
       format: null,
-      rowGroupId: groupId,
+      taskGroupId: groupId,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -483,23 +483,23 @@ function stage(part: Fixture = {}): Stage {
 // ---------------------------------------------------------------------------
 
 /** The rows the panel drew, by name, in the order it drew them. */
-function drawnRows(built: Stage): readonly string[] {
-  const panel = built.screen.last().rowTitlePanel
+function drawnTaskGroups(built: Stage): readonly string[] {
+  const panel = built.screen.last().taskGroupPanel
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
 }
 
 /** The title the panel drew for one row. */
-function titleOf(built: Stage, groupId: string): RowTitle {
-  const panel = built.screen.last().rowTitlePanel
+function titleOf(built: Stage, groupId: string): TaskGroupTitle {
+  const panel = built.screen.last().taskGroupPanel
   const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === groupId)
   if (found === undefined) {
-    throw new Error(`the panel drew no title for ${nameOf(groupId)}: ${drawnRows(built).join(', ')}`)
+    throw new Error(`the panel drew no title for ${nameOf(groupId)}: ${drawnTaskGroups(built).join(', ')}`)
   }
   return found
 }
 
 /** The row as the DOCUMENT holds it -- `AT-153` of _assets/fig-erd-detail.md. */
-function storedRow(built: Stage, groupId: string): TaskGroup {
+function storedTaskGroup(built: Stage, groupId: string): TaskGroup {
   const found = (built.loop.document().schedule as any).taskGroups.find(
     (one: any) => one.id === groupId,
   )
@@ -509,15 +509,15 @@ function storedRow(built: Stage, groupId: string): TaskGroup {
 
 // see AT-153
 const treeOf = (built: Stage, groupId: string): TaskGroup['treeState'] =>
-  storedRow(built, groupId).treeState
+  storedTaskGroup(built, groupId).treeState
 
 const isFolded = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'collapsed'
 
-const isHiddenRow = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'hidden'
+const isHiddenTaskGroup = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'hidden'
 
 /** `HF-18`'s number, as the panel drew it. */
 const foldedCountOf = (built: Stage, groupId: string): number =>
-  ((titleOf(built, groupId) as any).foldedRowCount as number | null | undefined) ?? 0
+  ((titleOf(built, groupId) as any).foldedTaskGroupCount as number | null | undefined) ?? 0
 
 /** The words a telling carried, so a case can say a press ACTED instead of refusing. */
 const noticeTexts = (built: Stage): readonly string[] =>
@@ -565,31 +565,31 @@ const THEME: ScreenTheme = {
 }
 
 /** One row with every control armed, so nothing is left undrawn for want of work. */
-const ONE_DRAWN_ROW: RowTitle = {
-  groupId: 'RowAlpha',
+const ONE_DRAWN_TASK_GROUP: TaskGroupTitle = {
+  groupId: 'TaskGroupAlpha',
   depth: 1,
-  ...rowNameFont(1),
-  indentPx: SETTINGS_CONSTANTS['rowTitleIndent'] as number,
+  ...taskGroupNameFont(1),
+  indentPx: SETTINGS_CONSTANTS['taskGroupTitleIndent'] as number,
   box: rect(0, 40, 220, 64),
-  label: 'RowAlpha',
-  wholeLabel: 'RowAlpha',
+  label: 'TaskGroupAlpha',
+  wholeLabel: 'TaskGroupAlpha',
   isLabelTruncated: false,
   expander: { canOpen: true, canClose: true, canCloseBelow: true },
   isPinned: false,
   isSelected: false,
   canOpenOneLevel: true,
-  canAddChildRow: true,
-} as unknown as RowTitle
+  canAddChildTaskGroup: true,
+} as unknown as TaskGroupTitle
 
 const PANEL_VIEW: ScreenView = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: {
+  taskGroupPanel: {
     pinnedTitles: [],
-    titles: [ONE_DRAWN_ROW],
-    canOpenEveryRow: true,
-    canCloseEveryRow: true,
+    titles: [ONE_DRAWN_TASK_GROUP],
+    canOpenEveryTaskGroup: true,
+    canCloseEveryTaskGroup: true,
     canOpenLevelZero: true,
   },
   propertiesPanel: null,
@@ -616,20 +616,20 @@ describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST A COLUMN WOULD MAKE EVERY CASE BELOW
     // AGREE WITH ANYTHING -- rule 04 section 2.
-    expect(ROW_TITLE_PANEL).toBe('Row Title Panel')
-    expect(ROW_TITLE_TREE).toBe('Row Title Tree')
+    expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
+    expect(TASK_GROUP_TITLE_TREE).toBe('Task Group Title Tree')
     expect(T_051_AT_THE_HEAD.slice().sort()).toEqual(['HF-10', 'HF-12', 'HF-16', 'HF-17', 'HF-20'])
     expect(new Set([HIDE, OPEN_ONE_LEVEL, FOLD_BELOW, OPEN_ALL_BELOW]).size).toBe(4)
     expect(
       new Set([
         HEAD_OPEN_ONE_LEVEL,
-        HEAD_FOLD_EVERY_ROW,
-        HEAD_OPEN_EVERY_ROW,
-        HEAD_ADD_ROW,
-        HEAD_DELETE_EVERY_ROW,
+        HEAD_FOLD_EVERY_TASK_GROUP,
+        HEAD_OPEN_EVERY_TASK_GROUP,
+        HEAD_ADD_TASK_GROUP,
+        HEAD_DELETE_EVERY_TASK_GROUP,
       ]).size,
     ).toBe(5)
-    expect(HEAD_DELETE_EVERY_ROW, 'the head delete is not the row delete').not.toBe(DELETE_THIS_ROW)
+    expect(HEAD_DELETE_EVERY_TASK_GROUP, 'the head delete is not the row delete').not.toBe(DELETE_THIS_TASK_GROUP)
   })
 
   it('⛔ 表 T-015 still says what each of the four folding operations does', () => {
@@ -713,7 +713,7 @@ describe('the manuscript still says what these cases read', () => {
   it('⭐ every row of the fixture is drawn before anything is pressed', () => {
     // ⛔ WITHOUT THIS, A PICTURE CASE BELOW COULD PASS ON A PANEL THAT NEVER DREW
     // THE ROW IT SAYS A PRESS TOOK AWAY.
-    expect(drawnRows(stage())).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(stage())).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐ nothing is being told before anything is pressed', () => {
@@ -747,7 +747,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
     built.press(FOLD_BELOW, BETA)
 
-    expect(isHiddenRow(built, BETA), 'HR-4 (MUST NOT): the fold hid the row instead').toBe(false)
+    expect(isHiddenTaskGroup(built, BETA), 'HR-4 (MUST NOT): the fold hid the row instead').toBe(false)
   })
 
   it('⛔ MUST: HF-3 hides the row it was pressed on and NOT its children (HR-6)', () => {
@@ -758,9 +758,9 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
     built.press(HIDE, BETA)
 
-    expect(isHiddenRow(built, BETA), 'HR-6 (MUST): the pressed row was not hidden').toBe(true)
-    expect(isHiddenRow(built, GAMMA), 'the child was hidden as well as the row').toBe(false)
-    expect(isHiddenRow(built, DELTA), 'the grandchild was hidden as well as the row').toBe(false)
+    expect(isHiddenTaskGroup(built, BETA), 'HR-6 (MUST): the pressed row was not hidden').toBe(true)
+    expect(isHiddenTaskGroup(built, GAMMA), 'the child was hidden as well as the row').toBe(false)
+    expect(isHiddenTaskGroup(built, DELTA), 'the grandchild was hidden as well as the row').toBe(false)
     // WHY: HR-6 folds the hidden row too; T-328 holds that as the one value hidden, which the
     // parent's HF-13 turns into collapsed (oneLevelOpenPressed), so the row comes back folded.
     built.press(OPEN_ONE_LEVEL, ALPHA)
@@ -790,7 +790,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
     expect(isFolded(built, GAMMA), 'the row beneath the hidden one was left open').toBe(true)
     expect(isFolded(built, DELTA), 'a row two levels beneath was left open').toBe(true)
     // ⛔ AND NOT BEYOND. Only what the hiding took out of the picture is folded.
-    expect(isHiddenRow(built, GAMMA), 'the hide wrote hidden below the row it hid').toBe(false)
+    expect(isHiddenTaskGroup(built, GAMMA), 'the hide wrote hidden below the row it hid').toBe(false)
   })
 
   it('⛔ MUST: HF-13 unfolds the row it was pressed on (HR-7)', () => {
@@ -876,7 +876,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
     built.press(FOLD_BELOW, BETA)
 
-    expect(drawnRows(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
   })
 
   it('⭐ HF-11 on the root leaves the root alone on its branch (HR-4)', () => {
@@ -884,7 +884,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
     built.press(FOLD_BELOW, ALPHA)
 
-    expect(drawnRows(built)).toEqual(['Alpha', 'Zeta', 'ZetaKid'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Zeta', 'ZetaKid'])
   })
 
   it('⭐ HF-13 draws the DIRECT CHILDREN and nothing deeper (HR-7)', () => {
@@ -895,7 +895,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
 
-    expect(drawnRows(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
   })
 
   it('⭐ HF-2 draws the pressed row’s whole subtree at once (HR-3)', () => {
@@ -903,7 +903,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
-    expect(drawnRows(built)).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(built)).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐ HF-3 takes the row itself off the picture, and its subtree with it (HR-6)', () => {
@@ -913,7 +913,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
     built.press(HIDE, BETA)
 
-    expect(drawnRows(built)).toEqual(['Alpha', 'Epsilon', 'Zeta', 'ZetaKid'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Epsilon', 'Zeta', 'ZetaKid'])
   })
 })
 
@@ -928,14 +928,14 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
     // this round trip could not close, because the row HF-11 folded was the one
     // row HF-2 would not open.
     const built = stage()
-    const before = drawnRows(built)
+    const before = drawnTaskGroups(built)
 
     built.press(FOLD_BELOW, BETA)
-    expect(drawnRows(built), 'the fold did not move the picture at all').not.toEqual(before)
+    expect(drawnTaskGroups(built), 'the fold did not move the picture at all').not.toEqual(before)
 
     built.press(OPEN_ALL_BELOW, BETA)
 
-    expect(drawnRows(built), 'HR-3 did not undo what HR-4 did on the same row').toEqual(before)
+    expect(drawnTaskGroups(built), 'HR-3 did not undo what HR-4 did on the same row').toEqual(before)
   })
 
   it('⭐ and no row of the document is left collapsed or hidden', () => {
@@ -948,7 +948,7 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
 
     for (const row of ROWS) {
       expect(isFolded(built, row.id), `${row.name} is still folded`).toBe(false)
-      expect(isHiddenRow(built, row.id), `${row.name} is hidden`).toBe(false)
+      expect(isHiddenTaskGroup(built, row.id), `${row.name} is hidden`).toBe(false)
     }
   })
 
@@ -961,9 +961,9 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
 
     built.press(FOLD_BELOW, BETA)
 
-    expect(drawnRows(built)).toContain('Beta')
-    expect(drawnRows(built)).not.toContain('Gamma')
-    expect(drawnRows(built)).not.toContain('Delta')
+    expect(drawnTaskGroups(built)).toContain('Beta')
+    expect(drawnTaskGroups(built)).not.toContain('Gamma')
+    expect(drawnTaskGroups(built)).not.toContain('Delta')
   })
 })
 
@@ -985,12 +985,12 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
   it('⭐ MUST: the parent’s 1-階層 control brings a hidden child back (HR-6 through HF-13)', () => {
     const built = stage({ hidden: [BETA] })
-    expect(drawnRows(built), 'the hidden row was drawn to begin with').not.toContain('Beta')
+    expect(drawnTaskGroups(built), 'the hidden row was drawn to begin with').not.toContain('Beta')
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
 
-    expect(drawnRows(built), 'HR-6 (MUST): the hidden child did not come back').toContain('Beta')
-    expect(isHiddenRow(built, BETA)).toBe(false)
+    expect(drawnTaskGroups(built), 'HR-6 (MUST): the hidden child did not come back').toContain('Beta')
+    expect(isHiddenTaskGroup(built, BETA)).toBe(false)
   })
 
   it('⭐⭐ MUST: and it brings that row ALONE, not its subtree (「1 本は直下の子だけ」)', () => {
@@ -1002,7 +1002,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
 
-    expect(drawnRows(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
+    expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Beta', 'Epsilon', 'Zeta', 'ZetaKid'])
   })
 
   it('⭐⭐ MUST: the parent’s 配下をすべて control brings the row AND its subtree (HR-6 through HF-2)', () => {
@@ -1013,7 +1013,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
-    expect(drawnRows(built)).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(built)).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐ MUST: a hidden row anywhere below comes back too (「配下のどこにあろうとも」)', () => {
@@ -1021,10 +1021,10 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
-    expect(isHiddenRow(built, DELTA), 'HR-3 (MUST): a hidden great-grandchild was left hidden').toBe(
+    expect(isHiddenTaskGroup(built, DELTA), 'HR-3 (MUST): a hidden great-grandchild was left hidden').toBe(
       false,
     )
-    expect(drawnRows(built)).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(built)).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐ the pairing itself: the same start, two ranges, two pictures', () => {
@@ -1037,10 +1037,10 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     narrow.press(OPEN_ONE_LEVEL, ALPHA)
     wide.press(OPEN_ALL_BELOW, ALPHA)
 
-    expect(drawnRows(narrow), 'the two entrances drew the same picture').not.toEqual(
-      drawnRows(wide),
+    expect(drawnTaskGroups(narrow), 'the two entrances drew the same picture').not.toEqual(
+      drawnTaskGroups(wide),
     )
-    expect(drawnRows(wide).length).toBeGreaterThan(drawnRows(narrow).length)
+    expect(drawnTaskGroups(wide).length).toBeGreaterThan(drawnTaskGroups(narrow).length)
   })
 })
 
@@ -1054,9 +1054,9 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     // WHY: a row's fold hides only its descendants, so only the head's own value S-418 can empty the panel.
     const built = stage()
 
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
 
-    expect(drawnRows(built), 'HR-2 (MUST NOT): the shallowest level was kept').toEqual([])
+    expect(drawnTaskGroups(built), 'HR-2 (MUST NOT): the shallowest level was kept').toEqual([])
     expect(
       built.loop.document().documentSettings.levelZeroTreeState,
       'HR-2: 段 0 was not folded in the document (S-418)',
@@ -1068,21 +1068,21 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     // head's opener does exactly what a row's one-level opener does: one level.
     const built = stage()
 
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     built.press(HEAD_OPEN_ONE_LEVEL, null)
 
-    expect(drawnRows(built), 'HF-16 opened more or less than one level').toEqual(['Alpha', 'Zeta'])
+    expect(drawnTaskGroups(built), 'HF-16 opened more or less than one level').toEqual(['Alpha', 'Zeta'])
   })
 
   it('⭐⭐ HF-16 also brings back a hidden TOP-LEVEL row, as HF-13 does for a child (HR-6)', () => {
     // 「**親を持たない最上位の行は、段 0 の同じ操作子で戻せること（MUST）** ——
     // 同表の `HF-16` である。`FR-085` が最上位の行を許しているためである」.
     const built = stage({ hidden: [ZETA] })
-    expect(drawnRows(built)).not.toContain('Zeta')
+    expect(drawnTaskGroups(built)).not.toContain('Zeta')
 
     built.press(HEAD_OPEN_ONE_LEVEL, null)
 
-    expect(drawnRows(built), 'HR-6 (MUST): the hidden top-level row had no way back').toContain(
+    expect(drawnTaskGroups(built), 'HR-6 (MUST): the hidden top-level row had no way back').toContain(
       'Zeta',
     )
   })
@@ -1090,10 +1090,10 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   it('⭐⭐ HF-10 is HF-2 at 段 0: it opens every level at once (HR-1)', () => {
     const built = stage()
 
-    built.press(HEAD_FOLD_EVERY_ROW, null)
-    built.press(HEAD_OPEN_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
+    built.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
 
-    expect(drawnRows(built)).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(built)).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐⭐ HF-10 brings back what HF-3 hid, wherever it is (HR-1: HR-3 と同じく)', () => {
@@ -1101,42 +1101,42 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     // **本行は `HR-3` の段 0 である**」.
     const built = stage({ hidden: [ZETA, DELTA], folded: [ALPHA], atStoredZoom: true })
 
-    built.press(HEAD_OPEN_EVERY_ROW, null)
+    built.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
 
-    expect(drawnRows(built)).toEqual(EVERY_ROW)
+    expect(drawnTaskGroups(built)).toEqual(EVERY_TASK_GROUP)
   })
 
   it('⭐ the four head entrances are told apart: 1 階層 and すべて are not one control', () => {
     // `HF-16` (MUST NOT): 「**`HF-10`（すべて開く）に兼ねさせてはならない（MUST NOT）**
     // —— **理由は `HF-13` が行について述べたものと同じである**」.
     const oneLevel = stage()
-    const everyRow = stage()
+    const everyTaskGroup = stage()
 
-    oneLevel.press(HEAD_FOLD_EVERY_ROW, null)
+    oneLevel.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     oneLevel.press(HEAD_OPEN_ONE_LEVEL, null)
-    everyRow.press(HEAD_FOLD_EVERY_ROW, null)
-    everyRow.press(HEAD_OPEN_EVERY_ROW, null)
+    everyTaskGroup.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
+    everyTaskGroup.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
 
-    expect(drawnRows(oneLevel), 'the head’s two openers answer alike').not.toEqual(
-      drawnRows(everyRow),
+    expect(drawnTaskGroups(oneLevel), 'the head’s two openers answer alike').not.toEqual(
+      drawnTaskGroups(everyTaskGroup),
     )
   })
 
   // see HF-20
   it('⛔ MUST NOT: the head carries neither of the two a row keeps to itself', () => {
     // A press that names no row cannot hide or pin anything, whichever of the two entrances it carries.
-    const rowsBefore = drawnRows(stage())
+    const taskGroupsBefore = drawnTaskGroups(stage())
     for (const rule of ['HF-3', 'FR-098']) {
       const built = stage()
 
       built.press(entranceFor(rule), null)
 
       expect(
-        drawnRows(built),
+        drawnTaskGroups(built),
         `the head answered ${rule}'s entrance and the picture moved`,
-      ).toEqual(rowsBefore)
+      ).toEqual(taskGroupsBefore)
       for (const row of ROWS) {
-        expect(isHiddenRow(built, row.id), `${rule} at the head hid ${row.name}`).toBe(false)
+        expect(isHiddenTaskGroup(built, row.id), `${rule} at the head hid ${row.name}`).toBe(false)
       }
     }
   })
@@ -1150,12 +1150,12 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
 describe('表 T-051 の結び -- the head has five entrances and a row has seven', () => {
   it('⛔ the roster itself splits five and seven, and hide and pin stay on the row', () => {
     expect(AT_THE_HEAD).toHaveLength(5)
-    expect(ON_A_ROW).toHaveLength(7)
+    expect(ON_A_TASK_GROUP).toHaveLength(7)
     // ⭐ AND THE THREE ARE THE NAMED THREE, so the arithmetic is the
     // manuscript's reason and not a coincidence of two counts.
-    expect(ON_A_ROW.filter((one) => !AT_THE_HEAD.includes(one))).toHaveLength(7)
+    expect(ON_A_TASK_GROUP.filter((one) => !AT_THE_HEAD.includes(one))).toHaveLength(7)
     for (const rule of ['HF-3', 'FR-098']) {
-      expect(ON_A_ROW, `${rule}'s entrance left the row`).toContain(entranceFor(rule))
+      expect(ON_A_TASK_GROUP, `${rule}'s entrance left the row`).toContain(entranceFor(rule))
       expect(AT_THE_HEAD, `${rule}'s entrance appeared at the head`).not.toContain(
         entranceFor(rule),
       )
@@ -1169,18 +1169,18 @@ describe('表 T-051 の結び -- the head has five entrances and a row has seven
     const built = wire(THEME, { 'App Header': 37 })
     domSurfaceOf(built).showScreenView(PANEL_VIEW)
 
-    const tree = oneByRole(built.root(), ROW_TITLE_TREE)
+    const tree = oneByRole(built.root(), TASK_GROUP_TITLE_TREE)
     const row = tree.children[0]
     if (row === undefined) throw new Error(`the tree drew no row: ${whatWasDrawn(tree)}`)
 
-    const onTheRow = new Set(iconsUnder(row))
+    const onTheTaskGroup = new Set(iconsUnder(row))
     const inTheTree = new Set(iconsUnder(tree))
     const atTheHead = new Set(iconsUnder(built.root()).filter((one) => !inTheTree.has(one)))
 
     expect(
-      [...onTheRow].sort(),
-      `the row drew ${onTheRow.size} of 表 T-109's entrances: ${whatWasDrawn(row)}`,
-    ).toEqual([...ON_A_ROW].sort())
+      [...onTheTaskGroup].sort(),
+      `the row drew ${onTheTaskGroup.size} of 表 T-109's entrances: ${whatWasDrawn(row)}`,
+    ).toEqual([...ON_A_TASK_GROUP].sort())
     expect(
       [...atTheHead].sort(),
       `the head drew ${atTheHead.size} of 表 T-109's entrances`,
@@ -1223,7 +1223,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     // which is the panel's own statement of it.
     for (const fixture of [{}, { folded: [ALPHA] }, { folded: [BETA, GAMMA, DELTA] }]) {
       const built = stage(fixture)
-      for (const name of drawnRows(built)) {
+      for (const name of drawnTaskGroups(built)) {
         const row = ROWS.find((one) => one.name === name)
         if (row === undefined) continue
         expect(
@@ -1294,15 +1294,15 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     // `HR-2` names this control as the way back from the fold it describes.
     const open = stage()
     expect(
-      (open.screen.last().rowTitlePanel as any).canOpenLevelZero ?? false,
+      (open.screen.last().taskGroupPanel as any).canOpenLevelZero ?? false,
       'nothing is folded at 段 0 and the head’s one-level opener is armed',
     ).toBe(false)
 
     const built = stage()
-    built.press(HEAD_FOLD_EVERY_ROW, null)
+    built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
 
     expect(
-      (built.screen.last().rowTitlePanel as any).canOpenLevelZero,
+      (built.screen.last().taskGroupPanel as any).canOpenLevelZero,
       'HR-2 (MUST): 段 0 is folded and the way back is drawn faint',
     ).toBe(true)
   })
@@ -1312,28 +1312,28 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     // WHY: head open is armed iff some row is not drawn; head fold iff S-418 is still auto.
     const open = stage()
     expect(
-      (open.screen.last().rowTitlePanel as any).canOpenEveryRow ?? false,
+      (open.screen.last().taskGroupPanel as any).canOpenEveryTaskGroup ?? false,
       'no row is folded and the head’s opener is armed',
     ).toBe(false)
     expect(
-      (open.screen.last().rowTitlePanel as any).canCloseEveryRow,
+      (open.screen.last().taskGroupPanel as any).canCloseEveryTaskGroup,
       'every row is open and the head’s fold is faint',
     ).toBe(true)
 
     const folded = stage({ folded: [BETA] })
     expect(
-      (folded.screen.last().rowTitlePanel as any).canOpenEveryRow,
+      (folded.screen.last().taskGroupPanel as any).canOpenEveryTaskGroup,
       'a row is folded and the head’s opener is faint',
     ).toBe(true)
 
     const headFolded = stage()
-    headFolded.press(HEAD_FOLD_EVERY_ROW, null)
+    headFolded.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     expect(
-      (headFolded.screen.last().rowTitlePanel as any).canCloseEveryRow ?? false,
+      (headFolded.screen.last().taskGroupPanel as any).canCloseEveryTaskGroup ?? false,
       'RS-32: 段 0 is already collapsed and the head’s fold is armed',
     ).toBe(false)
     expect(
-      (headFolded.screen.last().rowTitlePanel as any).canOpenEveryRow,
+      (headFolded.screen.last().taskGroupPanel as any).canOpenEveryTaskGroup,
       'RS-31: no row is drawn and the head’s opener is faint',
     ).toBe(true)
   })
@@ -1352,11 +1352,11 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     actedRatherThanRefused(hiding, 'HF-3 on a drawn row')
 
     const adding = stage()
-    adding.press(ADD_CHILD_ROW, ALPHA)
+    adding.press(ADD_CHILD_TASK_GROUP, ALPHA)
     actedRatherThanRefused(adding, 'HF-14 on a row')
 
     const addingAtLevelZero = stage()
-    addingAtLevelZero.press(HEAD_ADD_ROW, null)
+    addingAtLevelZero.press(HEAD_ADD_TASK_GROUP, null)
     actedRatherThanRefused(addingAtLevelZero, 'HF-17 at 段 0')
   })
 })
@@ -1404,7 +1404,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     const apart: string[] = []
     for (const shape of shapes) {
       const built = stage({ ...shape, atStoredZoom: true })
-      for (const name of drawnRows(built)) {
+      for (const name of drawnTaskGroups(built)) {
         const row = ROWS.find((one) => one.name === name)
         if (row === undefined) continue
         const armed = (titleOf(built, row.id).expander as any).canOpen === true
@@ -1435,11 +1435,11 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     for (const shape of shapes) {
       for (const row of ROWS) {
         const built = stage({ ...shape, atStoredZoom: true })
-        if (!drawnRows(built).includes(row.name)) continue
+        if (!drawnTaskGroups(built).includes(row.name)) continue
         const shown = foldedCountOf(built, row.id)
-        const before = drawnRows(built).length
+        const before = drawnTaskGroups(built).length
         built.press(OPEN_ALL_BELOW, row.id)
-        const arrived = drawnRows(built).length - before
+        const arrived = drawnTaskGroups(built).length - before
         if (shown !== arrived) {
           wrong.push(
             `${JSON.stringify(shape)} ${row.name}: showed ${String(shown)}, ${String(

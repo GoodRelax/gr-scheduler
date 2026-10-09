@@ -23,7 +23,7 @@ const FR_096_HEADING =
   'ボタンの大きさが揃わなくなる。⭐ 見出しの段は、`FR-036` の 表 T-335 の `WB-10` の題の行とすること（MUST）'
 const WB_10_NO_RESIZE =
   'してはならない（MUST NOT） —— 掴めない位置へ置けば二度と動かせない（表 T-023d の `GR-19` と同じ理由）。⛔ 大きさを変えてはならない（MUST NOT）'
-const WB_10_TITLE_ROW = '題の行は `WB-7` と同じ形とし、左端に題（面の見出しの語）を、右端に `IC-52` だけを置く —— `IC-129` 〜 `IC-131` を置かない'
+const WB_10_TITLE_TASK_GROUP = '題の行は `WB-7` と同じ形とし、左端に題（面の見出しの語）を、右端に `IC-52` だけを置く —— `IC-129` 〜 `IC-131` を置かない'
 const WM_9_ESC =
   ' の「面」である（MUST） —— `Esc` の「開いている面」の段で閉じる（表 T-028 の `IN-4`）。⛔ **閉じたときに透かしを消してはならない（MUST NOT）'
 const SV_7_LABELS =
@@ -126,7 +126,7 @@ async function dragEdge(page: Page, box: Rect, dx: number, dy: number): Promise<
 
 test.describe('the manuscript these cases are driven by', () => {
   test('01-04 still says every clause quoted here', () => {
-    for (const clause of [MK_13_ONE_PRESS, FR_096_ONE_COLUMN, FR_096_NOT_SIDEWAYS, FR_096_HEADING, WB_10_NO_RESIZE, WB_10_TITLE_ROW, WM_9_ESC, SV_7_LABELS]) {
+    for (const clause of [MK_13_ONE_PRESS, FR_096_ONE_COLUMN, FR_096_NOT_SIDEWAYS, FR_096_HEADING, WB_10_NO_RESIZE, WB_10_TITLE_TASK_GROUP, WM_9_ESC, SV_7_LABELS]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
   })
@@ -204,11 +204,11 @@ test.describe(`FR-096 -- ${FR_096_HEADING}`, () => {
     const heading = read.texts.find((one) => headings.includes(one.text))
     expect(heading, `${FR_096_HEADING}: the title is the heading word`).toBeDefined()
     const ids = read.icons.map((one) => one.id)
-    expect(ids, WB_10_TITLE_ROW).toEqual(['IC-52'])
+    expect(ids, WB_10_TITLE_TASK_GROUP).toEqual(['IC-52'])
     const close = read.icons[0]?.box
     if (heading === undefined || close === undefined || read.firstFormat === null) return
-    expect(heading.left, `${WB_10_TITLE_ROW}: the title stands left of IC-52`).toBeLessThan(close.left)
-    expect(heading.bottom > close.top && heading.top < close.bottom, `${WB_10_TITLE_ROW}: one row`).toBe(true)
+    expect(heading.left, `${WB_10_TITLE_TASK_GROUP}: the title stands left of IC-52`).toBeLessThan(close.left)
+    expect(heading.bottom > close.top && heading.top < close.bottom, `${WB_10_TITLE_TASK_GROUP}: one row`).toBe(true)
     expect(Math.max(heading.bottom, close.bottom), `${FR_096_HEADING}: the title row heads the chooser`).toBeLessThanOrEqual(read.firstFormat + 1)
   })
 })

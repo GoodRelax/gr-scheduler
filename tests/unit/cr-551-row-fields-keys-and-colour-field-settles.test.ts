@@ -18,12 +18,12 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -40,8 +40,8 @@ const t016RowOf = (subject: string, column: string): string => {
 }
 
 // see T-294
-const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
-const BLUE = bare(rowIn('T-294', 'S-319').cells[1] ?? '')
+const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
+const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')
 
 
 const IR_1 =
@@ -55,8 +55,8 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const partOn = (part: string, entry: string | null, rowGroupId: string | null = null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
+  ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 interface Bench {
   readonly loop: FrameLoop
@@ -178,7 +178,7 @@ function pointerPress(built: Bench, node: FakeElement): void {
 }
 
 function documentWith(visual: Record<string, unknown> | null = null) {
-  const document = rowDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
   document.schedule.tasks = [taskOf(1, { name: 'Alpha', start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' })]
   if (visual !== null) {
     document.schedule.taskVisuals = [
@@ -198,7 +198,7 @@ function panelOnTask(visual: Record<string, unknown> | null = null): Bench {
   return built
 }
 
-const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
+const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 const LINE_ROW = t016RowOf('Task', 'strokeColor')
 
 const fieldNodes = (built: Bench, row: string): FakeElement[] =>
@@ -241,9 +241,9 @@ describe('IR-1 -- the row fields carry their T-016 row IDs', () => {
   it('IR-1: the row colour field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
     // see IR-1, T-016, AT-53, MH-2
     const built = bench(documentWith())
-    const box = built.view().rowTitlePanel.titles[0]?.box
-    if (box === undefined) throw new Error('the row title is not drawn')
-    built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Row Title Panel', null, 'g1'))
+    const box = built.view().taskGroupPanel.titles[0]?.box
+    if (box === undefined) throw new Error('the task group title is not drawn')
+    built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Task Group Panel', null, 'g1'))
     const fields = built.view().propertiesPanel?.fields ?? []
     const rowOf = (column: string, kind: string | null = null): string | undefined =>
       fields.find((one) =>

@@ -46,7 +46,7 @@ const documentWith = (fadeInDays: number, fadeOutDays: number): ReturnType<typeo
 
 const handleAt = (one: Stage, grabArea: string): Point => {
   const frame = frameOf(one.loop)
-  return pointAnswering(scanGrabAreas(frame.geometry, FADED_UID, frame.rowArea), grabArea)
+  return pointAnswering(scanGrabAreas(frame.geometry, FADED_UID, frame.taskGroupArea), grabArea)
 }
 
 const fadesOf = (one: Stage): { fadeIn: number; fadeOut: number } => {

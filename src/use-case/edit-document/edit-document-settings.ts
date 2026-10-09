@@ -24,7 +24,7 @@ export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
   // TRAP: never rebuild this from a window width here; regionsFromScreen owns that arithmetic.
-  readonly rowAreaWidthWithoutPanels: number
+  readonly taskGroupAreaWidthWithoutPanels: number
 }
 
 // see T-108
@@ -42,7 +42,7 @@ export type DocumentSettingsCommand =
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
-  | { readonly kind: 'setRowTitlePanelWidth'; readonly rowTitlePanelWidth: number }
+  | { readonly kind: 'setTaskGroupPanelWidth'; readonly taskGroupPanelWidth: number }
   | { readonly kind: 'pinTaskGroup'; readonly groupId: string }
   | { readonly kind: 'unpinTaskGroup'; readonly groupId: string }
   | {
@@ -73,7 +73,7 @@ export type DocumentSettingsCommand =
       readonly shownFinish: string | null
     }
   // see CM-91, WF-1
-  | { readonly kind: 'setRowTitlePanelWidthFixed'; readonly rowTitlePanelWidthFixed: boolean }
+  | { readonly kind: 'setTaskGroupPanelWidthFixed'; readonly taskGroupPanelWidthFixed: boolean }
 
 // WHY: a Record over the type, so a value added to S-418 fails to compile here.
 const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
@@ -90,23 +90,23 @@ type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
 
 // see CM-67, FR-052
 /** @purity pure */
-function rowTitlePanelWidthEdited(
+function taskGroupPanelWidthEdited(
   settings: DocumentSettings,
-  command: Extract<DocumentSettingsCommand, { readonly kind: 'setRowTitlePanelWidth' }>,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setTaskGroupPanelWidth' }>,
   limits: SettingsLimits,
   put: SettingsPut,
 ): EditResult {
   // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
-  if (!(command.rowTitlePanelWidth > 0)) {
+  if (!(command.taskGroupPanelWidth > 0)) {
     // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
-    return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
+    return refused([reject('CM-67', 'FR-052', 'the task group panel must be wider than zero')])
   }
   // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
-  const rowArea = limits.rowAreaWidthWithoutPanels - command.rowTitlePanelWidth * displayRatioOf(settings)
-  if (!(rowArea > 0)) {
-    return refused([reject('CM-67', 'FR-052', 'the width would leave the Row Area at or below zero')])
+  const taskGroupArea = limits.taskGroupAreaWidthWithoutPanels - command.taskGroupPanelWidth * displayRatioOf(settings)
+  if (!(taskGroupArea > 0)) {
+    return refused([reject('CM-67', 'FR-052', 'the width would leave the Task Group Area at or below zero')])
   }
-  return put({ rowTitlePanelWidth: command.rowTitlePanelWidth })
+  return put({ taskGroupPanelWidth: command.taskGroupPanelWidth })
 }
 
 // see CM-86, S-418, T-328
@@ -154,9 +154,9 @@ function pinEdited(
 ): EditResult {
   const held = settings.pinnedGroupIds
   if (held.includes(command.groupId)) return put({ pinnedGroupIds: held })
-  if (held.length >= SETTINGS_CONSTANTS.pinnedRowMax) {
+  if (held.length >= SETTINGS_CONSTANTS.pinnedTaskGroupMax) {
     return refused([
-      reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedRowMax} pinned rows`),
+      reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedTaskGroupMax} pinned rows`),
     ])
   }
   return put({ pinnedGroupIds: [...held, command.groupId] })
@@ -279,8 +279,8 @@ export function editDocumentSettings(
       })
     }
 
-    case 'setRowTitlePanelWidth':
-      return rowTitlePanelWidthEdited(settings, command, limits, put)
+    case 'setTaskGroupPanelWidth':
+      return taskGroupPanelWidthEdited(settings, command, limits, put)
 
     case 'pinTaskGroup':
       return pinEdited(settings, command, put)
@@ -309,8 +309,8 @@ export function editDocumentSettings(
     case 'setLevelZeroTreeState':
       return levelZeroTreeStateEdited(command, put)
 
-    case 'setRowTitlePanelWidthFixed':
-      return put({ rowTitlePanelWidthFixed: command.rowTitlePanelWidthFixed })
+    case 'setTaskGroupPanelWidthFixed':
+      return put({ taskGroupPanelWidthFixed: command.taskGroupPanelWidthFixed })
   }
 }
 

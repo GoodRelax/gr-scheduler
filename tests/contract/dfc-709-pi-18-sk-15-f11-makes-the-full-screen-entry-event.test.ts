@@ -63,7 +63,7 @@ const entryPress = (entry: string): PointerPress => {
     part: bare(rowOf('T-109', entry).by['面'] ?? ''),
     entry,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,

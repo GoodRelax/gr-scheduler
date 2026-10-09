@@ -46,7 +46,7 @@ const FR_029_FALLBACK_HIDDEN = '落ち先が `RS-27` である（出さない）
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
-const HF_14_NO_ROW_WHEN_FAINT = '⛔ 薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）'
+const HF_14_NO_TASK_GROUP_WHEN_FAINT = '⛔ 薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）'
 const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）'
 const FR_019_NOT_MADE = '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
 const FR_019_CARRIES_RS_44 = '運ぶ理由は 表 T-233 の `RS-44` とする'
@@ -157,7 +157,7 @@ describe('E-03 -- the sentences a hidden row would break are rewritten to carry,
   })
 
   it('HF-14 stands no row when faint, carrying RS-46', () => {
-    expect(REQUIREMENTS).toContain(HF_14_NO_ROW_WHEN_FAINT)
+    expect(REQUIREMENTS).toContain(HF_14_NO_TASK_GROUP_WHEN_FAINT)
     expect(REQUIREMENTS).toContain(HF_14_CARRIES_RS_46)
   })
 
@@ -172,7 +172,7 @@ describe('E-03 -- the sentences a hidden row would break are rewritten to carry,
     expect(REQUIREMENTS).not.toContain('`RS-44` を告げる')
   })
 
-  it('WL-9 carries RS-55', () => {
+  it('PTL-9 carries RS-55', () => {
     expect(REQUIREMENTS).toContain(WL_9_CARRIES_RS_55)
     expect(REQUIREMENTS).not.toContain('`RS-55` を告げる')
   })

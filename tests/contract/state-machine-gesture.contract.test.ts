@@ -76,13 +76,13 @@ const REPEATING_ENTRY = 'IC-12'
 const PLAIN_ENTRY = 'IC-17'
 
 const PRESSED_ON: Record<string, Loose> = {
-  scheduleShape: { kind: 'grab', grabRow: 'GR-23', itemId: 'task1' },
-  box: { kind: 'grab', grabRow: 'GR-14', itemId: 'box1' },
+  scheduleShape: { kind: 'grab', grabTaskGroup: 'GR-23', itemId: 'task1' },
+  box: { kind: 'grab', grabTaskGroup: 'GR-14', itemId: 'box1' },
   repeatingEntry: { kind: 'entry', entry: REPEATING_ENTRY },
   plainEntry: { kind: 'entry', entry: PLAIN_ENTRY },
   paletteBand: { kind: 'paletteBand' },
   panelBorder: { kind: 'panelBorder', panel: 'propertiesPanel' },
-  rowGrabStrip: { kind: 'rowGrabStrip', rowGroupId: 'group1' },
+  taskGroupGrabStrip: { kind: 'taskGroupGrabStrip', taskGroupId: 'group1' },
   scrollbarThumb: { kind: 'scrollbarThumb', axis: 'vertical' },
 }
 
@@ -110,7 +110,7 @@ const DOCUMENT_CHANGING: Readonly<Record<string, boolean>> = {
   'PTD-3 plainEntry': false,
   'PTD-3 paletteBand': false,
   'PTD-3 panelBorder': false,
-  'PTD-3 rowGrabStrip': true,
+  'PTD-3 taskGroupGrabStrip': true,
   'PTD-3 scrollbarThumb': false,
   'PTD-4': true,
   'PTD-4a': false,
@@ -138,8 +138,8 @@ function guardHolds(name: string, gesture: Loose, event: Loose): boolean {
   switch (name) {
     case 'isDocumentChangingPress':
       return DOCUMENT_CHANGING[pressLabel(event['pressRow'], event['pressedOn'])] === true
-    case 'isRowGrabStrip':
-      return (event['pressedOn'] as Loose | null)?.['kind'] === 'rowGrabStrip'
+    case 'isTaskGroupGrabStrip':
+      return (event['pressedOn'] as Loose | null)?.['kind'] === 'taskGroupGrabStrip'
     case 'isOnRepeatingEntry':
       return isOnRepeatingEntry(event['type'] === 'pointerPressed' ? event['pressedOn'] : pressedOnNow)
     case 'isOnPaletteBand':
@@ -213,13 +213,13 @@ function pointerValues(kind: string): { label: string; value: Loose }[] {
 
 function crossedSessions(): { name: string; session: ScreenSession }[] {
   const pointer = GESTURE.machines.find((m) => m.name === 'pointerPressStateMachine')
-  const rowGrab = GESTURE.machines.find((m) => m.name === 'rowGrabStateMachine')
-  if (pointer === undefined || rowGrab === undefined) throw new Error('T-289 lost a machine this file reads')
+  const taskGroupGrab = GESTURE.machines.find((m) => m.name === 'taskGroupGrabStateMachine')
+  if (pointer === undefined || taskGroupGrab === undefined) throw new Error('T-289 lost a machine this file reads')
   return pointer.states.flatMap((p) =>
     pointerValues(p.key).flatMap((pv) =>
-      rowGrab.states.map((r) => ({
+      taskGroupGrab.states.map((r) => ({
         name: `${pv.label} & ${r.key}`,
-        session: withGesture({ pointerPressState: pv.value, rowGrabState: { kind: r.key } }),
+        session: withGesture({ pointerPressState: pv.value, taskGroupGrabState: { kind: r.key } }),
       })),
     ),
   )
@@ -228,7 +228,7 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
 function gestureEvents(): Loose[] {
   const samples: Record<string, readonly Loose[]> = {
     pointerPressed: PRESSES.map((p) => ({ pressRow: p.pressRow, pressedOn: p.pressedOn })),
-    rowGrabAxisSettled: [{ axis: 'position' }, { axis: 'depth' }],
+    taskGroupGrabAxisSettled: [{ axis: 'position' }, { axis: 'depth' }],
   }
   return GESTURE.events.flatMap((ev) => (samples[ev.key] ?? [{}]).map((v) => ({ type: ev.key, ...v })))
 }
@@ -290,8 +290,8 @@ describe('SS-5: screen and notice events leave the gesture region at the same re
     silentWatchers: 1,
   }
   const held = withGesture({
-    pointerPressState: { kind: 'changingDocument', pressRow: 'PTD-3', pressedOn: PRESSED_ON['rowGrabStrip'] },
-    rowGrabState: { kind: 'axisUndecided' },
+    pointerPressState: { kind: 'changingDocument', pressRow: 'PTD-3', pressedOn: PRESSED_ON['taskGroupGrabStrip'] },
+    taskGroupGrabState: { kind: 'axisUndecided' },
   })
   const cases = ['screen', 'notices'].flatMap((name) =>
     regionNamed(name).events.map((ev) => {

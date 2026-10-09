@@ -37,7 +37,7 @@ const ONE_BUNDLE =
   'その 2 つは、`_assets/tbl-glossary.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
 const ANCHOR_STEPS_BY_HALVES =
   '⚠️ 線先は日の列の中央と行の帯の中央に立つので、線先の動く量は、引いた量から日の列と行の帯の半分まで離れることがある —— 本文の箱は引いた量のとおりに動く。'
-const BODY_NO_ROW =
+const BODY_NO_TASK_GROUP =
   'ずらした点の下に描かれた行が無いときは、どちらも動かさず、表 T-233 の `RS-44` を運ぶ —— 表 T-246 の `HB-3` と同じ扱いである。'
 const ANCHOR_MOVES_ALONE =
   '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
@@ -173,12 +173,12 @@ const dayOf = (stored: unknown): number => Number(String(stored).slice(8, 10))
 const PX_PER_DAY_AT_1X = 20 / DEFAULT_DISPLAY_RATIO
 
 const ANCHOR_DAY = 10
-const ANCHOR_ROW: Letter = 'E'
+const ANCHOR_TASK_GROUP: Letter = 'E'
 
 interface NoteSpec {
   readonly id?: string
   readonly anchorDay?: number
-  readonly anchorRow?: Letter
+  readonly anchorTaskGroup?: Letter
   readonly dx?: number
   readonly dy?: number
   readonly text?: string
@@ -200,7 +200,7 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
   leaderShapeKind: 'polyline',
   text: spec.text ?? 'Note',
   anchorDate: day(spec.anchorDay ?? ANCHOR_DAY),
-  anchorGroupId: ROW[spec.anchorRow ?? ANCHOR_ROW],
+  anchorGroupId: ROW[spec.anchorTaskGroup ?? ANCHOR_TASK_GROUP],
   bodyOffsetPx: { dx: spec.dx ?? 60, dy: spec.dy ?? -60 },
   strokeColor: spec.strokeColor ?? null,
   strokeWidthPx: spec.strokeWidthPx ?? null,
@@ -212,7 +212,7 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
 // WHY: one plain Task per row from day 2 to day 28, so every band has a drawn shape under the note.
 const taskOf = (uid: number): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: null,
   start: day(2),
@@ -355,13 +355,13 @@ const drawnNote = (loop: FrameLoop, id: string = NOTE_ID): CommentGeometry => {
   return found
 }
 
-const rowBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
-  const found = valuesOf(loop).layout.rows.find((one) => one.groupId === ROW[letter])
+const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
+  const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
   if (found === undefined) throw new Error(`the frame drew no row ${letter}`)
   return found
 }
 
-const rowStep = (loop: FrameLoop): number => rowBand(loop, 'D').y - rowBand(loop, 'C').y
+const taskGroupStep = (loop: FrameLoop): number => taskGroupBand(loop, 'D').y - taskGroupBand(loop, 'C').y
 const pxPerDay = (loop: FrameLoop): number => valuesOf(loop).layout.pxPerDay
 
 const hitAt = (loop: FrameLoop, at: Point): Hit | null => itemAtPointer(valuesOf(loop).geometry, at.x, at.y, grabSizesOf())
@@ -465,7 +465,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
       BODY_OR_LEADER_MOVES_BOTH,
       ONE_BUNDLE,
       ANCHOR_STEPS_BY_HALVES,
-      BODY_NO_ROW,
+      BODY_NO_TASK_GROUP,
       ANCHOR_MOVES_ALONE,
       ONE_UNDO,
       HANDLE_WHILE_SELECTED,
@@ -523,17 +523,17 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
     const note = drawnNote(built.loop)
     expect(note.body.x - note.anchor.x).toBeCloseTo(60, 1)
     expect(note.anchor.y - (note.body.y + note.body.height)).toBeCloseTo(60, 1)
-    const area = valuesOf(built.loop).regions.rowArea
+    const area = valuesOf(built.loop).regions.taskGroupArea
     expect(note.body.y).toBeGreaterThan(area.y)
-    expect(rowBand(built.loop, 'F').y + rowBand(built.loop, 'F').height + 4 * S_292, 'room below the last band').toBeLessThan(SCREEN.height)
+    expect(taskGroupBand(built.loop, 'F').y + taskGroupBand(built.loop, 'F').height + 4 * S_292, 'room below the last band').toBeLessThan(SCREEN.height)
     expect(S_292, 'S-292 is narrower than half a day').toBeLessThan(pxPerDay(built.loop) / 2)
-    for (const letter of LETTERS) expect(rowBand(built.loop, letter).height).toBeGreaterThan(2 * S_292)
-    expect(rowStep(built.loop)).toBeGreaterThan(0)
+    for (const letter of LETTERS) expect(taskGroupBand(built.loop, letter).height).toBeGreaterThan(2 * S_292)
+    expect(taskGroupStep(built.loop)).toBeGreaterThan(0)
   })
 })
 
 describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
-  const pull = (loop: FrameLoop): Point => ({ x: Math.round(3.3 * pxPerDay(loop)), y: Math.round(rowStep(loop)) + 3 })
+  const pull = (loop: FrameLoop): Point => ({ x: Math.round(3.3 * pxPerDay(loop)), y: Math.round(taskGroupStep(loop)) + 3 })
 
   it('premise: the body centre answers as the body and the leader midpoint as the leader', () => {
     const built = stage()
@@ -574,7 +574,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     const by = Math.floor(pxPerDay(built.loop) / 2) - 1
     expect(by, 'premise: the pull is longer than S-208').toBeGreaterThan(t206('S-208'))
     drag(built, centreOf(before.body), by, 0)
-    expect(anchorText(built.loop)).toBe(`${ANCHOR_DAY} ${ANCHOR_ROW}`)
+    expect(anchorText(built.loop)).toBe(`${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`)
     const after = drawnNote(built.loop)
     expect(after.body.x).toBeCloseTo(before.body.x + by, 1)
     expect(after.body.y).toBeCloseTo(before.body.y, 1)
@@ -595,11 +595,11 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     expect(drawnNote(built.loop).body).toEqual(before.body)
   })
 
-  it(`${BODY_NO_ROW} -- the body pulled so far down that the moved anchor point has no drawn row`, () => {
+  it(`${BODY_NO_TASK_GROUP} -- the body pulled so far down that the moved anchor point has no drawn row`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
     const stored = storedNote(built.loop)
-    const bottom = rowBand(built.loop, 'F').y + rowBand(built.loop, 'F').height
+    const bottom = taskGroupBand(built.loop, 'F').y + taskGroupBand(built.loop, 'F').height
     const by = Math.round(bottom - note.anchor.y + 2 * S_292)
     drag(built, centreOf(note.body), 0, by)
     expect(storedNote(built.loop), 'a pull with no row under the moved anchor moved something').toEqual(stored)
@@ -608,8 +608,8 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
 
   // WHY: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.
   const PULLS: readonly (readonly [string, (loop: FrameLoop) => Point, string])[] = [
-    ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `11 ${ANCHOR_ROW}`],
-    ['one row down only', (loop) => ({ x: 0, y: Math.round(rowStep(loop)) }), '10 F'],
+    ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `11 ${ANCHOR_TASK_GROUP}`],
+    ['one row down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), '10 F'],
     ['3.3 days right and one row down', (loop) => pull(loop), '13 F'],
   ]
 
@@ -631,7 +631,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
 
 describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
   const releaseOn = (loop: FrameLoop, d: number, letter: Letter): Point => {
-    const band = rowBand(loop, letter)
+    const band = taskGroupBand(loop, letter)
     const note = drawnNote(loop)
     const dayTen = note.anchor.x - pxPerDay(loop) / 2
     return { x: dayTen + (d - ANCHOR_DAY + 0.2) * pxPerDay(loop), y: band.y + band.height / 2 }
@@ -674,7 +674,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
   })
 
   for (const steps of [1, 6]) {
-    for (const [label, d, letter] of [['day 16 of row C', 16, 'C'], ['day 13 of its own row', 13, ANCHOR_ROW]] as const) {
+    for (const [label, d, letter] of [['day 16 of row C', 16, 'C'], ['day 13 of its own row', 13, ANCHOR_TASK_GROUP]] as const) {
       it(`the anchor released on ${label}, reported in ${steps} move(s), pins there and leaves the box still`, () => {
         const built = stage()
         const before = drawnNote(built.loop)
@@ -814,7 +814,7 @@ describe(`FR-019: ${LEADER_ONE_CORNER} -- in the drawn picture`, () => {
 })
 
 describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
-  const TWO_NOTES: Fixture = { notes: [{}, { id: OTHER_NOTE_ID, anchorDay: 20, anchorRow: 'E', dx: 40, dy: -40 }] }
+  const TWO_NOTES: Fixture = { notes: [{}, { id: OTHER_NOTE_ID, anchorDay: 20, anchorTaskGroup: 'E', dx: 40, dy: -40 }] }
 
   it(`${NO_HANDLE_UNSELECTED} -- nothing selected, no handle`, () => {
     const built = stage(TWO_NOTES)
@@ -1173,7 +1173,7 @@ describe('control -- the checks here can go red', () => {
     const built = stage()
     const before = anchorText(built.loop)
     const note = drawnNote(built.loop)
-    drag(built, note.anchor, 0, rowStep(built.loop))
+    drag(built, note.anchor, 0, taskGroupStep(built.loop))
     expect(anchorText(built.loop)).not.toBe(before)
   })
 

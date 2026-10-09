@@ -76,7 +76,7 @@ function viewWith(frame: ScreenView['frame']): ScreenView {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,
@@ -92,8 +92,8 @@ const FITTING_SCROLLBARS: ScreenView['frame']['scrollbars'] = [
   { axis: 'vertical', track: rect(788, 40, 12, 540), thumb: rect(788, 40, 12, 540) },
 ]
 
-const ROW_TITLE_DIVIDER = {
-  panel: 'rowTitlePanel' as const,
+const TASK_GROUP_TITLE_DIVIDER = {
+  panel: 'taskGroupPanel' as const,
   band: rect(170, 40, 8, 500),
   line: rect(173, 40, 1, 500),
 }
@@ -179,7 +179,7 @@ describe('Panel Divider (U-24) -- IF-9 and FR-052', () => {
   it('IF-9 画面上の点がどの UI パーツ -- a press on the band answers U-24 and which panel it bounds', () => {
     const { built, surface } = drawn({
       isFullScreen: false,
-      dividers: [ROW_TITLE_DIVIDER],
+      dividers: [TASK_GROUP_TITLE_DIVIDER],
       scrollbars: [],
     })
 
@@ -187,32 +187,32 @@ describe('Panel Divider (U-24) -- IF-9 and FR-052', () => {
     expect(bands).toHaveLength(1)
     const part = partOn(built, surface, bands[0] as FakeElement)
     expect(part?.part).toBe(PANEL_DIVIDER)
-    expect(part?.dividerPanel).toBe('rowTitlePanel')
+    expect(part?.dividerPanel).toBe('taskGroupPanel')
     expect(part?.entry ?? null).toBeNull()
     expect(part?.format ?? null).toBeNull()
   })
 
   it('IF-9 作った記述を画面に載せ -- the band covers the rectangle the description gives', () => {
-    const { built } = drawn({ isFullScreen: false, dividers: [ROW_TITLE_DIVIDER], scrollbars: [] })
+    const { built } = drawn({ isFullScreen: false, dividers: [TASK_GROUP_TITLE_DIVIDER], scrollbars: [] })
 
     const style = styleMap(byRole(built.root(), PANEL_DIVIDER)[0] as FakeElement)
-    expect(style.get('left')).toBe(`${ROW_TITLE_DIVIDER.band.x}px`)
-    expect(style.get('top')).toBe(`${ROW_TITLE_DIVIDER.band.y}px`)
-    expect(style.get('width')).toBe(`${ROW_TITLE_DIVIDER.band.width}px`)
-    expect(style.get('height')).toBe(`${ROW_TITLE_DIVIDER.band.height}px`)
+    expect(style.get('left')).toBe(`${TASK_GROUP_TITLE_DIVIDER.band.x}px`)
+    expect(style.get('top')).toBe(`${TASK_GROUP_TITLE_DIVIDER.band.y}px`)
+    expect(style.get('width')).toBe(`${TASK_GROUP_TITLE_DIVIDER.band.width}px`)
+    expect(style.get('height')).toBe(`${TASK_GROUP_TITLE_DIVIDER.band.height}px`)
   })
 
   it('FR-052 その境界に掴み帯を敷かないこと -- no Properties Panel divider in the description, no band for it', () => {
     const { built, surface } = drawn({
       isFullScreen: false,
-      dividers: [ROW_TITLE_DIVIDER],
+      dividers: [TASK_GROUP_TITLE_DIVIDER],
       scrollbars: FITTING_SCROLLBARS,
     })
 
     const panels = answersOver(built, surface)
       .map((one) => one.dividerPanel)
       .filter((one) => one !== null && one !== undefined)
-    expect([...new Set(panels)]).toEqual(['rowTitlePanel'])
+    expect([...new Set(panels)]).toEqual(['taskGroupPanel'])
     for (const band of byRole(built.root(), PANEL_DIVIDER)) {
       expect(band.getAttribute('data-panel')).not.toBe('propertiesPanel')
     }
@@ -222,7 +222,7 @@ describe('Panel Divider (U-24) -- IF-9 and FR-052', () => {
     const built = stage({ 'App Header': 37 })
     const surface = domScreenSurface(wiringOf(built, THEME))
     surface.showScreenView(
-      viewWith({ isFullScreen: false, dividers: [ROW_TITLE_DIVIDER], scrollbars: [] }),
+      viewWith({ isFullScreen: false, dividers: [TASK_GROUP_TITLE_DIVIDER], scrollbars: [] }),
     )
     surface.showScreenView(viewWith({ isFullScreen: false, dividers: [], scrollbars: [] }))
 

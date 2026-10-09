@@ -202,7 +202,7 @@ const HIDDEN_NOTE = 'zzhiddennote'
 const taskOf = (spec: TaskSpec): Loose => ({
   ...firstOf('tasks'),
   uid: spec.uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: spec.uid,
   name: spec.name,
   start: spec.start === null ? null : D(spec.start),
@@ -712,7 +712,7 @@ describe('T-330 SV-4 -- the word matches a part of the name, an assignee or the 
     expect(uidsOf(withWord(NO_NAME_JA.slice(1, 3)))).toEqual([])
   })
 
-  it('FR-151: a row name and Task.notes are not searched', () => {
+  it('FR-151: a task group name and Task.notes are not searched', () => {
     expect(uidsOf(withWord(PROGRAMME))).toEqual([])
     expect(uidsOf(withWord(HIDDEN_NOTE))).toEqual([])
   })

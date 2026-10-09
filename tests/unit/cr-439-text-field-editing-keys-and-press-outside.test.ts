@@ -41,7 +41,7 @@ const IN_6_SAME_VALUE = '**始めた値と同じ値を書いてはならない�
 const IN_5A_UNSETTLED = '単文字キーと `Delete` / `Backspace` は、文字入力を確定していない間は効かないこと（MUST NOT）'
 
 const PROPERTIES_PANEL = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
-const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
+const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 const SK_19_KEY = bare(rowOf('T-036', 'SK-19').by['割当'] ?? '')
 const ESC_KEY = 'Escape'
 
@@ -85,7 +85,7 @@ const VIEW: ScreenView = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: PANEL,
   commandPalette: null,
   openModal: null,
@@ -151,7 +151,7 @@ function typing(text: string): Editing {
 }
 
 function pressOutside({ built, entry }: Editing): void {
-  const outside = oneByRole(built.root(), ROW_TITLE_PANEL)
+  const outside = oneByRole(built.root(), TASK_GROUP_PANEL)
   raise(built, outside, 'pointerdown')
   raise(built, outside, 'mousedown')
   entry.blur()
@@ -250,7 +250,7 @@ describe('IN-6 -- a press outside the field settles it', () => {
 
   it('IN-6 押下そのものの働きを止めてはならない（MUST NOT） -- the press outside is not swallowed', () => {
     const editing = typing('Kick-off meeting')
-    const outside = oneByRole(editing.built.root(), ROW_TITLE_PANEL)
+    const outside = oneByRole(editing.built.root(), TASK_GROUP_PANEL)
     const press = raise(editing.built, outside, 'pointerdown')
     expect(press.defaultPrevented).toBe(false)
   })

@@ -24,7 +24,7 @@ import {
   TRANSPARENT,
   taskByUid,
   textOfDay,
-  wbsParentResolutionsOf,
+  parentTaskResolutionsOf,
   workingCalendarOf,
   type Dependency,
   type Project,
@@ -40,7 +40,7 @@ import {
 import {
   labelUnits,
   labelledAssigneeUidOf,
-  type RowPlacement,
+  type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   PropertiesSubject,
@@ -450,11 +450,11 @@ function controlOf(
   }
 }
 
-const PARENT_COLUMN: keyof Task & string = 'wbsParentUid'
+const PARENT_COLUMN: keyof Task & string = 'parentTaskUid'
 
 const COUNT_SLOT = '{n}'
 
-// see WL-15, FR-038
+// see PTL-15, FR-038
 const PARENT_WORD_PARTS = { derived: 'derivedParent', undecided: 'undecidedParent', none: 'noParent' } as const
 
 interface ParentShown {
@@ -462,20 +462,20 @@ interface ParentShown {
   readonly link: PropertyLink | null
 }
 
-// see WL-15, SQ-1
+// see PTL-15, SQ-1
 // WHY: an empty name would draw a link with nothing to press, so the uid stands in for it.
 /** @purity pure */
 function linkedNameOf(task: Task): string {
   return task.name === null || task.name === '' ? String(task.uid) : task.name
 }
 
-// see WL-15, VS-2, IP-1, IP-2, IP-5, VO-4
-// WHY: the stated value is read first, so a stated milestone parent still shows (WL-15 1) though IP-2 reads past it.
+// see PTL-15, VS-2, IP-1, IP-2, IP-5, VO-4
+// WHY: the stated value is read first, so a stated milestone parent still shows (PTL-15 1) though IP-2 reads past it.
 /** @purity pure */
 function parentShownOf(schedule: Schedule, task: Task, language: DisplayLanguage): ParentShown {
-  const stated = task.wbsParentUid === null ? null : taskByUid(schedule, task.wbsParentUid)
+  const stated = task.parentTaskUid === null ? null : taskByUid(schedule, task.parentTaskUid)
   if (stated !== null) return { text: linkedNameOf(stated), link: { taskUid: stated.uid, canUnlink: true } }
-  const resolution = wbsParentResolutionsOf({ schedule }, task.uid).get(task.uid)
+  const resolution = parentTaskResolutionsOf({ schedule }, task.uid).get(task.uid)
   const word = (part: string): string | null => PROPERTY_FIELD_WORDS.get(part)?.[language] ?? null
   const derived = resolution?.kind === 'derived' ? taskByUid(schedule, resolution.parentUid) : null
   if (derived !== null) {
@@ -489,8 +489,8 @@ function parentShownOf(schedule: Schedule, task: Task, language: DisplayLanguage
   return { text: word(PARENT_WORD_PARTS.none) ?? '', link: null }
 }
 
-// see WL-15, WL-16, WL-17, PR-15, FR-006
-// WHY: plain words carry no control, so they draw as text and never as a link that does nothing (WL-15).
+// see PTL-15, PTL-16, PTL-17, PR-15, FR-006
+// WHY: plain words carry no control, so they draw as text and never as a link that does nothing (PTL-15).
 /** @purity pure */
 function parentField(schedule: Schedule, task: Task, item: TaskPropertyItem, language: DisplayLanguage): PropertyField {
   const shown = parentShownOf(schedule, task, language)
@@ -743,7 +743,7 @@ function lagWordOf(project: Project, dependency: Dependency, language: DisplayLa
   return (PROPERTY_FIELD_WORDS.get('lagDays')?.[language] ?? '').replace(LAG_SLOT, () => signed)
 }
 
-// see PR-37, PR-38, WL-16
+// see PR-37, PR-38, PTL-16
 /** @purity pure */
 function linkedEndControls(schedule: Schedule, task: Task, column: string, language: DisplayLanguage): readonly PropertyControl[] {
   return linkedEndsOf(schedule, task, column).map((end) => {
@@ -904,7 +904,7 @@ function fieldsOfItem(
       return fieldsOfFound(box, highlightBoxRows, labelCoef, language)
     }
     case 'statusLine':
-    case 'wbsParentLink':
+    case 'parentTaskLink':
       return []
   }
 }
@@ -976,33 +976,33 @@ function objectFields<Held>(
 
 type TaskGroup = Schedule['taskGroups'][number]
 
-const ROW_NAME_COLUMN = 'label'
-const ROW_NAME_FIELD_ROW = 'AT-53'
+const TASK_GROUP_NAME_COLUMN = 'label'
+const TASK_GROUP_NAME_FIELD_TASK_GROUP = 'AT-53'
 
 // see IR-1, FR-085, FR-042
 /** @purity pure */
 function declaredRowOf(item: ItemRows): string {
   const [first] = item.columns
-  return first === ROW_NAME_COLUMN ? ROW_NAME_FIELD_ROW : item.row
+  return first === TASK_GROUP_NAME_COLUMN ? TASK_GROUP_NAME_FIELD_TASK_GROUP : item.row
 }
 
-const ROW_MIN_HEIGHT_WORDS = new Map(displayWords.rowMinHeightField.map((entry) => [entry.part, entry.text]))
+const TASK_GROUP_MIN_HEIGHT_WORDS = new Map(displayWords.rowMinHeightField.map((entry) => [entry.part, entry.text]))
 
 const MIN_HEIGHT_COLUMN: keyof TaskGroup & string = 'minHeight'
 
 const READOUT_PX_SLOT = '{px}'
 
 /** @purity pure */
-function rowMinHeightWord(part: string, language: DisplayLanguage): string {
-  return ROW_MIN_HEIGHT_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
+function taskGroupMinHeightWord(part: string, language: DisplayLanguage): string {
+  return TASK_GROUP_MIN_HEIGHT_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
 }
 
 // see MH-3, MH-6
 /** @purity pure */
-function minHeightReadoutOf(groupId: string, placedRows: readonly RowPlacement[], language: DisplayLanguage): string {
-  const placed = placedRows.find((row) => row.groupId === groupId)
-  if (placed === undefined) return rowMinHeightWord('currentlyHidden', language)
-  return rowMinHeightWord('currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
+function minHeightReadoutOf(groupId: string, placedTaskGroups: readonly TaskGroupPlacement[], language: DisplayLanguage): string {
+  const placed = placedTaskGroups.find((taskGroup) => taskGroup.groupId === groupId)
+  if (placed === undefined) return taskGroupMinHeightWord('currentlyHidden', language)
+  return taskGroupMinHeightWord('currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
 }
 
 // see T-338, MH-1, MH-2, MH-3, FR-006
@@ -1011,24 +1011,24 @@ function minHeightReadoutOf(groupId: string, placedRows: readonly RowPlacement[]
 function minHeightFields(
   field: PropertyField,
   groupId: string,
-  placedRows: readonly RowPlacement[],
+  placedTaskGroups: readonly TaskGroupPlacement[],
   language: DisplayLanguage,
 ): readonly PropertyField[] {
   const value = field.controls.find((control) => control.key.column === MIN_HEIGHT_COLUMN)
   if (value === undefined) return [field]
   const isSet = value.text !== ''
   const check: PropertyControl = { ...value, kind: 'boolean', text: String(isSet), choices: null, min: null, max: null, widthInFontSizes: NO_ROOM_FLOOR }
-  const hint = rowMinHeightWord('basisHint', language)
+  const hint = taskGroupMinHeightWord('basisHint', language)
   return [
-    { row: MIN_HEIGHT_CHECK_ROW, name: rowMinHeightWord('enable', language), text: String(isSet), isEditable: field.isEditable, controls: [check] },
-    { ...field, unit: rowMinHeightWord('unit', language), controls: [{ ...value, hint, ...(isSet ? {} : { isDisabled: true as const }) }] },
-    { row: MIN_HEIGHT_READOUT_ROW, name: rowMinHeightWord('currentName', language), text: '', isEditable: false, controls: [], readout: minHeightReadoutOf(groupId, placedRows, language) },
+    { row: MIN_HEIGHT_CHECK_TASK_GROUP, name: taskGroupMinHeightWord('enable', language), text: String(isSet), isEditable: field.isEditable, controls: [check] },
+    { ...field, unit: taskGroupMinHeightWord('unit', language), controls: [{ ...value, hint, ...(isSet ? {} : { isDisabled: true as const }) }] },
+    { row: MIN_HEIGHT_READOUT_TASK_GROUP, name: taskGroupMinHeightWord('currentName', language), text: '', isEditable: false, controls: [], readout: minHeightReadoutOf(groupId, placedTaskGroups, language) },
   ]
 }
 
-const MIN_HEIGHT_CHECK_ROW = 'MH-2'
+const MIN_HEIGHT_CHECK_TASK_GROUP = 'MH-2'
 
-const MIN_HEIGHT_READOUT_ROW = 'MH-3'
+const MIN_HEIGHT_READOUT_TASK_GROUP = 'MH-3'
 
 // see FR-042
 /** @purity pure */
@@ -1036,7 +1036,7 @@ function groupFields(
   group: TaskGroup,
   labelCoef: number,
   language: DisplayLanguage,
-  placedRows: readonly RowPlacement[],
+  placedTaskGroups: readonly TaskGroupPlacement[],
 ): readonly PropertyField[] {
   const keyOf = (column: keyof TaskGroup & string): PropertyFieldKey => ({
     holder: 'taskGroup',
@@ -1045,7 +1045,7 @@ function groupFields(
   })
   const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
   return objectFields(rows, labelCoef, language).flatMap((field) =>
-    minHeightFields(field, group.id, placedRows, language),
+    minHeightFields(field, group.id, placedTaskGroups, language),
   )
 }
 
@@ -1064,7 +1064,7 @@ function fieldsOfSubject(
   subject: PropertiesSubject,
   labelCoef: number,
   language: DisplayLanguage,
-  placedRows: readonly RowPlacement[],
+  placedTaskGroups: readonly TaskGroupPlacement[],
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
   if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language)
@@ -1074,7 +1074,7 @@ function fieldsOfSubject(
 
   const group = schedule.taskGroups.find((held) => held.id === groupId)
   if (group === undefined) return null
-  return groupFields(group, labelCoef, language, placedRows)
+  return groupFields(group, labelCoef, language, placedTaskGroups)
 }
 
 // TRAP: repeats the private reach() walk of clampedSettings; change both together.
@@ -1179,7 +1179,7 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
   }
 }
 
-type FixColumn = 'fitSpanFixed' | 'rowTitlePanelWidthFixed'
+type FixColumn = 'fitSpanFixed' | 'taskGroupPanelWidthFixed'
 
 // see FX-4, WF-1, K-142, K-143, CM-90, CM-91
 /** @purity pure */
@@ -1196,11 +1196,11 @@ function fixCheckField(settings: DocumentSettings, column: FixColumn, language: 
 
 const FIT_SPAN_WORDS = new Map(displayWords.fitSpanField.map((entry) => [entry.part, entry.text]))
 
-const ROW_TITLE_WIDTH_WORDS = new Map(displayWords.rowTitleWidthField.map((entry) => [entry.part, entry.text]))
+const TASK_GROUP_TITLE_WIDTH_WORDS = new Map(displayWords.taskGroupPanelWidthField.map((entry) => [entry.part, entry.text]))
 
-const SHOWN_SPAN_ROW = 'FX-6'
+const SHOWN_SPAN_TASK_GROUP = 'FX-6'
 
-const DRAWN_WIDTH_ROW = 'WF-3'
+const DRAWN_WIDTH_TASK_GROUP = 'WF-3'
 
 const SPAN_SLOTS = { start: '{start}', finish: '{finish}' } as const
 
@@ -1225,7 +1225,7 @@ function shownSpanReadoutOf(readings: ScreenViewReadings, language: DisplayLangu
 function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
   const word = fieldWord(FIT_SPAN_WORDS, 'copyCurrent', language)
   return {
-    row: SHOWN_SPAN_ROW,
+    row: SHOWN_SPAN_TASK_GROUP,
     name: fieldWord(FIT_SPAN_WORDS, 'currentName', language),
     text: '',
     isEditable: false,
@@ -1242,19 +1242,19 @@ function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings
 
 // see WF-2, K-71, CM-67, S-79
 /** @purity pure */
-function rowTitleWidthField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
-  const column = 'rowTitlePanelWidth'
-  const text = String(Math.round(settings.rowTitlePanelWidth))
+function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
+  const column = 'taskGroupPanelWidth'
+  const text = String(Math.round(settings.taskGroupPanelWidth))
   return {
     row: settingsWordOf(column)?.rowId ?? column,
     name: settingsName(column, language),
     text,
     isEditable: true,
-    unit: fieldWord(ROW_TITLE_WIDTH_WORDS, 'unit', language),
+    unit: fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'unit', language),
     controls: [
       {
         ...settingsControl({ holder: 'documentSettings', column }, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)),
-        ...(settings.rowTitlePanelWidthFixed ? {} : DISABLED_UNLESS_FIXED),
+        ...(settings.taskGroupPanelWidthFixed ? {} : DISABLED_UNLESS_FIXED),
       },
     ],
   }
@@ -1263,14 +1263,14 @@ function rowTitleWidthField(settings: DocumentSettings, language: DisplayLanguag
 // see WF-3
 /** @purity pure */
 function drawnWidthField(readings: ScreenViewReadings, language: DisplayLanguage): PropertyField {
-  const drawn = readings.rowTitlePanelDrawnWidth
+  const drawn = readings.taskGroupPanelDrawnWidth
   const readout =
     drawn === undefined
       ? ''
-      : fieldWord(ROW_TITLE_WIDTH_WORDS, 'currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(drawn)))
+      : fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(drawn)))
   return {
-    row: DRAWN_WIDTH_ROW,
-    name: fieldWord(ROW_TITLE_WIDTH_WORDS, 'currentName', language),
+    row: DRAWN_WIDTH_TASK_GROUP,
+    name: fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'currentName', language),
     text: '',
     isEditable: false,
     controls: [],
@@ -1335,8 +1335,8 @@ const FIELDED_SETTINGS: readonly string[] = [
   ...Object.keys(SETTING_STEPS),
   ...FIT_SPAN_COLUMNS,
   'fitSpanFixed',
-  'rowTitlePanelWidth',
-  'rowTitlePanelWidthFixed',
+  'taskGroupPanelWidth',
+  'taskGroupPanelWidthFixed',
 ]
 
 // see IC-17, T-104, FR-072, T-369, FO-1, FO-12
@@ -1359,8 +1359,8 @@ function settingsFields(
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     steppedSettingField(settings, 'displayScale', language),
     steppedSettingField(settings, 'fontScale', language),
-    fixCheckField(settings, 'rowTitlePanelWidthFixed', language),
-    rowTitleWidthField(settings, language),
+    fixCheckField(settings, 'taskGroupPanelWidthFixed', language),
+    taskGroupPanelWidthField(settings, language),
     drawnWidthField(readings, language),
     statusDateField(schedule.project.statusDate, language),
     fixCheckField(settings, 'fitSpanFixed', language),
@@ -1586,13 +1586,13 @@ export function propertiesPanelFromSelection(
 
   const isNothingPicked = selection.items.length === 0 && readings.selectedGroupIds.length === 0
   // WHY: a held subject naming rows alone was a row pick (FR-072), so the items still selected stay off the panel.
-  const isRowPick = content.subject.selection.items.length === 0 && content.subject.groupIds.length > 0
+  const isTaskGroupPick = content.subject.selection.items.length === 0 && content.subject.groupIds.length > 0
   const subject = isNothingPicked
     ? content.subject
-    : { selection: isRowPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
+    : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
   // WHY: readings with no layout place no row, so the row reads as not drawn (MH-6), never as 0 px.
-  const placedRows = readings.placedRows ?? []
-  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedRows)
+  const placedTaskGroups = readings.placedTaskGroups ?? []
+  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups)
   const look = {
     hue: schedule.project.themeHue,
     dark,

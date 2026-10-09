@@ -238,7 +238,7 @@ const MARK_WORDS = DISPLAY_WORDS.confirmationMarks
  * medium as a word and FR-038 (MUST) keeps it in the one dictionary. ⚠️ Which
  * mark it is, is the dictionary's own key -- this file names no mark of its own.
  */
-const SHOWN_ON_ANOTHER_ROW_MARK: string = (() => {
+const SHOWN_ON_ANOTHER_TASK_GROUP_MARK: string = (() => {
   const held = MARK_WORDS[0]
   if (held === undefined) throw new Error('FR-032: the dictionary holds no mark for an item')
   return held.text[LANGUAGE] ?? ''
@@ -373,7 +373,7 @@ const NT_7_KEYS_GO_NOWHERE_ELSE =
 
 /** FR-032's two halves that reach the screen. */
 const FR_032_NAMES_NOT_A_COUNT = '件数だけを示してはならない（MUST NOT）'
-const FR_032_SHOWN_ON_ANOTHER_ROW = 'その旨を示すこと（MUST）'
+const FR_032_SHOWN_ON_ANOTHER_TASK_GROUP = 'その旨を示すこと（MUST）'
 
 /** The note under table T-023a that the table of other surfaces belongs to. */
 const T_023A_ONLY_THE_DRAWING_AREA = '判定順序を適用するのは日程の描画領域だけとすること（MUST）。'
@@ -1262,7 +1262,7 @@ const BASE_VIEW: ScreenView = {
   language: 'en',
   frame: FRAME,
   appHeaderItems: HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -1332,7 +1332,7 @@ const readingsAsking = (raised: RaisedConfirmation | null): ScreenViewReadings =
   selectedResourceUids: [],
   notices: [],
   confirmation: raised,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   // GR-21 of table T-023d divides these to get the scrollbar grip's
   // length, and this file asks nothing of it. ⭐ A whole of zero is
   // "everything fits", which is the lane-long grip SC-4 of table T-031
@@ -1355,9 +1355,9 @@ const raise = (question: string, items: readonly ConfirmationItem[] = []): Raise
   items,
 })
 
-const named = (name: string, isShownOnAnotherRow = false): ConfirmationItem => ({
+const named = (name: string, isShownOnAnotherTaskGroup = false): ConfirmationItem => ({
   name,
-  isShownOnAnotherRow,
+  isShownOnAnotherTaskGroup,
 })
 
 /**
@@ -1492,7 +1492,7 @@ describe('the specification still says what these cases copy', () => {
   it('GIVEN FR-032 WHEN its confirmation sentence is read THEN a count still may not stand in for the names', () => {
     const text = specText('01-04-requirements.md')
     expect(text).toContain(FR_032_NAMES_NOT_A_COUNT)
-    expect(text).toContain(FR_032_SHOWN_ON_ANOTHER_ROW)
+    expect(text).toContain(FR_032_SHOWN_ON_ANOTHER_TASK_GROUP)
   })
 
   it('GIVEN table T-024a OP-4 and table T-227 DI-4 / DI-5 WHEN they are read THEN two ask by NT-7 and one forbids asking', () => {
@@ -1878,10 +1878,10 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     )
 
     expect(marked, 'FR-032 (MUST): the mark is a word, and it reached the reader').toContain(
-      SHOWN_ON_ANOTHER_ROW_MARK,
+      SHOWN_ON_ANOTHER_TASK_GROUP_MARK,
     )
     expect(unmarked, 'FR-032: nothing is marked where the flag is not set').not.toContain(
-      SHOWN_ON_ANOTHER_ROW_MARK,
+      SHOWN_ON_ANOTHER_TASK_GROUP_MARK,
     )
   })
 
@@ -1971,7 +1971,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       // ⚠️ The confirmation stands OVER the schedule and against no row and no
       // person, which is what `ScreenPart` states for both keys: neither stands
       // in for "the document holds none".
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -1985,7 +1985,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       part: CONFIRMATION,
       entry: null,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -2023,7 +2023,7 @@ describe('table T-065 IF-9 -- which UI part and which answer the point is on', (
         // ⛔ The two answers are the question's own and are keyed by nothing
         // else: what the telling carries is already in the description, so
         // neither key is the way this press is turned into a command.
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -2147,7 +2147,7 @@ describe('table T-065 IF-9 -- which UI part and which answer the point is on', (
       'noticeDismissKey',
       'part',
       'resourceUid',
-      'rowGroupId',
+      'taskGroupId',
     ])
   })
 

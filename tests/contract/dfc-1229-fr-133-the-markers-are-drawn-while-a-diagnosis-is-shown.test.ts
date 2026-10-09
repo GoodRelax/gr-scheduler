@@ -35,7 +35,7 @@ const documentWith = (progressMarkerVisible: boolean): Document => {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: '2026-04-15T17:00:00' },
       tasks: [
         {
-          uid: 1, wbsParentUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
+          uid: 1, parentTaskUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
           milestone: false, deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null,
           actualFinish: null, resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
           fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],
@@ -98,7 +98,7 @@ const benchOf = (progressMarkerVisible: boolean) => {
     svg: () => shown,
     settings: () => loop.document().documentSettings as unknown as Record<string, unknown>,
     pressDiagnose: (): void => {
-      aimed = { part: APP_HEADER, entry: DIAGNOSE_ENTRY, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part: APP_HEADER, entry: DIAGNOSE_ENTRY, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 700, 20))
       send(pointer('up', 700, 20))
       aimed = null

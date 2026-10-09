@@ -130,7 +130,7 @@ function viewWith(
     language: 'ja',
     frame: { isFullScreen: over.isFullScreen ?? false, dividers: [], scrollbars: [] },
     appHeaderItems: header(over.title ?? 'Plan of the year'),
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

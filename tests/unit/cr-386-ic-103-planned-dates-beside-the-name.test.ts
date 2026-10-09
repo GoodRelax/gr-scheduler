@@ -147,7 +147,7 @@ const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]
 const task = (one: Planned): Task =>
   ({
     uid: one.uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: one.uid,
     name: one.name === '' ? null : one.name,
     start: one.start,
@@ -283,7 +283,7 @@ function stage(
             part: 'Command Palette',
             entry,
             format: null,
-            rowGroupId: null,
+            taskGroupId: null,
             resourceUid: null,
             dividerPanel: null,
             noticeDismissKey: null,
@@ -357,7 +357,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
       selectedResourceUids: [],
       notices: [],
       confirmation: null,
-      rowBoxes: [],
+      taskGroupBoxes: [],
       scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
     }
     const palette = commandPaletteFromSession(root, settings, emptySelection(), readings)
@@ -444,7 +444,7 @@ describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
 
   // see FR-039, OP-10
   // WHY: a view held by the document, not the FR-055 fit -- since S-332 the fit spreads these four weeks
-  // over the Row Area, and at that zoom the name and its dates fit inside the three days together.
+  // over the Task Group Area, and at that zoom the name and its dates fit inside the three days together.
   const AT_THE_DEFAULT_STEP = {
     displayScale: DEFAULT_DISPLAY_SCALE,
     zoomX: 2,

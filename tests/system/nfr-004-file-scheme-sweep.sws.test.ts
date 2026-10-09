@@ -256,7 +256,7 @@ interface RawGeometry {
   readonly otherBar: Spot | null
   readonly empty: Spot | null
   readonly paletteBand: Spot | null
-  readonly rowGrab: Spot | null
+  readonly taskGroupGrab: Spot | null
   readonly statusLine: Spot | null
   readonly dependency: Spot | null
   readonly dependencyLines: number
@@ -276,7 +276,7 @@ interface Geometry {
   // see GR-19
   readonly paletteBand: Spot | null
   // see GR-20
-  readonly rowGrab: Spot | null
+  readonly taskGroupGrab: Spot | null
   // see GR-16
   readonly statusLine: Spot | null
   // see GA-19
@@ -357,7 +357,7 @@ const GEOMETRY_SCRIPT = `(() => {
     const e = document.querySelector(selector)
     return e ? e.getBoundingClientRect() : null
   }
-  const blockers = ['[data-role="App Header"]', '[data-role="Row Title Panel"]',
+  const blockers = ['[data-role="App Header"]', '[data-role="Task Group Panel"]',
     '[data-role="Command Palette"]', '[data-role="Properties Panel"]',
     '[data-role="Scrollbars"]', '[data-role="Dialogue Field"]']
     .map(overlay).filter(Boolean)
@@ -430,8 +430,8 @@ const GEOMETRY_SCRIPT = `(() => {
     const r = grip.getBoundingClientRect()
     return { x: Math.round(r.left - 40), y: Math.round(r.top + r.height / 2) }
   })()
-  const rowGrab = (() => {
-    const panel = document.querySelector('[data-role="Row Title Tree"]')
+  const taskGroupGrab = (() => {
+    const panel = document.querySelector('[data-role="Task Group Title Tree"]')
     if (!panel) return null
     const mark = [...panel.querySelectorAll('*')].find((e) => (e.textContent || '').trim() === '\\u22ee\\u22ee')
     if (!mark) return null
@@ -524,7 +524,7 @@ const GEOMETRY_SCRIPT = `(() => {
     otherBar: second ? spot(second, bodyX(second) - second.left) : null,
     empty,
     paletteBand: band,
-    rowGrab,
+    taskGroupGrab,
     statusLine,
     dependency,
     dependencyLines: dependencyLines.length,
@@ -639,11 +639,11 @@ async function drawingOf(page: Page): Promise<string> {
 
 interface AxisSpans {
   readonly timeSpans: Readonly<Record<string, number>>
-  readonly rowSpans: Readonly<Record<string, number>>
+  readonly taskGroupSpans: Readonly<Record<string, number>>
 }
 
 // WHY: a plan run's width is days times the day width, and a row band's height
-// WHY: is the row axis; both are keyed so one reading is compared id by id.
+// WHY: is the vertical axis; both are keyed so one reading is compared id by id.
 /** @purity non-pure */
 async function axisSpansOf(page: Page): Promise<AxisSpans> {
   return (await page.evaluate(`(() => {
@@ -665,12 +665,12 @@ async function axisSpansOf(page: Page): Promise<AxisSpans> {
         if (width >= 2) timeSpans[key] = width
       }
     }
-    const rowSpans = {}
+    const taskGroupSpans = {}
     for (const row of document.querySelectorAll('[data-group-id][data-depth]')) {
       const height = row.getBoundingClientRect().height
-      if (height >= 1) rowSpans[row.getAttribute('data-group-id') || ''] = height
+      if (height >= 1) taskGroupSpans[row.getAttribute('data-group-id') || ''] = height
     }
-    return { timeSpans, rowSpans }
+    return { timeSpans, taskGroupSpans }
   })()`)) as AxisSpans
 }
 
@@ -702,10 +702,10 @@ async function zoomStroke(
   await settled(page)
   const after = await axisSpansOf(page)
   const time = medianRatio(before.timeSpans, after.timeSpans)
-  const row = medianRatio(before.rowSpans, after.rowSpans)
+  const row = medianRatio(before.taskGroupSpans, after.taskGroupSpans)
   const moving = axis === 'time' ? time : row
   const still = axis === 'time' ? row : time
-  const told = `${keys}: time axis x${String(time)}, row axis x${String(row)}`
+  const told = `${keys}: time axis x${String(time)}, vertical axis x${String(row)}`
   if (moving === null || still === null) {
     throw new Error(`${told} -- no id was drawn both before and after the key to compare`)
   }
@@ -854,7 +854,7 @@ async function taskUidAt(page: Page, at: Spot): Promise<number> {
 
 // WHY: the renderer keys each drawn row's ground `row-<groupId>-band`, so the row a
 // WHY: point lies in is read off the drawing rather than off a fixed row height.
-const ROW_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="row-"][data-figure$="-band"]')]
+const TASK_GROUP_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="row-"][data-figure$="-band"]')]
   .map((e) => {
     const r = e.getBoundingClientRect()
     return { row: e.getAttribute('data-figure') || '', top: r.top, bottom: r.bottom }
@@ -862,7 +862,7 @@ const ROW_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Sche
   .filter((one) => one.bottom > one.top)
   .sort((a, b) => a.top - b.top))()`
 
-interface RowBand {
+interface TaskGroupBand {
   readonly row: string
   readonly top: number
   readonly bottom: number
@@ -870,11 +870,11 @@ interface RowBand {
 
 // WHY: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the row's top.
 const CANVAS_FOOT_CLEARANCE = 40
-const REACH_INTO_ROW = 12
+const REACH_INTO_TASK_GROUP = 12
 
 // see MK-16, T-270
-async function nextRowY(page: Page, at: Spot): Promise<number> {
-  const bands = (await page.evaluate(ROW_BANDS_SCRIPT)) as readonly RowBand[]
+async function nextTaskGroupY(page: Page, at: Spot): Promise<number> {
+  const bands = (await page.evaluate(TASK_GROUP_BANDS_SCRIPT)) as readonly TaskGroupBand[]
   const lowest = await page.evaluate(() => {
     const canvas = document.querySelector('[data-role="Schedule Canvas"]')
     return canvas === null ? 0 : canvas.getBoundingClientRect().bottom
@@ -882,13 +882,13 @@ async function nextRowY(page: Page, at: Spot): Promise<number> {
   const index = bands.findIndex((one) => at.y >= one.top && at.y < one.bottom)
   const below = bands[index + 1]
   const above = bands[index - 1]
-  const into = below !== undefined && below.top + REACH_INTO_ROW < lowest ? below : above
+  const into = below !== undefined && below.top + REACH_INTO_TASK_GROUP < lowest ? below : above
   if (index < 0 || into === undefined) throw new Error(`MK-16: no drawn row lies next to the one under (${String(at.x)}, ${String(at.y)})`)
-  return Math.round(into.top + Math.min((into.bottom - into.top) / 2, REACH_INTO_ROW))
+  return Math.round(into.top + Math.min((into.bottom - into.top) / 2, REACH_INTO_TASK_GROUP))
 }
 
 // see MK-16, T-270
-async function planRowOf(page: Page, uid: number): Promise<{ readonly row: string; readonly left: number }> {
+async function planTaskGroupOf(page: Page, uid: number): Promise<{ readonly row: string; readonly left: number }> {
   const box = await page.evaluate((key: string) => {
     const drawn = document.querySelector(`[data-figure="${key}"]`)
     if (drawn === null) return null
@@ -896,7 +896,7 @@ async function planRowOf(page: Page, uid: number): Promise<{ readonly row: strin
     return { left: r.left, y: r.top + r.height / 2 }
   }, `task-${String(uid)}-plan`)
   if (box === null) throw new Error(`MK-16: task ${String(uid)} has no plan bar drawn`)
-  const bands = (await page.evaluate(ROW_BANDS_SCRIPT)) as readonly RowBand[]
+  const bands = (await page.evaluate(TASK_GROUP_BANDS_SCRIPT)) as readonly TaskGroupBand[]
   const band = bands.find((one) => box.y >= one.top && box.y < one.bottom)
   return { row: band === undefined ? 'none' : band.row, left: Math.round(box.left) }
 }
@@ -1012,10 +1012,10 @@ async function selectBar(page: Page, at: Geometry): Promise<void> {
 // WHY: selectBar alone is not enough -- FR-085 (MUST) keeps the panel's row
 // WHY: selection separate from the schedule area's, so SK-4 needs one row here.
 /** @purity non-pure */
-async function selectOneRow(page: Page): Promise<void> {
+async function selectOneTaskGroup(page: Page): Promise<void> {
   const rows = page.locator('[data-depth]')
   const drawn = await rows.count()
-  if (drawn === 0) throw new Error('SK-4 needs a row of the Row Title Panel to take a copy of')
+  if (drawn === 0) throw new Error('SK-4 needs a row of the Task Group Panel to take a copy of')
   // see FR-018
   await rows.nth(drawn > 1 ? 1 : 0).click({ timeout: 5_000 })
   await page.waitForTimeout(300)
@@ -1291,8 +1291,8 @@ const PROBES: readonly Probe[] = [
     rows: ['GR-20'],
     expect: 'answers',
     act: async (p, g) => {
-      if (g.rowGrab === null) throw new Error('GR-20 needs the row grab mark in the Row Title Panel')
-      return dragFrom(p, g.rowGrab, 0, 120)
+      if (g.taskGroupGrab === null) throw new Error('GR-20 needs the row grab mark in the Task Group Panel')
+      return dragFrom(p, g.taskGroupGrab, 0, 120)
     },
   },
   {
@@ -1309,7 +1309,7 @@ const PROBES: readonly Probe[] = [
           const x = Math.round(r.left + r.width / 2)
           const palette = document.querySelector('[data-role="Command Palette"]')
           // WHY: table T-337 draws the Command Palette (UZ-5) in front of this
-          // WHY: band (UZ-10), and its first corner sits on the Row Area's edge,
+          // WHY: band (UZ-10), and its first corner sits on the Task Group Area's edge,
           // WHY: so a stretch it covers is passed over rather than read as GR-22's.
           for (let y = Math.round(r.top + Math.min(r.height / 2, 200)); y < r.bottom - 4; y += 40) {
             const top = document.elementFromPoint(x, y)
@@ -1472,7 +1472,7 @@ const PROBES: readonly Probe[] = [
     // WHY: and changes nothing, so silence is the answer and a notice the refusal.
     rows: ['SK-4'],
     expect: 'answersSilently',
-    setUp: async (p) => selectOneRow(p),
+    setUp: async (p) => selectOneTaskGroup(p),
     act: async (p) => stroke(p, 'Control+c'),
   },
   {
@@ -1503,7 +1503,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+=', 'time', 'in') },
   { rows: ['SK-16b'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+-', 'time', 'out') },
   {
-    // WHY: MK-4's three notches leave the row axis at its FR-016 ceiling, where
+    // WHY: MK-4's three notches leave the vertical axis at its FR-016 ceiling, where
     // WHY: Alt+= has nothing left to take; one notch out in setUp leaves it room,
     // WHY: and SK-16c still starts from where it started before.
     // see FR-016, SK-16a, SK-16c, MK-4
@@ -1702,13 +1702,13 @@ const PROBES: readonly Probe[] = [
     setUp: selectBar,
     act: async (p, g) => {
       const uid = await taskUidAt(p, g.barBody)
-      const before = await planRowOf(p, uid)
-      const intoY = await nextRowY(p, g.barBody)
+      const before = await planTaskGroupOf(p, uid)
+      const intoY = await nextTaskGroupY(p, g.barBody)
       await p.keyboard.down('Shift')
       const held = await dragFrom(p, g.barBody, 120, intoY - g.barBody.y)
       await p.keyboard.up('Shift')
       await settled(p)
-      const after = await planRowOf(p, uid)
+      const after = await planTaskGroupOf(p, uid)
       if (after.row === before.row || Math.abs(after.left - before.left) >= 1) {
         throw new Error(
           `MK-16: task ${String(uid)} dragged with Shift into the next row went from row ${before.row} ` +
@@ -1882,7 +1882,7 @@ const PROBES: readonly Probe[] = [
     // build, msedge, 1920x1080): the vertical grip fills its lane, and the
     // horizontal grip is 1535 in a 1702 lane -- the schedule is longer than the
     // window sideways even when it has been fitted, because `FR-051` fits what
-    // the `Row Area` can hold. ⇒ Sideways is where `GR-21` still has something
+    // the `Task Group Area` can hold. ⇒ Sideways is where `GR-21` still has something
     // to answer with. ⚠️ Before the Fit the horizontal grip is 421.5 in the
     // same lane and answers a 200px drag the same way, so the row is not being
     // pressed in an unusual state -- it is being pressed in a stated one.

@@ -23,11 +23,11 @@
 //
 // The rows these cases answer to (rule 03: name the row, never copy its prose
 // -- except where a clause is quoted, which is section 1's whole purpose):
-//   FR-016   the row axis's ceiling (the font-comparison ban was retired by
+//   FR-016   the vertical axis's ceiling (the font-comparison ban was retired by
 //            CR-381); reaching the ceiling may not be shown by a dead entrance;
 //            a row's place at a candidate zoom may not be arithmetic from the
 //            zoom in force; that place is answered by table T-064's PI-5
-//            (`rowPlacesAtZoomY`)
+//            (`taskGroupPlacesAtZoomY`)
 //   T-076 EP-9   the Panel Divider's line is the same THICKNESS as `Group
 //            Grid Lines` (U-18), never zero, read from one place, and that one
 //            place is read by both the screen and the export
@@ -67,9 +67,9 @@
 //   FR-016, the ban on choosing the row ceiling by comparing two font sizes,
 //     is GONE: CR-381 (JDG-88, JDG-99, JDG-115) overturned it and wrote the
 //     opposite -- the ceiling is the smaller of the band ceiling and the zoom
-//     at which a rectangle name reaches the depth-1 row name. That clause is
+//     at which a rectangle name reaches the depth-1 task group name. That clause is
 //     held and pressed through `commandFromInput` by
-//     tests/unit/cr-380-381-384-name-beside-the-shape-and-row-zoom.test.ts, so
+//     tests/unit/cr-380-381-384-name-beside-the-shape-and-vertical-zoom.test.ts, so
 //     this file no longer carries a copy of the retired one.
 //
 //   FR-016 「上限に達したことを、押しても何も起きない入口で示してはならない
@@ -90,7 +90,7 @@ import {
   SETTINGS_DEFAULTS,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
-import { rowPlacesAtZoomY } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { taskGroupPlacesAtZoomY } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionsFromScreen,
   type ScreenEnvironment,
@@ -100,7 +100,7 @@ import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen
 import type {
   AppHeaderItems,
   PanelDivider,
-  RowTitlePanel,
+  TaskGroupPanel,
   ScreenFrame,
   ScreenView,
   ScreenViewReadings,
@@ -124,7 +124,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 // 1. The nine clauses, verbatim, and the manuscript they came from
 // ===========================================================================
 
-// -- FR-016, the row axis's ceiling (four of the eighteen) ------------------
+// -- FR-016, the vertical axis's ceiling (four of the eighteen) ------------------
 
 /**
  * ⚠️ HELD AT 40 CHARACTERS TO AVOID A PARAGRAPH BREAK. The 60/90/120-character
@@ -134,10 +134,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 const FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE =
   '限に達したことを、押しても何も起きない入口で示してはならない（MUST NOT）'
 
-const FR_016_ROW_POSITION_NOT_BY_ARITHMETIC =
+const FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC =
   '` の下限・`LF-3` の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
 
-const FR_016_ROW_POSITION_MEMBER_IS_PI_5 =
+const FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5 =
   'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
 
 // -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
@@ -174,8 +174,8 @@ const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-016 (MUST NOT) -- reaching the ceiling is not shown by a dead entrance', FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE],
-  ['FR-016 (MUST NOT) -- a row position at a zoom is not arithmetic', FR_016_ROW_POSITION_NOT_BY_ARITHMETIC],
-  ['FR-016 (MUST) -- the member that answers it is T-064 PI-5', FR_016_ROW_POSITION_MEMBER_IS_PI_5],
+  ['FR-016 (MUST NOT) -- a row position at a zoom is not arithmetic', FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC],
+  ['FR-016 (MUST) -- the member that answers it is T-064 PI-5', FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5],
   ['T-076 EP-9 (MUST) -- the line has the same thickness', EP_9_SAME_LINE_MEANS_SAME_THICKNESS],
   ['T-076 EP-9 (MUST NOT) -- the thickness is never drawn as zero', EP_9_THICKNESS_NOT_ZERO],
   ['T-076 EP-9 (MUST) -- the thickness is read from one place', EP_9_ONE_PLACE_READS_THE_THICKNESS],
@@ -251,7 +251,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -277,7 +277,7 @@ describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」
 
 describe('T-076 EP-9 (MUST) -- 「太さが同じであること」／「描く側は、罫の太さを 1 か所から読むこと」／「番号を 2 か所に置いてはならない」', () => {
   it('every Panel Divider the screen frame builds has that one published width', () => {
-    // FR-052's own order gives two dividers (rowTitlePanel, propertiesPanel);
+    // FR-052's own order gives two dividers (taskGroupPanel, propertiesPanel);
     // EP-9 (MUST) asks that both read the SAME one place `Group Grid Lines`
     // (U-18) itself is drawn from.
     const frame = frameOf()
@@ -315,7 +315,7 @@ const VIEW: ScreenView = {
     commands: [],
     language: 'ja',
   } as unknown as AppHeaderItems,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -356,10 +356,10 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
     // ⭐ THE DIVIDER RECTS ARE THE LAST ONES DRAWN. `dividerLinesSvg`'s own
     // head comment on `exportSvg`'s composition (read as published contract,
     // not body): "Painted over the received picture, in this order: the band
-    // and the panel cover what the Row Area did not clip, and the divider
+    // and the panel cover what the Task Group Area did not clip, and the divider
     // line closes the boundary between them" -- so the trailing
     // `frame.dividers.length` rects of the picture are exactly the divider
-    // lines, after the clip rect, the header band and the row title panel's
+    // lines, after the clip rect, the header band and the task group panel's
     // own background rect.
     const allWidths = rectWidthsOf(pictureOrThrow(exportSvg(scene)))
     const dividerWidths = allWidths.slice(-frame.dividers.length)
@@ -386,10 +386,10 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
 })
 
 // ===========================================================================
-// 3. FR-016 -- the row axis's PI-5 member, pressed against naive arithmetic
+// 3. FR-016 -- the vertical axis's PI-5 member, pressed against naive arithmetic
 // ===========================================================================
 //
-// ⭐ `rowPlacesAtZoomY`'s own head comment (schedule-layout.ts, read as a
+// ⭐ `taskGroupPlacesAtZoomY`'s own head comment (schedule-layout.ts, read as a
 // published contract) quotes both clauses this section presses: 「その倍率
 // での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）」 and
 // 「倍率から位置を算で求めてはならない（MUST NOT）」, and says why a caller's
@@ -400,7 +400,7 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
 // the member's own two answers at two zooms and checks that a caller who
 // tried to shortcut with a scale factor -- the exact thing the MUST NOT
 // forbids -- would have gotten the wrong number, which is the sense in which
-// "the row axis is not linear in zoomY" is a testable fact and not only prose.
+// "the vertical axis is not linear in zoomY" is a testable fact and not only prose.
 
 const MS_PER_DAY = 86400000
 const dayAfter = (from: string, days: number): string =>
@@ -414,7 +414,7 @@ const TASK_FROM = '2026-01-05'
 const taskOf = (uid: number): Task =>
   ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: TASK_FROM,
@@ -448,10 +448,10 @@ const groupOf = (id: string, order: number): TaskGroup =>
 
 /** Three flat root rows -- FR-018's ladder domain starts at depth 2, so all
  * three are drawn at every zoom this section presses (never LOD-collapsed). */
-const THREE_FLAT_ROWS = 3
+const THREE_FLAT_TASK_GROUPS = 3
 
 const SCHEDULE: Schedule = (() => {
-  const groups = Array.from({ length: THREE_FLAT_ROWS }, (_unused, index) =>
+  const groups = Array.from({ length: THREE_FLAT_TASK_GROUPS }, (_unused, index) =>
     groupOf(`r${index}`, index),
   )
   const tasks = groups.map((_group, index) => taskOf(index + 1))
@@ -513,7 +513,7 @@ const VG_2_GAP =
   settingNumber('stackGap') * 2 + settingNumber('dependencyWidth') * displayRatioAt(LAYOUT_SETTINGS.displayScale)
 
 const placesAt = (zoomY: number) =>
-  rowPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
+  taskGroupPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
 
 describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
   it('the premise: both zooms sit above FR-094’s floor, and each band carries the VG-2 gap zoomY does not scale', () => {
@@ -533,9 +533,9 @@ describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメン�
 
   it('PI-5’s member answers a position for every row, at a zoom nothing has drawn yet', () => {
     // FR-016 (MUST): the member exists and answers. GOES RED IF
-    // `rowPlacesAtZoomY` is removed or stops returning one placement per row.
+    // `taskGroupPlacesAtZoomY` is removed or stops returning one placement per row.
     const places = placesAt(ZOOM_HIGH)
-    expect(places).toHaveLength(THREE_FLAT_ROWS)
+    expect(places).toHaveLength(THREE_FLAT_TASK_GROUPS)
     for (const place of places) expect(Number.isFinite(place.y)).toBe(true)
   })
 })
@@ -544,14 +544,14 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
   it('scaling the low-zoom position by the zoom ratio is NOT what PI-5 answers at the higher zoom', () => {
     // WHY: the band is S-4 x zoomY plus the VG-2 gap and the border, which zoomY does not scale
     // (VG-3), so a position scaled by the zoom ratio lands off the one PI-5 answers.
-    const lastIndex = THREE_FLAT_ROWS - 1
+    const lastIndex = THREE_FLAT_TASK_GROUPS - 1
     const low = placesAt(ZOOM_LOW)[lastIndex]!.y - placesAt(ZOOM_LOW)[0]!.y
     const high = placesAt(ZOOM_HIGH)[lastIndex]!.y - placesAt(ZOOM_HIGH)[0]!.y
     const zoomRatio = ZOOM_HIGH / ZOOM_LOW
 
     const naiveArithmeticPrediction = low * zoomRatio
 
-    // GOES RED IF: `rowPlacesAtZoomY` (or the layout it delegates to) is ever
+    // GOES RED IF: `taskGroupPlacesAtZoomY` (or the layout it delegates to) is ever
     // simplified into a linear scale of a previous position -- the exact
     // shortcut the requirement forbids -- because that shortcut would make
     // this equal, not merely close.

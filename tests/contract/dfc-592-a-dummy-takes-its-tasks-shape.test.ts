@@ -55,7 +55,7 @@ const EVERY_DAY_WORKED = {
 const task = (over: Readonly<Record<string, unknown>>): Task =>
   ({
     uid: 1,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: null,

@@ -26,7 +26,7 @@ import {
   type PointerInput,
   type PointerPress,
 } from '../../adapter/input-command-translator/input-command-translator'
-import { DEFAULT_ROW_NAME } from '../../adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-renderer'
 import type { FrameLoopHands, FrameValues } from './frame-loop'
 import type { GrabbedArea } from './pointer-shape'
 
@@ -62,7 +62,7 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GR-11': false,
   'GR-14': true,
   'GR-16': true,
-  'WL-10': false,
+  'PTL-10': false,
 }
 
 // see PTD-5
@@ -110,7 +110,7 @@ export function previewOfHeldPress(
   let drawn = hands.readHeld().document
   for (const commands of action.writes) {
     for (const command of commands) {
-      const result = editDocument(drawn, command, limits, DEFAULT_ROW_NAME)
+      const result = editDocument(drawn, command, limits, DEFAULT_TASK_GROUP_NAME)
       // STOP: spec does not decide what a refused drag draws.
       // Looked in FR-052, WS-3, FD-6, IV-12
       // @provisional PND-253
@@ -123,8 +123,8 @@ export function previewOfHeldPress(
 
 // see FR-052, U-50
 /** @purity pure */
-export function leavesRowArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
-  return regions.rowArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
+export function leavesTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
+  return regions.taskGroupArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
 }
 
 // see FR-052, S-248, T-280
@@ -138,7 +138,7 @@ export function heldPropertyPanelWidthOf(
   const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
   const settled = screenEventFromInput(release, context)
   if (settled?.type !== 'propertyPanelWidthSettled') return null
-  return leavesRowArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
+  return leavesTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
 }
 
 // see FR-009, PTD-3, T-018, T-018a
@@ -194,7 +194,7 @@ export function tentativeDependencyOf(
       successorEdge: partner === null ? 'start' : partner.edge,
     },
     hands.settingsLimitsOf(hands.readValues()),
-    DEFAULT_ROW_NAME,
+    DEFAULT_TASK_GROUP_NAME,
   )
   if (!made.ok) return null
   // WHY: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.

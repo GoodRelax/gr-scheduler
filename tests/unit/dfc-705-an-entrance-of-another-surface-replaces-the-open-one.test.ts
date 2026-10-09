@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-renderer'
 import { bareAll } from '../contract/spec-table'
-import { rowDocument, rowOf, shell, type ShellBench } from './cr-541-stage'
+import { taskGroupDocument, rowOf, shell, type ShellBench } from './cr-541-stage'
 
 const benches: ShellBench[] = []
 afterEach(() => {
@@ -17,7 +17,7 @@ const EXPORT_ENTRANCE = 'IC-2'
 const WATERMARK_ENTRANCE = 'IC-41'
 
 const take = (built: ShellBench, icon: string): void => {
-  built.aim({ part: surfaceOf(icon), entry: icon, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
+  built.aim({ part: surfaceOf(icon), entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
   built.click(80, 120)
   built.aim(null)
 }
@@ -25,7 +25,7 @@ const openSurface = (built: ShellBench): string | null => (built.last().openModa
 
 describe('S-99g / table T-280 (DFC-705) -- one surface is open at a time, and a later entrance replaces it', () => {
   const benchOf = (): ShellBench => {
-    const built = shell(rowDocument([{ id: 'g1', parentId: null }]))
+    const built = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
     benches.push(built)
     return built
   }

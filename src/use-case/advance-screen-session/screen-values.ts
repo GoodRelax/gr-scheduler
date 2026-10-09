@@ -195,7 +195,7 @@ export type ScreenValuesKey =
   | 'armModeStateMachine.dependencyArmed'
   | 'armModeStateMachine.commentBoxArmed'
   | 'armModeStateMachine.highlightBoxArmed'
-  | 'armModeStateMachine.wbsParentArmed'
+  | 'armModeStateMachine.parentTaskArmed'
   | 'paletteDisplayStateMachine.shown'
   | 'paletteDisplayStateMachine.shown.expanded'
   | 'paletteDisplayStateMachine.shown.minimised'
@@ -267,7 +267,7 @@ export type ArmModeState =
   | { readonly kind: 'dependencyArmed' }
   | { readonly kind: 'commentBoxArmed' }
   | { readonly kind: 'highlightBoxArmed' }
-  | { readonly kind: 'wbsParentArmed' }
+  | { readonly kind: 'parentTaskArmed' }
 
 export type PaletteDisplayState =
   | { readonly kind: 'shown'; readonly child: PaletteDisplayShownState }
@@ -377,7 +377,7 @@ export type ScreenValuesEvent =
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
   | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
-  | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
+  | { readonly type: 'verticalZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'scaleMessageTimeElapsed' }
   | { readonly type: 'screenLanguageChosen'; readonly screenLanguage: ScreenValuesEventCarried['screenLanguage'] }
   | { readonly type: 'helpLanguageChosen'; readonly helpLanguage: ScreenValuesEventCarried['helpLanguage'] }
@@ -665,7 +665,7 @@ const ARMED_BY_KIND: {
   dependencyArmed: () => ({ kind: 'dependencyArmed' }),
   commentBoxArmed: () => ({ kind: 'commentBoxArmed' }),
   highlightBoxArmed: () => ({ kind: 'highlightBoxArmed' }),
-  wbsParentArmed: () => ({ kind: 'wbsParentArmed' }),
+  parentTaskArmed: () => ({ kind: 'parentTaskArmed' }),
 }
 
 /** @purity pure */
@@ -679,7 +679,7 @@ function carriedArmOf(armed: ArmModeState): string | null {
     case 'dependencyArmed':
     case 'commentBoxArmed':
     case 'highlightBoxArmed':
-    case 'wbsParentArmed':
+    case 'parentTaskArmed':
       return null
     default:
       return assertNever(armed)
@@ -856,7 +856,7 @@ function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlac
 /** @purity pure */
 function onScaleMessageRaised(
   values: ScreenValues,
-  event: EventOf<'displayScaleStepped'> | EventOf<'rowZoomEndReached'>,
+  event: EventOf<'displayScaleStepped'> | EventOf<'verticalZoomEndReached'>,
 ): ScreenStep {
   const timer = values.scaleMessageDisplayState.kind === 'hidden' ? 'startScaleMessageTimer' : 'restartScaleMessageTimer'
   const scaleMessage = { kind: 'shown', percent: event.percent, end: event.end } as const
@@ -1054,7 +1054,7 @@ const HANDLERS: {
   guideCursorEntryPressed: onGuideCursorEntryPressed,
   dualCursorPlaced: onDualCursorPlaced,
   displayScaleStepped: onScaleMessageRaised,
-  rowZoomEndReached: onScaleMessageRaised,
+  verticalZoomEndReached: onScaleMessageRaised,
   scaleMessageTimeElapsed: onScaleMessageTimeElapsed,
   screenLanguageChosen: onScreenLanguageChosen,
   helpLanguageChosen: onHelpLanguageChosen,

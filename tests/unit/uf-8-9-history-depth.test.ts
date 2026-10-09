@@ -27,7 +27,7 @@ import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, specTable } from '../contract/spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -114,7 +114,7 @@ const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
   zoomMax: 64,
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const REAL_LIMITS: HistoryLimits = {
@@ -159,7 +159,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       writes += 1
       return applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
@@ -196,9 +196,9 @@ function writeNames(one: Bench, nth: number): void {
 // WHY: each value differs from the bundled document's own, so a command
 // that changed nothing could not hide behind table T-027 for a different reason.
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
-  setRowTitlePanelWidth: { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 200 },
+  setTaskGroupPanelWidth: { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 200 },
   // see CM-91, WF-1
-  setRowTitlePanelWidthFixed: { kind: 'setRowTitlePanelWidthFixed', rowTitlePanelWidthFixed: true },
+  setTaskGroupPanelWidthFixed: { kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: true },
   pinTaskGroup: { kind: 'pinTaskGroup', groupId: FIRST_GROUP_ID },
   unpinTaskGroup: { kind: 'unpinTaskGroup', groupId: FIRST_GROUP_ID },
 }
@@ -346,7 +346,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     const one = bench()
     writeNames(one, 1)
     expect(one.depth()).toBe(1)
-    one.write([PAYLOAD['setRowTitlePanelWidth'] as DocumentCommand])
+    one.write([PAYLOAD['setTaskGroupPanelWidth'] as DocumentCommand])
     expect(one.depth()).toBe(1)
 
     const back = undoEdit(one.held)

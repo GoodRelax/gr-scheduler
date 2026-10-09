@@ -84,7 +84,7 @@ const oneTaskDocument = (): Document =>
       tasks: [
         {
           uid: TASK_UID,
-          wbsParentUid: null,
+          parentTaskUid: null,
           wbsOrder: 1,
           name: SECRET_NAME,
           start: '2026-04-06',
@@ -254,7 +254,7 @@ const bodyOfTheBar = (loop: FrameLoop): Point => {
 }
 
 const emptyCanvas = (loop: FrameLoop): Point => {
-  const area = loop.current()!.regions.rowArea
+  const area = loop.current()!.regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
@@ -347,7 +347,7 @@ const RECORD_ENTRANCE: ScreenPart = {
   part: 'Command Palette',
   entry: 'IC-76',
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,

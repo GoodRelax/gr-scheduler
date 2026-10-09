@@ -39,7 +39,7 @@ afterEach(restoreAnimationFrames)
 
 const markerOf = (one: Stage, uid: number): { readonly x: number; readonly y: number } => {
   const frame = frameOf(one.loop)
-  return pointAnswering(scanGrabAreas(frame.geometry, uid, frame.rowArea), 'GA-18')
+  return pointAnswering(scanGrabAreas(frame.geometry, uid, frame.taskGroupArea), 'GA-18')
 }
 
 const lastActualDayOf = (one: Stage, uid: number): string | null => {

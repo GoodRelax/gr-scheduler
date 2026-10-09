@@ -96,7 +96,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     commands: [COMMAND],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -129,7 +129,7 @@ function restingOnTheIcon(restedMs: number): ScreenViewReadings {
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   }
 }

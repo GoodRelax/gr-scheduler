@@ -21,7 +21,7 @@ import {
   type ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { bare, specTable, unbroken } from './spec-table'
-import { rowDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -91,7 +91,7 @@ interface Stage {
 
 function stageOf(monochrome: boolean): Stage {
   const rows = [1, 2, 3, 4, 5, 6].map((uid) => ({ id: `g${uid}`, parentId: null }))
-  const raw = rowDocument(rows, { progressMarkerVisible: true, themePreference: 'light', themeMonochrome: monochrome })
+  const raw = taskGroupDocument(rows, { progressMarkerVisible: true, themePreference: 'light', themeMonochrome: monochrome })
   raw.schedule.project.statusDate = '2026-05-08T17:00:00'
   const late = { start: '2026-04-06T08:00:00', finish: '2026-04-24T17:00:00' }
   raw.schedule.tasks = [

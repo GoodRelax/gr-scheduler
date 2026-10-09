@@ -40,7 +40,7 @@ const FX_2_ONLY_TWO =
   '⭐ 固定しているとき（`S-532` が真）、期間を当てるのは、全体表示（本要求、入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-10`）と、画像の書き出し（表 T-024 の `IO-3`・`IO-4`・`IO-6`、`FR-025` の 表 T-241 の `IX-12` 〜 `IX-16`）の 2 つだけとすること（MUST）'
 const FX_2_NOT_ELSEWHERE = '⛔ ほかの時に、画面を期間へ動かしてはならない（MUST NOT）'
 const FX_3_ACROSS =
-  '⭐ 固定しているとき、全体表示は横を、`FR-025` の 表 T-241 の `IX-13` が期間の絵に定めるのと同じ置き方で、期間の両端の日の列を `Row Area` の両端に合わせること（MUST）'
+  '⭐ 固定しているとき、全体表示は横を、`FR-025` の 表 T-241 の `IX-13` が期間の絵に定めるのと同じ置き方で、期間の両端の日の列を `Task Group Area` の両端に合わせること（MUST）'
 const FX_3_CLAMP =
   '⚠️ 求めた横の倍率が 表 T-203 の `S-75` の下限か上限を超えるときは、その端へ寄せ、左端を `S-518` の日の列の左端に置く'
 const FX_3_VERTICAL = '⭐ 縦は本要求の上の規則（グループ LOD の深さを選んで合わせる）のままとすること（MUST）'
@@ -55,7 +55,7 @@ const FX_5_UNFIXED =
   '⭐ 2 つの入力は固定しているあいだだけ書けるものとし、固定していないあいだは保存している値を示したまま書けないと示すこと（MUST）'
 const FX_6_NAMES = '読むだけの値とし、名は辞書の `fitSpanField` の `currentName` の語、値は同節の `currentValue` の語とすること（MUST）'
 const FX_6_FOLLOW =
-  '2 つの日は、`Row Area` の左端の位置が指す日と、右端の 1 px 手前の位置が指す日（右端に一部でも見えている最後の日）である。⭐ 表示位置か横の倍率が変わったら、次に描く絵で書き換えること（MUST）'
+  '2 つの日は、`Task Group Area` の左端の位置が指す日と、右端の 1 px 手前の位置が指す日（右端に一部でも見えている最後の日）である。⭐ 表示位置か横の倍率が変わったら、次に描く絵で書き換えること（MUST）'
 const FX_6_NOT_EDITABLE = '表 T-338 の `MH-4` と同じ追随である。⛔ 編集できると示してはならない（MUST NOT）'
 const FX_7_BUTTON =
   '`FX-6` の値のすぐ下に、語を辞書の `fitSpanField` の `copyCurrent` の語とするボタンを置き、押されたら `FX-6` の 2 つの日で 表 T-108 の `CM-88` を 1 回発行すること（MUST）'
@@ -67,7 +67,7 @@ const FX_8_DIGITS =
 const FX_8_JOINER = '2 つの日のつなぎは、表 T-347 の `DT-5` と同じく、半角空白 1 つ、`-`、半角空白 1 つとすること（MUST）'
 const FR_055_FIXED = '⭐ ただし文書が全体表示時の期間を固定しているときの横は、本要求の 表 T-367 に従うこと（MUST）'
 const FR_055_MARGIN =
-  '⭐ 横は、表 T-038 に従って測った実寸の左右に、`Row Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること（MUST）'
+  '⭐ 横は、表 T-038 に従って測った実寸の左右に、`Task Group Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること（MUST）'
 const IX_8_CUT =
   '⚠️ 全体表示時の期間を固定していないとき、画面の上端で既に切れて見えている `TaskGroup` は、画面のとおりに切れたまま描くこと（MUST）'
 
@@ -201,7 +201,7 @@ const dayAt = (frame: FrameValues, x: number): string => {
 }
 
 const shownDaysOf = (frame: FrameValues): readonly [string, string] => {
-  const area = frame.regions.rowArea
+  const area = frame.regions.taskGroupArea
   return [dayAt(frame, area.x), dayAt(frame, area.x + area.width - 1)]
 }
 
@@ -314,17 +314,17 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
     const place = viewPlaceOf(stage)
     await commitOn(stage, spanCommit('2026-05-02', '2026-05-30'))
     expect(viewPlaceOf(stage)).toEqual(place)
-    const area = frameOf(stage).regions.rowArea
+    const area = frameOf(stage).regions.taskGroupArea
     await stage.press(shiftWheelOut(area.x + area.width / 2, area.y + area.height / 2))
     const [start, finish] = shownDaysOf(frameOf(stage))
     expect(start < '2026-05-02' || finish > '2026-05-30', 'the view shows days outside the span').toBe(true)
   })
 
-  it(`${FX_2_ONLY_TWO} / ${FX_3_ACROSS} / ${FR_055_FIXED} -- the fit puts the span's two days on the Row Area's edges`, async () => {
+  it(`${FX_2_ONLY_TWO} / ${FX_3_ACROSS} / ${FR_055_FIXED} -- the fit puts the span's two days on the Task Group Area's edges`, async () => {
     const stage = await settingsStage(withFit(...SPAN, true))
     await stage.take('IC-10')
     const frame = frameOf(stage)
-    expect(frame.layout.pxPerDay).toBeCloseTo(frame.regions.rowArea.width / SPAN_DAYS, 6)
+    expect(frame.layout.pxPerDay).toBeCloseTo(frame.regions.taskGroupArea.width / SPAN_DAYS, 6)
     expect([settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDayOffset]).toEqual([SPAN[0], 0])
     expect(shownDaysOf(frame)).toEqual(SPAN)
     expect(fieldOf(stage.lastView(), FX_6).readout, FX_6_FOLLOW).toBe(readoutOf(SPAN))
@@ -352,7 +352,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
     const stage = exportStage(withFit(...SPAN, false))
     await stage.take('IC-10')
     const frame = frameOf(stage)
-    const area = frame.regions.rowArea
+    const area = frame.regions.taskGroupArea
     const left = Math.min(...frame.layout.placements.map((one) => one.occupiedX0))
     const right = Math.max(...frame.layout.placements.map((one) => one.occupiedX1))
     expect(left - area.x).toBeCloseTo(area.width * S_332, 0)
@@ -371,7 +371,7 @@ describe('FR-055 T-367 FX-6 / FX-7 -- the shown span and the copy entrance', () 
   it(`${FX_6_FOLLOW} -- a zoom of the time axis rewrites it on the next picture`, async () => {
     const stage = await settingsStage(DOCUMENT)
     const before = fieldOf(stage.lastView(), FX_6).readout
-    const area = frameOf(stage).regions.rowArea
+    const area = frameOf(stage).regions.taskGroupArea
     await stage.press(shiftWheelOut(area.x + area.width / 2, area.y + area.height / 2))
     const after = fieldOf(stage.lastView(), FX_6).readout
     expect(after).not.toBe(before)
@@ -447,12 +447,12 @@ describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top row'
       documentSettings: { ...cut.documentSettings, scrollGroupId: 'r1', scrollGroupOffset: 0.5 },
     }
     const stage = exportStage(document)
-    const screen = stage.lastView().rowTitlePanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
+    const screen = stage.lastView().taskGroupPanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
     const scene = stage.loop.exportScene()
     if (scene === null) throw new Error('premise: the screen has a picture to export')
-    const pictured = scene.screenView.rowTitlePanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
+    const pictured = scene.screenView.taskGroupPanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
     expect(pictured).toEqual(screen)
-    const [top, next] = scene.screenView.rowTitlePanel.titles
+    const [top, next] = scene.screenView.taskGroupPanel.titles
     expect(top?.box.height, 'premise: the top row is cut on the screen').toBeLessThan(next?.box.height ?? 0)
   })
 })

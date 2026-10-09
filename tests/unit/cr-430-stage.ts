@@ -54,7 +54,7 @@ export function dayPart(value: string | null | undefined): string | null {
 /** @purity pure */
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -228,7 +228,7 @@ export function stage(document: Document): Stage {
 }
 
 /** @purity pure */
-export function frameOf(loop: FrameLoop): { geometry: ScheduleGeometry; pxPerDay: number; rowArea: Box; ruler: Box } {
+export function frameOf(loop: FrameLoop): { geometry: ScheduleGeometry; pxPerDay: number; taskGroupArea: Box; ruler: Box } {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame')
   const boxOf = (rect: { x: number; y: number; width: number; height: number }): Box => ({
@@ -240,7 +240,7 @@ export function frameOf(loop: FrameLoop): { geometry: ScheduleGeometry; pxPerDay
   return {
     geometry: values.geometry,
     pxPerDay: values.layout.pxPerDay,
-    rowArea: boxOf(values.regions.rowArea),
+    taskGroupArea: boxOf(values.regions.taskGroupArea),
     ruler: boxOf(values.regions.timeRuler),
   }
 }
@@ -291,11 +291,11 @@ export function dayUnder(loop: FrameLoop, x: number): string {
 export function xOfDay(loop: FrameLoop, isoDay: string): number {
   if (dayOf(isoDay) === null) throw new Error(`${isoDay} is not a day`)
   const wanted = isoDay.slice(0, 10)
-  const { rowArea, pxPerDay } = frameOf(loop)
+  const { taskGroupArea, pxPerDay } = frameOf(loop)
   const step = Math.max(pxPerDay / 16, 0.25)
   let first: number | null = null
   let last: number | null = null
-  for (let x = rowArea.x0 + step; x <= rowArea.x1; x += step) {
+  for (let x = taskGroupArea.x0 + step; x <= taskGroupArea.x1; x += step) {
     if (dayUnder(loop, x) !== wanted) continue
     if (first === null) first = x
     last = x

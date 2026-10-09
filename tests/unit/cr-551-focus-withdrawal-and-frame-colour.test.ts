@@ -19,7 +19,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -28,7 +28,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   colourField: { part: string; text: { ja: string } }[]
 }
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -46,21 +46,21 @@ const CV_9_ORDER =
 const PR_22_NULL = '`null` ＝ 注記の色 `S-312`'
 
 // see SK-14
-const PALETTE_KEY = bare(rowIn('T-036', 'SK-14').cells[1] ?? '')
+const PALETTE_KEY = bare(verticalIn('T-036', 'SK-14').cells[1] ?? '')
 // see T-016, PR-22
-const PR_22 = rowIn('T-016', 'PR-22')
+const PR_22 = verticalIn('T-016', 'PR-22')
 const FRAME_ROW = PR_22.id
 const FRAME_WORD = WORDS.properties.find((one) => one.rowId === FRAME_ROW)?.label.ja ?? ''
 // see T-294
-const TRANSPARENT = bare(rowIn('T-294', 'S-324').cells[1] ?? '')
-const BLUE = bare(rowIn('T-294', 'S-319').cells[1] ?? '')
+const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
+const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
 const NO_LINE_WORD = wordOf('noLine')
 // see CV-9, PR-22, T-236
 // WHY: the frame's null draws S-312; its hue column says theme or default.
-const S_312_FOLLOWS_HUE = bare(rowIn('T-236', 'S-312').by['色相追随'] ?? '') === '○'
+const S_312_FOLLOWS_HUE = bare(verticalIn('T-236', 'S-312').by['色相追随'] ?? '') === '○'
 const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'themeHint' : 'defaultColour')
-const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
+const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
 const realRaf = GLOBAL['requestAnimationFrame']
@@ -70,8 +70,8 @@ afterEach(() => {
 })
 
 const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
-const partOn = (part: string, entry: string | null, rowGroupId: string | null = null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
+  ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 interface Bench {
   readonly loop: FrameLoop
@@ -210,7 +210,7 @@ const ROWS = [
 ]
 
 function documentOf(highlight: Record<string, unknown> | null = null) {
-  const document = rowDocument(ROWS, { progressMarkerVisible: false })
+  const document = taskGroupDocument(ROWS, { progressMarkerVisible: false })
   document.schedule.tasks = ROWS.map((_one, index) =>
     taskOf(index + 1, { name: `Task${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
@@ -219,11 +219,11 @@ function documentOf(highlight: Record<string, unknown> | null = null) {
 }
 
 const titleBox = (built: Bench, groupId: string) => {
-  const found = built.view().rowTitlePanel.titles.find((one) => one.groupId === groupId)?.box
+  const found = built.view().taskGroupPanel.titles.find((one) => one.groupId === groupId)?.box
   if (found === undefined) throw new Error(`the row ${groupId} is not drawn`)
   return found
 }
-const rowPart = (groupId: string): ScreenPart => partOn('Row Title Panel', null, groupId)
+const taskGroupPart = (groupId: string): ScreenPart => partOn('Task Group Panel', null, groupId)
 const paletteShown = (built: Bench): boolean => built.view().commandPalette !== null
 
 describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
@@ -233,11 +233,11 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     expect(PALETTE_KEY).toBe('P')
   })
 
-  it('IN-5a: while the row-name focus request is pending, the key is held (premise of the two cases below)', () => {
+  it('IN-5a: while the task-group-name focus request is pending, the key is held (premise of the two cases below)', () => {
     // see IN-5a, MK-13
     const built = bench(documentOf())
     const box = titleBox(built, 'g1')
-    built.doubleClick(box.x + box.width / 2, box.y + box.height / 2, rowPart('g1'))
+    built.doubleClick(box.x + box.width / 2, box.y + box.height / 2, taskGroupPart('g1'))
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built), 'the key is held for the field, not taken as SK-14').toBe(before)
@@ -247,9 +247,9 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     // see IN-5a, SK-14
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
-    built.doubleClick(first.x + first.width / 2, first.y + first.height / 2, rowPart('g1'))
+    built.doubleClick(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
     const second = titleBox(built, 'g3')
-    built.click(second.x + second.width / 2, second.y + second.height / 2, rowPart('g3'))
+    built.click(second.x + second.width / 2, second.y + second.height / 2, taskGroupPart('g3'))
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
@@ -258,16 +258,16 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
   it('DFC-541 2, IN-5a: 選択が変わったとき -- a row just added by HF-14 is being named; a press on another row ends it', () => {
     // see HF-14, T-109
     const addChild = specTable('T-109').rows.find(
-      (one) => bareAll(one.by['面'] ?? '').includes('Row Title Panel') && /(^|[^0-9A-Za-z-])HF-14([^0-9-]|$)/.test(one.by['正'] ?? ''),
+      (one) => bareAll(one.by['面'] ?? '').includes('Task Group Panel') && /(^|[^0-9A-Za-z-])HF-14([^0-9-]|$)/.test(one.by['正'] ?? ''),
     )
-    expect(addChild, 'table T-109 gives HF-14 an entrance on the Row Title Panel').toBeDefined()
+    expect(addChild, 'table T-109 gives HF-14 an entrance on the Task Group Panel').toBeDefined()
     const built = bench(documentOf())
-    built.click(10, 10, partOn('Row Title Panel', addChild?.id ?? null, 'g1'))
+    built.click(10, 10, partOn('Task Group Panel', addChild?.id ?? null, 'g1'))
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built), 'premise: the added row is being named, so the key is held for the field').toBe(before)
     const other = titleBox(built, 'g3')
-    built.click(other.x + other.width / 2, other.y + other.height / 2, rowPart('g3'))
+    built.click(other.x + other.width / 2, other.y + other.height / 2, taskGroupPart('g3'))
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
   })
@@ -276,23 +276,23 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     // see IN-5a, SK-14
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
-    built.click(first.x + first.width / 2, first.y + first.height / 2, rowPart('g1'))
+    built.click(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
     const second = titleBox(built, 'g2')
-    built.click(second.x + second.width / 2, second.y + second.height / 2, rowPart('g2'), { shift: true })
+    built.click(second.x + second.width / 2, second.y + second.height / 2, taskGroupPart('g2'), { shift: true })
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built)).toBe(!before)
   })
 
-  it('IN-5a: 求めた欄がパネルに無いとき (two rows chosen with Shift, no row-name field) -- the key works as SK-14 again', () => {
+  it('IN-5a: 求めた欄がパネルに無いとき (two rows chosen with Shift, no task-group-name field) -- the key works as SK-14 again', () => {
     // see IN-5a, SK-14, SL-1
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
-    built.click(first.x + first.width / 2, first.y + first.height / 2, rowPart('g1'))
+    built.click(first.x + first.width / 2, first.y + first.height / 2, taskGroupPart('g1'))
     const second = titleBox(built, 'g2')
-    built.doubleClick(second.x + second.width / 2, second.y + second.height / 2, rowPart('g2'), { shift: true })
+    built.doubleClick(second.x + second.width / 2, second.y + second.height / 2, taskGroupPart('g2'), { shift: true })
     const fields = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
-    expect(fields, 'premise: with two rows chosen the row-name field is not drawn').not.toContain('AT-53')
+    expect(fields, 'premise: with two rows chosen the task-group-name field is not drawn').not.toContain('AT-53')
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_NOT_IN_PANEL).toBe(!before)

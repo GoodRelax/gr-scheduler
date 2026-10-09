@@ -1,18 +1,18 @@
-// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the row zoom stops where the ladder of T-253 first finds the tallest band reaching the Row Area, whatever zoomY the zoom starts from.
+// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the row zoom stops where the ladder of T-253 first finds the tallest band reaching the Task Group Area, whatever zoomY the zoom starts from.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { settingNumber } from '../fixtures/setting-number'
-import { keyOf, REQUIREMENTS, rowDocument, shell, taskOf, type ShellBench } from '../unit/cr-541-stage'
+import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench } from '../unit/cr-541-stage'
 
 // see FR-016
 const FR_016_FIRST_REACH =
-  '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Row Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+  '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
 const FR_016_ANY_START =
   '⭐ 行の軸の上限は、拡大を始めた倍率に依らないこと（MUST） —— いまの `zoomY` だけが違う 2 つの状態は、同じ上限を持つ。'
 // see T-253
 const BC_1_LADDER = '次の倍率を、1 つ前の倍率に同書の 表 T-206 の `S-238` を掛けた値とする。'
-const BC_2_EQUAL_REACHES = '帯の高さが `Row Area` の高さと等しいときも、達したとする。'
+const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Area` の高さと等しいときも、達したとする。'
 const BC_5_UPPER_END = '帯の側の上限は、止めたときの上端とする。'
 
 // see S-54, S-55, S-238, S-239
@@ -31,11 +31,11 @@ afterEach(() => {
   for (const one of benches.splice(0)) one.restore()
 })
 
-function stackedRowBench(zoomY: number): ShellBench {
+function stackedTaskGroupBench(zoomY: number): ShellBench {
   const tasks = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
-  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, groupId: 'row-1' }))
+  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, groupId: 'task-group-1' }))
   const built = shell(
-    rowDocument([{ id: 'row-1', parentId: null }], { zoomY }, { tasks, taskGroupMembers: members, taskVisuals: [] }),
+    taskGroupDocument([{ id: 'task-group-1', parentId: null }], { zoomY }, { tasks, taskGroupMembers: members, taskVisuals: [] }),
   )
   benches.push(built)
   return built
@@ -50,14 +50,14 @@ function frameOf(built: ShellBench) {
 }
 
 // see BC-2
-// WHY: the tallest band reaches the Row Area when it is at least as tall.
+// WHY: the tallest band reaches the Task Group Area when it is at least as tall.
 function bandReachesAt(zoomY: number): boolean {
-  const built = stackedRowBench(zoomY)
+  const built = stackedTaskGroupBench(zoomY)
   const frame = frameOf(built)
-  const tallest = Math.max(...frame.layout.rows.map((row) => row.height))
+  const tallest = Math.max(...frame.layout.taskGroups.map((taskGroup) => taskGroup.height))
   built.restore()
   benches.pop()
-  return tallest >= frame.regions.rowArea.height
+  return tallest >= frame.regions.taskGroupArea.height
 }
 
 // see BC-1
@@ -92,7 +92,7 @@ function bandCeilingByTheTable(): number {
 }
 
 function zoomedInToItsEnd(startZoomY: number): number {
-  const built = stackedRowBench(startZoomY)
+  const built = stackedTaskGroupBench(startZoomY)
   let previous = Number.NaN
   for (let press = 0; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {
     previous = zoomYOf(built)
@@ -121,7 +121,7 @@ describe('DFC-628 / DFC-641 premise -- the clauses these cases press still stand
 describe('FR-016 / T-253 BC-3..BC-5 -- the row zoom ends at the ceiling the ladder finds', () => {
   const ceiling = bandCeilingByTheTable()
 
-  it('premise: the ladder finds a ceiling strictly inside the bounds, so a band reaches the Row Area on the way', () => {
+  it('premise: the ladder finds a ceiling strictly inside the bounds, so a band reaches the Task Group Area on the way', () => {
     expect(ceiling).toBeGreaterThan(ZOOM_MIN)
     expect(ceiling).toBeLessThan(ZOOM_MAX)
     expect(bandReachesAt(ceiling), BC_5_UPPER_END).toBe(true)
@@ -137,7 +137,7 @@ describe('FR-016 / T-253 BC-3..BC-5 -- the row zoom ends at the ceiling the ladd
   })
 
   it('one more press at the ceiling changes nothing', () => {
-    const built = stackedRowBench(ZOOM_MIN)
+    const built = stackedTaskGroupBench(ZOOM_MIN)
     let previous = Number.NaN
     for (let press = 0; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {
       previous = zoomYOf(built)
@@ -152,11 +152,11 @@ describe('FR-016 / T-253 BC-3..BC-5 -- the row zoom ends at the ceiling the ladd
 const START_ZOOM_Y = 0.05
 const PERCENT = 100
 
-function flooredRowBench(minHeight: number): ShellBench {
-  const document = rowDocument(
+function flooredTaskGroupBench(minHeight: number): ShellBench {
+  const document = taskGroupDocument(
     [
-      { id: 'row-1', parentId: null },
-      { id: 'row-2', parentId: null },
+      { id: 'task-group-1', parentId: null },
+      { id: 'task-group-2', parentId: null },
     ],
     { zoomY: START_ZOOM_Y },
   )
@@ -167,25 +167,25 @@ function flooredRowBench(minHeight: number): ShellBench {
 }
 
 const flooredBandOf = (built: ShellBench): number =>
-  frameOf(built).layout.rows.find((row) => row.groupId === 'row-1')?.height ?? Number.NaN
+  frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.groupId === 'task-group-1')?.height ?? Number.NaN
 
-// WHY: the floor is the only thing that sets the band, so a floor landing exactly on the Row Area's height makes "equal" a real case.
+// WHY: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Area's height makes "equal" a real case.
 function minHeightFillingTheAreaExactly(): number {
-  const probe = flooredRowBench(1)
-  const height = frameOf(probe).regions.rowArea.height
+  const probe = flooredTaskGroupBench(1)
+  const height = frameOf(probe).regions.taskGroupArea.height
   const scale = Number(probe.loop.document().documentSettings.displayScale) / PERCENT
   const centre = height / scale
   for (let nudge = -16; nudge <= 16; nudge++) {
     const candidate = centre + nudge * Number.EPSILON * centre
-    if (flooredBandOf(flooredRowBench(candidate)) === height) return candidate
+    if (flooredBandOf(flooredTaskGroupBench(candidate)) === height) return candidate
   }
-  throw new Error('premise: some floor lands the first row exactly on the Row Area height')
+  throw new Error('premise: some floor lands the first row exactly on the Task Group Area height')
 }
 
-describe('FR-016 / T-253 BC-2 -- a band exactly as tall as the Row Area has reached it', () => {
+describe('FR-016 / T-253 BC-2 -- a band exactly as tall as the Task Group Area has reached it', () => {
   it(`${BC_2_EQUAL_REACHES} -- the zoom does not rise past the lowest candidate`, () => {
-    const built = flooredRowBench(minHeightFillingTheAreaExactly())
-    expect(flooredBandOf(built), 'premise: the band equals the Row Area').toBe(frameOf(built).regions.rowArea.height)
+    const built = flooredTaskGroupBench(minHeightFillingTheAreaExactly())
+    expect(flooredBandOf(built), 'premise: the band equals the Task Group Area').toBe(frameOf(built).regions.taskGroupArea.height)
     let previous = Number.NaN
     for (let press = 0; press < PRESS_LIMIT && zoomYOf(built) !== previous; press++) {
       previous = zoomYOf(built)

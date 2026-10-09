@@ -101,7 +101,7 @@ function settingsPanel(language: DisplayLanguage = 'ja', document: Document = TE
     propertiesShowing: 'documentSettings',
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   } as unknown as ScreenViewReadings
   const panel = propertiesPanelFromSelection(document.schedule, document.documentSettings, emptySelection(), session, readings)

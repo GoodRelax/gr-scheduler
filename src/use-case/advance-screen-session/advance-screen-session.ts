@@ -87,7 +87,7 @@ export type {
   FileFlowWriteForm,
   FileOperationState,
 } from './file-flow-values'
-export type { GrabbedRowAxis, PressedOn } from './gesture-values'
+export type { GrabbedVerticalAxis, PressedOn } from './gesture-values'
 export type { NoticeReason, StandingNotice } from './notice-values'
 export { NOTICE_DISPLAY_OF_REASON, NOTICE_MANNER_OF_REASON, NOTICE_WORDS_ROW_OF_REASON } from './notice-values'
 
@@ -150,7 +150,7 @@ const IS_GESTURE_EVENT: { readonly [T in GestureValuesEvent['type']]: true } = {
   pointerPressed: true,
   pointerReleased: true,
   pressInterrupted: true,
-  rowGrabAxisSettled: true,
+  taskGroupGrabAxisSettled: true,
   entryRepeatTimeElapsed: true,
 }
 
@@ -194,8 +194,8 @@ const IS_SELECTION_EVENT: { readonly [T in SelectionValuesEvent['type']]: true }
   selectionCleared: true,
   selectionPruned: true,
   createdTaskSelected: true,
-  rowsPicked: true,
-  createdRowSelected: true,
+  taskGroupsPicked: true,
+  createdTaskGroupSelected: true,
   resourcesPicked: true,
   copyTaken: true,
 }

@@ -81,10 +81,10 @@ const task = (
   groupId: `g-${taskUid}`,
 })
 
-const box = (commentBoxId: string, text: string, rowName: string, anchorDate: string | null): CommentBoxSearchRow => ({
+const box = (commentBoxId: string, text: string, taskGroupName: string, anchorDate: string | null): CommentBoxSearchRow => ({
   commentBoxId,
   text,
-  rowName,
+  taskGroupName,
   anchorDate,
   groupId: `g-${commentBoxId}`,
 })

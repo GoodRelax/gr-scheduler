@@ -87,7 +87,7 @@ const committed = (uid: number, row: string, text: string): readonly DocumentCom
 
 const dayPart = (value: unknown): string => String(value).slice(0, 10)
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 describe('T-016 oneInput -- the manuscript rows', () => {
   it('two oneInput rows, each with exactly one input kind, a date, shown for milestones', () => {

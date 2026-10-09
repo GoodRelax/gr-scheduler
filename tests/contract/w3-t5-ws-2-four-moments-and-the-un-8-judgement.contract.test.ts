@@ -63,7 +63,7 @@ const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as Documen
 // see CM-9, UN-13
 const RENAME = { kind: kindOf('CM-9'), uid: FIRST_TASK_UID, name: 'w3-t5 renamed' } as unknown as DocumentCommand
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 
@@ -72,7 +72,7 @@ function write(commands: readonly DocumentCommand[], moment: WriteMoment): Apply
   let held: HeldDocument = { document: START, history: emptyHistory<ChangeStep>() }
   return applyDocumentChange(
     {
-      defaultRowName: 'w3-t5 default row name',
+      defaultTaskGroupName: 'w3-t5 default task group name',
       readStamp: START.documentStamp,
       commands,
       moment,

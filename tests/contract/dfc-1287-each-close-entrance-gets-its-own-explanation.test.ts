@@ -10,10 +10,10 @@ import { anchorKey } from '../../src/framework/dom-screen-surface/dom-screen-sur
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { byRole, selfAndDescendants, surfaceOf, wire, type FakeElement } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, SCREEN } from '../unit/cr-541-stage'
+import { pointerOf, taskGroupDocument, SCREEN } from '../unit/cr-541-stage'
 import { bare, specTable } from './spec-table'
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -21,18 +21,18 @@ const rowIn = (table: string, id: string) => {
 
 // WHY: IN-3 and the two UZ rows are the clauses; their words are read from the tables so the cases follow the manuscript.
 const IN_3_PER_PLACE = '押す場所ごとに'
-const HELP_SURFACE = bare(rowIn('T-103', 'U-30').by['確定名（英）'] ?? '')
-const ROSTER_SURFACE = bare(rowIn('T-103', 'U-49').by['確定名（英）'] ?? '')
+const HELP_SURFACE = bare(verticalIn('T-103', 'U-30').by['確定名（英）'] ?? '')
+const ROSTER_SURFACE = bare(verticalIn('T-103', 'U-49').by['確定名（英）'] ?? '')
 const CLOSE = 'IC-52'
 
 describe('DFC-1287 the manuscript these cases are driven by', () => {
   it('UZ-7 lets the Help stand beside other surfaces, UZ-13 lists the other surfaces', () => {
-    expect(rowIn('T-337', 'UZ-7').cells.join(' ')).toContain('ほかの面を開いても閉じない')
-    expect(rowIn('T-337', 'UZ-13').cells.join(' ')).toContain(ROSTER_SURFACE)
+    expect(verticalIn('T-337', 'UZ-7').cells.join(' ')).toContain('ほかの面を開いても閉じない')
+    expect(verticalIn('T-337', 'UZ-13').cells.join(' ')).toContain(ROSTER_SURFACE)
   })
 
   it('IN-3 still asks an explanation per entrance (EZ-2)', () => {
-    expect(rowIn('T-028', 'IN-3').cells.join(' ')).toContain('消せること')
+    expect(verticalIn('T-028', 'IN-3').cells.join(' ')).toContain('消せること')
     expect(IN_3_PER_PLACE.length).toBeGreaterThan(0)
   })
 })
@@ -45,7 +45,7 @@ afterEach(() => {
 })
 
 const partOn = (part: string, entry: string | null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+  ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 // WHY: the loop and the DOM surface are the real ones; only the pointer's part is aimed by the bench.
 function bench() {
@@ -68,7 +68,7 @@ function bench() {
     readFieldEditNotices: () => [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface
-  const document = rowDocument([{ id: 'g1', parentId: null }])
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }])
   const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, { surface, language: 'ja' })
   drain()
   return {

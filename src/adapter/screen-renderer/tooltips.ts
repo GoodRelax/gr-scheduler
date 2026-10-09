@@ -53,7 +53,7 @@ const DEADLINE_ROW = 'PR-10'
 const DEADLINE_WORDS = displayWords.properties.find((entry) => entry.rowId === DEADLINE_ROW)?.label
 const LINE_BREAK = '\n'
 
-const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', string>> = {
+const FASTER_SCROLL_ASSIGNMENT_TASK_GROUPS: Readonly<Record<'horizontal' | 'vertical', string>> = {
   horizontal: 'MK-5',
   vertical: 'MK-1',
 }
@@ -447,7 +447,7 @@ export function tooltipsFromScreenView(
     if (!rectHoldsPoint(scrollbar.track, pointer.x, pointer.y)) continue
     tooltips.push({
       anchor: { kind: 'scrollbar', axis: scrollbar.axis },
-      text: assignmentText(FASTER_SCROLL_ASSIGNMENT_ROWS[scrollbar.axis], language),
+      text: assignmentText(FASTER_SCROLL_ASSIGNMENT_TASK_GROUPS[scrollbar.axis], language),
       assignment: null,
     })
   }
@@ -527,7 +527,7 @@ export function dualCursorReadoutOf(
   const pointer = readings.pointer
   if (pointer === null || !isDualCursorOn(session)) return null
   const region = regionAtPointer(regions, pointer.x, pointer.y)
-  if (region !== 'rowArea' && region !== 'timeRuler') return null
+  if (region !== 'taskGroupArea' && region !== 'timeRuler') return null
   const language = displayLanguageOf(session)
   const { date1, date2 } = readoutDays(regions, settings, session, pointer.x)
   const { left, right } = inDateOrder(date1, date2)
@@ -555,7 +555,7 @@ export function guideCursorLabelOf(
 ): GuideCursorLabel | null {
   const pointer = readings.pointer
   if (pointer === null || session.screen.guideCursorMode === GUIDE_CURSOR_NONE) return null
-  if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'rowArea') return null
+  if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
   const day = dateAtX(timeAxisOf(settings, regions), pointer.x)
   if (day === null) return null

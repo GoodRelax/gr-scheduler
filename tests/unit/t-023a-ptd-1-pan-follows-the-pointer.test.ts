@@ -250,7 +250,7 @@ const ROWS = [
 ] as const
 
 /** The row the empty-space presses land on -- it carries no Task at all. */
-const EMPTY_ROW = ROWS[4] as string
+const EMPTY_TASK_GROUP = ROWS[4] as string
 
 /** The two Tasks whose bars are watched. They sit on rows far apart. */
 const NEAR_UID = 1
@@ -272,11 +272,11 @@ const PX_PER_DAY_AT_1X = 20
 const SCROLL_DATE = '2026-04-14'
 
 /** Likewise for the vertical axis: the fourth of six rows. */
-const SCROLL_ROW = ROWS[3] as string
+const SCROLL_TASK_GROUP = ROWS[3] as string
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -319,7 +319,7 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1` would draw a line the height of the `Row Area`,
+        // ⛔ NO 基準日. `CU-1` would draw a line the height of the `Task Group Area`,
         // and this file's subject is the whole picture moving -- one more
         // element in it buys nothing and can only confuse a failure.
         statusDate: null,
@@ -350,7 +350,7 @@ function fixtureDocument(): Document {
       stackDirection: 'down',
       scrollDate: SCROLL_DATE,
       scrollDayOffset: 0,
-      scrollGroupId: SCROLL_ROW,
+      scrollGroupId: SCROLL_TASK_GROUP,
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -509,7 +509,7 @@ const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPe
 
 /** Where one row's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).rows.find((one: any) => one.groupId === groupId)
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
@@ -560,9 +560,9 @@ const whereIs = (loop: FrameLoop, uid: number): Where => {
   return { x: box.x0, y: midY(box) }
 }
 
-/** A point inside the `Row Area` that no Task is drawn on. */
+/** A point inside the `Task Group Area` that no Task is drawn on. */
 const emptySpot = (loop: FrameLoop): Point => {
-  const band = bandOf(loop, EMPTY_ROW)
+  const band = bandOf(loop, EMPTY_TASK_GROUP)
   const near = planBox(loop, NEAR_UID)
   return { x: (near.x0 + near.x1) / 2, y: band.y + band.height / 2 }
 }
@@ -578,11 +578,11 @@ const emptySpot = (loop: FrameLoop): Point => {
  * ず、等倍が成り立たない」. Halves are what make that visible.
  */
 const TRAVEL_DAYS = 2.5
-const TRAVEL_ROWS = 0.5
+const TRAVEL_TASK_GROUPS = 0.5
 
 const travelOf = (loop: FrameLoop): Where => ({
   x: TRAVEL_DAYS * pxPerDay(loop),
-  y: TRAVEL_ROWS * bandOf(loop, EMPTY_ROW).height,
+  y: TRAVEL_TASK_GROUPS * bandOf(loop, EMPTY_TASK_GROUP).height,
 })
 
 /**

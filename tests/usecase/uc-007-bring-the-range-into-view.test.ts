@@ -1,7 +1,7 @@
 // Use-case test for UC-007 (bring the wanted range into view), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
 import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { VIEWPORT, bandAt, dayAxis, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, rowSelector, settle } from './uc-harness'
+import { VIEWPORT, bandAt, dayAxis, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, taskGroupSelector, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -22,8 +22,8 @@ const wheel = async (page: Page, dy: number, times: number, modifier?: 'Control'
 const tierNames = (page: Page): Promise<string[]> =>
   page.evaluate(() => [...new Set([...document.querySelectorAll('[data-figure^="ruler-"][data-figure*="-tick-"]')].map((e) => (e.getAttribute('data-figure') ?? '').split('-')[1]!))])
 
-const deepestDrawnRow = (page: Page): Promise<number> =>
-  page.evaluate(() => Math.max(...[...document.querySelectorAll('[data-role="Row Title Tree"] [data-group-id]')].map((r) => Number(r.getAttribute('data-depth')))))
+const deepestDrawnTaskGroup = (page: Page): Promise<number> =>
+  page.evaluate(() => Math.max(...[...document.querySelectorAll('[data-role="Task Group Title Tree"] [data-group-id]')].map((r) => Number(r.getAttribute('data-depth')))))
 
 const tickX = (page: Page, figure: string): Promise<number | null> =>
   page.evaluate((figure) => document.querySelector('[data-figure="' + figure + '"]')?.getBoundingClientRect().x ?? null, figure)
@@ -85,23 +85,23 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
 
   await test.step('UC-007 step 4: the rows drawn follow the group LOD, and every task on a drawn row is drawn (FR-018, T-005a)', async () => {
     await press(page, 'IC-10')
-    const shallow = await deepestDrawnRow(page)
+    const shallow = await deepestDrawnTaskGroup(page)
     await wheel(page, -200, 8, 'Alt')
-    const deep = await deepestDrawnRow(page)
+    const deep = await deepestDrawnTaskGroup(page)
     expect(deep).toBeGreaterThan(shallow)
     const doc = await readDocument(page)
     const axis = await dayAxis(page)
     const seenFrom = axis.dayOf(200)
     const seenTo = axis.dayOf(VIEWPORT.width - 20)
-    const drawnRows = await page.evaluate(() =>
+    const drawnTaskGroups = await page.evaluate(() =>
       [...document.querySelectorAll('[data-figure^="row-"][data-figure$="-band"]')]
         .filter((e) => { const r = e.getBoundingClientRect(); return r.y > 80 && r.y + r.height < 1060 })
         .map((e) => (e.getAttribute('data-figure') ?? '').slice(4, -5)),
     )
-    expect(drawnRows.length).toBeGreaterThan(0)
+    expect(drawnTaskGroups.length).toBeGreaterThan(0)
     const dayOf = (iso: string) => Math.round(Date.parse(iso.slice(0, 10) + 'T00:00:00Z') / 86400000)
     let checked = 0
-    for (const member of doc.schedule.taskGroupMembers.filter((m) => drawnRows.includes(m.groupId))) {
+    for (const member of doc.schedule.taskGroupMembers.filter((m) => drawnTaskGroups.includes(m.groupId))) {
       const task = doc.schedule.tasks.find((t) => t.uid === member.taskUid)!
       if (dayOf(task.finish) < seenFrom || dayOf(task.start) > seenTo) continue
       await expect(page.locator('[data-figure="task-' + task.uid + '-plan"]')).toHaveCount(1)
@@ -109,7 +109,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     }
     expect(checked).toBeGreaterThan(0)
     await wheel(page, 200, 8, 'Alt')
-    expect(await deepestDrawnRow(page)).toBeLessThanOrEqual(deep)
+    expect(await deepestDrawnTaskGroup(page)).toBeLessThanOrEqual(deep)
   })
 
   await test.step('UC-007 step 5: Ctrl drag and middle-button drag move the view one to one (MK-7, PTD-1)', async () => {
@@ -137,7 +137,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     await pressRowControl(page, target, 'IC-60')
     expect((await readDocument(page)).documentSettings.pinnedGroupIds).toContain(target)
     await wheel(page, 400, 10)
-    const row = page.locator(rowSelector(target))
+    const row = page.locator(taskGroupSelector(target))
     await expect(row).toHaveCount(1)
     await expect(row).toHaveAttribute('data-pinned', 'true')
     const box = (await row.boundingBox())!

@@ -22,7 +22,7 @@ import {
   type ProjectCommand,
 } from '../../src/use-case/edit-document/edit-document'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // see S-3
 const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFont.times
@@ -70,7 +70,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       // WHY: the pair agrees with fontScale M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
       rulerFont: SIZE_M * RULER_FONT_FACTOR,
       rulerHeight: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
-      rowTitlePanelWidth: 170,
+      taskGroupPanelWidth: 170,
       pinnedGroupIds: [],
       zoomX: 1,
       zoomY: 1,
@@ -90,14 +90,14 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     changeLog: [],
   }) as unknown as Document
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
-    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,
@@ -283,11 +283,11 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     )
   })
 
-  it('CM-67 setRowTitlePanelWidth -- the width the document already stands at', () => {
+  it('CM-67 setTaskGroupPanelWidth -- the width the document already stands at', () => {
     bothWays(
       settings as never,
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 170 },
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 171 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 170 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 171 },
     )
   })
 
@@ -296,7 +296,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     // still applies no matter what the document already holds.
     const result = editDocumentSettings(
       documentOf(),
-      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 0 },
+      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 0 },
       LIMITS,
     )
     expect(result.ok).toBe(false)

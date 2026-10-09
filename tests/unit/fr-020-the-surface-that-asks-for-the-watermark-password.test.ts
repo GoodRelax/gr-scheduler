@@ -147,7 +147,7 @@ const readingsOf = (): ScreenViewReadings =>
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
   }) as unknown as ScreenViewReadings
 
 const rootOn = (language: DisplayLanguage, surface: string | null): ScreenSession => ({
@@ -327,7 +327,7 @@ function drawnOn(language: DisplayLanguage): FakeElement {
     language,
     frame: FRAME,
     appHeaderItems: HEADER,
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: describedOn(language),

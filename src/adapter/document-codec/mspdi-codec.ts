@@ -47,7 +47,7 @@ import {
   type ClaimedFrame,
   type FadeColumn,
 } from './mspdi-fade-frames'
-import { rowsFromTasks } from './mspdi-imported-rows'
+import { taskGroupsFromTasks } from './mspdi-imported-task-groups'
 import { fault, readXml, writtenXml, type MspdiFault, type XmlElement } from './mspdi-xml'
 
 export type { MspdiFault } from './mspdi-xml'
@@ -378,7 +378,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
   const tasksRead = tasksFromRoot(root, run)
   const resourcesRead = resourcesFromRoot(root, run)
   const assignmentsRead = assignmentsFromRoot(root, run)
-  const rows = rowsFromTasks(tasksRead.tasks, SETTINGS_CONSTANTS.maxGroupDepth)
+  const rows = taskGroupsFromTasks(tasksRead.tasks, SETTINGS_CONSTANTS.maxGroupDepth)
 
   const project = projectFromRoot(root, current, [
     ...calendarsRead.carriedRows,
@@ -643,7 +643,7 @@ interface TaskColumnsOfFile {
 function taskFromElement(
   element: XmlElement,
   uid: number,
-  wbsParentUid: number | null,
+  parentTaskUid: number | null,
   wbsOrder: number,
   ofFile: TaskColumnsOfFile,
 ): Task {
@@ -652,7 +652,7 @@ function taskFromElement(
   const links = linksOfTask(element, ofFile.summaryTarget)
   return {
     uid,
-    wbsParentUid,
+    parentTaskUid,
     wbsOrder,
     name: textColumn(element, 'Name'),
     start: textColumn(element, 'Start'),
@@ -1053,14 +1053,14 @@ function writtenTasks(
   frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): readonly XmlElement[] {
-  // TRAP: not schedule.tasks as held: the row-tree ranking rewrites wbsOrder without moving the collection.
+  // TRAP: not schedule.tasks as held: the task-group-tree ranking rewrites wbsOrder without moving the collection.
   const ordered = tasksInWbsOrder(schedule.tasks)
   const base = schedule.project.outlineBase
   const outlineLevels = new Map<number, number>()
   for (const [uid, depth] of taskDepths(ordered)) outlineLevels.set(uid, depth - 1 + base)
   const numbers = outlineNumbers(ordered, base)
   const hasChildren = new Set(
-    ordered.map((task) => task.wbsParentUid).filter((uid): uid is number => uid !== null),
+    ordered.map((task) => task.parentTaskUid).filter((uid): uid is number => uid !== null),
   )
   const minutesPerDay = minutesPerWorkingDay(schedule.project.minutesPerDay)
   const written = ordered.map((task, index) => writtenTask(
@@ -1078,7 +1078,7 @@ function tasksInWbsOrder(tasks: readonly Task[]): readonly Task[] {
   const family = new Map<number | null, Task[]>()
   for (const task of tasks) {
     const parent =
-      task.wbsParentUid !== null && known.has(task.wbsParentUid) ? task.wbsParentUid : null
+      task.parentTaskUid !== null && known.has(task.parentTaskUid) ? task.parentTaskUid : null
     const kin = family.get(parent)
     if (kin === undefined) family.set(parent, [task])
     else kin.push(task)
@@ -1129,11 +1129,11 @@ function splicedCarriedRows(
 /** @purity pure */
 function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   const parents = new Map<number, number | null>()
-  for (const task of tasks) parents.set(task.uid, task.wbsParentUid)
+  for (const task of tasks) parents.set(task.uid, task.parentTaskUid)
   const depths = new Map<number, number>()
   for (const task of tasks) {
     let depth = 1
-    let foundAt = task.wbsParentUid
+    let foundAt = task.parentTaskUid
     // TRAP: bounded by the task count, since a document in hand may hold a ring.
     for (let steps = 0; steps < tasks.length && foundAt !== null; steps += 1) {
       depth += 1
@@ -1154,10 +1154,10 @@ function outlineNumbers(
   const numbers = new Map<number, string>()
   const counters = new Map<string, number>()
   for (const task of tasks) {
-    const parentKey = task.wbsParentUid === null ? '' : String(task.wbsParentUid)
+    const parentKey = task.parentTaskUid === null ? '' : String(task.parentTaskUid)
     const next = (counters.get(parentKey) ?? 0) + 1
     counters.set(parentKey, next)
-    const parentPath = task.wbsParentUid === null ? [] : paths.get(task.wbsParentUid) ?? []
+    const parentPath = task.parentTaskUid === null ? [] : paths.get(task.parentTaskUid) ?? []
     const path = [...parentPath, next]
     paths.set(task.uid, path)
     const shown = path.slice(1 - base)

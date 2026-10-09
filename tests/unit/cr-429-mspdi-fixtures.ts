@@ -70,10 +70,10 @@ export function writtenTask(document: Document, uid: number): XmlNode {
   return taskNode(parseXml(writtenText(document)), uid)
 }
 
-export const DEFAULT_ROW_NAME = 'Row'
+export const DEFAULT_TASK_GROUP_NAME = 'Row'
 
 export function edited(document: Document, command: Parameters<typeof editTask>[1]): Document {
-  const result = editTask(document, command, DEFAULT_ROW_NAME)
+  const result = editTask(document, command, DEFAULT_TASK_GROUP_NAME)
   if (!result.ok) throw new Error(`the edit was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }

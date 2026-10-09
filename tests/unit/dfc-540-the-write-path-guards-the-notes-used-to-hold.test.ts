@@ -14,17 +14,17 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import { editDocument } from '../../src/use-case/edit-document/edit-document'
 import { documentOf, personOf, seatOf, taskOf } from '../contract/cr-606-stage'
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
-const ROW_NAME = 'row'
+const TASK_GROUP_NAME = 'row'
 
-const run = (document: Document, command: unknown) => editDocument(document, command as DocumentCommand, LIMITS, ROW_NAME)
+const run = (document: Document, command: unknown) => editDocument(document, command as DocumentCommand, LIMITS, TASK_GROUP_NAME)
 
 const planOf = (document: Document, commands: readonly unknown[]) =>
   planDocumentChange({
-    defaultRowName: ROW_NAME,
+    defaultTaskGroupName: TASK_GROUP_NAME,
     document,
     readStamp: document.documentStamp,
     commands: commands as readonly DocumentCommand[],

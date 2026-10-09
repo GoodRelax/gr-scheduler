@@ -9,7 +9,7 @@ import { KEY, type HumanInput } from '../../src/adapter/input-command-translator
 import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
 import { confirmationFromSession } from '../../src/adapter/screen-renderer/notices'
 import type { ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
-import { wbsParentParts } from '../../src/adapter/svg-renderer/schedule-overlays'
+import { parentTaskParts } from '../../src/adapter/svg-renderer/schedule-overlays'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { emptySelection, selectionOfAll, type Selection } from '../../src/entity/document-model/selection/selection'
@@ -20,8 +20,8 @@ import {
   choiceStepOf,
   isMixedParentPick,
   selectionOfParentChoice,
-  wbsParentHoldOf,
-} from '../../src/framework/single-html-shell/wbs-parent-hold'
+  parentTaskHoldOf,
+} from '../../src/framework/single-html-shell/parent-task-hold'
 import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from '../contract/spec-table'
 import {
@@ -55,26 +55,26 @@ interface DictionaryWord {
 
 const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
-) as { readonly wbsParentChoice: readonly DictionaryWord[] }
+) as { readonly parentTaskChoice: readonly DictionaryWord[] }
 
 const wordOf = (part: string, language: 'ja' | 'en'): string => {
-  const found = WORDS.wbsParentChoice.find((one) => one.part === part)
-  if (found === undefined) throw new Error(`the dictionary wbsParentChoice has no part ${part}`)
+  const found = WORDS.parentTaskChoice.find((one) => one.part === part)
+  if (found === undefined) throw new Error(`the dictionary parentTaskChoice has no part ${part}`)
   return found.text[language]
 }
 
-const QN_12_TWO = '答えは辞書の `wbsParentChoice` の 2 つの語の択であり、`Yes` / `No` ではない。'
+const QN_12_TWO = '答えは辞書の `parentTaskChoice` の 2 つの語の択であり、`Yes` / `No` ではない。'
 const QN_12_FIRST = '1 つ目の択は、`AR-7` を構えていれば「親子関係を定義するため子タスクを選択」、構えていなければ「タスクを選択」と短くする。'
-const QN_12_NEAR = '面はポインタの近くに立ち、`Esc` か面の外を押せば選ばずに閉じる（`WL-14`）'
+const QN_12_NEAR = '面はポインタの近くに立ち、`Esc` か面の外を押せば選ばずに閉じる（`PTL-14`）'
 const WL_POINTER = '⭐ ポインタの形は、`AR-7` を構えているあいだは日程表の描画領域の全体で 表 T-269 の `PK-17` とし、構えずに親子判別だけが入のときは実線の矢印の上でだけ `PK-17`、破線の矢印の上で `PK-18` とすること（MUST）。'
 const FR_135_SCREEN_ONLY = '家族の矢印と、`?`・候補の枠と番号は、依存線と同じ重ね順（`FR-110` の 表 T-020 の `ZO-4`）に描き、画面にだけ描くこと（MUST）'
 const FR_135_SELECTED = '選んだ矢印は、依存線と同じく、その太さに 表 T-206 の `S-447` を足した太さで描くこと（MUST）（表 T-023c の `SL-8`）。'
 
 describe('CR-631 -- the manuscript these cases are driven by', () => {
-  it('T-234 QN-12, T-351 WL-13 / WL-14 and the closing pointer rule still say it', () => {
+  it('T-234 QN-12, T-351 PTL-13 / PTL-14 and the closing pointer rule still say it', () => {
     for (const clause of [QN_12_TWO, QN_12_FIRST, QN_12_NEAR]) expect(flat(rowText('T-234', 'QN-12')), clause).toContain(flat(clause))
-    expect(flat(rowText('T-351', 'WL-13'))).toContain('混ざった選択を残さず、ポインタの近くに 表 T-234 の `QN-12` の 2 択を出す。')
-    expect(flat(rowText('T-351', 'WL-14'))).toContain('混ざる前の選択に戻す')
+    expect(flat(rowText('T-351', 'PTL-13'))).toContain('混ざった選択を残さず、ポインタの近くに 表 T-234 の `QN-12` の 2 択を出す。')
+    expect(flat(rowText('T-351', 'PTL-14'))).toContain('混ざる前の選択に戻す')
     for (const clause of [WL_POINTER, FR_135_SCREEN_ONLY, FR_135_SELECTED]) expect(REQUIREMENTS, clause).toContain(clause)
   })
 
@@ -93,7 +93,7 @@ describe('CR-631 -- the manuscript these cases are driven by', () => {
 })
 
 const task = (uid: number) => ({ kind: 'task', uid })
-const link = (childUid: number) => ({ kind: 'wbsParentLink', childUid })
+const link = (childUid: number) => ({ kind: 'parentTaskLink', childUid })
 const pick = (...items: readonly Loose[]): Selection => selectionOfAll(items as unknown as Parameters<typeof selectionOfAll>[0])
 const itemKinds = (selection: Selection): string[] =>
   (selection as unknown as { readonly items: readonly Loose[] }).items
@@ -106,7 +106,7 @@ const sessionWith = (selection: Selection | null, armed = false, language: 'ja' 
     ...emptyScreenSession.screen,
     screenLanguage: language,
     helpLanguage: language,
-    armModeState: armed ? { kind: 'wbsParentArmed' } : { kind: 'notArmed' },
+    armModeState: armed ? { kind: 'parentTaskArmed' } : { kind: 'notArmed' },
   } as unknown as ScreenSession['screen'],
   selection: {
     ...emptyScreenSession.selection,
@@ -118,29 +118,29 @@ const SCHEDULE = scheduleOf(FAMILY)
 
 describe('IC-141 / S-484 / AR-7 -- when the families are drawn', () => {
   it('S-484: a fresh hold reads the links as not shown and draws no family', () => {
-    const hold = wbsParentHoldOf()
-    expect(hold.readings(sessionWith(null), false).isWbsParentLinksShown).toBe(false)
+    const hold = parentTaskHoldOf()
+    expect(hold.readings(sessionWith(null), false).isParentTaskLinksShown).toBe(false)
     expect(hold.familiesFor(SCHEDULE, sessionWith(pick(task(C))), { kind: 'task', taskUid: C }, null)).toBeNull()
   })
 
   it('IC-141: the entry toggles the links on and off; another entry does not', () => {
-    const hold = wbsParentHoldOf()
+    const hold = parentTaskHoldOf()
     expect(hold.isToggledBy('IC-142' as never)).toBe(false)
-    expect(hold.readings(sessionWith(null), false).isWbsParentLinksShown).toBe(false)
+    expect(hold.readings(sessionWith(null), false).isParentTaskLinksShown).toBe(false)
     expect(hold.isToggledBy('IC-141' as never)).toBe(true)
-    expect(hold.readings(sessionWith(null), false).isWbsParentLinksShown).toBe(true)
+    expect(hold.readings(sessionWith(null), false).isParentTaskLinksShown).toBe(true)
     hold.isToggledBy('IC-141' as never)
-    expect(hold.readings(sessionWith(null), false).isWbsParentLinksShown).toBe(false)
+    expect(hold.readings(sessionWith(null), false).isParentTaskLinksShown).toBe(false)
   })
 
   it('AR-7: armed, the families are drawn though IC-141 is off', () => {
-    const hold = wbsParentHoldOf()
+    const hold = parentTaskHoldOf()
     const families = hold.familiesFor(SCHEDULE, sessionWith(pick(task(C)), true), null, null)
     expect(families?.ownerUids).toEqual([C])
   })
 
   it('FR-135: the owners are the pointed task and the picked tasks', () => {
-    const hold = wbsParentHoldOf()
+    const hold = parentTaskHoldOf()
     hold.isToggledBy('IC-141' as never)
     const families = hold.familiesFor(SCHEDULE, sessionWith(pick(task(F))), { kind: 'task', taskUid: C }, null)
     expect([...(families?.ownerUids ?? [])].sort()).toEqual([C, F].sort())
@@ -148,7 +148,7 @@ describe('IC-141 / S-484 / AR-7 -- when the families are drawn', () => {
   })
 
   it('FR-135: once an arrow is picked, the owner drawn when the picking began stays an owner beside the arrow child', () => {
-    const hold = wbsParentHoldOf()
+    const hold = parentTaskHoldOf()
     hold.isToggledBy('IC-141' as never)
     hold.familiesFor(SCHEDULE, sessionWith(null), { kind: 'task', taskUid: P }, null)
     const families = hold.familiesFor(SCHEDULE, sessionWith(pick(link(F))), null, null)
@@ -159,24 +159,24 @@ describe('IC-141 / S-484 / AR-7 -- when the families are drawn', () => {
 
 const AT = { x: 321, y: 123 }
 
-describe('WL-13 / WL-14 / QN-12 -- a mixed pick asks which kind to keep', () => {
-  it('WL-13: a pick of a task and an arrow is mixed; tasks alone or arrows alone are not', () => {
+describe('PTL-13 / PTL-14 / QN-12 -- a mixed pick asks which kind to keep', () => {
+  it('PTL-13: a pick of a task and an arrow is mixed; tasks alone or arrows alone are not', () => {
     expect(isMixedParentPick(pick(task(C), link(F)))).toBe(true)
     expect(isMixedParentPick(pick(task(C), task(F)))).toBe(false)
     expect(isMixedParentPick(pick(link(C), link(F)))).toBe(false)
   })
 
-  it('WL-13: a mixed pick is not kept -- the selection before it stays and the chooser stands at the pointer', () => {
-    const hold = wbsParentHoldOf()
+  it('PTL-13: a mixed pick is not kept -- the selection before it stays and the chooser stands at the pointer', () => {
+    const hold = parentTaskHoldOf()
     const before = pick(task(D))
     const kept = hold.pickedAfter(pick(task(C), link(F)), before, AT)
     expect(itemKinds(kept)).toEqual(itemKinds(before))
     expect(hold.isChoiceStanding()).toBe(true)
-    expect(hold.readings(sessionWith(before), false).wbsParentChoice).toEqual({ at: AT, isArmed: false })
+    expect(hold.readings(sessionWith(before), false).parentTaskChoice).toEqual({ at: AT, isArmed: false })
   })
 
-  it('WL-13: a pick of one kind passes through and raises no chooser', () => {
-    const hold = wbsParentHoldOf()
+  it('PTL-13: a pick of one kind passes through and raises no chooser', () => {
+    const hold = parentTaskHoldOf()
     const picked = pick(task(C), task(F))
     expect(itemKinds(hold.pickedAfter(picked, emptySelection(), AT))).toEqual(itemKinds(picked))
     expect(hold.isChoiceStanding()).toBe(false)
@@ -189,8 +189,8 @@ describe('WL-13 / WL-14 / QN-12 -- a mixed pick asks which kind to keep', () => 
     expect(itemKinds(selectionOfParentChoice(mixed, 'childTasks'))).toEqual([`task ${C}`, `task ${E}`].sort())
   })
 
-  it('WL-13: a release on an answer picks that kind and the chooser closes', () => {
-    const hold = wbsParentHoldOf()
+  it('PTL-13: a release on an answer picks that kind and the chooser closes', () => {
+    const hold = parentTaskHoldOf()
     hold.pickedAfter(pick(task(C), link(F)), emptySelection(), AT)
     const step = hold.choiceStepFor(pointerAt('up', AT) as HumanInput, 'links')
     expect(step?.kind).toBe('picked')
@@ -198,14 +198,14 @@ describe('WL-13 / WL-14 / QN-12 -- a mixed pick asks which kind to keep', () => 
     expect(hold.isChoiceStanding()).toBe(false)
   })
 
-  it('WL-14: Esc closes the chooser without picking', () => {
-    const hold = wbsParentHoldOf()
+  it('PTL-14: Esc closes the chooser without picking', () => {
+    const hold = parentTaskHoldOf()
     hold.pickedAfter(pick(task(C), link(F)), emptySelection(), AT)
     expect(hold.choiceStepFor({ kind: 'key', key: KEY.escape, modifiers: MODS } as HumanInput, null)).toEqual({ kind: 'closed' })
     expect(hold.isChoiceStanding()).toBe(false)
   })
 
-  it('WL-14: a press outside the two answers closes the chooser without picking', () => {
+  it('PTL-14: a press outside the two answers closes the chooser without picking', () => {
     expect(choiceStepOf(pick(task(C), link(F)), pointerAt('down', { x: 1, y: 1 }) as HumanInput, null)).toEqual({ kind: 'closed' })
   })
 
@@ -214,7 +214,7 @@ describe('WL-13 / WL-14 / QN-12 -- a mixed pick asks which kind to keep', () => 
     [true, 'childTasks', 'ja'],
     [false, 'tasks', 'en'],
   ] as const)('QN-12: armed %s, the chooser answers are the dictionary words %s then links (%s), at the pointer', (isArmed, first, language) => {
-    const readings = { confirmation: null, wbsParentChoice: { at: AT, isArmed } } as unknown as ScreenViewReadings
+    const readings = { confirmation: null, parentTaskChoice: { at: AT, isArmed } } as unknown as ScreenViewReadings
     const shown = confirmationFromSession(sessionWith(null, isArmed, language), readings)
     expect(shown).not.toBeNull()
     expect(shown?.answers.map((one) => one.text)).toEqual([wordOf(first, language), wordOf('links', language)])
@@ -222,7 +222,7 @@ describe('WL-13 / WL-14 / QN-12 -- a mixed pick asks which kind to keep', () => 
   })
 
   it('QN-12: with no mixed pick standing there is no chooser', () => {
-    const readings = { confirmation: null, wbsParentChoice: null } as unknown as ScreenViewReadings
+    const readings = { confirmation: null, parentTaskChoice: null } as unknown as ScreenViewReadings
     expect(confirmationFromSession(sessionWith(null), readings)).toBeNull()
   })
 })
@@ -243,13 +243,13 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const paletteOf = (session: ScreenSession, isWbsParentLinksShown: boolean) => {
+const paletteOf = (session: ScreenSession, isParentTaskLinksShown: boolean) => {
   const palette = commandPaletteFromSession(session, { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings, emptySelection(),
-    { ...READINGS, isWbsParentLinksShown }, SCHEDULE)
+    { ...READINGS, isParentTaskLinksShown }, SCHEDULE)
   if (palette === null) throw new Error('premise: the palette is showing')
   return palette
 }
@@ -266,7 +266,7 @@ describe('T-109 IC-141 / IC-142 -- the two palette entries', () => {
     expect(entryOf(paletteOf(sessionWith(null), false), 'IC-141').isPressed).toBe(false)
   })
 
-  it('IC-142 / AR-7: the entry reads armed exactly while the WBS parent link is armed', () => {
+  it('IC-142 / AR-7: the entry reads armed exactly while the parent task link is armed', () => {
     expect(entryOf(paletteOf(sessionWith(null, true), false), 'IC-142').isArmed).toBe(true)
     expect(entryOf(paletteOf(sessionWith(null, false), false), 'IC-142').isArmed).toBe(false)
   })
@@ -315,9 +315,9 @@ describe('T-269 PK-17 / PK-18 -- the pointer over the arrows', () => {
 describe('FR-135 -- the arrows as drawn', () => {
   const themed = (rowId: string): string => `ink-${rowId}`
   const partsOf = (scene: ReturnType<typeof sceneOf>, drawsOperationState: boolean): readonly string[] =>
-    wbsParentParts(scene.geometry, drawnSettingsOf(scene.settings as unknown as DocumentSettings), themed, drawsOperationState)
+    parentTaskParts(scene.geometry, drawnSettingsOf(scene.settings as unknown as DocumentSettings), themed, drawsOperationState)
   const polylineOf = (parts: readonly string[], childUid: number): string => {
-    const found = parts.join('').match(new RegExp(`<polyline[^>]*wbs-parent-${childUid}"[^>]*/>`))
+    const found = parts.join('').match(new RegExp(`<polyline[^>]*parent-task-${childUid}"[^>]*/>`))
     if (found === null) throw new Error(`no polyline for child ${childUid} in ${parts.join('')}`)
     return found[0]
   }

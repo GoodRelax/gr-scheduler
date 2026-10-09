@@ -39,16 +39,16 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 
 const LANE_THICKNESS = 10
 const CANVAS_PADDING = 4
-const ROW_AREA = rect(200, 100, 800, 400)
+const TASK_GROUP_AREA = rect(200, 100, 800, 400)
 
 const REGIONS: ScreenRegions = {
   appHeader: rect(0, 0, 1400, 40),
-  rowTitlePanel: rect(20, 100, 180, 400),
+  taskGroupPanel: rect(20, 100, 180, 400),
   timeRuler: rect(200, 60, 800, 40),
-  rowArea: ROW_AREA,
+  taskGroupArea: TASK_GROUP_AREA,
   scheduleCanvas: rect(20, 60, 1180, 440),
   propertiesPanel: rect(
-    ROW_AREA.x + ROW_AREA.width + LANE_THICKNESS + CANVAS_PADDING,
+    TASK_GROUP_AREA.x + TASK_GROUP_AREA.width + LANE_THICKNESS + CANVAS_PADDING,
     100,
     186,
     400,
@@ -83,7 +83,7 @@ const sessionWith = (extent: {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: extent,
 })
 
@@ -102,8 +102,8 @@ describe('the row this file is driven by is still in the manuscript', () => {
   })
 
   it('⭐ the lane these cases cut is longer than that floor', () => {
-    expect(ROW_AREA.width).toBeGreaterThan(GRIP_FLOOR_PX)
-    expect(ROW_AREA.height).toBeGreaterThan(GRIP_FLOOR_PX)
+    expect(TASK_GROUP_AREA.width).toBeGreaterThan(GRIP_FLOOR_PX)
+    expect(TASK_GROUP_AREA.height).toBeGreaterThan(GRIP_FLOOR_PX)
   })
 })
 
@@ -111,9 +111,9 @@ describe('the row this file is driven by is still in the manuscript', () => {
 describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of its lane', () => {
   it('⭐⭐ ① an overflowing document gets a grip of exactly that fraction', () => {
     const session = sessionWith({
-      contentWidth: ROW_AREA.width * 4,
-      contentHeight: ROW_AREA.height * 4,
-      visibleHeight: ROW_AREA.height,
+      contentWidth: TASK_GROUP_AREA.width * 4,
+      contentHeight: TASK_GROUP_AREA.height * 4,
+      visibleHeight: TASK_GROUP_AREA.height,
     })
     const sideways = barOf(session, 'horizontal')
     const downwards = barOf(session, 'vertical')
@@ -124,9 +124,9 @@ describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of
 
   it('⭐⭐ ② a document of many rows still gets a grip of at least S-205', () => {
     const session = sessionWith({
-      contentWidth: ROW_AREA.width,
-      contentHeight: ROW_AREA.height * 1000,
-      visibleHeight: ROW_AREA.height,
+      contentWidth: TASK_GROUP_AREA.width,
+      contentHeight: TASK_GROUP_AREA.height * 1000,
+      visibleHeight: TASK_GROUP_AREA.height,
     })
     const downwards = barOf(session, 'vertical')
 
@@ -135,20 +135,20 @@ describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of
   })
 
   it('⭐⭐ ③ pinning rows does not GROW the downwards fraction', () => {
-    const whole = ROW_AREA.height * 4
+    const whole = TASK_GROUP_AREA.height * 4
     const nonePinned = barOf(
       sessionWith({
-        contentWidth: ROW_AREA.width,
+        contentWidth: TASK_GROUP_AREA.width,
         contentHeight: whole,
-        visibleHeight: ROW_AREA.height,
+        visibleHeight: TASK_GROUP_AREA.height,
       }),
       'vertical',
     )
     const bandTakesHalf = barOf(
       sessionWith({
-        contentWidth: ROW_AREA.width,
+        contentWidth: TASK_GROUP_AREA.width,
         contentHeight: whole,
-        visibleHeight: ROW_AREA.height / 2,
+        visibleHeight: TASK_GROUP_AREA.height / 2,
       }),
       'vertical',
     )
@@ -160,9 +160,9 @@ describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of
 
   it('⛔ THE CONTROL: a document that fits gets the whole lane, and no more', () => {
     const session = sessionWith({
-      contentWidth: ROW_AREA.width,
-      contentHeight: ROW_AREA.height,
-      visibleHeight: ROW_AREA.height,
+      contentWidth: TASK_GROUP_AREA.width,
+      contentHeight: TASK_GROUP_AREA.height,
+      visibleHeight: TASK_GROUP_AREA.height,
     })
     const sideways = barOf(session, 'horizontal')
     const downwards = barOf(session, 'vertical')

@@ -37,8 +37,8 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-const ROW_A = '5c000000-0000-4000-8000-000000000001'
-const ROW_B = '5c000000-0000-4000-8000-000000000002'
+const TASK_GROUP_A = '5c000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '5c000000-0000-4000-8000-000000000002'
 const RUNNING_UID = 1
 const FINISHED_UID = 2
 
@@ -50,7 +50,7 @@ const S_91 = settingNumber('S-257')
 
 const task = (over: Record<string, unknown> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: day(6),
@@ -97,10 +97,10 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [group(ROW_A, 0, 'A'), group(ROW_B, 1, 'B')],
+      taskGroups: [group(TASK_GROUP_A, 0, 'A'), group(TASK_GROUP_B, 1, 'B')],
       taskGroupMembers: [
-        { taskUid: RUNNING_UID, groupId: ROW_A },
-        { taskUid: FINISHED_UID, groupId: ROW_B },
+        { taskUid: RUNNING_UID, groupId: TASK_GROUP_A },
+        { taskUid: FINISHED_UID, groupId: TASK_GROUP_B },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -113,7 +113,7 @@ function fixtureDocument(): Document {
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
-      scrollGroupId: ROW_A,
+      scrollGroupId: TASK_GROUP_A,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },

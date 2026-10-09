@@ -344,14 +344,14 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   }
 
   const member = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)
-  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, member?.groupId ?? null)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.groupId ?? null)
   const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom, searchJumpReachOf(frame.layout, { kind: 'task', taskUid }))
   const commands = searchJumpCommands(plan)
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
   if (written.accepted) wiring.shownTasks?.holdJumpTarget(taskUid)
-  return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
+  return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedTaskGroups } : written
 }
 
 // see FR-073
@@ -501,7 +501,7 @@ function planAndApply(
       },
       historyLimits: snapshot.historyLimits,
       settingsLimits: snapshot.settingsLimits,
-      defaultRowName: snapshot.defaultRowName,
+      defaultTaskGroupName: snapshot.defaultTaskGroupName,
       editedBy: wiring.writerName,
       updatedUtc: snapshot.readAt,
     },

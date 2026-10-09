@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // see FR-135
 const ONLY_A_PERSON_WRITES_THE_PARENT =
-  '`wbsParentUid` は、人が親定義のドラッグ（表 T-351）で結んだとき、または矢印の `Delete`（`WL-11`）かパネルの ×（`WL-17`）で外したときだけ書くこと（MUST）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
+  '`parentTaskUid` は、人が親定義のドラッグ（表 T-351）で結んだとき、または矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したときだけ書くこと（MUST）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
 
 // see IX-12, T-241
 // WHY: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.
@@ -21,7 +21,7 @@ const SPAN_DOES_NOT_MOVE_THE_SCREEN =
 
 // see IX-13, T-241
 const SPAN_DAY_WIDTH =
-  '1 日の幅を、`Row Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
+  '1 日の幅を、`Task Group Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 
 // see IX-15, T-241
 const SPAN_HEIGHT =
@@ -35,7 +35,7 @@ const STAMP_OF_THE_WRITTEN_BYTES =
   '、ほかでは書くときに下段が示している時刻を入れること（MUST）。下段が `HS-5` のときは空とすること（MUST）'
 
 // see EP-3, T-076
-const ROW_NAME_BASELINE = '⭐ 縦は、書き出す行の名前のベースラインを、その行の行見出しの箱の上端から、その行の名前の字の大きさだけ下に置くこと（MUST）'
+const TASK_GROUP_NAME_BASELINE = '⭐ 縦は、書き出す行の名前のベースラインを、その行の行見出しの箱の上端から、その行の名前の字の大きさだけ下に置くこと（MUST）'
 
 const CLAUSES = [
   ONLY_A_PERSON_WRITES_THE_PARENT,
@@ -44,7 +44,7 @@ const CLAUSES = [
   SPAN_HEIGHT,
   OVERLAY_ONLY_MATCHING_UIDS,
   STAMP_OF_THE_WRITTEN_BYTES,
-  ROW_NAME_BASELINE,
+  TASK_GROUP_NAME_BASELINE,
 ]
 
 const ERP = 'sample-large-erp-program.en.xml'
@@ -110,10 +110,10 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   const byUid = new Map(json.schedule.tasks.map((one) => [one['uid'], one]))
   const cleared: unknown[] = []
   for (const task of json.schedule.tasks) {
-    const parent = byUid.get(task['wbsParentUid'])
+    const parent = byUid.get(task['parentTaskUid'])
     if (parent === undefined || parent['milestone'] === true) continue
     if (String(parent['start']) <= String(task['start']) && String(task['finish']) <= String(parent['finish'])) {
-      task['wbsParentUid'] = null
+      task['parentTaskUid'] = null
       cleared.push(task['uid'])
     }
     if (cleared.length >= 40) break
@@ -122,7 +122,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   await openByDrop(page, 'unstated-parents.json', JSON.stringify(json))
   const parentsOf = async (): Promise<unknown[]> => {
     const document = await readDocument(page)
-    return cleared.map((uid) => document.schedule.tasks.find((one) => one['uid'] === uid)?.['wbsParentUid'])
+    return cleared.map((uid) => document.schedule.tasks.find((one) => one['uid'] === uid)?.['parentTaskUid'])
   }
   expect(await parentsOf(), 'precondition: the opened document states no parent for them').toEqual(cleared.map(() => null))
   // STEP: the places that use a derived parent -- the diagnosis, the pointer over a task, the parent hint (IC-141)
@@ -140,7 +140,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   expect(await parentsOf()).toEqual(cleared.map(() => null))
   const written = await callApi<{ ok: boolean; value: string }>(page, 'return api.exportJson()')
   const writtenTasks = (JSON.parse(written.value) as { schedule: { tasks: Record<string, unknown>[] } }).schedule.tasks
-  expect(cleared.map((uid) => writtenTasks.find((one) => one['uid'] === uid)?.['wbsParentUid'])).toEqual(cleared.map(() => null))
+  expect(cleared.map((uid) => writtenTasks.find((one) => one['uid'] === uid)?.['parentTaskUid'])).toEqual(cleared.map(() => null))
 })
 
 test(`FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
@@ -168,7 +168,7 @@ test(`IX-13: ${SPAN_DAY_WIDTH}`, async ({ page }) => {
   expect(S_81.replace(/\s/g, ''), 'precondition: the test window is the S-81 canvas').toContain(`${VIEWPORT.width}×${VIEWPORT.height}`)
   await launch(page)
   await enableAgentApi(page)
-  // WHY: with the window at S-81 and both panels closed, the screen's Row Area is the one IX-13 lays out for the picture.
+  // WHY: with the window at S-81 and both panels closed, the screen's Task Group Area is the one IX-13 lays out for the picture.
   const area = await boxOf(page, '[data-role="Scrollbars"][data-axis="horizontal"]')
   await setSpan(page, SPAN_START, SPAN_FINISH)
   const svg = await exportedSvg(page)
@@ -249,14 +249,14 @@ test(`HS-11: ${STAMP_OF_THE_WRITTEN_BYTES}`, async ({ page }) => {
   expect(lower.startsWith(await localOf(embedded)), `the single .html carried ${String(embedded)} while the lower line shows "${lower}"`).toBe(true)
 })
 
-test(`EP-3: ${ROW_NAME_BASELINE}`, async ({ page }) => {
+test(`EP-3: ${TASK_GROUP_NAME_BASELINE}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const document = await readDocument(page)
   const names = new Map(document.schedule.taskGroups.map((one) => [String(one['label']), String(one['id'])]))
   const svg = await exportedSvg(page)
   const bandTop = new Map(tagsWithFigure(svg, /^row-.+-band$/).map((tag) => [figureName(tag).slice(4, -5), numberAttr(tag, 'y')]))
-  const rowTitleRight = numberAttr(/<rect x="0" y="[\d.]+" width="([\d.]+)"[^>]*>/.exec(svg)?.[0] ?? '', 'width')
+  const taskGroupTitleRight = numberAttr(/<rect x="0" y="[\d.]+" width="([\d.]+)"[^>]*>/.exec(svg)?.[0] ?? '', 'width')
   const misplaced: string[] = []
   let checked = 0
   for (const match of svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)) {
@@ -265,13 +265,13 @@ test(`EP-3: ${ROW_NAME_BASELINE}`, async ({ page }) => {
     const groupId = names.get(name)
     if (groupId === undefined) continue
     const x = numberAttr(attributes, 'x')
-    if (!(x < rowTitleRight)) continue
+    if (!(x < taskGroupTitleRight)) continue
     const top = bandTop.get(groupId)
     if (top === undefined) continue
     checked += 1
     const expected = top + numberAttr(attributes, 'font-size')
     if (Math.abs(numberAttr(attributes, 'y') - expected) > 0.02) misplaced.push(`${name}: y ${numberAttr(attributes, 'y')} vs ${expected}`)
   }
-  expect(checked, 'precondition: the picture writes row names in the Row Title Panel').toBeGreaterThan(0)
+  expect(checked, 'precondition: the picture writes row names in the Task Group Panel').toBeGreaterThan(0)
   expect(misplaced).toEqual([])
 })

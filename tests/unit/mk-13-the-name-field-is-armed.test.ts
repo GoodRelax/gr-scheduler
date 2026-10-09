@@ -124,7 +124,7 @@ const MK_13 = rowOf('T-023', 'MK-13').cells.join(' ')
  * cases are the TASK's half (the head of this file quotes only that clause), so
  * the clause is picked by the 欄 the task's own wording names.
  */
-const NAME_ROW = ((): string => {
+const NAME_TASK_GROUP = ((): string => {
   const found = /名称の欄（表 T-016 の `(PR-\d+)`）/.exec(MK_13)
   if (found === null) {
     throw new Error('表 T-023 MK-13 no longer names 名称の欄（表 T-016 の `PR-n`） for a task')
@@ -733,7 +733,7 @@ const EMPTY_VIEW: ScreenView = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -776,7 +776,7 @@ const controlOf = (
 })
 
 const NAME_FIELD: PropertyField = {
-  row: NAME_ROW,
+  row: NAME_TASK_GROUP,
   name: 'name',
   text: THE_NAME_ALREADY_THERE,
   isEditable: true,
@@ -868,14 +868,14 @@ describe('the manuscript still says what these cases read', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST THE CELL WOULD MAKE EVERY CASE BELOW
     // AGREE WITH ANYTHING -- rule 04 section 2.
     expect(U_25).toBe('Properties Panel')
-    expect(NAME_ROW).toBe('PR-1')
+    expect(NAME_TASK_GROUP).toBe('PR-1')
     // ⛔ AND THE ROW IT IS NOT. MK-13 names a second row of 表 T-016 for the
     // comment box (CR-368) and prints that clause FIRST, so this states that
     // the guard above is picking a clause rather than the first `PR-n` it meets.
     expect(MK_13, 'MK-13 still settles the comment box on 本文の欄').toContain(
       '本文の欄（表 T-016 の `PR-21`）',
     )
-    expect(NAME_ROW, 'the task\'s clause, not the comment box\'s').not.toBe('PR-21')
+    expect(NAME_TASK_GROUP, 'the task\'s clause, not the comment box\'s').not.toBe('PR-21')
     expect(MK_13, 'MK-13 still puts the focus in the name field').toContain(
       '編集できる状態にして焦点を置き',
     )
@@ -915,7 +915,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
     // 「名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置き」.
     const built = drawPanel()
 
-    askForFocus(built, NAME_ROW)
+    askForFocus(built, NAME_TASK_GROUP)
 
     expect(
       built.world.activeElement,
@@ -930,7 +930,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
     // name character by character, which is the very cost the ruling names.
     const built = drawPanel()
 
-    askForFocus(built, NAME_ROW)
+    askForFocus(built, NAME_TASK_GROUP)
 
     const control = controlCarrying(built, THE_NAME_ALREADY_THERE)
     expect(
@@ -948,7 +948,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
     // several (FR-006).
     const built = drawPanel()
 
-    askForFocus(built, NAME_ROW)
+    askForFocus(built, NAME_TASK_GROUP)
 
     const other = controlCarrying(built, THE_OTHER_VALUE)
     expect(built.world.activeElement).not.toBe(other)
@@ -974,7 +974,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
     // and none of the point.
     const built = drawPanel()
 
-    askForFocus(built, NAME_ROW)
+    askForFocus(built, NAME_TASK_GROUP)
 
     const control = controlCarrying(built, THE_NAME_ALREADY_THERE)
     expect(control.hasAttribute('readonly')).toBe(false)
@@ -1008,7 +1008,7 @@ const AS_1 = rowOf('T-225', 'AS-1').cells.join(' ')
 
 /**
  * The row of 表 T-016 AS-1 names -- read OUT OF AS-1's own cell, never typed
- * (rule 03 section 1), exactly as `NAME_ROW` is read out of MK-13's.
+ * (rule 03 section 1), exactly as `NAME_TASK_GROUP` is read out of MK-13's.
  */
 const ASSIGNEE_ROW = ((): string => {
   const found = /担当者の欄（表 T-016 の `(PR-\d+)`）/.exec(AS_1)
@@ -1059,7 +1059,7 @@ const ASSIGNEE_FIELD: PropertyField = {
 }
 
 /** Every control the panel drew for one row of 表 T-016. */
-const controlsOfRow = (built: Stage, row: string): FakeElement[] =>
+const controlsOfTaskGroup = (built: Stage, row: string): FakeElement[] =>
   controlsIn(oneByRole(built.root(), U_25)).filter(
     (one) => one.getAttribute('data-field-row') === row,
   )
@@ -1090,7 +1090,7 @@ describe('表 T-225 AS-1 -- 担当者の欄を編集できる状態にして焦�
     const active = built.world.activeElement
     expect(active, 'AS-1 (MUST): 担当者の欄 ... 焦点を置くこと').not.toBe(null)
     expect(
-      controlsOfRow(built, ASSIGNEE_ROW),
+      controlsOfTaskGroup(built, ASSIGNEE_ROW),
       'the focused control is one the panel drew for that row',
     ).toContain(active)
   })

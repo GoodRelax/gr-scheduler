@@ -215,9 +215,9 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-const BAR_ROW = '11111111-1111-4111-8111-111111111111'
-const STONE_ROW = '22222222-2222-4222-8222-222222222222'
-const NEW_STONE_ROW = '33333333-3333-4333-8333-333333333333'
+const BAR_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
+const STONE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
+const NEW_STONE_TASK_GROUP = '33333333-3333-4333-8333-333333333333'
 
 /**
  * The Task drawn as a bar, which carries BOTH a plan and an actual -- so that
@@ -248,7 +248,7 @@ const STONE_DAY = '2026-04-15'
  * A milestone that is NOT started. See the last describe.
  *
  * ⭐⭐ PAST `BAR_FINISH` SINCE 2026-09-10, AND THAT IS LOAD-BEARING. The view is
- * fitted to the schedule, so whatever ends LAST lands on the `Row Area`'s right
+ * fitted to the schedule, so whatever ends LAST lands on the `Task Group Area`'s right
  * edge -- a column the pointer cannot occupy, since R3.4 leaves that region
  * half-open. While this day stood at 2026-04-17 the bar Task's 予定の終了点 was
  * the last thing in the document and fell on that edge, and `onEndpoint` below
@@ -267,7 +267,7 @@ const PX_PER_DAY_AT_1X = 20
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -301,7 +301,7 @@ const milestoneVisual = (taskUid: number): TaskVisual =>
     strokeWidthPx: null,
   }) as unknown as TaskVisual
 
-const rowOfSchedule = (id: string, order: number) => ({
+const taskGroupOfSchedule = (id: string, order: number) => ({
   id,
   parentId: null,
   label: `row ${order}`,
@@ -350,14 +350,14 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        rowOfSchedule(BAR_ROW, 0),
-        rowOfSchedule(STONE_ROW, 1),
-        rowOfSchedule(NEW_STONE_ROW, 2),
+        taskGroupOfSchedule(BAR_TASK_GROUP, 0),
+        taskGroupOfSchedule(STONE_TASK_GROUP, 1),
+        taskGroupOfSchedule(NEW_STONE_TASK_GROUP, 2),
       ],
       taskGroupMembers: [
-        { taskUid: BAR_UID, groupId: BAR_ROW },
-        { taskUid: STONE_UID, groupId: STONE_ROW },
-        { taskUid: NEW_STONE_UID, groupId: NEW_STONE_ROW },
+        { taskUid: BAR_UID, groupId: BAR_TASK_GROUP },
+        { taskUid: STONE_UID, groupId: STONE_TASK_GROUP },
+        { taskUid: NEW_STONE_UID, groupId: NEW_STONE_TASK_GROUP },
       ],
       taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(NEW_STONE_UID)],
       commentBoxes: [],
@@ -456,7 +456,7 @@ function screenPane(language: DisplayLanguage = 'en'): ScreenWiring {
         part: 'Command Palette',
         entry: ARMING_ENTRY,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -582,19 +582,19 @@ const centre = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(
 // The places IN-2 names, as points on this fixture's screen
 // ---------------------------------------------------------------------------
 
-/** 何にも当たらない場所: the far corner of the `Row Area`, past every bar. */
+/** 何にも当たらない場所: the far corner of the `Task Group Area`, past every bar. */
 function emptyCanvas(loop: FrameLoop): Point {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
 /**
- * A probe on an endpoint, kept inside the `Row Area`.
+ * A probe on an endpoint, kept inside the `Task Group Area`.
  *
  * ⭐ THE ROW AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
  * one `screen-regions.ts` follows so that neighbouring regions never both claim
  * a point. The note under table T-023a binds that table to the schedule's
- * drawing area (MUST), so a point AT `rowArea.x + rowArea.width` is on no region
+ * drawing area (MUST), so a point AT `taskGroupArea.x + taskGroupArea.width` is on no region
  * at all and IN-2 names no shape there.
  * ⛔⛔ AND STEPPING IN IS NO LONGER A WAY TO REACH AN END. This clamp read
  * 「keeps the probe on the SAME grab region -- S-253 gives GA-2 six px either side
@@ -602,12 +602,12 @@ function emptyCanvas(loop: FrameLoop): Point {
  * 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること（MUST）」.
  * ⭐ SO THE FIXTURE MOVED INSTEAD -- `NEW_STONE_DAY` now ends the schedule, so
  * no end of the bar Task falls on the region's edge and this clamp fires on
- * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Row Area`
+ * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Task Group Area`
  * would be asked where IN-2 names no shape at all, which is not a defect this
  * file means to report.
  */
 function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   return { x: Math.min(x, area.x + area.width - 1), y }
 }
 

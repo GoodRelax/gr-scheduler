@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { installAgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-renderer'
 import { browserClipboard } from '../../src/framework/browser-clipboard/browser-clipboard'
-import { keyOf, rowDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { keyOf, taskGroupDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const benches: ShellBench[] = []
 afterEach(() => {
@@ -20,13 +20,13 @@ const NO_UNREADABLE_COLUMN_REASON = 'RS-63'
 const later = (): Promise<void> => new Promise((done) => setTimeout(done, 30))
 
 const takeOnChooser = (built: ShellBench, icon: string): void => {
-  built.aim({ part: 'Open Chooser', entry: icon, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
+  built.aim({ part: 'Open Chooser', entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
   built.click(80, 120)
   built.aim(null)
 }
 
 const newerDocument = (): Record<string, any> => {
-  const document = rowDocument([{ id: 'g1', parentId: null }])
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }])
   document['schemaVersion'] = NEWER_VERSION
   document['schedule'].project.title = 'A plan from a newer build'
   return document
@@ -40,7 +40,7 @@ describe('FR-073 / FR-022 / AM-8 (DFC-552 3) -- a newer version handed to import
   ]
 
   it.each(shapes)('%s: not refused for its version, opened on the person\'s Replace, and RS-63 told', async (_name, shape) => {
-    const built = shell(rowDocument([{ id: 'g1', parentId: null }]))
+    const built = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
     benches.push(built)
     const api = installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'dfc-552', schemaVersion: TEMPLATE.schemaVersion } as never)
     let outcome: any = 'pending'

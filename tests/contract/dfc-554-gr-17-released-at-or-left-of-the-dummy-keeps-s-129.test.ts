@@ -21,7 +21,7 @@ import {
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from './spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -134,7 +134,7 @@ const notStarted = (): Document =>
       tasks: [
         {
           uid: 1,
-          wbsParentUid: null,
+          parentTaskUid: null,
           wbsOrder: null,
           name: 'Design',
           start: stored(PLAN_START),
@@ -195,7 +195,7 @@ const notStarted = (): Document =>
   }) as unknown as Document
 
 const releasedFromGr17 = (droppedIso: string): EditResult =>
-  editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-6', droppedDay: stored(droppedIso) }, DEFAULT_ROW_NAME_FIXTURE)
+  editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-6', droppedDay: stored(droppedIso) }, DEFAULT_TASK_GROUP_NAME_FIXTURE)
 
 const taskOf = (document: Document): Task => {
   const found = document.schedule.tasks.find((one) => one.uid === 1)

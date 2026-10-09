@@ -3,7 +3,7 @@
 //
 // ⭐ WHY THIS FILE EXISTS. The same fake was copied by hand into
 // tests/unit/fr-053-palette-group-boundary.test.ts, tests/unit/uf-71.test.ts
-// and tests/unit/t-051-hf-6-ground-under-the-row-controls.test.ts, each saying
+// and tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts, each saying
 // in its own head comment that it was copied from the last one. tests/README.md
 // gives tests/fixtures/ to 「what every test shares」, which is what this is.
 // ⛔ NOTHING HERE ASSERTS ANYTHING. It builds a stage and reads it back; every

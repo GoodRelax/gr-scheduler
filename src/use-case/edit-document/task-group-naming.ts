@@ -9,7 +9,7 @@ import { taskByUid, type TaskGroup } from '../../entity/document-model/schedule/
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, withRow, withSchedule } from './edit-task-group'
+import { depthOf, withTaskGroup, withSchedule } from './edit-task-group'
 
 // see CM-26, FR-085, FR-058, AT-153
 /** @purity pure */
@@ -56,7 +56,7 @@ export function createTaskGroup(
   }
   if (refusals.length > 0) return refused(refusals)
 
-  const row: TaskGroup = {
+  const taskGroup: TaskGroup = {
     id: command.id,
     parentId: command.parentId,
     label: command.label,
@@ -67,7 +67,7 @@ export function createTaskGroup(
     color: null,
     minHeight: null,
   }
-  return edited(withSchedule(document, { taskGroups: [...groups, row] }))
+  return edited(withSchedule(document, { taskGroups: [...groups, taskGroup] }))
 }
 
 // see CM-29, FR-085, FR-058
@@ -77,15 +77,15 @@ export function setTaskGroupLabel(
   command: TaskGroupCommandOf<'setTaskGroupLabel'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const row = byId.get(command.groupId)
-  if (row === undefined) {
+  const taskGroup = byId.get(command.groupId)
+  if (taskGroup === undefined) {
     return refused([reject('CM-29', 'FR-085', `no such row: ${command.groupId}`)])
   }
-  if (command.label === null && row.derivedFromTaskUid === null) {
+  if (command.label === null && taskGroup.derivedFromTaskUid === null) {
     return refused([
       reject('CM-29', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
     ])
   }
-  if (row.label === command.label) return edited(document)
-  return edited(withRow(document, { ...row, label: command.label }))
+  if (taskGroup.label === command.label) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, label: command.label }))
 }

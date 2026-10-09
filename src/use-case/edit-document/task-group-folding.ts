@@ -9,7 +9,7 @@ import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/s
 import type { DocumentCommand, EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { withRow, withSchedule } from './edit-task-group'
+import { withTaskGroup, withSchedule } from './edit-task-group'
 import type { DocumentSettingsCommand } from './edit-document-settings'
 
 export interface TreeStateEventCarried {
@@ -22,7 +22,7 @@ type TreeState = TaskGroup['treeState']
 type LevelZeroTreeState = DocumentSettings['levelZeroTreeState']
 
 const ROW_STATE_KEY_PREFIX = 'treeStateMachine.'
-const ROOT_STATE_KEY: TreeStateKey = 'rowTree'
+const ROOT_STATE_KEY: TreeStateKey = 'taskGroupTree'
 
 // WHY: a Record over the type, so a value added to AT-153 fails to compile here.
 const TREE_STATES: Readonly<Record<TreeState, true>> = {
@@ -38,21 +38,21 @@ const LEVEL_ZERO_WRITTEN_BY: Readonly<Record<TreeStateEffectName, LevelZeroTreeS
   writeLevelZeroAuto: 'auto',
 }
 
-interface RowTreeFacts {
+interface TaskGroupTreeFacts {
   readonly byId: ReadonlyMap<string, TaskGroup>
   readonly parentIds: ReadonlySet<string>
   readonly pressedRowId: string | null
   readonly revealedRowId: string | null
 }
 
-const ROW_GUARDS: Readonly<Record<string, (row: TaskGroup, facts: RowTreeFacts) => boolean>> = {
-  isPressedRow: (row, facts) => facts.pressedRowId !== null && row.id === facts.pressedRowId,
-  isChildOfPressedRow: (row, facts) =>
-    facts.pressedRowId !== null && row.parentId === facts.pressedRowId,
-  isBelowPressedRow: (row, facts) => isBelowRow(row, facts.pressedRowId, facts.byId),
-  isLeafRow: (row, facts) => !facts.parentIds.has(row.id),
-  isTopLevelRow: (row) => row.parentId === null,
-  isRevealedRowOrAncestor,
+const TASK_GROUP_GUARDS: Readonly<Record<string, (taskGroup: TaskGroup, facts: TaskGroupTreeFacts) => boolean>> = {
+  isPressedTaskGroup: (taskGroup, facts) => facts.pressedRowId !== null && taskGroup.id === facts.pressedRowId,
+  isChildOfPressedTaskGroup: (taskGroup, facts) =>
+    facts.pressedRowId !== null && taskGroup.parentId === facts.pressedRowId,
+  isBelowPressedTaskGroup: (taskGroup, facts) => isBelowTaskGroup(taskGroup, facts.pressedRowId, facts.byId),
+  isLeafTaskGroup: (taskGroup, facts) => !facts.parentIds.has(taskGroup.id),
+  isTopLevelTaskGroup: (taskGroup) => taskGroup.parentId === null,
+  isRevealedTaskGroupOrAncestor,
 }
 
 const ROOT_GUARDS: Readonly<Record<string, (levelZeroTreeState: LevelZeroTreeState) => boolean>> = {
@@ -78,13 +78,13 @@ function namedGuardOf<T>(guards: Readonly<Record<string, T>>, name: string): T {
 
 // WHY: walks up with a step cap, so a parent cycle in a broken document cannot hang the press.
 /** @purity pure */
-function isBelowRow(
-  row: TaskGroup,
+function isBelowTaskGroup(
+  taskGroup: TaskGroup,
   ancestorId: string | null,
   byId: ReadonlyMap<string, TaskGroup>,
 ): boolean {
   if (ancestorId === null) return false
-  let parentId = row.parentId
+  let parentId = taskGroup.parentId
   for (let steps = 0; parentId !== null && steps <= byId.size; steps++) {
     if (parentId === ancestorId) return true
     parentId = byId.get(parentId)?.parentId ?? null
@@ -94,19 +94,19 @@ function isBelowRow(
 
 // see T-328, SJ-2
 /** @purity pure */
-function isRevealedRowOrAncestor(row: TaskGroup, facts: RowTreeFacts): boolean {
+function isRevealedTaskGroupOrAncestor(taskGroup: TaskGroup, facts: TaskGroupTreeFacts): boolean {
   const revealed = facts.revealedRowId === null ? undefined : facts.byId.get(facts.revealedRowId)
   if (revealed === undefined) return false
-  return revealed.id === row.id || isBelowRow(revealed, row.id, facts.byId)
+  return revealed.id === taskGroup.id || isBelowTaskGroup(revealed, taskGroup.id, facts.byId)
 }
 
 /** @purity pure */
-function rowTreeFactsOf(schedule: Schedule, event: TreeStateEvent): RowTreeFacts {
-  const rows = schedule.taskGroups
+function taskGroupTreeFactsOf(schedule: Schedule, event: TreeStateEvent): TaskGroupTreeFacts {
+  const taskGroups = schedule.taskGroups
   const parentIds = new Set<string>()
-  for (const row of rows) if (row.parentId !== null) parentIds.add(row.parentId)
+  for (const taskGroup of taskGroups) if (taskGroup.parentId !== null) parentIds.add(taskGroup.parentId)
   return {
-    byId: new Map(rows.map((row) => [row.id, row])),
+    byId: new Map(taskGroups.map((taskGroup) => [taskGroup.id, taskGroup])),
     parentIds,
     pressedRowId: 'pressedRowId' in event ? event.pressedRowId : null,
     revealedRowId: 'revealedRowId' in event ? event.revealedRowId : null,
@@ -114,15 +114,15 @@ function rowTreeFactsOf(schedule: Schedule, event: TreeStateEvent): RowTreeFacts
 }
 
 /** @purity pure */
-function nextTreeStateOf(row: TaskGroup, event: TreeStateEvent, facts: RowTreeFacts): TreeState {
-  const state = `${ROW_STATE_KEY_PREFIX}${row.treeState}`
+function nextTreeStateOf(taskGroup: TaskGroup, event: TreeStateEvent, facts: TaskGroupTreeFacts): TreeState {
+  const state = `${ROW_STATE_KEY_PREFIX}${taskGroup.treeState}`
   const cell = TREE_STATE_TRANSITIONS.find(
     (branch) =>
       branch.state === state &&
       branch.event === event.type &&
-      isGuardHeld(branch.guard, (name) => namedGuardOf(ROW_GUARDS, name)(row, facts)),
+      isGuardHeld(branch.guard, (name) => namedGuardOf(TASK_GROUP_GUARDS, name)(taskGroup, facts)),
   )
-  if (cell === undefined) return row.treeState
+  if (cell === undefined) return taskGroup.treeState
   const next = cell.to.slice(ROW_STATE_KEY_PREFIX.length)
   if (!isTreeState(next)) throw new Error(`table T-328 moves a row to no AT-153 value: ${cell.to}`)
   return next
@@ -139,12 +139,12 @@ export function treeStateWritesFor(
   schedule: Schedule,
   event: TreeStateEvent,
 ): readonly DocumentCommand[] {
-  const facts = rowTreeFactsOf(schedule, event)
+  const facts = taskGroupTreeFactsOf(schedule, event)
   const writes: DocumentCommand[] = []
-  for (const row of schedule.taskGroups) {
-    const treeState = nextTreeStateOf(row, event, facts)
-    if (treeState !== row.treeState) {
-      writes.push({ kind: 'setTaskGroupTreeState', groupId: row.id, treeState })
+  for (const taskGroup of schedule.taskGroups) {
+    const treeState = nextTreeStateOf(taskGroup, event, facts)
+    if (treeState !== taskGroup.treeState) {
+      writes.push({ kind: 'setTaskGroupTreeState', groupId: taskGroup.id, treeState })
     }
   }
   return writes
@@ -175,16 +175,16 @@ export function setTaskGroupTreeState(
   command: TaskGroupCommandOf<'setTaskGroupTreeState'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const row = byId.get(command.groupId)
-  if (row === undefined) {
+  const taskGroup = byId.get(command.groupId)
+  if (taskGroup === undefined) {
     return refused([reject('CM-85', 'FR-004', `no such row: ${command.groupId}`)])
   }
   // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (!isTreeState(command.treeState)) {
     return refused([reject('CM-85', 'FR-004', `not a tree state AT-153 names: ${command.treeState}`)])
   }
-  if (row.treeState === command.treeState) return edited(document)
-  return edited(withRow(document, { ...row, treeState: command.treeState }))
+  if (taskGroup.treeState === command.treeState) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, treeState: command.treeState }))
 }
 
 // see CM-72, HF-8, T-328
@@ -192,22 +192,22 @@ export function setTaskGroupTreeState(
 export function resetTaskGroupTreeStates(document: Document): EditResult {
   const schedule = document.schedule
   const fit: TreeStateEvent = { type: 'fitPressed' }
-  const facts = rowTreeFactsOf(schedule, fit)
-  const rows = schedule.taskGroups
-  const reset = rows.map((row) => {
-    const treeState = nextTreeStateOf(row, fit, facts)
-    return treeState === row.treeState ? row : { ...row, treeState }
+  const facts = taskGroupTreeFactsOf(schedule, fit)
+  const taskGroups = schedule.taskGroups
+  const reset = taskGroups.map((taskGroup) => {
+    const treeState = nextTreeStateOf(taskGroup, fit, facts)
+    return treeState === taskGroup.treeState ? taskGroup : { ...taskGroup, treeState }
   })
-  if (reset.every((row, at) => row === rows[at])) return edited(document)
+  if (reset.every((taskGroup, at) => taskGroup === taskGroups[at])) return edited(document)
   return edited(withSchedule(document, { taskGroups: reset }))
 }
 
 // <generated -- do not edit by hand>
-// From docs/spec/_source/state-machines.json, region rowTree (table T-328).
+// From docs/spec/_source/state-machines.json, region taskGroupTree (table T-328).
 // Rebuild: npm run gen (tools/generate_state_machine_types.py).
 
 export type TreeStateKey =
-  | 'rowTree'
+  | 'taskGroupTree'
   | 'treeStateMachine.auto'
   | 'treeStateMachine.collapsed'
   | 'treeStateMachine.expanded'
@@ -219,14 +219,14 @@ export type TreeStateEvent =
   | { readonly type: 'allBelowOpenPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
   | { readonly type: 'hidePressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
   | { readonly type: 'allBelowFoldPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
-  | { readonly type: 'everyRowOpenPressed' }
-  | { readonly type: 'everyRowFoldPressed' }
+  | { readonly type: 'everyTaskGroupOpenPressed' }
+  | { readonly type: 'everyTaskGroupFoldPressed' }
   | { readonly type: 'topLevelOpenPressed' }
-  | { readonly type: 'childRowAddPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
+  | { readonly type: 'childTaskGroupAddPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
   | { readonly type: 'fitPressed' }
-  | { readonly type: 'everyRowDeletePressed' }
-  | { readonly type: 'rowZoomShrinkPressed' }
-  | { readonly type: 'rowRevealAsked'; readonly revealedRowId: TreeStateEventCarried['revealedRowId'] }
+  | { readonly type: 'everyTaskGroupDeletePressed' }
+  | { readonly type: 'verticalZoomShrinkPressed' }
+  | { readonly type: 'taskGroupRevealAsked'; readonly revealedRowId: TreeStateEventCarried['revealedRowId'] }
 
 export type TreeStateEffectName =
   | 'writeLevelZeroCollapsed'
@@ -243,65 +243,65 @@ export interface TreeStateTransition {
 
 const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
-    state: 'rowTree',
-    event: 'everyRowFoldPressed',
+    state: 'taskGroupTree',
+    event: 'everyTaskGroupFoldPressed',
     guard: null,
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroCollapsed',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
-    event: 'everyRowOpenPressed',
+    state: 'taskGroupTree',
+    event: 'everyTaskGroupOpenPressed',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
+    state: 'taskGroupTree',
     event: 'topLevelOpenPressed',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
-    event: 'childRowAddPressed',
+    state: 'taskGroupTree',
+    event: 'childTaskGroupAddPressed',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
+    state: 'taskGroupTree',
     event: 'fitPressed',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
-    event: 'everyRowDeletePressed',
+    state: 'taskGroupTree',
+    event: 'everyTaskGroupDeletePressed',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
-    state: 'rowTree',
-    event: 'rowRevealAsked',
+    state: 'taskGroupTree',
+    event: 'taskGroupRevealAsked',
     guard: 'isLevelZeroCollapsed',
-    to: 'rowTree',
+    to: 'taskGroupTree',
     effect: 'writeLevelZeroAuto',
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.auto',
     event: 'oneLevelOpenPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
@@ -309,7 +309,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.collapsed',
     event: 'oneLevelOpenPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
@@ -317,7 +317,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.temporarilyExpanded',
     event: 'oneLevelOpenPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
@@ -325,7 +325,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.hidden',
     event: 'oneLevelOpenPressed',
-    guard: 'isChildOfPressedRow',
+    guard: 'isChildOfPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -333,7 +333,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'allBelowOpenPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -341,7 +341,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'allBelowOpenPressed',
-    guard: 'isBelowPressedRow & not isLeafRow',
+    guard: 'isBelowPressedTaskGroup & not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -349,7 +349,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.collapsed',
     event: 'allBelowOpenPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -357,7 +357,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.collapsed',
     event: 'allBelowOpenPressed',
-    guard: 'isBelowPressedRow & not isLeafRow',
+    guard: 'isBelowPressedTaskGroup & not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -365,7 +365,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.collapsed',
     event: 'allBelowOpenPressed',
-    guard: 'isBelowPressedRow & isLeafRow',
+    guard: 'isBelowPressedTaskGroup & isLeafTaskGroup',
     to: 'treeStateMachine.auto',
     effect: null,
     effectArgument: null,
@@ -373,7 +373,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.hidden',
     event: 'allBelowOpenPressed',
-    guard: 'isBelowPressedRow & not isLeafRow',
+    guard: 'isBelowPressedTaskGroup & not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -381,7 +381,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.hidden',
     event: 'allBelowOpenPressed',
-    guard: 'isBelowPressedRow & isLeafRow',
+    guard: 'isBelowPressedTaskGroup & isLeafTaskGroup',
     to: 'treeStateMachine.auto',
     effect: null,
     effectArgument: null,
@@ -389,7 +389,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'hidePressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.hidden',
     effect: null,
     effectArgument: null,
@@ -397,7 +397,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'hidePressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -405,7 +405,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.collapsed',
     event: 'hidePressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.hidden',
     effect: null,
     effectArgument: null,
@@ -413,7 +413,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.expanded',
     event: 'hidePressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.hidden',
     effect: null,
     effectArgument: null,
@@ -421,7 +421,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.expanded',
     event: 'hidePressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -429,7 +429,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.temporarilyExpanded',
     event: 'hidePressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.hidden',
     effect: null,
     effectArgument: null,
@@ -437,7 +437,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.temporarilyExpanded',
     event: 'hidePressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -445,7 +445,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'allBelowFoldPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -453,7 +453,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.auto',
     event: 'allBelowFoldPressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -461,7 +461,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.expanded',
     event: 'allBelowFoldPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -469,7 +469,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.expanded',
     event: 'allBelowFoldPressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -477,7 +477,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.temporarilyExpanded',
     event: 'allBelowFoldPressed',
-    guard: 'isPressedRow',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
@@ -485,54 +485,54 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.temporarilyExpanded',
     event: 'allBelowFoldPressed',
-    guard: 'isBelowPressedRow',
+    guard: 'isBelowPressedTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.auto',
-    event: 'everyRowOpenPressed',
-    guard: 'not isLeafRow',
+    event: 'everyTaskGroupOpenPressed',
+    guard: 'not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.collapsed',
-    event: 'everyRowOpenPressed',
-    guard: 'not isLeafRow',
+    event: 'everyTaskGroupOpenPressed',
+    guard: 'not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.collapsed',
-    event: 'everyRowOpenPressed',
-    guard: 'isLeafRow',
+    event: 'everyTaskGroupOpenPressed',
+    guard: 'isLeafTaskGroup',
     to: 'treeStateMachine.auto',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.hidden',
-    event: 'everyRowOpenPressed',
-    guard: 'not isLeafRow',
+    event: 'everyTaskGroupOpenPressed',
+    guard: 'not isLeafTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.hidden',
-    event: 'everyRowOpenPressed',
-    guard: 'isLeafRow',
+    event: 'everyTaskGroupOpenPressed',
+    guard: 'isLeafTaskGroup',
     to: 'treeStateMachine.auto',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.auto',
-    event: 'everyRowFoldPressed',
+    event: 'everyTaskGroupFoldPressed',
     guard: null,
     to: 'treeStateMachine.collapsed',
     effect: null,
@@ -540,7 +540,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   },
   {
     state: 'treeStateMachine.expanded',
-    event: 'everyRowFoldPressed',
+    event: 'everyTaskGroupFoldPressed',
     guard: null,
     to: 'treeStateMachine.collapsed',
     effect: null,
@@ -548,7 +548,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   },
   {
     state: 'treeStateMachine.temporarilyExpanded',
-    event: 'everyRowFoldPressed',
+    event: 'everyTaskGroupFoldPressed',
     guard: null,
     to: 'treeStateMachine.collapsed',
     effect: null,
@@ -557,23 +557,23 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'treeStateMachine.hidden',
     event: 'topLevelOpenPressed',
-    guard: 'isTopLevelRow',
+    guard: 'isTopLevelTaskGroup',
     to: 'treeStateMachine.collapsed',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.auto',
-    event: 'childRowAddPressed',
-    guard: 'isPressedRow',
+    event: 'childTaskGroupAddPressed',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.collapsed',
-    event: 'childRowAddPressed',
-    guard: 'isPressedRow',
+    event: 'childTaskGroupAddPressed',
+    guard: 'isPressedTaskGroup',
     to: 'treeStateMachine.temporarilyExpanded',
     effect: null,
     effectArgument: null,
@@ -604,7 +604,7 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   },
   {
     state: 'treeStateMachine.temporarilyExpanded',
-    event: 'rowZoomShrinkPressed',
+    event: 'verticalZoomShrinkPressed',
     guard: null,
     to: 'treeStateMachine.auto',
     effect: null,
@@ -612,32 +612,32 @@ const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   },
   {
     state: 'treeStateMachine.auto',
-    event: 'rowRevealAsked',
-    guard: 'isRevealedRowOrAncestor',
+    event: 'taskGroupRevealAsked',
+    guard: 'isRevealedTaskGroupOrAncestor',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.collapsed',
-    event: 'rowRevealAsked',
-    guard: 'isRevealedRowOrAncestor',
+    event: 'taskGroupRevealAsked',
+    guard: 'isRevealedTaskGroupOrAncestor',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.temporarilyExpanded',
-    event: 'rowRevealAsked',
-    guard: 'isRevealedRowOrAncestor',
+    event: 'taskGroupRevealAsked',
+    guard: 'isRevealedTaskGroupOrAncestor',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
   },
   {
     state: 'treeStateMachine.hidden',
-    event: 'rowRevealAsked',
-    guard: 'isRevealedRowOrAncestor',
+    event: 'taskGroupRevealAsked',
+    guard: 'isRevealedTaskGroupOrAncestor',
     to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,

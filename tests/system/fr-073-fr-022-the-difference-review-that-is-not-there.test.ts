@@ -552,7 +552,7 @@ async function sweep(page: Page): Promise<Measured> {
       // printed by the page. That is what produced 42 「strangers」 out of a
       // surface that had printed none, and it is the same family as the trap
       // section 6 of docs/development-rules/04-verification.md already records
-      // about a row name and what textContent gives back for it.
+      // about a task group name and what textContent gives back for it.
       // ⭐ SO EACH LEAF IS ASKED FOR ITS OWN WORDS. Two things the page drew
       // apart are never read as one, and nothing is forgiven: every number the
       // surface actually prints is still weighed against the shared UIDs.

@@ -24,7 +24,7 @@
 //                        screen?, files?, showPointerShape?, clipboard?,
 //                        startedFromTemplate?)`
 //   schedule-layout.ts   `ScheduleLayout.originDay` -- 「The day the left edge
-//                        of the Row Area points at (S-77)」, `CalendarDay | null`
+//                        of the Task Group Area points at (S-77)」, `CalendarDay | null`
 //   schedule.ts          `CalendarDay`, `textOfDay`, and the entity types this
 //                        fixture writes out
 // ⛔ NOT ONE EXPECTED VALUE BELOW CAME OUT OF A BODY. Every day asserted is a
@@ -192,8 +192,8 @@ const runDayOf = (at: Date): string =>
     at.getDate(),
   ).padStart(2, '0')}`
 
-const ROW_ONE = '3a000000-0000-4000-8000-000000000001'
-const ROW_TWO = '3a000000-0000-4000-8000-000000000002'
+const TASK_GROUP_ONE = '3a000000-0000-4000-8000-000000000001'
+const TASK_GROUP_TWO = '3a000000-0000-4000-8000-000000000002'
 
 /**
  * The days the base document is built out of.
@@ -229,7 +229,7 @@ const STORED_ZOOM_Y = 2
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -295,10 +295,10 @@ function documentOf(edit: (draft: any) => void = () => {}): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [group(ROW_ONE, 0, 'One'), group(ROW_TWO, 1, 'Two')],
+      taskGroups: [group(TASK_GROUP_ONE, 0, 'One'), group(TASK_GROUP_TWO, 1, 'Two')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ROW_ONE },
-        { taskUid: 2, groupId: ROW_TWO },
+        { taskUid: 1, groupId: TASK_GROUP_ONE },
+        { taskUid: 2, groupId: TASK_GROUP_TWO },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -379,7 +379,7 @@ interface DrawnPlace {
   readonly origin: string | null
   readonly startupDay: string | null
   /** S-78's half: the row the frame drew first. */
-  readonly topRow: string | null
+  readonly topTaskGroup: string | null
 }
 
 /**
@@ -407,14 +407,14 @@ function frameOfBoot(document: Document, fromTemplate: boolean): DrawnPlace {
   const values = loop.current()
   if (values === null) throw new Error('BO-1 settled no size, so no frame was drawn')
   const origin = values.layout.originDay
-  const startupDay = dateAtX(values.layout, values.regions.rowArea.x + STARTUP_MARGIN_PX)
+  const startupDay = dateAtX(values.layout, values.regions.taskGroupArea.x + STARTUP_MARGIN_PX)
   return {
     startupDay: startupDay === null ? null : dayPart(textOfDay(startupDay)),
     pxPerDay: values.layout.pxPerDay,
     // `textOfDay` answers the stored spelling, which carries a time part the
     // schedule never interprets (FR-054, MUST NOT). The day is what is compared.
     origin: origin === null ? null : dayPart(textOfDay(origin)),
-    topRow: values.layout.rows[0]?.groupId ?? null,
+    topTaskGroup: values.layout.taskGroups[0]?.groupId ?? null,
   }
 }
 
@@ -517,7 +517,7 @@ describe('OP-10 -- the days it MUST NOT count', () => {
         leaderShapeKind: 'polyline',
         text: 'Note',
         anchorDate: stored(NOT_COUNTED),
-        anchorGroupId: ROW_ONE,
+        anchorGroupId: TASK_GROUP_ONE,
         bodyOffsetPx: null,
       })
     })
@@ -530,8 +530,8 @@ describe('OP-10 -- the days it MUST NOT count', () => {
         id: '3c000000-0000-4000-8000-000000000001',
         startDate: stored(NOT_COUNTED),
         endDate: stored('2026-01-20'),
-        topGroupId: ROW_ONE,
-        bottomGroupId: ROW_TWO,
+        topGroupId: TASK_GROUP_ONE,
+        bottomGroupId: TASK_GROUP_TWO,
         strokeColor: null,
         cornerRadiusPx: null,
       })

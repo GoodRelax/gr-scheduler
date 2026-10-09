@@ -6,7 +6,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import {
   DEEP_ZOOM,
   REQUIREMENTS,
-  chooseRow,
+  chooseTaskGroup,
   documentOf,
   openDocument,
   openStage,
@@ -72,7 +72,7 @@ test('DU-2: the copy of a subtree keeps collapsed and hidden, turns expanded and
       expect.arrayContaining(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden']),
     )
     // STEP: choose S, copy, paste
-    await chooseRow(page, 'S')
+    await chooseTaskGroup(page, 'S')
     await pressKey(page, 'SK-4')
     await pressKey(page, 'SK-5')
     const after = await readTree(page)

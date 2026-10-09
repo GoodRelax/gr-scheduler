@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
-import { rowDocument } from '../unit/cr-541-stage'
+import { taskGroupDocument } from '../unit/cr-541-stage'
 import { unbroken } from './spec-table'
 import { exportStage, restoreAnimationFrames, SMALL_SCREEN, templateDocument } from './w3-t3-frame-stage'
 
@@ -49,7 +49,7 @@ const spellingsIn = (manuscript: string): string[] =>
 
 // WHY: the shared bench decodes a document with one task and one row, whose visual and band colours are the ones under test.
 function documentWith(colour: string): string {
-  const raw = rowDocument([{ id: 'r1', parentId: null }])
+  const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
   raw['schedule'].taskVisuals[0].fillColor = colour
   raw['schedule'].taskVisuals[0].strokeColor = colour
   raw['schedule'].taskGroups[0].color = colour

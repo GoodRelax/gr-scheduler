@@ -107,7 +107,7 @@ export function rowIdOf(index: number): string {
 export function taskRow(uid: number, part: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `T${uid}`,
     start: april(6, S_482),
@@ -363,7 +363,7 @@ export function stage(document: Document, emptyDocument?: Document): Stage {
         part: surfaceName,
         entry,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -378,7 +378,7 @@ export function stage(document: Document, emptyDocument?: Document): Stage {
         entry: null,
         confirmationAnswer: answer,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,

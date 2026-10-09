@@ -33,7 +33,7 @@ export interface FieldEntryValuesEventCarried {
 }
 
 interface FieldEntryValuesEffectPayloads {
-  readonly bringCreatedRowIntoSight: { readonly groupId: string }
+  readonly bringCreatedTaskGroupIntoSight: { readonly groupId: string }
 }
 
 export type FieldEntryValuesEffect = {
@@ -79,7 +79,7 @@ export type FieldEntryValuesEvent =
   | { readonly type: 'choiceMoved' }
 
 export type FieldEntryValuesEffectName =
-  | 'bringCreatedRowIntoSight'
+  | 'bringCreatedTaskGroupIntoSight'
 
 const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = {
   createdTaskNamingState: { kind: 'idle' },
@@ -95,7 +95,7 @@ type Effects = readonly FieldEntryValuesEffect[]
 
 const TASK_NAME_FIELD_ROW: FieldEntryFieldRow = 'PR-1'
 
-const ROW_NAME_FIELD_ROW: FieldEntryFieldRow = 'AT-53'
+const TASK_GROUP_NAME_FIELD_TASK_GROUP: FieldEntryFieldRow = 'AT-53'
 
 // see T-292
 export const emptyFieldEntryValues: FieldEntryValues = { ...FIELD_ENTRY_VALUES_INITIAL_AXES }
@@ -176,8 +176,8 @@ function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLand
   if (isCreatedTask(created)) {
     return combined(values, named(naming, created.uid), wanted(edit, TASK_NAME_FIELD_ROW), NO_EFFECTS)
   }
-  const effects: Effects = [{ type: 'bringCreatedRowIntoSight', groupId: created.groupId }]
-  return combined(values, naming, wanted(edit, ROW_NAME_FIELD_ROW), effects)
+  const effects: Effects = [{ type: 'bringCreatedTaskGroupIntoSight', groupId: created.groupId }]
+  return combined(values, naming, wanted(edit, TASK_GROUP_NAME_FIELD_TASK_GROUP), effects)
 }
 
 /** @purity pure */

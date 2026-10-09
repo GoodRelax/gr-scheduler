@@ -198,11 +198,11 @@ const BETA = '22222222-2222-4222-8222-222222222222'
  * document that already carried a status date would drive the CLEARING half and
  * never the writing these cases read. The first describe below pins it.
  */
-function twoRowDocument(): Document {
+function twoTaskGroupDocument(): Document {
   const template = structuredClone(TEMPLATE) as any
   const task = (uid: number, start: string, finish: string, name: string): Task => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -399,7 +399,7 @@ const pointsOfBar = (bar: BarGeometry | null): Point[] => {
 }
 
 /**
- * A point inside the Row Area (U-50) that no drawn Task occupies, so that a
+ * A point inside the Task Group Area (U-50) that no drawn Task occupies, so that a
  * press there is PTD-5 of table T-023a: 何にも当たらない かつ 構えていない,
  * which is a range selection. The premise -- that it really does miss
  * everything drawn -- is asserted by a case of its own below.
@@ -407,7 +407,7 @@ const pointsOfBar = (bar: BarGeometry | null): Point[] => {
 function emptySpot(loop: FrameLoop): { x: number; y: number } {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame')
-  const area = values.regions.rowArea
+  const area = values.regions.taskGroupArea
   return { x: area.x + area.width / 2, y: area.y + area.height - 2 }
 }
 
@@ -487,7 +487,7 @@ function expectDocumentUntouched(loop: FrameLoop, before: Document, why: string)
 
 describe('the premises these cases rest on', () => {
   it('the document is a valid GRS JSON document', () => {
-    const report = validateDocument(twoRowDocument())
+    const report = validateDocument(twoTaskGroupDocument())
     expect(report.errors).toEqual([])
     expect(report.valid).toBe(true)
   })
@@ -496,7 +496,7 @@ describe('the premises these cases rest on', () => {
     // ⛔ A premise. FR-046 makes 基準日線を出す操作 the one that writes today,
     // and SK-20 chooses between showing and hiding by whether `statusDate`
     // holds anything.
-    expect(projectOf(twoRowDocument()).statusDate).toBeNull()
+    expect(projectOf(twoTaskGroupDocument()).statusDate).toBeNull()
   })
 
   it('a plain press is in flight until it ends, which is what IN-4 / IN-4a report', () => {
@@ -504,7 +504,7 @@ describe('the premises these cases rest on', () => {
     // itself sound. Before any press, IN-4a hands `Esc` to the browser (MUST);
     // after a press, IN-4's level 2 stands and the key is taken.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     expect(pressIsInFlight(loop), 'IN-4a: nothing to consume, so Esc goes to the browser').toBe(
@@ -526,7 +526,7 @@ describe('the premises these cases rest on', () => {
     // left here is S-250 / S-257's 12px; S-268 / S-269 are 8 × 8px, S-137 6px. This asks for
     // more than twice the widest of them.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     expect(clearanceFrom(loop, emptySpot(loop))).toBeGreaterThan(32)
     pane.runAnimationFrames()
@@ -554,7 +554,7 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // writes `Project.statusDate` from the keyboard alone, so the refusal
     // cannot be confused with 「nothing was selected to write to」.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -589,7 +589,7 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // press leaves `statusDate` null and the second arrival is the one that
     // writes today into it -- the toggle never got its first half.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -612,7 +612,7 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // that is the level the first Esc takes -- after which AG-9 has no gesture
     // left to refuse for.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -632,7 +632,7 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // its reason: 終わらせないと「ドラッグ中」が解けず、`Agent API` の書き込み
     // が以後ずっと拒否される（表 T-035 の AG-9）.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y))
@@ -654,7 +654,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
 
   it('a base date line has been written and a press is in flight -> Ctrl+Z arrives -> the document is unchanged', () => {
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     // UN-13 of table T-027 puts 基準日（出す / 動かす / 消すのいずれも） among
@@ -679,7 +679,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
     // by a release, so that nothing the release would settle (IN-1) can add a
     // second undo step and change what Ctrl+Z is undoing.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
@@ -697,7 +697,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
 
   it('an undo has been made and a press is in flight -> Ctrl+Y arrives -> the document is unchanged', () => {
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
@@ -717,7 +717,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
   it('the press has been interrupted -> Ctrl+Y arrives -> the redo lands', () => {
     // ⭐ THE CONTROL for the case above.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
@@ -771,7 +771,7 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
     // it landed on a Task's plan bar -- and a pan is UN-8, 対象外, which AG-9
     // names as not refused.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const centre = planCentre(loop, 1)
 
     loop.receiveInput(pointer('down', centre.x, centre.y, { modifiers: { ctrl: true } }))
@@ -789,7 +789,7 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
     // PTD-5 of table T-023a: 何にも当たらない かつ 構えていない = 範囲選択. A
     // selection is UN-9, 対象外, which AG-9 names as not refused.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const spot = emptySpot(loop)
 
     loop.receiveInput(pointer('down', spot.x, spot.y))
@@ -1070,12 +1070,12 @@ const GUIDE_ENTRANCES = ENTRANCES.filter((one) => one.row === 'S-66').map((one) 
 // ---------------------------------------------------------------------------
 
 /**
- * The two-row document with some of its settings put somewhere else.
+ * The two-task-group document with some of its settings put somewhere else.
  *
  * @purity pure
  */
 function documentWithSettings(overrides: Record<string, unknown>): Document {
-  const draft = twoRowDocument() as any
+  const draft = twoTaskGroupDocument() as any
   return {
     ...draft,
     documentSettings: { ...draft.documentSettings, ...overrides },
@@ -1148,7 +1148,7 @@ function screenPane(language: DisplayLanguage = 'ja', themePreference: 'light' |
  * @purity non-pure
  */
 function takeEntry(loop: FrameLoop, pane: Pane, part: string, entry: string): void {
-  pane.drawAt({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+  pane.drawAt({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   loop.receiveInput(pointer('down', 500, 300))
   loop.receiveInput(pointer('up', 500, 300))
   pane.drawAt(null)
@@ -1271,7 +1271,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
       asked += 1
       return pump(callback)
     }
-    run.screen.drawAt({ part: APP_HEADER, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+    run.screen.drawAt({ part: APP_HEADER, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
     run.loop.receiveInput(pointer('down', 500, 300))
     run.frames.runAnimationFrames()
     return {

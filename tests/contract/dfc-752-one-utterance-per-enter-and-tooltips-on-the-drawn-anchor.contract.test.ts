@@ -53,7 +53,7 @@ function viewWith(patch: { title: string; tooltips: readonly Tooltip[]; dialogue
       commands: [headerCommand],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

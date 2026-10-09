@@ -31,7 +31,7 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable } from './spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -94,11 +94,11 @@ const firstTaskNameIn = (document: Document): string | null =>
   document.schedule.tasks[0]?.name ?? null
 
 // WHY: LY-5 keeps these outside the three inner layers, so they arrive as
-// arguments; rowAreaWidthWithoutPanels is wide enough that FR-052 never binds.
+// arguments; taskGroupAreaWidthWithoutPanels is wide enough that FR-052 never binds.
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 // WHY: FR-031 measures a step as the JSON-serialized document, UTF-8 bytes.
@@ -148,7 +148,7 @@ function bench(): Bench {
       writes += 1
       return applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
@@ -164,8 +164,8 @@ function bench(): Bench {
     undo: () =>
       replaceDocument(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
-          newGroupId: 'fresh-row',
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
+          newGroupId: 'fresh-task-group',
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           // WHY: table T-230 forbids a replacement naming no row; RD-1 is the undo row.
@@ -205,7 +205,7 @@ const rename = (name: string): DocumentCommand =>
   ({ kind: commandKindOf('CM-9'), uid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
 const NAME_BEFORE = firstTaskNameIn(START)
-const NAME_AFTER = 'RenamedWhileARowWasPinned'
+const NAME_AFTER = 'RenamedWhileATaskGroupWasPinned'
 
 describe('表 T-027 -- pinning is 対象, and the neighbouring row says so too', () => {
   it('⭐ files UN-14 under 対象, which is the whole premise of this file', () => {

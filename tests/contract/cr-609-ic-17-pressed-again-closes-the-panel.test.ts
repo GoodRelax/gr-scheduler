@@ -74,7 +74,7 @@ function oneTaskDocument(): Document {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },
       tasks: [
         {
-          uid: TASK_UID, wbsParentUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
+          uid: TASK_UID, parentTaskUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
           milestone: false, deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null,
           actualFinish: null, resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
           fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],
@@ -162,7 +162,7 @@ function bench(): Bench {
     send,
     pressIc17: () => {
       const from = views.length
-      aimed = { part: APP_HEADER, entry: IC_17, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part: APP_HEADER, entry: IC_17, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 700, 20))
       send(pointer('up', 700, 20))
       aimed = null

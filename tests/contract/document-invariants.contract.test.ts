@@ -312,7 +312,7 @@ const TASK_B_UID = 102
 
 const TASK_A: Task = {
   uid: TASK_A_UID,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: 1,
   name: 'first',
   start: '2026-01-05',
@@ -337,7 +337,7 @@ const TASK_A: Task = {
 const TASK_B: Task = {
   ...TASK_A,
   uid: TASK_B_UID,
-  wbsParentUid: TASK_A_UID,
+  parentTaskUid: TASK_A_UID,
   wbsOrder: 2,
   name: 'second',
   start: '2026-01-12',
@@ -571,10 +571,10 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // A pinned row (S-126) naming a `TaskGroup` that is not there.
   'IV-3': () => withSettings({ pinnedGroupIds: [uuidOf(999)] }),
 
-  // The WBS parents close a ring: each of the two names the other.
+  // The parent tasks close a ring: each of the two names the other.
   'IV-4': () =>
     withSchedule({
-      tasks: [{ ...TASK_A, wbsParentUid: TASK_B_UID }, TASK_B],
+      tasks: [{ ...TASK_A, parentTaskUid: TASK_B_UID }, TASK_B],
     }),
 
   // A chain of rows nested past S-125.
@@ -835,8 +835,8 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
 const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Project.calendarUid': () => withSchedule({ project: { ...PROJECT, calendarUid: MISSING_UID } }),
 
-  'Task.wbsParentUid': () =>
-    withSchedule({ tasks: [TASK_A, { ...TASK_B, wbsParentUid: MISSING_UID }] }),
+  'Task.parentTaskUid': () =>
+    withSchedule({ tasks: [TASK_A, { ...TASK_B, parentTaskUid: MISSING_UID }] }),
 
   'Task.calendarUid': () =>
     withSchedule({ tasks: [{ ...TASK_A, calendarUid: MISSING_UID }, TASK_B] }),

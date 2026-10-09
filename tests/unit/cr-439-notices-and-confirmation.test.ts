@@ -76,14 +76,14 @@ const CONFIRMATION_VIEW: Confirmation = {
   question: 'Delete these rows?',
   text: 'Delete these rows?',
   items: [
-    { name: 'Row alpha', isShownOnAnotherRow: false },
-    { name: 'Row beta', isShownOnAnotherRow: true },
+    { name: 'Row alpha', isShownOnAnotherTaskGroup: false },
+    { name: 'Row beta', isShownOnAnotherTaskGroup: true },
   ],
   answers: [
     { answer: 'yes', text: 'Yes' },
     { answer: 'no', text: 'No' },
   ],
-  shownOnAnotherRowMark: '*',
+  shownOnAnotherTaskGroupMark: '*',
 }
 
 function viewWith(notices: readonly Notice[], confirmation: Confirmation | null): ScreenView {
@@ -99,7 +99,7 @@ function viewWith(notices: readonly Notice[], confirmation: Confirmation | null)
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

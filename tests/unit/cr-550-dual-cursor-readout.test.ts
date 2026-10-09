@@ -129,7 +129,7 @@ const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, 
 
 const TASK = {
   uid: 1,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: 'alpha',
   start: '2026-04-01T08:00:00',
@@ -221,7 +221,7 @@ const readingsAt = (pointer: { x: number; y: number } | null, part: Record<strin
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
-    rowBoxes: [],
+    taskGroupBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
     ...part,
   }) as unknown as ScreenViewReadings
@@ -231,7 +231,7 @@ const stageOf = (stored: Placed) => {
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(SCHEDULE, settings, regions)
   const axis = timeAxisOf(settings, regions)
-  const middleY = regions.rowArea.y + regions.rowArea.height / 2
+  const middleY = regions.taskGroupArea.y + regions.taskGroupArea.height / 2
   const pointOn = (year: number, month: number, day: number) => {
     const x = xFromDay(layout, { year, month, day })
     expect(dateAtX(axis, x), 'premise: the point stands on that day').toEqual({ year, month, day })

@@ -92,7 +92,7 @@ const LOW = AT_104?.json?.min ?? Number.NaN
 const HIGH = AT_104?.json?.max ?? Number.NaN
 const S_39 = stored('S-39')
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const TASK = 1
 
 describe(`AT-104 -- ${CL_2_RANGE_AT_AT_104}`, () => {

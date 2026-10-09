@@ -265,7 +265,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     commands: [commandOf(ICON)],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -300,7 +300,7 @@ const EMPTY_READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   // GR-21 of table T-023d divides these to get the scrollbar grip's
   // length, and this file asks nothing of it. ⭐ A whole of zero is
   // "everything fits", which is the lane-long grip SC-4 of table T-031

@@ -46,7 +46,7 @@ const oneTaskDocument = (): Document =>
       calendars: structuredClone(TEMPLATE.schedule.calendars),
       tasks: [
         {
-          uid: TASK_UID, wbsParentUid: null, wbsOrder: 1, name: 'named', start: '2026-04-06', finish: '2026-04-14',
+          uid: TASK_UID, parentTaskUid: null, wbsOrder: 1, name: 'named', start: '2026-04-06', finish: '2026-04-14',
           milestone: false, deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null,
           actualFinish: null, resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
           fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],

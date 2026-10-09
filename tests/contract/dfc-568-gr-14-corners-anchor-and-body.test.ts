@@ -34,7 +34,7 @@ import {
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   layoutFromSchedule,
-  type RowPlacement,
+  type TaskGroupPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionsFromScreen,
@@ -83,7 +83,7 @@ const T_246_NO_NEW_REFUSAL =
 const ANCHOR_READ =
   '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれた行を `anchorGroupId` に置く。'
 const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付と行の識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
-const ANCHOR_NO_ROW =
+const ANCHOR_NO_TASK_GROUP =
   '離した点の下に描かれた行が無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときに行が無ければ作らない `FR-019` と同じである。'
 const ANCHOR_NOT_NEAREST =
   '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、線先は日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
@@ -110,7 +110,7 @@ const HB_2_TREE = '上下は `FR-019` の「行の木における順位で判ず
 const HB_3_ROW =
   '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれた行が無いときは動かさず、`RS-44` を運ぶ |'
 const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれた行で同じ行数だけずらす。'
-const HB_3_NO_ROW = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を運ぶ'
+const HB_3_NO_TASK_GROUP = 'ずらした先に描かれた行が無いときは動かさず、`RS-44` を運ぶ'
 const HB_3_FOLDED =
   '⚠️ 畳んだ行やピン留めした行（`FR-098`）をまたぐと、保存される範囲が文書の行の数で伸び縮みする'
 const HB_4_HEAD = '| HB-4 | 四隅を横に動かす |'
@@ -125,7 +125,7 @@ const HB_5_GAP =
 const HB_5_DISTANCE = '境目までの距離は隙間の範囲までの距離とし、隙間の中では 0 とする。'
 const HB_5_ENDS = '最初に描かれた帯より上は最初の行の上の境目、最後に描かれた帯より下は最後の行の下の境目とする。'
 const HB_5_TIE = '上下の 2 つの境目から等しい距離のときは、下の境目を採る。'
-const HB_5_ROWS =
+const HB_5_TASK_GROUPS =
   '上の隅はその境目のすぐ下に描かれた行を `topGroupId` に、下の隅はその境目のすぐ上に描かれた行を `bottomGroupId` に置く。'
 const HB_5_HORIZONTAL = '横にだけ引いて離したときは行が変わらない'
 const HB_5_NO_REFUSAL = '行が 1 つでも描かれていれば、どこで離しても一番近い境目が在るので、`RS-44` で拒む場面は生じない。'
@@ -211,14 +211,14 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
-const ROW_A = '3a000000-0000-4000-8000-000000000001'
-const ROW_B = '3a000000-0000-4000-8000-000000000002'
-const ROW_C = '3a000000-0000-4000-8000-000000000003'
-const ROW_D = '3a000000-0000-4000-8000-000000000004'
-const ROW_E = '3a000000-0000-4000-8000-000000000005'
-const ROW_F = '3a000000-0000-4000-8000-000000000006'
-const ROW_C1 = '3a000000-0000-4000-8000-000000000031'
-const ROW_C2 = '3a000000-0000-4000-8000-000000000032'
+const TASK_GROUP_A = '3a000000-0000-4000-8000-000000000001'
+const TASK_GROUP_B = '3a000000-0000-4000-8000-000000000002'
+const TASK_GROUP_C = '3a000000-0000-4000-8000-000000000003'
+const TASK_GROUP_D = '3a000000-0000-4000-8000-000000000004'
+const TASK_GROUP_E = '3a000000-0000-4000-8000-000000000005'
+const TASK_GROUP_F = '3a000000-0000-4000-8000-000000000006'
+const TASK_GROUP_C1 = '3a000000-0000-4000-8000-000000000031'
+const TASK_GROUP_C2 = '3a000000-0000-4000-8000-000000000032'
 
 const HIGHLIGHT_ID = '3b000000-0000-4000-8000-000000000001'
 const COMMENT_ID = '3c000000-0000-4000-8000-000000000001'
@@ -239,17 +239,17 @@ const group = (id: string, order: number, part: Record<string, unknown> = {}): R
   ...part,
 })
 
-const FLAT_ROWS = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F].map((id, index) => group(id, index))
+const FLAT_TASK_GROUPS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F].map((id, index) => group(id, index))
 
-const FOLDED_ROWS = [
-  group(ROW_A, 0),
-  group(ROW_B, 1),
-  group(ROW_C, 2, { treeState: 'collapsed' }),
-  group(ROW_C1, 0, { parentId: ROW_C }),
-  group(ROW_C2, 1, { parentId: ROW_C }),
-  group(ROW_D, 3),
-  group(ROW_E, 4),
-  group(ROW_F, 5),
+const FOLDED_TASK_GROUPS = [
+  group(TASK_GROUP_A, 0),
+  group(TASK_GROUP_B, 1),
+  group(TASK_GROUP_C, 2, { treeState: 'collapsed' }),
+  group(TASK_GROUP_C1, 0, { parentId: TASK_GROUP_C }),
+  group(TASK_GROUP_C2, 1, { parentId: TASK_GROUP_C }),
+  group(TASK_GROUP_D, 3),
+  group(TASK_GROUP_E, 4),
+  group(TASK_GROUP_F, 5),
 ]
 
 interface HighlightRange {
@@ -259,10 +259,10 @@ interface HighlightRange {
   readonly bottomGroupId: string
 }
 
-const DEFAULT_RANGE: HighlightRange = { startDate: day(6), endDate: day(16), topGroupId: ROW_B, bottomGroupId: ROW_D }
+const DEFAULT_RANGE: HighlightRange = { startDate: day(6), endDate: day(16), topGroupId: TASK_GROUP_B, bottomGroupId: TASK_GROUP_D }
 
 interface Fixture {
-  readonly rows?: readonly Record<string, unknown>[]
+  readonly taskGroups?: readonly Record<string, unknown>[]
   readonly range?: HighlightRange
   readonly pinned?: readonly string[]
 }
@@ -279,7 +279,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       tasks: [],
       resources: [],
       assignments: [],
-      taskGroups: structuredClone(fixture.rows ?? FLAT_ROWS),
+      taskGroups: structuredClone(fixture.taskGroups ?? FLAT_TASK_GROUPS),
       taskGroupMembers: [],
       taskVisuals: [],
       commentBoxes: [
@@ -288,7 +288,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
           leaderShapeKind: 'polyline',
           text: 'Note',
           anchorDate: day(22),
-          anchorGroupId: ROW_F,
+          anchorGroupId: TASK_GROUP_F,
           bodyOffsetPx: { dx: 60, dy: -60 },
         },
       ],
@@ -309,7 +309,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: ROW_A,
+      scrollGroupId: TASK_GROUP_A,
       scrollGroupOffset: 0,
       pinnedGroupIds: [...(fixture.pinned ?? [])],
     },
@@ -415,13 +415,13 @@ const commentDrawn = (loop: FrameLoop) => {
   return found
 }
 
-const drawnRow = (loop: FrameLoop, groupId: string): RowPlacement => {
-  const found = frameOf(loop).layout.rows.find((one) => one.groupId === groupId)
+const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
   return found
 }
 
-const rowsApart = (loop: FrameLoop, from: string, to: string): number => drawnRow(loop, to).y - drawnRow(loop, from).y
+const taskGroupsApart = (loop: FrameLoop, from: string, to: string): number => drawnTaskGroup(loop, to).y - drawnTaskGroup(loop, from).y
 
 const storedOf = (loop: FrameLoop, list: 'highlightBoxes' | 'commentBoxes', id: string): Record<string, unknown> => {
   const boxes = (loop.document().schedule as unknown as Record<string, readonly Record<string, unknown>[]>)[list]
@@ -443,17 +443,17 @@ const serialDay = (stored: unknown): number => {
   return Date.UTC(Number(text.slice(0, 4)), Number(text.slice(5, 7)) - 1, Number(text.slice(8, 10))) / 86400000
 }
 
-const ROW_LETTER: Readonly<Record<string, string>> = { [ROW_A]: 'A', [ROW_B]: 'B', [ROW_C]: 'C', [ROW_D]: 'D', [ROW_E]: 'E', [ROW_F]: 'F', [ROW_C1]: 'C1', [ROW_C2]: 'C2' }
+const TASK_GROUP_LETTER: Readonly<Record<string, string>> = { [TASK_GROUP_A]: 'A', [TASK_GROUP_B]: 'B', [TASK_GROUP_C]: 'C', [TASK_GROUP_D]: 'D', [TASK_GROUP_E]: 'E', [TASK_GROUP_F]: 'F', [TASK_GROUP_C1]: 'C1', [TASK_GROUP_C2]: 'C2' }
 
-const rowLetter = (id: unknown): string => ROW_LETTER[String(id)] ?? String(id)
+const taskGroupLetter = (id: unknown): string => TASK_GROUP_LETTER[String(id)] ?? String(id)
 
 const expectRange = (loop: FrameLoop, expected: { start: number; end: number; top: string; bottom: string }, what: string): void => {
   const after = storedRange(loop)
   const dayZero = serialDay(day(1)) - 1
   expect(
-    `${serialDay(after['startDate']) - dayZero}..${serialDay(after['endDate']) - dayZero} ${rowLetter(after['topGroupId'])}..${rowLetter(after['bottomGroupId'])}`,
+    `${serialDay(after['startDate']) - dayZero}..${serialDay(after['endDate']) - dayZero} ${taskGroupLetter(after['topGroupId'])}..${taskGroupLetter(after['bottomGroupId'])}`,
     what,
-  ).toBe(`${expected.start}..${expected.end} ${rowLetter(expected.top)}..${rowLetter(expected.bottom)}`)
+  ).toBe(`${expected.start}..${expected.end} ${taskGroupLetter(expected.top)}..${taskGroupLetter(expected.bottom)}`)
 }
 
 const expectNoRs44 = (built: Stage, what: string): void => {
@@ -503,11 +503,11 @@ function releaseAt(built: Stage, press: Point, to: Point): void {
 const dayLeftX = (built: Stage, startDay: number, d: number): number =>
   highlightRect(built.loop).x + (d - startDay) * pxPerDay(built.loop)
 
-const bandTop = (loop: FrameLoop, groupId: string): number => drawnRow(loop, groupId).y
+const bandTop = (loop: FrameLoop, groupId: string): number => drawnTaskGroup(loop, groupId).y
 
 const bandBottom = (loop: FrameLoop, groupId: string): number => {
-  const row = drawnRow(loop, groupId)
-  return row.y + row.height
+  const taskGroup = drawnTaskGroup(loop, groupId)
+  return taskGroup.y + taskGroup.height
 }
 
 const START_OF = (range: HighlightRange): number => Number(range.startDate.slice(8, 10))
@@ -596,7 +596,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     for (const row of [HB_1_ROW, HB_2_ROW, HB_3_ROW]) {
       expect(REQUIREMENTS_RAW).toContain(row)
     }
-    for (const [row, clause] of [[HB_1_ROW, HB_1], [HB_2_ROW, HB_2], [HB_2_ROW, HB_2_TREE], [HB_3_ROW, HB_3], [HB_3_ROW, HB_3_NO_ROW]] as const) {
+    for (const [row, clause] of [[HB_1_ROW, HB_1], [HB_2_ROW, HB_2], [HB_2_ROW, HB_2_TREE], [HB_3_ROW, HB_3], [HB_3_ROW, HB_3_NO_TASK_GROUP]] as const) {
       expect(row).toContain(clause)
     }
     expect(RS_44_WORDS.length).toBeGreaterThan(0)
@@ -605,7 +605,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
   it('T-246 HB-4..HB-6 and HB-12 still read verbatim, each clause on its own row', () => {
     const rows: readonly (readonly [string, readonly string[]])[] = [
       [HB_4_HEAD, [HB_4_NEAREST, HB_4_TIE, HB_4_DAYS, HB_4_KEEP, HB_4_REACH]],
-      [HB_5_HEAD, [HB_5_GAP, HB_5_DISTANCE, HB_5_ENDS, HB_5_TIE, HB_5_ROWS, HB_5_HORIZONTAL, HB_5_NO_REFUSAL, HB_4_REACH]],
+      [HB_5_HEAD, [HB_5_GAP, HB_5_DISTANCE, HB_5_ENDS, HB_5_TIE, HB_5_TASK_GROUPS, HB_5_HORIZONTAL, HB_5_NO_REFUSAL, HB_4_REACH]],
       [HB_6_HEAD, [HB_6_RIGHT, HB_6_LEFT, HB_6_BOTTOM_UP, HB_6_TOP_DOWN, HB_6_NORMALISE, HB_6_EXAMPLE, HB_6_WIDTHS]],
       [HB_12_HEAD, [HB_12_REACH]],
     ]
@@ -619,14 +619,14 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
 
   it('the bands touch (CR-384, S-12 fixed at 0), and there is room below the last row to press outside every band', () => {
     const built = stage()
-    const ids = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]
+    const ids = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
     for (let index = 1; index < ids.length; index += 1) {
       const gap = bandTop(built.loop, ids[index]!) - bandBottom(built.loop, ids[index - 1]!)
       expect(gap, `S-12 is fixed at 0; row ${index} is not flush against the row above it`).toBe(0)
     }
-    expect(bandBottom(built.loop, ROW_F) + 4 * S_230).toBeLessThan(SCREEN.height)
-    expect(highlightRect(built.loop).y).toBe(bandTop(built.loop, ROW_B))
-    expect(highlightRect(built.loop).y + highlightRect(built.loop).height).toBe(bandBottom(built.loop, ROW_D))
+    expect(bandBottom(built.loop, TASK_GROUP_F) + 4 * S_230).toBeLessThan(SCREEN.height)
+    expect(highlightRect(built.loop).y).toBe(bandTop(built.loop, TASK_GROUP_B))
+    expect(highlightRect(built.loop).y + highlightRect(built.loop).height).toBe(bandBottom(built.loop, TASK_GROUP_D))
   })
 
   it('S-230 and S-293 each resolve to one positive number of their own', () => {
@@ -639,7 +639,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
   it('the highlight box is wider and taller than four margins, and the comment anchor stands two margins clear of its body', () => {
     const built = stage()
     const box = highlightRect(built.loop)
-    const area = frameOf(built.loop).regions.rowArea
+    const area = frameOf(built.loop).regions.taskGroupArea
     const inside = (p: Point): boolean =>
       p.x - S_230 > area.x && p.x + S_230 < area.x + area.width && p.y - S_230 > area.y && p.y + S_230 < area.y + area.height
     for (const corner of CORNERS) {
@@ -660,21 +660,21 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
 
   it('the rows are drawn one above the other in tree order, each taller than two margins', () => {
     const built = stage()
-    const ys = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F].map((id) => drawnRow(built.loop, id).y)
+    const ys = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F].map((id) => drawnTaskGroup(built.loop, id).y)
     expect([...ys].sort((a, b) => a - b)).toEqual(ys)
-    for (const id of [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]) {
-      expect(drawnRow(built.loop, id).height).toBeGreaterThan(2 * S_230)
+    for (const id of [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]) {
+      expect(drawnTaskGroup(built.loop, id).height).toBeGreaterThan(2 * S_230)
     }
   })
 
   it('the folded fixture hides C1 and C2 from the screen, and the pinned fixture draws F above A', () => {
-    const folded = stage({ rows: FOLDED_ROWS, range: { ...DEFAULT_RANGE, topGroupId: ROW_A, bottomGroupId: ROW_B } })
-    const drawnIds = frameOf(folded.loop).layout.rows.map((one) => one.groupId)
-    expect(drawnIds).not.toContain(ROW_C1)
-    expect(drawnIds).not.toContain(ROW_C2)
-    expect(drawnIds).toContain(ROW_D)
-    const pinned = stage({ pinned: [ROW_F] })
-    expect(drawnRow(pinned.loop, ROW_F).y).toBeLessThan(drawnRow(pinned.loop, ROW_A).y)
+    const folded = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topGroupId: TASK_GROUP_A, bottomGroupId: TASK_GROUP_B } })
+    const drawnIds = frameOf(folded.loop).layout.taskGroups.map((one) => one.groupId)
+    expect(drawnIds).not.toContain(TASK_GROUP_C1)
+    expect(drawnIds).not.toContain(TASK_GROUP_C2)
+    expect(drawnIds).toContain(TASK_GROUP_D)
+    const pinned = stage({ pinned: [TASK_GROUP_F] })
+    expect(drawnTaskGroup(pinned.loop, TASK_GROUP_F).y).toBeLessThan(drawnTaskGroup(pinned.loop, TASK_GROUP_A).y)
   })
 })
 
@@ -725,16 +725,16 @@ describe('DFC-568 T-246 HB-1: a corner shrinks the box down to one day and one r
   it(`${HB_1} -- bottom-right onto top-left keeps the start day and the top row`, () => {
     const built = stage()
     const ppd = pxPerDay(built.loop)
-    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6) * ppd, -rowsApart(built.loop, ROW_B, ROW_D))
-    expectRange(built.loop, { start: 6, end: 6, top: ROW_B, bottom: ROW_B }, 'HB-1 bottom-right')
+    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6) * ppd, -taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_D))
+    expectRange(built.loop, { start: 6, end: 6, top: TASK_GROUP_B, bottom: TASK_GROUP_B }, 'HB-1 bottom-right')
     expectNoRs44(built, 'HB-1 bottom-right')
   })
 
   it(`${HB_1} -- top-left onto bottom-right keeps the end day and the bottom row`, () => {
     const built = stage()
     const ppd = pxPerDay(built.loop)
-    dragTo(built, justInside(built.loop, 'top-left'), (16 - 6) * ppd, rowsApart(built.loop, ROW_B, ROW_D))
-    expectRange(built.loop, { start: 16, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-1 top-left')
+    dragTo(built, justInside(built.loop, 'top-left'), (16 - 6) * ppd, taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_D))
+    expectRange(built.loop, { start: 16, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_D }, 'HB-1 top-left')
     expectNoRs44(built, 'HB-1 top-left')
   })
 })
@@ -743,43 +743,43 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
   it(`${HB_6_LEFT} -- top-left released at the left boundary of day 19, three past the right edge, gives 16..18`, () => {
     const built = stage()
     dragTo(built, justInside(built.loop, 'top-left'), (16 - 6 + 3) * pxPerDay(built.loop), 0)
-    expectRange(built.loop, { start: 16, end: 18, top: ROW_B, bottom: ROW_D }, 'HB-2 left past right')
+    expectRange(built.loop, { start: 16, end: 18, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-2 left past right')
     expectNoRs44(built, 'HB-2 left past right')
   })
 
   it(`${HB_6_RIGHT} -- bottom-right released at the left boundary of day 4, three past the left edge, gives 4..6`, () => {
     const built = stage()
     dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 3) * pxPerDay(built.loop), 0)
-    expectRange(built.loop, { start: 4, end: 6, top: ROW_B, bottom: ROW_D }, 'HB-2 right past left')
+    expectRange(built.loop, { start: 4, end: 6, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-2 right past left')
   })
 
   it(`${HB_6_TOP_DOWN} -- top-left released in the top of row F takes the E/F boundary, so D..E`, () => {
     const built = stage()
-    dragTo(built, justInside(built.loop, 'top-left'), 0, rowsApart(built.loop, ROW_B, ROW_F))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_E }, 'HB-2 top past bottom')
+    dragTo(built, justInside(built.loop, 'top-left'), 0, taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_F))
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_E }, 'HB-2 top past bottom')
     expectNoRs44(built, 'HB-2 top past bottom')
   })
 
   it(`${HB_2_TREE} -- bottom-left released in the bottom of a pinned row F takes the F/A boundary, so A..B`, () => {
-    const built = stage({ pinned: [ROW_F] })
-    dragTo(built, justInside(built.loop, 'bottom-left'), 0, rowsApart(built.loop, ROW_D, ROW_F))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_B }, 'HB-2 onto a pinned row')
+    const built = stage({ pinned: [TASK_GROUP_F] })
+    dragTo(built, justInside(built.loop, 'bottom-left'), 0, taskGroupsApart(built.loop, TASK_GROUP_D, TASK_GROUP_F))
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_A, bottom: TASK_GROUP_B }, 'HB-2 onto a pinned row')
   })
 
   it(`${IV_19} -- the stored range still satisfies it after both axes are swapped`, () => {
     const built = stage()
     const ppd = pxPerDay(built.loop)
-    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 5) * ppd, -rowsApart(built.loop, ROW_A, ROW_D))
+    dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 5) * ppd, -taskGroupsApart(built.loop, TASK_GROUP_A, TASK_GROUP_D))
     const after = storedRange(built.loop)
     expect(serialDay(after['startDate'])).toBeLessThanOrEqual(serialDay(after['endDate']))
-    expectRange(built.loop, { start: 2, end: 6, top: ROW_B, bottom: ROW_B }, 'HB-2 both axes')
+    expectRange(built.loop, { start: 2, end: 6, top: TASK_GROUP_B, bottom: TASK_GROUP_B }, 'HB-2 both axes')
   })
 
   it(`${HB_6_NORMALISE} -- bottom-left released in the top of a pinned row F drawn above is held B..F in tree order`, () => {
-    const built = stage({ pinned: [ROW_F] })
+    const built = stage({ pinned: [TASK_GROUP_F] })
     const press = justInside(built.loop, 'bottom-left')
-    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, ROW_F) + 2 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-6 then HB-2 on a pinned row')
+    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, TASK_GROUP_F) + 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_F }, 'HB-6 then HB-2 on a pinned row')
     expectNoRs44(built, 'HB-6 then HB-2 on a pinned row')
   })
 })
@@ -787,30 +787,30 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
 describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
   it(`${HB_3} -- one drawn row down moves both edges one row`, () => {
     const built = stage()
-    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, rowsApart(built.loop, ROW_B, ROW_C))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_E }, 'HB-3 one row')
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_C))
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_C, bottom: TASK_GROUP_E }, 'HB-3 one row')
     expectNoRs44(built, 'HB-3 one row')
   })
 
   it(`${HB_3_FOLDED} -- two drawn rows down across a folded group lands on C and D`, () => {
-    const built = stage({ rows: FOLDED_ROWS, range: { ...DEFAULT_RANGE, topGroupId: ROW_A, bottomGroupId: ROW_B } })
-    const inRowB = drawnRow(built.loop, ROW_B)
+    const built = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topGroupId: TASK_GROUP_A, bottomGroupId: TASK_GROUP_B } })
+    const inTaskGroupB = drawnTaskGroup(built.loop, TASK_GROUP_B)
     const box = highlightRect(built.loop)
-    dragTo(built, onTheLeftFrame(box, inRowB.y + inRowB.height / 2), 0, rowsApart(built.loop, ROW_B, ROW_D))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_D }, 'HB-3 across the fold')
+    dragTo(built, onTheLeftFrame(box, inTaskGroupB.y + inTaskGroupB.height / 2), 0, taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_D))
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_C, bottom: TASK_GROUP_D }, 'HB-3 across the fold')
   })
 
-  it(`${HB_3_NO_ROW} -- two drawn rows down reaches the last row and is kept`, () => {
+  it(`${HB_3_NO_TASK_GROUP} -- two drawn rows down reaches the last row and is kept`, () => {
     const built = stage()
-    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 2 * rowsApart(built.loop, ROW_B, ROW_C))
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-3 to the last row')
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 2 * taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_C))
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_F }, 'HB-3 to the last row')
     expectNoRs44(built, 'HB-3 to the last row')
   })
 
-  it(`${HB_3_NO_ROW} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is carried unseen (CR-712)`, () => {
+  it(`${HB_3_NO_TASK_GROUP} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is carried unseen (CR-712)`, () => {
     const built = stage()
     const before = storedRange(built.loop)
-    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 3 * taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_C))
     expect(storedRange(built.loop), 'HB-3: the box moved').toEqual(before)
     expect(built.noticeTexts(), 'HB-3: RS-44 is hidden (表 T-233)').not.toContain(RS_44_WORDS)
   })
@@ -821,7 +821,7 @@ describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nea
     const built = stage()
     const press = justInside(built.loop, 'top-right')
     releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 4, y: press.y })
-    expectRange(built.loop, { start: 6, end: 11, top: ROW_B, bottom: ROW_D }, 'HB-4 right corner, left third')
+    expectRange(built.loop, { start: 6, end: 11, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 right corner, left third')
     expectNoRs44(built, 'HB-4 right corner, left third')
   })
 
@@ -829,28 +829,28 @@ describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nea
     const built = stage()
     const press = justInside(built.loop, 'top-left')
     releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 4, y: press.y })
-    expectRange(built.loop, { start: 9, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-4 left corner, left third')
+    expectRange(built.loop, { start: 9, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 left corner, left third')
   })
 
   it(`${HB_4_NEAREST} -- the release position, not the travel, decides: pressed inside the corner, released just short of mid day 12`, () => {
     const built = stage()
     const press = justInside(built.loop, 'bottom-right')
     releaseAt(built, press, { x: dayLeftX(built, 6, 12) + 0.45 * pxPerDay(built.loop), y: press.y })
-    expectRange(built.loop, { start: 6, end: 11, top: ROW_B, bottom: ROW_D }, 'HB-4 position not amount')
+    expectRange(built.loop, { start: 6, end: 11, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 position not amount')
   })
 
   it(`${HB_4_TIE} -- top-right released at the exact middle of day 12 takes the later boundary, so endDate is 12`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-right')
     releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 2, y: press.y })
-    expectRange(built.loop, { start: 6, end: 12, top: ROW_B, bottom: ROW_D }, 'HB-4 tie, right corner')
+    expectRange(built.loop, { start: 6, end: 12, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 tie, right corner')
   })
 
   it(`${HB_4_TIE} -- bottom-left released at the exact middle of day 9 takes the later boundary, so startDate is 10`, () => {
     const built = stage()
     const press = justInside(built.loop, 'bottom-left')
     releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 2, y: press.y })
-    expectRange(built.loop, { start: 10, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-4 tie, left corner')
+    expectRange(built.loop, { start: 10, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 tie, left corner')
   })
 })
 
@@ -858,67 +858,67 @@ describe('DFC-568 T-246 HB-5: a corner moved vertically takes the row gap neares
   it(`${HB_5_HORIZONTAL} -- top-left pressed and released in the gap above B, moved only sideways, keeps the rows and is not refused`, () => {
     const built = stage()
     const box = highlightRect(built.loop)
-    const gapY = (bandBottom(built.loop, ROW_A) + bandTop(built.loop, ROW_B)) / 2
+    const gapY = (bandBottom(built.loop, TASK_GROUP_A) + bandTop(built.loop, TASK_GROUP_B)) / 2
     const press = { x: box.x - 1, y: gapY }
     expect(Math.hypot(press.x - box.x, press.y - box.y), 'the press is not within S-230 of the corner').toBeLessThan(S_230)
     releaseAt(built, press, { x: dayLeftX(built, 6, 9), y: gapY })
-    expectRange(built.loop, { start: 9, end: 16, top: ROW_B, bottom: ROW_D }, 'HB-5 sideways in the gap')
+    expectRange(built.loop, { start: 9, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-5 sideways in the gap')
     expectNoRs44(built, 'HB-5 sideways in the gap')
   })
 
-  it(`${HB_5_ROWS} -- top-left released in the upper half of row C takes the B/C gap, so C..D`, () => {
+  it(`${HB_5_TASK_GROUPS} -- top-left released in the upper half of row C takes the B/C gap, so C..D`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-left')
-    const c = drawnRow(built.loop, ROW_C)
+    const c = drawnTaskGroup(built.loop, TASK_GROUP_C)
     releaseAt(built, press, { x: press.x, y: c.y + c.height / 4 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_D }, 'HB-5 upper half')
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_C, bottom: TASK_GROUP_D }, 'HB-5 upper half')
   })
 
-  it(`${HB_5_ROWS} -- top-left released in the lower half of row C takes the C/D gap, so D..D`, () => {
+  it(`${HB_5_TASK_GROUPS} -- top-left released in the lower half of row C takes the C/D gap, so D..D`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-left')
-    const c = drawnRow(built.loop, ROW_C)
+    const c = drawnTaskGroup(built.loop, TASK_GROUP_C)
     releaseAt(built, press, { x: press.x, y: c.y + (3 * c.height) / 4 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-5 lower half')
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_D }, 'HB-5 lower half')
   })
 
-  it(`${HB_5_ROWS} -- bottom-right released in the lower half of row E takes the E/F gap, so B..E`, () => {
+  it(`${HB_5_TASK_GROUPS} -- bottom-right released in the lower half of row E takes the E/F gap, so B..E`, () => {
     const built = stage()
     const press = justInside(built.loop, 'bottom-right')
-    const e = drawnRow(built.loop, ROW_E)
+    const e = drawnTaskGroup(built.loop, TASK_GROUP_E)
     releaseAt(built, press, { x: press.x, y: e.y + (3 * e.height) / 4 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_E }, 'HB-5 bottom corner lower half')
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_E }, 'HB-5 bottom corner lower half')
   })
 
   it(`${HB_5_TIE} -- top-left released at the exact middle of row C takes the lower gap, so D..D`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-left')
-    const c = drawnRow(built.loop, ROW_C)
+    const c = drawnTaskGroup(built.loop, TASK_GROUP_C)
     releaseAt(built, press, { x: press.x, y: c.y + c.height / 2 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_D }, 'HB-5 tie')
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_D }, 'HB-5 tie')
   })
 
   it(`${HB_5_ENDS} -- top-left released above the first drawn band takes the upper boundary of A`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-left')
-    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, ROW_A) - 2 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_D }, 'HB-5 above the first band')
+    releaseAt(built, press, { x: press.x, y: bandTop(built.loop, TASK_GROUP_A) - 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_A, bottom: TASK_GROUP_D }, 'HB-5 above the first band')
     expectNoRs44(built, 'HB-5 above the first band')
   })
 
   it(`${HB_5_ENDS} -- bottom-right released well below the last drawn band takes the lower boundary of F`, () => {
     const built = stage()
     const press = justInside(built.loop, 'bottom-right')
-    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_F }, 'HB-5 below the last band')
+    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, TASK_GROUP_F) + 4 * S_230 })
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_F }, 'HB-5 below the last band')
     expectNoRs44(built, 'HB-5 below the last band')
   })
 
   it(`${HB_5_GAP} -- top-left released in the bottom of a pinned row F drawn above takes the F/A gap, so A..D`, () => {
-    const built = stage({ pinned: [ROW_F] })
+    const built = stage({ pinned: [TASK_GROUP_F] })
     const press = justInside(built.loop, 'top-left')
-    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, ROW_F) - 2 })
-    expectRange(built.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_D }, 'HB-5 pinned row drawn above')
+    releaseAt(built, press, { x: press.x, y: bandBottom(built.loop, TASK_GROUP_F) - 2 })
+    expectRange(built.loop, { start: 6, end: 16, top: TASK_GROUP_A, bottom: TASK_GROUP_D }, 'HB-5 pinned row drawn above')
     expectNoRs44(built, 'HB-5 pinned row drawn above')
   })
 })
@@ -931,7 +931,7 @@ describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is 
       const built = stage({ range: EXAMPLE_RANGE })
       const press = justInside(built.loop, 'top-right')
       releaseAt(built, press, { x: dayLeftX(built, START_OF(EXAMPLE_RANGE), boundaryDay), y: press.y })
-      expectRange(built.loop, { start, end, top: ROW_B, bottom: ROW_D }, `HB-6 right corner at day ${boundaryDay}`)
+      expectRange(built.loop, { start, end, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, `HB-6 right corner at day ${boundaryDay}`)
       expectNoRs44(built, `HB-6 right corner at day ${boundaryDay}`)
     })
   }
@@ -941,7 +941,7 @@ describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is 
       const built = stage({ range: EXAMPLE_RANGE })
       const press = justInside(built.loop, 'bottom-left')
       releaseAt(built, press, { x: dayLeftX(built, START_OF(EXAMPLE_RANGE), boundaryDay), y: press.y })
-      expectRange(built.loop, { start, end, top: ROW_B, bottom: ROW_D }, `HB-6 left corner at day ${boundaryDay}`)
+      expectRange(built.loop, { start, end, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, `HB-6 left corner at day ${boundaryDay}`)
       expectNoRs44(built, `HB-6 left corner at day ${boundaryDay}`)
     })
   }
@@ -949,24 +949,24 @@ describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is 
   it(`${HB_6_BOTTOM_UP} -- bottom-right released in the gap above B gives B..B, and above the first band gives A..B`, () => {
     const inGap = stage()
     const pressGap = justInside(inGap.loop, 'bottom-right')
-    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, ROW_A) + bandTop(inGap.loop, ROW_B)) / 2 })
-    expectRange(inGap.loop, { start: 6, end: 16, top: ROW_B, bottom: ROW_B }, 'HB-6 bottom corner onto the top boundary')
+    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, TASK_GROUP_A) + bandTop(inGap.loop, TASK_GROUP_B)) / 2 })
+    expectRange(inGap.loop, { start: 6, end: 16, top: TASK_GROUP_B, bottom: TASK_GROUP_B }, 'HB-6 bottom corner onto the top boundary')
     const above = stage()
     const pressAbove = justInside(above.loop, 'bottom-right')
-    releaseAt(above, pressAbove, { x: pressAbove.x, y: bandTop(above.loop, ROW_A) - 2 })
-    expectRange(above.loop, { start: 6, end: 16, top: ROW_A, bottom: ROW_B }, 'HB-6 bottom corner above the first band')
+    releaseAt(above, pressAbove, { x: pressAbove.x, y: bandTop(above.loop, TASK_GROUP_A) - 2 })
+    expectRange(above.loop, { start: 6, end: 16, top: TASK_GROUP_A, bottom: TASK_GROUP_B }, 'HB-6 bottom corner above the first band')
     expectNoRs44(above, 'HB-6 bottom corner above the first band')
   })
 
   it(`${HB_6_TOP_DOWN} -- top-left released in the E/F gap gives D..E, and below the last band gives D..F`, () => {
     const inGap = stage()
     const pressGap = justInside(inGap.loop, 'top-left')
-    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, ROW_E) + bandTop(inGap.loop, ROW_F)) / 2 })
-    expectRange(inGap.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_E }, 'HB-6 top corner into the E/F gap')
+    releaseAt(inGap, pressGap, { x: pressGap.x, y: (bandBottom(inGap.loop, TASK_GROUP_E) + bandTop(inGap.loop, TASK_GROUP_F)) / 2 })
+    expectRange(inGap.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_E }, 'HB-6 top corner into the E/F gap')
     const below = stage()
     const pressBelow = justInside(below.loop, 'top-left')
-    releaseAt(below, pressBelow, { x: pressBelow.x, y: bandBottom(below.loop, ROW_F) + 4 * S_230 })
-    expectRange(below.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-6 top corner below the last band')
+    releaseAt(below, pressBelow, { x: pressBelow.x, y: bandBottom(below.loop, TASK_GROUP_F) + 4 * S_230 })
+    expectRange(below.loop, { start: 6, end: 16, top: TASK_GROUP_D, bottom: TASK_GROUP_F }, 'HB-6 top corner below the last band')
     expectNoRs44(below, 'HB-6 top corner below the last band')
   })
 })
@@ -1016,7 +1016,7 @@ describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51
     for (const column of changedColumns(before, after)) {
       expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} is not a column CM-50 or CM-51 writes`).toContain(column)
     }
-    expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: ROW_F }, 'body pull')
+    expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: TASK_GROUP_F }, 'body pull')
     expect(commentDrawn(built.loop).body.x - drawn.body.x, 'the box did not move by the pull').toBeCloseTo(travel, 1)
     expect(commentDrawn(built.loop).body.y, 'the box moved up or down').toBeCloseTo(drawn.body.y, 1)
   })
@@ -1031,7 +1031,7 @@ describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51
       for (const column of changedColumns(before, after)) {
         expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} is not a column CM-50 or CM-51 writes`).toContain(column)
       }
-      expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: ROW_F }, `press ${label}`)
+      expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: TASK_GROUP_F }, `press ${label}`)
       expect(commentDrawn(built.loop).body.x, 'the box moved with the anchor').toBeCloseTo(drawn.body.x, 1)
       expect(commentDrawn(built.loop).body.y, 'the box moved with the anchor').toBeCloseTo(drawn.body.y, 1)
     })
@@ -1043,15 +1043,15 @@ const ANCHOR_DAY = 22
 const dayColumnLeft = (built: Stage, d: number): number => dayLeftX(built, START_OF(DEFAULT_RANGE), d)
 
 const bandCentre = (loop: FrameLoop, groupId: string): number => {
-  const row = drawnRow(loop, groupId)
-  return row.y + row.height / 2
+  const taskGroup = drawnTaskGroup(loop, groupId)
+  return taskGroup.y + taskGroup.height / 2
 }
 
 const expectAnchor = (loop: FrameLoop, expected: { day: number; row: string }, what: string): void => {
   const stored = storedOf(loop, 'commentBoxes', COMMENT_ID)
   const dayZero = serialDay(day(1)) - 1
-  expect(`${serialDay(stored['anchorDate']) - dayZero} ${rowLetter(stored['anchorGroupId'])}`, what).toBe(
-    `${expected.day} ${rowLetter(expected.row)}`,
+  expect(`${serialDay(stored['anchorDate']) - dayZero} ${taskGroupLetter(stored['anchorGroupId'])}`, what).toBe(
+    `${expected.day} ${taskGroupLetter(expected.row)}`,
   )
 }
 
@@ -1100,7 +1100,7 @@ function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: day(1),
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }
@@ -1116,7 +1116,7 @@ function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
 
 describe('DFC-568 JDG-72 premises: the anchor clauses read verbatim', () => {
   it('GR-14, FR-019 and T-221 LF-15 still hold the anchor clauses', () => {
-    for (const clause of [ANCHOR_READ, ANCHOR_SAME_AS_PLACING, ANCHOR_NO_ROW, ANCHOR_NOT_NEAREST, ANCHOR_HORIZONTAL, FR_019_BODY_OFFSET, FR_019_POINT_IS_LF_15, FR_019_LEADER]) {
+    for (const clause of [ANCHOR_READ, ANCHOR_SAME_AS_PLACING, ANCHOR_NO_TASK_GROUP, ANCHOR_NOT_NEAREST, ANCHOR_HORIZONTAL, FR_019_BODY_OFFSET, FR_019_POINT_IS_LF_15, FR_019_LEADER]) {
       expect(REQUIREMENTS, 'the requirements lost a clause').toContain(clause)
     }
     const lf15 = DESIGN.split('\n').filter((line) => line.startsWith('| LF-15 |'))
@@ -1128,10 +1128,10 @@ describe('DFC-568 JDG-72 premises: the anchor clauses read verbatim', () => {
   it('in the fixture S-230 is narrower than half a day column and half a row band, and the anchor sits on day 22 of row F', () => {
     const built = stage()
     expect(S_230).toBeLessThan(pxPerDay(built.loop) / 2)
-    for (const id of [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]) {
-      expect(S_230, `row ${rowLetter(id)}`).toBeLessThan(drawnRow(built.loop, id).height / 2)
+    for (const id of [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]) {
+      expect(S_230, `row ${taskGroupLetter(id)}`).toBeLessThan(drawnTaskGroup(built.loop, id).height / 2)
     }
-    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_F }, 'fixture')
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_F }, 'fixture')
     expect(Math.abs(dayColumnLeft(built, 7) - dayColumnLeft(built, 6) - pxPerDay(built.loop))).toBeLessThanOrEqual(WIDTH_SLACK)
   })
 })
@@ -1141,13 +1141,13 @@ describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column centre and 
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
     expect(anchor.x, 'the anchor is not at the centre of the day 22 column').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
-    expect(anchor.y, 'the anchor is not at the centre of the row F band').toBeCloseTo(bandCentre(built.loop, ROW_F), 1)
+    expect(anchor.y, 'the anchor is not at the centre of the row F band').toBeCloseTo(bandCentre(built.loop, TASK_GROUP_F), 1)
   })
 
   it(`${LF_15} -- a pinned row F is drawn in the LF-14 band, and the anchor follows it`, () => {
-    const built = stage({ pinned: [ROW_F] })
+    const built = stage({ pinned: [TASK_GROUP_F] })
     const anchor = commentDrawn(built.loop).anchor
-    expect(anchor.y).toBeCloseTo(bandCentre(built.loop, ROW_F), 1)
+    expect(anchor.y).toBeCloseTo(bandCentre(built.loop, TASK_GROUP_F), 1)
     expect(anchor.x).toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
   })
 })
@@ -1162,10 +1162,10 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
 
   it(`${COMMENT_ANCHOR_ALONE} -- after the anchor moves, the offset is re-written from the new anchor to the unmoved box`, () => {
     const built = stage()
-    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCentre(built.loop, ROW_C) })
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCentre(built.loop, TASK_GROUP_C) })
     const drawn = commentDrawn(built.loop)
     expect(drawn.anchor.x).toBeCloseTo(dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, 1)
-    expect(drawn.anchor.y).toBeCloseTo(bandCentre(built.loop, ROW_C), 1)
+    expect(drawn.anchor.y).toBeCloseTo(bandCentre(built.loop, TASK_GROUP_C), 1)
     expect(drawn.body.x, 'the box moved with the anchor').toBeCloseTo(moved.body.x, 1)
     expect(drawn.body.y, 'the box moved with the anchor').toBeCloseTo(moved.body.y, 1)
     const offset = moved.after['bodyOffsetPx'] as { dx: number; dy: number }
@@ -1201,16 +1201,16 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
 describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by the travel', () => {
   it(`${ANCHOR_SAME_AS_PLACING} -- pressed right of the anchor, released in the left third of day 25, pins day 25`, () => {
     const built = stage()
-    const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
-    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'left third of day 25')
+    const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCentre(built.loop, TASK_GROUP_F) })
+    expectAnchor(built.loop, { day: 25, row: TASK_GROUP_F }, 'left third of day 25')
     expectBundleKeepsTheBox(built, moved, 'left third of day 25')
     expectNoRs44(built, 'left third of day 25')
   })
 
   it(`${ANCHOR_NOT_NEAREST} -- pressed left of the anchor, released on the right side of day 25, pins day 25, not the nearer boundary's day 26`, () => {
     const built = stage()
-    const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
-    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'right side of day 25')
+    const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCentre(built.loop, TASK_GROUP_F) })
+    expectAnchor(built.loop, { day: 25, row: TASK_GROUP_F }, 'right side of day 25')
     expectBundleKeepsTheBox(built, moved, 'right side of day 25')
   })
 
@@ -1220,15 +1220,15 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
     const press = { x: anchor.x + NEAR_LEFT.x, y: anchor.y }
     const moved = moveAnchor(built, NEAR_LEFT, press)
     expect(moved.after, 'a release in place changed the comment box').toEqual(moved.before)
-    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_F }, 'release in place')
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_F }, 'release in place')
     expectNoRs44(built, 'release in place')
   })
 
   it(`${ANCHOR_READ} -- released straight up in row C pins row C and keeps day 22`, () => {
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
-    const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, ROW_C) })
-    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_C }, 'row C')
+    const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, TASK_GROUP_C) })
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_C }, 'row C')
     expectBundleKeepsTheBox(built, moved, 'row C')
     expectNoRs44(built, 'row C')
   })
@@ -1238,23 +1238,23 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
     const press: Point = { x: 0, y: 0.9 * S_292 }
     const anchor = commentDrawn(built.loop).anchor
     releaseAt(built, { x: anchor.x, y: anchor.y + press.y }, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: anchor.y + press.y })
-    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'sideways only')
+    expectAnchor(built.loop, { day: 25, row: TASK_GROUP_F }, 'sideways only')
     expectNoRs44(built, 'sideways only')
   })
 
   it(`${ANCHOR_READ} -- released in a pinned row A drawn at the top pins row A`, () => {
-    const built = stage({ pinned: [ROW_A] })
+    const built = stage({ pinned: [TASK_GROUP_A] })
     const anchor = commentDrawn(built.loop).anchor
-    moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, ROW_A) })
-    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_A }, 'pinned row A')
+    moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, TASK_GROUP_A) })
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_A }, 'pinned row A')
     expectNoRs44(built, 'pinned row A')
   })
 })
 
 describe('DFC-568 JDG-72: no drawn row under the release writes nothing and carries RS-44 unseen', () => {
-  it(`${ANCHOR_NO_ROW} -- released below every drawn band`, () => {
+  it(`${ANCHOR_NO_TASK_GROUP} -- released below every drawn band`, () => {
     const built = stage()
-    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, TASK_GROUP_F) + 4 * S_230 })
     expect(moved.after, 'the release below the rows moved the anchor').toEqual(moved.before)
     expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233)').not.toContain(RS_44_WORDS)
   })
@@ -1264,14 +1264,14 @@ describe('DFC-568 JDG-72: placing and moving read the same place for the same po
   for (const [label, fraction] of [['left third', 0.1], ['right side', 0.9]] as const) {
     it(`${ANCHOR_SAME_AS_PLACING} -- the ${label} of day 25 in row A`, () => {
       const placed = stage()
-      const at: Point = { x: dayColumnLeft(placed, 25) + fraction * pxPerDay(placed.loop), y: bandCentre(placed.loop, ROW_A) }
+      const at: Point = { x: dayColumnLeft(placed, 25) + fraction * pxPerDay(placed.loop), y: bandCentre(placed.loop, TASK_GROUP_A) }
       const created = createdAnchorAt(placed, at)
       const moving = stage()
       moveAnchor(moving, DEAD_ON, at)
       const stored = storedOf(moving.loop, 'commentBoxes', COMMENT_ID)
       // STEP: the created anchor and the moved anchor name the same day and row
-      expect(`${String(created['date']).slice(0, 10)} ${rowLetter(created['groupId'])}`).toBe(
-        `${String(stored['anchorDate']).slice(0, 10)} ${rowLetter(stored['anchorGroupId'])}`,
+      expect(`${String(created['date']).slice(0, 10)} ${taskGroupLetter(created['groupId'])}`).toBe(
+        `${String(stored['anchorDate']).slice(0, 10)} ${taskGroupLetter(stored['anchorGroupId'])}`,
       )
       expect(String(stored['anchorDate']).slice(0, 10)).toBe(day(25).slice(0, 10))
     })

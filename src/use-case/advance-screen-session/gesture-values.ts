@@ -9,15 +9,15 @@ import { NO_EFFECTS, unchanged, type Step } from './session-step'
 // WHY: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
 export type GesturePressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
-export type GrabbedRowAxis = 'position' | 'depth'
+export type GrabbedVerticalAxis = 'position' | 'depth'
 
 // WHY: what was pressed, never where -- a point is a frame value (SF-5).
 export type PressedOn =
-  | { readonly kind: 'grab'; readonly grabRow: string; readonly itemId: string }
+  | { readonly kind: 'grab'; readonly grabTaskGroup: string; readonly itemId: string }
   | { readonly kind: 'entry'; readonly entry: string }
   | { readonly kind: 'paletteBand' }
-  | { readonly kind: 'panelBorder'; readonly panel: 'rowTitlePanel' | 'propertiesPanel' }
-  | { readonly kind: 'rowGrabStrip'; readonly rowGroupId: string }
+  | { readonly kind: 'panelBorder'; readonly panel: 'taskGroupPanel' | 'propertiesPanel' }
+  | { readonly kind: 'taskGroupGrabStrip'; readonly taskGroupId: string }
   | { readonly kind: 'scrollbarThumb'; readonly axis: 'horizontal' | 'vertical' }
   | { readonly kind: 'otherPart'; readonly part: string }
 
@@ -29,7 +29,7 @@ export interface GestureValuesStateCarried {
 export interface GestureValuesEventCarried {
   readonly pressRow: GesturePressRow
   readonly pressedOn: PressedOn | null
-  readonly axis: GrabbedRowAxis
+  readonly axis: GrabbedVerticalAxis
 }
 
 export type GestureValuesEffect = { readonly type: GestureValuesEffectName }
@@ -43,17 +43,17 @@ export type GestureValuesKey =
   | 'pointerPressStateMachine.notPressed'
   | 'pointerPressStateMachine.changingDocument'
   | 'pointerPressStateMachine.viewingDocument'
-  | 'rowGrabStateMachine.notGrabbed'
-  | 'rowGrabStateMachine.axisUndecided'
-  | 'rowGrabStateMachine.changingPosition'
-  | 'rowGrabStateMachine.changingDepth'
+  | 'taskGroupGrabStateMachine.notGrabbed'
+  | 'taskGroupGrabStateMachine.axisUndecided'
+  | 'taskGroupGrabStateMachine.changingPosition'
+  | 'taskGroupGrabStateMachine.changingDepth'
 
 export type PointerPressState =
   | { readonly kind: 'notPressed' }
   | { readonly kind: 'changingDocument'; readonly pressRow: GestureValuesStateCarried['pressRow']; readonly pressedOn: GestureValuesStateCarried['pressedOn'] }
   | { readonly kind: 'viewingDocument'; readonly pressRow: GestureValuesStateCarried['pressRow']; readonly pressedOn: GestureValuesStateCarried['pressedOn'] }
 
-export type RowGrabState =
+export type TaskGroupGrabState =
   | { readonly kind: 'notGrabbed' }
   | { readonly kind: 'axisUndecided' }
   | { readonly kind: 'changingPosition' }
@@ -61,7 +61,7 @@ export type RowGrabState =
 
 export interface GestureValues {
   readonly pointerPressState: PointerPressState
-  readonly rowGrabState: RowGrabState
+  readonly taskGroupGrabState: TaskGroupGrabState
 }
 
 export type GestureValuesAxes = Omit<GestureValues, never>
@@ -70,7 +70,7 @@ export type GestureValuesEvent =
   | { readonly type: 'pointerPressed'; readonly pressRow: GestureValuesEventCarried['pressRow']; readonly pressedOn: GestureValuesEventCarried['pressedOn'] }
   | { readonly type: 'pointerReleased' }
   | { readonly type: 'pressInterrupted' }
-  | { readonly type: 'rowGrabAxisSettled'; readonly axis: GestureValuesEventCarried['axis'] }
+  | { readonly type: 'taskGroupGrabAxisSettled'; readonly axis: GestureValuesEventCarried['axis'] }
   | { readonly type: 'entryRepeatTimeElapsed' }
 
 export type GestureValuesEffectName =
@@ -80,7 +80,7 @@ export type GestureValuesEffectName =
 
 const GESTURE_VALUES_INITIAL_AXES: GestureValuesAxes = {
   pointerPressState: { kind: 'notPressed' },
-  rowGrabState: { kind: 'notGrabbed' },
+  taskGroupGrabState: { kind: 'notGrabbed' },
 }
 // </generated>
 
@@ -119,12 +119,12 @@ function isOnPaletteBand(pressedOn: PressedOn | null): boolean {
 }
 
 /** @purity pure */
-function isRowGrabStrip(pressedOn: PressedOn | null): boolean {
-  return pressedOn?.kind === 'rowGrabStrip'
+function isTaskGroupGrabStrip(pressedOn: PressedOn | null): boolean {
+  return pressedOn?.kind === 'taskGroupGrabStrip'
 }
 
 /** @purity pure */
-function isPositionAxis(axis: GrabbedRowAxis): boolean {
+function isPositionAxis(axis: GrabbedVerticalAxis): boolean {
   return axis === 'position'
 }
 
@@ -133,26 +133,26 @@ function isPositionAxis(axis: GrabbedRowAxis): boolean {
 function combined(
   values: GestureValues,
   press: PointerPressState,
-  rowGrab: RowGrabState,
+  taskGroupGrab: TaskGroupGrabState,
   effects: readonly GestureValuesEffect[],
 ): GestureStep {
-  if (press === values.pointerPressState && rowGrab === values.rowGrabState) {
+  if (press === values.pointerPressState && taskGroupGrab === values.taskGroupGrabState) {
     return effects.length === 0 ? unchanged(values) : { state: values, effects }
   }
-  return { state: { ...values, pointerPressState: press, rowGrabState: rowGrab }, effects }
+  return { state: { ...values, pointerPressState: press, taskGroupGrabState: taskGroupGrab }, effects }
 }
 
 /** @purity pure */
 function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'>): GestureStep {
-  const { pointerPressState: press, rowGrabState: rowGrab } = values
+  const { pointerPressState: press, taskGroupGrabState: taskGroupGrab } = values
   const carried = { pressRow: event.pressRow, pressedOn: event.pressedOn }
   const isChanging = isDocumentChangingPress(event.pressRow, event.pressedOn)
   const pressed: PointerPressState =
     press.kind !== 'notPressed' ? press : { kind: isChanging ? 'changingDocument' : 'viewingDocument', ...carried }
   const repeats = press.kind === 'notPressed' && !isChanging && isOnRepeatingEntry(event.pressedOn)
   const effects: readonly GestureValuesEffect[] = repeats ? [{ type: 'startEntryRepeat' }] : NO_EFFECTS
-  const grabbed: RowGrabState =
-    rowGrab.kind === 'notGrabbed' && isRowGrabStrip(event.pressedOn) ? { kind: 'axisUndecided' } : rowGrab
+  const grabbed: TaskGroupGrabState =
+    taskGroupGrab.kind === 'notGrabbed' && isTaskGroupGrabStrip(event.pressedOn) ? { kind: 'axisUndecided' } : taskGroupGrab
   return combined(values, pressed, grabbed, effects)
 }
 
@@ -160,19 +160,19 @@ function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'
 // the palette band asks for the corner back (FR-053).
 /** @purity pure */
 function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
-  const { pointerPressState: press, rowGrabState: rowGrab } = values
+  const { pointerPressState: press, taskGroupGrabState: taskGroupGrab } = values
   const restores = isInterrupted && press.kind !== 'notPressed' && isOnPaletteBand(press.pressedOn)
   const effects: readonly GestureValuesEffect[] = restores ? [{ type: 'restorePaletteCorner' }] : NO_EFFECTS
   const released = press.kind === 'notPressed' ? press : GESTURE_VALUES_INITIAL_AXES.pointerPressState
-  const ungrabbed = rowGrab.kind === 'notGrabbed' ? rowGrab : GESTURE_VALUES_INITIAL_AXES.rowGrabState
+  const ungrabbed = taskGroupGrab.kind === 'notGrabbed' ? taskGroupGrab : GESTURE_VALUES_INITIAL_AXES.taskGroupGrabState
   return combined(values, released, ungrabbed, effects)
 }
 
 // WHY: a decided axis finds no cell and keeps its reference until release (HF-15).
 /** @purity pure */
-function onRowGrabAxisSettled(values: GestureValues, event: EventOf<'rowGrabAxisSettled'>): GestureStep {
-  if (values.rowGrabState.kind !== 'axisUndecided') return unchanged(values)
-  const settled: RowGrabState = { kind: isPositionAxis(event.axis) ? 'changingPosition' : 'changingDepth' }
+function onTaskGroupGrabAxisSettled(values: GestureValues, event: EventOf<'taskGroupGrabAxisSettled'>): GestureStep {
+  if (values.taskGroupGrabState.kind !== 'axisUndecided') return unchanged(values)
+  const settled: TaskGroupGrabState = { kind: isPositionAxis(event.axis) ? 'changingPosition' : 'changingDepth' }
   return combined(values, values.pointerPressState, settled, NO_EFFECTS)
 }
 
@@ -190,7 +190,7 @@ const HANDLERS: {
   pointerPressed: onPointerPressed,
   pointerReleased: (values) => ended(values, false),
   pressInterrupted: (values) => ended(values, true),
-  rowGrabAxisSettled: onRowGrabAxisSettled,
+  taskGroupGrabAxisSettled: onTaskGroupGrabAxisSettled,
   entryRepeatTimeElapsed: onEntryRepeatTimeElapsed,
 }
 

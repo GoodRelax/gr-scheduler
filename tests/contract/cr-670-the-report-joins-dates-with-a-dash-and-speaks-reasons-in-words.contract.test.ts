@@ -16,7 +16,7 @@ import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document
 import { searchPanelBoxOf, searchPanelElement } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import type { ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { descendants, stage, styleMap, type FakeElement } from '../fixtures/fake-browser'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
 const rowOf = (table: string, id: string) => {
@@ -102,7 +102,7 @@ const EMPTY_REPORT: DelayDiagnosticsReport = {
   unanalysedCount: 0,
   markerStates: [],
   settledPushOuts: [],
-  derivedWbsParents: [],
+  derivedParentTasks: [],
   lateDays: [],
 }
 
@@ -214,7 +214,7 @@ const after = (uid: number): Record<string, unknown> => ({
 })
 
 function flatDocument(statusDate: string, tasks: readonly Record<string, unknown>[]): Document {
-  const raw = rowDocument([{ id: 'r0', parentId: null }])
+  const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = tasks

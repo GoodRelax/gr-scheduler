@@ -207,11 +207,11 @@ const OPENED_STAMP = {
  * (「基準日（`FR-046`。出す / 動かす / 消すのいずれも）」), which is what makes
  * one keystroke enough to put a step in the history these cases then walk.
  */
-function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
+function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
   const task = (uid: number, start: string, finish: string, name: string): Task => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -451,14 +451,14 @@ afterEach(() => {
 
 describe('the document these cases drive', () => {
   it('is a valid GRS JSON document', () => {
-    const report = validateDocument(twoRowDocument())
+    const report = validateDocument(twoTaskGroupDocument())
     expect(report.errors, report.errors.join('\n')).toEqual([])
   })
 
   it('carries no base date line and a stamp of its own, so one keystroke makes one step', () => {
     // UN-13 of table T-027 puts 基準日 among the undo targets, and the stamp
     // below is the value RD-1's 刻印 column is asserted against.
-    const document = twoRowDocument()
+    const document = twoTaskGroupDocument()
     expect(projectOf(document).statusDate).toBeNull()
     expect(stampOf(document)).toEqual({ ...OPENED_STAMP })
     expect(stampOf(document).lastEditedBy).not.toBe(ED_1_WORD)
@@ -474,7 +474,7 @@ describe('表 T-230 RD-1 / RD-2 -- 刻印: 入ってきたまま', () => {
     // 以前の文書を刻印ごと復元する（`FR-031`）」 —— 刻印ごと, so all three
     // values, not the instants alone.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     expect(
@@ -494,7 +494,7 @@ describe('表 T-230 RD-1 / RD-2 -- 刻印: 入ってきたまま', () => {
     // wrote -- ED-1's word at the instant of the write -- and NOT a fresh one
     // signed at the moment of the redo.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     const written = structuredClone(stampOf(loop.document()))
@@ -519,7 +519,7 @@ describe('表 T-230 RD-1 / RD-2 -- 取り消しの 1 段: 積まない', () => {
     // this second Ctrl+Z would hand the edited document back. WS-6 replaces
     // ONE reference (MUST), so a document that did not move is the same value.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     loop.receiveInput(UNDO)
@@ -537,7 +537,7 @@ describe('表 T-230 RD-1 / RD-2 -- 取り消しの 1 段: 積まない', () => {
     // こと」. A step pushed by the walk itself would be a NEW edit standing on
     // top of the history, and there would be nothing left to redo.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     const edited = loop.document()
@@ -563,7 +563,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     // not one of them: 「呼び手ごとに違うのは履歴・刻印・取り消しの 1 段の
     // 3 つだけ」.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(underTheStatusLine), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(underTheStatusLine), SCREEN)
     pane.runAnimationFrames()
 
     loop.receiveInput(THE_ONE_EDIT)
@@ -571,9 +571,9 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     const edited = loop.document()
 
     const centre = planCentre(loop, 1)
-    const rowArea = loop.current()!.regions.rowArea
-    expect(centre.x, 'premise: the bar is still in the Row Area').toBeGreaterThan(rowArea.x)
-    expect(centre.x, 'premise: the bar is still in the Row Area').toBeLessThan(rowArea.x + rowArea.width)
+    const taskGroupArea = loop.current()!.regions.taskGroupArea
+    expect(centre.x, 'premise: the bar is still in the Task Group Area').toBeGreaterThan(taskGroupArea.x)
+    expect(centre.x, 'premise: the bar is still in the Task Group Area').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
     loop.receiveInput(pointer('down', centre.x, centre.y))
     loop.receiveInput(UNDO)
 
@@ -589,7 +589,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     // される（表 T-035 の AG-9）」. An abort writes nothing, so the step the
     // refused undo could not spend is still there to spend.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(underTheStatusLine), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(underTheStatusLine), SCREEN)
     pane.runAnimationFrames()
 
     loop.receiveInput(THE_ONE_EDIT)
@@ -623,7 +623,7 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     // 現在より小さく、`t2` を受け取り済みの監視者に通知が出ない。`AG-6` の
     // 『まだ受け取っていない変更だけを通知する』の違反である」.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     const taken = watching(loop)
@@ -643,7 +643,7 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     //
     // ⛔ LEFT RED, for the reason above.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.receiveInput(THE_ONE_EDIT)
     const written = structuredClone(stampOf(loop.document()))
@@ -671,7 +671,7 @@ describe('表 T-078 FT-2 -- the landing owes a frame', () => {
     // WHY: showing the status line also slid the view, which undo leaves alone, so the picture owed
     // is the one a fresh loop draws from the restored document (ADR-001, CA-2 of table T-071).
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     pane.runAnimationFrames()
     const opened = pane.drawn[pane.drawn.length - 1]
 

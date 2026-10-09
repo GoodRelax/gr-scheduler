@@ -1,4 +1,4 @@
-// Contract test: table T-250 SD-3 -- the row-tree manuscript (T-328) against treeStateWritesFor.
+// Contract test: table T-250 SD-3 -- the task-group-tree manuscript (T-328) against treeStateWritesFor.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -28,10 +28,10 @@ type RawRegion = {
 const MANUSCRIPT = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
 ) as { readonly regions: readonly RawRegion[] }
-const REGION = MANUSCRIPT.regions.find((r) => r.region === 'rowTree')
-if (REGION === undefined) throw new Error('state-machines.json has no region "rowTree"')
+const REGION = MANUSCRIPT.regions.find((r) => r.region === 'taskGroupTree')
+if (REGION === undefined) throw new Error('state-machines.json has no region "taskGroupTree"')
 const MACHINE = REGION.machines.find((m) => m.name === 'treeStateMachine')
-if (MACHINE === undefined) throw new Error('region rowTree has no treeStateMachine')
+if (MACHINE === undefined) throw new Error('region taskGroupTree has no treeStateMachine')
 
 const STATES = MACHINE.states.map((s) => s.key as TreeState)
 const EVENTS = REGION.events
@@ -78,7 +78,7 @@ const TREE: readonly { readonly id: string; readonly parentId: string | null }[]
 ]
 const PRESSED = 'P'
 // WHY: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and rows beside it (L, S, A) -- every
-// relation isRevealedRowOrAncestor has to tell apart.
+// relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
   '飛ぶ先の行（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
@@ -124,17 +124,17 @@ function guardHolds(guard: Guard, id: string, pressed: string | null, revealed: 
   if (row === undefined) throw new Error(`no row ${id}`)
   const said = ((): boolean => {
     switch (guard.name) {
-      case 'isPressedRow':
+      case 'isPressedTaskGroup':
         return id === pressed
-      case 'isChildOfPressedRow':
+      case 'isChildOfPressedTaskGroup':
         return pressed !== null && row.parentId === pressed
-      case 'isBelowPressedRow':
+      case 'isBelowPressedTaskGroup':
         return pressed !== null && isBelow(id, pressed)
-      case 'isLeafRow':
+      case 'isLeafTaskGroup':
         return !TREE.some((one) => one.parentId === id)
-      case 'isTopLevelRow':
+      case 'isTopLevelTaskGroup':
         return row.parentId === null
-      case 'isRevealedRowOrAncestor':
+      case 'isRevealedTaskGroupOrAncestor':
         return revealed !== null && (id === revealed || isBelow(revealed, id))
       default:
         throw new Error(`table T-328 names a guard this file cannot read: ${guard.name}`)
@@ -169,11 +169,11 @@ function manuscriptAnswer(
 /** @purity pure */
 function eventOf(key: string): TreeStateEvent {
   const carries = EVENTS.find((e) => e.key === key)?.carries ?? []
-  const withRow = carries.some((c) => c.name === 'pressedRowId')
+  const withTaskGroup = carries.some((c) => c.name === 'pressedRowId')
   const withRevealed = carries.some((c) => c.name === 'revealedRowId')
   return {
     type: key,
-    ...(withRow ? { pressedRowId: PRESSED } : {}),
+    ...(withTaskGroup ? { pressedRowId: PRESSED } : {}),
     ...(withRevealed ? { revealedRowId: REVEALED } : {}),
   } as unknown as TreeStateEvent
 }
@@ -192,7 +192,7 @@ function writesOf(schedule: Schedule, event: TreeStateEvent): Written[] {
 }
 
 describe('table T-328 -- the manuscript this contract walks', () => {
-  it('the rowTree region holds the five values of AT-153, starts a new row temporarilyExpanded, and names its twelve events', () => {
+  it('the taskGroupTree region holds the five values of AT-153, starts a new row temporarilyExpanded, and names its twelve events', () => {
     expect(STATES).toEqual(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'])
     expect(MACHINE.states.filter((s) => s.initial).map((s) => s.key)).toEqual(['temporarilyExpanded'])
     expect(EVENTS.map((e) => e.key)).toEqual([
@@ -200,16 +200,16 @@ describe('table T-328 -- the manuscript this contract walks', () => {
       'allBelowOpenPressed',
       'hidePressed',
       'allBelowFoldPressed',
-      'everyRowOpenPressed',
-      'everyRowFoldPressed',
+      'everyTaskGroupOpenPressed',
+      'everyTaskGroupFoldPressed',
       'topLevelOpenPressed',
-      'childRowAddPressed',
+      'childTaskGroupAddPressed',
       'fitPressed',
-      'everyRowDeletePressed',
-      'rowZoomShrinkPressed',
-      'rowRevealAsked',
+      'everyTaskGroupDeletePressed',
+      'verticalZoomShrinkPressed',
+      'taskGroupRevealAsked',
     ])
-    expect(EVENTS.find((e) => e.key === 'rowRevealAsked')?.carries.map((c) => c.name)).toEqual(['revealedRowId'])
+    expect(EVENTS.find((e) => e.key === 'taskGroupRevealAsked')?.carries.map((c) => c.name)).toEqual(['revealedRowId'])
     expect(specTable('T-329').rows.map((row) => row.id)).toEqual(['TD-1', 'TD-2', 'TD-3', 'TD-4', 'TD-5', 'TD-6', 'TD-7', 'TD-8'])
   })
 
@@ -261,9 +261,9 @@ describe('SD-3: every event x every value x every row relation equals table T-32
 })
 
 describe('SD-3: a cell the table leaves empty writes nothing (the same reference)', () => {
-  it('a row-zoom shrink with no temporarilyExpanded row writes nothing (FR-031, ZE-2)', () => {
+  it('a vertical-zoom shrink with no temporarilyExpanded row writes nothing (FR-031, ZE-2)', () => {
     const schedule = scheduleWith({ P: 'expanded', C: 'collapsed', G: 'hidden' })
-    expect(writesOf(schedule, eventOf('rowZoomShrinkPressed'))).toEqual([])
+    expect(writesOf(schedule, eventOf('verticalZoomShrinkPressed'))).toEqual([])
   })
 
   it('fit leaves a hidden row hidden and an auto row alone (HF-8)', () => {
@@ -277,14 +277,14 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
 })
 
 describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
-  it('the requirement still says it, word for word, and names rowRevealAsked of table T-328', () => {
+  it('the requirement still says it, word for word, and names taskGroupRevealAsked of table T-328', () => {
     expect(REQUIREMENTS).toContain(SJ_2_OPENS)
-    expect(REQUIREMENTS).toContain('規則は行の木の状態機械（表 T-328）の出来事 `rowRevealAsked` が持つ。')
+    expect(REQUIREMENTS).toContain('規則は行の木の状態機械（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
   })
 
   it('opens the row jumped to and every ancestor, a hidden one included, and nothing else', () => {
     const schedule = scheduleWith({ R: 'collapsed', P: 'hidden', C: 'temporarilyExpanded', G: 'auto', GG: 'collapsed', S: 'collapsed' })
-    expect(writesOf(schedule, eventOf('rowRevealAsked'))).toEqual([
+    expect(writesOf(schedule, eventOf('taskGroupRevealAsked'))).toEqual([
       { id: 'C', to: 'expanded' },
       { id: 'G', to: 'expanded' },
       { id: 'P', to: 'expanded' },
@@ -294,6 +294,6 @@ describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
 
   it('writes nothing when the row and every ancestor are already expanded (SJ-2: 1 つも変わらなければ段を積まない)', () => {
     const schedule = scheduleWith({ R: 'expanded', P: 'expanded', C: 'expanded', G: 'expanded' })
-    expect(writesOf(schedule, eventOf('rowRevealAsked'))).toEqual([])
+    expect(writesOf(schedule, eventOf('taskGroupRevealAsked'))).toEqual([])
   })
 })

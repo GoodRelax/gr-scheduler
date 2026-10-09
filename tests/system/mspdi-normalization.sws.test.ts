@@ -37,7 +37,7 @@ const SCREEN_ROW = 'MC-6'
 const WHITESPACE_ROW = 'NR-2'
 
 // see T-228
-const NAME_ROW = 'NR-3'
+const NAME_TASK_GROUP = 'NR-3'
 
 // see T-228
 const SIBLING_ORDER_ROW = 'NR-6'
@@ -558,7 +558,7 @@ test(
   swsCase({
     sws: 'SWS-6',
     level: 'System',
-    covers: [WHITESPACE_ROW, NAME_ROW],
+    covers: [WHITESPACE_ROW, NAME_TASK_GROUP],
     given: 'the application up in the reference browser on the screen of the base environment, showing the document it starts with',
     when: 'the exchange format is written out twice inside one run, with no edit in between',
     then: 'the two are the same document once both have been through the steps of table T-228 this case can apply, so nothing in either was built from a value that changes per run',
@@ -597,7 +597,7 @@ test(
     const compared = await sameAfterNormalization(page, first.text, second.text)
     expect(
       compared.same,
-      `table T-228 rows ${WHITESPACE_ROW} / ${NAME_ROW}: the two documents of one run differ ` +
+      `table T-228 rows ${WHITESPACE_ROW} / ${NAME_TASK_GROUP}: the two documents of one run differ ` +
         `from character ${compared.at}\n  first : ${compared.firstAt}\n  second: ${compared.secondAt}`,
     ).toBe(true)
 

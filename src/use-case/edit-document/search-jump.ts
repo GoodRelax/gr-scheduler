@@ -8,7 +8,7 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import { dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
 import {
   taskPlacement,
-  type RowPlacement,
+  type TaskGroupPlacement,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { DocumentCommand } from './edit-document'
@@ -23,13 +23,13 @@ export type SearchJumpTarget =
 export type SearchJumpPlan = {
   readonly treeStateWrites: readonly DocumentCommand[]
   readonly scrollWrite: DocumentCommand | null
-  readonly isBlockedByPinnedRows: boolean
+  readonly isBlockedByPinnedTaskGroups: boolean
 }
 
 export interface SearchJumpReach {
   readonly pxPerDay: number
   readonly leftReachPx: number
-  readonly drawnRows: readonly Pick<RowPlacement, 'groupId' | 'isPinned'>[]
+  readonly drawnTaskGroups: readonly Pick<TaskGroupPlacement, 'groupId' | 'isPinned'>[]
 }
 
 interface JumpPlace {
@@ -37,29 +37,29 @@ interface JumpPlace {
   readonly date: string | null
 }
 
-const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBlockedByPinnedRows: false }
+const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBlockedByPinnedTaskGroups: false }
 
 // see SJ-2, SJ-6
 /** @purity pure */
 function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null {
-  const heldRow = (groupId: string | null): string | null =>
-    groupId !== null && schedule.taskGroups.some((row) => row.id === groupId) ? groupId : null
+  const heldTaskGroup = (groupId: string | null): string | null =>
+    groupId !== null && schedule.taskGroups.some((taskGroup) => taskGroup.id === groupId) ? groupId : null
   if (target.kind === 'task') {
     const task = schedule.tasks.find((one) => one.uid === target.taskUid)
     if (task === undefined) return null
     const member = schedule.taskGroupMembers.find((one) => one.taskUid === task.uid)
-    return { groupId: heldRow(member?.groupId ?? null), date: task.start }
+    return { groupId: heldTaskGroup(member?.groupId ?? null), date: task.start }
   }
   const box = schedule.commentBoxes.find((one) => one.id === target.commentBoxId)
   if (box === undefined) return null
-  return { groupId: heldRow(box.anchorGroupId), date: box.anchorDate }
+  return { groupId: heldTaskGroup(box.anchorGroupId), date: box.anchorDate }
 }
 
 // see SJ-2, T-328
 /** @purity pure */
 function revealWrites(document: Document, groupId: string | null): readonly DocumentCommand[] {
   if (groupId === null) return []
-  const event: TreeStateEvent = { type: 'rowRevealAsked', revealedRowId: groupId }
+  const event: TreeStateEvent = { type: 'taskGroupRevealAsked', revealedRowId: groupId }
   return [
     ...treeStateWritesFor(document.schedule, event),
     ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
@@ -70,7 +70,7 @@ function revealWrites(document: Document, groupId: string | null): readonly Docu
 /** @purity pure */
 export function shownTasksRevealWrites(document: Document, taskUids: readonly number[]): readonly DocumentCommand[] {
   const wanted = new Set(taskUids)
-  const held = new Set(document.schedule.taskGroups.map((row) => row.id))
+  const held = new Set(document.schedule.taskGroups.map((taskGroup) => taskGroup.id))
   const rows = new Set(
     document.schedule.taskGroupMembers.filter((one) => wanted.has(one.taskUid) && held.has(one.groupId)).map((one) => one.groupId),
   )
@@ -87,9 +87,9 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
 /** @purity pure */
 export function searchJumpReachOf(layout: ScheduleLayout, target: SearchJumpTarget): SearchJumpReach {
   const placed = target.kind === 'task' ? taskPlacement(layout, target.taskUid) : null
-  if (placed === null) return { pxPerDay: layout.pxPerDay, leftReachPx: 0, drawnRows: layout.rows }
+  if (placed === null) return { pxPerDay: layout.pxPerDay, leftReachPx: 0, drawnTaskGroups: layout.taskGroups }
   const dateX = placed.shapeKind === 'milestone' ? placed.x + placed.width / 2 : placed.x
-  return { pxPerDay: layout.pxPerDay, leftReachPx: Math.max(0, dateX - placed.occupiedX0), drawnRows: layout.rows }
+  return { pxPerDay: layout.pxPerDay, leftReachPx: Math.max(0, dateX - placed.occupiedX0), drawnTaskGroups: layout.taskGroups }
 }
 
 // see SJ-7, SJ-8, FR-098
@@ -104,7 +104,7 @@ function isShownAfterJump(
 ): boolean {
   const row = place.groupId
   if (row === null || !document.documentSettings.pinnedGroupIds.includes(row)) return hasRoomBelowPins
-  if (reach.drawnRows.some((one) => one.groupId === row && one.isPinned === true)) return true
+  if (reach.drawnTaskGroups.some((one) => one.groupId === row && one.isPinned === true)) return true
   return reveals.length > 0 && hasRoomBelowPins
 }
 
@@ -144,9 +144,9 @@ export function searchJumpWrites(
   if (place === null) return NO_JUMP
   const treeStateWrites = revealWrites(document, place.groupId)
   if (!isShownAfterJump(document, place, treeStateWrites, hasRoomBelowPins, reach)) {
-    return { treeStateWrites, scrollWrite: null, isBlockedByPinnedRows: true }
+    return { treeStateWrites, scrollWrite: null, isBlockedByPinnedTaskGroups: true }
   }
-  return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedRows: false }
+  return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedTaskGroups: false }
 }
 
 /** @purity pure */

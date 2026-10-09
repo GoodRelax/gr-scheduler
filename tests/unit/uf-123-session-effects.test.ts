@@ -125,7 +125,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       answerOverwriteQuestion: true,
       askBrowserForFullScreen: true,
       beginInteractionRecord: true,
-      bringCreatedRowIntoSight: true,
+      bringCreatedTaskGroupIntoSight: true,
       carryOutOwedAction: true,
       clearSelection: true,
       discardIncomingDocument: true,

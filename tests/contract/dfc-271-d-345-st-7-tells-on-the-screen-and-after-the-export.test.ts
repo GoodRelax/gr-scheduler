@@ -288,7 +288,7 @@ const ROW_ID = '11111111-2222-3333-4444-555555555555'
 function task(uid: number): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `Task ${uid}`,
     start: '2026-04-01T00:00:00',
@@ -516,7 +516,7 @@ const partAt = (part: string, entry: string | null, format: string | null): Scre
     part,
     entry,
     format,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,

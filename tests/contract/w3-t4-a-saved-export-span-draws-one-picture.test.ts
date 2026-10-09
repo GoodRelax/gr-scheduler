@@ -11,7 +11,7 @@ import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/im
 import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { pointerOf, rowDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
+import { pointerOf, taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 import {
   REQUIREMENTS,
   TEMPLATE_TEXT,
@@ -33,12 +33,12 @@ const IX_12 =
 const IX_13 =
   '画と横 | ⭐ 絵の区画は、画面と同じ区画の組み方で、閲覧環境の幅の代わりに `S-81` の幅を、プロパティパネルとコマンドパレットを閉じた状態として与えて求めること（MUST）'
 const IX_13_DAY =
-  '1 日の幅を、`Row Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
+  '1 日の幅を、`Task Group Area` の幅 ÷ `S-518` の日から `S-519` の日までを両端を含めて数えた暦日の数とすること（MUST）'
 const IX_4_CAP =
   'い —— 行を足して埋めない規則は `IX-10` が持つ。固定しているときの高さは `IX-15` が持つ。⛔ **伸ばしてよいのはその `S-217` までとすること（MUST）'
 const IX_10 =
   'りの空白 | 絵の高さ（全体表示時の期間を固定していなければ縮めた絵の高さ、固定していれば `IX-15` の高さ）が `S-81` の高さに満たないときは、余りを空白のままとすること（MUST）'
-const IX_10_NO_ROWS = '余りを空白のままとすること（MUST）。行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
+const IX_10_NO_TASK_GROUPS = '余りを空白のままとすること（MUST）。行を足して埋めてはならない（MUST NOT） —— 画面に無いものが出る。'
 // WHY: CR-690 -- the old span row retired; its rules are FX-1 and FX-5 of table T-367, and the span reaches the picture only fixed.
 const IX_17_BOTH = '⭐ `S-518` と `S-519` は、ともに `null` か、ともに日付を持つこと（MUST）'
 const IX_17_COPY = '読んだ文書と、片方だけが日付を持つ 表 T-108 の `CM-88` は、もう片方に同じ日をコピーする。'
@@ -70,8 +70,8 @@ const SPAN_DAYS = 12
 const SPANNED_TASK = 2
 
 /** @purity pure */
-function twoRowDraft(): Record<string, any> {
-  const draft = rowDocument([
+function twoTaskGroupDraft(): Record<string, any> {
+  const draft = taskGroupDocument([
     { id: 'g1', parentId: null },
     { id: 'g2', parentId: null },
   ])
@@ -117,7 +117,7 @@ const spanOf = (document: Document): [string | null, string | null] => [
 ]
 
 /** @purity non-pure */
-async function spannedStage(document: Document = documentOf(twoRowDraft())): Promise<{ built: ShellStage; api: Api }> {
+async function spannedStage(document: Document = documentOf(twoTaskGroupDraft())): Promise<{ built: ShellStage; api: Api }> {
   const built = await shellStage({ document })
   const api = agentOf(built)
   const outcome = apply(api, [spanCommand(SPAN_START_DAY, SPAN_FINISH_DAY), fixCommand()])
@@ -134,7 +134,7 @@ const sceneOf = (built: ShellStage): ExportScene => {
 
 const pictureOf = (built: ShellStage): { svg: string; heightPx: number } => {
   const answer = exportSvg(sceneOf(built))
-  if (!answer.ok) throw new Error(`exportSvg refused a two-row picture: ${answer.fault.reason}`)
+  if (!answer.ok) throw new Error(`exportSvg refused a two-task-group picture: ${answer.fault.reason}`)
   return answer
 }
 
@@ -189,7 +189,7 @@ function fieldRig(document: Document): FieldRig {
   run()
   return {
     press: (surfaceName, entry) => {
-      part = { part: surfaceName, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      part = { part: surfaceName, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       loop.receiveInput(pointerOf('down', 500, 300))
       run()
       loop.receiveInput(pointerOf('up', 500, 300))
@@ -211,7 +211,7 @@ function fieldRig(document: Document): FieldRig {
 }
 
 describe('FR-025 / FR-096 -- the manuscript these cases are driven by', () => {
-  it.each([IX_12, IX_13, IX_13_DAY, IX_4_CAP, IX_10, IX_10_NO_ROWS, IX_17_BOTH, IX_17_COPY, IX_17_REFUSE, IX_17_FIELD, FR_096_NO_NOTICE])(
+  it.each([IX_12, IX_13, IX_13_DAY, IX_4_CAP, IX_10, IX_10_NO_TASK_GROUPS, IX_17_BOTH, IX_17_COPY, IX_17_REFUSE, IX_17_FIELD, FR_096_NO_NOTICE])(
     '01-04 still says: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -259,30 +259,30 @@ describe(`IX-13 -- ${IX_13}`, () => {
     expect(rootSize(pictureOf(built).svg)[0], `${IX_13}: the picture is S-81 wide`).toBe(S_81_WIDTH)
     expect(narrow.propertiesPanel.width, `${IX_13}: the Properties Panel is given closed`).toBe(0)
     expect(narrow.appHeader.width, `${IX_13}: laid out at the S-81 width, not the window's`).toBe(S_81_WIDTH)
-    expect(narrow.rowArea, IX_13).toEqual(wide.rowArea)
+    expect(narrow.taskGroupArea, IX_13).toEqual(wide.taskGroupArea)
   })
 
-  it(`the Row Area runs from the S-518 day's left edge to the day after S-519 -- ${IX_13_DAY}`, async () => {
+  it(`the Task Group Area runs from the S-518 day's left edge to the day after S-519 -- ${IX_13_DAY}`, async () => {
     const { built } = await spannedStage()
-    const { rowArea } = sceneOf(built).regions
+    const { taskGroupArea } = sceneOf(built).regions
     const xs = planXs(pictureOf(built).svg, SPANNED_TASK)
-    expect(Math.min(...xs), `${IX_13_DAY}: the span's first day opens the Row Area`).toBeCloseTo(rowArea.x, 1)
-    expect(Math.max(...xs), `${IX_13_DAY}: the span's last day closes the Row Area`).toBeCloseTo(rowArea.x + rowArea.width, 1)
+    expect(Math.min(...xs), `${IX_13_DAY}: the span's first day opens the Task Group Area`).toBeCloseTo(taskGroupArea.x, 1)
+    expect(Math.max(...xs), `${IX_13_DAY}: the span's last day closes the Task Group Area`).toBeCloseTo(taskGroupArea.x + taskGroupArea.width, 1)
     const firstTaskXs = planXs(pictureOf(built).svg, 1)
-    const dayWidth = rowArea.width / SPAN_DAYS
+    const dayWidth = taskGroupArea.width / SPAN_DAYS
     // WHY: Task 1 runs 6 .. 10 April, five calendar days; its width is five of the span's days.
     expect(Math.max(...firstTaskXs) - Math.min(...firstTaskXs), IX_13_DAY).toBeCloseTo(5 * dayWidth, 1)
   })
 })
 
 describe(`IX-10 -- ${IX_10}`, () => {
-  it('a two-row span picture keeps the S-81 height and draws only the two rows of the document', async () => {
+  it('a two-task-group span picture keeps the S-81 height and draws only the two rows of the document', async () => {
     const { built } = await spannedStage()
     const picture = pictureOf(built)
     expect(picture.heightPx, `${IX_10}: shorter than S-81, the picture keeps the S-81 height`).toBe(S_81_HEIGHT)
     expect(rootSize(picture.svg)[1], IX_10).toBe(S_81_HEIGHT)
     const bands = [...picture.svg.matchAll(/data-figure="row-([^"]+)-band"/g)].map((one) => one[1])
-    expect(bands, `${IX_10_NO_ROWS}: no row is added to fill the blank`).toEqual(['g1', 'g2'])
+    expect(bands, `${IX_10_NO_TASK_GROUPS}: no row is added to fill the blank`).toEqual(['g1', 'g2'])
   })
 })
 
@@ -308,8 +308,8 @@ describe(`FX-1 -- ${IX_17_BOTH}`, () => {
   })
 
   it('a document read with only the start dated is opened with both ends on that day', async () => {
-    const built = await shellStage({ document: documentOf(twoRowDraft()) })
-    const oneSided = twoRowDraft()
+    const built = await shellStage({ document: documentOf(twoTaskGroupDraft()) })
+    const oneSided = twoTaskGroupDraft()
     oneSided['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
     oneSided['documentSettings'].fitSpanFinish = null
     await replaceWith(built, built.file('one-sided.json', jsonBytes(oneSided)))
@@ -326,7 +326,7 @@ describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
   })
 
   it('the field: K-141 offers two date entrances, and a finish settled before the start is told RS-58', () => {
-    const draft = twoRowDraft()
+    const draft = twoTaskGroupDraft()
     draft['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
     draft['documentSettings'].fitSpanFinish = `${SPAN_FINISH_DAY}T23:59:00`
     // WHY: FX-5 lets the two entrances be written only while the span is fixed.
@@ -348,7 +348,7 @@ describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
 
 describe(`FR-096 -- ${FR_096_NO_NOTICE}`, () => {
   it('an SVG export with a span raises no notice the same export without a span does not raise', async () => {
-    const plain = await shellStage({ document: documentOf(twoRowDraft()) })
+    const plain = await shellStage({ document: documentOf(twoTaskGroupDraft()) })
     await plain.exportAs('IO-3', plain.file('plain.svg', new Uint8Array(0)))
     const toldPlain = plain.last().notices.map((one) => (one as { text?: string }).text)
 

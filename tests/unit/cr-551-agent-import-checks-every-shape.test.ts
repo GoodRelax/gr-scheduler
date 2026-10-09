@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { unbroken } from '../contract/spec-table'
-import { rowDocument, shell, taskOf, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { taskGroupDocument, shell, taskOf, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -31,7 +31,7 @@ afterEach(() => {
 })
 
 function documentOf(fillColor: string | null): Record<string, any> {
-  const document = rowDocument([{ id: 'g1', parentId: null }])
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }])
   document.schedule.tasks = [taskOf(1, { name: 'Imported', start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })]
   document.schedule.taskVisuals = [
     { taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor, strokeColor: null, strokeWidthPx: null },
@@ -40,7 +40,7 @@ function documentOf(fillColor: string | null): Record<string, any> {
 }
 
 function apiOn(): { api: AgentApi; bench: ShellBench } {
-  const bench = shell(rowDocument([{ id: 'g1', parentId: null }]))
+  const bench = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
   benches.push(bench)
   const api = installAgentApi({
     ...bench.loop.agentApiSeams(),

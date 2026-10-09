@@ -8,7 +8,7 @@ import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import { bare, specTable, unbroken } from './spec-table'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -24,9 +24,9 @@ const FR_132_NOT_DONE = '⛔ 完了（表 T-019a の `PS-2`）したタスクを
 const FR_132_DX_9 =
   '押し出し日数が `S-397` 以上の完了したタスクは、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと（MUST）。'
 const FR_133_PATH_MARK =
-  'ボトルネック経路の印（`DG-3`）は、ボトルネックの WBS の祖先（`wbsParentUid` を遡る縦の道、`FR-135` で導いた親を含む）にだけ付けること（MUST）。'
+  'ボトルネック経路の印（`DG-3`）は、ボトルネックの WBS の祖先（`parentTaskUid` を遡る縦の道、`FR-135` で導いた親を含む）にだけ付けること（MUST）。'
 const FR_133_NOT_DOWNSTREAM = '⛔ 依存の下流に付けてはならない（MUST NOT）。'
-const FR_135_DERIVE = '`Task.wbsParentUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。'
+const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。'
 const FR_135_NOT_WRITTEN = '⛔ 導いた親を文書へ書いてはならない（MUST NOT）。'
 const FR_135_NOT_NARROWER = '⛔ 候補が 2 つ以上のとき、狭いほうを親と決めてはならない（MUST NOT）。'
 const FR_135_VO_4 = '導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと（MUST）。'
@@ -226,7 +226,7 @@ interface Row {
 }
 
 function documentOf(statusDate: string | null, rows: readonly Row[], keepsWrittenPercent = false): Document {
-  const raw = rowDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
+  const raw = taskGroupDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
@@ -254,7 +254,7 @@ const A = 101
 const B = 102
 const A2 = 111
 const B2 = 112
-const CHAIN_ROWS = (statusDate: string | null): Document =>
+const CHAIN_TASK_GROUPS = (statusDate: string | null): Document =>
   documentOf(statusDate, [
     {
       id: 'r0',
@@ -265,8 +265,8 @@ const CHAIN_ROWS = (statusDate: string | null): Document =>
       id: 'r1',
       parentId: 'r0',
       tasks: [
-        taskOf(A, { name: 'Design', wbsParentUid: P, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
-        taskOf(B, { name: 'Build', wbsParentUid: P, start: S(8), finish: F(10), dependencies: [after(A)] }),
+        taskOf(A, { name: 'Design', parentTaskUid: P, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
+        taskOf(B, { name: 'Build', parentTaskUid: P, start: S(8), finish: F(10), dependencies: [after(A)] }),
       ],
     },
     {
@@ -275,7 +275,7 @@ const CHAIN_ROWS = (statusDate: string | null): Document =>
       tasks: [
         taskOf(A2, {
           name: 'Survey',
-          wbsParentUid: P,
+          parentTaskUid: P,
           start: S(6),
           finish: F(8),
           actualStart: S(6),
@@ -284,7 +284,7 @@ const CHAIN_ROWS = (statusDate: string | null): Document =>
         }),
         taskOf(B2, {
           name: 'Report',
-          wbsParentUid: P,
+          parentTaskUid: P,
           start: S(8),
           finish: F(10),
           actualStart: S(13),
@@ -307,12 +307,12 @@ const TRUST = (statusDate: string | null): Document =>
       id: 'r1',
       parentId: 'r0',
       tasks: [
-        taskOf(C, { name: 'Contract', wbsParentUid: R, start: S(6), finish: F(8), percentComplete: 50 }),
-        taskOf(D, { name: 'Delivery', wbsParentUid: R, start: S(9), finish: F(10), dependencies: [after(C)] }),
-        taskOf(E, { name: 'Acceptance', wbsParentUid: R, start: S(13), finish: F(14), dependencies: [after(D)] }),
+        taskOf(C, { name: 'Contract', parentTaskUid: R, start: S(6), finish: F(8), percentComplete: 50 }),
+        taskOf(D, { name: 'Delivery', parentTaskUid: R, start: S(9), finish: F(10), dependencies: [after(C)] }),
+        taskOf(E, { name: 'Acceptance', parentTaskUid: R, start: S(13), finish: F(14), dependencies: [after(D)] }),
         taskOf(FF, {
           name: 'Fitting',
-          wbsParentUid: R,
+          parentTaskUid: R,
           start: S(6),
           finish: F(8),
           actualStart: S(6),
@@ -332,8 +332,8 @@ const DOUBT = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      taskOf(L, { name: 'Listing', wbsParentUid: K, start: S(6), finish: F(10), dependencies: [after(K, SS)] }),
-      taskOf(M, { name: 'Mockup', wbsParentUid: K, start: S(6), finish: F(8) }),
+      taskOf(L, { name: 'Listing', parentTaskUid: K, start: S(6), finish: F(10), dependencies: [after(K, SS)] }),
+      taskOf(M, { name: 'Mockup', parentTaskUid: K, start: S(6), finish: F(8) }),
     ],
   },
 ])
@@ -347,13 +347,13 @@ const DERIVED = documentOf(STATUS, [
   {
     id: 'r1',
     parentId: 'r0',
-    tasks: [taskOf(X, { name: 'Excavation', wbsParentUid: W, start: S(6), finish: F(8), actualStart: S(6) })],
+    tasks: [taskOf(X, { name: 'Excavation', parentTaskUid: W, start: S(6), finish: F(8), actualStart: S(6) })],
   },
   {
     id: 'r1b',
     parentId: 'r0',
     // WHY: Z starts on the 8th, Y's finish day (BD-2, CR-618), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
-    tasks: [taskOf(Z, { name: 'Zoning', wbsParentUid: W, start: S(8), finish: F(10), dependencies: [after(Y)] })],
+    tasks: [taskOf(Z, { name: 'Zoning', parentTaskUid: W, start: S(8), finish: F(10), dependencies: [after(Y)] })],
   },
   {
     id: 'r2',
@@ -372,8 +372,8 @@ const TWO_CANDIDATES = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      taskOf(X1, { name: 'Wide', wbsParentUid: W2, start: S(6), finish: F(10) }),
-      taskOf(X2, { name: 'Narrow', wbsParentUid: W2, start: S(6), finish: F(9) }),
+      taskOf(X1, { name: 'Wide', parentTaskUid: W2, start: S(6), finish: F(10) }),
+      taskOf(X2, { name: 'Narrow', parentTaskUid: W2, start: S(6), finish: F(9) }),
     ],
   },
   { id: 'r2', parentId: 'r1', tasks: [taskOf(Y2, { name: 'Inner', start: S(7), finish: F(8) })] },
@@ -384,7 +384,7 @@ const X3 = 171
 const Y3 = 172
 const NO_CANDIDATE = documentOf(STATUS, [
   { id: 'r0', parentId: null, tasks: [taskOf(W3, { name: 'Ward', start: S(6), finish: F(10) })] },
-  { id: 'r1', parentId: 'r0', tasks: [taskOf(X3, { name: 'Early', wbsParentUid: W3, start: S(6), finish: F(8) })] },
+  { id: 'r1', parentId: 'r0', tasks: [taskOf(X3, { name: 'Early', parentTaskUid: W3, start: S(6), finish: F(8) })] },
   { id: 'r2', parentId: 'r1', tasks: [taskOf(Y3, { name: 'Overhang', start: S(7), finish: F(10) })] },
 ])
 
@@ -397,8 +397,8 @@ const LONE_MILESTONE = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      taskOf(M0, { name: 'Gate zero', wbsParentUid: W4, milestone: true, start: S(6), finish: S(6) }),
-      taskOf(T4, { name: 'Tooling', wbsParentUid: W4, start: S(6), finish: F(10) }),
+      taskOf(M0, { name: 'Gate zero', parentTaskUid: W4, milestone: true, start: S(6), finish: S(6) }),
+      taskOf(T4, { name: 'Tooling', parentTaskUid: W4, start: S(6), finish: F(10) }),
     ],
   },
 ])
@@ -415,7 +415,7 @@ const ACHIEVED = documentOf(STATUS, [
     tasks: [
       taskOf(T1, {
         name: 'Trial one',
-        wbsParentUid: W5,
+        parentTaskUid: W5,
         start: S(6),
         finish: F(8),
         actualStart: S(6),
@@ -424,14 +424,14 @@ const ACHIEVED = documentOf(STATUS, [
       }),
       taskOf(T2, {
         name: 'Trial two',
-        wbsParentUid: W5,
+        parentTaskUid: W5,
         start: S(6),
         finish: F(9),
         actualStart: S(6),
         actualFinish: F(9),
         percentComplete: 100,
       }),
-      taskOf(M1, { name: 'Gate one', wbsParentUid: W5, milestone: true, start: S(10), finish: S(10) }),
+      taskOf(M1, { name: 'Gate one', parentTaskUid: W5, milestone: true, start: S(10), finish: S(10) }),
     ],
   },
 ])
@@ -445,10 +445,10 @@ const EARLY_GATE = documentOf(STATUS, [
     id: 'r1',
     parentId: 'r0',
     tasks: [
-      taskOf(T3, { name: 'Trench', wbsParentUid: W6, start: S(6), finish: F(8) }),
+      taskOf(T3, { name: 'Trench', parentTaskUid: W6, start: S(6), finish: F(8) }),
       taskOf(M2, {
         name: 'Gate two',
-        wbsParentUid: W6,
+        parentTaskUid: W6,
         milestone: true,
         start: S(10),
         finish: S(10),
@@ -505,7 +505,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
   })
 
   it('every schedule below decodes (the fixtures, not the seam)', () => {
-    for (const one of [CHAIN_ROWS(STATUS), TRUST(STATUS), DOUBT, DERIVED, TWO_CANDIDATES, NO_CANDIDATE]) {
+    for (const one of [CHAIN_TASK_GROUPS(STATUS), TRUST(STATUS), DOUBT, DERIVED, TWO_CANDIDATES, NO_CANDIDATE]) {
       expect(one.schedule.tasks.length).toBeGreaterThan(0)
     }
     for (const one of [LONE_MILESTONE, ACHIEVED, EARLY_GATE]) expect(one.schedule.tasks.length).toBeGreaterThan(0)
@@ -523,11 +523,11 @@ describe(`FR-130 -- ${FR_130_NO_STATUS}`, () => {
   })
 
   it('the not-diagnosed report is not the diagnosed one (DX-1 tells the two apart)', () => {
-    expect(diagnose(CHAIN_ROWS(null))).not.toEqual(diagnose(CHAIN_ROWS(STATUS)))
+    expect(diagnose(CHAIN_TASK_GROUPS(null))).not.toEqual(diagnose(CHAIN_TASK_GROUPS(STATUS)))
   })
 
   it('DX-2: the report carries the status date it diagnosed at', () => {
-    const document = CHAIN_ROWS(STATUS)
+    const document = CHAIN_TASK_GROUPS(STATUS)
     const statusDate = document.schedule.project.statusDate
     expect(leavesOf(diagnose(document))).toContainEqual(statusDate)
   })
@@ -535,8 +535,8 @@ describe(`FR-130 -- ${FR_130_NO_STATUS}`, () => {
 
 describe(`FR-130 -- ${FR_130_NO_WRITE}`, () => {
   const documents: readonly [string, () => Document][] = [
-    ['no status date', () => CHAIN_ROWS(null)],
-    ['a delayed chain', () => CHAIN_ROWS(STATUS)],
+    ['no status date', () => CHAIN_TASK_GROUPS(null)],
+    ['a delayed chain', () => CHAIN_TASK_GROUPS(STATUS)],
     ['a contradiction', () => TRUST(STATUS)],
     ['a derived parent', () => DERIVED],
     ['two candidate parents', () => TWO_CANDIDATES],
@@ -555,9 +555,9 @@ describe(`FR-130 -- ${FR_130_NO_WRITE}`, () => {
     expect(diagnose(document)).toEqual(diagnose(document))
   })
 
-  it(`${FR_135_NOT_WRITTEN} -- Y keeps wbsParentUid null`, () => {
+  it(`${FR_135_NOT_WRITTEN} -- Y keeps parentTaskUid null`, () => {
     diagnose(DERIVED)
-    expect(taskIn(DERIVED, Y)['wbsParentUid']).toBeNull()
+    expect(taskIn(DERIVED, Y)['parentTaskUid']).toBeNull()
   })
 
   it(`${FR_136_NO_WRITE} -- M1 keeps actualFinish null`, () => {
@@ -567,7 +567,7 @@ describe(`FR-130 -- ${FR_130_NO_WRITE}`, () => {
 })
 
 describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
-  const report = (): Report => diagnose(CHAIN_ROWS(STATUS))
+  const report = (): Report => diagnose(CHAIN_TASK_GROUPS(STATUS))
 
   it('A, started and not done, is the bottleneck: DX-8 holds DG-2 for it', () => {
     expect(markOf(report(), A)).toBe('DG-2')
@@ -603,7 +603,7 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
 })
 
 describe(`FR-132 -- ${FR_132_NOT_DONE}`, () => {
-  const report = (): Report => diagnose(CHAIN_ROWS(STATUS))
+  const report = (): Report => diagnose(CHAIN_TASK_GROUPS(STATUS))
 
   it('A2 is done (PS-2): DX-8 does not hold DG-2 for it', () => {
     expect(markOf(report(), A2)).not.toBe('DG-2')
@@ -656,7 +656,7 @@ describe(`FR-131 -- ${FR_131_ONE_EACH}`, () => {
   })
 
   it('VO-2 (T-312): A was due to finish, has started, and has neither actualFinish nor stop', () => {
-    expect(namesTask(diagnose(CHAIN_ROWS(STATUS)), 'VO-2', A).length).toBeGreaterThan(0)
+    expect(namesTask(diagnose(CHAIN_TASK_GROUPS(STATUS)), 'VO-2', A).length).toBeGreaterThan(0)
   })
 
   it('a doubt and a VO-1 omission do not paint: DG-1 takes T-310, VO-3, VO-5 and T-316 only (T-315), so L and M are not DG-1', () => {

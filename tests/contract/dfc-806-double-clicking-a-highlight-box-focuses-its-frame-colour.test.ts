@@ -19,18 +19,18 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, taskOf, SCREEN } from '../unit/cr-541-stage'
+import { pointerOf, taskGroupDocument, taskOf, SCREEN } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
 
 // see T-023, MK-13
-const MK_13 = rowIn('T-023', 'MK-13').cells.join(' ')
+const MK_13 = verticalIn('T-023', 'MK-13').cells.join(' ')
 // see JDG-410, DFC-806
 // TRAP: red until the MK-13 edit lands; the wording is the one the implementer was briefed to write.
 const MK_13_HIGHLIGHT_BOX =
@@ -38,12 +38,12 @@ const MK_13_HIGHLIGHT_BOX =
 const MK_13_COMMENT_BOX = '本文の欄（表 T-016 の `PR-21`）を編集できる状態にして焦点を置くこと（MUST）'
 
 // see T-016, PR-21, PR-22
-const PR_21 = rowIn('T-016', 'PR-21')
-const PR_22 = rowIn('T-016', 'PR-22')
+const PR_21 = verticalIn('T-016', 'PR-21')
+const PR_22 = verticalIn('T-016', 'PR-22')
 const BODY_ROW = PR_21.id
 const FRAME_ROW = PR_22.id
 // see T-103, U-25
-const PROPERTIES_PANEL = bare(rowIn('T-103', 'U-25').by['確定名（英）'] ?? '')
+const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
 const realRaf = GLOBAL['requestAnimationFrame']
@@ -60,7 +60,7 @@ const ROWS = [
   { id: 'g5', parentId: null },
 ]
 // WHY: tasks only on g1..g3; the comment box stands on g5, clear of every bar and of the highlight box.
-const TASKED_ROWS = ROWS.slice(0, 3)
+const TASKED_TASK_GROUPS = ROWS.slice(0, 3)
 const OPENER_TASK_UID = 3
 
 // WHY: the highlight box starts and ends outside the bars, so its left edge is not a bar's end (GA-3 / GA-4).
@@ -83,12 +83,12 @@ const COMMENT = {
 }
 
 function documentOf(strokeColor: string | null): Record<string, any> {
-  const document = rowDocument(ROWS, { progressMarkerVisible: false }, {
-    taskGroupMembers: TASKED_ROWS.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+  const document = taskGroupDocument(ROWS, { progressMarkerVisible: false }, {
+    taskGroupMembers: TASKED_TASK_GROUPS.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
     highlightBoxes: [{ ...HIGHLIGHT, strokeColor }],
     commentBoxes: [COMMENT],
   })
-  document.schedule.tasks = TASKED_ROWS.map((_one, index) =>
+  document.schedule.tasks = TASKED_TASK_GROUPS.map((_one, index) =>
     taskOf(index + 1, { name: `Task${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
   return document
@@ -217,7 +217,7 @@ function onTheOpenerTask(built: Bench): Point {
 }
 
 const hitAt = (built: Bench, at: Point) => itemAtPointer(geometryOf(built), at.x, at.y, grabSizesOf())?.item ?? null
-const panelRows = (built: Bench): string[] => built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
+const panelTaskGroups = (built: Bench): string[] => built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
 
 describe('the manuscript and the ruling these cases read', () => {
   it('MK-13 still settles the comment box on 本文の欄 (PR-21), and PR-22 is HighlightBox.strokeColor', () => {
@@ -247,7 +247,7 @@ describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame
     const built = bench()
     built.doubleClick(onTheHighlightFrame(built))
     expect(built.view().propertiesPanel, 'the panel is up').not.toBeNull()
-    expect(panelRows(built)).toContain(FRAME_ROW)
+    expect(panelTaskGroups(built)).toContain(FRAME_ROW)
     expect(fieldDrawn(built.built, FRAME_ROW), `data-field-row="${FRAME_ROW}" is drawn`).toBe(true)
   })
 
@@ -276,7 +276,7 @@ describe('the controls -- what a repair that went too far would break', () => {
     const before = [...built.asked]
     expect(built.view().propertiesPanel, 'premise: the task double click put the panel up').not.toBeNull()
     built.click(onTheHighlightFrame(built))
-    expect(panelRows(built), 'premise: the panel now shows the highlight box').toContain(FRAME_ROW)
+    expect(panelTaskGroups(built), 'premise: the panel now shows the highlight box').toContain(FRAME_ROW)
     expect(built.asked, 'no field asked for by the single click').toEqual(before)
   })
 

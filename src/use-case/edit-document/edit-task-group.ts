@@ -22,7 +22,7 @@ import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
 import { pastedCopyOf } from './task-plan-actual'
 import { copiedTask, withInferredCopyParents } from './task-paste'
 
-export { tasksRankedByTheRowTree } from './task-group-order'
+export { tasksRankedByTheTaskGroupTree } from './task-group-order'
 
 export type TaskGroupCommand =
   | {
@@ -73,16 +73,16 @@ export function withSchedule(document: Document, part: Partial<Schedule>): Docum
 }
 
 /** @purity pure */
-export function withRow(document: Document, row: TaskGroup): Document {
+export function withTaskGroup(document: Document, taskGroup: TaskGroup): Document {
   return withSchedule(document, {
-    taskGroups: document.schedule.taskGroups.map((one) => (one.id === row.id ? row : one)),
+    taskGroups: document.schedule.taskGroups.map((one) => (one.id === taskGroup.id ? taskGroup : one)),
   })
 }
 
 /** @purity pure */
-export function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
+export function depthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number {
   let depth = 1
-  let foundAt = row.parentId
+  let foundAt = taskGroup.parentId
   for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
     const parent = byId.get(foundAt)
     if (parent === undefined) break
@@ -93,7 +93,7 @@ export function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): n
 }
 
 export interface Subtree {
-  readonly rows: readonly TaskGroup[]
+  readonly taskGroups: readonly TaskGroup[]
   readonly height: number
 }
 
@@ -101,20 +101,20 @@ export interface Subtree {
 export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree | null {
   const root = groups.find((one) => one.id === rootId)
   if (root === undefined) return null
-  const rows: TaskGroup[] = []
+  const taskGroups: TaskGroup[] = []
   const seen = new Set<string>()
   let level: readonly TaskGroup[] = [root]
   let height = 0
   while (level.length > 0) {
     height += 1
     for (const one of level) {
-      rows.push(one)
+      taskGroups.push(one)
       seen.add(one.id)
     }
     const above = level
     level = groups.filter((one) => !seen.has(one.id) && above.some((up) => up.id === one.parentId))
   }
-  return { rows, height }
+  return { taskGroups, height }
 }
 
 // see CD-1, DU-1, IV-4
@@ -125,8 +125,8 @@ export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): 
   for (let grew = true; grew; ) {
     grew = false
     for (const task of tasks) {
-      if (task.wbsParentUid === null || held.has(task.uid)) continue
-      if (held.has(task.wbsParentUid)) {
+      if (task.parentTaskUid === null || held.has(task.uid)) continue
+      if (held.has(task.parentTaskUid)) {
         held.add(task.uid)
         grew = true
       }
@@ -143,9 +143,9 @@ function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] 
 
 // see CD-1, DU-2, AT-54
 /** @purity pure */
-export function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup {
-  const source = row.derivedFromTaskUid === null ? null : taskByUid(schedule, row.derivedFromTaskUid)
-  return { ...row, label: row.label ?? source?.name ?? defaultRowName, derivedFromTaskUid: null }
+export function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup {
+  const source = taskGroup.derivedFromTaskUid === null ? null : taskByUid(schedule, taskGroup.derivedFromTaskUid)
+  return { ...taskGroup, label: taskGroup.label ?? source?.name ?? defaultTaskGroupName, derivedFromTaskUid: null }
 }
 
 type PastePlan =
@@ -175,15 +175,15 @@ function pastePlanOf(
   }
   const idOf = new Map<string, string>()
   const taken = new Set<string>()
-  for (const row of copied.rows) {
-    const fresh = command.newGroupIds[row.id]
+  for (const taskGroup of copied.taskGroups) {
+    const fresh = command.newGroupIds[taskGroup.id]
     if (fresh === undefined) {
-      refusals.push(reject('CM-28', 'AT-51', `no new id was given for the copy of ${row.id}`))
+      refusals.push(reject('CM-28', 'AT-51', `no new id was given for the copy of ${taskGroup.id}`))
     } else if (byId.has(fresh) || taken.has(fresh)) {
       refusals.push(reject('CM-28', 'IV-1', `the id ${fresh} is already in use`))
     } else {
       taken.add(fresh)
-      idOf.set(row.id, fresh)
+      idOf.set(taskGroup.id, fresh)
     }
   }
   return refusals.length > 0 ? { ok: false, refusals } : { ok: true, copied, idOf }
@@ -192,24 +192,24 @@ function pastePlanOf(
 // see DU-2, HM-12
 // WHY: the copied row follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
 /** @purity pure */
-function copiedRowOf(
+function copiedTaskGroupOf(
   schedule: Schedule,
-  row: TaskGroup,
+  taskGroup: TaskGroup,
   command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
   idOf: ReadonlyMap<string, string>,
   uidOf: ReadonlyMap<number, number>,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
 ): TaskGroup {
   const parentId =
-    row.id === command.sourceGroupId
+    taskGroup.id === command.sourceGroupId
       ? command.targetGroupId
-      : row.parentId === null
+      : taskGroup.parentId === null
         ? null
-        : (idOf.get(row.parentId) ?? row.parentId)
-  const pasted = { ...row, id: idOf.get(row.id) as string, parentId, treeState: pastedTreeState(row.treeState) }
-  if (row.derivedFromTaskUid === null) return pasted
-  const copy = uidOf.get(row.derivedFromTaskUid)
-  return copy === undefined ? settledRow(schedule, pasted, defaultRowName) : { ...pasted, derivedFromTaskUid: copy }
+        : (idOf.get(taskGroup.parentId) ?? taskGroup.parentId)
+  const pasted = { ...taskGroup, id: idOf.get(taskGroup.id) as string, parentId, treeState: pastedTreeState(taskGroup.treeState) }
+  if (taskGroup.derivedFromTaskUid === null) return pasted
+  const copy = uidOf.get(taskGroup.derivedFromTaskUid)
+  return copy === undefined ? settledTaskGroup(schedule, pasted, defaultTaskGroupName) : { ...pasted, derivedFromTaskUid: copy }
 }
 
 // see CM-28, FR-033, DU-1, DU-2
@@ -219,13 +219,13 @@ function pasteTaskGroupSubtree(
   document: Document,
   command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
   byId: ReadonlyMap<string, TaskGroup>,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
 ): EditResult {
   const schedule = document.schedule
   const plan = pastePlanOf(command, byId, schedule.taskGroups)
   if (!plan.ok) return refused([...plan.refusals])
-  const copiedRows = new Set(plan.copied.rows.map((one) => one.id))
-  const riders = schedule.taskGroupMembers.filter((member) => copiedRows.has(member.groupId))
+  const copiedTaskGroups = new Set(plan.copied.taskGroups.map((one) => one.id))
+  const riders = schedule.taskGroupMembers.filter((member) => copiedTaskGroups.has(member.groupId))
 
   let mark = schedule.project.uidHighWaterMark
   const uidOf = new Map<number, number>()
@@ -237,8 +237,8 @@ function pasteTaskGroupSubtree(
   const paired = sources.map((one) => pastedCopyOf(copiedTask(one, chosen, uidOf), schedule, workingCalendarOf(schedule)))
   const after: Schedule = {
     ...schedule,
-    taskGroups: [...schedule.taskGroups, ...plan.copied.rows.map((row) =>
-      copiedRowOf(schedule, row, command, plan.idOf, uidOf, defaultRowName))],
+    taskGroups: [...schedule.taskGroups, ...plan.copied.taskGroups.map((taskGroup) =>
+      copiedTaskGroupOf(schedule, taskGroup, command, plan.idOf, uidOf, defaultTaskGroupName))],
     tasks: [...schedule.tasks, ...paired],
     taskGroupMembers: [...schedule.taskGroupMembers, ...riders.map((one) =>
       ({ ...one, taskUid: uidOf.get(one.taskUid) as number, groupId: plan.idOf.get(one.groupId) as string }))],
@@ -269,7 +269,7 @@ function pasteTaskGroupSubtree(
 export function editTaskGroup(
   document: Document,
   command: TaskGroupCommand,
-  defaultRowName: string,
+  defaultTaskGroupName: string,
 ): EditResult {
   const schedule = document.schedule
   const settings = document.documentSettings
@@ -285,21 +285,21 @@ export function editTaskGroup(
       if (doomed === null) {
         return refused([reject('CM-27', 'FR-032', `no such row: ${command.groupId}`)])
       }
-      const doomedRows = new Set(doomed.rows.map((one) => one.id))
+      const doomedTaskGroups = new Set(doomed.taskGroups.map((one) => one.id))
       const seeds = schedule.taskGroupMembers
-        .filter((member) => doomedRows.has(member.groupId))
+        .filter((member) => doomedTaskGroups.has(member.groupId))
         .map((member) => member.taskUid)
       const doomedTasks = wbsSubtreesOf(schedule.tasks, seeds)
 
       const kept: TaskGroup[] = []
-      for (const row of groups) {
-        if (doomedRows.has(row.id)) continue
-        if (row.derivedFromTaskUid === null || !doomedTasks.has(row.derivedFromTaskUid)) {
-          kept.push(row)
+      for (const taskGroup of groups) {
+        if (doomedTaskGroups.has(taskGroup.id)) continue
+        if (taskGroup.derivedFromTaskUid === null || !doomedTasks.has(taskGroup.derivedFromTaskUid)) {
+          kept.push(taskGroup)
           continue
         }
         // WHY: settles a name rather than refusing, which would block deleting a nameless Task.
-        kept.push(settledRow(schedule, row, defaultRowName))
+        kept.push(settledTaskGroup(schedule, taskGroup, defaultTaskGroupName))
       }
 
       const survivors = schedule.tasks
@@ -309,9 +309,9 @@ export function editTaskGroup(
           return held.length === task.dependencies.length ? task : { ...task, dependencies: held }
         })
 
-      const pinned = settings.pinnedGroupIds.filter((one) => !doomedRows.has(one))
+      const pinned = settings.pinnedGroupIds.filter((one) => !doomedTaskGroups.has(one))
       const scrollGroupId =
-        settings.scrollGroupId !== null && doomedRows.has(settings.scrollGroupId)
+        settings.scrollGroupId !== null && doomedTaskGroups.has(settings.scrollGroupId)
           ? null
           : settings.scrollGroupId
       const documentSettings =
@@ -327,7 +327,7 @@ export function editTaskGroup(
           taskGroups: kept,
           tasks: survivors,
           taskGroupMembers: schedule.taskGroupMembers.filter(
-            (one) => !doomedTasks.has(one.taskUid) && !doomedRows.has(one.groupId),
+            (one) => !doomedTasks.has(one.taskUid) && !doomedTaskGroups.has(one.groupId),
           ),
           taskVisuals: schedule.taskVisuals.filter((one) => !doomedTasks.has(one.taskUid)),
           taskOrigins: schedule.taskOrigins.filter((one) => !doomedTasks.has(one.taskUid)),
@@ -335,12 +335,12 @@ export function editTaskGroup(
             (one) => one.taskUid === null || !doomedTasks.has(one.taskUid),
           ),
           commentBoxes: schedule.commentBoxes.filter(
-            (one) => one.anchorGroupId === null || !doomedRows.has(one.anchorGroupId),
+            (one) => one.anchorGroupId === null || !doomedTaskGroups.has(one.anchorGroupId),
           ),
           highlightBoxes: schedule.highlightBoxes.filter(
             (one) =>
-              !(one.topGroupId !== null && doomedRows.has(one.topGroupId)) &&
-              !(one.bottomGroupId !== null && doomedRows.has(one.bottomGroupId)),
+              !(one.topGroupId !== null && doomedTaskGroups.has(one.topGroupId)) &&
+              !(one.bottomGroupId !== null && doomedTaskGroups.has(one.bottomGroupId)),
           ),
         },
         documentSettings,
@@ -348,7 +348,7 @@ export function editTaskGroup(
     }
 
     case 'pasteTaskGroupSubtree':
-      return pasteTaskGroupSubtree(document, command, byId, defaultRowName)
+      return pasteTaskGroupSubtree(document, command, byId, defaultTaskGroupName)
 
     case 'setTaskGroupLabel':
       return setTaskGroupLabel(document, command, byId)

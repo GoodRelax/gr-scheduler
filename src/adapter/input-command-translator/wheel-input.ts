@@ -12,26 +12,26 @@ import {
   changed,
   isCombo,
   isScrollPositionInForce,
-  rowAnchorIn,
-  rowIndexAtTopEdge,
+  taskGroupAnchorIn,
+  taskGroupIndexAtTopEdge,
   scrollAreaTopOf,
   scrolledAnchor,
-  scrollingRowsOf,
+  scrollingTaskGroupsOf,
   type InputContext,
   type ScrollAnchor,
   type TranslatedInput,
 } from './input-command-translator'
 import {
-  rowZoomAnswer,
+  verticalZoomAnswer,
   zoomStepAnswer,
   zoomTimes,
   zoomWrites,
 } from './zoom-and-fit'
 
-type RowAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
+type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
 
 /** @purity pure */
-function rowHeldOf(context: InputContext): RowAnchor {
+function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
   const settings = context.document.documentSettings
   return { scrollGroupId: settings.scrollGroupId, scrollGroupOffset: settings.scrollGroupOffset }
 }
@@ -41,16 +41,16 @@ function rowHeldOf(context: InputContext): RowAnchor {
 // STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
 // @provisional PND-177
 /** @purity pure */
-function rowTurnedTo(context: InputContext, dy: number): RowAnchor {
-  const held = rowHeldOf(context)
-  const rows = scrollingRowsOf(context.layout)
+function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
+  const held = taskGroupHeldOf(context)
+  const taskGroups = scrollingTaskGroupsOf(context.layout)
   const areaTop = scrollAreaTopOf(context)
-  if (dy === 0 || rowIndexAtTopEdge(rows, areaTop) === null) return held
-  if (rowIndexAtTopEdge(rows, areaTop + dy) === null) {
-    const first = rows[0]
+  if (dy === 0 || taskGroupIndexAtTopEdge(taskGroups, areaTop) === null) return held
+  if (taskGroupIndexAtTopEdge(taskGroups, areaTop + dy) === null) {
+    const first = taskGroups[0]
     return dy < 0 && first !== undefined ? { scrollGroupId: first.groupId, scrollGroupOffset: 0 } : held
   }
-  return rowAnchorIn(rows, areaTop + dy, held)
+  return taskGroupAnchorIn(taskGroups, areaTop + dy, held)
 }
 
 /** @purity pure */
@@ -96,7 +96,7 @@ export function commandFromWheel(
   if (shiftOnly) {
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x, input.y))
   }
-  if (altOnly) return rowZoomAnswer(context, factor, input.x, input.y)
+  if (altOnly) return verticalZoomAnswer(context, factor, input.x, input.y)
 
   // TRAP: a wheel turn is reported on the vertical axis whatever keys are held, so x alone
   // reads zero for MK-5; a real sideways report is believed first.
@@ -107,7 +107,7 @@ export function commandFromWheel(
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
   // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
-  const row = plain ? rowTurnedTo(context, input.scrollPx.y) : rowHeldOf(context)
+  const row = plain ? taskGroupTurnedTo(context, input.scrollPx.y) : taskGroupHeldOf(context)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,

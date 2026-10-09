@@ -49,7 +49,7 @@ const FD_4 = '矩形で、どちらも 0 または未設定'
 // see FR-016
 const FR_016_HANDLE = '未設定（`null`）の端の掴み点は 0 日の位置に立つ'
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -61,7 +61,7 @@ const numberOf = (cell: string): number => {
   return value
 }
 const settingOf = (id: string, key: string): number => {
-  const row = rowIn('T-201', id)
+  const row = verticalIn('T-201', id)
   expect(bare(row.by['キー'] ?? ''), `table T-201 row ${id} is ${key}`).toBe(key)
   return numberOf(row.by['既定値'] ?? '')
 }
@@ -71,7 +71,7 @@ const S_43 = settingOf('S-43', 'chevronNotchOfHeight')
 const S_44 = settingOf('S-44', 'chevronNotchOfWidth')
 const S_5 = settingOf('S-5', 'actualOfPlan')
 const LF_6 = (() => {
-  const cells = rowIn('T-221', 'LF-6').cells
+  const cells = verticalIn('T-221', 'LF-6').cells
   return cells[cells.length - 1] ?? ''
 })()
 
@@ -122,7 +122,7 @@ type Fade = number | null
 const taskOf = (fadeInDays: Fade, fadeOutDays: Fade, withActual: boolean): Task =>
   ({
     uid: 1,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: day(START),

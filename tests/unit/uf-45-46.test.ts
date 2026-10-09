@@ -24,7 +24,7 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
-import { rowNameFont } from '../fixtures/row-name-font'
+import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 
 
 const T_008_R9 = {
@@ -410,8 +410,8 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
-  const rowAreaWidth =
-    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
+  const taskGroupAreaWidth =
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidth
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -420,16 +420,16 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       width: EXPORT_SCREEN.width,
       height: canvasHeight,
     },
-    rowTitlePanel: {
+    taskGroupPanel: {
       x: 0,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: EXPORT_SETTINGS.rowTitlePanelWidth,
+      width: EXPORT_SETTINGS.taskGroupPanelWidth,
       height: canvasHeight,
     },
     timeRuler: {
-      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+      x: EXPORT_SETTINGS.taskGroupPanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: EXPORT_SETTINGS.rulerHeight,
     },
     propertiesPanel: {
@@ -438,10 +438,10 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       width: 0,
       height: canvasHeight,
     },
-    rowArea: {
-      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+    taskGroupArea: {
+      x: EXPORT_SETTINGS.taskGroupPanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
@@ -459,15 +459,15 @@ const EXPORT_VIEW: ScreenView = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: {
+  taskGroupPanel: {
     pinnedTitles: [],
     titles: [
       {
         groupId: 'g1',
         depth: 1,
-        ...rowNameFont(1),
-        indentPx: SETTINGS_CONSTANTS.rowTitleIndent,
-        box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
+        ...taskGroupNameFont(1),
+        indentPx: SETTINGS_CONSTANTS.taskGroupTitleIndent,
+        box: { x: 0, y: 120, width: EXPORT_SETTINGS.taskGroupPanelWidth, height: 60 },
         label: 'a row that reaches the picture',
         wholeLabel: 'a row that reaches the picture',
         isLabelTruncated: false,
@@ -497,7 +497,7 @@ const EXPORT_SCENE: ExportScene = {
 
 const sceneOfScreenHeight = (screenHeight: number): ExportScene => {
   const canvasHeight = screenHeight - EXPORT_SCREEN.appHeaderHeight
-  const withHeight = (rect: ScreenRegions['rowArea']): ScreenRegions['rowArea'] => ({
+  const withHeight = (rect: ScreenRegions['taskGroupArea']): ScreenRegions['taskGroupArea'] => ({
     ...rect,
     height: canvasHeight,
   })
@@ -506,10 +506,10 @@ const sceneOfScreenHeight = (screenHeight: number): ExportScene => {
     regions: {
       ...EXPORT_REGIONS,
       scheduleCanvas: withHeight(EXPORT_REGIONS.scheduleCanvas),
-      rowTitlePanel: withHeight(EXPORT_REGIONS.rowTitlePanel),
+      taskGroupPanel: withHeight(EXPORT_REGIONS.taskGroupPanel),
       propertiesPanel: withHeight(EXPORT_REGIONS.propertiesPanel),
-      rowArea: {
-        ...EXPORT_REGIONS.rowArea,
+      taskGroupArea: {
+        ...EXPORT_REGIONS.taskGroupArea,
         height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
       },
     },

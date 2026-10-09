@@ -16,7 +16,7 @@ import {
   stage,
   wiringOf,
 } from '../fixtures/fake-browser'
-import { keyOf, pointerOf, rowDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
+import { keyOf, pointerOf, taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
 // WHY: the DOM surface walks parentElement; the fake element has only parentNode.
@@ -30,7 +30,7 @@ if (!Object.getOwnPropertyDescriptor(FakeElement.prototype, 'parentElement')) {
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -43,18 +43,18 @@ const MK_13_NOT_ONE_PRESS = '⛔ 1 回の押下で開いてはならない（MUS
 
 describe('DFC-1721 the manuscript these cases are driven by', () => {
   it('MK-13 still names the Document Title and the F2 field', () => {
-    expect(rowIn('T-023', 'MK-13').cells.join(' ')).toContain(MK_13_DOCUMENT_TITLE)
+    expect(verticalIn('T-023', 'MK-13').cells.join(' ')).toContain(MK_13_DOCUMENT_TITLE)
   })
 
   it('MK-13 still forbids opening it on one press', () => {
-    expect(rowIn('T-023', 'MK-13').cells.join(' ')).toContain(MK_13_NOT_ONE_PRESS)
+    expect(verticalIn('T-023', 'MK-13').cells.join(' ')).toContain(MK_13_NOT_ONE_PRESS)
     expect(REQUIREMENTS).toContain('SK-9')
   })
 })
 
 // see T-103
-const DOCUMENT_TITLE = bare(rowIn('T-103', 'U-27').by['確定名（英）'] ?? '')
-const APP_HEADER = bare(rowIn('T-103', 'U-31').by['確定名（英）'] ?? '')
+const DOCUMENT_TITLE = bare(verticalIn('T-103', 'U-27').by['確定名（英）'] ?? '')
+const APP_HEADER = bare(verticalIn('T-103', 'U-31').by['確定名（英）'] ?? '')
 // WHY: IF-9 has the header's field name itself by U-27, so the row the host is asked to focus is U-27.
 const TITLE_FIELD_ROW = 'U-27'
 
@@ -69,7 +69,7 @@ const part = (name: string): ScreenPart => ({
   part: name,
   entry: null,
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -90,7 +90,7 @@ function bench(under: ScreenPart | null) {
     readFieldEditNotices: () => [],
     readScreenPartAt: () => under,
   } as unknown as ScreenSurface
-  const document = rowDocument([{ id: 'g1', parentId: null }])
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }])
   document['schedule'].tasks = [taskOf(1, { name: 'T1' })]
   const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, {
     surface,
@@ -160,7 +160,7 @@ describe('IF-9 / MK-13: the surface answers the Document Title for a point on th
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
     appHeaderItems: items,
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

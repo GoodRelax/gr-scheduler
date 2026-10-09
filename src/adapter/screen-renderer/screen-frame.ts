@@ -71,15 +71,15 @@ function scrollbarIn(
 
 // see FR-052, GR-22, S-99h, WF-4
 // WHY: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar;
-// a fixed row title width lays no band there, so nothing grabs it and the pointer keeps its shape.
+// a fixed task group title width lays no band there, so nothing grabs it and the pointer keeps its shape.
 /** @purity pure */
 function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession): readonly PanelDivider[] {
-  const rowTitle = settings.rowTitlePanelWidthFixed
+  const taskGroupTitle = settings.taskGroupPanelWidthFixed
     ? []
-    : [dividerAt('rowTitlePanel', regions.rowTitlePanel, regions.rowTitlePanel.x + regions.rowTitlePanel.width)]
-  if (session.screen.propertiesPanelContentState.kind === 'hidden') return rowTitle
+    : [dividerAt('taskGroupPanel', regions.taskGroupPanel, regions.taskGroupPanel.x + regions.taskGroupPanel.width)]
+  if (session.screen.propertiesPanelContentState.kind === 'hidden') return taskGroupTitle
   const properties = dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x)
-  return [...rowTitle, properties]
+  return [...taskGroupTitle, properties]
 }
 
 // see FR-051
@@ -88,9 +88,9 @@ function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session:
 function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRect {
   const canvas = regions.scheduleCanvas
   return {
-    x: regions.rowArea.x,
+    x: regions.taskGroupArea.x,
     y: canvas.y + canvas.height - thickness,
-    width: regions.rowArea.width,
+    width: regions.taskGroupArea.width,
     height: thickness,
   }
 }
@@ -103,18 +103,18 @@ export function screenFrameFromRegions(
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): ScreenFrame {
-  const rowArea = regions.rowArea
+  const taskGroupArea = regions.taskGroupArea
 
-  const gapRightOfRowArea = regions.propertiesPanel.x - (rowArea.x + rowArea.width)
-  const scrollbarThickness = Math.max(0, gapRightOfRowArea - SETTINGS_CONSTANTS.canvasPadding)
+  const gapRightOfTaskGroupArea = regions.propertiesPanel.x - (taskGroupArea.x + taskGroupArea.width)
+  const scrollbarThickness = Math.max(0, gapRightOfTaskGroupArea - SETTINGS_CONSTANTS.canvasPadding)
 
   const horizontalTrack = horizontalTrackOf(regions, scrollbarThickness)
-  // TRAP: (FR-051) the panel's left edge, not rowArea's right: canvasPadding lies between, a gap.
+  // TRAP: (FR-051) the panel's left edge, not taskGroupArea's right: canvasPadding lies between, a gap.
   const verticalTrack: ScreenRect = {
     x: regions.propertiesPanel.x - scrollbarThickness,
-    y: rowArea.y,
+    y: taskGroupArea.y,
     width: scrollbarThickness,
-    height: rowArea.height,
+    height: taskGroupArea.height,
   }
 
   return {
@@ -153,7 +153,7 @@ export interface VerticalWhole {
 // WHY: the content and the view together: after a fit the view runs past the content by the margin (S-332).
 /** @purity pure */
 export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole {
-  const area = regions.rowArea
+  const area = regions.taskGroupArea
   const contentX0 = layout.contentX0 ?? area.x
   const left = Math.min(contentX0, area.x)
   const right = Math.max(contentX0 + layout.contentWidth, area.x + area.width)
@@ -164,17 +164,17 @@ export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions
 // WHY: the same union as the horizontal whole: a view scrolled down to the last row runs past the content.
 /** @purity pure */
 export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): VerticalWhole {
-  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
-  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
+  const scrollTop = layout.scrollAreaY ?? regions.taskGroupArea.y
+  const contentY0 = layout.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)?.y ?? scrollTop
   const top = Math.min(contentY0, scrollTop)
   const bottom = Math.max(contentY0 + layout.contentHeight, scrollTop + visibleHeightOf(layout, regions))
   return { fromContentY0: contentY0 - top, height: bottom - top }
 }
 
-// TRAP: (FR-098) the scrolling remainder's height; the Row Area's would grow the grip as rows are pinned.
+// TRAP: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as rows are pinned.
 /** @purity pure */
 function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
-  return Math.max(0, regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y))
+  return Math.max(0, regions.taskGroupArea.y + regions.taskGroupArea.height - (layout.scrollAreaY ?? regions.taskGroupArea.y))
 }
 
 // see SC-1, FR-098
@@ -184,14 +184,14 @@ export function scrollExtentOf(
   regions: ScreenRegions,
   whole: { readonly horizontal: HorizontalWhole; readonly vertical: VerticalWhole },
 ): ScreenViewReadings['scrollExtent'] {
-  const contentX0 = layout.contentX0 ?? regions.rowArea.x
-  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
-  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
+  const contentX0 = layout.contentX0 ?? regions.taskGroupArea.x
+  const scrollTop = layout.scrollAreaY ?? regions.taskGroupArea.y
+  const contentY0 = layout.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)?.y ?? scrollTop
   return {
     contentWidth: whole.horizontal.width,
     contentHeight: whole.vertical.height,
     visibleHeight: visibleHeightOf(layout, regions),
-    offsetX: Math.max(0, regions.rowArea.x - (contentX0 - whole.horizontal.fromContentX0)),
+    offsetX: Math.max(0, regions.taskGroupArea.x - (contentX0 - whole.horizontal.fromContentX0)),
     offsetY: Math.max(0, scrollTop - (contentY0 - whole.vertical.fromContentY0)),
   }
 }

@@ -40,7 +40,7 @@
 //   DFC-321 「⛔ **コピーと貼り付けが何も起こさない**（`NFR-004` の掃引 2026-09-05）
 //         …… 実測 2026-09-05（出荷ビルド、`file://` と `http://`）—— **押しても
 //         文書も絵も動かない。**」
-//   DFC-290 「⛔ **複製したものを貼る道が無い** …… `pasteTaskSubtree` /
+//   DFC-290 「⛔ **複製したものを貼る道が無い** …… `pasteTasks` /
 //         `pasteTaskGroupSubtree` の発行元が `src/` に 0 件」
 //
 // ⛔ NOTHING THAT FILE ASKS IS ASKED AGAIN HERE. The key assignments, the
@@ -63,7 +63,7 @@
 // ⛔ NO FUNCTION BODY WAS READ. ⭐ The host, the fake surface and the way one
 // Task's bar is found on the canvas are copied from
 // tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts, and the
-// row-title press from tests/unit/t-051-hf-14-a-raised-row-is-visible.test.ts.
+// task-group-title press from tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts.
 //
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
@@ -127,14 +127,14 @@ const REQUIREMENTS = unbroken(readFileSync(
 const FR_033_STATEMENT =
   '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` だけを**複製すること。行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
 
-const FR_033_SAME_ROW = '複製した `Task` は、複製元と同じ行に載せること（MUST）'
+const FR_033_SAME_TASK_GROUP = '複製した `Task` は、複製元と同じ行に載せること（MUST）'
 
 const FR_033_NO_SAME_UID =
   '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 
 const FR_033_NO_TASK_ORIGIN = '複製に `TaskOrigin` を付けてはならない（MUST NOT）'
 
-const FR_033_PASTE_UNDER_THE_CHOSEN_ROW = '貼り付け先は、選んでいる行の子とすること（MUST）'
+const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいる行の子とすること（MUST）'
 
 /** ⭐ The clause that ties this requirement to 表 T-014 の `ST-7`. */
 const FR_033_REFUSE_AT_THE_VALVE =
@@ -189,7 +189,7 @@ const COPY = keyOf('SK-4')
 const PASTE = keyOf('SK-5')
 
 /** `U-22` -- the 面 the row half of the STATEMENT names（行見出しパネル）. */
-const ROW_TITLE_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
+const TASK_GROUP_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
 
 interface ReasonWords {
   readonly rowId: string
@@ -214,8 +214,8 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Document
 
-const PARENT_ROW = 'aaaaaaaa-0000-4000-8000-000000000001'
-const CHILD_ROW = 'aaaaaaaa-0000-4000-8000-000000000002'
+const PARENT_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-000000000001'
+const CHILD_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-000000000002'
 
 /** The `Task` a case presses, and its WBS child, which is not copied unless it is chosen too (DU-1, CR-706). */
 const PARENT_TASK = 1
@@ -226,7 +226,7 @@ const FIRST_FILLER = 100
 function task(uid: number, parentUid: number | null): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: parentUid,
+    parentTaskUid: parentUid,
     wbsOrder: uid,
     name: `Task ${uid}`,
     start: '2026-04-01T00:00:00',
@@ -253,7 +253,7 @@ function group(id: string, parentId: string | null, order: number): Record<strin
   return {
     id,
     parentId,
-    label: id === PARENT_ROW ? 'Parent row' : 'Child row',
+    label: id === PARENT_TASK_GROUP ? 'Parent row' : 'Child row',
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
@@ -269,7 +269,7 @@ function group(id: string, parentId: string | null, order: number): Record<strin
  * 部分木ごと」 needs a row WITH a row under it.
  */
 // WHY: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
-function documentOfTwoRows(fillers = 0): Document {
+function documentOfTwoTaskGroups(fillers = 0): Document {
   const template = structuredClone(TEMPLATE) as any
   const settings = { ...structuredClone(template.documentSettings) }
   const filled = Array.from({ length: fillers }, (_, index) => FIRST_FILLER + index)
@@ -286,11 +286,11 @@ function documentOfTwoRows(fillers = 0): Document {
       tasks: [task(PARENT_TASK, null), task(CHILD_TASK, PARENT_TASK), ...filled.map((uid) => task(uid, null))],
       resources: [],
       assignments: [],
-      taskGroups: [group(PARENT_ROW, null, 0), group(CHILD_ROW, PARENT_ROW, 0)],
+      taskGroups: [group(PARENT_TASK_GROUP, null, 0), group(CHILD_TASK_GROUP, PARENT_TASK_GROUP, 0)],
       taskGroupMembers: [
-        { taskUid: PARENT_TASK, groupId: PARENT_ROW },
-        { taskUid: CHILD_TASK, groupId: CHILD_ROW },
-        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_ROW })),
+        { taskUid: PARENT_TASK, groupId: PARENT_TASK_GROUP },
+        { taskUid: CHILD_TASK, groupId: CHILD_TASK_GROUP },
+        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_TASK_GROUP })),
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -394,7 +394,7 @@ interface Stage {
   pressRow(groupId: string): void
   taskUids(): readonly number[]
   groupIds(): readonly string[]
-  rowOfTask(uid: number): string | undefined
+  taskGroupOfTask(uid: number): string | undefined
   taskOriginCount(): number
   notices(): readonly Notice[]
   documentText(): string
@@ -441,10 +441,10 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
     pressRow: (groupId) => {
       // CS-2 of 表 T-066 settles the gesture on what was drawn AT THE PRESS.
       screen.drawAt({
-        part: ROW_TITLE_PANEL,
+        part: TASK_GROUP_PANEL,
         entry: null,
         format: null,
-        rowGroupId: groupId,
+        taskGroupId: groupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -455,7 +455,7 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
     },
     taskUids: () => schedule().tasks.map((one: any) => one.uid),
     groupIds: () => schedule().taskGroups.map((one: any) => one.id),
-    rowOfTask: (uid) =>
+    taskGroupOfTask: (uid) =>
       schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
     taskOriginCount: () => schedule().taskOrigins.length,
     notices: () => screen.last().notices,
@@ -470,7 +470,7 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
 describe('FR-033 -- the manuscript this file is driven by', () => {
   it('still states the two subtrees, and still keeps a copy on its original row', () => {
     expect(REQUIREMENTS).toContain(FR_033_STATEMENT)
-    expect(REQUIREMENTS).toContain(FR_033_SAME_ROW)
+    expect(REQUIREMENTS).toContain(FR_033_SAME_TASK_GROUP)
   })
 
   it('still forbids a copy wearing its original’s UID or a TaskOrigin', () => {
@@ -479,7 +479,7 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 
   it('still lands a pasted row under the chosen one, and still refuses a paste at the valve', () => {
-    expect(REQUIREMENTS).toContain(FR_033_PASTE_UNDER_THE_CHOSEN_ROW)
+    expect(REQUIREMENTS).toContain(FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP)
     expect(REQUIREMENTS).toContain(FR_033_REFUSE_AT_THE_VALVE)
   })
 
@@ -491,9 +491,9 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   it('the fixture really holds the two subtrees the STATEMENT speaks of', () => {
     // ⛔ WITHOUT THIS, a "the subtree travelled" case could pass on a fixture
     // whose subtree was one node deep.
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     expect(built.taskUids()).toEqual([PARENT_TASK, CHILD_TASK])
-    expect(built.groupIds()).toEqual([PARENT_ROW, CHILD_ROW])
+    expect(built.groupIds()).toEqual([PARENT_TASK_GROUP, CHILD_TASK_GROUP])
     expect(built.notices()).toEqual([])
   })
 })
@@ -507,7 +507,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
     // ⛔ DFC-321's measurement on the shipped build: 「押しても文書も絵も動かない」.
     // The STATEMENT: 「選ばれた `Task` だけを複製すること」,
     // and 表 T-223 の `DU-1` copies no WBS descendant that was not chosen (CR-706).
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
     built.send(COPY)
@@ -521,7 +521,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and the copies wear UIDs of their own (MUST NOT)', () => {
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
     built.send(COPY)
@@ -534,7 +534,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   it('and the copied Task sits on the row its original sits on (MUST)', () => {
     // 「複製した `Task` は、複製元と同じ行に載せること（MUST）」 -- 載る行が決まら
     // ないと、表 T-050 の `CD-2` が消す範囲も決まらない。
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
     built.send(COPY)
@@ -542,14 +542,14 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
 
     const copies = built.taskUids().filter((uid) => uid !== PARENT_TASK && uid !== CHILD_TASK)
     expect(copies.length).toBe(1)
-    const rows = copies.map((uid) => built.rowOfTask(uid))
-    expect(rows, 'the copy landed on a row its original is not on').toEqual([PARENT_ROW])
+    const rows = copies.map((uid) => built.taskGroupOfTask(uid))
+    expect(rows, 'the copy landed on a row its original is not on').toEqual([PARENT_TASK_GROUP])
   })
 
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
     // 「複製に `TaskOrigin` を付けてはならない（MUST NOT）」 —— 交換相手から来たもの
     // ではないので、合流の照合対象にしない。
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
 
     built.send(COPY)
@@ -563,8 +563,8 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
   it('⭐⭐ the pair of keys leaves two more rows in the document', () => {
     // 「行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること」, and
     // 表 T-223 の `DU-2` names 「配下の行」 as what travels with it.
-    const built = stage(documentOfTwoRows())
-    built.pressRow(PARENT_ROW)
+    const built = stage(documentOfTwoTaskGroups())
+    built.pressRow(PARENT_TASK_GROUP)
 
     built.send(COPY)
     built.send(PASTE)
@@ -579,17 +579,17 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
   it('and the Tasks on the copied rows come with them (DU-2)', () => {
     // 「その行に載っているすべての `Task`」 and
     // 「⚠️ **複製した `Task` は複製した行に載せる。**」
-    const built = stage(documentOfTwoRows())
-    built.pressRow(PARENT_ROW)
+    const built = stage(documentOfTwoTaskGroups())
+    built.pressRow(PARENT_TASK_GROUP)
 
     built.send(COPY)
     built.send(PASTE)
 
-    const newRows = built.groupIds().filter((id) => id !== PARENT_ROW && id !== CHILD_ROW)
-    expect(newRows.length).toBe(2)
+    const newTaskGroups = built.groupIds().filter((id) => id !== PARENT_TASK_GROUP && id !== CHILD_TASK_GROUP)
+    expect(newTaskGroups.length).toBe(2)
     const carried = built
       .taskUids()
-      .filter((uid) => newRows.includes(built.rowOfTask(uid) ?? ''))
+      .filter((uid) => newTaskGroups.includes(built.taskGroupOfTask(uid) ?? ''))
     expect(
       carried.length,
       'the copied rows came up empty, which DU-2 (「その行に載っているすべての `Task`」) forbids',
@@ -606,7 +606,7 @@ describe('FR-033 -- what does NOT change the document', () => {
     // ⛔ WITHOUT THIS, a loop that duplicated on `Ctrl+V` regardless of any copy
     // would pass every case above. ⚠️ WHAT IT TELLS IS NOT ASSERTED: FR-033
     // states no reason row for an empty store (see the head of this file).
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     const before = built.documentText()
 
     built.pressTask(PARENT_TASK)
@@ -618,7 +618,7 @@ describe('FR-033 -- what does NOT change the document', () => {
   it('⭐ SK-4 on its own leaves the document exactly as it was -- a copy is not an edit', () => {
     // 「複製に使う置き場はアプリの中に持つこと（MUST）」 -- a store, not a change:
     // FR-031 counts an undo step from a WRITE, and taking a copy writes nothing.
-    const built = stage(documentOfTwoRows())
+    const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
     const before = built.documentText()
 
@@ -649,7 +649,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
   it('the premise: the parent row stands one under the valve and is not yet past it', () => {
     // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- the row
     // this case pastes onto holds one Task under the cap, so a paste is what reaches it.
-    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
+    const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     expect(built.notices()).toEqual([])
     expect(built.taskUids().length).toBe(2 + AT_THE_CAP)
   })
@@ -659,7 +659,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     // Task would put one Task past it. ⛔ The FIRST paste is lawful and
     // is asserted so, precisely so that a loop which refuses every paste cannot
     // pass this case.
-    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
+    const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
     built.send(COPY)
 
@@ -685,7 +685,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     // んではならない（MUST NOT）」.
     // ⛔ WHICH row is not asserted: FR-033 names none (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
-    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
+    const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
     built.send(COPY)
     built.send(PASTE)

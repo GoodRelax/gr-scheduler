@@ -31,7 +31,7 @@ import {
   milestoneGlyphOf,
   nextIssuedUid,
   nothingToDo,
-  rowAtY,
+  taskGroupAtY,
   taskGroupRankById,
   taskShapeKindOf,
   type InputContext,
@@ -90,10 +90,10 @@ export function commandFromDependencyDrag(
   ])
 }
 
-// see FR-135, WL-5, WL-6, WL-7, WL-8, WL-9, JDG-1138
+// see FR-135, PTL-5, PTL-6, PTL-7, PTL-8, PTL-9, JDG-1138
 // WHY: one call holds every child's CM-18, so one refused child refuses them all and one undo step undoes them all.
 /** @purity pure */
-export function commandFromWbsParentDrag(
+export function commandFromParentTaskDrag(
   release: PointerInput,
   press: PointerPress,
   context: InputContext,
@@ -107,14 +107,14 @@ export function commandFromWbsParentDrag(
   if (parent.milestone === true) return nothingToDo('milestoneCannotBeAParent')
   const chosen = taskUidsIn(context.selection)
   const children = chosen.includes(from.taskUid) ? chosen : [from.taskUid]
-  return changed(children.map((uid) => ({ kind: 'setTaskWbsParent', uid, parentUid: parent.uid })))
+  return changed(children.map((uid) => ({ kind: 'setTaskParentTask', uid, parentUid: parent.uid })))
 }
 
-// see WL-10, WL-12, RS-70
+// see PTL-10, PTL-12, RS-70
 /** @purity pure */
-export function commandFromWbsParentLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput {
+export function commandFromParentTaskLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput {
   const item = press.hit?.item
-  if (item === undefined || item.kind !== 'wbsParentLink' || hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
+  if (item === undefined || item.kind !== 'parentTaskLink' || hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
   return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
@@ -128,9 +128,9 @@ export function commandFromArmed(
   const armed = context.screen.armModeState
   const from = dayAtX(context.layout, press.at.x)
   const to = dayAtX(context.layout, release.x)
-  const row = rowAtY(context.layout, press.at.y)
+  const taskGroup = taskGroupAtY(context.layout, press.at.y)
   if (from === null || to === null) return CONSUMED_ELSEWHERE
-  const groupId = row === null ? context.newGroupId : row.groupId
+  const groupId = taskGroup === null ? context.newGroupId : taskGroup.groupId
   const early = compareDay(from, to) <= 0 ? from : to
   const late = compareDay(from, to) <= 0 ? to : from
   const dragged = hasDraggedPastThreshold(press, release)
@@ -177,17 +177,17 @@ export function commandFromArmed(
   if (armed.kind === 'highlightBoxArmed') {
     if (!dragged) return CONSUMED_ELSEWHERE
 
-    const releaseRow = rowAtY(context.layout, release.y)
-    if (row === null || releaseRow === null) return nothingToDo('noRowToPutTheAnnotationOn')
+    const releaseTaskGroup = taskGroupAtY(context.layout, release.y)
+    if (taskGroup === null || releaseTaskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
 
-    // TRAP: rank rows by tree order, not RowPlacement.y: once FR-098 pins a row,
+    // TRAP: rank rows by tree order, not TaskGroupPlacement.y: once FR-098 pins a row,
     // comparing y writes pairs IV-19 refuses.
     const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-    const pressRank = rankById.get(row.groupId) ?? 0
-    const releaseRank = rankById.get(releaseRow.groupId) ?? 0
+    const pressRank = rankById.get(taskGroup.groupId) ?? 0
+    const releaseRank = rankById.get(releaseTaskGroup.groupId) ?? 0
     const isPressAbove = pressRank <= releaseRank
-    const top = isPressAbove ? row : releaseRow
-    const bottom = isPressAbove ? releaseRow : row
+    const top = isPressAbove ? taskGroup : releaseTaskGroup
+    const bottom = isPressAbove ? releaseTaskGroup : taskGroup
     return changed([
       {
         kind: 'createHighlightBox',

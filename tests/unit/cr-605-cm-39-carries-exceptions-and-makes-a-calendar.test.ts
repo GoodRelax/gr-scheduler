@@ -160,10 +160,10 @@ const documentOf = (project: Record<string, unknown>, calendars: readonly Calend
       rulerFont: 14,
       rulerHeight: 48,
       canvasPadding: 10,
-      rowTitlePanelWidth: 170,
+      taskGroupPanelWidth: 170,
       propertyPanelWidth: 280,
       pinnedGroupIds: [],
-      pinnedRowMax: 5,
+      pinnedTaskGroupMax: 5,
       zoomX: 1,
       zoomY: 1,
       scrollDate: null,
@@ -187,7 +187,7 @@ const ONLY_NON_BASE = (pointer: number | null): Document =>
     calendarOf({ uid: 6, ordinal: 7, isBaseCalendar: false }),
   ])
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 const setCalendar = (part: Record<string, unknown>): DocumentCommand => ({ kind: 'setCalendar', ...part }) as unknown as DocumentCommand
 
@@ -234,7 +234,7 @@ const benchOf = (document: Document): Bench => {
     write: (command) => {
       applyDocumentChange(
         {
-          defaultRowName: 'row',
+          defaultTaskGroupName: 'row',
           readStamp: held.document.documentStamp,
           commands: [command],
           moment: CALM,

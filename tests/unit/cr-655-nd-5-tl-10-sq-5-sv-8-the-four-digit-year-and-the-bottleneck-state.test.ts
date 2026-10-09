@@ -30,7 +30,7 @@ import {
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from '../contract/spec-table'
-import { rowDocument, taskOf } from './cr-541-stage'
+import { taskGroupDocument, taskOf } from './cr-541-stage'
 
 type Loose = Record<string, unknown>
 
@@ -63,7 +63,7 @@ const at = (day: string): string => `${day}T08:00:00`
 const until = (day: string): string => `${day}T17:00:00`
 
 function scheduleOf(tasks: readonly Loose[]): scheduleEntry.Schedule {
-  const raw = rowDocument([{ id: 'r0', parentId: null }])
+  const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = tasks
   raw.schedule.taskGroupMembers = tasks.map((one) => ({ taskUid: one['uid'], groupId: 'r0' }))
@@ -150,7 +150,7 @@ const LATER = 302
 const DONE = 303
 
 function diagnosedDocument(): Document {
-  const raw = rowDocument([{ id: 'r0', parentId: null }])
+  const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
   raw.schedule.project.statusDate = F(5, 12)
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = [

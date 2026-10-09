@@ -71,7 +71,7 @@ export interface Task {
   /** AT-24 */
   readonly uid: number
   /** AT-25 */
-  readonly wbsParentUid: number | null
+  readonly parentTaskUid: number | null
   /** AT-26 */
   readonly wbsOrder: number | null
   /** AT-27 */
@@ -417,7 +417,7 @@ export const COLUMN_SHAPES: {
 } = {
   Task: {
     uid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
-    wbsParentUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    parentTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     wbsOrder: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     name: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     start: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
@@ -530,7 +530,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     many: true,
     primaryKey: ['uid'],
     foreignKeys: [
-      { fromColumn: 'wbsParentUid', child: 'Task', toColumn: 'uid' },
+      { fromColumn: 'parentTaskUid', child: 'Task', toColumn: 'uid' },
       { fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' },
     ],
     nested: [

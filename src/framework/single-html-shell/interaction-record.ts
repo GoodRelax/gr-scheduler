@@ -182,7 +182,7 @@ export function recordFrame(
   recordLine(hands, recorder,
     'frame',
     `w=${hands.readEnvironment().width} h=${hands.readEnvironment().height} ` +
-      `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
+      `rows=${drawnLayout.taskGroups.length} bars=${drawnLayout.placements.length} ` +
       `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
       `minimised=${paletteMinimisedForRecordOf(session)} ` +
       `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +

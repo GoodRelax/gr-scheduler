@@ -11,13 +11,13 @@ import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { keepTooltipsInside, tooltipElement } from '../../src/framework/dom-screen-surface/tooltips-drawing'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { byRole, selfAndDescendants, styleMap, surfaceOf, wire, type FakeElement, type Stage } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, SCREEN } from './cr-541-stage'
+import { pointerOf, taskGroupDocument, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -30,7 +30,7 @@ const numberOf = (cell: string): number => {
 }
 
 // see S-339
-const S_339 = numberOf(rowIn('T-206', 'S-339').by['既定'] ?? '')
+const S_339 = numberOf(verticalIn('T-206', 'S-339').by['既定'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
 const realRaf = GLOBAL['requestAnimationFrame']
@@ -48,7 +48,7 @@ interface Bench {
 }
 
 const partOn = (part: string, entry: string | null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+  ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 function bench(document: Record<string, unknown>): Bench {
   const waiting: ((time: number) => void)[] = []
@@ -92,7 +92,7 @@ function bench(document: Record<string, unknown>): Bench {
   }
 }
 
-const oneRowDocument = (settings: Record<string, unknown> = {}) => rowDocument([{ id: 'g1', parentId: null }], settings)
+const oneTaskGroupDocument = (settings: Record<string, unknown> = {}) => taskGroupDocument([{ id: 'g1', parentId: null }], settings)
 
 const FR_041_PLACE =
   'モノクロを選ぶ入口を `App Header` の、明暗テーマの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-16`）の左に置くこと（MUST）'
@@ -102,12 +102,12 @@ describe('IC-100 -- the monochrome entrance', () => {
   it('FR-041 / IC-100 still say: App Header の、明暗テーマの入口（IC-16）の左に置く', () => {
     expect(REQUIREMENTS).toContain(FR_041_PLACE)
     expect(GLOSSARY).toContain(IC_100_LEFT_OF_IC_16)
-    expect(bare(rowIn('T-109', 'IC-100').cells[0] ?? '')).toBe('App Header')
+    expect(bare(verticalIn('T-109', 'IC-100').cells[0] ?? '')).toBe('App Header')
   })
 
   it('IC-100: App Header の IC-16 の左 -- the header lists IC-100 immediately before IC-16', () => {
     // see IC-100, FR-041
-    const icons = bench(oneRowDocument()).view().appHeaderItems.commands.map((one) => one.icon)
+    const icons = bench(oneTaskGroupDocument()).view().appHeaderItems.commands.map((one) => one.icon)
     const at = icons.indexOf('IC-100')
     expect(at, `the header entrances: ${icons.join(' ')}`).toBeGreaterThanOrEqual(0)
     expect(icons[at + 1]).toBe('IC-16')
@@ -115,7 +115,7 @@ describe('IC-100 -- the monochrome entrance', () => {
 
   it('IC-100: not in the Command Palette (FR-041 moved it out of the palette)', () => {
     // see IC-100
-    const built = bench(oneRowDocument({}))
+    const built = bench(oneTaskGroupDocument({}))
     const palette = built.view().commandPalette
     const inPalette = (palette?.groups ?? []).flatMap((group) => group.commands.map((one) => one.icon))
     expect(inPalette).not.toContain('IC-100')
@@ -127,7 +127,7 @@ describe('IC-100 -- the monochrome entrance', () => {
 
   it('IC-100: the drawn App Header carries IC-100 as the entrance just before IC-16', () => {
     // see IC-100
-    const built = bench(oneRowDocument())
+    const built = bench(oneTaskGroupDocument())
     const header = byRole(built.built.root(), 'App Header')[0] as FakeElement
     const order = selfAndDescendants(header)
       .map((one) => one.getAttribute('data-icon'))
@@ -140,7 +140,7 @@ describe('IC-100 -- the monochrome entrance', () => {
 
 const RR_6 = '閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、面の見出しの行の右端（面の右上）に置くこと（MUST）'
 
-const ROSTER = bare(rowIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource Roster'
+const ROSTER = bare(verticalIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource Roster'
 
 interface HeadingRow {
   readonly row: FakeElement
@@ -167,7 +167,7 @@ describe('RR-6 -- the roster closes from the right end of its heading row', () =
 
   it('RR-6: 面の見出しの行の右端 -- IC-52 is the last entrance in the roster heading row', () => {
     // see RR-6
-    const built = bench(oneRowDocument())
+    const built = bench(oneTaskGroupDocument())
     built.press('Command Palette', 'IC-62')
     const modal = built.view().openModal
     expect(modal?.surface, 'premise: IC-62 opened the roster').toBe(ROSTER)
@@ -194,14 +194,14 @@ describe('RR-6 -- the roster closes from the right end of its heading row', () =
       return isFlex && (justified || takesRoom) && kids[kids.length - 1] === close
     }
 
-    const help = bench(oneRowDocument())
+    const help = bench(oneTaskGroupDocument())
     help.press('App Header', 'IC-22')
     const helpModal = help.view().helpModal
     const helpRoot = byRole(help.built.root(), helpModal?.surface ?? '')[0] as FakeElement
     const helpRow = headingRowOf(helpRoot, helpModal?.heading ?? '')
     expect(pushedRight(helpRow.row, helpRow.close), 'premise: the Help heading row sets IC-52 at its right end').toBe(true)
 
-    const roster = bench(oneRowDocument())
+    const roster = bench(oneTaskGroupDocument())
     roster.press('Command Palette', 'IC-62')
     const rosterRoot = byRole(roster.built.root(), ROSTER)[0] as FakeElement
     const rosterRow = headingRowOf(rosterRoot, roster.view().openModal?.heading ?? '')
@@ -365,9 +365,9 @@ function drawnBoxes(svg: string, figure: RegExp): Box[] {
 const overlaps = (a: Box, b: Box): boolean =>
   a.x < b.x + b.width - 0.01 && b.x < a.x + a.width - 0.01 && a.y < b.y + b.height - 0.01 && b.y < a.y + a.height - 0.01
 
-function manyRows(): Bench {
+function manyTaskGroups(): Bench {
   const rows = Array.from({ length: 60 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  return bench(rowDocument(rows))
+  return bench(taskGroupDocument(rows))
 }
 
 describe('FR-051 -- the scrollbar bands', () => {
@@ -380,7 +380,7 @@ describe('FR-051 -- the scrollbar bands', () => {
 
   it('FR-051: 横の Scrollbars は、GRS が占める画面の下端に接して置く', () => {
     // see FR-051
-    const bars = manyRows().view().frame.scrollbars
+    const bars = manyTaskGroups().view().frame.scrollbars
     const horizontal = bars.find((one) => one.axis === 'horizontal')
     expect(horizontal).toBeDefined()
     expect((horizontal?.track.y ?? 0) + (horizontal?.track.height ?? 0)).toBeCloseTo(SCREEN.height, 3)
@@ -388,7 +388,7 @@ describe('FR-051 -- the scrollbar bands', () => {
 
   it('FR-051: 行の帯の地を、縦の Scrollbars の左端まで続けて塗る', () => {
     // see FR-051
-    const built = manyRows()
+    const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
     const bands = drawnBoxes(built.svg(), /^row-.*-band$/)
     expect(bands.length, 'premise: row bands are drawn').toBeGreaterThan(0)
@@ -397,7 +397,7 @@ describe('FR-051 -- the scrollbar bands', () => {
 
   it('FR-051: 行の帯の地も日程の形も、縦の Scrollbars の帯の中へ描いてはならない', () => {
     // see FR-051
-    const built = manyRows()
+    const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')?.track as Box
     const drawn = drawnBoxes(built.svg(), /^(row-.*|task-.*)$/)
     const inside = drawn.filter((one) => overlaps(one, vertical))
@@ -406,7 +406,7 @@ describe('FR-051 -- the scrollbar bands', () => {
 
   it('FR-051: 日程（行の帯・形・罫線）を横の Scrollbars の帯の中へ描いてはならない', () => {
     // see FR-051
-    const built = manyRows()
+    const built = manyTaskGroups()
     const horizontal = built.view().frame.scrollbars.find((one) => one.axis === 'horizontal')?.track as Box
     const drawn = drawnBoxes(built.svg(), /^(row-.*|task-.*)$/)
     expect(drawn.length, 'premise: the rows reach past the bottom of the screen').toBeGreaterThan(0)

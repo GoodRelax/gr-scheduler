@@ -64,7 +64,7 @@ export const pointerOf = (
   clickCount: 1,
 })
 
-export interface RowSeed {
+export interface TaskGroupSeed {
   readonly id: string
   readonly parentId: string | null
   readonly treeState?: 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
@@ -73,7 +73,7 @@ export interface RowSeed {
 export function taskOf(uid: number, part: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `Task${uid}`,
     start: '2026-04-06T08:00:00',
@@ -97,8 +97,8 @@ export function taskOf(uid: number, part: Record<string, unknown> = {}): Record<
   }
 }
 
-export function rowDocument(
-  rows: readonly RowSeed[],
+export function taskGroupDocument(
+  rows: readonly TaskGroupSeed[],
   settings: Record<string, unknown> = {},
   schedule: Record<string, unknown> = {},
 ): Record<string, any> {
@@ -218,7 +218,7 @@ export function shell(
         part: surfaceName,
         entry,
         format: null,
-        rowGroupId: groupId,
+        taskGroupId: groupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,

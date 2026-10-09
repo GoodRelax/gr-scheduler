@@ -36,7 +36,7 @@ import {
   grabSizesOf,
   itemAtPointer,
   pointerWalkOf,
-  selectionWithinDrawnRows,
+  selectionWithinDrawnTaskGroups,
   type Hit,
   type PointerAnswers,
   type PointerWalk,
@@ -44,7 +44,7 @@ import {
 import {
   geometryFromLayout,
   type ScheduleGeometry,
-  type WbsParentFamilies,
+  type ParentTaskFamilies,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   fixedFitSpanOf,
@@ -98,7 +98,7 @@ import {
   type FileFlowSurfaceName,
   type FileFlowWriteForm,
   type FileOperationState,
-  type GrabbedRowAxis,
+  type GrabbedVerticalAxis,
   type NoticeReason,
   type PressedOn,
   type PropertiesSubject,
@@ -150,7 +150,7 @@ import {
   type SpentEntranceSituation,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
-  DEFAULT_ROW_NAME,
+  DEFAULT_TASK_GROUP_NAME,
   horizontalWholeOf,
   nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
@@ -162,7 +162,7 @@ import {
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   type DelayDiagnosticsReportWindow,
-  drawnRowBoxesOf,
+  drawnTaskGroupBoxesOf,
   windowBoxAfterGrab,
   windowPlaceOf,
   DEFAULT_WINDOW_PLACE,
@@ -235,12 +235,12 @@ import {
 import { frameClockWakesOf, noticeTimersOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
 import {
   heldPropertyPanelWidthOf,
-  leavesRowArea,
+  leavesTaskGroupArea,
   marqueeRect,
   previewOfHeldPress,
   tentativeDependencyOf,
 } from './held-press-preview'
-import { wbsParentHoldOf } from './wbs-parent-hold'
+import { parentTaskHoldOf } from './parent-task-hold'
 import { shownTasksHoldOf } from './shown-tasks-hold'
 import {
   interactionRecorderOf,
@@ -249,7 +249,7 @@ import {
   recordHappening,
   recordLine,
 } from './interaction-record'
-import { rowBandCeilingCacheOf } from './row-band-ceiling-cache'
+import { taskGroupBandCeilingCacheOf } from './task-group-band-ceiling-cache'
 import startupTemplateManifest from './startup-template-manifest.json'
 import { runSessionEffects, type EffectRunners } from './session-effects'
 import { heldViewPlaceOf } from './view-place'
@@ -271,7 +271,7 @@ export interface FrameEnvironment {
   readonly height: number
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
-  readonly rowControlsHeightPx?: number
+  readonly taskGroupControlsHeightPx?: number
   // see FR-053, JDG-660
   readonly commandPaletteBandPx?: { readonly width: number; readonly height: number }
 }
@@ -489,11 +489,11 @@ interface PictureInputs {
   readonly schedule: GeometryArguments[0]
   readonly settings: DocumentSettings
   readonly regions: ScreenRegions
-  readonly rowControlsHeightPx: number | undefined
+  readonly taskGroupControlsHeightPx: number | undefined
   readonly selection: Selection
   readonly dualCursor: GeometryArguments[5]
   readonly delayDiagnostics: DelayDiagnosticsDrawing | undefined
-  readonly wbsParentFamilies: WbsParentFamilies | null
+  readonly parentTaskFamilies: ParentTaskFamilies | null
   // see TV-1, S-495
   readonly shownTaskUids: ReadonlySet<number> | null
 }
@@ -525,9 +525,9 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
     a.selection === b.selection &&
     a.dualCursor === b.dualCursor &&
     a.delayDiagnostics === b.delayDiagnostics &&
-    a.wbsParentFamilies === b.wbsParentFamilies &&
+    a.parentTaskFamilies === b.parentTaskFamilies &&
     a.shownTaskUids === b.shownTaskUids &&
-    a.rowControlsHeightPx === b.rowControlsHeightPx &&
+    a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
     isSameRecord(a.settings, b.settings) &&
     isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
   )
@@ -539,10 +539,10 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
 function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
   if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
   const { schedule, settings, regions } = inputs
-  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.rowControlsHeightPx, inputs.shownTaskUids)
+  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.taskGroupControlsHeightPx, inputs.shownTaskUids)
   const geometry = geometryFromLayout(
     schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
-    inputs.wbsParentFamilies,
+    inputs.parentTaskFamilies,
   )
   return { inputs, layout, geometry }
 }
@@ -553,7 +553,7 @@ interface HeldZoomEnds {
   readonly document: Document
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
-  readonly rowControlsHeightPx: number | undefined
+  readonly taskGroupControlsHeightPx: number | undefined
   readonly isPictureAtStoredZoom: boolean
   readonly ends: ZoomEntranceEnds
 }
@@ -576,7 +576,7 @@ function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'
   if (!now.isPictureAtStoredZoom) return held.document === now.document && held.layout === now.layout
   return (
     held.document.schedule === now.document.schedule &&
-    held.rowControlsHeightPx === now.rowControlsHeightPx &&
+    held.taskGroupControlsHeightPx === now.taskGroupControlsHeightPx &&
     isSameApartFromViewPlace(held.document.documentSettings, now.document.documentSettings) &&
     isSameRecord(held.regions, now.regions, (x, y) => isSameRecord(x as object, y as object))
   )
@@ -590,11 +590,11 @@ function zoomEntranceEndsHoldOf() {
   return (
     frame: FrameValues,
     document: Document,
-    rowControlsHeightPx: number | undefined,
+    taskGroupControlsHeightPx: number | undefined,
     contextOf: (frame: FrameValues) => InputContext,
   ): ZoomEntranceEnds => {
     const { layout, regions, isPictureAtStoredZoom } = frame
-    const now = { document, layout, regions, rowControlsHeightPx, isPictureAtStoredZoom }
+    const now = { document, layout, regions, taskGroupControlsHeightPx, isPictureAtStoredZoom }
     if (held !== null && isSameZoomEndsInputs(held, now)) return held.ends
     const ends = zoomEntranceEndsOf(contextOf(frame))
     held = { ...now, ends }
@@ -620,7 +620,7 @@ function stackSafetyCapToldAfter(told: string | null, layout: ScheduleLayout): {
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
 
-const PINNED_ROWS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
+const PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON: NoticeReason = 'RS-66'
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
@@ -841,19 +841,19 @@ export const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   Record<SpentEntranceSituation, NoticeReason>
 > = {
-  noFoldedRowBelow: 'RS-28',
-  noUnfoldedRowBelow: 'RS-29',
-  rowIsOpenWithNoHiddenChild: 'RS-30',
-  noFoldedRowAtAll: 'RS-31',
-  noUnfoldedRowAtAll: 'RS-32',
+  noFoldedTaskGroupBelow: 'RS-28',
+  noUnfoldedTaskGroupBelow: 'RS-29',
+  taskGroupIsOpenWithNoHiddenChild: 'RS-30',
+  noFoldedTaskGroupAtAll: 'RS-31',
+  noUnfoldedTaskGroupAtAll: 'RS-32',
   onlyOneOfPlanAndActualShown: 'RS-33',
   noTaskChosenToAlignWith: 'RS-34',
   noSiblingAboveToNestUnder: 'RS-36',
-  rowIsAtTheShallowestLevel: 'RS-37',
+  taskGroupIsAtTheShallowestLevel: 'RS-37',
   groupDepthLimitReached: 'RS-38',
   noPlaceLeftInThatDirection: 'RS-39',
-  noRowToPutTheAnnotationOn: 'RS-44',
-  rowIsAtTheDeepestLevel: 'RS-46',
+  noTaskGroupToPutTheAnnotationOn: 'RS-44',
+  taskGroupIsAtTheDeepestLevel: 'RS-46',
   barShapeReleasedWithoutADrag: 'RS-53',
   milestoneCannotBeAParent: 'RS-69',
   derivedParentCannotBePicked: 'RS-70',
@@ -874,7 +874,7 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
 export const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56'
 
 // TRAP: dom-screen-surface.ts's ROLE.dialogueField must spell it the same; a mismatch
-// silently leaves the Dialogue Field's press stopped like any other rowArea press.
+// silently leaves the Dialogue Field's press stopped like any other taskGroupArea press.
 const DIALOGUE_FIELD_SURFACE = 'Dialogue Field'
 
 const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
@@ -903,7 +903,7 @@ function paletteCornerOf(
 ): { readonly x: number; readonly y: number } {
   if (draggedTo !== null) return draggedTo
   const band = bandSizeOf(env)
-  const corner = { x: regions.rowArea.x + regions.rowArea.width - band.width, y: regions.rowArea.y }
+  const corner = { x: regions.taskGroupArea.x + regions.taskGroupArea.width - band.width, y: regions.taskGroupArea.y }
   return paletteCornerInWindow(corner, band, windowSizeOf(env))
 }
 
@@ -959,7 +959,7 @@ interface ScreenViewReadingsTaken {
   readonly hintHolderUnderPointer: HintHolder | null
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: ScreenViewReadings['commandPaletteAt']
-  readonly rowGrabbedAt: {
+  readonly taskGroupGrabbedAt: {
     readonly groupId: string
     readonly depth: number
     readonly axis: 'position' | 'depth'
@@ -982,8 +982,8 @@ interface ScreenViewReadingsTaken {
   readonly searchPanel?: SearchPanelSession
   readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
-  readonly isWbsParentLinksShown?: boolean
-  readonly wbsParentChoice?: NonNullable<ScreenViewReadings['wbsParentChoice']> | null
+  readonly isParentTaskLinksShown?: boolean
+  readonly parentTaskChoice?: NonNullable<ScreenViewReadings['parentTaskChoice']> | null
 }
 
 // see PI-37, SF-5, SF-10
@@ -1001,11 +1001,11 @@ function screenViewReadingsOf(
   return {
     ...carried,
     themeHue: held.schedule.project.themeHue,
-    rowBoxes: drawnRowBoxesOf(layout, regions),
-    placedRowGroupIds: layout.rows.map((row) => row.groupId),
-    placedRows: layout.rows,
+    taskGroupBoxes: drawnTaskGroupBoxesOf(layout, regions),
+    placedTaskGroupIds: layout.taskGroups.map((taskGroup) => taskGroup.groupId),
+    placedTaskGroups: layout.taskGroups,
     shownSpan: shownSpanTextsOf(layout, regions),
-    rowTitlePanelDrawnWidth: regions.rowTitlePanel.width,
+    taskGroupPanelDrawnWidth: regions.taskGroupPanel.width,
     scrollExtent: scrollExtentOf(layout, regions, {
       horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
       vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
@@ -1018,7 +1018,7 @@ function screenViewReadingsOf(
 // see FX-6
 /** @purity pure */
 function shownSpanTextsOf(layout: ScheduleLayout, regions: ScreenRegions): NonNullable<ScreenViewReadings['shownSpan']> | null {
-  const shown = shownSpanOf(layout, regions.rowArea)
+  const shown = shownSpanOf(layout, regions.taskGroupArea)
   return shown === null ? null : { start: textOfDayStart(shown.start), finish: textOfDayEnd(shown.finish) }
 }
 
@@ -1037,7 +1037,7 @@ function measuredAtPress(
 > {
   return {
     propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
-    layoutRowsAtPress: frame.layout.rows,
+    layoutRowsAtPress: frame.layout.taskGroups,
     horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
     verticalWholeAtPress: verticalWholeOf(frame.layout, frame.regions),
   }
@@ -1209,7 +1209,7 @@ function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof command
 // see FR-052, U-50
 /** @purity pure */
 function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): boolean {
-  return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
+  return event.type === 'propertyPanelWidthSettled' && !leavesTaskGroupArea(event.propertyPanelWidth, frame.regions)
 }
 
 // WHY: the progress step (T-280) waits for the press to drop; its effect writes, and WS-2 refuses a write mid-gesture.
@@ -1236,10 +1236,10 @@ function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHold
 
 // see FR-085
 /** @purity pure */
-function rowsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
-  const chosenRows = session.selection.chosenRows
-  const kept = chosenRows.filter((groupId) => schedule.taskGroups.some((one) => one.id === groupId))
-  return kept.length === chosenRows.length ? chosenRows : kept
+function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
+  const chosenTaskGroups = session.selection.chosenTaskGroups
+  const kept = chosenTaskGroups.filter((groupId) => schedule.taskGroups.some((one) => one.id === groupId))
+  return kept.length === chosenTaskGroups.length ? chosenTaskGroups : kept
 }
 
 // see FR-072, FR-006, FR-085
@@ -1248,9 +1248,9 @@ function rowsWithinSchedule(session: ScreenSession, schedule: Document['schedule
 function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession): PropertiesSubject | null {
   if (selection.items.length === 0 && groupIds.length === 0) return null
   const content = session.screen.propertiesPanelContentState
-  const heldRows = content.kind === 'selectionDisplayed' ? content.subject.groupIds : []
-  const isRowPick = groupIds.length > 0 && (heldRows.length !== groupIds.length || heldRows.some((one, at) => one !== groupIds[at]))
-  return { selection: isRowPick ? NO_OBJECTS_SELECTED : selection, groupIds }
+  const heldTaskGroups = content.kind === 'selectionDisplayed' ? content.subject.groupIds : []
+  const isTaskGroupPick = groupIds.length > 0 && (heldTaskGroups.length !== groupIds.length || heldTaskGroups.some((one, at) => one !== groupIds[at]))
+  return { selection: isTaskGroupPick ? NO_OBJECTS_SELECTED : selection, groupIds }
 }
 
 type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
@@ -1280,7 +1280,7 @@ function screenExportViewOf(
     settings,
     regions,
     undefined,
-    environment.rowControlsHeightPx,
+    environment.taskGroupControlsHeightPx,
     shownTaskUids,
   )
   return { regions, settings, layout, dualCursor }
@@ -1288,15 +1288,15 @@ function screenExportViewOf(
 
 // see IX-15
 // WHY: the picture is the four stacked sections only (JDG-1627): the screen's bottom padding (S-56)
-// and scrollbar strip under the Row Area are cut, as the bar's thickness differs per machine.
+// and scrollbar strip under the Task Group Area are cut, as the bar's thickness differs per machine.
 /** @purity pure */
-function regionsClosedUnderRowArea(regions: ScreenRegions): ScreenRegions {
-  const rowAreaBottom = regions.rowArea.y + regions.rowArea.height
-  const closed = (rect: ScreenRect): ScreenRect => ({ ...rect, height: rowAreaBottom - rect.y })
+function regionsClosedUnderTaskGroupArea(regions: ScreenRegions): ScreenRegions {
+  const taskGroupAreaBottom = regions.taskGroupArea.y + regions.taskGroupArea.height
+  const closed = (rect: ScreenRect): ScreenRect => ({ ...rect, height: taskGroupAreaBottom - rect.y })
   return {
     ...regions,
     scheduleCanvas: closed(regions.scheduleCanvas),
-    rowTitlePanel: closed(regions.rowTitlePanel),
+    taskGroupPanel: closed(regions.taskGroupPanel),
     propertiesPanel: closed(regions.propertiesPanel),
   }
 }
@@ -1322,7 +1322,7 @@ function spanExportViewOf(
   const reach = regionsAt(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   const settings: DocumentSettings = {
     ...stored,
-    zoomX: reach.rowArea.width / days / drawnSettingsOf(stored).pxPerDayAt1x,
+    zoomX: reach.taskGroupArea.width / days / drawnSettingsOf(stored).pxPerDayAt1x,
     zoomY: 1,
     scrollDate: stored.fitSpanStart,
     scrollDayOffset: 0,
@@ -1334,16 +1334,16 @@ function spanExportViewOf(
     settings,
     reach,
     undefined,
-    environment.rowControlsHeightPx,
+    environment.taskGroupControlsHeightPx,
     shownTaskUids,
   )
-  const lastRowBottom = layout.rows.reduce((bottom, row) => Math.max(bottom, row.y + row.height), reach.rowArea.y)
-  const belowRowArea = reach.scheduleCanvas.y + reach.scheduleCanvas.height - (reach.rowArea.y + reach.rowArea.height)
-  return { regions: regionsClosedUnderRowArea(regionsAt(lastRowBottom + belowRowArea)), settings, layout, dualCursor: null }
+  const lastTaskGroupBottom = layout.taskGroups.reduce((bottom, taskGroup) => Math.max(bottom, taskGroup.y + taskGroup.height), reach.taskGroupArea.y)
+  const belowTaskGroupArea = reach.scheduleCanvas.y + reach.scheduleCanvas.height - (reach.taskGroupArea.y + reach.taskGroupArea.height)
+  return { regions: regionsClosedUnderTaskGroupArea(regionsAt(lastTaskGroupBottom + belowTaskGroupArea)), settings, layout, dualCursor: null }
 }
 
 // see HF-15, SF-5
-type GrabbedRowPlace = Omit<NonNullable<ScreenViewReadingsTaken['rowGrabbedAt']>, 'axis'>
+type GrabbedTaskGroupPlace = Omit<NonNullable<ScreenViewReadingsTaken['taskGroupGrabbedAt']>, 'axis'>
 
 interface ScreenEffectHands {
   readonly raiseNotice: (reason: NoticeReason) => void
@@ -1364,7 +1364,7 @@ interface ScreenEffectHands {
   readonly discardIncomingDocument: () => void
   readonly answerOverwriteQuestion: (isProceeding: boolean) => void
   readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
-  readonly bringCreatedRowIntoSight: (groupId: string) => void
+  readonly bringCreatedTaskGroupIntoSight: (groupId: string) => void
   readonly beginInteractionRecord: () => void
   readonly handInteractionRecordToClipboard: () => void
   readonly storeAgentApiEnabling: () => void
@@ -1409,7 +1409,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     answerOverwriteQuestion: (effect) => hands.answerOverwriteQuestion(effect.isProceeding),
     carryOutOwedAction: (effect, frame) => hands.carryOutOwedAction(effect.owedAction, frame),
 
-    bringCreatedRowIntoSight: (effect) => hands.bringCreatedRowIntoSight(effect.groupId),
+    bringCreatedTaskGroupIntoSight: (effect) => hands.bringCreatedTaskGroupIntoSight(effect.groupId),
 
     beginInteractionRecord: () => hands.beginInteractionRecord(),
     handInteractionRecordToClipboard: () => hands.handInteractionRecordToClipboard(),
@@ -1426,7 +1426,7 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
     one.height === other.height &&
     one.appHeaderHeight === other.appHeaderHeight &&
     one.scrollbarThickness === other.scrollbarThickness &&
-    one.rowControlsHeightPx === other.rowControlsHeightPx &&
+    one.taskGroupControlsHeightPx === other.taskGroupControlsHeightPx &&
     one.commandPaletteBandPx?.width === other.commandPaletteBandPx?.width &&
     one.commandPaletteBandPx?.height === other.commandPaletteBandPx?.height
   )
@@ -1724,13 +1724,13 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
-  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, hit.groupId)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, hit.groupId)
   const plan = searchJumpWrites(document, cell, hasRoom, searchJumpReachOf(frame.layout, cell))
   const writes = searchJumpCommands(plan)
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
-  if (plan.isBlockedByPinnedRows) hands.raiseNotice(PINNED_ROWS_LEAVE_NO_ROOM_REASON, null)
+  if (plan.isBlockedByPinnedTaskGroups) hands.raiseNotice(PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON, null)
 }
 
 // see SV-7, IF-9
@@ -1802,13 +1802,13 @@ function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEven
 // WHY: emptySelection() is one shared value, so with only rows chosen the picked objects stay the held
 // ones; the spent rung tells instead -- Esc on the selection rung, Enter the translator left to the choice.
 /** @purity pure */
-function isRowChoiceSpentBy(
+function isTaskGroupChoiceSpentBy(
   input: HumanInput,
   context: InputContext,
   escapeLevel: EscapeTarget | null,
   translated: ReturnType<typeof commandFromInput>,
 ): boolean {
-  if (input.kind !== 'key' || (context.chosenRows?.length ?? 0) === 0) return false
+  if (input.kind !== 'key' || (context.chosenTaskGroups?.length ?? 0) === 0) return false
   if (input.key === ESCAPE_KEY) return escapeLevel === 'selection'
   if (input.key !== ENTER_KEY || !isCombo(input.modifiers, false, false, false)) return false
   return translated.action === null && translated.isBrowserDefaultStopped
@@ -1877,8 +1877,8 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
       return b.kind === 'commentBox' && a.id === b.id
     case 'statusLine':
       return b.kind === 'statusLine'
-    case 'wbsParentLink':
-      return b.kind === 'wbsParentLink' && a.childUid === b.childUid
+    case 'parentTaskLink':
+      return b.kind === 'parentTaskLink' && a.childUid === b.childUid
   }
 }
 
@@ -1915,15 +1915,15 @@ export function selectedObjectsIn(session: ScreenSession): Selection {
 }
 
 /** @purity pure */
-function rowsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
+function taskGroupsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
   if (!isExtending) return [groupId]
   return chosen.includes(groupId) ? chosen.filter((one) => one !== groupId) : [...chosen, groupId]
 }
 
 // see HF-15, T-289
 /** @purity pure */
-function rowGrabAxisIn(session: ScreenSession): GrabbedRowAxis | null {
-  const grab = session.gesture.rowGrabState.kind
+function taskGroupGrabAxisIn(session: ScreenSession): GrabbedVerticalAxis | null {
+  const grab = session.gesture.taskGroupGrabState.kind
   if (grab === 'changingPosition') return 'position'
   return grab === 'changingDepth' ? 'depth' : null
 }
@@ -1940,7 +1940,7 @@ function itemKeyOf(item: Hit['item']): string {
       return `${item.kind}:${item.id}`
     case 'statusLine':
       return item.kind
-    case 'wbsParentLink':
+    case 'parentTaskLink':
       return `${item.kind}:${item.childUid}`
   }
 }
@@ -1949,9 +1949,9 @@ function itemKeyOf(item: Hit['item']): string {
 // TRAP: the thumb before the entry and the strip before the band; the machine's guards read the kind alone.
 /** @purity pure */
 function pressedOnOf(on: ScreenPart | null, hit: Hit | null): PressedOn | null {
-  if (on === null) return hit === null ? null : { kind: 'grab', grabRow: hit.grab, itemId: itemKeyOf(hit.item) }
+  if (on === null) return hit === null ? null : { kind: 'grab', grabTaskGroup: hit.grab, itemId: itemKeyOf(hit.item) }
   if (on.scrollbarAxis !== undefined) return { kind: 'scrollbarThumb', axis: on.scrollbarAxis }
-  if (on.isRowGrabStrip === true && on.rowGroupId !== null) return { kind: 'rowGrabStrip', rowGroupId: on.rowGroupId }
+  if (on.isTaskGroupGrabStrip === true && on.taskGroupId !== null) return { kind: 'taskGroupGrabStrip', taskGroupId: on.taskGroupId }
   if (on.entry === PALETTE_GRAB_BAND_ENTRY) return { kind: 'paletteBand' }
   if (on.entry !== null) return { kind: 'entry', entry: on.entry }
   if (on.dividerPanel !== null) return { kind: 'panelBorder', panel: on.dividerPanel }
@@ -1961,11 +1961,11 @@ function pressedOnOf(on: ScreenPart | null, hit: Hit | null): PressedOn | null {
 // see HF-15, T-289
 // WHY: the axis is the machine's; the place and the resistance are frame values beside it.
 /** @purity pure */
-function grabbedRowReadingOf(
+function grabbedTaskGroupReadingOf(
   session: ScreenSession,
-  at: GrabbedRowPlace | null,
-): ScreenViewReadingsTaken['rowGrabbedAt'] {
-  const axis = rowGrabAxisIn(session)
+  at: GrabbedTaskGroupPlace | null,
+): ScreenViewReadingsTaken['taskGroupGrabbedAt'] {
+  const axis = taskGroupGrabAxisIn(session)
   if (at === null || axis === null) return null
   return { ...at, axis }
 }
@@ -2026,7 +2026,7 @@ export function discardQuestionOf(discarded: Document): FileFlowQuestion {
   return {
     manner: CONFIRMATION_MANNER,
     question: DISCARD_QUESTION,
-    items: [{ name: discarded.schedule.project.title, isShownOnAnotherRow: false }],
+    items: [{ name: discarded.schedule.project.title, isShownOnAnotherTaskGroup: false }],
   }
 }
 
@@ -2065,7 +2065,7 @@ const NO_HINT_TARGET: HintTarget = { icon: null, iconRow: null, hint: null, scro
 // see EZ-2, DFC-1720
 /** @purity pure */
 function iconRowOf(partUnderPointer: ScreenPart | null): string | null {
-  return partUnderPointer === null || partUnderPointer.entry === null ? null : partUnderPointer.rowGroupId
+  return partUnderPointer === null || partUnderPointer.entry === null ? null : partUnderPointer.taskGroupId
 }
 
 // see EZ-2, EZ-6, FR-037, IN-3
@@ -2239,8 +2239,8 @@ export function frameLoop(
   // WHY: diagnosed once per held document, never per frame (decision 17).
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
-  const wbsParents = wbsParentHoldOf()
-  let rowGrabbedAt: GrabbedRowPlace | null = null
+  const parentTasks = parentTaskHoldOf()
+  let taskGroupGrabbedAt: GrabbedTaskGroupPlace | null = null
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
@@ -2271,7 +2271,7 @@ export function frameLoop(
       }
       held = next
       const schedule = held.document.schedule
-      pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), schedule), rowsWithinSchedule(session, schedule))
+      pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), schedule), taskGroupsWithinSchedule(session, schedule))
       for (const pruned of resourcePruningOf(session, held.document.schedule)) sendToSession(pruned, null)
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (isSizeSettled(environment)) ask()
@@ -2334,7 +2334,7 @@ export function frameLoop(
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const shownTasks = shownTasksHoldOf(hands, windows)
-  const { bandCeilingFor } = rowBandCeilingCacheOf()
+  const { bandCeilingFor } = taskGroupBandCeilingCacheOf()
   const zoomEntranceEndsAt = zoomEntranceEndsHoldOf()
   const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } = heldViewPlace
@@ -2386,7 +2386,7 @@ export function frameLoop(
     discardIncomingDocument: () => settleIncomingDocument(null),
     answerOverwriteQuestion,
     carryOutOwedAction,
-    bringCreatedRowIntoSight: (groupId) => (addedRowOwedSight = groupId),
+    bringCreatedTaskGroupIntoSight: (groupId) => (addedTaskGroupOwedSight = groupId),
     beginInteractionRecord,
     handInteractionRecordToClipboard,
     storeAgentApiEnabling,
@@ -2420,18 +2420,18 @@ export function frameLoop(
       schedule: document.schedule,
       settings: drawnSettings,
       regions,
-      rowControlsHeightPx: environment.rowControlsHeightPx,
+      taskGroupControlsHeightPx: environment.taskGroupControlsHeightPx,
       selection: selectedObjectsIn(session),
       dualCursor: session.screen.dualCursor,
       delayDiagnostics: diagnostics?.drawing,
-      wbsParentFamilies: wbsParents.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
+      parentTaskFamilies: parentTasks.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
       shownTaskUids: shownTasks.drawnSet(),
     })
     const { layout, geometry } = drawnPicture
     const capTold = stackSafetyCapToldAfter(stackSafetyCapToldFor, layout)
     stackSafetyCapToldFor = capTold.told
     if (capTold.isNew) raiseNotice(STACK_SAFETY_CAP_REASON, null)
-    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
+    const chosenObjects = pruneChoiceTo(selectionWithinDrawnTaskGroups(selectedObjectsIn(session), geometry, layout, document.schedule, drawnSettings, previewDocument !== null))
     values = {
       regions,
       layout,
@@ -2439,10 +2439,10 @@ export function frameLoop(
       settingsMeasuredWith: stored,
       isPictureAtStoredZoom: view.isAtStoredZoom,
     }
-    if (addedRowOwedSight !== null) {
-      const owedSight = addedRowOwedSight
-      addedRowOwedSight = null
-      if (!drawnRowBoxesOf(layout, regions).some((one) => one.groupId === owedSight)) {
+    if (addedTaskGroupOwedSight !== null) {
+      const owedSight = addedTaskGroupOwedSight
+      addedTaskGroupOwedSight = null
+      if (!drawnTaskGroupBoxesOf(layout, regions).some((one) => one.groupId === owedSight)) {
         writeDocument(
           [
             {
@@ -2505,9 +2505,9 @@ export function frameLoop(
           hintHolderUnderPointer: hintWalk?.holder ?? null,
           iconRowUnderPointer: iconRowOf(partUnderPointer),
           commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions, environment),
-          rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
+          taskGroupGrabbedAt: grabbedTaskGroupReadingOf(session, taskGroupGrabbedAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
-          selectedGroupIds: session.selection.chosenRows,
+          selectedGroupIds: session.selection.chosenTaskGroups,
           selectedResourceUids: session.selection.chosenResources,
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
@@ -2515,9 +2515,9 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
-          zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.rowControlsHeightPx, collectInputContext),
+          zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
           ...windows.readings(session, delayDiagnosticsNow()),
-          ...wbsParents.readings(session, delayDiagnosticsShown),
+          ...parentTasks.readings(session, delayDiagnosticsShown),
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -2535,11 +2535,11 @@ export function frameLoop(
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
   }
 
-  // see WL-13, WL-14, QN-12
+  // see PTL-13, PTL-14, QN-12
   /** @purity non-pure */
-  function spentOnWbsParentChoice(input: HumanInput, frame: FrameValues): boolean {
+  function spentOnParentTaskChoice(input: HumanInput, frame: FrameValues): boolean {
     const answer = input.kind === 'pointer' ? screen?.surface.readScreenPartAt(input.x, input.y)?.confirmationAnswer : undefined
-    const step = wbsParents.choiceStepFor(input, answer ?? null)
+    const step = parentTasks.choiceStepFor(input, answer ?? null)
     if (step === null) return false
     if (step.kind === 'picked') {
       sendToSession({ type: 'objectsPicked', pickedObjects: step.picked }, frame)
@@ -2547,7 +2547,7 @@ export function frameLoop(
       followChoiceOnPanel(frame)
     }
     ask()
-    recordLine(hands, interactionRecorder, 'done', 'spent=wbsParentChoice frame=yes')
+    recordLine(hands, interactionRecorder, 'done', 'spent=parentTaskChoice frame=yes')
     return true
   }
 
@@ -2623,12 +2623,12 @@ export function frameLoop(
   }
 
   // see ZE-5, SE-3, SE-4, SE-5
-  // WHY: the same one message as the display scale's, so a row-axis end and a scale press
+  // WHY: the same one message as the display scale's, so a vertical-axis end and a scale press
   // replace each other rather than stack; the number is zoomY as a rounded percent.
   /** @purity non-pure */
-  function showRowZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
+  function showVerticalZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
     const percent = Math.round(shown.zoomY * PERCENT_PER_WHOLE)
-    sendToSession({ type: 'rowZoomEndReached', percent, end: shown.end }, values)
+    sendToSession({ type: 'verticalZoomEndReached', percent, end: shown.end }, values)
   }
 
   // see FR-018, S-173, T-289
@@ -2662,7 +2662,7 @@ export function frameLoop(
     pressed = null
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
-    rowGrabbedAt = null
+    taskGroupGrabbedAt = null
     windows.endPress(isInterrupted)
     // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
@@ -2787,7 +2787,7 @@ export function frameLoop(
           iconUnderPointer: null,
           hintHolderUnderPointer: null,
           commandPaletteAt: paletteCornerOf(null, regions, environment),
-          rowGrabbedAt: null,
+          taskGroupGrabbedAt: null,
           isRecordingInteractions: false,
           selectedGroupIds: [],
           selectedResourceUids: [],
@@ -2815,13 +2815,13 @@ export function frameLoop(
     return {
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-      rowAreaWidthWithoutPanels:
+      taskGroupAreaWidthWithoutPanels:
         frame === null
           ? 0
           // TRAP: the DRAWN panel widths, as the regions are: FR-039 scales S-79 on the way
         // into a drawing, so a stored width here would not add back up to the canvas.
-        : frame.regions.rowArea.width +
-            frame.regions.rowTitlePanel.width +
+        : frame.regions.taskGroupArea.width +
+            frame.regions.taskGroupPanel.width +
             frame.regions.propertiesPanel.width,
     }
   }
@@ -2853,7 +2853,7 @@ export function frameLoop(
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
-        defaultRowName: DEFAULT_ROW_NAME,
+        defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
         readAt: readInstantOfWrite(), localReadAt: readLocalMoment(),
       }
     },
@@ -2882,9 +2882,9 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectPress(at: PointerInput, frame: FrameValues, on: ScreenPart | null): PointerPress {
     const resolving = at.clickCount >= 2 ? 'doubleClick' : 'press'
-    // TRAP: without the Row Area test a bar clipped under the Row Title Panel still takes the press.
+    // TRAP: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
     const hit =
-      on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
+      on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
         : null
     const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
@@ -2894,7 +2894,7 @@ export function frameLoop(
       on,
       pressRow,
       followedTo: { x: at.x, y: at.y },
-      rowGrabAxis: null,
+      taskGroupGrabAxis: null,
       ...measuredAtPress(frame),
     }
   }
@@ -2909,7 +2909,7 @@ export function frameLoop(
     const drag = input.phase === 'move' && pressed !== null && pressed.at.button === 'left'
     if (!down && !drag) return false
     const region = regionAtPointer(frame.regions, input.x, input.y)
-    return region === 'rowArea' || region === 'timeRuler' || region === 'scheduleCanvas'
+    return region === 'taskGroupArea' || region === 'timeRuler' || region === 'scheduleCanvas'
   }
 
   // see T-023d, EZ-6, DFC-1810, DFC-1811
@@ -2917,7 +2917,7 @@ export function frameLoop(
   /** @purity non-pure */
   function answersAtPointerOf(frame: FrameValues, x: number, y: number, on: ScreenPart | null): PointerAnswers {
     if (on !== null) return NO_POINTER_ANSWERS
-    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return NO_POINTER_ANSWERS
+    if (regionAtPointer(frame.regions, x, y) !== 'taskGroupArea') return NO_POINTER_ANSWERS
     if (dualCursorFollowingIn(session) !== null) return NO_POINTER_ANSWERS
     const landed = landedLinkIn(session)
     if (pointerWalk?.geometry !== frame.geometry || pointerWalk.landed !== landed) {
@@ -2927,22 +2927,22 @@ export function frameLoop(
   }
 
   /** @purity non-pure */
-  function pruneChoiceTo(remainingObjects: Selection, chosenRows = session.selection.chosenRows): Selection {
-    if (remainingObjects !== selectedObjectsIn(session) || chosenRows !== session.selection.chosenRows) {
-      sendToSession({ type: 'selectionPruned', remainingObjects, chosenRows }, null)
+  function pruneChoiceTo(remainingObjects: Selection, chosenTaskGroups = session.selection.chosenTaskGroups): Selection {
+    if (remainingObjects !== selectedObjectsIn(session) || chosenTaskGroups !== session.selection.chosenTaskGroups) {
+      sendToSession({ type: 'selectionPruned', remainingObjects, chosenTaskGroups }, null)
       noteChoiceMoved(hands, null)
     }
     return selectedObjectsIn(session)
   }
 
-  let addedRowOwedSight: string | null = null
+  let addedTaskGroupOwedSight: string | null = null
 
   /** @purity semi-pure-b */
   function collectInputContext(
     frame: FrameValues,
     isNoticeStanding: boolean = standingNoticesIn(session).length > 0,
   ): InputContext {
-    const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
+    const drawnTaskGroupBoxes = drawnTaskGroupBoxesOf(frame.layout, frame.regions)
     const withoutCeiling: InputContext = {
       document: held.document,
       layout: frame.layout,
@@ -2950,15 +2950,15 @@ export function frameLoop(
       regions: frame.regions,
       screen: session.screen,
       selection: selectedObjectsIn(session),
-      chosenRows: session.selection.chosenRows,
+      chosenTaskGroups: session.selection.chosenTaskGroups,
       chosenResources: session.selection.chosenResources,
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
       isPictureAtStoredZoom: frame.isPictureAtStoredZoom,
-      ...(environment.rowControlsHeightPx === undefined
+      ...(environment.taskGroupControlsHeightPx === undefined
         ? {}
-        : { rowControlsHeightPx: environment.rowControlsHeightPx }),
+        : { taskGroupControlsHeightPx: environment.taskGroupControlsHeightPx }),
       pressed,
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
@@ -2966,8 +2966,8 @@ export function frameLoop(
       ...windowFocusContextOf(screen, session, windows.report()),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
-      drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
-      drawnRowBoxes,
+      drawnTaskGroupIds: drawnTaskGroupBoxes.map((one) => one.groupId),
+      drawnTaskGroupBoxes,
       isSurfaceStanding: isAnySurfaceStanding(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
@@ -2975,11 +2975,11 @@ export function frameLoop(
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
-    // WHY: asked only by a row-axis zoom, and remembered across contexts, so the shell's second
+    // WHY: asked only by a vertical-axis zoom, and remembered across contexts, so the shell's second
     // reading of one input and every later notch reuse the walk (DFC-610).
     return {
       ...withoutCeiling,
-      rowBandCeiling: (drawnZoomX: number, upTo: number, enough?: number): number =>
+      taskGroupBandCeiling: (drawnZoomX: number, upTo: number, enough?: number): number =>
         bandCeilingFor(withoutCeiling, drawnZoomX, upTo, enough),
     }
   }
@@ -3011,7 +3011,7 @@ export function frameLoop(
         moment: collectWriteMoment(isSettlingFieldCommit),
         historyLimits: HISTORY_LIMITS,
         settingsLimits,
-        defaultRowName: DEFAULT_ROW_NAME,
+        defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
         editedBy: EDITED_BY_SCREEN,
         updatedUtc: readInstantOfWrite(),
       },
@@ -3037,7 +3037,7 @@ export function frameLoop(
         readStamp: held.document.documentStamp,
         moment: collectWriteMoment(),
         call,
-        defaultRowName: DEFAULT_ROW_NAME,
+        defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
         newGroupId: crypto.randomUUID(),
       },
       holder,
@@ -3102,7 +3102,7 @@ export function frameLoop(
       showDelayDiagnostics(!delayDiagnosticsShown)
       return true
     }
-    if (wbsParents.isToggledBy(entry)) return true
+    if (parentTasks.isToggledBy(entry)) return true
     // see FR-049, S-445
     // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
     if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
@@ -3288,11 +3288,11 @@ export function frameLoop(
         }
         return
       }
-      case 'followRowGrab': {
+      case 'followTaskGroupGrab': {
         // WHY: the axis goes back onto the press because UF-30 is pure and cannot remember it.
-        if (pressed !== null) pressed = { ...pressed, rowGrabAxis: action.axis }
-        sendToSession({ type: 'rowGrabAxisSettled', axis: action.axis }, frame)
-        rowGrabbedAt = {
+        if (pressed !== null) pressed = { ...pressed, taskGroupGrabAxis: action.axis }
+        sendToSession({ type: 'taskGroupGrabAxisSettled', axis: action.axis }, frame)
+        taskGroupGrabbedAt = {
           groupId: action.groupId,
           depth: action.atDepth,
           resistedPx: action.resistedPx,
@@ -3300,10 +3300,10 @@ export function frameLoop(
         }
         return
       }
-      case 'chooseRow': {
+      case 'chooseTaskGroup': {
         // TRAP: read the held set, not the drawn row; FR-048 may skip a paint, so a picture can be older.
-        const chosenRows = rowsChosenWith(session.selection.chosenRows, action.groupId, action.isExtending)
-        sendToSession({ type: 'rowsPicked', chosenRows }, frame)
+        const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.groupId, action.isExtending)
+        sendToSession({ type: 'taskGroupsPicked', chosenTaskGroups }, frame)
         showPropertiesOfChoice()
         sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
         return
@@ -3353,7 +3353,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows, session)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session)
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
@@ -3399,7 +3399,7 @@ export function frameLoop(
   // see FR-072
   /** @purity non-pure */
   function showPropertiesOfChoice(): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows, session)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session)
     if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
@@ -3415,9 +3415,9 @@ export function frameLoop(
       if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
       sendToSession({ type: 'createdTaskSelected', createdTaskUid: created.uid }, values)
     } else {
-      const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
-      if (madeRow === undefined) return
-      sendToSession({ type: 'createdRowSelected', createdGroupId: created.groupId }, values)
+      const madeTaskGroup = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
+      if (madeTaskGroup === undefined) return
+      sendToSession({ type: 'createdTaskGroupSelected', createdGroupId: created.groupId }, values)
     }
     showPropertiesOfChoice()
     resetFieldFocusRetries()
@@ -3489,7 +3489,7 @@ export function frameLoop(
       recordLine(hands, interactionRecorder, 'done', 'spent=tableWindowWheel')
       return
     }
-    if (spentOnWbsParentChoice(input, frame)) return
+    if (spentOnParentTaskChoice(input, frame)) return
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
@@ -3540,10 +3540,10 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    const pickedObjects = wbsParents.pickedAfter(pickedObjectsOf(input, context, escapeLevel), context.selection, pointerAt)
+    const pickedObjects = parentTasks.pickedAfter(pickedObjectsOf(input, context, escapeLevel), context.selection, pointerAt)
     const translated = commandFromInput(input, context)
     const hasChoiceMoved =
-      pickedObjects !== context.selection || isRowChoiceSpentBy(input, context, escapeLevel, translated)
+      pickedObjects !== context.selection || isTaskGroupChoiceSpentBy(input, context, escapeLevel, translated)
     if (hasChoiceMoved) {
       sendToSession(choiceEventOf(input, pickedObjects), frame)
       noteChoiceMoved(hands, frame)
@@ -3583,9 +3583,9 @@ export function frameLoop(
     if (!spent && translated.displayScaleShown !== undefined) {
       showDisplayScaleMessage(translated.displayScaleShown)
     }
-    const rowZoomEnd = spent ? undefined : translated.rowZoomEndShown
-    if (rowZoomEnd !== undefined) showRowZoomEndMessage(rowZoomEnd)
-    const isRowZoomEndShown = rowZoomEnd !== undefined
+    const verticalZoomEnd = spent ? undefined : translated.verticalZoomEndShown
+    if (verticalZoomEnd !== undefined) showVerticalZoomEndMessage(verticalZoomEnd)
+    const isVerticalZoomEndShown = verticalZoomEnd !== undefined
 
     pressed = followedPressOf(pressed, input, !spent && translated.action !== null)
 
@@ -3607,11 +3607,11 @@ export function frameLoop(
 
     const hasKeyActed =
       spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
-      translated.displayScaleShown !== undefined || isRowZoomEndShown || screenEvent !== null
-    // WHY: a wheel at a row-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
+      translated.displayScaleShown !== undefined || isVerticalZoomEndShown || screenEvent !== null
+    // WHY: a wheel at a vertical-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
       owesFrame(input, context, sessionBefore, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
-      isRowZoomEndShown
+      isVerticalZoomEndShown
     recordLine(
       hands, interactionRecorder, 'done',
       `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
@@ -3651,10 +3651,10 @@ export function frameLoop(
         isTooltipStanding,
       )
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
-      if (wbsParents.isChoiceStanding() && input.kind === 'key') return true
+      if (parentTasks.isChoiceStanding() && input.kind === 'key') return true
       if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
-      // TRAP: rowArea's rectangle also covers the floating Dialogue Field; without this escape,
-      // its own press reads as rowArea and preventDefault blocks native focus (DFC-578, FR-066).
+      // TRAP: taskGroupArea's rectangle also covers the floating Dialogue Field; without this escape,
+      // its own press reads as taskGroupArea and preventDefault blocks native focus (DFC-578, FR-066).
       if (
         input.kind === 'pointer' &&
         input.phase === 'down' &&

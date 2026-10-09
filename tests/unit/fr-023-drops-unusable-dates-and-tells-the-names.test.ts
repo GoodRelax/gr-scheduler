@@ -192,12 +192,12 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-const HERE_ROW = '11111111-1111-4111-8111-111111111111'
-const THERE_ROW = '22222222-2222-4222-8222-222222222222'
+const HERE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
+const THERE_TASK_GROUP = '22222222-2222-4222-8222-222222222222'
 
 function task(part: Partial<Task> & { readonly uid: number; readonly name: string }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: part.uid,
     start: '2026-04-01',
     finish: '2026-04-10',
@@ -220,7 +220,7 @@ function task(part: Partial<Task> & { readonly uid: number; readonly name: strin
   } as unknown as Task
 }
 
-function row(id: string, label: string): Record<string, unknown> {
+function taskGroup(id: string, label: string): Record<string, unknown> {
   return {
     id,
     parentId: null,
@@ -233,18 +233,18 @@ function row(id: string, label: string): Record<string, unknown> {
   }
 }
 
-function documentWith(rowId: string, rowLabel: string, tasks: readonly Task[]): Document {
+function documentWith(rowId: string, taskGroupLabel: string, tasks: readonly Task[]): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
     '$schema': template['$schema'],
     schemaVersion: template.schemaVersion,
     schedule: {
-      project: { ...structuredClone(template.schedule.project), title: rowLabel, uidHighWaterMark: 100 },
+      project: { ...structuredClone(template.schedule.project), title: taskGroupLabel, uidHighWaterMark: 100 },
       calendars: structuredClone(template.schedule.calendars),
       tasks,
       resources: [],
       assignments: [],
-      taskGroups: [row(rowId, rowLabel)],
+      taskGroups: [taskGroup(rowId, taskGroupLabel)],
       taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowId })),
       taskVisuals: tasks.map((one) => blankTaskVisual(one.uid)),
       commentBoxes: [],
@@ -258,7 +258,7 @@ function documentWith(rowId: string, rowLabel: string, tasks: readonly Task[]): 
   } as unknown as Document
 }
 
-const here = (): Document => documentWith(HERE_ROW, 'Here', [task({ uid: 1, name: 'HereTask' })])
+const here = (): Document => documentWith(HERE_TASK_GROUP, 'Here', [task({ uid: 1, name: 'HereTask' })])
 
 /**
  * The file being read: one good `Task`, one whose `start` names no day (`IV-14`
@@ -267,10 +267,10 @@ const here = (): Document => documentWith(HERE_ROW, 'Here', [task({ uid: 1, name
  * CD-1's cascade, since its own two dates are inside table T-214.
  */
 const there = (): Document =>
-  documentWith(THERE_ROW, 'There', [
+  documentWith(THERE_TASK_GROUP, 'There', [
     task({ uid: 11, name: 'GoodTask' }),
     task({ uid: 12, name: 'BadDateTask', start: '' as unknown as string }),
-    task({ uid: 13, name: 'BadTaskChild', wbsParentUid: 12 }),
+    task({ uid: 13, name: 'BadTaskChild', parentTaskUid: 12 }),
   ])
 
 const uidsOf = (document: Document): number[] =>
@@ -400,7 +400,7 @@ function takeEntry(loop: FrameLoop, screen: ScreenPane, surface: string, entry: 
     part: surface,
     entry,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,
@@ -415,7 +415,7 @@ function answerQuestion(loop: FrameLoop, screen: ScreenPane, answer: string): vo
     part: CONFIRMATION,
     entry: null,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,
@@ -564,7 +564,7 @@ describe('FR-023 (MUST) -- the dropped names are told, by name and never by coun
   })
 
   it('control: an import with nothing to drop raises no Import Report at all', async () => {
-    const clean = documentWith(THERE_ROW, 'Clean', [task({ uid: 21, name: 'CleanTask' })])
+    const clean = documentWith(THERE_TASK_GROUP, 'Clean', [task({ uid: 21, name: 'CleanTask' })])
     const { screen } = await replacedWith(clean)
 
     const modal = screen.last().openModal as any

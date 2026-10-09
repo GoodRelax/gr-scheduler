@@ -104,7 +104,7 @@ function oneTaskDocument(): Document {
       project: { ...structuredClone(TEMPLATE.schedule.project), uidHighWaterMark: 100, statusDate: null },
       tasks: [
         {
-          uid: TASK_UID, wbsParentUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
+          uid: TASK_UID, parentTaskUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
           milestone: false, deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null,
           actualFinish: null, resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
           fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],
@@ -181,7 +181,7 @@ function bench(): Bench {
       )
       if (divider === undefined) return null
       return {
-        part: 'Panel Divider', entry: null, format: null, rowGroupId: null, resourceUid: null,
+        part: 'Panel Divider', entry: null, format: null, taskGroupId: null, resourceUid: null,
         dividerPanel: divider.panel, noticeDismissKey: null,
       } as unknown as ScreenPart
     },
@@ -212,7 +212,7 @@ function bench(): Bench {
     send,
     view,
     pressIc17: () => {
-      aimed = { part: APP_HEADER, entry: IC_17, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part: APP_HEADER, entry: IC_17, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 700, 20))
       send(pointer('up', 700, 20))
       aimed = null
@@ -388,5 +388,5 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
 })
 
 describe('CR-424 section 9 -- returned questions', () => {
-  it.skip('a window so narrow that S-248 leaves the Row Area at 0 or less -- open: CR-424 question 1 (JDG-78, DFC-586)', () => {})
+  it.skip('a window so narrow that S-248 leaves the Task Group Area at 0 or less -- open: CR-424 question 1 (JDG-78, DFC-586)', () => {})
 })

@@ -43,7 +43,7 @@ export function drawingDefault(id: string): number {
 
 // see T-266
 /** @purity pure */
-export function grabSizeRowsOf(grabArea: string): readonly string[] {
+export function grabSizeTaskGroupsOf(grabArea: string): readonly string[] {
   const cell = specRow('T-266', grabArea).by[T_266_SIZES] ?? ''
   return [...cell.matchAll(/`(S-\d+)`/g)].map((one) => one[1] ?? '')
 }
@@ -59,7 +59,7 @@ export function pointerRowFor(grabArea: string): string {
 
 // see T-266
 /** @purity pure */
-export function grabAreaRows(): readonly string[] {
+export function grabAreaTaskGroups(): readonly string[] {
   return specTable('T-266').rows.map((one) => one.id)
 }
 
@@ -97,8 +97,8 @@ export function boxesOverlap(a: Box, b: Box): boolean {
 /** @purity pure */
 export function widestGrabMargin(): number {
   let widest = 0
-  for (const row of grabAreaRows()) {
-    for (const id of grabSizeRowsOf(row)) {
+  for (const row of grabAreaTaskGroups()) {
+    for (const id of grabSizeTaskGroupsOf(row)) {
       const value = sizePx(id)
       if (Number.isFinite(value) && value > widest) widest = value
     }

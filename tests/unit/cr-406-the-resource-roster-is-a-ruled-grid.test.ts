@@ -130,7 +130,7 @@ const EMPTY_VIEW: ScreenView = {
     documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null,
     fileNeverSavedText: '', commands: [], language: 'en',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -395,7 +395,7 @@ const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, me
 const MK_5: InputModifiers = { ...NO_MODIFIERS, ctrl: true, shift: true }
 
 const partOn = (part: string, entry: string | null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+  ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 interface LoopStage {
   readonly loop: FrameLoop

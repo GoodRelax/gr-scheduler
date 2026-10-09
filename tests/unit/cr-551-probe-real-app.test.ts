@@ -16,7 +16,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
-import { NO_MODS, pointerOf, rowDocument, SCREEN, taskOf } from './cr-541-stage'
+import { NO_MODS, pointerOf, taskGroupDocument, SCREEN, taskOf } from './cr-541-stage'
 
 interface ProbeBench {
   readonly loop: FrameLoop
@@ -34,7 +34,7 @@ const partOf = (part: string, entry: string | null, extra: Record<string, unknow
     part,
     entry,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,
@@ -128,7 +128,7 @@ const SEEDS = [
 
 function seededDocument(settings: Record<string, unknown> = {}): Record<string, any> {
   const rows = SEEDS.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = rowDocument(rows, { progressMarkerVisible: false, ...settings })
+  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings })
   document.schedule.tasks = SEEDS.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00` }),
   )
@@ -137,7 +137,7 @@ function seededDocument(settings: Record<string, unknown> = {}): Record<string, 
 
 const marginsOf = (loop: FrameLoop): { left: number; right: number; width: number } => {
   const frame = loop.current()
-  const area = frame?.regions.rowArea
+  const area = frame?.regions.taskGroupArea
   const placements = frame?.layout.placements ?? []
   if (area === undefined) throw new Error('the shell has no frame')
   return {
@@ -189,7 +189,7 @@ describe('B: GR-21 -- while the grip is held, the view stays inside the whole he
       travelled += step
       built.send(pointerOf('move', at.x + travelled, at.y))
       const now = horizontalBarOf(built)
-      const area = built.loop.current()?.regions.rowArea
+      const area = built.loop.current()?.regions.taskGroupArea
       const layout = built.loop.current()?.layout
       if (area === undefined || layout === undefined) throw new Error('no frame')
       const contentRight = (layout.contentX0 ?? area.x) + layout.contentWidth
@@ -210,13 +210,13 @@ describe('B (the vertical twin): GR-21 -- the vertical grip holds the same whole
   it('the vertical grip follows the pointer, and where it meets the lane end the view stops with it', () => {
     // see GR-21, T-023d, FR-051
     const rows = Array.from({ length: 60 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-    const built = started(rowDocument(rows, { progressMarkerVisible: false, zoomY: 3 }))
+    const built = started(taskGroupDocument(rows, { progressMarkerVisible: false, zoomY: 3 }))
     const barOf = () => {
       const found = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
       if (found === undefined) throw new Error('SC-4 draws no vertical bar')
       return found
     }
-    const firstRowY = (): number => built.loop.current()?.layout.rows.find((row) => row.isPinned !== true)?.y ?? 0
+    const firstTaskGroupY = (): number => built.loop.current()?.layout.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)?.y ?? 0
     const bar = barOf()
     const at = { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
     built.aim(partOf('Scrollbars', null, { scrollbarAxis: 'vertical' }))
@@ -231,8 +231,8 @@ describe('B (the vertical twin): GR-21 -- the vertical grip holds the same whole
       const now = barOf()
       const isAtEnd = now.thumb.y + now.thumb.height >= now.track.y + now.track.height - 0.5
       if (!isAtEnd) expect(now.thumb.y - lastThumb, `grip at ${travelled}px`).toBeCloseTo(step, 0)
-      if (isAtEnd && heldAt === null) heldAt = firstRowY()
-      if (heldAt !== null) expect(firstRowY(), `the view moved on at ${travelled}px`).toBeCloseTo(heldAt, 0)
+      if (isAtEnd && heldAt === null) heldAt = firstTaskGroupY()
+      if (heldAt !== null) expect(firstTaskGroupY(), `the view moved on at ${travelled}px`).toBeCloseTo(heldAt, 0)
       lastThumb = now.thumb.y
     }
     built.send(pointerOf('up', at.x, at.y + travelled))
@@ -350,7 +350,7 @@ const PROPERTIES_PANEL = bare(specTable('T-103').rows.find((one) => one.id === '
 const panelRootOf = (bench: PanelBench): FakeElement => byRole(bench.built.root(), PROPERTIES_PANEL)[0] as FakeElement
 
 function taskPanel(task: Record<string, unknown> = {}, visual: Record<string, unknown> | null = null): PanelBench {
-  const document = rowDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
   document.schedule.tasks = [
     taskOf(1, { name: 'Alpha', start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00', ...task }),
   ]
@@ -495,15 +495,15 @@ describe('D: CV-9 / JDG-397 -- a press on a colour swatch lands in the frame its
 })
 
 describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its row bands paint', () => {
-  it('every layer of table T-020 sits inside one clip: the Row Area widened by canvasPadding to the vertical bar', () => {
+  it('every layer of table T-020 sits inside one clip: the Task Group Area widened by canvasPadding to the vertical bar', () => {
     // see FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-    const document = rowDocument(rows, { progressMarkerVisible: false, zoomY: 2 })
+    const document = taskGroupDocument(rows, { progressMarkerVisible: false, zoomY: 2 })
     const built = started(document)
     const svg = built.svg()
     const frame = built.loop.current()
     if (frame === undefined || frame === null) throw new Error('no frame')
-    const area = frame.regions.rowArea
+    const area = frame.regions.taskGroupArea
     const padding = SETTINGS_CONSTANTS.canvasPadding
     const clip = /<clipPath id="(grs-ground-clip-[^"]+)"><rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"\/>/.exec(svg)
     expect(clip, 'a ground clip is drawn').not.toBeNull()
@@ -511,7 +511,7 @@ describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its row ban
     expect(Number(x)).toBeCloseTo(area.x, 1)
     expect(Number(y)).toBeCloseTo(area.y, 1)
     expect(Number(width), 'up to the left edge of the vertical bar').toBeCloseTo(area.width + padding, 1)
-    expect(Number(height), 'down to the Row Area bottom, above the canvasPadding and the horizontal bar').toBeCloseTo(area.height, 1)
+    expect(Number(height), 'down to the Task Group Area bottom, above the canvasPadding and the horizontal bar').toBeCloseTo(area.height, 1)
     const stack: string[] = []
     let layers = 0
     for (const tag of svg.matchAll(/<(\/?)g\b([^>]*?)(\/?)>/g)) {

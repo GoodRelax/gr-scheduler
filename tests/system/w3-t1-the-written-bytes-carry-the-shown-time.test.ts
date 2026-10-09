@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, savedFiles, settle } from '../usecase/uc-harness'
-import { rowsDocument } from './w3-t1-stage'
+import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -39,7 +39,7 @@ function lastStampOf(text: string): string | null {
 async function savedOnce(page: Page): Promise<string | null> {
   await launch(page)
   await enableAgentApi(page)
-  await openByDrop(page, 'w3-t1-stamp.json', rowsDocument({ rows: 2 }))
+  await openByDrop(page, 'w3-t1-stamp.json', taskGroupsDocument({ rows: 2 }))
   await page.waitForTimeout(1_100)
   await page.keyboard.press('Control+s')
   await settle(page)

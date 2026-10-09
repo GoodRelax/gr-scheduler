@@ -29,7 +29,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 /** @purity pure */
 function read(text: string): Document {

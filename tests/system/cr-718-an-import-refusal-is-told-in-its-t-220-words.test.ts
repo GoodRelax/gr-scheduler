@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { VIEWPORT, enableAgentApi, icon, launch, readDocument, settle } from '../usecase/uc-harness'
-import { rowsDocument } from './w3-t1-stage'
+import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -92,7 +92,7 @@ async function dropOpen(page: Page, name: string, text: string): Promise<void> {
 
 /** @purity pure */
 function editedDocument(change: (built: { schedule: { project: Record<string, unknown>; tasks: Record<string, unknown>[] } }) => void): string {
-  const built = JSON.parse(rowsDocument({ rows: 2, title: 'Refused file' })) as { schedule: { project: Record<string, unknown>; tasks: Record<string, unknown>[] } }
+  const built = JSON.parse(taskGroupsDocument({ rows: 2, title: 'Refused file' })) as { schedule: { project: Record<string, unknown>; tasks: Record<string, unknown>[] } }
   change(built)
   return JSON.stringify(built)
 }

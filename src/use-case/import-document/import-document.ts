@@ -123,7 +123,7 @@ export interface DroppedReference {
     | 'assignment'
     | 'commentBox'
     | 'highlightBox'
-    | 'wbsParent'
+    | 'parentTask'
     | 'calendar'
   readonly owner: string
   readonly missing: string
@@ -143,7 +143,7 @@ export interface ImportReport {
   readonly addedAsDifferent: readonly AddedAsDifferent[]
   readonly taskUidsOnlyInCurrent: readonly number[]
   readonly taskUidsMissingSinceLastImport: readonly number[]
-  readonly taskUidsWithoutRow: readonly number[]
+  readonly taskUidsWithoutTaskGroup: readonly number[]
   readonly baselineTaskUidsNotDrawn: readonly number[]
   readonly droppedReferences: readonly DroppedReference[]
 }
@@ -248,7 +248,7 @@ function emptyReport(choice: OpenChoice, importSeq: number): ImportReport {
     addedAsDifferent: [],
     taskUidsOnlyInCurrent: [],
     taskUidsMissingSinceLastImport: [],
-    taskUidsWithoutRow: [],
+    taskUidsWithoutTaskGroup: [],
     baselineTaskUidsNotDrawn: [],
     droppedReferences: [],
   }
@@ -694,7 +694,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     taskGroups.push(group)
   }
 
-  // WHY: resolved before writing, since a dependency or WBS parent may point at a later task.
+  // WHY: resolved before writing, since a dependency or parent task may point at a later task.
   // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-2, MG-3 (PND-487)
   const mergedUidOf = new Map<number, number>()
   const overwritten: number[] = []
@@ -752,17 +752,17 @@ function builtMerge(input: MergeInput): ImportOutcome {
       dependencies.push({ ...dependency, predecessorUid: predecessor })
     }
 
-    let wbsParentUid: number | null = null
-    if (task.wbsParentUid !== null) {
-      const parent = mergedUidOf.get(task.wbsParentUid)
+    let parentTaskUid: number | null = null
+    if (task.parentTaskUid !== null) {
+      const parent = mergedUidOf.get(task.parentTaskUid)
       if (parent === undefined) {
         dropped.push({
-          what: 'wbsParent',
+          what: 'parentTask',
           owner: String(uid),
-          missing: `wbsParentUid ${task.wbsParentUid}`,
+          missing: `parentTaskUid ${task.parentTaskUid}`,
         })
       } else {
-        wbsParentUid = parent
+        parentTaskUid = parent
       }
     }
 
@@ -780,7 +780,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       }
     }
 
-    tasks.set(uid, { ...task, uid, wbsParentUid, calendarUid, dependencies })
+    tasks.set(uid, { ...task, uid, parentTaskUid, calendarUid, dependencies })
 
     if (request.format === 'grsJson' || !wasHeld) {
       // WHY: a read document holds one row for every Task (IV-23); the blank one keeps a merge to the rule all the same.
@@ -895,9 +895,9 @@ function builtMerge(input: MergeInput): ImportOutcome {
     }
   }
 
-  const withoutRow: number[] = []
+  const withoutTaskGroup: number[] = []
   for (const uid of tasks.keys()) {
-    if (!members.has(uid)) withoutRow.push(uid)
+    if (!members.has(uid)) withoutTaskGroup.push(uid)
   }
 
   return {
@@ -914,7 +914,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       addedAsDifferent,
       taskUidsOnlyInCurrent: onlyInCurrent,
       taskUidsMissingSinceLastImport: missingSinceLastImport,
-      taskUidsWithoutRow: withoutRow,
+      taskUidsWithoutTaskGroup: withoutTaskGroup,
       droppedReferences: dropped,
     },
   }

@@ -141,13 +141,13 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   Task: {
     type: ['object'],
-    required: ['uid', 'wbsParentUid', 'wbsOrder', 'name', 'start', 'finish', 'milestone', 'deadline', 'notes', 'calendarUid', 'actualStart', 'stop', 'actualFinish', 'resume', 'resumeValid', 'percentComplete', 'fadeInDays', 'fadeOutDays', 'dependencies', 'carry', 'carryElements'],
+    required: ['uid', 'parentTaskUid', 'wbsOrder', 'name', 'start', 'finish', 'milestone', 'deadline', 'notes', 'calendarUid', 'actualStart', 'stop', 'actualFinish', 'resume', 'resumeValid', 'percentComplete', 'fadeInDays', 'fadeOutDays', 'dependencies', 'carry', 'carryElements'],
     closed: true,
     properties: {
       uid: {
         type: ['integer'],
       },
-      wbsParentUid: {
+      parentTaskUid: {
         type: ['integer', 'null'],
       },
       wbsOrder: {
@@ -791,7 +791,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rowTitlePanelWidth', 'rowTitlePanelWidthFixed', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualVisible: {
@@ -851,10 +851,10 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         progressMarkerVisible: {
           type: ['boolean'],
         },
-        rowTitlePanelWidth: {
+        taskGroupPanelWidth: {
           type: ['number'],
         },
-        rowTitlePanelWidthFixed: {
+        taskGroupPanelWidthFixed: {
           type: ['boolean'],
         },
         rulerFont: {

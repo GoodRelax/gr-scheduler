@@ -67,7 +67,7 @@ import {
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
-import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 // ---------------------------------------------------------------------------
 // The rows this file is driven by, read out of the specification.
@@ -191,7 +191,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
     const document = over.loop.document()
     const frame = over.loop.current()
     const snapshot: AgentSnapshot = {
-      defaultRowName: DEFAULT_ROW_NAME,
+      defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
       document,
       documentAsWritten: document,
       selection: emptySelection(),
@@ -215,11 +215,11 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
         zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
         // FR-052's sum, which the caller of PI-9 is the side that holds. Zero
         // while no frame has settled: nothing this file asks reads it.
-        rowAreaWidthWithoutPanels:
+        taskGroupAreaWidthWithoutPanels:
           frame === null
             ? 0
-            : frame.regions.rowArea.width +
-              document.documentSettings.rowTitlePanelWidth +
+            : frame.regions.taskGroupArea.width +
+              document.documentSettings.taskGroupPanelWidth +
               frame.regions.propertiesPanel.width,
       },
       readAt: '2026-08-20T08:30:00Z',
@@ -356,7 +356,7 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
     // ⛔ EXACTLY the closed panel's room, and not merely more: room that went
     // anywhere else would leave the picture a different one from the screen
     // with the panel shut, which is the whole of what FR-080 asks for.
-    expect(scene.regions.rowArea.width - frame.regions.rowArea.width).toBe(PROPERTY_PANEL_OPEN)
+    expect(scene.regions.taskGroupArea.width - frame.regions.taskGroupArea.width).toBe(PROPERTY_PANEL_OPEN)
   })
 
   it('leaves the schedule alone when the screen already has the panel closed', () => {
@@ -372,7 +372,7 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
     if (frame === null || scene === null) return
 
     expect(frame.regions.propertiesPanel.width).toBe(0)
-    expect(scene.regions.rowArea.width).toBe(frame.regions.rowArea.width)
+    expect(scene.regions.taskGroupArea.width).toBe(frame.regions.taskGroupArea.width)
   })
 
   it('the picture that goes out is not the picture that was painted', () => {

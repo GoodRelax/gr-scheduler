@@ -107,7 +107,7 @@
 //     existing selection; it does not restate the drawing rule, and reading one
 //     into it would be inventing it.
 //   - WHERE THE RECTANGLE IS CLIPPED. No row says whether it stops at the edge
-//     of the `Row Area`, so every drag below stays well inside it.
+//     of the `Task Group Area`, so every drag below stays well inside it.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -223,7 +223,7 @@ const ROWS = [
 const ALPHA_UID = 1
 /** Its name, which is also how `ZO-5`'s label is found in the picture. */
 const ALPHA_NAME = 'Alpha'
-const ALPHA_ROW = ROWS[2] as string
+const ALPHA_TASK_GROUP = ROWS[2] as string
 
 /** Empty bands, one above the Task and one below it. Both are pressed in. */
 const BAND_ABOVE = ROWS[0] as string
@@ -237,7 +237,7 @@ const PX_PER_DAY_AT_1X = 20
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -280,7 +280,7 @@ function fixtureDocument(): Document {
       project: {
         ...structuredClone(template.schedule.project),
         uidHighWaterMark: 100,
-        // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Row Area` and
+        // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Task Group Area` and
         // would cross every drag below; this file's subject is the ONE element
         // a held drag adds, so the picture is kept as plain as the rows allow.
         statusDate: null,
@@ -293,7 +293,7 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: ROWS.map((id, i) => group(id, i, `R${i + 1}`)),
-      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_ROW }],
+      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_TASK_GROUP }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -465,7 +465,7 @@ const frameOf = (loop: FrameLoop) => {
 
 /** Where one row's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).rows.find((one: any) => one.groupId === groupId)
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
@@ -889,7 +889,7 @@ describe('table T-020 ZO-6: the rectangle stands in front, and goes when the but
     // ⭐ MEASURED AGAINST `ZO-5` AND NOT AGAINST "the last element of the
     // string". 表 T-020 orders SIX things and the time ruler is none of them --
     // it stands in its own region (`Time Ruler`, `U-19` of table T-103) above
-    // the `Row Area` (`U-50`), and nothing in the specification says where a
+    // the `Task Group Area` (`U-50`), and nothing in the specification says where a
     // region is painted with respect to another. What `ZO-6` claims is that the
     // rectangle is in front of `ZO-1` 〜 `ZO-5`, and `ZO-5` (名称ラベル) is the frontmost
     // of those -- so the label is the element the claim reduces to.

@@ -6,12 +6,12 @@ import { join } from 'node:path'
 import type { InputContext, PointerInput, PointerPress } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { wbsParentResolutionsOf } from '../../src/entity/document-model/schedule/schedule'
+import { parentTaskResolutionsOf } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection, type Selection } from '../../src/entity/document-model/selection/selection'
 import { grabSizesOf, itemAtPointer } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
-  type WbsParentFamilies,
+  type ParentTaskFamilies,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -68,9 +68,9 @@ const TEMPLATE = JSON.parse(
 
 export const iso = (day: number): string => new Date(Date.UTC(2026, 1, 2) + day * 86400000).toISOString().slice(0, 10)
 
-export const taskOf = (uid: number, from: number, to: number, wbsParentUid: number | null, milestone = false): Loose => ({
+export const taskOf = (uid: number, from: number, to: number, parentTaskUid: number | null, milestone = false): Loose => ({
   uid,
-  wbsParentUid,
+  parentTaskUid,
   wbsOrder: null,
   name: `t${uid}`,
   start: iso(from),
@@ -155,7 +155,7 @@ export interface Scene {
   readonly settings: Loose
   readonly geometry: Geometry
   readonly context: InputContext
-  readonly families: WbsParentFamilies | null
+  readonly families: ParentTaskFamilies | null
 }
 
 export interface FamiliesSpec {
@@ -164,8 +164,8 @@ export interface FamiliesSpec {
   readonly selectedLinkChildUids?: readonly number[]
 }
 
-export const familiesOf = (schedule: Schedule, spec: FamiliesSpec): WbsParentFamilies => ({
-  resolutions: wbsParentResolutionsOf({ schedule } as unknown as Parameters<typeof wbsParentResolutionsOf>[0]),
+export const familiesOf = (schedule: Schedule, spec: FamiliesSpec): ParentTaskFamilies => ({
+  resolutions: parentTaskResolutionsOf({ schedule } as unknown as Parameters<typeof parentTaskResolutionsOf>[0]),
   ownerUids: [...spec.ownerUids],
   pointedUid: spec.pointedUid ?? null,
   selectedLinkChildUids: new Set(spec.selectedLinkChildUids ?? []),
@@ -196,7 +196,7 @@ export const sceneOf = (
     layout,
     geometry,
     regions,
-    screen: { ...emptyScreenSession.screen, armModeState: armed ? { kind: 'wbsParentArmed' } : { kind: 'notArmed' } },
+    screen: { ...emptyScreenSession.screen, armModeState: armed ? { kind: 'parentTaskArmed' } : { kind: 'notArmed' } },
     selection,
     zoomStep: 1.1,
     zoomMin: 0.01,
@@ -207,7 +207,7 @@ export const sceneOf = (
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -247,14 +247,14 @@ export const pressOf = (scene: Scene, at: Pt, modifiers: Partial<typeof MODS> = 
     pressRow,
   }) as unknown as PointerPress
 
-export const wbsParentsOf = (scene: Scene) => {
-  const drawing = (scene.geometry as unknown as { readonly wbsParents?: Geometry['wbsParents'] }).wbsParents
-  if (drawing === undefined) throw new Error('geometry carries no wbsParents')
+export const parentTasksOf = (scene: Scene) => {
+  const drawing = (scene.geometry as unknown as { readonly parentTasks?: Geometry['parentTasks'] }).parentTasks
+  if (drawing === undefined) throw new Error('geometry carries no parentTasks')
   return drawing
 }
 
 export const arrowOf = (scene: Scene, childUid: number) => {
-  const found = wbsParentsOf(scene).arrows.find((one) => one.childUid === childUid)
+  const found = parentTasksOf(scene).arrows.find((one) => one.childUid === childUid)
   if (found === undefined) throw new Error(`no arrow from child ${childUid}`)
   return found
 }

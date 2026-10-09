@@ -130,12 +130,12 @@ const CONFIRMATION: Confirmation = {
   mannerText: 'Confirm',
   question: 'Delete these rows?',
   text: 'Delete these rows?',
-  items: [{ name: 'Row alpha', isShownOnAnotherRow: false }],
+  items: [{ name: 'Row alpha', isShownOnAnotherTaskGroup: false }],
   answers: [
     { answer: 'yes', text: 'Yes' },
     { answer: 'no', text: 'No' },
   ],
-  shownOnAnotherRowMark: '*',
+  shownOnAnotherTaskGroupMark: '*',
 }
 
 const HELP: OpenModal = { surface: 'Help Modal', heading: 'HelpHeading', commands: [] }
@@ -181,7 +181,7 @@ const viewWith = (openModal: OpenModal): ScreenView => ({
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] },
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: PALETTE,
   openModal,

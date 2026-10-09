@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS, shellStage } from './cr-610-file-flow-stage'
 
 const HALO_SPARES =
@@ -31,7 +31,7 @@ const link = (predecessorUid: number): Record<string, unknown> => ({
 // WHY: a plain bar, a linked bar, a started bar with an actual, and a milestone, so every shape family is drawn.
 /** @purity pure */
 function shapesDocument(): Document {
-  const draft = rowDocument([
+  const draft = taskGroupDocument([
     { id: 'g1', parentId: null },
     { id: 'g2', parentId: null },
     { id: 'g3', parentId: null },

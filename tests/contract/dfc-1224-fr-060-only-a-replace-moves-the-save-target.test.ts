@@ -26,7 +26,7 @@ import {
   type WritableFileStream,
 } from '../../src/framework/file-system-access-file-store/file-system-access-file-store'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { pointerOf, REQUIREMENTS, rowDocument, SCREEN } from '../unit/cr-541-stage'
+import { pointerOf, REQUIREMENTS, taskGroupDocument, SCREEN } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
@@ -87,12 +87,12 @@ const OPEN_CHOOSER = bare(cellOf(T_103, 'U-56', 0))
 const CONFIRMATION = bare(cellOf(T_103, 'U-55', 0))
 const PROCEED_ANSWER = 'proceed'
 
-const HERE_ROW = 'aaaaaaaa-0000-4000-8000-00000000000a'
-const THERE_ROW = 'bbbbbbbb-0000-4000-8000-00000000000b'
+const HERE_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-00000000000a'
+const THERE_TASK_GROUP = 'bbbbbbbb-0000-4000-8000-00000000000b'
 const THERE_UID = 11
 
-const oneRowDocument = (title: string, rowId: string, uid: number): Document => {
-  const draft = rowDocument([{ id: rowId, parentId: null }])
+const oneTaskGroupDocument = (title: string, rowId: string, uid: number): Document => {
+  const draft = taskGroupDocument([{ id: rowId, parentId: null }])
   draft.schedule.project.title = title
   draft.schedule.tasks[0].uid = uid
   draft.schedule.tasks[0].wbsOrder = uid
@@ -105,9 +105,9 @@ const oneRowDocument = (title: string, rowId: string, uid: number): Document => 
   return draft as unknown as Document
 }
 
-const here = (): Document => oneRowDocument('Here', HERE_ROW, 1)
+const here = (): Document => oneTaskGroupDocument('Here', HERE_TASK_GROUP, 1)
 
-const there = (): Document => oneRowDocument('There', THERE_ROW, THERE_UID)
+const there = (): Document => oneTaskGroupDocument('There', THERE_TASK_GROUP, THERE_UID)
 
 const titleOf = (document: Document): unknown =>
   (document as unknown as { schedule: { project: { title: unknown } } }).schedule.project.title
@@ -295,7 +295,7 @@ async function stage(): Promise<Stage> {
       part: surfaceName,
       entry,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

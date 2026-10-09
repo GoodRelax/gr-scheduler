@@ -385,7 +385,7 @@ async function stage(opened: OpenedFileState): Promise<Stage> {
       part: surface,
       entry,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

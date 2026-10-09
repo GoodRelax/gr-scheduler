@@ -10,7 +10,7 @@ import {
 } from '../../document-model/document-settings/document-settings'
 import { textOfDayStart, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
 import { drawnSettingsOf, type ScreenRegions } from '../screen-regions/screen-regions'
-import { drawnGroups } from './drawn-rows'
+import { drawnGroups } from './drawn-task-groups'
 import { groupDepthThresholdOf } from './group-level-of-detail'
 import { layoutFromSchedule, type ScheduleLayout } from './schedule-layout'
 import { zoomYAtPlanHeightFloor } from './shape-cross-sections'
@@ -70,12 +70,12 @@ interface FitRun {
 
 // see FR-055, LF-16
 /** @purity pure */
-function fitsRowArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
+function fitsTaskGroupArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
   // STOP: spec does not decide whether a run stopped by ST-7 fits; here it never does. Looked in ST-7, FR-055
   // @provisional PND-479
   if (run.stackSafetyCapReached !== null) return false
-  const remainderTop = run.scrollAreaY ?? regions.rowArea.y
-  return run.contentHeight <= regions.rowArea.y + regions.rowArea.height - remainderTop
+  const remainderTop = run.scrollAreaY ?? regions.taskGroupArea.y
+  return run.contentHeight <= regions.taskGroupArea.y + regions.taskGroupArea.height - remainderTop
 }
 
 /** @purity pure */
@@ -167,7 +167,7 @@ export function fitZoom(
   settings: DocumentSettings,
   regions: ScreenRegions,
   zoom: NotStoredZoom,
-  rowControlsHeightPx?: number,
+  taskGroupControlsHeightPx?: number,
   shownTaskUids: ReadonlySet<number> | null = null,
 ): FitToScreen {
   const drawn = drawnSettingsOf(settings)
@@ -175,18 +175,18 @@ export function fitZoom(
   const deepest = deepestDrawnDepth(schedule, settings, shownTaskUids)
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
     layoutFromSchedule(
-      schedule, { ...settings, zoomX, zoomY }, regions, cap, rowControlsHeightPx, shownTaskUids,
+      schedule, { ...settings, zoomX, zoomY }, regions, cap, taskGroupControlsHeightPx, shownTaskUids,
     )
 
   const atUnity = runAt(1, floorZoomY, deepest)
-  if (atUnity.rows.length === 0 && atUnity.stackSafetyCapReached === null) {
+  if (atUnity.taskGroups.length === 0 && atUnity.stackSafetyCapReached === null) {
     const { scrollDate, scrollGroupId } = settings
     return { zoomX: 1, zoomY: 1, scrollDate, scrollDayOffset: 0, scrollGroupId, floorZoomY }
   }
-  const margin = regions.rowArea.width * NOT_STORED_FIT_MARGIN['S-332']
-  const room = regions.rowArea.width - FIT_MARGIN_SIDES * margin
+  const margin = regions.taskGroupArea.width * NOT_STORED_FIT_MARGIN['S-332']
+  const room = regions.taskGroupArea.width - FIT_MARGIN_SIDES * margin
   const from = atUnity.contentWidth <= 0 ? 1 : clampedZoom(room / atUnity.contentWidth, zoom)
-  const fits = (run: ScheduleLayout): boolean => fitsRowArea(run, regions)
+  const fits = (run: ScheduleLayout): boolean => fitsTaskGroupArea(run, regions)
   const landed = landedFit(
     deepestFittingDepth(deepest, (cap) => runAt(from, floorZoomY, cap), fits),
     (depth) => landingZoomY(depth, drawn, zoom.step),
@@ -202,7 +202,7 @@ export function fitZoom(
     scrollDate: left === null ? settings.scrollDate : textOfDayStart(left.day),
     scrollDayOffset: left === null ? 0 : left.offset,
     scrollGroupId:
-      chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,
+      chosen.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)?.groupId ?? settings.scrollGroupId,
     floorZoomY,
   }
 }

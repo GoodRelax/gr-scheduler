@@ -35,7 +35,7 @@ import {
 } from '../../src/framework/file-system-access-file-store/file-system-access-file-store'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { surfaceOf, wire, type FakeElement, type Stage as DomStage } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, SCREEN } from '../unit/cr-541-stage'
+import { pointerOf, taskGroupDocument, SCREEN } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken, type SpecTable } from './spec-table'
 
 export const REQUIREMENTS = unbroken(
@@ -135,8 +135,8 @@ export function shellAppSource(html: string): AppShellSource {
   }
 }
 
-export function oneRowDocument(title: string, rowId: string, uid: number): Document {
-  const draft = rowDocument([{ id: rowId, parentId: null }])
+export function oneTaskGroupDocument(title: string, rowId: string, uid: number): Document {
+  const draft = taskGroupDocument([{ id: rowId, parentId: null }])
   draft.schedule.project.title = title
   draft.schedule.tasks[0].uid = uid
   draft.schedule.tasks[0].wbsOrder = uid
@@ -149,10 +149,10 @@ export function oneRowDocument(title: string, rowId: string, uid: number): Docum
   return read.document
 }
 
-export const HERE_ROW = 'aaaaaaaa-0000-4000-8000-00000000000a'
-export const THERE_ROW = 'bbbbbbbb-0000-4000-8000-00000000000b'
-export const here = (): Document => oneRowDocument('Here', HERE_ROW, 1)
-export const there = (): Document => oneRowDocument('There', THERE_ROW, 11)
+export const HERE_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-00000000000a'
+export const THERE_TASK_GROUP = 'bbbbbbbb-0000-4000-8000-00000000000b'
+export const here = (): Document => oneTaskGroupDocument('Here', HERE_TASK_GROUP, 1)
+export const there = (): Document => oneTaskGroupDocument('There', THERE_TASK_GROUP, 11)
 
 export const UTF8 = new TextEncoder()
 export const jsonBytes = (document: unknown): Uint8Array => UTF8.encode(jsonFromDocument(document as never))
@@ -378,7 +378,7 @@ export async function shellStage(options: StageOptions = {}): Promise<ShellStage
       part: surfaceName,
       entry,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

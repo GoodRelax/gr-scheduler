@@ -125,7 +125,7 @@ function sceneJson(): Json {
   schedule['tasks'] = FIGURES.map((one) => ({
     ...structuredClone(firstTask),
     uid: one.uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: one.uid,
     name: `figure ${one.uid}`,
     milestone: false,
@@ -259,7 +259,7 @@ const recordPart = (): ScreenPart =>
     part: 'Command Palette',
     entry: RECORD_ENTRANCE,
     format: null,
-    rowGroupId: null,
+    taskGroupId: null,
     resourceUid: null,
     dividerPanel: null,
     noticeDismissKey: null,

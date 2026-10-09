@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unbroken } from '../contract/spec-table'
 import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, press, readDocument, savedFiles, settle } from '../usecase/uc-harness'
-import { rowsDocument } from './w3-t1-stage'
+import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -83,7 +83,7 @@ async function waitForWords(page: Page, selector: string, words: readonly string
 
 /** @purity pure */
 function clampedDocument(): string {
-  const built = JSON.parse(rowsDocument({ rows: 2 })) as { documentSettings: Record<string, unknown> }
+  const built = JSON.parse(taskGroupsDocument({ rows: 2 })) as { documentSettings: Record<string, unknown> }
   built.documentSettings['zoomX'] = OUT_OF_RANGE_ZOOM
   return JSON.stringify(built)
 }
@@ -192,13 +192,13 @@ test.describe(`MG-10 (MUST): ${MG_10_ALWAYS_ON_U_61}`, () => {
     expect(note, 'the dictionary holds differenceReview.separateNote').toBeDefined()
     await launch(page)
     await enableAgentApi(page)
-    await openByDrop(page, 'cr-712-current.json', rowsDocument({ rows: 3 }))
+    await openByDrop(page, 'cr-712-current.json', taskGroupsDocument({ rows: 3 }))
     const renamed = await page.evaluate(() => {
       const api = (window as any).grSchedulerAgentApi
       return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 2, name: 'Changed here' }] }).accepted
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
-    await dropOnly(page, 'cr-712-incoming.json', rowsDocument({ rows: 3 }))
+    await dropOnly(page, 'cr-712-incoming.json', taskGroupsDocument({ rows: 3 }))
     await page.click(icon('IC-72', OPEN_CHOOSER))
     await settle(page)
     await expect(page.locator(DIFFERENCE_REVIEW), 'premise: the Difference Review asks about task 2').toHaveCount(1)
@@ -213,7 +213,7 @@ test.describe(`T-233 closing (MUST): ${T_233_REFUSAL_CARRIES_THE_ROW}`, () => {
     const iv4 = WORDS.invariants.find((one) => one.rowId === 'IV-4')?.text
     expect(iv4?.en ?? '', 'the dictionary words IV-4').not.toBe('')
     await launch(page)
-    await dropOnly(page, 'cr-712-loop.json', rowsDocument({ rows: 2, wbsParentOf: { 1: 2, 2: 1 } }))
+    await dropOnly(page, 'cr-712-loop.json', taskGroupsDocument({ rows: 2, parentTaskOf: { 1: 2, 2: 1 } }))
     if (await page.locator(OPEN_CHOOSER).count()) {
       await page.click(icon('IC-71', OPEN_CHOOSER))
       await settle(page)

@@ -166,7 +166,7 @@ const bench = (displayScale: number): Bench => {
       drain()
     },
     pressEntrance: (icon) => {
-      part = { part: 'App Header', entry: icon, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
+      part = { part: 'App Header', entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
       loop.receiveInput(pointer('down'))
       loop.receiveInput(pointer('up'))
       part = null

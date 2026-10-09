@@ -16,7 +16,7 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import { editProject } from '../../src/use-case/edit-document/edit-document'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { rowDocument, taskOf } from './cr-541-stage'
+import { taskGroupDocument, taskOf } from './cr-541-stage'
 
 type Loose = Record<string, unknown>
 
@@ -91,7 +91,7 @@ interface Row {
 }
 
 function documentOf(rows: readonly Row[], tolerance: number = S_487_DEFAULT, statusDate: string = STATUS): Document {
-  const raw = rowDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
+  const raw = taskGroupDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.project[S_487_KEY] = tolerance
@@ -156,8 +156,8 @@ const inProgress = (uid: number, name: string, start: string, finish: string, st
 const LEFT_PARENT = (tolerance: number): Document =>
   documentOf(
     familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 5)), [
-      inProgress(C1, 'Early leaf', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: G }),
-      inProgress(C2, 'Late leaf', S(5, 17), F(5, 28), F(5, 18), { wbsParentUid: G }),
+      inProgress(C1, 'Early leaf', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
+      inProgress(C2, 'Late leaf', S(5, 17), F(5, 28), F(5, 18), { parentTaskUid: G }),
     ]),
     tolerance,
   )
@@ -168,8 +168,8 @@ const LEFT_WORKING_DAYS = 4
 const RIGHT_PARENT = (tolerance: number): Document =>
   documentOf(
     familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 19)), [
-      inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: G }),
-      inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { wbsParentUid: G }),
+      inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
+      inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { parentTaskUid: G }),
     ]),
     tolerance,
   )
@@ -294,8 +294,8 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     const make = (stop: string): Document =>
       documentOf(
         familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), stop), [
-          inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: G }),
-          inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { wbsParentUid: G }),
+          inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
+          inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { parentTaskUid: G }),
         ]),
         0,
       )
@@ -308,8 +308,8 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     // WHY: G strikes 05-14, between the leaves at 05-12 and 05-19.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 13)), [
-        inProgress(C1, 'Early leaf', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: G }),
-        inProgress(C2, 'Late leaf', S(5, 17), F(5, 28), F(5, 18), { wbsParentUid: G }),
+        inProgress(C1, 'Early leaf', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
+        inProgress(C2, 'Late leaf', S(5, 17), F(5, 28), F(5, 18), { parentTaskUid: G }),
       ]),
     )
     expect(vs6Of(diagnose(document))).toEqual([])
@@ -329,8 +329,8 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
     // from 05-14 to 05-21 lie 5 working days. Skipping vertex-less leaves would leave nothing to compare.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 13)), [
-        taskOf(C1, { name: 'Done', wbsParentUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), actualFinish: F(5, 7), percentComplete: 100 }),
-        taskOf(C2, { name: 'Not yet', wbsParentUid: G, start: S(5, 24), finish: F(5, 28) }),
+        taskOf(C1, { name: 'Done', parentTaskUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), actualFinish: F(5, 7), percentComplete: 100 }),
+        taskOf(C2, { name: 'Not yet', parentTaskUid: G, start: S(5, 24), finish: F(5, 28) }),
       ]),
     )
     const found = vs6On(diagnose(document), G)
@@ -346,8 +346,8 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
     // Without the status-date point G would read 8 working days right of C2.
     const document = documentOf(
       familyOf(inProgress(G, 'Parent', S(5, 3), F(5, 28), F(5, 20)), [
-        taskOf(C1, { name: 'Done', wbsParentUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), actualFinish: F(5, 7), percentComplete: 100 }),
-        inProgress(C2, 'Slow', S(5, 10), F(5, 28), F(5, 10), { wbsParentUid: G }),
+        taskOf(C1, { name: 'Done', parentTaskUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), actualFinish: F(5, 7), percentComplete: 100 }),
+        inProgress(C2, 'Slow', S(5, 10), F(5, 28), F(5, 10), { parentTaskUid: G }),
       ]),
     )
     expect(vs6On(diagnose(document), G)).toHaveLength(0)
@@ -363,10 +363,10 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
     const B2 = 414
     const document = documentOf([
       { id: 'r0', parentId: null, tasks: [inProgress(A, 'Top', S(5, 3), F(5, 28), F(5, 4))] },
-      { id: 'r1', parentId: 'r0', tasks: [inProgress(B, 'Middle', S(5, 3), F(5, 14), F(5, 4), { wbsParentUid: A })] },
-      { id: 'r2', parentId: 'r0', tasks: [inProgress(A1, 'Own leaf', S(5, 17), F(5, 28), F(5, 17), { wbsParentUid: A })] },
-      { id: 'r3', parentId: 'r1', tasks: [inProgress(B1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: B })] },
-      { id: 'r4', parentId: 'r1', tasks: [inProgress(B2, 'Leaf two', S(5, 3), F(5, 14), F(5, 12), { wbsParentUid: B })] },
+      { id: 'r1', parentId: 'r0', tasks: [inProgress(B, 'Middle', S(5, 3), F(5, 14), F(5, 4), { parentTaskUid: A })] },
+      { id: 'r2', parentId: 'r0', tasks: [inProgress(A1, 'Own leaf', S(5, 17), F(5, 28), F(5, 17), { parentTaskUid: A })] },
+      { id: 'r3', parentId: 'r1', tasks: [inProgress(B1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: B })] },
+      { id: 'r4', parentId: 'r1', tasks: [inProgress(B2, 'Leaf two', S(5, 3), F(5, 14), F(5, 12), { parentTaskUid: B })] },
     ])
     const report = diagnose(document)
     expect(vs6Of(report).map((one) => one.uid).sort()).toEqual([A, B])
@@ -385,8 +385,8 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
 describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
   // WHY: tolerance 0 and leaves at 05-12 / 05-13, so any point the parent were given away from those two days would be told.
   const leaves = (): readonly Loose[] => [
-    inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { wbsParentUid: G }),
-    inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { wbsParentUid: G }),
+    inProgress(C1, 'Leaf one', S(5, 3), F(5, 14), F(5, 11), { parentTaskUid: G }),
+    inProgress(C2, 'Leaf two', S(5, 10), F(5, 28), F(5, 12), { parentTaskUid: G }),
   ]
   const plan: Loose = { name: 'Parent', start: S(5, 3), finish: F(5, 28) }
 
@@ -406,7 +406,7 @@ describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
     const M = 420
     const document = documentOf([
       { id: 'r0', parentId: null, tasks: [taskOf(M, { name: 'Gate', milestone: true, start: S(5, 3), finish: S(5, 3) })] },
-      { id: 'r1', parentId: 'r0', tasks: [inProgress(C1, 'Child', S(5, 3), F(5, 14), F(5, 12), { wbsParentUid: M })] },
+      { id: 'r1', parentId: 'r0', tasks: [inProgress(C1, 'Child', S(5, 3), F(5, 14), F(5, 12), { parentTaskUid: M })] },
     ])
     const report = diagnose(document)
     expect(vs6On(report, M)).toHaveLength(0)
@@ -563,7 +563,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
 const CALM = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
-const LIMITS = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 const cm87 = (workingDays: number): DocumentCommand =>
   ({ kind: CM_87_NAME, workingDays }) as unknown as DocumentCommand
@@ -585,7 +585,7 @@ describe('CR-651 CM-87 FR-131 -- setParentProgressTolerance', () => {
   it('CM-87 UN-13: one undo step, and undo restores the old value', () => {
     const document = currentDocument()
     const plan = planDocumentChange({
-      defaultRowName: 'fixture default row name',
+      defaultTaskGroupName: 'fixture default task group name',
       document,
       readStamp: document.documentStamp,
       commands: [cm87(5)],
@@ -608,7 +608,7 @@ describe('CR-651 CM-87 FR-131 -- setParentProgressTolerance', () => {
   it('CM-87 a refused value throws the whole bundle away (no step is recorded)', () => {
     const document = currentDocument()
     const plan = planDocumentChange({
-      defaultRowName: 'fixture default row name',
+      defaultTaskGroupName: 'fixture default task group name',
       document,
       readStamp: document.documentStamp,
       commands: [cm87(-1)],

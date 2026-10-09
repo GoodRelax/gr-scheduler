@@ -79,7 +79,7 @@
 // `Alt` ＋ `-` and demanded the picture move would be asserting the opposite of
 // what the manuscript states, and a case that pressed it and demanded the
 // picture NOT move would be this file holding `LF-3`'s floor, which is another
-// file's row. ⇒ The row-axis entrance driven below is IC-15 alone.
+// file's row. ⇒ The vertical-axis entrance driven below is IC-15 alone.
 //
 // ---------------------------------------------------------------------------
 // ⭐⭐ SEVEN CASES BELOW ARE RED ON PURPOSE, AND WHAT WAS MEASURED IS HERE
@@ -253,12 +253,12 @@ const TEMPLATE = JSON.parse(
 
 const stored = (day: string): string => `${day}T00:00:00`
 
-const ROW_ONE = '3a000000-0000-4000-8000-000000000001'
-const ROW_TWO = '3a000000-0000-4000-8000-000000000002'
+const TASK_GROUP_ONE = '3a000000-0000-4000-8000-000000000001'
+const TASK_GROUP_TWO = '3a000000-0000-4000-8000-000000000002'
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -311,10 +311,10 @@ function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [group(ROW_ONE, 0, 'One'), group(ROW_TWO, 1, 'Two')],
+      taskGroups: [group(TASK_GROUP_ONE, 0, 'One'), group(TASK_GROUP_TWO, 1, 'Two')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ROW_ONE },
-        { taskUid: 2, groupId: ROW_TWO },
+        { taskUid: 1, groupId: TASK_GROUP_ONE },
+        { taskUid: 2, groupId: TASK_GROUP_TWO },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -404,10 +404,10 @@ afterEach(() => {
 interface Picture {
   /** S-1 times `zoomX` -- FR-017 makes this the width of one day. */
   readonly pxPerDay: number
-  /** What a rectangle's plan bar is tall at this zoom -- the row axis. */
+  /** What a rectangle's plan bar is tall at this zoom -- the vertical axis. */
   readonly rectangleHeight: number
-  /** The height of the first row's band, the other reading of the row axis. */
-  readonly firstRowHeight: number
+  /** The height of the first row's band, the other reading of the vertical axis. */
+  readonly firstTaskGroupHeight: number
 }
 
 interface Booted {
@@ -429,12 +429,12 @@ function boot(document: Document = fixtureDocument()): Booted {
   const picture = (): Picture => {
     const values = loop.current()
     if (values === null) throw new Error('BO-1 settled no size, so no frame was drawn')
-    const first = values.layout.rows[0]
+    const first = values.layout.taskGroups[0]
     if (first === undefined) throw new Error('the fixture drew no row')
     return {
       pxPerDay: values.layout.pxPerDay,
       rectangleHeight: values.layout.rectangleHeight,
-      firstRowHeight: first.height,
+      firstTaskGroupHeight: first.height,
     }
   }
   return {
@@ -518,7 +518,7 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
 
   // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
   // step; OP-10 fixes only that the zoom is taken from the fit's zoom, so the step is a floor here.
-  it('IC-15: a press of the row-axis zoom-in writes at least one S-53 step up from the fit zoom, and keeps it', () => {
+  it('IC-15: a press of the vertical-axis zoom-in writes at least one S-53 step up from the fit zoom, and keeps it', () => {
     const one = boot()
     const scene = one.loop.exportScene() as unknown as { settings: { zoomY: number } } | null
     if (scene === null) throw new Error('the loop had no scene to export')
@@ -563,10 +563,10 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     expect(after.scrollDate, 'S-77 still says the person has not chosen a place').not.toBeNull()
     expect(after.scrollGroupId, 'S-78 still says the person has not chosen a place').not.toBeNull()
     // 「または指す行が存在しないとき」 -- the other half of the same condition.
-    expect([ROW_ONE, ROW_TWO]).toContain(after.scrollGroupId)
+    expect([TASK_GROUP_ONE, TASK_GROUP_TWO]).toContain(after.scrollGroupId)
   })
 
-  it('fills it in for the row axis and for the fit as well, not only for the time axis', () => {
+  it('fills it in for the vertical axis and for the fit as well, not only for the time axis', () => {
     // 「倍率か表示位置」 -- either one, so no entrance may leave the pair unset.
     //
     // ⚠️ ONE READING HERE IS WORTH OVERTURNING IF IT IS WRONG. Pressing SK-18
@@ -611,13 +611,13 @@ describe('OP-10 (MUST NOT) -- the row is not redone every frame', () => {
     }
   })
 
-  it('holds the row axis the same way', () => {
+  it('holds the vertical axis the same way', () => {
     const one = boot()
     one.send(ALT_PLUS)
     const chosen = one.picture()
     one.idle(12)
     expect(one.picture().rectangleHeight).toBe(chosen.rectangleHeight)
-    expect(one.picture().firstRowHeight).toBe(chosen.firstRowHeight)
+    expect(one.picture().firstTaskGroupHeight).toBe(chosen.firstTaskGroupHeight)
   })
 
   it('keeps the zoom working AFTER the fit, which is where the row used to come back', () => {

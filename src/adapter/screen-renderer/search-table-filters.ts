@@ -30,7 +30,7 @@ export const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchC
 
 export const ASSIGNEE_SEPARATOR = ', '
 
-export const ROW_PATH_SEPARATOR = ' \u2192 '
+export const TASK_GROUP_PATH_SEPARATOR = ' \u2192 '
 
 export const BLANK_SEARCH_VALUE = ''
 
@@ -92,7 +92,7 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
     'SQ-2': (row) => (row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : row.assigneeNames),
     'SQ-5': (row) => [searchTaskStateOf(row)],
     'SQ-11': (row) => [percentText(row.percentComplete)],
-    'SQ-6': (row) => [row.rowPath.join(ROW_PATH_SEPARATOR)],
+    'SQ-6': (row) => [row.rowPath.join(TASK_GROUP_PATH_SEPARATOR)],
   },
   dates: {
     'SQ-3': (row) => row.plannedStart,
@@ -131,7 +131,7 @@ function taskTableOf(shown: ReadonlySet<number>): TableColumns<TaskSearchRow> {
 const COMMENT_BOX_TABLE: TableColumns<CommentBoxSearchRow> = {
   values: {
     'SQ-7': (row) => [searchBodyTextOf(row.text)],
-    'SQ-8': (row) => [row.rowName],
+    'SQ-8': (row) => [row.taskGroupName],
   },
   dates: {
     'SQ-9': (row) => row.anchorDate,

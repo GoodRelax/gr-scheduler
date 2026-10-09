@@ -14,8 +14,8 @@ import {
 // see IC-45, DC-1, DC-4, DC-7, T-280
 /** @purity pure */
 export function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent {
-  const rowArea = context.regions.rowArea
-  const atCentre = dayAtX(context.layout, rowArea.x + rowArea.width / 2)
+  const taskGroupArea = context.regions.taskGroupArea
+  const atCentre = dayAtX(context.layout, taskGroupArea.x + taskGroupArea.width / 2)
   // STOP: spec does not decide IC-45 where the axis has no day. Looked in DC-1, BO-1
   // @provisional PND-313
   return {

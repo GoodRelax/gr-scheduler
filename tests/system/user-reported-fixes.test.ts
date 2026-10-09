@@ -44,16 +44,16 @@ const TASK_HINT_DELAY_MS = numberIn(cellOf(T212, 'S-439', 1, 5), 'table T-212 ro
 
 const ENTRANCE_SHAPE_PX = numberIn(cellOf(T206, 'S-138', 1, 3), 'table T-206 row S-138')
 
-const ROW_PANEL_ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-243', 1, 3), 'table T-206 row S-243')
+const TASK_GROUP_PANEL_ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-243', 1, 3), 'table T-206 row S-243')
 
 // see FR-029, T-206, S-237
 const ENTRANCE_FRAME_PX = numberIn(cellOf(T206, 'S-237', 1, 3), 'table T-206 row S-237')
 
 // see FR-029, FR-039, T-252, DS-7, S-235, S-243, HF-19
 // WHY: DS-7 keeps the display scale off an entrance, so S-235 is the one ratio
-// WHY: the outer width FR-029 derives is drawn at; the row title panel's clear is S-243.
-const NARROWEST_ROW_PANEL_ENTRANCE_PX =
-  (ENTRANCE_SHAPE_PX + (ROW_PANEL_ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
+// WHY: the outer width FR-029 derives is drawn at; the task group panel's clear is S-243.
+const NARROWEST_TASK_GROUP_PANEL_ENTRANCE_PX =
+  (ENTRANCE_SHAPE_PX + (TASK_GROUP_PANEL_ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
 
 // WHY: table T-109 holds six cells after the row ID since CR-589 added the setting column.
 const T109_COLUMNS = 6
@@ -84,7 +84,7 @@ function entranceNaming(text: string): string {
 }
 
 /** @purity pure */
-function rowPanelRuleOf(entrance: string): string {
+function taskGroupPanelRuleOf(entrance: string): string {
   const found = /HF-\d+/.exec(cellOf(T109, entrance, SOURCE_COLUMN, T109_COLUMNS))
   if (found === null) {
     throw new Error(`table T-109 row ${entrance} names no HF row of table T-051 as its rule`)
@@ -585,25 +585,25 @@ function doBoxesOverlap(one: Box, two: Box): boolean {
   )
 }
 
-test('DFC-160: the entrances at the head of the row title panel stand apart, in order', async ({
+test('DFC-160: the entrances at the head of the task group panel stand apart, in order', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
   try {
     const head = PANEL_HEAD_ORDER.map(entranceRuledBy)
-    const onPanel = entrancesOnSurface('Row Title Panel')
+    const onPanel = entrancesOnSurface('Task Group Panel')
     for (const entrance of head) {
       expect(
         onPanel.includes(entrance),
-        `table T-109 no longer puts ${entrance} on the Row Title Panel`,
+        `table T-109 no longer puts ${entrance} on the Task Group Panel`,
       ).toBe(true)
     }
 
     const boxes = await readEntranceBoxes(app.page, head)
     expect(
       boxes.map((one) => one.entrance).sort(),
-      'the head of the row title panel is missing entrances table T-051 puts on it',
+      'the head of the task group panel is missing entrances table T-051 puts on it',
     ).toEqual([...head].sort())
 
     for (const box of boxes) {
@@ -614,9 +614,9 @@ test('DFC-160: the entrances at the head of the row title panel stand apart, in 
           'と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）」 and 「箱の一辺' +
           '（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の ' +
           '表 T-206 の `S-235` を掛けて描くこと（MUST）」 ' +
-          `-- (${ENTRANCE_SHAPE_PX} + (${ROW_PANEL_ENTRANCE_CLEAR_PX} + ${ENTRANCE_FRAME_PX}) x 2) x ` +
-          `${S_235} = ${NARROWEST_ROW_PANEL_ENTRANCE_PX.toFixed(4)}px`,
-      ).toBeGreaterThanOrEqual(NARROWEST_ROW_PANEL_ENTRANCE_PX)
+          `-- (${ENTRANCE_SHAPE_PX} + (${TASK_GROUP_PANEL_ENTRANCE_CLEAR_PX} + ${ENTRANCE_FRAME_PX}) x 2) x ` +
+          `${S_235} = ${NARROWEST_TASK_GROUP_PANEL_ENTRANCE_PX.toFixed(4)}px`,
+      ).toBeGreaterThanOrEqual(NARROWEST_TASK_GROUP_PANEL_ENTRANCE_PX)
     }
 
     const overlapping: string[] = []
@@ -636,10 +636,10 @@ test('DFC-160: the entrances at the head of the row title panel stand apart, in 
 
     const drawnRules = [...boxes]
       .sort((one, two) => one.x - two.x)
-      .map((one) => rowPanelRuleOf(one.entrance))
+      .map((one) => taskGroupPanelRuleOf(one.entrance))
     expect(
       drawnRules,
-      'the head of the row title panel does not stand its entrances in the order HF-10 gives',
+      'the head of the task group panel does not stand its entrances in the order HF-10 gives',
     ).toEqual(PANEL_HEAD_ORDER)
   } finally {
     await app.close()
@@ -1026,7 +1026,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
 
     const before = timeAxisOf(await readRuler(app.page, canvas), 'before the wheel')
     const band = (await readRuler(app.page, canvas)).band
-    expect(band.width, 'the time ruler draws no ground, so the Row Area cannot be located').toBeGreaterThan(0)
+    expect(band.width, 'the time ruler draws no ground, so the Task Group Area cannot be located').toBeGreaterThan(0)
     const roughly = band.x + band.width * 0.25
     const at = Math.round(
       band.x + (Math.floor((roughly - band.x) / before.pxPerDay) + 0.5) * before.pxPerDay,
@@ -1034,7 +1034,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     const middle = band.x + band.width / 2
     expect(
       Math.abs(at - middle),
-      `the point the wheel is turned at (${String(at)}) is the middle of the Row Area, so this ` +
+      `the point the wheel is turned at (${String(at)}) is the middle of the Task Group Area, so this ` +
         'case could not tell a pointer-centred zoom from a middle-centred one',
     ).toBeGreaterThan(before.pxPerDay)
     const heldByPointer = dayUnder(before, at)
@@ -1071,7 +1071,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     ).not.toBe(beforeKey.pxPerDay)
     expect(
       dayUnder(afterKey, middle),
-      `FR-016 (MUST): a route that carries no pointer takes the middle of the Row Area as the ` +
+      `FR-016 (MUST): a route that carries no pointer takes the middle of the Task Group Area as the ` +
         `centre, so the date at x=${String(Math.round(middle))} does not move. The pointer was ` +
         `parked at x=${String(Math.round(band.x + band.width * 0.1))}, where the date was ` +
         `${dayUnder(beforeKey, band.x + band.width * 0.1)}`,
@@ -1128,7 +1128,7 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
     expect(
       wideDays,
       `FR-016 (MUST): 「日付の軸（\`zoomX\`）の上限は、見えている範囲が ... 表 T-206 の ` +
-        `\`S-229\` 日を下回らない倍率とすること（MUST）」. The Row Area is ` +
+        `\`S-229\` 日を下回らない倍率とすること（MUST）」. The Task Group Area is ` +
         `${String(Math.round(wide.band.width))}px wide and shows ${wideDays.toFixed(2)} days`,
     ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
     await wheelAway(10)
@@ -1147,11 +1147,11 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
     const narrowDays = narrow.band.width / narrowAxis.pxPerDay
     expect(
       narrow.band.width,
-      'the narrower window did not narrow the Row Area, so the two readings are one reading',
+      'the narrower window did not narrow the Task Group Area, so the two readings are one reading',
     ).toBeLessThan(wide.band.width)
     expect(
       narrowDays,
-      `FR-016 (MUST): the promise is a number of DAYS and not a magnification. The Row Area is ` +
+      `FR-016 (MUST): the promise is a number of DAYS and not a magnification. The Task Group Area is ` +
         `now ${String(Math.round(narrow.band.width))}px wide and shows ${narrowDays.toFixed(2)} days`,
     ).toBeGreaterThanOrEqual(VISIBLE_DAY_FLOOR - 0.01)
     expect(
@@ -1169,7 +1169,7 @@ test('DFC-375: magnifying the date axis stops with S-229 days still on the scree
 })
 
 /** @purity semi-pure-b */
-async function rowBandsNow(page: Page): Promise<
+async function taskGroupBandsNow(page: Page): Promise<
   readonly { readonly id: string; readonly y: number; readonly height: number;
              readonly isCut: boolean }[]
 > {
@@ -1206,7 +1206,7 @@ function tallestBandOf(
 }
 
 /** @purity pure */
-function rowPitchOf(
+function taskGroupPitchOf(
   bands: readonly { readonly y: number }[],
 ): number | null {
   const first = bands[0]
@@ -1215,7 +1215,7 @@ function rowPitchOf(
 }
 
 /** @purity pure */
-function rowAreaSpanOf(
+function taskGroupAreaSpanOf(
   bands: readonly { readonly y: number; readonly height: number }[],
 ): number {
   if (bands.length === 0) return 0
@@ -1247,9 +1247,9 @@ const DRAWN_PLAN_BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
 // see FR-039, T-252, DS-1
 const DRAWN_RECTANGLE_NAME_PX_AT_ONE = RECTANGLE_NAME_PX_AT_ONE * DEFAULT_DISPLAY_RATIO
 
-const DEPTH_ONE_ROW_NAME_PX = drawingSettingOf('S-36') * drawingSettingOf('S-38')
+const DEPTH_ONE_TASK_GROUP_NAME_PX = drawingSettingOf('S-36') * drawingSettingOf('S-38')
 
-const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_ONE
+const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_TASK_GROUP_NAME_PX / RECTANGLE_NAME_PX_AT_ONE
 
 const NAME_PX_TOLERANCE = 0.02
 
@@ -1282,7 +1282,7 @@ function fontsOfKeys(
   return keys.flatMap((key) => (fonts[key] === undefined ? [] : [fonts[key] ?? 0]))
 }
 
-test('DFC-374: magnifying the row axis stops before one row fills the Row Area', async ({
+test('DFC-374: magnifying the vertical axis stops before one row fills the Task Group Area', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1306,7 +1306,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
       Math.round(canvasBox.y + canvasBox.height / 2),
     )
 
-    const opened = await rowBandsNow(app.page)
+    const opened = await taskGroupBandsNow(app.page)
     expect(opened.length, 'the document opens drawing fewer than three rows').toBeGreaterThan(2)
     const openedFonts = await nameLabelFontsNow(app.page)
     const rectangles = Object.keys(openedFonts).filter(
@@ -1321,7 +1321,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
         '), so no rectangle can be told from the drawing',
     ).toBeGreaterThan(0)
     await wheelAway(45)
-    const tall = await rowBandsNow(app.page)
+    const tall = await taskGroupBandsNow(app.page)
     const tallFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
     expect(tallFonts.length, 'no rectangle drawn at the opening is still drawn after the wheel')
       .toBeGreaterThan(0)
@@ -1341,9 +1341,9 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     ).toBeLessThan(NAME_PX_TOLERANCE)
     // WHY: compared against the opening, not against zero. FR-016's own measured
     // WHY: note records that a row's cut-ness is constant over a zoomY sweep, and
-    // WHY: the drawing bears that out: availableLabelWidthPx and rowTitleFontPxOf
+    // WHY: the drawing bears that out: availableLabelWidthPx and taskGroupTitleFontPxOf
     // WHY: read the panel width, the indent and the depth, never zoomY. MEASURED
-    // WHY: 2026-09-16 on this document: no row name is cut at the opening or at
+    // WHY: 2026-09-16 on this document: no task group name is cut at the opening or at
     // WHY: the ceiling, so demanding one demands a property of the document. What
     // WHY: a build that stopped when the mark cleared would show is FEWER cut
     // WHY: names at the ceiling than at the opening, and that is what is refused.
@@ -1353,7 +1353,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
         'The magnifying settled with fewer cut row names than the opening drew, so this build ' +
         'cannot be told apart from one that stopped when the mark cleared',
     ).toBeGreaterThanOrEqual(opened.filter((band) => band.isCut).length)
-    const tallPitch = rowPitchOf(tall)
+    const tallPitch = taskGroupPitchOf(tall)
     expect(
       tallestBandOf(tall),
       `forty-five notches of MK-4 left the tallest band at ${tallestBandOf(opened).toFixed(1)}px, ` +
@@ -1361,14 +1361,14 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     ).toBeGreaterThan(tallestBandOf(opened))
     expect(
       tall.length,
-      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Row Area\` の高さに` +
+      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Task Group Area\` の高さに` +
         `達する倍率とすること（MUST）」. Forty-five notches of MK-4 left ${String(tall.length)} ` +
         `row(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
         `${tallestBandOf(tall).toFixed(1)}px -- past the ceiling the magnifying goes on until ` +
         'one row fills the screen alone',
     ).toBeGreaterThan(1)
     await wheelAway(10)
-    const further = rowPitchOf(await rowBandsNow(app.page))
+    const further = taskGroupPitchOf(await taskGroupBandsNow(app.page))
     expect(tallPitch, 'two bands are needed to measure a pitch and only one was drawn')
       .not.toBeNull()
     expect(
@@ -1380,30 +1380,30 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     await app.page.setViewportSize({ width: 1920, height: 700 })
     await readSettledDrawnSvg(app.page)
     await wheelAway(25)
-    const short = await rowBandsNow(app.page)
+    const short = await taskGroupBandsNow(app.page)
     expect(
       short.length,
       `the short window settled with ${String(short.length)} row(s), so the ceiling did not ` +
         'fire there either',
     ).toBeGreaterThan(1)
-    const tallArea = rowAreaSpanOf(tall)
-    const shortArea = rowAreaSpanOf(short)
+    const tallArea = taskGroupAreaSpanOf(tall)
+    const shortArea = taskGroupAreaSpanOf(short)
     expect(
       tallestBandOf(tall),
-      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Row Area\` の高さに` +
+      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Task Group Area\` の高さに` +
         `達する倍率とすること（MUST）」. The tallest band on the 1080px window reads ` +
-        `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Row Area -- a ` +
+        `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Task Group Area -- a ` +
         'band that fills the area at both ends is a band the area cut, which is what a build ' +
         'with no ceiling settles at',
     ).toBeLessThan(tallArea)
     expect(
       tallestBandOf(short),
       `FR-016 (MUST): the same on the 700px window: ${tallestBandOf(short).toFixed(2)}px ` +
-        `against a ${shortArea.toFixed(2)}px Row Area`,
+        `against a ${shortArea.toFixed(2)}px Task Group Area`,
     ).toBeLessThan(shortArea)
     expect(
       shortArea,
-      `the shorter window did not shorten the Row Area (${shortArea.toFixed(2)}px against ` +
+      `the shorter window did not shorten the Task Group Area (${shortArea.toFixed(2)}px against ` +
         `${tallArea.toFixed(2)}px), so the two readings are one reading`,
     ).toBeLessThan(tallArea)
 
@@ -1424,7 +1424,7 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     )
     await wheelBy(45, 120)
     await wheelAway(45)
-    const low = await rowBandsNow(app.page)
+    const low = await taskGroupBandsNow(app.page)
     const lowFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
     expect(lowFonts.length, 'no rectangle drawn at the opening is drawn on the low window')
       .toBeGreaterThan(0)
@@ -1447,8 +1447,8 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     expect(
       tallestBandOf(low),
       `FR-016 (MUST): on the low window the tallest band reads ${tallestBandOf(low).toFixed(2)}px ` +
-        `against a ${rowAreaSpanOf(low).toFixed(2)}px Row Area`,
-    ).toBeLessThan(rowAreaSpanOf(low))
+        `against a ${taskGroupAreaSpanOf(low).toFixed(2)}px Task Group Area`,
+    ).toBeLessThan(taskGroupAreaSpanOf(low))
     const lowByKey = await nameLabelFontsNow(app.page)
     await wheelAway(10)
     const furtherByKey = await nameLabelFontsNow(app.page)
@@ -1473,7 +1473,7 @@ const TRANSLATOR_SOURCE = join(
   process.cwd(), 'src', 'adapter', 'input-command-translator', 'input-command-translator.ts',
 )
 
-test('DFC-366: one notch of the row-axis zoom leaves the row under the pointer where it was', async ({
+test('DFC-366: one notch of the vertical-axis zoom leaves the row under the pointer where it was', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1482,7 +1482,7 @@ test('DFC-366: one notch of the row-axis zoom leaves the row under the pointer w
     const canvasBox = await canvasBoxNow(app.page)
     expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
     if (canvasBox === null) return
-    const before = await rowBandsNow(app.page)
+    const before = await taskGroupBandsNow(app.page)
     expect(before.length, 'the document draws fewer than four rows to choose from')
       .toBeGreaterThan(3)
     const held = before[3]
@@ -1496,26 +1496,26 @@ test('DFC-366: one notch of the row-axis zoom leaves the row under the pointer w
     await app.page.keyboard.up('Alt')
     await readSettledDrawnSvg(app.page)
 
-    const after = await rowBandsNow(app.page)
-    const sameRow = after.find((band) => band.id === held.id)
+    const after = await taskGroupBandsNow(app.page)
+    const sameRecord = after.find((band) => band.id === held.id)
     expect(
-      sameRow,
+      sameRecord,
       `the row the pointer was over (${held.id}) is no longer drawn after one notch`,
     ).not.toBeUndefined()
-    if (sameRow === undefined) return
+    if (sameRecord === undefined) return
     expect(
-      sameRow.height,
+      sameRecord.height,
       `one notch of MK-4 left the band ${held.height.toFixed(1)}px tall, so nothing was zoomed ` +
         'and holding the row still proves nothing',
     ).not.toBe(held.height)
     const into = (at - held.y) / held.height
-    const nowAt = sameRow.y + into * sameRow.height
+    const nowAt = sameRecord.y + into * sameRecord.height
     expect(
       Math.abs(nowAt - at),
       `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと` +
         `（MUST）」 and 「倍率を変えたとき、行の軸でも掴んだ行を留めること（MUST）」. The wheel ` +
         `was turned at y=${String(at)}, where the band was ${held.height.toFixed(1)}px and is ` +
-        `now ${sameRow.height.toFixed(1)}px; the point under the pointer has moved to ` +
+        `now ${sameRecord.height.toFixed(1)}px; the point under the pointer has moved to ` +
         `y=${nowAt.toFixed(1)}`,
     ).toBeLessThanOrEqual(4)
 

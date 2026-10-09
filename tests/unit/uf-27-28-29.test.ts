@@ -100,7 +100,7 @@ import { postDialogueMessage } from '../../src/use-case/post-dialogue-message/po
 // (LY-5 of table T-060, MN-6 of table T-070), so the bench asks the shell for
 // one instead of deciding "closed" a second time. See `exportSceneOf`.
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
@@ -221,7 +221,7 @@ const SECOND_START = '2026-05-01T00:00:00'
 const taskOf = (uid: number, start: string, finish: string): Loose => ({
   ...(templateTasks[0] as Loose),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `task ${uid}`,
   start,
@@ -312,7 +312,7 @@ const HISTORY_LIMITS = {
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
   zoomMax: 64,
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const SCREEN: ScreenEnvironment = {
@@ -419,7 +419,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
   const snapshotOf = (): AgentSnapshot => {
     state.snapshotReads += 1
     return {
-      defaultRowName: DEFAULT_ROW_NAME,
+      defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
       document: state.document,
       documentAsWritten: state.document,
       selection: state.selection,
@@ -553,7 +553,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     writeAsPerson: (commands, editedBy) => {
       applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
           readStamp: state.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
@@ -1053,9 +1053,9 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
 })
 
 describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060)', () => {
-  it('hands the write path the zoom and Row Area bounds it was given (S-97 / S-98 / FR-052)', () => {
+  it('hands the write path the zoom and Task Group Area bounds it was given (S-97 / S-98 / FR-052)', () => {
     const one = bench()
-    // FR-052 is judged against `rowAreaWidthWithoutPanels`, which only the
+    // FR-052 is judged against `taskGroupAreaWidthWithoutPanels`, which only the
     // snapshot carries. A width that overruns it can be refused only if the
     // bound travelled, so the refusal IS the evidence that it did.
     const { refusal } = refused(
@@ -1063,10 +1063,10 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
         readStamp: one.api.readStamp(),
         commands: [
           {
-            kind: 'setRowTitlePanelWidth',
+            kind: 'setTaskGroupPanelWidth',
             // WHY: the bound is drawn px and CM-67 writes a stored width, which FR-039 scales on the way in.
-            rowTitlePanelWidth:
-              SETTINGS_LIMITS.rowAreaWidthWithoutPanels / displayRatioOf(one.document.documentSettings),
+            taskGroupPanelWidth:
+              SETTINGS_LIMITS.taskGroupAreaWidthWithoutPanels / displayRatioOf(one.document.documentSettings),
           },
         ],
       }),
@@ -1587,18 +1587,18 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
 
   it('AM-7 runs a command table T-027 excludes and leaves no step (AG-10, MUST)', () => {
     const one = bench()
-    // UN-16 of table T-027: the row title panel width is where you look, not what the
+    // UN-16 of table T-027: the task group panel width is where you look, not what the
     // schedule says. The call is not refused, and it leaves nothing to undo.
     const outcome = accepted(
       one.api.applyCommands({
         readStamp: one.api.readStamp(),
-        commands: [{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 200 }],
+        commands: [{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 200 }],
       }),
     )
 
     expect(outcome.hasMovedSchedule).toBe(false)
     expect(one.history.done).toHaveLength(0)
-    expect(one.document.documentSettings.rowTitlePanelWidth).toBe(200)
+    expect(one.document.documentSettings.taskGroupPanelWidth).toBe(200)
   })
 })
 

@@ -24,7 +24,7 @@ import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import type { Selection } from '../../src/entity/document-model/selection/selection'
 import { grabSizesOf, itemAtPointer, type Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import type { BarGeometry, Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { RowPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import type { TaskGroupPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
@@ -119,13 +119,13 @@ describe('CR-656 -- the rows these cases are driven by', () => {
 })
 
 // WHY: six rows, one task per row; ROOT is in progress and has a WBS child, so a kept actual is observable.
-const ROW_A = '65600000-0000-4000-8000-00000000000a'
-const ROW_B = '65600000-0000-4000-8000-00000000000b'
-const ROW_C = '65600000-0000-4000-8000-00000000000c'
-const ROW_D = '65600000-0000-4000-8000-00000000000d'
-const ROW_E = '65600000-0000-4000-8000-00000000000e'
-const ROW_F = '65600000-0000-4000-8000-00000000000f'
-const ROWS = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]
+const TASK_GROUP_A = '65600000-0000-4000-8000-00000000000a'
+const TASK_GROUP_B = '65600000-0000-4000-8000-00000000000b'
+const TASK_GROUP_C = '65600000-0000-4000-8000-00000000000c'
+const TASK_GROUP_D = '65600000-0000-4000-8000-00000000000d'
+const TASK_GROUP_E = '65600000-0000-4000-8000-00000000000e'
+const TASK_GROUP_F = '65600000-0000-4000-8000-00000000000f'
+const ROWS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
 
 const ROOT = 1
 const CHILD = 2
@@ -138,7 +138,7 @@ const ACTUAL_DURATION = 'ActualDuration'
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: `task ${over.uid}`,
     start: null,
@@ -182,7 +182,7 @@ function fixtureDocument(): Document {
         task({
           uid: CHILD,
           name: 'Child',
-          wbsParentUid: ROOT,
+          parentTaskUid: ROOT,
           start: '2026-04-08',
           finish: '2026-04-10',
           actualStart: '2026-04-08',
@@ -208,12 +208,12 @@ function fixtureDocument(): Document {
         minHeight: null,
       })),
       taskGroupMembers: [
-        { taskUid: ROOT, groupId: ROW_A },
-        { taskUid: PAUSED, groupId: ROW_B },
-        { taskUid: CHILD, groupId: ROW_C },
-        { taskUid: STONE, groupId: ROW_D },
-        { taskUid: OTHER, groupId: ROW_E },
-        { taskUid: HALTED, groupId: ROW_F },
+        { taskUid: ROOT, groupId: TASK_GROUP_A },
+        { taskUid: PAUSED, groupId: TASK_GROUP_B },
+        { taskUid: CHILD, groupId: TASK_GROUP_C },
+        { taskUid: STONE, groupId: TASK_GROUP_D },
+        { taskUid: OTHER, groupId: TASK_GROUP_E },
+        { taskUid: HALTED, groupId: TASK_GROUP_F },
       ],
       taskVisuals: [
         { taskUid: STONE, shapeKind: 'milestone', milestoneGlyph: 'diamond', fillColor: null, strokeColor: null, strokeWidthPx: null },
@@ -343,12 +343,12 @@ const planEndOf = (loop: FrameLoop, uid: number): Point => {
 }
 
 const groundOf = (loop: FrameLoop): Point => {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
-const drawnRow = (loop: FrameLoop, groupId: string): RowPlacement => {
-  const found = frameOf(loop).layout.rows.find((one) => one.groupId === groupId)
+const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
   return found
 }
@@ -358,7 +358,7 @@ const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 // WHY: a travel of whole days across, and from the row `from` down to the row `to` (both drawn rows).
 const travel = (loop: FrameLoop, days: number, from: string, to: string): Point => ({
   x: days * pxPerDay(loop),
-  y: drawnRow(loop, to).y - drawnRow(loop, from).y,
+  y: drawnTaskGroup(loop, to).y - drawnTaskGroup(loop, from).y,
 })
 
 const click = (built: Stage, at: Point, modifiers: Partial<InputModifiers> = {}): void => {
@@ -463,7 +463,7 @@ function contextOf(built: Stage, selection: Selection): InputContext {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-04-01',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -511,22 +511,22 @@ describe('MK-16 / T-270: a Shift-only body drag moves rows and keeps the dates (
 
   it('MK-16 / T-270: 3 days right and 1 row down writes no setTaskPlanDates and moves the task to the next row', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), SHIFT)
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT)
     expect(kindsOf(done.writes)).not.toContain('setTaskPlanDates')
     const moves = done.writes.filter((one) => loose(one)['kind'] === 'moveTaskToTaskGroup')
     expect(moves.length, 'MK-16: the row move is written').toBeGreaterThan(0)
-    expect(JSON.stringify(moves)).toContain(ROW_B)
+    expect(JSON.stringify(moves)).toContain(TASK_GROUP_B)
   })
 
   it('MK-16 / T-270 contrast: the same drag without Shift writes setTaskPlanDates', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), {})
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), {})
     expect(kindsOf(done.writes)).toContain('setTaskPlanDates')
   })
 
   it('MK-16 / SL-4: a Shift drag from an unselected task keeps both selected after the release', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, OTHER), travel(built.loop, -2, ROW_E, ROW_F), SHIFT)
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, OTHER), travel(built.loop, -2, TASK_GROUP_E, TASK_GROUP_F), SHIFT)
     expect(kindsOf(done.writes)).not.toContain('setTaskPlanDates')
     expect(uidsOf(done.selection)).toEqual([ROOT, OTHER])
   })
@@ -537,12 +537,12 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), SHIFT)
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT)
     const after = taskOf(built, ROOT)
-    expect(groupOf(built.loop.document(), ROOT), 'MK-16: the task moves one row down').toBe(ROW_B)
+    expect(groupOf(built.loop.document(), ROOT), 'MK-16: the task moves one row down').toBe(TASK_GROUP_B)
     expect(datesOf(after), 'T-270: the plan dates do not change').toEqual(datesOf(before))
     expect(actualsOf(after), 'T-270: the actual does not change').toEqual(actualsOf(before))
-    expect(groupOf(built.loop.document(), CHILD), 'CY-6: an unselected descendant does not move').toBe(ROW_C)
+    expect(groupOf(built.loop.document(), CHILD), 'CY-6: an unselected descendant does not move').toBe(TASK_GROUP_C)
     expect(uidsOf(built.selection()), 'T-270: the selection stays').toEqual([ROOT])
   })
 
@@ -550,9 +550,9 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, -4, ROW_A, ROW_C), SHIFT)
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, -4, TASK_GROUP_A, TASK_GROUP_C), SHIFT)
     const after = taskOf(built, ROOT)
-    expect(groupOf(built.loop.document(), ROOT)).toBe(ROW_C)
+    expect(groupOf(built.loop.document(), ROOT)).toBe(TASK_GROUP_C)
     expect(datesOf(after)).toEqual(datesOf(before))
     expect(actualsOf(after)).toEqual(actualsOf(before))
   })
@@ -561,9 +561,9 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), {})
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), {})
     const after = taskOf(built, ROOT)
-    expect(groupOf(built.loop.document(), ROOT)).toBe(ROW_B)
+    expect(groupOf(built.loop.document(), ROOT)).toBe(TASK_GROUP_B)
     expect(day(after.start), 'PE-1: the plan moves without Shift').not.toBe(day(before.start))
   })
 
@@ -572,10 +572,10 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     selectRoot(built)
     const rootBefore = taskOf(built, ROOT)
     const otherBefore = taskOf(built, OTHER)
-    drag(built, bodyOf(built.loop, OTHER), travel(built.loop, 2, ROW_E, ROW_F), SHIFT)
+    drag(built, bodyOf(built.loop, OTHER), travel(built.loop, 2, TASK_GROUP_E, TASK_GROUP_F), SHIFT)
     const document = built.loop.document()
-    expect(groupOf(document, OTHER), 'the pressed task moves one row').toBe(ROW_F)
-    expect(groupOf(document, ROOT), 'the rest of the selection moves the same rows').toBe(ROW_B)
+    expect(groupOf(document, OTHER), 'the pressed task moves one row').toBe(TASK_GROUP_F)
+    expect(groupOf(document, ROOT), 'the rest of the selection moves the same rows').toBe(TASK_GROUP_B)
     expect(datesOf(taskOf(built, ROOT))).toEqual(datesOf(rootBefore))
     expect(datesOf(taskOf(built, OTHER))).toEqual(datesOf(otherBefore))
     expect(actualsOf(taskOf(built, OTHER))).toEqual(actualsOf(otherBefore))
@@ -608,10 +608,10 @@ describe('SL-4 / SL-7a: a Shift drag of an end narrows and resizes, as before', 
     selectRootAndOther(built)
     const rootBefore = taskOf(built, ROOT)
     const otherBefore = taskOf(built, OTHER)
-    drag(built, planEndOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_A), SHIFT)
+    drag(built, planEndOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_A), SHIFT)
     expect(uidsOf(built.selection()), 'SL-7a: narrowed to the grabbed one').toEqual([ROOT])
     expect(day(taskOf(built, ROOT).finish), 'PE-3: the end lands on the release day').not.toBe(day(rootBefore.finish))
-    expect(groupOf(built.loop.document(), ROOT)).toBe(ROW_A)
+    expect(groupOf(built.loop.document(), ROOT)).toBe(TASK_GROUP_A)
     expect(taskOf(built, OTHER)).toEqual(otherBefore)
   })
 })
@@ -623,19 +623,19 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), CTRL_SHIFT).pressRow).toBe('PTD-7')
   })
 
-  it('CY-5: a Ctrl + Shift drag 3 days right and 1 row down writes pasteTaskSubtree with dayShift 0', () => {
+  it('CY-5: a Ctrl + Shift drag 3 days right and 1 row down writes pasteTasks with dayShift 0', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), CTRL_SHIFT)
-    expect(kindsOf(done.writes)).toEqual(['pasteTaskSubtree'])
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
+    expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
     const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number; groupIdOf: Record<number, string> }
     expect(landing.dayShift).toBe(0)
-    expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one row down').toBe(ROW_B)
+    expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one row down').toBe(TASK_GROUP_B)
   })
 
   it('CY-5 contrast: a Ctrl-only drag of the same travel carries a day shift of 3', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), CTRL)
-    expect(kindsOf(done.writes)).toEqual(['pasteTaskSubtree'])
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL)
+    expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
     const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number }
     expect(landing.dayShift).toBe(3)
   })
@@ -644,14 +644,14 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     const built = stage()
     selectRoot(built)
     const before = built.tasks()
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), CTRL_SHIFT)
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
     const after = built.tasks()
     // WHY: the WBS child was not chosen, so T-223 DU-1 does not copy it (CR-706).
     expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Root'])
     const rootCopy = copyNamed(before, after, 'Root')
     const source = before.find((one) => one.uid === ROOT) as Task
     expect(datesOf(rootCopy), 'CY-5: the copy has the same dates as its source').toEqual(datesOf(source))
-    expect(groupOf(built.loop.document(), rootCopy.uid)).toBe(ROW_B)
+    expect(groupOf(built.loop.document(), rootCopy.uid)).toBe(TASK_GROUP_B)
     expect(actualsOf(rootCopy), 'CY-7: the copy is unstarted').toEqual(UNSTARTED)
     expect(after.filter((one) => before.some((old) => old.uid === one.uid)), 'the sources do not move').toEqual(before)
   })
@@ -680,7 +680,7 @@ describe('PTD-1 / CY-2 / CY-1: Ctrl + Shift elsewhere is the pan', () => {
     const built = stage()
     selectRoot(built)
     const before = built.tasks()
-    drag(built, bodyOf(built.loop, OTHER), travel(built.loop, 3, ROW_E, ROW_F), CTRL_SHIFT)
+    drag(built, bodyOf(built.loop, OTHER), travel(built.loop, 3, TASK_GROUP_E, TASK_GROUP_F), CTRL_SHIFT)
     expect(built.tasks()).toEqual(before)
     expect(built.selection().items).toEqual([taskRef(ROOT)])
   })
@@ -695,22 +695,22 @@ describe('MK-12: Alt + drag has no assignment of its own', () => {
 
   it('MK-12: an Alt drag on a selected body writes no copy', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), ALT)
-    expect(kindsOf(done.writes)).not.toContain('pasteTaskSubtree')
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), ALT)
+    expect(kindsOf(done.writes)).not.toContain('pasteTasks')
   })
 })
 
 describe('CY-11 / T-270: Shift is read at the press', () => {
   it('CY-11 / T-270: pressed with Shift, released without it -- the dates are kept (translator)', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), SHIFT, {})
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT, {})
     expect(kindsOf(done.writes)).not.toContain('setTaskPlanDates')
     expect(kindsOf(done.writes)).toContain('moveTaskToTaskGroup')
   })
 
   it('CY-11 / T-270: pressed without Shift, released with it -- the dates move (translator)', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), {}, SHIFT)
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), {}, SHIFT)
     expect(kindsOf(done.writes)).toContain('setTaskPlanDates')
   })
 
@@ -718,8 +718,8 @@ describe('CY-11 / T-270: Shift is read at the press', () => {
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), SHIFT, {})
-    expect(groupOf(built.loop.document(), ROOT)).toBe(ROW_B)
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT, {})
+    expect(groupOf(built.loop.document(), ROOT)).toBe(TASK_GROUP_B)
     expect(datesOf(taskOf(built, ROOT))).toEqual(datesOf(before))
   })
 
@@ -727,15 +727,15 @@ describe('CY-11 / T-270: Shift is read at the press', () => {
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
-    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), {}, SHIFT)
-    expect(groupOf(built.loop.document(), ROOT)).toBe(ROW_B)
+    drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), {}, SHIFT)
+    expect(groupOf(built.loop.document(), ROOT)).toBe(TASK_GROUP_B)
     expect(day(taskOf(built, ROOT).start)).not.toBe(day(before.start))
   })
 
   it('CY-11 / CY-5: a Ctrl + Shift copy press released with Ctrl only still copies with dayShift 0', () => {
     const built = stage()
-    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, ROW_A, ROW_B), CTRL_SHIFT, CTRL)
-    expect(kindsOf(done.writes)).toEqual(['pasteTaskSubtree'])
+    const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT, CTRL)
+    expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
     expect((loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number }).dayShift).toBe(0)
   })
 })

@@ -9,7 +9,7 @@ import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import { unbroken } from '../contract/spec-table'
-import { rowDocument, taskOf } from './cr-541-stage'
+import { taskGroupDocument, taskOf } from './cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -38,7 +38,7 @@ const C = 203
 // WHY: April 2026 runs Mon 6, Tue 7, Wed 8, Thu 9, Fri 10, Mon 13, Tue 14, Wed 15 (a Monday-to-Friday calendar).
 // A is planned Mon 6 08:00 to Wed 8 17:00, B the next morning (Thu 9 to Fri 10), C the next working morning (Mon 13 to Tue 14).
 function chain(sourceFormat: 'grs' | 'pj12' | 'pj15', finishOfA: number): Document {
-  const raw = rowDocument([
+  const raw = taskGroupDocument([
     { id: 'r1', parentId: null },
     { id: 'r2', parentId: null },
     { id: 'r3', parentId: null },

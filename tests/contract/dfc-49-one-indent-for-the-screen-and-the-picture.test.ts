@@ -3,10 +3,10 @@
 import { describe, expect, it } from 'vitest'
 
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
-import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import { taskGroupPanelFromSchedule } from '../../src/adapter/screen-renderer/task-group-panel'
 import type {
-  RowTitle,
-  RowTitlePanel,
+  TaskGroupTitle,
+  TaskGroupPanel,
   ScreenView,
   ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -26,7 +26,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from './spec-table'
-import { rowNameFont, rowNameFontPx } from '../fixtures/row-name-font'
+import { taskGroupNameFont, taskGroupNameFontPx } from '../fixtures/task-group-name-font'
 import {
   DEFAULT_DISPLAY_RATIO,
   DEFAULT_DISPLAY_SCALE,
@@ -65,7 +65,7 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 
 const PANEL = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
-  rowTitlePanelWidth: 400, // see S-79
+  taskGroupPanelWidth: 400, // see S-79
   pinnedGroupIds: [], // see S-126
 })
 
@@ -76,15 +76,15 @@ const keyOf = (settings: DocumentSettings, key: string): number =>
 // see FR-039, T-252
 const drawnPanelOf = (settings: DocumentSettings): number =>
   Math.max(
-    keyOf(settings, 'rowTitlePanelWidth') * DEFAULT_DISPLAY_RATIO,
-    keyOf(settings, 'rowTitleIndent') * DEFAULT_DISPLAY_RATIO * keyOf(settings, 'maxGroupDepth') +
+    keyOf(settings, 'taskGroupPanelWidth') * DEFAULT_DISPLAY_RATIO,
+    keyOf(settings, 'taskGroupTitleIndent') * DEFAULT_DISPLAY_RATIO * keyOf(settings, 'maxGroupDepth') +
       S_138 * S_235 +
       26 * S_235 * 4,
   )
 
 // see FR-093, FR-039
 const drawnPerCharacterOf = (settings: DocumentSettings, depth: number): number =>
-  rowNameFontPx(depth) * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
+  taskGroupNameFontPx(depth) * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
 
 // see FR-029, T-252
 const DRAWN_GRAB_STRIP = S_138 * S_235 + S_218
@@ -110,7 +110,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -148,25 +148,25 @@ const titlesOfChain = (
   depth: number,
   label: string,
   settings: DocumentSettings,
-): readonly RowTitle[] => {
+): readonly TaskGroupTitle[] => {
   const ids = Array.from({ length: depth }, (_unused, index) => `g${index + 1}`)
   const groups = ids.map((id, index) =>
     groupOf({ id, parentId: index === 0 ? null : `g${index}`, label, order: index }),
   )
-  const panel: RowTitlePanel = rowTitlePanelFromSchedule(
+  const panel: TaskGroupPanel = taskGroupPanelFromSchedule(
     scheduleOf(groups),
     settings,
     emptySelection(),
     ROOT,
-    { ...READINGS, rowBoxes: ids.map((groupId, index) => ({ groupId, box: boxAt(index) })) },
+    { ...READINGS, taskGroupBoxes: ids.map((groupId, index) => ({ groupId, box: boxAt(index) })) },
   )
   return [...panel.pinnedTitles, ...panel.titles]
 }
 
-const deepestTitle = (depth: number, label: string, settings: DocumentSettings): RowTitle => {
+const deepestTitle = (depth: number, label: string, settings: DocumentSettings): TaskGroupTitle => {
   const found = titlesOfChain(depth, label, settings).filter((one) => one.groupId === `g${depth}`)
   expect(found.length, `exactly one title for g${depth}`).toBe(1)
-  return found[0] as RowTitle
+  return found[0] as TaskGroupTitle
 }
 
 /** @purity pure */
@@ -180,11 +180,11 @@ const keptOf = (settings: DocumentSettings, depth: number): number => {
 const DEPTHS = [1, 2, 3, 4, 5] as const
 
 
-describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () => {
+describe('DFC-49 / FR-085 -- the task group panel works the indent out once', () => {
   it.each(DEPTHS)(
     'gives a depth %i row `indentPx` of depth x `S-37`, and no other number',
     (depth) => {
-      const indent = keyOf(PANEL, 'rowTitleIndent')
+      const indent = keyOf(PANEL, 'taskGroupTitleIndent')
       expect(
         deepestTitle(depth, 'a row', PANEL).indentPx,
         'FR-039 の 表 T-252 の DS-1: 描く字下げは S-37 に描く比を掛けた値',
@@ -193,13 +193,13 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
   )
 
   it('sets each tier of a chain exactly one `S-37` further in than its parent', () => {
-    const indent = keyOf(PANEL, 'rowTitleIndent')
+    const indent = keyOf(PANEL, 'taskGroupTitleIndent')
     const byDepth = [...titlesOfChain(DEPTHS.length, 'a row', PANEL)].sort(
       (one, two) => one.depth - two.depth,
     )
     const steps = byDepth
       .slice(1)
-      .map((one, index) => one.indentPx - (byDepth[index] as RowTitle).indentPx)
+      .map((one, index) => one.indentPx - (byDepth[index] as TaskGroupTitle).indentPx)
     expect(steps).toEqual(
       byDepth
         .slice(1)
@@ -255,8 +255,8 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
-  const rowAreaWidth =
-    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
+  const taskGroupAreaWidth =
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidth
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -265,16 +265,16 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       width: EXPORT_SCREEN.width,
       height: canvasHeight,
     },
-    rowTitlePanel: {
+    taskGroupPanel: {
       x: 0,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: EXPORT_SETTINGS.rowTitlePanelWidth,
+      width: EXPORT_SETTINGS.taskGroupPanelWidth,
       height: canvasHeight,
     },
     timeRuler: {
-      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+      x: EXPORT_SETTINGS.taskGroupPanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: EXPORT_SETTINGS.rulerHeight,
     },
     propertiesPanel: {
@@ -283,16 +283,16 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       width: 0,
       height: canvasHeight,
     },
-    rowArea: {
-      x: EXPORT_SETTINGS.rowTitlePanelWidth,
+    taskGroupArea: {
+      x: EXPORT_SETTINGS.taskGroupPanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
 
-const PICTURE_ROW_NAME = 'a row that reaches the picture'
+const PICTURE_TASK_GROUP_NAME = 'a row that reaches the picture'
 
 const sceneIndentedBy = (indentPx: number): ExportScene => {
   const view: ScreenView = {
@@ -307,22 +307,22 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: {
+    taskGroupPanel: {
       pinnedTitles: [],
       titles: [
         {
           groupId: 'g1',
           depth: 1,
-          ...rowNameFont(1),
+          ...taskGroupNameFont(1),
           indentPx,
           box: {
             x: 0,
             y: 120,
-            width: EXPORT_SETTINGS.rowTitlePanelWidth,
+            width: EXPORT_SETTINGS.taskGroupPanelWidth,
             height: 60,
           },
-          label: PICTURE_ROW_NAME,
-          wholeLabel: PICTURE_ROW_NAME,
+          label: PICTURE_TASK_GROUP_NAME,
+          wholeLabel: PICTURE_TASK_GROUP_NAME,
           isLabelTruncated: false,
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
           isPinned: false,
@@ -350,12 +350,12 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
 
 /** @purity pure */
 const nameDrawnAt = (svg: string): number => {
-  const found = new RegExp(`<text([^<>]*)>${PICTURE_ROW_NAME}</text>`).exec(svg)
+  const found = new RegExp(`<text([^<>]*)>${PICTURE_TASK_GROUP_NAME}</text>`).exec(svg)
   if (found === null) {
-    throw new Error('the picture drew no element carrying the row name this scene handed it')
+    throw new Error('the picture drew no element carrying the task group name this scene handed it')
   }
   const x = Number.parseFloat(/\bx="([^"]*)"/.exec(found[1] ?? '')?.[1] ?? 'NaN')
-  if (!Number.isFinite(x)) throw new Error('the row name the picture drew states no x')
+  if (!Number.isFinite(x)) throw new Error('the task group name the picture drew states no x')
   return x
 }
 

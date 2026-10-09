@@ -13,7 +13,7 @@ import {
   boxOfRect,
   boxesOverlap,
   drawingDefault,
-  grabAreaRows,
+  grabAreaTaskGroups,
   markerBoxOf,
   numberIn,
   resumeBoxOf,
@@ -24,7 +24,7 @@ import {
 } from '../unit/cr-430-bench'
 
 const TASK_UID = 1
-const ROW_ID = 'sweep-row'
+const ROW_ID = 'sweep-task-group'
 const PLAN_START = '2026-04-06T00:00:00'
 const PLAN_FINISH = '2026-04-24T00:00:00'
 const LONG_NAME = 'a name far too long to sit inside the figure it belongs to'
@@ -53,7 +53,7 @@ const familyOf = (grabArea: string): string => {
   throw new Error(`table T-266 row ${grabArea} names no family this sweep knows: ${cell}`)
 }
 
-const FAMILY_BY_ROW: ReadonlyMap<string, string> = new Map(grabAreaRows().map((row) => [row, familyOf(row)]))
+const FAMILY_BY_ROW: ReadonlyMap<string, string> = new Map(grabAreaTaskGroups().map((row) => [row, familyOf(row)]))
 
 interface Turn {
   readonly planVisible: boolean
@@ -132,7 +132,7 @@ const taskOf = (turn: Turn): Task => {
         : { actualStart: '2026-04-10T00:00:00', stop: milestone ? '2026-04-10T00:00:00' : '2026-04-28T00:00:00', resumeValid: true }
   return {
     uid: TASK_UID,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: 1,
     name: turn.fits ? SHORT_NAME : LONG_NAME,
     start: PLAN_START,
@@ -173,7 +173,7 @@ interface Scene {
   readonly turn: Turn
   readonly drawn: TaskGeometry | null
   readonly geometry: ScheduleGeometry
-  readonly rowArea: Box
+  readonly taskGroupArea: Box
 }
 
 const sceneOf = (turn: Turn): Scene => {
@@ -183,12 +183,12 @@ const sceneOf = (turn: Turn): Scene => {
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   const drawn = geometry.tasks.find((one) => one.taskUid === TASK_UID) ?? null
-  const area = regions.rowArea
+  const area = regions.taskGroupArea
   return {
     turn,
     drawn,
     geometry,
-    rowArea: { x0: area.x, x1: area.x + area.width, y0: area.y, y1: area.y + area.height },
+    taskGroupArea: { x0: area.x, x1: area.x + area.width, y0: area.y, y1: area.y + area.height },
   }
 }
 
@@ -231,7 +231,7 @@ const dummyBoxesOf = (drawn: TaskGeometry): readonly Box[] =>
   }))
 
 const bandOf = (scene: Scene): Box | null => {
-  if (scene.drawn === null) return scene.rowArea
+  if (scene.drawn === null) return scene.taskGroupArea
   const parts: Box[] = labelBoxesOf(scene).map(([, box]) => box)
   for (const bar of [scene.drawn.plan, scene.drawn.actual, scene.drawn.milestoneFigure]) {
     const box = barBox(bar)
@@ -242,10 +242,10 @@ const bandOf = (scene: Scene): Box | null => {
   const margin = 16
   return {
     // WHY: from the row area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
-    x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.rowArea.x0),
-    x1: Math.min(Math.max(...parts.map((one) => one.x1)) + margin, scene.rowArea.x1 - 1),
-    y0: Math.max(Math.min(...parts.map((one) => one.y0)) - margin, scene.rowArea.y0 + 1),
-    y1: Math.min(Math.max(...parts.map((one) => one.y1)) + margin, scene.rowArea.y1 - 1),
+    x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.taskGroupArea.x0),
+    x1: Math.min(Math.max(...parts.map((one) => one.x1)) + margin, scene.taskGroupArea.x1 - 1),
+    y0: Math.max(Math.min(...parts.map((one) => one.y0)) - margin, scene.taskGroupArea.y0 + 1),
+    y1: Math.min(Math.max(...parts.map((one) => one.y1)) + margin, scene.taskGroupArea.y1 - 1),
   }
 }
 
@@ -302,7 +302,7 @@ const touches = (a: Box, b: Box): boolean => a.x0 <= b.x1 && b.x0 <= a.x1 && a.y
 // WHY: a bar the author cannot see -- at the high end of the zoom one day is
 // WHY: over a thousand px wide, and most of the figure is off the right edge.
 const showsInFrame = (scene: Scene, family: string): boolean =>
-  scene.drawn !== null && inkOf(scene.drawn, family).some((box) => touches(box, scene.rowArea))
+  scene.drawn !== null && inkOf(scene.drawn, family).some((box) => touches(box, scene.taskGroupArea))
 
 // see FR-104, FR-108, FR-018
 const wantedIn = (scene: Scene): readonly string[] => {

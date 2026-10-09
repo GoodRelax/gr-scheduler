@@ -76,7 +76,7 @@ function importedDocument(): Document {
 }
 
 /** @purity pure */
-function rowY(built: Stage, uid: number): number {
+function taskGroupY(built: Stage, uid: number): number {
   const box = planBox(built.loop, uid)
   return (box.y0 + box.y1) / 2
 }
@@ -84,7 +84,7 @@ function rowY(built: Stage, uid: number): number {
 /** @purity non-pure */
 function grabAndRelease(built: Stage, uid: number, grabArea: string, toDay: number): void {
   const frame = frameOf(built.loop)
-  const from = pointAnswering(scanGrabAreas(frame.geometry, uid, frame.rowArea), grabArea)
+  const from = pointAnswering(scanGrabAreas(frame.geometry, uid, frame.taskGroupArea), grabArea)
   built.drag(from.x, from.y, xOfDay(built.loop, april(toDay)), from.y)
 }
 
@@ -96,7 +96,7 @@ function changed(before: Task, after: Task, column: keyof Task): boolean {
 describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the side times', () => {
   it('WT-1 / S-482: the new task starts at 08:00:00 when defaultStartTime is null', () => {
     const built = stage(grsDocument())
-    const y = rowY(built, BAR)
+    const y = taskGroupY(built, BAR)
     built.pressEntry('Command Palette', 'IC-23')
     built.drag(xOfDay(built.loop, april(20)), y, xOfDay(built.loop, april(24)), y)
     const made = built.loop.document().schedule.tasks.filter((one) => !TASKS.some((held) => held['uid'] === one.uid))
@@ -106,7 +106,7 @@ describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the
 
   it('WT-2 / S-483: the new task finishes at 17:00:00 when defaultFinishTime is null', () => {
     const built = stage(grsDocument())
-    const y = rowY(built, BAR)
+    const y = taskGroupY(built, BAR)
     built.pressEntry('Command Palette', 'IC-23')
     built.drag(xOfDay(built.loop, april(20)), y, xOfDay(built.loop, april(24)), y)
     const made = built.loop.document().schedule.tasks.filter((one) => !TASKS.some((held) => held['uid'] === one.uid))
@@ -116,7 +116,7 @@ describe('X-1 WT-1 / WT-2: a task placed on the ground (IC-23, FR-083) takes the
 
   it('AT-154 / AT-155: with defaultStartTime 09:00:00 the new task is written at 09:00:00 .. 18:00:00', () => {
     const built = stage(grsDocument(ownTimes))
-    const y = rowY(built, BAR)
+    const y = taskGroupY(built, BAR)
     built.pressEntry('Command Palette', 'IC-23')
     built.drag(xOfDay(built.loop, april(20)), y, xOfDay(built.loop, april(24)), y)
     const made = built.loop.document().schedule.tasks.filter((one) => !TASKS.some((held) => held['uid'] === one.uid))
@@ -225,7 +225,7 @@ describe('X-1 WT-3 / WT-4 / WT-5: actuals placed by their grab areas take the si
   })
 })
 
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
 /** @purity pure */
 function edited(document: Document, command: DocumentCommand): Document {
@@ -274,7 +274,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
   it('WT-6: a highlight box placed (IC-36) starts at 00:00:00', () => {
     const built = stage(grsDocument())
     built.pressEntry('Command Palette', 'IC-36')
-    built.drag(xOfDay(built.loop, april(20)), rowY(built, BAR), xOfDay(built.loop, april(22)), rowY(built, MILESTONE))
+    built.drag(xOfDay(built.loop, april(20)), taskGroupY(built, BAR), xOfDay(built.loop, april(22)), taskGroupY(built, MILESTONE))
     const boxes = built.loop.document().schedule.highlightBoxes
     expect(boxes.length, 'premise: the drag placed one highlight box').toBe(1)
     expect(timeOf(boxes[0]?.startDate)).toBe(DAY_START)
@@ -283,7 +283,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
   it('WT-7: a highlight box placed (IC-36) ends at 23:59:00', () => {
     const built = stage(grsDocument())
     built.pressEntry('Command Palette', 'IC-36')
-    built.drag(xOfDay(built.loop, april(20)), rowY(built, BAR), xOfDay(built.loop, april(22)), rowY(built, MILESTONE))
+    built.drag(xOfDay(built.loop, april(20)), taskGroupY(built, BAR), xOfDay(built.loop, april(22)), taskGroupY(built, MILESTONE))
     const boxes = built.loop.document().schedule.highlightBoxes
     expect(boxes.length, 'premise: the drag placed one highlight box').toBe(1)
     expect(timeOf(boxes[0]?.endDate)).toBe(DAY_END)
@@ -292,7 +292,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
   it('WT-8: a comment box placed (IC-35) is anchored at 00:00:00', () => {
     const built = stage(grsDocument(ownTimes))
     built.pressEntry('Command Palette', 'IC-35')
-    built.click(xOfDay(built.loop, april(21)), rowY(built, BAR))
+    built.click(xOfDay(built.loop, april(21)), taskGroupY(built, BAR))
     const boxes = built.loop.document().schedule.commentBoxes
     expect(boxes.length, 'premise: the press placed one comment box').toBe(1)
     expect(timeOf(boxes[0]?.anchorDate)).toBe(DAY_START)
@@ -304,7 +304,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
     built.send({
       kind: 'wheel',
       x: 700,
-      y: rowY(built, BAR),
+      y: taskGroupY(built, BAR),
       modifiers: { ctrl: false, shift: true, alt: false, meta: false },
       notches: 3,
       scrollPx: { x: 300, y: 0 },

@@ -154,14 +154,14 @@ const TASKS: readonly TaskSpec[] = [
   { uid: 4, name: 'Charlie', state: 'resumePlanned', percent: 25 },
   { uid: 5, name: 'Delta', state: 'resumeUnknown', percent: 7 },
 ]
-const G_ROW = 'g-row'
+const G_TASK_GROUP = 'g-task-group'
 
 const SCHEDULE = {
   ...TEMPLATE.schedule,
   tasks: TASKS.map((spec) => ({
     ...firstOf('tasks'),
     uid: spec.uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: spec.uid,
     name: spec.name,
     start: D(`2026-04-0${spec.uid}`),
@@ -172,8 +172,8 @@ const SCHEDULE = {
     notes: null,
     ...STATE_FIELDS[spec.state],
   })),
-  taskGroups: [{ ...firstOf('taskGroups'), id: G_ROW, parentId: null, order: 0, label: 'Row', derivedFromTaskUid: null, treeState: 'expanded' }],
-  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, groupId: G_ROW })),
+  taskGroups: [{ ...firstOf('taskGroups'), id: G_TASK_GROUP, parentId: null, order: 0, label: 'Row', derivedFromTaskUid: null, treeState: 'expanded' }],
+  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, groupId: G_TASK_GROUP })),
   resources: [],
   assignments: [],
   commentBoxes: [],
@@ -267,7 +267,7 @@ const REPORT: DelayDiagnosticsReport = {
     { uid: 4, row: 'DG-4' },
   ],
   settledPushOuts: [{ uid: 5, name: 'Echo', ...QUANTITIES }],
-  derivedWbsParents: [],
+  derivedParentTasks: [],
   lateDays: [],
 } as unknown as DelayDiagnosticsReport
 

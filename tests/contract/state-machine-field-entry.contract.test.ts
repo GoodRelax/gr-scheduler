@@ -182,8 +182,8 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
 
 // see HF-17
 function expectedEffect(branch: RawBranch, event: Loose): Loose {
-  if (branch.effect === 'bringCreatedRowIntoSight') {
-    return { type: 'bringCreatedRowIntoSight', groupId: (event['created'] as Loose)['groupId'] }
+  if (branch.effect === 'bringCreatedTaskGroupIntoSight') {
+    return { type: 'bringCreatedTaskGroupIntoSight', groupId: (event['created'] as Loose)['groupId'] }
   }
   throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
 }

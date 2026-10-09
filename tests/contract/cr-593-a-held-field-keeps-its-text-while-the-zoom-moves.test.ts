@@ -53,7 +53,7 @@ const B = 'cccccccc-0000-4000-8000-000000000002'
 function taskOf(uid: number): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `Task${uid}`,
     start: '2026-04-06T08:00:00',
@@ -142,8 +142,8 @@ const pointerAt = (phase: 'down' | 'up', x: number, y: number, clickCount = 1): 
   clickCount,
 })
 
-const partOn = (part: string, entry: string | null, rowGroupId: string | null = null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
+  ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 // see T-036
 function keyOfRow(id: string): KeyInput {
@@ -209,7 +209,7 @@ interface Bench {
   send(input: HumanInput): void
   drain(): void
   wheel(modifiers: Partial<InputModifiers>, notches: number): void
-  openRow(groupId: string): void
+  openTaskGroup(groupId: string): void
   view(): ScreenView
 }
 
@@ -252,7 +252,7 @@ function bench(document: Document): Bench {
     wheel: (modifiers, notches) => {
       const now = loop.current()
       if (now === null) throw new Error('the loop has drawn no frame')
-      const area = now.regions.rowArea
+      const area = now.regions.taskGroupArea
       const input: WheelInput = {
         kind: 'wheel',
         x: area.x + area.width / 2,
@@ -264,12 +264,12 @@ function bench(document: Document): Bench {
       send(input)
     },
     // see MK-13
-    openRow: (groupId) => {
-      const title = view().rowTitlePanel.titles.find((one) => one.groupId === groupId)
-      if (title === undefined) throw new Error(`the row title of ${groupId} is not drawn`)
+    openTaskGroup: (groupId) => {
+      const title = view().taskGroupPanel.titles.find((one) => one.groupId === groupId)
+      if (title === undefined) throw new Error(`the task group title of ${groupId} is not drawn`)
       const x = title.box.x + title.box.width / 2
       const y = title.box.y + title.box.height / 2
-      aimed = partOn('Row Title Panel', null, groupId)
+      aimed = partOn('Task Group Panel', null, groupId)
       send(pointerAt('down', x, y))
       send(pointerAt('up', x, y))
       send(pointerAt('down', x, y, 2))
@@ -301,7 +301,7 @@ function typeInto(built: Bench, row: string, text: string): FakeElement {
   return input
 }
 
-// WHY: the row name field names AT-53, not PR-18 (PR-18 says MK-13 names AT-53); PR-20 is the min height.
+// WHY: the task group name field names AT-53, not PR-18 (PR-18 says MK-13 names AT-53); PR-20 is the min height.
 const HALF_TYPED: readonly (readonly [string, string])[] = [
   ['AT-53', 'Row1 half-typ'],
   ['PR-20', '37'],
@@ -315,7 +315,7 @@ const scrollOf = (loop: FrameLoop): string => {
 
 function heldOn(row: string, text: string): { readonly built: Bench; readonly input: FakeElement; readonly label: unknown } {
   const built = bench(sceneOf())
-  built.openRow(A)
+  built.openTaskGroup(A)
   const label = built.loop.document().schedule.taskGroups.find((one) => one.id === A)?.label
   const input = typeInto(built, row, text)
   return { built, input, label }

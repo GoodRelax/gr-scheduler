@@ -30,7 +30,7 @@ import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-do
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 
 const rowOf = (table: string, id: string) => {
@@ -99,7 +99,7 @@ const settingsOf = (document: Document): string => JSON.stringify(document.docum
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const STEP_BYTES = Buffer.byteLength(JSON.stringify(START), 'utf8')
@@ -141,7 +141,7 @@ function bench(): Bench {
       writes += 1
       return applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
@@ -157,8 +157,8 @@ function bench(): Bench {
     undo: () =>
       replaceDocument(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
-          newGroupId: 'fresh-row',
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
+          newGroupId: 'fresh-task-group',
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           call: { row: 'RD-1' },
@@ -264,16 +264,16 @@ const KEYED_CASES: readonly OutsideCase[] = [
     before: [],
   },
   // WHY: CR-572 took the dual cursor (S-65) and the properties panel width out of the document,
-  // so table T-027 no longer has a row for the dual cursor and CM-67 writes the row title panel width alone.
+  // so table T-027 no longer has a row for the dual cursor and CM-67 writes the task group panel width alone.
   {
     undoRow: 'UN-16',
     commandRow: 'CM-67',
     settingRows: ['S-79'],
-    keys: ['rowTitlePanelWidth'],
+    keys: ['taskGroupPanelWidth'],
     expected: [200],
     command: {
       kind: commandKindOf('CM-67'),
-      rowTitlePanelWidth: 200,
+      taskGroupPanelWidth: 200,
     } as unknown as DocumentCommand,
     before: [],
   },

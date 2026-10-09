@@ -103,9 +103,9 @@ const RESOURCES = [1, 2]
 const COPIED = { kind: 'task', uids: [3] }
 
 const ROOT_VALUES: readonly Loose[] = [
-  { chosenRows: [], chosenResources: [], copiedForPaste: null },
-  { chosenRows: ROWS, chosenResources: RESOURCES, copiedForPaste: COPIED },
-  { chosenRows: ['group9'], chosenResources: [], copiedForPaste: { kind: 'row', groupId: 'group9' } },
+  { chosenTaskGroups: [], chosenResources: [], copiedForPaste: null },
+  { chosenTaskGroups: ROWS, chosenResources: RESOURCES, copiedForPaste: COPIED },
+  { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'row', groupId: 'group9' } },
 ]
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
@@ -120,13 +120,13 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   selectionCleared: [{}],
   // WHY: the same landing prunes the chosen rows (FR-085), so each variant carries what remains.
   selectionPruned: [
-    { remainingObjects: PICKED, chosenRows: ROWS },
-    { remainingObjects: OTHER_PICK, chosenRows: ['group2'] },
-    { remainingObjects: NOTHING, chosenRows: [] },
+    { remainingObjects: PICKED, chosenTaskGroups: ROWS },
+    { remainingObjects: OTHER_PICK, chosenTaskGroups: ['group2'] },
+    { remainingObjects: NOTHING, chosenTaskGroups: [] },
   ],
   createdTaskSelected: [{ createdTaskUid: 3 }, { createdTaskUid: 8 }],
-  rowsPicked: [{ chosenRows: ROWS }, { chosenRows: ['group3'] }, { chosenRows: [] }],
-  createdRowSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
+  taskGroupsPicked: [{ chosenTaskGroups: ROWS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
+  createdTaskGroupSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
   copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'row', groupId: 'group3' } }],
 }
@@ -195,13 +195,13 @@ function expectedSelected(event: Loose): { items: unknown; ordered?: unknown; sa
 }
 
 function expectedRoot(event: Loose, before: Loose): Loose {
-  const kept = { chosenRows: before['chosenRows'], chosenResources: before['chosenResources'], copiedForPaste: before['copiedForPaste'] }
+  const kept = { chosenTaskGroups: before['chosenTaskGroups'], chosenResources: before['chosenResources'], copiedForPaste: before['copiedForPaste'] }
   if (pick(SELECTION.root.transitions[String(event['type'])], event) === undefined) return kept
   switch (event['type']) {
-    case 'rowsPicked':
-      return { ...kept, chosenRows: event['chosenRows'] }
-    case 'createdRowSelected':
-      return { ...kept, chosenRows: [event['createdGroupId']] }
+    case 'taskGroupsPicked':
+      return { ...kept, chosenTaskGroups: event['chosenTaskGroups'] }
+    case 'createdTaskGroupSelected':
+      return { ...kept, chosenTaskGroups: [event['createdGroupId']] }
     case 'resourcesPicked':
       return { ...kept, chosenResources: event['chosenResources'] }
     case 'copyTaken':
@@ -209,9 +209,9 @@ function expectedRoot(event: Loose, before: Loose): Loose {
     // see IN-4, SK-19, FR-085
     case 'selectionEscapePressed':
     case 'selectionSettleKeyPressed':
-      return { ...kept, chosenRows: [] }
+      return { ...kept, chosenTaskGroups: [] }
     case 'selectionPruned':
-      return { ...kept, chosenRows: event['chosenRows'] }
+      return { ...kept, chosenTaskGroups: event['chosenTaskGroups'] }
     default:
       throw new Error(`root cell for ${String(event['type'])} has no oracle`)
   }
@@ -267,7 +267,7 @@ describe('T-293 initial kinds: emptyScreenSession holds nothing selected and emp
 
   it('the root starts with no chosen rows, no chosen resources and nothing copied', () => {
     const root = selectionOf(emptyScreenSession)
-    expect([root['chosenRows'], root['chosenResources'], root['copiedForPaste']]).toEqual([[], [], null])
+    expect([root['chosenTaskGroups'], root['chosenResources'], root['copiedForPaste']]).toEqual([[], [], null])
   })
 })
 
@@ -320,7 +320,7 @@ const SAMPLE: Record<string, unknown> = {
 describe('SS-5: every event of the other regions leaves the selection region at the same reference', () => {
   const busy = withSelection({
     selectionState: { kind: 'objectsSelected', selectedObjects: PICKED },
-    chosenRows: ROWS,
+    chosenTaskGroups: ROWS,
     chosenResources: RESOURCES,
     copiedForPaste: COPIED,
   })

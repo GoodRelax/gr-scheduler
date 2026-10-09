@@ -37,7 +37,7 @@ export type FileFlowWriteForm = { readonly kind: 'save' } | { readonly kind: 'ex
 export interface FileFlowQuestion {
   readonly manner: string
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11'
-  readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
+  readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
 
 // WHY: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).

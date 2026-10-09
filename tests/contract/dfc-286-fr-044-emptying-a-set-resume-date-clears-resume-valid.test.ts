@@ -136,7 +136,7 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -239,7 +239,7 @@ const THE_TASK = 1
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
     uid: THE_TASK,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: 1,
     name: 'the one task',
     start: '2026-04-06',
@@ -329,7 +329,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
 } as unknown as ScreenViewReadings
 
 const ROOT: ScreenSession = {
@@ -403,7 +403,7 @@ const contextFor = (schedule: Schedule): InputContext => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: TODAY,
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -446,7 +446,7 @@ function afterSettling(task: Task, text: string): Document {
   )
   let document = documentOf(schedule)
   for (const command of commands) {
-    const result = editTask(document, command as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
+    const result = editTask(document, command as TaskCommand, DEFAULT_TASK_GROUP_NAME_FIXTURE)
     if (!result.ok) {
       throw new Error(
         `the settled value was refused: ${result.refusals

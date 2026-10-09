@@ -1,4 +1,4 @@
-// W3 spec-only tester 5: FR-039's unrounded floor comparison for the Row Title Panel width saved by a boundary drag.
+// W3 spec-only tester 5: FR-039's unrounded floor comparison for the Task Group Panel width saved by a boundary drag.
 
 // WHY: the clause is about pointer travel in screen px, which only a real browser delivers.
 
@@ -128,7 +128,7 @@ test(`FR-039: "${FR_039_UNROUNDED}"`, async ({ browser }) => {
     root['documentSettings'][PANEL_WIDTH_KEY] = STORED
     root['documentSettings'][DISPLAY_SCALE_KEY] = DISPLAY_SCALE
     await openByDrop(page, JSON.stringify(root))
-    const panel = await page.locator('[data-role="Row Title Panel"]').boundingBox()
+    const panel = await page.locator('[data-role="Task Group Panel"]').boundingBox()
     expect(panel?.width ?? 0, 'premise: the panel is drawn at S-79 times the drawn ratio').toBeCloseTo(drawnAtPress, 2)
     const start = { x: Math.round((panel?.x ?? 0) + (panel?.width ?? 0)), y: Math.round((panel?.y ?? 0) + 300) }
     await pressMoveRelease(page, start, dx)

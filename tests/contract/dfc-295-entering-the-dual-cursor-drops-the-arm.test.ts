@@ -254,7 +254,7 @@ const partOf = (entry: string): ScreenPart => ({
   part: COMMAND_PALETTE,
   entry,
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -288,7 +288,7 @@ const BASE: InputContext = {
   isSurfaceStanding: false,
   dualCursorFollowing: null,
   today: '2026-03-01T00:00:00',
-  newGroupId: 'row-minted-outside',
+  newGroupId: 'task-group-minted-outside',
   newCommentBoxId: 'comment-box-minted-outside',
   newHighlightBoxId: 'highlight-box-minted-outside',
 }
@@ -333,7 +333,7 @@ const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
   { row: 'AR-4', armed: { kind: 'dependencyArmed' } },
   { row: 'AR-5', armed: { kind: 'commentBoxArmed' } },
   { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } },
-  { row: 'AR-7', armed: { kind: 'wbsParentArmed' } },
+  { row: 'AR-7', armed: { kind: 'parentTaskArmed' } },
 ]
 
 const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })

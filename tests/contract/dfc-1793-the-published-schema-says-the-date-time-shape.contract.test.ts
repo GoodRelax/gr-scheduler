@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
-import { rowDocument } from '../unit/cr-541-stage'
+import { taskGroupDocument } from '../unit/cr-541-stage'
 import { specTable, unbroken } from './spec-table'
 
 const READ = (...parts: string[]): string => readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
@@ -93,7 +93,7 @@ describe('Chapter 6.2 (MUST): the pattern is the xsd:dateTime spelling, with fra
 describe('Chapter 6.2 (MUST NOT): the pattern is shown, not enforced, on the read path', () => {
   // WHY: the schema says the shape; FR-023 reads the day, so a date-only scroll date is still opened.
   it('a document whose scrollDate is a date alone still opens', () => {
-    const raw = rowDocument([{ id: 'r1', parentId: null }])
+    const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
     raw['documentSettings'].scrollDate = '2026-04-01'
     expect(documentFromJson(JSON.stringify(raw)).ok).toBe(true)
   })

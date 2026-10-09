@@ -71,7 +71,7 @@ function startupMarginPx(): number {
 }
 
 // see OP-10, S-534, S-177
-// WHY: the day under the Row Area's left edge and the fraction into it, S-534 left of the first day.
+// WHY: the day under the Task Group Area's left edge and the fraction into it, S-534 left of the first day.
 /** @purity pure */
 function dayLeftOfFirstDay(
   firstDay: string,
@@ -116,7 +116,7 @@ function viewSettings(
   regions: ScreenRegions,
   fromTemplate: boolean,
   runDay: string,
-  rowControlsHeightPx: number | undefined,
+  taskGroupControlsHeightPx: number | undefined,
 ): ViewSettings {
   if (storedNamesAPlace(held, stored)) return { settings: stored, isAtStoredZoom: true }
 
@@ -139,7 +139,7 @@ function viewSettings(
       min: NOT_STORED_ZOOM_BOUNDS['S-97'],
       max: NOT_STORED_ZOOM_BOUNDS['S-98'],
     },
-    rowControlsHeightPx,
+    taskGroupControlsHeightPx,
   )
   return {
     settings: {
@@ -201,7 +201,7 @@ export function heldViewPlaceOf(
       regions,
       fromStartupTemplate,
       readToday(),
-      hands.readEnvironment().rowControlsHeightPx,
+      hands.readEnvironment().taskGroupControlsHeightPx,
     )
     fitHeldForNoPlace = {
       environment: hands.readEnvironment(),

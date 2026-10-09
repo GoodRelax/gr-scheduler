@@ -14,8 +14,8 @@ import {
   dummiesOf,
   fadeHandlesOf,
   grabAt,
-  grabRow,
-  grabRows,
+  grabTaskGroup,
+  grabTaskGroups,
   grabSettingIds,
   markerOf,
   ownerOf,
@@ -85,7 +85,7 @@ const sceneKindOf = (shape: string): ShapeKind => {
 const RECTANGLE = sceneOf('rectangle', { progressMarkerVisible: true })
 const ARROW = sceneOf('arrow', { progressMarkerVisible: true })
 const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
-// WHY: the same three Tasks drawn wider, so the line's successor lies wholly right of the Row Area
+// WHY: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Area
 // WHY: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
 const ELIDED = sceneOf('rectangle', { progressMarkerVisible: true, zoomX: 16 })
 
@@ -120,7 +120,7 @@ const answersOf = (kind: SceneKind): ReadonlySet<string> => {
 
 describe('table T-266 -- the manuscript shape the 23 rows and the 42 values make', () => {
   it(`holds one row per target, GA-1 through GA-22 and GA-24: ${T_266_ONE_TARGET_A_ROW}`, () => {
-    expect(grabRows().map((row) => row.id)).toEqual(EXPECTED_ROW_IDS)
+    expect(grabTaskGroups().map((row) => row.id)).toEqual(EXPECTED_ROW_IDS)
   })
 
   it(`names 42 values across the 横 and 縦 columns: ${T_266_VALUES_LIVE_IN_T_206}`, () => {
@@ -129,13 +129,13 @@ describe('table T-266 -- the manuscript shape the 23 rows and the 42 values make
   })
 
   it(`gives the continuation mark its own value, S-363: ${T_303_MARK_IS_PART_OF_THE_LINE}`, () => {
-    expect(grabRow('GA-24').settingIds, T_303_MARK_IS_PART_OF_THE_LINE).toEqual(['S-363'])
-    expect(grabRow('GA-24').anchor, T_303_MARK_IS_PART_OF_THE_LINE).toContain(ELIDED_MARK)
+    expect(grabTaskGroup('GA-24').settingIds, T_303_MARK_IS_PART_OF_THE_LINE).toEqual(['S-363'])
+    expect(grabTaskGroup('GA-24').anchor, T_303_MARK_IS_PART_OF_THE_LINE).toContain(ELIDED_MARK)
   })
 
   it(`gives every one of the 42 exactly one owning row: ${T_266_NO_OTHER_ROW}`, () => {
     for (const settingId of grabSettingIds()) {
-      const owners = grabRows().filter((row) => row.settingIds.includes(settingId))
+      const owners = grabTaskGroups().filter((row) => row.settingIds.includes(settingId))
       expect(owners.map((one) => one.id), `${settingId}: ${T_266_NO_OTHER_ROW}`).toHaveLength(1)
     }
   })
@@ -147,7 +147,7 @@ describe('table T-266 -- the manuscript shape the 23 rows and the 42 values make
   })
 
   it.each(EXPECTED_ROW_IDS)('%s names a value of its own unless its grab is the drawn shape itself', (id) => {
-    const row = grabRow(id)
+    const row = grabTaskGroup(id)
     const drawnShapeItself = row.across.includes('描いた形そのもの')
     expect(row.settingIds.length > 0, `${id} (${row.across}): ${T_266_ONE_TARGET_A_ROW}`).toBe(!drawnShapeItself)
   })
@@ -180,7 +180,7 @@ describe(`table T-266 -- every row is reachable with a pointer: ${FR_104_EVERY_T
   })
 
   it.each(EXPECTED_ROW_IDS)('%s answers somewhere over the shape it belongs to', (id) => {
-    const kind = sceneKindOfRow(grabRow(id))
+    const kind = sceneKindOfRow(grabTaskGroup(id))
     expect([...answersOf(kind)].sort(), `${id} (${kind}): ${FR_104_OWN_MARGIN}`).toContain(id)
   })
 })
@@ -369,8 +369,8 @@ describe('GA-5 / GA-6 -- the dummy of a rectangle that has not started', () => {
   })
 
   it(`keeps the dummy values apart from the actual values, equal by default: ${T_266_DUMMY_OWN_VALUES}`, () => {
-    expect(grabRow('GA-5').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-262', 'S-263', 'S-264'])
-    expect(grabRow('GA-3').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-256', 'S-257', 'S-258'])
+    expect(grabTaskGroup('GA-5').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-262', 'S-263', 'S-264'])
+    expect(grabTaskGroup('GA-3').settingIds, T_266_DUMMY_OWN_VALUES).toEqual(['S-256', 'S-257', 'S-258'])
     expect(defaultOf('S-262'), T_266_DUMMY_OWN_VALUES).toBe(defaultOf('S-256'))
     expect(defaultOf('S-263'), T_266_DUMMY_OWN_VALUES).toBe(defaultOf('S-257'))
     expect(defaultOf('S-264'), T_266_DUMMY_OWN_VALUES).toBe(defaultOf('S-258'))
@@ -507,8 +507,8 @@ describe('GA-19 -- the dependency line is grabbed from the edge of the drawn lin
   })
 
   it('reads S-285 from the drawn edge, so it is the only value the row names', () => {
-    expect(grabRow('GA-19').settingIds).toEqual(['S-285'])
-    expect(grabRow('GA-19').down.replace(/\s/g, ''), 'the dependency line has no band of its own').toBe('—')
+    expect(grabTaskGroup('GA-19').settingIds).toEqual(['S-285'])
+    expect(grabTaskGroup('GA-19').down.replace(/\s/g, ''), 'the dependency line has no band of its own').toBe('—')
   })
 })
 
@@ -560,8 +560,8 @@ describe('GA-21 / GA-22 -- the dummy of a line-only shape splits at the centre o
 describe('the columns table T-266 writes stay the columns the tests read', () => {
   it('keeps the 横 and 縦 columns, which is where the 42 values are named', () => {
     for (const id of EXPECTED_ROW_IDS) {
-      expect(grabRow(id).across, `${id} has no ${COLUMN_ACROSS} cell`).not.toBe('')
-      expect(typeof grabRow(id).down, `${id} has no ${COLUMN_DOWN} cell`).toBe('string')
+      expect(grabTaskGroup(id).across, `${id} has no ${COLUMN_ACROSS} cell`).not.toBe('')
+      expect(typeof grabTaskGroup(id).down, `${id} has no ${COLUMN_DOWN} cell`).toBe('string')
     }
   })
 })

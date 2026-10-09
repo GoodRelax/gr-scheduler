@@ -91,7 +91,7 @@ const built = (): Stage => stage(benchDocument({ progressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {
   const frame = frameOf(one.loop)
-  return scanGrabAreas(frame.geometry, uid, frame.rowArea)
+  return scanGrabAreas(frame.geometry, uid, frame.taskGroupArea)
 }
 
 const at = (one: Stage, uid: number, grabArea: string): Point => pointAnswering(scanOf(one, uid), grabArea)

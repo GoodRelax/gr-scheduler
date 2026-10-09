@@ -35,9 +35,9 @@ function entranceRuledBy(rule: string): string {
 // see HF-17
 const ADD_AT_SHALLOWEST = entranceRuledBy('HF-17')
 // see HF-12
-const FOLD_EVERY_ROW = entranceRuledBy('HF-12')
+const FOLD_EVERY_TASK_GROUP = entranceRuledBy('HF-12')
 // see HF-10
-const UNFOLD_EVERY_ROW = entranceRuledBy('HF-10')
+const UNFOLD_EVERY_TASK_GROUP = entranceRuledBy('HF-10')
 
 // WHY: resolved, not written -- the shell marks a properties-panel field with
 // the table T-058 row it edits, so this follows the manuscript if renumbered.
@@ -55,7 +55,7 @@ function columnRowOf(entity: string, column: string): string {
 }
 
 // see HF-14
-const ROW_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
+const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
 
 /** @purity pure */
 function wholeRow(table: SpecTable, id: string): string {
@@ -170,15 +170,15 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-interface DrawnRow {
+interface DrawnTaskGroup {
   readonly depth: number
   readonly name: string
 }
 
 // WHY: names come back cut -- FR-085 ends one that does not fit with an
-// ellipsis; see namesTheSameRow.
+// ellipsis; see namesTheSameTaskGroup.
 /** @purity semi-pure-b */
-async function drawnRows(page: Page): Promise<DrawnRow[]> {
+async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => ({
       depth: Number(row.getAttribute('data-depth')),
@@ -188,14 +188,14 @@ async function drawnRows(page: Page): Promise<DrawnRow[]> {
 }
 
 /** @purity pure */
-function describe(some: readonly DrawnRow[]): string {
+function describe(some: readonly DrawnTaskGroup[]): string {
   return some.map((one) => `${String(one.depth)}:${one.name}`).join(' | ')
 }
 
 // WHY: not a plain equality -- FR-085 ends a name that does not fit with an
 // ellipsis, so a drawn name is the whole of it or a head of it plus that mark.
 /** @purity pure */
-function namesTheSameRow(drawn: string, whole: string): boolean {
+function namesTheSameTaskGroup(drawn: string, whole: string): boolean {
   if (drawn === whole) return true
   return drawn.endsWith(ELLIPSIS) && whole.startsWith(drawn.slice(0, -1))
 }
@@ -295,9 +295,9 @@ test('the rows these cases are read from are still the rows that carry them', ()
   ).toContain('IN-5a')
 
   expect(
-    [ADD_AT_SHALLOWEST, FOLD_EVERY_ROW, UNFOLD_EVERY_ROW, WATERMARK_ENTRANCE],
+    [ADD_AT_SHALLOWEST, FOLD_EVERY_TASK_GROUP, UNFOLD_EVERY_TASK_GROUP, WATERMARK_ENTRANCE],
     'the four entrances these cases press are four different rows of table T-109',
-  ).toHaveLength(new Set([ADD_AT_SHALLOWEST, FOLD_EVERY_ROW, UNFOLD_EVERY_ROW, WATERMARK_ENTRANCE]).size)
+  ).toHaveLength(new Set([ADD_AT_SHALLOWEST, FOLD_EVERY_TASK_GROUP, UNFOLD_EVERY_TASK_GROUP, WATERMARK_ENTRANCE]).size)
 })
 
 // WHY: goes red if HF-17 adds a row and draws nothing, sends the field
@@ -308,15 +308,15 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
   const page = opened.page
   try {
     expect(
-      (await drawnRows(page)).length,
+      (await drawnTaskGroups(page)).length,
       'the build opens with rows drawn, so folding them away is a change',
     ).toBeGreaterThan(0)
 
     expect(
-      await pressEntrance(page, FOLD_EVERY_ROW),
-      `the entrance ${FOLD_EVERY_ROW} is on the screen`,
+      await pressEntrance(page, FOLD_EVERY_TASK_GROUP),
+      `the entrance ${FOLD_EVERY_TASK_GROUP} is on the screen`,
     ).toBe(true)
-    const folded = await drawnRows(page)
+    const folded = await drawnTaskGroups(page)
     expect(
       folded.length,
       `HF-12: every row is folded, the shallowest tier too, so none is drawn; saw ` +
@@ -328,22 +328,22 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
       `the entrance ${ADD_AT_SHALLOWEST} is on the screen`,
     ).toBe(true)
 
-    const after = await drawnRows(page)
+    const after = await drawnTaskGroups(page)
     expect(
       after.length,
       'HF-17 (MUST): the row that was raised is drawn, and not left in the document alone',
     ).toBeGreaterThan(0)
 
-    const panel = await panelState(page, ROW_NAME_COLUMN)
+    const panel = await panelState(page, TASK_GROUP_NAME_COLUMN)
     expect(panel.width, 'HF-14: the properties panel is put up').toBeGreaterThan(0)
-    expect(panel.hasField, `HF-14: the panel carries the ${ROW_NAME_COLUMN} field`).toBe(true)
-    expect(panel.focusedRow, `HF-14: the naming is asked for in ${ROW_NAME_COLUMN}`).toBe(
-      ROW_NAME_COLUMN,
+    expect(panel.hasField, `HF-14: the panel carries the ${TASK_GROUP_NAME_COLUMN} field`).toBe(true)
+    expect(panel.focusedRow, `HF-14: the naming is asked for in ${TASK_GROUP_NAME_COLUMN}`).toBe(
+      TASK_GROUP_NAME_COLUMN,
     )
 
     const named = panel.value ?? ''
     expect(
-      after.some((row) => namesTheSameRow(row.name, named)),
+      after.some((row) => namesTheSameTaskGroup(row.name, named)),
       `HF-17 (MUST NOT): the field is not sent on its own -- the row it names is drawn. ` +
         `The field holds ${JSON.stringify(named)}; the panel drew [${describe(after)}]`,
     ).toBe(true)
@@ -359,7 +359,7 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
   const opened = await openTheApp()
   const page = opened.page
   try {
-    const atOpening = await drawnRows(page)
+    const atOpening = await drawnTaskGroups(page)
     const shallowest = Math.min(...atOpening.map((row) => row.depth))
     expect(
       atOpening.some((row) => row.depth > shallowest),
@@ -367,15 +367,15 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
         `is a restriction; saw [${describe(atOpening)}]`,
     ).toBe(true)
 
-    await pressEntrance(page, FOLD_EVERY_ROW)
-    expect((await drawnRows(page)).length, 'HF-12: nothing is drawn now').toBe(0)
+    await pressEntrance(page, FOLD_EVERY_TASK_GROUP)
+    expect((await drawnTaskGroups(page)).length, 'HF-12: nothing is drawn now').toBe(0)
     await pressEntrance(page, ADD_AT_SHALLOWEST)
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(600)
     await takeThePanelToTheTop(page)
 
-    const after = await drawnRows(page)
+    const after = await drawnTaskGroups(page)
     expect(after.length, 'the panel is drawing rows again').toBeGreaterThan(0)
     expect(
       after.filter((row) => row.depth !== shallowest),
@@ -389,19 +389,19 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
 
 // WHY: the control for the case above -- from the same folded state, HF-10
 // does open every tier, or the case above could pass on a panel that cannot draw a deep row.
-test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_ROW} opens every tier`, async () => {
+test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_TASK_GROUP} opens every tier`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
   const page = opened.page
   try {
-    const atOpening = await drawnRows(page)
+    const atOpening = await drawnTaskGroups(page)
     const shallowest = Math.min(...atOpening.map((row) => row.depth))
 
-    await pressEntrance(page, FOLD_EVERY_ROW)
-    expect((await drawnRows(page)).length, 'HF-12: nothing is drawn now').toBe(0)
+    await pressEntrance(page, FOLD_EVERY_TASK_GROUP)
+    expect((await drawnTaskGroups(page)).length, 'HF-12: nothing is drawn now').toBe(0)
 
-    await pressEntrance(page, UNFOLD_EVERY_ROW)
-    const after = await drawnRows(page)
+    await pressEntrance(page, UNFOLD_EVERY_TASK_GROUP)
+    const after = await drawnTaskGroups(page)
     expect(
       after.some((row) => row.depth > shallowest),
       `HF-10 opens every tier, so rows below the shallowest one (${String(shallowest)}) are ` +

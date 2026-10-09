@@ -407,11 +407,11 @@ const INVARIANTS: readonly Invariant[] = [
       const nesting = nestingOf(
         schedule.tasks,
         (task) => task.uid,
-        (task) => task.wbsParentUid,
+        (task) => task.parentTaskUid,
       )
       return nesting.rings.map((ring) => ({
         at: '/schedule/tasks',
-        what: `wbsParentUid closes a ring over Task uids ${ring.join(', ')}`,
+        what: `parentTaskUid closes a ring over Task uids ${ring.join(', ')}`,
       }))
     },
   },

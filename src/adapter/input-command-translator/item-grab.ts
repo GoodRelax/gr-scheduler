@@ -32,7 +32,7 @@ import {
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   groupDepthThresholdOf,
-  type RowPlacement,
+  type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
@@ -40,7 +40,7 @@ import {
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
-import { treeWritesOf } from './row-tree-entrances'
+import { treeWritesOf } from './task-group-tree-entrances'
 import { namesAPlace, zoomOnScreen } from './zoom-and-fit'
 import {
   CONSUMED_ELSEWHERE,
@@ -55,9 +55,9 @@ import {
   dayFromSerial,
   dayShift,
   dayShifted,
-  drawnRowsCrossed,
-  drawnRowsOf,
-  grabRowOf,
+  drawnTaskGroupsCrossed,
+  drawnTaskGroupsOf,
+  grabTaskGroupOf,
   hasDraggedPastThreshold,
   isDateKeepingDrag,
   isScrollPositionInForce,
@@ -78,7 +78,7 @@ import {
 
 type FarEndGeometry = NonNullable<DependencyGeometry['continuation']>['far']
 
-const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
+const MK_13_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set([
   'GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-9', 'GA-12', 'GA-13', 'GA-14',
   'GA-15', 'GA-16', 'GA-17', 'GA-21', 'GA-22', 'GR-14',
 ])
@@ -116,7 +116,7 @@ export function commandFromGrab(
 
   // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
   // switch and reaches a second destination (for GA-6, a 0px actual).
-  if (MK_13_GRAB_ROWS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
+  if (MK_13_GRAB_TASK_GROUPS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
     return CONSUMED_ELSEWHERE
   }
 
@@ -133,7 +133,7 @@ export function commandFromGrab(
   if (item.kind !== 'task') return CONSUMED_ELSEWHERE
 
   const uid = item.taskUid
-  const grab = grabRowOf(hit)
+  const grab = grabTaskGroupOf(hit)
   switch (grab) {
     case 'GA-18':
       if (hasDraggedPastThreshold(press, release)) return markerPullWrite(context, release, uid)
@@ -225,7 +225,7 @@ function grabbedHitOf(press: PointerPress, context: InputContext): Hit | null {
 function doubleClickOf(hit: Hit): TranslatedInput | null {
   const item = hit.item
   if (item.kind !== 'task') return null
-  if (hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)) {
+  if (hit.grab === 'GR-10' || MK_13_GRAB_TASK_GROUPS.has(hit.grab)) {
     return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
   }
   if (hit.grab === 'GR-11') {
@@ -260,19 +260,19 @@ function continuationSend(context: InputContext, item: Hit['item']): TranslatedI
     successorUid: item.successorUid,
     landedTaskUid: continuation.farUid,
   }
-  const isDownOut = far.foldedRowId !== null || far.undrawnRowDepth !== null || !far.isDownInRowPlace
+  const isDownOut = far.foldedRowId !== null || far.undrawnTaskGroupDepth !== null || !far.isDownInTaskGroupPlace
   const sent =
-    far.isAcrossInRowArea && !isDownOut
+    far.isAcrossInTaskGroupArea && !isDownOut
       ? CONSUMED_ELSEWHERE
-      : changedInOrder([farRowRevealWrites(context, far.foldedRowId), farEndSendWrites(context, far, isDownOut)])
+      : changedInOrder([farTaskGroupRevealWrites(context, far.foldedRowId), farEndSendWrites(context, far, isDownOut)])
   return { ...sent, landingMarked }
 }
 
 // see EL-21, SJ-2, T-328
 /** @purity pure */
-function farRowRevealWrites(context: InputContext, foldedRowId: string | null): readonly DocumentCommand[] {
+function farTaskGroupRevealWrites(context: InputContext, foldedRowId: string | null): readonly DocumentCommand[] {
   if (foldedRowId === null) return []
-  return treeWritesOf(context, { type: 'rowRevealAsked', revealedRowId: foldedRowId })
+  return treeWritesOf(context, { type: 'taskGroupRevealAsked', revealedRowId: foldedRowId })
 }
 
 // see EL-11, EL-12, FR-046, AM-16, OP-10
@@ -283,10 +283,10 @@ function farEndSendWrites(
   isDownOut: boolean,
 ): readonly DocumentCommand[] {
   const settings = context.document.documentSettings
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
   const kept = isSeated ? settings : scrolledAnchor(context, 0, 0)
-  const across = far.isAcrossInRowArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
+  const across = far.isAcrossInTaskGroupArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: across.scrollDate,
@@ -294,8 +294,8 @@ function farEndSendWrites(
     scrollGroupId: isDownOut ? far.groupId : kept.scrollGroupId,
     scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
   } as const
-  const undrawnRowDepth = far.foldedRowId === null ? far.undrawnRowDepth : null
-  const zoom = farEndZoomWrites(context, undrawnRowDepth, context.isPictureAtStoredZoom ?? isSeated)
+  const undrawnTaskGroupDepth = far.foldedRowId === null ? far.undrawnTaskGroupDepth : null
+  const zoom = farEndZoomWrites(context, undrawnTaskGroupDepth, context.isPictureAtStoredZoom ?? isSeated)
   return isScrollPositionInForce(context, to) ? zoom : [...zoom, to]
 }
 
@@ -303,11 +303,11 @@ function farEndSendWrites(
 /** @purity pure */
 function farEndZoomWrites(
   context: InputContext,
-  undrawnRowDepth: number | null,
+  undrawnTaskGroupDepth: number | null,
   isAtStoredZoom: boolean,
 ): readonly DocumentCommand[] {
   // WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom goes with the place so it stays.
-  if (undrawnRowDepth === null && isAtStoredZoom) return []
+  if (undrawnTaskGroupDepth === null && isAtStoredZoom) return []
   const drawnZoom = zoomOnScreen(context)
   return [
     {
@@ -315,9 +315,9 @@ function farEndZoomWrites(
       zoomX: drawnZoom.x,
       // TRAP: only groupDepthThresholdOf; any other route can differ by one ulp from groupDepthLimit.
       zoomY:
-        undrawnRowDepth === null
+        undrawnTaskGroupDepth === null
           ? drawnZoom.y
-          : groupDepthThresholdOf(undrawnRowDepth, drawnSettingsOf(context.document.documentSettings)),
+          : groupDepthThresholdOf(undrawnTaskGroupDepth, drawnSettingsOf(context.document.documentSettings)),
     },
   ]
 }
@@ -398,11 +398,11 @@ function bodyMoveWrites(
   release: PointerInput,
   uid: number,
 ): readonly DocumentCommand[] {
-  const rows = drawnRowsOf(context.layout)
+  const taskGroups = drawnTaskGroupsOf(context.layout)
   const moving = movedTaskUids(context, uid, press)
   const boxes = isSelectionMoved(context, uid, press) ? selectedBoxesOf(context) : NO_BOXES
   const shift = draggedDayCount(context, press, release)
-  const crossed = clampedRowShift(context, rows, moving, boxes, drawnRowsCrossed(rows, press.at.y, release.y))
+  const crossed = clampedTaskGroupShift(context, taskGroups, moving, boxes, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
   const project = context.document.schedule.project
   const commands: DocumentCommand[] = []
   for (const each of moving) {
@@ -418,18 +418,18 @@ function bodyMoveWrites(
         finish: textOfFinishSide(dayShifted(finish, shift), project),
       })
     }
-    const at = rowIndexOfTask(context, rows, each)
-    const landed = at === null ? undefined : rows[at + crossed]
-    if (landed !== undefined && landed.groupId !== rowOfTask(context, each)) {
+    const at = taskGroupIndexOfTask(context, taskGroups, each)
+    const landed = at === null ? undefined : taskGroups[at + crossed]
+    if (landed !== undefined && landed.groupId !== taskGroupOfTask(context, each)) {
       commands.push({ kind: 'moveTaskToTaskGroup', uid: each, groupId: landed.groupId })
     }
   }
   for (const box of boxes.highlightBoxes) {
-    const write = highlightBoxShiftWrite(context, rows, box, shift, crossed)
+    const write = highlightBoxShiftWrite(context, taskGroups, box, shift, crossed)
     if (write !== null) commands.push(write)
   }
   for (const box of boxes.commentBoxes) {
-    const write = commentBoxShiftWrite(context, rows, box, shift, crossed)
+    const write = commentBoxShiftWrite(context, taskGroups, box, shift, crossed)
     if (write !== null) commands.push(write)
   }
   return commands
@@ -462,17 +462,17 @@ function selectedBoxesOf(context: InputContext): SelectedBoxes {
 /** @purity pure */
 function highlightBoxShiftWrite(
   context: InputContext,
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   box: HighlightBox,
   days: number,
   crossed: number,
 ): DocumentCommand | null {
   const start = dayOf(box.startDate)
   const end = dayOf(box.endDate)
-  const span = highlightRowSpanOf(context, rows, box)
+  const span = highlightTaskGroupSpanOf(context, taskGroups, box)
   if (start === null || end === null || span === null || (days === 0 && crossed === 0)) return null
-  const upper = rows[span.upperAt + crossed]
-  const lower = rows[span.lowerAt + crossed]
+  const upper = taskGroups[span.upperAt + crossed]
+  const lower = taskGroups[span.lowerAt + crossed]
   if (upper === undefined || lower === undefined) return null
   const { early, late } = orderedDays(start, end)
   return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
@@ -483,7 +483,7 @@ function highlightBoxShiftWrite(
 /** @purity pure */
 function commentBoxShiftWrite(
   context: InputContext,
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   box: CommentBox,
   days: number,
   crossed: number,
@@ -491,8 +491,8 @@ function commentBoxShiftWrite(
   if (box.anchorGroupId === null) return null
   const stood = dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
   if (stood === null) return null
-  const at = drawnRowIndexOf(rows, box.anchorGroupId)
-  const landed = at === null ? undefined : rows[at + crossed]
+  const at = drawnTaskGroupIndexOf(taskGroups, box.anchorGroupId)
+  const landed = at === null ? undefined : taskGroups[at + crossed]
   const groupId = landed === undefined ? box.anchorGroupId : landed.groupId
   if (days === 0 && groupId === box.anchorGroupId) return null
   const date = heldOrWritten(box.anchorDate, dayShifted(stood, days), textOfDayStart)
@@ -505,18 +505,18 @@ function draggedDayCount(context: InputContext, press: PointerPress, release: Po
 }
 
 /** @purity pure */
-function rowIndexOfTask(
+function taskGroupIndexOfTask(
   context: InputContext,
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   uid: number,
 ): number | null {
-  return drawnRowIndexOf(rows, rowOfTask(context, uid))
+  return drawnTaskGroupIndexOf(taskGroups, taskGroupOfTask(context, uid))
 }
 
 /** @purity pure */
-function drawnRowIndexOf(rows: readonly RowPlacement[], groupId: string | null): number | null {
+function drawnTaskGroupIndexOf(taskGroups: readonly TaskGroupPlacement[], groupId: string | null): number | null {
   if (groupId === null) return null
-  const at = rows.findIndex((one) => one.groupId === groupId)
+  const at = taskGroups.findIndex((one) => one.groupId === groupId)
   return at < 0 ? null : at
 }
 
@@ -529,42 +529,42 @@ function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: Ca
 // WHY: one shift for the whole selection: a per-item clamp would spread a selection that
 // started a row apart, and the table asks for the same number of rows for all of them.
 /** @purity pure */
-function clampedRowShift(
+function clampedTaskGroupShift(
   context: InputContext,
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   moving: readonly number[],
   boxes: SelectedBoxes,
   asked: number,
 ): number {
   const held: number[] = []
   for (const uid of moving) {
-    const at = rowIndexOfTask(context, rows, uid)
+    const at = taskGroupIndexOfTask(context, taskGroups, uid)
     if (at !== null) held.push(at)
   }
   for (const box of boxes.highlightBoxes) {
-    const span = highlightRowSpanOf(context, rows, box)
+    const span = highlightTaskGroupSpanOf(context, taskGroups, box)
     if (span !== null) held.push(span.upperAt, span.lowerAt)
   }
   for (const box of boxes.commentBoxes) {
-    const at = drawnRowIndexOf(rows, box.anchorGroupId)
+    const at = drawnTaskGroupIndexOf(taskGroups, box.anchorGroupId)
     if (at !== null) held.push(at)
   }
-  return shiftWithinRows(rows, held, asked)
+  return shiftWithinTaskGroups(taskGroups, held, asked)
 }
 
 // see CY-6
 // WHY: a held drag draws its result into the rows, so a release is measured on the rows the press saw.
 /** @purity pure */
 function layoutAtPressOf(context: InputContext, press: PointerPress): InputContext['layout'] {
-  const rows = press.layoutRowsAtPress
-  return rows === undefined ? context.layout : { ...context.layout, rows }
+  const taskGroups = press.layoutRowsAtPress
+  return taskGroups === undefined ? context.layout : { ...context.layout, taskGroups }
 }
 
 // see PE-1, CY-6
 /** @purity pure */
-function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
+function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
-  const room = { up: -Math.min(...held), down: rows.length - 1 - Math.max(...held) }
+  const room = { up: -Math.min(...held), down: taskGroups.length - 1 - Math.max(...held) }
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
@@ -577,34 +577,34 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...new Set(sources)]
-  const rows = drawnRowsOf(layoutAtPressOf(context, press))
+  const taskGroups = drawnTaskGroupsOf(layoutAtPressOf(context, press))
   const dayCount = draggedDayCount(context, press, release)
-  const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
-  const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
+  const heldTaskGroups = copied.flatMap((uid) => taskGroupIndexOfTask(context, taskGroups, uid) ?? [])
+  const crossed = shiftWithinTaskGroups(taskGroups, heldTaskGroups, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
   if (sources.length === 0 || (dayCount === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
   const groupIdOf: Record<number, string> = {}
   for (const uid of copied) {
-    const at = rowIndexOfTask(context, rows, uid)
-    const landed = at === null ? undefined : rows[at + crossed]
-    if (landed !== undefined && landed.groupId !== rowOfTask(context, uid)) groupIdOf[uid] = landed.groupId
+    const at = taskGroupIndexOfTask(context, taskGroups, uid)
+    const landed = at === null ? undefined : taskGroups[at + crossed]
+    if (landed !== undefined && landed.groupId !== taskGroupOfTask(context, uid)) groupIdOf[uid] = landed.groupId
   }
   const copyUidOf = pastedUidsOf(schedule, sources)
   const picked = selectionOfAll(sources.flatMap((uid) => {
     const copy = copyUidOf.get(uid)
     return copy === undefined ? [] : [{ kind: 'task' as const, uid: copy }]
   }))
-  const write: DocumentCommand = { kind: 'pasteTaskSubtree', sourceUids: sources, landing: { dayShift: dayCount, groupIdOf } }
+  const write: DocumentCommand = { kind: 'pasteTasks', sourceUids: sources, landing: { dayShift: dayCount, groupIdOf } }
   return acted({ kind: 'changeDocument', writes: [[write]], picked })
 }
 
 // see HB-5
 /** @purity pure */
-function nearestDrawnRowBoundary(rows: readonly RowPlacement[], y: number): number {
+function nearestDrawnTaskGroupBoundary(taskGroups: readonly TaskGroupPlacement[], y: number): number {
   let nearest = 0
   let nearestDistance = Number.POSITIVE_INFINITY
-  for (let at = 0; at <= rows.length; at++) {
-    const above = rows[at - 1]
-    const below = rows[at]
+  for (let at = 0; at <= taskGroups.length; at++) {
+    const above = taskGroups[at - 1]
+    const below = taskGroups[at]
     const gapTop = above === undefined ? Number.NEGATIVE_INFINITY : above.y + above.height
     const gapBottom = below === undefined ? Number.POSITIVE_INFINITY : below.y
     const distance = Math.max(Math.min(gapTop, gapBottom) - y, 0, y - Math.max(gapTop, gapBottom))
@@ -640,7 +640,7 @@ function draggedSidesOf(part: Extract<NonNullable<Hit['boxPart']>, { kind: 'corn
 }
 
 interface HeldRange {
-  readonly rows: readonly RowPlacement[]
+  readonly taskGroups: readonly TaskGroupPlacement[]
   readonly upperAt: number
   readonly lowerAt: number
   readonly early: CalendarDay
@@ -655,21 +655,21 @@ function grabPointRange(
   atPointer: number,
   releaseY: number,
 ): {
-  readonly upper: RowPlacement | undefined
-  readonly lower: RowPlacement | undefined
+  readonly upper: TaskGroupPlacement | undefined
+  readonly lower: TaskGroupPlacement | undefined
   readonly left: CalendarDay
   readonly right: CalendarDay
 } {
-  const { rows, upperAt, lowerAt, early, late } = held
+  const { taskGroups, upperAt, lowerAt, early, late } = held
   // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
   const dayBoundary = Math.round(atPointer)
-  const rowBoundary = nearestDrawnRowBoundary(rows, releaseY)
+  const taskGroupBoundary = nearestDrawnTaskGroupBoundary(taskGroups, releaseY)
   const earlySerial = serialOfDay(early)
   const lateSerial = serialOfDay(late)
   let left = early
   let right = late
-  let upper = rows[upperAt]
-  let lower = rows[lowerAt]
+  let upper = taskGroups[upperAt]
+  let lower = taskGroups[lowerAt]
   // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
   if (sides.horizontal === 'left') {
     left = dayFromSerial(Math.min(dayBoundary, lateSerial))
@@ -679,11 +679,11 @@ function grabPointRange(
     right = dayFromSerial(Math.max(dayBoundary - 1, earlySerial))
   }
   if (sides.vertical === 'top') {
-    upper = rowBoundary > lowerAt ? rows[lowerAt] : rows[rowBoundary]
-    lower = rowBoundary > lowerAt ? rows[rowBoundary - 1] : rows[lowerAt]
+    upper = taskGroupBoundary > lowerAt ? taskGroups[lowerAt] : taskGroups[taskGroupBoundary]
+    lower = taskGroupBoundary > lowerAt ? taskGroups[taskGroupBoundary - 1] : taskGroups[lowerAt]
   } else if (sides.vertical === 'bottom') {
-    upper = rowBoundary <= upperAt ? rows[rowBoundary] : rows[upperAt]
-    lower = rowBoundary <= upperAt ? rows[upperAt] : rows[rowBoundary - 1]
+    upper = taskGroupBoundary <= upperAt ? taskGroups[taskGroupBoundary] : taskGroups[upperAt]
+    lower = taskGroupBoundary <= upperAt ? taskGroups[upperAt] : taskGroups[taskGroupBoundary - 1]
   }
   return { upper, lower, left, right }
 }
@@ -700,8 +700,8 @@ function highlightBoxRangeWrite(
   const box = boxById(context.document.schedule.highlightBoxes, id)
   const start = dayOf(box === undefined ? null : box.startDate)
   const end = dayOf(box === undefined ? null : box.endDate)
-  const rows = drawnRowsOf(context.layout)
-  const span = box === undefined ? null : highlightRowSpanOf(context, rows, box)
+  const taskGroups = drawnTaskGroupsOf(context.layout)
+  const span = box === undefined ? null : highlightTaskGroupSpanOf(context, taskGroups, box)
   if (box === undefined || start === null || end === null || span === null) return CONSUMED_ELSEWHERE
   // WHY: a highlight box holds a frame and eight grab points only; the anchor and the leader
   // belong to a comment box, and CM-54 has no value to write for either.
@@ -710,40 +710,40 @@ function highlightBoxRangeWrite(
   const { upperAt, lowerAt } = span
   const { early, late } = orderedDays(start, end)
 
-  let upper: RowPlacement | undefined
-  let lower: RowPlacement | undefined
+  let upper: TaskGroupPlacement | undefined
+  let lower: TaskGroupPlacement | undefined
   let left: CalendarDay
   let right: CalendarDay
   if (part.kind === 'body') {
     const days = dayShift(context, press.at.x, release.x)
-    const crossed = drawnRowsCrossed(rows, press.at.y, release.y)
-    upper = rows[upperAt + crossed]
-    lower = rows[lowerAt + crossed]
+    const crossed = drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y)
+    upper = taskGroups[upperAt + crossed]
+    lower = taskGroups[lowerAt + crossed]
     left = dayShifted(early, days)
     right = dayShifted(late, days)
   } else {
     const atPointer = pointerDaySerial(context.layout, release.x)
     if (atPointer === null) return CONSUMED_ELSEWHERE
-    const held = { rows, upperAt, lowerAt, early, late }
+    const held = { taskGroups, upperAt, lowerAt, early, late }
     ;({ upper, lower, left, right } = grabPointRange(held, draggedSidesOf(part), atPointer, release.y))
   }
-  if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
+  if (upper === undefined || lower === undefined) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
   return changed([highlightRangeWrite(context, box, { upper, lower, left, right })])
 }
 
 // see HB-3, FR-019
 /** @purity pure */
-function highlightRowSpanOf(
+function highlightTaskGroupSpanOf(
   context: InputContext,
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   box: HighlightBox,
 ): { readonly upperAt: number; readonly lowerAt: number } | null {
-  const firstRow = context.layout.rows[0]
-  const lastRow = context.layout.rows[context.layout.rows.length - 1]
-  if (firstRow === undefined || lastRow === undefined) return null
+  const firstRow = context.layout.taskGroups[0]
+  const lastTaskGroup = context.layout.taskGroups[context.layout.taskGroups.length - 1]
+  if (firstRow === undefined || lastTaskGroup === undefined) return null
   // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
-  const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
-  const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
+  const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.topGroupId) ?? firstRow)
+  const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.bottomGroupId) ?? lastTaskGroup)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
 }
 
@@ -753,7 +753,7 @@ function highlightRowSpanOf(
 function highlightRangeWrite(
   context: InputContext,
   box: HighlightBox,
-  to: { readonly upper: RowPlacement; readonly lower: RowPlacement; readonly left: CalendarDay; readonly right: CalendarDay },
+  to: { readonly upper: TaskGroupPlacement; readonly lower: TaskGroupPlacement; readonly left: CalendarDay; readonly right: CalendarDay },
 ): DocumentCommand {
   const { upper, lower, left, right } = to
   const rankById = taskGroupRankById(context.document.schedule.taskGroups)
@@ -806,7 +806,7 @@ function commentBoxMoveWrite(
   if (!('groupId' in anchor)) return anchor
   const day = dayOf(anchor.date)
   const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.groupId)
-  if (at === null) return nothingToDo('noRowToPutTheAnnotationOn')
+  if (at === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
   const left = stood.x + offset.dx + pull.dx
   const bottom = stood.y + offset.dy + pull.dy
@@ -889,7 +889,7 @@ function isSelectionMoved(context: InputContext, grabbed: number, press: Pointer
 // TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already
 // draws the Task under the pointer, so PE-1's guard cancels the move.
 /** @purity pure */
-function rowOfTask(context: InputContext, uid: number): string | null {
+function taskGroupOfTask(context: InputContext, uid: number): string | null {
   const member = context.document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)
   return member === undefined ? null : member.groupId
 }

@@ -114,15 +114,15 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-const ROW_A = '11111111-1111-4111-8111-111111111111'
-const ROW_B = '22222222-2222-4222-8222-222222222222'
+const TASK_GROUP_A = '11111111-1111-4111-8111-111111111111'
+const TASK_GROUP_B = '22222222-2222-4222-8222-222222222222'
 const UID_A = 1
 const UID_B = 2
 const PX_PER_DAY_AT_1X = 20
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: null,
     start: null,
@@ -145,7 +145,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     ...over,
   }) as unknown as Task
 
-const groupRow = (id: string, order: number) => ({
+const groupTaskGroup = (id: string, order: number) => ({
   id,
   parentId: null,
   label: `row ${order}`,
@@ -169,10 +169,10 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [groupRow(ROW_A, 0), groupRow(ROW_B, 1)],
+      taskGroups: [groupTaskGroup(TASK_GROUP_A, 0), groupTaskGroup(TASK_GROUP_B, 1)],
       taskGroupMembers: [
-        { taskUid: UID_A, groupId: ROW_A },
-        { taskUid: UID_B, groupId: ROW_B },
+        { taskUid: UID_A, groupId: TASK_GROUP_A },
+        { taskUid: UID_B, groupId: TASK_GROUP_B },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -244,7 +244,7 @@ function stage(): Stage {
             part: 'Command Palette',
             entry: DEPENDENCY_ARMING_ENTRY,
             format: null,
-            rowGroupId: null,
+            taskGroupId: null,
             resourceUid: null,
             dividerPanel: null,
             noticeDismissKey: null,

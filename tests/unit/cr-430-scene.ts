@@ -36,7 +36,7 @@ export const defaultOf = (settingId: string): number => {
   return found[0]!
 }
 
-export interface GrabRow {
+export interface GrabTaskGroup {
   readonly id: string
   readonly shape: string
   readonly target: string
@@ -55,7 +55,7 @@ export const COLUMN_DOWN = '縦（帯 ＋ 上下）'
 export const COLUMN_POINTER = 'ポインタ（表 T-269）'
 
 // see T-266
-export const grabRows = (): readonly GrabRow[] =>
+export const grabTaskGroups = (): readonly GrabTaskGroup[] =>
   rowsOf('T-266').map((row) => {
     const across = row.by[COLUMN_ACROSS] ?? ''
     const down = row.by[COLUMN_DOWN] ?? ''
@@ -71,19 +71,19 @@ export const grabRows = (): readonly GrabRow[] =>
     }
   })
 
-export const grabRow = (id: string): GrabRow => {
-  const found = grabRows().find((one) => one.id === id)
+export const grabTaskGroup = (id: string): GrabTaskGroup => {
+  const found = grabTaskGroups().find((one) => one.id === id)
   if (found === undefined) throw new Error(`table T-266 has no row ${id}`)
   return found
 }
 
-export const ownerOf = (settingId: string): GrabRow => {
-  const owners = grabRows().filter((row) => row.settingIds.includes(settingId))
+export const ownerOf = (settingId: string): GrabTaskGroup => {
+  const owners = grabTaskGroups().filter((row) => row.settingIds.includes(settingId))
   if (owners.length !== 1) throw new Error(`table T-266 gives ${settingId} ${owners.length} owning rows, not one`)
   return owners[0]!
 }
 
-export const grabSettingIds = (): readonly string[] => grabRows().flatMap((row) => row.settingIds)
+export const grabSettingIds = (): readonly string[] => grabTaskGroups().flatMap((row) => row.settingIds)
 
 type Loose = Record<string, unknown>
 
@@ -125,7 +125,7 @@ export const isoPlus = (from: string, days: number): string =>
 
 const taskOf = (part: Loose): Loose => ({
   uid: 0,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: null,
   start: null,

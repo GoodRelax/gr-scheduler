@@ -51,7 +51,7 @@ const FINISH_TO_START = 1
 
 const task = (uid: number, start: string, finish: string, dependencies: readonly unknown[] = []): Task =>
   ({
-    uid, wbsParentUid: null, wbsOrder: uid, name: `T${uid}`, start, finish, milestone: false, deadline: null,
+    uid, parentTaskUid: null, wbsOrder: uid, name: `T${uid}`, start, finish, milestone: false, deadline: null,
     notes: null, calendarUid: null, actualStart: null, stop: null, actualFinish: null, resume: null,
     resumeValid: null, percentComplete: 0, fadeInDays: null, fadeOutDays: null, dependencies, carry: {},
     carryElements: [],
@@ -148,7 +148,7 @@ const stage = (): Stage => {
     readScreenPartAt: (x, y): ScreenPart | null =>
       inside(PALETTE_BOX, { x, y })
         ? ({
-            part: 'Command Palette', entry: DEPENDENCY_ARMING_ENTRY, format: null, rowGroupId: null,
+            part: 'Command Palette', entry: DEPENDENCY_ARMING_ENTRY, format: null, taskGroupId: null,
             resourceUid: null, dividerPanel: null, noticeDismissKey: null,
           } as ScreenPart)
         : null,

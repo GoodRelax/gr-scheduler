@@ -50,7 +50,7 @@ const MH_2_TICK =
 const MH_2_NOT_ZERO = '⛔ 下限の無いことを語（「なし」・`null` など）や `0` で示してはならない（MUST NOT）'
 const MH_2_NULL = 'チェックが入ったまま値を空にして確定したら、チェックを外したのと同じく `null` を書き、チェックを外すこと（MUST）'
 const MH_3_SHOW = '値の入力の下の行に、読み取り専用の 1 行として、その行のいまの帯高を単位を添えて示すこと（MUST）。'
-const MH_3_BAND = '示す値は行の帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）であり、行と行のあいだ（`rowGap`）を含めない。'
+const MH_3_BAND = '示す値は行の帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）であり、行と行のあいだ（`taskGroupGap`）を含めない。'
 const MH_3_ROUND = 'px の整数へ四捨五入して示すこと（MUST）。'
 const MH_3_ALWAYS = '欄が空のときも、帯高が指定より高いときも示すこと（MUST）'
 const MH_4_FOLLOW =
@@ -157,7 +157,7 @@ const C = 'bbbbbbbb-0000-4000-8000-000000000003'
 function taskOf(uid: number): Record<string, unknown> {
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `Task${uid}`,
     start: '2026-04-06T08:00:00',
@@ -258,8 +258,8 @@ const pointerAt = (phase: 'down' | 'up', x: number, y: number, clickCount = 1): 
   clickCount,
 })
 
-const partOn = (part: string, entry: string | null, rowGroupId: string | null = null): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
+const partOn = (part: string, entry: string | null, taskGroupId: string | null = null): ScreenPart =>
+  ({ part, entry, format: null, taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null }) as unknown as ScreenPart
 
 // see T-036
 function keyOfRow(id: string): KeyInput {
@@ -318,7 +318,7 @@ interface Bench {
   send(input: HumanInput): void
   wheel(notches: number): void
   pressEntrance(icon: string): void
-  openRow(groupId: string): void
+  openTaskGroup(groupId: string): void
   view(): ScreenView
   band(groupId: string): number | null
   zoomY(): number
@@ -365,7 +365,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
     built,
     send,
     wheel: (notches) => {
-      const area = frame().regions.rowArea
+      const area = frame().regions.taskGroupArea
       const input: WheelInput = {
         kind: 'wheel',
         x: area.x + area.width / 2,
@@ -384,12 +384,12 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       drain()
     },
     // see MK-13
-    openRow: (groupId) => {
-      const title = view().rowTitlePanel.titles.find((one) => one.groupId === groupId)
-      if (title === undefined) throw new Error(`the row title of ${groupId} is not drawn`)
+    openTaskGroup: (groupId) => {
+      const title = view().taskGroupPanel.titles.find((one) => one.groupId === groupId)
+      if (title === undefined) throw new Error(`the task group title of ${groupId} is not drawn`)
       const x = title.box.x + title.box.width / 2
       const y = title.box.y + title.box.height / 2
-      aimed = partOn('Row Title Panel', null, groupId)
+      aimed = partOn('Task Group Panel', null, groupId)
       send(pointerAt('down', x, y))
       send(pointerAt('up', x, y))
       send(pointerAt('down', x, y, 2))
@@ -398,7 +398,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the row')
     },
     view,
-    band: (groupId) => frame().layout.rows.find((one) => one.groupId === groupId)?.height ?? null,
+    band: (groupId) => frame().layout.taskGroups.find((one) => one.groupId === groupId)?.height ?? null,
     zoomY: () => loop.document().documentSettings.zoomY as number,
   }
 }
@@ -485,7 +485,7 @@ const minHeightIn = (document: Document, groupId: string): unknown =>
 
 function openedOn(options: SceneOptions, groupId = A, language: DisplayLanguage = 'ja'): Bench {
   const built = bench(sceneOf(options), language)
-  built.openRow(groupId)
+  built.openTaskGroup(groupId)
   return built
 }
 
@@ -607,8 +607,8 @@ describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
     expect(describedField(built, MH_2).controls[0]?.text, `${MH_2_NULL} -- チェックを外す`).toBe('false')
     const written = (JSON.parse(jsonFromDocument(built.loop.document())) as { schedule: { taskGroups: Record<string, unknown>[] } })
       .schedule.taskGroups
-    const row = written.find((one) => one['id'] === A)
-    expect(row?.['minHeight']).toBeNull()
+    const taskGroup = written.find((one) => one['id'] === A)
+    expect(taskGroup?.['minHeight']).toBeNull()
     expect(written.filter((one) => Object.hasOwn(one, 'height'))).toEqual([])
   })
 

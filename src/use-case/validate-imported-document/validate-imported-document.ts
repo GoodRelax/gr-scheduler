@@ -131,7 +131,7 @@ function wbsShapeOf(tasks: readonly Task[]): WbsShape {
       }
       positionOnChain.set(at.uid, chain.length)
       chain.push(at.uid)
-      const parentUid: number | null = at.wbsParentUid
+      const parentUid: number | null = at.parentTaskUid
       at = parentUid === null ? undefined : byUid.get(parentUid)
     }
 
@@ -207,7 +207,7 @@ export function validateImportedDocument(
       refusal(
         PARENT_RING_ROW,
         '/schedule/tasks',
-        `wbsParentUid closes a ring over Task uids ${ring.join(', ')}`,
+        `parentTaskUid closes a ring over Task uids ${ring.join(', ')}`,
         'NT-1',
       ),
     )

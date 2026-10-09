@@ -7,10 +7,10 @@ import { describe, expect, it } from 'vitest'
 
 import type { ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
-  HERE_ROW,
+  HERE_TASK_GROUP,
   OPEN_CHOOSER,
   REQUIREMENTS,
-  oneRowDocument,
+  oneTaskGroupDocument,
   reasonWords,
 } from './cr-610-file-flow-stage'
 import { unbroken } from './spec-table'
@@ -42,7 +42,7 @@ async function withOpenChooser(): Promise<PaletteStage> {
 
 async function withDifferenceReview(): Promise<PaletteStage> {
   const built = await paletteStage()
-  const renamed = oneRowDocument('Here', HERE_ROW, 1) as unknown as { schedule: { tasks: { name: string }[] } }
+  const renamed = oneTaskGroupDocument('Here', HERE_TASK_GROUP, 1) as unknown as { schedule: { tasks: { name: string }[] } }
   const first = renamed.schedule.tasks[0]
   if (first === undefined) throw new Error('the bench document holds no Task')
   first.name = 'Renamed by the import'

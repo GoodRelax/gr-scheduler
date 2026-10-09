@@ -40,7 +40,7 @@ export function createTask(
   const uid = schedule.project.uidHighWaterMark + 1
   const created: Task = {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: command.start,

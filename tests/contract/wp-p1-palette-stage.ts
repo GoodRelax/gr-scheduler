@@ -110,7 +110,7 @@ export async function paletteStage(options: PaletteStageOptions = {}): Promise<P
       part: surfaceName,
       entry,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

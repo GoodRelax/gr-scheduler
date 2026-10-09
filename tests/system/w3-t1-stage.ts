@@ -9,16 +9,16 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
-export interface RowsDocument {
+export interface TaskGroupsDocument {
   readonly rows: number
   readonly settings?: Readonly<Record<string, unknown>>
   readonly title?: string
-  readonly wbsParentOf?: Readonly<Record<number, number>>
+  readonly parentTaskOf?: Readonly<Record<number, number>>
   readonly milestoneUids?: readonly number[]
 }
 
 export const rowIdOf = (index: number): string => `5c000000-0000-4000-8000-${String(700000000000 + index)}`
-export const rowLabelOf = (index: number): string => `Row ${String(index + 1).padStart(2, '0')}`
+export const taskGroupLabelOf = (index: number): string => `Row ${String(index + 1).padStart(2, '0')}`
 export const taskNameOf = (index: number): string => `Task ${String(index + 1).padStart(2, '0')}`
 
 // WHY: March 2026 runs Mon 2 .. Fri 6; every task takes Mon..Wed of the week after the previous one's start, wrapping at 4 weeks.
@@ -26,7 +26,7 @@ const startOf = (index: number): string => `2026-03-${String(2 + (index % 4) * 7
 const finishOf = (index: number): string => `2026-03-${String(4 + (index % 4) * 7).padStart(2, '0')}T17:00:00`
 
 /** @purity pure */
-export function rowsDocument(asked: RowsDocument): string {
+export function taskGroupsDocument(asked: TaskGroupsDocument): string {
   const indexes = Array.from({ length: asked.rows }, (_one, index) => index)
   const milestones = new Set(asked.milestoneUids ?? [])
   const built = {
@@ -37,7 +37,7 @@ export function rowsDocument(asked: RowsDocument): string {
       project: { ...TEMPLATE.schedule['project'], title: asked.title ?? 'Span plan', statusDate: null, uidHighWaterMark: 1000 },
       tasks: indexes.map((index) => ({
         uid: index + 1,
-        wbsParentUid: asked.wbsParentOf?.[index + 1] ?? null,
+        parentTaskUid: asked.parentTaskOf?.[index + 1] ?? null,
         wbsOrder: index + 1,
         name: taskNameOf(index),
         start: startOf(index),
@@ -64,7 +64,7 @@ export function rowsDocument(asked: RowsDocument): string {
         ...TEMPLATE.schedule['taskGroups'][0],
         id: rowIdOf(index),
         parentId: null,
-        label: rowLabelOf(index),
+        label: taskGroupLabelOf(index),
         order: index,
         treeState: 'auto',
         minHeight: null,

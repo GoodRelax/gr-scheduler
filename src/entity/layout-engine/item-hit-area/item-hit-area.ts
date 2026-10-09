@@ -23,7 +23,7 @@ import type { ScreenRect } from '../screen-regions/screen-regions'
 
 export { dependencyEndAtPointer, dependencyStartOfHit } from './dependency-end'
 export type { DependencyEnd } from './dependency-end'
-export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnRows } from './drawn-selection'
+export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnTaskGroups } from './drawn-selection'
 export { itemsInMarquee } from './marquee'
 
 // see SL-1
@@ -33,7 +33,7 @@ export type Item =
   | { readonly kind: 'highlightBox'; readonly id: string }
   | { readonly kind: 'commentBox'; readonly id: string }
   | { readonly kind: 'statusLine' }
-  | { readonly kind: 'wbsParentLink'; readonly childUid: number; readonly isStated: boolean }
+  | { readonly kind: 'parentTaskLink'; readonly childUid: number; readonly isStated: boolean }
 
 // see T-266, GR-23
 export type GrabArea =
@@ -41,7 +41,7 @@ export type GrabArea =
   | 'GA-9' | 'GA-10' | 'GA-11' | 'GA-12' | 'GA-13' | 'GA-14' | 'GA-15' | 'GA-16'
   | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20' | 'GA-21' | 'GA-22' | 'GA-24'
   | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
-  | 'WL-10'
+  | 'PTL-10'
 
 // see GR-14
 // WHY: 'body' reads as "move the whole thing", which a highlight box answers on its frame alone.
@@ -1055,7 +1055,7 @@ function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; re
 }
 
 // see GR-14, HB-8, HB-9, HB-10, HB-11
-// WHY: the nearest point, not the first: on a one-day, one-row box at low zoom the eight reaches overlap.
+// WHY: the nearest point, not the first: on a one-day, one-task-group box at low zoom the eight reaches overlap.
 /** @purity pure */
 function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
   let found: BoxPart | null = null
@@ -1143,12 +1143,12 @@ function statusLineHitOf(geometry: ScheduleGeometry, x: number, y: number, sizes
   return on ? { item: { kind: 'statusLine' }, grab: 'GR-16' } : null
 }
 
-// see FR-135, S-485, WL-10, WL-12
+// see FR-135, S-485, PTL-10, PTL-12
 /** @purity pure */
-function wbsParentLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
-  for (const arrow of geometry.wbsParents?.arrows ?? []) {
+function parentTaskLinkHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | null {
+  for (const arrow of geometry.parentTasks?.arrows ?? []) {
     if (isOnPolyline(x, y, arrow.hitPoints, arrow.hitWidth / 2)) {
-      return { item: { kind: 'wbsParentLink', childUid: arrow.childUid, isStated: arrow.isStated }, grab: 'WL-10' }
+      return { item: { kind: 'parentTaskLink', childUid: arrow.childUid, isStated: arrow.isStated }, grab: 'PTL-10' }
     }
   }
   return null
@@ -1201,7 +1201,7 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
   if (note !== null) return { hit: note, hint: null }
   const shape = scheduleShapeHitOf(walk, covered, x, y)
   return {
-    hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes) ?? wbsParentLinkHitOf(walk.geometry, x, y),
+    hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes) ?? parentTaskLinkHitOf(walk.geometry, x, y),
     hint: hintPastNotesOf(walk, shape, x, y),
   }
 }

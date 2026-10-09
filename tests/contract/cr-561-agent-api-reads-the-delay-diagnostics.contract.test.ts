@@ -13,7 +13,7 @@ import {
   type FrameSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
-import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
@@ -29,7 +29,7 @@ import {
   unwatchChanges,
 } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { specTable, unbroken } from './spec-table'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -54,7 +54,7 @@ const S = (day: number): string => `2026-04-${String(day).padStart(2, '0')}T08:0
 const F = (day: number): string => `2026-04-${String(day).padStart(2, '0')}T17:00:00`
 
 function chainDocument(statusDate: string | null): Document {
-  const raw = rowDocument([
+  const raw = taskGroupDocument([
     { id: 'r0', parentId: null },
     { id: 'r1', parentId: 'r0' },
   ])
@@ -62,10 +62,10 @@ function chainDocument(statusDate: string | null): Document {
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = [
     taskOf(100, { name: 'Programme', start: S(6), finish: F(10), actualStart: S(6) }),
-    taskOf(101, { name: 'Design', wbsParentUid: 100, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
+    taskOf(101, { name: 'Design', parentTaskUid: 100, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
     taskOf(102, {
       name: 'Build',
-      wbsParentUid: 100,
+      parentTaskUid: 100,
       start: S(9),
       finish: F(10),
       dependencies: [{ predecessorUid: 101, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }],
@@ -82,7 +82,7 @@ function chainDocument(statusDate: string | null): Document {
 }
 
 const HISTORY_LIMITS = { maxSteps: NOT_STORED_LIMITS['S-94'], maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * 1024 * 1024 }
-const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const SCREEN: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 const READ_AT = '2026-08-20T08:30:00Z'
 
@@ -122,7 +122,7 @@ function bench(statusDate: string | null): Bench {
     isDeliveringNotices: false,
   }
   const snapshotOf = (): AgentSnapshot => ({
-    defaultRowName: DEFAULT_ROW_NAME,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
     document: state.document,
     documentAsWritten: state.document,
     selection: state.selection,

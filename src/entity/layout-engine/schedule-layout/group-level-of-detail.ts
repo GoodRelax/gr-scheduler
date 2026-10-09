@@ -19,22 +19,22 @@ const OPENING_TREE_STATES: Readonly<
 // WHY: read over rows TD-1 to TD-3 let through, so an opened row never beats HF-7 or HR-6.
 /** @purity pure */
 export function keptInViewByTreeState(
-  unfoldedRows: readonly TaskGroup[],
+  unfoldedTaskGroups: readonly TaskGroup[],
   counts: 'expandedAndTemporary' | 'expandedOnly',
 ): ReadonlySet<string> {
   const opening = OPENING_TREE_STATES[counts]
-  const byId = new Map(unfoldedRows.map((row) => [row.id, row]))
+  const byId = new Map(unfoldedTaskGroups.map((taskGroup) => [taskGroup.id, taskGroup]))
   const kept = new Set<string>()
-  for (const row of unfoldedRows) {
-    if (!opening.has(row.treeState)) continue
-    for (let at: TaskGroup | undefined = row; at !== undefined && !kept.has(at.id);) {
+  for (const taskGroup of unfoldedTaskGroups) {
+    if (!opening.has(taskGroup.treeState)) continue
+    for (let at: TaskGroup | undefined = taskGroup; at !== undefined && !kept.has(at.id);) {
       kept.add(at.id)
       at = at.parentId === null ? undefined : byId.get(at.parentId)
     }
   }
-  for (const row of unfoldedRows) {
-    const parent = row.parentId === null ? undefined : byId.get(row.parentId)
-    if (parent !== undefined && opening.has(parent.treeState)) kept.add(row.id)
+  for (const taskGroup of unfoldedTaskGroups) {
+    const parent = taskGroup.parentId === null ? undefined : byId.get(taskGroup.parentId)
+    if (parent !== undefined && opening.has(parent.treeState)) kept.add(taskGroup.id)
   }
   return kept
 }

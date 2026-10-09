@@ -25,7 +25,7 @@ const FR_076_OUTSIDE_A_READING_IT_IS_A_NOTICE =
 const U_62_WHAT_IT_IS = '1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面。'
 const U_62_A_COUNT_ROW =
   '件数を持つ理由（`RS-14`・`RS-16`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`）は、その理由の語と件数と次の一手を 1 行に並べる。'
-const U_62_A_NAME_ROW = '名前を持つ理由（`RS-50`・`RS-73`）は、その理由の語の下に名前を並べる。'
+const U_62_A_NAME_TASK_GROUP = '名前を持つ理由（`RS-50`・`RS-73`）は、その理由の語の下に名前を並べる。'
 const U_62_ONCE_ON_LANDING =
   '読込が着地したときに 1 度だけ立てる —— 途中で上がった理由は着地まで運び、着地しなかった読込（取りやめ・拒否）の理由は捨てる。'
 const U_62_NO_ZERO_COUNT = '件数が 0 の理由を並べてはならない（MUST NOT、`MG-14`）'
@@ -119,7 +119,7 @@ describe('FR-076, U-62, MG-14, RS-51 and EP-22 read as CR-712 E-05 wrote them', 
     const u62 = cellOf('T-103', 'U-62')
     expect(u62).toContain(U_62_WHAT_IT_IS)
     expect(u62).toContain(U_62_A_COUNT_ROW)
-    expect(u62).toContain(U_62_A_NAME_ROW)
+    expect(u62).toContain(U_62_A_NAME_TASK_GROUP)
     expect(u62).toContain(U_62_ONCE_ON_LANDING)
     expect(u62).toContain(U_62_NO_ZERO_COUNT)
   })

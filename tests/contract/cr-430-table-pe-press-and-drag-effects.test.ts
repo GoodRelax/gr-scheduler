@@ -78,7 +78,7 @@ const built = (): Stage => stage(benchDocument({ progressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {
   const frame = frameOf(one.loop)
-  return scanGrabAreas(frame.geometry, uid, frame.rowArea)
+  return scanGrabAreas(frame.geometry, uid, frame.taskGroupArea)
 }
 
 const at = (one: Stage, uid: number, grabArea: string): Point => pointAnswering(scanOf(one, uid), grabArea)
@@ -162,7 +162,7 @@ describe('PE-0 -- 日程表のどこでも, a press and a drag start no text sel
       y: (box.y0 + box.y1) / 2,
     })
     return [
-      { what: 'Row Area', at: mid(frame.rowArea) },
+      { what: 'Task Group Area', at: mid(frame.taskGroupArea) },
       { what: 'Time Ruler', at: mid(frame.ruler) },
     ]
   }
@@ -223,11 +223,11 @@ describe('PE-1 -- 予定の本体', () => {
   it(`PE-1 downwards: ${cellOf('PE-1', DOWNWARDS)}`, () => {
     const one = built()
     const before = datesOf(one, BAR_UID)
-    const beforeRow = rowIdOf(one, BAR_UID)
+    const beforeTaskGroup = rowIdOf(one, BAR_UID)
     const from = at(one, BAR_UID, 'GA-9')
-    const band = frameOf(one.loop).rowArea
+    const band = frameOf(one.loop).taskGroupArea
     dragTo(one, from, from.x, from.y + (band.y1 - band.y0) / 8)
-    expect(rowIdOf(one, BAR_UID), 'the Task moved to another row').not.toBe(beforeRow)
+    expect(rowIdOf(one, BAR_UID), 'the Task moved to another row').not.toBe(beforeTaskGroup)
     expect(datesOf(one, BAR_UID), cellOf('PE-1', DOWNWARDS)).toEqual(before)
   })
 })
@@ -315,11 +315,11 @@ describe('PE-6 -- ◆ の予定', () => {
   it(`PE-6 downwards: ${cellOf('PE-6', DOWNWARDS)}`, () => {
     const one = built()
     const before = datesOf(one, MILESTONE_UID)
-    const beforeRow = rowIdOf(one, MILESTONE_UID)
+    const beforeTaskGroup = rowIdOf(one, MILESTONE_UID)
     const from = at(one, MILESTONE_UID, 'GA-15')
-    const band = frameOf(one.loop).rowArea
+    const band = frameOf(one.loop).taskGroupArea
     dragTo(one, from, from.x, from.y + (band.y1 - band.y0) / 8)
-    expect(rowIdOf(one, MILESTONE_UID), 'the milestone moved to another row').not.toBe(beforeRow)
+    expect(rowIdOf(one, MILESTONE_UID), 'the milestone moved to another row').not.toBe(beforeTaskGroup)
     expect(datesOf(one, MILESTONE_UID), cellOf('PE-6', DOWNWARDS)).toEqual(before)
   })
 })

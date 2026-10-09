@@ -194,9 +194,9 @@ function commandFromTaskColumn(
       const days = settledNumber(text)
       return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, days }]
     }
-    case 'wbsParentUid': {
+    case 'parentTaskUid': {
       const parentUid = settledNumber(text)
-      return parentUid === undefined ? [] : [{ kind: 'setTaskWbsParent', uid, parentUid }]
+      return parentUid === undefined ? [] : [{ kind: 'setTaskParentTask', uid, parentUid }]
     }
     default:
       return []
@@ -288,7 +288,7 @@ const CHECK_TEXTS: readonly string[] = [String(true), String(false)]
 function minHeightTextOf(text: string, groupId: string, context: InputContext): string | null {
   if (!CHECK_TEXTS.includes(text)) return text
   if (text === String(false)) return ''
-  const placed = context.layout.rows.find((row) => row.groupId === groupId)
+  const placed = context.layout.taskGroups.find((taskGroup) => taskGroup.groupId === groupId)
   if (placed === undefined) return null
   return String(Math.round(placed.height / displayScaleFractionOf(context.document.documentSettings)))
 }
@@ -449,7 +449,7 @@ function commandsFromFitSpan(commit: FieldCommit, settings: DocumentSettings): r
 
 /** @purity pure */
 function shownSpanTextsOf(context: InputContext): { readonly start: string | null; readonly finish: string | null } {
-  const shown = shownSpanOf(context.layout, context.regions.rowArea)
+  const shown = shownSpanOf(context.layout, context.regions.taskGroupArea)
   if (shown === null) return { start: null, finish: null }
   return { start: textOfDayStart(shown.start), finish: textOfDayEnd(shown.finish) }
 }
@@ -469,15 +469,15 @@ function commandsFromShownSpanCopy(context: InputContext): readonly DocumentComm
   return [{ kind: 'setFitSpan', fitSpanStart: shown.start, fitSpanFinish: shown.finish }]
 }
 
-const ROW_TITLE_WIDTH_FLOOR = SETTINGS_CONSTANTS.rowTitleIndent * SETTINGS_CONSTANTS.maxGroupDepth
+const TASK_GROUP_TITLE_WIDTH_FLOOR = SETTINGS_CONSTANTS.taskGroupTitleIndent * SETTINGS_CONSTANTS.maxGroupDepth
 
 // see WF-2, CM-67
 // WHY: a value below S-79's floor or not whole writes nothing, so the field goes back to the stored width.
 /** @purity pure */
-function commandsFromRowTitleWidth(text: string): readonly DocumentCommand[] {
+function commandsFromTaskGroupTitleWidth(text: string): readonly DocumentCommand[] {
   const width = settledNumber(text)
-  if (width === undefined || width === null || !Number.isInteger(width) || width < ROW_TITLE_WIDTH_FLOOR) return []
-  return [{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: width }]
+  if (width === undefined || width === null || !Number.isInteger(width) || width < TASK_GROUP_TITLE_WIDTH_FLOOR) return []
+  return [{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: width }]
 }
 
 // see FR-039, CM-74, CM-62, S-234, S-70, T-369
@@ -492,8 +492,8 @@ function commandFromDocumentSettingsColumn(
   if (column === 'fitSpanStart' && text === FIT_SPAN_COPY_TEXT) return commandsFromShownSpanCopy(context)
   if (column === 'fitSpanStart' || column === 'fitSpanFinish') return commandsFromFitSpan(commit, settings)
   if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
-  if (column === 'rowTitlePanelWidthFixed') return [{ kind: 'setRowTitlePanelWidthFixed', rowTitlePanelWidthFixed: settledTruth(text) }]
-  if (column === 'rowTitlePanelWidth') return commandsFromRowTitleWidth(text)
+  if (column === 'taskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: settledTruth(text) }]
+  if (column === 'taskGroupPanelWidth') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]

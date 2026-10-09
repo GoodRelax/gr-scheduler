@@ -294,7 +294,7 @@ function stage(): Stage {
         part: surface,
         entry: entry as any,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,

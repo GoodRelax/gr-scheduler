@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
 const VC_15_NOT_ND_3 =
@@ -44,7 +44,7 @@ const SUCCESSOR = 2
 // WHY: the predecessor runs 6 to 8 April and the successor is linked to it Finish-to-Start with lag 0.
 /** @purity pure */
 function linkedDocument(successorStart: string, successorFinish: string): Document {
-  const draft = rowDocument([
+  const draft = taskGroupDocument([
     { id: 'g1', parentId: null },
     { id: 'g2', parentId: null },
   ])

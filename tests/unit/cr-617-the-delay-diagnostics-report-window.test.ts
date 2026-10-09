@@ -72,7 +72,7 @@ const REPORT: DelayDiagnosticsReport = {
     { uid: 2, row: 'DG-4' },
   ],
   settledPushOuts: [{ uid: 5, name: 'Echo', ...QUANTITIES }],
-  derivedWbsParents: [],
+  derivedParentTasks: [],
   lateDays: [],
 }
 

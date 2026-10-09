@@ -9,10 +9,10 @@ import {
   NO_MODS,
   pointerOf,
   REQUIREMENTS,
-  rowDocument,
+  taskGroupDocument,
   shell,
   taskOf,
-  type RowSeed,
+  type TaskGroupSeed,
   type ShellBench,
 } from '../unit/cr-541-stage'
 
@@ -39,7 +39,7 @@ afterEach(() => {
   for (const one of benches.splice(0)) one.restore()
 })
 
-const manyRows = (count: number): RowSeed[] =>
+const manyTaskGroups = (count: number): TaskGroupSeed[] =>
   Array.from({ length: count }, (_unused, index) => ({ id: `row-${String(index + 1).padStart(2, '0')}`, parentId: null }))
 
 const wheelOf = (x: number, y: number, dy: number): HumanInput => ({
@@ -53,14 +53,14 @@ const wheelOf = (x: number, y: number, dy: number): HumanInput => ({
 
 describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () => {
   const scrolled = (dy: number) => {
-    const built = keep(shell(rowDocument(manyRows(60))))
+    const built = keep(shell(taskGroupDocument(manyTaskGroups(60))))
     const frame = built.loop.current()
     if (frame === null) throw new Error('premise: a frame was drawn')
-    const area = frame.regions.rowArea
-    const band = frame.layout.rows[0]!.height
-    const before = new Map(frame.layout.rows.map((one) => [one.groupId, one.y]))
+    const area = frame.regions.taskGroupArea
+    const band = frame.layout.taskGroups[0]!.height
+    const before = new Map(frame.layout.taskGroups.map((one) => [one.groupId, one.y]))
     built.send(wheelOf(area.x + area.width / 2, area.y + area.height / 2, dy))
-    const after = built.loop.current()!.layout.rows
+    const after = built.loop.current()!.layout.taskGroups
     const moved = after.filter((one) => before.has(one.groupId)).map((one) => before.get(one.groupId)! - one.y)
     return { built, band, moved }
   }
@@ -82,7 +82,7 @@ describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () =>
 })
 
 const scaleBench = (displayScale: number, zoomY = 1): ShellBench =>
-  keep(shell(rowDocument(manyRows(4), { displayScale, zoomY })))
+  keep(shell(taskGroupDocument(manyTaskGroups(4), { displayScale, zoomY })))
 const messageOf = (built: ShellBench): string | undefined => (built.last() as { scaleMessage?: string }).scaleMessage
 const scaleOf = (built: ShellBench): number => Number(built.loop.document().documentSettings.displayScale)
 const HIGHEST = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!
@@ -160,7 +160,7 @@ describe('IN-4 -- Esc cancels the drag before the panel', () => {
   it(Q39, () => {
     const built = keep(
       shell(
-        rowDocument([{ id: 'row-1', parentId: null }, { id: 'row-2', parentId: null }], { scrollDate: '2026-03-30', zoomX: 20 }, {
+        taskGroupDocument([{ id: 'task-group-1', parentId: null }, { id: 'task-group-2', parentId: null }], { scrollDate: '2026-03-30', zoomX: 20 }, {
           tasks: [taskOf(1, { start: '2026-04-06T08:00:00', finish: '2026-04-17T17:00:00' }), taskOf(2)],
         }),
       ),
@@ -186,7 +186,7 @@ describe('IN-4 -- Esc cancels the drag before the panel', () => {
 
 describe('IN-5a -- Ctrl+A reaches the text field', () => {
   it(Q40, () => {
-    const built = keep(shell(rowDocument(manyRows(3)), { unsettledText: true }))
+    const built = keep(shell(taskGroupDocument(manyTaskGroups(3)), { unsettledText: true }))
     const ctrlA = keyOf('A', { ctrl: true })
     expect(built.loop.isBrowserDefaultStopped(ctrlA), 'the browser keeps its select-all').toBe(false)
     built.send(ctrlA)
@@ -195,7 +195,7 @@ describe('IN-5a -- Ctrl+A reaches the text field', () => {
   })
 
   it(`${Q40} -- control: with no text entry, Ctrl+A is SK-2`, () => {
-    const built = keep(shell(rowDocument(manyRows(3))))
+    const built = keep(shell(taskGroupDocument(manyTaskGroups(3))))
     const ctrlA = keyOf('A', { ctrl: true })
     built.send(ctrlA)
     const picked = built.loop.agentApiSeams().source.readSnapshot().selection

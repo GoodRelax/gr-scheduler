@@ -150,7 +150,7 @@ const READINGS_BASE = {
   propertiesShowing: 'documentSettings',
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -189,7 +189,7 @@ const EMPTY_VIEW = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -344,7 +344,7 @@ function taskFor(shape: Shape, state: State): Task {
   const uid = uidOf(shape, state)
   return {
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `${shape} ${state}`,
     start: '2026-04-06',

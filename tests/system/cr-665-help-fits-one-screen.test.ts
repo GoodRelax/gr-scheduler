@@ -20,7 +20,7 @@ const FR_036_NOTE_1 =
 const FR_069_ONE_LINE =
   'スの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に畳んで置くこと（MUST）'
 const T_256_SPLIT =
-  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Row Title Panel` の塊の下の塊へ移すこと（MUST）'
+  '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
 const FR_036_LOW_SCREEN = '⚠️ 後者の環境の閲覧環境の窓は、CSS で約 1280 × 627 である'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
@@ -222,7 +222,7 @@ test.describe('CR-665 the manuscript these cases are driven by', () => {
     ['S-203 (MUST) a value that fits both', S_203_FITS_BOTH],
     ['FR-036 (MUST) note *1 below the columns, above the licence, one right-aligned line', FR_036_NOTE_1],
     ['FR-069 (MUST) copyright, licence name and the full-text entrance on one line', FR_069_ONE_LINE],
-    ['T-256 (MUST) the align group moves under the Row Title Panel', T_256_SPLIT],
+    ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],
     ['FR-036 the low environment is about 1280 x 627 in CSS', FR_036_LOW_SCREEN],
   ] as const) {
     test(`01-04 still says it, word for word: ${name}`, () => {
@@ -302,7 +302,7 @@ for (const [screenName, size] of SCREENS) {
     test(`T-256 (MUST): ${T_256_SPLIT}`, () => {
       for (const one of layouts()) {
         expect(one.columnIds, `${one.language}: the columns in the order of table T-256`).toEqual(T_256.rows.map((row) => row.id))
-        expect(one.blocksInHc4, `${one.language}: HC-4 holds the two blocks`).toEqual(['Row Title Panel', 'Command Palette (continued)'])
+        expect(one.blocksInHc4, `${one.language}: HC-4 holds the two blocks`).toEqual(['Task Group Panel', 'Command Palette (continued)'])
         expect([...(one.rowsByBlock['Command Palette (continued)'] ?? [])].sort(), `${one.language}: only the align group`).toEqual(
           [...PALETTE_ALIGN_ROWS].sort(),
         )

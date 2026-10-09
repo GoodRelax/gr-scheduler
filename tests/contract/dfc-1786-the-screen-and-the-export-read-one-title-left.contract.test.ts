@@ -9,7 +9,7 @@ import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/im
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
 import type {
   AppHeaderItems,
-  RowTitlePanel,
+  TaskGroupPanel,
   ScreenFrame,
   ScreenView,
   ScreenViewReadings,
@@ -79,7 +79,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -127,7 +127,7 @@ function titleLeftInTheExport(items: AppHeaderItems): number {
     language: 'en',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] } as unknown as ScreenFrame,
     appHeaderItems: items,
-    rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+    taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

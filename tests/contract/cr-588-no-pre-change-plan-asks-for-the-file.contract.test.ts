@@ -227,7 +227,7 @@ const IC_4_PART = {
   part: IC_4_SURFACE,
   entry: 'IC-4',
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -262,7 +262,7 @@ function pressIc4(document: Document): PressAnswer {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }
@@ -333,7 +333,7 @@ function step(session: ScreenSession, event: Loose): ReturnType<typeof advanceSc
   return advanceScreenSession(session, event as unknown as SessionEvent)
 }
 
-const QN_5 = { manner: 'NT-7', question: 'QN-5', items: [{ name: 'Task A', isShownOnAnotherRow: false }] }
+const QN_5 = { manner: 'NT-7', question: 'QN-5', items: [{ name: 'Task A', isShownOnAnotherTaskGroup: false }] }
 
 const readingWith = (openRoute: string): ScreenSession =>
   withFlow({
@@ -441,8 +441,8 @@ function replacedBy(from: HeldDocument, call: ReplacementCall): HeldDocument {
   const audience: ChangeAudience = { deliver: () => {} }
   const outcome = replaceDocument(
     {
-      defaultRowName: 'fixture default row name',
-      newGroupId: 'fresh-row',
+      defaultTaskGroupName: 'fixture default task group name',
+      newGroupId: 'fresh-task-group',
       readStamp: from.document.documentStamp,
       moment: CALM,
       call,

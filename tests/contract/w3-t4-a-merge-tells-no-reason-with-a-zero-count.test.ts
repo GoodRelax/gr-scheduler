@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
-  HERE_ROW,
+  HERE_TASK_GROUP,
   OPEN_CHOOSER,
   REQUIREMENTS,
   jsonBytes,
-  oneRowDocument,
+  oneTaskGroupDocument,
   reasonWords,
   shellStage,
   there,
@@ -61,7 +61,7 @@ describe(`MG-14 -- ${MG_14_NO_ZERO}`, () => {
 
   it('a merge that only overwrites the one Task tells RS-71 with 1, and neither RS-72 nor RS-73', async () => {
     const built = await shellStage()
-    const incoming = oneRowDocument('Here', HERE_ROW, 1) as unknown as { schedule: { tasks: { name: string }[] } }
+    const incoming = oneTaskGroupDocument('Here', HERE_TASK_GROUP, 1) as unknown as { schedule: { tasks: { name: string }[] } }
     const first = incoming.schedule.tasks[0]
     if (first === undefined) throw new Error('the bench document holds no Task')
     first.name = 'Renamed by the import'

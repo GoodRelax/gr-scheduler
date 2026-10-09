@@ -131,7 +131,7 @@ const ENTRANCE_PART = {
   part: DEPENDENCY_ENTRANCE.surface,
   entry: DEPENDENCY_ENTRANCE.row,
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,

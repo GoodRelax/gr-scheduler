@@ -24,7 +24,7 @@ import { displayScaleStep } from './display-scale-steps'
 import {
   fitWrites,
   keyZoomFactor,
-  rowZoomAnswer,
+  verticalZoomAnswer,
   statusLineWrites,
   zoomTimes,
   zoomWrites,
@@ -92,8 +92,8 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
     const factor = keyZoomFactor(context, key === KEY.plus)
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
   }
-  if (isRowZoomKey(input)) {
-    return rowZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
+  if (isVerticalZoomKey(input)) {
+    return verticalZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
   }
 
   // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
@@ -123,7 +123,7 @@ function isTimeZoomKey(input: KeyInput): boolean {
 
 // see SK-16a, SK-16c
 /** @purity pure */
-function isRowZoomKey(input: KeyInput): boolean {
+function isVerticalZoomKey(input: KeyInput): boolean {
   return isCombo(input.modifiers, false, false, true) && isPlusOrMinus(input.key)
 }
 
@@ -136,7 +136,7 @@ function isDisplayScaleKey(input: KeyInput): boolean {
 // see EL-17, UN-8, FR-039
 /** @purity pure */
 export function isViewScaleKey(input: KeyInput): boolean {
-  return isTimeZoomKey(input) || isRowZoomKey(input) || isDisplayScaleKey(input)
+  return isTimeZoomKey(input) || isVerticalZoomKey(input) || isDisplayScaleKey(input)
 }
 
 // see SK-3, SL-1, FR-046
@@ -169,8 +169,8 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
       case 'statusLine':
         commands.push({ kind: 'clearStatusDate' })
         break
-      case 'wbsParentLink':
-        commands.push({ kind: 'setTaskWbsParent', uid: one.childUid, parentUid: null })
+      case 'parentTaskLink':
+        commands.push({ kind: 'setTaskParentTask', uid: one.childUid, parentUid: null })
         break
     }
   }

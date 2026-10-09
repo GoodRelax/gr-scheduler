@@ -52,7 +52,7 @@ export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegi
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
   const originDay = dayOf(settings.scrollDate)
   const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
-  const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
+  const originX = regions.taskGroupArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
   return { pxPerDay, originDay, originX }
 }
 
@@ -87,10 +87,10 @@ export function fixedFitSpanOf(
 /** @purity pure */
 export function shownSpanOf(
   axis: TimeAxis,
-  rowArea: ScreenRegions['rowArea'],
+  taskGroupArea: ScreenRegions['taskGroupArea'],
 ): { readonly start: CalendarDay; readonly finish: CalendarDay } | null {
-  const start = dateAtX(axis, rowArea.x)
-  const finish = dateAtX(axis, rowArea.x + Math.max(0, rowArea.width - 1))
+  const start = dateAtX(axis, taskGroupArea.x)
+  const finish = dateAtX(axis, taskGroupArea.x + Math.max(0, taskGroupArea.width - 1))
   return start === null || finish === null ? null : { start, finish }
 }
 

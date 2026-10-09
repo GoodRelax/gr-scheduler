@@ -152,7 +152,7 @@ const TODAY = '2026-03-01T00:00:00'
 const taskOf = (uid: number): Task =>
   ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: `t${uid}`,
     start: '2026-01-05',
@@ -281,7 +281,7 @@ const CONTEXT: InputContext = {
   isSurfaceStanding: false,
   dualCursorFollowing: null,
   today: TODAY,
-  newGroupId: 'row-minted-outside',
+  newGroupId: 'task-group-minted-outside',
   newCommentBoxId: 'comment-box-minted-outside',
   newHighlightBoxId: 'highlight-box-minted-outside',
 }
@@ -319,7 +319,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
@@ -545,7 +545,7 @@ describe('controls -- what a do-nothing reading would still pass', () => {
   })
 })
 
-const NAME_ROW = 'PR-1'
+const NAME_TASK_GROUP = 'PR-1'
 const THEME = { preference: 'light', hue: THEME_HUE } as const
 const HEADER_HEIGHT = { 'App Header': 37 }
 
@@ -561,7 +561,7 @@ const viewOf = (panel: PropertiesPanel | null): ScreenView => ({
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: panel,
   commandPalette: null,
   openModal: null,
@@ -648,7 +648,7 @@ describe('S-3 through the real DOM surface -- the PR-16 focus lands on the isFoc
 
   it('control: asking for the name row leaves every PR-16 line unfocused', () => {
     const drawn = drawnAssigneeField(T_MIXED)
-    drawn.focus(NAME_ROW)
+    drawn.focus(NAME_TASK_GROUP)
     expect([...drawn.selects, ...drawn.searches]).not.toContain(drawn.active())
   })
 })

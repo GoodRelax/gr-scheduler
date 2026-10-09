@@ -72,7 +72,7 @@ import { bare, specTable, type SpecTable, unbroken } from './spec-table'
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -252,7 +252,7 @@ function exportedActualDuration(document: Document): string | null {
 
 /** Run one command through `editTask`, refusing to go on if the aggregate refused. */
 function edited(document: Document, command: TaskCommand): Document {
-  const result = editTask(document, command, DEFAULT_ROW_NAME_FIXTURE)
+  const result = editTask(document, command, DEFAULT_TASK_GROUP_NAME_FIXTURE)
   if (!result.ok) {
     throw new Error(
       `the fixture could not take ${command.kind}: ${result.refusals
@@ -338,7 +338,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
     // ⚠️ MEASURED RATHER THAN ASSUMED, because it is the whole reason CM-14 is
     // driven against a second fixture: 「`Task` が未着手であるあいだ、`GRS` は、
     // 実績の入力を始める掴みシロを**2 つ**……示すこと（MUST）」.
-    const refused = editTask(imported(SUSPENDED_FILE), commandFor('CM-14'), DEFAULT_ROW_NAME_FIXTURE)
+    const refused = editTask(imported(SUSPENDED_FILE), commandFor('CM-14'), DEFAULT_TASK_GROUP_NAME_FIXTURE)
 
     expect(refused.ok, 'CM-14 was accepted on a started task, so this file has a fixture too many').toBe(
       false,

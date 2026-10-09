@@ -30,8 +30,8 @@ function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 export function progressLineOf(inputs: GeometryInputs): Path {
   const { layout, settings, statusDate } = inputs
   if (!settings.progressLineVisible || statusDate === null) return []
-  const first = layout.rows[0]
-  const last = layout.rows[layout.rows.length - 1]
+  const first = layout.taskGroups[0]
+  const last = layout.taskGroups[layout.taskGroups.length - 1]
   if (first === undefined || last === undefined) return []
 
   const baseX = xFromDay(layout, statusDate)
@@ -47,10 +47,10 @@ export function progressLineOf(inputs: GeometryInputs): Path {
   }
 
   const points: Point[] = [point(baseX, first.y - settings.progressLineOverhang)]
-  for (const row of layout.rows) {
-    const lanes = byLane.get(row.groupId)
+  for (const taskGroup of layout.taskGroups) {
+    const lanes = byLane.get(taskGroup.groupId)
     // TRAP: sort by top, not lane index: with S-58 'up' the index descends in y and the line zig-zags.
-    const lanesByTop = row.stackTops
+    const lanesByTop = taskGroup.stackTops
       .map((top, lane) => ({ top, lane }))
       .sort((a, b) => a.top - b.top)
     for (const { top, lane } of lanesByTop) {

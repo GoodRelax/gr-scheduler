@@ -9,9 +9,9 @@ import {
   fixedFitSpanOf,
   groupDepthLimit,
   groupDepthThresholdOf,
-  rowPlacesAtZoomY,
+  taskGroupPlacesAtZoomY,
   xFromDay,
-  type RowPlacement,
+  type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type {
@@ -31,10 +31,10 @@ import {
   changedInOrder,
   dayAnchorAt,
   isScrollPositionInForce,
-  rowAnchorIn,
-  rowsAtZoomY,
+  taskGroupAnchorIn,
+  taskGroupsAtZoomY,
   scrolledAnchor,
-  scrollingRowsOf,
+  scrollingTaskGroupsOf,
   zoomYCeiling,
   type InputContext,
   type ScrollAnchor,
@@ -56,13 +56,13 @@ export function fitWrites(context: InputContext): readonly (readonly DocumentCom
 
 // see FR-031, FR-018, T-328, ZE-2, ZE-4
 /** @purity pure */
-function rowShrinkWrites(
+function verticalZoomShrinkWrites(
   context: InputContext,
   zoom: readonly DocumentCommand[],
 ): TranslatedInput {
   return changedInOrder([
     zoom,
-    treeStateWritesFor(context.document.schedule, { type: 'rowZoomShrinkPressed' }),
+    treeStateWritesFor(context.document.schedule, { type: 'verticalZoomShrinkPressed' }),
   ])
 }
 
@@ -72,7 +72,7 @@ export function zoomStepAnswer(
   factor: number,
   zoom: readonly DocumentCommand[],
 ): TranslatedInput {
-  return factor < 1 ? rowShrinkWrites(context, zoom) : changed(zoom)
+  return factor < 1 ? verticalZoomShrinkWrites(context, zoom) : changed(zoom)
 }
 
 // see S-53, FR-016
@@ -85,7 +85,7 @@ export function keyZoomFactor(context: InputContext, isIn: boolean): number {
 // see FR-016, S-229
 /** @purity pure */
 function zoomXCeiling(context: InputContext): number | null {
-  const width = context.regions.rowArea.width
+  const width = context.regions.taskGroupArea.width
   const pxPerDayAt1x = drawnSettingsOf(context.document.documentSettings).pxPerDayAt1x
   const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
   if (!Number.isFinite(ceiling) || ceiling <= 0) return null
@@ -93,22 +93,22 @@ function zoomXCeiling(context: InputContext): number | null {
 }
 
 /** @purity pure */
-function tallestBandOf(rows: readonly RowPlacement[]): number {
+function tallestBandOf(taskGroups: readonly TaskGroupPlacement[]): number {
   let tallest = 0
-  for (const row of rows) if (row.height > tallest) tallest = row.height
+  for (const taskGroup of taskGroups) if (taskGroup.height > tallest) tallest = taskGroup.height
   return tallest
 }
 
 // see FR-016, FR-018, FR-094, PI-5
 /** @purity pure */
 function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
-  const reading = rowAxisReadingOf(measuredWith, zoomY)
+  const reading = verticalAxisReadingOf(measuredWith, zoomY)
   return `${reading.planHeight}|${reading.depthLimit}`
 }
 
 // see FR-016, FR-018, FR-094, ZE-1
 /** @purity pure */
-function rowAxisReadingOf(
+function verticalAxisReadingOf(
   measuredWith: DocumentSettings,
   zoomY: number,
 ): { readonly planHeight: number; readonly depthLimit: number } {
@@ -130,28 +130,28 @@ function measuredAtScreenZoomX(
 
 // see ZE-1, FR-094, FR-018, S-76
 /** @purity pure */
-function isRowZoomAtLowerEnd(context: InputContext): boolean {
+function isVerticalZoomAtLowerEnd(context: InputContext): boolean {
   const on = zoomOnScreen(context)
   const measuredWith = measuredAtScreenZoomX(context, on)
-  const now = rowAxisReadingOf(measuredWith, on.y)
-  const lowest = rowAxisReadingOf(measuredWith, context.zoomMin)
+  const now = verticalAxisReadingOf(measuredWith, on.y)
+  const lowest = verticalAxisReadingOf(measuredWith, context.zoomMin)
   if (now.planHeight !== lowest.planHeight) return false
   if (now.depthLimit === lowest.depthLimit) return true
-  return drawsSameRows(
-    rowsAtZoomY(context, measuredWith, on.y),
-    rowsAtZoomY(context, measuredWith, context.zoomMin),
+  return drawsSameTaskGroups(
+    taskGroupsAtZoomY(context, measuredWith, on.y),
+    taskGroupsAtZoomY(context, measuredWith, context.zoomMin),
   )
 }
 
 // see ZE-1, ZE-6, FR-018
 /** @purity pure */
-function drawsSameRows(one: readonly RowPlacement[], other: readonly RowPlacement[]): boolean {
-  return one.length === other.length && one.every((row, at) => row.groupId === other[at]?.groupId)
+function drawsSameTaskGroups(one: readonly TaskGroupPlacement[], other: readonly TaskGroupPlacement[]): boolean {
+  return one.length === other.length && one.every((taskGroup, at) => taskGroup.groupId === other[at]?.groupId)
 }
 
 // see ZE-6, ZE-1, FR-018, FR-094
 /** @purity pure */
-function nextRowPictureZoomYOf(
+function nextTaskGroupPictureZoomYOf(
   context: InputContext,
   on: { readonly x: number; readonly y: number },
   stepped: number,
@@ -160,12 +160,12 @@ function nextRowPictureZoomYOf(
   const floorZoomY = floorZoomYOf(measuredWith)
   if (floorZoomY === null || !(on.y <= floorZoomY)) return stepped
   const drawn = drawnSettingsOf(measuredWith)
-  const rowsNow = rowsAtZoomY(context, measuredWith, on.y)
+  const taskGroupsNow = taskGroupsAtZoomY(context, measuredWith, on.y)
   let target = floorZoomY * context.zoomStep
   for (let depth = 2; depth <= drawn.maxGroupDepth; depth++) {
     const threshold = groupDepthThresholdOf(depth, drawn)
     if (!(threshold > on.y) || !(threshold < target)) continue
-    if (!drawsSameRows(rowsNow, rowsAtZoomY(context, measuredWith, threshold))) target = threshold
+    if (!drawsSameTaskGroups(taskGroupsNow, taskGroupsAtZoomY(context, measuredWith, threshold))) target = threshold
   }
   return Math.max(stepped, target)
 }
@@ -173,7 +173,7 @@ function nextRowPictureZoomYOf(
 // see FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
 // TRAP: never for MK-2; the date axis still moves there, so that input changes the picture.
 /** @purity pure */
-export function rowZoomAnswer(
+export function verticalZoomAnswer(
   context: InputContext,
   factor: number,
   pointerX: number | null,
@@ -181,27 +181,27 @@ export function rowZoomAnswer(
 ): TranslatedInput {
   const on = zoomOnScreen(context)
   const drawnZoomY = on.y
-  if (factor < 1 && isRowZoomAtLowerEnd(context)) {
-    const ended = rowShrinkWrites(context, [])
-    return { ...ended, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
+  if (factor < 1 && isVerticalZoomAtLowerEnd(context)) {
+    const ended = verticalZoomShrinkWrites(context, [])
+    return { ...ended, verticalZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
   }
-  const stepped = rowZoomStepOf(context, on, factor)
+  const stepped = verticalZoomStepOf(context, on, factor)
   if (factor > 1 && stepped === drawnZoomY) {
-    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
+    return { ...CONSUMED_ELSEWHERE, verticalZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
   }
   return zoomStepAnswer(context, factor, zoomWrites(context, null, stepped, pointerX, pointerY))
 }
 
 // see FR-016, ZE-3, ZE-6, S-76
 /** @purity pure */
-function rowZoomStepOf(
+function verticalZoomStepOf(
   context: InputContext,
   on: { readonly x: number; readonly y: number },
   factor: number,
 ): number {
   const wanted =
     factor > 1
-      ? zoomYWithinCeiling(context, on.x, nextRowPictureZoomYOf(context, on, on.y * factor))
+      ? zoomYWithinCeiling(context, on.x, nextTaskGroupPictureZoomYOf(context, on, on.y * factor))
       : zoomTimes(context, factor, 'y')
   return zoomWithinBounds(context, wanted)
 }
@@ -214,8 +214,8 @@ function timeZoomStepOf(context: InputContext, factor: number): number {
 export interface ZoomEntranceEnds {
   readonly timeOut: boolean
   readonly timeIn: boolean
-  readonly rowOut: boolean
-  readonly rowIn: boolean
+  readonly verticalOut: boolean
+  readonly verticalIn: boolean
 }
 
 // see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
@@ -226,8 +226,8 @@ export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
   return {
     timeOut: timeZoomStepOf(context, keyZoomFactor(context, false)) === on.x,
     timeIn: timeZoomStepOf(context, keyZoomFactor(context, true)) === on.x,
-    rowOut: isRowZoomAtLowerEnd(context),
-    rowIn: rowZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
+    verticalOut: isVerticalZoomAtLowerEnd(context),
+    verticalIn: verticalZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
   }
 }
 
@@ -275,7 +275,7 @@ function tallestBandAtZoomY(
     const key = bandZoomKeyOf(measuredWith, zoomY)
     const known = asked.get(key)
     if (known !== undefined) return known
-    const tallest = tallestBandOf(rowsAtZoomY(context, measuredWith, zoomY))
+    const tallest = tallestBandOf(taskGroupsAtZoomY(context, measuredWith, zoomY))
     asked.set(key, tallest)
     return tallest
   }
@@ -293,8 +293,8 @@ function tallestBandAtZoomY(
 // where the zoom stops with the zoom it started from (DFC-628).
 /** @purity pure */
 function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: number, upTo: number): number {
-  if (!(context.regions.rowArea.height > 0) || !Number.isFinite(wanted)) return wanted
-  const remembered = context.rowBandCeiling?.(drawnZoomX, upTo, wanted)
+  if (!(context.regions.taskGroupArea.height > 0) || !Number.isFinite(wanted)) return wanted
+  const remembered = context.taskGroupBandCeiling?.(drawnZoomX, upTo, wanted)
   const ceiling =
     remembered !== undefined && Number.isFinite(remembered)
       ? remembered
@@ -304,7 +304,7 @@ function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: numb
 
 // see FR-016, T-253, PI-18
 /** @purity pure */
-export function rowBandCeilingOf(
+export function taskGroupBandCeilingOf(
   context: InputContext,
   upTo: number = Number.POSITIVE_INFINITY,
   enough: number = Number.POSITIVE_INFINITY,
@@ -321,7 +321,7 @@ function bandCeilingUpTo(
   upTo: number,
   enough: number = Number.POSITIVE_INFINITY,
 ): number {
-  const height = context.regions.rowArea.height
+  const height = context.regions.taskGroupArea.height
   if (!(height > 0)) return context.zoomMax
   const search = NOT_STORED_ROW_BAND_CEILING_SEARCH
   const reaches = tallestBandAtZoomY(context, drawnZoomX, height)
@@ -414,40 +414,40 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
 
 /** @purity pure */
 function zoomCentreX(context: InputContext, pointerX: number | null): number {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   return pointerX === null ? area.x + area.width / 2 : pointerX
 }
 
 /** @purity pure */
 function zoomCentreY(context: InputContext, pointerY: number | null): number {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   return pointerY === null ? area.y + area.height / 2 : pointerY
 }
 
-// TRAP: rowAnchorIn and scrollOffsetOf measure the same slab; change all three together.
+// TRAP: taskGroupAnchorIn and scrollOffsetOf measure the same slab; change all three together.
 /** @purity pure */
-export function rowPointIn(
-  rows: readonly RowPlacement[],
+export function taskGroupPointIn(
+  taskGroups: readonly TaskGroupPlacement[],
   anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
 ): number | null {
-  const at = rows.findIndex((row) => row.groupId === anchor.scrollGroupId)
+  const at = taskGroups.findIndex((taskGroup) => taskGroup.groupId === anchor.scrollGroupId)
   if (at < 0) return null
-  const row = rows[at]
-  if (row === undefined) return null
-  const below = rows[at + 1]
-  const slab = below === undefined ? row.height : below.y - row.y
+  const taskGroup = taskGroups[at]
+  if (taskGroup === undefined) return null
+  const below = taskGroups[at + 1]
+  const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
   const into = Number.isFinite(anchor.scrollGroupOffset) ? anchor.scrollGroupOffset : 0
-  return row.y + into * slab
+  return taskGroup.y + into * slab
 }
 
 /** @purity pure */
 export function topEdgeIn(
-  rows: readonly RowPlacement[],
+  taskGroups: readonly TaskGroupPlacement[],
   anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
 ): number | null {
-  const marked = rowPointIn(rows, anchor)
+  const marked = taskGroupPointIn(taskGroups, anchor)
   if (marked !== null) return marked
-  const first = rows[0]
+  const first = taskGroups[0]
   return first === undefined ? null : first.y
 }
 
@@ -465,7 +465,7 @@ function dayHeldStill(
   centreX: number,
 ): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> | null {
   if (zoomX === null) return null
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
   if (!Number.isFinite(factor) || factor <= 0) return null
   return dayAnchorAt(context, centreX - (centreX - area.x) / factor)
@@ -473,7 +473,7 @@ function dayHeldStill(
 
 // see FR-016, PI-5
 /** @purity pure */
-function rowHeldStill(
+function taskGroupHeldStill(
   context: InputContext,
   zoomX: number | null,
   zoomY: number | null,
@@ -484,9 +484,9 @@ function rowHeldStill(
   const willBe = zoomWithinBounds(context, zoomY)
   if (!(willBe > 0) || willBe === on.y) return null
   const seat = scrolledAnchor(context, 0, 0)
-  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
+  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centreY, seat)
   // TRAP: lay the candidate out at the new zoomX too: lanes follow horizontal overlap (ST-2, ST-3).
-  const after = rowPlacesAtZoomY(
+  const after = taskGroupPlacesAtZoomY(
     context.document.schedule,
     {
       ...context.document.documentSettings,
@@ -498,12 +498,12 @@ function rowHeldStill(
     },
     context.regions,
     willBe,
-    context.rowControlsHeightPx,
-  ).filter((row) => row.isPinned !== true)
-  const landed = rowPointIn(after, held)
+    context.taskGroupControlsHeightPx,
+  ).filter((taskGroup) => taskGroup.isPinned !== true)
+  const landed = taskGroupPointIn(after, held)
   const topEdge = topEdgeIn(after, seat)
   if (landed === null || topEdge === null) return null
-  return rowAnchorIn(after, topEdge + (landed - centreY), seat)
+  return taskGroupAnchorIn(after, topEdge + (landed - centreY), seat)
 }
 
 // see FR-016, OP-10
@@ -516,17 +516,17 @@ function placeHeldStill(
   centreY: number,
 ): readonly DocumentCommand[] {
   const day = dayHeldStill(context, zoomX, centreX)
-  const row = rowHeldStill(context, zoomX, zoomY, centreY)
+  const row = taskGroupHeldStill(context, zoomX, zoomY, centreY)
   if (day === null && row === null) return placeSeated(context)
   const seat = scrolledAnchor(context, 0, 0)
   const heldDay = day ?? seat
-  const heldRow = row ?? seat
+  const heldTaskGroup = row ?? seat
   const to = {
     kind: 'setScrollPosition',
     scrollDate: heldDay.scrollDate,
     scrollDayOffset: heldDay.scrollDayOffset,
-    scrollGroupId: heldRow.scrollGroupId,
-    scrollGroupOffset: heldRow.scrollGroupOffset,
+    scrollGroupId: heldTaskGroup.scrollGroupId,
+    scrollGroupOffset: heldTaskGroup.scrollGroupOffset,
   } as const
   if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollGroupId)) {
     return placeSeated(context)
@@ -593,7 +593,7 @@ function fitOf(
   shownTaskUids: ReadonlySet<number> | null,
 ) {
   const bounds = { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax }
-  return fitZoom(schedule, settings, context.regions, bounds, context.rowControlsHeightPx, shownTaskUids)
+  return fitZoom(schedule, settings, context.regions, bounds, context.taskGroupControlsHeightPx, shownTaskUids)
 }
 
 // see OP-10, FR-055
@@ -632,7 +632,7 @@ export function statusLineCentred(context: InputContext, date: string): readonly
   if (day === null) return []
   const settings = context.document.documentSettings
   const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const onDay = dayAnchorAt(context, xFromDay(context.layout, day) - area.width / 2)
   const rows = isSeated ? settings : scrolledAnchor(context, 0, 0)
   const to = {
@@ -675,6 +675,6 @@ function fixedSpanAcrossOf(context: InputContext): { readonly zoomX: number; rea
   const settings = context.document.documentSettings
   const span = fixedFitSpanOf(settings)
   if (span === null) return null
-  const zoomX = context.regions.rowArea.width / span.days / drawnSettingsOf(settings).pxPerDayAt1x
+  const zoomX = context.regions.taskGroupArea.width / span.days / drawnSettingsOf(settings).pxPerDayAt1x
   return { zoomX: Math.max(context.zoomMin, Math.min(context.zoomMax, zoomX)), scrollDate: textOfDayStart(span.start) }
 }

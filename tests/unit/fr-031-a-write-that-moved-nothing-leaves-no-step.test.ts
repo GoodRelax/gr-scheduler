@@ -26,7 +26,7 @@ import {
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -104,13 +104,13 @@ const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 const FIRST_TASK_NAME = START.schedule.tasks[0]?.name ?? ''
 
 // see T-108, CM-67
-const HELD_ROW_TITLE_WIDTH = START.documentSettings.rowTitlePanelWidth
+const HELD_TASK_GROUP_TITLE_WIDTH = START.documentSettings.taskGroupPanelWidth
 
 // see T-060, LY-5
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
   zoomMax: 64,
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 // see T-206, S-94, S-95
@@ -148,7 +148,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       writes += 1
       const outcome = applyDocumentChange(
         {
-          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands: [command],
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
@@ -181,10 +181,10 @@ const nameTask = (name: string): DocumentCommand =>
   ({ kind: CM_9, uid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
 // see FR-052
-const setRowTitlePanelWidth = (rowTitle: number): DocumentCommand =>
+const setTaskGroupPanelWidth = (taskGroupTitle: number): DocumentCommand =>
   ({
     kind: CM_67,
-    rowTitlePanelWidth: rowTitle,
+    taskGroupPanelWidth: taskGroupTitle,
   }) as unknown as DocumentCommand
 
 describe('FR-031 -- 書き込みが文書の値を 1 つも変えなかったとき', () => {
@@ -236,11 +236,11 @@ describe('FR-031 / 表 T-027 -- 種類と、値が動いたかの、四つの組
     const one = bench()
     const before = one.json()
 
-    one.write(setRowTitlePanelWidth(HELD_ROW_TITLE_WIDTH + 30))
+    one.write(setTaskGroupPanelWidth(HELD_TASK_GROUP_TITLE_WIDTH + 30))
 
     expect(one.json(), 'the 対象外 command really did move a value').not.toBe(before)
-    expect(one.held.document.documentSettings.rowTitlePanelWidth).toBe(
-      HELD_ROW_TITLE_WIDTH + 30,
+    expect(one.held.document.documentSettings.taskGroupPanelWidth).toBe(
+      HELD_TASK_GROUP_TITLE_WIDTH + 30,
     )
     expect(one.depth()).toBe(0)
   })
@@ -249,7 +249,7 @@ describe('FR-031 / 表 T-027 -- 種類と、値が動いたかの、四つの組
     const one = bench()
     const before = one.json()
 
-    one.write(setRowTitlePanelWidth(HELD_ROW_TITLE_WIDTH))
+    one.write(setTaskGroupPanelWidth(HELD_TASK_GROUP_TITLE_WIDTH))
 
     expect(one.json(), 'the write moved nothing').toBe(before)
     expect(one.depth()).toBe(0)

@@ -177,7 +177,7 @@ const boxRecord = (spec: BoxSpec): Record<string, unknown> => ({
 // WHY: a plain Task in row B from day 2 to day 12, so the left frame line of the default box crosses its bar.
 const TASK = {
   uid: TASK_UID,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: 1,
   name: null,
   start: day(2),
@@ -308,13 +308,13 @@ const drawnBox = (loop: FrameLoop, id: string = BOX_ID) => {
   return found
 }
 
-const rowBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
-  const found = valuesOf(loop).layout.rows.find((one) => one.groupId === ROW[letter])
+const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
+  const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
   if (found === undefined) throw new Error(`the frame drew no row ${letter}`)
   return found
 }
 
-const rowStep = (loop: FrameLoop): number => rowBand(loop, 'C').y - rowBand(loop, 'B').y
+const taskGroupStep = (loop: FrameLoop): number => taskGroupBand(loop, 'C').y - taskGroupBand(loop, 'B').y
 
 const hitAt = (loop: FrameLoop, at: Point): Hit | null => itemAtPointer(valuesOf(loop).geometry, at.x, at.y, grabSizesOf())
 
@@ -445,7 +445,7 @@ describe('CR-558 premises: the clauses these cases read, and the fixture they st
     const box = drawnBox(built.loop).box
     expect(box.width).toBeGreaterThanOrEqual(S_373)
     expect(box.height).toBeGreaterThanOrEqual(S_373)
-    for (const letter of LETTERS) expect(rowBand(built.loop, letter).height).toBeGreaterThan(2 * S_230)
+    for (const letter of LETTERS) expect(taskGroupBand(built.loop, letter).height).toBeGreaterThan(2 * S_230)
     expect(box.width / 4, 'the frame press is clear of both grab points').toBeGreaterThan(2 * S_230)
   })
 })
@@ -468,14 +468,14 @@ describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly t
     it(`${point.hb} the ${point.name} point, pressed on an unselected box, gives ${EXPECTED[point.name]}`, () => {
       const built = stage()
       const at = point.at(drawnBox(built.loop).box)
-      drag(built, at, 3 * valuesOf(built.loop).layout.pxPerDay, rowStep(built.loop))
+      drag(built, at, 3 * valuesOf(built.loop).layout.pxPerDay, taskGroupStep(built.loop))
       expect(rangeText(built.loop), `${point.hb} ${point.name}`).toBe(EXPECTED[point.name])
     })
   }
 
   it('HB-7 with HB-6: the top midpoint pulled four rows down, past the bottom edge, gives D..E', () => {
     const built = stage()
-    drag(built, grabPoint('top').at(drawnBox(built.loop).box), 0, 4 * rowStep(built.loop))
+    drag(built, grabPoint('top').at(drawnBox(built.loop).box), 0, 4 * taskGroupStep(built.loop))
     expect(rangeText(built.loop)).toBe('6..16 D..E')
   })
 
@@ -487,7 +487,7 @@ describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly t
 
   it('HB-12 the frame, pressed away from every grab point, moves the box without changing its size', () => {
     const built = stage()
-    drag(built, onTheFrame(drawnBox(built.loop).box), 3 * valuesOf(built.loop).layout.pxPerDay, rowStep(built.loop))
+    drag(built, onTheFrame(drawnBox(built.loop).box), 3 * valuesOf(built.loop).layout.pxPerDay, taskGroupStep(built.loop))
     expect(rangeText(built.loop)).toBe('9..19 C..E')
   })
 })
@@ -555,7 +555,7 @@ describe(`T-023d: ${FRAME_ON_A_SHAPE}`, () => {
     const drawnTask = valuesOf(built.loop).geometry.tasks.find((one) => one.taskUid === TASK_UID)
     if (drawnTask === undefined) throw new Error('the frame drew no task')
     const bar = boxOfBar(drawnTask.plan, 'the plan bar')
-    return { built, box, bar, onShapeY: (bar.y0 + bar.y1) / 2, offShapeY: rowBand(built.loop, 'D').y + rowBand(built.loop, 'D').height / 2 }
+    return { built, box, bar, onShapeY: (bar.y0 + bar.y1) / 2, offShapeY: taskGroupBand(built.loop, 'D').y + taskGroupBand(built.loop, 'D').height / 2 }
   }
 
   it('premise: the left frame line crosses the plan bar, clear of every grab point', () => {

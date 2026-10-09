@@ -22,7 +22,7 @@ const rowOf = (table: string, id: string) => {
 const THEME: ScreenTheme = { preference: 'light', hue: Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? '')) }
 const HEADER_PX = 37
 const U_25 = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
-const DOCUMENT_TITLE_ROW = 'U-27'
+const DOCUMENT_TITLE_TASK_GROUP = 'U-27'
 const columnOf = (id: string): string => bare(rowOf('T-016', id).by['列（`GRS JSON`）'] ?? '')
 
 const TEXT_ROW = 'PR-1'
@@ -64,7 +64,7 @@ const VIEW = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: PANEL,
   commandPalette: null,
   openModal: null,
@@ -168,11 +168,11 @@ describe('DFC-545 / IN-5a, IF-9 -- a focused choice or checkbox is not an unsett
 })
 
 describe('DFC-545 / IF-9, SK-19, WS-2 -- the document title field ends its edit when it loses the focus', () => {
-  it(`IF-9: the ${DOCUMENT_TITLE_ROW} field opened by a focus request tells ended on focusout`, () => {
+  it(`IF-9: the ${DOCUMENT_TITLE_TASK_GROUP} field opened by a focus request tells ended on focusout`, () => {
     const { built, surface, focusField } = wired()
-    focusField(DOCUMENT_TITLE_ROW)
+    focusField(DOCUMENT_TITLE_TASK_GROUP)
     expect(textEntryStandsOpen(surface), 'the title field is open').toBe(true)
-    const title = controlOf(built, DOCUMENT_TITLE_ROW)
+    const title = controlOf(built, DOCUMENT_TITLE_TASK_GROUP)
     raise(built, title, 'focusout')
     expect(textEntryStandsOpen(surface)).toBe(false)
   })

@@ -28,9 +28,9 @@ export function leaderOf(comment: CommentGeometry): Path | null {
 // WHY: the one formula for where an anchor stands; the drawing and the translator's drag both call it (CR-559 S-1).
 /** @purity pure */
 export function commentAnchorPointOf(layout: ScheduleLayout, day: CalendarDay, groupId: string): Point | null {
-  const row = layout.rows.find((one) => one.groupId === groupId)
-  if (row === undefined) return null
-  return point(xFromDay(layout, day) + layout.pxPerDay / 2, row.y + row.height / 2)
+  const taskGroup = layout.taskGroups.find((one) => one.groupId === groupId)
+  if (taskGroup === undefined) return null
+  return point(xFromDay(layout, day) + layout.pxPerDay / 2, taskGroup.y + taskGroup.height / 2)
 }
 
 // see FR-093

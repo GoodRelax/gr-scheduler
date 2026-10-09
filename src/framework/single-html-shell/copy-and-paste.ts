@@ -9,7 +9,7 @@ import { layoutFromSchedule } from '../../entity/layout-engine/schedule-layout/s
 import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
 import { editDocument } from '../../use-case/edit-document/edit-document'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
-import { DEFAULT_ROW_NAME } from '../../adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOTHING_TO_DO_REASON,
   STACK_SAFETY_CAP_REASON,
@@ -23,9 +23,9 @@ type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 // WHY: one chosen row is copied whatever Tasks are also selected; two rows or nothing copy
 // nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
-export function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied | null {
-  if (chosenRows.length === 1) return { kind: 'row', groupId: chosenRows[0] as string }
-  if (chosenRows.length > 1) return null
+export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
+  if (chosenTaskGroups.length === 1) return { kind: 'row', groupId: chosenTaskGroups[0] as string }
+  if (chosenTaskGroups.length > 1) return null
   const uids = taskUidsIn(selected)
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
@@ -33,8 +33,8 @@ export function copiedForPasteOf(chosenRows: readonly string[], selected: Select
 // WHY: two or more paste targets refuse any paste, a row copy or a Task copy alike (RS-27).
 // see FR-033
 /** @purity pure */
-export function pasteRefusedFor(chosenRows: readonly string[]): boolean {
-  return chosenRows.length > 1
+export function pasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
+  return chosenTaskGroups.length > 1
 }
 
 export type CopyAndPasteHands = Pick<
@@ -47,7 +47,7 @@ export type CopyAndPasteHands = Pick<
 /** @purity non-pure */
 export function copyForPaste(hands: CopyAndPasteHands): void {
   const session = hands.readSession()
-  const copiedForPaste = copiedForPasteOf(session.selection.chosenRows, selectedObjectsIn(session))
+  const copiedForPaste = copiedForPasteOf(session.selection.chosenTaskGroups, selectedObjectsIn(session))
   if (copiedForPaste === null) {
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
     return
@@ -59,7 +59,7 @@ export function copyForPaste(hands: CopyAndPasteHands): void {
 /** @purity non-pure */
 export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void {
   const copied = hands.readSession().selection.copiedForPaste
-  if (copied === null || pasteRefusedFor(hands.readSession().selection.chosenRows)) {
+  if (copied === null || pasteRefusedFor(hands.readSession().selection.chosenTaskGroups)) {
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
     return
   }
@@ -86,7 +86,7 @@ function isStackSafetyCapReachedBy(
 ): boolean {
   let document = hands.readHeld().document
   for (const command of bundle) {
-    const folded = editDocument(document, command, hands.settingsLimitsOf(frame), DEFAULT_ROW_NAME)
+    const folded = editDocument(document, command, hands.settingsLimitsOf(frame), DEFAULT_TASK_GROUP_NAME)
     if (!folded.ok) return false
     document = folded.document
   }
@@ -95,7 +95,7 @@ function isStackSafetyCapReachedBy(
     frame.settingsMeasuredWith,
     frame.regions,
     undefined,
-    hands.readEnvironment().rowControlsHeightPx,
+    hands.readEnvironment().taskGroupControlsHeightPx,
   )
   return wouldDraw.stackSafetyCapReached !== null
 }
@@ -127,14 +127,14 @@ function pasteCommandFor(
 ): DocumentCommand | null {
   if (copied.kind === 'task') {
     const sourceUids = copied.uids.filter((uid) => taskByUid(schedule, uid) !== null)
-    return sourceUids.length === 0 ? null : { kind: 'pasteTaskSubtree', sourceUids }
+    return sourceUids.length === 0 ? null : { kind: 'pasteTasks', sourceUids }
   }
   const byParent = new Map<string | null, TaskGroup[]>()
-  for (const row of schedule.taskGroups) {
-    byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
+  for (const taskGroup of schedule.taskGroups) {
+    byParent.set(taskGroup.parentId, [...(byParent.get(taskGroup.parentId) ?? []), taskGroup])
   }
   if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
-  const chosenRows = hands.readSession().selection.chosenRows
+  const chosenTaskGroups = hands.readSession().selection.chosenTaskGroups
   const newGroupIds: Record<string, string> = {}
   const walking = [copied.groupId]
   while (walking.length > 0) {
@@ -146,7 +146,7 @@ function pasteCommandFor(
   return {
     kind: 'pasteTaskGroupSubtree',
     sourceGroupId: copied.groupId,
-    targetGroupId: chosenRows.length === 1 ? (chosenRows[0] as string) : null,
+    targetGroupId: chosenTaskGroups.length === 1 ? (chosenTaskGroups[0] as string) : null,
     newGroupIds,
   }
 }

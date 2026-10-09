@@ -239,7 +239,7 @@ describe('IF-9 -- the focused Dialogue Field raises no begin notice', () => {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

@@ -16,7 +16,7 @@ import {
 import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/json-codec'
 import type {
   AppHeaderItems,
-  RowTitlePanel,
+  TaskGroupPanel,
   ScreenFrame,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
@@ -121,22 +121,22 @@ const regionsOf = (
     width: screen.width,
     height: screen.height - screen.appHeaderHeight,
   }
-  const rowAreaWidth =
+  const taskGroupAreaWidth =
     canvas.width -
     SETTINGS_CONSTANTS.canvasPadding -
-    settings.rowTitlePanelWidth -
+    settings.taskGroupPanelWidth -
     PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
-  const rowAreaHeight =
+  const taskGroupAreaHeight =
     canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
-    rowTitlePanel: { x: canvas.x, y: canvas.y, width: settings.rowTitlePanelWidth, height: canvas.height },
+    taskGroupPanel: { x: canvas.x, y: canvas.y, width: settings.taskGroupPanelWidth, height: canvas.height },
     timeRuler: {
-      x: canvas.x + settings.rowTitlePanelWidth,
+      x: canvas.x + settings.taskGroupPanelWidth,
       y: canvas.y,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: settings.rulerHeight,
     },
     propertiesPanel: {
@@ -145,11 +145,11 @@ const regionsOf = (
       width: PROPERTIES_PANEL_WIDTH,
       height: canvas.height,
     },
-    rowArea: {
-      x: canvas.x + settings.rowTitlePanelWidth,
+    taskGroupArea: {
+      x: canvas.x + settings.taskGroupPanelWidth,
       y: canvas.y + settings.rulerHeight,
-      width: rowAreaWidth,
-      height: rowAreaHeight,
+      width: taskGroupAreaWidth,
+      height: taskGroupAreaHeight,
     },
   }
 }
@@ -171,7 +171,7 @@ const VIEW: ScreenView = {
     commands: [],
     language: 'ja',
   } as AppHeaderItems,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

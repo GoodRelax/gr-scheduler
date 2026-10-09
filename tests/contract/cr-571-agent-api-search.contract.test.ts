@@ -12,7 +12,7 @@ import {
   type AgentSnapshot,
   type FrameSnapshot,
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { NOT_STORED_LIMITS, type EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
@@ -55,16 +55,16 @@ const templateGroups = TEMPLATE.schedule['taskGroups'] as readonly Loose[]
 const templateResources = TEMPLATE.schedule['resources'] as readonly Loose[]
 const templateAssignments = TEMPLATE.schedule['assignments'] as readonly Loose[]
 
-const PARENT = 'row-parent'
-const CHILD = 'row-child'
-const OTHER = 'row-other'
+const PARENT = 'task-group-parent'
+const CHILD = 'task-group-child'
+const OTHER = 'task-group-other'
 const DEEP_UID = 101
 const OTHER_UID = 102
 
 const task = (uid: number, name: string, start: string): Loose => ({
   ...(templateTasks[0] as Loose),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name,
   start,
@@ -79,7 +79,7 @@ const task = (uid: number, name: string, start: string): Loose => ({
   dependencies: [],
 })
 
-const rowsWith = (parentState: string, childState: string): readonly Loose[] => [
+const taskGroupsWith = (parentState: string, childState: string): readonly Loose[] => [
   { ...(templateGroups[0] as Loose), id: PARENT, parentId: null, order: 0, label: 'Parent', derivedFromTaskUid: null, treeState: parentState },
   { ...(templateGroups[0] as Loose), id: CHILD, parentId: PARENT, order: 0, label: 'Child', derivedFromTaskUid: null, treeState: childState },
   { ...(templateGroups[0] as Loose), id: OTHER, parentId: null, order: 1, label: 'Other', derivedFromTaskUid: null, treeState: 'auto' },
@@ -88,7 +88,7 @@ const rowsWith = (parentState: string, childState: string): readonly Loose[] => 
 const scheduleWith = (parentState: string, childState: string): Loose => ({
   ...TEMPLATE.schedule,
   tasks: [task(DEEP_UID, 'PM review', '2026-05-01T00:00:00'), task(OTHER_UID, 'Budget', '2026-04-01T00:00:00')],
-  taskGroups: rowsWith(parentState, childState),
+  taskGroups: taskGroupsWith(parentState, childState),
   taskGroupMembers: [
     { taskUid: DEEP_UID, groupId: CHILD },
     { taskUid: OTHER_UID, groupId: OTHER },
@@ -124,7 +124,7 @@ const STARTING_STAMP = {
 } as const
 
 const HISTORY_LIMITS = { maxSteps: NOT_STORED_LIMITS['S-94'], maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * 1024 * 1024 }
-const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const SETTINGS_LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const SCREEN: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 const READ_AT = '2026-08-20T08:30:00Z'
 
@@ -170,7 +170,7 @@ function bench(parentState: string, childState: string): Bench {
     isDeliveringNotices: false,
   }
   const snapshotOf = (): AgentSnapshot => ({
-    defaultRowName: DEFAULT_ROW_NAME,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
     document: state.document,
     documentAsWritten: state.document,
     selection: state.selection,

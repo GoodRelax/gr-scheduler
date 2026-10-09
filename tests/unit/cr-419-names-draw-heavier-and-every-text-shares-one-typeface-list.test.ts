@@ -281,7 +281,7 @@ const domDrawn = (): { readonly mount: FakeElement; readonly svg: string } => {
     { surface, language: 'ja' },
   )
   drain()
-  part = { part: 'App Header', entry: 'IC-17', format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
+  part = { part: 'App Header', entry: 'IC-17', format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
   loop.receiveInput(pointer('down'))
   loop.receiveInput(pointer('up'))
   part = null
@@ -330,9 +330,9 @@ describe('FR-039 (MUST) -- the DOM surfaces: App Header, Command Palette, help a
 
   it(`does not draw the row names at S-245: ${FR_039_NOTHING_ELSE_IS_HEAVIER}`, () => {
     const { mount } = domDrawn()
-    const rowNames = selfAndDescendants(mount).filter((one) => /^row[1-5]$/.test(ownText(one)))
-    expect(rowNames.length, 'premise: the row title panel names the rows').toBeGreaterThan(0)
-    for (const name of rowNames) {
+    const taskGroupNames = selfAndDescendants(mount).filter((one) => /^row[1-5]$/.test(ownText(one)))
+    expect(taskGroupNames.length, 'premise: the task group panel names the rows').toBeGreaterThan(0)
+    for (const name of taskGroupNames) {
       expect(effectiveOf(name, 'font-weight'), FR_039_NOTHING_ELSE_IS_HEAVIER).not.toBe(String(S_245))
     }
   })

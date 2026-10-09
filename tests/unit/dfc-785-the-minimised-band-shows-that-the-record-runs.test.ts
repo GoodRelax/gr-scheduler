@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-renderer'
-import { keyOf, rowDocument, shell, type ShellBench } from './cr-541-stage'
+import { keyOf, taskGroupDocument, shell, type ShellBench } from './cr-541-stage'
 
 const benches: ShellBench[] = []
 afterEach(() => {
@@ -15,7 +15,7 @@ const MINIMISE = 'IC-75'
 const PALETTE_KEY = 'P'
 
 const take = (built: ShellBench, icon: string): void => {
-  built.aim({ part: 'Command Palette', entry: icon, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
+  built.aim({ part: 'Command Palette', entry: icon, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as ScreenPart)
   built.click(30, 650)
   built.aim(null)
 }
@@ -27,7 +27,7 @@ const bandRecordOf = (built: ShellBench): { icon: string; isPressed: boolean } |
 
 describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimised palette', () => {
   const benchOf = (): ShellBench => {
-    const built = shell(rowDocument([{ id: 'g1', parentId: null }]))
+    const built = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
     benches.push(built)
     return built
   }

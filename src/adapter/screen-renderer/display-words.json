@@ -163,7 +163,7 @@
    },
    "hint": {
     "ja": "行軸（縦）を縮小",
-    "en": "Zoom the row axis (vertical) out"
+    "en": "Zoom the vertical axis (vertical) out"
    }
   },
   {
@@ -174,7 +174,7 @@
    },
    "hint": {
     "ja": "行軸（縦）を拡大",
-    "en": "Zoom the row axis (vertical) in"
+    "en": "Zoom the vertical axis (vertical) in"
    }
   },
   {
@@ -665,22 +665,22 @@
    "rowId": "IC-141",
    "label": {
     "ja": "親子判別",
-    "en": "Show WBS Parents"
+    "en": "Show Parent Tasks"
    },
    "hint": {
     "ja": "WBS の親子を、子から親への矢印で表示する。もう一度押すと非表示にする",
-    "en": "Show the WBS parents as arrows from child to parent; press again to hide them"
+    "en": "Show the parent tasks as arrows from child to parent; press again to hide them"
    }
   },
   {
    "rowId": "IC-142",
    "label": {
     "ja": "親定義",
-    "en": "Set a WBS Parent"
+    "en": "Set Parent Task"
    },
    "hint": {
     "ja": "WBS の親を結ぶ構え。子を選び、子から親へ引く",
-    "en": "Arm WBS parent linking; select the children, then drag from a child to its parent"
+    "en": "Arm parent task linking; select the children, then drag from a child to its parent"
    }
   },
   {
@@ -1487,7 +1487,7 @@
    "rowId": "PR-15",
    "label": {
     "ja": "WBS の親",
-    "en": "WBS parent"
+    "en": "parent task"
    }
   },
   {
@@ -1803,11 +1803,11 @@
   {
    "rowId": "K-12",
    "keys": [
-    "rowGap"
+    "taskGroupGap"
    ],
    "label": {
     "ja": "行の間隔",
-    "en": "rowGap"
+    "en": "taskGroupGap"
    }
   },
   {
@@ -2093,31 +2093,31 @@
   {
    "rowId": "K-36",
    "keys": [
-    "rowTitleFont"
+    "taskGroupTitleFont"
    ],
    "label": {
     "ja": "行名の文字",
-    "en": "rowTitleFont"
+    "en": "taskGroupTitleFont"
    }
   },
   {
    "rowId": "K-37",
    "keys": [
-    "rowTitleIndent"
+    "taskGroupTitleIndent"
    ],
    "label": {
     "ja": "行名の TaskGroup の深さ 1 段ぶんのインデント",
-    "en": "rowTitleIndent"
+    "en": "taskGroupTitleIndent"
    }
   },
   {
    "rowId": "K-38",
    "keys": [
-    "rowTitleTopScale"
+    "taskGroupTitleTopScale"
    ],
    "label": {
     "ja": "TaskGroup 深さ 1 の行名の倍率",
-    "en": "rowTitleTopScale"
+    "en": "taskGroupTitleTopScale"
    }
   },
   {
@@ -2413,17 +2413,17 @@
   {
    "rowId": "K-71",
    "keys": [
-    "rowTitlePanelWidth"
+    "taskGroupPanelWidth"
    ],
    "label": {
     "ja": "タスクグループパネルの幅",
-    "en": "rowTitlePanelWidth"
+    "en": "taskGroupPanelWidth"
    }
   },
   {
    "rowId": "K-143",
    "keys": [
-    "rowTitlePanelWidthFixed"
+    "taskGroupPanelWidthFixed"
    ],
    "label": {
     "ja": "タスクグループパネルの幅を固定する",
@@ -2453,11 +2453,11 @@
   {
    "rowId": "K-111",
    "keys": [
-    "pinnedRowMax"
+    "pinnedTaskGroupMax"
    ],
    "label": {
     "ja": "ピン止めの件数の上限",
-    "en": "pinnedRowMax"
+    "en": "pinnedTaskGroupMax"
    }
   },
   {
@@ -3200,10 +3200,10 @@
    }
   },
   {
-   "block": "Row Title Panel",
+   "block": "Task Group Panel",
    "text": {
     "ja": "行見出しパネル",
-    "en": "Row Title Panel"
+    "en": "Task Group Panel"
    }
   },
   {
@@ -3925,7 +3925,7 @@
    },
    "nextStep": {
     "ja": "確定するには、親定義を構えて子から親へ引いてください",
-    "en": "To make it definite, arm Set a WBS Parent and drag from the child to the parent"
+    "en": "To make it definite, arm Set Parent Task and drag from the child to the parent"
    }
   },
   {
@@ -4349,7 +4349,7 @@
  ],
  "confirmationMarks": [
   {
-   "mark": "shownOnAnotherRow",
+   "mark": "shownOnAnotherTaskGroup",
    "text": {
     "ja": "別の行に表示中",
     "en": "shown on another row"
@@ -4522,7 +4522,7 @@
    "rowId": "MK-4",
    "text": {
     "ja": "行軸（縦）だけをズームする",
-    "en": "Zoom the row axis only"
+    "en": "Zoom the vertical axis only"
    },
    "press": {
     "ja": "Alt ＋ {IC-102}",
@@ -4632,7 +4632,7 @@
    "rowId": "MK-13",
    "text": {
     "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、行見出し＝行名",
-    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; row title: the row name"
+    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
     "ja": "ダブルクリック",
@@ -4709,7 +4709,7 @@
    "rowId": "AR-7",
    "text": {
     "ja": "WBS の親",
-    "en": "WBS parent"
+    "en": "parent task"
    }
   }
  ],
@@ -5054,7 +5054,7 @@
    }
   }
  ],
- "rowTitleWidthField": [
+ "taskGroupPanelWidthField": [
   {
    "part": "unit",
    "text": {
@@ -5284,7 +5284,7 @@
    "rowId": "SQ-8",
    "text": {
     "ja": "行タイトル",
-    "en": "Row Title"
+    "en": "Task Group Name"
    }
   },
   {
@@ -5411,7 +5411,7 @@
    }
   }
  ],
- "wbsParentChoice": [
+ "parentTaskChoice": [
   {
    "part": "childTasks",
    "text": {

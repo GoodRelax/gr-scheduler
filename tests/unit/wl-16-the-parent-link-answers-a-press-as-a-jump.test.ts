@@ -1,4 +1,4 @@
-// WL-16 seam (implementer's wiring check): a press on the panel's parent link answers as the jump target T-332 follows.
+// PTL-16 seam (implementer's wiring check): a press on the panel's parent link answers as the jump target T-332 follows.
 
 import { describe, expect, it } from 'vitest'
 
@@ -11,7 +11,7 @@ const PANEL_ANSWER: ScreenPart = {
   part: 'Properties Panel',
   entry: null,
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -22,7 +22,7 @@ function elementWith(attributes: Readonly<Record<string, string>>): Element {
   return { getAttribute: (name: string) => attributes[name] ?? null } as unknown as Element
 }
 
-describe('WL-16 / SJ-1: the parent link is answered as a task jump', () => {
+describe('PTL-16 / SJ-1: the parent link is answered as a task jump', () => {
   it('a press on the link names the parent Task as the jump target', () => {
     const answer = withPropertyLinkJump(PANEL_ANSWER, elementWith({ [LINK_TASK_ATTRIBUTE]: '7' }))
     expect(answer?.searchJumpTarget).toEqual({ kind: 'task', taskUid: 7 })

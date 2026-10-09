@@ -9,12 +9,12 @@ import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import {
   ERP_SAMPLE,
   REQUIREMENTS,
-  ROW_HIDE,
-  ROW_OPEN_ONE_LEVEL,
+  TASK_GROUP_HIDE,
+  TASK_GROUP_OPEN_ONE_LEVEL,
   SHALLOW_ZOOM,
   documentOf,
   drawnRowIds,
-  isRowEntranceArmed,
+  isTaskGroupEntranceArmed,
   openDocument,
   openStage,
   readTree,
@@ -271,7 +271,7 @@ test('CR-653 -- IN-3, UZ-2, EZ-2 and GR-19 still say what these cases press, wor
   for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
   expect(REQUIREMENTS, 'IN-3 no longer asks a description to be hoverable').not.toContain('ポインタを乗せられること')
   expect(S_124_MS, 'premise: S-124 reads as a wait').toBeGreaterThan(0)
-  for (const icon of [ROW_HIDE, ROW_OPEN_ONE_LEVEL, PLACE_A_RECTANGLE]) {
+  for (const icon of [TASK_GROUP_HIDE, TASK_GROUP_OPEN_ONE_LEVEL, PLACE_A_RECTANGLE]) {
     expect(HINTS.has(icon), `premise: the dictionary gives ${icon} a description`).toBe(true)
   }
   for (const icon of [PLACE_A_RECTANGLE, ARM_A_DEPENDENCY]) {
@@ -289,27 +289,27 @@ test.describe('CR-653 (a) -- the description of a row control covers the control
       const { page } = stage
       const row = 'T1'
       expect(await drawnRowIds(page), 'premise: the children of T1 are not drawn yet').not.toContain('T1a')
-      expect(await isRowEntranceArmed(page, row, ROW_OPEN_ONE_LEVEL), `premise: ${ROW_OPEN_ONE_LEVEL} has a level to open`).toBe(true)
+      expect(await isTaskGroupEntranceArmed(page, row, TASK_GROUP_OPEN_ONE_LEVEL), `premise: ${TASK_GROUP_OPEN_ONE_LEVEL} has a level to open`).toBe(true)
       const scope = `[data-group-id="${row}"]`
-      const hide = await rectIn(page, scope, ROW_HIDE)
-      const below = await rectIn(page, scope, ROW_OPEN_ONE_LEVEL)
+      const hide = await rectIn(page, scope, TASK_GROUP_HIDE)
+      const below = await rectIn(page, scope, TASK_GROUP_OPEN_ONE_LEVEL)
 
-      const shown = await restUntilHinted(page, ROW_HIDE, centreOf(hide))
+      const shown = await restUntilHinted(page, TASK_GROUP_HIDE, centreOf(hide))
       const at = pointOfOverlap(shown.rect, below, centreOf(hide).x)
-      expect(at, `premise: the description ${said(shown.rect)} of ${ROW_HIDE} covers ${ROW_OPEN_ONE_LEVEL} ${said(below)}`).not.toBeNull()
+      expect(at, `premise: the description ${said(shown.rect)} of ${TASK_GROUP_HIDE} covers ${TASK_GROUP_OPEN_ONE_LEVEL} ${said(below)}`).not.toBeNull()
       if (at === null) return
-      expect(holds(hide, at), `premise: ${JSON.stringify(at)} lies outside ${ROW_HIDE} ${said(hide)}`).toBe(false)
+      expect(holds(hide, at), `premise: ${JSON.stringify(at)} lies outside ${TASK_GROUP_HIDE} ${said(hide)}`).toBe(false)
 
       const front = await frontAt(page, at)
       expect(front.shownText, 'premise: the description still stands while the front is read').toBe(shown.text)
       expect(front.boxHolds, `premise: the box covers ${JSON.stringify(at)}`).toBe(true)
       expect(front.inTooltip, `${IN_3_TAKES_NO_POINTER} -- the box is the front at ${JSON.stringify(at)}`).toBe(false)
-      expect(front.entrance, UZ_2_PASSES_THE_PRESS).toBe(ROW_OPEN_ONE_LEVEL)
+      expect(front.entrance, UZ_2_PASSES_THE_PRESS).toBe(TASK_GROUP_OPEN_ONE_LEVEL)
 
       // STEP: straight down from the hinted control onto the covered one, and press at once
       await pressHere(page, at)
-      expect(await drawnRowIds(page), `${UZ_2_PASSES_THE_PRESS} -- ${ROW_OPEN_ONE_LEVEL} did not open a level`).toContain('T1a')
-      expect(stateOf(await readTree(page), row), `${UZ_2_PASSES_THE_PRESS} -- the press went to ${ROW_HIDE}`).not.toBe('hidden')
+      expect(await drawnRowIds(page), `${UZ_2_PASSES_THE_PRESS} -- ${TASK_GROUP_OPEN_ONE_LEVEL} did not open a level`).toContain('T1a')
+      expect(stateOf(await readTree(page), row), `${UZ_2_PASSES_THE_PRESS} -- the press went to ${TASK_GROUP_HIDE}`).not.toBe('hidden')
     } finally {
       await stage.close()
     }

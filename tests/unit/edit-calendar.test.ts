@@ -34,7 +34,7 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import { editCalendar } from '../../src/use-case/edit-document/edit-calendar'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // ---------------------------------------------------------------------------
 // Fixed data copied from the tables (Chapter 1.9)
@@ -124,10 +124,10 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       rulerFont: 14,
       rulerHeight: 48,
       canvasPadding: 10,
-      rowTitlePanelWidth: 170,
+      taskGroupPanelWidth: 170,
       propertyPanelWidth: 280,
       pinnedGroupIds: [],
-      pinnedRowMax: 5,
+      pinnedTaskGroupMax: 5,
       zoomX: 1,
       zoomY: 1,
       scrollDate: null,
@@ -144,7 +144,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
 
 // What table T-067's WS-1 to WS-5 need around one command. Same values as
 // use-case.test.ts; only the UN-13 case below reads them.
-const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
+const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
@@ -166,7 +166,7 @@ const calendarWithUid = (document: Document, uid: number): Calendar =>
  */
 const taskOf = (part: Record<string, unknown>): unknown => ({
   uid: 0,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: 0,
   name: 'a task',
   start: null,
@@ -423,7 +423,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
       weekStartDay: 0,
     }
     const plan = planDocumentChange({
-      defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+      defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
       document,
       readStamp: document.documentStamp,
       commands: [command],
@@ -581,7 +581,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     // is where the old figure is, and there is no second write for a second step.
     const document = documentWithAPricedTask()
     const plan = planDocumentChange({
-      defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+      defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
       document,
       readStamp: document.documentStamp,
       commands: [
@@ -651,7 +651,7 @@ const documentWithADisagreeingFigure = (): Document =>
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
-    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,

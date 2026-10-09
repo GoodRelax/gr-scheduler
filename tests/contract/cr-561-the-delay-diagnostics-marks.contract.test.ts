@@ -25,17 +25,17 @@ import {
   type ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { bare, specTable, unbroken } from './spec-table'
-import { rowDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, SCREEN, taskOf } from '../unit/cr-541-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
 const cellOf = (table: string, id: string, heading: string): string => {
-  const cell = rowIn(table, id).by[heading]
+  const cell = verticalIn(table, id).by[heading]
   if (cell === undefined) throw new Error(`table ${table} has no column ${heading} (${specTable(table).headings.join(' | ')})`)
   return cell
 }
@@ -111,7 +111,7 @@ interface Stage {
 
 const STAGE: Stage = (() => {
   const rows = [1, 2, 3, 4].map((uid) => ({ id: `g${uid}`, parentId: null }))
-  const raw = rowDocument(rows, { progressMarkerVisible: true, themePreference: 'light' })
+  const raw = taskGroupDocument(rows, { progressMarkerVisible: true, themePreference: 'light' })
   raw.schedule.project.statusDate = '2026-05-08T17:00:00'
   raw.schedule.tasks = [
     taskOf(LATE, { name: 'Late', start: '2026-04-06T08:00:00', finish: '2026-04-24T17:00:00' }),

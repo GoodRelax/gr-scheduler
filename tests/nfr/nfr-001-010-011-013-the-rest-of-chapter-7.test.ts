@@ -675,7 +675,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
             schedule: {
               tasks: {
                 uid: number
-                wbsParentUid: number | null
+                parentTaskUid: number | null
                 name: string
                 dependencies?: unknown[]
               }[]
@@ -688,9 +688,9 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
     const tasks = api.readDocument().schedule.tasks
     const lengths = tasks.map((t) => String(t.name ?? '').length)
     const answer = api.importDocument({ text: '{}' })
-    const parents = new Set(tasks.map((t) => t.wbsParentUid).filter((u) => u !== null))
+    const parents = new Set(tasks.map((t) => t.parentTaskUid).filter((u) => u !== null))
     return {
-      // A `Task` nothing names as its WBS parent: dragging it moves it alone.
+      // A `Task` nothing names as its parent task: dragging it moves it alone.
       leafUids: tasks.filter((t) => !parents.has(t.uid)).map((t) => t.uid),
       tasks: tasks.length,
       dependencies: tasks.reduce((n, t) => n + (t.dependencies?.length ?? 0), 0),
@@ -736,7 +736,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
   // Dragging it delivered 162 frames whose redraw callback did 10.45ms of work
   // EACH, and rewrote the canvas ZERO times: the grab took nothing, and the
   // stretch measured an empty gesture at 53 frames a second. ⭐ So the bar is
-  // chosen from the `Task` that nothing names as its WBS parent, and the
+  // chosen from the `Task` that nothing names as its parent task, and the
   // redraw count is reported beside the number so that an empty grab can never
   // pass for a drag again.
   const bar = await page.evaluate(
@@ -1005,15 +1005,15 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
     const want = Math.round((TARGET_TASKS / 8) * multiple)
     const trimmed = await page.evaluate((target: number) => {
       const api = (window as unknown as { grSchedulerAgentApi: {
-        readDocument(): { schedule: { tasks: { uid: number; wbsParentUid: number | null }[] } }
+        readDocument(): { schedule: { tasks: { uid: number; parentTaskUid: number | null }[] } }
         readStamp(): unknown
         applyCommands(request: unknown): { accepted: boolean; refusal?: unknown }
       } }).grSchedulerAgentApi
       const tasks = api.readDocument().schedule.tasks
       if (tasks.length <= target) return { tasks: tasks.length, accepted: true, note: 'already at or below' }
-      // ⭐ LEAVES ONLY. A `Task` that something names as its WBS parent takes
+      // ⭐ LEAVES ONLY. A `Task` that something names as its parent task takes
       // its children with it, so the count would overshoot the step.
-      const parents = new Set(tasks.map((t) => t.wbsParentUid).filter((u) => u !== null))
+      const parents = new Set(tasks.map((t) => t.parentTaskUid).filter((u) => u !== null))
       const leaves = tasks.filter((t) => !parents.has(t.uid)).map((t) => t.uid)
       const victims = leaves.slice(0, tasks.length - target)
       const answer = api.applyCommands({

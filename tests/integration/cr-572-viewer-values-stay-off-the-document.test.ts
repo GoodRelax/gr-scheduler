@@ -234,7 +234,7 @@ function bench(document: Document = templateDocument()): Bench {
         (one) => x >= one.band.x && x < one.band.x + one.band.width && y >= one.band.y && y < one.band.y + one.band.height,
       )
       if (divider === undefined) return null
-      return { part: 'Panel Divider', entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: divider.panel, noticeDismissKey: null } as unknown as ScreenPart
+      return { part: 'Panel Divider', entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: divider.panel, noticeDismissKey: null } as unknown as ScreenPart
     },
   }
   const store: FileStore = {
@@ -270,7 +270,7 @@ function bench(document: Document = templateDocument()): Bench {
     send,
     view,
     press: (entry) => {
-      aimed = { part: surfaceOf(entry), entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part: surfaceOf(entry), entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 600, 20))
       send(pointer('up', 600, 20))
       aimed = null
@@ -528,10 +528,10 @@ describe('CR-572 item 7 -- the dual cursor dates are never in the file, and leav
     const built = bench()
     const document = JSON.stringify(built.loop.document())
     built.press('IC-45')
-    const rowArea = built.loop.current()?.regions.rowArea
-    if (rowArea === undefined) throw new Error('no frame')
-    built.send(pointer('down', rowArea.x + rowArea.width / 3, rowArea.y + 10))
-    built.send(pointer('up', rowArea.x + rowArea.width / 3, rowArea.y + 10))
+    const taskGroupArea = built.loop.current()?.regions.taskGroupArea
+    if (taskGroupArea === undefined) throw new Error('no frame')
+    built.send(pointer('down', taskGroupArea.x + taskGroupArea.width / 3, taskGroupArea.y + 10))
+    built.send(pointer('up', taskGroupArea.x + taskGroupArea.width / 3, taskGroupArea.y + 10))
     expect(built.loop.hasUnsavedEdits()).toBe(false)
     expect(JSON.stringify(built.loop.document())).toBe(document)
     built.press('IC-100')

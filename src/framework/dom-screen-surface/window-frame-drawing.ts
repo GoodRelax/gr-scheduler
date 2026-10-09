@@ -127,5 +127,5 @@ export function windowPartAt(
 
 /** @purity pure */
 export function windowPartOf(part: string): ScreenPart {
-  return { part, entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
+  return { part, entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null }
 }

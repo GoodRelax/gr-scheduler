@@ -40,17 +40,17 @@ import {
 import {
   ADD_CHILD_ROW_ENTRY,
   DELETE_ROW_ENTRY,
-  ROW_CONTROL_GROUND_MARK,
-  fillRowTitleTree,
-  foldedRowCountElement,
+  TASK_GROUP_CONTROL_GROUND_MARK,
+  fillTaskGroupTitleTree,
+  foldedTaskGroupCountElement,
   headEntryElements,
-  headFoldedRowCountRight,
-  markFoldedRowCount,
+  headFoldedTaskGroupCountRight,
+  markFoldedTaskGroupCount,
   markHeadEntries,
-  rowControlsHeightReporter,
-  rowControlsMeasureKey,
-  rowsTopPx,
-} from './row-title-panel-drawing'
+  taskGroupControlsHeightReporter,
+  taskGroupControlsMeasureKey,
+  taskGroupsTopPx,
+} from './task-group-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
 import { ROSTER_SCROLLER, helpWindowPainter, keepRosterScroll, modalElement } from './open-modals-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
@@ -79,11 +79,11 @@ export const ROLE = {
   headerCommands: 'Header Commands',
   panelDivider: 'Panel Divider',
   scrollbars: 'Scrollbars',
-  rowTitlePanel: 'Row Title Panel',
-  rowTitleTree: 'Row Title Tree',
-  pinnedRow: 'Pinned Row',
-  rowExpander: 'Row Expander',
-  rowPin: 'Row Pin',
+  taskGroupPanel: 'Task Group Panel',
+  taskGroupTitleTree: 'Task Group Title Tree',
+  pinnedTaskGroup: 'Pinned Task Group',
+  taskGroupExpander: 'Task Group Expander',
+  taskGroupPin: 'Task Group Pin',
   propertiesPanel: 'Properties Panel',
   commandPalette: 'Command Palette',
   paletteGroups: 'Palette Groups',
@@ -130,10 +130,10 @@ const PAINT_ROW = {
   pressed: 'S-183',
   pinned: 'S-151',
   hoveredEntrance: 'S-147',
-  pinnedRow: 'S-151',
+  pinnedTaskGroup: 'S-151',
   grabAxisPosition: 'S-151',
   grabAxisDepth: 'S-152',
-  heldRow: 'S-151',
+  heldTaskGroup: 'S-151',
   caution: 'S-153',
   brandingRim: 'S-464',
   brandingDivider: 'S-493',
@@ -158,10 +158,10 @@ export const PAINT = {
   pressed: painted('pressed'),
   pinned: painted('pinned'),
   hoveredEntrance: painted('hoveredEntrance'),
-  pinnedRow: painted('pinnedRow'),
+  pinnedTaskGroup: painted('pinnedTaskGroup'),
   grabAxisPosition: painted('grabAxisPosition'),
   grabAxisDepth: painted('grabAxisDepth'),
-  heldRow: painted('heldRow'),
+  heldTaskGroup: painted('heldTaskGroup'),
   caution: painted('caution'),
   brandingRim: painted('brandingRim'),
   brandingDivider: painted('brandingDivider'),
@@ -170,9 +170,9 @@ export const PAINT = {
 } as const
 
 /** @purity pure */
-export function stateGround(paint: string, depthRow: 'S-214' | 'S-215'): string {
+export function stateGround(paint: string, depthTaskGroup: 'S-214' | 'S-215'): string {
   // WHY: color-mix, not opacity, which would fade the row's name and controls with the ground.
-  return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthRow]}%, transparent)`
+  return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthTaskGroup]}%, transparent)`
 }
 
 // see FR-029, FR-051, FR-053
@@ -182,13 +182,13 @@ export function chromeScaledPx(px: number): number {
 }
 
 // see FR-029, S-243
-// TRAP: S-243 on the Row Title Panel and S-141 on every other surface; the box and frame line never differ.
-type EntranceGapRow = 'S-141' | 'S-243'
+// TRAP: S-243 on the Task Group Panel and S-141 on every other surface; the box and frame line never differ.
+type EntranceGapTaskGroup = 'S-141' | 'S-243'
 
 // see FR-029
 /** @purity pure */
-export function entranceGapPx(gapRow: EntranceGapRow = 'S-141'): number {
-  return chromeScaledPx(NOT_STORED_ICON_SIZES[gapRow])
+export function entranceGapPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
+  return chromeScaledPx(NOT_STORED_ICON_SIZES[gapTaskGroup])
 }
 
 // see FR-029
@@ -199,30 +199,30 @@ export function entranceBorderPx(): number {
 
 // see FR-029
 /** @purity pure */
-export function entranceOuterWidthPx(gapRow: EntranceGapRow = 'S-141'): number {
+export function entranceOuterWidthPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(
     NOT_STORED_ICON_SIZES['S-138'] +
-      (NOT_STORED_ICON_SIZES[gapRow] + NOT_STORED_ICON_SIZES['S-237']) * 2,
+      (NOT_STORED_ICON_SIZES[gapTaskGroup] + NOT_STORED_ICON_SIZES['S-237']) * 2,
   )
 }
 
 // see FR-029, LF-16, HF-19
 /** @purity pure */
-export function entranceOuterHeightPx(gapRow: EntranceGapRow = 'S-141'): number {
+export function entranceOuterHeightPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number {
   return chromeScaledPx(
-    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES[gapRow] * 2,
+    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES[gapTaskGroup] * 2,
   )
 }
 
 // see FR-029
 /** @purity pure */
-function entryGlyphRoom(gapRow: EntranceGapRow = 'S-141'): string {
+function entryGlyphRoom(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
     'box-sizing:border-box;' +
-    `min-width:${entranceOuterWidthPx(gapRow)}px;` +
-    `padding:0 ${entranceGapPx(gapRow)}px;` +
-    `min-height:${entranceOuterHeightPx(gapRow)}px;`
+    `min-width:${entranceOuterWidthPx(gapTaskGroup)}px;` +
+    `padding:0 ${entranceGapPx(gapTaskGroup)}px;` +
+    `min-height:${entranceOuterHeightPx(gapTaskGroup)}px;`
   )
 }
 
@@ -257,22 +257,22 @@ export function appendAssignment(
 }
 
 /** @purity pure */
-export function entryStyle(gapRow: EntranceGapRow = 'S-141'): string {
+export function entryStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.ink};` +
     `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
     'border-radius:0.25em;cursor:pointer;' +
-    entryGlyphRoom(gapRow)
+    entryGlyphRoom(gapTaskGroup)
   )
 }
 
 /** @purity pure */
-export function entryFaintStyle(gapRow: EntranceGapRow = 'S-141'): string {
+export function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.rule};` +
     `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
     'border-radius:0.25em;cursor:default;' +
-    entryGlyphRoom(gapRow)
+    entryGlyphRoom(gapTaskGroup)
   )
 }
 
@@ -311,7 +311,7 @@ export const STYLE = {
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `font:inherit;color:${PAINT.ink};`,
   layer: 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;',
-  // TRAP: isolate the Row Title Tree, so a hovered row's raise stays inside it; unisolated it
+  // TRAP: isolate the Task Group Title Tree, so a hovered row's raise stays inside it; unisolated it
   // lifts the row over every later layer, the divider band and the modals included.
   treeIsolation: 'isolation:isolate;',
   appHeader:
@@ -354,22 +354,22 @@ export const STYLE = {
   groupGridLine: `background:${PAINT.groupGridLine};pointer-events:none;`,
   scrollbarTrack: `background:${PAINT.panel};pointer-events:auto;`,
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
-  rowTitlePanel: `position:absolute;background:${PAINT.panel};`,
+  taskGroupPanel: `position:absolute;background:${PAINT.panel};`,
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
   // see HF-19
   // WHY: clip across only; the controls' lattice may hang below a row shorter than it.
-  rowTitle:
+  taskGroupTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
     'overflow-x:clip;overflow-y:visible;white-space:nowrap;' +
     `background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
-  rowLabel: 'flex:1;overflow:hidden;',
+  taskGroupLabel: 'flex:1;overflow:hidden;',
   // TRAP: in the flex flow each control would take room from the name, so the browser's
   // ellipsis cuts it while isLabelTruncated stays false and no tooltip is raised (FR-085).
-  rowControl:
+  taskGroupControl:
     `position:absolute;font:inherit;background:transparent;color:${PAINT.ink};` +
     'border:none;cursor:pointer;pointer-events:auto;',
-  rowControlFaintInk: `color:${PAINT.rule};cursor:default;`,
+  taskGroupControlFaintInk: `color:${PAINT.rule};cursor:default;`,
   propertiesPanel:
     'position:absolute;box-sizing:border-box;overflow-y:auto;' +
     `background:${PAINT.panel};color:${PAINT.ink};border-left:1px solid ${PAINT.rule};` +
@@ -523,7 +523,7 @@ export function pageGroundStyle(theme: ScreenTheme): string {
   )
 }
 
-export const ROW_GRAB_STRIP_MARK = 'data-row-grab'
+export const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab'
 
 export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
@@ -567,22 +567,22 @@ function markZOrder(element: HTMLElement, rowId: string): void {
   element.style.zIndex = String(zIndexOf(rowId))
 }
 
-const ROW_CONTROL_SHOWN_CSS =
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowExpander}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowPin}"],` +
-  `[data-unit="${UNIT_ROW}"] [${ROW_CONTROL_GROUND_MARK}],` +
+const TASK_GROUP_CONTROL_SHOWN_CSS =
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupExpander}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [${TASK_GROUP_CONTROL_GROUND_MARK}],` +
   `[data-unit="${UNIT_ROW}"] [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `[data-unit="${UNIT_ROW}"] [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:hidden;}' +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowExpander}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.rowPin}"],` +
-  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [${ROW_CONTROL_GROUND_MARK}],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.taskGroupExpander}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-role="${ROLE.taskGroupPin}"],` +
+  `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [${TASK_GROUP_CONTROL_GROUND_MARK}],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}' +
   // see HF-6, HF-19
   // WHY: rows paint in tree order, so a later row covers a hanging group and takes its pointer.
-  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowTitleTree}"] > [data-group-id]:hover` +
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupTitleTree}"] > [data-group-id]:hover` +
   '{z-index:1;}'
 
 const PALETTE_FAINTNESS = '0.6'
@@ -605,18 +605,18 @@ function entranceHoverGroundCss(): string {
 
 /** @purity pure */
 function hoverCss(): string {
-  return ROW_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss()
+  return TASK_GROUP_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss()
 }
 
 // see FR-051, HF-19
 // WHY: a hanging group may cross canvasPadding but not the horizontal Scrollbars band; no band
-// lies under the Row Title Panel, so the tree stops where the chart's band starts.
+// lies under the Task Group Panel, so the tree stops where the chart's band starts.
 /** @purity non-pure */
-function markFrame(root: HTMLElement, rowTitleTree: HTMLElement, frame: ScreenFrame): void {
+function markFrame(root: HTMLElement, taskGroupTitleTree: HTMLElement, frame: ScreenFrame): void {
   root.setAttribute('data-full-screen', String(frame.isFullScreen))
   const band = horizontalScrollbar(frame)
   const clip = band === undefined ? '' : `clip-path:inset(0 0 calc(100% - ${band.track.y}px) 0);`
-  rowTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip + zIndexStyle('UZ-11'))
+  taskGroupTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip + zIndexStyle('UZ-11'))
 }
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
@@ -637,7 +637,7 @@ export function anchorKey(anchor: TooltipAnchor): string {
   if (anchor.kind === 'icon') {
     return [anchor.kind, anchor.surface, anchor.icon, anchor.groupId].filter((one) => one !== undefined).join(' ')
   }
-  if (anchor.kind === 'rowTitle') return `rowTitle ${anchor.groupId}`
+  if (anchor.kind === 'taskGroupTitle') return `taskGroupTitle ${anchor.groupId}`
   if (anchor.kind === 'scrollbar') return `scrollbar ${anchor.axis}`
   return `${anchor.kind} ${anchor.taskUid}`
 }
@@ -799,7 +799,7 @@ export interface ScreenSurfaceWiring {
   readonly readAuthor: () => string
   readonly readClockMs: () => number
   readonly onAppHeaderHeightPx: (heightPx: number) => void
-  readonly onRowControlsHeightPx?: (heightPx: number) => void
+  readonly onTaskGroupControlsHeightPx?: (heightPx: number) => void
   // see FR-053, JDG-660
   readonly onCommandPaletteBandPx?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
@@ -859,8 +859,8 @@ function screenLayersOf(host: Document) {
   const layers = {
     hoverSheet,
     frameLayer: made(host, 'div', STYLE.layer),
-    rowTitlePanel: part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden),
-    rowTitleTree: part(host, 'div', ROLE.rowTitleTree, STYLE.layer + STYLE.treeIsolation),
+    taskGroupPanel: part(host, 'div', ROLE.taskGroupPanel, STYLE.hidden),
+    taskGroupTitleTree: part(host, 'div', ROLE.taskGroupTitleTree, STYLE.layer + STYLE.treeIsolation),
     propertiesPanel: part(host, 'div', ROLE.propertiesPanel, STYLE.hidden),
     dividerBandLayer: made(host, 'div', STYLE.layer),
     paletteLayer: made(host, 'div', STYLE.layer),
@@ -889,8 +889,8 @@ function screenLayersOf(host: Document) {
     [layers.showOnlyCheckedBarLayer, 'UZ-8'],
     [layers.dialogueField, 'UZ-9'],
     [layers.dividerBandLayer, 'UZ-10'],
-    [layers.rowTitlePanel, 'UZ-11'],
-    [layers.rowTitleTree, 'UZ-11'],
+    [layers.taskGroupPanel, 'UZ-11'],
+    [layers.taskGroupTitleTree, 'UZ-11'],
     [layers.propertiesPanel, 'UZ-11'],
     [layers.frameLayer, 'UZ-12'],
   ]
@@ -933,16 +933,16 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const root = made(host, 'div', STYLE.root + typefaceStyle() + themeStyle(readTheme()))
   root.setAttribute('data-unit', UNIT_ROW)
   const layers = screenLayersOf(host)
-  const { frameLayer, rowTitlePanel, rowTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
+  const { frameLayer, taskGroupPanel, taskGroupTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
   const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer } = layers
 
-  const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
+  const { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup } =
     headEntryElements(host)
-  const headFoldedRows = foldedRowCountElement(host, 0, headFoldedRowCountRight())
+  const headFoldedTaskGroups = foldedTaskGroupCountElement(host, 0, headFoldedTaskGroupCountRight())
   // see HF-10
   // WHY: the order they are added is the Tab order, so it follows the drawn run from left to right.
-  const head = [collapseEveryRow, openLevelZero, openEveryRow, addTopRow, deleteEveryRow]
-  rowTitlePanel.append(...head, headFoldedRows)
+  const head = [collapseEveryTaskGroup, openLevelZero, openEveryTaskGroup, addTopTaskGroup, deleteEveryTaskGroup]
+  taskGroupPanel.append(...head, headFoldedTaskGroups)
 
   root.append(...Object.values(layers))
   wiring.mount.append(root)
@@ -992,7 +992,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     wiring.onCommandPaletteBandPx?.(paletteBandPx)
   }
 
-  const reportRowControlsHeight = rowControlsHeightReporter(rowTitleTree, readClockMs, wiring)
+  const reportRowControlsHeight = taskGroupControlsHeightReporter(taskGroupTitleTree, readClockMs, wiring)
 
   const dialogue = dialogueFieldPainter(host, dialogueField, readAuthor, readClockMs)
 
@@ -1017,12 +1017,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   /** @purity non-pure */
   function placePanels(view: ScreenView): void {
-    const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
-    rowTitlePanel.setAttribute(
+    const titleEdge = panelEdge(view.frame, 'taskGroupPanel')
+    taskGroupPanel.setAttribute(
       'style',
       (titleEdge === null
         ? STYLE.hidden
-        : STYLE.rowTitlePanel +
+        : STYLE.taskGroupPanel +
             `left:0;top:${headerTopPx()}px;width:${titleEdge.x}px;bottom:0;`) + zIndexStyle('UZ-11'),
     )
     if (view.propertiesPanel === null) {
@@ -1056,7 +1056,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const keys: Record<string, string> = {
       frame: described(view.frame),
       appHeaderItems: described(view.appHeaderItems),
-      rowTitlePanel: described(view.rowTitlePanel),
+      taskGroupPanel: described(view.taskGroupPanel),
       propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(surfaceModal),
@@ -1093,24 +1093,24 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('frame')) {
       fillScreenFrame(host, frameLayer, dividerBandLayer, view.frame, anchorsOf('frame'))
-      markFrame(root, rowTitleTree, view.frame)
+      markFrame(root, taskGroupTitleTree, view.frame)
     }
-    if (changed('rowTitlePanel')) {
-      fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
-      reportRowControlsHeight(rowControlsMeasureKey(view, readTheme(), headerTopPx()))
-      const rowsTop = rowsTopPx(view.rowTitlePanel)
+    if (changed('taskGroupPanel')) {
+      fillTaskGroupTitleTree(host, taskGroupTitleTree, view.taskGroupPanel, anchorsOf('taskGroupPanel'))
+      reportRowControlsHeight(taskGroupControlsMeasureKey(view, readTheme(), headerTopPx()))
+      const taskGroupsTop = taskGroupsTopPx(view.taskGroupPanel)
       for (const corner of head) {
-        if (rowsTop === null) corner.removeAttribute('data-corner-band')
-        else corner.setAttribute('data-corner-band', String(rowsTop - headerTopPx()))
+        if (taskGroupsTop === null) corner.removeAttribute('data-corner-band')
+        else corner.setAttribute('data-corner-band', String(taskGroupsTop - headerTopPx()))
       }
       markHeadEntries(
-        { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow },
-        view.rowTitlePanel,
+        { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup },
+        view.taskGroupPanel,
       )
-      markFoldedRowCount(
-        headFoldedRows,
-        view.rowTitlePanel.foldedRowCount ?? 0,
-        headFoldedRowCountRight(),
+      markFoldedTaskGroupCount(
+        headFoldedTaskGroups,
+        view.taskGroupPanel.foldedTaskGroupCount ?? 0,
+        headFoldedTaskGroupCountRight(),
       )
     }
     if (changed('propertiesPanel') && view.propertiesPanel !== null) {
@@ -1124,7 +1124,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
           propertiesPanel,
           view.propertiesPanel,
           anchorsOf('propertiesPanel'),
-          fieldEditing.typedControlsByRow,
+          fieldEditing.typedControlsByTaskGroup,
         )
       }
     }
@@ -1220,7 +1220,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (told !== null && dismissKey === null) dismissKey = told
       const given = node.getAttribute(CONFIRMATION_ANSWER_ATTRIBUTE)
       if (given !== null && answer === null) answer = given
-      if (node.getAttribute(ROW_GRAB_STRIP_MARK) !== null) onGrabStrip = true
+      if (node.getAttribute(TASK_GROUP_GRAB_STRIP_MARK) !== null) onGrabStrip = true
       const lane = node.getAttribute(SCROLLBAR_AXIS_ATTRIBUTE)
       if (lane !== null && axis === null) axis = lane
       if (node.getAttribute(IMPORT_REPORT_DISMISS_ATTRIBUTE) !== null) {
@@ -1232,13 +1232,13 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (node !== root || part === null) return windowsAnswerAt({ x, y, first, walked: null })
     return windowsAnswerAt({ x, y, first, walked: closeOnlyTitledGrabOf(modalLayer, first, {
-      part: part === ROLE.rowTitleTree ? ROLE.rowTitlePanel : part,
+      part: part === ROLE.taskGroupTitleTree ? ROLE.taskGroupPanel : part,
       entry,
       format,
-      rowGroupId: group,
+      taskGroupId: group,
       resourceUid: uid === null ? null : Number(uid),
       dividerPanel: panel === null ? null : (panel as ScreenPart['dividerPanel']),
-      ...(onGrabStrip ? { isRowGrabStrip: true } : {}),
+      ...(onGrabStrip ? { isTaskGroupGrabStrip: true } : {}),
       ...(axis === null ? {} : { scrollbarAxis: axis as NonNullable<ScreenPart['scrollbarAxis']> }),
       noticeDismissKey: dismissKey,
       ...(answer === null ? {} : { confirmationAnswer: answer }),
@@ -1345,21 +1345,21 @@ export const NOT_STORED_ICON_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_ROW_GRAB_STRIP_SIZES: {
+export const NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES: {
   readonly 'S-218': number
 } = {
   'S-218': 4,
 }
 
 // see T-206
-export const NOT_STORED_ROW_BAND_SIZES: {
+export const NOT_STORED_TASK_GROUP_BAND_SIZES: {
   readonly 'S-213': number
 } = {
   'S-213': 3,
 }
 
 // see T-206
-export const NOT_STORED_ROW_CONTROL_EDGE_SIZES: {
+export const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: {
   readonly 'S-313': number
 } = {
   'S-313': 4,

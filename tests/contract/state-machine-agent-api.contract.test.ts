@@ -130,7 +130,7 @@ const SAMPLE: Record<string, unknown> = {
   pickedObjects: PICKED,
   remainingObjects: PICKED,
   createdTaskUid: 3,
-  chosenRows: ['group1'],
+  chosenTaskGroups: ['group1'],
   createdGroupId: 'group1',
   chosenResources: [1],
   copiedForPaste: { kind: 'task', uids: [3] },
@@ -158,7 +158,7 @@ function busySession(): ScreenSession {
     { type: 'paletteToggled' },
     { type: 'documentEditLanded' },
     { type: 'objectsPicked', pickedObjects: PICKED },
-    { type: 'rowsPicked', chosenRows: ['group1'] },
+    { type: 'taskGroupsPicked', chosenTaskGroups: ['group1'] },
     { type: 'interactionRecordToggled' },
   ]
   return moves.reduce<ScreenSession>((s, e) => step(s, e).state, emptyScreenSession)

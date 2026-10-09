@@ -4,19 +4,19 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { specTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import {
-  HEAD_FOLD_EVERY_ROW,
-  HEAD_OPEN_EVERY_ROW,
+  HEAD_FOLD_EVERY_TASK_GROUP,
+  HEAD_OPEN_EVERY_TASK_GROUP,
   DEEP_ZOOM,
   REQUIREMENTS,
   SHALLOW_ZOOM,
   documentOf,
   type Arrangement,
-  ROW_FOLD_ALL_BELOW,
-  ROW_OPEN_ALL_BELOW,
-  ROW_OPEN_ONE_LEVEL,
+  TASK_GROUP_FOLD_ALL_BELOW,
+  TASK_GROUP_OPEN_ALL_BELOW,
+  TASK_GROUP_OPEN_ONE_LEVEL,
   drawnRowIds,
   isArmed,
-  isRowEntranceArmed,
+  isTaskGroupEntranceArmed,
   openDocument,
   openStage,
   pressEntrance,
@@ -135,8 +135,8 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     try {
       const { page } = stage
       const before = JSON.stringify(await readTree(page))
-      expect(await isArmed(page, HEAD_OPEN_EVERY_ROW), HF_10_FAINT_WHEN).toBe(false)
-      await pressEntrance(page, HEAD_OPEN_EVERY_ROW)
+      expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), HF_10_FAINT_WHEN).toBe(false)
+      await pressEntrance(page, HEAD_OPEN_EVERY_TASK_GROUP)
       expect(await toldReason(page, 'RS-31'), 'T-233: RS-31 is hidden, the faint press tells nothing').toBe(false)
       expect(JSON.stringify(await readTree(page)), 'FR-029: the faint press changes nothing').toBe(before)
     } finally {
@@ -148,7 +148,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
   test('HF-10: nothing folded but the zoom drops depth 2 -- the head [vv] is armed', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
-      expect(await isArmed(stage.page, HEAD_OPEN_EVERY_ROW), HF_10_FAINT_WHEN).toBe(true)
+      expect(await isArmed(stage.page, HEAD_OPEN_EVERY_TASK_GROUP), HF_10_FAINT_WHEN).toBe(true)
     } finally {
       await stage.close()
     }
@@ -159,8 +159,8 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
       const { page } = stage
-      expect(await isRowEntranceArmed(page, 'T1', ROW_FOLD_ALL_BELOW), 'RS-29: T1 draws no child').toBe(false)
-      await pressRowEntrance(page, 'T1', ROW_FOLD_ALL_BELOW)
+      expect(await isTaskGroupEntranceArmed(page, 'T1', TASK_GROUP_FOLD_ALL_BELOW), 'RS-29: T1 draws no child').toBe(false)
+      await pressRowEntrance(page, 'T1', TASK_GROUP_FOLD_ALL_BELOW)
       expect(await toldReason(page, 'RS-29')).toBe(false)
     } finally {
       await stage.close()
@@ -172,11 +172,11 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
       const { page } = stage
-      expect(await isRowEntranceArmed(page, 'T2', ROW_OPEN_ONE_LEVEL), 'RS-30: T2a is drawn by the zoom').toBe(false)
-      await pressRowEntrance(page, 'T2', ROW_OPEN_ONE_LEVEL)
+      expect(await isTaskGroupEntranceArmed(page, 'T2', TASK_GROUP_OPEN_ONE_LEVEL), 'RS-30: T2a is drawn by the zoom').toBe(false)
+      await pressRowEntrance(page, 'T2', TASK_GROUP_OPEN_ONE_LEVEL)
       expect(await toldReason(page, 'RS-30')).toBe(false)
-      expect(await isRowEntranceArmed(page, 'T3', ROW_OPEN_ALL_BELOW), 'RS-28: T3 has nothing below').toBe(false)
-      await pressRowEntrance(page, 'T3', ROW_OPEN_ALL_BELOW)
+      expect(await isTaskGroupEntranceArmed(page, 'T3', TASK_GROUP_OPEN_ALL_BELOW), 'RS-28: T3 has nothing below').toBe(false)
+      await pressRowEntrance(page, 'T3', TASK_GROUP_OPEN_ALL_BELOW)
       expect(await toldReason(page, 'RS-28')).toBe(false)
     } finally {
       await stage.close()
@@ -188,7 +188,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM, states: { T2: 'temporarilyExpanded' } })
     try {
       expect(await drawnSorted(stage.page), 'premise: T2a is drawn').toContain('T2a')
-      expect(await isRowEntranceArmed(stage.page, 'T2', ROW_OPEN_ONE_LEVEL)).toBe(true)
+      expect(await isTaskGroupEntranceArmed(stage.page, 'T2', TASK_GROUP_OPEN_ONE_LEVEL)).toBe(true)
     } finally {
       await stage.close()
     }
@@ -199,10 +199,10 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     const stage = await openArranged({ zoomY: DEEP_ZOOM, levelZero: 'collapsed' })
     try {
       const { page } = stage
-      expect(await isArmed(page, HEAD_FOLD_EVERY_ROW), 'RS-32').toBe(false)
-      await pressEntrance(page, HEAD_FOLD_EVERY_ROW)
+      expect(await isArmed(page, HEAD_FOLD_EVERY_TASK_GROUP), 'RS-32').toBe(false)
+      await pressEntrance(page, HEAD_FOLD_EVERY_TASK_GROUP)
       expect(await toldReason(page, 'RS-32')).toBe(false)
-      expect(await isArmed(page, HEAD_OPEN_EVERY_ROW), 'HF-10: a folded level zero leaves rows undrawn').toBe(true)
+      expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), 'HF-10: a folded level zero leaves rows undrawn').toBe(true)
     } finally {
       await stage.close()
     }

@@ -36,8 +36,8 @@ const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
 // No row stands in the pinned band unless a case says so (SJ-7).
-const NO_REACH = { pxPerDay: 10, leftReachPx: 0, drawnRows: [] as readonly { groupId: string; isPinned?: boolean }[] }
-const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnRows: [{ groupId: row, isPinned: true }] })
+const NO_REACH = { pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[] }
+const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ groupId: row, isPinned: true }] })
 const RS_66_SCENE = '**ピン止めした行が多く、検索パネルから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
@@ -47,10 +47,10 @@ type Loose = Record<string, unknown>
 const templateTasks = TEMPLATE.schedule['tasks'] as readonly Loose[]
 const templateGroups = TEMPLATE.schedule['taskGroups'] as readonly Loose[]
 
-const R1 = 'row-1'
-const R11 = 'row-1-1'
-const R12 = 'row-1-2'
-const R2 = 'row-2'
+const R1 = 'task-group-1'
+const R11 = 'task-group-1-1'
+const R12 = 'task-group-1-2'
+const R2 = 'task-group-2'
 const ROWS: readonly (readonly [string, string | null, number])[] = [
   [R1, null, 0],
   [R11, R1, 0],
@@ -61,7 +61,7 @@ const ROWS: readonly (readonly [string, string | null, number])[] = [
 const task = (uid: number, start: string): Loose => ({
   ...(templateTasks[0] as Loose),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `task ${uid}`,
   start,
@@ -207,7 +207,7 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
 describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
   it('puts the task\'s row at the top of the view with no offset inside it', () => {
     const plan = searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)
-    expect(plan.isBlockedByPinnedRows).toBe(false)
+    expect(plan.isBlockedByPinnedTaskGroups).toBe(false)
     expect(scrollOf(plan)).toMatchObject({ kind: 'setScrollPosition', scrollGroupId: R11, scrollGroupOffset: 0 })
   })
 
@@ -247,7 +247,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
     // WHY: the view starts two months before the task, so SJ-6 has to write; its date is not
     // asserted because S-428 is still undecided.
     const plan = searchJumpWrites(documentOf({ pinned: [R11] }), TO_TASK, true, IN_BAND(R11))
-    expect(plan.isBlockedByPinnedRows).toBe(false)
+    expect(plan.isBlockedByPinnedTaskGroups).toBe(false)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
       scrollGroupId: START_SCROLL.scrollGroupId,
@@ -268,7 +268,7 @@ describe(`T-332 SJ-8 -- ${SJ_8_NO_ROOM}`, () => {
       TO_TASK,
       false, NO_REACH,
     )
-    expect(plan.isBlockedByPinnedRows).toBe(true)
+    expect(plan.isBlockedByPinnedTaskGroups).toBe(true)
     expect(plan.scrollWrite).toBeNull()
     expect(treeWritesOf(plan)).toEqual([
       { kind: 'setLevelZeroTreeState', id: 'level 0', to: 'auto' },
@@ -278,6 +278,6 @@ describe(`T-332 SJ-8 -- ${SJ_8_NO_ROOM}`, () => {
   })
 
   it('with room below the pinned rows it is not blocked', () => {
-    expect(searchJumpWrites(documentOf({ pinned: [R2] }), TO_TASK, true, NO_REACH).isBlockedByPinnedRows).toBe(false)
+    expect(searchJumpWrites(documentOf({ pinned: [R2] }), TO_TASK, true, NO_REACH).isBlockedByPinnedTaskGroups).toBe(false)
   })
 })

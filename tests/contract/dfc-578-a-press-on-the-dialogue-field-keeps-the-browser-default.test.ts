@@ -92,7 +92,7 @@ const DIALOGUE_FIELD_PART: ScreenPart = {
   part: 'Dialogue Field',
   entry: null,
   format: null,
-  rowGroupId: null,
+  taskGroupId: null,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -102,7 +102,7 @@ interface Stage {
   readonly loop: FrameLoop
   showPart(next: ScreenPart | null): void
   currentPart(): ScreenPart | null
-  rowArea(): ScreenRect
+  taskGroupArea(): ScreenRect
   stops(input: HumanInput): boolean
 }
 
@@ -131,10 +131,10 @@ function stage(): Stage {
       part = next
     },
     currentPart: () => part,
-    rowArea: () => {
+    taskGroupArea: () => {
       const values = loop.current()
       if (values === null) throw new Error('the loop has run no frame')
-      return values.regions.rowArea
+      return values.regions.taskGroupArea
     },
     stops: (input) => loop.isBrowserDefaultStopped(input),
   }
@@ -166,7 +166,7 @@ describe('DFC-578 premises: FR-066, AG-11 and MK-10 still read this way', () => 
 describe('DFC-578: MK-10 (MUST NOT) -- only an assigned input may stop the browser default', () => {
   it(`${FR_066_FIELD} -- a press whose screen part is the Dialogue Field does not stop it`, () => {
     const built = stage()
-    const at = built.rowArea()
+    const at = built.taskGroupArea()
     built.showPart(DIALOGUE_FIELD_PART)
 
     const press = pointerDown(at.x + at.width - 20, at.y + at.height - 20)
@@ -176,7 +176,7 @@ describe('DFC-578: MK-10 (MUST NOT) -- only an assigned input may stop the brows
 
   it('control: the same spot with nothing floating over it is not the Dialogue Field', () => {
     const built = stage()
-    const at = built.rowArea()
+    const at = built.taskGroupArea()
     built.showPart(null)
 
     const press = pointerDown(at.x + at.width - 20, at.y + at.height - 20)

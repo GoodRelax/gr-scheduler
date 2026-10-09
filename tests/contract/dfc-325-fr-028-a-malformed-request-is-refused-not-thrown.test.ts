@@ -25,7 +25,7 @@ import type {
   SettingsLimits,
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { specTable, unbroken } from './spec-table'
-import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 
 const FR_028_NEVER_THROWS =
@@ -75,7 +75,7 @@ const HISTORY_LIMITS = {
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: 0.02,
   zoomMax: 64,
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const READ_AT = '2026-08-20T08:30:00Z'
@@ -103,7 +103,7 @@ function bench(): Bench {
   }
 
   const readSnapshot = (): AgentSnapshot => ({
-    defaultRowName: DEFAULT_ROW_NAME,
+    defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
     document: state.document,
     documentAsWritten: state.document,
     selection: emptySelection(),

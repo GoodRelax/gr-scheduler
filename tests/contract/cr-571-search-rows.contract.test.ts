@@ -1,4 +1,4 @@
-// Contract test: FR-151 table T-330 SV-4 / SV-8 and table T-331 against searchRowsOf, isSearchWordFound and rowNameOf (PI-1).
+// Contract test: FR-151 table T-330 SV-4 / SV-8 and table T-331 against searchRowsOf, isSearchWordFound and taskGroupNameOf (PI-1).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   planActualState,
-  rowNameOf,
+  taskGroupNameOf,
   searchRowsOf,
   type CommentBoxSearchRow,
   type Schedule,
@@ -28,7 +28,7 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 
 const FR_151_STATEMENT =
   '作成者が語を打ったとき、`GRS` は、名前・担当者名・コメントボックスの本文にその語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べ'
-const FR_151_NOT_NOTES_NOR_ROW_NAMES =
+const FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES =
   '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）と行の名前（`AT-53`）を含めてはならない（MUST NOT） —— 行の名前は 表 T-331 の `SQ-6` の絞り込みで届く。'
 
 const SV_4 = cellOf('T-330', 'SV-4', '定め')
@@ -63,7 +63,7 @@ const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コ
   'SQ-13': { table: 'タスク', field: 'actualFinish' },
   'SQ-6': { table: 'タスク', field: 'rowPath' },
   'SQ-7': { table: 'コメントボックス', field: 'text' },
-  'SQ-8': { table: 'コメントボックス', field: 'rowName' },
+  'SQ-8': { table: 'コメントボックス', field: 'taskGroupName' },
   'SQ-9': { table: 'コメントボックス', field: 'anchorDate' },
 }
 
@@ -79,10 +79,10 @@ const templateGroups = TEMPLATE.schedule['taskGroups'] as readonly Loose[]
 const templateResources = TEMPLATE.schedule['resources'] as readonly Loose[]
 const templateAssignments = TEMPLATE.schedule['assignments'] as readonly Loose[]
 
-const R1 = 'row-1'
-const R11 = 'row-1-1'
-const R12 = 'row-1-2'
-const R2 = 'row-2'
+const R1 = 'task-group-1'
+const R11 = 'task-group-1-1'
+const R12 = 'task-group-1-2'
+const R2 = 'task-group-2'
 
 const group = (id: string, parentId: string | null, order: number, label: string | null, derivedFromTaskUid: number | null): Loose => ({
   ...(templateGroups[0] as Loose),
@@ -97,7 +97,7 @@ const group = (id: string, parentId: string | null, order: number, label: string
 const task = (uid: number, name: string | null, start: string, finish: string, extra: Loose = {}): Loose => ({
   ...(templateTasks[0] as Loose),
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name,
   start,
@@ -204,7 +204,7 @@ const taskOf = (uid: number): Loose => TASKS.find((one) => one['uid'] === uid) a
 describe('FR-151 -- the clauses these cases are driven by', () => {
   it('the requirement and its MUST NOT still read this way', () => {
     expect(REQUIREMENTS).toContain(FR_151_STATEMENT)
-    expect(REQUIREMENTS).toContain(FR_151_NOT_NOTES_NOR_ROW_NAMES)
+    expect(REQUIREMENTS).toContain(FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES)
   })
 
   it('table T-330 SV-4 and SV-8 still read this way', () => {
@@ -263,7 +263,7 @@ describe(`T-330 SV-4 -- ${SV_4_WHERE}`, () => {
     expect(rows.taskRows).toEqual([])
   })
 
-  it(FR_151_NOT_NOTES_NOR_ROW_NAMES, () => {
+  it(FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES, () => {
     // STEP: 205's notes say "steering budget" and "review"; R11 is "1.5 Steering", R2 "2. Review Delivery"
     expect(uidsOf(searchRowsOf(SCHEDULE, 'steering').taskRows)).toEqual([])
     expect(idsOf(searchRowsOf(SCHEDULE, 'steering').commentBoxRows)).toEqual([])
@@ -346,10 +346,10 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     expect(taskRowOf(202).rowPath).toEqual(['2. Review Delivery'])
   })
 
-  it('SQ-6 reads a derived row name the way AT-53 / AT-54 give it (the one rowNameOf of PI-1)', () => {
+  it('SQ-6 reads a derived task group name the way AT-53 / AT-54 give it (the one taskGroupNameOf of PI-1)', () => {
     // STEP: R12 has no label and takes its name from task 203 (AT-54, FR-004 TC-12)
-    expect(rowNameOf(SCHEDULE, R12)).toBe('Design')
-    expect(rowNameOf(SCHEDULE, R11)).toBe('1.5 Steering')
+    expect(taskGroupNameOf(SCHEDULE, R12)).toBe('Design')
+    expect(taskGroupNameOf(SCHEDULE, R11)).toBe('1.5 Steering')
     expect(taskRowOf(203).rowPath).toEqual(['1. Programme', 'Design'])
   })
 
@@ -357,9 +357,9 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     const rows = searchRowsOf(SCHEDULE, '').commentBoxRows
     const box = rows.find((row) => row.commentBoxId === 'c-3')
     expect(box?.text).toBe('pm again')
-    expect(box?.rowName).toBe('1. Programme')
+    expect(box?.taskGroupName).toBe('1. Programme')
     expect(box?.anchorDate).toBe(D('2026-04-20'))
     expect(box?.groupId).toBe(R1)
-    expect(rows.find((row) => row.commentBoxId === 'c-1')?.rowName).toBe('1.5 Steering')
+    expect(rows.find((row) => row.commentBoxId === 'c-1')?.taskGroupName).toBe('1.5 Steering')
   })
 })

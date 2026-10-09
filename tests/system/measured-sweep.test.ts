@@ -248,7 +248,7 @@ const T201_COLUMNS = 7
 const T201_DEFAULT = 3
 
 /**
- * `S-37` (`rowTitleIndent`) of table T-201, 「行見出しの字下げ。1 段深くなるごと
+ * `S-37` (`taskGroupTitleIndent`) of table T-201, 「行見出しの字下げ。1 段深くなるごと
  * にこの幅だけ字下げする」（利用者の裁定 2026-09-01）, which `FR-085` (MUST) also
  * subtracts from the width a name is cut against.
  *
@@ -256,13 +256,13 @@ const T201_DEFAULT = 3
  * case holding either number would have gone red for the manuscript changing
  * rather than for the product moving.
  */
-const ROW_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
+const TASK_GROUP_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
 
 // see FR-039, T-252, T-202, S-234, S-236
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
 // see FR-039, T-252, DS-1, S-37
-const DRAWN_ROW_INDENT = ROW_INDENT * DRAWN_RATIO
+const DRAWN_TASK_GROUP_INDENT = TASK_GROUP_INDENT * DRAWN_RATIO
 
 // see FR-039, T-252, DS-1, S-4, S-13
 const DRAWN_PLAN_BAR_PX =
@@ -652,7 +652,7 @@ function entranceNamedIn(entrance: string): string {
   return found[0]
 }
 
-// The two words that tell the time axis apart from the row axis, and one
+// The two words that tell the time axis apart from the vertical axis, and one
 // direction of zoom from the other. ⚠️ Given as code points rather than
 // written out: rule 03 section 5 keeps this tree ASCII, and
 // `tests/system/user-reported-fixes.test.ts` gives the same reason for the one
@@ -1074,11 +1074,11 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
     const svg = document.querySelector(canvas)
     const rows = Array.from(document.querySelectorAll('[data-depth]'))
     if (svg === null || rows.length === 0) return []
-    const firstRowTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
+    const firstTaskGroupTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
     const ticks = new Map<number, number[]>()
     for (const drawn of Array.from(svg.querySelectorAll('line'))) {
       const box = drawn.getBoundingClientRect()
-      if (box.height < 2 || box.bottom > firstRowTop + 1) continue
+      if (box.height < 2 || box.bottom > firstTaskGroupTop + 1) continue
       const top = Math.round(box.top)
       const held = ticks.get(top) ?? []
       held.push(Math.round(box.x * 100) / 100)
@@ -1089,7 +1089,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       const box = drawn.getBoundingClientRect()
       const said = (drawn.textContent ?? '').trim()
       if (said === '') continue
-      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Row Area,
+      // ⛔ NOT THE WATERMARK. FR-020's marks are clipped to the Task Group Area,
       // so none of them PAINTS on the band -- but a clipped element still
       // reports its unclipped box, and this walk picks labels by geometry
       // alone. Measured 2026-09-05: without this, the band read
@@ -1103,7 +1103,7 @@ async function rulerTiers(page: Page): Promise<RulerTier[]> {
       // taken off the bottom puts every word one tier down and throws the
       // lowest tier away entirely.
       const middle = (box.top + box.bottom) / 2
-      if (middle > firstRowTop) continue
+      if (middle > firstTaskGroupTop) continue
       let nearest: number | null = null
       for (const top of ticks.keys()) {
         if (middle < top) continue
@@ -1767,7 +1767,7 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
         })
         .toBeGreaterThan(0)
       judged.push(
-        ...(await row.evaluate((rowElement: Element, asked: { rowName: string; panel: string }) => {
+        ...(await row.evaluate((taskGroupElement: Element, asked: { taskGroupName: string; panel: string }) => {
           const hexOf = (painted: string): string => {
             const parts = /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/.exec(painted)
             if (parts === null || parts[4] === '0') return ''
@@ -1776,12 +1776,12 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
               .join('')}`
           }
           const out: Array<{ row: string; value: string; over: string[] }> = []
-          for (const control of Array.from(rowElement.querySelectorAll('input[type="color"]'))) {
+          for (const control of Array.from(taskGroupElement.querySelectorAll('input[type="color"]'))) {
             const value = (control as HTMLInputElement).value.toLowerCase()
             const box = control.getBoundingClientRect()
             const over: string[] = []
             // WHY: only the panel is searched -- the chart the panel floats over is behind it, not in front.
-            const panel = rowElement.closest(asked.panel) ?? rowElement
+            const panel = taskGroupElement.closest(asked.panel) ?? taskGroupElement
             for (const node of Array.from(panel.querySelectorAll('*'))) {
               if (node === control || node.contains(control) || control.contains(node)) continue
               const its = node.getBoundingClientRect()
@@ -1802,10 +1802,10 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
                 over.push(`a ${node.tagName} prints ${value}`)
               }
             }
-            out.push({ row: asked.rowName, value, over })
+            out.push({ row: asked.taskGroupName, value, over })
           }
           return out
-        }, { rowName: rowId, panel: PANEL })),
+        }, { taskGroupName: rowId, panel: PANEL })),
       )
     }
   }
@@ -2014,14 +2014,14 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
       const svg = document.querySelector(canvas)
       const rows = Array.from(document.querySelectorAll('[data-depth]'))
       if (svg === null || rows.length === 0) return null
-      const firstRowTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
+      const firstTaskGroupTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
       // The band is the full-width shape the first row band sits directly
       // under. ⚠️ Nothing in the specification marks it, so it is found by
       // where it is; a change to the drawing's shape breaks this case, as it
       // should.
       const band = Array.from(svg.querySelectorAll('rect'))
         .map((drawn) => drawn.getBoundingClientRect())
-        .filter((box) => box.width > 500 && Math.abs(box.bottom - firstRowTop) < 1.5)
+        .filter((box) => box.width > 500 && Math.abs(box.bottom - firstTaskGroupTop) < 1.5)
         .sort((one, two) => two.height - one.height)[0]
       if (band === undefined) return null
       // ⛔ A LABEL WITH NOTHING IN IT IS NOT A 行. FR-017 (MUST) says 「『刷らな
@@ -2033,7 +2033,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
         if (said === '') continue
         // ⛔ NOT THE WATERMARK -- see the same guard on the walk above.
         if (label.closest('[data-role="Watermark"]') !== null) continue
-        if (box.bottom <= firstRowTop && box.bottom > band.top - 8) {
+        if (box.bottom <= firstTaskGroupTop && box.bottom > band.top - 8) {
           const top = Math.round(box.top * 100) / 100
           held.set(top, [...(held.get(top) ?? []), said])
         }
@@ -2154,7 +2154,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
     if (found === undefined) return null
     return { nameX: found.x + 30, nameY: found.y + found.height / 2, top: found.top }
   })
-  expect(firstRow, 'the row title panel drew no rows').not.toBeNull()
+  expect(firstRow, 'the task group panel drew no rows').not.toBeNull()
   if (firstRow === null) return
 
   await page.mouse.move(firstRow.nameX, firstRow.nameY)
@@ -2317,7 +2317,7 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
     })
 
   const before = await firstRow()
-  expect(before, 'the row title panel drew no rows to fold').not.toBeNull()
+  expect(before, 'the task group panel drew no rows to fold').not.toBeNull()
   if (before === null) return
 
   // ⛔ A ROW'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
@@ -2880,7 +2880,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
      * bar or a glyph has.
      *
      * ⛔ NOT SIMPLY THE WIDEST NEW ONE. A creation opens the Properties Panel on
-     * what it made (`FR-001` MUST, `FR-091`), the Row Area narrows, and every
+     * what it made (`FR-001` MUST, `FR-091`), the Task Group Area narrows, and every
      * bar on the drawing is redrawn at a new x -- so the whole picture reads as
      * new. What is looked for is a shape that stands where the hand was.
      *
@@ -3026,7 +3026,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
 // ---------------------------------------------------------------------------
 
 /** One drawn row: the tier it stands at, the word it shows, and that word's left edge. */
-interface DrawnRowTitle {
+interface DrawnTaskGroupTitle {
   readonly depth: number
   readonly name: string
   readonly left: number
@@ -3041,7 +3041,7 @@ interface DrawnRowTitle {
  *
  * @purity semi-pure-b
  */
-async function drawnRowTitles(page: Page): Promise<DrawnRowTitle[]> {
+async function drawnTaskGroupTitles(page: Page): Promise<DrawnTaskGroupTitle[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
       const span = row.querySelector('span')
@@ -3115,7 +3115,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
 // picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
 // the number out for itself. `FR-085` (MUST) names one indent for both:
-// 「その行の深さぶんのインデント」 (`rowTitleIndent`, `S-37`), and
+// 「その行の深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
 // `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
 //
 // ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.
@@ -3146,12 +3146,12 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     const ending = assignmentText(cellOf(T024, 'IO-3', T024_ENDING, T024_COLUMNS))
 
     const overPanel = await page.evaluate(() => {
-      const one = document.querySelector('[data-role="Row Title Panel"]')
+      const one = document.querySelector('[data-role="Task Group Panel"]')
       if (one === null) return null
       const box = one.getBoundingClientRect()
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
     })
-    expect(overPanel, 'the row title panel is not on the screen').not.toBeNull()
+    expect(overPanel, 'the task group panel is not on the screen').not.toBeNull()
     if (overPanel === null) return
     await page.mouse.move(overPanel.x, overPanel.y)
     for (let notch = 0; notch < 2; notch += 1) {
@@ -3160,7 +3160,7 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     }
     await page.waitForTimeout(600)
 
-    const drawn = await drawnRowTitles(page)
+    const drawn = await drawnTaskGroupTitles(page)
     expect(drawn.length, 'the panel is drawing no rows at all').toBeGreaterThan(1)
     // ⛔ ONLY NAMES THAT STAND ONCE. Two rows reading alike could not be paired
     // with one `<text>` of the picture, and a wrong pairing would be measured
@@ -3168,7 +3168,7 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     const once = drawn.filter(
       (row) => drawn.filter((other) => other.name === row.name).length === 1 && row.name !== '',
     )
-    expect(once.length, `no row name is unique in ${JSON.stringify(drawn.map((row) => row.name))}`).toBeGreaterThan(1)
+    expect(once.length, `no task group name is unique in ${JSON.stringify(drawn.map((row) => row.name))}`).toBeGreaterThan(1)
 
     expect(
       await pressExportFormat(page, chooser, ending),
@@ -3219,17 +3219,17 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     const pictureStep = stepPerTier(inPicture, 'the written picture', room) / ratio
 
     expect(
-      Math.abs(screenStep - DRAWN_ROW_INDENT) <= room,
-      `the screen sets a row in by ${screenStep}px per tier and S-37 (rowTitleIndent) is ` +
-        `${ROW_INDENT}px drawn at ${DRAWN_RATIO} -- ${DRAWN_ROW_INDENT}px. FR-039 (MUST): ` +
+      Math.abs(screenStep - DRAWN_TASK_GROUP_INDENT) <= room,
+      `the screen sets a row in by ${screenStep}px per tier and S-37 (taskGroupTitleIndent) is ` +
+        `${TASK_GROUP_INDENT}px drawn at ${DRAWN_RATIO} -- ${DRAWN_TASK_GROUP_INDENT}px. FR-039 (MUST): ` +
         '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」 ' +
         `-- readings ${JSON.stringify([...onScreen])}`,
     ).toBe(true)
     expect(
-      Math.abs(pictureStep - DRAWN_ROW_INDENT) <= room,
+      Math.abs(pictureStep - DRAWN_TASK_GROUP_INDENT) <= room,
       `the written picture sets a row in by ${pictureStep}px per tier once the S-81 / MC-6 ratio ` +
-        `is taken off, and S-37 is ${ROW_INDENT}px drawn at ${DRAWN_RATIO} -- ` +
-        `${DRAWN_ROW_INDENT}px (FR-080 writes the picture at the same ratio) -- readings ` +
+        `is taken off, and S-37 is ${TASK_GROUP_INDENT}px drawn at ${DRAWN_RATIO} -- ` +
+        `${DRAWN_TASK_GROUP_INDENT}px (FR-080 writes the picture at the same ratio) -- readings ` +
         `${JSON.stringify([...inPicture])}`,
     ).toBe(true)
     expect(
@@ -3246,7 +3246,7 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
 // DFC-229 -- the written picture carries the rows a person left standing
 // ---------------------------------------------------------------------------
 
-/** One line of the row title panel: the word, where it starts, how far down it stands. */
+/** One line of the task group panel: the word, where it starts, how far down it stands. */
 interface PanelLine {
   readonly name: string
   readonly at: number
@@ -3256,7 +3256,7 @@ interface PanelLine {
 /**
  * The lines the panel is drawing on the screen right now, topmost first.
  *
- * ⭐ THE NAME'S OWN BOX AND NOT THE ROW'S, for the reason `drawnRowTitles`
+ * ⭐ THE NAME'S OWN BOX AND NOT THE ROW'S, for the reason `drawnTaskGroupTitles`
  * gives: the row's box starts at the panel's edge whatever tier it stands at,
  * and what a reader sees as the tier is where the word begins.
  *
@@ -3305,7 +3305,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  *
  * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks row
  * names by coordinate alone. The watermark is a grid of <text> marks laid
- * over the Row Area, so each of them looks like a row name standing at some
+ * over the Task Group Area, so each of them looks like a task group name standing at some
  * x and y. Measured 2026-09-05: four of them landed among the eleven row
  * names and the picture stopped agreeing with the screen.
  *
@@ -3369,7 +3369,7 @@ function tiered(lines: readonly PanelLine[]): string[] {
   return lines.map((line) => `${indents.indexOf(line.at)}:${line.name}`)
 }
 
-// GOES RED IF: the rows the written picture draws in the row title panel stop
+// GOES RED IF: the rows the written picture draws in the task group panel stop
 // being the rows the screen is drawing -- a different count, a different order,
 // or a different tier -- after a fold has been pressed and nothing has been
 // scrolled since.
@@ -3382,8 +3382,8 @@ function tiered(lines: readonly PanelLine[]): string[] {
 //   「表示の切り替え・ズームの段階・LOD による増減の結果を、書き出しでも同じに
 //     すること」
 // and its reason: 「見えているものが成果物になることが、この道具の前提である。」
-// Folding is a 表示の切り替え, and `EP-3` of table T-076 has the `Row Title
-// Panel` and the `Row Title Tree` drawn, with 「書き出し専用の幅を設けてはならない
+// Folding is a 表示の切り替え, and `EP-3` of table T-076 has the `Task Group Name
+// Panel` and the `Task Group Title Tree` drawn, with 「書き出し専用の幅を設けてはならない
 // （MUST NOT）」 -- which is why the two sides may be compared by the words
 // themselves, cut short or not.
 //
@@ -3418,12 +3418,12 @@ test('DFC-229: the written picture draws the rows the screen draws after a fold,
     const openAll = entranceBy(T109_SOURCE, 'HF-10')
 
     const panel = await page.evaluate(() => {
-      const one = document.querySelector('[data-role="Row Title Panel"]')
+      const one = document.querySelector('[data-role="Task Group Panel"]')
       if (one === null) return null
       const box = one.getBoundingClientRect()
       return { x: box.x, y: box.y, width: box.width, height: box.height }
     })
-    expect(panel, 'the row title panel is not on the screen').not.toBeNull()
+    expect(panel, 'the task group panel is not on the screen').not.toBeNull()
     if (panel === null) return
     const head = await entranceBox(page, foldAll)
     expect(head, `${foldAll} (table T-051 row HF-12) is not drawn on the panel head`).not.toBeNull()
@@ -3725,15 +3725,15 @@ function timesCarried(said: string, word: string): number {
   return said.split(word).length - 1
 }
 
-/** One row as the Row Title Panel is drawing it. */
-interface DrawnRow {
+/** One row as the Task Group Panel is drawing it. */
+interface DrawnTaskGroup {
   readonly top: number
   readonly bottom: number
   readonly text: string
 }
 
 /**
- * The rows the Row Title Panel has drawn, and the panel's own box.
+ * The rows the Task Group Panel has drawn, and the panel's own box.
  *
  * ⚠️ `[data-depth]` IS THE DRAWN WINDOW AND NOT THE DOCUMENT. Eight rows is all
  * the shipped build draws at the base screen (measured 2026-09-03), so a row
@@ -3742,18 +3742,18 @@ interface DrawnRow {
  *
  * @purity semi-pure-b
  */
-async function drawnRowsAndPanel(
+async function drawnTaskGroupsAndPanel(
   page: Page,
-): Promise<{ rows: readonly DrawnRow[]; panelTop: number; panelBottom: number }> {
+): Promise<{ rows: readonly DrawnTaskGroup[]; panelTop: number; panelBottom: number }> {
   return page.evaluate(() => {
-    const panel = document.querySelector('[data-role="Row Title Panel"]')
+    const panel = document.querySelector('[data-role="Task Group Panel"]')
     const box = panel?.getBoundingClientRect()
     const rows = Array.from(document.querySelectorAll('[data-depth]'))
       .map((row) => {
-        const rowBox = row.getBoundingClientRect()
+        const taskGroupBox = row.getBoundingClientRect()
         return {
-          top: Math.round(rowBox.top),
-          bottom: Math.round(rowBox.bottom),
+          top: Math.round(taskGroupBox.top),
+          bottom: Math.round(taskGroupBox.bottom),
           text: (row.textContent ?? '').replace(/\s+/g, ' ').trim(),
         }
       })
@@ -3776,7 +3776,7 @@ async function drawnRowsAndPanel(
  *
  * @purity non-pure
  */
-async function pressRowEntrance(page: Page, rowTop: number, entrance: string): Promise<boolean> {
+async function pressRowEntrance(page: Page, taskGroupTop: number, entrance: string): Promise<boolean> {
   const name = await page.evaluate((wantedTop: number) => {
     const row = Array.from(document.querySelectorAll('[data-depth]')).find(
       (one) => Math.abs(one.getBoundingClientRect().top - wantedTop) < 2,
@@ -3784,7 +3784,7 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
     if (row === undefined) return null
     const box = row.getBoundingClientRect()
     return { x: Math.round(box.x + 30), y: Math.round(box.y + box.height / 2) }
-  }, rowTop)
+  }, taskGroupTop)
   if (name === null) return false
   await page.mouse.move(name.x, name.y)
   await page.waitForTimeout(500)
@@ -3798,7 +3798,7 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
       if (box.width < 1 || box.height < 1) return null
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
     },
-    { entrance, top: rowTop },
+    { entrance, top: taskGroupTop },
   )
   if (at === null) return false
   await page.mouse.move(at.x, at.y)
@@ -3906,7 +3906,7 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
   try {
     const page = opened.page
     const addAtHead = entranceBy(T109_SOURCE, 'HF-17')
-    const addUnderRow = entranceBy(T109_SOURCE, 'HF-14')
+    const addUnderTaskGroup = entranceBy(T109_SOURCE, 'HF-14')
 
     // --- HF-17, the shallowest tier -------------------------------------
     expect(await pressEntrance(page, addAtHead), `${addAtHead} is not on the screen`).toBe(true)
@@ -3919,23 +3919,23 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
     ).not.toBeNull()
     if (headField === null) return
 
-    const headName = 'ZetaHeadRow'
+    const headName = 'ZetaHeadTaskGroup'
     await page.keyboard.type(headName)
     await page.keyboard.press('Enter')
     await page.waitForTimeout(1200)
 
-    const afterHead = await drawnRowsAndPanel(page)
-    const headRow = afterHead.rows.find((row) => row.text.includes(headName))
+    const afterHead = await drawnTaskGroupsAndPanel(page)
+    const headTaskGroup = afterHead.rows.find((row) => row.text.includes(headName))
     expect(
-      headRow,
+      headTaskGroup,
       `after the name was settled the row named ${JSON.stringify(headName)} is drawn nowhere; ` +
         `the panel is drawing ${afterHead.rows.length} row(s) and HF-17 (MUST) has the view sent ` +
         'until the added row is one of them',
     ).not.toBeUndefined()
-    if (headRow === undefined) return
+    if (headTaskGroup === undefined) return
     expect(
-      headRow.top >= afterHead.panelTop && headRow.bottom <= afterHead.panelBottom,
-      `the row named ${JSON.stringify(headName)} is drawn at ${headRow.top}..${headRow.bottom}px ` +
+      headTaskGroup.top >= afterHead.panelTop && headTaskGroup.bottom <= afterHead.panelBottom,
+      `the row named ${JSON.stringify(headName)} is drawn at ${headTaskGroup.top}..${headTaskGroup.bottom}px ` +
         `while the panel is at ${afterHead.panelTop}..${afterHead.panelBottom}px, so it is not at ` +
         'a position it can be read from',
     ).toBe(true)
@@ -3945,35 +3945,35 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
     expect(lowest, 'the panel drew no row to add a child under').not.toBeUndefined()
     if (lowest === undefined) return
     expect(
-      await pressRowEntrance(page, lowest.top, addUnderRow),
-      `${addUnderRow} (table T-051 row HF-14) is not drawn on the row at the foot of the panel ` +
+      await pressRowEntrance(page, lowest.top, addUnderTaskGroup),
+      `${addUnderTaskGroup} (table T-051 row HF-14) is not drawn on the row at the foot of the panel ` +
         'even with the pointer on its name',
     ).toBe(true)
 
     const childField = await focusedTypableField(page)
     expect(
       childField,
-      `pressing ${addUnderRow} on the lowest row opened no field to type the new row's name into`,
+      `pressing ${addUnderTaskGroup} on the lowest row opened no field to type the new row's name into`,
     ).not.toBeNull()
     if (childField === null) return
 
-    const childName = 'ZetaChildRow'
+    const childName = 'ZetaChildTaskGroup'
     await page.keyboard.type(childName)
     await page.keyboard.press('Enter')
     await page.waitForTimeout(1200)
 
-    const afterChild = await drawnRowsAndPanel(page)
-    const childRow = afterChild.rows.find((row) => row.text.includes(childName))
+    const afterChild = await drawnTaskGroupsAndPanel(page)
+    const childTaskGroup = afterChild.rows.find((row) => row.text.includes(childName))
     expect(
-      childRow,
+      childTaskGroup,
       `after the name was settled the row named ${JSON.stringify(childName)} is drawn nowhere; ` +
         'HF-17 (MUST) holds HF-14 to the same thing -- 「`HF-14`（配下に足す）も同じとすること' +
         '（MUST）」',
     ).not.toBeUndefined()
-    if (childRow === undefined) return
+    if (childTaskGroup === undefined) return
     expect(
-      childRow.top >= afterChild.panelTop && childRow.bottom <= afterChild.panelBottom,
-      `the row named ${JSON.stringify(childName)} is drawn at ${childRow.top}..${childRow.bottom}px ` +
+      childTaskGroup.top >= afterChild.panelTop && childTaskGroup.bottom <= afterChild.panelBottom,
+      `the row named ${JSON.stringify(childName)} is drawn at ${childTaskGroup.top}..${childTaskGroup.bottom}px ` +
         `while the panel is at ${afterChild.panelTop}..${afterChild.panelBottom}px`,
     ).toBe(true)
   } finally {

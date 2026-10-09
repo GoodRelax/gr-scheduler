@@ -88,20 +88,20 @@ const UNDECIDED_PARENT_MARK = '?'
 
 // see FR-135, S-398, S-485, S-486, SL-8, VO-4, IP-4
 /** @purity pure */
-export function wbsParentParts(
+export function parentTaskParts(
   geometry: ScheduleGeometry,
   settings: DrawnSettings,
   themed: (rowId: string) => string,
   drawsOperationState: boolean,
 ): readonly string[] {
-  const drawing = geometry.wbsParents
+  const drawing = geometry.parentTasks
   if (!drawsOperationState || drawing === undefined) return []
   const parts: string[] = []
   const ink = themed('S-398')
   for (const arrow of drawing.arrows) {
     const width = arrow.isSelected ? emphasisedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
     const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
-    const key = `wbs-parent-${arrow.childUid}`
+    const key = `parent-task-${arrow.childUid}`
     // see FR-135, EL-20, TV-3
     const radius = arrow.continuationRadius ?? 0
     const dots = (arrow.continuationDots ?? []).map(
@@ -372,10 +372,10 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   linkParts.push(...dualCursorLines(input))
 
   if (drawsOperationState && guideCursorMode !== 'none' && pointer !== null) {
-    const area = regions.rowArea
+    const area = regions.taskGroupArea
     // see CU-2, DC-3
     // WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
-    if (regionAtPointer(regions, pointer.x, pointer.y) === 'rowArea') {
+    if (regionAtPointer(regions, pointer.x, pointer.y) === 'taskGroupArea') {
       const guideColour = themed('S-195')
       const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
       const vertical = (x: number): string =>

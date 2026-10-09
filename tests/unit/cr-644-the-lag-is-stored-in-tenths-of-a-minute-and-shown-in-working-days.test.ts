@@ -15,7 +15,7 @@ import {
   recordOf,
   taskOf as panelTaskOf,
 } from '../contract/cr-606-stage'
-import { DESIGN, REQUIREMENTS, numberIn, rowDocument, rowOf, taskOf } from './cr-541-stage'
+import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
 // see FR-009
 const FR_009_SHOWN_AND_TYPED =
@@ -198,7 +198,7 @@ interface Plan {
 const day = (date: number, hour: number): string => `2026-04-${String(date).padStart(2, '0')}T${hour}:00:00`
 
 function planDocument(plan: Plan): Document {
-  const raw = rowDocument([{ id: 'r0', parentId: null }])
+  const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
   raw.schedule.project.statusDate = plan.statusDate
   raw.schedule.project.minutesPerDay = plan.minutesPerDay ?? null
   raw.schedule.project.uidHighWaterMark = 1000

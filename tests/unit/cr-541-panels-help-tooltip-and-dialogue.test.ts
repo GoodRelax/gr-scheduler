@@ -35,7 +35,7 @@ import {
   type FakeEvent,
   type Stage,
 } from '../fixtures/fake-browser'
-import { REQUIREMENTS, rowDocument, rowOf, taskOf } from './cr-541-stage'
+import { REQUIREMENTS, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
 const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
 const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
@@ -85,7 +85,7 @@ const READINGS = {
   propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
 } as unknown as ScreenViewReadings
 
 const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSession => ({
@@ -115,7 +115,7 @@ const LINK_TYPE_SEAT =
 const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const dependencyDocument = (linkType: number) =>
-  rowDocument([{ id: 'row-1', parentId: null }, { id: 'row-2', parentId: null }], {}, {
+  taskGroupDocument([{ id: 'task-group-1', parentId: null }, { id: 'task-group-2', parentId: null }], {}, {
     tasks: [
       taskOf(1),
       taskOf(2, {
@@ -128,7 +128,7 @@ const dependencyDocument = (linkType: number) =>
 
 describe('FR-072 -- the document settings are read only in the panel, but for the field FR-041 places there', () => {
   const panel = () => {
-    const document = rowDocument([{ id: 'row-1', parentId: null }])
+    const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }])
     return propertiesPanelFromSelection(
       document.schedule as unknown as Schedule,
       document.documentSettings as never,
@@ -210,7 +210,7 @@ function viewWith(part: Partial<ScreenView>): ScreenView {
     language: 'ja',
     frame: { isFullScreen: false, dividers: [], scrollbars: [] },
     appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null, fileNeverSavedText: '', commands: [], language: 'ja' },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: null,
     commandPalette: null,
     openModal: null,

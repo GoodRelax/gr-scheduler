@@ -47,7 +47,7 @@ function fixture(): string {
       tasks: [
         {
           uid: 1,
-          wbsParentUid: null,
+          parentTaskUid: null,
           wbsOrder: 1,
           name: 'Alpha',
           start: day(5),

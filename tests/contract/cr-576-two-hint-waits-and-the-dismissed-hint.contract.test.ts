@@ -124,7 +124,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
     commands: [COMMAND],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -135,7 +135,7 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
 
 const TASK = {
   uid: 1,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: 'alpha',
   start: '2026-04-01T08:00:00',
@@ -193,7 +193,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 

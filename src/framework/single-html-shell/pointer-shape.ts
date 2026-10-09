@@ -96,7 +96,7 @@ const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> =
   'GR-11': null,
   'GR-14': null,
   'GR-16': { row: 'PK-10', facing: 'start' },
-  'WL-10': { row: 'PK-17', facing: 'start' },
+  'PTL-10': { row: 'PK-17', facing: 'start' },
 }
 
 // WHY: read by row ID: the map above is exhaustive over the grab rows, and a row outside it has none.
@@ -326,7 +326,7 @@ export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | 
   if (armed || hit === null) return null
   if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
   if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : null
-  if (hit.grab === 'WL-10') return hit.item.kind === 'wbsParentLink' && !hit.item.isStated ? 'PK-18' : 'PK-17'
+  if (hit.grab === 'PTL-10') return hit.item.kind === 'parentTaskLink' && !hit.item.isStated ? 'PK-18' : 'PK-17'
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 
@@ -392,10 +392,10 @@ function pointerShapeUnder(
   if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
   if (pressed !== null && pressed.pressRow === 'PTD-7') return pointerImageOf('PK-16')
   if (on !== null) return null
-  if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
+  if (regionAtPointer(frame.regions, point.x, point.y) !== 'taskGroupArea') return null
   if (dualCursorFollowingIn(session) !== null) return null
   const armed = session.screen.armModeState
-  if (armed.kind === 'wbsParentArmed') return pointerImageOf('PK-17')
+  if (armed.kind === 'parentTaskArmed') return pointerImageOf('PK-17')
   const isArmedDependency = armed.kind === 'dependencyArmed'
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))

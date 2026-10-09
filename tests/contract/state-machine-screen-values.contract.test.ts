@@ -87,7 +87,7 @@ function regionOf(raw: RawRegion): Region {
       states.push({ id: key, key, parent: s.parent === null ? raw.region : `${m.name}.${s.parent}`, initial: s.initial, carries: s.carries })
     }
   }
-  const rootRows = Object.entries(raw.root.transitions).flatMap(([event, cell]) =>
+  const rootTaskGroups = Object.entries(raw.root.transitions).flatMap(([event, cell]) =>
     branchesOf(cell).map((b) => tnRow(raw, raw.region, event, b, [])),
   )
   const machineRows = raw.machines.flatMap((m) =>
@@ -100,7 +100,7 @@ function regionOf(raw: RawRegion): Region {
     ),
   )
   const events = raw.events.map((e) => ({ id: `${raw.region}/${e.key}`, key: e.key, carries: e.carries }))
-  return { region: raw.region, states, events, transitions: [...rootRows, ...machineRows] }
+  return { region: raw.region, states, events, transitions: [...rootTaskGroups, ...machineRows] }
 }
 
 // WHY: the manuscript, not the generated table, is read: it is the single source, and

@@ -37,8 +37,8 @@ const FR_080_SAME_AS_THE_SCREEN =
   '表示の切り替え・表示の倍率（`FR-039` の `S-234`）・ズームの段階・LOD による増減の結果を、書き出しでも同じにすること。'
 const FR_091_CLOSES_THE_PANEL =
   '⭐ 作った直後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと（MUST）'
-const FR_052_JUDGES_ON_THE_ROW_AREA =
-  '判定は `Row Area` の幅が 0 より大きいことをもって行うこと（MUST）'
+const FR_052_JUDGES_ON_THE_TASK_GROUP_AREA =
+  '判定は `Task Group Area` の幅が 0 より大きいことをもって行うこと（MUST）'
 const BO_3_READS_THE_ZOOM_AND_THE_VIEW_PLACE = '| BO-3 | 3 | 見せ方の群から倍率と表示位置を読む。'
 
 const NOTHING_OF_THE_VIEW_PLACE = [
@@ -86,7 +86,7 @@ const ZOOM_STEP = numberIn(rowOf('T-201', 'S-53').by['既定値'] ?? '')
 const FIT = 'IC-10'
 const NARROW_THE_TIME_AXIS = 'IC-12'
 const WIDEN_THE_TIME_AXIS = 'IC-13'
-const WIDEN_THE_ROW_AXIS = 'IC-15'
+const WIDEN_THE_VERTICAL_AXIS = 'IC-15'
 
 const RECTANGLE = ((): string => {
   const found = specTable('T-109').rows.filter(
@@ -131,7 +131,7 @@ const LAST_DAY_OF_A_LONGER_DOCUMENT = '2027-09-30T17:00:00'
 function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
   const task = (uid: number, start: string, finish: string): Loose => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `Task${uid}`,
     start,
@@ -249,7 +249,7 @@ interface Picture {
   readonly pxPerDay: number
   readonly firstDay: string
   readonly rectangleHeight: number
-  readonly rowAreaWidth: number
+  readonly taskGroupAreaWidth: number
   readonly propertiesPanelWidth: number
 }
 
@@ -316,7 +316,7 @@ function bench(document: Loose, env: FrameEnvironment = SCREEN, pen: Pump = pump
       part: surfaceOf(entrance),
       entry: entrance,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -332,7 +332,7 @@ function bench(document: Loose, env: FrameEnvironment = SCREEN, pen: Pump = pump
         pxPerDay: values.layout.pxPerDay as number,
         firstDay: dayTextOf((values.layout.originDay ?? null) as Loose | null),
         rectangleHeight: values.layout.rectangleHeight as number,
-        rowAreaWidth: values.regions.rowArea.width as number,
+        taskGroupAreaWidth: values.regions.taskGroupArea.width as number,
         propertiesPanelWidth: values.regions.propertiesPanel.width as number,
       }
     },
@@ -398,9 +398,9 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     expect(DESIGN).toContain(BO_3_READS_THE_ZOOM_AND_THE_VIEW_PLACE)
   })
 
-  it('FR-091 はパネルを開かせ、FR-052 は Row Area の幅で判定する -- どちらも表示位置と倍率について何も言わない', () => {
+  it('FR-091 はパネルを開かせ、FR-052 は Task Group Area の幅で判定する -- どちらも表示位置と倍率について何も言わない', () => {
     expect(REQUIREMENTS).toContain(FR_091_CLOSES_THE_PANEL)
-    expect(REQUIREMENTS).toContain(FR_052_JUDGES_ON_THE_ROW_AREA)
+    expect(REQUIREMENTS).toContain(FR_052_JUDGES_ON_THE_TASK_GROUP_AREA)
     for (const uid of ['FR-091', 'FR-072', 'FR-052']) {
       for (const word of NOTHING_OF_THE_VIEW_PLACE) {
         expect(withoutSettingsFaceTables(sectionOf(uid)), `${uid} が ${word} を持つ`).not.toContain(word)
@@ -428,17 +428,17 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
 })
 
 describe('OP-10 の答えは 1 度だけ求める -- 求め直す出来事が来るまで', () => {
-  it('前提: 同じ文書でも Row Area が狭ければ全体表示は別の答えを出す', () => {
+  it('前提: 同じ文書でも Task Group Area が狭ければ全体表示は別の答えを出す', () => {
     const pen = pump()
     const wide = bench(documentWithNoViewPlace(), SCREEN, pen)
     const narrow = bench(documentWithNoViewPlace(), NARROWER, pen)
-    expect(narrow.picture().rowAreaWidth).toBe(
-      wide.picture().rowAreaWidth - PANEL_WIDTH_WHEN_OPENED,
+    expect(narrow.picture().taskGroupAreaWidth).toBe(
+      wide.picture().taskGroupAreaWidth - PANEL_WIDTH_WHEN_OPENED,
     )
     expect(narrow.picture().pxPerDay).not.toBe(wide.picture().pxPerDay)
   })
 
-  it('タスクを描いてパネルが開き Row Area が狭まっても、描く日の幅も最初の日も動かない', () => {
+  it('タスクを描いてパネルが開き Task Group Area が狭まっても、描く日の幅も最初の日も動かない', () => {
     const pen = pump()
     const built = bench(documentWithNoViewPlace(), SCREEN, pen)
     const before = built.picture()
@@ -448,7 +448,7 @@ describe('OP-10 の答えは 1 度だけ求める -- 求め直す出来事が来
 
     expect(built.taskCount(), 'the drag made no task, so nothing narrowed').toBe(SPANS.length + 1)
     expect(built.panelIsShown(), 'the panel did not open, so nothing narrowed').toBe(true)
-    expect(built.picture().rowAreaWidth).toBe(before.rowAreaWidth - PANEL_WIDTH_WHEN_OPENED)
+    expect(built.picture().taskGroupAreaWidth).toBe(before.taskGroupAreaWidth - PANEL_WIDTH_WHEN_OPENED)
     expect(built.picture().pxPerDay).toBe(before.pxPerDay)
     expect(built.picture().firstDay).toBe(before.firstDay)
     expect(built.picture().pxPerDay).not.toBe(narrowAnswer.pxPerDay)
@@ -505,7 +505,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
 
     built.resizeTo(NARROWER)
 
-    expect(built.picture().rowAreaWidth).toBe(freshlyNarrow.rowAreaWidth)
+    expect(built.picture().taskGroupAreaWidth).toBe(freshlyNarrow.taskGroupAreaWidth)
     expect(built.picture().pxPerDay).not.toBe(before.pxPerDay)
     expect(built.picture().pxPerDay).toBe(freshlyNarrow.pxPerDay)
   })
@@ -531,7 +531,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
   it('人が行軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
     const built = bench(documentWithNoViewPlace())
     const fitted = built.exportedViewPlace().zoomY
-    built.press(WIDEN_THE_ROW_AXIS)
+    built.press(WIDEN_THE_VERTICAL_AXIS)
     const chosen = built.storedViewPlace()
     expect(chosen.zoomY, 'FR-055 / OP-10 / ZE-6: the step is taken from the zoom the fit chose').toBeGreaterThanOrEqual(
       fitted * ZOOM_STEP * (1 - Number.EPSILON),
@@ -554,7 +554,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
 })
 
 describe('FR-080 -- 書き出す絵は、画面が立っている答えで描く', () => {
-  it('パネルが開いて Row Area が狭まっても、書き出す絵の倍率と表示位置は画面の答えのままである', () => {
+  it('パネルが開いて Task Group Area が狭まっても、書き出す絵の倍率と表示位置は画面の答えのままである', () => {
     const pen = pump()
     const built = bench(documentWithNoViewPlace(), SCREEN, pen)
     const onTheScreen = built.picture()

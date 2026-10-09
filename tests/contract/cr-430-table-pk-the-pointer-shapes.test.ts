@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { specTable, unbroken } from './spec-table'
-import { grabAreaRows, pointAnswering, pointerRowFor, scanGrabAreas, sizePx, specRow } from '../unit/cr-430-bench'
+import { grabAreaTaskGroups, pointAnswering, pointerRowFor, scanGrabAreas, sizePx, specRow } from '../unit/cr-430-bench'
 import {
   BAR_UID,
   april,
@@ -228,12 +228,12 @@ const hover = (one: Stage, place: Point): string | null => {
 
 const planEndPoint = (one: Stage): Point => {
   const frame = frameOf(one.loop)
-  return pointAnswering(scanGrabAreas(frame.geometry, BAR_UID, frame.rowArea), 'GA-2')
+  return pointAnswering(scanGrabAreas(frame.geometry, BAR_UID, frame.taskGroupArea), 'GA-2')
 }
 
 const planStartPoint = (one: Stage): Point => {
   const frame = frameOf(one.loop)
-  return pointAnswering(scanGrabAreas(frame.geometry, BAR_UID, frame.rowArea), 'GA-1')
+  return pointAnswering(scanGrabAreas(frame.geometry, BAR_UID, frame.taskGroupArea), 'GA-1')
 }
 
 describe('CR-430 -- the manuscript these cases are driven by', () => {
@@ -392,7 +392,7 @@ describe('table T-269 -- the image each row draws', () => {
 })
 
 describe('table T-266 -- the pointer row each grab area shows', () => {
-  it.each(grabAreaRows())('%s shows the table T-269 row that table T-266 names', async (grabArea) => {
+  it.each(grabAreaTaskGroups())('%s shows the table T-269 row that table T-266 names', async (grabArea) => {
     const pointerRowOf = await seamOf('pointerRowOf')
     const hit = { item: { kind: 'task', taskUid: BAR_UID }, grab: grabArea }
     expect(pointerRowOf(hit as never, false as never), `${grabArea}: table T-266 names ${pointerRowFor(grabArea)}`).toBe(
@@ -460,7 +460,7 @@ describe('FR-106 -- what the product writes under the pointer', { timeout: LOADE
     const before = cursorOf(hover(one, place))
     expect(before, 'the loop wrote no image for GA-2').not.toBeNull()
     one.send(pointer('down', place.x, place.y))
-    one.send(pointer('move', xOfDay(one.loop, april(2)), frameOf(one.loop).rowArea.y1 - 2))
+    one.send(pointer('move', xOfDay(one.loop, april(2)), frameOf(one.loop).taskGroupArea.y1 - 2))
     const during = one.shown()
     expect(cursorOf(during[during.length - 1] ?? null)?.svg, FR_106_HOLDS_WHILE_PRESSED).toBe(before!.svg)
   })

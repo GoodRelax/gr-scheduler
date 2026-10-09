@@ -20,9 +20,9 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
-import { settledRow, tasksRankedByTheRowTree, wbsSubtreesOf } from './edit-task-group'
+import { settledTaskGroup, tasksRankedByTheTaskGroupTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
-import { pasteTaskSubtree } from './task-paste'
+import { pasteTasks } from './task-paste'
 import {
   beginTaskActual,
   cycleTaskPlanActualStateInDocument,
@@ -83,7 +83,7 @@ export type TaskCommand =
     }
   | { readonly kind: 'deleteTask'; readonly uid: number }
   | {
-      readonly kind: 'pasteTaskSubtree'
+      readonly kind: 'pasteTasks'
       readonly sourceUids: readonly number[]
       readonly landing?: PasteLanding
     }
@@ -114,7 +114,7 @@ export type TaskCommand =
     }
   | { readonly kind: 'setTaskFadeInDays'; readonly uid: number; readonly days: number | null }
   | { readonly kind: 'setTaskFadeOutDays'; readonly uid: number; readonly days: number | null }
-  | { readonly kind: 'setTaskWbsParent'; readonly uid: number; readonly parentUid: number | null }
+  | { readonly kind: 'setTaskParentTask'; readonly uid: number; readonly parentUid: number | null }
   | { readonly kind: 'moveTaskToTaskGroup'; readonly uid: number; readonly groupId: string }
   | { readonly kind: 'setTaskVisualShapeKind'; readonly uid: number; readonly shapeKind: TaskShapeKind }
   | {
@@ -142,7 +142,7 @@ export function withSchedule(document: Document, schedule: Schedule): Document {
 
 // TRAP: list and map columns compare by reference; exact only while every arm spreads the held row.
 /** @purity pure */
-export function sameRow<T extends object>(a: T, b: T): boolean {
+export function sameRecord<T extends object>(a: T, b: T): boolean {
   const left = a as Record<string, unknown>
   const right = b as Record<string, unknown>
   const keys = Object.keys(left)
@@ -153,7 +153,7 @@ export function sameRow<T extends object>(a: T, b: T): boolean {
 export function withTask(document: Document, next: Task): Document {
   const held = document.schedule.tasks.find((one) => one.uid === next.uid)
   // TRAP: return the same document when nothing changed; document-change-plan.ts compares references.
-  if (held !== undefined && sameRow(held, next)) return document
+  if (held !== undefined && sameRecord(held, next)) return document
   const tasks = document.schedule.tasks.map((one) => (one.uid === next.uid ? next : one))
   return withSchedule(document, { ...document.schedule, tasks })
 }
@@ -192,10 +192,10 @@ export function checkDay(text: string): DayCheck {
 
 // see T-108, IV-2
 /** @purity pure */
-export function editTask(document: Document, command: TaskCommand, defaultRowName: string): EditResult {
+export function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult {
   const schedule = document.schedule
   const within = workingCalendarOf(schedule)
-  if (command.kind === 'pasteTaskSubtree') return pasteTaskSubtree(document, command, within)
+  if (command.kind === 'pasteTasks') return pasteTasks(document, command, within)
 
   const named = command.kind === 'createTask' ? null : taskByUid(schedule, command.uid)
   // WHY: CM-7 is exempt; FR-032's select-all delete bundles one CM-7 per task, an earlier one can
@@ -221,7 +221,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           continue
         }
         // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
-        taskGroups.push(settledRow(schedule, group, defaultRowName))
+        taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
       }
 
       const tasks = schedule.tasks
@@ -276,7 +276,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
     case 'setTaskFadeOutDays':
       return setTaskFadeDays(document, command, task)
 
-    case 'setTaskWbsParent': {
+    case 'setTaskParentTask': {
       if (command.parentUid !== null) {
         if (taskByUid(schedule, command.parentUid) === null) {
           return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentUid}`)])
@@ -287,7 +287,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           ])
         }
       }
-      return edited(withTask(document, { ...task, wbsParentUid: command.parentUid }))
+      return edited(withTask(document, { ...task, parentTaskUid: command.parentUid }))
     }
 
     case 'moveTaskToTaskGroup': {
@@ -303,7 +303,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
         one.taskUid === command.uid ? { ...one, groupId: command.groupId } : one,
       )
       const moved: Schedule = { ...schedule, taskGroupMembers }
-      return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheRowTree(moved) }))
+      return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheTaskGroupTree(moved) }))
     }
 
     case 'setTaskVisualShapeKind':
@@ -326,7 +326,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
 const TABLE_T108_ROWS: Readonly<Record<TaskCommand['kind'], string>> = {
   createTask: 'CM-6',
   deleteTask: 'CM-7',
-  pasteTaskSubtree: 'CM-8',
+  pasteTasks: 'CM-8',
   setTaskName: 'CM-9',
   setTaskNotes: 'CM-10',
   setTaskPlanDates: 'CM-11',
@@ -336,7 +336,7 @@ const TABLE_T108_ROWS: Readonly<Record<TaskCommand['kind'], string>> = {
   cycleTaskPlanActualState: 'CM-15',
   setTaskFadeInDays: 'CM-16',
   setTaskFadeOutDays: 'CM-17',
-  setTaskWbsParent: 'CM-18',
+  setTaskParentTask: 'CM-18',
   moveTaskToTaskGroup: 'CM-19',
   setTaskVisualShapeKind: 'CM-20',
   setTaskVisualMilestoneGlyph: 'CM-21',

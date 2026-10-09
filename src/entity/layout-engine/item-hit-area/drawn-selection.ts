@@ -37,7 +37,7 @@ export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeo
 // see T-023c, FR-098, ST-7
 // WHY: a pin the band cannot hold and a row past the stack safety cap are no row T-023c names.
 /** @purity pure */
-export function selectionWithinDrawnRows(
+export function selectionWithinDrawnTaskGroups(
   selection: Selection,
   geometry: ScheduleGeometry,
   layout: ScheduleLayout,
@@ -49,7 +49,7 @@ export function selectionWithinDrawnRows(
   if (isPreviewed) return selection
   const within = selectionWithinDrawn(selection, geometry)
   if (within === selection) return selection
-  const laidOut = new Set(layout.rows.map((row) => row.groupId))
+  const laidOut = new Set(layout.taskGroups.map((taskGroup) => taskGroup.groupId))
   const pinned = new Set(settings.pinnedGroupIds)
   const inGeometry = new Set(geometry.tasks.map((task) => task.taskUid))
   const isLeftOutUnnamed = (groupId: string): boolean =>

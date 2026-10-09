@@ -430,7 +430,7 @@ function isCloseOnlyTitled(modal: OpenModal): modal is ExportChooser | OpenChoos
 }
 
 /** @purity non-pure */
-function closeOnlyTitleRow(host: Document, modal: ExportChooser | OpenChooser, anchors: Map<string, HTMLElement>): HTMLElement {
+function closeOnlyTitleTaskGroup(host: Document, modal: ExportChooser | OpenChooser, anchors: Map<string, HTMLElement>): HTMLElement {
   return windowTitleRowElement(host, modal.heading, { before: [], titled: closeEntriesOf(modal) }, anchors, modal.surface)
 }
 
@@ -450,7 +450,7 @@ function modalTitleRow(
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
   if ('entries' in modal) return helpTitleRow(host, modal, anchors)
-  if (isCloseOnlyTitled(modal)) return closeOnlyTitleRow(host, modal, anchors)
+  if (isCloseOnlyTitled(modal)) return closeOnlyTitleTaskGroup(host, modal, anchors)
   const header = made(host, 'div', STYLE.surfaceHeader)
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading

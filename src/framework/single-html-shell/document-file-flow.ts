@@ -49,7 +49,7 @@ import {
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
 import { exportPng, exportSvg, type ExportScene } from '../../adapter/image-exporter/image-exporter'
-import { DEFAULT_ROW_NAME, exportFileNameOf, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME, exportFileNameOf, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
 import {
   AGENT_DOCUMENT_HANDED,
   CONFIRMATION_MANNER,
@@ -765,7 +765,7 @@ export async function openDocumentIntoHold(
       incoming,
       { kind: 'deleteTask', uid },
       hands.settingsLimitsOf(null),
-      DEFAULT_ROW_NAME,
+      DEFAULT_TASK_GROUP_NAME,
     )
     if (!result.ok) continue
     incoming = result.document

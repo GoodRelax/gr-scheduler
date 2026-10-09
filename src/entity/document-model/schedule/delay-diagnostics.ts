@@ -67,7 +67,7 @@ export interface DelayMarkerState {
   readonly row: DelayMarkerRow
 }
 
-export interface DerivedWbsParent {
+export interface DerivedParentTask {
   readonly uid: number
   readonly parentUid: number
 }
@@ -90,7 +90,7 @@ export interface DelayDiagnosticsReport {
   readonly unanalysedCount: number
   readonly markerStates: readonly DelayMarkerState[]
   readonly settledPushOuts: readonly DelayQuantities[]
-  readonly derivedWbsParents: readonly DerivedWbsParent[]
+  readonly derivedParentTasks: readonly DerivedParentTask[]
   readonly lateDays: readonly LateDays[]
 }
 
@@ -140,7 +140,7 @@ interface ParentDerivation {
 interface Structure {
   readonly tasks: readonly Task[]
   readonly byUid: ReadonlyMap<number, Task>
-  readonly rowDepthOf: ReadonlyMap<number, number>
+  readonly taskGroupDepthOf: ReadonlyMap<number, number>
   readonly tasksAtDepth: ReadonlyMap<number, readonly Task[]>
   readonly derivations: ReadonlyMap<number, ParentDerivation>
   readonly parentOf: ReadonlyMap<number, number>
@@ -312,7 +312,7 @@ function findingOf(row: string, task: Task, values: Record<string, FindingValue>
 
 // see IP-1, MP-1
 /** @purity pure */
-function rowDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
+function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   const parentOf = new Map(schedule.taskGroups.map((group) => [group.id, group.parentId]))
   const depthOf = (groupId: string): number => {
     let depth = 0
@@ -338,17 +338,17 @@ function encloses(parent: Task, child: Task): boolean {
 // WHY: a point holds no span, so a stated parent that is a milestone is read as no parent and the child is derived.
 /** @purity pure */
 function statedParentUidOf(task: Task, byUid: ReadonlyMap<number, Task>): number | null {
-  const parent = task.wbsParentUid === null ? undefined : byUid.get(task.wbsParentUid)
-  return parent?.milestone === true ? null : task.wbsParentUid
+  const parent = task.parentTaskUid === null ? undefined : byUid.get(task.parentTaskUid)
+  return parent?.milestone === true ? null : task.parentTaskUid
 }
 
 // see FR-135, IP-2, IP-3
 /** @purity pure */
-function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>, rowDepthOf: ReadonlyMap<number, number>,
+function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>): ReadonlyMap<number, ParentDerivation> {
   const derived = new Map<number, ParentDerivation>()
   for (const task of tasks) {
-    const depth = rowDepthOf.get(task.uid)
+    const depth = taskGroupDepthOf.get(task.uid)
     if (statedParentUidOf(task, byUid) !== null || depth === undefined) continue
     // WHY: a task on a top row has no row above it, so no parent is derived (PND-605, JDG-823).
     if (depth === 0) continue
@@ -361,7 +361,7 @@ function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Tas
 }
 
 /** @purity pure */
-function wbsParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>,
+function parentTasksOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Task>,
                       derivations: ReadonlyMap<number, ParentDerivation>): ReadonlyMap<number, number> {
   const parents = new Map<number, number>()
   for (const task of tasks) {
@@ -392,10 +392,10 @@ function latestMilestones(tasks: readonly Task[]): readonly Task[] {
 
 // see MP-1, MP-2, MP-3
 /** @purity pure */
-function milestoneLinksOf(milestone: Task, rowDepthOf: ReadonlyMap<number, number>,
+function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number, number>,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>,
                           parentOf: ReadonlyMap<number, number>): readonly Link[] {
-  const depth = rowDepthOf.get(milestone.uid)
+  const depth = taskGroupDepthOf.get(milestone.uid)
   const due = dayOf(milestone.finish)
   if (depth === undefined || due === null) return []
   const before = (task: Task): boolean => isBefore(dayOf(task.finish), due)
@@ -405,7 +405,7 @@ function milestoneLinksOf(milestone: Task, rowDepthOf: ReadonlyMap<number, numbe
   const afterPrevious = (task: Task): boolean => bound === null || isBefore(bound, dayOf(task.finish))
   const unowned = (task: Task): boolean => {
     const parent = parentOf.get(task.uid)
-    return parent === undefined || rowDepthOf.get(parent) !== depth
+    return parent === undefined || taskGroupDepthOf.get(parent) !== depth
   }
   const below = (tasksAtDepth.get(depth + 1) ?? []).filter((task) => before(task) && unowned(task))
   return [...previous, ...peers.filter(afterPrevious), ...below.filter(afterPrevious)]
@@ -456,25 +456,25 @@ function successorMapOf(edges: readonly { readonly from: number; readonly to: nu
 function structureOf(schedule: Schedule): Structure {
   const tasks = schedule.tasks
   const byUid = new Map(tasks.map((task) => [task.uid, task]))
-  const rowDepthOf = rowDepthByTask(schedule)
-  const tasksAtDepth = groupBy(tasks, (task) => rowDepthOf.get(task.uid))
-  const derivations = derivedParentsOf(tasks, byUid, rowDepthOf, tasksAtDepth)
-  return { tasks, byUid, rowDepthOf, tasksAtDepth, derivations, parentOf: wbsParentsOf(tasks, byUid, derivations) }
+  const taskGroupDepthOf = taskGroupDepthByTask(schedule)
+  const tasksAtDepth = groupBy(tasks, (task) => taskGroupDepthOf.get(task.uid))
+  const derivations = derivedParentsOf(tasks, byUid, taskGroupDepthOf, tasksAtDepth)
+  return { tasks, byUid, taskGroupDepthOf, tasksAtDepth, derivations, parentOf: parentTasksOf(tasks, byUid, derivations) }
 }
 
 /** @purity pure */
 function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: CalendarDay): Facts {
   const structure = structureOf(schedule)
   const minutesPerDay = minutesPerWorkingDayOf(schedule.project)
-  const { tasks, byUid, rowDepthOf, tasksAtDepth, parentOf } = structure
-  const explicitChildrenOf = groupBy(tasks, (task) => task.wbsParentUid ?? undefined)
+  const { tasks, byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structure
+  const explicitChildrenOf = groupBy(tasks, (task) => task.parentTaskUid ?? undefined)
   const childrenOf = groupBy(tasks, (task) => parentOf.get(task.uid))
   const linksOf = new Map<number, readonly Link[]>()
   const achievedOnOf = new Map<number, string>()
   for (const task of tasks) {
     const stated = statedLinksOf(task, byUid, minutesPerDay)
     const links = task.milestone === true && task.dependencies.length === 0
-      ? milestoneLinksOf(task, rowDepthOf, tasksAtDepth, parentOf) : stated
+      ? milestoneLinksOf(task, taskGroupDepthOf, tasksAtDepth, parentOf) : stated
     linksOf.set(task.uid, links)
     const achieved = achievedOn(task, links, byUid)
     if (achieved !== null) achievedOnOf.set(task.uid, achieved)
@@ -689,8 +689,8 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
     const predecessor = facts.byUid.get(dependency.predecessorUid)
     if (predecessor === undefined || predecessor === task) continue
     const predecessorUid = predecessor.uid
-    if (predecessor.wbsParentUid === task.uid || task.wbsParentUid === predecessorUid) {
-      found.push(findingOf('VS-1', task, { predecessorUid, ...columnsOf(task, ['wbsParentUid']) }))
+    if (predecessor.parentTaskUid === task.uid || task.parentTaskUid === predecessorUid) {
+      found.push(findingOf('VS-1', task, { predecessorUid, ...columnsOf(task, ['parentTaskUid']) }))
     }
     if (bindsSuccessorStart(dependency.linkType) && !isStarted(predecessor) && isStarted(task)) {
       found.push(findingOf('VS-3', task, { predecessorUid, ...columnsOf(task, ['actualStart']) }))
@@ -821,7 +821,7 @@ function omissionsOf(facts: Facts): readonly DelayFinding[] {
     found.push(...rowOmissions(facts, task), ...successorOmissions(facts, task))
     const derivation = facts.derivations.get(task.uid)
     if (derivation !== undefined && derivation.parentUid === null) {
-      found.push(findingOf('VO-4', task, { ...columnsOf(task, ['wbsParentUid']), candidateUids: derivation.candidates }))
+      found.push(findingOf('VO-4', task, { ...columnsOf(task, ['parentTaskUid']), candidateUids: derivation.candidates }))
     }
     const achieved = facts.achievedOnOf.get(task.uid)
     if (achieved !== undefined) found.push(findingOf('VO-5', task, columnsOf(task, ['actualFinish']), achieved))
@@ -1100,7 +1100,7 @@ function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5'): Read
 function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
   return {
     outcome: 'notDiagnosed', statusDate, findings: [], bottlenecks: [], terminalPushOuts: [], walls: [],
-    unanalysedCount: 0, markerStates: [], settledPushOuts: [], derivedWbsParents: [], lateDays: [],
+    unanalysedCount: 0, markerStates: [], settledPushOuts: [], derivedParentTasks: [], lateDays: [],
   }
 }
 
@@ -1147,7 +1147,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     unanalysedCount: facts.tasks.filter((task) => doubted.has(task.uid)).length,
     markerStates: markerStatesOf(facts, doubted, bottlenecks),
     settledPushOuts: pushing.filter((one) => !isOpen(one.uid)),
-    derivedWbsParents: [...facts.derivations]
+    derivedParentTasks: [...facts.derivations]
       .flatMap(([uid, one]) => (one.parentUid === null ? [] : [{ uid, parentUid: one.parentUid }])),
     lateDays: lateDaysOf(facts),
   }
@@ -1166,9 +1166,9 @@ function nearestEndDays(bar: Task, child: Task): number {
 // see IP-4
 /** @purity pure */
 export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number): readonly number[] {
-  const { byUid, rowDepthOf, tasksAtDepth, parentOf } = structureOf(document.schedule)
+  const { byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structureOf(document.schedule)
   const child = byUid.get(taskUid)
-  const depth = rowDepthOf.get(taskUid)
+  const depth = taskGroupDepthOf.get(taskUid)
   if (child === undefined || depth === undefined || depth === 0) return []
   const bars = (tasksAtDepth.get(depth - 1) ?? []).filter((bar) => bar.milestone !== true
     && plannedEnds(bar).start !== null && plannedEnds(bar).finish !== null
@@ -1186,7 +1186,7 @@ export function parentCandidatesOf(document: DiagnosedDocument, taskUid: number)
 }
 
 // see FR-135, IP-2, IP-4, IP-5, VO-4
-export type WbsParentResolution =
+export type ParentTaskResolution =
   | { readonly kind: 'stated'; readonly parentUid: number }
   | { readonly kind: 'derived'; readonly parentUid: number }
   // WHY: enclosing is the IP-1 count (0 or 2 and up), the reason no parent is decided; candidates is IP-4's whole order.
@@ -1195,11 +1195,11 @@ export type WbsParentResolution =
 
 // see FR-135, IP-2, IP-4, IP-5, VO-4
 // WHY: read off the same derivation the report uses, so the arrows and the diagnosis never disagree on a parent.
-// WHY: onlyTaskUid answers one Task (WL-15), so a panel showing one child does not order every undecided child's candidates.
+// WHY: onlyTaskUid answers one Task (PTL-15), so a panel showing one child does not order every undecided child's candidates.
 /** @purity pure */
-export function wbsParentResolutionsOf(document: DiagnosedDocument, onlyTaskUid?: number): ReadonlyMap<number, WbsParentResolution> {
-  const { tasks, byUid, rowDepthOf, derivations } = structureOf(document.schedule)
-  const resolutions = new Map<number, WbsParentResolution>()
+export function parentTaskResolutionsOf(document: DiagnosedDocument, onlyTaskUid?: number): ReadonlyMap<number, ParentTaskResolution> {
+  const { tasks, byUid, taskGroupDepthOf, derivations } = structureOf(document.schedule)
+  const resolutions = new Map<number, ParentTaskResolution>()
   for (const task of onlyTaskUid === undefined ? tasks : tasks.filter((one) => one.uid === onlyTaskUid)) {
     // WHY: FR-135 reads a stated milestone parent as no parent, so that child falls through to the derivation.
     const statedUid = statedParentUidOf(task, byUid)
@@ -1209,7 +1209,7 @@ export function wbsParentResolutionsOf(document: DiagnosedDocument, onlyTaskUid?
     }
     const derivation = derivations.get(task.uid)
     if (derivation === undefined) {
-      if (rowDepthOf.get(task.uid) === 0) resolutions.set(task.uid, { kind: 'root' })
+      if (taskGroupDepthOf.get(task.uid) === 0) resolutions.set(task.uid, { kind: 'root' })
       continue
     }
     resolutions.set(task.uid, derivation.parentUid === null

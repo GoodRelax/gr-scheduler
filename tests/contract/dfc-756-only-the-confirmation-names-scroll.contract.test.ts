@@ -22,14 +22,14 @@ const SCROLLING = ['auto', 'scroll']
 const ASKED = {
   manner: 'NT-7',
   question: '',
-  items: NAMES.map((name) => ({ name, isShownOnAnotherRow: false })),
+  items: NAMES.map((name) => ({ name, isShownOnAnotherTaskGroup: false })),
   mannerText: '',
   text: QUESTION_TEXT,
   answers: [
     { answer: 'yes', text: 'Yes' },
     { answer: 'no', text: 'No' },
   ],
-  shownOnAnotherRowMark: '',
+  shownOnAnotherTaskGroupMark: '',
 } as unknown as Confirmation
 
 const VIEW = {
@@ -44,7 +44,7 @@ const VIEW = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

@@ -177,7 +177,7 @@ interface TaskWish {
 
 const taskOf = (wish: TaskWish): Loose => ({
   uid: wish.uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: `t${wish.uid}`,
   start: iso(wish.start),
@@ -635,7 +635,7 @@ describe(`DC-8 -- ${DC_8_WIDTH}`, () => {
       part: 'Command Palette',
       entry: IC_DUAL,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -643,7 +643,7 @@ describe(`DC-8 -- ${DC_8_WIDTH}`, () => {
     send(pointerAt('down', 80, 120))
     send(pointerAt('up', 80, 120))
     aimed = null
-    const area = loop.current()!.regions.rowArea as unknown as { readonly x: number; readonly y: number }
+    const area = loop.current()!.regions.taskGroupArea as unknown as { readonly x: number; readonly y: number }
     send(pointerAt('move', area.x + 200, area.y + 40))
     send(pointerAt('down', area.x + 200, area.y + 40))
     send(pointerAt('up', area.x + 200, area.y + 40))

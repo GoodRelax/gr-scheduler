@@ -7,7 +7,7 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import {
   ERP_SAMPLE,
-  HEAD_FOLD_EVERY_ROW,
+  HEAD_FOLD_EVERY_TASK_GROUP,
   REQUIREMENTS,
   keyOf,
   openDocument,
@@ -179,7 +179,7 @@ async function groupOfTask(page: Page, uid: number): Promise<string> {
 }
 
 /** @purity pure */
-function rowAndAncestors(reading: TreeReading, id: string): readonly string[] {
+function taskGroupAndAncestors(reading: TreeReading, id: string): readonly string[] {
   const chain: string[] = []
   let at: string | null = id
   while (at !== null) {
@@ -302,7 +302,7 @@ async function openSearch(page: Page, word: string): Promise<void> {
 
 /** @purity non-pure */
 async function foldEverything(page: Page): Promise<void> {
-  expect(await pressEntrance(page, HEAD_FOLD_EVERY_ROW), 'HF-12 is on the screen').toBe(true)
+  expect(await pressEntrance(page, HEAD_FOLD_EVERY_TASK_GROUP), 'HF-12 is on the screen').toBe(true)
 }
 
 /** @purity non-pure */
@@ -432,12 +432,12 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       if (uid === undefined) throw new Error(`the task table holds no row for ${TASK_WORD}`)
       const row = await groupOfTask(one.page, uid)
       const folded = await readTree(one.page)
-      expect(rowAndAncestors(folded, row).map((id) => folded.rows.find((r) => r.id === id)?.treeState)).not.toContain('expanded')
+      expect(taskGroupAndAncestors(folded, row).map((id) => folded.rows.find((r) => r.id === id)?.treeState)).not.toContain('expanded')
 
       await pressAt(one.page, await cellCentre(one.page, 'SQ-1', 0))
 
       const opened = await readTree(one.page)
-      for (const id of rowAndAncestors(opened, row)) {
+      for (const id of taskGroupAndAncestors(opened, row)) {
         expect(opened.rows.find((r) => r.id === id)?.treeState, `row ${id} after the jump`).toBe('expanded')
       }
       expect(opened.levelZero, SJ_2_LEVEL_ZERO).not.toBe('collapsed')
@@ -499,7 +499,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       await pressAt(one.page, await cellCentre(one.page, 'SQ-7', 0))
 
       const opened = await readTree(one.page)
-      for (const id of rowAndAncestors(opened, row)) {
+      for (const id of taskGroupAndAncestors(opened, row)) {
         expect(opened.rows.find((r) => r.id === id)?.treeState, `row ${id} after the jump`).toBe('expanded')
       }
       const chosen = JSON.parse(await selection(one.page)) as { items: unknown[] }

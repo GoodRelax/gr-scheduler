@@ -39,7 +39,7 @@ export function paletteFollow(input: PointerInput, context: InputContext): Trans
 // see GR-21, T-038
 /** @purity pure */
 function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const lane = axis === 'horizontal' ? area.width : area.height
   const heldWidth = context.pressed?.horizontalWholeAtPress?.width ?? context.layout.contentWidth
   const heldHeight = context.pressed?.verticalWholeAtPress?.height ?? context.layout.contentHeight
@@ -70,7 +70,7 @@ function travelInside(offset: number, room: number, travel: number): number {
 // has no place on the lane, so the grip stopped at the lane end and left the pointer.
 /** @purity pure */
 function travelInsideHeldWidth(context: InputContext, dx: number): number {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const whole = context.pressed?.horizontalWholeAtPress
   const contentX0 = context.layout.contentX0
   if (whole === undefined || contentX0 === null) return dx
@@ -80,10 +80,10 @@ function travelInsideHeldWidth(context: InputContext, dx: number): number {
 // see GR-21, FR-051, FR-098
 /** @purity pure */
 function travelInsideHeldHeight(context: InputContext, dy: number): number {
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const whole = context.pressed?.verticalWholeAtPress
   const scrollTop = context.layout.scrollAreaY ?? area.y
-  const first = context.layout.rows.find((row) => row.isPinned !== true)
+  const first = context.layout.taskGroups.find((taskGroup) => taskGroup.isPinned !== true)
   if (whole === undefined || first === undefined) return dy
   const visible = Math.max(0, area.y + area.height - scrollTop)
   return travelInside(scrollTop - (first.y - whole.fromContentY0), whole.height - visible, dy)
@@ -108,11 +108,11 @@ export function commandFromPanelDivider(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  if (panel !== 'rowTitlePanel') return CONSUMED_ELSEWHERE
+  if (panel !== 'taskGroupPanel') return CONSUMED_ELSEWHERE
   const settings = context.document.documentSettings
-  const rowTitlePanelWidth = rowTitlePanelWidthAfterDrag(settings, release.x - press.at.x)
-  if (rowTitlePanelWidth === settings.rowTitlePanelWidth) return CONSUMED_ELSEWHERE
-  return changed([{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth }])
+  const taskGroupPanelWidth = taskGroupPanelWidthAfterDrag(settings, release.x - press.at.x)
+  if (taskGroupPanelWidth === settings.taskGroupPanelWidth) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth }])
 }
 
 // see FR-052, GR-22, S-171, S-248, T-280
@@ -131,11 +131,11 @@ export function screenEventFromPanelDivider(
 
 // see FR-052, FR-039, T-252
 /** @purity pure */
-function rowTitlePanelWidthAfterDrag(settings: DocumentSettings, travelled: number): number {
-  const stored = settings.rowTitlePanelWidth
+function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, travelled: number): number {
+  const stored = settings.taskGroupPanelWidth
   const ratio = displayRatioOf(settings)
-  const drawnAtPress = drawnSettingsOf(settings).rowTitlePanelWidth
-  const floor = drawnSettingsOf({ ...settings, rowTitlePanelWidth: 0 }).rowTitlePanelWidth
+  const drawnAtPress = drawnSettingsOf(settings).taskGroupPanelWidth
+  const floor = drawnSettingsOf({ ...settings, taskGroupPanelWidth: 0 }).taskGroupPanelWidth
   const isWiderThanFloor = drawnAtPress + travelled > floor
   if (!isWiderThanFloor) return Math.min(stored, floor / ratio)
   const drawnTravel = drawnAtPress - stored * ratio + travelled

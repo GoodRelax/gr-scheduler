@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { reasonWords } from './cr-570-tree-state-stage'
 import { VIEWPORT, dropFile, enableAgentApi, icon, launch, openByDrop, settle } from '../usecase/uc-harness'
-import { rowsDocument } from './w3-t1-stage'
+import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -51,13 +51,13 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
   test('a GRS JSON merge that overwrites task 2 and lacks task 3 tells RS-71 and RS-72', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
-    await openByDrop(page, 'w3-t1-current.json', rowsDocument({ rows: 3 }))
+    await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))
     const renamed = await page.evaluate(() => {
       const api = (window as any).grSchedulerAgentApi
       return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 2, name: 'Changed here' }] }).accepted
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
-    await mergeByDrop(page, 'w3-t1-incoming.json', rowsDocument({ rows: 2 }))
+    await mergeByDrop(page, 'w3-t1-incoming.json', taskGroupsDocument({ rows: 2 }))
     await expect(page.locator(REVIEW), 'premise: the Difference Review asks about task 2').toHaveCount(1)
     await page.click(icon('IC-95', REVIEW))
     await settle(page)
@@ -69,15 +69,15 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
   test('a second merge that no longer carries task 3 tells RS-73 with its name', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
-    await openByDrop(page, 'w3-t1-current.json', rowsDocument({ rows: 3 }))
-    await mergeByDrop(page, 'w3-t1-first.json', rowsDocument({ rows: 3 }))
+    await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))
+    await mergeByDrop(page, 'w3-t1-first.json', taskGroupsDocument({ rows: 3 }))
     if (await page.locator(REVIEW).count()) {
       await page.click(icon('IC-95', REVIEW))
       await settle(page)
     }
     await page.keyboard.press('Escape')
     await settle(page)
-    await mergeByDrop(page, 'w3-t1-second.json', rowsDocument({ rows: 2 }))
+    await mergeByDrop(page, 'w3-t1-second.json', taskGroupsDocument({ rows: 2 }))
     if (await page.locator(REVIEW).count()) {
       await page.click(icon('IC-95', REVIEW))
       await settle(page)

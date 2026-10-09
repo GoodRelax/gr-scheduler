@@ -208,7 +208,7 @@ test(`FR-096: ${FORMAT_BUTTON_GAP}`, async ({ page }) => {
 
 test(`FR-052: ${HELD_WIDTH_IS_RELEASED_WIDTH}`, async ({ page }) => {
   await launch(page)
-  const panelWidth = async (): Promise<number> => (await boxOf(page, '[data-role="Row Title Panel"]')).w
+  const panelWidth = async (): Promise<number> => (await boxOf(page, '[data-role="Task Group Panel"]')).w
   const dragAndCompare = async (dx: number): Promise<{ held: number; released: number; start: number }> => {
     const divider = await boxOf(page, '[data-role="Panel Divider"]')
     const start = await panelWidth()
@@ -491,26 +491,26 @@ test(`DA-7: ${FIELD_SCROLLS_LIKE_THE_ENTRANCE}`, async ({ page }) => {
   expect(String((await readDocument(page)).schedule.project['statusDate']).slice(0, 10), 'precondition: the field set statusDate').toBe(date)
   const area = await boxOf(page, '[data-role="Scrollbars"][data-axis="horizontal"]')
   const line = await boxOf(page, '[data-figure="status-line"]')
-  expect(line.x + line.w / 2, 'the status line is not at the middle of the Row Area').toBeCloseTo(area.x + area.w / 2, 0)
+  expect(line.x + line.w / 2, 'the status line is not at the middle of the Task Group Area').toBeCloseTo(area.x + area.w / 2, 0)
 })
 
 test(`HF-10: ${OPEN_ALL_NOT_OUTERMOST}`, async ({ page }) => {
   await launch(page)
   const head = await page.evaluate(() =>
-    [...document.querySelectorAll('[data-role="Row Title Panel"] > [data-icon]')].map((one) => ({ icon: one.getAttribute('data-icon'), x: one.getBoundingClientRect().x })),
+    [...document.querySelectorAll('[data-role="Task Group Panel"] > [data-icon]')].map((one) => ({ icon: one.getAttribute('data-icon'), x: one.getBoundingClientRect().x })),
   )
   const xs = head.map((one) => one.x)
   const openAll = head.find((one) => one.icon === 'IC-74')
-  expect(openAll, 'precondition: HR-1 (IC-74) heads the Row Title Panel').toBeDefined()
+  expect(openAll, 'precondition: HR-1 (IC-74) heads the Task Group Panel').toBeDefined()
   expect(openAll!.x, 'IC-74 is the leftmost of the row').toBeGreaterThan(Math.min(...xs))
   expect(openAll!.x, 'IC-74 is the rightmost of the row').toBeLessThan(Math.max(...xs))
   // STEP: the Tab order of the same row
-  await page.locator(`[data-role="Row Title Panel"] > [data-icon="${head[0]?.icon}"]`).focus()
+  await page.locator(`[data-role="Task Group Panel"] > [data-icon="${head[0]?.icon}"]`).focus()
   const order: string[] = []
   for (let i = 0; i < head.length * 2; i++) {
     const icon = await page.evaluate(() => {
       const active = document.activeElement
-      return active?.parentElement?.getAttribute('data-role') === 'Row Title Panel' ? active.getAttribute('data-icon') : null
+      return active?.parentElement?.getAttribute('data-role') === 'Task Group Panel' ? active.getAttribute('data-icon') : null
     })
     if (icon !== null && !order.includes(icon)) order.push(icon)
     await page.keyboard.press('Tab')
@@ -523,7 +523,7 @@ test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const documentBefore = await readDocument(page)
-  const task = documentBefore.schedule.tasks.find((one) => one['milestone'] === false && one['wbsParentUid'] !== null && one['fadeOutDays'] === null)
+  const task = documentBefore.schedule.tasks.find((one) => one['milestone'] === false && one['parentTaskUid'] !== null && one['fadeOutDays'] === null)
   expect(task, 'precondition: a task with a period and no fade-out').toBeDefined()
   const uid = Number(task!['uid'])
   const plan = await boxOf(page, `[data-figure="task-${uid}-plan"]`)

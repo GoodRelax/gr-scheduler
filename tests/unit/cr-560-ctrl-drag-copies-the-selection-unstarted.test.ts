@@ -24,7 +24,7 @@ import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import type { Selection } from '../../src/entity/document-model/selection/selection'
 import { grabSizesOf, itemAtPointer, type Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import type { BarGeometry, Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { RowPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import type { TaskGroupPlacement } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { pointerImageOf, type PointerShape } from '../../src/framework/single-html-shell/pointer-shape'
@@ -119,7 +119,7 @@ describe('CR-560 premises: the clauses read this way', () => {
 
   it('T-108 CM-8 carries the day shift and the rows of a Ctrl drag copy', () => {
     const line = GLOSSARY.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
-    expect(line).toContain('`pasteTaskSubtree`')
+    expect(line).toContain('`pasteTasks`')
     expect(line).toContain('ずらす日数と、コピーを載せる行も運ぶ')
   })
 
@@ -133,13 +133,13 @@ describe('CR-560 premises: the clauses read this way', () => {
   })
 })
 
-const ROW_A = '56000000-0000-4000-8000-00000000000a'
-const ROW_B = '56000000-0000-4000-8000-00000000000b'
-const ROW_C = '56000000-0000-4000-8000-00000000000c'
-const ROW_D = '56000000-0000-4000-8000-00000000000d'
-const ROW_E = '56000000-0000-4000-8000-00000000000e'
-const ROW_F = '56000000-0000-4000-8000-00000000000f'
-const ROWS = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]
+const TASK_GROUP_A = '56000000-0000-4000-8000-00000000000a'
+const TASK_GROUP_B = '56000000-0000-4000-8000-00000000000b'
+const TASK_GROUP_C = '56000000-0000-4000-8000-00000000000c'
+const TASK_GROUP_D = '56000000-0000-4000-8000-00000000000d'
+const TASK_GROUP_E = '56000000-0000-4000-8000-00000000000e'
+const TASK_GROUP_F = '56000000-0000-4000-8000-00000000000f'
+const ROWS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
 
 const ROOT = 1
 const CHILD = 2
@@ -152,7 +152,7 @@ const ACTUAL_DURATION = 'ActualDuration'
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: over.uid,
     name: `task ${over.uid}`,
     start: null,
@@ -196,7 +196,7 @@ function fixtureDocument(): Document {
         task({
           uid: CHILD,
           name: 'Child',
-          wbsParentUid: ROOT,
+          parentTaskUid: ROOT,
           start: '2026-04-08',
           finish: '2026-04-10',
           actualStart: '2026-04-08',
@@ -251,12 +251,12 @@ function fixtureDocument(): Document {
         minHeight: null,
       })),
       taskGroupMembers: [
-        { taskUid: ROOT, groupId: ROW_A },
-        { taskUid: PAUSED, groupId: ROW_B },
-        { taskUid: CHILD, groupId: ROW_C },
-        { taskUid: STONE, groupId: ROW_D },
-        { taskUid: OTHER, groupId: ROW_E },
-        { taskUid: HALTED, groupId: ROW_F },
+        { taskUid: ROOT, groupId: TASK_GROUP_A },
+        { taskUid: PAUSED, groupId: TASK_GROUP_B },
+        { taskUid: CHILD, groupId: TASK_GROUP_C },
+        { taskUid: STONE, groupId: TASK_GROUP_D },
+        { taskUid: OTHER, groupId: TASK_GROUP_E },
+        { taskUid: HALTED, groupId: TASK_GROUP_F },
       ],
       taskVisuals: [
         {
@@ -324,7 +324,7 @@ function stage(): Stage {
             part: 'Command Palette',
             entry: ARMING_ENTRY,
             format: null,
-            rowGroupId: null,
+            taskGroupId: null,
             resourceUid: null,
             dividerPanel: null,
             noticeDismissKey: null,
@@ -401,12 +401,12 @@ const planEndOf = (loop: FrameLoop, uid: number): Point => {
 }
 
 const groundOf = (loop: FrameLoop): Point => {
-  const area = frameOf(loop).regions.rowArea
+  const area = frameOf(loop).regions.taskGroupArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
-const drawnRow = (loop: FrameLoop, groupId: string): RowPlacement => {
-  const found = frameOf(loop).layout.rows.find((one) => one.groupId === groupId)
+const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
   if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
   return found
 }
@@ -417,7 +417,7 @@ const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 
 const travel = (loop: FrameLoop, days: number, rows: number): Point => ({
   x: days * pxPerDay(loop),
-  y: drawnRow(loop, ROWS[rows] as string).y - drawnRow(loop, ROW_A).y,
+  y: drawnTaskGroup(loop, ROWS[rows] as string).y - drawnTaskGroup(loop, TASK_GROUP_A).y,
 })
 
 const click = (built: Stage, at: Point, modifiers: Partial<InputModifiers> = {}): void => {
@@ -499,7 +499,7 @@ describe('CR-560 fixture premises', () => {
 const LIMITS: SettingsLimits = {
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const PICKED_ROOT: Selection = { items: [{ kind: 'task', uid: ROOT }], ordered: true } as unknown as Selection
@@ -525,7 +525,7 @@ function contextOf(built: Stage, selection: Selection, over: Partial<InputContex
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-04-01',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
     ...over,
@@ -601,10 +601,10 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     const writes = action.writes.flat()
     expect(writes).toHaveLength(1)
     const paste = writes[0] as unknown as { kind: string; sourceUids: number[]; landing: { dayShift: number; groupIdOf: Record<number, string> } }
-    expect(paste.kind).toBe('pasteTaskSubtree')
+    expect(paste.kind).toBe('pasteTasks')
     expect(paste.sourceUids).toEqual([ROOT])
     expect(paste.landing.dayShift).toBe(3)
-    expect(paste.landing.groupIdOf[ROOT]).toBe(ROW_B)
+    expect(paste.landing.groupIdOf[ROOT]).toBe(TASK_GROUP_B)
     const copyUid = pastedUidsOf(built.loop.document().schedule, [ROOT]).get(ROOT)
     expect(copyUid).toBeDefined()
     expect((action.picked as unknown as { items: unknown[] }).items).toEqual([taskRef(copyUid as number)])
@@ -616,7 +616,7 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     const after = result.document
     const rootCopy = copyNamed(before.schedule.tasks, after.schedule.tasks, 'Root')
     expect(rootCopy.uid).toBe(copyUid)
-    expect(groupOf(after, rootCopy.uid), 'CY-6: the copy stands one drawn row down').toBe(ROW_B)
+    expect(groupOf(after, rootCopy.uid), 'CY-6: the copy stands one drawn row down').toBe(TASK_GROUP_B)
     expect(
       newTasks(before.schedule.tasks, after.schedule.tasks).map((one) => one.name),
       'CY-3: the WBS descendant that was not chosen is not copied (DU-1)',
@@ -639,9 +639,9 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     if (!result.ok) return
     const rootCopy = copyNamed(before.schedule.tasks, result.document.schedule.tasks, 'Root')
     const childCopy = copyNamed(before.schedule.tasks, result.document.schedule.tasks, 'Child')
-    expect(groupOf(result.document, childCopy.uid), 'the descendant stops on the last row').toBe(ROW_F)
-    expect(groupOf(result.document, rootCopy.uid), 'and the root stops the same rows short').toBe(ROW_D)
-    expect(childCopy.wbsParentUid, 'DU-1: a chosen child is copied under its chosen parent`s copy').toBe(rootCopy.uid)
+    expect(groupOf(result.document, childCopy.uid), 'the descendant stops on the last row').toBe(TASK_GROUP_F)
+    expect(groupOf(result.document, rootCopy.uid), 'and the root stops the same rows short').toBe(TASK_GROUP_D)
+    expect(childCopy.parentTaskUid, 'DU-1: a chosen child is copied under its chosen parent`s copy').toBe(rootCopy.uid)
   })
 })
 
@@ -664,8 +664,8 @@ describe('T-308 through the shell: a Ctrl drag on the selection copies it', () =
       { start: day(rootCopy.start), finish: day(rootCopy.finish) },
       'CY-5: the copy lands where the body move of PE-1 puts the source',
     ).toEqual({ start: day(movedRoot.start), finish: day(movedRoot.finish) })
-    expect(groupOf(built.loop.document(), rootCopy.uid)).toBe(ROW_B)
-    expect(groupOf(built.loop.document(), copyNamed(before, after, 'Child').uid)).toBe(ROW_D)
+    expect(groupOf(built.loop.document(), rootCopy.uid)).toBe(TASK_GROUP_B)
+    expect(groupOf(built.loop.document(), copyNamed(before, after, 'Child').uid)).toBe(TASK_GROUP_D)
     expect(after.filter((one) => before.some((old) => old.uid === one.uid)), 'the sources do not move').toEqual(before)
   })
 
@@ -753,17 +753,17 @@ describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts t
     const before = built.tasks()
     const from = bodyOf(built.loop, ROOT)
     const by = travel(built.loop, 3, 1)
-    const halfRow = drawnRow(built.loop, ROW_A).height / 2
+    const halfTaskGroup = drawnTaskGroup(built.loop, TASK_GROUP_A).height / 2
     built.send(pointer('move', from, CTRL))
     built.send(pointer('down', from, CTRL))
     const fixtureUids = new Set(before.map((one) => one.uid))
-    const rowABefore = drawnRow(built.loop, ROW_A)
-    built.send(pointer('move', { x: from.x + by.x, y: from.y + halfRow }, CTRL))
+    const taskGroupABefore = drawnTaskGroup(built.loop, TASK_GROUP_A)
+    built.send(pointer('move', { x: from.x + by.x, y: from.y + halfTaskGroup }, CTRL))
     const heldCopies = frameOf(built.loop).geometry.tasks.filter((one) => !fixtureUids.has(one.taskUid))
     const heldRoot = heldCopies.map((one) => boxOf(one.plan, `held copy ${one.taskUid}`)).sort((a, b) => a.y - b.y)[0]
     expect(heldRoot, 'PTD-7: the held copy is drawn while the press is held').toBeDefined()
     expect(
-      (heldRoot as ScreenRect).y >= rowABefore.y && (heldRoot as ScreenRect).y < rowABefore.y + rowABefore.height,
+      (heldRoot as ScreenRect).y >= taskGroupABefore.y && (heldRoot as ScreenRect).y < taskGroupABefore.y + taskGroupABefore.height,
       'premise: half a row down is still the source row, so the held copy stands in it',
     ).toBe(true)
     built.send(pointer('move', { x: from.x + by.x, y: from.y + by.y }, CTRL))
@@ -771,7 +771,7 @@ describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts t
     const after = built.tasks()
     expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Root'])
     const rootCopy = copyNamed(before, after, 'Root')
-    expect(groupOf(built.loop.document(), rootCopy.uid), 'CY-6: one drawn row down, not the source row').toBe(ROW_B)
+    expect(groupOf(built.loop.document(), rootCopy.uid), 'CY-6: one drawn row down, not the source row').toBe(TASK_GROUP_B)
     expect(
       { start: day(rootCopy.start), finish: day(rootCopy.finish), row: groupOf(built.loop.document(), rootCopy.uid) },
       'the stepped drag lands where the single-move drag lands',
@@ -782,7 +782,7 @@ describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts t
     })
     expect(day(rootCopy.start), 'CY-5: 3 days later than the source').toBe('2026-04-09')
     expect(after.filter((one) => before.some((old) => old.uid === one.uid)), 'the sources stay').toEqual(before)
-    expect(groupOf(built.loop.document(), ROOT), 'the source stays in its row').toBe(ROW_A)
+    expect(groupOf(built.loop.document(), ROOT), 'the source stays in its row').toBe(TASK_GROUP_A)
   })
 })
 
@@ -860,7 +860,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
 
   it('CM-8 paste (SK-5)', () => {
     const document = fixtureDocument()
-    const result = editDocument(document, { kind: 'pasteTaskSubtree', sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED] } as DocumentCommand, LIMITS, 'Row')
+    const result = editDocument(document, { kind: 'pasteTasks', sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED] } as DocumentCommand, LIMITS, 'Row')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expectUnstarted(document.schedule.tasks, result.document.schedule.tasks, STATES)
@@ -876,11 +876,11 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
   })
 
   it('CM-28 row copy chains to DU-1 through DU-2', () => {
-    for (const row of [ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]) {
+    for (const row of [TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]) {
       const document = fixtureDocument()
       const result = editDocument(
         document,
-        { kind: 'pasteTaskGroupSubtree', sourceGroupId: row, targetGroupId: null, newGroupIds: { [row]: 'row-copy' } } as DocumentCommand,
+        { kind: 'pasteTaskGroupSubtree', sourceGroupId: row, targetGroupId: null, newGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
         LIMITS,
         'Row',
       )
@@ -897,9 +897,9 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
     const result = editDocument(
       document,
       {
-        kind: 'pasteTaskSubtree',
+        kind: 'pasteTasks',
         sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED],
-        landing: { dayShift: 3, groupIdOf: { [ROOT]: ROW_B, [CHILD]: ROW_D, [STONE]: ROW_E, [PAUSED]: ROW_C, [HALTED]: ROW_F } },
+        landing: { dayShift: 3, groupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
       } as DocumentCommand,
       LIMITS,
       'Row',

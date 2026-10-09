@@ -53,7 +53,7 @@ export interface GridParts {
 
 // see FR-042
 /** @purity pure */
-function bandRowOf(depth: number, position: number): string {
+function bandTaskGroupOf(depth: number, position: number): string {
   if (depth === 1) return 'S-166'
   return position % 2 === 0 ? 'S-164' : 'S-167'
 }
@@ -143,7 +143,7 @@ export function rulerSvg(
   if (from === null) return []
 
   const rows = ROWS_OF_TIER[layout.tier]
-  const rowHeight = band.height / rows.length
+  const taskGroupHeight = band.height / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
   const cap = Math.ceil(band.width / Math.max(0.001, layout.pxPerDay)) + 1
@@ -155,7 +155,7 @@ export function rulerSvg(
   )
 
   for (const [index, row] of rows.entries()) {
-    const top = band.y + index * rowHeight
+    const top = band.y + index * taskGroupHeight
     const baseline =
       top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
     if (index > 0) {
@@ -171,7 +171,7 @@ export function rulerSvg(
       if (x >= band.x) {
         out.push(
           `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
-            ` x2="${rounded(x)}" y2="${rounded(top + rowHeight)}"` +
+            ` x2="${rounded(x)}" y2="${rounded(top + taskGroupHeight)}"` +
             ` stroke="${rule}" stroke-width="1"` +
             `${figureKey(`ruler-${row}-tick-${serialOf(day)}`)}/>`,
         )
@@ -309,23 +309,23 @@ export function gridParts(input: GridInput): GridParts {
   const { settings, layout, area, areaBottom, scrollTop, themed, chosen, colourOfGroup } = input
   const bandParts: string[] = []
   const ruleParts: string[] = []
-  for (const [position, row] of layout.rows.entries()) {
-    const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
-    const bottom = Math.min(row.y + row.height, areaBottom)
+  for (const [position, taskGroup] of layout.taskGroups.entries()) {
+    const top = Math.max(taskGroup.y, taskGroup.isPinned === true ? area.y : scrollTop)
+    const bottom = Math.min(taskGroup.y + taskGroup.height, areaBottom)
     if (bottom <= top) continue
-    const band = chosen(colourOfGroup.get(row.groupId) ?? null, 'band') ?? themed(bandRowOf(row.depth, position))
-    const rowKey = `row-${row.groupId}`
+    const band = chosen(colourOfGroup.get(taskGroup.groupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
+    const taskGroupKey = `row-${taskGroup.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
         ` width="${rounded(bandWidthOf(input))}" height="${rounded(bottom - top)}"` +
-        ` fill="${band}"${figureKey(`${rowKey}-band`)}/>`,
+        ` fill="${band}"${figureKey(`${taskGroupKey}-band`)}/>`,
     )
     if (!settings.groupGridLinesVisible) continue
     ruleParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + bandWidthOf(input))}" y2="${rounded(bottom)}"` +
         ` stroke="${themed('S-165')}"` +
-        ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
+        ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${taskGroupKey}-rule`)}/>`,
     )
   }
   const shade = nonWorkingDaysSvg(input)

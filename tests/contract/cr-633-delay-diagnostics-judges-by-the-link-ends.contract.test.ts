@@ -7,7 +7,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import type { DelayDiagnosticsReport } from '../../src/entity/document-model/schedule/schedule'
 import { specTable, unbroken } from './spec-table'
-import { rowDocument, taskOf } from '../unit/cr-541-stage'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 
 // see AT-46
 const FF = 0
@@ -46,7 +46,7 @@ interface Row {
 }
 
 function documentOf(statusDate: string, rows: readonly Row[]): Document {
-  const raw = rowDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
+  const raw = taskGroupDocument(rows.map((row) => ({ id: row.id, parentId: row.parentId })))
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
@@ -159,7 +159,7 @@ describe('CR-633 T-312 VO-3 / T-315 DG-1 / DG-2 -- a predecessor whose missing f
       {
         id: 'r1',
         parentId: 'r0',
-        tasks: [taskOf(P, { name: 'Unrecorded', wbsParentUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), percentComplete: 20 })],
+        tasks: [taskOf(P, { name: 'Unrecorded', parentTaskUid: G, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), percentComplete: 20 })],
       },
     ])
 
@@ -295,7 +295,7 @@ describe('CR-633 T-313 BD-2 -- which bounds hold a started task', () => {
   })
 })
 
-describe('CR-633 FR-135 -- a milestone is never a WBS parent, even when wbsParentUid states it', () => {
+describe('CR-633 FR-135 -- a milestone is never a parent task, even when parentTaskUid states it', () => {
   // WHY: C1 sits one row below the milestone M and names it as its parent; no bar on M's row encloses C1.
   const make = (): Document =>
     documentOf(F(5, 12), [
@@ -303,7 +303,7 @@ describe('CR-633 FR-135 -- a milestone is never a WBS parent, even when wbsParen
       {
         id: 'r1',
         parentId: 'r0',
-        tasks: [taskOf(C1, { name: 'Child', wbsParentUid: M, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), percentComplete: 20 })],
+        tasks: [taskOf(C1, { name: 'Child', parentTaskUid: M, start: S(5, 3), finish: F(5, 7), actualStart: S(5, 3), percentComplete: 20 })],
       },
     ])
 
@@ -322,6 +322,6 @@ describe('CR-633 FR-135 -- a milestone is never a WBS parent, even when wbsParen
   it('DG-3: no bottleneck path climbs through M', () => {
     const report = diagnose(make())
     expect(report.bottlenecks.flatMap((one) => one.path)).not.toContain(M)
-    expect(report.derivedWbsParents.map((one) => one.parentUid)).not.toContain(M)
+    expect(report.derivedParentTasks.map((one) => one.parentUid)).not.toContain(M)
   })
 })

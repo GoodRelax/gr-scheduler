@@ -11,7 +11,7 @@ import { subtreeOf, wbsSubtreesOf } from './edit-task-group'
 // WHY: the question and the names only; the shell that raises it adds the manner (NT-7).
 export interface DeletionQuestion {
   readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-10'
-  readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
+  readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
 
 const UNASSIGNMENT_QUESTION: DeletionQuestion['question'] = 'QN-3'
@@ -24,38 +24,38 @@ export function confirmationOwedBy(
   asked: DeletionQuestion['question'] | undefined,
 ): DeletionQuestion | null {
   const schedule = held.schedule
-  const lostRows = new Set<string>()
+  const lostTaskGroups = new Set<string>()
   const seeds = new Set<number>()
   let owed = false
   for (const command of commands) {
     if (command.kind === 'deleteTaskGroup') {
       const rows = subtreeOf(schedule.taskGroups, command.groupId)
       if (rows === null) continue
-      for (const one of rows.rows) lostRows.add(one.id)
+      for (const one of rows.taskGroups) lostTaskGroups.add(one.id)
       owed = true
       continue
     }
     if (command.kind !== 'deleteTask') continue
-    if (!schedule.tasks.some((one) => one.wbsParentUid === command.uid)) continue
+    if (!schedule.tasks.some((one) => one.parentTaskUid === command.uid)) continue
     seeds.add(command.uid)
     owed = true
   }
   if (!owed) return null
   for (const member of schedule.taskGroupMembers) {
-    if (lostRows.has(member.groupId)) seeds.add(member.taskUid)
+    if (lostTaskGroups.has(member.groupId)) seeds.add(member.taskUid)
   }
   const lostTasks = wbsSubtreesOf(schedule.tasks, seeds)
-  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
   const items: DeletionQuestion['items'][number][] = []
   for (const task of schedule.tasks) {
     if (!lostTasks.has(task.uid)) continue
-    const drawnOn = rowOfTask.get(task.uid)
+    const drawnOn = taskGroupOfTask.get(task.uid)
     items.push({
       name: task.name,
-      isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
+      isShownOnAnotherTaskGroup: drawnOn !== undefined && lostTaskGroups.size > 0 && !lostTaskGroups.has(drawnOn),
     })
   }
-  const question: DeletionQuestion['question'] = asked ?? (lostRows.size > 0 ? 'QN-1' : 'QN-2')
+  const question: DeletionQuestion['question'] = asked ?? (lostTaskGroups.size > 0 ? 'QN-1' : 'QN-2')
   return { question, items }
 }
 
@@ -85,7 +85,7 @@ export function confirmationOwedByResourceDeletion(
   for (const taskUid of reached) {
     const task = taskOfUid.get(taskUid)
     if (task === undefined) continue
-    items.push({ name: task.name, isShownOnAnotherRow: false })
+    items.push({ name: task.name, isShownOnAnotherTaskGroup: false })
   }
   return { question: UNASSIGNMENT_QUESTION, items }
 }

@@ -35,7 +35,7 @@ import { bare, specTable, unbroken } from './spec-table'
 const RULE = '規則'
 
 const BL_1_ONLY = '次の 3 つがそろうものだけを描くこと（MUST）'
-const BL_1_ROW = '① `UID` が一致する `Task` が、そのフレームで描かれている行（`TaskGroup`）に載っている'
+const BL_1_TASK_GROUP = '① `UID` が一致する `Task` が、そのフレームで描かれている行（`TaskGroup`）に載っている'
 const BL_1_FOLDED =
   '人が畳んだ行・隠した行（表 T-015 の `HR-1a` / `HR-6`）と、グループ LOD（表 T-005a の `L-3`）が描かない行の `Task` には描かない'
 const BL_1_DATES = '② `start`（`AT-136`）と `finish`（`AT-137`）の両方を持つ。'
@@ -335,7 +335,7 @@ const SHIFTED: BaselineWish = { uid: 1, start: day(6), finish: day(14) }
 describe('CR-588 -- the clauses these cases quote still stand', () => {
   it('FR-015 T-339 BL-1 .. BL-4, FR-108 T-355 NG-10, T-259 VG-5, T-206 S-444', () => {
     expect(blText('BL-1')).toContain(BL_1_ONLY)
-    expect(blText('BL-1')).toContain(BL_1_ROW)
+    expect(blText('BL-1')).toContain(BL_1_TASK_GROUP)
     expect(blText('BL-1')).toContain(BL_1_FOLDED)
     expect(blText('BL-1')).toContain(BL_1_DATES)
     expect(blText('BL-1')).toContain(BL_1_S69)
@@ -375,15 +375,15 @@ describe('BL-1 -- which BaselineTask is drawn', () => {
     expect(outlineShapesOf(stage.svg()).length, BL_1_ONLY).toBeGreaterThan(0)
   })
 
-  it(`BL-1 「${BL_1_ROW}」, FR-015 「${FR_015_ONE_SIDE}」: no Task has the UID -- nothing drawn`, () => {
+  it(`BL-1 「${BL_1_TASK_GROUP}」, FR-015 「${FR_015_ONE_SIDE}」: no Task has the UID -- nothing drawn`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [{ ...SHIFTED, uid: 99 }] })
-    expect(stage.outlines(), BL_1_ROW).toEqual([])
-    expect(outlineShapesOf(stage.svg()), BL_1_ROW).toEqual([])
+    expect(stage.outlines(), BL_1_TASK_GROUP).toEqual([])
+    expect(outlineShapesOf(stage.svg()), BL_1_TASK_GROUP).toEqual([])
   })
 
-  it(`BL-1 「${BL_1_ROW}」: of two, only the one whose UID matches a Task is drawn`, () => {
+  it(`BL-1 「${BL_1_TASK_GROUP}」: of two, only the one whose UID matches a Task is drawn`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [SHIFTED, { ...SHIFTED, uid: 99 }] })
-    expect(stage.outlines().map((one) => one.taskUid), BL_1_ROW).toEqual([1])
+    expect(stage.outlines().map((one) => one.taskUid), BL_1_TASK_GROUP).toEqual([1])
   })
 
   for (const [rows, name] of [

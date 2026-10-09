@@ -15,7 +15,7 @@ export const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 export const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 export const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 export const ERP_SAMPLE = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
-export const ERP_PROGRAM_ROW = '1. \u30d7\u30ed\u30b0\u30e9\u30e0\u7ba1\u7406'
+export const ERP_PROGRAM_TASK_GROUP = '1. \u30d7\u30ed\u30b0\u30e9\u30e0\u7ba1\u7406'
 
 export type TreeState = 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
 
@@ -28,16 +28,16 @@ export function entranceRuledBy(rule: string): string {
   return found[0]?.id ?? ''
 }
 
-export const ROW_OPEN_ONE_LEVEL = entranceRuledBy('HF-13')
-export const ROW_OPEN_ALL_BELOW = entranceRuledBy('HF-2')
-export const ROW_HIDE = entranceRuledBy('HF-3')
-export const ROW_FOLD_ALL_BELOW = entranceRuledBy('HF-11')
-export const HEAD_OPEN_EVERY_ROW = entranceRuledBy('HF-10')
-export const HEAD_FOLD_EVERY_ROW = entranceRuledBy('HF-12')
+export const TASK_GROUP_OPEN_ONE_LEVEL = entranceRuledBy('HF-13')
+export const TASK_GROUP_OPEN_ALL_BELOW = entranceRuledBy('HF-2')
+export const TASK_GROUP_HIDE = entranceRuledBy('HF-3')
+export const TASK_GROUP_FOLD_ALL_BELOW = entranceRuledBy('HF-11')
+export const HEAD_OPEN_EVERY_TASK_GROUP = entranceRuledBy('HF-10')
+export const HEAD_FOLD_EVERY_TASK_GROUP = entranceRuledBy('HF-12')
 export const HEAD_OPEN_TOP_LEVEL = entranceRuledBy('HF-16')
 export const FIT = rowOf(specTable('T-109'), 'IC-10').id
-export const ROW_ZOOM_SHRINK = rowOf(specTable('T-109'), 'IC-14').id
-export const ROW_ZOOM_ENLARGE = rowOf(specTable('T-109'), 'IC-15').id
+export const VERTICAL_ZOOM_SHRINK = rowOf(specTable('T-109'), 'IC-14').id
+export const VERTICAL_ZOOM_ENLARGE = rowOf(specTable('T-109'), 'IC-15').id
 export const DATE_ZOOM_OUT = rowOf(specTable('T-109'), 'IC-12').id
 export const DATE_ZOOM_IN = rowOf(specTable('T-109'), 'IC-13').id
 export const UNDO = rowOf(specTable('T-109'), 'IC-5').id
@@ -172,7 +172,7 @@ export async function openDocument(page: Page, name: string, text: string): Prom
   await settle(page)
 }
 
-export interface TreeRow {
+export interface TreeTaskGroup {
   readonly id: string
   readonly parentId: string | null
   readonly label: string
@@ -182,7 +182,7 @@ export interface TreeRow {
 export interface TreeReading {
   readonly zoomY: number
   readonly levelZero: string
-  readonly rows: readonly TreeRow[]
+  readonly rows: readonly TreeTaskGroup[]
 }
 
 // see AM-3
@@ -220,14 +220,14 @@ export function stateOf(reading: TreeReading, id: string): TreeState {
 }
 
 /** @purity pure */
-export function rowNamed(reading: TreeReading, label: string): TreeRow {
+export function taskGroupNamed(reading: TreeReading, label: string): TreeTaskGroup {
   const found = reading.rows.find((row) => row.label === label)
   if (found === undefined) throw new Error(`no row named ${label}; the first rows are ${reading.rows.slice(0, 5).map((row) => row.label).join(' / ')}`)
   return found
 }
 
 /** @purity pure */
-export function childrenOf(reading: TreeReading, id: string): readonly TreeRow[] {
+export function childrenOf(reading: TreeReading, id: string): readonly TreeTaskGroup[] {
   return reading.rows.filter((row) => row.parentId === id)
 }
 
@@ -237,7 +237,7 @@ export function isLeaf(reading: TreeReading, id: string): boolean {
 }
 
 /** @purity pure */
-export function descendantsOf(reading: TreeReading, id: string): readonly TreeRow[] {
+export function descendantsOf(reading: TreeReading, id: string): readonly TreeTaskGroup[] {
   return childrenOf(reading, id).flatMap((child) => [child, ...descendantsOf(reading, child.id)])
 }
 
@@ -266,7 +266,7 @@ export async function isArmed(page: Page, icon: string): Promise<boolean> {
 // WHY: a row's controls are drawn only while the pointer is on its name (HF-6), so the pointer goes
 // to the left end of the name first and the entrance is read and pressed from there.
 /** @purity non-pure */
-async function showRowControls(page: Page, id: string): Promise<void> {
+async function showTaskGroupControls(page: Page, id: string): Promise<void> {
   const spot = await page.evaluate(
     (asked: { id: string; row: string }) => {
       const row = Array.from(document.querySelectorAll(asked.row)).find((one) => one.getAttribute('data-group-id') === asked.id)
@@ -288,8 +288,8 @@ async function showRowControls(page: Page, id: string): Promise<void> {
 }
 
 /** @purity non-pure */
-export async function isRowEntranceArmed(page: Page, id: string, icon: string): Promise<boolean> {
-  await showRowControls(page, id)
+export async function isTaskGroupEntranceArmed(page: Page, id: string, icon: string): Promise<boolean> {
+  await showTaskGroupControls(page, id)
   const said = await page.evaluate(
     (asked: { id: string; icon: string; row: string }) => {
       const entry = Array.from(document.querySelectorAll(asked.row))
@@ -306,7 +306,7 @@ export async function isRowEntranceArmed(page: Page, id: string, icon: string): 
 
 /** @purity non-pure */
 export async function pressRowEntrance(page: Page, id: string, icon: string): Promise<void> {
-  await showRowControls(page, id)
+  await showTaskGroupControls(page, id)
   const at = await page.evaluate(
     (asked: { id: string; icon: string; row: string }) => {
       const box = Array.from(document.querySelectorAll(asked.row))
@@ -369,7 +369,7 @@ export async function toldReason(page: Page, rowId: string): Promise<boolean> {
 export async function shrinkToTheEnd(page: Page): Promise<number> {
   let last = (await readTree(page)).zoomY
   for (let step = 0; step < 80; step += 1) {
-    await pressEntrance(page, ROW_ZOOM_SHRINK)
+    await pressEntrance(page, VERTICAL_ZOOM_SHRINK)
     const now = (await readTree(page)).zoomY
     if (now === last) return now
     last = now
@@ -454,8 +454,8 @@ export function documentOf(arranged: Arrangement): string {
 // WHY: the first row the panel draws at a point no control of its own covers (HF-6), pressed to
 // choose the row (FR-004's row choice), as tests/system/duplicate-paste-and-dual-cursor does.
 /** @purity non-pure */
-export async function chooseRow(page: Page, id: string): Promise<void> {
-  await showRowControls(page, id)
+export async function chooseTaskGroup(page: Page, id: string): Promise<void> {
+  await showTaskGroupControls(page, id)
   const at = await page.evaluate(
     (asked: { id: string; row: string }) => {
       const row = Array.from(document.querySelectorAll(asked.row)).find((one) => one.getAttribute('data-group-id') === asked.id)
@@ -464,7 +464,7 @@ export async function chooseRow(page: Page, id: string): Promise<void> {
       for (let x = Math.round(box.x) + 2; x < box.right - 2; x += 3) {
         for (const y of [Math.round(box.y) + 4, Math.round(box.y + box.height / 2)]) {
           const node = document.elementFromPoint(x, y)
-          if (node === null || node.closest('[data-icon]') !== null || node.closest('[data-row-grab]') !== null) continue
+          if (node === null || node.closest('[data-icon]') !== null || node.closest('[data-task-group-grab]') !== null) continue
           if (node.closest('[data-group-id]') !== row) continue
           return { x, y }
         }

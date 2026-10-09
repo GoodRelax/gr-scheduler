@@ -352,7 +352,7 @@ describe('FR-067 -- the application and one document, as one file', () => {
     expect(bad).not.toHaveProperty('html')
   })
 
-  it('writes an entry for the empty document, the one-row document and the whole one', async () => {
+  it('writes an entry for the empty document, the one-task-group document and the whole one', async () => {
     for (const [why, document] of [
       ['no rows at all', EMPTY],
       ['one row', SINGLE],

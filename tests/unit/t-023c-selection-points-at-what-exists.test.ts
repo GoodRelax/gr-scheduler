@@ -90,7 +90,7 @@
 //      -- and not a thing this file may assert: it says what the history does
 //      NOT carry, and the undo case below asks only what the invariant is,
 //      never whether a step was stacked.
-//   5. 行の削除 as an entrance. FR-032 puts row deletion behind the row-title
+//   5. 行の削除 as an entrance. FR-032 puts row deletion behind the task-group-title
 //      panel and behind a confirmation, and table T-023c's own note says the
 //      row set and the selection set are different sets -- so a case for it
 //      would have to press through a panel this file draws nothing of.
@@ -234,7 +234,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
   const task = (uid: number, start: string, finish: string, name: string): Task =>
     ({
       uid,
-      wbsParentUid: null,
+      parentTaskUid: null,
       wbsOrder: uid,
       name,
       start,
@@ -405,8 +405,8 @@ function itemExists(document: Document, item: ItemRef): boolean {
       return schedule.commentBoxes.some((one: any) => one.id === item.id)
     case 'statusLine':
       return schedule.project.statusDate !== null
-    case 'wbsParentLink':
-      return schedule.tasks.some((one: any) => one.uid === item.childUid && one.wbsParentUid !== null)
+    case 'parentTaskLink':
+      return schedule.tasks.some((one: any) => one.uid === item.childUid && one.parentTaskUid !== null)
   }
 }
 

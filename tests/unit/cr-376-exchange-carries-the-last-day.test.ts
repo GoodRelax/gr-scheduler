@@ -59,7 +59,7 @@ const lengthOf = (start: string, last: string): number => {
 
 const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `T${uid}`,
   start: stored(ymd(5)),

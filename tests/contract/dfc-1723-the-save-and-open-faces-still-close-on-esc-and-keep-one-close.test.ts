@@ -21,7 +21,7 @@ afterEach(() => {
   delete (globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame
 })
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -34,13 +34,13 @@ const IN_4_FACE_RUNG = '開いている面'
 
 describe('DFC-1723 the manuscript these cases are driven by', () => {
   it('WB-10 still gives the face a title row with IC-52 alone, closed by IC-52', () => {
-    const text = rowIn('T-335', 'WB-10').cells.join(' ')
+    const text = verticalIn('T-335', 'WB-10').cells.join(' ')
     expect(text).toContain(WB_10_CLOSE_ONLY)
     expect(text).toContain(WB_10_CLOSES_BY_IC_52)
   })
 
   it('IN-4 still lists the open face as a rung of Esc', () => {
-    expect(rowIn('T-028', 'IN-4').cells.join(' ')).toContain(IN_4_FACE_RUNG)
+    expect(verticalIn('T-028', 'IN-4').cells.join(' ')).toContain(IN_4_FACE_RUNG)
   })
 })
 

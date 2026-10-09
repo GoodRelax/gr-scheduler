@@ -36,7 +36,7 @@ const withoutStop = (): Document => {
 
 const resumeIconOf = (one: Stage) => {
   const frame = frameOf(one.loop)
-  return pointAnswering(scanGrabAreas(frame.geometry, PAUSED_UID, frame.rowArea), 'GA-20')
+  return pointAnswering(scanGrabAreas(frame.geometry, PAUSED_UID, frame.taskGroupArea), 'GA-20')
 }
 
 describe('PND-318 premises: the clauses this case is driven by', () => {

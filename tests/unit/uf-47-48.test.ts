@@ -144,7 +144,7 @@ const LATE_ACTUAL_LAST_DAY = '2026-05-15T00:00:00'
  * stored place -- are pinned by the cases at the head of this file, so a
  * template that stops meeting them fails there and says which one it broke.
  */
-function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
+function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
   /**
    * ⛔ Every column table T-058 gives a Task (AT-24 .. AT-44) is named here.
@@ -173,7 +173,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
    */
   const task = (uid: number, start: string, finish: string, name: string): Task => ({
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name,
     start,
@@ -267,7 +267,7 @@ const cellOf = (row: string, column: string): string => {
  * exactly these rows, so a manuscript that moved another caller into 「呼び手
  * が持って来る」 has to reach this file rather than slide past it.
  */
-const HELD_ROWS = T_230.rows
+const HELD_TASK_GROUPS = T_230.rows
   .filter((row) => row.by[COL_WS3] === '呼び手が持って来る')
   .map((row) => row.id)
 
@@ -452,7 +452,7 @@ const day = (text: string): CalendarDay => {
 
 describe('the document these cases drive', () => {
   it('is a valid GRS JSON document', () => {
-    const report = validateDocument(twoRowDocument())
+    const report = validateDocument(twoTaskGroupDocument())
     expect(report.errors).toEqual([])
     expect(report.valid).toBe(true)
   })
@@ -463,7 +463,7 @@ describe('the document these cases drive', () => {
     // nobody asked for moves the zoom every case below is standing on, and a
     // large enough one shrinks both Tasks to the S-49 floor. The
     // case further down that does want an actual says so through `edit`.
-    for (const task of (twoRowDocument() as any).schedule.tasks) {
+    for (const task of (twoTaskGroupDocument() as any).schedule.tasks) {
       expect(planActualState(task)).toBe('notStarted')
       expect(task.actualStart).toBeNull()
       expect(task.stop).toBeNull()
@@ -476,7 +476,7 @@ describe('the document these cases drive', () => {
     // the OP-10 cases depend on. S-77 / S-78 hold the stored place, and OP-10
     // branches on whether it is null; a template that filled either in would
     // send those cases down the other branch without changing a line of them.
-    const settings = settingsOf(twoRowDocument())
+    const settings = settingsOf(twoTaskGroupDocument())
     expect(settings.scrollDate).toBeNull()
     expect(settings.scrollGroupId).toBeNull()
   })
@@ -488,13 +488,13 @@ describe('UF-48 frameLoop -- BO-5 of table T-077', () => {
     // the first frame belongs to the boot order, not to any of FT-1..FT-5. So
     // it is already on the surface before an animation frame has run.
     const pane = host()
-    frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     expect(pane.frames()).toBe(1)
   })
 
   it('runs BO-5 exactly once -- boot does not owe a second frame', () => {
     const pane = host()
-    frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     pane.runAnimationFrames()
     expect(pane.frames()).toBe(1)
   })
@@ -504,7 +504,7 @@ describe('UF-48 frameLoop -- BO-5 of table T-077', () => {
     // 出さないこと". BO-1 settles the size before BO-5 draws, so the picture is
     // the size the host reported and it already holds what the document draws.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const svg = pane.drawn[0] ?? ''
 
     expect(svg).toContain(`width="${SCREEN.width}"`)
@@ -528,7 +528,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // the zero of some day count puts the origin at the epoch and the whole
     // schedule fifty-six years off the right edge.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const origin = loop.current()!.layout.originDay
 
     expect(origin).not.toBeNull()
@@ -543,7 +543,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // span twenty days; at the stored 1x zoom they would not need fitting, so
     // what this measures is that OP-10 chose a place and a zoom at all.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const values = loop.current()!
 
     for (const point of drawnPoints(pane.drawn[0] ?? '')) {
@@ -551,9 +551,9 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
       expect(point.x).toBeLessThanOrEqual(SCREEN.width)
     }
     for (const placement of values.layout.placements) {
-      expect(placement.x).toBeGreaterThanOrEqual(values.regions.rowArea.x)
+      expect(placement.x).toBeGreaterThanOrEqual(values.regions.taskGroupArea.x)
       expect(placement.x + placement.width).toBeLessThanOrEqual(
-        values.regions.rowArea.x + values.regions.rowArea.width,
+        values.regions.taskGroupArea.x + values.regions.taskGroupArea.width,
       )
     }
   })
@@ -569,8 +569,8 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // Tasks, and a fit measured on plans alone still puts every plan bar on
     // screen. What leaves the screen is the actual. FR-055's RATIONALE spells
     // out the cost in the other direction -- an overhang to the left ends up
-    // behind the row title panel, where no scroll position reaches it.
-    const late = twoRowDocument((draft) => {
+    // behind the task group panel, where no scroll position reaches it.
+    const late = twoTaskGroupDocument((draft) => {
       draft.schedule.tasks[0].actualStart = LATE_ACTUAL_START
       draft.schedule.tasks[0].stop = LATE_ACTUAL_LAST_DAY
     })
@@ -579,7 +579,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     const pane = host()
     const values = frameLoop(pane.surface, late, SCREEN).current()!
     const placement = values.layout.placements.find((onePoint) => onePoint.taskUid === 1)!
-    const rowArea = values.regions.rowArea
+    const taskGroupArea = values.regions.taskGroupArea
     const actualEnd = placement.actualX! + placement.actualWidth
 
     // ⛔ The premise. OC-6 takes the horizontal extent of a below-shifted actual
@@ -607,16 +607,16 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // ⛔ IT IS NOT A LOOSENING OF WHAT THE CASE MEANS: the fit divides the Row
     // Area's width by the extent and multiplies it back, so the last unit in the
     // place lands where it lands -- 982.0000000000001 against 982 on 2026-09-04,
-    // once `S-79` widened the Row Title Panel. An overhang a reader could ever
+    // once `S-79` widened the Task Group Panel. An overhang a reader could ever
     // see is 0.01 px or more and still fails this line.
     const onNs3Grid = (px: number): number => Math.round(px * 100) / 100
-    expect(placement.actualX!).toBeGreaterThanOrEqual(rowArea.x)
-    expect(onNs3Grid(actualEnd)).toBeLessThanOrEqual(onNs3Grid(rowArea.x + rowArea.width))
+    expect(placement.actualX!).toBeGreaterThanOrEqual(taskGroupArea.x)
+    expect(onNs3Grid(actualEnd)).toBeLessThanOrEqual(onNs3Grid(taskGroupArea.x + taskGroupArea.width))
 
     // The extent grew, so the fit had to give a day less room than it does for
     // the same document without the actual. Measuring the plan alone would
     // hand back that same zoom and draw the overhang off the right edge.
-    const planOnly = frameLoop(pane.surface, twoRowDocument(), SCREEN).current()!
+    const planOnly = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN).current()!
     expect(values.layout.pxPerDay).toBeLessThan(planOnly.layout.pxPerDay)
   })
 
@@ -631,7 +631,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // which is a different question from how often it fires, and
     // tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts holds that
     // one.
-    const document = twoRowDocument()
+    const document = twoTaskGroupDocument()
     const pane = host()
     const loop = frameLoop(pane.surface, document, SCREEN)
 
@@ -646,14 +646,14 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // しないとき". IV-3 says in as many words that the stored place is NOT kept
     // pointing at a live row, so this state is reachable in a valid document
     // (CD-2 makes it on purpose when a row is deleted).
-    const stale = twoRowDocument((draft) => {
+    const stale = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = GONE
     })
     expect(validateDocument(stale).valid).toBe(true)
 
     const pane = host()
-    const fitted = frameLoop(pane.surface, twoRowDocument(), SCREEN).current()!
+    const fitted = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN).current()!
     const loop = frameLoop(pane.surface, stale, SCREEN)
     const values = loop.current()!
 
@@ -667,7 +667,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // The other side of OP-10. S-77 and S-78 are what FR-051 writes, and WY-1
     // wants the same JSON to come back looking the same, so a place the person
     // did choose is used as it stands.
-    const placed = twoRowDocument((draft) => {
+    const placed = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = ALPHA
     })
@@ -689,7 +689,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
 
 describe('HF-8 of table T-051 -- what boot must not do', () => {
   const collapsed = () =>
-    twoRowDocument((draft) => {
+    twoTaskGroupDocument((draft) => {
       draft.schedule.taskGroups[0].treeState = 'collapsed'
     })
 
@@ -713,10 +713,10 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     // に載っている `Task`".
     const pane = host()
     const withCollapse = frameLoop(pane.surface, collapsed(), SCREEN).current()!
-    const withoutCollapse = frameLoop(pane.surface, twoRowDocument(), SCREEN).current()!
+    const withoutCollapse = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN).current()!
 
-    expect(withoutCollapse.layout.rows.map((oneRect) => oneRect.groupId)).toEqual([ALPHA, BETA])
-    expect(withCollapse.layout.rows.map((oneRect) => oneRect.groupId)).toEqual([ALPHA])
+    expect(withoutCollapse.layout.taskGroups.map((oneRect) => oneRect.groupId)).toEqual([ALPHA, BETA])
+    expect(withCollapse.layout.taskGroups.map((oneRect) => oneRect.groupId)).toEqual([ALPHA])
     expect(withCollapse.layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
   })
 })
@@ -728,7 +728,7 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     // 数えること" -- the picture must be rebuilt, or the old size stays on
     // screen.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     loop.resize({ ...SCREEN, width: 1400 })
@@ -750,9 +750,9 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     // 答えである" and 「刻印 = 入ってきたまま」, so nothing is rebuilt on the way
     // through and the very document handed over is the one that lands.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
-    const next = twoRowDocument((draft) => {
+    const next = twoTaskGroupDocument((draft) => {
       draft.schedule.tasks[1].finish = '2026-05-29T00:00:00'
     })
 
@@ -769,7 +769,7 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     // 契機でフレームを起こしてはならない". `current()` and `document()` are not
     // in the table.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     for (let turn = 0; turn < 5; turn += 1) {
@@ -795,7 +795,7 @@ describe('table T-078 -- the whole of what may wake a frame', () => {
     // 契機の観測（表 T-078）", and LY-5 makes it the only place holding the
     // previous size, so the comparison has nowhere else to live.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     loop.resize({ ...SCREEN })
@@ -811,7 +811,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // 直さない". MN-6 measured what the other way costs: table T-068's eleven
     // stages four times per pointer move.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     const first = loop.current()
     expect(first).not.toBeNull()
@@ -826,7 +826,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // the three: the frame's ScreenRegions, its ScheduleLayout and its
     // ScheduleGeometry.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = loop.current()!
 
     loop.resize({ ...SCREEN, width: 1400 })
@@ -839,8 +839,8 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // ...the layout was laid out on THOSE regions...
     // see S-177, FR-055
     // WHY: the fit keeps the left edge inside a day (scrollDate plus scrollDayOffset, never snapped to
-    // the day boundary), so the origin stands up to one day left of the Row Area and never right of it.
-    const dayOffset = (after.regions.rowArea.x - after.layout.originX) / after.layout.pxPerDay
+    // the day boundary), so the origin stands up to one day left of the Task Group Area and never right of it.
+    const dayOffset = (after.regions.taskGroupArea.x - after.layout.originX) / after.layout.pxPerDay
     expect(dayOffset).toBeGreaterThanOrEqual(0)
     expect(dayOffset).toBeLessThan(1)
     expect(after.layout.contentWidth).not.toBe(before.layout.contentWidth)
@@ -858,13 +858,13 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // two -- the second would compute the same eleven stages again for the same
     // picture, which is the cost MN-6 says this decision exists to avoid.
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
     const before = pane.frames()
 
     loop.resize({ ...SCREEN, width: 1400 })
     loop.holdDocument(
       RESTORED(
-        twoRowDocument((draft) => {
+        twoTaskGroupDocument((draft) => {
           draft.schedule.tasks[0].name = 'Renamed'
         }),
       ),
@@ -891,7 +891,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
 //           the UI parts outside the schedule is put on the screen
 //   MN-8    表 T-070 -- the rejected alternative was ONE renderer drawing both
 //           the schedule and everything around it
-//   SC-1    表 T-031 -- the row title panel follows the body vertically and
+//   SC-1    表 T-031 -- the task group panel follows the body vertically and
 //           does not flow sideways
 //   SC-4    表 T-031 -- both scrollbars are always drawn, fitted or not
 //   FR-051  the `App Header` height and the scrollbar thickness are settled
@@ -946,14 +946,14 @@ const scrollbarOf = (view: ScreenView, axis: 'horizontal' | 'vertical') =>
 
 /** Every row the panel shows, pinned ones first (FR-098 lifts those out of the list). */
 const titlesOf = (view: ScreenView) => [
-  ...view.rowTitlePanel.pinnedTitles,
-  ...view.rowTitlePanel.titles,
+  ...view.taskGroupPanel.pinnedTitles,
+  ...view.taskGroupPanel.titles,
 ]
 
 /**
  * The same two rows over one working week instead of twenty days.
  *
- * ⭐ FR-055 fits the drawn extent to the `Row Area`, so a short extent buys a
+ * ⭐ FR-055 fits the drawn extent to the `Task Group Area`, so a short extent buys a
  * large px/day -- and FR-017 judges the 段階 on px/day against 表 T-205 の
  * `S-85`. ⚠️ WHY A CASE WOULD WANT THAT: the 曜日 has a 段 of its own only on
  * the finest 段階, and it is the one thing in the picture FR-038 lets the
@@ -962,7 +962,7 @@ const titlesOf = (view: ScreenView) => [
  * `S-85` that the 段階 could fall either side of it.
  */
 const shortDocument = () =>
-  twoRowDocument((draft) => {
+  twoTaskGroupDocument((draft) => {
     draft.schedule.tasks[0].start = FIRST_START
     draft.schedule.tasks[0].finish = '2026-04-03T00:00:00'
     draft.schedule.tasks[1].start = '2026-04-02T00:00:00'
@@ -971,7 +971,7 @@ const shortDocument = () =>
 
 /** A document with no rows and no tasks -- the empty case SC-4 still has to draw for. */
 const emptyDocument = () =>
-  twoRowDocument((draft) => {
+  twoTaskGroupDocument((draft) => {
     draft.schedule.tasks = []
     draft.schedule.taskGroups = []
     draft.schedule.taskGroupMembers = []
@@ -986,7 +986,7 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
     const pane = host()
     const screen = screenPane()
 
-    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     expect(pane.frames()).toBe(1)
     expect(screen.screens()).toBe(1)
@@ -996,7 +996,7 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
     const pane = host()
     const screen = screenPane()
 
-    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     pane.runAnimationFrames()
 
     expect(screen.screens()).toBe(1)
@@ -1008,13 +1008,13 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
     // the caller had a browser to build a surface on.
     const pane = host()
 
-    expect(() => frameLoop(pane.surface, twoRowDocument(), SCREEN)).not.toThrow()
+    expect(() => frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)).not.toThrow()
     expect(pane.frames()).toBe(1)
   })
 
   it('GIVEN no screen wiring WHEN a frame is woken THEN it still runs (FT-3 without IF-9)', () => {
     const pane = host()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
 
     loop.resize({ ...SCREEN, width: 1400 })
     pane.runAnimationFrames()
@@ -1030,13 +1030,13 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
     // what CA-4 forbids splitting.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     loop.resize({ ...SCREEN, width: 1400 })
     pane.runAnimationFrames()
     loop.holdDocument(
       RESTORED(
-        twoRowDocument((draft) => {
+        twoTaskGroupDocument((draft) => {
           draft.schedule.tasks[0].name = 'Renamed'
         }),
       ),
@@ -1053,7 +1053,7 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
     // reports the size the screen already had.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     for (let turn = 0; turn < 5; turn += 1) {
       loop.current()
@@ -1068,13 +1068,13 @@ describe('IF-9 of table T-065 -- the frame draws on a second surface', () => {
 })
 
 describe('SC-4 of table T-031 -- both scrollbars, always', () => {
-  it('GIVEN the two-row document WHEN the first description is made THEN it carries both scrollbars', () => {
+  it('GIVEN the two-task-group document WHEN the first description is made THEN it carries both scrollbars', () => {
     // SC-4: "横・縦とも常時表示する。内容が収まっていても消さない". ⚠️ NFR-011
     // is what makes this the loop's business: a description handed over with a
     // part missing is "内容が欠けたまま出る画面".
     const pane = host()
     const screen = screenPane()
-    frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
 
     const view = screen.last()
     expect(view.frame.scrollbars).toHaveLength(2)
@@ -1099,26 +1099,26 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
     expect(scrollbarOf(view, 'horizontal')).toBeDefined()
     expect(scrollbarOf(view, 'vertical')).toBeDefined()
     // And the frame really was built on an empty schedule.
-    expect(loop.current()!.layout.rows).toEqual([])
+    expect(loop.current()!.layout.taskGroups).toEqual([])
     expect(titlesOf(view)).toEqual([])
   })
 
-  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Row Area, not over it', () => {
-    // FR-051 (MUST): "`Scrollbars` は `Row Area` から場所を取ること". SC-4 is
+  it('FR-051: GIVEN a frame THEN the scrollbar lanes take their place FROM the Task Group Area, not over it', () => {
+    // FR-051 (MUST): "`Scrollbars` は `Task Group Area` から場所を取ること". SC-4 is
     // the reason it has to take place at all -- "場所を取らない形では `SC-4` が
-    // 意味を持たない". So the vertical lane begins where the Row Area ends, and
+    // 意味を持たない". So the vertical lane begins where the Task Group Area ends, and
     // the horizontal lane below it; neither is drawn over the schedule.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
-    const rowArea = loop.current()!.regions.rowArea
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
+    const taskGroupArea = loop.current()!.regions.taskGroupArea
     const canvas = loop.current()!.regions.scheduleCanvas
     const view = screen.last()
 
     const vertical = scrollbarOf(view, 'vertical')!
     const horizontal = scrollbarOf(view, 'horizontal')!
-    expect(vertical.track.x).toBeGreaterThanOrEqual(rowArea.x + rowArea.width)
-    expect(horizontal.track.y).toBeGreaterThanOrEqual(rowArea.y + rowArea.height)
+    expect(vertical.track.x).toBeGreaterThanOrEqual(taskGroupArea.x + taskGroupArea.width)
+    expect(horizontal.track.y).toBeGreaterThanOrEqual(taskGroupArea.y + taskGroupArea.height)
 
     // U-32: the `Schedule Canvas` is the container the lanes are cut out of, so
     // neither of them leaves it.
@@ -1133,23 +1133,23 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
 
 describe('SC-1 of table T-031 -- the panel follows the body, sideways it does not', () => {
   it('GIVEN two drawn rows THEN each title stands at the y and height the body row has', () => {
-    // SC-1: "縦は本体と連動する". ⛔ The panel and the `Row Area` have to be the
-    // SAME numbers, which is why a row title takes its box from the shell's
+    // SC-1: "縦は本体と連動する". ⛔ The panel and the `Task Group Area` have to be the
+    // SAME numbers, which is why a task group title takes its box from the shell's
     // measurement of this frame rather than from a second computation.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
-    const rows = loop.current()!.layout.rows
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
+    const taskGroups = loop.current()!.layout.taskGroups
     const titles = titlesOf(screen.last())
 
     // ⛔ Not a vacuous comparison: both rows of the document are drawn.
-    expect(rows).toHaveLength(2)
+    expect(taskGroups).toHaveLength(2)
     expect(titles).toHaveLength(2)
-    expect(titles.map((title) => title.groupId)).toEqual(rows.map((row) => row.groupId))
-    for (const row of rows) {
-      const title = titles.find((candidate) => candidate.groupId === row.groupId)!
-      expect(title.box.y).toBe(row.y)
-      expect(title.box.height).toBe(row.height)
+    expect(titles.map((title) => title.groupId)).toEqual(taskGroups.map((taskGroup) => taskGroup.groupId))
+    for (const taskGroup of taskGroups) {
+      const title = titles.find((candidate) => candidate.groupId === taskGroup.groupId)!
+      expect(title.box.y).toBe(taskGroup.y)
+      expect(title.box.height).toBe(taskGroup.height)
     }
   })
 
@@ -1161,14 +1161,14 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     const screen = screenPane()
     const loop = frameLoop(
       pane.surface,
-      twoRowDocument((draft) => {
+      twoTaskGroupDocument((draft) => {
         draft.schedule.taskGroups[0].treeState = 'collapsed'
       }),
       SCREEN,
       screen.wiring,
     )
 
-    expect(loop.current()!.layout.rows.map((row) => row.groupId)).toEqual([ALPHA])
+    expect(loop.current()!.layout.taskGroups.map((taskGroup) => taskGroup.groupId)).toEqual([ALPHA])
     expect(titlesOf(screen.last()).map((title) => title.groupId)).toEqual([ALPHA])
   })
 
@@ -1176,7 +1176,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     // SC-1: "**横には流れない**". The stored place (S-77 / S-78) puts the body
     // on 2026-04-05 in one case and OP-10's fit decides it in the other, so the
     // two frames look at different days -- and the panel stands where it stood.
-    const scrolled = twoRowDocument((draft) => {
+    const scrolled = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = ALPHA
     })
@@ -1185,7 +1185,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     const pane = host()
     const fittedScreen = screenPane()
     const scrolledScreen = screenPane()
-    const fittedLoop = frameLoop(pane.surface, twoRowDocument(), SCREEN, fittedScreen.wiring)
+    const fittedLoop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, fittedScreen.wiring)
     const scrolledLoop = frameLoop(pane.surface, scrolled, SCREEN, scrolledScreen.wiring)
 
     // ⛔ The premise: the two frames really are looking at different days.
@@ -1207,20 +1207,20 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
 
 describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () => {
   /**
-   * A document with enough rows that the stack is taller than the `Row Area`,
+   * A document with enough rows that the stack is taller than the `Task Group Area`,
    * anchored at a row well down the stack so the ones above it are off the top.
    * ⚠ S-78 is 「人が決めた表示位置」 and OP-10 reads it, so this is the
    * ordinary way a person leaves the schedule -- not a contrived frame.
    */
-  const manyRows = (anchorAt: number): Document =>
-    twoRowDocument((draft) => {
-      const rows: unknown[] = []
+  const manyTaskGroups = (anchorAt: number): Document =>
+    twoTaskGroupDocument((draft) => {
+      const taskGroups: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      // WHY: 48, not 24: CR-414's 24px lattice lets 24 rows fit the Row Area whole, and nothing would be clipped.
+      // WHY: 48, not 24: CR-414's 24px lattice lets 24 rows fit the Task Group Area whole, and nothing would be clipped.
       for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
-        rows.push({
+        taskGroups.push({
           id,
           parentId: null,
           label: `Row ${index}`,
@@ -1233,69 +1233,69 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
         members.push({ taskUid: 1, groupId: id })
       }
       draft.schedule.tasks = tasks.slice(0, 1)
-      draft.schedule.taskGroups = rows
+      draft.schedule.taskGroups = taskGroups
       draft.schedule.taskGroupMembers = members
       draft.documentSettings.scrollGroupId = `row-${anchorAt}`
     })
 
-  it('GIVEN the stack is anchored below its top THEN some rows really do fall outside the Row Area', () => {
+  it('GIVEN the stack is anchored below its top THEN some rows really do fall outside the Task Group Area', () => {
     // ⛔ THE PREMISE OF THE CASE BELOW, ASSERTED RATHER THAN ASSUMED. With
     // nothing clipped, an equality of counts says nothing at all.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, manyTaskGroups(12), SCREEN, screen.wiring)
     const values = loop.current()!
-    const area = values.regions.rowArea
+    const area = values.regions.taskGroupArea
 
-    const outside = values.layout.rows.filter(
-      (row) =>
-        Math.min(row.y + row.height, area.y + area.height) <= Math.max(row.y, area.y),
+    const outside = values.layout.taskGroups.filter(
+      (taskGroup) =>
+        Math.min(taskGroup.y + taskGroup.height, area.y + area.height) <= Math.max(taskGroup.y, area.y),
     )
-    expect(outside.length, 'no row is off the Row Area, so nothing is being clipped').toBeGreaterThan(
+    expect(outside.length, 'no row is off the Task Group Area, so nothing is being clipped').toBeGreaterThan(
       0,
     )
   })
 
-  it('GIVEN rows fall outside the Row Area THEN the panel holds exactly the rows the body draws', () => {
+  it('GIVEN rows fall outside the Task Group Area THEN the panel holds exactly the rows the body draws', () => {
     // SC-1: 「縦は本体と連動する」. A row the body has no band for is a row the
     // panel has no line for -- a title painted where no band is stands up in
     // the Time Ruler, over the corner HF-10's control needs.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, manyTaskGroups(12), SCREEN, screen.wiring)
     const values = loop.current()!
-    const area = values.regions.rowArea
+    const area = values.regions.taskGroupArea
 
-    const showing = values.layout.rows.filter(
-      (row) => Math.min(row.y + row.height, area.y + area.height) > Math.max(row.y, area.y),
+    const showing = values.layout.taskGroups.filter(
+      (taskGroup) => Math.min(taskGroup.y + taskGroup.height, area.y + area.height) > Math.max(taskGroup.y, area.y),
     )
     const titles = titlesOf(screen.last())
 
-    expect(titles.map((title) => title.groupId)).toEqual(showing.map((row) => row.groupId))
+    expect(titles.map((title) => title.groupId)).toEqual(showing.map((taskGroup) => taskGroup.groupId))
     expect(titles.length).toBe(showing.length)
   })
 
-  it('GIVEN a title is drawn THEN its band lies inside the Row Area, cut the same way the body is', () => {
+  it('GIVEN a title is drawn THEN its band lies inside the Task Group Area, cut the same way the body is', () => {
     // The other half of 「連動する」: a title that kept its whole height while
     // the band beside it was cut stands taller than the row it names.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, manyRows(12), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, manyTaskGroups(12), SCREEN, screen.wiring)
     const values = loop.current()!
-    const area = values.regions.rowArea
+    const area = values.regions.taskGroupArea
 
     for (const title of titlesOf(screen.last())) {
-      const row = values.layout.rows.find((one) => one.groupId === title.groupId)!
-      expect(title.box.y, `${title.groupId} starts above the Row Area`).toBeGreaterThanOrEqual(area.y)
+      const taskGroup = values.layout.taskGroups.find((one) => one.groupId === title.groupId)!
+      expect(title.box.y, `${title.groupId} starts above the Task Group Area`).toBeGreaterThanOrEqual(area.y)
       expect(
         title.box.y + title.box.height,
-        `${title.groupId} runs past the foot of the Row Area`,
+        `${title.groupId} runs past the foot of the Task Group Area`,
       ).toBeLessThanOrEqual(area.y + area.height)
       expect(title.box.y, `${title.groupId} is not the body's own top`).toBe(
-        Math.max(row.y, area.y),
+        Math.max(taskGroup.y, area.y),
       )
       expect(title.box.height, `${title.groupId} is not the body's own height`).toBe(
-        Math.min(row.y + row.height, area.y + area.height) - Math.max(row.y, area.y),
+        Math.min(taskGroup.y + taskGroup.height, area.y + area.height) - Math.max(taskGroup.y, area.y),
       )
     }
   })
@@ -1308,7 +1308,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     // was laid out on, so a wider window widens both in the same frame.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = scrollbarOf(screen.last(), 'vertical')!.track.x
 
     loop.resize({ ...SCREEN, width: 1400 })
@@ -1319,7 +1319,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     const after = scrollbarOf(screen.last(), 'vertical')!.track.x
     expect(after).toBeGreaterThan(before)
     expect(after).toBeGreaterThanOrEqual(
-      loop.current()!.regions.rowArea.x + loop.current()!.regions.rowArea.width,
+      loop.current()!.regions.taskGroupArea.x + loop.current()!.regions.taskGroupArea.width,
     )
   })
 
@@ -1331,7 +1331,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     // sized to a screen that no longer exists (NFR-011).
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
     const before = loop.current()!.regions.scheduleCanvas.height
 
     loop.resize({ ...SCREEN, appHeaderHeight: 40 })
@@ -1345,19 +1345,19 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
 
   it('FT-3: GIVEN only the scrollbar thickness changed THEN a frame runs', () => {
     // Same MUST of FR-051: the thickness is settled from the environment, not
-    // held as a setting, and it takes its place from the `Row Area` -- so a
+    // held as a setting, and it takes its place from the `Task Group Area` -- so a
     // thicker bar shrinks the drawing area and the picture is no longer right.
     const pane = host()
     const screen = screenPane()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN, screen.wiring)
-    const before = loop.current()!.regions.rowArea.width
+    const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
+    const before = loop.current()!.regions.taskGroupArea.width
 
     loop.resize({ ...SCREEN, scrollbarThickness: 16 })
     pane.runAnimationFrames()
 
     expect(pane.frames()).toBe(2)
     expect(screen.screens()).toBe(2)
-    expect(loop.current()!.regions.rowArea.width).toBeLessThan(before)
+    expect(loop.current()!.regions.taskGroupArea.width).toBeLessThan(before)
   })
 
   it('FR-051: GIVEN a host reporting a header taller than S-116 THEN the cap is what is used', () => {
@@ -1369,7 +1369,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     const screen = screenPane()
     const loop = frameLoop(
       pane.surface,
-      twoRowDocument(),
+      twoTaskGroupDocument(),
       { ...SCREEN, appHeaderHeight: 80 },
       screen.wiring,
     )
@@ -1385,7 +1385,7 @@ describe('CA-4 and FR-051 -- one frame of screen, at the size that frame settled
     const screen = screenPane()
     const loop = frameLoop(
       pane.surface,
-      twoRowDocument(),
+      twoTaskGroupDocument(),
       { ...SCREEN, appHeaderHeight: APP_HEADER_MAX_HEIGHT },
       screen.wiring,
     )
@@ -1406,7 +1406,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
       // ⚠️ The baseline is a COPY taken before the loop ran: the loop answers
       // with the very object it was handed, so comparing it against itself
       // would pass whatever the loop wrote into it.
-      const opened = twoRowDocument()
+      const opened = twoTaskGroupDocument()
       const asOpened = structuredClone(settingsOf(opened))
       const loop = frameLoop(pane.surface, opened, SCREEN, screen.wiring)
       pane.runAnimationFrames()
@@ -1443,7 +1443,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⛔⛔ THE PICTURE CARRIES A WALL CLOCK, AND THIS CASE DRAWS TWO PICTURES.
     // `frameLoop` reads the watermark's instant ONCE per instance (FR-020 /
     // FR-063 stamp it, truncated to the second), and the renderer tiles
-    // `openedBy` + that stamp across the Row Area as ordinary <text>. So when
+    // `openedBy` + that stamp across the Task Group Area as ordinary <text>. So when
     // the two constructions below land in different seconds, every watermark
     // label differs -- `withoutWords` drops the content and the skeleton still
     // matches, but `labelsInOrder` keeps it, the stamp lands in `moved`, and a
@@ -1497,7 +1497,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     // ⚠️ Which 段階 the picture is drawn on is not the language's either, and
     // the case needs the finest one: FR-017 gives the 曜日 a 段 there and
     // nowhere else. `shortDocument` is what buys it -- FR-055 fits an extent of
-    // one working week to the whole `Row Area`, and that px/day is far above
+    // one working week to the whole `Task Group Area`, and that px/day is far above
     // 表 T-205 の `S-85`. (The equality just above covers the 段階 itself:
     // `tier` is a member of the layout.)
     const printedInJapanese = labelsInOrder(drawnInJapanese)
@@ -1552,7 +1552,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
 
 describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS document', () => {
   const named = (title: string) =>
-    twoRowDocument((draft) => {
+    twoTaskGroupDocument((draft) => {
       draft.schedule.project.title = title
     })
 
@@ -1569,7 +1569,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
 
     expect(view.frame).toBeDefined()
     expect(view.appHeaderItems).toBeDefined()
-    expect(view.rowTitlePanel).toBeDefined()
+    expect(view.taskGroupPanel).toBeDefined()
     expect(Array.isArray(view.notices)).toBe(true)
     expect(Array.isArray(view.tooltips)).toBe(true)
   })
@@ -1577,7 +1577,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
   it('GIVEN a document with a title and two rows THEN the description carries both', () => {
     // ⛔ The wiring is what this measures. `Project.title` (AT-3) is the
     // `Document Title` (U-27) the `App Header` shows, and the two rows are what
-    // the `Row Title Panel` (U-22) lists -- so a loop that handed the surface an
+    // the `Task Group Panel` (U-22) lists -- so a loop that handed the surface an
     // empty schedule, or last frame's, would answer with neither.
     const pane = host()
     const screen = screenPane()
@@ -1632,7 +1632,7 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
 
 describe('表 T-230 -- the row the caller names settles the history, the stamp and the undo step', () => {
   const titled = (title: string) =>
-    twoRowDocument((draft) => {
+    twoTaskGroupDocument((draft) => {
       draft.schedule.project.title = title
     })
 
@@ -1653,7 +1653,7 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     //
     // ⚠️ ONE ROW, AND THE LIST IS SINGLETON FOR THAT REASON: RD-6 is the only
     // row of table T-230 whose WS-3 column says the caller brings the document.
-    expect(HELD_ROWS).toEqual(['RD-6'])
+    expect(HELD_TASK_GROUPS).toEqual(['RD-6'])
     expect(cellOf('RD-6', COL_WS3)).toBe('呼び手が持って来る')
     // ⛔ And the four this member does NOT offer are not in that column: RD-1
     // and RD-2 are reached from inside the loop, RD-3 and RD-4 need an
@@ -1673,7 +1673,7 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     // joined the table with 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の
     // 雛形）」 in its WS-3 column, so table T-230 now has TWO rows whose caller
     // brings the document -- and `HeldDocumentCall`, which is this member's
-    // whole argument type, still admits ONE. `HELD_ROWS` above does not notice,
+    // whole argument type, still admits ONE. `HELD_TASK_GROUPS` above does not notice,
     // because it matches the cell exactly and RD-7's carries a parenthesis; so
     // the difference is stated here rather than left to that accident.
     //
@@ -1684,7 +1684,7 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
     // FR-095's initialization to a caller outside the loop, so this file does
     // not mint that road; and nothing in docs/spec exempts it either, which is
     // why this is a pin and not an assertion that the member is complete.
-    // ⇒ The day the shell grows an FR-095 road, this case fails and `HELD_ROWS`
+    // ⇒ The day the shell grows an FR-095 road, this case fails and `HELD_TASK_GROUPS`
     // and the block above have to be rewritten around two rows.
     const brings = T_230.rows
       .filter((row) => (row.by[COL_WS3] ?? '').startsWith('呼び手が持って来る'))
@@ -1701,10 +1701,10 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
       expect(cellOf('RD-7', column), `表 T-230 RD-7 / ${column}`).toBe(cellOf('RD-4', column))
     }
     expect(cellOf('RD-7', COL_STAMP)).toBe('進める')
-    expect(HELD_ROWS, 'this member still stands in one row of the two').toEqual(['RD-6'])
+    expect(HELD_TASK_GROUPS, 'this member still stands in one row of the two').toEqual(['RD-6'])
   })
 
-  for (const row of HELD_ROWS) {
+  for (const row of HELD_TASK_GROUPS) {
     describe(`${row} -- ${cellOf(row, COL_HISTORY)} / ${cellOf(row, COL_STAMP)} / ${cellOf(row, COL_UNDO_STEP)}`, () => {
       it('履歴: what was there to undo before the replacement is not there after it', () => {
         // ⛔ THIS IS THE MANUSCRIPT MOVING, NOT AN EXPECTATION BENT TO THE CODE.
@@ -1770,7 +1770,7 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
           lastEditedBy: 'whoever wrote the file',
           fileSavedUtc: null,
         }
-        const brought = twoRowDocument((draft) => {
+        const brought = twoTaskGroupDocument((draft) => {
           draft.schedule.project.title = 'Brought'
           draft.documentStamp = { ...stamp }
         })

@@ -61,7 +61,7 @@ const EL_10_DEPTH =
 const EL_10_ZOOM_X = '横の倍率は変えない。'
 const EL_10_UN_8 = '⚠️ 取り消しの対象ではない（表 T-027 の `UN-8`）'
 const EL_11_SEND =
-  '印の先の端の予定の形が `Row Area` の横の範囲に入っていないときは、倍率を変えずに、その形の横の中点が `Row Area` の横の中点に来るよう、表示位置を横に送ること（MUST） —— 基準日線を出す操作（`FR-046`）と同じ送り方である。'
+  '印の先の端の予定の形が `Task Group Area` の横の範囲に入っていないときは、倍率を変えずに、その形の横の中点が `Task Group Area` の横の中点に来るよう、表示位置を横に送ること（MUST） —— 基準日線を出す操作（`FR-046`）と同じ送り方である。'
 const EL_11_STAY = '入っているときは横に送らない'
 const EL_12_SEND =
   '印の先の端が `EL-1` の縦の範囲（その行を描く場所）に入っていないとき、または `EL-10` で縦の倍率を変えたとき、`EL-21` で行を開いたときは、その端の行が帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST） —— `_assets/tbl-settings.md` の 表 T-203 の `S-78` をその行に、`S-176` を 0 にする（`Agent API` の `focusTask`、`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` と同じ置き方）。'
@@ -131,7 +131,7 @@ const FAR = 400
 
 const taskOf = (uid: number, start: number, days: number, links: readonly number[] = []): Loose => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: `t${uid}`,
   start: iso(start),
@@ -170,7 +170,7 @@ interface SceneSpec {
 interface Scene {
   readonly spec: SceneSpec
   readonly settings: Loose
-  readonly rowArea: Rect
+  readonly taskGroupArea: Rect
   readonly placements: readonly Placement[]
   readonly lines: readonly Line[]
   readonly context: InputContext
@@ -232,14 +232,14 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}): Scene => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
   return {
     spec,
     settings,
-    rowArea: (regions as unknown as { readonly rowArea: Rect }).rowArea,
+    taskGroupArea: (regions as unknown as { readonly taskGroupArea: Rect }).taskGroupArea,
     placements: (layout as unknown as { readonly placements: readonly Placement[] }).placements,
     lines: geometry.dependencies as unknown as readonly Line[],
     context,
@@ -317,13 +317,13 @@ interface Row {
 }
 
 const rowsOf = (scene: Scene): readonly Row[] =>
-  (scene.context.layout as unknown as { readonly rows: readonly Row[] }).rows
+  (scene.context.layout as unknown as { readonly taskGroups: readonly Row[] }).taskGroups
 
 // WHY: the row the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
 // with the fraction of it scrolled past (S-176, 0 or more and under 1 per OP-10a).
-const topRowOf = (scene: Scene): { readonly groupId: string; readonly offset: number } | undefined => {
+const topTaskGroupOf = (scene: Scene): { readonly groupId: string; readonly offset: number } | undefined => {
   const band = (scene.context.layout as unknown as { readonly pinnedBandHeight?: number }).pinnedBandHeight ?? 0
-  const edge = scene.rowArea.y + band
+  const edge = scene.taskGroupArea.y + band
   const row = rowsOf(scene).find((one) => one.isPinned !== true && one.y <= edge && edge < one.y + one.height)
   return row === undefined ? undefined : { groupId: row.groupId, offset: (edge - row.y) / row.height }
 }
@@ -428,14 +428,14 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
     ['(i) successor off to the right', offRight, 2, [1, 2]],
     ["(i') predecessor off to the left", offLeft, 1, [1, 2]],
   ] as const) {
-    it(`${name}: the far end's plan midpoint is sent to the Row Area midpoint, zoom untouched`, () => {
+    it(`${name}: the far end's plan midpoint is sent to the Task Group Area midpoint, zoom untouched`, () => {
       const scene = make()
       const line = lineOf(scene, pair[0], pair[1])
       expect(line.continuation?.farUid, 'premise: the mark leads to the far end').toBe(far)
       const before = placementOf(scene, far)!
       expect(
-        before.x + before.width <= scene.rowArea.x || before.x >= scene.rowArea.x + scene.rowArea.width,
-        'premise: the far end lies wholly outside the Row Area across',
+        before.x + before.width <= scene.taskGroupArea.x || before.x >= scene.taskGroupArea.x + scene.taskGroupArea.width,
+        'premise: the far end lies wholly outside the Task Group Area across',
       ).toBe(true)
       const { press, out } = clickOnce(scene, markOf(scene, pair[0], pair[1]))
       expect(press.hit?.grab, 'premise: the press lands on GA-24').toBe('GA-24')
@@ -447,14 +447,14 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       const moved = placementOf(after, far)
       expect(moved, 'the far end is laid out after the send').toBeDefined()
       const mid = moved!.x + moved!.width / 2
-      expect(mid, EL_11_SEND).toBeCloseTo(after.rowArea.x + after.rowArea.width / 2, 2)
+      expect(mid, EL_11_SEND).toBeCloseTo(after.taskGroupArea.x + after.taskGroupArea.width / 2, 2)
     })
 
     // WHY: the scene stores no row (S-78 null), so "not sent down" is read off the picture, not off the stored
     // value: the write names the row and offset already at the top of the scroll area, and every row stays put.
     it(`${name}: the far end's row is inside the vertical range, so the view is not sent down (${EL_12_STAY})`, () => {
       const scene = make()
-      const top = topRowOf(scene)
+      const top = topTaskGroupOf(scene)
       expect(top, 'premise: a row stands at the top of the scroll area').toBeDefined()
       const writes = writesOf(clickOnce(scene, markOf(scene, pair[0], pair[1])).out)
       const scroll = onlyOf(writes, SET_SCROLL)
@@ -465,9 +465,9 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
         6,
       )
       const after = sceneAfter(scene, writes)
-      const rowsAfter = new Map(rowsOf(after).map((one) => [one.groupId, one.y]))
+      const taskGroupsAfter = new Map(rowsOf(after).map((one) => [one.groupId, one.y]))
       for (const row of rowsOf(scene)) {
-        expect(rowsAfter.get(row.groupId), `${EL_12_STAY} (row ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
+        expect(taskGroupsAfter.get(row.groupId), `${EL_12_STAY} (row ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
       }
     })
   }
@@ -486,7 +486,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
     expect(scroll!['scrollGroupId'], EL_12_PINNED).toBe(scene.settings['scrollGroupId'])
     expect(scroll!['scrollGroupOffset'], EL_12_PINNED).toBe(scene.settings['scrollGroupOffset'])
     const moved = placementOf(sceneAfter(scene, writes), 2)!
-    expect(moved.x + moved.width / 2, EL_11_SEND).toBeCloseTo(scene.rowArea.x + scene.rowArea.width / 2, 2)
+    expect(moved.x + moved.width / 2, EL_11_SEND).toBeCloseTo(scene.taskGroupArea.x + scene.taskGroupArea.width / 2, 2)
   })
 })
 
@@ -508,12 +508,12 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
       expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
     })
 
-    it(`${name}: the far end is inside the Row Area across, so the view is not sent across (${EL_11_STAY})`, () => {
+    it(`${name}: the far end is inside the Task Group Area across, so the view is not sent across (${EL_11_STAY})`, () => {
       const scene = make()
       const far = placementOf(scene, 2)!
       expect(
-        within(far.x, far.x + far.width, scene.rowArea.x, scene.rowArea.x + scene.rowArea.width),
-        'premise: Task 2 lies inside the Row Area across',
+        within(far.x, far.x + far.width, scene.taskGroupArea.x, scene.taskGroupArea.x + scene.taskGroupArea.width),
+        'premise: Task 2 lies inside the Task Group Area across',
       ).toBe(true)
       const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
       expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()
@@ -555,7 +555,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
   })
 
-  it(`(iii) the far end stands inside the Row Area across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
+  it(`(iii) the far end stands inside the Task Group Area across by its dates, so the view is not sent across (${EL_11_STAY})`, () => {
     const scene = deep()
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, 'premise: EL-12 sent the view down').toBeDefined()

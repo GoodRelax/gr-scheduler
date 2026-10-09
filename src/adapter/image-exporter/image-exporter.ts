@@ -14,7 +14,7 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { rowTitleFontPxOf, type AppHeaderItems, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
+import { taskGroupTitleFontPxOf, type AppHeaderItems, type TaskGroupTitle, type ScreenView } from '../screen-renderer/screen-renderer'
 import { bandBaselineYOf, colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
@@ -149,15 +149,15 @@ function appHeaderSvg(
 
 // see EP-3
 /** @purity pure */
-function rowTitleSvg(
-  title: RowTitle,
+function taskGroupTitleSvg(
+  title: TaskGroupTitle,
   panel: ScreenRect,
   settings: DrawnSettings,
   ink: string,
   ratio: number,
 ): string {
   if (title.label === null || title.label === '') return ''
-  const fontSizePx = rowTitleFontPxOf(title.depth, settings)
+  const fontSizePx = taskGroupTitleFontPxOf(title.depth, settings)
   const x = (panel.x + title.indentPx) * ratio
   const y = (title.box.y + fontSizePx) * ratio
   return textSvg(x, y, fontSizePx * ratio, title.label, ink)
@@ -167,7 +167,7 @@ function rowTitleSvg(
 /** @purity pure */
 function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
   const ink = colourOf('S-165', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
-  return (view.rowTitlePanel.groupGridLines ?? [])
+  return (view.taskGroupPanel.groupGridLines ?? [])
     .map((line) => rectSvg(scaledRect(line, ratio), ink))
     .join('')
 }
@@ -206,9 +206,9 @@ export function exportSvg(scene: ExportScene): SvgExport {
     return { ok: false, fault: { reason: 'tooTall' } }
   }
 
-  const titles = screenView.rowTitlePanel.titles
-  const panel = regions.rowTitlePanel
-  const pinned = screenView.rowTitlePanel.pinnedTitles
+  const titles = screenView.taskGroupPanel.titles
+  const panel = regions.taskGroupPanel
+  const pinned = screenView.taskGroupPanel.pinnedTitles
   // see FR-039, T-252
   const drawn = drawnSettingsOf(settings)
   const ink = chromeInk(scene)
@@ -216,8 +216,8 @@ export function exportSvg(scene: ExportScene): SvgExport {
     appHeaderSvg(regions.appHeader, screenView.appHeaderItems, scene, ratio) +
     filterCaptionSvg(regions.appHeader, screenView.showOnlyCheckedCaption, scene, ratio) +
     rectSvg(scaledRect(panel, ratio), chromeGround(scene)) +
-    pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
-    titles.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
+    pinned.map((title) => taskGroupTitleSvg(title, panel, drawn, ink, ratio)).join('') +
+    titles.map((title) => taskGroupTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     groupGridLinesSvg(screenView, scene, ratio) +
     dividerLinesSvg(screenView, scene, ratio)
 

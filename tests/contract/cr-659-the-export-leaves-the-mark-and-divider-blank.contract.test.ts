@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import { exportSvg, type ExportScene } from '../../src/adapter/image-exporter/image-exporter'
 import { brandingPlaceOf } from '../../src/adapter/screen-renderer/app-header-items'
-import type { AppHeaderItems, RowTitlePanel, ScreenFrame, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { AppHeaderItems, TaskGroupPanel, ScreenFrame, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import { SETTINGS_DEFAULTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
@@ -73,7 +73,7 @@ const VIEW: ScreenView = {
   language: 'en',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] } as unknown as ScreenFrame,
   appHeaderItems: ITEMS,
-  rowTitlePanel: { pinnedTitles: [], titles: [] } as unknown as RowTitlePanel,
+  taskGroupPanel: { pinnedTitles: [], titles: [] } as unknown as TaskGroupPanel,
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

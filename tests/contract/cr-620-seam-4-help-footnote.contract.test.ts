@@ -52,27 +52,27 @@ const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en'] as DisplayLanguage[]
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({ x, y, width, height })
 
-const SETTINGS = { ...SETTINGS_DEFAULTS, rowTitlePanelWidth: 400 } as unknown as DocumentSettings
+const SETTINGS = { ...SETTINGS_DEFAULTS, taskGroupPanelWidth: 400 } as unknown as DocumentSettings
 
 const REGIONS: ScreenRegions = (() => {
   const width = 1920
   const height = 1080
   const headerHeight = 56
   const rulerHeight = 48
-  const titleWidth = SETTINGS.rowTitlePanelWidth
+  const titleWidth = SETTINGS.taskGroupPanelWidth
   const propertiesWidth = 300
   const padding = SETTINGS_CONSTANTS.canvasPadding
   const barThickness = 8
   const canvas = rect(0, headerHeight, width, height - headerHeight)
-  const rowAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
-  const rowAreaHeight = canvas.height - rulerHeight - padding - barThickness
+  const taskGroupAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
+  const taskGroupAreaHeight = canvas.height - rulerHeight - padding - barThickness
   return {
     appHeader: rect(0, 0, width, headerHeight),
     scheduleCanvas: canvas,
-    rowTitlePanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
-    timeRuler: rect(canvas.x + titleWidth, canvas.y, rowAreaWidth, rulerHeight),
+    taskGroupPanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
+    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeight),
     propertiesPanel: rect(canvas.x + canvas.width - propertiesWidth, canvas.y, propertiesWidth, canvas.height),
-    rowArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, rowAreaWidth, rowAreaHeight),
+    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, taskGroupAreaWidth, taskGroupAreaHeight),
   }
 })()
 
@@ -107,7 +107,7 @@ const READINGS: ScreenViewReadings = {
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
-  rowBoxes: [],
+  taskGroupBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 

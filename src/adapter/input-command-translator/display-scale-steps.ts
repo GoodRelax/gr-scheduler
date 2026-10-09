@@ -1,9 +1,9 @@
-// InputCommandTranslator -- one display scale step, keeping the Row Area's middle (table T-252).
+// InputCommandTranslator -- one display scale step, keeping the Task Group Area's middle (table T-252).
 // @unit      UF-93   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { rowPlacesAtZoomY } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { taskGroupPlacesAtZoomY } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   displayRatioOf,
   drawnSettingsOf,
@@ -18,13 +18,13 @@ import type { DocumentCommand } from '../../use-case/edit-document/edit-document
 import {
   changed,
   dayAnchorAt,
-  rowAnchorIn,
+  taskGroupAnchorIn,
   scrolledAnchor,
-  scrollingRowsOf,
+  scrollingTaskGroupsOf,
   type InputContext,
   type TranslatedInput,
 } from './input-command-translator'
-import { rowPointIn, topEdgeIn, zoomOnScreen } from './zoom-and-fit'
+import { taskGroupPointIn, topEdgeIn, zoomOnScreen } from './zoom-and-fit'
 
 // see FR-039, S-234
 /** @purity pure */
@@ -67,11 +67,11 @@ function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } 
 
 // see FR-039, DS-9
 /** @purity pure */
-function rowAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
+function taskGroupAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
   const settings = context.document.documentSettings
-  const held = drawnSettingsOf(settings).rowTitlePanelWidth
-  const moved = drawnSettingsOf({ ...settings, displayScale: next }).rowTitlePanelWidth
-  return context.regions.rowArea.width + held - moved
+  const held = drawnSettingsOf(settings).taskGroupPanelWidth
+  const moved = drawnSettingsOf({ ...settings, displayScale: next }).taskGroupPanelWidth
+  return context.regions.taskGroupArea.width + held - moved
 }
 
 // see FR-039, DS-1
@@ -86,14 +86,14 @@ function displayScaleWrites(
   const before = displayRatioOf(settings)
   const after = displayRatioOf({ ...settings, displayScale: next })
   if (!(before > 0) || !(after > 0)) return [scale]
-  const area = context.regions.rowArea
+  const area = context.regions.taskGroupArea
   const { x: centreX, y: centreY } = centreOf(area)
   const seat = scrolledAnchor(context, 0, 0)
-  const day = dayAnchorAt(context, centreX - rowAreaWidthAt(context, next) / 2 / (after / before))
-  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
+  const day = dayAnchorAt(context, centreX - taskGroupAreaWidthAt(context, next) / 2 / (after / before))
+  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centreY, seat)
   const afterRegions = regionsAtDisplayScale(context.regions, settings, next)
   // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
-  const afterRows = rowPlacesAtZoomY(
+  const afterTaskGroups = taskGroupPlacesAtZoomY(
     context.document.schedule,
     {
       ...settings,
@@ -105,14 +105,14 @@ function displayScaleWrites(
     },
     afterRegions,
     zoomOnScreen(context).y,
-    context.rowControlsHeightPx,
-  ).filter((row) => row.isPinned !== true)
-  const landed = rowPointIn(afterRows, held)
-  const topEdge = topEdgeIn(afterRows, seat)
+    context.taskGroupControlsHeightPx,
+  ).filter((taskGroup) => taskGroup.isPinned !== true)
+  const landed = taskGroupPointIn(afterTaskGroups, held)
+  const topEdge = topEdgeIn(afterTaskGroups, seat)
   const row =
     landed === null || topEdge === null
       ? null
-      : rowAnchorIn(afterRows, topEdge + (landed - centreOf(afterRegions.rowArea).y), seat)
+      : taskGroupAnchorIn(afterTaskGroups, topEdge + (landed - centreOf(afterRegions.taskGroupArea).y), seat)
   return [
     scale,
     {

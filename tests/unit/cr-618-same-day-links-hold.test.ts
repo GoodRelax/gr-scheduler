@@ -6,7 +6,7 @@ import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { REQUIREMENTS, rowDocument, taskOf } from './cr-541-stage'
+import { REQUIREMENTS, taskGroupDocument, taskOf } from './cr-541-stage'
 
 const VC_15_FORMULA =
   '予定の日付が依存の向きに反する（FS: 後続の `start` ≥ 先行の `finish` ＋ `lag`、SS: 後続の `start` ≥ 先行の `start` ＋ `lag`、FF: 後続の `finish` ≥ 先行の `finish` ＋ `lag`、SF: 後続の `finish` ≥ 先行の `start` ＋ `lag`）。'
@@ -185,7 +185,7 @@ const earliest = (values: readonly string[]): string => [...values].sort()[0] as
 const latest = (values: readonly string[]): string => [...values].sort().reverse()[0] as string
 
 function documentOf(statusDate: string, children: readonly Child[]): Document {
-  const raw = rowDocument([
+  const raw = taskGroupDocument([
     { id: 'r0', parentId: null },
     { id: 'r1', parentId: 'r0' },
   ])
@@ -204,7 +204,7 @@ function documentOf(statusDate: string, children: readonly Child[]): Document {
   const tasks = children.map((one) =>
     taskOf(one.uid, {
       name: `Step ${one.uid}`,
-      wbsParentUid: P,
+      parentTaskUid: P,
       start: one.start,
       finish: one.finish,
       milestone: one.milestone === true,

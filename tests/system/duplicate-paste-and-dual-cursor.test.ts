@@ -205,7 +205,7 @@ const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
 // WHY: not decided by the specification, but the same two markings the
 // neighbouring System files lean on, and no others.
-const ROW_PANEL = '[data-role="Row Title Panel"]'
+const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 
 interface DocGroup {
@@ -216,7 +216,7 @@ interface DocGroup {
 
 interface DocTask {
   readonly uid: number
-  readonly wbsParentUid: number | null
+  readonly parentTaskUid: number | null
 }
 
 interface DocShot {
@@ -234,7 +234,7 @@ interface CursorShot {
   readonly guideCursorMode: string
 }
 
-interface RowPaste {
+interface TaskGroupPaste {
   readonly sourceId: string
   readonly chosenIds: readonly string[]
   readonly before: DocShot
@@ -246,9 +246,9 @@ interface Measured {
   readonly pickedTaskRowId: string
   readonly beforeTaskPaste: DocShot
   readonly afterTaskPaste: DocShot
-  readonly intoChosenRow: RowPaste
-  readonly atTopLevel: RowPaste
-  readonly pastTheDepthCeiling: RowPaste
+  readonly intoChosenTaskGroup: TaskGroupPaste
+  readonly atTopLevel: TaskGroupPaste
+  readonly pastTheDepthCeiling: TaskGroupPaste
   readonly depthThatWasRefused: number
   readonly clipboardReads: number
   readonly dualCursorWhileDown: number
@@ -366,7 +366,7 @@ async function readShot(page: Page): Promise<DocShot> {
         .grSchedulerAgentApi
       const held = api.readDocument() as {
         schedule: {
-          tasks: { uid: number; name: string | null; wbsParentUid: number | null }[]
+          tasks: { uid: number; name: string | null; parentTaskUid: number | null }[]
           taskGroups: { id: string; parentId: string | null; label: string | null }[]
           taskGroupMembers: { taskUid: number; groupId: string }[]
         }
@@ -377,7 +377,7 @@ async function readShot(page: Page): Promise<DocShot> {
         taskUids: held.schedule.tasks.map((one) => one.uid),
         tasks: held.schedule.tasks.map((one) => ({
           uid: one.uid,
-          wbsParentUid: one.wbsParentUid,
+          parentTaskUid: one.parentTaskUid,
         })),
         names,
         groups: held.schedule.taskGroups.map((one) => ({
@@ -460,7 +460,7 @@ async function chosenRowIds(page: Page): Promise<string[]> {
 // WHY: the pointer goes on the row first, then the point is chosen -- HF-6
 // hides a row's own controls (GR-20's grab strip too) until hovered.
 /** @purity non-pure */
-async function chooseRow(page: Page, groupId: string, isExtending: boolean): Promise<void> {
+async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean): Promise<void> {
   const hover = await page.evaluate((wanted: string) => {
     const row = document.querySelector(`[data-depth][data-group-id="${wanted}"]`)
     if (row === null) return null
@@ -479,7 +479,7 @@ async function chooseRow(page: Page, groupId: string, isExtending: boolean): Pro
         const node = document.elementFromPoint(x, y)
         if (node === null) continue
         if (node.closest('[data-icon]') !== null) continue
-        if (node.closest('[data-row-grab]') !== null) continue
+        if (node.closest('[data-task-group-grab]') !== null) continue
         if (node.closest('[data-group-id]') !== row) continue
         return { x, y }
       }
@@ -520,7 +520,7 @@ async function pickATask(
     },
     {
       row: rowId,
-      panel: ROW_PANEL,
+      panel: TASK_GROUP_PANEL_BOX,
       canvas: CANVAS_PART,
       right: BASE_SCREEN.width - 5,
     },
@@ -565,11 +565,11 @@ async function sweep(): Promise<Measured> {
     const atStart = await shot()
     // WHY: only a Task with no WBS descendants will do, so DU-1 has exactly
     // one thing to carry and this case can count it.
-    const wbsParents = new Set(
-      atStart.tasks.flatMap((one) => (one.wbsParentUid === null ? [] : [one.wbsParentUid])),
+    const parentTasks = new Set(
+      atStart.tasks.flatMap((one) => (one.parentTaskUid === null ? [] : [one.parentTaskUid])),
     )
     const wbsLeaves = new Set(
-      atStart.tasks.flatMap((one) => (wbsParents.has(one.uid) ? [] : [one.uid])),
+      atStart.tasks.flatMap((one) => (parentTasks.has(one.uid) ? [] : [one.uid])),
     )
     let picked: number | null = null
     for (const rowId of await drawnRowIds(page)) {
@@ -608,12 +608,12 @@ async function sweep(): Promise<Measured> {
     }
     const depthThatWasRefused =
       depthOf(beforeDeep.groups, tooDeep) + spanOf(beforeDeep.groups, tooDeep)
-    await chooseRow(page, tooDeep, false)
+    await chooseTaskGroup(page, tooDeep, false)
     await page.keyboard.press(COPY_KEY)
     await page.waitForTimeout(400)
     await page.keyboard.press(PASTE_KEY)
     await page.waitForTimeout(2500)
-    const pastTheDepthCeiling: RowPaste = {
+    const pastTheDepthCeiling: TaskGroupPaste = {
       sourceId: tooDeep,
       chosenIds: [tooDeep],
       before: beforeDeep,
@@ -631,12 +631,12 @@ async function sweep(): Promise<Measured> {
     if (leafWithTasks === undefined) {
       throw new Error('the panel is drawing no childless row that carries a Task')
     }
-    await chooseRow(page, leafWithTasks, false)
+    await chooseTaskGroup(page, leafWithTasks, false)
     await page.keyboard.press(COPY_KEY)
     await page.waitForTimeout(400)
     await page.keyboard.press(PASTE_KEY)
     await page.waitForTimeout(2500)
-    const intoChosenRow: RowPaste = {
+    const intoChosenTaskGroup: TaskGroupPaste = {
       sourceId: leafWithTasks,
       chosenIds: [leafWithTasks],
       before: beforeIntoChosen,
@@ -645,7 +645,7 @@ async function sweep(): Promise<Measured> {
 
     // WHY: SL-4's letting-go half -- the chosen row is pressed again with
     // the extending key, which takes it back out of the set.
-    await chooseRow(page, leafWithTasks, true)
+    await chooseTaskGroup(page, leafWithTasks, true)
     const stillChosen = await chosenRowIds(page)
     if (stillChosen.length !== 0) {
       throw new Error(`letting the row go left ${stillChosen.length} rows chosen`)
@@ -653,7 +653,7 @@ async function sweep(): Promise<Measured> {
     const beforeTopLevel = await shot()
     await page.keyboard.press(PASTE_KEY)
     await page.waitForTimeout(2500)
-    const atTopLevel: RowPaste = {
+    const atTopLevel: TaskGroupPaste = {
       sourceId: leafWithTasks,
       chosenIds: [],
       before: beforeTopLevel,
@@ -704,7 +704,7 @@ async function sweep(): Promise<Measured> {
         pickedTaskRowId,
         beforeTaskPaste,
         afterTaskPaste,
-        intoChosenRow,
+        intoChosenTaskGroup,
         atTopLevel,
         pastTheDepthCeiling,
         depthThatWasRefused,
@@ -732,12 +732,12 @@ function readingsOfTheSweep(): Measured {
 }
 
 /** @purity pure */
-function rowsAdded(run: RowPaste): readonly DocGroup[] {
+function taskGroupsAdded(run: TaskGroupPaste): readonly DocGroup[] {
   return run.after.groups.filter((one) => !run.before.groups.some((was) => was.id === one.id))
 }
 
 /** @purity pure */
-function tasksAdded(run: RowPaste): readonly number[] {
+function tasksAdded(run: TaskGroupPaste): readonly number[] {
   return run.after.taskUids.filter((one) => !run.before.taskUids.includes(one))
 }
 
@@ -791,35 +791,35 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   // WHY: goes red if a copied row lands anywhere but under the chosen row.
   test('a copied row lands as a child of the row that is chosen', () => {
     const seen = readingsOfTheSweep()
-    const added = rowsAdded(seen.intoChosenRow)
+    const added = taskGroupsAdded(seen.intoChosenTaskGroup)
     expect(
       added.length,
-      `${PASTE_KEY} with the row ${seen.intoChosenRow.sourceId} copied and chosen should add rows`,
+      `${PASTE_KEY} with the row ${seen.intoChosenTaskGroup.sourceId} copied and chosen should add rows`,
     ).toBeGreaterThan(0)
     const roots = added.filter((one) => !added.some((kin) => kin.id === one.parentId))
     expect(roots, 'DU-2 of table T-223 copies one subtree, so one row comes in at the top').toHaveLength(1)
     expect(
       roots[0]?.parentId,
       'FR-033 (MUST) makes the chosen row the parent of what is pasted',
-    ).toBe(seen.intoChosenRow.chosenIds[0])
+    ).toBe(seen.intoChosenTaskGroup.chosenIds[0])
   })
 
   // WHY: goes red if a row arrives without the Tasks standing on it --
-  // DU-2's whole point, and why FR-033 does not apply DU-1's same-row rule.
+  // DU-2's whole point, and why FR-033 does not apply DU-1's same-task-group rule.
   test('a copied row brings the Tasks that stood on it', () => {
     const seen = readingsOfTheSweep()
-    const stoodOnTheSource = seen.intoChosenRow.before.members.filter(
-      (one) => one.groupId === seen.intoChosenRow.sourceId,
+    const stoodOnTheSource = seen.intoChosenTaskGroup.before.members.filter(
+      (one) => one.groupId === seen.intoChosenTaskGroup.sourceId,
     ).length
     expect(stoodOnTheSource, 'the row that was copied carried no Task to judge').toBeGreaterThan(0)
-    const added = tasksAdded(seen.intoChosenRow)
+    const added = tasksAdded(seen.intoChosenTaskGroup)
     expect(added, 'DU-2 of table T-223 copies every Task standing on the copied row').toHaveLength(
       stoodOnTheSource,
     )
-    const addedRows = rowsAdded(seen.intoChosenRow).map((one) => one.id)
+    const addedTaskGroups = taskGroupsAdded(seen.intoChosenTaskGroup).map((one) => one.id)
     const landedElsewhere = added.filter((uid) => {
-      const on = seen.intoChosenRow.after.members.find((one) => one.taskUid === uid)?.groupId ?? ''
-      return !addedRows.includes(on)
+      const on = seen.intoChosenTaskGroup.after.members.find((one) => one.taskUid === uid)?.groupId ?? ''
+      return !addedTaskGroups.includes(on)
     })
     expect(
       landedElsewhere,
@@ -830,7 +830,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   // WHY: goes red if a paste with no row chosen buries the new row somewhere.
   test('a copied row pasted with no row chosen lands at the top level', () => {
     const seen = readingsOfTheSweep()
-    const added = rowsAdded(seen.atTopLevel)
+    const added = taskGroupsAdded(seen.atTopLevel)
     expect(added.length, `${PASTE_KEY} with nothing chosen should add rows`).toBeGreaterThan(0)
     const roots = added.filter((one) => !added.some((kin) => kin.id === one.parentId))
     expect(roots, 'one subtree comes in, so one row comes in at the top').toHaveLength(1)
@@ -846,7 +846,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
       'the sweep should have chosen a landing that passes the ceiling',
     ).toBeGreaterThan(MAX_GROUP_DEPTH)
     expect(
-      rowsAdded(seen.pastTheDepthCeiling),
+      taskGroupsAdded(seen.pastTheDepthCeiling),
       'FR-033 (MUST NOT) refuses the whole duplicate rather than trimming it',
     ).toHaveLength(0)
     expect(

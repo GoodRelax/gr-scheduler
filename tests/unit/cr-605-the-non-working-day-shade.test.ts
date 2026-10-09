@@ -1,4 +1,4 @@
-// CR-605 part A: non-working days are shaded in the Row Area (FR-054, table T-343, colour S-450).
+// CR-605 part A: non-working days are shaded in the Task Group Area (FR-054, table T-343, colour S-450).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -45,7 +45,7 @@ const OD_2_DAY = '「年 ＋ 月 ＋ 日 ＋ 曜日」の段では非稼働日�
 const OD_2_WEEK_MONTH = '「年 ＋ 月 ＋ 週」と「年 ＋ 月」の段では、例外日で非稼働になった日だけを塗る。'
 const OD_2_YEAR = '「年」の段では塗らない。'
 // see OD-3
-const OD_3_EXTENT = '`Row Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅で塗ること（MUST）。'
+const OD_3_EXTENT = '`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅で塗ること（MUST）。'
 const OD_3_PINNED = 'ピン止めした行（`U-46`）の上も塗る。'
 const OD_3_NOT_RULER = '⛔ `Time Ruler`（`U-19`）の帯は塗らない（MUST NOT）'
 // see OD-4
@@ -176,7 +176,7 @@ const scheduleWith = (wish: Wish = {}): Schedule => {
 interface Frame {
   readonly schedule: Schedule
   readonly layout: ScheduleLayout
-  readonly rowArea: ScreenRect
+  readonly taskGroupArea: ScreenRect
   readonly timeRuler: ScreenRect
   readonly svg: (picture?: 'screen' | 'export', preference?: 'light' | 'dark') => string
 }
@@ -194,11 +194,11 @@ const frameOf = (tier: Tier, schedule: Schedule, over: Readonly<Record<string, u
   const layout = layoutFromSchedule(schedule, settings, regions)
   const selection = emptySelection()
   const geometry = geometryFromLayout(schedule, settings, layout, regions, selection, null)
-  const rects = regions as unknown as { rowArea: ScreenRect; timeRuler: ScreenRect }
+  const rects = regions as unknown as { taskGroupArea: ScreenRect; timeRuler: ScreenRect }
   return {
     schedule,
     layout,
-    rowArea: rects.rowArea,
+    taskGroupArea: rects.taskGroupArea,
     timeRuler: rects.timeRuler,
     svg: (picture = 'screen', preference = 'light') =>
       svgFromSchedule(schedule, settings, layout, geometry, regions, selection, picture, {
@@ -302,24 +302,24 @@ const offByException = (exceptions: readonly ExceptionRow[]): ((at: CalendarDay)
   exceptions.some((row) => row.dayWorking === false && isNonRecurringException(row) && covers(row, at))
 
 const expectedRunsOf = (frame: Frame, svg: string, shaded: (at: CalendarDay) => boolean): readonly Run[] => {
-  const left = frame.rowArea.x
+  const left = frame.taskGroupArea.x
   const right = bandRightOf(svg)
   const first = dateAtX(frame.layout, left)
   const last = dateAtX(frame.layout, right)
-  if (first === null || last === null) throw new Error('premise: the layout maps the Row Area to days')
+  if (first === null || last === null) throw new Error('premise: the layout maps the Task Group Area to days')
   const px = frame.layout.pxPerDay
   const out: Run[] = []
   let open: { x0: number; x1: number } | null = null
   for (let at = plus(first, -2); utcOf(at) <= utcOf(plus(last, 2)); at = plus(at, 1)) {
     if (!shaded(at)) {
-      if (open !== null) out.push({ ...open, y0: frame.rowArea.y, y1: frame.rowArea.y + frame.rowArea.height })
+      if (open !== null) out.push({ ...open, y0: frame.taskGroupArea.y, y1: frame.taskGroupArea.y + frame.taskGroupArea.height })
       open = null
       continue
     }
     const x = xFromDay(frame.layout, at)
     open = open === null ? { x0: x, x1: x + px } : { x0: open.x0, x1: x + px }
   }
-  if (open !== null) out.push({ ...open, y0: frame.rowArea.y, y1: frame.rowArea.y + frame.rowArea.height })
+  if (open !== null) out.push({ ...open, y0: frame.taskGroupArea.y, y1: frame.taskGroupArea.y + frame.taskGroupArea.height })
   return out
     .map((one) => ({ ...one, x0: Math.max(one.x0, left), x1: Math.min(one.x1, right) }))
     .filter((one) => one.x1 - one.x0 > ROUND)
@@ -451,7 +451,7 @@ describe('OD-2 -- the ruler tier decides how much is shaded', () => {
 
   it(`「${OD_2_YEAR}」 at the year tier nothing is shaded, exceptions in view included`, () => {
     const frame = tierFrame('year')
-    const first = dateAtX(frame.layout, frame.rowArea.x)
+    const first = dateAtX(frame.layout, frame.taskGroupArea.x)
     expect(first === null ? Number.NaN : utcOf(first), 'premise: the exceptions are in view').toBeLessThanOrEqual(
       utcOf(dayFromText(SHUTDOWN.fromDate)),
     )
@@ -469,14 +469,14 @@ describe('OD-3 -- where the shade stands', () => {
     ['no pinned row', {}],
     ['the first row pinned', { [PINNED_KEY]: ['g1'] }],
   ] as const) {
-    it(`「${OD_3_EXTENT}」 ${name}: every run spans the Row Area from top to bottom`, () => {
+    it(`「${OD_3_EXTENT}」 ${name}: every run spans the Task Group Area from top to bottom`, () => {
       const frame = tierFrame('yearMonthDayWeekday', {}, over)
       const runs = runsOf(shadeOf(frame.svg()))
       expect(runs.length, 'premise: something is shaded').toBeGreaterThan(0)
       for (const one of runs) {
-        expect(Math.abs(one.y0 - frame.rowArea.y), 'top of the Row Area').toBeLessThanOrEqual(ROUND)
-        expect(Math.abs(one.y1 - (frame.rowArea.y + frame.rowArea.height)), 'bottom of the Row Area').toBeLessThanOrEqual(ROUND)
-        expect(one.x0, 'not left of the Row Area').toBeGreaterThanOrEqual(frame.rowArea.x - ROUND)
+        expect(Math.abs(one.y0 - frame.taskGroupArea.y), 'top of the Task Group Area').toBeLessThanOrEqual(ROUND)
+        expect(Math.abs(one.y1 - (frame.taskGroupArea.y + frame.taskGroupArea.height)), 'bottom of the Task Group Area').toBeLessThanOrEqual(ROUND)
+        expect(one.x0, 'not left of the Task Group Area').toBeGreaterThanOrEqual(frame.taskGroupArea.x - ROUND)
       }
     })
   }
@@ -498,7 +498,7 @@ describe('OD-3 -- where the shade stands', () => {
   it(`「${OD_3_NOT_RULER}」 no run reaches into the Time Ruler band`, () => {
     const frame = tierFrame('yearMonthDayWeekday')
     const ruler = frame.timeRuler
-    expect(ruler.y + ruler.height, 'premise: the ruler sits above the Row Area').toBeLessThanOrEqual(frame.rowArea.y + ROUND)
+    expect(ruler.y + ruler.height, 'premise: the ruler sits above the Task Group Area').toBeLessThanOrEqual(frame.taskGroupArea.y + ROUND)
     for (const one of runsOf(shadeOf(frame.svg()))) {
       const overlap = Math.min(one.y1, ruler.y + ruler.height) - Math.max(one.y0, ruler.y)
       expect(overlap, 'shade inside the ruler band').toBeLessThanOrEqual(ROUND)

@@ -55,7 +55,7 @@ const HUES = [S_73_DEFAULT, 0, 60, 140, 285]
 
 // WHY: the DOM surface keeps its name->row pairing (PAINT_ROW) private; only the pairing is
 // copied to tie a --gr-<name> custom property to its T-236 row, never a colour.
-const NAME_TO_ROW: Readonly<Record<string, string>> = {
+const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   ground: 'S-146',
   ink: 'S-147',
   quiet: 'S-148',
@@ -67,10 +67,10 @@ const NAME_TO_ROW: Readonly<Record<string, string>> = {
   pressed: 'S-183',
   pinned: 'S-151',
   hoveredEntrance: 'S-147',
-  pinnedRow: 'S-151',
+  pinnedTaskGroup: 'S-151',
   grabAxisPosition: 'S-151',
   grabAxisDepth: 'S-152',
-  heldRow: 'S-151',
+  heldTaskGroup: 'S-151',
   caution: 'S-153',
 }
 
@@ -226,8 +226,8 @@ function exportColourOf(rowId: string, hue: number, preference: Preference, mono
   }
 }
 
-const HUE_NAMES = Object.keys(NAME_TO_ROW).filter((name) => HUE_ROWS.includes(NAME_TO_ROW[name] ?? ''))
-const FIXED_NAMES = Object.keys(NAME_TO_ROW).filter((name) => !HUE_ROWS.includes(NAME_TO_ROW[name] ?? ''))
+const HUE_NAMES = Object.keys(NAME_TO_TASK_GROUP).filter((name) => HUE_ROWS.includes(NAME_TO_TASK_GROUP[name] ?? ''))
+const FIXED_NAMES = Object.keys(NAME_TO_TASK_GROUP).filter((name) => !HUE_ROWS.includes(NAME_TO_TASK_GROUP[name] ?? ''))
 
 const theme = (preference: Preference, hue: number, monochrome: boolean): ScreenTheme => ({
   preference,
@@ -253,7 +253,7 @@ describe('CR-585 premises', () => {
   it('every name of the pairing is written by themeStyle', () => {
     for (const preference of PREFERENCES) {
       for (const monochrome of [false, true]) {
-        for (const name of Object.keys(NAME_TO_ROW)) {
+        for (const name of Object.keys(NAME_TO_TASK_GROUP)) {
           expect(() => propertyOf(theme(preference, S_73_DEFAULT, monochrome), name), name).not.toThrow()
         }
       }
@@ -266,7 +266,7 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every "o" row's --gr-<name> is achromatic and keeps the HSL lightness`, () => {
         for (const name of HUE_NAMES) {
-          const rowId = NAME_TO_ROW[name] ?? ''
+          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
           const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
           const coloured = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
@@ -283,7 +283,7 @@ describe(`CR-585 (2) FR-041 "${CLAUSE_ANY_HUE_COLUMN}" / T-294 "${CLAUSE_KEEP_LI
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every "-" row's --gr-<name> is achromatic and keeps the HSL lightness`, () => {
         for (const name of FIXED_NAMES) {
-          const rowId = NAME_TO_ROW[name] ?? ''
+          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
           const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
           const coloured = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
@@ -299,8 +299,8 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every --gr-<name> is its T-236 value with H substituted`, () => {
-        for (const name of Object.keys(NAME_TO_ROW)) {
-          const rowId = NAME_TO_ROW[name] ?? ''
+        for (const name of Object.keys(NAME_TO_TASK_GROUP)) {
+          const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, false), name)
           const wanted = writtenOf(t236(rowId), preference, hue)
           // WHY: since CR-693 the frame reads the picture's T-366 value (CF-1), so a shifted row moves like the export's.
@@ -338,7 +338,7 @@ describe(`CR-585 (4) FR-041 "${CLAUSE_GROUND}" -- the page ground greys the same
 })
 
 describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
-  const both = HUE_NAMES.filter((name) => exportColourOf(NAME_TO_ROW[name] ?? '', S_73_DEFAULT, 'light', false) !== null)
+  const both = HUE_NAMES.filter((name) => exportColourOf(NAME_TO_TASK_GROUP[name] ?? '', S_73_DEFAULT, 'light', false) !== null)
 
   it('premise: the export draws the ground and at least one other chrome row', () => {
     expect(both).toContain('ground')
@@ -350,7 +350,7 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
       for (const monochrome of [true, false]) {
         it(`${preference}, hue ${hue}, monochrome ${monochrome}: --gr-<name> equals the export's colour for the same row`, () => {
           for (const name of both) {
-            const rowId = NAME_TO_ROW[name] ?? ''
+            const rowId = NAME_TO_TASK_GROUP[name] ?? ''
             expect(propertyOf(theme(preference, hue, monochrome), name), `${name} (${rowId})`).toBe(
               exportColourOf(rowId, hue, preference, monochrome),
             )
@@ -368,12 +368,12 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
       it(`${preference}, hue ${hue}: every row the picture draws ("o" and "-") is grey with its lightness`, () => {
-        let drawnRows = 0
+        let drawnTaskGroups = 0
         for (const row of T236.rows) {
           const on = exportColourOf(row.id, hue, preference, true)
           const off = exportColourOf(row.id, hue, preference, false)
           if (on === null || off === null) continue
-          drawnRows += 1
+          drawnTaskGroups += 1
           const spec = t236(row.id)
           const coloured = mustPaint(writtenOf(spec, preference, hue), `T-236 ${row.id}`)
           const inherited = inheritedRowOf(row.id)
@@ -390,7 +390,7 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
             expect(keeps, `${row.id} off: ${off}`).toBe(true)
           }
         }
-        expect(drawnRows, 'premise: the export draws T-236 rows').toBeGreaterThan(0)
+        expect(drawnTaskGroups, 'premise: the export draws T-236 rows').toBeGreaterThan(0)
       })
     }
   }

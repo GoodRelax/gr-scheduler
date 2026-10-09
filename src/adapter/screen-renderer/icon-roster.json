@@ -856,7 +856,7 @@
   {
    "rowId": "IC-58",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行の配下をすべて開く",
@@ -867,7 +867,7 @@
   {
    "rowId": "IC-59",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "この行を隠す",
@@ -878,7 +878,7 @@
   {
    "rowId": "IC-77",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行の配下をすべて畳む",
@@ -889,7 +889,7 @@
   {
    "rowId": "IC-90",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行の配下を 1 階層だけ開く",
@@ -900,7 +900,7 @@
   {
    "rowId": "IC-91",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行の配下に行を 1 つ足す",
@@ -911,7 +911,7 @@
   {
    "rowId": "IC-60",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行をピン止めし、同じ入口で外す",
@@ -922,7 +922,7 @@
   {
    "rowId": "IC-82",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "行を削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）",
@@ -933,7 +933,7 @@
   {
    "rowId": "IC-106",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
@@ -1297,7 +1297,7 @@
   {
    "rowId": "IC-74",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "すべての行を開く",
@@ -1308,7 +1308,7 @@
   {
    "rowId": "IC-78",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "すべての行を畳む",
@@ -1319,7 +1319,7 @@
   {
    "rowId": "IC-92",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "最も浅い段を 1 階層だけ開く",
@@ -1330,7 +1330,7 @@
   {
    "rowId": "IC-93",
    "surfaces": [
-    "Row Title Panel"
+    "Task Group Panel"
    ],
    "group": null,
    "entryTo": "最も浅い段へ行を 1 つ足す",

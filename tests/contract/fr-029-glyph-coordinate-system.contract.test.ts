@@ -608,7 +608,7 @@ const FR_029_SLACK_COSTS = '座標系に余白があると、箱を大きくし�
 const FR_029_THE_BOX = '図形を描く箱の一辺は'
 
 /** §8 of docs/spec/_assets/tbl-glossary.md, above 表 T-109. */
-const GLOSSARY_EVERY_ROW_HAS_ONE = '図形を持たない行は無い'
+const GLOSSARY_EVERY_TASK_GROUP_HAS_ONE = '図形を持たない行は無い'
 
 // ===========================================================================
 // FR-029 (MUST NOT): 図形ごとに別々の座標系を与えてはならない
@@ -783,7 +783,7 @@ describe('the manuscript still says what these cases copy', () => {
   })
 
   it('§8 of the glossary still says every row of 表 T-109 has a shape', () => {
-    expect(readFileSync(GLOSSARY, 'utf8')).toContain(GLOSSARY_EVERY_ROW_HAS_ONE)
+    expect(readFileSync(GLOSSARY, 'utf8')).toContain(GLOSSARY_EVERY_TASK_GROUP_HAS_ONE)
   })
 
   it('⛔ the box the shapes are drawn in is still S-138, and this work must not move it', () => {

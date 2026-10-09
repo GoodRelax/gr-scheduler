@@ -219,13 +219,13 @@ function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
 /** @purity pure */
 function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   const schedule = isObject(parsed) ? parsed['schedule'] : undefined
-  const rows = isObject(schedule) ? schedule['taskGroups'] : undefined
-  if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(rows)) return parsed
-  const wants = (row: unknown): boolean => isObject(row) && !('editGroup' in row)
-  if (!rows.some(wants)) return parsed
-  const shapedRows = rows.map((row: unknown): unknown =>
-    !isObject(row) || 'editGroup' in row ? row : { ...row, editGroup: null })
-  return { ...parsed, schedule: { ...schedule, taskGroups: shapedRows } }
+  const taskGroups = isObject(schedule) ? schedule['taskGroups'] : undefined
+  if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(taskGroups)) return parsed
+  const wants = (taskGroup: unknown): boolean => isObject(taskGroup) && !('editGroup' in taskGroup)
+  if (!taskGroups.some(wants)) return parsed
+  const shapedTaskGroups = taskGroups.map((taskGroup: unknown): unknown =>
+    !isObject(taskGroup) || 'editGroup' in taskGroup ? taskGroup : { ...taskGroup, editGroup: null })
+  return { ...parsed, schedule: { ...schedule, taskGroups: shapedTaskGroups } }
 }
 
 // see AT-145, AT-146, AT-147, AT-148, AT-149, AT-150, AT-151, AT-152
@@ -443,9 +443,9 @@ function settledReading(
     const settled = paired === recounted.documentSettings ? recounted : { ...recounted, documentSettings: paired }
     return { ok: true, document: settled, clampedCount: 0, recountedCount, formatVersion, unreadColumns }
   }
-  // WHY: rowGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
+  // WHY: taskGroupGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
   // it, but it is left out of the count RS-51 tells.
-  const toldClamped = clamp.clamped.filter((one) => one.key !== 'rowGap')
+  const toldClamped = clamp.clamped.filter((one) => one.key !== 'taskGroupGap')
   return {
     ok: true,
     document: { ...recounted, documentSettings: clamp.settings },

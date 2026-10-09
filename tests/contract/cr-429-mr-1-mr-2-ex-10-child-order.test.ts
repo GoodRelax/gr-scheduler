@@ -36,12 +36,12 @@ const EX_10_ALL = '`xsd:all` の親では順は問われないので、取り込
 
 const EX_10_UNKNOWN = 'どちらのスキーマにも無い要素は、取り込んだときに直前にあった要素の直後に置くこと（MUST）。'
 
-const EX_10_ROW_CHILD =
+const EX_10_TASK_GROUP_CHILD =
   '⚠️ 例外 —— `GRS` が自分の列として持つ要素（表 T-058 の `carry` を持つ `Project`・`Task` など）の直下では、' +
   'どちらのスキーマにも無い子を、どちらかのスキーマにある持ち回る兄弟のうち、取り込んだときに前にあった最後のものの直後に置くこと（MUST）' +
   '—— 順を見るのは同じ種類の兄弟であり、葉は葉と、子を持つ要素は子を持つ要素と見る。'
 
-const EX_10_ROW_CHILD_ENDS =
+const EX_10_TASK_GROUP_CHILD_ENDS =
   '前に無ければ後にあった最初のものの直前に、前にも後にも無ければ親の末尾に置き、同じ所に置く子どうしは取り込んだ順を保つこと（MUST）。'
 
 const PROBE = 'GrsProbeMark'
@@ -209,8 +209,8 @@ describe('EX-10 -- an element neither schema declares stays after the element it
 
 describe('EX-10 -- under a row GRS holds, an undeclared child rides with the carried siblings of its own kind', () => {
   it('EX-10: the exception is still where the cases found it', () => {
-    expect(rowText('T-033', 'EX-10')).toContain(EX_10_ROW_CHILD)
-    expect(rowText('T-033', 'EX-10')).toContain(EX_10_ROW_CHILD_ENDS)
+    expect(rowText('T-033', 'EX-10')).toContain(EX_10_TASK_GROUP_CHILD)
+    expect(rowText('T-033', 'EX-10')).toContain(EX_10_TASK_GROUP_CHILD_ENDS)
   })
 
   it('EX-10: under a Task, after its Name -- no carried leaf came before it, so just before the first after it', () => {

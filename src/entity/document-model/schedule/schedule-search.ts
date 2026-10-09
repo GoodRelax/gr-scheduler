@@ -6,7 +6,7 @@
 import { compareDays, dayOf } from './calendar-day'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
-import { rowNameOf, rowPathOf } from './row-names'
+import { taskGroupNameOf, taskGroupPathOf } from './task-group-names'
 import type { CommentBox, Schedule, Task } from './schedule-entities'
 import { taskGroupRankById } from './schedule-invariants'
 
@@ -37,7 +37,7 @@ function progressOf(task: Task): Pick<TaskSearchRow, 'percentComplete' | 'actual
 export type CommentBoxSearchRow = {
   readonly commentBoxId: string
   readonly text: string
-  readonly rowName: string
+  readonly taskGroupName: string
   readonly anchorDate: string | null
   readonly groupId: string | null
 }
@@ -121,12 +121,12 @@ export function searchRowsOf(
   const rankById = taskGroupRankById(schedule.taskGroups)
   const rankOf = (groupId: string | null): number =>
     (groupId === null ? undefined : rankById.get(groupId)) ?? rankById.size
-  const heldRow = (groupId: string | null | undefined): string | null =>
+  const heldTaskGroup = (groupId: string | null | undefined): string | null =>
     groupId !== null && groupId !== undefined && rankById.has(groupId) ? groupId : null
   const pathByGroupId = new Map<string, readonly string[]>()
   const pathOf = (groupId: string | null): readonly string[] => {
     if (groupId === null) return []
-    const held = pathByGroupId.get(groupId) ?? rowPathOf(schedule, groupId)
+    const held = pathByGroupId.get(groupId) ?? taskGroupPathOf(schedule, groupId)
     pathByGroupId.set(groupId, held)
     return held
   }
@@ -138,7 +138,7 @@ export function searchRowsOf(
     const name = task.name ?? ''
     const names = assigneeNames.get(task.uid) ?? []
     if (!isSearchWordFound(name, word) && !names.some((one) => isSearchWordFound(one, word))) continue
-    const groupId = heldRow(groupIdByTaskUid.get(task.uid))
+    const groupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
     const row: TaskSearchRow = {
       taskUid: task.uid,
       name,
@@ -158,7 +158,7 @@ export function searchRowsOf(
   for (const box of schedule.commentBoxes) {
     const text = box.text ?? ''
     if (!isSearchWordFound(text, word)) continue
-    commentBoxRows.push(rankedCommentBox(box, text, heldRow(box.anchorGroupId), schedule, rankOf))
+    commentBoxRows.push(rankedCommentBox(box, text, heldTaskGroup(box.anchorGroupId), schedule, rankOf))
   }
 
   return { taskRows: inDefaultOrder(taskRows), commentBoxRows: inDefaultOrder(commentBoxRows) }
@@ -176,7 +176,7 @@ function rankedCommentBox(
   const row: CommentBoxSearchRow = {
     commentBoxId: box.id,
     text,
-    rowName: groupId === null ? '' : rowNameOf(schedule, groupId),
+    taskGroupName: groupId === null ? '' : taskGroupNameOf(schedule, groupId),
     anchorDate: box.anchorDate,
     groupId,
   }

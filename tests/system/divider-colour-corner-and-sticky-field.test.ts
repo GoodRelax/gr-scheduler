@@ -201,7 +201,7 @@ const ANNOTATION_DEFAULTS_FILE = join('src', 'use-case', 'edit-document', 'edit-
 
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
-const ROW_PANEL = '[data-role="Row Title Panel"]'
+const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const PROPERTIES = '[data-role="Properties Panel"]'
 const DIVIDER = '[data-role="Panel Divider"]'
 
@@ -294,7 +294,7 @@ const REACH_PX = 160
 // WHY: ground below the last row is no good -- FR-019 holds a position by a
 // date and a row identifier, and ground no row covers points at no row.
 /** @purity non-pure */
-async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
+async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     (asked: { panel: string; reach: number }) => {
       const panel = document.querySelector(asked.panel)?.getBoundingClientRect()
@@ -311,7 +311,7 @@ async function groundOnADrawnRow(page: Page): Promise<{ x: number; y: number } |
         middles,
       }
     },
-    { panel: ROW_PANEL, reach: REACH_PX },
+    { panel: TASK_GROUP_PANEL_BOX, reach: REACH_PX },
   )
   if (ground === null) return null
   for (const y of ground.middles) {
@@ -413,7 +413,7 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const spot = await groundOnADrawnRow(page)
+    const spot = await groundOnADrawnTaskGroup(page)
     expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
     const at = spot as { x: number; y: number }
 
@@ -601,7 +601,7 @@ test(`PR-21 / FR-006: the comment box's field carries the control table T-016 na
   const opened = await openTheApp(baseURL)
   const page = opened.page
   try {
-    const spot = await groundOnADrawnRow(page)
+    const spot = await groundOnADrawnTaskGroup(page)
     expect(spot, 'a drawn row covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 

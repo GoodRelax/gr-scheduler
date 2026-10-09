@@ -15,7 +15,7 @@ type Loose = Record<string, any>
 const FLOW = STATE_MACHINES_SOURCE.regions.find((one) => one['region'] === 'fileFlow') as Loose
 const EVENT = (FLOW['events'] as Loose[]).find((one) => one['key'] === 'newDocumentEntryPressed') as Loose
 const CONFIRMATION = (FLOW['machines'] as Loose[]).find((one) => one['name'] === 'confirmationStateMachine') as Loose
-const QUESTION = { manner: 'NT-7', question: 'QN-5', items: [{ name: 'Here', isShownOnAnotherRow: false }] }
+const QUESTION = { manner: 'NT-7', question: 'QN-5', items: [{ name: 'Here', isShownOnAnotherTaskGroup: false }] }
 
 const flowOf = (session: ScreenSession): Loose => (session as unknown as Loose)['fileFlow'] as Loose
 

@@ -14,7 +14,7 @@
 //
 // ⭐ WHY THIS FILE EXISTS BESIDE THE FOUR `fr-055-*` FILES AND `uf-47-48`.
 // Those four drive fixtures this repository builds by hand, and `uf-47-48`
-// drives OP-10's three branches as a RULE on a two-row document. Not one of
+// drives OP-10's three branches as a RULE on a two-task-group document. Not one of
 // them asks what the ONE document the specification has actually decided --
 // BT-4 of table T-034, the template FR-027 keeps exactly one of -- looks like
 // when the shell boots on it. Every case below is about that artifact, and no
@@ -60,7 +60,7 @@
 //   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
 //            keep, which the fit is handed.
 //   FR-018   the group level of detail: which depths a `zoomY` admits.
-//   FR-055   the fit -- DFC-621 「描くものが Row Area に収まる最も深い段を採る」, depth
+//   FR-055   the fit -- DFC-621 「描くものが Task Group Area に収まる最も深い段を採る」, depth
 //            1 when even that does not fit, and the vertical scroll left over.
 //   FR-094   the floor under the plan height, which is why a smaller `zoomY`
 //            below it removes rows instead of shrinking them.
@@ -158,7 +158,7 @@ const TP_8 = rowOf('T-226', 'TP-8')
 // both are counted from the document, and TP-8's own cell says what they owe.
 // ---------------------------------------------------------------------------
 
-/** Depth 1 is a root, which is the sense `RowPlacement.depth` publishes. */
+/** Depth 1 is a root, which is the sense `TaskGroupPlacement.depth` publishes. */
 function depthByParent(
   rows: readonly Loose[],
   keyOf: (row: Loose) => unknown,
@@ -188,11 +188,11 @@ function depthByParent(
   return deepest
 }
 
-const rowForestDepth = (): number =>
+const taskGroupForestDepth = (): number =>
   depthByParent(GROUPS, (row) => row['id'], (row) => row['parentId'])
 
 const wbsDepth = (): number =>
-  depthByParent(TASKS, (row) => row['uid'], (row) => row['wbsParentUid'])
+  depthByParent(TASKS, (row) => row['uid'], (row) => row['parentTaskUid'])
 
 // ---------------------------------------------------------------------------
 // One boot. A full-HD window: FR-051 has BO-1 settle the header height and the
@@ -242,10 +242,10 @@ const bootFrame = (() => {
 })()
 
 const deepestDrawn = (layout: ScheduleLayout): number =>
-  layout.rows.reduce((deepest, row) => Math.max(deepest, row.depth), 0)
+  layout.taskGroups.reduce((deepest, taskGroup) => Math.max(deepest, taskGroup.depth), 0)
 
 const drawnDepths = (layout: ScheduleLayout): number[] =>
-  [...new Set(layout.rows.map((row) => row.depth))].sort((a, b) => a - b)
+  [...new Set(layout.taskGroups.map((taskGroup) => taskGroup.depth))].sort((a, b) => a - b)
 
 /**
  * 「その文書が覆う最初の日」, derived rather than stored -- which is what
@@ -281,7 +281,7 @@ const firstDayCovered = (): string => {
  * `AT-55` ascent puts first. ⛔ Not `GROUPS[0]`: the artifact's array order is
  * not a row of any table.
  */
-const headOfRowTree = (): unknown => {
+const headOfTaskGroupTree = (): unknown => {
   const roots = GROUPS.filter((row) => row['parentId'] === null || row['parentId'] === undefined)
   expect(roots.length, 'TP-4 makes the top level a forest, so it has at least one root').toBeGreaterThan(0)
   const first = roots.reduce((earliest, one) =>
@@ -290,11 +290,11 @@ const headOfRowTree = (): unknown => {
   return first['id']
 }
 
-/** The rows whose band meets the Row Area -- what a person sees on frame one. */
-const rowsInFirstScreenful = (layout: ScheduleLayout) =>
-  layout.rows.filter(
-    (row) =>
-      row.y < REGIONS.rowArea.y + REGIONS.rowArea.height && row.y + row.height > REGIONS.rowArea.y,
+/** The rows whose band meets the Task Group Area -- what a person sees on frame one. */
+const taskGroupsInFirstScreenful = (layout: ScheduleLayout) =>
+  layout.taskGroups.filter(
+    (taskGroup) =>
+      taskGroup.y < REGIONS.taskGroupArea.y + REGIONS.taskGroupArea.height && taskGroup.y + taskGroup.height > REGIONS.taskGroupArea.y,
   )
 
 // ---------------------------------------------------------------------------
@@ -324,7 +324,7 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
     isTextEntryUnsettled: false,
     isDualCursorMode: false,
     today: '2026-04-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
   } as unknown as InputContext
 
   const answer = commandFromInput(PRESS_F, context)
@@ -370,7 +370,7 @@ function rungOf(depth: number, settings: DocumentSettings): number {
 
 describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
   it('gives the row forest the number of levels the cell writes', () => {
-    expect(rowForestDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
+    expect(taskGroupForestDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
   })
 
   it('gives the WBS the same number, which is what 「同じ ... に揃える」 asks', () => {
@@ -378,14 +378,14 @@ describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
     // document. 5.4 keeps them separate as a rule, which is why the case
     // compares the two counts rather than assuming one implies the other.
     expect(wbsDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
-    expect(wbsDepth()).toBe(rowForestDepth())
+    expect(wbsDepth()).toBe(taskGroupForestDepth())
   })
 
-  it('really does hang most Tasks off a WBS parent, so the second axis is not one level wearing five', () => {
+  it('really does hang most Tasks off a parent task, so the second axis is not one level wearing five', () => {
     // ⛔ A document where five Tasks form one chain and the other 995 are roots
     // would satisfy the case above. What TP-8 means by an axis is that the
     // document is BUILT on it, so more Tasks carry a parent than do not.
-    const parented = TASKS.filter((task) => task['wbsParentUid'] !== null).length
+    const parented = TASKS.filter((task) => task['parentTaskUid'] !== null).length
     expect(parented).toBeGreaterThan(TASKS.length - parented)
   })
 
@@ -448,14 +448,14 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
   })
 
-  it('starts at the head of the row tree, drawn from the top of the Row Area', () => {
+  it('starts at the head of the row tree, drawn from the top of the Task Group Area', () => {
     // OP-10: 「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）」. The
     // head of the tree is the root LC-9's order reaches first, and 「から描く」
     // puts it at the top edge -- not scrolled past.
-    const first = bootFrame.values.layout.rows[0]
+    const first = bootFrame.values.layout.taskGroups[0]
     expect(first, 'the boot drew rows at all').toBeDefined()
-    expect(first?.groupId).toBe(headOfRowTree())
-    expect(first?.y).toBe(REGIONS.rowArea.y)
+    expect(first?.groupId).toBe(headOfTaskGroupTree())
+    expect(first?.y).toBe(REGIONS.taskGroupArea.y)
   })
 
   it('⭐ puts a row deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
@@ -466,14 +466,14 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // TP-5 makes this document 100 rows, so it does NOT fit -- which is exactly
     // the condition that prose names.
     const drawn = bootFrame.values.layout
-    expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Row Area').toBeGreaterThan(
-      REGIONS.rowArea.height,
+    expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Task Group Area').toBeGreaterThan(
+      REGIONS.taskGroupArea.height,
     )
 
-    const seen = rowsInFirstScreenful(drawn)
-    expect(seen.length, 'the Row Area is not empty').toBeGreaterThan(0)
+    const seen = taskGroupsInFirstScreenful(drawn)
+    expect(seen.length, 'the Task Group Area is not empty').toBeGreaterThan(0)
     expect(
-      seen.reduce((deepest, row) => Math.max(deepest, row.depth), 0),
+      seen.reduce((deepest, taskGroup) => Math.max(deepest, taskGroup.depth), 0),
       'the first screenful is not seven roots',
     ).toBeGreaterThan(1)
   })
@@ -481,10 +481,10 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   it('⭐ and a parent stands directly above its own child there, which is what 「木の順」 means', () => {
     // 「親の行の直下にその配下を置き」. Measured on the rows a person actually
     // sees, so a tree order that only holds far down the document would fail.
-    const seen = rowsInFirstScreenful(bootFrame.values.layout)
+    const seen = taskGroupsInFirstScreenful(bootFrame.values.layout)
     const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
     const pairs = seen.filter(
-      (row, index) => index > 0 && parentOf.get(row.groupId) === seen[index - 1]?.groupId,
+      (taskGroup, index) => index > 0 && parentOf.get(taskGroup.groupId) === seen[index - 1]?.groupId,
     )
     expect(pairs.length, 'no child follows its own parent in the first screenful').toBeGreaterThan(0)
   })
@@ -498,7 +498,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(admitted, 'the ladder admits more than the first level at the stored zoom').toBeGreaterThan(1)
 
     const owed: number[] = []
-    for (let depth = 1; depth <= Math.min(admitted, rowForestDepth()); depth++) owed.push(depth)
+    for (let depth = 1; depth <= Math.min(admitted, taskGroupForestDepth()); depth++) owed.push(depth)
     expect(drawnDepths(bootFrame.values.layout)).toEqual(owed)
   })
 
@@ -512,7 +512,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     const first = dayOf(firstDayCovered())
     expect(first, 'the template covers a day').not.toBeNull()
     expect(xFromDay(bootFrame.values.layout, first!)).toBeCloseTo(
-      bootFrame.values.regions.rowArea.x + settingNumber('S-134') / 2 + settingNumber('S-268') / 2,
+      bootFrame.values.regions.taskGroupArea.x + settingNumber('S-134') / 2 + settingNumber('S-268') / 2,
       6,
     )
     expect(
@@ -545,19 +545,19 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
 // ---------------------------------------------------------------------------
 
 describe('FR-055 -- one press still answers the first level on this document', () => {
-  it('has no second level to take: its drawing overruns the Row Area at its own rung', () => {
-    // FR-055 (MUST): 「その文書が持つ最も深い段から順に見て、描くものが Row Area
+  it('has no second level to take: its drawing overruns the Task Group Area at its own rung', () => {
+    // FR-055 (MUST): 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area
     // に収まる最も深い段を採る」, and its MUST NOT keeps the zoom at or above
     // 「採った段を描ける最小の倍率」. So depth 2 is judged at depth 2's own rung.
     const rung = rungOf(2, SETTINGS)
     const drawn = layoutFromSchedule(SCHEDULE, { ...SETTINGS, zoomY: rung }, REGIONS)
 
     expect(deepestDrawn(drawn), 'the rung really does open the second level').toBe(2)
-    expect(drawn.contentHeight).toBeGreaterThan(REGIONS.rowArea.height)
+    expect(drawn.contentHeight).toBeGreaterThan(REGIONS.taskGroupArea.height)
   })
 
   it('answers the first level, because it is the deepest one that fits', () => {
-    // 「その文書が持つ最も深い段から順に見て、描くものが Row Area に収まる最も深
+    // 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area に収まる最も深
     // い段を採る」. The case above rules out 2, and every depth deeper than 2
     // draws MORE rows at a HIGHER rung (FR-018's monotonicity with S-88 above
     // one), so none of those fits either -- 1 is what is left.
@@ -574,7 +574,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
     expect(deepestDrawn(drawn)).toBe(1)
     // ⚠️ And the gap under it is allowed: 「画面の下に隙間が残ることは許す ——
     // 本要求は収めることを求めており、埋めることを求めていない」. So this case
-    // says nothing about how much of the Row Area the answer uses.
+    // says nothing about how much of the Task Group Area the answer uses.
   })
 
   it('so the fit and the BT-4 boot are two different pictures, which is why the exclusion is what shows the depth', () => {

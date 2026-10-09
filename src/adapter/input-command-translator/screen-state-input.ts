@@ -20,11 +20,11 @@ import {
   ENTRY,
   KEY,
   armedByEntry,
-  grabRowOf,
+  grabTaskGroupOf,
   guideCursorModeOfEntry,
   hasDraggedPastThreshold,
   isCombo,
-  isOnRowArea,
+  isOnTaskGroupArea,
   isSingleCharacterKey,
   isTypedIntoSearchWord,
   pressRowOf,
@@ -155,7 +155,7 @@ function themeTurned(context: InputContext): ScreenValuesEvent {
 function screenEventAfterChartPress(input: PointerInput, context: InputContext): ScreenValuesEvent | null {
   const press = context.pressed
   if (press === null) return null
-  const isChartPress = press.hit !== null || isOnRowArea(context, press.at.x, press.at.y)
+  const isChartPress = press.hit !== null || isOnTaskGroupArea(context, press.at.x, press.at.y)
   if (isChartPress && pressRowOf(press, context) === 'PTD-2') {
     return screenEventFromDualCursorPress(press, context)
   }
@@ -170,7 +170,7 @@ function screenEventAfterMarkerPress(
 ): ScreenValuesEvent | null {
   const press = context.pressed
   if (press === null || press.hit === null) return null
-  if (grabRowOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
+  if (grabTaskGroupOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
   if (hasDraggedPastThreshold(press, input)) return null
   const uid = press.hit.item.taskUid
   const task = taskByUid(context.document.schedule, uid)

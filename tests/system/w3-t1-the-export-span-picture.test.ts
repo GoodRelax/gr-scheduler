@@ -7,14 +7,14 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { openDocument, openStage, pressEntrance, settle, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
-import { applyCommandsOf, exportSvgOf, rowsDocument } from './w3-t1-stage'
+import { applyCommandsOf, exportSvgOf, taskGroupsDocument } from './w3-t1-stage'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // WHY: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
 const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-16` で描くこと（MUST）'
-const IX_14_ALL_ROWS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描く行のすべてを、上から下まで並べること（MUST）'
+const IX_14_ALL_TASK_GROUPS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描く行のすべてを、上から下まで並べること（MUST）'
 const IX_14_ZOOM_ONE = '行の高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
 const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとおりとする。⛔ 収めるために、行の高さ・1 日の幅・字の大きさを変えてはならない（MUST NOT）'
 const IX_16 = '| IX-16 | 期間の絵に描く UI パーツ | 表 T-076 に従うこと（MUST）'
@@ -57,7 +57,7 @@ test.afterAll(async () => {
 async function stageWith(rows: number, settings: Readonly<Record<string, unknown>>): Promise<Stage> {
   if (browser === null) throw new Error('no browser')
   const opened = await openStage(browser)
-  await openDocument(opened.page, 'w3-t1-span.json', rowsDocument({ rows, settings }))
+  await openDocument(opened.page, 'w3-t1-span.json', taskGroupsDocument({ rows, settings }))
   return opened
 }
 
@@ -104,7 +104,7 @@ function heightOf(svg: string): number {
 }
 
 /** @purity semi-pure-b */
-async function screenRowPitch(page: Page): Promise<number> {
+async function screenTaskGroupPitch(page: Page): Promise<number> {
   return page.evaluate(() => {
     const tops = [...document.querySelectorAll('[data-depth]')]
       .map((one) => one.getBoundingClientRect())
@@ -117,7 +117,7 @@ async function screenRowPitch(page: Page): Promise<number> {
 
 test.describe('W3-T1 the manuscript these cases are driven by', () => {
   test('IX-12, IX-14, IX-15, IX-16 and FR-096 still read this way', () => {
-    for (const clause of [IX_12, IX_14_ALL_ROWS, IX_14_ZOOM_ONE, IX_15_NO_FIT, IX_16, FR_096_SPAN, FR_096_GAP, EP_3_NO_DOM, WB_10_MOVE, FR_077_NO_FLOOR]) {
+    for (const clause of [IX_12, IX_14_ALL_TASK_GROUPS, IX_14_ZOOM_ONE, IX_15_NO_FIT, IX_16, FR_096_SPAN, FR_096_GAP, EP_3_NO_DOM, WB_10_MOVE, FR_077_NO_FLOOR]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
     expect(SPAN_WORDS.en, 'premise: the dictionary holds the fitSpan word').toContain('{start}')
@@ -128,7 +128,7 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
 test.describe('FR-025 the export span picture on the shipped build', () => {
   test.setTimeout(240_000)
 
-  test(`IX-14 (MUST): ${IX_14_ALL_ROWS.slice(-40)} -- 80 rows, every row in the span picture`, async () => {
+  test(`IX-14 (MUST): ${IX_14_ALL_TASK_GROUPS.slice(-40)} -- 80 rows, every row in the span picture`, async () => {
     const opened = await stageWith(80, {})
     try {
       const without = await pictureOf(opened.page)
@@ -150,13 +150,13 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   test(`IX-14 (MUST): ${IX_14_ZOOM_ONE.slice(-40)} -- the screen zoomed to 2 leaves the picture's row pitch at the zoom-1 pitch`, async () => {
     const opened = await stageWith(30, { ...SPAN_28, fitSpanFixed: true })
     try {
-      const pitchAtOne = await screenRowPitch(opened.page)
+      const pitchAtOne = await screenTaskGroupPitch(opened.page)
       const first = await pictureOf(opened.page)
       const pictured = (textYOf(first, 'Row 02') ?? NaN) - (textYOf(first, 'Row 01') ?? NaN)
       expect(pictured).toBeCloseTo(pitchAtOne, 1)
       await applyCommandsOf(opened.page, [{ kind: 'setZoom', zoomX: 1, zoomY: 2 }])
       await settle(opened.page)
-      const pitchAtTwo = await screenRowPitch(opened.page)
+      const pitchAtTwo = await screenTaskGroupPitch(opened.page)
       expect(pitchAtTwo, 'premise: the screen rows grew with the zoom').toBeGreaterThan(pitchAtOne * 1.5)
       const second = await pictureOf(opened.page)
       expect((textYOf(second, 'Row 02') ?? NaN) - (textYOf(second, 'Row 01') ?? NaN)).toBeCloseTo(pitchAtOne, 1)
@@ -166,7 +166,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
     }
   })
 
-  test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Row Area over the span's days, whatever the window`, async () => {
+  test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Task Group Area over the span's days, whatever the window`, async () => {
     const opened = await stageWith(12, { ...SPAN_28, fitSpanFixed: true })
     try {
       const at28 = await pictureOf(opened.page)
@@ -182,8 +182,8 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       const at14 = await pictureOf(opened.page)
       const bar14 = planOf(at14, 1)
       const day14 = (bar14.right - bar14.left) / 3
-      expect(bar14.left, 'the span start sits on the Row Area left edge both times').toBeCloseTo(bar28.left, 1)
-      expect(14 * day14, 'one Row Area width, divided by 14 or by 28 days').toBeCloseTo(28 * day28, 0)
+      expect(bar14.left, 'the span start sits on the Task Group Area left edge both times').toBeCloseTo(bar28.left, 1)
+      expect(14 * day14, 'one Task Group Area width, divided by 14 or by 28 days').toBeCloseTo(28 * day28, 0)
     } finally {
       await opened.close()
     }
@@ -205,16 +205,16 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       expect(pitch(manyPicture), 'the row height').toBeCloseTo(pitch(fewPicture), 2)
       const width = (svg: string): number => planOf(svg, 1).right - planOf(svg, 1).left
       expect(width(manyPicture), 'the day width').toBeCloseTo(width(fewPicture), 2)
-      expect(fontSizeOf(manyPicture, 'Row 01'), 'the row title type').toBe(fontSizeOf(fewPicture, 'Row 01'))
+      expect(fontSizeOf(manyPicture, 'Row 01'), 'the task group title type').toBe(fontSizeOf(fewPicture, 'Row 01'))
       expect(fontSizeOf(manyPicture, 'Task 01'), 'the name label type').toBe(fontSizeOf(fewPicture, 'Task 01'))
     } finally {
       await many.close()
     }
-    const rowsPastTheCap = Math.ceil(S_217 / 10)
-    const tall = await stageWith(rowsPastTheCap, { ...SPAN_28, fitSpanFixed: true })
+    const taskGroupsPastTheCap = Math.ceil(S_217 / 10)
+    const tall = await stageWith(taskGroupsPastTheCap, { ...SPAN_28, fitSpanFixed: true })
     try {
       const answer = await exportSvgOf(tall.page)
-      expect(answer.ok, `IX-5: ${rowsPastTheCap} rows do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
+      expect(answer.ok, `IX-5: ${taskGroupsPastTheCap} rows do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
     } finally {
       await tall.close()
     }
@@ -230,7 +230,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       expect(paletteWords.length, 'premise: the Command Palette is open on the screen').toBeGreaterThan(0)
       const svg = await pictureOf(opened.page)
       expect(textYOf(svg, 'Span plan'), 'EP-1: the Document Title').not.toBeNull()
-      expect(textYOf(svg, 'Row 12'), 'EP-3: the Row Title Panel').not.toBeNull()
+      expect(textYOf(svg, 'Row 12'), 'EP-3: the Task Group Panel').not.toBeNull()
       expect(svg, 'EP-5: the task bars').toContain('data-figure="task-12-plan"')
       const texts = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)].map((one) => one[1] ?? '')
       expect(texts.filter((one) => paletteWords.includes(one)), 'EP-11: no palette command').toEqual([])
@@ -305,7 +305,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
 test.describe(`EP-3 (MUST NOT): ${EP_3_NO_DOM.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
-  test('every exported row name stands its own type size below the top of its row title box', async () => {
+  test('every exported task group name stands its own type size below the top of its task group title box', async () => {
     const opened = await stageWith(12, {})
     try {
       const tops = await opened.page.evaluate(() =>

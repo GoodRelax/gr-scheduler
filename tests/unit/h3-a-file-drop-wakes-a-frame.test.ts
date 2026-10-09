@@ -20,7 +20,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
-import { DESIGN, REQUIREMENTS, rowDocument, SCREEN } from './cr-541-stage'
+import { DESIGN, REQUIREMENTS, taskGroupDocument, SCREEN } from './cr-541-stage'
 
 // see T-078
 const FT_1_DROP = '人の入力（ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の `OP-2`）'
@@ -67,12 +67,12 @@ const OPEN_CHOOSER = ((): string => {
   return name
 })()
 
-const HERE_ROW = 'aaaaaaaa-0000-4000-8000-00000000000a'
-const THERE_ROW = 'bbbbbbbb-0000-4000-8000-00000000000b'
+const HERE_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-00000000000a'
+const THERE_TASK_GROUP = 'bbbbbbbb-0000-4000-8000-00000000000b'
 const THERE_UID = 11
 
 const here = (): Document => {
-  const draft = rowDocument([{ id: HERE_ROW, parentId: null }])
+  const draft = taskGroupDocument([{ id: HERE_TASK_GROUP, parentId: null }])
   draft.schedule.project.title = 'Here'
   return draft as unknown as Document
 }
@@ -80,7 +80,7 @@ const here = (): Document => {
 // WHY: no uid is shared with here(), so FR-022 has no merge candidate and OP-3
 // is the only question the drop can raise.
 const there = (): Document => {
-  const draft = rowDocument([{ id: THERE_ROW, parentId: null }])
+  const draft = taskGroupDocument([{ id: THERE_TASK_GROUP, parentId: null }])
   draft.schedule.project.title = 'There'
   draft.schedule.tasks[0].uid = THERE_UID
   draft.schedule.tasks[0].wbsOrder = THERE_UID

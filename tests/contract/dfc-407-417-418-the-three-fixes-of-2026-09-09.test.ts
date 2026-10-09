@@ -59,7 +59,7 @@ import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
-const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.
@@ -103,7 +103,7 @@ const EVERY_DAY_WORKED = {
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
   ({
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: null,
     name: null,
     start: null,
@@ -313,7 +313,7 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
     for (const glyph of GLYPHS) {
       const out = editTask(document(), {
         kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph,
-      } as never, DEFAULT_ROW_NAME_FIXTURE)
+      } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
       expect(out.ok, `${glyph} was refused`).toBe(true)
     }
   })
@@ -321,14 +321,14 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
   it('refuses a word that is not one of them (AG-5)', () => {
     const out = editTask(document(), {
       kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph: 'NOT-A-GLYPH',
-    } as never, DEFAULT_ROW_NAME_FIXTURE)
+    } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
     expect(out.ok).toBe(false)
   })
 
   it('still clears the column, which is not an unknown word (AT-101)', () => {
     const out = editTask(document(), {
       kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph: null,
-    } as never, DEFAULT_ROW_NAME_FIXTURE)
+    } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
     expect(out.ok).toBe(true)
   })
 })

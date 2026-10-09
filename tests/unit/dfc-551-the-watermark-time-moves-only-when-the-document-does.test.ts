@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { installAgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
-import { keyOf, rowDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { keyOf, taskGroupDocument, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const benches: ShellBench[] = []
 
@@ -19,7 +19,7 @@ const iso = (hour: number, minute = 0): string => new Date(Date.UTC(2026, 9, 8, 
 const at = (hour: number, minute = 0): void => void vi.setSystemTime(Date.UTC(2026, 9, 8, hour, minute, 0))
 
 const benchOf = (): ShellBench => {
-  const built = shell(rowDocument([{ id: 'g1', parentId: null }]))
+  const built = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
   benches.push(built)
   return built
 }

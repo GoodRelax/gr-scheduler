@@ -194,7 +194,7 @@ describe('the values table T-206 keeps out of the document', () => {
     ...NOT_STORED_ZOOM_STEP,
     ...generatedConstantOf('src/adapter/screen-renderer/command-palette.ts', 'NOT_STORED_COMMAND_PALETTE_SIZES'),
     ...generatedConstantOf('src/adapter/screen-renderer/properties-panel.ts', 'NOT_STORED_PROPERTY_CONTROL_SIZES'),
-    ...generatedConstantOf('src/adapter/screen-renderer/row-title-panel.ts', 'NOT_STORED_ROW_CONTROL_SIZES'),
+    ...generatedConstantOf('src/adapter/screen-renderer/task-group-panel.ts', 'NOT_STORED_TASK_GROUP_CONTROL_SIZES'),
     ...generatedConstantOf('src/adapter/screen-renderer/screen-frame.ts', 'NOT_STORED_PANEL_DIVIDER_SIZES'),
     ...NOT_STORED_SELECTION_SIZES,
     ...generatedConstantOf('src/entity/layout-engine/schedule-layout/schedule-layout.ts', 'NOT_STORED_DUMMY_SIZES'),

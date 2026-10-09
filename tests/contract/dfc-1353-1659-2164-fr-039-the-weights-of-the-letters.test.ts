@@ -65,12 +65,12 @@ const VIEW = {
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: {
+  taskGroupPanel: {
     pinnedTitles: [],
     titles: [
       {
         groupId: 'g1', depth: 1, fontPx: 20, indentPx: 4, box: { x: 0, y: 100, width: 300, height: 40 },
-        label: 'a row name', wholeLabel: 'a row name', isLabelTruncated: false,
+        label: 'a task group name', wholeLabel: 'a task group name', isLabelTruncated: false,
         expander: { canOpen: true, canClose: true, canCloseBelow: false }, isPinned: false, isSelected: false,
       },
     ],
@@ -109,10 +109,10 @@ describe('DFC-1353: the Document Title is drawn S-463 bold on the screen and in 
     const regions: ScreenRegions = {
       appHeader: { x: 0, y: 0, width: 1000, height: 56 },
       scheduleCanvas: { x: 0, y: 56, width: 1000, height: 744 },
-      rowTitlePanel: { x: 0, y: 56, width: settings.rowTitlePanelWidth, height: 744 },
-      timeRuler: { x: settings.rowTitlePanelWidth, y: 56, width: 1000 - settings.rowTitlePanelWidth, height: settings.rulerHeight },
+      taskGroupPanel: { x: 0, y: 56, width: settings.taskGroupPanelWidth, height: 744 },
+      timeRuler: { x: settings.taskGroupPanelWidth, y: 56, width: 1000 - settings.taskGroupPanelWidth, height: settings.rulerHeight },
       propertiesPanel: { x: 1000, y: 56, width: 0, height: 744 },
-      rowArea: { x: settings.rowTitlePanelWidth, y: 56 + settings.rulerHeight, width: 1000 - settings.rowTitlePanelWidth, height: 700 },
+      taskGroupArea: { x: settings.taskGroupPanelWidth, y: 56 + settings.rulerHeight, width: 1000 - settings.taskGroupPanelWidth, height: 700 },
     }
     const scene = {
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="11" r="3"/></svg>',
@@ -163,7 +163,7 @@ const SEARCH_SCHEDULE = {
   tasks: [1, 2, 3].map((uid) => ({
     ...firstOf('tasks'),
     uid,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: uid,
     name: `task ${uid}`,
     start: `2026-01-0${uid}T00:00:00`,
@@ -177,8 +177,8 @@ const SEARCH_SCHEDULE = {
     percentComplete: null,
     dependencies: [],
   })),
-  taskGroups: [{ ...firstOf('taskGroups'), id: 'row-top', parentId: null, order: 0, label: 'Program', derivedFromTaskUid: null, treeState: 'expanded' }],
-  taskGroupMembers: [1, 2, 3].map((uid) => ({ taskUid: uid, groupId: 'row-top' })),
+  taskGroups: [{ ...firstOf('taskGroups'), id: 'task-group-top', parentId: null, order: 0, label: 'Program', derivedFromTaskUid: null, treeState: 'expanded' }],
+  taskGroupMembers: [1, 2, 3].map((uid) => ({ taskUid: uid, groupId: 'task-group-top' })),
   resources: [],
   assignments: [],
   commentBoxes: [],

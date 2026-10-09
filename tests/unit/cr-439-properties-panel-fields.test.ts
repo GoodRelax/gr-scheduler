@@ -112,7 +112,7 @@ function viewWith(panel: PropertiesPanel | null): ScreenView {
       commands: [],
       language: 'ja',
     },
-    rowTitlePanel: { pinnedTitles: [], titles: [] },
+    taskGroupPanel: { pinnedTitles: [], titles: [] },
     propertiesPanel: panel,
     commandPalette: null,
     openModal: null,

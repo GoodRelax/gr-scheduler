@@ -133,7 +133,7 @@ const iso = (day: number): string => new Date(Date.UTC(2026, 1, 2) + day * 86400
 
 const taskOf = (uid: number, start: number, days: number, links: readonly number[] = []): Loose => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: null,
   name: `t${uid}`,
   start: iso(start),
@@ -170,7 +170,7 @@ const TASKS: readonly (readonly [Loose, string])[] = [
   [taskOf(2, 8, 5, [1]), 'z'],
 ]
 const HEAD_ROW = 'a'
-const FAR_ROW = 'z'
+const FAR_TASK_GROUP = 'z'
 const FIRST_DAY = iso(0)
 
 const SCHEDULE = {
@@ -213,7 +213,7 @@ const REGIONS: Regions = regionsFromScreen(ENVIRONMENT as unknown as Environment
 interface Scene {
   readonly stored: Loose
   readonly drawn: Loose
-  readonly rowArea: Rect
+  readonly taskGroupArea: Rect
   readonly placements: readonly Placement[]
   readonly lines: readonly Line[]
   readonly context: InputContext
@@ -241,14 +241,14 @@ const sceneOf = (stored: Loose, drawn: Loose): Scene => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
   return {
     stored,
     drawn,
-    rowArea: (regions as unknown as { readonly rowArea: Rect }).rowArea,
+    taskGroupArea: (regions as unknown as { readonly taskGroupArea: Rect }).taskGroupArea,
     placements: (layout as unknown as { readonly placements: readonly Placement[] }).placements,
     lines: geometry.dependencies as unknown as readonly Line[],
     context,
@@ -362,8 +362,8 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
       const far = scene.placements.find((one) => one.taskUid === 2)
       expect(far, 'premise: Task 2 is laid out (depth 1, not hidden by the LOD)').toBeDefined()
       expect(
-        far!.x >= scene.rowArea.x && far!.x + far!.width <= scene.rowArea.x + scene.rowArea.width,
-        'premise: Task 2 lies inside the Row Area across',
+        far!.x >= scene.taskGroupArea.x && far!.x + far!.width <= scene.taskGroupArea.x + scene.taskGroupArea.width,
+        'premise: Task 2 lies inside the Task Group Area across',
       ).toBe(true)
       const { press } = stillClickOn(scene)
       expect(press.hit?.grab, `premise: the still press lands on GA-24 (${PE_12_SEND})`).toBe('GA-24')
@@ -375,7 +375,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
       expect(onlyOf(writes, SET_ZOOM), 'the far end is drawn, so EL-10 does not apply').toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78)`).toBe(FAR_ROW)
+      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
       expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
     })
 
@@ -405,7 +405,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
     const shell = bootShell()
     const view = shell.viewSettingsOnce(documentOf(TEMPLATE_SETTINGS), TEMPLATE_SETTINGS as unknown as DocumentSettings, REGIONS)
     const margin = settingNumber('S-134') / 2 + settingNumber('S-268') / 2
-    const drawnFirst = dateAtX(timeAxisOf(view.settings, REGIONS), REGIONS.rowArea.x + margin)
+    const drawnFirst = dateAtX(timeAxisOf(view.settings, REGIONS), REGIONS.taskGroupArea.x + margin)
     const drawnText = drawnFirst === null ? null : new Date(Date.UTC(drawnFirst.year, drawnFirst.month - 1, drawnFirst.day)).toISOString()
     expect(dayOf(drawnText), OP_10_FIRST_DAY).toBe(FIRST_DAY)
     expect(view.settings.scrollGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_ROW)
@@ -421,7 +421,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
       shell.viewSettingsOnce(documentOf(scene.stored), scene.stored as unknown as DocumentSettings, REGIONS)
       const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       const view = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
-      expect(view.settings.scrollGroupId, `${OP_10_CHOICE}; ${EL_12_HOW} (S-78)`).toBe(FAR_ROW)
+      expect(view.settings.scrollGroupId, `${OP_10_CHOICE}; ${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
       expect(view.settings.scrollGroupOffset, `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(view.settings.scrollDate), `${EL_11_STAY}`).toBe(dayOf(scene.drawn['scrollDate']))
     })
@@ -433,7 +433,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
       const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
       const again = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
-      expect(again.settings.scrollGroupId, OP_10_NOT_REDONE).toBe(FAR_ROW)
+      expect(again.settings.scrollGroupId, OP_10_NOT_REDONE).toBe(FAR_TASK_GROUP)
     })
   }
 })

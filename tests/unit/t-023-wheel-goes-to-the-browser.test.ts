@@ -298,18 +298,18 @@ const CHILD = 2
  * `Task` with WBS descendants ask for confirmation, and that question is the
  * only `Confirmation` (U-55) these cases can raise without drawing a panel.
  */
-function twoRowDocument(): Document {
+function twoTaskGroupDocument(): Document {
   const template = structuredClone(TEMPLATE) as any
   const task = (
     uid: number,
-    wbsParentUid: number | null,
+    parentTaskUid: number | null,
     start: string,
     finish: string,
     name: string,
   ): Task =>
     ({
       uid,
-      wbsParentUid,
+      parentTaskUid,
       wbsOrder: uid,
       name,
       start,
@@ -463,7 +463,7 @@ const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に�
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
-  /** One turn of the wheel over the `Row Area`, spelt for one handed-over row. */
+  /** One turn of the wheel over the `Task Group Area`, spelt for one handed-over row. */
   wheel(modifiers: InputModifiers, sign?: 1 | -1): WheelInput
   /** MK-10's answer for one happening, asked before the loop hears it. */
   stops(input: HumanInput): boolean
@@ -479,7 +479,7 @@ interface Stage {
 function stage(): Stage {
   const pen = host()
   const screen = screenPane()
-  const loop = frameLoop(pen.surface, twoRowDocument(), SCREEN, screen.wiring)
+  const loop = frameLoop(pen.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
   pen.runAnimationFrames()
   const regions = () => {
     const values = loop.current()
@@ -499,8 +499,8 @@ function stage(): Stage {
      */
     wheel: (modifiers, sign = 1) => ({
       kind: 'wheel',
-      x: regions().rowArea.x + 40,
-      y: regions().rowArea.y + 40,
+      x: regions().taskGroupArea.x + 40,
+      y: regions().taskGroupArea.y + 40,
       modifiers,
       notches: sign,
       scrollPx: { x: 0, y: 120 * sign },
@@ -514,7 +514,7 @@ function stage(): Stage {
         part: HELP_MODAL,
         entry: 'IC-129',
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -616,11 +616,11 @@ describe('the manuscript still says what these cases read', () => {
     expect(assignmentOf('SK-11')).toEqual([['Ctrl', 'S']])
   })
 
-  it('the fixture is a valid GRS JSON document with a WBS parent on it', () => {
-    const made = twoRowDocument()
+  it('the fixture is a valid GRS JSON document with a parent task on it', () => {
+    const made = twoTaskGroupDocument()
     const report = validateDocument(made)
     expect(report.errors).toEqual([])
-    expect((made as any).schedule.tasks[1].wbsParentUid).toBe(PARENT)
+    expect((made as any).schedule.tasks[1].parentTaskUid).toBe(PARENT)
   })
 })
 
@@ -645,7 +645,7 @@ describe('the two ways a surface can stand, and the state with none', () => {
     // MK-1 is 「縦スクロール」 and MK-5 「横スクロール」, and FR-051 (MUST) has a
     // changed position land in `S-77` / `S-78`; MK-2 〜 MK-4 are zooms and land in
     // the zoom keys -- either way the document is where the assignment shows.
-    // WHY: T-262 ZE-2 / ZE-3 forbid writing a row-axis zoom at its end, so one direction may rightly move
+    // WHY: T-262 ZE-2 / ZE-3 forbid writing a vertical-axis zoom at its end, so one direction may rightly move
     // nothing; a build refusing every wheel still moves neither.
     for (const one of HANDED_OVER) {
       const moved = ([1, -1] as const).some((sign) => {

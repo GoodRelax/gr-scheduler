@@ -5,12 +5,12 @@
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
-import type { RowPlacement, ScheduleLayout, TaskPlacement } from './schedule-layout'
+import type { TaskGroupPlacement, ScheduleLayout, TaskPlacement } from './schedule-layout'
 
 // see FR-098, LF-14
 /** @purity pure */
 export function pinnedBandOf(
-  rowPlacements: readonly RowPlacement[],
+  taskGroupPlacements: readonly TaskGroupPlacement[],
   settings: DrawnSettings,
   regions: ScreenRegions,
 ): {
@@ -21,43 +21,43 @@ export function pinnedBandOf(
   readonly droppedPinnedIds: ReadonlySet<string>
   readonly shiftByGroupId: ReadonlyMap<string, number>
 } {
-  const placedById = new Map(rowPlacements.map((row) => [row.groupId, row] as const))
-  const banded: RowPlacement[] = []
+  const placedById = new Map(taskGroupPlacements.map((taskGroup) => [taskGroup.groupId, taskGroup] as const))
+  const banded: TaskGroupPlacement[] = []
   const seen = new Set<string>()
   for (const groupId of settings.pinnedGroupIds) {
     if (seen.has(groupId)) continue
-    const row = placedById.get(groupId)
-    if (row === undefined) continue
+    const taskGroup = placedById.get(groupId)
+    if (taskGroup === undefined) continue
     seen.add(groupId)
-    banded.push(row)
+    banded.push(taskGroup)
   }
 
   const shiftByGroupId = new Map<string, number>()
   const inBand = new Set<string>()
   const dropped = new Set<string>()
-  const rowAreaBottom = regions.rowArea.y + regions.rowArea.height
-  let bandY = regions.rowArea.y
-  for (const row of banded) {
-    if (dropped.size > 0 || bandY + row.height > rowAreaBottom) {
-      dropped.add(row.groupId)
+  const taskGroupAreaBottom = regions.taskGroupArea.y + regions.taskGroupArea.height
+  let bandY = regions.taskGroupArea.y
+  for (const taskGroup of banded) {
+    if (dropped.size > 0 || bandY + taskGroup.height > taskGroupAreaBottom) {
+      dropped.add(taskGroup.groupId)
       continue
     }
-    shiftByGroupId.set(row.groupId, bandY - row.y)
-    inBand.add(row.groupId)
-    bandY += row.height + settings.rowGap
+    shiftByGroupId.set(taskGroup.groupId, bandY - taskGroup.y)
+    inBand.add(taskGroup.groupId)
+    bandY += taskGroup.height + settings.taskGroupGap
   }
-  const height = Math.max(0, bandY - regions.rowArea.y - settings.rowGap)
+  const height = Math.max(0, bandY - regions.taskGroupArea.y - settings.taskGroupGap)
   // TRAP: inBand, not banded: with every pin dropped there is no band and no gap.
-  const scrollAreaY = regions.rowArea.y + (inBand.size === 0 ? 0 : height + settings.rowGap)
+  const scrollAreaY = regions.taskGroupArea.y + (inBand.size === 0 ? 0 : height + settings.taskGroupGap)
 
   let scrollY = scrollAreaY
-  for (const row of rowPlacements) {
+  for (const taskGroup of taskGroupPlacements) {
     // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling row.
-    if (seen.has(row.groupId)) continue
-    shiftByGroupId.set(row.groupId, scrollY - row.y)
-    scrollY += row.height + settings.rowGap
+    if (seen.has(taskGroup.groupId)) continue
+    shiftByGroupId.set(taskGroup.groupId, scrollY - taskGroup.y)
+    scrollY += taskGroup.height + settings.taskGroupGap
   }
-  const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.rowGap)
+  const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.taskGroupGap)
 
   return {
     height,
@@ -71,23 +71,23 @@ export function pinnedBandOf(
 
 // see FR-098
 /** @purity pure */
-export function liftedRows(
-  rowPlacements: readonly RowPlacement[],
+export function liftedTaskGroups(
+  taskGroupPlacements: readonly TaskGroupPlacement[],
   band: {
     readonly pinnedIdsPlaced: ReadonlySet<string>
     readonly droppedPinnedIds: ReadonlySet<string>
     readonly shiftByGroupId: ReadonlyMap<string, number>
   },
-): readonly RowPlacement[] {
-  const kept = rowPlacements.filter((row) => !band.droppedPinnedIds.has(row.groupId))
-  return kept.map((row) => {
-    const shift = band.shiftByGroupId.get(row.groupId) ?? 0
-    const isPinned = band.pinnedIdsPlaced.has(row.groupId)
-    if (shift === 0 && !isPinned) return row
+): readonly TaskGroupPlacement[] {
+  const kept = taskGroupPlacements.filter((taskGroup) => !band.droppedPinnedIds.has(taskGroup.groupId))
+  return kept.map((taskGroup) => {
+    const shift = band.shiftByGroupId.get(taskGroup.groupId) ?? 0
+    const isPinned = band.pinnedIdsPlaced.has(taskGroup.groupId)
+    if (shift === 0 && !isPinned) return taskGroup
     return {
-      ...row,
-      y: row.y + shift,
-      stackTops: row.stackTops.map((top) => top + shift),
+      ...taskGroup,
+      y: taskGroup.y + shift,
+      stackTops: taskGroup.stackTops.map((top) => top + shift),
       isPinned,
     }
   })
@@ -109,8 +109,8 @@ export function shiftedPlacements(
 // see SJ-8
 // WHY: a row the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
 /** @purity pure */
-export function hasRoomBelowPinsIn(layout: ScheduleLayout, rowArea: ScreenRect, groupId: string | null): boolean {
-  const room = rowArea.height - (layout.pinnedBandHeight ?? 0)
-  const drawn = groupId === null ? undefined : layout.rows.find((row) => row.groupId === groupId)
+export function hasRoomBelowPinsIn(layout: ScheduleLayout, taskGroupArea: ScreenRect, groupId: string | null): boolean {
+  const room = taskGroupArea.height - (layout.pinnedBandHeight ?? 0)
+  const drawn = groupId === null ? undefined : layout.taskGroups.find((taskGroup) => taskGroup.groupId === groupId)
   return drawn === undefined ? room > 0 : room >= drawn.height
 }

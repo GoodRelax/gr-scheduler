@@ -30,22 +30,22 @@ import type {
 import {
   KEY,
   escapeContextOf,
-  grabRowOf,
+  grabTaskGroupOf,
   hasDraggedPastThreshold,
   isDateKeepingDrag,
   isCombo,
-  isOnRowArea,
+  isOnTaskGroupArea,
   isParentPickingCtrlClick,
   isSwallowedSecondPress,
   pressRowOf,
-  type GrabRow,
+  type GrabTaskGroup,
   type InputContext,
   type PointerPress,
 } from './input-command-translator'
 import { isContinuationMarkClick } from './item-grab'
 
 // see PE-1, PE-6
-const BODY_GRAB_ROWS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
+const BODY_GRAB_TASK_GROUPS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
 
 /** @purity pure */
 function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
@@ -66,8 +66,8 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
       return { kind: 'commentBox', id: item.id }
     case 'statusLine':
       return { kind: 'statusLine' }
-    case 'wbsParentLink':
-      return item.isStated ? { kind: 'wbsParentLink', childUid: item.childUid } : null
+    case 'parentTaskLink':
+      return item.isStated ? { kind: 'parentTaskLink', childUid: item.childUid } : null
   }
 }
 
@@ -126,18 +126,18 @@ function chartPressOf(context: InputContext): PointerPress | null {
   return isSwallowedSecondPress(press, context) ? null : press
 }
 
-// see T-023a, SL-4, WL-3, WL-10
+// see T-023a, SL-4, PTL-3, PTL-10
 /** @purity pure */
 function pickRowOf(press: PointerPress, release: PointerInput, context: InputContext): string {
   return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressRowOf(press, context)
 }
 
-// see SL-7, WL-5
+// see SL-7, PTL-5
 /** @purity pure */
-function isChoiceKeptByDrag(grab: GrabRow, ref: ItemRef, press: PointerPress, release: PointerInput,
+function isChoiceKeptByDrag(grab: GrabTaskGroup, ref: ItemRef, press: PointerPress, release: PointerInput,
                            context: InputContext): boolean {
-  const isArmedForParents = context.screen.armModeState.kind === 'wbsParentArmed'
-  const isDragGrab = BODY_GRAB_ROWS.has(grab) || isArmedForParents
+  const isArmedForParents = context.screen.armModeState.kind === 'parentTaskArmed'
+  const isDragGrab = BODY_GRAB_TASK_GROUPS.has(grab) || isArmedForParents
   return isDragGrab && isSelected(context.selection, ref) && hasDraggedPastThreshold(press, release)
 }
 
@@ -145,16 +145,16 @@ function isChoiceKeptByDrag(grab: GrabRow, ref: ItemRef, press: PointerPress, re
 /** @purity pure */
 function isShiftBodyMove(press: PointerPress, release: PointerInput, context: InputContext): boolean {
   const armed = context.screen.armModeState.kind
-  const isMoveArm = armed !== 'dependencyArmed' && armed !== 'wbsParentArmed'
+  const isMoveArm = armed !== 'dependencyArmed' && armed !== 'parentTaskArmed'
   return isMoveArm && isDateKeepingDrag(press) && hasDraggedPastThreshold(press, release)
 }
 
 // see SL-2, SL-7, T-270
 /** @purity pure */
 function selectionAfterDrag(press: PointerPress, release: PointerInput, context: InputContext,
-                            grab: GrabRow, ref: ItemRef): Selection {
+                            grab: GrabTaskGroup, ref: ItemRef): Selection {
   if (isChoiceKeptByDrag(grab, ref, press, release, context)) return context.selection
-  const isJoining = BODY_GRAB_ROWS.has(grab) && isShiftBodyMove(press, release, context)
+  const isJoining = BODY_GRAB_TASK_GROUPS.has(grab) && isShiftBodyMove(press, release, context)
   return selectionWith(isJoining ? context.selection : emptySelection(), ref)
 }
 
@@ -208,13 +208,13 @@ export function selectionFromInput(
 
   const press = chartPressOf(context)
   if (press === null) return held
-  if (!isOnRowArea(context, press.at.x, press.at.y)) return held
+  if (!isOnTaskGroupArea(context, press.at.x, press.at.y)) return held
 
   const isAdding = press.at.modifiers.shift || isParentPickingCtrlClick(press, input, context)
 
   switch (pickRowOf(press, input, context)) {
     case 'PTD-3': {
-      const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
+      const grab: GrabTaskGroup | null = press.hit === null ? null : grabTaskGroupOf(press.hit)
       const ref = press.hit === null ? null : pickableRefOf(context, press.hit.item)
       if (isContinuationMarkClick(press, input)) return emptySelection()
       if (ref === null || grab === null) return held

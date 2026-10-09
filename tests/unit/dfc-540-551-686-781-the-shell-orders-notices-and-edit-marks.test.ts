@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-renderer'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
-import { keyOf, rowDocument, SCREEN, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
+import { keyOf, taskGroupDocument, SCREEN, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
 const benches: ShellBench[] = []
 afterEach(() => {
@@ -13,7 +13,7 @@ afterEach(() => {
 })
 
 const benchOf = (rows = 2): ShellBench => {
-  const built = shell(rowDocument(Array.from({ length: rows }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))))
+  const built = shell(taskGroupDocument(Array.from({ length: rows }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))))
   benches.push(built)
   return built
 }
@@ -88,13 +88,13 @@ describe('BO-1 (DFC-551 1) -- no picture before the dimensions settle, and one r
         readFieldEditNotices: () => [],
         readScreenPartAt: () => null,
       }
-      const loop = frameLoop({ showSvg: () => undefined } as never, rowDocument([{ id: 'g1', parentId: null }]) as never, SCREEN, {
+      const loop = frameLoop({ showSvg: () => undefined } as never, taskGroupDocument([{ id: 'g1', parentId: null }]) as never, SCREEN, {
         surface: surface as never,
         language: 'ja',
       })
       const settled = { ...SCREEN, width: 1000 }
       loop.settleFirstFrameEnvironment(settled)
-      const area = loop.current()?.regions.rowArea
+      const area = loop.current()?.regions.taskGroupArea
       expect(area, 'BO-1: the settled frame is drawn when the call returns').toBeDefined()
       expect((area?.x ?? 0) + (area?.width ?? Infinity), 'BO-1: and it is drawn at the settled width').toBeLessThanOrEqual(settled.width)
       expect(views.length).toBeGreaterThan(0)
@@ -131,7 +131,7 @@ describe('FR-100 (DFC-781) -- an Agent API write is an unsaved edit like a perso
 })
 
 const dismissPart = (key: string): ScreenPart =>
-  ({ part: 'Notification Area', entry: null, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: key }) as ScreenPart
+  ({ part: 'Notification Area', entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: key }) as ScreenPart
 
 describe('NT-8 / IN-1 (DFC-555, DFC-686) -- the dismiss entrance of a notice', () => {
   it('releasing on the dismiss entrance of the older notice removes that notice and not the newer one', () => {

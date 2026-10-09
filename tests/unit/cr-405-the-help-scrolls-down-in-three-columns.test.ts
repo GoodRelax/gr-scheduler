@@ -51,7 +51,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-036 (MUST) -- the frame line and every space around it (CR-622)', 'どれも `_assets/tbl-settings.md` の 表 T-206 の `S-457` とし、枠の線は 表 T-236 の `S-149` の色、表 T-206 の `S-437` の太さとすること（MUST）。'],
   ['FR-036 (MUST) -- group lines stay inside the Command Palette block (CR-622)', '`Command Palette` の塊の中の群の境目は、線で示すこと（MUST）。'],
   ['FR-036 (MUST NOT) -- the rows the help leaves off (CR-635, CR-665)', '・`Holiday Settings`・`Dialogue Field`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'],
-  ['FR-036 (MUST) -- the palette group T-256 names moves under the Row Title Panel (CR-665)', '⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Row Title Panel` の塊の下の塊へ移すこと（MUST）'],
+  ['FR-036 (MUST) -- the palette group T-256 names moves under the Task Group Panel (CR-665)', '⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'],
   ['FR-036 (MUST) -- an assignment whose entrance is left off sits with the ones that have none (CR-637)', '⭐ 入口の項目が段に載らない割当は、上の「入口の項目の割当の場所に置く」に代えて、入口を持たない割当と同じ塊に置くこと（MUST）'],
 ]
 
@@ -184,8 +184,8 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     expect(S_202).toBe(T_256.rows.length)
   })
 
-  it('T-256 names basics and browser, then App Header, then Row Title Panel and the palette continued, then Command Palette', () => {
-    expect(COLUMNS).toEqual([[BASICS, BROWSER], ['App Header'], ['Row Title Panel', PALETTE_CONTINUED], [PALETTE]])
+  it('T-256 names basics and browser, then App Header, then Task Group Panel and the palette continued, then Command Palette', () => {
+    expect(COLUMNS).toEqual([[BASICS, BROWSER], ['App Header'], ['Task Group Panel', PALETTE_CONTINUED], [PALETTE]])
   })
 
   it('T-256 moves one palette group, and T-109 holds rows of that group on the palette (CR-665)', () => {
@@ -201,7 +201,7 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     expect(LEFT_OFF_SURFACES).toContain('Search Panel')
     expect(LEFT_OFF_SURFACES).toContain('Open Chooser')
     expect(LEFT_OFF_SURFACES).toContain('Difference Review')
-    expect(LEFT_OFF_SURFACES).not.toContain('Row Title Panel')
+    expect(LEFT_OFF_SURFACES).not.toContain('Task Group Panel')
     expect(BASIC_ROWS.has('SK-8')).toBe(true)
   })
 
@@ -285,7 +285,7 @@ const EMPTY_VIEW: ScreenView = {
     documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null,
     fileNeverSavedText: '', commands: [], language: 'en',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,

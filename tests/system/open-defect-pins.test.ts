@@ -1,7 +1,7 @@
 // System test: pins for open ledger rows, driven against the live app (DFC-06, DFC-147, DFC-182, DFC-232).
 
 // WHY: not driven through `npm run parity` -- that harness compares against a
-// rows-only sample with no task bars, canvas or watermark to press.
+// task-groups-only sample with no task bars, canvas or watermark to press.
 
 // WHY: each pinned case is `test.fail()` so the run stays green while the row
 // is open, and turns "expected to fail, but passed" the day it is fixed.
@@ -133,7 +133,7 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const NOTICES = '[data-role="Notification Area"]'
-const PANEL = '[data-role="Row Title Panel"]'
+const PANEL = '[data-role="Task Group Panel"]'
 
 interface Box {
   readonly x: number
@@ -279,7 +279,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 // WHY: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a row
 // (its own band is always topmost), so this reads the cursor PTD-5 sets there.
 /** @purity non-pure */
-async function emptyPointOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
+async function emptyPointOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     /** @purity semi-pure-b */
     (asked: { panel: string; reach: number }) => {
@@ -429,7 +429,7 @@ test('control for DFC-06: with the rectangle entrance armed, the same drag on th
 }) => {
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
-  const spot = await emptyPointOnADrawnRow(app.page)
+  const spot = await emptyPointOnADrawnTaskGroup(app.page)
   expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 
@@ -458,7 +458,7 @@ test('DFC-06: with the comment box entrance armed, a press on empty canvas place
 }) => {
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
-  const spot = await emptyPointOnADrawnRow(app.page)
+  const spot = await emptyPointOnADrawnTaskGroup(app.page)
   expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 

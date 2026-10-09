@@ -21,12 +21,12 @@ import {
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
-import { pointerOf, rowDocument, taskOf, SCREEN } from './cr-541-stage'
+import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
-const rowIn = (table: string, id: string) => {
+const verticalIn = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
@@ -38,29 +38,29 @@ const numberOf = (cell: string): number => {
   return value
 }
 const lightOf = (id: string): string => {
-  const found = /#[0-9a-fA-F]{6}/.exec(rowIn('T-236', id).by['明るいテーマ'] ?? '')
+  const found = /#[0-9a-fA-F]{6}/.exec(verticalIn('T-236', id).by['明るいテーマ'] ?? '')
   if (found === null) throw new Error(`table T-236 row ${id} holds no light colour`)
   return found[0].toLowerCase()
 }
 
 // see S-332
-const S_332 = numberOf(rowIn('T-206', 'S-332').by['既定'] ?? '')
+const S_332 = numberOf(verticalIn('T-206', 'S-332').by['既定'] ?? '')
 // see S-333
-const S_333 = numberOf(rowIn('T-206', 'S-333').by['既定'] ?? '')
+const S_333 = numberOf(verticalIn('T-206', 'S-333').by['既定'] ?? '')
 // see S-194
-const S_194 = numberOf(rowIn('T-206', 'S-194').by['既定'] ?? '')
+const S_194 = numberOf(verticalIn('T-206', 'S-194').by['既定'] ?? '')
 // see S-334
-const S_334 = numberOf(rowIn('T-206', 'S-334').by['既定'] ?? '')
+const S_334 = numberOf(verticalIn('T-206', 'S-334').by['既定'] ?? '')
 // see S-340
-const S_340 = numberOf(rowIn('T-206', 'S-340').by['既定'] ?? '')
+const S_340 = numberOf(verticalIn('T-206', 'S-340').by['既定'] ?? '')
 // see S-163, S-195, S-183
 const S_163 = lightOf('S-163')
 const S_195 = lightOf('S-195')
 const S_183 = lightOf('S-183')
 // see S-30, LC-5
-const LABEL_COEF = numberOf(rowIn('T-201', 'S-30').by['既定値'] ?? '')
+const LABEL_COEF = numberOf(verticalIn('T-201', 'S-30').by['既定値'] ?? '')
 // see S-66
-const GUIDE_VALUES = [...(rowIn('T-206', 'S-66').by['値'] ?? '').matchAll(/'([a-z-]+)'/g)].map((one) => one[1] as string)
+const GUIDE_VALUES = [...(verticalIn('T-206', 'S-66').by['値'] ?? '').matchAll(/'([a-z-]+)'/g)].map((one) => one[1] as string)
 const [GUIDE_NONE, GUIDE_CROSSHAIR, GUIDE_SINGLE] = GUIDE_VALUES as [string, string, string]
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -71,7 +71,7 @@ afterEach(() => {
 })
 
 const partOn = (part: string, entry: string | null, extra: Record<string, unknown> = {}): ScreenPart =>
-  ({ part, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, ...extra }) as unknown as ScreenPart
+  ({ part, entry, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, ...extra }) as unknown as ScreenPart
 
 interface Bench {
   readonly loop: FrameLoop
@@ -153,7 +153,7 @@ interface Seed {
 
 function documentOf(seeds: readonly Seed[], settings: Record<string, unknown> = {}) {
   const rows = seeds.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = rowDocument(rows, { progressMarkerVisible: false, ...settings })
+  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings })
   document.schedule.tasks = seeds.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00` }),
   )
@@ -166,14 +166,14 @@ const SEEDS: readonly Seed[] = [
   { name: 'Zeta, the task whose name ends the picture', start: '2026-06-15', finish: '2026-07-03' },
 ]
 
-const rowAreaOf = (loop: FrameLoop) => {
-  const area = loop.current()?.regions.rowArea
+const taskGroupAreaOf = (loop: FrameLoop) => {
+  const area = loop.current()?.regions.taskGroupArea
   if (area === undefined) throw new Error('the shell has no frame')
   return area
 }
 
 const FR_055_MARGIN =
-  '横は、表 T-038 に従って測った実寸の左右に、`Row Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること（MUST）'
+  '横は、表 T-038 に従って測った実寸の左右に、`Task Group Area` の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-332` を掛けた余白を片側ずつ残して収めること（MUST）'
 const FR_055_PICTURE = '横の実寸は、採った段と、その段が着地する縦の倍率で描いた絵で測ること（MUST）'
 const FR_055_NOT_SNAPPED = '日の境目へ切り捨ててはならない（MUST NOT）'
 
@@ -198,20 +198,20 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
     expect(REQUIREMENTS).toContain(FR_055_NOT_SNAPPED)
   })
 
-  it('FR-055: Row Area の幅に S-332 を掛けた余白を片側ずつ残して収める -- left and right', () => {
+  it('FR-055: Task Group Area の幅に S-332 を掛けた余白を片側ずつ残して収める -- left and right', () => {
     // see FR-055, S-332
     const built = fitted()
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     const margin = area.width * S_332
     const { left, right } = extentOf(built.loop)
     expect(left - area.x, 'the left margin').toBeCloseTo(margin, 0)
     expect(area.x + area.width - right, 'the right margin').toBeCloseTo(margin, 0)
   })
 
-  it('FR-055: no name label is cut at the right edge of the Row Area (the drawn label measured by LC-5)', () => {
+  it('FR-055: no name label is cut at the right edge of the Task Group Area (the drawn label measured by LC-5)', () => {
     // see FR-055, LC-5
     const built = fitted()
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     for (const found of built.svg().matchAll(/<text\b([^>]*)data-figure="task-\d+-label"[^>]*>([^<]*)</g)) {
       const attributes = found[1] ?? ''
       const x = Number(/\bx="([^"]+)"/.exec(attributes)?.[1])
@@ -224,7 +224,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   it('FR-055: 着地する縦の倍率で描いた絵で測る -- the margins hold with the OC-2 labels and the markers shown', () => {
     // see FR-055, OC-2
     const built = fitted({ percentCompleteVisible: true, progressMarkerVisible: true, planDatesVisible: true })
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     const margin = area.width * S_332
     const { left, right } = extentOf(built.loop)
     expect(left - area.x, 'the left margin').toBeCloseTo(margin, 0)
@@ -235,7 +235,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
     // see FR-055, S-177
     const built = fitted()
     const layout = built.loop.current()?.layout
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     const offset = Number(built.settings()['scrollDayOffset'])
     expect(offset).toBeGreaterThanOrEqual(0)
     expect(offset).toBeLessThan(1)
@@ -246,14 +246,14 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 })
 
-const FR_046_CENTRE = '基準日線を出す操作では、倍率を変えずに、基準日線が `Row Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
+const FR_046_CENTRE = '基準日線を出す操作では、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
 const FR_046_NOT_VERTICAL = '縦の表示位置は動かさないこと（MUST）。'
 const FR_046_INK = '基準日線は、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを同書の 表 T-206 の `S-333` で描くこと（MUST）'
 const FR_046_EN_7 = '基準日線を描いているあいだ、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること（MUST）'
 const FR_106_PK_10 = '基準日線の掴み代（表 T-023d の `GR-16`）と、パネルの境界の掴み帯（同表の `GR-22`）では、表 T-269 の `PK-10` とすること（MUST）'
 
 // see PK-10
-const PK_10_SPELLING = /`([a-z-]+)`/.exec(rowIn('T-269', 'PK-10').cells[1] ?? '')?.[1] ?? ''
+const PK_10_SPELLING = /`([a-z-]+)`/.exec(verticalIn('T-269', 'PK-10').cells[1] ?? '')?.[1] ?? ''
 
 const localToday = (): string => {
   const now = new Date()
@@ -274,7 +274,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(PK_10_SPELLING).toBe('col-resize')
   })
 
-  it('FR-046: 基準日線が Row Area の横の中点に来るよう表示位置を横に送る -- without changing the zoom', () => {
+  it('FR-046: 基準日線が Task Group Area の横の中点に来るよう表示位置を横に送る -- without changing the zoom', () => {
     // see FR-046
     const built = bench(documentOf(SEEDS, { zoomX: 1, zoomY: 1, scrollDate: '2020-01-06' }))
     const before = { ...built.settings() }
@@ -282,7 +282,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(String(built.loop.document().schedule.project.statusDate).slice(0, 10), 'premise: IC-44 wrote today').toBe(localToday())
     const line = statusLineOf(built.svg())
     expect(line, 'the line is drawn').toBeDefined()
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     expect(Number(attrOf(line ?? '', 'x1'))).toBeCloseTo(area.x + area.width / 2, 0)
     expect(built.settings()['zoomX'], '倍率を変えずに').toBe(before['zoomX'])
     expect(built.settings()['zoomY'], '倍率を変えずに').toBe(before['zoomY'])
@@ -308,7 +308,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
 
   it('FR-046: 基準日線を描いているあいだ、IC-44 を EN-7 で塗る (S-183), and not while it is not drawn', () => {
     // see FR-046, EN-7
-    expect(bare(rowIn('T-237', 'EN-7').cells[1] ?? '')).toBe('S-183')
+    expect(bare(verticalIn('T-237', 'EN-7').cells[1] ?? '')).toBe('S-183')
     const shownDocument = documentOf(SEEDS)
     shownDocument.schedule.project.statusDate = '2026-05-01'
     const shown = bench(shownDocument)
@@ -323,7 +323,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     document.schedule.project.statusDate = '2026-05-01'
     const built = bench(document)
     const line = statusLineOf(built.svg()) ?? ''
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     // WHY: T-023d ranks GR-10 and GR-23 above GR-16, so the probe stands on the line below every task.
     built.move(Number(attrOf(line, 'x1')), area.y + area.height - 5)
     expect(String(built.shapes[built.shapes.length - 1])).toContain(PK_10_SPELLING)
@@ -333,7 +333,7 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     // see FR-106, GR-22, PK-10
     const built = bench(documentOf(SEEDS))
     const divider = built.view().frame.dividers[0]
-    expect(divider, 'premise: the Row Title Panel boundary has a band').toBeDefined()
+    expect(divider, 'premise: the Task Group Panel boundary has a band').toBeDefined()
     const band = divider?.band ?? { x: 0, y: 0, width: 0, height: 0 }
     built.move(band.x + band.width / 2, band.y + band.height / 2, partOn('Panel Divider', null, { dividerPanel: divider?.panel }))
     const told = String(built.shapes[built.shapes.length - 1] ?? '')
@@ -397,7 +397,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
       // see DC-9, DC-4, DC-7
       const built = bench(documentOf(SEEDS))
       built.press('Command Palette', IC_DUAL)
-      const area = rowAreaOf(built.loop)
+      const area = taskGroupAreaOf(built.loop)
       built.move(area.x + 200, area.y + 40)
       built.click(area.x + 200, area.y + 40)
       built.move(area.x + 400, area.y + 40)
@@ -417,7 +417,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
     // see FR-048, S-195, S-194, DC-8
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_DUAL)
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     built.move(area.x + 200, area.y + 40)
     built.click(area.x + 200, area.y + 40)
     built.move(area.x + 400, area.y + 40)
@@ -430,7 +430,7 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
     // see FR-048, S-195, S-194
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_SINGLE)
-    const area = rowAreaOf(built.loop)
+    const area = taskGroupAreaOf(built.loop)
     built.move(area.x + 300, area.y + 60)
     const lines = cursorLines(built.svg())
     expect(lines.length, 'the guide line is painted S-195').toBeGreaterThanOrEqual(1)

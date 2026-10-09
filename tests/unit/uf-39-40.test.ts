@@ -57,7 +57,7 @@
 //   table T-037  NT-1 the notice has to be able to name WHICH item is wrong, so
 //               the detail survives; NT-3a the three reasons are kept apart
 //               because their next steps differ
-//   FR-085      the row name arrives already cut, and is not cut again
+//   FR-085      the task group name arrives already cut, and is not cut again
 //   5.3         the seam declared in UF-40 is re-published by the entry (MUST)
 //
 // ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
@@ -83,7 +83,7 @@ import type {
   AppHeaderItems,
   CommandItem,
   PanelDivider,
-  RowTitle,
+  TaskGroupTitle,
   ScreenFrame,
   ScreenView,
   Scrollbar,
@@ -100,7 +100,7 @@ import type {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
-import { rowNameFont } from '../fixtures/row-name-font'
+import { taskGroupNameFont } from '../fixtures/task-group-name-font'
 
 // ---------------------------------------------------------------------------
 // Settings. ⛔ Rule 03 forbids re-typing a value the specification holds, so
@@ -272,29 +272,29 @@ const regionsOf = (
     height: screen.height - screen.appHeaderHeight,
   }
   // FR-052's expression, verbatim: the canvas less `canvasPadding` (S-56), the
-  // two panel widths and the vertical bar is the `Row Area`'s width. U-50 takes
+  // two panel widths and the vertical bar is the `Task Group Area`'s width. U-50 takes
   // the ruler band and the padding off its height, and FR-051's bar after it.
-  const rowAreaWidth =
+  const taskGroupAreaWidth =
     canvas.width -
     SETTINGS_CONSTANTS.canvasPadding -
-    settings.rowTitlePanelWidth -
+    settings.taskGroupPanelWidth -
     PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
-  const rowAreaHeight =
+  const taskGroupAreaHeight =
     canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
-    rowTitlePanel: {
+    taskGroupPanel: {
       x: canvas.x,
       y: canvas.y,
-      width: settings.rowTitlePanelWidth,
+      width: settings.taskGroupPanelWidth,
       height: canvas.height,
     },
     timeRuler: {
-      x: canvas.x + settings.rowTitlePanelWidth,
+      x: canvas.x + settings.taskGroupPanelWidth,
       y: canvas.y,
-      width: rowAreaWidth,
+      width: taskGroupAreaWidth,
       height: settings.rulerHeight,
     },
     propertiesPanel: {
@@ -303,11 +303,11 @@ const regionsOf = (
       width: PROPERTIES_PANEL_WIDTH,
       height: canvas.height,
     },
-    rowArea: {
-      x: canvas.x + settings.rowTitlePanelWidth,
+    taskGroupArea: {
+      x: canvas.x + settings.taskGroupPanelWidth,
       y: canvas.y + settings.rulerHeight,
-      width: rowAreaWidth,
-      height: rowAreaHeight,
+      width: taskGroupAreaWidth,
+      height: taskGroupAreaHeight,
     },
   }
 }
@@ -362,7 +362,7 @@ const APP_HEADER_ITEMS: AppHeaderItems = {
 /**
  * EP-9. The `line` is drawn and the grab `band` is not, so the two are given
  * different rectangles. ⚠️ Taken from the regions rather than written out:
- * FR-051 (MUST NOT) has the band take no width from the `Row Area`, so it
+ * FR-051 (MUST NOT) has the band take no width from the `Task Group Area`, so it
  * straddles the boundary the line sits on.
  */
 const dividersOf = (regions: ScreenRegions): readonly PanelDivider[] => {
@@ -373,17 +373,17 @@ const dividersOf = (regions: ScreenRegions): readonly PanelDivider[] => {
     height: regions.scheduleCanvas.height,
   })
   const bandAround = (line: ScreenRect): ScreenRect => ({ ...line, x: line.x - 4, width: 8 })
-  const titleLine = lineAt(regions.rowTitlePanel.x + regions.rowTitlePanel.width - 1)
+  const titleLine = lineAt(regions.taskGroupPanel.x + regions.taskGroupPanel.width - 1)
   const propsLine = lineAt(regions.propertiesPanel.x)
   return [
-    { panel: 'rowTitlePanel', band: bandAround(titleLine), line: titleLine },
+    { panel: 'taskGroupPanel', band: bandAround(titleLine), line: titleLine },
     { panel: 'propertiesPanel', band: bandAround(propsLine), line: propsLine },
   ]
 }
 
 /** EP-10. SC-4 keeps both on the screen at all times; neither reaches the export. */
 const scrollbarsOf = (regions: ScreenRegions): readonly Scrollbar[] => {
-  const area = regions.rowArea
+  const area = regions.taskGroupArea
   const bar = SCREEN.scrollbarThickness
   return [
     {
@@ -438,16 +438,16 @@ const rowOf = (
   depth: number,
   box: ScreenRect,
   label: string | null = `name of ${groupId}`,
-): RowTitle => ({
+): TaskGroupTitle => ({
   groupId,
   depth,
   box,
   label,
   // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
   // takes 「その行の深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
-  indentPx: depth * SETTINGS_CONSTANTS.rowTitleIndent * DISPLAY_RATIO,
-  ...rowNameFont(depth),
-  // Nothing is cut here, and the `RowTitle` contract fixes that case as
+  indentPx: depth * SETTINGS_CONSTANTS.taskGroupTitleIndent * DISPLAY_RATIO,
+  ...taskGroupNameFont(depth),
+  // Nothing is cut here, and the `TaskGroupTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: label,
   isLabelTruncated: false,
@@ -457,16 +457,16 @@ const rowOf = (
 })
 
 const viewOf = (
-  titles: readonly RowTitle[],
+  titles: readonly TaskGroupTitle[],
   part: Partial<ScreenView> = {},
-  pinnedTitles: readonly RowTitle[] = [],
+  pinnedTitles: readonly TaskGroupTitle[] = [],
 ): ScreenView => ({
   // S-99. UF-39 draws no words of its own, so which of the two it is cannot
   // reach the picture; the member is filled because `ScreenView` requires it.
   language: 'ja',
   frame: frameOf(),
   appHeaderItems: APP_HEADER_ITEMS,
-  rowTitlePanel: { pinnedTitles, titles },
+  taskGroupPanel: { pinnedTitles, titles },
   // ⛔ NO HEADING: FR-072 (MUST NOT) leaves the panel no heading row (CR-272).
   // ⚠️ THE CAST IS DELIBERATE AND NARROW -- whether the published description
   // still declares a member for one is the implementation's answer, and turning
@@ -529,8 +529,8 @@ const viewOf = (
   },
   // ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment behind the words, so
   // every tooltip carries the member. `FR-036`: 「どちらも持たない行は、その
-  // 場所を空ける」 -- a row title has neither key nor mouse operation.
-  tooltips: [{ anchor: { kind: 'rowTitle', groupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
+  // 場所を空ける」 -- a task group title has neither key nor mouse operation.
+  tooltips: [{ anchor: { kind: 'taskGroupTitle', groupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
   ...part,
 })
 
@@ -855,17 +855,17 @@ const RATIO = SETTINGS_CONSTANTS.exportCanvas.width / SCREEN.width
 const GROWN_HEIGHT = Math.max(SETTINGS_CONSTANTS.exportCanvas.height, SCREEN.height * RATIO)
 
 /** Six rows, spread down a screen 800 tall. Every one of them is drawn. */
-const TALL_ROWS: readonly RowTitle[] = [
-  rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
-  rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
-  rowOf('g3', 3, { x: 0, y: 300, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
-  rowOf('g4', 1, { x: 0, y: 400, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
-  rowOf('g5', 2, { x: 0, y: 500, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
-  rowOf('g6', 2, { x: 0, y: 600, width: SETTINGS.rowTitlePanelWidth, height: 100 }),
+const TALL_TASK_GROUPS: readonly TaskGroupTitle[] = [
+  rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g3', 3, { x: 0, y: 300, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g4', 1, { x: 0, y: 400, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g5', 2, { x: 0, y: 500, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g6', 2, { x: 0, y: 600, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
 ]
 const DRAWN_ROW_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
 
-const TALL_SCENE = sceneOf(viewOf(TALL_ROWS))
+const TALL_SCENE = sceneOf(viewOf(TALL_TASK_GROUPS))
 
 // ---------------------------------------------------------------------------
 // FR-080 and WY-3 -- the ratio, and what it is multiplied into
@@ -937,7 +937,7 @@ describe('table T-041 -- which rows of the WYSIWYG judgement one unit can answer
     const assembled = await exportedOf(TALL_SCENE)
     // EP-1's band and EP-3's panel are the two rectangles this component owns.
     expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
-    expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel').toBe(true)
+    expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel').toBe(true)
     for (const divider of DIVIDERS) {
       expect(hasRect(assembled, divider.line), `EP-9 ${divider.panel} line`).toBe(true)
     }
@@ -982,23 +982,23 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-3',
-    part: 'Row Title Panel (U-22) and Row Title Tree (U-23)',
+    part: 'Task Group Panel (U-22) and Task Group Title Tree (U-23)',
     expectation: 'draw',
     holds: (assembledSvg) =>
-      hasRect(assembledSvg, assembledSvg.scene.regions.rowTitlePanel) &&
+      hasRect(assembledSvg, assembledSvg.scene.regions.taskGroupPanel) &&
       DRAWN_ROW_IDS.every((id) => assembledSvg.texts.some((drawnText) => drawnText.content === `name of ${id}`)),
   },
   {
     id: 'EP-4',
-    part: 'Row Expander (U-47) / Row Pin (U-48) / Hidden Group Tab (U-29)',
+    part: 'Task Group Expander (U-47) / Task Group Pin (U-48) / Hidden Group Tab (U-29)',
     expectation: 'no',
     holds: (assembledSvg) => nothingBeyondTheAccounted(assembledSvg),
   },
   {
     id: 'EP-5',
-    part: "Row Area's contents (U-1 .. U-46)",
+    part: "Task Group Area's contents (U-1 .. U-46)",
     expectation: 'arrives',
-    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && !hasRect(assembledSvg, assembledSvg.scene.regions.rowArea),
+    holds: (assembledSvg) => assembledSvg.pictureCount === 1 && !hasRect(assembledSvg, assembledSvg.scene.regions.taskGroupArea),
   },
   {
     id: 'EP-6',
@@ -1008,7 +1008,7 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-7',
-    part: 'Watermark (U-20), inside the Row Area only',
+    part: 'Watermark (U-20), inside the Task Group Area only',
     expectation: 'arrives',
     holds: (assembledSvg) => assembledSvg.pictureCount === 1 && nothingBeyondTheAccounted(assembledSvg),
   },
@@ -1077,7 +1077,7 @@ const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const view = assembled.scene.screenView
   const bandAndPanel = 2
   const expectedRects = bandAndPanel + view.frame.dividers.length
-  const rows = [...view.rowTitlePanel.pinnedTitles, ...view.rowTitlePanel.titles]
+  const rows = [...view.taskGroupPanel.pinnedTitles, ...view.taskGroupPanel.titles]
   // ⛔ NO `droppedGroupIds` TERM ANY MORE (CR-337): a picture that is written
   // holds every row, and one that is not written is not read at all.
   const withLabel = rows.filter((row) => row.label !== null)
@@ -1136,7 +1136,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
     // ⚠️ THE ROW'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
     // Until 2026-08-30 this line read `expander: null`, and that is a state the
     // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各行」,
-    // so `RowTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
+    // so `TaskGroupTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
     // DOES NAME is whether each control is armed or spent -- `FR-029` (MUST)
     // draws a spent one 薄く, a different drawing of the same control -- together
     // with whether the row is pinned, which `HF-6` (MUST) draws when the others
@@ -1148,11 +1148,11 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
     const bare = await exportedOf(
       sceneOf(
         viewOf(
-          TALL_ROWS.map((row) => ({
+          TALL_TASK_GROUPS.map((row) => ({
             ...row,
             expander: { canOpen: false, canClose: false, canCloseBelow: false },
             canOpenOneLevel: false,
-            canAddChildRow: false,
+            canAddChildTaskGroup: false,
             isPinned: false,
           })),
           {
@@ -1184,7 +1184,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
     const withItems = await exportedOf(TALL_SCENE)
     const withoutItems = await exportedOf(
       sceneOf(
-        viewOf(TALL_ROWS, {
+        viewOf(TALL_TASK_GROUPS, {
           appHeaderItems: {
             documentTitle: DOCUMENT_TITLE,
             openedFileName: null,
@@ -1228,19 +1228,19 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
 })
 
 // ---------------------------------------------------------------------------
-// EP-3 and FR-085 -- the Row Title Panel and the names on it
+// EP-3 and FR-085 -- the Task Group Panel and the names on it
 // ---------------------------------------------------------------------------
 
-describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
+describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   it('gives the panel the screen\'s width (MUST NOT: a width of its own)', async () => {
     // EP-3 (MUST NOT): no width of the export's own. One would put FR-085's
     // truncation in a different place than the screen puts it.
     const assembled = await exportedOf(TALL_SCENE)
     const panel = assembled.rects.find((drawn) =>
-      near(num(drawn.attrs, 'height'), REGIONS.rowTitlePanel.height * RATIO),
+      near(num(drawn.attrs, 'height'), REGIONS.taskGroupPanel.height * RATIO),
     )
     expect(panel).toBeDefined()
-    expect(rectOf(panel as Drawn).width).toBeCloseTo(SETTINGS.rowTitlePanelWidth * RATIO, 1)
+    expect(rectOf(panel as Drawn).width).toBeCloseTo(SETTINGS.taskGroupPanelWidth * RATIO, 1)
   })
 
   it('writes each name exactly as it arrived (FR-085 already cut it)', async () => {
@@ -1251,7 +1251,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([
-          rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 }, cut),
+          rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, cut),
         ]),
       ),
     )
@@ -1260,7 +1260,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
 
   it('puts each name inside its own row\'s band, in the rows\' own order (SC-1)', async () => {
     // SC-1 slaves the panel to the body vertically, so a name belongs to the
-    // band `RowTitle.box` gives it, shrunk by the ratio.
+    // band `TaskGroupTitle.box` gives it, shrunk by the ratio.
     //
     // ⚠️ WHERE INSIDE THE BAND the baseline sits is NOT asserted. `labelBaseline`
     // (S-33) is a baseline correction and no requirement says how
@@ -1273,7 +1273,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       return num((found as DrawnText).attrs, 'y')
     }
     const boxOf = (id: string): ScreenRect =>
-      (TALL_ROWS.find((row) => row.groupId === id) as RowTitle).box
+      (TALL_TASK_GROUPS.find((row) => row.groupId === id) as TaskGroupTitle).box
     for (const id of DRAWN_ROW_IDS) {
       const band = scaledRect(boxOf(id), RATIO)
       expect(yOf(id), id).toBeGreaterThan(band.y)
@@ -1297,12 +1297,12 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
         'y',
       )
     const boxOf = (id: string): ScreenRect =>
-      (TALL_ROWS.find((row) => row.groupId === id) as RowTitle).box
+      (TALL_TASK_GROUPS.find((row) => row.groupId === id) as TaskGroupTitle).box
     expect(boxOf('g4').height).toBe(boxOf('g1').height)
     expect(yOf('g4') - yOf('g1')).toBeCloseTo((boxOf('g4').y - boxOf('g1').y) * RATIO, 1)
   })
 
-  it('indents one `rowTitleIndent` per level of depth (S-37)', async () => {
+  it('indents one `taskGroupTitleIndent` per level of depth (S-37)', async () => {
     // K-37 of table T-104 names S-37 the indent of ONE level of depth, and
     // FR-085 takes the row's depth worth of it off the usable width.
     const assembled = await exportedOf(TALL_SCENE)
@@ -1311,16 +1311,16 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'x')
     }
-    const step = SETTINGS_CONSTANTS.rowTitleIndent * DISPLAY_RATIO * RATIO
+    const step = SETTINGS_CONSTANTS.taskGroupTitleIndent * DISPLAY_RATIO * RATIO
     expect(xOf('g2') - xOf('g1')).toBeCloseTo(step, 1)
     expect(xOf('g3') - xOf('g1')).toBeCloseTo(step * 2, 1)
     expect(xOf('g4')).toBeCloseTo(xOf('g1'), 1)
-    expect(xOf('g1')).toBeGreaterThanOrEqual(REGIONS.rowTitlePanel.x * RATIO)
+    expect(xOf('g1')).toBeGreaterThanOrEqual(REGIONS.taskGroupPanel.x * RATIO)
   })
 
-  it('writes a root row larger by `rowTitleTopScale` (S-36 and S-38)', async () => {
+  it('writes a root row larger by `taskGroupTitleTopScale` (S-36 and S-38)', async () => {
     // K-38 of table T-104 names S-38 the scale a depth-1 row's name is written
-    // at, over `rowTitleFont` (S-36). ⭐ Both reach this case from
+    // at, over `taskGroupTitleFont` (S-36). ⭐ Both reach this case from
     // SETTINGS_DEFAULTS, so a change in the manuscript lands here.
     const assembled = await exportedOf(TALL_SCENE)
     const sizeOf = (id: string): number => {
@@ -1328,27 +1328,27 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'font-size')
     }
-    expect(sizeOf('g2')).toBeCloseTo(SETTINGS_CONSTANTS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
-    expect(sizeOf('g3')).toBeCloseTo(SETTINGS_CONSTANTS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
+    expect(sizeOf('g2')).toBeCloseTo(SETTINGS_CONSTANTS.taskGroupTitleFont * DISPLAY_RATIO * RATIO, 1)
+    expect(sizeOf('g3')).toBeCloseTo(SETTINGS_CONSTANTS.taskGroupTitleFont * DISPLAY_RATIO * RATIO, 1)
     expect(sizeOf('g1')).toBeCloseTo(
-      SETTINGS_CONSTANTS.rowTitleFont * SETTINGS_CONSTANTS.rowTitleTopScale * DISPLAY_RATIO * RATIO,
+      SETTINGS_CONSTANTS.taskGroupTitleFont * SETTINGS_CONSTANTS.taskGroupTitleTopScale * DISPLAY_RATIO * RATIO,
       1,
     )
   })
 
   it('writes the name of a pinned row too (U-46 is drawn)', async () => {
     // FR-098 lifts a pinned row out of the scrolling list and holds it at the
-    // top; EP-3 draws the tree and EP-5 draws `Pinned Row` (U-46).
+    // top; EP-3 draws the tree and EP-5 draws `Pinned Task Group` (U-46).
     const pinned = rowOf(
       'p1',
       1,
-      { x: 0, y: 110, width: SETTINGS.rowTitlePanelWidth, height: 40 },
-      'a pinned row name',
+      { x: 0, y: 110, width: SETTINGS.taskGroupPanelWidth, height: 40 },
+      'a pinned task group name',
     )
     const assembled = await exportedOf(
-      sceneOf(viewOf(TALL_ROWS, {}, [{ ...pinned, isPinned: true }])),
+      sceneOf(viewOf(TALL_TASK_GROUPS, {}, [{ ...pinned, isPinned: true }])),
     )
-    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('a pinned row name')
+    expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('a pinned task group name')
   })
 })
 
@@ -1388,7 +1388,7 @@ describe('FR-025 -- the frame the picture is written into', () => {
     const short = await exportedOf(
       sceneOf(
         viewOf(
-          [rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.rowTitlePanelWidth, height: 60 })],
+          [rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidth, height: 60 })],
           { frame: frameOf(shortRegions) },
         ),
         {},
@@ -1410,8 +1410,8 @@ describe('FR-025 -- the frame the picture is written into', () => {
     const shortScreen: MeasuredScreen = { ...SCREEN, height: 500 }
     const shortRegions = regionsOf(shortScreen)
     const rows = [
-      rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.rowTitlePanelWidth, height: 60 }),
-      rowOf('s2', 2, { x: 0, y: 180, width: SETTINGS.rowTitlePanelWidth, height: 60 }),
+      rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidth, height: 60 }),
+      rowOf('s2', 2, { x: 0, y: 180, width: SETTINGS.taskGroupPanelWidth, height: 60 }),
     ]
     const assembled = await exportedOf(
       sceneOf(viewOf(rows, { frame: frameOf(shortRegions) }), {}, shortRegions),
@@ -1462,7 +1462,7 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
     // export holding a scale at all, so this case walks no values: the pixels
     // ARE the picture's own size.
     const { rasterizer, calls } = watchedRasterizer()
-    const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS })
+    const scene = sceneOf(viewOf(TALL_TASK_GROUPS), { settings: SETTINGS })
     const result = await pngOf(rasterizer, scene)
     expect(calls[0]?.sizePx).toEqual({
       widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
@@ -1588,13 +1588,13 @@ describe('boundaries', () => {
     const assembled = await exportedOf(sceneOf(viewOf([])))
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
-    expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel is still drawn').toBe(true)
+    expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel is still drawn').toBe(true)
   })
 
   it('answers for exactly one row', async () => {
     const assembled = await exportedOf(
       sceneOf(
-        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 })]),
+        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
@@ -1604,7 +1604,7 @@ describe('boundaries', () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([
-          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 }, null),
+          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, null),
         ]),
       ),
     )
@@ -1616,7 +1616,7 @@ describe('boundaries', () => {
     // header of a document without a title, so nothing may be substituted here.
     const assembled = await exportedOf(
       sceneOf(
-        viewOf(TALL_ROWS, {
+        viewOf(TALL_TASK_GROUPS, {
           appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null },
         }),
       ),
@@ -1636,20 +1636,20 @@ describe('boundaries', () => {
 
   it('answers for an empty picture string without losing anything else', async () => {
     const { rasterizer } = watchedRasterizer()
-    const result = await pngOf(rasterizer, sceneOf(viewOf(TALL_ROWS), { svg: '' }))
+    const result = await pngOf(rasterizer, sceneOf(viewOf(TALL_TASK_GROUPS), { svg: '' }))
     expect(result.svg).toContain('<svg')
     expect(result.png).toEqual({ ok: true, pngBytes: PNG_BYTES })
   })
 
   it('stays one SVG document when a name carries markup characters', async () => {
-    // FR-035 lets a person write any title, and a row name is the document's own
+    // FR-035 lets a person write any title, and a task group name is the document's own
     // value. A raw `<` would end the element and make IO-3's output another
     // picture than the one assembled.
     const wild = 'a & b < c > d "e"'
     const assembled = await exportedOf(
       sceneOf(
         viewOf(
-          [rowOf('w1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 }, wild)],
+          [rowOf('w1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, wild)],
           { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: wild } },
         ),
       ),
@@ -1885,13 +1885,13 @@ describe('boundaries of the SVG route', () => {
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.appHeader), 'EP-1 band').toBe(true)
-    expect(hasRect(assembled, REGIONS.rowTitlePanel), 'EP-3 panel').toBe(true)
+    expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel').toBe(true)
   })
 
   it('GIVEN exactly one row WHEN exportSvg runs THEN its name is written', () => {
     const assembled = svgOnlyOf(
       sceneOf(
-        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 })]),
+        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
@@ -1901,7 +1901,7 @@ describe('boundaries of the SVG route', () => {
     const assembled = svgOnlyOf(
       sceneOf(
         viewOf([
-          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.rowTitlePanelWidth, height: 40 }, null),
+          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, null),
         ]),
       ),
     )
@@ -1910,14 +1910,14 @@ describe('boundaries of the SVG route', () => {
 
   it('GIVEN a document with no title WHEN exportSvg runs THEN nothing is written in its place (FR-035 speaks of the tab)', () => {
     const assembled = svgOnlyOf(
-      sceneOf(viewOf(TALL_ROWS, { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null } })),
+      sceneOf(viewOf(TALL_TASK_GROUPS, { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: null } })),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual(DRAWN_ROW_IDS.map((id) => `name of ${id}`))
     expect(hasRect(assembled, REGIONS.appHeader), 'the band is still drawn').toBe(true)
   })
 
   it('GIVEN an empty picture string WHEN exportSvg runs THEN the frame still comes back', () => {
-    const answer = fitOrThrow(exportSvg(sceneOf(viewOf(TALL_ROWS), { svg: '' })))
+    const answer = fitOrThrow(exportSvg(sceneOf(viewOf(TALL_TASK_GROUPS), { svg: '' })))
     expect(answer.svg).toContain('<svg')
     expect(answer.heightPx).toBeCloseTo(GROWN_HEIGHT, 6)
   })
@@ -1952,7 +1952,7 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   /** The answer, off IO-3's own entry, for a screen of this height. */
   const grownFor = (
     height: number,
-    rows: readonly RowTitle[] = TALL_ROWS,
+    rows: readonly TaskGroupTitle[] = TALL_TASK_GROUPS,
     settings: DocumentSettings = SETTINGS,
   ): SvgExport => {
     const screen = screenOf(height)
@@ -1993,7 +1993,7 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // the drawing, so S-81's height is a floor.
     // ⚠️ Only the rows that fit ON a screen 400 tall: a row drawn below the
     // screen's own bottom edge is not a case about the picture's height.
-    const picture = fitOrThrow(grownFor(400, TALL_ROWS.slice(0, 3)))
+    const picture = fitOrThrow(grownFor(400, TALL_TASK_GROUPS.slice(0, 3)))
     expect(400 * RATIO).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
     expect(picture.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvas.height)
   })
@@ -2018,7 +2018,7 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // `exportCanvas.height` again here would paint a 900-unit window onto a
     // picture 1280 tall.
     const { rasterizer, calls } = watchedRasterizer()
-    const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS }, regionsOf(screenOf(800)))
+    const scene = sceneOf(viewOf(TALL_TASK_GROUPS), { settings: SETTINGS }, regionsOf(screenOf(800)))
     const result = await pngOf(rasterizer, scene)
     expect(calls).toHaveLength(1)
     expect(calls[0]?.sizePx).toEqual({
@@ -2051,7 +2051,7 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
   const screenOf = (height: number): MeasuredScreen => ({ ...SCREEN, height })
 
   const answerFor = (height: number, settings: DocumentSettings = SETTINGS): ExportScene =>
-    sceneOf(viewOf(TALL_ROWS), { settings }, regionsOf(screenOf(height), settings))
+    sceneOf(viewOf(TALL_TASK_GROUPS), { settings }, regionsOf(screenOf(height), settings))
 
   /**
    * The screen whose shrunk picture is EXACTLY S-217 tall, and the first one

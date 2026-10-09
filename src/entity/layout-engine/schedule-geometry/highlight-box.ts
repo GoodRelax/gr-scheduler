@@ -4,7 +4,7 @@
 // @purity    pure
 
 import { compareDays, dayOf, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
-import { inTreeOrder, xFromDay, type RowPlacement, type ScheduleLayout } from '../schedule-layout/schedule-layout'
+import { inTreeOrder, xFromDay, type TaskGroupPlacement, type ScheduleLayout } from '../schedule-layout/schedule-layout'
 import { isAtLeastDrawnPx } from './dependency-route'
 import type { HighlightGeometry } from './schedule-geometry'
 
@@ -34,20 +34,20 @@ function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSid
 }
 
 // see FR-019, UC-008
-interface DrawnRowsInTree {
+interface DrawnTaskGroupsInTree {
   readonly treeIndexOf: ReadonlyMap<string, number>
   // WHY: the drawn rows in tree order, each with its index in the whole tree (drawn or not).
-  readonly drawn: readonly { readonly row: RowPlacement; readonly at: number }[]
+  readonly drawn: readonly { readonly taskGroup: TaskGroupPlacement; readonly at: number }[]
 }
 
 // see FR-019, UC-008
 /** @purity pure */
-function drawnRowsInTreeOf(schedule: Schedule, rowById: ReadonlyMap<string, RowPlacement>): DrawnRowsInTree {
+function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<string, TaskGroupPlacement>): DrawnTaskGroupsInTree {
   const tree = inTreeOrder(schedule.taskGroups, new Map(schedule.taskGroups.map((group) => [group.id, group])))
-  const drawn: { row: RowPlacement; at: number }[] = []
+  const drawn: { taskGroup: TaskGroupPlacement; at: number }[] = []
   for (const [at, group] of tree.entries()) {
-    const row = rowById.get(group.id)
-    if (row !== undefined) drawn.push({ row, at })
+    const taskGroup = taskGroupById.get(group.id)
+    if (taskGroup !== undefined) drawn.push({ taskGroup, at })
   }
   return { treeIndexOf: new Map(tree.map((group, at) => [group.id, at])), drawn }
 }
@@ -58,14 +58,14 @@ function drawnRowsInTreeOf(schedule: Schedule, rowById: ReadonlyMap<string, RowP
 /** @purity pure */
 function drawnEndsOf(
   box: Schedule['highlightBoxes'][number],
-  rowById: ReadonlyMap<string, RowPlacement>,
-  treeOf: () => DrawnRowsInTree,
-  screen: readonly RowPlacement[],
-): { readonly top: RowPlacement; readonly bottom: RowPlacement } | undefined {
+  taskGroupById: ReadonlyMap<string, TaskGroupPlacement>,
+  treeOf: () => DrawnTaskGroupsInTree,
+  screen: readonly TaskGroupPlacement[],
+): { readonly top: TaskGroupPlacement; readonly bottom: TaskGroupPlacement } | undefined {
   const topId = box.topGroupId
   const bottomId = box.bottomGroupId
-  const top = topId === null ? screen[0] : rowById.get(topId)
-  const bottom = bottomId === null ? screen[screen.length - 1] : rowById.get(bottomId)
+  const top = topId === null ? screen[0] : taskGroupById.get(topId)
+  const bottom = bottomId === null ? screen[screen.length - 1] : taskGroupById.get(bottomId)
   if (top !== undefined && bottom !== undefined) return { top, bottom }
   // TRAP: built only when an end is not drawn, so a frame whose ends are both drawn pays no tree walk.
   const rows = treeOf()
@@ -74,24 +74,24 @@ function drawnEndsOf(
   const inRange = rows.drawn.filter((one) => one.at >= Math.min(low, high) && one.at <= Math.max(low, high))
   /** @purity pure */
   const isInTree = (id: string | null): boolean => id !== null && rows.treeIndexOf.has(id)
-  const shownTop = top ?? (isInTree(topId) ? inRange[0]?.row : screen[0])
-  const shownBottom = bottom ?? (isInTree(bottomId) ? inRange[inRange.length - 1]?.row : screen[screen.length - 1])
+  const shownTop = top ?? (isInTree(topId) ? inRange[0]?.taskGroup : screen[0])
+  const shownBottom = bottom ?? (isInTree(bottomId) ? inRange[inRange.length - 1]?.taskGroup : screen[screen.length - 1])
   return shownTop === undefined || shownBottom === undefined ? undefined : { top: shownTop, bottom: shownBottom }
 }
 
 // see FR-019
 /** @purity pure */
 export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
-  const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
-  let tree: DrawnRowsInTree | null = null
+  const taskGroupById = new Map(layout.taskGroups.map((taskGroup) => [taskGroup.groupId, taskGroup]))
+  let tree: DrawnTaskGroupsInTree | null = null
   /** @purity pure */
-  const treeOf = (): DrawnRowsInTree => (tree ??= drawnRowsInTreeOf(schedule, rowById))
+  const treeOf = (): DrawnTaskGroupsInTree => (tree ??= drawnTaskGroupsInTreeOf(schedule, taskGroupById))
   const out: HighlightGeometry[] = []
   for (const box of schedule.highlightBoxes) {
     const from = dayOf(box.startDate)
     const toDay = dayOf(box.endDate)
     if (from === null || toDay === null) continue
-    const ends = drawnEndsOf(box, rowById, treeOf, layout.rows)
+    const ends = drawnEndsOf(box, taskGroupById, treeOf, layout.taskGroups)
     if (ends === undefined) continue
     const { top, bottom } = ends
     // TRAP: both edges through min / max: rows are stored in tree order but drawn in screen order, and pinning inverts them.

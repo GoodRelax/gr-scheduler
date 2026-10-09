@@ -44,10 +44,10 @@ export interface ScreenPart {
   readonly part: string
   readonly entry: IconId | null
   readonly format: ExportFormatId | null
-  readonly rowGroupId: string | null
+  readonly taskGroupId: string | null
   readonly resourceUid: number | null
   readonly dividerPanel: PanelDivider['panel'] | null
-  readonly isRowGrabStrip?: boolean
+  readonly isTaskGroupGrabStrip?: boolean
   readonly noticeDismissKey: string | null
   readonly confirmationAnswer?: string
   readonly isImportReportDismiss?: boolean

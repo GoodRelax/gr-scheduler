@@ -49,7 +49,7 @@ const stored = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).pad
 
 const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   uid,
-  wbsParentUid: null,
+  parentTaskUid: null,
   wbsOrder: uid,
   name: `T${uid}`,
   start: stored(5),
@@ -328,7 +328,7 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
     part = {
       entry: null,
       format: null,
-      rowGroupId: null,
+      taskGroupId: null,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,

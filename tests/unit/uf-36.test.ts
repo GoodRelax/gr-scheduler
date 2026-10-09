@@ -48,7 +48,7 @@
 //   table T-019           which plan/actual state writes a Stop, and the note
 //                         that a carried original beats the computed value
 //   table T-005 G-13      Carry is what GRS does not use, plus Stop
-//   Chapter 5.4           Task.wbsParentUid is the exported axis; TaskGroup and
+//   Chapter 5.4           Task.parentTaskUid is the exported axis; TaskGroup and
 //                         TaskGroupMember are GRS's own and never cross
 //   Chapter 6.1 T-220     IV-1 primary keys unique, IV-6 every Task on exactly
 //                         one row, IV-7 at least one calendar, IV-8 a row's
@@ -1348,7 +1348,7 @@ function nestedTasksText(depth: number): string {
 
 const MAX_GROUP_DEPTH = SETTINGS_CONSTANTS.maxGroupDepth
 
-function rowDepth(document: Document, id: string): number {
+function taskGroupDepth(document: Document, id: string): number {
   const byId = new Map(document.schedule.taskGroups.map((each) => [each.id, each]))
   let depth = 0
   let at: string | null = id
@@ -1379,7 +1379,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     expect(document.schedule.tasks).toHaveLength(deeper)
     expect(document.schedule.taskGroups).toHaveLength(MAX_GROUP_DEPTH)
     for (const group of document.schedule.taskGroups) {
-      expect(rowDepth(document, group.id)).toBeLessThanOrEqual(MAX_GROUP_DEPTH)
+      expect(taskGroupDepth(document, group.id)).toBeLessThanOrEqual(MAX_GROUP_DEPTH)
     }
   })
 
@@ -1388,7 +1388,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     const document = accepted(nestedTasksText(deeper))
     const byId = new Map(document.schedule.taskGroups.map((each) => [each.id, each]))
     const deepest = document.schedule.taskGroups.find(
-      (each) => rowDepth(document, each.id) === MAX_GROUP_DEPTH,
+      (each) => taskGroupDepth(document, each.id) === MAX_GROUP_DEPTH,
     )
     expect(deepest).toBeDefined()
     for (const uid of [MAX_GROUP_DEPTH, MAX_GROUP_DEPTH + 1, deeper]) {
@@ -1410,7 +1410,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     const document = accepted(nestedTasksText(deeper))
     for (let level = 1; level <= deeper; level += 1) {
       const task = document.schedule.tasks.find((each) => each.uid === level)
-      expect(task?.wbsParentUid, `level ${level}`).toBe(level === 1 ? null : level - 1)
+      expect(task?.parentTaskUid, `level ${level}`).toBe(level === 1 ? null : level - 1)
     }
   })
 
@@ -1433,9 +1433,9 @@ describe('FR-058 -- the imported tasks land on rows', () => {
   it('reads a Task at OutlineLevel 1 as a root (S-115 counts the root as depth 1)', () => {
     const document = accepted(BASE_TEXT)
     const root = document.schedule.tasks.find((each) => each.uid === SAMPLE.taskUid)
-    expect(root?.wbsParentUid).toBeNull()
+    expect(root?.parentTaskUid).toBeNull()
     const child = document.schedule.tasks.find((each) => each.uid === SAMPLE.childUid)
-    expect(child?.wbsParentUid).toBe(SAMPLE.taskUid)
+    expect(child?.parentTaskUid).toBe(SAMPLE.taskUid)
   })
 
   it('still lands a Task with no OutlineLevel on a row', () => {
@@ -1466,7 +1466,7 @@ describe('Chapter 5.4 -- only the WBS axis crosses the wire', () => {
       'taskGroups',
       'taskGroupMembers',
       'carryElements',
-      'wbsParentUid',
+      'parentTaskUid',
       'themeHue',
     ]) {
       expect(text, `${name} is GRS's own and never crosses`).not.toContain(name)

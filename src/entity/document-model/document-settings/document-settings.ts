@@ -32,8 +32,8 @@ export interface DocumentSettings {
   readonly planVisible: boolean
   readonly progressLineVisible: boolean
   readonly progressMarkerVisible: boolean
-  readonly rowTitlePanelWidth: number
-  readonly rowTitlePanelWidthFixed: boolean
+  readonly taskGroupPanelWidth: number
+  readonly taskGroupPanelWidthFixed: boolean
   readonly rulerFont: number
   readonly rulerHeight: number
   readonly scrollDate: string | null
@@ -65,8 +65,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'planVisible': true,
   'progressLineVisible': false,
   'progressMarkerVisible': true,
-  'rowTitlePanelWidth': 300,
-  'rowTitlePanelWidthFixed': false,
+  'taskGroupPanelWidth': 300,
+  'taskGroupPanelWidthFixed': false,
   'rulerFont': 21,
   'rulerHeight': 69,
   'scrollDate': null,
@@ -97,7 +97,7 @@ export interface SettingsBound {
 // see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'pinnedGroupIds': { maxExpression: [{ num: 5 }] },
-  'rowTitlePanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
+  'taskGroupPanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
   'rulerFont': {
     minExpression: [{ num: 12 }],
     maxExpression: [{ key: 'rulerHeight' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
@@ -179,7 +179,7 @@ export const SETTINGS_CONSTANTS: {
   readonly milestoneNameMarkerGap: number
   readonly milestoneNameStartOfWidth: number
   readonly minShapeWidth: number
-  readonly pinnedRowMax: number
+  readonly pinnedTaskGroupMax: number
   readonly planActualGuidePattern: {
     readonly on: number
     readonly off: number
@@ -196,10 +196,10 @@ export const SETTINGS_CONSTANTS: {
   readonly resumeHeadOfMarker: number
   readonly resumeOpacityInvalid: number
   readonly resumeScaleInvalid: number
-  readonly rowGap: number
-  readonly rowTitleFont: number
-  readonly rowTitleIndent: number
-  readonly rowTitleTopScale: number
+  readonly taskGroupGap: number
+  readonly taskGroupTitleFont: number
+  readonly taskGroupTitleIndent: number
+  readonly taskGroupTitleTopScale: number
   readonly rulerLabelBottomPad: number
   readonly rulerLabelGap: number
   readonly rulerLabelPad: number
@@ -283,7 +283,7 @@ export const SETTINGS_CONSTANTS: {
   milestoneNameMarkerGap: 9.6,
   milestoneNameStartOfWidth: 0.25,
   minShapeWidth: 6.4,
-  pinnedRowMax: 5,
+  pinnedTaskGroupMax: 5,
   planActualGuidePattern: {
     on: 2,
     off: 2,
@@ -300,10 +300,10 @@ export const SETTINGS_CONSTANTS: {
   resumeHeadOfMarker: 0.22,
   resumeOpacityInvalid: 0.55,
   resumeScaleInvalid: 0.7,
-  rowGap: 0,
-  rowTitleFont: 19.5,
-  rowTitleIndent: 16,
-  rowTitleTopScale: 1.3,
+  taskGroupGap: 0,
+  taskGroupTitleFont: 19.5,
+  taskGroupTitleIndent: 16,
+  taskGroupTitleTopScale: 1.3,
   rulerLabelBottomPad: 3,
   rulerLabelGap: 2,
   rulerLabelPad: 2,

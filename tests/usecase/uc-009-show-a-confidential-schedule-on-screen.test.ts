@@ -32,7 +32,7 @@ test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-1
     expect((await readDocument(page)).schedule.tasks.length).toBeGreaterThan(100)
   })
 
-  await test.step('UC-009 step 2: the opener and the run time are laid faint, slanted and repeated over the Row Area only (FR-020, WM-13, WM-14)', async () => {
+  await test.step('UC-009 step 2: the opener and the run time are laid faint, slanted and repeated over the Task Group Area only (FR-020, WM-13, WM-14)', async () => {
     const mark = (await watermark(page))!
     expect(mark).not.toBeNull()
     expect(mark.texts.length).toBeGreaterThan(1)
@@ -43,7 +43,7 @@ test('UC-009 show a confidential schedule on screen (FR-020 T-242 WM-6 WM-8 WM-1
     expect(new Set(mark.texts).size).toBe(1)
     expect(mark.opacity).toBeLessThanOrEqual(0.3)
     expect(mark.rotated).toBe(true)
-    const rows = (await page.locator('[data-role="Row Title Panel"]').boundingBox())!
+    const rows = (await page.locator('[data-role="Task Group Panel"]').boundingBox())!
     const ruler = (await page.locator('[data-figure="ruler-ground"]').boundingBox())!
     expect(mark.clip).not.toBeNull()
     expect(mark.clip!.x).toBeGreaterThanOrEqual(rows.x + rows.width - 8)

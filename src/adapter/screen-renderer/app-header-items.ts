@@ -59,8 +59,8 @@ type ZoomEntranceEnds = NonNullable<ScreenViewReadings['zoomEntranceEnds']>
 const ZOOM_END_BY_ENTRY: Readonly<Record<string, keyof ZoomEntranceEnds>> = {
   'IC-12': 'timeOut',
   'IC-13': 'timeIn',
-  'IC-14': 'rowOut',
-  'IC-15': 'rowIn',
+  'IC-14': 'verticalOut',
+  'IC-15': 'verticalIn',
 }
 
 // see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3

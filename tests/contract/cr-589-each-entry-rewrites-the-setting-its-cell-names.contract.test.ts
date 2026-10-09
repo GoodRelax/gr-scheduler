@@ -36,7 +36,7 @@ const T109 = specTable('T-109')
 const T202 = specTable('T-202')
 const T206 = specTable('T-206')
 
-const rowIn = (rows: readonly SpecRow[], id: string): SpecRow | undefined => rows.find((row) => row.id === id)
+const verticalIn = (rows: readonly SpecRow[], id: string): SpecRow | undefined => rows.find((row) => row.id === id)
 
 const leadingRule = (row: SpecRow): string => /^`([A-Z]+-\d+[a-z]?)`/.exec(row.by[RULE] ?? '')?.[1] ?? ''
 
@@ -53,7 +53,7 @@ const namedBy = (cell: string): Named | null => {
 const BOOLEAN_TYPE = '真偽'
 
 const GUIDE_VALUES: readonly string[] = [
-  ...(rowIn(T206.rows, GUIDE_ROW)?.by[T_206_VALUE] ?? '').matchAll(/`'([^']+)'`/g),
+  ...(verticalIn(T206.rows, GUIDE_ROW)?.by[T_206_VALUE] ?? '').matchAll(/`'([^']+)'`/g),
 ].map((hit) => hit[1] as string)
 const NO_GUIDE = 'none'
 
@@ -95,7 +95,7 @@ describe('CR-589 T1 -- table T-109 holds the column in the form its preamble sta
       const named = namedBy(row.by[SWITCH] ?? '')
       expect(named, `${row.id}: ${row.by[SWITCH]}`).not.toBeNull()
       expect(named?.value, `${row.id} writes a boolean, not a value`).toBeNull()
-      const settings = rowIn(T202.rows, named?.row ?? '')
+      const settings = verticalIn(T202.rows, named?.row ?? '')
       expect(settings, `${row.id} names ${named?.row}, which is not a row of table T-202`).toBeDefined()
       expect(bare(settings?.by[T_202_TYPE] ?? ''), `${row.id} names ${named?.row}, whose type is not boolean`).toBe(
         BOOLEAN_TYPE,
@@ -152,7 +152,7 @@ function documentWith(settings: Readonly<Record<string, unknown>>): Document {
       tasks: [
         {
           uid: 1,
-          wbsParentUid: null,
+          parentTaskUid: null,
           wbsOrder: 1,
           name: 'One',
           start: '2026-04-01',
@@ -260,7 +260,7 @@ function stage(settings: Readonly<Record<string, unknown>>): Stage {
         part: bare(row.by[SURFACE] ?? '') as ScreenPart['part'],
         entry: row.id,
         format: null,
-        rowGroupId: null,
+        taskGroupId: null,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -284,7 +284,7 @@ const settingsOf = (loop: FrameLoop): Record<string, unknown> =>
 const without = (settings: Record<string, unknown>, key: string): Record<string, unknown> =>
   Object.fromEntries(Object.entries(settings).filter(([one]) => one !== key))
 
-const keyOfRow = (id: string): string => bare(rowIn(T202.rows, id)?.by[T_202_KEY] ?? '')
+const keyOfRow = (id: string): string => bare(verticalIn(T202.rows, id)?.by[T_202_KEY] ?? '')
 
 describe('CR-589 T2 -- each FR-049 entry flips the T-202 row its cell names, from what the document holds', () => {
   for (const row of TOGGLES) {

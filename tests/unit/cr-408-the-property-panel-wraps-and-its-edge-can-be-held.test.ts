@@ -36,7 +36,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '境界を押した時点に描かれていた幅から、ポインタが動いたぶんだけ変えること（MUST）'],
   ['FR-052 (MUST NOT) -- the width is written nowhere (CR-572)', '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'],
   ['FR-052 (MUST) -- the held boundary is drawn where the pointer names', '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'],
-  ['FR-052 (MUST NOT) -- no pair leaving Row Area at 0 or less', 'これが 0 以下になる組を受け付けてはならない（MUST NOT）'],
+  ['FR-052 (MUST NOT) -- no pair leaving Task Group Area at 0 or less', 'これが 0 以下になる組を受け付けてはならない（MUST NOT）'],
   ['T-023d (MUST) -- a higher row wins', '上の行ほど優先すること（MUST）'],
   ['T-023d GR-22 (MUST NOT) -- no part of the band misses the band', '⛔ 帯の幅のうち、押しても帯に届かない所を残してはならない（MUST NOT）'],
   ['FR-006 (MUST) -- text and multiline fit inside the panel', '⭐ ただし 表 T-016 の `入力の型` が `文字` と `複数行` の操作子には、上の「要る幅より狭い幅を割ってはならない」を当てず、パネルの幅の中に収めること（MUST）'],
@@ -113,7 +113,7 @@ function oneTaskDocument(): Document {
       project: { ...(template.schedule['project'] as Record<string, unknown>), uidHighWaterMark: 100, statusDate: null },
       tasks: [
         {
-          uid: TASK_UID, wbsParentUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
+          uid: TASK_UID, parentTaskUid: null, wbsOrder: 1, name: 'Held', start: '2026-04-06', finish: '2026-04-20',
           milestone: false, deadline: null, notes: null, calendarUid: null, actualStart: null, stop: null,
           actualFinish: null, resume: null, resumeValid: null, percentComplete: 0, fadeInDays: null,
           fadeOutDays: null, dependencies: [], carry: {}, carryElements: [],
@@ -177,7 +177,7 @@ function loopStage(): LoopStage {
       )
       if (divider === undefined) return null
       return {
-        part: 'Panel Divider', entry: null, format: null, rowGroupId: null, resourceUid: null,
+        part: 'Panel Divider', entry: null, format: null, taskGroupId: null, resourceUid: null,
         dividerPanel: divider.panel, noticeDismissKey: null,
       } as unknown as ScreenPart
     },
@@ -284,10 +284,10 @@ describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the w
     expect(drawnWidth(built.loop)).toBeGreaterThanOrEqual(0)
   })
 
-  it('a pull left past the Row Area never leaves the Row Area at 0 or less', () => {
+  it('a pull left past the Task Group Area never leaves the Task Group Area at 0 or less', () => {
     const built = withThePanelOpen()
     drag(built, -SCREEN.width)
-    expect(frameOf(built.loop).regions.rowArea.width).toBeGreaterThan(0)
+    expect(frameOf(built.loop).regions.taskGroupArea.width).toBeGreaterThan(0)
   })
 })
 
@@ -395,8 +395,8 @@ function stackAt(mount: FakeElement, x: number, y: number): FakeElement[] {
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({ x, y, width, height })
 
 const LINE_X = 900
-const ROW_AREA_TOP = 88
-const ROW_AREA_HEIGHT = 600
+const TASK_GROUP_AREA_TOP = 88
+const TASK_GROUP_AREA_HEIGHT = 600
 
 const control = (row: string, kind: PropertyControl['kind'], text: string, widthInFontSizes: number): PropertyControl =>
   ({
@@ -423,16 +423,16 @@ const viewWith = (propertiesPanel: PropertiesPanel | null): ScreenView => ({
   frame: {
     isFullScreen: false,
     dividers: [
-      { panel: 'rowTitlePanel', band: rect(200 - S_134 / 2, 40, S_134, 740), line: rect(200, 40, 1, 740) },
+      { panel: 'taskGroupPanel', band: rect(200 - S_134 / 2, 40, S_134, 740), line: rect(200, 40, 1, 740) },
       { panel: 'propertiesPanel', band: rect(LINE_X - S_134 / 2, 40, S_134, 740), line: rect(LINE_X, 40, 1, 740) },
     ],
     scrollbars: [
-      { axis: 'vertical', track: rect(LINE_X - 8, ROW_AREA_TOP, 8, ROW_AREA_HEIGHT), thumb: rect(LINE_X - 8, ROW_AREA_TOP, 8, 200) },
-      { axis: 'horizontal', track: rect(200, ROW_AREA_TOP + ROW_AREA_HEIGHT, LINE_X - 208, 8), thumb: rect(200, ROW_AREA_TOP + ROW_AREA_HEIGHT, 300, 8) },
+      { axis: 'vertical', track: rect(LINE_X - 8, TASK_GROUP_AREA_TOP, 8, TASK_GROUP_AREA_HEIGHT), thumb: rect(LINE_X - 8, TASK_GROUP_AREA_TOP, 8, 200) },
+      { axis: 'horizontal', track: rect(200, TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT, LINE_X - 208, 8), thumb: rect(200, TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT, 300, 8) },
     ],
   },
   appHeaderItems: { documentTitle: null, openedFileName: null, fileSavedAt: null, fileSavedByteLength: null, fileNeverSavedText: '', commands: [], language: 'en' },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel,
   commandPalette: null,
   openModal: null,
@@ -467,22 +467,22 @@ function drawnSurface(view: ScreenView): Stage {
 const OFFSETS = Array.from({ length: S_134 }, (_unused, index) => index - S_134 / 2)
 
 describe('T-023d GR-22 (MUST NOT) -- every point of the band answers the band, whatever lies under it', () => {
-  it.each(OFFSETS)('the property panel boundary %ipx from the line, at mid Row Area height', (offset) => {
+  it.each(OFFSETS)('the property panel boundary %ipx from the line, at mid Task Group Area height', (offset) => {
     const built = drawnSurface(viewWith(panelWith(10, 10)))
-    const y = ROW_AREA_TOP + ROW_AREA_HEIGHT / 2
+    const y = TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT / 2
     const answer = surfaceOf(built).readScreenPartAt(LINE_X + offset, y)
     expect(answer?.dividerPanel ?? null, `${answer?.part ?? 'nothing'} answered at ${LINE_X + offset}`).toBe('propertiesPanel')
   })
 
-  it.each(OFFSETS)('the row title panel boundary %ipx from the line', (offset) => {
+  it.each(OFFSETS)('the task group panel boundary %ipx from the line', (offset) => {
     const built = drawnSurface(viewWith(panelWith(10, 10)))
-    const answer = surfaceOf(built).readScreenPartAt(200 + offset, ROW_AREA_TOP + ROW_AREA_HEIGHT / 2)
-    expect(answer?.dividerPanel ?? null, `${answer?.part ?? 'nothing'} answered`).toBe('rowTitlePanel')
+    const answer = surfaceOf(built).readScreenPartAt(200 + offset, TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT / 2)
+    expect(answer?.dividerPanel ?? null, `${answer?.part ?? 'nothing'} answered`).toBe('taskGroupPanel')
   })
 
   it('control: the fake browser does place the vertical scrollbar and the panel over the band', () => {
     const built = drawnSurface(viewWith(panelWith(10, 10)))
-    const y = ROW_AREA_TOP + ROW_AREA_HEIGHT / 2
+    const y = TASK_GROUP_AREA_TOP + TASK_GROUP_AREA_HEIGHT / 2
     const roles = (x: number): string[] =>
       stackAt(built.mount, x, y).map((one) => one.getAttribute('data-role') ?? '').filter((one) => one !== '')
     expect(roles(LINE_X - 2)).toContain('Scrollbars')

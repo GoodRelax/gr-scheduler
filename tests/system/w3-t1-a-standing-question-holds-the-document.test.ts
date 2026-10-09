@@ -51,7 +51,7 @@ function fixture(): string {
       tasks: [
         {
           uid: 1,
-          wbsParentUid: null,
+          parentTaskUid: null,
           wbsOrder: 1,
           name: 'Alpha',
           start: day(5),
@@ -126,7 +126,7 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
 // see FR-032, QN-10, IC-106
 // WHY: deleting every row owes a write bundle, so the question it raises holds the document as NT-7 says.
 /** @purity non-pure */
-async function askToDeleteEveryRow(page: Page): Promise<void> {
+async function askToDeleteEveryTaskGroup(page: Page): Promise<void> {
   expect(await pressEntrance(page, 'IC-106'), 'IC-106 is on the screen').toBe(true)
   await settle(page)
 }
@@ -149,7 +149,7 @@ async function askedStage(): Promise<Stage> {
   await openDocument(opened.page, 'w3-t1-question.json', fixture())
   expect((await rename(opened.page, 'Renamed')).accepted, 'premise: one undoable edit stands in the history').toBe(true)
   await settle(opened.page)
-  await askToDeleteEveryRow(opened.page)
+  await askToDeleteEveryTaskGroup(opened.page)
   expect(await textOf(opened.page, CONFIRMATION), 'premise: QN-10 stands').not.toBeNull()
   return opened
 }

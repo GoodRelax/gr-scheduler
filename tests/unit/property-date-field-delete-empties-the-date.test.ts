@@ -102,7 +102,7 @@ const viewWith = (panel: PropertiesPanel): ScreenView => ({
     commands: [],
     language: 'ja',
   },
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: panel,
   commandPalette: null,
   openModal: null,
@@ -226,7 +226,7 @@ const THE_TASK = 1
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
     uid: THE_TASK,
-    wbsParentUid: null,
+    parentTaskUid: null,
     wbsOrder: 1,
     name: 'the one task',
     start: '2026-04-06',
@@ -319,7 +319,7 @@ const contextFor = (schedule: Schedule): InputContext => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'row-minted-outside',
+    newGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext

@@ -109,7 +109,7 @@ const translate = (text: string, document: Document = START): readonly DocumentC
 const SETTINGS_LIMITS: SettingsLimits = {
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
   zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
-  rowAreaWidthWithoutPanels: 982,
+  taskGroupAreaWidthWithoutPanels: 982,
 }
 
 const STEP_BYTES = Buffer.byteLength(JSON.stringify(START), 'utf8')
@@ -147,7 +147,7 @@ function bench(document: Document = START): Bench {
       writes += 1
       return applyDocumentChange(
         {
-          defaultRowName: 'fixture default row name',
+          defaultTaskGroupName: 'fixture default task group name',
           readStamp: held.document.documentStamp,
           commands,
           moment: CALM,
@@ -163,8 +163,8 @@ function bench(document: Document = START): Bench {
     undo: () => {
       const outcome = replaceDocument(
         {
-          defaultRowName: 'fixture default row name',
-          newGroupId: 'fresh-row',
+          defaultTaskGroupName: 'fixture default task group name',
+          newGroupId: 'fresh-task-group',
           readStamp: held.document.documentStamp,
           moment: CALM,
           call: { row: 'RD-1' },
@@ -195,7 +195,7 @@ const EMPTY_VIEW = {
   language: 'ja',
   frame: EMPTY_FRAME,
   appHeaderItems: EMPTY_HEADER,
-  rowTitlePanel: { pinnedTitles: [], titles: [] },
+  taskGroupPanel: { pinnedTitles: [], titles: [] },
   propertiesPanel: null,
   commandPalette: null,
   openModal: null,
@@ -227,7 +227,7 @@ function settingsPanel(document: Document): PropertiesPanel {
     propertiesSubject: null,
     propertiesShowing: 'documentSettings',
     notices: [],
-    rowBoxes: [],
+    taskGroupBoxes: [],
   } as unknown as ScreenViewReadings
   const panel = propertiesPanelFromSelection(
     document.schedule,
