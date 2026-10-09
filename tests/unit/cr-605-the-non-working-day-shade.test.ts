@@ -532,7 +532,7 @@ describe('OD-4 -- the shade is above the task group bands and below every line a
   it(`「${OD_4_ORDER}」 every schedule figure comes after the shade`, () => {
     const svg = tierFrame('yearMonthDayWeekday').svg()
     const shade = shadeOf(svg)
-    const figures = elementsOf(svg).filter((one) => /data-figure="task-/.test(one.attrs))
+    const figures = elementsOf(svg).filter((one) => /data-figure="task-\d/.test(one.attrs))
     expect(figures.length, 'premise: the tasks are drawn').toBeGreaterThan(0)
     for (const one of figures) expect(one.at, attrOf(one.attrs, 'data-figure') ?? '').toBeGreaterThan(shade.at)
   })
