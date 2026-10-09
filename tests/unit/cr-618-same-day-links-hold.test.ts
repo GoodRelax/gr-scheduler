@@ -21,7 +21,8 @@ const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残りの日数 
 const DQ_2 = 'max(0, 最早開始 − `start`) —— 巻き添え'
 const DQ_3 = 'max(0, `DQ-1` − (最早開始 ＋ 計画期間)) —— 発生源'
 const DW_1_PURPLE = '原因の `Task` と、その依存の下流すべて'
-const DG_1_WHEN = '表 T-310 の指摘を持つ、表 T-312 の `VO-3`（先行の側）か `VO-5` の指摘を持つ、または 表 T-316 が紫とする'
+const DG_1_WHEN =
+  '表 T-310 の指摘を持つ、表 T-311 の `VS-6` の指摘を持つ、表 T-312 の `VO-3`（先行の側）か `VO-5` の指摘を持つ、または 表 T-316 が紫とする'
 const DG_2_WHEN = '`DQ-4` が `S-397` 以上で、完了（`PS-2`）しておらず、表 T-312 の `VO-3` の指摘を持たない'
 const FR_131_ONE_EACH =
   '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
@@ -414,7 +415,7 @@ describe(`CR-618 T5 -- T-311 VS-4: ${VS_4_ACTUALS}`, () => {
     expect(rows.filter((one) => one.startsWith('VC-'))).toEqual([])
   })
 
-  it(`T-315 DG-1 is "${DG_1_WHEN}" -- a doubt (T-311) paints no Task DG-1`, () => {
+  it(`T-315 DG-1 is "${DG_1_WHEN}" -- a VS-4 doubt (T-311, not VS-6) paints no Task DG-1`, () => {
     expect([...marksOf(diagnose(dayBefore())).values()].filter((one) => one === 'DG-1')).toEqual([])
   })
 })

@@ -414,16 +414,8 @@ describe('CR-651 T-311 VS-6 -- parents that are not judged', () => {
   })
 })
 
-describe('CR-651 FR-131 VS-6 is a doubt -- it paints no marker (T-315 DG-1 is not reached by T-311)', () => {
-  it('VS-6 the marker states are the same with the finding present and with it silenced by a large tolerance', () => {
-    const told = diagnose(LEFT_PARENT(S_487_DEFAULT))
-    const silenced = diagnose(LEFT_PARENT(1000))
-    expect(vs6On(told, G)).toHaveLength(1)
-    expect(vs6Of(silenced)).toEqual([])
-    expect(told.markerStates).toEqual(silenced.markerStates)
-    expect(told.findings.filter((one) => one.row !== 'VS-6')).toEqual(silenced.findings)
-  })
-
+// WHY: CR-716 retired the cases "VS-6 paints no marker" -- T-315 DG-1 now names the VS-6 parent.
+describe('CR-651 FR-131 VS-6 is a doubt', () => {
   it('VS-6 every VS-6 finding is a suspicion, never a contradiction', () => {
     for (const finding of vs6Of(diagnose(RIGHT_PARENT(S_487_DEFAULT)))) expect(finding.kind).toBe('suspicion')
   })
@@ -512,10 +504,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 60, 38, 56])
   })
 
-  it('VS-6 sample-large-erp-program: the marker states do not move with the tolerance (a doubt paints nothing)', () => {
-    const document = sample('sample-large-erp-program.ja.xml')
-    expect(diagnose(document).markerStates).toEqual(diagnose(withTolerance(document, 1000)).markerStates)
-  })
+  // WHY: CR-716 retired "the marker states do not move with the tolerance" -- T-315 DG-1 names the VS-6 parent.
 })
 
 describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and the new version', () => {
