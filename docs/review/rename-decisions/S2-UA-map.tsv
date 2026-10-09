@@ -1,0 +1,110 @@
+old	new	class	note
+ARM_WORDS_BY_ROW	ARM_WORDS_BY_ROW	b	a table row / spec row id, not a task group
+ASSIGNMENTS_BY_ROW	ASSIGNMENTS_BY_ROW	b	a table row / spec row id, not a task group
+AnnotationNumberRow	AnnotationNumberRow	b	a table row / spec row id, not a task group
+BROWSER_FUNCTION_WORDS_BY_ROW	BROWSER_FUNCTION_WORDS_BY_ROW	b	a table row / spec row id, not a task group
+DEADLINE_ROW	DEADLINE_ROW	b	a table row / spec row id, not a task group
+DISMISS_KEY_ROW_SEPARATOR	DISMISS_KEY_ROW_SEPARATOR	b	a table row / spec row id, not a task group
+DUAL_CURSOR_ROW	DUAL_CURSOR_ROW	b	a table row / spec row id, not a task group
+EXPORT_CHOOSER_ROW	EXPORT_CHOOSER_ROW	b	a table row / spec row id, not a task group
+FINISH_BEFORE_START_ROW	FINISH_BEFORE_START_ROW	b	a table row / spec row id, not a task group
+FINISH_TO_START_ROW	FINISH_TO_START_ROW	b	a table row / spec row id, not a task group
+GROUND_ROW	GROUND_ROW	b	a table row / spec row id, not a task group
+HINTS_BY_ROW	HINTS_BY_ROW	b	a table row / spec row id, not a task group
+INTERACTION_RECORD_ROW	INTERACTION_RECORD_ROW	b	a table row / spec row id, not a task group
+INVARIANTS_BY_ROW	INVARIANTS_BY_ROW	b	a table row / spec row id, not a task group
+ITEM_WORDS_BY_ROW	ITEM_WORDS_BY_ROW	b	a table row / spec row id, not a task group
+ItemRows	ItemRows	b	a table row / spec row id, not a task group
+MANNERS_BY_ROW	MANNERS_BY_ROW	b	a table row / spec row id, not a task group
+MILESTONE_ACHIEVED_ROW	MILESTONE_ACHIEVED_ROW	b	a table row / spec row id, not a task group
+MINIMISE_ROW	MINIMISE_ROW	b	a table row / spec row id, not a task group
+NOT_BUTTON_ROWS	NOT_BUTTON_ROWS	b	a table row / spec row id, not a task group
+ObjectRows	ObjectRows	b	a table row / spec row id, not a task group
+PARENT_PROGRESS_OUTSIDE_ROW	PARENT_PROGRESS_OUTSIDE_ROW	b	a table row / spec row id, not a task group
+PARENT_RING_ROW	PARENT_RING_ROW	b	a table row / spec row id, not a task group
+QUESTIONS_BY_ROW	QUESTIONS_BY_ROW	b	a table row / spec row id, not a task group
+READ_ONLY_ROWS	READ_ONLY_ROWS	b	a table row / spec row id, not a task group
+REASONS_BY_ROW	REASONS_BY_ROW	b	a table row / spec row id, not a task group
+ROWS_OF_TIER	ROWS_OF_TIER	b	a table row / spec row id, not a task group
+ROW_GUARDS	TASK_GROUP_GUARDS	a	
+ROW_PATH_SEPARATOR	TASK_GROUP_PATH_SEPARATOR	a	joins the path of task group names (rowPathOf); note rowPath itself is machine b
+RowAnchor	TaskGroupAnchor	a	
+RulerRow	RulerRow	b	a table row / spec row id, not a task group
+SHIFT_RATIO_ROW_OF	SHIFT_RATIO_ROW_OF	b	a table row / spec row id, not a task group
+SHORTCUT_WORDS_BY_ROW	SHORTCUT_WORDS_BY_ROW	b	a table row / spec row id, not a task group
+STATUS_DATE_ROW	STATUS_DATE_ROW	b	a table row / spec row id, not a task group
+SURFACE_OF_ROW	SURFACE_OF_ROW	b	a table row / spec row id, not a task group
+SelectionCopiedRow	SelectionCopiedTaskGroup	a	
+StartupRow	StartupRow	b	a table row / spec row id, not a task group
+THEME_HUE_SWATCH_ROW	THEME_HUE_SWATCH_ROW	b	a table row / spec row id, not a task group
+THEME_ROW_OF_FORM	THEME_ROW_OF_FORM	b	a table row / spec row id, not a task group
+UNLISTED_QUESTION_ROW	UNLISTED_QUESTION_ROW	b	a table row / spec row id, not a task group
+UNLISTED_REASON_ROW	UNLISTED_REASON_ROW	b	a table row / spec row id, not a task group
+UNUSABLE_DATE_ROW	UNUSABLE_DATE_ROW	b	a table row / spec row id, not a task group
+WATERMARK_ROW	WATERMARK_ROW	b	a table row / spec row id, not a task group
+afterRows	afterTaskGroups	a	
+byRow	byTaskGroup	a	uncertain: src and two tests rank by task group; tests/contract/cr-425 uses it for a T-036 roster row (would read wrong there)
+chooseRow	chooseTaskGroup	a	
+clampedRowShift	clampedTaskGroupShift	a	
+commentBoxRows	commentBoxRows	b	search table rows and property rows
+copiedRowOf	copiedTaskGroupOf	a	
+copiedRows	copiedTaskGroups	a	
+declaredRowOf	declaredRowOf	b	a table row / spec row id, not a task group
+deepestAncestorRow	deepestAncestorTaskGroup	a	
+documentHoldingOneRow	documentHoldingOneTaskGroup	a	
+drawsSameRows	drawsSameTaskGroups	a	
+emptyRowTaskUids	emptyRowTaskUids	b	MSPDI blank task rows (no dates allowed), not task groups
+emptyRowUids	emptyRowUids	b	MSPDI blank task rows, not task groups
+farRowRevealWrites	farTaskGroupRevealWrites	a	
+formatOfReadableRow	formatOfReadableRow	b	a table row / spec row id, not a task group
+highlightBoxRows	highlightBoxRows	b	a table row / spec row id, not a task group
+highlightRowSpanOf	highlightTaskGroupSpanOf	a	
+isAnyRowUnplaced	isAnyTaskGroupUnplaced	a	
+isBelowRow	isBelowTaskGroup	a	
+isRowPick	isTaskGroupPick	a	
+isRowUnder	isTaskGroupUnder	a	
+lastRow	lastTaskGroup	a	
+noRowToPutTheAnnotationOn	noTaskGroupToPutTheAnnotationOn	a	
+nullRow	nullRow	b	a table row / spec row id, not a task group
+parentRow	parentTaskGroup	a	
+pickRowOf	pickRowOf	b	returns a press table row id (PTD-3 or the press row)
+ratioRow	ratioRow	b	a table row / spec row id, not a task group
+releaseRow	releaseTaskGroup	a	
+rootRows	rootTaskGroups	a	uncertain: src and cr-567 are root task groups; tests/contract/state-machine-notices and state-machine-screen-values use it for root transitions (would read wrong there)
+rowAnchorAt	taskGroupAnchorAt	a	
+rowAnchorIn	taskGroupAnchorIn	a	
+rowAtY	taskGroupAtY	a	
+rowBoundary	taskGroupBoundary	a	
+rowDelete	taskGroupDelete	a	
+rowDeleteAll	taskGroupDeleteAll	a	
+rowDeleted	taskGroupDeleted	a	
+rowIn	verticalIn	a	CR-708 2.5 rule 7 / JDG-1660: IC-15 vertical zoom in, beside timeIn
+rowIndexOfTask	taskGroupIndexOfTask	a	
+rowIsAtTheDeepestLevel	taskGroupIsAtTheDeepestLevel	a	
+rowIsAtTheShallowestLevel	taskGroupIsAtTheShallowestLevel	a	
+rowKey	taskGroupKey	a	
+rowOfTask	taskGroupOfTask	a	
+rowOut	verticalOut	a	CR-708 2.5 rule 7 / JDG-1660: IC-14 vertical zoom out, beside timeOut
+rowPointIn	taskGroupPointIn	a	
+rowShrinkWrites	verticalZoomShrinkWrites	a	rule 7: answers rowZoomShrinkPressed (-> verticalZoomShrinkPressed)
+rowStoodUp	taskGroupStoodUp	a	
+rowTurnedTo	taskGroupTurnedTo	a	
+rowWordOf	rowWordOf	b	a table row / spec row id, not a task group
+rowsBack	rowsBack	b	MSPDI carried data rows
+rowsFromTasks	taskGroupsFromTasks	a	
+rowsNow	taskGroupsNow	a	
+sameRow	sameRecord	a	src: shallow equality of Task / TaskVisual records (not a task group); tests/system/user-reported-fixes.test.ts holds a band of the same task group; a name true for both
+scrollingRowsOf	scrollingTaskGroupsOf	a	
+settledRow	settledTaskGroup	a	
+shapedRows	shapedTaskGroups	a	
+shiftWithinRows	shiftWithinTaskGroups	a	
+sortedRows	sortedRows	b	a table row / spec row id, not a task group
+taskRows	taskRows	b	search table rows
+taskUidsWithoutRow	taskUidsWithoutTaskGroup	a	
+ticksOfRow	ticksOfRow	b	a table row / spec row id, not a task group
+withRow	withTaskGroup	a	
+withRows	withTaskGroups	a	
+withRowsAlso	withTaskGroupsAlso	a	
+withWbsOrderFollowingTheRows	withWbsOrderFollowingTheTaskGroups	a	
+withoutRow	withoutTaskGroup	a	
+wordsRowOf	wordsRowOf	b	a table row / spec row id, not a task group

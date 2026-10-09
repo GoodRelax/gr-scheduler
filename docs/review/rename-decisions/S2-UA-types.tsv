@@ -1,0 +1,124 @@
+path	line	col	nth	name	decision	note
+src/adapter/document-codec/json-codec.ts	222	8	0	rows	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	223	65	0	rows	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	224	17	0	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	224	52	1	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	224	77	2	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	225	7	0	rows	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	226	21	0	rows	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	226	31	0	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	227	14	0	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	227	37	1	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	227	43	2	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	227	54	3	row	task-group	json-codec: the taskGroups array of an older document
+src/adapter/document-codec/json-codec.ts	249	10	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	250	19	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	250	54	1	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	250	90	2	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	251	23	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	251	33	1	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	252	19	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	252	29	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	253	12	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	253	29	1	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	253	96	2	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	253	104	3	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	297	10	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	298	23	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	299	9	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	299	20	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	299	37	1	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	299	76	2	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	300	21	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	300	31	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	301	20	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	301	33	1	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/json-codec.ts	302	47	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	283	10	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	284	15	0	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	284	36	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	284	44	1	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	284	78	1	row	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	285	25	0	rows	keep	any collection of the document (not only task groups)
+src/adapter/document-codec/mspdi-codec.ts	285	33	1	rows	keep	any collection of the document (not only task groups)
+src/adapter/input-command-translator/field-commit.ts	291	32	0	rows	task-group	
+src/adapter/input-command-translator/frame-drags.ts	86	31	0	rows	task-group	
+src/adapter/input-command-translator/input-command-translator.ts	1290	20	0	rows	task-group	
+src/adapter/input-command-translator/input-command-translator.ts	500	16	0	rows	task-group	
+src/adapter/input-command-translator/input-command-translator.ts	510	27	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	559	8	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	560	68	1	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	560	9	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	643	11	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	663	10	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	666	46	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	671	14	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	672	14	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	682	36	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	682	52	1	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	683	36	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	683	60	1	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	685	37	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	685	57	1	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	686	37	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	686	53	1	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	703	8	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	704	70	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	719	37	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	720	12	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	721	12	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	727	19	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	741	34	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	742	33	0	rows	task-group	
+src/adapter/input-command-translator/item-grab.ts	742	53	1	rows	task-group	
+src/adapter/input-command-translator/row-tree-entrances.ts	162	32	0	rows	task-group	
+src/adapter/input-command-translator/row-tree-entrances.ts	187	36	0	rows	task-group	
+src/adapter/screen-renderer/app-header-items.ts	183	85	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/app-header-items.ts	183	102	2	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/app-header-items.ts	185	34	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/app-header-items.ts	185	39	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/row-title-panel.ts	460	16	0	rows	task-group	
+src/adapter/screen-renderer/screen-frame.ts	168	27	0	rows	task-group	
+src/adapter/screen-renderer/screen-frame.ts	189	27	0	rows	task-group	
+src/adapter/screen-renderer/search-table-filters.ts	142	45	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	166	47	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	171	26	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	172	24	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	172	32	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	183	48	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	183	89	2	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	191	23	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	197	40	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	197	66	2	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	197	118	3	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	214	26	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	214	79	2	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	225	17	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	226	22	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	229	12	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	252	54	1	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	252	81	2	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	64	60	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/screen-renderer/search-table-filters.ts	65	59	0	Row	keep	type parameter (CR-708 4: TableColumns<Row> / inGroupBlocks<Row> stay)
+src/adapter/svg-renderer/schedule-grid.ts	312	39	0	rows	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	312	24	0	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	313	25	0	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	313	32	1	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	314	28	0	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	314	36	1	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	316	42	0	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	316	92	1	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	317	26	1	row	task-group	
+src/adapter/svg-renderer/schedule-grid.ts	317	26	0	row	task-group	same identifier after the lines rewrite of the id prefix on this line
+src/use-case/edit-document/deletion-confirmations.ts	34	29	1	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	104	8	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	111	6	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	117	11	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	178	27	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	227	41	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	240	56	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	288	40	0	rows	task-group	
+src/use-case/edit-document/edit-task-group.ts	96	11	0	rows	task-group	
+src/use-case/edit-document/search-jump.ts	90	93	0	rows	task-group	
+src/use-case/edit-document/search-jump.ts	92	109	0	rows	task-group	
+src/use-case/edit-document/task-group-order.ts	145	43	0	rows	task-group	
