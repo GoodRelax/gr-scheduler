@@ -473,7 +473,7 @@ tools/generate_icon_glyphs.py	79	36	行	keep
 tools/generate_icon_roster.py	90	36	行	keep			
 docs/download/index.html	207	28	row	task-group			uncertain: download page selling point, mirrors the Japanese rewrite
 docs/download/index.html	278	25	rows	task-group			
-docs/guides/schedule-to-grs-json/grs-skeleton.json	175	18	Row	task-group			example label; tools/generate_image_to_grs_json_prompt.py BASE_ROW label 'Row 1' should follow (S2-TL)
+docs/guides/schedule-to-grs-json/grs-skeleton.json	175	18	Row	rewrite	Row 1	Task Group 1	follows tools/generate_image_to_grs_json_prompt.py BASE_ROW label (S2-TL-2)
 docs/guides/schedule-to-grs-json/prompt-en.md	15	103	rows	task-group			
 docs/guides/schedule-to-grs-json/prompt-en.md	129	41	row	task-group			
 docs/guides/schedule-to-grs-json/prompt-en.md	129	56	row	task-group			
