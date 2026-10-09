@@ -14,8 +14,8 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif; color: var(--fg); background: var(--bg); }
-header { display: flex; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); }
-header h1 { font-size: 18px; margin: 0; flex: 1; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 6px 16px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 18px; margin: 0; flex: 1 1 auto; white-space: nowrap; }
 header .base { font-size: 14px; color: var(--muted); }
 #menuBtn { font-size: 20px; line-height: 1; padding: 4px 10px; border: 1px solid var(--line); background: #fff; border-radius: 6px; cursor: pointer; }
 #menuBtn[aria-pressed="true"] { background: #ddf4ff; border-color: var(--accent); }
@@ -90,9 +90,17 @@ td.warn { color: var(--warn); }
     <h2>暦（文書に 1 つ）</h2>
     <div id="calendarNow"></div>
 
+    <h2>ズームの案（PND-817）</h2>
+    <div id="presets">
+      <button type="button" data-preset="1">案 1</button>
+      <button type="button" data-preset="2">案 2</button>
+      <button type="button" data-preset="3">案 3（採用、JDG-1783）</button>
+    </div>
+    <div class="note" id="presetNote"></div>
     <h2>見本だけのしきい値</h2>
+    <label>ズームの最大: 1 時間 = <input type="number" id="maxPxh" value="120" min="16" step="1" style="width:64px"> px</label>
     <label>「時」の段を出す: 1 時間 &ge; <input type="number" id="thHour" value="12" min="1" step="1" style="width:64px"> px</label>
-    <label>30 分の点線を出す: 30 分 &ge; <input type="number" id="thHalf" value="6" min="1" step="1" style="width:64px"> px</label>
+    <label>30 分の点線を出す: 30 分 &ge; <input type="number" id="thHalf" value="12" min="1" step="1" style="width:64px"> px</label>
     <p><button id="reset" type="button">最初に戻す</button></p>
   </aside>
 </main>
@@ -107,7 +115,7 @@ const LABEL_W = 170;
 const ROW_H = 34;
 const RULER_ROW_H = 22;
 const MIN_PX_PER_HOUR = 0.5 / 24;   // 0.5 px per day, the narrowest zoom in GRS today
-const MAX_PX_PER_HOUR = 120;
+let MAX_PX_PER_HOUR = 120;
 const GRS_TODAY_MAX_PX_PER_HOUR = 384 / 24;  // S-1 6 px/day x S-54 64
 const MINUTES_PER_DAY = 480;         // S-128
 const DEFAULT_START = 8 * 60;        // S-482 08:00
@@ -168,7 +176,7 @@ function initialDocument() {
 
 let doc = initialDocument();
 const view = { start: 0, pxPerMs: 0 };
-const thresholds = { hourPx: 12, halfPx: 6 };
+const thresholds = { hourPx: 12, halfPx: 12 };
 
 // ---------- time zone arithmetic ----------
 // A "wall" value is the local clock of a zone encoded as if it were UTC milliseconds.
@@ -325,7 +333,9 @@ function render() {
   const t1 = msOfX(width);
   const zones = shownDisplayZones();
   const hourTier = hourTierShown();
-  const rulerRows = 2 + (hourTier ? 1 : 0) + zones.length;
+  // Time display on and hour tier shown: two rows (date with weekday, hour of the base zone).
+  // Otherwise: month and day rows. Each display zone adds one row in both cases.
+  const rulerRows = 2 + zones.length;
   const rulerH = rulerRows * RULER_ROW_H;
   const height = rulerH + doc.tasks.length * ROW_H + 8;
   const out = [];
@@ -383,13 +393,26 @@ function render() {
       const x = xOf(instantOf(base, w));
       if (x < LABEL_W || x > width) continue;
       if (pxDay >= 4 || weekdayOfWall(w) === 1) {
-        out.push(el('line', { x1: x, x2: x, y1: RULER_ROW_H, y2: height, stroke: 'var(--grid-day)', 'stroke-width': 1 }));
+        out.push(el('line', { x1: x, x2: x, y1: hourTier ? 0 : RULER_ROW_H, y2: height, stroke: 'var(--grid-day)', 'stroke-width': 1 }));
       }
     }
   }
 
+  // two-row ruler, row 1: the date with its weekday, kept at the left edge while the day is in view
+  if (hourTier) {
+    let w = dayStartWall(wallOf(base, t0));
+    const wEnd = wallOf(base, t1);
+    for (; w <= wEnd; w += DAY) {
+      const dayLeft = xOf(instantOf(base, w));
+      const dayRight = xOf(instantOf(base, w + DAY));
+      const d = new Date(w);
+      const label = d.getUTCFullYear() + '/' + pad2(d.getUTCMonth() + 1) + '/' + pad2(d.getUTCDate()) + ' (' + WEEKDAY_JA[d.getUTCDay()] + ')';
+      const x = Math.min(Math.max(LABEL_W, dayLeft), dayRight - 124);
+      if (dayRight > LABEL_W) out.push(el('text', { x: x + 4, y: 16, 'font-weight': 600 }, label));
+    }
+  }
   // ruler row 1: months of the base zone
-  {
+  if (!hourTier) {
     const y = 0;
     let w = Date.UTC(new Date(wallOf(base, t0)).getUTCFullYear(), new Date(wallOf(base, t0)).getUTCMonth(), 1);
     const wEnd = wallOf(base, t1);
@@ -403,7 +426,7 @@ function render() {
     }
   }
   // ruler row 2: days of the base zone
-  {
+  if (!hourTier) {
     const y = RULER_ROW_H;
     let w = dayStartWall(wallOf(base, t0));
     const wEnd = wallOf(base, t1);
@@ -422,13 +445,14 @@ function render() {
   const hourRows = hourTier ? [base] : [];
   const rowsOfZones = hourRows.concat(zones);
   rowsOfZones.forEach((zone, i) => {
-    const y = 2 * RULER_ROW_H + i * RULER_ROW_H;
+    const y = (hourTier ? 1 : 2) * RULER_ROW_H + i * RULER_ROW_H;
     const isBase = hourTier && i === 0;
     const mid = msOfX(LABEL_W + plotW / 2);
     out.push(el('line', { x1: 0, x2: width, y1: y, y2: y, stroke: 'var(--line)' }));
     out.push(el('text', { x: 6, y: y + 16, class: 'zoneLabel' }, (isBase ? '基準 ' : '') + shortZoneName(zone, mid) + ' ' + offsetText(zone, mid)));
     if (hourTier) {
       const labelStep = [1, 2, 3, 6, 12].find((s) => s * pxh >= 26) || 24;
+      let lastLabelEnd = -Infinity;
       let w = Math.floor(wallOf(zone, t0) / HOUR) * HOUR;
       const wEnd = wallOf(zone, t1) + HOUR;
       for (; w <= wEnd; w += HOUR) {
@@ -439,8 +463,11 @@ function render() {
         const isMidnight = hourOfDay === 0;
         out.push(el('line', { x1: x, x2: x, y1: y + (isMidnight ? 0 : 14), y2: y + RULER_ROW_H, stroke: isMidnight ? 'var(--fg)' : 'var(--grid-day)' }));
         const d = new Date(w);
-        const text = isMidnight ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate() : String(hourOfDay);
-        out.push(el('text', { x: x + 2, y: y + 13, 'font-weight': isMidnight ? 700 : 400 }, text));
+        // The base row's date is already in row 1; a display zone shows its own date at its midnight.
+        const text = isMidnight && !isBase ? (d.getUTCMonth() + 1) + '/' + d.getUTCDate() : String(hourOfDay);
+        if (x + 2 < lastLabelEnd + 4) continue;
+        lastLabelEnd = x + 2 + text.length * 7.5;
+        out.push(el('text', { x: x + 2, y: y + 13, 'font-weight': isMidnight && !isBase ? 700 : 400 }, text));
       }
     } else {
       let w = dayStartWall(wallOf(zone, t0));
@@ -455,8 +482,12 @@ function render() {
   });
   out.push(el('line', { x1: 0, x2: width, y1: rulerH, y2: rulerH, stroke: 'var(--line)' }));
   out.push(el('line', { x1: LABEL_W, x2: LABEL_W, y1: 0, y2: height, stroke: 'var(--line)' }));
-  out.push(el('text', { x: 6, y: 16, class: 'muted' }, '月'));
-  out.push(el('text', { x: 6, y: RULER_ROW_H + 16, class: 'muted' }, '日（基準）'));
+  if (hourTier) {
+    out.push(el('text', { x: 6, y: 16, class: 'muted' }, '年月日（基準）'));
+  } else {
+    out.push(el('text', { x: 6, y: 16, class: 'muted' }, '月'));
+    out.push(el('text', { x: 6, y: RULER_ROW_H + 16, class: 'muted' }, '日（基準）'));
+  }
 
   // task rows
   doc.tasks.forEach((task, i) => {
@@ -512,7 +543,7 @@ function render() {
 
 function renderStatus() {
   const pxh = pxPerHour();
-  const tiers = ['年', '月', '日'].concat(hourTierShown() ? ['時'] : []);
+  const tiers = hourTierShown() ? ['年月日曜日', '時'] : ['年', '月', '日'];
   const unit = snapUnitMinutes();
   const grid = halfGridShown() ? '30 分点線＋毎正時の実線' : hourTierShown() ? '毎正時の実線' : '日の線';
   document.getElementById('status').textContent =
@@ -631,6 +662,27 @@ document.getElementById('applyShift').addEventListener('click', () => {
 document.getElementById('showTime').addEventListener('change', (e) => { doc.showTime = e.target.checked; render(); });
 document.getElementById('thHour').addEventListener('input', (e) => { thresholds.hourPx = Math.max(1, +e.target.value || 1); render(); });
 document.getElementById('thHalf').addEventListener('input', (e) => { thresholds.halfPx = Math.max(1, +e.target.value || 1); render(); });
+document.getElementById('maxPxh').addEventListener('input', (e) => { MAX_PX_PER_HOUR = Math.max(16, +e.target.value || 16); setPxPerHour(Math.min(pxPerHour(), MAX_PX_PER_HOUR), LABEL_W + plotWidth() / 2); render(); });
+// The three plans of PND-817: [max px per hour, hour tier px per hour, dotted grid px per 30 minutes].
+const PRESETS = {
+  1: [120, 12, 12, '案 1: 最大 1 時間 120px。時の段は 1 時間 12px から、30 分の点線と 30 分寄せは 1 時間 24px から（点線 12px おき）。'],
+  2: [120, 12, 6, '案 2: 最大 1 時間 120px。時の段と 30 分の点線が 1 時間 12px で同時に出る（点線 6px おき）。'],
+  3: [60, 12, 12, '案 3: 最大 1 時間 60px。段の出方は案 1 と同じ。'],
+};
+function applyPreset(key) {
+  const [maxPxh, hourPx, halfPx, note] = PRESETS[key];
+  MAX_PX_PER_HOUR = maxPxh;
+  thresholds.hourPx = hourPx;
+  thresholds.halfPx = halfPx;
+  document.getElementById('maxPxh').value = maxPxh;
+  document.getElementById('thHour').value = hourPx;
+  document.getElementById('thHalf').value = halfPx;
+  document.getElementById('presetNote').textContent = note + ' Ctrl + ホイールかスライダーで広げて見る。';
+  document.querySelectorAll('#presets button').forEach((b) => { b.style.fontWeight = b.dataset.preset === String(key) ? '700' : '400'; });
+  setPxPerHour(Math.min(pxPerHour(), MAX_PX_PER_HOUR), LABEL_W + plotWidth() / 2);
+  render();
+}
+document.getElementById('presets').addEventListener('click', (e) => { const key = e.target.dataset && e.target.dataset.preset; if (key) applyPreset(key); });
 document.getElementById('reset').addEventListener('click', () => {
   doc = initialDocument();
   logBox.textContent = '';
@@ -716,7 +768,7 @@ window.addEventListener('resize', render);
 fitAll();
 setPxPerHour(18, LABEL_W);
 view.start = instantOf(doc.baseZone, Date.UTC(2026, 9, 28, 0, 0, 0));
-render();
+applyPreset(3);
 </script>
 </body>
 </html>
