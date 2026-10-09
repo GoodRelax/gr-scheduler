@@ -75,8 +75,7 @@ describe('DFC-2228: OP-6 fills a missing export span key with its default null (
     expect(String(finish).slice(0, 10)).toBe('2026-03-02')
   })
 
-  // JDG-1732: the built-in template follows the renames; the bundled sample is not rewritten, so it is read no more.
-  it('the built-in startup template opens with 0 refusals', () => {
+  it('the built-in startup template opens with 0 refusals (JDG-1732: the bundled sample is not rewritten)', () => {
     const read = documentFromJson(TEMPLATE_TEXT, KNOWN_VERSION)
     expect(read.ok ? [] : read.faults).toEqual([])
     if (!read.ok) return

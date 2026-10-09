@@ -1135,7 +1135,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-71 | `dom-screen-surface.ts` | **公開エントリ** | non-pure | PI-38 | ✅ 受入済 |
 | UF-103 | `screen-frame-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-104 | `app-header-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
-| UF-105 | `row-title-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-105 | `task-group-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-106 | `properties-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-107 | `field-editing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-108 | `command-palette-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
@@ -1179,12 +1179,12 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-164 | `field-entry.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-165 | `document-file-flow.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-166 | `watermark-unlock.ts` | 内部 | non-pure |  | 🔧 実装済 |
-| UF-167 | `row-band-ceiling-cache.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-167 | `task-group-band-ceiling-cache.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-168 | `copy-and-paste.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-195 | `delay-diagnostics-report-window.ts` | 内部 | non-pure |  | 🔧 実装済 |
-| UF-197 | `wbs-parent-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-197 | `parent-task-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-198 | `shown-tasks-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---

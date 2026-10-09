@@ -765,8 +765,7 @@ describe('AM-1 / AM-2 -- the two versions', () => {
   it('AM-1 is 2 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. It started at 1; CR-708 X-8
-    // raised it to 2 under AG-1 (the published names changed incompatibly).
+    // pending decision is settled the other way. CR-708 raised it from 1 (AG-1).
     expect(bench().api.agentApiVersion).toBe(2)
   })
 

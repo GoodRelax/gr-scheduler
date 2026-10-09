@@ -730,7 +730,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-153 | `mspdi-xml.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-154 | `mspdi-child-placement.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-155 | `mspdi-fade-frames.ts` | 内部 | pure |  | 🔧 実装済 |
-| UF-156 | `mspdi-imported-rows.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-156 | `mspdi-imported-task-groups.ts` | 内部 | pure |  | 🔧 実装済 |
 
 ### `file-gateway` —— FileGateway（PI-22）
 
@@ -757,8 +757,8 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-93 | `display-scale-steps.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-94 | `frame-drags.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-95 | `dual-cursor-input.ts` | 内部 | pure |  | 🔧 実装済 |
-| UF-96 | `row-tree-entrances.ts` | 内部 | pure |  | 🔧 実装済 |
-| UF-97 | `row-grab.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-96 | `task-group-tree-entrances.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-97 | `task-group-grab.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-98 | `item-grab.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-99 | `armed-placement.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-100 | `field-commit.ts` | 内部 | pure |  | 🔧 実装済 |
@@ -783,7 +783,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-67 | `notices.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-66 | `open-modals.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-64 | `properties-panel.ts` | 内部 | pure |  | ✅ 受入済 |
-| UF-63 | `row-title-panel.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-63 | `task-group-panel.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-61 | `screen-frame.ts` | 内部 | pure |  | ✅ 受入済 |
 | UF-70 | `screen-surface.ts` | 内部 | n/a |  | ✅ 受入済 |
 | UF-69 | `tooltips.ts` | 内部 | pure |  | ✅ 受入済 |
