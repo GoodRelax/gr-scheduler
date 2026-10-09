@@ -16,7 +16,7 @@ import {
 
 // WHY: E-24 names no kind of copy, so it binds every paste FR-033 makes, a Task paste included.
 const SEVERAL_TARGET_ROWS_REFUSED =
-  '⛔ 貼り付け先として行が 2 つ以上選ばれているときは、貼り付けを受け付けずに通知すること（MUST）'
+  '⛔ 貼り付け先として行が 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
 const TARGET_IS_THE_CHOSEN_ROW = '貼り付け先は、選んでいる行の子とすること（MUST）'
 const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const EDIT_GROUP_LANDS_ON_CHOSEN_ROW =

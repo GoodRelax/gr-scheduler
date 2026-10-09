@@ -206,8 +206,9 @@ const BAR_SHAPE_DRAG_MAKES_THE_SPAN =
 const FR_001_A_CLICK_MAKES_NO_BAR_TASK =
   '⛔ クリックでは、バーの形状のタスクを作らないこと（MUST NOT）'
 
+// WHY: CR-718 made TC-8 carry RS-53 and leave showing it to the T-233 display column (FR-076).
 const FR_001_TELLS_IT_MADE_NOTHING =
-  '⭐ 作らなかったことを告げること（MUST）'
+  '⭐ 作らなかった理由として 表 T-233 の `RS-53` を運ぶこと（MUST）'
 
 // ⛔ FR-083's SECOND COPY OF FR-001's PROHIBITION IS GONE, AND THAT IS THE
 // MANUSCRIPT MOVING, NOT COVERAGE BEING DROPPED (2026-09-08). FR-083's
@@ -270,7 +271,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-083 (MUST) -- the arming stands even when the shape change is refused', FR_083_THE_ARMING_STANDS_THROUGH_A_REFUSAL],
   ['FR-001 (MUST) -- a bar shape dragged makes a task of the span drawn', BAR_SHAPE_DRAG_MAKES_THE_SPAN],
   ['FR-001 (MUST NOT) -- a click makes no bar-shaped task', FR_001_A_CLICK_MAKES_NO_BAR_TASK],
-  ['FR-001 (MUST) -- it is told that nothing was made', FR_001_TELLS_IT_MADE_NOTHING],
+  ['FR-001 TC-8 (MUST) -- the reason nothing was made is carried', FR_001_TELLS_IT_MADE_NOTHING],
   ['FR-001 (MUST) -- a milestone is placed by a press alone', MILESTONE_IS_PLACED_BY_A_PRESS_ALONE],
   ['FR-001 (MUST) -- a dragged milestone lands on the pressed point', MILESTONE_LANDS_ON_THE_PRESSED_POINT],
   ['FR-001 (MUST NOT) -- a milestone is not refused for having been dragged', MILESTONE_IS_NOT_REFUSED_FOR_A_DRAG],

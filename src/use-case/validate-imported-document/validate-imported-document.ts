@@ -42,6 +42,13 @@ const BYTES_PER_MEGABYTE = 1024 * 1024
 // WHY: a ring is refused under the table T-220 row it breaks, so NT-1 tells the IV-4 words, not RS-15.
 const PARENT_RING_ROW = 'IV-4'
 
+// see IV-14, T-214, T-233
+// WHY: a day outside S-119..S-120 breaks IV-14, so the refusal carries that row, not the setting (CR-718).
+const UNUSABLE_DATE_ROW = 'IV-14'
+
+// see IV-10, FR-012, T-233
+const FINISH_BEFORE_START_ROW = 'IV-10'
+
 /** @purity pure */
 function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'): ValidationRefusal {
   return { rule, at, what, notice }
@@ -68,16 +75,16 @@ function sweepDateColumns<TRow extends object>(
     const day = dayOf(value)
     if (day === null) {
       found ??= []
-      found.push(refusal('IV-14', `${at}/${column}`,
+      found.push(refusal(UNUSABLE_DATE_ROW, `${at}/${column}`,
                          `${JSON.stringify(value)} names no day`, 'NT-1'))
       continue
     }
     if (compareDays(day, accepted.min) < 0) {
       found ??= []
-      found.push(refusal('S-119', `${at}/${column}`, `${value} is before importMinDate`, 'NT-1'))
+      found.push(refusal(UNUSABLE_DATE_ROW, `${at}/${column}`, `${value} is before importMinDate`, 'NT-1'))
     } else if (compareDays(day, accepted.max) > 0) {
       found ??= []
-      found.push(refusal('S-120', `${at}/${column}`, `${value} is after importMaxDate`, 'NT-1'))
+      found.push(refusal(UNUSABLE_DATE_ROW, `${at}/${column}`, `${value} is after importMaxDate`, 'NT-1'))
     }
   }
   return found ?? NO_REFUSALS
@@ -222,10 +229,10 @@ export function validateImportedDocument(
   const max = dayOf(bounds.importMaxDate)
   if (min === null) {
     // WHY: refused rather than skipped: a range that cannot be read proves nothing about the input.
-    found.push(refusal('S-119', '', `importMinDate names no day: ${bounds.importMinDate}`, 'NT-1'))
+    found.push(refusal(UNUSABLE_DATE_ROW, '', `importMinDate names no day: ${bounds.importMinDate}`, 'NT-1'))
   }
   if (max === null) {
-    found.push(refusal('S-120', '', `importMaxDate names no day: ${bounds.importMaxDate}`, 'NT-1'))
+    found.push(refusal(UNUSABLE_DATE_ROW, '', `importMaxDate names no day: ${bounds.importMaxDate}`, 'NT-1'))
   }
   const accepted: AcceptedDays | null = min !== null && max !== null ? { min, max } : null
 
@@ -253,7 +260,7 @@ export function validateImportedDocument(
     const finish = dayOf(task.finish)
     if (start !== null && finish !== null && compareDays(finish, start) < 0) {
       found.push(
-        refusal('FR-012', foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
+        refusal(FINISH_BEFORE_START_ROW, foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
       )
     }
 

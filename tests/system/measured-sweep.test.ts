@@ -2827,15 +2827,14 @@ function tierLine(rowId: string, column: number): string {
 }
 
 // GOES RED IF: a bar shape armed and pressed WITHOUT a drag puts a task on the
-// schedule; or puts nothing there and says nothing; or if a bar shape DRAGGED
+// schedule; or if a bar shape DRAGGED
 // stops making the span that was drawn; or if a milestone stops being placed by
 // the press alone.
 //
 // `FR-001` (MUST NOT) 「クリックでは、バーの形状のタスクを作らないこと（MUST NOT）」
 // -- 「タスクは期間を持つものであり、引いていない押下はその期間を言っていない。」
-// (MUST) 「作らなかったことを告げること（MUST）」, whose manner that clause hands to
-// `FR-029`, and whose reason is table T-233's fallback because no row of that
-// table names this 場面 yet.
+// TC-8 (MUST) carries RS-53 for the press that made nothing; whether it is shown
+// is the T-233 display column's (FR-076, CR-718), so this case does not read it.
 // (MUST) 「引いた期間のタスクを作ること（MUST）」 for the drag.
 // (MUST) 「マイルストーンは押すだけで置くこと（MUST）。引いても、押した点に置くこと
 // （MUST）」, and (MUST NOT) 「引いたことを理由に拒んではならない（MUST NOT）」.
