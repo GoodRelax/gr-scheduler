@@ -1,0 +1,79 @@
+old	new	class	note
+ARM_ROW	ARM_ROW	b	a spec table row, a settings row or a data row, not a task group
+ASSIGNMENT_ROW	ASSIGNMENT_ROW	b	a spec table row, a settings row or a data row, not a task group
+BASE_ROW	BASE_TASK_GROUP	a	the one TaskGroup of the base document
+BROWSER_FUNCTION_ROW	BROWSER_FUNCTION_ROW	b	a spec table row, a settings row or a data row, not a task group
+CALENDAR_ROW_TOKEN	CALENDAR_ROW_TOKEN	b	a spec table row, a settings row or a data row, not a task group
+CLOSE_SURFACE_ROW	CLOSE_SURFACE_ROW	b	a spec table row, a settings row or a data row, not a task group
+DEFAULT_CALENDAR_ROWS	DEFAULT_CALENDAR_ROWS	b	a spec table row, a settings row or a data row, not a task group
+DEPENDENCY_KIND_ROW	DEPENDENCY_KIND_ROW	b	a spec table row, a settings row or a data row, not a task group
+ENTITY_ROWS	ENTITY_ROWS	b	a spec table row, a settings row or a data row, not a task group
+ENTITY_ROWS_NOTE	ENTITY_ROWS_NOTE	b	a spec table row, a settings row or a data row, not a task group
+ESCAPE_ROW	ESCAPE_ROW	b	a spec table row, a settings row or a data row, not a task group
+EXPORT_FORMAT_ROW	EXPORT_FORMAT_ROW	b	a spec table row, a settings row or a data row, not a task group
+EntityRows	EntityRows	b	a spec table row, a settings row or a data row, not a task group
+FORMAT_ROW	FORMAT_ROW	b	a spec table row, a settings row or a data row, not a task group
+GUIDE_CURSOR_ROW	GUIDE_CURSOR_ROW	b	a spec table row, a settings row or a data row, not a task group
+LEFT_OUT_ROWS	LEFT_OUT_ROWS	b	a spec table row, a settings row or a data row, not a task group
+LEGEND_ROW	LEGEND_ROW	b	a spec table row, a settings row or a data row, not a task group
+MILESTONE_LIST_ROW	MILESTONE_LIST_ROW	b	a spec table row, a settings row or a data row, not a task group
+MILESTONE_SHAPE_ROW	MILESTONE_SHAPE_ROW	b	a spec table row, a settings row or a data row, not a task group
+NAMED_ROW	NAMED_ROW	b	a spec table row, a settings row or a data row, not a task group
+NOTED_ROWS	NOTED_ROWS	b	a spec table row, a settings row or a data row, not a task group
+NestedRows	NestedRows	b	a spec table row, a settings row or a data row, not a task group
+OVERVIEW_ROW	OVERVIEW_TASK_GROUP	a	label of a task group of the startup template
+OVERVIEW_ROWS	OVERVIEW_TASK_GROUPS	a	labels of task groups of the startup template
+PHASE_BAR_ROW	PHASE_BAR_TASK_GROUP	a	label of a task group of the startup template
+PHASE_GATE_ROW	PHASE_GATE_TASK_GROUP	a	label of a task group of the startup template
+PLAN_ACTUAL_STATE_ROW	PLAN_ACTUAL_STATE_ROW	b	a spec table row, a settings row or a data row, not a task group
+PROPERTY_ROW	PROPERTY_ROW	b	a spec table row, a settings row or a data row, not a task group
+QUESTION_DISPLAY_OF_ROW	QUESTION_DISPLAY_OF_ROW	b	a spec table row, a settings row or a data row, not a task group
+QuestionRow	QuestionRow	b	a spec table row, a settings row or a data row, not a task group
+ROW_KIND	TASK_GROUP_KIND	a	kind per task group label (startup template)
+ROW_OBJECT_SPAN	TASK_GROUP_OBJECT_SPAN	a	objects one task group keeps returning to (startup template)
+ROW_PAINT	TASK_GROUP_PAINT	a	colour of a task group (startup template)
+ROW_TITLE_PANEL	TASK_GROUP_PANEL	a	rule 2; collision with ROW_PANEL resolved by ruling: the other side takes a distinct *Box name
+ReasonRow	ReasonRow	b	a spec table row, a settings row or a data row, not a task group
+SETTINGS_ROW	SETTINGS_ROW	b	a spec table row, a settings row or a data row, not a task group
+SHAPE_ROW	SHAPE_ROW	b	a spec table row, a settings row or a data row, not a task group
+SHORTCUT_ROW	SHORTCUT_ROW	b	a spec table row, a settings row or a data row, not a task group
+SURFACE_ROW	SURFACE_ROW	b	a spec table row, a settings row or a data row, not a task group
+THEME_HUE_ROW	THEME_HUE_ROW	b	a spec table row, a settings row or a data row, not a task group
+WANTED_ROWS	WANTED_TASK_GROUPS	a	TP-5: number of task groups of the startup template
+_gate_rows	_gate_rows	b	a spec table row, a settings row or a data row, not a task group
+_row	_row	b	unused parameter for a table row in it.each
+all_rows	all_rows	b	a spec table row, a settings row or a data row, not a task group
+constant_rows	constant_rows	b	a spec table row, a settings row or a data row, not a task group
+entity_rows	entity_rows	b	a spec table row, a settings row or a data row, not a task group
+entity_rows_block	entity_rows_block	b	a spec table row, a settings row or a data row, not a task group
+event_rows	event_rows	b	a spec table row, a settings row or a data row, not a task group
+firstRow	firstRow	b	uncertain: the spec key paletteGroups.firstRow names an IC row (b); locals in view-place.ts, item-grab.ts and two system tests hold a task group and may be renamed by their lanes by hand
+foreign_key_block_rows	foreign_key_block_rows	b	a spec table row, a settings row or a data row, not a task group
+gate_rows	gate_rows	b	a spec table row, a settings row or a data row, not a task group
+header_rows	header_rows	b	a spec table row, a settings row or a data row, not a task group
+interface_row	interface_row	b	a spec table row, a settings row or a data row, not a task group
+keys_by_row	keys_by_row	b	a spec table row, a settings row or a data row, not a task group
+markdown_row	markdown_row	b	a spec table row, a settings row or a data row, not a task group
+nested_rows	nested_rows	b	a spec table row, a settings row or a data row, not a task group
+per_row	per_task_group	a	task count per task group (startup template)
+pointed_row	pointed_row	b	a spec table row, a settings row or a data row, not a task group
+reasonRow	reasonRow	b	a spec table row, a settings row or a data row, not a task group
+row-to-row	task-group-to-task-group	a	relation between two task groups (startup template comment)
+rowRevealAsked	taskGroupRevealAsked	a	state machine event revealing a task group (T-328)
+rowTitlePanelWidth	taskGroupPanelWidth	a	rule 2, K-71, GRS JSON key (CR-708 2.3); collision with rowPanelWidth resolved by ruling: the other side takes a distinct *Box name
+row_comment	row_comment	b	a spec table row, a settings row or a data row, not a task group
+row_of	row_of	b	a spec table row, a settings row or a data row, not a task group
+row_owner	row_owner	b	a spec table row, a settings row or a data row, not a task group
+row_pattern	row_pattern	b	a spec table row, a settings row or a data row, not a task group
+seen_rows	seen_rows	b	a spec table row, a settings row or a data row, not a task group
+settings-row	settings-row	b	a spec table row, a settings row or a data row, not a task group
+settings_row	settings_row	b	a spec table row, a settings row or a data row, not a task group
+settings_row_default	settings_row_default	b	a spec table row, a settings row or a data row, not a task group
+settings_rows	settings_rows	b	a spec table row, a settings row or a data row, not a task group
+seven-row	seven-row	b	a spec table row, a settings row or a data row, not a task group
+shape_rows	shape_rows	b	a spec table row, a settings row or a data row, not a task group
+stated_row_count	stated_row_count	b	a spec table row, a settings row or a data row, not a task group
+transition_rows	transition_rows	b	a spec table row, a settings row or a data row, not a task group
+under_a_row	under_a_row	b	a spec table row, a settings row or a data row, not a task group
+with_calendar_rows_printed	with_calendar_rows_printed	b	a spec table row, a settings row or a data row, not a task group
+without_row	without_row	b	a spec table row, a settings row or a data row, not a task group
