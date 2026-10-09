@@ -1,0 +1,1474 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+.claude/skills/spec-graph-check/SKILL.md	45	74	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	56	10	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	75	24	rows	keep			
+.claude/skills/spec-graph-check/SKILL.md	75	71	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	84	64	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	104	42	rows	keep			
+.claude/skills/spec-graph-check/SKILL.md	152	73	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	220	67	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	231	50	rows	keep			
+.claude/skills/spec-graph-check/SKILL.md	249	29	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	251	26	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	258	20	row	keep			
+.claude/skills/spec-graph-check/SKILL.md	298	42	rows	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	14	6	rows	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	26	2	row	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	61	14	row	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	85	26	行	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	85	70	行	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	134	62	row	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	136	6	row	keep			
+.claude/skills/spec-graph-check/audit-ch5.py	222	58	rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	6	35	rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	7	70	rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	11	20	Rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	17	46	rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	42	39	row	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	80	44	rows	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	90	36	row	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	90	69	row	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	102	35	row	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	103	19	row	keep			
+.claude/skills/spec-graph-check/check-changelog-versions.py	106	36	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	45	55	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	72	37	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	76	57	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	78	66	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	80	36	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	81	12	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	83	73	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	87	7	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	157	41	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	158	71	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	165	21	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	264	51	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	293	69	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	516	68	rows	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	556	50	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	577	42	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	595	67	row	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	773	21	rows	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	777	24	rows	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	782	24	rows	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	788	22	rows	keep			
+.claude/skills/spec-graph-check/check-comment-rules.py	1173	58	row	keep			
+.claude/skills/spec-graph-check/check-cr-discipline.py	59	28	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	2	17	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	12	0	rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	18	45	Rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	38	29	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	41	48	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	42	59	rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	42	73	rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	44	29	rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	48	75	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	51	40	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	63	6	ROW	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	66	9	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	68	54	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	102	31	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	107	28	rows	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	108	48	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	116	31	row	keep			
+.claude/skills/spec-graph-check/check-decided-spec.py	119	27	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	8	9	行	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	11	11	行	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	15	69	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	18	42	行足	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	26	42	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	29	56	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	32	23	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	37	0	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	37	32	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	37	53	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	40	7	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	94	32	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	111	38	ROWS	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	112	57	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	138	16	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	166	70	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	202	40	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	212	33	rows	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	233	39	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	233	62	row	keep			
+.claude/skills/spec-graph-check/check-decision-tables.py	293	38	row	keep			
+.claude/skills/spec-graph-check/check-development-record.py	81	48	rows	keep			
+.claude/skills/spec-graph-check/check-development-record.py	105	28	row	keep			
+.claude/skills/spec-graph-check/check-development-record.py	109	14	row	keep			
+.claude/skills/spec-graph-check/check-development-record.py	112	48	row	keep			
+.claude/skills/spec-graph-check/check-development-record.py	118	22	rows	keep			
+.claude/skills/spec-graph-check/check-development-record.py	160	29	row	keep			
+.claude/skills/spec-graph-check/check-development-record.py	185	31	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	9	53	rows	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	12	0	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	13	43	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	38	29	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	45	4	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	46	66	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	51	32	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	64	23	rows	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	70	28	rows	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	71	2	rows	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	138	38	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	159	65	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	184	31	row	keep			
+.claude/skills/spec-graph-check/check-device-route-row-ids.py	184	55	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	5	26	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	7	32	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	9	13	row	task-group			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	9	45	row	task-group			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	11	65	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	21	7	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	23	47	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	28	8	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	29	17	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	58	21	ROW	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	60	57	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	61	69	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	68	19	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	68	26	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	79	43	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	120	18	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	120	39	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	121	48	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	122	13	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	218	56	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	219	6	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	277	26	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	282	63	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	283	28	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	317	74	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	318	39	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	331	60	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	358	74	row	keep			
+.claude/skills/spec-graph-check/check-dictionary-table-covariance.py	363	69	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	2	61	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	7	27	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	8	34	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	17	42	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	19	10	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	22	36	ROW	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	22	43	ROW	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	29	34	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	30	21	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	62	49	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	72	26	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	105	14	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	128	48	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	154	25	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	205	67	row	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	206	57	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	224	71	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	236	61	rows	keep			
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	237	26	rows	keep			
+.claude/skills/spec-graph-check/check-generated-constants.py	19	42	row	keep			
+.claude/skills/spec-graph-check/check-grab-table-parents.py	65	43	row	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	25	45	row	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	26	0	row	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	67	59	rows	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	91	30	rows	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	202	12	row	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	207	13	row	keep			
+.claude/skills/spec-graph-check/check-grs-json-ledger.py	215	20	row	keep			
+.claude/skills/spec-graph-check/check-guide-grs-json.py	38	0	rows	keep			
+.claude/skills/spec-graph-check/check-identifier-reservation.py	35	40	rows	keep			
+.claude/skills/spec-graph-check/check-identifier-reservation.py	36	60	rows	keep			
+.claude/skills/spec-graph-check/check-identifier-reservation.py	103	2	行	keep			
+.claude/skills/spec-graph-check/check-identifier-reservation.py	263	48	rows	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	88	28	rows	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	89	57	row	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	91	21	row	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	94	74	row	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	106	67	row	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	112	50	rows	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	116	26	row	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	126	17	rows	keep			
+.claude/skills/spec-graph-check/check-language-dictionary.py	133	47	rows	keep			
+.claude/skills/spec-graph-check/check-line-breaks.py	14	54	row	keep			
+.claude/skills/spec-graph-check/check-literal-restatement.py	511	53	rows	keep			
+.claude/skills/spec-graph-check/check-literal-restatement.py	635	47	ROWS	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	7	65	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	21	51	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	22	27	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	27	15	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	30	15	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	35	20	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	35	64	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	39	70	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	55	29	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	59	2	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	59	30	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	72	22	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	85	20	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	95	34	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	103	23	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	124	25	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	136	19	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	141	19	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	145	46	行	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	146	18	行	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	150	29	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	150	57	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	157	29	rows	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	162	21	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	163	29	row	keep			
+.claude/skills/spec-graph-check/check-live-verification.py	163	52	row	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	5	26	row	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	17	46	row	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	99	55	rows	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	130	39	row	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	277	23	row	keep			
+.claude/skills/spec-graph-check/check-must-clause-coverage.py	278	10	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	5	2	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	5	51	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	17	62	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	67	56	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	87	62	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	91	21	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	107	25	row	keep			
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	150	32	rows	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	9	32	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	13	37	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	15	27	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	37	47	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	60	11	rows	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	60	48	rows	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	62	19	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	62	66	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	105	19	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	110	67	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	116	63	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	122	43	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	130	53	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	132	34	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	132	63	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	133	20	row	keep			
+.claude/skills/spec-graph-check/check-pending-decisions.py	156	51	row	keep			
+.claude/skills/spec-graph-check/check-perf-gate.py	10	35	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	18	22	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	19	42	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	19	64	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	33	42	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	37	4	行	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	42	55	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	56	28	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	57	6	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	58	12	rows	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	73	65	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	99	50	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	131	64	row	keep			
+.claude/skills/spec-graph-check/check-press-row-ids.py	135	67	rows	keep			
+.claude/skills/spec-graph-check/check-provenance.py	16	9	row	keep			
+.claude/skills/spec-graph-check/check-provenance.py	33	11	rows	keep			
+.claude/skills/spec-graph-check/check-provenance.py	87	41	row	keep			
+.claude/skills/spec-graph-check/check-provenance.py	100	52	row	keep			
+.claude/skills/spec-graph-check/check-provenance.py	109	17	rows	keep			
+.claude/skills/spec-graph-check/check-published-members.py	58	57	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	60	57	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	260	35	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	289	47	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	317	36	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	396	33	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	423	44	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	430	39	row	keep			
+.claude/skills/spec-graph-check/check-published-members.py	431	29	row	keep			
+.claude/skills/spec-graph-check/check-purity-honesty.py	5	10	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	5	38	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	9	32	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	41	9	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	63	68	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	106	70	row	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	156	4	rows	keep			
+.claude/skills/spec-graph-check/check-quoted-source.py	275	55	row	keep			
+.claude/skills/spec-graph-check/check-repeated-expressions.py	377	22	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	2	24	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	9	27	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	10	5	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	10	21	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	16	45	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	24	6	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	24	22	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	26	66	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	28	38	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	31	4	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	38	9	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	40	41	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	41	9	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	53	65	ROW	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	54	35	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	61	61	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	67	31	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	68	9	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	68	67	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	69	44	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	70	24	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	75	59	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	76	68	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	96	29	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	98	34	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	112	41	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	118	20	行	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	120	45	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	122	14	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	182	15	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	183	15	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	193	62	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	200	51	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	201	27	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	210	22	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	210	44	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	212	24	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	216	10	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	247	40	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	271	26	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	275	61	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	282	29	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	283	36	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	286	29	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	287	48	rows	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	295	40	row	keep			
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	296	69	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	6	32	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	8	8	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	29	20	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	32	9	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	43	4	rows	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	44	69	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	49	0	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	50	17	rows	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	53	62	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	54	34	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	81	33	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	97	0	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	99	5	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	105	55	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	211	12	ROW	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	211	62	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	251	20	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	254	35	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	284	60	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	365	43	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	378	20	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	388	29	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	391	33	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	400	29	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	402	60	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	405	46	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	412	60	row	keep			
+.claude/skills/spec-graph-check/check-ruling-landed.py	440	29	row	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	2	70	row	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	10	40	row	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	17	13	rows	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	18	52	row	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	49	53	rows	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	52	58	rows	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	53	20	rows	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	56	52	rows	keep			
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	57	23	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	8	39	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	10	20	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	11	43	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	12	61	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	39	36	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	41	58	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	47	62	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	48	68	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	75	71	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	77	71	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	82	5	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	83	21	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	94	8	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	102	17	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	173	52	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	187	30	rows	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	253	44	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	253	65	row	keep			
+.claude/skills/spec-graph-check/check-spec-id-references.py	256	47	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	2	17	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	4	9	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	7	49	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	14	17	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	16	27	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	17	34	行	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	19	59	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	24	53	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	27	29	行	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	28	27	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	32	18	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	47	50	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	53	50	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	60	43	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	68	65	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	71	33	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	73	61	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	95	29	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	100	22	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	107	66	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	110	22	行	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	134	13	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	142	62	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	151	10	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	155	10	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	164	26	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	166	44	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	175	45	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	224	26	rows	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	224	65	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	226	36	行	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	227	13	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	234	29	row	keep			
+.claude/skills/spec-graph-check/check-stale-blocked.py	239	25	row	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	154	26	row	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	453	26	rows	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	453	32	Row	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	455	14	rows	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	461	22	rows	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	461	28	Row	keep			
+.claude/skills/spec-graph-check/check-twin-comments.py	462	13	rows	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	2	61	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	14	26	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	15	28	rows	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	24	48	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	25	39	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	28	36	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	182	67	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	203	80	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	226	25	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	227	13	rows	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	255	42	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	260	58	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	262	36	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	271	63	row	keep			
+.claude/skills/spec-graph-check/check-unit-test-or-omission.py	275	63	row	keep			
+.claude/skills/spec-graph-check/check.sh	38	68	row	keep			
+.claude/skills/spec-graph-check/check.sh	46	19	row	keep			
+.claude/skills/spec-graph-check/check.sh	60	49	row	keep			
+.claude/skills/spec-graph-check/check.sh	62	14	行	keep			
+.claude/skills/spec-graph-check/check.sh	62	34	row	keep			
+.claude/skills/spec-graph-check/check.sh	119	24	row	keep			
+.claude/skills/spec-graph-check/check.sh	137	42	row	keep			
+.claude/skills/spec-graph-check/check.sh	168	51	row	keep			
+.claude/skills/spec-graph-check/check.sh	171	32	行	keep			
+.claude/skills/spec-graph-check/check.sh	172	16	row	keep			
+.claude/skills/spec-graph-check/check.sh	175	45	rows	keep			
+.claude/skills/spec-graph-check/check.sh	176	57	row	keep			
+.claude/skills/spec-graph-check/check.sh	184	38	row	keep			
+.claude/skills/spec-graph-check/check.sh	187	58	row	keep			
+.claude/skills/spec-graph-check/check.sh	192	62	row	keep			
+.claude/skills/spec-graph-check/check.sh	193	60	row	keep			
+.claude/skills/spec-graph-check/check.sh	275	49	rows	keep			
+.claude/skills/spec-graph-check/check.sh	287	70	rows	keep			
+.claude/skills/spec-graph-check/check.sh	328	60	row	keep			
+.claude/skills/spec-graph-check/check.sh	329	30	rows	keep			
+.claude/skills/spec-graph-check/check.sh	349	70	row	keep			
+.claude/skills/spec-graph-check/check.sh	578	15	row	keep			
+.claude/skills/spec-graph-check/check.sh	578	54	row	keep			
+.claude/skills/spec-graph-check/check.sh	582	15	row	keep			
+.claude/skills/spec-graph-check/check.sh	652	58	rows	keep			
+.claude/skills/spec-graph-check/check.sh	727	59	rows	keep			
+.claude/skills/spec-graph-check/check.sh	743	38	row	keep			
+.claude/skills/spec-graph-check/check.sh	824	38	rows	keep			
+.claude/skills/spec-graph-check/check.sh	842	26	rows	keep			
+.claude/skills/spec-graph-check/check.sh	862	46	row	keep			
+.claude/skills/spec-graph-check/check.sh	865	51	row	keep			
+.claude/skills/spec-graph-check/check.sh	880	24	row	keep			
+.claude/skills/spec-graph-check/check.sh	895	55	row	keep			
+.claude/skills/spec-graph-check/check.sh	931	2	row	keep			
+.claude/skills/spec-graph-check/check.sh	988	9	row	keep			
+.claude/skills/spec-graph-check/check.sh	992	58	row	keep			
+.claude/skills/spec-graph-check/check.sh	993	25	row	keep			
+.claude/skills/spec-graph-check/check.sh	1029	71	row	keep			
+.claude/skills/spec-graph-check/dictionary-table-pairing.txt	1	16	row	keep			
+.claude/skills/spec-graph-check/dictionary-table-pairing.txt	6	53	row	keep			
+.claude/skills/spec-graph-check/dictionary-table-pairing.txt	7	18	row	keep			
+.claude/skills/spec-graph-check/graph.py	22	72	row	keep			
+.claude/skills/spec-graph-check/graph.py	208	23	row	keep			
+.claude/skills/spec-graph-check/impact.py	71	12	row	keep			
+.claude/skills/spec-graph-check/impact.py	122	13	行	keep			
+.claude/skills/spec-graph-check/impact.py	122	19	行	keep			
+.claude/skills/spec-graph-check/impact.py	123	44	rows	keep			
+.claude/skills/spec-graph-check/impact.py	172	14	行	keep			
+.claude/skills/spec-graph-check/impact.py	175	24	行	keep			
+.claude/skills/spec-graph-check/impact.py	188	17	行	keep			
+.claude/skills/spec-graph-check/impact.py	197	31	行	keep			
+.claude/skills/spec-graph-check/impact.py	212	17	rows	keep			
+.claude/skills/spec-graph-check/impact.py	228	13	行	keep			
+.claude/skills/spec-graph-check/induced.py	24	64	row	keep			
+.claude/skills/spec-graph-check/induced.py	134	60	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	5	22	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	8	5	rows	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	10	58	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	12	31	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	15	8	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	19	60	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	24	29	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	27	64	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	31	60	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	32	23	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	34	33	rows	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	117	12	row	keep			
+.claude/skills/spec-graph-check/ledger_quotes.py	119	59	row	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	16	22	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	18	45	row	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	32	0	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	90	40	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	96	36	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	108	61	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	144	49	row	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	146	29	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	154	74	row	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	171	23	row	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	232	28	rows	keep			
+.claude/skills/spec-graph-check/list-asserted-claims.py	250	9	row	keep			
+.claude/skills/spec-graph-check/list-lying-edges.py	113	26	row	keep			
+.claude/skills/spec-graph-check/list-lying-edges.py	125	43	ROWS	keep			
+.claude/skills/spec-graph-check/list-lying-edges.py	128	15	rows	keep			
+.claude/skills/spec-graph-check/list-lying-edges.py	185	52	ROW	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	9	37	row	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	30	61	row	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	80	47	行	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	134	51	row	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	136	25	行	keep			
+.claude/skills/spec-graph-check/list-prose-tallies.py	158	45	row	keep			
+.claude/skills/spec-graph-check/list-withdrawn-cited.py	81	32	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	11	55	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	12	18	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	63	19	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	78	10	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	78	67	Rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	81	56	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	99	32	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	105	55	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	110	40	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	112	56	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	112	72	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	120	33	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	144	48	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	171	62	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	175	44	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	182	39	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	184	49	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	189	23	行	keep			
+.claude/skills/spec-graph-check/md-checks.py	190	74	行	keep			
+.claude/skills/spec-graph-check/md-checks.py	197	59	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	198	38	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	200	74	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	232	34	ROW	keep			
+.claude/skills/spec-graph-check/md-checks.py	233	7	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	234	42	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	235	53	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	256	52	row	keep			
+.claude/skills/spec-graph-check/md-checks.py	271	40	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	276	51	rows	keep			
+.claude/skills/spec-graph-check/md-checks.py	281	30	rows	keep			
+.claude/skills/spec-graph-check/retired.py	26	42	row	keep			
+.claude/skills/spec-graph-check/retired.py	29	10	row	keep			
+.claude/skills/spec-graph-check/retired.py	31	17	row	keep			
+.claude/skills/spec-graph-check/retired.py	51	26	rows	keep			
+.claude/skills/spec-graph-check/retired.py	107	55	row	keep			
+.claude/skills/spec-graph-check/retired.py	112	52	row	keep			
+.claude/skills/spec-graph-check/retired.py	113	70	row	keep			
+.claude/skills/spec-graph-check/retired.py	117	49	row	keep			
+.claude/skills/spec-graph-check/retired.py	121	49	row	keep			
+.claude/skills/spec-graph-check/retired.py	125	68	row	task-group			
+.claude/skills/spec-graph-check/retired.py	127	44	row	task-group			
+.claude/skills/spec-graph-check/retired.py	127	74	row	task-group			
+.claude/skills/spec-graph-check/retired.py	135	34	row	keep			
+.claude/skills/spec-graph-check/retired.py	136	37	row	keep			
+.claude/skills/spec-graph-check/retired.py	139	13	row	keep			
+.claude/skills/spec-graph-check/retired.py	146	18	rows	keep			
+.claude/skills/spec-graph-check/retired.py	163	54	rows	keep			
+.claude/skills/spec-graph-check/retired.py	170	54	rows	keep			
+.claude/skills/spec-graph-check/retired.py	182	44	ROWS	keep			
+.claude/skills/spec-graph-check/retired.py	182	64	rows	keep			
+.claude/skills/spec-graph-check/retired.py	186	74	rows	keep			
+.claude/skills/spec-graph-check/retired.py	201	30	row	keep			
+.claude/skills/spec-graph-check/retired.py	201	69	rows	keep			
+.claude/skills/spec-graph-check/retired.py	207	44	rows	keep			
+.claude/skills/spec-graph-check/retired.py	208	73	rows	keep			
+.claude/skills/spec-graph-check/retired.py	222	32	rows	keep			
+.claude/skills/spec-graph-check/retired.py	232	53	rows	keep			
+.claude/skills/spec-graph-check/retired.py	233	68	row	keep			
+.claude/skills/spec-graph-check/retired.py	236	26	rows	keep			
+.claude/skills/spec-graph-check/retired.py	241	33	row	keep			
+.claude/skills/spec-graph-check/retired.py	246	45	rows	keep			
+.claude/skills/spec-graph-check/retired.py	248	30	row	keep			
+.claude/skills/spec-graph-check/retired.py	248	54	rows	keep			
+.claude/skills/spec-graph-check/retired.py	249	48	row	keep			
+.claude/skills/spec-graph-check/retired.py	262	74	row	keep			
+.claude/skills/spec-graph-check/retired.py	264	37	row	keep			
+.claude/skills/spec-graph-check/retired.py	268	52	row	task-group			
+.claude/skills/spec-graph-check/retired.py	274	38	row	keep			
+.claude/skills/spec-graph-check/retired.py	319	13	row	keep			
+.claude/skills/spec-graph-check/retired.py	322	33	row	keep			
+.claude/skills/spec-graph-check/retired.py	335	45	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	6	6	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	62	57	行	keep			
+.claude/skills/spec-graph-check/specindex.py	70	59	row	keep			
+.claude/skills/spec-graph-check/specindex.py	91	45	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	94	11	Row	keep			
+.claude/skills/spec-graph-check/specindex.py	94	53	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	100	22	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	153	26	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	154	18	Rows	keep			
+.claude/skills/spec-graph-check/specindex.py	174	40	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	193	60	row	keep			
+.claude/skills/spec-graph-check/specindex.py	198	39	rows	keep			
+.claude/skills/spec-graph-check/specindex.py	201	61	row	keep			
+.claude/skills/spec-graph-check/specindex.py	207	41	rows	keep			
+.claude/skills/spec-graph-check/style-checks.py	137	46	row	keep			
+.claude/skills/spec-graph-check/style-checks.py	201	34	row	keep			
+.claude/skills/spec-graph-check/style-checks.py	202	49	row	keep			
+tools/generate_icon_glyphs.py	10	76	row	keep			
+tools/generate_icon_glyphs.py	33	12	row	keep			
+tools/generate_icon_glyphs.py	33	50	row	keep			
+tools/generate_icon_glyphs.py	88	55	row	keep			
+tools/generate_icon_glyphs.py	122	60	row	keep			
+tools/generate_icon_glyphs.py	164	18	row	keep			
+tools/generate_icon_glyphs.py	178	58	row	keep			
+tools/generate_icon_glyphs.py	182	74	row	keep			
+tools/generate_icon_glyphs.py	676	58	row	keep			
+tools/generate_icon_glyphs.py	677	65	row	keep			
+tools/generate_icon_glyphs.py	682	67	row	keep			
+tools/generate_icon_roster.py	7	64	rows	keep			
+tools/generate_icon_roster.py	8	55	rows	keep			
+tools/generate_icon_roster.py	16	34	row	keep			
+tools/generate_icon_roster.py	30	13	rows	keep			
+tools/generate_icon_roster.py	67	53	row	keep			
+tools/generate_icon_roster.py	99	58	row	keep			
+tools/generate_icon_roster.py	111	50	row	keep			
+tools/generate_icon_roster.py	131	7	rows	keep			
+tools/generate_icon_roster.py	136	58	row	keep			
+tools/generate_icon_roster.py	183	18	row	keep			
+tools/generate_icon_roster.py	272	58	row	keep			
+tools/generate_icon_roster.py	284	35	row	keep			
+tools/generate_icon_roster.py	293	56	row	keep			
+tools/generate_icon_roster.py	319	31	row	keep			
+tools/generate_icon_roster.py	332	72	row	keep			
+tools/generate_icon_roster.py	333	75	row	keep			
+tools/generate_icon_roster.py	375	58	row	keep			
+tools/generate_icon_roster.py	381	74	row	keep			
+tools/generate_icon_roster.py	409	9	row	keep			
+tools/generate_icon_roster.py	415	13	row	keep			
+tools/generate_icon_roster.py	420	30	rows	keep			
+tools/generate_icon_roster.py	426	20	row	keep			
+tools/generate_icon_roster.py	430	25	row	keep			
+tools/generate_icon_roster.py	431	42	row	keep			
+tools/generate_icon_roster.py	432	40	row	keep			
+tools/generate_icon_roster.py	434	21	row	keep			
+tools/generate_image_to_grs_json_prompt.py	68	10	row	task-group			
+tools/generate_image_to_grs_json_prompt.py	72	14	Row	rewrite	Row 1	Task Group 1	uncertain: base-document TaskGroup label; docs/guides grs-skeleton.json still says Row 1 (S1-D)
+tools/generate_json_schema_validator.py	111	16	row	keep			
+tools/generate_json_schema_validator.py	111	23	row	keep			
+tools/generate_mcp_tool_descriptions.py	10	58	row	keep			
+tools/generate_mcp_tool_descriptions.py	16	40	row	keep			
+tools/generate_mspdi_child_order.py	28	15	row	keep			
+tools/generate_mspdi_child_order.py	28	62	row	keep			
+tools/generate_mspdi_child_order.py	158	46	rows	keep			
+tools/generate_mspdi_child_order.py	188	21	row	keep			
+tools/generate_mspdi_child_order.py	238	16	row	keep			
+tools/generate_notice_reasons.py	9	42	rows	keep			
+tools/generate_notice_reasons.py	29	39	row	keep			
+tools/generate_notice_reasons.py	30	72	row	keep			
+tools/generate_notice_reasons.py	32	34	row	keep			
+tools/generate_notice_reasons.py	102	26	row	keep			
+tools/generate_notice_reasons.py	138	58	row	keep			
+tools/generate_property_items.py	9	11	row	keep			
+tools/generate_property_items.py	10	0	row	keep			
+tools/generate_property_items.py	10	42	row	keep			
+tools/generate_property_items.py	14	10	rows	keep			
+tools/generate_property_items.py	20	34	row	keep			
+tools/generate_property_items.py	30	6	row	keep			
+tools/generate_property_items.py	30	28	row	keep			
+tools/generate_property_items.py	33	57	ROW	keep			
+tools/generate_property_items.py	35	32	rows	keep			
+tools/generate_property_items.py	55	11	row	keep			
+tools/generate_property_items.py	78	34	row	keep			
+tools/generate_property_items.py	79	64	row	keep			
+tools/generate_public_entry_index.py	4	65	row	keep			
+tools/generate_public_entry_index.py	26	10	ROW	keep			
+tools/generate_public_entry_index.py	32	19	row	keep			
+tools/generate_public_entry_index.py	254	11	row	keep			
+tools/generate_public_entry_index.py	259	20	rows	keep			
+tools/generate_startup_template.py	58	48	row	task-group			
+tools/generate_startup_template.py	63	35	row	task-group			
+tools/generate_startup_template.py	63	53	row	task-group			
+tools/generate_startup_template.py	63	72	rows	task-group			
+tools/generate_startup_template.py	65	37	row	task-group			
+tools/generate_startup_template.py	65	69	rows	task-group			
+tools/generate_startup_template.py	68	62	row	task-group			
+tools/generate_startup_template.py	69	23	rows	task-group			
+tools/generate_startup_template.py	70	43	row	task-group			
+tools/generate_startup_template.py	70	53	row	task-group			
+tools/generate_startup_template.py	72	59	row	task-group			
+tools/generate_startup_template.py	73	42	row	task-group			
+tools/generate_startup_template.py	74	30	row	task-group			
+tools/generate_startup_template.py	74	71	row	task-group			
+tools/generate_startup_template.py	76	60	ROW	task-group			
+tools/generate_startup_template.py	76	72	row	task-group			
+tools/generate_startup_template.py	81	25	row	task-group			
+tools/generate_startup_template.py	82	72	row	task-group			
+tools/generate_startup_template.py	84	48	row	task-group			
+tools/generate_startup_template.py	86	69	row	task-group			
+tools/generate_startup_template.py	165	70	row	keep			
+tools/generate_startup_template.py	169	58	row	task-group			
+tools/generate_startup_template.py	170	57	row	keep			
+tools/generate_startup_template.py	171	62	row	task-group			
+tools/generate_startup_template.py	186	16	row	task-group			
+tools/generate_startup_template.py	186	66	row	task-group			
+tools/generate_startup_template.py	188	37	row	task-group			
+tools/generate_startup_template.py	189	67	row	task-group			
+tools/generate_startup_template.py	190	70	row	task-group			
+tools/generate_startup_template.py	193	46	rows	task-group			
+tools/generate_startup_template.py	197	35	row	task-group			
+tools/generate_startup_template.py	207	21	row	task-group			
+tools/generate_startup_template.py	208	59	rows	task-group			
+tools/generate_startup_template.py	209	27	rows	task-group			
+tools/generate_startup_template.py	357	28	ROW	task-group			
+tools/generate_startup_template.py	357	57	row	task-group			
+tools/generate_startup_template.py	358	36	row	task-group			
+tools/generate_startup_template.py	358	60	row	task-group			
+tools/generate_startup_template.py	360	12	row	task-group			
+tools/generate_startup_template.py	361	33	row	task-group			
+tools/generate_startup_template.py	362	45	row	task-group			
+tools/generate_startup_template.py	363	65	row	task-group			
+tools/generate_startup_template.py	395	19	row	task-group			
+tools/generate_startup_template.py	403	30	rows	task-group			
+tools/generate_startup_template.py	412	47	row	task-group			
+tools/generate_startup_template.py	413	36	rows	task-group			
+tools/generate_startup_template.py	434	18	row	task-group			
+tools/generate_startup_template.py	435	27	row	task-group			
+tools/generate_startup_template.py	443	20	row	task-group			
+tools/generate_startup_template.py	447	16	row	task-group			
+tools/generate_startup_template.py	448	2	row	task-group			
+tools/generate_startup_template.py	449	59	row	task-group			
+tools/generate_startup_template.py	450	25	row	task-group			
+tools/generate_startup_template.py	454	12	row	task-group			
+tools/generate_startup_template.py	455	2	row	task-group			
+tools/generate_startup_template.py	455	43	row	task-group			
+tools/generate_startup_template.py	457	25	row	task-group			
+tools/generate_startup_template.py	460	26	row	task-group			
+tools/generate_startup_template.py	465	16	row	task-group			
+tools/generate_startup_template.py	465	45	row	task-group			
+tools/generate_startup_template.py	468	20	rows	task-group			
+tools/generate_startup_template.py	469	70	rows	task-group			
+tools/generate_startup_template.py	485	34	ROW	task-group			
+tools/generate_startup_template.py	486	34	row	task-group			
+tools/generate_startup_template.py	493	20	ROWS	task-group			
+tools/generate_startup_template.py	529	64	row	task-group			
+tools/generate_startup_template.py	543	67	row	keep			
+tools/generate_startup_template.py	561	22	row	task-group			
+tools/generate_startup_template.py	564	8	ROW	task-group			
+tools/generate_startup_template.py	564	45	row	task-group			
+tools/generate_startup_template.py	567	18	row	task-group			
+tools/generate_startup_template.py	570	2	row	task-group			
+tools/generate_startup_template.py	574	9	row	task-group			
+tools/generate_startup_template.py	730	22	ROW	task-group			
+tools/generate_startup_template.py	783	37	row	task-group			
+tools/generate_startup_template.py	783	67	row	task-group			
+tools/generate_startup_template.py	798	10	row	task-group			
+tools/generate_startup_template.py	802	33	row	task-group			
+tools/generate_startup_template.py	814	35	row	task-group			
+tools/generate_startup_template.py	817	44	row	task-group			
+tools/generate_startup_template.py	818	42	row	task-group			
+tools/generate_startup_template.py	819	9	row	task-group			
+tools/generate_startup_template.py	820	16	row	task-group			
+tools/generate_startup_template.py	940	6	rows	task-group			
+tools/generate_startup_template.py	1090	4	row	task-group			
+tools/generate_startup_template.py	1105	29	row	keep			
+tools/generate_startup_template.py	1400	34	ROW	task-group			
+tools/generate_startup_template.py	1401	22	row	task-group			
+tools/generate_startup_template.py	1417	28	row	task-group			
+tools/generate_startup_template.py	1429	6	rows	task-group			
+tools/generate_startup_template.py	1433	11	row	task-group			
+tools/generate_startup_template.py	1433	41	row	task-group			
+tools/generate_startup_template.py	1435	55	row	task-group			
+tools/generate_startup_template.py	1465	39	row	task-group			
+tools/generate_startup_template.py	1475	37	row	task-group			
+tools/generate_startup_template.py	1478	4	rows	task-group			
+tools/generate_startup_template.py	1479	12	rows	task-group			
+tools/generate_startup_template.py	1479	54	row	task-group			
+tools/generate_startup_template.py	1481	8	row	task-group			
+tools/generate_startup_template.py	1511	13	row	task-group			
+tools/generate_startup_template.py	1515	30	row	task-group			
+tools/generate_startup_template.py	1528	16	row	task-group			
+tools/generate_startup_template.py	1540	20	row	task-group			
+tools/generate_startup_template.py	1547	37	row	task-group			
+tools/generate_startup_template.py	1551	27	row	task-group			
+tools/generate_startup_template.py	1572	4	rows	task-group			
+tools/generate_startup_template.py	1595	29	row	task-group			
+tools/generate_startup_template.py	1615	28	row	task-group			
+tools/generate_startup_template.py	1683	17	row	task-group			
+tools/generate_startup_template.py	1685	12	row	task-group			
+tools/generate_startup_template.py	1689	13	row	task-group			
+tools/generate_startup_template.py	1693	45	row	task-group			
+tools/generate_startup_template.py	1693	72	row	task-group			
+tools/generate_startup_template.py	1715	37	row	task-group			
+tools/generate_startup_template.py	1726	26	row	task-group			
+tools/generate_startup_template.py	1736	20	row	task-group			
+tools/generate_startup_template.py	1771	41	row	task-group			
+tools/generate_startup_template.py	1771	56	rows	task-group			
+tools/generate_startup_template.py	1773	23	row	task-group			
+tools/generate_startup_template.py	1773	45	row	task-group			
+tools/generate_startup_template.py	1775	30	row	task-group			
+tools/generate_startup_template.py	1795	61	row	task-group			
+tools/generate_startup_template.py	1797	47	row	task-group			
+tools/generate_startup_template.py	1826	24	row	task-group			
+tools/generate_startup_template.py	1828	20	row	task-group			
+tools/generate_startup_template.py	1829	33	row	task-group			
+tools/generate_startup_template.py	1832	10	row	task-group			
+tools/generate_startup_template.py	1832	43	row	task-group			
+tools/generate_startup_template.py	1852	8	row	task-group			
+tools/generate_startup_template.py	1874	42	row	task-group			
+tools/generate_startup_template.py	1876	14	ROW	task-group			
+tools/generate_startup_template.py	1876	42	row	task-group			
+tools/generate_startup_template.py	1880	71	row	task-group			
+tools/generate_startup_template.py	1881	21	row	task-group			
+tools/generate_startup_template.py	1881	44	row	task-group			
+tools/generate_startup_template.py	1884	37	row	task-group			
+tools/generate_startup_template.py	1884	66	row	task-group			
+tools/generate_startup_template.py	1885	12	rows	task-group			
+tools/generate_startup_template.py	1888	43	row	task-group			
+tools/generate_startup_template.py	1925	14	row	task-group			
+tools/generate_startup_template.py	1925	74	row	task-group			
+tools/generate_startup_template.py	1928	55	row	task-group			
+tools/generate_startup_template.py	1942	72	row	task-group			
+tools/generate_startup_template.py	1965	62	row	task-group			
+tools/generate_startup_template.py	1972	27	row	task-group			
+tools/generate_startup_template.py	1972	46	rows	task-group			
+tools/generate_startup_template.py	1989	24	row	task-group			
+tools/generate_startup_template.py	2000	21	row	task-group			
+tools/generate_startup_template.py	2000	73	row	task-group			
+tools/generate_startup_template.py	2345	55	row	task-group			
+tools/generate_startup_template.py	2455	27	rows	task-group			
+tools/generate_startup_template.py	2510	35	rows	task-group			
+tools/generate_startup_template.py	2534	35	row	task-group			
+tools/generate_startup_template.py	2554	44	row	task-group			
+tools/generate_startup_template.py	2554	59	rows	task-group			
+tools/generate_startup_template.py	2556	70	rows	task-group			
+tools/generate_startup_template.py	2713	28	rows	task-group			
+tools/generate_startup_template.py	2718	48	row	task-group			
+tools/generate_startup_template.py	2726	32	row	task-group			
+tools/generate_startup_template.py	2727	30	row	task-group			
+tools/generate_startup_template.py	2728	18	row	task-group			
+tools/generate_startup_template.py	2731	28	row	task-group			
+tools/generate_startup_template.py	2838	18	row	task-group			
+tools/generate_startup_template.py	2838	54	rows	task-group			
+tools/generate_startup_template.py	2868	24	row	task-group			
+tools/generate_startup_template.py	2876	16	row	task-group			
+tools/generate_startup_template.py	2889	31	row	task-group			
+tools/generate_startup_template.py	2919	20	rows	task-group			
+tools/generate_startup_template.py	2929	24	rows	task-group			
+tools/generate_startup_template.py	3047	25	rows	task-group			
+tools/generate_startup_template.py	3050	43	ROW	task-group			
+tools/generate_startup_template.py	3051	42	row	task-group			
+tools/generate_startup_template.py	3051	65	row	task-group			
+tools/generate_startup_template.py	3053	34	row	task-group			
+tools/generate_startup_template.py	3053	70	row	task-group			
+tools/generate_startup_template.py	3063	54	row	task-group			
+tools/generate_startup_template.py	3064	30	row	task-group			
+tools/generate_startup_template.py	3089	27	rows	task-group			
+tools/generate_startup_template.py	3089	50	row	task-group			
+tools/generate_startup_template.py	3093	47	row	keep			
+tools/generate_startup_template.py	3180	20	row	task-group			
+tools/generate_startup_template.py	3192	28	row	task-group			
+tools/generate_startup_template.py	3192	53	row	task-group			
+tools/generate_startup_template.py	3196	12	rows	task-group			
+tools/generate_startup_template.py	3196	25	rows	task-group			
+tools/generate_startup_template.py	3197	4	row	task-group			
+tools/generate_startup_template.py	3208	49	rows	task-group			
+tools/generate_startup_template.py	3213	38	row	task-group			
+tools/generate_startup_template.py	3215	35	row	task-group			
+tools/generate_startup_template.py	3222	25	rows	task-group			
+tools/generate_startup_template.py	3229	61	row	task-group			
+tools/generate_startup_template.py	3230	9	ROW	task-group			
+tools/generate_startup_template.py	3234	39	rows	task-group			
+tools/generate_startup_template.py	3235	12	rows	task-group			
+tools/generate_startup_template.py	3241	67	row	task-group			
+tools/generate_startup_template.py	3243	41	row	task-group			
+tools/generate_startup_template.py	3263	20	row	task-group			
+tools/generate_startup_template.py	3271	21	row	task-group			
+tools/generate_startup_template.py	3273	14	rows	task-group			
+tools/generate_startup_template.py	3274	73	row	task-group			
+tools/generate_startup_template.py	3292	48	rows	task-group			
+tools/generate_startup_template.py	3297	33	row	task-group			
+tools/generate_startup_template.py	3298	18	row	task-group			
+tools/generate_startup_template.py	3298	42	row	task-group			
+tools/generate_startup_template.py	3301	33	row	task-group			
+tools/generate_startup_template.py	3304	25	rows	task-group			
+tools/generate_startup_template.py	3451	21	row	task-group			
+tools/generate_startup_template.py	3451	30	row	task-group			
+tools/generate_startup_template.py	3465	56	row	task-group			
+tools/generate_startup_template.py	3507	61	row	task-group			
+tools/generate_startup_template.py	3519	9	row	task-group			
+tools/generate_startup_template.py	3521	19	rows	task-group			
+tools/generate_startup_template.py	3556	36	rows	task-group			
+tools/generate_startup_template.py	3563	31	row	task-group			
+tools/generate_startup_template.py	3579	46	row	task-group			
+tools/generate_startup_template.py	3583	31	row	task-group			
+tools/generate_startup_template.py	3589	32	row	task-group			
+tools/generate_startup_template.py	3596	59	rows	keep			
+tools/generate_startup_template.py	3646	54	rows	keep			
+tools/generate_startup_template.py	3679	41	rows	keep			
+tools/generate_startup_template.py	3683	14	rows	keep			
+tools/generate_startup_template.py	3824	17	row	keep			
+tools/generate_startup_template.py	3903	13	row	keep			
+tools/generate_startup_template.py	3926	27	row	keep			
+tools/generate_startup_template.py	3938	27	row	keep			
+tools/generate_startup_template.py	3997	72	rows	keep			
+tools/generate_startup_template.py	4012	43	row	keep			
+tools/generate_startup_template.py	4014	33	rows	task-group			
+tools/generate_startup_template.py	4068	31	row	task-group			
+tools/generate_startup_template.py	4090	30	rows	task-group			
+tools/generate_startup_template.py	4096	26	row	task-group			
+tools/generate_startup_template.py	4131	24	row	task-group			
+tools/generate_startup_template.py	4141	69	row	keep			
+tools/generate_startup_template.py	4237	13	row	task-group			
+tools/generate_startup_template.py	4483	36	rows	task-group			
+tools/generate_startup_template.py	4590	9	row	task-group			
+tools/generate_startup_template.py	4590	25	row	task-group			
+tools/generate_startup_template.py	4602	27	row	keep			
+tools/generate_startup_template.py	4687	63	row	task-group			
+tools/generate_state_machine_types.py	27	32	row	keep			
+tools/generate_state_machine_types.py	44	61	row	task-group			
+tools/generate_state_machine_types.py	109	73	rows	keep			
+tools/generate_test_inventory.py	2	33	row	keep			
+tools/generate_test_inventory.py	6	60	row	keep			
+tools/generate_test_inventory.py	61	62	row	keep			
+tools/generate_test_inventory.py	229	62	rows	keep			
+tools/generate_test_inventory.py	231	44	rows	keep			
+tools/generate_test_inventory.py	356	40	row	keep			
+tools/generate_test_inventory.py	356	68	row	keep			
+tools/generate_test_inventory.py	524	11	row	keep			
+tools/generate_test_inventory.py	535	45	row	keep			
+tools/generate_test_inventory.py	593	31	row	keep			
+tools/generate_test_inventory.py	595	40	row	keep			
+tools/generate_test_inventory.py	598	27	rows	keep			
+tools/generate_test_inventory.py	610	66	row	keep			
+tools/generate_test_inventory.py	612	89	row	keep			
+tools/generate_test_inventory.py	615	40	row	keep			
+tools/generate_test_inventory.py	639	40	row	keep			
+tools/generate_test_inventory.py	648	49	rows	keep			
+tools/generate_test_inventory.py	654	77	rows	keep			
+tools/generate_test_inventory.py	714	83	row	keep			
+tools/generate_test_inventory.py	715	79	rows	keep			
+tools/generate_theme_hue_roster.py	14	36	row	keep			
+tools/generate_theme_hue_roster.py	15	74	row	keep			
+tools/generate_theme_hue_roster.py	18	29	row	keep			
+tools/generate_theme_hue_roster.py	44	15	row	keep			
+tools/generate_theme_hue_roster.py	50	31	row	keep			
+tools/generate_theme_hue_roster.py	51	13	row	keep			
+tools/generate_theme_hue_roster.py	56	11	row	keep			
+tools/generate_theme_hue_roster.py	60	30	rows	keep			
+tools/generate_theme_hue_roster.py	63	53	row	keep			
+tools/generate_theme_hue_roster.py	68	30	row	keep			
+tools/generate_theme_hue_roster.py	110	66	row	keep			
+tools/generate_theme_hue_roster.py	120	47	rows	keep			
+tools/generate_unit_tree.py	58	46	row	keep			
+tools/generate_unit_tree.py	59	33	ROW	keep			
+tools/generate_unit_tree.py	60	67	row	keep			
+tools/generate_unit_tree.py	61	23	row	keep			
+tools/ledger_metrics.py	4	67	row	keep			
+tools/ledger_metrics.py	14	27	row	keep			
+tools/ledger_metrics.py	17	26	row	keep			
+tools/ledger_metrics.py	22	62	row	keep			
+tools/ledger_metrics.py	38	29	row	keep			
+tools/ledger_metrics.py	44	32	rows	keep			
+tools/ledger_metrics.py	69	16	row	keep			
+tools/ledger_metrics.py	75	18	rows	keep			
+tools/ledger_metrics.py	84	61	rows	keep			
+tools/ledger_metrics.py	98	43	rows	keep			
+tools/ledger_metrics.py	107	4	row	keep			
+tools/ledger_metrics.py	112	7	ROW	keep			
+tools/ledger_metrics.py	115	38	row	keep			
+tools/ledger_metrics.py	121	21	rows	keep			
+tools/ledger_metrics.py	122	20	row	keep			
+tools/ledger_metrics.py	122	62	row	keep			
+tools/ledger_metrics.py	125	20	row	keep			
+tools/ledger_metrics.py	126	40	row	keep			
+tools/ledger_metrics.py	128	29	row	keep			
+tools/ledger_metrics.py	129	31	row	keep			
+tools/ledger_metrics.py	149	11	row	keep			
+tools/ledger_metrics.py	156	2	rows	keep			
+tools/ledger_metrics.py	158	15	row	keep			
+tools/ledger_metrics.py	176	35	row	keep			
+tools/ledger_metrics.py	182	22	row	keep			
+tools/ledger_metrics.py	182	45	row	keep			
+tools/ledger_metrics.py	190	46	row	keep			
+tools/ledger_metrics.py	198	16	rows	keep			
+tools/ledger_metrics.py	198	56	rows	keep			
+tools/ledger_metrics.py	201	45	row	keep			
+tools/ledger_metrics.py	213	38	row	keep			
+tools/ledger_metrics.py	217	38	row	keep			
+tools/ledger_metrics.py	217	64	row	keep			
+tools/ledger_metrics.py	228	20	row	keep			
+tools/ledger_metrics.py	250	27	row	keep			
+tools/ledger_metrics.py	251	44	row	keep			
+tools/ledger_metrics.py	314	27	行	keep			
+tools/ledger_metrics.py	320	15	行	keep			
+tools/ledger_metrics.py	333	24	行	keep			
+tools/ledger_metrics.py	333	34	行	keep			
+tools/ledger_metrics.py	333	40	行	keep			
+tools/ledger_metrics.py	335	42	行	keep			
+tools/ledger_metrics.py	390	51	rows	keep			
+tools/ledger_metrics.py	395	30	row	keep			
+tools/ledger_metrics.py	405	40	rows	keep			
+tools/ledger_metrics.py	416	31	row	keep			
+tools/ledger_metrics.py	420	39	rows	keep			
+tools/merge_branch.py	16	15	row	keep			
+tools/merge_branch.py	18	31	row	keep			
+tools/merge_branch.py	270	28	rows	keep			
+tools/merge_driver.py	12	75	row	keep			
+tools/merge_driver.py	13	43	row	keep			
+tools/merge_driver.py	14	19	row	keep			
+tools/merge_driver.py	19	12	rows	keep			
+tools/merge_driver.py	20	0	row	keep			
+tools/merge_driver.py	20	37	row	keep			
+tools/merge_driver.py	35	61	rows	keep			
+tools/merge_driver.py	36	14	rows	keep			
+tools/merge_driver.py	49	10	rows	keep			
+tools/merge_driver.py	65	62	rows	keep			
+tools/merge_driver.py	161	27	row	keep			
+tools/merge_driver.py	234	61	rows	keep			
+tools/parity/check.mjs	7	27	row	task-group			
+tools/parity/check.mjs	9	38	row	task-group			
+tools/parity/check.mjs	12	9	row	task-group			
+tools/parity/check.mjs	15	63	row	task-group			
+tools/parity/check.mjs	17	45	row	task-group			
+tools/parity/check.mjs	35	37	row	task-group			
+tools/parity/check.mjs	37	21	ROW	task-group			
+tools/parity/check.mjs	38	26	row	task-group			
+tools/parity/check.mjs	39	53	rows	task-group			
+tools/parity/check.mjs	40	18	row	task-group			
+tools/parity/check.mjs	45	27	行	task-group			
+tools/parity/check.mjs	46	12	行	task-group			
+tools/parity/check.mjs	47	19	row	rewrite	`defaultNames`/`row`	`defaultNames`/`taskGroup`	dictionary key, CR-708 2.5 rule 8
+tools/parity/check.mjs	47	50	row	task-group			
+tools/parity/check.mjs	51	41	ROW	task-group			
+tools/parity/check.mjs	52	3	row	task-group			
+tools/parity/check.mjs	53	64	row	task-group			
+tools/parity/check.mjs	56	9	row	task-group			
+tools/parity/check.mjs	56	42	row	task-group			
+tools/parity/check.mjs	57	42	row	task-group			
+tools/parity/check.mjs	60	3	row	task-group			
+tools/parity/check.mjs	60	35	row	task-group			
+tools/parity/check.mjs	61	21	row	task-group			
+tools/parity/check.mjs	61	66	row	rewrite	`defaultNames`/`row`	`defaultNames`/`taskGroup`	dictionary key, CR-708 2.5 rule 8
+tools/parity/check.mjs	62	36	row	task-group			
+tools/parity/check.mjs	63	58	row	task-group			
+tools/parity/check.mjs	65	8	rows	task-group			
+tools/parity/check.mjs	68	56	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	68	64	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	71	54	row	task-group			
+tools/parity/check.mjs	74	75	row	rewrite	'row'	'taskGroup'	uncertain: must match display-words.json use value S1-D writes (CR-708 2.5 rule 8 says taskGroup)
+tools/parity/check.mjs	85	21	row	task-group			
+tools/parity/check.mjs	85	47	row	task-group			
+tools/parity/check.mjs	86	24	row	task-group			
+tools/parity/check.mjs	88	31	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	94	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	95	13	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	95	46	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	120	12	row	task-group			
+tools/parity/check.mjs	133	45	row	task-group			
+tools/parity/check.mjs	134	13	row	task-group			
+tools/parity/check.mjs	137	36	row	task-group			
+tools/parity/check.mjs	137	76	row	task-group			
+tools/parity/check.mjs	138	15	rows	keep			
+tools/parity/check.mjs	138	66	rows	keep			
+tools/parity/check.mjs	140	40	row	task-group			
+tools/parity/check.mjs	144	30	row	task-group			
+tools/parity/check.mjs	146	58	row	keep			
+tools/parity/check.mjs	147	12	row	task-group			
+tools/parity/check.mjs	154	26	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	173	33	row	task-group			
+tools/parity/check.mjs	176	5	rows	task-group			
+tools/parity/check.mjs	191	50	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	199	64	rows	task-group			
+tools/parity/check.mjs	204	53	row	task-group			
+tools/parity/check.mjs	205	48	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	225	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	226	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	227	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	228	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	229	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	230	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	231	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	232	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	233	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	236	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	237	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	238	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	239	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	241	12	row	task-group			
+tools/parity/check.mjs	242	13	rows	keep			
+tools/parity/check.mjs	245	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	246	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	247	16	ROW	task-group			
+tools/parity/check.mjs	252	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	253	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	260	31	row	task-group			
+tools/parity/check.mjs	266	25	row	task-group			
+tools/parity/check.mjs	267	26	row	task-group			
+tools/parity/check.mjs	268	22	row	task-group			
+tools/parity/check.mjs	282	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	285	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	290	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	291	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	297	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	298	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	305	16	ROW	task-group			
+tools/parity/check.mjs	306	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	307	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	312	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	313	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	314	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	319	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	321	74	row	task-group			
+tools/parity/check.mjs	325	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	326	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	327	71	row	task-group			
+tools/parity/check.mjs	334	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	335	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	337	9	ROW	task-group			
+tools/parity/check.mjs	340	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	341	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	344	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	345	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	346	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	352	25	rows	task-group			
+tools/parity/check.mjs	352	67	row	task-group			
+tools/parity/check.mjs	354	30	ROWS	task-group			
+tools/parity/check.mjs	360	77	row	task-group			
+tools/parity/check.mjs	363	53	行	task-group			
+tools/parity/check.mjs	365	18	row	task-group			
+tools/parity/check.mjs	367	18	row	task-group			
+tools/parity/check.mjs	368	20	row	task-group			
+tools/parity/check.mjs	371	35	row	task-group			
+tools/parity/check.mjs	392	62	row	task-group			
+tools/parity/check.mjs	393	74	row	task-group			
+tools/parity/check.mjs	395	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	396	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	397	74	row	task-group			
+tools/parity/check.mjs	400	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	402	26	row	task-group			
+tools/parity/check.mjs	405	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	407	43	row	task-group			
+tools/parity/check.mjs	409	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	412	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	414	16	ROW	task-group			
+tools/parity/check.mjs	415	62	行	task-group			
+tools/parity/check.mjs	419	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	420	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	423	20	行	task-group			
+tools/parity/check.mjs	424	59	row	task-group			
+tools/parity/check.mjs	427	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	428	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	432	24	row	task-group			
+tools/parity/check.mjs	434	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	435	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	442	67	row	task-group			
+tools/parity/check.mjs	444	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	449	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	450	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	452	16	ROW	task-group			
+tools/parity/check.mjs	452	59	row	task-group			
+tools/parity/check.mjs	453	27	row	task-group			
+tools/parity/check.mjs	453	75	row	task-group			
+tools/parity/check.mjs	455	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	456	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	457	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	458	4	row	keep			parity move kind shared with the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	481	14	rows	keep			
+tools/parity/check.mjs	482	25	rows	task-group			
+tools/parity/check.mjs	486	25	rows	task-group			
+tools/parity/check.mjs	494	86	row	task-group			
+tools/parity/check.mjs	537	3	row	keep			
+tools/parity/check.mjs	554	34	row	task-group			
+tools/parity/check.mjs	567	75	ROW	keep			name of the ROW CONTROLS sample (11-row-controls, X-7)
+tools/parity/check.mjs	568	27	rows	keep			the ROW CONTROLS sample, described in its own words (X-7)
+tools/parity/check.mjs	579	17	rows	keep			
+tools/parity/check.mjs	580	45	row	keep			
+tools/parity/check.mjs	586	19	rows	keep			
+tools/parity/check.mjs	625	40	rows	keep			
+tools/parity/check.mjs	631	41	rows	keep			
+tools/parity/check.mjs	658	45	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	660	39	row	keep			
+tools/parity/check.mjs	691	34	row	keep			
+tools/parity/check.mjs	692	32	ROW	keep			name of the ROW CONTROLS sample (X-7)
+tools/parity/check.mjs	692	75	rows	keep			the ROW CONTROLS sample, described in its own words (X-7)
+tools/parity/check.mjs	733	23	ROW	task-group			
+tools/parity/check.mjs	739	26	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	740	30	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	773	44	rows	task-group			
+tools/parity/check.mjs	774	21	row	task-group			
+tools/parity/check.mjs	778	33	row	task-group			
+tools/parity/check.mjs	780	32	rows	task-group			
+tools/parity/check.mjs	781	25	rows	task-group			
+tools/parity/check.mjs	784	8	rows	keep			
+tools/parity/check.mjs	784	30	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	784	48	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/check.mjs	787	49	rows	task-group			
+tools/parity/check.mjs	826	48	row	task-group			
+tools/parity/check.mjs	854	68	rows	keep			
+tools/parity/check.mjs	855	64	rows	task-group			
+tools/parity/check.mjs	880	27	rows	keep			
+tools/parity/sample-and-app.mjs	8	38	row	task-group			
+tools/parity/sample-and-app.mjs	11	9	row	task-group			
+tools/parity/sample-and-app.mjs	15	14	rows	task-group			
+tools/parity/sample-and-app.mjs	42	4	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	43	38	row	keep			sample CSS class .row (previous-project-result, X-7)
+tools/parity/sample-and-app.mjs	43	50	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	44	49	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	45	39	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	48	38	row	keep			sample CSS class .row (previous-project-result, X-7)
+tools/parity/sample-and-app.mjs	49	17	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	49	25	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	50	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	50	25	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	51	11	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	55	12	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	55	51	row	keep			sample CSS class .row (previous-project-result, X-7)
+tools/parity/sample-and-app.mjs	55	67	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	56	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	57	13	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	59	26	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	63	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	63	52	row	keep			sample CSS class .row (previous-project-result, X-7)
+tools/parity/sample-and-app.mjs	65	23	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	83	13	rows	task-group			
+tools/parity/sample-and-app.mjs	85	38	row	keep			sample CSS class .row (previous-project-result, X-7)
+tools/parity/sample-and-app.mjs	86	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	86	22	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	134	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	135	56	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	136	16	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	137	9	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	144	26	row	task-group			
+tools/parity/sample-and-app.mjs	147	13	row	task-group			
+tools/parity/sample-and-app.mjs	148	70	rows	keep			
+tools/parity/sample-and-app.mjs	164	13	ROWS	task-group			
+tools/parity/sample-and-app.mjs	165	42	row	task-group			
+tools/parity/sample-and-app.mjs	169	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	169	21	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	198	11	rows	keep			
+tools/parity/sample-and-app.mjs	198	32	row	task-group			
+tools/parity/sample-and-app.mjs	214	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	216	11	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	216	49	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	219	36	row	task-group			
+tools/parity/sample-and-app.mjs	220	24	row	task-group			
+tools/parity/sample-and-app.mjs	223	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	225	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	226	18	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	257	9	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	258	13	rows	task-group			
+tools/parity/sample-and-app.mjs	260	47	row	task-group			
+tools/parity/sample-and-app.mjs	265	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	265	23	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	268	17	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	268	25	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	269	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	269	26	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	270	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	287	23	row	task-group			
+tools/parity/sample-and-app.mjs	288	65	row	task-group			
+tools/parity/sample-and-app.mjs	295	14	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	295	77	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	296	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	297	16	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	298	28	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	303	19	row	task-group			
+tools/parity/sample-and-app.mjs	304	68	rows	task-group			
+tools/parity/sample-and-app.mjs	308	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	310	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	311	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	319	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	321	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/parity/sample-and-app.mjs	322	38	ROW	task-group			
+tools/parity/sample-and-app.mjs	323	26	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/precheck.py	143	24	rows	keep			
+tools/precheck.py	240	41	row	keep			
+tools/precheck.py	261	45	row	keep			
+tools/precheck.py	292	61	rows	keep			
+tools/precheck.py	293	17	row	keep			
+tools/precheck.py	356	27	row	keep			
+tools/probe/README.md	19	42	行	keep			
+tools/probe/README.md	29	60	行	task-group			
+tools/probe/README.md	65	52	行	keep			
+tools/probe/README.md	65	101	行	task-group			
+tools/probe/examples/frame-attribution.mjs	69	32	row	keep			
+tools/probe/examples/gestures3.mjs	24	4	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/pan-vertical-sweep.mjs	1	51	rows	task-group			
+tools/probe/examples/row-controls-press-all.mjs	6	3	rows	task-group			
+tools/probe/examples/row-controls-press-all.mjs	13	45	row	task-group			
+tools/probe/examples/row-controls-press-all.mjs	14	8	row	task-group			
+tools/probe/examples/row-controls-press-all.mjs	17	41	row	task-group			
+tools/probe/examples/row-controls-press-all.mjs	23	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	28	2	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	45	11	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	45	24	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	46	17	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	47	41	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	49	16	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	50	18	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/examples/row-controls-press-all.mjs	50	32	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	14	17	rows	keep			
+tools/probe/grab-figures.mjs	15	85	row	keep			
+tools/probe/grab-figures.mjs	42	18	row	keep			
+tools/probe/grab-figures.mjs	46	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	48	29	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	49	15	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	49	28	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	49	34	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	49	43	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	49	56	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	51	9	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	54	54	row	keep			
+tools/probe/grab-figures.mjs	56	26	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	57	7	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	58	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	63	88	rows	keep			
+tools/probe/grab-figures.mjs	64	58	row	keep			
+tools/probe/grab-figures.mjs	66	92	row	keep			
+tools/probe/grab-figures.mjs	68	13	row	keep			
+tools/probe/grab-figures.mjs	87	10	row	keep			
+tools/probe/grab-figures.mjs	87	48	row	keep			
+tools/probe/grab-figures.mjs	88	41	rows	keep			
+tools/probe/grab-figures.mjs	90	34	row	keep			
+tools/probe/grab-figures.mjs	91	42	row	keep			
+tools/probe/grab-figures.mjs	92	24	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	94	13	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	94	20	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	95	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	98	24	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	108	82	rows	keep			
+tools/probe/grab-figures.mjs	109	96	rows	keep			
+tools/probe/grab-figures.mjs	111	12	row	keep			
+tools/probe/grab-figures.mjs	123	3	Rows	keep			
+tools/probe/grab-figures.mjs	132	17	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	134	32	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	141	34	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	142	32	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	148	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	149	43	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	149	50	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	149	54	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	152	37	row	keep			
+tools/probe/grab-figures.mjs	156	22	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	158	25	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	158	31	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	158	35	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	165	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	168	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	168	16	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	169	43	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	171	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	175	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	175	20	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	176	43	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	178	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	179	23	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	179	29	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	181	43	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	268	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	269	8	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	269	14	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	270	13	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	270	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	270	35	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	328	94	row	task-group			
+tools/probe/grab-figures.mjs	346	58	row	task-group			
+tools/probe/grab-figures.mjs	346	98	行	keep			verbatim quote of CR-430 (history, X-4)
+tools/probe/grab-figures.mjs	347	51	row	task-group			
+tools/probe/grab-figures.mjs	358	23	row	task-group			
+tools/probe/grab-figures.mjs	368	14	row	task-group			
+tools/probe/grab-figures.mjs	394	61	行	task-group			
+tools/probe/grab-figures.mjs	396	26	row	task-group			
+tools/probe/grab-figures.mjs	427	8	rows	keep			
+tools/probe/grab-figures.mjs	429	17	rows	keep			
+tools/probe/grab-figures.mjs	429	33	rows	keep			
+tools/probe/grab-figures.mjs	432	26	row	keep			
+tools/probe/grab-figures.mjs	433	53	row	keep			
+tools/probe/grab-figures.mjs	447	72	行	keep			
+tools/probe/grab-figures.mjs	459	91	Rows	keep			
+tools/probe/grab-figures.mjs	477	23	親子	rewrite	親子をつなぐ形	親タスクと子タスクをつなぐ形	uncertain: PK-17 name; must match the wording S1-B gives table T-269 PK-17
+tools/probe/grab-figures.mjs	525	17	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/grab-figures.mjs	549	55	rows	task-group			
+tools/probe/harness.mjs	199	8	rows	task-group			
+tools/probe/harness.mjs	200	22	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	202	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	203	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	204	14	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	205	13	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	206	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	214	4	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	246	11	rows	keep			
+tools/probe/harness.mjs	246	73	rows	keep			
+tools/probe/harness.mjs	249	44	ROWS	keep			
+tools/probe/harness.mjs	250	61	rows	keep			
+tools/probe/harness.mjs	253	69	row	task-group			
+tools/probe/harness.mjs	266	20	row	task-group			
+tools/probe/harness.mjs	269	56	row	task-group			
+tools/probe/harness.mjs	274	25	row	task-group			
+tools/probe/harness.mjs	274	68	rows	keep			
+tools/probe/harness.mjs	275	44	row	task-group			
+tools/probe/harness.mjs	281	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	284	8	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	285	21	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	457	7	row	task-group			
+tools/probe/harness.mjs	465	8	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	467	12	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	467	20	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	470	9	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	470	19	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	471	7	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	472	19	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	472	33	rows	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	472	49	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	472	57	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	508	48	row	task-group			
+tools/probe/harness.mjs	526	24	row	task-group			
+tools/probe/harness.mjs	527	38	row	task-group			
+tools/probe/harness.mjs	529	40	ROW	task-group			
+tools/probe/harness.mjs	530	9	rows	keep			
+tools/probe/harness.mjs	535	10	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	537	8	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	538	19	row	keep			JS local: DOM node, measurement or settings record, not a TaskGroup (X-12)
+tools/probe/harness.mjs	551	34	ROW	task-group			
+tools/probe/harness.mjs	555	16	row	task-group			
+tools/probe/harness.mjs	556	34	row	task-group			
+tools/probe/harness.mjs	557	53	row	task-group			
+tools/probe/harness.mjs	589	45	row	task-group			
+tools/probe/harness.mjs	593	15	row	task-group			
+tools/probe/harness.mjs	659	7	rows	keep			
+tools/probe/harness.mjs	660	20	rows	task-group			
+tools/probe/harness.mjs	681	70	row	task-group			
+tools/probe/harness.mjs	682	74	row	task-group			
+tools/renumber_ids.py	10	18	row	keep			
+tools/renumber_ids.py	30	41	rows	keep			
+tools/renumber_ids.py	31	10	rows	keep			
+tools/renumber_ids.py	32	71	row	keep			
+tools/renumber_ids.py	33	74	row	keep			
+tools/renumber_ids.py	103	28	rows	keep			
+tools/renumber_ids.py	304	8	row	keep			
+tools/renumber_ids.py	339	50	row	keep			
+tools/spec_tables.py	12	4	rows	keep			
+tools/spec_tables.py	12	55	rows	keep			
+tools/spec_tables.py	13	21	rows	keep			
+tools/spec_tables.py	27	38	row	keep			
+tools/spec_tables.py	34	4	rows	keep			
+tools/spec_tables.py	55	11	row	keep			
+tools/spec_tables.py	82	17	Row	keep			
+tools/spec_tables.py	110	55	row	keep			
+tools/spec_tables.py	165	30	rows	keep			
+tools/spec_tables.py	166	40	rows	keep			
+tools/spec_tables.py	175	48	row	keep			
+tools/spec_tables.py	178	39	row	keep			
+tools/spec_tables.py	186	61	rows	keep			
+tools/spec_tables.py	193	35	row	keep			
+tools/sweep_strictdoc_output.py	15	70	row	keep			
+tools/sweep_strictdoc_output.py	17	71	row	keep			
+tools/sweep_strictdoc_output.py	95	72	row	keep			
+tools/tune_mspdi_samples.py	12	47	row	task-group			
+tools/tune_mspdi_samples.py	13	73	rows	task-group			
