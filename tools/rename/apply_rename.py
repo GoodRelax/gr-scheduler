@@ -192,6 +192,10 @@ def joined_start(line, col, new):
 
 def apply_line_row(fe, row, phrases_by_old, phrases):
     decision = row['_effective']
+    if decision == 'keep':
+        # nothing to write; an earlier stage may have renamed the token around
+        # it (a class-a map name such as 'row-2'), so it is not looked for
+        return
     where = locate(fe.lines, row)
     if where is None:
         fe.problems.append('moved %s %s:%s %r' % (row['id'], row['path'], row['line'], row['text']))

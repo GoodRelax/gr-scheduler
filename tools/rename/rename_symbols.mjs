@@ -184,6 +184,14 @@ async function main() {
   const specWords = mapRows.filter((r) => r.kind === 'spec-word' && r.class === 'a')
     .sort((a, b) => b.old.length - a.old.length);
   const moves = mapRows.filter((r) => r.kind === 'file-path' && r.class === 'a');
+  // a decision names the path of the frozen tree; the first run (stage 2)
+  // moves the test files, so the second reads a moved file's decisions at
+  // its new path
+  const movedTo = new Map(moves.map((r) => [r.old, r.new]));
+  const pathNow = (p) => (!fs.existsSync(path.join(ROOT, p)) && movedTo.has(p) &&
+    fs.existsSync(path.join(ROOT, movedTo.get(p))) ? movedTo.get(p) : p);
+  const typeDecisions = () => decisionFiles('types').flatMap(readTsv)
+    .map((r) => ({ ...r, path: pathNow(r.path) }));
 
   const api = new API({ cwd: ROOT });
   const snap = api.updateSnapshot({ openProjects: [path.join(ROOT, 'tsconfig.json')] });
@@ -480,7 +488,7 @@ async function main() {
       ' map-name hints)');
     return 0;
   }
-  const decided = new Map([...readTsv(TYPES_TSV), ...decisionFiles('types').flatMap(readTsv)]
+  const decided = new Map([...readTsv(TYPES_TSV), ...typeDecisions()]
     .filter((r) => r.decision)
     .map((r) => [typeKey(r), r.decision]));
   console.log('generic identifiers still undecided after the decision files: ' +
@@ -494,7 +502,7 @@ async function main() {
   const genericAt = new Set(generic.map((g) => g.rel + ':' + g.start));
   const forced = [];
   const forcedMissing = [];
-  for (const r of decisionFiles('types').flatMap(readTsv)) {
+  for (const r of typeDecisions()) {
     if (r.decision !== 'task-group' || typeRowKeys.has(typeKey(r)) || !GENERIC.has(r.name)) continue;
     const src = sources.get(r.path);
     let start = -1;
