@@ -1,0 +1,11 @@
+path	line	col	nth	name	decision	note
+tests/unit/t-023a-ptd-1-pan-follows-the-pointer.test.ts	512	46	0	rows	task-group	ScheduleLayout.rows read through any
+tests/unit/t-023c-sl-3-marquee-drawn-while-held.test.ts	468	46	0	rows	task-group	ScheduleLayout.rows read through any
+tests/unit/t-023d-follows-the-pointer.test.ts	691	46	0	rows	task-group	ScheduleLayout.rows read through any
+tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts	432	32	0	rows	task-group	ScheduleLayout.rows
+tests/unit/t-024a-op-10-first-day-covered.test.ts	417	26	0	rows	task-group	ScheduleLayout.rows
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts	573	46	0	rows	task-group	ScheduleLayout.rows read through any
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts	591	43	0	Row	keep	local interface Row; its declaration is not renamed
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts	592	59	0	Row	keep	local interface Row; its declaration is not renamed
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts	594	54	0	Row	keep	local interface Row; its declaration is not renamed
+tests/unit/t-051-hf-15-grabbing-a-row.test.ts	821	54	0	rows	task-group	ScheduleLayout.rows read through any
