@@ -109,7 +109,7 @@ def locate(lines, row):
         left = row['left'][-6:]
         right = row['right'][:6]
         line = lines[k]
-        return line[max(0, at - len(left)):at] == left and \
+        return line[max(0, at - len(left)):at] == left or \
             line[at + len(middle):at + len(middle) + len(right)] == right
 
     if row['family'] == 'row':
@@ -126,9 +126,17 @@ def locate(lines, row):
         middle = text
     # an earlier stage may have edited the same line: shorten the context
     # step by step, and accept only a place that is unique on its line
+    # (one side alone is tried too: rename_symbols.mjs may have renamed a
+    # token right next to the place, e.g. `wbsParentUid` after a phrase)
+    tries = []
     for width in (40, 12, 6, 3):
-        left = row['left'][-width:]
-        right = row['right'][:width]
+        tries.append((row['left'][-width:], row['right'][:width]))
+    for width in (12, 6):
+        tries.append((row['left'][-width:], ''))
+        tries.append(('', row['right'][:width]))
+    for left, right in tries:
+        if not left and not right:
+            continue
         needle = left + middle + right
         for k in (n, n - 1, n + 1, n - 2, n + 2):
             if not 0 <= k < len(lines):
