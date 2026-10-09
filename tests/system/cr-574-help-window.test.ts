@@ -29,7 +29,7 @@ const FR_038_SEEDED_ON_OPENING = '⭐ ヘルプを開くたびに、ヘルプの
 const FR_038_NOT_THE_SCREEN = '⛔ ヘルプの言語を替えて画面の言語を替えてはならない（MUST NOT）。'
 const FR_038_NOT_STORED = '⛔ ヘルプの言語を保存してはならない（MUST NOT） —— 文書にも、閲覧環境の保管庫にも置かない。'
 const IN_4_SURFACE_THEN_HELP =
-  '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウインドウ」の段に立つ'
+  '⭐ `Esc` では、通常か最大化のヘルプは面の段ではなく、表 T-028 の `IN-4` の「開いているウィンドウ」の段に立つ'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
 const FR_036_UNDER_THE_HEADER =
   'ヘルプは、閲覧環境の窓から `App Header` を除いた領域の中央に、その領域の幅と高さに対し `_assets/tbl-settings.md` の 表 T-206 の `S-201` が定める割合で開くこと（MUST）'

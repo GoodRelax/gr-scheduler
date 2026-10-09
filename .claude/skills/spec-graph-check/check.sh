@@ -46,7 +46,10 @@
 #          the one row that forbids a word outright, compounds included, and
 #          states its own exemption -- a line may hold the word where it names
 #          the ban. The exemption is READ from that rule rather than held in a
-#          baseline, so it cannot go stale
+#          baseline, so it cannot go stale. The same check also reds every
+#          spelling the notation table (section 5 of rule 02) marks 止める,
+#          in the spec, the dictionary and the guides -- read from the table,
+#          not held here (JDG-1857, CR-725: ウインドウ -> ウィンドウ)
 #   33     audit-ch5.py, the Chapter 5 self-audit : the counts Chapter 5
 #          asserts, read against the tables the same file holds. ⛔ It runs
 #          inside this script because a check that a rule asks people to run
@@ -460,6 +463,10 @@ echo ""
 section "12-14, 32  recurring defect types"
 # ⚠️ utf-8, like every other check that prints Japanese: check 32 names the
 # forbidden word in its own finding, and a cp932 console mangles it.
+# The self-test runs first: it feeds the spelling scan an in-memory table and
+# lines (a gated spelling red, the written one green, ヘッダー not red under a
+# gated ヘッダ) and is red when the real table stops gating ウインドウ.
+PYTHONIOENCODING=utf-8 python "$HERE/style-checks.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/style-checks.py" "$REPO" || failed
 
 echo ""

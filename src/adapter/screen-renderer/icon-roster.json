@@ -793,7 +793,7 @@
     "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる",
+   "entryTo": "開いている面とプロパティパネルとウィンドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -983,7 +983,7 @@
     "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "ウインドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである",
+   "entryTo": "ウィンドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
@@ -997,7 +997,7 @@
     "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "ウインドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`）",
+   "entryTo": "ウィンドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`）",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
@@ -1011,7 +1011,7 @@
     "Dialogue Field"
    ],
    "group": null,
-   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "entryTo": "最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
    "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
