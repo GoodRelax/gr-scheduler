@@ -47,7 +47,7 @@ const FR_098_PINNED_BAND_SIDE = '⭐ タスクグループ見出しの側の境�
 const EP_3_EXPORT_SIDE = '⭐ タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['FR-042 (MUST) -- the Task Group Panel carries the line at each row boundary', FR_042_PANEL_CARRIES_THE_LINE],
+  ['FR-042 (MUST) -- the Task Group Panel carries the line at each task group boundary', FR_042_PANEL_CARRIES_THE_LINE],
   ['FR-042 (MUST) -- left edge to right edge, unbroken into the schedule side', FR_042_LEFT_TO_RIGHT_AND_UNBROKEN],
   ['FR-098 -- the pinned band boundary on the task group title side', FR_098_PINNED_BAND_SIDE],
   ['T-076 EP-3 -- the export draws the task-group-boundary lines too', EP_3_EXPORT_SIDE],
@@ -159,7 +159,7 @@ const lineAtBottomOf = (panel: TaskGroupPanel, box: ScreenRect): ScreenRect | un
 describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタスクグループの境にも引くこと」', () => {
   const panel = panelOf(settingsOf({ groupGridLinesVisible: true }))
 
-  it('draws one line at the bottom boundary of every row the panel draws', () => {
+  it('draws one line at the bottom boundary of every task group the panel draws', () => {
     const titles = titlesOf(panel)
     expect(titles.map((one) => one.groupId).sort()).toEqual([...IDS])
     for (const title of titles) {
@@ -176,7 +176,7 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
     }
   })
 
-  it('draws it from the panel row\'s left edge to its right edge', () => {
+  it('draws it from the panel task group\'s left edge to its right edge', () => {
     for (const title of titlesOf(panel)) {
       const line = lineAtBottomOf(panel, title.box) as ScreenRect
       expect(line.x, `${title.groupId}'s line starts at the panel's left`).toBeCloseTo(title.box.x, 6)
@@ -191,7 +191,7 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
 describe('T-202 S-68 false -- the panel carries no line', () => {
   it('draws no task-group-boundary line when groupGridLinesVisible is false', () => {
     const panel = panelOf(settingsOf({ groupGridLinesVisible: false }))
-    expect(titlesOf(panel).length, 'the rows themselves are still drawn').toBe(IDS.length)
+    expect(titlesOf(panel).length, 'the task groups themselves are still drawn').toBe(IDS.length)
     expect(linesOf(panel)).toEqual([])
   })
 
@@ -199,7 +199,7 @@ describe('T-202 S-68 false -- the panel carries no line', () => {
 
 
 describe('FR-098 -- 「タスクグループ見出しの側の境目も同じ線で示す」', () => {
-  it('draws the line under the last pinned row, so the band boundary is shown on the panel side', () => {
+  it('draws the line under the last pinned task group, so the band boundary is shown on the panel side', () => {
     const panel = panelOf(settingsOf({ groupGridLinesVisible: true, pinnedGroupIds: ['g1', 'g2'] }))
     const pinned = panel.pinnedTitles.map((one) => one.groupId)
     expect(pinned, 'the fixture pins g1 and g2').toEqual(['g1', 'g2'])

@@ -1,4 +1,4 @@
-// CR-551 items 13-16: deleting every row from the head (HF-20, CD-6, QN-10), the date fields and the colour rows
+// CR-551 items 13-16: deleting every task group from the head (HF-20, CD-6, QN-10), the date fields and the colour rows
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -212,7 +212,7 @@ const NAMES = ['Alpha', 'Beta', 'Gamma']
 const HEAD_ENTRANCES = ['IC-74', 'IC-78', 'IC-92', 'IC-93', 'IC-106']
 const TASK_GROUP_ONLY_ENTRANCES = ['IC-59', 'IC-60']
 
-describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
+describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
   it('HF-20 / CD-6 / E-36 still say: すべてのタスクグループを消す操作子 / 深さ L1 のタスクグループが 1 つ作られる / 頭が持つ入口が 5 つ', () => {
     expect(REQUIREMENTS).toContain(HF_20)
     expect(REQUIREMENTS).toContain(CD_6_ONE_TASK_GROUP)
@@ -249,7 +249,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
     expect(built.loop.document(), 'nothing is deleted before the answer').toBe(before)
   })
 
-  it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every row and every task goes, and one L1 row is made', () => {
+  it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every task group and every task goes, and one L1 task group is made', () => {
     // see CD-6, CD-2
     const built = bench(documentWith(ROWS, NAMES))
     built.press('Task Group Panel', 'IC-106')
@@ -257,13 +257,13 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
     const schedule = built.loop.document().schedule
     expect(schedule.tasks).toEqual([])
     expect(schedule.taskGroups.length, CD_6_ONE_TASK_GROUP).toBe(1)
-    expect(schedule.taskGroups[0]?.parentId, 'the made row is at depth L1').toBeNull()
+    expect(schedule.taskGroups[0]?.parentId, 'the made task group is at depth L1').toBeNull()
     for (const id of ROWS.map((one) => one.id)) {
       expect(schedule.taskGroups.map((one) => one.id)).not.toContain(id)
     }
   })
 
-  it('CD-6: 取り消し 1 回で戻る -- one undo brings every row and task back', () => {
+  it('CD-6: 取り消し 1 回で戻る -- one undo brings every task group and task back', () => {
     // see CD-6, SK-6
     const built = bench(documentWith(ROWS, NAMES))
     const before = built.loop.document().schedule
@@ -285,7 +285,7 @@ const FR_006_COLOUR_LAST =
   '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 const FR_006_WIDTH_AFTER =
   '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
-// WHY: the columns of the look rows in FR-006's order; TaskGroup.color is the row band's fill.
+// WHY: the columns of the look rows in FR-006's order; TaskGroup.color is the task group band's fill.
 const LOOK_ORDER: readonly string[] = ['strokeWidthPx', 'strokeColor', 'fillColor', 'fillTransparencyPercent', 'textColor']
 const LOOK_ALIAS: Readonly<Record<string, string>> = { color: 'fillColor' }
 
@@ -481,7 +481,7 @@ function taskGroupPanelBox(built: Bench): string {
   built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Task Group Panel', null, 'g1'))
   const fields = built.view().propertiesPanel?.fields ?? []
   const found = fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'color'))
-  if (found === undefined) throw new Error('the row panel shows no row colour')
+  if (found === undefined) throw new Error('the task group properties panel shows no task group colour')
   return found.row
 }
 
@@ -524,7 +524,7 @@ describe('CV-9 -- the colour field', () => {
     expect(drawn.filter((one) => one.getAttribute('data-colour-sides') !== null || one.getAttribute('data-colour-swatch') !== null)).toEqual([])
   })
 
-  it('CV-9 (2): transparent then custom closes the second row of every colour field (task fill, task line, row colour)', () => {
+  it('CV-9 (2): transparent then custom closes the second row of every colour field (task fill, task line, task group colour)', () => {
     // see CV-9, CV-5, FR-007
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const row of [TASK_FILL, TASK_LINE]) expect(cellsOf(task, row).slice(-2), row).toEqual([TRANSPARENT, 'custom'])
@@ -600,7 +600,7 @@ describe('CV-9 -- the colour field', () => {
     })
   }
 
-  it(`${CV_9_EMPTY_SLOT} -- the row colour field keeps black's place empty and every later cell in its place`, () => {
+  it(`${CV_9_EMPTY_SLOT} -- the task group colour field keeps black's place empty and every later cell in its place`, () => {
     // see CV-9, S-315
     const built = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const rowColour = taskGroupPanelBox(built)

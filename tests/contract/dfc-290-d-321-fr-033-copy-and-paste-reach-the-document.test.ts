@@ -188,7 +188,7 @@ function keyOf(id: string): KeyInput {
 const COPY = keyOf('SK-4')
 const PASTE = keyOf('SK-5')
 
-/** `U-22` -- the 面 the row half of the STATEMENT names（タスクグループパネル）. */
+/** `U-22` -- the 面 the task group half of the STATEMENT names（タスクグループパネル）. */
 const TASK_GROUP_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
 
 interface ReasonWords {
@@ -220,7 +220,7 @@ const CHILD_TASK_GROUP = 'aaaaaaaa-0000-4000-8000-000000000002'
 /** The `Task` a case presses, and its WBS child, which is not copied unless it is chosen too (DU-1, CR-706). */
 const PARENT_TASK = 1
 const CHILD_TASK = 2
-/** The first uid of the Tasks that only stand on the parent row to bring it near the valve. */
+/** The first uid of the Tasks that only stand on the parent task group to bring it near the valve. */
 const FIRST_FILLER = 100
 
 function task(uid: number, parentUid: number | null): Record<string, unknown> {
@@ -262,11 +262,11 @@ function group(id: string, parentId: string | null, order: number): Record<strin
 }
 
 /**
- * Two rows, parent and child, carrying one WBS pair of Tasks.
+ * Two task groups, parent and child, carrying one WBS pair of Tasks.
  *
  * ⭐ THE SHAPE IS WHAT THE STATEMENT ASKS ABOUT: 「選ばれた `Task` だけを」
  * needs a Task WITH a descendant that stays behind, and 「選ばれた `TaskGroup` を
- * 部分木ごと」 needs a row WITH a row under it.
+ * 部分木ごと」 needs a task group WITH a task group under it.
  */
 // WHY: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
 function documentOfTwoTaskGroups(fillers = 0): Document {
@@ -390,7 +390,7 @@ interface Stage {
   send(input: HumanInput): void
   /** Press one Task's plan bar on the canvas -- `SL-2` of 表 T-023c moving. */
   pressTask(uid: number): void
-  /** Press one row's title -- the タスクグループパネル half of the STATEMENT. */
+  /** Press one task group's title -- the タスクグループパネル half of the STATEMENT. */
   pressRow(groupId: string): void
   taskUids(): readonly number[]
   groupIds(): readonly string[]
@@ -468,7 +468,7 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
 // ===========================================================================
 
 describe('FR-033 -- the manuscript this file is driven by', () => {
-  it('still states the two subtrees, and still keeps a copy on its original row', () => {
+  it('still states the two subtrees, and still keeps a copy on its original task group', () => {
     expect(REQUIREMENTS).toContain(FR_033_STATEMENT)
     expect(REQUIREMENTS).toContain(FR_033_SAME_TASK_GROUP)
   })
@@ -478,12 +478,12 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
     expect(REQUIREMENTS).toContain(FR_033_NO_TASK_ORIGIN)
   })
 
-  it('still lands a pasted row under the chosen one, and still refuses a paste at the valve', () => {
+  it('still lands a pasted task group under the chosen one, and still refuses a paste at the valve', () => {
     expect(REQUIREMENTS).toContain(FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP)
     expect(REQUIREMENTS).toContain(FR_033_REFUSE_AT_THE_VALVE)
   })
 
-  it('表 T-223 still copies no WBS descendant that was not chosen, and cascades a row to the rows below it', () => {
+  it('表 T-223 still copies no WBS descendant that was not chosen, and cascades a task group to the task groups below it', () => {
     expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('選ばれていない子孫タスクを複製してはならない')
     expect(rowOf(T_223, 'DU-2').cells.join(' ')).toContain('配下のタスクグループ')
   })
@@ -531,7 +531,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
     expect(new Set(uids).size, 'a copy was given a UID the document already held').toBe(uids.length)
   })
 
-  it('and the copied Task sits on the row its original sits on (MUST)', () => {
+  it('and the copied Task sits on the task group its original sits on (MUST)', () => {
     // 「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」 -- 載るタスクグループが決まら
     // ないと、表 T-050 の `CD-2` が消す範囲も決まらない。
     const built = stage(documentOfTwoTaskGroups())
@@ -543,7 +543,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
     const copies = built.taskUids().filter((uid) => uid !== PARENT_TASK && uid !== CHILD_TASK)
     expect(copies.length).toBe(1)
     const rows = copies.map((uid) => built.taskGroupOfTask(uid))
-    expect(rows, 'the copy landed on a row its original is not on').toEqual([PARENT_TASK_GROUP])
+    expect(rows, 'the copy landed on a task group its original is not on').toEqual([PARENT_TASK_GROUP])
   })
 
   it('and no TaskOrigin is put on a copy (MUST NOT)', () => {
@@ -559,8 +559,8 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 })
 
-describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', () => {
-  it('⭐⭐ the pair of keys leaves two more rows in the document', () => {
+describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task group subtree', () => {
+  it('⭐⭐ the pair of keys leaves two more task groups in the document', () => {
     // 「タスクグループパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること」, and
     // 表 T-223 の `DU-2` names 「配下のタスクグループ」 as what travels with it.
     const built = stage(documentOfTwoTaskGroups())
@@ -571,12 +571,12 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
 
     expect(
       built.groupIds().length,
-      'SK-4 then SK-5 on a chosen row left the document exactly as it was -- FR-033’s STATEMENT ' +
-        'asks for the row and the rows under it to be duplicated 部分木ごと',
+      'SK-4 then SK-5 on a chosen task group left the document exactly as it was -- FR-033’s STATEMENT ' +
+        'asks for the task group and the task groups under it to be duplicated 部分木ごと',
     ).toBe(4)
   })
 
-  it('and the Tasks on the copied rows come with them (DU-2)', () => {
+  it('and the Tasks on the copied task groups come with them (DU-2)', () => {
     // 「そのタスクグループに載っているすべての `Task`」 and
     // 「⚠️ **複製した `Task` は複製したタスクグループに載せる。**」
     const built = stage(documentOfTwoTaskGroups())
@@ -592,7 +592,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
       .filter((uid) => newTaskGroups.includes(built.taskGroupOfTask(uid) ?? ''))
     expect(
       carried.length,
-      'the copied rows came up empty, which DU-2 (「そのタスクグループに載っているすべての `Task`」) forbids',
+      'the copied task groups came up empty, which DU-2 (「そのタスクグループに載っているすべての `Task`」) forbids',
     ).toBe(2)
   })
 })
@@ -637,25 +637,25 @@ describe('FR-033 -- what does NOT change the document', () => {
 //  なかったりする。
 //
 // ⭐ THE CAP IS `S-89`, A TOOL CONSTANT SINCE CR-572: no document can lower it,
-// so the fixture stacks the parent row up to one under it and reads the number
+// so the fixture stacks the parent task group up to one under it and reads the number
 // from the generated constants rather than typing it.
 
 describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused AND told', () => {
-  /** Tasks added to the parent row, so it holds one Task under the cap and one paste stands exactly at it. */
+  /** Tasks added to the parent task group, so it holds one Task under the cap and one paste stands exactly at it. */
   const AT_THE_CAP = SETTINGS_CONSTANTS.stackSafetyCap - 2
-  // WHY: a window tall enough that the whole stacked row is drawn, so the parent Task can be pressed.
+  // WHY: a window tall enough that the whole stacked task group is drawn, so the parent Task can be pressed.
   const TALL: FrameEnvironment = { ...SCREEN, height: 40000 }
 
-  it('the premise: the parent row stands one under the valve and is not yet past it', () => {
-    // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- the row
+  it('the premise: the parent task group stands one under the valve and is not yet past it', () => {
+    // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- the task group
     // this case pastes onto holds one Task under the cap, so a paste is what reaches it.
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     expect(built.notices()).toEqual([])
     expect(built.taskUids().length).toBe(2 + AT_THE_CAP)
   })
 
-  it('⭐⭐ the paste that would make a third stack on one row is not taken', async () => {
-    // The document's parent row holds one Task under the cap; two pastes of that
+  it('⭐⭐ the paste that would make a third stack on one task group is not taken', async () => {
+    // The document's parent task group holds one Task under the cap; two pastes of that
     // Task would put one Task past it. ⛔ The FIRST paste is lawful and
     // is asserted so, precisely so that a loop which refuses every paste cannot
     // pass this case.

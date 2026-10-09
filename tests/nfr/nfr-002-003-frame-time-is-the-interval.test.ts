@@ -607,7 +607,7 @@ async function driveSegment(
 const BARE_SPOT_STEP_PX = 12
 const BARE_SPOT_CLEARANCE_PX = 8
 
-// WHY: a row's own ground on every side, read just before the press, wherever the palette stands.
+// WHY: a task group's own ground on every side, read just before the press, wherever the palette stands.
 /** @purity semi-pure-b */
 async function bareCanvasPoint(
   page: Page,
@@ -627,7 +627,7 @@ async function bareCanvasPoint(
         if (hit === null || !drawing.contains(hit) || hit === drawing) return false
         if (hit.closest('[data-role]')?.getAttribute('data-role') !== 'Schedule Canvas') return false
         const name = hit.closest('[data-figure]')?.getAttribute('data-figure') ?? ''
-        return name.startsWith('row-') || name === 'non-working-days'
+        return name.startsWith('task-group-') || name === 'non-working-days'
       }
       const around = [[0, 0], [clearance, 0], [-clearance, 0], [0, clearance], [0, -clearance]]
       const spots: { x: number; y: number; far: number }[] = []

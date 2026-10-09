@@ -15,7 +15,7 @@ const rowOf = (table: string, id: string) => {
 
 const THEME: ScreenTheme = { preference: 'light', hue: Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? '')) }
 const HEADER_PX = 37
-const QUESTION_TEXT = 'Delete these rows?'
+const QUESTION_TEXT = 'Delete these task groups?'
 const NAMES = ['Alpha', 'Beta', 'Gamma']
 const SCROLLING = ['auto', 'scroll']
 

@@ -13,13 +13,13 @@ const OFFSET = { dx: 60, dy: -40 }
 // (T-023b), so a fixed point breaks whenever the sample moves a bar under it (DFC-2132).
 const bareSpotNear = (page: Page, near: { x: number; y: number }): Promise<{ x: number; y: number }> =>
   page.evaluate(({ x, y }) => {
-    // WHY: the row under the point is tried first; a bar can fill a whole row, so nearby rows follow.
+    // WHY: the task group under the point is tried first; a bar can fill a whole task group, so nearby task groups follow.
     for (let row = 0; row < 30; row++) {
       for (const dy of [row * 10, -row * 10]) {
         for (let step = 0; step < 60; step++) {
           for (const dx of [step * 10, -step * 10]) {
             const hit = document.elementFromPoint(x + dx, y + dy)?.getAttribute('data-figure') ?? ''
-            if (/^row-.*-band$/.test(hit)) return { x: x + dx, y: y + dy }
+            if (/^task-group-.*-band$/.test(hit)) return { x: x + dx, y: y + dy }
           }
         }
       }
@@ -55,7 +55,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   await test.step('UC-008 step 2: the anchor is a date and a row id, only the body offset is in screen pixels, and the body carries the anchor (FR-019, T-023d)', async () => {
     const before = (await readDocument(page)).schedule.commentBoxes[0]!
     const body = (await figureBox(page, 'comment-' + commentId))!
-    const band = (await figureBox(page, 'row-' + anchorTaskGroup + '-band'))!
+    const band = (await figureBox(page, 'task-group-' + anchorTaskGroup + '-band'))!
     const axis = await dayAxis(page)
     const taskGroupUnderTheMovedAnchor = await bandAt(page, band.y + band.h / 2 + OFFSET.dy)
     await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy })
@@ -101,7 +101,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     highlightId = boxes[0]!.id
   })
 
-  await test.step('UC-008 step 4: the range is kept as dates and rows, and the corner radius does not follow the zoom (FR-019, T-217)', async () => {
+  await test.step('UC-008 step 4: the range is kept as dates and task groups, and the corner radius does not follow the zoom (FR-019, T-217)', async () => {
     const axis = await dayAxis(page)
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     expect(Math.abs(dayNumber(box.startDate) - axis.dayOf(RANGE_FROM.x))).toBeLessThanOrEqual(1)
@@ -110,8 +110,8 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(await cornerRadius(page, highlightId)).toBe(box.cornerRadiusPx)
   })
 
-  // WHY: measured while the box is drawn; extension 2a later hides the pointed row, which in the
-  // template is an ancestor of the range rows, so the box is no longer drawn after it (DFC-2132).
+  // WHY: measured while the box is drawn; extension 2a later hides the pointed task group, which in the
+  // template is an ancestor of the range task groups, so the box is no longer drawn after it (DFC-2132).
   await test.step('UC-008 step 4 over zoom: the corner radius stays the same when the zoom changes (T-217)', async () => {
     const radius = (await readDocument(page)).schedule.highlightBoxes[0]!.cornerRadiusPx
     await press(page, 'IC-13')
@@ -122,7 +122,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     await press(page, 'IC-12')
   })
 
-  await test.step('UC-008 extension 4a: when a row inside the range is hidden, only the rows still shown are surrounded (FR-019)', async () => {
+  await test.step('UC-008 extension 4a: when a task group inside the range is hidden, only the task groups still shown are surrounded (FR-019)', async () => {
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     const before = (await figureBox(page, 'box-' + highlightId))!
     await pressRowControl(page, box.bottomGroupId, 'IC-59')
@@ -130,7 +130,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect.soft(after.h).toBeLessThan(before.h)
   })
 
-  await test.step('UC-008 extension 2a: when the pointed row is hidden, the comment box is hidden with it (FR-019)', async () => {
+  await test.step('UC-008 extension 2a: when the pointed task group is hidden, the comment box is hidden with it (FR-019)', async () => {
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(1)
     await pressRowControl(page, anchorTaskGroup!, 'IC-59')
     await expect(page.locator('[data-figure="comment-' + commentId + '"]')).toHaveCount(0)

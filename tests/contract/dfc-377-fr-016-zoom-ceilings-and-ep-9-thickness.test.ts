@@ -25,7 +25,7 @@
 // -- except where a clause is quoted, which is section 1's whole purpose):
 //   FR-016   the vertical axis's ceiling (the font-comparison ban was retired by
 //            CR-381); reaching the ceiling may not be shown by a dead entrance;
-//            a row's place at a candidate zoom may not be arithmetic from the
+//            a task group's place at a candidate zoom may not be arithmetic from the
 //            zoom in force; that place is answered by table T-064's PI-5
 //            (`taskGroupPlacesAtZoomY`)
 //   T-076 EP-9   the Panel Divider's line is the same THICKNESS as `Group
@@ -64,7 +64,7 @@
 //
 // ONE OF THE EIGHT LEFT IS HELD VERBATIM ONLY, AND THIS FILE SAYS SO RATHER
 // THAN INVENTING A CASE THAT PASSES FOR NOTHING (see section 4):
-//   FR-016, the ban on choosing the row ceiling by comparing two font sizes,
+//   FR-016, the ban on choosing the vertical zoom ceiling by comparing two font sizes,
 //     is GONE: CR-381 (JDG-88, JDG-99, JDG-115) overturned it and wrote the
 //     opposite -- the ceiling is the smaller of the band ceiling and the zoom
 //     at which a rectangle name reaches the depth-1 task group name. That clause is
@@ -174,7 +174,7 @@ const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-016 (MUST NOT) -- reaching the ceiling is not shown by a dead entrance', FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE],
-  ['FR-016 (MUST NOT) -- a row position at a zoom is not arithmetic', FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC],
+  ['FR-016 (MUST NOT) -- a task group position at a zoom is not arithmetic', FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC],
   ['FR-016 (MUST) -- the member that answers it is T-064 PI-5', FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5],
   ['T-076 EP-9 (MUST) -- the line has the same thickness', EP_9_SAME_LINE_MEANS_SAME_THICKNESS],
   ['T-076 EP-9 (MUST NOT) -- the thickness is never drawn as zero', EP_9_THICKNESS_NOT_ZERO],
@@ -446,7 +446,7 @@ const groupOf = (id: string, order: number): TaskGroup =>
     minHeight: null,
   }) as unknown as TaskGroup
 
-/** Three flat root rows -- FR-018's ladder domain starts at depth 2, so all
+/** Three flat root task groups -- FR-018's ladder domain starts at depth 2, so all
  * three are drawn at every zoom this section presses (never LOD-collapsed). */
 const THREE_FLAT_TASK_GROUPS = 3
 
@@ -531,9 +531,9 @@ describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置�
     }
   })
 
-  it('PI-5’s member answers a position for every row, at a zoom nothing has drawn yet', () => {
+  it('PI-5’s member answers a position for every task group, at a zoom nothing has drawn yet', () => {
     // FR-016 (MUST): the member exists and answers. GOES RED IF
-    // `taskGroupPlacesAtZoomY` is removed or stops returning one placement per row.
+    // `taskGroupPlacesAtZoomY` is removed or stops returning one placement per task group.
     const places = placesAt(ZOOM_HIGH)
     expect(places).toHaveLength(THREE_FLAT_TASK_GROUPS)
     for (const place of places) expect(Number.isFinite(place.y)).toBe(true)

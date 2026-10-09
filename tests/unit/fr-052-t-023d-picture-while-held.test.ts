@@ -218,7 +218,7 @@ const BOTTOM = '下'
 // ---------------------------------------------------------------------------
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
+// the project and the settings come from it; the task groups and the Tasks are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -948,7 +948,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     // pointer well inside a day, where 四捨五入 and a plain truncation answer
     // alike -- so the quantum itself was unwatched, and the boundary could move
     // half a day in either direction without a case noticing. ⚠️ This is the
-    // family of 台帳 DFC-138 (a vertical pan that skips the gap between rows): a
+    // family of 台帳 DFC-138 (a vertical pan that skips the gap between task groups): a
     // quantum hides inside one long gesture and only shows at its edges.
     //
     // ⛔ WHAT MAKES THE TWO PRESSES DIFFER. A day's own edge is the tie of

@@ -1,4 +1,4 @@
-// DFC-1000 spec-only cases: T-051 HF-10 / CR-570 decision 15 -- the head open-all entrance (IC-74) is armed while any row the picture has not drawn exists, a row scrolled out of the window included; pressed, it opens that row and tells nothing; with every row drawn it is faint and a press tells RS-31.
+// DFC-1000 spec-only cases: T-051 HF-10 / CR-570 decision 15 -- the head open-all entrance (IC-74) is armed while any task group the picture has not drawn exists, a task group scrolled out of the window included; pressed, it opens that task group and tells nothing; with every task group drawn it is faint and a press tells RS-31.
 
 import { describe, expect, it } from 'vitest'
 
@@ -37,7 +37,7 @@ const treeStateOf = (document: { schedule: { taskGroups: readonly { id: string; 
   document.schedule.taskGroups.find((one) => one.id === id)?.treeState ?? ''
 
 describe('DFC-1000 -- the manuscript these cases are driven by', () => {
-  it('HF-2 / HF-10: an open entrance is armed by rows the picture has not drawn under it, not by what is folded by hand', () => {
+  it('HF-2 / HF-10: an open entrance is armed by task groups the picture has not drawn under it, not by what is folded by hand', () => {
     expect(REQUIREMENTS).toContain(HF_10_NOT_IN_HF_18)
   })
 
@@ -47,8 +47,8 @@ describe('DFC-1000 -- the manuscript these cases are driven by', () => {
   })
 })
 
-describe('DFC-1000 -- HF-10 a folded row scrolled out of the window still arms the head entrance', () => {
-  it('precondition: the folded row is not among the titles the window shows', async () => {
+describe('DFC-1000 -- HF-10 a folded task group scrolled out of the window still arms the head entrance', () => {
+  it('precondition: the folded task group is not among the titles the window shows', async () => {
     const built = await paletteStage({ document: documentWith('collapsed') as never })
     expect(built.last().taskGroupPanel.titles.map((one) => one.groupId)).not.toContain(FIRST)
     expect(built.last().taskGroupPanel.titles.length).toBeGreaterThan(0)
@@ -59,7 +59,7 @@ describe('DFC-1000 -- HF-10 a folded row scrolled out of the window still arms t
     expect(built.last().taskGroupPanel.canOpenEveryTaskGroup).toBe(true)
   })
 
-  it('pressing IC-74 opens the folded row and tells nothing', async () => {
+  it('pressing IC-74 opens the folded task group and tells nothing', async () => {
     const built = await paletteStage({ document: documentWith('collapsed') as never })
     await built.press(TASK_GROUP_PANEL, HEAD_OPEN_ALL)
     expect(treeStateOf(built.loop.document() as never, FIRST)).not.toBe('collapsed')
@@ -67,7 +67,7 @@ describe('DFC-1000 -- HF-10 a folded row scrolled out of the window still arms t
   })
 })
 
-describe('DFC-1000 -- HF-10 with every row drawn the head entrance has nothing to open', () => {
+describe('DFC-1000 -- HF-10 with every task group drawn the head entrance has nothing to open', () => {
   it('IC-74 is faint', async () => {
     const built = await paletteStage({ document: documentWith('auto') as never })
     expect(built.last().taskGroupPanel.canOpenEveryTaskGroup).toBe(false)
@@ -95,17 +95,17 @@ async function documentWithFoldedGrandchildBelowTheWindow() {
   return { lastShown, document: taskGroupDocument(rows) }
 }
 
-describe('DFC-1000 -- HF-2 the row entrance counts the rows under it that lie below the window', () => {
-  it('the last row the window shows has IC-58 armed when only a folded row below the window is not drawn', async () => {
+describe('DFC-1000 -- HF-2 the task group entrance counts the task groups under it that lie below the window', () => {
+  it('the last task group the window shows has IC-58 armed when only a folded task group below the window is not drawn', async () => {
     const { lastShown, document } = await documentWithFoldedGrandchildBelowTheWindow()
     const built = await paletteStage({ document: document as never })
     const title = built.last().taskGroupPanel.titles.find((one) => one.groupId === lastShown)
-    expect(title, 'precondition: the row is still the last one shown').toBeDefined()
+    expect(title, 'precondition: the task group is still the last one shown').toBeDefined()
     expect(built.last().taskGroupPanel.titles.map((one) => one.groupId)).not.toContain(idOf(900))
     expect(title?.expander.canOpen).toBe(true)
   })
 
-  it('pressing it opens the folded row below the window and tells nothing', async () => {
+  it('pressing it opens the folded task group below the window and tells nothing', async () => {
     const { lastShown, document } = await documentWithFoldedGrandchildBelowTheWindow()
     const built = await paletteStage({ document: document as never })
     await built.press(TASK_GROUP_PANEL, 'IC-58', { taskGroupId: lastShown })

@@ -1,4 +1,4 @@
-// CR-582 / CR-689 spec-only cases: the row min height rows of the property panel (FR-042, table T-338).
+// CR-582 / CR-689 spec-only cases: the task group min height rows of the property panel (FR-042, table T-338).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -395,7 +395,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       send(pointerAt('down', x, y, 2))
       send(pointerAt('up', x, y, 2))
       aimed = null
-      if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the row')
+      if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the task group')
     },
     view,
     band: (groupId) => frame().layout.taskGroups.find((one) => one.groupId === groupId)?.height ?? null,
@@ -411,7 +411,7 @@ function describedField(built: Bench, row = PR_20): PropertyField {
   const field = built.view().propertiesPanel?.fields.find((one) => one.row === row)
   if (field === undefined) {
     const rows = built.view().propertiesPanel?.fields.map((one) => one.row).join(' ')
-    throw new Error(`the row panel describes no ${row} field; fields: ${rows}`)
+    throw new Error(`the task group's properties panel describes no ${row} field; fields: ${rows}`)
   }
   return field
 }
@@ -491,7 +491,7 @@ function openedOn(options: SceneOptions, groupId = A, language: DisplayLanguage 
 
 const bandNow = (built: Bench, groupId = A): number => {
   const band = built.band(groupId)
-  if (band === null) throw new Error(`row ${groupId} is not placed`)
+  if (band === null) throw new Error(`task group ${groupId} is not placed`)
   return band
 }
 
@@ -658,14 +658,14 @@ describe(`FR-042 "${FR_042_WORDS}"`, () => {
 
 function zoomUntil(built: Bench, notches: number, placed: boolean): void {
   for (let turn = 0; turn < 40 && (built.band(B) !== null) !== placed; turn += 1) built.wheel(notches)
-  if ((built.band(B) !== null) !== placed) throw new Error(`row B did not become ${placed ? 'placed' : 'unplaced'} in 40 notches`)
+  if ((built.band(B) !== null) !== placed) throw new Error(`task group B did not become ${placed ? 'placed' : 'unplaced'} in 40 notches`)
 }
 
 const readoutPathOf = (built: Bench, text: string): string | undefined =>
   textsOf(drawnLine(built, MH_3)).find((one) => one.text === text)?.path
 
 describe(`T-338 MH-6 -- "${MH_6_WORD_ONLY}"`, () => {
-  it.each(LANGUAGES)(`"${MH_6_NO_NUMBER}" "${MH_6_BACK}" -- depth-2 row B, lowered past S-87, %s`, (language) => {
+  it.each(LANGUAGES)(`"${MH_6_NO_NUMBER}" "${MH_6_BACK}" -- depth-2 task group B, lowered past S-87, %s`, (language) => {
     const built = openedOn({}, B, language)
     const shown = readoutOf(bandNow(built, B), language)
     const numberAt = readoutPathOf(built, shown)

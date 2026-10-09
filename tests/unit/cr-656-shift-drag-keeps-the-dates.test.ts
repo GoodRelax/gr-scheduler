@@ -52,7 +52,7 @@ const S_208 = ((): number => {
 })()
 
 describe('CR-656 -- the rows these cases are driven by', () => {
-  it('MK-16: a Shift-only left drag from a task body is PTD-3, moves rows only, and adds an unselected task', () => {
+  it('MK-16: a Shift-only left drag from a task body is PTD-3, changes task groups only, and adds an unselected task', () => {
     const text = rowText('T-023', 'MK-16')
     expect(text).toContain('タスクの本体の上から始める、`Shift` だけを伴う左ドラッグ')
     expect(text).toContain('表 T-023a の `PTD-3`')
@@ -81,7 +81,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(ptd1).toContain('背景と、選択に含まれないものの上から始めた `Ctrl` ドラッグは、`Shift` を伴っても本行である')
   })
 
-  it('PTD-3: a Shift-only drag from a task body keeps the dates and moves rows only', () => {
+  it('PTD-3: a Shift-only drag from a task body keeps the dates and changes task groups only', () => {
     expect(rowText('T-023a', 'PTD-3')).toContain('`Shift` だけを伴ってタスクの本体から引いたときは、日付を変えずにタスクグループだけを移す（表 T-023 の `MK-16`')
   })
 
@@ -118,7 +118,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
   })
 })
 
-// WHY: six rows, one task per row; ROOT is in progress and has a WBS child, so a kept actual is observable.
+// WHY: six task groups, one task per task group; ROOT is in progress and has a WBS child, so a kept actual is observable.
 const TASK_GROUP_A = '65600000-0000-4000-8000-00000000000a'
 const TASK_GROUP_B = '65600000-0000-4000-8000-00000000000b'
 const TASK_GROUP_C = '65600000-0000-4000-8000-00000000000c'
@@ -200,7 +200,7 @@ function fixtureDocument(): Document {
       taskGroups: ROWS.map((id, order) => ({
         id,
         parentId: null,
-        label: `row ${order}`,
+        label: `task group ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
@@ -349,13 +349,13 @@ const groundOf = (loop: FrameLoop): Point => {
 
 const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
   const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
   return found
 }
 
 const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 
-// WHY: a travel of whole days across, and from the row `from` down to the row `to` (both drawn rows).
+// WHY: a travel of whole days across, and from the task group `from` down to the task group `to` (both drawn task groups).
 const travel = (loop: FrameLoop, days: number, from: string, to: string): Point => ({
   x: days * pxPerDay(loop),
   y: drawnTaskGroup(loop, to).y - drawnTaskGroup(loop, from).y,
@@ -502,19 +502,19 @@ const kindsOf = (writes: readonly DocumentCommand[]): string[] => writes.map((on
 
 const loose = (one: DocumentCommand): Record<string, unknown> => one as unknown as Record<string, unknown>
 
-describe('MK-16 / T-270: a Shift-only body drag moves rows and keeps the dates (translator)', () => {
+describe('MK-16 / T-270: a Shift-only body drag changes task groups and keeps the dates (translator)', () => {
   it('MK-16 / PTD-3: a Shift press on the body of a selected task is press row PTD-3', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), SHIFT).pressRow).toBe('PTD-3')
   })
 
-  it('MK-16 / T-270: 3 days right and 1 row down writes no setTaskPlanDates and moves the task to the next row', () => {
+  it('MK-16 / T-270: 3 days right and 1 task group down writes no setTaskPlanDates and moves the task to the next task group', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT)
     expect(kindsOf(done.writes)).not.toContain('setTaskPlanDates')
     const moves = done.writes.filter((one) => loose(one)['kind'] === 'moveTaskToTaskGroup')
-    expect(moves.length, 'MK-16: the row move is written').toBeGreaterThan(0)
+    expect(moves.length, 'MK-16: the task group move is written').toBeGreaterThan(0)
     expect(JSON.stringify(moves)).toContain(TASK_GROUP_B)
   })
 
@@ -533,20 +533,20 @@ describe('MK-16 / T-270: a Shift-only body drag moves rows and keeps the dates (
 })
 
 describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () => {
-  it('MK-16 / T-270: 3 days right and 1 row down moves the row, keeps plan and actual dates', () => {
+  it('MK-16 / T-270: 3 days right and 1 task group down changes the task group, keeps plan and actual dates', () => {
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
     drag(built, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), SHIFT)
     const after = taskOf(built, ROOT)
-    expect(groupOf(built.loop.document(), ROOT), 'MK-16: the task moves one row down').toBe(TASK_GROUP_B)
+    expect(groupOf(built.loop.document(), ROOT), 'MK-16: the task moves one task group down').toBe(TASK_GROUP_B)
     expect(datesOf(after), 'T-270: the plan dates do not change').toEqual(datesOf(before))
     expect(actualsOf(after), 'T-270: the actual does not change').toEqual(actualsOf(before))
     expect(groupOf(built.loop.document(), CHILD), 'CY-6: an unselected descendant does not move').toBe(TASK_GROUP_C)
     expect(uidsOf(built.selection()), 'T-270: the selection stays').toEqual([ROOT])
   })
 
-  it('MK-16 / T-270: 4 days left and 2 rows down still keeps every date', () => {
+  it('MK-16 / T-270: 4 days left and 2 task groups down still keeps every date', () => {
     const built = stage()
     selectRoot(built)
     const before = taskOf(built, ROOT)
@@ -567,15 +567,15 @@ describe('MK-16 / T-270 / SL-4: a Shift-only body drag through the shell', () =>
     expect(day(after.start), 'PE-1: the plan moves without Shift').not.toBe(day(before.start))
   })
 
-  it('MK-16 / SL-4 / T-270: a Shift drag from an unselected task adds it and moves both rows, dates kept', () => {
+  it('MK-16 / SL-4 / T-270: a Shift drag from an unselected task adds it and moves both to other task groups, dates kept', () => {
     const built = stage()
     selectRoot(built)
     const rootBefore = taskOf(built, ROOT)
     const otherBefore = taskOf(built, OTHER)
     drag(built, bodyOf(built.loop, OTHER), travel(built.loop, 2, TASK_GROUP_E, TASK_GROUP_F), SHIFT)
     const document = built.loop.document()
-    expect(groupOf(document, OTHER), 'the pressed task moves one row').toBe(TASK_GROUP_F)
-    expect(groupOf(document, ROOT), 'the rest of the selection moves the same rows').toBe(TASK_GROUP_B)
+    expect(groupOf(document, OTHER), 'the pressed task moves one task group down').toBe(TASK_GROUP_F)
+    expect(groupOf(document, ROOT), 'the rest of the selection moves the same number of task groups').toBe(TASK_GROUP_B)
     expect(datesOf(taskOf(built, ROOT))).toEqual(datesOf(rootBefore))
     expect(datesOf(taskOf(built, OTHER))).toEqual(datesOf(otherBefore))
     expect(actualsOf(taskOf(built, OTHER))).toEqual(actualsOf(otherBefore))
@@ -623,13 +623,13 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), CTRL_SHIFT).pressRow).toBe('PTD-7')
   })
 
-  it('CY-5: a Ctrl + Shift drag 3 days right and 1 row down writes pasteTasks with dayShift 0', () => {
+  it('CY-5: a Ctrl + Shift drag 3 days right and 1 task group down writes pasteTasks with dayShift 0', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
     expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
     const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number; groupIdOf: Record<number, string> }
     expect(landing.dayShift).toBe(0)
-    expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one row down').toBe(TASK_GROUP_B)
+    expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one task group down').toBe(TASK_GROUP_B)
   })
 
   it('CY-5 contrast: a Ctrl-only drag of the same travel carries a day shift of 3', () => {

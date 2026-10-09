@@ -1,4 +1,4 @@
-// DFC-1054 spec-only tests: EX-12 -- a pasted copy is treated as a task whose dates were edited, so the MSPDI written for it carries no slack, whether the paste is of a Task or of a row.
+// DFC-1054 spec-only tests: EX-12 -- a pasted copy is treated as a task whose dates were edited, so the MSPDI written for it carries no slack, whether the paste is of a Task or of a task group.
 
 import { describe, expect, it } from 'vitest'
 
@@ -26,7 +26,7 @@ function opened(): Document {
 
 const taskGroupOfTask = (document: Document, uid: number): string => {
   const found = document.schedule.taskGroupMembers.find((member) => member.taskUid === uid)
-  if (found === undefined) throw new Error(`premise: task ${uid} stands in a row`)
+  if (found === undefined) throw new Error(`premise: task ${uid} stands in a task group`)
   return found.groupId
 }
 
@@ -39,11 +39,11 @@ const newTaskUids = (before: Document, after: Document): readonly number[] => {
 
 const newTaskUid = (before: Document, after: Document): number => newTaskUids(before, after)[0] as number
 
-// WHY: the row that holds the source task may hold other tasks (it is the row of the outline), so every copy is read.
+// WHY: the task group that holds the source task may hold other tasks (it is the task group of the outline), so every copy is read.
 const copyOfSource = (before: Document, after: Document): number => {
   const name = before.schedule.tasks.find((each) => each.uid === SOURCE_UID)?.name
   const found = newTaskUids(before, after).find((uid) => after.schedule.tasks.find((each) => each.uid === uid)?.name === name)
-  if (found === undefined) throw new Error('premise: the row paste copied the source task')
+  if (found === undefined) throw new Error('premise: the task group paste copied the source task')
   return found
 }
 
@@ -58,7 +58,7 @@ function taskGroupPasted(document: Document): Document {
     },
     'Row',
   )
-  if (!result.ok) throw new Error(`premise: the row paste was refused: ${JSON.stringify(result.refusals)}`)
+  if (!result.ok) throw new Error(`premise: the task group paste was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }
 
@@ -79,7 +79,7 @@ describe(`EX-12 -- ${EX_12_COPY_IS_EDITED}`, () => {
     expect(slacksOf(writtenTask(after, newTaskUid(before, after))), EX_12_NO_SLACK).toEqual([])
   })
 
-  it('a row pasted with its tasks writes no slack for the copy of the task', () => {
+  it('a task group pasted with its tasks writes no slack for the copy of the task', () => {
     const before = opened()
     const after = taskGroupPasted(before)
     for (const copy of newTaskUids(before, after)) {
@@ -88,13 +88,13 @@ describe(`EX-12 -- ${EX_12_COPY_IS_EDITED}`, () => {
     expect(slacksOf(writtenTask(after, copyOfSource(before, after))), EX_12_NO_SLACK).toEqual([])
   })
 
-  it('a row paste leaves the slack of the source task as it was', () => {
+  it('a task group paste leaves the slack of the source task as it was', () => {
     const before = opened()
     const after = taskGroupPasted(before)
     expect([...slacksOf(writtenTask(after, SOURCE_UID))].sort()).toEqual(['FreeSlack', 'TotalSlack'])
   })
 
-  it('the Task paste and the row paste write the same set of slack elements for the copy', () => {
+  it('the Task paste and the task group paste write the same set of slack elements for the copy', () => {
     const before = opened()
     const byTask = edited(before, { kind: 'pasteTasks', sourceUids: [SOURCE_UID] })
     const byTaskGroup = taskGroupPasted(before)

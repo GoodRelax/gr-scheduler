@@ -280,7 +280,7 @@ const stampOf = (part: Partial<DocumentStamp> = {}): DocumentStamp => ({
 })
 
 /**
- * A document whose tasks all sit on one row. IV-6 of table T-220 wants exactly
+ * A document whose tasks all sit on one task group. IV-6 of table T-220 wants exactly
  * one `TaskGroupMember` per `Task`, so no fixture builds a task without one.
  */
 const rowed = (
@@ -292,7 +292,7 @@ const rowed = (
     schemaVersion: '1',
     schedule: scheduleOf({
       tasks,
-      taskGroups: [groupOf({ id: 'g1', label: 'row 1', order: 0 })],
+      taskGroups: [groupOf({ id: 'g1', label: 'task group 1', order: 0 })],
       taskGroupMembers: tasks.map((task) => memberOf(task.uid, 'g1')),
     }),
     documentSettings: settingsOf(documentSettings),

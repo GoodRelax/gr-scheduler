@@ -1,4 +1,4 @@
-// DFC-1720: a row control's tooltip is anchored to the control of the row the pointer is on, never to the top row's.
+// DFC-1720: a task group control's tooltip is anchored to the control of the task group the pointer is on, never to the top task group's.
 
 import { describe, expect, it } from 'vitest'
 
@@ -38,7 +38,7 @@ const drawnTree = () => {
   const controlOf = (groupId: string, icon: string): FakeElement => {
     const row = tree.children.find((one) => one.getAttribute('data-group-id') === groupId)
     const found = row === undefined ? undefined : descendants(row).find((one) => one.getAttribute('data-icon') === icon)
-    if (found === undefined) throw new Error(`premise: row ${groupId} draws ${icon}`)
+    if (found === undefined) throw new Error(`premise: task group ${groupId} draws ${icon}`)
     return found
   }
   return { built, table, controlOf }
@@ -54,7 +54,7 @@ const styleNumber = (element: HTMLElement, name: string): number =>
 
 describe('DFC-1720 -- IN-3 / UF-112: the tip stands under the control the pointer is on', () => {
   for (const icon of TASK_GROUP_CONTROLS) {
-    it(`${icon} on the lower row: the tip's top is that row's control's bottom, not the top row's`, () => {
+    it(`${icon} on the lower task group: the tip's top is that task group's control's bottom, not the top task group's`, () => {
       const { built, table, controlOf } = drawnTree()
       placedAt(controlOf('top', icon), 0, 280)
       placedAt(controlOf('lower', icon), 400, 280)
@@ -65,7 +65,7 @@ describe('DFC-1720 -- IN-3 / UF-112: the tip stands under the control the pointe
     })
   }
 
-  it('a row the tree does not hold finds no control, rather than the first one in the tree', () => {
+  it('a task group the tree does not hold finds no control, rather than the first one in the tree', () => {
     const { built, table, controlOf } = drawnTree()
     placedAt(controlOf('top', 'IC-58'), 50, 280)
     const tip: Tooltip = { anchor: { kind: 'icon', icon: 'IC-58', groupId: 'gone' }, text: 'IC-58', assignment: null }

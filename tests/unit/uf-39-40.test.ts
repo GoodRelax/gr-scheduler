@@ -38,7 +38,7 @@
 //               pixels ARE that size -- a scale is forbidden (MUST NOT); the
 //               ratio is never changed to make the picture fit (MUST NOT); a
 //               picture shorter than S-81 leaves the rest blank (MUST) and no
-//               row is added to fill it
+//               task group is added to fill it
 //               (MUST NOT); and -- CR-337 -- a picture that will not fit UNDER
 //               S-217 even once grown is NOT WRITTEN AT ALL (MUST), no part of
 //               it may be drawn (MUST NOT), and a reason is told (MUST)
@@ -832,13 +832,13 @@ const saysAnyOf = (assembled: Assembled, words: readonly string[]): boolean =>
   words.some((word) => assembled.result.svg.includes(word))
 
 // ---------------------------------------------------------------------------
-// The rows.
+// The task groups.
 //
 // ⭐ FR-025 measures the fit against the SCREEN: the shrunk picture is the
 // whole screen times the ratio, so the picture's height is the screen's height
 // times that ratio, floored at S-81's height and refused above S-217.
 // ⛔ THE `DRAWN_ROW_IDS` / `TALL_DROPPED` / `TALL_CUT_AT` SPLIT WAS DELETED HERE.
-// It named which of these six rows FR-025 used to drop off the bottom of a
+// It named which of these six task groups FR-025 used to drop off the bottom of a
 // 900-tall frame. CR-337 withdrew that rule outright -- 「書き出さないと決めた
 // 以上、落とす規則は無くなった」 -- so there is nothing left for the split to
 // mean, and every one of the six now reaches the picture.
@@ -854,7 +854,7 @@ const RATIO = SETTINGS_CONSTANTS.exportCanvas.width / SCREEN.width
  */
 const GROWN_HEIGHT = Math.max(SETTINGS_CONSTANTS.exportCanvas.height, SCREEN.height * RATIO)
 
-/** Six rows, spread down a screen 800 tall. Every one of them is drawn. */
+/** Six task groups, spread down a screen 800 tall. Every one of them is drawn. */
 const TALL_TASK_GROUPS: readonly TaskGroupTitle[] = [
   rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
   rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
@@ -914,7 +914,7 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
 
   it('reads the ratio off the WHOLE screen, never a narrower cut-out', async () => {
     // FR-080 (MUST / MUST NOT): what is cut out is the whole screen GRS
-    // occupies, never a narrower rectangle. A denominator narrowed to the Row
+    // occupies, never a narrower rectangle. A denominator narrowed to the Task Group
     // Area, or to the canvas less the panels, would give a bigger ratio.
     const assembled = await exportedOf(TALL_SCENE)
     const screenWidth = REGIONS.scheduleCanvas.x + REGIONS.scheduleCanvas.width
@@ -1071,7 +1071,7 @@ const T_076_ROWS: readonly {
  * a part that is absent leaves nothing to look for. So they are checked
  * together: EP-1 contributes one band, EP-3 one panel ground, EP-9 one line per
  * divider, and no other rectangle may be there. Text is the same: the
- * `Document Title` and one name per kept row.
+ * `Document Title` and one name per kept task group.
  */
 const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const view = assembled.scene.screenView
@@ -1079,7 +1079,7 @@ const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const expectedRects = bandAndPanel + view.frame.dividers.length
   const rows = [...view.taskGroupPanel.pinnedTitles, ...view.taskGroupPanel.titles]
   // ⛔ NO `droppedGroupIds` TERM ANY MORE (CR-337): a picture that is written
-  // holds every row, and one that is not written is not read at all.
+  // holds every task group, and one that is not written is not read at all.
   const withLabel = rows.filter((row) => row.label !== null)
   const expectedTexts =
     withLabel.length +
@@ -1129,17 +1129,17 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
   })
 
   it('draws the same geometry whether or not the parts it leaves out are there', async () => {
-    // ⭐ This IS the MUST NOT: the room of the scrollbars, the row's controls, the
+    // ⭐ This IS the MUST NOT: the room of the scrollbars, the task group's controls, the
     // properties panel and the palette is the screen's own, so taking them out
     // of `ScreenView` may not move one drawn rectangle.
     //
-    // ⚠️ THE ROW'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
+    // ⚠️ THE TASK GROUP'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
     // Until 2026-08-30 this line read `expander: null`, and that is a state the
     // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各タスクグループ」,
     // so `TaskGroupTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
     // DOES NAME is whether each control is armed or spent -- `FR-029` (MUST)
     // draws a spent one 薄く, a different drawing of the same control -- together
-    // with whether the row is pinned, which `HF-6` (MUST) draws when the others
+    // with whether the task group is pinned, which `HF-6` (MUST) draws when the others
     // are not drawn at all. ⛔ AND THE RULE UNDER TEST IS UNTOUCHED, because
     // `FR-085` (MUST NOT) already says the room may not follow any of it:
     // 「**確保する場所を、操作子を描くかどうかで変えてはならない（MUST NOT）**」,
@@ -1244,7 +1244,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
   })
 
   it('writes each name exactly as it arrived (FR-085 already cut it)', async () => {
-    // FR-085 (MUST NOT): the room kept for the row controls does not change
+    // FR-085 (MUST NOT): the room kept for the task group controls does not change
     // with whether they are drawn -- exactly because the export does not draw
     // them (EP-4). So the name arrives cut, and may not be cut again here.
     const cut = 'a name FR-085 already cut here'
@@ -1258,7 +1258,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain(cut)
   })
 
-  it('puts each name inside its own row\'s band, in the rows\' own order (SC-1)', async () => {
+  it('puts each name inside its own task group\'s band, in the task groups\' own order (SC-1)', async () => {
     // SC-1 slaves the panel to the body vertically, so a name belongs to the
     // band `TaskGroupTitle.box` gives it, shrunk by the ratio.
     //
@@ -1280,12 +1280,12 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
       expect(yOf(id), id).toBeLessThanOrEqual(band.y + band.height)
     }
     const drawnOrder = DRAWN_ROW_IDS.map((id) => yOf(id))
-    expect(drawnOrder, 'the names run down the panel in the rows\' order').toEqual(
+    expect(drawnOrder, 'the names run down the panel in the task groups\' order').toEqual(
       [...drawnOrder].sort((left, right) => left - right),
     )
   })
 
-  it('keeps the box offset between two rows the panel treats alike', async () => {
+  it('keeps the box offset between two task groups the panel treats alike', async () => {
     // ⭐ `g1` and `g4` are both depth 1 and both 100 high, so whatever rule
     // places the baseline inside a band places it the same way in each. What is
     // left is FR-080's ratio over SC-1's offset, and that IS fixed: 300 screen
@@ -1304,7 +1304,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
 
   it('indents one `taskGroupTitleIndent` per level of depth (S-37)', async () => {
     // K-37 of table T-104 names S-37 the indent of ONE level of depth, and
-    // FR-085 takes the row's depth worth of it off the usable width.
+    // FR-085 takes the task group's depth worth of it off the usable width.
     const assembled = await exportedOf(TALL_SCENE)
     const xOf = (id: string): number => {
       const found = assembled.texts.find((drawnText) => drawnText.content === `name of ${id}`)
@@ -1318,8 +1318,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     expect(xOf('g1')).toBeGreaterThanOrEqual(REGIONS.taskGroupPanel.x * RATIO)
   })
 
-  it('writes a root row larger by `taskGroupTitleTopScale` (S-36 and S-38)', async () => {
-    // K-38 of table T-104 names S-38 the scale a depth-1 row's name is written
+  it('writes a root task group larger by `taskGroupTitleTopScale` (S-36 and S-38)', async () => {
+    // K-38 of table T-104 names S-38 the scale a depth-1 task group's name is written
     // at, over `taskGroupTitleFont` (S-36). ⭐ Both reach this case from
     // SETTINGS_DEFAULTS, so a change in the manuscript lands here.
     const assembled = await exportedOf(TALL_SCENE)
@@ -1336,8 +1336,8 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     )
   })
 
-  it('writes the name of a pinned row too (U-46 is drawn)', async () => {
-    // FR-098 lifts a pinned row out of the scrolling list and holds it at the
+  it('writes the name of a pinned task group too (U-46 is drawn)', async () => {
+    // FR-098 lifts a pinned task group out of the scrolling list and holds it at the
     // top; EP-3 draws the tree and EP-5 draws `Pinned Task Group` (U-46).
     const pinned = rowOf(
       'p1',
@@ -1356,22 +1356,22 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
 // FR-025 -- the frame the picture is written into
 //
 // ⛔⛔ FOUR CASES WERE DELETED FROM THIS DESCRIBE, NOT REWRITTEN (CR-337,
-// 2026-09-02). They were 「drops the row that straddles S-81's bottom edge and
-// every row below it」, 「reports the dropped rows top-most first」, 「cuts at
-// the TOP of the first dropped row」 and 「leaves the fit clip open at the
+// 2026-09-02). They were 「drops the task group that straddles S-81's bottom edge and
+// every task group below it」, 「reports the dropped task groups top-most first」, 「cuts at
+// the TOP of the first dropped task group」 and 「leaves the fit clip open at the
 // top」. All four measured CR-333 「超えた分を下端側から `TaskGroup` 単位で落とす」,
 // which FR-025 no longer says -- DFC-460 「書き出さないと決めた以上、落とす規則は無く
 // なった」. A test whose premise is withdrawn has nothing to become.
-// ⚠️ Two more went with them further down: 「keeps a row whose bottom lands
-// exactly on the edge, and drops the next」 and 「drops every row when the very
+// ⚠️ Two more went with them further down: 「keeps a task group whose bottom lands
+// exactly on the edge, and drops the next」 and 「drops every task group when the very
 // first one already straddles the edge」.
 // ---------------------------------------------------------------------------
 
 describe('FR-025 -- the frame the picture is written into', () => {
-  it('writes every row of the scene, dropping none of them (CR-337)', async () => {
+  it('writes every task group of the scene, dropping none of them (CR-337)', async () => {
     // ⭐ FR-025 (MUST NOT): 「一部だけを描いてはならない」. A written picture is
-    // a whole one, so every row of the scene is in it.
-    // GOES RED IF: any row is left out of a picture that was written at all.
+    // a whole one, so every task group of the scene is in it.
+    // GOES RED IF: any task group is left out of a picture that was written at all.
     const assembled = await exportedOf(TALL_SCENE)
     for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
@@ -1404,8 +1404,8 @@ describe('FR-025 -- the frame the picture is written into', () => {
     expect(bandWidth(short)).toBeCloseTo(bandWidth(tall), 6)
   })
 
-  it('leaves the remainder blank when the picture is shorter than S-81 (MUST NOT: add rows)', async () => {
-    // FR-025 (MUST / MUST NOT): the remainder is left blank and no row is
+  it('leaves the remainder blank when the picture is shorter than S-81 (MUST NOT: add task groups)', async () => {
+    // FR-025 (MUST / MUST NOT): the remainder is left blank and no task group is
     // added to fill it. Nothing drawn may reach past where the screen ends.
     const shortScreen: MeasuredScreen = { ...SCREEN, height: 500 }
     const shortRegions = regionsOf(shortScreen)
@@ -1425,7 +1425,7 @@ describe('FR-025 -- the frame the picture is written into', () => {
     ).not.toBeNull()
     expect(
       assembled.rects.filter(isGroundOf(assembled.scene, assembled.root)),
-      'IX-10 (MUST NOT) "add rows to fill it": beside the one ground, nothing else covers the remainder',
+      'IX-10 (MUST NOT) "add task groups to fill it": beside the one ground, nothing else covers the remainder',
     ).toHaveLength(0)
     for (const element of assembled.rects) {
       const rect = rectOf(element)
@@ -1584,14 +1584,14 @@ describe('table T-037 -- what the notice is composed from', () => {
 // ---------------------------------------------------------------------------
 
 describe('boundaries', () => {
-  it('answers for a screen with no rows at all', async () => {
+  it('answers for a screen with no task groups at all', async () => {
     const assembled = await exportedOf(sceneOf(viewOf([])))
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
     expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel is still drawn').toBe(true)
   })
 
-  it('answers for exactly one row', async () => {
+  it('answers for exactly one task group', async () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
@@ -1600,7 +1600,7 @@ describe('boundaries', () => {
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
-  it('writes no text for a row whose label is null', async () => {
+  it('writes no text for a task group whose label is null', async () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([
@@ -1770,14 +1770,14 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
     )
   })
 
-  it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it writes every row, as the PNG route does (FR-025, CR-337)', () => {
+  it('GIVEN a screen taller than S-81 WHEN exportSvg runs THEN it writes every task group, as the PNG route does (FR-025, CR-337)', () => {
     // ⭐ THE DEFECT CR-196 CLOSED, as a case: before the entry existed the SVG
     // route went through table T-076's assembly at all.
     // ⛔ WHAT THIS CASE USED TO SAY WAS 「it drops the same TaskGroups the PNG
     // route drops」, with the fit clip measured beside it. CR-337 withdrew the
     // drop, so there is no longer a cut for the two routes to agree on -- what
     // they agree on now is that both write the whole scene.
-    // GOES RED IF: the SVG route leaves a row out that the PNG route draws.
+    // GOES RED IF: the SVG route leaves a task group out that the PNG route draws.
     const assembled = svgOnlyOf(TALL_SCENE)
     for (const id of DRAWN_ROW_IDS) {
       expect(assembled.texts.map((drawnText) => drawnText.content), id).toContain(`name of ${id}`)
@@ -1880,7 +1880,7 @@ describe('PI-21 -- what leaves `image-exporter.ts` at run time (Chapter 5.3)', (
 // ---------------------------------------------------------------------------
 
 describe('boundaries of the SVG route', () => {
-  it('GIVEN a screen with no rows at all WHEN exportSvg runs THEN it still draws EP-1 and EP-3', () => {
+  it('GIVEN a screen with no task groups at all WHEN exportSvg runs THEN it still draws EP-1 and EP-3', () => {
     const assembled = svgOnlyOf(sceneOf(viewOf([])))
     expect(assembled.result.svg).toContain(PICTURE)
     expect(assembled.texts.map((drawnText) => drawnText.content)).toEqual([DOCUMENT_TITLE])
@@ -1888,7 +1888,7 @@ describe('boundaries of the SVG route', () => {
     expect(hasRect(assembled, REGIONS.taskGroupPanel), 'EP-3 panel').toBe(true)
   })
 
-  it('GIVEN exactly one row WHEN exportSvg runs THEN its name is written', () => {
+  it('GIVEN exactly one task group WHEN exportSvg runs THEN its name is written', () => {
     const assembled = svgOnlyOf(
       sceneOf(
         viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
@@ -1897,7 +1897,7 @@ describe('boundaries of the SVG route', () => {
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
   })
 
-  it('GIVEN a row whose label is null WHEN exportSvg runs THEN no name is written for it', () => {
+  it('GIVEN a task group whose label is null WHEN exportSvg runs THEN no name is written for it', () => {
     const assembled = svgOnlyOf(
       sceneOf(
         viewOf([
@@ -1923,9 +1923,9 @@ describe('boundaries of the SVG route', () => {
   })
 
   // ⛔⛔ TWO CASES WERE DELETED HERE (CR-337), NOT REWRITTEN. They were 「GIVEN a
-  // row whose bottom lands exactly on S-81 edge ... it is kept and the next is
-  // dropped」 and 「GIVEN the very first row already straddles the edge ... every
-  // row is reported dropped」. Both asked which `TaskGroup`s survived a cut at
+  // task group whose bottom lands exactly on S-81 edge ... it is kept and the next is
+  // dropped」 and 「GIVEN the very first task group already straddles the edge ... every
+  // task group is reported dropped」. Both asked which `TaskGroup`s survived a cut at
   // S-81's lower edge. FR-025 no longer cuts: 「一部だけを描いてはならない
   // （MUST NOT）」, and the edge that decides anything now is S-217's, which the
   // last describe of this file measures.
@@ -1991,7 +1991,7 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // A screen 400 tall shrinks to well under S-81's height. FR-025 (MUST)
     // leaves the rest of the picture blank rather than shrinking the frame to
     // the drawing, so S-81's height is a floor.
-    // ⚠️ Only the rows that fit ON a screen 400 tall: a row drawn below the
+    // ⚠️ Only the task groups that fit ON a screen 400 tall: a task group drawn below the
     // screen's own bottom edge is not a case about the picture's height.
     const picture = fitOrThrow(grownFor(400, TALL_TASK_GROUPS.slice(0, 3)))
     expect(400 * RATIO).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
@@ -1999,9 +1999,9 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
   })
 
   it('writes the whole scene while the picture still fits under the ceiling (MUST)', () => {
-    // ⛔ THIS IS WHAT CR-333 CHANGED AND CR-337 SETTLED. The same rows on the
+    // ⛔ THIS IS WHAT CR-333 CHANGED AND CR-337 SETTLED. The same task groups on the
     // same screen used to lose `g5` and `g6` off the bottom, because the frame
-    // stopped at S-81's height. Now the frame grows past them, and no row is
+    // stopped at S-81's height. Now the frame grows past them, and no task group is
     // ever lost from a picture that is written at all.
     // GOES RED IF: the frame stops growing at S-81's height again.
     const answer = grownFor(800)

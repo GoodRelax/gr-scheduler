@@ -1,4 +1,4 @@
-// DFC-1015: the highlight box draws around the rows the screen shows, so hiding an end row shrinks it (FR-019, UC-008 4a).
+// DFC-1015: the highlight box draws around the task groups the screen shows, so hiding an end task group shrinks it (FR-019, UC-008 4a).
 
 import { describe, expect, it } from 'vitest'
 
@@ -63,36 +63,36 @@ const sceneWith = (hidden: readonly GroupId[], box: Readonly<Record<string, unkn
   const frames = (geometry as unknown as { highlightBoxes: readonly { box: Frame }[] }).highlightBoxes
   const rowOf = (id: GroupId): TaskGroupAt => {
     const found = rows.find((one) => one.groupId === id)
-    if (found === undefined) throw new Error(`row ${id} is not drawn`)
+    if (found === undefined) throw new Error(`task group ${id} is not drawn`)
     return found
   }
   return { rowOf, frame: frames[0]?.box, rows }
 }
 
-describe('DFC-1015: the frame closes round the rows the screen shows (FR-019, UC-008 4a)', () => {
-  it('FR-019 premise: with every row shown the frame spans the stored top to the stored bottom row', () => {
+describe('DFC-1015: the frame closes round the task groups the screen shows (FR-019, UC-008 4a)', () => {
+  it('FR-019 premise: with every task group shown the frame spans the stored top to the stored bottom task group', () => {
     const shown = sceneWith([])
     expect(shown.frame?.y).toBeCloseTo(shown.rowOf('gb').y, 3)
     const bottom = shown.rowOf('gd')
     expect((shown.frame?.y ?? 0) + (shown.frame?.height ?? 0)).toBeCloseTo(bottom.y + bottom.height, 3)
   })
 
-  it('FR-019 hiding the bottom end row ends the frame at the last shown row of the range (DFC-1015)', () => {
+  it('FR-019 hiding the bottom end task group ends the frame at the last shown task group of the range (DFC-1015)', () => {
     const hidden = sceneWith(['gd'])
     const last = hidden.rowOf('gc')
     expect((hidden.frame?.y ?? 0) + (hidden.frame?.height ?? 0)).toBeCloseTo(last.y + last.height, 3)
   })
 
-  it('FR-019 hiding the bottom end row makes the frame shorter, never taller (DFC-1015)', () => {
+  it('FR-019 hiding the bottom end task group makes the frame shorter, never taller (DFC-1015)', () => {
     expect(sceneWith(['gd']).frame?.height).toBeLessThan(sceneWith([]).frame?.height ?? 0)
   })
 
-  it('FR-019 hiding the top end row starts the frame at the first shown row of the range (DFC-1015)', () => {
+  it('FR-019 hiding the top end task group starts the frame at the first shown task group of the range (DFC-1015)', () => {
     const hidden = sceneWith(['gb'])
     expect(hidden.frame?.y).toBeCloseTo(hidden.rowOf('gc').y, 3)
   })
 
-  it('FR-019 the frame never reaches a row outside the shown screen rows (DFC-1015)', () => {
+  it('FR-019 the frame never reaches a task group outside the shown screen task groups (DFC-1015)', () => {
     const hidden = sceneWith(['gd'])
     const bottomOfScreen = Math.max(...hidden.rows.map((one) => one.y + one.height))
     expect((hidden.frame?.y ?? 0) + (hidden.frame?.height ?? 0)).toBeLessThanOrEqual(bottomOfScreen + 1e-6)

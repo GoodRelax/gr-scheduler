@@ -25,7 +25,7 @@ const D230: Pin = {
   ledger: 'DFC-230',
   wrong:
     'the first frame is drawn with the App Header measured as 0 high, so the whole tree ' +
-    'stands 24px too high and a ninth row leaks into the drawing area -- table T-077 row ' +
+    'stands 24px too high and a ninth task group leaks into the drawing area -- table T-077 row ' +
     'BO-1 (MUST NOT) draws nothing until the screen size is settled',
 }
 
@@ -276,7 +276,7 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   )
 }
 
-// WHY: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a row
+// WHY: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a task group
 // (its own band is always topmost), so this reads the cursor PTD-5 sets there.
 /** @purity non-pure */
 async function emptyPointOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
@@ -430,7 +430,7 @@ test('control for DFC-06: with the rectangle entrance armed, the same drag on th
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
   const spot = await emptyPointOnADrawnTaskGroup(app.page)
-  expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
+  expect(spot, 'no drawn task group covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 
   expect(await pressEntrance(app.page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(
@@ -459,7 +459,7 @@ test('DFC-06: with the comment box entrance armed, a press on empty canvas place
   test.setTimeout(180_000)
   const app = await openTheApp(baseURL)
   const spot = await emptyPointOnADrawnTaskGroup(app.page)
-  expect(spot, 'no drawn row covers a point with empty ground under it').not.toBeNull()
+  expect(spot, 'no drawn task group covers a point with empty ground under it').not.toBeNull()
   if (spot === null) return
 
   expect(await pressEntrance(app.page, COMMENT_BOX), `${COMMENT_BOX} is not on the screen`).toBe(true)
@@ -599,7 +599,7 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
   const dropped = await dropTheDummy(app.page, 3)
   expect(
     dropped.after.length,
-    'after the drop the row holds fewer than two bars, so no actual bar was drawn beside the plan',
+    'after the drop the task group holds fewer than two bars, so no actual bar was drawn beside the plan',
   ).toBeGreaterThan(1)
   // WHY: catches the press landing on GA-1 (plan start) instead of the hold
   // -- a pinned case alone would not notice the plan bar moving instead.
@@ -678,7 +678,7 @@ async function focusedTypableField(page: Page): Promise<TypedInto | null> {
 
 // WHY: proves the drag itself still draws a shape, so the pinned DFC-232
 // case below cannot pass because the gesture it drives reaches nothing.
-test('control for DFC-232: a task dragged onto empty ground below the last row is drawn', async ({
+test('control for DFC-232: a task dragged onto empty ground below the last task group is drawn', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -703,7 +703,7 @@ test('control for DFC-232: a task dragged onto empty ground below the last row i
   const after = await censusOf(app.page)
   expect(
     after.shapes,
-    'dragging on empty ground below the last row drew nothing, so the pinned case on DFC-232 ' +
+    'dragging on empty ground below the last task group drew nothing, so the pinned case on DFC-232 ' +
       'below would reach nothing',
   ).not.toBe(before.shapes)
   await app.close()

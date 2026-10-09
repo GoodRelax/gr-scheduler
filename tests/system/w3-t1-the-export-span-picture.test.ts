@@ -128,26 +128,26 @@ test.describe('W3-T1 the manuscript these cases are driven by', () => {
 test.describe('FR-025 the export span picture on the shipped build', () => {
   test.setTimeout(240_000)
 
-  test(`IX-14 (MUST): ${IX_14_ALL_TASK_GROUPS.slice(-40)} -- 80 rows, every row in the span picture`, async () => {
+  test(`IX-14 (MUST): ${IX_14_ALL_TASK_GROUPS.slice(-40)} -- 80 task groups, every task group in the span picture`, async () => {
     const opened = await stageWith(80, {})
     try {
       const without = await pictureOf(opened.page)
-      expect(textYOf(without, 'Row 80'), 'premise: with no span, a row below the screen is not in the picture (IX-4)').toBeNull()
+      expect(textYOf(without, 'Row 80'), 'premise: with no span, a task group below the screen is not in the picture (IX-4)').toBeNull()
       await applyCommandsOf(opened.page, [{ kind: 'setFitSpan', ...SPAN_28 }, FIX])
       await settle(opened.page)
       const withSpan = await pictureOf(opened.page)
       const missing = Array.from({ length: 80 }, (_one, index) => `Row ${String(index + 1).padStart(2, '0')}`).filter(
         (label) => textYOf(withSpan, label) === null,
       )
-      expect(missing, 'every row is laid top to bottom').toEqual([])
+      expect(missing, 'every task group is laid top to bottom').toEqual([])
       const ys = Array.from({ length: 80 }, (_one, index) => textYOf(withSpan, `Row ${String(index + 1).padStart(2, '0')}`) ?? NaN)
-      expect(ys.every((y, index) => index === 0 || y > (ys[index - 1] ?? Infinity)), 'in row order, top to bottom').toBe(true)
+      expect(ys.every((y, index) => index === 0 || y > (ys[index - 1] ?? Infinity)), 'in task group order, top to bottom').toBe(true)
     } finally {
       await opened.close()
     }
   })
 
-  test(`IX-14 (MUST): ${IX_14_ZOOM_ONE.slice(-40)} -- the screen zoomed to 2 leaves the picture's row pitch at the zoom-1 pitch`, async () => {
+  test(`IX-14 (MUST): ${IX_14_ZOOM_ONE.slice(-40)} -- the screen zoomed to 2 leaves the picture's task group pitch at the zoom-1 pitch`, async () => {
     const opened = await stageWith(30, { ...SPAN_28, fitSpanFixed: true })
     try {
       const pitchAtOne = await screenTaskGroupPitch(opened.page)
@@ -157,7 +157,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       await applyCommandsOf(opened.page, [{ kind: 'setZoom', zoomX: 1, zoomY: 2 }])
       await settle(opened.page)
       const pitchAtTwo = await screenTaskGroupPitch(opened.page)
-      expect(pitchAtTwo, 'premise: the screen rows grew with the zoom').toBeGreaterThan(pitchAtOne * 1.5)
+      expect(pitchAtTwo, 'premise: the screen task groups grew with the zoom').toBeGreaterThan(pitchAtOne * 1.5)
       const second = await pictureOf(opened.page)
       expect((textYOf(second, 'Row 02') ?? NaN) - (textYOf(second, 'Row 01') ?? NaN)).toBeCloseTo(pitchAtOne, 1)
       expect(sameness(second), 'the whole picture is unchanged').toBe(sameness(first))
@@ -189,7 +189,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
     }
   })
 
-  test(`IX-15 (MUST NOT): ${IX_15_NO_FIT.slice(-40)} -- more rows grow the height, never shrink the rows, days or type`, async () => {
+  test(`IX-15 (MUST NOT): ${IX_15_NO_FIT.slice(-40)} -- more task groups grow the height, never shrink the task groups, days or type`, async () => {
     const few = await stageWith(20, { ...SPAN_28, fitSpanFixed: true })
     let fewPicture = ''
     try {
@@ -202,7 +202,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       const manyPicture = await pictureOf(many.page)
       expect(heightOf(manyPicture), 'premise: the 80-row picture is taller').toBeGreaterThan(heightOf(fewPicture))
       const pitch = (svg: string): number => (textYOf(svg, 'Row 02') ?? NaN) - (textYOf(svg, 'Row 01') ?? NaN)
-      expect(pitch(manyPicture), 'the row height').toBeCloseTo(pitch(fewPicture), 2)
+      expect(pitch(manyPicture), 'the task group height').toBeCloseTo(pitch(fewPicture), 2)
       const width = (svg: string): number => planOf(svg, 1).right - planOf(svg, 1).left
       expect(width(manyPicture), 'the day width').toBeCloseTo(width(fewPicture), 2)
       expect(fontSizeOf(manyPicture, 'Row 01'), 'the task group title type').toBe(fontSizeOf(fewPicture, 'Row 01'))
@@ -214,7 +214,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
     const tall = await stageWith(taskGroupsPastTheCap, { ...SPAN_28, fitSpanFixed: true })
     try {
       const answer = await exportSvgOf(tall.page)
-      expect(answer.ok, `IX-5: ${taskGroupsPastTheCap} rows do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
+      expect(answer.ok, `IX-5: ${taskGroupsPastTheCap} task groups do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
     } finally {
       await tall.close()
     }
@@ -322,7 +322,7 @@ test.describe(`EP-3 (MUST NOT): ${EP_3_NO_DOM.slice(-40)}`, () => {
         expect(y, `${label}: baseline = box top + its type size`).toBeCloseTo(one.top + fontSizeOf(svg, label), 1)
         checked += 1
       }
-      expect(checked, 'premise: the rows were compared').toBeGreaterThan(5)
+      expect(checked, 'premise: the task groups were compared').toBeGreaterThan(5)
     } finally {
       await opened.close()
     }

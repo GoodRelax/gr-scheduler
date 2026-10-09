@@ -28,7 +28,7 @@
 //   schedule-geometry.ts `Point`, `BarGeometry`, `MarkerGeometry`,
 //                        `ResumeGeometry`, `TaskGeometry`, `CommentGeometry`,
 //                        `ScheduleGeometry`
-//   schedule-layout.ts   `TaskGroupPlacement`, `ScheduleLayout` (`pxPerDay`, `rows`)
+//   schedule-layout.ts   `TaskGroupPlacement`, `ScheduleLayout` (`pxPerDay`, `taskGroups`)
 //   screen-regions.ts    `ScreenRect`
 //   screen-renderer.ts   `ScreenView`, `ScreenFrame` and `Scrollbar` (`axis`,
 //                        `track`, `thumb`) -- read for GR-21 alone, because the
@@ -333,7 +333,7 @@ function followedByFr052Rows(): readonly string[] {
 // ===========================================================================
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows, the Tasks and the
+// the project and the settings come from it; the task groups, the Tasks and the
 // annotation are written out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -344,7 +344,7 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** One row of the schedule. The ids are UUIDs because AT-51 is one. */
+/** One task group of the schedule. The ids are UUIDs because AT-51 is one. */
 const TASK_GROUP_A = '2a000000-0000-4000-8000-000000000001'
 const TASK_GROUP_B = '2a000000-0000-4000-8000-000000000002'
 const TASK_GROUP_C = '2a000000-0000-4000-8000-000000000003'
@@ -442,7 +442,7 @@ function fixtureDocument(): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: [
-        // Row A -- the plan bar and the actual bar GA-1 / GA-2 / GA-3 / GA-4 /
+        // Task group A -- the plan bar and the actual bar GA-1 / GA-2 / GA-3 / GA-4 /
         // GA-9 are grabbed on. ⚠️ `actualStart` is deliberately LATER than
         // `start`, and the actual end well inside the plan end: the table
         // prefers GA-1 and GA-2 to GA-3 and GA-4, so two ends standing on the
@@ -457,7 +457,7 @@ function fixtureDocument(): Document {
           stop: PLAIN_ACTUAL_LAST_DAY,
           percentComplete: 25,
         }),
-        // Row C -- GA-16. 「マイルストーンは実績バーを持たないので `GA-3` /
+        // Task group C -- GA-16. 「マイルストーンは実績バーを持たないので `GA-3` /
         // `GA-4` / `GA-6` に当たらない」, and its actual stands on another day
         // so that the plan figure and the actual figure do not overlap.
         task({
@@ -469,7 +469,7 @@ function fixtureDocument(): Document {
           actualStart: MILESTONE_ACTUAL_START,
           stop: MILESTONE_ACTUAL_START,
         }),
-        // Row D -- 中断中・再開日あり, which is the only state that draws the
+        // Task group D -- 中断中・再開日あり, which is the only state that draws the
         // resume icon GA-20 stands on (`FR-044`, MUST).
         task({
           uid: SUSPENDED_UID,
@@ -488,7 +488,7 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: [
         group(TASK_GROUP_A, 0, 'A'),
-        // ⭐ EMPTY ON PURPOSE: GA-9's vertical half needs a row to be carried
+        // ⭐ EMPTY ON PURPOSE: GA-9's vertical half needs a task group to be carried
         // ONTO, and an empty one keeps the case's release readable -- the
         // membership that changes is the only membership in it.
         group(TASK_GROUP_B, 1, 'B'),
@@ -541,7 +541,7 @@ const memberGroupOf = (loop: FrameLoop, uid: number): string => {
   const found = (loop.document().schedule as any).taskGroupMembers.find(
     (one: any) => one.taskUid === uid,
   )
-  if (found === undefined) throw new Error(`Task ${uid} is on no row`)
+  if (found === undefined) throw new Error(`Task ${uid} is on no task group`)
   return found.groupId as string
 }
 
@@ -686,10 +686,10 @@ const frameOf = (loop: FrameLoop) => {
 /** How wide one calendar day is drawn -- the frame's own measurement of itself. */
 const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPerDay as number
 
-/** Where one row's band stands, as the frame placed it. */
+/** Where one task group's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
   const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 
@@ -860,9 +860,9 @@ const FOLLOWERS: readonly Follower[] = [
   {
     row: 'GR-16',
     area: '基準日線 -- 線の上',
-    // ⭐ PRESSED ON THE EMPTY ROW. The line runs the height of the `Task Group Area`
+    // ⭐ PRESSED ON THE EMPTY TASK GROUP. The line runs the height of the `Task Group Area`
     // and this row is the last of the table, so a point where it crosses a bar
-    // belongs to GA-9; row E holds no Task, and the comment box stands far to
+    // belongs to GA-9; task group E holds no Task, and the comment box stands far to
     // the left of the status date.
     press: (loop) => {
       const band = bandOf(loop, TASK_GROUP_E)
@@ -925,7 +925,7 @@ describe('the manuscript still states the rule this file is about', () => {
     )
   })
 
-  it('makes the plan body follow vertically as well (MUST), for the row re-seating of HM-3', () => {
+  it('makes the plan body follow vertically as well (MUST), for the task group re-seating of HM-3', () => {
     const line = closingRuleLine()
     expect(line, 'table T-023d: 予定の本体は縦にも追従すること（MUST）').toContain(
       '予定の本体は縦にも追従すること（MUST）',
@@ -1035,7 +1035,7 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     )
   })
 
-  it('puts the empty row GR-16 is pressed on inside the line it presses', () => {
+  it('puts the empty task group GR-16 is pressed on inside the line it presses', () => {
     const built = stage()
     const band = bandOf(built.loop, TASK_GROUP_E)
     const line = statusLineOf(built.loop)
@@ -1153,7 +1153,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     y: midY(planBox(loop, PLAIN_UID)),
   })
 
-  /** How far down row B stands from row A, as the frame placed the two bands. */
+  /** How far down task group B stands from task group A, as the frame placed the two bands. */
   const downToTaskGroupB = (loop: FrameLoop): number => bandOf(loop, TASK_GROUP_B).y - bandOf(loop, TASK_GROUP_A).y
 
   it('carries the drawn bar down with the pointer (MUST)', () => {
@@ -1162,7 +1162,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     built.send(pointer('down', at.x, at.y))
     const held = midY(planBox(built.loop, PLAIN_UID))
     const down = downToTaskGroupB(built.loop)
-    expect(down, 'row B stands below row A').toBeGreaterThan(0)
+    expect(down, 'task group B stands below task group A').toBeGreaterThan(0)
     built.send(pointer('move', at.x, at.y + down))
     expect(
       midY(planBox(built.loop, PLAIN_UID)),
@@ -1185,7 +1185,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     ).toBeCloseTo(held, 6)
   })
 
-  it('leaves the row membership in the document alone while the button is down (MUST NOT)', () => {
+  it('leaves the task group membership in the document alone while the button is down (MUST NOT)', () => {
     const built = stage()
     const at = grabPoint(built.loop)
     const before = memberGroupOf(built.loop, PLAIN_UID)
@@ -1308,7 +1308,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     )
   })
 
-  it('GA-9 settles the row on a downward release, and moves no date and no parent task', () => {
+  it('GA-9 settles the task group on a downward release, and moves no date and no parent task', () => {
     // FR-011: 「タスクグループをまたぐ移動では予定も実績も新しいタスクグループへ移るが、どちらの日付も
     // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別のタスクグループへ
     // 移す操作では WBS を変えてはならない（MUST NOT）—— タスクグループの移動と階層の移動は
@@ -1531,7 +1531,7 @@ const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String
  *
  * ⛔ `fixtureDocument()` DOES NOT OVERFLOW EITHER AXIS, and that is measured
  * rather than assumed: its widest span is `SUSPENDED_UID`'s 24 days, and its
- * five rows fall far short of `SCREEN.height`. That is exactly the shape this
+ * five task groups fall far short of `SCREEN.height`. That is exactly the shape this
  * block used to measure (`track` and `thumb` identical, `{width:14,
  * height:628}` both) -- and a press on THAT fixture could never tell a
  * working grab from a dead one, because nothing would move either way.
@@ -1546,7 +1546,7 @@ const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String
  * `zoomX = 0.02`, so a span wide enough to ask for less than that -- more than
  * `taskGroupArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
  * sixty years -- is fit at the FLOOR instead and spills over the lane for
- * real. ⛔ The forty extra rows need no such floor: they are flat, so nothing
+ * real. ⛔ The forty extra task groups need no such floor: they are flat, so nothing
  * about the fit can collapse them away, and `contentHeight` simply outgrows
  * `SCREEN.height` on its own.
  */
@@ -1674,7 +1674,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // (`screen-surface.ts`) gives a press on a lane a road in, and
   // `input-command-translator.ts`'s `scrollbarFollow` / `commandFromScrollbar`
   // turn a drag on it into FR-051's change of the display position -- but ONLY
-  // where `wideFixtureDocument` makes the content actually overflow the `Row
+  // where `wideFixtureDocument` makes the content actually overflow the `Task Group
   // Area`, because `scrollGearing` answers ZERO otherwise (a document that
   // fits has nothing to scroll to). ⛔ NOT AN EXEMPTION FROM THE RULE. The
   // closing rule names GR-21 among the ten and the paragraph after the table

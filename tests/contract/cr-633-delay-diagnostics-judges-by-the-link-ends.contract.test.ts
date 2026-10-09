@@ -296,7 +296,7 @@ describe('CR-633 T-313 BD-2 -- which bounds hold a started task', () => {
 })
 
 describe('CR-633 FR-135 -- a milestone is never a parent task, even when parentTaskUid states it', () => {
-  // WHY: C1 sits one row below the milestone M and names it as its parent; no bar on M's row encloses C1.
+  // WHY: C1 sits one task group below the milestone M and names it as its parent; no bar on M's task group encloses C1.
   const make = (): Document =>
     documentOf(F(5, 12), [
       { id: 'r0', parentId: null, tasks: [taskOf(M, { name: 'Gate', milestone: true, start: S(5, 10), finish: S(5, 10) })] },

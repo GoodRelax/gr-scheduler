@@ -227,7 +227,7 @@ describe('PE-1 -- 予定の本体', () => {
     const from = at(one, BAR_UID, 'GA-9')
     const band = frameOf(one.loop).taskGroupArea
     dragTo(one, from, from.x, from.y + (band.y1 - band.y0) / 8)
-    expect(rowIdOf(one, BAR_UID), 'the Task moved to another row').not.toBe(beforeTaskGroup)
+    expect(rowIdOf(one, BAR_UID), 'the Task moved to another task group').not.toBe(beforeTaskGroup)
     expect(datesOf(one, BAR_UID), cellOf('PE-1', DOWNWARDS)).toEqual(before)
   })
 })
@@ -319,7 +319,7 @@ describe('PE-6 -- ◆ の予定', () => {
     const from = at(one, MILESTONE_UID, 'GA-15')
     const band = frameOf(one.loop).taskGroupArea
     dragTo(one, from, from.x, from.y + (band.y1 - band.y0) / 8)
-    expect(rowIdOf(one, MILESTONE_UID), 'the milestone moved to another row').not.toBe(beforeTaskGroup)
+    expect(rowIdOf(one, MILESTONE_UID), 'the milestone moved to another task group').not.toBe(beforeTaskGroup)
     expect(datesOf(one, MILESTONE_UID), cellOf('PE-6', DOWNWARDS)).toEqual(before)
   })
 })

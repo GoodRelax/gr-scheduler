@@ -198,7 +198,7 @@ const SCHEDULE = {
   tasks: [],
   resources: [],
   assignments: [],
-  taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, minHeight: null }],
+  taskGroups: [{ id: ROW_ID, parentId: null, label: 'task group', order: 0, minHeight: null }],
   taskGroupMembers: [],
   taskVisuals: [],
   commentBoxes: [],

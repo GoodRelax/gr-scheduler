@@ -31,7 +31,7 @@ const GROUP_OF: Readonly<Record<number, string>> = {
   [SHOWN_UID]: SHOWN_GROUP,
 }
 
-// WHY: the view's top is the third row, so the second row lies wholly above it -- under the pinned band.
+// WHY: the view's top is the third task group, so the second task group lies wholly above it -- under the pinned band.
 const SCROLLED = {
   zoomX: 8,
   scrollDate: day(1),
@@ -80,7 +80,7 @@ const placement = (uid: number): { readonly x: number; readonly y: number; reado
 }
 
 describe('DFC-2160: what the pinned band shows is all a pick in it can reach (FR-098, EL-1, SL-3)', () => {
-  it('FR-098 premise: the hidden row lies above the foot of the pinned band', () => {
+  it('FR-098 premise: the hidden task group lies above the foot of the pinned band', () => {
     expect(bandBottom).toBeDefined()
     const hidden = placement(HIDDEN_UID)
     expect(hidden.y + hidden.planHeight).toBeLessThanOrEqual(bandBottom as number)

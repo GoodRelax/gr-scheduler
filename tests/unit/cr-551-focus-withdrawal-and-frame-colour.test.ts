@@ -220,7 +220,7 @@ function documentOf(highlight: Record<string, unknown> | null = null) {
 
 const titleBox = (built: Bench, groupId: string) => {
   const found = built.view().taskGroupPanel.titles.find((one) => one.groupId === groupId)?.box
-  if (found === undefined) throw new Error(`the row ${groupId} is not drawn`)
+  if (found === undefined) throw new Error(`the task group ${groupId} is not drawn`)
   return found
 }
 const taskGroupPart = (groupId: string): ScreenPart => partOn('Task Group Panel', null, groupId)
@@ -255,7 +255,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
   })
 
-  it('DFC-541 2, IN-5a: 選択が変わったとき -- a row just added by HF-14 is being named; a press on another row ends it', () => {
+  it('DFC-541 2, IN-5a: 選択が変わったとき -- a task group just added by HF-14 is being named; a press on another task group ends it', () => {
     // see HF-14, T-109
     const addChild = specTable('T-109').rows.find(
       (one) => bareAll(one.by['面'] ?? '').includes('Task Group Panel') && /(^|[^0-9A-Za-z-])HF-14([^0-9-]|$)/.test(one.by['正'] ?? ''),
@@ -265,14 +265,14 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     built.click(10, 10, partOn('Task Group Panel', addChild?.id ?? null, 'g1'))
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
-    expect(paletteShown(built), 'premise: the added row is being named, so the key is held for the field').toBe(before)
+    expect(paletteShown(built), 'premise: the added task group is being named, so the key is held for the field').toBe(before)
     const other = titleBox(built, 'g3')
     built.click(other.x + other.width / 2, other.y + other.height / 2, taskGroupPart('g3'))
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_WITHDRAWN).toBe(!before)
   })
 
-  it('IN-5a control: two rows chosen with Shift and no focus request -- the key works as SK-14', () => {
+  it('IN-5a control: two task groups chosen with Shift and no focus request -- the key works as SK-14', () => {
     // see IN-5a, SK-14
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
@@ -284,7 +284,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     expect(paletteShown(built)).toBe(!before)
   })
 
-  it('IN-5a: 求めた欄がパネルに無いとき (two rows chosen with Shift, no task-group-name field) -- the key works as SK-14 again', () => {
+  it('IN-5a: 求めた欄がパネルに無いとき (two task groups chosen with Shift, no task-group-name field) -- the key works as SK-14 again', () => {
     // see IN-5a, SK-14, SL-1
     const built = bench(documentOf())
     const first = titleBox(built, 'g1')
@@ -292,7 +292,7 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
     const second = titleBox(built, 'g2')
     built.doubleClick(second.x + second.width / 2, second.y + second.height / 2, taskGroupPart('g2'), { shift: true })
     const fields = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
-    expect(fields, 'premise: with two rows chosen the task-group-name field is not drawn').not.toContain('AT-53')
+    expect(fields, 'premise: with two task groups chosen the task-group-name field is not drawn').not.toContain('AT-53')
     const before = paletteShown(built)
     built.key(PALETTE_KEY)
     expect(paletteShown(built), IN_5A_NOT_IN_PANEL).toBe(!before)

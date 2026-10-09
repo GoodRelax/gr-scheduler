@@ -184,7 +184,7 @@ export const dayNumber = (isoDate: string): number => Math.round(Date.parse(isoD
 
 export const bandAt = (page: Page, y: number): Promise<string | null> =>
   page.evaluate((y) => {
-    for (const e of document.querySelectorAll('[data-figure^="row-"][data-figure$="-band"]')) {
+    for (const e of document.querySelectorAll('[data-figure^="task-group-"][data-figure$="-band"]')) {
       const r = e.getBoundingClientRect()
       if (r.y <= y && y < r.y + r.height) return (e.getAttribute('data-figure') ?? '').slice(4, -5)
     }
@@ -202,7 +202,7 @@ export const groupIdOfTaskGroupNamed = (page: Page, name: string): Promise<strin
     return null
   }, name)
 
-// TRAP: row controls are drawn only while the pointer is over the task group name (HF-6).
+// TRAP: task group controls are drawn only while the pointer is over the task group name (HF-6).
 export const revealTaskGroup = async (page: Page, groupId: string): Promise<void> => {
   const row = page.locator(taskGroupSelector(groupId))
   for (const direction of [1, -1]) {

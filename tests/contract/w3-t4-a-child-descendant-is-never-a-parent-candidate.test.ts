@@ -63,11 +63,11 @@ describe('FR-135 -- the manuscript these cases are driven by', () => {
 })
 
 describe(`FR-135 -- ${FR_135_NO_DESCENDANT}`, () => {
-  it('the control: with the descendants on the child row, both enclosing bars above are numbered', () => {
+  it('the control: with the descendants on the child task group, both enclosing bars above are numbered', () => {
     expect([...candidatesOf(familyDocument(false), CHILD)].sort()).toEqual([ABOVE_ONE, ABOVE_TWO])
   })
 
-  it("a grandchild and a great-grandchild drawn on the row above, enclosing the child, are not among its candidates", () => {
+  it("a grandchild and a great-grandchild drawn on the task group above, enclosing the child, are not among its candidates", () => {
     const found = candidatesOf(familyDocument(true), CHILD)
     expect(found, IP_4_NO_DESCENDANT).toContain(ABOVE_ONE)
     expect(found, IP_4_NO_DESCENDANT).toContain(ABOVE_TWO)

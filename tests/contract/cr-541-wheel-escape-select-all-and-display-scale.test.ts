@@ -40,7 +40,7 @@ afterEach(() => {
 })
 
 const manyTaskGroups = (count: number): TaskGroupSeed[] =>
-  Array.from({ length: count }, (_unused, index) => ({ id: `row-${String(index + 1).padStart(2, '0')}`, parentId: null }))
+  Array.from({ length: count }, (_unused, index) => ({ id: `task-group-${String(index + 1).padStart(2, '0')}`, parentId: null }))
 
 const wheelOf = (x: number, y: number, dy: number): HumanInput => ({
   kind: 'wheel',
@@ -67,16 +67,16 @@ describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () =>
 
   it(Q19, () => {
     const { band, moved } = scrolled(10)
-    expect(band, 'premise: a row band is taller than the distance').toBeGreaterThan(10)
+    expect(band, 'premise: a task group band is taller than the distance').toBeGreaterThan(10)
     expect(moved.length).toBeGreaterThan(0)
-    for (const one of moved) expect(Math.abs(one), 'every row moved by the distance').toBeCloseTo(10, 6)
+    for (const one of moved) expect(Math.abs(one), 'every task group moved by the distance').toBeCloseTo(10, 6)
   })
 
   it(Q20, () => {
     const { built, band } = scrolled(10)
     const offset = Number((built.loop.document().documentSettings as unknown as Record<string, unknown>)['scrollGroupOffset'])
     expect(band).toBeGreaterThan(10)
-    expect(offset, 'the part of a row is held in S-176, not rounded away').toBeGreaterThan(0)
+    expect(offset, 'the part of a task group is held in S-176, not rounded away').toBeGreaterThan(0)
     expect(offset).toBeLessThan(1)
   })
 })
@@ -138,7 +138,7 @@ describe('SE-5 -- no FR-029 notice at an end', () => {
   it.each([
     ['ZE-2: Alt+- at the shrinking end', '-'],
     ['ZE-3: Alt++ at the growing end', '+'],
-  ] as const)(`${Q37} -- row zoom, %s`, (_name, sign) => {
+  ] as const)(`${Q37} -- vertical zoom, %s`, (_name, sign) => {
     const built = scaleBench(DEFAULT_DISPLAY_SCALE)
     const zoomY = (): number => Number(built.loop.document().documentSettings.zoomY)
     let previous = Number.NaN

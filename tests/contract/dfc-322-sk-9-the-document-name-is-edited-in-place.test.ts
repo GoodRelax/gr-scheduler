@@ -24,7 +24,7 @@
 // 05-07-design.md and _assets/: the clause 「編集できる状態にして焦点を置き、
 // **既にある文字をすべて選んだ状態にすること（MUST）**」 appears TWICE, in
 // `MK-13` of 表 T-023 (:2331) and in `FR-085` (:1281), and both times it is
-// about a TASK's name (表 T-016 の `PR-1`) or a ROW's name (`AT-53`). `SK-9`
+// about a TASK's name (表 T-016 の `PR-1`) or a TASK GROUP's name (`AT-53`). `SK-9`
 // carries no such sentence and neither does `FR-035`.
 // ⇒ Asserting focus-and-select-all for the document name here would be this
 // file inventing a rule (rule 04 section 1: 仕様を読んで、それが述べることを
@@ -193,7 +193,7 @@ const scheduleWithTitle = (title: string | null): Schedule =>
     tasks: [],
     resources: [],
     assignments: [],
-    taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, minHeight: null }],
+    taskGroups: [{ id: ROW_ID, parentId: null, label: 'task group', order: 0, minHeight: null }],
     taskGroupMembers: [],
     taskVisuals: [],
     commentBoxes: [],

@@ -35,9 +35,9 @@
 //                         through Project.minutesPerDay, falling back to S-128
 //                         of table T-209; recurring exception days are not
 //                         expanded and the person is told (NT-5 of table T-037)
-//   FR-058                every imported Task lands on a row; one TaskGroup per
+//   FR-058                every imported Task lands on a task group; one TaskGroup per
 //                         Task with children or no parent, down to S-125; a Task
-//                         with no children sits on its parent's row; cap never refuses
+//                         with no children sits on its parent's task group; cap never refuses
 //   FR-023                two of its MUSTs are about the parser and land here:
 //                         XML external entities are disabled and nothing
 //                         reaches innerHTML. The ceilings, the dates, the
@@ -51,7 +51,7 @@
 //   Chapter 5.4           Task.parentTaskUid is the exported axis; TaskGroup and
 //                         TaskGroupMember are GRS's own and never cross
 //   Chapter 6.1 T-220     IV-1 primary keys unique, IV-6 every Task on exactly
-//                         one row, IV-7 at least one calendar, IV-8 a row's
+//                         one task group, IV-7 at least one calendar, IV-8 a task group's
 //                         label and derivedFromTaskUid are not both null
 //
 // Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
@@ -1320,7 +1320,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
 })
 
 // ---------------------------------------------------------------------------
-// FR-058 -- every imported Task lands on a row
+// FR-058 -- every imported Task lands on a task group
 // ---------------------------------------------------------------------------
 
 const UUID_SHAPE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
@@ -1355,13 +1355,13 @@ function taskGroupDepth(document: Document, id: string): number {
   while (at !== null) {
     depth += 1
     at = byId.get(at)?.parentId ?? null
-    if (depth > 100) throw new Error('the row tree has a ring')
+    if (depth > 100) throw new Error('the task group tree has a ring')
   }
   return depth
 }
 
-describe('FR-058 -- the imported tasks land on rows', () => {
-  it('leaves no Task off a row, and puts each on exactly one (IV-6)', () => {
+describe('FR-058 -- the imported tasks land on task groups', () => {
+  it('leaves no Task off a task group, and puts each on exactly one (IV-6)', () => {
     for (const depth of [1, 2, MAX_GROUP_DEPTH, MAX_GROUP_DEPTH + 3]) {
       const document = accepted(nestedTasksText(depth))
       const members = document.schedule.taskGroupMembers
@@ -1373,7 +1373,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('makes one row per Task that has children or no parent, down to S-125, and none below it', () => {
+  it('makes one task group per Task that has children or no parent, down to S-125, and none below it', () => {
     const deeper = MAX_GROUP_DEPTH + 3
     const document = accepted(nestedTasksText(deeper))
     expect(document.schedule.tasks).toHaveLength(deeper)
@@ -1383,7 +1383,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('puts the tasks under the cap on the deepest ancestor`s row', () => {
+  it('puts the tasks under the cap on the deepest ancestor`s task group', () => {
     const deeper = MAX_GROUP_DEPTH + 3
     const document = accepted(nestedTasksText(deeper))
     const byId = new Map(document.schedule.taskGroups.map((each) => [each.id, each]))
@@ -1398,14 +1398,14 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('never refuses the import for the depth of the rows (MUST NOT)', () => {
+  it('never refuses the import for the depth of the task groups (MUST NOT)', () => {
     for (const depth of [MAX_GROUP_DEPTH + 1, MAX_GROUP_DEPTH * 4]) {
       const read = documentFromMspdi(nestedTasksText(depth), CURRENT)
       expect(read.ok, `depth ${depth}`).toBe(true)
     }
   })
 
-  it('keeps the WBS depth whatever the row cap is (Chapter 5.4)', () => {
+  it('keeps the WBS depth whatever the task group cap is (Chapter 5.4)', () => {
     const deeper = MAX_GROUP_DEPTH + 3
     const document = accepted(nestedTasksText(deeper))
     for (let level = 1; level <= deeper; level += 1) {
@@ -1414,7 +1414,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('gives every generated row a derived name and no label (IV-8)', () => {
+  it('gives every generated task group a derived name and no label (IV-8)', () => {
     const document = accepted(nestedTasksText(MAX_GROUP_DEPTH + 3))
     for (const group of document.schedule.taskGroups) {
       expect(group.label).toBeNull()
@@ -1423,7 +1423,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('gives every row a UUID, and no two the same (AT-51, IV-1)', () => {
+  it('gives every task group a UUID, and no two the same (AT-51, IV-1)', () => {
     const document = accepted(nestedTasksText(MAX_GROUP_DEPTH + 3))
     const ids = document.schedule.taskGroups.map((each) => each.id)
     expect(new Set(ids).size).toBe(ids.length)
@@ -1438,7 +1438,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     expect(child?.parentTaskUid).toBe(SAMPLE.taskUid)
   })
 
-  it('still lands a Task with no OutlineLevel on a row', () => {
+  it('still lands a Task with no OutlineLevel on a task group', () => {
     const text = BASE_TEXT.replace('<OutlineLevel>1</OutlineLevel>', '').replace(
       '<OutlineLevel>2</OutlineLevel>',
       '',
@@ -1458,7 +1458,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
 // ---------------------------------------------------------------------------
 
 describe('Chapter 5.4 -- only the WBS axis crosses the wire', () => {
-  it('writes no row and no member into the XML', () => {
+  it('writes no task group and no member into the XML', () => {
     const text = mspdiFromDocument(accepted(BASE_TEXT), LAST_SAVED_AT).text
     for (const name of [
       'TaskGroup',

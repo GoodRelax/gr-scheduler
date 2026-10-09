@@ -1,4 +1,4 @@
-// W3 spec-only tester 5: the IN-4 selection rung stands for chosen rows alone (FR-085) and clears both selections (T-283 RG-6, T-293).
+// W3 spec-only tester 5: the IN-4 selection rung stands for chosen task groups alone (FR-085) and clears both selections (T-283 RG-6, T-293).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -65,7 +65,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(IN_4_BOTH_SELECTIONS)
   })
 
-  it('table T-283 RG-6 is the Esc rung 選択 and names the chosen rows of FR-085', () => {
+  it('table T-283 RG-6 is the Esc rung 選択 and names the chosen task groups of FR-085', () => {
     const row = specTable('T-283').rows.find((one) => one.id === 'RG-6')
     const text = row?.cells.join('|') ?? ''
     expect(text).toContain('選択')
@@ -73,14 +73,14 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
     expect(text).toContain('FR-085')
   })
 
-  it('the template carries two rows and a task to choose', () => {
+  it('the template carries two task groups and a task to choose', () => {
     expect(ROW_IDS).toHaveLength(2)
     expect(FIRST_TASK.uid).toBeGreaterThan(0)
   })
 })
 
 describe(`IN-4 "${IN_4_BOTH_SELECTIONS}" -- the rung stands`, () => {
-  it('rows alone chosen in the Task Group Panel: Esc spends the 選択 rung, not the browser', () => {
+  it('task groups alone chosen in the Task Group Panel: Esc spends the 選択 rung, not the browser', () => {
     const context = { ...contextOf(DOCUMENT), selection: emptySelection(), chosenTaskGroups: ROW_IDS }
     expect(escapeTarget(escapeContextOf(context)), IN_4_BOTH_SELECTIONS).toBe('selection')
   })
@@ -97,13 +97,13 @@ describe(`IN-4 "${IN_4_BOTH_SELECTIONS}" -- the rung stands`, () => {
 })
 
 describe(`IN-4 "${IN_4_BOTH_SELECTIONS}" -- the rung clears both`, () => {
-  it('objects and rows chosen together: one Esc on the 選択 rung clears the objects and the rows', () => {
+  it('objects and task groups chosen together: one Esc on the 選択 rung clears the objects and the task groups', () => {
     const after = selectionRegionOf(escapeOn(sessionWith({ selectionState: { kind: 'objectsSelected', selectedObjects: OBJECTS }, chosenTaskGroups: ROW_IDS })))
     expect((after['selectionState'] as Loose)['kind'], IN_4_BOTH_SELECTIONS).toBe('nothingSelected')
     expect(after['chosenTaskGroups'], IN_4_BOTH_SELECTIONS).toEqual([])
   })
 
-  it('rows alone chosen: one Esc on the 選択 rung clears the rows', () => {
+  it('task groups alone chosen: one Esc on the 選択 rung clears the task groups', () => {
     const after = selectionRegionOf(escapeOn(sessionWith({ chosenTaskGroups: ROW_IDS })))
     expect(after['chosenTaskGroups'], IN_4_BOTH_SELECTIONS).toEqual([])
   })

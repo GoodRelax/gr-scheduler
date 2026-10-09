@@ -62,8 +62,8 @@ why: restates the extension column of table T-024 (exchange-formats.json); the m
 ROOT_KEYS | array | generated GRS_DOCUMENT_SCHEMA.properties keys
 why: restates the root properties of docs/spec/_source/grs-document.schema.json, printed as GRS_DOCUMENT_SCHEMA in grs-json-schema.ts; renamed, not raised, on 2026-10-03 (CR-611): the generated empty document carries the same five keys and wins the name tie-break.
 
-ROW_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
-why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region rowTree); Record<string, ...>, so an unknown guard throws only at run time.
+TASK_GROUP_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
+why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time.
 
 ShapeKind | union | generated COLUMN_SHAPES.TaskVisual.shapeKind.choices array
 why: restates TaskVisual.shapeKind of docs/spec/_source/erd.json; MilestoneGlyph two lines above is already derived from TaskVisual, this one is not.

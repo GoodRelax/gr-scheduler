@@ -76,7 +76,7 @@ describe('CR-541 / CR-570 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-describe('HF-2 [vv] on one row (T-328 allBelowOpenPressed)', () => {
+describe('HF-2 [vv] on one task group (T-328 allBelowOpenPressed)', () => {
   it(Q02, () => {
     const built = bench(withStates({ [C1]: 'collapsed', [G1]: 'hidden', [C2]: 'expanded' }))
     built.press(TASK_GROUP_PANEL, OPEN_ALL_BELOW, B)
@@ -111,13 +111,13 @@ describe('HF-2 [vv] on one row (T-328 allBelowOpenPressed)', () => {
         const before = JSON.stringify(built.groups())
         built.press(TASK_GROUP_PANEL, OPEN_ALL_BELOW, title.groupId)
         const acted = JSON.stringify(built.groups()) !== before
-        if (armed !== acted) disagree.push(`zoomY ${fixture.zoomY} row ${title.groupId}: drawn armed=${armed}, press changed=${acted}`)
+        if (armed !== acted) disagree.push(`zoomY ${fixture.zoomY} task group ${title.groupId}: drawn armed=${armed}, press changed=${acted}`)
       }
     }
     expect(disagree).toEqual([])
   })
 
-  it(`${Q03} -- a row whose descendants are all drawn is faint`, () => {
+  it(`${Q03} -- a task group whose descendants are all drawn is faint`, () => {
     const built = bench(withStates({}), 1.2)
     const title = titleOf(built, Z)
     expect(title, 'premise: Z is drawn').toBeDefined()
@@ -149,10 +149,10 @@ describe('HF-10 [vv] at the head of the panel (T-328 everyTaskGroupOpenPressed)'
 
   it.each([
     ['nothing folded, hidden or dropped', {}, 1.2, 'auto', false],
-    ['one expanded row only', { [B]: 'expanded' }, 1.2, 'auto', false],
+    ['one expanded task group only', { [B]: 'expanded' }, 1.2, 'auto', false],
     ['one fold', { [C1]: 'collapsed' }, 1.2, 'auto', true],
     ['one hide', { [G1]: 'hidden' }, 1.2, 'auto', true],
-    ['rows dropped by the zoom', {}, 0.25, 'auto', true],
+    ['task groups dropped by the zoom', {}, 0.25, 'auto', true],
     ['level zero folded', {}, 1.2, 'collapsed', true],
   ] as const)(`${Q06} -- %s`, (_name, states, zoomY, levelZero, armed) => {
     const built = bench(withStates(states as Record<string, TreeState>), zoomY, levelZero)
@@ -174,8 +174,8 @@ const PANEL_TITLE: TaskGroupTitle = {
   box: { x: 0, y: 40, width: 170, height: 30 },
   indentPx: 0,
   fontPx: 14,
-  label: 'row one',
-  wholeLabel: 'row one',
+  label: 'task group one',
+  wholeLabel: 'task group one',
   isLabelTruncated: false,
   expander: { canOpen: true, canClose: true, canCloseBelow: true },
   canOpenOneLevel: true,
@@ -199,17 +199,17 @@ function viewWith(panel: TaskGroupPanel): ScreenView {
   }
 }
 
-describe('HF-4 -- the rightmost row control stands S-313 from the panel edge', () => {
+describe('HF-4 -- the rightmost task group control stands S-313 from the panel edge', () => {
   it(Q04, () => {
     expect(S_313).toBe(4)
     const built = stage({ 'App Header': 37 })
     domScreenSurface(wiringOf(built, THEME)).showScreenView(viewWith({ pinnedTitles: [PANEL_TITLE], titles: [] }))
     const row = selfAndDescendants(built.root()).find((one) => one.getAttribute('data-group-id') === 'g-one')
-    expect(row, 'premise: the row is drawn').toBeDefined()
+    expect(row, 'premise: the task group is drawn').toBeDefined()
     const controls = selfAndDescendants(row as FakeElement).filter(
       (one) => one.getAttribute('data-icon') !== null && Number.isFinite(Number.parseFloat(styleMap(one).get('right') ?? 'NaN')),
     )
-    expect(controls.length, 'premise: the row controls are placed from the right edge').toBeGreaterThan(0)
+    expect(controls.length, 'premise: the task group controls are placed from the right edge').toBeGreaterThan(0)
     const rightmost = Math.min(...controls.map((one) => Number.parseFloat(styleMap(one).get('right') ?? 'NaN')))
     expect(rightmost).toBe(S_313)
   })

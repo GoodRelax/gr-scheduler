@@ -1,4 +1,4 @@
-// W3 tester 3: Enter and the two selections (objects and rows), and a row selection that outlives its row.
+// W3 tester 3: Enter and the two selections (objects and task groups), and a task group selection that outlives its task group.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -69,7 +69,7 @@ describe('SK-19 -- Enter, once nothing else is left to it, clears both selection
     await clickTask(stage, 1)
     await stage.pressRow(TASK_GROUP_PANEL, null, 'task-group-b')
     expect(pickedItems(stage), 'premise: a task is picked').toHaveLength(1)
-    expect(chosenTaskGroups(stage), 'premise: a row is chosen').toEqual(['task-group-b'])
+    expect(chosenTaskGroups(stage), 'premise: a task group is chosen').toEqual(['task-group-b'])
     for (let turn = 0; turn < 3 && stage.lastView().propertiesPanel !== null; turn += 1) await stage.press(ENTER)
     expect(stage.lastView().propertiesPanel, 'premise: Enter took the panel down first').toBeNull()
     expect(pickedItems(stage).length + chosenTaskGroups(stage).length, 'premise: both are still picked').toBe(2)
@@ -97,12 +97,12 @@ describe('FR-091 -- one Enter closes and clears only for a name just created', (
   })
 })
 
-describe('FR-085 -- a row selection points only at rows the document has', () => {
-  it(`"${CLAUSE_TASK_GROUPS_IN_THE_DOCUMENT}" -- a chosen row taken away by a write and given back by undo comes back unchosen`, async () => {
+describe('FR-085 -- a task group selection points only at task groups the document has', () => {
+  it(`"${CLAUSE_TASK_GROUPS_IN_THE_DOCUMENT}" -- a chosen task group taken away by a write and given back by undo comes back unchosen`, async () => {
     const document = documentWithTaskGroups()
     const stage = exportStage(document)
     await stage.pressRow(TASK_GROUP_PANEL, null, 'task-group-b')
-    expect(chosenTaskGroups(stage), 'premise: the row is chosen').toEqual(['task-group-b'])
+    expect(chosenTaskGroups(stage), 'premise: the task group is chosen').toEqual(['task-group-b'])
     const api = installAgentApi({
       ...stage.loop.agentApiSeams(),
       writerName: 'w3-t3-tester',
@@ -113,10 +113,10 @@ describe('FR-085 -- a row selection points only at rows the document has', () =>
       commands: [{ kind: commandNameOf('CM-27'), groupId: 'task-group-b', newGroupId: 'task-group-fresh' }] as never,
     })
     await stage.pointAt(1, 1)
-    expect(outcome.accepted, 'premise: the write took the row away').toBe(true)
+    expect(outcome.accepted, 'premise: the write took the task group away').toBe(true)
     expect(stage.loop.document().schedule.taskGroups.some((one) => one.id === 'task-group-b')).toBe(false)
     await stage.take('IC-5')
-    expect(stage.loop.document().schedule.taskGroups.some((one) => one.id === 'task-group-b'), 'premise: undo gave the row back').toBe(true)
+    expect(stage.loop.document().schedule.taskGroups.some((one) => one.id === 'task-group-b'), 'premise: undo gave the task group back').toBe(true)
     expect(chosenTaskGroups(stage)).toEqual([])
   })
 })

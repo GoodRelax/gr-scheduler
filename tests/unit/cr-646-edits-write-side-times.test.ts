@@ -229,7 +229,7 @@ const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthW
 
 /** @purity pure */
 function edited(document: Document, command: DocumentCommand): Document {
-  const result = editDocument(document, command, LIMITS, 'Row')
+  const result = editDocument(document, command, LIMITS, 'Task group')
   if (!result.ok) throw new Error(`premise: the command was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }

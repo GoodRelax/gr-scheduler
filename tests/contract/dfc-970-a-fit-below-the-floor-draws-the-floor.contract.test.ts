@@ -25,7 +25,7 @@ afterEach(() => {
 })
 
 const rows = (): TaskGroupSeed[] =>
-  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `row-${index + 1}`, parentId: null }))
+  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `task-group-${index + 1}`, parentId: null }))
 
 const keep = (built: ShellBench): ShellBench => {
   benches.push(built)

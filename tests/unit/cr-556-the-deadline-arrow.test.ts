@@ -429,14 +429,14 @@ describe('DA-1 -- when the mark is drawn', () => {
   }
 
   for (const state of ['hidden', 'collapsedParent'] as const) {
-    it(`DA-1 「${DA_1_FOLDED}」: a Task in a ${state} row has no mark, the Task in the drawn row has one`, () => {
+    it(`DA-1 「${DA_1_FOLDED}」: a Task in a ${state} task group has no mark, the Task in the drawn task group has one`, () => {
       const scene = withTwoTaskGroups(state)
       const drawnTwo = scene.drawn(2)
-      expect(scene.placed(2) === null || drawnTwo === undefined, `premise: task 2 sits in a ${state} row`).toBe(true)
+      expect(scene.placed(2) === null || drawnTwo === undefined, `premise: task 2 sits in a ${state} task group`).toBe(true)
       expect(drawnTwo?.deadline ?? null).toBeNull()
       const svg = scene.svg()
       expect(markTagsOf(svg, 2)).toEqual([])
-      expect(markTagsOf(svg, 1), 'the Task in the drawn row keeps its mark').toHaveLength(1)
+      expect(markTagsOf(svg, 1), 'the Task in the drawn task group keeps its mark').toHaveLength(1)
     })
   }
 })
@@ -554,7 +554,7 @@ describe('DA-4 -- where the tip stands across', () => {
   })
 })
 
-describe('DA-5 -- where the box stands down the row', () => {
+describe('DA-5 -- where the box stands down the task group', () => {
   for (const sh of SH) {
     it(`DA-5 「${DA_5_SAME_BAND}」 ${sh}: the box spans the marker's band`, () => {
       const milestone = sh === 'SH-5'
@@ -602,7 +602,7 @@ describe('DA-5 -- where the box stands down the row', () => {
     expect((parts.top + parts.bottom) / 2).toBeCloseTo(bandOf(figure).centre, 6)
   })
 
-  it('DA-5 ⭐ 印のために縦の占有を足さない: the row and the Task stand where they stand without a deadline', () => {
+  it('DA-5 ⭐ 印のために縦の占有を足さない: the task group and the Task stand where they stand without a deadline', () => {
     for (const sh of SH) {
       const milestone = sh === 'SH-5'
       const base = milestone ? { start: day(6), finish: day(6), milestone: true } : {}

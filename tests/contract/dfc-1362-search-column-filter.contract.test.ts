@@ -168,7 +168,7 @@ const STEERING = 'Steering'
 const REVIEW = 'Review'
 const ARCHIVE = 'Archive'
 
-// WHY: uids 2 and 5 tie on start, 3 and 6 have no name, 7 has no date and sits alone on its row;
+// WHY: uids 2 and 5 tie on start, 3 and 6 have no name, 7 has no date and sits alone on its task group;
 // the default order (SV-8) is Programme [1, 2], Steering [3], Review [5, 6, 4], Archive [7].
 const TASKS: readonly TaskSpec[] = [
   { uid: 1, name: 'PM review', start: '2026-04-01', state: 'inProgress', group: G_PROGRAMME },

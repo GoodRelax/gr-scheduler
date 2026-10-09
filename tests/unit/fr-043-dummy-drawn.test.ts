@@ -319,7 +319,7 @@ const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
     ...(shapeKind === 'milestone' ? { milestoneGlyph: 'diamond' } : {}),
   }) as unknown as TaskVisual
 
-/** `groupIds[i]` says which row `tasks[i]` is drawn on. Rows come out sorted. */
+/** `groupIds[i]` says which task group `tasks[i]` is drawn on. Task groups come out sorted. */
 const scheduleOf = (
   tasks: readonly Task[],
   groupIds: readonly string[],
@@ -376,7 +376,7 @@ const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickne
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
-/** The Task these cases watch, and one row above it so it is not at the edge. */
+/** The Task these cases watch, and one task group above it so it is not at the edge. */
 const UNDER_TEST = 1
 
 // see FR-043, S-129
@@ -449,7 +449,7 @@ const geometryOf = (drawn: Drawn, uid: number) => {
   return found
 }
 
-/** A rectangle Task that has not been started, with one earlier row above it. */
+/** A rectangle Task that has not been started, with one earlier task group above it. */
 const notStartedSchedule = (): Schedule =>
   scheduleOf(
     [
@@ -694,7 +694,7 @@ const unionOf = (figures: readonly Figure[]): Box => {
  * The figures one picture draws at a grab point that the other draws nowhere.
  *
  * ⭐ THE SUBTRACTION IS WHAT ISOLATES THE DUMMY. The plan bar spans the grab
- * point too, and so does the row's band; both are written identically in the
+ * point too, and so does the task group's band; both are written identically in the
  * two pictures, so differencing them away leaves what only the Task-not-started
  * picture has. ⚠️ The not-started marker survives the subtraction as well --
  * PM-1a and PM-1 are different figures -- which is why the point matters: GA-18
@@ -993,8 +993,8 @@ describe('the reader this file measures pictures with', () => {
     const obedient = spliced(started.svg, expected, width, band, fill!)
 
     // ⭐ EXACTLY TWO, because exactly two were put there. A reader that
-    // over-collected (the plan bar, the row band, the actual bar -- all of
-    // which stand in this row) would answer more, and a reader that measured
+    // over-collected (the plan bar, the task group band, the actual bar -- all of
+    // which stand in this task group) would answer more, and a reader that measured
     // the wrong element would answer the wrong rectangle.
     const found = dummyInkOf({ ...fresh, svg: obedient }, started)
     expect(found).toHaveLength(2)

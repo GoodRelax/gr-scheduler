@@ -474,7 +474,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // segment of the drawn path is walked, mapped into client space through the
   // element's own screen CTM, and a point is taken ALONG the segment -- never
   // its rectangle -- inside the schedule area and clear of every bar. The ends
-  // are avoided because MK-9a gives the bar's own row the press there.
+  // are avoided because MK-9a gives the bar's own task group the press there.
   // Measured with this chooser: the click lands on 'dep-9-281' / 'dep-290-291'
   // and the canvas is redrawn in all three states above.
   const dependencyLines = [...svg.querySelectorAll('polyline[data-figure]')]
@@ -498,7 +498,7 @@ const GEOMETRY_SCRIPT = `(() => {
         const to = corners[i + 1]
         const length = Math.hypot(to.x - from.x, to.y - from.y)
         // ⚠️ A 24px run is the shortest this file will aim at: shorter than
-        // that and every point on it is within the bar row's own reach.
+        // that and every point on it is within the bar task group's own reach.
         if (length < 24) continue
         for (const along of [0.5, 0.35, 0.65, 0.2, 0.8]) {
           const x = Math.round(from.x + (to.x - from.x) * along)
@@ -642,7 +642,7 @@ interface AxisSpans {
   readonly taskGroupSpans: Readonly<Record<string, number>>
 }
 
-// WHY: a plan run's width is days times the day width, and a row band's height
+// WHY: a plan run's width is days times the day width, and a task group band's height
 // WHY: is the vertical axis; both are keyed so one reading is compared id by id.
 /** @purity non-pure */
 async function axisSpansOf(page: Page): Promise<AxisSpans> {
@@ -852,9 +852,9 @@ async function taskUidAt(page: Page, at: Spot): Promise<number> {
   return found.uid
 }
 
-// WHY: the renderer keys each drawn row's ground `row-<groupId>-band`, so the row a
-// WHY: point lies in is read off the drawing rather than off a fixed row height.
-const TASK_GROUP_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="row-"][data-figure$="-band"]')]
+// WHY: the renderer keys each drawn task group's ground `task-group-<groupId>-band`, so the task group a
+// WHY: point lies in is read off the drawing rather than off a fixed task group height.
+const TASK_GROUP_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="task-group-"][data-figure$="-band"]')]
   .map((e) => {
     const r = e.getBoundingClientRect()
     return { row: e.getAttribute('data-figure') || '', top: r.top, bottom: r.bottom }
@@ -868,7 +868,7 @@ interface TaskGroupBand {
   readonly bottom: number
 }
 
-// WHY: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the row's top.
+// WHY: the same clearance GEOMETRY_SCRIPT keeps above the canvas foot, and a reach into the task group's top.
 const CANVAS_FOOT_CLEARANCE = 40
 const REACH_INTO_TASK_GROUP = 12
 
@@ -883,7 +883,7 @@ async function nextTaskGroupY(page: Page, at: Spot): Promise<number> {
   const below = bands[index + 1]
   const above = bands[index - 1]
   const into = below !== undefined && below.top + REACH_INTO_TASK_GROUP < lowest ? below : above
-  if (index < 0 || into === undefined) throw new Error(`MK-16: no drawn row lies next to the one under (${String(at.x)}, ${String(at.y)})`)
+  if (index < 0 || into === undefined) throw new Error(`MK-16: no drawn task group lies next to the one under (${String(at.x)}, ${String(at.y)})`)
   return Math.round(into.top + Math.min((into.bottom - into.top) / 2, REACH_INTO_TASK_GROUP))
 }
 
@@ -1009,13 +1009,13 @@ async function selectBar(page: Page, at: Geometry): Promise<void> {
   await page.waitForTimeout(250)
 }
 
-// WHY: selectBar alone is not enough -- FR-085 (MUST) keeps the panel's row
-// WHY: selection separate from the schedule area's, so SK-4 needs one row here.
+// WHY: selectBar alone is not enough -- FR-085 (MUST) keeps the panel's task group
+// WHY: selection separate from the schedule area's, so SK-4 needs one task group here.
 /** @purity non-pure */
 async function selectOneTaskGroup(page: Page): Promise<void> {
   const rows = page.locator('[data-depth]')
   const drawn = await rows.count()
-  if (drawn === 0) throw new Error('SK-4 needs a row of the Task Group Panel to take a copy of')
+  if (drawn === 0) throw new Error('SK-4 needs a task group of the Task Group Panel to take a copy of')
   // see FR-018
   await rows.nth(drawn > 1 ? 1 : 0).click({ timeout: 5_000 })
   await page.waitForTimeout(300)
@@ -1291,7 +1291,7 @@ const PROBES: readonly Probe[] = [
     rows: ['GR-20'],
     expect: 'answers',
     act: async (p, g) => {
-      if (g.taskGroupGrab === null) throw new Error('GR-20 needs the row grab mark in the Task Group Panel')
+      if (g.taskGroupGrab === null) throw new Error('GR-20 needs the task group grab mark in the Task Group Panel')
       return dragFrom(p, g.taskGroupGrab, 0, 120)
     },
   },
@@ -1348,7 +1348,7 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: HF-6 puts a row's controls out on hover, and moved folds the body's
+    // WHY: HF-6 puts a task group's controls out on hover, and moved folds the body's
     // WHY: hash in -- so the pointer is revealed in setUp, before the baseline,
     // WHY: leaving the click in the act as the only new thing the baseline lacks.
     rows: ['GA-19'],
@@ -1549,7 +1549,7 @@ const PROBES: readonly Probe[] = [
     // ⭐ THE ZOOM IS WHAT MOVED IT. `SK-18` is `f`, and after the fit the widest
     // `-plan` run this file's geometry picks is not a `Task`'s bar -- and `MK-13`
     // of table T-023 opens the panel for 「タスク（名称ラベルと本体のどちらでも）」
-    // and for a row heading, not for whatever else may be the widest thing drawn.
+    // and for a task group heading, not for whatever else may be the widest thing drawn.
     // ⇒ Both `Enter` presses then landed with no panel up and nothing held, so
     // `moved` read zero on a build that was obeying the row.
     //
@@ -1695,8 +1695,8 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
-    // WHY: T-270 moves by the drawn row tops crossed and a row can be taller than any fixed reach
-    // WHY: (DFC-2300), so the release is aimed into the next drawn row and the act judges for itself.
+    // WHY: T-270 moves by the drawn task group tops crossed and a task group can be taller than any fixed reach
+    // WHY: (DFC-2300), so the release is aimed into the next drawn task group and the act judges for itself.
     rows: ['MK-16'],
     expect: 'answers',
     setUp: selectBar,
@@ -1711,8 +1711,8 @@ const PROBES: readonly Probe[] = [
       const after = await planTaskGroupOf(p, uid)
       if (after.row === before.row || Math.abs(after.left - before.left) >= 1) {
         throw new Error(
-          `MK-16: task ${String(uid)} dragged with Shift into the next row went from row ${before.row} ` +
-            `x ${String(before.left)} to row ${after.row} x ${String(after.left)} (T-270: rows move, dates do not)`,
+          `MK-16: task ${String(uid)} dragged with Shift into the next task group went from task group ${before.row} ` +
+            `x ${String(before.left)} to task group ${after.row} x ${String(after.left)} (T-270: task groups move, dates do not)`,
         )
       }
       return held

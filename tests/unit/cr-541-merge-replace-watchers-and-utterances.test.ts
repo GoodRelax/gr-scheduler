@@ -84,7 +84,7 @@ describe('MG-12 -- a merge keeps the current content of a shared id', () => {
     const outcome = importDocument(requestOf({}))
     if (!outcome.ok) throw new Error(`premise: the merge is accepted, was ${JSON.stringify(outcome.refusal)}`)
     const taskGroups = outcome.document.schedule.taskGroups.filter((one) => one.id === 'shared-task-group')
-    expect(taskGroups.map((one) => one.label), 'the row of the shared id keeps the current label').toEqual(['current label'])
+    expect(taskGroups.map((one) => one.label), 'the task group of the shared id keeps the current label').toEqual(['current label'])
     const notes = outcome.document.schedule.commentBoxes.filter((one) => one.id === 'shared-note')
     expect(notes.map((one) => one.text), 'the note of the shared id keeps the current text').toEqual(['current note'])
   })

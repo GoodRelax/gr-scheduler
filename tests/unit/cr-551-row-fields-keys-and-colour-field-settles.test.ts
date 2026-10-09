@@ -1,4 +1,4 @@
-// CR-551 follow-ups: the row fields carry their T-016 IDs (IR-1), and the custom colour input settles (CV-9).
+// CR-551 follow-ups: the task group fields carry their T-016 IDs (IR-1), and the custom colour input settles (CV-9).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -233,12 +233,12 @@ function openCustom(built: Bench): FakeElement {
   return input
 }
 
-describe('IR-1 -- the row fields carry their T-016 row IDs', () => {
+describe('IR-1 -- the task group fields carry their T-016 row IDs', () => {
   it('IR-1 still says: 欄なら 表 T-016 の行 ID ... プロパティパネルのタスクグループ名の欄なら AT-53', () => {
     expect(REQUIREMENTS).toContain(IR_1)
   })
 
-  it('IR-1: the row colour field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
+  it('IR-1: the task group colour field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
     // see IR-1, T-016, AT-53, MH-2
     const built = bench(documentWith())
     const box = built.view().taskGroupPanel.titles[0]?.box

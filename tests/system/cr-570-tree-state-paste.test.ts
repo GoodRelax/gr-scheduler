@@ -1,4 +1,4 @@
-// CR-570 on the shipped build: a pasted row subtree keeps collapsed and hidden and drops the open marks (DU-2, FR-033).
+// CR-570 on the shipped build: a pasted task group subtree keeps collapsed and hidden and drops the open marks (DU-2, FR-033).
 
 import { expect, test, type Browser } from '@playwright/test'
 import { specTable } from '../contract/spec-table'
@@ -18,7 +18,7 @@ import {
 const DU_2_TREE_STATE =
   '複製した各タスクグループの `treeState`（`FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）は、複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'
 
-// WHY: S is the copied row; below it every value of AT-153 is held at least once.
+// WHY: S is the copied task group; below it every value of AT-153 is held at least once.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'S', parentId: null },
   { id: 'E', parentId: 'S' },
@@ -53,13 +53,13 @@ test.afterAll(async () => {
   await browser?.close()
 })
 
-test('the manuscript: DU-2 of table T-223 rules the tree state of a copied row', () => {
+test('the manuscript: DU-2 of table T-223 rules the tree state of a copied task group', () => {
   expect(REQUIREMENTS).toContain(DU_2_TREE_STATE)
   expect(specTable('T-223').rows.find((row) => row.id === 'DU-2')?.cells.join(' ')).toContain('treeState')
 })
 
 // WHY: red if a copy carries expanded or temporarilyExpanded, drops collapsed or hidden, or the
-// paste rewrites a source row.
+// paste rewrites a source task group.
 test('DU-2: the copy of a subtree keeps collapsed and hidden, turns expanded and temporarilyExpanded to auto', async () => {
   test.setTimeout(240_000)
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -83,7 +83,7 @@ test('DU-2: the copy of a subtree keeps collapsed and hidden, turns expanded and
     )
     for (const copy of copies) {
       const source = before.rows.find((row) => row.label === copy.label)
-      if (source === undefined) throw new Error(`no source row for the copy ${copy.label}`)
+      if (source === undefined) throw new Error(`no source task group for the copy ${copy.label}`)
       expect(copy.treeState, `${DU_2_TREE_STATE}: the copy of ${copy.label}`).toBe(copiedValue(source.treeState))
     }
     for (const source of before.rows) {

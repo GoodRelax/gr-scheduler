@@ -137,7 +137,7 @@ function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   if (!outcome.ok) throw new Error(`premise: the merge is accepted, was ${JSON.stringify(outcome.refusal)}`)
   const before = current.schedule.taskVisuals.find((one) => one.taskUid === taskUid)
   const member = current.schedule.taskGroupMembers.find((one) => one.taskUid === taskUid)
-  if (before === undefined || member === undefined) throw new Error('premise: the task has a visual and a row')
+  if (before === undefined || member === undefined) throw new Error('premise: the task has a visual and a task group')
   return { taskUid, before, groupId: member.groupId, merged: outcome.document }
 }
 
@@ -164,7 +164,7 @@ describe('T-032 MG-8: an MSPDI merge that flips Task/Milestone on a held task (C
   it.each([
     ['a milestone shape', true],
     ['a bar shape', false],
-  ] as const)(`${MG_8_KEEP} -- after the realignment on %s, everything else of the visual and the row stay`, (_label, shapeIsMilestone) => {
+  ] as const)(`${MG_8_KEEP} -- after the realignment on %s, everything else of the visual and the task group stay`, (_label, shapeIsMilestone) => {
     const scene = mergedFlip(shapeIsMilestone, true)
     const after = visualIn(scene.merged, scene.taskUid)
     expect({ ...after, shapeKind: scene.before.shapeKind }).toEqual(scene.before)

@@ -356,7 +356,7 @@ const GROUP_TWO_ID = uuidOf(2)
 const GROUP_ONE: TaskGroup = {
   id: GROUP_ONE_ID,
   parentId: null,
-  label: 'row one',
+  label: 'task group one',
   derivedFromTaskUid: null,
   order: 1,
   treeState: 'auto', editGroup: null,
@@ -368,7 +368,7 @@ const GROUP_TWO: TaskGroup = {
   ...GROUP_ONE,
   id: GROUP_TWO_ID,
   parentId: GROUP_ONE_ID,
-  label: 'row two',
+  label: 'task group two',
   order: 2,
 }
 
@@ -461,7 +461,7 @@ const beforeAcceptedDates = (): string =>
   `${Number(SETTINGS_CONSTANTS.importMinDate.slice(0, 4)) - 1}-01-01`
 
 /**
- * A chain of rows nested one level deeper than S-125 allows.
+ * A chain of task groups nested one level deeper than S-125 allows.
  *
  * S-125 fixes where the depth count starts, and it starts at the root, so the
  * chain is one link longer than the bound. The bound itself is read off the
@@ -568,7 +568,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // the pointer for this column.
   'IV-2': () => withSchedule({ assignments: [{ ...ASSIGNMENT, resourceUid: 999 }] }),
 
-  // A pinned row (S-126) naming a `TaskGroup` that is not there.
+  // A pinned task group (S-126) naming a `TaskGroup` that is not there.
   'IV-3': () => withSettings({ pinnedGroupIds: [uuidOf(999)] }),
 
   // The parent tasks close a ring: each of the two names the other.
@@ -577,10 +577,10 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       tasks: [{ ...TASK_A, parentTaskUid: TASK_B_UID }, TASK_B],
     }),
 
-  // A chain of rows nested past S-125.
+  // A chain of task groups nested past S-125.
   'IV-5': () => withSchedule({ taskGroups: [GROUP_ONE, GROUP_TWO, ...overDeepGroups()] }),
 
-  // The row parents close a ring: each of the two names the other. The same
+  // The task group parents close a ring: each of the two names the other. The same
   // shape as the IV-4 case, one axis over.
   //
   // ⚠️ IV-5 may be answered alongside it and that is not a fault of the case:
@@ -613,7 +613,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       ],
     }),
 
-  // A row with neither a name of its own nor a task to take one from.
+  // A task group with neither a name of its own nor a task to take one from.
   'IV-8': () =>
     withSchedule({
       taskGroups: [{ ...GROUP_ONE, label: null, derivedFromTaskUid: null }, GROUP_TWO],
@@ -663,7 +663,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // in REVERSED below, as a probe, for the same reason IV-1 and IV-2 have
   // sweeps: a case that broke only the dates proves only the dates.
   //
-  // ⚠️ THE TWO GROUP IDS ARE LEFT SOUND HERE and both name rows the document
+  // ⚠️ THE TWO GROUP IDS ARE LEFT SOUND HERE and both name task groups the document
   // holds, so IV-2 is not raised alongside; the dates are inside table T-214,
   // so IV-14 is not either. ⛔ The row's own note says a value that came from a
   // drag is not its material -- 「`FR-019` が離した時点で正規化すると定めており、
@@ -688,11 +688,11 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // way it is read -- inclusive or not.
   'IV-16': () => withSettings({ rulerFont: SETTINGS_CONSTANTS.fontMin - 1 }),
 
-  // A document holding no row at all -- the state IV-20 forbids, whose origin
+  // A document holding no task group at all -- the state IV-20 forbids, whose origin
   // the row names as the sentence under table T-050 of Chapter 1.4.
   //
-  // ⚠️ EMPTYING THE ROWS ALONE WOULD BREAK MORE THAN ONE ROW, so everything
-  // that leans on a row or on a task goes with them: `TaskGroupMember` would
+  // ⚠️ EMPTYING THE TASK GROUPS ALONE WOULD BREAK MORE THAN ONE ROW, so everything
+  // that leans on a task group or on a task goes with them: `TaskGroupMember` would
   // name a group that is gone (IV-2) and its tasks would then be housed by
   // nobody (IV-6), and `TaskVisual`, `TaskOrigin` and `Assignment` each point
   // at a `Task` (IV-2 again). With all six arrays empty, every other row of the

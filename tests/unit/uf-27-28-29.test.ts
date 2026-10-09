@@ -1195,7 +1195,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.document.documentSettings.scrollGroupId).not.toBeNull()
   })
 
-  it('puts the task row at the top and its start inside the left edge -- SJ-9 runs SJ-5 and SJ-6', () => {
+  it('puts the task group of the task at the top and its start inside the left edge -- SJ-9 runs SJ-5 and SJ-6', () => {
     // WHY: PND-61 put the start AT the left edge; table T-332 SJ-6 now leaves S-428 before it (DFC-1770).
     const one = bench()
     accepted(one.api.focusTask(SECOND_UID))
@@ -1213,14 +1213,14 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.document.schedule.taskGroups.map((group) => group.id)).toContain(written)
   })
 
-  it(`leaves no undo step when no row opens: SJ-2 ${SJ_2_NO_STEP}, and UN-8 keeps scrolling out`, () => {
+  it(`leaves no undo step when no task group opens: SJ-2 ${SJ_2_NO_STEP}, and UN-8 keeps scrolling out`, () => {
     expect(unbroken(specTable('T-332').rows.find((row) => row.id === 'SJ-2')?.by['定め'] ?? '')).toContain(SJ_2_NO_STEP)
     const one = bench(true, OPEN_SCHEDULE)
     accepted(one.api.focusTask(FIRST_UID))
     expect(one.history.done).toHaveLength(0)
   })
 
-  it('does not move the schedule instant when no row opens, and still refreshes the writer and the time (FR-063)', () => {
+  it('does not move the schedule instant when no task group opens, and still refreshes the writer and the time (FR-063)', () => {
     const one = bench(true, OPEN_SCHEDULE)
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 

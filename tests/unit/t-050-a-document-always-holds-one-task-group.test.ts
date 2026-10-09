@@ -4,7 +4,7 @@
 //   「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」
 //   「ある操作の結果としてタスクグループが 0 になるときは、その操作の一部として、深さ `L1`
 //     のタスクグループを 1 つ作ること（MUST）。名前は `FR-038` の辞書の `defaultNames` の
-//     `row` の語とすること（MUST）」
+//     `taskGroup` の語とすること（MUST）」
 //   「2 つ目の語を作ってはならない（MUST NOT）」
 //   「取り消しの単位を分けてはならない（MUST NOT）…取り消し 1 回で消したタスクグループが
 //     戻ること（MUST）」
@@ -27,7 +27,7 @@
 // a person. That question is settled before a write reaches WS-3 of table
 // T-067 (`confirmationOwedBy`, table T-234's QN-1), so no value on this side
 // can carry it. What IS asserted is the property that makes the MUST NOT
-// holdable: the row this invariant makes carries no `Task` and no member, so
+// holdable: the task group this invariant makes carries no `Task` and no member, so
 // there is nothing about it for a count of what disappears to pick up.
 
 import { readFileSync } from 'node:fs'
@@ -83,19 +83,19 @@ const INVARIANT = (() => {
   return found
 })()
 
-/** The word the row takes, from the ONE destination Chapter 6.2 names. */
+/** The word the task group takes, from the ONE destination Chapter 6.2 names. */
 const DICTIONARY_ROW_WORD = (() => {
-  const found = displayWords.defaultNames.find((one) => one.use === 'row')
-  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `row`')
+  const found = displayWords.defaultNames.find((one) => one.use === 'taskGroup')
+  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
   return found
 })()
 
 describe('table T-050 -- the manuscript the cases below rest on', () => {
-  it('still asks for one row, at L1, named from the dictionary', () => {
+  it('still asks for one task group, at L1, named from the dictionary', () => {
     expect(INVARIANT).toContain('（MUST）')
     // 「深さ `L1` のタスクグループを 1 つ作ること」
     expect(INVARIANT).toContain('`L1`')
-    // 「名前は `FR-038` の辞書の `defaultNames` の `row` の語とすること」
+    // 「名前は `FR-038` の辞書の `defaultNames` の `taskGroup` の語とすること」
     expect(INVARIANT).toContain('`defaultNames`')
     expect(INVARIANT).toContain('`FR-038`')
     // 「2 つ目の語を作ってはならない（MUST NOT）」
@@ -106,10 +106,10 @@ describe('table T-050 -- the manuscript the cases below rest on', () => {
     expect(INVARIANT).toContain('経路ごとに書き写してはならない')
   })
 
-  it('has exactly one word for a row in the dictionary, spelled alike in both', () => {
+  it('has exactly one word for a task group in the dictionary, spelled alike in both', () => {
     // ⛔ The MUST NOT about a second word is machine-visible here: the roster
-    // the generator builds holds ONE entry whose `use` is `row`.
-    expect(displayWords.defaultNames.filter((one) => one.use === 'row')).toHaveLength(1)
+    // the generator builds holds ONE entry whose `use` is `taskGroup`.
+    expect(displayWords.defaultNames.filter((one) => one.use === 'taskGroup')).toHaveLength(1)
     // ⚠️ 「日本語で表示していても綴りは変えない」(利用者の裁定 2026-09-01).
     expect(DICTIONARY_ROW_WORD.text.ja).toBe(DICTIONARY_ROW_WORD.text.en)
   })
@@ -207,10 +207,10 @@ const documentOf = (schedule: Partial<Schedule>, settings: Record<string, unknow
     changeLog: [],
   }) as unknown as Document
 
-/** ⛔ The state the invariant forbids: a document with no row at all. */
+/** ⛔ The state the invariant forbids: a document with no task group at all. */
 const EMPTY_OF_TASK_GROUPS = documentOf({})
 
-/** One row, one task on it -- the last row a person can delete. */
+/** One task group, one task on it -- the last task group a person can delete. */
 const ONE_TASK_GROUP = documentOf({
   taskGroups: [groupOf({ id: 'g1', label: 'the only row' })],
   tasks: [taskOf(1, 'on the only row')],
@@ -255,12 +255,12 @@ const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
   expect(taskGroups).toHaveLength(1)
   const taskGroup = taskGroups[0]!
   // 「深さ `L1`」 -- and the depth is DERIVED: FR-004 takes it from the parent,
-  // so a row with no parent cannot stand anywhere else.
+  // so a task group with no parent cannot stand anywhere else.
   expect(taskGroup.parentId).toBeNull()
-  // 「名前は `FR-038` の辞書の `defaultNames` の `row` の語とすること」.
+  // 「名前は `FR-038` の辞書の `defaultNames` の `task group` の語とすること」.
   expect(taskGroup.label).toBe(DICTIONARY_ROW_WORD.text.en)
   expect(taskGroup.label).toBe(DICTIONARY_ROW_WORD.text.ja)
-  // AT-54 / FR-058: a row holds a name OR a derivation source, never neither.
+  // AT-54 / FR-058: a task group holds a name OR a derivation source, never neither.
   expect(taskGroup.derivedFromTaskUid).toBeNull()
   expect(Number.isInteger(taskGroup.order)).toBe(true)
   return taskGroup
@@ -270,7 +270,7 @@ const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
 // 3. The road a delete takes (FR-032).
 // ---------------------------------------------------------------------------
 
-describe('table T-050 -- deleting the last row', () => {
+describe('table T-050 -- deleting the last task group', () => {
   it('is not refused', () => {
     // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」 -- 拒むと、そのタスクグループに載る
     // `Task` ごと消す道が無くなる.
@@ -278,10 +278,10 @@ describe('table T-050 -- deleting the last row', () => {
     expect(plan.ok).toBe(true)
   })
 
-  it('leaves the document holding one row at L1, named from the dictionary', () => {
+  it('leaves the document holding one task group at L1, named from the dictionary', () => {
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
-    // ⛔ NOT THE ROW THAT WAS DELETED. The one the invariant made is a new row,
+    // ⛔ NOT THE TASK GROUP THAT WAS DELETED. The one the invariant made is a new task group,
     // and everything CD-2 takes with the old one is gone.
     expect(taskGroup.id).not.toBe('g1')
     expect(plan.document.schedule.tasks).toHaveLength(0)
@@ -290,7 +290,7 @@ describe('table T-050 -- deleting the last row', () => {
 
   it('carries no Task, so the count FR-032 asks about has nothing to pick up', () => {
     // 「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」 --
-    // the question is about what disappears, and this row is not one of them.
+    // the question is about what disappears, and this task group is not one of them.
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
     expect(
@@ -303,7 +303,7 @@ describe('table T-050 -- deleting the last row', () => {
     expect(plan.hasMovedSchedule).toBe(true)
   })
 
-  it('gives the deleted row back on ONE press of undo', () => {
+  it('gives the deleted task group back on ONE press of undo', () => {
     // 「取り消しの単位を分けてはならない（MUST NOT）。消したことと作ったことは
     // 1 つの操作であり、取り消し 1 回で消したタスクグループが戻ること（MUST）」
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
@@ -321,9 +321,9 @@ describe('table T-050 -- deleting the last row', () => {
     expect(undoEdit(undone.next).undone).toBe(false)
   })
 
-  it('leaves a document that already holds a row exactly as it was', () => {
+  it('leaves a document that already holds a task group exactly as it was', () => {
     // ⚠️ The invariant is not a rebuild. WS-6 replaces ONE reference (MUST),
-    // and a write that changed nothing about the rows must not mint a new
+    // and a write that changed nothing about the task groups must not mint a new
     // schedule just by passing this rule.
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'setProjectTitle', title: 'B' }]))
     expect(plan.document.schedule.taskGroups).toEqual(ONE_TASK_GROUP.schedule.taskGroups)
@@ -335,7 +335,7 @@ describe('table T-050 -- deleting the last row', () => {
 // ---------------------------------------------------------------------------
 
 describe('table T-050 -- the roads that are not a delete', () => {
-  it('RD-6: a document brought at startup with no row gets one', () => {
+  it('RD-6: a document brought at startup with no task group gets one', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
@@ -349,7 +349,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     holdsTheRequiredTaskGroup(plan.next.document)
   })
 
-  it('RD-6: a document that already holds rows comes back as the same reference', () => {
+  it('RD-6: a document that already holds task groups comes back as the same reference', () => {
     // ⛔ WS-6 replaces ONE reference (MUST), and RD-1 hands the very pair it was
     // given straight back when nothing moved. A rule that rebuilt every
     // document on the way past would take that away from both.
@@ -366,8 +366,8 @@ describe('table T-050 -- the roads that are not a delete', () => {
     expect(plan.next.document).toBe(ONE_TASK_GROUP)
   })
 
-  it('RD-1: an undo that lands on a document with no row still gets one', () => {
-    // ⚠️ A document with no row cannot be pushed onto the history once the
+  it('RD-1: an undo that lands on a document with no task group still gets one', () => {
+    // ⚠️ A document with no task group cannot be pushed onto the history once the
     // invariant holds -- this case builds one by hand precisely because the
     // rule may not depend on that. 「本規則は削除だけのものではない」.
     const history: EditHistory<ChangeStep> = {
@@ -387,7 +387,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     holdsTheRequiredTaskGroup(plan.next.document)
   })
 
-  it('RD-2: a redo that lands on a document with no row still gets one', () => {
+  it('RD-2: a redo that lands on a document with no task group still gets one', () => {
     const history: EditHistory<ChangeStep> = {
       done: [],
       undone: [{ step: { document: EMPTY_OF_TASK_GROUPS, commands: ['setProjectTitle'] }, sizeBytes: 1 }],

@@ -120,9 +120,9 @@ describe('IN-4 (DFC-1651) -- one Esc answers a standing question and leaves the 
   })
 })
 
-describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen row is a selection Esc and Enter spend', () => {
-  // WHY: red on 2e16d0c4 (the second Esc was taken yet the row stayed chosen, and Enter did nothing); green since DFC-695 was fixed.
-  it('DFC-695: with only a row chosen and its panel put away, Esc is taken and the row is no longer chosen', () => {
+describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen task group is a selection Esc and Enter spend', () => {
+  // WHY: red on 2e16d0c4 (the second Esc was taken yet the task group stayed chosen, and Enter did nothing); green since DFC-695 was fixed.
+  it('DFC-695: with only a task group chosen and its panel put away, Esc is taken and the task group is no longer chosen', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g1')
     expect(chosenTaskGroups(built), 'premise').toEqual(['g1'])
@@ -134,31 +134,31 @@ describe('FR-085 / IN-4 / SK-19 (DFC-695) -- a chosen row is a selection Esc and
     expect(built.loop.isBrowserDefaultStopped(keyOf('Esc')), 'IN-4a: nothing left, the key goes to the browser').toBe(false)
   })
 
-  it('DFC-695: with only a row chosen and no panel up, Enter clears the choice', () => {
+  it('DFC-695: with only a task group chosen and no panel up, Enter clears the choice', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g2')
     built.send(keyOf('Esc'))
-    expect(chosenTaskGroups(built), 'premise: the panel is away and the row is still chosen').toEqual(['g2'])
+    expect(chosenTaskGroups(built), 'premise: the panel is away and the task group is still chosen').toEqual(['g2'])
     built.send(keyOf('Enter'))
     expect(chosenTaskGroups(built), 'SK-19 / RG-12: the choice is settled and released').toEqual([])
   })
 })
 
-describe('FR-085 (DFC-696) -- a row that left the document is no longer chosen', () => {
-  it('after a chosen row is deleted by a write, a new row that takes its id is not chosen', () => {
+describe('FR-085 (DFC-696) -- a task group that left the document is no longer chosen', () => {
+  it('after a chosen task group is deleted by a write, a new task group that takes its id is not chosen', () => {
     const built = benchOf()
     take(built, TASK_GROUP_PANEL, null, 'g1')
     expect(chosenTaskGroups(built), 'premise').toEqual(['g1'])
     const api = installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'dfc-696', schemaVersion: TEMPLATE.schemaVersion } as never)
     const written = (command: unknown): any => api.applyCommands({ readStamp: api.readStamp(), commands: [command] } as never)
-    expect(written({ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'g-replacement' }).accepted, 'premise: the row was deleted').toBe(true)
+    expect(written({ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'g-replacement' }).accepted, 'premise: the task group was deleted').toBe(true)
     built.send(keyOf('x'))
-    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: the row is gone').toBe(false)
-    expect(chosenTaskGroups(built), 'FR-085 MUST: the row left the choice with the document').toEqual([])
+    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: the task group is gone').toBe(false)
+    expect(chosenTaskGroups(built), 'FR-085 MUST: the task group left the choice with the document').toEqual([])
     const again = written({ kind: 'createTaskGroup', id: 'g1', parentId: null, label: 'again', derivedFromTaskUid: null, order: 9 })
     built.send(keyOf('x'))
     expect(again.accepted, JSON.stringify(again)).toBe(true)
-    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: a row with that id is back').toBe(true)
-    expect(chosenTaskGroups(built), 'a stale id would choose the new row').toEqual([])
+    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: a task group with that id is back').toBe(true)
+    expect(chosenTaskGroups(built), 'a stale id would choose the new task group').toEqual([])
   })
 })

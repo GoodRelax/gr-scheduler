@@ -176,12 +176,12 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     }
   })
 
-  it('BK-2: exactly one row, at the root, named by defaultNames row', async () => {
+  it('BK-2: exactly one task group, at the root, named by defaultNames taskGroup', async () => {
     const { after } = await emptyDocument()
     const rows = after['schedule']['taskGroups'] as Loose[]
     expect(rows).toHaveLength(1)
     expect(rows[0]?.['parentId']).toBeNull()
-    const word = (SPEC_WORDS['defaultNames'] as Loose[]).find((one) => one['use'] === 'row')?.['text']['ja']
+    const word = (SPEC_WORDS['defaultNames'] as Loose[]).find((one) => one['use'] === 'taskGroup')?.['text']['ja']
     expect(rows[0]?.['label']).toBe(word)
   })
 

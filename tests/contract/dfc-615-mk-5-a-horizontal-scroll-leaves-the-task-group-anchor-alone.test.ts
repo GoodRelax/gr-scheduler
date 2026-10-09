@@ -1,4 +1,4 @@
-// DFC-615 spec-only cases: T-023 MK-5 -- Ctrl + Shift + wheel scrolls sideways only; the row the view starts at, and the part of it, stay put at every display scale.
+// DFC-615 spec-only cases: T-023 MK-5 -- Ctrl + Shift + wheel scrolls sideways only; the task group the view starts at, and the part of it, stay put at every display scale.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -20,7 +20,7 @@ afterEach(() => {
 })
 
 const rows = (): TaskGroupSeed[] =>
-  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `row-${index + 1}`, parentId: null }))
+  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `task-group-${index + 1}`, parentId: null }))
 
 const bench = (displayScale: number, zoomY: number): ShellBench => {
   const built = shell(
@@ -51,9 +51,9 @@ describe('DFC-615 premise -- the clause these cases press still stands', () => {
   })
 })
 
-describe('T-023 MK-5 -- a sideways scroll leaves the row anchor where it was', () => {
+describe('T-023 MK-5 -- a sideways scroll leaves the task group anchor where it was', () => {
   it.each(DISPLAY_SCALE_STEPS.flatMap((scale) => [1, 0.5, 2.5].map((zoomY) => [scale, zoomY] as const)))(
-    'display scale %d, zoomY %d: every notch moves the date and none moves the row or the place inside it',
+    'display scale %d, zoomY %d: every notch moves the date and none moves the task group or the place inside it',
     (scale, zoomY) => {
       const built = bench(scale, zoomY)
       const start = { ...settingsOf(built) }

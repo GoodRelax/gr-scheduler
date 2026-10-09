@@ -56,7 +56,7 @@ const oneTaskDocument = (): Document =>
       assignments: [],
       taskGroups: [
         {
-          id: ROW_ID, parentId: null, label: 'row', derivedFromTaskUid: null, order: 0,
+          id: ROW_ID, parentId: null, label: 'task group', derivedFromTaskUid: null, order: 0,
           treeState: 'auto', editGroup: null, color: null, minHeight: null,
         },
       ],

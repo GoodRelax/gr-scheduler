@@ -1,4 +1,4 @@
-// CR-570 section 9 claims 12-13 on the shipped build: which rows T-329 draws, and when an entrance is armed (14.6, RS-28..RS-32).
+// CR-570 section 9 claims 12-13 on the shipped build: which task groups T-329 draws, and when an entrance is armed (14.6, RS-28..RS-32).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { specTable } from '../contract/spec-table'
@@ -75,7 +75,7 @@ const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrang
     drawn: ['T1', 'T2', 'T3'],
   },
   {
-    name: 'TD-7: an expanded deep row keeps its ancestors and itself, TD-6 its children',
+    name: 'TD-7: an expanded deep task group keeps its ancestors and itself, TD-6 its children',
     arranged: { zoomY: SHALLOW_ZOOM, states: { T1a1: 'expanded' } },
     drawn: ['T1', 'T1a', 'T1a1', 'T1a1x', 'T2', 'T3'],
   },
@@ -85,27 +85,27 @@ const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrang
     drawn: ['T1', 'T2', 'T2a', 'T3'],
   },
   {
-    name: 'TD-3 beats TD-7: a collapsed ancestor hides an expanded row',
+    name: 'TD-3 beats TD-7: a collapsed ancestor hides an expanded task group',
     arranged: { zoomY: SHALLOW_ZOOM, states: { T1: 'collapsed', T1a1: 'expanded' } },
     drawn: ['T1', 'T2', 'T3'],
   },
   {
-    name: 'TD-2 beats TD-6: a hidden child of an expanded row is not drawn',
+    name: 'TD-2 beats TD-6: a hidden child of an expanded task group is not drawn',
     arranged: { zoomY: SHALLOW_ZOOM, states: { T1: 'expanded', T1a: 'hidden' } },
     drawn: ['T1', 'T1b', 'T2', 'T3'],
   },
   {
-    name: 'TD-3 beats TD-4: a hidden row takes its subtree even at the deep zoom',
+    name: 'TD-3 beats TD-4: a hidden task group takes its subtree even at the deep zoom',
     arranged: { zoomY: DEEP_ZOOM, states: { T1a: 'hidden' } },
     drawn: ['T1', 'T1b', 'T2', 'T2a', 'T3'],
   },
   {
-    name: 'TD-1: a collapsed level zero draws no row, expanded ones included',
+    name: 'TD-1: a collapsed level zero draws no task group, expanded ones included',
     arranged: { zoomY: DEEP_ZOOM, levelZero: 'collapsed', states: { T1: 'expanded' } },
     drawn: [],
   },
   {
-    name: 'TD-5: a pinned deep row is drawn',
+    name: 'TD-5: a pinned deep task group is drawn',
     arranged: { zoomY: SHALLOW_ZOOM, pinned: ['T1a1'] },
     drawn: ['T1', 'T1a1', 'T2', 'T3'],
   },
@@ -114,7 +114,7 @@ const DRAWING_CASES: readonly { readonly name: string; readonly arranged: Arrang
 test.describe('claim 12: table T-329, row by row', () => {
   test.describe.configure({ timeout: 180_000 })
   for (const one of DRAWING_CASES) {
-    // WHY: red if the panel draws a row T-329 does not, or leaves out one it does.
+    // WHY: red if the panel draws a task group T-329 does not, or leaves out one it does.
     test(one.name, async () => {
       const stage = await openArranged(one.arranged)
       try {
@@ -129,8 +129,8 @@ test.describe('claim 12: table T-329, row by row', () => {
 test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint press that T-233 hides', () => {
   test.describe.configure({ timeout: 180_000 })
 
-  // WHY: red if the head [vv] stays armed with every row drawn, or a faint press changes the file.
-  test('HF-10 / RS-31: every row drawn and nothing folded -- the head [vv] is faint and RS-31 is hidden', async () => {
+  // WHY: red if the head [vv] stays armed with every task group drawn, or a faint press changes the file.
+  test('HF-10 / RS-31: every task group drawn and nothing folded -- the head [vv] is faint and RS-31 is hidden', async () => {
     const stage = await openArranged({ zoomY: DEEP_ZOOM })
     try {
       const { page } = stage
@@ -144,7 +144,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if the head [vv] stays faint while the zoom alone hides rows -- the change JDG-591 made.
+  // WHY: red if the head [vv] stays faint while the zoom alone hides task groups -- the change JDG-591 made.
   test('HF-10: nothing folded but the zoom drops depth 2 -- the head [vv] is armed', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
@@ -154,8 +154,8 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
     }
   })
 
-  // WHY: red if [^^] is armed on a row whose children are all undrawn.
-  test('HF-11 / RS-29: a row with no drawn child -- [^^] is faint and RS-29 is hidden', async () => {
+  // WHY: red if [^^] is armed on a task group whose children are all undrawn.
+  test('HF-11 / RS-29: a task group with no drawn child -- [^^] is faint and RS-29 is hidden', async () => {
     const stage = await openArranged({ zoomY: SHALLOW_ZOOM })
     try {
       const { page } = stage
@@ -202,7 +202,7 @@ test.describe('claim 13: when an entrance is armed (CR-570 14.6), and a faint pr
       expect(await isArmed(page, HEAD_FOLD_EVERY_TASK_GROUP), 'RS-32').toBe(false)
       await pressEntrance(page, HEAD_FOLD_EVERY_TASK_GROUP)
       expect(await toldReason(page, 'RS-32')).toBe(false)
-      expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), 'HF-10: a folded level zero leaves rows undrawn').toBe(true)
+      expect(await isArmed(page, HEAD_OPEN_EVERY_TASK_GROUP), 'HF-10: a folded level zero leaves task groups undrawn').toBe(true)
     } finally {
       await stage.close()
     }

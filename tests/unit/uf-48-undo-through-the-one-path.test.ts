@@ -162,8 +162,8 @@ const ED_1_WORD = bare(rowOf('T-229', 'ED-1').by['書く語'] ?? '')
 // ---------------------------------------------------------------------------
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
-// out here so that what is drawn can be named row by row.
+// the project and the settings come from it; the task groups and the Tasks are written
+// out here so that what is drawn can be named task group by task group.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -198,7 +198,7 @@ const OPENED_STAMP = {
 } as const
 
 /**
- * Two rows, one Task on each, NO base date line, and a stamp of its own.
+ * Two task groups, one Task on each, NO base date line, and a stamp of its own.
  *
  * ⛔ `statusDate: null` is a premise, not decoration. SK-20 of table T-036 is
  * 「基準日線を出す / 消す」 and FR-046 splits the two halves on exactly that

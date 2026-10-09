@@ -109,10 +109,10 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** UUIDs for the two rows the small document draws. */
+/** UUIDs for the two task groups the small document draws. */
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
-/** A `TaskGroup.id` no row carries -- OP-10's "指すタスクグループが存在しない". */
+/** A `TaskGroup.id` no task group carries -- OP-10's "指すタスクグループが存在しない". */
 const GONE = '99999999-9999-4999-8999-999999999999'
 
 const FIRST_START = '2026-04-01T00:00:00'
@@ -129,13 +129,13 @@ const LATE_ACTUAL_LAST_DAY = '2026-05-15T00:00:00'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Two rows, one Task on each, so what table T-068 draws can be named row by
- * row. The calendar (IV-7 / IV-17), the project and the 97 settings are the
+ * Two task groups, one Task on each, so what table T-068 draws can be named task group by
+ * task group. The calendar (IV-7 / IV-17), the project and the 97 settings are the
  * ones the specification decided, so those are taken from the template; the
- * rows, the Tasks and whatever the case overrides are written out here.
+ * task groups, the Tasks and whatever the case overrides are written out here.
  *
  * IV-1 (uids and ids unique), IV-2 (every reference resolves), IV-6 (each Task
- * named by exactly one member), IV-8 (every row has a label), IV-10 (finish is
+ * named by exactly one member), IV-8 (every task group has a label), IV-10 (finish is
  * not before start) all hold by construction, and `validateDocument` below
  * keeps the shape honest.
  *
@@ -604,7 +604,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // the specification says is drawn, and an exact `<=` here asserts a precision
     // no row of docs/spec claims. ⚠️ `FR-055` itself is weaker still: 「ただし必ず
     // 収まることを保証しない」.
-    // ⛔ IT IS NOT A LOOSENING OF WHAT THE CASE MEANS: the fit divides the Row
+    // ⛔ IT IS NOT A LOOSENING OF WHAT THE CASE MEANS: the fit divides the Task Group
     // Area's width by the extent and multiplies it back, so the last unit in the
     // place lands where it lands -- 982.0000000000001 against 982 on 2026-09-04,
     // once `S-79` widened the Task Group Panel. An overhang a reader could ever
@@ -641,11 +641,11 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     expect(settingsOf(loop.document()).zoomY).toBe(settingsOf(document).zoomY)
   })
 
-  it('holds when scrollGroupId names a row that is gone, even though scrollDate holds a day', () => {
+  it('holds when scrollGroupId names a task group that is gone, even though scrollDate holds a day', () => {
     // OP-10 covers two cases in one row: "表示位置が `null`、または指すタスクグループが存在
     // しないとき". IV-3 says in as many words that the stored place is NOT kept
-    // pointing at a live row, so this state is reachable in a valid document
-    // (CD-2 makes it on purpose when a row is deleted).
+    // pointing at a live task group, so this state is reachable in a valid document
+    // (CD-2 makes it on purpose when a task group is deleted).
     const stale = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
       draft.documentSettings.scrollGroupId = GONE
@@ -706,9 +706,9 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     expect(rowsOf(loop.document()).map((oneRect) => oneRect.treeState)).toEqual(['collapsed', 'auto'])
   })
 
-  it('and draws the picture that collapse means -- the row under it stays undrawn', () => {
+  it('and draws the picture that collapse means -- the task group under it stays undrawn', () => {
     // The half that matters: HF-8 could be honoured in the document and still
-    // be applied to the frame. LC-1 of table T-068 drops the collapsed rows
+    // be applied to the frame. LC-1 of table T-068 drops the collapsed task groups
     // first, and HR-1a forbids drawing "畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループ
     // に載っている `Task`".
     const pane = host()
@@ -944,14 +944,14 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
 const scrollbarOf = (view: ScreenView, axis: 'horizontal' | 'vertical') =>
   view.frame.scrollbars.find((bar) => bar.axis === axis)
 
-/** Every row the panel shows, pinned ones first (FR-098 lifts those out of the list). */
+/** Every task group the panel shows, pinned ones first (FR-098 lifts those out of the list). */
 const titlesOf = (view: ScreenView) => [
   ...view.taskGroupPanel.pinnedTitles,
   ...view.taskGroupPanel.titles,
 ]
 
 /**
- * The same two rows over one working week instead of twenty days.
+ * The same two task groups over one working week instead of twenty days.
  *
  * ⭐ FR-055 fits the drawn extent to the `Task Group Area`, so a short extent buys a
  * large px/day -- and FR-017 judges the 段階 on px/day against 表 T-205 の
@@ -969,7 +969,7 @@ const shortDocument = () =>
     draft.schedule.tasks[1].finish = '2026-04-08T00:00:00'
   })
 
-/** A document with no rows and no tasks -- the empty case SC-4 still has to draw for. */
+/** A document with no task groups and no tasks -- the empty case SC-4 still has to draw for. */
 const emptyDocument = () =>
   twoTaskGroupDocument((draft) => {
     draft.schedule.tasks = []
@@ -1082,7 +1082,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
     expect(scrollbarOf(view, 'vertical')).toBeDefined()
   })
 
-  it('GIVEN a document with no rows and no tasks THEN both scrollbars are still drawn (the empty case)', () => {
+  it('GIVEN a document with no task groups and no tasks THEN both scrollbars are still drawn (the empty case)', () => {
     // ⛔ The empty case is the one SC-4 was written for: "内容が収まっていても
     // 消さない" -- and nothing fits more completely than nothing. FR-051 gives
     // the reason under table T-031: "消えるとキャンバスの幅が変わり、再レイア
@@ -1132,7 +1132,7 @@ describe('SC-4 of table T-031 -- both scrollbars, always', () => {
 })
 
 describe('SC-1 of table T-031 -- the panel follows the body, sideways it does not', () => {
-  it('GIVEN two drawn rows THEN each title stands at the y and height the body row has', () => {
+  it('GIVEN two drawn task groups THEN each title stands at the y and height the body task group has', () => {
     // SC-1: "縦は本体と連動する". ⛔ The panel and the `Task Group Area` have to be the
     // SAME numbers, which is why a task group title takes its box from the shell's
     // measurement of this frame rather than from a second computation.
@@ -1142,7 +1142,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     const taskGroups = loop.current()!.layout.taskGroups
     const titles = titlesOf(screen.last())
 
-    // ⛔ Not a vacuous comparison: both rows of the document are drawn.
+    // ⛔ Not a vacuous comparison: both task groups of the document are drawn.
     expect(taskGroups).toHaveLength(2)
     expect(titles).toHaveLength(2)
     expect(titles.map((title) => title.groupId)).toEqual(taskGroups.map((taskGroup) => taskGroup.groupId))
@@ -1153,9 +1153,9 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     }
   })
 
-  it('GIVEN a collapsed row THEN the panel drops the same row the body drops (HF-8 / HR-1a)', () => {
-    // The vertical link is not only the numbers: a row the body does not draw
-    // is a row the panel has no line for. HR-1a forbids drawing "畳んだ
+  it('GIVEN a collapsed task group THEN the panel drops the same task group the body drops (HF-8 / HR-1a)', () => {
+    // The vertical link is not only the numbers: a task group the body does not draw
+    // is a task group the panel has no line for. HR-1a forbids drawing "畳んだ
     // `TaskGroup` の配下のタスクグループ", and HF-8 keeps the saved collapse at boot.
     const pane = host()
     const screen = screenPane()
@@ -1205,10 +1205,10 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
   })
 })
 
-describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () => {
+describe('SC-1 of table T-031 -- the panel and the body hold the SAME task groups', () => {
   /**
-   * A document with enough rows that the stack is taller than the `Task Group Area`,
-   * anchored at a row well down the stack so the ones above it are off the top.
+   * A document with enough task groups that the stack is taller than the `Task Group Area`,
+   * anchored at a task group well down the stack so the ones above it are off the top.
    * ⚠ S-78 is 「人が決めた表示位置」 and OP-10 reads it, so this is the
    * ordinary way a person leaves the schedule -- not a contrived frame.
    */
@@ -1217,7 +1217,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
       const taskGroups: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      // WHY: 48, not 24: CR-414's 24px lattice lets 24 rows fit the Task Group Area whole, and nothing would be clipped.
+      // WHY: 48, not 24: CR-414's 24px lattice lets 24 task groups fit the Task Group Area whole, and nothing would be clipped.
       for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
         taskGroups.push({
@@ -1238,7 +1238,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
       draft.documentSettings.scrollGroupId = `row-${anchorAt}`
     })
 
-  it('GIVEN the stack is anchored below its top THEN some rows really do fall outside the Task Group Area', () => {
+  it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Area', () => {
     // ⛔ THE PREMISE OF THE CASE BELOW, ASSERTED RATHER THAN ASSUMED. With
     // nothing clipped, an equality of counts says nothing at all.
     const pane = host()
@@ -1251,13 +1251,13 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
       (taskGroup) =>
         Math.min(taskGroup.y + taskGroup.height, area.y + area.height) <= Math.max(taskGroup.y, area.y),
     )
-    expect(outside.length, 'no row is off the Task Group Area, so nothing is being clipped').toBeGreaterThan(
+    expect(outside.length, 'no task group is off the Task Group Area, so nothing is being clipped').toBeGreaterThan(
       0,
     )
   })
 
-  it('GIVEN rows fall outside the Task Group Area THEN the panel holds exactly the rows the body draws', () => {
-    // SC-1: 「縦は本体と連動する」. A row the body has no band for is a row the
+  it('GIVEN task groups fall outside the Task Group Area THEN the panel holds exactly the task groups the body draws', () => {
+    // SC-1: 「縦は本体と連動する」. A task group the body has no band for is a task group the
     // panel has no line for -- a title painted where no band is stands up in
     // the Time Ruler, over the corner HF-10's control needs.
     const pane = host()
@@ -1277,7 +1277,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
 
   it('GIVEN a title is drawn THEN its band lies inside the Task Group Area, cut the same way the body is', () => {
     // The other half of 「連動する」: a title that kept its whole height while
-    // the band beside it was cut stands taller than the row it names.
+    // the band beside it was cut stands taller than the task group it names.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, manyTaskGroups(12), SCREEN, screen.wiring)
@@ -1574,9 +1574,9 @@ describe('NFR-011 and FT-2 -- the description is whole, and it describes THIS do
     expect(Array.isArray(view.tooltips)).toBe(true)
   })
 
-  it('GIVEN a document with a title and two rows THEN the description carries both', () => {
+  it('GIVEN a document with a title and two task groups THEN the description carries both', () => {
     // ⛔ The wiring is what this measures. `Project.title` (AT-3) is the
-    // `Document Title` (U-27) the `App Header` shows, and the two rows are what
+    // `Document Title` (U-27) the `App Header` shows, and the two task groups are what
     // the `Task Group Panel` (U-22) lists -- so a loop that handed the surface an
     // empty schedule, or last frame's, would answer with neither.
     const pane = host()

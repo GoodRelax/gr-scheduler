@@ -1,4 +1,4 @@
-// W3 spec-only case on the shipped build: FR-098 -- pinned rows that do not fit on the screen are not drawn, and none is drawn cut.
+// W3 spec-only case on the shipped build: FR-098 -- pinned task groups that do not fit on the screen are not drawn, and none is drawn cut.
 
 import { expect, test, type Browser } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -37,7 +37,7 @@ test.describe('W3-T1 the manuscript this case is driven by', () => {
 test.describe(`FR-098 (MUST): ${FR_098_NOT_DRAWN.slice(-30)}`, () => {
   test.setTimeout(120_000)
 
-  test('five pinned rows twenty times as tall as at zoom 1: the ones that fit are drawn whole, the rest not at all', async () => {
+  test('five pinned task groups twenty times as tall as at zoom 1: the ones that fit are drawn whole, the rest not at all', async () => {
     if (browser === null) throw new Error('no browser')
     const opened = await openStage(browser)
     try {
@@ -46,16 +46,16 @@ test.describe(`FR-098 (MUST): ${FR_098_NOT_DRAWN.slice(-30)}`, () => {
         const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
         const area = svg?.getBoundingClientRect()
         return ids.map((id) => {
-          const band = svg?.querySelector(`[data-figure="row-${id}-band"]`)?.getBoundingClientRect() ?? null
+          const band = svg?.querySelector(`[data-figure="task-group-${id}-band"]`)?.getBoundingClientRect() ?? null
           return { id, band: band === null ? null : { top: band.top, bottom: band.bottom }, areaBottom: area?.bottom ?? NaN }
         })
       }, PINNED)
       const shown = drawn.filter((one) => one.band !== null)
-      expect(shown.length, 'premise: at least one pinned row fits').toBeGreaterThan(0)
-      expect(shown.length, 'premise: five rows this tall cannot all fit').toBeLessThan(PINNED.length)
+      expect(shown.length, 'premise: at least one pinned task group fits').toBeGreaterThan(0)
+      expect(shown.length, 'premise: five task groups this tall cannot all fit').toBeLessThan(PINNED.length)
       expect(
         shown.map((one) => one.id),
-        'the rows drawn are the first ones in pin order',
+        'the task groups drawn are the first ones in pin order',
       ).toEqual(PINNED.slice(0, shown.length))
       for (const one of shown) {
         expect(one.band?.bottom ?? Infinity, `${one.id} is drawn whole, inside the canvas`).toBeLessThanOrEqual(one.areaBottom + 0.5)

@@ -62,7 +62,7 @@ export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: numbe
       const drawing = document.querySelector(selector)
       const figures = Array.from(drawing?.querySelectorAll('[data-figure]') ?? [])
       const isGround = (name: string): boolean =>
-        /^(row-|ruler-)/.test(name) || name === 'non-working-days' || name.endsWith('-mask')
+        /^(task-group-|ruler-)/.test(name) || name === 'non-working-days' || name.endsWith('-mask')
       const along = [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]
       for (const plan of Array.from(drawing?.querySelectorAll('[data-figure$="-plan"]') ?? [])) {
         const uid = /^task-(\d+)-plan$/.exec(plan.getAttribute('data-figure') ?? '')?.[1]

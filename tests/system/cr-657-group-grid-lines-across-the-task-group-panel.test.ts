@@ -62,7 +62,7 @@ async function measure(page: Page): Promise<Measured> {
     const panelRight = Math.max(...rows.map((box) => box.x + box.width))
     const panelBottom = Math.max(...rows.map((box) => box.y + box.height))
     const scheduleRules = Array.from(
-      document.querySelectorAll(`${drawn} line[data-figure^="row-"][data-figure$="-rule"]`),
+      document.querySelectorAll(`${drawn} line[data-figure^="task-group-"][data-figure$="-rule"]`),
     ).map((line) => {
       const box = line.getBoundingClientRect()
       const style = getComputedStyle(line)
@@ -129,7 +129,7 @@ function expectSameLineOnBothSides(measured: Measured): void {
   expect(measured.panelLines.length, 'no panel line stands where the schedule side has none').toBe(visible.length)
 }
 
-test('FR-042: while S-68 is true the panel carries, at each row boundary, the schedule side\'s line', async () => {
+test('FR-042: while S-68 is true the panel carries, at each task group boundary, the schedule side\'s line', async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
   try {

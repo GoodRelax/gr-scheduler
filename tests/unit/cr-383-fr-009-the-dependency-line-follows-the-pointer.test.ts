@@ -148,7 +148,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
 const groupTaskGroup = (id: string, order: number) => ({
   id,
   parentId: null,
-  label: `row ${order}`,
+  label: `task group ${order}`,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,

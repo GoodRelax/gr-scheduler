@@ -276,13 +276,13 @@ describe(`IX-13 -- ${IX_13}`, () => {
 })
 
 describe(`IX-10 -- ${IX_10}`, () => {
-  it('a two-task-group span picture keeps the S-81 height and draws only the two rows of the document', async () => {
+  it('a two-task-group span picture keeps the S-81 height and draws only the two task groups of the document', async () => {
     const { built } = await spannedStage()
     const picture = pictureOf(built)
     expect(picture.heightPx, `${IX_10}: shorter than S-81, the picture keeps the S-81 height`).toBe(S_81_HEIGHT)
     expect(rootSize(picture.svg)[1], IX_10).toBe(S_81_HEIGHT)
-    const bands = [...picture.svg.matchAll(/data-figure="row-([^"]+)-band"/g)].map((one) => one[1])
-    expect(bands, `${IX_10_NO_TASK_GROUPS}: no row is added to fill the blank`).toEqual(['g1', 'g2'])
+    const bands = [...picture.svg.matchAll(/data-figure="task-group-([^"]+)-band"/g)].map((one) => one[1])
+    expect(bands, `${IX_10_NO_TASK_GROUPS}: no task group is added to fill the blank`).toEqual(['g1', 'g2'])
   })
 })
 

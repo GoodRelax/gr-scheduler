@@ -1,4 +1,4 @@
-// CR-608 tests 6-7: rows made by createTaskGroup stand temporarilyExpanded; other writers keep theirs.
+// CR-608 tests 6-7: task groups made by createTaskGroup stand temporarilyExpanded; other writers keep theirs.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -80,7 +80,7 @@ describe('CR-608 -- the manuscript these cases are driven by', () => {
     expect(MACHINE.states.filter((one) => one.initial).map((one) => one.key)).toEqual(['temporarilyExpanded'])
   })
 
-  it('table T-328: childTaskGroupAddPressed sends auto and collapsed to temporarilyExpanded on the pressed row, and has no other cell', () => {
+  it('table T-328: childTaskGroupAddPressed sends auto and collapsed to temporarilyExpanded on the pressed task group, and has no other cell', () => {
     const cells = MACHINE.transitions['childTaskGroupAddPressed'] ?? {}
     expect(Object.keys(cells).sort()).toEqual(['auto', 'collapsed'])
     for (const from of ['auto', 'collapsed']) {
@@ -119,7 +119,7 @@ describe('CR-608 seam -- the pressed parent (childTaskGroupAddPressed), and no a
     ['collapsed', [{ id: 'P', to: 'temporarilyExpanded' }]],
     ['expanded', []],
     ['temporarilyExpanded', []],
-  ] as const)('the pressed row %s', (from, expected) => {
+  ] as const)('the pressed task group %s', (from, expected) => {
     const schedule = scheduleOf([
       { id: 'A', parentId: null, treeState: 'expanded' },
       { id: 'B', parentId: 'A', treeState: 'auto' },
@@ -148,7 +148,7 @@ const stateIn = (document: unknown, id: string): TreeState | undefined =>
   groupsOf(document).find((one) => one.id === id)?.treeState
 
 describe(`CR-608 -- ${AT_153_MADE}`, () => {
-  it('createTaskGroup (CM-26) through editTaskGroup makes a temporarilyExpanded row and writes no other row', () => {
+  it('createTaskGroup (CM-26) through editTaskGroup makes a temporarilyExpanded task group and writes no other task group', () => {
     const document = taskGroupDocument([
       { id: R, parentId: null, treeState: 'expanded' },
       { id: P, parentId: R },
@@ -197,8 +197,8 @@ function loopOf(document: Record<string, unknown>): { loop: FrameLoop; drain(): 
   return { loop, drain }
 }
 
-describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep row temporarilyExpanded, drawn whatever the zoom', () => {
-  it('a depth-3 row made at a zoom that draws only depth 2 stands temporarilyExpanded and is drawn; the zoom and the other rows stay', () => {
+describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep task group temporarilyExpanded, drawn whatever the zoom', () => {
+  it('a depth-3 task group made at a zoom that draws only depth 2 stands temporarilyExpanded and is drawn; the zoom and the other task groups stay', () => {
     const zoomY = thresholdOf(2)
     const { loop, drain } = loopOf(
       taskGroupDocument(
@@ -232,7 +232,7 @@ describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep row tempor
     expect(stateIn(loop.document(), FRESH), AT_153_MADE).toBe('temporarilyExpanded')
     expect(loop.document().documentSettings.zoomY, 'the zoom does not change').toBe(zoomY)
     for (const one of before) expect(stateIn(loop.document(), one.id), FR_018_NO_OTHER_WRITER).toBe(one.treeState)
-    expect(drawn(), 'no ancestor is collapsed, so the new row is drawn whatever the zoom').toEqual(
+    expect(drawn(), 'no ancestor is collapsed, so the new task group is drawn whatever the zoom').toEqual(
       expect.arrayContaining([R, P, FRESH]),
     )
   })
@@ -280,7 +280,7 @@ describe(`CR-608 test 7 -- ${AT_153_DU_2}: ${DU_2_VALUE}`, () => {
   })
 
   it.each(['sample-small-website-renewal.en.xml', 'sample-medium-sfa-webapp.ja.xml'])(
-    `MSPDI import (%s): every row takes the column default auto -- ${AT_153_DEFAULT}`,
+    `MSPDI import (%s): every task group takes the column default auto -- ${AT_153_DEFAULT}`,
     (file) => {
       const current = documentFromJson(
         readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -290,7 +290,7 @@ describe(`CR-608 test 7 -- ${AT_153_DU_2}: ${DU_2_VALUE}`, () => {
       expect(read.ok).toBe(true)
       if (!read.ok) return
       const states = new Set(groupsOf(read.document).map((one) => one.treeState))
-      expect(groupsOf(read.document).length, 'premise: the import made rows').toBeGreaterThan(1)
+      expect(groupsOf(read.document).length, 'premise: the import made task groups').toBeGreaterThan(1)
       expect([...states], AT_153_DEFAULT).toEqual(['auto'])
     },
   )

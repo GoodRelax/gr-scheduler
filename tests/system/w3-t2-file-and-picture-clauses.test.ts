@@ -194,9 +194,9 @@ test(`IX-15: ${SPAN_HEIGHT}`, async ({ page }) => {
   await setSpan(page, SPAN_START, SPAN_FINISH)
   const svg = await exportedSvg(page)
   const height = numberAttr(/<svg [^>]*>/.exec(svg)?.[0] ?? '', 'height')
-  const bands = tagsWithFigure(svg, /^row-.+-band$/)
-  expect(bands.length, 'precondition: the picture draws row bands').toBeGreaterThan(0)
-  // WHY: IX-14 stacks every row, so the lowest row band ends the stack of the four sections.
+  const bands = tagsWithFigure(svg, /^task-group-.+-band$/)
+  expect(bands.length, 'precondition: the picture draws task group bands').toBeGreaterThan(0)
+  // WHY: IX-14 stacks every task group, so the lowest task group band ends the stack of the four sections.
   const stacked = Math.max(...bands.map((tag) => numberAttr(tag, 'y') + numberAttr(tag, 'height')))
   expect(stacked, 'precondition: the template stacks taller than S-81').toBeGreaterThan(S_81_HEIGHT)
   const onGrid = Math.round(stacked * 100) / 100
@@ -255,7 +255,7 @@ test(`EP-3: ${TASK_GROUP_NAME_BASELINE}`, async ({ page }) => {
   const document = await readDocument(page)
   const names = new Map(document.schedule.taskGroups.map((one) => [String(one['label']), String(one['id'])]))
   const svg = await exportedSvg(page)
-  const bandTop = new Map(tagsWithFigure(svg, /^row-.+-band$/).map((tag) => [figureName(tag).slice(4, -5), numberAttr(tag, 'y')]))
+  const bandTop = new Map(tagsWithFigure(svg, /^task-group-.+-band$/).map((tag) => [figureName(tag).slice(11, -5), numberAttr(tag, 'y')]))
   const taskGroupTitleRight = numberAttr(/<rect x="0" y="[\d.]+" width="([\d.]+)"[^>]*>/.exec(svg)?.[0] ?? '', 'width')
   const misplaced: string[] = []
   let checked = 0
@@ -272,6 +272,6 @@ test(`EP-3: ${TASK_GROUP_NAME_BASELINE}`, async ({ page }) => {
     const expected = top + numberAttr(attributes, 'font-size')
     if (Math.abs(numberAttr(attributes, 'y') - expected) > 0.02) misplaced.push(`${name}: y ${numberAttr(attributes, 'y')} vs ${expected}`)
   }
-  expect(checked, 'precondition: the picture writes row names in the Task Group Panel').toBeGreaterThan(0)
+  expect(checked, 'precondition: the picture writes task group names in the Task Group Panel').toBeGreaterThan(0)
   expect(misplaced).toEqual([])
 })

@@ -1,4 +1,4 @@
-// CR-586 spec-only cases: the row colour list is one generated list (CV-9), CM-30 and the GRS JSON read refuse the rest.
+// CR-586 spec-only cases: the task group colour list is one generated list (CV-9), CM-30 and the GRS JSON read refuse the rest.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -88,7 +88,7 @@ describe('CR-586 premise -- the clauses these cases are built from', () => {
     expect(REQUIREMENTS).toContain('`CM-30`')
   })
 
-  it('T-294 leaves at least one name without a row band (S-315), and transparent keeps one', () => {
+  it('T-294 leaves at least one name without a task group band (S-315), and transparent keeps one', () => {
     expect(BANDLESS).toContain(nameOf(rowOf(T_294, 'S-315')))
     expect(TASK_GROUP_COLOURS).toContain(TRANSPARENT)
     expect(TASK_GROUP_COLOURS.length + BANDLESS.length).toBe(PALETTE.length)
@@ -125,7 +125,7 @@ const setTaskGroupColour = (color: string) => {
 }
 
 describe(`CM-30 setTaskGroupColor takes the one list (CV-9, CR-586 seam S-4)`, () => {
-  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('every name the row colour field offers is accepted: %s', (name) => {
+  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('every name the task group colour field offers is accepted: %s', (name) => {
     const result = setTaskGroupColour(name)
     expect(result.ok, JSON.stringify(result)).toBe(true)
     if (result.ok) expect(colourOf(result.document)).toBe(name)
@@ -162,7 +162,7 @@ function templateWithRowColour(color: string): string {
 }
 
 describe(`GRS JSON read (CV-9, RS-25, CR-586 seam S-5)`, () => {
-  it.each(BANDLESS.map((name) => [name]))(`${CV_9_REFUSED} -- a row coloured %s is refused with RS-25`, (name) => {
+  it.each(BANDLESS.map((name) => [name]))(`${CV_9_REFUSED} -- a task group coloured %s is refused with RS-25`, (name) => {
     const read = documentFromJson(templateWithRowColour(name))
     expect(read.ok).toBe(false)
     if (read.ok) return
@@ -170,7 +170,7 @@ describe(`GRS JSON read (CV-9, RS-25, CR-586 seam S-5)`, () => {
     expect(read.faults.some((one) => one.at.includes('taskGroups/0/color')), JSON.stringify(read.faults)).toBe(true)
   })
 
-  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('control: a row coloured %s is read', (name) => {
+  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('control: a task group coloured %s is read', (name) => {
     const read = documentFromJson(templateWithRowColour(name))
     expect(read.ok, read.ok ? '' : JSON.stringify(read.faults)).toBe(true)
   })
@@ -268,7 +268,7 @@ function choicesFor(control: PropertyControl): readonly string[] {
 }
 
 const SCENES: readonly (readonly [string, ItemRef | null, readonly string[], string])[] = [
-  ['a row', null, [ROW_ID], 'taskGroup'],
+  ['a task group', null, [ROW_ID], 'taskGroup'],
   ['a task', { kind: 'task', uid: 1 }, [], 'taskVisual'],
   ['a highlight box', { kind: 'highlightBox', id: HIGHLIGHT_ID }, [], 'highlightBox'],
   ['a comment box', { kind: 'commentBox', id: COMMENT_ID }, [], 'commentBox'],
@@ -291,7 +291,7 @@ describe(`the panel's colour fields offer each column's generated choices (CV-9,
     }
   })
 
-  it(`${CV_9_ONE_LIST} -- the row colour field offers the one list and not the bandless names`, () => {
+  it(`${CV_9_ONE_LIST} -- the task group colour field offers the one list and not the bandless names`, () => {
     const control = colourControls(null, [ROW_ID]).find(
       (one) => (one.key as { readonly holder: string }).holder === 'taskGroup',
     )

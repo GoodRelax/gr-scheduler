@@ -300,16 +300,16 @@ test('the rows these cases are read from are still the rows that carry them', ()
   ).toHaveLength(new Set([ADD_AT_SHALLOWEST, FOLD_EVERY_TASK_GROUP, UNFOLD_EVERY_TASK_GROUP, WATERMARK_ENTRANCE]).size)
 })
 
-// WHY: goes red if HF-17 adds a row and draws nothing, sends the field
+// WHY: goes red if HF-17 adds a task group and draws nothing, sends the field
 // alone, or leaves the shallowest tier's fold (S-418) closed.
-test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it raises`, async () => {
+test(`HF-17: with no task group drawn at all, ${ADD_AT_SHALLOWEST} draws the task group it raises`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
   const page = opened.page
   try {
     expect(
       (await drawnTaskGroups(page)).length,
-      'the build opens with rows drawn, so folding them away is a change',
+      'the build opens with task groups drawn, so folding them away is a change',
     ).toBeGreaterThan(0)
 
     expect(
@@ -319,7 +319,7 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
     const folded = await drawnTaskGroups(page)
     expect(
       folded.length,
-      `HF-12: every row is folded, the shallowest tier too, so none is drawn; saw ` +
+      `HF-12: every task group is folded, the shallowest tier too, so none is drawn; saw ` +
         `[${describe(folded)}]`,
     ).toBe(0)
 
@@ -331,7 +331,7 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
     const after = await drawnTaskGroups(page)
     expect(
       after.length,
-      'HF-17 (MUST): the row that was raised is drawn, and not left in the document alone',
+      'HF-17 (MUST): the task group that was raised is drawn, and not left in the document alone',
     ).toBeGreaterThan(0)
 
     const panel = await panelState(page, TASK_GROUP_NAME_COLUMN)
@@ -344,7 +344,7 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
     const named = panel.value ?? ''
     expect(
       after.some((row) => namesTheSameTaskGroup(row.name, named)),
-      `HF-17 (MUST NOT): the field is not sent on its own -- the row it names is drawn. ` +
+      `HF-17 (MUST NOT): the field is not sent on its own -- the task group it names is drawn. ` +
         `The field holds ${JSON.stringify(named)}; the panel drew [${describe(after)}]`,
     ).toBe(true)
   } finally {
@@ -352,7 +352,7 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
   }
 })
 
-// WHY: goes red if adding a row opens every tier under S-418, not the one tier
+// WHY: goes red if adding a task group opens every tier under S-418, not the one tier
 // HF-17 (MUST NOT) allows. The Esc that follows is not part of the judgement.
 test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not every tier`, async () => {
   test.setTimeout(180_000)
@@ -363,7 +363,7 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
     const shallowest = Math.min(...atOpening.map((row) => row.depth))
     expect(
       atOpening.some((row) => row.depth > shallowest),
-      `THE GUARD: this document has rows below its shallowest tier, so "only the shallowest" ` +
+      `THE GUARD: this document has task groups below its shallowest tier, so "only the shallowest" ` +
         `is a restriction; saw [${describe(atOpening)}]`,
     ).toBe(true)
 
@@ -376,7 +376,7 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
     await takeThePanelToTheTop(page)
 
     const after = await drawnTaskGroups(page)
-    expect(after.length, 'the panel is drawing rows again').toBeGreaterThan(0)
+    expect(after.length, 'the panel is drawing task groups again').toBeGreaterThan(0)
     expect(
       after.filter((row) => row.depth !== shallowest),
       `HF-17 (MUST NOT): one tier was opened and no more, so nothing below the shallowest ` +
@@ -388,7 +388,7 @@ test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not eve
 })
 
 // WHY: the control for the case above -- from the same folded state, HF-10
-// does open every tier, or the case above could pass on a panel that cannot draw a deep row.
+// does open every tier, or the case above could pass on a panel that cannot draw a deep task group.
 test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_TASK_GROUP} opens every tier`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
@@ -404,7 +404,7 @@ test(`⭐ THE CONTROL: from the same folded state, ${UNFOLD_EVERY_TASK_GROUP} op
     const after = await drawnTaskGroups(page)
     expect(
       after.some((row) => row.depth > shallowest),
-      `HF-10 opens every tier, so rows below the shallowest one (${String(shallowest)}) are ` +
+      `HF-10 opens every tier, so task groups below the shallowest one (${String(shallowest)}) are ` +
         `drawn; saw [${describe(after)}]`,
     ).toBe(true)
   } finally {

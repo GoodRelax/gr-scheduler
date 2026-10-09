@@ -1,4 +1,4 @@
-// CR-608 tests 9-11: delete-all opens level zero, and the one row table T-050 makes is temporarilyExpanded.
+// CR-608 tests 9-11: delete-all opens level zero, and the one task group table T-050 makes is temporarilyExpanded.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -142,19 +142,19 @@ const ROWS: readonly TaskGroupSeed[] = [
 const statesOf = (groups: readonly TaskGroup[]) => groups.map((one) => ({ id: one.id, treeState: one.treeState }))
 
 describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
-  it('level zero opens, the one row stands temporarilyExpanded and is drawn; one undo gives back the rows and the fold', () => {
+  it('level zero opens, the one task group stands temporarilyExpanded and is drawn; one undo gives back the task groups and the fold', () => {
     const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
     const before = statesOf(built.groups())
-    expect(built.drawn(), 'premise: TD-1 draws no row under a folded level zero').toEqual([])
+    expect(built.drawn(), 'premise: TD-1 draws no task group under a folded level zero').toEqual([])
 
     deleteEveryTaskGroup(built)
 
     expect(built.loop.document().schedule.tasks, 'premise: the answer deleted every task').toEqual([])
     expect(built.levelZero(), HF_20_OPENS).toBe('auto')
     const taskGroups = built.groups()
-    expect(taskGroups, 'table T-050: one row is made').toHaveLength(1)
+    expect(taskGroups, 'table T-050: one task group is made').toHaveLength(1)
     expect(taskGroups[0]?.treeState, FR_032_VALUE).toBe('temporarilyExpanded')
-    expect(built.drawn(), 'the row left behind can be read').toEqual([taskGroups[0]?.id])
+    expect(built.drawn(), 'the task group left behind can be read').toEqual([taskGroups[0]?.id])
 
     built.press(APP_HEADER, UNDO)
 
@@ -162,7 +162,7 @@ describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
     expect(built.levelZero(), HF_20_ONE_STEP).toBe('collapsed')
   })
 
-  it('control: with level zero open, delete-all leaves it open and still makes the one row temporarilyExpanded', () => {
+  it('control: with level zero open, delete-all leaves it open and still makes the one task group temporarilyExpanded', () => {
     const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'auto' }))
     deleteEveryTaskGroup(built)
     expect(built.levelZero()).toBe('auto')
@@ -173,7 +173,7 @@ describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
     const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
     deleteEveryTaskGroup(built)
     built.press(APP_HEADER, UNDO)
-    expect(built.groups().length, 'premise: the undo gave the rows back').toBe(ROWS.length)
+    expect(built.groups().length, 'premise: the undo gave the task groups back').toBe(ROWS.length)
     built.press(APP_HEADER, REDO)
     expect(built.groups().map((one) => one.treeState), FR_032_VALUE).toEqual(['temporarilyExpanded'])
     expect(built.levelZero(), HF_20_OPENS).toBe('auto')
@@ -201,7 +201,7 @@ describe(`CR-608 test 9 (regression) -- ${CD_2_NULL}; OP-10: ${OP_10_FIT}`, () =
     deleteEveryTaskGroup(built)
     expect(built.loop.document().documentSettings.zoomY, HF_20_NO_VIEW_WRITE).toBe(zoomBefore)
     const afterDelete = pictureOf(built.frame())
-    expect(afterDelete.rows.map((one) => one.groupId), 'the one row is the top of the tree').toEqual(
+    expect(afterDelete.rows.map((one) => one.groupId), 'the one task group is the top of the tree').toEqual(
       built.groups().map((one) => one.id),
     )
 
@@ -274,17 +274,17 @@ const ONE_TASK_GROUP = documentOf([groupOf('g1', 'auto')])
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const TASK_GROUP_WORD = (() => {
-  const found = displayWords.defaultNames.find((one) => one.use === 'row')
-  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for row')
+  const found = displayWords.defaultNames.find((one) => one.use === 'taskGroup')
+  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for task group')
   return found.text.en
 })()
 
 const theOneTaskGroup = (document: Document): TaskGroup => {
   const taskGroups = document.schedule.taskGroups
-  expect(taskGroups, 'table T-050: one row').toHaveLength(1)
+  expect(taskGroups, 'table T-050: one task group').toHaveLength(1)
   const taskGroup = taskGroups[0]
   if (taskGroup === undefined) throw new Error('unreachable')
-  expect(taskGroup.id, 'premise: the row is the one the road made').toBe('fresh-task-group')
+  expect(taskGroup.id, 'premise: the task group is the one the road made').toBe('fresh-task-group')
   return taskGroup
 }
 
@@ -305,7 +305,7 @@ function replaced(call: ReplacementCall, history: EditHistory<ChangeStep> = EMPT
 const EMPTY_STEP = [{ step: { document: EMPTY_OF_TASK_GROUPS, commands: ['setProjectTitle'] }, sizeBytes: 1 }] as never
 
 describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
-  it('deleting the last row (CD-2) makes the one row temporarilyExpanded', () => {
+  it('deleting the last task group (CD-2) makes the one task group temporarilyExpanded', () => {
     const plan = planDocumentChange({
       defaultTaskGroupName: TASK_GROUP_WORD,
       document: ONE_TASK_GROUP,
@@ -323,17 +323,17 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
     expect(theOneTaskGroup(plan.document).treeState, FR_032_VALUE).toBe('temporarilyExpanded')
   })
 
-  it('RD-2: a redo that lands on a document with no row', () => {
+  it('RD-2: a redo that lands on a document with no task group', () => {
     const document = replaced({ row: 'RD-2' }, { done: [], undone: EMPTY_STEP })
     expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
-  it('RD-1: an undo that lands on a document with no row', () => {
+  it('RD-1: an undo that lands on a document with no task group', () => {
     const document = replaced({ row: 'RD-1' }, { done: EMPTY_STEP, undone: [] })
     expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
-  it('RD-4: replacing the document with one that holds no row (OP-3)', () => {
+  it('RD-4: replacing the document with one that holds no task group (OP-3)', () => {
     const document = replaced({
       row: 'RD-4',
       importing: {
@@ -351,7 +351,7 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
     expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })
 
-  it.each(['RD-6', 'RD-7'] as const)('%s: a document brought with no row', (row) => {
+  it.each(['RD-6', 'RD-7'] as const)('%s: a document brought with no task group', (row) => {
     const document = replaced(
       row === 'RD-6'
         ? { row, document: EMPTY_OF_TASK_GROUPS }

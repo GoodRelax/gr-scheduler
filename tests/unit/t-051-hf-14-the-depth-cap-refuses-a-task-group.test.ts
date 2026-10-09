@@ -1,14 +1,14 @@
 // 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-340 then CR-348,
-// ledger row DFC-206): the entrance that adds a child row is drawn FAINT on a row
+// ledger row DFC-206): the entrance that adds a child task group is drawn FAINT on a task group
 // that has reached `FR-085`'s depth cap, and a press on it is answered with a
-// reason instead of a row.
+// reason instead of a task group.
 //
 // ⚠️ THE ROW WAS REWRITTEN ON 2026-09-04 (CR-348) AND THIS FILE FOLLOWED IT.
 // 「打ち込み口を出さずに」 became 「タスクグループを立てずに」 because the field it named was
-// withdrawn from the same row: an ordinary press now raises the row with a
+// withdrawn from the same row: an ordinary press now raises the task group with a
 // default name and opens its properties panel (the `FR-085` rename road), so
 // there is no name field left to withhold -- what the refusal withholds is the
-// ROW. ⛔ Nothing in this file may be written from the withdrawn model.
+// TASK GROUP. ⛔ Nothing in this file may be written from the withdrawn model.
 //
 // ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
 // `HF-14` (docs/spec/01-04-requirements.md):
@@ -55,19 +55,19 @@
 //      it belongs to a file about the ordinary press -- this one is named for
 //      the cap. ⛔ The old note here said the withheld half could not be read at
 //      this seam because it was a NAME FIELD; CR-348 withdrew that field, and
-//      what the refusal withholds is now the ROW and the PANEL, both of which
+//      what the refusal withholds is now the TASK GROUP and the PANEL, both of which
 //      this seam carries (`FrameLoop.document()` and
 //      `ScreenView.propertiesPanel`) and both of which are asserted below.
 //   1b. WHETHER THE DETAIL TIER WAS OPENED. 「立てたタスクグループが…詳しさの段（`FR-018`）で
 //      落ちる深さになるときは、そのタスクグループが描かれるまで詳しさの段を開くこと（MUST）」 is a
 //      2026-09-04 MUST about the press that SUCCEEDS. ⛔ It is not written here:
-//      no press in this file raises a row, and choosing the seam it is read
+//      no press in this file raises a task group, and choosing the seam it is read
 //      through is the implementer's, not this file's.
 //   2. HOW FAINT IS DRAWN. That is the surface's, and
 //      tests/unit/uf-72-screen-part.test.ts already holds `canOpenOneLevel`'s
 //      faintness there. Here the question is the one only this unit can answer:
-//      whether the row AT the cap is described to the surface as having nothing
-//      to add, while a shallower row is not.
+//      whether the task group AT the cap is described to the surface as having nothing
+//      to add, while a shallower task group is not.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -118,7 +118,7 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-/** 表 T-103's settled English name for U-22 -- the 面 a row's controls answer as. */
+/** 表 T-103's settled English name for U-22 -- the 面 a task group's controls answer as. */
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 
 /**
@@ -143,7 +143,7 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** `HF-14`'s entrance -- the one that adds a row under this one. */
+/** `HF-14`'s entrance -- the one that adds a task group under this one. */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
 /** The manner 表 T-233 writes one reason against. */
@@ -204,11 +204,11 @@ const TEMPLATE = JSON.parse(
 const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
 /**
- * One chain of rows, the root at depth 1 and the last at exactly `S-125`.
+ * One chain of task groups, the root at depth 1 and the last at exactly `S-125`.
  *
  * ⭐ THE DEPTH IS COUNTED FROM THE ROOT, which S-125 fixes and
  * tests/contract/document-invariants.contract.test.ts reads the same way. So
- * the last link is the row 「そのタスクグループの深さが `FR-085` の上限に達している」 names, and
+ * the last link is the task group 「そのタスクグループの深さが `FR-085` の上限に達している」 names, and
  * the one before it is the control: it is deep, and it may still take a child.
  */
 const CHAIN: readonly { readonly id: string; readonly depth: number }[] = Array.from(
@@ -222,7 +222,7 @@ const linkAt = (depth: number): string => {
   return found.id
 }
 
-/** The row that has reached the cap, and the one a step above it. */
+/** The task group that has reached the cap, and the one a step above it. */
 const AT_THE_CAP = linkAt(MAX_GROUP_DEPTH)
 const ONE_ABOVE_THE_CAP = linkAt(MAX_GROUP_DEPTH - 1)
 
@@ -280,7 +280,7 @@ const px = (table: string, id: string): number => {
  * it down: two entrances stacked, each `S-138 + S-243 × 2` tall.
  *
  * COMPOSED FROM 表 T-206 AND NEVER TYPED. Since CR-553 it floors no band
- * (HF-19 MUST NOT); `LF-16` reserves it under the last row, and the host is
+ * (HF-19 MUST NOT); `LF-16` reserves it under the last task group, and the host is
  * what measures it (UF-105) -- so a case that drives the loop hands one in.
  * Nothing in this file depends on the figure; tests/unit/cr-553-the-row-
  * controls-no-longer-set-the-task-group-height.test.ts asserts the reserve.
@@ -378,7 +378,7 @@ interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** Aim one entrance of one row and press it -- CS-2 freezes the aim at the press. */
+  /** Aim one entrance of one task group and press it -- CS-2 freezes the aim at the press. */
   press(entry: string, groupId: string): void
   titleOf(groupId: string): TaskGroupTitle
   notices(): ScreenView['notices']
@@ -422,7 +422,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** How many rows the document holds -- the number a refused press may not move. */
+/** How many task groups the document holds -- the number a refused press may not move. */
 const taskGroupCount = (built: Stage): number =>
   ((built.loop.document().schedule as any).taskGroups as readonly unknown[]).length
 
@@ -436,7 +436,7 @@ describe('the manuscript still says what these cases read', () => {
     // AGREE WITH ANYTHING -- rule 04 section 2.
     expect(TASK_GROUP_PANEL).toBe('Task Group Panel')
     expect(ADD_CHILD_TASK_GROUP).toBe('IC-91')
-    expect(MAX_GROUP_DEPTH, 'S-125 no longer leaves room for a row above the cap').toBeGreaterThan(1)
+    expect(MAX_GROUP_DEPTH, 'S-125 no longer leaves room for a task group above the cap').toBeGreaterThan(1)
     expect(CHAIN).toHaveLength(MAX_GROUP_DEPTH)
   })
 
@@ -450,8 +450,8 @@ describe('the manuscript still says what these cases read', () => {
     expect(says('T-051', 'HF-14')).toContain(
       '薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）',
     )
-    // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the row
-    // count and the panel rather than the reason alone: raising the row and
+    // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the task group
+    // count and the panel rather than the reason alone: raising the task group and
     // refusing inside the panel would tell RS-46 and still be forbidden.
     expect(says('T-051', 'HF-14')).toContain(
       'タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）',
@@ -502,22 +502,22 @@ describe('the manuscript still says what these cases read', () => {
 // The rule
 // ===========================================================================
 
-describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () => {
-  it('⛔ the row AT the cap is described as having nothing to add, and the one above it is not', () => {
+describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to add', () => {
+  it('⛔ the task group AT the cap is described as having nothing to add, and the one above it is not', () => {
     // ⭐ 「そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描く
     // こと（MUST）」. Faintness is drawn by the surface; what this unit owes is the
     // answer the surface draws FROM -- and 「`HF-13` が「開ける直下の子が 1 つも無い
     // とき」に採るのと同じ形である」 is what says the two are read the same way.
     // ⛔ THE CONTROL IS THE HALF THAT MAKES THIS A TEST: a unit that answered
-    // `false` for every row would pass the first expectation alone.
+    // `false` for every task group would pass the first expectation alone.
     const built = stage()
     expect(
       (built.titleOf(ONE_ABOVE_THE_CAP) as any).canAddChildTaskGroup,
-      `the row at depth ${MAX_GROUP_DEPTH - 1} may still take a child, so it is not faint`,
+      `the task group at depth ${MAX_GROUP_DEPTH - 1} may still take a child, so it is not faint`,
     ).toBe(true)
     expect(
       (built.titleOf(AT_THE_CAP) as any).canAddChildTaskGroup,
-      `the row at depth ${MAX_GROUP_DEPTH} has reached S-125, so HF-14 (MUST) draws it faint`,
+      `the task group at depth ${MAX_GROUP_DEPTH} has reached S-125, so HF-14 (MUST) draws it faint`,
     ).toBe(false)
   })
 
@@ -556,14 +556,14 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
   it('⛔ the refused press leaves the document exactly as it was', () => {
     // ⭐ 「**薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）**」. Since
     // CR-348 this is the WHOLE of that half, and it is readable right here: the
-    // row is what the refusal withholds, so the row count is the assertion.
+    // task group is what the refusal withholds, so the task group count is the assertion.
     const built = stage()
     const before = JSON.stringify(built.loop.document())
     const taskGroupsBefore = taskGroupCount(built)
 
     built.press(ADD_CHILD_TASK_GROUP, AT_THE_CAP)
 
-    expect(taskGroupCount(built), 'a row was added past S-125').toBe(taskGroupsBefore)
+    expect(taskGroupCount(built), 'a task group was added past S-125').toBe(taskGroupsBefore)
     expect(JSON.stringify(built.loop.document())).toBe(before)
     expect(built.loop.hasUnsavedEdits()).toBe(false)
     // ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 -- the
@@ -585,7 +585,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
 
     expect(
       built.notices().map((one) => one.text),
-      'a row that may still take a child was told it may not',
+      'a task group that may still take a child was told it may not',
     ).not.toContain(wordsFor(RS_46).text.ja)
   })
 })

@@ -105,7 +105,7 @@ const COPIED = { kind: 'task', uids: [3] }
 const ROOT_VALUES: readonly Loose[] = [
   { chosenTaskGroups: [], chosenResources: [], copiedForPaste: null },
   { chosenTaskGroups: ROWS, chosenResources: RESOURCES, copiedForPaste: COPIED },
-  { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'row', groupId: 'group9' } },
+  { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'taskGroup', groupId: 'group9' } },
 ]
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
@@ -118,7 +118,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   selectionEscapePressed: RUNGS.map((rung) => ({ rung })),
   selectionSettleKeyPressed: [{}],
   selectionCleared: [{}],
-  // WHY: the same landing prunes the chosen rows (FR-085), so each variant carries what remains.
+  // WHY: the same landing prunes the chosen task groups (FR-085), so each variant carries what remains.
   selectionPruned: [
     { remainingObjects: PICKED, chosenTaskGroups: ROWS },
     { remainingObjects: OTHER_PICK, chosenTaskGroups: ['group2'] },
@@ -128,7 +128,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   taskGroupsPicked: [{ chosenTaskGroups: ROWS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
   createdTaskGroupSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
-  copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'row', groupId: 'group3' } }],
+  copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'taskGroup', groupId: 'group3' } }],
 }
 
 function selectionEvents(): Loose[] {
@@ -265,7 +265,7 @@ describe('T-293 initial kinds: emptyScreenSession holds nothing selected and emp
     )
   })
 
-  it('the root starts with no chosen rows, no chosen resources and nothing copied', () => {
+  it('the root starts with no chosen task groups, no chosen resources and nothing copied', () => {
     const root = selectionOf(emptyScreenSession)
     expect([root['chosenTaskGroups'], root['chosenResources'], root['copiedForPaste']]).toEqual([[], [], null])
   })

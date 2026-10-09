@@ -24,7 +24,7 @@
 //      理由を表示しろよ」）
 //
 // 表 T-233 gained eight rows on the same day -- `RS-28` .. `RS-35` -- one per
-// situation a row control, a header toggle or a palette entry can be spent in.
+// situation a task group control, a header toggle or a palette entry can be spent in.
 // ⭐ `RS-27` survives ONLY as the landing place FR-029 gives to an entrance no
 // row of that table covers: 「⚠️ どの入口にも当たる行が無いときの落ち先が `RS-27`
 // である。」
@@ -71,11 +71,11 @@
 //              -- ⭐ THAT CLOSING RULE IS WHAT MAKES EACH FIXTURE BELOW SPENT.
 //   表 T-015   HR-3（`HF-2`）／HR-4（`HF-11`）／HR-6（`HF-3`）／HR-7（`HF-13`）,
 //              rewritten on 2026-08-31（利用者の指示「サンプルと同じ動作にしろ」）
-//              so that each of the four writes the row it was pressed on. ⛔ IT
-//              IS WHAT MOVED TWO FIXTURES BELOW: `HR-4` folds the PRESSED row,
-//              so `IC-77` is spent only where that row draws no child of its
-//              own, and `HR-7` clears the PRESSED row's fold, so `IC-90` is
-//              spent only where that row is open and hides no direct child.
+//              so that each of the four writes the task group it was pressed on. ⛔ IT
+//              IS WHAT MOVED TWO FIXTURES BELOW: `HR-4` folds the PRESSED task group,
+//              so `IC-77` is spent only where that task group draws no child of its
+//              own, and `HR-7` clears the PRESSED task group's fold, so `IC-90` is
+//              spent only where that task group is open and hides no direct child.
 //   表 T-109   IC-58 / IC-77 / IC-90 / IC-74 / IC-78 / IC-37 /
 //              IC-38 -- the entrances pressed, and the 面 each is on.
 //
@@ -245,8 +245,8 @@ const FALLBACK = 'RS-27'
 
 // ---------------------------------------------------------------------------
 // The documents these cases drive. Copied from
-// tests/unit/in-4-escape-closes-the-panel.test.ts and given three rows, one
-// under the next, so that "配下" and "this row" cannot answer alike.
+// tests/unit/in-4-escape-closes-the-panel.test.ts and given three task groups, one
+// under the next, so that "配下" and "this task group" cannot answer alike.
 // ---------------------------------------------------------------------------
 
 const TEMPLATE = JSON.parse(
@@ -261,7 +261,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const GAMMA = '33333333-3333-4333-8333-333333333333'
 
 interface Fixture {
-  /** Rows the person folded: treeState `collapsed` (AT-153). */
+  /** Task groups the person folded: treeState `collapsed` (AT-153). */
   readonly folded?: readonly string[]
   /**
    * S-227 / S-228 -- FR-049's two independent booleans since 2026-09-07.
@@ -462,9 +462,9 @@ interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  /** Aim whatever comes next at one entrance of one row. CS-2 freezes it at the press. */
+  /** Aim whatever comes next at one entrance of one task group. CS-2 freezes it at the press. */
   aimAt(entry: string, groupId: string): void
-  /** Aim it at one entrance of a surface that is not a row -- the header, the palette. */
+  /** Aim it at one entrance of a surface that is not a task group -- the header, the palette. */
   aimAtEntry(part: string, entry: string): void
   aimAtNothing(): void
   notices(): ScreenView['notices']
@@ -520,7 +520,7 @@ interface Spent {
   readonly reason: string
   /** The document the press happens in. */
   readonly fixture: Fixture
-  /** The row the control belongs to, or `null` for a control the surface owns. */
+  /** The task group the control belongs to, or `null` for a control the surface owns. */
   readonly onTaskGroup: string | null
   /** The 場面 of that row of 表 T-233, in this fixture's own terms. */
   readonly because: string
@@ -541,7 +541,7 @@ const SPENT: readonly Spent[] = [
     reason: 'RS-28',
     fixture: {},
     onTaskGroup: ALPHA,
-    because: 'nothing under ALPHA is folded, so HF-2 has no row to open',
+    because: 'nothing under ALPHA is folded, so HF-2 has no task group to open',
   },
   {
     icon: 'IC-77',
@@ -554,14 +554,14 @@ const SPENT: readonly Spent[] = [
     // 「**その直下の子から下が描かれなくなる**」, so a press on BETA takes GAMMA
     // off the screen and ACTS. ⭐ The leaf is what is left spent.
     onTaskGroup: GAMMA,
-    because: 'GAMMA is a drawn leaf, so folding it takes no drawn row away',
+    because: 'GAMMA is a drawn leaf, so folding it takes no drawn task group away',
   },
   {
     // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND `IC-90` HAS TAKEN ITS PLACE.
     // 表 T-233's `RS-30` read docs/development-records/pending-decisions.md 「その行は既に畳まれている」 with 正 表 T-051 の
     // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
-    // (hide), so 「既に畳まれている」 stopped being its situation and the row it
-    // stands on is by definition DRAWN -- hiding it always takes one row off the
+    // (hide), so 「既に畳まれている」 stopped being its situation and the task group it
+    // stands on is by definition DRAWN -- hiding it always takes one task group off the
     // screen, and `HF-3` says so: 「⭐ **描かれているタスクグループはいつでも隠せるので、本操作
     // 子を薄く描く場面は無い**」.
     // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13`, and it now reads 「直下に、
@@ -583,14 +583,14 @@ const SPENT: readonly Spent[] = [
     reason: 'RS-31',
     fixture: {},
     onTaskGroup: null,
-    because: 'every row is drawn, so HF-10 has nothing to open',
+    because: 'every task group is drawn, so HF-10 has nothing to open',
   },
   {
     icon: 'IC-78',
     reason: 'RS-32',
     fixture: {},
     onTaskGroup: null,
-    // ⛔⛔ ONE FOLD OF EVERY ROW IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
+    // ⛔⛔ ONE FOLD OF EVERY TASK GROUP IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
     // 表 T-015's `HR-2` IS WHY: 「**最も浅い段のタスクグループも畳むこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
     // すなわち段 0 として扱う」, and
     // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
@@ -598,7 +598,7 @@ const SPENT: readonly Spent[] = [
     // reached only once 段 0 itself is down, which is the state a first press
     // on this same entrance leaves behind.
     primedBy: [{ entry: 'IC-78', onTaskGroup: null }],
-    because: 'a first press folded 段 0 itself, so no drawn row and no level is left open',
+    because: 'a first press folded 段 0 itself, so no drawn task group and no level is left open',
   },
   {
     icon: 'IC-37',
@@ -617,7 +617,7 @@ const SPENT: readonly Spent[] = [
   // WHY: IC-18 left with RS-35 (CR-562); FR-066 keeps IC-18 un-faint, so its press has work.
 ]
 
-/** Aim one entrance of one row -- or of a surface, where the row is null. */
+/** Aim one entrance of one task group -- or of a surface, where the task group is null. */
 function aim(built: Stage, entry: string, onTaskGroup: string | null): void {
   if (onTaskGroup === null) built.aimAtEntry(surfaceOf(entry), entry)
   else built.aimAt(entry, onTaskGroup)
@@ -658,7 +658,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain(FR_029_NOT_ON_HOVER)
   })
 
-  it('⛔ 表 T-051 still counts the DRAWN rows, and calls a still picture spent', () => {
+  it('⛔ 表 T-051 still counts the DRAWN task groups, and calls a still picture spent', () => {
     // ⭐ THE RULE EVERY FIXTURE ABOVE RESTS ON. Without it, `IC-77` on a row
     // whose only child is a leaf would still be armed and the RS-29 case would
     // be asserting the opposite of the manuscript.
@@ -842,13 +842,13 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
         icon: 'IC-74',
         fixture: { folded: [BETA] },
         onTaskGroup: null,
-        because: 'BETA is folded, so opening every row draws GAMMA again',
+        because: 'BETA is folded, so opening every task group draws GAMMA again',
       },
       {
         icon: 'IC-78',
         fixture: {},
         onTaskGroup: null,
-        because: 'ALPHA and BETA are open, so folding every row takes rows off the picture',
+        because: 'ALPHA and BETA are open, so folding every task group takes task groups off the picture',
       },
       {
         icon: 'IC-8',

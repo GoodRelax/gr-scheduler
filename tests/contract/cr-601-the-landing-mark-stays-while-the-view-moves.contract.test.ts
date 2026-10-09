@@ -351,7 +351,7 @@ const PLAIN = (): Document =>
     ],
   )
 
-// WHY: rows enough below the two ends that the vertical grip has somewhere to go.
+// WHY: task groups enough below the two ends that the vertical grip has somewhere to go.
 const TALL = (): Document =>
   shellDocument(
     [TASK_GROUP_A, TASK_GROUP_B, ...Array.from({ length: 40 }, (_unused, at) => uuid(100 + at))],
@@ -609,7 +609,7 @@ describe(`(b) the shell -- EL-17: ${EL_17_CLEAR}`, () => {
     expect(isLandingShown(shell), EL_17_CLEAR).toBe(false)
   })
 
-  it(`${EL_17_CLEAR} -- a press on a row's fold entry (IC-77) clears it`, () => {
+  it(`${EL_17_CLEAR} -- a press on a task group's fold entry (IC-77) clears it`, () => {
     const shell = landedShell()
     pressEntry(shell, partOf('Task Group Panel', 'IC-77', { taskGroupId: TASK_GROUP_A }))
     expect(isLandingShown(shell), EL_17_CLEAR).toBe(false)
@@ -738,7 +738,7 @@ describe('(d) the translator seam -- isLandingMarkKeptBy', () => {
     ['a plain left press on an empty place', down(), pressOf(null, 'PTD-5')],
     ['a right press', down('right'), pressOf(null, 'PTD-5')],
     ['a press on IC-10', down(), pressOf(partOf('App Header', 'IC-10'), 'PTD-5')],
-    ['a press on a row\'s fold entry (IC-77)', down(), pressOf(partOf('Task Group Panel', 'IC-77', { taskGroupId: TASK_GROUP_A }), 'PTD-5')],
+    ['a press on a task group\'s fold entry (IC-77)', down(), pressOf(partOf('Task Group Panel', 'IC-77', { taskGroupId: TASK_GROUP_A }), 'PTD-5')],
   ] as const)(`${EL_17_CLEAR} -- %s is not kept`, (_name, input, press) => {
     expect(kept(input, press), EL_17_CLEAR).toBe(false)
   })

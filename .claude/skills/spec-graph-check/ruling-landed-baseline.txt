@@ -46,9 +46,9 @@
 #
 # RAISED 11 -> 18 on 2026-09-16 (evening), with the user's approval (asked in chat: "検査 43 は 18 に
 # 上げてよい"). Seven rulings were recorded before anything lands them: JDG-132 (over a drawn bar a
-# dependency line takes only its own drawn stroke -- CR-399), JDG-133 (the row title panel stops at its
+# dependency line takes only its own drawn stroke -- CR-399), JDG-133 (the task group panel stops at its
 # floor while held, and a drag into the floor never raises the stored width -- CR-400), JDG-134 (the
-# row axis ceiling is the first zoom, rising from the minimum, at which the tallest row reaches the Row
+# vertical axis ceiling is the first zoom, rising from the minimum, at which the tallest row reaches the Row
 # Area -- CR-401), JDG-135 (DFC-610 is folded into DFC-628's fix and A/B-measured after it), JDG-136
 # (DFC-611's cause is split on f45e9cd7; its fix is judged on the current tip at display scale 50, then
 # 100), JDG-138 (drawn-px boundary comparisons go through one float-noise tolerance -- rule 03) and
@@ -85,14 +85,14 @@
 # JDG-124 (stage 3's three baselines and four recommendations -- the commit that installs the
 # gates) and JDG-125 (the full-screen icon and F11 do nothing -- CR-389 and its fix). The count
 # before them was 5 (JDG-78, JDG-85, JDG-87, JDG-102, JDG-107), so the line also absorbs the
-# one-row slack the last landing left. Lower it in each landing commit: to 8 when JDG-125 lands.
+# one-task-group slack the last landing left. Lower it in each landing commit: to 8 when JDG-125 lands.
 #
 # LOWERED 19 -> 6 on 2026-09-15, with the user's approval (JDG-111): the spec wave CR-380 ..
 # CR-385 landed JDG-83 .. JDG-101 and the day's answers; JDG-114 (the pointer-over-target form
 # of the provisional dependency line), JDG-78 and JDG-107 stay open.
 #
 # RAISED 17 -> 19 on 2026-09-15, under the same day's approval: JDG-107 (the user parks E,
-# DFC-594, until it can be reproduced) and JDG-108 (the gap is the inter-row rowGap S-12, not a
+# DFC-594, until it can be reproduced) and JDG-108 (the gap is the inter-task-group taskGroupGap S-12, not a
 # Lv gap, DFC-600) were recorded before the spec wave lands them. Lower it in each landing.
 #
 # RAISED 4 -> 17 on 2026-09-15, with the user's approval (asked in chat: raise and commit).

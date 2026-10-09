@@ -76,7 +76,7 @@ const resolutionsOf = (spec: SceneSpec = FAMILY): Resolutions =>
   parentTaskResolutionsOf({ schedule: scheduleOf(spec) } as unknown as Parameters<typeof parentTaskResolutionsOf>[0])
 
 describe('T-318 -- how a parent not written down is resolved', () => {
-  it('IP-5: a task on a top row with parentTaskUid null is a root, and asks for no candidates', () => {
+  it('IP-5: a task on a top task group with parentTaskUid null is a root, and asks for no candidates', () => {
     const resolutions = resolutionsOf()
     expect(resolutions.get(G)).toEqual({ kind: 'root' })
     expect(resolutions.get(R)).toEqual({ kind: 'root' })
@@ -119,7 +119,7 @@ describe('T-318 -- how a parent not written down is resolved', () => {
 const FR_135_NO_MILESTONE_PARENT = '⛔ マイルストーンを親にしてはならない（MUST NOT） —— `parentTaskUid` が明記していても同じである。'
 const FR_135_READ_AS_NULL = '診断は、マイルストーンを指す `parentTaskUid` を親として読まず、その子を `parentTaskUid` が `null` の `Task` として 表 T-318 で親を導くこと（MUST）'
 
-// WHY: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top row.
+// WHY: X, Y and Z each state a milestone as their parent; X is enclosed by P alone, Y by nothing, Z sits on the top task group.
 const X = 10
 const Y = 11
 const Z = 12
@@ -154,7 +154,7 @@ describe('FR-135 / JDG-1118 -- "マイルストーンを親にしてはならな
     const found = resolutions.get(Y)
     expect(found?.kind, 'IP-3: no bar encloses Y').toBe('undecided')
     expect(found?.kind === 'undecided' ? [...found.candidates] : [], 'IP-4: a milestone is never a candidate').not.toContain(M)
-    expect(resolutions.get(Z), 'IP-5: Z on the top row is a root').toEqual({ kind: 'root' })
+    expect(resolutions.get(Z), 'IP-5: Z on the top task group is a root').toEqual({ kind: 'root' })
   })
 })
 

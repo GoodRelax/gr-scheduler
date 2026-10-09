@@ -63,13 +63,13 @@
 //   FR-055   the fit -- DFC-621 「描くものが Task Group Area に収まる最も深い段を採る」, depth
 //            1 when even that does not fit, and the vertical scroll left over.
 //   FR-094   the floor under the plan height, which is why a smaller `zoomY`
-//            below it removes rows instead of shrinking them.
+//            below it removes task groups instead of shrinking them.
 //
 // ⭐ THE HEAD OF THIS FILE'S SUBJECT. The shipped template stores NO place --
 // OP-10's own MUST NOT forbids giving it one -- and yet the first frame must
 // still show the document's hierarchy. Two rows together make that so: OP-10's
 // exclusion keeps the fit off the boot (the fit answers depth 1 on a document
-// this large, which section 4 measures), and LC-9's tree order puts a row's
+// this large, which section 4 measures), and LC-9's tree order puts a task group's
 // children directly under it, so the first screenful is not seven roots. Every
 // case below is derived from a quoted row.
 
@@ -171,7 +171,7 @@ function depthByParent(
   for (const row of rows) {
     let depth = 1
     let walk: Loose | undefined = row
-    // Bounded by the row count: IV-2 forbids a cycle, and a bound rather than
+    // Bounded by the task group count: IV-2 forbids a cycle, and a bound rather than
     // a trust makes a broken artifact fail here instead of hanging.
     while (walk !== undefined && depth <= rows.length) {
       const parent = parentOf(walk)
@@ -179,7 +179,7 @@ function depthByParent(
       const above = byKey.get(parent)
       // ⛔ A parent that resolves to nothing would be an IV-2 break; counting it
       // as a level would hide that behind a depth one too deep.
-      expect(above, `a parent reference resolves to no row: ${String(parent)}`).toBeDefined()
+      expect(above, `a parent reference resolves to no task group: ${String(parent)}`).toBeDefined()
       walk = above
       depth += 1
     }
@@ -200,7 +200,7 @@ const wbsDepth = (): number =>
 // and are given here as one.
 //
 // ⛔ NO CASE'S ANSWER IS A FIGURE OF THIS WINDOW. The depths drawn under
-// FR-018 follow `zoomY` alone, and the one case that does depend on the Row
+// FR-018 follow `zoomY` alone, and the one case that does depend on the Task Group
 // Area re-measures it from these same regions rather than naming a height.
 // ---------------------------------------------------------------------------
 
@@ -277,7 +277,7 @@ const firstDayCovered = (): string => {
 }
 
 /**
- * 「タスクグループの木の先頭」 -- the first row of LC-9's tree order, which is the root the
+ * 「タスクグループの木の先頭」 -- the first task group of LC-9's tree order, which is the root the
  * `AT-55` ascent puts first. ⛔ Not `GROUPS[0]`: the artifact's array order is
  * not a row of any table.
  */
@@ -290,7 +290,7 @@ const headOfTaskGroupTree = (): unknown => {
   return first['id']
 }
 
-/** The rows whose band meets the Task Group Area -- what a person sees on frame one. */
+/** The task groups whose band meets the Task Group Area -- what a person sees on frame one. */
 const taskGroupsInFirstScreenful = (layout: ScheduleLayout) =>
   layout.taskGroups.filter(
     (taskGroup) =>
@@ -369,7 +369,7 @@ function rungOf(depth: number, settings: DocumentSettings): number {
 // ---------------------------------------------------------------------------
 
 describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
-  it('gives the row forest the number of levels the cell writes', () => {
+  it('gives the task group forest the number of levels the cell writes', () => {
     expect(taskGroupForestDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
   })
 
@@ -390,9 +390,9 @@ describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
   })
 
   it('ships nothing collapsed and nothing hidden, so what is undrawn is FR-018 doing it', () => {
-    // The premise of section 3. HR-1a of table T-015 takes a collapsed row's
+    // The premise of section 3. HR-1a of table T-015 takes a collapsed task group's
     // children out of the drawing and HR-6 takes a hidden branch out, so either
-    // one would remove rows the level of detail had nothing to do with.
+    // one would remove task groups the level of detail had nothing to do with.
     expect(GROUPS.filter((row) => row['treeState'] === 'collapsed')).toHaveLength(0)
     expect(GROUPS.filter((row) => row['treeState'] === 'hidden')).toHaveLength(0)
   })
@@ -437,33 +437,33 @@ describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
 // ---------------------------------------------------------------------------
 
 describe('FR-018 -- the depths the first frame of the shipped template draws', () => {
-  it('draws rows deeper than the first level', () => {
+  it('draws task groups deeper than the first level', () => {
     // ⭐ THE WHOLE POINT. OP-10 does not hand a BT-4 document to FR-055:
     // 「起動テンプレートから開いた文書には働かせてはならない（MUST NOT）」, and
     // 「倍率は文書が持つものをそのまま使う」. So the `zoomY` in force is the one
     // BO-3 of table T-077 read out of the display group, and FR-018 draws every
     // depth that `zoomY` admits.
-    // ⚠️ Section 1 has already ruled out HR-1a and HR-6 as the reason a row is
+    // ⚠️ Section 1 has already ruled out HR-1a and HR-6 as the reason a task group is
     // missing, so what is left is the level of detail.
     expect(deepestDrawn(bootFrame.values.layout)).toBeGreaterThan(1)
   })
 
-  it('starts at the head of the row tree, drawn from the top of the Task Group Area', () => {
+  it('starts at the head of the task group tree, drawn from the top of the Task Group Area', () => {
     // OP-10: 「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）」. The
     // head of the tree is the root LC-9's order reaches first, and 「から描く」
     // puts it at the top edge -- not scrolled past.
     const first = bootFrame.values.layout.taskGroups[0]
-    expect(first, 'the boot drew rows at all').toBeDefined()
+    expect(first, 'the boot drew task groups at all').toBeDefined()
     expect(first?.groupId).toBe(headOfTaskGroupTree())
     expect(first?.y).toBe(REGIONS.taskGroupArea.y)
   })
 
-  it('⭐ puts a row deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
+  it('⭐ puts a task group deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
     // ⭐ THE USER-VISIBLE CLAIM, and the reason LC-9 got its rule. The prose
     // after table T-068: 「深さの順に並べてはならない（MUST NOT）—— 同じ深さのタスクグループ
     // が塊になり、親とその配下が画面の離れた場所に出る。タスクグループが画面に収まりきらない
     // とき、上端に来るのが根ばかりになり、木を持つ文書が階層の無い一覧に見える」.
-    // TP-5 makes this document 100 rows, so it does NOT fit -- which is exactly
+    // TP-5 makes this document 100 task groups, so it does NOT fit -- which is exactly
     // the condition that prose names.
     const drawn = bootFrame.values.layout
     expect(drawn.contentHeight, 'TP-5 keeps this document taller than the Task Group Area').toBeGreaterThan(
@@ -479,7 +479,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('⭐ and a parent stands directly above its own child there, which is what 「木の順」 means', () => {
-    // 「親のタスクグループの直下にその配下を置き」. Measured on the rows a person actually
+    // 「親のタスクグループの直下にその配下を置き」. Measured on the task groups a person actually
     // sees, so a tree order that only holds far down the document would fail.
     const seen = taskGroupsInFirstScreenful(bootFrame.values.layout)
     const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
@@ -559,7 +559,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
   it('answers the first level, because it is the deepest one that fits', () => {
     // 「その文書が持つ最も深い段から順に見て、描くものが Task Group Area に収まる最も深
     // い段を採る」. The case above rules out 2, and every depth deeper than 2
-    // draws MORE rows at a HIGHER rung (FR-018's monotonicity with S-88 above
+    // draws MORE task groups at a HIGHER rung (FR-018's monotonicity with S-88 above
     // one), so none of those fits either -- 1 is what is left.
     // ⚠️ NOT asserted here: what the landing `zoomY` is.
     // FR-018 keeps depth 1 out of the ladder's domain, so it has no rung and

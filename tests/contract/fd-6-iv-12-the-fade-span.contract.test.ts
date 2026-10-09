@@ -242,7 +242,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       {
         id: GROUP_ID,
         parentId: null,
-        label: 'row one',
+        label: 'task group one',
         derivedFromTaskUid: null,
         order: 1,
         treeState: 'auto', color: null,

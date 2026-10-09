@@ -156,7 +156,7 @@ describe('E-03 -- the sentences a hidden row would break are rewritten to carry,
     expect(REQUIREMENTS).toContain(NT_7_DROPPED_AS_RS_27)
   })
 
-  it('HF-14 stands no row when faint, carrying RS-46', () => {
+  it('HF-14 stands no task group when faint, carrying RS-46', () => {
     expect(REQUIREMENTS).toContain(HF_14_NO_TASK_GROUP_WHEN_FAINT)
     expect(REQUIREMENTS).toContain(HF_14_CARRIES_RS_46)
   })

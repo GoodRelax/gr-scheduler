@@ -432,7 +432,7 @@ interface Loop {
  *
  * ⭐ WHY `showSvg` IS WHAT IS READ. 表 T-065's `IF-1` puts the schedule up as its
  * own surface, so the drawn `Task` is where a changed `name` becomes visible;
- * `ScreenView` carries the panel and the row titles, neither of which is the
+ * `ScreenView` carries the panel and the task group titles, neither of which is the
  * bar's label. ⛔ It is the document that is being asked about, and the drawing
  * is the only witness this seam offers.
  */

@@ -214,7 +214,7 @@ describe("IN-4 -- Esc still reaches the watcher with the Dialogue Field as the t
 })
 
 describe('control: a target outside the Dialogue Field keeps the ordinary MK-10 answer', () => {
-  it('bare P with the row tree as target is reported, and stopped as the shell answers', () => {
+  it('bare P with the task group tree as target is reported, and stopped as the shell answers', () => {
     const built = wire({ preference: 'light', hue: 214 } as ScreenTheme)
     const outside = built.root()
     const run = harness(true)

@@ -292,7 +292,7 @@ const PARENT = 1
 const CHILD = 2
 
 /**
- * Two rows and two Tasks, the second a WBS child of the first.
+ * Two task groups and two Tasks, the second a WBS child of the first.
  *
  * ⭐ THE WBS EDGE IS THE WHOLE POINT OF THE FIXTURE: FR-032 makes deleting a
  * `Task` with WBS descendants ask for confirmation, and that question is the

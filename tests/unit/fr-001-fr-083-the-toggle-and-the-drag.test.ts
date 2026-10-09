@@ -461,7 +461,7 @@ const ENV: ScreenEnvironment = {
 }
 
 /**
- * A schedule with no row at all, so that a press on empty ground is a press on
+ * A schedule with no task group at all, so that a press on empty ground is a press on
  * a vertical position that points at no `TaskGroup` -- the case FR-001 (MUST)
  * answers by minting one.
  */

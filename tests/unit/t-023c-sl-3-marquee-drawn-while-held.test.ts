@@ -47,7 +47,7 @@
 //   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
 //                        `ScreenView`
 //   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
-//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rows`)
+//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `taskGroups`)
 //   schedule-entities.ts          the entity types this fixture writes out
 //
 // ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. `S-174` and `S-175` are read
@@ -72,7 +72,7 @@
 //           **離した時点で残るのは選択そのものであり、矩形ではない**」
 //   T-023c SL-1  「対象 | **タスク・依存線・ハイライトボックス・コメント
 //           ボックス・基準日線。**タスクグループ（`TaskGroup`）は対象に含めない」-- which is
-//           why a press inside an empty row band hits nothing.
+//           why a press inside an empty task group band hits nothing.
 //   T-023c SL-8  「タスク・ハイライトボックス・コメントボックスは、外接矩形に
 //           沿った破線の枠で囲むこと（MUST）…枠の太さと破線の刻みは
 //           `_assets/tbl-settings.md` の 表 T-206 の `S-174` ／ `S-175`、色は
@@ -198,7 +198,7 @@ const FRAME_DASH: readonly number[] = (() => {
 // ===========================================================================
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Task are written
+// the project and the settings come from it; the task groups and the Task are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -209,7 +209,7 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** Six rows. The ids are UUIDs because `AT-51` is one. */
+/** Six task groups. The ids are UUIDs because `AT-51` is one. */
 const ROWS = [
   '4a000000-0000-4000-8000-000000000001',
   '4a000000-0000-4000-8000-000000000002',
@@ -219,7 +219,7 @@ const ROWS = [
   '4a000000-0000-4000-8000-000000000006',
 ] as const
 
-/** The one Task in the picture. It sits in the middle, with empty rows around it. */
+/** The one Task in the picture. It sits in the middle, with empty task groups around it. */
 const ALPHA_UID = 1
 /** Its name, which is also how `ZO-5`'s label is found in the picture. */
 const ALPHA_NAME = 'Alpha'
@@ -282,7 +282,7 @@ function fixtureDocument(): Document {
         uidHighWaterMark: 100,
         // ⛔ NO 基準日. `CU-1`'s line runs the height of the `Task Group Area` and
         // would cross every drag below; this file's subject is the ONE element
-        // a held drag adds, so the picture is kept as plain as the rows allow.
+        // a held drag adds, so the picture is kept as plain as the task groups allow.
         statusDate: null,
       },
       calendars: structuredClone(template.schedule.calendars),
@@ -463,10 +463,10 @@ const frameOf = (loop: FrameLoop) => {
   return values
 }
 
-/** Where one row's band stands, as the frame placed it. */
+/** Where one task group's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
   const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 

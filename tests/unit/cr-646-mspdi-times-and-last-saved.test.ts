@@ -69,7 +69,7 @@ function withDatesEdited(document: Document): Document {
     document,
     { kind: 'setTaskPlanDates', uid: 1, start: april(7, S_482), finish: april(14, S_483) },
     LIMITS,
-    'Row',
+    'Task group',
   )
   if (!result.ok) throw new Error(`premise: the date edit was refused: ${JSON.stringify(result.refusals)}`)
   return result.document

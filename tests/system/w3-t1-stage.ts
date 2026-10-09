@@ -1,4 +1,4 @@
-// W3 spec-only stage on the shipped build: a document of N one-task rows, opened through IC-1 / IC-71, read through the Agent API.
+// W3 spec-only stage on the shipped build: a document of N one-task task groups, opened through IC-1 / IC-71, read through the Agent API.
 
 import { expect, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'

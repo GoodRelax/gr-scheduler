@@ -45,7 +45,7 @@
 //   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
 //                        `ScreenView`
 //   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
-//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rows`)
+//   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `taskGroups`)
 //   schedule-entities.ts          the entity types this fixture writes out
 //
 // ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. Every expected value is
@@ -95,9 +95,9 @@
 //     four scroll columns stand mid-drag is not a thing `PTD-1` settles. What is
 //     asserted is the PICTURE, which is what the row speaks of.
 //   - WHAT HAPPENS AT THE EDGES OF THE DOCUMENT. Nothing in the specification
-//     states whether a pan is stopped at the first day or the first row, so the
+//     states whether a pan is stopped at the first day or the first task group, so the
 //     fixture starts the view in the MIDDLE of its own content and every case
-//     travels a few days and half a row -- distances no reading of an edge rule
+//     travels a few days and half a task group -- distances no reading of an edge rule
 //     could reach.
 //   - THE PIXEL AT WHICH THE POINTER SHAPE CHANGES (`IN-2`), and whether the
 //     browser's own default is stopped (`MK-10`). Both have owners of their
@@ -127,7 +127,7 @@
 //
 // ⭐ THE MANUSCRIPT WAS WHERE IT CAME FROM, AND THE MANUSCRIPT IS WHERE IT WAS
 // FIXED. `S-176` had read DFC-138 「そのタスクグループ自身の高さに対する比」, a height smaller than
-// the distance from one row to the next, so the gap had no spelling at all. It
+// the distance from one task group to the next, so the gap had no spelling at all. It
 // now reads 「そのタスクグループが占める送り……に対する比」 and carries a MUST NOT against
 // the band. ⚠️ THE SIDEWAYS AXIS WAS ALWAYS WHOLE: days abut, so it had no gap
 // to lose. ⛔ Not one assertion below was weakened to close this.
@@ -228,7 +228,7 @@ function equalTravelLine(): string {
 // ===========================================================================
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
+// the project and the settings come from it; the task groups and the Tasks are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -239,7 +239,7 @@ const TEMPLATE_PATH = join(
 )
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
-/** Six rows. The ids are UUIDs because `AT-51` is one. */
+/** Six task groups. The ids are UUIDs because `AT-51` is one. */
 const ROWS = [
   '3a000000-0000-4000-8000-000000000001',
   '3a000000-0000-4000-8000-000000000002',
@@ -249,10 +249,10 @@ const ROWS = [
   '3a000000-0000-4000-8000-000000000006',
 ] as const
 
-/** The row the empty-space presses land on -- it carries no Task at all. */
+/** The task group the empty-space presses land on -- it carries no Task at all. */
 const EMPTY_TASK_GROUP = ROWS[4] as string
 
-/** The two Tasks whose bars are watched. They sit on rows far apart. */
+/** The two Tasks whose bars are watched. They sit on task groups far apart. */
 const NEAR_UID = 1
 const FAR_UID = 2
 
@@ -271,7 +271,7 @@ const PX_PER_DAY_AT_1X = 20
  */
 const SCROLL_DATE = '2026-04-14'
 
-/** Likewise for the vertical axis: the fourth of six rows. */
+/** Likewise for the vertical axis: the fourth of six task groups. */
 const SCROLL_TASK_GROUP = ROWS[3] as string
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
@@ -507,10 +507,10 @@ const frameOf = (loop: FrameLoop) => {
 /** How wide one calendar day is drawn -- the frame's own measurement of itself. */
 const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPerDay as number
 
-/** Where one row's band stands, as the frame placed it. */
+/** Where one task group's band stands, as the frame placed it. */
 function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
   const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 
@@ -570,11 +570,11 @@ const emptySpot = (loop: FrameLoop): Point => {
 /**
  * How far every case below carries the pointer.
  *
- * ⭐ DELIBERATELY NOT A WHOLE DAY AND NOT A WHOLE ROW. 表 T-023d forbids a pan
+ * ⭐ DELIBERATELY NOT A WHOLE DAY AND NOT A WHOLE TASK GROUP. 表 T-023d forbids a pan
  * that can only land on the lock (⛔ 錠の上にしか着地できない形にしてはならない
  * （MUST NOT）) and says why: `S-77` and `S-78` hold a date and a row id, so a
  * pan built out of those alone moves by nothing at all for anything shorter
- * than one day or one row -- 「それだけでは 1 日・1 タスクグループより短い移動が何も起こさ
+ * than one day or one task group -- 「それだけでは 1 日・1 タスクグループより短い移動が何も起こさ
  * ず、等倍が成り立たない」. Halves are what make that visible.
  */
 const TRAVEL_DAYS = 2.5
@@ -590,7 +590,7 @@ const travelOf = (loop: FrameLoop): Where => ({
  *
  * ⚠️ HALF A PIXEL, and the number is this file's own -- the specification
  * states none. It is chosen to be far below the smallest travel the 等倍 rule
- * explicitly refuses to lose, which is one day and one row; anything the
+ * explicitly refuses to lose, which is one day and one task group; anything the
  * fractions `S-176` / `S-177` can carry lands well inside it.
  */
 const ONE_TO_ONE_PX = 0.5
@@ -666,7 +666,7 @@ describe('the manuscript still states the rule this file is about', () => {
 })
 
 describe('the fixture puts the view where a pan has room in every direction', () => {
-  it('draws both bars, on rows the empty press point is clear of', () => {
+  it('draws both bars, on task groups the empty press point is clear of', () => {
     const built = stage()
     const near = planBox(built.loop, NEAR_UID)
     const far = planBox(built.loop, FAR_UID)
@@ -683,16 +683,16 @@ describe('the fixture puts the view where a pan has room in every direction', ()
     }
   })
 
-  it('starts with days and rows on both sides of the view', () => {
+  it('starts with days and task groups on both sides of the view', () => {
     const built = stage()
     // The view's left edge is SCROLL_DATE, which stands between the two Tasks;
-    // its top edge is the fourth of six rows. Both are read back from the
+    // its top edge is the fourth of six task groups. Both are read back from the
     // picture rather than assumed: the near bar starts to the LEFT of the far
-    // bar, and the row the view starts on has bands above and below it.
+    // bar, and the task group the view starts on has bands above and below it.
     expect(planBox(built.loop, NEAR_UID).x0).toBeLessThan(planBox(built.loop, FAR_UID).x0)
     const first = bandOf(built.loop, ROWS[0] as string)
     const last = bandOf(built.loop, ROWS[5] as string)
-    expect(last.y, 'the six rows are drawn one below another').toBeGreaterThan(first.y)
+    expect(last.y, 'the six task groups are drawn one below another').toBeGreaterThan(first.y)
   })
 })
 
@@ -803,10 +803,10 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     })
 
     it('follows every downward move, not only the last one', () => {
-      // The same case on the other axis. ⚠️ The four steps are HALVES of a row
+      // The same case on the other axis. ⚠️ The four steps are HALVES of a task group
       // band on purpose -- 表 T-023d forbids a pan that can only land on the
-      // lock, and a picture that walks whole rows passes a case made of whole
-      // rows.
+      // lock, and a picture that walks whole task groups passes a case made of whole
+      // task groups.
       const built = stage()
       const at = emptySpot(built.loop)
       built.send(pointer('down', at.x, at.y, how))
@@ -846,7 +846,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
 
     it('moves the WHOLE schedule, not one figure of it', () => {
       // 「ポインタが動いた距離だけ日程表が動く」 -- 日程表, not a bar. The two
-      // Tasks stand on different rows and different days, so a picture that
+      // Tasks stand on different task groups and different days, so a picture that
       // moved only what was under the pointer fails here.
       const built = stage()
       const at = emptySpot(built.loop)
@@ -865,7 +865,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
       expect(
         Math.abs(bandOf(built.loop, ROWS[0] as string).y - band.y - travel.y),
-        'the row bands did not travel with the bars',
+        'the task group bands did not travel with the bars',
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
     })
 

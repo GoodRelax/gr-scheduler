@@ -85,7 +85,7 @@
 //   - WHICH `DocumentCommand` carried the placement, and how many steps of undo
 //     it cost. 表 T-108 owns the commands and tests/unit/edit-task.test.ts owns
 //     them; these cases read the document, which is where FR-001's MUST lands.
-//   - WHERE the milestone landed -- the day, the row, the UID. FR-001 states all
+//   - WHERE the milestone landed -- the day, the task group, the UID. FR-001 states all
 //     three and tests elsewhere drive them; the census is about the FIGURE.
 //   - What a palette looks like while the list is folded away and a glyph is
 //     armed. No row of the specification answers it, so no case asks.
@@ -261,7 +261,7 @@ const ROW = '4a000000-0000-4000-8000-0000000000aa'
 /** The milestone the selection road presses an entrance against. */
 const STANDING_UID = 1
 
-/** One row, holding the Tasks and the TaskVisuals given. */
+/** One task group, holding the Tasks and the TaskVisuals given. */
 function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]): Document {
   const template = structuredClone(TEMPLATE) as any
   return {
@@ -358,7 +358,7 @@ const unchosenVisual = (uid: number): unknown => ({
 /** ⛔ NOTHING SELECTED and no Task at all -- SP-1's premise (FR-083). */
 const emptyTaskGroupDocument = (): Document => documentWith([], [])
 
-/** One milestone standing on the row, its figure unchosen -- SP-2's premise. */
+/** One milestone standing on the task group, its figure unchosen -- SP-2's premise. */
 const oneMilestoneDocument = (): Document =>
   documentWith([milestoneTask(STANDING_UID, '2026-04-08')], [unchosenVisual(STANDING_UID)])
 

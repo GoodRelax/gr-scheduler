@@ -291,8 +291,8 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 
 const REACH_PX = 160
 
-// WHY: ground below the last row is no good -- FR-019 holds a position by a
-// date and a row identifier, and ground no row covers points at no row.
+// WHY: ground below the last task group is no good -- FR-019 holds a position by a
+// date and a task group identifier, and ground no task group covers points at no task group.
 /** @purity non-pure */
 async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
@@ -414,7 +414,7 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
   const page = opened.page
   try {
     const spot = await groundOnADrawnTaskGroup(page)
-    expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
+    expect(spot, 'a drawn task group covers empty ground with room along it').not.toBeNull()
     const at = spot as { x: number; y: number }
 
     await arm(page, HIGHLIGHT_BOX_ENTRANCE)
@@ -602,7 +602,7 @@ test(`PR-21 / FR-006: the comment box's field carries the control table T-016 na
   const page = opened.page
   try {
     const spot = await groundOnADrawnTaskGroup(page)
-    expect(spot, 'a drawn row covers empty ground').not.toBeNull()
+    expect(spot, 'a drawn task group covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 
     await arm(page, COMMENT_BOX_ENTRANCE)

@@ -22,7 +22,7 @@ import {
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
 // WHY: CR-706 moved both rules into T-223 DU-1: only the chosen Tasks are copied, each once; CR-714 made a copy's
-// parent task its source parent's copy when that parent is copied too, else the parent read off the landing row.
+// parent task its source parent's copy when that parent is copied too, else the parent read off the landing task group.
 const ONLY_CHOSEN_COPIED =
   '⭐ 選ばれていない `Task` を複製するかどうかと、コピーの親タスクは、表 T-223 の `DU-1` に従うこと（MUST）'
 const PARENT_FROM_THE_TASK_GROUP =
@@ -54,7 +54,7 @@ describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stan
   it('selection/copyTaken: an uncopyable choice is refused with RS-27 and makes no event', () => {
     expect(STATE_MACHINES).toContain(COPY_TAKEN_ROW)
   })
-  it('CR-541 section 11 row 8: a row and Tasks chosen together copy the row', () => {
+  it('CR-541 section 11 row 8: a task group and Tasks chosen together copy the task group', () => {
     expect(CR_541).toContain(CR_541_ROW_8)
   })
 })
@@ -69,7 +69,7 @@ const uidsOf = (copied: ReturnType<typeof copiedForPasteOf>): readonly number[] 
 }
 
 describe('copiedForPasteOf -- the seam the copy key goes through', () => {
-  it('FR-033 MANY_TASKS_ALL_COPIED: two Tasks and no row -> a task copy carrying both', () => {
+  it('FR-033 MANY_TASKS_ALL_COPIED: two Tasks and no task group -> a task copy carrying both', () => {
     const copied = copiedForPasteOf([], picked(task(7), task(3)))
     expect(copied?.kind).toBe('task')
     expect([...uidsOf(copied)].sort((a, b) => a - b)).toEqual([3, 7])
@@ -80,7 +80,7 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
     expect([...uids].sort((a, b) => a - b)).toEqual([2, 5, 9])
   })
 
-  it('control: one Task and no row -> a task copy of that one', () => {
+  it('control: one Task and no task group -> a task copy of that one', () => {
     expect(uidsOf(copiedForPasteOf([], picked(task(4))))).toEqual([4])
   })
 
@@ -100,12 +100,12 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
     expect(copiedForPasteOf([], picked({ kind: 'highlightBox', id: 'h-1' }))).toBeNull()
   })
 
-  it('CR-541 section 11 row 8: one row and two Tasks chosen -> the row is copied', () => {
-    expect(copiedForPasteOf(['task-group-a'], picked(task(1), task(2)))).toEqual({ kind: 'row', groupId: 'task-group-a' })
+  it('CR-541 section 11 row 8: one task group and two Tasks chosen -> the task group is copied', () => {
+    expect(copiedForPasteOf(['task-group-a'], picked(task(1), task(2)))).toEqual({ kind: 'taskGroup', groupId: 'task-group-a' })
   })
 
-  it('FR-033 (row half) control: one row and no Task -> the row is copied', () => {
-    expect(copiedForPasteOf(['task-group-b'], NOTHING)).toEqual({ kind: 'row', groupId: 'task-group-b' })
+  it('FR-033 (task group half) control: one task group and no Task -> the task group is copied', () => {
+    expect(copiedForPasteOf(['task-group-b'], NOTHING)).toEqual({ kind: 'taskGroup', groupId: 'task-group-b' })
   })
 })
 
@@ -116,7 +116,7 @@ describe('copiedForPasteOf -- the brief contract, NOT a spec clause', () => {
     expect(uidsOf(copiedForPasteOf([], picked(task(7), task(3), task(5))))).toEqual([7, 3, 5])
   })
 
-  it('brief: two rows chosen at copy time -> null, whatever Tasks are chosen', () => {
+  it('brief: two task groups chosen at copy time -> null, whatever Tasks are chosen', () => {
     expect(copiedForPasteOf(['task-group-a', 'task-group-b'], NOTHING)).toBeNull()
     expect(copiedForPasteOf(['task-group-a', 'task-group-b'], picked(task(1)))).toBeNull()
   })
@@ -207,14 +207,14 @@ const copyThenPaste = (uids: readonly number[]) => {
 }
 
 describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks', () => {
-  it('FR-033 MANY_TASKS_ALL_COPIED: two leaf Tasks picked -> two copies, each on its source row', () => {
+  it('FR-033 MANY_TASKS_ALL_COPIED: two leaf Tasks picked -> two copies, each on its source task group', () => {
     const { stage, made, byName } = copyThenPaste([A1, B])
     expect(made.map((one) => one.name).sort()).toEqual(['A1', 'B'])
     expect(stage.taskGroupOfTask(byName.get('A1').uid), 'SAME_TASK_GROUP for A1').toBe('task-group-3')
     expect(stage.taskGroupOfTask(byName.get('B').uid), 'SAME_TASK_GROUP for B').toBe('task-group-1')
   })
 
-  it('FR-033 PARENT_FROM_THE_TASK_GROUP: no row here derives from a Task, so each copy whose parent is not copied is a root', () => {
+  it('FR-033 PARENT_FROM_THE_TASK_GROUP: no task group here derives from a Task, so each copy whose parent is not copied is a root', () => {
     const { byName } = copyThenPaste([A1, B])
     expect(byName.get('A1')?.parentTaskUid, 'A1 copy does not carry the link to A').toBeNull()
     expect(byName.get('B')?.parentTaskUid, 'B copy is at the top').toBeNull()
@@ -253,9 +253,9 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
 })
 
 // WHY: brief contract only (see the seam block above); the RS-27 fall-through itself is
-// T-293 copyTaken, but no clause says two chosen rows are an uncopyable choice.
-describe('two rows chosen at copy time -- the brief contract, NOT a spec clause', () => {
-  it('brief + copyTaken RS-27: Ctrl+C with two rows chosen is told RS-27 and holds nothing to paste', () => {
+// T-293 copyTaken, but no clause says two chosen task groups are an uncopyable choice.
+describe('two task groups chosen at copy time -- the brief contract, NOT a spec clause', () => {
+  it('brief + copyTaken RS-27: Ctrl+C with two task groups chosen is told RS-27 and holds nothing to paste', () => {
     let built: ShellBench | null = null
     let pickTaskGroup: ((groupId: string, adding: boolean) => void) | null = null
     for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
@@ -274,7 +274,7 @@ describe('two rows chosen at copy time -- the brief contract, NOT a spec clause'
         break
       }
     }
-    expect(built, 'premise: some modifier picks two rows (FR-085)').not.toBeNull()
+    expect(built, 'premise: some modifier picks two task groups (FR-085)').not.toBeNull()
     const before = JSON.stringify(built!.loop.document())
     built!.send(COPY)
     expect(built!.notices(), 'the copy carries RS-27, which is not shown (CR-712)').not.toContain(RS_27_WORDS)
@@ -284,7 +284,7 @@ describe('two rows chosen at copy time -- the brief contract, NOT a spec clause'
     expect(JSON.stringify(built!.loop.document()), 'nothing was held, so the paste adds nothing').toBe(before)
   })
 
-  it('control: Ctrl+C with one row chosen, then Ctrl+V -> the document changes', () => {
+  it('control: Ctrl+C with one task group chosen, then Ctrl+V -> the document changes', () => {
     const trial = shell(wbsDocument())
     benches.push(trial)
     trial.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: 'task-group-3', resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)

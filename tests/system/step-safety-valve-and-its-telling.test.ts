@@ -291,7 +291,7 @@ function measured(which: Visit | null, what: string): Visit {
 }
 
 
-test(`ST-7: ${String(STACK_SAFETY_CAP + 1)} stacks on one row throw nothing out of the build`, () => {
+test(`ST-7: ${String(STACK_SAFETY_CAP + 1)} stacks on one task group throw nothing out of the build`, () => {
   const seen = measured(overTheCap, 'over-the-cap')
   expect(seen.writeAccepted, `the fixture document was written: ${seen.refusal}`).toBe(true)
   expect(

@@ -1,4 +1,4 @@
-// The scene the CR-631 cases share: a three-deep WBS on nested rows, with stated, derived, undecided and root parents.
+// The scene the CR-631 cases share: a three-deep WBS on nested task groups, with stated, derived, undecided and root parents.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -274,6 +274,6 @@ export const midOfArrow = (scene: Scene, childUid: number): Pt => {
 export const emptyPoint = (scene: Scene): Pt => {
   const g = barOf(scene, G)
   const r = barOf(scene, R)
-  // WHY: on the top row, between G's finish and R's start -- a point nothing of T-023d answers.
+  // WHY: on the top task group, between G's finish and R's start -- a point nothing of T-023d answers.
   return { x: (g.x + g.width + r.x) / 2, y: g.y + g.height / 2 }
 }

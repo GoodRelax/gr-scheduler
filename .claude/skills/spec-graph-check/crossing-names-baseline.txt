@@ -142,7 +142,7 @@ ScheduleGeometry | Point
 ScheduleGeometry | TaskGeometry
 
 ScheduleLayout | MilestoneGlyph
-ScheduleLayout | RowPlacement
+ScheduleLayout | TaskGroupPlacement
 ScheduleLayout | ShapeKind
 ScheduleLayout | TaskPlacement
 
@@ -167,8 +167,8 @@ ScreenRenderer | PropertyField
 ScreenRenderer | PropertyFieldKey
 ScreenRenderer | RaisedConfirmation
 ScreenRenderer | RaisedNotice
-ScreenRenderer | RowTitle
-ScreenRenderer | RowTitlePanel
+ScreenRenderer | TaskGroupTitle
+ScreenRenderer | TaskGroupPanel
 ScreenRenderer | ScreenFrame
 ScreenRenderer | ScreenPart
 ScreenRenderer | Tooltip

@@ -1,4 +1,4 @@
-// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the row zoom stops where the ladder of T-253 first finds the tallest band reaching the Task Group Area, whatever zoomY the zoom starts from.
+// DFC-628 / DFC-641 spec-only cases: FR-016 and T-253 BC-1..BC-5 -- the vertical zoom stops where the ladder of T-253 first finds the tallest band reaching the Task Group Area, whatever zoomY the zoom starts from.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -118,7 +118,7 @@ describe('DFC-628 / DFC-641 premise -- the clauses these cases press still stand
   })
 })
 
-describe('FR-016 / T-253 BC-3..BC-5 -- the row zoom ends at the ceiling the ladder finds', () => {
+describe('FR-016 / T-253 BC-3..BC-5 -- the vertical zoom ends at the ceiling the ladder finds', () => {
   const ceiling = bandCeilingByTheTable()
 
   it('premise: the ladder finds a ceiling strictly inside the bounds, so a band reaches the Task Group Area on the way', () => {
@@ -179,7 +179,7 @@ function minHeightFillingTheAreaExactly(): number {
     const candidate = centre + nudge * Number.EPSILON * centre
     if (flooredBandOf(flooredTaskGroupBench(candidate)) === height) return candidate
   }
-  throw new Error('premise: some floor lands the first row exactly on the Task Group Area height')
+  throw new Error('premise: some floor lands the first task group exactly on the Task Group Area height')
 }
 
 describe('FR-016 / T-253 BC-2 -- a band exactly as tall as the Task Group Area has reached it', () => {

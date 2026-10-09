@@ -2,7 +2,7 @@ excess-lines=5744 excess-branches=509
 # LOWERED totals 6216/621 -> 5744/509 on 2026-10-09 (JDG-520): measured at ead296a6 after the 2026-10-08 waves (shrunk handlers and folded copies).
 # PRUNED properties-panel-drawing.ts::controlElement (held 57/18, now below the band) on 2026-10-08 (CR-689, FR-006): the style choice moved to controlStyleOf and the hint / disabled marks to markControl. Totals left for the coordinator to lower.
 # PRUNED mspdi-xml.ts::readStartTag (held 49/27, now below the band) on 2026-10-04 (DFC-1017, EX-15): the attribute reading moved to readAttribute and afterSpace, so the root's namespace declaration can be kept. readXml also fell 105/27 -> 87/26 (end tag moved to readEndTag). Totals left for the coordinator to lower.
-# PRUNED item-grab.ts::highlightBoxRangeWrite (held 82/31, now below the band) on 2026-10-04 (DFC-2030): the row span and the range normalisation moved to highlightRowSpanOf and highlightRangeWrite, which the Selection body drag shares. Totals left for the coordinator to lower.
+# PRUNED item-grab.ts::highlightBoxRangeWrite (held 82/31, now below the band) on 2026-10-04 (DFC-2030): the row span and the range normalisation moved to highlightTaskGroupSpanOf and highlightRangeWrite, which the Selection body drag shares. Totals left for the coordinator to lower.
 # PRUNED edit-project.ts::editProject (held 49/22, now below the band) on 2026-10-04 (CR-651): the CM-2 and CM-87 bodies moved to withProjectProfile and withParentProgressTolerance. Totals left for the coordinator to lower.
 # LOWERED frameLoop 1561 -> 1553, runFrame 145/12 -> 137/11 on 2026-10-03 (DFC-1820): the layout and the geometry calls moved out of runFrame into drawnPictureOf, which hands back the held picture while no input moved. Totals left for the coordinator to lower.
 # PRUNED mspdi-codec.ts::writtenProjectChildren (held 56/7, now below the band) on 2026-10-03 (CR-646 K-3): the Project columns it writes moved to writtenProjectColumns. Totals left for the coordinator to lower.
@@ -28,19 +28,19 @@ excess-lines=5744 excess-branches=509
 # LOWERED on 2026-09-27 under JDG-778 / JDG-520: CR-555 (lane L1) moved the dependency block of geometryFromLayout into dependenciesOf, so geometryFromLayout left the band and its HELD line is removed.
 # RAISED/LOWERED 6261/674 -> 6157/638 on 2026-09-27 under JDG-760 (raise, the user) and JDG-520 (lowers): CR-572 waves 2b-2d grew runFrame 123->132, editAnnotation 146->154, boot 202->205, svgFromSchedule 221->223, overlayParts, geometryFromLayout, exportScene, receiveInput, tentativeDependencyOf by one, frameLoop to 5 branches; NEW HELD screenEventFromEntry 39/17 (the viewer-value entries leave as screen events); the same waves shrank commandFromEntry, panelIndexOf, editDocumentSettings, carryOutAction and others.
 # PRUNED schedule-invariants.ts::find~16 (held 52/10) and task-plan-actual.ts::beginTaskActual (held 51/5) on 2026-09-27 under JDG-520: CR-572 wave 2b dropped the IV-13 case and the constant reads, and both fell below the band.
-# PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
-# PRUNED row-tree-entrances.ts::wouldMoveARow (held 52/23) on 2026-09-26 under JDG-520: CR-570 moved its writes to treeStateWritesFor and it fell below the band.
+# PRUNED task-group-band-ceiling-cache.ts::taskGroupBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
+# PRUNED task-group-tree-entrances.ts::wouldMoveARow (held 52/23) on 2026-09-26 under JDG-520: CR-570 moved its writes to treeStateWritesFor and it fell below the band.
 # LOWERED 6269/674 -> 6261/674 on 2026-09-25 under JDG-520: CR-565 shrank documentFromJson, modalElement and boot; measured on f1b93b9b.
 # LOWERED 6644/674 -> 6269/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F4 moved the document file flow out of frameLoop (1872 -> 1440); openDocumentIntoHold -> document-file-flow.ts 159/32. NEW HELD documentFileFlowOf 107/0 (the (M) factory owning the four settle/saved lets and the questions that write them; JDG-565 raise with the reason, for the user to confirm on return).
 # LOWERED 7031/674 -> 6644/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F3 moved ~430 lines out of frameLoop (2302 -> 1872); runFrame 124/11 -> 123/10; tentativeDependencyOf -> held-press-preview.ts 64/19. NEW HELD frameClockWakesOf 69/0 and interactionRecorderOf 75/0 ((M) factories owning their lets; JDG-565 raise with the reason, for the user to confirm on return).
-# LOWERED 7189/674 -> 7031/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 waves F1-F2 moved ~180 lines out of frameLoop (2486 -> 2302); viewSettings moved to view-place.ts (55 -> 54). Two HELD rows are NEW because the (M) factories of CR-554 4.1 own their let and the functions that write it: rowBandCeilingCacheOf 58/0 and heldViewPlaceOf 69/0 (JDG-565: raises allowed with the reason, for the user to confirm on return).
+# LOWERED 7189/674 -> 7031/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 waves F1-F2 moved ~180 lines out of frameLoop (2486 -> 2302); viewSettings moved to view-place.ts (55 -> 54). Two HELD rows are NEW because the (M) factories of CR-554 4.1 own their let and the functions that write it: taskGroupBandCeilingCacheOf 58/0 and heldViewPlaceOf 69/0 (JDG-565: raises allowed with the reason, for the user to confirm on return).
 # LOWERED 7191/676 -> 7189/674 on 2026-09-24 under JDG-520: H10 shrank controlElement; measured on 3011de43.
 # LOWERED 7244/680 -> 7191/676 on 2026-09-24 under JDG-520: DFC-806 moved the highlight-box double-click out of frameLoop and carryOutAction; measured on 032c2023.
 # LOWERED 7254/680 -> 7244/680 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking): H2..H4, H7 and E-24 shrank layoutFromSchedule, carryOutAction, frameLoop and boot; measured on a42c0cb4.
 # LOWERED 7309/688 -> 7254/680 on 2026-09-24, approved by the user in chat (JDG-404): CR-551 shrank commandFromVisualColumn and fitZoom out of the band, and commandFromEntry, commandFromKey, layoutFromSchedule, domScreenSurface, frameLoop and editTask; measured on 1997822d.
 # LOWERED 7568/751 -> 7309/688 on 2026-09-23, approved by the user in chat (JDG-391: rewrite to measured values until stage 7.5 splits these): fieldEditingOf 417 -> 469 (CR-500 wave B notices + clearing a whole date on Delete/Backspace), runFrame 123/12 -> 124/11, owesFrame left the band; the other drops are the stage 7 wave B wiring and CR-530 decision 6, measured on 73c2bc90.
 # LOWERED 7664/771 -> 7568/751 on 2026-09-22, approved by the user in chat: CR-436 wave B2 wired the screen values into the shell -- sessionOf and screenStateFromInput left the band, openModalFromScreenState renamed openModalFromSession (89/12, unchanged), frameLoop 2605 -> 2599, receiveInput 178/77 -> 170/73, carryOutAction 254/68 -> 239/62, runFrame 135/14 -> 123/12, exportScene 96 -> 85, owesFrame 30 -> 29.
-# LOWERED 7841/774 -> 7664/771 on 2026-09-22, approved by the user in chat: CR-439 (stage 6) split dom-screen-surface.ts -- domScreenSurface 871/1 -> 337/0, showScreenView 133/37 -> 124/34, fieldEditingOf 417/1 new in field-editing.ts, controlElement / modalElement / rowTitleElement moved to their siblings unchanged; commandFromGrab 169 -> 168 was already shrunk by 3d594b22.
+# LOWERED 7841/774 -> 7664/771 on 2026-09-22, approved by the user in chat: CR-439 (stage 6) split dom-screen-surface.ts -- domScreenSurface 871/1 -> 337/0, showScreenView 133/37 -> 124/34, fieldEditingOf 417/1 new in field-editing.ts, controlElement / modalElement / taskGroupTitleElement moved to their siblings unchanged; commandFromGrab 169 -> 168 was already shrunk by 3d594b22.
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -72,16 +72,16 @@ HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn 
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=154 branches=67
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=45 branches=22
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69
-HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56 branches=7
-HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
-HELD src/adapter/input-command-translator/row-tree-entrances.ts::commandFromRowEntry lines=57 branches=14
+HELD src/adapter/input-command-translator/task-group-grab.ts::taskGroupGrabLandingOf lines=56 branches=7
+HELD src/adapter/input-command-translator/task-group-grab.ts::taskGroupGrabPlacesInDrawingOrder lines=74 branches=16
+HELD src/adapter/input-command-translator/task-group-tree-entrances.ts::commandFromRowEntry lines=57 branches=14
 HELD src/adapter/input-command-translator/screen-state-input.ts::screenEventFromEntry lines=39 branches=17
 HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36
 HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=81 branches=67
 HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=54 branches=18
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=89 branches=12
-HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=78 branches=22
-HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
+HELD src/adapter/screen-renderer/task-group-panel.ts::panelIndexOf lines=78 branches=22
+HELD src/adapter/screen-renderer/task-group-panel.ts::taskGroupPanelFromSchedule lines=68 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=77 branches=13
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=117 branches=21
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45
@@ -100,7 +100,7 @@ HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt li
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=140 branches=45
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
-HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
+HELD src/framework/dom-screen-surface/task-group-panel-drawing.ts::taskGroupTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=258 branches=0
 HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf lines=107 branches=0
 HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=150 branches=30

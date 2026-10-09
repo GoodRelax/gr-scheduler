@@ -1,4 +1,4 @@
-// Use-case test for UC-002 (build rows as a hierarchy), table T-334 row VT-1.
+// Use-case test for UC-002 (build task groups as a hierarchy), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
 import { VIEWPORT, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, revealTaskGroup, taskGroupSelector, savedFiles, settle } from './uc-harness'
 
@@ -23,7 +23,7 @@ const grabTaskGroupRight = async (page: Page, groupId: string, dx: number): Prom
   await settle(page)
 }
 
-test('UC-002 build rows as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 HR-4 HR-6, HF-15)', async ({ page }) => {
+test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 HR-4 HR-6, HF-15)', async ({ page }) => {
   test.setTimeout(120000)
   await launch(page)
   await enableAgentApi(page)
@@ -72,7 +72,7 @@ test('UC-002 build rows as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 
     expect.soft(task!.parentTaskUid).toBe(parent.derivedFromTaskUid)
   })
 
-  await test.step('UC-002 step 4: fold one level of the tree and hide a row (IC-58, IC-77, IC-59)', async () => {
+  await test.step('UC-002 step 4: fold one level of the tree and hide a task group (IC-58, IC-77, IC-59)', async () => {
     await pressRowControl(page, madeId, 'IC-59')
     await pressRowControl(page, PROGRAM_MANAGEMENT, 'IC-58')
     const children = (await readDocument(page)).schedule.taskGroups.filter((g) => g.parentId === PROGRAM_MANAGEMENT).map((g) => g.id)
@@ -81,7 +81,7 @@ test('UC-002 build rows as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2, T-015 
     await pressRowControl(page, PROGRAM_MANAGEMENT, 'IC-77')
   })
 
-  await test.step('UC-002 step 5: rows under the fold are not drawn and a hidden row can be brought back (HR-4, HR-1a, HR-6, HF-16)', async () => {
+  await test.step('UC-002 step 5: task groups under the fold are not drawn and a hidden task group can be brought back (HR-4, HR-1a, HR-6, HF-16)', async () => {
     const doc = await readDocument(page)
     expect(doc.schedule.taskGroups.find((g) => g.id === PROGRAM_MANAGEMENT)!.treeState).toBe('collapsed')
     const children = doc.schedule.taskGroups.filter((g) => g.parentId === PROGRAM_MANAGEMENT).map((g) => g.id)

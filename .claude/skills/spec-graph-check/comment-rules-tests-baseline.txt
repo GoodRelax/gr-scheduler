@@ -28,7 +28,7 @@
 # in the commit. `--write-tests-baseline` rewrites this file; the front
 # session re-counts with it at a merge.
 # LOWERED 40 lines on 2026-09-24 to the measured values (tree density 2710 -> 2285 bp): the user in chat on 2026-09-24, verbatim: "基準線の変更を許可する。" (JDG-424); CR-552 retired L-2 / S-86 / DS-2 / K-55, measured on bd1b663d.
-# LOWERED 12 lines on 2026-09-24 to the measured values (tree density 2285 -> 2265 bp) under JDG-520 (the coordinator may tighten without asking); CR-553 rewrote the row-height tests, measured on aa7a9ad9.
+# LOWERED 12 lines on 2026-09-24 to the measured values (tree density 2285 -> 2265 bp) under JDG-520 (the coordinator may tighten without asking); CR-553 rewrote the task-group-height tests, measured on aa7a9ad9.
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2265 -> 2243 bp) under JDG-520; H2..H4 rewrote tests, measured on 0d446d12.
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2243 -> 2232 bp) under JDG-520; H10 rewrote the T-225 tests, measured on 3011de43.
 # LOWERED on 2026-09-25 to the measured value (tree density 2232 -> 2231 bp) under JDG-520 / JDG-547: CR-554 wave G1 rewrote stale file names in test comments.
@@ -56,19 +56,19 @@ tests/contract/units.contract.test.ts 0
 tests/fixtures/display-scale.ts 0
 tests/fixtures/fake-browser.ts 77
 tests/fixtures/grs-document.ts 0
-tests/fixtures/row-name-font.ts 0
+tests/fixtures/task-group-name-font.ts 0
 tests/integration/schedule-drawing.sws.test.ts 448
 tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts 488
 tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts 756
 tests/nfr/nfr-004-single-file.test.ts 0
-tests/system/cr-381-row-names-drawn-at-their-own-size.test.ts 0
+tests/system/cr-381-task-group-names-drawn-at-their-own-size.test.ts 0
 tests/system/cr-389-full-screen-is-asked-of-the-browser.test.ts 0
 tests/system/display-words-reasons-and-watermark.test.ts 0
 tests/system/divider-colour-corner-and-sticky-field.test.ts 0
 tests/system/drawn-svg-normalization.sws.test.ts 0
 tests/system/duplicate-paste-and-dual-cursor.test.ts 0
 tests/system/first-frame-is-the-settled-frame.test.ts 0
-tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts 95
+tests/system/fr-019-hm-9-the-task-group-tree-decides-what-is-below.test.ts 95
 tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 343
 tests/system/global-warm-dev-server.ts 0
 tests/system/live-app.ts 0
@@ -130,7 +130,7 @@ tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
 tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
 tests/unit/fr-006-panel-fields-drawn.test.ts 516
 tests/unit/fr-006-panel-typography.test.ts 460
-tests/unit/fr-019-no-row-for-the-annotation.test.ts 118
+tests/unit/fr-019-no-task-group-for-the-annotation.test.ts 118
 tests/unit/fr-020-both-ways-ic-41.test.ts 120
 tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts 0
 tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts 133
@@ -152,7 +152,7 @@ tests/unit/fr-053-palette-group-rule-isotropic-gap.test.ts 297
 tests/unit/fr-053-re-showing-clears-the-minimise.test.ts 134
 tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts 301
 tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 404
-tests/unit/fr-085-double-click-a-row-name.test.ts 179
+tests/unit/fr-085-double-click-a-task-group-name.test.ts 179
 tests/unit/fr-092-ez-2-tooltip-text-size.test.ts 249
 tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts 0
 tests/unit/fr-100-op-13-the-unsaved-edit-gate.test.ts 210
@@ -179,13 +179,13 @@ tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts 299
 tests/unit/t-024a-op-10-first-day-covered.test.ts 378
 tests/unit/t-024a-op-14-a-handed-document-that-cannot-be-read.test.ts 130
 tests/unit/t-027-outside-the-history.test.ts 0
-tests/unit/t-050-a-document-always-holds-one-row.test.ts 116
-tests/unit/t-051-hf-14-a-raised-row-is-visible.test.ts 246
-tests/unit/t-051-hf-14-the-depth-cap-refuses-a-row.test.ts 262
-tests/unit/t-051-hf-15-grabbing-a-row.test.ts 591
-tests/unit/t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts 250
+tests/unit/t-050-a-document-always-holds-one-task-group.test.ts 116
+tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts 246
+tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts 262
+tests/unit/t-051-hf-15-grabbing-a-task-group.test.ts 591
+tests/unit/t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts 250
 tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts 113
-tests/unit/t-051-hf-6-ground-under-the-row-controls.test.ts 412
+tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts 412
 tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts 376
 tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts 142
 tests/unit/uf-24-25.test.ts 0

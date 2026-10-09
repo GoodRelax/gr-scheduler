@@ -174,7 +174,7 @@ async function groupOfTask(page: Page, uid: number): Promise<string> {
     const held = api.readDocument() as { schedule: { taskGroupMembers: { taskUid: number; groupId: string }[] } }
     return held.schedule.taskGroupMembers.find((one) => one.taskUid === asked)?.groupId ?? null
   }, uid)
-  if (found === null) throw new Error(`task ${String(uid)} stands on no row`)
+  if (found === null) throw new Error(`task ${String(uid)} stands on no task group`)
   return found
 }
 
@@ -422,7 +422,7 @@ test.describe(`SV-5 -- ${SV_5_EACH}${SV_5_NO_ENTER}`, () => {
 })
 
 test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
-  test(`an SQ-1 cell opens the task's row and ancestors (SJ-2: ${SJ_2_OPEN}) and chooses the task (SJ-4)`, async () => {
+  test(`an SQ-1 cell opens the task's task group and ancestors (SJ-2: ${SJ_2_OPEN}) and chooses the task (SJ-4)`, async () => {
     const one = await stage()
     try {
       await openErpSample(one.page)
@@ -438,7 +438,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
 
       const opened = await readTree(one.page)
       for (const id of taskGroupAndAncestors(opened, row)) {
-        expect(opened.rows.find((r) => r.id === id)?.treeState, `row ${id} after the jump`).toBe('expanded')
+        expect(opened.rows.find((r) => r.id === id)?.treeState, `task group ${id} after the jump`).toBe('expanded')
       }
       expect(opened.levelZero, SJ_2_LEVEL_ZERO).not.toBe('collapsed')
       expect(JSON.parse(await selection(one.page))).toMatchObject({ items: [{ kind: 'task', uid }] })
@@ -448,7 +448,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
     }
   })
 
-  test(`SJ-2: ${SJ_2_ONE_STEP} -- one Ctrl+Z puts every row back; ${SJ_2_NO_STEP}`, async () => {
+  test(`SJ-2: ${SJ_2_ONE_STEP} -- one Ctrl+Z puts every task group back; ${SJ_2_NO_STEP}`, async () => {
     const one = await stage()
     try {
       await openErpSample(one.page)
@@ -470,7 +470,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
     }
   })
 
-  test(`SJ-1: ${SJ_1_OTHERS} -- an SQ-2 cell changes no row and chooses nothing`, async () => {
+  test(`SJ-1: ${SJ_1_OTHERS} -- an SQ-2 cell changes no task group and chooses nothing`, async () => {
     const one = await stage()
     try {
       await openErpSample(one.page)
@@ -486,7 +486,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
     }
   })
 
-  test("an SQ-7 cell opens the comment box's row (AT-114) and chooses the comment box", async () => {
+  test("an SQ-7 cell opens the comment box's task group (AT-114) and chooses the comment box", async () => {
     const one = await stage()
     try {
       const uid = await openErpSampleWithCommentBox(one.page)
@@ -500,7 +500,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
 
       const opened = await readTree(one.page)
       for (const id of taskGroupAndAncestors(opened, row)) {
-        expect(opened.rows.find((r) => r.id === id)?.treeState, `row ${id} after the jump`).toBe('expanded')
+        expect(opened.rows.find((r) => r.id === id)?.treeState, `task group ${id} after the jump`).toBe('expanded')
       }
       const chosen = JSON.parse(await selection(one.page)) as { items: unknown[] }
       expect(chosen.items).toHaveLength(1)

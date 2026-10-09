@@ -281,7 +281,7 @@ describe(`CL-2 / AT-104 -- ${AT_104_BOTH_OUTLINES}`, () => {
 })
 
 describe(`VG-5 -- ${VG_5_OUTER_EDGE}`, () => {
-  // WHY: two tasks over the same days stack in the one row; the gap is measured between the outer
+  // WHY: two tasks over the same days stack in the one task group; the gap is measured between the outer
   // edges, so the distance between the two shapes grows by one whole outline width (half from each).
   const BELOW = 2
   const stackedGap = (width: number | null): number => {

@@ -115,7 +115,7 @@ const FR_019_REFUSES_AND_SAYS_WHY =
 const RS_44_DISPLAY = bare(specTable('T-233').rows.find((one) => one.id === 'RS-44')?.by['表示の仕方'] ?? '')
 
 // ---------------------------------------------------------------------------
-// The document these cases drive -- one with no row at all, so that every
+// The document these cases drive -- one with no task group at all, so that every
 // point in the `Task Group Area` is a point with no `TaskGroup` under it.
 // ---------------------------------------------------------------------------
 
@@ -285,7 +285,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
   }
 }
 
-/** A point inside the `Task Group Area` of a document that has no rows at all. */
+/** A point inside the `Task Group Area` of a document that has no task groups at all. */
 const GROUND = { x: 700, y: 400 }
 
 // ===========================================================================
@@ -320,7 +320,7 @@ describe('the manuscript still says what these cases read', () => {
 // The rule
 // ===========================================================================
 
-describe('FR-019 (MUST): an annotation with no row under it is refused, and told why', () => {
+describe('FR-019 (MUST): an annotation with no task group under it is refused, and told why', () => {
   it('⛔ the control: with nothing armed, the same press tells nothing', () => {
     // ⚠️ WITHOUT THIS, A UNIT THAT TOLD RS-44 ON EVERY PRESS WOULD PASS BELOW.
     // FR-029 (MUST) has the reason 「押されたときに限り」, and this press is not
@@ -365,7 +365,7 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
 
   it('⛔ creates nothing -- タスクグループを 1 つ作って載せてはならない (MUST NOT)', () => {
     // ⭐ THE OTHER HALF OF THE SAME RULING, and the half FR-001's neighbouring
-    // sentence could have been borrowed for. A row minted for an annotation
+    // sentence could have been borrowed for. A task group minted for an annotation
     // would carry neither a name nor a 導出元 (AT-54, FR-058).
     // GOES RED IF: the refusal is turned into FR-001's answer for a Task.
     const built = stage()

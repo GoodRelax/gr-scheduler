@@ -1,4 +1,4 @@
-// CR-608 tests 1-5 and 8: a row added with IC-91 opens temporarily until the vertical axis shrinks.
+// CR-608 tests 1-5 and 8: a task group added with IC-91 opens temporarily until the vertical axis shrinks.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -141,7 +141,7 @@ function stage(document: Record<string, unknown>): Stage {
 function addedTaskGroupOf(before: readonly Group[], after: readonly Group[]): string {
   const known = new Set(before.map((one) => one.id))
   const added = after.filter((one) => !known.has(one.id))
-  if (added.length !== 1 || added[0] === undefined) throw new Error(`the press added ${added.length} rows, not one`)
+  if (added.length !== 1 || added[0] === undefined) throw new Error(`the press added ${added.length} task groups, not one`)
   return added[0].id
 }
 
@@ -192,7 +192,7 @@ describe('CR-608 -- the manuscript still says what these cases read', () => {
 })
 
 describe(`CR-608 test 1 -- ${HF_14_DRAWS}`, () => {
-  it('the added row and its siblings are drawn, the zoom does not change, and both rows are temporarilyExpanded', () => {
+  it('the added task group and its siblings are drawn, the zoom does not change, and both task groups are temporarilyExpanded', () => {
     const built = stage(droppedTierDocument('auto'))
     const before = built.groups()
     const zoomBefore = built.zoomY()
@@ -200,7 +200,7 @@ describe(`CR-608 test 1 -- ${HF_14_DRAWS}`, () => {
     built.press(TASK_GROUP_PANEL, ADD_CHILD_TASK_GROUP, P)
 
     const added = addedTaskGroupOf(before, built.groups())
-    expect(built.groups().find((one) => one.id === added)?.parentId, 'the added row is a child of P').toBe(P)
+    expect(built.groups().find((one) => one.id === added)?.parentId, 'the added task group is a child of P').toBe(P)
     expect(built.stateOf(added), HF_14_STANDS).toBe('temporarilyExpanded')
     expect(built.stateOf(P), HF_14_STANDS).toBe('temporarilyExpanded')
     expect(built.zoomY(), HF_14_NO_ZOOM).toBe(zoomBefore)
@@ -238,10 +238,10 @@ describe(`CR-608 tests 2 and 3 -- ${HF_14_ONE_PARENT}`, () => {
     ['temporarilyExpanded', 'temporarilyExpanded'],
   ]
 
-  it.each(cases)('the pressed parent %s becomes %s; the ancestors and the folded row elsewhere keep theirs', (from, to) => {
+  it.each(cases)('the pressed parent %s becomes %s; the ancestors and the folded task group elsewhere keep theirs', (from, to) => {
     const built = stage(documentWith(from))
     const before = built.groups()
-    expect(built.drawn(), 'premise: the pressed row is drawn').toContain(PP)
+    expect(built.drawn(), 'premise: the pressed task group is drawn').toContain(PP)
 
     built.press(TASK_GROUP_PANEL, ADD_CHILD_TASK_GROUP, PP)
 
@@ -251,18 +251,18 @@ describe(`CR-608 tests 2 and 3 -- ${HF_14_ONE_PARENT}`, () => {
     for (const id of [A, B, PK, X, XK]) {
       expect(built.stateOf(id), `${HF_14_NO_ANCESTOR} (${id})`).toBe(before.find((one) => one.id === id)?.treeState)
     }
-    expect(built.drawn(), 'the added row is drawn').toContain(added)
-    expect(built.drawn(), 'the folded row elsewhere still hides its child').not.toContain(XK)
+    expect(built.drawn(), 'the added task group is drawn').toContain(added)
+    expect(built.drawn(), 'the folded task group elsewhere still hides its child').not.toContain(XK)
   })
 })
 
 describe(`CR-608 test 4 -- ${HF_14_TEMPORARY}`, () => {
-  it('one shrink returns the added row and the pressed parent to auto, and the tier picture comes back', () => {
+  it('one shrink returns the added task group and the pressed parent to auto, and the tier picture comes back', () => {
     const built = stage(droppedTierDocument('auto'))
     const before = built.groups()
     built.press(TASK_GROUP_PANEL, ADD_CHILD_TASK_GROUP, P)
     const added = addedTaskGroupOf(before, built.groups())
-    expect(built.drawn(), 'premise: the added row is drawn').toContain(added)
+    expect(built.drawn(), 'premise: the added task group is drawn').toContain(added)
     const zoomBefore = built.zoomY()
 
     built.press(APP_HEADER, VERTICAL_ZOOM_SHRINK, null)
@@ -275,7 +275,7 @@ describe(`CR-608 test 4 -- ${HF_14_TEMPORARY}`, () => {
     const drawn = built.drawn()
     for (const id of [added, K1, K2, QK]) expect(drawn, 'back to the picture of the zoom').not.toContain(id)
     const depthTwoDrawn = built.zoomY() >= thresholdOf(2)
-    expect(drawn, 'the depth-1 row is always drawn').toContain(R)
+    expect(drawn, 'the depth-1 task group is always drawn').toContain(R)
     for (const id of [P, Q]) {
       expect(drawn.includes(id), `depth 2 at zoomY ${built.zoomY()} follows the tier`).toBe(depthTwoDrawn)
     }
@@ -283,13 +283,13 @@ describe(`CR-608 test 4 -- ${HF_14_TEMPORARY}`, () => {
 })
 
 describe(`CR-608 test 5 -- ${UN_14_ONE_STEP}`, () => {
-  it.each(['auto', 'collapsed'] as const)('pressed parent %s: one undo removes the added row and gives the parent its value back', (from) => {
+  it.each(['auto', 'collapsed'] as const)('pressed parent %s: one undo removes the added task group and gives the parent its value back', (from) => {
     const built = stage(droppedTierDocument(from))
     const before = built.groups().map((one) => ({ id: one.id, treeState: one.treeState }))
     const zoomBefore = built.zoomY()
 
     built.press(TASK_GROUP_PANEL, ADD_CHILD_TASK_GROUP, P)
-    expect(built.groups().length, 'premise: a row was added').toBe(before.length + 1)
+    expect(built.groups().length, 'premise: a task group was added').toBe(before.length + 1)
     expect(built.stateOf(P), 'premise: the parent was written').toBe('temporarilyExpanded')
 
     built.press(APP_HEADER, UNDO, null)
@@ -299,8 +299,8 @@ describe(`CR-608 test 5 -- ${UN_14_ONE_STEP}`, () => {
   })
 })
 
-describe('CR-608 test 8 -- the added row is saved temporarilyExpanded, and reopens that way', () => {
-  it('a JSON round trip keeps the added row and the pressed parent temporarilyExpanded, and the reopened picture draws them', () => {
+describe('CR-608 test 8 -- the added task group is saved temporarilyExpanded, and reopens that way', () => {
+  it('a JSON round trip keeps the added task group and the pressed parent temporarilyExpanded, and the reopened picture draws them', () => {
     const built = stage(droppedTierDocument('auto'))
     const before = built.groups()
     built.press(TASK_GROUP_PANEL, ADD_CHILD_TASK_GROUP, P)

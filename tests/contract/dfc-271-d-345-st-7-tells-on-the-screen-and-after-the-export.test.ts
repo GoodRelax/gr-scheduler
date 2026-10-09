@@ -37,11 +37,11 @@
 // That file asks the LAYOUT's half of `ST-7`: the member is always there, it is
 // null up to `S-89` and named past it, nothing is thrown, nothing is squeezed or
 // dropped, and 表 T-233 holds `RS-24` with `NT-3a`. ⛔ Its last case is 「ST-7
-// raises no reason while no row reached the valve」 -- the NEGATIVE half only.
+// raises no reason while no task group reached the valve」 -- the NEGATIVE half only.
 // ⇒ Nothing anywhere asks the two things the ledger rows below are about:
 //
 //   DFC-271 「段数の安全弁に達しても、人に何も告げない」 -- that a telling carrying
-//         `RS-24` actually STANDS when a row reaches the valve.
+//         `RS-24` actually STANDS when a task group reaches the valve.
 //   DFC-345 「止まった書き出しが人に告げるかを、どの条項も定めていない」 -- settled
 //         by CR-368 with the MUST NOT / MUST quoted above, and its own record
 //         closes with 「⛔ 試験はまだ無い」.
@@ -264,7 +264,7 @@ function wordsFor(rowId: string): ReasonWords {
 }
 
 // ===========================================================================
-// 2. The documents. One row, `howMany` tasks that all cover the same days.
+// 2. The documents. One task group, `howMany` tasks that all cover the same days.
 // ===========================================================================
 
 const TEMPLATE = JSON.parse(
@@ -312,11 +312,11 @@ function task(uid: number): Record<string, unknown> {
 }
 
 /**
- * `howMany` tasks that all cover the same days, on ONE row, under a cap of `CAP`.
+ * `howMany` tasks that all cover the same days, on ONE task group, under a cap of `CAP`.
  *
  * ⭐ `ST-10` keeps a merely touching pair off the same stack; these overlap
  * outright, so `ST-3`'s greedy assignment has to open one stack per task and the
- * row's stack count IS `howMany`.
+ * task group's stack count IS `howMany`.
  */
 function documentOfOverlaps(howMany: number): Document {
   const template = structuredClone(TEMPLATE) as any
@@ -658,7 +658,7 @@ describe('表 T-014 の ST-7 -- the manuscript this file is driven by', () => {
 // 6. DFC-271 -- the screen road: 「達したことを…人に通知すること（MUST）」
 // ===========================================================================
 
-describe('ST-7 (MUST) -- a row that reaches the valve is TOLD, not merely stopped', () => {
+describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely stopped', () => {
   it('⭐⭐ a document past the cap puts a telling carrying RS-24 on the screen', async () => {
     // 「達したらそこで処理を止め、達したことを判別できる値で返して人に通知すること
     //  （MUST）」 -- the second verb. ⛔ DFC-271: 「段数の安全弁に達しても、人に何も
@@ -668,7 +668,7 @@ describe('ST-7 (MUST) -- a row that reaches the valve is TOLD, not merely stoppe
     const told = built.notices()
     expect(
       told.length,
-      'a row went past the safety valve and the screen said nothing -- ST-7 (MUST) asks for the ' +
+      'a task group went past the safety valve and the screen said nothing -- ST-7 (MUST) asks for the ' +
         'person to be told, and 表 T-233 の RS-24 is the reason it names',
     ).toBeGreaterThan(0)
     expect(told.some((one) => isTheValve(one, 'ja'))).toBe(true)
@@ -695,7 +695,7 @@ describe('ST-7 (MUST) -- a row that reaches the valve is TOLD, not merely stoppe
     // telling that stood AT the cap would be as wrong as one that never stands.
     expect(
       stage(documentOfOverlaps(CAP)).notices(),
-      'the screen told the person about a row that stacked exactly to the cap, which ST-7 allows',
+      'the screen told the person about a task group that stacked exactly to the cap, which ST-7 allows',
     ).toEqual([])
     expect(stage(documentOfOverlaps(CAP + 1)).notices().length).toBeGreaterThan(0)
   })
@@ -767,7 +767,7 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
     ).toBeGreaterThan(0)
     expect(
       built.notices().some((one) => isTheValve(one, 'ja')),
-      'the picture left by IO-6 with a row past the safety valve and the person was told nothing ' +
+      'the picture left by IO-6 with a task group past the safety valve and the person was told nothing ' +
         'afterwards -- ST-7 (MUST NOT) forbids the telling being the drawing road’s alone',
     ).toBe(true)
   })
@@ -811,7 +811,7 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
     ).toBeGreaterThan(0)
     expect(
       built.notices().some((one) => isTheValve(one, 'ja')),
-      'a picture was written to a file with a row past the safety valve and the person was told ' +
+      'a picture was written to a file with a task group past the safety valve and the person was told ' +
         'nothing afterwards -- ST-7 (MUST)',
     ).toBe(true)
   })

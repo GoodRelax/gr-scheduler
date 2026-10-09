@@ -151,7 +151,7 @@ interface Wish {
   readonly themeHue?: number
 }
 
-// WHY: two rows, so a group grid line exists between them.
+// WHY: two task groups, so a group grid line exists between them.
 const scheduleWith = (wish: Wish = {}): Schedule => {
   const base = scheduleOf({
     tasks: [
@@ -284,7 +284,7 @@ const dayFromText = (text: string): CalendarDay => {
 
 const bandRightOf = (svg: string): number => {
   const bands = elementsOf(svg).filter((one) => one.zo.includes('ZO-7') && one.tag === 'rect')
-  if (bands.length === 0) throw new Error('premise: ZO-7 draws row band rectangles')
+  if (bands.length === 0) throw new Error('premise: ZO-7 draws task group band rectangles')
   return Math.max(...bands.map((one) => Number(attrOf(one.attrs, 'x')) + Number(attrOf(one.attrs, 'width'))))
 }
 
@@ -466,8 +466,8 @@ describe('OD-2 -- the ruler tier decides how much is shaded', () => {
 
 describe('OD-3 -- where the shade stands', () => {
   for (const [name, over] of [
-    ['no pinned row', {}],
-    ['the first row pinned', { [PINNED_KEY]: ['g1'] }],
+    ['no pinned task group', {}],
+    ['the first task group pinned', { [PINNED_KEY]: ['g1'] }],
   ] as const) {
     it(`「${OD_3_EXTENT}」 ${name}: every run spans the Task Group Area from top to bottom`, () => {
       const frame = tierFrame('yearMonthDayWeekday', {}, over)
@@ -481,12 +481,12 @@ describe('OD-3 -- where the shade stands', () => {
     })
   }
 
-  it(`「${OD_3_PINNED}」 the pinned row's band lies under the shade`, () => {
+  it(`「${OD_3_PINNED}」 the pinned task group's band lies under the shade`, () => {
     const frame = tierFrame('yearMonthDayWeekday', {}, { [PINNED_KEY]: ['g1'] })
     const svg = frame.svg()
     const run = runsOf(shadeOf(svg))[0] as Run
     const bands = elementsOf(svg).filter((one) => one.zo.includes('ZO-7') && one.tag === 'rect')
-    expect(bands.length, 'premise: row bands are drawn').toBeGreaterThan(0)
+    expect(bands.length, 'premise: task group bands are drawn').toBeGreaterThan(0)
     for (const band of bands) {
       const top = Number(attrOf(band.attrs, 'y'))
       const bottom = top + Number(attrOf(band.attrs, 'height'))
@@ -514,7 +514,7 @@ describe('OD-3 -- where the shade stands', () => {
   })
 })
 
-describe('OD-4 -- the shade is above the row bands and below every line and figure', () => {
+describe('OD-4 -- the shade is above the task group bands and below every line and figure', () => {
   it(`「${OD_4_ORDER}」 inside ZO-7: bands, then the shade, then the grid lines`, () => {
     const frame = tierFrame('yearMonthDayWeekday')
     const svg = frame.svg()
@@ -523,7 +523,7 @@ describe('OD-4 -- the shade is above the row bands and below every line and figu
     const layer = elementsOf(svg).filter((one) => one.zo.includes('ZO-7') && one !== shade)
     const bands = layer.filter((one) => one.tag === 'rect')
     const lines = layer.filter((one) => one.tag === 'line')
-    expect(bands.length, 'premise: row bands').toBeGreaterThan(0)
+    expect(bands.length, 'premise: task group bands').toBeGreaterThan(0)
     expect(lines.length, 'premise: date and group grid lines').toBeGreaterThan(0)
     expect(Math.max(...bands.map((one) => one.at)), 'every band before the shade').toBeLessThan(shade.at)
     expect(Math.min(...lines.map((one) => one.at)), 'every grid line after the shade').toBeGreaterThan(shade.at)

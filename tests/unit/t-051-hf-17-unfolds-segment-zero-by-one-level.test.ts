@@ -1,5 +1,5 @@
 // 表 T-051 の `HF-17` (MUST / MUST NOT, 利用者の裁定 2026-09-06「(a) ただし、1
-// 階層だけ開くこと」, CR-368): pressing HF-17's own entrance (adding a row at
+// 階層だけ開くこと」, CR-368): pressing HF-17's own entrance (adding a task group at
 // 段 0, the panel's head) must open 段 0 by exactly one level when it stands
 // folded (`S-418`) -- never every fold below it.
 //
@@ -122,9 +122,9 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** HR-2 at 段 0 -- folds every row AND 段 0 itself. */
+/** HR-2 at 段 0 -- folds every task group AND 段 0 itself. */
 const HEAD_FOLD_EVERY_TASK_GROUP = entranceFor('HF-12')
-/** HF-17's own entrance -- adds a row at 段 0, the panel's own head. */
+/** HF-17's own entrance -- adds a task group at 段 0, the panel's own head. */
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
 
 // ===========================================================================
@@ -334,7 +334,7 @@ function stage(): Stage {
   }
 }
 
-/** The rows the panel drew, by name, in the order it drew them. */
+/** The task groups the panel drew, by name, in the order it drew them. */
 function drawnTaskGroups(built: Stage): readonly string[] {
   const panel = built.screen.last().taskGroupPanel
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
@@ -349,11 +349,11 @@ const levelZeroOf = (built: Stage): string =>
   built.loop.document().documentSettings.levelZeroTreeState
 
 // ===========================================================================
-// 4. The premise: HR-2 at 段 0 folds every row away, including the roots
+// 4. The premise: HR-2 at 段 0 folds every task group away, including the roots
 // ===========================================================================
 
 describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () => {
-  it('before folding, every row is drawn', () => {
+  it('before folding, every task group is drawn', () => {
     const built = stage()
     expect(drawnTaskGroups(built)).toEqual(['Alpha', 'Beta', 'Gamma', 'Zeta'])
   })
@@ -375,11 +375,11 @@ describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () =
 })
 
 // ===========================================================================
-// 5. HF-17 (MUST / MUST NOT): adding a row at 段 0 opens it by ONE level
+// 5. HF-17 (MUST / MUST NOT): adding a task group at 段 0 opens it by ONE level
 // ===========================================================================
 
-describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one level', () => {
-  it('⭐⭐ the roots reappear, the new row among them, once 段 0 is folded and HF-17 is pressed', () => {
+describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly one level', () => {
+  it('⭐⭐ the roots reappear, the new task group among them, once 段 0 is folded and HF-17 is pressed', () => {
     const built = stage()
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     expect(drawnTaskGroups(built)).toEqual([]) // the premise, restated
@@ -390,12 +390,12 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
     expect(
       after,
       'HF-17 (MUST): 段 0 が畳まれていれば 1 階層だけ開くこと -- pressing the ' +
-        'entrance at 段 0 while it stood folded left nothing visible, including the row it just made',
+        'entrance at 段 0 while it stood folded left nothing visible, including the task group it just made',
     ).not.toEqual([])
     expect(after, 'Alpha and Zeta are both 段 0’s own children -- both come back').toEqual(
       expect.arrayContaining(['Alpha', 'Zeta']),
     )
-    expect(after.length, 'exactly one row was added to the two roots').toBe(3)
+    expect(after.length, 'exactly one task group was added to the two roots').toBe(3)
   })
 
   it('⛔⛔ MUST NOT: Beta and Gamma stay folded away -- only 段 0 opened, not everything (not HF-10’s shape)', () => {

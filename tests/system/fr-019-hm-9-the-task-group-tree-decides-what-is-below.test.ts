@@ -387,7 +387,7 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
 }
 
 /**
- * The centre of the grab strip `GR-20` of table T-023d lays on one row.
+ * The centre of the grab strip `GR-20` of table T-023d lays on one task group.
  *
  * ⭐ Held verbatim -- row `GR-20` (table T-023d):
  * 「タスクグループの左端に敷く掴み代」, and 「タスクグループの左端とは、そのタスクグループの字下げの後ろである
@@ -395,16 +395,16 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
  * （MUST）」, ⛔「パネルの左端に揃えてはならない（MUST NOT）」.
  *
  * ⛔⛔ SO NO x IS WRITTEN HERE, AND NONE MAY BE. The strip's x is a function of
- * the row's depth, and its width is `S-138` of table T-206 -- a settings value
+ * the task group's depth, and its width is `S-138` of table T-206 -- a settings value
  * that is nobody's to copy. The strip's own box is read off the drawn page
  * instead, so a change to either the indent or `S-138` moves this point with it.
  * ⚠️ Measured 2026-09-05 on the shipped build: at depth 2 the strip ran
- * x 32..48 and the row's name began at x 52, so a press at x=60 -- what this
+ * x 32..48 and the task group's name began at x 52, so a press at x=60 -- what this
  * file did until today -- landed on the NAME and never on the strip.
  *
  * ⛔ `null` ALSO MEANS 「掴めない」 AND NOT ONLY 「見つからない」. GR-20 (MUST
  * NOT): 「ピン止めしているタスクグループは掴めないこと」, and the drawing side keeps that by
- * laying no strip at all on a pinned row -- so a pinned row answers `null` here.
+ * laying no strip at all on a pinned task group -- so a pinned task group answers `null` here.
  *
  * @purity semi-pure-b
  */
@@ -446,7 +446,7 @@ function beforeUnderSt2(left: DocTask, right: DocTask): number {
   return 0
 }
 
-test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3)', async ({
+test('the task group tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3)', async ({
   baseURL,
 }) => {
   test.setTimeout(600_000)
@@ -462,7 +462,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       expect.soft(before, 'FR-065: pressing that entrance published the Agent API').not.toBeNull()
 
       const rows = await drawnTaskGroups(page)
-      expect.soft(rows.length, 'the panel draws rows to work with').toBeGreaterThan(3)
+      expect.soft(rows.length, 'the panel draws task groups to work with').toBeGreaterThan(3)
       const rank = rankInTaskGroupTree(before?.groups ?? [])
 
       let placed = false
@@ -506,8 +506,8 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
             expect
               .soft(
                 (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
-                `${IV_19} / FR-019 (control, nothing pinned): the top row must rank earlier in the ` +
-                  `row tree than the bottom one -- top ${nameOf(after?.groups ?? [], box.topGroupId)} ` +
+                `${IV_19} / FR-019 (control, nothing pinned): the top task group must rank earlier in the ` +
+                  `task group tree than the bottom one -- top ${nameOf(after?.groups ?? [], box.topGroupId)} ` +
                   `is at ${String(rank.get(String(box.topGroupId)))}, bottom ` +
                   `${nameOf(after?.groups ?? [], box.bottomGroupId)} at ` +
                   `${String(rank.get(String(box.bottomGroupId)))}`,
@@ -516,7 +516,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           }
         }
       }
-      expect.soft(placed, 'a pair of drawn rows shares a column of empty ground').toBe(true)
+      expect.soft(placed, 'a pair of drawn task groups shares a column of empty ground').toBe(true)
     } finally {
       await opened.close()
     }
@@ -532,7 +532,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       expect
         .soft(
           await pressEntranceInRow(page, last, TASK_GROUP_PIN_ENTRANCE),
-          `FR-098: ${TASK_GROUP_PIN_ENTRANCE} is drawn in every row of the panel`,
+          `FR-098: ${TASK_GROUP_PIN_ENTRANCE} is drawn in every task group of the panel`,
         )
         .toBe(true)
 
@@ -540,7 +540,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const shot = await readDocumentShot(page)
       const rank = rankInTaskGroupTree(shot?.groups ?? [])
       const pinnedIndex = rows.findIndex((one) => one.pinned)
-      expect.soft(pinnedIndex, 'FR-098: the pinned row is drawn first, at the top of Task Group Area').toBe(0)
+      expect.soft(pinnedIndex, 'FR-098: the pinned task group is drawn first, at the top of Task Group Area').toBe(0)
 
       const pinned = rows[pinnedIndex < 0 ? 0 : pinnedIndex] as DrawnTaskGroup
       const others = rows.filter((one) => !one.pinned)
@@ -548,7 +548,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       expect
         .soft(
           later.length,
-          'the fixture needs at least one drawn row that the row tree puts BEFORE the pinned one ' +
+          'the fixture needs at least one drawn task group that the task group tree puts BEFORE the pinned one ' +
             'while the screen puts it after',
         )
         .toBeGreaterThan(0)
@@ -578,7 +578,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           .soft(
             (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
             `${IV_19} / FR-019: with ${pinned.label} pinned to the top of the screen, "below" must ` +
-              'still be read off the ROW TREE and never off the drawn position -- expected top ' +
+              'still be read off the TASK GROUP TREE and never off the drawn position -- expected top ' +
               `${nameOf(after?.groups ?? [], other.id)} (tree rank ${String(rank.get(other.id))}), ` +
               `got top ${nameOf(after?.groups ?? [], box.topGroupId)} (tree rank ` +
               `${String(rank.get(String(box.topGroupId)))}) and bottom ` +
@@ -602,13 +602,13 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         expect
           .soft(
             enclosing.length,
-            `FR-019: the drawing must enclose the two rows AS THE SCREEN HAS THEM -- ` +
+            `FR-019: the drawing must enclose the two task groups AS THE SCREEN HAS THEM -- ` +
               `${wantedTop}..${wantedBottom}px covering ${pinned.label} and ${other.label}; ` +
               `outlines drawn: ${JSON.stringify(outlines)}`,
           )
           .toBeGreaterThan(0)
       }
-      expect.soft(judged, 'the pinned row shares a column of empty ground with a tree-earlier row').toBe(true)
+      expect.soft(judged, 'the pinned task group shares a column of empty ground with a tree-earlier task group').toBe(true)
     } finally {
       await opened.close()
     }
@@ -631,8 +631,8 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const destination = rows.find(
         (one) => source !== undefined && (rank.get(one.id) ?? 0) > (rank.get(source.id) ?? 0),
       )
-      expect.soft(source, 'one drawn row holds two or more WBS siblings').not.toBeUndefined()
-      expect.soft(destination, 'another drawn row sits later in the row tree').not.toBeUndefined()
+      expect.soft(source, 'one drawn task group holds two or more WBS siblings').not.toBeUndefined()
+      expect.soft(destination, 'another drawn task group sits later in the task group tree').not.toBeUndefined()
 
       if (source !== undefined && destination !== undefined) {
         const moved: number[] = []
@@ -655,7 +655,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           .soft(
             moved.length,
             `${HM_3} / GA-9 of table T-023d: dragging a plan bar down onto ${destination.label} ` +
-              'puts it on that row',
+              'puts it on that task group',
           )
           .toBeGreaterThan(0)
 
@@ -671,7 +671,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           expect
             .soft(
               is?.parentTaskUid ?? null,
-              `${HM_3} (MUST NOT): moving task ${uid} to another row must not change its parent task`,
+              `${HM_3} (MUST NOT): moving task ${uid} to another task group must not change its parent task`,
             )
             .toBe(was?.parentTaskUid ?? null)
         }
@@ -699,7 +699,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
               wrong.length,
               `${HM_9} / ${HM_3}: task ${uid} now sits on ${destination.label} (tree rank ` +
                 `${String(rank.get(destination.id))}), so among its WBS siblings it must rank by ` +
-                `that row's place in the row tree; ${wrong.length} of ${siblings.length - 1} ` +
+                `that task group's place in the task group tree; ${wrong.length} of ${siblings.length - 1} ` +
                 `siblings disagree (its wbsOrder is still ${String(one.wbsOrder)})`,
             )
             .toBe(0)
@@ -718,7 +718,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           expect
             .soft(
               expected === 0 || expected === actual,
-              `${HM_9} -> ST-2 of table T-014: tasks ${left.uid} and ${right.uid} share one row, so ` +
+              `${HM_9} -> ST-2 of table T-014: tasks ${left.uid} and ${right.uid} share one task group, so ` +
                 `the table's three keys settle their order; keys ` +
                 `${JSON.stringify(ST2_KEYS)} want ${expected < 0 ? left.uid : right.uid} first, ` +
                 `wbsOrder has ${actual < 0 ? left.uid : right.uid} first`,
@@ -740,8 +740,8 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const before = await readDocumentShot(page)
       const groups = before?.groups ?? []
       // ⛔ GR-20 (MUST NOT): 「ピン止めしているタスクグループは掴めないこと」. FR-098 lifts a
-      // pinned row to the head of the panel and the drawing side keeps the MUST
-      // NOT by laying no strip on it at all -- so a pinned row is dropped before
+      // pinned task group to the head of the panel and the drawing side keeps the MUST
+      // NOT by laying no strip on it at all -- so a pinned task group is dropped before
       // a pair is picked, rather than being grabbed at a point that is not there.
       const pair = rows
         .filter((row) => !row.pinned)
@@ -751,7 +751,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         (group, at) => at > 0 && pair[at - 1]?.parentId === group.parentId,
       )
       const above = pair[pair.indexOf(sibling as DocGroup) - 1]
-      expect.soft(sibling, 'two drawn rows are siblings under one parent').not.toBeUndefined()
+      expect.soft(sibling, 'two drawn task groups are siblings under one parent').not.toBeUndefined()
 
       // ⭐ Held verbatim -- check 39, row `HM-8` (table T-015a), manuscript
       // text ending at its own marker:
@@ -761,16 +761,16 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       // 「| HM-9 | 並べ替えた順序も WBS へ伝わること（MUST）」
       const grab = sibling === undefined ? null : await grabStripCentreOn(page, sibling.id)
       expect
-        .soft(grab, `${GR_20} (MUST) lays a grab strip on the row this drag takes hold of`)
+        .soft(grab, `${GR_20} (MUST) lays a grab strip on the task group this drag takes hold of`)
         .not.toBeNull()
 
       if (sibling !== undefined && above !== undefined && grab !== null) {
         const to = rows.find((one) => one.id === above.id) as DrawnTaskGroup
-        // ⭐ THE GRAB IS TAKEN WHERE GR-20 PUT IT, read off the drawn row --
+        // ⭐ THE GRAB IS TAKEN WHERE GR-20 PUT IT, read off the drawn task group --
         // see `grabStripCentreOn`. ⛔ No x is written here, because GR-20 (MUST)
         // 「掴み代はタスクグループ名の直前に立ち、段の字下げとともに動くこと」 moves the
-        // strip with the row's depth, and until today this case pressed a fixed
-        // x=60 that stood on the row's NAME.
+        // strip with the task group's depth, and until today this case pressed a fixed
+        // x=60 that stood on the task group's NAME.
         // ⛔ THE SAME x AT BOTH ENDS: `HF-15` (MUST) settles the axis on the
         // first travel past `S-208`, and this case is about the POSITION axis.
         await dragBetween(page, grab, { x: grab.x, y: to.y + 8 })

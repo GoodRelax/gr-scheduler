@@ -45,36 +45,36 @@ copy | rounded :: rounds as svg renderer ts does change both together
 twin: src/adapter/svg-renderer/svg-renderer.ts#rounded
 why: published by SvgRenderer's entry and ImageExporter->SvgRenderer is declared; nothing stops the fold -- import it.
 
-coupling | hasDraggedPastThreshold :: keep this per axis as rowgrabaxisat reads it a diagonal
-twin: src/adapter/input-command-translator/row-grab.ts#rowGrabAxisAt
-why: one component (InputCommandTranslator): the threshold stays per axis because rowGrabAxisAt reads it so; a shared per-axis helper in the component folds it.
+coupling | hasDraggedPastThreshold :: keep this per axis as taskgroupgrabaxisat reads it a diagonal
+twin: src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabAxisAt
+why: one component (InputCommandTranslator): the threshold stays per axis because taskGroupGrabAxisAt reads it so; a shared per-axis helper in the component folds it.
 
-copy | rowAnchorIn.slab :: scrolloffsetof row scroll ts inverts this both must divide by
-twin: src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf
+copy | taskGroupAnchorIn.slab :: scrolloffsetof task group scroll ts inverts this both must divide
+twin: src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrollOffsetOf
 why: the inverse of the same slab arithmetic; scrollOffsetOf is not published by ScheduleLayout's entry (no T-064 row) though InputCommandTranslator->ScheduleLayout is declared.
 
 copy | taskGroupRankById :: schedule invariants ts holds the same walk under the same
 twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
-why: private in Schedule (no T-064 row); InputCommandTranslator->Schedule is declared, so one row and an import fold it; third site src/use-case/edit-document/task-group-order.ts#rowTreeRankById.
+why: private in Schedule (no T-064 row); InputCommandTranslator->Schedule is declared, so one row and an import fold it; third site src/use-case/edit-document/task-group-order.ts#taskGroupTreeRankById.
 
-copy | highlightRowSpanOf.topAt :: fall back to the first and last layout rows exactly
+copy | highlightTaskGroupSpanOf.topAt :: fall back to the first and last layout task groups
 twin: src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry
 why: the row fallback inline in highlightGeometry, not published by ScheduleGeometry's entry (edge declared); this side compares by compareDay, the twin by compareDays (suspect divergence).
 
-copy | isEveryRowOpenArmed :: row title panel ts arms ic 74 ic 58 and
-twin: src/adapter/screen-renderer/row-title-panel.ts#openArmingOf
+copy | isEveryTaskGroupOpenArmed :: task group panel ts arms ic 74 ic 58 and
+twin: src/adapter/screen-renderer/task-group-panel.ts#openArmingOf
 why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer declared; predicates here, a precomputed index there, depth read from different sources (suspect divergence).
 
-copy | hasADrawnChild :: must stay the set row title panel ts builds as
-twin: src/adapter/screen-renderer/row-title-panel.ts#groupIdsWithDrawnChildren
+copy | hasADrawnChild :: must stay the set task group panel ts builds as
+twin: src/adapter/screen-renderer/task-group-panel.ts#groupIdsWithDrawnChildren
 why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer is declared, so a T-064 row and an import fold it.
 
 copy | namesAPlace :: viewsettings in view place ts writes the same base half
 twin: stale -- names viewSettings; the twin is src/framework/single-html-shell/view-place.ts#storedNamesAPlace
 why: SingleHtmlShell->InputCommandTranslator declared and namesAPlace is not published by the translator's entry; publish it and let view-place import it.
 
-copy | rowPointIn :: rowanchorin and scrolloffsetof measure the same slab change all three
-twin: src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf (and rowAnchorIn in input-command-translator.ts)
+copy | taskGroupPointIn :: taskgroupanchorin and scrolloffsetof measure the same slab change all three
+twin: src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrollOffsetOf (and taskGroupAnchorIn in input-command-translator.ts)
 why: the same slab three times; scrollOffsetOf is not published by ScheduleLayout's entry (no T-064 row) though InputCommandTranslator->ScheduleLayout is declared.
 
 copy | treeStatesReset :: cm 72 resettaskgrouptreestates writes the same predicate change both together
@@ -89,13 +89,13 @@ copy | charUnits :: u 0100 is the boundary schedulelayout s lc 5 uses
 twin: src/entity/layout-engine/schedule-layout/label-width.ts#labelUnits
 why: published by ScheduleLayout's entry and ScreenRenderer->ScheduleLayout is declared; nothing stops the fold -- import it.
 
-copy | isOpenAllBelowOn :: row tree entrances ts arms ic 58 by this same
-twin: src/adapter/input-command-translator/row-tree-entrances.ts#isOpenAllBelowArmed
+copy | isOpenAllBelowOn :: task group tree entrances ts arms ic 58 by this
+twin: src/adapter/input-command-translator/task-group-tree-entrances.ts#isOpenAllBelowArmed
 why: private in the translator; the edge runs InputCommandTranslator->ScreenRenderer, so the test belongs in ScreenRenderer's entry for the translator to import.
 
-copy | openArmingOf :: row tree entrances ts arms ic 58 ic 74 and
-twin: src/adapter/input-command-translator/row-tree-entrances.ts#isOpenOneLevelArmed (and isOpenAllBelowArmed, isEveryRowOpenArmed)
-why: as isOpenAllBelowOn; depth read from rowDepth + stored settings here, from layout rows + zoomOnScreen there (suspect divergence).
+copy | openArmingOf :: task group tree entrances ts arms ic 58 ic 74
+twin: src/adapter/input-command-translator/task-group-tree-entrances.ts#isOpenOneLevelArmed (and isOpenAllBelowArmed, isEveryTaskGroupOpenArmed)
+why: as isOpenAllBelowOn; depth read from taskGroupDepth + stored settings here, from layout rows + zoomOnScreen there (suspect divergence).
 
 copy | rectHoldsPoint :: a copy of screen regions ts s private rectholdspoint change
 twin: src/entity/layout-engine/screen-regions/screen-regions.ts#rectHoldsPoint
@@ -137,8 +137,8 @@ copy | dummiesOf.width :: schedule layout ts counts the same width into dummyrea
 twin: src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf
 why: published by ScheduleLayout's entry and ScheduleGeometry->ScheduleLayout is declared; nothing stops the fold -- one call.
 
-copy | scrollOffsetOf.below :: rowanchorat in input command translator ts inverts this with the
-twin: stale -- names rowAnchorAt, now a delegate; the twin is src/adapter/input-command-translator/input-command-translator.ts#rowAnchorIn
+copy | scrollOffsetOf.below :: taskgroupanchorat in input command translator ts inverts this with the
+twin: stale -- names taskGroupAnchorAt, now a delegate; the twin is src/adapter/input-command-translator/input-command-translator.ts#taskGroupAnchorIn
 why: the inverse; the edge runs InputCommandTranslator->ScheduleLayout, so a slab helper published by ScheduleLayout folds both.
 
 coupling | DIALOGUE_ENTRY :: dom screen surface ts role dialoguefield must spell it the
@@ -207,7 +207,7 @@ coupling | isUndoable :: change together with columnsoutsidehistory a command an
 twin: src/use-case/apply-document-change/document-change-plan.ts#columnsOutsideHistory
 why: one file: a command answering false must write only the columns listed there; two lists that must agree, not a copy.
 
-copy | rowTreeRankById :: schedule invariants ts and the input translator walk the row
+copy | taskGroupTreeRankById :: schedule invariants ts and the input translator walk the task
 twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
 why: private in Schedule; EditDocument->Schedule is declared, so one T-064 row and an import fold it; third site input-command-translator.ts#taskGroupRankById.
 

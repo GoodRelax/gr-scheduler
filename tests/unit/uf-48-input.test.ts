@@ -219,8 +219,8 @@ const sameSpelling = (cell: string): string =>
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of, and the one
 // document whose values the specification has actually decided. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
-// out here so that what is drawn can be named row by row.
+// the project and the settings come from it; the task groups and the Tasks are written
+// out here so that what is drawn can be named task group by task group.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -236,7 +236,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Two rows, one Task on each, and NO base date line.
+ * Two task groups, one Task on each, and NO base date line.
  *
  * ⛔ `statusDate: null` is a premise, not decoration. SK-20 of table T-036 is
  * 「基準日線を出す / 消す」 and FR-046 splits the two halves on exactly that
@@ -245,7 +245,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
  * case at the head of this file pins it.
  *
  * Every column table T-058 gives a Task is named, so that a template whose
- * first Task changes shape cannot silently give these rows an actual bar --
+ * first Task changes shape cannot silently give these task groups an actual bar --
  * `validateDocument` keeps the shape honest, and PS-1 of table T-019a (a Task
  * nobody has started) is what these cases mean by a Task.
  */

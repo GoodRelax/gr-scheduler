@@ -98,8 +98,8 @@ function title(groupId: string, top: number, over: Partial<TaskGroupTitle> = {})
     box: rect(0, top, 170, 30),
     indentPx: 0,
     fontPx: 14,
-    label: `row ${groupId}`,
-    wholeLabel: `row ${groupId}`,
+    label: `task group ${groupId}`,
+    wholeLabel: `task group ${groupId}`,
     isLabelTruncated: false,
     expander: { canOpen: true, canClose: true, canCloseBelow: true },
     canOpenOneLevel: true,
@@ -183,8 +183,8 @@ describe('the head of the panel (HF-10, HF-12)', () => {
   })
 
   it.each([
-    ['with a row drawn', [PLAIN]],
-    ['with no row drawn', []],
+    ['with a task group drawn', [PLAIN]],
+    ['with no task group drawn', []],
   ] as const)('HF-10 1 行に並べること -- the five head entrances share one top, %s', (_name, titles) => {
     const built = drawn({ pinnedTitles: [], titles: [...titles], foldedTaskGroupCount: 3 })
     const head = headEntrances(built, HEAD_RULES.map(iconFor))
@@ -194,21 +194,21 @@ describe('the head of the panel (HF-10, HF-12)', () => {
     expect(new Set(tops).size, `${HF_10_ORDER} / ${HF_10_NOT_TWO_TIERS} -- ${tops.join(', ')}`).toBe(1)
   })
 
-  it('HF-12 頭にいまいくつのタスクグループを畳み込んでいるかを示すこと -- the head shows the folded count even with no row drawn', () => {
+  it('HF-12 頭にいまいくつのタスクグループを畳み込んでいるかを示すこと -- the head shows the folded count even with no task group drawn', () => {
     const built = drawn({ pinnedTitles: [], titles: [], foldedTaskGroupCount: 7 })
     const panel = oneByRole(built.root(), TASK_GROUP_PANEL)
     expect(panel.textContent).toMatch(/(^|\D)7(\D|$)/)
   })
 })
 
-describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
-  it('HF-18 そのタスクグループ数をタスクグループに示すこと -- a row holding folded rows shows how many', () => {
+describe('each task group (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
+  it('HF-18 そのタスクグループ数をタスクグループに示すこと -- a task group holding folded task groups shows how many', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const [row] = taskGroupNode(built, 'g-pinned')
     expect(row?.textContent ?? '').toMatch(/(^|\D)4(\D|$)/)
   })
 
-  it('HF-2 薄く描くこと / FR-029 -- the open-all control of a row with no undrawn descendant (table T-329) is faint, yet not host-disabled', () => {
+  it('HF-2 薄く描くこと / FR-029 -- the open-all control of a task group with no undrawn descendant (table T-329) is faint, yet not host-disabled', () => {
     const built = drawn({ pinnedTitles: [], titles: [PLAIN, title('g-live', 100)] })
     const openAll = iconFor('HF-2')
     const faint = iconEntry(taskGroupNode(built, 'g-plain')[0] as FakeElement, openAll)
@@ -218,7 +218,7 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     expect(faint.hasAttribute('disabled')).toBe(false)
   })
 
-  it('HF-6 描かないあいだも、確保する場所を変えてはならない -- no row control is taken out of the layout', () => {
+  it('HF-6 描かないあいだも、確保する場所を変えてはならない -- no task group control is taken out of the layout', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const controls = [...byRole(built.root(), TASK_GROUP_EXPANDER), ...byRole(built.root(), TASK_GROUP_PIN)]
     expect(controls.length).toBeGreaterThan(0)
@@ -234,7 +234,7 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     expect(styleMap(pinOf('g-plain')).get('visibility')).not.toBe('visible')
   })
 
-  it('HF-15 印は縦に並べた 2 本の三点リーダ -- an unpinned row carries the ⋮⋮ grab mark as text, not a button', () => {
+  it('HF-15 印は縦に並べた 2 本の三点リーダ -- an unpinned task group carries the ⋮⋮ grab mark as text, not a button', () => {
     const built = drawn({ pinnedTitles: [], titles: [PLAIN] })
     const row = taskGroupNode(built, 'g-plain')[0] as FakeElement
     const marks = selfAndDescendants(row).filter((one) =>
@@ -244,10 +244,10 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     for (const mark of marks) expect(mark.tagName).not.toBe('BUTTON')
   })
 
-  it('FR-098 同じタスクグループを本来の縦位置にも描いてはならない -- a pinned row is drawn once', () => {
+  it('FR-098 同じタスクグループを本来の縦位置にも描いてはならない -- a pinned task group is drawn once', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     expect(taskGroupNode(built, 'g-pinned')).toHaveLength(1)
     expect(taskGroupNode(built, 'g-plain')).toHaveLength(1)
-    expect(taskGroupNode(built, 'g-pinned')[0]?.textContent).toContain('row g-pinned')
+    expect(taskGroupNode(built, 'g-pinned')[0]?.textContent).toContain('task group g-pinned')
   })
 })

@@ -198,12 +198,12 @@ describe(`FR-053 -- ${FR_053_CORNER}`, () => {
 })
 
 describe(`FR-085 -- ${FR_085_TOP}`, () => {
-  it('every drawn row heading starts its line at the top of its box and sets nothing down', () => {
+  it('every drawn task group heading starts its line at the top of its box and sets nothing down', () => {
     const { built } = bench(template(), true)
     const rows = selfAndDescendants(built.root()).filter(
       (one) => one.hasAttribute('data-group-id') && styleMap(one).has('align-items'),
     )
-    expect(rows.length, 'the boot drew row headings').toBeGreaterThan(0)
+    expect(rows.length, 'the boot drew task group headings').toBeGreaterThan(0)
     for (const row of rows) {
       expect(styleMap(row).get('align-items')).toBe('flex-start')
       expect(styleMap(row).get('padding-top')).toBeUndefined()

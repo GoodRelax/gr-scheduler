@@ -57,7 +57,7 @@ const task = (uid: number, start: string, finish: string, dependencies: readonly
     carryElements: [],
   }) as unknown as Task
 
-const rowIdOf = (uid: number): string => `row-${uid}`
+const rowIdOf = (uid: number): string => `task-group-${uid}`
 
 // WHY: the other Tasks sit below A and B and hold a dependency of their own,
 // so a whole-document edit would carry more than the pair and more than one line.
@@ -82,7 +82,7 @@ const fixtureDocument = (): Document => {
       resources: [],
       assignments: [],
       taskGroups: tasks.map((one, order) => ({
-        id: rowIdOf(one.uid), parentId: null, label: `row ${order}`, derivedFromTaskUid: null, order,
+        id: rowIdOf(one.uid), parentId: null, label: `task group ${order}`, derivedFromTaskUid: null, order,
         treeState: 'auto', color: null, minHeight: null,
       })),
       taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid) })),

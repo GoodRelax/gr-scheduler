@@ -120,7 +120,7 @@ function sceneJson(): Json {
   const schedule = json['schedule'] as Json
   const firstTask = (schedule['tasks'] as Json[])[0]
   const firstGroup = (schedule['taskGroups'] as Json[])[0]
-  if (firstTask === undefined || firstGroup === undefined) throw new Error('premise: the template holds a task and a row')
+  if (firstTask === undefined || firstGroup === undefined) throw new Error('premise: the template holds a task and a task group')
   const groupIdOf = (uid: number): string => `70900000-0000-4000-8000-${String(uid).padStart(12, '0')}`
   schedule['tasks'] = FIGURES.map((one) => ({
     ...structuredClone(firstTask),

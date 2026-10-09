@@ -393,13 +393,13 @@ describe('CR-404 -- premises of the fixture', () => {
     expect(report.errors).toEqual([])
   })
 
-  it('with every row auto, the depth rule of FR-018 alone decides what is drawn (0.6: depth <= 3)', () => {
+  it('with every task group auto, the depth rule of FR-018 alone decides what is drawn (0.6: depth <= 3)', () => {
     const layout = layoutOf(smallDocument({ zoomY: 0.6 }))
     expect(named(layout)).toEqual(named([A, B, R, S, B2, B2a, Z, Z1]))
   })
 })
 
-describe('FR-018 table T-329 -- an expanded row, its ancestors and its direct children are drawn', () => {
+describe('FR-018 table T-329 -- an expanded task group, its ancestors and its direct children are drawn', () => {
   it('TD-6 / TD-7: between the depth-3 and depth-4 thresholds, R expanded draws C1 and C2 but not the grandchild G1', () => {
     const zoomY = 0.6
     expect(zoomY).toBeLessThan(thresholdOf(4))
@@ -420,7 +420,7 @@ describe('FR-018 table T-329 -- an expanded row, its ancestors and its direct ch
     expect(drawn).toContain('Z')
   })
 
-  it('TD-6: expanded and temporarilyExpanded draw the same rows at every zoom', () => {
+  it('TD-6: expanded and temporarilyExpanded draw the same task groups at every zoom', () => {
     for (const zoomY of [1.2, 0.8, 0.6, 0.4, 0.25, S_54]) {
       for (const id of [R, C1, B2, Z]) {
         const expanded = layoutOf(smallDocument({ zoomY, expanded: [id] }))
@@ -445,7 +445,7 @@ describe('FR-018 table T-329 -- an expanded row, its ancestors and its direct ch
     expect(layoutOf(smallDocument({ zoomY, expanded: [R], levelZero: 'collapsed' }))).toEqual([])
   })
 
-  it('with the values fixed, lowering zoomY never draws more rows (monotonic)', () => {
+  it('with the values fixed, lowering zoomY never draws more task groups (monotonic)', () => {
     const zooms = [4, 2.2, 2, 1.2, 1.1, 0.8, 0.59, 0.4, 0.31, 0.1, S_54]
     for (const fixture of [
       { expanded: [R] },
@@ -470,14 +470,14 @@ describe('FR-018 table T-329 -- an expanded row, its ancestors and its direct ch
     expect(drawn).not.toContain('C2')
   })
 
-  it('FR-055 lower bound: at zoomMin (S-54) the rows the expanded row draws are still drawn', () => {
+  it('FR-055 lower bound: at zoomMin (S-54) the task groups the expanded task group draws are still drawn', () => {
     const drawn = named(layoutOf(smallDocument({ zoomY: S_54, expanded: [R] })))
     for (const one of ['A', 'B', 'R', 'C1', 'C2']) expect(drawn, one).toContain(one)
     expect(drawn).not.toContain('B2')
   })
 })
 
-describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v] on a depth-3 row", () => {
+describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v] on a depth-3 task group", () => {
   const byId = new Map<string, any>(TEMPLATE.schedule.taskGroups.map((one: any) => [one.id, one]))
   const depthOf = (one: any): number => (one.parentId === null ? 1 : 1 + depthOf(byId.get(one.parentId)))
   const childrenOf = (id: string): any[] => TEMPLATE.schedule.taskGroups.filter((one: any) => one.parentId === id)
@@ -496,7 +496,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
     return doc
   }
 
-  it('the template holds a depth-3 row whose child has children (premise)', () => {
+  it('the template holds a depth-3 task group whose child has children (premise)', () => {
     expect(target).toBeDefined()
   })
 
@@ -506,8 +506,8 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
     const kids = childrenOf(target.id).map((one: any) => one.id)
     const grandKids = kids.flatMap((id: string) => childrenOf(id).map((one: any) => one.id))
     expect(built.zoomY(), 'premise: below the depth-4 threshold').toBeLessThan(thresholdOf(4))
-    expect(built.zoomY(), 'premise: the depth-3 row itself is drawn').toBeGreaterThanOrEqual(thresholdOf(3))
-    expect(built.drawn(), 'premise: the depth-3 row is drawn').toContain(target.id)
+    expect(built.zoomY(), 'premise: the depth-3 task group itself is drawn').toBeGreaterThanOrEqual(thresholdOf(3))
+    expect(built.drawn(), 'premise: the depth-3 task group is drawn').toContain(target.id)
     for (const kid of kids) expect(built.drawn(), 'premise: its children vanished').not.toContain(kid)
     expect(built.title(target.id).canOpenOneLevel, HF_13_OPENABLE_CHILDREN).toBe(true)
 
@@ -532,7 +532,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
 
     built.press(FOLD_BELOW, target.id)
     expect(built.stateOf(target.id), HF_11_BY_T_328).toBe('collapsed')
-    expect(built.drawn(), 'the depth rule drops the depth-3 row again').not.toContain(target.id)
+    expect(built.drawn(), 'the depth rule drops the depth-3 task group again').not.toContain(target.id)
     for (const kid of kids) expect(built.drawn()).not.toContain(kid)
 
     built.undo()
@@ -541,7 +541,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
     for (const kid of kids) expect(built.drawn()).toContain(kid)
   })
 
-  it('[^] (HF-3) on the expanded row makes it hidden', () => {
+  it('[^] (HF-3) on the expanded task group makes it hidden', () => {
     const built = stage(templateDocument())
     for (let step = 0; step < 60 && built.zoomY() >= thresholdOf(4); step++) built.key('-', { alt: true })
     built.press(OPEN_ONE_LEVEL, target.id)
@@ -552,7 +552,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
 })
 
 describe('HF-13 -- [v] is drawn armed exactly when pressing it does something', () => {
-  it('a row whose children fell to zoom is armed; the press writes expanded in one step, draws them, and Ctrl+Z undoes it', () => {
+  it('a task group whose children fell to zoom is armed; the press writes expanded in one step, draws them, and Ctrl+Z undoes it', () => {
     const built = stage(smallDocument({ zoomY: 0.6 }))
     expect(built.drawn()).not.toContain(C1)
     expect(built.title(R).canOpenOneLevel).toBe(true)
@@ -632,7 +632,7 @@ describe('HF-13 / UN-14 -- [v] writes every value of the press in one step', () 
     expect(built.stateOf(R)).toBe('collapsed')
   })
 
-  it(`${HF_13_BY_T_328} -- a hidden direct child becomes collapsed with the pressed row expanded, and one Ctrl+Z restores both`, () => {
+  it(`${HF_13_BY_T_328} -- a hidden direct child becomes collapsed with the pressed task group expanded, and one Ctrl+Z restores both`, () => {
     const built = stage(smallDocument({ zoomY: 1.2, hidden: [C1] }))
     const before = built.states()
     built.press(OPEN_ONE_LEVEL, R)
@@ -645,7 +645,7 @@ describe('HF-13 / UN-14 -- [v] writes every value of the press in one step', () 
 })
 
 describe('HF-2 / HF-10 -- [vv] gives temporarilyExpanded and leaves expanded alone', () => {
-  it('HF-2 on a folded R: R and the non-leaf rows below become temporarilyExpanded, leaves under it auto, expanded stays, rows elsewhere untouched', () => {
+  it('HF-2 on a folded R: R and the non-leaf task groups below become temporarilyExpanded, leaves under it auto, expanded stays, task groups elsewhere untouched', () => {
     const fixture: Fixture = { zoomY: 1.2, folded: [R, S], expanded: [A, C1], hidden: [G1] }
     const built = stage(smallDocument(fixture))
     const before = built.states()
@@ -658,12 +658,12 @@ describe('HF-2 / HF-10 -- [vv] gives temporarilyExpanded and leaves expanded alo
       G1: 'auto',
       C2: 'auto',
     })
-    expect(built.stateOf(S), 'a folded row outside the subtree stays').toBe('collapsed')
+    expect(built.stateOf(S), 'a folded task group outside the subtree stays').toBe('collapsed')
     built.undo()
     expect(built.states(), UN_14_ONE_PRESS_ONE_STEP).toEqual(before)
   })
 
-  it('HF-10 at the head: every non-leaf row but expanded / temporarilyExpanded becomes temporarilyExpanded, folded and hidden leaves become auto', () => {
+  it('HF-10 at the head: every non-leaf task group but expanded / temporarilyExpanded becomes temporarilyExpanded, folded and hidden leaves become auto', () => {
     const built = stage(smallDocument({ zoomY: 1.2, folded: [B2, Z1], expanded: [R], temporarily: [C1], hidden: [G1] }))
     const before = built.states()
     built.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
@@ -686,7 +686,7 @@ describe('HF-2 / HF-10 -- [vv] gives temporarilyExpanded and leaves expanded alo
     expect(built.states(), UN_14_ONE_PRESS_ONE_STEP).toEqual(before)
   })
 
-  it(`${UN_14_LEVEL_ZERO_SAME_STEP} -- head [vv] opens a folded level zero with the rows, and one Ctrl+Z folds it again`, () => {
+  it(`${UN_14_LEVEL_ZERO_SAME_STEP} -- head [vv] opens a folded level zero with the task groups, and one Ctrl+Z folds it again`, () => {
     const built = stage(smallDocument({ zoomY: 1.2, folded: [A, Z], levelZero: 'collapsed' }))
     expect(built.drawn(), 'premise: TD-1 draws nothing').toEqual([])
     const before = built.states()
@@ -699,7 +699,7 @@ describe('HF-2 / HF-10 -- [vv] gives temporarilyExpanded and leaves expanded alo
     expect(built.states()).toEqual(before)
   })
 
-  it('after head [vv], the first vertical-zoom shrink returns every temporarilyExpanded row to auto, and expanded stays', () => {
+  it('after head [vv], the first vertical-zoom shrink returns every temporarilyExpanded task group to auto, and expanded stays', () => {
     const built = stage(smallDocument({ zoomY: 1.2, folded: [B2], expanded: [R] }))
     built.press(HEAD_OPEN_EVERY_TASK_GROUP, null)
     expect(built.withState('temporarilyExpanded').length, 'premise').toBeGreaterThan(0)
@@ -718,13 +718,13 @@ describe('HF-2 / HF-10 -- [vv] gives temporarilyExpanded and leaves expanded alo
 describe('HF-3 / HF-11 / HF-12 -- [^], [^^] and head [^^] fold what is below', () => {
   const OPENED: Fixture = { zoomY: 0.25, expanded: [A, B, R, Z], temporarily: [C1], hidden: [S1] }
 
-  it(`${HF_3_BY_T_328} -- [^] on R: R hidden, every row below collapsed, the ancestors keep theirs`, () => {
+  it(`${HF_3_BY_T_328} -- [^] on R: R hidden, every task group below collapsed, the ancestors keep theirs`, () => {
     const built = stage(smallDocument(OPENED))
     built.press(HIDE, R)
     expect(built.states()).toMatchObject({ A: 'expanded', B: 'expanded', R: 'hidden', C1: 'collapsed', G1: 'collapsed', C2: 'collapsed', Z: 'expanded', S1: 'hidden' })
   })
 
-  it(`${HF_11_BY_T_328} -- [^^] on R: R and every row below collapsed, the ancestors keep theirs`, () => {
+  it(`${HF_11_BY_T_328} -- [^^] on R: R and every task group below collapsed, the ancestors keep theirs`, () => {
     const built = stage(smallDocument(OPENED))
     built.press(FOLD_BELOW, R)
     expect(built.states()).toMatchObject({ A: 'expanded', B: 'expanded', R: 'collapsed', C1: 'collapsed', G1: 'collapsed', C2: 'collapsed', Z: 'expanded' })
@@ -733,7 +733,7 @@ describe('HF-3 / HF-11 / HF-12 -- [^], [^^] and head [^^] fold what is below', (
   it.each([
     ['[^]', HIDE, 'hidden'],
     ['[^^]', FOLD_BELOW, 'collapsed'],
-  ])('%s on the ancestor A folds everything under it, keeps a hidden row hidden, and leaves Z', (_name, entry, pressed) => {
+  ])('%s on the ancestor A folds everything under it, keeps a hidden task group hidden, and leaves Z', (_name, entry, pressed) => {
     const built = stage(smallDocument(OPENED))
     built.press(entry, A)
     const states = built.states()
@@ -753,7 +753,7 @@ describe('HF-3 / HF-11 / HF-12 -- [^], [^^] and head [^^] fold what is below', (
     expect(built.stateOf(G1)).toBe('collapsed')
   })
 
-  it(`${UN_14_LEVEL_ZERO_SAME_STEP} -- head [^^] folds every row but collapsed / hidden and level zero in one step`, () => {
+  it(`${UN_14_LEVEL_ZERO_SAME_STEP} -- head [^^] folds every task group but collapsed / hidden and level zero in one step`, () => {
     const built = stage(smallDocument(OPENED))
     const before = built.states()
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
@@ -763,7 +763,7 @@ describe('HF-3 / HF-11 / HF-12 -- [^], [^^] and head [^^] fold what is below', (
     }
     expect(built.drawn()).toEqual([])
     built.undo()
-    expect(built.levelZero(), 'one undo brings the rows back, not a folded level zero').toBe('auto')
+    expect(built.levelZero(), 'one undo brings the task groups back, not a folded level zero').toBe('auto')
     expect(built.states()).toEqual(before)
     expect(built.drawn().length).toBeGreaterThan(0)
   })
@@ -823,7 +823,7 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
     expect(built.zoomY(), 'UN-8: the zoom stays new').toBe(fittedZoomY)
   })
 
-  it('F opens a folded level zero; one Ctrl+Z folds it again with the rows while the zoom stays new', () => {
+  it('F opens a folded level zero; one Ctrl+Z folds it again with the task groups while the zoom stays new', () => {
     const built = stage(smallDocument({ zoomY: 0.8, folded: [A], levelZero: 'collapsed' }))
     built.key('F')
     expect(built.levelZero()).toBe('auto')
@@ -836,30 +836,30 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
     expect(built.zoomY()).toBe(fittedZoomY)
   })
 
-  it('CM-72 resetTaskGroupTreeStates, applied on its own, returns every row but hidden to auto', () => {
+  it('CM-72 resetTaskGroupTreeStates, applied on its own, returns every task group but hidden to auto', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R, Z], folded: [B2], temporarily: [C1], hidden: [S1] })
-    const result = editTaskGroup(doc as any, { kind: 'resetTaskGroupTreeStates' } as any, 'Row')
+    const result = editTaskGroup(doc as any, { kind: 'resetTaskGroupTreeStates' } as any, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const states = statesOf((result.document.schedule as any).taskGroups)
     for (const [name, value] of Object.entries(states)) expect(value, name).toBe(name === 'S1' ? 'hidden' : 'auto')
   })
 
-  it('CM-85 setTaskGroupTreeState, applied on its own, writes one row and nothing else', () => {
+  it('CM-85 setTaskGroupTreeState, applied on its own, writes one task group and nothing else', () => {
     const doc = smallDocument({ zoomY: 0.8 })
-    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'expanded' } as any, 'Row')
+    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'expanded' } as any, 'Task group')
     expect(on?.ok, 'CM-85 is answered by the task group command module').toBe(true)
     if (!on?.ok) return
     const groups = (on.document.schedule as any).taskGroups
     expect(groups.filter((one: any) => one.treeState !== 'auto').map((one: any) => one.id)).toEqual([R])
-    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'auto' } as any, 'Row')
+    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'auto' } as any, 'Task group')
     expect(off.ok).toBe(true)
     if (off.ok) expect(stateAmong((off.document.schedule as any).taskGroups, R)).toBe('auto')
   })
 })
 
 describe('HF-16 -- head [v] opens level zero and writes neither expanded nor temporarilyExpanded', () => {
-  it('head [^^] then head [v] brings the shallowest level back and leaves every row collapsed or auto', () => {
+  it('head [^^] then head [v] brings the shallowest level back and leaves every task group collapsed or auto', () => {
     const built = stage(smallDocument({ zoomY: 1.2 }))
     built.press(HEAD_FOLD_EVERY_TASK_GROUP, null)
     built.press(HEAD_OPEN_ONE_LEVEL, null)
@@ -869,7 +869,7 @@ describe('HF-16 -- head [v] opens level zero and writes neither expanded nor tem
     expect(built.withState('temporarilyExpanded')).toEqual([])
   })
 
-  it('head [v] turns a hidden top-level row into collapsed (T-328 topLevelOpenPressed)', () => {
+  it('head [v] turns a hidden top-level task group into collapsed (T-328 topLevelOpenPressed)', () => {
     const built = stage(smallDocument({ zoomY: 1.2, hidden: [Z], levelZero: 'collapsed' }))
     built.press(HEAD_OPEN_ONE_LEVEL, null)
     expect(built.levelZero()).toBe('auto')
@@ -879,7 +879,7 @@ describe('HF-16 -- head [v] opens level zero and writes neither expanded nor tem
 })
 
 describe('FR-029 -- a thin press writes nothing', () => {
-  it('HF-2: [vv] over rows dropped by zoom only is armed now (T-329) and draws them', () => {
+  it('HF-2: [vv] over task groups dropped by zoom only is armed now (T-329) and draws them', () => {
     const built = stage(smallDocument({ zoomY: 0.8 }))
     expect(built.drawn(), 'premise: G1 fell to zoom').not.toContain(G1)
     built.press(OPEN_ALL_BELOW, R)
@@ -906,7 +906,7 @@ describe('FR-029 -- a thin press writes nothing', () => {
 })
 
 describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
-  it('a vertical-zoom shrink returns temporarilyExpanded to auto and leaves expanded; one Ctrl+Z gives the rows back and keeps the new zoom', () => {
+  it('a vertical-zoom shrink returns temporarilyExpanded to auto and leaves expanded; one Ctrl+Z gives the task groups back and keeps the new zoom', () => {
     const built = stage(smallDocument({ zoomY: 0.8, expanded: [R, Z], temporarily: [B2, C1] }))
     const before = built.states()
     built.key('-', { alt: true })
@@ -928,13 +928,13 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     expect(built.states()).toEqual(before)
   })
 
-  it('createTaskGroup adds a row whose value is temporarilyExpanded (AT-153), and the others keep theirs', () => {
+  it('createTaskGroup adds a task group whose value is temporarilyExpanded (AT-153), and the others keep theirs', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R] })
     const fresh = 'bbbbbbbb-0000-4000-8000-000000000001'
     const result = editTaskGroup(
       doc as any,
       { kind: 'createTaskGroup', id: fresh, parentId: R, label: 'New', derivedFromTaskUid: null, order: 99 },
-      'Row',
+      'Task group',
     )
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -943,16 +943,16 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     expect(groups.filter((one: any) => one.treeState === 'expanded').map((one: any) => one.id)).toEqual([R])
   })
 
-  it('moveTaskGroup keeps the moved row value and every other', () => {
+  it('moveTaskGroup keeps the moved task group value and every other', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R, C1] })
-    const result = editTaskGroup(doc as any, { kind: 'moveTaskGroup', groupId: C1, parentId: S, order: 99 }, 'Row')
+    const result = editTaskGroup(doc as any, { kind: 'moveTaskGroup', groupId: C1, parentId: S, order: 99 }, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const groups = (result.document.schedule as any).taskGroups
     expect(named(groups.filter((one: any) => one.treeState === 'expanded').map((one: any) => one.id)).sort()).toEqual(['C1', 'R'])
   })
 
-  // WHY: DU-2 does not say whether a copied row keeps its treeState or is created auto (AT-153),
+  // WHY: DU-2 does not say whether a copied task group keeps its treeState or is created auto (AT-153),
   // so only the originals are asserted here; the gap is reported, not decided.
   it('a pasted subtree leaves the values of the originals alone', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R, C1] })
@@ -963,7 +963,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     const result = editTaskGroup(
       doc as any,
       { kind: 'pasteTaskGroupSubtree', sourceGroupId: R, targetGroupId: B2, newGroupIds: newIds },
-      'Row',
+      'Task group',
     )
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -1045,7 +1045,7 @@ describe(`FR-016 -- ${FR_016_TALLEST_AMONG_DRAWN}`, () => {
   }
 
   it.each(['expanded', 'temporarilyExpanded'] as const)(
-    'the dense row drawn because its parent is %s lowers the ceiling below the auto one',
+    'the dense task group drawn because its parent is %s lowers the ceiling below the auto one',
     (parentState) => {
       const unopened = ceilingOf(deepDenseDocument('auto'))
       const opened = ceilingOf(deepDenseDocument(parentState))

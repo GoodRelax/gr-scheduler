@@ -1,4 +1,4 @@
-// CR-582 / CR-689 spec-only cases: a row's min height is drawn scaled by S-234 / 100, never by zoomY or S-236.
+// CR-582 / CR-689 spec-only cases: a task group's min height is drawn scaled by S-234 / 100, never by zoomY or S-236.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -157,12 +157,12 @@ function documentOf(minHeight: number | null): Document {
 const ENV: ScreenEnvironment = { width: 1400, height: 4000, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 // see LF-2, LF-3, MH-3
-// WHY: the band height of the row, without taskGroupGap.
+// WHY: the band height of the task group, without taskGroupGap.
 function bandOf(document: Document, displayScale: number, zoomY: number, groupId = FLOORED): number {
   const settings = { ...document.documentSettings, displayScale } as Document['documentSettings']
   const taskGroups = taskGroupPlacesAtZoomY(document.schedule, settings, regionsFromScreen(ENV, settings), zoomY)
   const found = taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`row ${groupId} is not placed at scale ${displayScale}, zoomY ${zoomY}`)
+  if (found === undefined) throw new Error(`task group ${groupId} is not placed at scale ${displayScale}, zoomY ${zoomY}`)
   return found.height
 }
 
@@ -208,7 +208,7 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever 
     expect(bandOf(documentOf(typed), displayScale, zoomY)).toBeCloseTo(content, 6)
   })
 
-  it(`"${DS_13_MULTIPLY}" -- only the floored row changes: the other row keeps its content band`, () => {
+  it(`"${DS_13_MULTIPLY}" -- only the floored task group changes: the other task group keeps its content band`, () => {
     const content = contentBand(DEFAULT_DISPLAY_SCALE, S_76_DEFAULT)
     const typed = Math.ceil(content) * 3
     const floored = documentOf(typed)
@@ -218,7 +218,7 @@ describe('T-252 DS-13 -- the drawn floor is minHeight x (S-234 / 100), whatever 
     )
   })
 
-  it(`FR-042 "${FR_042_NOT_ZOOM_Y}" -- a tall floored row keeps its typed band at every notch the zoom goes down`, () => {
+  it(`FR-042 "${FR_042_NOT_ZOOM_Y}" -- a tall floored task group keeps its typed band at every notch the zoom goes down`, () => {
     const content = contentBand(DEFAULT_DISPLAY_SCALE, ZOOMS[ZOOMS.length - 1]!)
     const typed = Math.ceil(content) * 4
     const floored = documentOf(typed)

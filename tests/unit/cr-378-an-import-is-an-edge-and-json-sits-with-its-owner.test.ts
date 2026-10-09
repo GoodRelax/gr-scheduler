@@ -288,12 +288,12 @@ describe('CR-378 section 5.3: DEFAULT_TASK_GROUP_NAME is published by ScreenRend
     const words = JSON.parse(
       readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
     ) as { defaultNames?: readonly { use: string; text: Record<string, string> }[] }
-    const found = (words.defaultNames ?? []).find((one) => one.use === 'row')
-    if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `row`')
+    const found = (words.defaultNames ?? []).find((one) => one.use === 'taskGroup')
+    if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
     return found.text['en'] ?? ''
   })()
 
-  it('PI-37: ScreenRenderer publishes DEFAULT_TASK_GROUP_NAME, the dictionary word for a row (HF-14)', () => {
+  it('PI-37: ScreenRenderer publishes DEFAULT_TASK_GROUP_NAME, the dictionary word for a task group (HF-14)', () => {
     expect(manuscriptTaskGroupWord).not.toBe('')
     expect((screenRenderer as Record<string, unknown>)['DEFAULT_TASK_GROUP_NAME']).toBe(manuscriptTaskGroupWord)
   })

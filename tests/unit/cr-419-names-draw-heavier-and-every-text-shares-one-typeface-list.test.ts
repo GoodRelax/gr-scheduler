@@ -328,10 +328,10 @@ describe('FR-039 (MUST) -- the DOM surfaces: App Header, Command Palette, help a
     expect(new Set(families), FR_039_NOT_PER_SURFACE).toEqual(new Set([S_246]))
   })
 
-  it(`does not draw the row names at S-245: ${FR_039_NOTHING_ELSE_IS_HEAVIER}`, () => {
+  it(`does not draw the task group names at S-245: ${FR_039_NOTHING_ELSE_IS_HEAVIER}`, () => {
     const { mount } = domDrawn()
     const taskGroupNames = selfAndDescendants(mount).filter((one) => /^row[1-5]$/.test(ownText(one)))
-    expect(taskGroupNames.length, 'premise: the task group panel names the rows').toBeGreaterThan(0)
+    expect(taskGroupNames.length, 'premise: the task group panel names the task groups').toBeGreaterThan(0)
     for (const name of taskGroupNames) {
       expect(effectiveOf(name, 'font-weight'), FR_039_NOTHING_ELSE_IS_HEAVIER).not.toBe(String(S_245))
     }

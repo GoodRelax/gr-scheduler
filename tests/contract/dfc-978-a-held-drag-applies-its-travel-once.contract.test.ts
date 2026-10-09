@@ -56,7 +56,7 @@ const oneTaskDocument = (): Document =>
       assignments: [],
       taskGroups: [
         {
-          id: ROW_ID, parentId: null, label: 'row', derivedFromTaskUid: null, order: 0,
+          id: ROW_ID, parentId: null, label: 'task group', derivedFromTaskUid: null, order: 0,
           treeState: 'auto', editGroup: null, color: null, minHeight: null,
         },
       ],
@@ -178,7 +178,7 @@ describe('DFC-978 / T-023d, PTD-4, IN-1 -- every move of one held press draws fr
     const day = dayWidthOf(built.loop)
     const pressAt = { x: ends.right + DAYS_RIGHT_OF_THE_BAR * day, y: ends.y }
     const held = built.loop.document().schedule.tasks.length
-    // STEP: press on an empty place of the row, then move one day and two days away from the press
+    // STEP: press on an empty place of the task group, then move one day and two days away from the press
     built.send(pointer('down', pressAt))
     built.send(pointer('move', { x: pressAt.x + FIRST_TRAVEL_DAYS * day, y: pressAt.y }))
     expect(drawnTaskCount(built.loop), 'premise: the first move draws the Task a release would make').toBe(held + 1)

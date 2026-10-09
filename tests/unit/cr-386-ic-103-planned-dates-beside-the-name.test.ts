@@ -185,7 +185,7 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
       taskGroups: planned.map((one, order) => ({
         id: rowIdOf(one.uid),
         parentId: null,
-        label: `row ${order}`,
+        label: `task group ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto', color: null,

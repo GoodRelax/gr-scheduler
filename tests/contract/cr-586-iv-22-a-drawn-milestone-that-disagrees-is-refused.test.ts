@@ -347,7 +347,7 @@ const CV_9_REFUSED =
   '⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT）'
 const BLACK = bare(rowOf(specTable('T-294'), 'S-315').by['保存する綴り'] ?? '')
 
-describe('the GRS JSON open path refuses IV-22 and a bandless row colour (CR-586 seam S-5, FR-076, T-233 closing)', () => {
+describe('the GRS JSON open path refuses IV-22 and a bandless task group colour (CR-586 seam S-5, FR-076, T-233 closing)', () => {
   it('control: the same file with the one milestone value agreeing opens, through the chooser, and replaces', async () => {
     const json = withMilestone(templateJson(), DRAWN_MILESTONE.taskUid, true)
     json['schedule']['tasks'].find((one: Json) => one['uid'] === DRAWN_BAR.taskUid)['name'] = 'control marker'
@@ -371,7 +371,7 @@ describe('the GRS JSON open path refuses IV-22 and a bandless row colour (CR-586
     },
   )
 
-  it(`${CV_9_REFUSED} -- a row coloured with the bandless name is refused before OP-3 and the document is kept`, async () => {
+  it(`${CV_9_REFUSED} -- a task group coloured with the bandless name is refused before OP-3 and the document is kept`, async () => {
     expect(rowOf(specTable('T-017b'), 'CV-9').cells.join(' ')).toContain(CV_9_REFUSED)
     const json = templateJson()
     const heldColour = json['schedule']['taskGroups'][0]['color'] as string | null

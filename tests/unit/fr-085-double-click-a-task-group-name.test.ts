@@ -10,7 +10,7 @@
 // ⛔ THE `Enter` IS NOT A NEW RULE, AND NO CASE HERE MINTS ONE. SK-19 of table
 // T-036 already puts the panel away on an `Enter` raised with no unsettled edit
 // standing, and FR-085 (MUST NOT) forbids restating it -- so what these cases
-// ask is that the row's name arrives on the very panel SK-19 already closes.
+// ask is that the task group's name arrives on the very panel SK-19 already closes.
 // tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns that key.
 //
 // Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 //
 // On 2026-09-01 a probe drove the shipped `dist/index.html`: a double click on a
-// row's name in the `Task Group Panel` DID put the panel up, and the panel held
+// task group's name in the `Task Group Panel` DID put the panel up, and the panel held
 // exactly two fields, `AT-58` and `AT-59`. No name. Nothing focused
 // (`document.activeElement` was BODY). ⇒ The gap was a MISSING FIELD first, and
 // the missing focus and the missing commit followed from it. That is the
@@ -44,7 +44,7 @@
 //            （MUST NOT）」.
 //   T-023    MK-13's タスクグループ見出し entry.
 //   T-036    SK-19, which closes the panel and is NOT restated here.
-//   AT-53    `TaskGroup.label`, the row's name.
+//   AT-53    `TaskGroup.label`, the task group's name.
 //
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
 // 04-verification.md section 1). What was read of `src/`: the exported
@@ -122,7 +122,7 @@ const THE_OVERRIDDEN_SENTENCE =
   '⚠️ **タスクグループ名はここで扱わない** —— 名前を付ける・変える入口は `FR-085` のタスクグループパネル 1 つとする（`FR-029`）。'
 
 /**
- * `AT-53` -- the row's name, read out of the ERD rather than typed.
+ * `AT-53` -- the task group's name, read out of the ERD rather than typed.
  *
  * ⭐ THE ROW ID IS THE JOIN across IF-9 (`focusPropertyField` takes one), so it
  * is read from the table that owns it and asserted to be `TaskGroup.label`.
@@ -299,10 +299,10 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   panel(): PropertiesPanel | null
-  /** Aim the next press at one row of the `Task Group Panel`, on its name. */
+  /** Aim the next press at one task group of the `Task Group Panel`, on its name. */
   aimAtTaskGroup(groupId: string): void
   aimAtNothing(): void
-  /** The name the document holds for one row. */
+  /** The name the document holds for one task group. */
   labelOf(groupId: string): string | null
 }
 
@@ -320,8 +320,8 @@ function stage(): Stage {
     screen,
     send,
     panel: () => screen.last().propertiesPanel,
-    // ⚠️ `entry` IS NULL, which is what a press on the row's NAME is: the three
-    // controls table T-051 draws on a row each carry a row of table T-109, and
+    // ⚠️ `entry` IS NULL, which is what a press on the task group's NAME is: the three
+    // controls table T-051 draws on a task group each carry a row of table T-109, and
     // the name carries none.
     aimAtTaskGroup: (groupId) => {
       screen.drawAt({
@@ -343,7 +343,7 @@ function stage(): Stage {
   }
 }
 
-/** One plain press on a row -- FR-085's choosing, and nothing more. */
+/** One plain press on a task group -- FR-085's choosing, and nothing more. */
 function pressRow(built: Stage, groupId: string): void {
   built.aimAtTaskGroup(groupId)
   built.send(pointer('down', 80, 200))
@@ -352,12 +352,12 @@ function pressRow(built: Stage, groupId: string): void {
 }
 
 /**
- * MK-13 on a row's name: the double click FR-085 makes the rename path.
+ * MK-13 on a task group's name: the double click FR-085 makes the rename path.
  *
  * ⛔ BOTH CLICKS ARE SENT, WHICH IS WHAT A BROWSER DELIVERS. The first carries
- * `clickCount: 1` and is the press that chooses the row (FR-085); the second
+ * `clickCount: 1` and is the press that chooses the task group (FR-085); the second
  * carries 2 and is MK-13's. ⚠️ A case that sent only the second would be asking
- * the shell to choose a row AND rename it on one press, which the branch says in
+ * the shell to choose a task group AND rename it on one press, which the branch says in
  * as many words it does not do -- and it would pass or fail for the wrong reason.
  */
 function doubleClickTaskGroupName(built: Stage, groupId: string): void {
@@ -399,8 +399,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 })
 
-describe('FR-042 (MUST): the row s name is a field of the panel', () => {
-  it('⭐ the panel a chosen row puts up carries AT-53, editable, with the name in it', () => {
+describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
+  it('⭐ the panel a chosen task group puts up carries AT-53, editable, with the name in it', () => {
     // ⭐ THE MEASURED GAP OF 2026-09-01, ASKED AT THE UNIT: the shipped panel
     // held AT-58 and AT-59 and no name at all.
     // GOES RED IF: AT-53 leaves `GROUP_ITEMS`, or arrives read-only.
@@ -425,7 +425,7 @@ describe('FR-042 (MUST): the row s name is a field of the panel', () => {
 
   it('⚠️ the colour and the height are still there beside it', () => {
     // ⛔ THE RULING ADDED A FIELD AND TOOK NONE AWAY. FR-042's first sentence
-    // still (MUST) puts the row's colour and height on this panel.
+    // still (MUST) puts the task group's colour and height on this panel.
     // GOES RED IF: the name is put in place of one of them.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
@@ -442,7 +442,7 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
     // control (LR-6), so what this unit owes is the ASK -- and the seam member
     // it travels on is optional, which is why nothing else would notice it going.
     // GOES RED IF: the double click stops reaching `editInPlace`, or the ask is
-    // sent for PR-1 (a Task's name) on a row.
+    // sent for PR-1 (a Task's name) on a task group.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
 
@@ -450,21 +450,21 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
     expect(built.screen.focusAsks()).toEqual([TASK_GROUP_NAME_FIELD])
   })
 
-  it('⛔ a single press chooses the row and asks for no field (FR-042, MUST NOT)', () => {
+  it('⛔ a single press chooses the task group and asks for no field (FR-042, MUST NOT)', () => {
     // ⚠️ THE CONTROL CASE, and a rule of its own: 「タスクグループを選んだだけで名前の欄へ焦点
     // を移してはならない（MUST NOT）」. Without it, a shell that asked for the
-    // field on EVERY press on a row would pass the case above.
+    // field on EVERY press on a task group would pass the case above.
     // GOES RED IF: the ask is hung on the press rather than on the double click.
     const built = stage()
     pressRow(built, ALPHA)
     expect(built.screen.focusAsks(), 'a plain press asks for no field').toEqual([])
   })
 
-  it('⭐ the panel turns to the row that was double clicked', () => {
+  it('⭐ the panel turns to the task group that was double clicked', () => {
     // ⛔ NOTHING IS CHOSEN BY THE SECOND CLICK: the first one already moved the
-    // chosen rows, so the panel shows what was pressed. A second row double
+    // chosen task groups, so the panel shows what was pressed. A second task group double
     // clicked after the first must move the panel with it.
-    // GOES RED IF: the panel keeps the row the FIRST double click chose.
+    // GOES RED IF: the panel keeps the task group the FIRST double click chose.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(fieldOf(built.panel(), TASK_GROUP_NAME_FIELD)?.text).toBe(ALPHA_NAME)

@@ -241,7 +241,7 @@ const bandOf = (scene: Scene): Box | null => {
   if (parts.length === 0) return null
   const margin = 16
   return {
-    // WHY: from the row area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
+    // WHY: from the task group area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
     x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.taskGroupArea.x0),
     x1: Math.min(Math.max(...parts.map((one) => one.x1)) + margin, scene.taskGroupArea.x1 - 1),
     y0: Math.max(Math.min(...parts.map((one) => one.y0)) - margin, scene.taskGroupArea.y0 + 1),
@@ -296,7 +296,7 @@ const inkOf = (drawn: TaskGeometry, family: string): readonly Box[] => {
 const touches = (a: Box, b: Box): boolean => a.x0 <= b.x1 && b.x0 <= a.x1 && a.y0 <= b.y1 && b.y0 <= a.y1
 
 // see FR-108
-// WHY: the frame clips the scrolling layer to the row area, so a figure whose
+// WHY: the frame clips the scrolling layer to the task group area, so a figure whose
 // WHY: whole ink sits outside that area is not drawn in this frame and carries
 // WHY: no grab area. Reading the display setting alone would ask FR-104 about
 // WHY: a bar the author cannot see -- at the high end of the zoom one day is
@@ -367,7 +367,7 @@ test('every family the frame did draw answers somewhere, at both ends of the zoo
   for (const zoom of ZOOM_ENDS) {
     expect(
       [...(wantedAt.get(zoom) ?? new Set<string>())].sort(),
-      `premise: zoomX=${String(zoom)} draws more than one family inside the row area, or that end of the zoom asserts nothing`,
+      `premise: zoomX=${String(zoom)} draws more than one family inside the task group area, or that end of the zoom asserts nothing`,
     ).not.toHaveLength(0)
     expect((wantedAt.get(zoom) ?? new Set<string>()).size).toBeGreaterThan(1)
   }

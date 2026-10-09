@@ -191,7 +191,7 @@ test(`HF-10: "${HF_10_COUNT_PLACE}"`, async ({ page }) => {
   const control = await rectOf(page, `[data-role="Task Group Panel"] ${icon('IC-78')}`)
   const count = await rectOf(page, '[data-role="Task Group Panel"] [data-folded-task-groups]')
   expect(control, 'the collapse-all control is drawn').not.toBeNull()
-  expect(count, 'HF-12: the number of folded rows is shown once every row is folded').not.toBeNull()
+  expect(count, 'HF-12: the number of folded task groups is shown once every task group is folded').not.toBeNull()
   expect(Math.abs((count?.right ?? 0) - (control?.left ?? 0)), HF_10_COUNT_PLACE).toBeLessThanOrEqual(SUBPIXEL)
   expect(count?.left ?? 0, 'the number stands to the left, outside the row of controls').toBeLessThan(control?.left ?? 0)
 })

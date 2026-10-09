@@ -1,4 +1,4 @@
-// Spec-only cases for CR-569: the project summary task is carried, not a row
+// Spec-only cases for CR-569: the project summary task is carried, not a task group
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -243,7 +243,7 @@ describe('CR-569 -- MR-4 on an MS Project file built in the test', () => {
     for (const uid of [2, 3]) {
       expect(document.schedule.tasks.find((each) => each.uid === uid)?.parentTaskUid, `task ${uid}`).toBe(1)
     }
-    expect(topTaskGroups(document).map((each) => each.derivedFromTaskUid), 'FR-058: each is a top row').toEqual([1, 4])
+    expect(topTaskGroups(document).map((each) => each.derivedFromTaskUid), 'FR-058: each is a top task group').toEqual([1, 4])
   })
 
   it(REFERENCES_CARRIED, () => {
@@ -307,7 +307,7 @@ describe('CR-569 -- EX-5 and JDG-582 on the way back out', () => {
     expect(fieldOf(summary, 'Finish')).toBe(SUMMARY_FINISH)
   })
 
-  it('reads its own output back to the same tasks, rows and carried summary', () => {
+  it('reads its own output back to the same tasks, task groups and carried summary', () => {
     const again = accepted(out)
     expect(again.schedule.tasks.map((each) => each.uid)).toEqual(document.schedule.tasks.map((each) => each.uid))
     expect(topTaskGroups(again).map((each) => each.derivedFromTaskUid)).toEqual([1, 4])
@@ -336,7 +336,7 @@ describe('CR-569 -- JDG-580 on sample-schedule/sample-large-erp-program.ja.xml',
   const text = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
   const document = accepted(text)
 
-  it('opens with 12 top rows, the first of them 1. プログラム管理', () => {
+  it('opens with 12 top task groups, the first of them 1. プログラム管理', () => {
     const taskGroups = topTaskGroups(document)
     expect(taskGroups).toHaveLength(12)
     const names = taskGroups.map((taskGroup) => document.schedule.tasks.find((each) => each.uid === taskGroup.derivedFromTaskUid)?.name)

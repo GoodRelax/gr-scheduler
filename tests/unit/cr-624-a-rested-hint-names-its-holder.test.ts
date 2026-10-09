@@ -120,7 +120,7 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
     expect(tipsFor(early)).toEqual([])
   })
 
-  it('DFC-1720: an icon on a row carries that row in its anchor; one off a row carries none', () => {
+  it('DFC-1720: an icon on a task group carries that task group in its anchor; one off a task group carries none', () => {
     const onTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-58', iconRowUnderPointer: 'g2', hintTargetDwellMs: 1e6 }))
     const offTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-5', iconRowUnderPointer: null, hintTargetDwellMs: 1e6 }))
     expect(onTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-58', groupId: 'g2' })
@@ -129,7 +129,7 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
 })
 
 describe('IN-3 -- each anchor kind has a key of its own', () => {
-  it('task, deadline and baseline of one Task, and an icon on two rows, never share a key', () => {
+  it('task, deadline and baseline of one Task, and an icon on two task groups, never share a key', () => {
     const keys = [
       anchorKey({ kind: 'task', taskUid: 7 }),
       anchorKey({ kind: 'deadline', taskUid: 7 }),

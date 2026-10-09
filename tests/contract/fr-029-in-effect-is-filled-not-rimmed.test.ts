@@ -640,6 +640,6 @@ describe('FR-029 (MUST NOT) -- the fill is not applied to an entrance drawn fain
 
 // ===========================================================================
 // ⚠️ NO CASE FOR EN-3 HERE. 表 T-237 hands that row to 表 T-051's `HF-6`, and the
-// entrance it fills is a row control rather than a palette one, so it is held
+// entrance it fills is a task group control rather than a palette one, so it is held
 // by tests/unit/t-051-hf-6-the-pinned-task-groups-pin-is-filled.test.ts.
 // ===========================================================================

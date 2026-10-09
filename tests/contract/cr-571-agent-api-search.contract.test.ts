@@ -277,7 +277,7 @@ describe(`AM-25 readSearchRows -- ${AM_25_RETURNS}`, () => {
 })
 
 describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
-  it(`opens the task's row and its ancestor (SJ-2), as one undo step -- ${SJ_2_ONE_STEP}`, () => {
+  it(`opens the task's task group and its ancestor (SJ-2), as one undo step -- ${SJ_2_ONE_STEP}`, () => {
     const one = bench('collapsed', 'hidden')
     const outcome = one.api.focusTask(DEEP_UID)
     expect(outcome.accepted).toBe(true)
@@ -287,13 +287,13 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
     expect(one.state.history.done).toHaveLength(1)
   })
 
-  it(`leaves no undo step when every row is already open -- ${SJ_2_NO_STEP}`, () => {
+  it(`leaves no undo step when every task group is already open -- ${SJ_2_NO_STEP}`, () => {
     const one = bench('expanded', 'expanded')
     expect(one.api.focusTask(DEEP_UID).accepted).toBe(true)
     expect(one.state.history.done).toHaveLength(0)
   })
 
-  it('puts the task\'s row at the top of the view (SJ-5) and answers isScrolled: true', () => {
+  it('puts the task\'s task group at the top of the view (SJ-5) and answers isScrolled: true', () => {
     const one = bench('auto', 'auto')
     const outcome = one.api.focusTask(DEEP_UID) as unknown as { accepted: boolean; isScrolled?: unknown }
     expect(outcome.accepted).toBe(true)

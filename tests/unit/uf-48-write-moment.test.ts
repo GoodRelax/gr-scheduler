@@ -176,8 +176,8 @@ const spellingsOf = (row: string): string[] =>
 // ---------------------------------------------------------------------------
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The
-// calendar, the project and the settings come from it; the rows and the Tasks
-// are written out here so that what is drawn can be named row by row.
+// calendar, the project and the settings come from it; the task groups and the Tasks
+// are written out here so that what is drawn can be named task group by task group.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -191,7 +191,7 @@ const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
 
 /**
- * Two rows, one Task on each, and NO base date line.
+ * Two task groups, one Task on each, and NO base date line.
  *
  * ⛔ `statusDate: null` is a premise, not decoration. SK-20 of table T-036 is
  * 出す / 消す and FR-046 splits the two halves on exactly that value, so a

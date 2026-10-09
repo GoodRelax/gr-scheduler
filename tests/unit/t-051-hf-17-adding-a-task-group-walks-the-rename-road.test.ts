@@ -1,10 +1,10 @@
 // 表 T-051 の `HF-17` and `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-346 then
 // CR-348, ledger row DFC-243): 「行を足す操作が、タスクグループ名を変える操作と同じ操作感で
-// あること」 -- adding a row at 段 0 (the panel's head, `HF-17`) must feel exactly
+// あること」 -- adding a task group at 段 0 (the panel's head, `HF-17`) must feel exactly
 // like renaming one already on the panel (`FR-085`'s double-click path).
 //
 // ⭐⭐ THE RULING THIS FILE IS WRITTEN FROM (quoted in 表 T-051's `HF-14`,
-// 利用者の裁定 2026-09-03; the one clause naming an example row's placeholder
+// 利用者の裁定 2026-09-03; the one clause naming an example task group's placeholder
 // text is deliberately not quoted here -- HF-14 itself forbids printing that
 // spelling, so this file does not print it either):
 //
@@ -45,7 +45,7 @@
 // ---------------------------------------------------------------------------
 // Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
 // 表 T-062) -- the layer that holds the current values (LY-5 of 表 T-060), so
-// raising the row, putting the panel up and asking for the field are all its
+// raising the task group, putting the panel up and asking for the field are all its
 // answer.
 //
 // ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
@@ -63,7 +63,7 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
-//   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new row is
+//   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new task group is
 //      visible. Those are `HF-14`'s OWN separate MUSTs (「そのタスクグループが描かれるまで
 //      詳しさの段を開くこと」 and 「立てたタスクグループが…畳んだ親の下に入るときは、その親を
 //      開くこと」), argued and measured independently (`DFC-237`); they are not
@@ -78,10 +78,10 @@
 //      being asked for (tests/unit/fr-085-double-click-a-task-group-name.test.ts's own
 //      fake proves this -- its `asked.push(row)` takes one argument). Selection
 //      range is drawn by the DOM surface (UF-71), not decided here.
-//   4. HF-9's SCROLL-INTO-VIEW when the new row lands off-screen. A separate
+//   4. HF-9's SCROLL-INTO-VIEW when the new task group lands off-screen. A separate
 //      MUST of `HF-17` / `HF-14`, not part of the operation's FEEL at the
 //      moment of the press.
-//   5. A DOCUMENT WITH ZERO ROWS. `HF-17`'s own RATIONALE names this case
+//   5. A DOCUMENT WITH ZERO TASK GROUPS. `HF-17`'s own RATIONALE names this case
 //      (「タスクグループが 1 つも無い文書では押す相手が存在しない」), but whether `frameLoop`
 //      normalizes such a document on load is not established by any file this
 //      one is allowed to read, so no case here assumes an answer either way.
@@ -159,13 +159,13 @@ function entranceFor(rule: string): string {
   return first.id
 }
 
-/** `HF-17`'s entrance -- adds a row to 段 0, the panel's own head. */
+/** `HF-17`'s entrance -- adds a task group to 段 0, the panel's own head. */
 const HEAD_ADD_TASK_GROUP = entranceFor('HF-17')
-/** `HF-14`'s entrance -- adds a row under whichever row is pressed. */
+/** `HF-14`'s entrance -- adds a task group under whichever task group is pressed. */
 const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 
 /**
- * `AT-53` -- the row's name, read out of the ERD rather than typed.
+ * `AT-53` -- the task group's name, read out of the ERD rather than typed.
  *
  * ⭐ THE ROW ID IS THE JOIN across `focusPropertyField`'s argument, so a case
  * that means 「the name field was asked for」 is told which row that is instead
@@ -189,7 +189,7 @@ interface DefaultTaskGroupName {
 }
 
 /**
- * FR-038's dictionary word for a freshly stood-up row, as the MANUSCRIPT
+ * FR-038's dictionary word for a freshly stood-up task group, as the MANUSCRIPT
  * keeps it -- never as `src/` prints it, and never typed here.
  *
  * ⭐ docs/spec/_source/ is where the word is written; `src/` holds what is
@@ -199,15 +199,15 @@ const DEFAULT_TASK_GROUP_NAME_WORD: DefaultTaskGroupName = ((): DefaultTaskGroup
   const manuscript = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
   ) as { defaultNames?: readonly DefaultTaskGroupName[] }
-  const found = (manuscript.defaultNames ?? []).find((one) => one.use === 'row')
-  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `row`')
+  const found = (manuscript.defaultNames ?? []).find((one) => one.use === 'taskGroup')
+  if (found === undefined) throw new Error('the dictionary has no defaultNames entry for `taskGroup`')
   return found
 })()
 
 
 // ===========================================================================
 // The document these cases drive: two roots, one of them already a parent, so
-// a press can be told apart from every row already standing.
+// a press can be told apart from every task group already standing.
 //
 //   Alpha            (root)
 //     AlphaChild
@@ -295,7 +295,7 @@ const realRaf = (globalThis as any).requestAnimationFrame
 
 /**
  * ⚠️ THE HOST IS A FAKE, AND THE FAKE IS NOT THE TEST (R6.3). Nothing in it
- * decides anything about a row, the panel or the field.
+ * decides anything about a task group, the panel or the field.
  */
 function host(): { readonly surface: { showSvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
@@ -428,7 +428,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     },
     doubleClickName: (groupId) => {
       // ⛔ BOTH CLICKS ARE SENT, WHICH IS WHAT A BROWSER DELIVERS. The first
-      // (clickCount 1) chooses the row; the second (clickCount 2) is `MK-13`'s.
+      // (clickCount 1) chooses the task group; the second (clickCount 2) is `MK-13`'s.
       aim(null, groupId)
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
@@ -445,12 +445,12 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
 const fieldOf = (panel: PropertiesPanel | null, row: string) =>
   panel?.fields.find((one) => one.row === row)
 
-/** The one row present after a press that was not present before it. */
+/** The one task group present after a press that was not present before it. */
 function newTaskGroupSince(before: readonly StoredRow[], after: readonly StoredRow[]): StoredRow {
   const knownIds = new Set(before.map((one) => one.id))
   const created = after.filter((one) => !knownIds.has(one.id))
   if (created.length !== 1) {
-    throw new Error(`expected exactly one new row, found ${created.length}`)
+    throw new Error(`expected exactly one new task group, found ${created.length}`)
   }
   return created[0]!
 }
@@ -469,7 +469,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(TASK_GROUP_NAME_FIELD).toBe('AT-53')
   })
 
-  it('⭐⭐ HF-14 (MUST): a press raises the row at once, named from the dictionary, on FR-085s own road', () => {
+  it('⭐⭐ HF-14 (MUST): a press raises the task group at once, named from the dictionary, on FR-085s own road', () => {
     expect(says('T-051', 'HF-14')).toContain(
       '押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
     )
@@ -536,7 +536,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(says('T-064', 'PI-9')).not.toContain('DEFAULT_TASK_GROUP_NAME')
   })
 
-  it('⭐ the dictionary holds exactly one word for a row, spelled alike in both languages', () => {
+  it('⭐ the dictionary holds exactly one word for a task group, spelled alike in both languages', () => {
     expect(DEFAULT_TASK_GROUP_NAME_WORD.text.ja.length).toBeGreaterThan(0)
     expect(DEFAULT_TASK_GROUP_NAME_WORD.text.ja).toBe(DEFAULT_TASK_GROUP_NAME_WORD.text.en)
   })
@@ -545,7 +545,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⭐ WHY THE FIXTURE IS SAFE: Alpha (a root, order 0) and AlphaChild (Alpha's
     // own child, also order 0) can share an order value because AT-55 scopes it
     // per parent -- so 「末子」 for a press at 段 0 is read against the OTHER
-    // ROOTS only, never against a deeper row that happens to share a number.
+    // ROOTS only, never against a deeper task group that happens to share a number.
     const at55 = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
@@ -556,12 +556,12 @@ describe('the manuscript still says what these cases read', () => {
 })
 
 // ===========================================================================
-// HF-17 / HF-14 (MUST): the row exists the instant the entrance is pressed
+// HF-17 / HF-14 (MUST): the task group exists the instant the entrance is pressed
 // ===========================================================================
 
-describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', () => {
+describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at once', () => {
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐⭐ HF-17 at 段 0: a new root row appears, last among the roots, named from the dictionary (${language})`, () => {
+    it(`⭐⭐ HF-17 at 段 0: a new root task group appears, last among the roots, named from the dictionary (${language})`, () => {
       const built = stage(language)
       const before = built.rows()
       const rootsBefore = before.filter((one) => one.parentId === null)
@@ -570,7 +570,7 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
       built.press(HEAD_ADD_TASK_GROUP, null)
 
       const after = built.rows()
-      expect(after, 'exactly one row was raised').toHaveLength(before.length + 1)
+      expect(after, 'exactly one task group was raised').toHaveLength(before.length + 1)
       const created = newTaskGroupSince(before, after)
       expect(created.parentId, '足したタスクグループは最も浅い段の末子 -- no parent, like the other roots').toBeNull()
       expect(created.label, 'named from FR-038s dictionary, not left empty').toBe(
@@ -582,24 +582,24 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
     })
   }
 
-  it('⭐⭐ HF-14 on an existing row: a new child appears under it, named from the same dictionary', () => {
+  it('⭐⭐ HF-14 on an existing task group: a new child appears under it, named from the same dictionary', () => {
     const built = stage()
     const before = built.rows()
 
     built.press(ADD_CHILD_TASK_GROUP, ALPHA)
 
     const after = built.rows()
-    expect(after, 'exactly one row was raised').toHaveLength(before.length + 1)
+    expect(after, 'exactly one task group was raised').toHaveLength(before.length + 1)
     const created = newTaskGroupSince(before, after)
-    expect(created.parentId, 'HR-8: 足す先は配下 -- under the pressed row, not beside it').toBe(ALPHA)
+    expect(created.parentId, 'HR-8: 足す先は配下 -- under the pressed task group, not beside it').toBe(ALPHA)
     expect(created.label).toBe(DEFAULT_TASK_GROUP_NAME_WORD.text.ja)
   })
 
-  it('⛔ neither press needs a second input to create the row -- one press is the whole operation', () => {
+  it('⛔ neither press needs a second input to create the task group -- one press is the whole operation', () => {
     // ⚠️ THE DEFECT THIS GUARDS AGAINST (DFC-237 / the withdrawn model): a press
     // used to open an input box that created nothing until a later `Enter`.
     // `press()` above sends only pointer down and up -- if a case needed more
-    // than that to see the row count change, this line would have said so.
+    // than that to see the task group count change, this line would have said so.
     const built = stage()
     const before = built.rows()
     built.press(HEAD_ADD_TASK_GROUP, null)
@@ -611,8 +611,8 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
 // The core of DFC-243: the road is FR-085s own -- same ask, same editable field
 // ===========================================================================
 
-describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly like renaming one', () => {
-  it('⭐⭐ HF-17: the press opens the panel already turned to the new row, asking to focus AT-53', () => {
+describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exactly like renaming one', () => {
+  it('⭐⭐ HF-17: the press opens the panel already turned to the new task group, asking to focus AT-53', () => {
     const built = stage()
     expect(built.panel(), 'nothing is open before the press').toBeNull()
     const before = built.rows()
@@ -624,14 +624,14 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly li
     expect(built.panel(), 'FR-072/HF-14 (MUST): the panel is up').not.toBeNull()
     const field = fieldOf(built.panel(), TASK_GROUP_NAME_FIELD)
     expect(field, `the panel drew ${TASK_GROUP_NAME_FIELD}`).toBeDefined()
-    expect(field?.text, 'the panel shows the row it just raised').toBe(created.label)
+    expect(field?.text, 'the panel shows the task group it just raised').toBe(created.label)
     expect(field?.isEditable, 'FR-085 (MUST): the name can be edited here').toBe(true)
     expect(built.screen.focusAsks(), 'the same ask FR-085 sends for a double click').toEqual([
       TASK_GROUP_NAME_FIELD,
     ])
   })
 
-  it('⭐⭐ HF-14: the same is true one level down, adding a child under an existing row', () => {
+  it('⭐⭐ HF-14: the same is true one level down, adding a child under an existing task group', () => {
     const built = stage()
 
     built.press(ADD_CHILD_TASK_GROUP, ALPHA)
@@ -643,7 +643,7 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly li
 
   it('⭐⭐⭐ the literal comparison: HF-17s press and FR-085s rename ask the SAME thing of the SAME field', () => {
     // ⭐ THIS IS DFC-243 ITSELF, MADE OBSERVABLE: two different presses, on two
-    // different rows, land on identical shapes at this seam -- which is what
+    // different task groups, land on identical shapes at this seam -- which is what
     // 「操作感を合わせろ」 asks for at the one seam a Unit test can read it at.
     const added = stage()
     added.press(HEAD_ADD_TASK_GROUP, null)
@@ -661,7 +661,7 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly li
     expect(renamedField?.isEditable).toBe(true)
     expect(addedField?.isEditable).toBe(renamedField?.isEditable)
     // ⛔ THE TEXT IS NOT EXPECTED TO MATCH -- one shows the dictionary's word
-    // for a new row, the other shows Alpha's own name. What must match is the
+    // for a new task group, the other shows Alpha's own name. What must match is the
     // SHAPE of the road (which field, editable, asked for by name), not the
     // value sitting in it.
     expect(addedField?.text).not.toBe(renamedField?.text)
@@ -680,7 +680,7 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly li
     )
   })
 
-  it('⛔ a plain press that only chooses a row (no double click, no add) asks for no field', () => {
+  it('⛔ a plain press that only chooses a task group (no double click, no add) asks for no field', () => {
     // ⚠️ THE CONTROL CASE. Without it, a build that asked `focusPropertyField`
     // on every press touching the Task Group Panel would pass every case above
     // for the wrong reason.
@@ -688,6 +688,6 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a row feels exactly li
     built.aim(null, BETA)
     built.send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
     built.send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
-    expect(built.screen.focusAsks(), 'a single press on a row asks for no field').toEqual([])
+    expect(built.screen.focusAsks(), 'a single press on a task group asks for no field').toEqual([])
   })
 })

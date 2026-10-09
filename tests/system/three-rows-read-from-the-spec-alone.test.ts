@@ -7,7 +7,7 @@
 //
 //   SK-3   (table T-036, `01-04-requirements.md`) -- `Delete` / `Backspace`
 //          delete what is selected, and send the whole of what that means to
-//          row `SL-1` of table T-023c. `SL-1` names five kinds and rules a row
+//          row `SL-1` of table T-023c. `SL-1` names five kinds and rules a task group
 //          (`TaskGroup`) out of them.
 //
 //   IN-4   (table T-028, `01-04-requirements.md`) -- `Esc` consumes ONE tier at
@@ -177,7 +177,7 @@ const SK2_KEY = ((): string => {
 
 /**
  * `IC-74` -- the one entrance of table T-109 whose rule is table T-051 row
- * `HF-10`, the one at the head of the Task Group Panel that unfolds every row.
+ * `HF-10`, the one at the head of the Task Group Panel that unfolds every task group.
  *
  * ⚠️ Anchored so that `HF-1` cannot be found by asking for `HF-10`.
  */
@@ -262,11 +262,11 @@ const HIGHLIGHT_BOX_ENTRANCE = entranceArming(HIGHLIGHT_BOX_WORD)
 const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
 
 /**
- * A guard, not an assertion: `SL-1` of table T-023c must still say that a row
+ * A guard, not an assertion: `SL-1` of table T-023c must still say that a task group
  * is NOT among what can be selected, because that sentence is the whole of what
  * the third case of the `SK-3` block below judges.
  *
- * ⚠️ U+884C U+FF08 -- the two characters that open the clause ruling a row out.
+ * ⚠️ U+884C U+FF08 -- the two characters that open the clause ruling a task group out.
  * Matched by code point, and paired with `TaskGroup` so that the clause is
  * found rather than the word for a row on its own.
  */
@@ -428,15 +428,15 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   }, CANVAS_PART)
 }
 
-/** How far the drags below run along a row. */
+/** How far the drags below run along a task group. */
 const REACH_PX = 160
 
 /**
- * Empty ground that one of the DRAWN ROWS covers, with room along the row.
+ * Empty ground that one of the DRAWN TASK GROUPS covers, with room along the task group.
  *
- * ⛔ Ground BELOW the last row is no good for placing: `FR-019` (MUST) holds an
- * annotation's position by a date and a row identifier, and ground no row
- * covers points at no row -- which is the OTHER rule of the same requirement,
+ * ⛔ Ground BELOW the last task group is no good for placing: `FR-019` (MUST) holds an
+ * annotation's position by a date and a task group identifier, and ground no task group
+ * covers points at no task group -- which is the OTHER rule of the same requirement,
  * and not what `S-132` is about. ⭐ Emptiness is the PRODUCT's own answer:
  * `PTD-5` of table T-023a gives ground that hit nothing the plain arrow, read
  * with nothing armed.
@@ -542,16 +542,16 @@ function describe(some: readonly Drawn[]): string {
 }
 
 /**
- * The identifier of every row (`TaskGroup`) THE DOCUMENT holds, in its order.
+ * The identifier of every task group (`TaskGroup`) THE DOCUMENT holds, in its order.
  *
  * ⛔⛔ THE DOCUMENT, NOT THE DRAWING, and that is the whole point of this
- * helper. `[data-depth]` marks the rows the Task Group Panel has DRAWN, and
- * `FR-018` (MUST) takes rows out of the drawing as the level of detail falls --
+ * helper. `[data-depth]` marks the task groups the Task Group Panel has DRAWN, and
+ * `FR-018` (MUST) takes task groups out of the drawing as the level of detail falls --
  * so a count taken from the page answers "how many fit on the screen", which is
  * not the question `SL-1` raises. Measured on the shipped build, 2026-09-07:
  * `SK-2`'s key, then `SK-3`'s, then the confirmation's yes, left the document
- * holding 100 rows throughout while the DRAWN rows went from 8 to 7 -- the case
- * below read that 8 -> 7 as rows having been deleted, and nothing had been.
+ * holding 100 task groups throughout while the DRAWN task groups went from 8 to 7 -- the case
+ * below read that 8 -> 7 as task groups having been deleted, and nothing had been.
  *
  * ⭐ `AM-3` of table T-107 (`readDocument`) is the one road to the document
  * itself, and `_assets/tbl-glossary.md` calls what it gives back a frozen copy
@@ -571,7 +571,7 @@ async function readDocumentTaskGroupIds(page: Page): Promise<string[]> {
 }
 
 /**
- * The name of every row the Task Group Panel is DRAWING, in its own order.
+ * The name of every task group the Task Group Panel is DRAWING, in its own order.
  *
  * ⚠️ THE WINDOW, NOT THE DOCUMENT -- see `readDocumentTaskGroupIds` above. What this
  * is for is saying in a failure message what the panel had on it at the time.
@@ -637,10 +637,10 @@ async function arm(page: Page, entrance: string): Promise<void> {
   expect(await armingOf(page, entrance), `${entrance} stands armed`).toBe('true')
 }
 
-/** Place a highlight box by dragging along a row, and give back what it drew. @purity non-pure */
+/** Place a highlight box by dragging along a task group, and give back what it drew. @purity non-pure */
 async function placeAHighlightBox(page: Page): Promise<Drawn[]> {
   const spot = await groundOnADrawnTaskGroup(page)
-  expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
+  expect(spot, 'a drawn task group covers empty ground with room along it').not.toBeNull()
   const at = spot as { x: number; y: number }
 
   await arm(page, HIGHLIGHT_BOX_ENTRANCE)
@@ -708,7 +708,7 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
 // what is counted.
 //
 // ⚠️ A CONFIRMATION IS ANSWERED WHEN ONE STANDS. `FR-032` (MUST) asks for one
-// when a row is deleted and when a `Task` with WBS descendants is, and table
+// when a task group is deleted and when a `Task` with WBS descendants is, and table
 // T-037 row `NT-7` (MUST) has it answerable by the `y` keystroke. Answering it
 // is part of asking for the deletion, not a weakening of the judgement.
 for (const key of SK3_KEYS) {
@@ -746,26 +746,26 @@ for (const key of SK3_KEYS) {
   })
 }
 
-// GOES RED IF: the same gesture takes a row away. Table T-023c row `SL-1` rules
-// a row (`TaskGroup`) out of what can be selected, and `SK-3` says its targets
-// are exactly what that row names -- so a row survives a `Delete` however many
+// GOES RED IF: the same gesture takes a task group away. Table T-023c row `SL-1` rules
+// a task group (`TaskGroup`) out of what can be selected, and `SK-3` says its targets
+// are exactly what that row names -- so a task group survives a `Delete` however many
 // tasks it held.
 //
-// ⛔⛔ THE ROWS ARE COUNTED IN THE DOCUMENT AND NOT IN THE PANEL, and until
+// ⛔⛔ THE TASK GROUPS ARE COUNTED IN THE DOCUMENT AND NOT IN THE PANEL, and until
 // 2026-09-07 they were not: this case counted `[data-depth]`, which is the
 // window `FR-018` (MUST) narrows as the level of detail falls, and it went red
-// because emptying the tasks let the panel draw one row fewer. `readDocumentTaskGroupIds`
+// because emptying the tasks let the panel draw one task group fewer. `readDocumentTaskGroupIds`
 // carries that measurement. ⭐ `SL-1` is a statement about the document, so the
 // document is what is read -- through `AM-3` of table T-107, which the build
 // publishes once the entrance `FR-065` gives has been pressed.
 //
-// ⚠️ THE NAMES OF THE DRAWN ROWS ARE STILL READ, but only to say in a failure
+// ⚠️ THE NAMES OF THE DRAWN TASK GROUPS ARE STILL READ, but only to say in a failure
 // what the panel had on it at the time.
-test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () => {
+test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every task group standing`, async () => {
   test.setTimeout(180_000)
   expect(
     TASK_GROUP_IS_NOT_A_TARGET,
-    'table T-023c row SL-1 still says a row (TaskGroup) is not among what can be selected',
+    'table T-023c row SL-1 still says a task group (TaskGroup) is not among what can be selected',
   ).toBe(true)
 
   const opened = await openTheApp()
@@ -784,14 +784,14 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
 
     const taskGroupsBefore = await readDocumentTaskGroupIds(page)
     const drawnBefore = await readDrawnTaskGroupNames(page)
-    expect(taskGroupsBefore.length, 'the build opens with rows in the document').toBeGreaterThan(0)
+    expect(taskGroupsBefore.length, 'the build opens with task groups in the document').toBeGreaterThan(0)
 
     await page.mouse.move(BASE_SCREEN.width / 2, BASE_SCREEN.height / 2)
     await page.keyboard.press(SK2_KEY)
     await page.waitForTimeout(400)
     expect(
       await readDocumentTaskGroupIds(page),
-      'SK-2 selected but deleted nothing, so the rows still stand at this point',
+      'SK-2 selected but deleted nothing, so the task groups still stand at this point',
     ).toEqual(taskGroupsBefore)
 
     await page.keyboard.press(SK3_KEYS[0] as string)
@@ -801,16 +801,16 @@ test(`SK-3 / SL-1: the same ${SK3_KEYS[0]} leaves every row standing`, async () 
     await page.waitForTimeout(1200)
 
     // ⛔ AN EQUALITY OF IDENTIFIERS, not a floor on a count. `SL-1` rules a row
-    // out of what can be selected, so `SK-3` cannot reach one: every row the
-    // document held is still there, and it is the same row. ⚠️ The NAMES are not
-    // compared -- `FR-032` (MUST) has a row whose name came from a task settle
+    // out of what can be selected, so `SK-3` cannot reach one: every task group the
+    // document held is still there, and it is the same task group. ⚠️ The NAMES are not
+    // compared -- `FR-032` (MUST) has a task group whose name came from a task settle
     // that name before the task goes, so a name may legitimately change here.
     const taskGroupsAfter = await readDocumentTaskGroupIds(page)
     const drawnAfter = await readDrawnTaskGroupNames(page)
     expect(
       taskGroupsAfter,
-      'SL-1: a row is not among what can be selected, so none of them was deleted; ' +
-        `the document held ${String(taskGroupsBefore.length)} rows and now holds ` +
+      'SL-1: a task group is not among what can be selected, so none of them was deleted; ' +
+        `the document held ${String(taskGroupsBefore.length)} task groups and now holds ` +
         `${String(taskGroupsAfter.length)}; the panel drew [${drawnBefore.join(' | ')}] and now draws ` +
         `[${drawnAfter.join(' | ')}]; the confirmation said [${asked.join(' // ')}]`,
     ).toEqual(taskGroupsBefore)
@@ -901,8 +901,8 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
 // has that clearing happen ahead of every tier of `Enter` and `Esc`.
 //
 // see HF-10, IC-74, RS-31, FR-029, T-328, T-329
-// WHY: HF-10 is dim only while no row is undrawn (the zoom counts too), so one press
-// first draws every row (T-328 everyTaskGroupOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
+// WHY: HF-10 is dim only while no task group is undrawn (the zoom counts too), so one press
+// first draws every task group (T-328 everyTaskGroupOpenPressed); T-233 hides RS-31, so an unreadable drop raises the notice.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {
   test.setTimeout(180_000)
   expect(
@@ -913,7 +913,7 @@ test('IN-4: with a notice up and a holding armed, one Esc clears the notice only
   const opened = await openTheApp()
   const page = opened.page
   try {
-    // STEP: set up a picture in which every row is drawn, then clear any notice it raised
+    // STEP: set up a picture in which every task group is drawn, then clear any notice it raised
     expect(
       await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
       `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,

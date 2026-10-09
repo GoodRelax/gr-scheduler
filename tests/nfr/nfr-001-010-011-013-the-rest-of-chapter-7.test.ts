@@ -732,7 +732,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
   //
   // ⛔⛔ A LEAF, AND THE FIRST RUN OF THIS FILE MEASURED WHY. Taking simply the
   // first drawn plan bar takes `task-1-plan` -- the summary bar of the whole
-  // product, 6,564px wide and standing for a `Task` that other rows hang from.
+  // product, 6,564px wide and standing for a `Task` that other tasks hang from.
   // Dragging it delivered 162 frames whose redraw callback did 10.45ms of work
   // EACH, and rewrote the canvas ZERO times: the grab took nothing, and the
   // stretch measured an empty gesture at 53 frames a second. ⭐ So the bar is

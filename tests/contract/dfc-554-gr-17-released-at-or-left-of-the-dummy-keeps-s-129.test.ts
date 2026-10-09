@@ -162,7 +162,7 @@ const notStarted = (): Document =>
         {
           id: 'g1',
           parentId: null,
-          label: 'row',
+          label: 'task group',
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,

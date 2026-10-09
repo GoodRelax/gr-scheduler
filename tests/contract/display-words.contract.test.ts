@@ -159,7 +159,7 @@
 //      dictionary is still the right home for it -- FR-032 says so by name --
 //      and the block above the `drop` sets out the reasoning in full, with the
 //      one question docs/spec does not answer: WHICH of the two languages is
-//      written into the document when a row is settled.
+//      written into the document when a task group is settled.
 //   8. THE EIGHT ROWS OF TABLE T-104 NO FIELD OF THE SETTINGS FACE STANDS FOR
 //      (CR-344). `IC-17` of table T-109 opens that face on the document's
 //      drawing settings and `DR-3` of table T-052 says what those are, so a row
@@ -322,7 +322,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   fileStatus: 'state',
   // WHY: CR-628 keys the App Header's Branding word (BR-1 of table T-349) by the part it fills.
   branding: 'part',
-  // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a row whose
+  // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a task group whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
   // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を
   // 既定の名前に確定させること（MUST）。名前が無いことを理由に削除を拒んでは
@@ -330,7 +330,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // ⇒ the requirement sends the word here BY NAME, which is why this section is
   // a section and not a literal in a unit.
   // ⚠️ KEYED BY WHAT THE DEFAULT IS FOR (`use`), because no table numbers it:
-  // FR-032 names one use -- the row -- and Chapter 6.2 (MUST NOT) forbids
+  // FR-032 names one use -- the task group -- and Chapter 6.2 (MUST NOT) forbids
   // raising a table whose rows state no rule, which a one-task-group table of default
   // names would be. ⛔ THIS IS THE ONE SECTION WHOSE WORD IS NOT PRINTED BY A
   // FRAME; see omission 7 of the head comment and the `drop` below it.
@@ -1398,7 +1398,7 @@ const declaredRowOf = (rowId: string): string => {
 }
 
 /**
- * A row picked in the `Task Group Panel`, which is what FR-042 (MUST) and FR-006's
+ * A task group picked in the `Task Group Panel`, which is what FR-042 (MUST) and FR-006's
  * 対象 rule put table T-016's `TaskGroup` rows on the panel for.
  */
 const THE_TASK_GROUP = '11111111-1111-4111-8111-111111111111'
@@ -1409,7 +1409,7 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
     {
       id: THE_TASK_GROUP,
       parentId: null,
-      label: 'a row',
+      label: 'a task group',
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
@@ -1418,7 +1418,7 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
   ],
 } as unknown as Schedule
 
-// WHY: no task picked beside the row: FR-006 shows one subject's fields, so a picked task would hide the row's (JDG-1650).
+// WHY: no task picked beside the task group: FR-006 shows one subject's fields, so a picked task would hide the task group's (JDG-1650).
 const TASK_GROUP_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
@@ -1442,7 +1442,7 @@ const TASK_GROUP_PLACED: Frame = frameWith({
  * PR-21 carries (CR-368).
  *
  * ⚠️ THE PICK IS IN THE SELECTION AND NOT IN THE SESSION, which is what parts it
- * from `TASK_GROUP_PICKED`: a row of the `Task Group Panel` is held by
+ * from `TASK_GROUP_PICKED`: a task group of the `Task Group Panel` is held by
  * `ScreenSession.selectedGroupIds` (FR-085) while everything table T-023c admits
  * is held by `Selection` (SL-1).
  */
@@ -1956,7 +1956,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を既定の名前
 // に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.label`
 // (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
-// is written it is the row's name, indistinguishable from a name a person
+// is written it is the task group's name, indistinguishable from a name a person
 // typed: the screen shows it the way it shows every other タスクグループ名.
 //
 // ⛔⛔ DO NOT REACH FOR THE WITHDRAWN SENTENCE OF FR-038 HERE. 2026-09-04 まで
@@ -1989,7 +1989,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 //
 // ⚠️ WHAT IS NOT SETTLED, recorded rather than asserted: FR-038 gives the
 // dictionary two languages and the document can hold only ONE settled label, and
-// no row of docs/spec says which of the two is written when a row is settled --
+// no row of docs/spec says which of the two is written when a task group is settled --
 // FR-038 keeps the reader's language out of the document (MUST NOT) and FR-032
 // names no language at all. ⛔ That is a question for the specification, not a
 // gap this file may close by asserting one of the two.
@@ -2000,7 +2000,7 @@ for (const entry of GENERATED['defaultNames'] ?? []) {
     'FR-032 (MUST) settles it into TaskGroup.label, so it is document data and not screen text -- and ' +
       'no frame this file can raise prints it at all, because the word is settled into the document ' +
       'before any frame could -- ⛔ NOT because タスクグループ名 is untranslatable: FR-038 withdrew that sentence ' +
-      'on 2026-09-04 and now puts row names under the display language like every other word',
+      'on 2026-09-04 and now puts task group names under the display language like every other word',
   )
 }
 
@@ -2267,7 +2267,7 @@ for (const entry of GENERATED['rowMinHeightField'] ?? []) {
     field: 'text',
     unit: 'UF-67',
     what: `the ${part} word MH-2..MH-3 of table T-338 have the Task Group Panel's min-height rows show`,
-    // WHY: MH-3 withholds the number while the row is not drawn (TASK_GROUP_PICKED's
+    // WHY: MH-3 withholds the number while the task group is not drawn (TASK_GROUP_PICKED's
     // state, no placedTaskGroups entry) -- `currentValue` needs TASK_GROUP_PLACED instead.
     frame: part === 'currentValue' ? TASK_GROUP_PLACED : TASK_GROUP_PICKED,
     read: (view) => TASK_GROUP_MIN_HEIGHT_READS[part]?.(view),
@@ -2573,7 +2573,7 @@ const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>
  * ⭐ WHETHER ANYTHING GOES IS THE TABLE'S ANSWER, read from its 名前を挙げるか
  * column rather than decided here. A row that names what goes is what puts
  * FR-032's mark on the screen at all: HM-10 of table T-015a leaves a `Task`
- * drawn on another row, FR-032 (MUST) has that one shown as such, and CR-218
+ * drawn on another task group, FR-032 (MUST) has that one shown as such, and CR-218
  * settles the medium as a WORD (RC-13 of table T-026 keeps a new SHAPE the
  * user's own ruling).
  *
@@ -2648,7 +2648,7 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
       frame: TELLING(IMPORT_REFUSAL_MANNER, row),
     })),
     // see CR-582, MH-3
-    { what: 'a picked row that is placed (MH-3 of table T-338)', frame: TASK_GROUP_PLACED },
+    { what: 'a picked task group that is placed (MH-3 of table T-338)', frame: TASK_GROUP_PLACED },
     { what: 'the QN-12 chooser while parent tasks are armed', frame: PARENT_TASK_CHOICE(true) },
     { what: 'the QN-12 chooser while nothing is armed', frame: PARENT_TASK_CHOICE(false) },
   ]) {
@@ -3036,7 +3036,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // field for, so a new section does not fail loudly by itself -- every one
     // of its entries collapses onto one name. FR-032 added `confirmationMarks`
     // exactly that way (the mark shown against a `Task` that HM-10 of table
-    // T-015a leaves drawn on another row; CR-218 ruled the medium a word). ⛔ A
+    // T-015a leaves drawn on another task group; CR-218 ruled the medium a word). ⛔ A
     // roster typed twice would go stale in silence, so the check is a walk
     // section by section, not a count.
     //
@@ -3247,8 +3247,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     // stronger than nothing -- and ⭐ it cannot be shaped around an
     // implementation it never reads, which is the point of rule 04 section 1.
 
-    // FR-032 (MUST): a `Task` that goes with the row but is drawn on another
-    // row is SHOWN as such, and CR-218 settles the medium as a word. ⛔ Unlike
+    // FR-032 (MUST): a `Task` that goes with the task group but is drawn on another
+    // task group is SHOWN as such, and CR-218 settles the medium as a word. ⛔ Unlike
     // the cells PND-160 leaves to the user, an empty cell here leaves that MUST
     // unmet -- an empty word shows nothing.
     const mark = MANUSCRIPT_CELLS.filter((cell) => cell.section === 'confirmationMarks')

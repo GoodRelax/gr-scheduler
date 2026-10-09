@@ -128,9 +128,9 @@ const NOTICE: Notice = {
 const CONFIRMATION: Confirmation = {
   manner: 'NT-7',
   mannerText: 'Confirm',
-  question: 'Delete these rows?',
-  text: 'Delete these rows?',
-  items: [{ name: 'Row alpha', isShownOnAnotherTaskGroup: false }],
+  question: 'Delete these task groups?',
+  text: 'Delete these task groups?',
+  items: [{ name: 'Task group alpha', isShownOnAnotherTaskGroup: false }],
   answers: [
     { answer: 'yes', text: 'Yes' },
     { answer: 'no', text: 'No' },

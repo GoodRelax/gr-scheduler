@@ -66,8 +66,8 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as { $schema: string; schemaVersion: string; schedule: Record<string, any>; documentSettings: Record<string, unknown>; documentStamp: unknown }
 
-// WHY: January 2026; Sato carries Alpha (row C under the folded row P) and Charlie (row Q); Tanaka carries Bravo and
-// Delta; Alpha -> Delta is a link whose far end the narrowing hides while its row Q stays drawn for Charlie.
+// WHY: January 2026; Sato carries Alpha (task group C under the folded task group P) and Charlie (task group Q); Tanaka carries Bravo and
+// Delta; Alpha -> Delta is a link whose far end the narrowing hides while its task group Q stays drawn for Charlie.
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 // WHY: the Command Palette opens over the left of the canvas; the view starts two weeks early so the bars lie clear of it.
 const CLEAR_OF_THE_PALETTE = '2025-12-20T00:00:00'
@@ -249,7 +249,7 @@ async function enter(page: Page): Promise<void> {
 test.describe('FR-151 / T-353 on the shipped build', () => {
   test.setTimeout(180_000)
 
-  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the checked tasks only, the band, the rows opened on entering`, async () => {
+  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the checked tasks only, the band, the task groups opened on entering`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -260,7 +260,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
       expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: true })
       // see TV-6
-      expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering opens the folded row above Alpha').toBe('expanded')
+      expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering opens the folded task group above Alpha').toBe('expanded')
       // see TV-1, TV-3
       expect(await drawnTaskUids(page)).toEqual([ALPHA, CHARLIE])
       // see TV-11
@@ -292,7 +292,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`FR-151 (MUST NOT): ${FR_151_NOT_SAVED.slice(-30)} -- Ctrl+Z after entering takes back the opened rows only, and a save holds no check`, async () => {
+  test(`FR-151 (MUST NOT): ${FR_151_NOT_SAVED.slice(-30)} -- Ctrl+Z after entering takes back the opened task groups only, and a save holds no check`, async () => {
     const stage = await opened()
     try {
       const { page } = stage

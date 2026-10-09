@@ -63,7 +63,7 @@ describe('FR-027 (MUST / MUST NOT) -- the shipped dist/index.html', () => {
     expect(containers[0]?.attributes).toMatch(/\sid="[^"]+"/)
   })
 
-  it('FR-027 / T-226: the container holds the template -- 100 rows (TP-5) and 1000 Task (TP-6)', () => {
+  it('FR-027 / T-226: the container holds the template -- 100 task groups (TP-5) and 1000 Task (TP-6)', () => {
     const container = SCRIPTS.find(isJson)
     expect(container, 'FR-027: the shipped page holds no template container').toBeDefined()
     const document = JSON.parse(container?.text ?? 'null') as typeof TEMPLATE
@@ -81,7 +81,7 @@ describe('FR-027 (MUST / MUST NOT) -- the shipped dist/index.html', () => {
 })
 
 describe('MC-10 (MUST) -- the measuring document', () => {
-  it('MC-10: tests/fixtures holds a GRS JSON document of 100 rows and 1000 Task, made by the template generator', () => {
+  it('MC-10: tests/fixtures holds a GRS JSON document of 100 task groups and 1000 Task, made by the template generator', () => {
     const measuring = readdirSync(FIXTURES)
       .filter((name) => name.endsWith('.json'))
       .map((name) => {

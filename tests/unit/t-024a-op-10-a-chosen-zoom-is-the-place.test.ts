@@ -36,7 +36,7 @@
 //   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
 //                        `ScreenView`
 //   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rectangleHeight`,
-//                        `originDay`, `rows`)
+//                        `originDay`, `taskGroups`)
 //   document-settings.ts `DocumentSettings`
 // ⛔ NOT ONE EXPECTED VALUE BELOW CAME OUT OF A BODY. Every assertion is either
 // a sentence read out of the manuscript at run time, or a RELATION between two
@@ -105,7 +105,7 @@
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//   - WHICH day and WHICH row a press settles on. The ruling says the choice
+//   - WHICH day and WHICH task group a press settles on. The ruling says the choice
 //     becomes 表示位置; it does not say the place is the one the fit would have
 //     chosen, and inventing an answer here would put a rule in a test that the
 //     manuscript does not carry.
@@ -117,7 +117,7 @@
 //   - `HF-8` of table T-051. The ruling states it is not moved, and
 //     tests/unit/uf-47-48.test.ts already holds it.
 //   - The three branches where OP-10 DOES fire (a null place, and a
-//     `scrollGroupId` naming no row). tests/unit/uf-47-48.test.ts owns those.
+//     `scrollGroupId` naming no task group). tests/unit/uf-47-48.test.ts owns those.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -294,7 +294,7 @@ const group = (id: string, order: number, label: string): unknown => ({
 })
 
 /**
- * Two rows, two Tasks, and no stored place -- which is OP-10's condition, so
+ * Two task groups, two Tasks, and no stored place -- which is OP-10's condition, so
  * the first frame of every case below is drawn by the row.
  */
 function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
@@ -406,7 +406,7 @@ interface Picture {
   readonly pxPerDay: number
   /** What a rectangle's plan bar is tall at this zoom -- the vertical axis. */
   readonly rectangleHeight: number
-  /** The height of the first row's band, the other reading of the vertical axis. */
+  /** The height of the first task group's band, the other reading of the vertical axis. */
   readonly firstTaskGroupHeight: number
 }
 
@@ -430,7 +430,7 @@ function boot(document: Document = fixtureDocument()): Booted {
     const values = loop.current()
     if (values === null) throw new Error('BO-1 settled no size, so no frame was drawn')
     const first = values.layout.taskGroups[0]
-    if (first === undefined) throw new Error('the fixture drew no row')
+    if (first === undefined) throw new Error('the fixture drew no task group')
     return {
       pxPerDay: values.layout.pxPerDay,
       rectangleHeight: values.layout.rectangleHeight,
@@ -549,10 +549,10 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
   it('fills in 表示位置, so the condition of OP-10 stops holding', () => {
     // The sentence's own reason: 「選んだ時点で「人がまだ場所を決めていない」では
     // なくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない」.
-    // ⛔ WHICH day and WHICH row is not asserted -- see the head of this file.
+    // ⛔ WHICH day and WHICH task group is not asserted -- see the head of this file.
     // What the clause requires is that the pair no longer reads as 「人がまだ場所
     // を決めていない」, which is the two halves of the condition: `null`, or a
-    // row that is not there.
+    // task group that is not there.
     const one = boot()
     expect(one.place().scrollDate).toBeNull()
     expect(one.place().scrollGroupId).toBeNull()

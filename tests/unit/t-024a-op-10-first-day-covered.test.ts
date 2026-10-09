@@ -92,15 +92,15 @@
 //     tests/unit/fr-027-startup-shows-its-depth.test.ts, and nothing here
 //     repeats a case of that file.
 //   - The branch where OP-10 DOES run (a null place on a document that did not
-//     come from BT-4, and a `scrollGroupId` naming no row).
+//     come from BT-4, and a `scrollGroupId` naming no task group).
 //     tests/unit/uf-47-48.test.ts owns those three.
 //   - 「別の文書を開いた時点でこの除外は解けること（MUST）」 and the ⭐ that
 //     undo / redo / merge do not lift it. Those are about a SECOND document
 //     arriving, which is table T-230's road and not this row's definition.
 //   - 「倍率は文書が持つものをそのまま使う」 -- the zoom on the BT-4 branch,
 //     which is fr-027's.
-//   - ⚠️ WHICH day the fit takes when only the ROW half of the place dangles --
-//     `scrollDate` holding a day while `scrollGroupId` names no row, on a
+//   - ⚠️ WHICH day the fit takes when only the TASK GROUP half of the place dangles --
+//     `scrollDate` holding a day while `scrollGroupId` names no task group, on a
 //     document with nothing drawn. OP-10 fires on that, and FR-055 then says
 //     「表示位置を `scrollDate` に合わせる」; but whether the day half survives a
 //     place OP-10 has just called unusable is not settled anywhere. ⛔ STILL A
@@ -151,7 +151,7 @@ const OP_10 = ((): string => {
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
 // the project and the settings come from it, because those are the ones the
-// specification has decided; the rows, the Tasks and the annotations are
+// specification has decided; the task groups, the Tasks and the annotations are
 // written out here so that every day counted can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -265,7 +265,7 @@ const group = (id: string, order: number, label: string): unknown => ({
 })
 
 /**
- * Two rows, two Tasks, and whatever one case adds.
+ * Two task groups, two Tasks, and whatever one case adds.
  *
  * ⚠️ IV-6 (each Task named by exactly one member), IV-2 (every reference
  * resolves) and IV-10 (finish is not before start) hold by construction, and
@@ -378,7 +378,7 @@ interface DrawnPlace {
   /** S-77's half of the place, as a day. */
   readonly origin: string | null
   readonly startupDay: string | null
-  /** S-78's half: the row the frame drew first. */
+  /** S-78's half: the task group the frame drew first. */
   readonly topTaskGroup: string | null
 }
 
@@ -587,7 +587,7 @@ describe('OP-10 -- the days it MUST NOT count', () => {
 
 describe('OP-10 -- a document that holds no `Task`', () => {
   /**
-   * No `Task`, and so nothing to count -- but the rows are still there.
+   * No `Task`, and so nothing to count -- but the task groups are still there.
    * ⚠️ Used only by the 「本行の冒頭にもどり」 case, which is a RELATION and does
    * not need 「描くもの」 to have been decided one way or the other.
    */
@@ -601,13 +601,13 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     })
 
   /**
-   * No `Task` and no row either -- 「描くものが 1 つも無い文書」 in FR-055's own
+   * No `Task` and no task group either -- 「描くものが 1 つも無い文書」 in FR-055's own
    * words, with nothing left that any table asks to be drawn.
    *
-   * ⭐ WHY THE ROWS GO TOO. Table T-038, which FR-055 (MUST) measures by, lists
-   * only the parts of a `Task`; a document with rows and no `Task` has no
+   * ⭐ WHY THE TASK GROUPS GO TOO. Table T-038, which FR-055 (MUST) measures by, lists
+   * only the parts of a `Task`; a document with task groups and no `Task` has no
    * horizontal extent either, but whether its bands count as 「描くもの」 is not
-   * something any row settles. Taking the rows out removes the question.
+   * something any row settles. Taking the task groups out removes the question.
    * ⭐ AND WHY THE ZOOM IS NOT 1. 「倍率を等倍に戻し」 says nothing at all on a
    * document that already stood at 等倍.
    */

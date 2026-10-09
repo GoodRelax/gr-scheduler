@@ -90,7 +90,7 @@ function rowsOf(frame: Frame): readonly DrawnTaskGroup[] {
 function describe(frame: Frame): string {
   const rows = rowsOf(frame)
   const drawn = rows.map((row) => `d${row.depth}@${row.top}+${row.height}`).join(' ')
-  return `at ${frame.at}ms, ${rows.length} rows: ${drawn}`
+  return `at ${frame.at}ms, ${rows.length} task groups: ${drawn}`
 }
 
 let browser: Browser | null = null
@@ -167,12 +167,12 @@ test('DFC-230: the first tree the shipped build draws is the tree it settles on'
     const settled = drawn[drawn.length - 1]
     expect(
       first === undefined || settled === undefined ? 0 : drawn.length,
-      'no frame of this run held a single drawn row, so there is no tree to compare',
+      'no frame of this run held a single drawn task group, so there is no tree to compare',
     ).toBeGreaterThan(0)
     if (first === undefined || settled === undefined) return
     expect(
       rowsOf(settled).length,
-      'the tree this run settled on holds fewer than two rows, which is too little to tell ' +
+      'the tree this run settled on holds fewer than two task groups, which is too little to tell ' +
         'a shifted tree from an unshifted one',
     ).toBeGreaterThan(1)
 

@@ -98,7 +98,7 @@ interface Layout {
   readonly commentTaskGroup: number
 }
 
-// WHY: SEL on row 1 and OUT on row 4 start on a Monday; OUT runs long so the opening Fit (OP-10) keeps the boxes in view.
+// WHY: SEL on task group 1 and OUT on task group 4 start on a Monday; OUT runs long so the opening Fit (OP-10) keeps the boxes in view.
 function fixtureDocument(at: Layout): Document {
   const template = structuredClone(TEMPLATE)
   const schedule = template['schedule'] as Record<string, unknown>
@@ -252,7 +252,7 @@ function pointOnBox(loop: FrameLoop, kind: 'highlightBox' | 'commentBox'): Point
 
 const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
   const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
   return found
 }
 
@@ -349,7 +349,7 @@ const shifted = (date: string, days: number): string => {
 }
 
 describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
-  it('a plain body drag moves the task, the highlight box and the comment box (by its anchor) by the same days and rows', () => {
+  it('a plain body drag moves the task, the highlight box and the comment box (by its anchor) by the same days and task groups', () => {
     const built = bench(SPREAD)
     const before = seen(built)
     selectAll(built)
@@ -377,7 +377,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     expect(seen(built)).toEqual(before)
   })
 
-  it(`${T_270_SHIFT} -- Shift moves the rows of all three and no date`, () => {
+  it(`${T_270_SHIFT} -- Shift moves the task groups of all three and no date`, () => {
     const built = bench(SPREAD)
     const before = seen(built)
     selectAll(built)
@@ -392,7 +392,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
   it.each([
     ['the highlight box bottom', { highlightTaskGroups: [0, 3], commentTaskGroup: 2 } as Layout, 2],
     ['the comment box anchor', { highlightTaskGroups: [0, 1], commentTaskGroup: 4 } as Layout, 1],
-  ] as const)(`${T_270_STOP} -- %s reaching the last row stops the whole Selection`, (_name, layout, allowed) => {
+  ] as const)(`${T_270_STOP} -- %s reaching the last task group stops the whole Selection`, (_name, layout, allowed) => {
     const built = bench(layout)
     const before = seen(built)
     selectAll(built)
@@ -402,7 +402,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     expect(after.highlight.top - before.highlight.top).toBe(allowed)
     expect(after.highlight.bottom - before.highlight.bottom).toBe(allowed)
     expect(after.comment.row - before.comment.row).toBe(allowed)
-    expect(Math.max(after.highlight.bottom, after.comment.row, after.selTaskGroup), 'nothing leaves the last row').toBe(ROWS.length - 1)
+    expect(Math.max(after.highlight.bottom, after.comment.row, after.selTaskGroup), 'nothing leaves the last task group').toBe(ROWS.length - 1)
   })
 
   it(`CY-4 "${CY_4_TASKS_ONLY}" -- Ctrl + Shift copies the task only; the boxes are neither copied nor moved`, () => {

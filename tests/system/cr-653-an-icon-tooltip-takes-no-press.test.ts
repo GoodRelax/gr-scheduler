@@ -281,7 +281,7 @@ test('CR-653 -- IN-3, UZ-2, EZ-2 and GR-19 still say what these cases press, wor
   }
 })
 
-test.describe('CR-653 (a) -- the description of a row control covers the control below it, and the press reaches that control', () => {
+test.describe('CR-653 (a) -- the description of a task group control covers the control below it, and the press reaches that control', () => {
   test(`IN-3 / UZ-2 -- ${UZ_2_PASSES_THE_PRESS}`, async () => {
     test.setTimeout(240_000)
     const stage = await openTheShallowTree()
@@ -316,7 +316,7 @@ test.describe('CR-653 (a) -- the description of a row control covers the control
   })
 })
 
-test.describe('CR-653 (b) -- the description of a palette entrance covers the next row, and the press arms the entrance below', () => {
+test.describe('CR-653 (b) -- the description of a palette entrance covers the next task group, and the press arms the entrance below', () => {
   test(`IN-3 / UZ-2 -- ${IN_3_TAKES_NO_POINTER}`, async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample()

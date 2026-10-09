@@ -67,7 +67,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       project: { title: 'A', statusDate: null, themeHue: 214, startDate: null },
       // WHY: not an empty array -- table T-050 requires at least one
       // TaskGroup, and an empty fixture is not a document the spec admits.
-      taskGroups: [{ id: 'g0', parentId: null, label: 'row 1', derivedFromTaskUid: null,
+      taskGroups: [{ id: 'g0', parentId: null, label: 'task group 1', derivedFromTaskUid: null,
                      order: 0, treeState: 'auto', color: null, minHeight: null }],
       tasks: [],
       ...((part.schedule as Record<string, unknown>) ?? {}),
@@ -343,9 +343,9 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   // WHY: FR-031 splits one fit press into two ordered writes -- place
   // zoom/scroll (CM-71, no step), then expand all (CM-72, one step).
 
-  it('CM-71 over a document with a collapsed row places zoom and scroll only, pushing no step (UN-8) and leaving the schedule instant (FR-063)', () => {
+  it('CM-71 over a document with a collapsed task group places zoom and scroll only, pushing no step (UN-8) and leaving the schedule instant (FR-063)', () => {
     // WHY: CM-71 places the whole-view zoom and scroll only -- the collapse
-    // half of the press is CM-72's, so a collapsed row stays collapsed here.
+    // half of the press is CM-72's, so a collapsed task group stays collapsed here.
     const document = documentOf({
       schedule: { taskGroups: [{ id: 'g1', treeState: 'collapsed' }] },
     })
@@ -386,7 +386,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.document.documentStamp.settingsUpdatedUtc).toBe('2026-08-17T01:00:00Z')
   })
 
-  it('CM-72 over two collapsed rows opens both in ONE step (UN-17) and moves the schedule instant, leaving the hidden state alone (HF-8)', () => {
+  it('CM-72 over two collapsed task groups opens both in ONE step (UN-17) and moves the schedule instant, leaving the hidden state alone (HF-8)', () => {
     const document = documentOf({
       schedule: {
         taskGroups: [
@@ -400,7 +400,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
 
-    // WHY: the reset never leaves a row collapsed (FR-024).
+    // WHY: the reset never leaves a task group collapsed (FR-024).
     for (const group of plan.document.schedule.taskGroups) {
       expect(group.treeState).not.toBe('collapsed')
     }
@@ -408,7 +408,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.document.schedule.taskGroups[1]!.treeState).toBe('hidden')
 
     // WHY: FR-031 folds one whole-view-display press into one step, so
-    // opening two rows must not cost two steps.
+    // opening two task groups must not cost two steps.
     expect(plan.history.done).toHaveLength(1)
 
     // WHY: UN-17 files this as in scope, and treeState is a schedule-data

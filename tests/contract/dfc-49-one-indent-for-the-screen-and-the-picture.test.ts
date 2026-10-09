@@ -182,11 +182,11 @@ const DEPTHS = [1, 2, 3, 4, 5] as const
 
 describe('DFC-49 / FR-085 -- the task group panel works the indent out once', () => {
   it.each(DEPTHS)(
-    'gives a depth %i row `indentPx` of depth x `S-37`, and no other number',
+    'gives a depth %i task group `indentPx` of depth x `S-37`, and no other number',
     (depth) => {
       const indent = keyOf(PANEL, 'taskGroupTitleIndent')
       expect(
-        deepestTitle(depth, 'a row', PANEL).indentPx,
+        deepestTitle(depth, 'a task group', PANEL).indentPx,
         'FR-039 の 表 T-252 の DS-1: 描く字下げは S-37 に描く比を掛けた値',
       ).toBe(depth * indent * DEFAULT_DISPLAY_RATIO)
     },
@@ -194,7 +194,7 @@ describe('DFC-49 / FR-085 -- the task group panel works the indent out once', ()
 
   it('sets each tier of a chain exactly one `S-37` further in than its parent', () => {
     const indent = keyOf(PANEL, 'taskGroupTitleIndent')
-    const byDepth = [...titlesOfChain(DEPTHS.length, 'a row', PANEL)].sort(
+    const byDepth = [...titlesOfChain(DEPTHS.length, 'a task group', PANEL)].sort(
       (one, two) => one.depth - two.depth,
     )
     const steps = byDepth
@@ -217,7 +217,7 @@ describe('DFC-49 / FR-085 -- the task group panel works the indent out once', ()
       const perCharacter = drawnPerCharacterOf(PANEL, depth)
       const room =
         drawnPanelOf(PANEL) -
-        deepestTitle(depth, 'a row', PANEL).indentPx -
+        deepestTitle(depth, 'a task group', PANEL).indentPx -
         S_140 -
         DRAWN_GRAB_STRIP
       expect(
@@ -367,7 +367,7 @@ const pictureOf = (scene: ExportScene): string => {
   return answer.svg
 }
 
-describe('DFC-49 -- the picture sets a row in by the `indentPx` it was handed', () => {
+describe('DFC-49 -- the picture sets a task group in by the `indentPx` it was handed', () => {
   const PICTURE_SCALE = SETTINGS_CONSTANTS.exportCanvas.width / EXPORT_SCREEN.width
 
   it.each([8, 40])('moves the drawn name by the `indentPx` it is given (+%i)', (extra) => {

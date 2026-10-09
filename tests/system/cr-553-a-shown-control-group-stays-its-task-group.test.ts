@@ -1,4 +1,4 @@
-// CR-553 in the running app: a shown control group stays its row's (HF-6, JDG-394), and the last row keeps room for it (LF-16).
+// CR-553 in the running app: a shown control group stays its task group's (HF-6, JDG-394), and the last task group keeps room for it (LF-16).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -201,7 +201,7 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
 /** @purity semi-pure-b */
 async function taskGroupById(page: Page, id: string): Promise<DrawnTaskGroup> {
   const found = (await drawnTaskGroups(page)).find((row) => row.id === id)
-  if (found === undefined) throw new Error(`row ${id} is not drawn`)
+  if (found === undefined) throw new Error(`task group ${id} is not drawn`)
   return found
 }
 
@@ -227,7 +227,7 @@ async function nameSpotOf(page: Page, id: string): Promise<{ x: number; y: numbe
     },
     { id, row: ROW },
   )
-  if (spot === null) throw new Error(`the name of row ${id} is nowhere on top`)
+  if (spot === null) throw new Error(`the name of task group ${id} is nowhere on top`)
   return spot
 }
 
@@ -240,8 +240,8 @@ async function ownerAt(page: Page, at: { x: number; y: number }): Promise<string
   )
 }
 
-test.describe('HF-6 / JDG-394 (MUST): a shown group stays the row it was drawn for', () => {
-  test('the lower rank over the next row still presses the row the group was drawn for', async ({ baseURL }) => {
+test.describe('HF-6 / JDG-394 (MUST): a shown group stays the task group it was drawn for', () => {
+  test('the lower rank over the next task group still presses the task group the group was drawn for', async ({ baseURL }) => {
     test.setTimeout(180_000)
     expect(rowOf(specTable('T-051'), 'HF-6').cells.join(' '), 'the clause this case presses').toContain(HF_6_NOT_THE_LOWER_TASK_GROUP)
     const opened = await openWith(baseURL, 30)
@@ -249,7 +249,7 @@ test.describe('HF-6 / JDG-394 (MUST): a shown group stays the row it was drawn f
       const { page } = opened
       const first = await taskGroupById(page, 'r0')
       const second = await taskGroupById(page, 'r1')
-      expect(second.box.y, 'the premise: r1 is the row right under r0').toBeCloseTo(first.box.y + first.box.height, 1)
+      expect(second.box.y, 'the premise: r1 is the task group right under r0').toBeCloseTo(first.box.y + first.box.height, 1)
 
       const name = await nameSpotOf(page, 'r0')
       await page.mouse.move(name.x, name.y)
@@ -344,7 +344,7 @@ async function scrollToTheEnd(page: Page): Promise<void> {
     if (seen === last) return
     last = seen
   }
-  throw new Error('the rows kept moving after 60 turns of the wheel')
+  throw new Error('the task groups kept moving after 60 turns of the wheel')
 }
 
 /** @purity non-pure */
@@ -355,17 +355,17 @@ async function hoverAndRead(page: Page, id: string): Promise<DrawnTaskGroup> {
   return taskGroupById(page, id)
 }
 
-test.describe('LF-16 / HF-19 (MUST): the last row keeps room for its lattice', () => {
-  test('scrolled to the end, the whole lattice of the last row is inside the Task Group Area', async ({ baseURL }) => {
+test.describe('LF-16 / HF-19 (MUST): the last task group keeps room for its lattice', () => {
+  test('scrolled to the end, the whole lattice of the last task group is inside the Task Group Area', async ({ baseURL }) => {
     test.setTimeout(180_000)
     const opened = await openWith(baseURL, 60)
     try {
       const { page } = opened
       const area = await taskGroupAreaOf(page)
-      expect((await drawnTaskGroups(page)).map((row) => row.id), 'the premise: the last row starts off the screen').not.toContain('r59')
+      expect((await drawnTaskGroups(page)).map((row) => row.id), 'the premise: the last task group starts off the screen').not.toContain('r59')
       await scrollToTheEnd(page)
       const shown = await hoverAndRead(page, 'r59')
-      if (shown.grid === null || shown.entrance === null) throw new Error('the last row draws no lattice')
+      if (shown.grid === null || shown.entrance === null) throw new Error('the last task group draws no lattice')
       expect(shown.grid.height, 'the premise: the lattice is taller than the band').toBeGreaterThan(shown.box.height)
       expect(shown.grid.y + shown.grid.height, 'LF-16: the lattice bottom is inside the Task Group Area').toBeLessThanOrEqual(area.bottom + 0.5)
       const lowest = { x: shown.entrance.x + shown.entrance.width / 2, y: shown.entrance.y + shown.entrance.height - 1 }
@@ -382,7 +382,7 @@ test.describe('LF-16 / HF-19 (MUST): the last row keeps room for its lattice', (
     return found[0]?.id ?? ''
   })()
 
-  // WHY: the Task Group Area is sized so that 40 one-lane rows fit and 40 rows plus the reserve do not; FR-055
+  // WHY: the Task Group Area is sized so that 40 one-lane task groups fit and 40 task groups plus the reserve do not; FR-055
   // (MUST) then has to settle on depth 1, and a fit that forgot LF-16 would draw depth 2 and cut the lattice.
   const fittedWith = async (baseURL: string | undefined, spare: (reserve: number) => number) => {
     const measuring = await openWith(baseURL, 20)
@@ -411,14 +411,14 @@ test.describe('LF-16 / HF-19 (MUST): the last row keeps room for its lattice', (
     return { opened, area: await taskGroupAreaOf(page), band, reserve, rows: await drawnTaskGroups(page) }
   }
 
-  test('FR-055 (MUST): the fit refuses the depth whose rows fit only without the reserve', async ({ baseURL }) => {
+  test('FR-055 (MUST): the fit refuses the depth whose task groups fit only without the reserve', async ({ baseURL }) => {
     test.setTimeout(240_000)
     const fitted = await fittedWith(baseURL, (reserve) => reserve / 2)
     try {
       const height = fitted.area.bottom - fitted.area.top
       expect(height, 'the premise: 40 bands fit').toBeGreaterThan(40 * fitted.band - 0.5)
       expect(height, 'the premise: 40 bands and the reserve do not').toBeLessThan(40 * fitted.band + fitted.reserve)
-      expect(fitted.rows.map((row) => row.id), 'depth 1 only: no child row is drawn').not.toContain('r0c')
+      expect(fitted.rows.map((row) => row.id), 'depth 1 only: no child task group is drawn').not.toContain('r0c')
       expect(fitted.rows).toHaveLength(20)
     } finally {
       await fitted.opened.close()
@@ -433,7 +433,7 @@ test.describe('LF-16 / HF-19 (MUST): the last row keeps room for its lattice', (
       expect(ids).toContain('r0c')
       expect(ids).toHaveLength(40)
       const shown = await hoverAndRead(fitted.opened.page, 'r19c')
-      if (shown.grid === null) throw new Error('the last row draws no lattice')
+      if (shown.grid === null) throw new Error('the last task group draws no lattice')
       expect(shown.grid.y + shown.grid.height, 'LF-16: the last lattice is inside the Task Group Area').toBeLessThanOrEqual(fitted.area.bottom + 0.5)
     } finally {
       await fitted.opened.close()
@@ -442,7 +442,7 @@ test.describe('LF-16 / HF-19 (MUST): the last row keeps room for its lattice', (
 })
 
 test.describe('FR-051 / JDG-376 (MUST NOT): the group is not drawn into the horizontal Scrollbars band', () => {
-  test('a row cut at the Task Group Area bottom, hovered, paints nothing of its group into the band', async ({ baseURL }) => {
+  test('a task group cut at the Task Group Area bottom, hovered, paints nothing of its group into the band', async ({ baseURL }) => {
     test.setTimeout(180_000)
     const opened = await openWith(baseURL, 60, BASE_SCREEN, 0.5)
     try {
@@ -452,8 +452,8 @@ test.describe('FR-051 / JDG-376 (MUST NOT): the group is not drawn into the hori
       const cut = rows.find((row) => row.box.y < area.bottom - 2 && row.box.y + (row.grid?.height ?? 0) > area.scrollbarTop + 1)
       if (cut === undefined) throw new Error(`no lattice reaches past ${area.scrollbarTop}: ${JSON.stringify(rows.slice(-2))}`)
       const shown = await hoverAndRead(page, cut.id)
-      expect(shown.entranceShown, `HF-6: hovering row ${cut.id} draws its group`).toBe(true)
-      if (shown.grid === null) throw new Error(`row ${cut.id} draws no lattice`)
+      expect(shown.entranceShown, `HF-6: hovering task group ${cut.id} draws its group`).toBe(true)
+      if (shown.grid === null) throw new Error(`task group ${cut.id} draws no lattice`)
       const bottom = await page.evaluate(() => window.innerHeight)
       const intruders: string[] = []
       for (let y = Math.ceil(area.scrollbarTop) + 1; y < bottom; y += 2) {
@@ -461,7 +461,7 @@ test.describe('FR-051 / JDG-376 (MUST NOT): the group is not drawn into the hori
           if ((await ownerAt(page, { x, y })) === cut.id) intruders.push(`${x},${y}`)
         }
       }
-      expect(intruders.slice(0, 6), `FR-051 (MUST NOT): nothing of row ${cut.id} below y ${area.scrollbarTop}`).toEqual([])
+      expect(intruders.slice(0, 6), `FR-051 (MUST NOT): nothing of task group ${cut.id} below y ${area.scrollbarTop}`).toEqual([])
     } finally {
       await opened.close()
     }

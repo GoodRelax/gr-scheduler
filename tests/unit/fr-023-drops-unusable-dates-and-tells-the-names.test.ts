@@ -180,7 +180,7 @@ const SK_10 = keyOf('SK-10')
 const PROCEED_ANSWER = 'proceed'
 
 // ===========================================================================
-// 3. The documents. Current: one valid row. Incoming: a good Task, a Task with
+// 3. The documents. Current: one valid task group. Incoming: a good Task, a Task with
 //    an unusable date, and that Task's own WBS child (valid dates) -- so the
 //    cascade (CD-1) is what has to remove the child, not a second bad date.
 // ===========================================================================

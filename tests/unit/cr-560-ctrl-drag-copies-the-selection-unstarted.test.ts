@@ -117,7 +117,7 @@ describe('CR-560 premises: the clauses read this way', () => {
     expect(in2).toContain('構えているときは作図の合図（閲覧環境の `crosshair`）')
   })
 
-  it('T-108 CM-8 carries the day shift and the rows of a Ctrl drag copy', () => {
+  it('T-108 CM-8 carries the day shift and the task groups of a Ctrl drag copy', () => {
     const line = GLOSSARY.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
     expect(line).toContain('`pasteTasks`')
     expect(line).toContain('ずらす日数と、コピーを載せるタスクグループも運ぶ')
@@ -407,7 +407,7 @@ const groundOf = (loop: FrameLoop): Point => {
 
 const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
   const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
   return found
 }
 
@@ -585,7 +585,7 @@ describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressRowOf
 })
 
 describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFromInput + editDocument)', () => {
-  it('writes one CM-8 carrying the selection, the day shift and the rows, and picks the copies', () => {
+  it('writes one CM-8 carrying the selection, the day shift and the task groups, and picks the copies', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
     const from = bodyOf(built.loop, ROOT)
@@ -610,13 +610,13 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     expect((action.picked as unknown as { items: unknown[] }).items).toEqual([taskRef(copyUid as number)])
 
     const before = built.loop.document()
-    const result = editDocument(before, writes[0] as DocumentCommand, LIMITS, 'Row')
+    const result = editDocument(before, writes[0] as DocumentCommand, LIMITS, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const after = result.document
     const rootCopy = copyNamed(before.schedule.tasks, after.schedule.tasks, 'Root')
     expect(rootCopy.uid).toBe(copyUid)
-    expect(groupOf(after, rootCopy.uid), 'CY-6: the copy stands one drawn row down').toBe(TASK_GROUP_B)
+    expect(groupOf(after, rootCopy.uid), 'CY-6: the copy stands one drawn task group down').toBe(TASK_GROUP_B)
     expect(
       newTasks(before.schedule.tasks, after.schedule.tasks).map((one) => one.name),
       'CY-3: the WBS descendant that was not chosen is not copied (DU-1)',
@@ -625,7 +625,7 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     expect(after.schedule.tasks.filter((one) => before.schedule.tasks.some((old) => old.uid === one.uid))).toEqual(before.schedule.tasks)
   })
 
-  it('CY-6: a copy that would leave the last row stops the whole there', () => {
+  it('CY-6: a copy that would leave the last task group stops the whole there', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT_AND_CHILD)
     const from = bodyOf(built.loop, ROOT)
@@ -634,19 +634,19 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     const answer = commandFromInput(pointer('up', { x: from.x + by.x, y: from.y + by.y }, CTRL), { ...context, pressed })
     const writes = (answer.action as unknown as { writes: readonly (readonly DocumentCommand[])[] }).writes.flat()
     const before = built.loop.document()
-    const result = editDocument(before, writes[0] as DocumentCommand, LIMITS, 'Row')
+    const result = editDocument(before, writes[0] as DocumentCommand, LIMITS, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const rootCopy = copyNamed(before.schedule.tasks, result.document.schedule.tasks, 'Root')
     const childCopy = copyNamed(before.schedule.tasks, result.document.schedule.tasks, 'Child')
-    expect(groupOf(result.document, childCopy.uid), 'the descendant stops on the last row').toBe(TASK_GROUP_F)
-    expect(groupOf(result.document, rootCopy.uid), 'and the root stops the same rows short').toBe(TASK_GROUP_D)
+    expect(groupOf(result.document, childCopy.uid), 'the descendant stops on the last task group').toBe(TASK_GROUP_F)
+    expect(groupOf(result.document, rootCopy.uid), 'and the root stops the same task groups short').toBe(TASK_GROUP_D)
     expect(childCopy.parentTaskUid, 'DU-1: a chosen child is copied under its chosen parent`s copy').toBe(rootCopy.uid)
   })
 })
 
 describe('T-308 through the shell: a Ctrl drag on the selection copies it', () => {
-  it('CY-5, CY-6: a drag 3 days right and 1 row down stands the copies there and leaves the source', () => {
+  it('CY-5, CY-6: a drag 3 days right and 1 task group down stands the copies there and leaves the source', () => {
     const moved = stage()
     selectRoot(moved)
     const moveBy = travel(moved.loop, 3, 1)
@@ -733,15 +733,15 @@ describe('T-308 through the shell: a Ctrl drag on the selection copies it', () =
   })
 })
 
-describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts the rows drawn at the press', () => {
-  it('premise: CY-6 counts rows on the rows drawn on screen; PTD-7 draws the copy while held', () => {
+describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts the task groups drawn at the press', () => {
+  it('premise: CY-6 counts task groups on the task groups drawn on screen; PTD-7 draws the copy while held', () => {
     expect(cellsOf('T-308', 'CY-6')).toContain('すべてのコピーを、引いたタスクグループ数だけ移したタスクグループに載せること（MUST）')
     expect(cellsOf('T-308', 'CY-6')).toContain('タスクグループ数は画面に描いたタスクグループで数え')
     expect(cellsOf('T-023a', 'PTD-7')).toContain('押しているあいだ、コピーを置くことになる所にコピーを描き、コピー元はそのまま描くこと（MUST）')
     expect(cellsOf('T-023a', 'PTD-7')).toContain('追従は絵であって編集ではない')
   })
 
-  it('3 days right and half a row down, then on to one row down: the copy lands in the next row, as one move puts it', () => {
+  it('3 days right and half a task group down, then on to one task group down: the copy lands in the next task group, as one move puts it', () => {
     const single = stage()
     selectRoot(single)
     const singleBefore = single.tasks()
@@ -764,14 +764,14 @@ describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts t
     expect(heldRoot, 'PTD-7: the held copy is drawn while the press is held').toBeDefined()
     expect(
       (heldRoot as ScreenRect).y >= taskGroupABefore.y && (heldRoot as ScreenRect).y < taskGroupABefore.y + taskGroupABefore.height,
-      'premise: half a row down is still the source row, so the held copy stands in it',
+      'premise: half a task group down is still the source task group, so the held copy stands in it',
     ).toBe(true)
     built.send(pointer('move', { x: from.x + by.x, y: from.y + by.y }, CTRL))
     built.send(pointer('up', { x: from.x + by.x, y: from.y + by.y }, CTRL))
     const after = built.tasks()
     expect(newTasks(before, after).map((one) => one.name).sort()).toEqual(['Root'])
     const rootCopy = copyNamed(before, after, 'Root')
-    expect(groupOf(built.loop.document(), rootCopy.uid), 'CY-6: one drawn row down, not the source row').toBe(TASK_GROUP_B)
+    expect(groupOf(built.loop.document(), rootCopy.uid), 'CY-6: one drawn task group down, not the source task group').toBe(TASK_GROUP_B)
     expect(
       { start: day(rootCopy.start), finish: day(rootCopy.finish), row: groupOf(built.loop.document(), rootCopy.uid) },
       'the stepped drag lands where the single-move drag lands',
@@ -782,7 +782,7 @@ describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts t
     })
     expect(day(rootCopy.start), 'CY-5: 3 days later than the source').toBe('2026-04-09')
     expect(after.filter((one) => before.some((old) => old.uid === one.uid)), 'the sources stay').toEqual(before)
-    expect(groupOf(built.loop.document(), ROOT), 'the source stays in its row').toBe(TASK_GROUP_A)
+    expect(groupOf(built.loop.document(), ROOT), 'the source stays in its task group').toBe(TASK_GROUP_A)
   })
 })
 
@@ -800,7 +800,7 @@ describe('T-308 CY-9: releases that copy nothing', () => {
     expectNothing(built, before)
   })
 
-  it('(2) past S-208 and back: 0 days and 0 rows', () => {
+  it('(2) past S-208 and back: 0 days and 0 task groups', () => {
     const built = stage()
     selectRoot(built)
     const before = built.tasks()
@@ -839,7 +839,7 @@ describe('T-308 CY-9: releases that copy nothing', () => {
 })
 
 describe('T-308 CY-10: refusals', () => {
-  it.todo('refuses to land a copy on a row of another editGroup (waits for FR-111, DFC-730)')
+  it.todo('refuses to land a copy on a task group of another editGroup (waits for FR-111, DFC-730)')
 })
 
 describe('T-223 DU-1: every road makes an unstarted copy and leaves the source', () => {
@@ -860,7 +860,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
 
   it('CM-8 paste (SK-5)', () => {
     const document = fixtureDocument()
-    const result = editDocument(document, { kind: 'pasteTasks', sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED] } as DocumentCommand, LIMITS, 'Row')
+    const result = editDocument(document, { kind: 'pasteTasks', sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED] } as DocumentCommand, LIMITS, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expectUnstarted(document.schedule.tasks, result.document.schedule.tasks, STATES)
@@ -875,19 +875,19 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
     expectUnstarted(before, built.tasks(), ['Root'])
   })
 
-  it('CM-28 row copy chains to DU-1 through DU-2', () => {
+  it('CM-28 task group copy chains to DU-1 through DU-2', () => {
     for (const row of [TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]) {
       const document = fixtureDocument()
       const result = editDocument(
         document,
         { kind: 'pasteTaskGroupSubtree', sourceGroupId: row, targetGroupId: null, newGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
         LIMITS,
-        'Row',
+        'Task group',
       )
-      expect(result.ok ? 'ok' : JSON.stringify(result.refusals), `row ${row}`).toBe('ok')
+      expect(result.ok ? 'ok' : JSON.stringify(result.refusals), `task group ${row}`).toBe('ok')
       if (!result.ok) continue
       const copies = newTasks(document.schedule.tasks, result.document.schedule.tasks)
-      expect(copies.length, `row ${row} copied a Task`).toBeGreaterThan(0)
+      expect(copies.length, `task group ${row} copied a Task`).toBeGreaterThan(0)
       expectUnstarted(document.schedule.tasks, result.document.schedule.tasks, copies.map((one) => one.name ?? ''))
     }
   })
@@ -902,7 +902,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
         landing: { dayShift: 3, groupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
       } as DocumentCommand,
       LIMITS,
-      'Row',
+      'Task group',
     )
     expect(result.ok).toBe(true)
     if (!result.ok) return

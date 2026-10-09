@@ -1,4 +1,4 @@
-// Spec-only cases for CR-567: an imported Task with no children makes no row
+// Spec-only cases for CR-567: an imported Task with no children makes no task group
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -33,7 +33,7 @@ function currentDocument(): Document {
 
 const CURRENT = currentDocument()
 const MAX_GROUP_DEPTH = SETTINGS_CONSTANTS.maxGroupDepth
-const DEFAULT_TASK_GROUP_NAME = 'Row'
+const DEFAULT_TASK_GROUP_NAME = 'Task group'
 
 function accepted(text: string): Document {
   const read = documentFromMspdi(text, CURRENT)
@@ -179,16 +179,16 @@ function taskGroupOfEachTask(document: Document): ReadonlyMap<number, number | n
 
 function rowIdMadeFrom(document: Document, uid: number): string {
   const taskGroup = document.schedule.taskGroups.find((each) => each.derivedFromTaskUid === uid)
-  if (taskGroup === undefined) throw new Error(`no row was made from task ${uid}`)
+  if (taskGroup === undefined) throw new Error(`no task group was made from task ${uid}`)
   return taskGroup.id
 }
 
 function checkTaskGroups(document: Document, expected: Expected): void {
   const owners = document.schedule.taskGroups.map((each) => each.derivedFromTaskUid)
-  expect(new Set(owners), 'the Tasks rows are made from').toEqual(new Set(expected.taskGroupOwners))
+  expect(new Set(owners), 'the Tasks task groups are made from').toEqual(new Set(expected.taskGroupOwners))
   expect(owners).toHaveLength(expected.taskGroupOwners.size)
   const actual = taskGroupOfEachTask(document)
-  for (const [uid, owner] of expected.rowOf) expect(actual.get(uid), `the row task ${uid} sits on`).toBe(owner)
+  for (const [uid, owner] of expected.rowOf) expect(actual.get(uid), `the task group task ${uid} sits on`).toBe(owner)
   expect(document.schedule.taskGroupMembers).toHaveLength(document.schedule.tasks.length)
 }
 
@@ -214,7 +214,7 @@ function siblingOrder(document: Document, parent: number | null): readonly numbe
 
 function groupEdited(document: Document, command: TaskGroupCommand): Document {
   const result = editTaskGroup(document, command, DEFAULT_TASK_GROUP_NAME)
-  if (!result.ok) throw new Error(`the row edit was refused: ${JSON.stringify(result.refusals)}`)
+  if (!result.ok) throw new Error(`the task group edit was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }
 
@@ -230,7 +230,7 @@ function taskGroupMoves(document: Document, bar: { readonly uid: number; readonl
     .slice()
     .sort((a, b) => a.order - b.order)
     .map((each) => each.id)
-  // WHY: moving a nested row to the top is no longer here -- T-015a HM-12 gives its Task the root as parent task
+  // WHY: moving a nested task group to the top is no longer here -- T-015a HM-12 gives its Task the root as parent task
   // (CR-706), so that move changes more than the sibling order.
   return [
     ['reorderTaskGroupSiblings', groupEdited(document, { kind: 'reorderTaskGroupSiblings', parentId: null, orderedIds: [...rootTaskGroups].reverse() })],
@@ -263,12 +263,12 @@ describe('CR-567 -- FR-058 on an MSPDI document built in the test', () => {
 
   it(LEAF_CLAUSE, () => {
     for (const [leaf, parent] of [[3, 2], [4, 2], [5, 2], [7, 6], [8, 6], [9, 1]] as const) {
-      expect(document.schedule.taskGroups.some((each) => each.derivedFromTaskUid === leaf), `task ${leaf} makes no row`).toBe(false)
-      expect(rows.get(leaf), `task ${leaf} sits on its parent's row`).toBe(parent)
+      expect(document.schedule.taskGroups.some((each) => each.derivedFromTaskUid === leaf), `task ${leaf} makes no task group`).toBe(false)
+      expect(rows.get(leaf), `task ${leaf} sits on its parent's task group`).toBe(parent)
     }
   })
 
-  it('puts the Tasks that share a parent on one row', () => {
+  it('puts the Tasks that share a parent on one task group', () => {
     const rowIds = new Map(document.schedule.taskGroupMembers.map((each) => [each.taskUid, each.groupId]))
     expect(new Set([3, 4, 5].map((uid) => rowIds.get(uid))).size).toBe(1)
     expect(new Set([7, 8].map((uid) => rowIds.get(uid))).size).toBe(1)
@@ -276,22 +276,22 @@ describe('CR-567 -- FR-058 on an MSPDI document built in the test', () => {
 
   it(ROOT_CLAUSE, () => {
     for (const loose of [10, 11]) {
-      expect(rows.get(loose), `task ${loose} sits on its own row`).toBe(loose)
+      expect(rows.get(loose), `task ${loose} sits on its own task group`).toBe(loose)
     }
     const looseTaskGroups = new Set([10, 11].map((uid) => rowIdMadeFrom(document, uid)))
-    expect(looseTaskGroups.size, 'each parent-less Task has a row of its own').toBe(2)
+    expect(looseTaskGroups.size, 'each parent-less Task has a task group of its own').toBe(2)
   })
 
   it(OWN_TASK_GROUP_SENTENCE, () => {
     for (const summary of [1, 2, 6]) expect(rows.get(summary), `task ${summary}`).toBe(summary)
   })
 
-  it('makes rows for exactly the Tasks with children and the Tasks with no parent', () => {
+  it('makes task groups for exactly the Tasks with children and the Tasks with no parent', () => {
     checkTaskGroups(document, expectedTaskGroups(parentsInFile(tasksInFile(mspdiOf(TREE))), MAX_GROUP_DEPTH))
     expect(document.schedule.taskGroups).toHaveLength(5)
   })
 
-  it('leaves every Task on exactly one row (FR-058 MUST NOT, IV-6)', () => {
+  it('leaves every Task on exactly one task group (FR-058 MUST NOT, IV-6)', () => {
     for (const task of document.schedule.tasks) {
       const mine = document.schedule.taskGroupMembers.filter((each) => each.taskUid === task.uid)
       expect(mine, `task ${task.uid}`).toHaveLength(1)
@@ -309,13 +309,13 @@ describe('CR-567 -- FR-058 on an MSPDI document built in the test', () => {
     expect(siblingOrder(document, 2), 'the import alone keeps the file order').toEqual([3, 4, 5])
   })
 
-  it('changes only the sibling order when a row is moved later (JDG-561)', () => {
+  it('changes only the sibling order when a task group is moved later (JDG-561)', () => {
     for (const [label, after] of taskGroupMoves(document, { uid: 7, toTaskGroupOf: 2 })) {
       checkOnlySiblingOrderMoved(document, after, label)
     }
   })
 
-  it('ranks the siblings on one row by their planned start once a row moves (HM-9, ST-2)', () => {
+  it('ranks the siblings on one task group by their planned start once a task group moves (HM-9, ST-2)', () => {
     const [, reordered] = taskGroupMoves(document, { uid: 7, toTaskGroupOf: 2 })[0] ?? []
     expect(reordered).toBeDefined()
     if (reordered === undefined) return
@@ -343,12 +343,12 @@ describe('CR-567 -- FR-058 below and at the S-125 cap', () => {
     }
   })
 
-  it('puts a leaf at the cap on its parent`s row, not a row of its own', () => {
+  it('puts a leaf at the cap on its parent`s task group, not a task group of its own', () => {
     expect(rows.get(100 + MAX_GROUP_DEPTH)).toBe(MAX_GROUP_DEPTH - 1)
     expect(document.schedule.taskGroups.some((each) => each.derivedFromTaskUid === 100 + MAX_GROUP_DEPTH)).toBe(false)
   })
 
-  it('makes exactly the rows FR-058 asks for', () => {
+  it('makes exactly the task groups FR-058 asks for', () => {
     checkTaskGroups(document, expectedTaskGroups(parentsInFile(tasksInFile(text)), MAX_GROUP_DEPTH))
     expect(document.schedule.taskGroups).toHaveLength(MAX_GROUP_DEPTH)
   })
@@ -370,7 +370,7 @@ describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', 
     expect(document.schedule.tasks.some((each) => each.uid === 0)).toBe(false)
   })
 
-  it('makes 37 rows, one per Task with children or with no parent (JDG-560, JDG-580)', () => {
+  it('makes 37 task groups, one per Task with children or with no parent (JDG-560, JDG-580)', () => {
     checkTaskGroups(document, expected)
     expect(document.schedule.taskGroups).toHaveLength(37)
   })
@@ -384,7 +384,7 @@ describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', 
     expect(siblingOrder(document, null), 'the import alone keeps the file order').toEqual(topLevel)
   })
 
-  it('puts more than one Task on a row, up to the 19 CR-567 counted', () => {
+  it('puts more than one Task on a task group, up to the 19 CR-567 counted', () => {
     const perTaskGroup = new Map<string, number>()
     for (const member of document.schedule.taskGroupMembers) perTaskGroup.set(member.groupId, (perTaskGroup.get(member.groupId) ?? 0) + 1)
     expect(Math.max(...perTaskGroup.values())).toBe(19)
@@ -400,7 +400,7 @@ describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', 
     }
   })
 
-  it('changes only the sibling order when a row is moved later (JDG-561)', () => {
+  it('changes only the sibling order when a task group is moved later (JDG-561)', () => {
     const leaf = [...expected.rowOf].find(([uid, owner]) => uid !== owner)
     const otherOwner = [...expected.taskGroupOwners].find((owner) => owner !== leaf?.[1])
     if (leaf === undefined || otherOwner === undefined) throw new Error('the sample has no leaf to move')

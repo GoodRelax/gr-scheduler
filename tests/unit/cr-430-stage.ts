@@ -83,7 +83,7 @@ function group(id: string, order: number): unknown {
   return {
     id,
     parentId: null,
-    label: `row ${String(order)}`,
+    label: `task group ${String(order)}`,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', editGroup: null,

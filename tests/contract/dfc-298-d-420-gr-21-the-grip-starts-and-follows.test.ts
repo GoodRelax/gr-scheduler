@@ -466,7 +466,7 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
       one.send(pointer('down', from.x, from.y))
       one.send(to(from, TRAVEL))
       // ⚠️ ONE PIXEL OF SLACK, and it is the drawn rectangle's rounding rather
-      // than a tolerance on the rule: the place is kept in days and rows
+      // than a tolerance on the rule: the place is kept in days and task groups
       // (S-77 / S-177, S-78 / S-176) and comes back as a fraction of one.
       expect(Math.abs(along(gripCentreOf(one.pane, axis)) - began - TRAVEL)).toBeLessThan(1)
       one.send(to(from, TRAVEL * 2))

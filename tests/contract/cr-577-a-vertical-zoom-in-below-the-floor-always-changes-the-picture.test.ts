@@ -234,7 +234,7 @@ function taskOf(uid: number): Record<string, unknown> {
   }
 }
 
-// WHY: the `stacked` extra tasks share the first row's dates, so FR-003 stacks them into one tall band;
+// WHY: the `stacked` extra tasks share the first task group's dates, so FR-003 stacks them into one tall band;
 // that band is how a case gets an FR-016 ceiling below the ZE-6 target without typing a ceiling.
 function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Document {
   const members = rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id }))
@@ -285,7 +285,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
 const ERP_TEXT = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
 
 // WHY: null leaves the sample as imported, so OP-10 opens it at the FR-055 fit (T1); a number also
-// places the view on the first row, since a null place would refit and drop the zoom given.
+// places the view on the first task group, since a null place would refit and drop the zoom given.
 function erpDocument(zoomY: number | null): Document {
   const current = documentFromJson(TEMPLATE_TEXT)
   if (!current.ok) throw new Error('the bundled template is not a GRS JSON document')
@@ -556,7 +556,7 @@ describe('the scenes stand where the manuscript puts them', () => {
   })
 
   it.each(SCENES.map((one) => [one.name, one] as const))(
-    'premise: %s -- the drawn rows at zoomY 0.3 are the ones table T-329 names',
+    'premise: %s -- the drawn task groups at zoomY 0.3 are the ones table T-329 names',
     (_name, scene) => {
       const document = scene.make(0.3)
       const built = bench(document)
@@ -588,10 +588,10 @@ describe('T1 / T2 -- sample-large-erp-program.ja.xml opened at the FR-055 fit', 
     built.pressEntrance('IC-15')
     expect(built.zoomY(), ZE_6_RULE).toBeCloseTo(Math.max(fit * S_53, thresholdOf(2)), 12)
     expect(built.zoomY()).toBeCloseTo(expectedAfterOnePress(erp, fit), 12)
-    expect(built.drawnTaskGroups().length, 'depth-2 rows appear').toBeGreaterThan(before.length)
+    expect(built.drawnTaskGroups().length, 'depth-2 task groups appear').toBeGreaterThan(before.length)
   })
 
-  it(`${ZE_6_ONE} -- T2: the second press goes to the next threshold that changes the rows, or (2)`, () => {
+  it(`${ZE_6_ONE} -- T2: the second press goes to the next threshold that changes the task groups, or (2)`, () => {
     const built = bench(erpDocument(null))
     built.pressEntrance('IC-15')
     const second = built.zoomY()
@@ -603,7 +603,7 @@ describe('T1 / T2 -- sample-large-erp-program.ja.xml opened at the FR-055 fit', 
   })
 })
 
-describe('T3 -- a document of depth-1 rows at zoomY 0.3', () => {
+describe('T3 -- a document of depth-1 task groups at zoomY 0.3', () => {
   it.each(ZOOM_IN)(`${ZE_6_TWO} -- %s writes (S-6 / S-5 / S-4) x S-53 and leaves the floor`, (_name, press) => {
     const built = bench(documentOf(SHALLOW, 0.3))
     const before = built.picture()
@@ -633,14 +633,14 @@ describe('T4 -- every press below the floor changes the picture', { timeout: LOA
   })
 })
 
-describe('T5 -- a threshold that changes no drawn row is not counted', () => {
+describe('T5 -- a threshold that changes no drawn task group is not counted', () => {
   const START = 0.35
 
   it.each([
     ['collapsed', PAST_THE_FLOOR],
     ['expanded', PAST_THE_FLOOR],
     ['auto', thresholdOf(3)],
-  ] as const)(`${ZE_6_ONE} -- the depth-3 row under a %s parent`, (state, expected) => {
+  ] as const)(`${ZE_6_ONE} -- the depth-3 task group under a %s parent`, (state, expected) => {
     expect(thresholdOf(2), 'premise: depth 2 is drawn at the start').toBeLessThanOrEqual(START)
     const rows = DEPTH_3_UNDER(state)
     const built = bench(documentOf(rows, START))
@@ -670,7 +670,7 @@ describe('T6 -- the FR-016 ceiling below the ZE-6 target', { timeout: LOADED_MAC
       const probe = bench(documentOf(SHALLOW, S_54, stacked))
       if (probe.tallestBand() >= probe.taskGroupAreaHeight()) return stacked
     }
-    throw new Error('no stacked band reached the row area at S-54')
+    throw new Error('no stacked band reached the task group area at S-54')
   }
 
   it.each([0.3, 0.5])(`${ZE_6_CLAMP} -- from zoomY %d the write is the ceiling, not the target`, (start) => {
@@ -690,7 +690,7 @@ describe('T6 -- the FR-016 ceiling below the ZE-6 target', { timeout: LOADED_MAC
     expect(built.messages(), ZE_5_TEXT).toEqual([endMessage(clamped, MAX_WORD)])
   })
 
-  it.each(ZOOM_IN)(`${ZE_6_EQUAL} -- %s at S-54 where the band already fills the row area`, (_name, press) => {
+  it.each(ZOOM_IN)(`${ZE_6_EQUAL} -- %s at S-54 where the band already fills the task group area`, (_name, press) => {
     const built = bench(documentOf(SHALLOW, S_54, stackedAtTheFloor()))
     expect(isOnTheFloor(S_54), 'premise: ZE-1 (1) holds').toBe(true)
     press(built)

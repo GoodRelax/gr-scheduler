@@ -97,7 +97,7 @@ test(`HF-10 "${CLAUSE_RIGHT_MARGIN}"`, async ({ baseURL }) => {
     const measured = await measure(opened.page, HEAD_ROW)
     const rightmost = measured.heads.find((one) => one.icon === DELETE_EVERY_TASK_GROUP)
     expect(rightmost, `premise: ${DELETE_EVERY_TASK_GROUP} is drawn at the head`).toBeDefined()
-    expect(Number.isFinite(measured.panelRight), 'premise: rows are drawn in the panel').toBe(true)
+    expect(Number.isFinite(measured.panelRight), 'premise: task groups are drawn in the panel').toBe(true)
     expect(Math.abs(measured.panelRight - (rightmost?.right ?? Number.NaN) - S_313)).toBeLessThan(NEAR_PX)
   } finally {
     await opened.close()

@@ -1,4 +1,4 @@
-// Guard cases for DFC-697: a display scale step holds the date and the row at the Task Group Area middle.
+// Guard cases for DFC-697: a display scale step holds the date and the task group at the Task Group Area middle.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -15,7 +15,7 @@ const TASK_GROUP_COUNT = 60
 const SEATED_TASK_GROUP = 'task-group-20'
 const SEATED_TASK_GROUP_PART = 0.3
 const SEATED_DAY_PART = 0.25
-// WHY: a millionth of a day or of a row is float noise from the anchor round trip,
+// WHY: a millionth of a day or of a task group is float noise from the anchor round trip,
 // while every mutation the traps name moves the middle by whole px.
 const DIGITS = 6
 
@@ -25,7 +25,7 @@ afterEach(() => {
 })
 
 const rows = (): TaskGroupSeed[] =>
-  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `row-${index + 1}`, parentId: null }))
+  Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `task-group-${index + 1}`, parentId: null }))
 
 const bench = (displayScale: number): ShellBench => {
   const built = shell(
@@ -62,7 +62,7 @@ function taskGroupPartAt(frame: FrameValues, y: number): { readonly groupId: str
     const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
     if (y >= taskGroup.y && y < taskGroup.y + slab) return { groupId: taskGroup.groupId, part: (y - taskGroup.y) / slab }
   }
-  throw new Error(`premise: a scrolling row stands at y ${y}`)
+  throw new Error(`premise: a scrolling task group stands at y ${y}`)
 }
 
 const middleOf = (frame: FrameValues) => {
@@ -84,7 +84,7 @@ describe('DFC-697 / FR-039 -- the manuscript still holds the rule these cases pr
   })
 })
 
-describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Area holds its date and its row', () => {
+describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Area holds its date and its task group', () => {
   it.each([
     ['SK-22 from the default step', DEFAULT_DISPLAY_SCALE, SK_22],
     ['SK-23 from the default step', DEFAULT_DISPLAY_SCALE, SK_23],
@@ -101,7 +101,7 @@ describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Ar
     expect(after.regions.taskGroupArea.y, 'premise: DS-1 moved the Task Group Area top').not.toBe(before.regions.taskGroupArea.y)
     const landed = middleOf(after)
     expect(landed.day, `${FR_039_HOLD_THE_MIDDLE} -- the date`).toBeCloseTo(held.day, DIGITS)
-    expect(landed.row.groupId, `${FR_039_HOLD_THE_MIDDLE} -- the row`).toBe(held.row.groupId)
-    expect(landed.row.part, `${FR_039_HOLD_THE_MIDDLE} -- the place inside the row`).toBeCloseTo(held.row.part, DIGITS)
+    expect(landed.row.groupId, `${FR_039_HOLD_THE_MIDDLE} -- the task group`).toBe(held.row.groupId)
+    expect(landed.row.part, `${FR_039_HOLD_THE_MIDDLE} -- the place inside the task group`).toBeCloseTo(held.row.part, DIGITS)
   })
 })

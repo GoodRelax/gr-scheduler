@@ -433,7 +433,7 @@ describe('FR-055 T-367 FX-8 -- the day form of the read-out and of the FR-096 li
   })
 })
 
-describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top row', () => {
+describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top task group', () => {
   it(IX_8_CUT, async () => {
     const rows = ['r1', 'r2', 'r3', 'r4']
     const cut = documentOf({ tasks: rows.map((_one, index) => taskOf(index + 1)) })
@@ -453,6 +453,6 @@ describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top row'
     const pictured = scene.screenView.taskGroupPanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
     expect(pictured).toEqual(screen)
     const [top, next] = scene.screenView.taskGroupPanel.titles
-    expect(top?.box.height, 'premise: the top row is cut on the screen').toBeLessThan(next?.box.height ?? 0)
+    expect(top?.box.height, 'premise: the top task group is cut on the screen').toBeLessThan(next?.box.height ?? 0)
   })
 })

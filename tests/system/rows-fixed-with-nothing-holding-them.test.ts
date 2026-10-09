@@ -202,7 +202,7 @@ async function drawnTaskGroups(page: Page): Promise<DrawnTaskGroup[]> {
 // cases argue about that instead of the name they compare against.
 const SHORT_NAME = 'Row Zed'
 
-// WHY: not the middle of the name's box -- the row's folding controls draw
+// WHY: not the middle of the name's box -- the task group's folding controls draw
 // over that end, so the page is asked which element is actually on top.
 /** @purity semi-pure-b */
 async function nameSpotOf(page: Page, index: number): Promise<{ x: number; y: number } | null> {
@@ -294,8 +294,8 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
 
 const REACH_PX = 160
 
-// WHY: ground below the last row does not do -- FR-019 (MUST) holds an
-// annotation's position by a row identifier, which that ground has none of.
+// WHY: ground below the last task group does not do -- FR-019 (MUST) holds an
+// annotation's position by a task group identifier, which that ground has none of.
 /** @purity non-pure */
 async function groundOnADrawnTaskGroup(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
@@ -351,7 +351,7 @@ async function taskGroupPanelBoxWidth(page: Page): Promise<number> {
 /** @purity non-pure */
 async function openPanelOnTaskGroup(page: Page, index: number): Promise<void> {
   const spot = await nameSpotOf(page, index)
-  expect(spot, `row ${index} draws a name a pointer can reach`).not.toBeNull()
+  expect(spot, `task group ${index} draws a name a pointer can reach`).not.toBeNull()
   await pressTwice(page, spot as { x: number; y: number })
 }
 
@@ -497,9 +497,9 @@ test('DFC-180: pressing a task group name twice opens the panel with the name fi
   const opened = await openTheApp(baseURL)
   try {
     const before = await drawnTaskGroups(opened.page)
-    expect(before.length, 'the startup document draws rows to press').toBeGreaterThan(0)
+    expect(before.length, 'the startup document draws task groups to press').toBeGreaterThan(0)
     const name = (before[0] as DrawnTaskGroup).label
-    expect(name, 'the row this case presses has a name').not.toBe('')
+    expect(name, 'the task group this case presses has a name').not.toBe('')
 
     await openPanelOnTaskGroup(opened.page, 0)
 
@@ -537,15 +537,15 @@ test('DFC-180: pressing a task group name twice opens the panel with the name fi
   }
 })
 
-// WHY: both faces (panel and row) are asked in one case, so FR-006 cannot
+// WHY: both faces (panel and task group) are asked in one case, so FR-006 cannot
 // pass by the confirmed value reaching neither, or only one of them.
-test('DFC-133: confirming the height field moves the panel and the row together', async ({
+test('DFC-133: confirming the height field moves the panel and the task group together', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
   try {
-    // WHY: DFC-1086: the template carries no stated row height, so this case
-    // starts from the blank field on row 0, the first drawn row.
+    // WHY: DFC-1086: the template carries no stated task group height, so this case
+    // starts from the blank field on task group 0, the first drawn task group.
     await openPanelOnTaskGroup(opened.page, 0)
     const before = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
@@ -558,7 +558,7 @@ test('DFC-133: confirming the height field moves the panel and the row together'
     await commitField(opened.page, 'number', String(wanted))
 
     const after = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
-    expect(after.height, 'FR-006: the row takes the confirmed height').toBe(wanted)
+    expect(after.height, 'FR-006: the task group takes the confirmed height').toBe(wanted)
     expect(
       Number((await panelFields(opened.page))[ROW_HEIGHT_FIELD]),
       'FR-006 (MUST): the panel is not left holding the reading it had while the field was held',
@@ -568,20 +568,20 @@ test('DFC-133: confirming the height field moves the panel and the row together'
   }
 })
 
-test('DFC-133: confirming the name field moves the panel and the row heading together', async ({
+test('DFC-133: confirming the name field moves the panel and the task group heading together', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
   try {
     await openPanelOnTaskGroup(opened.page, 0)
     const before = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
-    expect(before.label, 'the row starts under another name').not.toBe(SHORT_NAME)
+    expect(before.label, 'the task group starts under another name').not.toBe(SHORT_NAME)
 
     await commitField(opened.page, 'text', SHORT_NAME)
 
     const after = (await drawnTaskGroups(opened.page))[0] as DrawnTaskGroup
     expect(after.isCut, 'FR-085 had no reason to cut a name this short').toBe(false)
-    expect(after.label, 'FR-006: the row heading takes the name').toBe(SHORT_NAME)
+    expect(after.label, 'FR-006: the task group heading takes the name').toBe(SHORT_NAME)
     expect(
       (await panelFields(opened.page))[TASK_GROUP_NAME_COLUMN],
       'FR-006 (MUST): the panel shows the name it just wrote',
@@ -619,7 +619,7 @@ test('DFC-27: an undo of an unrelated edit leaves the panel width where the read
 
     await openPanelOnTaskGroup(page, 0)
     const named = (await drawnTaskGroups(page))[0] as DrawnTaskGroup
-    expect(named.label, 'the row starts under another name').not.toBe(SHORT_NAME)
+    expect(named.label, 'the task group starts under another name').not.toBe(SHORT_NAME)
     await commitField(page, 'text', SHORT_NAME)
     expect((await drawnTaskGroups(page))[0]?.label, 'the unrelated edit landed').toBe(SHORT_NAME)
 
@@ -657,9 +657,9 @@ function taskGroupWithAGrandchild(rows: readonly DrawnTaskGroup[]): number {
   return -1
 }
 
-// WHY: the row is chosen by having a grandchild drawn under it, and that
+// WHY: the task group is chosen by having a grandchild drawn under it, and that
 // choice is asserted first -- a document with no second tier would say nothing.
-test('DFC-157: a folded row hides every tier below it, and opens exactly one back', async ({
+test('DFC-157: a folded task group hides every tier below it, and opens exactly one back', async ({
   baseURL,
 }) => {
   const opened = await openTheApp(baseURL)
@@ -667,27 +667,27 @@ test('DFC-157: a folded row hides every tier below it, and opens exactly one bac
   try {
     const before = await drawnTaskGroups(page)
     const index = taskGroupWithAGrandchild(before)
-    expect(index, 'the startup document draws a row with two tiers under it').toBeGreaterThanOrEqual(
+    expect(index, 'the startup document draws a task group with two tiers under it').toBeGreaterThanOrEqual(
       0,
     )
     const parent = before[index] as DrawnTaskGroup
 
     expect(
       await pressEntranceInRow(page, index, FOLD_BELOW_ENTRANCE),
-      `the row draws the ${FOLD_BELOW_ENTRANCE} entrance`,
+      `the task group draws the ${FOLD_BELOW_ENTRANCE} entrance`,
     ).toBe(true)
 
     const folded = await drawnTaskGroups(page)
     const stillThere = folded.findIndex((row) => row.label === parent.label)
-    expect(stillThere, 'HR-4 (MUST NOT): the row itself is not hidden').toBeGreaterThanOrEqual(0)
+    expect(stillThere, 'HR-4 (MUST NOT): the task group itself is not hidden').toBeGreaterThanOrEqual(0)
     expect(
       drawnUnder(folded, stillThere),
-      'HR-1a (MUST NOT): nothing below a folded row is drawn',
+      'HR-1a (MUST NOT): nothing below a folded task group is drawn',
     ).toEqual([])
 
     expect(
       await pressEntranceInRow(page, stillThere, OPEN_ONE_TIER_ENTRANCE),
-      `the row draws the ${OPEN_ONE_TIER_ENTRANCE} entrance`,
+      `the task group draws the ${OPEN_ONE_TIER_ENTRANCE} entrance`,
     ).toBe(true)
 
     const openedOnce = await drawnTaskGroups(page)
@@ -712,7 +712,7 @@ test('control for DFC-209: with the highlight box armed, a drag on empty ground 
   const page = opened.page
   try {
     const spot = await groundOnADrawnTaskGroup(page)
-    expect(spot, 'a drawn row covers empty ground with room along it').not.toBeNull()
+    expect(spot, 'a drawn task group covers empty ground with room along it').not.toBeNull()
     const at = spot as { x: number; y: number }
 
     expect(await pressEntrance(page, HIGHLIGHT_BOX_ENTRANCE), 'the entrance is on the screen').toBe(
@@ -747,7 +747,7 @@ test('DFC-209: with the highlight box armed, a press that does not travel places
   const page = opened.page
   try {
     const spot = await groundOnADrawnTaskGroup(page)
-    expect(spot, 'a drawn row covers empty ground').not.toBeNull()
+    expect(spot, 'a drawn task group covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 
     await pressEntrance(page, HIGHLIGHT_BOX_ENTRANCE)
@@ -774,7 +774,7 @@ test('DFC-209: the comment box is outside that MUST NOT -- one press still place
   const page = opened.page
   try {
     const spot = await groundOnADrawnTaskGroup(page)
-    expect(spot, 'a drawn row covers empty ground').not.toBeNull()
+    expect(spot, 'a drawn task group covers empty ground').not.toBeNull()
     const at = spot as { x: number; y: number }
 
     await pressEntrance(page, COMMENT_BOX_ENTRANCE)

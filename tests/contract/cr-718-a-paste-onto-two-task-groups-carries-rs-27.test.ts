@@ -1,4 +1,4 @@
-// CR-718 spec-only cases: a paste while two or more rows are chosen leaves the document alone, carries RS-27, and stands no notice (FR-033, FR-076).
+// CR-718 spec-only cases: a paste while two or more task groups are chosen leaves the document alone, carries RS-27, and stands no notice (FR-033, FR-076).
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -44,7 +44,7 @@ function wordsOf(rowId: string): { readonly ja: string; readonly en: string } {
   return found.text
 }
 
-// WHY: one Task per row, all at the WBS top, so the paste has nothing to infer a parent from.
+// WHY: one Task per task group, all at the WBS top, so the paste has nothing to infer a parent from.
 /** @purity pure */
 function threeTaskGroups(): Record<string, any> {
   const document = taskGroupDocument([
@@ -82,7 +82,7 @@ function copiedTask(bench: ShellBench, uid: number): void {
   bench.send(COPY)
 }
 
-// WHY: no row names the modifier that adds a row to the chosen rows, so each is tried on a fresh shell until two rows stand chosen.
+// WHY: no row names the modifier that adds a task group to the chosen task groups, so each is tried on a fresh shell until two task groups stand chosen.
 /** @purity non-pure */
 function copiedThenTaskGroupsChosen(rows: readonly string[]): ShellBench {
   for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
@@ -95,10 +95,10 @@ function copiedThenTaskGroupsChosen(rows: readonly string[]): ShellBench {
       return bench
     }
   }
-  throw new Error(`premise: some modifier chooses ${rows.length} rows (FR-085)`)
+  throw new Error(`premise: some modifier chooses ${rows.length} task groups (FR-085)`)
 }
 
-describe('FR-033 -- a paste while two rows are chosen is refused, carries RS-27, and stands no notice', () => {
+describe('FR-033 -- a paste while two task groups are chosen is refused, carries RS-27, and stands no notice', () => {
   it(`${SEVERAL_TASK_GROUPS_ARE_REFUSED} -- the document does not change`, () => {
     const bench = copiedThenTaskGroupsChosen(['task-group-2', 'task-group-3'])
     const before = JSON.stringify(bench.loop.document())
@@ -127,8 +127,8 @@ describe('FR-033 -- a paste while two rows are chosen is refused, carries RS-27,
   })
 })
 
-describe('controls -- one row chosen, the paste goes through and raises no RS-27', () => {
-  it(`${SAME_TASK_GROUP} -- one chosen row`, () => {
+describe('controls -- one task group chosen, the paste goes through and raises no RS-27', () => {
+  it(`${SAME_TASK_GROUP} -- one chosen task group`, () => {
     const bench = copiedThenTaskGroupsChosen(['task-group-2'])
     const before = (bench.loop.document() as any).schedule.tasks.length
     bench.send(PASTE)

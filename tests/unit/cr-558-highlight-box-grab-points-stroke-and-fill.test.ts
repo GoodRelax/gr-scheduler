@@ -174,7 +174,7 @@ const boxRecord = (spec: BoxSpec): Record<string, unknown> => ({
   fillTransparencyPercent: spec.fillTransparencyPercent === undefined ? null : spec.fillTransparencyPercent,
 })
 
-// WHY: a plain Task in row B from day 2 to day 12, so the left frame line of the default box crosses its bar.
+// WHY: a plain Task in task group B from day 2 to day 12, so the left frame line of the default box crosses its bar.
 const TASK = {
   uid: TASK_UID,
   parentTaskUid: null,
@@ -214,7 +214,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       taskGroups: LETTERS.map((letter, order) => ({
         id: ROW[letter],
         parentId: null,
-        label: `row ${letter}`,
+        label: `task group ${letter}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
@@ -310,7 +310,7 @@ const drawnBox = (loop: FrameLoop, id: string = BOX_ID) => {
 
 const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
   const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
-  if (found === undefined) throw new Error(`the frame drew no row ${letter}`)
+  if (found === undefined) throw new Error(`the frame drew no task group ${letter}`)
   return found
 }
 
@@ -440,7 +440,7 @@ describe('CR-558 premises: the clauses these cases read, and the fixture they st
     for (const row of rows) expect(environmentShapeOf(row)).toMatch(/^[a-z-]+$/)
   })
 
-  it('the default box is wider and taller than S-373 and every row is taller than two S-230', () => {
+  it('the default box is wider and taller than S-373 and every task group is taller than two S-230', () => {
     const built = stage()
     const box = drawnBox(built.loop).box
     expect(box.width).toBeGreaterThanOrEqual(S_373)
@@ -452,7 +452,7 @@ describe('CR-558 premises: the clauses these cases read, and the fixture they st
 
 describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly the sides it names -- ${UNDRAWN_STILL_ANSWER}`, () => {
   // WHY: B..D over days 6..16; each press is dead on its point, released three day columns right and
-  // WHY: one drawn row down, so every release sits on a day boundary and a row boundary.
+  // WHY: one drawn task group down, so every release sits on a day boundary and a task group boundary.
   const EXPECTED: Readonly<Record<PointName, string>> = {
     'top-left': '9..16 C..D',
     'top-right': '6..19 C..D',
@@ -473,7 +473,7 @@ describe(`T-246 HB-8 .. HB-11 and HB-7: each of the eight points moves exactly t
     })
   }
 
-  it('HB-7 with HB-6: the top midpoint pulled four rows down, past the bottom edge, gives D..E', () => {
+  it('HB-7 with HB-6: the top midpoint pulled four task groups down, past the bottom edge, gives D..E', () => {
     const built = stage()
     drag(built, grabPoint('top').at(drawnBox(built.loop).box), 0, 4 * taskGroupStep(built.loop))
     expect(rangeText(built.loop)).toBe('6..16 D..E')
@@ -516,7 +516,7 @@ describe(`T-023d: which part of the box a press answers -- ${EIGHT_THEN_FRAME}`,
   it('HB-10 / HB-11: a side shorter than S-373 has no midpoint, so the middle of that side is frame', () => {
     const built = stage({ boxes: [{ top: 'B', bottom: 'B', start: 6, end: 6 }] })
     const drawn = drawnBox(built.loop)
-    expect(drawn.box.height, 'premise: one row is shorter than S-373').toBeLessThan(S_373)
+    expect(drawn.box.height, 'premise: one task group is shorter than S-373').toBeLessThan(S_373)
     expect(drawn.box.width, 'premise: one day is shorter than S-373').toBeLessThan(S_373)
     expect(drawn.box.height / 2, 'premise: the middle of a side is clear of its corners').toBeGreaterThan(S_230)
     for (const name of ['left', 'right'] as const) {

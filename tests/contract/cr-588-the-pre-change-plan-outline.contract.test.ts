@@ -387,10 +387,10 @@ describe('BL-1 -- which BaselineTask is drawn', () => {
   })
 
   for (const [rows, name] of [
-    ['hiddenSecond', 'a hidden row (HR-6)'],
-    ['collapsedParent', 'a row under a folded row (HR-1a)'],
+    ['hiddenSecond', 'a hidden task group (HR-6)'],
+    ['collapsedParent', 'a task group under a folded task group (HR-1a)'],
   ] as const) {
-    it(`BL-1 「${BL_1_FOLDED}」: the Task sits on ${name} -- not drawn; the Task on the drawn row still is`, () => {
+    it(`BL-1 「${BL_1_FOLDED}」: the Task sits on ${name} -- not drawn; the Task on the drawn task group still is`, () => {
       const stage = stageOf({
         tasks: [PLAIN, taskOf({ uid: 2, start: day(4), finish: day(10) })],
         baselines: [SHIFTED, { ...SHIFTED, uid: 2 }],

@@ -48,7 +48,7 @@
 //   FR-076         (MUST) table T-037 is the manner of every telling
 //   FR-032         (MUST) the names of the tasks that go are shown, and a count
 //                  alone is forbidden (MUST NOT). (MUST) A task that goes with a
-//                  row but is DRAWN on another row is marked as such
+//                  task group but is DRAWN on another task group is marked as such
 //   table T-024a OP-4 (MUST) a replace asks before the unsaved edits are thrown
 //                  away
 //   table T-227 DI-4  (MUST) writing over something that cannot be taken for
@@ -103,8 +103,8 @@
 //     (MUST) shows and FR-032's mark -- that the row that was RAISED is the row
 //     the drawn surface carries.
 //   - ⚠️ NO LONGER ON THIS LIST: whether a PERSON can READ that a thing which
-//     goes is drawn on another row. FR-032 (MUST) asks for the fact to be SHOWN,
-//     its reason being "it is not visible on that row on the screen", so the
+//     goes is drawn on another task group. FR-032 (MUST) asks for the fact to be SHOWN,
+//     its reason being "it is not visible on that task group on the screen", so the
 //     mark is owed to the reader and not only to the markup. That was recorded
 //     here as UNMET while the dictionary held no entry a mark on an item could
 //     be read from (PND-160). ⛔ The manuscript has since grown one, CR-218
@@ -1820,7 +1820,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     }
   })
 
-  it('GIVEN a thing that goes is drawn on ANOTHER row WHEN the question is drawn THEN the flag reaches the drawn surface, on the item it belongs to', () => {
+  it('GIVEN a thing that goes is drawn on ANOTHER task group WHEN the question is drawn THEN the flag reaches the drawn surface, on the item it belongs to', () => {
     // ⭐ WHAT THIS CASE GUARDS: the flag survives the whole way to the drawn
     // surface, ON the item that carries it -- which is the half that has to be
     // in place before any mark can be drawn, and the half that would rot
@@ -1856,17 +1856,17 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     )
   })
 
-  it('GIVEN a thing that goes is drawn on ANOTHER row WHEN the question is drawn THEN the WORD the dictionary holds for that mark is on the surface (FR-032 MUST)', () => {
-    // FR-032 (MUST): a `Task` that goes with the row but is DRAWN on another
+  it('GIVEN a thing that goes is drawn on ANOTHER task group WHEN the question is drawn THEN the WORD the dictionary holds for that mark is on the surface (FR-032 MUST)', () => {
+    // FR-032 (MUST): a `Task` that goes with the task group but is DRAWN on another
     // one is shown as such, and the requirement gives its reason -- that one is
-    // not visible on the row being deleted. So the mark is owed to the READER,
+    // not visible on the task group being deleted. So the mark is owed to the READER,
     // and the flag reaching the markup is
     // not yet the duty met. ⭐ CR-218 settles the medium as a WORD (RC-13 of
     // table T-026 keeps a new SHAPE the user's own ruling), and FR-038 (MUST)
     // puts that word in the one dictionary -- which is why it is READ here and
     // not written.
     // ⛔ AND IT IS OWED ONLY WHERE THE FLAG IS: a surface that printed the word
-    // over an item drawn on the row being deleted would be marking what needs no
+    // over an item drawn on the task group being deleted would be marking what needs no
     // mark, so the unmarked twin is asked for too.
     const question = questionRow(1)
 
@@ -1894,7 +1894,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // a long list crowd the two answers out, disable them, or stop answering for
     // them would pass both and still leave the person unable to answer.
     // ⛔ CD-2 of table T-050 makes such a list ordinary, not extreme: deleting a
-    // row takes 「そのタスクグループに載っているすべての `Task`」 and every descendant row
+    // task group takes 「そのタスクグループに載っているすべての `Task`」 and every descendant task group
     // with it.
     const many = Array.from({ length: 40 }, (_unused, index) => named(`task number ${index}`))
 
@@ -1968,7 +1968,7 @@ describe("table T-023a (MUST) -- a press on the confirmation is not a marquee on
       part: CONFIRMATION,
       entry: null,
       format: null,
-      // ⚠️ The confirmation stands OVER the schedule and against no row and no
+      // ⚠️ The confirmation stands OVER the schedule and against no task group and no
       // person, which is what `ScreenPart` states for both keys: neither stands
       // in for "the document holds none".
       taskGroupId: null,

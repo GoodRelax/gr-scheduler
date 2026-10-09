@@ -124,7 +124,7 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
 }
 
 // see FR-032, QN-10, IC-106
-// WHY: deleting every row owes a write bundle, so the question it raises holds the document as NT-7 says.
+// WHY: deleting every task group owes a write bundle, so the question it raises holds the document as NT-7 says.
 /** @purity non-pure */
 async function askToDeleteEveryTaskGroup(page: Page): Promise<void> {
   expect(await pressEntrance(page, 'IC-106'), 'IC-106 is on the screen').toBe(true)
@@ -196,7 +196,7 @@ test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
       await settle(opened.page)
       const after = await readHeld(opened.page)
       expect(after.name, 'the undo is thrown away: the name stays').toBe('Renamed')
-      expect(after.tasks, 'the rows are not deleted either').toBe(before.tasks)
+      expect(after.tasks, 'the task groups are not deleted either').toBe(before.tasks)
       const told = (await textOf(opened.page, NOTIFICATION_AREA)) ?? ''
       expect(reasonWords('RS-27').some((words) => told.includes(words)), `T-233 hides RS-27; the area said: ${told}`).toBe(false)
       expect(await textOf(opened.page, CONFIRMATION), 'the question still stands').not.toBeNull()

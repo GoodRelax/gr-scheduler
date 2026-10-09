@@ -212,7 +212,7 @@ const CLOSED_WIDTH = 0
 // ---------------------------------------------------------------------------
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
+// the project and the settings come from it; the task groups and the Tasks are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -230,7 +230,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const THE_TASK = 1
 
 /**
- * Two rows, one Task on each.
+ * Two task groups, one Task on each.
  *
  * ⭐ THE DOCUMENT CARRIES NO PANEL WIDTH (CR-572): the width is a screen value
  * that starts at `S-171`, so the panel MK-13 puts up is `S-171` wide and these

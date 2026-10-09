@@ -494,7 +494,7 @@ describe('D: CV-9 / JDG-397 -- a press on a colour swatch lands in the frame its
   })
 })
 
-describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its row bands paint', () => {
+describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task group bands paint', () => {
   it('every layer of table T-020 sits inside one clip: the Task Group Area widened by canvasPadding to the vertical bar', () => {
     // see FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))

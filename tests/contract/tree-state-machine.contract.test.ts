@@ -64,8 +64,8 @@ const FR_018_BY_T_329 =
   'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
 
 // see T-328
-// WHY: one tree reaches every guard of the table: an ancestor of the pressed row, the pressed row,
-// a child that has children, a deeper row that has children, a leaf below, a leaf child, others.
+// WHY: one tree reaches every guard of the table: an ancestor of the pressed task group, the pressed task group,
+// a child that has children, a deeper task group that has children, a leaf below, a leaf child, others.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'R', parentId: null },
   { id: 'P', parentId: 'R' },
@@ -77,7 +77,7 @@ const TREE: readonly { readonly id: string; readonly parentId: string | null }[]
   { id: 'A', parentId: null },
 ]
 const PRESSED = 'P'
-// WHY: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and rows beside it (L, S, A) -- every
+// WHY: (T-332 SJ-2) G has three ancestors (C, P, R), a child (GG), and task groups beside it (L, S, A) -- every
 // relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
@@ -88,7 +88,7 @@ const TEMPLATE = JSON.parse(
 ) as { readonly schedule: Schedule }
 const TEMPLATE_GROUP: TaskGroup = ((): TaskGroup => {
   const first = TEMPLATE.schedule.taskGroups[0]
-  if (first === undefined) throw new Error('the startup template holds no row')
+  if (first === undefined) throw new Error('the startup template holds no task group')
   return first
 })()
 
@@ -121,7 +121,7 @@ function isBelow(id: string, ancestor: string): boolean {
 /** @purity pure */
 function guardHolds(guard: Guard, id: string, pressed: string | null, revealed: string | null): boolean {
   const row = TREE.find((one) => one.id === id)
-  if (row === undefined) throw new Error(`no row ${id}`)
+  if (row === undefined) throw new Error(`no task group ${id}`)
   const said = ((): boolean => {
     switch (guard.name) {
       case 'isPressedTaskGroup':
@@ -149,7 +149,7 @@ function branchesOf(cell: Cell | undefined): readonly Branch[] {
   return Array.isArray(cell) ? (cell as readonly Branch[]) : [cell as Branch]
 }
 
-// WHY: null when the cell leaves the row alone, the same reference SD-3 asks for.
+// WHY: null when the cell leaves the task group alone, the same reference SD-3 asks for.
 /** @purity pure */
 function manuscriptAnswer(
   event: string,
@@ -192,7 +192,7 @@ function writesOf(schedule: Schedule, event: TreeStateEvent): Written[] {
 }
 
 describe('table T-328 -- the manuscript this contract walks', () => {
-  it('the taskGroupTree region holds the five values of AT-153, starts a new row temporarilyExpanded, and names its twelve events', () => {
+  it('the taskGroupTree region holds the five values of AT-153, starts a new task group temporarilyExpanded, and names its twelve events', () => {
     expect(STATES).toEqual(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'])
     expect(MACHINE.states.filter((s) => s.initial).map((s) => s.key)).toEqual(['temporarilyExpanded'])
     expect(EVENTS.map((e) => e.key)).toEqual([
@@ -235,7 +235,7 @@ describe('table T-328 -- the manuscript this contract walks', () => {
   })
 })
 
-describe('SD-3: every event x every value x every row relation equals table T-328', () => {
+describe('SD-3: every event x every value x every task group relation equals table T-328', () => {
   for (const event of EVENTS) {
     for (const from of STATES) {
       it(`${event.key} from ${from}`, () => {
@@ -243,7 +243,7 @@ describe('SD-3: every event x every value x every row relation equals table T-32
         const pressedId = 'pressedRowId' in pressed ? PRESSED : null
         const revealedId = 'revealedRowId' in pressed ? REVEALED : null
         for (const row of TREE) {
-          // STEP: only this row holds the value under test; every other row is auto
+          // STEP: only this task group holds the value under test; every other task group is auto
           const schedule = scheduleWith({ [row.id]: from })
           const expected: Written[] = []
           for (const other of TREE) {
@@ -252,8 +252,8 @@ describe('SD-3: every event x every value x every row relation equals table T-32
             if (to !== null) expected.push({ id: other.id, to })
           }
           expected.sort((a, b) => a.id.localeCompare(b.id))
-          // STEP: the writes are exactly the changed rows the manuscript names
-          expect(writesOf(schedule, pressed), `${event.key}: row ${row.id} in ${from}`).toEqual(expected)
+          // STEP: the writes are exactly the changed task groups the manuscript names
+          expect(writesOf(schedule, pressed), `${event.key}: task group ${row.id} in ${from}`).toEqual(expected)
         }
       })
     }
@@ -261,12 +261,12 @@ describe('SD-3: every event x every value x every row relation equals table T-32
 })
 
 describe('SD-3: a cell the table leaves empty writes nothing (the same reference)', () => {
-  it('a vertical-zoom shrink with no temporarilyExpanded row writes nothing (FR-031, ZE-2)', () => {
+  it('a vertical-zoom shrink with no temporarilyExpanded task group writes nothing (FR-031, ZE-2)', () => {
     const schedule = scheduleWith({ P: 'expanded', C: 'collapsed', G: 'hidden' })
     expect(writesOf(schedule, eventOf('verticalZoomShrinkPressed'))).toEqual([])
   })
 
-  it('fit leaves a hidden row hidden and an auto row alone (HF-8)', () => {
+  it('fit leaves a hidden task group hidden and an auto task group alone (HF-8)', () => {
     const schedule = scheduleWith({ P: 'hidden', C: 'temporarilyExpanded', G: 'expanded', S: 'collapsed' })
     expect(writesOf(schedule, eventOf('fitPressed'))).toEqual([
       { id: 'C', to: 'auto' },
@@ -282,7 +282,7 @@ describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
     expect(REQUIREMENTS).toContain('規則はタスクグループの木の状態機械（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
   })
 
-  it('opens the row jumped to and every ancestor, a hidden one included, and nothing else', () => {
+  it('opens the task group jumped to and every ancestor, a hidden one included, and nothing else', () => {
     const schedule = scheduleWith({ R: 'collapsed', P: 'hidden', C: 'temporarilyExpanded', G: 'auto', GG: 'collapsed', S: 'collapsed' })
     expect(writesOf(schedule, eventOf('taskGroupRevealAsked'))).toEqual([
       { id: 'C', to: 'expanded' },
@@ -292,7 +292,7 @@ describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
     ])
   })
 
-  it('writes nothing when the row and every ancestor are already expanded (SJ-2: 1 つも変わらなければ段を積まない)', () => {
+  it('writes nothing when the task group and every ancestor are already expanded (SJ-2: 1 つも変わらなければ段を積まない)', () => {
     const schedule = scheduleWith({ R: 'expanded', P: 'expanded', C: 'expanded', G: 'expanded' })
     expect(writesOf(schedule, eventOf('taskGroupRevealAsked'))).toEqual([])
   })

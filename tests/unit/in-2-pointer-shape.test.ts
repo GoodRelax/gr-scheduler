@@ -204,7 +204,7 @@ const ARMING_ENTRY: IconId = ((): string => {
 // ---------------------------------------------------------------------------
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows and the Tasks are written
+// the project and the settings come from it; the task groups and the Tasks are written
 // out here so that what is drawn can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -591,7 +591,7 @@ function emptyCanvas(loop: FrameLoop): Point {
 /**
  * A probe on an endpoint, kept inside the `Task Group Area`.
  *
- * ⭐ THE ROW AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
+ * ⭐ THE TASK GROUP AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
  * one `screen-regions.ts` follows so that neighbouring regions never both claim
  * a point. The note under table T-023a binds that table to the schedule's
  * drawing area (MUST), so a point AT `taskGroupArea.x + taskGroupArea.width` is on no region

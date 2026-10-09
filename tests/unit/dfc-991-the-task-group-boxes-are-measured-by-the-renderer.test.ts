@@ -1,4 +1,4 @@
-// DFC-991: the drawn row boxes of the Task Group Panel are published by ScreenRenderer (PI-37) and are the boxes the screen draws (SC-1, FR-098).
+// DFC-991: the drawn task group boxes of the Task Group Panel are published by ScreenRenderer (PI-37) and are the boxes the screen draws (SC-1, FR-098).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

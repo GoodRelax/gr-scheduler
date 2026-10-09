@@ -319,7 +319,7 @@ interface Row {
 const rowsOf = (scene: Scene): readonly Row[] =>
   (scene.context.layout as unknown as { readonly taskGroups: readonly Row[] }).taskGroups
 
-// WHY: the row the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
+// WHY: the task group the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
 // with the fraction of it scrolled past (S-176, 0 or more and under 1 per OP-10a).
 const topTaskGroupOf = (scene: Scene): { readonly groupId: string; readonly offset: number } | undefined => {
   const band = (scene.context.layout as unknown as { readonly pinnedBandHeight?: number }).pinnedBandHeight ?? 0
@@ -418,7 +418,7 @@ describe('CR-555 -- the manuscript these cases are driven by', () => {
     expect(UN_8).toContain('ズーム・スクロール・パン')
   })
 
-  it('FR-018 counts the shallowest level as depth 1, so a depth-3 row appears at threshold(3)', () => {
+  it('FR-018 counts the shallowest level as depth 1, so a depth-3 task group appears at threshold(3)', () => {
     expect(REQUIREMENTS).toContain(FR_018_DEPTH_ONE)
   })
 })
@@ -450,16 +450,16 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       expect(mid, EL_11_SEND).toBeCloseTo(after.taskGroupArea.x + after.taskGroupArea.width / 2, 2)
     })
 
-    // WHY: the scene stores no row (S-78 null), so "not sent down" is read off the picture, not off the stored
-    // value: the write names the row and offset already at the top of the scroll area, and every row stays put.
-    it(`${name}: the far end's row is inside the vertical range, so the view is not sent down (${EL_12_STAY})`, () => {
+    // WHY: the scene stores no task group (S-78 null), so "not sent down" is read off the picture, not off the stored
+    // value: the write names the task group and offset already at the top of the scroll area, and every task group stays put.
+    it(`${name}: the far end's task group is inside the vertical range, so the view is not sent down (${EL_12_STAY})`, () => {
       const scene = make()
       const top = topTaskGroupOf(scene)
-      expect(top, 'premise: a row stands at the top of the scroll area').toBeDefined()
+      expect(top, 'premise: a task group stands at the top of the scroll area').toBeDefined()
       const writes = writesOf(clickOnce(scene, markOf(scene, pair[0], pair[1])).out)
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, 'premise: EL-11 sent the view across').toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_STAY} (S-78 names the row already at the top)`).toBe(top!.groupId)
+      expect(scroll!['scrollGroupId'], `${EL_12_STAY} (S-78 names the task group already at the top)`).toBe(top!.groupId)
       expect(scroll!['scrollGroupOffset'], `${EL_12_STAY} (S-176 keeps the offset already at the top)`).toBeCloseTo(
         top!.offset,
         6,
@@ -467,7 +467,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       const after = sceneAfter(scene, writes)
       const taskGroupsAfter = new Map(rowsOf(after).map((one) => [one.groupId, one.y]))
       for (const row of rowsOf(scene)) {
-        expect(taskGroupsAfter.get(row.groupId), `${EL_12_STAY} (row ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
+        expect(taskGroupsAfter.get(row.groupId), `${EL_12_STAY} (task group ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
       }
     })
   }
@@ -492,10 +492,10 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
 
 describe(`EL-12 -- ${EL_12_SEND}`, () => {
   for (const [name, make, row] of [
-    ['(ii) successor row below the scroll area', below, 'z'],
-    ["(ii') successor row scrolled under the pinned band", underTheBand, 'a'],
+    ['(ii) successor task group below the scroll area', below, 'z'],
+    ["(ii') successor task group scrolled under the pinned band", underTheBand, 'a'],
   ] as const) {
-    it(`${name}: S-78 becomes that row and S-176 becomes 0`, () => {
+    it(`${name}: S-78 becomes that task group and S-176 becomes 0`, () => {
       const scene = make()
       expect(lineOf(scene, 1, 2).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
       const { press, out } = clickOnce(scene, markOf(scene, 1, 2))
@@ -547,7 +547,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     expect(placementOf(sceneAfter(scene, writes), 2), EL_10_DEPTH).toBeDefined()
   })
 
-  it(`(iii) the zoom changed, so the far end's row is sent to the top: ${EL_12_SEND}`, () => {
+  it(`(iii) the zoom changed, so the far end's task group is sent to the top: ${EL_12_SEND}`, () => {
     const scene = deep()
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, EL_12_SEND).toBeDefined()

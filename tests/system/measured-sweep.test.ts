@@ -32,7 +32,7 @@
 //   DFC-232  a task drawn on empty ground leaves a name field under the keyboard
 //          (found here; the case since MOVED -- see "DFC-232" in the prose below)
 //   DFC-233  the settings surface prints dictionary words, and no raw identifier
-//   DFC-234  an added row is brought into view, not just the field that names it
+//   DFC-234  an added task group is brought into view, not just the field that names it
 //   DFC-235  the bound document names the language the screen is in
 //   DFC-236  one sheet per reason, counted up, with no ceiling on the sheets
 //
@@ -2015,7 +2015,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
       const rows = Array.from(document.querySelectorAll('[data-depth]'))
       if (svg === null || rows.length === 0) return null
       const firstTaskGroupTop = Math.min(...rows.map((row) => row.getBoundingClientRect().top))
-      // The band is the full-width shape the first row band sits directly
+      // The band is the full-width shape the first task group band sits directly
       // under. ⚠️ Nothing in the specification marks it, so it is found by
       // where it is; a change to the drawing's shape breaks this case, as it
       // should.
@@ -2063,7 +2063,7 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
   // before each of the eight that follow.
   await readSettledDrawnSvg(page)
   const first = await readBand()
-  expect(first, 'no ruler band could be found above the first row band').not.toBeNull()
+  expect(first, 'no ruler band could be found above the first task group band').not.toBeNull()
   if (first === null) return
   seen.push({ ...first, tier: nameOf(first) })
 
@@ -2123,14 +2123,14 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
 
 // GOES RED IF: pressing an entrance that has nothing to do says something other
 // than what table T-233 row `RS-30` holds -- in particular the retired sentence
-// that told the reader the row was already folded, which is the opposite of the
+// that told the reader the task group was already folded, which is the opposite of the
 // situation the row now names: 「直下に、画面へ戻せる子が 1 つも無い」.
 //
 // ⭐ THE WORDS ARE READ FROM THE DICTIONARY, not written here: `FR-038` (MUST)
 // has every printed word live there. What the case asserts is that exactly one
 // reason of the forty-two the dictionary holds is what the screen said, and that
 // it is `RS-30`. ⚠️ A machine check will not catch this: it asks whether a row's
-// word reached the screen, never whether that word is true of the row.
+// word reached the screen, never whether that word is true of the task group.
 test('DFC-166: pressing the open-one-level entrance with nothing to bring back says nothing (T-233 hides RS-30)', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -2140,11 +2140,11 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
 
   const oneLevel = entranceBy(T109_SOURCE, 'HF-13')
 
-  // ⛔ A ROW'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
+  // ⛔ A TASK GROUP'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
   // (table T-051 row `HF-6`), and the shell reads a real pointer -- a
   // dispatched event reaches nothing here, which `tools/probe/harness.mjs`
   // records as the way one session called a working feature broken. So the
-  // pointer is moved onto the first row's name and the entrance looked for
+  // pointer is moved onto the first task group's name and the entrance looked for
   // afterwards.
   const firstRow = await page.evaluate(() => {
     const boxes = Array.from(document.querySelectorAll('[data-depth]'))
@@ -2154,7 +2154,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
     if (found === undefined) return null
     return { nameX: found.x + 30, nameY: found.y + found.height / 2, top: found.top }
   })
-  expect(firstRow, 'the task group panel drew no rows').not.toBeNull()
+  expect(firstRow, 'the task group panel drew no task groups').not.toBeNull()
   if (firstRow === null) return
 
   await page.mouse.move(firstRow.nameX, firstRow.nameY)
@@ -2170,7 +2170,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
     },
     { entrance: oneLevel, top: firstRow.top },
   )
-  expect(at, `${oneLevel} is not drawn on the first row even with the pointer on its name`).not.toBeNull()
+  expect(at, `${oneLevel} is not drawn on the first task group even with the pointer on its name`).not.toBeNull()
   if (at === null) return
 
   await page.mouse.move(at.x, at.y)
@@ -2287,11 +2287,11 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
 // ---------------------------------------------------------------------------
 
 // see DFC-24, FR-055, HF-8, T-068, T-328
-// WHY: fitPressed returns every collapsed row to auto (table T-328), so the first row reads
-// as before the fold; the rows landed on must fit, or the drawing is already at depth 1.
+// WHY: fitPressed returns every collapsed task group to auto (table T-328), so the first task group reads
+// as before the fold; the task groups landed on must fit, or the drawing is already at depth 1.
 // TRAP: how many runs table T-068 took is not published by the build, so only its two
 // outcomes are pressed here; FR-055 does not promise a fit, hence the depth-1 escape.
-test('DFC-24: a fit throws away what a person folded, and the rows it lands on fit', async () => {
+test('DFC-24: a fit throws away what a person folded, and the task groups it lands on fit', async () => {
   test.setTimeout(240_000)
   const page = shared()
 
@@ -2317,10 +2317,10 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
     })
 
   const before = await firstRow()
-  expect(before, 'the task group panel drew no rows to fold').not.toBeNull()
+  expect(before, 'the task group panel drew no task groups to fold').not.toBeNull()
   if (before === null) return
 
-  // ⛔ A ROW'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
+  // ⛔ A TASK GROUP'S OWN ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME
   // (table T-051 row `HF-6`), which the case for DFC-166 records as well.
   await page.mouse.move(before.nameX, before.nameY)
   await page.waitForTimeout(500)
@@ -2335,7 +2335,7 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
     },
     { entrance: foldAll, top: before.top },
   )
-  expect(at, `${foldAll} is not drawn on the first row even with the pointer on its name`).not.toBeNull()
+  expect(at, `${foldAll} is not drawn on the first task group even with the pointer on its name`).not.toBeNull()
   if (at === null) return
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
@@ -2343,11 +2343,11 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
   await page.waitForTimeout(1000)
 
   const folded = await firstRow()
-  expect(folded, 'the first row went off the screen when it was folded').not.toBeNull()
+  expect(folded, 'the first task group went off the screen when it was folded').not.toBeNull()
   if (folded === null) return
   expect(
     folded.said,
-    `folding what is under ${JSON.stringify(before.said)} changed nothing the row says, so this ` +
+    `folding what is under ${JSON.stringify(before.said)} changed nothing the task group says, so this ` +
       'case cannot tell afterwards whether the fold was thrown away',
   ).not.toBe(before.said)
 
@@ -2355,11 +2355,11 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
   await readSettledDrawnSvg(page)
 
   const after = await firstRow()
-  expect(after, 'the first row went off the screen when the whole was fitted').not.toBeNull()
+  expect(after, 'the first task group went off the screen when the whole was fitted').not.toBeNull()
   if (after === null) return
   expect(
     after.said,
-    `after a fit the row still reads ${JSON.stringify(after.said)} and not ` +
+    `after a fit the task group still reads ${JSON.stringify(after.said)} and not ` +
       `${JSON.stringify(before.said)}; the first run of table T-068 throws every fold a person made ` +
       'away, and FR-055 gives the reason -- a fold left standing shrinks what "the whole" means',
   ).toBe(before.said)
@@ -2377,10 +2377,10 @@ test('DFC-24: a fit throws away what a person folded, and the rows it lands on f
   }, CANVAS)
   expect(landed, 'nothing is drawn after the fit').not.toBeNull()
   if (landed === null) return
-  expect(landed.count, 'the fit left no row on the screen at all').toBeGreaterThan(0)
+  expect(landed.count, 'the fit left no task group on the screen at all').toBeGreaterThan(0)
   expect(
     landed.bottom <= landed.floor + 1 || landed.deepest <= 1,
-    `the fit left the last row ending at y=${Math.round(landed.bottom)} with the drawing ending at ` +
+    `the fit left the last task group ending at y=${Math.round(landed.bottom)} with the drawing ending at ` +
       `y=${Math.round(landed.floor)}, at depth ${landed.deepest}; FR-055 has the deepest depth that ` +
       'fits taken, and only depth 1 may be left over the edge',
   ).toBe(true)
@@ -2719,7 +2719,7 @@ test('DFC-97: the save key writes GRS JSON, and a second press overwrites with n
 // written width at `S-81`'s and `FR-080` fixes the ratio from the screen, so the
 // height a picture wants is the screen's shape and not the document's size --
 // the ledger's own measurement records 1600x1120 for a 1000x700 screen at 50
-// rows and at 1600. A screen shaped past `S-217 / S-81` therefore reaches the
+// task groups and at 1600. A screen shaped past `S-217 / S-81` therefore reaches the
 // ceiling and no document can. The case works the shape out of the two rows
 // rather than writing a viewport down, and guards that it really did pass.
 //
@@ -2887,8 +2887,8 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
      * ⛔⛔ AND A BAR THAT ONLY MOVED IS NOT A BAR THAT WAS MADE. `FR-043` (MUST)
      * puts the created task on 「ドラッグを始めた縦位置が指す `TaskGroup`」 and,
      * 「指す `TaskGroup` が無いときはタスクグループを 1 つ作ってそこへ載せること（MUST）」 --
-     * so a drag on clear ground can insert a row, and every bar BELOW it slides
-     * down by one row's height. Its x, its width and its height are all the ones
+     * so a drag on clear ground can insert a task group, and every bar BELOW it slides
+     * down by one task group's height. Its x, its width and its height are all the ones
      * it already had; only its y is new, which is exactly the one field the
      * string carries that a creation does not have to change.
      * ⚠️ MEASURED, 2026-09-08: the widest thing this returned for the drag below
@@ -2968,7 +2968,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // any span at all would answer 「引いた期間のタスクを作ること（MUST）」, and
     // the band would stop saying that the span is the DRAG's. ⚠️ It is judged on
     // the shape the gesture ADDED -- see `madeNear` -- and not on the widest
-    // thing that changed, because a row inserted below the drag slides bars that
+    // thing that changed, because a task group inserted below the drag slides bars that
     // were already there.
     expect(
       drew[2] ?? 0,
@@ -3025,7 +3025,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
 // DFC-49 -- one indent, for the screen and for the written picture
 // ---------------------------------------------------------------------------
 
-/** One drawn row: the tier it stands at, the word it shows, and that word's left edge. */
+/** One drawn task group: the tier it stands at, the word it shows, and that word's left edge. */
 interface DrawnTaskGroupTitle {
   readonly depth: number
   readonly name: string
@@ -3033,9 +3033,9 @@ interface DrawnTaskGroupTitle {
 }
 
 /**
- * Every row the panel is drawing, with the left edge of its NAME.
+ * Every task group the panel is drawing, with the left edge of its NAME.
  *
- * ⭐ THE NAME AND NOT THE ROW. The row's own box starts at the panel's edge and
+ * ⭐ THE NAME AND NOT THE TASK GROUP. The task group's own box starts at the panel's edge and
  * never moves; what `S-37` pushes is the word inside it, which is what a reader
  * sees as the indent and what `FR-085` measures the room against.
  *
@@ -3060,7 +3060,7 @@ async function drawnTaskGroupTitles(page: Page): Promise<DrawnTaskGroupTitle[]> 
  * exactly once.
  *
  * ⛔ EXACTLY ONCE, AND A SECOND MATCH IS A `null` RATHER THAN THE FIRST ONE. The
- * picture carries the task labels as `<text>` too, so a row whose name also
+ * picture carries the task labels as `<text>` too, so a task group whose name also
  * reads as a task's would otherwise be measured off the wrong element, silently.
  *
  * @purity pure
@@ -3109,7 +3109,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
   return step
 }
 
-// GOES RED IF: the screen and the written picture stop setting a row in by the
+// GOES RED IF: the screen and the written picture stop setting a task group in by the
 // same amount per tier, or either of them stops using `S-37` for it. The ledger
 // row DFC-49 was opened by the user's instruction of 2026-08-26 -- 「1 階層下がる
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
@@ -3127,8 +3127,8 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 //
 // ⚠️ THE PANEL IS SCROLLED FIRST, AND THE READING BELOW SAYS WHY. Measured
 // 2026-09-03 on the shipped build: with the panel untouched the picture carries
-// only the seven `L1` rows, so it holds no second tier and no step can be read
-// off it at all; one notch of the wheel and it carries the same rows the screen
+// only the seven `L1` task groups, so it holds no second tier and no step can be read
+// off it at all; one notch of the wheel and it carries the same task groups the screen
 // does, at three tiers. ⛔ That difference is NOT what this case is about and it
 // is not asserted here -- it is written down so the scroll is not mistaken for
 // a convenience.
@@ -3137,7 +3137,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // wording 「全角 1 文字ぶん」 measures 13.0px against `S-37`'s 16, and moving a
 // settings value is a change request, not a disagreement between the two sides.
 // Nothing here reads a font size, and every number comes from the manuscript.
-test('DFC-49: the screen and the picture set a row in by the same one tier of S-37', async () => {
+test('DFC-49: the screen and the picture set a task group in by the same one tier of S-37', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -3161,8 +3161,8 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     await page.waitForTimeout(600)
 
     const drawn = await drawnTaskGroupTitles(page)
-    expect(drawn.length, 'the panel is drawing no rows at all').toBeGreaterThan(1)
-    // ⛔ ONLY NAMES THAT STAND ONCE. Two rows reading alike could not be paired
+    expect(drawn.length, 'the panel is drawing no task groups at all').toBeGreaterThan(1)
+    // ⛔ ONLY NAMES THAT STAND ONCE. Two task groups reading alike could not be paired
     // with one `<text>` of the picture, and a wrong pairing would be measured
     // rather than reported.
     const once = drawn.filter(
@@ -3207,7 +3207,7 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     }
     expect(
       inPicture.size,
-      `the picture holds the tier(s) ${JSON.stringify([...inPicture.keys()])} of the rows the ` +
+      `the picture holds the tier(s) ${JSON.stringify([...inPicture.keys()])} of the task groups the ` +
         `screen is drawing, and this case needs two; it wrote none of ${JSON.stringify(missing)}`,
     ).toBeGreaterThan(1)
 
@@ -3220,21 +3220,21 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
 
     expect(
       Math.abs(screenStep - DRAWN_TASK_GROUP_INDENT) <= room,
-      `the screen sets a row in by ${screenStep}px per tier and S-37 (taskGroupTitleIndent) is ` +
+      `the screen sets a task group in by ${screenStep}px per tier and S-37 (taskGroupTitleIndent) is ` +
         `${TASK_GROUP_INDENT}px drawn at ${DRAWN_RATIO} -- ${DRAWN_TASK_GROUP_INDENT}px. FR-039 (MUST): ` +
         '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」 ' +
         `-- readings ${JSON.stringify([...onScreen])}`,
     ).toBe(true)
     expect(
       Math.abs(pictureStep - DRAWN_TASK_GROUP_INDENT) <= room,
-      `the written picture sets a row in by ${pictureStep}px per tier once the S-81 / MC-6 ratio ` +
+      `the written picture sets a task group in by ${pictureStep}px per tier once the S-81 / MC-6 ratio ` +
         `is taken off, and S-37 is ${TASK_GROUP_INDENT}px drawn at ${DRAWN_RATIO} -- ` +
         `${DRAWN_TASK_GROUP_INDENT}px (FR-080 writes the picture at the same ratio) -- readings ` +
         `${JSON.stringify([...inPicture])}`,
     ).toBe(true)
     expect(
       Math.abs(screenStep - pictureStep) <= room,
-      `the screen moves a row in by ${screenStep}px per tier and the picture by ${pictureStep}px; ` +
+      `the screen moves a task group in by ${screenStep}px per tier and the picture by ${pictureStep}px; ` +
         'DFC-49 is exactly the two sides parting company',
     ).toBe(true)
   } finally {
@@ -3243,7 +3243,7 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
 })
 
 // ---------------------------------------------------------------------------
-// DFC-229 -- the written picture carries the rows a person left standing
+// DFC-229 -- the written picture carries the task groups a person left standing
 // ---------------------------------------------------------------------------
 
 /** One line of the task group panel: the word, where it starts, how far down it stands. */
@@ -3256,8 +3256,8 @@ interface PanelLine {
 /**
  * The lines the panel is drawing on the screen right now, topmost first.
  *
- * ⭐ THE NAME'S OWN BOX AND NOT THE ROW'S, for the reason `drawnTaskGroupTitles`
- * gives: the row's box starts at the panel's edge whatever tier it stands at,
+ * ⭐ THE NAME'S OWN BOX AND NOT THE TASK GROUP'S, for the reason `drawnTaskGroupTitles`
+ * gives: the task group's box starts at the panel's edge whatever tier it stands at,
  * and what a reader sees as the tier is where the word begins.
  *
  * ⛔ `data-depth` IS READ AS A SELECTOR AND NOT AS THE ANSWER. The written
@@ -3292,10 +3292,10 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  * ratio; `right` and `below` are those two, already multiplied.
  *
  * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
- * reason: folding every row 「タスクグループが 1 つも描かれない状態になりうる」 and the head
+ * reason: folding every task group 「タスクグループが 1 つも描かれない状態になりうる」 and the head
  * then 「頭にいまいくつのタスクグループを畳み込んでいるかを示すこと（MUST）」. That count stands in
- * the head, above the tree, and it is not a row -- counting it as one would have
- * a build that obeys `HF-12` reported as drawing a row the screen does not.
+ * the head, above the tree, and it is not a task group -- counting it as one would have
+ * a build that obeys `HF-12` reported as drawing a task group the screen does not.
  * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
  *
  * @purity pure
@@ -3303,10 +3303,10 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
 /**
  * The picture with FR-020's watermark layer cut out.
  *
- * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks row
+ * ⚠️⚠️ WHY. The walk below reads the written picture as text and picks task group
  * names by coordinate alone. The watermark is a grid of <text> marks laid
  * over the Task Group Area, so each of them looks like a task group name standing at some
- * x and y. Measured 2026-09-05: four of them landed among the eleven row
+ * x and y. Measured 2026-09-05: four of them landed among the eleven task group
  * names and the picture stopped agreeing with the screen.
  *
  * ⛔ The layer nests one <g> of its own (the rotation), so the closing tag
@@ -3359,7 +3359,7 @@ function panelLinesInPicture(picture: string, right: number, below: number): Pan
  * reading is free of both `S-37` and of the ratio -- which is what keeps this
  * case out of DFC-49's business. Measured 2026-09-03 on the shipped build: the
  * screen puts tier 1 at 36px and the picture at the equivalent of 16px, a
- * standing difference in the left inset that has nothing to do with which rows
+ * standing difference in the left inset that has nothing to do with which task groups
  * are drawn, and an absolute comparison would report it here instead.
  *
  * @purity pure
@@ -3369,8 +3369,8 @@ function tiered(lines: readonly PanelLine[]): string[] {
   return lines.map((line) => `${indents.indexOf(line.at)}:${line.name}`)
 }
 
-// GOES RED IF: the rows the written picture draws in the task group panel stop
-// being the rows the screen is drawing -- a different count, a different order,
+// GOES RED IF: the task groups the written picture draws in the task group panel stop
+// being the task groups the screen is drawing -- a different count, a different order,
 // or a different tier -- after a fold has been pressed and nothing has been
 // scrolled since.
 //
@@ -3395,7 +3395,7 @@ function tiered(lines: readonly PanelLine[]): string[] {
 // ⭐ THE CONTROL IS ASSERTED FIRST so that a failure below is about the press
 // and not about the way the two sides are read. Measured 2026-09-03 on the
 // shipped build at 1920x1080: with the panel untouched the screen draws eight
-// rows over three tiers while the picture carries seven, all at one tier; one
+// task groups over three tiers while the picture carries seven, all at one tier; one
 // notch of the wheel and the two agree exactly, name for name and tier for
 // tier. The notch is therefore turned FIRST and that agreement is what the
 // control holds -- the untouched reading is taken before it (it cannot be got
@@ -3404,10 +3404,10 @@ function tiered(lines: readonly PanelLine[]): string[] {
 // ⚠️ THE FOLD PRESSED IS THE PANEL HEAD'S, `HF-12` of table T-051 by way of
 // table T-109, and it is the one press whose result cannot be reached by
 // accident: `HF-12` (MUST) folds 「最も浅い段のタスクグループも」 as well, so the screen is
-// left drawing no row at all, and a picture that carries any row after it
-// carries a row the screen does not. `HF-10` presses it open again, and the
+// left drawing no task group at all, and a picture that carries any task group after it
+// carries a task group the screen does not. `HF-10` presses it open again, and the
 // second half of this case is that the picture comes back with it.
-test('DFC-229: the written picture draws the rows the screen draws after a fold, with no scroll', async () => {
+test('DFC-229: the written picture draws the task groups the screen draws after a fold, with no scroll', async () => {
   test.setTimeout(300_000)
   const opened = await openStubbedPage()
   try {
@@ -3470,7 +3470,7 @@ test('DFC-229: the written picture draws the rows the screen draws after a fold,
     const scrolledPicture = tiered(panelLinesInPicture(await write(2, 'after one notch of the wheel'), right, below))
     expect(
       scrolledScreen.length,
-      'the panel is drawing fewer than two rows, so the control holds no order to agree about',
+      'the panel is drawing fewer than two task groups, so the control holds no order to agree about',
     ).toBeGreaterThan(1)
     expect(
       new Set(scrolledScreen.map((line) => line.split(':')[0] ?? '')).size,
@@ -3485,7 +3485,7 @@ test('DFC-229: the written picture draws the rows the screen draws after a fold,
 
     expect(
       untouchedPicture,
-      'with nothing pressed at all, the picture draws rows the screen does not; FR-080 (MUST) has ' +
+      'with nothing pressed at all, the picture draws task groups the screen does not; FR-080 (MUST) has ' +
         'the picture be the screen shrunk by one ratio',
     ).toEqual(untouchedScreen)
 
@@ -3498,10 +3498,10 @@ test('DFC-229: the written picture draws the rows the screen draws after a fold,
       `pressing ${foldAll} left the screen drawing exactly what it drew before, so this case ` +
         'never folded anything and has nothing to judge',
     ).not.toEqual(scrolledScreen)
-    const foldedPicture = tiered(panelLinesInPicture(await write(3, 'after every row was folded'), right, below))
+    const foldedPicture = tiered(panelLinesInPicture(await write(3, 'after every task group was folded'), right, below))
     expect(
       foldedPicture,
-      `after ${foldAll} (table T-051 row HF-12) the screen draws ${foldedScreen.length} row(s) and ` +
+      `after ${foldAll} (table T-051 row HF-12) the screen draws ${foldedScreen.length} task group(s) and ` +
         `the picture ${foldedPicture.length}; FR-080 (MUST) has 表示の切り替え の結果 be the same ` +
         'in the written picture, and nothing was scrolled in between',
     ).toEqual(foldedScreen)
@@ -3512,13 +3512,13 @@ test('DFC-229: the written picture draws the rows the screen draws after a fold,
     const openedScreen = tiered(await panelLinesOnScreen(page))
     expect(
       openedScreen.length,
-      `pressing ${openAll} (table T-051 row HF-10) brought no row back, so the second half of this ` +
+      `pressing ${openAll} (table T-051 row HF-10) brought no task group back, so the second half of this ` +
         'case has nothing to judge',
     ).toBeGreaterThan(1)
-    const openedPicture = tiered(panelLinesInPicture(await write(4, 'after every row was opened again'), right, below))
+    const openedPicture = tiered(panelLinesInPicture(await write(4, 'after every task group was opened again'), right, below))
     expect(
       openedPicture,
-      `after ${openAll} the screen draws ${openedScreen.length} row(s) and the picture ` +
+      `after ${openAll} the screen draws ${openedScreen.length} task group(s) and the picture ` +
         `${openedPicture.length}; FR-080 (MUST) has the two the same, and nothing was scrolled ` +
         'in between',
     ).toEqual(openedScreen)
@@ -3725,7 +3725,7 @@ function timesCarried(said: string, word: string): number {
   return said.split(word).length - 1
 }
 
-/** One row as the Task Group Panel is drawing it. */
+/** One task group as the Task Group Panel is drawing it. */
 interface DrawnTaskGroup {
   readonly top: number
   readonly bottom: number
@@ -3733,11 +3733,11 @@ interface DrawnTaskGroup {
 }
 
 /**
- * The rows the Task Group Panel has drawn, and the panel's own box.
+ * The task groups the Task Group Panel has drawn, and the panel's own box.
  *
- * ⚠️ `[data-depth]` IS THE DRAWN WINDOW AND NOT THE DOCUMENT. Eight rows is all
- * the shipped build draws at the base screen (measured 2026-09-03), so a row
- * that is missing from this answer is a row a person cannot see -- which is
+ * ⚠️ `[data-depth]` IS THE DRAWN WINDOW AND NOT THE DOCUMENT. Eight task groups is all
+ * the shipped build draws at the base screen (measured 2026-09-03), so a task group
+ * that is missing from this answer is a task group a person cannot see -- which is
  * exactly what `HF-17` (MUST) is about.
  *
  * @purity semi-pure-b
@@ -3767,9 +3767,9 @@ async function drawnTaskGroupsAndPanel(
 }
 
 /**
- * Put the pointer on a row's name and press one of that row's own entrances.
+ * Put the pointer on a task group's name and press one of that task group's own entrances.
  *
- * ⛔ A ROW'S ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME (table T-051
+ * ⛔ A TASK GROUP'S ENTRANCES ARE HIDDEN UNTIL THE POINTER IS ON ITS NAME (table T-051
  * row `HF-6`), and the shell reads a real pointer -- a dispatched event reaches
  * nothing here, which `tools/probe/harness.mjs` records as the way one session
  * called a working feature broken.
@@ -3880,10 +3880,10 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
 })
 
 // ---------------------------------------------------------------------------
-// DFC-234 -- the added row is brought into view, not just its field
+// DFC-234 -- the added task group is brought into view, not just its field
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: a row added at the shallowest tier, or added under a row standing
+// GOES RED IF: a task group added at the shallowest tier, or added under a task group standing
 // at the foot of the panel, is not drawn once its name is settled -- or is drawn
 // outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「⛔ **足した
 // タスクグループが描かれていないときは、そのタスクグループが見える位置まで表示位置を送ること（MUST）。
@@ -3892,15 +3892,15 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
 // （配下に足す）も同じとすること（MUST）** —— **押したタスクグループが画面の下端に在るときに
 // 同じことが起きる。**」
 //
-// ⭐ THE NAME IS WHAT MAKES THE ROW FINDABLE. `HF-14` (MUST) has the row stand
+// ⭐ THE NAME IS WHAT MAKES THE TASK GROUP FINDABLE. `HF-14` (MUST) has the task group stand
 // with an empty name and (MUST) throws it away if the name is settled empty, so
-// a row that is never named is a row this case may not look for -- and the name
-// typed below is what tells the new row from the eight the build already draws.
+// a task group that is never named is a task group this case may not look for -- and the name
+// typed below is what tells the new task group from the eight the build already draws.
 //
 // ⚠️ BOTH HALVES ARE PRESSED, and `HF-17`'s own last sentence is why: the two
-// entrances differ only in where the row lands, and the row says in as many
+// entrances differ only in where the task group lands, and the task group says in as many
 // words that `HF-14` is held to the same thing.
-test('DFC-234: a row added at the head, and one added under the last row, are both brought into view', async () => {
+test('DFC-234: a task group added at the head, and one added under the last task group, are both brought into view', async () => {
   test.setTimeout(240_000)
   const opened = await openStubbedPage()
   try {
@@ -3914,8 +3914,8 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
     const headField = await focusedTypableField(page)
     expect(
       headField,
-      `pressing ${addAtHead} (table T-051 row HF-17) opened no field to type the new row's name ` +
-        'into, and HF-14 (MUST) has the row stand with an empty name for a person to fill',
+      `pressing ${addAtHead} (table T-051 row HF-17) opened no field to type the new task group's name ` +
+        'into, and HF-14 (MUST) has the task group stand with an empty name for a person to fill',
     ).not.toBeNull()
     if (headField === null) return
 
@@ -3928,32 +3928,32 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
     const headTaskGroup = afterHead.rows.find((row) => row.text.includes(headName))
     expect(
       headTaskGroup,
-      `after the name was settled the row named ${JSON.stringify(headName)} is drawn nowhere; ` +
-        `the panel is drawing ${afterHead.rows.length} row(s) and HF-17 (MUST) has the view sent ` +
-        'until the added row is one of them',
+      `after the name was settled the task group named ${JSON.stringify(headName)} is drawn nowhere; ` +
+        `the panel is drawing ${afterHead.rows.length} task group(s) and HF-17 (MUST) has the view sent ` +
+        'until the added task group is one of them',
     ).not.toBeUndefined()
     if (headTaskGroup === undefined) return
     expect(
       headTaskGroup.top >= afterHead.panelTop && headTaskGroup.bottom <= afterHead.panelBottom,
-      `the row named ${JSON.stringify(headName)} is drawn at ${headTaskGroup.top}..${headTaskGroup.bottom}px ` +
+      `the task group named ${JSON.stringify(headName)} is drawn at ${headTaskGroup.top}..${headTaskGroup.bottom}px ` +
         `while the panel is at ${afterHead.panelTop}..${afterHead.panelBottom}px, so it is not at ` +
         'a position it can be read from',
     ).toBe(true)
 
-    // --- HF-14, under the row standing lowest ---------------------------
+    // --- HF-14, under the task group standing lowest ---------------------------
     const lowest = [...afterHead.rows].sort((one, two) => two.top - one.top)[0]
-    expect(lowest, 'the panel drew no row to add a child under').not.toBeUndefined()
+    expect(lowest, 'the panel drew no task group to add a child under').not.toBeUndefined()
     if (lowest === undefined) return
     expect(
       await pressRowEntrance(page, lowest.top, addUnderTaskGroup),
-      `${addUnderTaskGroup} (table T-051 row HF-14) is not drawn on the row at the foot of the panel ` +
+      `${addUnderTaskGroup} (table T-051 row HF-14) is not drawn on the task group at the foot of the panel ` +
         'even with the pointer on its name',
     ).toBe(true)
 
     const childField = await focusedTypableField(page)
     expect(
       childField,
-      `pressing ${addUnderTaskGroup} on the lowest row opened no field to type the new row's name into`,
+      `pressing ${addUnderTaskGroup} on the lowest task group opened no field to type the new task group's name into`,
     ).not.toBeNull()
     if (childField === null) return
 
@@ -3966,14 +3966,14 @@ test('DFC-234: a row added at the head, and one added under the last row, are bo
     const childTaskGroup = afterChild.rows.find((row) => row.text.includes(childName))
     expect(
       childTaskGroup,
-      `after the name was settled the row named ${JSON.stringify(childName)} is drawn nowhere; ` +
+      `after the name was settled the task group named ${JSON.stringify(childName)} is drawn nowhere; ` +
         'HF-17 (MUST) holds HF-14 to the same thing -- 「`HF-14`（配下に足す）も同じとすること' +
         '（MUST）」',
     ).not.toBeUndefined()
     if (childTaskGroup === undefined) return
     expect(
       childTaskGroup.top >= afterChild.panelTop && childTaskGroup.bottom <= afterChild.panelBottom,
-      `the row named ${JSON.stringify(childName)} is drawn at ${childTaskGroup.top}..${childTaskGroup.bottom}px ` +
+      `the task group named ${JSON.stringify(childName)} is drawn at ${childTaskGroup.top}..${childTaskGroup.bottom}px ` +
         `while the panel is at ${afterChild.panelTop}..${afterChild.panelBottom}px`,
     ).toBe(true)
   } finally {

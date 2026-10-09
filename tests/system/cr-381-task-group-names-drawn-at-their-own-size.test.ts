@@ -161,7 +161,7 @@ test('FR-094 / PI-37: every drawn task group name is S-36 x S-38 at depth 1 and 
       'the document holds S-36, S-38 and S-234',
     ).toBe(true)
     const rows = await measureTaskGroups(opened.page)
-    expect(rows.some((row) => row.depth === 1), `a depth-1 row is drawn: ${JSON.stringify(rows)}`).toBe(true)
+    expect(rows.some((row) => row.depth === 1), `a depth-1 task group is drawn: ${JSON.stringify(rows)}`).toBe(true)
     const off = rows.filter((row) => Math.abs(row.namePx - expectedNamePx(row.depth, settings)) > SIZE_TOLERANCE_PX)
     expect(
       off.map((row) => ({ depth: row.depth, name: row.name, drawn: row.namePx, expected: expectedNamePx(row.depth, settings) })),
@@ -176,19 +176,19 @@ test('FR-094 / PI-37: every drawn task group name is S-36 x S-38 at depth 1 and 
   }
 })
 
-test('T-051 HF-5: the row boxes and their controls do not take the size of the name they hold', async () => {
+test('T-051 HF-5: the task group boxes and their controls do not take the size of the name they hold', async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
   try {
     const rows = await measureTaskGroups(opened.page)
-    expect(rows.length, 'the panel draws rows').toBeGreaterThan(0)
+    expect(rows.length, 'the panel draws task groups').toBeGreaterThan(0)
     expect(
       [...new Set(rows.map((row) => row.boxPx))],
-      `every row box carries one font size whatever its name size: ${JSON.stringify(rows)}`,
+      `every task group box carries one font size whatever its name size: ${JSON.stringify(rows)}`,
     ).toHaveLength(1)
     const controls = rows.flatMap((row) => row.controls)
-    expect(controls.length, 'the rows draw controls').toBeGreaterThan(0)
-    expect([...new Set(controls)], `every control is drawn alike on every row: ${JSON.stringify(rows)}`).toHaveLength(1)
+    expect(controls.length, 'the task groups draw controls').toBeGreaterThan(0)
+    expect([...new Set(controls)], `every control is drawn alike on every task group: ${JSON.stringify(rows)}`).toHaveLength(1)
   } finally {
     await opened.close()
   }

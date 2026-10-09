@@ -231,7 +231,7 @@ const placementOf = (scene: Scene, uid: number): Placement => {
 
 const rowOf = (scene: Scene, groupId: string): Row => {
   const found = scene.layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the layout drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`the layout drew no task group ${groupId}`)
   return found
 }
 
@@ -448,7 +448,7 @@ const neitherEnd = (): Scene =>
     settings: { scrollDate: iso(300) },
   })
 
-describe('EL-1 -- an end is visible when its plan shape overlaps where its row is drawn and the Task Group Area across', () => {
+describe('EL-1 -- an end is visible when its plan shape overlaps where its task group is drawn and the Task Group Area across', () => {
   it('EL-1: an end whose plan shape lies wholly right of the Task Group Area is not visible (EL-4)', () => {
     const scene = predecessorOnly()
     const taskGroupArea = scene.regions.taskGroupArea
@@ -502,7 +502,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
     expect(lineOf(scene, 1, 2).elision).toBe('EL-5')
   })
 
-  it('EL-1: a scrolling row wholly above the Task Group Area is not visible (EL-5)', () => {
+  it('EL-1: a scrolling task group wholly above the Task Group Area is not visible (EL-5)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null], ['c', null]],
       tasks: [
@@ -518,7 +518,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
     expect(lineOf(scene, 1, 2).elision).toBe('EL-5')
   })
 
-  it('EL-1 control: a scrolling row cut by the Task Group Area top still overlaps it and is visible (EL-3)', () => {
+  it('EL-1 control: a scrolling task group cut by the Task Group Area top still overlaps it and is visible (EL-3)', () => {
     const scene = sceneOf({
       groups: [['a', null], ['b', null], ['c', null]],
       tasks: [
@@ -533,7 +533,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
     expect(lineOf(scene, 1, 2).elision).toBe('EL-3')
   })
 
-  it('EL-1 (a row under the band is not visible) / RT-6: pinned end visible, end scrolled under the band not (EL-4)', () => {
+  it('EL-1 (a task group under the band is not visible) / RT-6: pinned end visible, end scrolled under the band not (EL-4)', () => {
     const scene = sceneOf({
       groups: [['P', null], ['a', null], ['b', null], ['c', null]],
       tasks: [
@@ -545,7 +545,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
     const taskGroupArea = scene.regions.taskGroupArea
     const under = placementOf(scene, 2)
     const scrollTop = scene.layout.scrollAreaY
-    expect(rowOf(scene, 'P').isPinned, 'premise: row P is pinned').toBe(true)
+    expect(rowOf(scene, 'P').isPinned, 'premise: task group P is pinned').toBe(true)
     expect(scrollTop, 'premise: the layout says where the band ends').toBeTypeOf('number')
     expect(
       overlaps(under.y, under.y + under.planHeight, taskGroupArea.y, taskGroupArea.y + taskGroupArea.height) &&
@@ -569,7 +569,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its row i
   })
 })
 
-describe('EL-2 -- the end of a row the group LOD does not draw stands at the foot of its nearest drawn ancestor', () => {
+describe('EL-2 -- the end of a task group the group LOD does not draw stands at the foot of its nearest drawn ancestor', () => {
   it('the manuscript: T-303 EL-20 still says it', () => {
     const cell = specTable('T-303').rows.find((one) => one.id === 'EL-20')?.cells.join('') ?? ''
     expect(cell.replace(/<br\s*\/?>/g, ''), EL_20_NOT_SEEN).toContain(EL_20_NOT_SEEN)
@@ -599,7 +599,7 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
     expect(line.continuation?.farUid).toBe(2)
   })
 
-  it('EL-2: the hidden entry stands on the foot of the nearest drawn ancestor, where the row opens across', () => {
+  it('EL-2: the hidden entry stands on the foot of the nearest drawn ancestor, where the task group opens across', () => {
     const hidden = deep(0.4)
     const open = deep(1)
     const ancestor = rowOf(hidden, 'a1')
@@ -621,7 +621,7 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
     expect(line.points[0]!.x).toBeCloseTo(drawn.x + drawn.width, 9)
   })
 
-  it('EL-2 (pinned ancestor): the end stands at the foot of the last scrolling row before that ancestor', () => {
+  it('EL-2 (pinned ancestor): the end stands at the foot of the last scrolling task group before that ancestor', () => {
     const scene = sceneOf({
       groups: [['s', null], ['P', null], ['P1', 'P'], ['z', null]],
       tasks: [
@@ -638,7 +638,7 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
     expect(line.points.at(-1)!.y).toBeCloseTo(before.y + before.height, 9)
   })
 
-  it('EL-2 (pinned ancestor, no scrolling row before it): the end stands at the top of the area below the band', () => {
+  it('EL-2 (pinned ancestor, no scrolling task group before it): the end stands at the top of the area below the band', () => {
     const scene = sceneOf({
       groups: [['P', null], ['P1', 'P'], ['s', null]],
       tasks: [
@@ -652,7 +652,7 @@ describe('EL-2 -- the end of a row the group LOD does not draw stands at the foo
     expect(lineOf(scene, 1, 2).points.at(-1)!.y).toBeCloseTo(scene.layout.scrollAreaY!, 9)
   })
 
-  it('EL-20 (CR-596, no longer RT-4a): an end under a row the person folded stands on the foot of the drawn row, with a mark', () => {
+  it('EL-20 (CR-596, no longer RT-4a): an end under a task group the person folded stands on the foot of the drawn task group, with a mark', () => {
     const scene = sceneOf({
       groups: [['a', null], ['a1', 'a', 'collapsed'], ['a11', 'a1']],
       tasks: [
@@ -703,7 +703,7 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
 
   it('EL-4 / EL-7: predecessor only -- out by the lead-out (S-298), down by S-360, no head', () => {
     const line = lineOf(predecessorOnly(), 1, 2)
-    expect(line.pattern, 'premise: a lower row to the right is route RP-2').toBe('RP-2')
+    expect(line.pattern, 'premise: a lower task group to the right is route RP-2').toBe('RP-2')
     expect(line.elision).toBe('EL-4')
     const expected = bentLine(line, 'predecessor')
     expect(expected.towards.y, 'premise: RP-2 first turns down').toBe(1)
@@ -720,7 +720,7 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
       ],
     })
     const line = lineOf(scene, 1, 2)
-    expect(line.pattern, 'premise: an upper row to the right is route RP-3').toBe('RP-3')
+    expect(line.pattern, 'premise: an upper task group to the right is route RP-3').toBe('RP-3')
     expect(line.elision).toBe('EL-4')
     const expected = bentLine(line, 'predecessor')
     expect(expected.towards.y).toBe(-1)
@@ -748,14 +748,14 @@ describe('EL-3 .. EL-8 -- which part of the route is drawn', () => {
 
   it('EL-4 / EL-8: a route with no vertical run (RP-1) goes straight on by S-361', () => {
     const line = lineOf(predecessorOnlySameTaskGroup(), 1, 2)
-    expect(line.pattern, 'premise: one row is route RP-1').toBe('RP-1')
+    expect(line.pattern, 'premise: one task group is route RP-1').toBe('RP-1')
     expect(line.elision).toBe('EL-4')
     expect(samePathEitherWay(line.drawnPoints ?? [], straightLine(line, 'predecessor').outward), show(line.drawnPoints)).toBe(
       true,
     )
   })
 
-  it('EL-5 / EL-8: successor only on one row -- S-361 into the entry, with the head', () => {
+  it('EL-5 / EL-8: successor only on one task group -- S-361 into the entry, with the head', () => {
     const line = lineOf(successorOnlySameTaskGroup(), 1, 2)
     expect(line.pattern, 'premise: route RP-1').toBe('RP-1')
     expect(line.elision).toBe('EL-5')

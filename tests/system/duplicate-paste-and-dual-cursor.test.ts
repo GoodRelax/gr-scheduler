@@ -395,7 +395,7 @@ async function readShot(page: Page): Promise<DocShot> {
 }
 
 // see CU-2, CU-3
-// WHY: the guide lines are drawn only while the pointer is over the Row
+// WHY: the guide lines are drawn only while the pointer is over the Task group
 // Area, so the pointer is first put on a point of the canvas's lower half.
 /** @purity non-pure */
 async function readCursors(page: Page): Promise<CursorShot> {
@@ -457,8 +457,8 @@ async function chosenRowIds(page: Page): Promise<string[]> {
   )
 }
 
-// WHY: the pointer goes on the row first, then the point is chosen -- HF-6
-// hides a row's own controls (GR-20's grab strip too) until hovered.
+// WHY: the pointer goes on the task group first, then the point is chosen -- HF-6
+// hides a task group's own controls (GR-20's grab strip too) until hovered.
 /** @purity non-pure */
 async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean): Promise<void> {
   const hover = await page.evaluate((wanted: string) => {
@@ -467,7 +467,7 @@ async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean
     const box = row.getBoundingClientRect()
     return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
   }, groupId)
-  if (hover === null) throw new Error(`the panel is not drawing the row ${groupId}`)
+  if (hover === null) throw new Error(`the panel is not drawing the task group ${groupId}`)
   await page.mouse.move(hover.x, hover.y)
   await page.waitForTimeout(400)
   const at = await page.evaluate((wanted: string) => {
@@ -487,7 +487,7 @@ async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean
     return null
   }, groupId)
   if (at === null) {
-    throw new Error(`every point of the row ${groupId} is covered by one of its own controls`)
+    throw new Error(`every point of the task group ${groupId} is covered by one of its own controls`)
   }
   if (isExtending) await page.keyboard.down('Shift')
   await pressAt(page, at)
@@ -525,7 +525,7 @@ async function pickATask(
       right: BASE_SCREEN.width - 5,
     },
   )
-  if (points === null) throw new Error(`the panel is not drawing the row ${rowId}`)
+  if (points === null) throw new Error(`the panel is not drawing the task group ${rowId}`)
   for (const at of points) {
     await pressAt(page, at)
     const items = await readSelection(page)
@@ -595,15 +595,15 @@ async function sweep(): Promise<Measured> {
     await page.waitForTimeout(1500)
     const afterTaskPaste = await shot()
 
-    // WHY: this run comes first of the three row runs -- only a drawn row
-    // can be pressed, and the two runs below add rows that could hide a deep one.
+    // WHY: this run comes first of the three task group runs -- only a drawn task group
+    // can be pressed, and the two runs below add task groups that could hide a deep one.
     const beforeDeep = await shot()
     const tooDeep = (await drawnRowIds(page)).find(
       (id) => depthOf(beforeDeep.groups, id) + spanOf(beforeDeep.groups, id) > MAX_GROUP_DEPTH,
     )
     if (tooDeep === undefined) {
       throw new Error(
-        `the panel is drawing no row whose landing under itself would pass ${String(MAX_GROUP_DEPTH)}`,
+        `the panel is drawing no task group whose landing under itself would pass ${String(MAX_GROUP_DEPTH)}`,
       )
     }
     const depthThatWasRefused =
@@ -620,7 +620,7 @@ async function sweep(): Promise<Measured> {
       after: await shot(),
     }
 
-    // WHY: a row with no children of its own, so its landing cannot be the
+    // WHY: a task group with no children of its own, so its landing cannot be the
     // depth ceiling's business -- that refusal is the run above.
     const beforeIntoChosen = await shot()
     const leafWithTasks = (await drawnRowIds(page)).find(
@@ -629,7 +629,7 @@ async function sweep(): Promise<Measured> {
         beforeIntoChosen.members.some((one) => one.groupId === id),
     )
     if (leafWithTasks === undefined) {
-      throw new Error('the panel is drawing no childless row that carries a Task')
+      throw new Error('the panel is drawing no childless task group that carries a Task')
     }
     await chooseTaskGroup(page, leafWithTasks, false)
     await page.keyboard.press(COPY_KEY)
@@ -643,12 +643,12 @@ async function sweep(): Promise<Measured> {
       after: await shot(),
     }
 
-    // WHY: SL-4's letting-go half -- the chosen row is pressed again with
+    // WHY: SL-4's letting-go half -- the chosen task group is pressed again with
     // the extending key, which takes it back out of the set.
     await chooseTaskGroup(page, leafWithTasks, true)
     const stillChosen = await chosenRowIds(page)
     if (stillChosen.length !== 0) {
-      throw new Error(`letting the row go left ${stillChosen.length} rows chosen`)
+      throw new Error(`letting the task group go left ${stillChosen.length} task groups chosen`)
     }
     const beforeTopLevel = await shot()
     await page.keyboard.press(PASTE_KEY)
@@ -770,16 +770,16 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).not.toBe(seen.pickedTaskUid)
   })
 
-  // WHY: goes red if the duplicate lands off the row it was copied from --
+  // WHY: goes red if the duplicate lands off the task group it was copied from --
   // table T-050 row CD-2 leans on this to know what a deletion reaches.
-  test('the pasted Task stands on the row it was copied from', () => {
+  test('the pasted Task stands on the task group it was copied from', () => {
     const seen = readingsOfTheSweep()
     const added = seen.afterTaskPaste.taskUids.filter(
       (one) => !seen.beforeTaskPaste.taskUids.includes(one),
     )
     expect(added, 'the sweep recorded no pasted Task to judge').toHaveLength(1)
     const landedOn = seen.afterTaskPaste.members.find((one) => one.taskUid === added[0])?.groupId
-    expect(landedOn, 'FR-033 (MUST) puts the duplicate on the same row as its source').toBe(
+    expect(landedOn, 'FR-033 (MUST) puts the duplicate on the same task group as its source').toBe(
       seen.pickedTaskRowId,
     )
     expect(
@@ -788,32 +788,32 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toBe(seen.beforeTaskPaste.names[String(seen.pickedTaskUid)])
   })
 
-  // WHY: goes red if a copied row lands anywhere but under the chosen row.
-  test('a copied row lands as a child of the row that is chosen', () => {
+  // WHY: goes red if a copied task group lands anywhere but under the chosen task group.
+  test('a copied task group lands as a child of the task group that is chosen', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.intoChosenTaskGroup)
     expect(
       added.length,
-      `${PASTE_KEY} with the row ${seen.intoChosenTaskGroup.sourceId} copied and chosen should add rows`,
+      `${PASTE_KEY} with the task group ${seen.intoChosenTaskGroup.sourceId} copied and chosen should add task groups`,
     ).toBeGreaterThan(0)
     const roots = added.filter((one) => !added.some((kin) => kin.id === one.parentId))
-    expect(roots, 'DU-2 of table T-223 copies one subtree, so one row comes in at the top').toHaveLength(1)
+    expect(roots, 'DU-2 of table T-223 copies one subtree, so one task group comes in at the top').toHaveLength(1)
     expect(
       roots[0]?.parentId,
-      'FR-033 (MUST) makes the chosen row the parent of what is pasted',
+      'FR-033 (MUST) makes the chosen task group the parent of what is pasted',
     ).toBe(seen.intoChosenTaskGroup.chosenIds[0])
   })
 
-  // WHY: goes red if a row arrives without the Tasks standing on it --
+  // WHY: goes red if a task group arrives without the Tasks standing on it --
   // DU-2's whole point, and why FR-033 does not apply DU-1's same-task-group rule.
-  test('a copied row brings the Tasks that stood on it', () => {
+  test('a copied task group brings the Tasks that stood on it', () => {
     const seen = readingsOfTheSweep()
     const stoodOnTheSource = seen.intoChosenTaskGroup.before.members.filter(
       (one) => one.groupId === seen.intoChosenTaskGroup.sourceId,
     ).length
-    expect(stoodOnTheSource, 'the row that was copied carried no Task to judge').toBeGreaterThan(0)
+    expect(stoodOnTheSource, 'the task group that was copied carried no Task to judge').toBeGreaterThan(0)
     const added = tasksAdded(seen.intoChosenTaskGroup)
-    expect(added, 'DU-2 of table T-223 copies every Task standing on the copied row').toHaveLength(
+    expect(added, 'DU-2 of table T-223 copies every Task standing on the copied task group').toHaveLength(
       stoodOnTheSource,
     )
     const addedTaskGroups = taskGroupsAdded(seen.intoChosenTaskGroup).map((one) => one.id)
@@ -823,17 +823,17 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     })
     expect(
       landedElsewhere,
-      'DU-2 puts the copied Tasks on the copied rows, not on the rows they came from',
+      'DU-2 puts the copied Tasks on the copied task groups, not on the task groups they came from',
     ).toHaveLength(0)
   })
 
-  // WHY: goes red if a paste with no row chosen buries the new row somewhere.
-  test('a copied row pasted with no row chosen lands at the top level', () => {
+  // WHY: goes red if a paste with no task group chosen buries the new task group somewhere.
+  test('a copied task group pasted with no task group chosen lands at the top level', () => {
     const seen = readingsOfTheSweep()
     const added = taskGroupsAdded(seen.atTopLevel)
-    expect(added.length, `${PASTE_KEY} with nothing chosen should add rows`).toBeGreaterThan(0)
+    expect(added.length, `${PASTE_KEY} with nothing chosen should add task groups`).toBeGreaterThan(0)
     const roots = added.filter((one) => !added.some((kin) => kin.id === one.parentId))
-    expect(roots, 'one subtree comes in, so one row comes in at the top').toHaveLength(1)
+    expect(roots, 'one subtree comes in, so one task group comes in at the top').toHaveLength(1)
     expect(roots[0]?.parentId, 'FR-033 (MUST) puts it at the top level when nothing is chosen').toBeNull()
   })
 
@@ -864,7 +864,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     ).toEqual(seen.beforeEmptyPaste.taskUids)
     expect(
       seen.afterEmptyPaste.groups.map((one) => one.id),
-      `${PASTE_KEY} on a page that has copied nothing must add no row`,
+      `${PASTE_KEY} on a page that has copied nothing must add no task group`,
     ).toEqual(seen.beforeEmptyPaste.groups.map((one) => one.id))
   })
 

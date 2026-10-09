@@ -90,9 +90,9 @@
 //      -- and not a thing this file may assert: it says what the history does
 //      NOT carry, and the undo case below asks only what the invariant is,
 //      never whether a step was stacked.
-//   5. タスクグループの削除 as an entrance. FR-032 puts row deletion behind the task-group-title
+//   5. タスクグループの削除 as an entrance. FR-032 puts task group deletion behind the task-group-title
 //      panel and behind a confirmation, and table T-023c's own note says the
-//      row set and the selection set are different sets -- so a case for it
+//      task group set and the selection set are different sets -- so a case for it
 //      would have to press through a panel this file draws nothing of.
 //      REPORTED rather than approximated. ⚠️ CD-2 of table T-050 makes it the
 //      entrance where a Task vanishes WITHOUT having been selected for deletion,
@@ -197,7 +197,7 @@ const assignmentOf = (row: string): readonly (readonly string[])[] => {
 // ===========================================================================
 
 // BT-4 of table T-034 -- the template FR-027 keeps exactly one of. The calendar,
-// the project and the settings come from it; the rows, the Tasks and the three
+// the project and the settings come from it; the task groups, the Tasks and the three
 // annotations are written out here so that what vanishes can be named.
 const TEMPLATE_PATH = join(
   process.cwd(),
@@ -211,7 +211,7 @@ const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<strin
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
 
-/** The Task the dependency ends at, and the one that owns the row it stands on. */
+/** The Task the dependency ends at, and the one that owns the task group it stands on. */
 const PREDECESSOR = 1
 const SUCCESSOR = 2
 /** A third Task, so that one may vanish without taking the dependency with it. */
@@ -346,7 +346,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
  * The same document with ONE kind's only member taken out of it.
  *
  * ⭐ ONE AT A TIME, so that each case names one kind. Taking the Task out takes
- * its row membership with it -- a member pointing at a Task that is not there is
+ * its task group membership with it -- a member pointing at a Task that is not there is
  * a document nobody may write -- and nothing else in the fixture refers to it.
  */
 function documentWithout(kind: SelectableKind): Document {
@@ -566,12 +566,12 @@ describe('the manuscript still says what these cases read', () => {
     }
   })
 
-  it('SL-1 still names the five kinds these cases walk, and still excludes rows', () => {
+  it('SL-1 still names the five kinds these cases walk, and still excludes task groups', () => {
     for (const one of SL_1_KINDS) {
       expect(SL_1, `SL-1 still names ${one.kind}`).toContain(one.word)
     }
     expect(SL_1_KINDS).toHaveLength(5)
-    expect(SL_1, 'SL-1 still keeps rows out').toContain('タスクグループ（`TaskGroup`）は対象に含めない')
+    expect(SL_1, 'SL-1 still keeps task groups out').toContain('タスクグループ（`TaskGroup`）は対象に含めない')
   })
 
   it('the keys these cases press are still the ones table T-036 assigns', () => {

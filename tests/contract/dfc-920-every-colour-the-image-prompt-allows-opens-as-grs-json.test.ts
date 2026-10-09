@@ -47,7 +47,7 @@ const SAMPLE_DIGITS = 'ff8800'
 const spellingsIn = (manuscript: string): string[] =>
   [...manuscript.matchAll(/"(#[^"\s]*)"/g)].map((one) => (one[1] ?? '').replace(/rrggbb/i, SAMPLE_DIGITS))
 
-// WHY: the shared bench decodes a document with one task and one row, whose visual and band colours are the ones under test.
+// WHY: the shared bench decodes a document with one task and one task group, whose visual and band colours are the ones under test.
 function documentWith(colour: string): string {
   const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
   raw['schedule'].taskVisuals[0].fillColor = colour
@@ -61,7 +61,7 @@ describe('FR-068 / AT-102 (MUST): the prompt offers the author a custom colour o
     expect(spellingsIn(manuscriptOf(await copiedPrompt(language))).length).toBeGreaterThan(0)
   })
 
-  it.each(LANGUAGES)('every custom colour the %s prompt allows opens as fill, outline and row band', async (language) => {
+  it.each(LANGUAGES)('every custom colour the %s prompt allows opens as fill, outline and task group band', async (language) => {
     for (const spelling of spellingsIn(manuscriptOf(await copiedPrompt(language)))) {
       const read = documentFromJson(documentWith(spelling))
       expect(read.ok, `${language} prompt allows ${JSON.stringify(spelling)}`).toBe(true)

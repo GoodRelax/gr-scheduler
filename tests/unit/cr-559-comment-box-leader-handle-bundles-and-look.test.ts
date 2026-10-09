@@ -209,7 +209,7 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
   textColor: spec.textColor ?? null,
 })
 
-// WHY: one plain Task per row from day 2 to day 28, so every band has a drawn shape under the note.
+// WHY: one plain Task per task group from day 2 to day 28, so every band has a drawn shape under the note.
 const taskOf = (uid: number): Record<string, unknown> => ({
   uid,
   parentTaskUid: null,
@@ -250,7 +250,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       taskGroups: LETTERS.map((letter, order) => ({
         id: ROW[letter],
         parentId: null,
-        label: `row ${letter}`,
+        label: `task group ${letter}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
@@ -357,7 +357,7 @@ const drawnNote = (loop: FrameLoop, id: string = NOTE_ID): CommentGeometry => {
 
 const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
   const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
-  if (found === undefined) throw new Error(`the frame drew no row ${letter}`)
+  if (found === undefined) throw new Error(`the frame drew no task group ${letter}`)
   return found
 }
 
@@ -518,7 +518,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
     expect(environmentShapeOf('PK-11')).toMatch(/^[a-z-]+$/)
   })
 
-  it('the default note stands up-right of its anchor, clear of it by more than S-292, inside the row area', () => {
+  it('the default note stands up-right of its anchor, clear of it by more than S-292, inside the task group area', () => {
     const built = stage()
     const note = drawnNote(built.loop)
     expect(note.body.x - note.anchor.x).toBeCloseTo(60, 1)
@@ -548,7 +548,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
   })
 
   for (const part of ['body', 'leader'] as const) {
-    it(`the ${part}, pulled 3.3 days right and one row down, moves the box by the pull and pins day 13 of row F`, () => {
+    it(`the ${part}, pulled 3.3 days right and one task group down, moves the box by the pull and pins day 13 of task group F`, () => {
       const built = stage()
       const before = drawnNote(built.loop)
       const leader = leaderOf(before)!
@@ -595,22 +595,22 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     expect(drawnNote(built.loop).body).toEqual(before.body)
   })
 
-  it(`${BODY_NO_TASK_GROUP} -- the body pulled so far down that the moved anchor point has no drawn row`, () => {
+  it(`${BODY_NO_TASK_GROUP} -- the body pulled so far down that the moved anchor point has no drawn task group`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
     const stored = storedNote(built.loop)
     const bottom = taskGroupBand(built.loop, 'F').y + taskGroupBand(built.loop, 'F').height
     const by = Math.round(bottom - note.anchor.y + 2 * S_292)
     drag(built, centreOf(note.body), 0, by)
-    expect(storedNote(built.loop), 'a pull with no row under the moved anchor moved something').toEqual(stored)
+    expect(storedNote(built.loop), 'a pull with no task group under the moved anchor moved something').toEqual(stored)
     expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233, CR-712)').not.toContain(RS_44_WORDS)
   })
 
   // WHY: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.
   const PULLS: readonly (readonly [string, (loop: FrameLoop) => Point, string])[] = [
     ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `11 ${ANCHOR_TASK_GROUP}`],
-    ['one row down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), '10 F'],
-    ['3.3 days right and one row down', (loop) => pull(loop), '13 F'],
+    ['one task group down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), '10 F'],
+    ['3.3 days right and one task group down', (loop) => pull(loop), '13 F'],
   ]
 
   for (const [label, pullOf, pinned] of PULLS) {
@@ -637,7 +637,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
     return { x: dayTen + (d - ANCHOR_DAY + 0.2) * pxPerDay(loop), y: band.y + band.height / 2 }
   }
 
-  it('the anchor released on day 16 of row C pins there, and the box does not move on screen', () => {
+  it('the anchor released on day 16 of task group C pins there, and the box does not move on screen', () => {
     const built = stage()
     const before = drawnNote(built.loop)
     const to = releaseOn(built.loop, 16, 'C')
@@ -674,7 +674,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
   })
 
   for (const steps of [1, 6]) {
-    for (const [label, d, letter] of [['day 16 of row C', 16, 'C'], ['day 13 of its own row', 13, ANCHOR_TASK_GROUP]] as const) {
+    for (const [label, d, letter] of [['day 16 of task group C', 16, 'C'], ['day 13 of its own task group', 13, ANCHOR_TASK_GROUP]] as const) {
       it(`the anchor released on ${label}, reported in ${steps} move(s), pins there and leaves the box still`, () => {
         const built = stage()
         const before = drawnNote(built.loop)

@@ -386,7 +386,7 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
     const first = bars[0]
     if (first === undefined) return
     const second = bars.find((one) => Math.abs(one.y - first.y) > first.height * 2)
-    expect(second, 'only one row band has a bar wholly on the screen').not.toBeUndefined()
+    expect(second, 'only one task group band has a bar wholly on the screen').not.toBeUndefined()
     if (second === undefined) return
 
     const one = await restOnBar(app.page, first)
@@ -421,7 +421,7 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
     if (otherTold === null) return
     expect(
       otherTold.name,
-      'two bars in different row bands were told the same name, so the name is not read from the ' +
+      'two bars in different task group bands were told the same name, so the name is not read from the ' +
         'task the pointer is over',
     ).not.toBe(told.name)
   } finally {
@@ -1282,7 +1282,7 @@ function fontsOfKeys(
   return keys.flatMap((key) => (fonts[key] === undefined ? [] : [fonts[key] ?? 0]))
 }
 
-test('DFC-374: magnifying the vertical axis stops before one row fills the Task Group Area', async ({
+test('DFC-374: magnifying the vertical axis stops before one task group fills the Task Group Area', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1307,7 +1307,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     )
 
     const opened = await taskGroupBandsNow(app.page)
-    expect(opened.length, 'the document opens drawing fewer than three rows').toBeGreaterThan(2)
+    expect(opened.length, 'the document opens drawing fewer than three task groups').toBeGreaterThan(2)
     const openedFonts = await nameLabelFontsNow(app.page)
     const rectangles = Object.keys(openedFonts).filter(
       (key) =>
@@ -1340,7 +1340,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
         `(「形状によらず矩形で測ること（MUST）」)`,
     ).toBeLessThan(NAME_PX_TOLERANCE)
     // WHY: compared against the opening, not against zero. FR-016's own measured
-    // WHY: note records that a row's cut-ness is constant over a zoomY sweep, and
+    // WHY: note records that a task group's cut-ness is constant over a zoomY sweep, and
     // WHY: the drawing bears that out: availableLabelWidthPx and taskGroupTitleFontPxOf
     // WHY: read the panel width, the indent and the depth, never zoomY. MEASURED
     // WHY: 2026-09-16 on this document: no task group name is cut at the opening or at
@@ -1350,7 +1350,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     expect(
       tall.filter((band) => band.isCut).length,
       `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
-        'The magnifying settled with fewer cut row names than the opening drew, so this build ' +
+        'The magnifying settled with fewer cut task group names than the opening drew, so this build ' +
         'cannot be told apart from one that stopped when the mark cleared',
     ).toBeGreaterThanOrEqual(opened.filter((band) => band.isCut).length)
     const tallPitch = taskGroupPitchOf(tall)
@@ -1363,9 +1363,9 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
       tall.length,
       `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Area\` の高さに` +
         `達する倍率とすること（MUST）」. Forty-five notches of MK-4 left ${String(tall.length)} ` +
-        `row(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
+        `task group(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
         `${tallestBandOf(tall).toFixed(1)}px -- past the ceiling the magnifying goes on until ` +
-        'one row fills the screen alone',
+        'one task group fills the screen alone',
     ).toBeGreaterThan(1)
     await wheelAway(10)
     const further = taskGroupPitchOf(await taskGroupBandsNow(app.page))
@@ -1373,7 +1373,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
       .not.toBeNull()
     expect(
       further,
-      `ten more notches took the row pitch from ${String(tallPitch)} to ${String(further)}, so ` +
+      `ten more notches took the task group pitch from ${String(tallPitch)} to ${String(further)}, so ` +
         'the magnification has no ceiling at all',
     ).toBeCloseTo(tallPitch ?? 0, 0)
 
@@ -1383,7 +1383,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     const short = await taskGroupBandsNow(app.page)
     expect(
       short.length,
-      `the short window settled with ${String(short.length)} row(s), so the ceiling did not ` +
+      `the short window settled with ${String(short.length)} task group(s), so the ceiling did not ` +
         'fire there either',
     ).toBeGreaterThan(1)
     const tallArea = taskGroupAreaSpanOf(tall)
@@ -1473,7 +1473,7 @@ const TRANSLATOR_SOURCE = join(
   process.cwd(), 'src', 'adapter', 'input-command-translator', 'input-command-translator.ts',
 )
 
-test('DFC-366: one notch of the vertical-axis zoom leaves the row under the pointer where it was', async ({
+test('DFC-366: one notch of the vertical-axis zoom leaves the task group under the pointer where it was', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
@@ -1483,10 +1483,10 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the row under the poin
     expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
     if (canvasBox === null) return
     const before = await taskGroupBandsNow(app.page)
-    expect(before.length, 'the document draws fewer than four rows to choose from')
+    expect(before.length, 'the document draws fewer than four task groups to choose from')
       .toBeGreaterThan(3)
     const held = before[3]
-    expect(held, 'the fourth row is not on the screen').not.toBeUndefined()
+    expect(held, 'the fourth task group is not on the screen').not.toBeUndefined()
     if (held === undefined) return
     const at = Math.round(held.y + held.height / 2)
 
@@ -1500,13 +1500,13 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the row under the poin
     const sameRecord = after.find((band) => band.id === held.id)
     expect(
       sameRecord,
-      `the row the pointer was over (${held.id}) is no longer drawn after one notch`,
+      `the task group the pointer was over (${held.id}) is no longer drawn after one notch`,
     ).not.toBeUndefined()
     if (sameRecord === undefined) return
     expect(
       sameRecord.height,
       `one notch of MK-4 left the band ${held.height.toFixed(1)}px tall, so nothing was zoomed ` +
-        'and holding the row still proves nothing',
+        'and holding the task group still proves nothing',
     ).not.toBe(held.height)
     const into = (at - held.y) / held.height
     const nowAt = sameRecord.y + into * sameRecord.height
@@ -1526,7 +1526,7 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the row under the poin
       /\blayoutFromSchedule\b/.test(translator),
       `FR-016 (MUST NOT): 「Adapter に自前の割付けをさせてはならない（MUST NOT）」. ` +
         'input-command-translator.ts names layoutFromSchedule outside its comments, so the ' +
-        'Adapter is laying the schedule out for itself instead of asking PI-5 where the rows ' +
+        'Adapter is laying the schedule out for itself instead of asking PI-5 where the task groups ' +
         'will be',
     ).toBe(false)
   } finally {

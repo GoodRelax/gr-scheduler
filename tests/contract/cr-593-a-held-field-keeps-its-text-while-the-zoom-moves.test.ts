@@ -275,7 +275,7 @@ function bench(document: Document): Bench {
       send(pointerAt('down', x, y, 2))
       send(pointerAt('up', x, y, 2))
       aimed = null
-      if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the row')
+      if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the task group')
     },
     view,
   }

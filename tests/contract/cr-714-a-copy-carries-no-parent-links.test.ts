@@ -33,8 +33,8 @@ describe('T-223 DU-1 / DU-2 -- the clauses this file is driven by still stand', 
   })
 })
 
-// WHY: Q holds P, P holds C (C is a leaf, so it rides on P's row, FR-058); X holds Y; D derives row G_D but
-// rides on X's row; M is a hand-made row. Q, P and X ride on the rows they derive.
+// WHY: Q holds P, P holds C (C is a leaf, so it rides on P's task group, FR-058); X holds Y; D derives task group G_D but
+// rides on X's task group; M is a hand-made task group. Q, P and X ride on the task groups they derive.
 const Q = 1
 const P = 2
 const C = 3
@@ -104,7 +104,7 @@ function pasted(document: Document, sourceUids: number[], groupIdOf: Record<numb
 
 function grouped(document: Document, command: TaskGroupCommand): Document {
   const result = editTaskGroup(document, command, DEFAULT_TASK_GROUP_NAME)
-  if (!result.ok) throw new Error(`the row edit was refused: ${JSON.stringify(result.refusals)}`)
+  if (!result.ok) throw new Error(`the task group edit was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }
 
@@ -119,7 +119,7 @@ const copyNamed = (before: Document, after: Document, name: string): Task => {
 }
 const taskGroupNamed = (document: Document, id: string): TaskGroup => {
   const found = document.schedule.taskGroups.find((one) => one.id === id)
-  if (found === undefined) throw new Error(`no row ${id}`)
+  if (found === undefined) throw new Error(`no task group ${id}`)
   return found
 }
 
@@ -132,27 +132,27 @@ describe('DU-1 PAIRED: a parent copied with its child pairs up with the child co
 })
 
 describe('DU-1 INFERRED: a copy whose parent is not copied takes its parent from where it lands', () => {
-  it('a leaf pasted in place rides on P\'s row -> P, the same parent as before', () => {
+  it('a leaf pasted in place rides on P\'s task group -> P, the same parent as before', () => {
     const before = baseDocument()
     expect(copyNamed(before, pasted(before, [C]), 'Login screen').parentTaskUid).toBe(P)
   })
 
-  it('OWN_TASK_GROUP: P pasted in place rides on the row P derives -> the walk starts above it, so Q', () => {
+  it('OWN_TASK_GROUP: P pasted in place rides on the task group P derives -> the walk starts above it, so Q', () => {
     const before = baseDocument()
     expect(copyNamed(before, pasted(before, [P]), 'Screens').parentTaskUid).toBe(Q)
   })
 
-  it('a Ctrl+drag that drops C on X\'s row -> X', () => {
+  it('a Ctrl+drag that drops C on X\'s task group -> X', () => {
     const before = baseDocument()
     expect(copyNamed(before, pasted(before, [C], { [C]: G_X }), 'Login screen').parentTaskUid).toBe(X)
   })
 
-  it('dropped on a hand-made row at the top -> no derived row on the way up, so the root', () => {
+  it('dropped on a hand-made task group at the top -> no derived task group on the way up, so the root', () => {
     const before = baseDocument()
     expect(copyNamed(before, pasted(before, [C], { [C]: G_M }), 'Login screen').parentTaskUid).toBeNull()
   })
 
-  it('a root Task (no parent at all) dropped on P\'s row -> P', () => {
+  it('a root Task (no parent at all) dropped on P\'s task group -> P', () => {
     const before = baseDocument()
     expect(copyNamed(before, pasted(before, [X], { [X]: G_P }), 'Build').parentTaskUid).toBe(P)
   })
@@ -164,33 +164,33 @@ describe('DU-1 INFERRED: a copy whose parent is not copied takes its parent from
   })
 })
 
-describe('DU-2 DERIVED_TASK_GROUP: a copied derived row follows its Task\'s copy, or settles its name', () => {
+describe('DU-2 DERIVED_TASK_GROUP: a copied derived task group follows its Task\'s copy, or settles its name', () => {
   const NEW_P = 'task-group-p-copy'
   const NEW_D = 'task-group-d-copy'
 
-  it('row P copied under X: the copy row derives from the copy of P, whose parent is inferred as X', () => {
+  it('task group P copied under X: the copy task group derives from the copy of P, whose parent is inferred as X', () => {
     const before = baseDocument()
     const after = grouped(before, { kind: 'pasteTaskGroupSubtree', sourceGroupId: G_P, targetGroupId: G_X, newGroupIds: { [G_P]: NEW_P } })
     const copyOfP = copyNamed(before, after, 'Screens')
     expect(taskGroupNamed(after, NEW_P).derivedFromTaskUid).toBe(copyOfP.uid)
-    expect(copyOfP.parentTaskUid, 'inferred from X\'s row, above the copy\'s own row').toBe(X)
-    expect(copyNamed(before, after, 'Login screen').parentTaskUid, 'PAIRED inside the copied row').toBe(copyOfP.uid)
+    expect(copyOfP.parentTaskUid, 'inferred from X\'s task group, above the copy\'s own task group').toBe(X)
+    expect(copyNamed(before, after, 'Login screen').parentTaskUid, 'PAIRED inside the copied task group').toBe(copyOfP.uid)
   })
 
-  it('row D copied without D (D rides on X\'s row) -> the copy keeps the name and derives from nothing', () => {
+  it('task group D copied without D (D rides on X\'s task group) -> the copy keeps the name and derives from nothing', () => {
     const before = baseDocument()
     const after = grouped(before, { kind: 'pasteTaskGroupSubtree', sourceGroupId: G_D, targetGroupId: null, newGroupIds: { [G_D]: NEW_D } })
     expect(taskGroupNamed(after, NEW_D).derivedFromTaskUid).toBeNull()
     expect(taskGroupNamed(after, NEW_D).label).toBe('Database')
   })
 
-  it('DFC-2270: moving either copy row never changes an original Task\'s parent', () => {
+  it('DFC-2270: moving either copy task group never changes an original Task\'s parent', () => {
     const before = baseDocument()
     let after = grouped(before, { kind: 'pasteTaskGroupSubtree', sourceGroupId: G_P, targetGroupId: G_X, newGroupIds: { [G_P]: NEW_P } })
     after = grouped(after, { kind: 'pasteTaskGroupSubtree', sourceGroupId: G_D, targetGroupId: null, newGroupIds: { [G_D]: NEW_D } })
     after = grouped(after, { kind: 'moveTaskGroup', groupId: NEW_P, parentId: G_M, order: 0 })
     after = grouped(after, { kind: 'moveTaskGroup', groupId: NEW_D, parentId: G_P, order: 0 })
     for (const one of before.schedule.tasks) expect(parentOf(after, one.uid), `Task ${one.uid}`).toBe(one.parentTaskUid)
-    expect(copyNamed(before, after, 'Screens').parentTaskUid, 'the copy of P followed its row to the top').toBeNull()
+    expect(copyNamed(before, after, 'Screens').parentTaskUid, 'the copy of P followed its task group to the top').toBeNull()
   })
 })

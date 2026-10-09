@@ -32,7 +32,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     ).toEqual([])
   })
 
-  it('FR-098 limits an undrawn pinned row to the all-required rows of table T-329 and the overflow', () => {
+  it('FR-098 limits an undrawn pinned task group to the all-required rows of table T-329 and the overflow', () => {
     // WHY: latched whole, not paraphrased, so a rewrite that keeps the
     // overflow but drops the table cannot slip past separate substring checks.
     expect(REQUIREMENTS).toContain(

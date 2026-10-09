@@ -57,7 +57,7 @@ describe('CR-423 -- the manuscript these cases are driven by', () => {
     ['ZE-5 (MUST) -- rounded percentage and the end word', ZE_5_ITS_TEXT],
     ['ZE-5 (MUST) -- one message with the display scale message', ZE_5_ONE_MESSAGE],
     ['T-262 -- not applied to MK-2', T_262_NOT_FOR_MK_2],
-    ['ZE-4 -- the row zoom is no undo step (UN-8)', UN_8_ZOOM_IS_NO_STEP],
+    ['ZE-4 -- the vertical zoom is no undo step (UN-8)', UN_8_ZOOM_IS_NO_STEP],
     ['FR-031 (MUST) -- a shrink is two writes', FR_031_SHRINK_TWO_WRITES],
     ['FR-031 -- at the ZE-2 end only the tree write', FR_031_AT_THE_END_ONLY_THE_TREE],
     ['FR-018 (MUST NOT) -- only table T-328 writes a tree value', FR_018_ONLY_T_328],
@@ -431,15 +431,15 @@ const ZOOM_IN_INPUTS: readonly VerticalZoomInput[] = [
 const AT_THE_LOWER_END = 0.3
 
 describe('ZE-1 -- the scenes stand where the manuscript puts the ends', () => {
-  it('a depth-2 row document at zoomY 0.3 draws what it draws at S-54, and its plan height stands on the floor', () => {
+  it('a depth-2 task group document at zoomY 0.3 draws what it draws at S-54, and its plan height stands on the floor', () => {
     expect(AT_THE_LOWER_END * S_4, 'ZE-1 (1)').toBeLessThanOrEqual(S_6 / S_5)
     const here = bench(documentOf(DEEP, AT_THE_LOWER_END))
     const lowest = bench(documentOf(DEEP, S_54))
     expect(here.drawnTaskGroups(), 'ZE-1 (2)').toEqual(lowest.drawnTaskGroups())
-    expect(here.drawnTaskGroups(), 'premise: FR-018 drops the depth-2 row').not.toContain(B)
+    expect(here.drawnTaskGroups(), 'premise: FR-018 drops the depth-2 task group').not.toContain(B)
   })
 
-  it('the same document at 0.33 still draws its depth-2 row, so it is not at the end', () => {
+  it('the same document at 0.33 still draws its depth-2 task group, so it is not at the end', () => {
     const built = bench(documentOf(DEEP, 0.33))
     expect(built.drawnTaskGroups()).toContain(B)
   })
@@ -455,7 +455,7 @@ describe('ZE-1 -- the scenes stand where the manuscript puts the ends', () => {
 
 describe('ZE-2 / ZE-4 -- at the lower end a zoom-out input writes nothing', () => {
   it.each(ZOOM_OUT_INPUTS)(
-    '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT） -- %s at zoomY 0.3 with a depth-2 row',
+    '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT） -- %s at zoomY 0.3 with a depth-2 task group',
     (_name, press) => {
       const built = bench(documentOf(DEEP, AT_THE_LOWER_END))
       expect(built.loop.hasUnsavedEdits(), 'premise: a document just opened has no unsaved edit').toBe(false)
@@ -486,7 +486,7 @@ describe('ZE-2 / ZE-4 -- at the lower end a zoom-out input writes nothing', () =
       const entered = 0.33 / S_53
       expect(built.zoomY(), ZE_2_ENTERING_WRITES_THE_STEP).toBeCloseTo(entered, 12)
       expect(built.zoomY(), 'ZE-2: the value is not moved onto the S-87 threshold').not.toBeCloseTo(thresholdOf(2), 6)
-      expect(built.drawnTaskGroups(), 'FR-018: the depth-2 row is no longer drawn').not.toContain(B)
+      expect(built.drawnTaskGroups(), 'FR-018: the depth-2 task group is no longer drawn').not.toContain(B)
       const written = built.zoomY()
       press(built)
       expect(built.zoomY(), ZE_2_NO_WRITE_AT_THE_END).toBe(written)
@@ -494,8 +494,8 @@ describe('ZE-2 / ZE-4 -- at the lower end a zoom-out input writes nothing', () =
   )
 })
 
-describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
-  it('⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST） -- depth-1 rows only, zoomY 0.9: SK-16c writes nothing', () => {
+describe('ZE-1 -- a document with no depth-2 task group the threshold drops', () => {
+  it('⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST） -- depth-1 task groups only, zoomY 0.9: SK-16c writes nothing', () => {
     expect(0.9, 'premise: (1) holds at 0.9').toBeLessThanOrEqual(PLAN_FLOOR_LETS_GO_AT)
     const built = bench(documentOf(FLAT, 0.9))
     built.send(SK_16C)
@@ -520,17 +520,17 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(built.zoomY(), ZE_1_THE_LOWER_END).toBeCloseTo(expected, 12)
   })
 
-  it('a depth-2 row expanded by hand (table T-328) at zoomY 0.5: a zoom-out writes nothing', () => {
+  it('a depth-2 task group expanded by hand (table T-328) at zoomY 0.5: a zoom-out writes nothing', () => {
     const kept = bench(documentOf(EXPANDED, 0.5))
     const lowest = bench(documentOf(EXPANDED, S_54))
-    expect(kept.drawnTaskGroups(), 'premise: ZE-1 (2), TD-6 / TD-7 draw the same rows at S-54').toEqual(lowest.drawnTaskGroups())
+    expect(kept.drawnTaskGroups(), 'premise: ZE-1 (2), TD-6 / TD-7 draw the same task groups at S-54').toEqual(lowest.drawnTaskGroups())
     kept.send(SK_16C)
     expect(kept.zoomY(), ZE_1_THE_LOWER_END).toBe(0.5)
     expect(kept.loop.hasUnsavedEdits(), ZE_4_NO_UNSAVED_EDIT).toBe(false)
     expect(treeStateOf(kept, B), 'T-328: a shrink leaves expanded alone').toBe('expanded')
   })
 
-  it(`${FR_031_AT_THE_END_ONLY_THE_TREE} -- a temporarilyExpanded row at the end: the zoom stays, the row returns to auto, and one undo gives it back`, () => {
+  it(`${FR_031_AT_THE_END_ONLY_THE_TREE} -- a temporarilyExpanded task group at the end: the zoom stays, the task group returns to auto, and one undo gives it back`, () => {
     const opened = bench(documentOf(TEMPORARILY_EXPANDED, 0.5))
     const lowest = bench(documentOf(TEMPORARILY_EXPANDED, S_54))
     expect(opened.drawnTaskGroups(), 'premise: ZE-1 (2) holds with the value as it stands').toEqual(lowest.drawnTaskGroups())
@@ -543,7 +543,7 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(opened.zoomY()).toBe(0.5)
   })
 
-  it(`${FR_031_SHRINK_TWO_WRITES} -- off the end, the zoom is written, the row returns to auto, and one undo gives back the row only`, () => {
+  it(`${FR_031_SHRINK_TWO_WRITES} -- off the end, the zoom is written, the task group returns to auto, and one undo gives back the task group only`, () => {
     const opened = bench(documentOf(TEMPORARILY_EXPANDED, 1.2))
     opened.send(SK_16C)
     const shrunk = opened.zoomY()
@@ -554,7 +554,7 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(opened.zoomY(), UN_8_ZOOM_IS_NO_STEP).toBe(shrunk)
   })
 
-  it('with no temporarilyExpanded row, a shrink writes no tree value and an enlarge never does', () => {
+  it('with no temporarilyExpanded task group, a shrink writes no tree value and an enlarge never does', () => {
     const plain = bench(documentOf(EXPANDED, 1.2))
     const before = JSON.stringify(plain.loop.document().schedule.taskGroups)
     plain.send(SK_16C)
@@ -565,7 +565,7 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(treeStateOf(opened, B), FR_018_ONLY_T_328).toBe('temporarilyExpanded')
   })
 
-  it('control: the same rows without the mark at 0.5 are off the end, and SK-16c writes', () => {
+  it('control: the same task groups without the mark at 0.5 are off the end, and SK-16c writes', () => {
     const plain = bench(documentOf(DEEP, 0.5))
     plain.send(SK_16C)
     expect(plain.zoomY()).toBeCloseTo(0.5 / S_53, 12)

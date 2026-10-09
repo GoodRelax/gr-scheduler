@@ -554,7 +554,7 @@ describe('table T-331 -- the way each column writes its value (書き方)', () =
     expect(words).toContain(taskCells(language, NAMED_UID)[4])
   })
 
-  it('SQ-6 writes the rows from the top down, joined with 「 → 」', () => {
+  it('SQ-6 writes the task groups from the top down, joined with 「 → 」', () => {
     expect(taskCells('ja', NAMED_UID)[5]).toBe(`${TOP_NAME} → ${INNER_NAME}`)
   })
 

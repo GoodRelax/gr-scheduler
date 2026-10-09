@@ -234,7 +234,7 @@ describe('表 T-027 -- pinning is 対象, and the neighbouring row says so too',
 })
 
 describe('表 T-067 WS-4 -- a write UN-14 files under 対象 pushes one 段', () => {
-  it('⭐ CM-68 pins the row and leaves exactly one 段', () => {
+  it('⭐ CM-68 pins the task group and leaves exactly one 段', () => {
     // WHY: UN-14 is filed inside the history, so WS-4 pushes the step.
     const one = bench()
     mustWrite(one, [pin(FIRST_GROUP_ID)], 'CM-68')
@@ -254,7 +254,7 @@ describe('表 T-067 WS-4 -- a write UN-14 files under 対象 pushes one 段', ()
 })
 
 describe('FR-031 / 表 T-027 UN-14 -- an undo takes a pin back', () => {
-  it('⭐ one undo after CM-68 leaves the row unpinned again', () => {
+  it('⭐ one undo after CM-68 leaves the task group unpinned again', () => {
     const one = bench()
     mustWrite(one, [pin(FIRST_GROUP_ID)], 'CM-68')
     expect(pinnedIn(one.held.document)).toEqual([FIRST_GROUP_ID])

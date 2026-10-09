@@ -179,7 +179,7 @@ export function documentObject(parts: DocumentParts = {}): Record<string, any> {
       taskGroups: tasks.map((_one, index) => ({
         id: rowIdOf(index),
         parentId: null,
-        label: `row ${index + 1}`,
+        label: `task group ${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',

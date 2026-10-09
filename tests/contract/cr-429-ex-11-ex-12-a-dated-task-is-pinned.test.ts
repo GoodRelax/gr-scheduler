@@ -85,7 +85,7 @@ function readPj12(): Document {
 
 function firstGroupId(document: Document): string {
   const group = document.schedule.taskGroups[0]
-  if (group === undefined) throw new Error('the document has no row to draw into')
+  if (group === undefined) throw new Error('the document has no task group to draw into')
   return group.id
 }
 

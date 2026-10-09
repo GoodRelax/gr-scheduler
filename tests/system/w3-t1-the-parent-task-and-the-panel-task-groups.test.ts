@@ -152,7 +152,7 @@ test.describe(`FR-135 (MUST): ${FR_135_FIELD.slice(-40)}`, () => {
       expect(field?.ink, 'the S-503 ink').toBe(await inkOf(opened.page, LINK_INK))
       expect(field?.line).toContain('underline')
       expect(field?.cross, 'a cross on the right').toBe(true)
-      // WHY: SJ-2 opens the target's rows (treeState) as part of the jump; PTL-16 forbids any other write.
+      // WHY: SJ-2 opens the target's task groups (treeState) as part of the jump; PTL-16 forbids any other write.
       const written = async (): Promise<string> => {
         const held = (await readDocumentOf(opened.page)).schedule
         return JSON.stringify({ ...held, taskGroups: (held.taskGroups as Record<string, unknown>[]).map((one) => ({ ...one, treeState: null })) })

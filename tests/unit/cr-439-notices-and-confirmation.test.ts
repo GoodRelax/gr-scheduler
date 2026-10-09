@@ -73,11 +73,11 @@ const notice = (over: Partial<Notice> = {}): Notice => ({
 const CONFIRMATION_VIEW: Confirmation = {
   manner: 'NT-7',
   mannerText: 'Confirm',
-  question: 'Delete these rows?',
-  text: 'Delete these rows?',
+  question: 'Delete these task groups?',
+  text: 'Delete these task groups?',
   items: [
-    { name: 'Row alpha', isShownOnAnotherTaskGroup: false },
-    { name: 'Row beta', isShownOnAnotherTaskGroup: true },
+    { name: 'Task group alpha', isShownOnAnotherTaskGroup: false },
+    { name: 'Task group beta', isShownOnAnotherTaskGroup: true },
   ],
   answers: [
     { answer: 'yes', text: 'Yes' },
@@ -226,9 +226,9 @@ describe('the Confirmation (U-55) -- NT-7', () => {
   it('NT-7 その名前を挙げること -- every item the question is about is named', () => {
     const { built } = drawn([], CONFIRMATION_VIEW)
     const text = oneByRole(built.root(), CONFIRMATION).textContent
-    expect(text).toContain('Row alpha')
-    expect(text).toContain('Row beta')
-    expect(text).toContain('Delete these rows?')
+    expect(text).toContain('Task group alpha')
+    expect(text).toContain('Task group beta')
+    expect(text).toContain('Delete these task groups?')
   })
 
   it('NT-8 NT-7 の確認に置いてはならない（MUST NOT） -- the confirmation carries no notice-dismiss entrance', () => {

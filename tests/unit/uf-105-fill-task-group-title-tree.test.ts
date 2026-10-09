@@ -1,4 +1,4 @@
-// UF-105: fillTaskGroupTitleTree draws the pinned rows, then the other rows, then the group grid lines (U-22, FR-098, HF-19).
+// UF-105: fillTaskGroupTitleTree draws the pinned task groups, then the other task groups, then the group grid lines (U-22, FR-098, HF-19).
 
 import { describe, expect, it } from 'vitest'
 
@@ -33,7 +33,7 @@ const drawn = (panel: TaskGroupPanel) => {
 }
 
 describe('UF-105 fillTaskGroupTitleTree', () => {
-  it('FR-098: the pinned rows come first, then the other rows, each anchored by its row', () => {
+  it('FR-098: the pinned task groups come first, then the other task groups, each anchored by its task group', () => {
     const panel = {
       pinnedTitles: [taskGroupTitle('pinned', 0, true)],
       titles: [taskGroupTitle('first', 24, false), taskGroupTitle('second', 48, false)],
@@ -45,7 +45,7 @@ describe('UF-105 fillTaskGroupTitleTree', () => {
     expect(anchors.get('taskGroupTitle first')).toBe(tree.children[1])
   })
 
-  it('HF-19: the group grid lines are drawn after the rows and marked', () => {
+  it('HF-19: the group grid lines are drawn after the task groups and marked', () => {
     const panel = {
       pinnedTitles: [],
       titles: [taskGroupTitle('only', 0, false)],

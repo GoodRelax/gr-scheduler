@@ -475,7 +475,7 @@ const placementOf = (scene: Scene, uid: number): Placement | undefined => scene.
 
 const rowOf = (scene: Scene, groupId: string): Row => {
   const found = scene.rows.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the layout drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`the layout drew no task group ${groupId}`)
   return found
 }
 
@@ -634,7 +634,7 @@ const HIDDEN_AT_THE_TOP: SceneSpec = {
   ],
 }
 
-// WHY: the seen end sits in the second drawn row, so the upward mark stays inside the Task Group Area.
+// WHY: the seen end sits in the second drawn task group, so the upward mark stays inside the Task Group Area.
 const HIDDEN_FIRST_AT_THE_TOP: SceneSpec = {
   groups: [['b', null, 'hidden'], ['y', null], ['a', null], ['z', null]],
   tasks: [
@@ -801,16 +801,16 @@ describe(`(a) EL-18 -- ${EL_18_NOTHING}`, () => {
 
 describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
   const cases = [
-    ['a folded row (HR-1a)', FOLDED, 'a11', { a11: 'expanded', a1: 'expanded', a: 'expanded' }],
-    ['a hidden own row (HR-6)', HIDDEN_OWN, 'b', { b: 'expanded', p: 'expanded' }],
+    ['a folded task group (HR-1a)', FOLDED, 'a11', { a11: 'expanded', a1: 'expanded', a: 'expanded' }],
+    ['a hidden own task group (HR-6)', HIDDEN_OWN, 'b', { b: 'expanded', p: 'expanded' }],
     [
       'a hidden and a folded ancestor',
       HIDDEN_AND_FOLDED,
       'c',
       { c: 'expanded', k: 'expanded', h: 'expanded', p: 'expanded' },
     ],
-    ['a hidden row at the shallowest level, no drawn ancestor (CR-598)', HIDDEN_AT_THE_TOP, 'b', { b: 'expanded' }],
-    ['a hidden first row at the shallowest level (CR-598)', HIDDEN_FIRST_AT_THE_TOP, 'b', { b: 'expanded' }],
+    ['a hidden task group at the shallowest level, no drawn ancestor (CR-598)', HIDDEN_AT_THE_TOP, 'b', { b: 'expanded' }],
+    ['a hidden first task group at the shallowest level (CR-598)', HIDDEN_FIRST_AT_THE_TOP, 'b', { b: 'expanded' }],
   ] as const
 
   for (const [name, spec, ownTaskGroup, opened] of cases) {
@@ -820,7 +820,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
       expect(maybeLineOf(scene, 1, 2)?.continuation?.farUid, EL_20_NOT_SEEN).toBe(2)
     })
 
-    it(`${name}: the release opens the far row and every ancestor, and nothing else (${SJ_2_EXPANDED})`, () => {
+    it(`${name}: the release opens the far task group and every ancestor, and nothing else (${SJ_2_EXPANDED})`, () => {
       const scene = sceneOf(spec)
       const writes = writesOf(release(scene, markOf(scene, 1, 2)).out)
       expect(treeWritesOf(writes), EL_21_OPEN).toEqual(opened)
@@ -846,7 +846,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
       expect(onlyOf(writes, SET_ZOOM), EL_21_NO_ZOOM).toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_OPENED).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78 = the far Task's own row)`).toBe(ownTaskGroup)
+      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78 = the far Task's own task group)`).toBe(ownTaskGroup)
       expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(scroll!['scrollDate']), 'EL-11: Task 2 lies inside across, so the day stays').toBe(dayOf(scene.settings['scrollDate']))
     })
@@ -875,7 +875,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
     expect(treeWritesOf(writes), 'EL-21 applies only to an EL-20 end').toEqual({})
   })
 
-  it(`${EL_20_HIDDEN}: a pinned row that is hidden is an end like any other -- the release opens it and marks the landing`, () => {
+  it(`${EL_20_HIDDEN}: a pinned task group that is hidden is an end like any other -- the release opens it and marks the landing`, () => {
     const scene = sceneOf(HIDDEN_PINNED_AT_THE_TOP)
     expect(placementOf(scene, 2), 'premise: Task 2 is not drawn').toBeUndefined()
     expect(maybeLineOf(scene, 1, 2)?.continuation?.farUid, `${EL_20_NOT_SEEN} / ${EL_20_NOT_DROPPED}`).toBe(2)
@@ -893,7 +893,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
 const zoomYOf = (scene: Scene): number => Number(scene.settings['zoomY'])
 
 describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
-  it('a folded end stands on the foot of the drawn row a1, where Task 2 opens across', () => {
+  it('a folded end stands on the foot of the drawn task group a1, where Task 2 opens across', () => {
     const scene = sceneOf(FOLDED)
     const open = sceneOf(FOLDED_OPEN)
     const line = lineOf(scene, 1, 2)
@@ -903,7 +903,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(line.points.at(-1)!.x, EL_20_STAND).toBeCloseTo(placementOf(open, 2)!.x, 9)
   })
 
-  it(`a hidden own row stands on the foot of the drawn row p (${EL_20_HIDDEN})`, () => {
+  it(`a hidden own task group stands on the foot of the drawn task group p (${EL_20_HIDDEN})`, () => {
     const scene = sceneOf(HIDDEN_OWN)
     const line = lineOf(scene, 1, 2)
     expect(line.elision, EL_20_NOT_SEEN).toBe('EL-4')
@@ -924,7 +924,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(circlesAt(svgOf(scene), dots).length, EL_20_NOT_SEEN).toBe(3)
   })
 
-  it(`${EL_20_NOT_DROPPED}: a hidden row at the shallowest level still gets the short line and the mark`, () => {
+  it(`${EL_20_NOT_DROPPED}: a hidden task group at the shallowest level still gets the short line and the mark`, () => {
     const scene = sceneOf(HIDDEN_AT_THE_TOP)
     expect(placementOf(scene, 1), 'premise: Task 1 is drawn').toBeDefined()
     expect(placementOf(scene, 2), 'premise: Task 2 is not drawn').toBeUndefined()
@@ -938,7 +938,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(circlesAt(svg, dots).length, EL_20_NOT_DROPPED).toBe(3)
   })
 
-  it(`${EL_20_NO_ANCESTOR} -- row b sorts after a: the end stands on the foot of a; ${EL_20_ACROSS}`, () => {
+  it(`${EL_20_NO_ANCESTOR} -- task group b sorts after a: the end stands on the foot of a; ${EL_20_ACROSS}`, () => {
     const scene = sceneOf(HIDDEN_AT_THE_TOP)
     const open = sceneOf({ ...HIDDEN_AT_THE_TOP, groups: [['a', null], ['b', null], ['z', null]] })
     const stand = lineOf(scene, 1, 2).points.at(-1)!
@@ -947,12 +947,12 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(stand.x, EL_20_ACROSS).toBeCloseTo(placementOf(open, 2)!.x, 9)
   })
 
-  it(`${EL_20_NO_ANCESTOR} -- row b sorts first: the end stands on the top of the rows under the band`, () => {
+  it(`${EL_20_NO_ANCESTOR} -- task group b sorts first: the end stands on the top of the task groups under the band`, () => {
     const scene = sceneOf(HIDDEN_FIRST_AT_THE_TOP)
     expect(lineOf(scene, 1, 2).points.at(-1)!.y, EL_20_NO_ANCESTOR).toBeCloseTo(scene.taskGroupArea.y, 9)
   })
 
-  it(`${EL_20_NO_ANCESTOR} -- row b sits between a and c: the end stands on the foot of a, not of c`, () => {
+  it(`${EL_20_NO_ANCESTOR} -- task group b sits between a and c: the end stands on the foot of a, not of c`, () => {
     const scene = sceneOf(HIDDEN_BETWEEN_AT_THE_TOP)
     const foot = rowOf(scene, 'a')
     expect(lineOf(scene, 1, 2).points.at(-1)!.y, EL_20_NO_ANCESTOR).toBeCloseTo(foot.y + foot.height, 9)
@@ -961,7 +961,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
   for (const [name, spec, down] of [
     ['b sorts after the seen end: the short line bends down', HIDDEN_AT_THE_TOP, true],
     ['b sorts first: the short line bends up', HIDDEN_FIRST_AT_THE_TOP, false],
-    ['b sits above the seen end, below a drawn row: the short line bends up', HIDDEN_BETWEEN_AT_THE_TOP, false],
+    ['b sits above the seen end, below a drawn task group: the short line bends up', HIDDEN_BETWEEN_AT_THE_TOP, false],
   ] as const) {
     it(`${EL_20_TOWARD} -- ${name}`, () => {
       const drawn = lineOf(sceneOf(spec), 1, 2).drawnPoints ?? []
@@ -972,7 +972,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
 
   it(`${EL_20_LEVEL_ZERO} -- ${EL_6_NONE}`, () => {
     const scene = sceneOf({ ...HIDDEN_AT_THE_TOP, settings: { [LEVEL_ZERO_KEY]: 'collapsed' } })
-    expect(scene.rows, 'premise: no row is drawn (HR-2)').toEqual([])
+    expect(scene.rows, 'premise: no task group is drawn (HR-2)').toEqual([])
     const line = maybeLineOf(scene, 1, 2)
     expect(line?.continuation ?? null, EL_20_LEVEL_ZERO).toBeNull()
     expect(line?.drawnPoints ?? [], `${EL_20_LEVEL_ZERO} (${EL_6_NONE})`).toEqual([])
@@ -981,7 +981,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(elementsOf(svg).filter((one) => one.tag === 'circle').length, EL_6_NONE).toBe(0)
   })
 
-  it('control: with the row shown, the same line is drawn whole (EL-3)', () => {
+  it('control: with the task group shown, the same line is drawn whole (EL-3)', () => {
     const scene = sceneOf({ ...HIDDEN_AT_THE_TOP, groups: [['a', null], ['b', null], ['z', null]] })
     expect(lineOf(scene, 1, 2).elision).toBe('EL-3')
   })
@@ -1737,14 +1737,14 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
     clickAt(shell, shellMark(shell))
     const states = treeStatesOf(shell)
     expect([states[TASK_GROUP_A], states[TASK_GROUP_B], states[TASK_GROUP_C]], EL_21_OPEN).toEqual(['expanded', 'expanded', 'expanded'])
-    expect(states[TASK_GROUP_Z], 'no other row is touched').toBe('auto')
+    expect(states[TASK_GROUP_Z], 'no other task group is touched').toBe('auto')
     expect(shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2), EL_21_SEND).toBe(true)
     expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(TASK_GROUP_C)
     expect(isLandingShown(shell), EL_16_MARK).toBe(true)
     expect(shell.loop.hasUnsavedEdits(), 'EL-21: the open is an unsaved edit (FR-100)').toBe(true)
   })
 
-  it(`CR-598: a click on the mark of a hidden shallowest row reveals it, sends and marks; one undo hides it again (${EL_20_NOT_DROPPED})`, () => {
+  it(`CR-598: a click on the mark of a hidden shallowest task group reveals it, sends and marks; one undo hides it again (${EL_20_NOT_DROPPED})`, () => {
     const shell = shellOf(SHELL_HIDDEN_AT_THE_TOP())
     expect(
       shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2),
@@ -1759,11 +1759,11 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
     expect(treeStatesOf(shell)[TASK_GROUP_B], UN_14_ONE_STEP).toBe('hidden')
   })
 
-  it(`one undo folds every row back at once (${UN_14_ONE_STEP})`, () => {
+  it(`one undo folds every task group back at once (${UN_14_ONE_STEP})`, () => {
     const shell = shellOf(SHELL_FOLDED())
     const before = treeStatesOf(shell)
     clickAt(shell, shellMark(shell))
-    expect(treeStatesOf(shell), 'premise: the rows were opened').not.toEqual(before)
+    expect(treeStatesOf(shell), 'premise: the task groups were opened').not.toEqual(before)
     shell.send(UNDO)
     expect(treeStatesOf(shell), UN_14_ONE_STEP).toEqual(before)
   })

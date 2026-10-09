@@ -1,4 +1,4 @@
-// CR-661 spec-only tests: the shown set decides the lanes (FR-003), the rows (TD-8), what is laid (TV-3) and the unseen ends (EL-20, FR-135).
+// CR-661 spec-only tests: the shown set decides the lanes (FR-003), the task groups (TD-8), what is laid (TV-3) and the unseen ends (EL-20, FR-135).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -39,7 +39,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['TD-8 ancestors stand as headings', TD_8_ANCESTORS],
   ['TV-3 (MUST NOT) not drawn faint', TV_3_NOT_FAINT],
   ['EL-20 (MUST) a filtered end is an unseen end', EL_20_FILTERED_END],
-  ['EL-20 even on a drawn row', EL_20_TASK_GROUP_DRAWN],
+  ['EL-20 even on a drawn task group', EL_20_TASK_GROUP_DRAWN],
   ['EL-20 (MUST NOT) the line is not dropped', EL_20_NOT_DROPPED],
   ['FR-135 (MUST) a family arrow with a filtered end', FR_135_FILTERED_END],
   ['FR-135 one manner for both lines', FR_135_ONE_MANNER],
@@ -55,7 +55,7 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
 
-// WHY: January 2026; Alpha and Bravo overlap in row C so the row stacks two lanes, Charlie sits alone in row Q.
+// WHY: January 2026; Alpha and Bravo overlap in task group C so the task group stacks two lanes, Charlie sits alone in task group Q.
 const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 
 const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006610'
@@ -170,11 +170,11 @@ const geometryOf = (document: Document, shown: readonly number[] | null): Schedu
 const rowOf = (layout: ScheduleLayout, id: string) => layout.taskGroups.find((one) => one.groupId === id)
 
 describe(`FR-003 (MUST): ${FR_003_LANES}`, () => {
-  it('unfiltered, the overlapping Alpha and Bravo stack two lanes in row C', () => {
+  it('unfiltered, the overlapping Alpha and Bravo stack two lanes in task group C', () => {
     expect(rowOf(layoutOf(OPEN, null), TASK_GROUP_C)?.stackCount).toBe(2)
   })
 
-  it('with only Alpha checked, row C stacks one lane and its height follows that count', () => {
+  it('with only Alpha checked, task group C stacks one lane and its height follows that count', () => {
     const whole = rowOf(layoutOf(OPEN, null), TASK_GROUP_C)
     const narrowed = rowOf(layoutOf(OPEN, [ALPHA, CHARLIE]), TASK_GROUP_C)
     expect(narrowed?.stackCount).toBe(1)
@@ -188,7 +188,7 @@ describe(`FR-003 (MUST): ${FR_003_LANES}`, () => {
 })
 
 describe(`TD-8 (MUST NOT): ${TD_8_KEEPS_TREE_STATE}`, () => {
-  it('a row with no checked task at or below it is not drawn; the ancestor of a checked task is', () => {
+  it('a task group with no checked task at or below it is not drawn; the ancestor of a checked task is', () => {
     const ids = (shown: readonly number[]): string[] =>
       drawnGroups(OPEN.schedule, OPEN.documentSettings, new Set(shown)).map((one) => one.id)
     expect(ids([CHARLIE])).toEqual([TASK_GROUP_Q])
@@ -227,14 +227,14 @@ describe(`EL-20 (MUST): ${EL_20_FILTERED_END}`, () => {
     expect(linkOf(geometryOf(OPEN, [ALPHA, CHARLIE]))?.continuation ?? null).toBeNull()
   })
 
-  // WHY: row Q is left undrawn by TD-8 and has no drawn ancestor, so the end stands per EL-20's earlier rule.
-  it(`Charlie unchecked and row Q undrawn: ${EL_20_NOT_DROPPED}`, () => {
+  // WHY: task group Q is left undrawn by TD-8 and has no drawn ancestor, so the end stands per EL-20's earlier rule.
+  it(`Charlie unchecked and task group Q undrawn: ${EL_20_NOT_DROPPED}`, () => {
     const link = linkOf(geometryOf(OPEN, [ALPHA]))
     expect(link?.continuation?.farUid).toBe(CHARLIE)
     expect(link?.continuation?.dots.length ?? 0).toBeGreaterThan(0)
   })
 
-  it(`Alpha unchecked while its row C is drawn for Bravo: ${EL_20_TASK_GROUP_DRAWN}`, () => {
+  it(`Alpha unchecked while its task group C is drawn for Bravo: ${EL_20_TASK_GROUP_DRAWN}`, () => {
     const geometry = geometryOf(OPEN, [BRAVO, CHARLIE])
     expect(geometry.tasks.map((one) => one.taskUid)).not.toContain(ALPHA)
     const link = linkOf(geometry)

@@ -7,7 +7,7 @@
 // drawing chain, and every one of them is covered below:
 //
 //   SWS-1  the interval between two ticks        FR-017   table T-221 LF-1
-//   SWS-2  the band height and top of a row      FR-003   LF-2 / LF-3
+//   SWS-2  the band height and top of a task group      FR-003   LF-2 / LF-3
 //          ⚠️ and LF-14, which no SW_SPEC node names -- see the block
 //          that declares it for why it is filed here
 //   SWS-3  the route of a dependency line        FR-009   LF-5, T-222
@@ -386,10 +386,10 @@ interface Drawn {
 /**
  * One pass of the chain: PI-35 -> PI-5 -> PI-6.
  *
- * `groupIds[i]` says which row `tasks[i]` is drawn on. The rows are created in
- * the sorted order of those IDs, so `g1` is the topmost row. `allRows` names
- * every row the document holds when that is more than the Tasks reach -- which
- * is how a row carrying nothing is set up.
+ * `groupIds[i]` says which task group `tasks[i]` is drawn on. The task groups are created in
+ * the sorted order of those IDs, so `g1` is the topmost task group. `allRows` names
+ * every task group the document holds when that is more than the Tasks reach -- which
+ * is how a task group carrying nothing is set up.
  */
 const draw = (
   tasks: readonly Task[],
@@ -429,7 +429,7 @@ const placementOf = (drawn: Drawn, uid: number) => {
 
 const taskGroupByIdOf = (drawn: Drawn, groupId: string) => {
   const found = drawn.layout.taskGroups.find((r) => r.groupId === groupId)
-  if (found === undefined) throw new Error(`this zoom drew no row ${groupId}`)
+  if (found === undefined) throw new Error(`this zoom drew no task group ${groupId}`)
   return found
 }
 
@@ -644,7 +644,7 @@ const ONE_TASK_SCHEDULE = scheduleOf(
   null,
 )
 
-/** A row carrying nothing: then a vertical line in the Task Group Area can only be a grid line. */
+/** A task group carrying nothing: then a vertical line in the Task Group Area can only be a grid line. */
 const NO_TASK_SCHEDULE = scheduleOf([], [taskGroup('g1', 0)], [], [], null)
 
 /** The same document, told which day its weeks start on (AT-17, 0 is Sunday). */
@@ -807,7 +807,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       // ⛔ NOTHING DRAWS THEM. `S-67` (`dateGridLinesVisible`) is turned on
       // here and the Task Group Area comes back with no vertical line in it at all,
       // so the case fails on the count. ⚠️ The document carries no Task on
-      // purpose: with an empty row, a vertical line inside the Task Group Area can
+      // purpose: with an empty task group, a vertical line inside the Task Group Area can
       // only be one of FR-089's.
       const steps: ReadonlyArray<readonly [RulerTier, number]> = [
         ['yearMonthWeek', TIER_WEEK_PX * 1.001],
@@ -836,7 +836,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
 })
 
 // ===========================================================================
-// SWS-2 -- the band height and the top of a row. FR-003, LF-2 and LF-3.
+// SWS-2 -- the band height and the top of a task group. FR-003, LF-2 and LF-3.
 // ===========================================================================
 
 /** Three documents that stress LF-2 and LF-3 in different ways. */
@@ -853,7 +853,7 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
       ),
     ],
     [
-      'one lane holding a rectangle and a taller milestone, then an empty row',
+      'one lane holding a rectangle and a taller milestone, then an empty task group',
       draw(
         [long(1, 2, 4), task({ uid: 2, name: 'm', start: day(10), finish: day(10), milestone: true })],
         ['g1', 'g1'],
@@ -864,7 +864,7 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
       ),
     ],
     [
-      'rows of unequal height at twice the vertical zoom',
+      'task groups of unequal height at twice the vertical zoom',
       draw(
         [long(1, 2, 20), long(2, 3, 21), long(3, 2, 20)],
         ['g1', 'g1', 'g2'],
@@ -875,13 +875,13 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
   ]
 }
 
-describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
+describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
   it(
     swsCase({
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-2'],
-      given: 'rows of one, two and three lanes, and a row holding no Task',
+      given: 'task groups of one, two and three lanes, and a task group holding no Task',
       when: 'layoutFromSchedule places them',
       then: 'each band is the sum of its lanes plus one VG-2 gap under each lane',
     }),
@@ -907,7 +907,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
           const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
           const lf2 = sum + gap * lanes
           if (lf2 < CONTROL_LATTICE) belowTheLattice += 1
-          expect(taskGroup.height, `${name}: row ${taskGroup.groupId}`).toBeCloseTo(lf2, 6)
+          expect(taskGroup.height, `${name}: task group ${taskGroup.groupId}`).toBeCloseTo(lf2, 6)
         }
       }
       expect(
@@ -922,7 +922,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-2', 'LF-3'],
-      given: 'a row on which no Task is drawn at all',
+      given: 'a task group on which no Task is drawn at all',
       when: 'layoutFromSchedule places it',
       then: 'it takes one rectangle lane and one VG-2 gap, and is not raised to its controls',
     }),
@@ -941,7 +941,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
       const oneLane = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO + gap
       expect(empty.height, 'LF-2: an empty lane is the rectangle, plus one VG-2 gap').toBeCloseTo(oneLane, 6)
-      expect(empty.height, 'the same band as the one-lane row above it').toBeCloseTo(taskGroupByIdOf(drawn, 'g1').height, 6)
+      expect(empty.height, 'the same band as the one-lane task group above it').toBeCloseTo(taskGroupByIdOf(drawn, 'g1').height, 6)
       expect(empty.height, 'HF-19 (MUST NOT): the lattice is not its floor').toBeLessThan(CONTROL_LATTICE)
       // and the rectangle's own height is FR-094's chain, not a number of its own
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
@@ -959,18 +959,18 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-3'],
-      given: 'several rows of different band heights',
+      given: 'several task groups of different band heights',
       when: 'layoutFromSchedule places them',
       then: 'each top is the one above plus that band and taskGroupGap',
     }),
     () => {
-      // LF-3: "the top of a row is the top of the row before it, plus that
-      // row's band and taskGroupGap."
+      // LF-3: "the top of a task group is the top of the task group before it, plus that
+      // task group's band and taskGroupGap."
       mentions(T221, 'LF-3', 'taskGroupGap')
       for (const [name, drawn] of bandDocuments()) {
         const taskGroups = drawn.layout.taskGroups
         expect(taskGroups.length, name).toBeGreaterThan(0)
-        expect(taskGroups[0]?.y, `${name}: the first row starts at the Task Group Area`).toBeCloseTo(
+        expect(taskGroups[0]?.y, `${name}: the first task group starts at the Task Group Area`).toBeCloseTo(
           drawn.regions.taskGroupArea.y,
           6,
         )
@@ -978,7 +978,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
           const above = taskGroups[i - 1]
           const here = taskGroups[i]
           if (above === undefined || here === undefined) throw new Error('unreachable')
-          expect(here.y, `${name}: row ${here.groupId}`).toBeCloseTo(
+          expect(here.y, `${name}: task group ${here.groupId}`).toBeCloseTo(
             above.y + above.height + SETTINGS_CONSTANTS.taskGroupGap,
             6,
           )
@@ -992,7 +992,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-3'],
-      given: 'a row holding only an arrow, which is drawn thinner than a rectangle',
+      given: 'a task group holding only an arrow, which is drawn thinner than a rectangle',
       when: 'layoutFromSchedule places it',
       then: 'the band stands on the rectangle floor and not on the controls',
     }),
@@ -1024,7 +1024,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-16'],
-      given: 'a last row lower than the lattice, and a last row taller than it',
+      given: 'a last task group lower than the lattice, and a last task group taller than it',
       when: 'layoutFromSchedule places them',
       then: 'the first reserves the lattice less its band under it, and the second reserves nothing',
     }),
@@ -1052,7 +1052,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
   )
 
   // -------------------------------------------------------------------------
-  // LF-14 -- the band a pinned row is lifted into (FR-098, CR-308).
+  // LF-14 -- the band a pinned task group is lifted into (FR-098, CR-308).
   //
   // ⚠️ FILED UNDER SWS-2, AND CHAPTER 6.1 DOES NOT SAY SO. SWS-2's STATEMENT
   // names `LF-2` and `LF-3` alone, and NO SW_SPEC node of Chapter 6.1 names
@@ -1072,9 +1072,9 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       sws: 'SWS-2',
       level: 'Integration',
       covers: ['LF-14'],
-      given: 'four rows, the third of them pinned (S-126 of table T-203)',
+      given: 'four task groups, the third of them pinned (S-126 of table T-203)',
       when: 'layoutFromSchedule places them',
-      then: 'the pinned row stands at the top of the Task Group Area and the rest close up one band and one taskGroupGap below it',
+      then: 'the pinned task group stands at the top of the Task Group Area and the rest close up one band and one taskGroupGap below it',
     }),
     () => {
       // LF-14: 「帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに
@@ -1100,7 +1100,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         6,
       )
 
-      // One row in the band, so LF-14's sum has no `taskGroupGap` in it yet.
+      // One task group in the band, so LF-14's sum has no `taskGroupGap` in it yet.
       const band = pinned.height
       const scrolling = ['g1', 'g2', 'g4'].map((groupId) => taskGroupByIdOf(drawn, groupId))
       expect(
@@ -1130,7 +1130,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
  *
  * Every one is two Tasks and one dependency; `linkType` picks the family out of
  * table T-018 (1 = FS and 2 = SF are the opposing family, 0 = FF and 3 = SS the
- * same-side one), and the rows they are drawn on pick the vertical relation.
+ * same-side one), and the task groups they are drawn on pick the vertical relation.
  * The route the layout chooses must be the row this scenario was written for.
  */
 const routeScenarios = (): Readonly<Record<string, Drawn>> => {
@@ -1150,7 +1150,7 @@ const routeScenarios = (): Readonly<Record<string, Drawn>> => {
     'RP-1': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g1', 'g1']),
     // opposing, the successor lower, x2 at or beyond x1
     'RP-2': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g1', 'g2']),
-    // the same, upside down: the successor is the upper row
+    // the same, upside down: the successor is the upper task group
     'RP-3': pair(t(1, 2, 6), t(2, 12, 16, [[1, 1]]), ['g2', 'g1']),
     // opposing, the successor lower and to the LEFT, so x2 falls short of x1
     'RP-4': pair(t(1, 2, 6), t(2, 3, 5, [[1, 1]]), ['g1', 'g2']),
@@ -1940,7 +1940,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 // SWS-5 -- the vertices of the progress line. FR-014, LF-12.
 // ===========================================================================
 
-/** A document of two rows: two lanes above, one finished Task below. */
+/** A document of two task groups: two lanes above, one finished Task below. */
 const progressDocument = (over: Readonly<Record<string, unknown>> = {}): Drawn =>
   draw(
     [
@@ -1967,14 +1967,14 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       sws: 'SWS-5',
       level: 'Integration',
       covers: ['LF-12'],
-      given: 'rows of one and two lanes, one of them carrying a milestone',
+      given: 'task groups of one and two lanes, one of them carrying a milestone',
       when: 'geometryFromLayout puts the vertices',
       then: 'each lane gets one at its own top plus half the RECTANGLE height, whatever shape sits on it',
     }),
     () => {
       // LF-12: "for each lane, that lane's top plus half the plan height of the
       // RECTANGLE." The note under table T-221 says why it is the rectangle and
-      // not the shape actually on the lane: otherwise two lanes of one row put
+      // not the shape actually on the lane: otherwise two lanes of one task group put
       // their vertices at different heights.
       const drawn = progressDocument()
       const half = drawn.layout.rectangleHeight / 2
@@ -2011,11 +2011,11 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       covers: ['LF-12'],
       given: 'a status date, and progressLineOverhang at its value',
       when: 'geometryFromLayout puts the ends of the line',
-      then: 'both ends sit on the status date and run past the first and last row by that much',
+      then: 'both ends sit on the status date and run past the first and last task group by that much',
     }),
     () => {
       // LF-12: "the top and the bottom of the line are at the status date, and
-      // they run progressLineOverhang past the top of the first row and the
+      // they run progressLineOverhang past the top of the first task group and the
       // bottom of the last."
       mentions(T221, 'LF-12', 'progressLineOverhang')
       // WHY: S-39 is a constant now; a document cannot move it, so the one value is driven.
@@ -2028,7 +2028,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         const first = taskGroups[0]
         const last = taskGroups[taskGroups.length - 1]
         if (top === undefined || bottom === undefined || first === undefined || last === undefined) {
-          throw new Error('the line or the rows came out empty')
+          throw new Error('the line or the task groups came out empty')
         }
         const statusX = xOfDay(10, drawn.regions, drawn.layout.pxPerDay)
         expect(top.x, `overhang ${overhang}`).toBeCloseTo(statusX, 6)
@@ -2062,7 +2062,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       sws: 'SWS-5',
       level: 'Integration',
       covers: ['LF-12'],
-      given: 'the same two rows stacked upwards and stacked downwards',
+      given: 'the same two task groups stacked upwards and stacked downwards',
       when: 'geometryFromLayout strings the vertices into one line',
       then: 'the line runs from its top end to its bottom end without turning back',
     }),
@@ -2077,8 +2077,8 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       //
       // Measured, the vertices come out in lane order, so with the lanes
       // stacked upwards the line goes down, back up, and down again inside a
-      // single row. Drawn, that is not a progress line: the two lanes of one
-      // row are joined by a segment that runs the wrong way.
+      // single task group. Drawn, that is not a progress line: the two lanes of one
+      // task group are joined by a segment that runs the wrong way.
       for (const stackDirection of ['down', 'up']) {
         const drawn = progressDocument({ stackDirection })
         const line = drawn.geometry.progressLine
@@ -2103,9 +2103,9 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       sws: 'SWS-4',
       level: 'Integration',
       covers: ['LF-15'],
-      given: 'two rows, and a comment box anchored to day 5 of the second, once plain and once with that row pinned',
+      given: 'two task groups, and a comment box anchored to day 5 of the second, once plain and once with that task group pinned',
       when: 'geometryFromLayout places the anchor',
-      then: 'the anchor stands at the centre of the day 5 column and the centre of the band the row is drawn in',
+      then: 'the anchor stands at the centre of the day 5 column and the centre of the band the task group is drawn in',
     }),
     () => {
       mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` のタスクグループが描かれた帯', '`LF-14`')
@@ -2139,7 +2139,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
         const taskGroup = taskGroupByIdOf(drawn, 'g2')
         const columnCentre = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
         expect(anchor.x, `pinned ${pinned.length}: not the centre of the day 5 column`).toBeCloseTo(columnCentre, 6)
-        expect(anchor.y, `pinned ${pinned.length}: not the centre of the row band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
+        expect(anchor.y, `pinned ${pinned.length}: not the centre of the task group band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
       }
     },
   )
@@ -2151,7 +2151,7 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
       sws: 'SWS-4',
       level: 'Integration',
       covers: ['LF-17'],
-      given: 'a comment box anchored to day 5 of the second row, its body placed up-right, up-left, down-right and down-left of the anchor, and inside it',
+      given: 'a comment box anchored to day 5 of the second task group, its body placed up-right, up-left, down-right and down-left of the anchor, and inside it',
       when: 'geometryFromLayout places the box and leaderOf draws its leader',
       then: 'the leader joins the anchor and the corner on the anchor side of each middle, and there is none while the anchor is inside the body',
     }),

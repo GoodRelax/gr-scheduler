@@ -215,14 +215,14 @@ export async function readTree(page: Page): Promise<TreeReading> {
 /** @purity pure */
 export function stateOf(reading: TreeReading, id: string): TreeState {
   const found = reading.rows.find((row) => row.id === id)
-  if (found === undefined) throw new Error(`the document holds no row ${id}`)
+  if (found === undefined) throw new Error(`the document holds no task group ${id}`)
   return found.treeState
 }
 
 /** @purity pure */
 export function taskGroupNamed(reading: TreeReading, label: string): TreeTaskGroup {
   const found = reading.rows.find((row) => row.label === label)
-  if (found === undefined) throw new Error(`no row named ${label}; the first rows are ${reading.rows.slice(0, 5).map((row) => row.label).join(' / ')}`)
+  if (found === undefined) throw new Error(`no task group named ${label}; the first task groups are ${reading.rows.slice(0, 5).map((row) => row.label).join(' / ')}`)
   return found
 }
 
@@ -241,8 +241,8 @@ export function descendantsOf(reading: TreeReading, id: string): readonly TreeTa
   return childrenOf(reading, id).flatMap((child) => [child, ...descendantsOf(reading, child.id)])
 }
 
-// WHY: the panel marks the rows it draws; FR-055 fits the whole picture on one screen, so after a
-// fit this list is every drawn row, and elsewhere it is the drawn rows the window shows.
+// WHY: the panel marks the task groups it draws; FR-055 fits the whole picture on one screen, so after a
+// fit this list is every drawn task group, and elsewhere it is the drawn task groups the window shows.
 /** @purity semi-pure-b */
 export async function drawnRowIds(page: Page): Promise<string[]> {
   return page.evaluate(
@@ -263,7 +263,7 @@ export async function isArmed(page: Page, icon: string): Promise<boolean> {
   return !said
 }
 
-// WHY: a row's controls are drawn only while the pointer is on its name (HF-6), so the pointer goes
+// WHY: a task group's controls are drawn only while the pointer is on its name (HF-6), so the pointer goes
 // to the left end of the name first and the entrance is read and pressed from there.
 /** @purity non-pure */
 async function showTaskGroupControls(page: Page, id: string): Promise<void> {
@@ -282,7 +282,7 @@ async function showTaskGroupControls(page: Page, id: string): Promise<void> {
     },
     { id, row: ROW },
   )
-  if (spot === null) throw new Error(`the name of row ${id} is not on the screen`)
+  if (spot === null) throw new Error(`the name of task group ${id} is not on the screen`)
   await page.mouse.move(spot.x, spot.y)
   await page.waitForTimeout(300)
 }
@@ -300,7 +300,7 @@ export async function isTaskGroupEntranceArmed(page: Page, id: string, icon: str
     },
     { id, icon, row: ROW },
   )
-  if (said === null) throw new Error(`row ${id} draws no ${icon}`)
+  if (said === null) throw new Error(`task group ${id} draws no ${icon}`)
   return !said
 }
 
@@ -317,7 +317,7 @@ export async function pressRowEntrance(page: Page, id: string, icon: string): Pr
     },
     { id, icon, row: ROW },
   )
-  if (at === null) throw new Error(`row ${id} draws no ${icon}`)
+  if (at === null) throw new Error(`task group ${id} draws no ${icon}`)
   await page.mouse.move(at.x, at.y, { steps: 4 })
   await pressAt(page, at)
   await settle(page)
@@ -388,7 +388,7 @@ const THRESHOLD_OF_DEPTH_TWO = SETTINGS_CONSTANTS.groupLevelOfDetailBase
 export const SHALLOW_ZOOM = THRESHOLD_OF_DEPTH_TWO * 0.9
 export const DEEP_ZOOM = 1
 
-// WHY: T1 reaches depth 4 so TD-7 has an ancestor, a pressed row and a child to show; T2 has one
+// WHY: T1 reaches depth 4 so TD-7 has an ancestor, a pressed task group and a child to show; T2 has one
 // leaf child; T3 is a leaf at depth 1.
 const TREE: readonly { readonly id: string; readonly parentId: string | null }[] = [
   { id: 'T1', parentId: null },
@@ -451,8 +451,8 @@ export function documentOf(arranged: Arrangement): string {
   return JSON.stringify(built)
 }
 
-// WHY: the first row the panel draws at a point no control of its own covers (HF-6), pressed to
-// choose the row (FR-004's row choice), as tests/system/duplicate-paste-and-dual-cursor does.
+// WHY: the first task group the panel draws at a point no control of its own covers (HF-6), pressed to
+// choose the task group (FR-004's task group choice), as tests/system/duplicate-paste-and-dual-cursor does.
 /** @purity non-pure */
 export async function chooseTaskGroup(page: Page, id: string): Promise<void> {
   await showTaskGroupControls(page, id)
@@ -473,7 +473,7 @@ export async function chooseTaskGroup(page: Page, id: string): Promise<void> {
     },
     { id, row: ROW },
   )
-  if (at === null) throw new Error(`every point of row ${id} is covered by its own controls`)
+  if (at === null) throw new Error(`every point of task group ${id} is covered by its own controls`)
   await pressAt(page, at)
   await settle(page)
 }

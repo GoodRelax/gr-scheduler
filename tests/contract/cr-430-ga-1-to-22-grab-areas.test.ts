@@ -266,7 +266,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   )
 
   // WHY: the lines the grab already owned, not the whole grid: a taller band exposes columns that a
-  // WHY: neighbouring row shadowed at every earlier height, and that is reach gained, not reach moved.
+  // WHY: neighbouring task group shadowed at every earlier height, and that is reach gained, not reach moved.
   it.each(oneWay)(`%s moves its target in one direction only: ${T_266_ONE_TARGET_A_ROW}`, (settingId) => {
     const owner = ownerOf(settingId)
     const kind = sceneKindOfRow(owner)

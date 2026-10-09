@@ -67,8 +67,8 @@ const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コ
   'SQ-9': { table: 'コメントボックス', field: 'anchorDate' },
 }
 
-// WHY: every task and every comment box sits on a row: SV-8 does not say where a hit with
-// no row goes, so this file never makes one.
+// WHY: every task and every comment box sits on a task group: SV-8 does not say where a hit with
+// no task group goes, so this file never makes one.
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -229,9 +229,9 @@ describe('FR-151 -- the clauses these cases are driven by', () => {
 describe(`T-330 SV-4 -- ${SV_4_EMPTY_WORD} / T-330 SV-8 -- ${SV_8_DEFAULT_ORDER}`, () => {
   it('the empty word lists every task and every comment box, in the default order', () => {
     const rows = searchRowsOf(SCHEDULE, '')
-    // STEP: tree order R1, R11, R12, R2; inside a row SQ-3, then Task.uid
+    // STEP: tree order R1, R11, R12, R2; inside a task group SQ-3, then Task.uid
     expect(uidsOf(rows.taskRows)).toEqual([206, 205, 201, 207, 203, 202, 204])
-    // STEP: tree order R1, R11, R2; inside a row SQ-9, then id
+    // STEP: tree order R1, R11, R2; inside a task group SQ-9, then id
     expect(idsOf(rows.commentBoxRows)).toEqual(['c-3', 'c-4', 'c-1', 'c-2'])
   })
 
@@ -315,7 +315,7 @@ describe(`T-330 SV-4 -- ${SV_4_EMPTY_NAME}`, () => {
 })
 
 describe('T-331 -- the value column of each row, on one task and one comment box', () => {
-  it('SQ-1 name, SQ-3 Task.start, SQ-4 Task.finish, SQ-5 the T-019a state, and the row the task sits on', () => {
+  it('SQ-1 name, SQ-3 Task.start, SQ-4 Task.finish, SQ-5 the T-019a state, and the task group the task sits on', () => {
     const row = taskRowOf(201)
     expect(row.name).toBe('PM レビュー')
     expect(row.plannedStart).toBe(taskOf(201)['start'])
@@ -340,7 +340,7 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     expect(taskRowOf(206).planActualState).not.toBe(taskRowOf(202).planActualState)
   })
 
-  it(`SQ-6 -- from the row the task sits on up to the top, ${SQ_6_TOP_FIRST}`, () => {
+  it(`SQ-6 -- from the task group the task sits on up to the top, ${SQ_6_TOP_FIRST}`, () => {
     expect(taskRowOf(201).rowPath).toEqual(['1. Programme', '1.5 Steering'])
     expect(taskRowOf(205).rowPath).toEqual(['1. Programme'])
     expect(taskRowOf(202).rowPath).toEqual(['2. Review Delivery'])
@@ -353,7 +353,7 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     expect(taskRowOf(203).rowPath).toEqual(['1. Programme', 'Design'])
   })
 
-  it('SQ-7 text, SQ-8 the name of the AT-114 row, SQ-9 anchorDate, and the row it sits on', () => {
+  it('SQ-7 text, SQ-8 the name of the AT-114 task group, SQ-9 anchorDate, and the task group it sits on', () => {
     const rows = searchRowsOf(SCHEDULE, '').commentBoxRows
     const box = rows.find((row) => row.commentBoxId === 'c-3')
     expect(box?.text).toBe('pm again')

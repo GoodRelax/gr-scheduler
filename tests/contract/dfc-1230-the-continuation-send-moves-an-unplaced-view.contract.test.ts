@@ -161,7 +161,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly number
   carry: {},
 })
 
-// WHY: Task 1 on the head row starts the first day covered (OP-10); Task 2 lies below 60 rows, inside across.
+// WHY: Task 1 on the head task group starts the first day covered (OP-10); Task 2 lies below 60 task groups, inside across.
 const FILLERS = Array.from({ length: 60 }, (_one, at) => `f${at}`)
 const GROUPS: readonly string[] = ['a', ...FILLERS, 'z']
 const TASKS: readonly (readonly [Loose, string])[] = [
@@ -356,7 +356,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
     ['template, no place stored', unplaced],
     ['control, the place stored', placed],
   ] as const) {
-    it(`${name}: premise -- the mark leads to Task 2, whose row lies below and whose shape lies inside across`, () => {
+    it(`${name}: premise -- the mark leads to Task 2, whose task group lies below and whose shape lies inside across`, () => {
       const scene = make()
       expect(lineOf(scene).continuation?.farUid, 'premise: the mark leads to Task 2').toBe(2)
       const far = scene.placements.find((one) => one.taskUid === 2)
@@ -401,7 +401,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
 describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
   const bootShell = () => heldViewPlaceOf({ readEnvironment: () => FRAME_ENVIRONMENT }, true)
 
-  it(`premise: the template, opened, is drawn from the first day covered and the head row (${OP_10_TEMPLATE_PLACE})`, () => {
+  it(`premise: the template, opened, is drawn from the first day covered and the head task group (${OP_10_TEMPLATE_PLACE})`, () => {
     const shell = bootShell()
     const view = shell.viewSettingsOnce(documentOf(TEMPLATE_SETTINGS), TEMPLATE_SETTINGS as unknown as DocumentSettings, REGIONS)
     const margin = settingNumber('S-134') / 2 + settingNumber('S-268') / 2
@@ -415,7 +415,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
     ['template, no place stored', unplaced],
     ['control, the place stored', placed],
   ] as const) {
-    it(`${name}: after the still click, the view's top row is the far row (${EL_12_HOW}), not discarded`, () => {
+    it(`${name}: after the still click, the view's top task group is the far task group (${EL_12_HOW}), not discarded`, () => {
       const scene = make()
       const shell = bootShell()
       shell.viewSettingsOnce(documentOf(scene.stored), scene.stored as unknown as DocumentSettings, REGIONS)

@@ -1,4 +1,4 @@
-// E-24 (CR-541) spec-only cases: a copied Task pasted while two or more rows are chosen is refused (FR-033).
+// E-24 (CR-541) spec-only cases: a copied Task pasted while two or more task groups are chosen is refused (FR-033).
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -23,7 +23,7 @@ const EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP =
   '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editGroup` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
-// WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing row.
+// WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing task group.
 const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
@@ -56,7 +56,7 @@ const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { rowId: string;
   .filter((one) => T233_IDS.has(one.rowId))
   .map((one) => one.text.ja)
 
-// WHY: one Task per row, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"
+// WHY: one Task per task group, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"
 // agree on where a copy root goes.
 const threeTaskGroups = (editGroupOnTaskGroupOne: boolean): Record<string, any> => {
   const document = taskGroupDocument([
@@ -118,7 +118,7 @@ function stageOf(document: Record<string, any>, modifier: 'ctrl' | 'shift' | 'me
 
 const copyTasks = (stage: Stage, uids: readonly number[]): void => stage.copyTasks(uids)
 
-// WHY: no row names the modifier that adds a row to the picked rows (as in the cr-541 Q15
+// WHY: no row names the modifier that adds a task group to the picked task groups (as in the cr-541 Q15
 // case), so each is tried on a fresh shell; the premise fails only when none picks two.
 function copiedThenTwoTaskGroupsPicked(document: () => Record<string, any>, uids: readonly number[]): Stage {
   for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
@@ -128,7 +128,7 @@ function copiedThenTwoTaskGroupsPicked(document: () => Record<string, any>, uids
     stage.pickTaskGroup('task-group-3', true)
     if (stage.pickedTaskGroups().length === 2) return stage
   }
-  throw new Error('premise: some modifier picks two rows (FR-085)')
+  throw new Error('premise: some modifier picks two task groups (FR-085)')
 }
 
 const toldAT233Reason = (notices: readonly string[]): boolean =>
@@ -144,7 +144,7 @@ function expectRefused(stage: Stage): void {
   expect(raised.every((text) => toldAT233Reason([text])), `FR-076 (CR-712): a reason shown is a T-233 row, and RS-27 is not shown (told: ${JSON.stringify(told)})`).toBe(true)
 }
 
-describe('E-24 -- a copied Task pasted while two rows are chosen is refused', () => {
+describe('E-24 -- a copied Task pasted while two task groups are chosen is refused', () => {
   it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one copied Task`, () => {
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(false), [1]))
   })
@@ -153,9 +153,9 @@ describe('E-24 -- a copied Task pasted while two rows are chosen is refused', ()
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(false), [1, 2]))
   })
 
-  // WHY: here EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen row the landing row, so two
-  // chosen rows leave the landing row undecided -- the reading of E-24 least open to doubt.
-  it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one Task copied from an editGroup row`, () => {
+  // WHY: here EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen task group the landing task group, so two
+  // chosen task groups leave the landing task group undecided -- the reading of E-24 least open to doubt.
+  it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one Task copied from an editGroup task group`, () => {
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(true), [1]))
   })
 })
@@ -167,31 +167,31 @@ const newTasks = (stage: Stage, act: () => void): any[] => {
 }
 
 // WHY: these pass today and must keep passing once the refusal is hoisted; a refusal that
-// also caught one chosen row or none would turn them red.
-describe('controls -- one row or no row chosen, the Task paste goes through', () => {
-  it(`${SAME_TASK_GROUP} -- one copied Task, ONE row chosen: one copy, on its source row`, () => {
+// also caught one chosen task group or none would turn them red.
+describe('controls -- one task group or no task group chosen, the Task paste goes through', () => {
+  it(`${SAME_TASK_GROUP} -- one copied Task, ONE task group chosen: one copy, on its source task group`, () => {
     const stage = stageOf(threeTaskGroups(false), 'ctrl')
     copyTasks(stage, [1])
     stage.pickTaskGroup('task-group-2', false)
-    expect(stage.pickedTaskGroups(), 'premise: one row is chosen').toEqual(['task-group-2'])
+    expect(stage.pickedTaskGroups(), 'premise: one task group is chosen').toEqual(['task-group-2'])
     const made = newTasks(stage, () => stage.bench.send(PASTE))
     expect(made.map((one) => one.name)).toEqual(['T1'])
     expect(stage.taskGroupOfTask(made[0].uid), 'SAME_TASK_GROUP').toBe('task-group-1')
   })
 
-  it(`${MANY_TASKS_ALL_COPIED} -- two copied Tasks, ONE row chosen: two copies`, () => {
+  it(`${MANY_TASKS_ALL_COPIED} -- two copied Tasks, ONE task group chosen: two copies`, () => {
     const stage = stageOf(threeTaskGroups(false), 'ctrl')
     copyTasks(stage, [1, 2])
     stage.pickTaskGroup('task-group-3', false)
-    expect(stage.pickedTaskGroups(), 'premise: one row is chosen').toEqual(['task-group-3'])
+    expect(stage.pickedTaskGroups(), 'premise: one task group is chosen').toEqual(['task-group-3'])
     const made = newTasks(stage, () => stage.bench.send(PASTE))
     expect(made.map((one) => one.name).sort()).toEqual(['T1', 'T2'])
   })
 
-  it(`${PARENT_FROM_THE_TASK_GROUP} / ${NO_SAME_UID} -- one copied Task, NO row chosen`, () => {
+  it(`${PARENT_FROM_THE_TASK_GROUP} / ${NO_SAME_UID} -- one copied Task, NO task group chosen`, () => {
     const stage = stageOf(threeTaskGroups(false), 'ctrl')
     copyTasks(stage, [1])
-    expect(stage.pickedTaskGroups(), 'premise: no row is chosen').toEqual([])
+    expect(stage.pickedTaskGroups(), 'premise: no task group is chosen').toEqual([])
     const made = newTasks(stage, () => stage.bench.send(PASTE))
     expect(made.map((one) => one.name)).toEqual(['T1'])
     expect(made[0].uid, 'NO_SAME_UID').not.toBe(1)
@@ -202,15 +202,15 @@ describe('controls -- one row or no row chosen, the Task paste goes through', ()
 
 // WHY: the control of the editGroup refusal case above; it reads the FR-033 exception, not
 // E-24, so hoisting the E-24 refusal alone does not turn it green.
-describe('FR-033 editGroup exception -- one row chosen, the copy lands on it', () => {
-  // DEVIATION: spec says a copy from an editGroup row lands on the chosen row (FR-033); here it lands on its source row (DFC-730)
-  it.fails(`${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup row, ONE row chosen`, () => {
+describe('FR-033 editGroup exception -- one task group chosen, the copy lands on it', () => {
+  // DEVIATION: spec says a copy from an editGroup task group lands on the chosen task group (FR-033); here it lands on its source task group (DFC-730)
+  it.fails(`${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE task group chosen`, () => {
     const stage = stageOf(threeTaskGroups(true), 'ctrl')
     copyTasks(stage, [1])
     stage.pickTaskGroup('task-group-2', false)
-    expect(stage.pickedTaskGroups(), 'premise: one row is chosen').toEqual(['task-group-2'])
+    expect(stage.pickedTaskGroups(), 'premise: one task group is chosen').toEqual(['task-group-2'])
     const made = newTasks(stage, () => stage.bench.send(PASTE))
     expect(made.map((one) => one.name)).toEqual(['T1'])
-    expect(stage.taskGroupOfTask(made[0].uid), 'the copy lands on the chosen row').toBe('task-group-2')
+    expect(stage.taskGroupOfTask(made[0].uid), 'the copy lands on the chosen task group').toBe('task-group-2')
   })
 })

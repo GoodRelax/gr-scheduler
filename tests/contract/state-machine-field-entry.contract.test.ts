@@ -109,7 +109,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   creationLanded: [
     { created: { kind: 'task', uid: NAMED_UID } },
     { created: { kind: 'task', uid: 9 } },
-    { created: { kind: 'row', groupId: 'group1' } },
+    { created: { kind: 'taskGroup', groupId: 'group1' } },
   ],
   fieldFocusWithdrawn: [{}],
   fieldEditBegan: EDITED_ROWS.map((fieldRow) => ({ fieldRow })),

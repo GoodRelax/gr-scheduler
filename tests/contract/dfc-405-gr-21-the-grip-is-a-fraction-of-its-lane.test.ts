@@ -122,7 +122,7 @@ describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of
     expect(downwards.thumb.height).toBeCloseTo(downwards.track.height / 4, 6)
   })
 
-  it('⭐⭐ ② a document of many rows still gets a grip of at least S-205', () => {
+  it('⭐⭐ ② a document of many task groups still gets a grip of at least S-205', () => {
     const session = sessionWith({
       contentWidth: TASK_GROUP_AREA.width,
       contentHeight: TASK_GROUP_AREA.height * 1000,
@@ -134,7 +134,7 @@ describe('DFC-405 / GR-21 (MUST): the grip is 見えている範囲 ÷ 全体 of
     expect(downwards.thumb.height).toBe(GRIP_FLOOR_PX)
   })
 
-  it('⭐⭐ ③ pinning rows does not GROW the downwards fraction', () => {
+  it('⭐⭐ ③ pinning task groups does not GROW the downwards fraction', () => {
     const whole = TASK_GROUP_AREA.height * 4
     const nonePinned = barOf(
       sessionWith({

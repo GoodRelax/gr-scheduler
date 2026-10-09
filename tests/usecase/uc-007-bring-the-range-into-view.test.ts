@@ -56,7 +56,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     await wheel(page, -200, 1, 'Control')
   })
 
-  await test.step('UC-007 step 2: the date and the row under the pointer stay put while the zoom changes (FR-016)', async () => {
+  await test.step('UC-007 step 2: the date and the task group under the pointer stay put while the zoom changes (FR-016)', async () => {
     const doc = await readDocument(page)
     expect(doc.documentSettings.zoomX).not.toBe(before.zoomX)
     const axis = await dayAxis(page)
@@ -83,7 +83,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(seen.has('day')).toBe(true)
   })
 
-  await test.step('UC-007 step 4: the rows drawn follow the group LOD, and every task on a drawn row is drawn (FR-018, T-005a)', async () => {
+  await test.step('UC-007 step 4: the task groups drawn follow the group LOD, and every task on a drawn task group is drawn (FR-018, T-005a)', async () => {
     await press(page, 'IC-10')
     const shallow = await deepestDrawnTaskGroup(page)
     await wheel(page, -200, 8, 'Alt')
@@ -94,7 +94,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     const seenFrom = axis.dayOf(200)
     const seenTo = axis.dayOf(VIEWPORT.width - 20)
     const drawnTaskGroups = await page.evaluate(() =>
-      [...document.querySelectorAll('[data-figure^="row-"][data-figure$="-band"]')]
+      [...document.querySelectorAll('[data-figure^="task-group-"][data-figure$="-band"]')]
         .filter((e) => { const r = e.getBoundingClientRect(); return r.y > 80 && r.y + r.height < 1060 })
         .map((e) => (e.getAttribute('data-figure') ?? '').slice(4, -5)),
     )
@@ -131,7 +131,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(Math.abs((await tickX(page, tick))! - (x0 + 40))).toBeLessThanOrEqual(1)
   })
 
-  await test.step('UC-007 step 6: a pinned row stays drawn while scrolling down (FR-098, IC-60)', async () => {
+  await test.step('UC-007 step 6: a pinned task group stays drawn while scrolling down (FR-098, IC-60)', async () => {
     await press(page, 'IC-10')
     const target = groups.find((g) => g.parentId === null)!.id
     await pressRowControl(page, target, 'IC-60')

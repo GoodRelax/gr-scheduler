@@ -1,4 +1,4 @@
-// DFC-1282 spec-only cases: T-332 SJ-7 / SJ-8 -- a jump to a pinned row that the pinned band draws makes only the SJ-6 move, whatever room is left below the band; a pinned row the band does not draw is told as RS-66.
+// DFC-1282 spec-only cases: T-332 SJ-7 / SJ-8 -- a jump to a pinned task group that the pinned band draws makes only the SJ-6 move, whatever room is left below the band; a pinned task group the band does not draw is told as RS-66.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -33,7 +33,7 @@ const TASK_GROUP_A = 'task-group-a'
 const TASK_GROUP_B = 'task-group-b'
 const TARGET_UID = 301
 
-// WHY: the view starts on row B with both fractions off zero, so any write that moves the row anchor shows.
+// WHY: the view starts on task group B with both fractions off zero, so any write that moves the task group anchor shows.
 const START_SCROLL = { scrollDate: '2026-03-02', scrollGroupId: TASK_GROUP_B, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
 
 function documentWithPinned(pinned: readonly string[]): Document {
@@ -111,7 +111,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED_DRAWN} ${SJ_7_ROOM_IRRELEVANT}`, () => {
   it.each([
     ['with room below the band', true],
     ['with no room below the band', false],
-  ] as const)('a pinned row the band draws, %s: it is not told as no room', (_name, hasRoom) => {
+  ] as const)('a pinned task group the band draws, %s: it is not told as no room', (_name, hasRoom) => {
     const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_A]), TO_TASK, hasRoom, PINNED_BAND_DRAWS_A)
     expect(plan.isBlockedByPinnedTaskGroups, SJ_7_ROOM_IRRELEVANT).toBe(false)
   })
@@ -119,7 +119,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED_DRAWN} ${SJ_7_ROOM_IRRELEVANT}`, () => {
   it.each([
     ['with room below the band', true],
     ['with no room below the band', false],
-  ] as const)('a pinned row the band draws, %s: SJ-5 is not done, the row anchor stays', (_name, hasRoom) => {
+  ] as const)('a pinned task group the band draws, %s: SJ-5 is not done, the task group anchor stays', (_name, hasRoom) => {
     const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_A]), TO_TASK, hasRoom, PINNED_BAND_DRAWS_A)
     expect(scrollOf(plan), 'SJ-6 still moves the view across, so a scroll is written').not.toBeNull()
     expect(scrollOf(plan)).toMatchObject({
@@ -140,13 +140,13 @@ describe(`T-332 SJ-8 -- ${SJ_8_NOT_DRAWN}`, () => {
   it.each([
     ['with room below the band', true],
     ['with no room below the band', false],
-  ] as const)('a pinned row the band does not draw, %s: it is told as no room and nothing scrolls', (_name, hasRoom) => {
+  ] as const)('a pinned task group the band does not draw, %s: it is told as no room and nothing scrolls', (_name, hasRoom) => {
     const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_A]), TO_TASK, hasRoom, PINNED_BAND_DRAWS_NOTHING)
     expect(plan.isBlockedByPinnedTaskGroups, SJ_8_NOT_DRAWN).toBe(true)
     expect(plan.scrollWrite).toBeNull()
   })
 
-  it(`a pinned row the band does not draw still gets nothing but the writes of SJ-2 (${SJ_8_STILL_OPENS})`, () => {
+  it(`a pinned task group the band does not draw still gets nothing but the writes of SJ-2 (${SJ_8_STILL_OPENS})`, () => {
     const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_A]), TO_TASK, false, PINNED_BAND_DRAWS_NOTHING)
     expect(plan.scrollWrite).toBeNull()
     for (const write of plan.treeStateWrites as unknown as readonly Loose[]) {
@@ -154,7 +154,7 @@ describe(`T-332 SJ-8 -- ${SJ_8_NOT_DRAWN}`, () => {
     }
   })
 
-  it('a row that is not pinned and has no room below the band is told as no room (the plain SJ-8 case)', () => {
+  it('a task group that is not pinned and has no room below the band is told as no room (the plain SJ-8 case)', () => {
     const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_B]), TO_TASK, false, reachWith([{ groupId: TASK_GROUP_B, isPinned: true }]))
     expect(plan.isBlockedByPinnedTaskGroups).toBe(true)
     expect(plan.scrollWrite).toBeNull()

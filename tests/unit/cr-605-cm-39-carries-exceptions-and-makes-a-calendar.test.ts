@@ -192,7 +192,7 @@ const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthW
 const setCalendar = (part: Record<string, unknown>): DocumentCommand => ({ kind: 'setCalendar', ...part }) as unknown as DocumentCommand
 
 const edited = (document: Document, part: Record<string, unknown>): Document => {
-  const result = editDocument(document, setCalendar(part), LIMITS, 'row')
+  const result = editDocument(document, setCalendar(part), LIMITS, 'task group')
   if (!result.ok) throw new Error(`CM-39 was refused: ${JSON.stringify(result.refusals)}`)
   return result.document
 }
@@ -234,7 +234,7 @@ const benchOf = (document: Document): Bench => {
     write: (command) => {
       applyDocumentChange(
         {
-          defaultTaskGroupName: 'row',
+          defaultTaskGroupName: 'task group',
           readStamp: held.document.documentStamp,
           commands: [command],
           moment: CALM,
@@ -363,14 +363,14 @@ describe('CM-39 makes a Calendar when the document calendar resolves to the T-20
 describe('a command that changes nothing writes nothing (WC-7, FR-031)', () => {
   it(`「${WC_7_NO_WRITE}」 the same list on a pointed calendar returns the same document`, () => {
     const before = POINTED()
-    const result = editDocument(before, setCalendar({ exceptions: [IMPORTED_YEARLY] }), LIMITS, 'row')
+    const result = editDocument(before, setCalendar({ exceptions: [IMPORTED_YEARLY] }), LIMITS, 'task group')
     expect(result.ok).toBe(true)
     if (result.ok) expect(result.document, 'the same document, not an equal one').toBe(before)
   })
 
   it(`「${WC_7_NO_WRITE}」 S-106 and no exceptions on a default document make no Calendar`, () => {
     const before = NO_CALENDAR()
-    const result = editDocument(before, setCalendar({ workingDayTypes: S_106_WORKING, exceptions: [] }), LIMITS, 'row')
+    const result = editDocument(before, setCalendar({ workingDayTypes: S_106_WORKING, exceptions: [] }), LIMITS, 'task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document, 'the same document').toBe(before)

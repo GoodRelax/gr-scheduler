@@ -390,8 +390,8 @@ describe('FR-051 -- the scrollbar bands', () => {
     // see FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
-    const bands = drawnBoxes(built.svg(), /^row-.*-band$/)
-    expect(bands.length, 'premise: row bands are drawn').toBeGreaterThan(0)
+    const bands = drawnBoxes(built.svg(), /^task-group-.*-band$/)
+    expect(bands.length, 'premise: task group bands are drawn').toBeGreaterThan(0)
     for (const band of bands) expect(band.x + band.width).toBeCloseTo(vertical?.track.x ?? Number.NaN, 2)
   })
 
@@ -399,7 +399,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     // see FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')?.track as Box
-    const drawn = drawnBoxes(built.svg(), /^(row-.*|task-.*)$/)
+    const drawn = drawnBoxes(built.svg(), /^(task-group-.*|task-.*)$/)
     const inside = drawn.filter((one) => overlaps(one, vertical))
     expect(inside, JSON.stringify(inside.slice(0, 3))).toEqual([])
   })
@@ -408,8 +408,8 @@ describe('FR-051 -- the scrollbar bands', () => {
     // see FR-051
     const built = manyTaskGroups()
     const horizontal = built.view().frame.scrollbars.find((one) => one.axis === 'horizontal')?.track as Box
-    const drawn = drawnBoxes(built.svg(), /^(row-.*|task-.*)$/)
-    expect(drawn.length, 'premise: the rows reach past the bottom of the screen').toBeGreaterThan(0)
+    const drawn = drawnBoxes(built.svg(), /^(task-group-.*|task-.*)$/)
+    expect(drawn.length, 'premise: the task groups reach past the bottom of the screen').toBeGreaterThan(0)
     const inside = drawn.filter((one) => overlaps(one, horizontal))
     expect(inside, JSON.stringify(inside.slice(0, 3))).toEqual([])
   })

@@ -11,7 +11,7 @@
 //
 // On 2026-08-31 the 場面 of `RS-30` was rewritten and the dictionary was not.
 // A person who pressed a spent `IC-90` was told DFC-166 「この行は既に畳まれています」
-// while the reason the notice was raised for was that the row was NOT folded.
+// while the reason the notice was raised for was that the task group was NOT folded.
 // ⛔ EVERY MACHINE CHECK STAYED GREEN, because they all ask whether the row's
 // word REACHED the screen and never whether it says what the row says:
 //
@@ -215,8 +215,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-28': '80b3e0d70b0abd46',
   'RS-29': '9141302ce077d9d5',
   'RS-30': 'd1ed25fff3db71c6',
-  // WHY: CR-570 rewrote the scene to 'no row is left undrawn'; read against the words (every row open
-  // and drawn; fold a row or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
+  // WHY: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
+  // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
   'RS-31': '1c57dc01e08c32c8',
   'RS-32': '0cbf2fbeaf9801bb',
   'RS-33': '140b0a58e73b1f52',
@@ -239,15 +239,15 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // side first, and this note records what that reading found.
   //
   // `RS-46` -- 場面 「これ以上深い段にはタスクグループを足せない」; ja DFC-206 「これ以上深い段には行を
-  //   足せません」 is again the same sentence, en 「A row cannot be added any
+  //   足せません」 is again the same sentence, en 「A task group cannot be added any
   //   deeper than this」 says the same, and the next step DFC-206 「もっと浅い行に足して
-  //   ください」 / 「Add it to a shallower row」 is the one `FR-085`'s cap leaves
+  //   ください」 / 「Add it to a shallower task group」 is the one `FR-085`'s cap leaves
   //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
   //   CR-340 was written to keep. ⇒ the words tell the scene.
   // ---------------------------------------------------------------------
   // WHY: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
-  // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower row.
+  // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower task group.
   'RS-46': '54875dcd9728b4a9',
   //
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row DFC-282,
@@ -433,15 +433,15 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // RS-55 -- 場面 「動かす先が、そのタスクグループ自身か、そのタスクグループの子孫である」（輪になる）,
   //   作法 `NT-1`, 正 表 T-015a の `HM-4`.
   // ⭐ BOTH HALVES OF THE SCENE ARE IN BOTH LANGUAGES: the destination being
-  //   the row ITSELF, and the destination being one of its own descendants.
+  //   the task group ITSELF, and the destination being one of its own descendants.
   //   A word that named only the descendant case would leave the self case
   //   with no word, and the row states the two together.
   // ⭐ THE WORDS DO NOT NARROW THE ROW TO ONE OF ITS TWO USES. The row says
-  //   it covers the nesting of rows AND the parent task, from one prohibition;
-  //   the words speak of moving a row under another and name neither, so
+  //   it covers the nesting of task groups AND the parent task, from one prohibition;
+  //   the words speak of moving a task group under another and name neither, so
   //   neither use is shut out.
   // ⭐ THE NEXT STEP IS A ROAD `HM-4` ACTUALLY LEAVES OPEN: only a descendant
-  //   is refused as a parent, so taking that row out of the subtree first
+  //   is refused as a parent, so taking that task group out of the subtree first
   //   makes the very same move legal. ⚠️ 作法 is `NT-1`, so a next step is not
   //   owed here; it is carried all the same.
   // ⚠️ IT STAYS CLEAR OF `RS-36` 〜 `RS-39` and `RS-38`, which are the indent
@@ -499,14 +499,14 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   task is well formed.
   // ⚠️ IT STAYS CLEAR OF `RS-50` 「文書が使えない日付を持つ `Task` を落として、
   //   残りを取り込んだ」: that row is `NT-5`, an import that was ACCEPTED after
-  //   dropping rows, where this row is `NT-1`, a write that is refused and
+  //   dropping tasks, where this row is `NT-1`, a write that is refused and
   //   changes nothing.
   // ⇒ the words tell the scene.
   'RS-58': '233c73e32acd128b',
   'RS-59': '2390e3f14b96cec8',
   'RS-60': '0a81e9c568c92770',
-  // WHY: the words are option B of Q2 (JDG-300), read against the scene: the row is read-only
-  // because a group is set on it, and a copy into a row with no group is a write FR-111 allows.
+  // WHY: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
+  // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
   'RS-61': '2c03ff35e993eb7c',
   // WHY: read 2026-09-30; the words name editGroup by its PR-33 label and point to the person who may set it.
   'RS-62': 'db4d5372ac8ceaf9',
@@ -514,7 +514,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-65': 'ce737a4edd9097c6',
-  // WHY: read 2026-09-30; too many pinned rows to show the jump target, and unpinning is the road.
+  // WHY: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
   'RS-66': '03f75c78c0234c09',
   'RS-67': '3ce77e4ce9aa953e',
   // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).

@@ -104,7 +104,7 @@ function documentOf(rows: readonly Row[], tolerance: number = S_487_DEFAULT, sta
   return decoded.document
 }
 
-// WHY: one task per row, so no two bars share a row; every child row sits under its parent's row.
+// WHY: one task per task group, so no two bars share a task group; every child task group sits under its parent's task group.
 const familyOf = (parent: Loose, children: readonly Loose[]): readonly Row[] => [
   { id: 'r0', parentId: null, tasks: [parent] },
   ...children.map((child, index) => ({ id: `r${index + 1}`, parentId: 'r0', tasks: [child] })),

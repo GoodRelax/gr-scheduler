@@ -52,7 +52,7 @@ const SPAN_FINISH = '2027-07-30'
 const TEMPLATE = templateDocument()
 const SPANNED = withSpan(TEMPLATE, SPAN_START, SPAN_FINISH)
 
-// WHY: a few rows, so the span picture with every row stays under the S-217 cap (IX-5 would refuse it).
+// WHY: a few task groups, so the span picture with every task group stays under the S-217 cap (IX-5 would refuse it).
 const SMALL = documentOf({
   tasks: [taskOf(1), taskOf(2, { start: '2026-05-04T08:00:00', finish: '2026-05-15T17:00:00' })],
 })

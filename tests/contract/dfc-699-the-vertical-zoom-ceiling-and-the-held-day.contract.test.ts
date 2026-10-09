@@ -1,4 +1,4 @@
-// Guard cases for DFC-699: the row zoom ceiling follows every band read of zoomY, and a time-axis zoom holds its day.
+// Guard cases for DFC-699: the vertical zoom ceiling follows every band read of zoomY, and a time-axis zoom holds its day.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -78,7 +78,7 @@ const verticalZoomToItsEnd = (built: ShellBench): number => {
   return zoomYOf(built)
 }
 
-// WHY: DS-13 scales the floored row by the display scale alone (CR-689), so its band is one number at every zoomY.
+// WHY: DS-13 scales the floored task group by the display scale alone (CR-689), so its band is one number at every zoomY.
 const STACKED_TASKS = 24
 
 const stackedTaskGroupBench = (): ShellBench => {
@@ -116,8 +116,8 @@ describe('DFC-699 / FR-016 -- the manuscript still holds the rules these cases p
   })
 })
 
-describe('DFC-699 / FR-016, T-253, DS-13 -- the row zoom stops where the tallest band first fills the Task Group Area', () => {
-  it(`${FR_042_NOT_ZOOM_Y} -- a row floor (AT-59) short of the Task Group Area never sets the ceiling: the zoom passes where the old zoomY-scaled floor stopped it`, () => {
+describe('DFC-699 / FR-016, T-253, DS-13 -- the vertical zoom stops where the tallest band first fills the Task Group Area', () => {
+  it(`${FR_042_NOT_ZOOM_Y} -- a task group floor (AT-59) short of the Task Group Area never sets the ceiling: the zoom passes where the old zoomY-scaled floor stopped it`, () => {
     const { floorBand, reached, floored, height } = ceilingCase(MIN_HEIGHT_ABOVE_THE_FLOOR)
     expect(floorBand, 'premise: the floor alone is short of the Task Group Area').toBeLessThan(height)
     expect(floored, 'DS-13: the floored band is the floor, whatever zoomY is').toBeCloseTo(floorBand, 6)
@@ -125,7 +125,7 @@ describe('DFC-699 / FR-016, T-253, DS-13 -- the row zoom stops where the tallest
   })
 
   it.each(MIN_HEIGHTS_BELOW_THE_FLOOR)(
-    `${BC_3_FIRST_ALREADY} -- a row floor (AT-59) %d that fills the Task Group Area at every zoomY: the row zoom does not rise`,
+    `${BC_3_FIRST_ALREADY} -- a task group floor (AT-59) %d that fills the Task Group Area at every zoomY: the vertical zoom does not rise`,
     (minHeight) => {
       const { floorBand, reached, floored, height } = ceilingCase(minHeight)
       expect(floorBand, 'premise: the floor alone fills the Task Group Area').toBeGreaterThanOrEqual(height)
@@ -135,12 +135,12 @@ describe('DFC-699 / FR-016, T-253, DS-13 -- the row zoom stops where the tallest
   )
 })
 
-describe('DFC-699 / FR-016, T-253 -- rows with no floor: the band ceiling follows zoomY', () => {
+describe('DFC-699 / FR-016, T-253 -- task groups with no floor: the band ceiling follows zoomY', () => {
   it(`${FR_016_FIRST_BAND_THAT_FILLS} -- the zoom stops at the first band that fills the Task Group Area, not past it`, () => {
     const built = stackedTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height
     const bands = bandsUpToTheEnd(built)
-    expect(built.loop.document().schedule.taskGroups[0]?.minHeight, 'premise: the row has no floor').toBeNull()
+    expect(built.loop.document().schedule.taskGroups[0]?.minHeight, 'premise: the task group has no floor').toBeNull()
     expect(bands[0], 'premise: the band starts short of the Task Group Area').toBeLessThan(height)
     expect(bands[bands.length - 1], 'the last zoom fills the Task Group Area').toBeGreaterThanOrEqual(height - 1)
     expect(bands[bands.length - 2], 'the zoom before it did not').toBeLessThan(height)
@@ -167,7 +167,7 @@ const timeAxisBench = (): ShellBench =>
   keep(
     shell(
       taskGroupDocument(
-        Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `row-${index + 1}`, parentId: null })),
+        Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `task-group-${index + 1}`, parentId: null })),
         { scrollDayOffset: POINTER_SHARE },
       ),
     ),

@@ -92,7 +92,7 @@ function documentHolding(exceptions: readonly Exception[]): Document {
 
 /** @purity pure */
 function exceptionsAfter(document: Document, exceptions: readonly Exception[]): readonly Exception[] {
-  const result = editDocument(document, { kind: 'setCalendar', exceptions }, LIMITS, 'Row')
+  const result = editDocument(document, { kind: 'setCalendar', exceptions }, LIMITS, 'Task group')
   if (!result.ok) throw new Error(`premise: CM-39 was refused: ${JSON.stringify(result.refusals)}`)
   const calendar = result.document.schedule.calendars[0]
   if (calendar === undefined) throw new Error('premise: the document lost its calendar')
@@ -171,7 +171,7 @@ describe('CM-39 / WT-6 / WT-7: the calendar edit stamps the times of the excepti
   it('control -- CM-39: a list equal by day to the held one changes nothing (the same document comes back)', () => {
     const document = documentHolding([IMPORTED_TASK_GROUP])
     const sameDays = { ...IMPORTED_TASK_GROUP, fromDate: '2026-05-04T00:00:00', toDate: '2026-05-05T23:59:00' }
-    const result = editDocument(document, { kind: 'setCalendar', exceptions: [sameDays] }, LIMITS, 'Row')
+    const result = editDocument(document, { kind: 'setCalendar', exceptions: [sameDays] }, LIMITS, 'Task group')
     if (!result.ok) throw new Error('premise: CM-39 was refused')
     expect(result.document).toBe(document)
   })
@@ -226,7 +226,7 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
       read.document,
       { kind: 'setTaskPlanDates', uid: 1, start: april(7, S_482), finish: april(14, S_483) },
       LIMITS,
-      'Row',
+      'Task group',
     )
     if (!result.ok) throw new Error('premise: the date edit was refused')
     const carry = taskOf(result.document, 1).carry

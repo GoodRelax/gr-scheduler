@@ -18,7 +18,7 @@ const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthW
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
-const TASK_GROUP_NAME = 'row'
+const TASK_GROUP_NAME = 'task group'
 
 const run = (document: Document, command: unknown) => editDocument(document, command as DocumentCommand, LIMITS, TASK_GROUP_NAME)
 

@@ -46,7 +46,7 @@ describe('the clauses CR-718 wrote still read word for word', () => {
   it.each([
     ['FR-001 TC-8 (MUST) -- the reason nothing was made is carried', TC_8_CARRIES_THE_REASON],
     ['FR-001 TC-8 -- why it is carried', TC_8_WHY_IT_IS_CARRIED],
-    ['FR-033 (MUST) -- several chosen rows refuse the paste', FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED],
+    ['FR-033 (MUST) -- several chosen task groups refuse the paste', FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED],
     ['FR-033 -- the reason is RS-27', FR_033_THE_REASON_IS_RS_27],
     ['FR-008 (MUST) -- a rename carries RS-49', FR_008_A_RENAME_CARRIES_RS_49],
     ['FR-076 (MUST) -- the display column decides', FR_076_THE_COLUMN_DECIDES],

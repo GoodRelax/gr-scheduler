@@ -499,7 +499,7 @@ function taskGroup(id: string, label: string): Record<string, unknown> {
 }
 
 /**
- * A small valid document: one row, one Task, the calendar and the settings the
+ * A small valid document: one task group, one Task, the calendar and the settings the
  * specification has actually decided (taken from the template FR-027 keeps).
  *
  * ⚠️ The project profile is the template's own in BOTH documents these cases
@@ -2989,11 +2989,11 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
 // chooser would take the document's own format down with the picture, and a
 // reader whose plan is too tall to PICTURE could then not SAVE it either.
 //
-// ⚠️ HOW A PICTURE IS MADE TOO TALL, AND WHY IT IS NOT DONE WITH ROWS. FR-080
+// ⚠️ HOW A PICTURE IS MADE TOO TALL, AND WHY IT IS NOT DONE WITH TASK GROUPS. FR-080
 // (MUST) fixes the drawing as 「`GRS` が占める画面の全体を、`exportCanvas` の幅 ÷
 // 画面の幅 の比で縮めた絵」, so the exported height is the SCREEN's height times
-// that ratio and does not grow with the document -- measured 2026-09-03: 50 rows
-// and 1600 rows both come out 1600 x 1120 on the 1000 x 700 screen the rest of
+// that ratio and does not grow with the document -- measured 2026-09-03: 50 task groups
+// and 1600 task groups both come out 1600 x 1120 on the 1000 x 700 screen the rest of
 // this file uses. ⇒ The height ceiling is crossed by the SCREEN's shape, and the
 // two screens below differ in nothing else, so what the pair measures is the
 // ceiling and not the document.
