@@ -222,7 +222,7 @@ tests/unit/fr-029-the-reason-a-press-carries.test.ts	45	25	行	task-group
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	49	22	行	keep			old RS-30 scene before 2026-08-31 (history)
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	55	28	行	task-group			
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	68	19	行	task-group			
-tests/unit/fr-029-the-reason-a-press-carries.test.ts	69	18	行	task-group			
+tests/unit/fr-029-the-reason-a-press-carries.test.ts	69	18	行	rewrite	れる行が 1 行も増減しない	れるタスクグループが 1 つも増減しない	reconcile: item 13: the quote wraps after 描か, so the spec rewrite (01-04 1786) is cut here; was task-group
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	204	36	行	keep			
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	280	10	行	task-group			
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	551	34	行	task-group			
@@ -458,7 +458,7 @@ tests/unit/uf-72-screen-part.test.ts	2740	53	全行	keep
 tests/unit/uf-72-screen-part.test.ts	2785	30	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	2786	93	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	2825	37	行	task-group			
-tests/unit/uf-72-screen-part.test.ts	2826	11	行	task-group			
+tests/unit/uf-72-screen-part.test.ts	2826	11	行	keep			reconcile: item 13: covered by the mirrored rewrite at col 16 (spec 01-04 1786); was task-group
 tests/unit/uf-72-screen-part.test.ts	2842	32	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	2843	32	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	2857	31	行	task-group			
@@ -498,7 +498,7 @@ tests/unit/uf-72-screen-part.test.ts	5367	103	行	task-group
 tests/unit/uf-72-screen-part.test.ts	5369	11	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	5388	44	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	5391	13	行	task-group			
-tests/unit/uf-72-screen-part.test.ts	5395	50	行	task-group			
+tests/unit/uf-72-screen-part.test.ts	5395	50	行	keep			reconcile: item 13: covered by the rewrite at col 47; was task-group
 tests/unit/uf-72-screen-part.test.ts	5400	55	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	5461	33	行	task-group			
 tests/unit/uf-72-screen-part.test.ts	5562	22	行数	task-group			

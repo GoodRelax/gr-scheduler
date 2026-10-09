@@ -140,3 +140,5 @@ tests/unit/uf-47-48.test.ts	1238	46	row	keep			reconcile: item 14: fixture group
 tests/unit/uf-71.test.ts	1694	37	row	rewrite	`defaultNames` の `row`	`defaultNames` の `taskGroup`	reconcile: item 10: defaultNames use row -> taskGroup (spec 01-04 2549 rewrite)
 tests/unit/uf-71.test.ts	1890	25	row	rewrite	`defaultNames` の `row`	`defaultNames` の `taskGroup`	reconcile: item 6: quote of the spec 01-04 2549 rewrite
 tests/usecase/uc-008-tell-by-annotations.test.ts	22	18	row	rewrite	/^row-.*-band$/	/^task-group-.*-band$/	reconcile: item 10: data-figure prefix row- -> task-group-
+tests/unit/fr-029-the-reason-a-press-carries.test.ts	69	23	行	keep			reconcile: item 13: covered by the rewrite at col 18
+tests/unit/uf-72-screen-part.test.ts	5395	47	行数	rewrite	その行数を行に示す	そのタスクグループの数をタスクグループに示す	reconcile: item 13: the quote wraps before こと, so the spec rewrite (01-04 1782) is cut here

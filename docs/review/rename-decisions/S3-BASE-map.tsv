@@ -1,0 +1,5 @@
+old	new	class	note
+ROW_OF_FORMAT	ROW_OF_FORMAT	b	item 15: the row of the format table T-024 (IO-n), a table row
+wouldMoveARow	wouldMoveARow	b	item 15: a PRUNED history line; the function is gone from src
+inter-row	inter-task-group	a	item 15: the gap between task groups (rowGap S-12, renamed taskGroupGap)
+t-233-rs-56-a-self-dependency-is-told-its-own-row	t-233-rs-56-a-self-dependency-is-told-its-own-row	b	item 15: follows the file-path row S3-UNIT-1 kept (its own row of table T-233)
