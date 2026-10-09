@@ -33,7 +33,7 @@
 | entity / documentModel | DocumentSettings | The presentation group: every saved setting with its bounds. | DR-3 / FR-063 |
 | entity / documentModel | DocumentStamp | schemaVersion, revisionStamp and changeLog, plus the pure functions that advance them. | DR-4 / FR-063 |
 | entity / documentModel | EditHistory | The undo stack as an immutable value, replaced whole. | FR-031 / T-027 |
-| entity / layoutEngine | ScheduleLayout | Time axis, label width estimate, row placement, detail level, fit. | FR-017 / FR-093 / FR-003 / FR-018 / FR-055 |
+| entity / layoutEngine | ScheduleLayout | Time axis, label width estimate, task group placement, detail level, fit. | FR-017 / FR-093 / FR-003 / FR-018 / FR-055 |
 | entity / layoutEngine | ScheduleGeometry | Vertices of everything drawn: bars, dependency routes, progress line, cursors, annotations, watermark. | FR-094 / FR-009 / FR-014 / FR-048 / FR-086 |
 | entity / layoutEngine | ItemHitArea | Which item the pointer is over. | SL-1 / PG-9 |
 | entity / documentModel | Selection | The set of selected objects and the order they were selected in. Never saved. |  |
@@ -67,7 +67,7 @@
 | dependency | ClipboardGateway | ImageExporter | image out | gets the raster image to send out, handing over the document's theme colour with the request |  |
 | dependency | InputCommandTranslator | ItemHitArea | item under pointer | asks which item is under the pointer |  |
 | dependency | SvgRenderer | ScheduleGeometry | geometry | reads geometry only, never the write path |  |
-| dependency | SvgRenderer | ScheduleLayout | ruler and rows | reads the ruler and the row placement |  |
+| dependency | SvgRenderer | ScheduleLayout | ruler and task groups | reads the ruler and the task group placement |  |
 | dependency | SvgRenderer | DocumentSettings | presentation values | reads the presentation values |  |
 | dependency | ApplyDocumentChange | EditDocument | validate + update | asks for validation and an immutable update |  |
 | dependency | ApplyDocumentChange | ImportDocument | intake | asks for an intake |  |
@@ -98,7 +98,7 @@
 | dependency | AgentApiEndpoint | ScheduleLayout | where a task sits | asks where a task sits, to focus it |  |
 | dependency | AgentApiEndpoint | Schedule | search rows | asks the schedule for the rows a search word finds, for readSearchRows (AM-25) |  |
 | dependency | SvgRenderer | Selection | what is selected | shows the selection by more than colour |  |
-| dependency | SvgRenderer | Schedule | colours + theme colour | reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries |  |
+| dependency | SvgRenderer | Schedule | colours + theme colour | reads themeHue (AT-19), the per-Task colours and the task group colour, none of which the geometry carries |  |
 | dependency | SvgRenderer | ScreenRegions | the screen it fills | FR-080 makes the picture the whole screen GRS occupies, so the renderer needs the rectangles, not just the content |  |
 | dependency | ScheduleGeometry | Selection | what is selected | puts handles on selected tasks only |  |
 | dependency | InputCommandTranslator | Selection | make and clear | makes, widens and clears the selection |  |
@@ -127,14 +127,14 @@
 | dependency | SingleHtmlShell | ScheduleGeometry | geometry once per frame | computes the frame's geometry from that layout, once (ADR-001) |  |
 | dependency | SingleHtmlShell | ScreenRegions | regions once per frame | computes the frame's screen rectangles once, before the layout (ADR-001) |  |
 | dependency | SingleHtmlShell | ItemHitArea | item under pointer | asks which item is under the pointer for its shape (IN-2), and where a dependency line being drawn starts (FR-009) |  |
-| dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved row title panel width (S-79); the property panel width is a screen value handed in by the caller (S-171) |  |
+| dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved task group panel width (S-79); the property panel width is a screen value handed in by the caller (S-171) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
 | dependency | InputCommandTranslator | ScreenState | Esc rung + remembered actual | reads the Esc rung and the remembered-actual type the screen values carry |  |
-| dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016) |  |
+| dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 task group name is written at (FR-016) |  |
 | dependency | SingleHtmlShell | ScreenRenderer | screen frame | rebuilds the UI parts outside the schedule once per frame |  |
 | realization | DomScreenSurface | ScreenRenderer | implements ScreenSurface |  |  |
 | dependency | ScreenRenderer | ScreenRegions | where each part sits | reads the rectangle of each screen part |  |
-| dependency | ScreenRenderer | Schedule | row names + attributes | reads the row names and the attributes the properties panel shows |  |
+| dependency | ScreenRenderer | Schedule | task group names + attributes | reads the task group names and the attributes the properties panel shows |  |
 | dependency | ScreenRenderer | DocumentSettings | outer presentation | reads the presentation values |  |
 | dependency | ScreenRenderer | Selection | selection to show | reads what is selected |  |
 | dependency | ScreenRenderer | DialogueLog | utterances shown | reads the utterances the dialogue field shows |  |
@@ -160,9 +160,9 @@
 | dependency | InputCommandTranslator | Schedule | tasks + days | reads the schedule types, finds a task by UID and turns a day into the text a command carries |  |
 | dependency | InputCommandTranslator | ScheduleGeometry | bar geometry | reads the bar geometry a pointer position is measured against |  |
 | dependency | InputCommandTranslator | AdvanceScreenSession | events made | reads the event types it makes from an input |  |
-| dependency | ItemHitArea | DocumentSettings | pinned rows | reads the pinned rows |  |
-| dependency | ItemHitArea | Schedule | row members | reads which row each task sits on |  |
-| dependency | ItemHitArea | ScheduleLayout | laid-out rows | reads which rows the layout left out |  |
+| dependency | ItemHitArea | DocumentSettings | pinned task groups | reads the pinned task groups |  |
+| dependency | ItemHitArea | Schedule | task group members | reads which task group each task sits on |  |
+| dependency | ItemHitArea | ScheduleLayout | laid-out task groups | reads which task groups the layout left out |  |
 | dependency | ItemHitArea | ScreenRegions | rectangle type | reads the rectangle type a hit is tested inside |  |
 | dependency | ItemHitArea | Selection | selection type | narrows the selection to what is drawn |  |
 | dependency | NotifyChangeWatchers | Document | document type | reads the document root type a change notice carries |  |
@@ -171,7 +171,7 @@
 | dependency | Schedule | DocumentSettings | bounds | reads the settings bounds an invariant is checked against |  |
 | dependency | ScheduleGeometry | DocumentSettings | settings type | reads the settings type the geometry is computed at |  |
 | dependency | ScheduleGeometry | ScreenRegions | ratio + rectangles | asks the display ratio and the settings actually drawn at, and reads the screen rectangles |  |
-| dependency | ScheduleLayout | ScreenRegions | ratio + lattice floor | asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps |  |
+| dependency | ScheduleLayout | ScreenRegions | ratio + lattice floor | asks the display ratio, the settings actually drawn at, and the floor the task group control lattice keeps |  |
 | dependency | ScreenRenderer | ScheduleLayout | label units + content extent | asks the units a properties panel label is written in, and reads the laid-out content the scrollbars span |  |
 | dependency | ScreenRenderer | SvgRenderer | grid line width | reads the group grid line width, so the frame and the picture draw the same line |  |
 | dependency | ScreenRenderer | AdvanceScreenSession | session read | reads the screen values it draws from the root session state |  |

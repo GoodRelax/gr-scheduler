@@ -184,7 +184,7 @@
   {
    "name": "ScheduleLayout",
    "shape": "component",
-   "description": "Time axis, label width estimate, row placement, detail level, fit.",
+   "description": "Time axis, label width estimate, task group placement, detail level, fit.",
    "remark": "FR-017 / FR-093 / FR-003 / FR-018 / FR-055"
   },
   {
