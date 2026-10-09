@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 283 | 3097 | 3 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 287 | 3130 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 72 | 447 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 73 | 449 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3909 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 557 | 7563 | 6 | 9 | 12 | 2 |
+| **all** | | | 562 | 7598 | 6 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -373,6 +373,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-718-a-paste-onto-two-task-groups-carries-rs-27.test.ts` | 5 | FR-033, FR-076 | VT-2 | T-290 | RS-27 | - | - | - | - |
 | `tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts` | 8 | FR-012, FR-023, FR-076 | - | T-214, T-220, T-233 | AG-9a, IV-10, IV-14, S-119 | - | - | - | - |
 | `tests/contract/cr-718-the-requirement-text-defers-to-the-display-column.contract.test.ts` | 6 | FR-001, FR-008, FR-033, FR-076 | - | T-220, T-233, T-239 | IV-10, IV-14, RS-27, RS-49, RS-53, TC-8 | - | - | - | - |
+| `tests/contract/cr-719-a-refused-write-is-told-the-row-whose-source-names-its-rule.test.ts` | 9 | FR-033, FR-076 | - | T-233 | IV-2, IV-9, IV-12, IV-21, NT-1, RS-10, RS-82, RS-84, RS-86, RS-88, SK-3 | - | - | - | - |
+| `tests/contract/cr-719-an-over-limit-file-tells-its-limit-with-the-value-filled-in.test.ts` | 5 | FR-023, FR-076 | - | T-211, T-214 | RS-78, RS-81, RS-87, S-119, S-120 | - | - | - | - |
+| `tests/contract/cr-719-rs-78-to-rs-83-are-shown-and-rs-84-to-rs-88-leave-by-themselves.contract.test.ts` | 6 | FR-076 | - | T-233 | NT-2, RS-78, RS-83, RS-84, RS-88, S-542 | - | - | - | - |
+| `tests/contract/cr-719-the-import-refusals-name-their-t-233-row.contract.test.ts` | 13 | FR-012, FR-023, FR-076 | - | T-211, T-220, T-233 | AG-9a, NT-6, RS-78, RS-79, RS-80, RS-81 | - | - | - | - |
 | `tests/contract/cr-720-lf-19-a-label-pulled-to-the-left-edge-yields-to-the-next.contract.test.ts` | 3 | FR-017 | - | T-221 | LF-19, S-135 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
@@ -590,6 +594,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-712-reports-refusals-and-the-discard-question.test.ts` | 8 | FR-067, FR-076, FR-095 | - | T-220, T-233 | IC-1, IC-2, IC-98, IO-7, IV-4, MG-10, OP-2, QN-5, RS-10, RS-27, RS-51, U-61, U-62 | - | - | - | - |
 | `tests/system/cr-716-a-vs-6-parent-is-dg-1-on-the-built-page.test.ts` | 2 | - | - | T-315 | AG-1, DG-1, DX-7, DX-8, S-487, VS-6 | - | - | - | - |
 | `tests/system/cr-718-an-import-refusal-is-told-in-its-t-220-words.test.ts` | 2 | FR-076 | - | T-214, T-220 | IV-10, IV-14, OP-2, RS-15, S-119 | - | - | - | - |
+| `tests/system/cr-719-opening-a-file-over-the-task-limit-tells-rs-79.test.ts` | 2 | FR-023, FR-076 | - | - | IC-1, RS-79, S-114 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
