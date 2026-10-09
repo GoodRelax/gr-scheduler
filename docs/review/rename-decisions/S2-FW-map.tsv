@@ -1,0 +1,38 @@
+old	new	class	note
+BrowserStoredRow		b	S-99 settings row ids
+DIFFERENCE_REVIEW_ROW		b	file-flow surface row id
+EntranceStateRow		b	EN row ids
+FLOW_SURFACE_ROWS		b	file-flow surface row ids
+FOCUS_ROW_ATTRIBUTES		b	T-016 / T-109 rows
+GLYPH_BY_ROW		b	icon roster row ids
+GrabbedRowPlace	GrabbedTaskGroupPlace	a	task group grab place
+LANDING_OF_REPLACEMENT_ROW		b	RD row ids
+NATIVE_POINTER_BY_ROW		b	PK row ids
+OPEN_CHOOSER_ROW		b	file-flow surface row id
+PAINT_ROW		b	T-236 settings row ids
+PointerRow		b	PK row ids of T-269
+RowAnchors	TaskGroupAnchors	a	anchors of a task group title (groupId)
+UNIT_ROW		b	unit row id UF-71
+WATERMARK_UNLOCK_ROW		b	U-60 row id
+bodyRowElement		b	search table body row
+focusByRow		b	keyed by property field row
+grabbedRowReadingOf	grabbedTaskGroupReadingOf	a	reads rowGrabbedAt
+highlightBoxPointerRowOf		b	returns a PK row id
+holdWithItsRow	holdWithItsTaskGroup	a	the one TaskGroup every document holds
+isRowChoiceSpentBy	isTaskGroupChoiceSpentBy	a	chosen task groups
+jointRow		b	property field row of several entrances
+jointRowOf		b	property field row of several entrances
+lastRowBottom	lastTaskGroupBottom	a	layout task group placements
+madeRow	madeTaskGroup	a	TaskGroup
+multilineRows		b	textarea rows
+openChooserRows		b	chooser lines
+perRowCap		b	command palette row
+pointerRowOf		b	returns a PK row id
+rowEntrancesOf		b	property field row entrances
+rowGrabbedAt	taskGroupGrabbedAt	a	task group grab
+rowGrabbedStyle	taskGroupGrabbedStyle	a	held task group style
+rowTitlePanel	taskGroupPanel	a	CR-708 2.5 rule 2; rowPanel (S2-TL, tools/probe and one unit-test helper) shares no scope with it; that lane may alias or rename
+rowTrack		b	CSS grid row track
+rowTracks		b	CSS grid-template-rows tracks
+rowsWithinSchedule	taskGroupsWithinSchedule	a	chosen task group ids
+typedByRow		b	keyed by property field row

@@ -1,0 +1,6 @@
+path	line	col	nth	name	decision	note
+src/framework/single-html-shell/frame-loop.ts	1005	30	0	rows	task-group	RowPlacement[]
+src/framework/single-html-shell/frame-loop.ts	1006	23	0	rows	task-group	RowPlacement[]
+src/framework/single-html-shell/frame-loop.ts	1040	36	0	rows	task-group	RowPlacement[]
+src/framework/single-html-shell/frame-loop.ts	1340	31	0	rows	task-group	RowPlacement[]
+src/framework/single-html-shell/interaction-record.ts	185	26	1	rows	task-group	RowPlacement[]

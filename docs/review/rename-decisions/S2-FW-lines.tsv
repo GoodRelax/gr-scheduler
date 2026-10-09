@@ -1,0 +1,81 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+playwright.config.ts	19	28	row	keep			spec row
+src/framework/dom-screen-surface/app-header-drawing.ts	25	12	row	keep			settings row S-226
+src/framework/dom-screen-surface/dialogue-field-drawing.ts	1	60	row	keep			window title row
+src/framework/dom-screen-surface/dom-screen-surface.ts	120	29	row	keep			settings rows of T-236
+src/framework/dom-screen-surface/dom-screen-surface.ts	174	55	row	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	314	52	row	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	315	15	row	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	360	67	row	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	476	10	row	keep			T-236 row
+src/framework/dom-screen-surface/dom-screen-surface.ts	533	78	row	keep			T-337 row
+src/framework/dom-screen-surface/dom-screen-surface.ts	584	10	rows	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	584	47	row	task-group			
+src/framework/dom-screen-surface/dom-screen-surface.ts	906	102	row	task-group			
+src/framework/dom-screen-surface/field-editing.ts	106	15	row	keep			field row
+src/framework/dom-screen-surface/field-editing.ts	123	10	row	keep			field row
+src/framework/dom-screen-surface/field-editing.ts	123	87	row	keep			field row
+src/framework/dom-screen-surface/open-modals-drawing.ts	119	33	row	keep			window title row
+src/framework/dom-screen-surface/open-modals-drawing.ts	253	79	row	keep			heading row
+src/framework/dom-screen-surface/open-modals-drawing.ts	468	78	row	keep			heading row
+src/framework/dom-screen-surface/open-modals-drawing.ts	701	92	row	keep			heading row
+src/framework/dom-screen-surface/properties-panel-drawing.ts	97	86	rows	keep			field rows
+src/framework/dom-screen-surface/properties-panel-drawing.ts	214	22	rows	keep			textarea rows
+src/framework/dom-screen-surface/properties-panel-drawing.ts	304	56	rows	keep			textarea rows attribute
+src/framework/dom-screen-surface/properties-panel-drawing.ts	305	51	rows	keep			textarea rows attribute
+src/framework/dom-screen-surface/properties-panel-drawing.ts	383	85	row	keep			settings row
+src/framework/dom-screen-surface/properties-panel-drawing.ts	992	33	row	keep			field row
+src/framework/dom-screen-surface/properties-panel-drawing.ts	1043	28	row	keep			field row
+src/framework/dom-screen-surface/properties-panel-drawing.ts	1043	81	row	keep			field row
+src/framework/dom-screen-surface/properties-panel-drawing.ts	1072	54	row	keep			field row key
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	1	42	rows	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	124	3	row	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	124	59	rows	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	306	51	row	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	434	75	row	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	518	22	row	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	550	20	rows	task-group			
+src/framework/dom-screen-surface/row-title-panel-drawing.ts	551	5	row	task-group			
+src/framework/dom-screen-surface/search-panel-drawing.ts	1	93	row	keep			window title row
+src/framework/dom-screen-surface/search-panel-drawing.ts	40	38	rows	keep			search table rows
+src/framework/dom-screen-surface/search-panel-drawing.ts	61	15	rows	keep			search table rows
+src/framework/dom-screen-surface/search-panel-drawing.ts	172	88	row	keep			settings row S-425
+src/framework/dom-screen-surface/search-panel-drawing.ts	287	64	rows	keep			search table rows
+src/framework/dom-screen-surface/search-panel-drawing.ts	561	23	row	keep			heading row
+src/framework/dom-screen-surface/search-panel-drawing.ts	655	45	row	keep			search table row
+src/framework/dom-screen-surface/search-panel-drawing.ts	655	79	rows	keep			search table rows
+src/framework/dom-screen-surface/window-frame-drawing.ts	1	79	row	keep			window title row
+src/framework/single-html-shell/copy-and-paste.ts	1	51	row	task-group			
+src/framework/single-html-shell/copy-and-paste.ts	23	19	row	task-group			
+src/framework/single-html-shell/copy-and-paste.ts	23	71	rows	task-group			
+src/framework/single-html-shell/copy-and-paste.ts	27	47	row	rewrite	'row'	'taskGroup'	kind literal, CR-708 2.5 rule 8; must match S2-UA selection-values.ts:22 SelectionCopiedRow.kind
+src/framework/single-html-shell/copy-and-paste.ts	33	54	row	task-group			
+src/framework/single-html-shell/field-entry.ts	183	67	row	task-group			uncertain: a commit naming no task group (or Task) yields no command; field-row reading also possible
+src/framework/single-html-shell/frame-loop.ts	562	35	rows	task-group			
+src/framework/single-html-shell/frame-loop.ts	562	64	row	task-group			
+src/framework/single-html-shell/frame-loop.ts	586	25	rows	task-group			
+src/framework/single-html-shell/frame-loop.ts	662	33	rows	keep			RD rows of T-290
+src/framework/single-html-shell/frame-loop.ts	663	67	row	keep			ReplacementCall.row holds RD row ids
+src/framework/single-html-shell/frame-loop.ts	673	52	row	keep			ReplacementCall.row holds RD row ids
+src/framework/single-html-shell/frame-loop.ts	1246	71	rows	task-group			
+src/framework/single-html-shell/frame-loop.ts	1246	88	row	task-group			
+src/framework/single-html-shell/frame-loop.ts	1246	121	row	task-group			
+src/framework/single-html-shell/frame-loop.ts	1306	46	row	task-group			
+src/framework/single-html-shell/frame-loop.ts	1306	99	row	task-group			
+src/framework/single-html-shell/frame-loop.ts	1509	100	row	keep			grab table row
+src/framework/single-html-shell/frame-loop.ts	1802	59	rows	task-group			
+src/framework/single-html-shell/frame-loop.ts	3054	19	rows	keep			RD rows
+src/framework/single-html-shell/frame-loop.ts	3304	50	row	task-group			
+src/framework/single-html-shell/interaction-record.ts	185	7	rows	rewrite	rows=	taskGroups=	record key counts drawnLayout task group placements; no reader in tests or tools
+src/framework/single-html-shell/pointer-shape.ts	102	66	rows	keep			grab table rows
+src/framework/single-html-shell/pointer-shape.ts	102	78	row	keep			grab table row
+src/framework/single-html-shell/pointer-shape.ts	116	67	row	keep			T-269 row
+src/framework/single-html-shell/pointer-shape.ts	307	29	row	keep			grab table row
+src/framework/single-html-shell/row-band-ceiling-cache.ts	17	39	row	task-group			
+src/framework/single-html-shell/single-html-shell.ts	270	38	row	task-group			
+src/framework/single-html-shell/single-html-shell.ts	270	82	row	task-group			
+src/framework/single-html-shell/single-html-shell.ts	278	60	row	keep			BT row id of chooseStartupDocument
+src/framework/single-html-shell/watermark-unlock.ts	58	43	row	keep			T-233 row
+vite.config.ts	140	71	row	keep			T-232 row
+vite.config.ts	141	13	row	keep			T-232 row
+vitest.config.ts	17	53	row	keep			omission table row
