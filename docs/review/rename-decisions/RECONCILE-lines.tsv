@@ -1,0 +1,142 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+docs/development-rules/05-working-method.md	815	42	行	keep			reconcile: item 1: the lines open in an editor (text lines)
+docs/development-rules/09-tools.md	127	1215	行	keep			reconcile: item 1: the line a definition implements (code / table row)
+docs/spec/01-04-requirements.md	1774	2559	行	keep			reconcile: item 1: the text line the name is written on; uncertain: could be read as the task group of the name
+docs/spec/01-04-requirements.md	4052	30	行	task-group			reconcile: item 1: FR-018 draws task groups
+docs/spec/01-04-requirements.md	4194	1142	行	task-group			reconcile: item 1: a folded task group or one under a hidden task group (FR-009 EL-21)
+docs/spec/01-04-requirements.md	4748	30	行	task-group			reconcile: item 1: NG-8 the task group or an ancestor is hidden
+docs/spec/01-04-requirements.md	4937	30	行	keep			reconcile: item 1: rows of this table naming row ids
+docs/spec/01-04-requirements.md	5073	381	行	keep			reconcile: item 1: the same setting rows of T-206 / T-076
+docs/spec/01-04-requirements.md	5262	174	行	keep			reconcile: item 1: a row of the report table (T-257)
+docs/spec/01-04-requirements.md	5994	15	行	task-group			reconcile: item 1: a pinned task group (FR-098)
+docs/spec/01-04-requirements.md	6133	269	行	keep			reconcile: item 1: the readout lines left / right (same line keeps)
+docs/spec/01-04-requirements.md	7865	214	行	keep			reconcile: item 1: the lines of the description
+docs/spec/05-07-design.md	510	69	行	task-group			reconcile: item 1: UF-168 copies chosen task groups or tasks (brief)
+docs/spec/05-07-design.md	769	10	行	keep			reconcile: item 1: the caller names its row of the RD table
+docs/spec/05-07-design.md	1337	282	行	task-group			reconcile: item 1: dragged from a pinned task group (brief)
+docs/spec/05-07-design.md	1354	141	行	task-group			reconcile: item 1: which task group it is (brief)
+docs/spec/05-07-design.md	1405	141	行	keep			reconcile: item 1: noun going (going and coming back), not the row
+docs/spec/_source/published-entries.json	2980	23	行	keep			reconcile: item 1: colour rows (isScheduleColourRow), same line keeps
+docs/spec/_source/settings.json	3583	221	行	keep			reconcile: item 1: these 3 setting rows
+tests/contract/cr-430-t-020-the-order-things-are-drawn.test.ts	39	30	行	keep			reconcile: item 1: quotes 01-04 table rows (spec keeps)
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	153	69	行	task-group			reconcile: item 1: quotes 01-04 folded task group (spec task-group)
+tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts	41	46	行	keep			reconcile: item 1: covered by the mirrored rewrite at col 9 (spec 01-04 2256 col 59)
+tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts	17	58	行	rewrite	コピーを載せた行から推定	コピーを載せたタスクグループから推定	reconcile: item 1: quote of 01-04 2671 col 473 rewrite, cut before its end
+tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts	19	42	行	keep			reconcile: item 1: covered by the mirrored rewrite at col 38 (spec 01-04 2671 col 592)
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	28	58	行	rewrite	コピーを載せた行から推定	コピーを載せたタスクグループから推定	reconcile: item 1: quote of 01-04 2671 col 473 rewrite, cut before its end
+tests/system/cr-659-the-header-mark-margins-on-the-shipped-build.test.ts	19	53	行	keep			reconcile: item 1: quotes 01-04 setting rows (spec keeps)
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	37	66	行	task-group			reconcile: item 1: quotes 01-04 4052 (spec task-group)
+tests/unit/h4-several-copied-tasks-paste-back.test.ts	29	58	行	rewrite	コピーを載せた行から推定	コピーを載せたタスクグループから推定	reconcile: item 1: quote of 01-04 2671 col 473 rewrite, cut before its end
+tests/unit/uf-47-48.test.ts	30	16	行	keep			reconcile: item 1: quotes 05-07 RD table row (spec keeps)
+tests/unit/uf-48-undo-through-the-one-path.test.ts	37	44	行	keep			reconcile: item 1: quotes 05-07 RD table row (spec keeps)
+tests/unit/uf-8-9-replace-document.test.ts	151	14	行	keep			reconcile: item 1: quotes 05-07 RD table row (spec keeps)
+tests/unit/uf-8-9-replace-document.test.ts	737	18	行	keep			reconcile: item 1: quotes 05-07 RD table row (spec keeps)
+docs/spec/01-04-requirements.md	235	143	行	keep			reconcile: covered by the rewrite at col 86 (reader:S1-A)
+docs/spec/01-04-requirements.md	235	160	行	keep			reconcile: covered by the rewrite at col 86 (reader:S1-A)
+docs/spec/01-04-requirements.md	1099	20	行	keep			reconcile: covered by the rewrite at col 7 (reader:S1-A)
+docs/spec/01-04-requirements.md	1100	63	行	keep			reconcile: covered by the rewrite at col 49 (reader:S1-A)
+docs/spec/01-04-requirements.md	1351	79	行	keep			reconcile: covered by the rewrite at col 56 (reader:S1-A)
+docs/spec/01-04-requirements.md	1782	478	行	keep			reconcile: covered by the rewrite at col 465 (reader:S1-A)
+docs/spec/01-04-requirements.md	1794	103	行	keep			reconcile: covered by the rewrite at col 85 (reader:S1-A)
+docs/spec/01-04-requirements.md	1853	131	行	keep			reconcile: covered by the rewrite at col 134 (reader:S1-A)
+docs/spec/01-04-requirements.md	1886	543	行	keep			reconcile: covered by the rewrite at col 548 (reader:S1-A)
+docs/spec/01-04-requirements.md	2256	96	行	keep			reconcile: covered by the rewrite at col 59 (reader:S1-A)
+docs/spec/01-04-requirements.md	2258	68	行	keep			reconcile: covered by the rewrite at col 2 (reader:S1-A)
+docs/spec/01-04-requirements.md	2269	30	行	keep			reconcile: covered by the rewrite at col 37 (reader:S1-A)
+docs/spec/01-04-requirements.md	2671	449	行	keep			reconcile: covered by the rewrite at col 473 (reader:S1-A)
+docs/spec/01-04-requirements.md	2671	470	行	keep			reconcile: covered by the rewrite at col 473 (reader:S1-A)
+docs/spec/01-04-requirements.md	2671	596	行	keep			reconcile: covered by the rewrite at col 592 (reader:S1-A)
+docs/spec/01-04-requirements.md	2707	190	行	keep			reconcile: covered by the rewrite at col 196 (reader:S1-A)
+docs/spec/01-04-requirements.md	2951	1327	行	keep			reconcile: covered by the rewrite at col 1253 (reader:S1-A)
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	594	86	rows	task-group			reconcile: item 14: test title, the task groups drawn
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	643	42	row	task-group			reconcile: item 14: test title, a depth-3 task group
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	693	81	row	task-group			reconcile: item 14: Row Area -> task group area (rule 6)
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	414	25	row	rewrite	the row panel describes	the task group's properties panel describes	reconcile: item 14: the properties panel of a task group (not the Task Group Panel)
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	494	38	row	task-group			reconcile: item 14: error text, task group id
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	633	76	rows	keep			reconcile: item 14: the three field lines of the min-height field
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	661	60	row	task-group			reconcile: item 14: error text, task group B
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	668	68	row	task-group			reconcile: item 14: test title, task group B
+tests/contract/cr-586-iv-22-a-drawn-milestone-that-disagrees-is-refused.test.ts	374	27	row	task-group			reconcile: item 14: test title, a task group coloured with the bandless name
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	1516	16	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	1747	57	row	task-group			reconcile: item 14: test title, a hidden task group
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	1762	27	row	task-group			reconcile: item 14: test title, every task group folds back
+tests/contract/cr-601-the-landing-mark-stays-while-the-view-moves.contract.test.ts	314	16	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/contract/cr-601-the-landing-mark-stays-while-the-view-moves.contract.test.ts	612	37	row	task-group			reconcile: item 14: test title, a task group's fold entry
+tests/contract/cr-657-group-grid-lines-across-the-row-title-panel.test.ts	101	12	row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/contract/dfc-1230-the-continuation-send-moves-an-unplaced-view.contract.test.ts	359	60	row	task-group			reconcile: item 14: test title, the task group of Task 2
+tests/contract/dfc-1230-the-continuation-send-moves-an-unplaced-view.contract.test.ts	404	86	row	task-group			reconcile: item 14: test title, the head task group
+tests/contract/dfc-2089-fr-006-an-empty-date-field-is-given-the-room-of-a-full-one.test.ts	55	55	row	keep			reconcile: item 14: a field row of the properties panel
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	143	32	row	keep			reconcile: item 14: ERD table rows
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	144	61	rows	keep			reconcile: item 14: ERD table rows
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	146	61	row	keep			reconcile: item 14: ERD table rows
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	149	43	row	keep			reconcile: item 14: ERD table rows
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	153	52	rows	keep			reconcile: item 14: ERD table rows
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	170	49	row	keep			reconcile: item 14: ERD table rows
+tests/contract/spec-table.ts	310	12	row	keep			reconcile: item 14: code in a comment (a spec table row)
+tests/contract/spec-table.ts	310	26	row	keep			reconcile: item 14: code in a comment (a spec table row)
+tests/contract/spec-table.ts	340	4	row	keep			reconcile: item 14: code in a comment (a spec table row)
+tests/system/cr-570-tree-state-stage.ts	218	66	row	task-group			reconcile: item 14: error text, task group id
+tests/system/cr-570-tree-state-stage.ts	225	47	row	task-group			reconcile: item 14: error text, task group named
+tests/system/cr-570-tree-state-stage.ts	225	77	rows	task-group			reconcile: item 14: error text, the first task groups
+tests/system/cr-570-tree-state-stage.ts	285	50	row	task-group			reconcile: item 14: error text, task group id
+tests/system/cr-570-tree-state-stage.ts	303	38	row	task-group			reconcile: item 14: error text, task group id
+tests/system/cr-570-tree-state-stage.ts	320	36	row	task-group			reconcile: item 14: error text, task group id
+tests/system/cr-570-tree-state-stage.ts	419	12	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/system/cr-570-tree-state-stage.ts	476	51	row	task-group			reconcile: item 14: error text, task group id
+tests/system/cr-665-help-fits-one-screen.test.ts	309	94	row	keep			reconcile: item 14: help table rows (FR-036)
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	509	70	row	task-group			reconcile: item 14: the top task group
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	510	19	row	task-group			reconcile: item 14: the task group tree
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	535	57	row	task-group			reconcile: item 14: every task group of the panel
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	605	54	rows	task-group			reconcile: item 14: the two task groups
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	674	65	row	task-group			reconcile: item 14: another task group
+tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts	702	22	row	task-group			reconcile: item 14: that task group's place
+tests/system/live-app.ts	65	11	row	rewrite	(row-|ruler-)	(task-group-|ruler-)	reconcile: item 10: data-figure prefix row- -> task-group- (schedule-grid.ts:317)
+tests/system/measured-sweep.test.ts	589	57	rows	keep			reconcile: item 14: table T-036 rows
+tests/system/measured-sweep.test.ts	1724	31	row	keep			reconcile: item 14: a field row (MK-13)
+tests/system/measured-sweep.test.ts	2173	52	row	task-group			reconcile: item 14: the first task group
+tests/system/measured-sweep.test.ts	2338	51	row	task-group			reconcile: item 14: the first task group
+tests/system/measured-sweep.test.ts	2350	78	row	task-group			reconcile: item 14: what the task group says
+tests/system/measured-sweep.test.ts	2362	21	row	task-group			reconcile: item 14: the task group still reads
+tests/system/measured-sweep.test.ts	2383	27	row	task-group			reconcile: item 14: the last task group
+tests/system/open-defect-pins.test.ts	806	57	row	keep			reconcile: item 14: a ledger row
+tests/system/pinned-band-and-the-empty-document.test.ts	305	21	row	task-group			reconcile: item 14: no task group drawn
+tests/system/pinned-band-and-the-empty-document.test.ts	305	70	row	task-group			reconcile: item 14: the task group it raises
+tests/system/pinned-band-and-the-empty-document.test.ts	322	20	row	task-group			reconcile: item 14: every task group is folded
+tests/system/pinned-band-and-the-empty-document.test.ts	347	65	row	task-group			reconcile: item 14: the task group it names
+tests/system/pinned-band-and-the-empty-document.test.ts	366	36	rows	task-group			reconcile: item 14: task groups below the shallowest tier
+tests/system/pinned-band-and-the-empty-document.test.ts	407	34	rows	task-group			reconcile: item 14: task groups below the shallowest tier
+tests/system/w3-t1-the-export-span-picture.test.ts	318	23	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/system/w3-t2-file-and-picture-clauses.test.ts	197	38	row	rewrite	/^row-.+-band$/	/^task-group-.+-band$/	reconcile: item 10: data-figure prefix row- -> task-group-
+tests/system/w3-t2-file-and-picture-clauses.test.ts	258	48	row	rewrite	/^row-.+-band$/).map((tag) => [figureName(tag).slice(4, -5)	/^task-group-.+-band$/).map((tag) => [figureName(tag).slice(11, -5)	reconcile: item 10: data-figure prefix row- -> task-group- (the slice cuts the 11-char prefix)
+tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	292	92	row	rewrite	entry for `row`	entry for `taskGroup`	reconcile: item 10: defaultNames use row -> taskGroup
+tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	138	12	row	keep			reconcile: item 14: label value of a fixture (test data, matched by line 333)
+tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	333	65	row	keep			reconcile: item 14: matches the fixture labels of line 138
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	247	16	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	533	66	row	task-group			reconcile: item 14: a temporarilyExpanded task group
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	533	102	row	task-group			reconcile: item 14: the task group returns to auto
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	546	75	row	task-group			reconcile: item 14: the task group returns to auto
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	546	124	row	task-group			reconcile: item 14: gives back the task group
+tests/unit/cr-430-bench.ts	56	79	row	keep			reconcile: item 14: table T-266 rows
+tests/unit/cr-430-scene.ts	82	99	rows	keep			reconcile: item 14: table T-266 rows
+tests/unit/cr-541-stage.ts	117	16	row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	378	78	row	keep			reconcile: item 14: one colour per grid row of the colour field
+tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	431	68	row	keep			reconcile: item 14: table T-016 row
+tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	508	50	rows	keep			reconcile: item 14: grid rows of the fill field
+tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	603	32	row	task-group			reconcile: item 14: the task group colour field
+tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	393	44	row	rewrite	/^row-.*-band$/	/^task-group-.*-band$/	reconcile: item 10: data-figure prefix row- -> task-group-
+tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	402	45	row	rewrite	/^(row-.*|task-.*)$/	/^(task-group-.*|task-.*)$/	reconcile: item 10: data-figure prefix row- -> task-group-
+tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	411	45	row	rewrite	/^(row-.*|task-.*)$/	/^(task-group-.*|task-.*)$/	reconcile: item 10: data-figure prefix row- -> task-group-
+tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	38	74	row	keep			reconcile: item 14: table T-016 row
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	234	63	row	task-group			reconcile: item 14: error text, task group id
+tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	246	16	row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	410	62	row	task-group			reconcile: item 14: error text, task group id
+tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts	251	68	row	keep			reconcile: item 14: dictionary row id
+tests/unit/fr-006-panel-fields-drawn.test.ts	226	68	row	keep			reconcile: item 14: table T-016 row
+tests/unit/t-023-wheel-goes-to-the-browser.test.ts	216	55	rows	keep			reconcile: item 14: table T-023 rows
+tests/unit/t-023-wheel-goes-to-the-browser.test.ts	588	51	row	keep			reconcile: item 14: table T-023 row
+tests/unit/uf-47-48.test.ts	1222	20	row	keep			reconcile: item 14: fixture group id, same file keeps line 1238 (test data)
+tests/unit/uf-47-48.test.ts	1226	18	Row	keep			reconcile: item 14: label value of a fixture (test data)
+tests/unit/uf-47-48.test.ts	1238	46	row	keep			reconcile: item 14: fixture group id, matches line 1222 (test data)
+tests/unit/uf-71.test.ts	1694	37	row	rewrite	`defaultNames` の `row`	`defaultNames` の `taskGroup`	reconcile: item 10: defaultNames use row -> taskGroup (spec 01-04 2549 rewrite)
+tests/unit/uf-71.test.ts	1890	25	row	rewrite	`defaultNames` の `row`	`defaultNames` の `taskGroup`	reconcile: item 6: quote of the spec 01-04 2549 rewrite
+tests/usecase/uc-008-tell-by-annotations.test.ts	22	18	row	rewrite	/^row-.*-band$/	/^task-group-.*-band$/	reconcile: item 10: data-figure prefix row- -> task-group-
