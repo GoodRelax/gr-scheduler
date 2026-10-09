@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 276 | 3046 | 3 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 280 | 3069 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 70 | 443 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 71 | 445 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3911 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 548 | 7504 | 6 | 9 | 12 | 2 |
+| **all** | | | 553 | 7529 | 6 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -367,6 +367,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts` | 11 | FR-058 | - | T-223 | DU-1, DU-2 | - | - | - | - |
 | `tests/contract/cr-715-the-schedule-canvas-range-starts-below-the-app-header.contract.test.ts` | 3 | FR-036 | - | - | U-32 | - | - | - | - |
 | `tests/contract/cr-717-one-band-rule-for-the-drawing-and-the-hit-test.test.ts` | 8 | FR-098 | - | T-303 | EL-4, EL-19, PI-6 | - | - | - | - |
+| `tests/contract/cr-718-a-bar-shape-released-without-a-drag-carries-rs-53.test.ts` | 5 | FR-001, FR-076 | VT-2 | T-012, T-109, T-290 | RS-53, TC-8 | - | - | - | - |
+| `tests/contract/cr-718-a-paste-onto-two-rows-carries-rs-27.test.ts` | 5 | FR-033, FR-076 | VT-2 | T-290 | RS-27 | - | - | - | - |
+| `tests/contract/cr-718-an-import-refusal-names-its-t-220-row.contract.test.ts` | 7 | FR-023, FR-076 | - | T-214, T-220 | AG-9a, IV-10, IV-14, S-119 | - | - | - | - |
+| `tests/contract/cr-718-the-requirement-text-defers-to-the-display-column.contract.test.ts` | 6 | FR-001, FR-008, FR-033, FR-076 | - | T-220, T-233, T-239 | IV-10, IV-14, RS-27, RS-49, RS-53, TC-8 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-row.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -581,6 +585,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-709-the-written-html-starts-with-its-doctype.test.ts` | 2 | - | - | T-024 | IC-2, IO-7 | - | - | - | - |
 | `tests/system/cr-712-a-timed-notice-leaves-by-itself.test.ts` | 6 | FR-068 | - | T-206 | IC-115, NT-2, RS-15, RS-65, S-542 | - | - | - | - |
 | `tests/system/cr-712-reports-refusals-and-the-discard-question.test.ts` | 8 | FR-067, FR-076, FR-095 | - | T-220, T-233 | IC-1, IC-2, IC-98, IO-7, IV-4, MG-10, OP-2, QN-5, RS-10, RS-27, RS-51, U-61, U-62 | - | - | - | - |
+| `tests/system/cr-718-an-import-refusal-is-told-in-its-t-220-words.test.ts` | 2 | FR-076 | - | T-214, T-220 | IV-10, IV-14, OP-2, RS-15, S-119 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
