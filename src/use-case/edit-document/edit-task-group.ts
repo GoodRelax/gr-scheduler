@@ -152,7 +152,7 @@ type PastePlan =
   | { readonly ok: false; readonly refusals: readonly Refusal[] }
   | { readonly ok: true; readonly copied: Subtree; readonly idOf: ReadonlyMap<string, string> }
 
-// see CM-28, FR-033, FR-004, AT-51, IV-1
+// see CM-28, FR-033, FR-004, AT-51, IV-1, IV-2
 /** @purity pure */
 function pastePlanOf(
   command: TaskGroupCommandOf<'pasteTaskGroupSubtree'>,
@@ -161,11 +161,11 @@ function pastePlanOf(
 ): PastePlan {
   const copied = subtreeOf(groups, command.sourceGroupId)
   if (copied === null) {
-    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such task group: ${command.sourceGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group: ${command.sourceGroupId}`)] }
   }
   const target = command.targetGroupId === null ? null : byId.get(command.targetGroupId)
   if (target === undefined) {
-    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such task group to paste under: ${command.targetGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group to paste under: ${command.targetGroupId}`)] }
   }
   const refusals: Refusal[] = []
   const under = target === null ? 0 : depthOf(byId, target)

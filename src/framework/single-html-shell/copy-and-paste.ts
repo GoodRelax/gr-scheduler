@@ -20,8 +20,7 @@ import {
 
 type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 
-// WHY: one chosen task group is copied whatever Tasks are also selected; two task groups or nothing copy
-// nothing (RS-27). see FR-033, SL-7b
+// WHY: one chosen task group wins over chosen Tasks; two task groups or nothing copy nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
 export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
   if (chosenTaskGroups.length === 1) return { kind: 'taskGroup', groupId: chosenTaskGroups[0] as string }
@@ -30,8 +29,7 @@ export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: 
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
-// WHY: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27).
-// see FR-033
+// WHY: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27). see FR-033
 /** @purity pure */
 export function pasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
   return chosenTaskGroups.length > 1
@@ -65,10 +63,6 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
   }
   const schedule = hands.readHeld().document.schedule
   const command = pasteCommandFor(hands, copied, schedule)
-  if (command === null) {
-    hands.raiseNotice(NOTHING_TO_DO_REASON, null)
-    return
-  }
   if (isStackSafetyCapReachedBy(hands, [command], frame)) {
     hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
     return
@@ -118,22 +112,22 @@ export function landCopyDrag(
   if (isLanded) hands.sendToSession({ type: 'objectsPicked', pickedObjects: picked }, frame)
 }
 
-// see FR-033, DU-2
+// see FR-033, DU-2, IV-2, RS-82
+// WHY: a copied source that is gone is still sent, so CM-8 / CM-28 refuse it by IV-2 and the paste is told RS-82, not RS-27.
 /** @purity non-pure */
 function pasteCommandFor(
   hands: CopyAndPasteHands,
   copied: SelectionCopied,
   schedule: Schedule,
-): DocumentCommand | null {
+): DocumentCommand {
   if (copied.kind === 'task') {
     const sourceUids = copied.uids.filter((uid) => taskByUid(schedule, uid) !== null)
-    return sourceUids.length === 0 ? null : { kind: 'pasteTasks', sourceUids }
+    return { kind: 'pasteTasks', sourceUids: sourceUids.length === 0 ? copied.uids : sourceUids }
   }
   const byParent = new Map<string | null, TaskGroup[]>()
   for (const taskGroup of schedule.taskGroups) {
     byParent.set(taskGroup.parentId, [...(byParent.get(taskGroup.parentId) ?? []), taskGroup])
   }
-  if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
   const chosenTaskGroups = hands.readSession().selection.chosenTaskGroups
   const newGroupIds: Record<string, string> = {}
   const walking = [copied.groupId]
