@@ -170,6 +170,26 @@ class FileEdits(object):
         return sum(len(v) for v in self.edits.values())
 
 
+def is_wide(ch):
+    """A Japanese character (kana, kanji, full-width punctuation)."""
+    return bool(ch) and ord(ch) >= 0x3000
+
+
+def joined_start(line, col, new):
+    """Where a phrase edit starts: one column earlier when it eats the space.
+
+    Japanese text puts a half-width space between a Japanese character and
+    an ASCII word ("... no WBS no oya"). When the phrase that starts with the
+    ASCII word becomes all Japanese ("oya tasuku"), that space would be left
+    between two Japanese characters, so the edit takes it too (reconcile
+    item 3). Only one space, and only between two wide characters.
+    """
+    if (col >= 2 and line[col - 1] == ' ' and is_wide(line[col - 2]) and is_wide(new[:1])
+            and not is_wide(line[col:col + 1])):
+        return col - 1
+    return col
+
+
 def apply_line_row(fe, row, phrases_by_old, phrases):
     decision = row['_effective']
     where = locate(fe.lines, row)
@@ -212,7 +232,8 @@ def apply_line_row(fe, row, phrases_by_old, phrases):
             if prow is None or fe.lines[n][col:col + len(old)] != old:
                 fe.problems.append('phrase gone %s' % row['id'])
                 return
-            fe.add(n, col, col + len(old), prow['new'], row['id'])
+            fe.add(n, joined_start(fe.lines[n], col, prow['new']), col + len(old), prow['new'],
+                   row['id'])
             return
         offset = sum(len(l) + 1 for l in fe.lines[:n]) + col
         mirrored = (row.get('decided_by') or '').startswith('mirror:')

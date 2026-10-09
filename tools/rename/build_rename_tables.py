@@ -105,9 +105,11 @@ def merge_decisions(new_rows, old_rows):
             old = cands[0] if len(cands) == 1 else None
         if old is None:
             continue
-        machine = (row.get('decided_by') or '').startswith(('machine:', 'phrase:', 'mirror:'))
+        # only a reader's decision is carried: a machine / phrase / mirror
+        # decision is computed again, so a rule that changed (reconcile items 1
+        # and 2) re-opens the places it no longer decides
         reader = not (old.get('decided_by') or '').startswith(('machine:', 'phrase:', 'mirror:'))
-        if reader or not machine:
+        if reader:
             for key in ('decision', 'rewrite_old', 'rewrite_new', 'decided_by', 'note'):
                 row[key] = old.get(key, '')
         used.add(id(old))

@@ -142,3 +142,35 @@ tests/unit/uf-71.test.ts	1890	25	row	rewrite	`defaultNames` の `row`	`defaultNa
 tests/usecase/uc-008-tell-by-annotations.test.ts	22	18	row	rewrite	/^row-.*-band$/	/^task-group-.*-band$/	reconcile: item 10: data-figure prefix row- -> task-group-
 tests/unit/fr-029-the-reason-a-press-carries.test.ts	69	23	行	keep			reconcile: item 13: covered by the rewrite at col 18
 tests/unit/uf-72-screen-part.test.ts	5395	47	行数	rewrite	その行数を行に示す	そのタスクグループの数をタスクグループに示す	reconcile: item 13: the quote wraps before こと, so the spec rewrite (01-04 1782) is cut here
+docs/spec/01-04-requirements.md	4235	18	行	keep			reconcile: item 4: the title row band of a window (WB-8), not a task group band
+docs/spec/01-04-requirements.md	8226	17	行	keep			reconcile: item 4: the title row band of a window (WB-8), not a task group band
+docs/spec/01-04-requirements.md	8228	162	行	keep			reconcile: item 4: the title row band of a window (WB-10), not a task group band
+tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts	46	24	行	keep			reconcile: item 4: quotes the title row band (spec keeps)
+tests/system/cr-669-the-help-maximises-to-the-schedule-canvas.test.ts	16	24	行	keep			reconcile: item 4: quotes the title row band (spec keeps)
+tests/system/w3-t1-the-export-span-picture.test.ts	23	22	行	keep			reconcile: item 4: quotes the title row band (spec keeps)
+docs/spec/_source/settings.json	4248	16	行	task-group			reconcile: item 5: S-208 the axis of the grabbed task group (as 03-implementation.md:95 and the test quotes)
+docs/spec/_source/published-entries.json	867	18	行	rewrite	行の軸	縦軸	reconcile: item 2: FR-016 is a requirement, not a table row; vertical axis (as 05-07-design.md:903)
+docs/spec/_source/published-entries.json	884	18	行	rewrite	行の軸	縦軸	reconcile: item 2: FR-016 is a requirement, not a table row; vertical axis (as 05-07-design.md:903)
+docs/spec/_source/published-entries.json	1831	18	行	rewrite	行の軸	縦軸	reconcile: item 2: FR-016 is a requirement, not a table row; vertical axis (as 05-07-design.md:903)
+docs/spec/_source/published-entries.json	2621	18	行	rewrite	行の軸	縦軸	reconcile: item 2: FR-016 is a requirement, not a table row; vertical axis (as 05-07-design.md:903)
+docs/spec/_source/settings.json	1016	134	行	rewrite	行の軸	縦軸	reconcile: item 2: FR-016 is a requirement, not a table row; vertical axis (as 05-07-design.md:903)
+.claude/skills/spec-graph-check/check-dr-prefix-gone.py	228	41	row	keep			reconcile: item 2: a spec table row (retired prefix)
+.claude/skills/spec-graph-check/check-pd-prefix-gone.py	162	34	row	keep			reconcile: item 2: a spec table row (retired prefix)
+.claude/skills/spec-graph-check/check-quoted-source.py	230	50	row	keep			reconcile: item 2: a ledger row
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	7	70	row	keep			reconcile: item 2: a ledger row
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	36	59	row	keep			reconcile: item 2: a ledger row
+.claude/skills/spec-graph-check/check-ruled-elsewhere.py	69	21	row	keep			reconcile: item 2: a ledger row
+.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py	109	49	row	keep			reconcile: item 2: a spec table row (retired prefix)
+.claude/skills/spec-graph-check/list-asserted-claims.py	94	35	rows	keep			reconcile: item 2: spec table rows
+.claude/skills/spec-graph-check/list-asserted-claims.py	94	59	row	keep			reconcile: item 2: a ledger row
+.claude/skills/spec-graph-check/list-asserted-claims.py	98	35	rows	keep			reconcile: item 2: spec table rows
+tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts	367	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts	444	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts	185	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tests/system/measured-sweep.test.ts	301	68	row	keep			reconcile: item 2: the EZ-2 row of the FR-092 table
+tests/system/measured-sweep.test.ts	318	38	row	keep			reconcile: item 2: the EZ-2 row of the FR-092 table
+tests/system/measured-sweep.test.ts	672	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tests/system/measured-sweep.test.ts	1458	43	row	keep			reconcile: item 2: the EZ-2 row of the FR-092 table
+tests/system/three-rows-read-from-the-spec-alone.test.ts	35	66	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tests/system/three-rows-read-from-the-spec-alone.test.ts	316	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
+tools/generate_public_entry_index.py	250	85	row	keep			reconcile: item 2: a T-064 table row

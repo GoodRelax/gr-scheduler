@@ -3169,8 +3169,8 @@ J03167	S1-C	docs/spec/05-07-design.md	900	26	row	行	LC-1` と `LC-2` が落と�
 J03168	S1-C	docs/spec/05-07-design.md	900	51	row	行	順から抜けるだけである** —— 残った	どうしの前後は変わらない。  	open						
 J03169	S1-C	docs/spec/05-07-design.md	901	0	row	行		の縞（`FR-042`）が数える「行の位	open						
 J03170	S1-C	docs/spec/05-07-design.md	901	18	row	行	行の縞（`FR-042`）が数える「	の位置」も、この順での位置とすること（M	open	keep?					
-J03171	S1-C	docs/spec/05-07-design.md	903	154	row	行	 3 つの道 —— `FR-016` の	の軸の錨、`FR-016` の行の軸の上	open	keep?	keep			machine:table	
-J03172	S1-C	docs/spec/05-07-design.md	903	170	row	行	6` の行の軸の錨、`FR-016` の	の軸の上限（帯の側、`01-04-req	open	keep?	keep			machine:table	
+J03171	S1-C	docs/spec/05-07-design.md	903	154	row	行	 3 つの道 —— `FR-016` の	の軸の錨、`FR-016` の行の軸の上	open	keep?					
+J03172	S1-C	docs/spec/05-07-design.md	903	170	row	行	6` の行の軸の錨、`FR-016` の	の軸の上限（帯の側、`01-04-req	open	keep?					
 J03173	S1-C	docs/spec/05-07-design.md	904	51	row	行	のみ走らせること（MUST）—— ⚠️ 	の高さと縦位置を決める `LC-9` は	open	task-group?	phrase			phrase:行の高さ	行の高さ -> タスクグループの高さ
 J03174	S1-C	docs/spec/05-07-design.md	904	89	row	行	` は本表の中にあるので、候補の倍率での	の位置は本表をもう 1 度走らせることで	open	keep?					
 J03175	S1-C	docs/spec/05-07-design.md	914	266	row	行	きのまま走らせ、`LC-1` が落とした	の深さは数えない。<br>そのうえで、帯	open	keep?					
@@ -3680,9 +3680,9 @@ J03678	S1-D	docs/spec/_source/published-entries.json	841	8	row	行	       "	を�
 J03679	S1-D	docs/spec/_source/published-entries.json	842	60	row	行	描かれている祖先が無い端の立つ所を、描く	と同じ順で引くために `Schedule	open						
 J03680	S1-D	docs/spec/_source/published-entries.json	857	17	row	行	       "同行の定めにより、	を立てる側が、立てる前に落ちるかどうかを	open						
 J03681	S1-D	docs/spec/_source/published-entries.json	866	14	row	行	       "その倍率での	の位置。",	open						
-J03682	S1-D	docs/spec/_source/published-entries.json	867	18	row	行	       "`FR-016` の	の軸の錨"	open	keep?	keep			machine:table	
+J03682	S1-D	docs/spec/_source/published-entries.json	867	18	row	行	       "`FR-016` の	の軸の錨"	open	keep?					
 J03683	S1-D	docs/spec/_source/published-entries.json	873	10	row	行	       "**	の軸は `zoomY` に対して線形では	open		phrase			phrase:行の軸	行の軸 -> 縦軸
-J03684	S1-D	docs/spec/_source/published-entries.json	884	18	row	行	       "`FR-016` の	の軸の上限が深さ 1 の行の名前の字を与	open	keep?	keep			machine:table	
+J03684	S1-D	docs/spec/_source/published-entries.json	884	18	row	行	       "`FR-016` の	の軸の上限が深さ 1 の行の名前の字を与	open	keep?					
 J03685	S1-D	docs/spec/_source/published-entries.json	884	31	row	行	-016` の行の軸の上限が深さ 1 の	の名前の字を与えて問う"	open	task-group?	phrase			phrase:行の名前	行の名前 -> タスクグループ名
 J03686	S1-D	docs/spec/_source/published-entries.json	999	8	row	行	       "	の領域の中で、固定した行の帯の下に、その	open						
 J03687	S1-D	docs/spec/_source/published-entries.json	999	20	row	行	       "行の領域の中で、固定した	の帯の下に、その行を描く余地が残るか。"	open	task-group?	phrase			phrase:行の帯	行の帯 -> タスクグループの帯
@@ -3714,7 +3714,7 @@ J03712	S1-D	docs/spec/_source/published-entries.json	1553	30	row	行	の絞り�
 J03713	S1-D	docs/spec/_source/published-entries.json	1740	18	row	行	       "表 T-023a の	 ID"	table	keep?	keep			machine:table	
 J03714	S1-D	docs/spec/_source/published-entries.json	1748	13	row	行	       "押下がどの	で始まったかを答える。",	open						
 J03715	S1-D	docs/spec/_source/published-entries.json	1823	26	row	行	 "⭐ **場面から 表 T-233 の	への写しは殻が持つ** —— 訳出の側は	table	keep?	keep			machine:table	
-J03716	S1-D	docs/spec/_source/published-entries.json	1831	18	row	行	       "`FR-016` の	の軸の上限のうち、いちばん高い行の帯の高	open	keep?	keep			machine:table	
+J03716	S1-D	docs/spec/_source/published-entries.json	1831	18	row	行	       "`FR-016` の	の軸の上限のうち、いちばん高い行の帯の高	open	keep?					
 J03717	S1-D	docs/spec/_source/published-entries.json	1831	34	row	行	6` の行の軸の上限のうち、いちばん高い	の帯の高さが初めて `Row Area`	open	task-group?	phrase			phrase:行の帯	行の帯 -> タスクグループの帯
 J03718	S1-D	docs/spec/_source/published-entries.json	1841	127	row	行	`S-75` の範囲と `S-229`、	の軸は 表 T-262 の `ZE-1`	open	keep?					
 J03719	S1-D	docs/spec/_source/published-entries.json	1884	17	row	行	       "表 T-236 の	 ID と、いまの色の好みから 1 色を	table	keep?	keep			machine:table	
@@ -3736,7 +3736,7 @@ J03734	S1-D	docs/spec/_source/published-entries.json	2499	69	row	行	ings.md` �
 J03735	S1-D	docs/spec/_source/published-entries.json	2500	19	row	行	       "段（`S-429`）は	の並びの中の位置である —— 並びは表の	open	keep?					
 J03736	S1-D	docs/spec/_source/published-entries.json	2579	8	row	行	       "	を既定の名前で立てるときの語。",	open						
 J03737	S1-D	docs/spec/_source/published-entries.json	2619	8	row	行	       "	の名前の字の大きさ。",	open	task-group?	phrase			phrase:行の名前	行の名前 -> タスクグループ名
-J03738	S1-D	docs/spec/_source/published-entries.json	2621	18	row	行	       "`FR-016` の	の軸の上限が深さ 1 を問う。",	open	keep?	keep			machine:table	
+J03738	S1-D	docs/spec/_source/published-entries.json	2621	18	row	行	       "`FR-016` の	の軸の上限が深さ 1 を問う。",	open	keep?					
 J03739	S1-D	docs/spec/_source/published-entries.json	2622	49	row	行見出	の 2 か所に置かないためである —— 	見出しを描く側と、上限を求める側・書き出	open		phrase			phrase:行見出し	行見出し -> タスクグループ見出し
 J03740	S1-D	docs/spec/_source/published-entries.json	2630	11	row	行	       "描いた	ごとの `Row Title Panel	open						
 J03741	S1-D	docs/spec/_source/published-entries.json	2630	35	row	行見出	 `Row Title Panel` の	見出しの矩形を、配置と各部の矩形から測る	open		phrase			phrase:行見出し	行見出し -> タスクグループ見出し
@@ -3810,7 +3810,7 @@ J03808	S1-D	docs/spec/_source/settings.json	657	155	row	行	ベルの字から�
 J03809	S1-D	docs/spec/_source/settings.json	657	225	row	行	までなら予定バーより大きくならないので、	の外へ出ない。⛔ 上限を `basePl	open						
 J03810	S1-D	docs/spec/_source/settings.json	657	284	row	行	 —— それを上げてマーカーも上げたあと	の軸の倍率を下げると、予定は床で止まりマ	open		phrase			phrase:行の軸	行の軸 -> 縦軸
 J03811	S1-D	docs/spec/_source/settings.json	936	118	row	行	。⛔ px で持たない —— 菱形の幅は	の軸の倍率で変わる"	open		phrase			phrase:行の軸	行の軸 -> 縦軸
-J03812	S1-D	docs/spec/_source/settings.json	1016	134	row	行	の由来は無い。⚠️ `FR-016` の	の軸の上限の字の側は本行と `S-38`	open	keep?	keep			machine:table	
+J03812	S1-D	docs/spec/_source/settings.json	1016	134	row	行	の由来は無い。⚠️ `FR-016` の	の軸の上限の字の側は本行と `S-38`	open	keep?					
 J03813	S1-D	docs/spec/_source/settings.json	1036	13	row	行見出	      "ja": "	見出しの字下げ。1 段深くなるごとにこの	open		phrase			phrase:行見出し	行見出し -> タスクグループ見出し
 J03814	S1-D	docs/spec/_source/settings.json	1475	199	row	行	 `labelCoef` の既定で 1 	が 表 T-025 の `MC-6` の	open	count?					
 J03815	S1-D	docs/spec/_source/settings.json	1485	182	row	行	則は `FR-017` が持つ （曜日の	だけを`S-219` の比で小さく刷って	open						
