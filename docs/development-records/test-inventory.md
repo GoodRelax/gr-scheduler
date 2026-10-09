@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 282 | 3093 | 3 | 5 | 10 | 2 |
-| `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
+| `contract` | TS-5 | VT-2 | 283 | 3096 | 3 | 5 | 10 | 2 |
+| `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 72 | 447 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3909 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 556 | 7553 | 6 | 9 | 12 | 2 |
+| **all** | | | 557 | 7562 | 6 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -373,6 +373,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-718-a-paste-onto-two-task-groups-carries-rs-27.test.ts` | 5 | FR-033, FR-076 | VT-2 | T-290 | RS-27 | - | - | - | - |
 | `tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts` | 7 | FR-023, FR-076 | - | T-214, T-220 | AG-9a, IV-10, IV-14, S-119 | - | - | - | - |
 | `tests/contract/cr-718-the-requirement-text-defers-to-the-display-column.contract.test.ts` | 6 | FR-001, FR-008, FR-033, FR-076 | - | T-220, T-233, T-239 | IV-10, IV-14, RS-27, RS-49, RS-53, TC-8 | - | - | - | - |
+| `tests/contract/cr-720-lf-19-a-label-pulled-to-the-left-edge-yields-to-the-next.contract.test.ts` | 3 | FR-017 | - | T-221 | LF-19, S-135 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -545,7 +546,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/w3-t5-ws-2-four-moments-and-the-un-8-judgement.contract.test.ts` | 6 | - | - | T-067, T-108, T-233 | CM-9, CM-65, PI-8, RS-74, UN-8, UN-13, WS-2 | - | - | - | - |
 | `tests/integration/cr-572-an-old-file-opens-and-the-constants-win.test.ts` | 10 | - | - | T-024a, T-040 | EZ-2, OP-6, S-124 | - | - | - | - |
 | `tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts` | 28 | FR-039, FR-041, FR-048, FR-052, FR-063, FR-080, FR-100 | - | T-027, T-108, T-206, T-215 | CM-64, DC-6, DC-7, IC-16, IC-47, IC-99, IC-100, S-2, S-3, S-66, S-171, UN-13, WY-1 | - | - | - | - |
-| `tests/integration/schedule-drawing.sws.test.ts` | 32 | FR-001, FR-003, FR-009, FR-013, FR-014, FR-017, FR-021, FR-029, FR-039, FR-043, FR-048, FR-054, FR-080, FR-089, FR-093, FR-094, FR-097, FR-098, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6 | - | T-018, T-023d, T-051, T-061, T-064, T-077, T-205, T-206, T-209, T-218, T-219, T-221, T-222, T-240, T-252, T-273 | AT-17, BO-1, DS-1, DS-7, EP-14, GA-20, HF-1, HF-19, IV-17, LF-1, LF-2, LF-3, LF-5, LF-6, LF-7, LF-8, LF-9, LF-10, LF-11, LF-12, LF-13, LF-14, LF-15, LF-16, LF-17, LF-18, LP-1, LR-2, LR-5, OC-10, PI-5, PI-6, PI-19, PI-20, PI-35, PM-1a, RP-1, RP-2, RP-4, RP-8, S-1, S-8, S-10, S-17, S-19, S-31, S-39, S-54, S-55, S-58, S-63, S-67, S-77, S-85, S-108, S-135, S-260, SH-3, ST-5, TS-2, TW-2, U-50, VG-2, VG-5, XS-6, XS-10 | - | - | - | - |
+| `tests/integration/schedule-drawing.sws.test.ts` | 38 | FR-001, FR-003, FR-009, FR-013, FR-014, FR-017, FR-021, FR-029, FR-039, FR-043, FR-048, FR-054, FR-080, FR-089, FR-093, FR-094, FR-097, FR-098, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6 | - | T-018, T-023d, T-051, T-061, T-064, T-077, T-205, T-206, T-209, T-218, T-219, T-221, T-222, T-240, T-252, T-273 | AT-17, BO-1, DS-1, DS-7, EP-14, GA-20, HF-1, HF-19, IV-17, LF-1, LF-2, LF-3, LF-5, LF-6, LF-7, LF-8, LF-9, LF-10, LF-11, LF-12, LF-13, LF-14, LF-15, LF-16, LF-17, LF-18, LF-19, LP-1, LR-2, LR-5, OC-10, PI-5, PI-6, PI-19, PI-20, PI-35, PM-1a, RP-1, RP-2, RP-4, RP-8, S-1, S-8, S-10, S-17, S-19, S-31, S-39, S-54, S-55, S-58, S-63, S-67, S-77, S-85, S-108, S-135, S-260, SH-3, ST-5, TS-2, TW-2, U-50, VG-2, VG-5, XS-6, XS-10 | - | - | - | - |
 | `tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts` | 7 | FR-018, FR-065, NFR-001, NFR-002, NFR-003, NFR-004, NFR-010, NFR-011, NFR-013 | VT-3 | T-025, T-043, T-065, T-109, T-218 | AM-8, CN-1, IC-20, IF-1, MC-4, MC-5, MC-6, MC-7, MC-8, MC-9, MK-8, PG-1, PG-2, PG-3, PG-4, PG-5, PG-6, PG-7, PG-8, PG-9, PG-10, PG-11, PG-12, PG-14, TS-4 | - | - | - | - |
 | `tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts` | 5 | FR-021, FR-022, FR-025, FR-029, FR-065, FR-067, FR-076, NFR-002, NFR-003, NFR-004, NFR-010, SWS-6 | VT-3 | T-023, T-023a, T-024, T-024a, T-025, T-028, T-034, T-037, T-043, T-103, T-107, T-109, T-204, T-218, T-226, T-228, T-231, T-233 | AM-8, AM-12, AM-14, AM-15, BT-1, CN-1, IC-2, IC-20, IO-1, IO-2, IO-7, MC-4, MC-5, MC-6, MC-7, MC-8, MK-1, MK-2, MK-6, MK-7, MK-8, NR-1, NR-2, NR-3, NR-4, NR-5, NT-1, OP-12, PG-2, PG-3, PG-8, PTD-1, PTD-5, RS-27, RS-40, S-81, S-217, TP-6, TS-4, U-54, U-61 | - | - | - | - |
 | `tests/nfr/nfr-004-single-file.test.ts` | 5 | FR-069, FR-073, NFR-004, NFR-011 | - | - | AG-12, BR-4, CN-1, CN-6, CN-8, DR-4, LM-14, S-350, S-459, S-540 | - | - | - | - |

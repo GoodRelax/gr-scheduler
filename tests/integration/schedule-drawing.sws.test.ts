@@ -2216,6 +2216,238 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
   )
 })
 
+const LABEL_COEF = settingNumber('S-30')
+const LABEL_GAP = settingNumber('S-135') * DISPLAY_RATIO
+
+interface RulerLabel {
+  readonly x: number
+  readonly y: number
+  readonly text: string
+}
+
+const RULER_LABEL_TAG =
+  /<text x="(-?[\d.]+)" y="(-?[\d.]+)"[^>]*data-figure="ruler-[^"]*"[^>]*>([^<]*)<\/text>/g
+
+const rulerRowsOf = (svg: string): readonly (readonly RulerLabel[])[] => {
+  const byY = new Map<number, RulerLabel[]>()
+  for (const found of svg.matchAll(RULER_LABEL_TAG)) {
+    const label = { x: Number(found[1]), y: Number(found[2]), text: found[3] ?? '' }
+    byY.set(label.y, [...(byY.get(label.y) ?? []), label])
+  }
+  return [...byY.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, row]) => [...row].sort((a, b) => a.x - b.x))
+}
+
+const unitsOf = (text: string): number =>
+  [...text].reduce((sum, ch) => sum + ((ch.codePointAt(0) ?? 0) > 0x7f ? 2 : 1), 0)
+
+const estimateOf = (text: string): number =>
+  unitsOf(text) * RULER_FONT * DISPLAY_RATIO * LABEL_COEF
+
+const isoOf = (at: CalendarDay): string =>
+  `${at.year}-${String(at.month).padStart(2, '0')}-${String(at.day).padStart(2, '0')}T00:00:00`
+
+const SAMPLE_LEFT_EDGES: readonly CalendarDay[] = [
+  { year: 2027, month: 1, day: 1 },
+  { year: 2027, month: 2, day: 1 },
+  { year: 2027, month: 3, day: 1 },
+  { year: 2027, month: 4, day: 1 },
+].flatMap((first) => Array.from({ length: 15 }, (_, index) => plusDays(first, index - 12)))
+
+const SWEEP_PX_PER_DAY: readonly number[] = [
+  ...TIER_SAMPLES.map((sample) => sample[2]),
+  TIER_WEEK_PX * 1.3,
+  TIER_DAY_PX * 3,
+]
+
+interface SweptFrame {
+  readonly where: string
+  readonly band: ScreenRect
+  readonly rows: ReturnType<typeof rulerRowsOf>
+}
+
+const sweepRows = (): readonly SweptFrame[] =>
+  SWEEP_PX_PER_DAY.flatMap((pxPerDay) =>
+    SAMPLE_LEFT_EDGES.map((scroll) => {
+      const frame = rulerAt(pxPerDay, { scrollDate: isoOf(scroll) })
+      return {
+        where: `${frame.layout.tier} at ${pxPerDay} px/day, left edge ${isoOf(scroll)}`,
+        band: frame.band,
+        rows: rulerRowsOf(frame.svg),
+      }
+    }),
+  )
+
+describe('SWS-1 -- where a ruler label stands across its tick (FR-017, LF-19)', () => {
+  const NEW_YEAR_2027: CalendarDay = { year: 2027, month: 1, day: 1 }
+  const APRIL_2026: CalendarDay = { year: 2026, month: 4, day: 1 }
+  const WIDTH_2026 = estimateOf('2026') + LABEL_GAP
+  const WIDTH_2026_03 = estimateOf('2026-03') + LABEL_GAP
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-19'],
+      given: 'a period boundary closer to the band left edge than the pulled label width plus S-135',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'the label pulled to the left edge is not drawn and the next label stands at its own tick x',
+    }),
+    () => {
+      mentions(T221, 'LF-19', 'MUST NOT', 'S-135', 'FR-093')
+      const samples: ReadonlyArray<
+        readonly [string, number, CalendarDay, RulerTier, string, string, CalendarDay]
+      > = [
+        [
+          'a few px right of the edge',
+          TIER_MONTH_PX * 0.5,
+          plusDays(NEW_YEAR_2027, -10),
+          'year',
+          '2026',
+          '2027',
+          NEW_YEAR_2027,
+        ],
+        [
+          'a hair under the width plus the gap',
+          (WIDTH_2026 / 60) * 0.999,
+          plusDays(NEW_YEAR_2027, -60),
+          'year',
+          '2026',
+          '2027',
+          NEW_YEAR_2027,
+        ],
+        [
+          'one day right of the edge on the day step',
+          TIER_DAY_PX * 1.5,
+          { year: 2026, month: 3, day: 31 },
+          'yearMonthDayWeekday',
+          '2026-03',
+          '2026-04',
+          APRIL_2026,
+        ],
+      ]
+      for (const [where, pxPerDay, scroll, tier, pulled, next, boundary] of samples) {
+        const frame = rulerAt(pxPerDay, { scrollDate: isoOf(scroll) })
+        expect(frame.layout.tier, where).toBe(tier)
+        const top = rulerRowsOf(frame.svg)[0] ?? []
+        expect(top.map((label) => label.text), `${where}: the pulled label is drawn`).not.toContain(pulled)
+        const own = top.find((label) => label.text === next)
+        expect(own, `${where}: the next label is missing`).toBeDefined()
+        expect(own?.x, where).toBeCloseTo(xFromDay(frame.layout, boundary), 1)
+      }
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-19'],
+      given: 'a period boundary at least the pulled label width plus S-135 right of the left edge, and exactly that far',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'the pulled label is drawn at the band left edge x',
+    }),
+    () => {
+      mentions(T221, 'LF-19', 'S-135', 'FR-093')
+      const wideDays = Math.ceil(WIDTH_2026 / (TIER_MONTH_PX * 0.5)) + 20
+      const samples: ReadonlyArray<readonly [string, number, CalendarDay, RulerTier, string]> = [
+        ['far right of the edge', TIER_MONTH_PX * 0.5, plusDays(NEW_YEAR_2027, -wideDays), 'year', '2026'],
+        ['exactly the width plus the gap', WIDTH_2026 / 60, plusDays(NEW_YEAR_2027, -60), 'year', '2026'],
+        [
+          'exactly the width plus the gap on the day step',
+          WIDTH_2026_03 / 2,
+          { year: 2026, month: 3, day: 30 },
+          'yearMonthDayWeekday',
+          '2026-03',
+        ],
+      ]
+      for (const [where, pxPerDay, scroll, tier, pulled] of samples) {
+        const frame = rulerAt(pxPerDay, { scrollDate: isoOf(scroll) })
+        expect(frame.layout.tier, where).toBe(tier)
+        const top = rulerRowsOf(frame.svg)[0] ?? []
+        const own = top.find((label) => label.text === pulled)
+        expect(own, `${where}: the pulled label is not drawn`).toBeDefined()
+        expect(own?.x, where).toBeCloseTo(frame.band.x, 1)
+      }
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-19'],
+      given: 'every tier at day widths on both sides of each threshold and left edges around month and year starts',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'no two labels of one row overlap, estimated width from each x',
+    }),
+    () => {
+      mentions(T221, 'LF-19', 'FR-093', 'S-30')
+      for (const { where, rows } of sweepRows()) {
+        expect(rows.length, `${where}: the band drew no rows`).toBeGreaterThanOrEqual(1)
+        for (const [index, row] of rows.entries()) {
+          expect(row.length, `${where}: row ${index} is empty`).toBeGreaterThanOrEqual(1)
+          for (let at = 1; at < row.length; at += 1) {
+            const left = row[at - 1] as RulerLabel
+            const right = row[at] as RulerLabel
+            expect(
+              left.x + estimateOf(left.text),
+              `${where}: row ${index} "${left.text}" runs into "${right.text}"`,
+            ).toBeLessThanOrEqual(right.x + HALF_A_ROUNDING)
+          }
+        }
+      }
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-19'],
+      given: 'a row of the band with no tick inside it (a left edge in the middle of a month at a wide day)',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'the row still draws the pulled label, at the band left edge x',
+    }),
+    () => {
+      mentions(T221, 'LF-19', 'TM-1')
+      const scroll: CalendarDay = { year: 2026, month: 3, day: 3 }
+      for (const pxPerDay of [60, TIER_DAY_PX * 3]) {
+        const frame = rulerAt(pxPerDay, { scrollDate: isoOf(scroll) })
+        const days = Math.ceil(frame.band.width / frame.layout.pxPerDay)
+        for (let step = 0; step <= days; step += 1) {
+          expect(plusDays(scroll, step).day === 1, 'the sample band holds a month start').toBe(false)
+        }
+        const top = rulerRowsOf(frame.svg)[0] ?? []
+        expect(top.map((label) => label.text), `${pxPerDay} px/day`).toEqual(['2026-03'])
+        expect(top[0]?.x, `${pxPerDay} px/day`).toBeCloseTo(frame.band.x, 1)
+      }
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-1',
+      level: 'Integration',
+      covers: ['LF-19'],
+      given: 'the same sweep of tiers, day widths and left edges',
+      when: 'svgFromSchedule draws the ruler band',
+      then: 'no label stands left of the band left edge',
+    }),
+    () => {
+      mentions(T221, 'LF-19', 'MUST NOT')
+      for (const { where, band, rows } of sweepRows()) {
+        for (const row of rows) {
+          for (const label of row) {
+            expect(label.x, `${where}: "${label.text}"`).toBeGreaterThanOrEqual(band.x - HALF_A_ROUNDING)
+          }
+        }
+      }
+    },
+  )
+})
+
 // ===========================================================================
 // The file checking itself: every row of the two tables has a case, and every
 // declaration is well formed. Table T-219 TW-2 raises no Chapter 9 node, so
