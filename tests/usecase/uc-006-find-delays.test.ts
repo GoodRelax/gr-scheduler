@@ -1,6 +1,6 @@
 // Use-case test for UC-006 (find delays), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, press, readDocument, readSample, type GrsDocument } from './uc-harness'
+import { DROP_STEPS, VIEWPORT, drag, enableAgentApi, figureBox, launch, openByDrop, press, readDocument, readSample, type GrsDocument } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -34,7 +34,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
   await test.step('UC-006 step 1: the viewer places the status date by dragging its line (FR-046, GR-16)', async () => {
     const before = await readDocument(page)
     const line = (await figureBox(page, 'status-line'))!
-    await drag(page, { x: line.x, y: line.y + line.h / 2 }, { x: line.x + 60, y: line.y + line.h / 2 })
+    await drag(page, { x: line.x, y: line.y + line.h / 2 }, { x: line.x + 60, y: line.y + line.h / 2 }, [], DROP_STEPS)
     const after = await readDocument(page)
     expect(statusDayOf(after)).toBeGreaterThan(statusDayOf(before))
     const moved = (await figureBox(page, 'status-line'))!

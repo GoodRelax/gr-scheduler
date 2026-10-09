@@ -1,6 +1,6 @@
 // Use-case test for UC-008 (tell by annotations), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, bandAt, dayAxis, dayNumber, drag, enableAgentApi, figureBox, launch, press, pressRowControl, readDocument, settle } from './uc-harness'
+import { DROP_STEPS, VIEWPORT, bandAt, dayAxis, dayNumber, drag, enableAgentApi, figureBox, launch, press, pressRowControl, readDocument, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -58,7 +58,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     const band = (await figureBox(page, 'task-group-' + anchorTaskGroup + '-band'))!
     const axis = await dayAxis(page)
     const taskGroupUnderTheMovedAnchor = await bandAt(page, band.y + band.h / 2 + OFFSET.dy)
-    await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy })
+    await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy }, [], DROP_STEPS)
     const box = (await readDocument(page)).schedule.commentBoxes[0]!
     const moved = (await figureBox(page, 'comment-' + commentId))!
     expect(Math.abs(moved.x - body.x - OFFSET.dx)).toBeLessThanOrEqual(1)
@@ -94,7 +94,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   await test.step('UC-008 step 3: surround the range to stress with a rounded rectangle (IC-36, AR-6)', async () => {
     rows = [await bandAt(page, RANGE_FROM.y), await bandAt(page, RANGE_TO.y)]
     await press(page, 'IC-36')
-    await drag(page, RANGE_FROM, RANGE_TO)
+    await drag(page, RANGE_FROM, RANGE_TO, [], DROP_STEPS)
     await page.keyboard.press('Escape')
     const boxes = (await readDocument(page)).schedule.highlightBoxes
     expect(boxes).toHaveLength(1)

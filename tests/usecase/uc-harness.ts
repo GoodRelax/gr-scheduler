@@ -154,11 +154,13 @@ export const elementBox = (page: Page, selector: string): Promise<Box | null> =>
     return { x: r.x, y: r.y, w: r.width, h: r.height }
   }, selector)
 
-export const drag = async (page: Page, from: { x: number; y: number }, to: { x: number; y: number }, modifiers: Array<'Control' | 'Shift' | 'Alt'> = []): Promise<void> => {
+// WHY: each move is one drawn frame (0.4 s on the large sample, twice that in a loaded GT-2); a case that needs
+// only the drop passes DROP_STEPS, whose first move goes half the way, past any drag threshold (DFC-2313).
+export const DROP_STEPS = 2
+export const drag = async (page: Page, from: { x: number; y: number }, to: { x: number; y: number }, modifiers: Array<'Control' | 'Shift' | 'Alt'> = [], steps = 8): Promise<void> => {
   for (const key of modifiers) await page.keyboard.down(key)
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()
-  const steps = 8
   for (let i = 1; i <= steps; i++) await page.mouse.move(from.x + ((to.x - from.x) * i) / steps, from.y + ((to.y - from.y) * i) / steps)
   await page.mouse.up()
   for (const key of modifiers) await page.keyboard.up(key)

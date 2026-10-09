@@ -1,6 +1,6 @@
 // Use-case test for UC-003 (edit the attributes of a task), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
-import { VIEWPORT, drag, enableAgentApi, figureBox, launch, press, readDocument, settle, type GrsDocument } from './uc-harness'
+import { DROP_STEPS, VIEWPORT, drag, enableAgentApi, figureBox, launch, press, readDocument, settle, type GrsDocument } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 
@@ -15,6 +15,8 @@ const commit = async (page: Page): Promise<void> => {
 }
 
 test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, FR-008, FR-049, FR-090, FR-039)', async ({ page }) => {
+  // WHY: 12 s alone and 15 s in a whole run, all of it steps UC-003 names; a loaded GT-2 ran it past 30 s (DFC-2313).
+  test.setTimeout(60000)
   await launch(page)
   await enableAgentApi(page)
 
@@ -119,7 +121,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
   await test.step('UC-003 extension 4a: moving the task on screen moves the dates in the panel (FR-006)', async () => {
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     const startBefore = taskOf(await readDocument(page)).start
-    await drag(page, { x: plan.x + plan.w / 2, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w / 2 + 60, y: plan.y + plan.h / 2 })
+    await drag(page, { x: plan.x + plan.w / 2, y: plan.y + plan.h / 2 }, { x: plan.x + plan.w / 2 + 60, y: plan.y + plan.h / 2 }, [], DROP_STEPS)
     // see FR-031, FR-103
     // WHY: the ends land on a weekend; no question is asked and the ends stay where they were dropped.
     await expect(page.locator('[data-role="Confirmation"]')).toHaveCount(0)
