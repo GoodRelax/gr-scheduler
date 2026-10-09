@@ -17,30 +17,16 @@ tests/unit/uf-47-48-choosers.test.ts	48	11	row	keep
 tests/unit/uf-47-48-choosers.test.ts	115	7	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	126	17	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	202	8	row	keep			
-tests/unit/uf-47-48-choosers.test.ts	215	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	215	18	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48-choosers.test.ts	227	71	rows	keep			
 tests/unit/uf-47-48-choosers.test.ts	228	41	rows	keep			
-tests/unit/uf-47-48-choosers.test.ts	236	15	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	237	13	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	237	22	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	238	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	238	18	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	246	15	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	247	13	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	247	22	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	248	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-choosers.test.ts	248	18	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48-choosers.test.ts	258	11	ROWS	keep			
 tests/unit/uf-47-48-choosers.test.ts	284	32	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	327	48	ROW	keep			
 tests/unit/uf-47-48-choosers.test.ts	330	7	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	355	8	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	355	38	row	keep			
-tests/unit/uf-47-48-choosers.test.ts	488	9	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48-choosers.test.ts	502	31	row	task-group			
 tests/unit/uf-47-48-choosers.test.ts	506	74	rows	keep			
-tests/unit/uf-47-48-choosers.test.ts	531	19	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48-choosers.test.ts	558	46	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	830	51	row	keep			
 tests/unit/uf-47-48-choosers.test.ts	835	14	row	keep			
@@ -151,9 +137,6 @@ tests/unit/uf-47-48-history-bytes.test.ts	204	58	row	keep
 tests/unit/uf-47-48-history-bytes.test.ts	210	21	row	keep			
 tests/unit/uf-47-48-history-bytes.test.ts	238	24	row	keep			
 tests/unit/uf-47-48-history-bytes.test.ts	539	29	rows	keep			
-tests/unit/uf-47-48-history-bytes.test.ts	544	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-history-bytes.test.ts	545	39	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48-history-bytes.test.ts	549	44	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48-history-bytes.test.ts	556	38	row	keep			
 tests/unit/uf-47-48-history-bytes.test.ts	589	23	row	keep			
 tests/unit/uf-47-48-history-bytes.test.ts	611	23	rows	keep			
@@ -190,64 +173,30 @@ tests/unit/uf-47-48.test.ts	647	26	row	task-group
 tests/unit/uf-47-48.test.ts	648	40	row	task-group			
 tests/unit/uf-47-48.test.ts	709	55	row	task-group			
 tests/unit/uf-47-48.test.ts	711	72	rows	task-group			
-tests/unit/uf-47-48.test.ts	718	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	719	31	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	748	25	row	keep			
 tests/unit/uf-47-48.test.ts	888	7	rows	keep			
 tests/unit/uf-47-48.test.ts	947	10	row	task-group			
 tests/unit/uf-47-48.test.ts	954	16	rows	task-group			
 tests/unit/uf-47-48.test.ts	972	23	rows	task-group			
 tests/unit/uf-47-48.test.ts	1085	31	rows	task-group			
-tests/unit/uf-47-48.test.ts	1102	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1135	22	rows	task-group			
 tests/unit/uf-47-48.test.ts	1135	79	row	task-group			
-tests/unit/uf-47-48.test.ts	1142	10	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1142	40	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1145	40	rows	task-group			
-tests/unit/uf-47-48.test.ts	1146	11	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1148	57	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1148	67	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1148	75	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1149	15	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1149	22	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1150	69	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1151	31	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1152	36	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1156	24	row	task-group			
 tests/unit/uf-47-48.test.ts	1156	58	row	task-group			
 tests/unit/uf-47-48.test.ts	1157	52	row	task-group			
 tests/unit/uf-47-48.test.ts	1158	12	row	task-group			
-tests/unit/uf-47-48.test.ts	1171	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1171	44	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1171	52	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1208	70	rows	task-group			
 tests/unit/uf-47-48.test.ts	1210	28	rows	task-group			
 tests/unit/uf-47-48.test.ts	1211	19	row	task-group			
-tests/unit/uf-47-48.test.ts	1217	12	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1220	56	rows	task-group			
-tests/unit/uf-47-48.test.ts	1223	8	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1236	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1241	58	rows	task-group			
-tests/unit/uf-47-48.test.ts	1250	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1251	7	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1252	17	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1252	25	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1252	71	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1254	31	row	task-group			
 tests/unit/uf-47-48.test.ts	1259	12	rows	task-group			
 tests/unit/uf-47-48.test.ts	1259	76	rows	task-group			
 tests/unit/uf-47-48.test.ts	1260	28	row	task-group			
 tests/unit/uf-47-48.test.ts	1260	62	row	task-group			
-tests/unit/uf-47-48.test.ts	1269	34	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1270	7	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1270	24	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1270	32	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1270	77	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1274	70	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1274	78	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1280	57	row	task-group			
-tests/unit/uf-47-48.test.ts	1288	12	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-47-48.test.ts	1288	32	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-47-48.test.ts	1438	38	row	keep			
 tests/unit/uf-47-48.test.ts	1577	44	rows	task-group			
 tests/unit/uf-47-48.test.ts	1579	67	rows	task-group			
@@ -273,47 +222,16 @@ tests/unit/uf-48-input.test.ts	223	47	row	task-group
 tests/unit/uf-48-input.test.ts	223	54	row	task-group			
 tests/unit/uf-48-input.test.ts	239	7	rows	task-group			
 tests/unit/uf-48-input.test.ts	248	55	rows	task-group			
-tests/unit/uf-48-input.test.ts	277	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	303	19	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	303	46	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	483	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	484	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	485	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	486	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	487	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	488	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	489	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	490	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	491	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	492	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	493	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	494	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	495	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	496	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	497	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	498	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	499	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	500	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	501	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	502	4	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-input.test.ts	516	48	row	keep			
 tests/unit/uf-48-input.test.ts	661	49	row	keep			
-tests/unit/uf-48-input.test.ts	688	15	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	690	37	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-input.test.ts	847	45	row	keep			
 tests/unit/uf-48-input.test.ts	891	45	row	keep			
 tests/unit/uf-48-input.test.ts	936	11	row	keep			
 tests/unit/uf-48-input.test.ts	974	8	row	keep			
 tests/unit/uf-48-input.test.ts	1166	24	row	keep			
-tests/unit/uf-48-input.test.ts	1239	15	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	1240	34	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	1240	38	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	1244	31	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-input.test.ts	1264	16	row	keep			
 tests/unit/uf-48-input.test.ts	1300	76	row	keep			
 tests/unit/uf-48-input.test.ts	1301	61	row	keep			
-tests/unit/uf-48-input.test.ts	1304	17	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-input.test.ts	1307	23	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-input.test.ts	1317	46	row	keep			
 tests/unit/uf-48-input.test.ts	1318	11	row	keep			
 tests/unit/uf-48-undo-through-the-one-path.test.ts	4	48	row	keep			
@@ -325,21 +243,11 @@ tests/unit/uf-48-undo-through-the-one-path.test.ts	165	50	rows	task-group
 tests/unit/uf-48-undo-through-the-one-path.test.ts	166	47	row	task-group			
 tests/unit/uf-48-undo-through-the-one-path.test.ts	166	54	row	task-group			
 tests/unit/uf-48-undo-through-the-one-path.test.ts	201	7	rows	task-group			
-tests/unit/uf-48-undo-through-the-one-path.test.ts	235	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-undo-through-the-one-path.test.ts	261	19	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-undo-through-the-one-path.test.ts	261	46	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-undo-through-the-one-path.test.ts	700	15	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-undo-through-the-one-path.test.ts	701	35	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-write-moment.test.ts	41	55	rows	keep			
-tests/unit/uf-48-write-moment.test.ts	171	21	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-write-moment.test.ts	172	30	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-write-moment.test.ts	179	60	rows	task-group			
 tests/unit/uf-48-write-moment.test.ts	180	59	row	task-group			
 tests/unit/uf-48-write-moment.test.ts	180	66	row	task-group			
 tests/unit/uf-48-write-moment.test.ts	194	7	rows	task-group			
-tests/unit/uf-48-write-moment.test.ts	226	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-write-moment.test.ts	252	19	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-48-write-moment.test.ts	252	46	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-48-write-moment.test.ts	538	24	row	keep			
 tests/unit/uf-48-write-moment.test.ts	631	32	row	keep			
 tests/unit/uf-48-write-moment.test.ts	753	17	rows	keep			
@@ -491,7 +399,6 @@ tests/unit/uf-71.test.ts	1667	68	rows	task-group
 tests/unit/uf-71.test.ts	1672	9	row	keep			
 tests/unit/uf-71.test.ts	1687	10	row	task-group			
 tests/unit/uf-71.test.ts	1700	34	row	task-group			
-tests/unit/uf-71.test.ts	1707	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	1739	9	rows	task-group			
 tests/unit/uf-71.test.ts	1756	24	row	task-group			
 tests/unit/uf-71.test.ts	1767	28	rows	task-group			
@@ -501,23 +408,17 @@ tests/unit/uf-71.test.ts	1771	27	rows	task-group
 tests/unit/uf-71.test.ts	1779	24	rows	task-group			
 tests/unit/uf-71.test.ts	1784	31	ROW	keep			
 tests/unit/uf-71.test.ts	1807	27	ROWS	task-group			
-tests/unit/uf-71.test.ts	1814	48	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	1831	66	rows	task-group			
 tests/unit/uf-71.test.ts	1858	98	row	task-group			
-tests/unit/uf-71.test.ts	1859	36	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	1863	43	ROW	keep			
 tests/unit/uf-71.test.ts	1877	27	row	keep			
 tests/unit/uf-71.test.ts	1879	42	row	keep			
 tests/unit/uf-71.test.ts	1915	66	row	task-group			
 tests/unit/uf-71.test.ts	1916	66	row	task-group			
-tests/unit/uf-71.test.ts	1927	36	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	1929	62	row	keep			
 tests/unit/uf-71.test.ts	2084	74	rows	keep			
 tests/unit/uf-71.test.ts	2089	10	ROWS	keep			
 tests/unit/uf-71.test.ts	2089	29	ROW	keep			
-tests/unit/uf-71.test.ts	2096	5	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2096	15	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2097	11	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	2205	62	row	keep			
 tests/unit/uf-71.test.ts	2233	17	row	keep			
 tests/unit/uf-71.test.ts	2241	75	row	keep			
@@ -529,21 +430,8 @@ tests/unit/uf-71.test.ts	2532	29	row	task-group
 tests/unit/uf-71.test.ts	2535	21	row	task-group			
 tests/unit/uf-71.test.ts	2535	53	row	task-group			
 tests/unit/uf-71.test.ts	2553	32	row	task-group			
-tests/unit/uf-71.test.ts	2564	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2564	35	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2565	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2566	46	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2573	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2573	35	rows	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2574	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2575	46	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	2580	14	row	task-group			
-tests/unit/uf-71.test.ts	2581	40	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2587	10	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2588	8	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	2588	62	row	task-group			
-tests/unit/uf-71.test.ts	2589	13	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
-tests/unit/uf-71.test.ts	2589	32	row	keep			code identifier (light lexer took it for text): rename_symbols decides it by type
 tests/unit/uf-71.test.ts	2596	37	row	task-group			
 tests/unit/uf-71.test.ts	2600	49	row	task-group			
 tests/unit/uf-71.test.ts	2614	23	ROW	task-group			

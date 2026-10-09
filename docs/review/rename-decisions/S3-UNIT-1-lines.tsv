@@ -1,6 +1,4 @@
 path	line	col	text	decision	rewrite_old	rewrite_new	note
-tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	268	37	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	271	20	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	291	72	row	rewrite	'row'	'taskGroup'	defaultNames use value, CR 2.5 rule 8
 tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts	296	82	row	task-group			
 tests/unit/cr-383-fr-009-the-dependency-line-follows-the-pointer.test.ts	79	8	row	keep			
@@ -53,54 +51,10 @@ tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	1048	15	row	task-group
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	41	26	row	keep			
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	44	51	row	keep			
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	53	29	rows	keep			
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	101	35	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	101	49	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	101	66	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	103	22	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	104	24	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	106	34	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	106	44	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	106	52	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	106	68	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	106	90	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	107	35	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	107	45	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	107	53	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	107	69	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	107	90	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	122	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	123	30	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	124	30	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	130	11	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	131	13	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	131	27	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	132	13	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	132	27	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	132	86	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	133	10	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	133	18	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	199	52	rows	keep			
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	271	57	row	keep			
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	271	85	row	keep			
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	368	27	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	375	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	376	54	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	376	60	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	378	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	379	54	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	403	15	row	keep			
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	405	26	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	405	50	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	405	68	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	433	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	434	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	434	50	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	434	56	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	434	71	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	435	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	435	51	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	435	57	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts	435	76	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts	41	43	rows	keep			
 tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts	42	41	row	keep			
 tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts	280	60	rows	keep			
@@ -110,16 +64,10 @@ tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts	40	3
 tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts	531	46	rows	keep			
 tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts	562	19	row	keep			
 tests/unit/cr-410-ctrl-shift-keys-move-and-reset-the-display-scale.test.ts	40	90	row	keep			
-tests/unit/cr-410-ctrl-shift-keys-move-and-reset-the-display-scale.test.ts	49	41	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	63	33	rows	keep			
 tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	331	24	row	task-group			
 tests/unit/cr-419-names-draw-heavier-and-every-text-shares-one-typeface-list.test.ts	334	68	rows	task-group			
 tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	60	18	row	rewrite	row zoom	vertical zoom	rule 7 JDG-1660
-tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	211	20	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	241	13	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	244	18	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	255	24	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	409	45	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	434	16	row	task-group			
 tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	439	64	row	task-group			
 tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	442	56	row	task-group			
@@ -138,21 +86,6 @@ tests/unit/cr-427-endpoints-show-arrow-pointers-and-a-press-keeps-its-shape.test
 tests/unit/cr-429-mspdi-fixtures.ts	73	33	Row	task-group			default name argument
 tests/unit/cr-429-rs-60-the-notice-is-raised.test.ts	60	68	row	keep			
 tests/unit/cr-429-rs-60-the-notice-is-raised.test.ts	319	48	row	keep			
-tests/unit/cr-430-bench.ts	63	28	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-bench.ts	100	13	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-bench.ts	101	36	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	59	23	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	60	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	61	17	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	63	10	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	64	13	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	65	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	66	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	69	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	81	36	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	81	44	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	86	75	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-430-scene.ts	86	83	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-430-scene.ts	409	19	row	keep			
 tests/unit/cr-430-stage.ts	86	12	row	task-group			fixture label
 tests/unit/cr-439-notices-and-confirmation.test.ts	76	26	rows	task-group			
@@ -164,9 +97,6 @@ tests/unit/cr-439-notices-and-confirmation.test.ts	176	43	row	keep
 tests/unit/cr-439-notices-and-confirmation.test.ts	229	28	Row	task-group			
 tests/unit/cr-439-notices-and-confirmation.test.ts	230	28	Row	task-group			
 tests/unit/cr-439-notices-and-confirmation.test.ts	231	41	rows	task-group			
-tests/unit/cr-439-open-modals-help-roster-report-export.test.ts	130	6	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-439-open-modals-help-roster-report-export.test.ts	182	6	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-439-open-modals-help-roster-report-export.test.ts	183	6	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-439-properties-panel-fields.test.ts	78	41	row	keep			
 tests/unit/cr-439-row-title-panel-controls-and-pins.test.ts	101	12	row	task-group			
 tests/unit/cr-439-row-title-panel-controls-and-pins.test.ts	102	17	row	task-group			
@@ -200,139 +130,32 @@ tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts	178	15	row	task-gro
 tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts	202	32	row	task-group			
 tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts	208	30	row	task-group			
 tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts	212	42	row	task-group			
-tests/unit/cr-541-stage.ts	101	2	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-541-stage.ts	111	13	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-541-stage.ts	114	18	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-541-stage.ts	125	24	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-541-stage.ts	126	19	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-541-stage.ts	136	21	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-541-stage.ts	180	50	row	keep			
-tests/unit/cr-541-stage.ts	182	55	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-550-dual-cursor-readout.test.ts	176	14	row	task-group			fixture label
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	1	38	row	task-group			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	1	109	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	54	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	54	43	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	54	56	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	169	22	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	170	31	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	171	28	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	193	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	194	94	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	204	6	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	215	57	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	226	37	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	241	37	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	252	46	row	task-group			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	252	82	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	254	37	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	260	55	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	261	21	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	266	49	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	268	37	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	288	32	rows	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	288	79	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	293	16	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	293	35	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	293	61	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	294	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	294	38	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	294	69	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	295	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	295	38	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	295	83	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	296	20	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	296	39	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	296	70	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	298	31	row	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	298	47	row	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	299	24	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	299	43	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	300	12	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	300	41	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	300	72	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	302	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	303	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	312	35	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	313	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	350	22	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	355	81	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	355	89	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	356	25	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	359	68	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	359	76	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	364	34	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	367	22	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	367	41	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	368	32	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	369	46	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	373	39	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	375	24	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	375	37	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	375	55	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	387	74	row	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	387	95	rows	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	388	17	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	390	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	390	71	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	391	27	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	391	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	391	58	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	391	114	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	392	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	392	55	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	392	80	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	392	88	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	393	58	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	393	66	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	394	60	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	396	11	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	396	22	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	428	24	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	430	22	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	430	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	430	51	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	430	80	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	430	111	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	440	45	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	441	30	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	442	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	454	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	454	71	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	455	34	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	456	30	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	460	32	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	461	16	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	463	19	rows	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	484	48	row	rewrite	row panel	task group's panel	the properties panel of a task group, not the Task Group Panel
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	484	67	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	485	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	521	72	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	527	58	row	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	527	107	row	task-group			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	530	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	530	67	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	530	83	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	531	10	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	532	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	532	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	538	16	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	542	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	543	30	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	546	10	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	547	28	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	547	42	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	553	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	554	38	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	557	32	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	561	28	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	570	29	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	571	37	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	585	28	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	595	42	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	608	63	row	keep			
-tests/unit/cr-551-fit-status-line-and-cursors.test.ts	155	8	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-fit-status-line-and-cursors.test.ts	156	31	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	223	48	row	task-group			
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	258	39	row	task-group			
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	258	98	row	task-group			
@@ -341,65 +164,23 @@ tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	275	25	rows	task-gro
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	287	32	rows	task-group			
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	295	38	rows	task-group			
 tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts	338	76	rows	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	146	11	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	150	20	row	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	155	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	158	11	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	163	70	row	keep			
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	168	75	row	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	175	12	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	176	32	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	176	39	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	176	113	row	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	177	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	181	62	row	keep			
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	183	22	row	keep			
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	184	78	row	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	185	25	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	186	35	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	188	42	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	189	69	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	202	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	202	79	row	keep			
-tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	208	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	394	35	row	task-group			
 tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts	412	39	rows	task-group			
 tests/unit/cr-551-monochrome-swatches.test.ts	47	47	rows	keep			
-tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts	105	8	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts	106	31	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts	294	83	row	keep			
-tests/unit/cr-551-probe-real-app.test.ts	121	30	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	130	8	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	131	31	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	212	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	213	38	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	219	65	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	219	76	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	219	84	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	349	49	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	375	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	377	52	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-probe-real-app.test.ts	497	73	row	task-group			
-tests/unit/cr-551-probe-real-app.test.ts	500	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-probe-real-app.test.ts	501	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	1	26	row	task-group			
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	204	34	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	206	52	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	208	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	208	92	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	209	34	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	210	17	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	217	56	rows	keep			
 tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	236	22	row	task-group			
 tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	241	16	row	task-group			
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	253	9	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	258	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts	259	31	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-dependency-lines-are-elided.test.ts	98	10	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-dependency-lines-are-elided.test.ts	167	30	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-dependency-lines-are-elided.test.ts	167	45	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-dependency-lines-are-elided.test.ts	232	47	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-dependency-lines-are-elided.test.ts	233	29	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	451	75	row	task-group			
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	505	24	row	task-group			
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	521	32	row	task-group			
@@ -415,24 +196,7 @@ tests/unit/cr-555-dependency-lines-are-elided.test.ts	706	43	row	task-group
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	723	44	row	task-group			
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	751	39	row	task-group			
 tests/unit/cr-555-dependency-lines-are-elided.test.ts	758	41	row	task-group			
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	48	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	49	32	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	52	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	52	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	53	6	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	54	29	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	54	52	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	312	10	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	319	40	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320	49	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320	64	Row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320	73	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	322	12	row	task-group			
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	327	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	328	9	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	328	52	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	328	81	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	328	90	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	421	66	row	task-group			
 tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	453	32	row	task-group			
 tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	454	34	row	task-group			
@@ -451,18 +215,6 @@ tests/unit/cr-556-the-deadline-arrow.test.ts	435	101	row	task-group
 tests/unit/cr-556-the-deadline-arrow.test.ts	439	56	row	task-group			
 tests/unit/cr-556-the-deadline-arrow.test.ts	557	48	row	task-group			
 tests/unit/cr-556-the-deadline-arrow.test.ts	605	33	row	task-group			
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	80	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	80	66	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	80	78	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	93	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	94	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	95	35	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	96	36	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	104	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	104	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	110	28	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	111	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	111	65	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	177	24	row	task-group			
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	217	16	row	task-group			fixture label
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	313	62	row	task-group			
@@ -473,18 +225,6 @@ tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	455	20	row	t
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	455	76	row	task-group			
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	476	51	rows	task-group			
 tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	519	43	row	task-group			
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	109	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	109	66	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	109	78	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	121	14	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	122	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	123	35	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	124	36	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	131	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	131	33	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	137	28	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	138	33	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	138	65	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	153	68	row	keep			
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	212	27	row	task-group			
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	253	16	row	task-group			
@@ -499,19 +239,8 @@ tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	613	29	row	
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	640	39	row	task-group			
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	677	50	row	task-group			
 tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	677	88	row	task-group			
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	78	35	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	84	33	row	keep			
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	85	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	85	37	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	86	11	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	97	30	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	120	47	rows	task-group			
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	142	6	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	243	18	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	409	37	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	418	47	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	420	20	ROWS	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	420	25	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	588	68	rows	task-group			
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	613	79	Row	task-group			
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	619	74	row	task-group			
@@ -539,12 +268,6 @@ tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	885	9	Row	tas
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	887	66	row	task-group			
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	890	29	row	task-group			
 tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	905	7	Row	task-group			
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	266	26	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	376	17	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	378	27	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	390	34	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	391	50	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts	400	54	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts	1	74	row	task-group			
 tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts	36	26	Row	task-group			default name constant
 tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts	77	8	Rows	keep			MSPDI project name in a fixture
@@ -601,25 +324,6 @@ tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts	98	16	row	keep
 tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts	128	22	row	keep			
 tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts	166	31	rows	keep			
 tests/unit/cr-617-the-delay-diagnostics-report-window.test.ts	228	44	rows	keep			
-tests/unit/cr-618-same-day-links-hold.test.ts	100	57	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	101	15	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	103	10	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	104	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	104	38	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	109	95	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	110	17	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	110	42	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	110	66	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	110	95	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	263	30	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	263	40	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	263	53	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	316	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	317	19	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	318	11	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	412	10	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	413	19	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/cr-618-same-day-links-hold.test.ts	414	11	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts	123	29	row	task-group			
 tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts	123	46	row	task-group			
 tests/unit/cr-624-a-rested-hint-names-its-holder.test.ts	123	75	row	task-group			
@@ -770,19 +474,9 @@ tests/unit/fr-006-panel-fields-drawn.test.ts	137	39	row	keep
 tests/unit/fr-006-panel-fields-drawn.test.ts	139	36	row	keep			
 tests/unit/fr-006-panel-fields-drawn.test.ts	177	74	row	keep			
 tests/unit/fr-006-panel-fields-drawn.test.ts	219	57	row	keep			
-tests/unit/fr-006-panel-fields-drawn.test.ts	225	8	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	225	20	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	226	6	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	227	9	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/fr-006-panel-fields-drawn.test.ts	230	58	row	keep			
-tests/unit/fr-006-panel-fields-drawn.test.ts	655	32	rows	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	655	43	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	655	51	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/fr-006-panel-fields-drawn.test.ts	656	67	row	keep			
 tests/unit/fr-006-panel-fields-drawn.test.ts	1009	9	ROW	keep			
-tests/unit/fr-006-panel-fields-drawn.test.ts	1019	2	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	1028	4	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-006-panel-fields-drawn.test.ts	1053	2	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/fr-006-panel-fields-drawn.test.ts	1077	58	row	keep			
 tests/unit/fr-006-panel-fields-drawn.test.ts	1127	29	row	keep			
 tests/unit/fr-006-panel-fields-drawn.test.ts	1143	42	row	keep			
@@ -838,8 +532,6 @@ tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	2	22	row	keep
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	97	35	row	keep			
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	110	22	row	keep			
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	183	40	row	task-group			the current document holds one task group (row() builds a TaskGroup)
-tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	223	9	row	keep			code identifier (lexer drift): rename_symbols decides it by type
-tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	247	19	row	keep			code identifier (lexer drift): rename_symbols decides it by type
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	478	52	row	keep			
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	482	28	row	keep			
 tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	499	32	rows	keep			

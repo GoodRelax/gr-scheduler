@@ -215,7 +215,15 @@ def lane_of(path, line=0, japanese_in_test=False, english_prose=False):
 # kanji and katakana, but not the middle dot (U+30FB), which joins a list
 CJK_RUN = re.compile('[\u4e00-\u9fff\u30a1-\u30fa\u30fc]*\u884c[\u4e00-\u9fff\u30a1-\u30fa\u30fc]*')
 KANJI = re.compile('[\u4e00-\u9fff]')
-VERB_TAIL = re.compile('^[\u3046\u3044\u3063\u308f\u3048\u304a\u304b\u304d\u304f\u3051\u3053]')
+# The verbs written with the character: "to do" (u, i, tsu, wa, e, o) and
+# "to go" (ka + nai / se / re / zu / ne, ki + masu or a kanji that makes
+# "destination" and the like, ku, ke, ko). A bare "ka" ("rows or ..."),
+# "kara" ("from the row") and "ki" before anything else are NOT verbs
+# (reconcile item 1).
+VERB_TAIL = re.compile(
+    '^(?:[\u3046\u3044\u3063\u308f\u3048\u304a\u304f\u3051\u3053]'
+    '|\u304b(?:\u306a[\u3044\u304b\u304f\u3051]|\u305b|\u308c|\u305a|\u306d)'
+    '|\u304d(?:\u307e|[\u5148\u6765\u6b62\u6e21\u5c4a\u904e]))')
 B_RUNS = frozenset([
     '\u4e26\u884c', '\u4e26\u884c\u4f5c\u696d', '\u4e26\u884c\u6027', '\u5148\u884c',
     '\u5148\u884c\u30bf\u30b9\u30af', '\u5148\u884c\u5f8c\u7d9a', '\u518d\u8a66\u884c',
@@ -227,10 +235,27 @@ B_RUNS = frozenset([
     '\u8a66\u884c', '\u8d70\u884c', '\u8d70\u884c\u4e2d', '\u8d70\u884c\u56de\u6570',
     '\u9000\u884c', '\u9032\u884c', '\u9032\u884c\u4e2d', '\u9042\u884c', '\u904b\u884c',
 ])
-# a bare character right after a table or a row id: the row of a spec table
+# a bare character right after a table or a row id: the row of a spec table.
+# The id must carry a prefix of docs/spec/_source/row-id-prefixes.json: a
+# requirement id (`FR-016` ...) names no table row (reconcile item 2).
 TABLE_BEFORE = re.compile(
-    '(\u8868 ?`?T-[0-9]+[a-z]?`?|`[A-Z]{1,4}-[0-9]+[a-z]?`|\u540c\u8868|\u672c\u8868)'
+    '(\u8868 ?`?T-[0-9]+[a-z]?`?|`(?P<prefix>[A-Z]{1,4})-[0-9]+[a-z]?`|\u540c\u8868|\u672c\u8868)'
     '\\s*\u306e?\\s*$')
+ROW_ID_PREFIXES_JSON = 'docs/spec/_source/row-id-prefixes.json'
+
+
+def row_id_prefixes():
+    if 'prefixes' not in _split_cache:
+        import json
+        with io.open(os.path.join(ROOT, ROW_ID_PREFIXES_JSON), encoding='utf-8') as f:
+            _split_cache['prefixes'] = frozenset(p['prefix'] for p in json.load(f)['prefixes'])
+    return _split_cache['prefixes']
+
+
+def names_table_row(match):
+    """A TABLE_BEFORE / EN_TABLE_BEFORE match names a table row (not a requirement)."""
+    prefix = match.groupdict().get('prefix')
+    return prefix is None or prefix in row_id_prefixes()
 # a bare character right after a number: may count task groups -- read it
 NUMBER_BEFORE = re.compile('[0-9]+ ?$')
 # words near an occurrence that suggest a spec table, a text line or a file
@@ -255,7 +280,7 @@ def classify_ja(text, start, end, run):
               listed with the machine decision keep
     open      everything else -- the phrase table or a reader decides
     """
-    tail = text[end:end + 1]
+    tail = text[end:end + 3]
     if run.endswith(ROW) and VERB_TAIL.match(tail):
         return 'verb'
     if run in B_RUNS:
@@ -267,7 +292,8 @@ def classify_ja(text, start, end, run):
     if run == ROW:
         line_start = text.rfind('\n', 0, start) + 1
         before = text[max(line_start, start - 14):start]
-        if TABLE_BEFORE.search(before):
+        m = TABLE_BEFORE.search(before)
+        if m and names_table_row(m):
             return 'table'
     return 'open'
 
@@ -337,7 +363,7 @@ def phrase_at(text, start, phrases, path, use_guard=True):
                     pass
                 elif KANJI.match(old[-1]) and e < len(text) and KANJI.match(text[e]):
                     pass
-                elif old.endswith(ROW) and VERB_TAIL.match(text[e:e + 1]):
+                elif old.endswith(ROW) and VERB_TAIL.match(text[e:e + 3]):
                     pass
                 else:
                     line_start = text.rfind('\n', 0, s) + 1
@@ -547,7 +573,7 @@ EN_KEEP_AFTER = re.compile(r'^[ -]?(id|ids|ID|IDs)\b')
 # table row, decided by machine. At most two plain words may stand between;
 # a dash, a comma or a sentence end breaks the link ("table T-329 -- an
 # expanded row" is a task group).
-EN_TABLE_BEFORE = re.compile(r'(\btable\b|\bT-[0-9]+[a-z]?\b|`[A-Z]{1,4}-[0-9]*`)\s*'
+EN_TABLE_BEFORE = re.compile(r'(\btable\b|\bT-[0-9]+[a-z]?\b|`(?P<prefix>[A-Z]{1,4})-[0-9]*`)\s*'
                              r'(\$\{[^}]*\}\s*)?([A-Za-z\']+\s+){0,2}$')
 EN_TABLE_AFTER = re.compile(r'^\s+(of|in)\s+(the\s+)?(table\b|T-[0-9])')
 
@@ -558,7 +584,8 @@ def suggest_en(text, start, end):
     before = text[max(line_start, start - 40):start]
     if EN_KEEP_AFTER.match(text[end:end + 5]):
         return 'keep', 'row id'
-    if EN_TABLE_BEFORE.search(before) or EN_TABLE_AFTER.match(text[end:end + 16]):
+    table_before = EN_TABLE_BEFORE.search(before)
+    if table_before and names_table_row(table_before) or EN_TABLE_AFTER.match(text[end:end + 16]):
         return 'keep', 'table row'
     if EN_TABLE_GUARD.search(before[-24:]):
         return '', 'keep?'
@@ -567,12 +594,81 @@ def suggest_en(text, start, end):
 
 # ------------------------------------------------------------------ code lexer
 
-def code_segments(text, ext):
+# Real tokens (reconcile item 14): JS / TS through @babel/parser
+# (lex_spans.mjs, one node run for every file at once), Python through the
+# standard tokenize module. light_code_segments stays as the fallback for a
+# file neither can read, and every fallback is counted in LEX_FALLBACKS.
+_lex_cache = {}
+LEX_FALLBACKS = []
+
+
+def prime_lexer(paths):
+    """Lex every JS / TS file of `paths` in one node run and keep the spans."""
+    todo = [p for p in paths if os.path.splitext(p)[1] in CODE_EXTENSIONS
+            and (ROOT, p) not in _lex_cache]
+    if not todo:
+        return
+    import json
+    script = os.path.join(HERE, 'lex_spans.mjs')
+    out = subprocess.run(['node', script, ROOT], input=json.dumps(todo), capture_output=True,
+                         text=True, encoding='utf-8')
+    if out.returncode != 0:
+        raise SystemExit('lex_spans.mjs failed: ' + out.stderr[-2000:])
+    for path, spans in json.loads(out.stdout).items():
+        _lex_cache[(ROOT, path)] = None if spans is None else [tuple(s) for s in spans]
+
+
+def python_segments(text):
+    """Comment and string spans of Python source from the tokenize module, or None."""
+    import tokenize
+    starts = [0]
+    for line in text.split('\n'):
+        starts.append(starts[-1] + len(line) + 1)
+    spans = []
+    fstring_at = []
+    names = ('FSTRING_START', 'FSTRING_END', 'TSTRING_START', 'TSTRING_END')
+    kinds = dict((getattr(tokenize, n), n) for n in names if hasattr(tokenize, n))
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(text).readline):
+            s = starts[tok.start[0] - 1] + tok.start[1]
+            e = starts[tok.end[0] - 1] + tok.end[1]
+            kind = kinds.get(tok.type, '')
+            if tok.type == tokenize.COMMENT:
+                spans.append((s, e, 'comment'))
+            elif tok.type == tokenize.STRING:
+                spans.append((s, e, 'string'))
+            elif kind.endswith('_START'):
+                fstring_at.append(s)
+            elif kind.endswith('_END') and fstring_at:
+                spans.append((fstring_at.pop(), e, 'string'))
+    except (tokenize.TokenError, SyntaxError, IndentationError):
+        return None
+    return sorted(spans)
+
+
+def code_segments(text, ext, path=None):
+    """Spans (start, end, kind) of comments and string literals; kind is 'comment' or 'string'."""
+    if ext == '.py':
+        spans = python_segments(text)
+        if spans is not None:
+            return spans
+    elif path is not None:
+        if (ROOT, path) not in _lex_cache:
+            prime_lexer([path])
+        spans = _lex_cache.get((ROOT, path))
+        if spans is not None:
+            return spans
+    LEX_FALLBACKS.append(path or '?')
+    return light_code_segments(text, ext)
+
+
+def light_code_segments(text, ext):
     """Spans of comments and string literals in JS/TS or Python source.
 
     Returns a list of (start, end, kind) where kind is 'comment' or 'string'.
     A light lexer: good for this tree, not a parser. Regex literals are taken
-    as code (they are rare and hold no prose).
+    as code (they are rare and hold no prose). A backtick inside a comment
+    derails it, so it is only the fallback of code_segments.
     """
     spans = []
     i = 0
@@ -639,7 +735,7 @@ def prose_spans(path, text):
     """Where English prose can live in this file: (start, end) spans."""
     ext = os.path.splitext(path)[1]
     if ext in CODE_EXTENSIONS or ext == '.py':
-        return [(s, e) for s, e, _ in code_segments(text, ext)]
+        return [(s, e) for s, e, _ in code_segments(text, ext, path)]
     if ext == '.json':
         spans = []
         for m in re.finditer(r'"(?:[^"\\\n]|\\.)*"(\s*:)?', text):

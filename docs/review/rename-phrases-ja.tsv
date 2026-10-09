@@ -30,7 +30,7 @@ WBS 親	親タスク	all	on		on	JDG-1652	4	CR-708 2.1
 ピン止め行	ピン止めしたタスクグループ	all	off		on	JDG-1659	1	CR-708 2.1
 最上位の行	最上位のタスクグループ	all	on		on	JDG-1570	10	inventory J1-A99
 配下の行	配下のタスクグループ	all	on		on	JDG-1570	19	inventory J1-A12 / J2-073
-畳んだ行	畳んだタスクグループ	all	on		on	JDG-1570	28	inventory J1-A12
+畳んだ行	畳んだタスクグループ	all	on		on	JDG-1570	32	inventory J1-A12
 隠した行	隠したタスクグループ	all	on		on	JDG-1570	23	inventory J1-A12
 行の帯	タスクグループの帯	all	on		on	JDG-1570	84	inventory J1-A04; covers 行の帯高
 行の木	タスクグループの木	all	on		on	JDG-1570	61	inventory J1-A09

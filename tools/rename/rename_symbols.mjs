@@ -43,6 +43,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { lexSpans, loadBabel } from './lex_spans.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -117,54 +118,18 @@ function laneOf(rel) {
   return 'S2-FW';
 }
 
-// Comments and string text of JS / TS source (template ${...} is code).
-function textSpans(text) {
-  const spans = [];
-  let i = 0;
-  const n = text.length;
-  while (i < n) {
-    if (text.startsWith('//', i)) {
-      let j = text.indexOf('\n', i);
-      if (j < 0) j = n;
-      spans.push([i, j]);
-      i = j;
-      continue;
-    }
-    if (text.startsWith('/*', i)) {
-      let j = text.indexOf('*/', i + 2);
-      j = j < 0 ? n : j + 2;
-      spans.push([i, j]);
-      i = j;
-      continue;
-    }
-    const c = text[i];
-    if (c === '"' || c === "'" || c === '`') {
-      let j = i + 1;
-      let part = i;
-      while (j < n && text[j] !== c) {
-        if (text[j] === '\\') { j += 2; continue; }
-        if (c !== '`' && text[j] === '\n') break;
-        if (c === '`' && text.startsWith('${', j)) {
-          spans.push([part, j]);
-          let depth = 1;
-          j += 2;
-          while (j < n && depth) {
-            if (text[j] === '{') depth += 1;
-            else if (text[j] === '}') depth -= 1;
-            j += 1;
-          }
-          part = j;
-          continue;
-        }
-        j += 1;
-      }
-      spans.push([part, Math.min(j + 1, n)]);
-      i = j + 1;
-      continue;
-    }
-    i += 1;
+// Comments, string text and regular expressions of JS / TS source, from real
+// tokens (lex_spans.mjs, @babel/parser; template ${...} is code). The light
+// lexer this replaced was derailed by a backtick inside a comment.
+let babelParser = null;
+function textSpans(text, rel) {
+  babelParser ??= loadBabel(ROOT);
+  if (!babelParser) throw new Error('@babel/parser not found above ' + HERE + ' or ' + ROOT);
+  try {
+    return lexSpans(babelParser, text, path.extname(rel), false).map(([s, e]) => [s, e]);
+  } catch (err) {
+    throw new Error('cannot lex ' + rel + ': ' + err.message);
   }
-  return spans;
 }
 
 function stripType(s) {
@@ -435,7 +400,7 @@ async function main() {
   // pass 4: tokens inside comments and strings
   for (const [rel, src] of sources) {
     const text = src.text;
-    for (const [s0, e0] of textSpans(text)) {
+    for (const [s0, e0] of textSpans(text, rel)) {
       const seg = text.slice(s0, e0);
       const taken = [];
       for (const r of specWords) {
@@ -503,11 +468,12 @@ async function main() {
       ' map-name hints)');
     return 0;
   }
-  if (MODE !== 'apply') return 0;
-
   const decided = new Map([...readTsv(TYPES_TSV), ...decisionFiles('types').flatMap(readTsv)]
     .filter((r) => r.decision)
     .map((r) => [typeKey(r), r.decision]));
+  console.log('generic identifiers still undecided after the decision files: ' +
+    typeRows.filter((r) => !decided.has(typeKey(r))).length);
+  if (MODE !== 'apply') return 0;
   // --leave-tests-undecided (stage 2): what only tests/ holds may stay open;
   // it is left untouched, and stage 3 runs this script again once decided
   const leaveTests = args.includes('--leave-tests-undecided');

@@ -283,6 +283,7 @@ def build(report_only=False):
         stem = base.split('.')[0]
         if has_rename_part(stem):
             stems[stem] = path
+    rc.prime_lexer(files)
     for path in files:
         try:
             text, _ = rc.read_text(path)
@@ -354,6 +355,8 @@ def build(report_only=False):
     refresh_phrase_hits(ja_rows)
     print_report(ja_rows, en_rows, map_rows)
     print('generated files skipped: %d' % len(generated))
+    print('files lexed by the light fallback lexer: %d %s' % (
+        len(rc.LEX_FALLBACKS), ' '.join(rc.LEX_FALLBACKS[:10])))
     if orphans:
         print('ORPHANED reader decisions (their place is gone): %d' % len(orphans))
         for r in orphans[:20]:
@@ -557,7 +560,8 @@ def lane_table():
     en_rows = rc.read_tsv(rc.LINES_EN_TSV)
     map_rows = rc.read_tsv(rc.MAP_TSV)
     type_rows = rc.read_tsv('docs/review/rename-types.tsv')
-    problems = rc.overlay_lines(ja_rows) + rc.overlay_lines(en_rows) + rc.overlay_map(map_rows)
+    # one overlay over both sheets: a decision file holds Japanese and English places
+    problems = rc.overlay_lines(ja_rows + en_rows) + rc.overlay_map(map_rows)
     typed = set()
     for name in rc.decision_files('types'):
         for d in rc.read_tsv(name):

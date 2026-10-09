@@ -10,30 +10,10 @@ tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	60	50	row	
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	62	62	row	keep			
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	148	43	row	keep			
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	201	53	row	task-group			fixture label of a task group
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	330	37	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	331	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	332	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	333	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	334	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	335	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	336	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	354	46	row	keep			
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	355	10	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	355	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	356	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	357	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	366	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	367	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	374	10	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	374	23	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	375	11	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	376	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	448	41	row	keep			
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	449	31	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	457	45	row	keep			
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	461	66	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	497	46	row	keep			
-tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	500	37	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	1	30	rows	keep			
 tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	27	7	ROWS	keep			
 tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	27	63	row	keep			
@@ -370,15 +350,10 @@ tests/contract/display-words.contract.test.ts	1578	65	rows	keep
 tests/contract/display-words.contract.test.ts	1636	30	row	keep			
 tests/contract/display-words.contract.test.ts	1638	8	ROW	keep			
 tests/contract/display-words.contract.test.ts	1656	35	row	keep			
-tests/contract/display-words.contract.test.ts	1663	42	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	1671	11	ROWS	keep			
-tests/contract/display-words.contract.test.ts	1683	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	1683	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	1683	36	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	1687	70	row	keep			
 tests/contract/display-words.contract.test.ts	1690	14	ROW	keep			
 tests/contract/display-words.contract.test.ts	1691	6	row	keep			
-tests/contract/display-words.contract.test.ts	1695	53	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	1704	17	row	keep			
 tests/contract/display-words.contract.test.ts	1722	16	row	keep			
 tests/contract/display-words.contract.test.ts	1722	71	row	keep			
@@ -386,8 +361,6 @@ tests/contract/display-words.contract.test.ts	1724	73	row	keep
 tests/contract/display-words.contract.test.ts	1725	52	row	keep			
 tests/contract/display-words.contract.test.ts	1725	63	row	keep			
 tests/contract/display-words.contract.test.ts	1727	14	ROW	keep			
-tests/contract/display-words.contract.test.ts	1732	40	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	1760	88	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	1804	97	row	keep			
 tests/contract/display-words.contract.test.ts	1861	70	row	keep			
 tests/contract/display-words.contract.test.ts	1864	75	row	keep			
@@ -410,24 +383,11 @@ tests/contract/display-words.contract.test.ts	2576	20	row	task-group
 tests/contract/display-words.contract.test.ts	2651	22	row	task-group			
 tests/contract/display-words.contract.test.ts	3039	38	row	task-group			
 tests/contract/display-words.contract.test.ts	3103	142	rows	keep			
-tests/contract/display-words.contract.test.ts	3110	15	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3110	39	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3111	12	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3111	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3115	96	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3118	28	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	3121	47	rows	keep			
-tests/contract/display-words.contract.test.ts	3128	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3128	29	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3136	11	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3136	21	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3136	29	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	3143	23	row	keep			
 tests/contract/display-words.contract.test.ts	3236	52	row	keep			
 tests/contract/display-words.contract.test.ts	3250	50	row	task-group			
 tests/contract/display-words.contract.test.ts	3251	7	row	task-group			
-tests/contract/display-words.contract.test.ts	3316	86	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/display-words.contract.test.ts	3320	48	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/display-words.contract.test.ts	3326	49	row	keep			
 tests/contract/display-words.contract.test.ts	3357	84	row	keep			
 tests/contract/document-invariants.contract.test.ts	5	41	row	keep			
@@ -535,39 +495,12 @@ tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	211	71	ro
 tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	214	71	row	task-group			
 tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	214	83	row	keep			
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	33	19	rows	keep			
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	51	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	51	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	61	38	rows	keep			
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	70	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	81	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	90	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	95	8	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	96	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	96	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	97	42	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	99	4	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	99	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	101	9	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	124	73	row	keep			
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	129	19	row	keep			
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	141	16	row	keep			
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	145	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	146	32	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	149	15	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	154	41	rows	keep			
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	157	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	45	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	63	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	175	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	176	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	182	22	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	195	40	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	195	48	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/erd-seats-are-never-reissued.contract.test.ts	207	63	row	keep			
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	208	49	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	208	57	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/erd-seats-are-never-reissued.contract.test.ts	211	21	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	12	11	ROWS	keep			
 tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	30	57	row	keep			
 tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	48	49	rows	keep			
@@ -586,20 +519,6 @@ tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	28	69	row
 tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	58	52	row	keep			
 tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	101	36	row	keep			
 tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	105	50	row	keep			
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	119	36	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	120	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	120	26	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	121	26	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	122	28	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	127	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	127	18	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	134	21	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	199	2	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	199	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	287	23	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	289	25	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	289	67	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	295	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	73	76	row	keep			
 tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	77	67	row	keep			
 tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	91	51	row	keep			
@@ -674,17 +593,6 @@ tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	342	61	row	keep
 tests/contract/if-1-svg-surface.test.ts	12	8	rows	keep			
 tests/contract/if-1-svg-surface.test.ts	12	58	row	keep			
 tests/contract/if-1-svg-surface.test.ts	38	39	row	keep			
-tests/contract/if-3-file-store.test.ts	646	26	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	650	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	650	55	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	650	63	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	653	23	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	654	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	654	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	655	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	656	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	657	22	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/if-3-file-store.test.ts	658	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/if-7-snapshot-source.test.ts	11	7	row	keep			
 tests/contract/if-7-snapshot-source.test.ts	73	7	rows	keep			
 tests/contract/if-7-snapshot-source.test.ts	285	36	row	keep			
@@ -896,10 +804,6 @@ tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	42	31	row	kee
 tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	279	74	rows	task-group			
 tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	284	57	row	rewrite	data-figure="row-	data-figure="task-group-	CR-708 2.6 DOM id row-${groupId} -> task-group-${groupId}; follows S2-UA schedule-grid.ts:317
 tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	285	40	row	task-group			
-tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	35	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	35	31	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	36	6	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
-tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	37	9	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
 tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	1	68	rows	task-group			
 tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	68	63	rows	task-group			
 tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	76	31	rows	task-group			
