@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table marks sample</title>
+<style>
+:root {
+  --ground: #ffffff; --panel: #f4f6f9; --ink: #1d2733; --muted: #8a94a3; --rule: #c9d1dc;
+  --on: #1f7a3d; --on-ink: #ffffff; --on-tint: #e3f2e8;
+  --red: #a02b2b; --red-tint: #f7e3e3; --vermilion: #eb6101;
+}
+:root[data-theme="dark"] {
+  --ground: #1b1f24; --panel: #242a31; --ink: #e6e9ee; --muted: #8590a0; --rule: #3b4450;
+  --on: #6fc98d; --on-ink: #10261a; --on-tint: #22392b;
+  --red: #e07a7a; --red-tint: #3d2525; --vermilion: #ff8c42;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: var(--ground); color: var(--ink);
+  font: 16px/1.7 system-ui, "Segoe UI", "Yu Gothic UI", sans-serif; }
+h1 { font-size: 20px; margin: 0 0 8px; }
+p.note { margin: 0 0 12px; max-width: 70em; }
+.layout { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+.choices { min-width: 260px; max-width: 360px; }
+.choices fieldset { border: 1px solid var(--rule); margin: 0 0 12px; padding: 8px 12px; }
+.choices legend { font-weight: bold; }
+.choices label { display: block; cursor: pointer; }
+.stage { flex: 1 1 640px; min-width: 0; }
+.appbar { display: flex; align-items: center; gap: 6px; padding: 6px 8px; background: var(--panel);
+  border: 1px solid var(--rule); margin-bottom: 12px; flex-wrap: wrap; }
+.appbar .name { font-weight: bold; margin-right: auto; }
+.ico { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--rule); background: var(--ground); color: var(--ink); cursor: pointer; padding: 0; }
+.ico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.ico.on { background: var(--on); color: var(--on-ink); border-color: var(--on); }
+.ico.off { color: var(--muted); cursor: default; }
+/* red: R1 filled box, R2 red line only */
+body[data-red="R1"] .ico.red { background: var(--red); color: #fff; border-color: var(--red); }
+body[data-red="R2"] .ico.red { color: var(--red); border-color: var(--red); border-width: 2px; }
+.win { border: 1px solid var(--rule); background: var(--ground); margin-bottom: 16px; max-width: 100%; }
+.win .title { display: flex; align-items: center; gap: 4px; padding: 4px 6px; background: var(--panel);
+  border-bottom: 1px solid var(--rule); font-size: 13px; flex-wrap: wrap; }
+.win .title .t { margin-right: 6px; }
+.win .title .sp { margin-left: auto; display: flex; gap: 4px; }
+.win .title .ico { width: 24px; height: 24px; }
+.win .title .ico svg { width: 15px; height: 15px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 13px; }
+th, td { border: 1px solid var(--rule); padding: 0 4px; white-space: nowrap; height: 22px; text-align: left; }
+th { font-weight: normal; background: var(--panel); }
+th .h { display: flex; align-items: center; gap: 4px; justify-content: space-between; }
+th .fm { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--rule); background: var(--ground); cursor: pointer; padding: 0; color: var(--ink); }
+th .fm svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+th .sort { color: var(--muted); font-size: 11px; }
+/* green for a filtered column: G1 fill, G2 tint, G3 mark only */
+body[data-green="G1"] th.filtered { background: var(--on); color: var(--on-ink); }
+body[data-green="G1"] th.filtered .fm { background: var(--on); color: var(--on-ink); border-color: var(--on-ink); }
+body[data-green="G1"] th.filtered .sort { color: var(--on-ink); }
+body[data-green="G2"] th.filtered { background: var(--on-tint); color: var(--on); font-weight: bold; }
+body[data-green="G2"] th.filtered .fm { color: var(--on); border-color: var(--on); }
+body[data-green="G3"] th.filtered .fm { background: var(--on); color: var(--on-ink); border-color: var(--on); }
+td.vis { width: 28px; text-align: center; }
+tr.hidden td:not(.vis) { color: var(--muted); }
+.legend { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body data-green="G1" data-red="R1">
+<h1>表の印の見本 —— フィルタ中の列の緑と、絞り込み中の 👁・起動アイコンの赤</h1>
+<p class="note">列の見出しの漏斗を押すと、その列に「フィルタを掛けた」ことにします（中身は開きません）。「↑↓」を押すとソートだけを掛けます —— 緑にはなりません。窓の 👁 を押すと、その表の Visibility を日程表に掛けたことにして、👁 と上の起動アイコンが赤くなります。右の択で見え方を切り替えて比べてください。</p>
+<div class="layout">
+<div class="stage">
+  <div class="appbar">
+    <span class="name">GRS（ヘッダー）</span>
+    <button class="ico" id="launch-search" title="検索（IC-117）"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
+    <button class="ico" id="launch-report" title="遅延診断（IC-107）"><svg viewBox="0 0 24 24"><path d="M12 3c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4 3-7 1 2 2 3 3 3 0-3-1-5 0-7z"/></svg></button>
+    <span class="legend">パレット:</span>
+    <button class="ico" id="launch-roster" title="担当者名簿（IC-62）"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg></button>
+    <button class="ico" title="基準日線（朱色の例、JDG-378）" style="color:var(--vermilion);border-color:var(--vermilion);border-width:2px"><svg viewBox="0 0 24 24"><path d="M12 3v18"/></svg></button>
+  </div>
+  <div id="windows"></div>
+</div>
+<div class="choices">
+  <fieldset><legend>フィルタ中の列の見出し（緑）</legend>
+    <label><input type="radio" name="green" value="G1" checked> G1 セルを緑で塗り、字を白に（ヘッダーの ON の入口と同じ塗り）</label>
+    <label><input type="radio" name="green" value="G2"> G2 セルを薄い緑にし、字と漏斗を緑に</label>
+    <label><input type="radio" name="green" value="G3"> G3 漏斗だけを緑で塗る</label>
+  </fieldset>
+  <fieldset><legend>絞り込み中の 👁 と起動アイコン（赤）</legend>
+    <label><input type="radio" name="red" value="R1" checked> R1 箱を赤で塗り、絵を白に</label>
+    <label><input type="radio" name="red" value="R2"> R2 絵と縁を赤に（塗らない）</label>
+  </fieldset>
+  <fieldset><legend>テーマ</legend>
+    <label><input type="radio" name="theme" value="light" checked> 明るい</label>
+    <label><input type="radio" name="theme" value="dark"> 暗い</label>
+  </fieldset>
+  <p class="legend">緑 = S-183 #1f7a3d / #6fc98d（いま効いている）。赤 = S-154 不良の色 #a02b2b / #e07a7a。朱色 = 基準日線 #eb6101 / #ff8c42（見分けの比べ用）。</p>
+</div>
+</div>
+<script>
+'use strict'
+const ICON = {
+  eye: '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  clear: '<svg viewBox="0 0 24 24"><path d="M3 4h14l-5 7v6l-4 2v-8z"/><path d="M16 15l5 5M21 15l-5 5"/></svg>',
+  aa: '<svg viewBox="0 0 24 24"><path d="M3 19l5-13 5 13M5 14h6M15 19l3-8 3 8M16 16h4"/></svg>',
+  min: '<svg viewBox="0 0 24 24"><path d="M5 18h14"/></svg>',
+  max: '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14"/></svg>',
+  close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  funnel: '<svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>',
+}
+const WINDOWS = [
+  { key: 'search', title: '検索パネル', launch: 'launch-search',
+    cols: ['ステータス', '進捗', 'タスク（マイルストーン）', '担当者名'],
+    rows: [['進行中', '28%', 'Deliver the whole product', ''], ['完了', '91%', 'Survey phase', ''],
+      ['完了', '70%', 'Map the vendor workflow', 'Analyst A'], ['完了', '100%', 'Assess the budget risks', 'Analyst B']] },
+  { key: 'report', title: '遅延診断レポート', launch: 'launch-report',
+    cols: ['ステータス', '進捗', 'タスク（マイルストーン）', '担当'],
+    rows: [['ボトルネック', '50%', 'Planning phase', ''], ['信用できない・要修正', '150%', 'Add the queue table constraints', 'Developer B'],
+      ['遅れ', '10%', 'Implementation phase', '']] },
+  { key: 'roster', title: '担当者名簿', launch: 'launch-roster',
+    cols: ['担当者名', '担当タスク数', '担当タスク'],
+    rows: [['Analyst A', '6', 'Map the vendor workflow、Catalog the staffing constraints、…'],
+      ['Analyst B', '5', 'Assess the budget risks、Review past vendor incidents、…'], ['（担当なし）', '18', 'Deliver the whole product、Survey phase、…']] },
+]
+const state = {}
+function render() {
+  const host = document.getElementById('windows')
+  host.innerHTML = ''
+  for (const w of WINDOWS) {
+    const s = state[w.key] ??= { filtered: new Set(), sortCol: -1, eye: false, hidden: new Set() }
+    const win = document.createElement('div')
+    win.className = 'win'
+    const anyClear = s.filtered.size > 0 || s.sortCol >= 0
+    win.innerHTML =
+      '<div class="title"><span class="t">' + w.title + '</span>' +
+      '<button class="ico ' + (anyClear ? '' : 'off') + '" data-act="clear" title="列のフィルタとソートを戻す">' + ICON.clear + '</button>' +
+      '<button class="ico ' + (s.eye ? 'red' : '') + '" data-act="eye" title="この表の Visibility を日程表に掛ける">' + ICON.eye + '</button>' +
+      '<span class="sp"><button class="ico">' + ICON.aa + '</button><button class="ico">' + ICON.min + '</button>' +
+      '<button class="ico">' + ICON.max + '</button><button class="ico">' + ICON.close + '</button></span></div>' +
+      '<div class="scroll"><table><thead><tr><th class="vis-h">表示</th>' +
+      w.cols.map((c, i) => '<th class="' + (s.filtered.has(i) ? 'filtered' : '') + '"><span class="h"><span>' + c +
+        (s.sortCol === i ? ' <span class="sort">↓</span>' : '') + '</span><span>' +
+        '<button class="fm" data-act="sort" data-col="' + i + '" title="ソートだけを掛ける">↑↓</button> ' +
+        '<button class="fm" data-act="filter" data-col="' + i + '" title="フィルタを掛ける／外す">' + ICON.funnel + '</button></span></span></th>').join('') +
+      '</tr></thead><tbody>' +
+      w.rows.map((r, ri) => '<tr class="' + (s.hidden.has(ri) ? 'hidden' : '') + '"><td class="vis"><input type="checkbox" data-act="vis" data-row="' + ri + '"' +
+        (s.hidden.has(ri) ? '' : ' checked') + '></td>' + r.map(v => '<td>' + v + '</td>').join('') + '</tr>').join('') +
+      '</tbody></table></div>'
+    win.addEventListener('click', ev => {
+      const t = ev.target.closest('[data-act]')
+      if (!t) return
+      const act = t.dataset.act
+      if (act === 'filter') { const c = +t.dataset.col; s.filtered.has(c) ? s.filtered.delete(c) : s.filtered.add(c) }
+      else if (act === 'sort') { const c = +t.dataset.col; s.sortCol = s.sortCol === c ? -1 : c }
+      else if (act === 'clear') { s.filtered.clear(); s.sortCol = -1 }
+      else if (act === 'eye') { s.eye = !s.eye }
+      else if (act === 'vis') { const r = +t.dataset.row; t.checked ? s.hidden.delete(r) : s.hidden.add(r) }
+      render()
+    })
+    host.appendChild(win)
+    document.getElementById(w.launch).classList.toggle('red', s.eye)
+  }
+}
+for (const name of ['green', 'red']) {
+  document.querySelectorAll('input[name="' + name + '"]').forEach(el =>
+    el.addEventListener('change', () => { document.body.dataset[name] = el.value }))
+}
+document.querySelectorAll('input[name="theme"]').forEach(el =>
+  el.addEventListener('change', () => { document.documentElement.dataset.theme = el.value }))
+render()
+</script>
+</body>
+</html>
