@@ -1,0 +1,5 @@
+old	new	class	note
+move_rows	move_rows	b	a scratch script name that moves ledger rows (05-working-method.md)
+rows-fixed-with-nothing-holding-them	rows-fixed-with-nothing-holding-them	b	the rows are defects.md ledger rows (file head comment)
+t-050-a-document-always-holds-one-row	t-050-a-document-always-holds-one-task-group	a	IV-20: a document always holds one TaskGroup
+t-051-hf-15-grabbing-a-row	t-051-hf-15-grabbing-a-task-group	a	CR-708 2.6 names this file
