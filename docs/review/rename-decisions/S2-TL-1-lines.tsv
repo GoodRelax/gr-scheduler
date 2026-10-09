@@ -1,0 +1,412 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+tools/collect_stats.py	13	29	rows	keep			table / text / ledger row
+tools/collect_stats.py	44	53	row	keep			table / text / ledger row
+tools/collect_stats.py	60	13	ROW	keep			table / text / ledger row
+tools/collect_stats.py	62	11	rows	keep			table / text / ledger row
+tools/collect_stats.py	62	32	row	keep			table / text / ledger row
+tools/collect_stats.py	63	14	row	keep			table / text / ledger row
+tools/collect_stats.py	78	12	ROW	keep			table / text / ledger row
+tools/collect_stats.py	78	40	row	keep			table / text / ledger row
+tools/collect_stats.py	160	21	row	keep			table / text / ledger row
+tools/collect_stats.py	323	18	row	keep			table / text / ledger row
+tools/collect_stats.py	357	15	row	keep			table / text / ledger row
+tools/collect_stats.py	358	30	row	keep			table / text / ledger row
+tools/fix_line_breaks.py	10	61	row	keep			table / text / ledger row
+tools/fix_line_breaks.py	23	38	row	keep			table / text / ledger row
+tools/generate_comment_rules_card.py	18	52	row	keep			table / text / ledger row
+tools/generate_comment_rules_card.py	19	30	rows	keep			table / text / ledger row
+tools/generate_comment_rules_card.py	45	39	row	keep			table / text / ledger row
+tools/generate_comment_rules_card.py	68	44	row	keep			table / text / ledger row
+tools/generate_display_words.py	17	64	row	keep			table / text / ledger row
+tools/generate_display_words.py	46	23	rows	keep			table / text / ledger row
+tools/generate_display_words.py	88	66	row	keep			table / text / ledger row
+tools/generate_display_words.py	97	18	ROW	keep			table / text / ledger row
+tools/generate_display_words.py	98	60	row	keep			table / text / ledger row
+tools/generate_display_words.py	107	18	ROW	keep			table / text / ledger row
+tools/generate_display_words.py	110	18	ROW	keep			table / text / ledger row
+tools/generate_display_words.py	111	66	ROW	keep			table / text / ledger row
+tools/generate_display_words.py	116	56	row	keep			table / text / ledger row
+tools/generate_display_words.py	118	2	row	keep			table / text / ledger row
+tools/generate_display_words.py	121	12	row	keep			table / text / ledger row
+tools/generate_display_words.py	122	22	rows	keep			table / text / ledger row
+tools/generate_display_words.py	126	55	row	keep			table / text / ledger row
+tools/generate_display_words.py	129	28	row	keep			table / text / ledger row
+tools/generate_display_words.py	140	39	row	keep			table / text / ledger row
+tools/generate_display_words.py	145	36	rows	keep			table / text / ledger row
+tools/generate_display_words.py	150	8	row	keep			table / text / ledger row
+tools/generate_display_words.py	151	4	row	keep			table / text / ledger row
+tools/generate_display_words.py	165	10	ROWS	keep			table / text / ledger row
+tools/generate_display_words.py	174	19	row	keep			table / text / ledger row
+tools/generate_display_words.py	176	50	rows	keep			table / text / ledger row
+tools/generate_display_words.py	181	2	rows	keep			table / text / ledger row
+tools/generate_display_words.py	190	36	row	keep			table / text / ledger row
+tools/generate_display_words.py	194	54	row	keep			table / text / ledger row
+tools/generate_display_words.py	202	25	rows	keep			table / text / ledger row
+tools/generate_display_words.py	208	10	row	keep			table / text / ledger row
+tools/generate_display_words.py	216	2	row	task-group			the task group being deleted (FR-032)
+tools/generate_display_words.py	216	44	row	task-group			drawn on another task group (shownOnAnotherRow)
+tools/generate_display_words.py	220	17	rows	keep			table / text / ledger row
+tools/generate_display_words.py	226	16	row	keep			table / text / ledger row
+tools/generate_display_words.py	235	29	row	keep			table / text / ledger row
+tools/generate_display_words.py	238	13	row	task-group			default name of a task group (FR-032)
+tools/generate_display_words.py	239	2	row	task-group			task group whose derivation source is deleted
+tools/generate_display_words.py	242	22	row	task-group			the new task group name
+tools/generate_display_words.py	246	50	row	keep			table / text / ledger row
+tools/generate_display_words.py	248	40	row	rewrite	`row`	`taskGroup`	the defaultNames key, CR-708 2.5 rule 8 use: "taskGroup"; must match display-words.json:3834 (S1-D) and src
+tools/generate_display_words.py	248	70	ROW	task-group			default name of a TASK GROUP
+tools/generate_display_words.py	249	8	row	task-group			a task group CM-7 settled
+tools/generate_display_words.py	249	53	row	task-group			the task group a document raises
+tools/generate_display_words.py	249	76	rows	task-group			a document with no task groups
+tools/generate_display_words.py	252	18	row	rewrite	'row'	'taskGroup'	DEFAULT_NAMES key, CR-708 2.5 rule 8; must match display-words.json:3834 (S1-D) and screen-renderer.ts DEFAULT_ROW_NAME_ENTRY
+tools/generate_display_words.py	268	53	rows	keep			table / text / ledger row
+tools/generate_display_words.py	276	35	rows	keep			table / text / ledger row
+tools/generate_display_words.py	283	55	rows	keep			table / text / ledger row
+tools/generate_display_words.py	291	48	rows	keep			table / text / ledger row
+tools/generate_display_words.py	292	18	rows	keep			table / text / ledger row
+tools/generate_display_words.py	298	51	rows	keep			table / text / ledger row
+tools/generate_display_words.py	299	2	rows	keep			table / text / ledger row
+tools/generate_display_words.py	300	12	rows	keep			table / text / ledger row
+tools/generate_display_words.py	314	25	row	task-group			TaskGroup min height field (T-338)
+tools/generate_display_words.py	317	6	row	task-group			MH-6: the chosen task group is not drawn
+tools/generate_display_words.py	318	62	rows	keep			table / text / ledger row
+tools/generate_display_words.py	330	29	rows	keep			table / text / ledger row
+tools/generate_display_words.py	340	69	row	keep			table / text / ledger row
+tools/generate_display_words.py	344	48	rows	keep			table / text / ledger row
+tools/generate_display_words.py	353	34	row	keep			table / text / ledger row
+tools/generate_display_words.py	354	72	row	keep			table / text / ledger row
+tools/generate_display_words.py	360	2	row	keep			table / text / ledger row
+tools/generate_display_words.py	364	22	row	keep			table / text / ledger row
+tools/generate_display_words.py	370	25	rows	keep			table / text / ledger row
+tools/generate_display_words.py	379	18	row	keep			table / text / ledger row
+tools/generate_display_words.py	379	73	row	keep			table / text / ledger row
+tools/generate_display_words.py	383	69	row	keep			table / text / ledger row
+tools/generate_display_words.py	404	61	row	keep			table / text / ledger row
+tools/generate_display_words.py	463	26	row	keep			table / text / ledger row
+tools/generate_display_words.py	470	13	row	keep			table / text / ledger row
+tools/generate_display_words.py	474	48	row	keep			table / text / ledger row
+tools/generate_display_words.py	479	25	rows	keep			table / text / ledger row
+tools/generate_display_words.py	481	42	rows	keep			table / text / ledger row
+tools/generate_display_words.py	488	46	rows	keep			table / text / ledger row
+tools/generate_display_words.py	499	8	row	keep			table / text / ledger row
+tools/generate_display_words.py	500	33	row	keep			table / text / ledger row
+tools/generate_display_words.py	509	49	rows	keep			table / text / ledger row
+tools/generate_display_words.py	534	9	row	keep			table / text / ledger row
+tools/generate_display_words.py	552	60	rows	keep			string key
+tools/generate_display_words.py	559	18	rows	keep			table / text / ledger row
+tools/generate_display_words.py	560	4	rows	keep			table / text / ledger row
+tools/generate_display_words.py	565	25	row	keep			string key
+tools/generate_display_words.py	590	46	row	keep			table / text / ledger row
+tools/generate_display_words.py	597	45	rows	keep			table / text / ledger row
+tools/generate_display_words.py	607	55	row	keep			table / text / ledger row
+tools/generate_display_words.py	636	46	row	keep			table / text / ledger row
+tools/generate_display_words.py	666	27	rows	keep			table / text / ledger row
+tools/generate_display_words.py	725	68	row	keep			table / text / ledger row
+tools/generate_display_words.py	726	18	row	keep			table / text / ledger row
+tools/generate_display_words.py	761	22	ROW	keep			table / text / ledger row
+tools/generate_display_words.py	798	75	row	keep			table / text / ledger row
+tools/generate_display_words.py	878	18	row	keep			table / text / ledger row
+tools/generate_entity_types.py	121	49	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	125	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	170	9	row	task-group			TaskGroup colour and min height
+tools/generate_entity_types.py	202	72	row	keep			table / text / ledger row
+tools/generate_entity_types.py	222	60	rows	keep			string key
+tools/generate_entity_types.py	229	47	row	keep			table / text / ledger row
+tools/generate_entity_types.py	233	60	rows	keep			string key
+tools/generate_entity_types.py	346	70	row	keep			table / text / ledger row
+tools/generate_entity_types.py	383	26	row	keep			table / text / ledger row
+tools/generate_entity_types.py	383	40	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	386	61	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	388	37	row	keep			table / text / ledger row
+tools/generate_entity_types.py	404	19	row	keep			table / text / ledger row
+tools/generate_entity_types.py	404	71	row	keep			table / text / ledger row
+tools/generate_entity_types.py	522	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	525	69	row	keep			table / text / ledger row
+tools/generate_entity_types.py	581	26	row	keep			table / text / ledger row
+tools/generate_entity_types.py	777	13	row	keep			table / text / ledger row
+tools/generate_entity_types.py	780	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	789	26	rows	keep			string key
+tools/generate_entity_types.py	792	50	row	keep			table / text / ledger row
+tools/generate_entity_types.py	797	17	row	keep			string key
+tools/generate_entity_types.py	826	10	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	826	39	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	831	57	row	keep			table / text / ledger row
+tools/generate_entity_types.py	832	51	row	keep			table / text / ledger row
+tools/generate_entity_types.py	903	31	row	keep			table / text / ledger row
+tools/generate_entity_types.py	904	50	row	keep			table / text / ledger row
+tools/generate_entity_types.py	914	77	row	keep			table / text / ledger row
+tools/generate_entity_types.py	921	34	rows	keep			string key
+tools/generate_entity_types.py	945	69	row	keep			table / text / ledger row
+tools/generate_entity_types.py	950	43	rows	keep			string key
+tools/generate_entity_types.py	976	61	row	keep			table / text / ledger row
+tools/generate_entity_types.py	980	45	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1000	10	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1007	11	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1013	20	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1018	21	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1025	2	row	task-group			task group control (S-140)
+tools/generate_entity_types.py	1029	51	row	task-group			beside the task group name (GR-20)
+tools/generate_entity_types.py	1042	7	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1051	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1056	11	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1057	35	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1094	54	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1096	68	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1109	2	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1109	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1111	62	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1121	54	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1134	67	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1137	38	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1146	47	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1169	36	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1184	27	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1189	24	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1199	28	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1200	52	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1203	12	ROWS	keep			table / text / ledger row
+tools/generate_entity_types.py	1207	69	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1210	38	ROWS	keep			table / text / ledger row
+tools/generate_entity_types.py	1215	34	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1236	62	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1255	16	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1273	52	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1277	17	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1283	16	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1303	62	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1317	18	ROWS	keep			table / text / ledger row
+tools/generate_entity_types.py	1322	33	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1325	54	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1328	28	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1333	31	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1333	48	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1335	54	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1340	71	row	task-group			four task group controls
+tools/generate_entity_types.py	1347	33	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1350	6	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1368	26	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1369	40	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1373	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1376	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1382	55	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1390	73	ROW	task-group			the band a TASK GROUP is marked with (HF-15)
+tools/generate_entity_types.py	1392	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1394	15	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1398	65	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1403	39	row	task-group			band drawn on a task group edge
+tools/generate_entity_types.py	1404	71	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1411	38	row	task-group			FR-098 the pinned task group
+tools/generate_entity_types.py	1412	11	row	task-group			HF-15 the task group a hand holds
+tools/generate_entity_types.py	1425	68	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1452	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1477	37	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1511	36	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1575	18	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1603	54	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1613	59	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1640	45	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1657	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1669	55	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1684	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1689	63	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1697	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1734	41	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1741	45	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1747	21	ROWS	keep			table / text / ledger row
+tools/generate_entity_types.py	1753	38	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1758	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1759	73	Row	rewrite	the Row	the Task Group	Row Area -> Task Group Area (JDG-1661); word continues on the next line
+tools/generate_entity_types.py	1760	71	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1770	62	row	task-group			HF-15 the held task group
+tools/generate_entity_types.py	1772	41	row	task-group			HF-15 the task group follows the axis
+tools/generate_entity_types.py	1775	51	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1792	67	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1798	29	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1803	73	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1806	73	row	task-group			title and task group names in the export
+tools/generate_entity_types.py	1810	30	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1810	60	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1813	13	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1854	50	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1885	43	rows	keep			string key
+tools/generate_entity_types.py	1895	11	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1921	8	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	1922	54	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1925	52	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1926	56	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1928	17	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1937	25	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1941	50	row	task-group			a PINNED task group Row Pin
+tools/generate_entity_types.py	1942	48	row	task-group			HF-6 points at that task group
+tools/generate_entity_types.py	1942	66	row	task-group			the pin is a task group control
+tools/generate_entity_types.py	1943	41	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1947	21	ROW	rewrite	ROW HEADER PANEL'S	TASK GROUP PANEL'S	Row Title Panel -> Task Group Panel (JDG-1659)
+tools/generate_entity_types.py	1947	70	row	task-group			the task group grab strip mark (HF-15, GR-20)
+tools/generate_entity_types.py	1958	74	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1959	16	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1968	47	rows	task-group			uncertain: quotes the components.json:378 edge label "ruler and rows" (S1-D); must follow that decision
+tools/generate_entity_types.py	1975	14	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1978	31	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	1979	10	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1982	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	1983	50	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2020	43	rows	keep			string key
+tools/generate_entity_types.py	2036	40	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2052	47	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2065	11	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2065	64	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2068	70	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2070	49	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2074	43	rows	keep			string key
+tools/generate_entity_types.py	2097	8	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	2098	15	row	task-group			task group band colour (T-294)
+tools/generate_entity_types.py	2098	65	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2101	16	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2103	52	row	task-group			black's task group band (CV-9)
+tools/generate_entity_types.py	2148	25	rows	keep			string key
+tools/generate_entity_types.py	2176	43	rows	keep			string key
+tools/generate_entity_types.py	2179	30	rows	keep			string key
+tools/generate_entity_types.py	2188	26	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2189	65	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2199	37	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2199	73	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2200	43	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2202	68	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2204	33	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2220	69	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2222	2	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2226	67	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2228	16	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	2247	8	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2249	50	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2257	30	rows	keep			string key
+tools/generate_entity_types.py	2286	19	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2289	73	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2290	49	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2300	43	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2318	32	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2319	4	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2326	25	rows	keep			string key
+tools/generate_entity_types.py	2349	21	rows	keep			string key
+tools/generate_entity_types.py	2376	41	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2377	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2385	25	rows	keep			string key
+tools/generate_entity_types.py	2412	15	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2418	8	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	2421	24	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2452	43	rows	keep			string key
+tools/generate_entity_types.py	2592	26	rows	keep			string key
+tools/generate_entity_types.py	2595	50	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2713	43	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2753	42	row	keep			string key
+tools/generate_entity_types.py	2758	44	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2759	18	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2769	35	row	keep			string key
+tools/generate_entity_types.py	2795	48	row	keep			string key
+tools/generate_entity_types.py	2803	54	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2804	41	row	keep			string key
+tools/generate_entity_types.py	2809	48	row	keep			string key
+tools/generate_entity_types.py	2880	15	row	keep			table / text / ledger row
+tools/generate_entity_types.py	2953	49	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	2959	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3008	21	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3041	47	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3042	34	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3042	57	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3057	59	row	task-group			HF-19 a task group band
+tools/generate_entity_types.py	3058	55	row	task-group			LF-16 the last scrolling task group
+tools/generate_entity_types.py	3059	10	rows	task-group			below the task groups
+tools/generate_entity_types.py	3076	71	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3086	6	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3097	32	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3100	29	ROWS	keep			table / text / ledger row
+tools/generate_entity_types.py	3164	31	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3185	68	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3199	15	row	task-group			the task group controls (S-140)
+tools/generate_entity_types.py	3199	72	row	task-group			the task group name width
+tools/generate_entity_types.py	3205	14	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3259	69	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3265	65	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3266	37	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3271	10	ROW	keep			table / text / ledger row
+tools/generate_entity_types.py	3271	38	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3312	68	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3314	34	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3327	25	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3329	46	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3329	70	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3356	31	row	task-group			title and task group names in the export
+tools/generate_entity_types.py	3375	70	row	keep			table / text / ledger row
+tools/generate_entity_types.py	3410	10	rows	keep			table / text / ledger row
+tools/generate_entity_types.py	3412	6	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	8	7	ROWS	keep			table / text / ledger row
+tools/generate_exchange_formats.py	17	46	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	20	0	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	20	33	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	33	31	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	36	43	ROWS	keep			table / text / ledger row
+tools/generate_exchange_formats.py	37	40	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	38	30	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	40	72	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	46	7	ROW	keep			table / text / ledger row
+tools/generate_exchange_formats.py	65	36	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	80	62	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	92	72	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	96	2	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	104	74	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	107	62	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	110	18	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	111	9	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	112	5	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	131	63	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	133	43	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	148	58	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	149	49	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	159	54	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	162	14	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	188	49	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	213	18	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	223	34	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	224	10	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	224	72	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	231	22	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	231	55	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	238	31	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	239	19	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	240	56	row	keep			table / text / ledger row
+tools/generate_exchange_formats.py	241	6	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	257	45	rows	keep			table / text / ledger row
+tools/generate_exchange_formats.py	260	55	row	keep			table / text / ledger row
+tools/generate_help_roster.py	12	75	row	keep			table / text / ledger row
+tools/generate_help_roster.py	30	73	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	44	8	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	51	57	row	keep			table / text / ledger row
+tools/generate_help_roster.py	109	70	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	110	65	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	137	2	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	145	2	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	145	32	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	145	62	row	keep			table / text / ledger row
+tools/generate_help_roster.py	147	8	row	keep			table / text / ledger row
+tools/generate_help_roster.py	149	67	row	task-group			MK-16 moves to another task group
+tools/generate_help_roster.py	157	2	row	task-group			HF-1 2 x 2 grid of a task group
+tools/generate_help_roster.py	158	59	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	160	28	row	keep			table / text / ledger row
+tools/generate_help_roster.py	173	63	row	keep			table / text / ledger row
+tools/generate_help_roster.py	254	37	row	keep			table / text / ledger row
+tools/generate_help_roster.py	313	64	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	314	22	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	322	30	row	keep			table / text / ledger row
+tools/generate_help_roster.py	336	9	row	keep			string key
+tools/generate_help_roster.py	380	69	row	keep			table / text / ledger row
+tools/generate_help_roster.py	403	64	row	keep			table / text / ledger row
+tools/generate_help_roster.py	414	61	row	keep			table / text / ledger row
+tools/generate_help_roster.py	422	8	row	keep			table / text / ledger row
+tools/generate_help_roster.py	423	21	row	keep			table / text / ledger row
+tools/generate_help_roster.py	441	61	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	443	53	rows	keep			table / text / ledger row
+tools/generate_help_roster.py	459	37	row	keep			table / text / ledger row
+tools/generate_help_roster.py	497	43	row	keep			table / text / ledger row
+tools/generate_help_roster.py	503	29	row	keep			string key
+tools/generate_help_roster.py	507	70	row	keep			table / text / ledger row
+tools/generate_help_roster.py	509	19	row	keep			string key
+tools/generate_help_roster.py	513	30	row	keep			table / text / ledger row

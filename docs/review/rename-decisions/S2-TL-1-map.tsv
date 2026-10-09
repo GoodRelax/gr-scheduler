@@ -1,0 +1,46 @@
+old	new	class	note
+CHALLENGE_ROW	CHALLENGE_ROW	b	CH-n table row regex
+D-row	D-row	b	D-n ledger row
+DEF_ROW	DEF_ROW	b	definition table row regex
+LEDGER_ROW_RE	LEDGER_ROW_RE	b	ledger row regex
+ROW_START	ROW_START	b	table row start regex
+SEAT_ROW	SEAT_ROW	b	row id seat regex
+UO_ROW	UO_ROW	b	UO-n table row regex
+api_rows	api_rows	b	AM-n table rows
+appended-row	appended-row	b	appended ledger rows
+body_rows	body_rows	b	row ids in a body
+buildRowMapFigure	buildTaskGroupMapFigure	a	crops to a task group band (fig-hit-stacked-row -> task-group, X-6)
+build_row	build_row	b	stats table row
+checkNewNoteRows	checkNewNoteRows	b	settings rows
+crs_naming_row	crs_naming_row	b	D-n ledger row
+cutRows	cutTaskGroups	a	the task groups whose names were cut (data-depth, data-truncated)
+gaRows	gaRows	b	GA settings rows
+gaSettingsRows	gaSettingsRows	b	settings rows
+glyphRows	glyphRows	b	glyph rows of a figure
+hoverRow	hoverTaskGroup	a	pointer on a task group name (HF-6)
+iface_rows	iface_rows	b	IF-n table rows
+in_row	in_row	b	markdown table row
+intra-row	intra-row	b	within one ledger row
+loadSettingsRows	loadSettingsRows	b	settings.json rows
+manuscript_rows	manuscript_rows	b	manuscript table rows
+omission_rows	omission_rows	b	UO table rows
+open_rows	open_rows	b	pending-decision rows
+ours_rows	ours_rows	b	ledger rows
+read_rows	read_rows	b	rulings rows
+rowAt	rowAt	b	check 70 self-test fixture code, not a task group
+rowBox	taskGroupBox	a	box of a drawn task group ([data-depth])
+rowDefaultNumber	rowDefaultNumber	b	settings row default
+rowH	rowH	b	glyph figure row height
+rowPanel	taskGroupPanelBox	a	uncertain: collision with rowTitlePanel resolved by a distinct name; the harness returns the Row Title Panel box, but the cr-551 test helper of the same name returns a properties-panel field row
+row_cr	row_cr	b	ledger row
+row_hits	row_hits	b	ledger row hits
+rows_in_list	rows_in_list	b	pending-decision rows
+rows_of	rows_of	b	table rows
+split_row	split_row	b	decision table row
+t-023d-double-click-only-rows	t-023d-double-click-only-rows	b	rows of table T-023d (old test file name in comments)
+t-233-reason-words-tell-the-row	t-233-reason-words-tell-the-row	b	the row of table T-233 (test file)
+totalRows	totalRows	b	glyph figure rows
+u-row	u-row	b	U-n table row
+wheelUpOverRows	wheelUpOverTaskGroups	a	wheel over the Row Title Panel
+writeRows	writeRows	b	check 70 self-test fixture code, not a task group
+write_row	write_row	b	stats table row
