@@ -1,0 +1,16 @@
+path	line	col	nth	name	decision	note
+tests/fixtures/setting-number.ts	33	8	0	row	keep	a settings table row
+tests/fixtures/setting-number.ts	34	23	0	row	keep	a settings table row
+tests/fixtures/setting-number.ts	34	50	1	row	keep	a settings table row
+tests/integration/schedule-drawing.sws.test.ts	1035	61	0	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/integration/schedule-drawing.sws.test.ts	1981	33	0	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/integration/schedule-drawing.sws.test.ts	2027	34	1	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/integration/schedule-drawing.sws.test.ts	431	29	0	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/integration/schedule-drawing.sws.test.ts	895	39	0	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/integration/schedule-drawing.sws.test.ts	971	34	1	rows	task-group	uncertain: drawn.layout.rows -- must match the S2-ENT decision on ScheduleLayout.rows (src/entity/layout-engine/schedule-layout/schedule-layout.ts:158)
+tests/system/display-words-reasons-and-watermark.test.ts	63	8	0	rows	keep	a section of the display-words dictionary
+tests/system/display-words-reasons-and-watermark.test.ts	64	21	0	rows	keep	a section of the display-words dictionary
+tests/system/display-words-reasons-and-watermark.test.ts	67	13	0	row	keep	a section of the display-words dictionary
+tests/system/display-words-reasons-and-watermark.test.ts	67	20	0	rows	keep	a section of the display-words dictionary
+tests/system/display-words-reasons-and-watermark.test.ts	68	8	0	row	keep	a section of the display-words dictionary
+tests/system/display-words-reasons-and-watermark.test.ts	69	17	0	row	keep	a section of the display-words dictionary
