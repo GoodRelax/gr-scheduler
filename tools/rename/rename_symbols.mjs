@@ -238,6 +238,17 @@ async function main() {
     sf.forEachChild(walk);
   }
 
+  // the starts of the generic identifiers called `name` in [from, to) of a file
+  const genericByRel = new Map();
+  for (const g of generic) {
+    if (!genericByRel.has(g.rel)) genericByRel.set(g.rel, []);
+    genericByRel.get(g.rel).push([g.start, g.node.text]);
+  }
+  for (const list of genericByRel.values()) list.sort((a, b) => a[0] - b[0]);
+  function genericStartsOn(rel, from, to, name) {
+    return (genericByRel.get(rel) ?? []).filter(([s, t]) => s >= from && s < to && t === name).map(([s]) => s);
+  }
+
   // pass 2: names of the map, through the checker's references
   const nameRows = [];
   const lineOf = (rel, start) => sources.get(rel).text.slice(0, start).split('\n').length;
@@ -387,10 +398,11 @@ async function main() {
     const lineStart = text.lastIndexOf('\n', g.start - 1) + 1;
     const col = g.start - lineStart;
     // the key a decision is matched on: path, line, name and the how-manyth
-    // such word on the line -- an earlier stage may move the column, never
-    // the line (no edit adds or removes a line ending)
-    const word = new RegExp('(?<![A-Za-z0-9_$])' + g.node.text + '(?![A-Za-z0-9_$])', 'g');
-    const nth = [...text.slice(lineStart, g.start).matchAll(word)].length;
+    // such CODE identifier on the line -- an earlier stage may move the
+    // column, never the line (no edit adds or removes a line ending), and it
+    // edits only comments and strings, so counting identifiers alone keeps
+    // the key (reconcile: a word in a string on the line used to shift it)
+    const nth = genericStartsOn(g.rel, lineStart, g.start, g.node.text).length;
     return {
       lane: laneOf(g.rel), path: g.rel, line, col, nth, name: g.node.text,
       type: String(v.type).slice(0, 160), verdict, decision: '', note: '',
@@ -490,10 +502,8 @@ async function main() {
       let lineStart = 0;
       for (let i = 1; i < Number(r.line); i += 1) lineStart = src.text.indexOf('\n', lineStart) + 1;
       const lineEnd = src.text.indexOf('\n', lineStart);
-      const lineText = src.text.slice(lineStart, lineEnd < 0 ? undefined : lineEnd);
-      const word = new RegExp('(?<![A-Za-z0-9_$])' + r.name + '(?![A-Za-z0-9_$])', 'g');
-      const hit = [...lineText.matchAll(word)][Number(r.nth)];
-      if (hit) start = lineStart + hit.index;
+      const hit = genericStartsOn(r.path, lineStart, lineEnd < 0 ? src.text.length : lineEnd, r.name)[Number(r.nth)];
+      if (hit !== undefined) start = hit;
     }
     if (start >= 0 && genericAt.has(r.path + ':' + start)) forced.push({ rel: r.path, start, name: r.name });
     else forcedMissing.push(typeKey(r));
@@ -542,6 +552,8 @@ async function main() {
   }
   const tracked = fs.existsSync(path.join(ROOT, '.git'));
   for (const r of moves) {
+    // the second run (stage 3) meets the moves the first run already made
+    if (!fs.existsSync(path.join(ROOT, r.old)) && fs.existsSync(path.join(ROOT, r.new))) continue;
     if (tracked) execFileSync('git', ['mv', r.old, r.new], { cwd: ROOT });
     else fs.renameSync(path.join(ROOT, r.old), path.join(ROOT, r.new));
   }

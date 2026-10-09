@@ -618,6 +618,38 @@ def prime_lexer(paths):
         _lex_cache[(ROOT, path)] = None if spans is None else [tuple(s) for s in spans]
 
 
+def syntax_errors(texts):
+    """{path: text} -> {path: count of syntax errors} (-1: the parser gave up).
+
+    JS / TS / JSON through lex_spans.mjs --syntax (one node run), Python
+    through the ast module. An edit that turns a parsing file into a broken
+    one is a problem of the applier (reconcile: a rewrite put an apostrophe
+    into a single-quoted string).
+    """
+    import ast
+    import json
+    out = {}
+    node_texts = {}
+    for path, text in texts.items():
+        ext = os.path.splitext(path)[1]
+        if ext == '.py':
+            try:
+                ast.parse(text)
+                out[path] = 0
+            except SyntaxError:
+                out[path] = -1
+        elif ext in CODE_EXTENSIONS + ('.json',):
+            node_texts[path] = text
+    if node_texts:
+        script = os.path.join(HERE, 'lex_spans.mjs')
+        done = subprocess.run(['node', script, ROOT, '--syntax'], input=json.dumps(node_texts),
+                              capture_output=True, text=True, encoding='utf-8')
+        if done.returncode != 0:
+            raise SystemExit('lex_spans.mjs --syntax failed: ' + done.stderr[-2000:])
+        out.update(json.loads(done.stdout))
+    return out
+
+
 def python_segments(text):
     """Comment and string spans of Python source from the tokenize module, or None."""
     import tokenize

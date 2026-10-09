@@ -113,11 +113,38 @@ export function loadBabel(root) {
   return findBabel(HERE) ?? (root ? findBabel(root) : null);
 }
 
+// How many syntax errors babel recovers from in a text (-1: it gives up).
+export function syntaxErrors(babel, text, ext) {
+  const plugins = ext === '.ts' ? ['typescript'] : ext === '.tsx' ? ['typescript', 'jsx'] : [];
+  try {
+    if (ext === '.json') {
+      JSON.parse(text.replace(/^﻿/, ''));
+      return 0;
+    }
+    const ast = babel.parse(text, {
+      sourceType: 'unambiguous', plugins, errorRecovery: true,
+      allowReturnOutsideFunction: true, allowAwaitOutsideFunction: true,
+      allowImportExportEverywhere: true, allowUndeclaredExports: true,
+    });
+    return (ast.errors ?? []).length;
+  } catch {
+    return -1;
+  }
+}
+
 async function main() {
   const root = path.resolve(process.argv[2] ?? path.join(HERE, '..', '..'));
   const babel = loadBabel(root);
   if (!babel) throw new Error('@babel/parser not found above ' + HERE);
   const input = fs.readFileSync(0, 'utf8');
+  if (process.argv.includes('--syntax')) {
+    // stdin {path: text}: the count of syntax errors of each text
+    const texts = JSON.parse(input);
+    const counts = {};
+    for (const [rel, text] of Object.entries(texts)) counts[rel] = syntaxErrors(babel, text, path.extname(rel));
+    process.stdout.write(JSON.stringify(counts));
+    return;
+  }
   const result = {};
   for (const rel of JSON.parse(input)) {
     const text = fs.readFileSync(path.join(root, rel), 'utf8').replace(/\r\n/g, '\n');

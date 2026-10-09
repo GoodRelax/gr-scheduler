@@ -151,7 +151,7 @@ tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	394	60	ro
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	428	24	rows	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	440	45	rows	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	463	19	rows	keep			
-tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	484	48	row	rewrite	row panel	task group's panel	the properties panel of a task group, not the Task Group Panel
+tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	484	48	row	rewrite	row panel	task group properties panel	reconcile: syntax guard: the reader's rewrite put an apostrophe into a single-quoted string; same meaning without it; was rewrite the properties panel of a task group, not the Task Group Panel
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	484	67	row	task-group			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	527	58	row	keep			
 tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts	527	107	row	task-group			

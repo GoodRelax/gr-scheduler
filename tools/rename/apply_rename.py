@@ -339,19 +339,32 @@ def main(argv):
     for r in rows:
         if r['lane'] in lanes:
             per_file[r['path']].append(r)
+    # a file an earlier run of rename_symbols.mjs moved (stage 2 moves the test
+    # files too) is read at its new path; its rows keep the old one
+    moved = dict((r['old'], r['new']) for r in map_rows
+                 if r['kind'] == 'file-path' and r['class'] == 'a')
+    by_actual = collections.defaultdict(list)
+    for path in files:
+        here = path
+        if not os.path.isfile(os.path.join(rc.ROOT, path)) and path in moved and \
+                os.path.isfile(os.path.join(rc.ROOT, moved[path])):
+            here = moved[path]
+        by_actual[here].append(path)
     used_undecided = collections.Counter()
     problems = list(overlay_problems)
     results = {}
     total = 0
-    for path in sorted(files):
+    for path in sorted(by_actual):
         try:
             text, _ = rc.read_text(path)
         except (UnicodeDecodeError, OSError):
+            if any(per_file.get(old) for old in by_actual[path]):
+                problems.append('file gone %s' % path)
             continue
         if rc.is_generated(path, text):
             continue
         fe = FileEdits(path)
-        for r in per_file.get(path, []):
+        for r in [one for old in by_actual[path] for one in per_file.get(old, [])]:
             if r['_effective'] in ('', 'mirror'):
                 continue
             apply_line_row(fe, r, phrases_by_old, phrases)
@@ -368,12 +381,26 @@ def main(argv):
             results[path] = (data, fe.crlf_before, after)
             total += fe.count()
 
+    # every edited code, JSON or Python file must parse as well after as before
+    befores = {}
+    afters = {}
+    for path, (data, _, _) in results.items():
+        if os.path.splitext(path)[1] in rc.CODE_EXTENSIONS + ('.json', '.py'):
+            befores[path] = rc.read_text(path)[0]
+            afters[path] = data.replace('\r\n', '\n')
+    before_errors = rc.syntax_errors(befores)
+    after_errors = rc.syntax_errors(afters)
+    for path in sorted(afters):
+        b, a = before_errors.get(path, 0), after_errors.get(path, 0)
+        if b >= 0 and (a < 0 or a > b):
+            problems.append('the edits break the syntax of %s (%d -> %d errors)' % (path, b, a))
+
     print('chosen lanes: %s' % ', '.join(sorted(lanes)))
     print('undecided lines in the chosen lanes: %d' % blocked)
     print('undecided map names met in the chosen files: %d names, %d places' % (
         len(used_undecided), sum(used_undecided.values())))
     print('problems (moved rows, overlaps, CRLF): %d' % len(problems))
-    for p in problems[:15]:
+    for p in problems[:40]:
         print('  ' + p)
     print('edits planned: %d in %d files' % (total, len(results)))
     if blocked or used_undecided or problems:

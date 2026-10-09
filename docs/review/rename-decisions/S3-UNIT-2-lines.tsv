@@ -1015,7 +1015,7 @@ tests/unit/uf-27-28-29.test.ts	724	38	row	keep
 tests/unit/uf-27-28-29.test.ts	809	39	row	keep			
 tests/unit/uf-27-28-29.test.ts	1139	16	row	keep			
 tests/unit/uf-27-28-29.test.ts	1187	21	rows	keep			
-tests/unit/uf-27-28-29.test.ts	1198	20	row	rewrite	the task row	the task's task group	focusTask scrolls to the task group the task sits on
+tests/unit/uf-27-28-29.test.ts	1198	20	row	rewrite	the task row	the task group of the task	reconcile: syntax guard: the reader's rewrite put an apostrophe into a single-quoted string; same meaning without it; was rewrite focusTask scrolls to the task group the task sits on
 tests/unit/uf-27-28-29.test.ts	1216	34	row	task-group			
 tests/unit/uf-27-28-29.test.ts	1223	49	row	task-group			
 tests/unit/uf-27-28-29.test.ts	1233	64	row	keep			
