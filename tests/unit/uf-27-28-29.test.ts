@@ -762,11 +762,12 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     expect(Number.isFinite(version)).toBe(true)
   })
 
-  it('AM-1 is 1 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
+  it('AM-1 is 2 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way.
-    expect(bench().api.agentApiVersion).toBe(1)
+    // pending decision is settled the other way. It started at 1; CR-708 X-8
+    // raised it to 2 under AG-1 (the published names changed incompatibly).
+    expect(bench().api.agentApiVersion).toBe(2)
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {

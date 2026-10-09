@@ -212,7 +212,7 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-const AGENT_API_VERSION = 1
+const AGENT_API_VERSION = 2
 
 // see AG-4
 // WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).

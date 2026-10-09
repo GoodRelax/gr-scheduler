@@ -162,7 +162,7 @@
     "en": "Zoom out vertically"
    },
    "hint": {
-    "ja": "行軸（縦）を縮小",
+    "ja": "縦軸を縮小",
     "en": "Zoom the vertical axis (vertical) out"
    }
   },
@@ -173,7 +173,7 @@
     "en": "Zoom in vertically"
    },
    "hint": {
-    "ja": "行軸（縦）を拡大",
+    "ja": "縦軸を拡大",
     "en": "Zoom the vertical axis (vertical) in"
    }
   },
@@ -664,22 +664,22 @@
   {
    "rowId": "IC-141",
    "label": {
-    "ja": "親子判別",
+    "ja": "親タスク表示",
     "en": "Show Parent Tasks"
    },
    "hint": {
-    "ja": "WBS の親子を、子から親への矢印で表示する。もう一度押すと非表示にする",
+    "ja": "親タスクと子タスクを、子タスクから親タスクへの矢印で表示する。もう一度押すと非表示にする",
     "en": "Show the parent tasks as arrows from child to parent; press again to hide them"
    }
   },
   {
    "rowId": "IC-142",
    "label": {
-    "ja": "親定義",
+    "ja": "親タスク設定",
     "en": "Set Parent Task"
    },
    "hint": {
-    "ja": "WBS の親を結ぶ構え。子を選び、子から親へ引く",
+    "ja": "親タスクを結ぶ構え。子を選び、子タスクから親タスクへ引く",
     "en": "Arm parent task linking; select the children, then drag from a child to its parent"
    }
   },
@@ -844,8 +844,8 @@
     "en": "Expand"
    },
    "hint": {
-    "ja": "この行の配下をすべて開く",
-    "en": "Open every row below this one"
+    "ja": "このタスクグループの配下をすべて開く",
+    "en": "Open every task group below this one"
    }
   },
   {
@@ -855,8 +855,8 @@
     "en": "Collapse"
    },
    "hint": {
-    "ja": "この行自身を畳む",
-    "en": "Collapse this row itself"
+    "ja": "このタスクグループ自身を畳む",
+    "en": "Collapse this task group itself"
    }
   },
   {
@@ -866,8 +866,8 @@
     "en": "Collapse Below"
    },
    "hint": {
-    "ja": "この行の配下をすべて畳む",
-    "en": "Collapse every row below this one"
+    "ja": "このタスクグループの配下をすべて畳む",
+    "en": "Collapse every task group below this one"
    }
   },
   {
@@ -877,8 +877,8 @@
     "en": "Open One Level"
    },
    "hint": {
-    "ja": "この行の直下の子だけを開く。孫より下は畳んだままにする",
-    "en": "Open only this row's own children, leaving deeper rows folded"
+    "ja": "このタスクグループの直下の子だけを開く。孫より下は畳んだままにする",
+    "en": "Open only this task group's own children, leaving deeper task groups folded"
    }
   },
   {
@@ -888,8 +888,8 @@
     "en": "Add Below"
    },
    "hint": {
-    "ja": "この行の配下に行を 1 つ追加する。名前はその場で打つ",
-    "en": "Add one row below this one, and type its name there"
+    "ja": "このタスクグループの配下にタスクグループを 1 つ追加する。名前はその場で打つ",
+    "en": "Add one task group below this one, and type its name there"
    }
   },
   {
@@ -899,30 +899,30 @@
     "en": "Pin"
    },
    "hint": {
-    "ja": "行をピン止めして画面に残す。もう一度押すと外す",
-    "en": "Pin the row so it stays on screen; press again to unpin it"
+    "ja": "タスクグループをピン止めして画面に残す。もう一度押すと外す",
+    "en": "Pin the task group so it stays on screen; press again to unpin it"
    }
   },
   {
    "rowId": "IC-82",
    "label": {
-    "ja": "行を削除",
-    "en": "Delete Row"
+    "ja": "タスクグループを削除",
+    "en": "Delete Task Group"
    },
    "hint": {
-    "ja": "この行と、その配下の行と、載っているタスクを削除する",
-    "en": "Delete this row, the rows below it and the tasks they carry"
+    "ja": "このタスクグループと、その配下のタスクグループと、載っているタスクを削除する",
+    "en": "Delete this task group, the task groups below it and the tasks they carry"
    }
   },
   {
    "rowId": "IC-106",
    "label": {
-    "ja": "すべての行を削除",
-    "en": "Delete All Rows"
+    "ja": "すべてのタスクグループを削除",
+    "en": "Delete All Task Groups"
    },
    "hint": {
-    "ja": "すべての行と、載っているタスクを削除する",
-    "en": "Delete all rows and the tasks they carry"
+    "ja": "すべてのタスクグループと、載っているタスクを削除する",
+    "en": "Delete all task groups and the tasks they carry"
    }
   },
   {
@@ -1273,8 +1273,8 @@
     "en": "Expand All"
    },
    "hint": {
-    "ja": "畳んだ行をすべて開く",
-    "en": "Open every row that was collapsed"
+    "ja": "畳んだタスクグループをすべて開く",
+    "en": "Open every task group that was collapsed"
    }
   },
   {
@@ -1284,8 +1284,8 @@
     "en": "Collapse All"
    },
    "hint": {
-    "ja": "すべての行を畳む",
-    "en": "Collapse every row"
+    "ja": "すべてのタスクグループを畳む",
+    "en": "Collapse every task group"
    }
   },
   {
@@ -1295,19 +1295,19 @@
     "en": "Open One Level"
    },
    "hint": {
-    "ja": "最も浅い段の行だけを戻す。その配下は畳まったままにする",
-    "en": "Bring back only the shallowest rows, leaving what is under them folded"
+    "ja": "最も浅い段のタスクグループだけを戻す。その配下は畳まったままにする",
+    "en": "Bring back only the shallowest task groups, leaving what is under them folded"
    }
   },
   {
    "rowId": "IC-93",
    "label": {
     "ja": "最も浅い段に追加",
-    "en": "Add Top Row"
+    "en": "Add Top Task Group"
    },
    "hint": {
-    "ja": "最も浅い段に行を 1 つ追加する。名前はその場で打つ",
-    "en": "Add one row at the shallowest level, and type its name there"
+    "ja": "最も浅い段にタスクグループを 1 つ追加する。名前はその場で打つ",
+    "en": "Add one task group at the shallowest level, and type its name there"
    }
   },
   {
@@ -1486,7 +1486,7 @@
   {
    "rowId": "PR-15",
    "label": {
-    "ja": "WBS の親",
+    "ja": "親タスク",
     "en": "parent task"
    }
   },
@@ -1806,7 +1806,7 @@
     "taskGroupGap"
    ],
    "label": {
-    "ja": "行の間隔",
+    "ja": "タスクグループの間隔",
     "en": "taskGroupGap"
    }
   },
@@ -2096,7 +2096,7 @@
     "taskGroupTitleFont"
    ],
    "label": {
-    "ja": "行名の文字",
+    "ja": "タスクグループ名の文字",
     "en": "taskGroupTitleFont"
    }
   },
@@ -2106,7 +2106,7 @@
     "taskGroupTitleIndent"
    ],
    "label": {
-    "ja": "行名の TaskGroup の深さ 1 段ぶんのインデント",
+    "ja": "タスクグループ名の TaskGroup の深さ 1 段ぶんのインデント",
     "en": "taskGroupTitleIndent"
    }
   },
@@ -2116,7 +2116,7 @@
     "taskGroupTitleTopScale"
    ],
    "label": {
-    "ja": "TaskGroup 深さ 1 の行名の倍率",
+    "ja": "TaskGroup 深さ 1 のタスクグループ名の倍率",
     "en": "taskGroupTitleTopScale"
    }
   },
@@ -2406,7 +2406,7 @@
     "scrollGroupId"
    ],
    "label": {
-    "ja": "表示の上端が指す行",
+    "ja": "表示の上端が指すタスクグループ",
     "en": "scrollGroupId"
    }
   },
@@ -2737,7 +2737,7 @@
     "importMaxDepth"
    ],
    "label": {
-    "ja": "WBS のネストの深さの上限",
+    "ja": "親タスクの入れ子の深さの上限",
     "en": "importMaxDepth"
    }
   },
@@ -2890,7 +2890,7 @@
     "scrollGroupOffset"
    ],
    "label": {
-    "ja": "表示の上端が指す行のどこにあるか",
+    "ja": "表示の上端が指すタスクグループのどこにあるか",
     "en": "scrollGroupOffset"
    }
   },
@@ -2920,7 +2920,7 @@
     "parentProgressToleranceDays"
    ],
    "label": {
-    "ja": "遅延診断時に親子の進捗の疑義を許す日数（稼働日）",
+    "ja": "遅延診断時に親タスクの進捗の疑義を許す日数（稼働日）",
     "en": "parentProgressToleranceDays"
    }
   },
@@ -3202,7 +3202,7 @@
   {
    "block": "Task Group Panel",
    "text": {
-    "ja": "行見出しパネル",
+    "ja": "タスクグループパネル",
     "en": "Task Group Panel"
    }
   },
@@ -3440,8 +3440,8 @@
     "en": "Some tasks did not fit, so they are not drawn"
    },
    "nextStep": {
-    "ja": "行を畳むか、期間を絞ってから書き出してください",
-    "en": "Fold some rows or narrow the period, then export again"
+    "ja": "タスクグループを畳むか、期間を絞ってから書き出してください",
+    "en": "Fold some task groups or narrow the period, then export again"
    }
   },
   {
@@ -3458,12 +3458,12 @@
   {
    "rowId": "RS-24",
    "text": {
-    "ja": "1 つの行に重なるタスクが多すぎるので、これ以上積めません",
-    "en": "Too many tasks overlap on one row, so no more can be stacked"
+    "ja": "1 つのタスクグループに重なるタスクが多すぎるので、これ以上積めません",
+    "en": "Too many tasks overlap on one task group, so no more can be stacked"
    },
    "nextStep": {
-    "ja": "重なっているタスクを別の行へ移すか、日付をずらしてください",
-    "en": "Move some of the overlapping tasks to another row, or shift their dates"
+    "ja": "重なっているタスクを別のタスクグループへ移すか、日付をずらしてください",
+    "en": "Move some of the overlapping tasks to another task group, or shift their dates"
    }
   },
   {
@@ -3503,55 +3503,55 @@
    "rowId": "RS-28",
    "text": {
     "ja": "開く配下のタスクグループがありません",
-    "en": "There is no folded group under this row to open"
+    "en": "There is no folded group under this task group to open"
    },
    "nextStep": {
     "ja": "配下を畳んでから、もう一度押してください",
-    "en": "Fold something under this row first, then press again"
+    "en": "Fold something under this task group first, then press again"
    }
   },
   {
    "rowId": "RS-29",
    "text": {
-    "ja": "この行は、描かれている子を 1 つも持っていません",
-    "en": "This row draws no child, so there is nothing to fold away"
+    "ja": "このタスクグループは、描かれている子を 1 つも持っていません",
+    "en": "This task group draws no child, so there is nothing to fold away"
    },
    "nextStep": {
-    "ja": "配下の行を戻してから、もう一度押してください",
-    "en": "Bring a row under this one back first, then press again"
+    "ja": "配下のタスクグループを戻してから、もう一度押してください",
+    "en": "Bring a task group under this one back first, then press again"
    }
   },
   {
    "rowId": "RS-30",
    "text": {
-    "ja": "この行の直下に、画面へ戻せる子がありません",
-    "en": "No child of this row is out of the picture to bring back"
+    "ja": "このタスクグループの直下に、画面へ戻せる子がありません",
+    "en": "No child of this task group is out of the picture to bring back"
    },
    "nextStep": {
-    "ja": "配下を畳むか、直下の行を隠してから、もう一度押してください",
-    "en": "Fold what is under this row, or hide one of its children, then press again"
+    "ja": "配下を畳むか、直下のタスクグループを隠してから、もう一度押してください",
+    "en": "Fold what is under this task group, or hide one of its children, then press again"
    }
   },
   {
    "rowId": "RS-31",
    "text": {
-    "ja": "すべての行が、もう開いて描かれています",
-    "en": "Every row is already open and drawn"
+    "ja": "すべてのタスクグループが、もう開いて描かれています",
+    "en": "Every task group is already open and drawn"
    },
    "nextStep": {
-    "ja": "どれかの行を畳むか、縦に縮小してから、もう一度押してください",
-    "en": "Fold a row or zoom out vertically, then press again"
+    "ja": "どれかのタスクグループを畳むか、縦に縮小してから、もう一度押してください",
+    "en": "Fold a task group or zoom out vertically, then press again"
    }
   },
   {
    "rowId": "RS-32",
    "text": {
-    "ja": "開いている行が 1 つもありません",
-    "en": "No row is open"
+    "ja": "開いているタスクグループが 1 つもありません",
+    "en": "No task group is open"
    },
    "nextStep": {
-    "ja": "どれかの行を開いてから、もう一度押してください",
-    "en": "Open a row first, then press again"
+    "ja": "どれかのタスクグループを開いてから、もう一度押してください",
+    "en": "Open a task group first, then press again"
    }
   },
   {
@@ -3580,7 +3580,7 @@
    "rowId": "RS-36",
    "text": {
     "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせません",
-    "en": "There is no row directly above this one to become a child of"
+    "en": "There is no task group directly above this one to become a child of"
    },
    "nextStep": {
     "ja": "一つ上へ動かしてから、もう一度お試しください",
@@ -3591,7 +3591,7 @@
    "rowId": "RS-37",
    "text": {
     "ja": "いちばん浅い段に居るので、これ以上浅い段へは動かせません",
-    "en": "This row is already at the shallowest level"
+    "en": "This task group is already at the shallowest level"
    },
    "nextStep": {
     "ja": "上下に動かすことはできます",
@@ -3613,7 +3613,7 @@
    "rowId": "RS-39",
    "text": {
     "ja": "その向きに置ける場所が無いので、これ以上動かせません",
-    "en": "There is nowhere further in that direction to put this row"
+    "en": "There is nowhere further in that direction to put this task group"
    },
    "nextStep": {
     "ja": "逆の向きへは動かせます",
@@ -3645,34 +3645,34 @@
   {
    "rowId": "RS-43",
    "text": {
-    "ja": "行が多すぎて、この大きさでは描けません",
-    "en": "There are too many rows to draw at this size"
+    "ja": "タスクグループが多すぎて、この大きさでは描けません",
+    "en": "There are too many task groups to draw at this size"
    },
    "nextStep": {
-    "ja": "行を畳むか、期間を絞ってから書き出してください",
-    "en": "Fold some rows or narrow the period, then export again"
+    "ja": "タスクグループを畳むか、期間を絞ってから書き出してください",
+    "en": "Fold some task groups or narrow the period, then export again"
    }
   },
   {
    "rowId": "RS-44",
    "text": {
-    "ja": "そこには注記を置く行がありません",
-    "en": "There is no row there to put the annotation on"
+    "ja": "そこには注記を置くタスクグループがありません",
+    "en": "There is no task group there to put the annotation on"
    },
    "nextStep": {
-    "ja": "行の上で置いてください",
-    "en": "Place it over a row"
+    "ja": "タスクグループの上で置いてください",
+    "en": "Place it over a task group"
    }
   },
   {
    "rowId": "RS-46",
    "text": {
-    "ja": "これ以上深い段には行を追加できません",
-    "en": "A row cannot be added any deeper than this"
+    "ja": "これ以上深い段にはタスクグループを追加できません",
+    "en": "A task group cannot be added any deeper than this"
    },
    "nextStep": {
-    "ja": "もっと浅い行に追加してください",
-    "en": "Add it to a shallower row"
+    "ja": "もっと浅いタスクグループに追加してください",
+    "en": "Add it to a shallower task group"
    }
   },
   {
@@ -3777,12 +3777,12 @@
   {
    "rowId": "RS-55",
    "text": {
-    "ja": "自分自身や、その下にある行の中へは動かせません",
-    "en": "A row cannot be moved under itself or under one of its own descendants"
+    "ja": "自分自身や、その下にあるタスクグループの中へは動かせません",
+    "en": "A task group cannot be moved under itself or under one of its own descendants"
    },
    "nextStep": {
-    "ja": "先に外へ出してから、親にしたい行の下へ動かしてください",
-    "en": "Move it out first, then under the row you want as its parent"
+    "ja": "先に外へ出してから、親にしたいタスクグループの下へ動かしてください",
+    "en": "Move it out first, then under the task group you want as its parent"
    }
   },
   {
@@ -3843,12 +3843,12 @@
   {
    "rowId": "RS-61",
    "text": {
-    "ja": "この行は読み取り専用です（編集グループが設定されています）",
-    "en": "This row is read-only (an edit group is set on it)"
+    "ja": "このタスクグループは読み取り専用です（編集グループが設定されています）",
+    "en": "This task group is read-only (an edit group is set on it)"
    },
    "nextStep": {
-    "ja": "編集グループの無い行へコピーしてから編集してください",
-    "en": "Copy it into a row with no edit group, then edit it"
+    "ja": "編集グループの無いタスクグループへコピーしてから編集してください",
+    "en": "Copy it into a task group with no edit group, then edit it"
    }
   },
   {
@@ -3865,12 +3865,12 @@
   {
    "rowId": "RS-66",
    "text": {
-    "ja": "ピン止め行が多くて検索結果を表示できません。",
-    "en": "Too many pinned rows to show the search result."
+    "ja": "ピン止めしたタスクグループが多くて検索結果を表示できません。",
+    "en": "Too many pinned task groups to show the search result."
    },
    "nextStep": {
     "ja": "ピン止めを減らしてください。",
-    "en": "Unpin some rows."
+    "en": "Unpin some task groups."
    }
   },
   {
@@ -3920,11 +3920,11 @@
   {
    "rowId": "RS-70",
    "text": {
-    "ja": "期間から推定された仮の親子関係は選択・削除できません",
+    "ja": "期間から推定された仮の親タスクと子タスクの関係は選択・削除できません",
     "en": "A parent inferred from the dates cannot be selected or deleted"
    },
    "nextStep": {
-    "ja": "確定するには、親定義を構えて子から親へ引いてください",
+    "ja": "確定するには、親タスク設定を構えて子タスクから親タスクへ引いてください",
     "en": "To make it definite, arm Set Parent Task and drag from the child to the parent"
    }
   },
@@ -4054,11 +4054,11 @@
   {
    "rowId": "IV-4",
    "text": {
-    "ja": "タスクの親子が輪になっているので、このファイルは開けません",
+    "ja": "親タスクと子タスクの関係が輪になっているので、このファイルは開けません",
     "en": "The parents and children of the tasks form a loop, so this file cannot be opened"
    },
    "nextStep": {
-    "ja": "元のファイルで親子の輪を解いてから開いてください",
+    "ja": "元のファイルで親タスクと子タスクの関係の輪を解いてから開いてください",
     "en": "Break the loop in the original file, then open it"
    }
   },
@@ -4254,8 +4254,8 @@
   {
    "rowId": "QN-1",
    "text": {
-    "ja": "この行と、行に載っているタスクを削除しますか？",
-    "en": "Delete this row and the tasks on it?"
+    "ja": "このタスクグループと、タスクグループに載っているタスクを削除しますか？",
+    "en": "Delete this task group and the tasks on it?"
    }
   },
   {
@@ -4296,8 +4296,8 @@
   {
    "rowId": "QN-10",
    "text": {
-    "ja": "すべての行と、行に載っているタスクを削除しますか？",
-    "en": "Delete all rows and the tasks on them?"
+    "ja": "すべてのタスクグループと、タスクグループに載っているタスクを削除しますか？",
+    "en": "Delete all task groups and the tasks on them?"
    }
   },
   {
@@ -4310,7 +4310,7 @@
   {
    "rowId": "QN-12",
    "text": {
-    "ja": "タスクと親子関係の矢印が一緒に選ばれました。どちらを選びますか",
+    "ja": "タスクと親タスクと子タスクの関係の矢印が一緒に選ばれました。どちらを選びますか",
     "en": "Tasks and parent arrows are selected together. Which do you want to select?"
    }
   },
@@ -4351,8 +4351,8 @@
   {
    "mark": "shownOnAnotherTaskGroup",
    "text": {
-    "ja": "別の行に表示中",
-    "en": "shown on another row"
+    "ja": "別のタスクグループに表示中",
+    "en": "shown on another task group"
    }
   }
  ],
@@ -4376,7 +4376,7 @@
  ],
  "defaultNames": [
   {
-   "use": "row",
+   "use": "taskGroup",
    "text": {
     "ja": "No name",
     "en": "No name"
@@ -4521,7 +4521,7 @@
   {
    "rowId": "MK-4",
    "text": {
-    "ja": "行軸（縦）だけをズームする",
+    "ja": "縦軸だけをズームする",
     "en": "Zoom the vertical axis only"
    },
    "press": {
@@ -4631,7 +4631,7 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、行見出し＝行名",
+    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
     "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
@@ -4653,8 +4653,8 @@
   {
    "rowId": "MK-16",
    "text": {
-    "ja": "日付を変えずに行だけを移す（選択に無いタスクは選択に足す）",
-    "en": "Move to another row only, keeping the dates; a task outside the Selection joins it"
+    "ja": "日付を変えずにタスクグループだけを移す（選択に無いタスクは選択に足す）",
+    "en": "Move to another task group only, keeping the dates; a task outside the Selection joins it"
    },
    "press": {
     "ja": "タスクの上で Shift ＋ ドラッグ",
@@ -4708,7 +4708,7 @@
   {
    "rowId": "AR-7",
    "text": {
-    "ja": "WBS の親",
+    "ja": "親タスク",
     "en": "parent task"
    }
   }
@@ -5283,7 +5283,7 @@
   {
    "rowId": "SQ-8",
    "text": {
-    "ja": "行タイトル",
+    "ja": "タスクグループ名",
     "en": "Task Group Name"
    }
   },
@@ -5415,7 +5415,7 @@
   {
    "part": "childTasks",
    "text": {
-    "ja": "[==  ==] 親子関係を定義するため子タスクを選択",
+    "ja": "[==  ==] 親タスクと子タスクの関係を定義するため子タスクを選択",
     "en": "[==  ==] Select the child tasks to define their parent"
    }
   },
@@ -5429,7 +5429,7 @@
   {
    "part": "links",
    "text": {
-    "ja": "[↑ ↑] 親子関係を削除するため矢印を選択",
+    "ja": "[↑ ↑] 親タスクと子タスクの関係を削除するため矢印を選択",
     "en": "[↑ ↑] Select the arrows to delete their parent link"
    }
   }
@@ -5777,15 +5777,15 @@
   {
    "rowId": "VS-1",
    "text": {
-    "ja": "親子の関係にある 2 つのタスクの間に依存がある",
+    "ja": "親タスクと子タスクの関係にある 2 つのタスクの間に依存がある",
     "en": "A dependency joins a parent and its own child"
    }
   },
   {
    "rowId": "VS-2",
    "text": {
-    "ja": "この行を束ねる上位タスクが無い",
-    "en": "No summary task holds this row"
+    "ja": "このタスクを束ねる上位タスクが無い",
+    "en": "No summary task holds this task"
    }
   },
   {

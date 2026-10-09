@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-08T03:13:21Z"
+   "const": "2026-10-09T11:56:15Z"
   },
   "schedule": {
    "type": "object",
@@ -136,8 +136,6 @@
     "planVisible",
     "progressLineVisible",
     "progressMarkerVisible",
-    "taskGroupPanelWidth",
-    "taskGroupPanelWidthFixed",
     "rulerFont",
     "rulerHeight",
     "scrollDate",
@@ -145,6 +143,8 @@
     "scrollGroupId",
     "scrollGroupOffset",
     "stackDirection",
+    "taskGroupPanelWidth",
+    "taskGroupPanelWidthFixed",
     "themeMonochrome",
     "zoomX",
     "zoomY"
@@ -253,15 +253,6 @@
      "type": "boolean",
      "default": true
     },
-    "taskGroupPanelWidth": {
-     "type": "number",
-     "default": 300,
-     "minimum": 80
-    },
-    "taskGroupPanelWidthFixed": {
-     "type": "boolean",
-     "default": false
-    },
     "rulerFont": {
      "type": "number",
      "default": 21,
@@ -303,6 +294,15 @@
       "down"
      ],
      "default": "up"
+    },
+    "taskGroupPanelWidth": {
+     "type": "number",
+     "default": 300,
+     "minimum": 80
+    },
+    "taskGroupPanelWidthFixed": {
+     "type": "boolean",
+     "default": false
     },
     "themeMonochrome": {
      "type": "boolean",

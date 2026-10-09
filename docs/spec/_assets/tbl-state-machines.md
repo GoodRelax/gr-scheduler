@@ -10,7 +10,7 @@
 > **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。
 
 本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  
-⚠️ 例外は行の木（`rowTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  
+⚠️ 例外はタスクグループの木（`taskGroupTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  
 原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  
 名前の読み方は `05-07-design.md` の 5.5 が持つ。
 
@@ -32,14 +32,14 @@
 | RG-16 | `Esc` | 開いているウインドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
-| RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
+| RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
 | RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | — |
 | RG-8 | `Esc` | 出ている説明 | `tooltipDisplayStateMachine.allowed` と、フレームの値（描いた説明がある） | `IN-4` ・ `IN-3` | 状態だけでは決まらない段（`SF-5`） |
 | RG-17 | `Esc` | 全画面表示 | `fullScreenModeStateMachine.full` | `IN-4` ・ `FR-071` | 最後の段。全画面表示を出ることをブラウザに求める（`FR-071` の入口の押下と同じ求め）。閲覧環境が Keyboard Lock を持たないときはブラウザが先に取る（`IN-4a`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-9 | `Enter` | 出ている通知 | `noticeDisplayStateMachine.shown` | `SK-19` ・ `NT-8` | — |
 | RG-10 | `Enter` | その場の編集の確定 | `fieldEditStateMachine.editingField` ／ `createdTaskNamingStateMachine.createdNameEnded` | `SK-19` ・ `FR-091` | 面も問いも立っていないとき |
 | RG-11 | `Enter` | プロパティパネルを出すのをやめる | `propertiesPanelContentStateMachine`（`hidden` 以外） | `SK-19` | 面も問いも立っておらず、確定していないその場の編集も無いとき |
-| RG-12 | `Enter` | 選択を解く | `selectionStateMachine.objectsSelected` と、根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`） | `SK-19` ・ `FR-085` | プロパティパネルも出していないとき |
+| RG-12 | `Enter` | 選択を解く | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `SK-19` ・ `FR-085` | プロパティパネルも出していないとき |
 | RG-13 | `y` ／ `n` | 問いに答える | `confirmationStateMachine.questionAsked` | `NT-7` | `NT-8` の消去の次、`IN-4` と `SK-19` の階層より先 |
 
 ## 画面の値（`screen`）
@@ -82,9 +82,9 @@
 | `screen/dialogueFieldClosePressed` | 入力（対話欄の閉じる入口）: `IC-52` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | 根 ・ `dualCursorModeStateMachine` |
-| `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
+| `screen/dualCursorPlaced` | 入力（`Task Group Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
 | `screen/displayScaleStepped` | 副作用の結果（倍率を書いた後にシェルが送る。運ぶ `percent` は書いた後に立っている値であり、入力の翻訳係は知らない（書き込みが拒まれたときは立っている値のまま））: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
-| `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
+| `screen/verticalZoomEndReached` | 副作用の結果（縦軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
 | `screen/screenLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `screenLanguage` | 根 |
 | `screen/helpLanguageChosen` | 入力: `IC-128` ・ `FR-038` | `helpLanguage` | 根 |
@@ -137,7 +137,7 @@ stateDiagram-v2
         armModeStateMachine_dependencyArmed : dependencyArmed
         armModeStateMachine_commentBoxArmed : commentBoxArmed
         armModeStateMachine_highlightBoxArmed : highlightBoxArmed
-        armModeStateMachine_wbsParentArmed : wbsParentArmed
+        armModeStateMachine_parentTaskArmed : parentTaskArmed
     }
     note right of armModeStateMachine_group : armEntryPressed は組のどの 2 つの間も結ぶ
     armModeStateMachine_group --> armModeStateMachine_notArmed : escapePressed, armEntryPressed, dualCursorEntryPressed
@@ -145,7 +145,7 @@ stateDiagram-v2
     armModeStateMachine_group --> armModeStateMachine_group : armEntryPressed
 ```
 
-| 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` | `wbsParentArmed` |
+| 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` | `parentTaskArmed` |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
 | `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
@@ -157,7 +157,7 @@ stateDiagram-v2
 - `armModeStateMachine.dependencyArmed` —— 根拠 `AR-4` ・ `IC-61`
 - `armModeStateMachine.commentBoxArmed` —— 根拠 `AR-5` ・ `IC-35`
 - `armModeStateMachine.highlightBoxArmed` —— 根拠 `AR-6` ・ `IC-36`
-- `armModeStateMachine.wbsParentArmed` —— 根拠 `AR-7` ・ `IC-142`
+- `armModeStateMachine.parentTaskArmed` —— 根拠 `AR-7` ・ `IC-142`
 
 表に無い出来事は `armModeStateMachine` を変えない（同じ参照）。
 
@@ -319,7 +319,7 @@ stateDiagram-v2
 | `screen/settleKeyPressed` | — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — |
 
 - `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
-- `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択と行の集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
+- `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択とタスクグループの集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
 - `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 根拠 `S-99h` ・ `FR-072` ・ `IC-17`
 
 表に無い出来事は `propertiesPanelContentStateMachine` を変えない（同じ参照）。
@@ -408,15 +408,15 @@ stateDiagram-v2
     [*] --> scaleMessageDisplayStateMachine_hidden
     scaleMessageDisplayStateMachine_hidden : hidden
     scaleMessageDisplayStateMachine_shown : shown
-    scaleMessageDisplayStateMachine_hidden --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, rowZoomEndReached
-    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, rowZoomEndReached
+    scaleMessageDisplayStateMachine_hidden --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, verticalZoomEndReached
+    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, verticalZoomEndReached
     scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_hidden : scaleMessageTimeElapsed
 ```
 
 | 出来事 | `hidden` | `shown` |
 | --- | --- | --- |
 | `screen/displayScaleStepped` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
-| `screen/rowZoomEndReached` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
+| `screen/verticalZoomEndReached` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
 | `screen/scaleMessageTimeElapsed` | — | → `hidden` |
 
 - `scaleMessageDisplayStateMachine.hidden` —— 初期。根拠 `SE-1`
@@ -653,10 +653,10 @@ stateDiagram-v2
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `gesture/pointerPressed` | 入力（ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-7` ・ `PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構え・`Dual Cursor`・選択から詰める。`PTD-7`（選択をコピーする）は文書を変える押下である） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・行の掴み代・つまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
-| `gesture/pointerReleased` | 入力（押していたボタンを離した）: `IN-1` ・ `CS-2` | — | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
-| `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
-| `gesture/rowGrabAxisSettled` | 入力（行を掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる）: `HF-15` ・ `S-208` | `axis`（`HF-15`。`position`（上下）か `depth`（左右）） | `rowGrabStateMachine` |
+| `gesture/pointerPressed` | 入力（ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-7` ・ `PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構え・`Dual Cursor`・選択から詰める。`PTD-7`（選択をコピーする）は文書を変える押下である） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・タスクグループの掴み代・つまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
+| `gesture/pointerReleased` | 入力（押していたボタンを離した）: `IN-1` ・ `CS-2` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
+| `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
+| `gesture/taskGroupGrabAxisSettled` | 入力（タスクグループを掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる）: `HF-15` ・ `S-208` | `axis`（`HF-15`。`position`（上下）か `depth`（左右）） | `taskGroupGrabStateMachine` |
 | `gesture/entryRepeatTimeElapsed` | 時間（`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた）: `FR-018` ・ `S-172` ・ `S-173` | — | `pointerPressStateMachine` |
 
 ### 根 `gesture` の値
@@ -702,37 +702,37 @@ stateDiagram-v2
 
 表に無い出来事は `pointerPressStateMachine` を変えない（同じ参照）。
 
-### 状態機械 `rowGrabStateMachine`
+### 状態機械 `taskGroupGrabStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction TB
-    [*] --> rowGrabStateMachine_notGrabbed
-    rowGrabStateMachine_notGrabbed : notGrabbed
-    state "notGrabbed 以外" as rowGrabStateMachine_group {
-        rowGrabStateMachine_axisUndecided : axisUndecided
-        rowGrabStateMachine_changingPosition : changingPosition
-        rowGrabStateMachine_changingDepth : changingDepth
+    [*] --> taskGroupGrabStateMachine_notGrabbed
+    taskGroupGrabStateMachine_notGrabbed : notGrabbed
+    state "notGrabbed 以外" as taskGroupGrabStateMachine_group {
+        taskGroupGrabStateMachine_axisUndecided : axisUndecided
+        taskGroupGrabStateMachine_changingPosition : changingPosition
+        taskGroupGrabStateMachine_changingDepth : changingDepth
     }
-    rowGrabStateMachine_group --> rowGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
-    rowGrabStateMachine_notGrabbed --> rowGrabStateMachine_axisUndecided : pointerPressed
-    rowGrabStateMachine_axisUndecided --> rowGrabStateMachine_changingPosition : rowGrabAxisSettled
-    rowGrabStateMachine_axisUndecided --> rowGrabStateMachine_changingDepth : rowGrabAxisSettled
+    taskGroupGrabStateMachine_group --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
+    taskGroupGrabStateMachine_notGrabbed --> taskGroupGrabStateMachine_axisUndecided : pointerPressed
+    taskGroupGrabStateMachine_axisUndecided --> taskGroupGrabStateMachine_changingPosition : taskGroupGrabAxisSettled
+    taskGroupGrabStateMachine_axisUndecided --> taskGroupGrabStateMachine_changingDepth : taskGroupGrabAxisSettled
 ```
 
 | 出来事 | `notGrabbed` | `axisUndecided` | `changingPosition` | `changingDepth` |
 | --- | --- | --- | --- | --- |
-| `gesture/pointerPressed` | → `axisUndecided` [`isRowGrabStrip`]<br>それ以外 → — | — | — | — |
+| `gesture/pointerPressed` | → `axisUndecided` [`isTaskGroupGrabStrip`]<br>それ以外 → — | — | — | — |
 | `gesture/pointerReleased` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
 | `gesture/pressInterrupted` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
-| `gesture/rowGrabAxisSettled` | — | → `changingPosition` [`isPositionAxis`]<br>→ `changingDepth` [not `isPositionAxis`] | — | — |
+| `gesture/taskGroupGrabAxisSettled` | — | → `changingPosition` [`isPositionAxis`]<br>→ `changingDepth` [not `isPositionAxis`] | — | — |
 
-- `rowGrabStateMachine.notGrabbed` —— 初期。根拠 `HF-15`
-- `rowGrabStateMachine.axisUndecided` —— 根拠 `HF-15` ・ `GR-20` ・ `S-208`
-- `rowGrabStateMachine.changingPosition` —— 根拠 `HF-15`
-- `rowGrabStateMachine.changingDepth` —— 根拠 `HF-15`
+- `taskGroupGrabStateMachine.notGrabbed` —— 初期。根拠 `HF-15`
+- `taskGroupGrabStateMachine.axisUndecided` —— 根拠 `HF-15` ・ `GR-20` ・ `S-208`
+- `taskGroupGrabStateMachine.changingPosition` —— 根拠 `HF-15`
+- `taskGroupGrabStateMachine.changingDepth` —— 根拠 `HF-15`
 
-表に無い出来事は `rowGrabStateMachine` を変えない（同じ参照）。
+表に無い出来事は `taskGroupGrabStateMachine` を変えない（同じ参照）。
 
 ## ファイル操作と問い（`fileFlow`）
 
@@ -754,7 +754,7 @@ stateDiagram-v2
 | `fileFlow/openChoiceAnswered` | 入力（`U-56` の 3 つの入口）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `OP-3` | `openChoice`（`OP-3`。置き換え ／ 合流 ／ 重ね） ／ `question`（`QN-5`。置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/mergeMappingAnswered` | 入力（`U-61` の 3 つの入口）: `IC-95` ・ `IC-96` ・ `IC-97` ・ `FR-022` | `mergeMapping`（`MM-1` ・ `MM-2` ・ `MM-4`） | `fileOperationStateMachine` |
 | `fileFlow/confirmationAnswered` | 入力（`Yes` / `No`、`y` / `n`、`Esc`）: `NT-7` ・ `IN-4` | `isProceeding`（`NT-7`。`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
-| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除・すべての行の削除）、担当者の削除）: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
+| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当者の削除）: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
 | `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口・`N`）: `IC-98` ・ `SK-25` ・ `FR-095` | `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/grsResetEntryPressed` | 入力（GRS リセットの入口）: `IC-139` ・ `FR-153` | `question`（`QN-11`。GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/flowSurfaceClosed` | ほかの領域の結果（画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた）: `IC-52` ・ `IN-4` | `surfaceName`（`U-56` ・ `U-61` ・ `U-62`） | 根 ・ `fileOperationStateMachine` |
@@ -920,8 +920,8 @@ stateDiagram-v2
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `fieldEntry/fieldFocusAsked` | 入力（欄に焦点を置くことを要求が名指した押下（名称・行名・担当・注記の本文・枠の色・文書名））: `MK-13` ・ `FR-035` ・ `FR-097` | `fieldRow`（`PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `PR-22` ・ `U-27`） | `fieldEditStateMachine` |
-| `fieldEntry/creationLanded` | 副作用の結果（作る書き込みが着地し、作ったものが文書に在る）: `TC-9` ・ `FR-091` ・ `HF-14` ・ `HF-17` | `created`（作ったタスクの UID か、足した行の ID） | 根 ・ `createdTaskNamingStateMachine` ・ `fieldEditStateMachine` |
+| `fieldEntry/fieldFocusAsked` | 入力（欄に焦点を置くことを要求が名指した押下（名称・タスクグループ名・担当・注記の本文・枠の色・文書名））: `MK-13` ・ `FR-035` ・ `FR-097` | `fieldRow`（`PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `PR-22` ・ `U-27`） | `fieldEditStateMachine` |
+| `fieldEntry/creationLanded` | 副作用の結果（作る書き込みが着地し、作ったものが文書に在る）: `TC-9` ・ `FR-091` ・ `HF-14` ・ `HF-17` | `created`（作ったタスクの UID か、足したタスクグループの ID） | 根 ・ `createdTaskNamingStateMachine` ・ `fieldEditStateMachine` |
 | `fieldEntry/fieldFocusWithdrawn` | 入力（`Esc`、欄の外の押し、パネルを閉じたこと、人が焦点を別の所へ動かしたこと、選択が変わったこと、求めた欄がパネルに無いこと。呼び手が決める）: `IN-5a` ・ `IN-5b` ・ `IN-4` | — | `fieldEditStateMachine` |
 | `fieldEntry/fieldEditBegan` | 入力（宿主が知らせる: 文字入力の欄で編集が始まった（焦点が入った）。人の押下・キーで入っても、求めた焦点が入っても同じ）: `IF-9` ・ `IN-5b` ・ `AG-9` | `fieldRow`（`IF-9` ・ `PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27` ・ `U-60`。編集が始まった欄が名乗る行 ID） | `createdTaskNamingStateMachine` ・ `fieldEditStateMachine` |
 | `fieldEntry/fieldEditEnded` | 入力（宿主が知らせる: その欄の編集が終わった（確定・取り消し・欄が消えた —— どれでも））: `IF-9` ・ `SK-19` ・ `IN-4` ・ `IN-6` ・ `FR-091` | `fieldRow`（`IF-9` ・ `PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27` ・ `U-60`。編集が終わった欄が名乗る行 ID） | `createdTaskNamingStateMachine` ・ `fieldEditStateMachine` |
@@ -934,7 +934,7 @@ stateDiagram-v2
 
 | 出来事 | `fieldEntry` |
 | --- | --- |
-| `fieldEntry/creationLanded` | → 自己 [not `isCreatedTask`] / `bringCreatedRowIntoSight`（足した行が描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる）<br>それ以外 → — |
+| `fieldEntry/creationLanded` | → 自己 [not `isCreatedTask`] / `bringCreatedTaskGroupIntoSight`（足したタスクグループが描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる）<br>それ以外 → — |
 
 **図 F-038 — 名前付けと入力欄の状態遷移**
 
@@ -995,7 +995,7 @@ stateDiagram-v2
 | 出来事 | `idle` | `fieldFocusWanted` | `editingField` |
 | --- | --- | --- | --- |
 | `fieldEntry/fieldFocusAsked` | → `fieldFocusWanted` | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted` [not `isEditedField`]（求めた欄が編集中の欄なら求めは既に満ちている）<br>それ以外 → — |
-| `fieldEntry/creationLanded` | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、行なら `AT-53`） | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、行なら `AT-53`） |
+| `fieldEntry/creationLanded` | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`） | → 自己（`fieldRow` を書き換える） | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`） |
 | `fieldEntry/fieldEditBegan` | → `editingField` | → `editingField`（求めた欄なら焦点が入った。別の欄なら人が焦点を動かした —— どちらも求めは終わる） | → 自己（`fieldRow` を書き換える（編集する欄が替わった）） |
 | `fieldEntry/fieldEditEnded` | — | — | → `idle` [`isEditedField`]<br>それ以外 → — |
 | `fieldEntry/fieldFocusWithdrawn` | — | → `idle` | — |
@@ -1025,27 +1025,27 @@ stateDiagram-v2
 | `selection/selectionEscapePressed` | 入力（`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | 根 ・ `selectionStateMachine` |
 | `selection/selectionSettleKeyPressed` | 入力（`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る）: `SK-19` | — | 根 ・ `selectionStateMachine` |
 | `selection/selectionCleared` | 副作用の結果（画面の値の副作用 `clearSelection` の結果）: `FR-091` | — | `selectionStateMachine` |
-| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなった行も行の選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenRows`（`FR-085`。刈ったあとに残る行。文書から消えた行を除いた行の選択） | 根 ・ `selectionStateMachine` |
+| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・タスクグループの畳みと隠し・縦軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなったタスクグループもタスクグループの選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenTaskGroups`（`FR-085`。刈ったあとに残るタスクグループ。文書から消えたタスクグループを除いたタスクグループの選択） | 根 ・ `selectionStateMachine` |
 | `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
-| `selection/rowsPicked` | 入力（行見出しパネルで行を選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenRows` | 根 |
-| `selection/createdRowSelected` | 副作用の結果（行を足す書き込みが着地し、足した行が文書に在る）: `HF-14` | `createdGroupId` | 根 |
+| `selection/taskGroupsPicked` | 入力（タスクグループパネルでタスクグループを選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenTaskGroups` | 根 |
+| `selection/createdTaskGroupSelected` | 副作用の結果（タスクグループを足す書き込みが着地し、足したタスクグループが文書に在る）: `HF-14` | `createdGroupId` | 根 |
 | `selection/resourcesPicked` | 入力（担当者の一覧で選ぶ・すべて選ぶ・すべて解く・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
 | `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |
 
 ### 根 `selection` の値
 
-運ぶ値: `chosenRows`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある。`Task` をコピーしたときは、選ばれていた `Task` をすべて持つ）。  
+運ぶ値: `chosenTaskGroups`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある。`Task` をコピーしたときは、選ばれていた `Task` をすべて持つ）。  
 根拠: `FR-081` ・ `FR-085` ・ `FR-099` ・ `FR-033` ・ `UN-9` ・ `IN-4` ・ `SK-19`。
 
 | 出来事 | `selection` |
 | --- | --- |
-| `selection/rowsPicked` | → 自己（`chosenRows` を書き換える） |
-| `selection/createdRowSelected` | → 自己（`chosenRows` を作った行 1 つにする） |
+| `selection/taskGroupsPicked` | → 自己（`chosenTaskGroups` を書き換える） |
+| `selection/createdTaskGroupSelected` | → 自己（`chosenTaskGroups` を作ったタスクグループ 1 つにする） |
 | `selection/resourcesPicked` | → 自己（`chosenResources` を書き換える） |
 | `selection/copyTaken` | → 自己（`copiedForPaste` を書き換える） |
-| `selection/selectionEscapePressed` | → 自己 [`isRungSelection`]（`chosenRows` を空にする —— 段「選択」は対象と行の両方を解く）<br>それ以外 → — |
-| `selection/selectionSettleKeyPressed` | → 自己（`chosenRows` を空にする —— 対象と行の両方を解く） |
-| `selection/selectionPruned` | → 自己（`chosenRows` を、運ぶ `chosenRows`（文書に在る行だけ）に置き換える） |
+| `selection/selectionEscapePressed` | → 自己 [`isRungSelection`]（`chosenTaskGroups` を空にする —— 段「選択」は対象とタスクグループの両方を解く）<br>それ以外 → — |
+| `selection/selectionSettleKeyPressed` | → 自己（`chosenTaskGroups` を空にする —— 対象とタスクグループの両方を解く） |
+| `selection/selectionPruned` | → 自己（`chosenTaskGroups` を、運ぶ `chosenTaskGroups`（文書に在るタスクグループだけ）に置き換える） |
 
 **図 F-039 — 選択の状態遷移**
 
@@ -1190,9 +1190,9 @@ stateDiagram-v2
 
 表に無い出来事は `agentApiEnablingStateMachine` を変えない（同じ参照）。
 
-## 行の木（`rowTree`）
+## タスクグループの木（`taskGroupTree`）
 
-**表 T-328 — 行の木の状態機械**
+**表 T-328 — タスクグループの木の状態機械**
 
 本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
 状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
@@ -1203,39 +1203,39 @@ stateDiagram-v2
 ⭐ 本領域の状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`） —— 状態の型は `_assets/fig-erd-detail.md` の `AT-153` の列挙が持ち、状態のキーはその値と同じ並びである。  
 値が変われば、起こしたものによらず未保存の編集であり、取り消しの 1 段である（`01-04-requirements.md` の `FR-018`）。
 
-### 行の木の出来事
+### タスクグループの木の出来事
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `rowTree/oneLevelOpenPressed` | 入力（行の 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押した行の id） | `treeStateMachine` |
-| `rowTree/allBelowOpenPressed` | 入力（行の配下をすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押した行の id） | `treeStateMachine` |
-| `rowTree/hidePressed` | 入力（行の隠す操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押した行の id） | `treeStateMachine` |
-| `rowTree/allBelowFoldPressed` | 入力（行の配下をすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押した行の id） | `treeStateMachine` |
-| `rowTree/everyRowOpenPressed` | 入力（頭のすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
-| `rowTree/everyRowFoldPressed` | 入力（頭のすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
-| `rowTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
-| `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない。値は `null` とする） | 根 ・ `treeStateMachine` |
-| `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
-| `rowTree/everyRowDeletePressed` | 入力（頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
-| `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
-| `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`）か、表示の絞り込みに入る・絞り込みのあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/oneLevelOpenPressed` | 入力（タスクグループの 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/allBelowOpenPressed` | 入力（タスクグループの配下をすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/hidePressed` | 入力（タスクグループの隠す操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/allBelowFoldPressed` | 入力（タスクグループの配下をすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押したタスクグループの id） | `treeStateMachine` |
+| `taskGroupTree/everyTaskGroupOpenPressed` | 入力（頭のすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/everyTaskGroupFoldPressed` | 入力（頭のすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/childTaskGroupAddPressed` | 入力（タスクグループの配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押したタスクグループの id。頭の操作子（`IC-93`）では段 0 を押したので、どのタスクグループでもない。値は `null` とする） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
+| `taskGroupTree/everyTaskGroupDeletePressed` | 入力（頭のすべてのタスクグループを消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
+| `taskGroupTree/verticalZoomShrinkPressed` | 入力（縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
+| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、表示の絞り込みに入る・絞り込みのあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
 
-### 根 `rowTree` の値
+### 根 `taskGroupTree` の値
 
 運ぶ値: —。  
 根拠: `AT-153` ・ `S-418`。
 
-| 出来事 | `rowTree` |
+| 出来事 | `taskGroupTree` |
 | --- | --- |
-| `rowTree/everyRowFoldPressed` | → 自己 / `writeLevelZeroCollapsed`（段 0 を畳む（`S-418` を `'collapsed'` に）。行の値と同じ束に入れる） |
-| `rowTree/everyRowOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
-| `rowTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
-| `rowTree/childRowAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、行の値は変えない（`HF-17`））<br>それ以外 → — |
-| `rowTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
-| `rowTree/everyRowDeletePressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
-| `rowTree/rowRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
+| `taskGroupTree/everyTaskGroupFoldPressed` | → 自己 / `writeLevelZeroCollapsed`（段 0 を畳む（`S-418` を `'collapsed'` に）。タスクグループの値と同じ束に入れる） |
+| `taskGroupTree/everyTaskGroupOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
+| `taskGroupTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `taskGroupTree/childTaskGroupAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、タスクグループの値は変えない（`HF-17`））<br>それ以外 → — |
+| `taskGroupTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `taskGroupTree/everyTaskGroupDeletePressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。消す書き込みと同じ束に入れる（`HF-20`））<br>それ以外 → — |
+| `taskGroupTree/taskGroupRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる）<br>それ以外 → — |
 
-**図 F-043 — 行の木の状態遷移**
+**図 F-043 — タスクグループの木の状態遷移**
 
 状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
 矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
@@ -1253,40 +1253,40 @@ stateDiagram-v2
     treeStateMachine_expanded : expanded
     treeStateMachine_temporarilyExpanded : temporarilyExpanded
     treeStateMachine_hidden : hidden
-    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
-    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
+    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
+    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, taskGroupRevealAsked
     treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
-    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
-    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed
-    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, fitPressed
-    treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
-    treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed
+    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed, childTaskGroupAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed, childTaskGroupAddPressed
+    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyTaskGroupOpenPressed, fitPressed
+    treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyTaskGroupOpenPressed
+    treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyTaskGroupOpenPressed
     treeStateMachine_auto --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_auto --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_auto --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
     treeStateMachine_collapsed --> treeStateMachine_hidden : hidePressed
     treeStateMachine_expanded --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_expanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_expanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
     treeStateMachine_temporarilyExpanded --> treeStateMachine_hidden : hidePressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyTaskGroupFoldPressed
     treeStateMachine_expanded --> treeStateMachine_auto : fitPressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_auto : fitPressed, rowZoomShrinkPressed
-    treeStateMachine_hidden --> treeStateMachine_expanded : rowRevealAsked
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_auto : fitPressed, verticalZoomShrinkPressed
+    treeStateMachine_hidden --> treeStateMachine_expanded : taskGroupRevealAsked
 ```
 
 | 出来事 | `auto` | `collapsed` | `expanded` | `temporarilyExpanded` | `hidden` |
 | --- | --- | --- | --- | --- | --- |
-| `rowTree/oneLevelOpenPressed` | → `expanded` [`isPressedRow`]<br>それ以外 → — | → `expanded` [`isPressedRow`]<br>それ以外 → — | — | → `expanded` [`isPressedRow`]<br>それ以外 → — | → `collapsed` [`isChildOfPressedRow`]<br>それ以外 → — |
-| `rowTree/allBelowOpenPressed` | → `temporarilyExpanded` [`isPressedRow`]<br>→ `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedRow`]<br>→ `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>→ `auto` [`isBelowPressedRow` & `isLeafRow`]<br>それ以外 → — | — | — | → `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>→ `auto` [`isBelowPressedRow` & `isLeafRow`]<br>それ以外 → — |
-| `rowTree/hidePressed` | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — |
-| `rowTree/allBelowFoldPressed` | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — |
-| `rowTree/everyRowOpenPressed` | → `temporarilyExpanded` [not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] | — | — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] |
-| `rowTree/everyRowFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
-| `rowTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelRow`]<br>それ以外 → — |
-| `rowTree/childRowAddPressed` | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedRow`]<br>それ以外 → — | — | — | — |
-| `rowTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
-| `rowTree/rowZoomShrinkPressed` | — | — | — | → `auto` | — |
-| `rowTree/rowRevealAsked` | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — |
+| `taskGroupTree/oneLevelOpenPressed` | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | — | → `expanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `collapsed` [`isChildOfPressedTaskGroup`]<br>それ以外 → — |
+| `taskGroupTree/allBelowOpenPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>→ `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>→ `auto` [`isBelowPressedTaskGroup` & `isLeafTaskGroup`]<br>それ以外 → — | — | — | → `temporarilyExpanded` [`isBelowPressedTaskGroup` & not `isLeafTaskGroup`]<br>→ `auto` [`isBelowPressedTaskGroup` & `isLeafTaskGroup`]<br>それ以外 → — |
+| `taskGroupTree/hidePressed` | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `hidden` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — |
+| `taskGroupTree/allBelowFoldPressed` | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | → `collapsed` [`isPressedTaskGroup`]<br>→ `collapsed` [`isBelowPressedTaskGroup`]<br>それ以外 → — | — |
+| `taskGroupTree/everyTaskGroupOpenPressed` | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>→ `auto` [`isLeafTaskGroup`] | — | — | → `temporarilyExpanded` [not `isLeafTaskGroup`]<br>→ `auto` [`isLeafTaskGroup`] |
+| `taskGroupTree/everyTaskGroupFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
+| `taskGroupTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelTaskGroup`]<br>それ以外 → — |
+| `taskGroupTree/childTaskGroupAddPressed` | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedTaskGroup`]<br>それ以外 → — | — | — | — |
+| `taskGroupTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
+| `taskGroupTree/verticalZoomShrinkPressed` | — | — | — | → `auto` | — |
+| `taskGroupTree/taskGroupRevealAsked` | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedTaskGroupOrAncestor`]<br>それ以外 → — |
 
 - `treeStateMachine.auto` —— 根拠 `AT-153` ・ `FR-018`
 - `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`

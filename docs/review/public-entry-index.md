@@ -85,13 +85,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `nextWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#nextWorkingDay` | PI-1 | 起点の**翌稼働日**。 |
 | `NoWorkingDayReached` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#NoWorkingDayReached` | -- | class NoWorkingDayReached extends Error |
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
+| `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
+| `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
-| `rowNameOf` | entry | function | `src/entity/document-model/schedule/row-names.ts#rowNameOf` | PI-1 | 行の名前を `AT-53` と `AT-54` から導く。 |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |
 | `ScheduleViolation` | entry | interface | `src/entity/document-model/schedule/schedule-invariants.ts#ScheduleViolation` | -- | interface ScheduleViolation |
 | `scheduleViolations` | entry | function | `src/entity/document-model/schedule/schedule-invariants.ts#scheduleViolations` | PI-1 | 不変条件に反する箇所 |
@@ -102,6 +103,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskByUid` | entry | function | `src/entity/document-model/schedule/schedule.ts#taskByUid` | PI-1 | `uid` で引く。 |
 | `TaskGroup` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskGroup` | -- | interface TaskGroup |
 | `TaskGroupMember` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskGroupMember` | -- | interface TaskGroupMember |
+| `taskGroupNameOf` | entry | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupNameOf` | PI-1 | タスクグループ名を `AT-53` と `AT-54` から導く。 |
 | `TaskOrigin` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskOrigin` | -- | interface TaskOrigin |
 | `TaskSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#TaskSearchRow` | PI-1 | 型。 |
 | `TaskVisual` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskVisual` | -- | interface TaskVisual |
@@ -112,8 +114,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
-| `WbsParentResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#WbsParentResolution` | PI-1 | 型。 |
-| `wbsParentResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#wbsParentResolutionsOf` | PI-1 | どの `Task` の WBS の親も、明記・導いた親（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
@@ -127,17 +127,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayMarkerRow` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayMarkerRow` | -- | type DelayMarkerRow = 'DG-1' \| 'DG-2' \| 'DG-3' \| 'DG-4' |
 | `DelayMarkerState` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayMarkerState` | -- | interface DelayMarkerState |
 | `DelayQuantities` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayQuantities` | -- | interface DelayQuantities |
-| `DerivedWbsParent` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DerivedWbsParent` | -- | interface DerivedWbsParent |
+| `DerivedParentTask` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DerivedParentTask` | -- | interface DerivedParentTask |
 | `FindingKind` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingKind` | -- | type FindingKind = 'contradiction' \| 'suspicion' \| 'omission' |
 | `FindingValue` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingValue` | -- | type FindingValue = string \| number \| boolean \| null \| readonly number[] |
 | `LateDays` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#LateDays` | -- | interface LateDays |
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
-| `rowPathOf` | file only | function | `src/entity/document-model/schedule/row-names.ts#rowPathOf` | -- | function rowPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
 | `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
+| `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
 
@@ -194,10 +194,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fixedFitSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#fixedFitSpanOf` | PI-5 | 文書が全体表示時の期間を固定しているときだけ、その 2 つの日と暦日の数を返す。 |
 | `groupDepthLimit` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthLimit` | PI-5 | いまの詳しさの段が描く最も深い段。 |
 | `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | その段を描くのに要る倍率。 |
-| `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | 行の領域の中で、固定した行の帯の下に、その行を描く余地が残るか。 |
-| `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#inTreeOrder` | PI-5 | 行を木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
-| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#isDroppedByTreeState` | PI-5 | その行が、人が畳んだ行か隠した行のために描かれないか —— 行そのものが隠されている、祖先が畳まれているか隠されている、段 0 が畳まれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
-| `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせる行。 |
+| `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | タスクグループの領域の中で、固定したタスクグループの帯の下に、そのタスクグループを描く余地が残るか。 |
+| `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#inTreeOrder` | PI-5 | タスクグループを木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
+| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が畳んだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が畳まれているか隠されている、段 0 が畳まれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
+| `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
 | `labelledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labelledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当者、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。 |
@@ -205,7 +205,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `LabelReference` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelReference` | PI-5 | 型。 |
 | `labelReferenceOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelReferenceOf` | PI-5 | その基準を求める |
 | `labelUnits` | entry | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelUnits` | PI-5 | `FR-093` の「全角 2・半角 1 で数えた単位数」。 |
-| `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, rowControlsHeightPx?: numb... |
+| `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, taskGroupControlsHeightPx?... |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
@@ -214,36 +214,33 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へ札を並べ始める位置。 |
 | `planDatesSpanYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `planDateText` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDateText` | PI-5 | 予定の 1 つの日を `ND-4`・`ND-5` の形で書く |
-| `RowPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RowPlacement` | -- | interface RowPlacement |
-| `rowPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#rowPlacesAtZoomY` | PI-5 | その倍率での行の位置。 |
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' |
 | `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | -- | function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = 'rectangle' \| 'chevron' \| 'arrow' \| 'endpointSpan' \| 'milestone' |
-| `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Row Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
+| `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `standsUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#standsUndecidedResume` | -- | function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
+| `TaskGroupPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskGroupPlacement` | -- | interface TaskGroupPlacement |
+| `taskGroupPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskGroupPlacesAtZoomY` | PI-5 | その倍率でのタスクグループの位置。 |
 | `TaskPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskPlacement` | -- | interface TaskPlacement |
 | `taskPlacement` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskPlacement` | PI-5 | どこに載るか |
 | `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | PI-5 | 線だけの形（`--->` と端点スパン `SH-4`）の端の印の縦幅の半分 —— 矢じりの縦幅、端点スパンでは両端の点の径（`S-307`）。 |
 | `tickStrideOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#tickStrideOf` | PI-5 | 目盛の間引き。 |
 | `TimeAxis` | entry | type | `src/entity/layout-engine/schedule-layout/time-axis.ts#TimeAxis` | -- | type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' \| 'originDay' \| 'originX'> |
-| `timeAxisOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#timeAxisOf` | PI-5 | 行を割り付けずに、時間軸の対応だけを求める。 |
+| `timeAxisOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#timeAxisOf` | PI-5 | タスクグループを割り付けずに、時間軸の対応だけを求める。 |
 | `xFromDay` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#xFromDay` | PI-5 | その逆向き。 |
 | `zoomYAtRectangleLabelFont` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtRectangleLabelFont` | PI-5 | 与えた字の大きさに、矩形（表 T-201 の `S-13`）の名称ラベルの字が等しくなる `zoomY`。 |
 | `assigneeLabelsOf` | file only | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#assigneeLabelsOf` | -- | function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> |
-| `drawnGroups` | file only | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#drawnGroups` | -- | function drawnGroups( schedule: Schedule, settings: DocumentSettings, shownTaskUids: ReadonlySet<number> \| null = null, |
+| `drawnGroups` | file only | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#drawnGroups` | -- | function drawnGroups( schedule: Schedule, settings: DocumentSettings, shownTaskUids: ReadonlySet<number> \| null = null, |
 | `labelWidth` | file only | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelWidth` | -- | function labelWidth(text: string, fontSize: number, settings: DrawnSettings): number |
 | `nameLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelOf` | -- | function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean \| null, settings: DrawnSettings): NameLabel |
 | `nameLabelWidthOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelWidthOf` | -- | function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DrawnSettings): number |
 | `outsideLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#outsideLabelOf` | -- | function outsideLabelOf(assignee: string, percent: string): string |
 | `percentLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#percentLabelOf` | -- | function percentLabelOf(task: Task): string |
-| `liftedRows` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#liftedRows` | -- | function liftedRows( rowPlacements: readonly RowPlacement[], band: |
-| `pinnedBandOf` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#pinnedBandOf` | -- | function pinnedBandOf( rowPlacements: readonly RowPlacement[], settings: DrawnSettings, regions: ScreenRegions, ): |
+| `liftedTaskGroups` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#liftedTaskGroups` | -- | function liftedTaskGroups( taskGroupPlacements: readonly TaskGroupPlacement[], band: |
+| `pinnedBandOf` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#pinnedBandOf` | -- | function pinnedBandOf( taskGroupPlacements: readonly TaskGroupPlacement[], settings: DrawnSettings, regions: ScreenRegions, ): |
 | `shiftedPlacements` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#shiftedPlacements` | -- | function shiftedPlacements( placements: readonly TaskPlacement[], shiftByGroupId: ReadonlyMap<string, number>, droppedPinnedIds: ReadonlySet<string>, ): read... |
-| `scrolledPlacements` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrolledPlacements` | -- | function scrolledPlacements( placements: readonly TaskPlacement[], offsetY: number, pinnedIdsPlaced: ReadonlySet<string>, ): readonly TaskPlacement[] |
-| `scrolledRows` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrolledRows` | -- | function scrolledRows(rows: readonly RowPlacement[], offsetY: number): readonly RowPlacement[] |
-| `scrollOffsetOf` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf` | -- | function scrollOffsetOf( rows: readonly RowPlacement[], settings: DocumentSettings, rowAreaY: number, ): number |
 | `actualPlacementOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualPlacementOf` | -- | function actualPlacementOf(shapeKind: ShapeKind): 'inside' \| 'below' \| 'sideways' |
 | `actualReachOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualReachOf` | -- | function actualReachOf( shapeKind: ShapeKind, actual: { readonly x: number; readonly width: number }, settings: DrawnSettings, ): number |
 | `drawnEdgeOverhangOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf` | -- | function drawnEdgeOverhangOf(shapeKind: ShapeKind, outlineWidth: number): number |
@@ -255,6 +252,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#planHeightOf` | -- | function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `shapeHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#shapeHeightOf` | -- | function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `zoomYAtPlanHeightFloor` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtPlanHeightFloor` | -- | function zoomYAtPlanHeightFloor(settings: DrawnSettings): number |
+| `scrolledPlacements` | file only | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrolledPlacements` | -- | function scrolledPlacements( placements: readonly TaskPlacement[], offsetY: number, pinnedIdsPlaced: ReadonlySet<string>, ): readonly TaskPlacement[] |
+| `scrolledTaskGroups` | file only | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrolledTaskGroups` | -- | function scrolledTaskGroups(taskGroups: readonly TaskGroupPlacement[], offsetY: number): readonly TaskGroupPlacement[] |
+| `scrollOffsetOf` | file only | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrollOffsetOf` | -- | function scrollOffsetOf( taskGroups: readonly TaskGroupPlacement[], settings: DocumentSettings, taskGroupAreaY: number, ): number |
 | `serialOf` | file only | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#serialOf` | -- | function serialOf(day: CalendarDay): number |
 | `xOnTimeAxis` | file only | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#xOnTimeAxis` | -- | function xOnTimeAxis(originSerial: number, pxPerDay: number, originX: number, day: CalendarDay): number |
 
@@ -264,7 +264,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `arrowHeadOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#arrowHeadOf` | PI-6 | 描いた依存線の矢じりの 3 点 —— 先端と、底辺の両端（高さは 表 T-201 の `S-19`、底辺は `S-300`）。 |
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
-| `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、行の帯の中央）。 |
+| `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、タスクグループの帯の中央）。 |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
 | `ContinuationGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ContinuationGeometry` | -- | interface ContinuationGeometry |
 | `DeadlineGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DeadlineGeometry` | -- | interface DeadlineGeometry |
@@ -282,6 +282,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MilestoneLayer` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayer` | -- | interface MilestoneLayer |
 | `MilestoneLayerRole` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#MilestoneLayerRole` | -- | type MilestoneLayerRole = 'body' \| 'inner' \| 'dot' \| 'shade' |
 | `NOT_STORED_DUMMY_SIZES` | entry | const | `src/entity/layout-engine/schedule-geometry/task-figures.ts#NOT_STORED_DUMMY_SIZES` | -- | const NOT_STORED_DUMMY_SIZES: |
+| `ParentTaskFamilies` | entry | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskFamilies` | PI-6 | 型。 |
 | `Path` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Path` | -- | type Path = readonly Point[] |
 | `PathSegment` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#PathSegment` | -- | type PathSegment = \| { readonly command: 'M' \| 'L'; readonly to: Point } \| { readonly command: 'Q'; readonly control: Point; readonly to: Point } \| |
 | `Point` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Point` | -- | interface Point |
@@ -292,7 +293,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
-| `WbsParentFamilies` | entry | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentFamilies` | PI-6 | 型。 |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
 | `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
@@ -307,16 +307,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
 | `drawnAnnotationNumber` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnAnnotationNumber` | -- | function drawnAnnotationNumber(held: number \| null, row: AnnotationNumberRow): number |
 | `highlightGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry` | -- | function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] |
+| `ParentTaskArrowGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskArrowGeometry` | -- | interface ParentTaskArrowGeometry |
+| `ParentTaskCandidateGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskCandidateGeometry` | -- | interface ParentTaskCandidateGeometry |
+| `ParentTaskGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskGeometry` | -- | interface ParentTaskGeometry |
+| `parentTaskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#parentTaskGeometryOf` | -- | function parentTaskGeometryOf(inputs: GeometryInputs, families: ParentTaskFamilies \| null): ParentTaskGeometry |
+| `ParentTaskQueryGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/parent-task-arrows.ts#ParentTaskQueryGeometry` | -- | interface ParentTaskQueryGeometry |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
 | `isThinShape` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#isThinShape` | -- | function isThinShape(shapeKind: ShapeKind): boolean |
 | `taskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf` | -- | function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry |
 | `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings, isActual: boolean): number |
-| `WbsParentArrowGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentArrowGeometry` | -- | interface WbsParentArrowGeometry |
-| `WbsParentCandidateGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentCandidateGeometry` | -- | interface WbsParentCandidateGeometry |
-| `WbsParentGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentGeometry` | -- | interface WbsParentGeometry |
-| `wbsParentGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#wbsParentGeometryOf` | -- | function wbsParentGeometryOf(inputs: GeometryInputs, families: WbsParentFamilies \| null): WbsParentGeometry |
-| `WbsParentQueryGeometry` | file only | interface | `src/entity/layout-engine/schedule-geometry/wbs-parent-arrows.ts#WbsParentQueryGeometry` | -- | interface WbsParentQueryGeometry |
 
 ## ItemHitArea (PI-7, `src/entity/layout-engine/item-hit-area/item-hit-area.ts`)
 
@@ -354,7 +354,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pointerWalkOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#pointerWalkOf` | PI-7 | 描いた幾何と掴み代の大きさ（`grabSizesOf` の答え）から、点に依らない当たりの領域 —— タスクの形・掴みの領域・依存線の領域・期限の箱 —— を 1 度に組んで答える。 |
 | `rightOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#rightOf` | -- | function rightOf(box: ScreenRect): number |
 | `selectionWithinDrawn` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawn` | PI-7 | 選択から、幾何に描かれていないタスクを外した選択を答える。 |
-| `selectionWithinDrawnRows` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawnRows` | PI-7 | `selectionWithinDrawn` の答えに、表 T-023c が名指さない行 —— ピン止めの帯に入りきらない行（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかった行 —— のタスクを戻した選択を答える。 |
+| `selectionWithinDrawnTaskGroups` | entry | function | `src/entity/layout-engine/item-hit-area/drawn-selection.ts#selectionWithinDrawnTaskGroups` | PI-7 | `selectionWithinDrawn` の答えに、表 T-023c が名指さないタスクグループ —— ピン止めの帯に入りきらないタスクグループ（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかったタスクグループ —— のタスクを戻した選択を答える。 |
 | `shapeOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#shapeOf` | -- | function shapeOf(task: TaskGeometry): TaskShape |
 | `TaskShape` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#TaskShape` | -- | type TaskShape = |
 
@@ -418,8 +418,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `EditReport` | entry | interface | `src/use-case/edit-document/edit-document.ts#EditReport` | PI-9 | 型。 |
 | `editResource` | entry | function | `src/use-case/edit-document/edit-resource.ts#editResource` | -- | function editResource(document: Document, command: ResourceCommand): EditResult |
 | `EditResult` | entry | type | `src/use-case/edit-document/edit-document.ts#EditResult` | -- | type EditResult = \| { readonly ok: true; readonly document: Document; readonly report: EditReport } \| { readonly ok: false; readonly refusals: readonly Refus... |
-| `editTask` | entry | function | `src/use-case/edit-document/edit-task.ts#editTask` | -- | function editTask(document: Document, command: TaskCommand, defaultRowName: string): EditResult |
-| `editTaskGroup` | entry | function | `src/use-case/edit-document/edit-task-group.ts#editTaskGroup` | -- | function editTaskGroup( document: Document, command: TaskGroupCommand, defaultRowName: string, ): EditResult |
+| `editTask` | entry | function | `src/use-case/edit-document/edit-task.ts#editTask` | -- | function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult |
+| `editTaskGroup` | entry | function | `src/use-case/edit-document/edit-task-group.ts#editTaskGroup` | -- | function editTaskGroup( document: Document, command: TaskGroupCommand, defaultTaskGroupName: string, ): EditResult |
 | `HighlightRange` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#HighlightRange` | -- | interface HighlightRange |
 | `InvariantRefusal` | entry | interface | `src/use-case/edit-document/edit-document.ts#InvariantRefusal` | PI-9 | 型。 |
 | `InvariantRow` | entry | type | `src/use-case/edit-document/edit-document.ts#InvariantRow` | PI-9 | 型。 |
@@ -439,31 +439,31 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
 | `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先のタスクの占有（表 T-038）が日付より左へ出ている幅と、1 日の幅を、配置から読む（表 T-332 の `SJ-6`）。 |
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
-| `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— 行と祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
+| `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
-| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | 表示の絞り込みで新たにチェックされたタスクの行と祖先を開く書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
+| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | 表示の絞り込みで新たにチェックされたタスクのタスクグループと祖先を開く書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TaskCommand` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskCommand` | -- | type TaskCommand = \| |
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
 | `TaskMilestoneGlyph` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskMilestoneGlyph` | -- | type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
 | `TaskShapeKind` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskShapeKind` | -- | type TaskShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `TreeStateEvent` | entry | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEvent` | PI-9 | 型。 |
-| `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換える行の `treeState` を求める。 |
+| `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換えるタスクグループの `treeState` を求める。 |
 | `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
-| `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number |
-| `settledRow` | file only | function | `src/use-case/edit-document/edit-task-group.ts#settledRow` | -- | function settledRow(schedule: Schedule, row: TaskGroup, defaultRowName: string): TaskGroup |
+| `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
+| `settledTaskGroup` | file only | function | `src/use-case/edit-document/edit-task-group.ts#settledTaskGroup` | -- | function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup |
 | `Subtree` | file only | interface | `src/use-case/edit-document/edit-task-group.ts#Subtree` | -- | interface Subtree |
 | `subtreeOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#subtreeOf` | -- | function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree \| null |
 | `TaskGroupCommandOf` | file only | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommandOf` | -- | type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract< |
-| `tasksRankedByTheRowTree` | file only | function | `src/use-case/edit-document/task-group-order.ts#tasksRankedByTheRowTree` | -- | function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] |
-| `withRow` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withRow` | -- | function withRow(document: Document, row: TaskGroup): Document |
+| `tasksRankedByTheTaskGroupTree` | file only | function | `src/use-case/edit-document/task-group-order.ts#tasksRankedByTheTaskGroupTree` | -- | function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task[] |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withSchedule` | -- | function withSchedule(document: Document, part: Partial<Schedule>): Document |
+| `withTaskGroup` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withTaskGroup` | -- | function withTaskGroup(document: Document, taskGroup: TaskGroup): Document |
 | `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
 | `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task): boolean |
 | `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
-| `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
+| `sameRecord` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRecord` | -- | function sameRecord<T extends object>(a: T, b: T): boolean |
 | `visualOf` | file only | function | `src/use-case/edit-document/edit-task.ts#visualOf` | -- | function visualOf(schedule: Schedule, taskUid: number): TaskVisual |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
 | `withTask` | file only | function | `src/use-case/edit-document/edit-task.ts#withTask` | -- | function withTask(document: Document, next: Task): Document |
@@ -480,7 +480,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `setTaskGroupTreeState` | file only | function | `src/use-case/edit-document/task-group-folding.ts#setTaskGroupTreeState` | -- | function setTaskGroupTreeState( document: Document, command: TaskGroupCommandOf<'setTaskGroupTreeState'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `TreeStateEffectName` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEffectName` | -- | type TreeStateEffectName = \| 'writeLevelZeroCollapsed' \| 'writeLevelZeroAuto' export interface TreeStateTransition |
 | `TreeStateEventCarried` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateEventCarried` | -- | interface TreeStateEventCarried |
-| `TreeStateKey` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateKey` | -- | type TreeStateKey = \| 'rowTree' \| 'treeStateMachine.auto' \| 'treeStateMachine.collapsed' \| 'treeStateMachine.expanded' \| 'treeStateMachine.temporarilyExpande... |
+| `TreeStateKey` | file only | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateKey` | -- | type TreeStateKey = \| 'taskGroupTree' \| 'treeStateMachine.auto' \| 'treeStateMachine.collapsed' \| 'treeStateMachine.expanded' \| 'treeStateMachine.temporarilyE... |
 | `TreeStateTransition` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateTransition` | -- | interface TreeStateTransition |
 | `resetTaskGroupColor` | file only | function | `src/use-case/edit-document/task-group-look.ts#resetTaskGroupColor` | -- | function resetTaskGroupColor( document: Document, command: TaskGroupCommandOf<'resetTaskGroupColor'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `setTaskGroupColor` | file only | function | `src/use-case/edit-document/task-group-look.ts#setTaskGroupColor` | -- | function setTaskGroupColor( document: Document, command: TaskGroupCommandOf<'setTaskGroupColor'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
@@ -491,7 +491,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `nearestDerivedTaskUid` | file only | function | `src/use-case/edit-document/task-group-order.ts#nearestDerivedTaskUid` | -- | function nearestDerivedTaskUid( schedule: Schedule, byId: ReadonlyMap<string, TaskGroup>, landing: TaskGroup \| null, passes: (uid: number) => boolean = () =>... |
 | `reorderTaskGroupSiblings` | file only | function | `src/use-case/edit-document/task-group-order.ts#reorderTaskGroupSiblings` | -- | function reorderTaskGroupSiblings( document: Document, command: TaskGroupCommandOf<'reorderTaskGroupSiblings'>, byId: ReadonlyMap<string, TaskGroup>, ): Edit... |
 | `copiedTask` | file only | function | `src/use-case/edit-document/task-paste.ts#copiedTask` | -- | function copiedTask(one: Task, chosen: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task |
-| `pasteTaskSubtree` | file only | function | `src/use-case/edit-document/task-paste.ts#pasteTaskSubtree` | -- | function pasteTaskSubtree( document: Document, command: Extract<TaskCommand, { readonly kind: 'pasteTaskSubtree' }>, within: WorkingCalendar, ): EditResult |
+| `pasteTasks` | file only | function | `src/use-case/edit-document/task-paste.ts#pasteTasks` | -- | function pasteTasks( document: Document, command: Extract<TaskCommand, { readonly kind: 'pasteTasks' }>, within: WorkingCalendar, ): EditResult |
 | `withInferredCopyParents` | file only | function | `src/use-case/edit-document/task-paste.ts#withInferredCopyParents` | -- | function withInferredCopyParents( after: Schedule, sources: readonly Task[], copies: readonly Task[], remap: ReadonlyMap<number, number>, ): Task[] |
 | `beginTaskActual` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#beginTaskActual` | -- | function beginTaskActual( document: Document, command: Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>, task: Task, within: WorkingCalendar, ): Ed... |
 | `cycleTaskPlanActualStateInDocument` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#cycleTaskPlanActualStateInDocument` | -- | function cycleTaskPlanActualStateInDocument( document: Document, command: Extract<TaskCommand, { readonly kind: 'cycleTaskPlanActualState' }>, task: Task, wi... |
@@ -634,20 +634,20 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commentAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#commentAnchorAt` | -- | function commentAnchorAt( layout: ScheduleLayout, x: number, y: number, ): { readonly date: string; readonly groupId: string } \| TranslatedInput |
 | `compareDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#compareDay` | -- | function compareDay(a: CalendarDay, b: CalendarDay): number |
 | `CONSUMED_ELSEWHERE` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#CONSUMED_ELSEWHERE` | -- | const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true } |
-| `CreatedSubject` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject` | -- | type CreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'row'; readonly groupId: string } export type InputAction = \| |
+| `CreatedSubject` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject` | -- | type CreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly groupId: string } export type InputAction = \| |
 | `dayAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAnchorAt` | -- | function dayAnchorAt( context: InputContext, x: number, ): Pick<ScrollAnchor, 'scrollDate' \| 'scrollDayOffset'> |
 | `dayAtX` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAtX` | -- | function dayAtX(layout: ScheduleLayout, x: number): CalendarDay \| null |
 | `dayFromSerial` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayFromSerial` | -- | function dayFromSerial(serial: number): CalendarDay |
 | `dayShift` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShift` | -- | function dayShift(context: InputContext, fromX: number, toX: number): number |
 | `dayShifted` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShifted` | -- | function dayShifted(day: CalendarDay, days: number): CalendarDay |
-| `drawnRowsCrossed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnRowsCrossed` | -- | function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number |
-| `drawnRowsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnRowsOf` | -- | function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] |
+| `drawnTaskGroupsCrossed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsCrossed` | -- | function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number |
+| `drawnTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsOf` | -- | function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `ENTRY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#ENTRY` | -- | const ENTRY = |
 | `escapeContextOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#escapeContextOf` | PI-18 | 入力の文脈から `EscapeContext` を詰める（表 T-028 の `IN-4`、表 T-283）。 |
 | `foldsOrNothing` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#foldsOrNothing` | -- | function foldsOrNothing( commands: readonly DocumentCommand[], situation: SpentEntranceSituation \| null, ): TranslatedInput |
 | `followingTravel` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#followingTravel` | -- | function followingTravel( at: PointerInput, press: PointerPress, ): { readonly dx: number; readonly dy: number } |
-| `GrabRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#GrabRow` | -- | type GrabRow = GrabArea |
-| `grabRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#grabRowOf` | -- | function grabRowOf(hit: Hit): GrabRow |
+| `GrabTaskGroup` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#GrabTaskGroup` | -- | type GrabTaskGroup = GrabArea |
+| `grabTaskGroupOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#grabTaskGroupOf` | -- | function grabTaskGroupOf(hit: Hit): GrabTaskGroup |
 | `guideCursorModeOfEntry` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#guideCursorModeOfEntry` | -- | function guideCursorModeOfEntry(entry: string): PressedGuideCursor \| null |
 | `hasDraggedPastThreshold` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#hasDraggedPastThreshold` | -- | function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean |
 | `HumanInput` | entry | type | `src/adapter/input-command-translator/input-source.ts#HumanInput` | -- | type HumanInput = PointerInput \| WheelInput \| KeyInput |
@@ -660,7 +660,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isCombo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isCombo` | PI-18 | 修飾キーの組が求める組と一致するかを答える。 |
 | `isDateKeepingDrag` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isDateKeepingDrag` | -- | function isDateKeepingDrag(press: Pick<PointerPress, 'at'>): boolean |
 | `isLandingMarkKeptBy` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isLandingMarkKeptBy` | PI-18 | 着地の印が出ているとき、その入力が印を残すものか（表 T-303 の `EL-17` ・ `EL-18`）。 |
-| `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
+| `isOnTaskGroupArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnTaskGroupArea` | -- | function isOnTaskGroupArea(context: InputContext, x: number, y: number): boolean |
 | `isParentPickingCtrlClick` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isParentPickingCtrlClick` | -- | function isParentPickingCtrlClick( press: PointerPress, release: { readonly x: number; readonly y: number }, context: Pick<InputContext, 'screen'>, ): boolean |
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
@@ -672,7 +672,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `nextIssuedUid` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nextIssuedUid` | -- | function nextIssuedUid(schedule: Schedule): number |
 | `NOT_STORED_PROPERTIES_PANEL_FLOOR` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_PROPERTIES_PANEL_FLOOR` | -- | const NOT_STORED_PROPERTIES_PANEL_FLOOR: |
 | `NOT_STORED_ROW_BAND_CEILING_SEARCH` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_ROW_BAND_CEILING_SEARCH` | -- | const NOT_STORED_ROW_BAND_CEILING_SEARCH: |
-| `NOT_STORED_ROW_GRAB_SIZES` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_ROW_GRAB_SIZES` | -- | const NOT_STORED_ROW_GRAB_SIZES: |
+| `NOT_STORED_TASK_GROUP_GRAB_SIZES` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_TASK_GROUP_GRAB_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_SIZES: |
 | `NOT_STORED_VISIBLE_DAY_FLOOR` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_VISIBLE_DAY_FLOOR` | -- | const NOT_STORED_VISIBLE_DAY_FLOOR: |
 | `NOT_STORED_ZOOM_STEP` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_ZOOM_STEP` | -- | const NOT_STORED_ZOOM_STEP: |
 | `nothingToDo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nothingToDo` | -- | function nothingToDo(situation: SpentEntranceSituation \| null): TranslatedInput |
@@ -687,35 +687,35 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
 | `pressRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
-| `rowAnchorIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowAnchorIn` | -- | function rowAnchorIn( rows: readonly RowPlacement[], y: number, held: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): Pick<ScrollAnchor, 'scrol... |
-| `rowAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowAtY` | -- | function rowAtY(layout: ScheduleLayout, y: number): RowPlacement \| null |
-| `rowBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowBandCeilingOf` | PI-18 | `FR-016` の行の軸の上限のうち、いちばん高い行の帯の高さが初めて `Row Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
-| `rowDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowDepthOfGroup` | -- | function rowDepthOfGroup(context: InputContext, groupId: string): number |
-| `RowGrabAxis` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#RowGrabAxis` | -- | type RowGrabAxis = 'position' \| 'depth' |
-| `rowGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowGrabDepthOf` | -- | function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number |
-| `rowIndexAtTopEdge` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowIndexAtTopEdge` | -- | function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number \| null |
-| `rowsAtZoomY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rowsAtZoomY` | -- | function rowsAtZoomY( context: InputContext, measuredWith: DocumentSettings, zoomY: number, ): readonly RowPlacement[] |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
 | `ScrollAnchor` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#ScrollAnchor` | -- | interface ScrollAnchor |
 | `scrollAreaTopOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollAreaTopOf` | -- | function scrollAreaTopOf(context: InputContext): number |
 | `ScrollbarAxis` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#ScrollbarAxis` | -- | type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']> |
 | `scrolledAnchor` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrolledAnchor` | -- | function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor |
-| `scrollingRowsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollingRowsOf` | -- | function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] |
+| `scrollingTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollingTaskGroupsOf` | -- | function scrollingTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `selectionFromInput` | entry | function | `src/adapter/input-command-translator/selection-input.ts#selectionFromInput` | PI-18 | 規則は 表 T-023c。 |
 | `serialOfDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#serialOfDay` | -- | function serialOfDay(day: CalendarDay): number |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
+| `taskGroupAnchorIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAnchorIn` | -- | function taskGroupAnchorIn( taskGroups: readonly TaskGroupPlacement[], y: number, held: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): Pick<Sc... |
+| `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
+| `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
+| `taskGroupDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupDepthOfGroup` | -- | function taskGroupDepthOfGroup(context: InputContext, groupId: string): number |
+| `TaskGroupGrabAxis` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabAxis` | -- | type TaskGroupGrabAxis = 'position' \| 'depth' |
+| `taskGroupGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupGrabDepthOf` | -- | function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
+| `taskGroupIndexAtTopEdge` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupIndexAtTopEdge` | -- | function taskGroupIndexAtTopEdge(taskGroups: readonly TaskGroupPlacement[], y: number): number \| null |
 | `taskGroupRankById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
+| `taskGroupsAtZoomY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupsAtZoomY` | -- | function taskGroupsAtZoomY( context: InputContext, measuredWith: DocumentSettings, zoomY: number, ): readonly TaskGroupPlacement[] |
 | `taskShapeKindOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskShapeKindOf` | -- | function taskShapeKindOf(name: string): TaskShapeKind \| null |
 | `TranslatedInput` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TranslatedInput` | -- | interface TranslatedInput |
 | `UNASSIGNED` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#UNASSIGNED` | -- | const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false } |
 | `WheelInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#WheelInput` | -- | interface WheelInput |
-| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | PI-18 | 倍率の 4 つの入口（`IC-12`〜`IC-15`）のそれぞれについて、いま押しても倍率が 1 段も動かない端に在るかを答える（時間の軸は `_assets/tbl-settings.md` の `S-75` の範囲と `S-229`、行の軸は 表 T-262 の `ZE-1`・`ZE-3`）。 |
+| `zoomEntranceEndsOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomEntranceEndsOf` | PI-18 | 倍率の 4 つの入口（`IC-12`〜`IC-15`）のそれぞれについて、いま押しても倍率が 1 段も動かない端に在るかを答える（時間の軸は `_assets/tbl-settings.md` の `S-75` の範囲と `S-229`、縦軸は 表 T-262 の `ZE-1`・`ZE-3`）。 |
 | `zoomYCeiling` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#zoomYCeiling` | -- | function zoomYCeiling(context: InputContext): number \| null |
 | `commandFromArmed` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmed` | -- | function commandFromArmed( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `commandFromArmingEntry` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromArmingEntry` | -- | function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput |
 | `commandFromDependencyDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromDependencyDrag` | -- | function commandFromDependencyDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
-| `commandFromWbsParentDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromWbsParentDrag` | -- | function commandFromWbsParentDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
-| `commandFromWbsParentLinkRelease` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromWbsParentLinkRelease` | -- | function commandFromWbsParentLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput |
+| `commandFromParentTaskDrag` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromParentTaskDrag` | -- | function commandFromParentTaskDrag( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
+| `commandFromParentTaskLinkRelease` | file only | function | `src/adapter/input-command-translator/armed-placement.ts#commandFromParentTaskLinkRelease` | -- | function commandFromParentTaskLinkRelease(release: PointerInput, press: PointerPress): TranslatedInput |
 | `displayScaleStep` | file only | function | `src/adapter/input-command-translator/display-scale-steps.ts#displayScaleStep` | -- | function displayScaleStep(context: InputContext, towards: 1 \| -1): TranslatedInput |
 | `screenEventFromDualCursorEntry` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorEntry` | -- | function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent |
 | `screenEventFromDualCursorPress` | file only | function | `src/adapter/input-command-translator/dual-cursor-input.ts#screenEventFromDualCursorPress` | -- | function screenEventFromDualCursorPress( press: PointerPress, context: InputContext, ): ScreenValuesEvent \| null |
@@ -727,27 +727,27 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromGrab` | file only | function | `src/adapter/input-command-translator/item-grab.ts#commandFromGrab` | -- | function commandFromGrab( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
 | `copyDragWrite` | file only | function | `src/adapter/input-command-translator/item-grab.ts#copyDragWrite` | -- | function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput |
 | `isContinuationMarkClick` | file only | function | `src/adapter/input-command-translator/item-grab.ts#isContinuationMarkClick` | -- | function isContinuationMarkClick(press: PointerPress, release: PointerInput): boolean |
-| `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/row-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldGroupId: string, ): TranslatedInput |
-| `grabbedRowGroupId` | file only | function | `src/adapter/input-command-translator/row-grab.ts#grabbedRowGroupId` | -- | function grabbedRowGroupId(press: PointerPress): string \| null |
-| `rowGrabFollow` | file only | function | `src/adapter/input-command-translator/row-grab.ts#rowGrabFollow` | -- | function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedInput |
-| `commandFromRowEntry` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowEntry` | -- | function commandFromRowEntry( entry: string, rowGroupId: string \| null, context: InputContext, ): TranslatedInput |
-| `commandFromRowExpanderCloseAll` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderCloseAll` | -- | function commandFromRowExpanderCloseAll(context: InputContext): TranslatedInput |
-| `commandFromRowExpanderOpenAll` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderOpenAll` | -- | function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput |
-| `commandFromRowExpanderOpenLevelZero` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#commandFromRowExpanderOpenLevelZero` | -- | function commandFromRowExpanderOpenLevelZero(context: InputContext): TranslatedInput |
-| `everyRowDeleted` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#everyRowDeleted` | -- | function everyRowDeleted(context: InputContext): TranslatedInput |
-| `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp(context: InputContext, parentGroupId: string \| null): TranslatedInput |
-| `treeWritesOf` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#commandFromKey` | -- | function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput |
 | `isViewScaleKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#isViewScaleKey` | -- | function isViewScaleKey(input: KeyInput): boolean |
+| `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldGroupId: string, ): TranslatedInput |
+| `grabbedTaskGroupId` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#grabbedTaskGroupId` | -- | function grabbedTaskGroupId(press: PointerPress): string \| null |
+| `taskGroupGrabFollow` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabFollow` | -- | function taskGroupGrabFollow(input: PointerInput, context: InputContext): TranslatedInput |
+| `commandFromRowEntry` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowEntry` | -- | function commandFromRowEntry( entry: string, taskGroupId: string \| null, context: InputContext, ): TranslatedInput |
+| `commandFromRowExpanderCloseAll` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowExpanderCloseAll` | -- | function commandFromRowExpanderCloseAll(context: InputContext): TranslatedInput |
+| `commandFromRowExpanderOpenAll` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowExpanderOpenAll` | -- | function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput |
+| `commandFromRowExpanderOpenLevelZero` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowExpanderOpenLevelZero` | -- | function commandFromRowExpanderOpenLevelZero(context: InputContext): TranslatedInput |
+| `everyTaskGroupDeleted` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#everyTaskGroupDeleted` | -- | function everyTaskGroupDeleted(context: InputContext): TranslatedInput |
+| `taskGroupStoodUp` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#taskGroupStoodUp` | -- | function taskGroupStoodUp(context: InputContext, parentGroupId: string \| null): TranslatedInput |
+| `treeWritesOf` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `namesAPlace` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace` | -- | function namesAPlace( schedule: Schedule, scrollDate: string \| null, scrollGroupId: string \| null, ): boolean |
-| `rowPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowPointIn` | -- | function rowPointIn( rows: readonly RowPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
-| `rowZoomAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowZoomAnswer` | -- | function rowZoomAnswer( context: InputContext, factor: number, pointerX: number \| null, pointerY: number \| null, ): TranslatedInput |
 | `statusLineCentred` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentred` | -- | function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
-| `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( rows: readonly RowPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `taskGroupPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupPointIn` | -- | function taskGroupPointIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `verticalZoomAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#verticalZoomAnswer` | -- | function verticalZoomAnswer( context: InputContext, factor: number, pointerX: number \| null, pointerY: number \| null, ): TranslatedInput |
 | `ZoomEntranceEnds` | file only | interface | `src/adapter/input-command-translator/zoom-and-fit.ts#ZoomEntranceEnds` | -- | interface ZoomEntranceEnds |
 | `zoomOnScreen` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomOnScreen` | -- | function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } |
 | `zoomStepAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomStepAnswer` | -- | function zoomStepAnswer( context: InputContext, factor: number, zoom: readonly DocumentCommand[], ): TranslatedInput |
@@ -799,8 +799,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OverlayParts` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlayParts` | -- | interface OverlayParts |
 | `overlayParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#overlayParts` | -- | function overlayParts(input: OverlaysInput): OverlayParts |
 | `OverlaysInput` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlaysInput` | -- | interface OverlaysInput |
+| `parentTaskParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#parentTaskParts` | -- | function parentTaskParts( geometry: ScheduleGeometry, settings: DrawnSettings, themed: (rowId: string) => string, drawsOperationState: boolean, ): readonly s... |
 | `watermarkSvg` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#watermarkSvg` | -- | function watermarkSvg( area: ScreenRect, pictureWidth: number, mark: Watermark, ink: string, clipId: string, ): string |
-| `wbsParentParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#wbsParentParts` | -- | function wbsParentParts( geometry: ScheduleGeometry, settings: DrawnSettings, themed: (rowId: string) => string, drawsOperationState: boolean, ): readonly st... |
 | `BaselineOutlineParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#BaselineOutlineParts` | -- | interface BaselineOutlineParts |
 | `baselineOutlineParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#baselineOutlineParts` | -- | function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts |
 | `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg( id: string, settings: Pick<DrawnSettings, 'dependencyArrowLength' \| 'dependencyArrowWidth'>, colour: string, ): string |
@@ -875,7 +875,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `writtenFadeDefinitions` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#writtenFadeDefinitions` | -- | function writtenFadeDefinitions( frames: readonly ClaimedFrame[], carried: readonly CarryElement[], carry: Readonly<Record<string, string>>, ): FadeDefinitions |
 | `WrittenFadeValues` | file only | interface | `src/adapter/document-codec/mspdi-fade-frames.ts#WrittenFadeValues` | -- | interface WrittenFadeValues |
 | `writtenFadeValues` | file only | function | `src/adapter/document-codec/mspdi-fade-frames.ts#writtenFadeValues` | -- | function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): WrittenFadeValues |
-| `rowsFromTasks` | file only | function | `src/adapter/document-codec/mspdi-imported-rows.ts#rowsFromTasks` | -- | function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedRows |
+| `taskGroupsFromTasks` | file only | function | `src/adapter/document-codec/mspdi-imported-task-groups.ts#taskGroupsFromTasks` | -- | function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedTaskGroups |
 | `fault` | file only | function | `src/adapter/document-codec/mspdi-xml.ts#fault` | -- | function fault(at: string, what: string): MspdiFault |
 | `readXml` | file only | function | `src/adapter/document-codec/mspdi-xml.ts#readXml` | -- | function readXml(text: string): XmlReading |
 | `writtenXml` | file only | function | `src/adapter/document-codec/mspdi-xml.ts#writtenXml` | -- | function writtenXml(root: XmlElement, namespace: string): string |
@@ -948,11 +948,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `startupDisplayLanguage` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupDisplayLanguage` | -- | function startupDisplayLanguage(): DisplayLanguage |
 | `startupThemePreference` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupThemePreference` | -- | function startupThemePreference(): 'light' \| 'dark' |
 | `writeBrowserStored` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#writeBrowserStored` | -- | function writeBrowserStored(row: BrowserStoredRow, value: string): void |
-| `copiedForPasteOf` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#copiedForPasteOf` | -- | function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied \| null |
+| `copiedForPasteOf` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#copiedForPasteOf` | -- | function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied \| null |
 | `CopyAndPasteHands` | file only | type | `src/framework/single-html-shell/copy-and-paste.ts#CopyAndPasteHands` | -- | type CopyAndPasteHands = Pick< |
 | `copyForPaste` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#copyForPaste` | -- | function copyForPaste(hands: CopyAndPasteHands): void |
 | `landCopyDrag` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#landCopyDrag` | -- | function landCopyDrag( hands: CopyAndPasteHands, bundle: readonly DocumentCommand[], picked: Selection, frame: FrameValues, ): void |
-| `pasteRefusedFor` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteRefusedFor` | -- | function pasteRefusedFor(chosenRows: readonly string[]): boolean |
+| `pasteRefusedFor` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteRefusedFor` | -- | function pasteRefusedFor(chosenTaskGroups: readonly string[]): boolean |
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
 | `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, listed?: readonly st... |
 | `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
@@ -1051,7 +1051,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WATERMARK_UNLOCK_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#WATERMARK_UNLOCK_ROW` | -- | const WATERMARK_UNLOCK_ROW = 'U-60' |
 | `HeldPressPreviewHands` | file only | type | `src/framework/single-html-shell/held-press-preview.ts#HeldPressPreviewHands` | -- | type HeldPressPreviewHands = Pick<FrameLoopHands, 'readSession' \| 'readHeld' \| 'readValues' \| 'settingsLimitsOf'> |
 | `heldPropertyPanelWidthOf` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#heldPropertyPanelWidthOf` | -- | function heldPropertyPanelWidthOf( press: PointerPress \| null, at: Point \| null, context: InputContext, ): number \| null |
-| `leavesRowArea` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#leavesRowArea` | -- | function leavesRowArea(propertyPanelWidth: number, regions: ScreenRegions): boolean |
+| `leavesTaskGroupArea` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#leavesTaskGroupArea` | -- | function leavesTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean |
 | `marqueeRect` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#marqueeRect` | -- | function marqueeRect( press: PointerPress \| null, at: Point \| null, ): ScreenRect \| null |
 | `previewOfHeldPress` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#previewOfHeldPress` | -- | function previewOfHeldPress( hands: HeldPressPreviewHands, press: PointerPress \| null, at: Point \| null, context: InputContext, frame: FrameValues, ): Docume... |
 | `tentativeDependencyOf` | file only | function | `src/framework/single-html-shell/held-press-preview.ts#tentativeDependencyOf` | -- | function tentativeDependencyOf( hands: HeldPressPreviewHands, press: PointerPress \| null, at: Point \| null, document: Document, settings: DocumentSettings, l... |
@@ -1062,31 +1062,31 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `recordFrame` | file only | function | `src/framework/single-html-shell/interaction-record.ts#recordFrame` | -- | function recordFrame( hands: InteractionRecordHands, recorder: Pick<InteractionRecorder, 'appendRecordedLine'>, svg: string, drawnLayout: ScheduleLayout, ): ... |
 | `recordHappening` | file only | function | `src/framework/single-html-shell/interaction-record.ts#recordHappening` | -- | function recordHappening( hands: InteractionRecordHands, recorder: Pick<InteractionRecorder, 'appendRecordedLine'>, input: HumanInput, ): void |
 | `recordLine` | file only | function | `src/framework/single-html-shell/interaction-record.ts#recordLine` | -- | function recordLine( hands: InteractionRecordHands, recorder: Pick<InteractionRecorder, 'appendRecordedLine'>, what: string, detail: string, ): void |
+| `choiceStepOf` | file only | function | `src/framework/single-html-shell/parent-task-hold.ts#choiceStepOf` | -- | function choiceStepOf(mixed: Selection, input: HumanInput, answer: string \| null): ParentTaskChoiceStep \| null |
+| `isMixedParentPick` | file only | function | `src/framework/single-html-shell/parent-task-hold.ts#isMixedParentPick` | -- | function isMixedParentPick(picked: Selection): boolean |
+| `ParentTaskChoiceStep` | file only | type | `src/framework/single-html-shell/parent-task-hold.ts#ParentTaskChoiceStep` | -- | type ParentTaskChoiceStep = \| { readonly kind: 'kept' } \| { readonly kind: 'closed' } \| { readonly kind: 'picked'; readonly picked: Selection } export type P... |
+| `parentTaskFamiliesOf` | file only | function | `src/framework/single-html-shell/parent-task-hold.ts#parentTaskFamiliesOf` | -- | function parentTaskFamiliesOf( resolutions: ReadonlyMap<number, ParentTaskResolution>, selection: Selection, pointedUid: number \| null, held: ParentTaskFamil... |
+| `parentTaskHoldOf` | file only | function | `src/framework/single-html-shell/parent-task-hold.ts#parentTaskHoldOf` | -- | function parentTaskHoldOf() |
+| `ParentTaskReadings` | file only | type | `src/framework/single-html-shell/parent-task-hold.ts#ParentTaskReadings` | -- | type ParentTaskReadings = Pick<ScreenViewReadings, 'isDelayDiagnosticsShown' \| 'isParentTaskLinksShown'> & |
+| `selectionOfParentChoice` | file only | function | `src/framework/single-html-shell/parent-task-hold.ts#selectionOfParentChoice` | -- | function selectionOfParentChoice(mixed: Selection, answer: string): Selection |
 | `Grabbed` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#Grabbed` | -- | type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>> |
 | `GrabbedArea` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#GrabbedArea` | -- | type GrabbedArea = Grabbed['grab'] |
 | `PointerShapeHands` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShapeHands` | -- | type PointerShapeHands = Pick<FrameLoopHands, 'readPressed' \| 'readSession'> |
 | `PressedPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PressedPointerShape` | -- | type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf> |
 | `pressedPointerShapeOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pressedPointerShapeOf` | -- | function pressedPointerShapeOf(hands: PointerShapeHands) |
-| `RowBandCeilingCache` | file only | type | `src/framework/single-html-shell/row-band-ceiling-cache.ts#RowBandCeilingCache` | -- | type RowBandCeilingCache = ReturnType<typeof rowBandCeilingCacheOf> |
-| `rowBandCeilingCacheOf` | file only | function | `src/framework/single-html-shell/row-band-ceiling-cache.ts#rowBandCeilingCacheOf` | -- | function rowBandCeilingCacheOf() |
 | `EffectRunner` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunner` | -- | type EffectRunner<E> = (effect: E, frame: FrameValues \| null) => void |
 | `EffectRunners` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunners` | -- | type EffectRunners<E extends { readonly type: string }> = |
 | `runSessionEffects` | file only | function | `src/framework/single-html-shell/session-effects.ts#runSessionEffects` | -- | function runSessionEffects( effects: readonly SessionEffect[], runners: EffectRunners<SessionEffect>, frame: FrameValues \| null, ): void |
 | `unwiredEffect` | file only | function | `src/framework/single-html-shell/session-effects.ts#unwiredEffect` | -- | function unwiredEffect(effect: { readonly type: string }): never |
 | `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldSearchPanel) |
+| `TaskGroupBandCeilingCache` | file only | type | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#TaskGroupBandCeilingCache` | -- | type TaskGroupBandCeilingCache = ReturnType<typeof taskGroupBandCeilingCacheOf> |
+| `taskGroupBandCeilingCacheOf` | file only | function | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#taskGroupBandCeilingCacheOf` | -- | function taskGroupBandCeilingCacheOf() |
 | `HeldViewPlace` | file only | type | `src/framework/single-html-shell/view-place.ts#HeldViewPlace` | -- | type HeldViewPlace = ReturnType<typeof heldViewPlaceOf> |
 | `heldViewPlaceOf` | file only | function | `src/framework/single-html-shell/view-place.ts#heldViewPlaceOf` | -- | function heldViewPlaceOf( hands: ViewPlaceHands, startedFromTemplate: boolean \| undefined, ) |
 | `ViewPlaceHands` | file only | type | `src/framework/single-html-shell/view-place.ts#ViewPlaceHands` | -- | type ViewPlaceHands = Pick<FrameLoopHands, 'readEnvironment'> |
 | `answerWatermarkUnlock` | file only | function | `src/framework/single-html-shell/watermark-unlock.ts#answerWatermarkUnlock` | -- | function answerWatermarkUnlock(hands: WatermarkUnlockHands, isProceeding: boolean): boolean |
 | `matchWatermarkUnlock` | file only | function | `src/framework/single-html-shell/watermark-unlock.ts#matchWatermarkUnlock` | -- | async function matchWatermarkUnlock(hands: WatermarkUnlockHands, answer: string): Promise<void> |
 | `WatermarkUnlockHands` | file only | type | `src/framework/single-html-shell/watermark-unlock.ts#WatermarkUnlockHands` | -- | type WatermarkUnlockHands = Pick<FrameLoopHands, 'readSession' \| 'readValues' \| 'sendToSession' \| 'ask'> |
-| `choiceStepOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#choiceStepOf` | -- | function choiceStepOf(mixed: Selection, input: HumanInput, answer: string \| null): WbsParentChoiceStep \| null |
-| `isMixedParentPick` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#isMixedParentPick` | -- | function isMixedParentPick(picked: Selection): boolean |
-| `selectionOfParentChoice` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#selectionOfParentChoice` | -- | function selectionOfParentChoice(mixed: Selection, answer: string): Selection |
-| `WbsParentChoiceStep` | file only | type | `src/framework/single-html-shell/wbs-parent-hold.ts#WbsParentChoiceStep` | -- | type WbsParentChoiceStep = \| { readonly kind: 'kept' } \| { readonly kind: 'closed' } \| { readonly kind: 'picked'; readonly picked: Selection } export type Wb... |
-| `wbsParentFamiliesOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#wbsParentFamiliesOf` | -- | function wbsParentFamiliesOf( resolutions: ReadonlyMap<number, WbsParentResolution>, selection: Selection, pointedUid: number \| null, held: WbsParentFamilies... |
-| `wbsParentHoldOf` | file only | function | `src/framework/single-html-shell/wbs-parent-hold.ts#wbsParentHoldOf` | -- | function wbsParentHoldOf() |
-| `WbsParentReadings` | file only | type | `src/framework/single-html-shell/wbs-parent-hold.ts#WbsParentReadings` | -- | type WbsParentReadings = Pick<ScreenViewReadings, 'isDelayDiagnosticsShown' \| 'isWbsParentLinksShown'> & |
 
 ## DomSvgSurface (PI-26, `src/framework/dom-svg-surface/dom-svg-surface.ts`)
 
@@ -1145,7 +1145,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isSelected` | entry | function | `src/entity/document-model/selection/selection.ts#isSelected` | PI-32 | function isSelected(selection: Selection, item: ItemRef): boolean |
 | `ItemRef` | entry | type | `src/entity/document-model/selection/selection.ts#ItemRef` | -- | type ItemRef = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'dependency'; readonly successorUid: number; readonly ordinal: number } \|... |
 | `lastPicked` | entry | function | `src/entity/document-model/selection/selection.ts#lastPicked` | -- | function lastPicked(selection: Selection): ItemRef \| null |
-| `SelectableKind` | entry | type | `src/entity/document-model/selection/selection.ts#SelectableKind` | -- | type SelectableKind = \| 'task' \| 'dependency' \| 'highlightBox' \| 'commentBox' \| 'statusLine' \| 'wbsParentLink' export type ItemRef = \| { readonly kind: 'task... |
+| `SelectableKind` | entry | type | `src/entity/document-model/selection/selection.ts#SelectableKind` | -- | type SelectableKind = \| 'task' \| 'dependency' \| 'highlightBox' \| 'commentBox' \| 'statusLine' \| 'parentTaskLink' export type ItemRef = \| { readonly kind: 'tas... |
 | `Selection` | entry | interface | `src/entity/document-model/selection/selection.ts#Selection` | PI-32 | 型。 |
 | `selectionOfAll` | entry | function | `src/entity/document-model/selection/selection.ts#selectionOfAll` | -- | function selectionOfAll(items: readonly ItemRef[]): Selection |
 | `selectionWith` | entry | function | `src/entity/document-model/selection/selection.ts#selectionWith` | PI-32 | function selectionWith(selection: Selection, item: ItemRef): Selection |
@@ -1184,10 +1184,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
 | `regionsAtDisplayScale` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsAtDisplayScale` | PI-35 | 与えた表示の倍率で描いたときの各部の矩形。 |
 | `regionsFromScreen` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsFromScreen` | PI-35 | 画面の寸法と `DocumentSettings` から各部の矩形を出す |
-| `rowControlLatticeHeightPx` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#rowControlLatticeHeightPx` | PI-35 | 行の操作子の格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。 |
 | `ScreenEnvironment` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenEnvironment` | -- | interface ScreenEnvironment |
 | `ScreenRect` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRect` | PI-35 | 型。 |
 | `ScreenRegions` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRegions` | PI-35 | 型。 |
+| `taskGroupControlLatticeHeightPx` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#taskGroupControlLatticeHeightPx` | PI-35 | タスクグループの操作子の格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。 |
 
 ## ScreenState (PI-36, `src/entity/document-model/screen-state/screen-state.ts`)
 
@@ -1220,7 +1220,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Confirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Confirmation` | -- | interface Confirmation extends RaisedConfirmation |
 | `ConfirmationAnswer` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationAnswer` | -- | interface ConfirmationAnswer |
 | `ConfirmationItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationItem` | -- | interface ConfirmationItem |
-| `DEFAULT_ROW_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_ROW_NAME` | PI-37 | 行を既定の名前で立てるときの語。 |
+| `DEFAULT_TASK_GROUP_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_TASK_GROUP_NAME` | PI-37 | タスクグループを既定の名前で立てるときの語。 |
 | `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウインドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
 | `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列の絞り込みの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
@@ -1236,7 +1236,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dismissKeyOf` | entry | function | `src/adapter/screen-renderer/notices.ts#dismissKeyOf` | PI-37 | 表 T-037 の `NT-8` で人が消した告げを名指す鍵 |
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
 | `displayLanguageOf` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#displayLanguageOf` | -- | function displayLanguageOf(session: ScreenSession): DisplayLanguage |
-| `drawnRowBoxesOf` | entry | function | `src/adapter/screen-renderer/row-title-panel.ts#drawnRowBoxesOf` | PI-37 | 描いた行ごとの `Row Title Panel` の行見出しの矩形を、配置と各部の矩形から測る（`SC-1`・`FR-098`）。 |
+| `drawnTaskGroupBoxesOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#drawnTaskGroupBoxesOf` | PI-37 | 描いたタスクグループごとの `Task Group Panel` のタスクグループ見出しの矩形を、配置と各部の矩形から測る（`SC-1`・`FR-098`）。 |
 | `DualCursorReadout` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DualCursorReadout` | -- | interface DualCursorReadout |
 | `ExportChooser` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ExportChooser` | -- | interface ExportChooser extends OpenSurface |
 | `exportFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#exportFileNameOf` | PI-37 | 文書名を 表 T-352 で整え、拡張子を付けた提案の名を作る（`FR-096`）。 |
@@ -1270,6 +1270,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ResourceRoster \| ExportChooser \| OpenChooser \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
+| `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
 | `PropertyControl` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControl` | -- | interface PropertyControl |
@@ -1281,10 +1282,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RaisedNotice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedNotice` | -- | interface RaisedNotice |
 | `ResourceRoster` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ResourceRoster` | -- | interface ResourceRoster extends OpenSurface |
 | `RosterResource` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RosterResource` | -- | interface RosterResource |
-| `RowExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RowExpander` | -- | interface RowExpander |
-| `RowTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RowTitle` | -- | interface RowTitle |
-| `rowTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitleFontPxOf` | PI-37 | 行の名前の字の大きさ。 |
-| `RowTitlePanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RowTitlePanel` | -- | interface RowTitlePanel |
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
 | `ScreenFrame` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScreenFrame` | -- | interface ScreenFrame |
 | `ScreenPart` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenPart` | -- | interface ScreenPart |
@@ -1306,12 +1303,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列の絞り込みを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `ShowOnlyCheckedBarView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#ShowOnlyCheckedBarView` | -- | interface ShowOnlyCheckedBarView |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
+| `TaskGroupExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupExpander` | -- | interface TaskGroupExpander |
+| `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
+| `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
+| `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
-| `WbsParentChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#WbsParentChoice` | -- | interface WbsParentChoice |
 | `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウインドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
 | `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウインドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
@@ -1341,7 +1341,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
 | `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
-| `rowTitlePanelFromSchedule` | file only | function | `src/adapter/screen-renderer/row-title-panel.ts#rowTitlePanelFromSchedule` | -- | function rowTitlePanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVie... |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `GrabbedWindowName` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#GrabbedWindowName` | -- | type GrabbedWindowName = WindowName \| 'closeOnlyTitledSurface' |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
@@ -1364,7 +1363,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
 | `NOT_SHOWN_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#NOT_SHOWN_SEARCH_VALUE` | -- | const NOT_SHOWN_SEARCH_VALUE = 'notShown' |
 | `percentText` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#percentText` | -- | function percentText(percent: number \| null): string |
-| `ROW_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ROW_PATH_SEPARATOR` | -- | const ROW_PATH_SEPARATOR = ' \u2192 ' |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = SearchColumnFilter['column'] |
 | `SearchColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumnFilter` | -- | type SearchColumnFilter = SearchFilters['columns'][number] |
@@ -1374,6 +1372,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SHOWN_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOWN_SEARCH_VALUE` | -- | const SHOWN_SEARCH_VALUE = 'shown' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
+| `TASK_GROUP_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_GROUP_PATH_SEPARATOR` | -- | const TASK_GROUP_PATH_SEPARATOR = ' \u2192 ' |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
@@ -1389,6 +1388,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `windowShownAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowShownAfterEntry` | -- | function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown \| null \| undefined |
 | `WindowTable` | file only | interface | `src/adapter/screen-renderer/table-window.ts#WindowTable` | -- | interface WindowTable |
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
+| `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
 | `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
 | `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage): string \| null |
@@ -1415,12 +1415,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CONFIRMATION_ANSWER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#CONFIRMATION_ANSWER_ATTRIBUTE` | -- | const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer' |
 | `domScreenSurface` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#domScreenSurface` | -- | function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface |
 | `entranceBorderPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceBorderPx` | -- | function entranceBorderPx(): number |
-| `entranceGapPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceGapPx` | -- | function entranceGapPx(gapRow: EntranceGapRow = 'S-141'): number |
-| `entranceOuterHeightPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceOuterHeightPx` | -- | function entranceOuterHeightPx(gapRow: EntranceGapRow = 'S-141'): number |
-| `entranceOuterWidthPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceOuterWidthPx` | -- | function entranceOuterWidthPx(gapRow: EntranceGapRow = 'S-141'): number |
+| `entranceGapPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceGapPx` | -- | function entranceGapPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number |
+| `entranceOuterHeightPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceOuterHeightPx` | -- | function entranceOuterHeightPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number |
+| `entranceOuterWidthPx` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceOuterWidthPx` | -- | function entranceOuterWidthPx(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): number |
 | `entranceStateFill` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entranceStateFill` | -- | function entranceStateFill(standing: readonly EntranceStateRow[]): string |
-| `entryFaintStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entryFaintStyle` | -- | function entryFaintStyle(gapRow: EntranceGapRow = 'S-141'): string |
-| `entryStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entryStyle` | -- | function entryStyle(gapRow: EntranceGapRow = 'S-141'): string |
+| `entryFaintStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entryFaintStyle` | -- | function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string |
+| `entryStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#entryStyle` | -- | function entryStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): string |
 | `fillEntry` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#fillEntry` | -- | function fillEntry( host: Document, entry: HTMLElement, icon: string, aroundTheShape = '', |
 | `HOST_ENTER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#HOST_ENTER` | -- | const HOST_ENTER = 'Enter' |
 | `IMPORT_REPORT_DISMISS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#IMPORT_REPORT_DISMISS_ATTRIBUTE` | -- | const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss' |
@@ -1435,11 +1435,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_PALETTE_ROW_CAP` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_ROW_CAP` | -- | const NOT_STORED_PALETTE_ROW_CAP: |
 | `NOT_STORED_PROPERTY_FIELD_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PROPERTY_FIELD_SIZES` | -- | const NOT_STORED_PROPERTY_FIELD_SIZES: |
 | `NOT_STORED_RESOURCE_ROSTER_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_RESOURCE_ROSTER_SIZES` | -- | const NOT_STORED_RESOURCE_ROSTER_SIZES: |
-| `NOT_STORED_ROW_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_BAND_SIZES` | -- | const NOT_STORED_ROW_BAND_SIZES: |
-| `NOT_STORED_ROW_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_ROW_CONTROL_EDGE_SIZES: |
-| `NOT_STORED_ROW_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_GRAB_STRIP_SIZES` | -- | const NOT_STORED_ROW_GRAB_STRIP_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
+| `NOT_STORED_TASK_GROUP_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_BAND_SIZES` | -- | const NOT_STORED_TASK_GROUP_BAND_SIZES: |
+| `NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: |
+| `NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES: |
 | `NOT_STORED_WHEEL_UNITS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_WHEEL_UNITS` | -- | const NOT_STORED_WHEEL_UNITS: |
 | `NOTICE_BOX_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_BOX_ATTRIBUTE` | -- | const NOTICE_BOX_ATTRIBUTE = 'data-notice-box' |
 | `NOTICE_BOX_REASON_SEPARATOR` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_BOX_REASON_SEPARATOR` | -- | const NOTICE_BOX_REASON_SEPARATOR = ' ' |
@@ -1449,7 +1449,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `part` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#part` | -- | function part(host: Document, tag: string, role: string, style: string): HTMLElement |
 | `REPORT_REASON_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#REPORT_REASON_ATTRIBUTE` | -- | const REPORT_REASON_ATTRIBUTE = 'data-report-reason' |
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
-| `ROW_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROW_GRAB_STRIP_MARK` | -- | const ROW_GRAB_STRIP_MARK = 'data-row-grab' |
 | `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
 | `SCREEN_Z_ORDER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER` | -- | const SCREEN_Z_ORDER: readonly string[] = [ |
 | `SCREEN_Z_ORDER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER_ATTRIBUTE` | -- | const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz' |
@@ -1458,8 +1457,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
 | `SEARCH_COLUMN_WIDTH_ROWS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEARCH_COLUMN_WIDTH_ROWS` | -- | const SEARCH_COLUMN_WIDTH_ROWS: |
 | `SEPARATE_NOTE_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEPARATE_NOTE_ATTRIBUTE` | -- | const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note' |
-| `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthRow: 'S-214' \| 'S-215'): string |
+| `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthTaskGroup: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
+| `TASK_GROUP_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#TASK_GROUP_GRAB_STRIP_MARK` | -- | const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab' |
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
 | `WindowReaders` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#WindowReaders` | -- | interface WindowReaders |
 | `appHeaderStyle` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#appHeaderStyle` | -- | function appHeaderStyle(): string |
@@ -1500,22 +1500,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `propertiesPanelStyle` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelStyle` | -- | function propertiesPanelStyle(): string |
 | `rewritePanelReadouts` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#rewritePanelReadouts` | -- | function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void |
 | `withPropertyLinkJump` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#withPropertyLinkJump` | -- | function withPropertyLinkJump(answer: ScreenPart \| null, first: Element \| null): ScreenPart \| null |
-| `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
-| `DELETE_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#DELETE_ROW_ENTRY` | -- | const DELETE_ROW_ENTRY = 'IC-82' |
-| `fillRowTitleTree` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#fillRowTitleTree` | -- | function fillRowTitleTree( host: Document, tree: HTMLElement, panel: RowTitlePanel, anchors: Map<string, HTMLElement>, ): void |
-| `foldedRowCountElement` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#foldedRowCountElement` | -- | function foldedRowCountElement(host: Document, count: number, rightPx: string): HTMLElement |
-| `HeadEntries` | file only | interface | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#HeadEntries` | -- | interface HeadEntries |
-| `headEntryElements` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#headEntryElements` | -- | function headEntryElements(host: Document): HeadEntries |
-| `headFoldedRowCountRight` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#headFoldedRowCountRight` | -- | function headFoldedRowCountRight(): string |
-| `markFoldedRowCount` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#markFoldedRowCount` | -- | function markFoldedRowCount(mark: HTMLElement, count: number, rightPx: string): void |
-| `markHeadEntries` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#markHeadEntries` | -- | function markHeadEntries(entries: HeadEntries, panel: RowTitlePanel): void |
-| `ROW_CONTROL_GROUND_MARK` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#ROW_CONTROL_GROUND_MARK` | -- | const ROW_CONTROL_GROUND_MARK = 'data-row-control-ground' |
-| `rowControlsHeightReporter` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#rowControlsHeightReporter` | -- | function rowControlsHeightReporter( rowTitleTree: HTMLElement, readClockMs: () => number, wiring: Pick<ScreenSurfaceWiring, 'onRowControlsHeightPx'>, ): (mea... |
-| `rowControlsMeasureKey` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#rowControlsMeasureKey` | -- | function rowControlsMeasureKey( view: ScreenView, theme: ScreenTheme, headerHeightPx: number, ): string |
-| `rowsTopPx` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#rowsTopPx` | -- | function rowsTopPx(panel: RowTitlePanel): number \| null |
 | `fillScreenFrame` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#fillScreenFrame` | -- | function fillScreenFrame( host: Document, layer: HTMLElement, bandLayer: HTMLElement, frame: ScreenFrame, anchors: Map<string, HTMLElement>, ): void |
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
-| `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'rowTitlePanel' \| 'propertiesPanel', ): ScreenRect \| null |
+| `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'taskGroupPanel' \| 'propertiesPanel', ): ScreenRect \| null |
 | `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView): number |
 | `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick< |
 | `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } |
@@ -1542,6 +1529,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `typedWordWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#typedWordWatch` | -- | function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string \| null } |
 | `windowStyle` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#windowStyle` | -- | function windowStyle(): string |
 | `wordFieldElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#wordFieldElement` | -- | function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement |
+| `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
+| `DELETE_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#DELETE_ROW_ENTRY` | -- | const DELETE_ROW_ENTRY = 'IC-82' |
+| `fillTaskGroupTitleTree` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#fillTaskGroupTitleTree` | -- | function fillTaskGroupTitleTree( host: Document, tree: HTMLElement, panel: TaskGroupPanel, anchors: Map<string, HTMLElement>, ): void |
+| `foldedTaskGroupCountElement` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#foldedTaskGroupCountElement` | -- | function foldedTaskGroupCountElement(host: Document, count: number, rightPx: string): HTMLElement |
+| `HeadEntries` | file only | interface | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#HeadEntries` | -- | interface HeadEntries |
+| `headEntryElements` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#headEntryElements` | -- | function headEntryElements(host: Document): HeadEntries |
+| `headFoldedTaskGroupCountRight` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#headFoldedTaskGroupCountRight` | -- | function headFoldedTaskGroupCountRight(): string |
+| `markFoldedTaskGroupCount` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#markFoldedTaskGroupCount` | -- | function markFoldedTaskGroupCount(mark: HTMLElement, count: number, rightPx: string): void |
+| `markHeadEntries` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#markHeadEntries` | -- | function markHeadEntries(entries: HeadEntries, panel: TaskGroupPanel): void |
+| `TASK_GROUP_CONTROL_GROUND_MARK` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#TASK_GROUP_CONTROL_GROUND_MARK` | -- | const TASK_GROUP_CONTROL_GROUND_MARK = 'data-task-group-control-ground' |
+| `taskGroupControlsHeightReporter` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupControlsHeightReporter` | -- | function taskGroupControlsHeightReporter( taskGroupTitleTree: HTMLElement, readClockMs: () => number, wiring: Pick<ScreenSurfaceWiring, 'onTaskGroupControlsH... |
+| `taskGroupControlsMeasureKey` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupControlsMeasureKey` | -- | function taskGroupControlsMeasureKey( view: ScreenView, theme: ScreenTheme, headerHeightPx: number, ): string |
+| `taskGroupsTopPx` | file only | function | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#taskGroupsTopPx` | -- | function taskGroupsTopPx(panel: TaskGroupPanel): number \| null |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
 | `pointTipPlace` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#pointTipPlace` | -- | function pointTipPlace(point: Point, size: Size, room: Size): { readonly left: number; readonly top: number } |
 | `showPointTip` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showPointTip` | -- | function showPointTip( host: Document, layer: HTMLElement, tip: { readonly lines: readonly string[]; readonly at: Point } \| undefined, ): void |
@@ -1569,7 +1569,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowSurfaceName` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowSurfaceName` | PI-39 | 型。 |
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
-| `GrabbedRowAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedRowAxis` | PI-39 | 型。 |
+| `GrabbedVerticalAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedVerticalAxis` | PI-39 | 型。 |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
@@ -1612,7 +1612,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FieldEntryValues` | file only | interface | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValues` | -- | interface FieldEntryValues |
 | `FieldEntryValuesAxes` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesAxes` | -- | type FieldEntryValuesAxes = Omit<FieldEntryValues, never> |
 | `FieldEntryValuesEffect` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffect` | -- | type FieldEntryValuesEffect = |
-| `FieldEntryValuesEffectName` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffectName` | -- | type FieldEntryValuesEffectName = \| 'bringCreatedRowIntoSight' const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = |
+| `FieldEntryValuesEffectName` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEffectName` | -- | type FieldEntryValuesEffectName = \| 'bringCreatedTaskGroupIntoSight' const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = |
 | `FieldEntryValuesEvent` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEvent` | -- | type FieldEntryValuesEvent = \| { readonly type: 'fieldFocusAsked'; readonly fieldRow: FieldEntryValuesEventCarried['fieldRow'] } \| { readonly type: 'creation... |
 | `FieldEntryValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesEventCarried` | -- | interface FieldEntryValuesEventCarried |
 | `FieldEntryValuesKey` | file only | type | `src/use-case/advance-screen-session/field-entry-values.ts#FieldEntryValuesKey` | -- | type FieldEntryValuesKey = \| 'fieldEntry' \| 'createdTaskNamingStateMachine.idle' \| 'createdTaskNamingStateMachine.namingCreatedTask' \| 'createdTaskNamingStat... |
@@ -1620,7 +1620,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `stepFieldEntryValues` | file only | function | `src/use-case/advance-screen-session/field-entry-values.ts#stepFieldEntryValues` | -- | function stepFieldEntryValues(values: FieldEntryValues, event: FieldEntryValuesEvent): FieldEntryStep |
 | `ConfirmationState` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#ConfirmationState` | -- | type ConfirmationState = \| { readonly kind: 'notAsked' } \| { readonly kind: 'questionAsked'; readonly question: FileFlowValuesStateCarried['question']; reado... |
 | `emptyFileFlowValues` | file only | const | `src/use-case/advance-screen-session/file-flow-values.ts#emptyFileFlowValues` | -- | const emptyFileFlowValues: FileFlowValues = |
-| `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'row'; readonly groupId: string } export type FileFlowOwed... |
+| `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly groupId: string } export type FileFl... |
 | `FileFlowIncomingFile` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFile` | -- | interface FileFlowIncomingFile |
 | `FileFlowMergeCandidate` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeCandidate` | -- | interface FileFlowMergeCandidate |
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
@@ -1646,8 +1646,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GestureValuesKey` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesKey` | -- | type GestureValuesKey = \| 'gesture' \| 'pointerPressStateMachine.notPressed' \| 'pointerPressStateMachine.changingDocument' \| 'pointerPressStateMachine.viewing... |
 | `GestureValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesStateCarried` | -- | interface GestureValuesStateCarried |
 | `PointerPressState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#PointerPressState` | -- | type PointerPressState = \| { readonly kind: 'notPressed' } \| { readonly kind: 'changingDocument'; readonly pressRow: GestureValuesStateCarried['pressRow']; r... |
-| `RowGrabState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#RowGrabState` | -- | type RowGrabState = \| { readonly kind: 'notGrabbed' } \| { readonly kind: 'axisUndecided' } \| { readonly kind: 'changingPosition' } \| { readonly kind: 'changi... |
 | `stepGestureValues` | file only | function | `src/use-case/advance-screen-session/gesture-values.ts#stepGestureValues` | -- | function stepGestureValues(values: GestureValues, event: GestureValuesEvent): GestureStep |
+| `TaskGroupGrabState` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#TaskGroupGrabState` | -- | type TaskGroupGrabState = \| { readonly kind: 'notGrabbed' } \| { readonly kind: 'axisUndecided' } \| { readonly kind: 'changingPosition' } \| { readonly kind: '... |
 | `emptyInteractionRecordValues` | file only | const | `src/use-case/advance-screen-session/interaction-record-values.ts#emptyInteractionRecordValues` | -- | const emptyInteractionRecordValues: InteractionRecordValues = { ...INTERACTION_RECORD_VALUES_INITIAL_AXES } |
 | `InteractionRecordingState` | file only | type | `src/use-case/advance-screen-session/interaction-record-values.ts#InteractionRecordingState` | -- | type InteractionRecordingState = \| { readonly kind: 'notRecording' } \| { readonly kind: 'recordingInteractions' } export interface InteractionRecordValues |
 | `InteractionRecordValues` | file only | interface | `src/use-case/advance-screen-session/interaction-record-values.ts#InteractionRecordValues` | -- | interface InteractionRecordValues |
@@ -1704,12 +1704,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TooltipDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#TooltipDisplayState` | -- | type TooltipDisplayState = \| { readonly kind: 'allowed' } \| { readonly kind: 'dismissed' } export type SearchPanelDisplayState = \| { readonly kind: 'hidden' ... |
 | `WatermarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WatermarkDisplayState` | -- | type WatermarkDisplayState = \| { readonly kind: 'shown' } \| { readonly kind: 'hidden' } export type PropertiesPanelContentState = \| { readonly kind: 'hidden'... |
 | `emptySelectionValues` | file only | const | `src/use-case/advance-screen-session/selection-values.ts#emptySelectionValues` | -- | const emptySelectionValues: SelectionValues = |
-| `SelectionCopied` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopied` | -- | type SelectionCopied = SelectionCopiedTask \| SelectionCopiedRow |
-| `SelectionCopiedRow` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopiedRow` | -- | interface SelectionCopiedRow |
+| `SelectionCopied` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopied` | -- | type SelectionCopied = SelectionCopiedTask \| SelectionCopiedTaskGroup |
 | `SelectionCopiedTask` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopiedTask` | -- | interface SelectionCopiedTask |
+| `SelectionCopiedTaskGroup` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopiedTaskGroup` | -- | interface SelectionCopiedTaskGroup |
 | `SelectionState` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionState` | -- | type SelectionState = \| { readonly kind: 'nothingSelected' } \| { readonly kind: 'objectsSelected'; readonly selectedObjects: SelectionValuesStateCarried['sel... |
 | `SelectionValues` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionValues` | -- | interface SelectionValues |
-| `SelectionValuesAxes` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesAxes` | -- | type SelectionValuesAxes = Omit<SelectionValues, 'chosenRows' \| 'chosenResources' \| 'copiedForPaste'> |
+| `SelectionValuesAxes` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesAxes` | -- | type SelectionValuesAxes = Omit<SelectionValues, 'chosenTaskGroups' \| 'chosenResources' \| 'copiedForPaste'> |
 | `SelectionValuesEffect` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEffect` | -- | type SelectionValuesEffect = never |
 | `SelectionValuesEffectName` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEffectName` | -- | type SelectionValuesEffectName = never |
 | `SelectionValuesEvent` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionValuesEvent` | -- | type SelectionValuesEvent = \| { readonly type: 'objectsPicked'; readonly pickedObjects: SelectionValuesEventCarried['pickedObjects'] } \| { readonly type: 'em... |

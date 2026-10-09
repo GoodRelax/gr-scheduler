@@ -791,7 +791,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualVisible: {
@@ -851,12 +851,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         progressMarkerVisible: {
           type: ['boolean'],
         },
-        taskGroupPanelWidth: {
-          type: ['number'],
-        },
-        taskGroupPanelWidthFixed: {
-          type: ['boolean'],
-        },
         rulerFont: {
           type: ['number'],
         },
@@ -877,6 +871,12 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         stackDirection: {
           enum: ['up', 'down'],
+        },
+        taskGroupPanelWidth: {
+          type: ['number'],
+        },
+        taskGroupPanelWidthFixed: {
+          type: ['boolean'],
         },
         themeMonochrome: {
           type: ['boolean'],

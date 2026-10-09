@@ -146,7 +146,7 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # CR-699 (JDG-1677, JDG-1693): the shape changed -- every written document
 # carries "$schema" first -- and the version became an instant; check 76
 # holds the format.
-SCHEMA_VERSION = '2026-10-08T03:13:21Z'
+SCHEMA_VERSION = '2026-10-09T11:56:15Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')

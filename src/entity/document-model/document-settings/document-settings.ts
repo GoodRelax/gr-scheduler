@@ -32,8 +32,6 @@ export interface DocumentSettings {
   readonly planVisible: boolean
   readonly progressLineVisible: boolean
   readonly progressMarkerVisible: boolean
-  readonly taskGroupPanelWidth: number
-  readonly taskGroupPanelWidthFixed: boolean
   readonly rulerFont: number
   readonly rulerHeight: number
   readonly scrollDate: string | null
@@ -41,6 +39,8 @@ export interface DocumentSettings {
   readonly scrollGroupId: string | null
   readonly scrollGroupOffset: number
   readonly stackDirection: 'up' | 'down'
+  readonly taskGroupPanelWidth: number
+  readonly taskGroupPanelWidthFixed: boolean
   readonly themeMonochrome: boolean
   readonly zoomX: number
   readonly zoomY: number
@@ -65,8 +65,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'planVisible': true,
   'progressLineVisible': false,
   'progressMarkerVisible': true,
-  'taskGroupPanelWidth': 300,
-  'taskGroupPanelWidthFixed': false,
   'rulerFont': 21,
   'rulerHeight': 69,
   'scrollDate': null,
@@ -74,6 +72,8 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'scrollGroupId': null,
   'scrollGroupOffset': 0,
   'stackDirection': 'up',
+  'taskGroupPanelWidth': 300,
+  'taskGroupPanelWidthFixed': false,
   'themeMonochrome': false,
   'zoomX': 1,
   'zoomY': 1,
@@ -97,7 +97,6 @@ export interface SettingsBound {
 // see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'pinnedGroupIds': { maxExpression: [{ num: 5 }] },
-  'taskGroupPanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
   'rulerFont': {
     minExpression: [{ num: 12 }],
     maxExpression: [{ key: 'rulerHeight' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
@@ -106,6 +105,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     max: 150,
     minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
   },
+  'taskGroupPanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
   'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
   'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
 }
@@ -196,10 +196,6 @@ export const SETTINGS_CONSTANTS: {
   readonly resumeHeadOfMarker: number
   readonly resumeOpacityInvalid: number
   readonly resumeScaleInvalid: number
-  readonly taskGroupGap: number
-  readonly taskGroupTitleFont: number
-  readonly taskGroupTitleIndent: number
-  readonly taskGroupTitleTopScale: number
   readonly rulerLabelBottomPad: number
   readonly rulerLabelGap: number
   readonly rulerLabelPad: number
@@ -217,6 +213,10 @@ export const SETTINGS_CONSTANTS: {
   readonly stackGap: number
   readonly stackSafetyCap: number
   readonly starInnerOfOuter: number
+  readonly taskGroupGap: number
+  readonly taskGroupTitleFont: number
+  readonly taskGroupTitleIndent: number
+  readonly taskGroupTitleTopScale: number
   readonly taskHintDelayMs: number
   readonly thinArrowHeadHeight: number
   readonly thinArrowHeadLength: number
@@ -300,10 +300,6 @@ export const SETTINGS_CONSTANTS: {
   resumeHeadOfMarker: 0.22,
   resumeOpacityInvalid: 0.55,
   resumeScaleInvalid: 0.7,
-  taskGroupGap: 0,
-  taskGroupTitleFont: 19.5,
-  taskGroupTitleIndent: 16,
-  taskGroupTitleTopScale: 1.3,
   rulerLabelBottomPad: 3,
   rulerLabelGap: 2,
   rulerLabelPad: 2,
@@ -321,6 +317,10 @@ export const SETTINGS_CONSTANTS: {
   stackGap: 1,
   stackSafetyCap: 255,
   starInnerOfOuter: 0.45,
+  taskGroupGap: 0,
+  taskGroupTitleFont: 19.5,
+  taskGroupTitleIndent: 16,
+  taskGroupTitleTopScale: 1.3,
   taskHintDelayMs: 1000,
   thinArrowHeadHeight: 5.6,
   thinArrowHeadLength: 5.6,

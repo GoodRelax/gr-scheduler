@@ -16,7 +16,6 @@ const TEMPLATE_TEXT = readFileSync(
   join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
   'utf8',
 )
-const SAMPLE_TEXT = readFileSync(join(process.cwd(), 'sample-schedule', 'Three-Year Product Plan.json'), 'utf8')
 const KNOWN_VERSION = (JSON.parse(TEMPLATE_TEXT) as Loose)['schemaVersion'] as string
 const SPAN_KEYS = ['fitSpanStart', 'fitSpanFinish'] as const
 
@@ -76,8 +75,9 @@ describe('DFC-2228: OP-6 fills a missing export span key with its default null (
     expect(String(finish).slice(0, 10)).toBe('2026-03-02')
   })
 
-  it('the bundled sample "Three-Year Product Plan.json" opens with 0 refusals', () => {
-    const read = documentFromJson(SAMPLE_TEXT, KNOWN_VERSION)
+  // JDG-1732: the built-in template follows the renames; the bundled sample is not rewritten, so it is read no more.
+  it('the built-in startup template opens with 0 refusals', () => {
+    const read = documentFromJson(TEMPLATE_TEXT, KNOWN_VERSION)
     expect(read.ok ? [] : read.faults).toEqual([])
     if (!read.ok) return
     expect(spanOf(replacedBy(read.document).documentSettings)).toEqual([null, null])

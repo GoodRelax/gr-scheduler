@@ -65,6 +65,6 @@ erDiagram
     schedule ||--o{ WeekDay : "calendars の各要素の下に入れ子"
     schedule ||--o{ Exception : "calendars の各要素の下に入れ子"
     schedule ||--o{ CarryElement : "carryElements を持つ 8 型の兄弟の鍵"
-    documentSettings |o--|| schedule : "表示位置が指す行。弱い参照"
-    documentSettings }o--|| schedule : "ピン止めした行。弱い参照"
+    documentSettings |o--|| schedule : "表示位置が指すタスクグループ。弱い参照"
+    documentSettings }o--|| schedule : "ピン止めしたタスクグループ。弱い参照"
 ```

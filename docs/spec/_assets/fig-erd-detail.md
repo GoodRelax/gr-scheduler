@@ -51,7 +51,7 @@ erDiagram
     }
     Task {
         整数 **uid** PK "Own"
-        整数 **wbsParentUid** FK "Consume"
+        整数 **parentTaskUid** FK "Consume"
         整数 wbsOrder "Consume"
         文字列 name "Own"
         日時 start "Own"
@@ -204,13 +204,13 @@ erDiagram
         日時 finish "GRS"
         真偽 milestone "GRS"
     }
-    Task }o--o| Task : "WBS の親子（wbsParentUid）。輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ"
+    Task }o--o| Task : "親タスクと子タスク（parentTaskUid）。輪を禁じる規則は 表 T-015a の HM-4 と FR-023 が持つ"
     Task ||--o{ Dependency : "この依存の後続（入れ子の位置が表す）"
     Dependency }o--|| Task : "この依存の先行（predecessorUid）"
-    TaskGroup }o--o| TaskGroup : "行の親子（parentId）。深さの上限は FR-004"
-    TaskGroupMember }o--|| TaskGroup : "どの行に載るか（groupId）"
+    TaskGroup }o--o| TaskGroup : "タスクグループの親子（parentId）。深さの上限は FR-004"
+    TaskGroupMember }o--|| TaskGroup : "どのタスクグループに載るか（groupId）"
     TaskGroupMember ||--|| Task : "どのタスクが載るか（taskUid）"
-    TaskGroup }o--o| Task : "行の名前の導出元（derivedFromTaskUid）"
+    TaskGroup }o--o| Task : "タスクグループ名の導出元（derivedFromTaskUid）"
     Project ||--o| Calendar : "文書の既定の暦（calendarUid）"
     Task }o--o| Calendar : "交換相手のタスクごとの暦（calendarUid）"
     Resource }o--o| Calendar : "交換相手の担当者ごとの暦（calendarUid）"
@@ -221,9 +221,9 @@ erDiagram
     Assignment }o--o| Resource : "就く担当者（resourceUid）"
     TaskVisual |o--|| Task : "そのタスクの見せ方（taskUid）"
     TaskOrigin |o--|| Task : "そのタスクの取り込み元（taskUid）"
-    CommentBox }o--o| TaskGroup : "留める行（anchorGroupId）"
-    HighlightBox }o--o| TaskGroup : "囲む範囲の上端の行（topGroupId）"
-    HighlightBox }o--o| TaskGroup : "囲む範囲の下端の行（bottomGroupId）"
+    CommentBox }o--o| TaskGroup : "留めるタスクグループ（anchorGroupId）"
+    HighlightBox }o--o| TaskGroup : "囲む範囲の上端のタスクグループ（topGroupId）"
+    HighlightBox }o--o| TaskGroup : "囲む範囲の下端のタスクグループ（bottomGroupId）"
     CarryElement ||--o{ CarryElement : "入れ子の子（children）"
     Task |o--o| BaselineTask : "変更前の予定との対応（uid の一致。参照ではない）。対応が無いものは描かない（FR-015）"
     Project ||--o{ CarryElement : "carryElements の中身"
@@ -247,8 +247,8 @@ erDiagram
 | ET-1 | `Project` | プロジェクトの基本情報と、文書ぜんたいに掛かる暦の既定 | — （文書に 1 つしか無い。`id` は主キーにしない） | 書き出す | あり |
 | ET-2 | `Task` | タスク 1 つ。予定と実績を同じ行が持つ | `uid` | 書き出す | あり |
 | ET-3 | `Dependency` | 依存 1 本。**後続タスクの下に入れ子で持つ** | — （後続タスクの下での位置が表す） | 書き出す | あり |
-| ET-4 | `TaskGroup` | 行の器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
-| ET-5 | `TaskGroupMember` | どのタスクがどの行に載るか。段は持たない —— 行の中の積み順は表 T-014 の `ST-2` が決める | `taskUid`（一意） | **書き出さない** | — |
+| ET-4 | `TaskGroup` | タスクグループの器。縦積みの軸を作る（`FR-004`） | `id` | **書き出さない** | — |
+| ET-5 | `TaskGroupMember` | どのタスクがどのタスクグループに載るか。段は持たない —— タスクグループの中の積み順は表 T-014 の `ST-2` が決める | `taskUid`（一意） | **書き出さない** | — |
 | ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
 | ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
@@ -256,8 +256,8 @@ erDiagram
 | ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
 | ET-11 | `TaskVisual` | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | `taskUid` | **書き出さない** | — |
 | ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
-| ET-13 | `CommentBox` | コメントボックス 1 つ。日付と行に留める | `id` | **書き出さない** | — |
-| ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付と行の範囲を囲む | `id` | **書き出さない** | — |
+| ET-13 | `CommentBox` | コメントボックス 1 つ。日付とタスクグループに留める | `id` | **書き出さない** | — |
+| ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付とタスクグループの範囲を囲む | `id` | **書き出さない** | — |
 | ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
 | ET-16 | `documentStamp` | 3 つの刻と、最後に書いた者 | — （文書に 1 つしか無い） | **書き出さない** | — |
 | ET-17 | `changeLog` | 変更の理由。**会話そのものは保存しない**（`FR-066`） | `ordinal` | **書き出さない** | — |
@@ -271,13 +271,13 @@ erDiagram
 
 | 行 ID | 親 | 子 | 多重度 | 何を表すか |
 | --- | --- | --- | --- | --- |
-| RL-1 | `Task` | `Task` | 0..n ─ 0..1 | WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ |
+| RL-1 | `Task` | `Task` | 0..n ─ 0..1 | 親タスクと子タスク（`parentTaskUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ |
 | RL-2 | `Task` | `Dependency` | 1 ─ 0..n | この依存の後続（入れ子の位置が表す） |
 | RL-3 | `Dependency` | `Task` | 0..n ─ 1 | この依存の先行（`predecessorUid`） |
-| RL-4 | `TaskGroup` | `TaskGroup` | 0..n ─ 0..1 | 行の親子（`parentId`）。深さの上限は `FR-004` |
-| RL-5 | `TaskGroupMember` | `TaskGroup` | 0..n ─ 1 | どの行に載るか（`groupId`） |
+| RL-4 | `TaskGroup` | `TaskGroup` | 0..n ─ 0..1 | タスクグループの親子（`parentId`）。深さの上限は `FR-004` |
+| RL-5 | `TaskGroupMember` | `TaskGroup` | 0..n ─ 1 | どのタスクグループに載るか（`groupId`） |
 | RL-6 | `TaskGroupMember` | `Task` | 1 ─ 1 | どのタスクが載るか（`taskUid`） |
-| RL-7 | `TaskGroup` | `Task` | 0..n ─ 0..1 | 行の名前の導出元（`derivedFromTaskUid`） |
+| RL-7 | `TaskGroup` | `Task` | 0..n ─ 0..1 | タスクグループ名の導出元（`derivedFromTaskUid`） |
 | RL-8 | `Project` | `Calendar` | 1 ─ 0..1 | 文書の既定の暦（`calendarUid`） |
 | RL-9 | `Task` | `Calendar` | 0..n ─ 0..1 | 交換相手のタスクごとの暦（`calendarUid`） |
 | RL-10 | `Resource` | `Calendar` | 0..n ─ 0..1 | 交換相手の担当者ごとの暦（`calendarUid`） |
@@ -288,9 +288,9 @@ erDiagram
 | RL-15 | `Assignment` | `Resource` | 0..n ─ 0..1 | 就く担当者（`resourceUid`） |
 | RL-16 | `TaskVisual` | `Task` | 0..1 ─ 1 | そのタスクの見せ方（`taskUid`） |
 | RL-17 | `TaskOrigin` | `Task` | 0..1 ─ 1 | そのタスクの取り込み元（`taskUid`） |
-| RL-18 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留める行（`anchorGroupId`） |
-| RL-19 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の上端の行（`topGroupId`） |
-| RL-20 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の下端の行（`bottomGroupId`） |
+| RL-18 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留めるタスクグループ（`anchorGroupId`） |
+| RL-19 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の上端のタスクグループ（`topGroupId`） |
+| RL-20 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の下端のタスクグループ（`bottomGroupId`） |
 | RL-21 | `CarryElement` | `CarryElement` | 1 ─ 0..n | 入れ子の子（`children`） |
 | RL-22 | `Task` | `BaselineTask` | 0..1 ─ 0..1 | 変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`） |
 | RL-23 | `Project` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
@@ -330,7 +330,7 @@ erDiagram
 | AT-154 | `Project` | `defaultStartTime` | 時刻 | 可 | — | Own | `Project/DefaultStartTime` | 既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） |
 | AT-155 | `Project` | `defaultFinishTime` | 時刻 | 可 | — | Own | `Project/DefaultFinishTime` | 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483` |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
-| AT-156 | `Project` | `parentProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親子の進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
+| AT-156 | `Project` | `parentProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
@@ -338,7 +338,7 @@ erDiagram
 | AT-139 | `Project` | `outlineBase` | 整数 | 否 | — | Consume | — | 取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く。**既定は `1`** |
 | AT-143 | `Project` | `sourceFormat` | 列挙（3 値） | 否 | — | GRS | — | 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む |
 | AT-24 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
-| AT-25 | `Task` | `wbsParentUid` | 整数 | 可（`null` = 根） | FK | Consume | — | WBS の親。交換相手には対応要素が無く、深さと出現順から起こす |
+| AT-25 | `Task` | `parentTaskUid` | 整数 | 可（`null` = 根） | FK | Consume | — | 親タスク。交換相手には対応要素が無く、深さと出現順から起こす |
 | AT-26 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
 | AT-27 | `Task` | `name` | 文字列 | 可 | — | Own | `Task/Name` | タスク名 |
 | AT-28 | `Task` | `start` | 日時 | 可 | — | Own | `Task/Start` | 予定の開始 |
@@ -364,17 +364,17 @@ erDiagram
 | AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）だけである —— ほかの値は読んで保ち、見せるだけにする（`FR-009`） |
 | AT-49 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
 | AT-50 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
-| AT-51 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 行の識別子 |
-| AT-52 | `TaskGroup` | `parentId` | 文字列（UUID） | 可（`null` = 根） | FK | GRS | — | 親の行。深さの上限は `FR-004` |
-| AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
+| AT-51 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | タスクグループの識別子 |
+| AT-52 | `TaskGroup` | `parentId` | 文字列（UUID） | 可（`null` = 根） | FK | GRS | — | 親のタスクグループ。深さの上限は `FR-004` |
+| AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | タスクグループ名 |
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
-| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足した行を倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
-| AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
-| AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。ただし行の帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b |
-| AT-59 | `TaskGroup` | `minHeight` | 整数 | 可（`null` = 下限なし） | — | GRS | — | 行の最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
-| AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |
-| AT-61 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せる行 |
+| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | タスクグループの木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせるタスクグループは `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足したタスクグループを倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
+| AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | このタスクグループを編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
+| AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | タスクグループの帯の色。形は `AT-102` と同じ。ただしタスクグループの帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b |
+| AT-59 | `TaskGroup` | `minHeight` | 整数 | 可（`null` = 下限なし） | — | GRS | — | タスクグループの最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
+| AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 つのタスクグループにしか載らない**ので、これだけで一意である |
+| AT-61 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せるタスクグループ |
 | AT-63 | `Calendar` | `uid` | 整数 | 否 | PK | Own | `Calendars/Calendar/UID` | 暦の識別子 |
 | AT-64 | `Calendar` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Name` | 暦の名前 |
 | AT-65 | `Calendar` | `isBaseCalendar` | 真偽 | 可 | — | Own | `Calendars/Calendar/IsBaseCalendar` | 基準の暦か |
@@ -424,7 +424,7 @@ erDiagram
 | AT-111 | `CommentBox` | `leaderShapeKind` | 列挙（2 値） | 可 | — | GRS | — | 引き出し線の形 |
 | AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | 本文。「コメント」と略さない（`U-14`） |
 | AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
-| AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
+| AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留めるタスクグループ |
 | AT-115 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文の左下隅までのずれ（`FR-019`） |
 | AT-148 | `CommentBox` | `strokeColor` | 文字列 | 可（`null` = 注記の色 `S-312`） | — | GRS | — | 本文の箱の枠と引出し線の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
 | AT-149 | `CommentBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠と引出し線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`。ズームによらず一定に描く（`FR-019`） |
@@ -434,8 +434,8 @@ erDiagram
 | AT-116 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
 | AT-117 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
 | AT-118 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
-| AT-119 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端の行 |
-| AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
+| AT-119 | `HighlightBox` | `topGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の上端のタスクグループ |
+| AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端のタスクグループ |
 | AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色。形は `AT-102` と同じ。透明（線なし）も取るが、塗り（`AT-146`）と同時には取らない（`FR-019`）。`null` は注記の色 `S-312` で描く |
 | AT-122 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
 | AT-145 | `HighlightBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠の線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`。ズームによらず一定に描く（`FR-019`） |
@@ -472,7 +472,7 @@ erDiagram
 | DV-2 | `Project` | `saveVersion` | `Project/SaveVersion` | 取り込んだ値をそのまま返す。取り込まずに作った文書は `12`（`EX-1`） |
 | DV-3 | `Project` | `currencyCode` | `Project/CurrencyCode` | `carry` に控えた原値 |
 | DV-4 | `Task` | `id` | `Task/ID` | 書き出す順に振り直す。**`uid` とは別物で、可変である** |
-| DV-5 | `Task` | `outlineLevel` | `Task/OutlineLevel` | `wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`） |
+| DV-5 | `Task` | `outlineLevel` | `Task/OutlineLevel` | `parentTaskUid` の木の深さ。**浅く丸めない**（`FR-004`） |
 | DV-6 | `Task` | `outlineNumber` | `Task/OutlineNumber` | 木の道すじ。**照合の鍵にしない** |
 | DV-7 | `Task` | `summary` | `Task/Summary` | 子を持つかどうか |
 | DV-8 | `Task` | `duration` | `Task/Duration` | `start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 終わりの日を含めるのは、交換相手の公式の例が、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書くからである（Microsoft Learn の Project XML の `Task` の要素の例）。⚠️ `FR-054`（時刻を解釈しない）とは矛盾しない —— 数えるのは稼働日であって時刻ではない。**人が編集していないタスクは受け取った値をそのまま返す** |

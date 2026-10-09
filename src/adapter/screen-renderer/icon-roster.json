@@ -169,7 +169,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "行軸を縮小する（`S-76`）",
+   "entryTo": "縦軸を縮小する（`S-76`）",
    "authority": "`FR-018`",
    "arms": null,
    "armsShape": null
@@ -180,7 +180,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "行軸を拡大する（`S-76`）",
+   "entryTo": "縦軸を拡大する（`S-76`）",
    "authority": "`FR-018`",
    "arms": null,
    "armsShape": null
@@ -675,7 +675,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "WBS の親子を、子から親への矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文）",
+   "entryTo": "親タスクと子タスクを、子タスクから親タスクへの矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文）",
    "authority": "`FR-135`",
    "arms": null,
    "armsShape": null
@@ -686,7 +686,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "WBS の親を結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親子判別（`IC-141`）のすぐ右に並べる —— 親子を見る入口の右隣に、親子を結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ",
+   "entryTo": "親タスクを結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親タスク表示（`IC-141`）のすぐ右に並べる —— 親タスクと子タスクを見る入口の右隣に、親タスクと子タスクを結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ",
    "authority": "`FR-135`",
    "arms": "AR-7",
    "armsShape": null
@@ -859,7 +859,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行の配下をすべて開く",
+   "entryTo": "タスクグループの配下をすべて開く",
    "authority": "表 T-051 の `HF-2`",
    "arms": null,
    "armsShape": null
@@ -870,7 +870,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "この行を隠す",
+   "entryTo": "このタスクグループを隠す",
    "authority": "表 T-051 の `HF-3`",
    "arms": null,
    "armsShape": null
@@ -881,7 +881,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行の配下をすべて畳む",
+   "entryTo": "タスクグループの配下をすべて畳む",
    "authority": "表 T-051 の `HF-11`",
    "arms": null,
    "armsShape": null
@@ -892,7 +892,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行の配下を 1 階層だけ開く",
+   "entryTo": "タスクグループの配下を 1 階層だけ開く",
    "authority": "表 T-051 の `HF-13`",
    "arms": null,
    "armsShape": null
@@ -903,7 +903,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行の配下に行を 1 つ足す",
+   "entryTo": "タスクグループの配下にタスクグループを 1 つ足す",
    "authority": "表 T-051 の `HF-14`",
    "arms": null,
    "armsShape": null
@@ -914,7 +914,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行をピン止めし、同じ入口で外す",
+   "entryTo": "タスクグループをピン止めし、同じ入口で外す",
    "authority": "`FR-098`",
    "arms": null,
    "armsShape": null
@@ -925,7 +925,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "行を削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）",
+   "entryTo": "タスクグループを削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）",
    "authority": "`FR-032`",
    "arms": null,
    "armsShape": null
@@ -936,7 +936,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
+   "entryTo": "すべてのタスクグループを削除する（タスクグループパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
    "authority": "`FR-032`",
    "arms": null,
    "armsShape": null
@@ -1300,7 +1300,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "すべての行を開く",
+   "entryTo": "すべてのタスクグループを開く",
    "authority": "表 T-051 の `HF-10`",
    "arms": null,
    "armsShape": null
@@ -1311,7 +1311,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "すべての行を畳む",
+   "entryTo": "すべてのタスクグループを畳む",
    "authority": "表 T-051 の `HF-12`",
    "arms": null,
    "armsShape": null
@@ -1333,7 +1333,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "最も浅い段へ行を 1 つ足す",
+   "entryTo": "最も浅い段へタスクグループを 1 つ足す",
    "authority": "表 T-051 の `HF-17`",
    "arms": null,
    "armsShape": null
