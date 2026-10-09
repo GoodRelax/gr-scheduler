@@ -35,7 +35,7 @@ import {
 const HELP_MODAL = 'Help Modal'
 
 // see T-280, S-99g, U-49, U-54
-const RESOURCE_ROSTER_ROW = 'U-49'
+const RESOURCE_LIST_ROW = 'U-49'
 const EXPORT_CHOOSER_ROW = 'U-54'
 
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
@@ -91,8 +91,8 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       return HELP_ENTRY_PRESSED
     case ENTRY.fullScreen:
       return FULL_SCREEN_ENTRY_PRESSED
-    case ENTRY.resourceRoster:
-      return surfaceEntered(RESOURCE_ROSTER_ROW)
+    case ENTRY.resourceList:
+      return surfaceEntered(RESOURCE_LIST_ROW)
     case ENTRY.dualCursor: {
       const entered = screenEventFromDualCursorEntry(context)
       const isPlacingNothing = entered.type === 'dualCursorEntryPressed' && !entered.hasDaysToPlace

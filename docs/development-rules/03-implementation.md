@@ -82,7 +82,7 @@ NOT_STORED_PROPERTIES_PANEL_FLOOR    `Properties Panel` の幅の下限（`S-248
 NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198` / `S-335` / `S-338`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
-NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線の太さ（`S-240` / `S-241`）
+NOT_STORED_RESOURCE_LIST_SIZES     担当リストの字の係数と罫線の太さ（`S-240` / `S-241`）
 NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッチの画素・行数（`S-514` 〜 `S-516`、表 T-023 の結び、`CR-681`）。写しは 2 つ —— 日程を送る `DomInputSource` と、名簿を送る `DomScreenSurface`
 NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
@@ -95,7 +95,7 @@ NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES       タスクグループの掴み代が
 NOT_STORED_TASK_GROUP_GRAB_SIZES            掴んだタスクグループの軸と追従（`S-208` / `S-212`）
 NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES      掴み代とタスクグループ名の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
-NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES 表示の絞り込みの帯の高さと字、絵の注の字（`S-497` / `S-498`、`CR-661`）。写しは 3 つ —— 帯を下げる `SingleHtmlShell`、帯を描く `DomScreenSurface`、注を書く `ImageExporter`
+NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES スケジュールフィルタの帯の高さと字、絵の注の字（`S-497` / `S-498`、`CR-661`）。写しは 3 つ —— 帯を下げる `SingleHtmlShell`、帯を描く `DomScreenSurface`、注を書く `ImageExporter`
 NOT_STORED_ANNOTATION_SIZES          注記の見せ方の既定（表 T-217 の全行。`S-132` ・ `S-369` 〜 `S-371` ・ `S-374` ・ `S-375`）
 NOT_STORED_HIGHLIGHT_HANDLE_SIZES    ハイライトボックスの辺が中点の掴み点を持つ長さの下限（表 T-206 の `S-373`、`CR-558`）
 NOT_STORED_ANNOTATION_BOUNDS         その数値の行の下限・上限と鍵（表 T-217。`FR-006` ・ `FR-019`、`CR-558` ・ `CR-559`）

@@ -1289,7 +1289,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
 
   it('GA-9 settles the plan dates on the release, and leaves the actual ones alone (MUST NOT)', () => {
     // FR-011: 「タスクの本体をドラッグしたとき、予定の日付だけをずらし、実績の
-    // 日付を変えてはならない（MUST NOT）—— 一度入力された実績は、担当者が置いた
+    // 日付を変えてはならない（MUST NOT）—— 一度入力された実績は、担当が置いた
     // 事実である」.
     const built = stage()
     const before = structuredClone(taskOf(built.loop, PLAIN_UID))

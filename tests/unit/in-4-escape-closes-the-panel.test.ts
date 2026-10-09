@@ -30,7 +30,7 @@
 // ---------------------------------------------------------------------------
 //
 //   表 T-109 IC-52  its 面 column reads
-//                 「`Help Modal` / `AI Export Modal` / `Resource Roster` /
+//                 「`Help Modal` / `AI Export Modal` / `Resource List` /
 //                   `Export Chooser` / `Open Chooser` / `Properties Panel`」,
 //                   its 何の入口か column 「開いている面を閉じる」 and its 正
 //                   column 「表 T-028 の `IN-4`」. ⭐ SO THE MANUSCRIPT ALREADY

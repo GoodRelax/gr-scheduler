@@ -191,7 +191,7 @@ const T_103_PARTS = [
   { row: 'U-46', name: 'Pinned Task Group' },
   { row: 'U-47', name: 'Task Group Expander' },
   { row: 'U-48', name: 'Task Group Pin' },
-  { row: 'U-49', name: 'Resource Roster' },
+  { row: 'U-49', name: 'Resource List' },
   { row: 'U-53', name: 'Tooltip' },
   { row: 'U-57', name: 'Notification Area' },
 ] as const
@@ -2386,7 +2386,7 @@ describe('IN-3 of 表 T-028 -- a tooltip takes no pointer and does not go by its
 })
 
 describe('表 T-103 -- the settled names reach the DOM so the parts can be found', () => {
-  const NOT_IN_A_HELP_VIEW = new Set(['Resource Roster'])
+  const NOT_IN_A_HELP_VIEW = new Set(['Resource List'])
 
   it('draws every part under the name 表 T-103 settled for it', () => {
     const built = wire({ 'App Header': 37 })
@@ -2406,14 +2406,14 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
     surface.showScreenView(
       viewWith({
         openModal: {
-          surface: 'Resource Roster',
+          surface: 'Resource List',
           heading: 'RosterHeading',
           commands: [],
           resources: [],
         },
       }),
     )
-    expect(byRole(built.root(), 'Resource Roster').length).toBeGreaterThan(0)
+    expect(byRole(built.root(), 'Resource List').length).toBeGreaterThan(0)
   })
 
   it('names U-57 by 表 T-103, which no longer leaves that part unnamed', () => {
@@ -2734,7 +2734,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
   const roster = (unassignedTaskNames: readonly (string | null)[]): ScreenView =>
     viewWith({
       openModal: {
-        surface: 'Resource Roster',
+        surface: 'Resource List',
         heading: 'RosterHeading',
         commands: [],
         resources: [{ uid: 7, name: 'ResourceOne', isReferenced: true, isSelected: false, unassignedTaskNames }],
@@ -2745,7 +2745,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(roster(['TaskAlpha', 'TaskBeta']))
 
-    const box = oneByRole(built.root(), 'Resource Roster')
+    const box = oneByRole(built.root(), 'Resource List')
     expect(box.textContent).toContain('TaskAlpha')
     expect(box.textContent).toContain('TaskBeta')
   })
@@ -2754,7 +2754,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(roster(['TaskAlpha', 'TaskAlpha']))
 
-    const box = oneByRole(built.root(), 'Resource Roster')
+    const box = oneByRole(built.root(), 'Resource List')
     expect(withText(box, 'TaskAlpha')).toHaveLength(2)
   })
 
@@ -2767,7 +2767,7 @@ describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
     // ⭐ One more element for the nameless one: losing it between separators is
     // exactly what turns the list back into the count FR-099 forbids.
     const counted = (built: Stage): number =>
-      selfAndDescendants(oneByRole(built.root(), 'Resource Roster')).length
+      selfAndDescendants(oneByRole(built.root(), 'Resource List')).length
     expect(counted(withNull)).toBe(counted(named) + 1)
   })
 
@@ -3732,7 +3732,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
 
   it('GIVEN the same entry drawn on two different 面 WHEN both are read THEN neither scales it (FR-029 MUST NOT) -- IC-52', () => {
     // ⚠️ 表 T-109 puts IC-52 on several surfaces at once（`Help Modal` /
-    // `Resource Roster` / `Export Chooser` / `Open Chooser` and more）, so it is
+    // `Resource List` / `Export Chooser` / `Open Chooser` and more）, so it is
     // the one row that can be drawn on two different 面 and compared without a
     // second row entering the comparison.
     const built = wire({ 'App Header': 37 })
@@ -3744,7 +3744,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     surface.showScreenView(
       viewWith({
         openModal: {
-          surface: 'Resource Roster',
+          surface: 'Resource List',
           heading: 'RosterHeading',
           commands: [command({ icon: 'IC-52', label: 'CloseRoster' })],
           resources: [],

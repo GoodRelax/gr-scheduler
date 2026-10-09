@@ -58,7 +58,7 @@ const FR_029_FAINT = 'その入口を押しても、いま文書にも画面に�
 const FR_029_S_149 = '薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149` の色で示すこと（MUST）'
 const FR_029_NOT_DISABLED = '薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
-const IF_9_U_27 = 'ヘッダの文書名の欄は 表 T-103 の `U-27` を名乗る'
+const IF_9_U_27 = 'ヘッダーの文書名の欄は 表 T-103 の `U-27` を名乗る'
 const FR_035 = '作成者が文書名を選んだとき、`GRS` は、その場で編集できるようにすること。'
 
 const APP_HEADER = englishName('U-31')
@@ -263,7 +263,7 @@ describe('FR-035 / IF-9 -- the Document Title (U-27) is edited in place', () => 
   })
 
   // WHY: the field stands only after F2 asks for it, so the case opens it the way the shell does.
-  it('IF-9 ヘッダの文書名の欄は U-27 を名乗る -- once opened, a field named U-27 stands and its settled value names U-27', () => {
+  it('IF-9 ヘッダーの文書名の欄は U-27 を名乗る -- once opened, a field named U-27 stands and its settled value names U-27', () => {
     const built = stage({ 'App Header': 37 })
     let focusField: ((row: string) => boolean) | undefined
     const surface = domScreenSurface({

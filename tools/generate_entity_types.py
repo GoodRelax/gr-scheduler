@@ -1446,17 +1446,17 @@ NOT_STORED_TARGETS = {
                                'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
                                'S-459'],
                               DRAWN_WITH_WHERE_IT_STANDS),
-    # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
+    # FR-099's Resource List (table T-257, CR-406): the text factor RR-1 reads
     # and the rule width RR-5 reads. Not folded into the help line above -- one
     # constant per consuming SUBJECT. S-241 is NOT S-237 / S-143 although all
     # three are 1px: the row's own note forbids sharing them.
-    'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
+    'NOT_STORED_RESOURCE_LIST_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
     # CR-681 decision 6: how a wheel turn is counted -- one line (S-514), one
     # notch in pixels (S-515), one notch in lines (S-516). Table T-023's
     # closing rule (MUST NOT) forbids each surface its own line, so one name
     # is printed into both units that count a turn: the input source (the
-    # schedule) and the surface (the Resource Roster, RR-3). Neither may
+    # schedule) and the surface (the Resource List, RR-3). Neither may
     # import the other's, as NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES.
     'NOT_STORED_WHEEL_UNITS': (['S-514', 'S-515', 'S-516'], READ_WHERE_IT_STANDS),
     # CR-685: the gap between two format buttons of the Export Chooser (FR-096).
@@ -3277,7 +3277,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_RESOURCE_LIST_SIZES') + NEWLINE * 2
      # CR-681 / CR-685: the roster's wheel line and the Export Chooser's gap.
      + not_stored_block('NOT_STORED_WHEEL_UNITS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
@@ -3532,7 +3532,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_PALETTE_ROW_CAP',
         'NOT_STORED_ARMED_LABEL_SIZES',
         'NOT_STORED_PROPERTY_FIELD_SIZES',
-        'NOT_STORED_RESOURCE_ROSTER_SIZES',
+        'NOT_STORED_RESOURCE_LIST_SIZES',
         'NOT_STORED_TASK_GROUP_BAND_SIZES',
         'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES',
         'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',

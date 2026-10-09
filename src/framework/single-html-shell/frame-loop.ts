@@ -429,7 +429,7 @@ function isConfirmationAnswerKey(key: string): boolean {
   return key === CONFIRMATION_PROCEED_KEY || key === CONFIRMATION_CANCEL_KEY
 }
 
-const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
+const RESOURCE_LIST_DELETE_ENTRY: IconId = 'IC-66'
 
 const NEW_DOCUMENT_ENTRY: IconId = 'IC-98'
 
@@ -3146,7 +3146,7 @@ export function frameLoop(
       sendToSession(grsResetEntryPressedOf(held.document, session), frame)
       return true
     }
-    if (entry === ROSTER_DELETE_ENTRY) {
+    if (entry === RESOURCE_LIST_DELETE_ENTRY) {
       const chosen = session.selection.chosenResources
       if (chosen.length === 0) {
         raiseNotice(NOTHING_TO_DO_REASON, null)

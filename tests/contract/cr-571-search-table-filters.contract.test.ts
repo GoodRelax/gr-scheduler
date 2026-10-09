@@ -31,10 +31,10 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 
 const SV_7 = cellOf('T-330', 'SV-7', '定め')
 const SV_7_ITEMS =
-  '値の一覧は、担当者名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
-const SV_7_DATES = '日付の列は、値の一覧と絞る入力欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
-const SV_7_ALL = '列の絞り込みどうし、語と絞り込みは、すべてを満たす行だけを残す。'
-const SV_7_ASSIGNEES = '担当者名の列は、担当者のうち 1 人でも表示に入れた値なら残す。'
+  '値の一覧は、担当名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
+const SV_7_DATES = '日付の列は、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
+const SV_7_ALL = '列のフィルタどうし、語と列のフィルタは、すべてを満たす行だけを残す。'
+const SV_7_ASSIGNEES = '担当名の列は、担当のうち 1 人でもチェックした値なら残す。'
 const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置くと、その日付の空の行は外す。'
 
 const SV_8 = cellOf('T-330', 'SV-8', '定め')
@@ -152,10 +152,10 @@ describe('FR-151 table T-330 SV-7 / SV-8 -- the search tables filter and sort th
     expect(REQUIREMENTS).toContain('**表 T-330 — 検索パネルの見せ方と振舞い**')
     for (const clause of [SV_7_ITEMS, SV_7_DATES, SV_7_ALL, SV_7_ASSIGNEES, SV_7_BLANK_DATES]) expect(SV_7).toContain(clause)
     for (const clause of [SV_8_ONE, SV_8_STATES, SV_8_TIES, SV_8_DEFAULT]) expect(SV_8).toContain(clause)
-    expect(cellOf('T-331', 'SQ-2', '絞り込み')).toBe('値の一覧（1 人ずつ）')
-    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, '絞り込み')).toBe('いつから・いつまで')
-    expect(cellOf('T-331', 'SQ-4', '絞り込み')).toBe('同上')
-    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, '絞り込み')).toBe('値の一覧')
+    expect(cellOf('T-331', 'SQ-2', 'フィルタ')).toBe('値の一覧（1 人ずつ）')
+    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, 'フィルタ')).toBe('いつから・いつまで')
+    expect(cellOf('T-331', 'SQ-4', 'フィルタ')).toBe('同上')
+    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     expect(cellOf('T-331', 'SQ-6', '書き方')).toContain(SQ_6_JOIN)
     for (const [id, [state, word]] of Object.entries(STATE_WORDS)) expect(cellOf('T-019a', id, '状態'), state).toBe(word)
   })

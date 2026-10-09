@@ -39,7 +39,7 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_4_MATCH =
-  '語が、タスクの表では名前（`SQ-1`）か担当者名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
+  '語が、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
 const SV_4_NFKC = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
 const SV_4_KANA =
   'ひらがなとカタカナは区別する（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'
@@ -52,16 +52,16 @@ const SV_4_NAMELESS = '名前が空のタスクも表に載るが、名前の側
 const FR_151_NOT_SEARCHED =
   '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT）'
 
-const SV_7_ENTRY = 'どの列の見出しにも `IC-122` を置き、押すと絞り込みを開く。'
+const SV_7_ENTRY = 'どの列の見出しにも `IC-122` を置き、押すとフィルタを開く。'
 const SV_7_CONTENTS =
-  '操作の段は、値の一覧を絞る入力欄と、`IC-125`（すべて入れる）・`IC-126`（すべて外す）・`IC-123`（昇順）・`IC-124`（降順）の行である。'
+  '操作の段は、フィルタの中の検索欄と、`IC-125`（すべてチェック）・`IC-126`（チェックをすべて外す）・`IC-123`（昇順）・`IC-124`（降順）の行である。'
 const SV_7_ITEMS =
-  '値の一覧は、担当者名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
-const SV_7_DATES = '日付の列は、値の一覧と絞る入力欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
-const SV_7_ALL = '列の絞り込みどうし、語と絞り込みは、すべてを満たす行だけを残す。'
-const SV_7_ASSIGNEES = '担当者名の列は、担当者のうち 1 人でも表示に入れた値なら残す。'
+  '値の一覧は、担当名の列では 1 人ずつ、ほかの列ではセルの値ごとに 1 項目、空のセルは「（空白）」の 1 項目。'
+const SV_7_DATES = '日付の列は、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
+const SV_7_ALL = '列のフィルタどうし、語と列のフィルタは、すべてを満たす行だけを残す。'
+const SV_7_ASSIGNEES = '担当名の列は、担当のうち 1 人でもチェックした値なら残す。'
 const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」を置くと、その日付の空の行は外す。'
-const SV_7_ONE_OPEN = '開いている絞り込みは一度に 1 つ'
+const SV_7_ONE_OPEN = '開いているフィルタは一度に 1 つ'
 
 const SV_8_ONE = '並べ替える列は 1 つ。'
 const SV_8_STATES =
@@ -73,20 +73,20 @@ const SV_8_DEFAULT =
 const SV_3_ONE = '表は一度に 1 つだけ出す。'
 const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
 
-const SV_14_ESC = '列の絞り込みが開いていれば、`Esc` はまず絞り込みだけを閉じ、次の `Esc` でパネルを閉じる。'
-const SV_14_REMEMBER = '語・表の切り替え・絞り込み・並べ替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
+const SV_14_ESC = '列のフィルタが開いていれば、`Esc` はまずフィルタだけを閉じ、次の `Esc` でパネルを閉じる。'
+const SV_14_REMEMBER = '語・表の切り替え・フィルタ・並べ替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
 
 const IN_4_ORDER =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 const IN_4_SEARCH =
-  '⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+  '⭐ 閉じる番の検索パネル（`FR-151`）は、列のフィルタが開いていればフィルタだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
 
 const IC_WORDS: Readonly<Record<string, string>> = {
-  'IC-122': '列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ）',
-  'IC-123': 'その列で昇順に並べる。プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-124': 'その列で降順に並べる。プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
-  'IC-125': '値の一覧のすべてを表示に入れる',
-  'IC-126': '値の一覧のすべてを表示から外す',
+  'IC-122': '列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）',
+  'IC-123': 'その列で昇順に並べる。プロパティパネルでは、担当の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-124': 'その列で降順に並べる。プロパティパネルでは、担当の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）',
+  'IC-125': '一覧に出ているすべての値にチェックを付ける',
+  'IC-126': '一覧に出ているすべての値のチェックを外す',
 }
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -382,14 +382,14 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
   })
 
   it('T-331 names the filter each column takes, and T-109 what IC-122..IC-126 do', () => {
-    expect(cellOf('T-331', 'SQ-1', '絞り込み')).toBe('値の一覧（空の名前は「（空白）」）')
-    expect(cellOf('T-331', 'SQ-2', '絞り込み')).toBe('値の一覧（1 人ずつ）')
-    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, '絞り込み')).toBe('いつから・いつまで')
-    expect(cellOf('T-331', 'SQ-4', '絞り込み')).toBe('同上')
-    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, '絞り込み')).toBe('値の一覧')
+    expect(cellOf('T-331', 'SQ-1', 'フィルタ')).toBe('値の一覧（空の名前は「（空白）」）')
+    expect(cellOf('T-331', 'SQ-2', 'フィルタ')).toBe('値の一覧（1 人ずつ）')
+    for (const id of ['SQ-3', 'SQ-9']) expect(cellOf('T-331', id, 'フィルタ')).toBe('いつから・いつまで')
+    expect(cellOf('T-331', 'SQ-4', 'フィルタ')).toBe('同上')
+    for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(cellOf('T-331', 'SQ-10', '絞り込み')).toBe('値の一覧（「表示に入れた」「入れていない」）')
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧（「表示に入れた」「入れていない」）')
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })

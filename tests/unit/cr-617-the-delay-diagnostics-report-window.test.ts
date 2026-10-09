@@ -227,7 +227,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
 
   it('names the filter that stands, and the rows it keeps', () => {
     const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), REPORT, SCHEDULE, 'ja', stamp)
-    expect(filtered).toContain('- 絞り込み: Bravo')
+    expect(filtered).toContain('- フィルタ: Bravo')
     expect(filtered.split('\n').filter((line) => line.startsWith('| '))).toHaveLength(3)
   })
 

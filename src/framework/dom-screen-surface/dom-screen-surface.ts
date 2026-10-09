@@ -52,7 +52,7 @@ import {
   taskGroupsTopPx,
 } from './task-group-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
-import { ROSTER_SCROLLER, helpWindowPainter, keepRosterScroll, modalElement } from './open-modals-drawing'
+import { RESOURCE_LIST_SCROLLER, helpWindowPainter, keepResourceListScroll, modalElement } from './open-modals-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
 import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
@@ -1140,9 +1140,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (changed('openModal')) {
       const anchors = anchorsOf('openModal')
       const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchors)
-      const scrolledBefore = modalLayer.querySelector(ROSTER_SCROLLER)
+      const scrolledBefore = modalLayer.querySelector(RESOURCE_LIST_SCROLLER)
       modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
-      keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
+      keepResourceListScroll(scrolledBefore, modalLayer.querySelector(RESOURCE_LIST_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
     placeOpenModal(modalLayer, view, changed)
@@ -1416,7 +1416,7 @@ export const NOT_STORED_HELP_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
+export const NOT_STORED_RESOURCE_LIST_SIZES: {
   readonly 'S-240': number
   readonly 'S-241': number
 } = {

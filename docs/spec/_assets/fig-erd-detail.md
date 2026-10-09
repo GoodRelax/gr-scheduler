@@ -213,12 +213,12 @@ erDiagram
     TaskGroup }o--o| Task : "タスクグループ名の導出元（derivedFromTaskUid）"
     Project ||--o| Calendar : "文書の既定の暦（calendarUid）"
     Task }o--o| Calendar : "交換相手のタスクごとの暦（calendarUid）"
-    Resource }o--o| Calendar : "交換相手の担当者ごとの暦（calendarUid）"
+    Resource }o--o| Calendar : "交換相手の担当ごとの暦（calendarUid）"
     Calendar }o--o| Calendar : "継承元の暦（baseCalendarUid）"
     Calendar ||--o{ WeekDay : "曜日ごとの稼働（弱エンティティ）"
     Calendar ||--o{ Exception : "例外日（弱エンティティ）"
     Assignment }o--o| Task : "就くタスク（taskUid）"
-    Assignment }o--o| Resource : "就く担当者（resourceUid）"
+    Assignment }o--o| Resource : "就く担当（resourceUid）"
     TaskVisual |o--|| Task : "そのタスクの見せ方（taskUid）"
     TaskOrigin |o--|| Task : "そのタスクの取り込み元（taskUid）"
     CommentBox }o--o| TaskGroup : "留めるタスクグループ（anchorGroupId）"
@@ -252,8 +252,8 @@ erDiagram
 | ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
 | ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
-| ET-9 | `Resource` | 担当者 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
-| ET-10 | `Assignment` | どの担当者がどのタスクに就くか | `uid` | 書き出す | あり |
+| ET-9 | `Resource` | 担当 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
+| ET-10 | `Assignment` | どの担当がどのタスクに就くか | `uid` | 書き出す | あり |
 | ET-11 | `TaskVisual` | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | `taskUid` | **書き出さない** | — |
 | ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
 | ET-13 | `CommentBox` | コメントボックス 1 つ。日付とタスクグループに留める | `id` | **書き出さない** | — |
@@ -280,12 +280,12 @@ erDiagram
 | RL-7 | `TaskGroup` | `Task` | 0..n ─ 0..1 | タスクグループ名の導出元（`derivedFromTaskUid`） |
 | RL-8 | `Project` | `Calendar` | 1 ─ 0..1 | 文書の既定の暦（`calendarUid`） |
 | RL-9 | `Task` | `Calendar` | 0..n ─ 0..1 | 交換相手のタスクごとの暦（`calendarUid`） |
-| RL-10 | `Resource` | `Calendar` | 0..n ─ 0..1 | 交換相手の担当者ごとの暦（`calendarUid`） |
+| RL-10 | `Resource` | `Calendar` | 0..n ─ 0..1 | 交換相手の担当ごとの暦（`calendarUid`） |
 | RL-11 | `Calendar` | `Calendar` | 0..n ─ 0..1 | 継承元の暦（`baseCalendarUid`） |
 | RL-12 | `Calendar` | `WeekDay` | 1 ─ 0..n | 曜日ごとの稼働（弱エンティティ） |
 | RL-13 | `Calendar` | `Exception` | 1 ─ 0..n | 例外日（弱エンティティ） |
 | RL-14 | `Assignment` | `Task` | 0..n ─ 0..1 | 就くタスク（`taskUid`） |
-| RL-15 | `Assignment` | `Resource` | 0..n ─ 0..1 | 就く担当者（`resourceUid`） |
+| RL-15 | `Assignment` | `Resource` | 0..n ─ 0..1 | 就く担当（`resourceUid`） |
 | RL-16 | `TaskVisual` | `Task` | 0..1 ─ 1 | そのタスクの見せ方（`taskUid`） |
 | RL-17 | `TaskOrigin` | `Task` | 0..1 ─ 1 | そのタスクの取り込み元（`taskUid`） |
 | RL-18 | `CommentBox` | `TaskGroup` | 0..n ─ 0..1 | 留めるタスクグループ（`anchorGroupId`） |
@@ -397,16 +397,16 @@ erDiagram
 | AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13` |
 | AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
-| AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当者の識別子 |
-| AT-86 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当者名 |
+| AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当の識別子 |
+| AT-86 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当名 |
 | AT-87 | `Resource` | `resourceKind` | 整数 | 可 | — | Own | `Resource/Type` | `0` = 材料 / `1` = 作業 / `2` = 費用 |
 | AT-88 | `Resource` | `isCostResource` | 真偽 | 可 | — | Own | `Resource/IsCostResource` | 費用資源か |
-| AT-89 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | 交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`） |
+| AT-89 | `Resource` | `calendarUid` | 整数 | 可 | FK | Consume | `Resource/CalendarUID` | 交換相手の担当ごとの暦。稼働日の数え上げには使わない（`FR-054`） |
 | AT-90 | `Resource` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 59 |
 | AT-91 | `Resource` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 6 |
 | AT-92 | `Assignment` | `uid` | 整数 | 否 | PK | Own | `Assignment/UID` | 割当の識別子 |
 | AT-93 | `Assignment` | `taskUid` | 整数 | 可 | FK | Consume | `Assignment/TaskUID` | 就くタスク |
-| AT-94 | `Assignment` | `resourceUid` | 整数 | 可 | FK | Consume | `Assignment/ResourceUID` | 就く担当者 |
+| AT-94 | `Assignment` | `resourceUid` | 整数 | 可 | FK | Consume | `Assignment/ResourceUID` | 就く担当 |
 | AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**どの `Task` も、ちょうど 1 つの `TaskVisual` から指される**（`05-07-design.md` の 表 T-220 の `IV-23`）。色も形も決めていないタスクは、本列のほかがすべて `null` の 1 つを持つ |

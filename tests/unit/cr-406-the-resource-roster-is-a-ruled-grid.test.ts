@@ -1,4 +1,4 @@
-// CR-406: the Resource Roster is drawn at S-240 of the host text, ruled at S-241, and scrolls as T-257 says.
+// CR-406: the Resource List is drawn at S-240 of the host text, ruled at S-241, and scrolls as T-257 says.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -38,15 +38,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-099 (MUST) -- the roster follows T-257', '一覧（`_assets/tbl-glossary.md` の `U-49`）の字の大きさ・スクロール・罫線は 表 T-257 に従うこと（MUST）'],
   ['T-257 RR-1 (MUST) -- the text is S-240 of the host text', '宿主が与える地の文字の大きさに `_assets/tbl-settings.md` の 表 T-206 の `S-240` を掛けた大きさで描くこと（MUST）'],
-  ['T-257 RR-2 (MUST) -- only the assignee rows scroll', 'スクロールするのは担当者の行の並びだけとすること（MUST）'],
-  ['T-257 RR-2 (MUST NOT) -- the heading row does not scroll', '⛔ 面の見出しの行（題と、担当者の行に載らない入口）をスクロールさせてはならない（MUST NOT）'],
+  ['T-257 RR-2 (MUST) -- only the assignee rows scroll', 'スクロールするのは担当の行の並びだけとすること（MUST）'],
+  ['T-257 RR-2 (MUST NOT) -- the heading row does not scroll', '⛔ 面の見出しの行（題と、担当の行に載らない入口）をスクロールさせてはならない（MUST NOT）'],
   ['T-257 RR-3 (MUST) -- MK-5 over the roster scrolls it sideways', 'ポインタが一覧の上にあるとき、表 T-023 の `MK-5` の組で一覧を横に送ること（MUST）'],
   ['T-257 RR-3 (MUST NOT) -- the chart does not move', '⛔ 後ろの日程表を動かしてはならない（MUST NOT）'],
   ['T-257 RR-3 (MUST) -- that combination is stopped in the browser', '⭐ その組のブラウザの既定動作を止めること（MUST）'],
-  ['T-257 RR-4 (MUST) -- the name column stays at the left', '横に送るあいだ、担当者名の欄を一覧の左端に固定すること（MUST）'],
+  ['T-257 RR-4 (MUST) -- the name column stays at the left', '横に送るあいだ、担当名の欄を一覧の左端に固定すること（MUST）'],
   ['T-257 RR-5 (MUST) -- lines between every cell', '一覧のすべての欄のあいだに、縦と横の線を引くこと（MUST）'],
   ['T-257 RR-5 (MUST) -- S-241 screen px', '太さは 表 T-206 の `S-241` とし、画面の px で描くこと（MUST）'],
-  ['T-023 closing rule (MUST) -- RR-3 is its one exception', '⭐ ただし `Resource Roster`（`U-49`）が立ち、ポインタがその上にあるときの `MK-5` は、`FR-099` の 表 T-257 の `RR-3` に従うこと（MUST）'],
+  ['T-023 closing rule (MUST) -- RR-3 is its one exception', '⭐ ただし `Resource List`（`U-49`）が立ち、ポインタがその上にあるときの `MK-5` は、`FR-099` の 表 T-257 の `RR-3` に従うこと（MUST）'],
 ]
 
 describe('CR-406 -- the manuscript these cases are driven by', () => {
@@ -74,7 +74,7 @@ const S_240 = numberIn(cellOf('S-240'))
 const S_241_CELL = cellOf('S-241')
 const S_241 = numberIn(S_241_CELL)
 
-const ROSTER = 'Resource Roster'
+const ROSTER = 'Resource List'
 
 const onRoster = (icon: string): boolean => {
   const row = T_109.rows.find((one) => one.id === icon)
@@ -91,7 +91,7 @@ describe('CR-406 -- the premises read from the manuscript', () => {
     expect(S_241).toBe(1)
   })
 
-  it('T-109 puts IC-63 to IC-68 on the Resource Roster', () => {
+  it('T-109 puts IC-63 to IC-68 on the Resource List', () => {
     for (const icon of [...HEADER_ENTRANCES, ...ROW_ENTRANCES]) expect(onRoster(icon), icon).toBe(true)
   })
 
@@ -450,7 +450,7 @@ function withTheRosterUp(): LoopStage {
   built.send(pointer('up', 80, 120))
   built.aim(null)
   const modal = built.view().openModal as unknown as { surface?: string } | null
-  if (modal?.surface !== ROSTER) throw new Error('IC-62 did not put the Resource Roster up')
+  if (modal?.surface !== ROSTER) throw new Error('IC-62 did not put the Resource List up')
   return built
 }
 

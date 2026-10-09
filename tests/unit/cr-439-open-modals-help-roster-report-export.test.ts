@@ -51,14 +51,14 @@ const englishNames = (id: string): string[] =>
   (rowOf('T-103', id).by['確定名（英）'] ?? '').split('/').map((one) => one.replace(/[`*]/g, '').trim())
 
 const FR_036 = '利用者がヘルプを開いたとき、`GRS` は、ショートカットキーとアイコンの一覧を画面上で示すこと。'
-const FR_099 = '作成者が担当者名簿を求めたとき、`GRS` は、文書が持つ担当者の一覧を出し、そこから担当者を消せるようにすること。'
+const FR_099 = '作成者が担当リストを求めたとき、`GRS` は、文書が持つ担当の一覧を出し、そこから担当を消せるようにすること。'
 const FR_023 = '`innerHTML` への直挿しを行ってはならない（MUST NOT）。'
 const U_62 = '1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面'
 const IF_9_FORMAT = '書き出しの選択面では 表 T-024 のどの形式の上かを答える'
 const IF_9_ENTRY_OR_FORMAT = '入口と形式は別の表の行であり、一方の上にあるとき他方は `null` である'
 
 const [HELP_MODAL] = englishNames('U-30') as [string]
-const [RESOURCE_ROSTER] = englishNames('U-49') as [string]
+const [RESOURCE_LIST] = englishNames('U-49') as [string]
 const [IMPORT_REPORT] = englishNames('U-62') as [string]
 const [EXPORT_CHOOSER] = englishNames('U-54') as [string]
 
@@ -142,7 +142,7 @@ const HELP = {
 } as unknown as OpenModal
 
 const ROSTER: OpenModal = {
-  surface: 'Resource Roster',
+  surface: 'Resource List',
   heading: 'Roster heading',
   commands: [command('IC-80')],
   resources: [
@@ -190,9 +190,9 @@ describe('CR-439 open surfaces -- the clauses still stand', () => {
     expect(rowText('T-103', 'U-62')).toContain(U_62)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_FORMAT)
     expect(rowText('T-065', 'IF-9')).toContain(IF_9_ENTRY_OR_FORMAT)
-    expect([HELP_MODAL, RESOURCE_ROSTER, IMPORT_REPORT, EXPORT_CHOOSER]).toEqual([
+    expect([HELP_MODAL, RESOURCE_LIST, IMPORT_REPORT, EXPORT_CHOOSER]).toEqual([
       'Help Modal',
-      'Resource Roster',
+      'Resource List',
       'Import Report',
       'Export Chooser',
     ])
@@ -218,10 +218,10 @@ describe('Help Modal (U-30) -- FR-036', () => {
   })
 })
 
-describe('Resource Roster (U-49) -- FR-099', () => {
-  it('FR-099 文書が持つ担当者の一覧を出し -- every resource is listed by name', () => {
+describe('Resource List (U-49) -- FR-099', () => {
+  it('FR-099 文書が持つ担当の一覧を出し -- every resource is listed by name', () => {
     const { built } = drawn(ROSTER)
-    const roster = oneByRole(built.root(), RESOURCE_ROSTER)
+    const roster = oneByRole(built.root(), RESOURCE_LIST)
     expect(roster.textContent).toContain('Alice')
     expect(roster.textContent).toContain('Bob')
     expect(roster.textContent).toContain('Design review')
@@ -229,19 +229,19 @@ describe('Resource Roster (U-49) -- FR-099', () => {
 
   it('IF-9 画面上の点がどの UI パーツ -- a press on a resource answers the roster and that resource', () => {
     const { built, surface } = drawn(ROSTER)
-    const roster = oneByRole(built.root(), RESOURCE_ROSTER)
+    const roster = oneByRole(built.root(), RESOURCE_LIST)
     const bobText = descendants(roster).find((one) =>
       one.childNodes.some((child) => !(child instanceof FakeElement) && child.data === 'Bob'),
     ) as FakeElement
     expect(bobText).toBeDefined()
     const part = partOn(built, surface, bobText)
-    expect(part?.part).toBe(RESOURCE_ROSTER)
+    expect(part?.part).toBe(RESOURCE_LIST)
     expect(part?.resourceUid).toBe(8)
   })
 
   it('the entrances the description gives the roster are drawn on it', () => {
     const { built } = drawn(ROSTER)
-    expect(iconEntry(oneByRole(built.root(), RESOURCE_ROSTER), 'IC-80')).toBeDefined()
+    expect(iconEntry(oneByRole(built.root(), RESOURCE_LIST), 'IC-80')).toBeDefined()
   })
 })
 

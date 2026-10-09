@@ -140,7 +140,7 @@ describe('IC-100 -- the monochrome entrance', () => {
 
 const RR_6 = '閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、面の見出しの行の右端（面の右上）に置くこと（MUST）'
 
-const ROSTER = bare(verticalIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource Roster'
+const ROSTER = bare(verticalIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource List'
 
 interface HeadingRow {
   readonly row: FakeElement

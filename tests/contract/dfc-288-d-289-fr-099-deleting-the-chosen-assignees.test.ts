@@ -5,15 +5,15 @@
 // THE TWO CLAUSES, QUOTED VERBATIM (docs/spec/01-04-requirements.md:1730, :1738)
 // ---------------------------------------------------------------------------
 //
-//   消し方は、**どの割当からも参照されていない担当者をまとめて消すこと**と、
-//   **選んだ担当者を消すこと**の 2 つとすること（MUST）。
+//   消し方は、**どの割当からも参照されていない担当をまとめて消すこと**と、
+//   **選んだ担当を消すこと**の 2 つとすること（MUST）。
 //
 //   **消すことで解かれる割当があるときは、そのタスクの名前を示して確認を求めること
 //   （MUST）。件数だけを示してはならない（MUST NOT）** —— 一緒に消えるものは
 //   表 T-050 の `CD-5` が持つ。
 //
 // ⭐⭐ THE SECOND CLAUSE NAMES THE TASKS AND NOT THE RESOURCES, and 表 T-234's
-// `QN-3` says the same thing again: 「担当者を消すことで解かれる割当があるとき |
+// `QN-3` says the same thing again: 「担当を消すことで解かれる割当があるとき |
 // 挙げる —— **解かれる割当のタスクの名前**。連鎖は 表 T-050 の `CD-5` が持つ」.
 // ⛔ A question that listed the chosen assignees would be naming what the person
 // just picked, not what they are about to lose.
@@ -21,14 +21,14 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHY THIS FILE EXISTS -- THE LEDGER ROWS IT STANDS IN FOR
 // ---------------------------------------------------------------------------
-// DFC-288: 「⛔ **担当者を消す道が 1 つも繋がっていない** …… `IC-66`（選んだ担当者を
+// DFC-288: 「⛔ **担当を消す道が 1 つも繋がっていない** …… `IC-66`（選んだ担当を
 // 消す）に応える所が無い」, and its repair note: 「⭐ **何も選ばれていなければ書かず、
 // `RS-27` を告げる**（体の判断。空で書き通すと、何も言わずに「編集あり」になる）」.
-// DFC-289: 「⛔ **担当者を消す前の確認（`QN-3`）を上げる道が無い**」, repaired in the
+// DFC-289: 「⛔ **担当を消す前の確認（`QN-3`）を上げる道が無い**」, repaired in the
 // same hand -- 「⭐ **`DFC-288` と 1 つの手で入れること**」 -- which is why one file
 // holds both.
 // ⚠️ DFC-340 records a wording mismatch that is NOT this file's to fix: 「`QN-3` の
-// 文は「この担当者を削除しますか？」と**単数**だが、`IC-66` が消すのは**集合**で
+// 文は「この担当を削除しますか？」と**単数**だが、`IC-66` が消すのは**集合**で
 // ある」. ⛔ No case below asserts the sentence; they assert the ROW and the ITEMS,
 // which is what FR-099 and 表 T-234 rule on.
 //
@@ -52,7 +52,7 @@
 //   frame-loop.ts       `FrameEnvironment`, `FrameLoop`, `ScreenWiring` and the
 //                       signature `frameLoop(surface, first, env, screen?)`
 //   screen-renderer.ts  `Confirmation`, `ConfirmationItem`, `DisplayLanguage`,
-//                       `ResourceRoster`, `RosterResource`, `ScreenPart`,
+//                       `ResourceList`, `ResourceListLine`, `ScreenPart`,
 //                       `ScreenSurface`, `ScreenView`
 //   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`,
 //                       `PointerButton`, `PointerInput`, `PointerPhase`
@@ -67,19 +67,19 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   `FR-099`      the two clauses above, and 「⭐ **「どの割当からも参照されていない
-//                 担当者をまとめて消す」ことは、その全員をまとめて選ぶ操作と、選んだ
-//                 担当者を消す操作の 2 手で果たすこと（MUST）**」 -- why there is
+//                 担当をまとめて消す」ことは、その全員をまとめて選ぶ操作と、選んだ
+//                 担当を消す操作の 2 手で果たすこと（MUST）**」 -- why there is
 //                 exactly one deleting entrance and it is `IC-66`.
-//   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当者名簿を表示する」,
-//                 `IC-66` 「`Resource Roster` | — | 選んだ担当者を消す |
+//   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当リストを表示する」,
+//                 `IC-66` 「`Resource List` | — | 選んだ担当を消す |
 //                 `FR-099`（表 T-108 の `CM-42`）」, `IC-68` 「選ばれていないことを
 //                 示し、同じ入口で選ぶ」, `IC-67` 「選ばれていることを示し、同じ入口
 //                 で解く」. ⭐ The 面 column is READ, never typed -- it is the join
 //                 between an entrance and the surface a press on it is answered
 //                 as.
-//   表 T-234 QN-3 「担当者を消すことで解かれる割当があるとき | 挙げる —— 解かれる
+//   表 T-234 QN-3 「担当を消すことで解かれる割当があるとき | 挙げる —— 解かれる
 //                 割当のタスクの名前」, 正 `FR-099`.
-//   表 T-050 CD-5 「担当者（`Resource`）| **その担当者を指す割当**（`Assignment`）。
+//   表 T-050 CD-5 「担当（`Resource`）| **その担当を指す割当**（`Assignment`）。
 //                 ⚠️ **タスクは消えない** —— 担当が外れるだけである」 -- the chain,
 //                 and the reason a case counts the Tasks afterwards.
 //   表 T-037 NT-7 「**続けてよいかを問うとき** | **何が起きるかを示したうえで、続ける
@@ -153,7 +153,7 @@ const REQUIREMENTS = unbroken(readFileSync(
  * hold nothing at all.
  */
 const FR_099_TWO_WAYS_OF_DELETING =
-  'を出し、そこから担当者を消せるようにすること。**入口はコマンドパレットとすること（MUST）。** 消し方は、**どの割当からも参照されていない担当者をまとめて消すこと**と、**選んだ担当者を消すこと**の 2 つとすること（MUST）'
+  'を出し、そこから担当を消せるようにすること。**入口はコマンドパレットとすること（MUST）。** 消し方は、**どの割当からも参照されていない担当をまとめて消すこと**と、**選んだ担当を消すこと**の 2 つとすること（MUST）'
 
 /**
  * ⚠️ THESE TWO STOP SHORT OF THE PARAGRAPH BREAK. Their 120- and 90-character
@@ -168,7 +168,7 @@ const FR_099_NOT_A_COUNT =
   'る割当があるときは、そのタスクの名前を示して確認を求めること（MUST）。件数だけを示してはならない（MUST NOT）'
 
 /** FR-099's own reason there is exactly one deleting entrance. */
-const FR_099_ONE_ENTRANCE = '選んだ担当者を消す操作の 2 手で果たすこと（MUST）'
+const FR_099_ONE_ENTRANCE = '選んだ担当を消す操作の 2 手で果たすこと（MUST）'
 
 const T_109: SpecTable = specTable('T-109')
 const T_234: SpecTable = specTable('T-234')
@@ -539,9 +539,9 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
   it('表 T-109 still puts IC-62 on the palette and IC-66 / IC-68 on the roster', () => {
     // ⭐ THE JOIN EVERY PRESS BELOW IS AIMED BY, read rather than typed.
     expect(surfaceOf('IC-62')).toBe('Command Palette')
-    expect(surfaceOf('IC-66')).toBe('Resource Roster')
-    expect(surfaceOf('IC-68')).toBe('Resource Roster')
-    expect(rowOf(T_109, 'IC-66').cells.join(' ')).toContain('選んだ担当者を消す')
+    expect(surfaceOf('IC-66')).toBe('Resource List')
+    expect(surfaceOf('IC-68')).toBe('Resource List')
+    expect(rowOf(T_109, 'IC-66').cells.join(' ')).toContain('選んだ担当を消す')
     expect(rowOf(T_109, 'IC-68').cells.join(' ')).toContain('同じ入口で選ぶ')
   })
 
@@ -557,12 +557,12 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
   })
 
   it('the roster opens at all', async () => {
-    // ⛔ THE ROAD EVERY CASE BELOW WALKS. `IC-62` 「担当者名簿を表示する」.
+    // ⛔ THE ROAD EVERY CASE BELOW WALKS. `IC-62` 「担当リストを表示する」.
     const built = stage()
     built.take('IC-62')
 
     const roster = rosterOf(built.view())
-    expect(roster, '表 T-109 IC-62 did not open the Resource Roster').not.toBeNull()
+    expect(roster, '表 T-109 IC-62 did not open the Resource List').not.toBeNull()
     expect(
       (roster.resources as { uid: number }[]).map((one) => one.uid).sort((a, b) => a - b),
     ).toEqual([ANNA, BORIS])
@@ -570,7 +570,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 5. DFC-288 -- 「**選んだ担当者を消すこと**の 2 つとすること（MUST）」
+// 5. DFC-288 -- 「**選んだ担当を消すこと**の 2 つとすること（MUST）」
 // ===========================================================================
 
 describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
@@ -612,7 +612,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
 
   it('⭐ the control: the assignee NOT chosen stays, with its assignment', () => {
     // ⛔ WITHOUT THIS, A BUILD THAT EMPTIED THE WHOLE ROSTER WOULD PASS the case
-    // above. FR-099's second way is 「**選んだ**担当者を消すこと」.
+    // above. FR-099's second way is 「**選んだ**担当を消すこと」.
     const built = rosterWith([BORIS])
     built.take('IC-66')
     built.send(answerKeyFor(PROCEED))
@@ -660,7 +660,7 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
 
   it('⛔ and NOT one item per assignee', () => {
     // ⛔⛔ THE MISTAKE THE ROW WARNS AGAINST IN AS MANY WORDS: DFC-289 「`QN-3` が挙げる
-    // のはタスクであって担当者ではない」. ANNA is one assignee across three tasks,
+    // のはタスクであって担当ではない」. ANNA is one assignee across three tasks,
     // so a question that listed the chosen assignees would carry ONE item with
     // her name in it.
     const built = rosterWith([ANNA])

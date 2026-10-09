@@ -950,8 +950,8 @@
   {
    "rowId": "IC-143",
    "label": {
-    "ja": "チェックしたものだけ表示",
-    "en": "Show only checked"
+    "ja": "スケジュールフィルタ",
+    "en": "Schedule Filter"
    },
    "hint": {
     "ja": "[表示] の列でチェックしたタスクだけを日程表に描く・すべて描くに戻す",
@@ -994,11 +994,11 @@
   {
    "rowId": "IC-122",
    "label": {
-    "ja": "絞り込み",
+    "ja": "フィルタ",
     "en": "Filter"
    },
    "hint": {
-    "ja": "この列の絞り込みと並べ替えを開く",
+    "ja": "この列のフィルタと並べ替えを開く",
     "en": "Open this column's filter and sort"
    }
   },
@@ -1027,23 +1027,23 @@
   {
    "rowId": "IC-125",
    "label": {
-    "ja": "すべて表示",
-    "en": "Show All"
+    "ja": "すべてチェック",
+    "en": "Check All"
    },
    "hint": {
-    "ja": "値の一覧のすべてを表示に入れる",
-    "en": "Show every value in the list"
+    "ja": "一覧に出ているすべての値にチェックを付ける",
+    "en": "Check every value shown in the list"
    }
   },
   {
    "rowId": "IC-126",
    "label": {
-    "ja": "すべて外す",
-    "en": "Clear All"
+    "ja": "チェックをすべて外す",
+    "en": "Uncheck All"
    },
    "hint": {
-    "ja": "値の一覧のすべてを表示から外す",
-    "en": "Hide every value in the list"
+    "ja": "一覧に出ているすべての値のチェックを外す",
+    "en": "Uncheck every value shown in the list"
    }
   },
   {
@@ -1082,11 +1082,11 @@
   {
    "rowId": "IC-62",
    "label": {
-    "ja": "担当者名簿",
-    "en": "Resource Roster"
+    "ja": "担当リスト",
+    "en": "Resource List"
    },
    "hint": {
-    "ja": "文書が持つ担当者の一覧を表示する",
+    "ja": "文書が持つ担当の一覧を表示する",
     "en": "Show the list of resources the document holds"
    }
   },
@@ -1108,8 +1108,8 @@
     "en": "Select all"
    },
    "hint": {
-    "ja": "名簿のすべての担当者を選ぶ",
-    "en": "Select every resource in the Resource Roster"
+    "ja": "リストのすべての担当を選ぶ",
+    "en": "Select every resource in the Resource List"
    }
   },
   {
@@ -1119,8 +1119,8 @@
     "en": "Deselect all"
    },
    "hint": {
-    "ja": "名簿の選択をすべて解く",
-    "en": "Deselect every resource in the Resource Roster"
+    "ja": "リストの選択をすべて解く",
+    "en": "Deselect every resource in the Resource List"
    }
   },
   {
@@ -1130,7 +1130,7 @@
     "en": "Select unreferenced"
    },
    "hint": {
-    "ja": "どの割当からも参照されていない担当者を選ぶ",
+    "ja": "どの割当からも参照されていない担当を選ぶ",
     "en": "Select the resources no Assignment refers to"
    }
   },
@@ -1141,7 +1141,7 @@
     "en": "Delete"
    },
    "hint": {
-    "ja": "選んだ担当者を削除する。割当が解かれるタスクの名前を問いが示す",
+    "ja": "選んだ担当を削除する。割当が解かれるタスクの名前を問いが示す",
     "en": "Delete the selected resources; the question names the tasks whose Assignment would be released"
    }
   },
@@ -1152,7 +1152,7 @@
     "en": "Selected"
    },
    "hint": {
-    "ja": "この担当者は選ばれている。押すと解く",
+    "ja": "この担当は選ばれている。押すと解く",
     "en": "This resource is selected; press to deselect it"
    }
   },
@@ -1163,7 +1163,7 @@
     "en": "Not selected"
    },
    "hint": {
-    "ja": "この担当者は選ばれていない。押すと選ぶ",
+    "ja": "この担当は選ばれていない。押すと選ぶ",
     "en": "This resource is not selected; press to select it"
    }
   },
@@ -1388,7 +1388,7 @@
   {
    "rowId": "PR-16",
    "label": {
-    "ja": "担当者",
+    "ja": "担当",
     "en": "assignee"
    }
   },
@@ -2991,10 +2991,10 @@
    }
   },
   {
-   "name": "Resource Roster",
+   "name": "Resource List",
    "heading": {
-    "ja": "担当者名簿",
-    "en": "Resource Roster"
+    "ja": "担当リスト",
+    "en": "Resource List"
    }
   },
   {
@@ -3755,7 +3755,7 @@
   {
    "rowId": "RS-49",
    "text": {
-    "ja": "担当者の名前を変えました。この担当者が付いているタスクの表示が変わります",
+    "ja": "担当の名前を変えました。この担当が付いているタスクの表示が変わります",
     "en": "The assignee has been renamed, and every task they are on now shows the new name"
    },
    "nextStep": {
@@ -3865,7 +3865,7 @@
   {
    "rowId": "RS-82",
    "text": {
-    "ja": "操作の相手（タスク・タスクグループ・担当者）が、もう文書にないので、行っていません",
+    "ja": "操作の相手（タスク・タスクグループ・担当）が、もう文書にないので、行っていません",
     "en": "What this change points at (a task, task group or assignee) is no longer in the document, so it was not made"
    },
    "nextStep": {
@@ -4389,7 +4389,7 @@
   {
    "rowId": "QN-3",
    "text": {
-    "ja": "選んでいる担当者を削除しますか？ 下のタスクの割り当てが外れます",
+    "ja": "選んでいる担当を削除しますか？ 下のタスクの割り当てが外れます",
     "en": "Delete the selected resources? They will be unassigned from the tasks below"
    }
   },
@@ -4752,7 +4752,7 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
+    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
     "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
@@ -5355,7 +5355,7 @@
   {
    "rowId": "SQ-2",
    "text": {
-    "ja": "担当者名",
+    "ja": "担当名",
     "en": "Assignees"
    }
   },
@@ -5705,7 +5705,7 @@
   {
    "part": "filter",
    "text": {
-    "ja": "絞り込み",
+    "ja": "フィルタ",
     "en": "Filter"
    }
   },

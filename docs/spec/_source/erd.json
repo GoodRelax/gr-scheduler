@@ -2117,7 +2117,7 @@
    "seat": 9,
    "name": "Resource",
    "description": {
-    "ja": "担当者 1 人（または 1 つの資源）",
+    "ja": "担当 1 人（または 1 つの資源）",
     "en": "One person to assign work to, or one resource."
    },
    "export": true,
@@ -2137,7 +2137,7 @@
      "origin": "Own",
      "exchange": "Resource/UID",
      "meaning": {
-      "ja": "担当者の識別子"
+      "ja": "担当の識別子"
      }
     },
     {
@@ -2153,7 +2153,7 @@
      "origin": "Own",
      "exchange": "Resource/Name",
      "meaning": {
-      "ja": "担当者名"
+      "ja": "担当名"
      }
     },
     {
@@ -2204,7 +2204,7 @@
      "origin": "Consume",
      "exchange": "Resource/CalendarUID",
      "meaning": {
-      "ja": "交換相手の担当者ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
+      "ja": "交換相手の担当ごとの暦。稼働日の数え上げには使わない（`FR-054`）"
      },
      "schemaNote": {
       "en": "As Task.calendarUid."
@@ -2255,7 +2255,7 @@
    "seat": 10,
    "name": "Assignment",
    "description": {
-    "ja": "どの担当者がどのタスクに就くか",
+    "ja": "どの担当がどのタスクに就くか",
     "en": "Which person is on which task."
    },
    "export": true,
@@ -2307,7 +2307,7 @@
      "origin": "Consume",
      "exchange": "Assignment/ResourceUID",
      "meaning": {
-      "ja": "就く担当者"
+      "ja": "就く担当"
      }
     },
     {
@@ -3412,7 +3412,7 @@
    "child": "Calendar",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "交換相手の担当者ごとの暦（`calendarUid`）"
+    "ja": "交換相手の担当ごとの暦（`calendarUid`）"
    },
    "fromColumn": "calendarUid",
    "toColumn": "uid"
@@ -3473,7 +3473,7 @@
    "child": "Resource",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "就く担当者（`resourceUid`）"
+    "ja": "就く担当（`resourceUid`）"
    },
    "fromColumn": "resourceUid",
    "toColumn": "uid"

@@ -29,7 +29,7 @@
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
 | RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウインドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-16 | `Esc` | 開いているウインドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列の絞り込みが開いていれば絞り込みだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField` |
+| RG-16 | `Esc` | 開いているウインドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウインドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウインドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウインドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `dialogueField` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウインドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
@@ -754,7 +754,7 @@ stateDiagram-v2
 | `fileFlow/openChoiceAnswered` | 入力（`U-56` の 3 つの入口）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `OP-3` | `openChoice`（`OP-3`。置き換え ／ 合流 ／ 重ね） ／ `question`（`QN-5`。置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/mergeMappingAnswered` | 入力（`U-61` の 3 つの入口）: `IC-95` ・ `IC-96` ・ `IC-97` ・ `FR-022` | `mergeMapping`（`MM-1` ・ `MM-2` ・ `MM-4`） | `fileOperationStateMachine` |
 | `fileFlow/confirmationAnswered` | 入力（`Yes` / `No`、`y` / `n`、`Esc`）: `NT-7` ・ `IN-4` | `isProceeding`（`NT-7`。`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
-| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当者の削除）: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
+| `fileFlow/changeQuestionRaised` | 入力（確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当の削除）: `FR-032` ・ `FR-099` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10` ・ `IC-66` ・ `IC-106` ・ `HF-20` | `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-10`） ／ `owedAction`（「続ける」で行う書き込みの束） | `confirmationStateMachine` |
 | `fileFlow/newDocumentEntryPressed` | 入力（新しく始める入口・`N`）: `IC-98` ・ `SK-25` ・ `FR-095` | `question`（`QN-5`。いまの文書を捨てる問い。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/grsResetEntryPressed` | 入力（GRS リセットの入口）: `IC-139` ・ `FR-153` | `question`（`QN-11`。GRS をリセットする問い。挙げる名前は、未保存の編集があるときだけ、いまの文書。呼び手が詰める） | `confirmationStateMachine` |
 | `fileFlow/flowSurfaceClosed` | ほかの領域の結果（画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた）: `IC-52` ・ `IN-4` | `surfaceName`（`U-56` ・ `U-61` ・ `U-62`） | 根 ・ `fileOperationStateMachine` |
@@ -1029,7 +1029,7 @@ stateDiagram-v2
 | `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
 | `selection/taskGroupsPicked` | 入力（タスクグループパネルでタスクグループを選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenTaskGroups` | 根 |
 | `selection/createdTaskGroupSelected` | 副作用の結果（タスクグループを足す書き込みが着地し、足したタスクグループが文書に在る）: `HF-14` | `createdGroupId` | 根 |
-| `selection/resourcesPicked` | 入力（担当者の一覧で選ぶ・すべて選ぶ・すべて解く・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
+| `selection/resourcesPicked` | 入力（担当リストで選ぶ・すべて選ぶ・すべて解く・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
 | `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |
 
 ### 根 `selection` の値
@@ -1218,7 +1218,7 @@ stateDiagram-v2
 | `taskGroupTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
 | `taskGroupTree/everyTaskGroupDeletePressed` | 入力（頭のすべてのタスクグループを消す操作子を押し、問い（`QN-10`）に消すと答えた）: `IC-106` ・ `HF-20` | — | 根 |
 | `taskGroupTree/verticalZoomShrinkPressed` | 入力（縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
-| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、表示の絞り込みに入る・絞り込みのあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
+| `taskGroupTree/taskGroupRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、スケジュールフィルタを掛ける・スケジュールフィルタを掛けているあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`））: `SJ-1` ・ `AM-16` ・ `EL-21` ・ `TV-6` | `revealedRowId`（飛ぶ先のタスクグループの id） | 根 ・ `treeStateMachine` |
 
 ### 根 `taskGroupTree` の値
 

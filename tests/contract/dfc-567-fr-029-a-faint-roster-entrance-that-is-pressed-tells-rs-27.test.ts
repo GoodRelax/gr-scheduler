@@ -1,4 +1,4 @@
-// DFC-567 part 4 spec-only cases: FR-029 -- a Resource Roster entrance (IC-63, IC-64, IC-65) that would change nothing is drawn faint, and a press on it tells RS-27 (T-233 holds no roster row) and changes no choice; a pressable one tells nothing.
+// DFC-567 part 4 spec-only cases: FR-029 -- a Resource List entrance (IC-63, IC-64, IC-65) that would change nothing is drawn faint, and a press on it tells RS-27 (T-233 holds no roster row) and changes no choice; a pressable one tells nothing.
 
 import { describe, expect, it } from 'vitest'
 
@@ -18,7 +18,7 @@ const SELECT_ALL = 'IC-63'
 const CLEAR_ALL = 'IC-64'
 const SELECT_UNREFERENCED = 'IC-65'
 const FALLBACK = 'RS-27'
-const ROSTER = 'Resource Roster'
+const ROSTER = 'Resource List'
 
 const ADA = 11
 const BOB = 12
@@ -31,10 +31,10 @@ const adaAndBob = () =>
     assignments: [seatOf(21, 1, ADA)],
   })
 
-const rosterOf = (view: ScreenView): Extract<OpenModal, { surface: 'Resource Roster' }> => {
+const rosterOf = (view: ScreenView): Extract<OpenModal, { surface: 'Resource List' }> => {
   const modal = view.openModal as { surface?: string } | null
-  if (modal === null || modal.surface !== ROSTER) throw new Error('the Resource Roster is not standing')
-  return modal as Extract<OpenModal, { surface: 'Resource Roster' }>
+  if (modal === null || modal.surface !== ROSTER) throw new Error('the Resource List is not standing')
+  return modal as Extract<OpenModal, { surface: 'Resource List' }>
 }
 const chosenUids = (built: PaletteStage): readonly number[] =>
   rosterOf(built.last()).resources.filter((one) => one.isSelected).map((one) => one.uid)
@@ -61,7 +61,7 @@ describe('DFC-567 -- the manuscript these cases are driven by', () => {
   })
 
   it('T-233 holds no row whose situation is the roster, so the fallback is the reason', () => {
-    const rows = specTable('T-233').rows.filter((one) => /名簿/.test(one.cells.join(' ')) && one.id !== FALLBACK)
+    const rows = specTable('T-233').rows.filter((one) => /担当リスト/.test(one.cells.join(' ')) && one.id !== FALLBACK)
     expect(rows.map((one) => one.id)).toEqual([])
   })
 })

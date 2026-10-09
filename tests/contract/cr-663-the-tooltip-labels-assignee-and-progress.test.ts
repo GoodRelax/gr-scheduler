@@ -22,7 +22,7 @@ import { day, taskOf } from '../unit/cr-430-cross-section-scene'
 type Language = 'ja' | 'en'
 
 const TL_7_ONE_LINE =
-  '担当の語、`:`、半角空白 1 つ、名前の並び の順に、担当者が何人でも 1 行で書くこと（MUST）'
+  '担当の語、`:`、半角空白 1 つ、名前の並び の順に、担当が何人でも 1 行で書くこと（MUST）'
 const TL_7_THE_WORD =
   '担当の語は、遅延診断レポートの担当の欄の見出しと同じ語（`FR-038` の辞書の `delayReportColumns` の `DT-2` の語）とすること（MUST）'
 const TL_7_THE_ORDER =

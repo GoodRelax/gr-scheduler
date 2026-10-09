@@ -23,14 +23,14 @@ const IN_4_ORDER =
 const IN_4_QUESTION_THEN_SURFACE =
   '⭐ 開いている面の段では、問いが先、立っている面が後である —— 手前のものから閉じる（`FR-152` の 表 T-337）。'
 const IN_4_SEARCH_PANEL_RUNG =
-  '⭐ 閉じる番の検索パネル（`FR-151`）は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+  '⭐ 閉じる番の検索パネル（`FR-151`）は、列のフィルタが開いていればフィルタだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
 const IN_4_ONE_WINDOW =
   '1 度の `Esc` で閉じるウインドウは 1 つとし、焦点がその中にあるウインドウを先に、ほかは `FR-152` の 表 T-337 の手前のものから閉じること（MUST）。'
 const IN_4_FOCUS_OUTSIDE =
   '⛔ 焦点がウインドウの外にあることを理由に、開いているウインドウを段から外してはならない（MUST NOT）'
 const IN_4_PANEL_FOCUS_FIRST =
   '⭐ ただし焦点がプロパティパネル（`FR-006`）の中にあるあいだは、開いているウインドウはこの段に立たず、プロパティパネルの段が先に受けること（MUST）'
-const SV_14_FILTER_FIRST = '列の絞り込みが開いていれば、`Esc` はまず絞り込みだけを閉じ、次の `Esc` でパネルを閉じる。'
+const SV_14_FILTER_FIRST = '列のフィルタが開いていれば、`Esc` はまずフィルタだけを閉じ、次の `Esc` でパネルを閉じる。'
 const IN_4_SELECTION_AFTER_ARM = '⭐ **選択は構えの次に置く** —— ⛔ **構えより前に置いてはならない（MUST NOT）'
 const NT_8_FIRST = '⛔ この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）'
 const NT_8_NOTHING_TO_CLEAR = '⛔ 消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならない（MUST NOT）'

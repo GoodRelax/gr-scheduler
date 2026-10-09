@@ -409,12 +409,12 @@ export interface HelpEntry {
   readonly glyphs: readonly IconId[]
 }
 
-export interface ResourceRoster extends OpenSurface {
-  readonly surface: 'Resource Roster'
-  readonly resources: readonly RosterResource[]
+export interface ResourceList extends OpenSurface {
+  readonly surface: 'Resource List'
+  readonly resources: readonly ResourceListLine[]
 }
 
-export interface RosterResource {
+export interface ResourceListLine {
   readonly uid: number
   readonly name: string | null
   readonly isReferenced: boolean
@@ -438,7 +438,7 @@ export interface ExportChooser extends OpenSurface {
 // @provisional PND-140
 export type OpenModal =
   | HelpModal
-  | ResourceRoster
+  | ResourceList
   | ExportChooser
   | OpenChooser
   | (OpenSurface & {

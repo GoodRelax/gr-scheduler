@@ -39,7 +39,7 @@ const wordOf = (part: string, language: DisplayLanguage): string => {
 
 // WHY: the task table's date columns and the comment box table's, as table T-331 lists them.
 const DATE_COLUMNS = specTable('T-331')
-  .rows.filter((row) => (row.by['絞り込み'] ?? '').includes('いつから'))
+  .rows.filter((row) => (row.by['フィルタ'] ?? '').includes('いつから'))
   .map((row) => [row.id, row.by['表'] === 'コメントボックス' ? 'commentBoxes' : 'tasks'] as const)
 
 const TEMPLATE = JSON.parse(

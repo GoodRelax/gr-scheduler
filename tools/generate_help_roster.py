@@ -31,7 +31,7 @@ THE LAYOUT IS FR-036'S OWN:
     must equal S-202 (MUST);
   - CR-635 (MUST NOT): the rows of table T-109 whose surfaces are only
     `Search Panel`, `Delay Diagnostics Report`, `Properties Panel`,
-    `Resource Roster`, `Holiday Settings`, `Dialogue Field`, `Open Chooser`
+    `Resource List`, `Holiday Settings`, `Dialogue Field`, `Open Chooser`
     or `Difference Review` (with or without `Help Modal`; CR-665 added the
     last two), and IC-52, IC-53 and IC-75, are left off the help -- the
     icons any other tool already teaches. CR-637 (MUST): an assignment
@@ -137,7 +137,7 @@ SURFACE_BLOCKS = (TASK_GROUP_PANEL, APP_HEADER, COMMAND_PALETTE, PALETTE_CONTINU
 # rows named on their own. CR-665 added Open Chooser and Difference Review:
 # the user dropped the open detail to fit the help on one screen (JDG-1391).
 LEFT_OUT_SURFACES = ('Search Panel', 'Delay Diagnostics Report', 'Properties Panel',
-                     'Resource Roster', 'Holiday Settings', 'Dialogue Field',
+                     'Resource List', 'Holiday Settings', 'Dialogue Field',
                      'Open Chooser', 'Difference Review')
 LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 

@@ -776,12 +776,12 @@ export const ENTRY = {
   taskGroupPin: 'IC-60',
   taskGroupDelete: 'IC-82',
   taskGroupDeleteAll: 'IC-106',
-  resourceRoster: 'IC-62',
-  rosterChooseAll: 'IC-63',
-  rosterClearChosen: 'IC-64',
-  rosterChooseUnreferenced: 'IC-65',
-  rosterChosen: 'IC-67',
-  rosterUnchosen: 'IC-68',
+  resourceList: 'IC-62',
+  resourceListChooseAll: 'IC-63',
+  resourceListClearChosen: 'IC-64',
+  resourceListChooseUnreferenced: 'IC-65',
+  resourceListChosen: 'IC-67',
+  resourceListUnchosen: 'IC-68',
   search: 'IC-117',
   windowMinimise: 'IC-129',
   windowMaximise: 'IC-130',
@@ -1210,12 +1210,12 @@ function commandFromEntry(
       return acted({ kind: 'toggleDialogueFieldVisible' })
     case ENTRY.imageToJsonPrompt:
       return acted({ kind: 'copyImageToJsonPrompt' })
-    case ENTRY.rosterChooseAll:
-    case ENTRY.rosterClearChosen:
-    case ENTRY.rosterChooseUnreferenced:
-      return rosterChoiceCommand(entry, context)
-    case ENTRY.rosterChosen:
-    case ENTRY.rosterUnchosen: {
+    case ENTRY.resourceListChooseAll:
+    case ENTRY.resourceListClearChosen:
+    case ENTRY.resourceListChooseUnreferenced:
+      return resourceListChoiceCommand(entry, context)
+    case ENTRY.resourceListChosen:
+    case ENTRY.resourceListUnchosen: {
       if (on.resourceUid === null) return CONSUMED_ELSEWHERE
       return acted({ kind: 'toggleChosenResource', uid: on.resourceUid })
     }
@@ -1235,20 +1235,20 @@ function commandFromVisibleElement(element: VisibleElement, context: InputContex
 // see FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
 // WHY: a press that leaves the choice as it is, or finds no assignee to choose, changes nothing (FR-029).
 /** @purity pure */
-function rosterChoiceCommand(entry: string, context: InputContext): TranslatedInput {
+function resourceListChoiceCommand(entry: string, context: InputContext): TranslatedInput {
   const schedule = context.document.schedule
-  const uids = rosterChoiceOfEntry(entry, schedule)
+  const uids = resourceListChoiceOfEntry(entry, schedule)
   const listed = new Set(schedule.resources.map((one) => one.uid))
   const chosen = new Set((context.chosenResources ?? []).filter((uid) => listed.has(uid)))
   const isSameChoice = uids.length === chosen.size && uids.every((uid) => chosen.has(uid))
-  const isIdle = entry === ENTRY.rosterClearChosen ? chosen.size === 0 : uids.length === 0 || isSameChoice
+  const isIdle = entry === ENTRY.resourceListClearChosen ? chosen.size === 0 : uids.length === 0 || isSameChoice
   return isIdle ? nothingToDo(null) : acted({ kind: 'chooseResources', uids })
 }
 
 /** @purity pure */
-function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
-  if (entry === ENTRY.rosterClearChosen) return []
-  if (entry === ENTRY.rosterChooseAll) return schedule.resources.map((one) => one.uid)
+function resourceListChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
+  if (entry === ENTRY.resourceListClearChosen) return []
+  if (entry === ENTRY.resourceListChooseAll) return schedule.resources.map((one) => one.uid)
   const referred = new Set<number>()
   for (const assignment of schedule.assignments) {
     if (assignment.resourceUid !== null) referred.add(assignment.resourceUid)

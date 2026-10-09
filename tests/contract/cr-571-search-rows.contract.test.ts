@@ -27,13 +27,13 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const FR_151_STATEMENT =
-  '作成者が語を打ったとき、`GRS` は、名前・担当者名・コメントボックスの本文にその語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べ'
+  '作成者が語を打ったとき、`GRS` は、名前・担当名・コメントボックスの本文にその語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べ'
 const FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES =
-  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT） —— タスクグループ名は 表 T-331 の `SQ-6` の絞り込みで届く。'
+  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT） —— タスクグループ名は 表 T-331 の `SQ-6` のフィルタで届く。'
 
 const SV_4 = cellOf('T-330', 'SV-4', '定め')
 const SV_4_WHERE =
-  '語が、タスクの表では名前（`SQ-1`）か担当者名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
+  '語が、タスクの表では名前（`SQ-1`）か担当名のどれか 1 つ（`SQ-2`）、コメントボックスの表では本文（`SQ-7`）の一部と一致する行を載せる。'
 const SV_4_FOLD = '比べる前に両方を `NFKC` で正規化し、大文字と小文字を畳む —— 全角と半角、大文字と小文字を区別しない。'
 const SV_4_KANA =
   'ひらがなとカタカナは区別する（例: 語「ｐｍ」は「PM レビュー」に当たり、語「れびゅー」は「レビュー」に当たらない）。'

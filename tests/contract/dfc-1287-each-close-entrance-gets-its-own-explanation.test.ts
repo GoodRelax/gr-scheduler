@@ -117,7 +117,7 @@ function bothStanding() {
 }
 
 describe('IN-3 / UZ-7 / UZ-13 (MUST): the explanation of IC-52 is anchored to the surface the pointer is on (DFC-1287)', () => {
-  it('premise: the Help and the Resource Roster stand together, each with its own IC-52', () => {
+  it('premise: the Help and the Resource List stand together, each with its own IC-52', () => {
     const { built, view } = bothStanding()
     expect(view.helpModal, 'UZ-7: the Help stays when another surface opens').not.toBeNull()
     expect(view.openModal, 'UZ-13: the roster stands').not.toBeNull()

@@ -783,7 +783,7 @@
    "rowId": "IC-52",
    "surfaces": [
     "Help Modal",
-    "Resource Roster",
+    "Resource List",
     "Export Chooser",
     "Open Chooser",
     "Properties Panel",
@@ -969,7 +969,7 @@
     "Search Panel"
    ],
    "group": null,
-   "entryTo": "表示の絞り込み（[表示] の列でチェックしたタスクだけを日程表に描くこと）に入り、同じ入口で終える（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`）",
+   "entryTo": "スケジュールフィルタ（[表示] の列でチェックしたタスクだけを日程表に描くこと）を掛け、同じ入口で解除する（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`）",
    "authority": "`FR-151` の 表 T-353",
    "arms": null,
    "armsShape": null
@@ -1022,7 +1022,7 @@
     "Search Panel"
    ],
    "group": null,
-   "entryTo": "列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ）",
+   "entryTo": "列のフィルタと並べ替えを開く（列の見出しごとに 1 つ）",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -1034,7 +1034,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "entryTo": "その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
    "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
@@ -1046,7 +1046,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
+   "entryTo": "その列で降順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`）",
    "authority": "`FR-151` ・ `FR-008`",
    "arms": null,
    "armsShape": null
@@ -1057,7 +1057,7 @@
     "Search Panel"
    ],
    "group": null,
-   "entryTo": "値の一覧のすべてを表示に入れる",
+   "entryTo": "一覧に出ているすべての値にチェックを付ける",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -1068,7 +1068,7 @@
     "Search Panel"
    ],
    "group": null,
-   "entryTo": "値の一覧のすべてを表示から外す",
+   "entryTo": "一覧に出ているすべての値のチェックを外す",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -1113,7 +1113,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当者名簿を表示する",
+   "entryTo": "担当リストを表示する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1132,7 +1132,7 @@
   {
    "rowId": "IC-63",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
    "entryTo": "一覧のすべてを選ぶ",
@@ -1143,7 +1143,7 @@
   {
    "rowId": "IC-64",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
    "entryTo": "一覧の選択をすべて解く",
@@ -1154,10 +1154,10 @@
   {
    "rowId": "IC-65",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
-   "entryTo": "どの割当からも参照されていない担当者を選ぶ",
+   "entryTo": "どの割当からも参照されていない担当を選ぶ",
    "authority": "`FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）",
    "arms": null,
    "armsShape": null
@@ -1165,10 +1165,10 @@
   {
    "rowId": "IC-66",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
-   "entryTo": "選んだ担当者を消す",
+   "entryTo": "選んだ担当を消す",
    "authority": "`FR-099`（表 T-108 の `CM-42`）",
    "arms": null,
    "armsShape": null
@@ -1176,7 +1176,7 @@
   {
    "rowId": "IC-67",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
    "entryTo": "選ばれていることを示し、同じ入口で解く",
@@ -1187,7 +1187,7 @@
   {
    "rowId": "IC-68",
    "surfaces": [
-    "Resource Roster"
+    "Resource List"
    ],
    "group": null,
    "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",

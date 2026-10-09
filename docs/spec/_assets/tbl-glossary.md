@@ -34,8 +34,8 @@
 | N-7 | `carry` / `carryElements` | 取り込んだ交換形式の項目を、解釈せずにそのまま持ち回るための入れ物 |
 | N-8 | `Project` | プロジェクト。<br>文書が表す 1 件 |
 | N-9 | `Calendar` | 暦 |
-| N-10 | `Resource` | 担当者。<br>⚠️ 「資源」という日本語は、範囲の記述（表 T-002 の `SO-8` / `SO-9`）と外部通信（表 T-003 の `CN-6`）では別の意味である |
-| N-11 | `Assignment` | 割当。<br>どの担当者がどのタスクに就くか |
+| N-10 | `Resource` | 担当。<br>⚠️ 「資源」という日本語は、範囲の記述（表 T-002 の `SO-8` / `SO-9`）と外部通信（表 T-003 の `CN-6`）では別の意味である |
+| N-11 | `Assignment` | 割当。<br>どの担当がどのタスクに就くか |
 | N-12 | `Dependency` | 依存。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である |
 | N-13 | `TaskVisual` | タスクの見せ方。<br>形・色・名前の置き方 |
 | N-14 | `TaskOrigin` | 取り込み元の記録 |
@@ -110,7 +110,7 @@
 | U-27 | `Document Title` | 文書名。<br>MSPDI の `Project/Title` に対応する。<br>⚠️ **「表題」「題名」と呼んではならない（MUST NOT）** —— 同じ値を指す |
 | U-30 | `Help Modal` | ヘルプ |
 | U-31 | `App Header` | ヘッダー |
-| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウインドウの下の端までの、ウインドウの全幅とする —— 表示の絞り込みの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-337 の `UZ-9`、表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウインドウの左上の角 (0, 0) からウインドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
+| U-32 | `Schedule Canvas` | （画面に出ない構造名。<br>日本語を当てない）。<br>範囲は、`App Header`（`U-31`）の下の縁からウインドウの下の端までの、ウインドウの全幅とする —— スケジュールフィルタの帯（`U-67`）が出ているあいだは、その帯の下の縁から（`01-04-requirements.md` の 表 T-353 の `TV-11`）。<br>利用者が見て押すのはこの範囲であり、仕様が `Schedule Canvas` の全体・中・角と書くときもこの範囲を指す（同書の 表 T-337 の `UZ-9`、表 T-335 の `WB-3` ほか）。<br>⚠️ ページの中で `data-role` に `Schedule Canvas` を持つ要素は、ウインドウの左上の角 (0, 0) からウインドウ全体を覆う描画の層であり、`App Header` の帯の上も含む —— 範囲とは別である（利用者が定めた）。<br>⛔ `Schedule Canvas` の範囲を、`data-role` に `Schedule Canvas` を持つ要素の箱から読んではならない（MUST NOT） —— 範囲は `App Header` の下の縁から測る |
 | U-33 | `Canvas Overlays` | （同上） |
 | U-34 | `Palette Groups` / `Palette Commands` | （同上） |
 | U-35 | `Header Commands` / `Branding` | （同上）。<br>`Branding` は `App Header` の左端に置く製品の略称の字であり、規則は `01-04-requirements.md` の `FR-051` の 表 T-349 が持つ |
@@ -127,7 +127,7 @@
 | U-46 | `Pinned Task Group` | ピン止めしたタスクグループ。<br>縦にスクロールしても画面に残る |
 | U-47 | `Task Group Expander` | タスクグループの折り畳みの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく** |
 | U-48 | `Task Group Pin` | ピン止めの操作子。<br>置き方は `FR-098` |
-| U-49 | `Resource Roster` | 担当者名簿。<br>文書が持つ担当者の一覧。<br>出し方と消し方は `FR-099` |
+| U-49 | `Resource List` | 担当リスト。<br>文書が持つ担当の一覧。<br>出し方と消し方は `FR-099` |
 | U-50 | `Task Group Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Task Groups` が並ぶ領域。<br> 左右は `Task Group Panel` と `Properties Panel` の内側 |
 | U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`） |
 | U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の群（`K-67` 〜 `K-72` / `K-110` / `K-111`）が既に使っている |
@@ -145,7 +145,7 @@
 | U-64 | `Search Panel` | 検索パネル。<br>語で探したタスクとコメントボックスを表に並べ、押すとそこへ飛ぶ、浮く UI パーツ。<br>規則は `01-04-requirements.md` の `FR-151`。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない |
 | U-65 | `Holiday Settings` | 休日の設定。<br>文書の暦（稼働する曜日・例外日）と週の始まりを直す面。<br>立てる規則は `01-04-requirements.md` の `FR-088`、欄と入口は同書の 表 T-344 |
 | U-66 | `Delay Diagnostics Report` | 遅延診断レポート。<br>遅延診断のまとめとタスクの表を出す浮く窓 —— 行を押せばその `Task` へ飛ぶ。<br>立てる規則と窓の形は `01-04-requirements.md` の `FR-134` と同書の 表 T-346 ・ 表 T-347 が持つ。<br>⚠️ 検索パネル（`U-64`）と同じく、`S-99g` が数える面には入らない |
-| U-67 | `Show Only Checked Bar` | 表示の絞り込みの帯。<br>検索パネルの [表示] の列でチェックしたタスクだけを日程表に描いているあいだ、そのことと件数を告げ、すべて表示に戻す語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのは絞り込みを終えたときだけである（`TV-8`） |
+| U-67 | `Show Only Checked Bar` | スケジュールフィルタの帯。<br>検索パネルの [表示] の列でチェックしたタスクだけを日程表に描いているあいだ、そのことと件数を告げ、すべて表示に戻す語の入口を持つ帯 —— 語の入口であってアイコンではないので、表 T-109 に行を持たない（`NT-8` の `OK` と同じ）。<br>置き方と語は `01-04-requirements.md` の 表 T-353 の `TV-11` が持つ。<br>⚠️ `Esc` で閉じる面（`tbl-settings.md` の `S-99g`）に数えない —— 帯が消えるのはスケジュールフィルタを解除したときだけである（`TV-8`） |
 
 > 呼び名は `Agent API` とする。  
 > 日本語でも `Agent API` と書く。
@@ -378,8 +378,8 @@
 | AM-4 | 読む | `readStamp` | 動詞＋目的語・`semi-pure-b` | 文書の刻印。<br>楽観ロックの照合に用いる | 表 T-035 の `AG-2` ／ `FR-063` |
 | AM-5 | 読む | `readSelection` | 動詞＋目的語・`semi-pure-b` | いま選ばれている対象。<br>選んだ順序を保つ | 表 T-023c の `SL-1` / `SL-7b` |
 | AM-6 | 読む | `readDialogueMessages` | 動詞＋目的語・`semi-pure-b` | 人が確定した発話。<br>文書には保存されない | 表 T-035 の `AG-11` ／ `FR-066` |
-| AM-25 | 読む | `readSearchRows` | 動詞＋目的語・`semi-pure-b` | 語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。<br>列の絞り込みと並べ替えは当てない。<br>パネルを読みも変えもしない | `FR-151` の 表 T-330 の `SV-4` ／ 表 T-331 |
-| AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | いまの [表示] のチェックの `uid` の並びと、表示の絞り込みのあいだかを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
+| AM-25 | 読む | `readSearchRows` | 動詞＋目的語・`semi-pure-b` | 語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。<br>列のフィルタと並べ替えは当てない。<br>パネルを読みも変えもしない | `FR-151` の 表 T-330 の `SV-4` ／ 表 T-331 |
+| AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | いまの [表示] のチェックの `uid` の並びと、スケジュールフィルタを掛けているあいだかを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
 | AM-19 | 読む | `readDelayDiagnostics` | 動詞＋目的語・`semi-pure-b` | 遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。<br>画面の値も文書も書かない | `FR-134` ／ 表 T-035 の `AG-4` |
 | AM-7 | 書く | `applyCommands` | 動詞＋目的語・`non-pure` | 一括の書き込み。<br>原子的に適用し、受理したか否かを値で返す | `FR-028` ／ 表 T-035 の `AG-3` / `AG-9a` |
 | AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | 取り込みと合流 | `FR-087` / `FR-022` ／ 表 T-032a |
@@ -391,7 +391,7 @@
 | AM-14 | 出す | `exportPng` | 動詞＋目的語・`semi-pure-b` | 画像を値で返す。<br>失敗も値で返す | 表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8` |
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
 | AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | 指定したタスクが載るタスクグループと祖先を開き、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
-| AM-27 | 見せる | `showOnlyTasks` | 動詞＋目的語・`non-pure` | `uid` の並びを受けてチェックを置き換え、表示の絞り込みに入る。<br>`null` を受けたら絞り込みを終える（チェックは残す）。<br>検索パネルが出ていなければ最小化で出してから入る —— 表示の絞り込みはパネルと一緒に生きる（`TV-8`）。<br>入ったら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る | `FR-151` の 表 T-353 の `TV-5` 〜 `TV-8` |
+| AM-27 | 見せる | `showOnlyTasks` | 動詞＋目的語・`non-pure` | `uid` の並びを受けてチェックを置き換え、スケジュールフィルタを掛ける。<br>`null` を受けたらスケジュールフィルタを解除する（チェックは残す）。<br>検索パネルが出ていなければ最小化で出してから掛ける —— スケジュールフィルタはパネルと一緒に生きる（`TV-8`）。<br>入ったら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る | `FR-151` の 表 T-353 の `TV-5` 〜 `TV-8` |
 | AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | 自分以外が確定した変更と発話を待つ | 表 T-035 の `AG-6` / `AG-11` |
 | AM-18 | 話す | `postDialogueMessage` | 動詞＋目的語・`non-pure` | AI が確定した発話を対話欄へ置く | `FR-066` ／ 表 T-035 の `AG-11` |
 
@@ -456,11 +456,11 @@
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
 | CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
 | CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ | `FR-088` |
-| CM-40 | `Resource` | `createResource` | — | 担当者を足す | `FR-008` |
-| CM-41 | `Resource` | `setResourceName` | — | 担当者の名前を変える | `FR-008` |
-| CM-42 | `Resource` | `deleteResource` | — | 選んだ担当者を消す | `FR-099` |
+| CM-40 | `Resource` | `createResource` | — | 担当を足す | `FR-008` |
+| CM-41 | `Resource` | `setResourceName` | — | 担当の名前を変える | `FR-008` |
+| CM-42 | `Resource` | `deleteResource` | — | 選んだ担当を消す | `FR-099` |
 | CM-43 | `Resource` | `deleteUnreferencedResources` | — | 未参照をまとめて消す | `FR-099` |
-| CM-44 | `Assignment` | `createAssignment` | — | 担当者を就ける | `FR-008` |
+| CM-44 | `Assignment` | `createAssignment` | — | 担当を就ける | `FR-008` |
 | CM-45 | `Assignment` | `unassignResource` | — | 割当を解く | `FR-008` |
 | CM-46 | `CommentBox` | `createCommentBox` | — | コメントボックスを置く | `FR-019` |
 | CM-47 | `CommentBox` | `deleteCommentBox` | — | コメントボックスを消す | `FR-032` |
@@ -608,7 +608,7 @@
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | `S-66`（`'single-vertical'`） | — |
 | IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — | — |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない | `FR-078` | — | — |
-| IC-52 | `Help Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Holiday Settings` / `Dialogue Field` | — | 開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる | 表 T-028 の `IN-4` | — | — |
+| IC-52 | `Help Modal` / `Resource List` / `Export Chooser` / `Open Chooser` / `Properties Panel` / `Search Panel` / `Delay Diagnostics Report` / `Holiday Settings` / `Dialogue Field` | — | 開いている面とプロパティパネルとウインドウ（`FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）を閉じる | 表 T-028 の `IN-4` | — | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。<br>**ボタンではない** | `FR-053` | — | — |
 | IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — | — |
@@ -624,26 +624,26 @@
 | IC-106 | `Task Group Panel` | — | すべてのタスクグループを削除する（タスクグループパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
 | IC-118 | `Search Panel` | — | タスクとマイルストーンの表を出す | `FR-151` | — | — |
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
-| IC-143 | `Search Panel` | — | 表示の絞り込み（[表示] の列でチェックしたタスクだけを日程表に描くこと）に入り、同じ入口で終える（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`） | `FR-151` の 表 T-353 | — | — |
+| IC-143 | `Search Panel` | — | スケジュールフィルタ（[表示] の列でチェックしたタスクだけを日程表に描くこと）を掛け、同じ入口で解除する（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`） | `FR-151` の 表 T-353 | — | — |
 | IC-129 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | ウインドウ（`FR-036` の 表 T-335）を最小化し、同じ入口で戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ 図形は `IC-75` と同じである | `FR-036` の 表 T-335 | — | — |
 | IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | ウインドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`） | `FR-036` の 表 T-335 | — | — |
 | IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Dialogue Field` | — | 最大化したウインドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
-| IC-122 | `Search Panel` | — | 列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
-| IC-123 | `Search Panel` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
-| IC-124 | `Search Panel` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当者の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
-| IC-125 | `Search Panel` | — | 値の一覧のすべてを表示に入れる | `FR-151` | — | — |
-| IC-126 | `Search Panel` | — | 値の一覧のすべてを表示から外す | `FR-151` | — | — |
+| IC-122 | `Search Panel` | — | 列のフィルタと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
+| IC-123 | `Search Panel` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
+| IC-124 | `Search Panel` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
+| IC-125 | `Search Panel` | — | 一覧に出ているすべての値にチェックを付ける | `FR-151` | — | — |
+| IC-126 | `Search Panel` | — | 一覧に出ているすべての値のチェックを外す | `FR-151` | — | — |
 | IC-127 | `Search Panel` / `Delay Diagnostics Report` | — | 表・入力欄・見出しの行の面の名の字の大きさの段（`S-429`、3 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
 | IC-140 | `Delay Diagnostics Report` | — | `.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7` | `FR-134` | — | — |
 | IC-108 | `Delay Diagnostics Report` | — | まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`） | `FR-134` | — | — |
-| IC-62 | `Command Palette` | 表示 | 担当者名簿を表示する | `FR-099` | — | — |
+| IC-62 | `Command Palette` | 表示 | 担当リストを表示する | `FR-099` | — | — |
 | IC-132 | `Command Palette` | 表示 | 休日の設定を開く（稼働する曜日・例外日・週の始まり） | `FR-088` | — | — |
-| IC-63 | `Resource Roster` | — | 一覧のすべてを選ぶ | `FR-099` | — | — |
-| IC-64 | `Resource Roster` | — | 一覧の選択をすべて解く | `FR-099` | — | — |
-| IC-65 | `Resource Roster` | — | どの割当からも参照されていない担当者を選ぶ | `FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）| — | — |
-| IC-66 | `Resource Roster` | — | 選んだ担当者を消す | `FR-099`（表 T-108 の `CM-42`）| — | — |
-| IC-67 | `Resource Roster` | — | 選ばれていることを示し、同じ入口で解く | `FR-099` | — | — |
-| IC-68 | `Resource Roster` | — | 選ばれていないことを示し、同じ入口で選ぶ | `FR-099` | — | — |
+| IC-63 | `Resource List` | — | 一覧のすべてを選ぶ | `FR-099` | — | — |
+| IC-64 | `Resource List` | — | 一覧の選択をすべて解く | `FR-099` | — | — |
+| IC-65 | `Resource List` | — | どの割当からも参照されていない担当を選ぶ | `FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）| — | — |
+| IC-66 | `Resource List` | — | 選んだ担当を消す | `FR-099`（表 T-108 の `CM-42`）| — | — |
+| IC-67 | `Resource List` | — | 選ばれていることを示し、同じ入口で解く | `FR-099` | — | — |
+| IC-68 | `Resource List` | — | 選ばれていないことを示し、同じ入口で選ぶ | `FR-099` | — | — |
 | IC-133 | `Holiday Settings` | — | その曜日を稼働日にするか休みにするかを、押すたびに切り替える | 表 T-344 の `WC-2` | — | — |
 | IC-134 | `Holiday Settings` | — | 週の始まりの曜日を選ぶ | 表 T-344 の `WC-3` | — | — |
 | IC-135 | `Holiday Settings` | — | 例外日を 1 行加える | 表 T-344 の `WC-6` | — | — |

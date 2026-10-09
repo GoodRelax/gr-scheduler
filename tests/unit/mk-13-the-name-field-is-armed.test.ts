@@ -987,7 +987,7 @@ describe('表 T-023 MK-13 -- 名称の欄を編集できる状態にして焦点
 // ===========================================================================
 //
 // ⛔⛔ WHY THIS BLOCK STANDS BESIDE THE ONES ABOVE. AS-1 asks for the same two
-// halves as MK-13's task entry -- 「プロパティパネルを出し、担当者の欄（表 T-016
+// halves as MK-13's task entry -- 「プロパティパネルを出し、担当の欄（表 T-016
 // の `PR-16`）を編集できる状態にして焦点を置くこと（MUST）」 -- but for a row whose
 // 入力の型 is 選択 rather than 文字, and 表 T-225 の `AS-5` (MUST) hangs 「ドロップ
 // ダウンと部分一致の検索」 off it. ⚠️⚠️ A row drawn only as a chooser holds no
@@ -1011,9 +1011,9 @@ const AS_1 = rowOf('T-225', 'AS-1').cells.join(' ')
  * (rule 03 section 1), exactly as `NAME_TASK_GROUP` is read out of MK-13's.
  */
 const ASSIGNEE_ROW = ((): string => {
-  const found = /担当者の欄（表 T-016 の `(PR-\d+)`）/.exec(AS_1)
+  const found = /担当の欄（表 T-016 の `(PR-\d+)`）/.exec(AS_1)
   if (found === null) {
-    throw new Error('表 T-225 AS-1 no longer names 担当者の欄（表 T-016 の `PR-n`）')
+    throw new Error('表 T-225 AS-1 no longer names 担当の欄（表 T-016 の `PR-n`）')
   }
   return found[1] as string
 })()
@@ -1064,7 +1064,7 @@ const controlsOfTaskGroup = (built: Stage, row: string): FakeElement[] =>
     (one) => one.getAttribute('data-field-row') === row,
   )
 
-describe('表 T-225 AS-1 -- 担当者の欄を編集できる状態にして焦点を置く', () => {
+describe('表 T-225 AS-1 -- 担当の欄を編集できる状態にして焦点を置く', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST THE CELL WOULD MAKE EVERY CASE BELOW
     // AGREE WITH ANYTHING -- rule 04 section 2.
@@ -1080,7 +1080,7 @@ describe('表 T-225 AS-1 -- 担当者の欄を編集できる状態にして焦�
   })
 
   it('⛔ MUST: the assignee field takes the focus', () => {
-    // 「担当者の欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」.
+    // 「担当の欄（表 T-016 の `PR-16`）を編集できる状態にして焦点を置くこと」.
     // ⛔ GOES RED IF the row is drawn with nothing the focus can be put into --
     // which is the state measured on the shipped build on 2026-09-08.
     const built = drawPanel([NAME_FIELD, ASSIGNEE_FIELD])
@@ -1088,7 +1088,7 @@ describe('表 T-225 AS-1 -- 担当者の欄を編集できる状態にして焦�
     askForFocus(built, ASSIGNEE_ROW)
 
     const active = built.world.activeElement
-    expect(active, 'AS-1 (MUST): 担当者の欄 ... 焦点を置くこと').not.toBe(null)
+    expect(active, 'AS-1 (MUST): 担当の欄 ... 焦点を置くこと').not.toBe(null)
     expect(
       controlsOfTaskGroup(built, ASSIGNEE_ROW),
       'the focused control is one the panel drew for that row',

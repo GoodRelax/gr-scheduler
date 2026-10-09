@@ -104,7 +104,7 @@ const PARENT_TASK_LINKS_TASK_GROUP: IconId = 'IC-141'
 
 const WATERMARK_ROW: IconId = 'IC-41'
 
-const RESOURCE_ROSTER_ROW: IconId = 'IC-62'
+const RESOURCE_LIST_ROW: IconId = 'IC-62'
 
 // see T-280, U-56, U-61
 const FLOW_SURFACES_AWAITING_ANSWER: ReadonlySet<string> = new Set(['U-56', 'U-61'])
@@ -168,7 +168,7 @@ function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
 /** @purity pure */
 function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (!facts.isFlowAwaitingAnswer) return false
-  if (row.rowId === RESOURCE_ROSTER_ROW) return true
+  if (row.rowId === RESOURCE_LIST_ROW) return true
   return row.rowId === WATERMARK_ROW && facts.isWatermarkShown
 }
 

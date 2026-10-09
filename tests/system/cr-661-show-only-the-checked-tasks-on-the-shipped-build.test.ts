@@ -13,11 +13,11 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
-  '表の [表示] の列（表 T-331 の `SQ-10`）でチェックしたタスクだけを日程表に描くこと（表示の絞り込み）の規則は 表 T-353 に従うこと（MUST）'
-const FR_151_NOT_SAVED = '⛔ チェックと表示の絞り込みの入切も文書に保存してはならない（MUST NOT）'
+  '表の [表示] の列（表 T-331 の `SQ-10`）でチェックしたタスクだけを日程表に描くこと（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
+const FR_151_NOT_SAVED = '⛔ チェックとスケジュールフィルタの入切も文書に保存してはならない（MUST NOT）'
 const FR_151_NOT_UNDONE = '取り消しの記録にも載せない'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
-const EL_21_SJ_0 = '印の先の端のタスクが表示の絞り込み（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
+const EL_21_SJ_0 = '印の先の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
 const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`）で飛ぶこと（MUST）'
 const IX_11_CAPTION =
   '⭐ 絵の上端に「チェックしたタスクだけを表示（N 件中 M 件）」（`FR-038` の辞書、N と M は 表 T-353 の `TV-11` と同じ）の 1 行を、`_assets/tbl-settings.md` の 表 T-206 の `S-498` の字で書き込むこと（MUST）'

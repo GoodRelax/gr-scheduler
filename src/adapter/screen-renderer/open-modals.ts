@@ -26,7 +26,7 @@ import type {
   LinkedWords,
   OpenChooser,
   OpenModal,
-  RosterResource,
+  ResourceListLine,
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -48,7 +48,7 @@ const ICON_TABLE = 'T-109'
 const MAXIMISE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
-const RESOURCE_ROSTER = 'Resource Roster'
+const RESOURCE_LIST = 'Resource List'
 
 const EXPORT_CHOOSER = 'Export Chooser'
 
@@ -56,10 +56,10 @@ const OPEN_CHOOSER = 'Open Chooser'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
-const ROSTER_CHOOSE_ALL_ENTRY: IconId = 'IC-63'
-const ROSTER_CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
-const ROSTER_CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
-const ROSTER_DELETE_ENTRY: IconId = 'IC-66'
+const RESOURCE_LIST_CHOOSE_ALL_ENTRY: IconId = 'IC-63'
+const RESOURCE_LIST_CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
+const RESOURCE_LIST_CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
+const RESOURCE_LIST_DELETE_ENTRY: IconId = 'IC-66'
 
 // see FR-035, OP-16, PI-37
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
@@ -82,7 +82,7 @@ const HOLIDAY_SETTINGS = 'Holiday Settings'
 
 // see T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
-  ['U-49', RESOURCE_ROSTER],
+  ['U-49', RESOURCE_LIST],
   ['U-54', EXPORT_CHOOSER],
   ['U-56', OPEN_CHOOSER],
   ['U-60', WATERMARK_UNLOCK],
@@ -380,10 +380,10 @@ function unassignedTaskNamesOf(
 // see FR-099
 // TRAP: list every resource kind; one left out could never be deleted.
 /** @purity pure */
-function rosterResourcesOf(
+function resourceListLinesOf(
   schedule: Schedule,
   readings: ScreenViewReadings,
-): readonly RosterResource[] {
+): readonly ResourceListLine[] {
   const tasksReached = tasksReachedByEachResource(schedule.assignments)
   const tasksByUid = new Map<number, Task>(schedule.tasks.map((task) => [task.uid, task]))
   const selectedUids = new Set<number>(readings.selectedResourceUids)
@@ -398,14 +398,14 @@ function rosterResourcesOf(
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66
-// WHY: counted on the drawn roster (FR-029); IC-65 replaces the choice, so it is idle once the
+// WHY: counted on the drawn Resource List (FR-029); IC-65 replaces the choice, so it is idle once the
 // choice already is exactly the unreferenced resources.
 /** @purity pure */
-function hasRosterTarget(icon: IconId, resources: readonly RosterResource[]): boolean {
+function hasResourceListTarget(icon: IconId, resources: readonly ResourceListLine[]): boolean {
   const isChosenSome = resources.some((one) => one.isSelected)
-  if (icon === ROSTER_CHOOSE_ALL_ENTRY) return resources.some((one) => !one.isSelected)
-  if (icon === ROSTER_CLEAR_CHOSEN_ENTRY || icon === ROSTER_DELETE_ENTRY) return isChosenSome
-  if (icon !== ROSTER_CHOOSE_UNREFERENCED_ENTRY) return true
+  if (icon === RESOURCE_LIST_CHOOSE_ALL_ENTRY) return resources.some((one) => !one.isSelected)
+  if (icon === RESOURCE_LIST_CLEAR_CHOSEN_ENTRY || icon === RESOURCE_LIST_DELETE_ENTRY) return isChosenSome
+  if (icon !== RESOURCE_LIST_CHOOSE_UNREFERENCED_ENTRY) return true
   const hasUnreferenced = resources.some((one) => !one.isReferenced)
   return hasUnreferenced && resources.some((one) => one.isSelected === one.isReferenced)
 }
@@ -507,10 +507,10 @@ export function openModalFromSession(
   const commands = commandsOnSurface(surface, language)
   const heading = surfaceHeading(surface, language)
 
-  if (surface === RESOURCE_ROSTER) {
-    const resources = rosterResourcesOf(schedule, readings)
-    const rosterCommands = commands.map((item) => ({ ...item, isEnabled: hasRosterTarget(item.icon, resources) }))
-    return { surface: RESOURCE_ROSTER, heading, commands: rosterCommands, resources }
+  if (surface === RESOURCE_LIST) {
+    const resources = resourceListLinesOf(schedule, readings)
+    const resourceListCommands = commands.map((item) => ({ ...item, isEnabled: hasResourceListTarget(item.icon, resources) }))
+    return { surface: RESOURCE_LIST, heading, commands: resourceListCommands, resources }
   }
 
   if (surface === EXPORT_CHOOSER) {

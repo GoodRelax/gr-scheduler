@@ -43,7 +43,7 @@
 //             the row that is, and it is read here to prove the mark exists and
 //             that these two do not carry it
 //   表 T-036  `SK-19` 「…ほかに何も出ていないときは、**その場の編集を確定する**
-//             （名称・担当者名・タスクグループ名・文書名・**プロパティの入力**）」, assignment
+//             （名称・担当名・タスクグループ名・文書名・**プロパティの入力**）」, assignment
 //             `Enter` -- the key these cases press, read out of the 割当 column
 //   表 T-065  `IF-9` CR-361 「…**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID
 //             とともに返し**…」 -- the seam a settled value leaves on, and the

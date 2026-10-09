@@ -1039,7 +1039,7 @@ const T_076_ROWS: readonly {
   },
   {
     id: 'EP-11',
-    part: 'Command Palette (U-26) / modals (U-30) / Dialogue Field (U-44) / Resource Roster (U-49)',
+    part: 'Command Palette (U-26) / modals (U-30) / Dialogue Field (U-44) / Resource List (U-49)',
     expectation: 'no',
     holds: (assembledSvg) =>
       !saysAnyOf(assembledSvg, [PALETTE_GROUP_NAME, PALETTE_ARMED_TEXT, MODAL_HEADING, DIALOGUE_TEXT]),

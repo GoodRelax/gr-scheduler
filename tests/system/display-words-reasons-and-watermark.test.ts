@@ -322,7 +322,7 @@ test('DFC-340: the question IC-66 raises is QN-3, asked of the whole selection',
   try {
     expect(await pressEntrance(app.page, 'IC-62'), 'IC-62 is not on the screen').toBe(true)
     const roster = await app.page.evaluate(
-      () => document.querySelector('[data-role="Resource Roster"]')?.textContent?.trim() ?? null,
+      () => document.querySelector('[data-role="Resource List"]')?.textContent?.trim() ?? null,
     )
     expect(roster, 'the roster FR-099 requires did not come up, so IC-66 has nothing to act on')
       .not.toBeNull()
