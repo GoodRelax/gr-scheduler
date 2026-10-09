@@ -1,0 +1,45 @@
+path	line	col	nth	name	decision	note
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	366	41	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	387	73	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	488	10	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	489	11	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	489	41	1	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	489	70	2	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	979	10	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	980	39	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	981	77	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	982	48	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	984	44	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	985	44	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-404-a-row-opened-by-hand-stays-open.test.ts	986	44	0	row	task-group	a TaskGroup of the document
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	409	45	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-551-probe-real-app.test.ts	219	65	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	167	45	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-555-dependency-lines-are-elided.test.ts	232	47	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	319	40	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts	320	64	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts	312	38	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts	359	38	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts	409	37	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/cr-646-stage.ts	54	12	0	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	55	10	0	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	55	30	1	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	55	72	2	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	55	92	3	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	55	112	4	row	keep	a record of the settings manuscript
+tests/unit/cr-646-stage.ts	56	33	0	row	keep	a record of the settings manuscript
+tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts	108	71	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-651-a-parent-whose-progress-point-leaves-its-work.test.ts	93	35	0	Row	keep	local interface Row: its declaration is not in the table, renaming references alone breaks it
+tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts	351	37	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	106	22	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	119	31	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	131	30	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	164	32	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	178	31	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts	244	34	0	Row	keep	local interface Row of MSPDI task rows
+tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	223	9	0	row	task-group	a TaskGroup of the document
+tests/unit/fr-023-drops-unusable-dates-and-tells-the-names.test.ts	247	19	0	row	task-group	a TaskGroup of the document
+tests/unit/fr-027-startup-shows-its-depth.test.ts	245	9	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/fr-027-startup-shows-its-depth.test.ts	248	21	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/fr-027-startup-shows-its-depth.test.ts	295	9	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
+tests/unit/fr-027-startup-shows-its-depth.test.ts	455	42	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]); must follow the src decision for the property
