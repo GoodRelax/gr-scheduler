@@ -161,7 +161,7 @@ docs/spec/01-04-requirements.md	4338	6	行	keep
 docs/spec/01-04-requirements.md	4358	25	行	task-group			
 docs/spec/01-04-requirements.md	4364	99	行	task-group			
 docs/spec/01-04-requirements.md	4364	126	行	task-group			
-docs/spec/01-04-requirements.md	4366	71	行	task-group			
+docs/spec/01-04-requirements.md	4366	71	行	rewrite	1 行に満たない	1 つのタスクグループに満たない	reconcile: item 6: counter fixed as the S1-T quote (cr-541 line 20) writes it; was task-group
 docs/spec/01-04-requirements.md	4367	5	行	task-group			
 docs/spec/01-04-requirements.md	4368	19	行	task-group			
 docs/spec/01-04-requirements.md	4375	12	行	keep			

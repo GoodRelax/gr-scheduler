@@ -174,3 +174,7 @@ tests/system/measured-sweep.test.ts	1458	43	row	keep			reconcile: item 2: the EZ
 tests/system/three-rows-read-from-the-spec-alone.test.ts	35	66	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
 tests/system/three-rows-read-from-the-spec-alone.test.ts	316	72	row	keep			reconcile: item 2: the CN-1 row of the NFR-004 table
 tools/generate_public_entry_index.py	250	85	row	keep			reconcile: item 2: a T-064 table row
+tests/system/cr-570-tree-state-on-the-large-sample.test.ts	55	38	行	rewrite	縦（行の軸）を縮める	縦軸を縮める	reconcile: item 6: the quote follows the spec rewrite of 01-04 2423 (not 縦（縦軸）)
+tests/unit/cr-423-the-row-zoom-stops-where-the-picture-stops-changing.test.ts	44	38	行	rewrite	縦（行の軸）を縮める	縦軸を縮める	reconcile: item 6: the quote follows the spec rewrite of 01-04 2423 (not 縦（縦軸）)
+docs/spec/_source/state-machines.json	7485	16	行	rewrite	縦（行の軸）を縮める	縦軸を縮める	reconcile: item 6: one wording with 01-04 2423 (the phrase made 縦（縦軸）)
+tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts	42	81	行	keep			reconcile: item 6: the row of the resource roster (担当者の行), as the spec keeps it
