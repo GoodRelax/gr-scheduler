@@ -33,7 +33,7 @@ const commandNameOf = (id: string): string => bare(specTable('T-108').rows.find(
 
 const ENTER: HumanInput = { kind: 'key', key: 'Enter', modifiers: { ctrl: false, shift: false, alt: false, meta: false } }
 
-const ROWS = [
+const TASK_GROUPS = [
   { id: 'task-group-a', parentId: null },
   { id: 'task-group-b', parentId: null },
   { id: 'task-group-c', parentId: null },
@@ -43,7 +43,7 @@ const ROWS = [
 const LONG_PLAN = { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' }
 
 const documentWithTaskGroups = (): Document =>
-  taskGroupDocument(ROWS, {}, { tasks: ROWS.map((_one, index) => taskOf(index + 1, LONG_PLAN)) }) as unknown as Document
+  taskGroupDocument(TASK_GROUPS, {}, { tasks: TASK_GROUPS.map((_one, index) => taskOf(index + 1, LONG_PLAN)) }) as unknown as Document
 
 const pickedItems = (stage: ExportStage): readonly unknown[] =>
   stage.loop.agentApiSeams().source.readSnapshot().selection.items

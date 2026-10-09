@@ -1598,7 +1598,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
     unmet.push('no browser version was recorded, so no number in this run may stand as a value')
   }
 
-  // 表 T-025 の MC-7, verbatim: 目標規模 | 50 タスクグループ / 1000 `Task`
+  // 表 T-025 の MC-7, verbatim: 目標規模 | 50 個のタスクグループ / 1000 `Task`
   // and 表 T-226 の TP-6: the startup template holds that many on purpose, so
   // that a regression shows on every launch.
   if (m.tasks < TEMPLATE_TASKS) {

@@ -210,7 +210,7 @@ const TEMPLATE_PATH = join(
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 /** Six task groups. The ids are UUIDs because `AT-51` is one. */
-const ROWS = [
+const TASK_GROUPS = [
   '4a000000-0000-4000-8000-000000000001',
   '4a000000-0000-4000-8000-000000000002',
   '4a000000-0000-4000-8000-000000000003',
@@ -223,11 +223,11 @@ const ROWS = [
 const ALPHA_UID = 1
 /** Its name, which is also how `ZO-5`'s label is found in the picture. */
 const ALPHA_NAME = 'Alpha'
-const ALPHA_TASK_GROUP = ROWS[2] as string
+const ALPHA_TASK_GROUP = TASK_GROUPS[2] as string
 
 /** Empty bands, one above the Task and one below it. Both are pressed in. */
-const BAND_ABOVE = ROWS[0] as string
-const BAND_BELOW = ROWS[4] as string
+const BAND_ABOVE = TASK_GROUPS[0] as string
+const BAND_BELOW = TASK_GROUPS[4] as string
 
 /** A stored date column, written the way the startup template writes one. */
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
@@ -292,7 +292,7 @@ function fixtureDocument(): Document {
       tasks: [task({ uid: ALPHA_UID, name: ALPHA_NAME, start: day(8), finish: day(16) })],
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((id, i) => group(id, i, `R${i + 1}`)),
+      taskGroups: TASK_GROUPS.map((id, i) => group(id, i, `R${i + 1}`)),
       taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_TASK_GROUP }],
       taskVisuals: [],
       commentBoxes: [],
@@ -308,7 +308,7 @@ function fixtureDocument(): Document {
       stackDirection: 'down',
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: ROWS[0],
+      scrollGroupId: TASK_GROUPS[0],
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -516,7 +516,7 @@ const enclosingPoint = (loop: FrameLoop): Point => {
 
 /** A point straight below the press that encloses nothing at all. */
 const emptyDragPoint = (loop: FrameLoop): Point => {
-  const band = bandOf(loop, ROWS[1] as string)
+  const band = bandOf(loop, TASK_GROUPS[1] as string)
   return { x: planBox(loop).x0 - 15, y: band.y + band.height / 2 }
 }
 

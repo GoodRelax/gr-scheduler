@@ -139,7 +139,7 @@ const TASK_GROUP_C = '56000000-0000-4000-8000-00000000000c'
 const TASK_GROUP_D = '56000000-0000-4000-8000-00000000000d'
 const TASK_GROUP_E = '56000000-0000-4000-8000-00000000000e'
 const TASK_GROUP_F = '56000000-0000-4000-8000-00000000000f'
-const ROWS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
+const TASK_GROUPS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
 
 const ROOT = 1
 const CHILD = 2
@@ -240,7 +240,7 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((id, order) => ({
+      taskGroups: TASK_GROUPS.map((id, order) => ({
         id,
         parentId: null,
         label: `row ${order}`,
@@ -417,7 +417,7 @@ const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 
 const travel = (loop: FrameLoop, days: number, rows: number): Point => ({
   x: days * pxPerDay(loop),
-  y: drawnTaskGroup(loop, ROWS[rows] as string).y - drawnTaskGroup(loop, TASK_GROUP_A).y,
+  y: drawnTaskGroup(loop, TASK_GROUPS[rows] as string).y - drawnTaskGroup(loop, TASK_GROUP_A).y,
 })
 
 const click = (built: Stage, at: Point, modifiers: Partial<InputModifiers> = {}): void => {

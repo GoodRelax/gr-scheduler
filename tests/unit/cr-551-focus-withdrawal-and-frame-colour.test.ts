@@ -203,15 +203,15 @@ function pointerPress(built: Bench, node: FakeElement): void {
   built.drain()
 }
 
-const ROWS = [
+const TASK_GROUPS = [
   { id: 'g1', parentId: null },
   { id: 'g2', parentId: null },
   { id: 'g3', parentId: null },
 ]
 
 function documentOf(highlight: Record<string, unknown> | null = null) {
-  const document = taskGroupDocument(ROWS, { progressMarkerVisible: false })
-  document.schedule.tasks = ROWS.map((_one, index) =>
+  const document = taskGroupDocument(TASK_GROUPS, { progressMarkerVisible: false })
+  document.schedule.tasks = TASK_GROUPS.map((_one, index) =>
     taskOf(index + 1, { name: `Task${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
   if (highlight !== null) document.schedule.highlightBoxes = [highlight]

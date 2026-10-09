@@ -72,7 +72,7 @@
 //           日程表が動く。倍率を掛けない。⛔ **錠の上にしか着地できない形に
 //           してはならない（MUST NOT）** —— `_assets/tbl-settings.md` の
 //           表 T-203 の `S-77` と `S-78` は日付とタスクグループの識別子しか持てないので、
-//           それだけでは 1 日・1 タスクグループより短い移動が何も起こさず、等倍が成り立た
+//           それだけでは 1 日・タスクグループ 1 つより短い移動が何も起こさず、等倍が成り立た
 //           ない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**」
 //   T-206 / T-203 S-176 / S-177   the two fractions that sentence leans on:
 //           「表示の上端が、`scrollGroupId` が指すタスクグループのどこにあるか。**そのタスクグループが
@@ -240,7 +240,7 @@ const TEMPLATE_PATH = join(
 const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
 
 /** Six task groups. The ids are UUIDs because `AT-51` is one. */
-const ROWS = [
+const TASK_GROUPS = [
   '3a000000-0000-4000-8000-000000000001',
   '3a000000-0000-4000-8000-000000000002',
   '3a000000-0000-4000-8000-000000000003',
@@ -250,7 +250,7 @@ const ROWS = [
 ] as const
 
 /** The task group the empty-space presses land on -- it carries no Task at all. */
-const EMPTY_TASK_GROUP = ROWS[4] as string
+const EMPTY_TASK_GROUP = TASK_GROUPS[4] as string
 
 /** The two Tasks whose bars are watched. They sit on task groups far apart. */
 const NEAR_UID = 1
@@ -272,7 +272,7 @@ const PX_PER_DAY_AT_1X = 20
 const SCROLL_DATE = '2026-04-14'
 
 /** Likewise for the vertical axis: the fourth of six task groups. */
-const SCROLL_TASK_GROUP = ROWS[3] as string
+const SCROLL_TASK_GROUP = TASK_GROUPS[3] as string
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
@@ -331,10 +331,10 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((id, i) => group(id, i, `R${i + 1}`)),
+      taskGroups: TASK_GROUPS.map((id, i) => group(id, i, `R${i + 1}`)),
       taskGroupMembers: [
-        { taskUid: NEAR_UID, groupId: ROWS[1] },
-        { taskUid: FAR_UID, groupId: ROWS[2] },
+        { taskUid: NEAR_UID, groupId: TASK_GROUPS[1] },
+        { taskUid: FAR_UID, groupId: TASK_GROUPS[2] },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -574,7 +574,7 @@ const emptySpot = (loop: FrameLoop): Point => {
  * that can only land on the lock (⛔ 錠の上にしか着地できない形にしてはならない
  * （MUST NOT）) and says why: `S-77` and `S-78` hold a date and a row id, so a
  * pan built out of those alone moves by nothing at all for anything shorter
- * than one day or one task group -- 「それだけでは 1 日・1 タスクグループより短い移動が何も起こさ
+ * than one day or one task group -- 「それだけでは 1 日・タスクグループ 1 つより短い移動が何も起こさ
  * ず、等倍が成り立たない」. Halves are what make that visible.
  */
 const TRAVEL_DAYS = 2.5
@@ -690,8 +690,8 @@ describe('the fixture puts the view where a pan has room in every direction', ()
     // picture rather than assumed: the near bar starts to the LEFT of the far
     // bar, and the task group the view starts on has bands above and below it.
     expect(planBox(built.loop, NEAR_UID).x0).toBeLessThan(planBox(built.loop, FAR_UID).x0)
-    const first = bandOf(built.loop, ROWS[0] as string)
-    const last = bandOf(built.loop, ROWS[5] as string)
+    const first = bandOf(built.loop, TASK_GROUPS[0] as string)
+    const last = bandOf(built.loop, TASK_GROUPS[5] as string)
     expect(last.y, 'the six task groups are drawn one below another').toBeGreaterThan(first.y)
   })
 })
@@ -853,7 +853,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
       built.send(pointer('down', at.x, at.y, how))
       const near = whereIs(built.loop, NEAR_UID)
       const far = whereIs(built.loop, FAR_UID)
-      const band = bandOf(built.loop, ROWS[0] as string)
+      const band = bandOf(built.loop, TASK_GROUPS[0] as string)
       const travel = travelOf(built.loop)
       built.send(pointer('move', at.x + travel.x, at.y + travel.y, how))
       expect(Math.abs(whereIs(built.loop, NEAR_UID).x - near.x - travel.x)).toBeLessThanOrEqual(
@@ -864,7 +864,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
         'the far Task moved by a different amount from the near one',
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
       expect(
-        Math.abs(bandOf(built.loop, ROWS[0] as string).y - band.y - travel.y),
+        Math.abs(bandOf(built.loop, TASK_GROUPS[0] as string).y - band.y - travel.y),
         'the task group bands did not travel with the bars',
       ).toBeLessThanOrEqual(ONE_TO_ONE_PX)
     })

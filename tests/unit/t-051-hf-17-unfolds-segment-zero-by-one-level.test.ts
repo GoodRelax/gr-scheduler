@@ -149,14 +149,14 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const GAMMA = '33333333-3333-4333-8333-333333333333'
 const ZETA = '44444444-4444-4444-8444-444444444444'
 
-const ROWS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] = [
+const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] = [
   { id: ALPHA, parentId: null, name: 'Alpha' },
   { id: BETA, parentId: ALPHA, name: 'Beta' },
   { id: GAMMA, parentId: BETA, name: 'Gamma' },
   { id: ZETA, parentId: null, name: 'Zeta' },
 ]
 
-const nameOf = (groupId: string): string => ROWS.find((one) => one.id === groupId)?.name ?? groupId
+const nameOf = (groupId: string): string => TASK_GROUPS.find((one) => one.id === groupId)?.name ?? groupId
 
 function task(uid: number, name: string): Task {
   return {
@@ -192,10 +192,10 @@ function documentWith(): Document {
     schedule: {
       project: { ...structuredClone(template.schedule.project), uidHighWaterMark: 100 },
       calendars: structuredClone(template.schedule.calendars),
-      tasks: ROWS.map((_row, index) => task(index + 1, `Task${index + 1}`)),
+      tasks: TASK_GROUPS.map((_row, index) => task(index + 1, `Task${index + 1}`)),
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((one, index) => ({
+      taskGroups: TASK_GROUPS.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
         label: one.name,
@@ -205,7 +205,7 @@ function documentWith(): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: ROWS.map((one, index) => ({
+      taskGroupMembers: TASK_GROUPS.map((one, index) => ({
         taskUid: index + 1,
         groupId: one.id,
       })),

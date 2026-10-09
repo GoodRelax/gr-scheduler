@@ -54,8 +54,8 @@ function firstCoveredDayOf(held: Document): string | null {
 
 /** @purity pure */
 function firstRowIdOf(held: Document): string | null {
-  const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
-  return firstRow === undefined ? null : firstRow.id
+  const firstTaskGroup = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
+  return firstTaskGroup === undefined ? null : firstTaskGroup.id
 }
 
 type ScrollPlace = Pick<ViewPlace, 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'>

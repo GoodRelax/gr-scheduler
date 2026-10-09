@@ -133,7 +133,7 @@ function deleteEveryTaskGroup(built: Bench): void {
   built.key(YES)
 }
 
-const ROWS: readonly TaskGroupSeed[] = [
+const TASK_GROUPS: readonly TaskGroupSeed[] = [
   { id: 'd6080000-0000-4000-8000-000000000001', parentId: null, treeState: 'expanded' },
   { id: 'd6080000-0000-4000-8000-000000000002', parentId: 'd6080000-0000-4000-8000-000000000001', treeState: 'collapsed' },
   { id: 'd6080000-0000-4000-8000-000000000003', parentId: null },
@@ -143,7 +143,7 @@ const statesOf = (groups: readonly TaskGroup[]) => groups.map((one) => ({ id: on
 
 describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
   it('level zero opens, the one task group stands temporarilyExpanded and is drawn; one undo gives back the task groups and the fold', () => {
-    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
+    const built = bench(taskGroupDocument(TASK_GROUPS, { levelZeroTreeState: 'collapsed' }))
     const before = statesOf(built.groups())
     expect(built.drawn(), 'premise: TD-1 draws no task group under a folded level zero').toEqual([])
 
@@ -163,17 +163,17 @@ describe(`CR-608 test 10 -- ${HF_20_OPENS}`, () => {
   })
 
   it('control: with level zero open, delete-all leaves it open and still makes the one task group temporarilyExpanded', () => {
-    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'auto' }))
+    const built = bench(taskGroupDocument(TASK_GROUPS, { levelZeroTreeState: 'auto' }))
     deleteEveryTaskGroup(built)
     expect(built.levelZero()).toBe('auto')
     expect(built.groups().map((one) => one.treeState), FR_032_VALUE).toEqual(['temporarilyExpanded'])
   })
 
   it(`redo after the undo lands on the same step -- ${FR_032_ANY_ROAD}`, () => {
-    const built = bench(taskGroupDocument(ROWS, { levelZeroTreeState: 'collapsed' }))
+    const built = bench(taskGroupDocument(TASK_GROUPS, { levelZeroTreeState: 'collapsed' }))
     deleteEveryTaskGroup(built)
     built.press(APP_HEADER, UNDO)
-    expect(built.groups().length, 'premise: the undo gave the task groups back').toBe(ROWS.length)
+    expect(built.groups().length, 'premise: the undo gave the task groups back').toBe(TASK_GROUPS.length)
     built.press(APP_HEADER, REDO)
     expect(built.groups().map((one) => one.treeState), FR_032_VALUE).toEqual(['temporarilyExpanded'])
     expect(built.levelZero(), HF_20_OPENS).toBe('auto')
@@ -191,12 +191,12 @@ function pictureOf(frame: FrameValues | null) {
 
 describe(`CR-608 test 9 (regression) -- ${CD_2_NULL}; OP-10: ${OP_10_FIT}`, () => {
   it('the picture after delete-all is the picture IC-10 (fit) gives the same document, and delete-all writes no zoom', () => {
-    const control = bench(taskGroupDocument(ROWS, { zoomY: 1, zoomX: 3 }))
+    const control = bench(taskGroupDocument(TASK_GROUPS, { zoomY: 1, zoomX: 3 }))
     const stored = pictureOf(control.frame())
     control.press(APP_HEADER, FIT)
     expect(pictureOf(control.frame()), 'premise: the stored view is not the fit view').not.toEqual(stored)
 
-    const built = bench(taskGroupDocument(ROWS, { zoomY: 1, zoomX: 3 }))
+    const built = bench(taskGroupDocument(TASK_GROUPS, { zoomY: 1, zoomX: 3 }))
     const zoomBefore = built.loop.document().documentSettings.zoomY
     deleteEveryTaskGroup(built)
     expect(built.loop.document().documentSettings.zoomY, HF_20_NO_VIEW_WRITE).toBe(zoomBefore)

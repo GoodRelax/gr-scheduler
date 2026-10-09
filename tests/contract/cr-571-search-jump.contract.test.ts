@@ -51,7 +51,7 @@ const R1 = 'task-group-1'
 const R11 = 'task-group-1-1'
 const R12 = 'task-group-1-2'
 const R2 = 'task-group-2'
-const ROWS: readonly (readonly [string, string | null, number])[] = [
+const TASK_GROUPS: readonly (readonly [string, string | null, number])[] = [
   [R1, null, 0],
   [R11, R1, 0],
   [R12, R1, 1],
@@ -100,7 +100,7 @@ interface Arranged {
 }
 
 function documentOf(arranged: Arranged = {}): Document {
-  const taskGroups = ROWS.map(([id, parentId, order]) => ({
+  const taskGroups = TASK_GROUPS.map(([id, parentId, order]) => ({
     ...(templateGroups[0] as Loose),
     id,
     parentId,

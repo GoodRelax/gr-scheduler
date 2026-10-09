@@ -52,7 +52,7 @@ afterEach(() => {
   else GLOBAL['requestAnimationFrame'] = realRaf
 })
 
-const ROWS = [
+const TASK_GROUPS = [
   { id: 'g1', parentId: null },
   { id: 'g2', parentId: null },
   { id: 'g3', parentId: null },
@@ -60,7 +60,7 @@ const ROWS = [
   { id: 'g5', parentId: null },
 ]
 // WHY: tasks only on g1..g3; the comment box stands on g5, clear of every bar and of the highlight box.
-const TASKED_TASK_GROUPS = ROWS.slice(0, 3)
+const TASKED_TASK_GROUPS = TASK_GROUPS.slice(0, 3)
 const OPENER_TASK_UID = 3
 
 // WHY: the highlight box starts and ends outside the bars, so its left edge is not a bar's end (GA-3 / GA-4).
@@ -83,7 +83,7 @@ const COMMENT = {
 }
 
 function documentOf(strokeColor: string | null): Record<string, any> {
-  const document = taskGroupDocument(ROWS, { progressMarkerVisible: false }, {
+  const document = taskGroupDocument(TASK_GROUPS, { progressMarkerVisible: false }, {
     taskGroupMembers: TASKED_TASK_GROUPS.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
     highlightBoxes: [{ ...HIGHLIGHT, strokeColor }],
     commentBoxes: [COMMENT],

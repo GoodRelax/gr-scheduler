@@ -32,7 +32,7 @@ const rowText = (table: string, id: string): string => {
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_270_WHOLE =
   'それまでの選択は置き換える（表 T-023c の `SL-2`）。⭐ 選択に含まれるものの本体を引けば、選択の全部が動くこと（MUST）'
-const T_270_KEPT = '—— 横は同じ日数、縦は同じタスクグループ数である。離した後も全部が選ばれたままとすること（MUST）'
+const T_270_KEPT = '—— 横は同じ日数、縦は同じ数のタスクグループぶんである。離した後も全部が選ばれたままとすること（MUST）'
 const T_270_STOP =
   'タスクグループの数は画面に描いたタスクグループで数え、最初のタスクグループより上か最後のタスクグループより下へ出るものがあれば、全体をそこで止めること（MUST）'
 const T_270_SHIFT =
@@ -49,8 +49,8 @@ describe('DFC-2030 -- the clauses these cases are driven by', () => {
   })
 })
 
-const ROWS = [0, 1, 2, 3, 4, 5].map((one) => `20300000-0000-4000-8000-00000000000${one}`)
-const rowId = (index: number): string => ROWS[index] as string
+const TASK_GROUPS = [0, 1, 2, 3, 4, 5].map((one) => `20300000-0000-4000-8000-00000000000${one}`)
+const rowId = (index: number): string => TASK_GROUPS[index] as string
 
 const SEL = 1
 const OUT = 2
@@ -113,7 +113,7 @@ function fixtureDocument(at: Layout): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((id, order) => ({
+      taskGroups: TASK_GROUPS.map((id, order) => ({
         id,
         parentId: null,
         label: `row ${order}`,
@@ -293,7 +293,7 @@ const day = (value: string | null | undefined): string => (value ?? '').slice(0,
 function seen(built: Bench): Seen {
   const schedule = built.loop.document().schedule
   const rowOf = (uid: number): number =>
-    ROWS.indexOf(schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.groupId ?? '')
+    TASK_GROUPS.indexOf(schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.groupId ?? '')
   const taskOf = (uid: number): Task => {
     const found = schedule.tasks.find((one) => one.uid === uid)
     if (found === undefined) throw new Error(`no Task ${uid}`)
@@ -309,10 +309,10 @@ function seen(built: Bench): Seen {
     highlight: {
       start: day(box?.startDate),
       end: day(box?.endDate),
-      top: ROWS.indexOf(box?.topGroupId ?? ''),
-      bottom: ROWS.indexOf(box?.bottomGroupId ?? ''),
+      top: TASK_GROUPS.indexOf(box?.topGroupId ?? ''),
+      bottom: TASK_GROUPS.indexOf(box?.bottomGroupId ?? ''),
     },
-    comment: { date: day(note?.anchorDate), row: ROWS.indexOf(note?.anchorGroupId ?? '') },
+    comment: { date: day(note?.anchorDate), row: TASK_GROUPS.indexOf(note?.anchorGroupId ?? '') },
     taskCount: schedule.tasks.length,
     boxCount: schedule.highlightBoxes.length + schedule.commentBoxes.length,
   }
@@ -402,7 +402,7 @@ describe(`DFC-2030 T-270 "${T_270_WHOLE}"`, () => {
     expect(after.highlight.top - before.highlight.top).toBe(allowed)
     expect(after.highlight.bottom - before.highlight.bottom).toBe(allowed)
     expect(after.comment.row - before.comment.row).toBe(allowed)
-    expect(Math.max(after.highlight.bottom, after.comment.row, after.selTaskGroup), 'nothing leaves the last task group').toBe(ROWS.length - 1)
+    expect(Math.max(after.highlight.bottom, after.comment.row, after.selTaskGroup), 'nothing leaves the last task group').toBe(TASK_GROUPS.length - 1)
   })
 
   it(`CY-4 "${CY_4_TASKS_ONLY}" -- Ctrl + Shift copies the task only; the boxes are neither copied nor moved`, () => {

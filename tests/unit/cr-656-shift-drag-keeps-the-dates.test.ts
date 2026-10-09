@@ -95,7 +95,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
 
   it('T-270: a Shift-only body drag applies only the vertical part and reads Shift at the press', () => {
     expect(REQUIREMENTS).toContain(
-      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST） —— 選択の全部を、横は 0 日、縦は同じタスクグループ数だけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
+      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST） —— 選択の全部を、横は 0 日、縦は同じ数のタスクグループぶんだけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
     )
     expect(REQUIREMENTS).toContain('押したタスクが選択に含まれないときは、それを選択に足してから全部を動かすこと（MUST）（表 T-023c の `SL-4`）。')
     expect(REQUIREMENTS).toContain('`Shift` は押した時点で読み、押しているあいだに押しても離しても変えないこと（MUST）')
@@ -125,7 +125,7 @@ const TASK_GROUP_C = '65600000-0000-4000-8000-00000000000c'
 const TASK_GROUP_D = '65600000-0000-4000-8000-00000000000d'
 const TASK_GROUP_E = '65600000-0000-4000-8000-00000000000e'
 const TASK_GROUP_F = '65600000-0000-4000-8000-00000000000f'
-const ROWS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
+const TASK_GROUPS = [TASK_GROUP_A, TASK_GROUP_B, TASK_GROUP_C, TASK_GROUP_D, TASK_GROUP_E, TASK_GROUP_F]
 
 const ROOT = 1
 const CHILD = 2
@@ -197,7 +197,7 @@ function fixtureDocument(): Document {
       ],
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((id, order) => ({
+      taskGroups: TASK_GROUPS.map((id, order) => ({
         id,
         parentId: null,
         label: `task group ${order}`,

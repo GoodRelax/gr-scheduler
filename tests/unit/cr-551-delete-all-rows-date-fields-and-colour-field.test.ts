@@ -201,7 +201,7 @@ const E_36_HEAD = '頭が持つ入口が 5 つ、タスクグループが持つ�
 const QN_10 = WORDS.questions.find((one) => one.rowId === 'QN-10')?.text.ja ?? ''
 const YES = (WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.ja ?? '').slice(0, 1).toUpperCase()
 
-const ROWS: readonly TaskGroupSeed[] = [
+const TASK_GROUPS: readonly TaskGroupSeed[] = [
   { id: 'g1', parentId: null },
   { id: 'g2', parentId: 'g1' },
   { id: 'g3', parentId: null },
@@ -223,7 +223,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 
   it('E-36: 頭が持つ入口が 5 つ -- the head carries IC-106 and none of the hide / pin entrances', () => {
     // see HF-20, E-36, IC-106
-    const built = bench(documentWith(ROWS, NAMES))
+    const built = bench(documentWith(TASK_GROUPS, NAMES))
     const panel = byRole(built.built.root(), 'Task Group Panel')[0] as FakeElement
     const inRow = (node: FakeElement): boolean => {
       for (let at = node.parentNode; at !== null; at = at.parentNode) if (at.getAttribute('data-group-id') !== null) return true
@@ -238,7 +238,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 
   it('QN-10 / NT-7: pressing IC-106 asks QN-10 and lists the task names before anything is deleted', () => {
     // see HF-20, QN-10, NT-7
-    const built = bench(documentWith(ROWS, NAMES))
+    const built = bench(documentWith(TASK_GROUPS, NAMES))
     const before = built.loop.document()
     built.press('Task Group Panel', 'IC-106')
     const asked = built.view().confirmation
@@ -251,21 +251,21 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 
   it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every task group and every task goes, and one L1 task group is made', () => {
     // see CD-6, CD-2
-    const built = bench(documentWith(ROWS, NAMES))
+    const built = bench(documentWith(TASK_GROUPS, NAMES))
     built.press('Task Group Panel', 'IC-106')
     built.key(YES)
     const schedule = built.loop.document().schedule
     expect(schedule.tasks).toEqual([])
     expect(schedule.taskGroups.length, CD_6_ONE_TASK_GROUP).toBe(1)
     expect(schedule.taskGroups[0]?.parentId, 'the made task group is at depth L1').toBeNull()
-    for (const id of ROWS.map((one) => one.id)) {
+    for (const id of TASK_GROUPS.map((one) => one.id)) {
       expect(schedule.taskGroups.map((one) => one.id)).not.toContain(id)
     }
   })
 
   it('CD-6: 取り消し 1 回で戻る -- one undo brings every task group and task back', () => {
     // see CD-6, SK-6
-    const built = bench(documentWith(ROWS, NAMES))
+    const built = bench(documentWith(TASK_GROUPS, NAMES))
     const before = built.loop.document().schedule
     built.press('Task Group Panel', 'IC-106')
     built.key(YES)
@@ -461,7 +461,7 @@ const chosenOf = (built: Bench, row: string): string[] =>
   gridOf(built, row).children.filter((one) => one.getAttribute('data-colour-chosen') === 'true').map(cellOf)
 
 // WHY: CV-9's two rows, read in order: S-338 names and the theme entrance, then the rest, transparent, custom.
-const twoTaskGroups = (): string[] => {
+const twoTiers = (): string[] => {
   const first = [...NAMED.slice(0, S_338), 'theme']
   const second = [...NAMED.slice(S_338), TRANSPARENT, 'custom']
   const width = Math.max(first.length, second.length)
@@ -508,7 +508,7 @@ describe('CV-9 -- the colour field', () => {
   it(`${CV_9_ORDER} -- the task fill field is two rows of one grid`, () => {
     // see CV-9, S-338, T-294
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    const cells = twoTaskGroups()
+    const cells = twoTiers()
     expect((styleMap(gridOf(built, TASK_FILL)).get('grid-template-columns') ?? '').replace(/\s/g, '')).toMatch(
       new RegExp(`^repeat\\(${cells.length / 2},`),
     )
@@ -606,8 +606,8 @@ describe('CV-9 -- the colour field', () => {
     const rowColour = taskGroupPanelBox(built)
     const fields = built.view().propertiesPanel?.fields ?? []
     expect(fields[fields.length - 1]?.row, 'FR-006: the colour row is last for a TaskGroup too').toBe(rowColour)
-    const expected = twoTaskGroups().map((cell) => (cell === BLACK ? '' : cell))
-    expect(expected, 'premise: black is one of the names').not.toEqual(twoTaskGroups())
+    const expected = twoTiers().map((cell) => (cell === BLACK ? '' : cell))
+    expect(expected, 'premise: black is one of the names').not.toEqual(twoTiers())
     expect(cellsOf(built, rowColour), CV_9_EMPTY_SLOT).toEqual(expected)
   })
 

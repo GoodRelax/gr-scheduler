@@ -738,11 +738,11 @@ function highlightTaskGroupSpanOf(
   taskGroups: readonly TaskGroupPlacement[],
   box: HighlightBox,
 ): { readonly upperAt: number; readonly lowerAt: number } | null {
-  const firstRow = context.layout.taskGroups[0]
+  const firstTaskGroup = context.layout.taskGroups[0]
   const lastTaskGroup = context.layout.taskGroups[context.layout.taskGroups.length - 1]
-  if (firstRow === undefined || lastTaskGroup === undefined) return null
+  if (firstTaskGroup === undefined || lastTaskGroup === undefined) return null
   // TRAP: fall back to the first and last layout task groups exactly as highlightGeometry does, or the grabbed box is not the drawn one.
-  const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.topGroupId) ?? firstRow)
+  const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.topGroupId) ?? firstTaskGroup)
   const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.bottomGroupId) ?? lastTaskGroup)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
 }

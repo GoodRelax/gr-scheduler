@@ -108,8 +108,8 @@ const HB_2_ROW =
 const HB_2 = '`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。'
 const HB_2_TREE = '上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる'
 const HB_3_ROW =
-  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループで同じタスクグループ数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ |'
-const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループで同じタスクグループ数だけずらす。'
+  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ |'
+const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。'
 const HB_3_NO_TASK_GROUP = 'ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ'
 const HB_3_FOLDED =
   '⚠️ 畳んだタスクグループやピン留めしたタスクグループ（`FR-098`）をまたぐと、保存される範囲が文書のタスクグループの数で伸び縮みする'

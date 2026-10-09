@@ -43,7 +43,7 @@ const MILESTONE_LIST_CONTROL_TASK_GROUPS: readonly string[] = ['IC-50']
 
 const NO_WORDS = ''
 
-const GROUP_NAMES_BY_FIRST_TASK_GROUP = new Map(
+const GROUP_NAMES_BY_FIRST_ROW = new Map(
   displayWords.paletteGroups.map((entry) => [entry.firstRow, entry]),
 )
 
@@ -52,7 +52,7 @@ const ARM_WORDS_BY_ROW = new Map(displayWords.arms.map((entry) => [entry.rowId, 
 // see FR-036, FR-038
 /** @purity pure */
 function groupName(groupCell: string, firstRow: string, language: DisplayLanguage): string {
-  const word = GROUP_NAMES_BY_FIRST_TASK_GROUP.get(firstRow)?.name[language]
+  const word = GROUP_NAMES_BY_FIRST_ROW.get(firstRow)?.name[language]
   if (word === undefined) return groupCell
   return word === '' ? groupCell : word
 }

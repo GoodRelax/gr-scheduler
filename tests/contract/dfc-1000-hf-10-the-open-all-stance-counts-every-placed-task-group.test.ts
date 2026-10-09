@@ -16,7 +16,7 @@ const HF_10_NOT_IN_HF_18 =
   '押しが何かを変えるのは、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるときである'
 const FIRST = 'f0000000-0000-4000-8000-000000000000'
 const FIRST_CHILD = 'f0000000-0000-4000-8000-0000000000c1'
-const ROWS = 40
+const TASK_GROUPS = 40
 const SCROLLED_TO = 25
 
 const idOf = (index: number): string => `f0000000-0000-4000-8000-${String(index).padStart(12, '0')}`
@@ -25,7 +25,7 @@ function documentWith(firstState: 'collapsed' | 'auto') {
   const rows = [
     { id: FIRST, parentId: null, treeState: firstState },
     { id: FIRST_CHILD, parentId: FIRST },
-    ...Array.from({ length: ROWS - 1 }, (_, index) => ({ id: idOf(index + 1), parentId: null })),
+    ...Array.from({ length: TASK_GROUPS - 1 }, (_, index) => ({ id: idOf(index + 1), parentId: null })),
   ]
   return taskGroupDocument(rows, { scrollGroupId: idOf(SCROLLED_TO), scrollGroupOffset: 0 })
 }
@@ -84,12 +84,12 @@ describe('DFC-1000 -- HF-10 with every task group drawn the head entrance has no
 
 // see HF-2
 async function documentWithFoldedGrandchildBelowTheWindow() {
-  const flat = await paletteStage({ document: taskGroupDocument(Array.from({ length: ROWS }, (_, index) => ({ id: idOf(index), parentId: null }))) as never })
+  const flat = await paletteStage({ document: taskGroupDocument(Array.from({ length: TASK_GROUPS }, (_, index) => ({ id: idOf(index), parentId: null }))) as never })
   const shown = flat.last().taskGroupPanel.titles
   const lastShown = shown[shown.length - 1]?.groupId
   if (lastShown === undefined) throw new Error('the window shows no task group title')
   const at = Number(lastShown.slice(-12))
-  const rows: TaskGroupSeed[] = Array.from({ length: ROWS }, (_, index) => ({ id: idOf(index), parentId: null }))
+  const rows: TaskGroupSeed[] = Array.from({ length: TASK_GROUPS }, (_, index) => ({ id: idOf(index), parentId: null }))
   rows.splice(at + 1, 0, { id: FIRST_CHILD, parentId: lastShown }, { id: idOf(900), parentId: FIRST_CHILD, treeState: 'collapsed' })
   rows.splice(at + 3, 0, { id: idOf(901), parentId: idOf(900) })
   return { lastShown, document: taskGroupDocument(rows) }

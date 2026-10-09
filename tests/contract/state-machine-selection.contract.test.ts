@@ -98,19 +98,19 @@ const SELECTION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   objectsSelected: [{ selectedObjects: PICKED }],
 }
 
-const ROWS = ['group1', 'group2']
+const TASK_GROUPS = ['group1', 'group2']
 const RESOURCES = [1, 2]
 const COPIED = { kind: 'task', uids: [3] }
 
 const ROOT_VALUES: readonly Loose[] = [
   { chosenTaskGroups: [], chosenResources: [], copiedForPaste: null },
-  { chosenTaskGroups: ROWS, chosenResources: RESOURCES, copiedForPaste: COPIED },
+  { chosenTaskGroups: TASK_GROUPS, chosenResources: RESOURCES, copiedForPaste: COPIED },
   { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'taskGroup', groupId: 'group9' } },
 ]
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
 
-// WHY: the same-reference variants (PICKED, ROWS, RESOURCES, COPIED) are what SF-3 is
+// WHY: the same-reference variants (PICKED, TASK_GROUPS, RESOURCES, COPIED) are what SF-3 is
 // about; a value equal in content but a fresh object is not asserted either way.
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   objectsPicked: [{ pickedObjects: PICKED }, { pickedObjects: OTHER_PICK }, { pickedObjects: NOTHING }],
@@ -120,12 +120,12 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   selectionCleared: [{}],
   // WHY: the same landing prunes the chosen task groups (FR-085), so each variant carries what remains.
   selectionPruned: [
-    { remainingObjects: PICKED, chosenTaskGroups: ROWS },
+    { remainingObjects: PICKED, chosenTaskGroups: TASK_GROUPS },
     { remainingObjects: OTHER_PICK, chosenTaskGroups: ['group2'] },
     { remainingObjects: NOTHING, chosenTaskGroups: [] },
   ],
   createdTaskSelected: [{ createdTaskUid: 3 }, { createdTaskUid: 8 }],
-  taskGroupsPicked: [{ chosenTaskGroups: ROWS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
+  taskGroupsPicked: [{ chosenTaskGroups: TASK_GROUPS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
   createdTaskGroupSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
   copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'taskGroup', groupId: 'group3' } }],
@@ -320,7 +320,7 @@ const SAMPLE: Record<string, unknown> = {
 describe('SS-5: every event of the other regions leaves the selection region at the same reference', () => {
   const busy = withSelection({
     selectionState: { kind: 'objectsSelected', selectedObjects: PICKED },
-    chosenTaskGroups: ROWS,
+    chosenTaskGroups: TASK_GROUPS,
     chosenResources: RESOURCES,
     copiedForPaste: COPIED,
   })

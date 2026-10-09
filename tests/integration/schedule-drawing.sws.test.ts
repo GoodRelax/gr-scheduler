@@ -387,7 +387,7 @@ interface Drawn {
  * One pass of the chain: PI-35 -> PI-5 -> PI-6.
  *
  * `groupIds[i]` says which task group `tasks[i]` is drawn on. The task groups are created in
- * the sorted order of those IDs, so `g1` is the topmost task group. `allRows` names
+ * the sorted order of those IDs, so `g1` is the topmost task group. `allTaskGroups` names
  * every task group the document holds when that is more than the Tasks reach -- which
  * is how a task group carrying nothing is set up.
  */
@@ -397,9 +397,9 @@ const draw = (
   visuals: readonly TaskVisual[],
   over: Readonly<Record<string, unknown>> = {},
   statusDate: string | null = null,
-  allRows: readonly string[] = groupIds,
+  allTaskGroups: readonly string[] = groupIds,
 ): Drawn => {
-  const ids = [...new Set([...groupIds, ...allRows])].sort()
+  const ids = [...new Set([...groupIds, ...allTaskGroups])].sort()
   const groups = ids.map((id, i) => taskGroup(id, i))
   const members: TaskGroupMember[] = tasks.map((t, i) => ({
     taskUid: t.uid,

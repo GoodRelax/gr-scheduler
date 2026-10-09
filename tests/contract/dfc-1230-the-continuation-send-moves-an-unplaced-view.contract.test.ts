@@ -169,7 +169,7 @@ const TASKS: readonly (readonly [Loose, string])[] = [
   ...FILLERS.map((id, at): readonly [Loose, string] => [taskOf(100 + at, 20, 3), id]),
   [taskOf(2, 8, 5, [1]), 'z'],
 ]
-const HEAD_ROW = 'a'
+const HEAD_TASK_GROUP = 'a'
 const FAR_TASK_GROUP = 'z'
 const FIRST_DAY = iso(0)
 
@@ -256,7 +256,7 @@ const sceneOf = (stored: Loose, drawn: Loose): Scene => {
 }
 
 // see OP-10
-const TEMPLATE_PLACE: Loose = { scrollDate: FIRST_DAY, scrollDayOffset: 0, scrollGroupId: HEAD_ROW, scrollGroupOffset: 0 }
+const TEMPLATE_PLACE: Loose = { scrollDate: FIRST_DAY, scrollDayOffset: 0, scrollGroupId: HEAD_TASK_GROUP, scrollGroupOffset: 0 }
 
 // WHY: the template stores nothing, yet its picture is drawn at OP-10's place.
 const unplaced = (): Scene => sceneOf(TEMPLATE_SETTINGS, { ...TEMPLATE_SETTINGS, ...TEMPLATE_PLACE })
@@ -408,7 +408,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
     const drawnFirst = dateAtX(timeAxisOf(view.settings, REGIONS), REGIONS.taskGroupArea.x + margin)
     const drawnText = drawnFirst === null ? null : new Date(Date.UTC(drawnFirst.year, drawnFirst.month - 1, drawnFirst.day)).toISOString()
     expect(dayOf(drawnText), OP_10_FIRST_DAY).toBe(FIRST_DAY)
-    expect(view.settings.scrollGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_ROW)
+    expect(view.settings.scrollGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_TASK_GROUP)
   })
 
   for (const [name, make] of [

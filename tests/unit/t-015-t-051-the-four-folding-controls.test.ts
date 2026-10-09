@@ -252,7 +252,7 @@ const ZETA_KID = '77777777-7777-4777-8777-777777777777'
  * ⭐ EPSILON is a second child of Alpha, so 「直下の子」 is a set and not a task group.
  * ⭐ ZETA is a second root, so 「配下」 has an outside for a press to leave alone.
  */
-const ROWS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] =
+const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | null; readonly name: string }[] =
   [
     { id: ALPHA, parentId: null, name: 'Alpha' },
     { id: BETA, parentId: ALPHA, name: 'Beta' },
@@ -264,10 +264,10 @@ const ROWS: readonly { readonly id: string; readonly parentId: string | null; re
   ]
 
 /** Every task group, in the order the panel draws them when nothing is folded. */
-const EVERY_TASK_GROUP = ROWS.map((one) => one.name)
+const EVERY_TASK_GROUP = TASK_GROUPS.map((one) => one.name)
 
 const nameOf = (groupId: string): string =>
-  ROWS.find((one) => one.id === groupId)?.name ?? groupId
+  TASK_GROUPS.find((one) => one.id === groupId)?.name ?? groupId
 
 interface Fixture {
   /** Task groups standing `collapsed` (AT-153). */
@@ -316,12 +316,12 @@ function documentWith(part: Fixture = {}): Document {
         statusDate: null,
       },
       calendars: structuredClone(template.schedule.calendars),
-      tasks: ROWS.map((_row, index) =>
+      tasks: TASK_GROUPS.map((_row, index) =>
         task(index + 1, '2026-04-01T00:00:00', '2026-04-10T00:00:00', `Task${index + 1}`),
       ),
       resources: [],
       assignments: [],
-      taskGroups: ROWS.map((one, index) => ({
+      taskGroups: TASK_GROUPS.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
         label: one.name,
@@ -332,7 +332,7 @@ function documentWith(part: Fixture = {}): Document {
         color: null,
         minHeight: null,
       })),
-      taskGroupMembers: ROWS.map((one, index) => ({
+      taskGroupMembers: TASK_GROUPS.map((one, index) => ({
         taskUid: index + 1,
         groupId: one.id,
       })),
@@ -946,7 +946,7 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one task group', () => {
     built.press(FOLD_BELOW, ALPHA)
     built.press(OPEN_ALL_BELOW, ALPHA)
 
-    for (const row of ROWS) {
+    for (const row of TASK_GROUPS) {
       expect(isFolded(built, row.id), `${row.name} is still folded`).toBe(false)
       expect(isHiddenTaskGroup(built, row.id), `${row.name} is hidden`).toBe(false)
     }
@@ -1135,7 +1135,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
         drawnTaskGroups(built),
         `the head answered ${rule}'s entrance and the picture moved`,
       ).toEqual(taskGroupsBefore)
-      for (const row of ROWS) {
+      for (const row of TASK_GROUPS) {
         expect(isHiddenTaskGroup(built, row.id), `${rule} at the head hid ${row.name}`).toBe(false)
       }
     }
@@ -1224,7 +1224,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     for (const fixture of [{}, { folded: [ALPHA] }, { folded: [BETA, GAMMA, DELTA] }]) {
       const built = stage(fixture)
       for (const name of drawnTaskGroups(built)) {
-        const row = ROWS.find((one) => one.name === name)
+        const row = TASK_GROUPS.find((one) => one.name === name)
         if (row === undefined) continue
         expect(
           (titleOf(built, row.id).expander as any).canClose,
@@ -1405,7 +1405,7 @@ describe('表 T-051 の HF-18 -- the number a task group shows is the number tha
     for (const shape of shapes) {
       const built = stage({ ...shape, atStoredZoom: true })
       for (const name of drawnTaskGroups(built)) {
-        const row = ROWS.find((one) => one.name === name)
+        const row = TASK_GROUPS.find((one) => one.name === name)
         if (row === undefined) continue
         const armed = (titleOf(built, row.id).expander as any).canOpen === true
         if (armed !== foldedCountOf(built, row.id) > 0) {
@@ -1433,7 +1433,7 @@ describe('表 T-051 の HF-18 -- the number a task group shows is the number tha
       { hidden: [DELTA] },
     ]
     for (const shape of shapes) {
-      for (const row of ROWS) {
+      for (const row of TASK_GROUPS) {
         const built = stage({ ...shape, atStoredZoom: true })
         if (!drawnTaskGroups(built).includes(row.name)) continue
         const shown = foldedCountOf(built, row.id)

@@ -119,7 +119,7 @@ const FRAME_RATE_FLOOR = 60
 const FRAME_TIME_P95_CEILING_MS = 16.7
 
 /**
- * `MC-7`, verbatim: 目標規模 | 50 タスクグループ / 1000 `Task`.
+ * `MC-7`, verbatim: 目標規模 | 50 個のタスクグループ / 1000 `Task`.
  *
  * Read off the row rather than typed, so a change to the target scale moves
  * this file with it.

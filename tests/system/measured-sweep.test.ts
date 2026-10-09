@@ -1767,7 +1767,7 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
         })
         .toBeGreaterThan(0)
       judged.push(
-        ...(await row.evaluate((taskGroupElement: Element, asked: { taskGroupName: string; panel: string }) => {
+        ...(await row.evaluate((rowElement: Element, asked: { rowName: string; panel: string }) => {
           const hexOf = (painted: string): string => {
             const parts = /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/.exec(painted)
             if (parts === null || parts[4] === '0') return ''
@@ -1776,12 +1776,12 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
               .join('')}`
           }
           const out: Array<{ row: string; value: string; over: string[] }> = []
-          for (const control of Array.from(taskGroupElement.querySelectorAll('input[type="color"]'))) {
+          for (const control of Array.from(rowElement.querySelectorAll('input[type="color"]'))) {
             const value = (control as HTMLInputElement).value.toLowerCase()
             const box = control.getBoundingClientRect()
             const over: string[] = []
             // WHY: only the panel is searched -- the chart the panel floats over is behind it, not in front.
-            const panel = taskGroupElement.closest(asked.panel) ?? taskGroupElement
+            const panel = rowElement.closest(asked.panel) ?? rowElement
             for (const node of Array.from(panel.querySelectorAll('*'))) {
               if (node === control || node.contains(control) || control.contains(node)) continue
               const its = node.getBoundingClientRect()
@@ -1802,10 +1802,10 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
                 over.push(`a ${node.tagName} prints ${value}`)
               }
             }
-            out.push({ row: asked.taskGroupName, value, over })
+            out.push({ row: asked.rowName, value, over })
           }
           return out
-        }, { taskGroupName: rowId, panel: PANEL })),
+        }, { rowName: rowId, panel: PANEL })),
       )
     }
   }
@@ -2146,7 +2146,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
   // records as the way one session called a working feature broken. So the
   // pointer is moved onto the first task group's name and the entrance looked for
   // afterwards.
-  const firstRow = await page.evaluate(() => {
+  const firstTaskGroup = await page.evaluate(() => {
     const boxes = Array.from(document.querySelectorAll('[data-depth]'))
       .map((row) => row.getBoundingClientRect())
       .sort((one, two) => one.top - two.top)
@@ -2154,10 +2154,10 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
     if (found === undefined) return null
     return { nameX: found.x + 30, nameY: found.y + found.height / 2, top: found.top }
   })
-  expect(firstRow, 'the task group panel drew no task groups').not.toBeNull()
-  if (firstRow === null) return
+  expect(firstTaskGroup, 'the task group panel drew no task groups').not.toBeNull()
+  if (firstTaskGroup === null) return
 
-  await page.mouse.move(firstRow.nameX, firstRow.nameY)
+  await page.mouse.move(firstTaskGroup.nameX, firstTaskGroup.nameY)
   await page.waitForTimeout(500)
   const at = await page.evaluate(
     (asked: { entrance: string; top: number }) => {
@@ -2168,7 +2168,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back s
       const box = found.getBoundingClientRect()
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
     },
-    { entrance: oneLevel, top: firstRow.top },
+    { entrance: oneLevel, top: firstTaskGroup.top },
   )
   expect(at, `${oneLevel} is not drawn on the first task group even with the pointer on its name`).not.toBeNull()
   if (at === null) return
@@ -2301,7 +2301,7 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
   const foldAll = entranceBy(T109_SOURCE, 'HF-11')
   const fit = entranceBy(T109_SOURCE, 'FR-055')
 
-  const firstRow = async (): Promise<{ said: string; nameX: number; nameY: number; top: number } | null> =>
+  const firstTaskGroup = async (): Promise<{ said: string; nameX: number; nameY: number; top: number } | null> =>
     page.evaluate(() => {
       const found = Array.from(document.querySelectorAll('[data-depth]')).sort(
         (one, two) => one.getBoundingClientRect().top - two.getBoundingClientRect().top,
@@ -2316,7 +2316,7 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
       }
     })
 
-  const before = await firstRow()
+  const before = await firstTaskGroup()
   expect(before, 'the task group panel drew no task groups to fold').not.toBeNull()
   if (before === null) return
 
@@ -2342,7 +2342,7 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
   await page.mouse.up()
   await page.waitForTimeout(1000)
 
-  const folded = await firstRow()
+  const folded = await firstTaskGroup()
   expect(folded, 'the first task group went off the screen when it was folded').not.toBeNull()
   if (folded === null) return
   expect(
@@ -2354,7 +2354,7 @@ test('DFC-24: a fit throws away what a person folded, and the task groups it lan
   expect(await pressEntrance(page, fit), `${fit} is not on the screen`).toBe(true)
   await readSettledDrawnSvg(page)
 
-  const after = await firstRow()
+  const after = await firstTaskGroup()
   expect(after, 'the first task group went off the screen when the whole was fitted').not.toBeNull()
   if (after === null) return
   expect(

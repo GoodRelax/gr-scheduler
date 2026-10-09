@@ -1497,25 +1497,25 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the task group under t
     await readSettledDrawnSvg(app.page)
 
     const after = await taskGroupBandsNow(app.page)
-    const sameRecord = after.find((band) => band.id === held.id)
+    const sameTaskGroup = after.find((band) => band.id === held.id)
     expect(
-      sameRecord,
+      sameTaskGroup,
       `the task group the pointer was over (${held.id}) is no longer drawn after one notch`,
     ).not.toBeUndefined()
-    if (sameRecord === undefined) return
+    if (sameTaskGroup === undefined) return
     expect(
-      sameRecord.height,
+      sameTaskGroup.height,
       `one notch of MK-4 left the band ${held.height.toFixed(1)}px tall, so nothing was zoomed ` +
         'and holding the task group still proves nothing',
     ).not.toBe(held.height)
     const into = (at - held.y) / held.height
-    const nowAt = sameRecord.y + into * sameRecord.height
+    const nowAt = sameTaskGroup.y + into * sameTaskGroup.height
     expect(
       Math.abs(nowAt - at),
       `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付とタスクグループが動かないこと` +
         `（MUST）」 and 「倍率を変えたとき、縦軸でも掴んだタスクグループを留めること（MUST）」. The wheel ` +
         `was turned at y=${String(at)}, where the band was ${held.height.toFixed(1)}px and is ` +
-        `now ${sameRecord.height.toFixed(1)}px; the point under the pointer has moved to ` +
+        `now ${sameTaskGroup.height.toFixed(1)}px; the point under the pointer has moved to ` +
         `y=${nowAt.toFixed(1)}`,
     ).toBeLessThanOrEqual(4)
 

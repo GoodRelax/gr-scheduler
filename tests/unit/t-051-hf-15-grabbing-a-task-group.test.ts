@@ -292,7 +292,7 @@ const D1 = id(11)
  * would be skipped by a walk that simply ran out of task groups, so it is put in the
  * MIDDLE, where a walk that counted its places would land inside it.
  */
-const ROWS: readonly { readonly id: string; readonly parent: string | null; readonly order: number }[] =
+const TASK_GROUPS: readonly { readonly id: string; readonly parent: string | null; readonly order: number }[] =
   [
     { id: ALPHA, parent: null, order: 0 },
     { id: A1, parent: ALPHA, order: 0 },
@@ -333,7 +333,7 @@ interface Fixture {
 
 function documentWith(part: Fixture = {}): Document {
   const template = structuredClone(TEMPLATE) as any
-  const rows = part.rows ?? ROWS
+  const rows = part.rows ?? TASK_GROUPS
   const folded = new Set(part.folded ?? [GAMMA])
   const task = (uid: number): Task =>
     ({
@@ -1169,7 +1169,7 @@ describe('HF-15 (MUST) -- どちらの向きでも、そのタスクグループ
     // ⚠️ HM-5 (MUST NOT): 「タスクグループの器を作り直してはならない。更新するのは親だけ」 --
     // so the child that came along is the SAME task group, keeping its own name.
     expect(rowsOf(built.loop).map((one) => one.id).sort()).toEqual(
-      ROWS.map((one) => one.id).sort(),
+      TASK_GROUPS.map((one) => one.id).sort(),
     )
   })
 })

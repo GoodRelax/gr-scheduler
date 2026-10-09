@@ -266,13 +266,13 @@ const COMMENT_BOX_ENTRANCE = entranceArming(COMMENT_BOX_WORD)
  * is NOT among what can be selected, because that sentence is the whole of what
  * the third case of the `SK-3` block below judges.
  *
- * ⚠️ U+884C U+FF08 -- the two characters that open the clause ruling a task group out.
- * Matched by code point, and paired with `TaskGroup` so that the clause is
- * found rather than the word for a row on its own.
+ * ⚠️ U+30BF U+30B9 U+30AF U+30B0 U+30EB U+30FC U+30D7 U+FF08 -- the word for a task group
+ * and the bracket that open the clause ruling a task group out. Matched by code point,
+ * and paired with `TaskGroup` so that the clause is found rather than the word on its own.
  */
 const TASK_GROUP_IS_NOT_A_TARGET = (() => {
   const said = rowOf(T023C, 'SL-1').cells.join(' ')
-  const opening = String.fromCharCode(0x884c, 0xff08)
+  const opening = String.fromCharCode(0x30bf, 0x30b9, 0x30af, 0x30b0, 0x30eb, 0x30fc, 0x30d7, 0xff08)
   return said.includes(opening) && said.includes('TaskGroup')
 })()
 
