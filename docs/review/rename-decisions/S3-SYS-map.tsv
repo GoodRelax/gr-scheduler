@@ -1,0 +1,101 @@
+old	new	class	note
+addUnderRow	addUnderTaskGroup	a	
+allRows		b	uncertain: help rows in cr-665 (b); a parameter of task group ids in schedule-drawing
+AM_25_SAME_ROWS		b	
+AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW		b	
+anchorRow	anchorTaskGroup	a	
+browserRowsListed		b	
+byGlyphRow		b	
+CHOOSER_ROW		b	
+COLOUR_ROWS		b	
+colourPropertyRows		b	
+COMMENT_BOX_ROWS		b	
+dfc-1054-a-pasted-row-copy-writes-no-slack	dfc-1054-a-pasted-task-group-copy-writes-no-slack	a	the stem must match the S3-CON decision on tests/contract/dfc-1054-a-pasted-row-copy-writes-no-slack.test.ts (a pasted task group copy)
+ERP_PROGRAM_ROW	ERP_PROGRAM_TASK_GROUP	a	
+FAMILY_BY_ROW		b	
+finestRowTicksOf		b	
+focusedRow		b	
+FR_096_WIDTH_FROM_THE_ROW		b	
+HASH_ROW		b	
+hashRow		b	
+HEAD_ROW		b	uncertain: the head row of the Task Group Panel here (w3-t3); tests/contract/dfc-1230 uses the same name for a task group id
+headRow	headTaskGroup	a	
+HF_6_NOT_THE_LOWER_ROW	HF_6_NOT_THE_LOWER_TASK_GROUP	a	
+ID_ROW		b	
+isRowEntranceArmed	isTaskGroupEntranceArmed	a	
+IX_14_ALL_ROWS	IX_14_ALL_TASK_GROUPS	a	
+LOOK_ROWS_OF_A_TASK		b	
+MACHINE_ROW_TARGET		b	
+MADE_AT_WRITE_ROW		b	
+MeasuredRow	MeasuredTaskGroup	a	
+measureRows	measureTaskGroups	a	
+msOfRow		b	
+MULTILINE_ROWS		b	
+nextRowY	nextTaskGroupY	a	
+NO_FALL_TO_A_T_233_ROW		b	
+NT_2_ONLY_TIMED_ROWS		b	
+numberOfRow		b	
+ofThemeRow		b	
+onlyRow	onlyTaskGroup	a	
+OPEN_ROWS		b	
+PAIR_ROW		b	
+planRowOf	planTaskGroupOf	a	
+printedByRow		b	
+propertyRowOf		b	
+REACH_INTO_ROW	REACH_INTO_TASK_GROUP	a	
+READ_ORDER_ROW		b	
+readDocumentRowIds	readDocumentTaskGroupIds	a	overrides machine b: CR-708 2.4 names this helper for renaming (it reads TaskGroup ids)
+REASON_ROWS		b	
+REPEAT_ROW		b	
+revealRow	revealTaskGroup	a	
+RG_16_ROW		b	
+row-boundary	task-group-boundary	a	
+ROW_HIDE	TASK_GROUP_HIDE	a	
+ROW_INDENT	TASK_GROUP_INDENT	a	
+ROW_IS_NOT_A_TARGET	TASK_GROUP_IS_NOT_A_TARGET	a	
+ROW_OPEN_ALL_BELOW	TASK_GROUP_OPEN_ALL_BELOW	a	
+ROW_OPEN_ONE_LEVEL	TASK_GROUP_OPEN_ONE_LEVEL	a	
+ROW_P	TASK_GROUP_P	a	
+ROW_PANEL	TASK_GROUP_PANEL_BOX	a	coordinator ruling: the rowTitle* names take TASK_GROUP_PANEL; Box keeps them apart
+ROW_Q	TASK_GROUP_Q	a	
+ROW_VALUE		b	
+ROW_Y	TASK_GROUP_Y	a	
+rowAndAncestors	taskGroupAndAncestors	a	
+rowBottom	taskGroupBottom	a	
+rowByIdOf	taskGroupByIdOf	a	
+rowIndex		b	
+rowPanelWidth	taskGroupPanelBoxWidth	a	coordinator ruling: rowTitlePanelWidth takes taskGroupPanelWidth; Box keeps them apart
+RowPaste	TaskGroupPaste	a	
+rowPitchOf	taskGroupPitchOf	a	
+rows-only	task-groups-only	a	
+rowsAfter	taskGroupsAfter	a	
+rowsBefore	taskGroupsBefore	a	
+rowsBelongingTo		b	
+rowsByBlock		b	
+RowsDocument	TaskGroupsDocument	a	
+rowsDocument	taskGroupsDocument	a	
+rowSelector	taskGroupSelector	a	
+rowSpans	taskGroupSpans	a	
+rowsPastTheCap	taskGroupsPastTheCap	a	
+rowsStatingARule		b	
+rowUnderTheMovedAnchor	taskGroupUnderTheMovedAnchor	a	
+rowWithAGrandchild	taskGroupWithAGrandchild	a	
+RS_15_ROW		b	
+same-row	same-task-group	a	
+SCREEN_ROW		b	
+screenRowPitch	screenTaskGroupPitch	a	
+selectOneRow	selectOneTaskGroup	a	
+SIBLING_ORDER_ROW		b	
+sit-on-the-row-centre	sit-on-the-task-group-centre	a	the stem must match the S3-CON decision on tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts
+SwatchRows		b	
+swatchRowsOf		b	
+sweep-row	sweep-task-group	a	
+T_209_ROWS		b	
+T_233_REFUSAL_CARRIES_THE_ROW		b	
+tests/system/rows-fixed-with-nothing-holding-them.test.ts		b	
+tests/system/w3-t1-a-landed-merge-tells-its-rows.test.ts		b	
+tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts	tests/usecase/uc-002-build-task-groups-as-a-hierarchy.test.ts	a	
+WHITESPACE_ROW		b	
+wholeRow		b	
+WRITE_ORDER_ROW		b	
+ZetaHeadRow	ZetaHeadTaskGroup	a	
