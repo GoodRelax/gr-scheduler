@@ -148,3 +148,28 @@ PYTHONIOENCODING=utf-8 python tools/rename/apply_rename.py --root <scratch>/copy
 - 生きているファイル: `docs/spec`・`docs/development-rules`・`docs/guides`・`docs/download`・`docs/README.md`・`src`・`tests`・`tools`（`tools/rename` を除く）・`.claude/skills/spec-graph-check`・根の設定。履歴（`docs/development-records`・`change-request`・`docs/review`・`previous-project-result`）と `dist` と `sample-schedule`（MSPDI の見本）は外（X-4・X-15）。
 - 生成物: 頭の 15 行に `GENERATED` か「本書は生成物である」を持ち、`SINGLE SOURCE OF TRUTH` を持たないファイル（`.py` は生成物にしない）—— 37 本。数えるが書かない。
 - 和文の分類は `docs/review/rename-row-to-task-group-remeasure.py` の `ja_class` を写し、2 つだけ変えた: 中黒（・）を語の連なりに入れない（「行・隠」を 1 語に数えない）、数の直後の素の「行」を読みに回す（「1 行」はタスクグループを数えることがある —— 7 節の表）。
+
+## 7. 突き合わせ（reconcile、2026-10-09、16 の持ち場の決めを合わせた後）
+
+⭐ 持ち場をまたいで決めを揃え、表を作る道具の穴を塞いだ。調整役の決めは `docs/review/rename-decisions/RECONCILE-lines.tsv`（179 行: 残す 103・タスクグループ 53・書き換え 23）・`RECONCILE-map.tsv`・`RECONCILE-types.tsv`、持ち場の決めを覆したものはその持ち場のファイルの行を書き換え、`note` を `reconcile:` で始めた（`S1-B` 1・`S1-C` 3・`S1-T` 7・`S3-BASE` 5・`S3-UNIT-1` 1・`S3-UNIT-2` 1）。`S3-BASE` は `S3-BASE-lines.tsv`（81 行）と `S3-BASE-map.tsv`（4 名）。
+
+| 項 | 何をしたか |
+|---|---|
+| 字句（14） | `code_segments` を本物の字句に替えた —— JS / TS は `@babel/parser`（`tools/rename/lex_spans.mjs`、node 1 回で全ファイル）、Python は `tokenize`。正規表現の字面も文字列と並べて読み票に載せる（`data-figure="row-…"` を引く試験）。`rename_symbols.mjs` の注釈・文字列の区切りも同じ字句を使う。作り直すと、コードを文字列と読み違えていた所 1,135 か所（すべて「残す」）が消え、見落としていた注釈・文字列 193 か所が現れた（すべて決めた） |
+| 動詞（1） | 「行」の後の仮名を 3 字まで見る。「行う」の活用と「行く」の活用（か＋ない・せ・れ・ず・ね、き＋ま・先・来・止・渡・届・過・着、く・け・こ）だけを動詞とする。「行か」「行から」が票に現れた（和 55 か所、うち 17 は同じ行の書き換えが既に覆う） |
+| 表の行（2） | 行 ID の後の「行」を表の行とするのは、接頭辞が `docs/spec/_source/row-id-prefixes.json` に在るときだけ（要求の ID は表の行を名指さない）。英語の側も同じ。`published-entries.json`・`settings.json` の `FR-016` の 5 か所は縦軸に書き換え。作り直しは機械の決めを持ち越さない（規則が変わった所が開く） |
+| 句の前の空白（3） | 「WBS」で始まる句が和文だけになるとき、前の半角空白 1 つ（和字と和字のあいだ）も取る。写しで「和字＋空白＋WBS の句」77 → 0 |
+| 題の行の帯（4） | `WB-8`・`WB-10` の「題の行の帯」と、それを引く試験 3 か所を「残す」に戻した |
+| `S-208`（5） | `settings.json` の「掴んだ行の軸」をタスクグループに（`03-implementation.md` と試験の引用に揃う） |
+| 引用（6） | 写しの上で、試験が仕様の文を引く 672 か所すべてが当てた後も仕様の文に含まれる（壊れていた 6 か所と、仕様の側の 2 か所を直した） |
+| コードの位置（7） | コードのファイル（`.ts`・`.mjs`・`.js`・`.py`）の task-group / task の決め 3,083 か所を字句で引き、コードの上のものは 0（注釈 1,479・文字列 1,604） |
+| `row-controls`（8） | `row-controls`・`row-controls-sample` は区分 b（履歴のパス） |
+| 試験のファイル名（9） | `dfc-1054-a-pasted-row-copy-writes-no-slack`・`sit-on-the-row-centre` はファイルのパスの行と同じ a。`known-red.txt` と `cr-586` の題はともにタスクグループ |
+| `rows` と種類（10） | 配置を局所の形に投げ直して `rows` を読む試験 4 本（型が `keep` になる所）を `RECONCILE-types.tsv` で名指し、`rename_symbols.mjs` が型の行の外でも当てるようにした。`data-figure` の頭 `row-` → `task-group-` を試験の正規表現 7 か所と `slice(4,` → `slice(11,` に |
+| `rows()`（11） | `09-tools.md` の `rows` は道具の読み `rows()` の名なので残す（`S2-TL` が残す） |
+| 検査 70（12・15） | 自分試しの `rowanchorin` と、基準値の鍵の `rowanchorat`・`rowgrabaxisat` は小文字に畳んだ名として対応表に足した（`FOLDED_NAMES`）。基準値の鍵 5 つは、`row` が `task group` になると鍵の語の窓から最後の語が落ちるので、書き換えで揃えた。数は変えていない |
+| `S1-T` の problems（13） | 折り返した引用 2 つは仕様の書き換えを折り目で切って当て、重なりは鏡の書き換えが覆うので「残す」 |
+
+- **道具の直し（上の表の外）**: 型の決めの `nth` は、その行の「コードの識別子」だけを数える（前の段が同じ行の文字列を書き換えても鍵がずれない。決めのファイルの `nth` を数え直した）。`apply_rename.py` は、先に動いたファイルを新しいパスで読み、ファイルの構文を壊す編集を拒む（読み手の書き換えが単引用符の文字列に `'s` を入れた 2 か所を言い換えた）、「残す」の行は場所を探さない、列は前後の文字と合うときだけ信じる、片側の文脈だけでも探す。`rename_symbols.mjs` は `--project` で開く設定を選べる（`node_modules` の無い写しで型を解くため）、2 回目の実行は済んだ移動を飛ばす、決めのパスを移動の後に読み替える。
+- ⚠️ **当てる順を変える（4 節の表と CR 8 節に対して）**: `rename_symbols.mjs --apply` を **最初に 1 回**（全持ち場が決まったので `--leave-tests-undecided` は要らない）、その後で `apply_rename.py --stage 1`・`--stage 2`・`--stage 3`、それから `npm run gen`。`apply_rename` を先に回すと、型の位置の文字列（`ScheduleLayout['rows']`・`kind: 'row'`）が先に変わり、検査器がその周りの識別子を error / any と読んで、試験の 231 か所が未決に戻る。
+- **証（`fad213e8`、写しの上）**: `apply_rename.py --all --dry-run` 未決 0・problems 0・編集 9,193 か所 354 本。`rename_symbols.mjs --dry-run` 未決の名 0・重なり 0・ライブラリ参照 0・決めの後の未決の型 0。写しに上の順で当て `npm run gen` まで回すと、`tsc --noEmit` の誤りは当てる前の写しと同じ（写しは `node_modules` を木の外から引くので 1,267 件の環境の誤りが両方に同じだけ出る。作業木そのものは 0 件）。検査 70（自分試しを含む）・関数の大きさ・`published-members`・`quoted-source` ほか基準値を読む検査はすべて緑。
