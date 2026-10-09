@@ -1,0 +1,51 @@
+path	line	col	nth	name	decision	note
+tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts	60	30	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts	61	40	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts	63	47	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-561-the-delay-diagnostics-report.contract.test.ts	228	62	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	260	10	0	row	keep	state machine transition row
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	261	23	0	row	keep	state machine transition row
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	262	11	0	row	keep	state machine transition row
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	266	10	0	row	keep	state machine transition row
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	267	23	0	row	keep	state machine transition row
+tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts	268	11	0	row	keep	state machine transition row
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	427	72	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	483	86	1	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts	484	50	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	401	38	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	610	10	0	row	task-group	a written TaskGroup record
+tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts	611	11	0	row	task-group	a written TaskGroup record
+tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts	143	18	0	Rows	keep	test-local type name Rows (fixture variants)
+tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts	166	53	0	Rows	keep	test-local type name Rows (fixture variants)
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	367	26	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	450	69	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/cr-596-a-click-on-the-mark-jumps-and-marks-the-landing.contract.test.ts	476	47	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/cr-608-an-added-row-opens-until-the-view-shrinks.test.ts	133	41	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-608-delete-all-opens-level-zero.test.ts	126	41	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-608-delete-all-opens-level-zero.test.ts	188	23	1	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-608-the-row-createtaskgroup-makes.test.ts	214	58	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-610-sx-1-sx-2-a-grs-json-write-is-a-save.test.ts	32	49	0	rows	keep	JSON key rows of the state machine source
+tests/contract/cr-633-delay-diagnostics-judges-by-the-link-ends.contract.test.ts	48	55	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts	121	19	0	row	task-group	builds a TaskGroup record
+tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts	121	58	1	row	task-group	builds a TaskGroup record
+tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts	121	93	2	row	task-group	builds a TaskGroup record
+tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts	170	61	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes
+tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts	93	6	0	row	task-group	builds a TaskGroup record
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	100	11	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	105	55	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	108	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	113	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	118	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	123	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	128	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	133	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	138	4	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	171	68	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	178	29	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	179	67	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	320	2	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	343	77	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	345	38	0	row	keep	a Task record, not a task group
+tests/contract/cr-667-percent-complete-counts-both-end-days.contract.test.ts	346	66	0	row	keep	a Task record, not a task group
+tests/contract/dfc-1653-the-entrances-stand-in-the-order-table-t-109-gives.contract.test.ts	42	21	0	Row	keep	test-local type name Row; TaskGroup would clash with the entity type
+tests/contract/dfc-2030-a-body-drag-moves-the-selected-boxes.contract.test.ts	254	37	0	rows	task-group	uncertain: ScheduleLayout.rows (RowPlacement[]); must match the src decision of the S2 lanes

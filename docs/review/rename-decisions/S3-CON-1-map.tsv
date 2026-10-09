@@ -1,0 +1,269 @@
+old	new	class	note
+ACTUAL_ROW	ACTUAL_ROW	b	T-016 property row
+ADDING_A_ROW_MOVES_NOTHING	ADDING_A_ROW_MOVES_NOTHING	b	ERD seat table row
+ANCHOR_NO_ROW	ANCHOR_NO_TASK_GROUP	a	drawn task group under the point
+ARMED_BY_ROW	ARMED_BY_ROW	b	keyed by table row id
+ASPECT_ROWS	ASPECT_ROWS	b	T-310/T-311 rows
+A_REASON_IS_A_T_233_ROW	A_REASON_IS_A_T_233_ROW	b	T-233 row
+BL_1_ROW	BL_1_TASK_GROUP	a	clause about the drawn TaskGroup
+BODY_ROW	BODY_ROW	b	PR field row
+BOOLEAN_ROW	BOOLEAN_ROW	b	PR field row
+CHAIN_ROWS	CHAIN_TASK_GROUPS	a	document of chained task groups
+CHEVRON_ROWS	CHEVRON_ROWS	b	it.each case rows
+CHOICE_ROW	CHOICE_ROW	b	PR field row
+CLAIMED_ROWS	CLAIMED_ROWS	b	T-274 row count
+CLAUSE_NO_ROW	CLAUSE_NO_ROW	b	T-305 row
+CLAUSE_ROWS_IN_ORDER	CLAUSE_ROWS_IN_ORDER	b	T-305 rows
+CLAUSE_ROWS_IN_THE_DOCUMENT	CLAUSE_TASK_GROUPS_IN_THE_DOCUMENT	a	selection of task groups
+CLOSE_ROW	CLOSE_ROW	b	IC table row
+CM_50_ROW	CM_50_ROW	b	glossary table row
+CM_51_ROW	CM_51_ROW	b	glossary table row
+CM_54_ROW	CM_54_ROW	b	glossary table row
+DATE_ROWS	DATE_ROWS	b	T-016 rows
+DEPENDENCY_ROWS	DEPENDENCY_ROWS	b	T-016 rows
+DERIVED_ROW	DERIVED_TASK_GROUP	a	derived task group copy
+DG_ROWS	DG_ROWS	b	T-315 rows
+DgRow	DgRow	b	T-315 row id type
+EDITED_ROWS	EDITED_ROWS	b	field rows
+ENVIRONMENT_ROWS	ENVIRONMENT_ROWS	b	PK table rows
+EP_1_ONE_ROW	EP_1_ONE_ROW	b	settings table row
+EP_1_ONE_ROW_FOR_SIZE_AND_INSET	EP_1_ONE_ROW_FOR_SIZE_AND_INSET	b	settings table row
+EP_1_SAME_ROWS	EP_1_SAME_ROWS	b	settings table rows
+EVENT_ROW	EVENT_ROW	b	event table row
+EVENT_ROW_TARGET	EVENT_ROW_TARGET	b	event table row
+EXPORT_KEY_ROW	EXPORT_KEY_ROW	b	SK table row
+EvRow	EvRow	b	event table row type
+FACE_ROWS	FACE_ROWS	b	T-369 rows
+FAILURE_ROWS	FAILURE_ROWS	b	T-233 rows
+FAR_ROW	FAR_TASK_GROUP	a	scrollGroupId task group
+FIGURED_ROWS	FIGURED_ROWS	b	T-109 rows
+FIRST_ROW	FIRST_TASK_GROUP	a	first task group id
+FIXED_ROWS	FIXED_ROWS	b	T-236 rows
+FLAT_ROWS	FLAT_TASK_GROUPS	a	task groups fixture
+FLOW_CLOSED_ROWS	FLOW_CLOSED_ROWS	b	U table rows
+FORM_OF_ROW	FORM_OF_ROW	b	T-024 rows
+FRAME_ROW	FRAME_ROW	b	PR field row
+FR_009_ROWS	FR_009_ROWS	b	T-016 rows
+FR_016_ROW_POSITION_MEMBER_IS_PI_5	FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5	a	task group position at a zoom
+FR_016_ROW_POSITION_NOT_BY_ARITHMETIC	FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC	a	task group position at a zoom
+FR_033_SAME_ROW	FR_033_SAME_TASK_GROUP	a	same task group as the source
+FR_033_SEVERAL_ROWS_ARE_REFUSED	FR_033_SEVERAL_TASK_GROUPS_ARE_REFUSED	a	several chosen task groups
+FR_073_NO_LEDGER_ROW_BEFORE_USE	FR_073_NO_LEDGER_ROW_BEFORE_USE	b	ledger row
+FR_076_AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW	FR_076_AN_IMPORT_REFUSAL_CARRIES_ITS_T_220_ROW	b	T-220 row
+FR_076_A_NEW_ROW_HAS_WORDS	FR_076_A_NEW_ROW_HAS_WORDS	b	T-233 row
+FR_076_A_RIDING_ROW_HAS_NONE	FR_076_A_RIDING_ROW_HAS_NONE	b	T-233 row
+FR_076_NO_FALL_TO_A_T_233_ROW	FR_076_NO_FALL_TO_A_T_233_ROW	b	T-233 row
+GUIDE_ROW	GUIDE_ROW	b	T-206 row
+G_ROW	G_TASK_GROUP	a	task group id
+HB_1_ROW	HB_1_ROW	b	table row literal
+HB_2_ROW	HB_2_ROW	b	table row literal
+HB_3_NO_ROW	HB_3_NO_TASK_GROUP	a	no drawn task group
+HB_3_ROW	HB_3_ROW	b	table row literal
+HB_5_ROWS	HB_5_TASK_GROUPS	a	drawn task groups
+HERE_ROW	HERE_TASK_GROUP	a	task group id
+HF_14_NO_ROW_WHEN_FAINT	HF_14_NO_TASK_GROUP_WHEN_FAINT	a	no new task group
+HUE_ROWS	HUE_ROWS	b	T-236 rows
+IMAGE_ROWS	IMAGE_ROWS	b	PK rows
+INK_BY_ROW	INK_BY_ROW	b	glyph rowId
+IV_ROWS	IV_ROWS	b	T-220 rows
+IV_ROWS_WITH_OWN_WORDS	IV_ROWS_WITH_OWN_WORDS	b	T-220 rows
+IX_10_NO_ROWS	IX_10_NO_TASK_GROUPS	a	no task group added
+KIND_BY_ROW	KIND_BY_ROW	b	invariant rows
+LEFT_OFF_ROWS	LEFT_OFF_ROWS	b	T-109 rows
+MACHINE_ROW_ESCAPE	MACHINE_ROW_ESCAPE	b	machine table row
+MAXIMISE_ROW	MAXIMISE_ROW	b	IC row
+MK_5_ROW	MK_5_ROW	b	table row literal
+ManuscriptRow	ManuscriptRow	b	manuscript settings row
+NULL_ROWS	NULL_ROWS	b	case rows
+ONE_INPUT_ROWS	ONE_INPUT_ROWS	b	T-016 rows
+OPEN_STATE_ROWS	OPEN_STATE_ROWS	b	U rows
+OWN_ROW	OWN_TASK_GROUP	a	the task group a Task derives
+PARENT_FROM_THE_ROW	PARENT_FROM_THE_TASK_GROUP	a	parent inferred from the task group
+PARENT_ROW	PARENT_TASK_GROUP	a	task group id
+PK_ROWS	PK_ROWS	b	PK rows
+PLANNED_ROW	PLANNED_ROW	b	T-016 row
+PREDECESSOR_ROW	PREDECESSOR_ROW	b	T-016 row
+PRINTED_ROW	PRINTED_ROW	b	printed machine table row
+PaintRow	PaintRow	b	T-237 row
+READ_ONLY_ROW	READ_ONLY_ROW	b	PR row
+REASON_IS_A_T233_ROW	REASON_IS_A_T233_ROW	b	T-233 row
+REFUSING_ROW	REFUSING_ROW	b	T-220 row
+RESTORE_ROW	RESTORE_ROW	b	IC row
+ROWS_ON_THE_SETTINGS_FACE	ROWS_ON_THE_SETTINGS_FACE	b	settings rows
+ROWS_WITH_OWN_WORDS	ROWS_WITH_OWN_WORDS	b	T-233 rows
+ROW_A	TASK_GROUP_A	a	task group id
+ROW_B	TASK_GROUP_B	a	task group id
+ROW_C	TASK_GROUP_C	a	task group id
+ROW_C1	TASK_GROUP_C1	a	task group id
+ROW_C2	TASK_GROUP_C2	a	task group id
+ROW_COLOURS	TASK_GROUP_COLOURS	a	colours a task group band may take (CV-9 list)
+ROW_COUNT	TASK_GROUP_COUNT	a	number of task groups
+ROW_D	TASK_GROUP_D	a	task group id
+ROW_F	TASK_GROUP_F	a	task group id
+ROW_LETTER	TASK_GROUP_LETTER	a	letter per task group id
+ROW_OF_PROPERTY	ROW_OF_PROPERTY	b	T-236 row id
+ROW_WORD	TASK_GROUP_WORD	a	default task group name word
+ROW_Z	TASK_GROUP_Z	a	task group id
+RW_9_ROWS	RW_9_ROWS	b	RW table row clause
+Row$	Row$	b	test data label text; keeping avoids label/expectation drift
+Row1	Row1	b	test data label text; keeping avoids label/expectation drift
+RowAt	TaskGroupAt	a	layout entry of a task group
+RowSeed	TaskGroupSeed	a	task group seed
+RowWords	RowWords	b	T-233/T-220 row words
+SAME_ROW	SAME_TASK_GROUP	a	same task group as the source
+SAVED_ROWS	SAVED_ROWS	b	T-340 rows
+SCHEDULE_WITH_A_ROW	SCHEDULE_WITH_A_TASK_GROUP	a	schedule with one task group
+SEATED_ROW	SEATED_TASK_GROUP	a	scroll anchor task group
+SEATED_ROW_PART	SEATED_TASK_GROUP_PART	a	offset inside the anchor task group
+SETTING_ROWS	SETTING_ROWS	b	settings table rows
+SEVERAL_ROWS_ARE_REFUSED	SEVERAL_TASK_GROUPS_ARE_REFUSED	a	several chosen task groups
+SEVERAL_TARGET_ROWS_REFUSED	SEVERAL_TARGET_TASK_GROUPS_REFUSED	a	several chosen task groups
+SHIFTED_ROWS	SHIFTED_ROWS	b	TH / settings rows
+STANDING_IN_ROW	STANDING_IN_ROW	b	markdown table row formatter
+SURFACE_ROWS_OF_T_280	SURFACE_ROWS_OF_T_280	b	U rows of T-280
+SV_18_ROWS	SV_18_ROWS	b	SV table clause
+S_429_ROW	S_429_ROW	b	settings row
+S_69_ROW	S_69_ROW	b	settings table row literal
+SettingRow	SettingRow	b	settings table row type
+ShellRow	ShellTaskGroup	a	task group of the shell document
+SmRow	SmRow	b	state machine row type
+T107Row	T107Row	b	T-107 row type
+T236Row	T236Row	b	T-236 row type
+T305_ROWS	T305_ROWS	b	T-305 rows
+T366_SHIFTED_ROWS	T366_SHIFTED_ROWS	b	settings rows
+TASKED_ROWS	TASKED_TASK_GROUPS	a	task groups carrying tasks
+THERE_ROW	THERE_TASK_GROUP	a	task group id
+THE_ACTUALS_ROWS	THE_ACTUALS_ROWS	b	GA rows
+THE_BODY_ROW	THE_BODY_ROW	b	GA row
+THE_ROW	THE_TASK_GROUP	a	task group id
+THREE_FLAT_ROWS	THREE_FLAT_TASK_GROUPS	a	number of task groups
+TIER_OF_ROW	TIER_OF_ROW	b	TM rows
+TYPED_ROW	TYPED_ROW	b	PR row
+TYPED_ROWS	TYPED_ROWS	b	PR rows
+T_233_CARRIES_THE_ROW	T_233_CARRIES_THE_ROW	b	T-220 row id
+T_233_ONLY_ITS_OWN_ROWS	T_233_ONLY_ITS_OWN_ROWS	b	T-233 rows
+T_237_ROWS	T_237_ROWS	b	T-237 rows
+T_266_NO_OTHER_ROW	T_266_NO_OTHER_ROW	b	grab area table rows
+T_266_ONE_TARGET_A_ROW	T_266_ONE_TARGET_A_ROW	b	T-266 rows
+T_337_NO_PART_WITHOUT_A_ROW	T_337_NO_PART_WITHOUT_A_ROW	b	T-337 rows
+T_337_ROW_ORDER_IS_NOT_ID_ORDER	T_337_ROW_ORDER_IS_NOT_ID_ORDER	b	T-337 row order
+TnRow	TnRow	b	state machine transition row type
+U_62_A_COUNT_ROW	U_62_A_COUNT_ROW	b	one text line of the report
+VIEW_KEY_ROWS	VIEW_KEY_ROWS	b	SK rows
+WALL_ROWS	WALL_ROWS	b	T-316 rows
+WHEEL_ROWS	WHEEL_ROWS	b	MK rows
+WIDTH_ROW	WIDTH_ROW	b	T-206 rows
+WS_2_ONLY_THIS_ROW_JUDGES	WS_2_ONLY_THIS_ROW_JUDGES	b	this table row
+ZO_THE_ROW_ORDER_IS_NOT_THE_ID_ORDER	ZO_THE_ROW_ORDER_IS_NOT_THE_ID_ORDER	b	T-020 row order
+beforeRow	beforeTaskGroup	a	task group a Task sat on
+bodyRows	bodyRows	b	search table body rows
+colourRows	colourRows	b	property panel field rows
+commentRow	commentTaskGroup	a	task group index of the comment anchor
+deepRowBench	deepTaskGroupBench	a	bench with deep task groups
+defaultsBySettingRow	defaultsBySettingRow	b	settings rows
+documentOfTwoRows	documentOfTwoTaskGroups	a	document of two task groups
+documentWithRows	documentWithTaskGroups	a	document with task groups
+earlierRowWins	earlierRowWins	b	ladder rows
+enRow	enRow	b	T-237 EN row id
+extensionOfRow	extensionOfRow	b	IO row
+faceRowOf	faceRowOf	b	T-369 row
+fadeRow	fadeRow	b	FD row
+fillRowOf	fillRowOf	b	T-237 row
+findingRowsOf	findingRowsOf	b	VC/VO/VS row ids
+firingRows	firingRows	b	machine transition rows
+flooredRowBench	flooredTaskGroupBench	a	bench with a floored task group
+g-row	g-task-group	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+glyphRowsIn	glyphRowsIn	b	T-109 glyph rows
+highlightRows	highlightTaskGroups	a	task group indexes of the highlight range
+inRowB	inTaskGroupB	a	drawn task group B
+inheritedRowOf	inheritedRowOf	b	T-236 rows
+itemRowsOf	itemRowsOf	b	help item rows
+keyOfRow	keyOfRow	b	SK rows
+keyRowOf	keyRowOf	b	K rows
+keyRowsOnTheirOwn	keyRowsOnTheirOwn	b	SK rows
+keyRowsWithoutEntrance	keyRowsWithoutEntrance	b	T-036 rows
+machineRows	machineRows	b	machine transition rows
+manuscriptRowOf	manuscriptRowOf	b	settings manuscript row
+newRows	newTaskGroups	a	pasted task groups
+oneRowDocument	oneTaskGroupDocument	a	document of one task group
+oneRowTaller	oneRowTaller	b	one screen pixel row
+onlyRowOf	onlyRowOf	b	table row
+openRow	openTaskGroup	a	opens a task group
+openSurfaceRowsIn	openSurfaceRowsIn	b	U rows
+outRow	outTaskGroup	a	task group index
+ownRow	ownTaskGroup	a	the far Task's own task group
+pickRow	pickTaskGroup	a	picks a task group
+pointerRowFor	pointerRowFor	b	T-266 / PK row
+printedRows	printedRows	b	printed T-233/T-234 rows
+row-1	task-group-1	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-1-1	task-group-1-1	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-1-2	task-group-1-2	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-2	task-group-2	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-20	task-group-20	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-3	task-group-3	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-b	task-group-b	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-c	task-group-c	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-d	task-group-d	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-d-copy	task-group-d-copy	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-deep	task-group-deep	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-fresh	task-group-fresh	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-inner	task-group-inner	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-m	task-group-m	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-other	task-group-other	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-p	task-group-p	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-p-copy	task-group-p-copy	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-parent	task-group-parent	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-q	task-group-q	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-root	task-group-root	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+row-x	task-group-x	a	task group id value; renamed with the template-built ids S3-CON-2 rewrote (coordinator)
+rowDocument	taskGroupDocument	a	document built from task group seeds
+rowLetter	taskGroupLetter	a	letter of a task group id
+rowOfSettingsKey	rowOfSettingsKey	b	settings row
+rowOfT212	rowOfT212	b	T-212 row
+rowPartAt	taskGroupPartAt	a	task group and part at a y
+rowPasted	taskGroupPasted	a	pastes a task group copy
+rowWords	rowWords	b	T-233/T-220 row words
+rowsApart	taskGroupsApart	a	distance between drawn task groups
+rowsAt	rowsAt	b	MSPDI XML collection rows
+rowsCovered	rowsCovered	b	AR rows
+rowsFor	rowsFor	b	T-016 panel rows
+rowsOnTheFace	rowsOnTheFace	b	panel field rows
+rowsWith	taskGroupsWith	a	task groups fixture
+ruleRowOf	ruleRowOf	b	WF/FX rows
+sameRows	sameTaskGroups	a	drawn task group lists compared
+sampleRow	sampleTaskGroup	a	a task group of the sample
+sceneKindOfRow	sceneKindOfRow	b	grab area row
+selRow	selTaskGroup	a	task group index
+selfRow	selfRow	b	machine transition row
+setRowColour	setTaskGroupColour	a	sets a task group colour (CM-30)
+settingRow	settingRow	b	settings row
+settingsRowOf	settingsRowOf	b	settings panel field row
+settingsRowValue	settingsRowValue	b	settings row
+shapeRow	shapeRow	b	T-109 row
+single-row	single-row	b	comment about a single field row case
+sizeRowOf	sizeRowOf	b	PK row
+surfaceRowOf	surfaceRowOf	b	U row
+t-051-hf-14-a-raised-row-is-visible	t-051-hf-14-a-raised-task-group-is-visible	a	HF-14 raised task group (matches the S3-UNIT file-path rename)
+t109Row	t109Row	b	T-109 row
+t220Row	t220Row	b	T-220 row
+t236Row	t236Row	b	T-236 row
+taskRowOf	taskRowOf	b	TaskSearchRow
+theOneRow	theOneTaskGroup	a	the one task group
+theRow	theRow	b	field row element
+threeRows	threeTaskGroups	a	document of three task groups
+tnRow	tnRow	b	machine transition row
+twoRowDraft	twoTaskGroupDraft	a	draft of two task groups
+uRowNamed	uRowNamed	b	U row
+unnamed-row	unnamed-row	b	T-270 table row name
+weightRow	weightRow	b	settings row
+wholeRowOf	wholeRowOf	b	T-016 row
+tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts	tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts	b	table rows (X-13)
+tests/contract/cr-583-milestone-figures-sit-on-the-row-centre.contract.test.ts	tests/contract/cr-583-milestone-figures-sit-on-the-task-group-centre.contract.test.ts	a	milestone figures aligned on the task group (CR-583 title)
+tests/contract/cr-586-the-row-colour-list-is-one-and-black-is-refused.test.ts	tests/contract/cr-586-the-task-group-colour-list-is-one-and-black-is-refused.test.ts	a	task group colour list
+tests/contract/cr-608-the-row-createtaskgroup-makes.test.ts	tests/contract/cr-608-the-task-group-createtaskgroup-makes.test.ts	a	task group createTaskGroup makes
+tests/contract/cr-712-the-words-and-the-hidden-rows.contract.test.ts	tests/contract/cr-712-the-words-and-the-hidden-rows.contract.test.ts	b	hidden table rows (X-13)
+tests/contract/cr-718-a-paste-onto-two-rows-carries-rs-27.test.ts	tests/contract/cr-718-a-paste-onto-two-task-groups-carries-rs-27.test.ts	a	two chosen task groups
+tests/contract/dfc-1015-fr-019-a-hidden-end-row-shrinks-the-frame.test.ts	tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts	a	hidden end task group
+tests/contract/dfc-1054-a-pasted-row-copy-writes-no-slack.test.ts	tests/contract/dfc-1054-a-pasted-task-group-copy-writes-no-slack.test.ts	a	pasted task group copy
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	b	row of table T-233
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	tests/contract/w3-t5-in-4-the-selection-rung-stands-for-task-groups-alone.contract.test.ts	a	chosen task groups
