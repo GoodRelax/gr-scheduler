@@ -101,14 +101,27 @@ def locate(lines, row):
     n = int(row['line']) - 1
     col = int(row['col'])
     text = row['text']
+
+    def context_holds(k, at, middle):
+        # the exact column is trusted only with its near context: an earlier
+        # stage that lengthened the line can put ANOTHER occurrence there
+        # (reconcile: two quotes of one sentence swapped places)
+        left = row['left'][-6:]
+        right = row['right'][:6]
+        line = lines[k]
+        return line[max(0, at - len(left)):at] == left and \
+            line[at + len(middle):at + len(middle) + len(right)] == right
+
     if row['family'] == 'row':
-        if 0 <= n < len(lines) and lines[n][col:col + 1] == rc.ROW:
+        if 0 <= n < len(lines) and lines[n][col:col + 1] == rc.ROW and \
+                context_holds(n, col, rc.ROW):
             run = [m for m in rc.CJK_RUN.finditer(lines[n]) if m.start() <= col < m.end()]
             if run and run[0].group(0) == text:
                 return n, col
         middle = rc.ROW
     else:
-        if 0 <= n < len(lines) and lines[n][col:col + len(text)] == text:
+        if 0 <= n < len(lines) and lines[n][col:col + len(text)] == text and \
+                context_holds(n, col, text):
             return n, col
         middle = text
     # an earlier stage may have edited the same line: shorten the context

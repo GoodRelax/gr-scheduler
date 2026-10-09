@@ -4,6 +4,10 @@
 //   node tools/rename/rename_symbols.mjs --dry-run   plan everything, write nothing
 //   node tools/rename/rename_symbols.mjs --apply     write the edits and move the files
 //   (any mode) --root <dir>   work on another copy of the tree
+//   (any mode) --project <tsconfig>   the project to open (default <root>/tsconfig.json);
+//              a scratch copy without node_modules passes one whose paths and
+//              typeRoots point at an installed tree, or the checker types the
+//              tests' library calls as error and leaves their row(s) undecided
 //
 // change-request/CR-708-rename-row-to-task-group-and-wbs-parent-to-parent-task.md
 // section 7 step 5 asks for the language service's findRenameLocations. The
@@ -49,6 +53,8 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const rootAt = args.indexOf('--root');
 const ROOT = path.resolve(rootAt >= 0 ? args[rootAt + 1] : path.join(HERE, '..', '..'));
+const projectAt = args.indexOf('--project');
+const PROJECT = projectAt >= 0 ? path.resolve(args[projectAt + 1]) : path.join(ROOT, 'tsconfig.json');
 const MODE = args.includes('--apply') ? 'apply' : args.includes('--survey') ? 'survey' : 'dry-run';
 
 const MAP_TSV = 'docs/review/rename-map.tsv';
@@ -194,7 +200,7 @@ async function main() {
     .map((r) => ({ ...r, path: pathNow(r.path) }));
 
   const api = new API({ cwd: ROOT });
-  const snap = api.updateSnapshot({ openProjects: [path.join(ROOT, 'tsconfig.json')] });
+  const snap = api.updateSnapshot({ openProjects: [PROJECT] });
   const project = snap.getProjects()[0];
   const checker = project.checker;
   const rootSlash = ROOT.replace(/\\/g, '/').toLowerCase() + '/';
