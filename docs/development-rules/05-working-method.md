@@ -611,6 +611,7 @@ awk -F'|' '/^\| D[A-Z]*-[0-9]+ /{ if ($7 ~ /実測済/ || $7 ~ /取下げ/) n++ 
      （前に立つ者のブリーフについては §7 の「前に立つ者のブリーフは間違う」が同じことを言う）
 ⛔ npm test / e2e / check.sh / gen / build を体に走らせるな。⭐ 許すのは
    npx tsc --noEmit と、scratch/ に置いた小さな Playwright だけである
+⛔ 聞き取り・トリアージの席は check.sh をコミットの直前に 1 回だけ回せ。門（tools/gate/）のロックが走っているあいだ、vitest 全体と Playwright の組を回すな（JDG-1773）
 ⚠️ npx prettier を体に走らせるな（設定が無く、既定値で全体を書き換える）
 ⭐ 機械的な仕事は Sonnet、判断の要る仕事は Opus
 ```
